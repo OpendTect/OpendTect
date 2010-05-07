@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.18 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uistratreftree.h,v 1.19 2010-05-07 12:50:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
 
     uiListView*		listView()		{ return lv_; }
     const uiListView*	listView() const	{ return lv_; }
+    const uiStratMgr&	stratmgr() const	{ return *uistratmgr_; }
     void                expand(bool) const;
     void                makeTreeEditable(bool) const;
     void		updateLvlsPixmaps();
@@ -65,6 +66,8 @@ protected:
 
     BufferString	getCodeFromLVIt(const uiListViewItem*) const;
     void		selBoundary();
+
+    friend class 	uiStratTreeWriter;
 };
 
 

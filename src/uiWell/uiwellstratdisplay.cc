@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.6 2010-04-23 10:03:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.7 2010-05-07 12:50:46 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.6 2010-04-23 10:03:50
 
 uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
 					const Well::Well2DDispData& dd)
-    : uiStratDisplay(p)
+    : uiAnnotDisplay(p,"")
     , dispdata_(dd)
 {
     if ( nobg )
@@ -33,16 +33,18 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
 
 void uiWellStratDisplay::gatherInfo()
 {
+    /*
     data_.gatherInfo();
     for ( int idx=0; idx<nrUnits(); idx++ )
     {
 	if ( getUnit( idx ) )
 	    setUnitPos( *getUnit( idx ) );
     }
+    */
 }
 
 
-void uiWellStratDisplay::setUnitPos( uiStratDisp::Unit& unit )  
+void uiWellStratDisplay::setUnitPos( AnnotData::Unit& unit )  
 {
     if ( !dispdata_.markers_ ) return;
     float& toppos = unit.zpos_; 
@@ -52,9 +54,9 @@ void uiWellStratDisplay::setUnitPos( uiStratDisp::Unit& unit )
     for ( int idx=0; idx<dispdata_.markers_->size(); idx++ )
     {
 	const Strat::Level* lvl = (*dispdata_.markers_)[idx]->level();
-	if ( lvl && !strcmp( lvl->name(), unit.toplvlnm_ ) )
+	if ( lvl && !strcmp( lvl->name(), unit.annots_[0]->buf() ) )
 	    topmrk = (*dispdata_.markers_)[idx];
-	if ( lvl && !strcmp( lvl->name(), unit.botlvlnm_ ) )
+	if ( lvl && !strcmp( lvl->name(), unit.annots_[2]->buf() ) )
 	    basemrk = (*dispdata_.markers_)[idx];
     }
     if ( !topmrk || !basemrk ) 

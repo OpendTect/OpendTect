@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.16 2009-08-28 14:59:55 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.17 2010-05-07 12:50:46 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -41,6 +41,16 @@ uiStratUnitDlg::uiStratUnitDlg( uiParent* p, uiStratMgr* uistratmgr )
     CallBack cb = mCB(this,uiStratUnitDlg,selLithCB);
     uiPushButton* sellithbut = new uiPushButton( this, "&Select", cb, false );
     sellithbut->attach( rightTo, unitlithfld_ );
+    colfld_ = new uiColorInput( this,
+			           uiColorInput::Setup(getRandStdDrawColor() ).
+				   lbltxt("Color") );
+    colfld_->attach( alignedBelow, unitdescfld_ );
+    colfld_->attach( ensureBelow, sellithbut );
+    agefld_ = new uiGenInput( this, "Time range (My)", FloatInpIntervalSpec()
+				.setName(BufferString(" range start"),0)
+				.setName(BufferString(" range stop"),1 ));
+    agefld_->attach( ensureBelow, colfld_ );
+    agefld_->attach( alignedBelow, unitlithfld_ );
 }
 
 
@@ -52,57 +62,39 @@ void uiStratUnitDlg::selLithCB( CallBacker* )
 } 
 
 
-const char* uiStratUnitDlg::getUnitName() const
+void uiStratUnitDlg::setUnitProps( const Strat::UnitRef::Props& props ) 
 {
-    return unitnmfld_->text();
+    unitnmfld_->setText( props.code_ );
+    //TODO: rename unit needs extra work to update all the paths to the subunits
+    unitnmfld_->setSensitive(false);
+    agefld_->setValue( props.timerg_ );
+    colfld_->setColor( props.color_ );
+    unitdescfld_->setText( props.desc_ );
+    unitlithfld_->setText( props.lithnm_ );
+    unitlithfld_->setSensitive( props.isleaf_ );
 }
 
 
-const char* uiStratUnitDlg::getUnitDesc() const
-{
-    return unitdescfld_->text();
-}
 
-
-const char* uiStratUnitDlg::getUnitLith() const
+void uiStratUnitDlg::getUnitProps( Strat::UnitRef::Props& props) const
 {
+    props.code_ = unitnmfld_->text();
+    props.desc_ = unitdescfld_->text();
     const char* txt = unitlithfld_->text();
-    return !strcmp( txt, sNoLithoTxt ) ? 0 : txt;
+    props.lithnm_ = !strcmp( txt, sNoLithoTxt ) ? 0 : txt;
+    props.timerg_ = agefld_->getFInterval();
+    props.color_ = colfld_->color();
 }
+
 
 
 bool uiStratUnitDlg::acceptOK( CallBacker* )
 {
-    if ( !strcmp( getUnitName(), "" ) )
+    if ( !strcmp( unitnmfld_->text(), "" ) )
 	{ uiMSG().error( "Please specify the unit name" ); return false; }
     return true;
 }
 
-
-void uiStratUnitDlg::setUnitName( const char* unitnm )
-{
-    unitnmfld_->setText( unitnm );
-    //TODO: rename unit needs extra work to update all the paths to the subunits
-    unitnmfld_->setSensitive(false);
-}
-
-
-void uiStratUnitDlg::setUnitDesc( const char* unitdesc )
-{
-    unitdescfld_->setText( unitdesc );
-}
-
-
-void uiStratUnitDlg::setUnitLith( const char* unitlithnm )
-{
-    unitlithfld_->setText( unitlithnm );
-}
-
-
-void uiStratUnitDlg::setUnitIsLeaf( bool yn )
-{
-    unitlithfld_->setSensitive( yn );
-}
 
 
 uiStratLithoDlg::uiStratLithoDlg( uiParent* p, uiStratMgr* uistratmgr )

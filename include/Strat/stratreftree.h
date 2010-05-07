@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.8 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: stratreftree.h,v 1.9 2010-05-07 12:50:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
     bool		addCopyOfUnit(const UnitRef&,bool rev=false);
     bool		addUnit(const char* fullcode,const char* unit_dump,
 	    			bool rev=false);
+    void		setUnitProps(const UnitRef::Props& props);
     void		removeEmptyNodes(); //!< recommended after add
 
     void		addLevel(Level*);

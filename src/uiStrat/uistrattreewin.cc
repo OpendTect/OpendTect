@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.40 2010-04-29 05:40:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.41 2010-05-07 12:50:46 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.40 2010-04-29 05:40:34 cv
 #include "uistratmgr.h"
 #include "uistratreftree.h"
 #include "uistratutildlgs.h"
+#include "uistratdisplay.h"
 #include "uitoolbar.h"
 
 #define	mExpandTxt(domenu)	domenu ? "&Expand all" : "Expand all"
@@ -42,6 +43,13 @@ using namespace Strat;
 
 static uiStratTreeWin* stratwin = 0;
 const uiStratTreeWin& StratTWin()
+{
+    if ( !stratwin )
+	stratwin = new uiStratTreeWin(0);
+
+    return *stratwin;
+}
+uiStratTreeWin& StratTreeWin()
 {
     if ( !stratwin )
 	stratwin = new uiStratTreeWin(0);
@@ -69,6 +77,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , lithRemoved(this)		//TODO support
     , needsave_(false)
     , needcloseok_(true)
+    , istreedisp_(true)		
 {
     IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
     mAskStratMgrNotif(unitCreated)
@@ -163,6 +172,10 @@ void uiStratTreeWin::createToolBar()
 					      mCB(this,uiStratTreeWin,helpCB) );
     helpbut->setToolTip( "Help" );
     tb_->addObject( helpbut );
+    
+    tb_->addSeparator();
+    mDefBut(switchviewbut_,"",switchViewCB,"Switch View..." );
+    switchviewbut_->setToggleButton( true );
 }
 
 
@@ -178,7 +191,7 @@ void uiStratTreeWin::createGroups()
     CallBack renmcb = mCB(this,uiStratTreeWin,unitRenamedCB);
     uitree_->listView()->selectionChanged.notify( selcb );
     uitree_->listView()->itemRenamed.notify( renmcb );
-    
+
     uiLabeledListBox* llb = new uiLabeledListBox( rightgrp, "Levels", false,
 						  uiLabeledListBox::AboveMid );
     lvllistfld_ = llb->box();
@@ -193,6 +206,9 @@ void uiStratTreeWin::createGroups()
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
+    
+    uistratdisp_ = new uiStratDisplay( leftgrp, *uitree_ );
+    uistratdisp_->display( false );
 }
 
 
@@ -272,6 +288,14 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
 {
     uistratmgr_.saveAs();
     needsave_ = false;
+}
+
+
+void uiStratTreeWin::switchViewCB( CallBacker* )
+{
+    istreedisp_ = istreedisp_ ? false : true;
+    uistratdisp_->display( !istreedisp_ );
+    uitree_->listView()->display( istreedisp_ );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.35 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.36 2010-05-07 12:50:46 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -82,7 +82,7 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	? new uiListViewItem( parlvit, uiListViewItem::Setup()
 				.label(nur.code()).label(nur.description()) )
 	: root ? 0 : new uiListViewItem( lv_,uiListViewItem::Setup()
-				.label(nur.code()).label(nur.description()) );
+				.label(nur.code()).label(nur.description() ));
 
     if ( parlvit || !root )
     {
@@ -186,11 +186,13 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
     uiStratUnitDlg newurdlg( lv_->parent(), uistratmgr_ );
     if ( newurdlg.go() )
     {
+	UnitRef::Props props; 
+	newurdlg.getUnitProps( props );
 	uiListViewItem* newitem;
 	uiListViewItem::Setup setup = uiListViewItem::Setup()
-				    .label( newurdlg.getUnitName() )
-				    .label( newurdlg.getUnitDesc() )
-				    .label( newurdlg.getUnitLith() );
+				.label( props.code_ )
+				.label( props.desc_ )
+				.label( props.lithnm_ );
 	if ( lvit )
 	    newitem = new uiListViewItem( lvit, setup );
 	else
@@ -212,11 +214,9 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	uiListViewItem* parit = newitem->parent();
 	if ( parit )
 	    uistratmgr_->prepareParentUnit( getCodeFromLVIt( parit ).buf() );
-	
-	BufferString codestr = getCodeFromLVIt( newitem );
-	BufferString description = newitem->text(1);
-	BufferString lithonm = newitem->text(2);
-	uistratmgr_->addUnit( codestr.buf(), lithonm, description, false );
+
+	props.code_ = getCodeFromLVIt( newitem );	
+	uistratmgr_->addUnit( props, false );
     }
 }
 
@@ -243,20 +243,24 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
     urdlg.setTitleText("Update Unit Properties");
     BufferString uncode = getCodeFromLVIt( lvit);
     const UnitRef* unitref = uistratmgr_->getCurTree()->find( uncode );
-    if ( unitref )
-	urdlg.setUnitIsLeaf( unitref->isLeaf() );
 
-    urdlg.setUnitName( lvit->text(0) ); 
-    urdlg.setUnitDesc( lvit->text(1) ); 
-    urdlg.setUnitLith( lvit->text(cLithoCol) ); 
+    UnitRef::Props props;
+    props.isleaf_ = unitref ? unitref->isLeaf() : false; 
+    props.code_ = lvit->text(0); 
+    props.desc_ = lvit->text(2); 
+    props.lithnm_ = lvit->text(cLithoCol); 
+    props.timerg_ = unitref->props().timerg_;
+    props.color_ = unitref->props().color_;
+    urdlg.setUnitProps( props );
     if ( urdlg.go() )
     {
 	//TODO will require an update of all children
-	//lvit->setText( urdlg.getUnitName(), cUnitsCol ); 
-	lvit->setText( urdlg.getUnitDesc(), cDescCol ); 
-	lvit->setText( urdlg.getUnitLith(), cLithoCol );
-	uistratmgr_->updateUnitProps( uncode.buf(), urdlg.getUnitDesc(),
-				      urdlg.getUnitLith() );
+	//lvit->setText( urdlg.getUnitName(), cUnitsCol );
+        urdlg.getUnitProps( props );
+	lvit->setText( props.desc_, cDescCol ); 
+	lvit->setText( props.lithnm_, cLithoCol );
+	props.code_ = uncode;
+	uistratmgr_->updateUnitProps( props );
     }
 }
 

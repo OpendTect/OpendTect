@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.32 2010-03-25 09:01:41 cvsranojay Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.33 2010-05-07 12:50:46 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: stratunitrepos.cc,v 1.32 2010-03-25 09:01:41 cv
 #include "safefileio.h"
 #include "ascstream.h"
 #include "keystrs.h"
+#include "bufstringset.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "color.h"
@@ -21,6 +22,7 @@ static const char* filenamebase = "StratUnits";
 static const char* filetype = "Stratigraphic Tree";
 const char* Strat::UnitRepository::sKeyLith = "Lithology";
 
+static const char* sKeyProp = "Properties";
 static const char* sKeyGeneral = "General";
 static const char* sKeyUnits = "Units";
 static const char* sKeyLevel = "Level";
@@ -91,6 +93,27 @@ bool Strat::RefTree::addCopyOfUnit( const Strat::UnitRef& ur, bool rev )
     if ( toplvl ) toplvl->unit_ = find( ur.fullCode() );
     if ( baselvl ) baselvl->unit_ = find( ur.fullCode() );
     return true;
+}
+
+
+void Strat::RefTree::setUnitProps( const UnitRef::Props& props )
+{
+    Strat::UnitRef* ur = find( props.code_ );
+    if ( !ur ) return;
+    Interval<float> timerg = props.timerg_;
+    if ( ur->isLeaf() )
+    {
+	const NodeUnitRef* upur = ur->upNode();
+	if ( upur )
+	{
+	    const Interval<float>& urtimerg = upur->props().timerg_;
+	    if ( timerg.start < urtimerg.start )
+		timerg.start = urtimerg.start;
+	    if ( timerg.stop > urtimerg.stop )
+		timerg.stop = urtimerg.stop;
+	}
+    }
+    ur->props() = props;
 }
 
 
@@ -189,19 +212,31 @@ bool Strat::RefTree::write( std::ostream& strm ) const
 	lith.fill( str );
 	astrm.put( UnitRepository::sKeyLith, str );
     }
-
     astrm.newParagraph();
     astrm.put( sKeyUnits );
     UnitRef::Iter it( *this );
     if ( !it.unit() ) return strm.good();
     const UnitRef& firstun = *it.unit(); firstun.fill( str );
     astrm.put( firstun.fullCode(), str );
+    ObjectSet<const UnitRef> unitrefs;
+    unitrefs += &firstun;
     
     while ( it.next() )
     {
 	const UnitRef& un = *it.unit(); un.fill( str );
 	astrm.put( un.fullCode(), str );
+	unitrefs += &un;
     }
+    astrm.newParagraph();
+
+    IOPar uniop( sKeyProp );
+    for ( int idx=0; idx<unitrefs.size(); idx++ )
+    {
+	uniop.clear();
+	unitrefs[idx]->putTo( uniop );
+	uniop.putTo( astrm );
+    }
+    
     astrm.newParagraph();
 
     IOPar iop( sKeyLevel );
@@ -336,6 +371,7 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	sfio.closeFail(); delete tree; return;
     }
 
+    BufferStringSet uncodes;
     astrm.next(); // Read away 'Units'
     while ( !atEndOfSection( astrm.next() ) )
     {
@@ -346,15 +382,33 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	    msg += astrm.keyWord(); msg += "'";
 	    ErrMsg( msg );
 	}
+	uncodes.add( astrm.keyWord() );
     }
     tree->removeEmptyNodes();
 
+    int unitidx = 0;
     while ( astrm.next().type() != ascistream::EndOfFile )
     {
-	if ( atEndOfSection(astrm) )
-	    continue;
-	if ( !astrm.hasKeyword(sKeyLevel) )
+	if ( !astrm.hasKeyword(sKeyProp) )
 	    break;
+
+	if ( unitidx >= uncodes.size() ) 
+	    break;
+
+	Strat::UnitRef* ur = tree->find( uncodes[unitidx]->buf() );
+	if ( ur )
+	{
+	    IOPar iop;;
+	    iop.getFrom( astrm );
+	    ur->getFrom( iop );
+	}
+	unitidx ++;
+    }
+
+    while ( astrm.type() != ascistream::EndOfFile )
+    {
+	if ( atEndOfSection(astrm) || !astrm.hasKeyword(sKeyLevel) )
+	{ astrm.next(); continue; }
 
 	Level* lvl = new Level( "", 0, true );
 	IOPar iop; iop.getFrom( astrm );
@@ -362,6 +416,7 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	tree->addLevel( lvl );
 	if ( lvl->id_ > lastlevelid_ )
 	    lastlevelid_ = lvl->id_;
+	astrm.next();
     }
 
     sfio.closeSuccess();
@@ -564,10 +619,12 @@ void Strat::UnitRepository::copyCurTreeAtLoc( Repos::Source loc )
     UnitRef::Iter it( *curtree );
     const UnitRef& firstun = *it.unit(); firstun.fill( str );
     tree->addUnit( firstun.fullCode(), str );
+    tree->setUnitProps( firstun.props() );
     while ( it.next() )
     {
 	const UnitRef& un = *it.unit(); un.fill( str );
 	tree->addUnit( un.fullCode(), str );
+	tree->setUnitProps( un.props() );
     }
 
     const RefTree* oldsrctree  = getTreeFromSource( loc );

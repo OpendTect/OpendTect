@@ -4,13 +4,15 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.15 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.16 2010-05-07 12:50:46 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
 #include "property.h"
 #include "separstr.h"
 #include "errh.h"
+#include "iopar.h"
+#include "keystrs.h"
 
 
 const Strat::Lithology& Strat::Lithology::undef()
@@ -86,13 +88,28 @@ Strat::UnitRef::~UnitRef()
 
 void Strat::UnitRef::fill( BufferString& str ) const
 {
-    str = desc_;
+    str = props_.desc_;
 }
+
+
+void Strat::UnitRef::putTo( IOPar& iop ) const
+{
+    iop.set( sKey::Time, props_.timerg_ );
+    iop.set( sKey::Color, props_.color_ );
+}
+
+
+void Strat::UnitRef::getFrom( const IOPar& iop )
+{
+    iop.get( sKey::Time, props_.timerg_ );
+    iop.get( sKey::Color, props_.color_ );
+}
+
 
 
 bool Strat::UnitRef::use( const char* str )
 {
-    desc_ = str;
+    props_.desc_ = str;
     return true;
 }
 
@@ -100,7 +117,7 @@ bool Strat::UnitRef::use( const char* str )
 void Strat::LeafUnitRef::fill( BufferString& str ) const
 {
     FileMultiString fms;
-    fms += lith_; fms += desc_;
+    fms += props_.lithnm_; fms += props_.desc_;
     str = fms;
 }
 
@@ -111,8 +128,8 @@ bool Strat::LeafUnitRef::use( const char* str )
     const int sz = fms.size();
     if ( sz < 2 ) return false;
 
-    lith_ = atoi( fms[0] );
-    desc_ = fms[1];
+    props_.lithnm_ = atoi( fms[0] );
+    props_.desc_ = fms[1];
     return true;
 }
 
@@ -131,8 +148,8 @@ CompoundKey Strat::UnitRef::fullCode() const
     CompoundKey kc;
 
     for ( int idx=treeDepth()-1; idx>=0; idx-- )
-	kc += upNode( idx )->code_;
-    kc += code_;
+	kc += upNode( idx )->code();
+    kc += props_.code_;
 
     return kc;
 }

@@ -7,16 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.17 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: stratunitref.h,v 1.18 2010-05-07 12:50:46 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "sets.h"
+#include "color.h"
 #include "compoundkey.h"
+#include "ranges.h"
+#include "sets.h"
+
 class Property;
 class PropertyRef;
+class IOPar;
 
 namespace Strat
 {
@@ -41,18 +45,37 @@ public:
 
 			UnitRef( NodeUnitRef* up, const char* unitcode,
 			      const char* descr=0 )
-			: code_(unitcode)
-			, upnode_(up)
-			, desc_(descr)			{}
+			: upnode_(up)
+    			{
+			    props().code_= unitcode;
+			    props().desc_ = descr;
+			}
     virtual		~UnitRef();
 
     virtual bool	isLeaf() const			= 0;
     CompoundKey		fullCode() const;
 
-    const BufferString&	code() const			{ return code_; }
-    void		setCode( const char* c )	{ code_ = c; }
-    const BufferString&	description() const		{ return desc_; }
-    void		setDescription( const char* d )	{ desc_ = d; }
+    
+    mStruct Props
+    {
+			Props()
+			{}
+
+	BufferString    code_;
+	BufferString    desc_;
+	BufferString    lithnm_;
+	Interval<float> timerg_;
+	bool            isleaf_;
+	Color           color_;
+    };
+
+
+    const BufferString&	code() const			{ return props_.code_; }
+    void		setCode( const char* c )	{ props_.code_ = c; }
+    const BufferString&	description() const		{ return props_.desc_; }
+    void		setDescription( const char* d )	{ props_.desc_ = d; }
+    const Props&	props() const			{ return props_; }
+    Props&		props()				{ return props_; }
 
     NodeUnitRef*	upNode(int skip=0);
     const NodeUnitRef*	upNode( int skip=0 ) const
@@ -68,6 +91,9 @@ public:
 
     virtual void	fill(BufferString&) const; //!< Without Unit code
     virtual bool	use(const char*); //!< a string produced by fill()
+    
+    void		putTo(IOPar&) const;
+    void		getFrom(const IOPar&);
 
     void		add( Property* p )
     			{ properties_ += p; }
@@ -109,8 +135,7 @@ public:
 protected:
 
     NodeUnitRef*	upnode_;
-    BufferString	code_;
-    BufferString	desc_;
+    Props		props_;
 
     ObjectSet<Property>	properties_;
     Property*		gtProp(const PropertyRef* p) const;

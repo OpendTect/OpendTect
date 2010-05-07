@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.34 2010-04-27 07:22:15 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.35 2010-05-07 12:50:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class uiMenuHandler;
 class uiPolyLineItem;
 class uiPolygonItem;
 class uiTextItem;
+class uiStratDisplay;
 class uiWellStratDisplay;
 class uiWellDisplayMarkerEdit;
 

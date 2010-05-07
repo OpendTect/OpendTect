@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.11 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.12 2010-05-07 12:50:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "ranges.h"
+#include "stratunitref.h"
 
 class BufferStringSet;
 class uiColorInput;
@@ -29,19 +31,18 @@ mClass uiStratUnitDlg : public uiDialog
 public:
 
 			uiStratUnitDlg(uiParent*,uiStratMgr*);
-    const char*		getUnitName() const;	
-    const char*		getUnitDesc() const;
-    const char*		getUnitLith() const;
-    void		setUnitName(const char*);
-    void		setUnitDesc(const char*);
-    void		setUnitLith(const char*);
-    void		setUnitIsLeaf(bool);
+
+    void		setUnitProps(const Strat::UnitRef::Props&);
+    void		getUnitProps(Strat::UnitRef::Props&) const;	
 
 protected:
+
     uiGenInput*		unitnmfld_;
     uiGenInput*		unitdescfld_;
     uiGenInput*		unitlithfld_;
-
+    uiGenInput*		agefld_;
+    uiColorInput*	colfld_;
+    
     uiStratMgr*		uistratmgr_;
 
     void		selLithCB(CallBacker*);
