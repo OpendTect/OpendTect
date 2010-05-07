@@ -7,13 +7,16 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.18 2010-03-23 16:14:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.19 2010-05-07 11:44:22 cvsnanne Exp $";
 
 #include "uiamplspectrum.h"
 
 #include "uiaxishandler.h"
+#include "uibutton.h"
+#include "uifiledlg.h"
 #include "uifunctiondisplay.h"
 #include "uigeninput.h"
+#include "uimsg.h"
 #include "uispinbox.h"
 
 #include "arrayndimpl.h"
@@ -22,6 +25,7 @@ static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.18 2010-03-23 16:14:38 cv
 #include "bufstring.h"
 #include "datapackbase.h"
 #include "fft.h"
+#include "strmprov.h"
 #include "survinfo.h"
 
 
@@ -40,8 +44,8 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
 	    				    : "Wavenumber (/m)" );
     disp_->yAxis(false)->setName( "Power (dB)" );
 
-    dispparamgrp_ = new uiGroup( this, "display Params Group" );
-    dispparamgrp_->attach( centeredBelow, disp_ );
+    dispparamgrp_ = new uiGroup( this, "Display Params Group" );
+    dispparamgrp_->attach( alignedBelow, disp_ );
     rangefld_ = new uiGenInput( dispparamgrp_, "Display between frequencies",
 			FloatInpIntervalSpec()
 			.setName(BufferString("range start"),0)
@@ -50,7 +54,12 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     stepfld_ = new uiLabeledSpinBox( dispparamgrp_, "Gridline step");
     stepfld_->attach( rightOf, rangefld_ );
     stepfld_->box()->setInterval( 1, 50, 5 );
-    stepfld_->box()->valueChanging.notify(mCB(this,uiAmplSpectrum,dispRangeChgd));
+    stepfld_->box()->valueChanging.notify(
+	    mCB(this,uiAmplSpectrum,dispRangeChgd) );
+
+    uiPushButton* exportbut = new uiPushButton( this, "Export", false );
+    exportbut->activated.notify( mCB(this,uiAmplSpectrum,exportCB) );
+    exportbut->attach( rightAlignedBelow, disp_ );
 }
 
 
@@ -206,8 +215,33 @@ void uiAmplSpectrum::dispRangeChgd( CallBacker* )
 	rg.start = posrange_.start; rg.stop = posrange_.stop; 
 	rangefld_->setValue( posrange_ ); 
     }
+
     rg.step = stepfld_->box()->getValue();
     disp_->xAxis()->setRange( rg ); 
     disp_->draw();
 }
 
+
+void uiAmplSpectrum::exportCB( CallBacker* )
+{
+    uiFileDialog dlg( this, false );
+    if ( !dlg.go() ) return;
+
+    const char* fname = dlg.fileName();
+    StreamData sdo = StreamProvider( fname ).makeOStream();
+    if ( !sdo.usable() )
+    {
+	sdo.close();
+	uiMSG().error( "Cannot open output file" );
+	return;
+    }
+
+    *sdo.ostrm << std::fixed;
+    const TypeSet<float>& xvals = disp_->xVals();
+    const TypeSet<float>& yvals = disp_->yVals();
+    for ( int idx=0; idx<xvals.size(); idx++ )
+	*sdo.ostrm << xvals[idx] << '\t' << yvals[idx] << std::endl;
+
+    uiMSG().message( "Values written to: ", fname );
+    sdo.close();
+}

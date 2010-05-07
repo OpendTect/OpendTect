@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.9 2010-03-23 16:14:38 cvsbruno Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.10 2010-05-07 11:44:22 cvsnanne Exp $
 ______________________________________________________________________
                        
 */   
@@ -62,6 +62,7 @@ protected:
     int				nrtrcs_;
 
     void			dispRangeChgd(CallBacker*);
+    void			exportCB(CallBacker*);
 };
 
 
