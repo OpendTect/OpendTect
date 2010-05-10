@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.67 2010-04-21 16:06:45 cvskris Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.68 2010-05-10 03:13:53 cvsnanne Exp $";
 
 #include "uiexphorizon.h"
 
@@ -283,6 +283,8 @@ bool uiExportHorizon::writeAscii()
 	const EM::SectionID sectionid = hor->sectionID( sectionidx );
 	PtrMan<EM::EMObjectIterator> it = hor->createIterator( sectionid );
 	BufferString str;
+	if ( !dogf ) *sdo.ostrm << std::fixed;
+
 	while ( true )
 	{
 	    const EM::PosID posid = it->next();

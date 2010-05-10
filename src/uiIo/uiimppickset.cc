@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.46 2010-04-13 08:31:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.47 2010-05-10 03:13:53 cvsnanne Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -197,6 +197,7 @@ bool uiImpExpPickSet::doExport()
 	mErrRet( "Could not open output file" )
     }
 
+    *sdo.ostrm << std::fixed;
     BufferString buf;
     for ( int locidx=0; locidx<ps.size(); locidx++ )
     {
