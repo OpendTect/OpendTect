@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.33 2010-05-07 12:50:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.34 2010-05-10 08:44:05 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -113,7 +113,7 @@ void Strat::RefTree::setUnitProps( const UnitRef::Props& props )
 		timerg.stop = urtimerg.stop;
 	}
     }
-    ur->props() = props;
+    ur->setProps( props );
 }
 
 
@@ -648,5 +648,11 @@ void Strat::UnitRepository::createDefaultTree()
 {
     RefTree* tree = new RefTree( "Stratigraphic tree", Repos::Survey );
     tree->addUnit( "base", "example of unit" );
+    UnitRef::Props props;
+    props.code_ =  "base";
+    props.timerg_.set( 30, 60 );
+    props.color_ = Color::DgbColor();
+    tree->setUnitProps( props );
+
     trees_ += tree;
 }
