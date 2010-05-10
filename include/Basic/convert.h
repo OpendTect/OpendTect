@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.13 2009-09-28 13:25:51 cvsbert Exp $
+ RCS:           $Id: convert.h,v 1.14 2010-05-10 12:09:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,8 +99,6 @@ inline void set( const char*& _to, const unsigned short& i )
     { _to = toString(i); }
 
 
-#ifndef __sol32__
-
 #define mConvDefFromStrToFn(type,function) \
 template <> \
 inline void set( type& _to, const char* const& s ) \
@@ -125,21 +123,11 @@ mConvDefFromStrToFn( float, strtof(s,&endptr) )
 #undef mConvDefFromStrToFn
 
 
-#endif
-
 #define mConvDefFromStrToFn(type,fn) \
 template <> \
 inline void set( type& _to, const char* const& s ) \
     { _to = (type)fn(s); }
 
-#ifdef __sol32__
-mConvDefFromStrToFn( int, atoi )
-mConvDefFromStrToFn( od_uint32, atoi )
-mConvDefFromStrToFn( od_int64, atoll )
-mConvDefFromStrToFn( od_uint64, atoll )
-mConvDefFromStrToFn( double, atof )
-mConvDefFromStrToFn( float, atof )
-#endif
 
 mConvDefFromStrToFn( short, atoi )
 mConvDefFromStrToFn( unsigned short, atoi )
