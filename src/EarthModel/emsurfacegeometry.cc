@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.49 2010-01-26 16:11:07 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.50 2010-05-10 15:34:07 cvsyuancheng Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -292,8 +292,6 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
 	}
     }
 
-    BufferString name = *sectionnames_[idx];
-
     //Keep the section in mem until everyone is notified
     PtrMan<const Geometry::Element> removedelem = sections_[idx];
     sections_.remove( idx );
@@ -306,6 +304,7 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
 	EMM().undo().removeAllBeforeCurrentEvent();
 	/*
 
+	BufferString name = *sectionnames_[idx];
 	UndoEvent* undo =
 	    new SurfaceSectionUndoEvent( false, surface_.id(),
 					    sid, name );
@@ -316,6 +315,7 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::SectionChange;
     cbdata.pid0 = PosID( surface_.id(), sid, 0 );
+    surface_.change.enable( true );
     surface_.change.trigger( cbdata );
 
     changed_ = true;
@@ -1075,6 +1075,7 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::SectionChange;
     cbdata.pid0 = PosID( surface_.id(), sid, 0 );
+    surface_.change.enable( true );
     surface_.change.trigger(cbdata);
 
     changed_ = true;
