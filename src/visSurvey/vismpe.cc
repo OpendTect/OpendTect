@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.104 2010-03-23 21:20:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.105 2010-05-10 07:52:57 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -45,7 +45,7 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.104 2010-03-23 21:20:10 cvsyuanch
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-//#define USE_TEXTURE 
+#define USE_TEXTURE 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
@@ -474,7 +474,8 @@ void MPEDisplay::updateTexture()
 	return;
     }
 
-    RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ );
+    RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ ) ?
+	engine_.getAttribCache( as_ )->get3DData() : 0;
     if ( !attrdata )
     {
 	if ( texture_ ) texture_->turnOn( false );
@@ -1253,7 +1254,8 @@ void MPEDisplay::getMousePosInfo( const visBase::EventInfo&, Coord3& pos,
 
 #ifdef USE_TEXTURE
     const BinID bid( SI().transform(pos) );
-    RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ );
+    RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ ) ? 
+	    engine_.getAttribCache( as_ )->get3DData() : 0;
     if ( !attrdata )
 	return;
 
