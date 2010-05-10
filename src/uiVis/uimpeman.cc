@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.196 2010-04-28 11:37:12 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.197 2010-05-10 07:54:56 cvskarthika Exp $";
 
 #include "uimpeman.h"
 
@@ -59,7 +59,7 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.196 2010-04-28 11:37:12 cvsumes
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-//#define USE_TEXTURE 
+#define USE_TEXTURE 
 
 using namespace MPE;
 
