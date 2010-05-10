@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.20 2010-02-12 20:45:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.21 2010-05-10 16:10:45 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -55,22 +55,29 @@ bool BatchProgram::go( std::ostream& strm )
 	return true;
     }
 
+    int nrcubes = 1;
+    for ( int idx=0; idx<chain->nrSteps(); idx++ )
+    {
+	if ( !chain->getStep(idx)->canInputAndOutputBeSame() )
+	{
+	    nrcubes = 2;
+	    break;
+	}
+    }
+
     CubeSampling cs( true );
     if ( !cs.usePar( pars() ) )
 	strm << "Could not read ranges - Will process full survey\n";
     
     PtrMan<VolProc::ChainExecutor> pce = new VolProc::ChainExecutor( *chain );
-    RefMan<Attrib::DataCubes> cube = new Attrib::DataCubes;
 
-    char itemsize = cube && cube->nrCubes() && cube->getCube(0).getStorage()
-	? cube->getCube(0).getStorage()->bytesPerItem()
-	: sizeof(float);
+    char itemsize = sizeof(float);
 
-    od_uint64 nrbytes = cs.totalNr() * itemsize * 2;
+
+    od_uint64 nrbytes = cs.totalNr() * itemsize * nrcubes;
     strm << "Allocating " << getBytesString( nrbytes ) << " in memory\n";
     
-    cube->setSizeAndPos( cs );
-    if ( !pce->setCalculationScope( cube ) )
+    if ( !pce->setCalculationScope( cs ) )
     {
 	strm << "Could not set calculation scope!";
 	return false;
@@ -82,7 +89,14 @@ bool BatchProgram::go( std::ostream& strm )
 	return false;
     }	
 
-    pce = 0; //delete all internal volumes.
+    RefMan<const Attrib::DataCubes> cube = pce->getOutput();
+    PtrMan<const VelocityDesc> veldesc = chain->getVelDesc() 
+	? new VelocityDesc( *chain->getVelDesc() )
+	: 0;
+
+    //delete all internal volumes.
+    pce = 0;
+    chain = 0;
    
     MultiID outputid;
     pars().get( VolProcessingTranslatorGroup::sKeyOutputID(), outputid );
@@ -97,7 +111,6 @@ bool BatchProgram::go( std::ostream& strm )
 
     VelocityDesc omfdesc;
     const bool hasveldesc = omfdesc.usePar( outputobj->pars() );
-    const VelocityDesc* veldesc = chain->getVelDesc();
     if ( veldesc )
     {
 	if ( !hasveldesc || omfdesc!=*veldesc )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.10 2009-08-03 20:17:36 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.11 2010-05-10 16:10:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -124,6 +124,8 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
+    virtual void		releaseData();
+
     virtual const char*		errMsg() const { return 0; }
 
 protected:
@@ -147,15 +149,14 @@ mDefineFactory1Param( Step, Chain&, PS );
 mClass ChainExecutor : public Executor
 {
 public:
-			ChainExecutor(Chain&);
-			~ChainExecutor();
+				ChainExecutor(Chain&);
+				~ChainExecutor();
 
-    const char*		errMsg() const;
+    const char*			errMsg() const;
 
-    bool		setCalculationScope(Attrib::DataCubes*);
-    			/*!<Writes in cube 0, wich is created if non-existing.*/
-
-    int			nextStep();
+    bool			setCalculationScope(const CubeSampling&);
+    const Attrib::DataCubes*	getOutput() const;
+    int				nextStep();
 
 protected:
     bool			prepareNewStep();
@@ -173,14 +174,11 @@ protected:
     bool			firstisprep_;
     Chain&			chain_;
 
-    Attrib::DataCubes*		cubeoutput_;
-
     HorSampling			hrg_;
     StepInterval<int>		zrg_;
 
     BufferString		errmsg_;
 
-    RefMan<Attrib::DataCubes>   tmpres_;
     RefMan<Attrib::DataCubes>   curinput_;
     RefMan<Attrib::DataCubes>   curoutput_;
 };

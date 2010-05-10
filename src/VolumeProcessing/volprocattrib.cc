@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocattrib.cc,v 1.9 2009-07-22 16:01:36 cvsbert Exp $";
+static const char* rcsID = "$Id: volprocattrib.cc,v 1.10 2010-05-10 16:10:45 cvskris Exp $";
 
 #include "volprocattrib.h"
 
@@ -198,16 +198,8 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 	return DataPack::cNoID();
     }
 
-    chain_->setZSampling( SamplingData<float>( cs.zrg ), SI().zIsTime() );
-    RefMan<Attrib::DataCubes> datacubes = new Attrib::DataCubes();
-    if ( !datacubes->setSizeAndPos(cs) )
-    {
-	errmsg_ = "Cannot allocate enough memory.";
-	return DataPack::cNoID();
-    }
-
     ChainExecutor executor( *chain_ );
-    if ( !executor.setCalculationScope(datacubes) ) 
+    if ( !executor.setCalculationScope(cs) ) 
     {
 	errmsg_ = "Cannot calculate at this location";
 	return DataPack::cNoID();
@@ -221,6 +213,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 	    errmsg_ = "Error while calculating.";
     }
 
+    RefMan<const Attrib::DataCubes> datacubes = executor.getOutput();
     if ( !datacubes->nrCubes() )
     {
 	errmsg_ = "No output produced";
@@ -228,7 +221,8 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
     }
 
     const Attrib::DescID did = Attrib::SelSpec::cOtherAttrib();
-    Attrib::Flat3DDataPack* ndp = new Attrib::Flat3DDataPack( did, *datacubes, 0 );
+    Attrib::Flat3DDataPack* ndp =
+	new Attrib::Flat3DDataPack( did, *datacubes, 0 );
     DPM( DataPackMgr::FlatID() ).add( ndp );
 
     PtrMan<IOObj> ioobj = IOM().get( chain_->storageID() );

@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.13 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.14 2010-05-10 16:10:45 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -81,7 +81,7 @@ protected:
 		    return step_.prepareComp( nrthreads );
 		}
 
-    Step&	step_;
+    Step&		step_;
     mutable int		totalnr_;
 };
 
@@ -89,9 +89,7 @@ protected:
 ChainExecutor::ChainExecutor( Chain& vr )
     : Executor( "Volume processing" )
     , chain_( vr )
-    , cubeoutput_( 0 )
     , isok_( true )
-    , tmpres_( 0 )
     , curinput_( 0 )
     , curoutput_( 0 )
     , zrg_( 0, 0, 0 )
@@ -110,7 +108,6 @@ ChainExecutor::ChainExecutor( Chain& vr )
 
 ChainExecutor::~ChainExecutor()
 {
-    if ( cubeoutput_ ) cubeoutput_->unRef();
     delete curtask_;
 }
 
@@ -119,34 +116,24 @@ const char* ChainExecutor::errMsg() const
 { return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
 
-bool ChainExecutor::setCalculationScope( 
-	Attrib::DataCubes* output )
+bool ChainExecutor::setCalculationScope( const CubeSampling& cs )
 {
-    if ( !output ) return false;
+    hrg_ = cs.hrg;
 
-    hrg_.start.inl = output->inlsampling_.start;
-    hrg_.start.crl = output->crlsampling_.start;
-    hrg_.step.inl = output->inlsampling_.step;
-    hrg_.step.crl = output->crlsampling_.step;
-    hrg_.stop.inl = output->inlsampling_.atIndex( output->getInlSz()-1 );
-    hrg_.stop.crl = output->crlsampling_.atIndex( output->getCrlSz()-1 );
-
-    zrg_.start = output->z0_;
+    zrg_.start = mNINT( cs.zrg.start/cs.zrg.step );
+    zrg_.stop = mNINT( cs.zrg.stop/cs.zrg.step );
     zrg_.step = 1;
-    zrg_.stop = output->z0_ + output->getZSz()-1;
-    chain_.setZSampling(
-	    SamplingData<float>( output->z0_*output->zstep_, output->zstep_ ),
-	    SI().zIsTime() );
 
-    if ( cubeoutput_ ) 
-	cubeoutput_->unRef();
-
-    cubeoutput_ = output;
-    cubeoutput_->ref();
+    chain_.setZSampling( SamplingData<float>( cs.zrg.start, cs.zrg.step ),
+	    		 SI().zIsTime() );
 
     currentstep_ = 0;
     return true;
 }
+
+
+const Attrib::DataCubes* ChainExecutor::getOutput() const
+{ return curoutput_; }
 
 
 int ChainExecutor::nextStep()
@@ -181,24 +168,18 @@ bool ChainExecutor::prepareNewStep()
 	zrg = chain_.getStep( idx )->getInputZRg( zrg );
     }
 
-    tmpres_ = curinput_;
-    if ( !currentstep_ ) { curinput_ = 0; }
+    RefMan<Attrib::DataCubes> tmpres = curinput_;
+    if ( !currentstep_ )
+    {
+	curinput_ = 0;
+    }
     else
     {
 	curinput_ = curoutput_;
 	curoutput_ = 0;
 
-	if ( tmpres_ )
-	{
-	    curoutput_ = tmpres_;
-	    tmpres_ = 0;
-	}
+	chain_.getStep( currentstep_-1 )->releaseData();
     }
-
-    if ( currentstep_==steps_.size()-1 )
-	curoutput_ = cubeoutput_;
-    else if ( !curoutput_ )
-	curoutput_ = new Attrib::DataCubes();
 
     const StepInterval<int> inlrg = hrg.inlRange();
     const StepInterval<int> crlrg = hrg.crlRange();
@@ -207,25 +188,46 @@ bool ChainExecutor::prepareNewStep()
     const int nrcrl = crlrg.nrSteps()+1;
     const int nrz = zrg.nrSteps()+1;
 
+    bool initoutput = false;
+
+    if ( curinput_ && steps_[currentstep_]->canInputAndOutputBeSame() &&
+	 curinput_->getInlSz()==nrinl && curinput_->getCrlSz()==nrcrl &&
+	 curinput_->getZSz()==nrz )
+    {
+	curoutput_ = curinput_;
+    }
+    else if ( tmpres && tmpres!=curinput_ )
+    {
+	initoutput = true;
+	curoutput_ = tmpres;
+	tmpres = 0;
+    }
+    else if ( !curoutput_ )
+    {
+	initoutput = true;
+	curoutput_ = new Attrib::DataCubes();
+    }
+
     if ( curoutput_->getInlSz()!=nrinl || curoutput_->getCrlSz()!=nrcrl ||
 	 curoutput_->getZSz()!=nrz )
 	curoutput_->setSize( nrinl, nrcrl, nrz );
 
-    curoutput_->inlsampling_.start = inlrg.start;
-    curoutput_->inlsampling_.step = inlrg.step;
-    curoutput_->crlsampling_.start = crlrg.start;
-    curoutput_->crlsampling_.step = crlrg.step;
-    curoutput_->crlsampling_.step = crlrg.step;
-    curoutput_->z0_ = zrg.start;
-    curoutput_->zstep_ = chain_.getZSampling().step;
+    if ( initoutput )
+    {
+	curoutput_->inlsampling_.start = inlrg.start;
+	curoutput_->inlsampling_.step = inlrg.step;
+	curoutput_->crlsampling_.start = crlrg.start;
+	curoutput_->crlsampling_.step = crlrg.step;
+	curoutput_->crlsampling_.step = crlrg.step;
+	curoutput_->z0_ = zrg.start;
+	curoutput_->zstep_ = chain_.getZSampling().step;
+    }
 
     if ( !curoutput_->nrCubes() && !curoutput_->addCube( mUdf(float), false ) )
     {
 	errmsg_ = "Cannot allocate enough memory.";
 	return false;
     }
-    else
-	curoutput_->setValue( 0, mUdf(float) );
 
     steps_[currentstep_]->setOutput( curoutput_ );
     if ( steps_[currentstep_]->setInput( curinput_ ) )
@@ -438,8 +440,16 @@ Step::Step( Chain& chain )
 
 Step::~Step()
 {
+    releaseData();
+}
+
+
+void Step::releaseData()
+{
     if ( output_ ) output_->unRef();
     if ( input_ ) input_->unRef();
+    output_ = 0;
+    input_ = 0;
 }
 
 
