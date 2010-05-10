@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: attribdatacubeswriter.h,v 1.5 2010-04-09 11:20:47 cvsnanne Exp $
+ RCS:		$Id: attribdatacubeswriter.h,v 1.6 2010-05-10 13:02:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,15 +42,15 @@ public:
 
 private:
 
-   int			nrdone_;    
-   int			totalnr_;
+   int				nrdone_;    
+   int				totalnr_;
    const Attrib::DataCubes&	cube_;
-   HorSamplingIterator	iterator_;
-   BinID		currentpos_;
-   MultiID		mid_;
-   SeisTrcWriter*	writer_;
-   SeisTrc&		trc_;
-   TypeSet<int>		cubeindices_;
+   HorSamplingIterator		iterator_;
+   BinID			currentpos_;
+   MultiID			mid_;
+   SeisTrcWriter*		writer_;
+   SeisTrc&			trc_;
+   TypeSet<int>			cubeindices_;
 };
 
 }; //namespace
