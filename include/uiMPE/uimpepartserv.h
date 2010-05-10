@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.49 2010-04-12 11:20:29 cvsumesh Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.50 2010-05-10 10:42:28 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,7 +174,7 @@ protected:
     int				initialundoid_;
     bool			seedhasbeenpicked_;
     bool			setupbeingupdated_;
-    bool			rtnwtseedwtas_;
+    bool			seedswithoutattribsel_;
 
     void			modeChangedCB(CallBacker*);
     void			eventorsimimlartyChangedCB(CallBacker*);
