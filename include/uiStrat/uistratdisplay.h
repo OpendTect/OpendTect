@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.9 2010-05-07 12:50:46 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.10 2010-05-10 08:44:20 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,8 +79,9 @@ protected:
 	
 	uiPolyLineItem*		borderitm_;
 	uiTextItem*		bordertxtitm_;
-	ObjectSet<uiTextItem>	txtitms_;
 	ObjectSet<uiLineItem>	mrkitms_;
+	ObjectSet<uiTextItem>	mrktxtitms_;
+	ObjectSet<uiTextItem>	unittxtitms_;
 	ObjectSet<uiPolygonItem> unititms_;
     };
 
@@ -104,6 +105,7 @@ protected:
     void			drawBorders(int);
     void			drawMarkers(int);
     void			drawUnits(int);
+    void			eraseAll();
     bool 			handleUserClick(const MouseEvent&);
     void			updateAxis(); 
 
@@ -136,6 +138,7 @@ protected :
 
     MenuItem            	speclvlmnuitem_;
     MenuItem            	propunitmnuitem_;
+    MenuItem            	addsubunitmnuitem_;
     
     uiGenInput*                 rangefld_;
     uiLabeledSpinBox*           stepfld_;

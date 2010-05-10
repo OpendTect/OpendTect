@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.2 2010-05-07 12:50:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.3 2010-05-10 08:44:20 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratmgr.h"
@@ -46,7 +46,7 @@ void uiStratAnnotGather::triggerDataChange( CallBacker* )
 void uiStratAnnotGather::readFromTree()
 {
     data_.eraseData();
-    addUnits( *uistratmgr_.getCurTree(), 0 );
+    addUnits( *((Strat::NodeUnitRef*)uistratmgr_.getCurTree()), 0 );
     newtreeRead.trigger();
 }
 
@@ -58,7 +58,6 @@ void uiStratAnnotGather::addUnits( const Strat::NodeUnitRef& nur, int order )
 	const Strat::UnitRef& ref = nur.ref( iref );
 	if ( ref.isLeaf() )
 	{
-	    addUnit( nur, order-1 );
 	    mDynamicCastGet(const Strat::LeafUnitRef*,lur,&ref);
 	    if ( !lur ) continue;
 	    addUnit( *lur, order );
@@ -67,7 +66,10 @@ void uiStratAnnotGather::addUnits( const Strat::NodeUnitRef& nur, int order )
 	{
 	    mDynamicCastGet(const Strat::NodeUnitRef*,chldnur,&ref);
 	    if ( chldnur )
-	    { addUnits( *chldnur, order+1 ); }
+	    { 
+		addUnit( *chldnur, order );
+		addUnits( *chldnur, order+1 ); 
+	    }
 	}
     }
 }

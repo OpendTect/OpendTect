@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.7 2010-05-07 12:50:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.8 2010-05-10 08:44:20 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -31,12 +31,12 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& tree )
     , uidatagather_(new uiStratAnnotGather(data_,tree.stratmgr()))
     , uidatawriter_(new uiStratTreeWriter(tree))
     , speclvlmnuitem_("&Specify level boundary ...",4)			
-    , propunitmnuitem_("&Proerties ...",5)			
+    , propunitmnuitem_("&Properties ...",5)			
+    , addsubunitmnuitem_("&Create sub-unit...",6)
 {
-    makeAnnots();
     uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,dataChanged) );
-    draw();
     createDispParamGrp();
+    dataChanged( 0 );
 }
 
 
@@ -51,21 +51,23 @@ void uiStratDisplay::createDispParamGrp()
     rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
     stepfld_ = new uiLabeledSpinBox( dispparamgrp_, "Gridline step");
     stepfld_->attach( rightOf, rangefld_ );
-    stepfld_->box()->setInterval( 1, 500, 5 );
+    stepfld_->box()->setInterval( 1, 500, 100 );
     stepfld_->box()->valueChanging.notify(mCB(this,uiStratDisplay,dispParamChgd));
     if ( nrCols() && nrUnits(0) )
     {
-	const AnnotData::Unit& unit = *getUnit(0,0);
-	float start = unit.zposbot_, stop = unit.zpos_; 
-	float step = fabs(stop-start)/10;
+	const AnnotData::Unit& topunit = *getUnit(0,0);
+	const AnnotData::Unit& botunit = *getUnit(nrUnits(0)-1,0);
+	float start = topunit.zpos_, stop = botunit.zposbot_; 
+	float step = fabs(stop-start)/100;
 	rangefld_->setValue( StepInterval<float>( start, stop, step ) );
+	setZRange( StepInterval<float>( stop, start, step ) );
     }
-    stepfld_->box()->setValue( 100 );
 }
 
 
 void uiStratDisplay::dataChanged( CallBacker* cb )
 {
+    makeAnnots();
     draw();
 }
 
@@ -101,6 +103,7 @@ void uiStratDisplay::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &remunitmnuitem_, unitfound && col->iseditable_, false);
     mAddMenuItem( menu, &propunitmnuitem_, unitfound && col->iseditable_,false);
     mAddMenuItem( menu, &speclvlmnuitem_, unitfound && col->iseditable_, false);
+    mAddMenuItem( menu, &addsubunitmnuitem_,unitfound &&col->iseditable_,false);
 }
 
 
@@ -114,6 +117,12 @@ void uiStratDisplay::handleMenuCB( CallBacker* cb )
 
     const AnnotData::Unit* unit = getUnitFromPos();
     bool ishandled = true;
+    if ( mnuid == addsubunitmnuitem_.id )
+    {
+	int colidx = getColIdxFromPos();
+	if ( colidx >= 0 )
+	    uidatawriter_->addUnit( unit->name_ );
+    }
     if ( mnuid == addunitmnuitem_.id )
     {
 	int colidx = getColIdxFromPos();
@@ -123,7 +132,7 @@ void uiStratDisplay::handleMenuCB( CallBacker* cb )
 	    if ( parunit )
 		uidatawriter_->addUnit( parunit->name_ );
 	}
-	else if ( colidx == 0)
+	else if ( colidx == 0 ) 
 	    uidatawriter_->addUnit( "", false );
     }
     if ( mnuid == addcolmnuitem_.id )
@@ -189,7 +198,7 @@ void uiStratDisplay::makeAnnotCol( const char* txt, int annotpos, bool level )
 		botmrk->col_ = Color( 
 				(unsigned int)atoi(annot[annotpos+3]->buf()) );
 		annotcol->markers_ += botmrk;
-		topmrk->isnmabove_ = false;
+		botmrk->isnmabove_ = false;
 	    }
 	    else
 	    {
@@ -212,19 +221,12 @@ uiAnnotDisplay::uiAnnotDisplay( uiParent* p, const char* nm )
     : uiGraphicsView(p,nm)
     , data_(AnnotData()) 
     , xax_(&scene(),uiAxisHandler::Setup(uiRect::Top))
-    , yax_(&scene(),uiAxisHandler::Setup(uiRect::Left))
+    , yax_(&scene(),uiAxisHandler::Setup(uiRect::Left).nogridline(true))
     , menu_(*new uiMenuHandler(p,-1))
     , addunitmnuitem_("Add Unit...",0)
     , remunitmnuitem_("Remove unit...",1)
     , addcolmnuitem_("Add Column...",2)
 {
-    StepInterval<float> rg( SI().zRange(true) );
-    rg.sort( false );
-    rg.start *= 1000;
-    rg.step *= 1000;
-    rg.stop *= 1000;
-    setZRange( rg );
-
     xax_.setBounds( StepInterval<float>( 0, 100, 10 ) );
 
     getMouseEventHandler().buttonReleased.notify(
@@ -273,6 +275,7 @@ void uiAnnotDisplay::updateAxis()
 
 void uiAnnotDisplay::draw()
 {
+    eraseAll();
     updateAxis();
     drawColumns();
 }
@@ -284,7 +287,8 @@ void uiAnnotDisplay::drawColumns()
     {
 	ColumnItem* colitm = new ColumnItem( data_.getCol( idx )->name_ );
 	colitms_ += colitm;
-	colitm->size_ = 20;
+	colitm->size_ = (int)xax_.getVal( (int)(width()) )/nrCols() ;
+	if ( colitm->size_ <0 ) colitm->size_ = 0;
 
 	drawBorders( idx );
 	drawMarkers( idx );
@@ -297,11 +301,26 @@ void uiAnnotDisplay::drawColumns()
     for ( int idx=0; idx<itms.size(); idx++ ) \
     scene().removeItem( itms[idx] ); \
     deepErase( itms );
+void uiAnnotDisplay::eraseAll()
+{
+    for ( int idx = colitms_.size()-1; idx>=0; idx-- )
+    {
+	ColumnItem* colitm = colitms_[idx];
+
+	delete scene().removeItem( colitm->borderitm_ ); 
+	delete scene().removeItem( colitm->bordertxtitm_ ); 
+	mRemoveSet( colitm->mrktxtitms_ )
+	mRemoveSet( colitm->unittxtitms_ )
+	mRemoveSet( colitm->mrkitms_ )
+	mRemoveSet( colitm->unititms_ )
+    }
+    deepErase( colitms_ );
+}
+
+
 void uiAnnotDisplay::drawBorders( int colidx )
 {
     ColumnItem* colitm = colitms_[colidx];
-    delete scene().removeItem( colitm->borderitm_ ); 
-    delete scene().removeItem( colitm->bordertxtitm_ ); 
 
     int x1 = xax_.getPix( (colidx)*colitm->size_ );
     int x2 = xax_.getPix( (colidx+1)*colitm->size_ );
@@ -330,7 +349,7 @@ void uiAnnotDisplay::drawMarkers( int colidx )
 {
     ColumnItem* colitm = colitms_[colidx];
     mRemoveSet( colitm->mrkitms_ );
-    mRemoveSet( colitm->txtitms_ );
+    mRemoveSet( colitm->mrktxtitms_ );
     for ( int idx=0; idx<nrMarkers( colidx ); idx++ )
     {
 	AnnotData::Marker& mrk = *getMarker( idx, colidx );
@@ -342,10 +361,10 @@ void uiAnnotDisplay::drawMarkers( int colidx )
 	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
 	li->setPenStyle( LineStyle(LineStyle::Solid,2,mrk.col_) );
 	uiTextItem* ti = scene().addItem( new uiTextItem( mrk.name_.buf() ) );
-	ti->setPos( x1, y + mrk.isnmabove_ ? -3 : 3 );
+	ti->setPos( x1 + (x2-x1)/2, y ); 
 	ti->setZValue( 2 );
 	ti->setTextColor( mrk.col_ );
-	colitm->txtitms_ += ti;
+	colitm->mrktxtitms_ += ti;
 	colitm->mrkitms_ += li;
     }
 }
@@ -354,7 +373,7 @@ void uiAnnotDisplay::drawMarkers( int colidx )
 void uiAnnotDisplay::drawUnits( int colidx ) 
 {
     ColumnItem* colitm = colitms_[colidx];
-    mRemoveSet( colitm->txtitms_ );
+    mRemoveSet( colitm->unittxtitms_ );
     mRemoveSet( colitm->unititms_ );
 
     for ( int idx=0; idx<nrUnits( colidx ); idx++ )
@@ -380,7 +399,7 @@ void uiAnnotDisplay::drawUnits( int colidx )
 	ti->setTextColor( Color::Black() );
 	ti->setPos( x1, y2 - abs((y2-y1)/2) -10 );
 	ti->setZValue( 2 );
-	colitm->txtitms_ += ti;
+	colitm->unittxtitms_ += ti;
 	colitm->unititms_ += pli;
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.2 2010-05-07 12:50:46 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.3 2010-05-10 08:44:20 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,8 +100,6 @@ public:
 	                        uiStratAnnotGather(AnnotData&,const uiStratMgr&);
 	                        ~uiStratAnnotGather(){};
 
-    void 			readFromTree();				
-
     Notifier<uiStratAnnotGather> newtreeRead;
 
 protected:
@@ -111,7 +109,7 @@ protected:
     
     void		addUnits(const Strat::NodeUnitRef&,int);
     void		addUnit(const Strat::UnitRef&,int);
-    BufferString 	getUnitCode(const AnnotData::Unit*);
+    void 		readFromTree();				
 
     void		triggerDataChange(CallBacker*);
 };
