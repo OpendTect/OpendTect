@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.18 2010-05-07 12:50:46 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.19 2010-05-10 08:41:23 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -76,6 +76,15 @@ public:
     void		setDescription( const char* d )	{ props_.desc_ = d; }
     const Props&	props() const			{ return props_; }
     Props&		props()				{ return props_; }
+    
+    void		setProps( const Props& props )
+			{
+			    props_.desc_   = props.desc_;
+			    props_.lithnm_ = props.lithnm_;
+			    props_.timerg_ = props.timerg_; 
+			    props_.isleaf_ = props.isleaf_; 
+			    props_.color_  = props.color_; 
+			}
 
     NodeUnitRef*	upNode(int skip=0);
     const NodeUnitRef*	upNode( int skip=0 ) const
