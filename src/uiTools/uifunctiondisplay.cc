@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.56 2010-03-15 09:01:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.57 2010-05-10 03:12:51 cvsnanne Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -620,4 +620,15 @@ void uiFunctionDisplay::mouseDClick( CallBacker* )
 
     pointSelected.trigger();
     draw();
+}
+
+
+void uiFunctionDisplay::dump( std::ostream& strm, bool y2 ) const
+{
+    const TypeSet<float>& xvals = y2 ? y2xvals_ : xvals_;
+    const TypeSet<float>& yvals = y2 ? y2yvals_ : yvals_;
+
+    strm << std::fixed;
+    for ( int idx=0; idx<xvals.size(); idx++ )
+	strm << xvals[idx] << '\t' << yvals[idx] << std::endl;
 }

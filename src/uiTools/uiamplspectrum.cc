@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.19 2010-05-07 11:44:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.20 2010-05-10 03:12:51 cvsnanne Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -236,11 +236,7 @@ void uiAmplSpectrum::exportCB( CallBacker* )
 	return;
     }
 
-    *sdo.ostrm << std::fixed;
-    const TypeSet<float>& xvals = disp_->xVals();
-    const TypeSet<float>& yvals = disp_->yVals();
-    for ( int idx=0; idx<xvals.size(); idx++ )
-	*sdo.ostrm << xvals[idx] << '\t' << yvals[idx] << std::endl;
+    disp_->dump( *sdo.ostrm, false );
 
     uiMSG().message( "Values written to: ", fname );
     sdo.close();

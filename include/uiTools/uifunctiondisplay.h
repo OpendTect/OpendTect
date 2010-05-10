@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.30 2009-11-18 13:49:07 cvsbruno Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.31 2010-05-10 03:12:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,6 +157,8 @@ public:
 
     void			gatherInfo();
     void			draw();
+
+    void			dump(std::ostream&,bool y2) const;
 
 protected:
 
