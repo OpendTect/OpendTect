@@ -149,12 +149,14 @@ protected:
   virtual void rayPick(SoRayPickAction * action);
   virtual void audioRender(SoAudioRenderAction * action);
   virtual void getPrimitiveCount(SoGetPrimitiveCountAction * action);
-  
+
   virtual SbBool affectsState(void) const;
 
   virtual ~LegendKit();
   virtual void notify(SoNotList * list);
   
+  void setDefaultOnNonWritingFields();
+
 private:
 
   void recalcSize(SoState * state);

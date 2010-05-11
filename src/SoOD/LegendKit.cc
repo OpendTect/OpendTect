@@ -186,7 +186,7 @@
   instead of the upper value (the value right below the current
   bigtick).
 */
-static const char* rcsID = "$Id: LegendKit.cc,v 1.7 2010-05-05 13:06:10 cvskarthika Exp $";
+static const char* rcsID = "$Id: LegendKit.cc,v 1.8 2010-05-11 12:30:26 cvskarthika Exp $";
 
 
 #include "LegendKit.h"
@@ -340,7 +340,7 @@ LegendKit::LegendKit(void)
   SO_KIT_ADD_CATALOG_ENTRY(shapeHints, SoShapeHints, FALSE, topSeparator, pickStyle, TRUE);
   SO_KIT_ADD_CATALOG_ENTRY(pickStyle, SoPickStyle, TRUE, topSeparator, backgroundMaterial, TRUE);
   SO_KIT_ADD_CATALOG_ENTRY(backgroundMaterial, SoMaterial, FALSE, topSeparator, backgroundShape, TRUE);
-  SO_KIT_ADD_CATALOG_ENTRY(backgroundShape, SoIndexedFaceSet, FALSE, topSeparator, imageSeparator, TRUE);
+  SO_KIT_ADD_CATALOG_ENTRY(backgroundShape, SoIndexedFaceSet, TRUE, topSeparator, imageSeparator, TRUE);
   SO_KIT_ADD_CATALOG_ENTRY(imageSeparator, SoSeparator, FALSE, topSeparator, tickMaterial, FALSE);
   SO_KIT_ADD_CATALOG_ENTRY(imageTransform, SoTransform, FALSE, imageSeparator, imageMaterial, TRUE);
   SO_KIT_ADD_CATALOG_ENTRY(imageMaterial, SoMaterial, FALSE, imageSeparator, imageSwitch, TRUE);
@@ -1395,6 +1395,14 @@ LegendKit::setSwitchValue(const char * part, const int value)
     sw->whichChild = value;
   }
 }
+
+
+void LegendKit::setDefaultOnNonWritingFields()
+{
+    backgroundShape.setDefault( true );
+    SoBaseKit::setDefaultOnNonWritingFields();
+}
+
 
 // *************************************************************************
 
