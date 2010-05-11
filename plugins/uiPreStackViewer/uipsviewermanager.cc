@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.54 2009-09-24 10:41:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.55 2010-05-11 03:28:10 cvsnanne Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -278,7 +278,7 @@ int uiViewer3DMgr::getSceneID( int mnid )
     {
 	TypeSet<int> scenechildren;
 	visserv_->getChildIds( sceneids[idx], scenechildren );
-	if ( scenechildren.indexOf( mnid ) )
+	if ( scenechildren.indexOf(mnid)>=0 )
 	{
 	    sceneid = sceneids[idx];
 	    break;

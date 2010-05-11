@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.203 2010-04-22 11:11:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.204 2010-05-11 03:28:10 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -717,22 +717,13 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 
 const uiSoViewer* uiODSceneMgr::getSoViewer( int sceneid ) const
 {
-    BufferStringSet scenenms; 
-        
-    scenenms.add( getSceneName( sceneid ) );
-
-    int vwrid;
-    getSceneNames( scenenms, vwrid );
-    if ( vwrid>-1 && vwrid<scenes_.size() )
-	return scenes_[vwrid]->sovwr_;
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	if ( scenes_[idx]->sovwr_->sceneID() == sceneid )
+	    return scenes_[idx]->sovwr_;
+    }
 
     return 0;
-
-/*     for ( int idx=0; idx<scenes_.size(); idx++ )
-	 if ( scenes_[idx]->sovwr_->sceneID() == sceneid )
-	     return scenes_[idx]->sovwr_;
-     
-     return 0;*/
 }
 
 
@@ -1095,10 +1086,7 @@ void uiODSceneMgr::doDirectionalLight(CallBacker*)
 float uiODSceneMgr::getHeadOnLightIntensity( int sceneid )
 {
     const uiSoViewer* vwr = getSoViewer( sceneid );
-    if ( vwr )
-	return vwr->getHeadOnLightIntensity();
-    else
-        return 0.0;
+    return vwr ? vwr->getHeadOnLightIntensity() : 0;
 }
 
 
