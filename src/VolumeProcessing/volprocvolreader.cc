@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprocvolreader.cc,v 1.4 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: volprocvolreader.cc,v 1.5 2010-05-11 13:55:05 cvsyuancheng Exp $";
 
 #include "volprocvolreader.h"
 
@@ -32,8 +32,15 @@ VolumeReader::VolumeReader(Chain& pc)
 
 VolumeReader::~VolumeReader()
 {
-    deepErase( readers_ );
+    releaseData();
 }    
+
+
+void VolumeReader::releaseData()
+{
+    Step::releaseData();
+    deepErase( readers_ );
+}
 
 
 bool VolumeReader::setVolumeID( const MultiID& mid )

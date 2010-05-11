@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.5 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.6 2010-05-11 13:55:05 cvsyuancheng Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -56,8 +56,20 @@ BodyFiller::BodyFiller( Chain& pc )
 
 BodyFiller::~BodyFiller()
 {
+    releaseData();
+}
+
+
+void BodyFiller::releaseData()
+{
+    Step::releaseData();
+
     if ( emobj_ ) emobj_->unRef();    
+    emobj_ = 0;
+    
     delete implicitbody_;
+    implicitbody_ = 0;
+    
     plgknots_.erase();
     plgbids_.erase();
 }

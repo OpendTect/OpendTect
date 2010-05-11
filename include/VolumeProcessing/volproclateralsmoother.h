@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: volproclateralsmoother.h,v 1.2 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: volproclateralsmoother.h,v 1.3 2010-05-11 13:55:05 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,9 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
     
+    bool			canInputAndOutputBeSame() const {return true;}
+    bool			needsFullVolume() const		{return false;}
+
     static const char*		sKeyType()	{ return "LateralSmoother"; }
     static const char*		sUserName()	{ return "Lateral Smoother"; }
 

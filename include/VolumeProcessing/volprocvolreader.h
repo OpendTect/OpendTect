@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: volprocvolreader.h,v 1.3 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: volprocvolreader.h,v 1.4 2010-05-11 13:55:05 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,11 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    
+
+    void		releaseData();
+    bool		canInputAndOutputBeSame() const		{ return true; }
+    bool		needsFullVolume() const 		{ return false;}
+
     static const char*	sKeyType()  { return "VolumeReader"; }
     static const char*	sUserName() { return "Stored Volume"; }
     

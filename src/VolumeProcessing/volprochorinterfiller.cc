@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.9 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.10 2010-05-11 13:55:05 cvsyuancheng Exp $";
 
 #include "volprochorinterfiller.h"
 
@@ -37,9 +37,18 @@ HorInterFiller::HorInterFiller(Chain& pc)
 
 HorInterFiller::~HorInterFiller()
 {
-   if ( tophorizon_ ) tophorizon_->unRef();
-   if ( bottomhorizon_ ) bottomhorizon_->unRef(); 
-}    
+    releaseData();
+}
+
+
+void HorInterFiller::releaseData()
+{
+    Step::releaseData();
+    if ( tophorizon_ ) tophorizon_->unRef();
+    if ( bottomhorizon_ ) bottomhorizon_->unRef(); 
+    tophorizon_ = 0;
+    bottomhorizon_ = 0;
+}
 
 
 bool HorInterFiller::setTopHorizon( const MultiID* tmid )

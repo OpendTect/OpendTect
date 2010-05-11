@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volprocsmoother.cc,v 1.6 2009-07-22 16:01:36 cvsbert Exp $";
+static const char* rcsID = "$Id: volprocsmoother.cc,v 1.7 2010-05-11 13:55:05 cvsyuancheng Exp $";
 
 #include "volprocsmoother.h"
 
@@ -33,8 +33,16 @@ Smoother::Smoother(Chain& pc)
 
 Smoother::~Smoother()
 {
-    delete smoother_;
+    releaseData();
 }    
+
+
+void Smoother::releaseData()
+{
+    Step::releaseData();
+    delete smoother_;
+    smoother_ = 0;
+}
 
 
 HorSampling Smoother::getInputHRg( const HorSampling& hrg ) const

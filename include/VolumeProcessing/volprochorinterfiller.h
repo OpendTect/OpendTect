@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: volprochorinterfiller.h,v 1.5 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: volprochorinterfiller.h,v 1.6 2010-05-11 13:55:05 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,14 +62,18 @@ public:
     
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    
-    static const char*		sKeyType() { return "HorInterFiller"; }
+   
+    void			releaseData();
+    bool			canInputAndOutputBeSame() const { return true; }
+    bool			needsFullVolume() const		{ return false;}
+
+    static const char*		sKeyType()  { return "HorInterFiller"; }
     static const char*		sUserName() { return "Horizon based painter"; }
     
 protected:
     bool			prefersBinIDWise() const        { return true; }
-    bool			computeBinID(const BinID&, int);
     bool                        prepareComp(int)		{ return true; }
+    bool			computeBinID(const BinID&, int);
 
     static const char*		sKeyTopHorID()	{ return "Top horizon"; }
     static const char*		sKeyBotHorID()	{ return "Bottom horizon"; }

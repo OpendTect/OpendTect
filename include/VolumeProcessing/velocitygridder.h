@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: velocitygridder.h,v 1.7 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: velocitygridder.h,v 1.8 2010-05-11 13:55:05 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,10 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
+    void		releaseData();
+    bool		canInputAndOutputBeSame() const	{ return true; }
+    bool		needsFullVolume() const		{ return true;}
+    
     const char*		errMsg() const		{ return errmsg_.buf(); }
 
     static const char*	sType()			{ return "Gridding"; }
