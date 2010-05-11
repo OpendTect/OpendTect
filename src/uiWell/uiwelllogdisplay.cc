@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.45 2010-05-07 12:50:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.46 2010-05-11 14:22:11 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -846,7 +846,7 @@ void uiWellDisplay::dataChanged( CallBacker* cb )
 	logdisp->doDataChange();
     }
     if ( stratdisp_ )
-	stratdisp_->data().copyFrom( pms_.data_ );
+	stratdisp_->dispData().copyFrom( pms_.data_ );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.27 2010-05-07 12:50:46 cvsbruno Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.28 2010-05-11 14:22:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,8 @@ public:
 
     void		popUp() const;
     virtual bool	closeOK();
+    
+    const uiStratMgr&	mgr() const	{ return uistratmgr_; }
     
     mutable Notifier<uiStratTreeWin>	levelCreated;
     mutable Notifier<uiStratTreeWin>	levelChanged;

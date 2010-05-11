@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.7 2010-05-07 12:50:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.8 2010-05-11 14:22:11 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
 #include "stratlevel.h"
 #include "uigraphicsscene.h"
+#include "uistrattreewin.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "welldisp.h"
@@ -21,26 +22,42 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
 					const Well::Well2DDispData& dd)
     : uiAnnotDisplay(p,"")
     , dispdata_(dd)
+    , uidatagather_(uiStratAnnotGather(data_,StratTWin().mgr()))
 {
     if ( nobg )
     {
 	setNoSytemBackGroundAttribute();
 	uisetBackgroundColor( Color( 255, 255, 255, 255 )  );
-	scene().setBackGroundColor( Color( 255, 255, 255, 0 )  );
+	scene().setBackGroundColor( Color( 255, 255, 255, 255 )  );
     }
+    drawer_.yAxis() = *new uiAxisHandler( scene_, 
+    	uiAxisHandler::Setup(uiRect::Left).noborderspace(true)
+					  .border(uiBorder(0))
+					  .nogridline(true));
+    drawer_.xAxis() = *new uiAxisHandler( scene_, 
+    	uiAxisHandler::Setup(uiRect::Top).noborderspace(true)
+					 .border(uiBorder(0))
+					 .nogridline(true));
+    drawer_.xAxis().setBounds( StepInterval<float>( 0, 100, 10 ) );
+   
+    uidatagather_.newtreeRead.notify( mCB(this,uiWellStratDisplay,dataChanged));
+    dataChanged(0);
 }
 
 
-void uiWellStratDisplay::gatherInfo()
+void uiWellStratDisplay::dataChanged( CallBacker* )
 {
-    /*
-    data_.gatherInfo();
-    for ( int idx=0; idx<nrUnits(); idx++ )
+    for ( int colidx=0; colidx<nrCols(); colidx++ )
     {
-	if ( getUnit( idx ) )
-	    setUnitPos( *getUnit( idx ) );
+	for ( int idx=0; idx<nrUnits( colidx ); idx++ )
+	{
+	    AnnotData::Unit* unit = getUnit( idx, colidx );
+	    if ( unit )
+		setUnitPos( *unit );
+	}
     }
-    */
+    setZRange( Interval<float>( (dispData().zrg_.stop/1000), 
+				(dispData().zrg_.start )/1000) );
 }
 
 

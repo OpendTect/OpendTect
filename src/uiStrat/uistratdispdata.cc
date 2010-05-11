@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.3 2010-05-10 08:44:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.4 2010-05-11 14:22:11 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratmgr.h"
@@ -112,6 +112,7 @@ void uiStratAnnotGather::addUnit( const Strat::UnitRef& uref, int order )
     unit->annots_.add( uref.description() );
     mDynamicCastGet(const Strat::LeafUnitRef*,un,&uref)
     unit->annots_.add( un ? uistratmgr_.getLithName( *un ) : "" );
+    if ( order >= data_.nrCols() ) return;
     data_.getCol(order)->units_ += unit;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.10 2010-05-10 08:44:20 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.11 2010-05-11 14:22:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uistratdispdata.h"
 
 class uiGenInput;
+class uiGraphicsScene;
 class uiLabeledSpinBox;
 class uiMenuHandler;
 class uiParent;
@@ -30,44 +31,22 @@ class uiTextItem;
 class MouseEvent;
 
 
-mClass uiAnnotDisplay : public uiGraphicsView
+mClass uiAnnotDrawer 
 {
 public:
-				uiAnnotDisplay(uiParent*,const char*);
-				~uiAnnotDisplay();
+				uiAnnotDrawer(uiGraphicsScene&,const AnnotData&);
+				~uiAnnotDrawer();
 
     void			setZRange( StepInterval<float> rg ) 
     				{ yax_.setBounds(rg); draw(); }
-    int				nrUnits(int colidx) const 
-    				{ return data_.getCol(colidx)->units_.size();}
-    int				nrMarkers(int colidx) const 
-    				{ return data_.getCol(colidx)->markers_.size();}
-    AnnotData::Marker* 		getMarker(int idx, int colidx) 
-    				{ return data_.getCol(colidx)->markers_[idx]; }
-    AnnotData::Unit* 		getUnit(int idx,int colidx) 
-    				{ return data_.getCol(colidx)->units_[idx]; }
-    const AnnotData::Marker* 	getMarker(int idx,int colidx) const 
-    				{ return data_.getCol(colidx)->markers_[idx]; }
-    const AnnotData::Unit* 	getUnit(int idx,int colidx) const 
-    				{ return data_.getCol(colidx)->units_[idx]; }
-    int 			nrCols() const { return data_.nrCols(); }
     
-    uiAxisHandler& 		xAxis() 	{ return yax_; }
+    void			draw();
+    
+    uiAxisHandler& 		xAxis() 	{ return xax_; }
     uiAxisHandler& 		yAxis() 	{ return yax_; }
+    const uiAxisHandler& 	xAxis() const	{ return xax_; }
+    const uiAxisHandler& 	yAxis() const	{ return yax_; }
 
-protected:
-
-    mClass uiCreateColDlg : public uiDialog
-    {
-	public :
-				uiCreateColDlg(uiParent*);
-	    BufferString        colname_;
-	protected:
-	    uiGenInput*         namefld_;
-	    bool		acceptOK(CallBacker*);
-    };
-
-  
     mStruct ColumnItem
     {
 				ColumnItem(const char* nm)
@@ -84,12 +63,72 @@ protected:
 	ObjectSet<uiTextItem>	unittxtitms_;
 	ObjectSet<uiPolygonItem> unititms_;
     };
+    
+    const ColumnItem&		colItem(int idx) const { return *colitms_[idx];}
 
+protected:
     ObjectSet<ColumnItem>	colitms_;
 
+    uiGraphicsScene&		scene_;
     uiAxisHandler 		yax_; 
     uiAxisHandler 		xax_; 
 
+    //data
+    const AnnotData&		data_;
+    int 			nrCols() const { return data_.nrCols(); }
+    
+    //graphics
+    void			addUnit(float);
+    void			drawColumns();
+    void			drawBorders(int);
+    void			drawMarkers(int);
+    void			drawUnits(int);
+    void			eraseAll();
+    void			updateAxis(); 
+};
+
+
+mClass uiAnnotDisplay : public uiGraphicsView
+{
+public:
+				uiAnnotDisplay(uiParent*,const char*);
+				~uiAnnotDisplay();
+
+    const AnnotData&		data() const 	{ return data_; }
+
+    void			setZRange( StepInterval<float> rg ) 
+    				{ drawer_.setZRange( rg ); }
+    int				nrUnits(int colidx) const 
+    				{ return data_.getCol(colidx)->units_.size();}
+    int				nrMarkers(int colidx) const 
+    				{ return data_.getCol(colidx)->markers_.size();}
+    AnnotData::Marker* 		getMarker(int idx, int colidx) 
+    				{ return data_.getCol(colidx)->markers_[idx]; }
+    AnnotData::Unit* 		getUnit(int idx,int colidx) 
+    				{ return data_.getCol(colidx)->units_[idx]; }
+    const AnnotData::Marker* 	getMarker(int idx,int colidx) const 
+    				{ return data_.getCol(colidx)->markers_[idx]; }
+    const AnnotData::Unit* 	getUnit(int idx,int colidx) const 
+    				{ return data_.getCol(colidx)->units_[idx]; }
+    int 			nrCols() const { return data_.nrCols(); }
+    
+    uiAxisHandler& 		xAxis() 	{ return drawer_.yAxis(); }
+    uiAxisHandler& 		yAxis() 	{ return drawer_.xAxis(); }
+
+protected:
+
+    mClass uiCreateColDlg : public uiDialog
+    {
+	public :
+				uiCreateColDlg(uiParent*);
+	    BufferString        colname_;
+	protected:
+	    uiGenInput*         namefld_;
+	    bool		acceptOK(CallBacker*);
+    };
+
+    bool                	handleUserClick(const MouseEvent&);
+  
     uiMenuHandler&      	menu_;
     MenuItem            	addunitmnuitem_;
     MenuItem            	remunitmnuitem_;
@@ -97,23 +136,13 @@ protected:
 
     //data
     AnnotData			data_;
+    uiAnnotDrawer		drawer_;
     
-    //graphics
-    void			addUnit(float);
-    void			draw();
-    void			drawColumns();
-    void			drawBorders(int);
-    void			drawMarkers(int);
-    void			drawUnits(int);
-    void			eraseAll();
-    bool 			handleUserClick(const MouseEvent&);
-    void			updateAxis(); 
-
     //position
-    Geom::Point2D<float> 	getPos() const;
     int				getColIdxFromPos() const; 
     AnnotData::Column*		getColFromPos() const; 
     const AnnotData::Unit* 	getUnitFromPos() const;
+    Geom::Point2D<float> 	getPos() const;
 
     virtual void                createMenuCB(CallBacker*);
     virtual void                handleMenuCB(CallBacker*);
@@ -133,8 +162,8 @@ public:
 
 protected :
 
-    uiStratAnnotGather*		uidatagather_;
-    uiStratTreeWriter*		uidatawriter_;
+    uiStratAnnotGather		uidatagather_;
+    uiStratTreeWriter		uidatawriter_;
 
     MenuItem            	speclvlmnuitem_;
     MenuItem            	propunitmnuitem_;
@@ -149,8 +178,8 @@ protected :
     void			makeAnnots();
     void			makeAnnotCol(const char*,int,bool);
 
-    void			dataChanged(CallBacker*);
     void			dispParamChgd(CallBacker*);
+    virtual void		dataChanged(CallBacker*);
     virtual void                handleMenuCB(CallBacker*);
     virtual void                createMenuCB(CallBacker*);
 };
