@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.10 2009-12-01 15:35:21 cvsbruno Exp $
+RCS:           $Id: fftfilter.cc,v 1.11 2010-05-11 14:21:08 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -12,18 +12,15 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "fftfilter.h"
 #include "fft.h"
-#include "hilberttransform.h"
 
 #include <complex>
 
 FFTFilter::FFTFilter()
-    : hilbert_(0)	       	
-    , fft_(0)	      
+    : fft_(0)	      
     , timewindow_(0)	      	      
     , hfreqwindow_(0)	      	      
     , lfreqwindow_(0)	      	      
 {
-    hilbert_ = new HilbertTransform();
     fft_ = new FFT();
 } 
 
@@ -31,7 +28,6 @@ FFTFilter::FFTFilter()
 FFTFilter::~FFTFilter()
 {
     delete fft_;
-    delete hilbert_;
     delete timewindow_;
     delete hfreqwindow_;
     delete lfreqwindow_;

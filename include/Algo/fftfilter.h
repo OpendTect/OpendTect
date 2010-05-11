@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          6-10-2009
-RCS:           $Id: fftfilter.h,v 1.5 2009-12-01 15:35:21 cvsbruno Exp $
+RCS:           $Id: fftfilter.h,v 1.6 2010-05-11 14:21:08 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 class FFT;
 class ArrayNDWindow;
-class HilbertTransform;
 
 template <class T> class Array1DImpl;
 typedef std::complex<float> float_complex;
@@ -66,7 +65,6 @@ protected:
 			float* win_;
     };
 
-    HilbertTransform*	hilbert_; 
     FFT*		fft_; 
     Window*		timewindow_;
     Window*		hfreqwindow_;
