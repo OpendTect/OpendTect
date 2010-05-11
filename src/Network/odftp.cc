@@ -7,31 +7,44 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odftp.cc,v 1.6 2009-12-03 03:18:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: odftp.cc,v 1.7 2010-05-11 10:01:22 cvsnanne Exp $";
 
 #include "odftp.h"
+#include "qftpconn.h"
 
+#include <QFile>
 #include <QFtp>
 
 
 ODFtp::ODFtp()
-    : commandFinished(this)
-    , commandStarted(this)
-    , dataTransferProgress(this)
-    , done(this)
-    , readyRead(this)
-    , stateChanged(this)
-
-    , connected(this)
+    : connected(this)
+    , disconnected(this)
     , loginDone(this)
-    , listDone(this)
+    , commandStarted(this)
+    , commandFinished(this)
+    , dataTransferProgress(this)
+    , transferDone(this)
+    , readyRead(this)
+    , listReady(this)
+    , messageReady(this)
+    , done(this)
     , qftp_(new QFtp)
 {
+    qftpconn_ = new QFtpConnector( qftp_, this );
+
     error_ = false;
     nrdone_ = 0;
     totalnr_ = 0;
     commandid_ = 0;
-    connectionstate_ = 0;
+    connectionstate_ = -1;
+
+    transferDone.notify( mCB(this,ODFtp,transferDoneCB) );
+}
+
+
+ODFtp::~ODFtp()
+{
+    delete qftpconn_;
 }
 
 
@@ -47,17 +60,35 @@ int ODFtp::close()
 void ODFtp::abort()
 { qftp_->abort(); }
 
-int ODFtp::get( const char* file )
-{ return qftp_->get( file ); }
-// TODO: use QIODevice
+
+int ODFtp::get( const char* file, const char* dest )
+{
+    QFile* qfile = new QFile( dest );
+    qfile->open( QIODevice::WriteOnly );
+    qfiles_ += qfile;
+    const int cmdid = qftp_->get( file, qfile );
+    getids_ += cmdid;
+    return cmdid;
+}
 
 
+void ODFtp::transferDoneCB( CallBacker* )
+{
+    int cmdidx = getids_.indexOf( commandid_ );
+    if ( qfiles_.validIdx(cmdidx) )
+	qfiles_[cmdidx]->close();
+}
+
+
+// TODO: implement
 int ODFtp::put( const char* file )
 { return qftp_->put( 0, file ); }
-// TODO: use QIODevice
 
 int ODFtp::cd( const char* dir )
 { return qftp_->cd( dir ); }
+
+int ODFtp::list()
+{ return qftp_->list(); }
 
 int ODFtp::rename( const char* oldname, const char* newname )
 { return qftp_->rename( oldname, newname ); }
@@ -74,13 +105,12 @@ int ODFtp::rmdir( const char* dir )
 bool ODFtp::hasPendingCommands() const
 { return qftp_->hasPendingCommands(); }
 
-const char* ODFtp::error() const
+od_int64 ODFtp::bytesAvailable() const
+{ return qftp_->bytesAvailable(); }
+
+
+void ODFtp::setMessage( const char* msg )
 {
-    return 0;
+    message_ = msg;
+    messageReady.trigger();
 }
-
-const BufferStringSet& ODFtp::fileList() const
-{ return filelist_; }
-
-const BufferStringSet& ODFtp::dirList() const
-{ return dirlist_; }
