@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.52 2009-10-07 13:26:33 cvsjaap Exp $
+ RCS:           $Id: uilistbox.h,v 1.53 2010-05-12 10:35:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,8 @@ public:
     void		setPixmap(int,const Color&);
     void		setPixmap(int,const ioPixmap&);
     ioPixmap		pixmap(int) const;
+    void		setColor(int,const Color&);
+    Color		getColor(int) const;
 
     void		setItemText(int,const char*);
     int			currentItem() const;
