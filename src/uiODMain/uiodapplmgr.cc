@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.375 2010-05-04 10:51:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.376 2010-05-12 04:30:56 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1571,6 +1571,8 @@ void uiODApplMgr::doWellXPlot( CallBacker* )
 { attrvishandler_.doXPlot(); }
 void uiODApplMgr::doAttribXPlot( CallBacker* )
 { attrvishandler_.crossPlot(); }
+void uiODApplMgr::openCrossPlot( CallBacker* )
+{ dispatcher_.openXPlot(); }
 void uiODApplMgr::setZStretch()
 { attrvishandler_.setZStretch(); }
 bool uiODApplMgr::selectAttrib( int id, int attrib )

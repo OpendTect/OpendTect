@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.101 2010-05-04 10:51:04 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.102 2010-05-12 04:30:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,7 @@ public:
     				//!< This plots between well and attrib
     void			doAttribXPlot(CallBacker* =0);
     				//!< This plots between attribs.
+    void			openCrossPlot(CallBacker* = 0 ); // Crate XPlot from file
     void			createHorOutput(int,bool);
     void			reStartProc();
     void			processTime2Depth(CallBacker* =0);

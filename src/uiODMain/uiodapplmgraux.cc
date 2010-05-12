@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.19 2010-05-04 10:51:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.20 2010-05-12 04:30:56 cvssatyaki Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.19 2010-05-04 10:51:04 cv
 #include "datapackbase.h"
 #include "emsurfacetr.h"
 #include "ioobj.h"
+#include "posvecdataset.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
@@ -26,6 +27,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.19 2010-05-04 10:51:04 cv
 
 #include "uimsg.h"
 #include "uiconvpos.h"
+#include "uidatapointset.h"
 #include "uiveldesc.h"
 #include "uifontsel.h"
 #include "uipluginman.h"
@@ -37,6 +39,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.19 2010-05-04 10:51:04 cv
 #include "uiprestackexpmute.h"
 #include "uibatchprestackproc.h"
 #include "uivelocityfunctionimp.h"
+#include "uivisdatapointsetdisplaymgr.h"
 #include "uiprobdenfuncman.h"
 #include "uiimpexppdf.h"
 #include "uiseisbayesclass.h"
@@ -291,6 +294,20 @@ int uiODApplMgrDispatcher::createMapDataPack( const DataPointSet& data,
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     dpman.add( newpack );
     return newpack->id();
+}
+
+
+void uiODApplMgrDispatcher::openXPlot()
+{
+    PosVecDataSet pvds;
+    pvds.setEmpty();
+    DataPointSet* newdps = new DataPointSet( pvds, false );
+    DPM(DataPackMgr::PointID()).addAndObtain( newdps );
+    uiDataPointSet* uidps =
+	new uiDataPointSet( ODMainWin(), *newdps,
+			    uiDataPointSet::Setup("CrossPlot from saved data"),
+			    ODMainWin()->applMgr().visDPSDispMgr() );
+    uidps->go();
 }
 
 

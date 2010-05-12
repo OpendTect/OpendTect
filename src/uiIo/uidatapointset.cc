@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.60 2010-04-05 05:17:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.61 2010-05-12 04:30:56 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -31,6 +31,7 @@ static const char* rcsID = "$Id: uidatapointset.cc,v 1.60 2010-04-05 05:17:52 cv
 #include "unitofmeasure.h"
 #include "mousecursor.h"
 #include "settings.h"
+#include "timer.h"
 
 #include "uitable.h"
 #include "uilabel.h"
@@ -99,6 +100,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, statswin_(0)
 	, dpsdispmgr_(dpsmgr)
 	, iotb_(0)
+	, timer_(new Timer())
 {
     windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
 
@@ -135,6 +137,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     selPtsToBeRemoved.notify( mCB(this,uiDataPointSet,removeSelPts) );
     setPrefWidth( 800 ); setPrefHeight( 600 );
     finaliseDone.notify( mCB(this,uiDataPointSet,initWin) );
+    timer_->tick.notify( mCB(this,uiDataPointSet,retrieve) );
     creationCBS().doCall( this );
 }
 
@@ -405,6 +408,8 @@ void uiDataPointSet::handleAxisColChg()
 void uiDataPointSet::initWin( CallBacker* c )
 {
     setSortedCol( 3 );
+    if ( dps_.isEmpty() && setup_.allowretrieve_ )
+	timer_->start( 500, true );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.209 2010-05-04 10:51:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.210 2010-05-12 04:30:56 cvssatyaki Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -457,6 +457,7 @@ void uiODMenuMgr::fillAnalMenu()
     uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "&Cross-plot", &xplotpm );
     mInsertItem( crsplot, "&Well logs <--> Attributes ...", mXplotMnuItm );
     mInsertItem( crsplot, "&Attributes <--> Attributes ...", mAXplotMnuItm );
+    mInsertItem( crsplot, "&Open Crossplot ...", mOpenXplotMnuItm );
     analmnu_->insertItem( crsplot );
 
     if (  SI().zIsTime() )
@@ -972,6 +973,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
     case mXplotMnuItm:		applMgr().doWellXPlot(); break;
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
+    case mOpenXplotMnuItm:	applMgr().openCrossPlot(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
     case mAddTmeDepthMnuItm:	applMgr().addTimeDepthScene(); break;

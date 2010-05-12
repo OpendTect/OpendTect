@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.10 2010-05-04 10:51:04 cvsbert Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.11 2010-05-12 04:30:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ mClass uiODApplMgrDispatcher : public CallBacker
     void		pluginMan();
     void		manageShortcuts();
     void		setFonts();
+    void		openXPlot();
 
     void		posDlgClose(CallBacker*);
 

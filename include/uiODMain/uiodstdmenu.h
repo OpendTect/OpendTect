@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.63 2010-01-28 09:49:50 cvsnanne Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.64 2010-05-12 04:30:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,6 +131,7 @@ ________________________________________________________________________
 #define mCompAlongHor3DMnuItm	(mUseHorMnu + 6)
 #define mXplotMnuItm		(mProcMnu + 40)
 #define mAXplotMnuItm		(mAppMnu + 60)
+#define mOpenXplotMnuItm	(mAppMnu + 70)
 #define mReStartMnuItm		(mProcMnu + 50)
 
 

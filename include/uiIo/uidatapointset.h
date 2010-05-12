@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.28 2010-03-03 10:11:57 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.h,v 1.29 2010-05-12 04:30:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class uiStatsDisplayWin;
 class uiDataPointSetCrossPlotWin;
 
 class DataPointSetDisplayMgr;
+class Timer;
 namespace Stats { template <class T> class RunCalc; }
 
 /*!\brief Edit DataPointSet.
@@ -157,6 +158,7 @@ protected:
     bool			fillingtable_;
 
     DataPointSetDisplayMgr*	dpsdispmgr_;
+    Timer*			timer_;
 
     static const char*		sKeyMinDPPts()
 				{ return "Minimum pts for Density Plot"; }
