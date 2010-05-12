@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.106 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.107 2010-05-12 10:35:44 cvsraman Exp $";
 
 #include "uilistbox.h"
 
@@ -375,6 +375,25 @@ ioPixmap uiListBox::pixmap( int index ) const
 	return ioPixmap();
     QIcon qicon = body_->item(index)->icon();
     return ioPixmap( qicon.pixmap(body_->iconSize()) );
+}
+
+
+void uiListBox::setColor( int index, const Color& col )
+{
+    QColor qcol( col.r(), col.g(), col.b() );
+    QListWidgetItem* itm = body_->item( index );
+    if ( itm ) itm->setBackground( qcol );
+//    body_->setFocus();
+}
+
+
+Color uiListBox::getColor( int index ) const
+{
+    QListWidgetItem* itm = body_->item( index );
+    if ( !itm ) return Color(255,255,255);
+
+    const QColor qcol = itm->background().color();
+    return Color( qcol.red(), qcol.green(), qcol.blue() );
 }
 
 
