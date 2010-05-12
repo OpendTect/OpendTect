@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.156 2010-04-27 08:46:31 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.157 2010-05-12 10:22:35 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1463,7 +1463,21 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 	BufferString versionstr;
 	float versionnr = iopar.get( sKey::Version, versionstr )
 	    			? atof( versionstr.buf() ) : 0 ;
-	ads->usePar( iopar, versionnr, &errmsgs );
+	if ( isstored && versionnr<4.05 )	//backward compatibility v<4.1.1
+	{
+	    DescSet* adsnonstored = eDSHolder().getDescSet( is2d, false );
+	    if ( adsnonstored )
+	    {
+		TypeSet<DescID> allstoredids;
+		adsnonstored->getStoredIds( allstoredids );
+		ads = adsnonstored->optimizeClone( allstoredids );
+		ads->setContainStoredDescOnly( true );
+		eDSHolder().replaceStoredAttribSet( ads );
+	    }
+	}
+	else
+	    ads->usePar( iopar, versionnr, &errmsgs );
+
 	BufferString errmsg;
 	for ( int idx=0; idx<errmsgs.size(); idx++ )
 	{

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene HUCK
  Date:          11-03-2010
- RCS:           $Id: attribdescsetsholder.h,v 1.1 2010-04-27 08:46:31 cvshelene Exp $
+ RCS:           $Id: attribdescsetsholder.h,v 1.2 2010-05-12 10:22:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,11 @@ protected:
 private:
     friend DescSetsHolder&	eDSHolder();	//editable DescSetsHolder
     friend const DescSetsHolder&	DSHolder();
+
+public:
+    
+    void                        replaceStoredAttribSet(DescSet*);
+    				//needed for backward compatibility v < 4.1.1
 };
 
 } // namespace Attrib

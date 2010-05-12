@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.47 2010-04-23 15:33:30 cvshelene Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.48 2010-05-12 10:22:35 cvshelene Exp $";
 
 #include "attribsel.h"
 
@@ -142,7 +142,7 @@ void SelSpec::setIDFromRef( const DescSet& ds )
     {
 	if ( ds.getDesc(id_) && 
 	     strcmp( attribname, ds.getDesc(id_)->attribName() ) )
-	    id_ = ds.getID( defstring_, false );
+	    id_ = ds.getID( defstring_, ds.containsStoredDescOnly() );
     }
     const Desc* desc = ds.getDesc( id_ );
     if ( desc )
@@ -176,7 +176,7 @@ void SelSpec::fillPar( IOPar& par ) const
 {
     par.set( sKeyRef(), ref_ );
     par.set( sKeyID(), id_.asInt() );
-    par.set( sKeyOnlyStoredData(), id_.isStored() );
+    par.setYN( sKeyOnlyStoredData(), id_.isStored() );
     par.setYN( sKeyIsNLA(), isnla_ );
     par.set( sKeyObjRef(), objref_ );
     par.set( sKeyDefStr(), defstring_ );

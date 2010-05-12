@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.92 2010-04-23 15:33:29 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.93 2010-05-12 10:22:35 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -590,7 +590,7 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 	 }
 	
 	dsc->updateParams();
-	addDesc( dsc, DescID(id,false) );
+	addDesc( dsc, DescID(id,storedattronly_) );
 	copypar.mergeComp( *descpar, toString(id) );
     }
     
@@ -1032,6 +1032,17 @@ void DescSet::createAndAddMultOutDescs( const DescID& targetid,
 	newdesc->setUserRef( seloutnms[idx]->buf() );
 	outdescids += addDesc( newdesc );
     }
+}
+
+
+void DescSet::setContainStoredDescOnly( bool yn )
+{
+    storedattronly_ = yn;
+    for ( int idx=0; idx<ids_.size(); idx++ )
+	ids_[idx].setStored( yn );
+
+    if ( defattribid_.isValid() )
+	defattribid_.setStored( yn );
 }
 
 }; // namespace Attrib

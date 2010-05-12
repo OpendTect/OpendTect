@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.42 2010-04-23 15:33:29 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.43 2010-05-12 10:22:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,8 +113,7 @@ public:
     				//!<DescID`definition string
     void			fillInAttribColRefs(BufferStringSet&) const;
 
-    inline void			setContainStoredDescOnly( bool yn )
-    				{ storedattronly_ = yn; }
+    void			setContainStoredDescOnly(bool yn);
     inline bool			containsStoredDescOnly() const
     				{ return storedattronly_; }
 

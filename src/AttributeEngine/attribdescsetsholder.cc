@@ -4,7 +4,7 @@
  * DATE     : Mar 2010
 -*/
 
-static const char* rcsID = "$Id: attribdescsetsholder.cc,v 1.1 2010-04-27 08:46:31 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescsetsholder.cc,v 1.2 2010-05-12 10:22:35 cvshelene Exp $";
 
 #include "attribdescsetsholder.h"
 #include "attribdescset.h"
@@ -116,5 +116,20 @@ void DescSetsHolder::replaceADSMan( DescSetMan* newadsman, bool dodelete )
     }
 }
 
+
+void DescSetsHolder::replaceStoredAttribSet( DescSet* ads )
+{
+    bool is2d = ads && ads->is2D();
+    if ( is2d )
+    {
+	delete adsstored2d_;
+	adsstored2d_ = ads;
+    }
+    else
+    {
+	delete adsstored3d_;
+	adsstored3d_ = ads;
+    }
+}
 
 }; // namespace Attrib
