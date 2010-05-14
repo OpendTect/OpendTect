@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.h,v 1.5 2010-03-29 22:10:48 cvskarthika Exp $
+ RCS:           $Id: uiscenepropdlg.h,v 1.6 2010-05-14 13:30:48 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,33 +16,28 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiColorInput;
-class uiVisPartServer;
 class uiSoViewer;
 class uiSliderExtra;
 
-namespace visSurvey { class Scene; class Seis2DDisplay; }
+namespace visSurvey { class Scene; }
 
 /*! Dialog for scene properties. */
 
 mClass uiScenePropertyDlg : public uiDialog
 {
 public:
-			uiScenePropertyDlg(uiParent*,visSurvey::Scene*,
-					   uiSoViewer*,
-					   const ObjectSet<uiSoViewer>&,
-					   uiVisPartServer* );
+			uiScenePropertyDlg(uiParent*,const 
+					ObjectSet<uiSoViewer>&,int);
 
 protected:
     void		updateScene(visSurvey::Scene*);
-    void		updateSeis2DDisplay();
     void		updateCB(CallBacker*);
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
 
-    visSurvey::Scene*		scene_;
-    uiSoViewer*			viewer_;
     const ObjectSet<uiSoViewer>&viewers_;
-    uiVisPartServer*		visserv_;
+    int				curvwridx_;
+    visSurvey::Scene*		scene_;
     bool			hadsurveybox_;
     bool			hadannot_;
     bool			hadannotscale_;
