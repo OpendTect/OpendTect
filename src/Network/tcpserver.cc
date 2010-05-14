@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpserver.cc,v 1.4 2010-02-08 11:35:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: tcpserver.cc,v 1.5 2010-05-14 07:21:53 cvsranojay Exp $";
 
 #include "tcpserver.h"
 #include "qtcpservercomm.h"
+#include "tcpsocket.h"
 
 #include <QTcpSocket>
 
@@ -19,7 +20,11 @@ TcpServer::TcpServer()
     : qtcpserver_(new QTcpServer)
     , comm_(new QTcpServerComm(qtcpserver_,this))
     , newConnection(this)
-{}
+    , readyRead(this)
+    , tcpsocket_(0)
+{
+    newConnection.notify( mCB(this,TcpServer,newConnectionCB) );
+}
 
 
 TcpServer::~TcpServer()
@@ -29,6 +34,7 @@ TcpServer::~TcpServer()
 
     delete qtcpserver_;
     delete comm_;
+    deepErase( sockets2bdeleted_ );
 }
 
 
@@ -61,11 +67,44 @@ QTcpSocket* TcpServer::nextPendingConnection()
 
 int TcpServer::write( const char* str )
 {
-    QTcpSocket* qsocket = nextPendingConnection();
-    if ( !qsocket ) return 0;
+    return tcpsocket_ ? tcpsocket_->write( str ) : 0;
+}
 
-    const int res = qsocket->write( str );
-    qsocket->flush();
-    qsocket->disconnectFromHost();
-    return res;
+
+void TcpServer::newConnectionCB( CallBacker* )
+{
+    if ( !hasPendingConnections() )
+	return;
+
+    if ( !tcpsocket_ )
+    {
+	tcpsocket_ = new TcpSocket( nextPendingConnection() );
+	tcpsocket_->readyRead.notify( mCB(this,TcpServer,readyReadCB));
+	tcpsocket_->disconnected.notify( mCB(this,TcpServer,disconnectCB) );
+    }
+}
+
+
+void TcpServer::readyReadCB( CallBacker* )
+{
+    readyRead.trigger();
+}
+
+
+void TcpServer::disconnectCB( CallBacker* )
+{
+    if ( tcpsocket_ )
+    {
+	tcpsocket_->readyRead.remove( mCB(this,TcpServer,readyReadCB) );
+	tcpsocket_->disconnected.remove( mCB(this,TcpServer,disconnectCB) );
+    }
+    sockets2bdeleted_ += tcpsocket_;
+    tcpsocket_ = 0;
+}
+
+
+void TcpServer::read( BufferString& data ) const
+{
+    if ( tcpsocket_ )
+	tcpsocket_->read( data );
 }
