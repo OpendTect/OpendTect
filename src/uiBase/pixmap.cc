@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.39 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.40 2010-05-14 09:59:13 cvsbert Exp $";
 
 #include "pixmap.h"
 
@@ -70,6 +70,9 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     : qpixmap_(0)
     , srcname_(fnm)
 {
+    if ( srcname_.isEmpty() )
+	{ qpixmap_ = new QPixmap; return; }
+
     if ( fmt )
     {
 	FileMultiString fms( fnm );
@@ -109,10 +112,7 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height,
     if ( height < 2 ) { height = 1; validsz = false; }
 
     if ( ctabin.size() == 0 || !validsz )
-    {
-	qpixmap_ = new QPixmap( width, height );
-	return;
-    }
+	{ qpixmap_ = new QPixmap( width, height ); return; }
 
     uiRGBArray rgbarr( false );
     rgbarr.setSize( width, height );
@@ -145,8 +145,7 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height,
 ioPixmap::~ioPixmap()
 {
     releaseDrawTool();
-    if ( qpixmap_ )
-	delete qpixmap_;
+    delete qpixmap_;
 }
 
 
