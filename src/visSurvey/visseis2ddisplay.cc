@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.92 2010-04-29 15:03:41 cvsbert Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.93 2010-05-14 13:32:11 cvskarthika Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -215,7 +215,7 @@ void Seis2DDisplay::setLineName( const char* lnm )
     if ( linename_ )
     {
 	if ( scene_ )
-	    setLineNameColor( scene_->getAnnotColor() );
+	    setAnnotColor( scene_->getAnnotColor() );
 	linename_->setText( lnm );
     }
 }
@@ -972,13 +972,13 @@ void Seis2DDisplay::clearTexture( int attribnr )
 }
 
 
-void Seis2DDisplay::setLineNameColor( const Color& col )
+void Seis2DDisplay::setAnnotColor( Color col )
 {
     linename_->getMaterial()->setColor( col );
 }
 
 
-const Color& Seis2DDisplay::getLineNameColor()
+Color Seis2DDisplay::getAnnotColor()
 {
     return linename_->getMaterial()->getColor();
 }

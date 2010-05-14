@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.44 2010-03-29 22:14:15 cvskarthika Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.45 2010-05-14 13:31:38 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -117,8 +117,8 @@ public:
 
     void			clearTexture(int);
 
-    void			setLineNameColor(const Color&);
-    const Color&		getLineNameColor();
+    virtual void		setAnnotColor(Color);
+    virtual Color		getAnnotColor();
     
     NotifierAccess*		getMovementNotifier()
     				{ return &geomchanged_; }
