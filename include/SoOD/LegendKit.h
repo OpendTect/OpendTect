@@ -155,7 +155,7 @@ protected:
   virtual ~LegendKit();
   virtual void notify(SoNotList * list);
   
-  void setDefaultOnNonWritingFields();
+  virtual void setDefaultOnNonWritingFields();
 
 private:
 
