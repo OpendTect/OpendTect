@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.116 2010-03-23 21:18:06 cvsyuancheng Exp $
+ RCS:		$Id: vissurvobj.h,v 1.117 2010-05-14 13:34:50 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -132,6 +132,10 @@ public:
     virtual bool		hasColor() const		{ return false;}
     virtual void		setColor(Color)			{}
     virtual Color		getColor() const		
+    				{ return Color::DgbColor(); }
+
+    virtual void		setAnnotColor(Color)			{}
+    virtual Color		getAnnotColor() const		
     				{ return Color::DgbColor(); }
 
     virtual int			nrResolutions() const		{ return 1; }
