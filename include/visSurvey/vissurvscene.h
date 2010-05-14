@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.68 2010-03-18 19:25:34 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.69 2010-05-14 13:35:58 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -148,7 +148,7 @@ public:
     void			getAllowedZDomains(BufferString&) const;
 
     void			setAnnotColor(const Color&);
-    const Color&		getAnnotColor();
+    const Color&		getAnnotColor() const;
     void			setMarkerPos(const Coord3&);
     void			setMarkerSize(float );
     float			getMarkerSize() const;
