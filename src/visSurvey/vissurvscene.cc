@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.135 2010-04-27 12:17:33 cvskarthika Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.136 2010-05-14 13:32:52 cvskarthika Exp $";
 
 #include "vissurvscene.h"
 
@@ -394,10 +394,17 @@ void Scene::setAnnotColor( const Color& col )
 {
     annot_->getMaterial()->setColor( col );
     annot_->updateTextColor( col );
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	mDynamicCastGet(SurveyObject*,so,getObject(idx));
+	if ( so )
+	    so->setAnnotColor( col );
+    }
 }
 
 
-const Color& Scene::getAnnotColor()
+const Color& Scene::getAnnotColor() const
 {
     return annot_->getColor();
 }
