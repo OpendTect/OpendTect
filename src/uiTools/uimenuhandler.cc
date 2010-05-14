@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenuhandler.cc,v 1.15 2010-04-16 11:27:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.16 2010-05-14 09:07:51 cvsbert Exp $";
 
 
 #include "uimenuhandler.h"
@@ -122,7 +122,8 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 	    mnuitem->setEnabled( subitm.enabled );
 	    mnuitem->setCheckable( subitm.checkable );
 	    mnuitem->setChecked( subitm.checked );
-	    mnuitem->setPixmap( ioPixmap(subitm.iconfnm) );
+	    if ( !subitm.iconfnm.isEmpty() )
+		mnuitem->setPixmap( ioPixmap(subitm.iconfnm) );
 	}
 
 	handled[lowestitem] = true;
