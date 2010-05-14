@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.212 2010-04-22 09:53:48 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.213 2010-05-14 13:34:18 cvskarthika Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -273,11 +273,8 @@ bool uiODSceneTreeItem::showSubMenu()
 	ObjectSet<uiSoViewer> viewers;
 	ODMainWin()->sceneMgr().getSoViewers( viewers );
 
-	mDynamicCastGet( visSurvey::Scene*, templscene,
-			 visserv->getObject(displayid_) );
-
-	uiScenePropertyDlg dlg( getUiParent(), templscene,
-				viewer(), viewers, visserv );
+	uiScenePropertyDlg dlg( getUiParent(), viewers, 
+			viewers.indexOf( viewer() ) );
 	dlg.go();
     }
     else if ( mnuid==mTopBotImg )
