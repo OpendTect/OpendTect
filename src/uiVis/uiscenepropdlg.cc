@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.14 2010-05-14 13:30:33 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.15 2010-05-14 13:47:40 cvskarthika Exp $";
 
 #include "uiscenepropdlg.h"
 
@@ -120,18 +120,18 @@ void uiScenePropertyDlg::updateCB( CallBacker* cb )
 }
 
 
-void uiScenePropertyDlg::updateScene( visSurvey::Scene* scene_ )
+void uiScenePropertyDlg::updateScene( visSurvey::Scene* scene )
 {
-    if ( !scene_ )
+    if ( !scene )
 	return;
 
-    scene_->showAnnot( survboxfld_->isChecked() );
-    scene_->showAnnotScale( annotscalefld_->isChecked() );
-    scene_->showAnnotText( annotfld_->isChecked() );
-    scene_->setMarkerSize( markersizefld_->sldr()->getValue() );
-    scene_->setMarkerColor( markercolfld_->color() );
-    scene_->setAnnotColor( annotcolfld_->color() );
-    scene_->getSceneColTab()->setLegendColor( annotcolfld_->color() );
+    scene->showAnnot( survboxfld_->isChecked() );
+    scene->showAnnotScale( annotscalefld_->isChecked() );
+    scene->showAnnotText( annotfld_->isChecked() );
+    scene->setMarkerSize( markersizefld_->sldr()->getValue() );
+    scene->setMarkerColor( markercolfld_->color() );
+    scene->setAnnotColor( annotcolfld_->color() );
+    scene->getSceneColTab()->setLegendColor( annotcolfld_->color() );
 }
 
 
