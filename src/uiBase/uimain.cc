@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.53 2010-04-15 15:38:50 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.54 2010-05-17 06:54:38 cvsbert Exp $";
 
 #include "uimain.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uimain.cc,v 1.53 2010-04-15 15:38:50 cvsjaap Ex
 #include "bufstringset.h"
 #include "debugmasks.h"
 #include "errh.h"
+#include "envvars.h"
 #include "keyboardevent.h"
 #include "settings.h"
 #include "uimsg.h"
@@ -28,6 +29,7 @@ static const char* rcsID = "$Id: uimain.cc,v 1.53 2010-04-15 15:38:50 cvsjaap Ex
 #include <QIcon>
 
 #include "dtect.xpm"
+const char** uiMain::XpmIconData = dtect_xpm_data;
 
 #ifdef __win__
 # include <QWindowsXPStyle>
@@ -145,7 +147,7 @@ uiMain::uiMain( int& argc, char **argv )
 
     initQApplication();
     init( 0, argc, argv );
-    app_->setWindowIcon( QIcon(dtect_xpm_data) );
+    app_->setWindowIcon( QIcon(XpmIconData) );
 }
 
 
@@ -154,7 +156,7 @@ uiMain::uiMain( QApplication* qapp )
 { 
     initQApplication();
     app_ = qapp;
-    app_->setWindowIcon( QIcon(dtect_xpm_data) );
+    app_->setWindowIcon( QIcon(XpmIconData) );
 }
 
 
