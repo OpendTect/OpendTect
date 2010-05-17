@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.34 2010-03-16 10:07:13 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.35 2010-05-17 06:56:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ protected:
     void		sipCB(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);
+    void		rangeChg(CallBacker*);
     void		updZUnit(CallBacker*);
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
