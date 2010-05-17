@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.134 2010-03-18 19:45:28 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.135 2010-05-17 06:58:14 cvsraman Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -649,12 +649,12 @@ const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
     if ( !b2c_.set3Pts( c[0], c[1], c[2], b[0], b[1], xline ) )
 	return "Cannot construct a valid transformation matrix from this input";
 
-    set3coords[0] = c[0];
-    set3coords[1] = c[1];
-    set3coords[2] = c[2];
-    set3binids[0] = transform( set3coords[0] );
-    set3binids[1] = transform( set3coords[1] );
-    set3binids[2] = transform( set3coords[2] );
+    set3binids[0] = cs_.hrg.start;
+    set3binids[1] = cs_.hrg.stop;
+    set3binids[2] = BinID( cs_.hrg.start.inl, cs_.hrg.stop.crl );
+    set3coords[0] = transform( set3binids[0] );
+    set3coords[1] = transform( set3binids[1] );
+    set3coords[2] = transform( set3binids[2] );
 
     return 0;
 }
