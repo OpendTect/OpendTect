@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.106 2010-03-04 05:09:21 cvsraman Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.107 2010-05-17 16:06:07 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1122,7 +1122,12 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 	{
 	    tilecolidx--;
 	    tilecol = mTileLastIdx;
-	}	
+	}
+
+	/*If we already set work area and the position is out of the area,
+	  we will skip the position. */
+	if ( tilerowidx>=nrrowsz || tilecolidx>=nrcolsz )
+	    continue;
 
 	const Coord3 pos = geometry_->getKnot(absrc,false);
 	
