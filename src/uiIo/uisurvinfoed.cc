@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.118 2010-04-23 05:41:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.119 2010-05-17 06:56:38 cvsraman Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -281,14 +281,17 @@ void uiSurveyInfoEditor::mkRangeGrp()
 			     IntInpIntervalSpec(true).setName("Inl Start",0)
 			     			     .setName("Inl Stop",1)
 	   					     .setName("Inl step",2) );
+    inlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
     crlfld_ = new uiGenInput( rangegrp_, "Cross-line range",
 			     IntInpIntervalSpec(true).setName("Crl Start",0)
 				 		     .setName("Crl Stop",1) 
 						     .setName("Crl step",2) );
+    crlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
     zfld_ = new uiGenInput( rangegrp_, "Z range", 
 	    	 	   DoubleInpIntervalSpec(true).setName("Z Start",0)
 	   					      .setName("Z Stop",1) 
 						      .setName("Z step",2) );
+    zfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
     crlfld_->attach( alignedBelow, inlfld_ );
     zfld_->attach( alignedBelow, crlfld_ );
 
@@ -696,7 +699,8 @@ bool uiSurveyInfoEditor::setRanges()
     CubeSampling cs( si_.sampling(false) );
     HorSampling& hs = cs.hrg;
     hs.start.inl = irg.start; hs.start.crl = crg.start;
-    hs.stop.inl = irg.stop;   hs.stop.crl = crg.stop;
+    hs.stop.inl = irg.atIndex( irg.getIndex(irg.stop) );
+    hs.stop.crl = crg.atIndex( crg.getIndex(crg.stop) );
     hs.step.inl = irg.step;   hs.step.crl = crg.step;
     if ( hs.step.inl < 1 ) hs.step.inl = 1;
     if ( hs.step.crl < 1 ) hs.step.crl = 1;
@@ -838,6 +842,29 @@ void uiSurveyInfoEditor::chgSetMode( CallBacker* )
 void uiSurveyInfoEditor::setInl1Fld( CallBacker* )
 {
     ic1fld_->setText( ic0fld_->text(0), 0 );
+}
+
+
+void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
+{
+    if ( cb == inlfld_ )
+    {
+	StepInterval<int> irg = inlfld_->getIStepInterval();
+	irg.stop = irg.atIndex( irg.getIndex(irg.stop) );
+	inlfld_->setValue( irg );
+    }
+    else if ( cb == crlfld_ )
+    {
+	StepInterval<int> crg = crlfld_->getIStepInterval();
+	crg.stop = crg.atIndex( crg.getIndex(crg.stop) );
+	crlfld_->setValue( crg );
+    }
+    else if ( cb == zfld_ )
+    {
+	StepInterval<double> zrg = zfld_->getDStepInterval();
+	zrg.stop = zrg.atIndex( zrg.getIndex(zrg.stop) );
+	zfld_->setValue( zrg );
+    }
 }
 
 
