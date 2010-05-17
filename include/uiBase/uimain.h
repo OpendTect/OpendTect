@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.18 2010-05-17 06:54:38 cvsbert Exp $
+ RCS:           $Id: uimain.h,v 1.19 2010-05-17 10:11:27 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
     const uiFont*	font(); 
 
     static uiMain&	theMain();
+    static void		setXpmIconData( const char** xpmdata ); 
     static const char**	XpmIconData;
 
     static void		flushX();

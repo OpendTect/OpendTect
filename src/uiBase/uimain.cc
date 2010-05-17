@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.54 2010-05-17 06:54:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.55 2010-05-17 10:11:27 cvsranojay Exp $";
 
 #include "uimain.h"
 
@@ -30,6 +30,10 @@ static const char* rcsID = "$Id: uimain.cc,v 1.54 2010-05-17 06:54:38 cvsbert Ex
 
 #include "dtect.xpm"
 const char** uiMain::XpmIconData = dtect_xpm_data;
+void uiMain::setXpmIconData( const char** xpmdata )
+{ 
+    XpmIconData = xpmdata;
+}
 
 #ifdef __win__
 # include <QWindowsXPStyle>
