@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.11 2010-03-11 11:18:00 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.12 2010-05-18 15:05:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,10 @@ public:
 				~uiObjFileMan();
 
     static BufferString		getFileSizeString(double);
+
+    uiIOObjSelGrp*		selGroup()		{ return selgrp; }
+    const IOObj*		curIOObj() const	{ return curioobj_; }
+    const IOObjContext&		ioobjContext() const	{ return ctxt_; }
 
 protected:
 
