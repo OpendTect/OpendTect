@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.12 2010-03-31 13:44:20 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.13 2010-05-18 03:42:28 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -135,31 +135,6 @@ void uiODApplMgrAttrVisHandler::setHistogram( int visid, int attrib )
 }
 
 
-void uiODApplMgrAttrVisHandler::colMapperChg()
-{
-    const int visid = am_.visserv_->getSelObjectId();
-    int attrib = am_.visserv_->getSelAttribNr();
-    if ( attrib == -1 ) attrib = 0;
-
-    am_.visserv_->setColTabMapperSetup( visid, attrib,
-	    am_.appl_.colTabEd().getColTabMapperSetup() );
-    setHistogram( visid, attrib );
-
-    //Autoscale may have changed ranges, so update.
-    mDynamicCastGet( visSurvey::SurveyObject*, so,
-	am_.visserv_->getObject( visid ) );
-    if ( so )
-	am_.appl_.colTabEd().setColTab( so, attrib, mUdf(int) );
-    else
-    {
- 	am_.appl_.colTabEd().setColTab(
-	    am_.visserv_->getColTabSequence( visid, attrib ),
-	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
-	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
-    }
-}
-
-
 void uiODApplMgrAttrVisHandler::createAndSetMapDataPack( int visid, int attrib,
 					   const DataPointSet& data, int colnr )
 {
@@ -211,6 +186,34 @@ void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
     }
 
     setHistogram( visid, attrib );
+}
+
+
+void uiODApplMgrAttrVisHandler::colMapperChg()
+{
+    mDynamicCastGet(const visBase::DataObject*,dataobj,
+		    am_.appl_.colTabEd().getSurvObj())
+    const int visid = dataobj ? dataobj->id() : am_.visserv_->getSelObjectId();
+    int attrib = dataobj
+	? am_.appl_.colTabEd().getChannel() : am_.visserv_->getSelAttribNr();
+    if ( attrib == -1 ) attrib = 0;
+
+    am_.visserv_->setColTabMapperSetup( visid, attrib,
+	    am_.appl_.colTabEd().getColTabMapperSetup() );
+    setHistogram( visid, attrib );
+
+    //Autoscale may have changed ranges, so update.
+    mDynamicCastGet( visSurvey::SurveyObject*, so,
+	am_.visserv_->getObject( visid ) );
+    if ( so )
+	am_.appl_.colTabEd().setColTab( so, attrib, mUdf(int) );
+    else
+    {
+ 	am_.appl_.colTabEd().setColTab(
+	    am_.visserv_->getColTabSequence( visid, attrib ),
+	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
+	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
+    }
 }
 
 
