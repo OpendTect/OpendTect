@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.46 2010-05-11 14:22:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.47 2010-05-18 07:35:01 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -725,10 +725,10 @@ uiWellDisplay::~uiWellDisplay()
 {
     if ( mrkedit_ )
 	delete mrkedit_;
-    pms_.wd_ = 0;
     mGetWD(return);
     removeWDNotifiers( *wd );
-    delete Well::MGR().release( wellid_ );
+    pms_.wd_ = 0;
+    Well::MGR().release( wellid_ );
 }
 
 
