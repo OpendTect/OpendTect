@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.201 2010-05-04 05:58:09 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.202 2010-05-18 07:02:44 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -57,6 +57,7 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.201 2010-05-04 05:58:09 cvsran
 #include <QStatusBar>
 #include <QWidget>
 
+
 static const QEvent::Type sQEventGuiThread  = (QEvent::Type) (QEvent::User+0);
 static const QEvent::Type sQEventPopUpReady = (QEvent::Type) (QEvent::User+1);
 
@@ -95,12 +96,13 @@ public:
 			}
 
     void		go()
-			{ finalise(); show(); move( handle_.popuparea_ ); }
+			{ finalise(); show(); move(handle_.popuparea_); }
 
     virtual void	show() 
 			{
 			    setWindowTitle( handle_.caption(false) );
 			    eventrefnr_ = handle_.beginCmdRecEvent("WinPopUp");
+			    managePopupPos();
 			    QMainWindow::show();
 
 			    if( poptimer.isActive() )
@@ -117,6 +119,7 @@ public:
 			}
 
     void		move(uiMainWin::PopupArea);
+    void		move(int,int);
 
     void		close();
     bool		poppedUp() const { return popped_up; }
@@ -160,6 +163,7 @@ protected:
     virtual void	finalise( bool trigger_finalise_start_stop=true );
     void		closeEvent(QCloseEvent*);
     bool		event(QEvent*);
+    void		managePopupPos();
 
 
     void		renewToolbarsMenu();
@@ -196,6 +200,7 @@ private:
     Timer		poptimer;
     bool		popped_up;
     uiSize		prefsz_;
+    bool		moved_;
 
     bool		deletefrombody_;
     bool		deletefromod_;
@@ -220,6 +225,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, exitapponclose_(false)
         , prefsz_(-1,-1)
 	, nractivated_(0)
+	, moved_(false)
 {
     if ( nm && *nm )
 	setObjectName( nm );
@@ -298,14 +304,21 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
     switch( pa )
     {
 	case uiMainWin::TopLeft :
-	    QWidget::move( 0, 0 ); break;
+	    move( 0, 0 ); break;
 	case uiMainWin::TopRight :
-	    QWidget::move( xpos, 0 ); break;
+	    move( xpos, 0 ); break;
 	case uiMainWin::BottomLeft :
-	    QWidget::move( 0, ypos ); break;
+	    move( 0, ypos ); break;
 	case uiMainWin::BottomRight :
-	    QWidget::move( xpos, ypos ); break;
+	    move( xpos, ypos ); break;
     }
+}
+
+
+void uiMainWinBody::move( int x, int y )
+{
+    QWidget::move( x, y );
+    moved_ = true;
 }
 
 
@@ -562,6 +575,24 @@ bool uiMainWinBody::event( QEvent* ev )
 }
 
 
+void uiMainWinBody::managePopupPos()
+{
+    if ( handle_.parent() && !handle_.parent()->mainwin()->isHidden() )
+	return;
+
+    uiMainWin* parwin = handle_.programmedActiveWindow();
+    while ( parwin && parwin->isHidden() )
+	parwin = parwin->parent() ? parwin->parent()->mainwin() : 0;
+
+    if ( !parwin || moved_ )
+	return;
+
+    const uiRect rect = parwin->geometry( false );
+    handle_.setCornerPos( rect.get(uiRect::Left), rect.get(uiRect::Top) );
+    moved_ = false;
+}
+
+
 // ----- uiMainWin -----
 
 
@@ -613,6 +644,7 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
 
 static Threads::Mutex		winlistmutex_;
 static ObjectSet<uiMainWin>	orderedwinlist_;
+static uiMainWin*		programmedactivewin_ = 0;
 
 uiMainWin::~uiMainWin()
 {
@@ -624,6 +656,10 @@ uiMainWin::~uiMainWin()
 
     winlistmutex_.lock();
     orderedwinlist_ -= this;
+
+    if ( programmedactivewin_ == this )
+	programmedactivewin_ = parent() ? parent()->mainwin() : 0;
+
     winlistmutex_.unLock();
 }
 
@@ -771,12 +807,12 @@ uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
 
 
 void uiMainWin::setCornerPos( int x, int y )
-{ body_->QWidget::move( x, y ); }
+{ body_->move( x, y ); }
 
 
-uiRect uiMainWin::geometry() const
+uiRect uiMainWin::geometry( bool frame ) const
 {
-    QRect qrect = body_->frameGeometry();
+    QRect qrect = frame ? body_->frameGeometry() : body_->geometry();
     uiRect rect( qrect.left(), qrect.top(), qrect.right(), qrect.bottom() );
     return rect;
 }
@@ -798,11 +834,12 @@ void uiMainWin::raise()
 { body_->raise(); }
 
 
-static uiMainWin* programmedactivewin_ = 0;
-
 void uiMainWin::programActiveWindow( uiMainWin* mw )
 { programmedactivewin_ = mw; }
 
+
+uiMainWin* uiMainWin::programmedActiveWindow()
+{ return programmedactivewin_; }
 
 uiMainWin* uiMainWin::activeWindow()
 {
@@ -953,13 +990,14 @@ void uiMainWin::closeActiveModalQDlg( int retval )
 }
 
 
-void uiMainWin::getTopLevelWindows( ObjectSet<uiMainWin>& windowlist )
+void uiMainWin::getTopLevelWindows( ObjectSet<uiMainWin>& windowlist,
+				    bool visibleonly )
 {
     windowlist.erase();
     winlistmutex_.lock();
     for ( int idx=0; idx<orderedwinlist_.size(); idx++ )
     {
-	if ( !orderedwinlist_[idx]->isHidden() )
+	if ( !visibleonly || !orderedwinlist_[idx]->isHidden() )
 	    windowlist += orderedwinlist_[idx];
     }
     winlistmutex_.unLock();

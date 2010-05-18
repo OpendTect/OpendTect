@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.82 2010-04-15 15:39:21 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.83 2010-05-18 07:02:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,7 +135,7 @@ public:
     PopupArea		getPopupArea() const		{ return popuparea_; }
     void		setCornerPos(int x,int y);
     			//!Position of top-left corner in screen pixel coords
-    uiRect		geometry() const;
+    uiRect		geometry(bool frame=true) const;
 
     bool		poppedUp() const;
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
@@ -154,7 +154,8 @@ public:
     static void		closeActiveModalQDlg(int retval);
 
     static void		getModalSignatures(BufferStringSet&);
-    static void		getTopLevelWindows(ObjectSet<uiMainWin>&);
+    static void		getTopLevelWindows(ObjectSet<uiMainWin>&,
+					   bool visibleonly=true);
     static const char*	uniqueWinTitle(const char* txt,QWidget* forwindow=0);
 
 
@@ -190,6 +191,7 @@ protected:
 public:	
 			// Not for casual use
     static void		programActiveWindow(uiMainWin*);
+    static uiMainWin*	programmedActiveWindow();
 };
 
 #endif
