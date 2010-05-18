@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.107 2010-04-23 11:17:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.108 2010-05-18 15:14:44 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -40,6 +40,12 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.107 2010-04-23 11:17:33 cv
 #include "uitaskrunner.h"
 
 static const int cPrefWidth = 50;
+
+Notifier<uiSeisFileMan>* uiSeisFileMan::fieldsCreated()
+{
+    static Notifier<uiSeisFileMan> FieldsCreated(0);
+    return &FieldsCreated;
+}
 
 
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
@@ -84,6 +90,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
 
+    fieldsCreated()->trigger( this );
     selChg(0);
 }
 
