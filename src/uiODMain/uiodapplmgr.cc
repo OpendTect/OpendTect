@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.376 2010-05-12 04:30:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.377 2010-05-18 04:54:22 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1468,9 +1468,17 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	}
 
 	Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
-					visserv_->getSelSpec(visid,attrib) );
-	//set user chosen name stocked in objectRef during evaluation process
-	if ( as ) as->setUserRef( as->objectRef() );
+		visserv_->getSelSpec(visid,attrib) );
+	const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
+	const int sliceidx = attrserv_->getSliceIdx();
+	if ( as && tmpset.validIdx(sliceidx) )
+	{
+	    // userref stored in objectref during evaluation process
+	    BufferString usrref = as->objectRef();
+	    *as = tmpset[sliceidx];
+	    as->setUserRef( usrref );
+	}
+
 	sceneMgr().updateTrees();
     }
     else
