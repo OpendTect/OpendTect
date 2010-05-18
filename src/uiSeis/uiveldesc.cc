@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.38 2010-04-21 16:06:45 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.39 2010-05-18 12:07:57 cvsranojay Exp $";
 
 #include "uiveldesc.h"
 
@@ -345,14 +345,14 @@ void uiTimeDepthBase::setZRangeCB( CallBacker* )
 	rg.start = zrg.start * topvelrg.start / 2;
 	rg.stop = zrg.stop * botvelrg.stop / 2;
 	rg.step = (rg.stop-rg.start) / zrg.nrSteps();
-	rg.step = mNINT( rg.step );
+	rg.step = rg.step;
     }
     else if ( !t2d_ && !SI().zIsTime() )
     {
 	rg.start = 2 * zrg.start / topvelrg.stop;
 	rg.stop = 2 * zrg.stop / botvelrg.start;
 	rg.step = (rg.stop-rg.start) / zrg.nrSteps();
-	rg.step = mNINT( rg.step );
+	rg.step = rg.step;
     }
     else
 	rg = SI().zRange( true );
