@@ -7,20 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: timer.cc,v 1.3 2009-12-04 14:36:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: timer.cc,v 1.4 2010-05-18 07:08:12 cvsjaap Exp $";
 
 #include "timer.h"
 #include "qtimercomm.h" 
-
-#include "thread.h"
-
-static CallBack* telltale_ = 0;
-static Threads::Mutex telltalemutex_;
-static ObjectSet<const Timer> firstshots_;
-
-#define mTelltale( statements ) \
-    if ( telltale_ ) \
-	{ telltalemutex_.lock(); statements; telltalemutex_.unLock(); }
 
 
 Timer::Timer( const char* nm )
@@ -28,12 +18,15 @@ Timer::Timer( const char* nm )
     , tick(this)
     , timer_(new QTimer(0))
     , comm_(new QTimerComm(timer_,this))
+    , scriptpolicy_(DefaultPolicy)
 {}
 
 
 Timer::~Timer()
 { 
-    mTelltale( firstshots_ -= this );
+    if ( isActive() )
+	stop();
+
     comm_->deactivate();
     delete timer_;
     delete comm_;
@@ -44,54 +37,70 @@ bool Timer::isActive() const
 { return timer_->isActive(); }
 
 
+bool Timer::isSingleShot() const
+{ return timer_->isSingleShot(); }
+
+
+
 void Timer::start( int msec, bool sshot )
 {
-    mTelltale( firstshots_ -= this; firstshots_ += this );
     timer_->setSingleShot( sshot );
-    timer_->start( msec );
+    timer_->setInterval( msec );
+
+    timerStarts()->trigger( this );
+    timer_->start();
 }
 
 
 void Timer::stop() 
 {
-    mTelltale( firstshots_ -= this );
     timer_->stop();
+    timerStopped()->trigger( this );
 }
 
 
 void Timer::notifyHandler()
 {
-    bool peachon = false;
-    mTelltale( peachon = firstshots_.indexOf(this) >= 0 );
-
-    if ( peachon )
-	telltale_->doCall( this );
-
-    mTelltale( firstshots_ -= this );
+    timerShoots()->trigger( this );
     tick.trigger( this );
-
-    if ( peachon )
-	telltale_->doCall( this );
+    timerShot()->trigger( this );
 }
 
 
-int Timer::nrFirstShotTimers()
+static bool userwaitflag_ = false;
+
+void Timer::setScriptPolicy( ScriptPolicy policy )
 {
-    int sz = -1;
-    mTelltale( sz = firstshots_.size() );
-    return sz;
+    if ( policy == UserWait )
+    {
+	scriptpolicy_ = DontWait;
+	setUserWaitFlag( true );
+    }
+    else
+	scriptpolicy_ = policy;
 }
 
 
-void Timer::unsetTelltale()
+Timer::ScriptPolicy Timer::scriptPolicy() const
+{ return scriptpolicy_; }
+
+
+bool Timer::setUserWaitFlag( bool yn )
 {
-    mTelltale( delete telltale_; telltale_ = 0 );
+    const bool oldval = userwaitflag_;
+    userwaitflag_ = yn;
+    return oldval;
 }
 
 
-void Timer::setTelltale( const CallBack& cb )
-{
-    unsetTelltale();
-    firstshots_.erase();
-    telltale_ = new CallBack( cb );
-}
+#define mImplStaticNotifier( func ) \
+    Notifier<Timer>* Timer::func() \
+    { \
+	static Notifier<Timer> func##notifier(0); \
+	return &func##notifier; \
+    }
+
+mImplStaticNotifier( timerStarts )
+mImplStaticNotifier( timerStopped )
+mImplStaticNotifier( timerShoots )
+mImplStaticNotifier( timerShot )
