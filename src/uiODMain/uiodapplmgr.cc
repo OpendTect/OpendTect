@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.377 2010-05-18 04:54:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.378 2010-05-18 12:05:37 cvsranojay Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -306,11 +306,11 @@ void uiODApplMgr::addTimeDepthScene()
 	    : SurveyInfo::defaultXYtoZScale(SurveyInfo::Second, SI().xyUnit());
 
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
-	scene->setZScale( zscale );
-	sceneMgr().viewAll( 0 ); sceneMgr().tile();
 	CubeSampling cs = SI().sampling( true );
 	cs.zrg = uitrans->getZRange();
 	scene->setCubeSampling( cs );
+	scene->setZScale( zscale );
+	sceneMgr().viewAll( 0 ); sceneMgr().tile();
     }
 }
 
