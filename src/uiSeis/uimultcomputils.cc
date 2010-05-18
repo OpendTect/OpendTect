@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultcomputils.cc,v 1.8 2009-07-30 13:30:04 cvshelene Exp $";
+static const char* rcsID = "$Id: uimultcomputils.cc,v 1.9 2010-05-18 12:52:43 cvsbert Exp $";
 
 #include "uimultcomputils.h"
 #include "bufstringset.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: uimultcomputils.cc,v 1.8 2009-07-30 13:30:04 cv
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
-    	: uiDialog(p,uiDialog::Setup("Component dialog","","") )
+    	: uiDialog(p,uiDialog::Setup("Data component selection","","") )
 	, compfld_(0)
 {
     BufferString instructions = "After loading multiple components,\n";
@@ -29,6 +29,7 @@ uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
 
     compfld_ = new uiListBox( this, complist, "" );
     compfld_->setMultiSelect();
+    compfld_->doubleClicked.notify( mCB(this,uiMultCompDlg,accept) );
 }
 
 
