@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.56 2009-12-08 20:30:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.57 2010-05-19 06:47:05 cvsnanne Exp $";
 
 #include "uislicesel.h"
 
@@ -482,6 +482,9 @@ void uiSliceSel::setMaxCubeSampling( const CubeSampling& maxcs )
 
 bool uiSliceSel::acceptOK()
 {
+#ifdef __mac__
+    crl0fld_->setFocus(); crl1fld_->setFocus(); // Hack
+#endif
     readInput();
     return true;
 }
