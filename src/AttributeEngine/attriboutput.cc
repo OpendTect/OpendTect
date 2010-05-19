@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.102 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.103 2010-05-19 14:23:48 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -98,6 +98,7 @@ void Output::doSetGeometry( const CubeSampling& cs )
 
 DataCubesOutput::DataCubesOutput( const CubeSampling& cs )
     : desiredvolume_(cs)
+    , dcsampling_(cs)
     , datacubes_(0)
     , udfval_(mUdf(float))
 {
@@ -133,18 +134,26 @@ TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
 void DataCubesOutput::adjustInlCrlStep( const CubeSampling& cs )
 {
     if ( cs.hrg.step.inl > desiredvolume_.hrg.step.inl )
+    {
 	desiredvolume_.hrg.step.inl = cs.hrg.step.inl;
+	dcsampling_.hrg.step.inl = cs.hrg.step.inl;
+	desiredvolume_.hrg.start.inl = cs.hrg.start.inl;
+    }
     if ( cs.hrg.step.crl > desiredvolume_.hrg.step.crl )
+    {
 	desiredvolume_.hrg.step.crl = cs.hrg.step.crl;
+	dcsampling_.hrg.step.crl = cs.hrg.step.crl;
+	desiredvolume_.hrg.start.crl = cs.hrg.start.crl;
+    }
 }
 
 
 #define mGetSz(dir)\
-	dir##sz = (desiredvolume_.hrg.stop.dir - desiredvolume_.hrg.start.dir)\
-		  /desiredvolume_.hrg.step.dir + 1;\
+	dir##sz = (dcsampling_.hrg.stop.dir - dcsampling_.hrg.start.dir)\
+		  /dcsampling_.hrg.step.dir + 1;\
 
 #define mGetZSz()\
-	zsz = mNINT( ( desiredvolume_.zrg.stop - desiredvolume_.zrg.start )\
+	zsz = mNINT( ( dcsampling_.zrg.stop - dcsampling_.zrg.start )\
 	      /refstep + 1 );
 
 void DataCubesOutput::collectData( const DataHolder& data, float refstep, 
@@ -247,13 +256,13 @@ void DataCubesOutput::init( float refstep )
 {
     datacubes_ = new Attrib::DataCubes;
     datacubes_->ref();
-    datacubes_->inlsampling_= StepInterval<int>(desiredvolume_.hrg.start.inl,
-					       desiredvolume_.hrg.stop.inl,
-					       desiredvolume_.hrg.step.inl);
-    datacubes_->crlsampling_= StepInterval<int>(desiredvolume_.hrg.start.crl,
-					       desiredvolume_.hrg.stop.crl,
-					       desiredvolume_.hrg.step.crl);
-    datacubes_->z0_ = mNINT(desiredvolume_.zrg.start/refstep);
+    datacubes_->inlsampling_= StepInterval<int>(dcsampling_.hrg.start.inl,
+						dcsampling_.hrg.stop.inl,
+						dcsampling_.hrg.step.inl);
+    datacubes_->crlsampling_= StepInterval<int>(dcsampling_.hrg.start.crl,
+						dcsampling_.hrg.stop.crl,
+						dcsampling_.hrg.step.crl);
+    datacubes_->z0_ = mNINT(dcsampling_.zrg.start/refstep);
     datacubes_->zstep_ = refstep;
     int inlsz, crlsz, zsz;
     mGetSz(inl); mGetSz(crl); mGetZSz();

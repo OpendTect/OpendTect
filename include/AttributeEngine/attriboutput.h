@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.46 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attriboutput.h,v 1.47 2010-05-19 14:23:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,6 +105,9 @@ public:
     
 protected:
     CubeSampling		desiredvolume_;
+    CubeSampling		dcsampling_;	//can differ from desiredvolume_
+    				//(special cases with decimated cubes smaller
+    				//than desired display)
     TypeSet< Interval<int> >	sampleinterval_;
     DataCubes*			datacubes_;
     float			udfval_;
