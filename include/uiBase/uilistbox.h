@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.53 2010-05-12 10:35:09 cvsraman Exp $
+ RCS:           $Id: uilistbox.h,v 1.54 2010-05-19 11:36:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,6 +125,7 @@ public:
     Notifier<uiListBox> rightButtonClicked;
     Notifier<uiListBox> leftButtonClicked;
     Notifier<uiListBox> deleteButtonPressed;
+    Notifier<uiListBox> itemChecked; //!< or un-checked
 
 protected:
 

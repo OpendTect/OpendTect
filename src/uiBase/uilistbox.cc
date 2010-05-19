@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.107 2010-05-12 10:35:44 cvsraman Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.108 2010-05-19 11:36:54 cvsbert Exp $";
 
 #include "uilistbox.h"
 
@@ -156,6 +156,7 @@ int uiListBoxBody::maxSelectable() const
     , rightButtonClicked(this) \
     , leftButtonClicked(this) \
     , deleteButtonPressed(this) \
+    , itemChecked(this) \
     , rightclickmnu_(*new uiPopupMenu(p)) \
     , itemscheckable_(false) \
     , alignment_(Alignment::Left)
