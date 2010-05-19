@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.47 2010-05-18 07:35:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.48 2010-05-19 12:31:21 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -545,7 +545,7 @@ void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
 	mrkitm->itm_->setPenStyle( LineStyle(setup_.markerls_.type_,
 				    setup_.markerls_.width_+2, 
 				    mrkitm->color_) );
-	cursor = MouseCursor::SizeVer;
+	//cursor = MouseCursor::SizeVer;
     }
     if ( parent() ) parent()->setCursor( cursor );
     cursor_ = cursor;
@@ -846,7 +846,10 @@ void uiWellDisplay::dataChanged( CallBacker* cb )
 	logdisp->doDataChange();
     }
     if ( stratdisp_ )
+    {
 	stratdisp_->dispData().copyFrom( pms_.data_ );
+	stratdisp_->doDataChange();
+    }
 }
 
 

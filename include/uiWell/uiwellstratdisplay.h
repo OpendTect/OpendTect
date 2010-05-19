@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uiwellstratdisplay.h,v 1.7 2010-05-11 14:22:11 cvsbruno Exp $
+ RCS:           $Id: uiwellstratdisplay.h,v 1.8 2010-05-19 12:31:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
 
     Well::Well2DDispData&	dispData() 		{ return dispdata_; }
     const Well::Well2DDispData&	dispData() const 	{ return dispdata_; }
+    void			doDataChange()		{ dataChanged(0); }
 
 protected:
 

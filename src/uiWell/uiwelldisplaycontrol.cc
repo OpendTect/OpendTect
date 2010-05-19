@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.8 2010-04-23 10:03:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.9 2010-05-19 12:31:21 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -35,7 +35,8 @@ uiWellDisplayMarkerEdit::uiWellDisplayMarkerEdit( uiWellLogDisplay& disp,
     , menu_(0)	 
     , addmrkmnuitem_("Add marker...",1)      			 
     , remmrkmnuitem_("Remove marker...",0)
-    , needsave_(false)					      	
+    , needsave_(false)
+    , edit_(false)	      
 {
     if ( disp.parent() )
 	addMenu(new uiMenuHandler(disp.parent(),-1) );	 
@@ -72,6 +73,9 @@ void uiWellDisplayMarkerEdit::addLogDisplay( uiWellLogDisplay& ld )
 
 void uiWellDisplayMarkerEdit::mousePressed( CallBacker* cb )
 {
+    if ( !edit_ ) 
+	return;
+
     mousepressed_ = !mousepressed_;
     selmarker_ = mousepressed_ ? selectMarker( cb, false ) : 0;
 }
