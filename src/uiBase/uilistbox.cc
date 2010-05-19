@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.108 2010-05-19 11:36:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.109 2010-05-19 11:47:55 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
@@ -204,7 +204,8 @@ void uiListBox::menuCB( CallBacker* )
     rightclickmnu_.insertItem( new uiMenuItem("Check all items"), 0 );
     rightclickmnu_.insertItem( new uiMenuItem("Uncheck all items"), 1 );
     const int res = rightclickmnu_.exec();
-    setItemsChecked( res==0 );
+    if ( res==0 || res==1 )
+	setItemsChecked( res==0 );
 }
 
 
