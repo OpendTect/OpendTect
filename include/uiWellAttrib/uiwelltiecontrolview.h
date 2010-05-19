@@ -48,7 +48,6 @@ protected:
     bool 		handleUserClick();
    
     void 		altZoomCB(CallBacker*);
-    void 		clipCB(CallBacker*);
     void 		keyPressCB(CallBacker*);
     void		rubBandCB(CallBacker*);
     void 		wheelMoveCB(CallBacker*);
