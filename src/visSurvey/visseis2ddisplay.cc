@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.93 2010-05-14 13:32:11 cvskarthika Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.94 2010-05-20 07:15:15 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -556,7 +556,8 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
 
 float Seis2DDisplay::calcDist( const Coord3& pos ) const
 {
-    Coord3 xytpos = scene_->getUTM2DisplayTransform()->transformBack( pos );
+    Coord3 xytpos = scene_ ?
+	scene_->getUTM2DisplayTransform()->transformBack( pos ) : pos;
     
     int trcidx; float mindist;
     getNearestTrace( xytpos, trcidx, mindist );
@@ -569,7 +570,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
     {
 	zdif = mMIN( fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop) );
 	const float zscale = scene_
-	    ? scene_->getZScale() *scene_->getZStretch()
+	    ? scene_->getZScale() * scene_->getZStretch()
 	    : SI().zScale();
 	zdif *= zscale;
     }
