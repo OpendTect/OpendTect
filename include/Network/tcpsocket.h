@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: tcpsocket.h,v 1.6 2010-02-10 08:08:45 cvsranojay Exp $
+ RCS:           $Id: tcpsocket.h,v 1.7 2010-05-20 09:46:53 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class QTcpSocket;
 class QTcpSocketComm;
+class IOPar;
 
 
 mClass TcpSocket : public CallBacker
@@ -32,8 +33,11 @@ public:
     void			connectToHost(const char* host,int port);
     void			disconnectFromHost();
     void			abort();
-    int				write(const char*);
-    void			read(BufferString&);
+    int				write(const char*) const;  
+    int				write(const IOPar&) const;
+
+    void			read(BufferString&) const;
+    void			read(IOPar&) const;
 
     const char*			errorMsg() const;
 

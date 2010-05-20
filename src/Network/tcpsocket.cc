@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpsocket.cc,v 1.5 2010-02-10 08:08:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: tcpsocket.cc,v 1.6 2010-05-20 09:46:53 cvsranojay Exp $";
 
 #include "tcpsocket.h"
 #include "qtcpsocketcomm.h"
+#include "iopar.h"
 
 #define mInit \
     , comm_(new QTcpSocketComm(qtcpsocket_,this)) \
@@ -62,11 +63,28 @@ bool TcpSocket::waitForConnected( int msec )
 bool TcpSocket::waitForReadyRead( int msec )
 { return qtcpsocket_->waitForReadyRead( msec ); }
 
-int TcpSocket::write( const char* str )
+int TcpSocket::write( const char* str ) const
 { return qtcpsocket_->write( str ); }
 
-void TcpSocket::read( BufferString& str )
+void TcpSocket::read( BufferString& str ) const
 {
     QByteArray ba = qtcpsocket_->readAll();
     str = ba.data();
 }
+
+
+int TcpSocket::write( const IOPar& par ) const
+{
+    BufferString buf;
+    par.putTo( buf );
+    return write( buf.buf() ); 
+}
+
+
+void TcpSocket::read( IOPar& par ) const
+{
+    BufferString buf;
+    read( buf );
+    par.getFrom( buf );
+}
+
