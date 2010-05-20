@@ -7,41 +7,40 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.204 2010-05-11 03:28:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.205 2010-05-20 07:17:32 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
 
+#include "uiattribpartserv.h"
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
-#include "uiodscenetreeitem.h"
 #include "uiempartserv.h"
 #include "uivispartserv.h"
-#include "uiattribpartserv.h"
 #include "uiwellattribpartserv.h"
-#include "vissurvscene.h"
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uidockwin.h"
+#include "uiflatviewer.h"
+#include "uiflatviewmainwin.h"
+#include "uigeninputdlg.h"
 #include "uilabel.h"
+#include "uilistview.h"
+#include "uimsg.h"
+#include "uiodviewer2d.h"
+#include "uiprintscenedlg.h"
 #include "uislider.h"
 #include "uisoviewer.h"
-#include "uilistview.h"
-#include "uiworkspace.h"
 #include "uistatusbar.h"
 #include "uithumbwheel.h"
-#include "uiflatviewer.h"
-#include "uigeninputdlg.h"
-#include "uiprintscenedlg.h"
-#include "uiflatviewmainwin.h"
+#include "uitoolbar.h"
 #include "uitreeitemmanager.h"
-#include "uimsg.h"
 #include "uiwindowgrabber.h"
-#include "uiodviewer2d.h"
+#include "uiworkspace.h"
 
-#include "ptrman.h"
 #include "pickset.h"
+#include "ptrman.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -237,11 +236,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 
     if ( name ) setSceneName( sceneid, name );
 
-    if ( zt )
-    {
-	mDynamicCastGet(visSurvey::Scene*,scene, visServ().getObject(sceneid));
-	scene->setZAxisTransform( zt,0 );
-    }
+    visServ().setZAxisTransform( sceneid, zt, 0 );
 
     return sceneid;
 }
@@ -313,11 +308,6 @@ void uiODSceneMgr::setSceneName( int sceneid, const char* nm )
 
 const char* uiODSceneMgr::getSceneName( int sceneid ) const
 { return const_cast<uiODSceneMgr*>(this)->visServ().getObjectName( sceneid ); }
-
-
-void uiODSceneMgr::storePositions()
-{
-}
 
 
 void uiODSceneMgr::getScenePars( IOPar& iopar )
