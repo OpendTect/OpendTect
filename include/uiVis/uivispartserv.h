@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.259 2010-03-23 21:21:56 cvsyuancheng Exp $
+ RCS:           $Id: uivispartserv.h,v 1.260 2010-05-20 06:24:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ class MultiID;
 class PickSet;
 class SeisTrcBuf;
 class SurfaceInfo;
+class TaskRunner;
+class ZAxisTransform;
 class uiMenuHandler;
 class uiMPEMan;
 class uiMultiMapperRangeEditWin;
@@ -291,6 +293,9 @@ public:
     void			turnSelectionModeOn(bool);
     bool			isSelectionModeOn() const;
     Notifier<uiVisPartServer>	selectionmodechange;
+    void			setZAxisTransform(int sceneid,ZAxisTransform*,
+						  TaskRunner*);
+    ZAxisTransform*		getZAxisTransform(int sceneid);
 
     const Selector<Coord3>*	getCoordSelector(int scene) const;
     void			turnOn(int,bool,bool doclean=false);

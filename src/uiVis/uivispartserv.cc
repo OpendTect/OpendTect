@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.450 2010-03-23 21:20:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.451 2010-05-20 06:24:04 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -1183,6 +1183,22 @@ void uiVisPartServer::setZStretch()
     dlg.vwallcb = mCB(this,uiVisPartServer,vwAll);
     dlg.homecb = mCB(this,uiVisPartServer,toHome);
     dlg.go();
+}
+
+
+void uiVisPartServer::setZAxisTransform( int sceneid, ZAxisTransform* zat,
+					 TaskRunner* tr )
+{
+    visSurvey::Scene* scene = getScene( sceneid );
+    if ( zat && scene )
+	scene->setZAxisTransform( zat, tr );
+}
+
+
+ZAxisTransform* uiVisPartServer::getZAxisTransform( int sceneid )
+{
+    visSurvey::Scene* scene = getScene( sceneid );
+    return scene ? scene->getZAxisTransform() : 0;
 }
 
 
