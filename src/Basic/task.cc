@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.22 2009-09-05 02:05:12 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.23 2010-05-20 06:33:59 cvsnanne Exp $";
 
 #include "task.h"
 
@@ -240,17 +240,17 @@ public:
 		    : task_( 0 )					{}
 
     void	set( ParallelTask* task, od_int64 start, od_int64 stop,
-	    	     int threadid )
+	    	     int threadidx )
     		{
 		    task_ = task;
 		    start_ = start;
 		    stop_ = stop;
-		    threadid_ = threadid;;
+		    threadidx_ = threadidx;
 		}
 
     int		nextStep()
 		{
-		    if ( !task_->doWork(start_,stop_,threadid_) )
+		    if ( !task_->doWork(start_,stop_,threadidx_) )
 		    {
 			task_->controlWork( Task::Stop );
 			return SequentialTask::ErrorOccurred();
@@ -262,7 +262,7 @@ public:
 protected:
     od_int64		start_;
     od_int64		stop_;
-    int			threadid_;
+    int			threadidx_;
     ParallelTask*	task_;
 };
 
