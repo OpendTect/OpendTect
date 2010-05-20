@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigdexamacorr.cc,v 1.35 2010-02-15 08:00:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigdexamacorr.cc,v 1.36 2010-05-20 06:27:37 cvsnanne Exp $";
 
 #include "uigdexamacorr.h"
 #include "uigapdeconattrib.h"
@@ -206,7 +206,7 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
 	app.setGeoDefaults( true );
 	app.ddpars_.show( false, true );
 	vwr.appearance().ddpars_.vd_.autoscale_ = false;
-	vwr.appearance().ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
+	vwr.appearance().ddpars_.vd_.rg_ = Interval<float>( -1, 1 );
 	vwr.setInitialSize( uiSize(600,400) );
 	fvwin->addControl(
 		new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
