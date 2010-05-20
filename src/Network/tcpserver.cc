@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpserver.cc,v 1.6 2010-05-20 09:46:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: tcpserver.cc,v 1.7 2010-05-20 10:11:00 cvsranojay Exp $";
 
 #include "tcpserver.h"
 #include "qtcpservercomm.h"
@@ -112,7 +112,7 @@ void TcpServer::read( BufferString& data ) const
 
 void TcpServer::read( IOPar& par ) const
 {
-   tcpsocket_->read( par );
+    tcpsocket_->read( par );
 }
 
 
