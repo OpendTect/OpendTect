@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.121 2010-03-31 13:44:20 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.122 2010-05-21 14:58:21 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -46,6 +46,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.121 2010-03-31 13:44:20 cvshele
 #include "pixmap.h"
 #include "plugins.h"
 #include "ptrman.h"
+#include "odplatform.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "timer.h"
@@ -657,7 +658,8 @@ void uiODMain::updateCaption()
 {
     BufferString capt( "OpendTect V" );
     capt += GetFullODVersion();
-    capt += "/"; capt += __plfsubdir__;
+    OD::Platform plf;
+    capt += "/"; capt += plf.shortName();
 
     const char* usr = GetSoftwareUser();
     if ( usr && *usr )
