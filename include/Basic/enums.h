@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.18 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: enums.h,v 1.19 2010-05-21 14:57:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 /*!\brief Some utilities surrounding the often needed enum <-> string table.
 
-The simple C function getEnum returns the enum (integer) value from a text
+The C func getIndexInStringArrCI returns the enum (integer) value from a text
 string. The first arg is string you wish to convert to the enum, the second
 is the array with enum names. Then, the integer value of the first enum value
 (also returned when no match is found) and the number of characters to be
@@ -126,18 +126,7 @@ const char* MyClass::Typenames_[] =
 
 
 #include "string2.h"
-
-#ifndef __cpp__
-mGlobal int getEnum(const char*,char** namearr,int startnr,
-		     int nr_chars_to_match);
-mGlobal int getEnumDef(const char*,char** namearr,int startnr,
-			int nr_chars_to_match,int notfoundval);
-#else
-
 #include "namedobj.h"
-
-extern "C" { int getEnum(const char*,const char**,int,int); }
-extern "C" { int getEnumDef(const char*,const char**,int,int,int); }
 
 
 /*\brief holds data pertinent for a certain enum */
@@ -150,8 +139,11 @@ public:
 				, names_(s)
 				, nrsign(nrs)	{}
 
+    inline bool		isValidName( const char* s ) const
+			{ return getIndexInStringArrCI(s,names_,0,nrsign,-1)
+			    	< 0; }
     inline int		convert( const char* s ) const
-			{ return getEnum(s,names_,0,nrsign); }
+			{ return getIndexInStringArrCI(s,names_,0,nrsign,0); }
     inline const char*	convert( int i ) const
 			{ return names_[i]; }
 
@@ -216,9 +208,6 @@ const char* nmspc::enm##Names_[] =
 //!< this is the actual string -> enum
 #define eKey(enm)	(enm##Def().name())
 //!< this is the 'pretty name' of the enum
-
-
-#endif /* #ifndef __cpp__ */
 
 
 #endif
