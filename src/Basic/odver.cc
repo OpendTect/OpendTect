@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.9 2010-05-21 14:58:21 cvsbert Exp $
+ RCS:           $Id: odver.cc,v 1.10 2010-05-21 15:07:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: odver.cc,v 1.9 2010-05-21 14:58:21 cvsbert Exp $";
+static const char* rcsID = "$Id: odver.cc,v 1.10 2010-05-21 15:07:20 cvsbert Exp $";
 
 #include "odver.h"
 #include "oddirs.h"
@@ -78,6 +78,13 @@ void GetSpecificODVersion( const char* typ, BufferString& res )
 	}
 	sd.close();
     }
+}
+
+
+const OD::Platform& OD::Platform::local()
+{
+    static Platform theplf;
+    return theplf;
 }
 
 

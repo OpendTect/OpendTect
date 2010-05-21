@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2010
- RCS:           $Id: odplatform.h,v 1.1 2010-05-21 14:58:21 cvsbert Exp $
+ RCS:           $Id: odplatform.h,v 1.2 2010-05-21 15:07:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,10 @@ namespace OD
 
 mClass Platform
 {
+public:
+
+    static const Platform&	local();	//!< This platform
+
     enum Type		{ Lin32, Lin64, Win32, Win64, Mac };
 			DeclareEnumUtils(Type)
 
@@ -45,6 +49,7 @@ mClass Platform
 
     inline bool		is32Bits() const
 			{ return type_ != Win64 && type_ != Lin64; }
+
 
     Type		type_;
 

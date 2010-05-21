@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.32 2010-05-21 14:58:21 cvsbert Exp $
+ RCS:           $Id: debug.cc,v 1.33 2010-05-21 15:07:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.32 2010-05-21 14:58:21 cvsbert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.33 2010-05-21 15:07:20 cvsbert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: debug.cc,v 1.32 2010-05-21 14:58:21 cvsbert Exp
 #include "undefval.h"
 #include "math2.h"
 #include "errh.h"
+#include "odplatform.h"
 
 #include <iostream>
 #include <fstream>
@@ -158,8 +159,7 @@ void putProgInfo( int argc, char** argv )
     if ( !ison ) return;
 
     msg = "PID: "; msg += GetPID();
-    OD::Platform plf;
-    msg += "; Platform: "; msg += plf.longName();
+    msg += "; Platform: "; msg += OD::Platform::local().longName();
 
 #ifdef __GNUC__
     msg += "; gcc ";
