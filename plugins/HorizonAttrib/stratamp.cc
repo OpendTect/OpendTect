@@ -7,57 +7,122 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratamp.cc,v 1.6 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: stratamp.cc,v 1.7 2010-05-21 16:58:35 cvshelene Exp $";
 
 #include "stratamp.h"
 
+#include "attribdesc.h"
+#include "attribdescid.h"
+#include "attribdescset.h"
+#include "attribengman.h"
+#include "attriboutput.h"
+#include "attribparam.h"
+#include "attribprocessor.h"
+#include "attribstorprovider.h"
 #include "cubesampling.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
+#include "initalgo.h"
+#include "initattributes.h"
+#include "initprestackprocessing.h"
+#include "ioman.h"
 #include "ioobj.h"
+#include "odver.h"
 #include "seisread.h"
 #include "statruncalc.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 
 
-StratAmpCalc::StratAmpCalc( const IOObj& seisobj, const EM::Horizon3D* tophor,
+StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
 			    Stats::Type stattyp, const HorSampling& hs )
     : Executor("Computing Stratal amplitude...")
-    , rdr_(0) 
+    , rdr_(0)
     , tophorizon_(tophor)
     , bothorizon_(bothor)
     , stattyp_(stattyp)
     , dataidx_(-1)
     , nrdone_(0)
+    , usesstored_(false)
+    , proc_(0)
+    , hs_(hs)
 {
-    rdr_ = new SeisTrcReader( &seisobj );
     CubeSampling cs;
     cs.hrg = hs;
-    rdr_->setSelData( new Seis::RangeSelData(cs) );
-    rdr_->prepareWork();
-
     totnr_ = hs.nrInl() * hs.nrCrl();
 
     if ( tophor ) tophor->ref();
     if ( bothor ) bothor->ref();
+
+    descset_ = new Attrib::DescSet( false );
 }
 
 
 StratAmpCalc::~StratAmpCalc()
 {
-    delete rdr_;
     if ( tophorizon_ ) tophorizon_->unRef();
     if ( bothorizon_ ) bothorizon_->unRef();
+    if ( descset_ ) delete descset_;
+    if ( proc_ ) delete proc_;
+    if ( rdr_ ) delete rdr_;
 }
 
 
-int StratAmpCalc::init( const char* attribnm, bool addtotop )
+int StratAmpCalc::init( const char* attribnm, bool addtotop, const IOPar& pars )
 {
     addtotop_ = addtotop;
     const EM::Horizon3D* addtohor_ = addtotop ? tophorizon_ : bothorizon_;
     if ( !addtohor_ ) return -1;
+
+    //determine whether stored data is used
+    PtrMan<IOPar> attribs = pars.subselect("Attributes");
+    float vsn = mODMajorVersion + 0.1*mODMinorVersion;
+    if ( !attribs || !descset_->usePar( *attribs, vsn ) )
+	return -1;
+
+    BufferString outpstr = IOPar::compKey( sKey::Output, 0 );
+    PtrMan<IOPar> outputpar = pars.subselect( outpstr );
+    if ( !outputpar ) return -1;
+    BufferString attribidstr = IOPar::compKey( sKey::Attributes, 0 );
+    int attribid;
+    if ( !outputpar->get(attribidstr,attribid) ) return -1;
+
+    Attrib::Desc* targetdesc =
+			descset_->getDesc( Attrib::DescID(attribid,false) );
+    if ( !targetdesc ) return -1;
+
+    BufferString defstring;
+    targetdesc->getDefStr( defstring );
+    BufferString storstr = Attrib::StorageProvider::attribName();
+    usesstored_ = storstr.isStartOf( defstring );
+
+    if ( usesstored_)
+    {
+	const LineKey lk( targetdesc->getValParam(
+			Attrib::StorageProvider::keyStr())->getStringValue(0) );
+	const MultiID key( lk.lineName() );
+	const BufferString attrnm = lk.attrName();
+	PtrMan<IOObj> seisobj = IOM().get( key );
+	rdr_ = new SeisTrcReader( seisobj );
+	CubeSampling cs;
+	cs.hrg = hs_;
+	rdr_->setSelData( new Seis::RangeSelData(cs) );
+	rdr_->prepareWork();
+    }
+    else
+    {
+	Attributes::initStdClasses();
+	Algo::initStdClasses();
+	PreStackProcessing::initStdClasses();
+	Attrib::StorageProvider::initClass();
+
+	BufferString errmsg;
+	BufferString linename; //TODO: function used in 2d?
+	PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
+	proc_ = attrengman->usePar( pars, *descset_, linename, errmsg );
+	if ( !proc_ ) return -1;
+    }
 
     dataidx_ = addtohor_->auxdata.auxDataIndex( attribnm );
     if ( dataidx_ < 0 ) dataidx_ = addtohor_->auxdata.addAuxData( attribnm );
@@ -69,17 +134,28 @@ int StratAmpCalc::init( const char* attribnm, bool addtotop )
 
 int StratAmpCalc::nextStep()
 {
-    if ( !rdr_ || !tophorizon_ || dataidx_<0 )
+    if ( ( !proc_ && !rdr_ ) || !tophorizon_ || dataidx_<0 )
 	return Executor::ErrorOccurred();
 
+    int res = -1;
     SeisTrc trc;
-    const int rv = rdr_->get( trc.info() );
-    if ( rv == 0 ) return Executor::Finished();
-    else if ( rv == -1 ) return Executor::ErrorOccurred();
+    if ( usesstored_ )
+    {
+	const int rv = rdr_->get( trc.info() );
+	if ( rv == 0 ) return Executor::Finished();
+	else if ( rv == -1 ) return Executor::ErrorOccurred();
+	if ( !rdr_->get(trc) ) return Executor::ErrorOccurred();
+    }
+    else
+    {
+	res = proc_->nextStep();
+	if ( res == -1 ) return Executor::ErrorOccurred();
+	SeisTrc* trace = proc_->outputs_[0]->getTrc();
+	if ( !trace ) return Executor::ErrorOccurred();
+	trc = *trace;
+    }
 
     const BinID bid = trc.info().binid;
-    if ( !rdr_->get(trc) ) return Executor::ErrorOccurred();
-
     const EM::SubID subid = bid.getSerialized();
     float z1 = tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
     float z2 = !bothorizon_ ? z1
@@ -119,5 +195,5 @@ int StratAmpCalc::nextStep()
     posid_.setSubID( subid );
     addtohor_->auxdata.setAuxDataVal( dataidx_, posid_, outval );
     nrdone_++;
-    return Executor::MoreToDo();
+    return res || rdr_ ? Executor::MoreToDo() : Executor::Finished();
 }

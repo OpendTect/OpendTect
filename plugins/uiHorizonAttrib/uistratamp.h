@@ -5,19 +5,20 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Nageswara
  * DATE     : Mar 2008
- * ID       : $Id: uistratamp.h,v 1.4 2009-07-22 16:01:28 cvsbert Exp $
+ * ID       : $Id: uistratamp.h,v 1.5 2010-05-21 16:58:35 cvshelene Exp $
 -*/
 
 #include "uidialog.h"
 
 class CtxtIOObj;
-class IOObj;
 class HorSampling;
+class IOObj;
+class IOPar;
+class uiAttrSel;
+class uiGenInput;
+class uiIOObjSel;
 class uiLabeledComboBox;
 class uiPosSubSel;
-class uiIOObjSel;
-class uiSeisSel;
-class uiGenInput;
 
 namespace EM { class Horizon3D; }
 
@@ -29,7 +30,6 @@ public:
 		      
 protected:
 
-    CtxtIOObj&		seisctio_;
     CtxtIOObj&		horctio1_;
     CtxtIOObj&		horctio2_;
 
@@ -40,7 +40,7 @@ protected:
     uiGenInput*		selfld_;
     uiGenInput*		attribnamefld_;
 
-    uiSeisSel*		inpfld_;
+    uiAttrSel*		inpfld_;
     uiIOObjSel*		horfld1_;
     uiIOObjSel*		horfld2_;
     uiPosSubSel*	rangefld_;
@@ -52,6 +52,7 @@ protected:
     void		getAvailableRange(HorSampling&);
     bool		saveData(const EM::Horizon3D*,int,bool);
     EM::Horizon3D*	loadHor(const IOObj*,const HorSampling&);
+    void		fillInEngineIOPar(IOPar&,const HorSampling&) const;
 
     void		inpSel(CallBacker*);
     void		horSel(CallBacker*);
