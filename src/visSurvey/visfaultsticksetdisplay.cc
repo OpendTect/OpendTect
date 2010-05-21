@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.20 2010-02-22 22:40:42 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.21 2010-05-21 15:54:40 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -475,11 +475,14 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     if ( stickselectmode_ )
 	return stickSelectCB( cb );
 
-    if ( !emfss_ || !fsseditor_ || !isOn() ||
+    if ( !emfss_ || !fsseditor_ || !viseditor_ || !isOn() ||
 	 eventcatcher_->isHandled() || !isSelected() )
 	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+
+    if ( viseditor_->sower().accept(eventinfo) )
+	return;
 
     const EM::PosID mousepid =
 		    viseditor_->mouseClickDragger( eventinfo.pickedobjids );
@@ -576,8 +579,13 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	return;
     }
 
-    if ( !mousepid.isUdf() || eventinfo.pressed ||
-	 OD::ctrlKeyboardButton(eventinfo.buttonstate_)  )
+    if ( !mousepid.isUdf() || OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
+	return;
+
+    if ( viseditor_->sower().activate(emfss_->preferredColor(), eventinfo) )
+       return;
+
+    if ( eventinfo.pressed )
 	return;
 
     if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) || insertpid.isUdf() )

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.35 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.36 2010-05-21 15:54:40 cvsjaap Exp $";
 
 #include "vismpeeditor.h"
 
@@ -14,12 +14,14 @@ static const char* rcsID = "$Id: vismpeeditor.cc,v 1.35 2009-07-22 16:01:45 cvsb
 #include "emsurfaceedgeline.h"
 #include "emsurfacegeometry.h"
 #include "math2.h"
+#include "mousecursor.h"
 #include "vismarker.h"
 #include "visdatagroup.h"
 #include "visdragger.h"
 #include "visevent.h"
 #include "vishingeline.h"
 #include "vismaterial.h"
+#include "vispolyline.h"
 #include "visshapescale.h"
 #include "vistransform.h"
 
@@ -54,6 +56,9 @@ MPEEditor::MPEEditor()
 
     dummyemptysep_ = visBase::DataObjectGroup::create();
     dummyemptysep_->ref();
+
+    sower_ = new Sower();
+    addChild( sower_->getInventorNode() );
 }
 
 
@@ -77,7 +82,11 @@ MPEEditor::~MPEEditor()
 
     if ( activenodematerial ) activenodematerial->unRef();
     if ( nodematerial ) nodematerial->unRef();
+
     dummyemptysep_->unRef();
+
+    removeChild( sower_->getInventorNode() );
+    delete sower_;
 }
 
 
@@ -113,6 +122,7 @@ void MPEEditor::setSceneEventCatcher( visBase::EventCatcher* nev )
 	eventcatcher->unRef();
 
     eventcatcher = nev;
+    sower_->setEventCatcher( nev );
 
     if ( eventcatcher )
 	eventcatcher->ref();
@@ -130,6 +140,8 @@ void MPEEditor::setDisplayTransformation( visBase::Transformation* nt )
 
     for ( int idx=0; idx<draggers.size(); idx++ )
 	draggers[idx]->setDisplayTransformation( transformation );
+
+    sower_->setDisplayTransformation( nt );
 }
 
 
@@ -334,7 +346,6 @@ void MPEEditor::interactionLineRightClickCB( CallBacker* )
 { interactionlinerightclick.trigger(); }
 
 	
-
 bool MPEEditor::clickCB( CallBacker* cb )
 {
     if ( eventcatcher->isHandled() || !isOn() )
@@ -477,5 +488,97 @@ void MPEEditor::extendInteractionLine( const EM::PosID& pid )
 
     emeditor->interactionLineInteraction(pid);
 }
-    
+
+
+Sower::Sower()
+    : visBase::VisualObjectImpl( false )
+    , eventcatcher_( 0 )
+    , mode_( Idle )
+    , sowingline_( visBase::PolyLine::create() )
+{
+    sowingline_->ref();
+    addChild( sowingline_->getInventorNode() );
+    sowingline_->setMaterial( visBase::Material::create() );
+}
+
+
+Sower::~Sower()
+{
+    removeChild( sowingline_->getInventorNode() );
+    sowingline_->unRef();
+    deepErase( eventlist_ );
+}
+
+
+void Sower::setDisplayTransformation( visBase::Transformation* transformation )
+{ sowingline_->setDisplayTransformation( transformation ); }
+
+
+void Sower::setEventCatcher( visBase::EventCatcher* eventcatcher )
+{ eventcatcher_ = eventcatcher; }
+
+
+bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo )
+{
+    if ( mode_ != Idle )
+	return false;
+
+    mode_ = Furrowing;
+    if ( !accept(eventinfo) )
+	return false;
+
+    sowingline_->getMaterial()->setColor( color );
+    sowingline_->turnOn( true );
+    return true;
+}
+
+
+bool Sower::accept( const visBase::EventInfo& eventinfo )
+{
+    if ( mode_ != Furrowing )
+	return false;
+
+    if ( eventcatcher_ )
+	eventcatcher_->setHandled();
+
+    if ( eventinfo.type==visBase::MouseMovement || eventinfo.pressed )
+    {
+	visBase::EventInfo* newevent = new visBase::EventInfo( eventinfo );
+	newevent->detail = 0;		// TODO: copy-constructors
+	
+	newevent->type = visBase::MouseClick;
+	if ( eventlist_.size() )
+	{
+	    unsigned int butstate = eventlist_[0]->buttonstate_;
+	    butstate &= ~OD::ShiftButton;
+	    newevent->buttonstate_ = (OD::ButtonState) butstate;
+	}
+	eventlist_ += newevent;
+	sowingline_->addPoint( newevent->worldpickedpos );
+	return true;
+    }
+
+    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+    mode_ = Sowing;
+    for ( int idx=0; idx<eventlist_.size(); idx++ )
+    {
+	for ( int yn=1; yn>=0; yn-- )
+	{
+	    eventlist_[idx]->pressed = yn;
+	    if ( eventcatcher_ )
+		eventcatcher_->reHandle( *eventlist_[idx] );
+	}
+    }
+
+    sowingline_->turnOn( false );
+    for ( int idx=sowingline_->size()-1; idx>=0; idx-- )
+	sowingline_->removePoint( idx );
+
+    deepErase( eventlist_ );
+
+    mode_ = Idle;
+    return true;
+}
+
+
 }; //namespce

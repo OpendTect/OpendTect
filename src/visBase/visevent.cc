@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visevent.cc,v 1.28 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.29 2010-05-21 15:54:40 cvsjaap Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -49,7 +49,8 @@ EventInfo::EventInfo()
 
 EventInfo::~EventInfo()
 {
-    delete detail;
+    if ( detail )
+	delete detail;
 }
 
 
@@ -58,6 +59,8 @@ EventCatcher::EventCatcher()
     , eventhappened( this )
     , nothandled( this )
     , type_( Any )
+    , rehandling_( false )
+    , rehandled_( true )
 {
     node_->ref();
 
@@ -153,6 +156,7 @@ EventCatcher::~EventCatcher()
 
 bool EventCatcher::isHandled() const
 {
+    if ( rehandling_ ) return rehandled_;
 /*
     For some reason, the action associated with some events
     is NULL on Mac, which causes an undesired effect...
@@ -165,11 +169,22 @@ bool EventCatcher::isHandled() const
 
 void EventCatcher::setHandled()
 {
+    if ( rehandling_ ) { rehandled_ = true; return; }
 /*
     For some reason, the action associated with some events
     is NULL on Mac, which causes an undesired effect...
 */
     if ( node_ && node_->getAction() ) node_->setHandled();
+}
+
+
+void EventCatcher::reHandle( const EventInfo& eventinfo )
+{
+    rehandling_ = true;
+    rehandled_ = false;
+    eventhappened.trigger( eventinfo, this );
+    rehandled_ = true;
+    rehandling_ = false;
 }
 
 

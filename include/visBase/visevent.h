@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.22 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visevent.h,v 1.23 2010-05-21 15:54:40 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,7 @@ mClass EventInfo
 public:
     				EventInfo();
 				~EventInfo();
+
     EventType			type;
 
     OD::ButtonState		buttonstate_;
@@ -85,6 +86,7 @@ public:
 
     bool			isHandled() const;
     void			setHandled();
+    void			reHandle(const EventInfo&);
 
     void			fillPar( IOPar&, TypeSet<int>& ) const;
     int				usePar( const IOPar& );
@@ -104,6 +106,9 @@ protected:
     ObjectSet<Transformation>	utm2display_;
 
     static const char*		eventtypestr;
+
+    bool			rehandling_;
+    bool			rehandled_;
 };
 
 }; // Namespace

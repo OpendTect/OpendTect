@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.15 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.16 2010-05-21 15:54:40 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
+class Color;
+
 namespace MPE { class ObjectEditor; };
 namespace EM { class EdgeLineSet; }
 
@@ -27,15 +29,43 @@ namespace visBase
 class DataObjectGroup;
 class Marker;
 class Dragger;
+class EventInfo;
+class PolyLine;
 };
 
 
 namespace visSurvey
 {
 class EdgeLineSetDisplay;
+class MPEEditor;
 
 /*!\brief
 */
+
+
+mClass Sower : public visBase::VisualObjectImpl
+{
+    friend class	MPEEditor;
+
+public:
+    enum		SowingMode { Idle=0, Furrowing, Sowing };
+    SowingMode		mode()				{ return mode_; }
+
+    bool		accept(const visBase::EventInfo&);
+    bool		activate(const Color&,const visBase::EventInfo&);
+
+protected:
+			Sower();
+			~Sower();
+
+    void		setDisplayTransformation( mVisTrans* );
+    void		setEventCatcher( visBase::EventCatcher* );
+
+    visBase::EventCatcher*		eventcatcher_;
+    visBase::PolyLine*			sowingline_;
+    SowingMode				mode_;
+    ObjectSet<visBase::EventInfo>	eventlist_;
+};
 
 
 mClass MPEEditor : public visBase::VisualObjectImpl
@@ -83,6 +113,9 @@ public:
     EM::PosID			mouseClickDragger(const TypeSet<int>&) const;
 
     bool			isDragging() const	{ return isdragging; }
+
+    Sower&			sower()			{ return *sower_; }
+
 			
 protected:
     				~MPEEditor();
@@ -122,7 +155,11 @@ protected:
     EdgeLineSetDisplay*		interactionlinedisplay;
     void			setupInteractionLineDisplay();
     void			extendInteractionLine(const EM::PosID&);
+
+    Sower*			sower_;
 };
+
+
 
 };
 
