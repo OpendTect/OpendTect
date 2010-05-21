@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.40 2010-03-18 05:32:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.41 2010-05-21 05:30:44 cvsnanne Exp $";
 
 #include "settings.h"
 
@@ -151,7 +151,13 @@ bool Settings::doRead( bool ext )
     if ( empty_initially )
     {
 	if ( __ismac__ )
-	    set( "Font.def.Control", "Helvetica`10`Normal`No" );
+	{
+	    set( "Font.def.Control", "Helvetica`12`Normal`No" );
+	    set( "Font.def.Small control", "Helvetica`10`Normal`No" );
+	    set( "Font.def.Graphics small", "Helvetica`10`Normal`No" );
+	    set( "Font.def.Graphics medium", "Helvetica`12`Normal`No" );
+	    set( "Font.def.Fixed width", "Courier`12`Normal`No" );
+	}
 	write( false );
     }
     else if ( iscommon && stream.majorVersion() < 3 )
