@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.30 2010-03-08 12:26:44 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.31 2010-05-21 14:28:56 cvsbert Exp $
 ________________________________________________________________________
 -*/
 
@@ -88,6 +88,8 @@ mGlobal const char* getRankPostFix(int);
 /*!> returns a nicely, readable size, in bytes, KB, MB, GB, or TB */
 mGlobal const char* getBytesString(od_uint64);
 
+mGlobal int getIndexInStringArrCI(const char*,char** arr,int startnr,
+				  int nr_chars_to_match,int notfoundidx);
 
 
 #ifdef __cpp__
