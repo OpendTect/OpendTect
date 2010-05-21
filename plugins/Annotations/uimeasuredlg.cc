@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.19 2010-04-09 08:37:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.20 2010-05-21 05:49:57 cvsnageswara Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.19 2010-04-09 08:37:12 cvsb
 #include "position.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 
 #include "uibutton.h"
 #include "uicolor.h"
@@ -76,12 +77,18 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     distfld_->setReadOnly( true );
     distfld_->attach( alignedBelow, appvelfld_ ? appvelfld_ : zdistfld_ );
 
+    BufferString lbl;
+    SI().xyInFeet() ? lbl = "Distance (m)": lbl = "Distance (ft)";
+    distconvert_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
+    distconvert_->setReadOnly( true );
+    distconvert_->attach( alignedBelow, distfld_ );
+
     inlcrldistfld_ = new uiGenInput( topgrp, "Inl/Crl Distance",
 	    			     IntInpIntervalSpec(Interval<int>(0,0))
 				     .setName("InlDist",0)
 				     .setName("CrlDist",1) );
     inlcrldistfld_->setReadOnly( true, -1 );
-    inlcrldistfld_->attach( alignedBelow, distfld_ );
+    inlcrldistfld_->attach( alignedBelow, distconvert_ );
 
     uiGroup* botgrp = new uiGroup( this, "Button group" );
     uiPushButton* clearbut = new uiPushButton( botgrp, "&Clear",
@@ -156,12 +163,11 @@ void uiMeasureDlg::reset()
     if ( appvelfld_ )
     	appvelfld_->setValue( velocity_ );
     distfld_->setValue( 0 );
+    distconvert_->setValue( 0 );
+    distfld_->setValue( 0 );
     inlcrldistfld_->setValue( Interval<int>(0,0) );
 }
 
-
-static const double cM2Ft2 = 10.76391;
-static const double cFt2M2 = 0.09290304;
 
 void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 {
@@ -173,44 +179,61 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 	return;
     }
 
+
     int totinldist = 0, totcrldist = 0;
-    double tothdist = 0, totzdist = 0, totrealdist = 0;
+    double tothdist = 0, totzdist = 0;
+    double totrealdist = 0; // in xy unit
+    const UnitOfMeasure* uom = UoMR().get( "Feet" );
     for ( int idx=1; idx<size; idx++ )
     {
 	const Coord xy = points[idx].coord();
 	const Coord prevxy = points[idx-1].coord();
 	const BinID bid = SI().transform( xy );
 	const BinID prevbid = SI().transform( prevxy );
-	const float zdist = fabs( points[idx-1].z - points[idx].z );
+	float zdist = fabs( points[idx-1].z - points[idx].z );
 
 	totinldist += abs( bid.r() - prevbid.r() );
 	totcrldist += abs( bid.c() - prevbid.c() );
 	const double hdist = xy.distTo( prevxy );
 	tothdist += hdist;
 	totzdist += zdist;
-    
 	if ( SI().zIsTime() )
-	    totrealdist += 
-		Math::Sqrt( hdist*hdist + velocity*velocity*zdist*zdist/4 );
-	else if ( SI().zInMeter() )
 	{
-	   if ( SI().xyInFeet() )
-		totrealdist += Math::Sqrt( hdist*hdist + cM2Ft2*zdist*zdist );
-	   else
-		totrealdist += Math::Sqrt( hdist*hdist + zdist*zdist );
+	    totrealdist +=
+		Math::Sqrt( hdist*hdist + velocity*velocity*zdist*zdist/4 );
 	}
 	else
 	{
-	    if ( SI().xyInFeet() )
-		totrealdist += Math::Sqrt( hdist*hdist + zdist*zdist );
-	    else
-		totrealdist += Math::Sqrt( cFt2M2*hdist*hdist + zdist*zdist );
+	    if ( SI().zInMeter() && SI().xyInFeet() )
+		zdist = uom->getUserValueFromSI( zdist );
+
+	    if ( !SI().zInMeter() && !SI().xyInFeet() )
+		zdist = uom->getSIValue( zdist );
+
+	    totrealdist += Math::Sqrt( hdist*hdist + zdist*zdist );
 	}
     }
+
+    double distft = SI().xyInFeet() ? totrealdist
+				    : uom->getUserValueFromSI( totrealdist );
+    double distm = SI().xyInFeet() ? uom->getSIValue( totrealdist )
+				   : totrealdist;
 
     hdistfld_->setValue( tothdist );
     zdistfld_->setValue( totzdist*SI().zFactor() );
     if ( zdist2fld_ ) zdist2fld_->setValue( totzdist*velocity/2 );
+
+    if ( SI().xyInFeet() )
+    {
+	distfld_->setValue( distft );
+	distconvert_->setValue( distm );
+    }
+    else
+    {
+	distfld_->setValue( distm );
+	distconvert_->setValue( distft );
+    }
+
     distfld_->setValue( totrealdist );
     inlcrldistfld_->setValue( Interval<int>(totinldist,totcrldist) );
 }

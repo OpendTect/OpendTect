@@ -4,7 +4,7 @@ ________________________________________________________________________
     (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
     Author:        Nageswara
     Date:          July 2008
-    RCS:           $Id: uimeasuredlg.h,v 1.7 2010-01-25 11:34:20 cvsnanne Exp $
+    RCS:           $Id: uimeasuredlg.h,v 1.8 2010-05-21 05:49:57 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ protected:
     uiGenInput*			zdist2fld_;
     uiGenInput*			appvelfld_;
     uiGenInput*			distfld_;
+    uiGenInput*			distconvert_;
     uiGenInput*			inlcrldistfld_;
 
     void			lsChangeCB(CallBacker*);
