@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.23 2010-04-07 09:24:09 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.24 2010-05-21 11:54:08 cvsnanne Exp $";
 
 #include "gmtdef.h"
 #include "ioman.h"
@@ -151,6 +151,7 @@ void uiGMTMgr::createMap( CallBacker* )
     }
 
     dlg_->show();
+    dlg_->raise();
 }
 
 

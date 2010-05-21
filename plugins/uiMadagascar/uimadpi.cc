@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.19 2010-03-25 03:58:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.20 2010-05-21 11:54:08 cvsnanne Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimenu.h"
@@ -149,6 +149,7 @@ void uiMadagascarLink::doMain( CallBacker* )
 
     ishidden_ = false;
     madwin_->show();
+    madwin_->raise();
 }
 
 
