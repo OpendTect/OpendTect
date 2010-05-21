@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.47 2010-05-19 14:23:48 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.48 2010-05-21 16:58:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ public:
 				{ TypeSet<Interval<int> > empty; return empty; }
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&)		 = 0;
+    virtual SeisTrc*		getTrc()		{ return 0; }
     virtual void		writeTrc()		{};
     const Seis::SelData&	getSelData()		{ return *seldata_; }
     const LineKey&		curLineKey() const;
@@ -137,6 +138,7 @@ public:
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     void			writeTrc();
+    SeisTrc*			getTrc()		{ return trc_; }
     void			setTrcGrow( bool yn )	{ growtrctosi_ = yn; }
     void			setOutpTypes(const TypeSet<Seis::DataType>& typ)
 				{ outptypes_ = typ; }
