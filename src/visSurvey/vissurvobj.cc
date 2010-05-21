@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.52 2010-02-24 15:17:13 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.53 2010-05-21 08:26:57 cvsnanne Exp $";
 
 #include "vissurvobj.h"
 
@@ -150,9 +150,8 @@ int SurveyObject::useSOPar( const IOPar& par )
 	}
     }
 
-    int nrattribs;
-    if ( !par.get(sKeyNrAttribs(),nrattribs) )
-	return -1;
+    int nrattribs = 0;
+    par.get( sKeyNrAttribs(), nrattribs );
 
     bool firstattrib = true;
     for ( int attrib=0; attrib<nrattribs; attrib++ )
