@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.61 2010-04-12 11:20:34 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.62 2010-05-24 10:48:53 cvsnanne Exp $";
 
 #include "horizonadjuster.h"
 
@@ -202,12 +202,11 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
     const ValueSeries<float>* storage = 0;
     if ( !attrdata_->is2D() && attrdata_->get3DData() )
 	storage = attrdata_->get3DData()->getCube(0).getStorage();
-    if ( attrdata_->is2D() && attrdata_->get2DData() )
+    else if ( attrdata_->is2D() && attrdata_->get2DData() )
     {
-	const int todataholidx =
-	    attrdata_->get2DData()->getDataHolderIndex( tocrlidx );
-	if ( todataholidx < 0 ) return false;
-	storage = attrdata_->get2DData()->dataset_[todataholidx]->series(0);
+	const int dhidx = attrdata_->get2DData()->getDataHolderIndex( to.crl );
+	if ( dhidx < 0 ) return false;
+	storage = attrdata_->get2DData()->dataset_[dhidx]->series(0);
     }
     if ( !storage ) return false; 
 
@@ -249,10 +248,10 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 
 	if ( attrdata_->is2D() && attrdata_->get2DData() )
 	{
-	    const int frmdatahdidx = 
-		attrdata_->get2DData()->getDataHolderIndex( fromcrlidx );
-	    if ( frmdatahdidx < 0 ) return false;
-	    storage = attrdata_->get2DData()->dataset_[frmdatahdidx]->series(0);
+	    const int dhidx =
+		attrdata_->get2DData()->getDataHolderIndex( from.crl );
+	    if ( dhidx < 0 ) return false;
+	    storage = attrdata_->get2DData()->dataset_[dhidx]->series(0);
 	}
 
 	const OffsetValueSeries<float> fromarr( 
