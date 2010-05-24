@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.125 2010-04-14 14:09:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.126 2010-05-24 12:32:26 cvsranojay Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -854,95 +854,9 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
 int RandomTrackDisplay::usePar( const IOPar& par )
 {
-    int version;
-    if ( !par.get( sKey::Version, version ) )
-	version = 2;
-
-    if ( version==2 )
-    {
-	const int res =  visBase::VisualObjectImpl::usePar( par );
-	if ( res != 1 ) return res;
-
-	int nrattribs;
-	if ( par.get(sKeyNrAttribs(),nrattribs) ) //version 2
-	{
-	    par.getYN( sKeyLockGeometry(), lockgeometry_ );
-	    bool firstattrib = true;
-	    for ( int attrib=0; attrib<nrattribs; attrib++ )
-	    {
-		BufferString key = sKeyAttribs();
-		key += attrib;
-		PtrMan<const IOPar> attribpar = par.subselect( key );
-		if ( !attribpar )
-		    continue;
-
-		int coltabid = -1;
-		if ( attribpar->get(sKeyColTabID(),coltabid) )
-		{
-		    visBase::DataObject* dataobj =
-			visBase::DM().getObject(coltabid);
-		    if ( !dataobj ) return 0;
-		    mDynamicCastGet( const visBase::VisColorTab*, coltab,
-			    	     dataobj );
-		    if ( !coltab ) coltabid=-1;
-		}
-
-		if ( !firstattrib )
-		    addAttrib();
-		else
-		    firstattrib = false;
-
-		Attrib::SelSpec as;
-		const int attribnr = nrAttribs()-1;
-		as.usePar( *attribpar );
-		setSelSpec( attribnr, as );
-
-		if ( coltabid!=-1 )
-		{
-		    mDynamicCastGet( visBase::VisColorTab*, coltab,
-		    visBase::DM().getObject(coltabid) );
-		    channels_->setColTabMapperSetup( attribnr, 
-			    coltab->colorMapper().setup_ );
-		    channels_->getChannels2RGBA()->setSequence( attribnr, 
-			    coltab->colorSeq().colors() );
-		}
-
-		bool ison = true;
-		attribpar->getYN( sKeyIsOn(), ison );
-	    }
-	}
-	else //For old pars
-	{
-	    int trackid;
-	    if ( !par.get(sKeyTrack(),trackid) ) return -1;
-	    mDynamicCastGet(visBase::RandomTrack*,rt,
-			    visBase::DM().getObject(trackid));
-	    
-	    if ( !rt )
-		return 0;
-
-	    rt->ref();
-
-	    Attrib::SelSpec as;
-	    as.usePar( par );
-	    setSelSpec( 0, as );
-
-	    channels_->setColTabMapperSetup( 0, 
-		    rt->getColorTab().colorMapper().setup_ );
-	    channels_->getChannels2RGBA()->setSequence( 0, 
-		    rt->getColorTab().colorSeq().colors() );
-
-	    rt->unRef();
-	    setMaterial( rt->getMaterial() );
-	    turnOn( rt->isOn() );
-	}
-    }
-    else
-    {
-	par.getYN( sKeyLockGeometry(), lockgeometry_ );
-	const int res =  visSurvey::MultiTextureSurveyObject::usePar( par );
-	if ( res != 1 ) return res;
-    }
+    par.getYN( sKeyLockGeometry(), lockgeometry_ );
+    const int res =  visSurvey::MultiTextureSurveyObject::usePar( par );
+    if ( res != 1 ) return res;
 
     Interval<float> intv;
     if ( par.get( sKeyDepthInterval(), intv ) )
@@ -961,9 +875,6 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	else
 	    addKnot( pos );
     }
-
-    if ( version<3 )
-	useSOPar( par );
 
     return 1;
 }

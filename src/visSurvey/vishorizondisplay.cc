@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.133 2010-04-14 10:50:45 cvsjaap Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.134 2010-05-24 12:32:26 cvsranojay Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1906,19 +1906,6 @@ int HorizonDisplay::usePar( const IOPar& par )
     int res = EMObjectDisplay::usePar( par );
     if ( res!=1 ) return res;
 
-    int tc2rgbaid;
-    if ( par.get( MultiTextureSurveyObject::sKeyTC2RGBA(), tc2rgbaid ) )
-    {
-	RefMan<visBase::DataObject> dataobj =
-		      visBase::DM().getObject( tc2rgbaid );
-	if ( !dataobj )
-	    return 0;
-
-	mDynamicCastGet(visBase::TextureChannel2RGBA*, tc2rgba, dataobj.ptr() );
-	if ( tc2rgba )
-	setChannels2RGBA( tc2rgba );
-    }
-
     if ( scene_ )
 	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
 
@@ -1937,112 +1924,12 @@ int HorizonDisplay::usePar( const IOPar& par )
     
     int resolution = 0;
     par.get( sKeyResolution(), resolution );
+    setResolution( resolution, 0 );
 
     Coord3 shift( 0, 0, 0 );
     par.get( sKeyShift(), shift.z );
     setTranslation( shift );
 
-    int nrchannels;
-    if ( par.get(sKeyNrAttribs(),nrchannels) ) //Current format
-    {
-	//This portion is for 3.2-pars. Can be removed in version 3.6 or later
-	ObjectSet<visBase::VisColorTab> ctabs;
-	ctabs.allowNull( true );
-	bool isversion32 = false;
-	for ( int attrib=0; attrib<nrchannels; attrib++ )
-	{
-	    BufferString key = sKeyAttribs();
-	    key += attrib;
-	    PtrMan<const IOPar> attribpar = par.subselect( key );
-	    if ( !attribpar )
-		continue;
-
-	    int coltabid;
-	    if ( attribpar->get(sKeyColTabID(),coltabid) )
-	    {
-		isversion32 = true;
-		RefMan<visBase::DataObject> dataobj =
-			visBase::DM().getObject( coltabid );
-		if ( !dataobj )
-		{
-		    deepUnRef( ctabs );
-		    return 0;
-		}
-
-		mDynamicCastGet(visBase::VisColorTab*,coltab,dataobj.ptr());
-		if ( coltab ) coltab->ref();
-		ctabs += coltab;
-	    }
-	    else
-		ctabs += 0;
-	}
-
-	if ( isversion32 )
-	{
-	    if ( !resolution )
-		resolution = 6-resolution;
-	}
-
-	//End of 3.2 code
-
-	ColTab::MapperSetup mappersetup;
-	ColTab::Sequence coltabsequence( ColTab::defSeqName() );
-
-	bool firstchannel = true;
-	for ( int channel=0; channel<nrchannels; channel++ )
-	{
-	    BufferString key = sKeyAttribs();
-	    key += channel;
-	    PtrMan<const IOPar> channelpar = par.subselect( key );
-	    if ( !channelpar )
-		continue;
-
-	    if ( !firstchannel )
-		addAttrib();
-	    else
-		firstchannel = false;
-
-	    bool ison = true;
-	    channelpar->getYN( sKeyIsOn(), ison );
-	    const int channelnr = as_.size()-1;
-	    enabled_[channelnr] = ison;
-	    as_[channelnr]->usePar( *channelpar );
-
-	    if ( !mappersetup.usePar( *channelpar ) ||
-		 !coltabsequence.usePar( *channelpar ) )
-	    {
-		if ( ctabs[channel] )
-		{
-		    mappersetup = ctabs[channel]->colorMapper().setup_;
-		    coltabsequence = ctabs[channel]->colorSeq().colors();
-		}
-	    }
-
-	    setColTabMapperSetup( channel, mappersetup, 0 );
-	    setColTabSequence( channel, coltabsequence, 0 );
-	}
-
-	deepUnRef( ctabs );
-    }
-    else //old format
-    {
-	as_[0]->usePar( par );
-	int coltabid = -1;
-	par.get( sKeyColTabID(), coltabid );
-	if ( coltabid>-1 )
-	{
-	    DataObject* dataobj = visBase::DM().getObject( coltabid );
-	    if ( !dataobj ) return 0;
-	    
-	    mDynamicCastGet( visBase::VisColorTab*, coltab, dataobj );
-	    if ( !coltab ) return -1;
-	
-	    setColTabSequence( 0, coltab->colorSeq().colors(), 0 );
-    	    setColTabMapperSetup( 0, coltab->colorMapper().setup_, 0 );
-	}
-    }
-
-    setResolution( resolution, 0 );
 
     int intersectlinematid;
     if ( par.get(sKeyIntersectLineMaterialID(),intersectlinematid) )
