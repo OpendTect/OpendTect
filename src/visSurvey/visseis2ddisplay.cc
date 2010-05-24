@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.94 2010-05-20 07:15:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.95 2010-05-24 21:52:05 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -134,12 +134,12 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		? dataseries->value( smp )
 		: mUdf(float);
 	    const int arrzidx = arraysrg.getIndex( smp+shift );
-	    if ( arrzidx<0 || arrzidx>=arrzsz+shift ) 
+	    if ( arrzidx<0 || arrzidx>=arrzsz ) 
 	    {
 		addToNrDone( 1 );
 		continue;
 	    }
-	    
+	   
 	    arr_.set( trcidx, arrzidx, val );
 	}
 
