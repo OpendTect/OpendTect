@@ -8,14 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.56 2010-02-04 10:59:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.57 2010-05-25 03:39:05 cvsnanne Exp $";
 
 
 #include "uitreeitemmanager.h"
 
 #include "errh.h"
 #include "uilistview.h"
-#include "uimenu.h"
 
 
 #define mEnabSelChg(yn) \
