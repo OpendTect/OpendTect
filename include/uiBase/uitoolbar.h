@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.40 2010-02-08 11:22:29 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.41 2010-05-25 03:30:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class uiPopupMenu;
 class uiToolBarBody;
 class QAction;
 class QToolBar;
+class i_ToolBarMessenger;
 
 mClass uiToolBar : public uiParent
 {
@@ -96,6 +97,7 @@ public:
 protected:
 
     QToolBar*		qtoolbar_;
+    i_ToolBarMessenger*	msgr_;
     uiToolBarBody*	body_;
     uiToolBarBody&	mkbody(const char*,QToolBar&);
 

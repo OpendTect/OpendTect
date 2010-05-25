@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitoolbar.cc,v 1.56 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uitoolbar.cc,v 1.57 2010-05-25 03:30:44 cvsnanne Exp $";
 
 #include "uitoolbar.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uitoolbar.cc,v 1.56 2010-03-25 03:55:14 cvsrano
 
 #include <QToolBar>
 #include "i_qtoolbut.h"
+#include "i_qtoolbar.h"
 
 
 class uiToolBarBody : public uiParentBody
@@ -239,6 +240,7 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
     qtoolbar_ = new QToolBar( QString(nm) );
     qtoolbar_->setObjectName( nm );
     setBody( &mkbody(nm,*qtoolbar_) );
+    msgr_ = new i_ToolBarMessenger( qtoolbar_, this );
 
     mDynamicCastGet(uiMainWin*,uimw,parnt)
     if ( uimw )
@@ -258,6 +260,7 @@ uiToolBar::~uiToolBar()
 
     delete body_;
     delete qtoolbar_;
+    delete msgr_;
 
     toolBars() -= this;
 }
