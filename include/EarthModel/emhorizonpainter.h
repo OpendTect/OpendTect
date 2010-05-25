@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.h,v 1.8 2010-04-21 07:46:17 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.h,v 1.9 2010-05-25 05:18:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,8 +74,8 @@ public:
     TypeSet<int>&	getTrcNos()		{ return trcnos_; }
     TypeSet<float>&	getDistances()		{ return distances_; }
 
-    CNotifier<HorizonPainter,EMObjPainterCallbackData>	horizonadded_;
-    CNotifier<HorizonPainter,EMObjPainterCallbackData>	horizonremoved_;
+    CNotifier<HorizonPainter,const EMObjPainterCallbackData&>	horizonadded_;
+    CNotifier<HorizonPainter,const EMObjPainterCallbackData&>	horizonremoved_;
 
 protected:
 
