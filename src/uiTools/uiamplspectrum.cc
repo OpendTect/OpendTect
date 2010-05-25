@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.20 2010-05-10 03:12:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.21 2010-05-25 08:34:35 cvsbruno Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -28,7 +28,6 @@ static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.20 2010-05-10 03:12:51 cv
 #include "strmprov.h"
 #include "survinfo.h"
 
-
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     : uiMainWin( p,"Amplitude Spectrum", 0, false, false )
     , timedomain_(0)
@@ -46,14 +45,15 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
 
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
     dispparamgrp_->attach( alignedBelow, disp_ );
-    rangefld_ = new uiGenInput( dispparamgrp_, "Display between frequencies",
-			FloatInpIntervalSpec()
+    BufferString disptitle( "Display between " );
+    disptitle += SI().zIsTime() ? "frequencies" : "wavenumber" ;
+    rangefld_ = new uiGenInput( dispparamgrp_, disptitle, FloatInpIntervalSpec()
 			.setName(BufferString("range start"),0)
 			.setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiAmplSpectrum,dispRangeChgd ) );
     stepfld_ = new uiLabeledSpinBox( dispparamgrp_, "Gridline step");
+    stepfld_->box()->setNrDecimals( SI().zIsTime() ? 0 : 5 );
     stepfld_->attach( rightOf, rangefld_ );
-    stepfld_->box()->setInterval( 1, 50, 5 );
     stepfld_->box()->valueChanging.notify(
 	    mCB(this,uiAmplSpectrum,dispRangeChgd) );
 
@@ -190,7 +190,9 @@ void uiAmplSpectrum::putDispData()
 	maxfreq = mNINT( maxfreq );
     posrange_.set( 0, maxfreq );
     rangefld_->setValue( posrange_ );
-    stepfld_->box()->setValue( (int)maxfreq/5 );
+    stepfld_->box()->setInterval( posrange_.start, posrange_.stop, 
+	    			  (posrange_.stop-posrange_.start)/25 );
+    stepfld_->box()->setValue( maxfreq/5 );
     disp_->setVals( posrange_, dbspecvals.arr(), fftsz );
     disp_->draw();
 }
@@ -209,14 +211,14 @@ void uiAmplSpectrum::getSpectrumData( Array1DImpl<float>& data )
 void uiAmplSpectrum::dispRangeChgd( CallBacker* )
 {
     StepInterval<float> rg = rangefld_->getFInterval();
+    rg.step = stepfld_->box()->getFValue();
     if ( posrange_.start > rg.start || posrange_.stop < rg.stop 
 	    || rg.stop <=0 || rg.start >= rg.stop )
     { 
-	rg.start = posrange_.start; rg.stop = posrange_.stop; 
+	rg.start = posrange_.start; rg.stop = posrange_.stop;
+        rg.step = ( rg.stop - rg.start )/5;
 	rangefld_->setValue( posrange_ ); 
     }
-
-    rg.step = stepfld_->box()->getValue();
     disp_->xAxis()->setRange( rg ); 
     disp_->draw();
 }
