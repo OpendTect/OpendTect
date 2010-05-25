@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.41 2010-02-23 21:25:59 cvskris Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.42 2010-05-25 04:38:03 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.41 2010-02-23 21:2
 #include "visrgbatexturechannel2rgba.h"
 #include "vissurvscene.h"
 
+#include "attribdescsetsholder.h"
 #include "attribsel.h"
 #include "keystrs.h"
 #include "linekey.h"
@@ -122,10 +123,12 @@ bool uiODPlaneDataTreeItem::init()
 	    uiAttribPartServer* attrserv = applMgr()->attrServer();
 	    const char* keystr = SI().pars().find( sKey::DefCube );
 	    Attrib::DescID descid = attrserv->getStoredID( keystr, false );
-	    if ( descid.isValid() )
+	    const Attrib::DescSet* ads =
+		Attrib::DSHolder().getDescSet( false, true );
+	    if ( descid.isValid() && ads )
 	    {
 		Attrib::SelSpec as( 0, descid, false, "" );
-		as.setRefFromID( *attrserv->curDescSet(false) );
+		as.setRefFromID( *ads );
 		visserv_->setSelSpec( displayid_, 0, as );
 		visserv_->calculateAttrib( displayid_, 0, false );
 	    }
