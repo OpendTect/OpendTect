@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.32 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.33 2010-05-25 03:07:10 cvsraman Exp $";
 
 #include "batchprog.h"
 
@@ -255,7 +255,8 @@ bool BatchProgram::go( std::ostream& strm )
 	    else
 	    {
 		if ( res == -1 )
-		    mRetJobErr( "Cannot reach next position" )
+		    mRetJobErr( BufferString("Cannot reach next position",
+					     ": ",proc->message()) )
 		break;
 	    }
 	    
