@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.100 2010-04-23 15:33:29 cvshelene Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.101 2010-05-25 03:33:20 cvsnanne Exp $";
 
 #include "attribengman.h"
 
@@ -139,7 +139,8 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     BufferString attribname = curdesc->isStored() ? "" : curdesc->userRef();
     LineKey lkey( linename, attribname );
 
-    SeisTrcStorOutput* storeoutp = createOutput( iopar, lkey );
+    SeisTrcStorOutput* storeoutp = createOutput( iopar, lkey, errmsg );
+    if ( !storeoutp ) return 0;
 
     bool exttrctosi;
     BufferString basekey = IOPar::compKey( "Output",0 );
@@ -212,14 +213,16 @@ void EngineMan::setExecutorName( Executor* ex )
 
 
 SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars, 
-					    const LineKey& lkey )
+					    const LineKey& lkey,
+       					    BufferString& errmsg )
 {
     const char* typestr = pars.find( IOPar::compKey(sKey::Output,sKey::Type) );
     if ( typestr && !strcmp(typestr,sKey::Cube) )
     {
 	SeisTrcStorOutput* outp = new SeisTrcStorOutput( cs_, lkey );
 	outp->setGeometry(cs_);
-	outp->doUsePar( pars );
+	const bool res = outp->doUsePar( pars );
+	if ( !res ) { errmsg = outp->errMsg(); delete outp; outp = 0; }
 	return outp;
     }
 

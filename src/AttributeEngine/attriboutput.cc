@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.103 2010-05-19 14:23:48 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.104 2010-05-25 03:33:20 cvsnanne Exp $";
 
 #include "attriboutput.h"
 
@@ -363,7 +363,7 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
     }
     
     auxpars_ = pars.subselect("Aux");
-    doInit();
+    return doInit();
     return true;
 }//warning, only a small part of the old taken, see if some more is required
 
@@ -500,7 +500,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 
 void SeisTrcStorOutput::writeTrc()
 {
-    if ( !trc_ ) return;
+    if ( !writer_ || !trc_ ) return;
 
     SeisTrc* usetrc = trc_;
     PtrMan<SeisTrc> tmptrc = 0;
