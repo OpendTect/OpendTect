@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.65 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.66 2010-05-25 04:29:59 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -409,7 +409,7 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
 					const char* txt)
 {
     body_ = new uiToolButtonBody(*this,parnt,txt); 
-    if ( pm )
+    if ( pm && pm->qpixmap() )
         body_->setIcon( *pm->qpixmap() );
 
     return *body_;
