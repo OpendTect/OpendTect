@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		July 2008
- RCS:		$Id: measuretoolman.h,v 1.7 2009-09-28 11:58:16 cvsnanne Exp $
+ RCS:		$Id: measuretoolman.h,v 1.8 2010-05-26 03:35:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,8 @@ protected:
     void		velocityChangeCB(CallBacker*);
     void		dlgClosed(CallBacker*); 
     void		manageDlg(bool); 
+    void		surveyChanged(CallBacker*);
+    void		update();
 
     uiODMain&		appl_;
 

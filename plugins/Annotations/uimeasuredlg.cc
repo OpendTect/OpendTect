@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.20 2010-05-21 05:49:57 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.21 2010-05-26 03:35:38 cvsnanne Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -36,6 +36,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     , ls_(*new LineStyle(LineStyle::Solid,3))
     , appvelfld_(0)
     , zdist2fld_(0)
+    , dist2fld_(0)
     , velocity_(2000)
     , lineStyleChange(this)
     , clearPressed(this)
@@ -77,18 +78,20 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     distfld_->setReadOnly( true );
     distfld_->attach( alignedBelow, appvelfld_ ? appvelfld_ : zdistfld_ );
 
-    BufferString lbl;
-    SI().xyInFeet() ? lbl = "Distance (m)": lbl = "Distance (ft)";
-    distconvert_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
-    distconvert_->setReadOnly( true );
-    distconvert_->attach( alignedBelow, distfld_ );
+    if ( !SI().zIsTime() && SI().xyInFeet() != SI().zInFeet() )
+    {
+	BufferString lbl( "Distance ", SI().xyInFeet() ? "(m)": "(ft)" );
+	dist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
+	dist2fld_->setReadOnly( true );
+	dist2fld_->attach( alignedBelow, distfld_ );
+    }
 
     inlcrldistfld_ = new uiGenInput( topgrp, "Inl/Crl Distance",
 	    			     IntInpIntervalSpec(Interval<int>(0,0))
 				     .setName("InlDist",0)
 				     .setName("CrlDist",1) );
     inlcrldistfld_->setReadOnly( true, -1 );
-    inlcrldistfld_->attach( alignedBelow, distconvert_ );
+    inlcrldistfld_->attach( alignedBelow, dist2fld_ ? dist2fld_ : distfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Button group" );
     uiPushButton* clearbut = new uiPushButton( botgrp, "&Clear",
@@ -158,12 +161,10 @@ void uiMeasureDlg::reset()
 {
     hdistfld_->setValue( 0 );
     zdistfld_->setValue( 0 );
-    if ( zdist2fld_ )
-	zdist2fld_->setValue( 0 );
-    if ( appvelfld_ )
-    	appvelfld_->setValue( velocity_ );
+    if ( zdist2fld_ ) zdist2fld_->setValue( 0 );
+    if ( appvelfld_ ) appvelfld_->setValue( velocity_ );
     distfld_->setValue( 0 );
-    distconvert_->setValue( 0 );
+    if ( dist2fld_ ) dist2fld_->setValue( 0 );
     distfld_->setValue( 0 );
     inlcrldistfld_->setValue( Interval<int>(0,0) );
 }
@@ -214,26 +215,13 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 	}
     }
 
-    double distft = SI().xyInFeet() ? totrealdist
-				    : uom->getUserValueFromSI( totrealdist );
-    double distm = SI().xyInFeet() ? uom->getSIValue( totrealdist )
-				   : totrealdist;
+    double convdist = SI().xyInFeet() ? uom->getSIValue( totrealdist )
+				      : uom->getUserValueFromSI( totrealdist );
 
     hdistfld_->setValue( tothdist );
     zdistfld_->setValue( totzdist*SI().zFactor() );
     if ( zdist2fld_ ) zdist2fld_->setValue( totzdist*velocity/2 );
-
-    if ( SI().xyInFeet() )
-    {
-	distfld_->setValue( distft );
-	distconvert_->setValue( distm );
-    }
-    else
-    {
-	distfld_->setValue( distm );
-	distconvert_->setValue( distft );
-    }
-
     distfld_->setValue( totrealdist );
+    if ( dist2fld_ ) dist2fld_->setValue( convdist );
     inlcrldistfld_->setValue( Interval<int>(totinldist,totcrldist) );
 }

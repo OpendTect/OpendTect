@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: measuretoolman.cc,v 1.12 2009-09-28 11:58:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: measuretoolman.cc,v 1.13 2010-05-26 03:35:38 cvsnanne Exp $";
 
 
 #include "measuretoolman.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: measuretoolman.cc,v 1.12 2009-09-28 11:58:16 cv
 #include "visselman.h"
 
 #include "draw.h"
+#include "ioman.h"
 #include "pickset.h"
 
 namespace Annotations
@@ -49,6 +50,8 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
 			mCB(this,MeasureToolMan,sceneChanged) );
     visBase::DM().selMan().selnotifier.notify(
 	    		mCB(this,MeasureToolMan,objSelected) );
+    IOM().surveyChanged.notify( mCB(this,MeasureToolMan,surveyChanged) );
+    picksetmgr_.locationChanged.notify( mCB(this,MeasureToolMan,changeCB) );
 }
 
 
@@ -70,6 +73,8 @@ void MeasureToolMan::dlgClosed( CallBacker* cb )
     appl_.sceneMgr().setToViewMode( true );
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
 	visBase::DM().selMan().deSelect( displayobjs_[idx]->id() );
+
+    measuredlg_ = 0;
 }
 
 
@@ -93,7 +98,7 @@ void MeasureToolMan::manageDlg( bool show )
 	measuredlg_->show();
 	appl_.sceneMgr().setToViewMode( false );
     }
-    else
+    else if ( measuredlg_ )
 	measuredlg_->close();
 
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
@@ -106,6 +111,8 @@ void MeasureToolMan::manageDlg( bool show )
 		visBase::DM().selMan().deSelect( displayobjs_[idx]->id() );
 	}
     }
+
+    update();
 }
 
 
@@ -142,7 +149,6 @@ void MeasureToolMan::addScene( int sceneid )
     psd->setSet( ps );
     psd->setSetMgr( &picksetmgr_ );
     picksetmgr_.set( getMultiID(sceneid), ps );
-    picksetmgr_.locationChanged.notify( mCB(this,MeasureToolMan,changeCB) );
 
     appl_.applMgr().visServer()->addObject( psd, sceneid, false );
     sceneids_ += sceneid;
@@ -173,14 +179,23 @@ static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
 }
 
 
-void MeasureToolMan::sceneChanged( CallBacker* cb )
+void MeasureToolMan::update()
+{
+    const int sceneid = appl_.sceneMgr().getActiveSceneID();
+    const int sceneidx = sceneids_.indexOf( sceneid );
+    if ( !displayobjs_.validIdx(sceneidx) ) return;
+
+    if ( displayobjs_[sceneidx]->getSet() && measuredlg_ )
+	giveCoordsToDialog( *displayobjs_[sceneidx]->getSet(), *measuredlg_ );
+}
+
+
+void MeasureToolMan::sceneChanged( CallBacker* )
 {
     const bool ison = appl_.menuMgr().coinTB()->isOn( butidx_ );
     if ( !ison ) return;
 
     const int sceneid = appl_.sceneMgr().getActiveSceneID();
-    if ( sceneid < 0 ) return;
-
     const int sceneidx = sceneids_.indexOf( sceneid );
     if ( !displayobjs_.validIdx(sceneidx) ) return;
 
@@ -188,6 +203,7 @@ void MeasureToolMan::sceneChanged( CallBacker* cb )
 
     if ( displayobjs_[sceneidx]->getSet() && measuredlg_ )
 	giveCoordsToDialog( *displayobjs_[sceneidx]->getSet(), *measuredlg_ );
+
 }
 
 
@@ -196,22 +212,13 @@ void MeasureToolMan::changeCB( CallBacker* cb )
     mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb);
     if ( !cd || !cd->set_ ) return;
 
-    Pick::Set chgdset( *cd->set_ );
-    if ( cd->ev_ == Pick::SetMgr::ChangeData::ToBeRemoved )
-	chgdset.remove( cd->loc_ );
-
-    giveCoordsToDialog( chgdset, *measuredlg_ );
+    giveCoordsToDialog( *cd->set_, *measuredlg_ );
 }
 
 
 void MeasureToolMan::velocityChangeCB( CallBacker* )
 {
-    const int sceneid = appl_.sceneMgr().getActiveSceneID();
-    const int sceneidx = sceneids_.indexOf( sceneid );
-    if ( !displayobjs_.validIdx(sceneidx) ) return;
-
-    if ( displayobjs_[sceneidx]->getSet() && measuredlg_ )
-	giveCoordsToDialog( *displayobjs_[sceneidx]->getSet(), *measuredlg_ );
+    update();
 }
 
 
@@ -232,8 +239,10 @@ void MeasureToolMan::clearCB( CallBacker* )
 }
 
 
-void MeasureToolMan::lineStyleChangeCB( CallBacker* cb )
+void MeasureToolMan::lineStyleChangeCB( CallBacker* )
 {
+    if ( !measuredlg_ ) return;
+
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
     {
 	Pick::Set* ps = displayobjs_[idx]->getSet();
@@ -244,6 +253,14 @@ void MeasureToolMan::lineStyleChangeCB( CallBacker* cb )
 	ps->disp_.pixsize_ = ls.width_;
 	picksetmgr_.reportDispChange( this, *ps );
     }
+}
+
+
+void MeasureToolMan::surveyChanged( CallBacker* )
+{
+    if ( measuredlg_ )
+	measuredlg_->close();
+    picksetmgr_.locationChanged.notify( mCB(this,MeasureToolMan,changeCB) );
 }
 
 
