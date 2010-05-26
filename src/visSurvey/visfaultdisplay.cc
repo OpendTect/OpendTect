@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.49 2010-03-26 16:16:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.50 2010-05-26 06:31:45 cvsranojay Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -473,15 +473,14 @@ bool FaultDisplay::arePanelsDisplayed() const
 
 void FaultDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
-
+    visSurvey::MultiTextureSurveyObject::fillPar( par, saveids );
     par.set( sKeyEarthModelID(), getMultiID() );
 }
 
 
 int FaultDisplay::usePar( const IOPar& par )
 {
-    int res = visBase::VisualObjectImpl::usePar( par );
+    int res = visSurvey::MultiTextureSurveyObject::usePar( par );
     if ( res!=1 ) return res;
 
     MultiID newmid;
@@ -499,7 +498,6 @@ int FaultDisplay::usePar( const IOPar& par )
 
 	if ( emobject ) setEMID( emobject->id() );
     }
-
     return 1;
 }
 
@@ -1053,6 +1051,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 
 	visSurvey::HorizonDisplay* hd = 
 	    const_cast<visSurvey::HorizonDisplay*>( hor ); 
+	if ( !hd->getSectionIDs().size() ) continue;
 	EM::SectionID sid = hd->getSectionIDs()[0];
 	const Geometry::BinIDSurface* surf =
 	    hd->getHorizonSection(sid)->getSurface();
@@ -1068,6 +1067,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	else 
 	{
 	    usedids += idy;
+	    if( horintersections_.isEmpty() ) continue;
 	    horintersections_[idy]->turnOn( false );
 	    if ( !removehor )
 	    {		

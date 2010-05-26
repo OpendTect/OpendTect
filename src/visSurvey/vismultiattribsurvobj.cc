@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.57 2010-03-25 19:51:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.58 2010-05-26 06:31:45 cvsranojay Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -600,7 +600,7 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
 
     mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
                      channels_ ? channels_->getChannels2RGBA() : 0 );
-    if ( !cttc2rgba )
+    if ( !cttc2rgba && channels_ )
     {
 	par.set( sKeyTC2RGBA(), channels_->getChannels2RGBA()->id() );
 	saveids += channels_->getChannels2RGBA()->id();
