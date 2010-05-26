@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.64 2010-02-23 20:59:37 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.65 2010-05-26 03:38:19 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -212,7 +212,10 @@ void LocationDisplay::createLine()
     for ( int idx=0; idx<set_->size(); idx++ )
     {
 	Coord3 pos = (*set_)[idx].pos;
-	polyline_->setPoint( idx, pos );
+	if ( datatransform_ )
+	    pos.z = datatransform_->transform( pos );
+	if ( !mIsUdf(pos.z) )
+	    polyline_->setPoint( idx, pos );
     }
 
     int nrnodes = polyline_->size();
