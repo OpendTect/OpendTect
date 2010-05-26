@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.17 2010-05-07 12:50:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.18 2010-05-26 11:53:37 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -26,7 +26,7 @@ static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.17 2010-05-07 12:50:46 c
 
 static const char* sNoLithoTxt      = "---None---";
 
-
+#define mErrRet(msg,act) uiMSG().error(msg); act;
 uiStratUnitDlg::uiStratUnitDlg( uiParent* p, uiStratMgr* uistratmgr )
     : uiDialog(p,uiDialog::Setup("Stratigraphic Unit Properties",
 				 "Specify properties of a new unit",
@@ -91,7 +91,7 @@ void uiStratUnitDlg::getUnitProps( Strat::UnitRef::Props& props) const
 bool uiStratUnitDlg::acceptOK( CallBacker* )
 {
     if ( !strcmp( unitnmfld_->text(), "" ) )
-	{ uiMSG().error( "Please specify the unit name" ); return false; }
+	{ mErrRet( "Please specify the unit name", return false ) }
     return true;
 }
 
@@ -150,7 +150,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
     if ( nm.isEmpty() ) return;
 
     if ( selfld_->isPresent( nm ) )
-	{ uiMSG().error( "Please specify a new, unique name" ); return; }
+	{ mErrRet( "Please specify a new, unique name", return ) }
 
     const Strat::Lithology* lith =
 		    uistratmgr_->createNewLith( nm, isporbox_->isChecked() );
@@ -344,12 +344,26 @@ bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
 {
     bool hastoplvl = lvltoplistfld_->isChecked();
     bool hasbaselvl = lvlbaselistfld_->isChecked();
+    int toplvlidx = lvltoplistfld_->getIntValue();
+    int baselvlidx = lvlbaselistfld_->getIntValue();
+    BufferString errmsg("No level found, please select a correct level ");
+    if ( (hastoplvl && toplvlidx<0 ) )
+    {
+	errmsg += "for the top level";
+	mErrRet( errmsg, return false);
+    }
+    if ( (hasbaselvl && baselvlidx<0 ) )
+    {
+	errmsg += "for the base level";
+	mErrRet( errmsg, return false);
+    }
+
     if ( hastoplvl && hasbaselvl )
     {
 	BufferString msg = uistratmgr_->checkLevelsOk( lvltoplistfld_->text(),
 						       lvlbaselistfld_->text());
 	if ( !msg.isEmpty() ) 
-	    { uiMSG().error( msg ); return false; }
+	{ mErrRet( msg, return false ) }
     }
 
     return true;
