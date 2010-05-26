@@ -7,26 +7,17 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.26 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.27 2010-05-26 09:26:26 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
-#include "attribdescset.h"
-#include "attribengman.h"
-#include "attribprocessor.h"
 #include "attribsel.h"
-#include "bufstringset.h"
-#include "binidvalset.h"
-#include "datainpspec.h"
 #include "survinfo.h"
 #include "wellman.h"
 #include "welldata.h"
-#include "welld2tmodel.h"
 #include "wellextractdata.h"
-#include "welllog.h"
 #include "welllogset.h"
 #include "wellmarker.h"
-#include "welltrack.h"
 
 #include "uiattrsel.h"
 #include "uigeninput.h"
@@ -56,13 +47,13 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     : uiDialog(p,uiDialog::Setup("Create Attribute Log",
 				 "Specify parameters for the new attribute log",
 				 "107.3.0") )
-    , nlamodel_(mdl)
+    , datasetup_(AttribLogCreator::Setup(attrib))
     , wellnames_(wellnames)
     , singlewell_(singlewell)
-    , attrib_(attrib)
     , sellogidx_(-1)
     , attribfld_(0)
 {
+    datasetup_.nlamodel_ = mdl;
     int nrmarkers = -1; int wellidx = -1;
     for ( int idx=0; idx<wellnames_.size(); idx++ )
     {
@@ -79,9 +70,9 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 	return;
     }
 
-    attribfld_ = attrib ? new uiAttrSel( this, *attrib_ )
+    attribfld_ = datasetup_.attrib_ ? new uiAttrSel( this, *datasetup_.attrib_ )
 			: new uiAttrSel( this, 0, uiAttrSelData(false) );
-    attribfld_->setNLAModel( nlamodel_ );
+    attribfld_->setNLAModel( datasetup_.nlamodel_ );
     attribfld_->selectionDone.notify( mCB(this,uiCreateAttribLogDlg,selDone) );
 
     if ( !singlewell )
@@ -127,11 +118,6 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 }
 
 
-uiCreateAttribLogDlg::~uiCreateAttribLogDlg()
-{
-}
-
-
 void uiCreateAttribLogDlg::selDone( CallBacker* )
 {
     const char* inputstr = attribfld_->getInput();
@@ -160,6 +146,12 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	uiMSG().error( "Please select different markers" );
 	return false;
     }
+    datasetup_.topmrknm_ = topmrkfld_->text();
+    datasetup_.botmrknm_ = botmrkfld_->text();
+    datasetup_.lognm_ = lognmfld_->text();
+    Attrib::SelSpec selspec;
+    datasetup_.selspec_ = &selspec;
+    attribfld_->fillSelSpec( *datasetup_.selspec_ );
 
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
@@ -169,23 +161,17 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	if ( !inputsOK(wellidx) )
 	    return false;
 
+	uiTaskRunner* tr = new uiTaskRunner( this );
+	datasetup_.tr_ = tr;
+	AttribLogCreator attriblog( datasetup_, sellogidx_ );
+	BufferString errmsg;
 	Well::Data* wd = Well::MGR().wells()[ wellidx ];
-	BinIDValueSet bidset( 2, true );
-	TypeSet<BinIDValueSet::Pos> positions;
-	TypeSet<float> mdepths;
-	if ( !getPositions(bidset,*wd,positions,mdepths) )
+	if ( !wd ) 
 	    continue;
-
-	if ( positions.isEmpty() )
-	    mErrRet( "No positions extracted from well" );
-
-	if ( !extractData(bidset) )
-	    return false;
-
-	if ( !createLog(bidset,*wd,positions,mdepths) )
-	    return false;
+	if ( !attriblog.doWork( *wd, errmsg ) )
+	{ delete tr; mErrRet( errmsg ) }
+	delete tr;
     }
-
     return true;
 }
 
@@ -198,132 +184,23 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
 
     const Attrib::DescID seldescid = attribfld_->attribID();
     const int outputnr = attribfld_->outputNr();
-    if ( seldescid.asInt() < 0 && (nlamodel_ && outputnr<0) )
+    if ( seldescid.asInt() < 0 && (datasetup_.nlamodel_ && outputnr<0) )
 	mErrRet( "No valid attribute selected" );
 
-    if( stepfld_->getfValue()<0 || stepfld_->getfValue(0)>100 )
+    datasetup_.extractstep_ = stepfld_->getfValue();
+    if( datasetup_.extractstep_<0 || datasetup_.extractstep_>100 )
 	mErrRet( "Please Enter a valid step value" );
     
-    BufferString lognm = lognmfld_->text();
-    if ( lognm.isEmpty() )
+    datasetup_.lognm_ = lognmfld_->text();
+    if ( datasetup_.lognm_.isEmpty() )
 	mErrRet( "Please provide logname" );
 
-    sellogidx_ = wd->logs().indexOf( lognm );
+    sellogidx_ = wd->logs().indexOf( datasetup_.lognm_ );
     if ( sellogidx_ >= 0 )
     {
-	BufferString msg( "Log: '" ); msg += lognm;
+	BufferString msg( "Log: '" ); msg += datasetup_.lognm_;
 	msg += "' is already present.\nDo you wish to overwrite this log?";
 	if ( !uiMSG().askOverwrite(msg) ) return false;
-    }
-
-    return true;
-}
-
-
-bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
-					 TypeSet<BinIDValueSet::Pos>& positions,
-					 TypeSet<float>& mdepths )
-{
-    const bool zinft = SI().zInFeet();
-    const float step = stepfld_->getfValue();
-
-    float start = wd.track().dah(0);
-    float stop = wd.track().dah( wd.track().size()-1);
-    
-    const Well::Marker* topmarker = wd.markers().getByName(topmrkfld_->text()); 
-    const Well::Marker* botmarker = wd.markers().getByName(botmrkfld_->text()); 
-
-    if ( topmarker )
-	start = topmarker->dah();
- 
-    if ( botmarker )
-	stop = botmarker->dah();
-
-    if ( start > stop )
-    { float tmp; mSWAP( start, stop, tmp ); }
-
-    const StepInterval<float> intv = StepInterval<float>( start, stop, step );
-    const int nrsteps = intv.nrSteps();
-    for ( int idx=0; idx<nrsteps; idx++ )
-    {
-	float md = intv.atIndex( idx );
-	if ( zinft ) md *= mFromFeetFactor;
-	Coord3 pos = wd.track().getPos( md );
-	const BinID bid = SI().transform( pos );
-	if ( !bid.inl && !bid.crl ) continue;
-
-	if ( SI().zIsTime() )
-	    pos.z = wd.d2TModel()->getTime( md );
-	bidset.add( bid, pos.z, (float)idx );
-	mdepths += md;
-	positions += BinIDValueSet::Pos(0,0);
-    }
-    
-    BinIDValueSet::Pos pos;
-    while ( bidset.next(pos) )
-    {
-	float& vidx = bidset.getVals(pos)[1];
-	int posidx = mNINT(vidx);
-	positions[posidx] = pos;
-	mSetUdf(vidx);
-    }
-    return true;
-}
-
-
-bool uiCreateAttribLogDlg::extractData( BinIDValueSet& bidset )
-{
-    Attrib::SelSpec selspec;
-    attribfld_->fillSelSpec( selspec );
-    Attrib::EngineMan aem;
-    aem.setAttribSet( attrib_ );
-    aem.setNLAModel( nlamodel_ );
-    aem.setAttribSpec( selspec );
-
-    BufferString errmsg;
-    ObjectSet<BinIDValueSet> bivsset;
-    bivsset += &bidset;
-    PtrMan<Attrib::Processor> process =
-	aem.createLocationOutput( errmsg, bivsset );
-    if ( !process ) mErrRet( errmsg );
-    uiTaskRunner uiexec( this);
-    return uiexec.execute(*process);
-}
-
-
-bool uiCreateAttribLogDlg::createLog( const BinIDValueSet& bidset,
-	 Well::Data& wd, const TypeSet<BinIDValueSet::Pos>& positions,
-	 const TypeSet<float>& mdepths )
-{
-    BufferString lognm = lognmfld_->text();
-    Well::Log* newlog = new Well::Log( lognm );
-    float v[2]; BinID bid;
-    for ( int idx=0; idx<mdepths.size(); idx++ )
-    {
-	bidset.get( positions[idx], bid, v );
-	if ( !mIsUdf(v[1]) )
-	    newlog->addValue( mdepths[idx], v[1] );
-    }
-
-    if ( !newlog->size() )
-    {
-	uiMSG().error( "No values collected" );
-	delete newlog;
-	return false;
-    }
-
-    if ( sellogidx_ < 0 )
-    {
-	wd.logs().add( newlog );
-	sellogidx_ = wd.logs().size() - 1;
-    }
-    else
-    {
-	Well::Log& log = wd.logs().getLog( sellogidx_ );
-	log.erase();
-	for ( int idx=0; idx<newlog->size(); idx++ )
-	    log.addValue( newlog->dah(idx), newlog->value(idx) );
-	delete newlog;
     }
 
     return true;
