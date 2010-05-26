@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.20 2010-04-21 07:46:30 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.21 2010-05-26 06:15:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,8 @@ HorizonPainter::HorizonPainter( FlatView::Viewer& fv )
     , horidtoberepainted_(-1)
     , isupdating_(false)
     , linenm_(0)
-    , horizonadded_(this)
-    , horizonremoved_(this)
+    , horizonAdded(this)
+    , horizonRemoved(this)
 {
     hormarkerlines_.allowNull();
     horsmarkerseeds_.allowNull();
@@ -91,7 +91,7 @@ void HorizonPainter::addHorizon( const EM::ObjectID& oid )
     cbdata.objid_ = horinfo->id_;
     cbdata.name_ = horinfo->name_;
     cbdata.enabled_ = true;
-    horizonadded_.trigger( cbdata );
+    horizonAdded.trigger( cbdata );
 }
 
 
@@ -225,8 +225,10 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 		viewer_.appearance().annot_.auxdata_ += auxdata;
 		auxdata->poly_.erase();
 		auxdata->linestyle_ = markerlinestyle_;
-		auxdata->linestyle_.color_ = hor->preferredColor();
-		auxdata->fillcolor_ = hor->preferredColor();
+		Color prefcol = hor->preferredColor();
+		prefcol.setTransparency( 0 );
+		auxdata->linestyle_.color_ = prefcol;
+		auxdata->fillcolor_ = prefcol;
 		auxdata->name_ = hor->name();
 		newmarker = false;
 		auxdata->enabled_ = horizoninfos_[horidx]->lineenabled_;
@@ -518,7 +520,7 @@ void HorizonPainter::removeHorizon( int idx )
     horizoninfos_.remove( idx );
     viewer_.handleChange( FlatView::Viewer::Annot );
 
-    horizonremoved_.trigger( cbdata );
+    horizonRemoved.trigger( cbdata );
 }
 
 

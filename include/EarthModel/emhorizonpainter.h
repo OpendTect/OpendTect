@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.h,v 1.9 2010-05-25 05:18:34 cvsnanne Exp $
+ RCS:		$Id: emhorizonpainter.h,v 1.10 2010-05-26 06:15:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,10 +45,10 @@ public:
 
 	mStruct HorizonInfo
     	{
-		EM::ObjectID	id_;
-		BufferString	name_;
-		bool		lineenabled_;
-		bool		seedenabled_;
+	    EM::ObjectID	id_;
+	    BufferString	name_;
+	    bool		lineenabled_;
+	    bool		seedenabled_;
     	};
 
     void		addHorizon(const MultiID&);
@@ -74,8 +74,8 @@ public:
     TypeSet<int>&	getTrcNos()		{ return trcnos_; }
     TypeSet<float>&	getDistances()		{ return distances_; }
 
-    CNotifier<HorizonPainter,const EMObjPainterCallbackData&>	horizonadded_;
-    CNotifier<HorizonPainter,const EMObjPainterCallbackData&>	horizonremoved_;
+    CNotifier<HorizonPainter,const EMObjPainterCallbackData&>	horizonAdded;
+    CNotifier<HorizonPainter,const EMObjPainterCallbackData&>	horizonRemoved;
 
 protected:
 
