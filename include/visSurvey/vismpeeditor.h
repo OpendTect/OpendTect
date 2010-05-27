@@ -7,18 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.16 2010-05-21 15:54:40 cvsjaap Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.17 2010-05-27 14:27:20 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visobject.h"
 
 #include "emposid.h"
+#include "keyenum.h"
+#include "visobject.h"
 
 
 class Color;
+class Coord;
 
 namespace MPE { class ObjectEditor; };
 namespace EM { class EdgeLineSet; }
@@ -51,7 +53,12 @@ public:
     enum		SowingMode { Idle=0, Furrowing, Sowing };
     SowingMode		mode()				{ return mode_; }
 
-    bool		accept(const visBase::EventInfo&);
+    void		reverseSowingOrder(bool yn=true);
+    void		alternateSowingOrder(bool yn=true);
+    Coord3		pivotPos() const;
+
+    bool		accept(const visBase::EventInfo&,
+			       OD::ButtonState mask=OD::LeftButton);
     bool		activate(const Color&,const visBase::EventInfo&);
 
 protected:
@@ -63,8 +70,13 @@ protected:
 
     visBase::EventCatcher*		eventcatcher_;
     visBase::PolyLine*			sowingline_;
+    bool				linelost_;
     SowingMode				mode_;
     ObjectSet<visBase::EventInfo>	eventlist_;
+    TypeSet<Coord>			mousecoords_;
+
+    bool				reversesowingorder_;
+    bool				alternatesowingorder_;
 };
 
 

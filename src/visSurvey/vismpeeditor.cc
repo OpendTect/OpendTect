@@ -4,10 +4,11 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.36 2010-05-21 15:54:40 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.37 2010-05-27 14:27:20 cvsjaap Exp $";
 
 #include "vismpeeditor.h"
 
+#include "bendpointfinder.h"
 #include "errh.h"
 #include "emeditor.h"
 #include "emsurface.h"
@@ -495,6 +496,9 @@ Sower::Sower()
     , eventcatcher_( 0 )
     , mode_( Idle )
     , sowingline_( visBase::PolyLine::create() )
+    , linelost_( false )
+    , reversesowingorder_( false )
+    , alternatesowingorder_( false )
 {
     sowingline_->ref();
     addChild( sowingline_->getInventorNode() );
@@ -508,6 +512,14 @@ Sower::~Sower()
     sowingline_->unRef();
     deepErase( eventlist_ );
 }
+
+
+void Sower::reverseSowingOrder( bool yn )
+{ reversesowingorder_ = yn; }
+
+
+void Sower::alternateSowingOrder( bool yn )
+{ alternatesowingorder_ = yn; }
 
 
 void Sower::setDisplayTransformation( visBase::Transformation* transformation )
@@ -524,7 +536,7 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo )
 	return false;
 
     mode_ = Furrowing;
-    if ( !accept(eventinfo) )
+    if ( !accept(eventinfo, OD::ButtonState(~OD::NoButton)) )
 	return false;
 
     sowingline_->getMaterial()->setColor( color );
@@ -533,7 +545,18 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo )
 }
 
 
-bool Sower::accept( const visBase::EventInfo& eventinfo )
+Coord3 Sower::pivotPos() const
+{
+    if ( mode_!=Sowing || eventlist_.isEmpty() )
+	return Coord3::udf();
+
+    Coord3 sum = eventlist_[0]->worldpickedpos;
+    sum += eventlist_[eventlist_.size()-1]->worldpickedpos;
+    return 0.5*sum;
+}
+
+
+bool Sower::accept( const visBase::EventInfo& eventinfo, OD::ButtonState mask )
 {
     if ( mode_ != Furrowing )
 	return false;
@@ -541,33 +564,62 @@ bool Sower::accept( const visBase::EventInfo& eventinfo )
     if ( eventcatcher_ )
 	eventcatcher_->setHandled();
 
+    if ( eventinfo.type == visBase::Keyboard )
+	return true;
+
     if ( eventinfo.type==visBase::MouseMovement || eventinfo.pressed )
     {
+	const int sz = eventlist_.size();
+	if ( sz && eventinfo.pickedobjids!=eventlist_[0]->pickedobjids )
+	{
+	    if ( eventinfo.worldpickedpos.isDefined() && !linelost_ )
+		sowingline_->addPoint( eventinfo.worldpickedpos );
+	    else
+		linelost_ = true;
+
+	    return true;
+	}
+
+	linelost_ = false;
+	sowingline_->addPoint( eventinfo.worldpickedpos );
+
 	visBase::EventInfo* newevent = new visBase::EventInfo( eventinfo );
 	newevent->detail = 0;		// TODO: copy-constructors
 	
-	newevent->type = visBase::MouseClick;
-	if ( eventlist_.size() )
+	if ( sz )
 	{
+	    newevent->type = visBase::MouseClick;
 	    unsigned int butstate = eventlist_[0]->buttonstate_;
-	    butstate &= ~OD::ShiftButton;
+	    butstate &= mask;
 	    newevent->buttonstate_ = (OD::ButtonState) butstate;
 	}
+
 	eventlist_ += newevent;
-	sowingline_->addPoint( newevent->worldpickedpos );
+	mousecoords_ += newevent->mousepos;
 	return true;
     }
 
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+
+    BendPointFinder2D bpfinder ( mousecoords_, 2 );
+    bpfinder.execute(true);
+    TypeSet<int> bendpoints = bpfinder.bendPoints();
+    if ( reversesowingorder_ )
+	bendpoints.reverse();
+
     mode_ = Sowing;
-    for ( int idx=0; idx<eventlist_.size(); idx++ )
+    while ( bendpoints.size() )
     {
 	for ( int yn=1; yn>=0; yn-- )
 	{
-	    eventlist_[idx]->pressed = yn;
+	    eventlist_[bendpoints[0]]->pressed = yn;
 	    if ( eventcatcher_ )
-		eventcatcher_->reHandle( *eventlist_[idx] );
+		eventcatcher_->reHandle( *eventlist_[bendpoints[0]] );
 	}
+
+	bendpoints.remove( 0 );
+	if ( alternatesowingorder_ )
+	    bendpoints.reverse();
     }
 
     sowingline_->turnOn( false );
@@ -575,10 +627,11 @@ bool Sower::accept( const visBase::EventInfo& eventinfo )
 	sowingline_->removePoint( idx );
 
     deepErase( eventlist_ );
+    mousecoords_.erase();
 
     mode_ = Idle;
     return true;
 }
 
 
-}; //namespce
+}; //namespace

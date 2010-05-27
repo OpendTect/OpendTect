@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.21 2010-05-21 15:54:40 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.22 2010-05-27 14:27:20 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -186,6 +186,7 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
 	viseditor_->ref();
 	viseditor_->setSceneEventCatcher( eventcatcher_ );
 	viseditor_->setDisplayTransformation( displaytransform_ );
+	viseditor_->sower().alternateSowingOrder();
 	insertChild( childIndex(sticks_->getInventorNode()),
 		     viseditor_->getInventorNode() );
     }
@@ -481,6 +482,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
+    fsseditor_->setSowingPivot( viseditor_->sower().pivotPos() );
     if ( viseditor_->sower().accept(eventinfo) )
 	return;
 
@@ -581,9 +583,9 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     if ( !mousepid.isUdf() || OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
 	return;
-
+    
     if ( viseditor_->sower().activate(emfss_->preferredColor(), eventinfo) )
-       return;
+	return;
 
     if ( eventinfo.pressed )
 	return;
