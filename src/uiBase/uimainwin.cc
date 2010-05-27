@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.202 2010-05-18 07:02:44 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.203 2010-05-27 04:55:13 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -577,7 +577,9 @@ bool uiMainWinBody::event( QEvent* ev )
 
 void uiMainWinBody::managePopupPos()
 {
-    if ( handle_.parent() && !handle_.parent()->mainwin()->isHidden() )
+    uiParent* myparent = handle_.parent();
+    uiMainWin* myparentsmw = myparent ? myparent->mainwin() : 0;
+    if ( myparentsmw && !myparentsmw->isHidden() )
 	return;
 
     uiMainWin* parwin = handle_.programmedActiveWindow();
