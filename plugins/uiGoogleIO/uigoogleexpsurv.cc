@@ -55,7 +55,8 @@ bool uiGoogleExportSurvey::acceptOK( CallBacker* )
     coords += si_->transform(BinID(inlrg.stop,crlrg.start));
     coords += si_->transform(BinID(inlrg.start,crlrg.start));
 
-    wrr.writePolyStyle( "survey", lsfld_->getColor(), lsfld_->getWidth()*0.1 );
+    const float reqwdth = lsfld_->getWidth() * 0.1;
+    wrr.writePolyStyle( "survey", lsfld_->getColor(), mNINT(reqwdth) );
     wrr.writePoly( "survey", si_->name(), coords, hghtfld_->getfValue(), si_ );
 
     return true;
