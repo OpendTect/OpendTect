@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.48 2010-05-19 12:31:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.49 2010-05-27 09:41:00 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -699,6 +699,7 @@ uiWellDisplay::uiWellDisplay( uiWellDisplay& orgdisp, const ShapeSetup& su )
     for ( int idx=logdisps_.size(); idx<su.nrlogpanels_; idx++ )
     {
 	addLogPanel( true, false );
+	logdisps_[idx]->data().copyFrom( pms_.data_ );
 	logdisps_[idx]->setPrefWidth( mLogWidth );
 	logdisps_[idx]->doDataChange();
 	if ( mrkedit_ ) mrkedit_->addLogDisplay( *logdisps_[idx] );
