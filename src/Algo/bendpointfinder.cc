@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID = "$Id: bendpointfinder.cc,v 1.4 2009-08-12 17:44:00 cvskris Exp $";
+static const char* rcsID = "$Id: bendpointfinder.cc,v 1.5 2010-05-27 14:23:02 cvsjaap Exp $";
 
 #include "bendpointfinder.h"
 #include "sorting.h"
@@ -19,7 +19,8 @@ BendPointFinderBase::BendPointFinderBase( int sz, float eps )
 bool BendPointFinderBase::doPrepare( int nrthreads )
 {
     bendpts_ += 0;
-    bendpts_ += sz_-1;
+    if ( sz_ > 1 )
+	bendpts_ += sz_-1;
 
     queue_.erase();
 
