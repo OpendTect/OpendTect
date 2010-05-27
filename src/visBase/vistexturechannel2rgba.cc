@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.44 2010-04-23 15:46:46 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.45 2010-05-27 21:54:56 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -680,8 +680,8 @@ void ColTabTextureChannel2RGBA::createFragShadingProgram(int nrchannels,
 	// Color values are premultiplied with their alpha values.
 	"        vec4 prevcol = gl_FragColor;  \n"
 	"        vec4 newcol = col * layeropacity;  \n"
-	"        gl_FragColor.rgb = newcol.rgb + prevcol.rgb * (1 - newcol.a); \n"
-	"        gl_FragColor.a = newcol.a + prevcol.a*(1-newcol.a);	\n"
+	"        gl_FragColor.rgb = newcol.rgb + prevcol.rgb * (1.0 - newcol.a); \n"
+	"        gl_FragColor.a = newcol.a + prevcol.a*(1.0-newcol.a);	\n"
 	"    }								\n"
 	"}								\n\n";
 
