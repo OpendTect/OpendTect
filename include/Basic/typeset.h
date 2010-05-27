@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.9 2010-05-27 14:19:33 cvsjaap Exp $
+ RCS:		$Id: typeset.h,v 1.10 2010-05-27 16:32:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,7 +220,8 @@ template <class T> inline
 void TypeSet<T>::reverse()
 {
     const int sz = size();
-    for ( int idx=0; idx<sz/2; idx++ )
+    const int hsz = sz/2;
+    for ( int idx=0; idx<hsz; idx++ )
 	swap( idx, sz-1-idx );
 }
 
