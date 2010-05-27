@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.26 2010-04-23 10:02:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.27 2010-05-27 08:12:27 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -154,6 +154,13 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	sep->attach( stretchedBelow, wellselfld_ );
 	setVSpacing( 25 );
     }
+}
+
+
+uiMultiWellDispPropDlg::~uiMultiWellDispPropDlg()
+{
+    wd_->dispparschanged.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
+    wd_->tobedeleted.remove(mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
 }
 
 
