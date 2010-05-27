@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.8 2009-12-07 13:49:11 cvsbert Exp $
+ RCS:		$Id: typeset.h,v 1.9 2010-05-27 14:19:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ public:
     inline bool			add(const T&);
 
     inline virtual void		swap(int,int);
+    inline virtual void		reverse();
     virtual inline void		createUnion(const TypeSet<T>&);
 				/*!< Adds items not already there */
     virtual inline void		createIntersection(const TypeSet<T>&);
@@ -212,6 +213,15 @@ void TypeSet<T>::swap( int idx0, int idx1 )
     T tmp = vec_[idx0];
     vec_[idx0] = vec_[idx1];
     vec_[idx1] = tmp;
+}
+
+
+template <class T> inline
+void TypeSet<T>::reverse()
+{
+    const int sz = size();
+    for ( int idx=0; idx<sz/2; idx++ )
+	swap( idx, sz-1-idx );
 }
 
 
