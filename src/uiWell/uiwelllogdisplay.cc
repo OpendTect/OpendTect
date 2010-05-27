@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.49 2010-05-27 09:41:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.50 2010-05-27 14:16:05 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -36,10 +36,8 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.49 2010-05-27 09:41:00 
     float zpos = val;\
     if ( data_.zistime_ && data_.d2tm_ )\
 	zpos = data_.d2tm_->getTime( zpos )*1000;\
-    if ( zpos < data_.zrg_.start )\
+    if ( !data_.zrg_.includes( zpos ) )\
 	continue;\
-    else if ( zpos > data_.zrg_.stop )\
-	break;\
     if ( data_.dispzinft_ && !data_.zistime_)\
 	zpos *= mToFeetFactor;
 uiWellLogDisplay::LineData::LineData( uiGraphicsScene& scn, Setup su )
@@ -289,13 +287,6 @@ void uiWellLogDisplay::draw()
 
     drawLog( true );
     drawLog( false );
-    
-    mRemoveSet( ld1_.curvepolyitms_ );
-    if ( ld1_.wld_.islogfill_ )
-	drawFilling( true );
-    mRemoveSet( ld2_.curvepolyitms_ );
-    if ( ld2_.wld_.islogfill_ )
-	drawFilling( false );
 
     ld1_.xax_.plotAxis(); ld1_.yax_.plotAxis();
     ld2_.xax_.plotAxis(); ld2_.yax_.plotAxis();
@@ -310,6 +301,11 @@ void uiWellLogDisplay::drawLog( bool first )
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
     ld.al_ = Alignment(Alignment::HCenter, first ? 
 	    			Alignment::Top : Alignment::Bottom );
+
+    mRemoveSet( ld.curvepolyitms_ );
+    if ( ld.wld_.islogfill_ )
+	drawFilling( first );
+    
     drawLine( ld, ld.wl_ );
     
     if ( ld.unitmeas_ )
@@ -359,6 +355,7 @@ void uiWellLogDisplay::drawLine( LogData& ld, const Well::DahObj* dahobj )
     {
 	uiPolyLineItem* pli = scene().addItem( new uiPolyLineItem(*pts[idx]) );
 	pli->setPenStyle( ls );
+	pli->setZValue( 1 );
 	ld.curveitms_ += pli;
     }
     ld.curvenmitm_ = scene().addItem( new uiTextItem(dahobj->name(),ld.al_) );
@@ -382,8 +379,8 @@ void uiWellLogDisplay::drawFilling( bool first )
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
 
     mRemoveSet( ld.curvepolyitms_ );
-    float colstep = ( ld.xax_.range().stop - ld.xax_.range().start ) / 255;
 
+    float colstep = ( ld.xax_.range().stop - ld.xax_.range().start ) / 255;
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 ) return;
 
@@ -401,7 +398,14 @@ void uiWellLogDisplay::drawFilling( bool first )
     uiPoint pt;
     for ( int idx=0; idx<sz; idx++ )
     {
-	mDefZPosInLoop( ld.wl_->dah( idx ) )
+	float dah = ld.wl_->dah( idx );
+	if ( idx && idx < sz-1 )
+	{
+	    if ( dah >= ld.wl_->dah( idx+1 ) || dah <= ld.wl_->dah( idx-1 ) )
+		continue;
+	}
+
+	mDefZPosInLoop( dah )
 	float val = ld.wl_->value( idx );
 
 	if ( mIsUdf(val) )
@@ -417,20 +421,18 @@ void uiWellLogDisplay::drawFilling( bool first )
 	
 	pt.x = ld.xax_.getPix(val); 
 	pt.y = ld.yax_.getPix(zpos);
+
 	*curpts += pt;
 
-	int colindex = ld.xrev_ ? (int)(ld.xax_.range().stop-val)
-				: (int)(val-ld.xax_.range().start);
-	colindex = (int)( colindex/colstep );
+	float valdiff = ld.xrev_ ? ld.xax_.range().stop-val 
+	    			 : val-ld.xax_.range().start;
+	int colindex = (int)( valdiff/colstep );
 	if ( colindex != prevcolidx )
 	{
 	    *curpts += uiPoint( closept.x, pt.y ); 
-	    if ( !curpts->isEmpty() )
-	    {
-		colorintset += colindex;
-		prevcolidx = colindex;
-		pts += curpts;
-	    }
+	    colorintset += colindex;
+	    prevcolidx = colindex;
+	    pts += curpts;
 	    curpts = new TypeSet<uiPoint>;
 	    *curpts += uiPoint( closept.x, pt.y ); 
 	} 
@@ -829,7 +831,7 @@ void uiWellDisplay::setLog( const char* logname, int logidx, bool left )
 
     uiWellLogDisplay::LogData& ld = logdisps_[logidx]->logData(left);
     ld.wl_ 	    = l;
-    ld.xrev_        = false;
+    ld.xrev_        = left;
     ld.isyaxisleft_ = left;
 }
 
