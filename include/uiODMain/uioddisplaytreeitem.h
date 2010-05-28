@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.13 2010-02-04 10:59:47 cvsranojay Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.14 2010-05-28 14:41:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,7 @@ protected:
 
     MenuItem		selattrmnuitem_;
     MenuItem		addattribmnuitem_;
+    MenuItem		addvolprocmnuitem_;
     MenuItem		duplicatemnuitem_;
     MenuItem		linkmnuitem_;
     MenuItem		removemnuitem_;

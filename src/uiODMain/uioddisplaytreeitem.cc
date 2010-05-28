@@ -7,11 +7,12 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.38 2010-03-23 21:20:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.39 2010-05-28 14:41:38 cvskris Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
 
+#include "attribsel.h"
 #include "pixmap.h"
 #include "uilistview.h"
 #include "uimenu.h"
@@ -19,6 +20,7 @@ static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.38 2010-03-23 21:20:
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uiodvolproctreeitem.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "vismultiattribsurvobj.h"
@@ -63,6 +65,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , displayid_(-1)
     , visserv_(ODMainWin()->applMgr().visServer())
     , addattribmnuitem_("&Add attribute",cAttribIdx)
+    , addvolprocmnuitem_("Add &Volume Processing attribute",cAttribIdx)
     , duplicatemnuitem_("&Duplicate",cDuplicateIdx)
     , displyhistgram_("&Show histogram ...",cHistogramIdx)		   
     , linkmnuitem_("&Link ...",cLinkIdx)
@@ -255,9 +258,13 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 		      !visserv_->isLocked(displayid_) &&
 		      visserv_->canAddAttrib(displayid_), false );
 	mAddMenuItem( menu, &displyhistgram_, true, false );
+	mAddMenuItem( menu, &addvolprocmnuitem_,
+		      !visserv_->isLocked(displayid_) &&
+		      visserv_->canAddAttrib( displayid_,1 ), false );
     }
     else
     {
+	mResetMenuItem( &addvolprocmnuitem_ );
 	mResetMenuItem( &addattribmnuitem_ );
 	mResetMenuItem( &displyhistgram_ );
     }
@@ -324,6 +331,23 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->updateColorTable( newitem->displayID(),
 				     newitem->attribNr() );
 	menu->setIsHandled(true);
+    }
+    else if ( mnuid==addvolprocmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+
+	const int attrib = visserv_->addAttrib( menu->menuID() );
+	Attrib::SelSpec spec( "Velocity", Attrib::SelSpec::cOtherAttrib(),
+				false, 0 );
+	visserv_->setSelSpec( menu->menuID(), attrib, spec );
+	visserv_->enableInterpolation( menu->menuID(), true );
+
+	VolProc::uiDataTreeItem* newitem =
+	    new VolProc::uiDataTreeItem( typeid(*this).name() );
+	addChild( newitem, false );
+
+	updateColumnText( uiODSceneMgr::cNameColumn() );
+	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( mnuid==displyhistgram_.id )
     {
