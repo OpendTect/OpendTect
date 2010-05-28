@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.45 2010-05-27 21:54:56 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.46 2010-05-28 10:08:03 cvsnanne Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -334,12 +334,13 @@ void ColTabTextureChannel2RGBA::setSequence( int channel,
 	return;
     
     *coltabs_[channel] = seq;
-    
+
     // make the undefined color transparent
+    /*
     Color undefcol = coltabs_[channel]->undefColor();
     undefcol.setTransparency( 255 );
     coltabs_[channel]->setUndefColor( undefcol );
-    
+    */
     update();
 }
 
@@ -645,7 +646,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 		    ? (float) opacity_[idx]/255
 		    : 0.0 );
 	}
-	}
+    }
 
     tci_->transparencyInfo = firstlayertrans;
     startlayer_->value.setValue( firstlayer );
