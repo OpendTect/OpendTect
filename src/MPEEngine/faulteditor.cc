@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.11 2009-10-29 15:18:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.12 2010-05-28 09:51:56 cvsjaap Exp $";
 
 #include "faulteditor.h"
 
@@ -25,6 +25,7 @@ namespace MPE
 
 FaultEditor::FaultEditor( EM::Fault3D& fault )
     : ObjectEditor(fault)
+    , sowingpivot_(Coord3::udf())
 {}
 
 
@@ -56,7 +57,26 @@ Geometry::ElementEditor* FaultEditor::createEditor( const EM::SectionID& sid )
 static EM::PosID lastclicked_ = EM::PosID::udf();
 
 void FaultEditor::setLastClicked( const EM::PosID& pid )
-{ lastclicked_ = pid; }
+{
+    lastclicked_ = pid;
+
+    if ( sowingpivot_.isDefined() )
+    {
+	const Coord3 pos = emObject().getPos( pid );
+	if ( pos.isDefined() )
+	    sowinghistory_.insert( 0, pos );
+    }
+}
+
+
+void FaultEditor::setSowingPivot( const Coord3 pos )
+{
+    if ( sowingpivot_.isDefined() && !pos.isDefined() )
+	sowinghistory_.erase();
+
+    sowingpivot_ = pos;
+}
+
 
 
 #define mCompareCoord( crd ) Coord3( crd, crd.z*zfactor )
@@ -102,6 +122,9 @@ void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
 
     insertpid = EM::PosID::udf();
 
+    const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
+			? sowingpivot_ : mousepos;
+
     if ( !emObject().nrSections() )
 	return;
 
@@ -119,18 +142,18 @@ void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
 	{
 	    stick = RowCol( lastclicked_.subID() ).row;
 	    const float dist = distToStick( *surface, sid, stick,
-					    mousepos, zfactor );
+					    pos, zfactor );
 
 	    if ( !mIsUdf(dist) && fabs(dist)<=maxdisttostickplane )
 	    {
 		getPidsOnStick( nearestpid0, nearestpid1, insertpid,
-				stick, sid, mousepos, zfactor );
+				stick, sid, pos, zfactor );
 		return;
 	    }
 	}
     }
 
-    const float mindist = getNearestStick( stick, sid, mousepos, zfactor );
+    const float mindist = getNearestStick( stick, sid, pos, zfactor );
     if ( mIsUdf(mindist) )
     {
 	makenewstick = true;
@@ -177,7 +200,7 @@ void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
 	return;
     }
 
-    getPidsOnStick( nearestpid0, nearestpid1, insertpid, stick, sid, mousepos,
+    getPidsOnStick( nearestpid0, nearestpid1, insertpid, stick, sid, pos,
 	            zfactor );
 }
 
@@ -312,9 +335,10 @@ void FaultEditor::getPidsOnStick(  EM::PosID& nearestpid0,
 	if ( !pos.isDefined() )
 	    continue;
 
+	float sqdist = 0;
+	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pos )
+	    sqdist = mCompareCoord(pos).sqDistTo( mCompareCoord(mousepos) );
 
-	const float sqdist =
-	    mCompareCoord(pos).sqDistTo( mCompareCoord(mousepos) );
 	if ( nearestknotidx==-1 || sqdist<minsqdist )
 	{
 	    minsqdist = sqdist;
@@ -362,8 +386,11 @@ void FaultEditor::getPidsOnStick(  EM::PosID& nearestpid0,
     Coord3 v0 = nextpos-prevpos;
     Coord3 v1 = mousepos-pos;
 
-    const float dot = mCompareCoord(v0).dot( mCompareCoord(v1) );
-    if ( dot<0 ) //Previous
+    bool takeprevious = mCompareCoord(v0).dot( mCompareCoord(v1) ) < 0;
+    if ( sowinghistory_.size() > 1 )
+	takeprevious = sowinghistory_[1]==prevpos;
+
+    if ( takeprevious )
     {
 	if ( nearestknotidx )
 	{
@@ -379,7 +406,7 @@ void FaultEditor::getPidsOnStick(  EM::PosID& nearestpid0,
 	    insertpid.setSubID( RowCol(stick,insertcol).getSerialized() );
 	}
     }
-    else //Next
+    else // take next
     {
 	if ( nearestknotidx<definedknots.size()-1 )
 	{

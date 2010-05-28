@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: faulteditor.h,v 1.8 2009-10-29 15:18:10 cvsjaap Exp $
+ RCS:           $Id: faulteditor.h,v 1.9 2010-05-28 09:51:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ public:
     static void			initClass();
 
     void			setLastClicked(const EM::PosID&);
+    void			setSowingPivot(const Coord3);
 
     void			getInteractionInfo( bool& makenewstick,
 						    EM::PosID& insertpid,
@@ -45,6 +46,9 @@ protected:
 			    float zfactor) const;
 
     Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+
+    Coord3			sowingpivot_;
+    TypeSet<Coord3>		sowinghistory_;
 };
 
 

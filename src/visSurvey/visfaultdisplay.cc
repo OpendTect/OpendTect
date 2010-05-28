@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.50 2010-05-26 06:31:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.51 2010-05-28 09:51:56 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -302,6 +302,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	viseditor_->ref();
 	viseditor_->setSceneEventCatcher( eventcatcher_ );
 	viseditor_->setDisplayTransformation( displaytransform_ );
+	viseditor_->sower().alternateSowingOrder();
 	insertChild( childIndex(texture_->getInventorNode() ),
 		viseditor_->getInventorNode() );
     }
@@ -538,6 +539,20 @@ visBase::Transformation* FaultDisplay::getDisplayTransformation()
 { return displaytransform_; }
 
 
+Coord3 FaultDisplay::disp2world( const Coord3& displaypos ) const
+{
+    Coord3 pos = displaypos;
+    if ( pos.isDefined() )
+    {
+	if ( scene_ )
+	    pos = scene_->getZScaleTransform()->transformBack( pos );
+	if ( displaytransform_ )
+	    pos = displaytransform_->transformBack( pos );
+    }
+    return pos;
+}
+
+
 void FaultDisplay::mouseCB( CallBacker* cb )
 {
     if ( stickselectmode_ )
@@ -548,6 +563,10 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+
+    faulteditor_->setSowingPivot( disp2world(viseditor_->sower().pivotPos()) );
+    if ( viseditor_->sower().accept(eventinfo) )
+	return;
    
     CubeSampling mouseplanecs; 
     mouseplanecs.setEmpty();
@@ -568,9 +587,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     if ( locked_ )
 	return;
 
-    Coord3 pos = eventinfo.displaypickedpos;
-    pos = scene_->getZScaleTransform()->transformBack( pos ); 
-    if ( displaytransform_ ) pos = displaytransform_->transformBack( pos ); 
+    Coord3 pos = disp2world( eventinfo.displaypickedpos );
 
     const float zscale = scene_
 	? scene_->getZScale() *scene_->getZStretch()
@@ -622,7 +639,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 		else
 		    res = emfault_->geometry().removeKnot( pid.sectionID(),
 							   pid.subID(), true );
-		if ( res )
+		if ( res && !viseditor_->sower().moreSeeds() )
 		{
 		    EM::EMM().undo().setUserInteractionEnd(
 			    EM::EMM().undo().currentEventID() );
@@ -640,12 +657,15 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	return;
     }
 
-    if ( eventinfo.type!=visBase::MouseClick || eventinfo.pressed ||
+    if ( eventinfo.type!=visBase::MouseClick ||
 	 OD::altKeyboardButton(eventinfo.buttonstate_) ||
 	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
 
-    if ( insertpid.isUdf() )
+    if ( viseditor_->sower().activate(emfault_->preferredColor(), eventinfo) )
+	return;
+
+    if ( eventinfo.pressed || insertpid.isUdf() )
 	return;
 
     if ( makenewstick )
@@ -667,18 +687,21 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	if ( emfault_->geometry().insertStick( insertpid.sectionID(),
 	       insertstick, 0, pos, editnormal, true ) )
 	{
-	    EM::EMM().undo().setUserInteractionEnd(
+	    faulteditor_->setLastClicked( insertpid );
+	    if ( !viseditor_->sower().moreSeeds() )
+	    {
+		EM::EMM().undo().setUserInteractionEnd(
 		    EM::EMM().undo().currentEventID() );
 
-	    paneldisplay_->touch( false );
-	    stickdisplay_->touch( false );
-	    intersectiondisplay_->touch( false );
+		paneldisplay_->touch( false );
+		stickdisplay_->touch( false );
+		intersectiondisplay_->touch( false );
 	    
-	    for ( int idx=0; idx<horintersections_.size(); idx++ )
-		horintersections_[idx]->touch( false );
-	    faulteditor_->setLastClicked( insertpid );
-	    setActiveStick( insertpid );
-	    faulteditor_->editpositionchange.trigger();
+		for ( int idx=0; idx<horintersections_.size(); idx++ )
+		    horintersections_[idx]->touch( false );
+		setActiveStick( insertpid );
+		faulteditor_->editpositionchange.trigger();
+	    }
 	}
     }
     else
@@ -686,10 +709,13 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	if ( emfault_->geometry().insertKnot( insertpid.sectionID(),
 		insertpid.subID(), pos, true ) )
 	{
-	    EM::EMM().undo().setUserInteractionEnd(
-		    EM::EMM().undo().currentEventID() );
 	    faulteditor_->setLastClicked( insertpid );
-	    faulteditor_->editpositionchange.trigger();
+	    if ( !viseditor_->sower().moreSeeds() )
+	    {
+		EM::EMM().undo().setUserInteractionEnd(
+		    EM::EMM().undo().currentEventID() );
+		faulteditor_->editpositionchange.trigger();
+	    }
 	}
     }
 

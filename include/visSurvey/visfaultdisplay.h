@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.26 2010-03-26 16:16:11 cvsyuancheng Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.27 2010-05-28 09:51:56 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -145,6 +145,8 @@ protected:
     void 			updateActiveStickMarker();
     void			updateHorizonIntersections( int whichobj,
 	    				const ObjectSet<const SurveyObject>&);
+
+    Coord3			disp2world(const Coord3& displaypos) const;
 
     visBase::EventCatcher*		eventcatcher_;
     visBase::Transformation*		displaytransform_;
