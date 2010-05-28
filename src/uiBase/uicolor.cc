@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.29 2010-03-16 10:02:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.30 2010-05-28 10:10:45 cvsnanne Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -57,23 +57,13 @@ static void endCmdRecEvent( int refnr, bool ok, const Color& col,
 
 bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
-    bool ok;
-    QRgb rgb;
     const int refnr = beginCmdRecEvent();
 
-    if ( withtransp )
-    {
-	rgb = QColorDialog::getRgba( (QRgb)col.rgb(), &ok, 
-		      parnt ? parnt->pbody()->qwidget() : 0 );
-    }
-    else
-    {
-	QColor newcol = QColorDialog::getColor( QColor((QRgb) col.rgb()) , 
-		      parnt ? parnt->pbody()->qwidget() : 0 );
-
-	ok = newcol.isValid();
-	rgb = newcol.rgb(); 
-    }
+    QColor oldcol( col.r(), col.g(), col.b(), 255-col.t() );
+    QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
+    QColorDialog::ColorDialogOptions options = 0;
+    if ( withtransp ) options = QColorDialog::ShowAlphaChannel;
+    QColor newcol = QColorDialog::getColor( oldcol, qparent, nm, options );
 
     if ( externalcolor )		// Command driver interference
     {
@@ -86,12 +76,10 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 	return true;
     }
 
+    const bool ok = newcol.isValid();
     if ( ok )
-    {
-	col.setRgb( rgb );
-	if ( !withtransp )
-	    col.setTransparency( 0 );
-    }
+	col.set( newcol.red(), newcol.green(), newcol.blue(),
+		 withtransp ? 255-newcol.alpha() : 0 );
 
     endCmdRecEvent( refnr, ok, col, withtransp );
 
