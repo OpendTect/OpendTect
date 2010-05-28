@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.14 2010-05-10 16:10:45 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.15 2010-05-28 22:13:48 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -351,6 +351,18 @@ const VelocityDesc* Chain::getVelDesc() const
     }
 
     return 0;
+}
+
+
+bool Chain::areSamplesIndependent() const
+{
+    for ( int idx=steps_.size()-1; idx>=0; idx-- )
+    {
+	if ( !steps_[idx]->areSamplesIndependent() )
+	    return false;
+    }
+
+    return true;
 }
 
 

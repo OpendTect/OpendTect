@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.1 2010-05-26 20:41:55 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.2 2010-05-28 22:13:48 cvskris Exp $";
 
 #include "uiodvolproctreeitem.h"
 
@@ -12,12 +12,14 @@ static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.1 2010-05-26 20:41:5
 #include "ioman.h"
 #include "ioobj.h"
 #include "uiioobjsel.h"
+#include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
 #include "uiodscenemgr.h"
 #include "uivispartserv.h"
 #include "vissurvobj.h"
 #include "volproctrans.h"
+#include "volprocchain.h"
 #include "volprocattrib.h"
 
 
@@ -47,7 +49,7 @@ bool uiDataTreeItem::anyButtonClick( uiListViewItem* item )
     
     if ( !select() ) return false;
     
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    uiVisPartServer* visserv = applMgr()->visServer();
     if ( !visserv->getColTabSequence(displayID(),attribNr()) )
 	return false;
 
@@ -88,8 +90,11 @@ void  uiDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
        return;
 
+     uiVisPartServer* visserv = applMgr()->visServer();
+
     if ( mnuid==selmenuitem_.id )
     {
+	menu->setIsHandled( true );
 	PtrMan<IOObj> ioobj = IOM().get( mid_ );
 
 	const CtxtIOObj ctxt( VolProcessingTranslatorGroup::ioContext(),ioobj );
@@ -98,24 +103,34 @@ void  uiDataTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	mid_ = dlg.selected( 0 );
+
+	const BufferString def =
+	    VolProc::ExternalAttribCalculator::createDefinition( mid_ );
+
+	Attrib::SelSpec spec( "VolProc", Attrib::SelSpec::cOtherAttrib(),
+			      false, 0 );
+
+	spec.setDefString( def.buf() );
+	visserv->setSelSpec( displayID(), attribNr(), spec );
+	updateColumnText( uiODSceneMgr::cNameColumn() );
+
+	RefMan<VolProc::Chain> chain = new VolProc::Chain;
+	BufferString str;
+	if ( chain && VolProcessingTranslator::retrieve( *chain, ioobj, str ) )
+	{
+	    if ( !chain->areSamplesIndependent() )
+	    {
+		uiMSG().askGoOn("The output of this setup is not "
+				"sample-independent, and the output may not be "
+				"the same as when computing the entire volume");
+	    }
+	}
     }
 
     if ( mnuid==selmenuitem_.id || mnuid==reloadmenuitem_.id )
     {
 	menu->setIsHandled( true );
-	const BufferString def =
-	    VolProc::ExternalAttribCalculator::createDefinition( mid_ );
-
-	Attrib::SelSpec spec( "Velocity", Attrib::SelSpec::cOtherAttrib(),
-			      false, 0 );
-
-	spec.setDefString( def.buf() );
-
-	ODMainWin()->applMgr().visServer()->setSelSpec( displayID(), 
-							attribNr(), spec );
-	ODMainWin()->applMgr().visServer()->calculateAttrib( displayID(),
-							     attribNr(), false );
-	updateColumnText( uiODSceneMgr::cNameColumn() );
+	visserv->calculateAttrib( displayID(), attribNr(), false );
     }
 }
 
@@ -133,8 +148,8 @@ BufferString uiDataTreeItem::createDisplayName() const
 
 void uiDataTreeItem::updateColumnText( int col )
 {
-     if ( col==uiODSceneMgr::cColorColumn() )
-     {
+    if ( col==uiODSceneMgr::cColorColumn() )
+    {
 	 uiVisPartServer* visserv = applMgr()->visServer();
 	 mDynamicCastGet( visSurvey::SurveyObject*, so,
 		 	  visserv->getObject( displayID() ) )
@@ -146,7 +161,7 @@ void uiDataTreeItem::updateColumnText( int col )
 	 
 	 if ( !so->hasColor() )
 	     displayMiniCtab(so->getColTabSequence(attribNr()));
-     }
+    }
      
      uiODDataTreeItem::updateColumnText( col );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.11 2010-05-10 16:10:45 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.12 2010-05-28 22:13:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -65,6 +65,8 @@ public:
     void			setStorageID(const MultiID& mid);
     const MultiID&		storageID() const { return storageid_; }
 
+    bool			areSamplesIndependent() const;
+
     const char*			errMsg() const;
 
 protected:
@@ -116,7 +118,7 @@ public:
     virtual const VelocityDesc*	getVelDesc() const	{ return 0; }
 
     virtual bool		areSamplesIndependent() const { return true; }
-    				//!<\returns wether samples int the output
+    				//!<\returns wether samples in the output
 				//!<	     are independent from each other
 
     virtual Task*		createTask();
