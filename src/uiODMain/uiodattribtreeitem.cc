@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.36 2010-03-18 21:14:25 cvskris Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.37 2010-05-28 04:44:29 cvsnanne Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -73,7 +73,7 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 
 #define mCreateDepthDomMnuItemIfNeeded( is2d, needext ) \
 {\
-    if ( scene ) \
+    if ( scene && scene->getZAxisTransform() ) \
     {\
 	subitem = attrserv->zDomainAttribMenuItem( *as,\
 	    scene->getZDomainString(), scene->getZDomainID(), is2d, needext );\
