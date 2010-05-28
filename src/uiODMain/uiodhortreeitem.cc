@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.59 2010-02-23 21:25:59 cvskris Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.60 2010-05-28 09:16:47 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -49,7 +49,6 @@ static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.59 2010-02-23 21:25:59 c
 #define mSectIdx	3
 #define mFullIdx	4
 #define mSectFullIdx	5
-#define mSortIdx	6
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODTreeItem( "Horizon" )
@@ -81,7 +80,6 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	displaymnu->insertItem( new uiMenuItem("&At sections and in full"),
 				mSectFullIdx );
 	mnu.insertItem( displaymnu );
-	mnu.insertItem( new uiMenuItem("Sort"), mSortIdx );
     }
 
     addStandardItems( mnu );
@@ -134,8 +132,6 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    }
 	}
     }
-    else if ( mnuid==mSortIdx )
-	sort();
     else
 	handleStandardItems( mnuid );
 
