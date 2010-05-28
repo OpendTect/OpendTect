@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.42 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.43 2010-05-28 10:34:13 cvsnanne Exp $";
 
 
 #include "uisteeringsel.h"
@@ -311,7 +311,6 @@ CtxtIOObj* uiSteerCubeSel::mkCtxtIOObj( bool is2d, bool forread )
 
     if ( forread && !is2d )
     {
-	ret->setObj( IOM().getFirst(ret->ctxt) );
 	const char* defcubeid = SI().pars().find( "Default.Cube.Steering" );
 	if ( defcubeid && *defcubeid )
 	    ret->setObj( MultiID(defcubeid) );
