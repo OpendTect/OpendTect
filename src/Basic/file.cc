@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.12 2010-04-23 06:19:51 cvsnanne Exp $
+ RCS:		$Id: file.cc,v 1.13 2010-05-28 08:32:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -234,7 +234,8 @@ const char* linkTarget( const char* linknm )
 {
     static BufferString linkstr;
     QFileInfo qfi( linknm );
-    linkstr = qfi.symLinkTarget().toAscii().constData();
+    linkstr = qfi.isSymLink() ? qfi.symLinkTarget().toAscii().constData()
+			      : linknm;
     return linkstr.buf();
 }
 
