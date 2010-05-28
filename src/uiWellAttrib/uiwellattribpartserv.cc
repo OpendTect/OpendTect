@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.26 2010-04-27 08:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.27 2010-05-28 02:47:06 cvsnanne Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -123,10 +123,18 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
     Well::Writer wtr( fname, *wd );
  
     if ( lognr > wd->logs().size() - 1 )
-	lognr =  wd->logs().size() - 1;
-    BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(), lognr + 1 );
+	lognr = wd->logs().size() - 1;
+    BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(), lognr+1 );
     StreamProvider splog( logfnm );
     StreamData sdo = splog.makeOStream();
+    if ( !sdo.usable() )
+    {
+	BufferStringSet errmsg; errmsg.add( "Cannot write log to disk" );
+	errmsg.add( logfnm );
+	uiMSG().errorWithDetails( errmsg );
+	return false;
+    }
+
     wtr.putLog( *sdo.ostrm, wd->logs().getLog(lognr) );
     sdo.close();
 
