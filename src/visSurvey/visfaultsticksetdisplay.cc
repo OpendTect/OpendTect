@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.22 2010-05-27 14:27:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.23 2010-05-28 07:44:34 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -257,7 +257,8 @@ visBase::Transformation* FaultStickSetDisplay::getDisplayTransformation()
 
 void FaultStickSetDisplay::updateEditPids()
 {
-    if ( !emfss_ ) return;
+    if ( !emfss_ || (viseditor_ && viseditor_->sower().moreSeeds()) )
+	return;
 
     editpids_.erase();
 
@@ -303,7 +304,8 @@ void FaultStickSetDisplay::updateEditPids()
 
 void FaultStickSetDisplay::updateSticks( bool activeonly )
 {
-    if ( !emfss_ ) return;
+    if ( !emfss_ || (viseditor_ && viseditor_->sower().moreSeeds()) )
+	return;
 
     visBase::IndexedPolyLine3D* poly = activeonly ? activestick_ : sticks_;
 
@@ -471,6 +473,20 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 }
 
 
+Coord3 FaultStickSetDisplay::disp2world( const Coord3& displaypos ) const
+{
+    Coord3 pos = displaypos;  
+    if ( pos.isDefined() )
+    {
+	if ( scene_ )
+	    pos = scene_->getZScaleTransform()->transformBack( pos ); 
+	if ( displaytransform_ )
+	    pos = displaytransform_->transformBack( pos ); 
+    }
+    return pos;
+}
+
+
 void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 {
     if ( stickselectmode_ )
@@ -482,7 +498,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
-    fsseditor_->setSowingPivot( viseditor_->sower().pivotPos() );
+    fsseditor_->setSowingPivot( disp2world(viseditor_->sower().pivotPos()) );
     if ( viseditor_->sower().accept(eventinfo) )
 	return;
 
@@ -531,11 +547,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 		return;
 	}
 
-	pos = eventinfo.displaypickedpos;
-	if ( scene_ )
-	    pos = scene_->getZScaleTransform()->transformBack( pos ); 
-	if ( displaytransform_ )
-	    pos = displaytransform_->transformBack( pos ); 
+	pos = disp2world( eventinfo.displaypickedpos );
     }
 
     EM::PosID insertpid;
@@ -825,6 +837,9 @@ bool FaultStickSetDisplay::isInStickSelectMode() const
 
 void FaultStickSetDisplay::updateKnotMarkers()
 {
+    if ( !emfss_ || (viseditor_ && viseditor_->sower().moreSeeds()) )
+	return;
+    
     for ( int idx=0; idx<knotmarkers_.size(); idx++ )
     {
 	while ( knotmarkers_[idx]->size() > 1 )

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.37 2010-05-27 14:27:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.38 2010-05-28 07:44:34 cvsjaap Exp $";
 
 #include "vismpeeditor.h"
 
@@ -521,7 +521,6 @@ void Sower::reverseSowingOrder( bool yn )
 void Sower::alternateSowingOrder( bool yn )
 { alternatesowingorder_ = yn; }
 
-
 void Sower::setDisplayTransformation( visBase::Transformation* transformation )
 { sowingline_->setDisplayTransformation( transformation ); }
 
@@ -550,10 +549,14 @@ Coord3 Sower::pivotPos() const
     if ( mode_!=Sowing || eventlist_.isEmpty() )
 	return Coord3::udf();
 
-    Coord3 sum = eventlist_[0]->worldpickedpos;
-    sum += eventlist_[eventlist_.size()-1]->worldpickedpos;
+    Coord3 sum = eventlist_[0]->displaypickedpos;
+    sum += eventlist_[eventlist_.size()-1]->displaypickedpos;
     return 0.5*sum;
 }
+
+
+bool Sower::moreSeeds() const
+{ return mode_==Sowing && bendpoints_.size()>1; }
 
 
 bool Sower::accept( const visBase::EventInfo& eventinfo, OD::ButtonState mask )
@@ -603,23 +606,23 @@ bool Sower::accept( const visBase::EventInfo& eventinfo, OD::ButtonState mask )
 
     BendPointFinder2D bpfinder ( mousecoords_, 2 );
     bpfinder.execute(true);
-    TypeSet<int> bendpoints = bpfinder.bendPoints();
+    bendpoints_ = bpfinder.bendPoints();
     if ( reversesowingorder_ )
-	bendpoints.reverse();
+	bendpoints_.reverse();
 
     mode_ = Sowing;
-    while ( bendpoints.size() )
+    while ( bendpoints_.size() )
     {
 	for ( int yn=1; yn>=0; yn-- )
 	{
-	    eventlist_[bendpoints[0]]->pressed = yn;
+	    eventlist_[bendpoints_[0]]->pressed = yn;
 	    if ( eventcatcher_ )
-		eventcatcher_->reHandle( *eventlist_[bendpoints[0]] );
+		eventcatcher_->reHandle( *eventlist_[bendpoints_[0]] );
 	}
 
-	bendpoints.remove( 0 );
+	bendpoints_.remove( 0 );
 	if ( alternatesowingorder_ )
-	    bendpoints.reverse();
+	    bendpoints_.reverse();
     }
 
     sowingline_->turnOn( false );

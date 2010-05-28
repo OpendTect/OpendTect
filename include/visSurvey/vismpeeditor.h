@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.17 2010-05-27 14:27:20 cvsjaap Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.18 2010-05-28 07:44:34 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -55,6 +55,8 @@ public:
 
     void		reverseSowingOrder(bool yn=true);
     void		alternateSowingOrder(bool yn=true);
+
+    bool		moreSeeds() const;
     Coord3		pivotPos() const;
 
     bool		accept(const visBase::EventInfo&,
@@ -74,6 +76,7 @@ protected:
     SowingMode				mode_;
     ObjectSet<visBase::EventInfo>	eventlist_;
     TypeSet<Coord>			mousecoords_;
+    TypeSet<int>			bendpoints_;
 
     bool				reversesowingorder_;
     bool				alternatesowingorder_;
