@@ -11,7 +11,7 @@
 class IOObj;
 class uiGenInput;
 class uiIOObjSel;
-class uiZAxisTransformSel;
+class uiT2DConvSel;
 
 
 class uiGravHorCalc : public uiDialog
@@ -33,7 +33,7 @@ protected:
     uiGenInput*		denattrfld_;
     uiGenInput*		cutoffangfld_;
     uiGenInput*		attrnmfld_;
-    uiZAxisTransformSel* ztransffld_;
+    uiT2DConvSel*	t2dfld_;
 
     void		initFlds(CallBacker*);
     void		denVarSel(CallBacker*);

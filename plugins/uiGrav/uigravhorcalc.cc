@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.4 2010-04-28 03:44:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.5 2010-05-31 14:52:27 cvsbert Exp $";
 
 #include "uigravhorcalc.h"
 #include "gravhorcalc.h"
@@ -20,13 +20,13 @@ static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.4 2010-04-28 03:44:49 cvss
 #include "emhorizon3d.h"
 #include "emsurfacetr.h"
 #include "emsurfaceiodata.h"
-#include "zdomain.h"
+#include "uit2dconvsel.h"
 
 
 uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     : uiDialog(p,Setup("Calculate Gravity","", mTODOHelpID))
     , topfld_(0)
-    , ztransffld_(0)
+    , t2dfld_(0)
 {
     MultiID horid = EM::EMM().getMultiID( enobjid );
     horioobj_ = IOM().get( horid );
@@ -63,9 +63,9 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
 
     if ( SI().zIsTime() )
     {
-	ztransffld_ = new uiZAxisTransformSel( inpgrp, false,
-						ZDomain::sKeyTWT() );
-	ztransffld_->attach( alignedBelow, botfld_ );
+	uiT2DConvSel::Setup su( topfld_, false );
+	t2dfld_ = new uiT2DConvSel( inpgrp, su );
+	t2dfld_->attach( alignedBelow, botfld_ );
     }
 
     cutoffangfld_ = new uiGenInput( this, "Cutoff angle (deg)",
