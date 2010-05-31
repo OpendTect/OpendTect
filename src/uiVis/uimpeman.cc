@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.197 2010-05-10 07:54:56 cvskarthika Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.198 2010-05-31 08:14:05 cvsnanne Exp $";
 
 #include "uimpeman.h"
 
@@ -340,14 +340,13 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	    if ( chanceoferror )
 	    {
-		BufferString warnmsg( "Setup suggests tracking is done on " );
-		warnmsg += trackedatsel->userRef();
-		warnmsg += "\n but what you see is ";
-		warnmsg += clickedas->userRef();
-		warnmsg += "\n\n To continue seeds picking either\n";
-		warnmsg += "change displayed attribute or\n";
-		warnmsg += "change input data in Tracking Setup";
-
+		BufferString warnmsg( "Setup suggests tracking is done on: '",
+				      trackedatsel->userRef(), "'\n" );
+		warnmsg.add( "but what you see is: '" )
+		       .add( clickedas->userRef() ).add( "'.\n" )
+		       .add( "To continue seed picking either " )
+		       .add( "change displayed attribute or\n" )
+		       .add( "change input data in Tracking Setup." );
 		uiMSG().error( warnmsg.buf() );
 		return;
 	    }

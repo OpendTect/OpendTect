@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.53 2010-04-27 15:21:07 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.54 2010-05-31 08:14:05 cvsnanne Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -30,6 +30,7 @@ static const char* rcsID = "$Id: uiattrsel.cc,v 1.53 2010-04-27 15:21:07 cvshele
 #include "seistrctr.h"
 #include "linekey.h"
 #include "cubesampling.h"
+#include "separstr.h"
 #include "survinfo.h"
 
 #include "nlamodel.h"
@@ -414,7 +415,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	LineKey linekey( ioobj->key() );
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
-		: eDSHolder().getDescSet( attrdata_.attrSet(). is2D(), true );
+		: eDSHolder().getDescSet( is2D(), true );
 	attrdata_.attribid_ = descset->getStoredID( linekey, 0, true );
 	zdomainkey_ = attrdata_.zdomainkey_;
     }
@@ -445,7 +446,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
-		: eDSHolder().getDescSet( attrdata_.attrSet(). is2D(), true );
+		: eDSHolder().getDescSet( is2D(), true );
 	attrdata_.attribid_ =
 	    	descset->getStoredID( linekey, attrdata_.compnr_, true );
 	if ( needattrmatch && !attrdata_.attribid_.isValid() )
@@ -540,9 +541,9 @@ void uiAttrSel::setIgnoreDesc( const Desc* ad )
 
 void uiAttrSel::updateInput()
 {
-    BufferString bs;
-    bs = attrdata_.attribid_.asInt();
-    bs += ":";
+    SeparString bs( 0, ':' );
+    bs += attrdata_.attribid_.asInt();
+    bs += getYesNoString( attrdata_.attribid_.isStored() );
     bs += attrdata_.outputnr_;
     if ( attrdata_.compnr_ > -1 )
 	bs += attrdata_.compnr_;
@@ -555,12 +556,12 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 {
     if ( !txt || !*txt ) return "";
 
-    BufferString buf( txt );
-    char* outnrstr = strchr( buf.buf(), ':' );
-    if ( outnrstr ) *outnrstr++ = '\0';
-    const DescID attrid( atoi(buf.buf()),
-	    		 attrdata_.attrSet().containsStoredDescOnly() );
-    const int outnr = outnrstr ? atoi( outnrstr ) : 0;
+    SeparString bs( txt, ':' );
+    if ( bs.size() < 3 ) return "";
+
+    const DescID attrid( atoi(bs[0]), yesNoFromString(bs[1]) );
+    const int outnr = atoi( bs[2] );
+    const int compnr = bs.size() == 4 ? atoi( bs[3] ) : -1;
     if ( !attrid.isValid() )
     {
 	if ( !attrdata_.nlamodel_ || outnr < 0 )
@@ -572,8 +573,10 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 	return IOObj::isKey(nm) ? IOM().nameOf(nm) : nm;
     }
 
+    const DescSet& descset = attrid.isStored() ?
+	*eDSHolder().getDescSet( is2D(), true ) : attrdata_.attrSet();
+    const Desc* ad = descset.getDesc( attrid );
     LineKey lk;
-    const Desc* ad = attrdata_.attrSet().getDesc( attrid );
     lk.setLineName( ad ? ad->userRef() : "" );
     if ( is2D() && ad && ad->isStored() )
     {
@@ -647,8 +650,11 @@ void uiAttrSel::doSel( CallBacker* )
 void uiAttrSel::processInput()
 {
     BufferString inp = getInput();
-    DescSet& as = const_cast<DescSet&>( attrdata_.attrSet() );
-    attrdata_.attribid_ = as.getID( inp, true );
+    const DescSet& descset = usedasinput_ ? attrdata_.attrSet()
+				: *eDSHolder().getDescSet( is2D(), true );
+    attrdata_.attribid_ = descset.getID( inp, true );
+    if ( !attrdata_.attribid_.isValid() && !usedasinput_ )
+	attrdata_.attribid_ = attrdata_.attrSet().getID( inp, true );
     attrdata_.outputnr_ = -1;
     if ( attrdata_.attribid_.isValid() && is2D() )
     {
@@ -656,7 +662,7 @@ void uiAttrSel::processInput()
 	if ( !attr2d )
 	    attr2d = LineKey::sKeyDefAttrib();
 
-	const Desc* ad = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
+	const Desc* ad = descset.getDesc( attrdata_.attribid_ );
 	const Attrib::ValParam* param = ad
 		    ? ad->getValParam( Attrib::StorageProvider::keyStr() )
 		    : 0;
@@ -690,7 +696,8 @@ void uiAttrSel::processInput()
 
 void uiAttrSel::fillSelSpec( SelSpec& as ) const
 {
-    const bool isnla = !attrdata_.attribid_.isValid() && attrdata_.outputnr_ >= 0;
+    const bool isnla =
+	!attrdata_.attribid_.isValid() && attrdata_.outputnr_ >= 0;
     if ( isnla )
 	as.set( 0, DescID(attrdata_.outputnr_,true), true, "" );
     else
@@ -699,7 +706,11 @@ void uiAttrSel::fillSelSpec( SelSpec& as ) const
     if ( isnla && attrdata_.nlamodel_ )
 	as.setRefFromID( *attrdata_.nlamodel_ );
     else
-	as.setRefFromID( attrdata_.attrSet() );
+    {
+	const DescSet& descset = as.id().isStored() ?
+		*eDSHolder().getDescSet( is2D(), true ) : attrdata_.attrSet();
+	as.setRefFromID( descset );
+    }
 
     if ( is2D() )
 	as.set2DFlag();
@@ -795,7 +806,6 @@ DescID uiImagAttrSel::imagID() const
     }
 
     DescSet& descset = const_cast<DescSet&>(attrdata_.attrSet());
-
     Desc* inpdesc = descset.getDesc( selattrid );
     Desc* newdesc = PF().createDescCopy( Hilbert::attribName() );
     if ( !newdesc || !inpdesc ) return DescID::undef();
