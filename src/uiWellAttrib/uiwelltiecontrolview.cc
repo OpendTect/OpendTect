@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.24 2009-12-08 09:03:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.25 2010-05-31 14:14:04 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -18,11 +18,16 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.24 2009-12-08 09:03
 #include "mouseevent.h"
 #include "pixmap.h"
 #include "welltiepickset.h"
+#include "welltiedata.h"
+#include "welltiesetup.h"
+#include "emsurfacetr.h"
 
 #include "uibutton.h"
 #include "uiflatviewer.h"
+#include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uirgbarraycanvas.h"
+#include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uiworld2ui.h"
 
@@ -30,8 +35,8 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.24 2009-12-08 09:03
 namespace WellTie
 {
 
-#define mErrRet(msg) \
-{ uiMSG().error(msg); return false; }
+#define mErrRet(msg,act) \
+{ uiMSG().error(msg); act; }
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton( toolbar_, 0, ioPixmap(fnm), \
 			    mCB(this,uiControlView,cbnm) ); \
@@ -42,7 +47,9 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* toolbar,uiFlatViewer* vwr)
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
 						    .withcoltabed(false))
     , toolbar_(toolbar)
+    , dataholder_(0)
     , manip_(true)
+    , selhordlg_(0)		  
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
@@ -56,6 +63,7 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* toolbar,uiFlatViewer* vwr)
     mDefBut(zoomoutbut_,"zoombackward.png",altZoomCB,"Zoom out");
     mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode (Esc)");
     mDefBut(editbut_,"seedpickmode.png",editCB,"Pick mode (P)");
+    mDefBut(horbut_,"drawhoronseis.png",loadHorizons,"Load Horizon(s)");
     editbut_->setToggleButton( true );
 
     vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
@@ -84,11 +92,16 @@ bool uiControlView::handleUserClick()
     uiWorld2Ui w2u; vwr_.getWorld2Ui(w2u);
     const uiWorldPoint wp = w2u.transform( ev.pos() );
     if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() 
-	&& !ev.altStatus() && checkIfInside(wp.x,wp.y) && editbut_->isOn()  )
+	&& !ev.altStatus() && checkIfInside(wp.x,wp.y) && editbut_->isOn() )
     {
 	vwr_.getAuxInfo( wp, infopars_ );
 	const uiWorldRect& bbox = vwr_.boundingBox();
-	picksetmgr_->addPick( bbox.left(), bbox.right(), wp.x, wp.y );
+	if ( dataholder_ ) 
+	{ 
+	    dataholder_->pickmgr()->addPick(bbox.left(),bbox.right(),
+					    wp.x,	    wp.y);
+	    dataholder_->redrawViewerNeeded.trigger();
+	}
 	return true;
     }
     return false;
@@ -101,7 +114,7 @@ bool uiControlView::checkIfInside( double xpos, double zpos )
     const Interval<double> xrg( bbox.left(), bbox.right() ),
 			   zrg( bbox.bottom(), bbox.top() );
     if ( !xrg.includes( xpos, false ) || !zrg.includes( zpos, false ) ) 
-	mErrRet("Please select your pick inside the work area");
+    { mErrRet("Please select your pick inside the work area",return false); }
     return true;
 }
 
@@ -121,6 +134,7 @@ void uiControlView::altZoomCB( CallBacker* but )
     wr.setLeftRight( xrg );
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> size = wr.size();
+    dataholder_->redrawViewerNeeded.trigger();
     setNewView( centre, size );
 }
 
@@ -156,7 +170,9 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
 {
     const uiRect viewarea = isnewsel ? 
 	*vwr_.rgbCanvas().getSelectedArea() : getViewRect( &vwr_ );
-    if ( viewarea.topLeft() == viewarea.bottomRight() ) return;
+    if ( viewarea.topLeft() == viewarea.bottomRight() || 
+	    viewarea.width() < 10 || viewarea.height() < 10 )
+	return;
 
     uiWorld2Ui w2u; vwr_.getWorld2Ui( w2u );
     uiWorldRect wr = w2u.transform( viewarea );
@@ -171,8 +187,7 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
 
-    vwr_.handleChange( FlatView::Viewer::All );
-
+    dataholder_->redrawViewerNeeded.trigger();
     setNewView( centre, newsz );
 }
 
@@ -186,6 +201,34 @@ void uiControlView::setEditOn( bool yn )
     editbut_->setOn( yn );
     editCB( 0 );
 }
+
+
+void uiControlView::loadHorizons( CallBacker* )
+{
+    if ( !dataholder_ ) 
+	return;
+    bool is2d = dataholder_->setup().is2d_;
+    PtrMan<CtxtIOObj> ctxt = is2d ? mMkCtxtIOObj( EMHorizon2D ) 
+				  : mMkCtxtIOObj( EMHorizon3D );
+    if ( !selhordlg_ )
+	selhordlg_ = new uiIOObjSelDlg(this,*ctxt,"Select horizon",true);
+    TypeSet<MultiID> horselids;
+    if ( selhordlg_->go() )
+    {
+	for ( int idx=0; idx<selhordlg_->nrSel(); idx++ )
+	    horselids += selhordlg_->selected( idx );
+    }
+    else
+    {
+	delete ctxt->ioobj;
+	return;
+    }
+    BufferString errmsg; uiTaskRunner tr( this );
+    if ( !dataholder_->setUpHorizons( horselids, errmsg, tr ) ) 
+    { mErrRet( errmsg, return; ) }
+    dataholder_->redrawViewerNeeded.trigger();
+}
+
 
 
 /*

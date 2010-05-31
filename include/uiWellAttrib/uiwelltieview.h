@@ -27,12 +27,19 @@ class uiFunctionDisplay;
 class uiPolyLineItem;
 class uiWellLogDisplay;
 class uiLabel;
+class uiTextItem;
 
 namespace Well
 {
     class Marker;
     class Data;
 };
+
+namespace EM
+{
+    class Horizon2D;
+    class Horizon3D;
+}
 
 namespace WellTie
 {
@@ -50,6 +57,7 @@ public:
 
     void        		fullRedraw();
     void 			redrawViewer(CallBacker*);
+    void 			redrawViewerMarkers(CallBacker*);
     void        		drawUserPicks();
     bool        		isEmpty(); 
 
@@ -73,6 +81,9 @@ protected:
 
     ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
     ObjectSet<FlatView::Annotation::AuxData> wellmarkerauxdatas_;
+    ObjectSet<FlatView::Annotation::AuxData> horauxdatas_;
+    ObjectSet<uiTextItem> 	hortxtnms_;
+    ObjectSet<uiTextItem> 	mrktxtnms_;
     uiPolyLineItem*		checkshotitm_;
 
     void        		drawAILog();
@@ -82,11 +93,14 @@ protected:
     void        		drawTraces();
     void			drawUserPicks(const WellTie::PickSet*);
     void        		drawMarker(FlatView::Annotation::AuxData*,
-					    int,float,float,Color,bool);
-    void        		drawWellMarkers();
+					    float,float,Color,bool);
+    void        		drawViewerWellMarkers();
+    void        		drawLogDispWellMarkers();
     void        		drawCShot();
     void        		initFlatViewer();
     void        		initLogViewers();
+    void			loadHorizons();
+    void			drawHorizons();
     void 			removePack();
     void 			setLogsRanges(float,float);
     bool 			setLogsParams();

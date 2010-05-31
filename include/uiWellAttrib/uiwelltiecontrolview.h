@@ -12,15 +12,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewstdcontrol.h"
-#include "welltiepickset.h"
 
 
 class uiFlatViewer;
 class uiButton;
 class uiToolBar;
+class uiIOObjSelDlg;
 
 namespace WellTie
 {
+    class DataHolder;
 
 mClass uiControlView : public uiFlatViewStdControl
 {
@@ -30,8 +31,8 @@ public:
    
     const bool 		isZoomAtStart() const;
     void 		setEditOn(bool);
-    void		setPickSetMGR(WellTie::PickSetMGR* pmgr)
-    			{ picksetmgr_ = pmgr; }
+    void		setDataHolder(WellTie::DataHolder* dh)
+    			{ dataholder_ = dh; }
     void		setSelView(bool isnewsel = true, bool viewall=false );
     
 protected:
@@ -40,8 +41,10 @@ protected:
     
     uiToolBar*		toolbar_;
     uiToolButton*	manipdrawbut_;
+    uiToolButton*	horbut_;
+    uiIOObjSelDlg*	selhordlg_;
     
-    WellTie::PickSetMGR*  picksetmgr_;
+    WellTie::DataHolder* dataholder_;
     
     bool 		checkIfInside(double,double);
     void 		finalPrepare();
@@ -49,9 +52,9 @@ protected:
    
     void 		altZoomCB(CallBacker*);
     void 		keyPressCB(CallBacker*);
+    void		loadHorizons(CallBacker*);
     void		rubBandCB(CallBacker*);
     void 		wheelMoveCB(CallBacker*);
-
 };
 
 /*

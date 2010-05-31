@@ -45,19 +45,16 @@ public:
 
 			PickSet()
 			    : mousepos_(0)
-			    , pickadded(this)
 			    {}
 			~PickSet();
 			    
 			PickSet( const PickSet& wps )
 			    : mousepos_(wps.mousepos_)
 			    , nrpickstotal_(wps.nrpickstotal_)
-			    , pickadded(wps.pickadded)		
 			    { 
 				deepCopy(pickset_,wps.pickset_);
 			    }
 
-    Notifier<WellTie::PickSet> pickadded;
 
     void                add(UserPick* pick) { pickset_ += pick; };
     void                add(int,float,float);
@@ -100,7 +97,10 @@ public:
 			    : CallBacker(CallBacker::CallBacker())
 			    , dholder_(dh)
 			    , evtype_ (VSEvent::Extr)
+			    , pickadded(this)
 			    {}
+    
+    Notifier<PickSetMGR> pickadded;
     
     enum TrackType      { Maxima, Minima, ZeroCrossings };
 			DeclareEnumUtils(TrackType)

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.28 2010-04-27 08:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.29 2010-05-31 14:14:04 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -55,6 +55,7 @@ void PickSetMGR::addPick( float vwrszstart, float vwrszstop,
 	    lastpicksynth_ = false;
 	}
     }
+    pickadded.trigger();
 }
 
 
@@ -163,7 +164,6 @@ void PickSet::add( int vwridx, float xpos, float zpos )
     pick->xpos_ = xpos;   pick->zpos_ = zpos;
     pickset_ += pick;
     nrpickstotal_++;
-    pickadded.trigger();
 }
 
 

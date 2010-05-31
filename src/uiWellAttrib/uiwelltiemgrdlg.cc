@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.32 2010-04-27 08:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.33 2010-05-31 14:14:04 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -236,7 +236,7 @@ bool uiTieWinMGRDlg::getDefaults()
     WellTie::Reader wtr( fname, wtsetup_ );
     wtr.getWellTieSetup();
 
-    const bool was2d = !wtsetup_.linekey_.isEmpty();
+    const bool was2d = wtsetup_.is2d_;
     if ( typefld_ ) typefld_->setValue( !was2d );
     if ( !wtsetup_.seisid_.isEmpty() )
     {
@@ -305,6 +305,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     }
     else
 	wtsetup_.linekey_ = 0;
+    wtsetup_.is2d_ = is2d_;
 
     wtsetup_.seisid_ = seisfld->ctxtIOObj().ioobj->key();
     wtsetup_.wellid_ = wellfld_->ctxtIOObj().ioobj->key();

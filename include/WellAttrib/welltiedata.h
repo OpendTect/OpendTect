@@ -20,6 +20,8 @@ class DataPointSet;
 class BinID;
 class Wavelet;
 class CtxtIOObj;
+class Color;
+class TaskRunner;
 namespace Well { class Data; class Log; class LogSet; class Writer; }
 
 namespace WellTie
@@ -39,9 +41,11 @@ public:
 				~DataHolder();
 
 //WellData			
-    Well::Data* 		wd() const;	
+    Well::Data* 		wd() const;
+    const BinID			binID() const;    
     const MultiID& 		wellid_;
     Notifier<DataHolder>	closeall;
+    Notifier<DataHolder>	redrawViewerNeeded;
     void			welldataDelNotify(CallBacker*);
     //void			triggerClose();
 
@@ -80,6 +84,22 @@ public:
     CtxtIOObj*			wvltCtxt() 	{ return &wvltctio_; }
     const CtxtIOObj*		wvltCtxt() const { return &wvltctio_; }
 
+//Horizons
+    mStruct HorData
+    {
+				HorData(float z,const Color& col)
+				    : zval_(z)
+				    , color_(col)
+				    {}
+
+	float			zval_;				
+	const Color&		color_;
+	BufferString		name_;	
+    };
+    const ObjectSet<HorData>	horDatas() const { return hordatas_; }
+    bool			setUpHorizons(const TypeSet<MultiID>&,
+						BufferString&,TaskRunner&);
+
 //Others    
     float&			corrcoeff() 	{ return corrcoeff_; }
     const float&		corrcoeff() const { return corrcoeff_; }
@@ -89,6 +109,7 @@ public:
 private:
 
     float 			corrcoeff_;
+    ObjectSet<HorData>		hordatas_;
     Well::Data*          	wd_;
 
     CtxtIOObj&                  seisctio_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.18 2010-04-27 08:21:09 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.19 2010-05-31 14:14:04 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "arrayndimpl.h"
 #include "fft.h"
-
-#include <complex>
 
 /*
   brief class to perform the computations needed by TWTS  

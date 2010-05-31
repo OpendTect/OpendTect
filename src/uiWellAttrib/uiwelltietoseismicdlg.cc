@@ -8,12 +8,11 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.70 2010-04-27 08:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.71 2010-05-31 14:14:04 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
 #include "uiwelltieeventstretch.h"
-#include "uiwelltiestretch.h"
 #include "uiwelltieview.h"
 #include "uiwelltiewavelet.h"
 #include "uiwelltiesavedatadlg.h"
@@ -80,15 +79,14 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts )
 
     uiTaskRunner* tr = new uiTaskRunner( p );
     params_	= dataholder_.params();
-    dataplayer_ = new WellTie::DataPlayer( dataholder_, tr );
-    infodlg_    = new WellTie::uiInfoDlg( this, dataholder_, *dataplayer_ );
-    datadrawer_ = new WellTie::uiTieView( this, &viewer(), dataholder_, 
-	    				&logsdisp_ );
-    stretcher_  = new WellTie::uiEventStretch( this,dataholder_,*datadrawer_ );
+    dataplayer_ = new DataPlayer( dataholder_, tr );
+    infodlg_    = new uiInfoDlg( this, dataholder_, *dataplayer_ );
+    datadrawer_ = new uiTieView( this, &viewer(), dataholder_, &logsdisp_ );
+    stretcher_  = new EventStretch( dataholder_ );
 
     dataholder_.closeall.notify( mCB(this,uiTieWin,rejectOK) );
     infodlg_->redrawNeeded.notify( mCB(datadrawer_,uiTieView,redrawViewer) );
-    stretcher_->pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
+    dataholder_.pickmgr()->pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
     stretcher_->timeChanged.notify(mCB(this,uiTieWin,timeChanged));
     
     BufferString title( "Tie "); 
@@ -102,8 +100,8 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts )
 uiTieWin::~uiTieWin()
 {
     stretcher_->timeChanged.remove( mCB(this,uiTieWin,timeChanged) );
-    stretcher_->pickadded.remove( mCB(this,uiTieWin,checkIfPick) );
     infodlg_->redrawNeeded.remove( mCB(datadrawer_,uiTieView,redrawViewer) );
+    dataholder_.pickmgr()->pickadded.remove( mCB(this,uiTieWin,checkIfPick) );
     dataholder_.closeall.remove( mCB( this,uiTieWin,rejectOK ) );
     
     delete stretcher_;
@@ -183,7 +181,7 @@ void uiTieWin::addControl()
 {
     addToolBarTools();
     controlview_ = new WellTie::uiControlView( this, toolbar_, &viewer() );
-    controlview_->setPickSetMGR( dataholder_.pickmgr() );
+    controlview_->setDataHolder( &dataholder_ );
 }
 
 

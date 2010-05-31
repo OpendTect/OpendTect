@@ -13,7 +13,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwelltiestretch.h"
+#include "callback.h"
+#include "arrayndimpl.h"
+#include "welltiedata.h"
+
+namespace Well { class D2TModel; }
 
 namespace WellTie
 {
@@ -22,18 +26,20 @@ class DataHolder;
 class D2TModelMGR;
 class PickSetMGR;
 class PickSet;
-class uiTieView;
+class Setup;
+class Param;
+class GeoCalculator;
 
-mClass uiEventStretch : public uiStretch
+mClass EventStretch : public CallBacker
 {
 public:
-			uiEventStretch(uiParent*,WellTie::DataHolder&,
-				   WellTie::uiTieView&);
-			~uiEventStretch();
+					EventStretch(WellTie::DataHolder&);
+					~EventStretch(){};
 
-    Notifier<uiEventStretch> 		pickadded;
     void 				doWork(CallBacker*); 
     void				setD2TModel(const Well::D2TModel*);
+
+    Notifier<EventStretch>		timeChanged;
     
 protected:
 
@@ -42,11 +48,19 @@ protected:
     WellTie::PickSet& 			seispickset_;
     WellTie::PickSet& 			synthpickset_;
     WellTie::PickSetMGR& 		pmgr_;
+    const WellTie::GeoCalculator*       geocalc_;
+    const Setup&                        wtsetup_;
+    const Params&                       params_;
 
-    void 				addSyntPick(CallBacker*);
-    void 				addSeisPick(CallBacker*);
+    float                               supborderpos_;
+    float                               infborderpos_;
+    float                               startpos_;
+    float                               stoppos_;
+
     void 				drawLogsData();
     void 				doStretchWork();
+    void                                doStretchData(const Array1DImpl<float>&,
+							  Array1DImpl<float>&);
     void				shiftDahData(); 
     void				shiftModel(); 
     void				updateTime(float&);

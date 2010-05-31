@@ -35,12 +35,12 @@ namespace WellTie
 
 class DataHolder;
 class DataPlayer;
+class EventStretch;
 class uiTieView;
 class uiControlView;
 class uiCorrView;
 class uiInfoDlg;
 class uiWaveletView;
-class uiEventStretch;
 
 mClass uiTieWin : public uiFlatViewMainWin
 {
@@ -77,7 +77,7 @@ protected:
     WellTie::uiControlView* 	controlview_;
     WellTie::uiInfoDlg* 	infodlg_; 
     WellTie::uiTieView*		datadrawer_;
-    WellTie::uiEventStretch* 	stretcher_;
+    WellTie::EventStretch* 	stretcher_;
     
     void			addControl();
     void 			addToolBarTools();

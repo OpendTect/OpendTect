@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.30 2010-04-27 08:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.31 2010-05-31 14:14:04 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -20,7 +20,13 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.30 2010-04-27 08:21:09 cvsbr
 #include "survinfo.h"
 #include "wavelet.h"
 
+#include "emhorizon3d.h"
+#include "emhorizon2d.h"
+#include "emmanager.h"
+#include "emsurfacetr.h"
+
 #include "welldata.h"
+#include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
@@ -46,7 +52,8 @@ DataHolder::DataHolder( const WellTie::Setup& s )
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
 	, seisctio_(*mMkCtxtIOObj(SeisTrc))
 	, wd_(0)			
-	, params_(0)		     		
+	, params_(0)		     	
+	, redrawViewerNeeded(this)				
 	, closeall(this)				   
 {
     wd_ = wd();
@@ -108,6 +115,13 @@ Well::Data* DataHolder::wd() const
 }
 
 
+const BinID DataHolder::binID() const
+{
+    Coord3 pos = wd()->track().pos( 0 );
+    return SI().transform( pos );
+}
+
+
 void DataHolder::resetLogData()
 {
     logset_->empty();
@@ -146,13 +160,70 @@ void DataHolder::setLogVal( const char* nm ,
 }
 
 
+bool DataHolder::setUpHorizons( const TypeSet<MultiID>& horids, 
+				BufferString& errms, TaskRunner& tr)
+{
+    deepErase( hordatas_ );
+    EM::EMManager& em = EM::EMM();
+    for ( int idx=0; idx<horids.size(); idx++ )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( horids[idx] );
+	if ( !ioobj )
+	{
+	    errms += "Cannot get database entry for selected horizon";
+	    return false;
+	}
+
+	EM::ObjectID emid = EM::EMM().getObjectID( horids[idx] );
+	RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
+	bool success = true;
+	if ( !emobj || !emobj->isFullyLoaded() )
+	{
+	    success = false;
+	    PtrMan<Executor> exec = em.objectLoader( horids[idx] );
+	    if ( exec )
+	    {
+		if ( tr.execute( *exec ) )
+		    success = true;
+	    }
+	    if ( success )
+	    {
+		emid = EM::EMM().getObjectID( horids[idx] );
+		emobj = EM::EMM().getObject( emid );
+	    }
+	    else
+	    {
+		errms += "Cannot load ";
+		errms += ioobj->name();
+		errms += ".";
+		return false;
+	    }
+	}
+	const EM::Horizon* hor = 0;    
+	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj.ptr())
+	mDynamicCastGet(EM::Horizon2D*,hor2d,emobj.ptr())
+	if ( hor2d ) hor = hor2d;
+	if ( hor3d ) hor = hor3d;
+	if ( !hor ) continue;
+
+	RowCol rc = binID();
+	const EM::PosID posid(hor->id(), hor->sectionID(0), rc.getSerialized());
+	float zval = hor->getPos( posid ).z*1000;
+	hordatas_ += new HorData( zval,  hor->preferredColor() );
+	hordatas_[hordatas_.size()-1]->name_ = hor->name();
+    }
+    return true;
+}
+
+
 
 DataWriter::DataWriter( const WellTie::DataHolder& dh )
-	: holder_(dh)
-	, wtr_(0)  
+    : holder_(dh)
+    , wtr_(0)  
 {
     setWellWriter();
 }
+
 
 DataWriter::~DataWriter()
 {

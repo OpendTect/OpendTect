@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.65 2010-04-27 08:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.66 2010-05-31 14:14:04 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -18,7 +18,9 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.65 2010-04-27 08:21:09 cvs
 #include "uilabel.h"
 #include "uirgbarraycanvas.h"
 #include "uiwelllogdisplay.h"
+#include "uiworld2ui.h"
 
+#include "rowcol.h"
 #include "flatposdata.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
@@ -34,6 +36,7 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.65 2010-04-27 08:21:09 cvs
 #include "welltiepickset.h"
 #include "welltiesetup.h"
 #include "welltieunitfactors.h"
+
 
 #define mGetWD(act) const Well::Data* wd = dataholder_.wd(); if ( !wd ) act;
 namespace WellTie
@@ -54,6 +57,7 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr,
 	, checkshotitm_(0)
     	, seistrcdp_(0)
 {
+    dataholder_.redrawViewerNeeded.notify(mCB(this,uiTieView,redrawViewerMarkers));
     initFlatViewer();
     initLogViewers();
 } 
@@ -63,6 +67,7 @@ uiTieView::~uiTieView()
 {
     if ( seistrcdp_ )
 	removePack();
+    dataholder_.redrawViewerNeeded.remove(mCB(this,uiTieView,redrawViewerMarkers));
     delete trcbuf_;
     deepErase( logsdisp_ );
 }
@@ -74,24 +79,30 @@ void uiTieView::fullRedraw()
     drawDenLog();
     drawAILog();
     drawRefLog();
+    drawLogDispWellMarkers();
+    drawCShot();
     
     if ( !setLogsParams() ) 
 	return;
-	
-    drawWellMarkers();
-    drawCShot();
 
-    for ( int idx=0; idx<logsdisp_.size(); idx++ )
-	logsdisp_[idx]->doDataChange();
     redrawViewer(0);
 }
 
 
-void uiTieView::redrawViewer( CallBacker* )
+void uiTieView::redrawViewer( CallBacker* cb )
 {
     drawTraces();
-    drawUserPicks();
+    redrawViewerMarkers( cb );
     vwr_->handleChange( FlatView::Viewer::All );    
+}
+
+
+void uiTieView::redrawViewerMarkers( CallBacker* )
+{
+    drawUserPicks();
+    drawViewerWellMarkers();
+    drawHorizons();
+    vwr_->handleChange( FlatView::Viewer::Annot );    
 }
 
 
@@ -161,6 +172,7 @@ void uiTieView::drawVelLog()
     wldld1.xrev_ = !wtsetup_.issonic_;
     wldld1.wld_.color_ = Color::stdDrawColor(0);
     wldld1.wld_.islogfill_ =false;
+    logsdisp_[0]->doDataChange();
 }
 
 
@@ -171,6 +183,7 @@ void uiTieView::drawDenLog()
     wldld2.isyaxisleft_ = false;
     wldld2.wld_.color_ = Color::stdDrawColor(1);
     wldld2.wld_.islogfill_ =false;
+    logsdisp_[0]->doDataChange();
 }
 
 
@@ -180,6 +193,7 @@ void uiTieView::drawAILog()
     wldld1.wl_ = dataholder_.logset()->getLog( params_->ainm_ );
     wldld1.wld_.color_ = Color::stdDrawColor(0);
     wldld1.wld_.islogfill_ =false;
+    logsdisp_[1]->doDataChange();
 }
 
 
@@ -190,6 +204,7 @@ void uiTieView::drawRefLog()
     wldld2.isyaxisleft_ = false;
     wldld2.wld_.color_ = Color::stdDrawColor(1);
     wldld2.wld_.islogfill_ =false;
+    logsdisp_[1]->doDataChange();
 }
 
 
@@ -321,16 +336,15 @@ void uiTieView::zoomChg( CallBacker* )
 
 
 void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
-       				int vwridx, float xpos,  float zpos,
-			       	Color col, bool ispick )
+			    float xpos, float zpos, Color col, bool ispick )
 {
-    FlatView::Appearance& app = vwr_->appearance();
     auxdata->linestyle_.color_ = col;
-    auxdata->linestyle_.width_ = 2;
-    auxdata->linestyle_.type_  = LineStyle::Solid;
+    auxdata->linestyle_.width_ = ispick ? 2 : 1;
+    auxdata->linestyle_.type_  = ispick ? LineStyle::Solid : LineStyle::Dot;
     
     const float xleft = vwr_->boundingBox().left();
     const float xright = vwr_->boundingBox().right();
+    bool isleft = true;
 
     if ( xpos && xpos < ( xright-xleft )/2 )
     {
@@ -341,50 +355,82 @@ void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
     {
 	auxdata->poly_ += FlatView::Point( xright, zpos );
 	auxdata->poly_ += FlatView::Point( (xright-xleft)/2, zpos );
+	isleft = false;
+    }
+
+    if ( !ispick )
+    {
+	BufferString mtxt( auxdata->name_ );
+	if ( mtxt.size() > 3 )
+	    mtxt[3] = '\0';
+	uiTextItem* ti = vwr_->rgbCanvas().scene().addItem(
+			     new uiTextItem(mtxt,mAlignment(Right,VCenter)) );
+	uiWorld2Ui w2u; vwr_->getWorld2Ui(w2u);
+	ti->setPos( w2u.transform( uiWorldPoint( isleft ? 1 : trcbuf_->size()-1, zpos) ) );
+	ti->setTextColor( col );
+	if ( isleft )
+	    mrktxtnms_ += ti;
+	else
+	    hortxtnms_ += ti;
     }
 }	
 
 
-void uiTieView::drawWellMarkers()
+void uiTieView::drawLogDispWellMarkers()
 {
     Well::Data* wd = dataholder_.wd();
     if ( !wd ) return;
-
-    deepErase( wellmarkerauxdatas_ );
-    const Well::D2TModel* d2tm = wd->d2TModel();
-    if ( !d2tm ) return; 
-   
-    for ( int midx=0; midx<wd->markers().size(); midx++ )
-    {
-	Well::Marker* marker = const_cast<Well::Marker*>( 
-						wd->markers()[midx] );
-	if ( !marker  ) continue;
-	
-	float zpos = d2tm->getTime( marker->dah() ); 
-	const Color col = marker->color();
-	
-	if ( col == Color::NoColor() || col.rgb() == 16777215 || 
-		zpos < zrange_.start || zpos > zrange_.stop )
-	    continue;
-	
-	FlatView::Annotation::AuxData* auxdata = 0;
-	mTryAlloc( auxdata, FlatView::Annotation::AuxData(marker->name()) );
-	wellmarkerauxdatas_ += auxdata;
-	
-	//drawMarker( auxdata, 0, 0, zpos, col, false );
-    }
     bool ismarkerdisp = dataholder_.uipms()->ismarkerdisp_;
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
 	logsdisp_[idx]->data().markers_ = ismarkerdisp ? &wd->markers() : 0;
 	logsdisp_[idx]->doDataChange();
     }
-}	
+}
 
+
+#define mRemoveItms( itms ) \
+    for ( int idx=0; idx<itms.size(); idx++ ) \
+	vwr_->rgbCanvas().scene().removeItem( itms[idx] ); \
+    deepErase( itms );
 #define mRemoveSet( auxs ) \
     for ( int idx=0; idx<auxs.size(); idx++ ) \
         app.annot_.auxdata_ -= auxs[idx]; \
     deepErase( auxs );
+void uiTieView::drawViewerWellMarkers()
+{
+    mRemoveItms( mrktxtnms_ )
+    Well::Data* wd = dataholder_.wd();
+    if ( !wd ) return;
+
+    FlatView::Appearance& app = vwr_->appearance();
+    mRemoveSet( wellmarkerauxdatas_ );
+    bool ismarkerdisp = dataholder_.uipms()->ismarkerdisp_;
+    if ( !ismarkerdisp ) 
+	return;
+    const Well::D2TModel* d2tm = wd->d2TModel();
+    if ( !d2tm ) return; 
+    for ( int midx=0; midx<wd->markers().size(); midx++ )
+    {
+	const Well::Marker* marker = wd->markers()[midx];
+	if ( !marker  ) continue;
+	
+	float zpos = d2tm->getTime( marker->dah() );
+	const Color& col = marker->color();
+	
+	if ( !zrange_.includes( zpos ) )
+	    continue;
+	
+	FlatView::Annotation::AuxData* auxdata = 0;
+	mTryAlloc( auxdata, FlatView::Annotation::AuxData(marker->name()) );
+	wellmarkerauxdatas_ += auxdata;
+	app.annot_.auxdata_ +=  auxdata;
+	
+	drawMarker( auxdata, 1, zpos*1000, col, false );
+    }
+}	
+
+
 void uiTieView::drawUserPicks()
 {
     FlatView::Appearance& app = vwr_->appearance();
@@ -416,8 +462,26 @@ void uiTieView::drawUserPicks( const WellTie::PickSet* pickset )
 	float zpos = pick->zpos_*1000; 
 	float xpos = pick->xpos_;
 	
-	drawMarker( userpickauxdatas_[idx], 0, xpos, zpos, 
-		    pick->color_, false );
+	drawMarker( userpickauxdatas_[idx], xpos, zpos, pick->color_, true );
+    }
+}
+
+
+void uiTieView::drawHorizons()
+{
+    mRemoveItms( hortxtnms_ )
+    FlatView::Appearance& app = vwr_->appearance();
+    mRemoveSet( horauxdatas_ );
+    const ObjectSet<DataHolder::HorData>& hordatas = dataholder_.horDatas();
+    for ( int idx=0; idx<hordatas.size(); idx++ )
+    {
+	FlatView::Annotation::AuxData* auxdata = 0;
+	mTryAlloc( auxdata, FlatView::Annotation::AuxData(0) );
+	horauxdatas_ += auxdata;
+	app.annot_.auxdata_ += auxdata;
+	float zval = hordatas[idx]->zval_;
+	auxdata->name_ = hordatas[idx]->name_;
+	drawMarker( auxdata, 10, zval, hordatas[idx]->color_, false );
     }
 }
 
