@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiio.cc,v 1.7 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: inituiio.cc,v 1.8 2010-05-31 14:52:50 cvsbert Exp $";
 
 #include "inituiio.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
+#include "uit2dconvsel.h"
 
 void uiIo::initStdClasses()
 {
@@ -21,4 +22,6 @@ void uiIo::initStdClasses()
 
     uiRandPosFiltGroup::initClass();
     uiSubsampPosFiltGroup::initClass();
+
+    uiT2DLinConvSelGroup::initClass();
 }
