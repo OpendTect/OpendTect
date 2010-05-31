@@ -3,12 +3,12 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
- Date:          Feb 2008
+ Date:          May 2010
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uit2dconvsel.cc,v 1.1 2010-05-31 14:52:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uit2dconvsel.cc,v 1.2 2010-05-31 15:11:37 cvsbert Exp $";
 
 #include "uit2dconvsel.h"
 #include "uigeninput.h"
@@ -120,7 +120,7 @@ void uiT2DLinConvSelGroup::usePar( const IOPar& iop )
     //TODO handle Z unit properly
     mDefA0A1;
     if ( iop.get("V0,dV",a0,a1) )
-	fld_->setValue( a0, 0 ); fld_->setValue( a1, 1 );
+	{ fld_->setValue( a0, 0 ); fld_->setValue( a1, 1 ); }
 }
 
 
