@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.123 2010-05-21 15:07:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.124 2010-05-31 13:22:39 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -238,6 +238,15 @@ bool uiODMain::ensureGoodSurveySetup()
     }
     else if ( !IOM().isReady() )
     {
+	if ( !applmgr_ )
+	{
+	    BufferString msg( "Data management cannot be started."
+		    "Please check your data directory:\n",
+		    GetBaseDataDir(),
+		    "\nDoes it look OK, exist, do you have read permission?" );
+	    uiMSG().error( msg );
+	    return false;
+	}
 	while ( !applmgr_->manageSurvey() )
 	{
 	    if ( uiMSG().askGoOn( "No survey selected. Do you wish to quit?" ) )
