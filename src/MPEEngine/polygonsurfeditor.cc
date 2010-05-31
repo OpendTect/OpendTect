@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.9 2009-09-04 20:14:09 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.10 2010-05-31 15:01:22 cvsjaap Exp $";
 
 #include "polygonsurfeditor.h"
 
@@ -27,6 +27,7 @@ namespace MPE
 
 PolygonBodyEditor::PolygonBodyEditor( EM::PolygonBody& polygonsurf )
     : ObjectEditor(polygonsurf)
+    , sowingpivot_(Coord3::udf())
 {}
 
 
@@ -55,8 +56,31 @@ Geometry::ElementEditor* PolygonBodyEditor::createEditor(
 }
 
 
-#define mCompareCoord( crd ) Coord3( crd, crd.z*zfactor )
+static EM::PosID lastclicked_ = EM::PosID::udf();
 
+void PolygonBodyEditor::setLastClicked( const EM::PosID& pid )
+{
+    lastclicked_ = pid;
+
+    if ( sowingpivot_.isDefined() )
+    {
+	const Coord3 pos = emObject().getPos( pid );
+	if ( pos.isDefined() )
+	    sowinghistory_.insert( 0, pos );
+    }
+}
+
+
+void PolygonBodyEditor::setSowingPivot( const Coord3 pos )
+{
+    if ( sowingpivot_.isDefined() && !pos.isDefined() )
+	sowinghistory_.erase();
+
+    sowingpivot_ = pos;
+}
+
+
+#define mCompareCoord( crd ) Coord3( crd, crd.z*zfactor )
 
 void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 					    EM::PosID& nearestpid1, 
@@ -68,9 +92,12 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
     nearestpid1 = EM::PosID::udf();
     insertpid = EM::PosID::udf();
 
+    const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
+			? sowingpivot_ : mousepos;
+
     int polygon;
     EM::SectionID sid;
-    const float mindist = getNearestPolygon( polygon, sid, mousepos, zfactor );
+    const float mindist = getNearestPolygon( polygon, sid, pos, zfactor );
     if ( mIsUdf(mindist) )
     {
 	if ( !emObject().nrSections() )
@@ -120,7 +147,7 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
     }
     
     getPidsOnPolygon( nearestpid0, nearestpid1, insertpid, polygon, sid, 
-	    	      mousepos, zfactor );
+	    	      pos, zfactor );
 }
 
 
@@ -360,9 +387,13 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	if ( !pt.isDefined() )
 	    continue;
 
-	const float sqdist =mCompareCoord(pt).sqDistTo(mp);
-	if ( mIsZero(sqdist, 1e-4) ) //mousepos is duplicated.
-	    return;
+	float sqdist = 0;
+	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pt )
+	{
+	    sqdist = mCompareCoord(pt).sqDistTo( mCompareCoord(mousepos) );
+	    if ( mIsZero(sqdist, 1e-4) ) //mousepos is duplicated.
+		return;
+	}
 
 	 if ( nearknotidx==-1 || sqdist<minsqptdist )
 	 {
@@ -417,7 +448,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
     }
 
     bool usenearedge = false;
-    if ( minsqedgedist!=-1 )
+    if ( minsqedgedist!=-1 && sowinghistory_.size()<=1 )
     {
 	if ( nearknotidx==nearedgeidx ||
 	     nearknotidx==(nearknotidx<knots.size()-1 ? nearknotidx+1 : 0) ||  	
@@ -453,13 +484,22 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 		    knots[nearknotidx ? nearknotidx-1 : knots.size()-1]) );
 	Coord3 nextpos = surface->getKnot( RowCol(polygon,
 		    knots[nearknotidx<knots.size()-1 ? nearknotidx+1 : 0]) );
-	const bool prevdefined = prevpos.isDefined();
-  	const bool nextdefined = nextpos.isDefined();	
-	if ( prevdefined ) prevpos.z *= zfactor;
-   	if ( nextdefined ) nextpos.z *= zfactor;
 
-	if ( prevdefined && nextdefined &&
-	     sameSide3D(mp,prevpos,nearpos,nextpos,1e-3) ) 
+	bool takeprevious;
+	if ( sowinghistory_.size() <= 1 )
+	{
+	    const bool prevdefined = prevpos.isDefined();
+	    const bool nextdefined = nextpos.isDefined();	
+	    if ( prevdefined ) prevpos.z *= zfactor;
+	    if ( nextdefined ) nextpos.z *= zfactor;
+
+	    takeprevious = prevdefined && nextdefined &&
+			   sameSide3D(mp,prevpos,nearpos,nextpos,1e-3); 
+	}
+	else
+	    takeprevious = sowinghistory_[1]==prevpos;
+
+	if ( takeprevious )
 	{
 	    if ( nearknotidx )
 	    {

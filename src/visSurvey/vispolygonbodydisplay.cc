@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.6 2010-02-22 22:40:42 cvskris Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.7 2010-05-31 15:01:22 cvsjaap Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -246,6 +246,7 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 	viseditor_->ref();
 	viseditor_->setSceneEventCatcher( eventcatcher_ );
 	viseditor_->setDisplayTransformation( displaytransform_ );
+	viseditor_->sower().alternateSowingOrder();
 	addChild( viseditor_->getInventorNode() );
     }
 
@@ -435,16 +436,32 @@ visBase::Transformation* PolygonBodyDisplay::getDisplayTransformation()
 { return displaytransform_; }
 
 
+Coord3 PolygonBodyDisplay::disp2world( const Coord3& displaypos ) const
+{
+    Coord3 pos = displaypos;
+    if ( pos.isDefined() )
+    {
+	if ( scene_ )
+	    pos = scene_->getZScaleTransform()->transformBack( pos );
+	if ( displaytransform_ )
+	    pos = displaytransform_->transformBack( pos );
+    }
+    return pos;
+}
+
+
 void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 {
-    if ( !empolygonsurf_ || !polygonsurfeditor_ || !isOn() || 
+    if ( !empolygonsurf_ || !polygonsurfeditor_ || !viseditor_ || !isOn() || 
 	 eventcatcher_->isHandled() || !isSelected() )
 	return;
 
-   // if ( viseditor_ && !viseditor_->clickCB( cb ) )
-//	return;
-
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+
+    polygonsurfeditor_->setSowingPivot(
+	    			disp2world(viseditor_->sower().pivotPos()) );
+    if ( viseditor_->sower().accept(eventinfo) )
+	return;
    
     CubeSampling mouseplanecs; 
     mouseplanecs.setEmpty();
@@ -467,9 +484,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     if ( locked_ )
 	return;
 
-    Coord3 pos = eventinfo.displaypickedpos;
-    pos = scene_->getZScaleTransform()->transformBack( pos ); 
-    if ( displaytransform_ ) pos = displaytransform_->transformBack( pos ); 
+    Coord3 pos = disp2world( eventinfo.displaypickedpos );
 
     EM::PosID nearestpid0, nearestpid1, insertpid;
     const float zscale = scene_
@@ -512,7 +527,9 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 		    : empolygonsurf_->geometry().removeKnot( 
 			    pid.sectionID(), pid.subID(), true );
 
-		if ( res )
+		polygonsurfeditor_->setLastClicked( EM::PosID::udf() );
+
+		if ( res && !viseditor_->sower().moreSeeds() )
 		{
 		    EM::EMM().undo().setUserInteractionEnd(
 			    EM::EMM().undo().currentEventID() );
@@ -524,11 +541,15 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	return;
     }
 
-    if ( eventinfo.pressed || OD::altKeyboardButton(eventinfo.buttonstate_) ||
+    if ( OD::altKeyboardButton(eventinfo.buttonstate_) ||
 	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
 
-    if ( insertpid.isUdf() )
+    const Color& prefcol = empolygonsurf_->preferredColor();
+    if ( viseditor_->sower().activate(prefcol, eventinfo) )
+	return;
+
+    if ( eventinfo.pressed || insertpid.isUdf() )
 	return;
 
     if ( nearestpid0.isUdf() )
@@ -547,11 +568,15 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	if ( empolygonsurf_->geometry().insertPolygon( insertpid.sectionID(),
 	       RowCol(insertpid.subID()).row, 0, pos, editnormal, true ) )
 	{
-	    EM::EMM().undo().setUserInteractionEnd(
+	    polygonsurfeditor_->setLastClicked( insertpid );
+	    if ( !viseditor_->sower().moreSeeds() )
+	    {
+		EM::EMM().undo().setUserInteractionEnd(
 		    EM::EMM().undo().currentEventID() );
 
-	    touchAll( false );
-	    polygonsurfeditor_->editpositionchange.trigger();
+		touchAll( false );
+		polygonsurfeditor_->editpositionchange.trigger();
+	    }
 	}
     }
     else
@@ -559,10 +584,13 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	if ( empolygonsurf_->geometry().insertKnot( insertpid.sectionID(),
 		insertpid.subID(), pos, true ) )
 	{
-	    EM::EMM().undo().setUserInteractionEnd( 
+	    polygonsurfeditor_->setLastClicked( insertpid );
+	    if ( !viseditor_->sower().moreSeeds() )
+	    {
+		EM::EMM().undo().setUserInteractionEnd( 
 		    EM::EMM().undo().currentEventID() );
-	    
-	    polygonsurfeditor_->editpositionchange.trigger();
+		polygonsurfeditor_->editpositionchange.trigger();
+	    }
 	}
     }
 

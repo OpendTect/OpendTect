@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: polygonsurfeditor.h,v 1.5 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: polygonsurfeditor.h,v 1.6 2010-05-31 15:01:22 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,10 @@ public:
     				PolygonBodyEditor(EM::PolygonBody&);
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
+
+    void			setLastClicked(const EM::PosID&);
+    void			setSowingPivot(const Coord3);
+
     void			getInteractionInfo(EM::PosID& nearestpid0,
 					   EM::PosID& nearestpid1,
 					   EM::PosID& insertpid,
@@ -47,6 +51,9 @@ protected:
 						 const EM::SectionID&,
        						 const Coord3&,
 						 float zfactor) const;
+
+    Coord3			sowingpivot_;
+    mutable TypeSet<Coord3>	sowinghistory_;
 };
 
 

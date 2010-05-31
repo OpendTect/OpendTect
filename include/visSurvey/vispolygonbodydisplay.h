@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolygonbodydisplay.h,v 1.6 2010-02-22 22:42:40 cvskris Exp $
+ RCS:		$Id: vispolygonbodydisplay.h,v 1.7 2010-05-31 15:01:22 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -114,6 +114,8 @@ protected:
 				   intersections of known polygons with the 
 				   intersection line between plane3 and polygon
 				   plane. */
+
+    Coord3			disp2world(const Coord3& displaypos) const;
 
     visBase::EventCatcher*		eventcatcher_;
     visBase::Transformation*		displaytransform_;

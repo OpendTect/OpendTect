@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.24 2010-02-04 10:59:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.25 2010-05-31 15:01:22 cvsjaap Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -79,7 +79,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	
 	uiVisPartServer* visserv = applMgr()->visServer();
 	visserv->showMPEToolbar();
-	visserv->turnSeedPickingOn( true );
+	visserv->turnSeedPickingOn( false );
     }
     else if ( mnuid == 2 )
     {
