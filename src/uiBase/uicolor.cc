@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.31 2010-05-31 03:56:49 cvsraman Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.32 2010-05-31 12:02:03 cvsnanne Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -61,7 +61,7 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 
     QColor oldcol( col.r(), col.g(), col.b(), 255-col.t() );
     QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
-#if QT_VERSION >= 0x045000
+#if QT_VERSION >= 0x040500
     QColorDialog::ColorDialogOptions options = 0;
     if ( withtransp ) options = QColorDialog::ShowAlphaChannel;
     QColor newcol = QColorDialog::getColor( oldcol, qparent, nm, options );
