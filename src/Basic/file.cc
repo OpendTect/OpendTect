@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.14 2010-05-28 12:00:20 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.15 2010-05-31 06:03:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,9 @@ bool createDir( const char* fnm )
 bool rename( const char* oldname, const char* newname )
 { 
     QFile qfile( oldname );
+#ifdef __win__
     qfile.setPermissions( QFile::WriteOther );
+#endif
     return qfile.rename( newname );
 }
 
@@ -140,7 +142,9 @@ bool copyDir( const char* from, const char* to )
 bool remove( const char* fnm )
 {
     QFile qfile( fnm );
+#ifdef __win__
     qfile.setPermissions( QFile::WriteOther );
+#endif
     return qfile.remove();
 }
 
