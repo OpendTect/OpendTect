@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.66 2010-03-25 19:51:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.67 2010-05-31 11:23:24 cvskarthika Exp $";
 
 
 #include "vismultitexture2.h"
@@ -926,7 +926,7 @@ uniform int             numlayers;\n";
     if ( gl_FrontMaterial.diffuse.a<=0.0 )				\n\
 	discard;							\n\
     if ( startlayer<0 )							\n\
-	gl_FragColor = vec4(1,1,1,1);					\n\
+	gl_FragColor = vec4(1.0,1.0,1.0,1.0);					\n\
     else								\n\
     {									\n\
 	vec2 tcoord = gl_TexCoord[0].st;				\n\

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.46 2010-05-28 10:08:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.47 2010-05-31 11:24:35 cvskarthika Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -693,7 +693,7 @@ void ColTabTextureChannel2RGBA::createFragShadingProgram(int nrchannels,
 	"	discard;						\n"
 	"    float fnumlayers = float( numlayers );			\n"
 	"    if ( startlayer<0 )					\n"
-	"	gl_FragColor = vec4(1,1,1,1);				\n"
+	"	gl_FragColor = vec4(1.0,1.0,1.0,1.0);				\n"
 	"    else							\n"
 	"    {								\n"
 	"	vec2 tcoord = gl_TexCoord[0].st;			\n"
@@ -896,9 +896,9 @@ const char* ColTabTextureChannel2RGBA::sVertexShaderProgram()
 "    ecPosition3 = ecPosition.xyz / ecPosition.w;\n"
 "    fragmentNormal = normalize(gl_NormalMatrix * gl_Normal);\n"
 "\n"
-"    vec4 diffuse = vec4(0,0,0,0);\n"
-"    vec4 ambient = vec4(0,0,0,0);\n"
-"    vec4 specular = vec4(0,0,0,0);\n"
+"    vec4 diffuse = vec4(0.0,0.0,0.0,0.0);\n"
+"    vec4 ambient = vec4(0.0,0.0,0.0,0.0);\n"
+"    vec4 specular = vec4(0.0,0.0,0.0,0.0);\n"
 "\n"
 "    for ( int light = 0; light<2; light++ )\n"
 "    {\n"
