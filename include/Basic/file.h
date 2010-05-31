@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Nanne Hemstra
  Date:		January 2010
  Contents:	File utitlities
- RCS:		$Id: file.h,v 1.4 2010-03-25 03:56:24 cvsranojay Exp $
+ RCS:		$Id: file.h,v 1.5 2010-05-31 12:29:16 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ namespace File
     mGlobal bool	rename(const char* oldname,const char* newname);
     mGlobal bool	copy(const char* from,const char* to);
     mGlobal bool	remove(const char*);
+    mGlobal bool	saveCopy(const char* from,const char* to);
     mGlobal bool	copyDir(const char* from,const char* to);
     mGlobal bool	removeDir(const char*);
 
