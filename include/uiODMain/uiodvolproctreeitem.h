@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2007
- RCS:		$Id: uiodvolproctreeitem.h,v 1.1 2010-05-26 20:41:55 cvskris Exp $
+ RCS:		$Id: uiodvolproctreeitem.h,v 1.2 2010-05-31 05:23:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace VolProc
 {
 
-class uiDataTreeItem : public uiODDataTreeItem
+mClass uiDataTreeItem : public uiODDataTreeItem
 {
 public:
    static void			initClass();
