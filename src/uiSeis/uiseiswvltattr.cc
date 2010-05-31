@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.21 2010-03-16 10:09:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.22 2010-05-31 14:11:36 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -119,15 +119,16 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     memcpy( wvltvals_->getData(), wvlt_->samples(), sizeof(float)*wvltsz_ );
   
     uiFuncTaperDisp::Setup s;
-    s.datasz_ = (int) ( 0.5/SI().zStep() );
-    s.xaxnm_ = "Time (s)";
+    bool istime = SI().zIsTime();
+    s.datasz_ = istime ? (int) ( 0.5/SI().zStep() ) : 100;
+    s.xaxnm_ = istime ? "Time (s)" : "Depth (m)";
     s.yaxnm_ = "Taper Apmplitude";
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
     s.leftrg_ = Interval<float> ( 0, s.datasz_/6 );
     s.rightrg_ = Interval<float> ( s.datasz_-1, s.datasz_ );
     s.is2sided_ = true;
-    s.xaxnm_ = "Frequency (Hz)";
+    s.xaxnm_ = istime ? "Frequency (Hz)" : "Wavenumber(/m)";
     s.yaxnm_ = "Gain (dB)";
     s.fillbelowy2_ = true;
     s.drawliney_ = false;
@@ -135,8 +136,8 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     freqdrawer_->attach( ensureBelow, timedrawer_ );
     freqdrawer_->taperChanged.notify(mCB(this,uiSeisWvltTaperDlg,act) );
 
-    typefld_ = new uiGenInput( this, "Taper",
-				    BoolInpSpec(true,"Time","Frequency") ); 
+    typefld_ = new uiGenInput( this, "Taper", 
+		    BoolInpSpec(true, istime ? "Time" : "Depth","Frequency")); 
     typefld_->valuechanged.notify( mCB(this,uiSeisWvltTaperDlg,typeChoice) );
     typefld_->attach( centeredAbove, timedrawer_ );
     
@@ -239,7 +240,6 @@ void uiSeisWvltTaperDlg::setFreqData()
 
 
 //Wavelet display property dialog
-
 uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet& w )
             : uiDialog(p,Setup("Wavelet Properties","","107.4.3").modal(false))
 {
@@ -254,7 +254,6 @@ uiWaveletDispPropDlg::~uiWaveletDispPropDlg()
 {}
 
 
-const char* attrnms[] = { "Amplitude", "Frequency", "Phase (degrees)", 0 };
 //Wavelet display properties
 uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 	    : uiGroup(p,"Properties")
@@ -266,7 +265,7 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
     if ( SI().zIsTime() ) maxfreq = mNINT( maxfreq );
     freqrange_.set( 0, maxfreq );
 
-    for ( int iattr=0; attrnms[iattr]; iattr++ )
+    for ( int iattr=0; iattr<3; iattr++ )
 	addAttrDisp( iattr );
     
     setAttrCurves( wvlt );
@@ -283,23 +282,20 @@ uiWaveletDispProp::~uiWaveletDispProp()
 void uiWaveletDispProp::addAttrDisp( int attridx )
 {
     uiFunctionDisplay::Setup fdsu;
-
     attrarrays_ += new Array1DImpl<float>( wvltsz_ );
-    BufferString xname, yname = attrnms[attridx];
+    BufferString xname = SI().zIsTime() ? "Frequency (Hz)" : "Wavenumber (/m)"; 
+    BufferString yname = "Amplitude";
     fdsu.ywidth_ = 2;
-    if ( attridx == 1 )
+
+    if ( attridx == 0 )
+	xname = SI().zIsTime() ? "Time (s)" : "Depth (m)";
+    else if ( attridx == 1 )
     {
-	xname += attrnms[0];
 	fdsu.fillbelow( true );
 	attrarrays_[attridx]->setSize( mPadSz );
-	BufferString tmp; mSWAP( xname, yname, tmp );
     }
-    else if ( attridx == 0 )
-    {
-	xname += "Time (s)";
-    }
-    else
-	xname += "Frequency";
+    else if ( attridx == 2 )
+	yname =  "Phase (degrees)";
 
     attrdisps_ += new uiFunctionDisplay( this, fdsu );
     if ( attridx )
