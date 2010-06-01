@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.25 2010-05-31 14:14:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.26 2010-06-01 13:31:45 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -50,6 +50,7 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* toolbar,uiFlatViewer* vwr)
     , dataholder_(0)
     , manip_(true)
     , selhordlg_(0)		  
+    , curview_(uiRect(0,0,0,0))				  
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
@@ -98,8 +99,8 @@ bool uiControlView::handleUserClick()
 	const uiWorldRect& bbox = vwr_.boundingBox();
 	if ( dataholder_ ) 
 	{ 
-	    dataholder_->pickmgr()->addPick(bbox.left(),bbox.right(),
-					    wp.x,	    wp.y);
+	    bool synth = ( wp.x < (bbox.right()-bbox.left())/2 );
+	    dataholder_->pickmgr()->addPick( wp.y, synth );
 	    dataholder_->redrawViewerNeeded.trigger();
 	}
 	return true;
@@ -169,7 +170,7 @@ void uiControlView::keyPressCB( CallBacker* )
 void uiControlView::setSelView( bool isnewsel, bool viewall )
 {
     const uiRect viewarea = isnewsel ? 
-	*vwr_.rgbCanvas().getSelectedArea() : getViewRect( &vwr_ );
+	*vwr_.rgbCanvas().getSelectedArea() : curview_;
     if ( viewarea.topLeft() == viewarea.bottomRight() || 
 	    viewarea.width() < 10 || viewarea.height() < 10 )
 	return;
@@ -189,6 +190,7 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
 
     dataholder_->redrawViewerNeeded.trigger();
     setNewView( centre, newsz );
+    curview_ = viewarea;
 }
 
 

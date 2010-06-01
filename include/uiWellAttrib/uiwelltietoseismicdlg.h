@@ -71,6 +71,7 @@ protected:
     uiPushButton*		undobut_;
     uiPushButton*		clearpicksbut_;
     uiPushButton*		clearlastpicksbut_;
+    uiPushButton*		matchhormrksbut_;
     uiToolBar*          	toolbar_;
     ObjectSet<uiWellLogDisplay> logsdisp_;
 
@@ -101,22 +102,22 @@ protected:
     void 			csCorrChanged(CallBacker*);
     void			clearLastPick(CallBacker*);
     void			clearPicks(CallBacker*);
-    void 			timeChanged(CallBacker*);
     void 			dispParPushed(CallBacker*);
     void 			dispPropChg(CallBacker*);
     void 			displayUserMsg(CallBacker*);
     bool 			doWork(CallBacker*);
     void			drawUserPick(CallBacker*);
     void 			editD2TPushed(CallBacker*);
+    void			eventTypeChg(CallBacker*);
     void 			infoPushed(CallBacker*);
+    bool 			matchHorMrks(CallBacker*);
     void 			provideWinHelp(CallBacker*);
     bool			rejectOK(CallBacker*);
     void 			setView(CallBacker*);
     bool 			saveDataPushed(CallBacker*);
-    void			eventTypeChg(CallBacker*);
+    void 			timeChanged(CallBacker*);
     bool 			undoPushed(CallBacker*);
     void			userDepthsChanged(CallBacker*);
-
 };
 
 

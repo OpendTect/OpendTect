@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.29 2010-05-31 14:14:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.30 2010-06-01 13:31:45 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -33,25 +33,24 @@ void PickSetMGR::setEventType( int seltype )
 }
 
 
-void PickSetMGR::addPick( float vwrszstart, float vwrszstop, 
-				 float xpos, float zpos )
+void PickSetMGR::addPick( float zpos, bool issynth )
 {
     const int seissz = seispickset_.getSize();
     const int synthsz = synthpickset_.getSize();
     if ( abs(seissz-synthsz)<2 )
     {
-	if ( xpos<(vwrszstop-vwrszstart)/2 )
+	if ( issynth )
 	{
 	    if ( abs(synthsz+1-seissz) > 1 || lastpicksynth_ == true )
 		synthpickset_.clear( synthpickset_.getSize()-1 );
-	    synthpickset_.add( 0, xpos, findEvent(zpos,true) );
+	    synthpickset_.add( true, findEvent(zpos,true) );
 	    lastpicksynth_ = true;
 	}
 	else
 	{
 	    if ( abs(seissz+1-synthsz) > 1 || lastpicksynth_ == false )
 		seispickset_.clear( seispickset_.getSize()-1 );
-	    seispickset_.add( 0, xpos, findEvent(zpos,false) );
+	    seispickset_.add( false, findEvent(zpos,false) );
 	    lastpicksynth_ = false;
 	}
     }
@@ -157,11 +156,12 @@ PickSet::~PickSet()
 }
 
 
-void PickSet::add( int vwridx, float xpos, float zpos )
+void PickSet::add( bool issynth, float zpos )
 {
     UserPick* pick = new UserPick();
-    pick->vidx_ = vwridx; pick->color_ = Color::DgbColor();
-    pick->xpos_ = xpos;   pick->zpos_ = zpos;
+    pick->color_ = Color::DgbColor();
+    pick->issynthetic_ = issynth;
+    pick->zpos_ = zpos;
     pickset_ += pick;
     nrpickstotal_++;
 }

@@ -33,7 +33,7 @@ mClass UserPick
 			{}
 
     Color           	color_;
-    int            	vidx_;
+    bool		issynthetic_;
     float           	zpos_;
     float           	xpos_;
 };
@@ -57,7 +57,7 @@ public:
 
 
     void                add(UserPick* pick) { pickset_ += pick; };
-    void                add(int,float,float);
+    void                add(bool,float);
     void 		clear(int idx);
     void 		clearAll();
     const float         getMousePos() const    { return mousepos_; }
@@ -113,7 +113,7 @@ public:
     bool		lastpicksynth_;
     VSEvent::Type	evtype_;
 
-    void           	addPick(float,float,float,float);
+    void           	addPick(float,bool);
     void           	clearAllPicks();
     void 	   	clearLastPicks();
     bool 	   	isPick();

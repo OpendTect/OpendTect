@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.71 2010-05-31 14:14:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.72 2010-06-01 13:31:45 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -123,7 +123,6 @@ bool uiTieWin::initAll()
     return true;
 }
 
-
 void uiTieWin::displayUserMsg( CallBacker* )
 {
     BufferString msg = "To correlate synthetic to seismic, "; 
@@ -162,7 +161,6 @@ bool uiTieWin::doWork( CallBacker* cb )
 void uiTieWin::drawData()
 {
     datadrawer_->fullRedraw();
-    controlview_->setSelView( false, false );
     infodlg_->drawData();
 }
 
@@ -260,11 +258,15 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 	   mCB(this,uiTieWin,clearLastPick), true );
     clearlastpicksbut_->setSensitive( false );
     clearlastpicksbut_->attach( rightOf, clearpicksbut_ );
-    
+
     infobut_ = new uiPushButton( taskgrp, "Display additional information",
 	               mCB(this,uiTieWin,infoPushed), false );
     infobut_->attach( ensureBelow, applybut_ );
     infobut_->attach( hCentered );
+    
+    matchhormrksbut_ = new uiPushButton( taskgrp,"Match markers and horizons",
+	               mCB(this,uiTieWin,matchHorMrks), true );
+    matchhormrksbut_->attach( leftOf, infobut_ );
 }
 
 
@@ -437,6 +439,29 @@ bool uiTieWin::undoPushed( CallBacker* cb )
     applybut_->setSensitive( false );
     
     return true;	    
+}
+
+
+bool uiTieWin::matchHorMrks( CallBacker* )
+{
+    Well::Data* wd = dataholder_.wd();
+    if ( !wd ) 
+	mErrRet( "No Well data found" )
+    if ( !wd->markers().size() )
+	mErrRet( "No Well marker found" )
+    BufferString msg("No horizon loaded, do you want to load some ?");
+    if ( !dataholder_.horDatas().size() )
+    {
+	if ( uiMSG().askGoOn( msg ) )
+	    controlview_->loadHorizons(0);
+	else 
+	    return false;
+    }
+    dataholder_.pickmgr()->clearAllPicks();
+    if ( !dataholder_.matchHorWithMarkers( msg ) )
+	mErrRet( msg ); 
+    datadrawer_->drawUserPicks();
+    return true;
 }
 
 

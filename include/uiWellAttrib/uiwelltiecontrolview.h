@@ -18,6 +18,7 @@ class uiFlatViewer;
 class uiButton;
 class uiToolBar;
 class uiIOObjSelDlg;
+class uiRect;
 
 namespace WellTie
 {
@@ -43,6 +44,7 @@ protected:
     uiToolButton*	manipdrawbut_;
     uiToolButton*	horbut_;
     uiIOObjSelDlg*	selhordlg_;
+    uiRect		curview_;
     
     WellTie::DataHolder* dataholder_;
     
@@ -55,6 +57,8 @@ protected:
     void		loadHorizons(CallBacker*);
     void		rubBandCB(CallBacker*);
     void 		wheelMoveCB(CallBacker*);
+
+    friend class	uiTieWin;
 };
 
 /*

@@ -93,7 +93,7 @@ protected:
     void        		drawTraces();
     void			drawUserPicks(const WellTie::PickSet*);
     void        		drawMarker(FlatView::Annotation::AuxData*,
-					    float,float,Color,bool);
+					    bool,float,Color,bool);
     void        		drawViewerWellMarkers();
     void        		drawLogDispWellMarkers();
     void        		drawCShot();

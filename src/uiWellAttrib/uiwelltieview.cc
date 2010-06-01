@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.66 2010-05-31 14:14:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.67 2010-06-01 13:31:45 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -18,9 +18,9 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.66 2010-05-31 14:14:04 cvs
 #include "uilabel.h"
 #include "uirgbarraycanvas.h"
 #include "uiwelllogdisplay.h"
+#include "uiwelltiecontrolview.h"
 #include "uiworld2ui.h"
 
-#include "rowcol.h"
 #include "flatposdata.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
@@ -91,9 +91,12 @@ void uiTieView::fullRedraw()
 
 void uiTieView::redrawViewer( CallBacker* cb )
 {
+    mDynamicCastGet(uiControlView*,ctrl,vwr_->control())
     drawTraces();
     redrawViewerMarkers( cb );
     vwr_->handleChange( FlatView::Viewer::All );    
+    if ( ctrl ) 
+	ctrl->setSelView( false, false );
 }
 
 
@@ -172,7 +175,6 @@ void uiTieView::drawVelLog()
     wldld1.xrev_ = !wtsetup_.issonic_;
     wldld1.wld_.color_ = Color::stdDrawColor(0);
     wldld1.wld_.islogfill_ =false;
-    logsdisp_[0]->doDataChange();
 }
 
 
@@ -183,7 +185,6 @@ void uiTieView::drawDenLog()
     wldld2.isyaxisleft_ = false;
     wldld2.wld_.color_ = Color::stdDrawColor(1);
     wldld2.wld_.islogfill_ =false;
-    logsdisp_[0]->doDataChange();
 }
 
 
@@ -193,7 +194,6 @@ void uiTieView::drawAILog()
     wldld1.wl_ = dataholder_.logset()->getLog( params_->ainm_ );
     wldld1.wld_.color_ = Color::stdDrawColor(0);
     wldld1.wld_.islogfill_ =false;
-    logsdisp_[1]->doDataChange();
 }
 
 
@@ -204,7 +204,6 @@ void uiTieView::drawRefLog()
     wldld2.isyaxisleft_ = false;
     wldld2.wld_.color_ = Color::stdDrawColor(1);
     wldld2.wld_.islogfill_ =false;
-    logsdisp_[1]->doDataChange();
 }
 
 
@@ -336,7 +335,7 @@ void uiTieView::zoomChg( CallBacker* )
 
 
 void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
-			    float xpos, float zpos, Color col, bool ispick )
+			    bool leftside, float zpos, Color col, bool ispick )
 {
     auxdata->linestyle_.color_ = col;
     auxdata->linestyle_.width_ = ispick ? 2 : 1;
@@ -346,16 +345,15 @@ void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
     const float xright = vwr_->boundingBox().right();
     bool isleft = true;
 
-    if ( xpos && xpos < ( xright-xleft )/2 )
+    if ( leftside )
     {
 	auxdata->poly_ += FlatView::Point( (xright-xleft)/2, zpos );
 	auxdata->poly_ += FlatView::Point( xleft, zpos );
     }
-    else if ( xpos && xpos>( xright-xleft )/2 )
+    else
     {
 	auxdata->poly_ += FlatView::Point( xright, zpos );
 	auxdata->poly_ += FlatView::Point( (xright-xleft)/2, zpos );
-	isleft = false;
     }
 
     if ( !ispick )
@@ -366,9 +364,9 @@ void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
 	uiTextItem* ti = vwr_->rgbCanvas().scene().addItem(
 			     new uiTextItem(mtxt,mAlignment(Right,VCenter)) );
 	uiWorld2Ui w2u; vwr_->getWorld2Ui(w2u);
-	ti->setPos( w2u.transform( uiWorldPoint( isleft ? 1 : trcbuf_->size()-1, zpos) ) );
+	ti->setPos( w2u.transform( uiWorldPoint( leftside ? 1 : trcbuf_->size()-1, zpos) ) );
 	ti->setTextColor( col );
-	if ( isleft )
+	if ( leftside )
 	    mrktxtnms_ += ti;
 	else
 	    hortxtnms_ += ti;
@@ -382,10 +380,7 @@ void uiTieView::drawLogDispWellMarkers()
     if ( !wd ) return;
     bool ismarkerdisp = dataholder_.uipms()->ismarkerdisp_;
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
-    {
 	logsdisp_[idx]->data().markers_ = ismarkerdisp ? &wd->markers() : 0;
-	logsdisp_[idx]->doDataChange();
-    }
 }
 
 
@@ -426,7 +421,7 @@ void uiTieView::drawViewerWellMarkers()
 	wellmarkerauxdatas_ += auxdata;
 	app.annot_.auxdata_ +=  auxdata;
 	
-	drawMarker( auxdata, 1, zpos*1000, col, false );
+	drawMarker( auxdata, true, zpos*1000, col, false );
     }
 }	
 
@@ -462,7 +457,8 @@ void uiTieView::drawUserPicks( const WellTie::PickSet* pickset )
 	float zpos = pick->zpos_*1000; 
 	float xpos = pick->xpos_;
 	
-	drawMarker( userpickauxdatas_[idx], xpos, zpos, pick->color_, true );
+	drawMarker( userpickauxdatas_[idx], pick->issynthetic_, 
+		    zpos, pick->color_, true );
     }
 }
 
@@ -481,7 +477,7 @@ void uiTieView::drawHorizons()
 	app.annot_.auxdata_ += auxdata;
 	float zval = hordatas[idx]->zval_;
 	auxdata->name_ = hordatas[idx]->name_;
-	drawMarker( auxdata, 10, zval, hordatas[idx]->color_, false );
+	drawMarker( auxdata, false, zval, hordatas[idx]->color_, false );
     }
 }
 

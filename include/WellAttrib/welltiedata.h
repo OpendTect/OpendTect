@@ -97,6 +97,7 @@ public:
 	BufferString		name_;	
     };
     const ObjectSet<HorData>	horDatas() const { return hordatas_; }
+    bool			matchHorWithMarkers(BufferString&);
     bool			setUpHorizons(const TypeSet<MultiID>&,
 						BufferString&,TaskRunner&);
 

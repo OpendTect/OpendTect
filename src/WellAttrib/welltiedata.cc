@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.31 2010-05-31 14:14:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.32 2010-06-01 13:31:45 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -26,10 +26,12 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.31 2010-05-31 14:14:04 cvsbr
 #include "emsurfacetr.h"
 
 #include "welldata.h"
+#include "welld2tmodel.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
+#include "wellmarker.h"
 #include "wellwriter.h"
 
 #include "welltiecshot.h"
@@ -215,6 +217,42 @@ bool DataHolder::setUpHorizons( const TypeSet<MultiID>& horids,
     return true;
 }
 
+
+bool DataHolder::matchHorWithMarkers( BufferString& errmsg ) 
+{
+    if ( !hordatas_.size() || !wd()->markers().size() )
+    { errmsg = "No horizon or no marker found "; return false; }
+    Well::D2TModel* dtm = wd()->d2TModel();
+    if ( !dtm || dtm->size()<= 0 )
+    { errmsg = "No valid depth/time model found "; return false; }
+
+    bool success = false;
+    for ( int idmrk=0; idmrk<wd()->markers().size(); idmrk++ )
+    {
+	const Well::Marker& mrk = *wd()->markers()[idmrk];
+	for ( int idhor=0; idhor<hordatas_.size(); idhor++ )
+	{
+	    HorData& hd = *hordatas_[idhor];
+	    BufferString mrknm( mrk.name() );
+	    BufferString hdnm( hd.name_ );
+	    if ( mrknm.size() > 3  )
+		mrknm[3] = '\0';
+	    if ( hdnm.size() > 3  )
+		hdnm[3] = '\0';
+	    if ( !strcmp( mrknm, hdnm ) )
+	    {
+		float zmrkpos = dtm->getTime(mrk.dah())*1000;
+		float zhorpos = hd.zval_;
+		pickmgr_->addPick( zmrkpos, true );
+		pickmgr_->addPick( zhorpos, false );
+		success =true;
+	    }
+	}
+    }
+    if ( !success )
+    { errmsg = "No name matching between horizon and markers "; return false; }
+    return true;
+}
 
 
 DataWriter::DataWriter( const WellTie::DataHolder& dh )
