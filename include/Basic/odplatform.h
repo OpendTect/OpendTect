@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2010
- RCS:           $Id: odplatform.h,v 1.2 2010-05-21 15:07:20 cvsbert Exp $
+ RCS:           $Id: odplatform.h,v 1.3 2010-06-01 14:41:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,14 @@ public:
     			Platform();		//!< This platform
     			Platform( Type t )	//!< That platform
 			    : type_(t)		{}
+			Platform( const char* s, bool isshortnm )
+						{ set(s,isshortnm); }
+			Platform( bool iswin, bool is32, bool ismac=false )
+			    			{ set(iswin,is32,ismac); }
+    bool        operator ==( const Platform& p ) const
+			{ return type_ == p.type_; }
+    bool        operator ==( const Platform::Type& t ) const
+			{ return type_ == t; }
 
     const char*		longName() const
     			{ return eString(Type,type_); }
@@ -56,6 +64,10 @@ public:
 };
 
 } // namespace
+
+
+#define mPlf(ptyp) OD::Platform(OD::Platform::ptyp)
+#define mPlfShortName(ptyp) mPlf(ptyp).shortName()
 
 
 #endif
