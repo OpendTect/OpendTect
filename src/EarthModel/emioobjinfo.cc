@@ -4,7 +4,7 @@
  * DATE     : April 2010
 -*/
 
-static const char* rcsID = "$Id: emioobjinfo.cc,v 1.2 2010-04-27 08:25:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: emioobjinfo.cc,v 1.3 2010-06-01 06:55:52 cvsjaap Exp $";
 
 #include "emioobjinfo.h"
 #include "emsurfaceio.h"
@@ -107,7 +107,7 @@ void IOObjInfo::setType()
 
 
 #define mGetReader \
-if ( !reader_ ) \
+if ( !reader_ && ioobj_ ) \
     reader_ = new dgbSurfaceReader( *ioobj_, ioobj_->group() );
 
 bool IOObjInfo::getSectionIDs( TypeSet<SectionID>& secids ) const
