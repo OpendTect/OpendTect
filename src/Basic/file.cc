@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.17 2010-05-31 12:29:16 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.18 2010-06-01 07:04:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,7 +108,7 @@ bool saveCopy( const char* from, const char* to )
 bool copy( const char* from, const char* to )
 {
 #ifdef __win__
-    if ( getKbSize(from) > 1024 )
+    if ( isDirectory(from) || getKbSize(from) > 1024 )
 	return winCopy( from, to, isFile(from) );
 #endif
 
