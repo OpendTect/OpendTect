@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.53 2010-05-20 07:17:31 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.54 2010-06-01 11:41:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,7 +159,8 @@ protected:
 
     void		showLogFile();
     void		mkViewIconsMnu();
-    void		addIconMnuItems(const DirList&,uiPopupMenu*,int&);
+    void		addIconMnuItems(const DirList&,uiPopupMenu*,
+	    				BufferStringSet&);
 };
 
 

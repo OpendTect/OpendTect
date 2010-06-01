@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.210 2010-05-12 04:30:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.211 2010-06-01 11:41:14 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -564,34 +564,36 @@ void uiODMenuMgr::fillViewMenu()
 
 
 void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiPopupMenu* iconsmnu,
-				   int& nradded )
+				   BufferStringSet& nms )
 {
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString nm( dl.get( idx ).buf() + 6 );
-	if ( nm.isEmpty() || nm == "Default" || nm == "cur" )
+	if ( nm.isEmpty() || nms.isPresent(nm) )
 	    continue;
 
-	nradded++;
 	BufferString mnunm( "&" ); mnunm += nm;
-	mInsertItem( iconsmnu, mnunm, mViewIconsMnuItm+nradded );
+	mInsertItem( iconsmnu, mnunm, mViewIconsMnuItm+nms.size() );
+	nms.add( nm );
     }
 }
 
 
 void uiODMenuMgr::mkViewIconsMnu()
 {
+    DirList dlsett( GetSettingsDir(), DirList::DirsOnly, "icons.*" );
     DirList dlsite( mGetApplSetupDataDir(), DirList::DirsOnly, "icons.*" );
     DirList dlrel( mGetSWDirDataDir(), DirList::DirsOnly, "icons.*" );
-    if ( dlsite.size() + dlrel.size() < 2 )
+    if ( dlsett.size() + dlsite.size() + dlrel.size() < 2 )
 	return;
 
     uiPopupMenu* iconsmnu = new uiPopupMenu( &appl_, "&Icons" );
     viewmnu_->insertItem( iconsmnu );
     mInsertItem( iconsmnu, "&Default", mViewIconsMnuItm+0 );
-    int nradded = 0;
-    addIconMnuItems( dlsite, iconsmnu, nradded );
-    addIconMnuItems( dlrel, iconsmnu, nradded );
+    BufferStringSet nms; nms.add( "Default" );
+    addIconMnuItems( dlsett, iconsmnu, nms );
+    addIconMnuItems( dlsite, iconsmnu, nms );
+    addIconMnuItems( dlrel, iconsmnu, nms );
 }
 
 
@@ -1043,18 +1045,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
 	if ( id >= mViewIconsMnuItm && id < mViewIconsMnuItm+100 )
 	{
-	    BufferString dirnm( "icons." );
-	    dirnm += itm->name().buf() + 1; // Skip the leading '&'
-	    const BufferString sourcedir( mGetSetupFileName(dirnm) );
-	    if ( !File::isDirectory(sourcedir) )
-	    {
-		uiMSG().error( "Icon directory seems to be invalid" );
-		break;
-	    }
-
-	    const BufferString targetdir( GetSettingsFileName("icons") );
-	    File::remove( targetdir );
-	    File::copy( sourcedir, targetdir );
+	    Settings::common().set( "Icon set name", itm->name().buf() + 1 );
 	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )
 		uiToolBar::toolBars()[idx]->reLoadPixMaps();
 	}

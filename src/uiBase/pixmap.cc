@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.41 2010-05-25 03:45:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.42 2010-06-01 11:41:14 cvsbert Exp $";
 
 #include "pixmap.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: pixmap.cc,v 1.41 2010-05-25 03:45:52 cvsnanne E
 #include "filepath.h"
 #include "oddirs.h"
 #include "separstr.h"
+#include "settings.h"
 #include "uirgbarray.h"
 
 #include <QPixmap>
@@ -84,17 +85,18 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     FilePath fp( fname );
     if ( !fp.isAbsolute() )
     {
-	fp.setPath( GetSettingsFileName("icons") );
+	BufferString icsetnm;
+	Settings::common().get( "Icon set name", icsetnm );
+	if ( icsetnm.isEmpty() )
+	    icsetnm = "Default";
+	const BufferString dirnm( "icons.", icsetnm );
+
+	fp.setPath( GetSettingsFileName(dirnm) );
 	fname = fp.fullPath();
 	if ( !File::exists(fname) )
 	{
-	    fp.setPath( mGetSetupFileName("icons.cur") );
+	    fp.setPath( mGetSetupFileName(dirnm) );
 	    fname = fp.fullPath();
-	    if ( !File::exists(fname) )
-	    {
-		fp.setPath( mGetSetupFileName("icons.Default") );
-		fname = fp.fullPath();
-	    }
 	}
     }
 
