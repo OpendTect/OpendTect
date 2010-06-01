@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.63 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.64 2010-06-01 09:25:39 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -49,10 +49,18 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     }
     else
     {
-	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, su.seltxt_,
-							mComboName );
-	inp_ = lcb->box(); lbl_ = lcb->label(); alobj = lcb->attachObj();
-	lbl_->setAlignment( Alignment::Right );
+	if ( su.seltxt_.isEmpty() )
+	{
+	    inp_ = new uiComboBox( this, mComboName );
+	    alobj = inp_;
+	}
+	else
+	{
+	    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, su.seltxt_,
+							    mComboName );
+	    inp_ = lcb->box(); lbl_ = lcb->label(); alobj = lcb->attachObj();
+	    lbl_->setAlignment( Alignment::Right );
+	}
     }
     inp_->setReadOnly( false );
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
@@ -363,7 +371,7 @@ void uiIOSelect::setReadOnly( bool yn )
 
 const char* uiIOSelect::labelText() const
 {
-    return lbl_ ? lbl_->text() : optbox_->text();
+    return lbl_ ? lbl_->text() : (optbox_ ? optbox_->text() : "");
 }
 
 
@@ -374,7 +382,7 @@ void uiIOSelect::setLabelText( const char* s )
 	lbl_->setPrefWidthInChar( strlen(s)+1 );
 	return lbl_->setText( s );
     }
-    else
+    else if ( optbox_ )
 	optbox_->setText( s );
 }
 
