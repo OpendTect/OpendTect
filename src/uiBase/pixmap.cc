@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.43 2010-06-01 11:44:17 cvsbert Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.44 2010-06-02 11:54:06 cvsbert Exp $";
 
 #include "pixmap.h"
 
@@ -71,8 +71,6 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     : qpixmap_(0)
     , srcname_(fnm)
 {
-    if ( srcname_.isEmpty() )
-	{ qpixmap_ = new QPixmap; return; }
 
     if ( fmt )
     {
@@ -82,22 +80,41 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     }
 
     BufferString fname( srcname_ );
-    FilePath fp( fname );
-    if ( !fp.isAbsolute() )
+    if ( !fname.isEmpty() )
     {
-	BufferString icsetnm;
-	Settings::common().get( "Icon set name", icsetnm );
-	if ( icsetnm.isEmpty() )
-	    icsetnm = "Default";
-	const BufferString dirnm( "icons.", icsetnm );
-
-	fp.setPath( GetSettingsFileName(dirnm) );
-	fname = fp.fullPath();
-	if ( !File::exists(fname) )
+	FilePath fp( fname );
+	if ( !fp.isAbsolute() )
 	{
-	    fp.setPath( mGetSetupFileName(dirnm) );
+	    BufferString icsetnm;
+	    Settings::common().get( "Icon set name", icsetnm );
+	    if ( icsetnm.isEmpty() )
+		icsetnm = "Default";
+	    const BufferString dirnm( "icons.", icsetnm );
+
+	    fp.setPath( GetSettingsFileName(dirnm) );
 	    fname = fp.fullPath();
+	    if ( !File::exists(fname) )
+	    {
+		fp.setPath( mGetSetupFileName(dirnm) );
+		fname = fp.fullPath();
+	    }
+
+	    // fallback to Default
+	    if ( !File::exists(fname) )
+	    {
+		fp.setPath( mGetSetupFileName("icons.Default") );
+		fname = fp.fullPath();
+	    }
 	}
+    }
+
+    // final fallback (icon simply missing)
+    if ( !File::exists(fname) )
+    {
+	pErrMsg(BufferString("Icon not found: '",fnm,"'"));
+	FilePath fp( mGetSetupFileName("icons.Default") );
+	fp.add( "iconnotfound.png" );
+	fname = fp.fullPath();
     }
 
     qpixmap_ = new QPixmap( fname.buf(), fmt );
