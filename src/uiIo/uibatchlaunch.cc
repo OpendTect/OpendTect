@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.87 2010-04-16 05:06:20 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.88 2010-06-02 06:12:55 cvsranojay Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -244,7 +244,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
 #endif
 
-    if ( !StreamProvider( comm ).executeCommand(inbg) )
+    if ( !StreamProvider( comm ).executeCommand(inbg,sel == 2) )
     {
 	uiMSG().error( "Cannot start batch program" );
 	return false;
