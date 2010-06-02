@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.30 2010-03-30 11:54:05 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.31 2010-06-02 10:22:09 cvsranojay Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -33,6 +33,7 @@ public:
         , updatecoords_( updatecoords )
     {
 	is.getSurface()->modelslock_.readLock();
+	MarchingCubeLookupTable::get(); // just to have the table ready
     }
 
     ~ExplicitMarchingCubesSurfaceUpdater()
@@ -565,9 +566,9 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 		const int i2 = coordindices[nrindices-3];
 		
 		//Should be locked
-		normallist_->addValue( i0, normal );
-		normallist_->addValue( i1, normal );
-		normallist_->addValue( i2, normal );
+		normallist_->set( i0, normal );
+		normallist_->set( i1, normal );
+		normallist_->set( i2, normal );
 	    }
 	}
     }
