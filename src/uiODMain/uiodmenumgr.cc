@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.211 2010-06-01 11:41:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.212 2010-06-02 13:20:22 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -388,12 +388,15 @@ void uiODMenuMgr::fillProcMenu()
     procmnu_->clear();
 
     uiPopupMenu* voitm = new uiPopupMenu( &appl_, "&Create Seismic Output" );
-    create2D3DMnu( voitm, "&Attribute", mSeisOut2DMnuItm, mSeisOut3DMnuItm );
+    create2D3DMnu( voitm, "&Attribute", mSeisOut2DMnuItm, mSeisOut3DMnuItm,
+	   	   "attributes.png" );
     if ( SI().has3D() )
     {
+	ioPixmap pmvol( "volproc.png"  );
 	voitm->insertItem(
 	    new uiMenuItem("Volume &Builder ...",
-			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
+			mCB(&applMgr(),uiODApplMgr,createVolProcOutput),
+			&pmvol) );
 	voitm->insertItem(
 	    new uiMenuItem("&Time - depth conversion ...",
 			mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
@@ -406,20 +409,22 @@ void uiODMenuMgr::fillProcMenu()
 	voitm->insertItem(
 	    new uiMenuItem("&Pre Stack processing ...",
 			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
+	ioPixmap pmbay( "bayes.png"  );
 	voitm->insertItem(
 	    new uiMenuItem("Bayesian &Classification ...",
-			mCB(&applMgr(),uiODApplMgr,bayesClass3D)) );
+			mCB(&applMgr(),uiODApplMgr,bayesClass3D), &pmbay) );
     }
     create2D3DMnu( voitm, "&Between horizons", mCompBetweenHor2DMnuItm,
-	    	   mCompBetweenHor3DMnuItm );
+	    	   mCompBetweenHor3DMnuItm, "betweenhors.png" );
     create2D3DMnu( voitm, "&Along horizon", mCompAlongHor2DMnuItm,
-	    	   mCompAlongHor3DMnuItm );
+	    	   mCompAlongHor3DMnuItm, "alonghor.png" );
     mInsertItem( voitm, "&Re-Start ...", mReStartMnuItm );
 
     procmnu_->insertItem( voitm );
 
     uiPopupMenu* grditm = new uiPopupMenu( &appl_, "Create Grid Output");
-    create2D3DMnu( grditm, "&Grid", mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
+    create2D3DMnu( grditm, "&Grid", mCreateSurf2DMnuItm, mCreateSurf3DMnuItm,
+	    	   "ongrid.png" );
     procmnu_->insertItem( grditm );
 
 }
