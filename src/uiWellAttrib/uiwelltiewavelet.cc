@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.37 2010-05-21 11:45:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.38 2010-06-03 10:32:55 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -120,7 +120,7 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
     wvltbuts_[1]->setToolTip( "Rotate Phase" );
     wvltbuts_[1]->attach( rightOf, wvltbuts_[0] );
 
-    wvltbuts_ += new uiToolButton( this, "Rotate", "wavelet_taper.png",
+    wvltbuts_ += new uiToolButton( this, "Taper", "wavelet_taper.png",
 	    mCB(this,uiWavelet,taper) );
     wvltbuts_[2]->setToolTip( "Taper Wavelet" );
     wvltbuts_[2]->attach( rightOf, wvltbuts_[1] );
