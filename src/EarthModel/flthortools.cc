@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.21 2010-03-31 07:14:39 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.22 2010-06-03 09:38:14 nanne Exp $";
 
 #include "flthortools.h"
 
@@ -310,7 +310,6 @@ bool FaultTraceExtractor::get2DFaultTrace()
     const int nrknots = fss->geometry().nrKnots( fltsid, sticknr_ );
     const Geometry::FaultStickSet* fltgeom =
 	fss->geometry().sectionGeometry( fltsid );
-
     if ( !fltgeom || nrknots < 2 )
 	return false;
 
@@ -333,7 +332,8 @@ bool FaultTraceExtractor::get2DFaultTrace()
     flttrc_->ref();
     flttrc_->setIsInl( true );
     flttrc_->setLineNr( 0 );
-    for ( int idx=0; idx<nrknots; idx++ )
+    StepInterval<int> colrg = fltgeom->colRange( sticknr_ );
+    for ( int idx=colrg.start; idx<=colrg.stop; idx+=colrg.step )
     {
 	const Coord3 knot = fltgeom->getKnot( RowCol(sticknr_,idx) );
 	PosInfo::Line2DPos pos;
