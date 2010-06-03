@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.26 2010-06-01 13:31:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.27 2010-06-03 10:34:14 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -50,7 +50,7 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* toolbar,uiFlatViewer* vwr)
     , dataholder_(0)
     , manip_(true)
     , selhordlg_(0)		  
-    , curview_(uiRect(0,0,0,0))				  
+    , curview_(uiWorldRect(0,0,0,0))				  
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
@@ -137,6 +137,7 @@ void uiControlView::altZoomCB( CallBacker* but )
     Geom::Size2D<double> size = wr.size();
     dataholder_->redrawViewerNeeded.trigger();
     setNewView( centre, size );
+    curview_ = wr;
 }
 
 
@@ -169,15 +170,16 @@ void uiControlView::keyPressCB( CallBacker* )
 
 void uiControlView::setSelView( bool isnewsel, bool viewall )
 {
-    const uiRect viewarea = isnewsel ? 
-	*vwr_.rgbCanvas().getSelectedArea() : curview_;
-    if ( viewarea.topLeft() == viewarea.bottomRight() || 
-	    viewarea.width() < 10 || viewarea.height() < 10 )
+    uiWorldRect wr = (curview_.height() > 0)  ? curview_ : vwr_.boundingBox();
+    if ( isnewsel )
+    {
+	const uiRect viewarea = *vwr_.rgbCanvas().getSelectedArea();
+	if ( viewarea.topLeft() == viewarea.bottomRight() || 
+		viewarea.width() < 10 || viewarea.height() < 10 )
 	return;
-
-    uiWorld2Ui w2u; vwr_.getWorld2Ui( w2u );
-    uiWorldRect wr = w2u.transform( viewarea );
-
+	uiWorld2Ui w2u; vwr_.getWorld2Ui( w2u );
+	wr = w2u.transform( viewarea );
+    }
     const uiWorldRect bbox = vwr_.boundingBox();
     Interval<double> zrg( wr.top() , wr.bottom() );
     if ( viewall )
@@ -189,8 +191,8 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
     Geom::Size2D<double> newsz = wr.size();
 
     dataholder_->redrawViewerNeeded.trigger();
+    curview_ = wr;
     setNewView( centre, newsz );
-    curview_ = viewarea;
 }
 
 
@@ -246,7 +248,6 @@ uiTieClipingDlg::uiTieClipingDlg( uiParent* p, SeisTrcBuffer& trcbuf )
 					.withedit(true)
 					.isvertical(false), "Clipping slider" );
     sliderfld_->sldr()->setInterval( Interval<float>(0,100) );
-    timerangefld_ = new uiGenInput( this, "Time range",
 				    FloatInpIntervalSpec()
 				    .setName(BufferString(" range start"),0)
 				    .setName(BufferString(" range stop"),1) ); 

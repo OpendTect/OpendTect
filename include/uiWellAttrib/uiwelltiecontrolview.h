@@ -44,7 +44,7 @@ protected:
     uiToolButton*	manipdrawbut_;
     uiToolButton*	horbut_;
     uiIOObjSelDlg*	selhordlg_;
-    uiRect		curview_;
+    uiWorldRect		curview_;
     
     WellTie::DataHolder* dataholder_;
     
