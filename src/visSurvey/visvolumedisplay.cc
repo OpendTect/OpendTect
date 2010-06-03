@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.119 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.120 2010-06-03 09:36:31 cvsranojay Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -970,9 +970,12 @@ SoNode* VolumeDisplay::getInventorNode()
 	    addSlice( cCrossLine() );
 	    addSlice( cTimeSlice() );
 	}
-
-	showVolRen( true );
-	showVolRen( false );
+    
+	if ( !volren_ )
+	{
+	    showVolRen( true );
+	    showVolRen( false );
+	}
     }
 
     return VisualObjectImpl::getInventorNode();
