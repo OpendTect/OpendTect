@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2010
- RCS:           $Id: odplatform.h,v 1.3 2010-06-01 14:41:59 cvsbert Exp $
+ RCS:           $Id: odplatform.h,v 1.4 2010-06-03 08:20:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ mClass Platform
 {
 public:
 
+    virtual		~Platform()		{};
+
     static const Platform&	local();	//!< This platform
 
     enum Type		{ Lin32, Lin64, Win32, Win64, Mac };
@@ -33,31 +35,37 @@ public:
 						{ set(s,isshortnm); }
 			Platform( bool iswin, bool is32, bool ismac=false )
 			    			{ set(iswin,is32,ismac); }
-    bool        operator ==( const Platform& p ) const
+    			Platform( const Platform& p )
+			    : type_(p.type_)	{}
+    virtual bool        operator ==( const Platform& p ) const
 			{ return type_ == p.type_; }
-    bool        operator ==( const Platform::Type& t ) const
+    virtual bool        operator ==( const Platform::Type& t ) const
 			{ return type_ == t; }
 
-    const char*		longName() const
+    virtual const char*	longName() const
     			{ return eString(Type,type_); }
-    const char*		shortName() const;	//!< mac, lux32, win64, etc.
+    virtual const char*	shortName() const;	//!< mac, lux32, win64, etc.
 
     static bool		isValidName(const char*,bool isshortnm);
-    void		set(const char*,bool isshortnm);
-    inline void		set( bool iswin, bool is32, bool ismac=false )
+    virtual void	set(const char*,bool isshortnm);
+    inline virtual void	set( bool iswin, bool is32, bool ismac=false )
     			{ type_ = ismac ? Mac : (iswin ? (is32 ? Win32 : Win64)
 				       : (is32 ? Lin32 : Lin64) ); }
 
-    inline bool		isWindows() const
+    inline virtual bool	isWindows() const
 			{ return type_ == Win32 || type_ == Win64; }
-    inline bool		isLinux() const
+    inline virtual bool	isLinux() const
 			{ return type_ == Lin32 || type_ == Lin64; }
-    inline bool		isMac() const
+    inline virtual bool	isMac() const
 			{ return type_ == Mac; }
 
-    inline bool		is32Bits() const
+    inline virtual bool	is32Bits() const
 			{ return type_ != Win64 && type_ != Lin64; }
 
+    virtual Type	type() const		{ return type_; }
+    virtual void	setType( Type t )	{ type_ = t; }
+
+protected:
 
     Type		type_;
 
