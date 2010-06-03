@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.67 2010-06-01 13:31:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.68 2010-06-03 13:17:33 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -190,7 +190,7 @@ void uiTieView::drawDenLog()
 
 void uiTieView::drawAILog()
 {
-    uiWellLogDisplay::LogData& wldld1 = logsdisp_[1]->logData(0);
+    uiWellLogDisplay::LogData& wldld1 = logsdisp_[1]->logData(true);
     wldld1.wl_ = dataholder_.logset()->getLog( params_->ainm_ );
     wldld1.wld_.color_ = Color::stdDrawColor(0);
     wldld1.wld_.islogfill_ =false;
@@ -199,7 +199,7 @@ void uiTieView::drawAILog()
 
 void uiTieView::drawRefLog()
 {
-    uiWellLogDisplay::LogData& wldld2 = logsdisp_[1]->logData(1);
+    uiWellLogDisplay::LogData& wldld2 = logsdisp_[1]->logData(false);
     wldld2.wl_ = dataholder_.logset()->getLog( params_->refnm_ );
     wldld2.isyaxisleft_ = false;
     wldld2.wld_.color_ = Color::stdDrawColor(1);
@@ -502,7 +502,7 @@ void uiTieView::drawCShot()
     geocalc.checkShot2Log( cs, wtsetup_.issonic_, cstolog );
     
     TypeSet<uiPoint> pts;
-    uiWellLogDisplay::LogData& ld = logsdisp_[0]->logData(0);
+    uiWellLogDisplay::LogData& ld = logsdisp_[0]->logData(true);
     Interval<float> zrg = ld.zrg_;
 
     const bool dispintime = dataholder_.uipms()->iszintime_;
