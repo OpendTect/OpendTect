@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2010
- RCS:           $Id: odplatform.h,v 1.4 2010-06-03 08:20:26 cvsbert Exp $
+ RCS:           $Id: odplatform.h,v 1.5 2010-06-03 08:22:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,14 +36,14 @@ public:
 			Platform( bool iswin, bool is32, bool ismac=false )
 			    			{ set(iswin,is32,ismac); }
     			Platform( const Platform& p )
-			    : type_(p.type_)	{}
+			    : type_(p.type())	{}
     virtual bool        operator ==( const Platform& p ) const
-			{ return type_ == p.type_; }
+			{ return type() == p.type(); }
     virtual bool        operator ==( const Platform::Type& t ) const
-			{ return type_ == t; }
+			{ return type() == t; }
 
     virtual const char*	longName() const
-    			{ return eString(Type,type_); }
+    			{ return eString(Type,type()); }
     virtual const char*	shortName() const;	//!< mac, lux32, win64, etc.
 
     static bool		isValidName(const char*,bool isshortnm);
@@ -53,14 +53,14 @@ public:
 				       : (is32 ? Lin32 : Lin64) ); }
 
     inline virtual bool	isWindows() const
-			{ return type_ == Win32 || type_ == Win64; }
+			{ return type() == Win32 || type() == Win64; }
     inline virtual bool	isLinux() const
-			{ return type_ == Lin32 || type_ == Lin64; }
+			{ return type() == Lin32 || type() == Lin64; }
     inline virtual bool	isMac() const
-			{ return type_ == Mac; }
+			{ return type() == Mac; }
 
     inline virtual bool	is32Bits() const
-			{ return type_ != Win64 && type_ != Lin64; }
+			{ return type() != Win64 && type() != Lin64; }
 
     virtual Type	type() const		{ return type_; }
     virtual void	setType( Type t )	{ type_ = t; }
