@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.24 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.25 2010-06-03 12:56:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,11 +42,13 @@ public:
 			FileInfo()
 			    : zrg(mUdf(float),mUdf(float))
 			    , depthcolnr(-1)
+			    , revz(false)
 			    , undefval(-999.25)	{}
 			~FileInfo()		{ deepErase(lognms); }
 
 	BufferStringSet	lognms;
 	Interval<float>	zrg;
+	bool		revz;
 	int		depthcolnr;
 	float		undefval;
 	BufferString	zunitstr;

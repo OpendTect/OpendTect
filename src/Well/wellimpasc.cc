@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.68 2010-05-19 11:42:56 cvsraman Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.69 2010-06-03 12:56:24 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -191,6 +191,7 @@ const char* Well::LASImporter::getLogInfo( std::istream& strm,
     if ( lfi.depthcolnr < 0 )
 	mErrRet( "Could not find a depth column ('DEPT' or 'DEPTH')" )
 
+    lfi.revz = lfi.zrg.start > lfi.zrg.stop;
     lfi.zrg.sort();
     const UnitOfMeasure* unmeas = convs_[lfi.depthcolnr];
     if ( unmeas )
@@ -330,13 +331,12 @@ const char* Well::LASImporter::getLogData( std::istream& strm,
 	if ( convs_[lfi.depthcolnr] )
 	    dpth = convs_[lfi.depthcolnr]->internalValue( dpth );
 
-	if ( (havestart && dpth < reqzrg.start - mDefEps)
-	  || mIsEqual(prevdpth,dpth,mDefEps) 
-	  || (!mIsUdf(prevdpth) && prevdpth > dpth) )
-	    continue;
-	else if ( havestop && dpth > reqzrg.stop + mDefEps )
+	const bool afterstop = havestop && dpth > reqzrg.stop + mDefEps;
+	const bool beforestart = havestart && dpth < reqzrg.start - mDefEps;
+	if ( (lfi.revz && beforestart) || (!lfi.revz && afterstop) )
 	    break;
-
+	if ( beforestart || afterstop || mIsEqual(prevdpth,dpth,mDefEps) )
+	    continue;
 
 	TypeSet<float> selvals;
 	for ( int icol=0; icol<totalcols; icol++ )
