@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.27 2009-12-02 20:44:11 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.28 2010-06-03 02:34:59 cvsnanne Exp $";
 
 #include "prestackgather.h"
 
@@ -154,7 +154,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 	else
 	{
 	    zrg.start = mMIN( trc->info().sampling.start, zrg.start );
-	    zrg.stop = mMAX( trc->info().sampling.atIndex( trcsz ), zrg.stop );
+	    zrg.stop = mMAX( trc->info().sampling.atIndex(trcsz-1), zrg.stop );
 	    zrg.step = mMIN( trc->info().sampling.step, zrg.step );
 	}
     }
