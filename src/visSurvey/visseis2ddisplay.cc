@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.95 2010-05-24 21:52:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.96 2010-06-03 21:48:55 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -436,6 +436,7 @@ void Seis2DDisplay::setData( int attrib,
 	    usedarr = tmparr;
 	    const int inl = datatransform_->lineIndex( getLineName() );
 	    const float firstz = data2dh.dataset_[0]->z0_ * sd.step;
+	    const int z0idx = arrayzrg.nearestIndex( firstz );
 	    for ( int crlidx=0; crlidx<cs.nrCrl() && inl>=0; crlidx++ )
 	    {
 		BinID bid = cs.hrg.atIndex( 0, crlidx );
@@ -444,16 +445,14 @@ void Seis2DDisplay::setData( int attrib,
 		outpsampler.computeCache( Interval<int>(0,cs.nrZ()-1) );
 
 		const float* inputptr = arr->getData() +
-					arr->info().getOffset( crlidx,
-						sd.nearestIndex(firstz) );
-		const float z0 = data2dh.dataset_[0]->z0_ * sd.step;
+					arr->info().getOffset( crlidx, z0idx );
 		SampledFunctionImpl<float,const float*>
-		    inputfunc( inputptr, arrzsz, z0, sd.step );
+		    inputfunc( inputptr, arrzsz, firstz, sd.step );
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( textureInterpolationEnabled() );
 
 		float* outputptr = tmparr->getData() +
-				   tmparr->info().getOffset( crlidx, sd.nearestIndex(firstz) );	
+				   tmparr->info().getOffset( crlidx, z0idx );	
 		reSample( inputfunc, outpsampler, outputptr, cs.nrZ() );
 	    }
 	}
