@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.2 2010-04-08 11:34:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.3 2010-06-04 05:50:15 cvssatyaki Exp $";
 
 #include "uidpsoverlayattrdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -49,6 +49,8 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
     }
     else
 	y3propselfld_->setCurrentItem( 0 );
+    y3propselfld_->selectionChanged.notify(
+	    mCB(this,uiDPSOverlayPropDlg,attribChanged) );
     
 
     uiLabeledComboBox* y4lblcbx = 0;
@@ -71,6 +73,8 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 	}
 	else
 	    y4propselfld_->setCurrentItem( 0 );
+	y4propselfld_->selectionChanged.notify(
+		mCB(this,uiDPSOverlayPropDlg,attribChanged) );
     }
 
     uiPushButton* applybut = new uiPushButton( this, "&Apply",
@@ -99,6 +103,7 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
 {
     if ( y3propselfld_->currentItem() )
     {
+	y3coltabfld_->commitInput();
 	plotter_.setOverlayY1Cols( colids_[y3propselfld_->currentItem()] );
 	plotter_.setOverlayY1AttSeq( y3coltabfld_->colTabSeq() );
 	plotter_.setOverlayY1AttMapr( y3coltabfld_->colTabMapperSetup() );
@@ -115,6 +120,7 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
     
     if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
     {
+	y4coltabfld_->commitInput();
 	plotter_.setOverlayY2Cols( colids_[y4propselfld_->currentItem()] );
 	plotter_.setOverlayY2AttSeq( y4coltabfld_->colTabSeq() );
 	plotter_.setOverlayY2AttMapr( y4coltabfld_->colTabMapperSetup() );
@@ -134,4 +140,42 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
 
     plotter_.dataChanged();
     return true;
+}
+
+
+void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
+{
+    ColTab::MapperSetup mappersetup; 
+    if ( y3propselfld_->currentItem() )
+    {
+	plotter_.setOverlayY1Cols( colids_[y3propselfld_->currentItem()] );
+	plotter_.setOverlayY1AttMapr( mappersetup );
+	plotter_.updateOverlayMapper( true );
+	y3coltabfld_->setMapperSetup( &mappersetup );
+	y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
+    }
+    else
+    {
+	plotter_.setOverlayY1Cols( mUdf(int) );
+	plotter_.setShowY3( false );
+	y3coltabfld_->setInterval( Interval<float>(0,1) );
+    }
+   
+    if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
+    {
+	plotter_.setOverlayY2Cols( colids_[y4propselfld_->currentItem()] );
+	plotter_.setOverlayY2AttMapr( mappersetup );
+	plotter_.updateOverlayMapper( false );
+	y4coltabfld_->setMapperSetup( &mappersetup );
+	y4coltabfld_->setInterval( plotter_.y4Mapper().range() );
+    }
+    else
+    {
+	plotter_.setOverlayY2Cols( mUdf(int) );
+	if ( plotter_.isY2Shown() && y4propselfld_ )
+	{
+	    plotter_.setShowY4( false );
+	    y4coltabfld_->setInterval( Interval<float>(0,1) );
+	}
+    }
 }

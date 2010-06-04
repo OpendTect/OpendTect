@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.37 2009-10-16 09:15:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.38 2010-06-04 05:50:15 cvssatyaki Exp $";
 
 #include "uicolortable.h"
 
@@ -303,12 +303,18 @@ void uiColorTable::canvasClick( CallBacker* )
 }
 
 
-void uiColorTable::rangeEntered( CallBacker* )
+void uiColorTable::commitInput()
 {
     mapsetup_.start_ = minfld_->getfValue();
     mapsetup_.width_ = maxfld_->getfValue() - mapsetup_.start_;
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;
     scaleChanged.trigger();
+}
+
+
+void uiColorTable::rangeEntered( CallBacker* )
+{
+    commitInput();
 }
 
 

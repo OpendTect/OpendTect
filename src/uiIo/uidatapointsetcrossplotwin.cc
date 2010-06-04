@@ -496,7 +496,7 @@ struct DataColInfo
     TypeSet<int>	colids_;
 };
 
-uiSetSelDomainTab( uiTabStackDlg* p , DataColInfo& info,
+uiSetSelDomainTab( uiTabStackDlg* p , DataColInfo* info,
 		   const BufferString& mathobjstr, const TypeSet<int>& colids,
        		   bool isdensityplot )
     : uiDlgGroup( p->tabParent(), "Refine Selection" )
@@ -539,6 +539,12 @@ uiSetSelDomainTab( uiTabStackDlg* p , DataColInfo& info,
 }
 
 
+~uiSetSelDomainTab()
+{
+    delete datainfo_;
+}
+
+
 void parsePush( CallBacker* )
 {
     mathexprstring_ = inpfld_->getvalue_();
@@ -565,7 +571,7 @@ void updateDisplay()
     vartable_->setNrRows( nrvars );
     for ( int idx=0; idx<nrvars; idx++ )
     {
-	uiComboBox* varsel = new uiComboBox( 0, datainfo_.colnms_, "Variable");
+	uiComboBox* varsel = new uiComboBox( 0, datainfo_->colnms_, "Variable");
 	if ( !dcolids_.isEmpty() && dcolids_.validIdx(idx) )
 	    varsel->setCurrentItem( cColIds(dcolids_[idx]) );
 	vartable_->setRowLabel( idx, mathobj_->uniqueVarName(idx) );
@@ -588,7 +594,7 @@ bool acceptOK()
 	mDynamicCastGet( uiComboBox*, box, obj );
 	if ( !box )
 	    continue;
-	dcolids_ += datainfo_.colids_[box->currentItem()];
+	dcolids_ += datainfo_->colids_[box->currentItem()];
     }
 
     PtrMan<MathExpression> testexpr = mathobj_->clone();
@@ -607,7 +613,7 @@ bool acceptOK()
 }
     
     BufferString	mathexprstring_;
-    DataColInfo&	datainfo_;
+    DataColInfo*	datainfo_;
     MathExpression*	mathobj_;
     TypeSet<int>	dcolids_;
     
@@ -637,7 +643,8 @@ uiSelectionSettDlg( uiDataPointSetCrossPlotter& p,
     for ( ; dcid<dps.nrCols(); dcid++ )
 	colids += dcid;
 
-    uiSetSelDomainTab::DataColInfo datainfo( colnames, colids );
+    uiSetSelDomainTab::DataColInfo* datainfo =
+	new uiSetSelDomainTab::DataColInfo( colnames, colids );
     refseltab_ = new uiSetSelDomainTab( this, datainfo, plotter_.mathObjStr(),
 				       	plotter_.modifiedColIds(),
 				        plotter_.isADensityPlot() );

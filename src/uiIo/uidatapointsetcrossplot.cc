@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.66 2010-04-09 07:33:37 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.67 2010-06-04 05:50:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.66 2010-04-09 07:33:37 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.67 2010-06-04 05:50:15 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -794,15 +794,16 @@ void uiDataPointSetCrossPlotter::mouseReleased( CallBacker* )
     if ( !selareaset_[curselarea_]->isValid() )
 	selareaset_.remove( curselarea_ );
 
-    if ( !isdensityplot_ )
+    for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
     {
-	for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
-	{
-	    checkSelection( rid, 0, false, y_, false );
-	    if ( y2_.axis_ && doy2_ ) 
-		checkSelection( rid, 0, true, y2_, false );
-	}
+	if ( dps_.isInactive(rid) ) continue;
+
+	checkSelection( rid, 0, false, y_, false );
+	if ( y2_.axis_ && doy2_ ) 
+	    checkSelection( rid, 0, true, y2_, false );
     }
+
+    pointsSelected.trigger();
 }
 
 
