@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Jaap Glas
  Date:		December 2009
- RCS:		$Id: uiodfaulttoolman.h,v 1.4 2010-04-15 15:41:46 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttoolman.h,v 1.5 2010-06-04 12:47:30 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -129,6 +129,7 @@ protected:
     int				curemid_;
 
     bool			tracktbwashidden_;
+    bool			selectmode_;
 
     Timer			deseltimer_;
 };

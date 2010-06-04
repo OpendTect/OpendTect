@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.9 2010-04-22 04:22:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.10 2010-06-04 12:47:30 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -305,22 +305,23 @@ void uiFaultStickTransferDlg::surveyChg( CallBacker* )
 uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     : appl_( appl )
     , tracktbwashidden_( false )
+    , selectmode_( false )
 {
     toolbar_ = new uiToolBar( &appl_, "Fault stick control", uiToolBar::Bottom);
-    editselbutidx_ = toolbar_->addButton( "",
+    editselbutidx_ = toolbar_->addButton( "editsticks.png",
 	    			mCB(this,uiODFaultToolMan,editSelectToggleCB),
-				"Edit/Select", true );
+				"Edit/select sticks", true );
     toolbar_->addSeparator();
 
-    removalbutidx_ = toolbar_->addButton( "trashcan.png",
+    removalbutidx_ = toolbar_->addButton( "removesticks.png",
 	    			mCB(this,uiODFaultToolMan,stickRemovalCB),
 				"Remove selected sticks", false );
 
-    copybutidx_ = toolbar_->addButton( "copyobj.png",
+    copybutidx_ = toolbar_->addButton( "copysticks.png",
 	    			mCB(this,uiODFaultToolMan,stickCopyCB),
 				"Copy selected sticks", false );
 
-    movebutidx_ = toolbar_->addButton( "filelocation.png",
+    movebutidx_ = toolbar_->addButton( "movesticks.png",
 	    			mCB(this,uiODFaultToolMan,stickMoveCB),
 				"Move selected sticks", false );
     toolbar_->addSeparator();
@@ -344,7 +345,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     toolbar_->addObject(  tboutputcolor_->attachObj() );
 #endif
 
-    settingsbutidx_ = toolbar_->addButton( "tracker-settings.png",
+    settingsbutidx_ = toolbar_->addButton( "faulttoolsettings.png",
 	    			mCB(this,uiODFaultToolMan,settingsToggleCB),
 				"Transfer settings", true );
     toolbar_->addSeparator();
@@ -516,24 +517,33 @@ void uiODFaultToolMan::showSettings( bool yn )
 }
 
 
-void uiODFaultToolMan::editSelectToggleCB( CallBacker* )
+void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
 {
-    const bool selmode = toolbar_->isOn( editselbutidx_ );
+    toolbar_->turnOn( editselbutidx_, true );
+
+    if ( cb )
+	selectmode_ = !selectmode_;
+
+    toolbar_->setPixmap( editselbutidx_,
+		selectmode_ ? "selectsticks.png" : "editsticks.png" );
+    toolbar_->setToolTip( editselbutidx_,
+		selectmode_ ? "Switch Select->Edit" : "Switch Edit->Select" );
+
     if ( curfssd_ )
-	curfssd_->setStickSelectMode( selmode );
+	curfssd_->setStickSelectMode( selectmode_ );
     if ( curfltd_ )
-	curfltd_->setStickSelectMode( selmode );
+	curfltd_->setStickSelectMode( selectmode_ );
 
-    toolbar_->setSensitive( removalbutidx_, selmode );
-    toolbar_->setSensitive( copybutidx_, selmode );
-    toolbar_->setSensitive( movebutidx_, selmode );
-    toolbar_->setSensitive( settingsbutidx_, selmode );
-    tboutputcombo_->setSensitive( selmode );
-    tboutputcolor_->getButton()->setSensitive( selmode );
+    toolbar_->setSensitive( removalbutidx_, selectmode_ );
+    toolbar_->setSensitive( copybutidx_, selectmode_ );
+    toolbar_->setSensitive( movebutidx_, selectmode_ );
+    toolbar_->setSensitive( settingsbutidx_, selectmode_ );
+    tboutputcombo_->setSensitive( selectmode_ );
+    tboutputcolor_->getButton()->setSensitive( selectmode_ );
 
-    showSettings( selmode && toolbar_->isOn(settingsbutidx_) );
+    showSettings( selectmode_ && toolbar_->isOn(settingsbutidx_) );
 
-    appl_.applMgr().visServer()->turnSelectionModeOn( selmode );
+    appl_.applMgr().visServer()->turnSelectionModeOn( selectmode_ );
 }
 
 
