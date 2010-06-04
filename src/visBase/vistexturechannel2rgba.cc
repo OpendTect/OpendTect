@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.47 2010-05-31 11:24:35 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.48 2010-06-04 08:44:35 cvskarthika Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -33,7 +33,7 @@ static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.47 2010-05-31 11:
 #include "Inventor/nodes/SoShaderParameter.h"
 #include "SoOD.h"
 
-#define mNrColors	255
+#define mNrColors	256
 #define mLayersPerUnit	4
 
 mCreateFactoryEntry( visBase::ColTabTextureChannel2RGBA );
@@ -792,11 +792,11 @@ void ColTabTextureChannel2RGBA::getColors( int channelidx,
     }
 
     const ColTab::Sequence& seq = *coltabs_[channelidx];
-    if ( cols.size()!=((mNrColors+1)*4) )
-	cols.setSize( ((mNrColors+1)*4), 0 );
+    if ( cols.size()!=(mNrColors*4) )
+	cols.setSize( (mNrColors*4), 0 );
 
     unsigned char* arr = cols.arr();
-    for ( int idx=0; idx<mNrColors; idx++ )
+    for ( int idx=0; idx<=mNrColors-1; idx++ )
     {
 	const float val = ((float) idx)/(mNrColors-1);
 	const Color col = seq.color( val );
@@ -807,11 +807,13 @@ void ColTabTextureChannel2RGBA::getColors( int channelidx,
 	(*arr++) = 255-col.t();
     }
 
-    const Color col = seq.undefColor();
+    // comment this out to get rid of jumps at intersection of objects like 
+    // inl and crl
+    /*const Color col = seq.undefColor();
     (*arr++) = col.r();
     (*arr++) = col.g();
     (*arr++) = col.b();
-    (*arr++) = 255-col.t();
+    (*arr++) = 255-col.t();*/
 }
 
 
