@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.41 2010-05-07 12:50:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.42 2010-06-04 09:03:38 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -174,7 +174,7 @@ void uiStratTreeWin::createToolBar()
     tb_->addObject( helpbut );
     
     tb_->addSeparator();
-    mDefBut(switchviewbut_,"",switchViewCB,"Switch View..." );
+    mDefBut(switchviewbut_,"stratframeworkgraph.png",switchViewCB,"Switch View..." );
     switchviewbut_->setToggleButton( true );
 }
 
