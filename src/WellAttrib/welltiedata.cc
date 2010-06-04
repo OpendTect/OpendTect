@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.32 2010-06-01 13:31:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.33 2010-06-04 09:38:15 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.32 2010-06-01 13:31:45 cvsbr
 #include "survinfo.h"
 #include "wavelet.h"
 
-#include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
@@ -201,14 +200,22 @@ bool DataHolder::setUpHorizons( const TypeSet<MultiID>& horids,
 		return false;
 	    }
 	}
-	const EM::Horizon* hor = 0;    
-	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj.ptr())
+	mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
+	RowCol rc = binID();
 	mDynamicCastGet(EM::Horizon2D*,hor2d,emobj.ptr())
-	if ( hor2d ) hor = hor2d;
-	if ( hor3d ) hor = hor3d;
+	if ( hor2d ) 
+	{
+	    hor = hor2d;
+	    const int lineidx = hor2d->geometry().lineIndex( 
+		    				setup_.linekey_.lineName() );
+	    const int lineID = lineidx==-1 ? mUdf(int)
+					   : hor2d->geometry().lineID(lineidx);
+	    if ( lineidx < 0 ) 
+		continue; 
+	    rc = BinID( lineID, binID().crl );
+	}
 	if ( !hor ) continue;
 
-	RowCol rc = binID();
 	const EM::PosID posid(hor->id(), hor->sectionID(0), rc.getSerialized());
 	float zval = hor->getPos( posid ).z*1000;
 	hordatas_ += new HorData( zval,  hor->preferredColor() );
