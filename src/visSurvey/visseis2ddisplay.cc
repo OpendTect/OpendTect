@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.96 2010-06-03 21:48:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.97 2010-06-04 21:09:54 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -65,12 +65,11 @@ public:
 
 Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d, 
 			      const Attrib::Data2DHolder& dh,  int seriesid,
-			      ZAxisTransform* datatrans, Array2DImpl<float>& array )
+			      Array2DImpl<float>& array )
     : data2dh_( dh )
     , arr_( array )	
     , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
     , s2d_( s2d )
-    , datatransform_( datatrans )
 {
     const int trnrsz = s2d_.geometry_.posns_.size();
     for ( int idx=0; idx<trnrsz; idx++ )
@@ -105,7 +104,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	return false;
     }
 
-    const int trcsz= trcnrs_.size();
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const int trcnr = data2dh_.trcinfoset_[idx]->nr;
@@ -124,21 +122,20 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	}
 
 	const ValueSeries<float>* dataseries = dh->series( valseridx_ );
+	const int shift = s2d_.datatransform_ ? 0 : dh->z0_;
 	for ( int idy=0; idy<nrsamp; idy++ )
 	{
 	    const int smp = firstdhsample+idy;
-	    int shift = dh->z0_;
-	    if ( datatransform_ )
-		shift = 0;
-	    const float val = dh->dataPresent(smp+shift)
-		? dataseries->value( smp )
-		: mUdf(float);
 	    const int arrzidx = arraysrg.getIndex( smp+shift );
 	    if ( arrzidx<0 || arrzidx>=arrzsz ) 
 	    {
 		addToNrDone( 1 );
 		continue;
 	    }
+	    
+	    const float val = dh->dataPresent(smp+shift)
+		? dataseries->value( smp - dh->z0_ )
+		: mUdf(float);
 	   
 	    arr_.set( trcidx, arrzidx, val );
 	}
@@ -154,7 +151,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const Seis2DDisplay&		s2d_;
     const int				valseridx_;
     TypeSet<int>			trcnrs_;
-    ZAxisTransform*			datatransform_;
 };
 
 
@@ -405,8 +401,7 @@ void Seis2DDisplay::setData( int attrib,
     {
 	arr->setAll( mUdf(float) );
 
-	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, sidx,
-						  datatransform_, *arr );
+	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, sidx, *arr );
 	if ( !arrayfiller.execute() )
 	    continue;
 
