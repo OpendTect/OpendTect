@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.67 2010-06-04 05:50:15 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.68 2010-06-04 10:50:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.67 2010-06-04 05:50:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.68 2010-06-04 10:50:39 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -162,13 +162,15 @@ void uiDataPointSetCrossPlotter::setMathObj( MathExpression* mathobj )
 
 void uiDataPointSetCrossPlotter::reSizeDraw( CallBacker* )
 {
+    selyitems_ = 0;
+    sely2items_ = 0;
     if ( isdensityplot_ )
     {
 	trmsg_ = "Calculating Density";
 	timer_.start( 1200, true );
     }
-    else
-	reDraw( 0 );
+
+    reDraw( 0 );
     return;
 }
 
@@ -210,7 +212,7 @@ void uiDataPointSetCrossPlotter::dataChanged()
     mHandleAxisAutoScale( y2_ )
     calcStats();
     setDraw();
-    removeSelectionItems();
+    removeSelections(true);
     drawContent();
 }
 

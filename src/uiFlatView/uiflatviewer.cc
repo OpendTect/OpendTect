@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.114 2010-04-02 09:00:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.115 2010-06-04 10:50:39 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -203,6 +203,8 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
     }
 
     rg0.start -= dim0extfac_ * rg0.step; rg0.stop += dim0extfac_ * rg0.step;
+    if ( !wva )
+	rg1.start -= dim0extfac_ * rg1.step; rg1.stop += dim0extfac_ * rg1.step;
     return uiWorldRect( rg0.start, rg1.stop, rg0.stop, rg1.start );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.49 2010-03-31 07:56:28 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.50 2010-06-04 10:50:39 cvssatyaki Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -138,7 +138,7 @@ void uiFlatViewDataDispPropTab::useMidValSel( CallBacker* )
 void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
 {
     const int clip = useclipfld_->getIntValue();
-    if ( !clip )
+    if ( clip<0 && clip>2 )
 	return;
   
     FlatView::DataDispPars::Common& pars = commonPars();
@@ -149,14 +149,17 @@ void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
 	pars.symmidvalue_ = usemidvalfld_->getBoolValue() ?
 	    symmidvalfld_->getfValue() : mUdf(float);
     }
-    else
+    else if ( clip == 2 )
     {
 	pars.clipperc_ = assymclipratiofld_->getFInterval();
 	pars.symmidvalue_ = mUdf(float);
     }
 
     pars.rg_ = Interval<float>( mUdf(float), mUdf(float) );
-    const Interval<float> nrg = vwr_.getDataRange(false);
+
+    mDynamicCastGet(const uiFVWVAPropTab*,wvatab,this)
+    const bool wva = wvatab ? true : false;
+    const Interval<float> nrg = vwr_.getDataRange(wva);
     rgfld_->setValue( nrg );
     pars.rg_ = nrg; 
 }
@@ -238,7 +241,9 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     else
 	useclipfld_->setValue( 2 );
 
-    rgfld_->setValue( vwr_.getDataRange(false) );
+    mDynamicCastGet(const uiFVWVAPropTab*,wvatab,this)
+    const bool wva = wvatab ? true : false;
+    rgfld_->setValue( vwr_.getDataRange(wva) );
 
     symclipratiofld_->setValue( pars.clipperc_.start );
     assymclipratiofld_->setValue( pars.clipperc_ );
