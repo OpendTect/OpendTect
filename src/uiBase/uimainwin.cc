@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.203 2010-05-27 04:55:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.204 2010-06-04 08:19:42 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -95,28 +95,14 @@ public:
 			    centralWidget_->reDraw( deep );
 			}
 
-    void		go()
-			{ finalise(); show(); move(handle_.popuparea_); }
-
-    virtual void	show() 
+    void		go( bool showminimized=false )
 			{
-			    setWindowTitle( handle_.caption(false) );
-			    eventrefnr_ = handle_.beginCmdRecEvent("WinPopUp");
-			    managePopupPos();
-			    QMainWindow::show();
-
-			    if( poptimer.isActive() )
-				poptimer.stop();
-
-			    popped_up = false;
-			    poptimer.start( 100, true );
-
-			    QEvent* ev = new QEvent( sQEventPopUpReady );
-			    QApplication::postEvent( this, ev );
-
-			    if ( modal_ )
-				eventloop_.exec();
+			    finalise();
+			    doShow( showminimized );
+			    move( handle_.popuparea_ );
 			}
+
+    virtual void	show()				{ doShow(); }
 
     void		move(uiMainWin::PopupArea);
     void		move(int,int);
@@ -162,7 +148,9 @@ protected:
 
     virtual void	finalise( bool trigger_finalise_start_stop=true );
     void		closeEvent(QCloseEvent*);
-    bool		event(QEvent*);
+    bool		event(QEvent*);  
+
+    void		doShow(bool minimized=false);
     void		managePopupPos();
 
 
@@ -251,6 +239,31 @@ void uiMainWinBody::setModal( bool yn )
 Qt::WFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 {
     return  Qt::WindowFlags( hasparent ? Qt::Dialog : Qt::Window );
+}
+
+
+void uiMainWinBody::doShow( bool minimized )
+{
+    setWindowTitle( handle_.caption(false) );
+    eventrefnr_ = handle_.beginCmdRecEvent("WinPopUp");
+    managePopupPos();
+
+    if ( minimized )
+	QMainWindow::showMinimized();
+    else
+	QMainWindow::show();
+
+    if( poptimer.isActive() )
+	poptimer.stop();
+
+    popped_up = false;
+    poptimer.start( 100, true );
+
+    QEvent* ev = new QEvent( sQEventPopUpReady );
+    QApplication::postEvent( this, ev );
+
+    if ( modal_ )
+	eventloop_.exec();
 }
 
 
@@ -686,14 +699,19 @@ void uiMainWin::showCredits( const char* winid )
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
 
+
+#define mAddToOrderedWinList( uimw ) \
+    winlistmutex_.lock(); \
+    orderedwinlist_ -= uimw; \
+    orderedwinlist_ += uimw; \
+    winlistmutex_.unLock();
+
 void uiMainWin::show()
 {
-    winlistmutex_.lock();
-    orderedwinlist_ -= this;
-    orderedwinlist_ += this;
-    winlistmutex_.unLock();
+    mAddToOrderedWinList( this );
     body_->go();
 }
+
 
 void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
@@ -1088,7 +1106,7 @@ public:
 			uiDialogBody(uiDialog&,uiParent*,
 				     const uiDialog::Setup&);
 
-    int			exec(); 
+    int			exec( bool showminimized ); 
 
     void		reject( CallBacker* s )	
 			{
@@ -1263,7 +1281,7 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
 }
 
 
-int uiDialogBody::exec()
+int uiDialogBody::exec( bool showminimized )
 { 
     uiSetResult( 0 );
 
@@ -1271,7 +1289,7 @@ int uiDialogBody::exec()
 	setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed) );
 
     move( handle_.getPopupArea() );
-    go();
+    go( showminimized );
 
     return uiResult();
 }
@@ -1594,11 +1612,15 @@ bool uiDialog::haveCredits() const
 
 int uiDialog::go()
 { 
-    winlistmutex_.lock();
-    orderedwinlist_ -= this;
-    orderedwinlist_ += this;
-    winlistmutex_.unLock();
-    return mBody->exec();
+    mAddToOrderedWinList( this );
+    return mBody->exec( false );
+}
+
+
+int uiDialog::goMinimized()
+{ 
+    mAddToOrderedWinList( this );
+    return mBody->exec( true );
 }
 
 

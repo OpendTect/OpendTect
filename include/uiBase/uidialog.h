@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.53 2009-08-27 10:14:24 cvsbert Exp $
+ RCS:           $Id: uidialog.h,v 1.54 2010-06-04 08:19:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,7 @@ public:
     const Setup&	setup() const;
 
     int			go(); 
+    int			goMinimized();
 
     void		reject( CallBacker* cb =0);
     void		accept( CallBacker* cb =0);
