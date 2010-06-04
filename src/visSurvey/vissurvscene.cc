@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.136 2010-05-14 13:32:52 cvskarthika Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.137 2010-06-04 03:03:09 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -529,14 +529,6 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     datatransform_ = zat;
     if ( datatransform_ ) datatransform_->ref();
 
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	mDynamicCastGet(SurveyObject*,so,getObject(idx))
-	if ( !so ) continue;
-
-	so->setZAxisTransform( zat,0 );
-    }
-
     CubeSampling cs = SI().sampling( true );
     if ( zat )
     {
@@ -554,6 +546,15 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     }
 
     setCubeSampling( cs );
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	mDynamicCastGet(SurveyObject*,so,getObject(idx))
+	if ( !so ) continue;
+
+	so->setZAxisTransform( zat,0 );
+    }
+
     updateAnnotationText();
 }
 
