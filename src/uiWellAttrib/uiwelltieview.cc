@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.68 2010-06-03 13:17:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.69 2010-06-04 09:38:03 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -364,7 +364,7 @@ void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
 	uiTextItem* ti = vwr_->rgbCanvas().scene().addItem(
 			     new uiTextItem(mtxt,mAlignment(Right,VCenter)) );
 	uiWorld2Ui w2u; vwr_->getWorld2Ui(w2u);
-	ti->setPos( w2u.transform( uiWorldPoint( leftside ? 1 : trcbuf_->size()-1, zpos) ) );
+	ti->setPos( w2u.transform( uiWorldPoint( leftside ? 0 : 7, zpos) ) );
 	ti->setTextColor( col );
 	if ( leftside )
 	    mrktxtnms_ += ti;
