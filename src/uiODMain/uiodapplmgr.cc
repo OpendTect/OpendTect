@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.378 2010-05-18 12:05:37 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.379 2010-06-07 11:03:10 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -428,7 +428,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 		    	    visserv_->getObject(visid) );
 	    DataPack::ID cacheid = rdmtdisp->getDataPackID( attrib );
-	    if ( cacheid==-1 )
+	    if ( cacheid == DataPack::cNoID() )
 		useDefColTab( visid, attrib );
 	    TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
 	    TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getKnots() : 0;
