@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.205 2010-05-20 07:17:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.206 2010-06-07 06:54:17 cvsranojay Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -625,11 +625,13 @@ void uiODSceneMgr::soloMode( CallBacker* )
 {
     TypeSet< TypeSet<int> > dispids;
     int selectedid;
+    const bool issolomodeon = menuMgr().isSoloModeOn();
     for ( int idx=0; idx<scenes_.size(); idx++ )
 	dispids += scenes_[idx]->itemmanager_->getDisplayIds( selectedid,  
-						 !menuMgr().isSoloModeOn() );
+							      !issolomodeon );
     
-    visServ().setSoloMode( menuMgr().isSoloModeOn(), dispids, selectedid );
+    visServ().setSoloMode( issolomodeon, dispids, selectedid );
+    updateSelectedTreeItem();
 }
 
 
