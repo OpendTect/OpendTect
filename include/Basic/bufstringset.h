@@ -8,15 +8,16 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.18 2009-12-04 14:28:25 cvsjaap Exp $
+ RCS:		$Id: bufstringset.h,v 1.19 2010-06-07 13:52:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
 #include "manobjectset.h"
+class IOPar;
+class GlobExpr;
 
- class IOPar;
 
 /*!\brief Set of BufferString objects */
 
@@ -33,12 +34,13 @@ public:
 
     BufferString&	get( int idx )		{ return *((*this)[idx]); }
     const BufferString&	get( int idx ) const	{ return *((*this)[idx]); }
-    int			indexOf(const char*) const;
+    int			indexOf(const char*) const;	//!< first match
+    int			indexOf(const GlobExpr&) const;	//!< first match
     inline bool		isPresent( const char* s ) const
     						{ return indexOf(s) >= 0; }
     int			nearestMatch(const char*) const;
 			    //!< algo may not be very good, but anyway
-    bool		subsetOf(const BufferStringSet&) const;
+    bool		isSubsetOf(const BufferStringSet&) const;
 
     BufferStringSet&	add(const char*);
     BufferStringSet&	add(const BufferString&);

@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.28 2010-03-17 19:39:03 cvskris Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.29 2010-06-07 13:52:16 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -347,6 +347,18 @@ int BufferStringSet::indexOf( const char* s ) const
 }
 
 
+int BufferStringSet::indexOf( const GlobExpr& ge ) const
+{
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( ge.matches( (*this)[idx]->buf() ) )
+	    return idx;
+    }
+    return -1;
+}
+
+
 // TODO this is crap, find a good algo
 static int getMatchDist( const BufferString& bs, const char* s )
 {
@@ -401,7 +413,7 @@ int BufferStringSet::nearestMatch( const char* s ) const
 }
 
 
-bool BufferStringSet::subsetOf( const BufferStringSet& bss ) const
+bool BufferStringSet::isSubsetOf( const BufferStringSet& bss ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -411,6 +423,7 @@ bool BufferStringSet::subsetOf( const BufferStringSet& bss ) const
 
     return true;
 }
+
 
 
 BufferStringSet& BufferStringSet::add( const char* s )
