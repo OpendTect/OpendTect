@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.157 2010-05-12 10:22:35 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.158 2010-06-07 10:00:45 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -570,16 +570,28 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	{ uiMSG().error(errmsg); return 0; }
 
     bool showinlprogress = true;
+    bool showcrlprogress = true;
     Settings::common().getYN( "dTect.Show inl progress", showinlprogress );
+    Settings::common().getYN( "dTect.Show crl progress", showcrlprogress );
 
-    const bool isstoredinl = cs.isFlat() && cs.defaultDir() == CubeSampling::Inl
-	&& targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();
+    const bool isstored =
+	targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();
+    const bool isinl = cs.isFlat() && cs.defaultDir() == CubeSampling::Inl;
+    const bool iscrl = cs.isFlat() && cs.defaultDir() == CubeSampling::Crl;
+    const bool hideprogress = isstored &&
+	( (isinl&&!showinlprogress) || (iscrl&&!showcrlprogress) );
 
     bool success = true;
     if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
     {
-	if ( isstoredinl && !showinlprogress )
+	if ( !hideprogress )
 	{
+	    uiTaskRunner taskrunner( parent() );
+	    success = taskrunner.execute( *process );
+	}
+	else
+	{
+	    MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	    if ( !process->execute() )
 	    {
 		BufferString msg( process->message() );
@@ -588,11 +600,6 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 		delete process;
 		return 0;
 	    }
-	}
-	else
-	{
-	    uiTaskRunner taskrunner( parent() );
-	    success = taskrunner.execute( *process );
 	}
     }
 
@@ -698,7 +705,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 
     BufferString errmsg;
     PtrMan<Processor> process = aem->createTrcSelOutput( errmsg, bidset, 
-	    						 output, 0, 0,
+	    						 output, mUdf(float), 0,
 							 trueknotspos,
 							 snappedpos );
     if ( !process )
@@ -1438,9 +1445,11 @@ void uiAttribPartServer::showSliceCB( CallBacker* cb )
 void uiAttribPartServer::resetMenuItems()
 {
     mCleanMenuItems(stored2d)
+    mCleanMenuItems(steering2d)
     mCleanMenuItems(calc2d)
     mCleanMenuItems(nla2d)
     mCleanMenuItems(stored3d)
+    mCleanMenuItems(steering3d)
     mCleanMenuItems(calc3d)
     mCleanMenuItems(nla3d)
 }
