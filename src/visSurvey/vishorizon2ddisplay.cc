@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.36 2010-03-26 08:14:44 cvsumesh Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.37 2010-06-07 16:00:41 cvsjaap Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -239,8 +239,11 @@ bool doPrepare( int nrthreads )
 {
     curidx_ = 0;
     nrthreads_ = nrthreads;
+
+    points_->getCoordinates()->removeAfter( -1 );
     return true;
 }
+
 
 bool doFinish( bool res )
 {

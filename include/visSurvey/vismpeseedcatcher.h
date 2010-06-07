@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.19 2009-10-29 08:49:38 cvsumesh Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.20 2010-06-07 16:00:41 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "geomelement.h"
 
-
+class Color;
 namespace Geometry { class ElementEditor; }
 namespace MPE { class ObjectEditor; }
 namespace EM { class EdgeLineSet; }
@@ -37,6 +37,7 @@ namespace visSurvey
 /*!\brief
 */
 class EMObjectDisplay;
+class MPEEditor;
 
 
 mClass MPEClickInfo
@@ -119,6 +120,12 @@ public:
     void			setTrackerType(const char*);
     static bool			isClickable(const char* trackertype,int visid);
 
+    void			setEditor(MPEEditor*);
+    bool			activateSower(const Color&);
+    bool			sequentSowing() const;
+    bool			moreToSow() const;
+    void			stopSowing();
+
 protected:
 				~MPEClickCatcher();
     void			clickCB(CallBacker*);
@@ -132,6 +139,8 @@ protected:
 
     visBase::EventCatcher*	eventcatcher_;
     visBase::Transformation*	transformation_;
+    MPEEditor*			editor_;
+    const visBase::EventInfo*	cureventinfo_;
 
     MPEClickInfo		info_;
     const char*			trackertype_;

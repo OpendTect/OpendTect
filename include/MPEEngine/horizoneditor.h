@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.h,v 1.5 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: horizoneditor.h,v 1.6 2010-06-07 16:00:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 
-namespace EM { class Horizon3D; };
+namespace EM { class Horizon3D; class Horizon2D; };
 
 namespace MPE
 {
@@ -56,6 +56,18 @@ protected:
     RowCol			editarea;
     bool			horbox;
     int				vertstyle;
+};
+
+
+mClass Horizon2DEditor : public ObjectEditor
+{
+public:
+				Horizon2DEditor(EM::Horizon2D&);
+    static ObjectEditor*	create(EM::EMObject&);
+    static void			initClass();
+
+protected:
+    Geometry::ElementEditor*	createEditor(const EM::SectionID&);
 };
 
 

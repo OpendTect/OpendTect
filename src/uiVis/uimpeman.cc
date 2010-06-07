@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.198 2010-05-31 08:14:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.199 2010-06-07 16:00:41 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -89,6 +89,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , oldactivevol(false)
     , mpeintropending(false)
     , showtexture_(true)
+    , cureventnr_(mUdf(int))
 {
     toolbar = new uiToolBar( p, "Tracking controls", uiToolBar::Bottom );
     addButtons();
@@ -241,23 +242,27 @@ void uiMPEMan::deleteVisObjects()
 }
 
 
+#define mSeedClickReturn() \
+{ endSeedClickEvent(emobj);  return; }
+
 void uiMPEMan::seedClick( CallBacker* )
 {
+    EM::EMObject* emobj = 0;
     MPE::Engine& engine = MPE::engine();
     MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker ) 
-	return;
+	mSeedClickReturn();
 
-    EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+    emobj = EM::EMM().getObject( tracker->objectID() );
     if ( !emobj ) 
-	return;
+	mSeedClickReturn();
 
     const int trackerid = 
 		MPE::engine().getTrackerByObject( tracker->objectID() );
 
     const int clickedobject = clickcatcher->info().getObjID();
     if ( clickedobject == -1 )
-	return;
+	mSeedClickReturn();
 
     if ( !clickcatcher->info().isLegalClick() )
     {
@@ -265,33 +270,34 @@ void uiMPEMan::seedClick( CallBacker* )
 	mDynamicCastGet( visSurvey::RandomTrackDisplay*, randomdisp, dataobj );
 
 	if ( tracker->is2D() && !clickcatcher->info().getObjLineName() )
-	    uiMSG().error( "2D tracking cannot handle picks on 3D lines.");
+	    uiMSG().error( "2D tracking cannot handle picks on 3D lines." );
 	else if ( !tracker->is2D() && clickcatcher->info().getObjLineName() )
-	    uiMSG().error( "3D tracking cannot handle picks on 2D lines.");
+	    uiMSG().error( "3D tracking cannot handle picks on 2D lines." );
 	else if ( randomdisp )
 	    uiMSG().error( emobj->getTypeStr(),
-			   "Tracking cannot handle picks on random lines.");
+			   "Tracking cannot handle picks on random lines." );
 	else if ( clickcatcher->info().getObjCS().nrZ()==1 &&
 		  !clickcatcher->info().getObjCS().isEmpty() )
 	    uiMSG().error( emobj->getTypeStr(), 
 			   "Tracking cannot handle picks on time slices." );
-	return;
+	mSeedClickReturn();
     }
 	
     const EM::PosID pid = clickcatcher->info().getNode();
     CubeSampling newvolume;
     if ( pid.objectID()!=emobj->id() && pid.objectID()!=-1 )
-	return;
+	mSeedClickReturn();
 
     const Attrib::SelSpec* clickedas = 
 	clickcatcher->info().getObjDataSelSpec();
-    if ( !clickedas ) return;
+    if ( !clickedas )
+	mSeedClickReturn();
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
     if ( !seedpicker || !seedpicker->canSetSectionID() ||
 	 !seedpicker->setSectionID(emobj->sectionID(0)) ) 
     {
-	return;
+	mSeedClickReturn();
     }
 
     const MPE::SectionTracker* sectiontracker =
@@ -319,7 +325,7 @@ void uiMPEMan::seedClick( CallBacker* )
 		uiMSG().error( "Saved setup has different attribute. \n"
 			       "Either change setup attribute or change\n"
 			       "display attribute you want to track on" );
-		return;
+		mSeedClickReturn();
 	    }
 	}
     }
@@ -348,7 +354,7 @@ void uiMPEMan::seedClick( CallBacker* )
 		       .add( "change displayed attribute or\n" )
 		       .add( "change input data in Tracking Setup." );
 		uiMSG().error( warnmsg.buf() );
-		return;
+		mSeedClickReturn();
 	    }
 	}
     }
@@ -370,6 +376,15 @@ void uiMPEMan::seedClick( CallBacker* )
     const bool trackerisshown = displays.size() && 
 			        displays[0]->isDraggerShown();
 
+    const bool ctrlshiftclicked = clickcatcher->info().isCtrlClicked() &&
+				  clickcatcher->info().isShiftClicked();
+
+    if ( pid.objectID()==-1 && !ctrlshiftclicked &&
+	 clickcatcher->activateSower(emobj->preferredColor()) )
+    {
+	 mSeedClickReturn();
+    }
+
     if ( tracker->is2D() )
     {
 	const MultiID& lset = clickcatcher->info().getObjLineSet();
@@ -390,19 +405,19 @@ void uiMPEMan::seedClick( CallBacker* )
 	{
 	    uiMSG().error( "2D tracking requires attribute from setup "
 			   "to be displayed" );
-	    return;
+	    mSeedClickReturn();
 	}
 	if ( datapackid > DataPack::cNoID() )
 	    engine.setAttribData( *clickedas, datapackid );
 
 	h2dsp->setLine( lset, lname );
 	if ( !h2dsp->startSeedPick() )
-	    return;
+	    mSeedClickReturn();
     }
     else
     {
 	if ( !seedpicker->startSeedPick() )
-	    return;
+	    mSeedClickReturn();
 	
 	newvolume = clickcatcher->info().getObjCS();
 	const CubeSampling trkplanecs = engine.trackPlane().boundingBox();
@@ -415,7 +430,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	}
 	
 	if ( newvolume.isEmpty() )
-	    return;
+	    mSeedClickReturn();
 	
 	if ( newvolume != engine.activeVolume() )
 	{
@@ -458,12 +473,9 @@ void uiMPEMan::seedClick( CallBacker* )
 	}
     }
 
-    const int currentevent = EM::EMM().undo().currentEventID();
-    MouseCursorManager::setOverride( MouseCursor::Wait );
-    emobj->setBurstAlert( true );
-    
-    const bool ctrlshiftclicked = clickcatcher->info().isCtrlClicked() &&
-				  clickcatcher->info().isShiftClicked();
+    seedpicker->setSowerMode( clickcatcher->sequentSowing() );
+    beginSeedClickEvent( emobj );
+
     if ( pid.objectID()!=-1 )
     {
 	if ( ctrlshiftclicked )
@@ -487,14 +499,40 @@ void uiMPEMan::seedClick( CallBacker* )
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
 	}
     }
-    else
-	if ( seedpicker->addSeed( seedpos, ctrlshiftclicked ) )
+    else if ( seedpicker->addSeed(seedpos, ctrlshiftclicked) )
 	    engine.updateFlatCubesContainer( newvolume, trackerid, true );
     
-    emobj->setBurstAlert( false );
-    MouseCursorManager::restoreOverride();
-    setUndoLevel(currentevent);
-    
+    if ( !clickcatcher->moreToSow() )
+	endSeedClickEvent( emobj );
+}
+
+
+void uiMPEMan::beginSeedClickEvent( EM::EMObject* emobj )
+{
+    if ( mIsUdf(cureventnr_) )
+    {
+	cureventnr_ = EM::EMM().undo().currentEventID();
+	MouseCursorManager::setOverride( MouseCursor::Wait );
+	if ( emobj )
+	    emobj->setBurstAlert( true );
+    }
+}
+
+
+void uiMPEMan::endSeedClickEvent( EM::EMObject* emobj )
+{
+    clickcatcher->stopSowing();
+
+    if ( !mIsUdf(cureventnr_) )
+    {
+	if ( emobj )
+	    emobj->setBurstAlert( false );
+
+	MouseCursorManager::restoreOverride();
+	setUndoLevel( cureventnr_ );
+	cureventnr_ = mUdf(int);
+    }
+
     if ( !isPickingWhileSetupUp() )
 	restoreActiveVol();
 }
@@ -662,6 +700,10 @@ void uiMPEMan::updateClickCatcher()
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size() != 1 ) 
 	return;
+
+    mDynamicCastGet( visSurvey::EMObjectDisplay*, 
+		     surface, visserv->getObject(selectedids[0]) );
+    clickcatcher->setEditor( surface ? surface->getEditor() : 0 );
 
     const int newsceneid = visserv->getSceneID( selectedids[0] );
     if ( newsceneid<0 || newsceneid == clickablesceneid )

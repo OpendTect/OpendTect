@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.19 2009-09-28 07:23:50 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.20 2010-06-07 16:00:41 cvsjaap Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -35,6 +35,8 @@ Horizon2DSeedPicker::Horizon2DSeedPicker( MPE::EMTracker& t )
     , seedconmode_( defaultSeedConMode() )
     , blockpicking_( false )
     , selspec_(0)
+    , sowermode_( false )
+    , lastseedpicked_( EM::PosID::udf() )
 {
     mDynamicCastGet(EM::Horizon2D*,hor,EM::EMM().getObject(tracker_.objectID()))
     if ( hor && hor->nrSections()>0 )
@@ -147,6 +149,10 @@ bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
     rc.col = closestcol;
 	
     const EM::PosID pid( hor->id(), sectionid_, rc.getSerialized() );
+
+    if ( sowermode_ )
+	eraseInBetween( pid, lastseedpicked_ );
+
     Coord3 newpos = hor->getPos( pid );
     newpos.z = seedcrd.z;
     seedlist_.erase();
@@ -165,6 +171,7 @@ bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
     const bool res = drop ? true : retrackOnActiveLine(rc.col,pickedposwasdef);
 
     surfchange_.trigger();
+    lastseedpicked_ = pid;
     return res;
 }
 
@@ -218,6 +225,36 @@ bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 
     surfchange_.trigger();
     return res;
+}
+
+
+void Horizon2DSeedPicker::eraseInBetween( const EM::PosID& pid1,
+					  const EM::PosID& pid2 )
+{
+    mGetHorAndColrg(hor,colrg,);
+
+    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
+    if ( !emobj || pid1.isUdf() || pid1.objectID()!=pid2.objectID() ||
+		   pid2.isUdf() || pid1.sectionID()!=pid2.sectionID() )
+	return;
+
+    RowCol rc1, rc2, tmp;
+    rc1.setSerialized( pid1.subID() );
+    rc2.setSerialized( pid2.subID() );
+    if ( rc1.row != rc2.row )
+	return;
+
+    if ( rc1.col > rc2.col )
+	mSWAP( rc1, rc2, tmp );
+
+    rc1.col += colrg.step;
+    while ( rc1.col < rc2.col )
+    {
+	EM::PosID pid( pid1.objectID(), pid1.sectionID(), rc1.getSerialized() );
+	emobj->unSetPos( pid, true );
+	emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
+	rc1.col += colrg.step;
+    }
 }
 
 

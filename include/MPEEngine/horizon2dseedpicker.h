@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon2dseedpicker.h,v 1.10 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: horizon2dseedpicker.h,v 1.11 2010-06-07 16:00:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ public:
     int                 defaultSeedConMode(
 				    bool gotsetup) const;
 
+    void		setSowerMode( bool yn )		{ sowermode_ = yn; };
+
 protected:
 
     bool 			retrackOnActiveLine(int startcol,
@@ -81,11 +83,17 @@ protected:
     bool			interpolateSeeds();
     CubeSampling		getTrackBox() const;
 
+    void			eraseInBetween(const EM::PosID& firstpid,
+					       const EM::PosID& lastpid);
+
     TypeSet<EM::PosID>		seedlist_;
     TypeSet<EM::PosID>		trackbounds_;
     TypeSet<EM::PosID>  	junctions_;
     TypeSet<EM::PosID>  	eraselist_;
     MPE::EMTracker&		tracker_;
+
+    EM::PosID			lastseedpicked_;
+    bool			sowermode_;
 
     const Attrib::SelSpec* 	selspec_;
 

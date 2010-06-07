@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.18 2010-05-28 07:44:34 cvsjaap Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.19 2010-06-07 16:00:41 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -50,13 +50,17 @@ mClass Sower : public visBase::VisualObjectImpl
     friend class	MPEEditor;
 
 public:
-    enum		SowingMode { Idle=0, Furrowing, Sowing };
+    enum		SowingMode { Idle=0, Furrowing,
+				     FirstSowing, SequentSowing };
+
     SowingMode		mode()				{ return mode_; }
 
     void		reverseSowingOrder(bool yn=true);
     void		alternateSowingOrder(bool yn=true);
 
-    bool		moreSeeds() const;
+    bool		moreToSow() const;
+    void		stopSowing();
+
     Coord3		pivotPos() const;
 
     bool		accept(const visBase::EventInfo&,

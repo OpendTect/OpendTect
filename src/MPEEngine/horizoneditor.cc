@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizoneditor.cc,v 1.14 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: horizoneditor.cc,v 1.15 2010-06-07 16:00:41 cvsjaap Exp $";
 
 #include "horizoneditor.h"
 #include "geeditorimpl.h"
 #include "binidsurface.h"
+#include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "undo.h"
@@ -188,6 +189,35 @@ void HorizonEditor::emChangeCB( CallBacker* cb )
 	}
     }
 }
+
+
+Horizon2DEditor::Horizon2DEditor( EM::Horizon2D& hor2d )
+    : ObjectEditor(hor2d)
+{}
+
+ObjectEditor* Horizon2DEditor::create( EM::EMObject& emobj )
+{
+    mDynamicCastGet(EM::Horizon2D*,hor2d,&emobj);
+    return hor2d ? new Horizon2DEditor( *hor2d ) : 0;
+}
+
+
+void Horizon2DEditor::initClass()
+{ MPE::EditorFactory().addCreator( create, EM::Horizon2D::typeStr() ); }
+
+
+Geometry::ElementEditor* Horizon2DEditor::createEditor(const EM::SectionID& sid)
+{
+    const Geometry::Element* ge = emObject().sectionGeometry( sid );
+    if ( !ge ) return 0;
+
+    mDynamicCastGet(const Geometry::BinIDSurface*,surface,ge);
+    if ( !surface ) return 0;
+    
+    return new Geometry::BinIDElementEditor( 
+		*const_cast<Geometry::BinIDSurface*>(surface) );
+}
+
 
 
 

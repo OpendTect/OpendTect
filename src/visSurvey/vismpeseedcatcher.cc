@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.38 2009-10-29 08:49:38 cvsumesh Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.39 2010-06-07 16:00:41 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.38 2009-10-29 08:49:38
 #include "visemobjdisplay.h"
 #include "visevent.h"
 #include "vishorizon2ddisplay.h"
+#include "vismpeeditor.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "vismpe.h"
@@ -41,13 +42,16 @@ MPEClickCatcher::MPEClickCatcher()
     , eventcatcher_( 0 )
     , transformation_( 0 )
     , trackertype_( 0 )
-{ }
+    , editor_( 0 )
+    , cureventinfo_( 0 )
+{}
 
 
 MPEClickCatcher::~MPEClickCatcher()
 {
     setSceneEventCatcher( 0 );
     setDisplayTransformation( 0 );
+    setEditor( 0 );
 }
 
 
@@ -151,10 +155,13 @@ MPEClickInfo& MPEClickCatcher::info()
 
 void MPEClickCatcher::clickCB( CallBacker* cb )
 {
-    if ( eventcatcher_->isHandled() || !isOn() )
+    if ( eventcatcher_->isHandled() || !isOn() || !editor_ )
 	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
+
+    if ( editor_->sower().accept(eventinfo) )
+	return;
 
     if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
 	return;
@@ -169,6 +176,8 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     info().setShiftClicked( OD::shiftKeyboardButton(eventinfo.buttonstate_) );
     info().setAltClicked( OD::altKeyboardButton(eventinfo.buttonstate_) );
     info().setPos( eventinfo.displaypickedpos );
+
+    cureventinfo_ = &eventinfo;
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
@@ -280,6 +289,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    break;
 	}
     }
+    cureventinfo_ = 0;
     info().clear();
 }
 
@@ -473,6 +483,42 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    click.trigger();
 	}
     }
+}
+
+
+void MPEClickCatcher::setEditor( MPEEditor* mpeeditor )
+{
+    if ( editor_ )
+    {
+	editor_->unRef();
+	editor_ = 0;
+    }
+    editor_ = mpeeditor;
+    if ( editor_ )
+	editor_->ref();
+}
+
+
+bool MPEClickCatcher::activateSower( const Color& color )
+{
+    if ( editor_ && cureventinfo_ )
+	return editor_->sower().activate( color, *cureventinfo_ );
+    return false;
+}
+
+
+bool MPEClickCatcher::sequentSowing() const
+{ return editor_ && editor_->sower().mode()==Sower::SequentSowing; }
+
+
+bool MPEClickCatcher::moreToSow() const
+{ return editor_ && editor_->sower().moreToSow(); }
+
+
+void MPEClickCatcher::stopSowing()
+{ 
+    if ( editor_ )
+	editor_->sower().stopSowing();
 }
 
 

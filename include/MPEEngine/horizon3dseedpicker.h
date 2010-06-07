@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.23 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.24 2010-06-07 16:00:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,8 @@ public:
     bool		doesModeUseVolume() const;
     bool		doesModeUseSetup() const;
 
+    void		setSowerMode( bool yn )		{ sowermode_ = yn; };
+
 protected:
     bool		retrackOnActiveLine( const BinID& startbid, 
 					     bool startwasdefined,
@@ -75,6 +77,10 @@ protected:
     int 		nrLineNeighbors(const EM::PosID& pid,
 	    				bool perptotrackdir=false) const;
 
+    void		eraseInBetween(const EM::PosID& firstpid,
+				       const EM::PosID& lastpid);
+
+
     bool		interpolateSeeds();
     CubeSampling	getTrackBox() const;
 
@@ -84,6 +90,9 @@ protected:
     TypeSet<BinID>	trackbounds_;
     TypeSet<EM::PosID>	junctions_;
     TypeSet<EM::PosID>	eraselist_;
+
+    EM::PosID		lastseedpicked_;
+    bool		sowermode_;
 
     bool		didchecksupport_;
     EM::SectionID	sectionid_;

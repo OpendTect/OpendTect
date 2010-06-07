@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.23 2010-05-28 07:44:34 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.24 2010-06-07 16:00:41 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -257,7 +257,7 @@ visBase::Transformation* FaultStickSetDisplay::getDisplayTransformation()
 
 void FaultStickSetDisplay::updateEditPids()
 {
-    if ( !emfss_ || (viseditor_ && viseditor_->sower().moreSeeds()) )
+    if ( !emfss_ || (viseditor_ && viseditor_->sower().moreToSow()) )
 	return;
 
     editpids_.erase();
@@ -304,7 +304,7 @@ void FaultStickSetDisplay::updateEditPids()
 
 void FaultStickSetDisplay::updateSticks( bool activeonly )
 {
-    if ( !emfss_ || (viseditor_ && viseditor_->sower().moreSeeds()) )
+    if ( !emfss_ || (viseditor_ && viseditor_->sower().moreToSow()) )
 	return;
 
     visBase::IndexedPolyLine3D* poly = activeonly ? activestick_ : sticks_;
@@ -837,7 +837,7 @@ bool FaultStickSetDisplay::isInStickSelectMode() const
 
 void FaultStickSetDisplay::updateKnotMarkers()
 {
-    if ( !emfss_ || (viseditor_ && viseditor_->sower().moreSeeds()) )
+    if ( !emfss_ || (viseditor_ && viseditor_->sower().moreToSow()) )
 	return;
     
     for ( int idx=0; idx<knotmarkers_.size(); idx++ )

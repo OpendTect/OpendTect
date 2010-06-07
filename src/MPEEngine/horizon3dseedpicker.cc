@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.34 2009-08-13 10:49:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.35 2010-06-07 16:00:41 cvsjaap Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -33,6 +33,8 @@ Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
     , blockpicking_( false )
     , sectionid_( -1 )
     , selspec_(0)
+    , sowermode_( false )
+    , lastseedpicked_( EM::PosID::udf() )
 {
     mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(tracker_.objectID()))
     if ( hor && hor->nrSections()>0 )
@@ -76,6 +78,10 @@ bool Horizon3DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
 
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
     const EM::PosID pid( emobj->id(), sectionid_, seedbid.getSerialized() );
+
+    if ( sowermode_ )
+	eraseInBetween( pid, lastseedpicked_ );
+
     propagatelist_.erase();
     propagatelist_ += pid;
 
@@ -104,6 +110,7 @@ bool Horizon3DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
     }
 
     surfchange_.trigger();
+    lastseedpicked_ = pid;
     return res;
 }
 
@@ -120,7 +127,7 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
     const Coord3 oldpos = emobj->getPos(pid);
     BinID seedbid = SI().transform( oldpos );
 
-    const bool attribwasdef = emobj->isPosAttrib( pid, EM::EMObject::sSeedNode());
+    const bool attribwasdef = emobj->isPosAttrib(pid,EM::EMObject::sSeedNode());
     emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
 
     if ( environment || nrLineNeighbors(pid)+nrLateralNeighbors(pid)==0 )
@@ -147,6 +154,38 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 
     surfchange_.trigger();
     return res;
+}
+
+
+void Horizon3DSeedPicker::eraseInBetween( const EM::PosID& pid1,
+					  const EM::PosID& pid2 )
+{
+    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
+
+    if ( !emobj || pid1.isUdf() || pid1.objectID()!=pid2.objectID() ||
+		   pid2.isUdf() || pid1.sectionID()!=pid2.sectionID() )
+	return;
+
+    BinID bid1, bid2, tmp, dir;
+    if ( !lineTrackDirection(dir) )
+	return;
+
+    bid1.setSerialized( pid1.subID() );
+    bid2.setSerialized( pid2.subID() );
+    if ( bid1.inl!=bid2.inl && bid1.crl!=bid2.crl )
+	return;
+
+    if ( bid1.inl>bid2.inl || bid1.crl>bid2.crl )
+	mSWAP( bid1, bid2, tmp );
+
+    bid1 += dir;
+    while ( bid1.inl<bid2.inl || bid1.crl<bid2.crl )
+    {
+	EM::PosID pid( pid1.objectID(),pid1.sectionID(),bid1.getSerialized() );
+	emobj->unSetPos( pid, true );
+	emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
+	bid1 += dir;
+    }
 }
 
 

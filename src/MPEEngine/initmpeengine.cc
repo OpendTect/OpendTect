@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initmpeengine.cc,v 1.8 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: initmpeengine.cc,v 1.9 2010-06-07 16:00:41 cvsjaap Exp $";
 
 #include "initmpeengine.h"
 #include "faulteditor.h"
@@ -24,6 +24,7 @@ void MPEEngine::initStdClasses()
     MPE::FaultStickSetEditor::initClass();
     //MPE::FaultTracker::initClass();
     MPE::HorizonEditor::initClass();
+    MPE::Horizon2DEditor::initClass();
     MPE::Horizon2DTracker::initClass();
     MPE::Horizon3DTracker::initClass();
     MPE::PolygonBodyEditor::initClass();

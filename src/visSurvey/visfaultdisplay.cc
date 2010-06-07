@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.51 2010-05-28 09:51:56 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.52 2010-06-07 16:00:41 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -639,7 +639,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 		else
 		    res = emfault_->geometry().removeKnot( pid.sectionID(),
 							   pid.subID(), true );
-		if ( res && !viseditor_->sower().moreSeeds() )
+		if ( res && !viseditor_->sower().moreToSow() )
 		{
 		    EM::EMM().undo().setUserInteractionEnd(
 			    EM::EMM().undo().currentEventID() );
@@ -688,7 +688,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	       insertstick, 0, pos, editnormal, true ) )
 	{
 	    faulteditor_->setLastClicked( insertpid );
-	    if ( !viseditor_->sower().moreSeeds() )
+	    if ( !viseditor_->sower().moreToSow() )
 	    {
 		EM::EMM().undo().setUserInteractionEnd(
 		    EM::EMM().undo().currentEventID() );
@@ -710,7 +710,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 		insertpid.subID(), pos, true ) )
 	{
 	    faulteditor_->setLastClicked( insertpid );
-	    if ( !viseditor_->sower().moreSeeds() )
+	    if ( !viseditor_->sower().moreToSow() )
 	    {
 		EM::EMM().undo().setUserInteractionEnd(
 		    EM::EMM().undo().currentEventID() );

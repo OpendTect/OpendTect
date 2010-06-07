@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.38 2010-05-28 07:44:34 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.39 2010-06-07 16:00:41 cvsjaap Exp $";
 
 #include "vismpeeditor.h"
 
@@ -16,11 +16,11 @@ static const char* rcsID = "$Id: vismpeeditor.cc,v 1.38 2010-05-28 07:44:34 cvsj
 #include "emsurfacegeometry.h"
 #include "math2.h"
 #include "mousecursor.h"
-#include "vismarker.h"
 #include "visdatagroup.h"
 #include "visdragger.h"
 #include "visevent.h"
 #include "vishingeline.h"
+#include "vismarker.h"
 #include "vismaterial.h"
 #include "vispolyline.h"
 #include "visshapescale.h"
@@ -102,12 +102,14 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
 	emobj.change.remove( movementcb );
 	emobj.unRef();
 	emeditor->editpositionchange.remove( numnodescb );
+	emeditor->unRef();
     }
 
     emeditor = eme;
 
     if ( emeditor )
     {
+	emeditor->ref();
 	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor->emObject());
 	emobj.ref();
 	emobj.change.notify( movementcb );
@@ -496,9 +498,9 @@ Sower::Sower()
     , eventcatcher_( 0 )
     , mode_( Idle )
     , sowingline_( visBase::PolyLine::create() )
-    , linelost_( false )
     , reversesowingorder_( false )
     , alternatesowingorder_( false )
+    , linelost_( false )
 {
     sowingline_->ref();
     addChild( sowingline_->getInventorNode() );
@@ -521,6 +523,7 @@ void Sower::reverseSowingOrder( bool yn )
 void Sower::alternateSowingOrder( bool yn )
 { alternatesowingorder_ = yn; }
 
+
 void Sower::setDisplayTransformation( visBase::Transformation* transformation )
 { sowingline_->setDisplayTransformation( transformation ); }
 
@@ -540,13 +543,14 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo )
 
     sowingline_->getMaterial()->setColor( color );
     sowingline_->turnOn( true );
+
     return true;
 }
 
 
 Coord3 Sower::pivotPos() const
 {
-    if ( mode_!=Sowing || eventlist_.isEmpty() )
+    if ( mode_<FirstSowing || eventlist_.isEmpty() )
 	return Coord3::udf();
 
     Coord3 sum = eventlist_[0]->displaypickedpos;
@@ -555,8 +559,12 @@ Coord3 Sower::pivotPos() const
 }
 
 
-bool Sower::moreSeeds() const
-{ return mode_==Sowing && bendpoints_.size()>1; }
+bool Sower::moreToSow() const
+{ return mode_>=FirstSowing && bendpoints_.size()>1; }
+
+
+void Sower::stopSowing()
+{ bendpoints_.erase(); }
 
 
 bool Sower::accept( const visBase::EventInfo& eventinfo, OD::ButtonState mask )
@@ -610,19 +618,22 @@ bool Sower::accept( const visBase::EventInfo& eventinfo, OD::ButtonState mask )
     if ( reversesowingorder_ )
 	bendpoints_.reverse();
 
-    mode_ = Sowing;
+    mode_ = FirstSowing;
     while ( bendpoints_.size() )
     {
+	int eventidx = bendpoints_[0];
 	for ( int yn=1; yn>=0; yn-- )
 	{
-	    eventlist_[bendpoints_[0]]->pressed = yn;
+	    eventlist_[eventidx]->pressed = yn;
 	    if ( eventcatcher_ )
-		eventcatcher_->reHandle( *eventlist_[bendpoints_[0]] );
+		eventcatcher_->reHandle( *eventlist_[eventidx] );
 	}
 
 	bendpoints_.remove( 0 );
 	if ( alternatesowingorder_ )
 	    bendpoints_.reverse();
+
+	mode_ = SequentSowing;
     }
 
     sowingline_->turnOn( false );

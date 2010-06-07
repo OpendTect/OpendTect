@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.7 2010-05-31 15:01:22 cvsjaap Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.8 2010-06-07 16:00:41 cvsjaap Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -529,7 +529,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 
 		polygonsurfeditor_->setLastClicked( EM::PosID::udf() );
 
-		if ( res && !viseditor_->sower().moreSeeds() )
+		if ( res && !viseditor_->sower().moreToSow() )
 		{
 		    EM::EMM().undo().setUserInteractionEnd(
 			    EM::EMM().undo().currentEventID() );
@@ -569,7 +569,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	       RowCol(insertpid.subID()).row, 0, pos, editnormal, true ) )
 	{
 	    polygonsurfeditor_->setLastClicked( insertpid );
-	    if ( !viseditor_->sower().moreSeeds() )
+	    if ( !viseditor_->sower().moreToSow() )
 	    {
 		EM::EMM().undo().setUserInteractionEnd(
 		    EM::EMM().undo().currentEventID() );
@@ -585,7 +585,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 		insertpid.subID(), pos, true ) )
 	{
 	    polygonsurfeditor_->setLastClicked( insertpid );
-	    if ( !viseditor_->sower().moreSeeds() )
+	    if ( !viseditor_->sower().moreToSow() )
 	    {
 		EM::EMM().undo().setUserInteractionEnd( 
 		    EM::EMM().undo().currentEventID() );
