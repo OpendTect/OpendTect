@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.97 2010-06-04 21:09:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.98 2010-06-07 13:44:13 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -104,6 +104,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	return false;
     }
 
+    const int trcsz = arr_.info().getSize(0);
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const int trcnr = data2dh_.trcinfoset_[idx]->nr;
@@ -115,7 +116,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	const DataHolder* dh = data2dh_.dataset_[idx];
 	const int trcidx = s2d_.trcnrrg_.getIndex( trcnr );
-	if ( !dh ||  trcidx < 0 || trcidx >= arr_.info().getSize(0) )
+	if ( !dh ||  trcidx < 0 || trcidx >= trcsz )
 	{
 	    addToNrDone( 1 );
 	    continue;
@@ -133,8 +134,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		continue;
 	    }
 	    
+	    const int validx = s2d_.datatransform_ ? smp - dh->z0_ : smp;
 	    const float val = dh->dataPresent(smp+shift)
-		? dataseries->value( smp - dh->z0_ )
+		? dataseries->value( validx )
 		: mUdf(float);
 	   
 	    arr_.set( trcidx, arrzidx, val );
