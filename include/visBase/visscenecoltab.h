@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.13 2010-04-27 12:18:10 cvskarthika Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.14 2010-06-08 06:20:26 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,10 +42,6 @@ public:
     enum Pos			{ BottomLeft, BottomRight, TopLeft, TopRight };
     void			setPos( Pos pos ); 
     Pos				getPos() const	    { return pos_; }
-
-    int				usePar(const IOPar& iopar);
-    void			fillPar(IOPar& iopar, TypeSet<int>& saveids) 
-					const;
 
 protected:
 				~SceneColTab();

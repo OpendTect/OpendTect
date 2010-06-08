@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscenecoltab.cc,v 1.18 2010-04-27 12:17:58 cvskarthika Exp $";
+static const char* rcsID = "$Id: visscenecoltab.cc,v 1.19 2010-06-08 06:20:08 cvskarthika Exp $";
 
 #include "visscenecoltab.h"
 
@@ -167,39 +167,5 @@ void SceneColTab::turnOn( bool yn )
     updateVis();
 }
 
-
-int SceneColTab::usePar( const IOPar& iopar )
-{
-    int res = VisualObjectImpl::usePar( iopar );
-    if ( res != 1 ) return res;
-
-    //setLegendColor
-    
-    int w, h;
-    if ( !iopar.get( sizestr, w, h ) )
-	return -1;
-
-    setSize( w, h );
-
-/*    enum Pos pos;
-    if ( !iopar.get( posstr, pos ) )
-	return -1;
-
-    setPos( pos );
-*/
-    return 1;
-}
-
-
-void SceneColTab::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
-{
-    VisualObjectImpl::fillPar( iopar, saveids );
-
-    Geom::Size2D<int> size = getSize();
-    iopar.set( sizestr, size.width(), size.height() );
-
-  /*  enum Pos pos = getPos();
-    iopar.set( posstr, pos );*/
-}
 
 } // namespace visBase
