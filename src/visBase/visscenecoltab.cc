@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscenecoltab.cc,v 1.19 2010-06-08 06:20:08 cvskarthika Exp $";
+static const char* rcsID = "$Id: visscenecoltab.cc,v 1.20 2010-06-08 06:26:59 cvskarthika Exp $";
 
 #include "visscenecoltab.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: visscenecoltab.cc,v 1.19 2010-06-08 06:20:08 cv
 #include "coltabsequence.h"
 #include "axislayout.h"
 #include "scaler.h"
-#include "iopar.h"
 
 #include "LegendKit.h"
 #include <Inventor/SbColor.h>
@@ -25,10 +24,6 @@ mCreateFactoryEntry( visBase::SceneColTab );
 
 namespace visBase
 {
-
-const char* SceneColTab::sizestr = "Size";
-const char* SceneColTab::posstr = "Pos";
- 
 
 SceneColTab::SceneColTab()
     : VisualObjectImpl( false )
@@ -105,7 +100,7 @@ void SceneColTab::setPos( Pos pos )
 }
 
 
-Geom::Size2D<int> SceneColTab::getSize() const
+Geom::Size2D<int> SceneColTab::getSize()
 {
     Geom::Size2D<int> sz;
     sz.setWidth( legendkit_->size[0] );
