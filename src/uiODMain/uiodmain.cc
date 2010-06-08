@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.125 2010-05-31 15:12:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.126 2010-06-08 05:30:46 cvsnanne Exp $";
 
 #include "uiodmain.h"
 
@@ -78,6 +78,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.125 2010-05-31 15:12:08 cvsbert
 #include "inituivelocity.h"
 
 
+extern "C" const char* GetSettingsDataDir();
 static const int cCTHeight = 200;
 
 
@@ -242,13 +243,20 @@ bool uiODMain::ensureGoodSurveySetup()
     {
 	if ( !applmgr_ )
 	{
-	    BufferString msg( "Data management cannot be started."
-		    "Please check your data directory:\n",
-		    GetBaseDataDir(),
-		    "\nDoes it look OK, exist, do you have read permission?" );
-	    uiMSG().error( msg );
+	    BufferString msg( "Data management cannot be started. "
+		"Please check your data directory:\n",
+		GetBaseDataDir(),
+		"\nDoes it look OK, exist, do you have read permission?" );
+	    BufferStringSet msgs;
+	    msgs.add( "\nData directory in:" );
+	    msgs.add( BufferString("$HOME/.od/settings: ",
+				   GetSettingsDataDir()) );
+	    msgs.add( BufferString("DTECT_DATA variable: ",
+				   GetEnvVar("DTECT_DATA")) );
+	    uiMSG().errorWithDetails( msgs, msg );
 	    return false;
 	}
+
 	while ( !applmgr_->manageSurvey() )
 	{
 	    if ( uiMSG().askGoOn( "No survey selected. Do you wish to quit?" ) )
