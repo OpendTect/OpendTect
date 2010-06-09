@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.116 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.117 2010-06-09 06:25:27 cvsranojay Exp $";
 
 #include "uisurvey.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uisurvey.cc,v 1.116 2010-03-25 03:55:14 cvsrano
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uisurvinfoed.h"
+#include "uisurveyselect.h"
 #include "uisurvmap.h"
 #include "uilatlong2coord.h"
 #include "uisetdatadir.h"
@@ -101,8 +102,8 @@ static BufferString getTrueDir( const char* dn )
 
 static bool copySurv( const char* from, const char* todirnm, int mb )
 {
-    FilePath fp( GetBaseDataDir() ); fp.add( todirnm );
-    const BufferString todir( fp.fullPath() );
+   /* FilePath fp( todirnm ); //fp.add( todirnm );*/
+    const BufferString todir( todirnm );
     if ( File::exists(todir) )
     {
 	BufferString msg( "A survey '" );
@@ -313,22 +314,20 @@ uiSurveyGetCopyDir( uiParent* p, const char* cursurv )
 	FilePath fp( GetBaseDataDir() ); fp.add( cursurv );
 	curfnm = fp.fullPath();
     }
-    inpfld = new uiFileInput( this,
-	    	"Opendtect survey directory to copy",
-		uiFileInput::Setup(curfnm).directories(true));
-    inpfld->setDefaultSelectionDir( GetBaseDataDir() );
-    inpfld->valuechanged.notify( mCB(this,uiSurveyGetCopyDir,inpSel) );
 
-    newdirnmfld = new uiGenInput( this, "New survey directory name", "" );
-    newdirnmfld->attach( alignedBelow, inpfld );
+    inpsurveyfld_ = new uiSurveySelect( this,"Survey to copy" );
+    inpsurveyfld_->setSurveyPath( curfnm );
+    newsurveyfld_ = new uiSurveySelect( this, "New Survey" );
+    newsurveyfld_->attach( alignedBelow,  inpsurveyfld_ );
 }
 
 
 void inpSel( CallBacker* )
 {
-    fname = inpfld->fileName();
-    FilePath fp( fname );
-    newdirnmfld->setText( fp.fileName() );
+    BufferString fullpath;
+    inpsurveyfld_->getFullSurveyPath( fullpath );
+    FilePath fp( fullpath );
+    newsurveyfld_->setInputText( fp.fullPath() );
 }
 
 
@@ -336,29 +335,17 @@ void inpSel( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
-    fname = inpfld->fileName();
-    if ( !File::exists(fname) )
-	mErrRet( "Selected directory does not exist" );
-    if ( !File::isDirectory(fname) )
-	mErrRet( "Please select a valid directory" );
-    FilePath fp( fname );
-    fp.add( ".survey" );
-    if ( !File::exists( fp.fullPath() ) )
-	mErrRet( "This is not an OpendTect survey directory" );
-
-    newdirnm = newdirnmfld->text();
-    if ( newdirnm.isEmpty() )
-	{ inpSel(0); newdirnm = newdirnmfld->text(); }
-    cleanupString( newdirnm.buf(), mC_False, mC_False, mC_True );
+    if ( !inpsurveyfld_->getFullSurveyPath( fname_ ) ||
+	 !newsurveyfld_->getFullSurveyPath( newdirnm_) )
+    {	 mErrRet( "No Valid or Empty Input" ); }
 
     return true;
 }
 
-    BufferString	fname;
-    BufferString	newdirnm;
-    uiFileInput*	inpfld;
-    uiGenInput*		newdirnmfld;
-
+    BufferString	fname_;
+    BufferString	newdirnm_;
+    uiSurveySelect*	inpsurveyfld_;
+    uiSurveySelect*	newsurveyfld_;
 };
 
 
@@ -368,11 +355,11 @@ void uiSurvey::copyButPushed( CallBacker* )
     if ( !dlg.go() )
 	return;
 
-    if ( !copySurv( dlg.fname, dlg.newdirnm, -1 ) )
+    if ( !copySurv( dlg.fname_, dlg.newdirnm_, -1 ) )
 	return;
 
     updateSvyList();
-    listbox_->setCurrentItem( dlg.newdirnm );
+    listbox_->setCurrentItem( dlg.newdirnm_ );
     updateSvyFile();
     newSurvey();
     SetSurveyName( listbox_->getText() );

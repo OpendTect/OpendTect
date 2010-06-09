@@ -28,10 +28,9 @@ public:
 
     void		setDataRoot(const char*);
     const char*		getDataRoot() const;
-
     void		setSurveyName(const char*);
     const char*		getSurveyName() const;
-    BufferString	getSurveyPath() const;
+    const BufferString	getSurveyPath() const;
 
     bool		isNewSurvey() const;
 
@@ -50,15 +49,16 @@ protected:
 mClass uiSurveySelect : public uiIOSelect
 {
 public:
-			uiSurveySelect(uiParent*);
+			uiSurveySelect(uiParent*,const char* label=0);
 			~uiSurveySelect();
 
     bool		isNewSurvey() const	{ return isnewsurvey_; }
+    bool		getFullSurveyPath(BufferString&) const;
+    void		setSurveyPath(const char*);
 
 protected:
 
     void		selectCB(CallBacker*);
-
     bool		isnewsurvey_;
     BufferString	dataroot_;
     BufferString	surveyname_;

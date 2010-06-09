@@ -10,13 +10,26 @@ ________________________________________________________________________
 
 #include "uisurveyselect.h"
 
+#include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "uifileinput.h"
 #include "uilistbox.h"
+#include "uimsg.h"
 #include "uisurvey.h"
 
 extern "C" const char* GetSurveyName();
+
+#define mErrRet(s) { uiMSG().error(s); return; }
+
+bool checkIfDataDir( const char* path )
+{
+    FilePath fpo( path ), fps( path );
+    fpo.add( ".omf" );
+    fps.add( ".survey" );
+    return File::exists( fpo.fullPath() ) && !File::exists( fps.fullPath() );
+}
+
 
 uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, const char* survnm,
        				      const char* dataroot )
@@ -65,7 +78,7 @@ void uiSurveySelectDlg::setSurveyName( const char* nm )
 const char* uiSurveySelectDlg::getSurveyName() const
 { return surveyfld_->text(); }
 
-BufferString uiSurveySelectDlg::getSurveyPath() const
+const BufferString uiSurveySelectDlg::getSurveyPath() const
 {
     FilePath fp( getDataRoot() );
     fp.add( getSurveyName() );
@@ -75,8 +88,14 @@ BufferString uiSurveySelectDlg::getSurveyPath() const
 
 void uiSurveySelectDlg::fillSurveyList()
 {
+    if( !checkIfDataDir( getDataRoot() ) )
+    {
+	uiMSG().error( "Not a valid Survey folder" );
+	return;
+    }
+    
     BufferStringSet surveylist;
-    uiSurvey::getSurveyList( surveylist, getDataRoot() );
+    uiSurvey::getSurveyList( surveylist, getDataRoot() );  
     surveylistfld_->empty();
     surveylistfld_->addItems( surveylist );
 }
@@ -101,11 +120,11 @@ bool uiSurveySelectDlg::isNewSurvey() const
 
 
 // uiSurveySelect
-uiSurveySelect::uiSurveySelect( uiParent* p )
-    : uiIOSelect(p,uiIOSelect::Setup("Select Survey"),
+uiSurveySelect::uiSurveySelect( uiParent* p, const char* lbl )
+    : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? lbl : "Survey Select" ),
 		 mCB(this,uiSurveySelect,selectCB))
     , dataroot_(GetBaseDataDir())
-    , surveyname_(GetSurveyName())
+    , surveyname_(0)
 {}
 
 
@@ -115,7 +134,7 @@ uiSurveySelect::~uiSurveySelect()
 
 void uiSurveySelect::selectCB( CallBacker* )
 {
-    uiSurveySelectDlg dlg( this, surveyname_, dataroot_ );
+    uiSurveySelectDlg dlg( this, GetSurveyName(), dataroot_ );
     if( !dlg.go() ) return;
 
     isnewsurvey_ = dlg.isNewSurvey();
@@ -124,3 +143,52 @@ void uiSurveySelect::selectCB( CallBacker* )
     setInputText( surveyname_ );
     selok_ = true;
 }
+
+
+BufferString makeFullSurveyPath( const char* survnm, const char* dataroot )
+{
+    FilePath fp( dataroot );
+    BufferString surveyname( survnm );
+    cleanupString( surveyname.buf(), mC_False, mC_False, mC_True );
+    fp.add( surveyname );
+    return fp.fullPath();
+}
+
+
+bool uiSurveySelect::getFullSurveyPath( BufferString& fullpath ) const
+{
+    BufferString input = getInput();
+    if ( input.isEmpty() )
+	return false;
+
+    FilePath fp( input );
+    if ( fp.fileName() == input )
+    {
+	fullpath = makeFullSurveyPath( input, dataroot_ );
+	return fullpath.isEmpty() ? false : true;
+    }
+   
+    BufferString path( fp.pathOnly() ), survnm( fp.fileName() );
+    const bool isdatadir = checkIfDataDir( path );
+    fullpath = makeFullSurveyPath( survnm, path );
+    return isdatadir && !fullpath.isEmpty() ? true : false;
+}
+
+
+void uiSurveySelect::setSurveyPath( const char* fullpath )
+{
+    if ( !File::exists(fullpath) )
+	mErrRet( "Selected directory does not exist.\n"
+		 "Please specify the full path" );
+    if ( !File::isDirectory(fullpath) )
+	mErrRet( "Please select a valid directory" );
+
+    FilePath fp( fullpath );
+    fp.add( ".survey" );
+    if ( !File::exists( fp.fullPath() ) )
+	mErrRet( "This is not an OpendTect survey directory" );
+
+    setInputText( fullpath );
+}
+
+
