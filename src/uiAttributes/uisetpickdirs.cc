@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.22 2010-04-23 15:33:30 cvshelene Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.23 2010-06-09 13:01:26 cvshelene Exp $";
 
 
 #include "uisetpickdirs.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribdescsetsholder.h"
 #include "attribengman.h"
 #include "attribfactory.h"
 #include "attribparam.h"
@@ -73,7 +74,8 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 			BoolInpSpec(true,"Steering cube","Attributes") );
 	dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
     	steerctio_ = uiSteerCubeSel::mkCtxtIOObj( is2d, true );
-	steerfld_ = new uiSteerCubeSel( this, *steerctio_, ads_, is2d );
+	steerfld_ = new uiSteerCubeSel( this, *steerctio_,
+					DSHolder().getDescSet(is2d,true), is2d);
 	steerfld_->attach( alignedBelow, dirinpfld_ );
     }
 
@@ -114,6 +116,16 @@ void uiSetPickDirs::dirinpSel( CallBacker* )
 #define mErrRet(msg) \
 { uiMSG().error( msg ); return false; }
 
+#define mAddColDef( dir, fld ) \
+{ \
+    BufferString coldefnm##fld = usesteering_ ? steerfld_->getInput() \
+					      : fld->getAttrName(); \
+    if ( usesteering_ ) \
+    { coldefnm##fld += "_"; coldefnm##fld += dir; coldefnm##fld += "_dip"; } \
+\
+    dcds += new DataColDef( coldefnm##fld ); \
+}
+
 bool uiSetPickDirs::acceptOK( CallBacker* )
 {
     if ( usesteering_ && !*steerfld_->getInput() )
@@ -123,10 +135,8 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 
     TypeSet<DataPointSet::DataRow> pts;
     ObjectSet<DataColDef> dcds;
-    dcds += new DataColDef( usesteering_ ? "inline dip"
-	    				 : phifld_->getAttrName() );
-    dcds += new DataColDef( usesteering_ ? "crossline dip"
-	    				 : thetafld_->getAttrName() );
+    mAddColDef( "inline", phifld_ )
+    mAddColDef( "crline", thetafld_ )
 
     DataPointSet locations( pts, dcds, ads_->is2D() );
     for ( int idx=0; idx<ps_.size(); idx++ )
@@ -229,14 +239,12 @@ bool uiSetPickDirs::getAndCheckAttribSelection( DataPointSet& loc )
     }
 
     if ( !createdset_ )
-	createdset_ = ads_->isEmpty() ? new DescSet( ads_->is2D() )
-    				      : new DescSet( *ads_ );
+	createdset_ = ads_->isEmpty() || usesteering_
+	    			? new DescSet(ads_->is2D() )
+    				: new DescSet( *ads_ );
 
     if ( !createdset_->getDesc( ids[0] ) && usesteering_ )
-    {
-	createSteeringDesc( 0, ids[0] );
-	createSteeringDesc( 1, ids[1] );
-    }
+	*createdset_ = *( Attrib::DSHolder().getDescSet( ads_->is2D(), true ) );
 
     mSetColDef(0)
     mSetColDef(1)

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.43 2010-05-28 10:34:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.44 2010-06-09 13:01:26 cvshelene Exp $";
 
 
 #include "uisteeringsel.h"
@@ -268,8 +268,9 @@ static uiSeisSel::Setup mkSeisSelSetup( bool is2d, const char* txt )
 uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 				const DescSet* ads, bool is2d, const char* txt )
 	: uiSeisSel( p, c, mkSeisSelSetup(is2d,txt) )
-	, attrdata_( ads )
+	, attrdata_( is2d )
 {
+    attrdata_.setAttrSet( ads );
     attachObj()->finaliseStart.notify( mCB(this,uiSteerCubeSel,doFinalise) );
 }
 
