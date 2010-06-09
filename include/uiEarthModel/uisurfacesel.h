@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: uisurfacesel.h,v 1.3 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uisurfacesel.h,v 1.4 2010-06-09 10:40:54 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ public:
 
     virtual void	getSelSurfaceIds(TypeSet<MultiID>&) const;
     int 		getSelItems() const;
+
+    void		removeFromList(const TypeSet<MultiID>&);
 
 protected:
     			uiSurfaceSel(uiParent*,const IOObjContext&);

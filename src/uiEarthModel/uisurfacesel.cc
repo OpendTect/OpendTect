@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfacesel.cc,v 1.7 2010-04-28 03:44:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisurfacesel.cc,v 1.8 2010-06-09 10:41:35 cvsraman Exp $";
 
 #include "uisurfacesel.h"
 
@@ -58,6 +58,20 @@ void uiSurfaceSel::getFullList()
     }
     
     listfld_->addItems( names_ );
+}
+
+
+void uiSurfaceSel::removeFromList( const TypeSet<MultiID>& ids )
+{
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	const int surfidx = mids_.indexOf( ids[idx] );
+	if ( surfidx < 0 )
+	    continue;
+
+	listfld_->removeItem( surfidx );
+	mids_.remove( surfidx );
+    }
 }
 
 

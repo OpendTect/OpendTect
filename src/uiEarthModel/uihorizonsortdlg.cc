@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.18 2009-08-20 04:08:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.19 2010-06-09 10:41:35 cvsraman Exp $";
 
 #include "uihorizonsortdlg.h"
 
@@ -55,9 +55,17 @@ void uiHorizonSortDlg::setLineID( const MultiID& mid )
 }
 
 
+void uiHorizonSortDlg::setConstSelected( const TypeSet<MultiID>& horids )
+{
+    constselids_ = horids;
+    horsel_->removeFromList( horids );
+}
+
+
 void uiHorizonSortDlg::getSelectedHorizons( TypeSet<MultiID>& horids ) const
 {
     horsel_->getSelSurfaceIds( horids );
+    horids.append( constselids_ );
 }
 
 
@@ -69,14 +77,13 @@ void uiHorizonSortDlg::getSortedHorizons( ObjectSet<EM::Horizon>& hors ) const
 
 bool uiHorizonSortDlg::acceptOK( CallBacker* )
 {
-    if ( horsel_->getSelItems() < 2 )
+    TypeSet<MultiID> horids;
+    getSelectedHorizons( horids );
+    if ( horids.size() < 2 )
     {
 	uiMSG().error( "Please select at least two horizons" );
 	return false;
     }
-
-    TypeSet<MultiID> horids;
-    getSelectedHorizons( horids );
 
     TypeSet<MultiID> loadids;
     for ( int idx=0; idx<horids.size(); idx++ )
