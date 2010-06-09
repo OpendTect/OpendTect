@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.52 2010-06-07 16:00:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.53 2010-06-09 10:28:53 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -659,6 +659,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
     if ( eventinfo.type!=visBase::MouseClick ||
 	 OD::altKeyboardButton(eventinfo.buttonstate_) ||
+	 OD::ctrlKeyboardButton(eventinfo.buttonstate_) ||
 	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
 
