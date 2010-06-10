@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.38 2010-03-03 16:06:32 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.39 2010-06-10 17:15:13 cvsyuancheng Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -537,14 +537,24 @@ void VDA2DBitMapGenerator::drawStrip( int idim0 )
 
 
 #define mV00Val \
-    inpdata.get( idim0, idim1 )
+    inpdata.info().validPos( idim0, idim1 ) \
+	? inpdata.get( idim0, idim1 ) \
+	: mUdf(float);
 #define mV10Val \
-    idim0 < szdim0_-1 ? inpdata.get( idim0+1, idim1 ) : v[0]
+    inpdata.info().validPos( idim0+1, idim1 ) \
+	? inpdata.get( idim0+1, idim1 ) \
+	: v[0]
 #define mV01Val \
-    idim1 < szdim1_-1 ? inpdata.get( idim0, idim1+1 ) : v[0]
+    inpdata.info().validPos( idim0, idim1+1 ) \
+	? inpdata.get( idim0, idim1+1 ) \
+	: v[0]
 #define mV11Val \
-    idim0 < szdim0_-1 ? (idim1 < szdim1_-1 \
-		      ? inpdata.get( idim0+1, idim1+1 ) : v[2]) : v[1]
+    inpdata.info().validDimPos( 0, idim0+1 ) \
+	? (inpdata.info().validDimPos( 1, idim1+1 ) \
+		? inpdata.get( idim0+1, idim1+1 ) \
+		: v[2]) \
+	: v[1]
+
 
 void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 					 const Interval<int>& xpixs2do )
