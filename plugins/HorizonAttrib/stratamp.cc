@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratamp.cc,v 1.7 2010-05-21 16:58:35 cvshelene Exp $";
+static const char* rcsID = "$Id: stratamp.cc,v 1.8 2010-06-10 14:21:08 cvshelene Exp $";
 
 #include "stratamp.h"
 
@@ -132,50 +132,55 @@ int StratAmpCalc::init( const char* attribnm, bool addtotop, const IOPar& pars )
 }
 
 
+#define mRet( event ) \
+{ delete trc; return event; }
+
 int StratAmpCalc::nextStep()
 {
     if ( ( !proc_ && !rdr_ ) || !tophorizon_ || dataidx_<0 )
 	return Executor::ErrorOccurred();
 
     int res = -1;
-    SeisTrc trc;
+    SeisTrc* trc;
     if ( usesstored_ )
     {
-	const int rv = rdr_->get( trc.info() );
-	if ( rv == 0 ) return Executor::Finished();
-	else if ( rv == -1 ) return Executor::ErrorOccurred();
-	if ( !rdr_->get(trc) ) return Executor::ErrorOccurred();
+	trc = new SeisTrc();
+	const int rv = rdr_->get( trc->info() );
+	if ( rv == 0 ) mRet( Executor::Finished() )
+	else if ( rv == -1 ) mRet( Executor::ErrorOccurred() )
+	if ( !rdr_->get(*trc) ) mRet( Executor::ErrorOccurred() );
     }
     else
     {
 	res = proc_->nextStep();
+	if ( res == 0 ) return Executor::Finished();
 	if ( res == -1 ) return Executor::ErrorOccurred();
-	SeisTrc* trace = proc_->outputs_[0]->getTrc();
-	if ( !trace ) return Executor::ErrorOccurred();
-	trc = *trace;
+
+	trc = proc_->outputs_[0]->getTrc();
+	if ( !trc ) return Executor::ErrorOccurred();
     }
 
-    const BinID bid = trc.info().binid;
+    const BinID bid = trc->info().binid;
     const EM::SubID subid = bid.getSerialized();
     float z1 = tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
     float z2 = !bothorizon_ ? z1
 		     : bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
     z1 += tophorshift_;
     z2 += bothorshift_;
-    Interval<int> sampintv( trc.info().nearestSample(z1),
-	    		    trc.info().nearestSample(z2) );
+    Interval<int> sampintv( trc->info().nearestSample(z1),
+	    		    trc->info().nearestSample(z2) );
 
     if ( sampintv.start < 0 )
 	sampintv.start = 0;
-    if ( sampintv.stop >= trc.size() )
-	sampintv.stop = trc.size()-1;
+    if ( sampintv.stop >= trc->size() )
+	sampintv.stop = trc->size()-1;
 
     Stats::RunCalcSetup rcsetup;
     rcsetup.require( stattyp_ );
     Stats::RunCalc<float> runcalc( rcsetup );
     for ( int idx=sampintv.start; idx<=sampintv.stop; idx++ )
     {
-	const float val = trc.get( idx, 0 );
+	const float val = trc->get( idx, 0 );
 	if ( !mIsUdf(val) )
 	    runcalc.addValue( val );
     }
@@ -195,5 +200,11 @@ int StratAmpCalc::nextStep()
     posid_.setSubID( subid );
     addtohor_->auxdata.setAuxDataVal( dataidx_, posid_, outval );
     nrdone_++;
+
+    if ( usesstored_ )
+	delete trc;
+    else
+	proc_->outputs_[0]->deleteTrc();
+
     return res || rdr_ ? Executor::MoreToDo() : Executor::Finished();
 }
