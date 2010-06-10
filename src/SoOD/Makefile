@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.43 2010-03-30 08:18:50 cvskarthika Exp $
+#	RCS :		$Id: Makefile,v 1.44 2010-06-10 12:30:25 cvsnanne Exp $
 #_______________________________________________________________________________
 
 
@@ -14,6 +14,7 @@ SRC.cc	:=	initsood.cc \
 		SoCameraFacingZAxisRotation.cc \
 		SoCameraInfo.cc \
 		SoCameraInfoElement.cc \
+		SoColorTableTexture.cc \
 		SoColTabMultiTexture2.cc \
 		SoColTabTextureChannel2RGBA.cc \
 		SoDepthTabPlaneDragger.cc \
