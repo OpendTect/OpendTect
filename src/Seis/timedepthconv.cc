@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.25 2010-04-30 14:14:59 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.26 2010-06-10 08:33:51 cvsnanne Exp $";
 
 #include "timedepthconv.h"
 
@@ -694,8 +694,8 @@ Interval<float> Depth2TimeStretcher::getZInterval( bool depth ) const
 
     if ( survisdepth && !depth )
     {
-	res.start /= topvavg.stop/2;
-	res.stop /= botvavg.start/2;
+	res.start /= (topvavg.stop/2);
+	res.stop /= (botvavg.start/2);
     }
     else if ( !survisdepth && depth )
     {
