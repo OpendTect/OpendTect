@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2004
- RCS:		$Id: uisettings.h,v 1.16 2009-08-25 14:47:53 cvsbert Exp $
+ RCS:		$Id: uisettings.h,v 1.17 2010-06-10 06:35:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,8 @@ protected:
     uiGenInput*		colbarhvfld_;
     uiGenInput*		colbarontopfld_;
     uiGenInput*		showwheelsfld_;
-    uiGenInput*		showprogressfld_;
+    uiGenInput*		showinlprogressfld_;
+    uiGenInput*		showcrlprogressfld_;
     uiGenInput*		useshadingfld_;
     uiGenInput*		volrenshadingfld_;
 

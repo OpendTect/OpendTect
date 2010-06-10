@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisettings.cc,v 1.37 2010-04-12 08:45:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uisettings.cc,v 1.38 2010-06-10 06:35:59 cvsnanne Exp $";
 
 #include "uisettings.h"
 
@@ -103,6 +103,7 @@ static int sIconSize = -1;
 #define mIconsKey		"dTect.Icons"
 #define mCBarKey		"dTect.ColorBar.show vertical"
 #define mShowInlProgress	"dTect.Show inl progress"
+#define mShowCrlProgress	"dTect.Show crl progress"
 #define mShowWheels		"dTect.Show wheels"
 #define mNoShading		"dTect.No shading"
 #define mVolRenShading		"dTect.Use VolRen shading"
@@ -114,6 +115,7 @@ struct LooknFeelSettings
 		    , isvert(true)
 		    , showwheels(true)
 		    , showinlprogress(true)
+		    , showcrlprogress(true)
 		    , noshading(false)
 		    , volrenshading(false)		{}
 
@@ -121,6 +123,7 @@ struct LooknFeelSettings
     bool	isvert;
     bool	showwheels;
     bool	showinlprogress;
+    bool	showcrlprogress;
     bool	noshading;
     bool	volrenshading;
 };
@@ -142,15 +145,21 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
     colbarhvfld_->attach( alignedBelow, iconszfld_ );
 
     setts_.getYN( mShowInlProgress, lfsetts_.showinlprogress );
-    showprogressfld_ = new uiGenInput( this,
+    showinlprogressfld_ = new uiGenInput( this,
 	    "Show progress when loading stored data on inlines",
 	    BoolInpSpec(lfsetts_.showinlprogress) );
-    showprogressfld_->attach( alignedBelow, colbarhvfld_ );
+    showinlprogressfld_->attach( alignedBelow, colbarhvfld_ );
+
+    setts_.getYN( mShowInlProgress, lfsetts_.showcrlprogress );
+    showcrlprogressfld_ = new uiGenInput( this,
+	    "Show progress when loading stored data on crosslines",
+	    BoolInpSpec(lfsetts_.showcrlprogress) );
+    showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
 
     setts_.getYN( mShowWheels, lfsetts_.showwheels );
     showwheelsfld_ = new uiGenInput( this, "Show Zoom/Rotation tools",
 	    			    BoolInpSpec(lfsetts_.showwheels) );
-    showwheelsfld_->attach( alignedBelow, showprogressfld_ );
+    showwheelsfld_->attach( alignedBelow, showcrlprogressfld_ );
 
     setts_.getYN( mNoShading, lfsetts_.noshading );
     useshadingfld_ = new uiGenInput( this, "Use OpenGL shading when available",
@@ -222,8 +231,12 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 
     updateSettings( lfsetts_.showwheels, showwheelsfld_->getBoolValue(),
 	    	    mShowWheels );
-    updateSettings( lfsetts_.showinlprogress, showprogressfld_->getBoolValue(),
+    updateSettings( lfsetts_.showinlprogress,
+		    showinlprogressfld_->getBoolValue(),
 	    	    mShowInlProgress );
+    updateSettings( lfsetts_.showcrlprogress,
+		    showcrlprogressfld_->getBoolValue(),
+	    	    mShowCrlProgress );
 
     if ( changed_ && !setts_.write() )
     {
