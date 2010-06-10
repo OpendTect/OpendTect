@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.17 2010-02-12 04:24:33 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.18 2010-06-10 08:22:04 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,7 @@ protected:
     void                handleMenuCB(CallBacker*);
 
     void		createAttrMenu(uiMenuHandler*);
+    void		selectNewAttribute(const char*);
     bool                isExpandable() const            { return true; }
     const char*         parentType() const;
 

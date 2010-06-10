@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.80 2010-04-27 08:46:31 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.81 2010-06-10 08:22:04 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -183,6 +183,9 @@ void uiOD2DLineSetTreeItem::selectAddLines()
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     for ( int idx=linenames.size()-1; idx>=0; idx-- )
 	addChild( new uiOD2DLineSetSubItem(linenames.get(idx)), false );
+    cursorchgr.restore();
+
+    selectNewAttribute( sKeyRightClick );
 }
 
 
@@ -401,50 +404,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	BufferString curnm = editattritm_.getItem(itmidx)->text;
 	const char* attribnm = curnm==sKeyUnselected ? sKeyRightClick
 	    					     : curnm.buf();
-	const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet( true );
-	const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
-	uiAttr2DSelDlg dlg( ODMainWin(), ds, setid_, nla, attribnm );
-	if ( !dlg.go() ) return;
-
-	ObjectSet<uiTreeItem> set;
-	findChildren( attribnm, set );
-	const int attrtype = dlg.getSelType();
-	if ( attrtype == 0 )
-	{
-	    const char* newattrnm = dlg.getStoredAttrName();
-	    for ( int idx=0; idx<set.size(); idx++ )
-	    {
-		mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-		if ( item ) item->displayStoredData( newattrnm, -1, uitr );
-	    }
-	}
-	else if ( attrtype == 1 || attrtype == 2 )
-	{
-	    if ( attrtype == 1 )
-	    {
-		const Attrib::Desc* desc =  ds->getDesc( dlg.getSelDescID() );
-		if ( !desc )
-		{
-		    uiMSG().error("Selected attribute is not available");
-		    return;
-		}
-
-		as.set( *desc );
-	    }
-	    else if ( nla )
-	    {
-		as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
-		as.setObjectRef( applMgr()->nlaServer()->modelName() );
-		as.setRefFromID( *nla );
-	    }
-
-	    as.set2DFlag( true );
-	    for ( int idx=0; idx<set.size(); idx++ )
-	    {
-		mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-		item->setAttrib( as, uitr );
-	    }
-	}
+	selectNewAttribute( attribnm );
     }
     else if ( removeattritm_.itemIndex(mnuid)!=-1 )
     {
@@ -517,9 +477,59 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
+void uiOD2DLineSetTreeItem::selectNewAttribute( const char* attribnm )
+{
+    const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet( true );
+    const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
+    uiAttr2DSelDlg dlg( ODMainWin(), ds, setid_, nla, attribnm );
+    if ( !dlg.go() ) return;
+
+    uiTaskRunner uitr( ODMainWin() );
+    ObjectSet<uiTreeItem> set;
+    findChildren( attribnm, set );
+    const int attrtype = dlg.getSelType();
+    if ( attrtype == 0 )
+    {
+	const char* newattrnm = dlg.getStoredAttrName();
+	for ( int idx=0; idx<set.size(); idx++ )
+	{
+	    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
+	    if ( item ) item->displayStoredData( newattrnm, -1, uitr );
+	}
+    }
+    else if ( attrtype == 1 || attrtype == 2 )
+    {
+	Attrib::SelSpec as;
+	if ( attrtype == 1 )
+	{
+	    const Attrib::Desc* desc =  ds->getDesc( dlg.getSelDescID() );
+	    if ( !desc )
+	    {
+		uiMSG().error("Selected attribute is not available");
+		return;
+	    }
+
+	    as.set( *desc );
+	}
+	else if ( nla )
+	{
+	    as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
+	    as.setObjectRef( applMgr()->nlaServer()->modelName() );
+	    as.setRefFromID( *nla );
+	}
+
+	as.set2DFlag( true );
+	for ( int idx=0; idx<set.size(); idx++ )
+	{
+	    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
+	    item->setAttrib( as, uitr );
+	}
+    }
+}
+
+
 const char* uiOD2DLineSetTreeItem::parentType() const
 { return typeid(uiODSeis2DParentTreeItem).name(); }
-
 
 
 bool uiOD2DLineSetTreeItem::init()
