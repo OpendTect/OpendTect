@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.118 2010-03-31 18:53:25 cvskris Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.119 2010-06-10 08:26:51 cvsnanne Exp $";
 
 #include "uiseispartserv.h"
 
@@ -312,7 +312,7 @@ void uiSeisPartServer::getStoredGathersList( bool for3d,
 
 void uiSeisPartServer::storeRlnAs2DLine( const Geometry::RandomLine& rln ) const
 {
-    uiSeisRandTo2DLineDlg dlg( appserv().parent(), rln );
+    uiSeisRandTo2DLineDlg dlg( appserv().parent(), &rln );
     dlg.go();
 }
 
@@ -320,7 +320,7 @@ void uiSeisPartServer::storeRlnAs2DLine( const Geometry::RandomLine& rln ) const
 void uiSeisPartServer::create2DGridFromRln(
 				const Geometry::RandomLine& rln ) const
 {
-    uiSeisRandTo2DGridDlg dlg( appserv().parent(), rln );
+    uiSeisRandTo2DGridDlg dlg( appserv().parent(), &rln );
     dlg.go();
 }
 

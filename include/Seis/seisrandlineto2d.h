@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: seisrandlineto2d.h,v 1.7 2009-08-20 11:31:44 cvsraman Exp $
+ RCS:		$Id: seisrandlineto2d.h,v 1.8 2010-06-10 08:26:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,8 @@ namespace Geometry { class RandomLine; }
 mClass SeisRandLineTo2D : public Executor
 {
 public:
-    			SeisRandLineTo2D(IOObj*,IOObj*,const LineKey&,
-					 const int& trcinit,
+    			SeisRandLineTo2D(const IOObj&,const IOObj&,
+					 const LineKey&, int trcinit,
 					 const Geometry::RandomLine&);
 			~SeisRandLineTo2D();
 

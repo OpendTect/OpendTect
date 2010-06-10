@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.13 2009-08-20 11:31:22 cvsraman Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.14 2010-06-10 08:26:51 cvsnanne Exp $";
 
 #include "cubesampling.h"
 #include "ioman.h"
@@ -24,8 +24,8 @@ static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.13 2009-08-20 11:31:22 
 #include "survinfo.h"
 
 
-SeisRandLineTo2D::SeisRandLineTo2D( IOObj* inobj, IOObj* outobj,
-				    const LineKey& lk, const int& trcinit,
+SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
+				    const LineKey& lk, int trcinit,
 				    const Geometry::RandomLine& rln )
     : Executor("Saving 2D Line")
     , rdr_(0)
@@ -33,8 +33,8 @@ SeisRandLineTo2D::SeisRandLineTo2D( IOObj* inobj, IOObj* outobj,
     , nrdone_(0)
     , seldata_(*new Seis::TableSelData)
 {
-    rdr_ = new SeisTrcReader( inobj );
-    wrr_ = new SeisTrcWriter( outobj );
+    rdr_ = new SeisTrcReader( &inobj );
+    wrr_ = new SeisTrcWriter( &outobj );
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
     if ( seldata )
     {
@@ -304,7 +304,7 @@ bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
 	    linenm += "0";
 	linenm += strsuffix;
 	LineKey lk( linenm, outpattrib_.buf() );
-	SeisRandLineTo2D exec( inpobj_, outpobj_, lk, 1, *rln );
+	SeisRandLineTo2D exec( *inpobj_, *outpobj_, lk, 1, *rln );
 	strm_ << "Creating 2D line " << linenm << ":" << std::endl;
 	strm_.flush();
 	if ( !exec.execute(&strm_) )
