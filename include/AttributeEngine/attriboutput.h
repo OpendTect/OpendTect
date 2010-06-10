@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.49 2010-05-25 03:33:20 cvsnanne Exp $
+ RCS:           $Id: attriboutput.h,v 1.50 2010-06-10 14:21:27 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,7 @@ public:
 	    				    const SeisTrcInfo&)		 = 0;
     virtual SeisTrc*		getTrc()		{ return 0; }
     virtual void		writeTrc()		{};
+    virtual void		deleteTrc()		{};
     const Seis::SelData&	getSelData()		{ return *seldata_; }
     const LineKey&		curLineKey() const;
     virtual void		adjustInlCrlStep(const CubeSampling&)	{};
@@ -178,6 +179,10 @@ protected:
     bool			growtrctosi_;
     BufferString		datatype_;
     BufferStringSet		outpnames_;
+
+public:
+    void			deleteTrc(); //only if you do not use writeTrc
+    
 };
 
 

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.104 2010-05-25 03:33:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.105 2010-06-10 14:21:28 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -574,6 +574,13 @@ TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRanges(
 	const_cast<SeisTrcStorOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
+}
+
+
+void SeisTrcStorOutput::deleteTrc()
+{
+    if ( trc_ ) delete trc_;
+    trc_ = 0;
 }
 
 
