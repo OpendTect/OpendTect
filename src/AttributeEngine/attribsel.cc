@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.48 2010-05-12 10:22:35 cvshelene Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.49 2010-06-10 08:29:35 cvsnanne Exp $";
 
 #include "attribsel.h"
 
@@ -189,7 +189,8 @@ bool SelSpec::usePar( const IOPar& par )
 {
     ref_ = ""; 			par.get( sKeyRef(), ref_ );
     id_ = cNoAttrib();		par.get( sKeyID(), id_.asInt() );
-    				par.getYN( sKeyOnlyStoredData(),id_.isStored());
+    bool isstored = false;	par.getYN( sKeyOnlyStoredData(), isstored );
+    id_.setStored( isstored );
     isnla_ = false; 		par.getYN( sKeyIsNLA(), isnla_ );
     				par.getYN( isnnstr, isnla_ );
     objref_ = "";		par.get( sKeyObjRef(), objref_ );

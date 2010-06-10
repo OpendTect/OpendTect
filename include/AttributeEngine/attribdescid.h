@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          July 2005
- RCS:           $Id: attribdescid.h,v 1.7 2010-05-12 10:22:35 cvshelene Exp $
+ RCS:           $Id: attribdescid.h,v 1.8 2010-06-10 08:29:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,6 @@ public:
     int			asInt() const		{ return id_; }
     int&		asInt()			{ return id_; }
     bool		isStored() const	{ return isstored_; }
-    bool&		isStored()		{ return isstored_; }
     void                setStored( bool yn )    { isstored_ = yn; }
 
 protected:
