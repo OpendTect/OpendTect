@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.27 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: executor.h,v 1.28 2010-06-10 08:35:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,5 +98,26 @@ protected:
     TypeSet<int>	executorres_;
 
 };
+
+
+mClass TextTaskRunner : public TaskRunner
+{
+public:
+			TextTaskRunner( std::ostream& strm )
+			    : TaskRunner()
+			    , strm_(strm)	{}
+
+    bool		execute( Task& t )
+			{
+			    mDynamicCastGet(Executor*,exec,&t)
+			    execres_ = exec ? exec->execute( &strm_ )
+					    : t.execute();
+			    return execres_;
+			}
+
+protected:
+    std::ostream&	strm_;
+};
+
 
 #endif
