@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.29 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.30 2010-06-10 06:24:56 cvsnanne Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -41,6 +41,7 @@ ColTab::Sequence::Sequence()
     , colorChanged(this)
     , transparencyChanged(this)
     , toBeRemoved(this)
+    , type_(User)
 {
 }
 
@@ -52,6 +53,7 @@ ColTab::Sequence::Sequence( const char* nm )
     , colorChanged(this)
     , transparencyChanged(this)
     , toBeRemoved(this)
+    , type_(System)
 {
     bool res = false;
     if ( nm && *nm )
