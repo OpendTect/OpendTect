@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.49 2010-06-10 07:08:07 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.50 2010-06-10 09:35:26 cvsranojay Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -28,10 +28,10 @@ static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.49 2010-06-10 07:
 #include "Inventor/nodes/SoShaderProgram.h"
 #include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoTextureUnit.h"
-#include "Inventor/nodes/SoTexture2.h"
 #include "Inventor/nodes/SoVertexShader.h"
 #include "Inventor/nodes/SoShaderParameter.h"
 #include "SoOD.h"
+#include "SoColorTableTexture.h"
 
 #define mNrColors	255
 #define mLayersPerUnit	4
@@ -129,11 +129,11 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	unsigned char ucval = vals_[idx];
-	unsigned char trans = cols_[ucval*4+3];
+	unsigned char opacity = cols_[ucval*4+3];
 
-	if ( trans )
+	if ( opacity!=255 )
 	{
-	    if ( trans==255 )
+	    if ( opacity==0 )
 	    {
 		if ( localresult==SoTextureComposerInfo::cHasNoTransparency() )
 		{
@@ -529,7 +529,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	complexity->textureQuality.setValue(0.1);
 	shadinggroup_->addChild( complexity );
 
-	shaderctab_ = new SoTexture2;
+	shaderctab_ = new SoColorTableTexture;
 	shadinggroup_->addChild( shaderctab_ );
 
 	SoShaderProgram* shaderprogram = new SoShaderProgram;
@@ -796,7 +796,6 @@ void ColTabTextureChannel2RGBA::getColors( int channelidx,
 	cols.setSize( ((mNrColors+1)*4), 0 );
 
     unsigned char* arr = cols.arr();
-    // fill up 255 colors; 256th will next be filled with undef color
     for ( int idx=0; idx<mNrColors; idx++ )
     {
 	const float val = ((float) idx)/(mNrColors-1);

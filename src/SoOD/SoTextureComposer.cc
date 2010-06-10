@@ -7,8 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.18 2009-09-21 20:16:55 cvskris Exp $";
-
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.19 2010-06-10 09:35:26 cvsranojay Exp $";
 
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"
@@ -233,31 +232,9 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 	{
 	    texturedata->ti_ = ti;
 
-	    uint32_t flags = texturedata->glimage_->getFlags();
-
-	    uint32_t mask = 0xFFFFFFFF;
-	    mask = mask^SoGLImage::FORCE_TRANSPARENCY_TRUE;
-	    mask = mask^SoGLImage::FORCE_TRANSPARENCY_FALSE;
-	    mask = mask^SoGLImage::FORCE_ALPHA_TEST_TRUE;
-	    mask = mask^SoGLImage::FORCE_ALPHA_TEST_FALSE;
-	    flags &= mask;
-
-	    if ( ti==SoTextureComposerInfo::cHasTransparency() )
-	    {
-		flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
-		flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
-	    }
-	    else if(ti==SoTextureComposerInfo::cHasNoIntermediateTransparency())
-	    {
-		flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
-		flags |= SoGLImage::FORCE_ALPHA_TEST_TRUE;
-	    }
-	    else if ( ti==SoTextureComposerInfo::cHasNoTransparency() )
-	    {
-		flags |= SoGLImage::FORCE_TRANSPARENCY_FALSE;
-		flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
-	    }
-
+	    const uint32_t flags =
+		SoTextureComposerInfo::getGLImageFlags(
+			texturedata->glimage_->getFlags(), ti );
 	    texturedata->glimage_->setFlags( flags );
 	}
     }
@@ -499,6 +476,35 @@ void SoTextureComposerInfo::initClass()
     SO_ENABLE( SoGLRenderAction, SoTextureComposerElement );
     SO_ENABLE( SoCallbackAction, SoTextureComposerElement );
     SO_ENABLE( SoRayPickAction, SoTextureComposerElement );
+}
+
+
+uint32_t SoTextureComposerInfo::getGLImageFlags( uint32_t flags, char ti )
+{
+    uint32_t mask = 0xFFFFFFFF;
+    mask = mask^SoGLImage::FORCE_TRANSPARENCY_TRUE;
+    mask = mask^SoGLImage::FORCE_TRANSPARENCY_FALSE;
+    mask = mask^SoGLImage::FORCE_ALPHA_TEST_TRUE;
+    mask = mask^SoGLImage::FORCE_ALPHA_TEST_FALSE;
+    flags &= mask;
+
+    if ( ti==SoTextureComposerInfo::cHasTransparency() )
+    {
+	flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
+	flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
+    }
+    else if ( ti==SoTextureComposerInfo::cHasNoIntermediateTransparency() )
+    {
+	flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
+	flags |= SoGLImage::FORCE_ALPHA_TEST_TRUE;
+    }
+    else if ( ti==SoTextureComposerInfo::cHasNoTransparency() )
+    {
+	flags |= SoGLImage::FORCE_TRANSPARENCY_FALSE;
+	flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
+    }
+
+    return flags;
 }
 
 

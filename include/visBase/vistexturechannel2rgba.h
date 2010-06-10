@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.22 2010-03-23 21:21:56 cvsyuancheng Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.23 2010-06-10 09:35:26 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ class SbImage;
 class SoSwitch;
 class SoGroup;
 class SoTextureUnit;
-class SoTexture2;
+class SoColorTableTexture;
 class SoShaderProgram;
 class SoFragmentShader;
 class SoShaderParameter1i;
@@ -158,7 +158,7 @@ protected:
     					//See SoTextureComposerInfo for retvals
     static const char*			sVertexShaderProgram();
     SoGroup*				shadinggroup_;
-    SoTexture2*				shaderctab_;
+    SoColorTableTexture*		shaderctab_;
     SoFragmentShader*			fragmentshader_;
     SoShaderParameter1i*		numlayers_;
     SoShaderParameter1i*		startlayer_;
