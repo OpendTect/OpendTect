@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.134 2010-05-24 12:32:26 cvsranojay Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.135 2010-06-10 06:29:31 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -71,7 +71,6 @@ HorizonDisplay::HorizonDisplay()
     , edgelineradius_( 3.5 )
     , validtexture_( false )
     , resolution_( 0 )
-    //, zaxistransform_( 0 )
     , allowshading_( true )					
     , intersectionlinematerial_( 0 )	
     , displayintersectionlines_( true )
@@ -184,10 +183,6 @@ bool HorizonDisplay::setZAxisTransform( ZAxisTransform* nz, TaskRunner* tr )
 
     return true;
 }
-
-
-//const ZAxisTransform* HorizonDisplay::getZAxisTransform() const
-//{ return zaxistransform_; }
 
 
 bool HorizonDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
@@ -1130,6 +1125,9 @@ void HorizonDisplay::setColTabMapperSetup( int channel,
 {
     if ( channel<0 || channel>=nrAttribs() )
        return;
+
+    if ( coltabmappersetups_.validIdx(channel) )
+	coltabmappersetups_[channel] = ms;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setColTabMapperSetup( channel, ms, tr );
