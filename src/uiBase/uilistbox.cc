@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.109 2010-05-19 11:47:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.110 2010-06-10 08:19:41 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
@@ -30,6 +30,20 @@ static const char* rcsID = "$Id: uilistbox.cc,v 1.109 2010-05-19 11:47:55 cvsnan
 static const int cIconSz = 16;
 
 
+class uiListBoxItem : public QListWidgetItem
+{
+public:
+uiListBoxItem( const QString& txt )
+    : QListWidgetItem(txt)
+    , ischeckable_(false)
+    , ischecked_(false)
+{}
+
+    bool		ischeckable_;
+    bool		ischecked_;
+};
+
+
 class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListWidget>
 {
 
@@ -43,6 +57,14 @@ public:
 				  int preferredFieldWidth=0);
 
     virtual 		~uiListBoxBody()		{ delete &messenger_; }
+
+    void		insertItem(int idx,const char* txt,bool embed);
+    void		addItem(const char* txt,bool embed);
+    void		removeItem(int idx)
+			{
+			    items_.remove( idx );
+			    delete takeItem(idx);
+			}
 
     void		setItemAlignment(int idx,Alignment::HPos);
 
@@ -73,6 +95,7 @@ protected:
 private:
 
     i_listMessenger&    messenger_;
+    ObjectSet<uiListBoxItem>	items_;
 
 };
 
@@ -95,6 +118,35 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
     setHSzPol( uiObject::Medium );
 
     setMouseTracking( true );
+}
+
+
+void createQString( QString& qs, const char* str, bool embed )
+{
+    if ( !str ) str = "";
+    BufferString bs( str );
+    if ( embed ) { bs = "["; bs += str; bs += "]"; }
+    qs = bs.buf();
+}
+
+
+void uiListBoxBody::addItem( const char* txt, bool embed )
+{
+    QString qs;
+    createQString( qs, txt, embed );
+    uiListBoxItem* itm = new uiListBoxItem( qs );
+    items_ += itm;
+    QListWidget::addItem( itm );
+}
+
+
+void uiListBoxBody::insertItem( int idx, const char* txt, bool embed )
+{
+    QString qs;
+    createQString( qs, txt, embed );
+    uiListBoxItem* itm = new uiListBoxItem( qs );
+    items_.insertAt( itm, idx );
+    QListWidget::insertItem( idx, itm );
 }
 
 
@@ -264,20 +316,9 @@ void uiListBox::selectAll( bool yn )
 }
 
 
-void uiListBox::createQString( QString& qs, const char* str, bool embed ) const
-{
-    if ( !str ) str = "";
-    BufferString bs( str );
-    if ( embed ) { bs = "["; bs += str; bs += "]"; }
-    qs = bs.buf();
-}
-
-
 void uiListBox::addItem( const char* text, bool embed ) 
 {
-    QString qs;
-    createQString( qs, text, embed );
-    body_->addItem( qs );
+    body_->addItem( text, embed );
     setItemCheckable( size()-1, false ); // Qt bug
     setItemCheckable( size()-1, itemscheckable_ );
     body_->setItemAlignment( size()-1, alignment_ );
@@ -319,13 +360,11 @@ void uiListBox::addItems( const BufferStringSet& strs )
 
 void uiListBox::insertItem( const char* text, int index, bool embed )
 {
-    QString qs;
-    createQString( qs, text, embed );
     if ( index<0 )
 	addItem( text, embed );
     else
     {
-	body_->insertItem( index, qs );
+	body_->insertItem( index, text, embed );
 	setItemCheckable( index<0 ? 0 : index, itemscheckable_ );
 	body_->setItemAlignment( size()-1, alignment_ );
     }
@@ -416,7 +455,7 @@ void uiListBox::sort( bool asc )
 
 void uiListBox::removeItem( int idx )
 {
-    delete body_->takeItem( idx );
+    body_->removeItem( idx );
 }
 
 
@@ -671,6 +710,20 @@ void uiListBox::setAlignment( Alignment::HPos al )
     alignment_ = al;
     for ( int idx=0; idx<size(); idx++ )
 	body_->setItemAlignment( idx, al );
+}
+
+
+void uiListBox::handleCheckChange( QListWidgetItem* itm )
+{
+    mDynamicCastGet(uiListBoxItem*,lbitm,itm)
+    if ( !lbitm ) return;
+
+    const bool ischecked = itm->checkState() == 2;
+    if ( lbitm->ischecked_ == ischecked )
+	return;
+
+    lbitm->ischecked_ = ischecked;
+    itemChecked.trigger();
 }
 
 

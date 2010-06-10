@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.15 2009-08-31 12:58:19 cvsjaap Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.16 2010-06-10 08:19:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,10 @@ protected:
 			    connect( sender,
 				 SIGNAL(itemEntered(QListWidgetItem*)),
 				 this, SLOT(itemEntered(QListWidgetItem*)) );
+
+			    connect( sender,
+				SIGNAL(itemChanged(QListWidgetItem*)),
+				this, SLOT(itemChanged(QListWidgetItem*)) );
 			}
 
     virtual		~i_listMessenger() {}
@@ -97,10 +101,17 @@ void itemSelectionChanged()
     mTrigger( selectionChanged, 0 );
 }
 
+
 void itemEntered( QListWidgetItem* itm )
 {
     const int refnr = receiver_->beginCmdRecEvent( "itemEntered" );
     receiver_->endCmdRecEvent( refnr, "itemEntered" );
+}
+
+
+void itemChanged( QListWidgetItem* itm )
+{
+    receiver_->handleCheckChange( itm );
 }
 
 };
