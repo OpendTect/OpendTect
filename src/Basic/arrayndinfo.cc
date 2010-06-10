@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: arrayndinfo.cc,v 1.15 2010-03-09 08:02:52 cvsbert Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.16 2010-06-10 17:13:37 cvsyuancheng Exp $";
 
 #include "arraynd.h"
 #include "typeset.h"
@@ -39,11 +39,17 @@ bool ArrayNDInfo::validPos( const int* pos ) const
     const int ndim = getNDim();
     for ( int idx=ndim-1; idx>=0; idx-- )
     {
-	if ( pos[idx]<0 || pos[idx]>=getSize(idx) )
+	if ( !validDimPos(idx,pos[idx]) )
 	    return false;
     }
 
     return true;
+}
+
+
+bool ArrayNDInfo::validDimPos( int dim, int pos ) const
+{
+    return pos>=0 && pos<getSize(dim);
 }
 
 

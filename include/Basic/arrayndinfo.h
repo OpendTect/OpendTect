@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.15 2010-03-09 08:03:15 cvsbert Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.16 2010-06-10 17:13:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -34,6 +34,8 @@ public:
     			/*!<Returns offset in a 'flat' array.*/
     virtual bool	validPos(const int*) const;
     			/*!<Checks if the position exists. */
+    bool		validDimPos(int dim,int pos) const;
+    			/*!<Checks if the position exists on a certain dim. */
     virtual bool	getArrayPos(od_uint64, int*) const;
     			/*!<Given an offset, what is the ND position. */
 
