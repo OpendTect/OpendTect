@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.9 2010-05-11 14:22:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.10 2010-06-10 09:18:22 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -222,10 +222,11 @@ void uiStratDisplay::makeAnnotCol( const char* txt, int annotpos, bool level )
 uiAnnotDrawer::uiAnnotDrawer( uiGraphicsScene& sc, const AnnotData& ad )
     : data_(ad) 
     , scene_(sc)  
-    , xax_(&scene_,uiAxisHandler::Setup(uiRect::Top))
-    , yax_(&scene_,uiAxisHandler::Setup(uiRect::Left).nogridline(true))
+    , xax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Top)))
+    , yax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Left)
+							    .nogridline(true)))
 {
-    xax_.setBounds( StepInterval<float>( 0, 100, 10 ) );
+    xax_->setBounds( StepInterval<float>( 0, 100, 10 ) );
 }
 
 
@@ -235,13 +236,22 @@ uiAnnotDrawer::~uiAnnotDrawer()
 }
 
 
+void uiAnnotDrawer::setNewAxis( uiAxisHandler* axis, bool isxaxis )
+{
+    if ( isxaxis ) 
+	xax_ = axis; 
+    else
+	yax_ = axis;
+}
+
+
 void uiAnnotDrawer::updateAxis()
 {
-    xax_.setNewDevSize( (int)scene_.width()+10, (int)scene_.height()+10 );
-    yax_.setNewDevSize( (int)scene_.height()+10, (int)scene_.width()+10 );
-    xax_.setBegin( &yax_ );     yax_.setBegin( &xax_ );
-    xax_.setEnd( &yax_ );       yax_.setEnd( &xax_ );
-    yax_.plotAxis();
+    xax_->setNewDevSize( (int)scene_.width()+10, (int)scene_.height()+10 );
+    yax_->setNewDevSize( (int)scene_.height()+10, (int)scene_.width()+10 );
+    xax_->setBegin( yax_ );     yax_->setBegin( xax_ );
+    xax_->setEnd( yax_ );       yax_->setEnd( xax_ );
+    yax_->plotAxis();
 }
 
 
@@ -260,7 +270,7 @@ void uiAnnotDrawer::drawColumns()
     {
 	ColumnItem* colitm = new ColumnItem( data_.getCol( idx )->name_ );
 	colitms_ += colitm;
-	colitm->size_ = (int)xax_.getVal( (int)(scene_.width()+10) )/nrCols() ;
+	colitm->size_ = (int)xax_->getVal( (int)(scene_.width()+10) )/nrCols() ;
 	if ( colitm->size_ <0 ) colitm->size_ = 0;
 
 	drawBorders( idx );
@@ -295,10 +305,10 @@ void uiAnnotDrawer::drawBorders( int colidx )
 {
     ColumnItem* colitm = colitms_[colidx];
 
-    int x1 = xax_.getPix( (colidx)*colitm->size_ );
-    int x2 = xax_.getPix( (colidx+1)*colitm->size_ );
-    int y1 = yax_.getPix( yax_.range().stop );
-    int y2 = yax_.getPix( yax_.range().start );
+    int x1 = xax_->getPix( (colidx)*colitm->size_ );
+    int x2 = xax_->getPix( (colidx+1)*colitm->size_ );
+    int y1 = yax_->getPix( yax_->range().stop );
+    int y2 = yax_->getPix( yax_->range().start );
 	
     TypeSet<uiPoint> rectpts;
     rectpts += uiPoint( x1, y1 );
@@ -327,9 +337,9 @@ void uiAnnotDrawer::drawMarkers( int colidx )
     {
 	const AnnotData::Marker& mrk = *data_.getCol(colidx)->markers_[idx];
 
-	int x1 = xax_.getPix( (colidx)*colitm->size_ );
-	int x2 = xax_.getPix( (colidx+1)*colitm->size_ );
-	int y = yax_.getPix( mrk.zpos_ );
+	int x1 = xax_->getPix( (colidx)*colitm->size_ );
+	int x2 = xax_->getPix( (colidx+1)*colitm->size_ );
+	int y = yax_->getPix( mrk.zpos_ );
 
 	uiLineItem* li = scene_.addItem( new uiLineItem(x1,y,x2,y,true) );
 	li->setPenStyle( LineStyle(LineStyle::Solid,2,mrk.col_) );
@@ -353,10 +363,10 @@ void uiAnnotDrawer::drawUnits( int colidx )
     {
 	const AnnotData::Unit& unit = *data_.getCol(colidx)->units_[idx];
 
-	int x1 = xax_.getPix( (colidx)*colitm->size_ );
-	int x2 = xax_.getPix( (colidx+1)*colitm->size_ );
-	int y1 = yax_.getPix( unit.zpos_ );
-	int y2 = yax_.getPix( unit.zposbot_ );
+	int x1 = xax_->getPix( (colidx)*colitm->size_ );
+	int x2 = xax_->getPix( (colidx+1)*colitm->size_ );
+	int y1 = yax_->getPix( unit.zpos_ );
+	int y2 = yax_->getPix( unit.zposbot_ );
 
 	TypeSet<uiPoint> rectpts;
 	rectpts += uiPoint( x1, y1 );
@@ -553,9 +563,9 @@ void uiAnnotDisplay::handleMenuCB( CallBacker* cb )
 Geom::Point2D<float> uiAnnotDisplay::getPos() const
 {
     uiAnnotDisplay* self = const_cast<uiAnnotDisplay*>( this );
-    const float xpos = drawer_.xAxis().getVal( 
+    const float xpos = drawer_.xAxis()->getVal( 
 	    		self->getMouseEventHandler().event().pos().x ); 
-    const float ypos = drawer_.yAxis().getVal( 
+    const float ypos = drawer_.yAxis()->getVal( 
 	    		self->getMouseEventHandler().event().pos().y ); 
     return Geom::Point2D<float>( xpos, ypos );
 }

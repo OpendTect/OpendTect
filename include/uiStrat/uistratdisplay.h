@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.11 2010-05-11 14:22:11 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.12 2010-06-10 09:18:22 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,14 +38,15 @@ public:
 				~uiAnnotDrawer();
 
     void			setZRange( StepInterval<float> rg ) 
-    				{ yax_.setBounds(rg); draw(); }
+    				{ yax_->setBounds(rg); draw(); }
     
     void			draw();
+    void			setNewAxis(uiAxisHandler*,bool isx);
     
-    uiAxisHandler& 		xAxis() 	{ return xax_; }
-    uiAxisHandler& 		yAxis() 	{ return yax_; }
-    const uiAxisHandler& 	xAxis() const	{ return xax_; }
-    const uiAxisHandler& 	yAxis() const	{ return yax_; }
+    uiAxisHandler* 		xAxis() 	{ return xax_; }
+    uiAxisHandler* 		yAxis() 	{ return yax_; }
+    const uiAxisHandler* 	xAxis() const	{ return xax_; }
+    const uiAxisHandler* 	yAxis() const	{ return yax_; }
 
     mStruct ColumnItem
     {
@@ -70,8 +71,8 @@ protected:
     ObjectSet<ColumnItem>	colitms_;
 
     uiGraphicsScene&		scene_;
-    uiAxisHandler 		yax_; 
-    uiAxisHandler 		xax_; 
+    uiAxisHandler* 		yax_; 
+    uiAxisHandler* 		xax_; 
 
     //data
     const AnnotData&		data_;
@@ -112,8 +113,8 @@ public:
     				{ return data_.getCol(colidx)->units_[idx]; }
     int 			nrCols() const { return data_.nrCols(); }
     
-    uiAxisHandler& 		xAxis() 	{ return drawer_.yAxis(); }
-    uiAxisHandler& 		yAxis() 	{ return drawer_.xAxis(); }
+    uiAxisHandler* 		xAxis() 	{ return drawer_.yAxis(); }
+    uiAxisHandler* 		yAxis() 	{ return drawer_.xAxis(); }
 
 protected:
 
