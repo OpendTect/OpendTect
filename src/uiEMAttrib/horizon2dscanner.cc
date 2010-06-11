@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.15 2009-12-01 16:18:47 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.16 2010-06-11 09:18:44 cvsnageswara Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -179,8 +179,6 @@ bool Horizon2DScanner::reInitAscIO( const char* fnm )
 	return false;
 
     ascio_ = new EM::Horizon2DAscIO( fd_, *sd.istrm );
-    if ( !ascio_ ) return false;
-
     isxy_ = ascio_->isXY();
     return true;
 }
