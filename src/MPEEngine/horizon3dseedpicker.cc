@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.35 2010-06-07 16:00:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.36 2010-06-11 03:57:42 cvsnanne Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -410,10 +410,13 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 int Horizon3DSeedPicker::nrSeeds() const
 {
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
+    if ( !emobj ) return 0;
+
     const TypeSet<EM::PosID>* seednodelist = 
 			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
     return seednodelist ? seednodelist->size() : 0;
 }
+
 
 const char* Horizon3DSeedPicker::seedConModeText( int mode, bool abbrev )
 {
