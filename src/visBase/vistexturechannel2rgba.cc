@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.50 2010-06-10 09:35:26 cvsranojay Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.51 2010-06-11 08:46:28 cvskarthika Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -835,7 +835,7 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
     //  g	 255		Opaque			Opaque
 
     // If the sequence has transparency, all the individual pixels must be 
-    // checked to see find the type of transparency. This will be done by 
+    // checked to find the type of transparency. This will be done by 
     // ColTabSequenceTransparencyCheck.
 	
     bool hastrans = false;  // assume layer is fully opaque
@@ -877,7 +877,7 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
     if ( !hastrans )
 	return trspcheck.getTransparency();  // cases e, f, g
 	
-    return SoTextureComposerInfo::cHasNoTransparency();  // cases b, c, d
+    return SoTextureComposerInfo::cHasTransparency();  // cases b, c, d
 }
 
 
