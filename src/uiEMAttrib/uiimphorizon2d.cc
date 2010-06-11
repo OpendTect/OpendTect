@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.22 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.23 2010-06-11 08:06:17 cvsnageswara Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -342,6 +342,15 @@ bool uiImportHorizon2D::doImport()
     scanPush(0);
     if ( !scanner_ ) return false;
 
+    const BinIDValueSet* valset = scanner_->getVals();
+    if ( valset->totalSize() == 0 )
+    {
+	BufferString msg( "No valid positions found\n" );
+	msg.add( "Please re-examine input files and format definition" );
+	uiMSG().message( msg );
+	return false;
+    }
+
     BufferStringSet linenms;
     scanner_->getLineNames( linenms );
     BufferStringSet hornms;
@@ -393,7 +402,6 @@ bool uiImportHorizon2D::doImport()
 
     const char* setnm = linesetfld_->text();
     const int setidx = linesetnms_.indexOf( setnm );
-    const BinIDValueSet* valset = scanner_->getVals();
     PtrMan<Horizon2DImporter> exec =
 	new Horizon2DImporter( linenms, horizons, setids_[setidx], valset );
     uiTaskRunner impdlg( this );
