@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.31 2009-09-03 09:52:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.32 2010-06-14 18:57:17 cvsyuancheng Exp $";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
@@ -58,7 +58,11 @@ void FlatView::BitMapMgr::setupChg()
     data_ = new A2DBitMapInpData( arr );
 
     if ( !wva_ )
-	gen_ = new VDA2DBitMapGenerator( *data_, *pos_ );
+    {
+	VDA2DBitMapGenerator* gen = new VDA2DBitMapGenerator( *data_, *pos_ );
+	gen->linearInterpolate( app.ddpars_.vd_.lininterp_ );
+	gen_ = gen;
+    }
     else
     {
 	const DataDispPars::WVA& wvapars = app.ddpars_.wva_;

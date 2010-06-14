@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.46 2010-03-30 11:59:35 cvsbruno Exp $
+ RCS:           $Id: flatview.h,v 1.47 2010-06-14 18:57:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,10 +172,11 @@ public:
     {
     public:
 
-			VD()		{}	
+			VD()
+			: lininterp_(false) {}	
 
 	BufferString	ctab_;
-
+	bool		lininterp_; // Use bi-linear interpol, not poly
     };
     //!\brief Wiggle/Variable Area parameters
     mClass WVA : public Common
@@ -212,6 +213,7 @@ public:
     static const char*	sKeyShow;
     static const char*	sKeyDispRg;
     static const char*	sKeyColTab;
+    static const char*	sKeyLinearInter;
     static const char*	sKeyBlocky;
     static const char*  sKeyAutoScale;
     static const char*	sKeyClipPerc;

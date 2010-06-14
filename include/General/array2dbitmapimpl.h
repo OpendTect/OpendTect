@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.14 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.15 2010-06-14 18:57:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,9 @@ public:
 
     VDA2DBitMapGenPars&		vdpars()	{ return gtPars(); }
     const VDA2DBitMapGenPars&	vdpars() const	{ return gtPars(); }
+    
+    void			linearInterpolate(bool yn)
+				{ gtPars().lininterp_ = yn; }
 
 protected:
     od_int64			nrIterations() const;

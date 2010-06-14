@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.57 2010-03-30 11:59:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.58 2010-06-14 18:57:17 cvsyuancheng Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -36,6 +36,7 @@ const char* DataDispPars::sKeyWVA = "WVA";
 const char* DataDispPars::sKeyShow = "Show";
 const char* DataDispPars::sKeyDispRg = "Range";
 const char* DataDispPars::sKeyColTab = "Color Table";
+const char* DataDispPars::sKeyLinearInter = "Linear Interpolation";
 const char* DataDispPars::sKeyBlocky = "Blocky";
 const char* DataDispPars::sKeyAutoScale = "Auto Scale";
 const char* DataDispPars::sKeyClipPerc = "Percentage Clip";
@@ -320,6 +321,7 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     mIOPDoVD( setYN, sKeyShow, vd_.show_ );
     mIOPDoVD( set, sKeyDispRg, vd_.rg_ );
     mIOPDoVD( set, sKeyColTab, vd_.ctab_ );
+    mIOPDoVD( setYN, sKeyLinearInter, vd_.lininterp_ );
     mIOPDoVD( setYN, sKeyBlocky, vd_.blocky_ );
     mIOPDoVD( setYN, sKeyAutoScale, vd_.autoscale_ );
     mIOPDoVD( set, sKeyClipPerc, vd_.clipperc_ );
@@ -345,6 +347,7 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoVD( getYN, sKeyShow, vd_.show_ );
     mIOPDoVD( get, sKeyDispRg, vd_.rg_ );
     mIOPDoVD( get, sKeyColTab, vd_.ctab_ );
+    mIOPDoVD( getYN, sKeyLinearInter, vd_.lininterp_ );
     mIOPDoVD( getYN, sKeyBlocky, vd_.blocky_ );
     mIOPDoVD( getYN, sKeyAutoScale, vd_.autoscale_ );
     mIOPDoVD( get, sKeyClipPerc, vd_.clipperc_ );
