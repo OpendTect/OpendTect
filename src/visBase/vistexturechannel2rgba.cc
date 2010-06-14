@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.51 2010-06-11 08:46:28 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.52 2010-06-14 16:07:35 cvskarthika Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -193,7 +193,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	result_ = localresult;  // cases a, b, c
     else if ( result_==SoTextureComposerInfo::cHasNoTransparency() )
 	result_ = localresult;  // cases f, i
-	// Cases g, h, i - no change to result_
+	// cases g, h, i - no change to result_
 
     return true;
 }
@@ -324,8 +324,8 @@ void ColTabTextureChannel2RGBA::swapChannels( int ch0, int ch1 )
 }
 
 
-void ColTabTextureChannel2RGBA::setSequence( int channel,
-	const ColTab::Sequence& seq )
+void ColTabTextureChannel2RGBA::setSequence( int channel, 
+		const ColTab::Sequence& seq )
 {
     if ( channel>=coltabs_.size() )
 	adjustNrChannels();
@@ -334,13 +334,6 @@ void ColTabTextureChannel2RGBA::setSequence( int channel,
 	return;
     
     *coltabs_[channel] = seq;
-
-    // make the undefined color transparent
-    /*
-    Color undefcol = coltabs_[channel]->undefColor();
-    undefcol.setTransparency( 255 );
-    coltabs_[channel]->setUndefColor( undefcol );
-    */
     update();
 }
 
@@ -355,7 +348,7 @@ ColTabTextureChannel2RGBA::getSequence( int channel ) const
 }
 
 
-void ColTabTextureChannel2RGBA::setEnabled(int ch,bool yn)
+void ColTabTextureChannel2RGBA::setEnabled( int ch, bool yn )
 {
     if ( ch>=coltabs_.size() )
 	adjustNrChannels();
@@ -389,7 +382,7 @@ void ColTabTextureChannel2RGBA::enableInterpolation( bool yn )
     }
 }
 
-bool ColTabTextureChannel2RGBA::isEnabled(int ch) const
+bool ColTabTextureChannel2RGBA::isEnabled( int ch ) const
 {
     if ( ch>=enabled_.size() )
 	adjustNrChannels();
@@ -398,7 +391,7 @@ bool ColTabTextureChannel2RGBA::isEnabled(int ch) const
 }
 
 
-void ColTabTextureChannel2RGBA::setTransparency(int ch,unsigned char t)
+void ColTabTextureChannel2RGBA::setTransparency( int ch, unsigned char t )
 {
     if ( ch>=opacity_.size() )
 	adjustNrChannels();
@@ -411,7 +404,7 @@ void ColTabTextureChannel2RGBA::setTransparency(int ch,unsigned char t)
 }
 
 
-unsigned char ColTabTextureChannel2RGBA::getTransparency(int ch) const
+unsigned char ColTabTextureChannel2RGBA::getTransparency( int ch ) const
 {
     if ( ch>=opacity_.size() )
 	adjustNrChannels();
@@ -612,7 +605,8 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	layeropacity_->value.deleteValues( nrchannels, -1 );
 
     int firstlayer = -1;
-    char firstlayertrans = 1;  // SoTextureComposerInfo::cHasTransparency
+	int currlayer = -1;
+    char firstlayertrans = 1;  // 1 = SoTextureComposerInfo::cHasTransparency
 
     numlayers_->value.setValue( nrchannels );
 
@@ -626,26 +620,39 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	// (rendering starts at this layer and proceeds forward).
 	if ( vals && enabled_.size()>idx && enabled_[idx] )
 	{
-	    firstlayer = idx;
-	    firstlayertrans = getTextureTransparency(idx);	    
-	    if ( firstlayertrans==SoTextureComposerInfo::cHasNoTransparency() )
-	    	// opaque layer found
-		break;
+	    if ( opacity_[idx] != 0 )
+	    {
+	        // layer opacity indicates "not transparent"
+		currlayer = idx;
+		char currlayertrans = getTextureTransparency( idx );
+		if ( currlayertrans ==
+			       	SoTextureComposerInfo::cHasNoTransparency() )
+		{
+		    // opaque layer found
+		    firstlayer = idx;
+		    firstlayertrans = currlayertrans;
+		    break;
+		}
+	    }
 	}
     }
 
-    if ( firstlayer>=0 )
+    // no opaque layer; rendering must start from backmost layer
+    if ( firstlayer == -1 )
     {
-	for ( int idx=0; idx<nrchannels; idx++ )
-	{
-	    const SbImage& channel = channels_->getChannels()[idx];
-	    SbVec3s size; int dummy2;
-	    const unsigned char* vals = channel.getValue( size, dummy2 );
-	    layeropacity_->value.set1Value( idx,
-		vals && idx<enabled_.size() && enabled_[idx]
-		    ? (float) opacity_[idx]/255
-		    : 0.0 );
-	}
+        firstlayer = ( currlayer == -1 ) ? 0 : currlayer;
+	//firstlayertrans = getTextureTransparency( firstlayer );
+	// Let firstlayertrans remain SoTextureComposerInfo::cHasTransparency(); 	// a rendering problem occurs if it is cHasIntermediateTransparency
+    }
+    
+    for ( int idx=0; idx<nrchannels; idx++ )
+    {
+	const SbImage& channel = channels_->getChannels()[idx];
+	SbVec3s size; int dummy2;
+	const unsigned char* vals = channel.getValue( size, dummy2 );
+	layeropacity_->value.set1Value( idx,
+	    vals && idx<enabled_.size() && enabled_[idx]
+	    ? (float) opacity_[idx]/255 : 0.0 );
     }
 
     tci_->transparencyInfo = firstlayertrans;
@@ -850,7 +857,7 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
 
     const ColTab::Sequence& seq = *coltabs_[channelidx];
     if ( !seq.hasTransparency() )
-    {
+	{
 	return hastrans
 	    ? SoTextureComposerInfo::cHasTransparency()  // case d
 	    : SoTextureComposerInfo::cHasNoTransparency();  // opaque - case g
