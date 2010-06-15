@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.12 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: segydirectdef.h,v 1.13 2010-06-15 18:42:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "segyfiledata.h"
+#include "bufstringset.h"
+
 namespace Seis { class PosIndexer; }
 namespace PosInfo { class CubeData; class Line2DData; }
 
@@ -29,13 +31,15 @@ mClass DirectDef
 public:
 
     			DirectDef();			//!< Create empty
-    			DirectDef(const char*);		//!< Read from file
+    			DirectDef(const char*);	//!< Read from file
 			~DirectDef();
     bool		isEmpty() const;
 
-    const FileDataSet*	dataSet() const			{ return fds_; }
     void		setData(FileDataSet*);
     void		setData(const FileDataSet&,bool no_copy=false);
+
+    FixedString		fileName(int idx) const;
+    const IOPar&	segyPars() const;
 
     FileDataSet::TrcIdx	find(const Seis::PosKey&,bool chkoffs) const;
 
@@ -43,19 +47,25 @@ public:
     bool		writeToFile(const char*) const;
     const char*		errMsg() const		{ return errmsg_.buf(); }
 
-    Seis::GeomType	geomType() const;
-
     static const char*	sKeyDirectDef;
+    static const char*	sKeyFileType;
+    static const char*	sKeyNrFiles;
+    static const char*	sKeyInt64DataChar;
+    static const char*	sKeyInt32DataChar;
+    static const char*	sKeyFloatDataChar;
     static const char*	get2DFileName(const char*,const char*);
 
     void		getPosData(PosInfo::CubeData&) const;
     void		getPosData(PosInfo::Line2DData&) const;
 
 protected:
+    bool		readV1FromFile(const IOPar&, ascistream&, const char* );
 
     const FileDataSet*	fds_;
-    SEGY::PosKeyList&	keylist_;
-    Seis::PosIndexer&	indexer_;
+    BufferStringSet	filenames_;
+    IOPar		segypars_;
+    SEGY::PosKeyList*	keylist_;
+    Seis::PosIndexer*	indexer_;
 
     int			curfidx_;
     mutable BufferString errmsg_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2008
- RCS:           $Id: seisposindexer.h,v 1.5 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:           $Id: seisposindexer.h,v 1.6 2010-06-15 18:42:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -39,8 +39,7 @@ public:
 mClass PosIndexer
 {
 public:
-
-				PosIndexer(const PosKeyList&);
+				PosIndexer(const PosKeyList&,bool doindex);
     virtual			~PosIndexer();
 
     od_int64			findFirst(const BinID&) const;
@@ -54,6 +53,9 @@ public:
     				//!< -1 = inl not found or empty
    				//!< -2 crl/trcnr not found
    				//!< -3 offs not found
+
+    bool			dumpTo(std::ostream&) const;
+    bool			readFrom(std::istream&);
 
     inline bool			validIdx( od_int64 idx ) const
 				{ return idx >= 0 && idx < maxidx_; }

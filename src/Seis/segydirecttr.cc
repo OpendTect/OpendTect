@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.10 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.11 2010-06-15 18:42:01 cvskris Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -59,17 +59,17 @@ int SEGYDirectPSIOProvider::factid = SPSIOPF().add(new SEGYDirectPSIOProvider);
 static SEGYSeisTrcTranslator* createTranslator( const SEGY::DirectDef& def,
 						int filenr )
 {
-    const SEGY::FileDataSet* fds = def.dataSet();
-    if ( !fds || filenr < 0 || fds->size() <= filenr )
+    const FixedString filename = def.fileName( filenr ); 
+    if ( !filename )
 	return 0;
 
-    SEGY::FileSpec fs( (*fds)[filenr]->fname_ );
+    SEGY::FileSpec fs( filename );
     PtrMan<IOObj> ioobj = fs.getIOObj();
     if ( !ioobj ) return 0;
-    ioobj->pars() = fds->pars();
+    ioobj->pars() = def.segyPars();
 
     SEGYSeisTrcTranslator* ret = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
-    ret->usePar( fds->pars() );
+    ret->usePar( def.segyPars() );
     if ( !ret->initRead(ioobj->getConn(Conn::Read)) )
 	{ delete ret; return 0; }
     if ( !ret->commitSelections() )
