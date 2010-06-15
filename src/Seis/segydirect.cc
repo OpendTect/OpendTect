@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.16 2010-06-15 18:42:01 cvskris Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.17 2010-06-15 19:09:48 cvskris Exp $";
 
 #include "segydirectdef.h"
 
@@ -130,26 +130,18 @@ od_int64 size() const
 
 Seis::PosKey key( od_int64 nr ) const
 {
-    if ( !fds_ || nr < 0 )		return Seis::PosKey::undef();
+    if ( !fds_ || nr < 0 )              return Seis::PosKey::undef();
 
     int idx;
     IdxAble::findPos( cumszs_.arr(), cumszs_.size(), nr, -1, idx );
-    if ( idx < 0 )			return Seis::PosKey::undef();
+    if ( idx < 0 )                      return Seis::PosKey::undef();
 
     const FileData& fd = *(*fds_)[idx];
     const int relidx = nr - cumszs_[idx];
-    if ( relidx >= fd.size() )		return Seis::PosKey::undef();
-    if ( fd.isRich() )
-    {
-	const SEGY::RichTraceInfo& ti = fd.richtraceinfo_[relidx];
+    if ( relidx >= fd.size() )          return Seis::PosKey::undef();
+    const SEGY::TraceInfo& ti = *fd[relidx];
 
-	if ( !ti.isUsable() )		return Seis::PosKey::undef();
-	return ti.pos_;
-    }
-
-    const SEGY::TraceInfo& ti = fd.traceinfo_[relidx];
-
-    if ( !ti.isUsable() )		return Seis::PosKey::undef();
+    if ( !ti.isUsable() )               return Seis::PosKey::undef();
     return ti.pos_;
 }
 
@@ -521,7 +513,8 @@ void SEGY::DirectDef::getPosData( PosInfo::CubeData& cd ) const
 
 void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
 {
-    if ( !fds_ || fds_->isEmpty() || !Seis::is2D(indexer_->geomType()) )
+    if ( !fds_ || !indexer_ || fds_->isEmpty() ||
+	 !Seis::is2D(indexer_->geomType()) )
 	return;
 
     Interval<int> nrrg( indexer_->trcNrRange() );
@@ -529,15 +522,11 @@ void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
     for ( int nr=nrrg.start; nr<=nrrg.stop; nr++ )
     {
 	const FileDataSet::TrcIdx tidx = keylist_->find( Seis::PosKey(nr),
-							*indexer_, false );
+		*indexer_, false );
 	if ( !tidx.isValid() ) continue;
 
 	PosInfo::Line2DPos l2dpos( nr );
-	const FileData& fd = *(*fds_)[tidx.filenr_];
-	if ( fd.isRich() )
-	    l2dpos.coord_ = fd.richtraceinfo_[tidx.filenr_].coord();
-	else
-	    l2dpos.coord_ = fd.traceinfo_[tidx.filenr_].coord();
+	l2dpos.coord_ = (*(*fds_)[tidx.filenr_])[tidx.trcidx_]->coord();
 	ld.posns_ += l2dpos;
     }
     const FileData& fd = *(*fds_)[0];
