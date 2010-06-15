@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2008
- RCS:           $Id: seisposindexer.h,v 1.7 2010-06-15 19:03:46 cvskris Exp $
+ RCS:           $Id: seisposindexer.h,v 1.8 2010-06-15 20:47:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -67,10 +67,10 @@ public:
     inline Seis::GeomType	geomType() const
     				{ return Seis::geomTypeOf(is2d_,isps_); }
 
-    inline Interval<int>	inlRange() const	{ return inlrg_; }
-    inline Interval<int>	crlRange() const	{ return crlrg_; }
-    inline Interval<int>	trcNrRange() const	{ return crlrg_; }
-    inline Interval<float>	offsetRange() const	{ return offsrg_; }
+    const Interval<int>&	inlRange() const	{ return inlrg_; }
+    const Interval<int>&	crlRange() const	{ return crlrg_; }
+    const Interval<int>&	trcNrRange() const	{ return crlrg_; }
+    const Interval<float>&	offsetRange() const	{ return offsrg_; }
 
     bool			dumpTo(std::ostream& strm) const;
     bool			readFrom(const char* nm, od_int64 offset,
