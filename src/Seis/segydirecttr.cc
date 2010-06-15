@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.11 2010-06-15 18:42:01 cvskris Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.12 2010-06-15 20:48:39 cvskris Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -80,21 +80,22 @@ static SEGYSeisTrcTranslator* createTranslator( const SEGY::DirectDef& def,
 
 
 SEGYDirect3DPSReader::SEGYDirect3DPSReader( const char* fnm )
-    : posdata_(*new PosInfo::CubeData)
-    , def_(*new SEGY::DirectDef(fnm))
+    : def_(*new SEGY::DirectDef(fnm))
     , tr_(0)
     , curfilenr_(-1)
 {
     errmsg_ = def_.errMsg();
-    def_.getPosData( posdata_ );
 }
 
 
 SEGYDirect3DPSReader::~SEGYDirect3DPSReader()
 {
-    delete &posdata_;
     delete &def_;
 }
+
+
+const PosInfo::CubeData& SEGYDirect3DPSReader::posData() const 
+{ return def_.cubeData(); }
 
 
 SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx, int nr,
@@ -154,20 +155,21 @@ bool SEGYDirect3DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
 
 SEGYDirect2DPSReader::SEGYDirect2DPSReader( const char* dirnm, const char* lnm )
     : SeisPS2DReader(lnm)
-    , posdata_(*new PosInfo::Line2DData)
     , def_(*new SEGY::DirectDef(SEGY::DirectDef::get2DFileName(dirnm,lnm)))
     , tr_(0)
     , curfilenr_(-1)
 {
-    def_.getPosData( posdata_ );
 }
 
 
 SEGYDirect2DPSReader::~SEGYDirect2DPSReader()
 {
-    delete &posdata_;
     delete &def_;
 }
+
+
+const PosInfo::Line2DData& SEGYDirect2DPSReader::posData() const 
+{ return def_.lineData(); }
 
 
 SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx, int nr,

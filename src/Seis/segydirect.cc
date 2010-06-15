@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.17 2010-06-15 19:09:48 cvskris Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.18 2010-06-15 20:48:39 cvskris Exp $";
 
 #include "segydirectdef.h"
 
@@ -171,6 +171,8 @@ FileDataSet::TrcIdx find( const Seis::PosKey& pk,
     , myfds_(0) \
     , curfidx_(-1) \
     , keylist_( 0 ) \
+    , cubedata_( *new PosInfo::CubeData ) \
+    , linedata_( *new PosInfo::Line2DData ) \
     , indexer_( 0 )
 
 SEGY::DirectDef::DirectDef()
@@ -188,6 +190,8 @@ SEGY::DirectDef::DirectDef( const char* fnm )
 
 SEGY::DirectDef::~DirectDef()
 {
+    delete &cubedata_;
+    delete &linedata_;
     delete myfds_;
     delete keylist_;
     delete indexer_;
@@ -208,6 +212,8 @@ void SEGY::DirectDef::setData( FileDataSet* fds )
     keylist_ = keylist;
     keylist->setFDS( fds_ );
     indexer_ = new Seis::PosIndexer(*keylist_,true);
+    getPosData( cubedata_ );
+    getPosData( linedata_ );
 }
 
 
@@ -227,6 +233,8 @@ void SEGY::DirectDef::setData( const FileDataSet& fds, bool nc )
     keylist_ = keylist;
     keylist->setFDS( fds_ );
     indexer_ = new Seis::PosIndexer(*keylist_,true);
+    getPosData( cubedata_ );
+    getPosData( linedata_ );
 }
 
 
@@ -282,6 +290,9 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
     strm.read( (char*) &textpars, sizeof(textpars) );
     strm.read( (char*) &indexstart, sizeof(indexstart) );
     if ( !strm.good() )
+	return false;
+
+    if ( !cubedata_.read( strm, false ) || !linedata_.read( strm, false ) )
 	return false;
 
     strm.seekg( textpars, std::ios::beg );
@@ -433,6 +444,9 @@ bool SEGY::DirectDef::writeToFile( const char* fnm ) const
 
     mWriteOffsets;
 
+    cubedata_.write( strm, false );
+    linedata_.write( strm, false );
+
     //Write the data
     datastart = strm.tellp();
     for ( int ifile=0; ifile<nrfiles; ifile++ )
@@ -488,7 +502,7 @@ bool SEGY::DirectDef::writeToFile( const char* fnm ) const
 
 void SEGY::DirectDef::getPosData( PosInfo::CubeData& cd ) const
 {
-    if ( !fds_ || Seis::is2D(indexer_->geomType()) ) return;
+    if ( !indexer_ || Seis::is2D(indexer_->geomType()) ) return;
 
     Interval<int> inlrg( indexer_->inlRange() ); inlrg.sort();
     Interval<int> crlrg( indexer_->crlRange() ); crlrg.sort();

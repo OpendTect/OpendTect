@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.6 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: segydirecttr.h,v 1.7 2010-06-15 20:48:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,11 +32,10 @@ public:
     bool		getGather(const BinID&,SeisTrcBuf&) const;
     const char*		errMsg() const		{ return errmsg_.buf(); } 
 
-    const PosInfo::CubeData& posData() const	{ return posdata_; }
+    const PosInfo::CubeData& posData() const;
 
 protected:
 
-    PosInfo::CubeData&	posdata_;
     SEGY::DirectDef&	def_;
     mutable SEGYSeisTrcTranslator* tr_;
     mutable int		curfilenr_;
@@ -61,11 +60,10 @@ public:
     bool		getGather(const BinID&,SeisTrcBuf&) const;
     const char*		errMsg() const		{ return errmsg_.buf(); } 
 
-    const PosInfo::Line2DData& posData() const	{ return posdata_; }
+    const PosInfo::Line2DData& posData() const;
 
 protected:
 
-    PosInfo::Line2DData&	posdata_;
     SEGY::DirectDef&		def_;
     mutable SEGYSeisTrcTranslator* tr_;
     mutable int			curfilenr_;
