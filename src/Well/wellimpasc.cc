@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.69 2010-06-03 12:56:24 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.70 2010-06-15 13:57:39 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -372,17 +372,17 @@ Table::FormatDesc* Well::TrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
 
-    Table::TargetInfo* posinfo = new Table::TargetInfo( "X/Y", FloatInpSpec(),
+    Table::TargetInfo* posinfo = new Table::TargetInfo( "X/Y", DoubleInpSpec(),
 	    						Table::Required );
-    posinfo->form(0).add( FloatInpSpec() );
+    posinfo->form(0).add( DoubleInpSpec() );
     fd->bodyinfos_ += posinfo;
 
-    Table::TargetInfo* zti = new Table::TargetInfo( "Z", FloatInpSpec(),
+    Table::TargetInfo* zti = new Table::TargetInfo( "Z", DoubleInpSpec(),
 	    					    Table::Required );
     zti->setPropertyType( PropertyRef::Dist );
     fd->bodyinfos_ += zti;
 
-    Table::TargetInfo* mdti = new Table::TargetInfo( "MD", IntInpSpec(),
+    Table::TargetInfo* mdti = new Table::TargetInfo( "MD", FloatInpSpec(),
 						     Table::Optional );
     mdti->setPropertyType( PropertyRef::Dist );
     fd->bodyinfos_ += mdti;
@@ -408,9 +408,9 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	if ( ret < 0 ) return false;
 	if ( ret == 0) break;
 
-	c.x = getfValue(0);
-	c.y = getfValue(1);
-	c.z = getfValue(2);
+	c.x = getdValue(0);
+	c.y = getdValue(1);
+	c.z = getdValue(2);
 	if ( !c.isDefined() )
 	    continue;
 
