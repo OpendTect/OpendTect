@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.52 2010-06-14 16:07:35 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.53 2010-06-15 06:27:59 cvskarthika Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -640,9 +640,16 @@ void ColTabTextureChannel2RGBA::setShadingVars()
     // no opaque layer; rendering must start from backmost layer
     if ( firstlayer == -1 )
     {
+        // to do (later): 
+	// 1. get rid of layers that are fully transparent & find thei backmost
+	// layer that is not fully transparent & start rendering from that.
+	// 2. Set cHasIntermediateTransparency as result when ALL 
+	// the layers have cHasIntermediateTransparency
+
         firstlayer = ( currlayer == -1 ) ? 0 : currlayer;
 	//firstlayertrans = getTextureTransparency( firstlayer );
-	// Let firstlayertrans remain SoTextureComposerInfo::cHasTransparency(); 	// a rendering problem occurs if it is cHasIntermediateTransparency
+	// Let firstlayertrans remain SoTextureComposerInfo::cHasTransparency()
+	// a rendering problem occurs if it is cHasIntermediateTransparency
     }
     
     for ( int idx=0; idx<nrchannels; idx++ )
@@ -857,7 +864,7 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
 
     const ColTab::Sequence& seq = *coltabs_[channelidx];
     if ( !seq.hasTransparency() )
-	{
+    {
 	return hastrans
 	    ? SoTextureComposerInfo::cHasTransparency()  // case d
 	    : SoTextureComposerInfo::cHasNoTransparency();  // opaque - case g
