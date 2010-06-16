@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.32 2010-05-31 12:02:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.33 2010-06-16 17:10:46 cvsyuancheng Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -66,7 +66,14 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
     if ( withtransp ) options = QColorDialog::ShowAlphaChannel;
     QColor newcol = QColorDialog::getColor( oldcol, qparent, nm, options );
 #else
-    QColor newcol = QColorDialog::getColor( oldcol, qparent );
+    QColor newcol;
+    if ( withtransp )
+    {
+	//note that equal operator does not work
+	newcol.setRgba( QColorDialog::getRgba(oldcol.rgba(),0,qparent) );
+    }
+    else
+	newcol = QColorDialog::getColor( oldcol, qparent );
 #endif
 
     if ( externalcolor )		// Command driver interference
