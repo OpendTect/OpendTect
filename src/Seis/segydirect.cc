@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.18 2010-06-15 20:48:39 cvskris Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.19 2010-06-16 12:31:49 cvskris Exp $";
 
 #include "segydirectdef.h"
 
@@ -63,7 +63,9 @@ Seis::PosKey key( od_int64 nr ) const
     if ( !strm || !strm->good() || nr<0 )
 	return Seis::PosKey::undef();
 
-    strm->seekg( start_+nr*12, std::ios::beg );
+    static const int unitsz = sizeof(int)+sizeof(int)+sizeof(int)+sizeof(bool);
+
+    strm->seekg( start_+nr*unitsz, std::ios::beg );
     BinID bid;
     int offsetazimuth;
     //TODO fix endianness
@@ -283,16 +285,15 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 
     od_int64 datastart = 0; 
     od_int64 textpars = 0; 
+    od_int64 cubedatastart = 0;
     od_int64 indexstart = 0; 
 
     std::istream& strm = *sd.istrm;
     strm.read( (char*) &datastart, sizeof(datastart) );
     strm.read( (char*) &textpars, sizeof(textpars) );
+    strm.read( (char*) &cubedatastart, sizeof(cubedatastart) );
     strm.read( (char*) &indexstart, sizeof(indexstart) );
     if ( !strm.good() )
-	return false;
-
-    if ( !cubedata_.read( strm, false ) || !linedata_.read( strm, false ) )
 	return false;
 
     strm.seekg( textpars, std::ios::beg );
@@ -328,6 +329,12 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	cumsizes += accumulatedsize;
 	accumulatedsize += size;
     }
+
+    if ( strm.tellg()!=cubedatastart )
+	strm.seekg( cubedatastart, std::ios::beg );
+
+    if ( !cubedata_.read( strm, false ) || !linedata_.read( strm, false ) )
+	return false;
 
     delete myfds_;
     fds_ = myfds_ = 0;
@@ -435,17 +442,16 @@ bool SEGY::DirectDef::writeToFile( const char* fnm ) const
     //Reserve space for offsets, which are written at the end
     od_int64 datastart = 0; 
     od_int64 textpars = 0; 
+    od_int64 cubedatastart = 0; 
     od_int64 indexstart = 0; 
 
 #define mWriteOffsets \
     strm.write( (const char*) &datastart, sizeof(datastart) ); \
     strm.write( (const char*) &textpars, sizeof(textpars) ); \
+    strm.write( (const char*) &cubedatastart, sizeof(cubedatastart) ); \
     strm.write( (const char*) &indexstart, sizeof(indexstart) )
 
     mWriteOffsets;
-
-    cubedata_.write( strm, false );
-    linedata_.write( strm, false );
 
     //Write the data
     datastart = strm.tellp();
@@ -486,6 +492,11 @@ bool SEGY::DirectDef::writeToFile( const char* fnm ) const
 
     ascostream astrm2( sd.ostrm );
     iop2.putTo( astrm2 );
+
+    cubedatastart = strm.tellp();
+
+    cubedata_.write( strm, false );
+    linedata_.write( strm, false );
 
     indexstart = strm.tellp();
 
