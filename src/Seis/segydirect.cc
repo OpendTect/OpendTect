@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.19 2010-06-16 12:31:49 cvskris Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.20 2010-06-16 12:52:12 cvskris Exp $";
 
 #include "segydirectdef.h"
 
@@ -330,7 +330,8 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	accumulatedsize += size;
     }
 
-    if ( strm.tellg()!=cubedatastart )
+    const od_int64 curpos = strm.tellg();
+    if ( curpos!=cubedatastart )
 	strm.seekg( cubedatastart, std::ios::beg );
 
     if ( !cubedata_.read( strm, false ) || !linedata_.read( strm, false ) )
