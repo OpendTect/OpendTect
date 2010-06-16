@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoColorTableTexture.cc,v 1.1 2010-06-10 09:35:26 cvsranojay Exp $";
+static const char* rcsID = "$Id: SoColorTableTexture.cc,v 1.2 2010-06-16 21:51:41 cvskris Exp $";
 
 
 #include "SoColorTableTexture.h"
@@ -112,6 +112,8 @@ void SoColorTableTexture::GLRender( SoGLRenderAction* action )
     const int unit = SoTextureUnitElement::get( state );
     const char ti = SoTextureComposerElement::getTransparencyInfo( state );
 
+    bool haschanged = false;
+
     if ( ti_!=ti )
     {
 	ti_ = ti;
@@ -120,6 +122,7 @@ void SoColorTableTexture::GLRender( SoGLRenderAction* action )
 				glimage_->getFlags(), ti );
 
 	glimage_->setFlags( flags );
+	haschanged = true;
     }
 
     const float quality = SoTextureQualityElement::get(state);
@@ -133,6 +136,7 @@ void SoColorTableTexture::GLRender( SoGLRenderAction* action )
 		size,nc,SoGLImage::CLAMP,
 		SoGLImage::CLAMP, quality,false,0 );
 	needregeneration_ = false;
+	haschanged = true;
     }
 
     const SoTextureImageElement::Model glmodel =
@@ -163,7 +167,7 @@ void SoColorTableTexture::GLRender( SoGLRenderAction* action )
 	SoGLMultiTextureEnabledElement::set( state, this, unit, quality > 0.0f);
     }
 
-    if ( needregeneration_ )
+    if ( haschanged )
     {
 	SoCacheElement::setInvalid( true );
 	if ( state->isCacheOpen() )
