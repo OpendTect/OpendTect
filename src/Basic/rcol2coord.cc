@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: rcol2coord.cc,v 1.9 2010-06-17 15:29:07 cvskris Exp $";
+static const char* rcsID = "$Id: rcol2coord.cc,v 1.10 2010-06-17 17:48:09 cvskris Exp $";
 
 #include "rcol2coord.h"
 
@@ -15,24 +15,32 @@ static const char* rcsID = "$Id: rcol2coord.cc,v 1.9 2010-06-17 15:29:07 cvskris
 
 
 bool RCol2Coord::set3Pts( const Coord& c0, const Coord& c1,
-			  const Coord& c2, const RCol& rc0,
-			  const RCol& rc1, od_int32 col2 )
+			  const Coord& c2, const RowCol& rc0,
+			  const RowCol& rc1, od_int32 col2 )
 {
-    if ( rc1.r() == rc0.r() )
+    return set3Pts( c0, c1, c2, BinID(rc0), BinID(rc1), col2 );
+}
+
+
+bool RCol2Coord::set3Pts( const Coord& c0, const Coord& c1,
+			  const Coord& c2, const BinID& bid0,
+			  const BinID& bid1, od_int32 crl2 )
+{
+    if ( bid1.inl == bid0.inl )
 	return false;
-    if ( rc0.c() == col2 )
+    if ( bid0.crl == crl2 )
         return false;
 
     RCTransform nxtr, nytr;
-    od_int32 cold = rc0.c() - col2;
+    od_int32 cold = bid0.crl - crl2;
     nxtr.c = ( c0.x - c2.x ) / cold;
     nytr.c = ( c0.y - c2.y ) / cold;
-    const od_int32 rowd = rc0.r() - rc1.r();
-    cold = rc0.c() - rc1.c();
+    const od_int32 rowd = bid0.inl - bid1.inl;
+    cold = bid0.crl - bid1.crl;
     nxtr.b = ( c0.x - c1.x ) / rowd - ( nxtr.c * cold / rowd );
     nytr.b = ( c0.y - c1.y ) / rowd - ( nytr.c * cold / rowd );
-    nxtr.a = c0.x - nxtr.b * rc0.r() - nxtr.c * rc0.c();
-    nytr.a = c0.y - nytr.b * rc0.r() - nytr.c * rc0.c();
+    nxtr.a = c0.x - nxtr.b * bid0.inl - nxtr.c * bid0.crl;
+    nytr.a = c0.y - nytr.b * bid0.inl - nytr.c * bid0.crl;
 
     if ( mIsZero(nxtr.a,mDefEps) ) nxtr.a = 0;
     if ( mIsZero(nxtr.b,mDefEps) ) nxtr.b = 0;
@@ -50,10 +58,10 @@ bool RCol2Coord::set3Pts( const Coord& c0, const Coord& c1,
 }
 
 
-Coord RCol2Coord::transform( const RCol& rc ) const
+Coord RCol2Coord::transform( const RowCol& rc ) const
 {
-    return Coord( xtr.a + xtr.b*rc.r() + xtr.c*rc.c(),
-		  ytr.a + ytr.b*rc.r() + ytr.c*rc.c() );
+    return Coord( xtr.a + xtr.b*rc.row + xtr.c*rc.col,
+		  ytr.a + ytr.b*rc.row + ytr.c*rc.col );
 }
 
 
@@ -64,7 +72,7 @@ Coord RCol2Coord::transform( const BinID& rc ) const
 }
 
 
-RowCol RCol2Coord::transformBack( const Coord& coord,
+BinID RCol2Coord::transformBack( const Coord& coord,
 				  const StepInterval<int>* rowrg,
 				  const StepInterval<int>* colrg) const
 {
@@ -75,7 +83,7 @@ RowCol RCol2Coord::transformBack( const Coord& coord,
     if ( mIsUdf(res.x) || mIsUdf(res.y) )
 	return RowCol(mUdf(int),mUdf(int));
 
-    return RowCol(rowrg ? rowrg->snap(res.x) : mNINT(res.x),
+    return BinID(rowrg ? rowrg->snap(res.x) : mNINT(res.x),
 	    	  colrg ? colrg->snap(res.y) : mNINT(res.y));
 }
 

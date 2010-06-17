@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	RowCol <-> Coord transform
- RCS:		$Id: rcol2coord.h,v 1.10 2010-06-17 15:29:07 cvskris Exp $
+ RCS:		$Id: rcol2coord.h,v 1.11 2010-06-17 17:48:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,13 +30,13 @@ public:
     bool		isValid() const		{ return xtr.valid(ytr); }
     Coord		rowDir() const		{ return Coord(xtr.b,ytr.b); }
     Coord		colDir() const		{ return Coord(xtr.c,ytr.c); }
-    Coord		transform(const RCol&) const;
+    Coord		transform(const RowCol&) const;
     Coord		transform(const BinID&) const;
     Coord		transform(const Coord& rc) const;
     			/*!< transforms a rowcol stored in a coord.  The 
 			     row is stored in the x-component, and the
 			     col is stored in the y-component. */
-    RowCol		transformBack(const Coord&,
+    BinID		transformBack(const Coord&,
 	    			  const StepInterval<int>* inlrg=0,
 	    			  const StepInterval<int>* crlrg=0 ) const;
 			/*!< Transforms Coord to RowCol. If the ranges are
@@ -50,8 +50,15 @@ public:
 
 
     bool		set3Pts(const Coord& c0,const Coord& c1,const Coord& c2,
-	    			const RCol& rc0,const RCol& rc1,
+	    			const RowCol& rc0,const RowCol& rc1,
 				od_int32 col2 );
+			/*!<Sets up the transform using three points.
+			    \note that the third point is assumed to be on
+			    the same row as the first point.
+			*/
+    bool		set3Pts(const Coord& c0,const Coord& c1,const Coord& c2,
+	    			const BinID& bid0,const BinID& bid1,
+				od_int32 crl2 );
 			/*!<Sets up the transform using three points.
 			    \note that the third point is assumed to be on
 			    the same row as the first point.
