@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.21 2010-05-26 03:35:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.22 2010-06-17 20:49:40 cvskris Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -193,8 +193,8 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 	const BinID prevbid = SI().transform( prevxy );
 	float zdist = fabs( points[idx-1].z - points[idx].z );
 
-	totinldist += abs( bid.r() - prevbid.r() );
-	totcrldist += abs( bid.c() - prevbid.c() );
+	totinldist += abs( bid.inl - prevbid.inl );
+	totcrldist += abs( bid.crl - prevbid.crl );
 	const double hdist = xy.distTo( prevxy );
 	tothdist += hdist;
 	totzdist += zdist;
