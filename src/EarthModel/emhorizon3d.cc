@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.124 2009-10-09 21:11:36 cvskris Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.125 2010-06-17 18:02:57 cvskris Exp $";
 
 #include "emhorizon3d.h"
 
@@ -231,7 +231,7 @@ int nextStep()
 	    continue;
 
 	const float z = bvs.getVals(pos_)[ 0 ];
-	surf->setKnot( bid, Coord3(0,0,z) );
+	surf->setKnot( RowCol(bid), Coord3(0,0,z) );
     }
 
     return MoreToDo();
@@ -630,7 +630,7 @@ void Horizon3DGeometry::getDataPointSet( const SectionID& sid,
     const int nrknots = sectionGeometry(sid)->nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
     {
-	const BinID bid = sectionGeometry( sid )->getKnotRowCol( idx );
+	const RowCol bid = sectionGeometry( sid )->getKnotRowCol( idx );
 	Coord3 coord = sectionGeometry( sid )->getKnot( bid, false );
 	bidvalset.add( bid, coord.z + shift );
     }
