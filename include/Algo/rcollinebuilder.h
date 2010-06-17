@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris (separated by Bert)
  Date:		Apr 2010
- RCS:		$Id: rcollinebuilder.h,v 1.1 2010-04-09 07:59:04 cvsbert Exp $
+ RCS:		$Id: rcollinebuilder.h,v 1.2 2010-06-17 20:57:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,63 +17,61 @@ ________________________________________________________________________
 #include "math2.h"
 
 
-template <class OutT>
-bool makeLine(const RCol& start,const RCol& stop,
-	      TypeSet<OutT>& output,const RCol& step);
+template <class T>
+bool makeLine(const T& start,const T& stop, TypeSet<T>& output,const T& step);
 
 
-template <class OutT>
+template <class T>
 class RColLineBuilder
 {
 public:
-    			RColLineBuilder(const RCol& start,const RCol& dir,
-				        const RCol& step,TypeSet<OutT>& line);
+    			RColLineBuilder(const T& start,const T& dir,
+				        const T& step,TypeSet<T>& line);
    int			nextExtension();
    			/*!<\returns 1 if the extension went well, -1 if
 			     	       the direction is zero. */
 
 protected:
 
-   const RCol&		start_;
-   const RCol&		dir_;
-   const RCol&		step_;
+   const T&		start_;
+   const T&		dir_;
+   const T&		step_;
    const float		dirlen_;
-   TypeSet<OutT>&	line_;
+   TypeSet<T>&		line_;
 
-   float		distToLine(const RCol&) const;
+   float		distToLine(const T&) const;
 
 };
 
 
-template <class OutT> inline
-RColLineBuilder<OutT>::RColLineBuilder( const RCol& start,
-	const RCol& dir, const RCol& step, TypeSet<OutT>& line )
+template <class T> inline
+RColLineBuilder<T>::RColLineBuilder( const T& start,
+	const T& dir, const T& step, TypeSet<T>& line )
    : start_( start )
    , dir_(dir)
    , step_(step)
    , line_(line)
    , dirlen_(Math::Sqrt(float(dir_[0]*dir_[0]+dir_[1]*dir_[1])))
-{
-}
+{ }
 
 
-template <class OutT> inline
-int RColLineBuilder<OutT>::nextExtension()
+template <class T> inline
+int RColLineBuilder<T>::nextExtension()
 {
     if ( !dir_[0] && !dir_[1] )
 	return -1;
 
-    OutT bestrc;
+    T bestrc;
     if ( line_.size() )
     {
-	const OutT& lastpos = line_[line_.size()-1];
+	const T& lastpos = line_[line_.size()-1];
 
 	float disttoline = mUdf(float);
 
 	if ( dir_[0] )
 	{
-	    const OutT candidate =
-		lastpos + OutT(dir_[0]>0?step_[0]:-step_[0], 0 );
+	    const T candidate =
+		lastpos + T(dir_[0]>0?step_[0]:-step_[0], 0 );
 	    const float dist = distToLine(candidate);
 	    if ( dist<disttoline )
 		{ bestrc = candidate; disttoline=dist; }
@@ -81,8 +79,8 @@ int RColLineBuilder<OutT>::nextExtension()
 
 	if ( dir_[1] )
 	{
-	    const OutT candidate =
-		lastpos + OutT(0,dir_[1]>0?step_[1]:-step_[1] );
+	    const T candidate =
+		lastpos + T(0,dir_[1]>0?step_[1]:-step_[1] );
 	    const float dist = distToLine(candidate);
 	    if ( dist<disttoline )
 		{ bestrc = candidate; disttoline=dist; }
@@ -90,8 +88,8 @@ int RColLineBuilder<OutT>::nextExtension()
 
 	if ( dir_[0] && dir_[1] )
 	{
-	    const OutT candidate =
-		lastpos + OutT( dir_[0]>0?step_[0]:-step_[0],
+	    const T candidate =
+		lastpos + T( dir_[0]>0?step_[0]:-step_[0],
 				dir_[1]>0?step_[1]:-step_[1] );
 	    const float dist = distToLine(candidate);
 	    if ( dist<disttoline )
@@ -106,16 +104,15 @@ int RColLineBuilder<OutT>::nextExtension()
 }
 
 
-template <class OutT> inline
-float RColLineBuilder<OutT>::distToLine( const RCol& rc ) const
+template <class T> inline
+float RColLineBuilder<T>::distToLine( const T& rc ) const
 {
     return fabs((dir_[0]*(rc[1]-start_[1])-dir_[1]*(rc[0]-start_[0]))/dirlen_);
 }
 
 
-template <class OutT> inline
-bool makeLine( const RCol& start, const RCol& stop, const RCol& step,
-	       TypeSet<OutT>& output )
+template <class T> inline
+bool makeLine( const T& start, const T& stop, const T& step, TypeSet<T>& output)
 {
     if ( start[0]%step[0] != stop[0]%step[0]
       || start[1]%step[1] != stop[1]%step[1] )
@@ -123,12 +120,12 @@ bool makeLine( const RCol& start, const RCol& stop, const RCol& step,
 
     output.erase();
     if ( start == stop )
-	{ output += OutT(start); return true; }
+	{ output += T(start); return true; }
 
-    OutT dir = stop;
+    T dir = stop;
     dir -= start;
 
-    RColLineBuilder<OutT> builder( start, dir, step, output );
+    RColLineBuilder<T> builder( start, dir, step, output );
 
     while ( builder.nextExtension()>0 && output[output.size()-1]!=stop )
 	;
