@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uistepoutsel.h,v 1.11 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uistepoutsel.h,v 1.12 2010-06-17 21:59:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ public:
     void		setVals(int); //!< similar to 2x setVal
     bool		dir2Active() const;
     void		setRowCol( const RowCol& rc )
-    			{ setVal(true,rc.r()); setVal(false,rc.c()); }
+    			{ setVal(true,rc.row); setVal(false,rc.col); }
     void		setBinID(const BinID&);
     				//!< Different from RowCol when no dir2 present:
 				//!< then crl is used, not inl

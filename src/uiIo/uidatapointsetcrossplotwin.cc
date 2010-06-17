@@ -439,12 +439,12 @@ void addSelGrp( CallBacker* cb )
 {
     tbl_->insertRows( tbl_->nrRows(), 1 );
     RowCol newcell = RowCol( tbl_->nrRows()-1, 1 );
-    tbl_->setColor( RowCol(newcell.r(),1), getRandomColor() );
+    tbl_->setColor( RowCol(newcell.row,1), getRandomColor() );
     BufferString selgrpnm( "No " );
     selgrpnm += tbl_->nrRows();
-    tbl_->setText( RowCol(newcell.r(),0), selgrpnm );
+    tbl_->setText( RowCol(newcell.row,0), selgrpnm );
     selgrps_ += new uiDataPointSetCrossPlotter::SelectionGrp( selgrpnm,
-	    tbl_->getColor(RowCol(newcell.r(),1)) );
+	    tbl_->getColor(RowCol(newcell.row,1)) );
     curselgrp_ = tbl_->currentRow();
     selGrpChanged.trigger();
 }
@@ -464,7 +464,7 @@ void changeColCB( CallBacker* )
 {
     if ( tbl_->currentRow() < 0 ) return;
     RowCol rc = tbl_->notifiedCell();
-    if ( !rc.c() ) return;
+    if ( !rc.col ) return;
 
     Color newcol = tbl_->getColor( rc );
     if ( selectColor(newcol,this,"Marker color") )
@@ -923,8 +923,8 @@ void uiDataPointSetCrossPlotWin::setGrpColors()
 	    ? plotter_.y2grpColors()[idx]
 	    : plotter_.axisData(2).axis_->setup().style_.color_;
 	ColTab::Sequence ctseq;
-	ctseq.setColor( 0, coly1.r(), coly1.g(), coly1.b() );
-	ctseq.setColor( 1, coly2.r(), coly2.g(), coly2.b() ); 
+	ctseq.setColor( 0, coly1.row, coly1.g(), coly1.b() );
+	ctseq.setColor( 1, coly2.row, coly2.g(), coly2.b() ); 
 	ctseq.setNrSegments( 2 );
 	ioPixmap pixmap( ctseq, 20, 20, true );
 	if ( grpfld_ )

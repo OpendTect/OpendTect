@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.37 2010-06-07 16:00:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.38 2010-06-17 21:59:48 cvskris Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -272,7 +272,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	    if ( zaxt_ )
 	    {
-		const BinIDValue bidval( rc.r(), rc.c(), pos.z );
+		const BinIDValue bidval( rc.row, rc.col, pos.z );
 		pos.z = zaxt_->transform( bidval );
 	    }
 

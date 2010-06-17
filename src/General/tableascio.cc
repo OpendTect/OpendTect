@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.28 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.29 2010-06-17 21:59:48 cvskris Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -200,7 +200,7 @@ void TargetInfo::fillPar( IOPar& iopar ) const
 	else if ( typ == 2 )
 	    { char buf[40]; elem.pos_.fill(buf); fms += buf; }
 	else
-	    { fms += elem.keyword_; fms += elem.pos_.c(); }
+	    { fms += elem.keyword_; fms += elem.pos_.col; }
     }
     iopar.set( IOPar::compKey("Selection",nm), fms );
 }
@@ -250,7 +250,7 @@ void TargetInfo::usePar( const IOPar& iopar )
 	{
 	    curfmsidx++;
 	    elem.keyword_ = res;
-	    elem.pos_.c() = atoi( fms[curfmsidx] );
+	    elem.pos_.col = atoi( fms[curfmsidx] );
 	}
 
 	selection_.elems_ += elem;
@@ -347,7 +347,7 @@ struct BodyInfo
 		    , specnr_(specnr)
 		{
 		    if ( sel_.havePos(specnr_) )
-			col_ = sel_.elems_[specnr_].pos_.c();
+			col_ = sel_.elems_[specnr_].pos_.col;
 		}
     virtual	~BodyInfo()			{}
     bool	operator ==( const BodyInfo& bi )
@@ -375,7 +375,7 @@ struct HdrInfo : public BodyInfo
 			if ( elem.isKeyworded() )
 			    keyw_ = elem.keyword_;
 			else
-			    row_ = elem.pos_.r();
+			    row_ = elem.pos_.row;
 		    }
 		    else
 		    {
@@ -761,5 +761,5 @@ int Table::AscIO::columnOf( bool hdr, int iinf,int ielem ) const
     const ObjectSet<TargetInfo>& tis = hdr ? fd_.headerinfos_ : fd_.bodyinfos_;
     if ( tis.size() <= iinf ) return 0;
 
-    return tis[iinf]->selection_.elems_[ielem].pos_.c();
+    return tis[iinf]->selection_.elems_[ielem].pos_.col;
 }

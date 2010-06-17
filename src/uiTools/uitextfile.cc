@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextfile.cc,v 1.9 2010-04-15 15:39:56 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitextfile.cc,v 1.10 2010-06-17 21:59:48 cvskris Exp $";
 
 #include "uitextfile.h"
 #include "uitextedit.h"
@@ -82,18 +82,18 @@ void finish()
 const char* putRow( const BufferStringSet& bss )
 {
     RowCol rc( tbl_->nrRows(), 0 );
-    tbl_->insertRows( rc.r(), 1 );
+    tbl_->insertRows( rc.row, 1 );
     if ( bss.size() >= tbl_->nrCols() )
 	tbl_->insertColumns( tbl_->nrCols(), bss.size() - tbl_->nrCols() );
 
-    for ( ; rc.c()<bss.size(); rc.c()++ )
-	tbl_->setText( rc, bss.get(rc.c()) );
+    for ( ; rc.col<bss.size(); rc.col++ )
+	tbl_->setText( rc, bss.get(rc.col) );
 
     nrlines_++;
     if ( nrlines_ >= maxlines_ )
     {
-	rc.r()++; rc.c() = 0;
-	tbl_->insertRows( rc.r(), 1 );
+	rc.row++; rc.col = 0;
+	tbl_->insertRows( rc.row, 1 );
 	tbl_->setText( rc, "[...]" );
 	return "";
     }
@@ -213,17 +213,17 @@ const char* uiTextFile::text() const
     static BufferString ret; ret = "";
     BufferString linetxt;
     const int nrrows = tbl_->nrRows(); const int nrcols = tbl_->nrCols();
-    for ( RowCol rc(0,0); rc.r()<nrrows; rc.r()++ )
+    for ( RowCol rc(0,0); rc.row<nrrows; rc.row++ )
     {
 	linetxt = "";
-	for ( rc.c()=0; rc.c()<nrcols; rc.c()++ )
+	for ( rc.col=0; rc.col<nrcols; rc.col++ )
 	{
 	    const char* celltxt = tbl_->text( rc );
 	    if ( !*celltxt ) break;
-	    if ( rc.c() ) linetxt += " ";
+	    if ( rc.col ) linetxt += " ";
 	    linetxt += celltxt;
 	}
-	if ( rc.r() != nrrows-1 ) linetxt += "\n";
+	if ( rc.row != nrrows-1 ) linetxt += "\n";
 	ret += linetxt;
     }
 

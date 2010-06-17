@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.53 2010-06-09 10:28:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.54 2010-06-17 21:59:48 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1285,7 +1285,7 @@ void FaultDisplay::updateKnotMarkers()
 	marker->setScreenSize(3);
 
 	const int sid = emfault_->sectionID(0);
-	const int sticknr = RowCol( pid.subID() ).r();
+	const int sticknr = RowCol( pid.subID() ).row;
 	Geometry::FaultStickSet* fss =
 	    			 emfault_->geometry().sectionGeometry( sid );
 	const int groupidx = fss->isStickSelected(sticknr) ? 1 : 0;

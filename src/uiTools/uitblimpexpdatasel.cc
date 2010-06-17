@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.49 2010-02-23 10:16:02 cvsraman Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.50 2010-06-17 21:59:48 cvskris Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -193,11 +193,11 @@ void addBoxes( int iform, int ifld )
 	if ( rowspinbox )
 	{
 	    if ( isrc )
-		rowspinbox->setValue( rc.r() + 1 ); // Users tend to start at 1
+		rowspinbox->setValue( rc.row + 1 ); // Users tend to start at 1
 	    else
 		kwinp->setText( tinf_.selection_.elems_[ifld].keyword_ );
 	}
-	colspinbox->setValue( rc.c() + 1 );
+	colspinbox->setValue( rc.col + 1 );
     }
 }
 
@@ -312,10 +312,10 @@ bool commit()
 	    BufferString kw;
 
 	    if ( !iskw && rowboxes )
-		rc.r() = (*rowboxes)[idx]->getValue();
+		rc.row = (*rowboxes)[idx]->getValue();
 	    if ( iskw && kwinps )
 		kw = (*kwinps)[idx]->text();
-	    if ( mIsUdf(rc.r()) || (!iskw && mIsUdf(rc.c())) )
+	    if ( mIsUdf(rc.row) || (!iskw && mIsUdf(rc.col)) )
 	    {
 		errmsg_ = "Missing position in the file for ";
 		errmsg_ += tinf_.form(formnr).name();
@@ -327,7 +327,7 @@ bool commit()
 		errmsg_ += tinf_.form(formnr).name();
 		return false;
 	    }
-	    rc.r()--; rc.c()--; // Users tend to start at 1
+	    rc.row--; rc.col--; // Users tend to start at 1
 	    tinf_.selection_.elems_ +=
 				    Table::TargetInfo::Selection::Elem(rc,kw);
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.18 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.19 2010-06-17 21:59:48 cvskris Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -178,12 +178,12 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
     RowCol rc( irow, cColorCol );
     if ( havelvl )
     {
-	rc.c() = cColorCol; table_->setColor( rc, lvl->color_ );
-	rc.c() = cNameCol; table_->setText( rc, lvl->name() );
+	rc.col = cColorCol; table_->setColor( rc, lvl->color_ );
+	rc.col = cNameCol; table_->setText( rc, lvl->name() );
     }
 
-    rc.c() = cColorCol; table_->setCellReadOnly( rc, havelvl );
-    rc.c() = cNameCol; table_->setCellReadOnly( rc, havelvl );
+    rc.col = cColorCol; table_->setCellReadOnly( rc, havelvl );
+    rc.col = cNameCol; table_->setCellReadOnly( rc, havelvl );
 }
 
 

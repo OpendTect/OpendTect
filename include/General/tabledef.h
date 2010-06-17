@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.21 2009-12-23 14:25:03 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.22 2010-06-17 21:59:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,7 +145,7 @@ public:
 				    : pos_(0,-1), val_(s) 	{}
 
 	    bool		isInFile() const
-				    { return pos_.c() >= 0; }
+				    { return pos_.col >= 0; }
 	    bool		isKeyworded() const
 				    { return isInFile() && !keyword_.isEmpty();}
 	    bool		isSpecified() const

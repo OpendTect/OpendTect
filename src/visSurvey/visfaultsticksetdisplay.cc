@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.24 2010-06-07 16:00:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.25 2010-06-17 21:59:48 cvskris Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -720,10 +720,10 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cb )
 	const int sid = cbdata.pid0.sectionID();
 	RowCol rc( cbdata.pid0.subID() );
 
-	if ( emfss_->geometry().pickedOn2DLine(sid, rc.r()) )
+	if ( emfss_->geometry().pickedOn2DLine(sid, rc.row) )
 	{
-	    const MultiID* lset = emfss_->geometry().lineSet( sid, rc.r() );
-	    const char* lnm = emfss_->geometry().lineName( sid, rc.r() );
+	    const MultiID* lset = emfss_->geometry().lineSet( sid, rc.row );
+	    const char* lnm = emfss_->geometry().lineName( sid, rc.row );
 
 	    Seis2DDisplay* s2dd = Seis2DDisplay::getSeis2DDisplay( *lset, lnm );
 	    if ( !s2dd ) 
@@ -866,7 +866,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 	marker->setScreenSize(3);
 
 	const int sid = emfss_->sectionID(0);
-	const int sticknr = RowCol( pid.subID() ).r();
+	const int sticknr = RowCol( pid.subID() ).row;
 	Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry(sid);
 	const int groupidx = fss->isStickSelected(sticknr) ? 1 : 0;
 	knotmarkers_[groupidx]->addObject( marker );

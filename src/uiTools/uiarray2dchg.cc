@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dchg.cc,v 1.9 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiarray2dchg.cc,v 1.10 2010-06-17 21:59:48 cvskris Exp $";
 
 #include "uiarray2dchg.h"
 #include "uigeninput.h"
@@ -27,8 +27,8 @@ uiArr2DFilterPars::uiArr2DFilterPars( uiParent* p,
     medianfld_->setValue( pars.type_ == Stats::Median );
 
     stepoutfld_ = new uiStepOutSel( this, false, "Filter stepout" );
-    stepoutfld_->setVal( true, pars.stepout_.r() );
-    stepoutfld_->setVal( false, pars.stepout_.c() );
+    stepoutfld_->setVal( true, pars.stepout_.row );
+    stepoutfld_->setVal( false, pars.stepout_.col );
     stepoutfld_->attach( alignedBelow, medianfld_ );
 
     setHAlignObj( medianfld_ );

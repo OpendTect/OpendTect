@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Nov 2006
- RCS:           $Id: array2dfilter.h,v 1.8 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: array2dfilter.h,v 1.9 2010-06-17 21:59:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -107,13 +107,13 @@ Array2DFilterer<T>::Array2DFilterer( Array2D<T>& a, const Array2DFilterPars& p )
     , calc_(0)
     , rowsize_(a.info().getSize(0))
     , colsize_(a.info().getSize(1))
-    , nrcols_(2 * p.stepout_.c() + 1)
-    , linefilt_(p.stepout_.r() == 0 || p.stepout_.c() == 0)
+    , nrcols_(2 * p.stepout_.col + 1)
+    , linefilt_(p.stepout_.row == 0 || p.stepout_.col == 0)
     , nrcolsdone_(0)
 {
-    if ( rowsize_ < 2 * p.stepout_.r() + 1
-      || colsize_ < 2 * p.stepout_.c() + 1
-      || (pars_.stepout_.c() < 1 && pars_.stepout_.r() < 1) )
+    if ( rowsize_ < 2 * p.stepout_.row + 1
+      || colsize_ < 2 * p.stepout_.col + 1
+      || (pars_.stepout_.col < 1 && pars_.stepout_.row < 1) )
 	{ nrcolsdone_ = colsize_; return; }
 
     bufs_ = new T* [ nrcols_ ];
@@ -122,7 +122,7 @@ Array2DFilterer<T>::Array2DFilterer( Array2D<T>& a, const Array2DFilterPars& p )
     for ( int idx=0; idx<nrcols_; idx++ )
     {
 	bufs_[idx] = new T [rowsize_];
-	colnrs_[idx] = idx - pars_.stepout_.c();
+	colnrs_[idx] = idx - pars_.stepout_.col;
 	if ( colnrs_[idx] >= 0 && colnrs_[idx] < colsize_ )
 	{
 	    for ( int irow=0; irow<rowsize_; irow++ )
@@ -223,9 +223,9 @@ inline void Array2DFilterer<T>::doPoint( int row, int col, int colidx )
 {
     calc_->clear();
 
-    int startrow = row - pars_.stepout_.r();
+    int startrow = row - pars_.stepout_.row;
     if ( startrow < 0 ) startrow = 0;
-    int endrow = row + pars_.stepout_.r();
+    int endrow = row + pars_.stepout_.row;
     if ( endrow >= rowsize_ ) endrow = rowsize_-1;
 
     for ( int icol=0; icol<nrcols_; icol++ )
@@ -233,8 +233,8 @@ inline void Array2DFilterer<T>::doPoint( int row, int col, int colidx )
 	if ( colnrs_[icol] < 0 || colnrs_[icol] >= colsize_ )
 	    continue;
 
-	const bool issidecol = colnrs_[icol] == col - pars_.stepout_.c()
-			    || colnrs_[icol] == col + pars_.stepout_.c();
+	const bool issidecol = colnrs_[icol] == col - pars_.stepout_.col
+			    || colnrs_[icol] == col + pars_.stepout_.col;
 	const bool iscentercol = colnrs_[icol] == col;
 
 	const T* buf = bufs_[ icol ];

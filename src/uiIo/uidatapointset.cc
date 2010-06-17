@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.61 2010-05-12 04:30:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.62 2010-06-17 21:59:48 cvskris Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -357,8 +357,8 @@ void uiDataPointSet::fillPos( TRowID tid )
     const DataPointSet::Pos pos( dps_.pos(dRowID(tid)) );
     RowCol rc( tid, 0 );
     const Coord c( pos.coord() );
-    tbl_->setValue( rc, c.x ); rc.c()++;
-    tbl_->setValue( rc, c.y ); rc.c()++;
+    tbl_->setValue( rc, c.x ); rc.col++;
+    tbl_->setValue( rc, c.y ); rc.col++;
     if ( mIsUdf(pos.z_) )
 	tbl_->setText( rc, "" );
     else
@@ -384,7 +384,7 @@ void uiDataPointSet::fillData( TRowID tid )
     const DRowID drid = dRowID(tid);
     fillingtable_ = true;
     for ( DColID dcid=0; dcid<dps_.nrCols(); dcid++ )
-	{ tbl_->setValue( rc, getVal(dcid,drid,true) ); rc.c()++; }
+	{ tbl_->setValue( rc, getVal(dcid,drid,true) ); rc.col++; }
     fillingtable_ = false;
 }
 
@@ -619,7 +619,7 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
 	}
     }
     else
-	tbl_->removeRow( tbl_->newCell().r() );
+	tbl_->removeRow( tbl_->newCell().row );
 }
 
 
@@ -733,7 +733,7 @@ void uiDataPointSet::setCurrent( uiDataPointSet::DColID dcid,
 				 uiDataPointSet::DRowID drid )
 {
     RowCol rc( tRowID(drid), tColID(dcid) );
-    if ( rc.c() >= 0 && rc.r() >= 0 )
+    if ( rc.col >= 0 && rc.row >= 0 )
 	tbl_->setCurrentCell( rc );
 }
 
@@ -983,7 +983,7 @@ void uiDataPointSet::valChg( CallBacker* )
 	rowRemoved.trigger( drid );
     }
 
-    bool setchg = dps_.setRow( afterchgdr_ ) || cell.c() == sortcol_;
+    bool setchg = dps_.setRow( afterchgdr_ ) || cell.col == sortcol_;
     if ( setchg )
     {
 	dps_.dataChanged(); redoAll();
