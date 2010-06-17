@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.13 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.14 2010-06-17 21:24:43 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -72,11 +72,11 @@ public:
     void		setStepout(Array2D<bool>* mask);
 			/*!< mask has 2m+1 * 2n+1 entries and becomes mine. */
     void		setStepoutStep( int i, int c )
-			{ stepoutstep_.r() = i; stepoutstep_.c() = c; }
+			{ stepoutstep_.row = i; stepoutstep_.col = c; }
     int			inlStepout( bool req ) const
-    			{ return req ? reqstepout_.r() : desstepout_.r(); }
+    			{ return req ? reqstepout_.row : desstepout_.row; }
     int			crlStepout( bool req ) const
-    			{ return req ? reqstepout_.c() : desstepout_.c(); }
+    			{ return req ? reqstepout_.col : desstepout_.col; }
     void		setSelData(Seis::SelData*);
     			//!< seldata becomes mine
 
