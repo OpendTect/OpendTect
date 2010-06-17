@@ -8,14 +8,15 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.41 2010-04-09 08:26:05 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.42 2010-06-17 20:03:12 cvskris Exp $";
    
 
 #include "emsurfaceedgeline.h"
+
+#include "rcollinebuilder.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
-#include "rcollinebuilder.h"
 #include "executor.h"
 #include "iopar.h"
 #include "mathfunc.h"
@@ -56,7 +57,7 @@ EdgeLineSegment::EdgeLineSegment( Horizon3D& surf, const SectionID& sect )
 EdgeLineSegment::EdgeLineSegment( const EdgeLineSegment& templ)
     : horizon_( templ.horizon_ )
     , section( templ.section )
-    , nodes( templ.nodes )
+    , nodes_( templ.nodes_ )
     , notifier( 0 )
 {}
 
@@ -89,37 +90,37 @@ bool EdgeLineSegment::internalIdenticalSettings(
 
 
 int EdgeLineSegment::size() const
-{ return nodes.size(); }
+{ return nodes_.size(); }
 
 
 int EdgeLineSegment::indexOf( const RowCol& rc, bool forward ) const
-{ return nodes.indexOf(rc, forward ); }
+{ return nodes_.indexOf(rc, forward ); }
 
 
 void EdgeLineSegment::remove( int p1 )
 {
-    nodes.remove(p1);
+    nodes_.remove(p1);
     if ( notifier ) notifier->trigger();
 }
 
 
 void EdgeLineSegment::remove( int p1, int p2 )
 {
-    nodes.remove(p1,p2);
+    nodes_.remove(p1,p2);
     if ( notifier ) notifier->trigger();
 }
 
 
 void EdgeLineSegment::removeAll()
 {
-    nodes.erase();
+    nodes_.erase();
     if ( notifier ) notifier->trigger();
 }
 
 
 void EdgeLineSegment::insert( int p1, const RowCol& rc )
 {
-    nodes.insert(p1,rc);
+    nodes_.insert(p1,rc);
     if ( notifier ) notifier->trigger();
 }
 
@@ -128,11 +129,11 @@ void EdgeLineSegment::insert( int p1, const TypeSet<RowCol>& rcs )
 {
     if ( rcs.isEmpty() ) return;
     if ( p1>=size() )
-	nodes.append( rcs );
+	nodes_.append( rcs );
     else
     {
 	for ( int idx=0; idx<rcs.size(); idx++ )
-	    nodes.insert( p1+idx, rcs[idx] );
+	    nodes_.insert( p1+idx, rcs[idx] );
     }
 	
     if ( notifier ) notifier->trigger();
@@ -143,9 +144,9 @@ void EdgeLineSegment::set( int p1, const RowCol& rc )
 {
     if ( p1>=0 && p1<size() )
     {
-	if ( rc!=nodes[p1] )
+	if ( rc!=nodes_[p1] )
 	{
-	    nodes[p1] = rc;
+	    nodes_[p1] = rc;
 	    if ( notifier ) notifier->trigger();
 	}
     }
@@ -157,12 +158,12 @@ void EdgeLineSegment::set( int p1, const RowCol& rc )
 void EdgeLineSegment::copyNodesFrom( const TypeSet<RowCol>& templ, bool dorev )
 {
     if ( !dorev )
-	nodes = templ;
+	nodes_ = templ;
     else
     {
-	nodes.erase();
+	nodes_.erase();
 	for ( int idx=templ.size()-1; idx>=0; idx-- )
-	    nodes += templ[idx];
+	    nodes_ += templ[idx];
     }
 
     if ( notifier ) notifier->trigger();
@@ -176,13 +177,13 @@ void EdgeLineSegment::copyNodesFrom( const EdgeLineSegment* templ, bool dorev)
 
 
 const RowCol& EdgeLineSegment::operator[]( int idx ) const
-{ return nodes[idx]; }
+{ return nodes_[idx]; }
 
 
 const EdgeLineSegment&
 EdgeLineSegment::operator+=( const RowCol& rc )
 {
-    nodes += rc;
+    nodes_ += rc;
     if ( notifier ) notifier->trigger();
     return *this;
 }
@@ -197,7 +198,7 @@ bool EdgeLineSegment::isContinuedBy( const EdgeLineSegment* seg ) const
     if ( !seg ) return false;
     const int sz = size();
     return sz && seg->size() &&
-	   nodes[sz-1].isNeighborTo((*seg)[0], horizon_.geometry().step());
+	   nodes_[sz-1].isNeighborTo((*seg)[0], horizon_.geometry().step());
 }
 
 
@@ -219,12 +220,12 @@ bool EdgeLineSegment::isByPassed( int idx, const EdgeLineSegment* prev,
 	   (idx==size()-1 && (!next || !isContinuedBy(next))) )
 	return false;
 
-    const RowCol& prevrc = idx ? nodes[idx-1] : (*prev)[prev->size()-1];
-    const RowCol& nextrc = idx!=size()-1 ? nodes[idx+1] : (*next)[0];
+    const RowCol& prevrc = idx ? nodes_[idx-1] : (*prev)[prev->size()-1];
+    const RowCol& nextrc = idx!=size()-1 ? nodes_[idx+1] : (*next)[0];
     if ( !prevrc.isNeighborTo(nextrc,horizon_.geometry().step(), true ) )
 	return false;
 
-    const RowCol& rc = nodes[idx];
+    const RowCol& rc = nodes_[idx];
     const RowCol prevdir = (prevrc-rc).getDirection();
     const RowCol nextdir = (nextrc-rc).getDirection();
 
@@ -237,7 +238,7 @@ bool EdgeLineSegment::isConnToNext(int idx) const
     if ( idx==size()-1 )
 	return true;
 
-    return nodes[idx].isNeighborTo( nodes[idx+1], horizon_.geometry().step(),
+    return nodes_[idx].isNeighborTo( nodes_[idx+1], horizon_.geometry().step(),
 	    			    true );
 }
 
@@ -246,7 +247,7 @@ bool EdgeLineSegment::isConnToPrev(int idx) const
 {
     if ( !idx ) return true;
 
-    return nodes[idx].isNeighborTo(nodes[idx-1],horizon_.geometry().step(),true );
+    return nodes_[idx].isNeighborTo(nodes_[idx-1],horizon_.geometry().step(),true );
 }
 
 
@@ -266,7 +267,7 @@ bool EdgeLineSegment::areAllNodesOutsideBad( int idx,
 	return false;
 
     const TypeSet<RowCol>& dirs=RowCol::clockWiseSequence();
-    const RowCol& cur = nodes[idx];
+    const RowCol& cur = nodes_[idx];
     int prevdir = dirs.indexOf((prevrc-cur).getDirection());
     int nextdir = dirs.indexOf((nextrc-cur).getDirection());
 
@@ -289,7 +290,7 @@ void EdgeLineSegment::fillPar( IOPar& par ) const
     TypeSet<SubID> subids;
     for ( int idx=0; idx<size(); idx++ )
     {
-	subids += rc2int64( nodes[idx] );
+	subids += rc2int64( nodes_[idx] );
     }
 
     par.set( key, subids );
@@ -303,9 +304,9 @@ bool EdgeLineSegment::usePar( const IOPar& par )
     if ( !par.get( key, subids ) )
 	return false;
 
-    nodes.erase();
+    nodes_.erase();
     for ( int idx=0; idx<subids.size(); idx++ )
-	nodes += int642rc(subids[idx]);
+	nodes_ += int642rc(subids[idx]);
 
     if ( notifier ) notifier->trigger();
     return true;
@@ -328,7 +329,7 @@ bool EdgeLineSegment::trackWithCache( int start, bool forward,
 		 const EdgeLineSegment* prev, const EdgeLineSegment* next)
 {
     if ( !size() ) return false;
-    const RowCol& lastnode = nodes[start];
+    const RowCol& lastnode = nodes_[start];
     const RowCol& step = horizon_.geometry().step();
     RowCol backnode;
     if ( !getNeighborNode(start, !forward, backnode, prev, next ) )
@@ -396,106 +397,17 @@ bool EdgeLineSegment::trackWithCache( int start, bool forward,
 
 void EdgeLineSegment::reverse()
 {
-    TypeSet<RowCol> nodescopy(nodes);
+    TypeSet<RowCol> nodescopy(nodes_);
     for ( int idx=nodescopy.size()-1, idy=0; idx>=0; idx--, idy++ )
-	nodes[idy] = nodescopy[idx];
+	nodes_[idy] = nodescopy[idx];
     if ( notifier ) notifier->trigger();
-}
-
-
-template <class T, class TT>
-class RColLineBuilder
-{
-public:
-    			RColLineBuilder( const TT& start,
-					   const TT& dir,
-					   const TT& step,
-					   TypeSet<T>& line);
-   int			nextStep();
-   			/*!<\returns 1 if the extension went well, -1 if
-			     	       the direction is zero. */
-
-protected:
-   float		distToLine( const TT& rc ) const;
-   const TT&		start_;
-   const TT&		dir_;
-   const TT&		step_;
-   const float		dirlen_;
-   TypeSet<T>&		line_;
-};
-
-
-template <class T,class TT> inline
-RColLineBuilder<T,TT>::RColLineBuilder( const TT& start,
-	const TT& dir, const TT& step, TypeSet<T>& line )
-   : start_( start )
-   , dir_( dir )
-   , step_( step )
-   , line_( line )
-   , dirlen_( Math::Sqrt(float(dir_[0]*dir_[0]+dir_[1]*dir_[1])) )
-{}
-
-
-template <class T,class TT> inline
-int RColLineBuilder<T,TT>::nextStep()
-{
-    if ( !dir_[0] && !dir_[1] )
-	return -1;
-
-    T bestrc;
-    if ( line_.size() )
-    {
-	const T& lastpos = line_[line_.size()-1];
-
-	float disttoline = mUdf(float);
-
-	if ( dir_[0] )
-	{
-	    const T candidate =
-	    lastpos+T(dir_[0]>0?step_[0]:-step_[0], 0 );
-	    const float dist = distToLine(candidate);
-	    if ( dist<disttoline )
-	    { bestrc = candidate; disttoline=dist; }
-	}
-
-	if ( dir_[1] )
-	{
-	    const T candidate =
-		lastpos+T(0,dir_[1]>0?step_[1]:-step_[1] );
-	    const float dist = distToLine(candidate);
-	    if ( dist<disttoline )
-	    { bestrc = candidate; disttoline=dist; }
-	}
-
-	if ( dir_[0] && dir_[1] )
-	{
-	    const T candidate =
-		lastpos+T( dir_[0]>0?step_[0]:-step_[0],
-				dir_[1]>0?step_[1]:-step_[1] );
-	    const float dist = distToLine(candidate);
-	    if ( dist<disttoline )
-	    { bestrc = candidate; disttoline=dist; }
-	}
-    }
-    else
-	bestrc = start_;
-
-    line_ += bestrc;
-    return 1;
-}
-
-
-template <class T,class TT> inline
-float RColLineBuilder<T,TT>::distToLine( const TT& rc ) const
-{
-    return fabs((dir_[0]*(rc[1]-start_[1])-dir_[1]*(rc[0]-start_[0]))/dirlen_);
 }
 
 
 void EdgeLineSegment::makeLine( const RowCol& start, const RowCol& stop )
 {
     PtrMan<NotifyStopper> stopper = notifier ? new NotifyStopper(*notifier) : 0;
-    ::makeLine( start, stop, horizon_.geometry().step(), nodes );
+    ::makeLine( start, stop, horizon_.geometry().step(), nodes_ );
 
     if ( notifier )
     {
@@ -506,11 +418,11 @@ void EdgeLineSegment::makeLine( const RowCol& start, const RowCol& stop )
 
 
 RowCol EdgeLineSegment::first() const
-{ return size() ? nodes[0] : RowCol(0,0); }
+{ return size() ? nodes_[0] : RowCol(0,0); }
 
 
 RowCol EdgeLineSegment::last() const
-{ const int sz=size(); return sz ? nodes[sz-1] : RowCol(0,0); }
+{ const int sz=size(); return sz ? nodes_[sz-1] : RowCol(0,0); }
 
 
 #define mReTrackReturn(retval) \
@@ -545,7 +457,7 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	    if ( isNodeOK(rc) && !isByPassed(idy,prev,next) )
 		break;
 
-	    nodes.remove(idy--);
+	    nodes_.remove(idy--);
 	    change = true;
 	    backward = true;
 	}
@@ -553,11 +465,11 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	if ( !size() )
 	{
 	    if ( !prev->size() ) mReTrackReturn(false);
-	    nodes.insert( 0, prev->last());
+	    nodes_.insert( 0, prev->last());
 	    change = true;
 	    if ( !trackWithCache( 0, true, prev, next ) )
 		mReTrackReturn(false);
-	    nodes.remove(0);
+	    nodes_.remove(0);
 	}
 
 	if ( !prev->isContinuedBy(this) )
@@ -572,7 +484,7 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	    if ( isNodeOK(rc) )
 		break;
 
-	    nodes.remove(idy--);
+	    nodes_.remove(idy--);
 	    change = true;
 	}
 
@@ -607,7 +519,7 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	{
 	    if ( idx!=size()-1 )
 	    {
-		nodes.remove( idx+1, size()-1 );
+		nodes_.remove( idx+1, size()-1 );
 		change = true;
 	    }
 	    if ( !trackWithCache( idx, true, prev, next ) )
@@ -655,18 +567,18 @@ bool EdgeLineSegment::getNeighborNode( int idx, bool forward, RowCol& rc,
 {
     if ( forward )
     {
-	if ( idx<size()-1 ) rc = nodes[idx+1];
+	if ( idx<size()-1 ) rc = nodes_[idx+1];
 	else if ( next ) rc = (*next)[0];
 	else return false;
     }
     else 
     {
-	if ( idx ) rc = nodes[idx-1];
+	if ( idx ) rc = nodes_[idx-1];
 	else if ( prev ) rc = (*prev)[prev->size()-1];
 	else return false;
     }
 
-    return nodes[idx].isNeighborTo(rc, horizon_.geometry().step(), true );
+    return nodes_[idx].isNeighborTo(rc, horizon_.geometry().step(), true );
 }
 
 
@@ -677,7 +589,7 @@ bool EdgeLineSegment::getHorizonStart( int start, bool clockwise,
     const int nrdirs = dirs.size();
 
     const RowCol& step = horizon_.geometry().step();
-    const RowCol& centernode = nodes[start];
+    const RowCol& centernode = nodes_[start];
 
     //Find a place where it goes from undef to defined
     int firstdefined = -1;
@@ -716,7 +628,7 @@ int EdgeLineSegment::findNeighborTo(RowCol const& rc, bool forward) const
     {
 	for ( int idx=0; idx<size(); idx++ )
 	{
-	    if ( rc.isNeighborTo(nodes[idx], step, true ) )
+	    if ( rc.isNeighborTo(nodes_[idx], step, true ) )
 		return idx;
 	}
     }
@@ -724,7 +636,7 @@ int EdgeLineSegment::findNeighborTo(RowCol const& rc, bool forward) const
     {
 	for ( int idx=size()-1; idx>=0; idx-- )
 	{
-	    if ( rc.isNeighborTo(nodes[idx], step, true ) )
+	    if ( rc.isNeighborTo(nodes_[idx], step, true ) )
 		return idx;
 	}
     }
@@ -782,7 +694,7 @@ void EdgeLineSegment::posChangeCB(CallBacker* cb)
      if ( nodeidx==-1 ) return;
 
      if ( !isDefined(rc) )
-	 nodes.remove(nodeidx);
+	 nodes_.remove(nodeidx);
 
      notifier->trigger();
 }
@@ -1257,7 +1169,7 @@ bool EdgeLine::reTrackLine()
 
 bool EdgeLine::repairLine()
 {
-    const RCol& step = horizon_.geometry().step();
+    const RowCol& step = horizon_.geometry().step();
 
     for ( int idz=0; idz<nrSegments(); idz++ )
     {

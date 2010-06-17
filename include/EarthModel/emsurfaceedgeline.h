@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.22 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.23 2010-06-17 20:03:12 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -114,7 +114,7 @@ public:
     EM::Horizon3D&	getHorizon() { return horizon_; }
     EM::SectionID	getSection() const { return section; }
 
-    const TypeSet<RowCol>&	getNodes() const { return nodes; }
+    const TypeSet<RowCol>&	getNodes() const { return nodes_; }
     virtual void		commitChanges() {}
     				/*!< During tracking, the line might want to
 				     move the surface slightly to get a perfect
@@ -164,7 +164,7 @@ private:
     void			posChangeCB(CallBacker*);
 
     Notifier<EdgeLineSegment>*	notifier;
-    TypeSet<RowCol>		nodes;
+    TypeSet<RowCol>		nodes_;
 };
 
 
