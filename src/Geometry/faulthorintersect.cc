@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.2 2010-03-30 20:30:20 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.3 2010-06-17 18:29:31 cvskris Exp $";
 
 #include "faulthorintersect.h"
 
@@ -63,7 +63,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    const BinID bid = SI().transform( knots[idy] );
 	    (*fhi_.ftbids_[idx]) += bid;
 
-	    const BinID hbid(fhi_.rrg_.snap(bid.inl),fhi_.crg_.snap(bid.crl));
+	    const RowCol hbid(fhi_.rrg_.snap(bid.inl),fhi_.crg_.snap(bid.crl));
 	    (*fhi_.zprojs_[idx]) += 
 		fhi_.surf_.getKnot(hbid,false).z + fhi_.zshift_;
 	}
@@ -78,9 +78,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    if ( (prevbelow && nextbelow) || (!prevbelow && !nextbelow) )
 		continue;
     
-	    BinID bid0( fhi_.rrg_.snap((*fhi_.ftbids_[idx])[idy].inl), 
+	    const RowCol bid0( fhi_.rrg_.snap((*fhi_.ftbids_[idx])[idy].inl), 
 		        fhi_.crg_.snap((*fhi_.ftbids_[idx])[idy].crl) );
-	    BinID bid1( fhi_.rrg_.snap((*fhi_.ftbids_[idx])[idy+1].inl), 
+	    const RowCol bid1( fhi_.rrg_.snap((*fhi_.ftbids_[idx])[idy+1].inl), 
     			fhi_.crg_.snap((*fhi_.ftbids_[idx])[idy+1].crl) );
 	    Coord3 horpos0 = fhi_.surf_.getKnot(bid0,false); 
 	    horpos0.z += fhi_.zshift_;
@@ -214,12 +214,12 @@ void FaultBinIDSurfaceIntersector::calPanelIntersections( int pnidx,
     
     for ( int idx=0; idx<sz0; idx++ )
     {
-	BinID bid0( rrg_.snap((*ftbids_[lidx])[idx].inl), 
+	const RowCol bid0( rrg_.snap((*ftbids_[lidx])[idx].inl), 
 		    crg_.snap((*ftbids_[lidx])[idx].crl) );
 	
 	const int sknotidx = 
 	    idx<iniskip ? 0 : ( idx<iniskip+sz1-1 ? idx-iniskip : sz1-1 );
-	BinID bid1( rrg_.snap((*ftbids_[sidx])[sknotidx].inl), 
+	const RowCol bid1( rrg_.snap((*ftbids_[sidx])[sknotidx].inl), 
 		    crg_.snap((*ftbids_[sidx])[sknotidx].crl) );
 	
 	Coord3 hpos0 = surf_.getKnot(bid0,false); 
