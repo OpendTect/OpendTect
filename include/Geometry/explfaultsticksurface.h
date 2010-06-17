@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.13 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.14 2010-06-17 19:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "rowcol.h"
 #include "datapack.h"
 
-class RCol;
 class DataPointSet;
 
 namespace Geometry

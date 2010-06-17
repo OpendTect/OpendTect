@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.14 2010-02-18 23:20:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.15 2010-06-17 19:00:58 cvskris Exp $";
 
 #include "polygonsurface.h"
 
@@ -134,13 +134,13 @@ bool PolygonSurface::removePolygon( int polygonnr )
 }
 
 
-bool PolygonSurface::insertKnot( const RCol& rc, const Coord3& pos )
+bool PolygonSurface::insertKnot( const RowCol& rc, const Coord3& pos )
 {
     if ( !pos.isDefined() )
 	return false;
 
-    mGetValidPolygonIdx( polygonidx, rc.r(), 0, false );
-    mGetValidKnotIdx( knotidx, rc.c(), polygonidx, 1, false );
+    mGetValidPolygonIdx( polygonidx, rc.row, 0, false );
+    mGetValidKnotIdx( knotidx, rc.col, polygonidx, 1, false );
     if ( knotidx==-1 )
     {
 	firstknots_[polygonidx]--;
@@ -166,13 +166,13 @@ bool PolygonSurface::insertKnot( const RCol& rc, const Coord3& pos )
 }
 
 
-bool PolygonSurface::removeKnot( const RCol& rc )
+bool PolygonSurface::removeKnot( const RowCol& rc )
 {
-    mGetValidPolygonIdx( polygonidx, rc.r(), 0, false );
-    mGetValidKnotIdx( knotidx, rc.c(), polygonidx, 0, false );
+    mGetValidPolygonIdx( polygonidx, rc.row, 0, false );
+    mGetValidKnotIdx( knotidx, rc.col, polygonidx, 0, false );
 
     if ( polygons_[polygonidx]->size() <= 1 )
-	return removePolygon( rc.r() );
+	return removePolygon( rc.row );
 
     polygons_[polygonidx]->remove( knotidx );
     triggerNrPosCh( RowCol(polygonidx,PolygonChange).getSerialized() );
@@ -267,32 +267,32 @@ void PolygonSurface::getAllKnots( TypeSet<Coord3>& result ) const
 }
 
 
-bool PolygonSurface::setKnot( const RCol& rc, const Coord3& pos )
+bool PolygonSurface::setKnot( const RowCol& rc, const Coord3& pos )
 {
     if ( !pos.isDefined() )
 	return removeKnot( rc );
 
-    mGetValidPolygonIdx( polygonidx, rc.r(), 0, false );
-    mGetValidKnotIdx( knotidx, rc.c(), polygonidx, 0, false );
+    mGetValidPolygonIdx( polygonidx, rc.row, 0, false );
+    mGetValidKnotIdx( knotidx, rc.col, polygonidx, 0, false );
     (*polygons_[polygonidx])[knotidx] = pos;
     triggerMovement( RowCol(polygonidx,PolygonChange).getSerialized() );
     return true;
 }
 
 
-Coord3 PolygonSurface::getKnot( const RCol& rc ) const
+Coord3 PolygonSurface::getKnot( const RowCol& rc ) const
 {
-    mGetValidPolygonIdx( polygonidx, rc.r(), 0, Coord3::udf() );
-    mGetValidKnotIdx( knotidx, rc.c(), polygonidx, 0, Coord3::udf() );
+    mGetValidPolygonIdx( polygonidx, rc.row, 0, Coord3::udf() );
+    mGetValidKnotIdx( knotidx, rc.col, polygonidx, 0, Coord3::udf() );
     
     return (*polygons_[polygonidx])[knotidx];
 }
 
 
-bool PolygonSurface::isKnotDefined( const RCol& rc ) const
+bool PolygonSurface::isKnotDefined( const RowCol& rc ) const
 {
-    mGetValidPolygonIdx( polygonidx, rc.r(), 0, false );
-    mGetValidKnotIdx( knotidx, rc.c(), polygonidx, 0, false );
+    mGetValidPolygonIdx( polygonidx, rc.row, 0, false );
+    mGetValidKnotIdx( knotidx, rc.col, polygonidx, 0, false );
 
     return true;
 }

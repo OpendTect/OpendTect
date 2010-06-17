@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        J.C. Glas
 Date:          November 2008
-RCS:           $Id: faultstickset.h,v 1.7 2010-03-12 21:07:30 cvsyuancheng Exp $
+RCS:           $Id: faultstickset.h,v 1.8 2010-06-17 19:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ public:
 				    int firstcol=0);
     bool		removeStick(int stick);
 
-    bool		insertKnot(const RCol&,const Coord3&);
-    bool		removeKnot(const RCol&);
+    bool		insertKnot(const RowCol&,const Coord3&);
+    bool		removeKnot(const RowCol&);
 
     int			nrSticks() const;
     int			nrKnots(int stick) const;
@@ -40,9 +40,9 @@ public:
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int stick) const;
 
-    bool		setKnot(const RCol&,const Coord3&);
-    Coord3		getKnot(const RCol&) const;
-    bool		isKnotDefined(const RCol&) const;
+    bool		setKnot(const RowCol&,const Coord3&);
+    Coord3		getKnot(const RowCol&) const;
+    bool		isKnotDefined(const RowCol&) const;
 
     const Coord3&	getEditPlaneNormal(int stick) const;				
     enum ChangeTag	{StickChange=__mUndefIntVal+1,StickInsert,StickRemove};

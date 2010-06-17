@@ -5,7 +5,7 @@
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
-RCS:           $Id: parametricsurface.h,v 1.19 2009-07-22 16:01:16 cvsbert Exp $
+RCS:           $Id: parametricsurface.h,v 1.20 2010-06-17 19:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,9 +23,8 @@ class ParametricCurve;
 mClass ParametricSurface : public RowColSurface
 {
 public:
-    			ParametricSurface(
-					const RCol& origin=RowCol(0,0),
-					const RCol& step=RowCol(1,1) );
+    			ParametricSurface(const RowCol& origin=RowCol(0,0),
+					const RowCol& step=RowCol(1,1) );
     			~ParametricSurface();
     ParametricSurface*	clone() const = 0;
     virtual Coord3 	computePosition(const Coord&) const;
@@ -50,12 +49,12 @@ public:
     virtual bool	circularRows() const { return false; }
     virtual bool	circularCols() const { return false; }
 
-    virtual bool	setKnot( const RCol&, const Coord3& );
-    virtual bool	unsetKnot( const RCol& );
-    virtual Coord3	getKnot(const RCol&, bool estifundef ) const = 0;
-    virtual Coord3	getKnot(const RCol&) const;
-    virtual bool	isKnotDefined( const RCol& ) const;
-    bool		hasSupport(const RCol&) const;
+    virtual bool	setKnot(const RowCol&,const Coord3&);
+    virtual bool	unsetKnot(const RowCol&);
+    virtual Coord3	getKnot(const RowCol&, bool estifundef ) const = 0;
+    virtual Coord3	getKnot(const RowCol&) const;
+    virtual bool	isKnotDefined(const RowCol&) const;
+    bool		hasSupport(const RowCol&) const;
 
     int			nrKnots() const;
     RowCol		getKnotRowCol( int idx ) const;
@@ -64,7 +63,7 @@ public:
     bool		setPosition( GeomPosID pid, const Coord3&);
     bool		isDefined( GeomPosID pid ) const;
 
-    bool		isAtEdge( const RCol& ) const;
+    bool		isAtEdge(const RowCol&) const;
 
     bool		checkSupport(bool yn);
     			/*!<Specifies wether support should be checked */
@@ -78,10 +77,10 @@ public:
     void 		trimUndefParts();
 
 protected:
-    int			getKnotIndex(const RCol& rc) const;
+    int			getKnotIndex(const RowCol& rc) const;
 
     virtual void	_setKnot( int idx, const Coord3& ) 		= 0;
-    virtual bool	checkSelfIntersection( const RCol& ) const;
+    virtual bool	checkSelfIntersection( const RowCol& ) const;
 
     int		rowIndex(int row) const { return (row-origin_.row)/step_.row; }
     int		colIndex(int col) const { return (col-origin_.col)/step_.col; }
@@ -89,7 +88,8 @@ protected:
     static int	colDim() { return 1; }
     virtual int	nrRows() const 						= 0;
     virtual int	nrCols() const 						= 0;
-    bool	isAtSameEdge(const RCol&,const RCol&,TypeSet<RowCol>* =0) const;
+    bool	isAtSameEdge(const RowCol&,const RowCol&,
+	    		     TypeSet<RowCol>* =0) const;
 
     bool	checksupport_;
     bool	checkselfintersection_;

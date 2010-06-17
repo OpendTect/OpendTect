@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Y.C. Liu
 Date:          July 2008
-RCS:           $Id: polygonsurface.h,v 1.12 2010-02-18 23:20:23 cvsyuancheng Exp $
+RCS:           $Id: polygonsurface.h,v 1.13 2010-06-17 19:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,16 +37,16 @@ public:
 				      int firstknot=0);
     bool		removePolygon(int polygon);
 
-    bool		insertKnot(const RCol&,const Coord3&);
-    bool		removeKnot(const RCol&);
+    bool		insertKnot(const RowCol&,const Coord3&);
+    bool		removeKnot(const RowCol&);
 
     int			nrPolygons() const { return polygons_.size(); }
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int polygon) const;
     
-    bool		setKnot(const RCol&,const Coord3&);
-    Coord3		getKnot(const RCol&) const;
-    bool		isKnotDefined(const RCol&) const;
+    bool		setKnot(const RowCol&,const Coord3&);
+    Coord3		getKnot(const RowCol&) const;
+    bool		isKnotDefined(const RowCol&) const;
 
     void		setBezierCurveSmoothness(int nrpoints_on_segment);
     int			getBezierCurveSmoothness() const {return beziernrpts_;}

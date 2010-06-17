@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.15 2009-11-24 16:40:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.16 2010-06-17 19:00:58 cvskris Exp $";
 
 #include "horizon2dline.h"
 
@@ -252,18 +252,18 @@ void Horizon2DLine::geometry( int rowid, PosInfo::Line2DData& ld ) const
 }
 
 
-Coord3 Horizon2DLine::getKnot( const RCol& rc ) const
+Coord3 Horizon2DLine::getKnot( const RowCol& rc ) const
 {
-    const int rowidx = rc.r() - firstrow_;
-    const int colidx = colIndex( rowidx, rc.c() );
+    const int rowidx = rc.row - firstrow_;
+    const int colidx = colIndex( rowidx, rc.col );
     return colidx>=0 ? (*rows_[rowidx])[colidx] : Coord3::udf();
 }
 
 
-bool Horizon2DLine::setKnot( const RCol& rc, const Coord3& pos )
+bool Horizon2DLine::setKnot( const RowCol& rc, const Coord3& pos )
 {
-    const int rowidx = rc.r() - firstrow_;
-    const int colidx = colIndex( rowidx, rc.c() );
+    const int rowidx = rc.row - firstrow_;
+    const int colidx = colIndex( rowidx, rc.col );
 
     if ( colidx<0 ) return false;
 
@@ -273,10 +273,10 @@ bool Horizon2DLine::setKnot( const RCol& rc, const Coord3& pos )
 }
 
 
-bool Horizon2DLine::isKnotDefined( const RCol& rc ) const
+bool Horizon2DLine::isKnotDefined( const RowCol& rc ) const
 {
-    const int rowidx = rc.r() - firstrow_;
-    const int colidx = colIndex( rowidx, rc.c() );
+    const int rowidx = rc.row - firstrow_;
+    const int colidx = colIndex( rowidx, rc.col );
     return colidx>=0 ? (*rows_[rowidx])[colidx].isDefined() : false;
 }
 
@@ -298,11 +298,11 @@ int Horizon2DLine::colIndex( int rowidx, int colid ) const
 }
 
 
-bool Horizon2DLine::hasSupport( const RCol& rc ) const
+bool Horizon2DLine::hasSupport( const RowCol& rc ) const
 {
-    StepInterval<int> colrg = colRange( rc.r() );
-    const RowCol prev( rc.r(), rc.c()-colrg.step );
-    const RowCol next( rc.r(), rc.c()+colrg.step );
+    StepInterval<int> colrg = colRange( rc.row );
+    const RowCol prev( rc.row, rc.col-colrg.step );
+    const RowCol next( rc.row, rc.col+colrg.step );
     return isKnotDefined(prev) || isKnotDefined(next);
 }
 

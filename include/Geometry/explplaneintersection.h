@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          May 2008
- RCS:           $Id: explplaneintersection.h,v 1.3 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: explplaneintersection.h,v 1.4 2010-06-17 19:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "indexedshape.h"
 #include "position.h"
 
-class RCol;
 class Plane3;
 
 namespace Geometry

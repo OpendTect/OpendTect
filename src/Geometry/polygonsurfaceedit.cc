@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfaceedit.cc,v 1.3 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: polygonsurfaceedit.cc,v 1.4 2010-06-17 19:00:58 cvskris Exp $";
 
 #include "polygonsurfaceedit.h"
 
@@ -40,7 +40,7 @@ Coord3 PolygonSurfEditor::translation2DNormal( GeomPosID gpid ) const
 {
     const PolygonSurface& plg = 
 			reinterpret_cast<const PolygonSurface&>( element );
-    const int plgnr = RowCol(gpid).r();
+    const int plgnr = RowCol(gpid).row;
     return plg.getPolygonNormal( plgnr );
 }
 

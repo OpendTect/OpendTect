@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.39 2010-03-15 20:19:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.40 2010-06-17 19:00:58 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -902,7 +902,7 @@ void ExplFaultStickSurface::updateStickShifting()
 Coord3 ExplFaultStickSurface::getCoord( int stickidx, int texturerow ) const
 {
     if ( stickidx<0 || stickidx>=sticks_.size() || 
-	 texturerow<0 || texturerow>texturesize_.r() )
+	 texturerow<0 || texturerow>texturesize_.row )
 	return Coord3::udf();
     
     const int sticknr = surface_->rowRange().atIndex( stickidx );
@@ -1377,21 +1377,21 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
     {
 	RowCol rc;
 	rc.setSerialized( (*pidlist)[idx] );
-	const int stickidx = rc.r();
+	const int stickidx = rc.row;
 
-	if ( rc.c()==FaultStickSurface::StickChange )
+	if ( rc.col==FaultStickSurface::StickChange )
 	{
 	    emptyPanel( stickidx-1 );
 	    emptyPanel( stickidx );
 	    emptyStick( stickidx );
 	}
-	if ( rc.c()==FaultStickSurface::StickInsert )
+	if ( rc.col==FaultStickSurface::StickInsert )
 	{
 	    emptyPanel( stickidx-1 );
 	    insertPanel( !stickidx ? 0 : stickidx-1 );
 	    insertStick( stickidx );
 	}
-	if ( rc.c()==FaultStickSurface::StickRemove )
+	if ( rc.col==FaultStickSurface::StickRemove )
 	{
 	    emptyPanel( stickidx );
 	    removePanel( !stickidx ? 0 : stickidx-1 );
@@ -1410,7 +1410,7 @@ void ExplFaultStickSurface::surfaceMovement( CallBacker* cb )
     {
 	RowCol rc;
 	rc.setSerialized( (*pidlist)[idx] );
-	const int stickidx = rc.r();
+	const int stickidx = rc.row;
 
 	emptyPanel( stickidx-1 );
 	emptyPanel( stickidx );

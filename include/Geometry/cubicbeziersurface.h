@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.11 2009-07-22 16:01:16 cvsbert Exp $
+RCS:           $Id: cubicbeziersurface.h,v 1.12 2010-06-17 19:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ public:
 mClass CubicBezierSurface : public ParametricSurface
 {
 public:
-    			CubicBezierSurface( const RCol& step=RowCol(1,1));
+    			CubicBezierSurface( const RowCol& step=RowCol(1,1));
     			CubicBezierSurface( const CubicBezierSurface& );
 			~CubicBezierSurface();
 
@@ -65,35 +65,35 @@ public:
     Coord3	computePosition(const Coord&) const;
     Coord3	computeNormal(const Coord&) const;
 
-    bool	intersectWithLine(const Line3&, Coord& ) const;
+    bool	intersectWithLine(const Line3&,Coord&) const;
 
-    Coord3	getBezierVertex( const RCol& knot, const RCol& relpos ) const;
+    Coord3	getBezierVertex(const RowCol& knot,const RowCol& relpos) const;
 
     bool	insertRow(int row,int nrnew=1);
     bool	insertCol(int col,int nrnew=1);
     bool	removeRow(int row);
     bool	removeCol(int col);
-    Coord3	getKnot( const RCol&, bool estimateifundef=false ) const;
+    Coord3	getKnot( const RowCol&,bool estimateifundef=false) const;
 
-    Coord3	getRowDirection(const RCol&, bool computeifudf ) const;
-    Coord3	getColDirection(const RCol&, bool computeifudf ) const;
+    Coord3	getRowDirection(const RowCol&,bool computeifudf) const;
+    Coord3	getColDirection(const RowCol&,bool computeifudf) const;
     float	directionInfluence() const;
     void	setDirectionInfluence(float);
 
-    const CubicBezierSurfacePatch*	getPatch(const RCol&) const;
+    const CubicBezierSurfacePatch*	getPatch(const RowCol&) const;
     ParametricCurve*	createRowCurve( float row,
 					const Interval<int>* colrange=0 ) const;
-    ParametricCurve*	createColCurve( float col,
+    ParametricCurve*	createColCurve(float col,
 					const Interval<int>* rowrange=0 ) const;
 
 protected:
 
-    bool	checkSelfIntersection( const RCol& ) const;
+    bool	checkSelfIntersection( const RowCol& ) const;
 
-    IntervalND<float>	boundingBox(const RCol&, bool ownvertices ) const;
+    IntervalND<float>	boundingBox(const RowCol&, bool ownvertices ) const;
 
-    Coord3	computeRowDirection(const RCol&) const;
-    Coord3	computeColDirection(const RCol&) const;
+    Coord3	computeRowDirection(const RowCol&) const;
+    Coord3	computeColDirection(const RowCol&) const;
 
     void	_setKnot( int idx, const Coord3& );
 

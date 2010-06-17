@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          March 2006
-RCS:           $Id: horizon2dline.h,v 1.8 2009-07-22 16:01:16 cvsbert Exp $
+RCS:           $Id: horizon2dline.h,v 1.9 2010-06-17 19:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,13 +51,13 @@ public:
 
     void		geometry(int rowid,PosInfo::Line2DData&) const;
 
-    Coord3		getKnot(const RCol&) const;
-    bool		setKnot(const RCol&,const Coord3&);
-    bool		isKnotDefined(const RCol&) const;
+    Coord3		getKnot(const RowCol&) const;
+    bool		setKnot(const RowCol&,const Coord3&);
+    bool		isKnotDefined(const RowCol&) const;
 
     virtual void	trimUndefParts();
-    bool		hasSupport(const RCol&) const;
-    void		checkSupport( bool yn )	{ checksupport_ = yn; }
+    bool		hasSupport(const RowCol&) const;
+    void		checkSupport(bool yn)	{ checksupport_ = yn; }
     bool		checksSupport() const	{ return checksupport_; }
 
 protected:
