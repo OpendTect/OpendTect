@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.107 2010-05-17 16:06:07 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.108 2010-06-17 18:23:50 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -655,7 +655,7 @@ void HorizonSection::updateZAxisVOI()
     BinID curpos;
     while ( iter.next(curpos) )
     {
-	const float depth = geometry_->getKnot(curpos,false).z;
+	const float depth = geometry_->getKnot(RowCol(curpos),false).z;
 	if ( mIsUdf(depth) )
 	    continue;
 
@@ -713,7 +713,7 @@ void HorizonSection::getDataPositions( DataPointSet& res, double zshift,
   	       ((bid.crl-displaycrg_.start)%displaycrg_.step) ) )
 	    continue;
 
-	const Coord3 pos = geometry_->getKnot(bid,false);
+	const Coord3 pos = geometry_->getKnot(RowCol(bid),false);
 	if ( !pos.isDefined() ) 
 	    continue;
 
