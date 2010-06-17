@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.24 2010-06-17 22:17:15 cvskris Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.24 2010-06-17 22:17:15 cvskris Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -923,8 +923,8 @@ void uiDataPointSetCrossPlotWin::setGrpColors()
 	    ? plotter_.y2grpColors()[idx]
 	    : plotter_.axisData(2).axis_->setup().style_.color_;
 	ColTab::Sequence ctseq;
-	ctseq.setColor( 0, coly1.row, coly1.g(), coly1.b() );
-	ctseq.setColor( 1, coly2.row, coly2.g(), coly2.b() ); 
+	ctseq.setColor( 0, coly1.r(), coly1.g(), coly1.b() );
+	ctseq.setColor( 1, coly2.r(), coly2.g(), coly2.b() ); 
 	ctseq.setNrSegments( 2 );
 	ioPixmap pixmap( ctseq, 20, 20, true );
 	if ( grpfld_ )
