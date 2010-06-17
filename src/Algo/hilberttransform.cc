@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hilberttransform.cc,v 1.6 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: hilberttransform.cc,v 1.7 2010-06-17 15:03:43 cvskris Exp $";
 
 
 #include "hilberttransform.h"
@@ -40,8 +40,6 @@ HilbertTransform::~HilbertTransform()
 
 bool HilbertTransform::setInputInfo( const ArrayNDInfo& info )
 {
-    if ( !TransformND::isPossible(info) ) return false;
-
     if ( info_ ) delete info_;
     info_ = info.clone();
 

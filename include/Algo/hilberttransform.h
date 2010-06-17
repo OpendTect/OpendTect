@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		December 2007
- RCS:		$Id: hilberttransform.h,v 1.7 2010-05-03 15:11:44 cvsyuancheng Exp $
+ RCS:		$Id: hilberttransform.h,v 1.8 2010-06-17 15:03:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ template <class T> class ArrayND;
 
 typedef std::complex<float> float_complex;
 
-mClass HilbertTransform : public TransformND
+mClass HilbertTransform
 {
 public:
     			HilbertTransform();
