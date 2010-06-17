@@ -7,7 +7,7 @@ ________________________________________________________________________
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: binidsurface.h,v 1.12 2009-07-22 16:01:16 cvsbert Exp $
+RCS:           $Id: binidsurface.h,v 1.13 2010-06-17 18:04:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace Geometry
 mClass BinIDSurface : public ParametricSurface
 {
 public:
-    			BinIDSurface(const RCol& step);
+    			BinIDSurface(const BinID& step);
     			BinIDSurface(const BinIDSurface&);
 			~BinIDSurface();
     BinIDSurface*	clone() const;
@@ -34,7 +34,7 @@ public:
 
     Coord3		computePosition(const Coord& param) const;
 
-    void		setArray(const RCol& start,const RCol& step,
+    void		setArray(const BinID& start,const BinID& step,
 	    			 Array2D<float>*,bool takeover);
     			/*!<Mem is taken over by me if takeover is true. */
     Array2D<float>*	getArray()  { return depths_; }
@@ -47,7 +47,7 @@ public:
     bool		removeRow(int,int);
     bool		removeCol(int,int);
 
-    bool		expandWithUdf(const RCol& start,const RCol& stop);
+    bool		expandWithUdf(const BinID& start,const BinID& stop);
 
     Coord3		getKnot(const RCol&,bool computeifudf) const;
 

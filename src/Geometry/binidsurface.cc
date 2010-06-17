@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.20 2009-08-27 19:47:22 cvskris Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.21 2010-06-17 18:04:17 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -20,8 +20,8 @@ namespace Geometry
 {
 
 
-BinIDSurface::BinIDSurface( const RCol& newstep )
-    : ParametricSurface( RowCol(0,0), newstep ) 
+BinIDSurface::BinIDSurface( const BinID& newstep )
+    : ParametricSurface( RowCol(0,0), RowCol(newstep) ) 
     , depths_( 0 )
 { }
 
@@ -142,13 +142,13 @@ BinIDSurface* BinIDSurface::clone() const
 { return new BinIDSurface(*this); }
 
 
-void BinIDSurface::setArray( const RCol& start, const RCol& step,
+void BinIDSurface::setArray( const BinID& start, const BinID& step,
 			     Array2D<float>* na, bool takeover )
 {
     delete depths_;
     depths_ = takeover ? na : new Array2DImpl<float>( *na );
-    origin_ = start;
-    step_ = step;
+    origin_ = RowCol(start);
+    step_ = RowCol(step);
 }
 
 
@@ -258,21 +258,21 @@ bool BinIDSurface::removeCol( int start, int stop )
 }
 
 
-bool BinIDSurface::expandWithUdf( const RCol& start, const RCol& stop )
+bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
 {
     if ( !depths_ ) 
-	origin_ = start;
+	origin_ = RowCol(start);
 
     const int oldnrrows = nrRows();
     const int oldnrcols = nrCols();
 
-    int startrowidx = rowIndex( start.r() );
+    int startrowidx = rowIndex( start.inl );
     startrowidx = startrowidx>=0 ? 0 : startrowidx;
-    int startcolidx = colIndex( start.c() );
+    int startcolidx = colIndex( start.crl );
     startcolidx = startcolidx>=0 ? 0 : startcolidx;
-    int stoprowidx = rowIndex( stop.r() );
+    int stoprowidx = rowIndex( stop.inl );
     stoprowidx = stoprowidx<oldnrrows ? oldnrrows-1 : stoprowidx;
-    int stopcolidx = colIndex( stop.c() );
+    int stopcolidx = colIndex( stop.crl );
     stopcolidx = stopcolidx<oldnrcols ? oldnrcols-1 : stopcolidx;
     
     const int newnrrows = stoprowidx-startrowidx+1;
