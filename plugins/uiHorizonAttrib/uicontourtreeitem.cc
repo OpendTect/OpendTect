@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.10 2009-12-22 14:48:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.11 2010-06-17 07:36:37 cvsranojay Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -489,6 +489,17 @@ void uiContourTreeItem::updateColumnText( int col )
     uiODDataTreeItem::updateColumnText( col );
     if ( !col && !lines_ )
 	computeContours();
+
+    uiVisPartServer* visserv = applMgr()->visServer();
+    mDynamicCastGet(const visSurvey::HorizonDisplay*,hd,
+		    visserv->getObject(displayID()))
+    if ( !hd || !lines_ || !labelgrp_ ) return;
+
+    const bool solomode = visserv->isSoloMode();
+    const bool turnon = ( solomode && hd->isOn() ) || 
+			( !solomode && hd->isOn() && isChecked() );
+    lines_->turnOn( turnon );
+    labelgrp_->turnOn( turnon );
 }
 
 
