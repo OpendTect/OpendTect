@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: rcol2coord.cc,v 1.8 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: rcol2coord.cc,v 1.9 2010-06-17 15:29:07 cvskris Exp $";
 
 #include "rcol2coord.h"
 
@@ -54,6 +54,13 @@ Coord RCol2Coord::transform( const RCol& rc ) const
 {
     return Coord( xtr.a + xtr.b*rc.r() + xtr.c*rc.c(),
 		  ytr.a + ytr.b*rc.r() + ytr.c*rc.c() );
+}
+
+
+Coord RCol2Coord::transform( const BinID& rc ) const
+{
+    return Coord( xtr.a + xtr.b*rc.inl + xtr.c*rc.crl,
+		  ytr.a + ytr.b*rc.inl + ytr.c*rc.crl );
 }
 
 

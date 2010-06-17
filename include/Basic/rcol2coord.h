@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	RowCol <-> Coord transform
- RCS:		$Id: rcol2coord.h,v 1.9 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: rcol2coord.h,v 1.10 2010-06-17 15:29:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ public:
     Coord		rowDir() const		{ return Coord(xtr.b,ytr.b); }
     Coord		colDir() const		{ return Coord(xtr.c,ytr.c); }
     Coord		transform(const RCol&) const;
+    Coord		transform(const BinID&) const;
     Coord		transform(const Coord& rc) const;
     			/*!< transforms a rowcol stored in a coord.  The 
 			     row is stored in the x-component, and the
@@ -49,7 +50,8 @@ public:
 
 
     bool		set3Pts(const Coord& c0,const Coord& c1,const Coord& c2,
-	    			const RCol& rc0,const RCol& rc1,od_int32 col2 );
+	    			const RCol& rc0,const RCol& rc1,
+				od_int32 col2 );
 			/*!<Sets up the transform using three points.
 			    \note that the third point is assumed to be on
 			    the same row as the first point.
