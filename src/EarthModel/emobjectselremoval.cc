@@ -5,7 +5,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		May 2008
- RCS:		$Id: emobjectselremoval.cc,v 1.9 2009-11-12 11:56:11 cvsumesh Exp $
+ RCS:		$Id: emobjectselremoval.cc,v 1.10 2010-06-17 21:15:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,8 +124,8 @@ void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
     if ( sel==0 || sel==3 )
 	return;           // all outside or all behind projection plane
 
-    int rowlength = stop.r() - start.r();
-    int collength = stop.c() - start.c();
+    int rowlength = stop.row - start.row;
+    int collength = stop.col - start.col;
 
     if ( rowlength < 32 && collength < 32 )
 	makeListGrow( start, stop, sel );
@@ -134,45 +134,45 @@ void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
 	lock_.lock();
 
 	starts_ += start;
-	stops_ += RowCol( stop.r(), start.c()+collength/2 );
+	stops_ += RowCol( stop.row, start.col+collength/2 );
 
 	lock_.signal( starts_.size()>1 );
 
 	lock_.unLock();
 
-	processBlock( RowCol(start.r(),start.c()+1+collength/2), stop );
+	processBlock( RowCol(start.row,start.col+1+collength/2), stop );
     }
     else if ( rowlength >=32 && collength < 32 )
     {
 	lock_.lock();
 
 	starts_ += start;
-	stops_ += RowCol( start.r()+rowlength/2, stop.c() );
+	stops_ += RowCol( start.row+rowlength/2, stop.col );
 
 	lock_.signal( starts_.size()>1 );
 
 	lock_.unLock();
 
-	processBlock( RowCol(start.r()+1+rowlength/2,start.c()), stop );
+	processBlock( RowCol(start.row+1+rowlength/2,start.col), stop );
     }
     else
     {
 	lock_.lock();
 	
 	starts_ += start;
-	stops_ += RowCol( start.r()+rowlength/2, start.c()+collength/2 );
+	stops_ += RowCol( start.row+rowlength/2, start.col+collength/2 );
 
-	starts_ += RowCol( start.r(), start.c()+collength/2+1 );
-	stops_ += RowCol( start.r()+rowlength/2, stop.c() );
+	starts_ += RowCol( start.row, start.col+collength/2+1 );
+	stops_ += RowCol( start.row+rowlength/2, stop.col );
 
-	starts_ += RowCol( start.r()+rowlength/2+1, start.c() );
-	stops_ += RowCol( stop.r(), start.c()+collength/2 );
+	starts_ += RowCol( start.row+rowlength/2+1, start.col );
+	stops_ += RowCol( stop.row, start.col+collength/2 );
 
 	lock_.signal( starts_.size()>1 );
 
 	lock_.unLock();
 
-	processBlock( RowCol(start.r()+rowlength/2+1,start.c()+collength/2+1),
+	processBlock( RowCol(start.row+rowlength/2+1,start.col+collength/2+1),
 		      stop );
     }
 }
@@ -182,23 +182,23 @@ void EMObjectRowColSelRemoval::getBoundingCoords( const RowCol& start,
 						  const RowCol& stop,
 						  Coord3& up, Coord3& down )
 {
-    Coord coord0 = SI().transform( BinID(start.r(),start.c()) );
+    Coord coord0 = SI().transform( BinID(start.row,start.col) );
     up.x = down.x = coord0.x;
     up.y = down.y = coord0.y;
 
-    Coord coord1 = SI().transform( BinID(start.r(),stop.c()) );
+    Coord coord1 = SI().transform( BinID(start.row,stop.col) );
     if ( up.x < coord1.x ) up.x = coord1.x;
     if ( up.y < coord1.y ) up.y = coord1.y;
     if ( coord1.x < down.x ) down.x = coord1.x;
     if ( coord1.y < down.y ) down.y = coord1.y;
 
-    Coord coord2 = SI().transform( BinID(stop.r(),start.c()) );
+    Coord coord2 = SI().transform( BinID(stop.row,start.col) );
     if ( up.x < coord2.x ) up.x = coord2.x;
     if ( up.y < coord2.y ) up.y = coord2.y;
     if ( coord2.x < down.x ) down.x = coord2.x;
     if ( coord2.y < down.y ) down.y = coord2.y;
 
-    Coord coord3 = SI().transform( BinID(stop.r(),stop.c()) );
+    Coord coord3 = SI().transform( BinID(stop.row,stop.col) );
     if ( up.x < coord3.x ) up.x = coord3.x;
     if ( up.y < coord3.y ) up.y = coord3.y;
     if ( coord3.x < down.x ) down.x = coord3.x;
@@ -206,10 +206,10 @@ void EMObjectRowColSelRemoval::getBoundingCoords( const RowCol& start,
 
     up.z = down.z = zvals_[0];
 
-    for ( int row=start.r(); row<=stop.r(); row++ )
+    for ( int row=start.row; row<=stop.row; row++ )
     {
-	int idx = (row-startrow_)*nrcols_ + (start.c()-startcol_);
-	for ( int col=start.c(); col<=stop.c(); col++, idx++ )
+	int idx = (row-startrow_)*nrcols_ + (start.col-startcol_);
+	for ( int col=start.col; col<=stop.col; col++, idx++ )
 	{
 	    const float val = zvals_[idx];
 	    if ( val > up.z )
@@ -235,8 +235,8 @@ void EMObjectRowColSelRemoval::makeListGrow( const RowCol& start,
 
     getBoundingCoords( start,stop, up, down );
     
-    const StepInterval<int> rowrg( start.r(), stop.r(), surf->rowRange().step );
-    const StepInterval<int> colrg( start.c(), stop.c(), surf->colRange().step );
+    const StepInterval<int> rowrg( start.row, stop.row, surf->rowRange().step );
+    const StepInterval<int> colrg( start.col, stop.col, surf->colRange().step );
 
     TypeSet<EM::SubID> ids;
 
