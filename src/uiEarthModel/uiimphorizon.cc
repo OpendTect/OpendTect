@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.129 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.130 2010-06-18 05:19:35 cvsnageswara Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -309,6 +309,14 @@ bool uiImportHorizon::doImport()
     if ( !horizon ) return false;
 
     if ( !scanner_ && !doScan() ) return false;
+
+    if ( scanner_->nrPositions() == 0 )
+    {
+	BufferString msg( "No valid positions found\n" );
+	msg.add( "Please re-examine input file and format definition" );
+	uiMSG().message( msg );
+	return false;
+    }
 
     ManagedObjectSet<BinIDValueSet> sections(false);
     deepCopy( sections, scanner_->getSections() );
