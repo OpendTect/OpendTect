@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.8 2010-06-15 18:42:01 cvskris Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.9 2010-06-18 21:36:53 cvskris Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -428,9 +428,11 @@ void Seis::PosIndexer::reIndex()
 	return;
 
     const PosKey prevpk( pkl_.key(firstok) );
-    add( prevpk.binID(), firstok );
-    Seis::GeomType gt( sz > 0 ? prevpk.geomType() : Seis::Vol );
+    const Seis::GeomType gt( sz > 0 ? prevpk.geomType() : Seis::Vol );
     is2d_ = Seis::is2D( gt ); isps_ = Seis::isPS( gt );
+
+    add( prevpk.binID(), firstok );
+
     inlrg_.start = inlrg_.stop = is2d_ ? 1 : prevpk.inLine();
     crlrg_.start = crlrg_.stop = prevpk.xLine();
     offsrg_.start = offsrg_.stop = isps_ ? prevpk.offset() : 0;
