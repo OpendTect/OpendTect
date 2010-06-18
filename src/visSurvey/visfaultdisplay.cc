@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.54 2010-06-17 21:59:48 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.55 2010-06-18 14:43:50 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1229,7 +1229,7 @@ void FaultDisplay::setStickSelectMode( bool yn )
 
 void FaultDisplay::polygonFinishedCB( CallBacker* cb )
 {
-    if ( !stickselectmode_ || !emfault_ || !scene_ )
+    if ( !stickselectmode_ || !emfault_ || !scene_ || !displaysticks_ )
 	return;
 
     PtrMan<EM::EMObjectIterator> iter = emfault_->geometry().createIterator(-1);
