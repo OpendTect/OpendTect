@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.41 2009-09-08 03:36:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.42 2010-06-18 06:51:18 cvsnageswara Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -144,6 +144,13 @@ void HorizonScanner::report( IOPar& iopar ) const
     }
     else
 	iopar.add( IOPar::sKeySubHdr(), "No attribute data values" );
+
+    if ( nrPositions() == 0 )
+    {
+	iopar.add( "No Valid positions found",
+		   "Please re-examine input file and format definition" );
+	return;
+    }
 
     if ( !rejectedlines_.isEmpty() )
     {
