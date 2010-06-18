@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.67 2010-03-11 11:18:00 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.68 2010-06-18 14:47:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,6 +200,8 @@ public:
 					{ return existingUsrName(getInput()); }
 					//!< returns false is typed input is
 					//!< not an existing IOObj name
+
+    virtual MultiID	validKey() const; //!< no side-effects
 
 protected:
 

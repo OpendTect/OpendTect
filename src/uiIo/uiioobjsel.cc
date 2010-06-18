@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.146 2010-03-19 08:52:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.147 2010-06-18 14:47:06 cvsjaap Exp $";
 
 #include "uiioobjsel.h"
 
@@ -697,6 +697,19 @@ bool uiIOObjSel::existingUsrName( const char* nm ) const
     IOM().to( workctio_.ctxt.getSelKey() );
     return (*IOM().dirPtr())[nm];
 }
+
+
+MultiID uiIOObjSel::validKey() const
+{
+    IOM().to( workctio_.ctxt.getSelKey() );
+    const IOObj* ioobj = (*IOM().dirPtr())[ getInput() ];
+
+    if ( ioobj && workctio_.ctxt.validIOObj(*ioobj) )
+	return ioobj->key();
+
+    return MultiID();
+}
+
 
 #define mDoCommit() \
     bool alreadyerr = noerr; \
