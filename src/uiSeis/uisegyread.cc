@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.41 2010-02-18 12:10:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.42 2010-06-18 21:35:46 cvskris Exp $";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"
@@ -520,4 +520,5 @@ uiSEGYRead::~uiSEGYRead()
     delete impdlg_;
     delete scandlg_;
     delete rev1qdlg_;
+    delete scanner_;
 }
