@@ -7,16 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Jaap Glas
  Date:		December 2009
- RCS:		$Id: uiodfaulttoolman.h,v 1.5 2010-06-04 12:47:30 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttoolman.h,v 1.6 2010-06-18 14:50:26 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "uidialog.h"
 #include "multiid.h"
 #include "timer.h"
+#include "uidialog.h"
 
 
 class uiCheckBox;
@@ -25,6 +25,7 @@ class uiGenInput;
 class uiIOObjSel;
 class uiLineEdit;
 class uiODMain;
+class uiPushButton;
 class uiSurfaceWrite;
 class uiToolBar;
 class uiColorInput;
@@ -39,18 +40,35 @@ class uiODFaultToolMan;
 mClass uiFaultStickTransferDlg : public uiDialog
 {
 public:
-				uiFaultStickTransferDlg(uiODMain&,
+
+    mClass Setup
+    {
+    public:			Setup()
+				    : outputfault_( true )
+				    , displayafter_( false )
+				    , sequelnaming_( true )
+				    , colorrandom_( false )
+				{}
+
+	mDefSetupMemb(bool,outputfault)
+	mDefSetupMemb(bool,displayafter)
+	mDefSetupMemb(bool,sequelnaming)
+	mDefSetupMemb(bool,colorrandom)
+    };
+
+				uiFaultStickTransferDlg(uiODMain&, const Setup&,
 							uiODFaultToolMan*);
 				~uiFaultStickTransferDlg();
 
     uiIOObjSel*			getObjSel();
-    bool			transferToFault() const;
-    bool			startDisplayingAfterwards() const;
-
-    uiComboBox*			getOutputCombo();
     uiColorInput*		getOutputColor(); 
 
-    bool			afterTransferUpdate();
+    bool			startDisplayAfter() const;
+    bool			createSequelName() const;
+    bool			randomSequelColor() const;
+
+    void			setOutputFields(const uiComboBox& f3dcombo,
+						const uiComboBox& fsscombo);
 
 protected:
     void			finaliseDoneCB( CallBacker* );
@@ -60,7 +78,6 @@ protected:
     void			outputColorChg(CallBacker*);
     void			displayChg(CallBacker*);
     void			sequelNameCB(CallBacker*);
-    void			surveyChg(CallBacker*);
 
     uiODMain&			appl_;
     uiODFaultToolMan*		ftbman_;	
@@ -72,9 +89,6 @@ protected:
     uiCheckBox*			displayfld_;
     uiCheckBox*			sequelnamefld_;
     uiGenInput*			sequelcolorfld_;
-
-    Color			newcolor_;
-    MultiID			newcolormid_;
 };
 
 
@@ -87,6 +101,7 @@ public:
     uiToolBar*			getToolBar();
     uiComboBox*			getOutputCombo(); 
     uiColorInput*		getOutputColor(); 
+    bool			isOutputDisplayed() const;
 
 protected:
     void			finaliseDoneCB( CallBacker* );
@@ -99,30 +114,49 @@ protected:
     void			enableToolbar(bool yn);
     void			showSettings(bool yn);
 
+    void			updateToolbarCB(CallBacker*);
     void			editSelectToggleCB(CallBacker*);
     void			outputComboChg(CallBacker*);
+    void			colorPressedCB(CallBacker*);
     void			outputColorChg(CallBacker*);
+    void			surveyChg(CallBacker*);
+    void			undoCB(CallBacker*);
+    void			redoCB(CallBacker*);
 
     void			stickCopyCB(CallBacker*);
     void			stickMoveCB(CallBacker*);
     void			stickRemovalCB(CallBacker*);
     void			transferSticks(bool copy=false);
 
+    void			displayUpdate();
+    void			afterTransferUpdate();
+
     void			settingsToggleCB(CallBacker*);
     void			settingsClosedCB(CallBacker*);
+
+    uiIOObjSel*			getObjSel();
+    const uiIOObjSel*		getObjSel() const;
 
     uiODMain&			appl_;
     uiToolBar*			toolbar_;
     uiFaultStickTransferDlg*	settingsdlg_;
+
+    uiFaultStickTransferDlg::Setup settingssetup_;
 
     int				editselbutidx_;
     int				removalbutidx_;
     int				copybutidx_;
     int				movebutidx_;
     int				settingsbutidx_;
+    int				undobutidx_;
+    int				redobutidx_;
 
     uiComboBox*			tboutputcombo_;
-    uiColorInput*		tboutputcolor_;
+    uiPushButton*		tbcolorbutton_;
+    
+    uiSurfaceWrite*		manfaultoutput_;
+    uiSurfaceWrite*		manfssoutput_;
+    uiColorInput*		manoutputcolor_;
 
     visSurvey::FaultDisplay*	curfltd_;
     visSurvey::FaultStickSetDisplay* curfssd_;
@@ -132,6 +166,9 @@ protected:
     bool			selectmode_;
 
     Timer			deseltimer_;
+
+    Color			newcolor_;
+    MultiID			newcolormid_;
 };
 
 
