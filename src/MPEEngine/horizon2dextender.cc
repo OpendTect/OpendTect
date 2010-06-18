@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dextender.cc,v 1.6 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dextender.cc,v 1.7 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "horizon2dextender.h"
 
@@ -74,7 +74,7 @@ void Horizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
 	    return;
 	if ( !boundary.isEmpty() && !boundary.hrg.includes(BinID(neighborrc)) )
 	    return;
-	neighborsubid = neighborrc.getSerialized();
+	neighborsubid = neighborrc.toInt64();
 	neighborpos = surface_.getPos( sid_, neighborsubid );
     }
     while ( !Coord(neighborpos).isDefined() );
@@ -82,7 +82,7 @@ void Horizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
     if ( neighborpos.isDefined() )
 	return;
 
-    const Coord3 sourcepos = surface_.getPos( sid_,sourcerc.getSerialized() );
+    const Coord3 sourcepos = surface_.getPos( sid_,sourcerc.toInt64() );
 
     if ( !alldirs_ )
     {
@@ -101,7 +101,7 @@ void Horizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
     refpos.z = sourcepos.z;
     surface_.setPos( sid_, neighborsubid, refpos, true );
 
-    addTarget( neighborsubid, sourcerc.getSerialized() );
+    addTarget( neighborsubid, sourcerc.toInt64() );
 }
 
 

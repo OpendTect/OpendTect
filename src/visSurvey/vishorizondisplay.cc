@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.135 2010-06-10 06:29:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.136 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -235,7 +235,7 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 	newpos = transformation_->transformBack( newpos );
 
     const BinID pickedbid = SI().transform( newpos );
-    const EM::SubID pickedsubid = pickedbid.getSerialized();
+    const EM::SubID pickedsubid = pickedbid.toInt64();
     TypeSet<EM::PosID> closestnodes;
     for ( int idx=sids_.size()-1; idx>=0; idx-- )
     {
@@ -1170,7 +1170,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
     if ( hor )
     {
 	const BinID bid = SI().transform( xytpos );
-	const EM::SubID bidid = bid.getSerialized();
+	const EM::SubID bidid = bid.toInt64();
 	TypeSet<Coord3> positions;
 	for ( int idx=sids_.size()-1; idx>=0; idx-- )
 	{
@@ -1365,13 +1365,13 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
  \
 	BinID prevbid( bid ); prevbid[slowdim] = prev##linetype; \
 	BinID nextbid( bid ); nextbid[slowdim] = next##linetype; \
-	Coord3 prevpos(horizon->getPos(sid,prevbid.getSerialized())); \
+	Coord3 prevpos(horizon->getPos(sid,prevbid.toInt64())); \
 	if ( zaxistransform_ ) prevpos.z =zaxistransform_->transform(prevpos); \
 	Coord3 pos = prevpos; \
 	if ( nextbid!=prevbid && prevpos.isDefined() ) \
 	{ \
 	    Coord3 nextpos = \
-		horizon->getPos(sid,nextbid.getSerialized()); \
+		horizon->getPos(sid,nextbid.toInt64()); \
 	    if ( zaxistransform_ ) nextpos.z = \
 	    	zaxistransform_->transform(nextpos); \
 	    if ( nextpos.isDefined() ) \
@@ -1434,10 +1434,10 @@ static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 	    const int crl1 = crl0<trclist[cidx].y ? 
 			     crlrg.atIndex( crlidx+1 ) : crl0;
 
-	    Coord3 p00 = hor->getPos( sid, BinID(inl0,crl0).getSerialized() );
-	    Coord3 p01 = hor->getPos( sid, BinID(inl0,crl1).getSerialized() );
-	    Coord3 p10 = hor->getPos( sid, BinID(inl1,crl0).getSerialized() );
-	    Coord3 p11 = hor->getPos( sid, BinID(inl1,crl1).getSerialized() );
+	    Coord3 p00 = hor->getPos( sid, BinID(inl0,crl0).toInt64() );
+	    Coord3 p01 = hor->getPos( sid, BinID(inl0,crl1).toInt64() );
+	    Coord3 p10 = hor->getPos( sid, BinID(inl1,crl0).toInt64() );
+	    Coord3 p11 = hor->getPos( sid, BinID(inl1,crl1).toInt64() );
 
 	    if ( zaxistransform )
 	    {

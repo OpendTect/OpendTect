@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.15 2009-09-01 22:06:02 cvskris Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.16 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "horizon3dextender.h"
 
@@ -54,7 +54,7 @@ int Horizon3DExtender::nextStep()
     BinID dummy;
     for ( int idx=0; idx<startpos_.size(); idx++ )
     {
-	dummy.setSerialized( startpos_[idx] );
+	dummy.fromInt64( startpos_[idx] );
 	sourcenodes += dummy;
     }
 
@@ -94,8 +94,8 @@ int Horizon3DExtender::nextStep()
 	    else
 		directions = RowCol::clockWiseSequence();
 
-	    const float depth = surface.getPos(sid_,srcbid.getSerialized()).z;
-	    const EM::PosID pid(surface.id(), sid_, srcbid.getSerialized() );
+	    const float depth = surface.getPos(sid_,srcbid.toInt64()).z;
+	    const EM::PosID pid(surface.id(), sid_, srcbid.toInt64() );
 	    for ( int idy=0; idy<directions.size(); idy++ )
 	    {
 		const EM::PosID neighbor =
@@ -105,7 +105,7 @@ int Horizon3DExtender::nextStep()
 		    continue;
 
 		BinID neighborbinid; 
-		neighborbinid.setSerialized( neighbor.subID() );
+		neighborbinid.fromInt64( neighbor.subID() );
 		if ( !getExtBoundary().hrg.includes(neighborbinid) )
 		    continue;
 
@@ -123,7 +123,7 @@ int Horizon3DExtender::nextStep()
 		    const int olddist = oldsrc.sqDistTo(dst);
 		    if ( cursrc.sqDistTo( dst )<olddist ) 
 		    {
-			addedpossrc_[previndex] = srcbid.getSerialized();
+			addedpossrc_[previndex] = srcbid.toInt64();
 			surface.setPos( neighbor, Coord3(0,0,depth), setundo_ );
 		    }
 		    continue;
@@ -138,7 +138,7 @@ int Horizon3DExtender::nextStep()
 		if ( !isExcludedPos(neighbor.subID()) &&
 		     surface.setPos(neighbor, Coord3(0,0,depth), setundo_) )
 		{
-		    addTarget( neighbor.subID(), srcbid.getSerialized() );
+		    addTarget( neighbor.subID(), srcbid.toInt64() );
 		    change = true;
 		}
 	    }

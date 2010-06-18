@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.58 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: position.h,v 1.59 2010-06-18 12:23:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "geometry.h"
 
 class BufferString;
+class RowCol;
 
 
 /*!\brief a cartesian coordinate in 2D space. */
@@ -162,30 +163,58 @@ public:
 };
 
 
-/*!\brief positioning in a seismic survey: inline/crossline. */
+/*!\brief positioning in a seismic survey: inline/crossline. Most functions are
+          identical to RowCol */
 
-mClass BinID : public RCol
+mClass BinID
 {
 public:
-		BinID() : inl(0), crl(0)			{}
-		BinID( const RCol& rc ) : inl( rc.r() ), crl( rc.c() ) {}
-		BinID( int il, int cl=1 ) : inl(il), crl(cl)	{}
+    inline			BinID(int r,int c);
+    				BinID(const RowCol&);
+    inline			BinID(const BinID&);
+    inline			BinID(const od_int64&);
+    inline			BinID();
 
-    int&	r() { return inl; }
-    int		r() const { return inl; }
-    int&	c() { return crl; }
-    int		c() const { return crl; }
+    inline bool			operator==(const BinID&) const;
+    inline bool			operator!=(const BinID&) const;
+    inline BinID		operator+(const BinID&) const;
+    inline BinID		operator-(const BinID&) const;
+    inline BinID		operator+() const;
+    inline BinID		operator-() const;
+    inline BinID		operator*(const BinID&) const;
+    inline BinID		operator*(int) const;
+    inline BinID		operator/(const BinID&) const;
+    inline BinID		operator/(int) const;
+    inline const BinID&		operator+=(const BinID&);
+    inline const BinID&		operator-=(const BinID&);
+    inline const BinID&		operator*=(const BinID&);
+    inline const BinID&		operator*=(int);
+    inline const BinID&		operator/=(const BinID&);
+    inline int&			operator[](int idx);
+    inline int			operator[](int idx) const;
+    void			fill(char*) const;
+    bool			use(const char*);
+    od_int64			toInt64() const;
+    int				toInt32() const;
+    void			fromInt64(od_int64);
+    void			fromInt32(int);
+    int				sqDistTo(const BinID&) const;
+    bool                        isNeighborTo(const BinID&,const BinID&,
+					     bool eightconnectivity=true) const;
 
-		/* Implements +, -, * and other operators. See the documentation
-		   for details */
-    		mRowColFunctions( BinID, inl, crl );
+    int				inl;
+    int				crl;
 
-    int		inl;
-    int		crl;
+    static const BinID&		udf();
 
-    static const BinID&	udf();
+    od_int64			getSerialized() const;
+    				//!<Legacy. Use toInt64 instead.
+    void			setSerialized(od_int64);
+    				//!<Legacy. Use fromInt64 instead.
 };
 
+
+mImplInlineRowColFunctions(BinID, inl, crl);
 
 
 class BinIDValues;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiemhorizoneditor.cc,v 1.26 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiemhorizoneditor.cc,v 1.27 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "uiemhorizoneditor.h"
 
@@ -173,7 +173,7 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
 	for ( int idx=1; idx<interactionline.size()-1; idx++ )
 	{
 	    const EM::PosID posid( interactionline.getSurface().id(), sid,
-				   interactionline[idx].getSerialized() );
+				   interactionline[idx].toInt64() );
 	    if ( surface->geometry.isAtEdge(posid) )
 		noneonedge = false;
 	}
@@ -275,7 +275,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	for ( int idx=0; idx<interactionlineseg.size(); idx++ )
 	{
 	    const RowCol& rc = interactionlineseg[idx];
-	    pid.setSubID( rc.getSerialized() );
+	    pid.setSubID( rc.toInt64() );
 
 	    wasatedge[idx] = hor3d->geometry().isAtEdge(pid);
 	}
@@ -285,7 +285,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	{
 	    for ( rc.col=start.col; rc.col<=stop.col; rc.col+=step.col )
 	    {
-		pid.setSubID( rc.getSerialized() );
+		pid.setSubID( rc.toInt64() );
 		const int idx = interactionlineseg.indexOf(rc);
 		if ( idx!=-1 )
 		{
@@ -323,7 +323,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	menu->setIsHandled(true);
 	const EM::PosID pid( interactionlineseg.getHorizon().id(),
 			     interactionlineseg.getSection(),
-			     interactionlineseg[0].getSerialized() );
+			     interactionlineseg[0].toInt64() );
 	editor->restartInteractionLine( pid );
     }
 }

@@ -4,9 +4,11 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.66 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.67 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "position.h"
+
+#include "rowcol.h"
 #include "bufstring.h"
 #include "undefval.h"
 #include "string2.h"
@@ -16,7 +18,16 @@ static const char* rcsID = "$Id: position.cc,v 1.66 2009-07-22 16:01:31 cvsbert 
 #include <ctype.h>
 
 
+mImplRowColFunctions( BinID, inl, crl );
+
+
 float BinIDValues::udf = mUdf(float);
+
+BinID::BinID( const RowCol& rc )
+    : inl( rc.row )
+    , crl( rc.col )
+{}
+
 
 const BinID& BinID::udf()
 {

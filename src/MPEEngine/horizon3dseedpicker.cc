@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.36 2010-06-11 03:57:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.37 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -77,7 +77,7 @@ bool Horizon3DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
 	return false;
 
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    const EM::PosID pid( emobj->id(), sectionid_, seedbid.getSerialized() );
+    const EM::PosID pid( emobj->id(), sectionid_, seedbid.toInt64() );
 
     if ( sowermode_ )
 	eraseInBetween( pid, lastseedpicked_ );
@@ -170,8 +170,8 @@ void Horizon3DSeedPicker::eraseInBetween( const EM::PosID& pid1,
     if ( !lineTrackDirection(dir) )
 	return;
 
-    bid1.setSerialized( pid1.subID() );
-    bid2.setSerialized( pid2.subID() );
+    bid1.fromInt64( pid1.subID() );
+    bid2.fromInt64( pid2.subID() );
     if ( bid1.inl!=bid2.inl && bid1.crl!=bid2.crl )
 	return;
 
@@ -181,7 +181,7 @@ void Horizon3DSeedPicker::eraseInBetween( const EM::PosID& pid1,
     bid1 += dir;
     while ( bid1.inl<bid2.inl || bid1.crl<bid2.crl )
     {
-	EM::PosID pid( pid1.objectID(),pid1.sectionID(),bid1.getSerialized() );
+	EM::PosID pid( pid1.objectID(),pid1.sectionID(),bid1.toInt64() );
 	emobj->unSetPos( pid, true );
 	emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
 	bid1 += dir;
@@ -286,7 +286,7 @@ void Horizon3DSeedPicker::processJunctions()
     junctions_ += prevpid; \
     junctions_ += curpid; \
     const BinID nextbid = curbid + dir; \
-    junctions_ += EM::PosID(emobj->id(),sectionid_,nextbid.getSerialized()); \
+    junctions_ += EM::PosID(emobj->id(),sectionid_,nextbid.toInt64()); \
 }
 
 void Horizon3DSeedPicker::extendSeedListEraseInBetween( 
@@ -296,7 +296,7 @@ void Horizon3DSeedPicker::extendSeedListEraseInBetween(
     eraselist_.erase();
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
     EM::PosID curpid = EM::PosID( emobj->id(), sectionid_, 
-				  startbid.getSerialized() ); 
+				  startbid.toInt64() ); 
 
     bool seedwasadded = emobj->isDefined( curpid ) && !wholeline;
 
@@ -323,7 +323,7 @@ void Horizon3DSeedPicker::extendSeedListEraseInBetween(
 	    break;
 	}
 	
-	curpid = EM::PosID( emobj->id(), sectionid_, curbid.getSerialized() ); 
+	curpid = EM::PosID( emobj->id(), sectionid_, curbid.toInt64() ); 
 	curdefined = emobj->isDefined( curpid );
 
 	// running into a seed point
@@ -548,7 +548,7 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	    const Coord3 interpos = (1-frac) * seedpos_[ sortidx[vtx] ] + 
 				       frac  * seedpos_[ sortidx[vtx+1] ];
 	    const EM::PosID interpid( emobj->id(), sectionid_, 
-				SI().transform(interpos).getSerialized() ); 
+				SI().transform(interpos).toInt64() ); 
 	    emobj->setPos( interpid, interpos, true ); 
 	} 
     } 

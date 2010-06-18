@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultadjuster.cc,v 1.9 2010-06-17 21:26:43 cvskris Exp $";
+static const char* rcsID = "$Id: faultadjuster.cc,v 1.10 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "faultadjuster.h"
 
@@ -76,7 +76,7 @@ int FaultAdjuster::nextStep()
 
 	RowCol rc( subid );
 	Coord crd = SI().transform( targetbids[minmaxidx] );
-	fault_.setPos( sectionid_, rc.getSerialized(), Coord3(crd,pos.z), true );
+	fault_.setPos( sectionid_, rc.toInt64(), Coord3(crd,pos.z), true );
     }
     */
 

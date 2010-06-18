@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.23 2010-06-11 08:06:17 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.24 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -132,7 +132,7 @@ int nextStep()
 	if ( mIsUdf(val) || lineidset_[hdx] < 0 )
 	    continue;
 
-	EM::SubID subid = RowCol( lineidset_[hdx], curtrcnr_ ).getSerialized();
+	EM::SubID subid = RowCol( lineidset_[hdx], curtrcnr_ ).toInt64();
 	Coord3 posval( coord, val );
 	hors_[hdx]->setPos( hors_[hdx]->sectionID(0), subid, posval, false );
 	if ( dointerpol && !mIsUdf(prevvals[vdx]) )
@@ -172,7 +172,7 @@ void interpolateAndSetVals( int hidx, int lineid, int curtrcnr, int prevtrcnr,
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
 	const Coord3 posval( 0, 0, val );
-	EM::SubID subid = RowCol( lineid, trcnr ).getSerialized();
+	EM::SubID subid = RowCol( lineid, trcnr ).toInt64();
 	hors_[hidx]->setPos( hors_[hidx]->sectionID(0), subid, posval, false );
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonsorter.cc,v 1.14 2009-08-11 12:37:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonsorter.cc,v 1.15 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "horizonsorter.h"
 
@@ -226,7 +226,7 @@ int HorizonSorter::nextStep()
 	for ( int idx=0; idx<nrhors; idx++ )
 	{
 	    const EM::SectionID sid = horizons_[idx]->sectionID(0);
-	    EM::SubID subid = binid_.getSerialized();
+	    EM::SubID subid = binid_.toInt64();
 	    if ( is2d_ )
 	    {	
 		mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
@@ -235,7 +235,7 @@ int HorizonSorter::nextStep()
 		const int lidx = hor2d->geometry().lineIndex(
 						linenames_.get(binid_.inl) );
 		const int lid = hor2d->geometry().lineID( lidx );
-		subid = BinID( lid, binid_.crl ).getSerialized();
+		subid = BinID( lid, binid_.crl ).toInt64();
 	    }
 	    
 	    depths[idx] = horizons_[idx]->getPos( sid, subid ).z;

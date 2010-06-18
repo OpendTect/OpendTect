@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.40 2010-06-17 19:00:58 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.41 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -1376,7 +1376,7 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
 	RowCol rc;
-	rc.setSerialized( (*pidlist)[idx] );
+	rc.fromInt64( (*pidlist)[idx] );
 	const int stickidx = rc.row;
 
 	if ( rc.col==FaultStickSurface::StickChange )
@@ -1409,7 +1409,7 @@ void ExplFaultStickSurface::surfaceMovement( CallBacker* cb )
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
 	RowCol rc;
-	rc.setSerialized( (*pidlist)[idx] );
+	rc.fromInt64( (*pidlist)[idx] );
 	const int stickidx = rc.row;
 
 	emptyPanel( stickidx-1 );

@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.1 2010-03-16 07:18:04 cvsumesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.2 2010-06-18 12:23:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -229,7 +229,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
 
     const RowCol knotrc( f3dpainter_->getActiveStickId(), knotid );
 
-    EM::PosID pid( emid,0,knotrc.getSerialized() );
+    EM::PosID pid( emid,0,knotrc.toInt64() );
 
     emf3d->setPos(pid,coord3,true);
     seedhasmoved_ = true;
@@ -345,7 +345,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     if ( !f3deditor )
 	return;
 
-    EM::PosID mousepid( emid, 0, RowCol(stickid,knotid).getSerialized() );
+    EM::PosID mousepid( emid, 0, RowCol(stickid,knotid).toInt64() );
     const MouseEvent& mouseevent = meh_->event();
     f3deditor->setLastClicked( mousepid );
     activestickid_ = stickid;

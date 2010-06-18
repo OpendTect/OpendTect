@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seis2deventsnapper.cc,v 1.3 2009-12-03 06:57:29 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seis2deventsnapper.cc,v 1.4 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "seis2deventsnapper.h"
 #include "seisselectionimpl.h"
@@ -55,7 +55,7 @@ int Seis2DEventSnapper::nextStep()
 
     EM::SectionID sid(0);
     BinID bid( horlineidx_, trc_.info().nr );
-    EM::SubID subid = bid.getSerialized();
+    EM::SubID subid = bid.toInt64();
     Coord3 coord = orghor_.getPos( sid, subid );
     coord.z = findNearestEvent( trc_, coord.z );
     newhor_.setPos( sid, subid, coord, false );

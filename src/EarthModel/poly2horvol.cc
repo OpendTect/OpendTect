@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: poly2horvol.cc,v 1.2 2010-03-05 19:42:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: poly2horvol.cc,v 1.3 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "poly2horvol.h"
 
@@ -93,7 +93,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	if ( !poly.isInside(mPolyLoc(bid),true,1e-6) )
 	    continue;
 
-	const EM::SubID subid = bid.getSerialized();
+	const EM::SubID subid = bid.toInt64();
 	const Coord coord( SI().transform(bid) );
 
 	for ( int isect=0; isect<nrsect; isect++ )

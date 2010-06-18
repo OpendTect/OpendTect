@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.7 2010-03-16 07:18:04 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.8 2010-06-18 12:23:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -266,7 +266,7 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 
     const RowCol knotrc( fsspainter_->getActiveStickId(), knotid );
 
-    EM::PosID pid( emid,0,knotrc.getSerialized() );
+    EM::PosID pid( emid,0,knotrc.toInt64() );
 
     emfss->setPos(pid,coord3,true);
     seedhasmoved_ = true;
@@ -382,7 +382,7 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     if ( !fsseditor )
 	return;
 
-    EM::PosID mousepid( emid, 0, RowCol(stickid,knotid).getSerialized() );
+    EM::PosID mousepid( emid, 0, RowCol(stickid,knotid).toInt64() );
     fsseditor->setLastClicked( mousepid );
     activestickid_ = stickid;
     fsspainter_->setActiveStick( mousepid );
@@ -479,7 +479,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
 	fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
 			  lineset, linenm, true );
-	const EM::SubID subid = RowCol(insertsticknr,0).getSerialized();
+	const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
 	fsseditor->setLastClicked( EM::PosID(emfss->id(),sid,subid) );
     }
     else

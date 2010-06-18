@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.20 2009-12-16 06:03:19 cvssatyaki Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.21 2010-06-18 12:23:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -87,7 +87,7 @@ protected:
 
 /*!
 2d horizons. The horizons is only present along 2d lines, set by addLine. Each
-position's subid is formed by RowCol( lineid, tracenr ).getSerialized(). If
+position's subid is formed by RowCol( lineid, tracenr ).getInt64(). If
 multiple z-values per trace is needed, multiple sections can be added. */
 
 mClass Horizon2D : public Horizon

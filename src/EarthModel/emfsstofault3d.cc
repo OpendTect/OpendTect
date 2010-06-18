@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.7 2010-01-27 13:48:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.8 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -399,7 +399,7 @@ bool FSStoFault3DConverter::writeSection( const SectionID& sid ) const
 	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
 	{
 	    const RowCol rc( sticknr, crdidx );
-	    fault3d_.geometry().insertKnot( sid, rc.getSerialized(),
+	    fault3d_.geometry().insertKnot( sid, rc.toInt64(),
 					    stick->crds_[crdidx], false );
 	}
 

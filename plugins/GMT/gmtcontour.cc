@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcontour.cc,v 1.13 2010-03-17 21:29:38 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.14 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "gmtcontour.h"
 
@@ -169,7 +169,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     const int dataidx = isz ? -1 : hor->auxdata.auxDataIndex( attribnm.str() );
     while ( iter.next(bid) )
     {
-	EM::PosID posid( hor->id(), sid, bid.getSerialized() );
+	EM::PosID posid( hor->id(), sid, bid.toInt64() );
 	Coord3 pos = hor->getPos( posid );
 	if ( !pos.isDefined() )
 	    continue;

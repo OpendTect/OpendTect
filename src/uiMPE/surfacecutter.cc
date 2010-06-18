@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surfacecutter.cc,v 1.14 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: surfacecutter.cc,v 1.15 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "surfacecutter.h"
 #include "emmanager.h"
@@ -92,12 +92,12 @@ bool SurfaceCutter::doTerminate( bool positiveside )
 	const RowCol rc = psurf->getKnotRowCol( idy );
 	if ( cs.hrg.includes(rc) )
 	{
-	    cuttedsurf->setPos( cuttedsectionid_, rc.getSerialized(), 
+	    cuttedsurf->setPos( cuttedsectionid_, rc.toInt64(), 
 		    			 Coord3(0,0,mUdf(double)), true );
 	    continue;
 	}
 	
-	posid.setSubID( rc.getSerialized() );
+	posid.setSubID( rc.toInt64() );
 	checker.addNodeToCheck( posid );
     }
 
@@ -170,13 +170,13 @@ bool SurfaceCutter::reTrack()
 	BinID start3(cs.hrg.stop.inl-cs.hrg.step.inl,cs.hrg.start.crl);
 	stop = cs.hrg.stop;
 	step = cs.hrg.step; step.inl = 0;
-	if ( cuttedsurf->isDefined(cuttedsectionid_,start0.getSerialized()) )
+	if ( cuttedsurf->isDefined(cuttedsectionid_,start0.toInt64()) )
 	{ start = start0; stop.inl = start0.inl; step *= -1; }
-	else if ( cuttedsurf->isDefined(cuttedsectionid_,start1.getSerialized()) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start1.toInt64()) )
 	{ start = start1; stop.inl = start1.inl; }
-	else if ( cuttedsurf->isDefined(cuttedsectionid_,start2.getSerialized()) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start2.toInt64()) )
 	{ start = start2; stop.inl = start2.inl; step *= -1; }
-	else if ( cuttedsurf->isDefined(cuttedsectionid_,start3.getSerialized()) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start3.toInt64()) )
 	{ start = start3; stop.inl = start3.inl; }
     }
     else
@@ -187,13 +187,13 @@ bool SurfaceCutter::reTrack()
 	BinID start3(cs.hrg.start.inl,cs.hrg.stop.crl-cs.hrg.step.crl);
 	stop = cs.hrg.stop;
 	step = cs.hrg.step; step.inl = 0;
-	if ( cuttedsurf->isDefined(cuttedsectionid_,start0.getSerialized()) )
+	if ( cuttedsurf->isDefined(cuttedsectionid_,start0.toInt64()) )
 	{ start = start0; stop.crl = start0.crl; step *= -1; }
-	else if ( cuttedsurf->isDefined(cuttedsectionid_,start1.getSerialized()) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start1.toInt64()) )
 	{ start = start1; stop.crl = start1.crl; }
-	else if ( cuttedsurf->isDefined(cuttedsectionid_,start2.getSerialized()) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start2.toInt64()) )
 	{ start = start2; stop.crl = start2.crl; step *= -1; }
-	else if ( cuttedsurf->isDefined(cuttedsectionid_,start3.getSerialized()) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start3.toInt64()) )
 	{ start = start3; stop.crl = start3.crl; }
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbody.cc,v 1.14 2010-02-16 18:17:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.15 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "empolygonbody.h"
 
@@ -367,7 +367,7 @@ bool PolygonBodyGeometry::insertPolygon( const SectionID& sid, int polygonnr,
     if ( addtohistory )
     {
 	const PosID posid( surface_.id(), sid, 
-		RowCol(polygonnr,0).getSerialized() );
+		RowCol(polygonnr,0).toInt64() );
 	UndoEvent* undo = new PolygonBodyUndoEvent( posid );
 	EMM().undo().addEvent( undo, 0 );
     }
@@ -402,7 +402,7 @@ bool PolygonBodyGeometry::removePolygon( const SectionID& sid, int polygonnr,
 
     if ( addtohistory )
     {
-	const PosID posid( surface_.id(), sid, rc.getSerialized() );
+	const PosID posid( surface_.id(), sid, rc.toInt64() );
 	UndoEvent* undo = new PolygonBodyUndoEvent( posid, pos, normal );
 	EMM().undo().addEvent( undo, 0 );
     }
@@ -421,7 +421,7 @@ bool PolygonBodyGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 {
     Geometry::PolygonSurface* pol = sectionGeometry( sid );
     RowCol rc;
-    rc.setSerialized( subid );
+    rc.fromInt64( subid );
     if ( !pol || !pol->insertKnot(rc,pos) )
 	return false;
 
@@ -456,7 +456,7 @@ bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     if ( !pol ) return false;
 
     RowCol rc;
-    rc.setSerialized( subid );
+    rc.fromInt64( subid );
     const Coord3 pos = pol->getKnot( rc );
 
     if ( !pos.isDefined() || !pol->removeKnot(rc) )

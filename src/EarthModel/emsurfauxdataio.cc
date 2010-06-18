@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.44 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.45 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -145,7 +145,7 @@ int dgbSurfDataWriter::nextStep()
 		    continue;
 
 		const RowCol emrc( bid.inl, bid.crl );
-		const SubID subid = emrc.getSerialized();
+		const SubID subid = emrc.toInt64();
 		posid.setSubID( subid );
 		posid.setSectionID( sectionid );
 		const float auxval = surf_.auxdata.getAuxDataVal(dataidx_,posid);

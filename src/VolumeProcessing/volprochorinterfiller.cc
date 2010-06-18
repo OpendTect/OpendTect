@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.10 2010-05-11 13:55:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.11 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "volprochorinterfiller.h"
 
@@ -166,12 +166,12 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 	return false;
 
     const double topdepth = tophorizon_
-	? tophorizon_->getPos(tophorizon_->sectionID(0), bid.getSerialized()).z
+	? tophorizon_->getPos(tophorizon_->sectionID(0), bid.toInt64()).z
 	: SI().zRange(true).start;
 
     const double bottomdepth = bottomhorizon_
 	? bottomhorizon_->getPos(
-		bottomhorizon_->sectionID(0), bid.getSerialized() ).z
+		bottomhorizon_->sectionID(0), bid.toInt64() ).z
 	: SI().zRange(true).stop;
 
     const SamplingData<double>

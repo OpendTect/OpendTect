@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.15 2010-06-17 19:00:58 cvskris Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.16 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "polygonsurface.h"
 
@@ -109,7 +109,7 @@ bool PolygonSurface::insertPolygon( const Coord3& firstpos,
 
     polygons_[polygonidx]->insert( 0, firstpos );
 
-    triggerNrPosCh( RowCol(polygonidx,PolygonInsert).getSerialized() );
+    triggerNrPosCh( RowCol(polygonidx,PolygonInsert).toInt64() );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
 
@@ -126,7 +126,7 @@ bool PolygonSurface::removePolygon( int polygonnr )
     firstknots_.remove( polygonidx );
     concavedirs_.remove( polygonidx );
 
-    triggerNrPosCh( RowCol(polygonidx,PolygonRemove).getSerialized() );
+    triggerNrPosCh( RowCol(polygonidx,PolygonRemove).toInt64() );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
     
@@ -160,7 +160,7 @@ bool PolygonSurface::insertKnot( const RowCol& rc, const Coord3& pos )
     else
 	polygons_[polygonidx]->insert( knotidx, pos );
 
-    triggerNrPosCh( RowCol(polygonidx,PolygonChange).getSerialized() );
+    triggerNrPosCh( RowCol(polygonidx,PolygonChange).toInt64() );
 
     return true;
 }
@@ -175,7 +175,7 @@ bool PolygonSurface::removeKnot( const RowCol& rc )
 	return removePolygon( rc.row );
 
     polygons_[polygonidx]->remove( knotidx );
-    triggerNrPosCh( RowCol(polygonidx,PolygonChange).getSerialized() );
+    triggerNrPosCh( RowCol(polygonidx,PolygonChange).toInt64() );
     
     return true;
 }
@@ -275,7 +275,7 @@ bool PolygonSurface::setKnot( const RowCol& rc, const Coord3& pos )
     mGetValidPolygonIdx( polygonidx, rc.row, 0, false );
     mGetValidKnotIdx( knotidx, rc.col, polygonidx, 0, false );
     (*polygons_[polygonidx])[knotidx] = pos;
-    triggerMovement( RowCol(polygonidx,PolygonChange).getSerialized() );
+    triggerMovement( RowCol(polygonidx,PolygonChange).toInt64() );
     return true;
 }
 

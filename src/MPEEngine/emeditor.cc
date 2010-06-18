@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.24 2010-04-09 08:22:00 cvsbert Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.25 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emeditor.h"
 
@@ -306,7 +306,7 @@ bool ObjectEditor::closeInteractionLine( bool doit )
 
     const EM::PosID pid( interactionline->getHorizon().id(),
 	    		 interactionline->getSection(),
-			 rc.getSerialized() );
+			 rc.toInt64() );
 
     return interactionLineInteraction( pid, doit );
 }
@@ -346,7 +346,7 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
 
     for ( int idx=0; idx<line.size(); idx++ )
     {
-	if ( !emsurface.isDefined(sid,line[idx].getSerialized()) )
+	if ( !emsurface.isDefined(sid,line[idx].toInt64()) )
 	    return false;
     }
 

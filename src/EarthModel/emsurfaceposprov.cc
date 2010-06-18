@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.18 2010-04-28 03:44:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.19 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -216,7 +216,7 @@ float Pos::EMSurfaceProvider::adjustedZ( const Coord& c, float z ) const
     if ( !hasZAdjustment() ) return z;
 
     const BinID bid = SI().transform( c );
-    return surf1_->getPos( surf1_->sectionID(0), bid.getSerialized() ).z;
+    return surf1_->getPos( surf1_->sectionID(0), bid.toInt64() ).z;
 }
 
 
@@ -307,7 +307,7 @@ int Pos::EMSurfaceProvider::nrSurfaces() const
 
 BinID Pos::EMSurfaceProvider3D::curBinID() const
 {
-    BinID bid; bid.setSerialized( curpos_.subID() );
+    BinID bid; bid.fromInt64( curpos_.subID() );
     return bid;
 }
 
@@ -319,7 +319,7 @@ bool Pos::EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
 
     // TODO: support multiple sections
     Interval<float> zrg;
-    const EM::SubID subid = bid.getSerialized();
+    const EM::SubID subid = bid.toInt64();
     const Coord3 crd1 = surf1_->getPos( surf1_->sectionID(0), subid );
     if ( !crd1.isDefined() )
 	return false;
@@ -360,7 +360,7 @@ void Pos::EMSurfaceProvider3D::initClass()
 const char* Pos::EMSurfaceProvider2D::curLine() const
 {
     BinID bid;
-    bid.setSerialized( curpos_.subID() );
+    bid.fromInt64( curpos_.subID() );
     if ( surf1_ )
     {
 	mDynamicCastGet(EM::Horizon2D*,hor2d,surf1_);
@@ -378,7 +378,7 @@ const char* Pos::EMSurfaceProvider2D::curLine() const
 int Pos::EMSurfaceProvider2D::curNr() const
 {
     BinID bid;
-    bid.setSerialized( curpos_.subID() );
+    bid.fromInt64( curpos_.subID() );
     return bid.crl;
 }
 
@@ -417,7 +417,7 @@ bool Pos::EMSurfaceProvider2D::includes( int nr, float z ) const
     bid.crl = nr;
     bid.inl = hor2d1->geometry().lineIndex( lineData()->getLineName().buf() );
     const Coord3 crd1 = hor2d1->getPos( hor2d1->sectionID(0),
-	    				bid.getSerialized() );
+	    				bid.toInt64() );
     if ( !crd1.isDefined() )
 	return false;
 
@@ -426,7 +426,7 @@ bool Pos::EMSurfaceProvider2D::includes( int nr, float z ) const
     {
 	bid.inl = hor2d2->geometry().lineIndex(lineData()->getLineName().buf());
 	const Coord3 crd2 = hor2d2->getPos( hor2d2->sectionID(0),
-					    bid.getSerialized() );
+					    bid.toInt64() );
 	if ( !crd2.isDefined() )
 	    false;
 

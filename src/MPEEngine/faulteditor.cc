@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.12 2010-05-28 09:51:56 cvsjaap Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.13 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "faulteditor.h"
 
@@ -170,7 +170,7 @@ void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
 
 	insertpid.setObjectID( emObject().id() );
 	insertpid.setSectionID( sid );
-	insertpid.setSubID( RowCol( 0, 0 ).getSerialized() );
+	insertpid.setSubID( RowCol( 0, 0 ).toInt64() );
 	return;
     }
 
@@ -196,7 +196,7 @@ void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
 	const int newstick = mindist>0
 	    ? stick+rowrange.step
 	    : stick==rowrange.start ? stick-rowrange.step : stick;
-	insertpid.setSubID( RowCol( newstick, 0 ).getSerialized() );
+	insertpid.setSubID( RowCol( newstick, 0 ).toInt64() );
 	return;
     }
 
@@ -242,7 +242,7 @@ bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
 		EM::Fault3DGeometry& fg = fault->geometry();
 		const bool res = fg.nrKnots( currentsid,curstick)==1
 		   ? fg.removeStick( currentsid, curstick, true )
-		   : fg.removeKnot( currentsid, rc.getSerialized(), true );
+		   : fg.removeKnot( currentsid, rc.toInt64(), true );
 
 		if ( res )
 		    change = true;
@@ -354,7 +354,7 @@ void FaultEditor::getPidsOnStick(  EM::PosID& nearestpid0,
     nearestpid0.setObjectID( emObject().id() );
     nearestpid0.setSectionID( sid );
     nearestpid0.setSubID(
-	RowCol(stick, definedknots[nearestknotidx]).getSerialized() );
+	RowCol(stick, definedknots[nearestknotidx]).toInt64() );
 
     if ( definedknots.size()<=1 )
     {
@@ -366,7 +366,7 @@ void FaultEditor::getPidsOnStick(  EM::PosID& nearestpid0,
 
 	insertpid.setObjectID( emObject().id() );
 	insertpid.setSectionID( sid );
-	insertpid.setSubID( RowCol( stick, insertcol ).getSerialized() );
+	insertpid.setSubID( RowCol( stick, insertcol ).toInt64() );
 	return;
     }
 
@@ -396,14 +396,14 @@ void FaultEditor::getPidsOnStick(  EM::PosID& nearestpid0,
 	{
 	    nearestpid1 = nearestpid0;
 	    nearestpid1.setSubID(
-		RowCol(stick,definedknots[nearestknotidx-1]).getSerialized() );
+		RowCol(stick,definedknots[nearestknotidx-1]).toInt64() );
 	    insertpid = nearestpid0;
 	}
 	else
 	{
 	    insertpid = nearestpid0;
 	    const int insertcol = definedknots[nearestknotidx]-colrange.step;
-	    insertpid.setSubID( RowCol(stick,insertcol).getSerialized() );
+	    insertpid.setSubID( RowCol(stick,insertcol).toInt64() );
 	}
     }
     else // take next
@@ -412,14 +412,14 @@ void FaultEditor::getPidsOnStick(  EM::PosID& nearestpid0,
 	{
 	    nearestpid1 = nearestpid0;
 	    nearestpid1.setSubID(
-		RowCol(stick,definedknots[nearestknotidx+1]).getSerialized() );
+		RowCol(stick,definedknots[nearestknotidx+1]).toInt64() );
 	    insertpid = nearestpid1;
 	}
 	else
 	{
 	    insertpid = nearestpid0;
 	    const int insertcol = definedknots[nearestknotidx]+colrange.step;
-	    insertpid.setSubID( RowCol(stick,insertcol).getSerialized() );
+	    insertpid.setSubID( RowCol(stick,insertcol).toInt64() );
 	}
     }
 }

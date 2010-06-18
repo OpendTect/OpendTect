@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.203 2010-04-28 03:44:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.204 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -722,7 +722,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 	const float* vals = bivs.getVals( pos );
 
 	RowCol rc( bid.inl, bid.crl );
-	EM::SubID subid = rc.getSerialized();
+	EM::SubID subid = rc.toInt64();
 	posid.setSubID( subid );
 	hor3d->auxdata.setAuxDataVal( auxdatanr, posid, vals[idx] );
     }
@@ -762,7 +762,7 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 
 	    auxvals[0] = hor3d->getPos( pid ).z;
 	    auxvals[2] = hor3d->auxdata.getAuxDataVal( auxdatanr, pid );
-	    bid.setSerialized( pid.subID() );
+	    bid.fromInt64( pid.subID() );
 	    data.bivSet().add( bid, auxvals );
 	}
     }
@@ -817,7 +817,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 		const int auxidx = hor3d->auxdata.auxDataIndex( nms.get(idx) );
 		auxvals[idx+2] = hor3d->auxdata.getAuxDataVal( auxidx, pid );
 	    }
-	    bid.setSerialized( pid.subID() );
+	    bid.fromInt64( pid.subID() );
 	    data.bivSet().add( bid, mVarLenArr(auxvals) );
 	}
     }
@@ -933,7 +933,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	    const BinID rc( row, col );
 	    
 	    float auxvals[3]; 
-	    auxvals[0] = hor3d->getPos( sid, rc.getSerialized() ).z;
+	    auxvals[0] = hor3d->getPos( sid, rc.toInt64() ).z;
 	    if ( mIsUdf(auxvals[0]) )
 		continue;
 
@@ -1074,7 +1074,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
     {
 	for ( bid.crl=hs.start.crl; bid.crl<=hs.stop.crl; bid.crl+=hs.step.crl )
 	{
-	    const EM::SubID subid = bid.getSerialized();
+	    const EM::SubID subid = bid.toInt64();
 	    TypeSet<Coord3> z1pos, z2pos;
 	    for ( int idx=hor3d->nrSections()-1; idx>=0; idx-- )
 	    {
@@ -1179,13 +1179,13 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	for ( int trcidx=0; trcidx<ld->posns_.size(); trcidx++ )
 	{
 	    const EM::SubID subid1 = 
-		RowCol( lineid1, ld->posns_[trcidx].nr_ ).getSerialized();
+		RowCol( lineid1, ld->posns_[trcidx].nr_ ).toInt64();
 	    const float z1 = hor2d1->getPos(0,subid1).z;
 	    float z2 = mUdf(float);
 	    if ( issecondhor )
 	    {
 		const EM::SubID subid2 =
-		    RowCol( lineid2, ld->posns_[trcidx].nr_ ).getSerialized();
+		    RowCol( lineid2, ld->posns_[trcidx].nr_ ).toInt64();
 		z2 = hor2d2->getPos(0,subid2).z;
 	    }
 
@@ -1221,7 +1221,7 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
     {
 	const Coord pos( ps[idx].pos.x, ps[idx].pos.y );
 	const BinID bid = SI().transform( pos );
-	const EM::SubID subid = bid.getSerialized();
+	const EM::SubID subid = bid.toInt64();
 	float z = hor->getPos( hor->sectionID(0), subid ).z;
 	if ( mIsUdf(z) )
 	{

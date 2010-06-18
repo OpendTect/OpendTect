@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfaultstickset.cc,v 1.8 2010-02-04 17:20:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfaultstickset.cc,v 1.9 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emfaultstickset.h"
 
@@ -174,7 +174,7 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
     if ( addtohistory )
     {
 	/* TODO
-	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).getSerialized());
+	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).toInt64());
 	UndoEvent* undo = new FaultStickUndoEvent( posid );
 	EMM().undo().addEvent( undo, 0 );
 	*/
@@ -224,7 +224,7 @@ bool FaultStickSetGeometry::removeStick( const SectionID& sid, int sticknr,
     if ( addtohistory )
     {
 	/* TODO
-	const PosID posid( surface_.id(), sid, rc.getSerialized() );
+	const PosID posid( surface_.id(), sid, rc.toInt64() );
 	UndoEvent* undo = new FaultStickUndoEvent( posid, pos, normal );
 	EMM().undo().addEvent( undo, 0 );
 	*/
@@ -241,7 +241,7 @@ bool FaultStickSetGeometry::insertKnot( const SectionID& sid,
 {
     Geometry::FaultStickSet* fss = sectionGeometry( sid );
     RowCol rc;
-    rc.setSerialized( subid );
+    rc.fromInt64( subid );
     if ( !fss || !fss->insertKnot(rc,pos) )
 	return false;
 
@@ -266,7 +266,7 @@ bool FaultStickSetGeometry::removeKnot( const SectionID& sid,
     if ( !fss ) return false;
 
     RowCol rc;
-    rc.setSerialized( subid );
+    rc.fromInt64( subid );
     const Coord3 pos = fss->getKnot( rc );
 
     if ( !pos.isDefined() || !fss->removeKnot(rc) )

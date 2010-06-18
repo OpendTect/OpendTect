@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hor2dfrom3dcreator.cc,v 1.2 2010-04-21 08:25:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: hor2dfrom3dcreator.cc,v 1.3 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "hor2dfrom3dcreator.h"
 
@@ -88,9 +88,9 @@ int Hor2DFrom3DCreator::nextStep()
     {
 	const PosInfo::Line2DPos& posinfo = posdata_.posns_[nrdone_];
 	BinID bid = SI().transform( posinfo.coord_ );
-	EM::SubID subid = bid.getSerialized();
+	EM::SubID subid = bid.toInt64();
 	const Coord3 pos3d = hor3d_.getPos( hor3d_.sectionID(0), subid );
-	subid = RowCol( lineid_, posinfo.nr_ ).getSerialized();
+	subid = RowCol( lineid_, posinfo.nr_ ).toInt64();
 	Coord3 pos( 0, 0, pos3d.z );
 	hor2d_.setPos(hor2d_.sectionID(0),subid,pos,false);
 	nrdone_++;

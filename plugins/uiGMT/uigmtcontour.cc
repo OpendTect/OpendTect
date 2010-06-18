@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.18 2010-04-28 03:44:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.19 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "uigmtcontour.h"
 
@@ -299,7 +299,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     EM::SectionID sid = hor_->sectionID( 0 );
     while ( iter.next(bid) )
     {
-	EM::PosID posid( hor_->id(), sid, bid.getSerialized() );
+	const EM::PosID posid( hor_->id(), sid, bid.toInt64() );
 	const float val = isz ? hor_->getPos( posid ).z
 	    		      : hor_->auxdata.getAuxDataVal( dataidx, posid );
 	if ( !mIsUdf(val) )

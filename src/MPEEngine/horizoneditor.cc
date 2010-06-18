@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizoneditor.cc,v 1.15 2010-06-07 16:00:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizoneditor.cc,v 1.16 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "horizoneditor.h"
 #include "geeditorimpl.h"
@@ -166,10 +166,10 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 		effect = effect ? 1 : 0;
 	    
 	    const RowCol currc =  rc + step*RowCol(ridx,cidx);
-	    if ( horizon->isDefined(sectionid,currc.getSerialized()) )
+	    if ( horizon->isDefined(sectionid,currc.toInt64()) )
 	    {
 		nodes += EM::PosID( horizon->id(), sectionid,
-					     currc.getSerialized() );
+					     currc.toInt64() );
 		if ( factors ) (*factors) += effect;
 	    }
 	}

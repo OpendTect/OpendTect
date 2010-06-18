@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.25 2010-06-17 21:59:48 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.26 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -293,7 +293,7 @@ void FaultStickSetDisplay::updateEditPids()
 	    const StepInterval<int> colrg = fss->colRange( rc.row );
 	    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	    {
-		editpids_ += EM::PosID( emfss_->id(), sid, rc.getSerialized() );
+		editpids_ += EM::PosID( emfss_->id(), sid, rc.toInt64() );
 	    }
 	}
     }
@@ -627,7 +627,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    editpids_.erase();
 	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
 			      lineset, linenm, true );
-	    const EM::SubID subid = RowCol(insertsticknr,0).getSerialized();
+	    const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
 	    fsseditor_->setLastClicked( EM::PosID(emfss_->id(),sid,subid) );
 	    setActiveStick( EM::PosID(emfss_->id(),sid,subid) );
 	    updateEditPids();

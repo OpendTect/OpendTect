@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.21 2010-05-26 06:15:51 cvsnanne Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.22 2010-06-18 12:23:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -201,8 +201,8 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 		}
 	    }
 
-	    const Coord3 crd = hor->getPos( sid, bid.getSerialized() );
-	    EM::PosID posid( hor->id(), sid, bid.getSerialized() );
+	    const Coord3 crd = hor->getPos( sid, bid.toInt64() );
+	    EM::PosID posid( hor->id(), sid, bid.toInt64() );
 
 	    if ( !crd.isDefined() )
 	    {
@@ -365,7 +365,7 @@ void HorizonPainter::changePolyLinePosition( const EM::ObjectID& oid,
     ObjectSet<SectionMarkerLine>* sectionmarkerlines = hormarkerlines_[horpos];
 
     BinID binid;
-    binid.setSerialized( pid.subID() );
+    binid.fromInt64( pid.subID() );
 
     for ( int ids=0; ids<hor->nrSections(); ids++ )
     {
@@ -585,7 +585,7 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
 		return;
 
 	    BinID bid;
-	    bid.setSerialized( cbdata.pid0.subID() );
+	    bid.fromInt64( cbdata.pid0.subID() );
 	    if ( cs_.hrg.includes(bid) )
 	    {
 		if ( !emobject->isInsideSelRemoval() )

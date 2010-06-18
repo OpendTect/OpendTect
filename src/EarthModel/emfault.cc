@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault.cc,v 1.56 2010-02-12 10:35:01 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.57 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emfault.h"
 
@@ -70,7 +70,7 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
 		else
 		{
 		    const RowCol destrc( sticknr,knotnr );
-		    destfssg.insertKnot( destsid, destrc.getSerialized(),
+		    destfssg.insertKnot( destsid, destrc.toInt64(),
 					 pos, true );
 		}
 		knotnr++;
@@ -157,7 +157,7 @@ bool FaultGeometry::removeSelStick( int selidx, const FaultGeometry* doublesref)
 		if ( rc.col == colrg.stop )
 		    removeStick( sid, rc.row, true );
 		else
-		    removeKnot( sid, rc.getSerialized(), true );
+		    removeKnot( sid, rc.toInt64(), true );
 	    }
 
 	    if ( nrSections()>1 && !fss->nrSticks() )

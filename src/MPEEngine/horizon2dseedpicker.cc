@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.20 2010-06-07 16:00:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.21 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -134,7 +134,7 @@ bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
     RowCol rc( lineid_, 0 );
     for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
     {
-	const Coord coord = hor->getPos( sectionid_, rc.getSerialized() );
+	const Coord coord = hor->getPos( sectionid_, rc.toInt64() );
 	if ( !coord.isDefined() )
 	    continue;
 
@@ -148,7 +148,7 @@ bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
 
     rc.col = closestcol;
 	
-    const EM::PosID pid( hor->id(), sectionid_, rc.getSerialized() );
+    const EM::PosID pid( hor->id(), sectionid_, rc.toInt64() );
 
     if ( sowermode_ )
 	eraseInBetween( pid, lastseedpicked_ );
@@ -188,7 +188,7 @@ int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
 	while ( rc.col>colrg.start && rc.col<colrg.stop )
 	{
 	    rc.col += idx*colrg.step;
-	    const Coord3 pos = hor->getPos( sectionid_, rc.getSerialized() );
+	    const Coord3 pos = hor->getPos( sectionid_, rc.toInt64() );
 	    if ( Coord(pos).isDefined() )
 	    {	
 		if ( pos.isDefined() )
@@ -210,7 +210,7 @@ bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 	return true;
 
     RowCol rc;
-    rc.setSerialized( pid.subID() );
+    rc.fromInt64( pid.subID() );
     if ( rc.row != lineid_ )
 	return false;
 
@@ -239,8 +239,8 @@ void Horizon2DSeedPicker::eraseInBetween( const EM::PosID& pid1,
 	return;
 
     RowCol rc1, rc2, tmp;
-    rc1.setSerialized( pid1.subID() );
-    rc2.setSerialized( pid2.subID() );
+    rc1.fromInt64( pid1.subID() );
+    rc2.fromInt64( pid2.subID() );
     if ( rc1.row != rc2.row )
 	return;
 
@@ -250,7 +250,7 @@ void Horizon2DSeedPicker::eraseInBetween( const EM::PosID& pid1,
     rc1.col += colrg.step;
     while ( rc1.col < rc2.col )
     {
-	EM::PosID pid( pid1.objectID(), pid1.sectionID(), rc1.getSerialized() );
+	EM::PosID pid( pid1.objectID(), pid1.sectionID(), rc1.toInt64() );
 	emobj->unSetPos( pid, true );
 	emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
 	rc1.col += colrg.step;
@@ -311,7 +311,7 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
     eraselist_.erase();
 
     RowCol currc( lineid_, startcol );
-    EM::PosID curpid = EM::PosID( hor->id(), sectionid_, currc.getSerialized());
+    EM::PosID curpid = EM::PosID( hor->id(), sectionid_, currc.toInt64());
 
     bool seedwasadded = hor->isDefined( curpid ) && !wholeline;
     bool curdefined = startwasdefined;
@@ -335,7 +335,7 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 	    break;
 	}
 	
-	const EM::PosID pid( hor->id(), sectionid_, currc.getSerialized() );
+	const EM::PosID pid( hor->id(), sectionid_, currc.toInt64() );
 
 	// Skip if survey coordinates undefined
 	if ( !Coord(hor->getPos(pid)).isDefined() )
@@ -531,7 +531,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
     RowCol rc;
     for ( int idx=0; idx<nrseeds; idx++ )
     {
-	rc.setSerialized( seedlist_[idx].subID() );
+	rc.fromInt64( seedlist_[idx].subID() );
 	if ( rc.row != lineid_ )
 	    return false;
 
@@ -552,7 +552,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	while ( rc.col<sortval[vtx+1] )
 	{
 	    rc.col += colrg.step;
-	    const Coord curpos = hor->getPos( sectionid_, rc.getSerialized() );
+	    const Coord curpos = hor->getPos( sectionid_, rc.toInt64() );
 	    if ( !curpos.isDefined() ) 
 		continue;
 	    totarclen += prevpos.distTo( curpos );
@@ -564,7 +564,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	rc.col = sortval[vtx] + colrg.step;
 	for ( ; rc.col<sortval[vtx+1]; rc.col += colrg.step  )
 	{
-	    const Coord curpos = hor->getPos( sectionid_, rc.getSerialized() );
+	    const Coord curpos = hor->getPos( sectionid_, rc.toInt64() );
 	    if ( !curpos.isDefined() ) 
 		continue;
 	    arclen += prevpos.distTo( curpos );
@@ -573,7 +573,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	    const double frac = arclen / totarclen;
 	    const double curz = (1-frac) * startpos.z + frac * endpos.z;
 	    const Coord3 interpos( curpos, curz ); 
-	    hor->setPos( sectionid_, rc.getSerialized(), interpos, true );
+	    hor->setPos( sectionid_, rc.toInt64(), interpos, true );
 	}
     }
     return true;
@@ -582,7 +582,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 #define mAddToBox(pidlist) \
     for ( int idx=0; idx<pidlist.size(); idx++ ) \
     { \
-	rc.setSerialized( pidlist[idx].subID() ); \
+	rc.fromInt64( pidlist[idx].subID() ); \
 	trackbox.hrg.include( BinID(rc) ); \
     }
 

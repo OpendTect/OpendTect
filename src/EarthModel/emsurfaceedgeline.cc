@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.42 2010-06-17 20:03:12 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.43 2010-06-18 12:23:27 cvskris Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -203,12 +203,12 @@ bool EdgeLineSegment::isContinuedBy( const EdgeLineSegment* seg ) const
 
 
 bool EdgeLineSegment::isDefined( const RowCol& rc ) const
-{ return horizon_.isDefined( section, rc.getSerialized() ); }
+{ return horizon_.isDefined( section, rc.toInt64() ); }
 
 
 bool EdgeLineSegment::isAtEdge( const RowCol& rc ) const
 { 
-    const PosID pid( horizon_.id(), section, rc.getSerialized() );
+    const PosID pid( horizon_.id(), section, rc.toInt64() );
     return horizon_.geometry().isAtEdge(pid);
 }
 
@@ -289,9 +289,7 @@ void EdgeLineSegment::fillPar( IOPar& par ) const
 {
     TypeSet<SubID> subids;
     for ( int idx=0; idx<size(); idx++ )
-    {
-	subids += rc2int64( nodes_[idx] );
-    }
+	subids += nodes_[idx].toInt64();
 
     par.set( key, subids );
     par.set( classnamestr, className() );
@@ -306,7 +304,7 @@ bool EdgeLineSegment::usePar( const IOPar& par )
 
     nodes_.erase();
     for ( int idx=0; idx<subids.size(); idx++ )
-	nodes_ += int642rc(subids[idx]);
+	nodes_ += RowCol(subids[idx]);
 
     if ( notifier ) notifier->trigger();
     return true;
@@ -1578,7 +1576,7 @@ bool EdgeLineIterator::next()
 PosID EdgeLineIterator::current() const
 {
     const Horizon3D& horizon_ = el.getHorizon();
-    return PosID(horizon_.id(),el.getSection(),currentRowCol().getSerialized() );
+    return PosID(horizon_.id(),el.getSection(),currentRowCol().toInt64() );
 }
 
 
@@ -1693,10 +1691,10 @@ bool EdgeLineSet::removeAllNodesOutsideLines()
 	for ( int col=colrange.start; col<=colrange.stop; col+=colrange.step )
 	{
 	    const RowCol rc(row,col);
-	    if ( !horizon_.isDefined(section,rc.getSerialized()) )
+	    if ( !horizon_.isDefined(section,rc.toInt64()) )
 		continue;
 
-	    const PosID pid(horizon_.id(),section,rc.getSerialized());
+	    const PosID pid(horizon_.id(),section,rc.toInt64());
 
 	    bool foundinnonhole = false;
 	    for ( int idx=0; idx<nonholes.size(); idx++ )
@@ -1749,7 +1747,7 @@ bool EdgeLineSet::findLines( EdgeLineCreationFunc func )
 	for ( int col=colrange.start; col<=colrange.stop;col+=colrange.step)
 	{
 	    const RowCol rc( row, col );
-	    const PosID pid(horizon_.id(),rc.getSerialized() );
+	    const PosID pid(horizon_.id(),rc.toInt64() );
 
 	    TypeSet<PosID> linkedpos;
 	    horizon_.geometry().getLinkedPos( pid, linkedpos );

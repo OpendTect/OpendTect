@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.34 2010-06-16 12:30:17 cvskris Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.35 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -216,7 +216,7 @@ bool DataHolder::setUpHorizons( const TypeSet<MultiID>& horids,
 	}
 	if ( !hor ) continue;
 
-	const EM::PosID posid(hor->id(), hor->sectionID(0), rc.getSerialized());
+	const EM::PosID posid(hor->id(), hor->sectionID(0), rc.toInt64());
 	float zval = hor->getPos( posid ).z*1000;
 	hordatas_ += new HorData( zval,  hor->preferredColor() );
 	hordatas_[hordatas_.size()-1]->name_ = hor->name();

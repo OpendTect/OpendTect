@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackevents.cc,v 1.10 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackevents.cc,v 1.11 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "prestackevents.h"
 
@@ -688,31 +688,31 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	const BinID horstep = emhorizons_[horidx]->geometry().loadedStep();
 	BinID previnl( bidv.binid.inl-horstep.inl, bidv.binid.crl );
 	BinID nextinl( bidv.binid.inl+horstep.inl, bidv.binid.crl );
-	if ( !emhorizons_[horidx]->isDefined(sid,previnl.getSerialized() ) )
+	if ( !emhorizons_[horidx]->isDefined(sid,previnl.toInt64() ) )
 	    previnl = bidv.binid;
-	if ( !emhorizons_[horidx]->isDefined(sid,nextinl.getSerialized() ) )
+	if ( !emhorizons_[horidx]->isDefined(sid,nextinl.toInt64() ) )
 	    nextinl = bidv.binid;
 
 	if ( previnl==nextinl )
 	    return false;
 
 	const float inldiff =
-	    emhorizons_[horidx]->getPos(sid,nextinl.getSerialized() ).z -
-	    emhorizons_[horidx]->getPos(sid,previnl.getSerialized() ).z;
+	    emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z -
+	    emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z;
 
 	BinID prevcrl( bidv.binid.inl, bidv.binid.crl-horstep.inl );
 	BinID nextcrl( bidv.binid.inl, bidv.binid.crl+horstep.inl );
-	if ( !emhorizons_[horidx]->isDefined(sid,prevcrl.getSerialized() ) )
+	if ( !emhorizons_[horidx]->isDefined(sid,prevcrl.toInt64() ) )
 	    prevcrl = bidv.binid;
-	if ( !emhorizons_[horidx]->isDefined(sid,nextcrl.getSerialized() ) )
+	if ( !emhorizons_[horidx]->isDefined(sid,nextcrl.toInt64() ) )
 	    nextcrl = bidv.binid;
 
 	if ( prevcrl==nextcrl )
 	    return false;
 
 	const float crldiff =
-	    emhorizons_[horidx]->getPos(sid,nextcrl.getSerialized() ).z -
-	    emhorizons_[horidx]->getPos(sid,prevcrl.getSerialized() ).z;
+	    emhorizons_[horidx]->getPos(sid,nextcrl.toInt64() ).z -
+	    emhorizons_[horidx]->getPos(sid,prevcrl.toInt64() ).z;
 
 	inldip = inldiff/((nextinl.inl-previnl.inl)*SI().inlDistance() );
 	crldip = crldiff/((nextcrl.crl-prevcrl.crl)*SI().crlDistance() );

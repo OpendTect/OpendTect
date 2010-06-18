@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.125 2010-06-17 18:02:57 cvskris Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.126 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emhorizon3d.h"
 
@@ -107,7 +107,7 @@ int nextStep()
 
 	const float* vals = bvs.getVals( pos );
 	if ( !vals ) continue;
-	posid.setSubID( bid.getSerialized() );
+	posid.setSubID( bid.toInt64() );
 	for ( int iattr=0; iattr<nrattribs_; iattr++ )
 	{
 	    const float val = vals[iattr+startidx_];
@@ -376,7 +376,7 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
 	    const RowCol rc( row, col );
-	    Coord3 pos = getPos( sid, rc.getSerialized() );
+	    Coord3 pos = getPos( sid, rc.toInt64() );
 	    if ( pos.isDefined() && onlyfillundefs )
 		continue;
 
@@ -392,7 +392,7 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
 		continue;
 
 	    pos.z = val;
-	    setPos( sid, rc.getSerialized(), pos, false );
+	    setPos( sid, rc.toInt64(), pos, false );
 
 	    if ( ++poscount >= 10000 ) 
 	    {
@@ -580,17 +580,17 @@ PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
 	const RowCol ownrc(aliases[idx].subID());
 	const RowCol neigborrc = ownrc+diff;
 	if ( surface_.isDefined(aliases[idx].sectionID(),
-	     neigborrc.getSerialized()) )
+	     neigborrc.toInt64()) )
 	{
 	    return PosID( surface_.id(), aliases[idx].sectionID(),
-			  neigborrc.getSerialized() );
+			  neigborrc.toInt64() );
 	}
     }
 
     const RowCol ownrc(posid.subID());
     const RowCol neigborrc = ownrc+diff;
 
-    return PosID( surface_.id(), posid.sectionID(), neigborrc.getSerialized());
+    return PosID( surface_.id(), posid.sectionID(), neigborrc.toInt64());
 }
 
 
@@ -653,7 +653,7 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
-	    subid = RowCol( row, col ).getSerialized();
+	    subid = RowCol( row, col ).toInt64();
 	    posid = PosID( surface_.id(), sid, subid );
 	    if ( isNodeOK(posid) && isAtEdge(posid) )
 	    {
@@ -687,9 +687,9 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 	    int rightidx = idx < 7 ? idx + 1 : 0;
 	    RowCol leftrcol = rcol + dirs[leftidx];
 	    RowCol rightrcol = rcol + dirs[rightidx];
-	    curposid.setSubID( currcol.getSerialized() );
-	    leftposid.setSubID( leftrcol.getSerialized() );
-	    rightposid.setSubID( rightrcol.getSerialized() );
+	    curposid.setSubID( currcol.toInt64() );
+	    leftposid.setSubID( leftrcol.toInt64() );
+	    rightposid.setSubID( rightrcol.toInt64() );
 	    if ( !isAtEdge(curposid) )
 		continue;
 
@@ -730,7 +730,7 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
 	const Coord3 crd = surface_.getPos( pid );
 	if ( crd.isDefined() )
 	{
-	    bid.setSerialized( pid.subID() );
+	    bid.fromInt64( pid.subID() );
 	    const bool isinside = prov ? prov->includes( bid ) : true;
 	    if ( isinside )
 		bivs.add( bid, crd.z );

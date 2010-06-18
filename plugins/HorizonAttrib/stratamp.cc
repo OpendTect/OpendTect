@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratamp.cc,v 1.8 2010-06-10 14:21:08 cvshelene Exp $";
+static const char* rcsID = "$Id: stratamp.cc,v 1.9 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "stratamp.h"
 
@@ -161,7 +161,7 @@ int StratAmpCalc::nextStep()
     }
 
     const BinID bid = trc->info().binid;
-    const EM::SubID subid = bid.getSerialized();
+    const EM::SubID subid = bid.toInt64();
     float z1 = tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
     float z2 = !bothorizon_ ? z1
 		     : bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;

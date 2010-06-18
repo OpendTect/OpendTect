@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID = "$Id: faultstickset.cc,v 1.10 2010-06-17 19:00:58 cvskris Exp $";
+static const char* rcsID = "$Id: faultstickset.cc,v 1.11 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "faultstickset.h"
 #include <math.h>
@@ -90,7 +90,7 @@ bool FaultStickSet::insertStick( const Coord3& firstpos,
 
     sticks_[stickidx]->insert( 0, firstpos );
 
-    triggerNrPosCh( RowCol(stickidx,StickInsert).getSerialized() );
+    triggerNrPosCh( RowCol(stickidx,StickInsert).toInt64() );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
 
@@ -110,7 +110,7 @@ bool FaultStickSet::removeStick( int sticknr )
     if ( !stickidx )
 	firstrow_++;
 
-    triggerNrPosCh( RowCol(stickidx,StickRemove).getSerialized() );
+    triggerNrPosCh( RowCol(stickidx,StickRemove).toInt64() );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
     
@@ -136,7 +136,7 @@ bool FaultStickSet::insertKnot( const RowCol& rc, const Coord3& pos )
     else
 	sticks_[stickidx]->insert( knotidx, pos );
 
-    triggerNrPosCh( RowCol(stickidx,StickChange).getSerialized() );
+    triggerNrPosCh( RowCol(stickidx,StickChange).toInt64() );
 
     return true;
 }
@@ -155,7 +155,7 @@ bool FaultStickSet::removeKnot( const RowCol& rc )
     if ( !knotidx )
 	firstcols_[stickidx]++;
 
-    triggerNrPosCh( RowCol(stickidx,StickChange).getSerialized() );
+    triggerNrPosCh( RowCol(stickidx,StickChange).toInt64() );
     
     return true;
 }
@@ -210,7 +210,7 @@ bool FaultStickSet::setKnot( const RowCol& rc, const Coord3& pos )
     mGetValidKnotIdx( knotidx, rc.col, stickidx, 0, false );
 
     (*sticks_[stickidx])[knotidx] = pos;
-    triggerMovement( RowCol(stickidx,StickChange).getSerialized() );
+    triggerMovement( RowCol(stickidx,StickChange).toInt64() );
     return true;
 }
 

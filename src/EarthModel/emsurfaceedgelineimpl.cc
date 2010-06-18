@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.28 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.29 2010-06-18 12:23:27 cvskris Exp $";
 
 
 
@@ -48,7 +48,7 @@ bool SurfaceConnectLine::internalIdenticalSettings(
 bool SurfaceConnectLine::isNodeOK(const RowCol& rc) const
 {
     return EdgeLineSegment::isNodeOK(rc) &&
-	   horizon_.isDefined(connectingsection,rc.getSerialized());
+	   horizon_.isDefined(connectingsection,rc.toInt64());
 }
 
 

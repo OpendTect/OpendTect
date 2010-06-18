@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.27 2010-06-17 19:00:58 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.28 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -170,7 +170,7 @@ bool ParametricSurface::setKnot( const RowCol& rc, const Coord3& np )
 	return false;
     }
 
-    const GeomPosID gpos = rc.getSerialized();
+    const GeomPosID gpos = rc.toInt64();
     if ( wasundef ) triggerNrPosCh(gpos);
     else triggerMovement(gpos);
 
@@ -192,7 +192,7 @@ bool ParametricSurface::unsetKnot( const RowCol& rc )
 
     // TODO: prevent endless loop in isAtSameEdge. Then remove these two lines
     _setKnot( index, Coord3::udf() );
-    triggerNrPosCh( rc.getSerialized() );
+    triggerNrPosCh( rc.toInt64() );
     return true;
 
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
@@ -253,7 +253,7 @@ bool ParametricSurface::unsetKnot( const RowCol& rc )
 	}
     }
 
-    triggerNrPosCh(rc.getSerialized());
+    triggerNrPosCh(rc.toInt64());
     return true;
 }
 

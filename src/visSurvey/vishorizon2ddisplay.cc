@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.38 2010-06-17 21:59:48 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.39 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -87,7 +87,7 @@ void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 	const StepInterval<int> colrg = rcs->colRange( rc.row );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	{
-	    const Coord3 pos = emobject_->getPos( sid, rc.getSerialized() );
+	    const Coord3 pos = emobject_->getPos( sid, rc.toInt64() );
 	    if ( pos.sqDistTo(mousepos) < mDefEps )
 	    {
 		mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
@@ -429,13 +429,13 @@ void Horizon2DDisplay::updateLinesOnSections(
 	{
 	    const Interval<int>& trcrg  = seis2dlist[idx]->getTraceNrRange();
 	    RowCol rc( lineid, trcrg.start );
-	    Coord pos = emobject_->getPos( 0, rc.getSerialized() ); 
+	    Coord pos = emobject_->getPos( 0, rc.toInt64() ); 
 	    if ( !xy0[idx].isDefined() || !mIsEqual(xy0[idx].x,pos.x,mDefEps) 
 				       || !mIsEqual(xy0[idx].y,pos.y,mDefEps) )
 		continue;
 
 	    rc.col = trcrg.stop;
-	    pos = emobject_->getPos( 0, rc.getSerialized() ); 
+	    pos = emobject_->getPos( 0, rc.toInt64() ); 
 	    if ( !xy1[idx].isDefined() || !mIsEqual(xy1[idx].x,pos.x,mDefEps) 
 				       || !mIsEqual(xy1[idx].y,pos.y,mDefEps) )
 		continue;

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.8 2010-06-07 16:00:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.9 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -837,7 +837,7 @@ void PolygonBodyDisplay::setNewIntersectingPolygon( const Coord3& normal,
 	if ( pt==0 )
     	    geo.insertPolygon( sid, nrplgs, 0, intersections[0], normal, true );
         else
-	    geo.insertKnot( sid, RowCol(nrplgs,pt).getSerialized(), 
+	    geo.insertKnot( sid, RowCol(nrplgs,pt).toInt64(), 
 		    	    intersections[pt], true );
     }
 }

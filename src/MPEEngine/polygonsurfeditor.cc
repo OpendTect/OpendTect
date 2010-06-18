@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.11 2010-06-17 21:26:43 cvskris Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.12 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "polygonsurfeditor.h"
 
@@ -116,7 +116,7 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 
 	insertpid.setObjectID( emObject().id() );
 	insertpid.setSectionID( sid );
-	insertpid.setSubID( RowCol(0,0).getSerialized() );
+	insertpid.setSubID( RowCol(0,0).toInt64() );
 	return;
     }
     
@@ -142,7 +142,7 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 	    ? polygon+rowrange.step 
 	    : polygon==rowrange.start ? polygon-rowrange.step : polygon;
 
-	insertpid.setSubID( RowCol(newpolygon,0).getSerialized() );
+	insertpid.setSubID( RowCol(newpolygon,0).toInt64() );
 	return;
     }
     
@@ -191,7 +191,7 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 		EM::PolygonBodyGeometry& fg = polygonsurf->geometry();
 		const bool res = fg.nrKnots( currentsid,curpolygon)==1
 		   ? fg.removePolygon( currentsid, curpolygon, true )
-		   : fg.removeKnot( currentsid, rc.getSerialized(), true );
+		   : fg.removeKnot( currentsid, rc.toInt64(), true );
 
 		if ( res ) change = true;
 	    }
@@ -410,11 +410,11 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 
     nearestpid0.setObjectID( emObject().id() );
     nearestpid0.setSectionID( sid );
-    nearestpid0.setSubID( RowCol(polygon,knots[nearknotidx]).getSerialized() );
+    nearestpid0.setSubID( RowCol(polygon,knots[nearknotidx]).toInt64() );
     if ( knots.size()<=2 )
     {
 	insertpid = nearestpid0;
-	insertpid.setSubID( RowCol(polygon,knots.size()).getSerialized() );
+	insertpid.setSubID( RowCol(polygon,knots.size()).toInt64() );
 	return;
     }
 
@@ -462,10 +462,10 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	if ( nearedgeidx<knots.size()-1 )
 	{
 	    nearestpid0.setSubID( 
-		    RowCol(polygon,knots[nearedgeidx]).getSerialized() );
+		    RowCol(polygon,knots[nearedgeidx]).toInt64() );
 	    nearestpid1 = nearestpid0;
 	    nearestpid1.setSubID( 
-		    RowCol(polygon,knots[nearedgeidx+1]).getSerialized() );
+		    RowCol(polygon,knots[nearedgeidx+1]).toInt64() );
 	
 	    insertpid = nearestpid1;
 	}
@@ -473,7 +473,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	{
 	    insertpid = nearestpid0;
 	    const int nextcol = knots[nearedgeidx]+colrange.step;
-	    insertpid.setSubID( RowCol(polygon,nextcol).getSerialized() );
+	    insertpid.setSubID( RowCol(polygon,nextcol).toInt64() );
 	}
 	    
 	return;
@@ -505,14 +505,14 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	    {
 		nearestpid1 = nearestpid0;
 		nearestpid1.setSubID( 
-			RowCol(polygon,knots[nearknotidx-1]).getSerialized() );
+			RowCol(polygon,knots[nearknotidx-1]).toInt64() );
 		insertpid = nearestpid0;
 	    }
 	    else
 	    {
 		insertpid = nearestpid0;
 		const int insertcol = knots[nearknotidx]-colrange.step;
-		insertpid.setSubID(RowCol(polygon,insertcol).getSerialized());
+		insertpid.setSubID(RowCol(polygon,insertcol).toInt64());
 	    }
 	}
 	else 
@@ -521,14 +521,14 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	    {
 		nearestpid1 = nearestpid0;
 		nearestpid1.setSubID( 
-			RowCol(polygon,knots[nearknotidx+1]).getSerialized() );
+			RowCol(polygon,knots[nearknotidx+1]).toInt64() );
 		insertpid = nearestpid1;
 	    }
 	    else
 	    {
 		insertpid = nearestpid0;
 		const int insertcol = knots[nearknotidx]+colrange.step;
-		insertpid.setSubID(RowCol(polygon,insertcol).getSerialized());
+		insertpid.setSubID(RowCol(polygon,insertcol).toInt64());
 	    }
 	}
     }

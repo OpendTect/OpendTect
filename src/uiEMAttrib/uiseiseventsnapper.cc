@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.27 2009-12-03 06:57:29 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.28 2010-06-18 12:23:27 cvskris Exp $";
 
 
 #include "uiseiseventsnapper.h"
@@ -153,7 +153,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    {
 		BinID bid; float z;
 		bivs.get( pos, bid, z );
-		newhor3d->setPos( sid, bid.getSerialized(), Coord3(0,0,z),
+		newhor3d->setPos( sid, bid.toInt64(), Coord3(0,0,z),
 				  false );
 	    }
 

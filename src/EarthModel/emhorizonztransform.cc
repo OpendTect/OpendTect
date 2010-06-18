@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.13 2009-12-01 11:34:42 cvsumesh Exp $";
+static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.14 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emhorizonztransform.h"
 
@@ -258,7 +258,7 @@ bool HorizonZTransform::getTopBottom( const BinID& bid, float& top,
 	    depth = geom->computePosition( Coord(bid.inl,bid.crl) ).z;
 	}
 	else if ( hor2d )
-	    depth = horizon_->getPos( sid, bid.getSerialized() ).z;
+	    depth = horizon_->getPos( sid, bid.toInt64() ).z;
 
 	if ( !mIsUdf(depth) )
 	    depths += depth;

@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: rowcolsurface.cc,v 1.5 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: rowcolsurface.cc,v 1.6 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "rowcolsurface.h"
 
@@ -40,7 +40,7 @@ void RowColSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
 
 	    if ( remudf && !isKnotDefined(rc) ) continue;
 
-	    pids += rc.getSerialized();
+	    pids += rc.toInt64();
 	}
     }
 }

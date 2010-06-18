@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.14 2009-12-15 12:18:23 cvsbert Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.15 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "horflatvieweditor.h"
 
@@ -424,11 +424,11 @@ bool HorizonFlatViewEditor::getPosID( const EM::EMObject& emobj,
 
     for ( int idx=0; idx<emobj.nrSections(); idx++ )
     {
-	if ( emobj.isDefined(emobj.sectionID(idx),bid.getSerialized()) )
+	if ( emobj.isDefined(emobj.sectionID(idx),bid.toInt64()) )
 	{
 	    pid.setObjectID( emobj.id() );
 	    pid.setSectionID( emobj.sectionID(idx) );
-	    pid.setSubID( bid.getSerialized() );
+	    pid.setSubID( bid.toInt64() );
 	    return true;
 	}
     }

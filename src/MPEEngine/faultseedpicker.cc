@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultseedpicker.cc,v 1.8 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: faultseedpicker.cc,v 1.9 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "faultseedpicker.h"
 
@@ -71,7 +71,7 @@ bool FaultSeedPicker::addSeed( const Coord3& pos, bool )
 	//ask the nr of seeds. 
 	nrseeds_++;
 	const EM::PosID pid( fault->id(), sectionid_,
-			     stickstart_.getSerialized() );
+			     stickstart_.toInt64() );
 	if ( !fault->setPos( pid, pos, true ) )
 	{
 	    nrseeds_--;
@@ -92,7 +92,7 @@ bool FaultSeedPicker::addSeed( const Coord3& pos, bool )
 	//inc nrseeds_ here since fault->setPos will trigger cbs that will 
 	//ask the nr of seeds. 
 	nrseeds_++;
-	const EM::PosID pid( fault->id(), sectionid_,newseedrc.getSerialized());
+	const EM::PosID pid( fault->id(), sectionid_,newseedrc.toInt64());
 	if ( !fault->setPos( pid, pos, true ) )
 	{
 	    nrseeds_--;
@@ -105,7 +105,7 @@ bool FaultSeedPicker::addSeed( const Coord3& pos, bool )
     {
 	/*
 	const RowCol newseedrc = getNewSeedRc( pos );
-	const EM::PosID pid( fault->id(), sectionid_,newseedrc.getSerialized());
+	const EM::PosID pid( fault->id(), sectionid_,newseedrc.toInt64());
 	if ( fault->isDefined(pid) )
 	{
 	    EM::FaultGeometry& geom = fault->geometry();
@@ -201,7 +201,7 @@ RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
 	for ( int idx=0; idx<nrseeds_; idx++ )
 	{
 	    const float seedcompz = fault->getPos( sectionid_,
-			(stickstart_+stickstep_*idx).getSerialized() ).z * inc;
+			(stickstart_+stickstep_*idx).toInt64() ).z * inc;
 	    if ( seedcompz>compz )
 	    {
 		if ( !idx )
@@ -221,7 +221,7 @@ RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
     for ( int idx=0; idx<nrseeds_; idx++ )
     {
 	const RowCol rc = stickstart_+stickstep_*idx;
-	const Coord seedpos = fault->getPos( sectionid_, rc.getSerialized() );
+	const Coord seedpos = fault->getPos( sectionid_, rc.toInt64() );
 	const float sqdist = seedpos.sqDistTo( pos );
 
 	if ( !idx || sqdist<minsqdist )
@@ -234,9 +234,9 @@ RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
     const RowCol prevrc = closestrc-stickstep_;
     const RowCol nextrc = closestrc+stickstep_;
 
-    const Coord3 prevknotpos =fault->getPos( sectionid_, prevrc.getSerialized());
-    const Coord3 closestpos =fault->getPos(sectionid_,closestrc.getSerialized());
-    const Coord3 nextknotpos =fault->getPos( sectionid_, nextrc.getSerialized());
+    const Coord3 prevknotpos =fault->getPos( sectionid_, prevrc.toInt64());
+    const Coord3 closestpos =fault->getPos(sectionid_,closestrc.toInt64());
+    const Coord3 nextknotpos =fault->getPos( sectionid_, nextrc.toInt64());
 
     if ( prevknotpos.isDefined() && nextknotpos.isDefined() )
     {

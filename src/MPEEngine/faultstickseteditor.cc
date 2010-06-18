@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.6 2010-05-27 14:27:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.7 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "faultstickseteditor.h"
 
@@ -221,7 +221,7 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 		EM::FaultStickSetGeometry& fssg = emfss->geometry();
 		const bool res = fssg.nrKnots( currentsid,curstick)==1
 		   ? fssg.removeStick( currentsid, curstick, true )
-		   : fssg.removeKnot( currentsid, rc.getSerialized(), true );
+		   : fssg.removeKnot( currentsid, rc.toInt64(), true );
 
 		if ( res )
 		    change = true;
@@ -334,7 +334,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
     nearestpid0.setObjectID( emObject().id() );
     nearestpid0.setSectionID( sid );
     nearestpid0.setSubID(
-	RowCol(sticknr, definedknots[nearestknotidx]).getSerialized() );
+	RowCol(sticknr, definedknots[nearestknotidx]).toInt64() );
 
     if ( definedknots.size()<=1 )
     {
@@ -348,7 +348,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 
 	insertpid.setObjectID( emObject().id() );
 	insertpid.setSectionID( sid );
-	insertpid.setSubID( RowCol( sticknr, insertcol ).getSerialized() );
+	insertpid.setSubID( RowCol( sticknr, insertcol ).toInt64() );
 	return;
     }
 
@@ -376,14 +376,14 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 	{
 	    nearestpid1 = nearestpid0;
 	    nearestpid1.setSubID(
-		RowCol(sticknr,definedknots[nearestknotidx-1]).getSerialized());
+		RowCol(sticknr,definedknots[nearestknotidx-1]).toInt64());
 	    insertpid = nearestpid0;
 	}
 	else
 	{
 	    insertpid = nearestpid0;
 	    const int insertcol = definedknots[nearestknotidx]-colrange.step;
-	    insertpid.setSubID( RowCol(sticknr,insertcol).getSerialized() );
+	    insertpid.setSubID( RowCol(sticknr,insertcol).toInt64() );
 	}
     }
     else // take next
@@ -392,14 +392,14 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 	{
 	    nearestpid1 = nearestpid0;
 	    nearestpid1.setSubID(
-		RowCol(sticknr,definedknots[nearestknotidx+1]).getSerialized());
+		RowCol(sticknr,definedknots[nearestknotidx+1]).toInt64());
 	    insertpid = nearestpid1;
 	}
 	else
 	{
 	    insertpid = nearestpid0;
 	    const int insertcol = definedknots[nearestknotidx]+colrange.step;
-	    insertpid.setSubID( RowCol(sticknr,insertcol).getSerialized() );
+	    insertpid.setSubID( RowCol(sticknr,insertcol).toInt64() );
 	}
     }
 }

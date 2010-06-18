@@ -5,7 +5,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		May 2008
- RCS:		$Id: emobjectselremoval.cc,v 1.10 2010-06-17 21:15:12 cvskris Exp $
+ RCS:		$Id: emobjectselremoval.cc,v 1.11 2010-06-18 12:23:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,11 +252,11 @@ void EMObjectRowColSelRemoval::makeListGrow( const RowCol& start,
 	if ( selresult != 2 )     // not all inside
 	{
 	    const Coord3 crd = emobj_.getPos( sectionid_,
-		    			      bid.getSerialized() );
+		    			      bid.toInt64() );
 	    if ( !crd.isDefined() || !selector_.includes(crd) )
 		continue;
 	}
-	ids += bid.getSerialized();
+	ids += bid.toInt64();
     }
 
     lock_.lock();

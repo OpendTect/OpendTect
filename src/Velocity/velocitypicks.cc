@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.9 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.10 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -240,7 +240,7 @@ RowCol Picks::set( const BinID& pickbid, const Pick& velpick,
 	if ( hor )
 	{
 	    pick.depth_ = hor->getPos( hor->sectionID(0),
-		    		       pickbid.getSerialized() ).z;
+		    		       pickbid.toInt64() ).z;
 	}
 	else if ( mIsUdf( pick.depth_ ) )
 	    return RowCol(-1,-1);
@@ -480,7 +480,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
     else
     {
 	BinID bid;
-	bid.setSerialized( cbdata.pid0.subID() );
+	bid.fromInt64( cbdata.pid0.subID() );
 	RowCol arrpos;
 	BinID curbid;
 	if ( picks_.findFirst( bid, arrpos ) )
@@ -503,7 +503,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
 	BinID bid;
 	picks_.getPos( rcs[idx], bid );
 	const float depth =
-	    hor->getPos( hor->sectionID(0), bid.getSerialized() ).z;
+	    hor->getPos( hor->sectionID(0), bid.toInt64() ).z;
 
 	if ( mIsUdf(depth) )
 	    continue;
@@ -630,7 +630,7 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 	const Coord coord = SI().transform(bid);
 
 	float* vals = res.getVals( pos );
-	vals[0] = horizon->getPos( horizon->sectionID(0), bid.getSerialized() ).z;
+	vals[0] = horizon->getPos( horizon->sectionID(0), bid.toInt64() ).z;
 
 	float weightsum = 0;
 	float weightvalsum = 0;

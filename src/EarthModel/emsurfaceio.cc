@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.133 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.134 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emsurfaceio.h"
 
@@ -880,7 +880,7 @@ bool dgbSurfaceReader::readVersion1Row( std::istream& strm, int firstcol,
 	if ( !surface_->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
-	surface_->setPos( sectionid, surfrc.getSerialized(), pos, false );
+	surface_->setPos( sectionid, surfrc.toInt64(), pos, false );
 
 	isrowused = true;
     }
@@ -934,7 +934,7 @@ bool dgbSurfaceReader::readVersion2Row( std::istream& strm,
 	if ( !surface_->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
-	surface_->setPos( sectionid, rowcol.getSerialized(), pos, false );
+	surface_->setPos( sectionid, rowcol.toInt64(), pos, false );
 
 	isrowused = true;
     }
@@ -1102,7 +1102,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol,
 	    if ( !surface_->sectionGeometry(sectionid) )
 		createSection( sectionid );
 
-	    surface_->setPos( sectionid, rc.getSerialized(), pos, false );
+	    surface_->setPos( sectionid, rc.toInt64(), pos, false );
 	}
 
 	if ( cube_ )
@@ -1770,7 +1770,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	    				colrange.atIndex(colindex);
 
 	const PosID posid(  surface_.id(), sectionid,
-				RowCol(row,col).getSerialized() );
+				RowCol(row,col).toInt64() );
 	Coord3 pos = surface_.getPos( posid );
 	if ( hor3d && pos.isDefined() )
 	    pos.z += shift_;

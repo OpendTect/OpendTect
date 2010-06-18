@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.103 2009-12-16 15:25:31 cvsjaap Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.104 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -480,7 +480,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    unSetPos( sectionID(idx), removallist[sididx], true );
 
 	    BinID bid;
-	    bid.setSerialized( removallist[sididx] );
+	    bid.fromInt64( removallist[sididx] );
 	    const Coord3 pos = getPos( sectionID(idx), removallist[sididx] );
 	    if ( removebypolyposbox_.isEmpty() )
 	    {

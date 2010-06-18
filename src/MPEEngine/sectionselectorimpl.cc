@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.16 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.17 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "sectionselectorimpl.h"
 
@@ -42,8 +42,8 @@ void BinIDSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
     while ( true )
     {
 	const BinID prevbid = currentbid-plane.motion().binid;
-	const EM::SubID curnode = currentbid.getSerialized();
-	const EM::SubID prevnode = prevbid.getSerialized();
+	const EM::SubID curnode = currentbid.toInt64();
+	const EM::SubID prevnode = prevbid.toInt64();
 	const bool curnodedef = surface_.isDefined( sectionid_, curnode );
 	const bool prevnodedef = surface_.isDefined( sectionid_, prevnode );
 

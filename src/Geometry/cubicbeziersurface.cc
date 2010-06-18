@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.27 2010-06-17 19:00:58 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.28 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -361,7 +361,7 @@ bool CubicBezierSurface::insertRow(int row, int nrtoinsert )
 	    const int currow = origin_.row+idx*step_.row;
 	    for ( int idy=0; idy<curnrcols; idy++ )
 		movedpos +=
-		    RowCol(currow,origin_.col+idy*step_.col).getSerialized();
+		    RowCol(currow,origin_.col+idy*step_.col).toInt64();
 	}
     }
 
@@ -369,7 +369,7 @@ bool CubicBezierSurface::insertRow(int row, int nrtoinsert )
     const int newrow = addedinfront 
 		       ? origin_.row : origin_.row+curnrrows*step_.row;
     for ( int idy=0; idy<curnrcols; idy++ )
-	addedpos += RowCol(newrow,origin_.col+idy*step_.col).getSerialized();
+	addedpos += RowCol(newrow,origin_.col+idy*step_.col).toInt64();
 
     mCloneRowVariable( Coord3, positions, computePosition(param), Coord3::udf())
     mCloneRowVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
@@ -392,7 +392,7 @@ bool CubicBezierSurface::insertCol(int col, int nrtoinsert )
 	    const int curcol = origin_.col+idx*step_.col;
 	    for ( int idy=0; idy<curnrrows; idy++ )
 		movedpos +=
-		    RowCol(origin_.row+idy*step_.row,curcol).getSerialized();
+		    RowCol(origin_.row+idy*step_.row,curcol).toInt64();
 	}
     }
 
@@ -400,7 +400,7 @@ bool CubicBezierSurface::insertCol(int col, int nrtoinsert )
     const int newcol = addedinfront 
 		       ? origin_.col : origin_.col+curnrcols*step_.col;
     for ( int idy=0; idy<curnrrows; idy++ )
-	addedpos += RowCol(origin_.row+idy*step_.row,newcol).getSerialized();
+	addedpos += RowCol(origin_.row+idy*step_.row,newcol).toInt64();
 
     mCloneColVariable( Coord3, positions, computePosition(param), Coord3::udf())
     mCloneColVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
@@ -430,12 +430,12 @@ bool CubicBezierSurface::removeRow( int row )
     for ( int idy=0; idy<curnrcols; idy++ )
     {
 	int curcol = origin_.col + idy*step_.col;
-	removedpos += RowCol( row, curcol ).getSerialized();
+	removedpos += RowCol( row, curcol ).toInt64();
 
 	for ( int idx=rowidx+1; idx<curnrrows; idx++ )
 	{
 	    movedpos += 
-		RowCol( origin_.row + idx*step_.row, curcol ).getSerialized();
+		RowCol( origin_.row + idx*step_.row, curcol ).toInt64();
 	}
     }
 
@@ -506,12 +506,12 @@ bool CubicBezierSurface::removeCol( int col )
     for ( int idx=0; idx<curnrrows; idx++ )
     {
 	int currow = origin_.row + idx*step_.row;
-	removedpos += RowCol( currow, col ).getSerialized();
+	removedpos += RowCol( currow, col ).toInt64();
 
 	for ( int idy=colidx+1; idy<curnrcols; idy++ )
 	{
 	    movedpos += 
-		RowCol( currow, origin_.col + idy*step_.col ).getSerialized();
+		RowCol( currow, origin_.col + idy*step_.col ).toInt64();
 	}
     }
 

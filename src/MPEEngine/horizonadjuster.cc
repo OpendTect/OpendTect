@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.62 2010-05-24 10:48:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.63 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
@@ -159,13 +159,13 @@ int HorizonAdjuster::nextStep()
     for ( int idx=0; idx<pids_.size(); idx++ )
     {
 	BinID targetbid;
-	targetbid.setSerialized( pids_[idx] );
+	targetbid.fromInt64( pids_[idx] );
 	float targetz;
 	bool res;
 	if ( pidsrc_.size() > idx )
 	{
 	    BinID refbid;
-	    refbid.setSerialized( pidsrc_[idx] );
+	    refbid.fromInt64( pidsrc_[idx] );
 	    res = track( refbid, targetbid, targetz );
 	}
 	else
@@ -222,9 +222,9 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
     const OffsetValueSeries<float> toarr( 
 		    const_cast<ValueSeries<float>&>(*storage), tooffset ); 
 
-    if ( !horizon_.isDefined(sectionid_, to.getSerialized()) )
+    if ( !horizon_.isDefined(sectionid_, to.toInt64()) )
 	return false;
-    const float startz = horizon_.getPos( sectionid_, to.getSerialized() ).z;
+    const float startz = horizon_.getPos( sectionid_, to.toInt64() ).z;
     tracker_->setRangeStep( sd.step );
 
     tracker_->setTarget( &toarr, zsz, sd.getIndex(startz) );
@@ -256,9 +256,9 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 
 	const OffsetValueSeries<float> fromarr( 
 		    const_cast<ValueSeries<float>&>(*storage), fromoffset ); 
-	if ( !horizon_.isDefined(sectionid_, from.getSerialized()) )
+	if ( !horizon_.isDefined(sectionid_, from.toInt64()) )
 	    return false;
-	const float fromz = horizon_.getPos(sectionid_,from.getSerialized()).z;
+	const float fromz = horizon_.getPos(sectionid_,from.toInt64()).z;
 	tracker_->setSource( &fromarr, zsz, sd.getIndex(fromz) );
 
 	if ( !tracker_->isOK() )
@@ -343,9 +343,9 @@ const BinID HorizonAdjuster::attrDataBinId( const BinID& bid ) const
 
 void HorizonAdjuster::setHorizonPick(const BinID&  bid, float val )
 {
-    Coord3 pos = horizon_.getPos( sectionid_, bid.getSerialized() );
+    Coord3 pos = horizon_.getPos( sectionid_, bid.toInt64() );
     pos.z = val;
-    horizon_.setPos( sectionid_, bid.getSerialized(), pos, setundo_ );
+    horizon_.setPos( sectionid_, bid.toInt64(), pos, setundo_ );
 }
 
 

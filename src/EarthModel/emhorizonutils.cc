@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonutils.cc,v 1.21 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizonutils.cc,v 1.22 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emhorizonutils.h"
 
@@ -31,7 +31,7 @@ namespace EM
     
 float HorizonUtils::getZ( const RowCol& rc, const Surface* surface )
 {
-    const SubID subid = rc.getSerialized();
+    const SubID subid = rc.toInt64();
 
     float bottomz=-mUdf(float);
     for ( int idx=surface->nrSections()-1; idx>=0; idx-- )
@@ -366,7 +366,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 	while ( bivs.next(pos) )
 	{
 	    bivs.get( pos, bid, vals );
-	    const SubID subid = RowCol(bid.inl,bid.crl).getSerialized();
+	    const SubID subid = RowCol(bid.inl,bid.crl).toInt64();
 	    posid.setSubID( subid );
 	    for ( int validx=1; validx<vals.size(); validx++ )
 		horizon->auxdata.setAuxDataVal( validx-1, posid, vals[validx] );

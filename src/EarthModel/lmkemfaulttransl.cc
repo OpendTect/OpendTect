@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.5 2009-09-11 08:39:55 cvsbert Exp $";
+static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.6 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "lmkemfaulttransl.h"
 
@@ -245,7 +245,7 @@ int lmkEMFault3DReader::nextStep()
     }
     else
     {
-	const EM::SubID subid( newnode.getSerialized() );
+	const EM::SubID subid( newnode.toInt64() );
 	fault.geometry().insertKnot( 0, subid, pos, false );
     }
 

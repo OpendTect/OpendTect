@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.14 2010-02-04 17:20:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.15 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emfault3d.h"
 
@@ -279,7 +279,7 @@ bool Fault3DGeometry::insertStick( const SectionID& sid, int sticknr,
 
     if ( addtohistory )
     {
-	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).getSerialized());
+	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).toInt64());
 	UndoEvent* undo = new FaultStickUndoEvent( posid );
 	EMM().undo().addEvent( undo, 0 );
     }
@@ -316,7 +316,7 @@ bool Fault3DGeometry::removeStick( const SectionID& sid, int sticknr,
 
     if ( addtohistory )
     {
-	const PosID posid( surface_.id(), sid, rc.getSerialized() );
+	const PosID posid( surface_.id(), sid, rc.toInt64() );
 
 	UndoEvent* undo = new FaultStickUndoEvent( posid, pos, normal );
 	EMM().undo().addEvent( undo, 0 );
@@ -336,7 +336,7 @@ bool Fault3DGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 {
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
     RowCol rc;
-    rc.setSerialized( subid );
+    rc.fromInt64( subid );
     if ( !fss || !fss->insertKnot(rc,pos) )
 	return false;
 
@@ -370,7 +370,7 @@ bool Fault3DGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     if ( !fss ) return false;
 
     RowCol rc;
-    rc.setSerialized( subid );
+    rc.fromInt64( subid );
     const Coord3 pos = fss->getKnot( rc );
 
     if ( !pos.isDefined() || !fss->removeKnot(rc) )
@@ -619,7 +619,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
 	{
 	    const RowCol rc( sticknr, crdidx );
-	    flt.geometry().insertKnot( sid, rc.getSerialized(),
+	    flt.geometry().insertKnot( sid, rc.toInt64(),
 		    		       stick->crds_[crdidx], false );
 	}
 

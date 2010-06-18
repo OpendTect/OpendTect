@@ -7,116 +7,134 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.19 2010-04-09 07:58:38 cvsbert Exp $
+ RCS:		$Id: rcol.h,v 1.20 2010-06-18 12:23:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-
-/*!\brief Object with row and col, which are accesable through r() and c(). */
-
 #include "gendefs.h"
-#include "plftypes.h"
-template <class T> class TypeSet;
 
 
-mClass RCol 
-{
-public:
-
-    virtual		~RCol() {}
-    int&		operator[](int idx) { return idx ? c() : r(); }
-    int			operator[](int idx) const { return idx ? c() : r(); }
-    virtual int&	r() 				= 0;
-    virtual int		r() const			= 0;
-
-    virtual int&	c() 				= 0;
-    virtual int		c() const			= 0;
-
-    inline od_int64	getSerialized() const;
-    inline void		setSerialized( od_int64 );
-
-    const RCol&		operator+=( const RCol& rc )
-			{ r() += rc.r(); c() += rc.c(); return *this; }
-    const RCol&		operator-=( const RCol& rc )
-			{ r() -= rc.r(); c() -= rc.c(); return *this; }
-    const RCol&		operator*=( const RCol& rc )
-			{ r() *= rc.r(); c() *= rc.c(); return *this; }
-    const RCol&		operator*=( int factor )
-			{ r() *= factor; c() *= factor;  return *this; } 
-    const RCol&		operator/=( const RCol& rc )
-			{ r() /= rc.r(); c() /= rc.c();  return *this; } 
-    const RCol&		operator=( const RCol& rc )
-			{ r()=rc.r(); c() = rc.c(); return *this; }
-
-    bool		operator==( const RCol& rc ) const
-			{ return r()==rc.r() && c()==rc.c(); }
-    bool		operator!=( const RCol& rc ) const
-			{ return !(*this==rc); }
-
-    bool		isNeighborTo( const RCol&, const RCol& step,
-	    			      bool eightconnectivity=true ) const;
-    			/*!<\returns true if the object is a neighbor with the 
-			   provided RCol. The neighborhood is defined with
-			   either eight- or four-connectivity */
-
-    float		angleTo(const RCol&) const;
-			/*!<\returns the smallest angle between the vector
-			      going from 0,0 to the object and the vector
-			      going from 0,0 to rc.*/
-    float		clockwiseAngleTo(const RCol& rc) const;
-    			/*!<\returns the angle between the vector going from
-			     0,0 to the object and the vector going from 0,0
-			     to rc in the clockwise direction.*/
-    float		counterClockwiseAngleTo(const RCol&) const;
-			/*!<\returns the angle between the vector going from
-			      0,0 to the object and the vector going from 0,0
-			      to rc in the counterclockwise direction.*/
-
-    int			sqDistTo(const RCol& rc) const;
-    			/*!<\returns the square of the distance between this
-			  	     object and the provided one. The square
-				     distance is easier to compute than the
-				     real one, so if the distance only should
-				     be compared with other distances, the
-				     comparison can equally well be done
-				     on squared distances. */
-
-    void		fill(char*) const;
-    bool		use(const char*);
-
-};
+/*Macros that implement functions on RowCol and BinID. */
 
 
-#define mRowColFunctions(clss, row, col) \
-clss	operator+( const RCol& rc ) const \
-	{ return clss( row+rc.r(), col+rc.c() ); } \
-clss	operator-( const RCol& rc ) const \
-	{ return clss( row-rc.r(), col-rc.c() ); } \
-clss	operator+() const { return clss( +row, +col ); } \
-clss	operator-() const { return clss( -row, -col ); } \
-clss	operator*( const RCol& rc ) const \
-	{ return clss( row*rc.r(), col*rc.c() ); } \
-clss	operator*( int factor ) const \
-	{ return clss( row*factor, col*factor ); } \
-clss	operator/( const RCol& rc ) const \
-	{ return clss( row/rc.r(), col/rc.c() ); } \
-clss	operator/( int denominator ) const \
-	{ return clss( row/denominator, col/denominator ); }
-
-
-inline od_int64 RCol::getSerialized() const
-{
-    return (((od_uint64) r() )<<32)+
-	    ((od_uint64) c() &  0xFFFFFFFF);
-}
+#define mImplInlineRowColFunctions(clss, row, col) \
+inline clss::clss( int r, int c ) : row(r), col(c) {}       \
+inline clss::clss( const clss& rc ) : row(rc.row), col(rc.col) {}       \
+inline clss::clss( const od_int64& ser )   { fromInt64(ser); } \
+inline clss::clss() : row( 0 ), col ( 0 )  {} \
+inline bool clss::operator==(const clss& rc ) const \
+	    { return row==rc.row && col==rc.col; }  \
+inline bool clss::operator!=(const clss& rc ) const \
+	    { return row!=rc.row || col!=rc.col; }  \
+inline clss clss::operator+( const clss& rc ) const \
+	    { return clss( row+rc.row, col+rc.col ); } \
+inline clss clss::operator-( const clss& rc ) const \
+	    { return clss( row-rc.row, col-rc.col ); } \
+inline clss clss::operator+() const { return clss( +row, +col ); } \
+inline clss clss::operator-() const { return clss( -row, -col ); } \
+inline clss clss::operator*( const clss& rc ) const \
+	    { return clss( row*rc.row, col*rc.col ); } \
+inline clss clss::operator*( int factor ) const \
+	    { return clss( row*factor, col*factor ); } \
+inline clss clss::operator/( const clss& rc ) const \
+	    { return clss( row/rc.row, col/rc.col ); } \
+inline clss clss::operator/( int denominator ) const \
+	    { return clss( row/denominator, col/denominator ); } \
+inline const clss& clss::operator+=( const clss& rc ) \
+	    { row += rc.row; col += rc.col; return *this; } \
+inline const clss& clss::operator-=( const clss& rc ) \
+	    { row -= rc.row; col -= rc.col; return *this; } \
+inline const clss& clss::operator*=( const clss& rc ) \
+	    { row *= rc.row; col *= rc.col; return *this; } \
+inline const clss& clss::operator*=( int factor ) \
+	    { row *= factor; col *= factor;  return *this; }  \
+inline const clss& clss::operator/=( const clss& rc ) \
+	    { row /= rc.row; col /= rc.col;  return *this; }  \
+inline int& clss::operator[](int idx) { return idx ? row : col; } \
+inline int clss::operator[](int idx) const { return idx ? row : col; } \
+inline int clss::toInt32() const \
+{ return (((unsigned int) row)<<16)+ ((unsigned int) col & 0xFFFF); } \
+inline void clss::fromInt32(int ll) \
+{ row = ll>>16; col = ((short)(ll&0xFFFF)); } \
+inline od_int64 clss::toInt64() const \
+{ \
+    return (((od_uint64) row )<<32)+ \
+	    ((od_uint64) col &  0xFFFFFFFF); \
+} \
+inline void clss::fromInt64( od_int64 serialized ) \
+{ \
+    row = (od_int32) (serialized>>32); \
+    col = (od_int32) (serialized & 0xFFFFFFFF); \
+} \
+ \
+ \
+inline int clss::sqDistTo( const clss& rc ) const \
+{ \
+    const int rdist = (row-rc.row); const int cdist = (col-rc.col); \
+    return rdist*rdist+cdist*cdist; \
+} \
+ \
+ \
 
 
 
-inline void RCol::setSerialized( od_int64 serialized )
-{
-    r() = (od_int32) (serialized>>32);
-    c() = (od_int32) (serialized & 0xFFFFFFFF);
+#define mImplRowColFunctions(clss, row, col) \
+void	clss::fill(char* str) const \
+{ \
+    if ( !str ) return; \
+    sprintf( str, "%d/%d", row, col ); \
+} \
+ \
+bool	clss::use(const char* str) \
+{ \
+    if ( !str || !*str ) return false; \
+ \
+    static BufferString buf; buf = str; \
+    char* ptr = strchr( buf.buf(), '/' ); \
+    if ( !ptr ) return false; \
+    *ptr++ = '\0'; \
+    row = atoi( buf.buf() ); col = atoi( ptr ); \
+    return true; \
+} \
+ \
+bool clss::isNeighborTo( const clss& rc, const clss& step, \
+		         bool eightconnectivity ) const \
+{ \
+    const clss diff(abs(row-rc.row),abs(row-rc.row)); \
+    const bool areeightconnected = diff.row<=step.row && diff.col<=step.row && \
+	                                 !(!diff.row && !diff.col); \
+    if ( eightconnectivity ) \
+	return areeightconnected; \
+ \
+    const int res = int(diff.row>0) + int(diff.col>0); \
+    return areeightconnected && res<2; \
+} \
+ \
+ \
+od_int64 clss::getSerialized() const \
+{ \
+    static bool didwarn = false; \
+    if ( !didwarn ) \
+    { \
+	pErrMsg("Legacy, use toInt64 instead" ); \
+	didwarn = true; \
+    } \
+ \
+    return toInt64(); \
+} \
+ \
+ \
+void clss::setSerialized(od_int64 ll) \
+{ \
+    static bool didwarn = false; \
+    if ( !didwarn ) \
+    { \
+	pErrMsg("Legacy, use fromInt64 instead" ); \
+	didwarn = true; \
+    } \
+ \
+    fromInt64( ll ); \
 }
 
 

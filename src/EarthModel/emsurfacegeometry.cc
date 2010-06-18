@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.50 2010-05-10 15:34:07 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.51 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -398,13 +398,13 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sid,
 	{
 	    if ( isDefined(sid,rc) )
 	    {
-		Coord3 pos = surface_.getPos( sid, rc.getSerialized() );
+		Coord3 pos = surface_.getPos( sid, rc.toInt64() );
 		if ( t2dfunc )
 		    pos.z = t2dfunc->getValue( pos.z );
 
 		double dist = pos.distance( origpos );
 		toplist.addValue( dist,
-			      PosID(surface_.id(),sid,rc.getSerialized()) );
+			      PosID(surface_.id(),sid,rc.toInt64()) );
 	    
 	    }
 	}
@@ -549,7 +549,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
 		for ( ; colrange.includes( idx.col ); idx.col+=colrange.step )
 		{
 		    if ( isDefined(sid,idx) )
-			nodes += PosID(surface_.id(),sid,idx.getSerialized());
+			nodes += PosID(surface_.id(),sid,idx.toInt64());
 		}
 	    }
 	}
@@ -803,7 +803,7 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
     const SectionID sid = nodealias.sectionID(); \
     const RowCol noderc(nodealias.subID()); \
     const RowCol neighborrc( noderc.row rowdiff, noderc.col coldiff ); \
-    coordname = surface_.getPos(sid, neighborrc.getSerialized()); \
+    coordname = surface_.getPos(sid, neighborrc.toInt64()); \
     defname = coordname.isDefined(); \
     if ( defname ) \
     { \

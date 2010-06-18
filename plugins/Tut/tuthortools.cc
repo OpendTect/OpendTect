@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tuthortools.cc,v 1.11 2010-02-09 05:15:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: tuthortools.cc,v 1.12 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "tuthortools.h"
 #include "emhorizon3d.h"
@@ -95,7 +95,7 @@ int Tut::ThicknessCalculator::nextStep()
 
     for ( EM::SectionID isect=0; isect<nrsect; isect++ )
     {
-	const EM::SubID subid = bid_.getSerialized();
+	const EM::SubID subid = bid_.toInt64();
 	const float z1 = horizon1_->getPos( isect, subid ).z;
 	const float z2 = horizon2_->getPos( isect, subid ).z;
 		        
@@ -142,7 +142,7 @@ int Tut::HorSmoother::nextStep()
 	    {
 		const BinID binid = BinID( bid_.inl + inloffs * hs_.step.inl,
 					   bid_.crl + crloffs * hs_.step.crl );
-		const EM::SubID subid = binid.getSerialized();
+		const EM::SubID subid = binid.toInt64();
 		const float z = horizon1_->getPos( isect, subid ).z;
 		if ( mIsUdf(z) ) continue;
 		sum += z; count++;
@@ -150,7 +150,7 @@ int Tut::HorSmoother::nextStep()
 	}
 	float val = count ? sum / count : mUdf(float);
 
-	subid_ = bid_.getSerialized();
+	subid_ = bid_.toInt64();
 	Coord3 pos = horizon1_->getPos( isect, subid_ );
 	pos.z = val;
 	horizon1_->setPos( isect, subid_, pos, false );

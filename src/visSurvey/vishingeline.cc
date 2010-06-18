@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishingeline.cc,v 1.20 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vishingeline.cc,v 1.21 2010-06-18 12:23:27 cvskris Exp $";
 
 
 #include "vishingeline.h"
@@ -235,7 +235,7 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 		    continue;
 		}
 
-		const Coord3 pos = surface.getPos(section,rc.getSerialized());
+		const Coord3 pos = surface.getPos(section,rc.toInt64());
 		if ( !pos.isDefined() )
 		{
 		    polyline->setCoordIndex( coordindexindex, -1 );

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultextender.cc,v 1.8 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: faultextender.cc,v 1.9 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "faultextender.h"
 
@@ -169,7 +169,7 @@ int FaultExtender::nextStep()
 
 	    const Coord3 newpos = surface->getKnot(rc) +
 						   growthdir*dirvector.abs();
-	    fault.setPos( sid, targetrc.getSerialized(), newpos, true );
+	    fault.setPos( sid, targetrc.toInt64(), newpos, true );
 
 	    changednodes += targetrc;
 	}
@@ -216,7 +216,7 @@ int FaultExtender::nextStep()
 			if ( addedrc.row>=newrow )
 			{
 			    addedrc.row += rowrange.step;
-			    addedpos[idz] = addedrc.getSerialized();
+			    addedpos[idz] = addedrc.toInt64();
 			}
 		    }
 
@@ -256,7 +256,7 @@ int FaultExtender::nextStep()
 			if ( addedrc.col>=newcol )
 			{
 			    addedrc.col += colrange.step;
-			    addedpos[idz] = addedrc.getSerialized();
+			    addedpos[idz] = addedrc.toInt64();
 			}
 		    }
 
@@ -276,9 +276,9 @@ int FaultExtender::nextStep()
 
 	for ( int idy=0; idy<changednodes.size(); idy++ )
 	{
-	    const GeomPosID pid = changednodes[idy].getSerialized();
+	    const GeomPosID pid = changednodes[idy].toInt64();
 	    if ( addedpos.indexOf(pid)==-1 )
-		addTarget(pid, rcs[idx].getSerialized() );
+		addTarget(pid, rcs[idx].toInt64() );
 	}
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.17 2009-11-13 17:59:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.18 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emhor2dto3d.h"
 
@@ -250,7 +250,7 @@ int Hor2DTo3D::nextStep()
 	    const Coord3 pos( SI().transform(bid), sd.arr_.get(inlidx,crlidx) );
 
 	    if ( pos.isDefined() ) 
-		hor3d_.setPos( sid, bid.getSerialized(), pos, false );
+		hor3d_.setPos( sid, bid.toInt64(), pos, false );
 	}
     }
 

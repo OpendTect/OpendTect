@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.32 2009-12-16 06:03:19 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.33 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emhorizon2d.h"
 
@@ -211,9 +211,9 @@ PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
 	const RowCol neighborrc( ownrc.row,
 		nextcol ? ownrc.col+colstep : ownrc.col-colstep );
 
-	if ( surface_.isDefined( sid, neighborrc.getSerialized() ) ||
+	if ( surface_.isDefined( sid, neighborrc.toInt64() ) ||
 	     (!retundef && idx==nraliases-1) )
-	    return PosID( surface_.id(), sid, neighborrc.getSerialized() );
+	    return PosID( surface_.id(), sid, neighborrc.toInt64() );
     }
 
     return PosID::udf();
@@ -373,7 +373,7 @@ Coord3 Horizon2D::getPos( const EM::SectionID& sid, const EM::SubID& sub ) const
 
 Coord3 Horizon2D::getPos( EM::SectionID sid, int lineidx, int trcnr ) const
 {
-    return getPos( sid, RowCol(lineidx,trcnr).getSerialized() );
+    return getPos( sid, RowCol(lineidx,trcnr).toInt64() );
 }
 
 
@@ -381,7 +381,7 @@ TypeSet<Coord3> Horizon2D::getPositions( int lineidx, int trcnr ) const
 {
     TypeSet<Coord3> crds;
     for ( int idx=0; idx<nrSections(); idx++ )
-	crds += getPos( sectionID(idx), RowCol(lineidx,trcnr).getSerialized() );
+	crds += getPos( sectionID(idx), RowCol(lineidx,trcnr).toInt64() );
     return crds;
 }
 

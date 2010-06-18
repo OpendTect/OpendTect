@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.27 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.28 2010-06-18 12:23:27 cvskris Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -344,7 +344,7 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
-	    posid.setSubID( RowCol(row,col).getSerialized() );
+	    posid.setSubID( RowCol(row,col).toInt64() );
 	    const float val = getAuxDataVal( dataidx, posid);
 	    arr->set( rowrg.getIndex(row), colrg.getIndex(col), val );
 	}
@@ -369,7 +369,7 @@ void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
-	    posid.setSubID( RowCol(row,col).getSerialized() );
+	    posid.setSubID( RowCol(row,col).toInt64() );
 	    const float val = arr2d.get( rowrg.getIndex(row),
 		    			 colrg.getIndex(col) );
 	    setAuxDataVal( dataidx, posid, val );
