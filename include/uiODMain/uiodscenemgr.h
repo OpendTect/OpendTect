@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.75 2010-05-20 07:17:31 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.76 2010-06-21 11:42:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,9 +21,10 @@ class BufferStringSet;
 class MultiID;
 class uiDockWin;
 class uiFlatViewWin;
-class uiGroup;
 class uiLabel;
 class uiListView;
+class uiMdiArea;
+class uiMdiAreaWindow;
 class uiODTreeTop;
 class uiODViewer2D;
 class uiSliderExtra;
@@ -32,8 +33,6 @@ class uiThumbWheel;
 class uiTreeFactorySet;
 class uiTreeItem;
 class uiWindowGrabber;
-class uiWorkSpace;
-class uiWorkSpaceGroup;
 class ZAxisTransform;
 
 namespace EM { class HorizonPainter; }
@@ -159,23 +158,23 @@ protected:
     mClass Scene
     {
     public:
-				Scene(uiWorkSpace*);
+				Scene(uiMdiArea*);
 				~Scene();
        
 	uiDockWin*		dw_;
 	uiListView*		lv_;
-	uiWorkSpaceGroup* 	wsgrp_;
+	uiMdiAreaWindow* 	mdiwin_;
 	uiSoViewer*		sovwr_;
 	uiODTreeTop*		itemmanager_;
     };
 
     uiODMain&			appl_;
-    uiWorkSpace*		wsp_;
+    uiMdiArea*			mdiarea_;
     ObjectSet<Scene>		scenes_;
     ObjectSet<uiODViewer2D>	viewers2d_;
     uiODViewer2D&		addViewer2D(int visid);
     uiODViewer2D*		find2DViewer(int visid);
-    void			wspChanged(CallBacker*);
+    void			mdiAreaChanged(CallBacker*);
 
     int				vwridx_;
     float			lasthrot_, lastvrot_, lastdval_;

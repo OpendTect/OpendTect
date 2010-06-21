@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2008
- RCS:           $Id: uimdiarea.h,v 1.3 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uimdiarea.h,v 1.4 2010-06-21 11:42:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,21 +22,28 @@ class uiMdiAreaBody;
 class QMdiArea;
 class QMdiSubWindow;
 
-class uiMdiAreaGroup : public uiGroup
+class uiMdiAreaWindow : public uiGroup
 {
 public:
-    			uiMdiAreaGroup(const char* nm=0);
-			~uiMdiAreaGroup()	{}
+    			uiMdiAreaWindow(const char* nm=0);
+			~uiMdiAreaWindow()	{}
 
     void		setTitle(const char*);
     const char*		getTitle() const;
 
     void		setIcon(const char* img[]);
 
+    void		show();
+    void		close();
+    void		showMinimized();
+    void		showMaximized();
+    bool		isMinimized() const;
+    bool		isMaximized() const;
+
     NotifierAccess&	closed();
     QMdiSubWindow*	qWidget();
 
-    Notifier<uiMdiAreaGroup> changed;
+    Notifier<uiMdiAreaWindow> changed;
 
 protected:
     QMdiSubWindow*	qmdisubwindow_;
@@ -55,13 +62,16 @@ public:
     void		tileVertical();
     void		tile();
     void		cascade();
-    void		addGroup(uiMdiAreaGroup*);
     void		closeAll();
 
+    void		addWindow(uiMdiAreaWindow*);
+    uiMdiAreaWindow*	getWindow(const char*);
+    const uiMdiAreaWindow* getWindow(const char*) const;
+
     void		setActiveWin(const char*);
-    void		setActiveWin(uiMdiAreaGroup*);
+    void		setActiveWin(uiMdiAreaWindow*);
     const char*		getActiveWin() const;
-    void		getWindowNames(BufferStringSet&);
+    void		getWindowNames(BufferStringSet&) const;
 
     Notifier<uiMdiArea> windowActivated;
 
@@ -70,10 +80,16 @@ protected:
     uiMdiAreaBody&	mkbody(uiParent*,const char*);
     uiMdiAreaBody*	body_;
 
-    ObjectSet<uiMdiAreaGroup> grps_;
+    ObjectSet<uiMdiAreaWindow> grps_;
 
     void		grpClosed(CallBacker*);
     void		grpChanged(CallBacker*);
+
+public:
+			// Temporarily prevent some Qt feedback loop to change
+			// active window (solves problems when disabling data
+			// tree or when Scenes-menu overlaps workspace)
+    bool		paralyse(bool yn);
 };
 
 #endif

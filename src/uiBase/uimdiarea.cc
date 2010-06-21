@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimdiarea.cc,v 1.5 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uimdiarea.cc,v 1.6 2010-06-21 11:42:39 cvsnanne Exp $";
 
 #include "uimdiarea.h"
 #include "i_qmdiarea.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uimdiarea.cc,v 1.5 2009-07-22 16:01:38 cvsbert 
 #include "uiobjbody.h"
 #include "bufstringset.h"
 
+#include <QApplication>
 #include <QIcon>
 #include <QMdiSubWindow>
 
@@ -68,7 +69,7 @@ void uiMdiArea::tileVertical()
 	if ( widget && !widget->isHidden() )
 	    nrvisiblewindows++;
     }
-    
+
     if ( nrvisiblewindows == 0 ) return;
 
     const int wswidth = body_->frameSize().width();
@@ -80,16 +81,10 @@ void uiMdiArea::tileVertical()
 	QMdiSubWindow* widget = windows.at( idx );
 	if ( widget->isHidden() ) continue;
 
-	if ( widget->isMaximized() )
-	{
-	    widget->hide();
-	    widget->showNormal();
-	}
-
+	widget->showNormal();
 	const int prefheight = widget->minimumHeight() + 
-	    			widget->parentWidget()->baseSize().height();
+			       widget->parentWidget()->baseSize().height();
 	const int actheight = mMAX( avgheight, prefheight );
-
 	widget->setGeometry( 0, y, wswidth, actheight );
 	y += actheight;
     }
@@ -108,7 +103,7 @@ void uiMdiArea::tileHorizontal()
 	if ( widget && !widget->isHidden() )
 	    nrvisiblewindows++;
     }
-    
+
     if ( nrvisiblewindows == 0 ) return;
 
     const int wswidth = body_->frameSize().width();
@@ -120,23 +115,17 @@ void uiMdiArea::tileHorizontal()
 	QMdiSubWindow* widget = windows.at( idx );
 	if ( widget->isHidden() ) continue;
 
-	if ( widget->isMaximized() )
-	{
-	    widget->hide();
-	    widget->showNormal();
-	}
-
+	widget->showNormal();
 	const int prefwidth = widget->minimumWidth() + 
-	    			widget->parentWidget()->baseSize().width();
+			      widget->parentWidget()->baseSize().width();
 	const int actwidth = mMAX( avgwidth, prefwidth );
-
 	widget->setGeometry( x, 0, actwidth, wsheight );
 	x += actwidth;
     }
 }
 
 
-void uiMdiArea::addGroup( uiMdiAreaGroup* grp )
+void uiMdiArea::addWindow( uiMdiAreaWindow* grp )
 {
     if ( !grp || !grp->pbody() ) return;
 
@@ -149,12 +138,28 @@ void uiMdiArea::addGroup( uiMdiAreaGroup* grp )
 }
 
 
+uiMdiAreaWindow* uiMdiArea::getWindow( const char* nm )
+{
+    for ( int idx=0; idx<grps_.size(); idx++ )
+    {
+	if ( !strcmp(nm,grps_[idx]->getTitle()) )
+	    return grps_[idx];
+    }
+
+    return 0;
+}
+
+
+const uiMdiAreaWindow* uiMdiArea::getWindow( const char* nm ) const
+{ return const_cast<uiMdiArea*>(this)->getWindow( nm ); }
+
+
 void uiMdiArea::grpClosed( CallBacker* cb )
 {
     mDynamicCastGet(uiObject*,uiobj,cb)
     if ( !uiobj ) return;
 
-    uiMdiAreaGroup* grp = 0;
+    uiMdiAreaWindow* grp = 0;
     for ( int idx=0; idx<grps_.size(); idx++ )
     {
 	if ( grps_[idx]->mainObject() != uiobj )
@@ -182,7 +187,7 @@ void uiMdiArea::closeAll()
 }
 
 
-void uiMdiArea::setActiveWin( uiMdiAreaGroup* grp )
+void uiMdiArea::setActiveWin( uiMdiAreaWindow* grp )
 {
     if ( !grp ) return;
     body_->setActiveSubWindow( grp->qWidget() );
@@ -190,16 +195,7 @@ void uiMdiArea::setActiveWin( uiMdiAreaGroup* grp )
 
 
 void uiMdiArea::setActiveWin( const char* nm )
-{
-    for ( int idx=0; idx<grps_.size(); idx++ )
-    {
-	if ( strcmp(nm,grps_[idx]->getTitle()) )
-	    continue;
-
-	body_->setActiveSubWindow( grps_[idx]->qWidget() );
-	return;
-    }
-}
+{ setActiveWin( getWindow(nm) ); }
 
 
 const char* uiMdiArea::getActiveWin() const
@@ -211,15 +207,24 @@ const char* uiMdiArea::getActiveWin() const
 }
 
 
-void uiMdiArea::getWindowNames( BufferStringSet& nms )
+void uiMdiArea::getWindowNames( BufferStringSet& nms ) const
 {
     for ( int idx=0; idx<grps_.size(); idx++ )
 	nms.add( grps_[idx]->getTitle() );
 }
 
 
+bool uiMdiArea::paralyse( bool yn )
+{
+    const bool oldstate = !sensitive();
+    if ( !yn ) QApplication::processEvents();
+    setSensitive( !yn );
+    return oldstate;
+}
 
-uiMdiAreaGroup::uiMdiAreaGroup( const char* nm )
+
+// uiMdiAreaWindow
+uiMdiAreaWindow::uiMdiAreaWindow( const char* nm )
     : uiGroup(0,nm)
     , changed(this)
 {
@@ -229,14 +234,14 @@ uiMdiAreaGroup::uiMdiAreaGroup( const char* nm )
 }
 
 
-void uiMdiAreaGroup::setTitle( const char* nm )
+void uiMdiAreaWindow::setTitle( const char* nm )
 {
     qmdisubwindow_->setWindowTitle( nm );
     changed.trigger();
 }
 
 
-const char* uiMdiAreaGroup::getTitle() const
+const char* uiMdiAreaWindow::getTitle() const
 {
     static BufferString title;
     title = mQStringToConstChar( qmdisubwindow_->windowTitle() );
@@ -244,15 +249,27 @@ const char* uiMdiAreaGroup::getTitle() const
 }
 
 
-void uiMdiAreaGroup::setIcon( const char* img[] )
+void uiMdiAreaWindow::setIcon( const char* img[] )
 {
     if ( !img ) return;
     qmdisubwindow_->setWindowIcon( QIcon(img) );
 }
 
 
-NotifierAccess& uiMdiAreaGroup::closed()
+NotifierAccess& uiMdiAreaWindow::closed()
 { return mainObject()->closed; }
 
-QMdiSubWindow* uiMdiAreaGroup::qWidget()
+QMdiSubWindow* uiMdiAreaWindow::qWidget()
 { return qmdisubwindow_; }
+
+void uiMdiAreaWindow::show()		{ qmdisubwindow_->showNormal(); }
+void uiMdiAreaWindow::close()		{ qmdisubwindow_->close(); }
+void uiMdiAreaWindow::showMinimized()	{ qmdisubwindow_->showMinimized(); }
+void uiMdiAreaWindow::showMaximized()	{ qmdisubwindow_->showMaximized(); }
+
+bool uiMdiAreaWindow::isMinimized() const
+{ return qmdisubwindow_->isMinimized(); }
+
+bool uiMdiAreaWindow::isMaximized() const
+{ return qmdisubwindow_->isMaximized(); }
+
