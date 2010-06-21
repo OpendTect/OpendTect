@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpserver.cc,v 1.8 2010-06-21 06:13:08 cvsranojay Exp $";
+static const char* rcsID = "$Id: tcpserver.cc,v 1.9 2010-06-21 06:23:18 cvsnanne Exp $";
 
 #include "tcpserver.h"
 
-#include "msvcdefs.h"
 #include "qtcpservercomm.h"
 #include "tcpsocket.h"
 
