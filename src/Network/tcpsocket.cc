@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpsocket.cc,v 1.6 2010-05-20 09:46:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: tcpsocket.cc,v 1.7 2010-06-21 06:13:08 cvsranojay Exp $";
 
 #include "tcpsocket.h"
 #include "qtcpsocketcomm.h"
@@ -24,12 +24,14 @@ static const char* rcsID = "$Id: tcpsocket.cc,v 1.6 2010-05-20 09:46:53 cvsranoj
 
 TcpSocket::TcpSocket()
     : qtcpsocket_(new QTcpSocket)
+    , id_(0)
     mInit
 {}
 
 
-TcpSocket::TcpSocket( QTcpSocket* qsocket )
+TcpSocket::TcpSocket( QTcpSocket* qsocket, const int id )
     : qtcpsocket_(qsocket)
+    , id_(id)
     mInit
 {}
 
@@ -63,8 +65,7 @@ bool TcpSocket::waitForConnected( int msec )
 bool TcpSocket::waitForReadyRead( int msec )
 { return qtcpsocket_->waitForReadyRead( msec ); }
 
-int TcpSocket::write( const char* str ) const
-{ return qtcpsocket_->write( str ); }
+
 
 void TcpSocket::read( BufferString& str ) const
 {
@@ -73,7 +74,11 @@ void TcpSocket::read( BufferString& str ) const
 }
 
 
-int TcpSocket::write( const IOPar& par ) const
+int TcpSocket::write( const char* str )
+{ return qtcpsocket_->write( str ); }
+
+
+int TcpSocket::write( const IOPar& par ) 
 {
     BufferString buf;
     par.putTo( buf );

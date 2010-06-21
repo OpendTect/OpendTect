@@ -7,13 +7,22 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpserver.cc,v 1.7 2010-05-20 10:11:00 cvsranojay Exp $";
+static const char* rcsID = "$Id: tcpserver.cc,v 1.8 2010-06-21 06:13:08 cvsranojay Exp $";
 
 #include "tcpserver.h"
+
+#include "msvcdefs.h"
 #include "qtcpservercomm.h"
 #include "tcpsocket.h"
 
 #include <QTcpSocket>
+
+static int sockid = 0;
+
+const int getNewID()
+{
+    return ++sockid;
+}
 
 
 TcpServer::TcpServer()
@@ -21,7 +30,6 @@ TcpServer::TcpServer()
     , comm_(new QTcpServerComm(qtcpserver_,this))
     , newConnection(this)
     , readyRead(this)
-    , tcpsocket_(0)
 {
     newConnection.notify( mCB(this,TcpServer,newConnectionCB) );
 }
@@ -65,59 +73,76 @@ QTcpSocket* TcpServer::nextPendingConnection()
 { return qtcpserver_->nextPendingConnection(); }
 
 
-int TcpServer::write( const char* str )
-{
-    return tcpsocket_ ? tcpsocket_->write( str ) : 0;
-}
-
-
 void TcpServer::newConnectionCB( CallBacker* )
 {
     if ( !hasPendingConnections() )
 	return;
 
-    if ( !tcpsocket_ )
+    TcpSocket* tcpsocket = new TcpSocket( nextPendingConnection(), getNewID() );
+    tcpsocket->readyRead.notify( mCB(this,TcpServer,readyReadCB));
+    tcpsocket->disconnected.notify( mCB(this,TcpServer,disconnectCB) );
+    sockets_ += tcpsocket;
+}
+
+
+void TcpServer::readyReadCB( CallBacker* cb )
+{
+    mDynamicCastGet(TcpSocket*,socket,cb);
+    if ( !socket ) return;
+
+    readyRead.trigger( socket->getID() );
+}
+
+
+void TcpServer::disconnectCB( CallBacker* cb )
+{
+    mDynamicCastGet(TcpSocket*,socket,cb);
+    if ( !socket ) return;
+
+    socket->readyRead.remove( mCB(this,TcpServer,readyReadCB) );
+    socket->disconnected.remove( mCB(this,TcpServer,disconnectCB) );
+    sockets_ -= socket;
+    sockets2bdeleted_ += socket;
+}
+
+
+void TcpServer::read( int id, BufferString& data ) const
+{
+    TcpSocket* socket = getSocket( id );
+    if ( !socket ) return;
+	socket->read( data );
+}
+
+
+void TcpServer::read( int id, IOPar& par ) const
+{
+    TcpSocket* socket = getSocket( id );
+    if ( !socket ) return;
+	socket->read( par );
+}
+
+
+int TcpServer::write( int id, const IOPar& par )
+{
+    TcpSocket* socket = getSocket( id );
+    return socket ? socket->write( par ) : 0;
+}
+
+
+int TcpServer::write( int id, const char* str )
+{
+    TcpSocket* socket = getSocket( id );
+    return socket ? socket->write( str ) : 0;
+}
+
+
+TcpSocket* TcpServer::getSocket( int id ) const
+{
+    for ( int idx=0; idx<sockets_.size(); idx++ )
     {
-	tcpsocket_ = new TcpSocket( nextPendingConnection() );
-	tcpsocket_->readyRead.notify( mCB(this,TcpServer,readyReadCB));
-	tcpsocket_->disconnected.notify( mCB(this,TcpServer,disconnectCB) );
+	if ( sockets_[idx]->getID() == id )
+	    return (TcpSocket*)sockets_[idx];
     }
+
+    return 0;
 }
-
-
-void TcpServer::readyReadCB( CallBacker* )
-{
-    readyRead.trigger();
-}
-
-
-void TcpServer::disconnectCB( CallBacker* )
-{
-    if ( tcpsocket_ )
-    {
-	tcpsocket_->readyRead.remove( mCB(this,TcpServer,readyReadCB) );
-	tcpsocket_->disconnected.remove( mCB(this,TcpServer,disconnectCB) );
-    }
-    sockets2bdeleted_ += tcpsocket_;
-    tcpsocket_ = 0;
-}
-
-
-void TcpServer::read( BufferString& data ) const
-{
-    if ( tcpsocket_ )
-	tcpsocket_->read( data );
-}
-
-
-void TcpServer::read( IOPar& par ) const
-{
-    tcpsocket_->read( par );
-}
-
-
-int TcpServer::write( const IOPar& par ) const
-{
-    return tcpsocket_->write( par );
-}
-

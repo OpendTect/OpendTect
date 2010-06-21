@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: tcpsocket.h,v 1.7 2010-05-20 09:46:53 cvsranojay Exp $
+ RCS:           $Id: tcpsocket.h,v 1.8 2010-06-21 06:13:08 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,17 +27,18 @@ friend class QTcpSocketComm;
 
 public:
     				TcpSocket();
-				TcpSocket(QTcpSocket*);
+				TcpSocket(QTcpSocket*,const int);
 				~TcpSocket();
 
     void			connectToHost(const char* host,int port);
     void			disconnectFromHost();
     void			abort();
-    int				write(const char*) const;  
-    int				write(const IOPar&) const;
+    int				write(const char*);  
+    int				write(const IOPar&);
 
     void			read(BufferString&) const;
     void			read(IOPar&) const;
+    const int			getID() const { return id_; }
 
     const char*			errorMsg() const;
 
@@ -58,6 +59,7 @@ protected:
     QTcpSocket*			qtcpsocket_;
     QTcpSocketComm*		comm_;
     mutable BufferString	errmsg_;
+    const int			id_;
 };
 
 #endif
