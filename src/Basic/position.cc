@@ -4,18 +4,20 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.67 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.68 2010-06-21 06:20:25 cvsnanne Exp $";
 
 #include "position.h"
 
-#include "rowcol.h"
 #include "bufstring.h"
-#include "undefval.h"
-#include "string2.h"
 #include "math2.h"
-#include <math.h>
-#include <string.h>
+#include "rowcol.h"
+#include "string2.h"
+#include "undefval.h"
+
 #include <ctype.h>
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
 
 
 mImplRowColFunctions( BinID, inl, crl );
