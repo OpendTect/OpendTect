@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.44 2010-04-01 04:28:06 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.45 2010-06-21 13:03:20 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,13 +124,13 @@ protected:
     uiTextItem*			titletxtitem_;
     uiTextItem*			axis1nm_;
     uiTextItem*			axis2nm_;
-    uiTextItem*			addatanm_;
     uiRectItem*			rectitem_;
     uiArrowItem*		arrowitem1_;
     uiArrowItem*		arrowitem2_;
     uiMarkerItem*		pointitem_;
     uiGraphicsItemSet*		polylineitemset_;
     uiGraphicsItemSet*		markeritemset_;
+    uiGraphicsItemSet*		adnameitemset_;
 
     void			onFinalise(CallBacker*);
     void			reDraw(CallBacker*);

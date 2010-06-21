@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.115 2010-06-04 10:50:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.116 2010-06-21 13:03:20 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -36,13 +36,13 @@ static const char* rcsID = "$Id: uiflatviewer.cc,v 1.115 2010-06-04 10:50:39 cvs
       titletxtitem_(0) \
     , axis1nm_(0) \
     , axis2nm_(0) \
-    , addatanm_(0) \
     , rectitem_(0) \
     , arrowitem1_(0) \
     , arrowitem2_(0) \
     , pointitem_(0) \
     , polylineitemset_(0) \
-    , markeritemset_(0) 
+    , markeritemset_(0) \
+    , adnameitemset_(0) 
 
 
 float uiFlatViewer::bufextendratio_ = 0.4; // 0.5 = 50% means 3 times more area
@@ -503,6 +503,13 @@ bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
 	    markeritemset_->remove( 0, false );
     }
 
+    if ( adnameitemset_ )
+    {
+	canvas_.scene().removeItems( *adnameitemset_ );
+	while ( adnameitemset_->size()>500 ) // Hack! >500 items unlikely
+	    adnameitemset_->remove( 0, false );
+    }
+
     if ( pointitem_ )
     {
 	canvas_.scene().removeItem( pointitem_ );
@@ -791,20 +798,19 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 
     if ( !ad.name_.isEmpty() && !mIsUdf(ad.namepos_) )
     {
+	if ( !adnameitemset_ )
+	    adnameitemset_ = new uiGraphicsItemSet();
+
 	int listpos = ad.namepos_;
 	if ( listpos < 0 ) listpos=0;
 	if ( listpos > nrpoints ) listpos = nrpoints-1;
 
-	if ( !addatanm_ )
-	{
-	    addatanm_ = canvas_.scene().addItem(
-		    new uiTextItem(ad.name_,mAlignment(Left,Top)) );
-	    addatanm_->setZValue( 1 );
-	}
-	else
-	    addatanm_->setText( ad.name_ );
-
-	addatanm_->setPos( ptlist[listpos] );
+	uiTextItem* adnm = canvas_.scene().addItem(
+		new uiTextItem(ad.name_,ad.namealignment_) );
+	adnm->setZValue( 1 );
+	adnm->setTextColor( ad.linestyle_.color_ );
+	adnm->setPos( ptlist[listpos] );
+	adnameitemset_->add( adnm );
     }
 }
 
