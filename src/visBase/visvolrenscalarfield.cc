@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.23 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.24 2010-06-21 15:03:56 cvskarthika Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -239,7 +239,7 @@ void VolumeRenderScalarField::makeColorTables()
 
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
     int cti = 0;
-    for ( int idx=0; idx<mNrColors; idx++ )
+    for ( int idx=0; idx<mNrColors-1; idx++ )
     {
 	const float relval = ((float) idx)/(mNrColors-2);
 	const ::Color col = sequence_.color( relval );
@@ -249,6 +249,12 @@ void VolumeRenderScalarField::makeColorTables()
 	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
 
+    const ::Color col = sequence_.undefColor();
+    transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
+    transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
+    transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
+    transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
+    
     transferfunc_->predefColorMap = SoTransferFunction::NONE;
 
     transferfunc_->colorMap.enableNotify(didnotify);
@@ -270,14 +276,14 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
     }
 
     ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
-	mNrColors, *datacache_, indexcache_ );
+	mNrColors-1, *datacache_, indexcache_ );
 
     if ( (tr&&!tr->execute( indexer ) ) || !indexer.execute() )
 	return;
 
     int max = 0;
     const unsigned int* histogram = indexer.getHistogram();
-    for ( int idx=254; idx>=0; idx-- )
+    for ( int idx=mNrColors-2; idx>=0; idx-- )
     {
 	if ( histogram[idx]>max )
 	max = histogram[idx];
@@ -285,9 +291,9 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
 
     if ( max )
     {
-	histogram_.setSize( 255, 0 );
-	for ( int idx=254; idx>=0; idx-- )
-	    histogram_[idx] = (float) histogram[idx]/max;
+	histogram_.setSize( mNrColors-1, 0 );
+	for ( int idx=mNrColors-2; idx>=0; idx-- )
+        histogram_[idx] = (float) histogram[idx]/max;
     }
 
     if ( doset )
