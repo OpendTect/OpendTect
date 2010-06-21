@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.59 2010-06-18 12:23:27 cvskris Exp $
+ RCS:		$Id: position.h,v 1.60 2010-06-21 14:40:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,14 +232,14 @@ public:
 
     bool	operator==( const BinIDValue& biv ) const
 		{ return biv.binid == binid
-		      && mIsEqual(value,biv.value,sCompareEpsilon()); }
+		      && mIsEqual(value,biv.value,compareEpsilon()); }
     bool	operator!=( const BinIDValue& biv ) const
 		{ return !(*this == biv); }
 
     BinID	binid;
     float	value;
 
-    static float sCompareEpsilon()		{ return 1e-5; }
+    static float compareEpsilon()		{ return 1e-5; }
 };
 
 

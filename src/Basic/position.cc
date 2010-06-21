@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.68 2010-06-21 06:20:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.69 2010-06-21 14:40:00 cvsbert Exp $";
 
 #include "position.h"
 
@@ -235,7 +235,7 @@ bool BinIDValues::operator ==( const BinIDValues& bvs ) const
 	return false;
 
     for ( int idx=0; idx<sz; idx++ )
-	if ( !mIsEqual(vals[idx],bvs.vals[idx],BinIDValue::sCompareEpsilon()) )
+	if ( !mIsEqual(vals[idx],bvs.vals[idx],BinIDValue::compareEpsilon()) )
 	    return false;
 
     return true;
