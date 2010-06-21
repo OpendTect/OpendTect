@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.56 2010-02-04 10:59:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.57 2010-06-21 14:41:51 cvsbert Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -39,11 +39,11 @@ uiODWellParentTreeItem::uiODWellParentTreeItem()
 }
 
 
-static int sLoadIdx	= 0;
-static int sWellTieIdx	= 1;
-static int sNewWellIdx	= 2;
-static int sAttribIdx	= 3;
-static int sLogDispSize = 4;
+static const int cLoadIdx	= 0;
+static const int cWellTieIdx	= 1;
+static const int cNewWellIdx	= 2;
+static const int cAttribIdx	= 3;
+static const int cLogDispSize = 4;
 
 bool uiODWellParentTreeItem::showSubMenu()
 {
@@ -56,18 +56,18 @@ bool uiODWellParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), sLoadIdx );
+    mnu.insertItem( new uiMenuItem("&Load ..."), cLoadIdx );
     if ( SI().zIsTime()) 
-	mnu.insertItem( new uiMenuItem("&Tie Well to Seismic ..."),sWellTieIdx);
-    mnu.insertItem( new uiMenuItem("&New WellTrack ..."), sNewWellIdx );
+	mnu.insertItem( new uiMenuItem("&Tie Well to Seismic ..."),cWellTieIdx);
+    mnu.insertItem( new uiMenuItem("&New WellTrack ..."), cNewWellIdx );
     if ( children_.size() > 1 )
-	mnu.insertItem( new uiMenuItem("&Create Attribute Log ..."),sAttribIdx);
+	mnu.insertItem( new uiMenuItem("&Create Attribute Log ..."),cAttribIdx);
     
     if ( children_.size() )
     {
 	mnu.insertSeparator();
 	uiMenuItem* szmenuitem = new uiMenuItem("Constant Log Size");
-	mnu.insertItem( szmenuitem, sLogDispSize );
+	mnu.insertItem( szmenuitem, cLogDispSize );
 	szmenuitem->setCheckable( true );
 	szmenuitem->setChecked( constlogsize_ );
     }
@@ -107,7 +107,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    if ( mnuid == sLoadIdx )
+    if ( mnuid == cLoadIdx )
     {
 	ObjectSet<MultiID> emwellids;
 	applMgr()->selectWells( emwellids );
@@ -120,13 +120,13 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	deepErase( emwellids );
     }
 
-    else if ( mnuid == sWellTieIdx )
+    else if ( mnuid == cWellTieIdx )
     {
 	 MultiID wid;
 	 ODMainWin()->applMgr().wellAttribServer()->createD2TModel( wid );
     }
 
-    else if ( mnuid == sNewWellIdx )
+    else if ( mnuid == cNewWellIdx )
     {
 	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
 	wd->setupPicking(true);
@@ -140,7 +140,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	addChild( new uiODWellTreeItem(wd->id()), false );
     }
 
-    else if ( mnuid == sAttribIdx )
+    else if ( mnuid == cAttribIdx )
     {
 	ObjectSet<MultiID> wellids;
 	BufferStringSet list;
@@ -160,7 +160,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 		*wellids[idx], dlg.selectedLogIdx() );
     }
 
-    else if ( mnuid == sLogDispSize )
+    else if ( mnuid == cLogDispSize )
     {
 	bool allconst = false;
 	for ( int idx=0; idx<children_.size(); idx++ )
