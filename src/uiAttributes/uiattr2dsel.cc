@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.11 2010-04-23 15:33:30 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.12 2010-06-21 14:16:58 cvsbert Exp $";
 
 #include "uiattr2dsel.h"
 #include "attribdescset.h"
@@ -83,10 +83,6 @@ uiAttr2DSelDlg::~uiAttr2DSelDlg()
     delete selgrp_;
     delete attrinf_;
 }
-
-
-static int sPixmapWidth = 16;
-static int sPixmapHeight = 10;
 
 
 void uiAttr2DSelDlg::doFinalise( CallBacker* )
