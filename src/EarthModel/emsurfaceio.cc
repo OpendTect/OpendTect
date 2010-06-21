@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.134 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.135 2010-06-21 05:59:34 cvsranojay Exp $";
 
 #include "emsurfaceio.h"
 
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.134 2010-06-18 12:23:27 cvsk
 #include "ptrman.h"
 #include "streamconn.h"
 #include "survinfo.h"
+#include "strmoper.h"
 
 #include <fstream>
 
@@ -173,7 +174,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 	if ( !strm || !nrsectionsoffset )
 	{ msg_ = sMsgReadError(); return false; }
 
-	strm.seekg( nrsectionsoffset, std::ios::beg );
+	StrmOper::seek( strm, nrsectionsoffset, std::ios::beg );
 	const int nrsections = readInt32( strm );
 	if ( !strm ) { msg_ = sMsgReadError(); return false; }
 
@@ -780,7 +781,8 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
     }
 
     if ( version_==3 )
-	strm.seekg( sectionoffsets_[sectionindex_], std::ios_base::beg );
+	StrmOper::seek( strm, sectionoffsets_[sectionindex_], 
+			std::ios_base::beg );
 
     nrrows_ = readInt32( strm );
     if ( !strm )
@@ -966,7 +968,7 @@ int dgbSurfaceReader::skipRow( std::istream& strm )
 
 	    offset += int32interpreter_->nrBytes(); //firstcol
 
-	    strm.seekg( offset, std::ios_base::cur );
+	    StrmOper::seek( strm, offset, std::ios_base::cur );
 	    if ( !strm ) return ErrorOccurred();
 	}
     }
@@ -981,7 +983,7 @@ bool dgbSurfaceReader::prepareRowRead( std::istream& strm )
     if ( version_!=3 )
 	return true;
 
-    strm.seekg( rowoffsets_[rowindex_], std::ios_base::beg );
+    StrmOper::seek( strm, rowoffsets_[rowindex_], std::ios_base::beg );
     return strm;
 }
 
@@ -1038,8 +1040,8 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol,
 	    if ( colindex )
 	    {
 		fullyread_ = false;
-		strm.seekg( colindex*int16interpreter_->nrBytes(),
-			std::ios_base::cur );
+		StrmOper::seek( strm, colindex*int16interpreter_->nrBytes(),
+				std::ios_base::cur );
 	    }
 	}
     }

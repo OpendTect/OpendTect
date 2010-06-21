@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.79 2010-03-12 14:58:23 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.80 2010-06-21 05:59:34 cvsranojay Exp $";
 
 /*!
 
@@ -300,16 +300,16 @@ bool CBVSReader::readGeom()
 
 bool CBVSReader::readTrailer()
 {
-    strm_.seekg( -3, std::ios::end );
+    StrmOper::seek( strm_, -3, std::ios::end );
     char buf[40];
     strm_.read( buf, 3 ); buf[3] = '\0';
     if ( strcmp(buf,"BGd") ) mErrRet("Missing required file trailer")
     
-    strm_.seekg( -4-integersize, std::ios::end );
+    StrmOper::seek( strm_,-4-integersize, std::ios::end );
     strm_.read( buf, integersize );
     const int nrbytes = iinterp.get( buf, 0 );
 
-    strm_.seekg( -4-integersize-nrbytes, std::ios::end );
+    StrmOper::seek( strm_, -4-integersize-nrbytes, std::ios::end );
     if ( coordpol_ == InTrailer )
     {
 	strm_.read( buf, integersize );
@@ -378,19 +378,11 @@ bool CBVSReader::toStart()
 }
 
 
-#ifdef __win32__
 void CBVSReader::toOffs( od_int64 sp )
 {
     lastposfo = sp;
     StrmOper::seek( strm_, lastposfo, std::ios::beg );
 }
-#else
-void CBVSReader::toOffs( std::streampos sp )
-{
-    lastposfo = sp;
-    strm_.seekg( lastposfo, std::ios::beg );
-}
-#endif
 
 
 bool CBVSReader::goTo( const BinID& bid, bool nearestok )
@@ -667,11 +659,11 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
     if ( !needaux )
     {
 	if ( !hinfofetched )
-	    strm_.seekg( auxnrbytes, std::ios::cur );
+	    StrmOper::seek( strm_, auxnrbytes, std::ios::cur );
 	return true;
     }
     else if ( hinfofetched )
-	strm_.seekg( -auxnrbytes, std::ios::cur );
+	StrmOper::seek( strm_,-auxnrbytes, std::ios::cur );
 
     char buf[2*sizeof(double)];
     mCondGetAux(startpos)
@@ -746,7 +738,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
     {
 	if ( comps && !comps[icomp] )
 	{
-	    strm_.seekg( cnrbytes_[icomp], std::ios::cur );
+	    StrmOper::seek( strm_, cnrbytes_[icomp], std::ios::cur );
 	    continue;
 	}
 	iselc++;
@@ -754,13 +746,13 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	BasicComponentInfo* compinfo = info_.compinfo[icomp];
 	int bps = compinfo->datachar.nrBytes();
 	if ( samps->start )
-	    strm_.seekg( samps->start*bps, std::ios::cur );
+	    StrmOper::seek( strm_, samps->start*bps, std::ios::cur );
 	if ( !StrmOper::readBlock( strm_, ((char*)bufs[iselc]) + offs*bps,
 		    		   (samps->stop-samps->start+1) * bps ) )
 	    break;
 
 	if ( samps->stop < info_.nrsamples-1 )
-	    strm_.seekg( (info_.nrsamples-samps->stop-1)*bps,
+	    StrmOper::seek( strm_, (info_.nrsamples-samps->stop-1)*bps,
 		    std::ios::cur );
     }
 

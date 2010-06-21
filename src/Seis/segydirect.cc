@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.20 2010-06-16 12:52:12 cvskris Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.21 2010-06-21 05:59:34 cvsranojay Exp $";
 
 #include "segydirectdef.h"
 
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: segydirect.cc,v 1.20 2010-06-16 12:52:12 cvskri
 #include "segyfiledata.h"
 #include "seisposindexer.h"
 #include "idxable.h"
+#include "strmoper.h"
 #include "strmprov.h"
 #include "ascstream.h"
 #include "keystrs.h"
@@ -64,8 +65,7 @@ Seis::PosKey key( od_int64 nr ) const
 	return Seis::PosKey::undef();
 
     static const int unitsz = sizeof(int)+sizeof(int)+sizeof(int)+sizeof(bool);
-
-    strm->seekg( start_+nr*unitsz, std::ios::beg );
+    StrmOper::seek( *strm, start_+nr*unitsz, std::ios::beg );
     BinID bid;
     int offsetazimuth;
     //TODO fix endianness
@@ -296,7 +296,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
     if ( !strm.good() )
 	return false;
 
-    strm.seekg( textpars, std::ios::beg );
+    StrmOper::seek( strm, textpars, std::ios::beg );
     ascistream astrm2( strm, false );
 
     IOPar iop2; iop2.getFrom( astrm2 );
@@ -332,7 +332,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 
     const od_int64 curpos = strm.tellg();
     if ( curpos!=cubedatastart )
-	strm.seekg( cubedatastart, std::ios::beg );
+	StrmOper::seek( strm, cubedatastart, std::ios::beg );
 
     if ( !cubedata_.read( strm, false ) || !linedata_.read( strm, false ) )
 	return false;

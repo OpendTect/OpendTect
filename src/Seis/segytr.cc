@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.97 2010-04-28 13:04:03 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.98 2010-06-21 05:59:34 cvsranojay Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: segytr.cc,v 1.97 2010-04-28 13:04:03 cvsbert Ex
 #include "settings.h"
 #include "zdomain.h"
 #include "strmprov.h"
+#include "strmoper.h"
 #include "bendpoints2coords.h"
 #include <math.h>
 #include <ctype.h>
@@ -117,9 +118,11 @@ int SEGYSeisTrcTranslator::dataBytes() const
 bool SEGYSeisTrcTranslator::readTapeHeader()
 {
     std::streamoff so0 = 0;
-    sConn().iStream().seekg( so0, std::ios::end );
-    std::streampos endstrmpos = sConn().iStream().tellg();
-    sConn().iStream().seekg( so0, std::ios::beg );
+    std::istream& strm = sConn().iStream();
+
+    StrmOper::seek( strm, so0, std::ios::end );
+    std::streampos endstrmpos = strm.tellg();
+    StrmOper::seek( strm, so0, std::ios::beg );
 
     if ( !txthead_ )
 	txthead_ = new SEGY::TxtHeader;
@@ -539,13 +542,14 @@ bool SEGYSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool SEGYSeisTrcTranslator::goToTrace( int nr )
 {
-    std::streamoff so = nr;
+    od_int64 so = nr;
+    std::istream& strm = sConn().iStream();
     so *= (240 + dataBytes() * innrsamples);
     so += 3600;
-    sConn().iStream().clear();
-    sConn().iStream().seekg( so, std::ios::beg );
+    strm.clear();
+    StrmOper::seek( strm, so, std::ios::beg );
     headerbufread_ = headerdone_ = false;
-    return sConn().iStream().good();
+    return strm.good();
 }
 
 
@@ -602,7 +606,8 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 			        " traces with invalid position found." );
 	mPosErrRet(str);
     }
-    sConn().iStream().seekg( innrsamples * mBPS(inpcd_), std::ios::cur );
+    StrmOper::seek( sConn().iStream(), innrsamples * mBPS(inpcd_), 
+		    std::ios::cur );
     if ( !readTraceHeadBuffer() )
 	return false;
     if ( !tryInterpretBuf(ti) )
@@ -725,10 +730,10 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
 
     std::istream& strm = sConn().iStream();
     if ( !headerdone_ )
-	strm.seekg( mSEGYTraceHeaderBytes, std::ios::cur );
-    strm.seekg( innrsamples * mBPS(inpcd_), std::ios::cur );
+	StrmOper::seek( strm, mSEGYTraceHeaderBytes, std::ios::cur );
+    StrmOper::seek( strm, innrsamples * mBPS(inpcd_), std::ios::cur );
     if ( ntrcs > 1 )
-	strm.seekg( (ntrcs-1) * (mSEGYTraceHeaderBytes
+	StrmOper::seek( strm, (ntrcs-1) * (mSEGYTraceHeaderBytes
 		    		+ innrsamples * mBPS(inpcd_)) );
 
     headerbufread_ = headerdone_ = false;
@@ -753,10 +758,11 @@ bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
 bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 {
+    std::istream& strm = sConn().iStream();
     if ( !sConn().doIO( headerbuf_, mSEGYTraceHeaderBytes )
-	    || sConn().iStream().eof() )
+	    || strm.eof() )
     {
-	if ( !sConn().iStream().eof() )
+	if ( !strm.eof() )
 	    mPosErrRet("Error reading trace header")
 	return noErrMsg();
     }
@@ -769,7 +775,7 @@ bool SEGYSeisTrcTranslator::readDataToBuf( unsigned char* tdptr )
 {
     std::istream& strm = sConn().iStream();
     if ( samps.start > 0 )
-	strm.seekg( samps.start * mBPS(inpcd_), std::ios::cur );
+	StrmOper::seek( strm, samps.start * mBPS(inpcd_), std::ios::cur );
 
     unsigned char* ptr = userawdata_ ? tdptr : blockbuf_;
     int rdsz = (samps.width()+1) *  mBPS(inpcd_);
@@ -782,7 +788,8 @@ bool SEGYSeisTrcTranslator::readDataToBuf( unsigned char* tdptr )
     }
 
     if ( samps.stop < innrsamples-1 )
-	strm.seekg( (innrsamples-samps.stop-1) * mBPS(inpcd_), std::ios::cur );
+	StrmOper::seek( strm, (innrsamples-samps.stop-1) * mBPS(inpcd_), 
+			std::ios::cur );
 
     return strm.good();
 }

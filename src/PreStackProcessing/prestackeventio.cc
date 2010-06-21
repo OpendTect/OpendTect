@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.14 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.15 2010-06-21 05:59:34 cvsranojay Exp $";
 
 #include "prestackeventio.h"
 
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: prestackeventio.cc,v 1.14 2010-03-25 03:55:14 c
 #include "separstr.h"
 #include "survinfo.h"
 #include "streamconn.h"
+#include "strmoper.h"
 #include "offsetazimuth.h"
 
 
@@ -1206,7 +1207,8 @@ int EventPatchReader::nextStep()
     if ( headeridx_>=fileheader_.nrEvents() )
 	return Finished();
 
-    strm.seekg( fileheader_.getOffset( headeridx_ ), std::ios::beg );
+    StrmOper::seek( strm, (fileheader_.getOffset( headeridx_ )), 
+		    std::ios::beg );
     const int nrevents = readInt16( strm );
     if ( !strm )
     {

@@ -3,11 +3,12 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.9 2010-06-18 21:36:53 cvskris Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.10 2010-06-21 05:59:34 cvsranojay Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
 #include "datainterp.h"
+#include "strmoper.h"
 #include <fstream>
 
 Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl, bool doindex )
@@ -121,7 +122,7 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_int64 offset,
 	return false;
     }
 
-    strm_->seekg( offset, std::ios::beg );
+    StrmOper::seek( *strm_, offset, std::ios::beg );
     if ( !strm_->good() )
     {
 	delete strm_;
@@ -344,7 +345,7 @@ int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
     {
 	if ( curinl_!=bid.inl )
 	{
-	    strm_->seekg( inlfileoffsets_[inlidx], std::ios::beg );
+	    StrmOper::seek( *strm_, inlfileoffsets_[inlidx], std::ios::beg );
 	    if ( !readLine(curcrlset_,curidxset_,int32interp_,int64interp_ ) )
 		return -1;
 	    curinl_ = bid.inl;
