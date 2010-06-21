@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisettings.cc,v 1.38 2010-06-10 06:35:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisettings.cc,v 1.39 2010-06-21 14:41:08 cvsbert Exp $";
 
 #include "uisettings.h"
 
@@ -98,7 +98,7 @@ bool uiSettings::acceptOK( CallBacker* )
 }
 
 
-static int sIconSize = -1;
+static int theiconsz = -1;
 // TODO: Move these keys to a header file in Basic
 #define mIconsKey		"dTect.Icons"
 #define mCBarKey		"dTect.ColorBar.show vertical"
@@ -111,7 +111,7 @@ static int sIconSize = -1;
 struct LooknFeelSettings
 {
     		LooknFeelSettings()
-		    : iconsz(sIconSize < 0 ? uiObject::iconSize() : sIconSize)
+		    : iconsz(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
 		    , isvert(true)
 		    , showwheels(true)
 		    , showinlprogress(true)
@@ -217,7 +217,7 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 	setts_.mergeComp( *iopar, mIconsKey );
 	changed_ = true;
 	delete iopar;
-	sIconSize = newiconsz;
+	theiconsz = newiconsz;
     }
 
     updateSettings( lfsetts_.isvert, colbarhvfld_->getBoolValue(), mCBarKey );
