@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.15 2010-04-06 17:34:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.16 2010-06-21 19:25:58 cvsyuancheng Exp $";
 
 #include "uipickpropdlg.h"
 
@@ -38,7 +38,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 
     drawstylefld_ = new uiGenInput( this, "with", 
 	    			    BoolInpSpec( true, "Line", "Surface" ) );
-    drawstylefld_->setValue( hassty && !hasbody );
+    drawstylefld_->setValue( !hasbody );
     drawstylefld_->valuechanged.notify( mCB(this,uiPickPropDlg,drawStyleCB) );
     drawstylefld_->attach( rightOf, usedrawstylefld_ );
     
@@ -58,8 +58,12 @@ void uiPickPropDlg::drawSel( CallBacker* )
 
     if ( !usestyle )
     {
-	set_.disp_.connect_ = Pick::Set::Disp::None;
-    	Pick::Mgr().reportDispChange( this, set_ );
+	if ( set_.disp_.connect_==Pick::Set::Disp::Close )
+	{
+	    set_.disp_.connect_ = Pick::Set::Disp::None;
+    	    Pick::Mgr().reportDispChange( this, set_ );
+	}
+
 	if ( psd_ )
 	    psd_->displayBody( false );
     }
