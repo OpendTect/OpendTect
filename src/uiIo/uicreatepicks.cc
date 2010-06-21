@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.19 2010-04-06 06:28:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.20 2010-06-21 14:40:33 cvsbert Exp $";
 
 #include "uicreatepicks.h"
 
@@ -40,7 +40,7 @@ static const char* rcsID = "$Id: uicreatepicks.cc,v 1.19 2010-04-06 06:28:18 cvs
 #include "statrand.h"
 #include "datapointset.h"
 
-static int sLastNrPicks = 500;
+static int defnrpicks = 500;
 static const char* sGeoms3D[] = { "Volume", "On Horizon",
     				  "Between Horizons", 0};
 static const char* sGeoms2D[] = { "Z Range", "On Horizon",
@@ -184,7 +184,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 {
     setTitleText( "Create new pickset with random positions" );
     nrfld_ = new uiGenInput( this, "Number of picks to generate",
-					 IntInpSpec(sLastNrPicks) );
+					 IntInpSpec(defnrpicks) );
     nrfld_->attach( alignedBelow, colsel_);
 
     if ( hornms_.size() )
@@ -328,6 +328,6 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
     }
 
     mkRandPars();
-    sLastNrPicks = randpars_.nr_;
+    defnrpicks = randpars_.nr_;
     return true;
 }
