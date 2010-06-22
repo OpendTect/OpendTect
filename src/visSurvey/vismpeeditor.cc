@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.39 2010-06-07 16:00:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.40 2010-06-22 21:32:44 cvsyuancheng Exp $";
 
 #include "vismpeeditor.h"
 
@@ -154,6 +154,28 @@ void MPEEditor::setMarkerSize(float nsz)
 	draggermarkers[idx]->setScreenSize( nsz );
 
     markersize = nsz;
+}
+
+
+void MPEEditor::turnOnMarker( EM::PosID pid, bool on )
+{
+    const int mkidx = posids.indexOf( pid );
+    if ( mkidx<0 )
+    	return;
+
+    draggermarkers[mkidx]->turnOn( on );
+}
+
+
+bool MPEEditor::allMarkersDisplayed() const
+{
+    for ( int idx=0; idx<draggermarkers.size(); idx++ )
+    {
+	if ( !draggermarkers[idx]->isOn() )
+	    return false;
+    }
+    
+    return true;
 }
 
 

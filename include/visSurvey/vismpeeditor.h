@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.19 2010-06-07 16:00:41 cvsjaap Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.20 2010-06-22 21:32:44 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -101,6 +101,8 @@ public:
     mVisTrans*		getDisplayTransformation() {return transformation;}
 
     void		setMarkerSize(float);
+    void		turnOnMarker(EM::PosID,bool on);
+    bool		allMarkersDisplayed() const;
 
     Notifier<MPEEditor>		noderightclick;
     				/*!<\ the clicked position can be retrieved

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.55 2010-06-18 14:43:50 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.56 2010-06-22 21:32:44 cvsyuancheng Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -878,7 +878,11 @@ void FaultDisplay::updateManipulator()
 {
     const bool show = showmanipulator_ && areSticksDisplayed();
     if ( viseditor_ )
-	viseditor_->turnOn( show && !stickselectmode_ );
+    {
+	bool ison = areIntersectionsDisplayed() ? true 
+	    					: show && !stickselectmode_;
+	viseditor_->turnOn( ison );	
+    }
     if ( activestickmarker_ )
 	activestickmarker_->turnOn( show && !stickselectmode_);
     if ( scene_ )
@@ -1001,6 +1005,8 @@ void FaultDisplay::displayIntersections( bool yn )
 	intersectiondisplay_->turnOn( yn );
 
 	updateKnotMarkers();
+	if ( !viseditor_->allMarkersDisplayed() )
+	    updateEditorMarkers();	
     }
 }
 
@@ -1146,6 +1152,7 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
     
     if ( !explicitintersections_ ) return;
 
+    const int oldsz = intersectionobjs_.size();
     ObjectSet<const SurveyObject> usedobjects;
     TypeSet<int> planeids;
 
@@ -1208,7 +1215,13 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
     intersectionobjs_ = usedobjects;
     planeids_ = planeids;
 
-    if ( areIntersectionsDisplayed() ) intersectiondisplay_->touch( false );
+    if ( areIntersectionsDisplayed() ) 
+    {
+	if ( oldsz != intersectionobjs_.size() )
+	    updateEditorMarkers();
+	
+	intersectiondisplay_->touch( false );
+    }
 }
 
 void FaultDisplay::setStickSelectMode( bool yn )
@@ -1257,6 +1270,45 @@ bool FaultDisplay::isInStickSelectMode() const
 { return stickselectmode_; }
 
 
+void FaultDisplay::updateEditorMarkers()
+{
+    if ( !viseditor_ || !viseditor_->isOn() )
+	return;
+    
+    TypeSet<CubeSampling> cs;
+    for ( int idx=0; idx<intersectionobjs_.size(); idx++ )
+    {
+	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,p,
+		intersectionobjs_[idx]);
+	if ( p ) cs += p->getCubeSampling();
+    }
+    
+    PtrMan<EM::EMObjectIterator> iter = emfault_->geometry().createIterator(-1);    while ( true )
+    {
+	const EM::PosID pid = iter->next();
+	if ( pid.objectID() == -1 )
+	    break;
+	
+	const Coord3 pos = emfault_->getPos( pid );
+	bool onplane = false;
+	for ( int idx=0; idx<cs.size(); idx++ )
+	{
+	    if ( !cs[idx].zrg.includes(pos.z) )
+		continue;
+	    
+	    BinID bid = SI().transform(pos);
+	    if ( !cs[idx].hrg.includes(bid) )
+		continue;
+	    
+	    onplane = true;
+	    break;
+	}
+	
+	viseditor_->turnOnMarker( pid, onplane );
+    }
+}
+
+
 void FaultDisplay::updateKnotMarkers()
 {
     for ( int idx=0; idx<knotmarkers_.size(); idx++ )
@@ -1286,9 +1338,8 @@ void FaultDisplay::updateKnotMarkers()
 
 	const int sid = emfault_->sectionID(0);
 	const int sticknr = RowCol( pid.subID() ).row;
-	Geometry::FaultStickSet* fss =
-	    			 emfault_->geometry().sectionGeometry( sid );
-	const int groupidx = fss->isStickSelected(sticknr) ? 1 : 0;
+	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
+	const int groupidx = fs->isStickSelected(sticknr) ? 1 : 0;
 	knotmarkers_[groupidx]->addObject( marker );
     }
 }
