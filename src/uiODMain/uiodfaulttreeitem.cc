@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.38 2010-03-26 16:16:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.39 2010-06-22 15:11:50 cvsyuancheng Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -307,7 +307,8 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 		faultdisplay_->hasHorizons() )
 	    return;
 
-	faultdisplay_->display( false, interchecked );
+	faultdisplay_->display( true, interchecked );
+	//Enable editing when display at sections.
     }
     else if ( mnuid==displayintersecthorizonmnuitem_.id )
     {
