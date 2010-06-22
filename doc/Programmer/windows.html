@@ -4,11 +4,11 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.30 2008-10-21 07:49:40 cvsnanne Exp $
+  - RCS:        $Id: windows.html,v 1.31 2010-06-22 10:45:47 cvsranojay Exp $ 
   -->
 
 <body background="backg.png"><title>Windows development [OpendTect
-Programmer's manual V3.2]</title>
+Programmer's manual V4.1]</title>
 
 <center>
 <h1>OpendTect development on MS Windows</h1>
@@ -23,228 +23,52 @@ Programmer's manual V3.2]</title>
 <a name=external><h2>External installations</h2></a>
 
 <p> The external installations can, in principle, be installed wherever
-you like. However, it is recommended to use the defaults. Otherwise, one
-or two configuration files might have to be hand-edited. </p>
-
-<p>If you choose to install some of the external installations
-elsewhere, it is strongly recommended to make sure that there are no
-spaces in any paths to external installations, because the make
-environment has not been prepared to handle these.</p> 
-
-<h3>Cygwin</h3>
-
-<p>The make system that is used with OpendTect requires some tools like
-a Unix-shell, sed, awk, etc. Since Cygwin provides all this, we use
-Cygwin as our shell/work environment, while still creating native
-Windows executables.</p>
+you like. </p>
 
 
-<h4>Preparing the cygwin installation</h4>
+<h3>Visual Studio 8</h3>
 
-<p> Make sure OpendTect is <b>NOT</b> running when you install Cygwin!
-</p>
+<p>OpendTect is build with Visual Studio 8. Although we're using a commercial
+version, the Visual Studio Express edition, should also get you started. Make
+sure you have installed the latest updates from Microsoft.</p>
 
-<p> Use the 'Install Cygwin' utility from the windows start menu to
-install Cygwin. <b>Use this utility!</b> Installing Cygwin in a 'normal'
-way (via the cygwin web-site for example) may fail when you have
-previously run OpendTect on your system - this is because OpendTect has
-changed the Windows registry in case Cygwin was not pre-installed on the
-system. </p>
-
-<p> When you are sure the registry is ok, you can also download the
-Cygwin installer from <a href="http://cygwin.com">http://cygwin.com</a>
-and run it. </p>
-
-<h4>Running the cygwin installer</h4>
-
-<p>After a few questions, you can select packages to install. Choose at
-least the following packages:
-
-<ul>
-<b>Development</b>
-<ul>
-<li>make
-<li>gcc
-<li>gcc-g++
-<li>gcc-mingw
-</ul>
-<b>Interpreters</b>
-<ul>
-<li>perl
-<li>gawk
-</ul>
-<b>Shells</b>
-<ul>
-<li>tcsh
-</ul>
-</ul>
-
-Note that some packages (like gcc-mingw-core and gcc-mingw-g++) are
-automatically selected when these packages are selected - don't
-de-select those dependencies.</p>
-
-<p>
-Recommended:
-<ul>
-<b>Development</b>
-<ul>
-<li>cvs</li>
-<li>binutils</li>
-<li>bison (*)</li>
-<li>flex (*)</li>
-<li>doxygen</li>
-</ul>
-<b>Editors</b>
-<ul>
-<li>vim (**)
-<li>mc (**) [= Norton Commander clone]
-</ul>
-<b>Archive</b>
-<ul>
-<li>zip
-<li>unzip
-</ul>
-<b>Net (***)</b>
-<ul>
-<li>inetutils [contains rsh/rlogin functionality]
-<li>openssh [secure replacement for rsh/rlogin]
-</ul>
-</ul>
-
-Note: You can always re-start the cygwin installation program to add additional
-packages later or to update existing packages.<br>
-(*) Bison and Flex are required to build OpendTect itself.<br>
-(**) You will need an editor that understands unix file format every now and
-then. If you're familiar with the good old Norton Commander, you might opt for
-mc, but one of the other editors in (editors) should also do.<br>
-(***) For cross platform remote batch processing
-</p>
+<h3>Vim editor</h3>
+<p>Visual Studio comes with it's own editor. For real coding, vim is still superiour and is our preferred editor. The Windows version can be downloaded from:
+http://www.vim.org/ </p>
 
 
-<p>After the installation, make sure you run the Cygwin (bash) shell
-at least once to make sure that you have a Cygwin home directory to
-put your development environment on.</p>
+<h3>Qt</h3>
+A Qt installation is only necessary when you want to build a plugin which is directly dependend on Qt. Download Windows Qt package from the <a href="http://qtsoftware.com/"> Qt website </a>. 
 
-<a name=setup><h2>Setting up the environment</h2></a>
 
-<p> <a href="pmake.html">Pmake</a> is used to build both the system and
-plugins. It requires a few environment variables to be setup and it
-expects a certain directory structure in your ODWork directory. </p>
+<h3>Coin and friends</h3>
+<p>A full Coin installation is only necessary when you want to build a plugin which is directly dependend on Coin. Download Windows Coin, SoQt and SIMVoleon packages from <a href="http://coin3d.org/">Coin website </a>. Or get the source code from <a href="http://tortoisesvn.net">subversion</a> and build yourself using Visual Studio.</p>
+<br>
 
-<h3>Setup ODWork dir</h3>
+<a name=setup><h3>Setup ODWork dir</h3>
 
 <p> Before you can build anything, you have to setup a work directory
-(usually called 'ODWork') in such a way that Pmake can use it. The
-easiest way to do this is from within OpendTect, menu 'Utilities-Create
+(usually called 'ODWork'). The easiest way to do this is from within
+OpendTect, menu 'Utilities-Tools-Create
 Devel Env'. Note that the OpendTect application window will freeze while
-the development environment is created. 'Create Devel. Env.' will also
-create an init script 'init.bash' in your ODWork directory that can
-easily be sourced from your .bashrc to setup your environment. </p>
+the development environment is created. </p>
 
-
-<p>It is strongly recommended to make sure that there are no spaces in
-the path to your ODWork directory. A good place for your ODWork
-directory is your cygwin home directory, which is by default at
-C:\cygwin\home\[user_name]. The location of this directory can be
-easily found from a cygwin bash shell:
-
-<pre>
-    cd
-    cygpath -w `pwd`
-</pre>
-
-</p>
 
 <h3>Setup environment variables</h3>
 
-<p> Now you will have to setup a few environment variables: HDIR, WORK
-and GNUMAKE. Fortunately, if you have used the 'Create Devel. Env.' menu
-this can be done with one command (see below).
-
-<ul>
-<li>HDIR defines the platform you're working on. On windows, this should be set
-to win.
-<li>GNUMAKE gives the name of gnu make, usually just make or gmake.
-<li>WORK defines where your ODWork directory is.
-</ul>
-
-Beside setting up these environment variables, you should source either
-the PMinit.csh or the PMinit.sh script present in the $WORK/Pmake/base
-directory.</p>
-
-<p>All this can be done by sourcing one script (if you have used the
-OpendTect menu to setup the $WORK directory): 'init.bash' (or
-'init.csh',if you work with the non-default csh shell). It seems logical
-to add the relevant script to your .bashrc (or.login for C-shell users).
-And, if you have created your ODWork directory in your cygwin home, the
-line to add to the end of your .bashrc script could look like:
-
-<pre>
-    source ~/ODWork/init.bash
-</pre>
+<p> Now you will have to setup at least one environment variables: WORK.
+Right-click on 'My Computer', select Properties, Advanced tab and click on the button 'Environment variables'. Add a new variable WORK and set its value to the directory created by the 'Create Devel Env' tool.
+If you're using Qt and/or Coin, you'll have to set QTDIR and COINDIR likewise.
 </p>
+<br>
 
 <h3>Building your own plugins</h3>
 
 <h4>Testing the installation</h4>
 
-<p> After you setup your environment, open a new cygwin bash shell and
-go to your ODWork directory (You can start a bash shell from the Windows
-start menu). If all is well, the alias 'cdw' should bring you directly
-to your ODWork  directory. Then go to the plugins directory and type
-'make'. You should see something like this:
+<p> After you setup your environment, goto the plugins\msvc8 folder and open the Tutorial solution. When openened, build the solution from the Build menu, the toolbar, or the Solution right-click menu.</p>
 
-<pre>
-$ cd plugins/
-$ make
-make[1]: Entering directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/Hello'
-  Making Hello / Microsoft Windows (Nov 27 13:18:33) DEBUG=no.
-Compiling hellopi.cc ...
-Ranlib on Hello.lib ...
-Creating /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win/O/Hello.dll ...
-  Done !
-make[1]: Leaving directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/Hello'
-
-&lt;snip&gt;
-
-make[1]: Entering directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/uiSeisIOSimple'
-  Making uiSeisIOSimple / Microsoft Windows (Nov 27 13:19:14) DEBUG=no.
-Compiling seisiosimple.cc ...
-Compiling uiseisiosimple.cc ...
-Compiling uiseisiosimplepi.cc ...
-Ranlib on uiSeisIOSimple.lib ...
-Creating /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win/O/uiSeisIOSimple.dll
- ...
-  Done !
-make[1]: Leaving directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/uiSeisIOSimple'
-$</pre>
-</p>
-
-<p> The libraries should now be ready in $WORK/lib/win. We can check
-that, like this:
-
-<pre>
-$ cdw
-$ cd lib/win/
-$ ls
-Coh.dll*    O@                 libuiSeisIOSimple.dll.a*  uiSeisIOSimple.dll*
-Coh.lib*    libCoh.dll.a*      uiCoh.dll*                uiSeisIOSimple.lib*
-G@          libHello.dll.a*    uiCoh.lib*
-Hello.dll*  libuiCoh.dll.a*    uiHello.dll*
-Hello.lib*  libuiHello.dll.a*  uiHello.lib*
-$
-</pre>
-</p>
-
-<p> 
-If anything goes wrong during compile and/or link, the error
-messages are sent to a file 'lswin' in the source directory. If you
-want to see these immediately on the command line, set the environment
-variable OUTSTDOUT to yes, e.g. in your init.bash file:
-
-<pre>export OUTSTDOUT=yes</pre>
-you can also add this for each make run, then type:
-<pre>make OUTSTDOUT=yes</pre>
+<p> The libraries should now be ready in $WORK\plugins\msvc8\Win32\debug|release.
 </p>
 
 
@@ -271,8 +95,12 @@ change any code you'd better exit OpendTect before trying to re-build
 the plugin. If you don't exit OpendTect you'll get an error message
 like: 'cannot overwrite .... Permission denied'. </li>
 
+<li>By default Visual Studio creates the "Debug" versions of the Dlls which cannot be directly loaded in to OpendTect. If you want to load your plugin in OpendTect, change the project configuration to release and build your code in release mode, now it will be possible to load the plugin. </li>
+
+
 </ul>
 </p>
+<br>
 
 <a name=installplugins><h4>Installing your plugins</h4>
 
@@ -322,7 +150,7 @@ href="http://www.jrsoftware.org/isinfo.php">jrsoftware.org</a>. </p>
 
 <p> Because we internally treat Windows as much like Unix as we can, we
 actually make a .tar.gz file for our windows plugins too, which is
-extracted to "d:\users\admin\rel\plugins\opendtect-3.2\", which forms
+extracted to "d:\users\admin\rel\plugins\opendtect-4.x.y\", which forms
 the "Source" for Inno-Setup. </p>
 
 <p> As an example, here is the Inno-setup file "dgbsetup.iss" that we
@@ -332,7 +160,7 @@ directory is stored in the registry and used as 'DefaultDirName':</p>
 <pre>
 [Setup]
 AppName=OpendTect
-AppVerName=OpendTect 3.2
+AppVerName=OpendTect 4.1
 AppPublisher=De Groot-Bril Earth Sciences
 AppPublisherURL=http://www.opendtect.org
 AppSupportURL=http://www.opendtect.org
@@ -342,81 +170,19 @@ DisableDirPage=yes
 DefaultGroupName=OpendTect
 AllowNoIcons=yes
 OutputBaseFilename=dgb-opendtect-1_0_5
-LicenseFile=d:\users\admin\rel\opendtect-3.2\LICENSE.txt
+LicenseFile=d:\users\admin\rel\opendtect-4.x.y\LICENSE.txt
 
 
 [Files]
-Source: d:\users\admin\rel\plugins\opendtect-3.2\*; DestDir: {app}; Flags: recursesubdirs
+Source: d:\users\admin\rel\plugins\opendtect-4.x.y\*; DestDir: {app}; Flags: recursesubdirs
 </pre>
+<br>
 
-<a name=buildod><h2>Building OpendTect</h2>
-
-<p> Building the entire OpendTect system from source is not a task for
-the weak at heart and it is not supported. Still, it may be useful were
-it only for the purpose of getting insight in the various modules. </p>
-
-<p> OpendTect relies on a number of external libraries to function.  All
-these external libraries have been properly insulated, so on Unix there
-should be no need to recompile these if you just want to rebuild some
-parts of OpendTect, unless you want to rebuild one of the  uiBase,
-uiCoin or visBase modules. </p>
-
-<p> However, unlike on Unix, you cannot rebuild but the most basic
-modules on Windows without recompiling Qt, Coin and SoQt, because beside
-header files Windows also requires import libraries for the dlls to be
-available when linking. Since we are not allowed to redistribute some of
-these import libraries, you will have to build Qt, Coin and SoQt
-yourself which requires two versions of the gcc compiler, a pthread
-library and some tinkering with config files. </p>
-
-<p> Therefore, if you want to build OpendTect from scratch, we would
-like to suggest building a Linux version. Both Qt and Coin are freely
-available and build out of the box on Linux, there's no need for two gcc
-compilers and there is also no need for a separate pthread library. </p>
-
-<p> Should you really want to build OpendTect on Windows, read on for
-some guidelines. </p>
-
-<h3>Qt</h3>
-Download Windows MinGW package from the <a href="http://trolltech.com/products/appdev/platform/qt-for-windows"> Qt website </a>. Our development and stable release are build using <a href="ftp://ftp.trolltech.com/qt/source/qt-win-opensource-4.3.5-mingw.exe"> Qt 4.3.5 </a>. Follow the step in the installer. If you don't have a MinGW installation yet, tick 'Download and install minimal MinGW installation' in one of the installer steps. 
-
-
-<h3>Pthreads</h3>
-
-<p> The pthreads-win32 library can be downloaded from  <a
-href="http://sources.redhat.com/pthreads-win32/">
-http://sources.redhat.com/pthreads-win32/</a>. You also might want to
-check out the faq:  <a
-href="http://sources.redhat.com/pthreads-win32/faq.html">http://sources.redhat.com/pthreads-win32/faq.html</a>
+<a name=buildod><h2>Building OpendTect</h2></a>
+<p>
+OpendTect solution and OpendTect plugins solution can be found in $WORK\msvc8. From these solutions it should be quite easy to build OpendTect from scratch. Note that it requires an installation of Qt, Coin and FFTW. The currently used versions can be found in: $DTECT_APPL\doc\ReleaseInfo\RELEASEINFO.txt
 </p>
 
-<p> You need to copy the include files into cygwin's mingw include
-directory (default C:\cygwin\usr\include\mingw), the proper dll
-(pthreadGC.dll) into  the bin directory (default C:\cygwin\bin) and the
-accompaning import library (libpthreadGC.a) into the mingw lib directory
-(default C:\cygwin\lib\mingw) </p>
-
-<h3>Coin and friends</h3>
-
-<p>Coin does not officially support anything other then VC++ on Windows.
-However, older versions of Coin required cygwin as a build environment. 
-This was necessary in order to make use of the command-line MSVC
-compiler, cl.exe, which was called using a wrapper program (wrapmsvc).
-</p>
-
-<p> Note that it is required to compile Coin (and SoQt) with the
--mno-cygwin switch, which prevents linking to the cygwin dll. Without it
-you cannot link with Qt because that is linked to the the native Windows
-c libraries, which are not compatible with the cygwin c libraries. (You
-might be able to link with the GPL-ed X11 version of Qt under cygwin,
-but that requires you to run an X-server such as cygwin/Xfree86.  See:
-<a href="http://kde-cygwin.sourceforge.net/">kde-cygwin</a>. ). </p>
-
-<p> One more note: The cygwin-MinGW distribution, which is what is
-actually used when using the -mno-cygwin switch, contains some .la files
-that have bogus directories in them. These files are located in
-/lib/mingw and should either be edited by hand to contain the correct
-values or should be deleted.  </p>
 
 <br>
 <img src="hr.png" border=0>
