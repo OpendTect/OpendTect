@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2008
- RCS:           $Id: uimdiarea.h,v 1.4 2010-06-21 11:42:39 cvsnanne Exp $
+ RCS:           $Id: uimdiarea.h,v 1.5 2010-06-22 04:47:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiMdiAreaBody;
 class QMdiArea;
 class QMdiSubWindow;
 
-class uiMdiAreaWindow : public uiGroup
+mClass uiMdiAreaWindow : public uiGroup
 {
 public:
     			uiMdiAreaWindow(const char* nm=0);
