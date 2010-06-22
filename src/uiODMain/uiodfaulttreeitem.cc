@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.39 2010-06-22 15:11:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.40 2010-06-22 21:29:35 cvsyuancheng Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -307,21 +307,21 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 		faultdisplay_->hasHorizons() )
 	    return;
 
-	faultdisplay_->display( true, interchecked );
-	//Enable editing when display at sections.
+	faultdisplay_->display( false, interchecked );
     }
     else if ( mnuid==displayintersecthorizonmnuitem_.id )
     {
 	menu->setIsHandled(true);
+	if ( !faultdisplay_->hasHorizons() )
+	{
+	    uiMSG().warning( "No horizon loaded" );
+	    return;
+	}
+	
 	const bool interchecked = displayintersecthorizonmnuitem_.checked;
 	faultdisplay_->displayHorizonIntersections( !interchecked );
 	if ( !displayintersectionmnuitem_.checked )
-	{
-	    if ( faultdisplay_->hasHorizons() )
-		faultdisplay_->display( false, interchecked );
-	    else 
-		faultdisplay_->display( false, true );
-	}
+	    faultdisplay_->display( false, interchecked );
     }
     else if ( mnuid==singlecolmnuitem_.id )
     {
