@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoMFImage.cc,v 1.5 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoMFImage.cc,v 1.6 2010-06-22 11:10:54 cvskarthika Exp $";
 
 
 #include "SoMFImage.h"
@@ -43,7 +43,7 @@ SbBool SoMFImage::read1Value( SoInput* in, int index )
 	return false;
     }
 
-    const int buffersize = size[1] * size[1] * size[2] * nc;
+    const int buffersize = size[0] * size[1] * size[2] * nc;
 
     if ( !buffersize && (size[0] || size[1] || size[2] || nc) )
     {
