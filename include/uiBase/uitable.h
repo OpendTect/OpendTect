@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.61 2010-04-23 18:57:31 cvsyuancheng Exp $
+ RCS:           $Id: uitable.h,v 1.62 2010-06-22 10:49:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,7 +263,7 @@ public:
     Color		getColor(const RowCol&) const;
 
     int			getIntValue(const RowCol&) const;
-    double		getValue(const RowCol&) const;
+    double		getdValue(const RowCol&) const;
     float		getfValue(const RowCol&) const;
     void		setValue(const RowCol&,int);
     void		setValue(const RowCol&,float);

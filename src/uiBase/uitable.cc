@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.91 2010-06-17 21:59:48 cvskris Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.92 2010-06-22 10:49:26 cvsbert Exp $";
 
 
 #include "uitable.h"
@@ -820,7 +820,7 @@ int uiTable::getIntValue( const RowCol& rc ) const
 }
 
 
-double uiTable::getValue( const RowCol& rc ) const
+double uiTable::getdValue( const RowCol& rc ) const
 {
     const char* str = text( rc );
     if ( !str || !*str ) return mUdf(double);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.53 2010-04-23 11:16:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.54 2010-06-22 10:49:26 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -545,7 +545,7 @@ void uiSeisBrowser::commitChanges()
         SeisTrc& trc = *tbuf_.get( pos.col );
 	for ( pos.row=0; pos.row<nrsamples_; pos.row++) 
      	{
-	    const float tableval = tbl_->getValue( pos );
+	    const float tableval = tbl_->getfValue( pos );
 	    const float trcval = trc.get( pos.row, compnr_ );
 	    const float diff = tableval - trcval;
    	    if ( !mIsZero(diff,1e-6) )

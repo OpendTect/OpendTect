@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.10 2010-04-09 08:21:34 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.11 2010-06-22 10:49:26 cvsbert Exp $";
 
 #include "uicoltabmarker.h"
 
@@ -180,7 +180,7 @@ bool uiColTabMarkerDlg::acceptOK( CallBacker* )
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
 	RowCol rc( idx, 0 );
-	const float position = table_->getValue( rc );
+	const float position = table_->getfValue( rc );
 	Color col( table_->getColor( RowCol(idx,1) ) );
 	ctab_.changeColor( idx, col.r(), col.g(), col.b() );
     }

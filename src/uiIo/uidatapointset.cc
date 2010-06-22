@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.62 2010-06-17 21:59:48 cvskris Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.63 2010-06-22 10:49:26 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -606,9 +606,9 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
 	rowAdded.trigger();
 	for ( int rownr=0; rownr<tbl_->nrRows(); rownr++ )
 	{
-	    Coord3 coord( tbl_->getValue(RowCol(rownr,0)),
-		    	  tbl_->getValue(RowCol(rownr,1)),
-			  tbl_->getValue(RowCol(rownr,2))/SI().zFactor() );
+	    Coord3 coord( tbl_->getdValue(RowCol(rownr,0)),
+		    	  tbl_->getdValue(RowCol(rownr,1)),
+			  tbl_->getdValue(RowCol(rownr,2))/SI().zFactor() );
 	    if ( mIsEqual(coord.x,newcoord.x,2) &&
 	    	 mIsEqual(coord.y,newcoord.y,2) &&
 	    	 mIsEqual(coord.z,newcoord.z,1e-4) )
@@ -970,7 +970,7 @@ void uiDataPointSet::valChg( CallBacker* )
 	{
 	    if ( !isDisp(true) ) { pErrMsg("Huh"); mRetErr; }
 	    Coord crd( pos.coord() );
-	    (dcid == -cNrPosCols ? crd.x : crd.y) = tbl_->getValue( cell );
+	    (dcid == -cNrPosCols ? crd.x : crd.y) = tbl_->getdValue( cell );
 	    pos.set( crd );
 	    poschgd = pos.binid_ != beforechgdr_.pos_.binid_;
 	}
@@ -1348,9 +1348,9 @@ void uiDataPointSet::removeHiddenRows()
     const uiTable::SelectionRange* selrange =
 	tbl_->selectedRanges()[0];
     Interval<float> valrange;
-    valrange.start = tbl_->getValue(
+    valrange.start = tbl_->getfValue(
 	    RowCol(selrange->firstrow_,sortcol_) );
-    valrange.stop = tbl_->getValue(
+    valrange.stop = tbl_->getfValue(
 	    RowCol(selrange->lastrow_,sortcol_) );
     for ( int drowid=0; drowid<dps_.size(); drowid++ )
     {

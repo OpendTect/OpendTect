@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipositiontable.cc,v 1.3 2010-03-22 07:15:36 cvsumesh Exp $";
+static const char* rcsID = "$Id: uipositiontable.cc,v 1.4 2010-06-22 10:49:26 cvsbert Exp $";
 
 #include "uipositiontable.h"
 
@@ -97,8 +97,8 @@ void uiPositionTable::posChgCB( CallBacker* )
     BinID bid;
     if ( rc.col==0 || rc.col==1 )
     {
-	Coord coord( table_->getValue(RowCol(rc.row,0)),
-		     table_->getValue(RowCol(rc.row,1)) );
+	Coord coord( table_->getdValue(RowCol(rc.row,0)),
+		     table_->getdValue(RowCol(rc.row,1)) );
 	bid = SI().transform( coord );
 	if ( withic_ )
 	{
@@ -108,8 +108,8 @@ void uiPositionTable::posChgCB( CallBacker* )
     }
     else if ( rc.col==2 || rc.col==3 )
     {
-	bid = BinID( mNINT(table_->getValue(RowCol(rc.row,2))),
-		     mNINT(table_->getValue(RowCol(rc.row,3))) );
+	bid = BinID( table_->getIntValue(RowCol(rc.row,2)),
+		     table_->getIntValue(RowCol(rc.row,3)) );
 	Coord coord = SI().transform( bid );
 	if ( withxy_ )
 	{
@@ -185,21 +185,21 @@ void uiPositionTable::getBinIDs( TypeSet<BinID>& binids ) const
     {
 	if ( withic_ )
 	{
-	    if ( mIsUdf(table_->getValue(RowCol(idx,2))) ||
-		 mIsUdf(table_->getValue(RowCol(idx,3))) )
+	    if ( mIsUdf(table_->getfValue(RowCol(idx,2))) ||
+		 mIsUdf(table_->getfValue(RowCol(idx,3))) )
 		continue;
 
-	    binids += BinID( mNINT(table_->getValue(RowCol(idx,2))),
-			     mNINT(table_->getValue(RowCol(idx,3))) );
+	    binids += BinID( table_->getIntValue(RowCol(idx,2)),
+			     table_->getIntValue(RowCol(idx,3)) );
 	}
 	else
 	{
-	    if ( mIsUdf(table_->getValue(RowCol(idx,0))) ||
-		 mIsUdf(table_->getValue(RowCol(idx,1))) )
+	    if ( mIsUdf(table_->getdValue(RowCol(idx,0))) ||
+		 mIsUdf(table_->getdValue(RowCol(idx,1))) )
 		continue;
 
-	    Coord coord( table_->getValue(RowCol(idx,0)),
-		    	 table_->getValue(RowCol(idx,1)) );
+	    Coord coord( table_->getdValue(RowCol(idx,0)),
+		    	 table_->getdValue(RowCol(idx,1)) );
 	    binids += SI().transform( coord );
 	}
     }
