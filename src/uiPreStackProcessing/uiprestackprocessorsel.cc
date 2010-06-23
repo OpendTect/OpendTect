@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.9 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.10 2010-06-23 08:04:55 cvsnanne Exp $";
 
 #include "uiprestackprocessorsel.h"
 
@@ -44,8 +44,7 @@ uiProcSel::~uiProcSel()
 
 void uiProcSel::setSel( const MultiID& mid )
 {
-    selfld_->ctxtIOObj().setObj( IOM().get( mid ) );
-    selfld_->updateInput();
+    selfld_->setInput( mid );
 }
 
 
