@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.19 2010-06-17 21:59:48 cvskris Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.20 2010-06-23 12:41:54 cvsnanne Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -219,6 +219,10 @@ bool acceptOK( CallBacker* )
     fnm_ = fnmfld_->fileName();
     if ( File::isEmpty(fnm_) )
 	{ uiMSG().error( "Invalid input file" ); return false; }
+
+    if ( !dataselfld_->commit() )
+	return false;
+
     keep_ = !replfld_->getBoolValue();
     return true;
 }

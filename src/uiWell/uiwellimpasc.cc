@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.61 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.62 2010-06-23 12:41:54 cvsnanne Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -314,6 +314,9 @@ bool uiWellImportAsc::checkInpFlds()
 
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty() ? "Please enter a name for the well" : 0 )
+
+    if ( !dataselfld_->commit() )
+	return false;
 
     return true;
 }
