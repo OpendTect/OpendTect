@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.55 2010-05-17 10:11:27 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.56 2010-06-23 06:16:14 cvsnanne Exp $";
 
 #include "uimain.h"
 
@@ -121,7 +121,6 @@ KeyboardEventFilter* uiMain::keyfilter_ = 0;
 static void initQApplication()
 {
     QApplication::setDesktopSettingsAware( true );
-    QApplication::setColorSpec( QApplication::ManyColor );
 
     QCoreApplication::setOrganizationName( "dGB");
     QCoreApplication::setOrganizationDomain( "opendtect.org" );
