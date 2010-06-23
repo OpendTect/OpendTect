@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.48 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.49 2010-06-23 08:19:44 cvsnanne Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -310,8 +310,8 @@ SubItem::SubItem( Pick::Set& set, int displayid )
     : set_( &set )
     , defscale_( set.disp_.pixsize_ )
     , scalemnuitem_("Size ...")
-    , storemnuitem_("Store")
-    , storeasmnuitem_("Store as ...")
+    , storemnuitem_("Save")
+    , storeasmnuitem_("Save as ...")
 {
     name_ = set_->name();
     displayid_ = displayid;
