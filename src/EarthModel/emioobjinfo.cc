@@ -4,7 +4,7 @@
  * DATE     : April 2010
 -*/
 
-static const char* rcsID = "$Id: emioobjinfo.cc,v 1.3 2010-06-01 06:55:52 cvsjaap Exp $";
+static const char* rcsID = "$Id: emioobjinfo.cc,v 1.4 2010-06-23 10:59:23 cvssatyaki Exp $";
 
 #include "emioobjinfo.h"
 #include "emsurfaceio.h"
@@ -71,7 +71,7 @@ IOObjInfo::~IOObjInfo()
 
 bool IOObjInfo::isOK() const
 {
-    return ioobj_;
+    return ioobj_ && ioobj_->implExists(true);
 }
 
 
@@ -110,11 +110,13 @@ void IOObjInfo::setType()
 if ( !reader_ && ioobj_ ) \
     reader_ = new dgbSurfaceReader( *ioobj_, ioobj_->group() );
 
+#define mGetReaderRet \
+mGetReader \
+if ( !reader_ ) return false;
+
 bool IOObjInfo::getSectionIDs( TypeSet<SectionID>& secids ) const
 {
-    mGetReader
-    if ( !reader_ )
-	return false;
+    mGetReaderRet
 
     for ( int idx=0; idx<reader_->nrSections(); idx++ )
 	secids += reader_->sectionID(idx);
@@ -124,8 +126,7 @@ bool IOObjInfo::getSectionIDs( TypeSet<SectionID>& secids ) const
 
 bool IOObjInfo::getSectionNames( BufferStringSet& secnames ) const
 {
-    if ( !reader_ )
-	return false;
+    mGetReaderRet
 
     for ( int idx=0; idx<reader_->nrSections(); idx++ )
 	secnames.add( reader_->sectionName(idx) );
@@ -135,9 +136,7 @@ bool IOObjInfo::getSectionNames( BufferStringSet& secnames ) const
 
 bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
 {
-    mGetReader
-    if ( !reader_ )
-	return false;
+    mGetReaderRet
 
     for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
 	attrnames.add( reader_->auxDataName(idx) );
@@ -148,9 +147,8 @@ bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
 Interval<float> IOObjInfo::getZRange() const
 {
     mGetReader
-    if ( !reader_ )
-	return Interval<float>(mUdf(float),mUdf(float));
-    return reader_->zInterval();
+    return reader_ ? reader_->zInterval()
+		   : Interval<float>(mUdf(float),mUdf(float));
 }
 
 
@@ -166,9 +164,8 @@ StepInterval<int> IOObjInfo::getInlRange() const
 StepInterval<int> IOObjInfo::getCrlRange() const
 {
     mGetReader
-    if ( !reader_ )
-	return Interval<int>(mUdf(int),mUdf(int));
-    return reader_->colInterval();
+    return reader_ ? reader_->colInterval()
+		   : StepInterval<int>(mUdf(int),mUdf(int),mUdf(int));
 }
 
 
@@ -177,18 +174,15 @@ bool IOObjInfo::getBodyRange( CubeSampling& cs ) const
     if ( type_ != IOObjInfo::Body )
 	return false;
 
+    // TODO: implement
     mGetReader
-    if ( !reader_ )
-	return false;
-    return true;
+    return reader_;
 }
 
 
 bool IOObjInfo::getLineSets( BufferStringSet& linesets ) const
 {
-    mGetReader
-    if ( !reader_ )
-	return false;
+    mGetReaderRet
 
     for ( int idx=0; idx<reader_->nrLines(); idx++ )
 	linesets.add( reader_->lineSet(idx) );
@@ -198,9 +192,7 @@ bool IOObjInfo::getLineSets( BufferStringSet& linesets ) const
 
 bool IOObjInfo::getLineNames( BufferStringSet& linenames ) const
 {
-    mGetReader
-    if ( !reader_ )
-	return false;
+    mGetReaderRet
 
     for ( int idx=0; idx<reader_->nrLines(); idx++ )
 	linenames.add( reader_->lineName(idx) );
@@ -210,9 +202,7 @@ bool IOObjInfo::getLineNames( BufferStringSet& linenames ) const
 
 int IOObjInfo::nrSticks() const
 {
-    mGetReader
-    if ( !reader_ )
-	return false;
+    mGetReaderRet
 
     Interval<float> rowrange;
     reader_->pars()->get( "Row range", rowrange );
@@ -222,9 +212,7 @@ int IOObjInfo::nrSticks() const
 
 bool IOObjInfo::getTrcRanges( TypeSet< StepInterval<int> >& trcranges ) const
 {
-    mGetReader
-    if ( !reader_ )
-	return false;
+    mGetReaderRet
 
     for ( int idx=0; idx<reader_->nrLines(); idx++ )
 	trcranges.add( reader_->lineTrcRanges(idx) );
