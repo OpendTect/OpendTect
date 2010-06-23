@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.56 2010-06-23 06:16:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.57 2010-06-23 09:35:00 cvsnanne Exp $";
 
 #include "uimain.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uimain.cc,v 1.56 2010-06-23 06:16:14 cvsnanne E
 #include "errh.h"
 #include "envvars.h"
 #include "keyboardevent.h"
+#include "oddirs.h"
 #include "settings.h"
 #include "uimsg.h"
 
@@ -125,6 +126,9 @@ static void initQApplication()
     QCoreApplication::setOrganizationName( "dGB");
     QCoreApplication::setOrganizationDomain( "opendtect.org" );
     QCoreApplication::setApplicationName( "OpendTect" );
+#ifndef __win__
+    QCoreApplication::addLibraryPath( GetBinPlfDir() ); // Qt plugin libraries
+#endif
 }
 
 
