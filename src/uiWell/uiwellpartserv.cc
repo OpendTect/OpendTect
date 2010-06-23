@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.53 2010-02-08 16:43:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.54 2010-06-23 14:21:09 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -128,9 +128,9 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
     if ( dlg->savedefault_ == true )
     {
 	edprops.defaults() = edprops;
-	saveWellDispProps( allapplied_ ? 0 : edwd );
 	edprops.commitDefaults();
     }
+    saveWellDispProps( allapplied_ ? 0 : edwd );
 
     isdisppropopened_ = false;
     sendEvent( evCleanPreview() );
@@ -155,8 +155,8 @@ void uiWellPartServer::saveWellDispProps( const Well::Data& wd, const MultiID& k
 {
     Well::Writer wr( Well::IO::getMainFileName(key), wd );
     if ( !wr.putDispProps() )
-	uiMSG().error( "Could not write display properties for \n",
-			wd.name() );
+    uiMSG().error( "Could not write display properties for \n",
+    wd.name() );
 }
 
 

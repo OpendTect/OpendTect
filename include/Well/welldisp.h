@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.26 2010-04-27 08:21:09 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.27 2010-06-23 14:21:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,13 +29,13 @@ mClass DisplayProperties
 {
 public:
 
-			DisplayProperties()		{}
+			DisplayProperties();		
 
     mStruct BasicProps
     {
 			BasicProps( int sz=1 )
 			    : size_(sz)			
-			    , color_(Color(0,0,255))
+			    , color_(Color(255,255,255))
 			    {}
 
 	Color		color_;
@@ -117,6 +117,7 @@ public:
 		            , isdatarange_(true)
 			    , islogfill_(true)
 			    , islogarithmic_(false) 
+			    , islogreverted_(false) 
 			    , issinglecol_(false)
 			    , iswelllog_(true)	
 			    , name_("none")
@@ -124,6 +125,7 @@ public:
 			    , range_(mUdf(float),mUdf(float))
 			    , repeat_(5)
 			    , repeatovlap_(50)
+			    , linecolor_(Color(0,0,255))
 		            , seiscolor_(Color::White())
 			    , seqname_("Rainbow")
 			    {}		 
@@ -139,6 +141,7 @@ public:
 	bool                logarithmic_;
 	bool                islogfill_;
 	bool                islogarithmic_;
+	bool 		    islogreverted_; 
 	bool                issinglecol_;
 	bool                isdatarange_;
 	int                 repeat_;
@@ -171,7 +174,6 @@ public:
     Log			right_;
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
-
 
     static DisplayProperties&	defaults();
     static void			commitDefaults();

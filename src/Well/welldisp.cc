@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.14 2009-10-23 09:26:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.15 2010-06-23 14:21:09 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -53,6 +53,13 @@ static const char* sKeyRightRange = "Right Log Range";
 static const char* sKeyRightSeqname = "Right Sequence name";
 static const char* sKeyRightLogWidth = "Right Log Width";
 static const char* sKeyRightScale = "Log scale";
+
+
+Well::DisplayProperties::DisplayProperties()
+{
+    Settings& setts = Settings::fetch( "welldisp" );
+    usePar( setts );
+}
 
 
 void Well::DisplayProperties::BasicProps::usePar( const IOPar& iop )
