@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.2 2010-06-18 12:23:27 cvskris Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.3 2010-06-24 08:49:56 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,11 @@ namespace MPE
 {
 
 Fault3DFlatViewEditor::Fault3DFlatViewEditor(
-			    FlatView::AuxDataEditor* ed)
+			    FlatView::AuxDataEditor* ed,
+			    const EM::ObjectID& oid )
     : EM::FaultStickSetFlatViewEditor(ed)
     , editor_(ed)
-    , f3dpainter_( new EM::Fault3DPainter(ed->viewer()) )
+    , f3dpainter_( new EM::Fault3DPainter(ed->viewer(),oid) )
     , meh_(0)
     , activestickid_(mUdf(int))
     , seedhasmoved_(false)
@@ -43,8 +44,6 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 	    mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
     ed->movementFinished.notify(
 	    mCB(this,Fault3DFlatViewEditor,seedMovementFinishedCB) );
-    MPE::engine().activefaultchanged_.notify(
-	    mCB(this,Fault3DFlatViewEditor,activeF3DChgCB) );
     f3dpainter_->abouttorepaint_.notify(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
     f3dpainter_->repaintdone_.notify( 
@@ -58,8 +57,6 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 	    mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
     editor_->movementFinished.remove(
 	    mCB(this,Fault3DFlatViewEditor,seedMovementFinishedCB) );
-    MPE::engine().activefaultchanged_.remove(
-	    mCB(this,Fault3DFlatViewEditor,activeF3DChgCB) );
     setMouseEventHandler( 0 );
     delete f3dpainter_;
     deepErase( markeridinfo_ );
@@ -101,24 +98,20 @@ void Fault3DFlatViewEditor::setCubeSampling( const CubeSampling& cs )
 
 void Fault3DFlatViewEditor::drawFault()
 {
-    for ( int idx=0; idx<EM::EMM().nrLoadedObjects(); idx++ )
-    {
-	EM::ObjectID emid = EM::EMM().objectID( idx );
-	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
-	mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
-	if ( !emf3d )
-	    continue;
-	f3dpainter_->addFault3D( emid );
-    }
+    f3dpainter_->paint();
 }
 
 
-void Fault3DFlatViewEditor::activeF3DChgCB( CallBacker* cb )
+void Fault3DFlatViewEditor::enablePainting( bool yn )
 {
-    f3dpainter_->setActiveF3D( MPE::engine().getActiveFaultObjID() );
-    cleanActStkContainer();
-    if ( MPE::engine().getActiveFaultObjID() != -1 )
-	fillActStkContainer( MPE::engine().getActiveFaultObjID() );
+    f3dpainter_->enableKnots( yn );
+    f3dpainter_->enableLine( yn );
+}
+
+
+void Fault3DFlatViewEditor::enableKnots( bool yn )
+{
+    f3dpainter_->enableKnots( yn );
 }
 
 
@@ -130,8 +123,10 @@ void Fault3DFlatViewEditor::f3dRepaintATSCB( CallBacker* )
 
 void Fault3DFlatViewEditor::f3dRepaintedCB( CallBacker* )
 {
-    if ( MPE::engine().getActiveFaultObjID() != -1 )
-	fillActStkContainer( MPE::engine().getActiveFaultObjID() );
+    if ( MPE::engine().getActiveFaultObjID() != -1 &&
+	 (MPE::engine().getActiveFaultObjID()==f3dpainter_->getFaultID()) )
+	fillActStkContainer();
+
     activestickid_ = mUdf(int);
 }
 
@@ -476,15 +471,16 @@ void Fault3DFlatViewEditor::cleanActStkContainer()
 void Fault3DFlatViewEditor::updateActStkContainer()
 {
     cleanActStkContainer();
-    if ( MPE::engine().getActiveFaultObjID() != -1 )
-	fillActStkContainer( MPE::engine().getActiveFaultObjID() );
+    if ( MPE::engine().getActiveFaultObjID() != -1 &&
+	 (MPE::engine().getActiveFSSObjID()==f3dpainter_->getFaultID()) )
+	fillActStkContainer();
 }
 
 
-void Fault3DFlatViewEditor::fillActStkContainer( const EM::ObjectID oid )
+void Fault3DFlatViewEditor::fillActStkContainer()
 {
     ObjectSet<EM::Fault3DPainter::StkMarkerInfo> dispdstkmrkinfos;
-    f3dpainter_->getDisplayedSticks( oid, dispdstkmrkinfos );
+    f3dpainter_->getDisplayedSticks( dispdstkmrkinfos );
 
     for ( int idx=0; idx<dispdstkmrkinfos.size(); idx++ )
     {

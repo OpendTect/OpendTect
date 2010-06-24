@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.8 2010-06-18 12:23:27 cvskris Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.9 2010-06-24 08:49:56 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,11 @@ namespace MPE
 {
 
 FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
-				FlatView::AuxDataEditor* ed )
+				FlatView::AuxDataEditor* ed,
+				const EM::ObjectID& oid )
     : EM::FaultStickSetFlatViewEditor(ed)
     , editor_(ed)
-    , fsspainter_( new EM::FaultStickPainter(ed->viewer()) )
+    , fsspainter_( new EM::FaultStickPainter(ed->viewer(),oid) )
     , meh_(0)
     , activestickid_(-1)
     , seedhasmoved_(false)
@@ -43,8 +44,6 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 	    mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
     ed->movementFinished.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
-    MPE::engine().activefsschanged_.notify(
-	    mCB(this,FaultStickSetFlatViewEditor,activeFSSChgCB) );
     fsspainter_->abouttorepaint_.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
     fsspainter_->repaintdone_.notify( 
@@ -58,8 +57,6 @@ FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 	    mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
     editor_->movementFinished.remove(
 	    mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
-    MPE::engine().activefsschanged_.remove(
-	    mCB(this,FaultStickSetFlatViewEditor,activeFSSChgCB) );
     setMouseEventHandler( 0 );
     delete fsspainter_;
     deepErase( markeridinfo_ );
@@ -101,23 +98,30 @@ void FaultStickSetFlatViewEditor::setCubeSampling( const CubeSampling& cs )
 
 void FaultStickSetFlatViewEditor::drawFault()
 {
-    for ( int idx=0; idx<EM::EMM().nrLoadedObjects(); idx++ )
-    {
-	EM::ObjectID emid = EM::EMM().objectID( idx );
-	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
-	mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
-	if ( !emfss )
-	    continue;
-	fsspainter_->addFaultStickSet( emid );
-    }
+    fsspainter_->paint();
+}
+
+
+void FaultStickSetFlatViewEditor::enablePainting( bool yn )
+{
+    fsspainter_->enableKnots( yn );
+    fsspainter_->enableLine( yn );
+}
+
+
+void FaultStickSetFlatViewEditor::enableKnots( bool yn )
+{
+    fsspainter_->enableKnots( yn );
 }
 
 
 void FaultStickSetFlatViewEditor::updateActStkContainer()
 {
     cleanActStkContainer();
-    if ( MPE::engine().getActiveFSSObjID() != -1 )
-	fillActStkContainer( MPE::engine().getActiveFSSObjID() );
+
+    if ( MPE::engine().getActiveFSSObjID() != -1 &&
+	 (MPE::engine().getActiveFSSObjID()==fsspainter_->getFaultSSID()) )
+	fillActStkContainer();
 }
 
 
@@ -131,10 +135,10 @@ void FaultStickSetFlatViewEditor::cleanActStkContainer()
 }
 
 
-void FaultStickSetFlatViewEditor::fillActStkContainer( const EM::ObjectID oid )
+void FaultStickSetFlatViewEditor::fillActStkContainer()
 {
     ObjectSet<EM::FaultStickPainter::StkMarkerInfo> dispdstkmrkinfos;
-    fsspainter_->getDisplayedSticks( oid, dispdstkmrkinfos );
+    fsspainter_->getDisplayedSticks( dispdstkmrkinfos );
 
     for ( int idx=0; idx<dispdstkmrkinfos.size(); idx++ )
     {
@@ -149,15 +153,6 @@ void FaultStickSetFlatViewEditor::fillActStkContainer( const EM::ObjectID oid )
 }
 
 
-void FaultStickSetFlatViewEditor::activeFSSChgCB( CallBacker* )
-{
-    fsspainter_->setActiveFSS( MPE::engine().getActiveFSSObjID() );
-    cleanActStkContainer();
-    if ( MPE::engine().getActiveFSSObjID() != -1 )
-	fillActStkContainer( MPE::engine().getActiveFSSObjID() );
-}
-
-
 void FaultStickSetFlatViewEditor::fssRepaintATSCB( CallBacker* )
 { 
     cleanActStkContainer(); 
@@ -166,9 +161,11 @@ void FaultStickSetFlatViewEditor::fssRepaintATSCB( CallBacker* )
 
 void FaultStickSetFlatViewEditor::fssRepaintedCB( CallBacker* )
 {
-    if ( MPE::engine().getActiveFSSObjID() != -1 )
-	fillActStkContainer( MPE::engine().getActiveFSSObjID() );
-    activestickid_ = -1;
+    if ( MPE::engine().getActiveFSSObjID() != -1 &&
+	 (MPE::engine().getActiveFSSObjID()==fsspainter_->getFaultSSID()) )
+	fillActStkContainer();
+
+    activestickid_ = mUdf(int);
 }
 
 
@@ -202,7 +199,10 @@ void FaultStickSetFlatViewEditor::seedMovementStartedCB( CallBacker* cb )
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
 
     EM::ObjectID emid = MPE::engine().getActiveFSSObjID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
+
+    if ( emid !=fsspainter_->getFaultSSID() )
+	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
@@ -332,6 +332,8 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 
 void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 {
+    bool active = editor_->viewer().appearance().annot_.editable_;
+    bool sel = editor_->isSelActive();
     if ( !editor_->viewer().appearance().annot_.editable_
 	 || editor_->isSelActive() )
 	return;
