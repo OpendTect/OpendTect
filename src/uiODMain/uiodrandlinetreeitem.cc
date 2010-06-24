@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.38 2010-04-14 12:18:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.39 2010-06-24 11:29:00 cvsumesh Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.38 2010-04-14 12:18
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uiodviewer2dmgr.h"
 #include "uipositiontable.h"
 #include "uiselsimple.h"
 #include "uivispartserv.h"
@@ -500,5 +501,5 @@ void uiODRandomLineTreeItem::editNodes()
 
 void uiODRandomLineTreeItem::remove2DViewerCB( CallBacker* )
 {
-    ODMainWin()->sceneMgr().remove2DViewer( displayid_ );
+    ODMainWin()->viewer2DMgr().remove2DViewer( displayid_ );
 }

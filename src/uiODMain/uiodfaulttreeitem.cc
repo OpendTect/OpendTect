@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.40 2010-06-22 21:29:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.41 2010-06-24 11:29:00 cvsumesh Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -75,6 +75,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	emo->setName( newname.buf() );
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
+	applMgr()->EMServer()->signalTenpObjAdd( emo->id() );
 	return true;
     }
     else
@@ -207,6 +208,10 @@ void uiODFaultTreeItem::prepareForShutdown()
 {
     if ( faultdisplay_ )
     {
+	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
+	if ( !ioobj )
+	    applMgr()->EMServer()->signalTempObjAbtToDel( emid_ );
+
 	faultdisplay_->materialChange()->remove(
 	    mCB(this,uiODFaultTreeItem,colorChCB));
 	faultdisplay_->unRef();
@@ -381,6 +386,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	emo->setName( newname.buf() );
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultStickSetTreeItem( emo->id() ), false );
+	applMgr()->EMServer()->signalTenpObjAdd( emo->id() );
 	return true;
     }
     else
@@ -502,6 +508,10 @@ void uiODFaultStickSetTreeItem::prepareForShutdown()
 {
     if ( faultsticksetdisplay_ )
     {
+	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
+	if ( !ioobj )
+	    applMgr()->EMServer()->signalTempObjAbtToDel( emid_ );
+
 	faultsticksetdisplay_->materialChange()->remove(
 	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
 	faultsticksetdisplay_->unRef();

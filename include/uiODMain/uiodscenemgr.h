@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.76 2010-06-21 11:42:39 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.77 2010-06-24 11:28:54 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiListView;
 class uiMdiArea;
 class uiMdiAreaWindow;
 class uiODTreeTop;
-class uiODViewer2D;
+//class uiODViewer2D;
 class uiSliderExtra;
 class uiSoViewer;
 class uiThumbWheel;
@@ -171,9 +171,6 @@ protected:
     uiODMain&			appl_;
     uiMdiArea*			mdiarea_;
     ObjectSet<Scene>		scenes_;
-    ObjectSet<uiODViewer2D>	viewers2d_;
-    uiODViewer2D&		addViewer2D(int visid);
-    uiODViewer2D*		find2DViewer(int visid);
     void			mdiAreaChanged(CallBacker*);
 
     int				vwridx_;

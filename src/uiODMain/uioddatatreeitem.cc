@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.51 2010-04-23 04:22:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.52 2010-06-24 11:29:00 cvsumesh Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.51 2010-04-23 04:22:15 
 #include "uiodapplmgr.h"
 #include "uioddisplaytreeitem.h"
 #include "uiodscenemgr.h"
+#include "uiodviewer2dmgr.h"
 #include "uivispartserv.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -336,7 +337,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
     {
-	ODMainWin()->sceneMgr().displayIn2DViewer( displayID(), attribNr(),
+	ODMainWin()->viewer2DMgr().displayIn2DViewer( displayID(), attribNr(),
 						   mnuid==view2dwvaitem_.id );
 	menu->setIsHandled( true );
     }

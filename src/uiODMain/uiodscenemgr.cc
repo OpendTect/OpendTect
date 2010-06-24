@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.207 2010-06-21 11:42:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.208 2010-06-24 11:29:00 cvsumesh Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -29,7 +29,7 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.207 2010-06-21 11:42:39 cvs
 #include "uilistview.h"
 #include "uimdiarea.h"
 #include "uimsg.h"
-#include "uiodviewer2d.h"
+#include "uiodviewer2dmgr.h"
 #include "uiprintscenedlg.h"
 #include "uislider.h"
 #include "uisoviewer.h"
@@ -1017,55 +1017,13 @@ void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items )
 
 void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 {
-    uiODViewer2D* curvwr = find2DViewer( visid );
-
-    if ( !curvwr )
-	curvwr = &addViewer2D( visid );
-
-    bool hasvwr = curvwr->viewwin_;
-    curvwr->setUpView( visServ().getDataPackID(visid,attribid), dowva );
-    curvwr->setSelSpec( visServ().getSelSpec(visid,attribid), dowva );
-    appl_.applMgr().visServer()->fillDispPars( visid, attribid,
-	    curvwr->viewwin_->viewer().appearance().ddpars_, dowva );
-    if ( !hasvwr )
-	curvwr->viewwin_->viewer().handleChange( FlatView::Viewer::All );
-}
-
-
-uiODViewer2D* uiODSceneMgr::find2DViewer( int visid )
-{
-    uiODViewer2D* curvwr = 0;
-    for ( int idx=0; idx<viewers2d_.size(); idx++ )
-    {
-	if ( viewers2d_[idx]->visid_ != visid )
-	    continue;
-
-	curvwr = viewers2d_[idx];
-	break;
-    }
-
-    return curvwr;
+    appl_.viewer2DMgr().displayIn2DViewer( visid, attribid, dowva );
 }
 
 
 void uiODSceneMgr::remove2DViewer( int visid )
 {
-    for ( int idx=0; idx<viewers2d_.size(); idx++ )
-    {
-	if ( viewers2d_[idx]->visid_ != visid )
-	    continue;
-
-	delete viewers2d_.remove( idx );
-	return;
-    }
-}
-
-
-uiODViewer2D& uiODSceneMgr::addViewer2D( int visid )
-{
-    uiODViewer2D* vwr = new uiODViewer2D( appl_, visid );
-    viewers2d_ += vwr;
-    return *vwr;
+    appl_.viewer2DMgr().remove2DViewer( visid );
 }
 
 

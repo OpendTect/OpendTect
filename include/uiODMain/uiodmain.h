@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.24 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiodmain.h,v 1.25 2010-06-24 11:28:54 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class uiODApplMgr;
 class uiODMain;
 class uiODMenuMgr;
 class uiODSceneMgr;
+class uiODViewer2DMgr;
 class uiVisColTabEd;
 
 
@@ -47,6 +48,7 @@ public:
     uiODApplMgr&	applMgr()	{ return *applmgr_; }
     uiODMenuMgr&	menuMgr()	{ return *menumgr_; } //!< + toolbar
     uiODSceneMgr&	sceneMgr()	{ return *scenemgr_; }
+    uiODViewer2DMgr&	viewer2DMgr()	{ return *viewer2dmgr_; }
     uiVisColTabEd&	colTabEd()	{ return *ctabed_; }
 
     Notifier<uiODMain>	sessionSave;	//!< Put data in pars
@@ -74,6 +76,7 @@ protected:
     uiODApplMgr*	applmgr_;
     uiODMenuMgr*	menumgr_;
     uiODSceneMgr*	scenemgr_;
+    uiODViewer2DMgr*	viewer2dmgr_;
     uiVisColTabEd*	ctabed_;
     uicMain&		uiapp_;
     ODSession*		cursession_;
@@ -110,6 +113,7 @@ public:
 
     bool		sceneMgrAvailable() const	{ return scenemgr_; }
     bool		menuMgrAvailable() const	{ return menumgr_; }
+    bool		viewer2DMgrAvailable() const	{ return viewer2dmgr_; }
 
 };
 

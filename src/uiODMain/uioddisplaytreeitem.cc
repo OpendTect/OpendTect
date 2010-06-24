@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.39 2010-05-28 14:41:38 cvskris Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.40 2010-06-24 11:29:00 cvsumesh Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.39 2010-05-28 14:41:
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uiodviewer2dmgr.h"
 #include "uiodvolproctreeitem.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
@@ -85,7 +86,7 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 	menu->handlenotifier.remove(mCB(this,uiODDisplayTreeItem,handleMenuCB));
     }
 
-    ODMainWin()->sceneMgr().remove2DViewer( displayid_ );
+    ODMainWin()->viewer2DMgr().remove2DViewer( displayid_ );
 }
 
 

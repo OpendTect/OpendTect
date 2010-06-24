@@ -7,12 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.34 2010-04-28 12:29:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.35 2010-06-24 11:29:00 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
 #include "uiattribpartserv.h"
-#include "uiemviewer2dmanager.h"
 #include "uiflatauxdataeditor.h"
 #include "uiflatviewdockwin.h"
 #include "uiflatviewer.h"
@@ -20,24 +19,23 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.34 2010-04-28 12:29:45 cvsb
 #include "uiflatviewslicepos.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewpropdlg.h"
-#include "uigraphicsscene.h"
 #include "uiodmain.h"
-#include "uiodscenemgr.h"
-#include "uirgbarraycanvas.h"
+#include "uiodviewer2dmgr.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
+
+#include "uilistview.h"
+#include "uiodvw2dtreeitem.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribdataholder.h"
 #include "attribsel.h"
-#include "emhorizonpainter.h"
-#include "horflatvieweditor.h"
-#include "mpef3dflatvieweditor.h"
-#include "mpefssflatvieweditor.h"
 #include "settings.h"
+#include "sorting.h"
+#include "survinfo.h"
 
-#include "visseis2ddisplay.h"
+#include "visvw2ddataman.h"
 
 void initSelSpec( Attrib::SelSpec& as )
 { as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
@@ -49,6 +47,9 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , wvaselspec_(*new Attrib::SelSpec)
     , viewwin_(0)
     , slicepos_(0)
+    , datamgr_(new Vw2DDataManager)
+    , tifs_(0)
+    , treetp_(0)
 {
     basetxt_ = "2D Viewer - ";
     BufferString info;
@@ -71,82 +72,12 @@ uiODViewer2D::~uiODViewer2D()
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
 
-    for ( int idx=0; idx<horfveditors_.size(); idx++ )
-    {
-	horfveditors_[idx]->updateoldactivevolinuimpeman.remove(
-		mCB(this,uiODViewer2D,updateOldActiveVolInUiMPEManCB) );
-	horfveditors_[idx]->restoreactivevolinuimpeman.remove(
-		mCB(this,uiODViewer2D,restoreActiveVolInUiMPEManCB) );
-	horfveditors_[idx]->updateseedpickingstatus.remove(
-		mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
-    }
-
-    deepErase ( horfveditors_ );
-    deepErase( fssfveditors_ );
-    deepErase( f3dfveditors_ );
     deepErase( auxdataeditors_ );
-    deepErase( emviewer2dmans_ );
+
+    delete treetp_;
+    delete datamgr_;
 
     delete viewwin();
-}
-
-
-void uiODViewer2D::setUpViewWinEditors( DataPack* dp )
-{
-    mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
-    mDynamicCastGet(Attrib::Flat2DDataPack*,dp2d,dp)
-    mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2ddh,dp)
-   
-    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
-    {
-	if ( dp3d )
-	{
-	    const CubeSampling& cs = dp3d->cube().cubeSampling();
-	    if ( slicepos_ ) slicepos_->setCubeSampling( cs );
-	    if ( dp3d->isVertical() )
-	    {
-		emviewer2dmans_[ivwr]->setCubeSampling( cs );
-		horfveditors_[ivwr]->setCubeSampling( cs );
-		horfveditors_[ivwr]->setSelSpec( &vdselspec_, false );
-		horfveditors_[ivwr]->setSelSpec( &wvaselspec_, true );
-	    }
-	    fssfveditors_[ivwr]->setCubeSampling( cs );
-	    f3dfveditors_[ivwr]->setCubeSampling( cs );
-	}
-	else if ( dp2ddh )
-	{
-	    emviewer2dmans_[ivwr]->setPainterLineName(
-		    appl_.applMgr().visServer()->getObjectName(visid_) );
-	    dp2ddh->getPosDataTable( 
-		    emviewer2dmans_[ivwr]->getHorPainter()->getTrcNos(),
-		    emviewer2dmans_[ivwr]->getHorPainter()->getDistances() );
-	    dp2ddh->getPosDataTable( fssfveditors_[ivwr]->getTrcNos(),
-				     fssfveditors_[ivwr]->getDistances() );
-	    dp2ddh->getCoordDataTable( fssfveditors_[ivwr]->getTrcNos(),
-				       fssfveditors_[ivwr]->getCoords() );
-	    emviewer2dmans_[ivwr]->setCubeSampling(
-		    dp2ddh->dataholder().getCubeSampling() );
-	    horfveditors_[ivwr]->setCubeSampling( 
-		    dp2ddh->dataholder().getCubeSampling() );
-	    horfveditors_[ivwr]->setSelSpec( &vdselspec_, false );
-	    horfveditors_[ivwr]->setSelSpec( &wvaselspec_, true );
-	    horfveditors_[ivwr]->setLineName(
-		    appl_.applMgr().visServer()->getObjectName(visid_) );
-	    fssfveditors_[ivwr]->setLineName(
-		    appl_.applMgr().visServer()->getObjectName(visid_) );
-	    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    appl_.applMgr().visServer()->getObject(visid_));
-	    if ( s2d )
-	    {
-		horfveditors_[ivwr]->setLineSetID( s2d->lineSetID() );
-		fssfveditors_[ivwr]->setLineID( s2d->lineSetID() );
-		horfveditors_[ivwr]->set2D( true );
-		fssfveditors_[ivwr]->set2D( true );
-	    }
-	}
-	fssfveditors_[ivwr]->drawFault();
-	f3dfveditors_[ivwr]->drawFault();
-    }
 }
 
 
@@ -159,16 +90,27 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 
     const bool isnew = !viewwin();
     if ( isnew )
+    {
+	if ( dp3d )
+	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
+	else if ( dp2ddh )
+	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet2D();
+
 	createViewWin( (dp3d && dp3d->isVertical()) ||
 		       (dp2d && dp2d->isVertical()) );
+    }
 
     if ( slicepos_ )
 	slicepos_->getToolBar()->display( dp3d );
 
-    setUpViewWinEditors( dp );
-
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
+	if( dp3d )
+	{
+	    const CubeSampling& cs = dp3d->cube().cubeSampling();
+	    if ( slicepos_ ) slicepos_->setCubeSampling( cs );
+	}
+
 	DataPack::ID curpackid = viewwin()->viewer(ivwr).packID( wva );
 	viewwin()->viewer(ivwr).removePack( curpackid );
 	DPM(DataPackMgr::FlatID()).release( curpackid );
@@ -178,6 +120,20 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
 	viewwin()->viewer(ivwr).setPack( wva, packid, false, isnew );
     }
+    
+    //updating stuff
+    if ( treetp_ )
+    {
+	treetp_->updSelSpec( &wvaselspec_, true );
+	treetp_->updSelSpec( &vdselspec_, false );
+
+	if ( dp3d )
+	    treetp_->updCubeSamling( dp3d->cube().cubeSampling(), true );
+	else if ( dp2ddh )
+	    treetp_->updCubeSamling( dp2ddh->dataholder().getCubeSampling(),
+		    		     true );
+    }
+    
     viewwin()->start();
 }
 
@@ -197,6 +153,8 @@ void uiODViewer2D::createViewWin( bool isvert )
 	slicepos_ = new uiSlicePos2DView( fvmw );
 	slicepos_->positionChg.notify( mCB(this,uiODViewer2D,posChg) );
 	viewwin_ = fvmw;
+
+	createTree( fvmw );
     }
     else
     {
@@ -226,47 +184,54 @@ void uiODViewer2D::createViewWin( bool isvert )
 }
 
 
+void uiODViewer2D::createTree( uiMainWin* mw )
+{
+    if ( !mw || !tifs_ ) return;
+
+    uiDockWin* treedoc = new uiDockWin( mw, "Annotation Item" );
+    treedoc->setMinimumWidth( 200 );
+    uiListView* lv = new uiListView( treedoc, "Annotation Item" );
+    treedoc->setObject( lv );
+
+    treetp_ = new uiODVw2DTreeTop( lv, &appl_.applMgr(), this, tifs_ );
+    
+    TypeSet<int> idxs;
+    TypeSet<int> placeidxs;
+    
+    for ( int idx=0; idx < tifs_->nrFactories(); idx++ )
+    {
+	SurveyInfo::Pol2D pol2d = (SurveyInfo::Pol2D)tifs_->getPol2D( idx );
+	if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D
+	     || pol2d == SurveyInfo::Both2DAnd3D
+	     || pol2d == SI().getSurvDataType() )
+	{
+	    idxs += idx;
+	    placeidxs += tifs_->getPlacementIdx(idx);
+	}
+    }
+
+    sort_coupled( placeidxs.arr(), idxs.arr(), idxs.size() );
+    
+    for ( int iidx=0; iidx<idxs.size(); iidx++ )
+    {
+	const int fidx = idxs[iidx];
+	treetp_->addChild( tifs_->getFactory(iidx)->create(), true );
+    }
+
+    lv->display( true );
+    mw->addDockWindow( *treedoc, uiMainWin::Left );
+    treedoc->display( true );
+}
+
+
 void uiODViewer2D::createViewWinEditors()
 {   
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
 	uiFlatViewAuxDataEditor* adeditor = new uiFlatViewAuxDataEditor( vwr );
-	auxdataeditors_ += adeditor;
-
-	EM::uiEMViewer2DManager* emviewer2dman = 
-	    		new EM::uiEMViewer2DManager( vwr, adeditor );
-	emviewer2dman->initEMFlatViewControl( &appl_,
-					      viewstdcontrol_->toolBar() );
-	emviewer2dmans_ += emviewer2dman;
-
 	adeditor->setSelActive( false );
-
-	MPE::HorizonFlatViewEditor* horfveditor =
-	    		new MPE::HorizonFlatViewEditor( adeditor );
-	horfveditor->updateoldactivevolinuimpeman.notify(
-		mCB(this,uiODViewer2D,updateOldActiveVolInUiMPEManCB) );
-	horfveditor->restoreactivevolinuimpeman.notify(
-		mCB(this,uiODViewer2D,restoreActiveVolInUiMPEManCB) );
-	horfveditor->updateseedpickingstatus.notify(
-		 mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
-	horfveditor->setMouseEventHandler( 
-		    &vwr.rgbCanvas().scene().getMouseEventHandler() );
-	horfveditors_ += horfveditor;
-
-	MPE::FaultStickSetFlatViewEditor* fssfveditor =
-	    		new MPE::FaultStickSetFlatViewEditor( adeditor );
-	fssfveditor->setMouseEventHandler(
-		    &vwr.rgbCanvas().scene().getMouseEventHandler() );
-	fssfveditors_ += fssfveditor;
-
-	MPE::Fault3DFlatViewEditor* f3dfveditor = 
-	    		new MPE::Fault3DFlatViewEditor( adeditor );
-	f3dfveditor->setMouseEventHandler(
-		    &vwr.rgbCanvas().scene().getMouseEventHandler() );
-	f3dfveditors_ += f3dfveditor;
-
-	vwr.dataChanged.notify( mCB(this,uiODViewer2D,dataChangedCB) );
+	auxdataeditors_ += adeditor;
     }
 } 
 
@@ -280,22 +245,11 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
 	packid = viewwin()->viewer( ivwr ).packID( false );
 	DPM(DataPackMgr::FlatID()).release( packid );
     }
-
-    for ( int idx=0; idx<horfveditors_.size(); idx++ )
-    {
-	horfveditors_[idx]->updateoldactivevolinuimpeman.remove(
-		mCB(this,uiODViewer2D,updateOldActiveVolInUiMPEManCB) );
-	horfveditors_[idx]->restoreactivevolinuimpeman.remove(
-		mCB(this,uiODViewer2D,restoreActiveVolInUiMPEManCB) );
-	horfveditors_[idx]->updateseedpickingstatus.remove(
-		mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
-    }
-	
-    deepErase( horfveditors_ );
-    deepErase( fssfveditors_ );
-    deepErase( f3dfveditors_ );
+    
     deepErase( auxdataeditors_ );
-    deepErase( emviewer2dmans_ );
+
+    delete treetp_; treetp_ = 0;
+    datamgr_->removeAll();
 
     mDynamicCastGet(uiMainWin*,mw,cb)
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
@@ -338,63 +292,5 @@ void uiODViewer2D::posChg( CallBacker* )
 	attrserv->setTargetSelSpec( wvaselspec_ );
 	DataPack::ID dpid = attrserv->createOutput( cs, DataPack::cNoID() );
 	setUpView( dpid, true );
-    }
-}
-
-
-void uiODViewer2D::dataChangedCB( CallBacker* )
-{
-    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
-    {
-	const FlatDataPack* wdp = viewwin()->viewer().pack( true );
-	if ( wdp && !wdp->name().isEmpty() )
-	{
-	    if ( wvaselspec_.userRef() && 
-		 !strcmp(wdp->name().buf(),wvaselspec_.userRef()) )
-		horfveditors_[ivwr]->setSelSpec( &wvaselspec_, true );
-	    else if ( vdselspec_.userRef() &&
-		      !strcmp(wdp->name().buf(),vdselspec_.userRef()) )
-		horfveditors_[ivwr]->setSelSpec( &vdselspec_, true );
-	}
-	else
-	    horfveditors_[ivwr]->setSelSpec( 0, true );
-
-	const FlatDataPack* vddp = viewwin()->viewer().pack( false );
-	if ( vddp && !vddp->name().isEmpty() )
-	{
-	    if ( wvaselspec_.userRef() &&
-		 !strcmp(vddp->name().buf(),wvaselspec_.userRef()) )
-		horfveditors_[ivwr]->setSelSpec( &wvaselspec_, false );
-	    else if ( vdselspec_.userRef() &&
-		      !strcmp(vddp->name().buf(),vdselspec_.userRef()) )
-		horfveditors_[ivwr]->setSelSpec( &vdselspec_, false );
-	}
-	else
-	    horfveditors_[ivwr]->setSelSpec( 0, false );
-    }
-}
-
-
-void uiODViewer2D::updateOldActiveVolInUiMPEManCB( CallBacker* )
-{
-    appl_.applMgr().visServer()->updateOldActiVolInuiMPEMan();
-}
-
-
-void uiODViewer2D::restoreActiveVolInUiMPEManCB( CallBacker* )
-{
-    if ( !appl_.applMgr().visServer()->isTrackingSetupActive() )
-	appl_.applMgr().visServer()->restoreActiveVolInuiMPEMan();
-}
-
-
-void uiODViewer2D::updateHorFlatViewerSeedPickStatus( CallBacker* )
-{
-    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
-    {
-	horfveditors_[ivwr]->setSeedPickingStatus(
-		appl_.applMgr().visServer()->isPicking() );
-	horfveditors_[ivwr]->setTrackerSetupActive(
-		appl_.applMgr().visServer()->isTrackingSetupActive() );
     }
 }

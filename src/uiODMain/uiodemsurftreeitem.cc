@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.71 2010-02-04 10:59:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.72 2010-06-24 11:29:00 cvsumesh Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -174,6 +174,10 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 {
     uiTreeItem::prepareForShutdown();
+    
+    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
+    if ( !ioobj )
+	applMgr()->EMServer()->signalTempObjAbtToDel( emid_ );
 }
 
 

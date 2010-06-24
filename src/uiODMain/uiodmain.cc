@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.126 2010-06-08 05:30:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.127 2010-06-24 11:29:00 cvsumesh Exp $";
 
 #include "uiodmain.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.126 2010-06-08 05:30:46 cvsnann
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
+#include "uiodviewer2dmgr.h"
 #include "uipluginsel.h"
 #include "uisetdatadir.h"
 #include "uisplashscreen.h"
@@ -274,6 +275,7 @@ bool uiODMain::ensureGoodSurveySetup()
 bool uiODMain::buildUI()
 {
     scenemgr_ = new uiODSceneMgr( this );
+    viewer2dmgr_ = new uiODViewer2DMgr( this );
     menumgr_ = new uiODMenuMgr( this );
     menumgr_->initSceneMgrDepObjs( applmgr_, scenemgr_ );
 
