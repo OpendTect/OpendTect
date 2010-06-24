@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.h,v 1.1 2010-03-16 07:18:07 cvsumesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.h,v 1.2 2010-06-24 11:19:35 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,8 @@ namespace MPE
 mClass Fault3DFlatViewEditor : public EM::FaultStickSetFlatViewEditor
 {
 public:
-    			Fault3DFlatViewEditor(FlatView::AuxDataEditor*);
+    			Fault3DFlatViewEditor(FlatView::AuxDataEditor*,
+					      const EM::ObjectID&);
 			~Fault3DFlatViewEditor();
 
     void		setMouseEventHandler(MouseEventHandler*);
@@ -36,9 +37,10 @@ public:
 
     void		setCubeSampling(const CubeSampling&);
     void		drawFault();
+    void		enablePainting(bool);
+    void		enableKnots(bool);
 
 protected:
-    void			activeF3DChgCB(CallBacker*);
 
     void			f3dRepaintATSCB(CallBacker*);
     void			f3dRepaintedCB(CallBacker*);
@@ -57,7 +59,7 @@ protected:
 	};
 
     void			cleanActStkContainer();
-    void			fillActStkContainer(const EM::ObjectID);
+    void			fillActStkContainer();
 
     EM::Fault3DPainter*		f3dpainter_;
     bool			seedhasmoved_;

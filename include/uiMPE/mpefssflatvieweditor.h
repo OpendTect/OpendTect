@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.h,v 1.4 2010-03-16 07:18:07 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.h,v 1.5 2010-06-24 11:19:35 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,8 @@ namespace MPE
 mClass FaultStickSetFlatViewEditor : public EM::FaultStickSetFlatViewEditor
 {
 public:
-    			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*);
+    			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*,
+						    const EM::ObjectID&);
 			~FaultStickSetFlatViewEditor();
 
     void		setMouseEventHandler(MouseEventHandler*);
@@ -36,6 +37,8 @@ public:
 
     void		setCubeSampling(const CubeSampling&);
     void		drawFault();
+    void		enablePainting(bool);
+    void		enableKnots(bool);
 
     void		set2D(bool yn);
     void		setLineName(const char*);
@@ -46,8 +49,6 @@ public:
     TypeSet<Coord>&	getCoords();
 
 protected:
-
-    void			activeFSSChgCB(CallBacker*);
 
     void			fssRepaintATSCB(CallBacker*);
     void			fssRepaintedCB(CallBacker*);
@@ -66,7 +67,7 @@ protected:
 	};
 
     void			cleanActStkContainer();
-    void			fillActStkContainer(const EM::ObjectID);
+    void			fillActStkContainer();
 
     EM::FaultStickPainter*  	fsspainter_;
     bool			seedhasmoved_;
