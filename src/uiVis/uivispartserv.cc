@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.451 2010-05-20 06:24:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.452 2010-06-24 11:27:21 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -1478,6 +1478,18 @@ bool uiVisPartServer::isPicking() const
     if ( !so ) return false;
 
     return so->isPicking();
+}
+
+
+void uiVisPartServer::turnQCPlaneOff()
+{
+    if ( isViewMode() )
+	return;
+
+    if ( !mpetools_ )
+	return;
+
+    mpetools_->turnQCPlaneOff();
 }
 
 

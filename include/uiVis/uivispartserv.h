@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.260 2010-05-20 06:24:04 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.261 2010-06-24 11:27:15 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -332,6 +332,7 @@ public:
 				     is handling left-mouse picks on other
 				     objects, so the picks won't be handled by
 				     the selman. */
+    void			turnQCPlaneOff();
     void			getPickingMessage(BufferString&) const;
 
     static const int		evLoadPostponedData();

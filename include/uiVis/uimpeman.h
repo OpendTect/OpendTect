@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.60 2010-06-07 16:00:41 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.61 2010-06-24 11:27:15 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ public:
 
     void			turnSeedPickingOn(bool);
     bool			isSeedPickingOn() const;
+    void			turnQCPlaneOff();
+
     void                        visObjectLockedCB(CallBacker*);
 
 protected:
