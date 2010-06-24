@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.46 2010-04-02 08:55:11 cvsjaap Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.47 2010-06-24 10:58:37 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -191,7 +191,7 @@ private:
 mClass uiTreeTopItem : public uiTreeItem
 {
 public:
-    			uiTreeTopItem(uiListView*);
+    			uiTreeTopItem(uiListView*, bool=false );
     virtual bool	addChild(uiTreeItem*,bool below);
     virtual void	updateSelection(int selectionkey, bool=false );
     			/*!< Does only update the display */
@@ -207,6 +207,7 @@ protected:
     void		selectionChanged(CallBacker*);
     void		rightClickCB(CallBacker*);
     void		anyButtonClickCB(CallBacker*);
+    void		handleSelectionChanged(bool frmbtclk);
 
     virtual const char*	parentType() const { return 0; } 
     virtual uiParent*	getUiParent() const;
@@ -214,6 +215,7 @@ protected:
     uiListView*		listview_;
     bool		disabrightclick_;
     bool		disabanyclick_;
+    bool		disabselcngresp_;
 };
 
 
