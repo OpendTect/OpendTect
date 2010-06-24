@@ -1,0 +1,321 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:	(C) dGB Beheer B.V.
+ Author:	Umesh Sinha
+ Date:		May 2010
+ RCS:		$Id: emhorizonpainter2d.cc,v 1.1 2010-06-24 08:46:24 cvsumesh Exp $
+________________________________________________________________________
+
+-*/
+
+#include "emhorizonpainter2d.h"
+
+#include "emhorizon2d.h"
+#include "emmanager.h"
+#include "emobject.h"
+
+namespace EM
+{
+
+HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
+				    const EM::ObjectID& oid )
+    : viewer_(fv)
+    , id_(oid)
+    , markerlinestyle_(LineStyle::Solid,2,Color(0,255,0))
+    , markerstyle_(MarkerStyle2D::Square, 4, Color::White())
+    , linenabled_(true)
+    , seedenabled_(true)
+    , markerseeds_(0)
+{
+    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    if ( emobj )
+    {
+	emobj->ref();
+	emobj->change.notify( mCB(this,HorizonPainter2D,horChangeCB) );
+    }
+}
+
+
+HorizonPainter2D::~HorizonPainter2D()
+{
+    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    if ( emobj )
+    {
+	emobj->change.remove( mCB(this,HorizonPainter2D,horChangeCB) );
+	emobj->unRef();
+    }
+
+    removePolyLine();
+    viewer_.handleChange( FlatView::Viewer::Annot );
+}
+
+
+void HorizonPainter2D::setCubeSampling( const CubeSampling& cs, bool update )
+{
+    cs_ = cs;
+}
+
+
+void HorizonPainter2D::setLineName( const char* ln )
+{
+    linenm_ = ln;
+}
+
+
+void HorizonPainter2D::paint()
+{
+    removePolyLine();
+    addPolyLine();
+    viewer_.handleChange( FlatView::Viewer::Annot );
+}
+
+
+bool HorizonPainter2D::addPolyLine()
+{
+    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    if ( !emobj ) return false;
+    
+    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
+    if ( !hor2d ) return false;
+
+    for ( int ids=0; ids<hor2d->nrSections(); ids++ )
+    {
+	EM::SectionID sid( ids );
+
+	SectionMarker2DLine* secmarkerln = new SectionMarker2DLine;
+	markerline_ += secmarkerln;
+	FlatView::Annotation::AuxData* seedauxdata =
+					new FlatView::Annotation::AuxData( "" );
+	seedauxdata->enabled_ = seedenabled_;
+	seedauxdata->poly_.erase();
+	seedauxdata->markerstyles_ += markerstyle_;
+	viewer_.appearance().annot_.auxdata_ += seedauxdata;
+	
+	markerseeds_ = new Marker2D;
+	markerseeds_->marker_ = seedauxdata;
+	markerseeds_->sectionid_ = sid; 
+
+	bool newmarker = true;
+	bool coorddefined = true;
+
+	Marker2D* marker = 0;
+	HorSamplingIterator iter( cs_.hrg );
+	BinID bid;
+
+	while ( iter.next(bid) )
+	{
+	    int inlfromcs = bid.inl;
+	    if ( hor2d->geometry().lineIndex( linenm_ ) < 0 )
+		continue;
+	    else
+		bid.inl = hor2d->geometry().lineIndex( linenm_ );
+	    
+	    const Coord3 crd = hor2d->getPos( sid, bid.getSerialized() );
+	    EM::PosID posid( id_, sid, bid.getSerialized() );
+
+	    if ( !crd.isDefined() )
+	    {
+		coorddefined = false;
+		bid.inl = inlfromcs;
+		continue;
+	    }
+	    else if ( !coorddefined )
+	    {
+		coorddefined = true;
+		newmarker = true;
+	    }
+	    
+	    if ( newmarker )
+	    {
+		FlatView::Annotation::AuxData* auxdata =
+		    			new FlatView::Annotation::AuxData( "" );
+		viewer_.appearance().annot_.auxdata_ += auxdata;
+		auxdata->poly_.erase();
+		auxdata->linestyle_ = markerlinestyle_;
+		auxdata->linestyle_.color_ = hor2d->preferredColor();
+		auxdata->fillcolor_ = hor2d->preferredColor();
+		auxdata->enabled_ = linenabled_;
+		marker = new Marker2D;
+		(*secmarkerln) += marker;
+		marker->marker_ = auxdata;
+		marker->sectionid_ = sid;
+		newmarker = false;
+	    }
+	    
+	    int idx = trcnos_.indexOf(bid.crl);
+	    marker->marker_->poly_ +=
+				FlatView::Point( distances_[idx], crd.z );
+
+	    if ( hor2d->isPosAttrib(posid,EM::EMObject::sSeedNode()) )
+		markerseeds_->marker_->poly_ +=
+		    		FlatView::Point( distances_[idx], crd.z );
+	    
+	    bid.inl = inlfromcs;
+	}
+    }
+
+    return true;
+}
+
+
+void HorizonPainter2D::horChangeCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
+	    			cbdata, caller, cb );
+    mDynamicCastGet(EM::EMObject*,emobject,caller);
+    if ( !emobject ) return;
+
+    switch ( cbdata.event )
+    {
+	case EM::EMObjectCallbackData::Undef:
+	    break;
+	case EM::EMObjectCallbackData::PrefColorChange:
+	    {
+		changePolyLineColor();
+		break;
+	    }
+	case EM::EMObjectCallbackData::PositionChange:
+	    {
+		if ( emobject->hasBurstAlert() )
+		    return;
+
+		BinID bid;
+		bid.setSerialized( cbdata.pid0.subID() );
+
+		if ( cs_.hrg.includes(bid) )
+		{
+		    changePolyLinePosition( cbdata.pid0 );
+		    viewer_.handleChange( FlatView::Viewer::Annot );
+		}
+		
+		break;
+	    }
+	case EM::EMObjectCallbackData::BurstAlert:
+	    {
+		if ( emobject->hasBurstAlert() )
+		    return;
+
+		repaintHorizon();
+
+		break;
+	    }
+	default:
+	    break;
+    }
+}
+
+
+void HorizonPainter2D::repaintHorizon()
+{
+    removePolyLine();
+    addPolyLine();
+    viewer_.handleChange( FlatView::Viewer::Annot );
+}
+
+
+void HorizonPainter2D::changePolyLineColor()
+{
+    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    if ( !emobj ) return;
+
+    for ( int idx=0; idx<markerline_.size(); idx++ )
+    {
+	SectionMarker2DLine* secmarkerlines = markerline_[idx];
+	for ( int markidx=0; markidx<secmarkerlines->size(); markidx++ )
+	    (*secmarkerlines)[markidx]->marker_->linestyle_.color_ =
+							emobj->preferredColor();
+    }
+
+    viewer_.handleChange( FlatView::Viewer::Annot );
+}
+
+
+void HorizonPainter2D::changePolyLinePosition( const EM::PosID& pid )
+{
+    mDynamicCastGet(EM::Horizon2D*,hor2d,EM::EMM().getObject( id_ ));
+    if ( !hor2d ) return;
+
+    if ( id_ != pid.objectID() ) return;
+
+    BinID binid;
+    binid.setSerialized( pid.subID() );
+
+    for ( int idx=0; idx<hor2d->nrSections(); idx++ )
+    {
+	if ( hor2d->sectionID(idx) != pid.sectionID() )
+	    continue;
+
+	SectionMarker2DLine* secmarkerlines = markerline_[idx];
+	for ( int markidx=0; markidx<secmarkerlines->size(); markidx++ )
+	{
+	    Coord3 crd = hor2d->getPos( hor2d->sectionID(idx), pid.subID() );
+	    FlatView::Annotation::AuxData* auxdata = 
+					(*secmarkerlines)[markidx]->marker_;
+	    
+	    for ( int posidx = 0; posidx < auxdata->poly_.size(); posidx ++ )
+	    {
+		int trcidx = trcnos_.indexOf(binid.crl);
+		if ( distances_[trcidx] == auxdata->poly_[posidx].x )
+		{
+		    auxdata->poly_[posidx].y = crd.z;
+		    viewer_.handleChange( FlatView::Viewer::Annot );
+		    return;
+		}
+	    }
+	}
+    }
+}
+
+
+void HorizonPainter2D::removePolyLine()
+{
+    for ( int markidx=markerline_.size()-1;  markidx>=0; markidx-- )
+    {
+	SectionMarker2DLine* markerlines = markerline_[markidx];
+	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
+	    viewer_.appearance().annot_.auxdata_ -=
+						(*markerlines)[idy]->marker_;
+    }
+    deepErase( markerline_ );
+
+    if ( markerseeds_ )
+    {
+	viewer_.appearance().annot_.auxdata_ -= markerseeds_->marker_;
+	delete markerseeds_;
+	markerseeds_ = 0;
+    }
+}
+
+
+void HorizonPainter2D::enableLine( bool yn )
+{
+    if ( linenabled_ == yn )
+	return;
+
+    for ( int markidx=markerline_.size()-1;  markidx>=0; markidx-- )
+    {
+	SectionMarker2DLine* markerlines = markerline_[markidx];
+	
+	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
+	{
+	    (*markerlines)[idy]->marker_->enabled_ = yn;
+	}
+    }
+
+    linenabled_ = yn;
+    viewer_.handleChange( FlatView::Viewer::Annot );
+}
+
+
+void HorizonPainter2D::enableSeed( bool yn )
+{
+    if ( seedenabled_ == yn )
+	return;
+
+    markerseeds_->marker_->enabled_ = yn;
+    seedenabled_ = yn;
+    viewer_.handleChange( FlatView::Viewer::Annot );
+}
+
+}; //namespace EM
