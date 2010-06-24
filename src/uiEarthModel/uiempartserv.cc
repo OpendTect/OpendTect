@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.204 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.205 2010-06-24 10:55:41 cvsumesh Exp $";
 
 #include "uiempartserv.h"
 
@@ -96,7 +96,9 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , selemid_(-1)
     , em_(EM::EMM())
     , disponcreation_(false)
-    , selectedrg_( false )			    
+    , selectedrg_(false)
+    , tempobjAdded(this)
+    , tempobjAbtToDel(this)			
 {
     em_.syncGeomReq.notify( mCB(this,uiEMPartServer,syncGeometry) );
 }
@@ -451,7 +453,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     if ( hor3d )
       	selectedrg_ = sel.rg; 
 
-    PtrMan<Executor> exec = em_.objectLoader(surfaceids,hor3d ? &orisel : &sel);
+    PtrMan<Executor> exec = em_.objectLoader(surfaceids,hor3d ? &sel : &orisel);
     if ( !exec )
     {
 	bool allmissing = true;
@@ -1242,3 +1244,14 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
     hor->unRef();
 }
 
+
+void uiEMPartServer::signalTenpObjAdd( const EM::ObjectID& id )
+{
+    tempobjAdded.trigger( id );
+}
+
+
+void uiEMPartServer::signalTempObjAbtToDel( const EM::ObjectID& id )
+{
+    tempobjAbtToDel.trigger( id );
+}

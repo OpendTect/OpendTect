@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.98 2010-02-04 10:59:47 cvsranojay Exp $
+ RCS:           $Id: uiempartserv.h,v 1.99 2010-06-24 10:55:36 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,7 +142,13 @@ public:
 
     const EM::ObjectID	saveUnsavedEMObject();
     void		removeUnsavedEMObjectFromTree();
-    void		removeTreeObject(const EM::ObjectID&);  
+    void		removeTreeObject(const EM::ObjectID&);
+
+    CNotifier<uiEMPartServer,const EM::ObjectID&>	tempobjAdded;
+    void		signalTenpObjAdd(const EM::ObjectID&);
+
+    CNotifier<uiEMPartServer,const EM::ObjectID&>	tempobjAbtToDel;
+    void		signalTempObjAbtToDel(const EM::ObjectID&);  
 
 protected:
 
