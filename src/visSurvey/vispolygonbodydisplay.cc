@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.9 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.10 2010-06-24 12:46:40 cvsjaap Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -328,7 +328,7 @@ NotifierAccess* PolygonBodyDisplay::materialChange()
 
 
 Color PolygonBodyDisplay::getColor() const
-{ return nearestpolygonmarker_->getMaterial()->getColor(); }
+{ return getMaterial()->getColor(); }
 
 
 void PolygonBodyDisplay::updatePolygonDisplay()

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.56 2010-06-22 21:32:44 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.57 2010-06-24 12:46:40 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -433,7 +433,7 @@ NotifierAccess* FaultDisplay::materialChange()
 
 
 Color FaultDisplay::getColor() const
-{ return activestickmarker_->getMaterial()->getColor(); }
+{ return getMaterial()->getColor(); }
 
 
 void FaultDisplay::updateStickDisplay()
