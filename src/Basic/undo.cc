@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: undo.cc,v 1.8 2010-02-11 21:58:24 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: undo.cc,v 1.9 2010-06-24 13:07:05 cvsjaap Exp $";
 
 #include "undo.h"
 
@@ -263,8 +263,8 @@ void Undo::removeStartToAndIncluding( int eventid )
 {
     while ( firsteventid_<=eventid )
     {
-	delete events_.remove(0);
 	mUpdateUserEndsCount(0,false);
+	delete events_.remove(0);
 	firsteventid_++;
     }
 
