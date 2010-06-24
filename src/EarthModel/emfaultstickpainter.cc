@@ -1,11 +1,10 @@
-
 /*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.5 2010-03-16 07:15:14 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.6 2010-06-24 10:52:11 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,29 +21,42 @@ ________________________________________________________________________
 namespace EM
 {
 
-FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv )
+FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
+				      const EM::ObjectID& oid )
     : viewer_(fv)
+    , emid_(oid)
     , markerlinestyle_( LineStyle::Solid,2,Color(0,255,0) )
     , markerstyle_( MarkerStyle2D::Square, 4, Color(255,255,0) )
-    , activefssid_( -1 )
     , activestickid_( -1 )
     , is2d_( false )
     , linenm_( 0 )
     , lsetid_( 0 )
     , abouttorepaint_( this )
     , repaintdone_( this )
+    , linenabled_( true )
+    , knotenabled_( true )
 {
-    faultmarkerline_.allowNull();
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( emobj )
+    {
+	emobj->ref();
+	emobj->change.notify( mCB(this,FaultStickPainter,fssChangedCB) );
+    }
     cs_.setEmpty();
 }
 
 
 FaultStickPainter::~FaultStickPainter()
 {
-    while ( faultmarkerline_.size() )
-	removeFSS(0);
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( emobj )
+    {
+	emobj->change.remove( mCB(this,FaultStickPainter,fssChangedCB) );
+	emobj->unRef();
+    }
 
-    deepErase( fssinfos_ );
+    removePolyLine();
+    viewer_.handleChange( FlatView::Viewer::Annot );
 }
 
 
@@ -54,49 +66,20 @@ void FaultStickPainter::setCubeSampling( const CubeSampling& cs, bool update )
 }
 
 
-void FaultStickPainter::addFaultStickSet( const MultiID& mid )
+void FaultStickPainter::paint()
 {
-    const EM::ObjectID oid = EM::EMM().getObjectID( mid );
-    addFaultStickSet( oid );
-}
-
-
-void FaultStickPainter::addFaultStickSet( const EM::ObjectID& oid )
-{
-    for ( int idx=0; idx<fssinfos_.size(); idx++ )
-	if ( fssinfos_[idx]->id_ == oid )
-	    return;
-
-    FaultStickSetInfo* fssinfo = new FaultStickSetInfo;
-    fssinfo->id_ = oid;
-    fssinfo->lineenabled_ = true;
-    fssinfo->nodeenabled_ = true;
-    fssinfo->name_ = EM::EMM().getObject( oid )->name();
-
-    fssinfos_ += fssinfo;
-
-    if ( !addPolyLine(oid) )
-    {
-	delete fssinfos_.remove( fssinfos_.size() - 1 );
-	return;
-    }
-
+    removePolyLine();
+    addPolyLine();
     viewer_.handleChange( FlatView::Viewer::Annot );
 }
 
 
-bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
+bool FaultStickPainter::addPolyLine()
 {
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( oid );
+    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid_ );
 
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return false;
-
-    emfss->change.notify( mCB(this,FaultStickPainter,fssChangedCB) );
-
-    ObjectSet<ObjectSet<StkMarkerInfo> >* sectionmarkerlines =
-		new ObjectSet<ObjectSet<StkMarkerInfo> >;
-    faultmarkerline_ += sectionmarkerlines;
 
     for ( int sidx=0; sidx<emfss->nrSections(); sidx++ )
     {
@@ -109,8 +92,8 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
 	RowCol rc;
 	const StepInterval<int> rowrg = fss->rowRange();
 
-	ObjectSet<StkMarkerInfo>* markerlines = new ObjectSet<StkMarkerInfo>;
-	(*sectionmarkerlines) += markerlines;
+	ObjectSet<StkMarkerInfo>* secmarkerlines = new ObjectSet<StkMarkerInfo>;
+	sectionmarkerlines_ += secmarkerlines;
 
 	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
 	{
@@ -121,8 +104,10 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
 	    stickauxdata->poly_.erase();
 	    stickauxdata->linestyle_ = markerlinestyle_;
 	    stickauxdata->linestyle_.color_ = emfss->preferredColor();
-	    if ( activefssid_ == oid )
-		stickauxdata->markerstyles_ += markerstyle_;
+	    stickauxdata->markerstyles_ += markerstyle_;
+	    if ( !knotenabled_ )
+		stickauxdata->markerstyles_.erase();
+	    stickauxdata->enabled_ = linenabled_;
 
 	    if ( emfss->geometry().pickedOn2DLine(sid,rc.row) )
 	    {
@@ -163,9 +148,9 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
 		    	emfss->geometry().getEditPlaneNormal(sid,rc.row);
 
 		const bool equinormal =
-		    mIsEqual(nzednor.x,stkednor.x,.0000099) &&
-		    mIsEqual(nzednor.y,stkednor.y,.0000099) &&
-		    mIsEqual(nzednor.z,stkednor.z,.0000099);
+		    mIsEqual(nzednor.x,stkednor.x,.001) &&
+		    mIsEqual(nzednor.y,stkednor.y,.001) &&
+		    mIsEqual(nzednor.z,stkednor.z,.00001);
 
 		if ( !equinormal ) continue;
 
@@ -194,7 +179,12 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
 			    			rc.col+=colrg.step )
 		    {
 			const Coord3& pos = fss->getKnot( rc );
-			if (pointOnEdge2D(pos.coord(),extrcoord1,extrcoord2,.5))
+			BinID knotbinid = SI().transform( pos );
+			if (pointOnEdge2D(pos.coord(),extrcoord1,extrcoord2,.5)
+			    || (cs_.defaultDir()==CubeSampling::Inl
+				&& knotbinid.inl==extrbid1.inl)
+			    || (cs_.defaultDir()==CubeSampling::Crl
+				&& knotbinid.crl==extrbid1.crl) )
 			{
 			    if ( cs_.defaultDir() == CubeSampling::Inl )
 				stickauxdata->poly_ += FlatView::Point(
@@ -228,7 +218,7 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
 		StkMarkerInfo* stkmkrinfo = new StkMarkerInfo;
 		stkmkrinfo->marker_ = stickauxdata;
 		stkmkrinfo->stickid_ = rc.row;
-		(*markerlines) += stkmkrinfo;
+		(*secmarkerlines) += stkmkrinfo;
 		viewer_.appearance().annot_.auxdata_ += stickauxdata;
 	    }
 	}
@@ -238,53 +228,67 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
 }
 
 
-void FaultStickPainter::repaintFSS( const EM::ObjectID& oid )
+void FaultStickPainter::enableLine( bool yn )
 {
-    int fssidx = -1;
+    if ( linenabled_ == yn )
+	return;
 
-    for ( int idx = 0; idx<fssinfos_.size(); idx++ )
-	if ( fssinfos_[idx]->id_ == oid )
-	    { fssidx = idx; break; }
-
-    if ( fssidx>=0 )
-	removeFSS( fssidx );
-
-    addFaultStickSet(oid);
-}
-
-
-void FaultStickPainter::removeFSS( int idx )
-{
-    removePolyLine( idx );
-    if ( EM::EMM().getObject(fssinfos_[idx]->id_) )
+    for ( int markidx=sectionmarkerlines_.size()-1; markidx>=0; markidx-- )
     {
-	mDynamicCastGet( EM::FaultStickSet*, fss, 
-	    EM::EMM().getObject(fssinfos_[idx]->id_) );
-	fss->change.remove( mCB(this,FaultStickPainter,fssChangedCB) );
+	ObjectSet<StkMarkerInfo>* markerlines = sectionmarkerlines_[markidx];
+	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
+	{
+	    (*markerlines)[idy]->marker_->enabled_ = yn;
+	}
     }
 
-    delete fssinfos_[idx];
-    fssinfos_.remove( idx );
-    activestickid_ = -1;
+    linenabled_ = yn;
     viewer_.handleChange( FlatView::Viewer::Annot );
 }
 
 
-void FaultStickPainter::removePolyLine( int idx )
+void FaultStickPainter::enableKnots( bool yn )
 {
-    ObjectSet<ObjectSet<StkMarkerInfo> >* sectionmarkerlines =
-							faultmarkerline_[idx];
-    for ( int markidx=sectionmarkerlines->size()-1; markidx>=0; markidx-- )
+    if ( knotenabled_ == yn )
+	return;
+
+    for ( int markidx=sectionmarkerlines_.size()-1; markidx>=0; markidx-- )
     {
-	ObjectSet<StkMarkerInfo>* markerlines = 
-	    					(*sectionmarkerlines)[markidx];
+	ObjectSet<StkMarkerInfo>* markerlines = sectionmarkerlines_[markidx];
+	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
+	{
+	    if ( !yn )
+		(*markerlines)[idy]->marker_->markerstyles_.erase();
+	    else
+		(*markerlines)[idy]->marker_->markerstyles_ += markerstyle_;
+	}
+    }
+
+    knotenabled_ = yn;
+    viewer_.handleChange( FlatView::Viewer::Annot );
+}
+
+
+void FaultStickPainter::repaintFSS()
+{
+    removePolyLine();
+    addPolyLine();
+    viewer_.handleChange( FlatView::Viewer::Annot );
+}
+
+
+void FaultStickPainter::removePolyLine()
+{
+    for ( int markidx=sectionmarkerlines_.size()-1; markidx>=0; markidx-- )
+    {
+	ObjectSet<StkMarkerInfo>* markerlines = sectionmarkerlines_[markidx];
+	if ( !markerlines->size() ) continue;
+
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
 	   viewer_.appearance().annot_.auxdata_ -= (*markerlines)[idy]->marker_;
     }
 
-    deepErase( *faultmarkerline_[idx] );
-    delete faultmarkerline_[idx];
-    faultmarkerline_.remove( idx );
+    deepErase( sectionmarkerlines_ );
 }
 
 
@@ -298,11 +302,7 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject);
     if ( !emfss ) return;
 
-    int fssinfoidx = -1;
-
-    for ( int idx=0; idx<fssinfos_.size(); idx++ )
-	if ( fssinfos_[idx]->id_ == emobject->id() )
-	{ fssinfoidx = idx; break; }
+    if ( emobject->id() != emid_ ) return;
 
     switch ( cbdata.event )
     {
@@ -313,7 +313,7 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 	case EM::EMObjectCallbackData::PositionChange:
 	{
 	    abouttorepaint_.trigger();
-	    repaintFSS( emobject->id() );
+	    repaintFSS();
 	    repaintdone_.trigger();
 	    break;
 	}
@@ -322,7 +322,7 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 	    if (  emobject->hasBurstAlert() )
 		return;
 	    abouttorepaint_.trigger();
-	    repaintFSS( emobject->id() );
+	    repaintFSS();
 	    repaintdone_.trigger();
 	    viewer_.handleChange( FlatView::Viewer::Annot );
 	    break;
@@ -333,78 +333,28 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 }
 
 
-void FaultStickPainter::setActiveFSS( const EM::ObjectID& oid )
-{
-    if ( oid == activefssid_ ) return;
-
-    int idx = -1;
-
-    for ( int fssidx=0; fssidx<fssinfos_.size(); fssidx++ )
-    {
-	if ( oid == -1 )
-	{
-	    if ( fssinfos_[fssidx]->id_==activefssid_ )
-	    { idx = fssidx; break; }
-	}
-	else if ( fssinfos_[fssidx]->id_ == oid )
-	{ idx = fssidx; break; }
-    }
-    activefssid_ = oid;
-
-    if ( idx == -1 ) return;
-    for ( int auxdid=0; auxdid < (*faultmarkerline_[idx])[0]->size(); auxdid++ )
-    {
-	TypeSet<MarkerStyle2D>& markerstyle = 
-	    (*(*faultmarkerline_[idx])[0])[auxdid]->marker_->markerstyles_;
-	if ( oid == -1 )
-	    markerstyle.erase();
-	else
-	    markerstyle += markerstyle_;
-    }
-
-    viewer_.handleChange( FlatView::Viewer::Annot );
-}
-
-
 FlatView::Annotation::AuxData* FaultStickPainter::getAuxData(
 							 const EM::PosID* pid )
 {
-    int idx = -1;
+    if ( pid->objectID() != emid_ )
+	return 0;
 
-    for ( int fssidx=0; fssidx<fssinfos_.size(); fssidx++ )
-    {
-	if ( fssinfos_[fssidx]->id_ == pid->objectID() )
-	{ idx = fssidx; break; }
-    }
-
-    if ( idx == -1 ) return 0;
-
-    return (*(*faultmarkerline_[idx])[0])[activestickid_]->marker_;
+    return (*sectionmarkerlines_[0])[activestickid_]->marker_;
 }
 
 
-void FaultStickPainter::getDisplayedSticks( const EM::ObjectID& oid,
+void FaultStickPainter::getDisplayedSticks(
 					ObjectSet<StkMarkerInfo>& dispstkinfo )
 {
-    int idx = -1;
-    for ( int fssidx=0; fssidx<fssinfos_.size(); fssidx++ )
-    {
-	if ( fssinfos_[fssidx]->id_ == oid)
-	{ idx = fssidx; break; }
-    }
+    if ( !sectionmarkerlines_.size() ) return;
 
-    if ( idx == -1 ) return;
-
-    if ( !faultmarkerline_.size() || !faultmarkerline_[idx]->size() )
-	return;
-
-    dispstkinfo = *(*faultmarkerline_[idx])[0];
+    dispstkinfo = *sectionmarkerlines_[0];
 }
 
 
 bool FaultStickPainter::hasDiffActiveStick( const EM::PosID* pid )
 {
-    if ( pid->objectID() != activefssid_ ||
+    if ( pid->objectID() != emid_ ||
 	 pid->getRowCol().row != activestickid_ )
 	return true;
     else
@@ -414,27 +364,17 @@ bool FaultStickPainter::hasDiffActiveStick( const EM::PosID* pid )
 
 void FaultStickPainter::setActiveStick( EM::PosID& pid )
 {
-    if ( pid.objectID() != activefssid_ ) return;
+    if ( pid.objectID() != emid_ ) return;
 
     if ( pid.getRowCol().row == activestickid_ ) return;
 
-    int idx = -1;
-
-    for ( int fssidx=0; fssidx<fssinfos_.size(); fssidx++ )
-    {
-	if ( fssinfos_[fssidx]->id_ == pid.objectID() )
-	{ idx = fssidx; break; }
-    }
-
-    if ( idx == -1 ) return;
-
-    for ( int stkidx=0; stkidx < (*faultmarkerline_[idx])[0]->size(); stkidx++ )
+    for ( int stkidx=0; stkidx<sectionmarkerlines_[0]->size(); stkidx++ )
     {
 	LineStyle& linestyle = 
-	    	(*(*faultmarkerline_[idx])[0])[stkidx]->marker_->linestyle_;
-	if ( (*(*faultmarkerline_[idx])[0])[stkidx]->stickid_==activestickid_ )
+	    (*sectionmarkerlines_[0])[stkidx]->marker_->linestyle_;
+	if ( (*sectionmarkerlines_[0])[stkidx]->stickid_==activestickid_ )
 	    linestyle.width_ = markerlinestyle_.width_;
-	else if ( (*(*faultmarkerline_[idx])[0])[stkidx]->stickid_ ==
+	else if ( (*sectionmarkerlines_[0])[stkidx]->stickid_==
 		  pid.getRowCol().row )
 	    linestyle.width_ = markerlinestyle_.width_ * 2;
     }

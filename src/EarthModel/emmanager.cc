@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.91 2010-02-11 18:04:39 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.92 2010-06-24 10:52:11 cvsumesh Exp $";
 
 #include "emmanager.h"
 
@@ -252,7 +252,21 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	const ObjectID objid = getObjectID( mids[idx] );
-	Executor* loader = objid<0 ? objectLoader( mids[idx], iosel ) : 0;
+	
+	bool loadmore = false;
+	mDynamicCastGet(Horizon3D*,hor,getObject(objid));
+	if ( hor )
+	{
+	    HorSampling ldhrg;
+	    ldhrg.set( hor->geometry().rowRange(), hor->geometry().colRange() );
+	    if ( !ldhrg.includes(iosel->rg.start)
+		 || !ldhrg.includes(iosel->rg.stop) )
+		loadmore = true;
+	}
+
+	Executor* loader = objid<0 || loadmore
+	    		? objectLoader( mids[idx], iosel ) 
+			: 0;
 	if ( execgrp )
 	{
 	    if ( loader )
