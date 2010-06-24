@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.21 2010-06-21 05:59:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.22 2010-06-24 21:05:23 cvskris Exp $";
 
 #include "segydirectdef.h"
 
@@ -123,6 +123,7 @@ void setFDS( const FileDataSet* fds )
 	cumszs_ += totsz_;
 	totsz_ += sz;
     }
+
 }
 
 od_int64 size() const
@@ -144,6 +145,22 @@ Seis::PosKey key( od_int64 nr ) const
     const SEGY::TraceInfo& ti = *fd[relidx];
 
     if ( !ti.isUsable() )               return Seis::PosKey::undef();
+    if ( !Seis::is2D( fd.geom_ ) )
+    {
+	const BinID bid = ti.pos_.binID();
+	if ( bid.inl<=0 || bid.crl<=0 )
+	    return Seis::PosKey::undef();
+    }
+    else
+    {
+	const int trcnr = ti.pos_.trcNr();
+	if ( trcnr<0 )
+	    return Seis::PosKey::undef();
+    }
+
+    if ( Seis::isPS( fd.geom_ ) && ti.pos_.offset()<0 )
+	return Seis::PosKey::undef();
+
     return ti.pos_;
 }
 
@@ -163,7 +180,6 @@ FileDataSet::TrcIdx find( const Seis::PosKey& pk,
     TypeSet<od_int64>	cumszs_;
     od_int64		totsz_;
     const FileDataSet*	fds_;
-
 };
 }
 
@@ -213,7 +229,7 @@ void SEGY::DirectDef::setData( FileDataSet* fds )
     SEGY::FDSPosKeyList* keylist = new SEGY::FDSPosKeyList;
     keylist_ = keylist;
     keylist->setFDS( fds_ );
-    indexer_ = new Seis::PosIndexer(*keylist_,true);
+    indexer_ = new Seis::PosIndexer( *keylist_, true, true );
     getPosData( cubedata_ );
     getPosData( linedata_ );
 }
@@ -234,7 +250,7 @@ void SEGY::DirectDef::setData( const FileDataSet& fds, bool nc )
     SEGY::FDSPosKeyList* keylist = new SEGY::FDSPosKeyList;
     keylist_ = keylist;
     keylist->setFDS( fds_ );
-    indexer_ = new Seis::PosIndexer(*keylist_,true);
+    indexer_ = new Seis::PosIndexer( *keylist_, true, true );
     getPosData( cubedata_ );
     getPosData( linedata_ );
 }
@@ -345,7 +361,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 
     keylist_ = new SEGY::StreamPosKeyList( fnm, datastart, cumsizes,
 	    				   accumulatedsize );
-    indexer_ = new Seis::PosIndexer(*keylist_,false);
+    indexer_ = new Seis::PosIndexer( *keylist_, false, true );
     if ( !indexer_->readFrom( fnm, indexstart, false, int32interp, int64interp,
 	 floatinterp ) )
 	return false;
@@ -516,16 +532,22 @@ void SEGY::DirectDef::getPosData( PosInfo::CubeData& cd ) const
 {
     if ( !indexer_ || Seis::is2D(indexer_->geomType()) ) return;
 
-    Interval<int> inlrg( indexer_->inlRange() ); inlrg.sort();
     Interval<int> crlrg( indexer_->crlRange() ); crlrg.sort();
     const BinID step( SI().inlStep(), SI().crlStep() );
 
     PosInfo::CubeDataFiller cdf( cd );
-    for ( int inl=inlrg.start; inl<=inlrg.stop; inl+=step.inl )
+    const TypeSet<int>& inlines = indexer_->getInls();
+    TypeSet<int> crls;
+
+    for ( int idx=0; idx<inlines.size(); idx++ )
     {
-	for ( int crl=crlrg.start; crl<=crlrg.stop; crl+=step.crl )
+	const int inl = inlines[idx];
+	crls.erase();
+
+	indexer_->getCrls( inl, crls );
+	for ( int idy=0; idy<crls.size(); idy++ )
 	{
-	    const BinID bid( inl, crl );
+	    const BinID bid( inl, crls[idy] );
 	    const FileDataSet::TrcIdx tidx = keylist_->find( Seis::PosKey(bid),
 		    					    *indexer_, false );
 	    if ( tidx.isValid() )

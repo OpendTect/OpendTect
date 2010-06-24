@@ -3,21 +3,45 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.10 2010-06-21 05:59:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.11 2010-06-24 21:05:23 cvskris Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
 #include "datainterp.h"
+#include "survinfo.h"
+
 #include "strmoper.h"
 #include <fstream>
 
-Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl, bool doindex )
+Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl, bool doindex,
+       			      bool excludeunreasonable )
     : pkl_(pkl)
     , strm_( 0 )
     , int32interp_( 0 )
     , int64interp_( 0 )
     , curinl_( -1 )
+    , excludeunreasonable_( excludeunreasonable )
+    , goodinlrg_( SI().inlRange(false) )
+    , goodcrlrg_( SI().crlRange(false) )
 {
+    int inlwidth = goodinlrg_.width();
+    if ( inlwidth<1 )
+	inlwidth = 100;
+
+    const int inlexpansion = inlwidth*5;
+    goodinlrg_.start -= inlexpansion;
+    if ( goodinlrg_.start<0 ) goodinlrg_.start = 1;
+    goodinlrg_.stop += inlexpansion;
+
+    int crlwidth = goodcrlrg_.width();
+    if ( crlwidth<1 )
+	crlwidth = 100;
+
+    const int crlexpansion = crlwidth*5;
+    goodcrlrg_.start -= crlexpansion;
+    if ( goodcrlrg_.start<0 ) goodcrlrg_.start = 1;
+    goodcrlrg_.stop += crlexpansion;
+
     if ( doindex )
 	reIndex();
 }
@@ -364,6 +388,40 @@ int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
 }
 
 
+void Seis::PosIndexer::getCrls( int inl, TypeSet<int>& crls ) const
+{
+    Threads::MutexLocker lock( lock_ );
+
+    if ( inls_.isEmpty() )
+	return;
+
+    bool pres = true;
+    int inlidx = is2d_ ? 0 : getIndex( inls_, inl, pres );
+    if ( !pres )
+	return;
+
+    const TypeSet<int>* crlsetptr = 0;
+
+    if ( strm_ )
+    {
+	if ( curinl_!=inl )
+	{
+	    StrmOper::seek( *strm_, inlfileoffsets_[inlidx], std::ios::beg );
+	    if ( !readLine(const_cast<Seis::PosIndexer*>(this)->curcrlset_,
+			   const_cast<Seis::PosIndexer*>(this)->curidxset_,
+			   const_cast<Seis::PosIndexer*>(this)->int32interp_,
+			   const_cast<Seis::PosIndexer*>(this)->int64interp_ ) )
+		return;
+	    const_cast<Seis::PosIndexer*>(this)->curinl_ = inl;
+	}
+
+	crls = curcrlset_;
+    }
+    else
+	crls = *crlsets_[inlidx];
+}
+
+
 od_int64 Seis::PosIndexer::findFirst( const BinID& bid ) const
 {
     Threads::MutexLocker lock( lock_ );
@@ -417,13 +475,18 @@ void Seis::PosIndexer::reIndex()
     empty();
     inlrg_.start = inlrg_.stop = crlrg_.start = crlrg_.stop = 0;
     offsrg_.start = offsrg_.stop = 0;
+    nrrejected_ = 0;
 
     const od_int64 sz = pkl_.size();
     od_int64 firstok = 0;
     for ( ; firstok<sz; firstok++ )
     {
-	if ( !pkl_.key(firstok).isUndef() )
+	const PosKey key = pkl_.key(firstok);
+	if ( !key.isUndef() &&
+	     (!excludeunreasonable_ || isReasonable( key.binID() ) ) )
 	    break;
+
+	nrrejected_++;
     }
     if ( firstok >= sz )
 	return;
@@ -444,8 +507,12 @@ void Seis::PosIndexer::reIndex()
     {
 	const PosKey curpk( pkl_.key(idx) );
 	const BinID& curbid( curpk.binID() );
-	if ( curpk.isUndef() )
+	if ( curpk.isUndef() ||
+	     (excludeunreasonable_ && !isReasonable( curpk.binID() ) ) )
+	{
+	    nrrejected_++;
 	    continue;
+	}
 
 	maxidx_ = idx;
 	if ( isps_ ) offsrg_.include( curpk.offset() );
@@ -458,6 +525,22 @@ void Seis::PosIndexer::reIndex()
 	prevbid = curbid;
     }
 }
+
+
+bool Seis::PosIndexer::isReasonable( const BinID& bid ) const
+{
+    if ( is2d_ )
+	return true;
+
+    if ( !goodinlrg_.includes( bid.inl ) )
+	return false;
+
+    if ( !goodcrlrg_.includes( bid.crl ) )
+	return false;
+
+    return true;
+}
+
 
 
 void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
