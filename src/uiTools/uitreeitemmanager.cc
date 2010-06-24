@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.57 2010-05-25 03:39:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.58 2010-06-24 10:58:41 cvsumesh Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -403,8 +403,9 @@ void uiTreeItem::removeChild( uiTreeItem* treeitem )
 }
 
 
-uiTreeTopItem::uiTreeTopItem( uiListView* listview)
+uiTreeTopItem::uiTreeTopItem( uiListView* listview, bool disab )
     : uiTreeItem( listview->name() )
+    , disabselcngresp_(disab)
     , listview_( listview )
     , disabrightclick_(false)
     , disabanyclick_(false)
@@ -442,14 +443,23 @@ bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
 }
 
 
-void uiTreeTopItem::selectionChanged( CallBacker* )
+void uiTreeTopItem::handleSelectionChanged( bool frombutclick )
 {
+    if ( disabselcngresp_ && !frombutclick )
+	return;
+
     if ( disabanyclick_ || !listview_->itemNotified() ) return;
 
     const bool oldstatus = disabanyclick_;
     disabanyclick_ = true;
     anyButtonClick( listview_->itemNotified() );
     disabanyclick_ = oldstatus;
+}
+
+
+void uiTreeTopItem::selectionChanged( CallBacker* )
+{
+    handleSelectionChanged( false );
 }
 
 
@@ -465,7 +475,7 @@ void uiTreeTopItem::rightClickCB( CallBacker* )
 
 void uiTreeTopItem::anyButtonClickCB( CallBacker* cb )
 {
-    selectionChanged( cb );
+    handleSelectionChanged( true );
 }
 
 
