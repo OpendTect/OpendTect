@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.36 2010-05-07 12:50:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.37 2010-06-24 11:54:01 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -15,9 +15,11 @@ static const char* rcsID = "$Id: uistratreftree.cc,v 1.36 2010-05-07 12:50:46 cv
 #include "stratreftree.h"
 #include "stratunitref.h"
 #include "stratunitrepos.h"
+#include "sorting.h"
 #include "uigeninput.h"
 #include "uilistview.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uirgbarray.h"
 #include "uistratmgr.h"
 #include "uistratutildlgs.h"
@@ -86,7 +88,7 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 
     if ( parlvit || !root )
     {
-	ioPixmap* pm = createLevelPixmap( &nur );
+	ioPixmap* pm = createUnitPixmap( &nur );
 	lvit->setPixmap( 0, *pm );
 	delete pm;
     }
@@ -108,7 +110,7 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	    else
 		item = new uiListViewItem( lv_, setup );
 	    
-	    ioPixmap* pm = createLevelPixmap( lur );
+	    ioPixmap* pm = createUnitPixmap( lur );
 	    item->setPixmap( 0, *pm );
 	    delete pm;
 	}
@@ -159,65 +161,73 @@ void uiStratRefTree::rClickCB( CallBacker* )
 
     int col = lv_->columnNotified();
     uiPopupMenu mnu( lv_->parent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Specify level boundary ..."), 0 );
     mnu.insertSeparator();
-    mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 1 );
-    mnu.insertItem( new uiMenuItem("&Add unit ..."), 2 );
-    mnu.insertItem( new uiMenuItem("&Remove"), 3 );
-    mnu.insertItem( new uiMenuItem("&Properties..."), 4 );
+    mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 0 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 1 );
+    mnu.insertItem( new uiMenuItem("&Properties..."), 2 );
 
     const int mnuid = mnu.exec();
     if ( mnuid<0 ) return;
     else if ( mnuid==0 )
-	selBoundary();
-    else if ( mnuid==1 )
 	insertSubUnit( lvit );
-    else if ( mnuid==2 )
-	insertSubUnit( 0 );
-    else if ( mnuid==3 )
+    else if ( mnuid== 1 )
 	removeUnit( lvit );
-    else if ( mnuid==4 )
+    else if ( mnuid==2 )
 	updateUnitProperties( lvit );
 }
 
 
 void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 {
-    uiStratUnitDlg newurdlg( lv_->parent(), uistratmgr_ );
+    uiStratUnitDlg::Setup su( uistratmgr_ );
+    const uiListViewItem* parit = lv_->currentItem();
+    if ( parit )
+    {
+	Interval<float> partimerg;
+	uistratmgr_->getPossibleTimeRange( getCodeFromLVIt(parit).buf(), 
+					   partimerg );
+	if (  partimerg.start == partimerg.stop )
+	{ uiMSG().error( "No time space left to add a new sub-unit" ); return; }
+	su.timerg_ = partimerg;
+    }
+
+    uiStratUnitDlg newurdlg( lv_->parent(), su );
     if ( newurdlg.go() )
     {
 	UnitRef::Props props; 
 	newurdlg.getUnitProps( props );
-	uiListViewItem* newitem;
-	uiListViewItem::Setup setup = uiListViewItem::Setup()
-				.label( props.code_ )
-				.label( props.desc_ )
-				.label( props.lithnm_ );
-	if ( lvit )
-	    newitem = new uiListViewItem( lvit, setup );
-	else
-	    newitem = new uiListViewItem( lv_, setup );
-
-	newitem->setRenameEnabled( cUnitsCol, false );	//TODO
-	newitem->setRenameEnabled( cDescCol, false );	//TODO
-	newitem->setRenameEnabled( cLithoCol, false );
-	newitem->setDragEnabled( true );
-	newitem->setDropEnabled( true );
-	ioPixmap* pm = createLevelPixmap(0);
-	newitem->setPixmap( 0, *pm );
-	delete pm;
-	
-	if ( newitem->parent() )
-	    newitem->parent()->setOpen( true );
-
-	lv_->setCurrentItem( newitem );
-	uiListViewItem* parit = newitem->parent();
-	if ( parit )
-	    uistratmgr_->prepareParentUnit( getCodeFromLVIt( parit ).buf() );
-
-	props.code_ = getCodeFromLVIt( newitem );	
-	uistratmgr_->addUnit( props, false );
+	doInsertSubUnit( lvit, props );
     }
+}
+
+
+void uiStratRefTree::doInsertSubUnit( uiListViewItem* lvit, UnitRef::Props& pp )
+{
+    uiListViewItem* newitem;
+    uiListViewItem::Setup setup = uiListViewItem::Setup()
+			    .label( pp.code_ )
+			    .label( pp.desc_ )
+			    .label( pp.lithnm_ );
+    newitem = lvit ? new uiListViewItem( lvit, setup )
+		   : new uiListViewItem( lv_, setup );
+    newitem->setRenameEnabled( cUnitsCol, false );	//TODO
+    newitem->setRenameEnabled( cDescCol, false );	//TODO
+    newitem->setRenameEnabled( cLithoCol, false );
+    newitem->setDragEnabled( true );
+    newitem->setDropEnabled( true );
+    ioPixmap* pm = createUnitPixmap(0);
+    newitem->setPixmap( 0, *pm );
+    delete pm;
+    
+    lv_->setCurrentItem( newitem );
+    uiListViewItem* parit = newitem->parent();
+    if ( parit )
+    {
+	parit->setOpen( true );
+	uistratmgr_->prepareParentUnit( getCodeFromLVIt( parit ).buf() );
+    }
+    pp.code_ = getCodeFromLVIt( newitem );	
+    uistratmgr_->addUnit( pp, false );
 }
 
 
@@ -239,19 +249,19 @@ void uiStratRefTree::removeUnit( uiListViewItem* lvit )
 
 void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 {
-    uiStratUnitDlg urdlg( lv_->parent(), uistratmgr_ );
+    uiStratUnitDlg::Setup su( uistratmgr_ );
+    uiStratUnitDlg urdlg( lv_->parent(), su );
     urdlg.setTitleText("Update Unit Properties");
     BufferString uncode = getCodeFromLVIt( lvit);
     const UnitRef* unitref = uistratmgr_->getCurTree()->find( uncode );
-
     UnitRef::Props props;
-    props.isleaf_ = unitref ? unitref->isLeaf() : false; 
+    if ( unitref )
+	props = unitref->props();
     props.code_ = lvit->text(0); 
     props.desc_ = lvit->text(2); 
     props.lithnm_ = lvit->text(cLithoCol); 
-    props.timerg_ = unitref->props().timerg_;
-    props.color_ = unitref->props().color_;
     urdlg.setUnitProps( props );
+
     if ( urdlg.go() )
     {
 	//TODO will require an update of all children
@@ -265,34 +275,22 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 }
 
 
-ioPixmap* uiStratRefTree::createLevelPixmap( const UnitRef* ref ) const
+ioPixmap* uiStratRefTree::createUnitPixmap( const UnitRef* ref ) const
 {
     uiRGBArray rgbarr( false );
     rgbarr.setSize( PMWIDTH, PMHEIGHT );
     rgbarr.clear( Color::White() );
-    for ( int idw=0; idw<PMWIDTH; idw++ )
-	rgbarr.set( idw, mNINT(PMHEIGHT/2), Color::Black() );
 
     if ( ref )
     {
-	Color col;
-	if ( uistratmgr_->getLvlCol( ref, true, col ) )
+	Color col = ref->props().color_;
+	for ( int idw=0; idw<PMWIDTH; idw++ )
 	{
-	    for ( int idw=0; idw<PMWIDTH; idw++ )
+	    for ( int idh=0; idh<PMHEIGHT; idh++ )
 	    {
-		rgbarr.set( idw, 0, col );
-		rgbarr.set( idw, 1, col );
-		rgbarr.set( idw, 2, col );
-	    }
-	}
-	
-	if ( uistratmgr_->getLvlCol( ref, false, col ) )
-	{
-	    for ( int idw=0; idw<PMWIDTH; idw++ )
-	    {
-		rgbarr.set( idw, PMHEIGHT-3, col );
-		rgbarr.set( idw, PMHEIGHT-2, col );
-		rgbarr.set( idw, PMHEIGHT-1, col );
+		rgbarr.set( idw, idh, col );
+		rgbarr.set( idw, idh, col );
+		rgbarr.set( idw, idh, col );
 	    }
 	}
     }
@@ -323,7 +321,7 @@ void uiStratRefTree::updateLvlsPixmaps()
 {
     UnitRef::Iter it( *uistratmgr_->getCurTree() );
     const UnitRef* firstun = it.unit();
-    ioPixmap* pm = createLevelPixmap( firstun );
+    ioPixmap* pm = createUnitPixmap( firstun );
     uiListViewItem* firstlvit = lv_->findItem( firstun->code().buf(),0,false );
     if ( firstlvit )
 	firstlvit->setPixmap( 0, *pm );
@@ -331,7 +329,7 @@ void uiStratRefTree::updateLvlsPixmaps()
     while ( it.next() )
     {
 	const UnitRef* un = it.unit();
-	ioPixmap* pm = createLevelPixmap( un );
+	ioPixmap* pm = createUnitPixmap( un );
 	uiListViewItem* lvit = lv_->findItem( un->code().buf(), 0, false );
 	if ( lvit )
 	    lvit->setPixmap( 0, *pm );
@@ -359,36 +357,6 @@ void uiStratRefTree::updateLithoCol()
 	}
 	if ( !it.next() ) break;
 	un = it.unit();
-    }
-}
-
-
-#define mUpdateLvlInfo(loc,istop)\
-{\
-    bool has##loc##lvl = lvllinkdlg.lvl##loc##listfld_->isChecked();\
-    if ( !has##loc##lvl )\
-	uistratmgr_->freeLevel( getCodeFromLVIt( curit ).buf(), istop);\
-    if ( has##loc##lvl )\
-	uistratmgr_->linkLevel( getCodeFromLVIt( curit ).buf(), \
-				lvllinkdlg.lvl##loc##listfld_->text(), istop );\
-}
-
-
-void uiStratRefTree::selBoundary()
-{
-    uiListViewItem* curit = lv_->currentItem();
-    if ( !curit ) return;
-
-    uiStratLinkLvlUnitDlg lvllinkdlg( lv_->parent(), 
-	    			      getCodeFromLVIt( curit ).buf(),
-	   			      uistratmgr_ );
-    lvllinkdlg.go();
-    if ( lvllinkdlg.uiResult() == 1 )
-    {
-	mUpdateLvlInfo( top, true )
-	mUpdateLvlInfo( base, false )
-	updateLvlsPixmaps();
-	lv_->triggerUpdate();
     }
 }
 
@@ -430,4 +398,72 @@ bool uiStratRefTree::canMoveUnit( bool up )
     }
 
     return target;
+}
+
+
+
+void uiStratRefTree::resetUnconformities( CallBacker* cb )
+{
+    setUnconformities( *((NodeUnitRef*)tree_), true );
+}
+
+
+#define mSetUpUnconf(timerg,pos)\
+    Strat::UnitRef::Props props; props.timerg_ = timerg;\
+    props.color_ = Color( 215, 215, 215 );\
+    BufferString unconfcode( "" );\
+    unconfcode += "Unconf";\
+    unconfcode += toString(cpt);\
+    uiListViewItem* lit = listView()->findItem(node.code(),0,false);\
+    if ( lit ) listView()->setCurrentItem(lit);\
+    props.code_ = unconfcode;\
+    props.timerg_ = timerg;\
+    doInsertSubUnit( lit, props );\
+    for ( int idref=0; idref<pos; idref++ )\
+	moveUnit( true );
+void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node, bool root )
+{
+    if ( root )
+    {
+	mDynamicCastGet(const Strat::NodeUnitRef*,un,&node.ref(0))
+	setUnconformities( *un, false );
+	return;
+    }
+
+    const Interval<float> partimerg = node.props().timerg_; int cpt = 1; 
+    ObjectSet<UnitRef> refunits;
+    tree_->gatherChildrenByTime( node, refunits );
+    Interval<float> unconfrg;
+    const float refstart = refunits[0]->props().timerg_.start;
+    const float refstop = refunits[refunits.size()-1]->props().timerg_.stop;
+    if ( partimerg.start < refstart )
+    {
+	unconfrg.set( partimerg.start, refstart );
+	mSetUpUnconf( unconfrg, node.nrRefs() );
+	cpt ++;
+    }
+    if ( partimerg.stop > refstop )
+    {
+	unconfrg.set( refstop, partimerg.stop );
+	mSetUpUnconf( unconfrg, 0 )
+	cpt ++;
+    }
+    for ( int iref=0; iref<refunits.size()-1; iref++ )
+    {
+	const float refstop = refunits[iref]->props().timerg_.stop;
+	const float nextrefstart = refunits[iref+1]->props().timerg_.start;
+	if ( refstop < nextrefstart )
+	{
+	    unconfrg.set( refstop, nextrefstart );
+	    mSetUpUnconf( unconfrg, iref+1 )
+	    cpt ++;
+	}
+    }
+    for ( int iref=0; iref<node.nrRefs(); iref++ )
+    {
+	const Strat::UnitRef& ref = node.ref( iref );
+	mDynamicCastGet(const Strat::NodeUnitRef*,chldnur,&ref);
+	if ( chldnur )
+	    setUnconformities( *chldnur, false );
+    }
 }

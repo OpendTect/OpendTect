@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.12 2010-05-07 12:50:46 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.13 2010-06-24 11:54:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiGenInput;
 class uiListBox;
 class uiCheckBox;
 class uiStratMgr;
+class uiSpinBox;
 namespace Strat { class Lithology; }
 
 /*!\brief Displays a dialog to create new stratigraphic unit */
@@ -30,7 +31,19 @@ mClass uiStratUnitDlg : public uiDialog
 {
 public:
 
-			uiStratUnitDlg(uiParent*,uiStratMgr*);
+    mClass Setup
+    {
+	public :
+	    		Setup(uiStratMgr* mgr)
+			    : uistratmgr_(mgr)
+			    , timerg_(0,4500)  
+			    {}
+			
+	mDefSetupMemb(uiStratMgr*,uistratmgr)
+	mDefSetupMemb(Interval<float>,timerg)
+    };
+
+			uiStratUnitDlg(uiParent*,Setup&);
 
     void		setUnitProps(const Strat::UnitRef::Props&);
     void		getUnitProps(Strat::UnitRef::Props&) const;	
@@ -40,12 +53,15 @@ protected:
     uiGenInput*		unitnmfld_;
     uiGenInput*		unitdescfld_;
     uiGenInput*		unitlithfld_;
-    uiGenInput*		agefld_;
+    uiGenInput*		lvlnmfld_;
+    uiSpinBox*		agestartfld_;
+    uiSpinBox*		agestopfld_;
     uiColorInput*	colfld_;
     
     uiStratMgr*		uistratmgr_;
 
     void		selLithCB(CallBacker*);
+    void		selNameCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
@@ -78,49 +94,5 @@ protected:
 
     bool		acceptOK(CallBacker*);
 };
-
-
-/*!\brief Displays a dialog to create new level */
-
-mClass uiStratLevelDlg : public uiDialog
-{
-public:
-
-			uiStratLevelDlg(uiParent*,uiStratMgr*);
-
-    void		setLvlInfo(const char*);
-protected:
-
-    BufferString	oldlvlnm_;
-    uiStratMgr*		uistratmgr_;
-
-    uiGenInput*		lvlnmfld_;
-    uiGenInput*		lvltvstrgfld_;
-    uiGenInput*		lvltimergfld_;
-    uiGenInput*		lvltimefld_;
-    uiColorInput*	lvlcolfld_;
-    void		isoDiaSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
-};
-
-
-/*!\brief Displays a dialog to link level and stratigraphic unit*/
-
-mClass uiStratLinkLvlUnitDlg : public uiDialog
-{
-public:
-
-			uiStratLinkLvlUnitDlg(uiParent*,const char*,
-					      uiStratMgr*);
-    uiGenInput*		lvltoplistfld_;
-    uiGenInput*		lvlbaselistfld_;
-
-protected:
-
-    bool		acceptOK(CallBacker*);
-    
-    uiStratMgr*		uistratmgr_;
-};
-
 
 #endif

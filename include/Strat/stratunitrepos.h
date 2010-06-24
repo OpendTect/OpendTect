@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.23 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.24 2010-06-24 11:54:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,6 @@ public:
     mutable Notifier<UnitRepository> changed;
 
     int			getNewLithID() const	{ return ++lastlithid_; }
-    int			getNewLevelID() const	{ return ++lastlevelid_; }
 
 protected:
 
@@ -78,10 +77,10 @@ protected:
     ObjectSet<RefTree>	trees_;
     ObjectSet<Lithology> liths_;
     int			curtreeidx_;
-    mutable int		lastlevelid_;
     mutable int		lastlithid_;
 
     UnitRef*		fnd(const char*) const;
+    UnitRef*		fnd(int) const;
     UnitRef*		fnd(const char*,int) const;
     UnitRef*		fndAny(const char*) const;
     void		addLith(const char*,Repos::Source);

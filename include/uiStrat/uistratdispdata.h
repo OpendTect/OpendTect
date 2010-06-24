@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.3 2010-05-10 08:44:20 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.4 2010-06-24 11:54:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,19 +115,19 @@ protected:
 };
 
 
-/*! brief used to write directly in the listView of the uiStratRefTree*/
+/*!brief used to write directly in the listView of the uiStratRefTree as if we were handling the uiTree directly*/
 
-mClass uiStratTreeWriter
+mClass uiStratTreeWriter : public CallBacker
 {
 public:
 	                        uiStratTreeWriter(uiStratRefTree&);
 	                        ~uiStratTreeWriter(){};
 
     uiListViewItem*		getItemFromTree(const char*);
-    void			selBoundary(const char*);
-    void			addUnit(const char*,bool subunit = true);
+    void			addUnit(const char*);
     void 			removeUnit(const char*);
     void 			updateUnitProperties(const char*);
+    void 			fillUndef(CallBacker*);
 
 protected:
 

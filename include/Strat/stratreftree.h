@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.9 2010-05-07 12:50:46 cvsbruno Exp $
+ RCS:		$Id: stratreftree.h,v 1.10 2010-06-24 11:54:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,6 @@ namespace Strat
 {
 
 class Lithology;
-class Level;
-
 
 
 /*!\brief Tree of UnitRef's  */
@@ -39,24 +37,21 @@ public:
     void		setTreeName( const char* nm )	{ treename_ = nm; }
     Repos::Source	source() const			{ return src_; }
 
+    int			getID(const char* code) const;
+    void		getUnitIDs(TypeSet<int>&) const;
+    void		getLeavesUnitIDs(TypeSet<int>&,
+	    				 const NodeUnitRef&,bool) const;
+    const char*		getUnitLvlName(int unid) const;
+    Color		getUnitColor(int unid) const;
+
     bool		addCopyOfUnit(const UnitRef&,bool rev=false);
-    bool		addUnit(const char* fullcode,const char* unit_dump,
+    bool		addUnit(const UnitRef::Props&,bool rev=false);
+    bool		addUnit(const char*,const char* unit_dump,
 	    			bool rev=false);
-    void		setUnitProps(const UnitRef::Props& props);
+    void		setUnitProps(const UnitRef::Props&);
+    void		gatherChildrenByTime(const NodeUnitRef&,
+	    					ObjectSet<UnitRef>&) const;
     void		removeEmptyNodes(); //!< recommended after add
-
-    void		addLevel(Level*);
-    int			nrLevels() const		{ return lvls_.size(); }
-    const Level*	levelFromIdx( int idx ) const	{ return lvls_[idx]; }
-    const Level*	levelFromID(int id) const;
-    const Level*	getLevel(const char*) const;
-    const Level*	getLevel(const UnitRef*,bool top=true) const;
-    int			getLevelIdx( const Level* lvl ) const
-    						{ return lvls_.indexOf( lvl ); }
-    void		remove(const Level*&);
-    			//!< the pointer will be set to null if found
-    void		untieLvlsFromUnit(const UnitRef*,bool);
-
     bool		write(std::ostream&) const;
     				//!< for printing, export or something.
     				//!< otherwise, use UnitRepository::write()
@@ -64,10 +59,10 @@ public:
 protected:
 
     int			getFreeLevelID() const;
+    void		constraintUnitTimes(Strat::UnitRef&);
 
     Repos::Source	src_;
     BufferString	treename_;
-    ObjectSet<Level>	lvls_;
 
 };
 

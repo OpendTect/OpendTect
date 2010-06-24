@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.16 2010-05-07 12:50:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.17 2010-06-24 11:54:01 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -77,6 +77,13 @@ bool Strat::Lithology::use( const char* str )
     porous_ = sz > 2 ? *fms[2] == 'P' : false;
 
     return true;
+}
+
+
+Strat::UnitRef::ID Strat::UnitRef::getNewID() const
+{
+    static Strat::UnitRef::ID curid = 1;
+    return curid++;
 }
 
 
@@ -192,6 +199,23 @@ Property* Strat::UnitRef::gtProp( const PropertyRef* pr ) const
 Strat::NodeUnitRef::~NodeUnitRef()
 {
     deepErase( refs_ );
+}
+
+
+Strat::UnitRef* Strat::NodeUnitRef::fnd( int id ) const
+{
+    if ( id < 0 )
+	return 0;
+
+    for ( int idx=0; idx<refs_.size(); idx++ )
+    {
+	const Strat::UnitRef& un = ref( idx );
+	if ( un.getID() == id )
+	    return fnd( un.code() );
+	else if ( !un.isLeaf() )
+	    return ((Strat::NodeUnitRef&)un).fnd( id );
+    }
+    return 0;
 }
 
 

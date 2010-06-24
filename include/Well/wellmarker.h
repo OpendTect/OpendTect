@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.12 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: wellmarker.h,v 1.13 2010-06-24 11:54:00 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "namedobj.h"
 #include "color.h"
-namespace Strat { class Level; }
 
 namespace Well
 {
@@ -24,7 +23,7 @@ class Track;
 
 /*!\brief Marker, should be attached to Strat level
 
-  Can be unattached, then uses the fallback name and color (and istop_). 
+  Can be unattached, then uses the fallback name and color. 
 
 */
 
@@ -42,7 +41,6 @@ public:
     void		setDah( float v )	{ dah_ = v; }
     int			levelID() const		{ return levelid_; }
     void		setLevelID( int v )	{ levelid_ = v; }
-    const Strat::Level*	level() const;
 
     const BufferString&	name() const;
     Color		color() const;

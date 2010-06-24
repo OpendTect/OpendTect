@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.18 2010-05-26 11:53:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.19 2010-06-24 11:54:01 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.18 2010-05-26 11:53:37 c
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uispinbox.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -27,13 +28,14 @@ static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.18 2010-05-26 11:53:37 c
 static const char* sNoLithoTxt      = "---None---";
 
 #define mErrRet(msg,act) uiMSG().error(msg); act;
-uiStratUnitDlg::uiStratUnitDlg( uiParent* p, uiStratMgr* uistratmgr )
+uiStratUnitDlg::uiStratUnitDlg( uiParent* p, Setup& su ) 
     : uiDialog(p,uiDialog::Setup("Stratigraphic Unit Properties",
 				 "Specify properties of a new unit",
 				 "110.0.1"))
-    , uistratmgr_(uistratmgr)
+    , uistratmgr_(su.uistratmgr_)
 {
     unitnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
+    unitnmfld_->valuechanged.notify( mCB(this,uiStratUnitDlg,selNameCB) );
     unitdescfld_ = new uiGenInput( this, "Description", StringInpSpec() );
     unitdescfld_->attach( alignedBelow, unitnmfld_ );
     unitlithfld_ = new uiGenInput( this, "Lithology", StringInpSpec() );
@@ -46,11 +48,29 @@ uiStratUnitDlg::uiStratUnitDlg( uiParent* p, uiStratMgr* uistratmgr )
 				   lbltxt("Color") );
     colfld_->attach( alignedBelow, unitdescfld_ );
     colfld_->attach( ensureBelow, sellithbut );
-    agefld_ = new uiGenInput( this, "Time range (My)", FloatInpIntervalSpec()
-				.setName(BufferString(" range start"),0)
-				.setName(BufferString(" range stop"),1 ));
-    agefld_->attach( ensureBelow, colfld_ );
-    agefld_->attach( alignedBelow, unitlithfld_ );
+    uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this, "Time range (My)" );
+    agestartfld_ = lblbox1->box();
+    agestartfld_->setInterval( su.timerg_ );
+    agestartfld_->setValue( su.timerg_.start );
+    lblbox1->attach( ensureBelow, colfld_ );
+    lblbox1->attach( alignedBelow, unitlithfld_ );
+    
+    uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox( this, "" );
+    agestopfld_ = lblbox2->box();
+    agestopfld_->setValue( su.timerg_.stop );
+    agestopfld_->setInterval( su.timerg_ );
+    lblbox2->attach( rightOf, lblbox1 );
+
+    lvlnmfld_ = new uiGenInput( this, "Level (top) name", StringInpSpec() );
+    lvlnmfld_->attach( alignedBelow, lblbox1 );
+}
+
+
+void uiStratUnitDlg::selNameCB( CallBacker* )
+{
+    BufferString lvlnm( unitnmfld_->text() );
+    lvlnm += " Level";
+    lvlnmfld_->setText( lvlnm );
 }
 
 
@@ -67,11 +87,13 @@ void uiStratUnitDlg::setUnitProps( const Strat::UnitRef::Props& props )
     unitnmfld_->setText( props.code_ );
     //TODO: rename unit needs extra work to update all the paths to the subunits
     unitnmfld_->setSensitive(false);
-    agefld_->setValue( props.timerg_ );
+    agestartfld_->setValue( props.timerg_.start );
+    agestopfld_->setValue( props.timerg_.stop );
     colfld_->setColor( props.color_ );
     unitdescfld_->setText( props.desc_ );
     unitlithfld_->setText( props.lithnm_ );
     unitlithfld_->setSensitive( props.isleaf_ );
+    lvlnmfld_->setText( props.lvlname_ );
 }
 
 
@@ -82,16 +104,22 @@ void uiStratUnitDlg::getUnitProps( Strat::UnitRef::Props& props) const
     props.desc_ = unitdescfld_->text();
     const char* txt = unitlithfld_->text();
     props.lithnm_ = !strcmp( txt, sNoLithoTxt ) ? 0 : txt;
-    props.timerg_ = agefld_->getFInterval();
+    props.timerg_ = Interval<float> ( agestartfld_->getValue(), 
+				      agestopfld_->getValue() );
     props.color_ = colfld_->color();
+    props.lvlname_ = lvlnmfld_->text();
 }
 
 
 
 bool uiStratUnitDlg::acceptOK( CallBacker* )
 {
+    if ( agestartfld_->getValue() >= agestopfld_->getValue() )
+	{ mErrRet( "Please specify a valid time range", return false ) }
     if ( !strcmp( unitnmfld_->text(), "" ) )
 	{ mErrRet( "Please specify the unit name", return false ) }
+    if ( !strcmp( lvlnmfld_->text(), "" ) )
+	{ mErrRet( "Please specify a name for the unit level", return false ) }
     return true;
 }
 
@@ -241,131 +269,6 @@ void uiStratLithoDlg::setSelectedLith( const char* lithnm )
 bool uiStratLithoDlg::acceptOK( CallBacker* )
 {
     selChg( 0 );
-    return true;
-}
-
-
-uiStratLevelDlg::uiStratLevelDlg( uiParent* p, uiStratMgr* uistratmgr )
-    : uiDialog(p,uiDialog::Setup("Create/Edit level",mNoDlgTitle,"110.0.2"))
-    , uistratmgr_( uistratmgr )
-{
-    lvlnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
-    lvlcolfld_ = new uiColorInput( this,
-			           uiColorInput::Setup(getRandStdDrawColor() ).
-				   lbltxt("Color") );
-    lvlcolfld_->attach( alignedBelow, lvlnmfld_ );
-    lvltvstrgfld_ = new uiGenInput( this, "This level is ",
-	    			    BoolInpSpec(true,"Isochron","Diachron") );
-    lvltvstrgfld_->attach( alignedBelow, lvlcolfld_ );
-    lvltvstrgfld_->valuechanged.notify( mCB(this,uiStratLevelDlg,isoDiaSel) );
-    lvltimefld_ = new uiGenInput( this, "Level time (My)", FloatInpSpec() );
-    lvltimefld_->attach( alignedBelow, lvltvstrgfld_ );
-    lvltimergfld_ = new uiGenInput( this, "Level time range (My)",
-	    			    FloatInpIntervalSpec() );
-    lvltimergfld_->attach( alignedBelow, lvltvstrgfld_ );
-    isoDiaSel(0);
-}
-
-
-void uiStratLevelDlg::isoDiaSel( CallBacker* )
-{
-    bool isiso = lvltvstrgfld_->getBoolValue();
-    lvltimefld_->display( isiso );
-    lvltimergfld_->display( !isiso );
-}
-
-
-void uiStratLevelDlg::setLvlInfo( const char* lvlnm )
-{
-    Interval<float> lvltrg;
-    Color lvlcol;
-    if ( !lvlnm || !*lvlnm || !uistratmgr_->getLvlPars(lvlnm,lvltrg,lvlcol) )
-	return;
-
-    lvlnmfld_->setText( lvlnm );
-    bool isiso = mIsUdf(lvltrg.stop);
-    lvltvstrgfld_->setValue( isiso );
-    if ( isiso && !mIsUdf(lvltrg.start) )
-	lvltimefld_->setValue( lvltrg.start );
-    else if ( !isiso )
-	lvltimergfld_->setValue( lvltrg );
-
-    lvlcolfld_->setColor( lvlcol );
-    oldlvlnm_ = lvlnm;
-}
-
-
-bool uiStratLevelDlg::acceptOK( CallBacker* )
-{
-    BufferString newlvlnm = lvlnmfld_->text();
-    Color newlvlcol = lvlcolfld_->color();
-    Interval<float> newlvlrg;
-    if ( lvltvstrgfld_->getBoolValue() )
-    {
-	newlvlrg.start = lvltimefld_->getfValue();
-	newlvlrg.stop = lvltimefld_->getfValue();
-    }
-    else
-	newlvlrg = lvltimergfld_->getFInterval();
-    
-    uistratmgr_->setLvlPars( oldlvlnm_, newlvlnm, newlvlcol, newlvlrg );
-    return true;
-}
-
-
-#define mCreateList(loc,str)\
-{\
-    BufferString loc##bs = "Select "; loc##bs += str; loc##bs += " level";\
-    lvl##loc##listfld_ = new uiGenInput( this, loc##bs,\
-	    				 StringListInpSpec( lvlnms ) );\
-    lvl##loc##listfld_->setWithCheck();\
-    lvl##loc##listfld_->setChecked( loc##idx>-1 );\
-    if ( loc##idx>-1 )\
-	lvl##loc##listfld_->setValue( loc##idx );\
-}
-
-uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, const char* urcode,
-       					      uiStratMgr* uistratmgr )
-    : uiDialog(p,uiDialog::Setup("Link levels and stratigraphic unit",
-				mNoDlgTitle,"110.0.3"))
-    , uistratmgr_(uistratmgr)
-{
-    BufferStringSet lvlnms;
-    TypeSet<Color> colors; int topidx, baseidx;
-    uistratmgr_->getLvlsTxtAndCol( lvlnms, colors );
-    uistratmgr_->getIdxTBLvls( urcode, topidx, baseidx );
-    mCreateList(top,"top")
-    mCreateList(base,"base")
-    lvlbaselistfld_->attach( alignedBelow, lvltoplistfld_ );
-}
-
-
-bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
-{
-    bool hastoplvl = lvltoplistfld_->isChecked();
-    bool hasbaselvl = lvlbaselistfld_->isChecked();
-    int toplvlidx = lvltoplistfld_->getIntValue();
-    int baselvlidx = lvlbaselistfld_->getIntValue();
-    BufferString errmsg("No level found, please select a correct level ");
-    if ( (hastoplvl && toplvlidx<0 ) )
-    {
-	errmsg += "for the top level";
-	mErrRet( errmsg, return false);
-    }
-    if ( (hasbaselvl && baselvlidx<0 ) )
-    {
-	errmsg += "for the base level";
-	mErrRet( errmsg, return false);
-    }
-
-    if ( hastoplvl && hasbaselvl )
-    {
-	BufferString msg = uistratmgr_->checkLevelsOk( lvltoplistfld_->text(),
-						       lvlbaselistfld_->text());
-	if ( !msg.isEmpty() ) 
-	{ mErrRet( msg, return false ) }
-    }
-
     return true;
 }
 

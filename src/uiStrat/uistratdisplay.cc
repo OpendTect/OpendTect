@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.10 2010-06-10 09:18:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.11 2010-06-24 11:54:01 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
+#include "uibutton.h"
 #include "uicolor.h"
 #include "uigeninput.h"
 #include "uidialog.h"
@@ -30,9 +31,8 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& tree )
     : uiAnnotDisplay(p,"Stratigraphy viewer")
     , uidatagather_(uiStratAnnotGather(data_,tree.stratmgr()))
     , uidatawriter_(uiStratTreeWriter(tree ))
-    , speclvlmnuitem_("&Specify level boundary ...",4)			
-    , propunitmnuitem_("&Properties ...",5)			
-    , addsubunitmnuitem_("&Create sub-unit...",6)
+    , propunitmnuitem_("&Properties ...",1)			
+    , addsubunitmnuitem_("&Create sub-unit...",2)
 {
     uidatagather_.newtreeRead.notify( mCB(this,uiStratDisplay,dataChanged) );
     createDispParamGrp();
@@ -49,20 +49,19 @@ void uiStratDisplay::createDispParamGrp()
 		    .setName(BufferString("range start"),0)
 		    .setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
-    stepfld_ = new uiLabeledSpinBox( dispparamgrp_, "Gridline step");
-    stepfld_->attach( rightOf, rangefld_ );
-    stepfld_->box()->setInterval( 1, 500, 100 );
-    stepfld_->box()->valueChanging.notify(mCB(this,uiStratDisplay,dispParamChgd));
     if ( nrCols() && nrUnits(0) )
     {
 	const AnnotData::Unit& topunit = *getUnit(0,0);
 	const AnnotData::Unit& botunit = *getUnit(nrUnits(0)-1,0);
-	float start = topunit.zpos_, stop = botunit.zposbot_; 
-	float step = fabs(stop-start)/3;
-	rangefld_->setValue( Interval<float>( start, stop ) );
-	stepfld_->box()->setValue( step );
-	setZRange( StepInterval<float>( stop, start, step ) );
+	Interval<float> zrg;
+	zrg.start = topunit.zpos_; 
+	zrg.stop = botunit.zposbot_; 
+	rangefld_->setValue( zrg );
+	setZRange( Interval<float>( zrg.stop, zrg.start ) );
     }
+    const CallBack cb = mCB( &uidatawriter_, uiStratTreeWriter, fillUndef );
+    fillbutton_ = new uiPushButton( dispparamgrp_,"&Fill undefined",cb,true ); 
+    fillbutton_->attach( rightOf, rangefld_ );
 }
 
 
@@ -70,6 +69,31 @@ void uiStratDisplay::dataChanged( CallBacker* cb )
 {
     makeAnnots();
     drawer_.draw();
+}
+
+
+void uiStratDisplay::resetRangeFromUnits()
+{
+    if ( data_.nrCols()<=0 )
+	return;
+    const AnnotData::Column& col = *data_.getCol(0);
+    if ( col.units_.size() == 0 )
+	return;
+    Interval<float> rg;
+    float start = col.units_[0]->zpos_;
+    float stop = col.units_[col.units_.size()-1]->zposbot_;
+    rg.set( start, stop );
+    rg.sort( false );
+    rangefld_->setValue( rg );
+    drawer_.setZRange( rg );
+}
+
+
+void uiStratDisplay::setZRange( Interval<float> zrg )
+{
+    if ( zrg.start < 0 ) zrg.start = 0;
+    if ( zrg.stop  > 4.5e3 ) zrg.stop = 4.5e3;
+    uiAnnotDisplay::setZRange( zrg );
 }
 
 
@@ -82,8 +106,7 @@ void uiStratDisplay::display( bool yn, bool shrk, bool maximize )
 
 void uiStratDisplay::dispParamChgd( CallBacker* cb )
 {
-    StepInterval<float> rg = rangefld_->getFInterval();
-    rg.step = stepfld_->box()->getValue();
+    Interval<float> rg = rangefld_->getFInterval();
     rg.sort( false );
     drawer_.setZRange( rg );
 }
@@ -99,10 +122,11 @@ void uiStratDisplay::createMenuCB( CallBacker* cb )
     AnnotData::Column* col = cidx >=0 ? data_.getCol( cidx ) : 0;
     if ( !col ) return;
     bool unitfound = getUnitFromPos();
-    mAddMenuItem( menu, &addunitmnuitem_, !unitfound && col->iseditable_,false);
+    bool canaddunit = ( cidx == 0 );
+    mAddMenuItem(menu,&addunitmnuitem_,
+			    !unitfound &&col->iseditable_ && canaddunit, false);
     mAddMenuItem( menu, &remunitmnuitem_, unitfound && col->iseditable_, false);
     mAddMenuItem( menu, &propunitmnuitem_, unitfound && col->iseditable_,false);
-    mAddMenuItem( menu, &speclvlmnuitem_, unitfound && col->iseditable_, false);
     mAddMenuItem( menu, &addsubunitmnuitem_,unitfound &&col->iseditable_,false);
 }
 
@@ -122,24 +146,18 @@ void uiStratDisplay::handleMenuCB( CallBacker* cb )
 	int colidx = getColIdxFromPos();
 	if ( colidx >= 0 )
 	    uidatawriter_.addUnit( unit->name_ );
+	resetRangeFromUnits();
     }
     if ( mnuid == addunitmnuitem_.id )
     {
 	int colidx = getColIdxFromPos();
-	if ( colidx > 0 )
-	{
-	    const AnnotData::Unit* parunit = getParentUnitFromPos();
-	    if ( parunit )
-		uidatawriter_.addUnit( parunit->name_ );
-	}
-	else if ( colidx == 0 ) 
-	    uidatawriter_.addUnit( "", false );
+	if ( colidx == 0 )
+	    uidatawriter_.addUnit( 0 );
+	resetRangeFromUnits();
     }
     if ( mnuid == addcolmnuitem_.id )
     {
     }
-    if ( mnuid == speclvlmnuitem_.id && unit )
-	uidatawriter_.selBoundary( unit->name_ );
     if ( mnuid == remunitmnuitem_.id && unit )
 	uidatawriter_.removeUnit( unit->name_ );
     if ( mnuid == propunitmnuitem_.id && unit )
@@ -147,28 +165,13 @@ void uiStratDisplay::handleMenuCB( CallBacker* cb )
 }
 
 
-const AnnotData::Unit* uiStratDisplay::getParentUnitFromPos() const
-{
-    Geom::Point2D<float> pos = getPos();
-    int cidx = getColIdxFromPos( );
-    if ( cidx > 0 || cidx < nrCols() ) 
-    {
-	for ( int idunit=0; idunit<nrUnits(cidx-1); idunit++ )
-	{
-	    const AnnotData::Unit* unit = getUnit( idunit, cidx-1 );
-	    if ( pos.y < unit->zposbot_ && pos.y > unit->zpos_ )
-		return unit;
-	}
-    }
-    return 0;
-}
-
-
 void uiStratDisplay::makeAnnots()
 {
     makeAnnotCol( "Levels", 0, true ); 
-    makeAnnotCol( "Description", 4, false );
-    makeAnnotCol( "Lithology", 5, false );
+    /*
+    makeAnnotCol( "Lithology", 4, false );
+    makeAnnotCol( "Description", 5, false );
+    */
 }
 
 
@@ -185,20 +188,13 @@ void uiStratDisplay::makeAnnotCol( const char* txt, int annotpos, bool level )
 	    const BufferStringSet& annot = unit->annots_;
 	    if ( level )
 	    {
-		AnnotData::Marker* topmrk = new AnnotData::Marker( 
+		AnnotData::Marker* mrk = new AnnotData::Marker( 
 					    annot[annotpos]->buf(), 
 					    unit->zpos_ );
-		topmrk->col_ = Color( 
+		mrk->col_ = Color( 
 				(unsigned int)atoi(annot[annotpos+1]->buf()) );
-		annotcol->markers_ += topmrk;
-		topmrk->isnmabove_ = true;
-		AnnotData::Marker* botmrk = new AnnotData::Marker( 
-					    annot[annotpos+2]->buf(),
-					    unit->zposbot_ );
-		botmrk->col_ = Color( 
-				(unsigned int)atoi(annot[annotpos+3]->buf()) );
-		annotcol->markers_ += botmrk;
-		botmrk->isnmabove_ = false;
+		annotcol->markers_ += mrk;
+		mrk->isnmabove_ = false;
 	    }
 	    else
 	    {
@@ -224,9 +220,9 @@ uiAnnotDrawer::uiAnnotDrawer( uiGraphicsScene& sc, const AnnotData& ad )
     , scene_(sc)  
     , xax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Top)))
     , yax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Left)
-							    .nogridline(true)))
+							.nogridline(true)))
 {
-    xax_->setBounds( StepInterval<float>( 0, 100, 10 ) );
+    xax_->setBounds( Interval<float>( 0, 100 ) );
 }
 
 
@@ -469,7 +465,6 @@ void uiAnnotDisplay::createMenuCB( CallBacker* cb )
     bool unitfound = getUnitFromPos();
     mAddMenuItem( menu, &addunitmnuitem_, !unitfound && col->iseditable_,false);
     mAddMenuItem( menu, &remunitmnuitem_, unitfound && col->iseditable_, false);
-    //mAddMenuItem( menu, &addcolmnuitem_, true, false );
 }
 
 

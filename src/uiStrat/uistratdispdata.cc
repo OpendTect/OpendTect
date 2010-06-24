@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.4 2010-05-11 14:22:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.5 2010-06-24 11:54:01 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratmgr.h"
@@ -16,9 +16,7 @@ static const char* rcsID = "$Id: uistratdispdata.cc,v 1.4 2010-05-11 14:22:11 cv
 
 #include "bufstringset.h"
 #include "color.h"
-#include "stratlevel.h"
 #include "stratunitrepos.h"
-
 
 #define mAskStratMgrNotif(nm)\
     uistratmgr_.nm.notify( mCB(this,uiStratAnnotGather,triggerDataChange) );
@@ -33,6 +31,7 @@ uiStratAnnotGather::uiStratAnnotGather( AnnotData& ad, const uiStratMgr& mgr)
     mAskStratMgrNotif(unitRemoved)
     mAskStratMgrNotif(lithChanged)
     mAskStratMgrNotif(lithRemoved)
+
     readFromTree();
 }
 
@@ -46,6 +45,13 @@ void uiStratAnnotGather::triggerDataChange( CallBacker* )
 void uiStratAnnotGather::readFromTree()
 {
     data_.eraseData();
+
+#define mAddCol( title )\
+    data_.addCol( new AnnotData::Column( title ) );
+    mAddCol( "Formation" );
+    mAddCol( "Member" );
+    mAddCol( "Type" );
+
     addUnits( *((Strat::NodeUnitRef*)uistratmgr_.getCurTree()), 0 );
     newtreeRead.trigger();
 }
@@ -60,14 +66,16 @@ void uiStratAnnotGather::addUnits( const Strat::NodeUnitRef& nur, int order )
 	{
 	    mDynamicCastGet(const Strat::LeafUnitRef*,lur,&ref);
 	    if ( !lur ) continue;
-	    addUnit( *lur, order );
+	    if ( order )
+		addUnit( *lur, order-1 );
 	}
 	else
 	{
 	    mDynamicCastGet(const Strat::NodeUnitRef*,chldnur,&ref);
 	    if ( chldnur )
 	    { 
-		addUnit( *chldnur, order );
+		if ( order )
+		    addUnit( *chldnur, order-1 );
 		addUnits( *chldnur, order+1 ); 
 	    }
 	}
@@ -77,38 +85,14 @@ void uiStratAnnotGather::addUnits( const Strat::NodeUnitRef& nur, int order )
 
 void uiStratAnnotGather::addUnit( const Strat::UnitRef& uref, int order )
 {
-    if ( order<0 ) return;
-    while ( order > (data_.nrCols()-1) )
-    {
-	BufferString title = "Unit";
-	if ( order == 0 )
-	    title =  "Formation";
-	else if ( order == 1 )
-	    title =  "Member";
-	else if ( order == 2 ) 
-	    title =  "Type";
-
-	data_.addCol( new AnnotData::Column( title ) );
-    }
-
-    Color tcol, bcol; 
-    Interval<float> ttimerg, btimerg;
-    BufferString& tnm = *new BufferString(); 
-    BufferString& bnm = *new BufferString();
-    uistratmgr_.getNmsTBLvls( &uref, tnm, bnm );
-    uistratmgr_.getLvlPars( tnm, ttimerg, tcol );
-    uistratmgr_.getLvlPars( bnm, btimerg, bcol );
     Interval<float> timerg = uref.props().timerg_;
-
     AnnotData::Unit* unit = new AnnotData::Unit( uref.code(), 
 	    				 	 timerg.start, 
 						 timerg.stop );
     unit->col_ = uref.props().color_;
     unit->colidx_ = order;
-    unit->annots_.add( BufferString(tnm) );
-    unit->annots_.add( toString( tcol.rgb() ) );
-    unit->annots_.add( BufferString(bnm) );
-    unit->annots_.add( toString( bcol.rgb() ) );
+    unit->annots_.add( BufferString( uref.props().lvlname_) );
+    unit->annots_.add( toString( unit->col_.rgb() ) );
     unit->annots_.add( uref.description() );
     mDynamicCastGet(const Strat::LeafUnitRef*,un,&uref)
     unit->annots_.add( un ? uistratmgr_.getLithName( *un ) : "" );
@@ -123,25 +107,24 @@ uiStratTreeWriter::uiStratTreeWriter( uiStratRefTree& tree )
     : uitree_(tree)
 {}
 
+#define mGetLItem(t) uiListViewItem* lit = uitree_.listView()->findItem(t,0,false); if ( lit ) { uitree_.listView()->setCurrentItem(lit); } else return;
 
-#define mGetLItem(t) uiListViewItem* lit = uitree_.listView()->findItem(t,0,false); if ( !lit ) return;
-void uiStratTreeWriter::selBoundary( const char* txt )
+void uiStratTreeWriter::addUnit( const char* txt )
 {
-    mGetLItem( txt )
-    uitree_.listView()->setCurrentItem( lit );
-    uitree_.selBoundary();
-}
-
-
-void uiStratTreeWriter::addUnit( const char* txt, bool subunit )
-{
-    if ( subunit )
+    if ( txt )
     {
 	mGetLItem( txt )
 	uitree_.insertSubUnit(  lit );
     }
     else
-	uitree_.insertSubUnit( 0 );
+    {
+	uiListViewItem* lit = uitree_.listView()->firstItem();
+	if ( lit ) 
+	{
+	    uitree_.listView()->setCurrentItem(lit);
+	    uitree_.insertSubUnit(  lit );
+	}
+    }
 }
 
 
@@ -157,4 +140,11 @@ void uiStratTreeWriter::updateUnitProperties( const char* txt )
     mGetLItem( txt )
     uitree_.updateUnitProperties( lit );
 }
+
+
+void uiStratTreeWriter::fillUndef( CallBacker* cb )
+{
+    uitree_.resetUnconformities( cb );
+}
+
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.12 2010-06-10 09:18:22 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.13 2010-06-24 11:54:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class uiParent;
 class uiPolygonItem;
 class uiPolyLineItem;
 class uiTextItem;
+class uiPushButton;
 class MouseEvent;
 
 
@@ -97,7 +98,7 @@ public:
 
     const AnnotData&		data() const 	{ return data_; }
 
-    void			setZRange( StepInterval<float> rg ) 
+    virtual void		setZRange( Interval<float> rg ) 
     				{ drawer_.setZRange( rg ); }
     int				nrUnits(int colidx) const 
     				{ return data_.getCol(colidx)->units_.size();}
@@ -160,6 +161,7 @@ public:
 				~uiStratDisplay(){};
     
     void			display(bool,bool shrk=false,bool max=false);
+    virtual void		setZRange(Interval<float>);
 
 protected :
 
@@ -173,11 +175,12 @@ protected :
     uiGenInput*                 rangefld_;
     uiLabeledSpinBox*           stepfld_;
     uiGroup*			dispparamgrp_;
+    uiPushButton*		fillbutton_;
    
     void			createDispParamGrp();
-    const AnnotData::Unit* 	getParentUnitFromPos() const;
     void			makeAnnots();
     void			makeAnnotCol(const char*,int,bool);
+    void			resetRangeFromUnits();
 
     void			dispParamChgd(CallBacker*);
     virtual void		dataChanged(CallBacker*);

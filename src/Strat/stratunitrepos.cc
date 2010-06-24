@@ -4,19 +4,20 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.34 2010-05-10 08:44:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.35 2010-06-24 11:54:01 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
-#include "stratlevel.h"
 #include "safefileio.h"
 #include "ascstream.h"
 #include "keystrs.h"
 #include "bufstringset.h"
+#include "separstr.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "color.h"
 #include "debug.h"
+#include "sorting.h"
 
 static const char* filenamebase = "StratUnits";
 static const char* filetype = "Stratigraphic Tree";
@@ -54,7 +55,6 @@ const Strat::UnitRepository& Strat::UnRepo()
 
 Strat::RefTree::~RefTree()
 {
-    deepErase( lvls_ );
 }
 
 
@@ -76,7 +76,19 @@ bool Strat::RefTree::addUnit( const char* code, const char* dumpstr, bool rev )
     if ( !newun->use(dumpstr) )
 	{ delete newun; return false; }
 
+    newun->acquireID();
     parnode->add( newun, rev );
+    return true;
+}
+
+
+bool Strat::RefTree::addUnit( const UnitRef::Props& props, bool rev )
+{
+    FileMultiString unitdesc(
+	             toString(Strat::UnRepo().getLithID(props.lithnm_.buf())) );
+    unitdesc += props.desc_;
+    addUnit( props.code_.buf(), unitdesc, rev );
+    setUnitProps( props );
     return true;
 }
 
@@ -85,14 +97,7 @@ bool Strat::RefTree::addCopyOfUnit( const Strat::UnitRef& ur, bool rev )
 {
     BufferString str;
     ur.fill( str );
-    if ( !addUnit( ur.fullCode(), str ) )
-	return false;
-
-    Level* toplvl = const_cast<Level*>(getLevel( &ur, true ));
-    Level* baselvl = const_cast<Level*>(getLevel( &ur, false ));
-    if ( toplvl ) toplvl->unit_ = find( ur.fullCode() );
-    if ( baselvl ) baselvl->unit_ = find( ur.fullCode() );
-    return true;
+    return addUnit( ur.fullCode(), str );
 }
 
 
@@ -100,20 +105,118 @@ void Strat::RefTree::setUnitProps( const UnitRef::Props& props )
 {
     Strat::UnitRef* ur = find( props.code_ );
     if ( !ur ) return;
-    Interval<float> timerg = props.timerg_;
-    if ( ur->isLeaf() )
+    ur->setProps( props );
+    constraintUnitTimes( *ur );
+}
+
+
+int Strat::RefTree::getID( const char* code ) const
+{
+    const Strat::UnitRef* ur = find( code );
+    return ur? ur->getID() : -1;
+}
+
+
+void Strat::RefTree::getUnitIDs( TypeSet<int>& ids ) const
+{
+    ids.erase();
+    getLeavesUnitIDs( ids, *this, true );
+}
+
+
+void Strat::RefTree::getLeavesUnitIDs( TypeSet<int>& ids, 
+					const NodeUnitRef& nur, 
+					bool root ) const
+{
+    for ( int iref=0; iref<nur.nrRefs(); iref++ )
     {
-	const NodeUnitRef* upur = ur->upNode();
-	if ( upur )
+	const UnitRef& ref = nur.ref( iref );
+	if ( ref.isLeaf() )
 	{
-	    const Interval<float>& urtimerg = upur->props().timerg_;
-	    if ( timerg.start < urtimerg.start )
-		timerg.start = urtimerg.start;
-	    if ( timerg.stop > urtimerg.stop )
-		timerg.stop = urtimerg.stop;
+	    mDynamicCastGet(const LeafUnitRef*,lur,&ref);
+	    if ( lur )
+		ids += lur->getID();
+	}
+	else
+	{
+	    mDynamicCastGet(const NodeUnitRef*,chldnur,&ref);
+	    if ( chldnur )
+	    {
+		if ( !root ) 
+		    ids += chldnur->getID();
+		getLeavesUnitIDs( ids, *chldnur, false );
+	    }
 	}
     }
-    ur->setProps( props );
+}
+
+
+Color Strat::RefTree::getUnitColor(int id ) const
+{
+    const Strat::UnitRef* ur = find( id );
+    return ur ? ur->props().color_ : Color::NoColor();
+}
+
+
+const char* Strat::RefTree::getUnitLvlName( int id ) const
+{
+    const Strat::UnitRef* ur = find( id );
+    return ur ? ur->props().lvlname_.buf() : 0;
+}
+
+
+void Strat::RefTree::gatherChildrenByTime( const NodeUnitRef& un, 
+					ObjectSet<UnitRef>& refunits ) const
+{
+    TypeSet<float> timestarts; TypeSet<int> sortedidxs;
+    for ( int idunit=0; idunit<un.nrRefs(); idunit++ )
+    {
+	 timestarts += un.ref(idunit).props().timerg_.start;
+	 sortedidxs += idunit;
+    }
+    sort_coupled( timestarts.arr(), sortedidxs.arr(), un.nrRefs() );
+    for ( int idunit=0; idunit<sortedidxs.size(); idunit++ )
+	refunits += const_cast<UnitRef*>( &un.ref(sortedidxs[idunit]) );
+}
+
+
+#define mSetRangeOverlap(rg1,rg2)\
+    if ( rg1.start < rg2.start )\
+	rg1.start = rg2.start;\
+    if ( rg1.stop > rg2.stop )\
+	rg1.stop = rg2.stop;
+void Strat::RefTree::constraintUnitTimes( UnitRef& ur )
+{
+    Interval<float>& timerg = ur.props().timerg_;
+    NodeUnitRef* upur = ur.upNode();
+    if ( upur && !upur->code().isEmpty() )
+    {
+	//parent's times
+	const Interval<float>& urtimerg = upur->props().timerg_;
+	mSetRangeOverlap( timerg, urtimerg )
+	
+	//children's times
+	bool found = false; ObjectSet<UnitRef> refunits;
+	gatherChildrenByTime( *upur, refunits );
+	for ( int idunit=0; idunit<refunits.size(); idunit++ )
+	{
+	    const UnitRef& un = *refunits[idunit];
+	    if ( un.code() == ur.code() ) 
+	    { found = true; continue; }
+	    const Interval<float> cmptimerg = un.props().timerg_;
+	    if ( !found )
+	    {
+		if( timerg.start < cmptimerg.stop )
+		    timerg.start = cmptimerg.stop;
+	    }
+	    else if( timerg.stop > cmptimerg.start )
+		timerg.stop = cmptimerg.start;
+	}
+    }
+    mDynamicCastGet(NodeUnitRef*,nur,&ur);
+    if ( !nur ) return;
+    for ( int idunit=0; idunit<nur->nrRefs(); idunit++ )
+	constraintUnitTimes( nur->ref( idunit ) );
 }
 
 
@@ -133,65 +236,6 @@ void Strat::RefTree::removeEmptyNodes()
 	UnitRef* un = torem[idx];
 	NodeUnitRef& par = *un->upNode();
 	par.remove( par.indexOf(un) );
-    }
-}
-
-
-void Strat::RefTree::addLevel( Strat::Level* l )
-{
-    if ( l->id_ < 0 )
-	l->id_ = getFreeLevelID();
-
-    lvls_ += l;
-}
-
-
-const Strat::Level* Strat::RefTree::getLevel( const char* nm ) const
-{
-    for ( int idx=0; idx<lvls_.size(); idx++ )
-    {
-	if ( lvls_[idx]->name() == nm )
-	    return lvls_[idx];
-    }
-    return 0;
-}
-
-
-const Strat::Level* Strat::RefTree::getLevel( const Strat::UnitRef* u,
-						bool top ) const
-{
-    for ( int idx=0; idx<lvls_.size(); idx++ )
-    {
-	if ( lvls_[idx]->unit_ == u && lvls_[idx]->top_ == top )
-	    return lvls_[idx];
-    }
-    return 0;
-}
-
-
-const Strat::Level* Strat::RefTree::levelFromID( int id ) const
-{
-    for ( int idx=0; idx<lvls_.size(); idx++ )
-    {
-	if ( lvls_[idx]->id_ == id )
-	    return lvls_[idx];
-    }
-    return 0;
-}
-
-
-void Strat::RefTree::remove( const Strat::Level*& lvl )
-{
-    for ( int idx=0; idx<lvls_.size(); idx++ )
-    {
-	Level* curlvl = lvls_[idx];
-	if ( curlvl == lvl )
-	{
-	    lvls_ -= curlvl;
-	    delete curlvl;
-	    lvl = 0;
-	    return;
-	}
     }
 }
 
@@ -239,51 +283,13 @@ bool Strat::RefTree::write( std::ostream& strm ) const
     
     astrm.newParagraph();
 
-    IOPar iop( sKeyLevel );
-    for ( int idx=0; idx<lvls_.size(); idx ++ )
-    {
-	iop.clear();
-	lvls_[idx]->putTo( iop );
-	iop.putTo( astrm );
-    }
-
     return strm.good();
 }
 
 
-void Strat::RefTree::untieLvlsFromUnit( const Strat::UnitRef* ur,
-					bool freechildren )
-{
-    Level* toplvl = const_cast<Level*>(getLevel( ur, true ));
-    Level* baselvl = const_cast<Level*>(getLevel( ur, false ));
-    if ( toplvl ) toplvl->unit_ = 0;
-    if ( baselvl ) baselvl->unit_ = 0;
-
-    mDynamicCastGet(const NodeUnitRef*,nur,ur);
-    if ( freechildren && nur )
-    {
-	UnitRef::Iter it( *nur );
-	while ( it.next() )
-	{
-	    const UnitRef* tmpun = it.unit();
-	    toplvl = const_cast<Level*>(getLevel( tmpun, true ));
-	    baselvl = const_cast<Level*>(getLevel( tmpun, false ));
-	    if ( toplvl ) toplvl->unit_ = 0;
-	    if ( baselvl ) baselvl->unit_ = 0;
-	}
-    }
-}
-
-
-int Strat::RefTree::getFreeLevelID() const
-{
-    return UnRepo().getNewLevelID();
-}
-
 
 Strat::UnitRepository::UnitRepository()
     : curtreeidx_(-1)
-    , lastlevelid_(-1)
     , lastlithid_(-1)
     , changed(this)
 {
@@ -398,25 +404,17 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	Strat::UnitRef* ur = tree->find( uncodes[unitidx]->buf() );
 	if ( ur )
 	{
-	    IOPar iop;;
+	    IOPar iop;
 	    iop.getFrom( astrm );
 	    ur->getFrom( iop );
 	}
 	unitidx ++;
     }
-
+/*
     while ( astrm.type() != ascistream::EndOfFile )
     {
 	if ( atEndOfSection(astrm) || !astrm.hasKeyword(sKeyLevel) )
 	{ astrm.next(); continue; }
-
-	Level* lvl = new Level( "", 0, true );
-	IOPar iop; iop.getFrom( astrm );
-	lvl->getFrom( iop, *tree );
-	tree->addLevel( lvl );
-	if ( lvl->id_ > lastlevelid_ )
-	    lastlevelid_ = lvl->id_;
-	astrm.next();
     }
 
     sfio.closeSuccess();
@@ -428,6 +426,7 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	msg += fnm; ErrMsg( fnm );
 	delete tree;
     }
+    */
 }
 
 
@@ -540,6 +539,13 @@ int Strat::UnitRepository::indexOf( const char* tnm ) const
 }
 
 
+Strat::UnitRef* Strat::UnitRepository::fnd( int id ) const
+{
+    return curtreeidx_ < 0 ? 0
+	 : const_cast<UnitRef*>( trees_[curtreeidx_]->find( id ) );
+}
+
+
 Strat::UnitRef* Strat::UnitRepository::fnd( const char* code ) const
 {
     return curtreeidx_ < 0 ? 0
@@ -611,11 +617,6 @@ void Strat::UnitRepository::copyCurTreeAtLoc( Repos::Source loc )
     BufferString str;
     const RefTree* curtree = tree( currentTree() );
     RefTree* tree = new RefTree( curtree->treeName(), loc );
-    for ( int idx=0; idx<curtree->nrLevels(); idx++ )
-    {
-	Level* lvl = new Level( *curtree->levelFromIdx( idx ) );
-	tree->addLevel( lvl );
-    }
     UnitRef::Iter it( *curtree );
     const UnitRef& firstun = *it.unit(); firstun.fill( str );
     tree->addUnit( firstun.fullCode(), str );
@@ -647,12 +648,11 @@ void Strat::UnitRepository::replaceTree( Strat::RefTree* newtree, int treeidx )
 void Strat::UnitRepository::createDefaultTree()
 {
     RefTree* tree = new RefTree( "Stratigraphic tree", Repos::Survey );
-    tree->addUnit( "base", "example of unit" );
     UnitRef::Props props;
-    props.code_ =  "base";
-    props.timerg_.set( 30, 60 );
+    props.code_ =  "Stratigraphic framework";
+    props.timerg_.set( 0, 4.5e3 );
     props.color_ = Color::DgbColor();
-    tree->setUnitProps( props );
-
+    props.desc_ = "Stratigraphic Column";
+    tree->addUnit( props );
     trees_ += tree;
 }

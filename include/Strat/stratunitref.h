@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.19 2010-05-10 08:41:23 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.20 2010-06-24 11:54:00 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,8 @@ mClass UnitRef
 {
 public:
 
+    typedef int		ID;
+
 			UnitRef( NodeUnitRef* up, const char* unitcode,
 			      const char* descr=0 )
 			: upnode_(up)
@@ -54,7 +56,7 @@ public:
 
     virtual bool	isLeaf() const			= 0;
     CompoundKey		fullCode() const;
-
+    const ID		getID() const 		{ return id_; }
     
     mStruct Props
     {
@@ -64,6 +66,7 @@ public:
 	BufferString    code_;
 	BufferString    desc_;
 	BufferString    lithnm_;
+	BufferString	lvlname_;
 	Interval<float> timerg_;
 	bool            isleaf_;
 	Color           color_;
@@ -77,14 +80,17 @@ public:
     const Props&	props() const			{ return props_; }
     Props&		props()				{ return props_; }
     
-    void		setProps( const Props& props )
+    void		setProps( const Props& pp )
 			{
-			    props_.desc_   = props.desc_;
-			    props_.lithnm_ = props.lithnm_;
-			    props_.timerg_ = props.timerg_; 
-			    props_.isleaf_ = props.isleaf_; 
-			    props_.color_  = props.color_; 
+			    props_.desc_   = pp.desc_;
+			    props_.lithnm_ = pp.lithnm_;
+			    props_.timerg_ = pp.timerg_; 
+			    props_.isleaf_ = pp.isleaf_; 
+			    props_.color_  = pp.color_; 
+			    props_.lvlname_= pp.lvlname_;
 			}
+
+    void		acquireID() { id_ = getNewID(); }
 
     NodeUnitRef*	upNode(int skip=0);
     const NodeUnitRef*	upNode( int skip=0 ) const
@@ -143,6 +149,9 @@ public:
 
 protected:
 
+    ID			id_;
+    ID			getNewID() const; 
+
     NodeUnitRef*	upnode_;
     Props		props_;
 
@@ -174,6 +183,8 @@ public:
 
     UnitRef*		find( const char* urcode )	{ return fnd(urcode); }
     const UnitRef*	find( const char* urcode ) const{ return fnd(urcode); }
+    UnitRef*		find( int id )  		{ return fnd(id); }
+    const UnitRef*	find( int id ) const 		{ return fnd(id); }
 
     void		add(UnitRef*,bool rev =false);
     void		remove( int uridx ) 
@@ -188,6 +199,7 @@ protected:
     ObjectSet<UnitRef>	refs_;
 
     UnitRef*		fnd(const char*) const;
+    UnitRef*		fnd(int) 	 const;
 
 };
 
@@ -216,6 +228,17 @@ protected:
 
     int			lith_;
 
+};
+
+
+mClass Unconformity : public UnitRef
+{
+public:
+
+			Unconformity( NodeUnitRef* up, const char* c,
+				     int lithidx=-1, const char* d=0 )
+			: UnitRef(up,c,d)
+			{}
 };
 
 

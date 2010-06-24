@@ -7,25 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.28 2010-05-11 14:22:11 cvsbruno Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.29 2010-06-24 11:54:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
 
-class uiListBox;
 class uiListViewItem;
 class uiMenuItem;
-class uiStratLevelDlg;
-class uiStratLinkLvlUnitDlg;
 class uiStratMgr;
 class uiStratRefTree;
 class uiStratTreeWin;
 class uiStratDisplay;
 class uiToolBar;
 class uiToolButton;
-namespace Strat{ class Level; }
 
 mGlobal const uiStratTreeWin& StratTWin();
 mGlobal uiStratTreeWin& StratTreeWin();
@@ -44,13 +40,9 @@ public:
     virtual bool	closeOK();
     
     const uiStratMgr&	mgr() const	{ return uistratmgr_; }
-    
-    mutable Notifier<uiStratTreeWin>	levelCreated;
-    mutable Notifier<uiStratTreeWin>	levelChanged;
-    mutable Notifier<uiStratTreeWin>	levelRemoved;
-    mutable Notifier<uiStratTreeWin>	newUnitSelected;
-    mutable Notifier<uiStratTreeWin>	newLevelSelected;
 
+    mutable Notifier<uiStratTreeWin>newUnitSelected;
+    
 #define mCreateCoupledNotifCB(nm) \
 public: \
     mutable Notifier<uiStratTreeWin> nm;\
@@ -68,9 +60,7 @@ protected:
 
     uiStratMgr&			uistratmgr_;
     uiStratRefTree*		uitree_;
-    uiListBox*			lvllistfld_;
     uiStratDisplay*		uistratdisp_;
-    uiStratLinkLvlUnitDlg*	linkunlvldlg_;
     uiMenuItem*			expandmnuitem_;
     uiMenuItem*			editmnuitem_;
     uiMenuItem*			savemnuitem_;
@@ -93,19 +83,11 @@ protected:
     void			createToolBar();
     void			createGroups();
 
-    void			fillLvlList();
-    void			updateLvlList(bool);
-    void			editLevel(bool);
-    void			fillInLvlPars(Strat::Level*,
-	    				      const uiStratLevelDlg&,bool);
-
     void			editCB(CallBacker*);
     void			openCB(CallBacker*);
     void			resetCB(CallBacker*);
     void			saveCB(CallBacker*);
     void			saveAsCB(CallBacker*);
-    void			selLvlChgCB(CallBacker*);
-    void			rClickLvlCB(CallBacker*);
     void			setExpCB(CallBacker*);
     void			switchViewCB(CallBacker*);
     void			unitSelCB(CallBacker*);

@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.19 2010-05-07 12:50:46 cvsbruno Exp $
+ RCS:           $Id: uistratreftree.h,v 1.20 2010-06-24 11:54:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "callback.h"
+#include "ranges.h"
+#include "stratunitref.h"
 
 class ioPixmap;
 class uiParent;
@@ -22,7 +24,6 @@ class uiStratMgr;
 namespace Strat {
     class RefTree;
     class NodeUnitRef;
-    class UnitRef;
 }
 
 
@@ -58,14 +59,19 @@ protected:
     void		repoChangedCB(CallBacker*);
 
     void		insertSubUnit(uiListViewItem*);
+    void		doInsertSubUnit(uiListViewItem*,Strat::UnitRef::Props&);
+    void		makeNewTreeItem(uiListViewItem*);
     void		removeUnit(uiListViewItem*);
     void		updateUnitProperties(uiListViewItem*);
+
+    void 		setUnconformities(const Strat::NodeUnitRef&,bool);
+    void 		resetUnconformities(CallBacker*);
+
     void		addNode(uiListViewItem*,const Strat::NodeUnitRef&,bool);
-    ioPixmap*		createLevelPixmap(const Strat::UnitRef*) const;
+    ioPixmap*		createUnitPixmap(const Strat::UnitRef*) const;
     			//becomes yours!
 
     BufferString	getCodeFromLVIt(const uiListViewItem*) const;
-    void		selBoundary();
 
     friend class 	uiStratTreeWriter;
 };

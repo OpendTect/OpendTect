@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          September 2007
- RCS:           $Id: uistratlvlsel.h,v 1.10 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uistratlvlsel.h,v 1.11 2010-06-24 11:54:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,19 +17,16 @@ ________________________________________________________________________
 class Color;
 class uiComboBox;
 
-namespace Strat { class Level; }
-
-/*!\brief used to tie an object ( Horizon, Marker... ) to a Strat::Level */
+/*!\brief used to tie an object ( Horizon, Marker... ) to a Unit Level */
 
 mClass uiStratLevelSel : public uiGroup
 {
 public:
 
-			uiStratLevelSel(uiParent*,bool withlabel=true,
-					bool withdefine=true);
+			uiStratLevelSel(uiParent*,bool withlabel=true);
 			~uiStratLevelSel();
 
-    const Strat::Level*	selected() const;
+    int			selected() const;
 
     int			getID() const;
     void		setID(int);
@@ -42,6 +39,7 @@ public:
 protected:
 
     uiComboBox*		selfld_;
+    TypeSet<int>	ids_;
 
     void		selCB(CallBacker*);
     void		defCB(CallBacker*);

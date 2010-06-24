@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.9 2010-06-10 09:18:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.10 2010-06-24 11:54:01 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -71,11 +71,6 @@ void uiWellStratDisplay::setUnitPos( AnnotData::Unit& unit )
     const Well::Marker* basemrk = 0;
     for ( int idx=0; idx<dispdata_.markers_->size(); idx++ )
     {
-	const Strat::Level* lvl = (*dispdata_.markers_)[idx]->level();
-	if ( lvl && !strcmp( lvl->name(), unit.annots_[0]->buf() ) )
-	    topmrk = (*dispdata_.markers_)[idx];
-	if ( lvl && !strcmp( lvl->name(), unit.annots_[2]->buf() ) )
-	    basemrk = (*dispdata_.markers_)[idx];
     }
     if ( !topmrk || !basemrk ) 
     { 
