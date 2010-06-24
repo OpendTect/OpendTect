@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.h,v 1.6 2010-04-21 07:46:17 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.h,v 1.7 2010-06-24 10:46:44 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,16 +30,16 @@ namespace EM
 mClass FaultStickPainter : public CallBacker
 {
 public:
-    			FaultStickPainter(FlatView::Viewer&);
+    			FaultStickPainter(FlatView::Viewer&,
+					  const EM::ObjectID&);
 			~FaultStickPainter();
 
     void		setCubeSampling(const CubeSampling&,bool);
     const CubeSampling&	getCubeSampling() const			{ return cs_; }
 
-    void		addFaultStickSet(const MultiID&);
-    void                addFaultStickSet(const EM::ObjectID&);
+    void		enableLine(bool);
+    void		enableKnots(bool);
 
-    void		setActiveFSS(const EM::ObjectID&);
     void		setActiveStick(EM::PosID&);
     int			getActiveStickId()	{ return activestickid_; }
     void		setMarkerLineStyle(const LineStyle&);
@@ -52,8 +52,8 @@ public:
 	    int					stickid_;
 	};
 
-    void		getDisplayedSticks(const EM::ObjectID&,
-	    				   ObjectSet<StkMarkerInfo>&);
+    EM::ObjectID&	getFaultSSID()			{ return emid_; }
+    void		getDisplayedSticks(ObjectSet<StkMarkerInfo>&);
 
     void		set2D(bool yn)		{ is2d_ = yn; }
     bool		is2D()			{ return is2d_; }
@@ -71,15 +71,16 @@ public:
     TypeSet<float>&	getDistances()			{ return distances_; }
     TypeSet<Coord>&	getCoords()			{ return coords_; }
 
+    void		paint();
+
 protected:
 
-    bool		addPolyLine(const EM::ObjectID&);
+    bool		addPolyLine();
 
     bool		getNearestDistance(const Coord3& pos,float& dist);
 
-    void		removeFSS(int);
-    void		removePolyLine(int);
-    void		repaintFSS(const EM::ObjectID&);
+    void		removePolyLine();
+    void		repaintFSS();
 
     virtual void	fssChangedCB(CallBacker*);
 
@@ -89,20 +90,11 @@ protected:
     MarkerStyle2D       markerstyle_;
 
     FlatView::Viewer&   viewer_;
+    
+    EM::ObjectID        emid_;
 
-    		mStruct FaultStickSetInfo
-	        {
-		    EM::ObjectID        id_;
-		    BufferString        name_;
-		    bool                lineenabled_;
-		    bool                nodeenabled_;
-		};
+    ObjectSet<ObjectSet<StkMarkerInfo> >	sectionmarkerlines_;
 
-    ObjectSet<FaultStickSetInfo>                        fssinfos_;
-
-    ObjectSet<ObjectSet<ObjectSet<StkMarkerInfo> > >	faultmarkerline_;
-
-    EM::ObjectID	activefssid_;
     int			activestickid_;
 
     bool		is2d_;
@@ -111,7 +103,10 @@ protected:
     
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;
-    TypeSet<Coord>	coords_;   
+    TypeSet<Coord>	coords_;
+
+    bool		linenabled_;
+    bool		knotenabled_;   
 };
 
 } //namespace EM

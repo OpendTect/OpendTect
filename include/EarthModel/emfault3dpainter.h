@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.h,v 1.3 2010-04-21 07:46:17 cvsumesh Exp $
+ RCS:		$Id: emfault3dpainter.h,v 1.4 2010-06-24 10:46:44 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,16 +28,15 @@ class Fault3D;
 mClass Fault3DPainter : public CallBacker
 {
 public:
-    			Fault3DPainter(FlatView::Viewer&);
+    			Fault3DPainter(FlatView::Viewer&,const EM::ObjectID&);
 			~Fault3DPainter();
 
     void		setCubeSampling(const CubeSampling&,bool);
     const CubeSampling&	getCubeSampling() const			{ return cs_; }
 
-    void		addFault3D(const MultiID&);
-    void		addFault3D(const EM::ObjectID&);
+    void		enableLine(bool);
+    void		enableKnots(bool);
 
-    void		setActiveF3D(const EM::ObjectID&);
     void		setActiveStick(EM::PosID&);
     const int		getActiveStickId() const      { return activestickid_; }
     void		setMarkerLineStyle(const LineStyle&);
@@ -50,28 +49,35 @@ public:
 	    int					stickid_;
 	};
 
-    void		getDisplayedSticks(const EM::ObjectID&,
-	    				   ObjectSet<StkMarkerInfo>&);
+    EM::ObjectID&       getFaultID()			{ return emid_; }
+    void		getDisplayedSticks(ObjectSet<StkMarkerInfo>&);
 
     Notifier<Fault3DPainter>	abouttorepaint_;
     Notifier<Fault3DPainter>	repaintdone_;
 
+    void		paint();
+
 protected:
-    bool		addPolyLine(const EM::ObjectID&);
+    bool		addPolyLine();
 
 	mStruct Fault3DMarker
 	{
+	    				Fault3DMarker(){}
+					~Fault3DMarker()
+					{
+					    deepErase(stickmarker_);
+					    deepErase(intsecmarker_);
+					}
 	    ObjectSet<StkMarkerInfo>			stickmarker_;
 	    ObjectSet<FlatView::Annotation::AuxData>	intsecmarker_;
 	};
 
-    bool		paintSticks(EM::Fault3D*,const EM::SectionID&,
+    bool		paintSticks(EM::Fault3D&,const EM::SectionID&,
 				    Fault3DMarker*);
-    bool		paintIntersection(EM::Fault3D*,const EM::SectionID&,
+    bool		paintIntersection(EM::Fault3D&,const EM::SectionID&,
 	    				  Fault3DMarker*);
-    void		removeFault3D(int);
-    void		removePolyLine(int);
-    void		repaintFault3D(const EM::ObjectID&);
+    void		removePolyLine();
+    void		repaintFault3D();
 
     virtual void	fault3DChangedCB(CallBacker*);
      
@@ -81,19 +87,12 @@ protected:
     LineStyle		markerlinestyle_;
     MarkerStyle2D	markerstyle_;
 
-		mStruct Fault3DInfo
-		{
-		    EM::ObjectID        id_;
-		    BufferString        name_;
-		    bool                lineenabled_;
-		    bool                nodeenabled_;
-		};
+    EM::ObjectID        emid_;
+    ObjectSet<Fault3DMarker>    f3dmarkers_;
 
-    ObjectSet<Fault3DInfo>		    f3dinfos_;
-    ObjectSet<ObjectSet<Fault3DMarker> >    f3dmarkers_;
-
-    EM::ObjectID	activef3did_;
     int			activestickid_;
+    bool		linenabled_;
+    bool		knotenabled_;
 };
 
 } //namespace EM
