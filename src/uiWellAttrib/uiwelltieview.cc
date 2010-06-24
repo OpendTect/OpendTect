@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.69 2010-06-04 09:38:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.70 2010-06-24 11:55:34 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.69 2010-06-04 09:38:03 cvs
 #include "uilabel.h"
 #include "uirgbarraycanvas.h"
 #include "uiwelllogdisplay.h"
+#include "uiwelldisplaycontrol.h"
 #include "uiwelltiecontrolview.h"
 #include "uiworld2ui.h"
 
@@ -56,10 +57,17 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr,
 	, trcbuf_(0)
 	, checkshotitm_(0)
     	, seistrcdp_(0)
+	, infoMsgChanged(this)	       
+	, wellcontrol_(0)
 {
-    dataholder_.redrawViewerNeeded.notify(mCB(this,uiTieView,redrawViewerMarkers));
+    dataholder_.redrawViewerNeeded.notify(
+	    			mCB(this,uiTieView,redrawViewerMarkers));
+    vwr_->rgbCanvas().scene().getMouseEventHandler().movement.notify( 
+	    				mCB( this, uiTieView, setInfoMsg ) );
+
     initFlatViewer();
     initLogViewers();
+    initWellControl();
 } 
 
 
@@ -67,9 +75,19 @@ uiTieView::~uiTieView()
 {
     if ( seistrcdp_ )
 	removePack();
-    dataholder_.redrawViewerNeeded.remove(mCB(this,uiTieView,redrawViewerMarkers));
+    dataholder_.redrawViewerNeeded.remove(
+	    			mCB(this,uiTieView,redrawViewerMarkers));
     delete trcbuf_;
     deepErase( logsdisp_ );
+}
+
+
+void uiTieView::initWellControl()
+{
+    mGetWD(return)
+    wellcontrol_ = new uiWellDisplayControl( *logsdisp_[0], 0 );
+    wellcontrol_->addLogDisplay( *logsdisp_[1] );
+    wellcontrol_->infoChanged.notify( mCB(this,uiTieView,setInfoMsg) );
 }
 
 
@@ -335,7 +353,7 @@ void uiTieView::zoomChg( CallBacker* )
 
 
 void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
-			    bool leftside, float zpos, Color col, bool ispick )
+			    bool left, float zpos, Color col, bool ispick )
 {
     auxdata->linestyle_.color_ = col;
     auxdata->linestyle_.width_ = ispick ? 2 : 1;
@@ -345,31 +363,17 @@ void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
     const float xright = vwr_->boundingBox().right();
     bool isleft = true;
 
-    if ( leftside )
-    {
-	auxdata->poly_ += FlatView::Point( (xright-xleft)/2, zpos );
-	auxdata->poly_ += FlatView::Point( xleft, zpos );
-    }
-    else
-    {
-	auxdata->poly_ += FlatView::Point( xright, zpos );
-	auxdata->poly_ += FlatView::Point( (xright-xleft)/2, zpos );
-    }
+    auxdata->poly_ += FlatView::Point( left ? (xright-xleft)/2 : xright, zpos );
+    auxdata->poly_ += FlatView::Point( left ? xleft : (xright-xleft)/2, zpos );
 
-    if ( !ispick )
+    if ( !ispick  )
     {
 	BufferString mtxt( auxdata->name_ );
 	if ( mtxt.size() > 3 )
 	    mtxt[3] = '\0';
-	uiTextItem* ti = vwr_->rgbCanvas().scene().addItem(
-			     new uiTextItem(mtxt,mAlignment(Right,VCenter)) );
-	uiWorld2Ui w2u; vwr_->getWorld2Ui(w2u);
-	ti->setPos( w2u.transform( uiWorldPoint( leftside ? 0 : 7, zpos) ) );
-	ti->setTextColor( col );
-	if ( leftside )
-	    mrktxtnms_ += ti;
-	else
-	    hortxtnms_ += ti;
+	auxdata->name_ = mtxt;
+	auxdata->namealignment_ = Alignment(Alignment::HCenter,Alignment::Top);
+	auxdata->namepos_ = 1;
     }
 }	
 
@@ -400,7 +404,7 @@ void uiTieView::drawViewerWellMarkers()
 
     FlatView::Appearance& app = vwr_->appearance();
     mRemoveSet( wellmarkerauxdatas_ );
-    bool ismarkerdisp = dataholder_.uipms()->ismarkerdisp_;
+    bool ismarkerdisp = dataholder_.uipms()->isvwrmarkerdisp_;
     if ( !ismarkerdisp ) 
 	return;
     const Well::D2TModel* d2tm = wd->d2TModel();
@@ -430,7 +434,7 @@ void uiTieView::drawUserPicks()
 {
     FlatView::Appearance& app = vwr_->appearance();
     mRemoveSet( userpickauxdatas_ );
-    const int nrauxs = mMAX( seispickset_->getSize(),synthpickset_->getSize() );
+    const int nrauxs = mMAX( seispickset_->getSize(),synthpickset_->getSize());
     
     for ( int idx=0; idx<nrauxs; idx++ )
     {
@@ -468,6 +472,8 @@ void uiTieView::drawHorizons()
     mRemoveItms( hortxtnms_ )
     FlatView::Appearance& app = vwr_->appearance();
     mRemoveSet( horauxdatas_ );
+    bool ishordisp = dataholder_.uipms()->isvwrhordisp_;
+    if ( !ishordisp ) return;
     const ObjectSet<DataHolder::HorData>& hordatas = dataholder_.horDatas();
     for ( int idx=0; idx<hordatas.size(); idx++ )
     {
@@ -538,6 +544,18 @@ bool uiTieView::isEmpty()
 }
 
 
+void uiTieView::setInfoMsg( CallBacker* cb )
+{
+    BufferString infomsg;
+    mDynamicCastGet(MouseEventHandler*,mevh,cb)
+    if ( !mevh )
+    { 
+	mCBCapsuleUnpack(BufferString,inf,cb); 
+	infomsg = inf;
+    }
+    CBCapsule<BufferString> caps( infomsg, this );
+    infoMsgChanged.trigger( &caps );
+}
 
 
 uiCorrView::uiCorrView( uiParent* p, WellTie::DataHolder& dh)

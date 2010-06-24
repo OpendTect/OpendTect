@@ -23,6 +23,7 @@ class uiRect;
 namespace WellTie
 {
     class DataHolder;
+    class uiMrkDispDlg;
 
 mClass uiControlView : public uiFlatViewStdControl
 {
@@ -43,10 +44,12 @@ protected:
     uiToolBar*		toolbar_;
     uiToolButton*	manipdrawbut_;
     uiToolButton*	horbut_;
+    uiToolButton*	hormrkdispbut_;
     uiIOObjSelDlg*	selhordlg_;
     uiWorldRect		curview_;
     
     WellTie::DataHolder* dataholder_;
+    uiMrkDispDlg*	hormrkdispdlg_;
     
     bool 		checkIfInside(double,double);
     void 		finalPrepare();
@@ -55,6 +58,7 @@ protected:
     void 		altZoomCB(CallBacker*);
     void 		keyPressCB(CallBacker*);
     void		loadHorizons(CallBacker*);
+    void		dispHorMrks(CallBacker*);
     void		rubBandCB(CallBacker*);
     void 		wheelMoveCB(CallBacker*);
 

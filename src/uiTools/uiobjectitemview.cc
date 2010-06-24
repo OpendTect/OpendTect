@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.11 2010-05-18 07:35:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.12 2010-06-24 11:55:34 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uiparent.h"
 
 #include "geometry.h"
 
@@ -122,4 +123,8 @@ void uiObjectItemView::setStretchFactor(uiObjectItem* itm,int stretchfactor )
 {
     mGetScene(return) sc->setItemStretch( itm, stretchfactor );
 }
+
+
+
+
 

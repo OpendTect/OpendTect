@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.35 2010-05-07 12:50:46 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.36 2010-06-24 11:55:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ class uiTextItem;
 class uiStratDisplay;
 class uiWellStratDisplay;
 class uiWellDisplayMarkerEdit;
+class uiWellDisplayControl;
+class uiWellDispInfoPanel;
 
 class Params;
 class UnitOfMeasure;
@@ -44,10 +46,6 @@ namespace Well
     class Track; 
     class DahObj;
 }
-
-#define mStratWidth 75
-#define mLogWidth 150
-#define mLogHeight 600
 
 /*!\brief creates a display of max 2 well logs. */
 mClass uiWellLogDisplay : public uiGraphicsView
@@ -73,7 +71,6 @@ public:
 				    , noxaxisline_(false)
 				    , noyaxisline_(false)
 				    , nobackground_(false)		 
-				    , withposinfo_(false)		 
 				    {}
 
 	mDefSetupMemb(uiBorder,border)
@@ -92,7 +89,6 @@ public:
 	mDefSetupMemb(bool,noyaxisline)
 	mDefSetupMemb(bool,noxaxisline)
 	mDefSetupMemb(bool,nobackground)
-	mDefSetupMemb(bool,withposinfo)
     };
 
 				uiWellLogDisplay(uiParent*,const Setup&);
@@ -155,7 +151,7 @@ public:
     };
     
     const LogData&		logData(bool first=true) const
-    				{ return logData(first); }
+    				{ return first ? ld1_ : ld2_; }
     LogData&			logData(bool first=true)
     				{ return first ? ld1_ : ld2_; }
 
@@ -196,9 +192,6 @@ public:
     Well::DisplayProperties& 	disp()		{ return disp_; }
     const Well::Well2DDispData&	data() const 	{ return data_; }
     const MouseCursor&		cursor() const 	{ return cursor_; }
-    float			mousePos(); 
-    
-    Notifier<uiWellLogDisplay>  infoChanged;
     
 protected:
 
@@ -219,13 +212,11 @@ protected:
     void			init(CallBacker*);
     void			dataChanged();
     void			reSized(CallBacker*);
-    void			mouseMoved(CallBacker*);
 
     void			setAxisRelations();
     void			setAxisRanges(bool);
     void			gatherInfo();
     void			gatherInfo(bool);
-    void 			getPosInfo(float,BufferString&);
     void			draw();
     void			drawLog(bool);
     void			drawLine(LogData&,const Well::DahObj* ldah);
@@ -245,8 +236,6 @@ public:
 				    : nrpanels_(1)
 				    , noborderspace_(false)
 				    , nobackground_(false)		   
-				    , logwidth_(mLogWidth)	 	   
-				    , logheight_(mLogHeight)
 				    , withstratdisp_(false) 		    
 				    , withedit_(false)	       
 				    , wd_(0)				    
@@ -256,8 +245,6 @@ public:
 	mDefSetupMemb(int,nrpanels) 	 	// nr Log Panels
 	mDefSetupMemb(bool,nobackground) 	//transparent background
 	mDefSetupMemb(bool,noborderspace) 	//will remove all border&annots 
-	mDefSetupMemb(int,logheight) 		//log height
-	mDefSetupMemb(int,logwidth) 		//log width
 	mDefSetupMemb(bool,withstratdisp) 	//Add Stratigraphy display
 	mDefSetupMemb(bool,withedit) 		//Add Marker Editor
     };
@@ -277,10 +264,8 @@ public:
 
     mStruct Params
     {
-	public :		Params(Well::Data*,int,int);
+	public :		Params(Well::Data*);
 
-	int 			logwidth_;	 	   
-	int 			logheight_;
 	Well::Data*		wd_;
 	Well::Well2DDispData	data_;
     };	
@@ -299,8 +284,8 @@ public:
     uiWellStratDisplay*		stratDisp() 		{ return stratdisp_; }
     const uiWellStratDisplay*	stratDisp() const  	{ return stratdisp_; }
     bool			hasStratDisp() const	{ return stratdisp_; }
-    uiWellDisplayMarkerEdit* 	markerEdit() 		{ return mrkedit_; }
-    const uiWellDisplayMarkerEdit* markerEdit() const	{ return mrkedit_; }
+    const uiWellDisplayControl*	control() const		{ return control_; }
+    uiWellDisplayControl*	control() 		{ return control_; }
    
     void 			setDispProperties(Well::DisplayProperties&,
 						    int panelnr=0); 
@@ -309,26 +294,22 @@ public:
     Params&			params()		{ return pms_; } 
     const Params&		params() const		{ return pms_; } 
     void                        dataChanged(CallBacker*);
+    int 			getDispWidth();
 
-    BufferString		getPosInfo() const	{ return info_; } 
-
-protected:
+    void			setInitialSize(uiSize);
 
     ObjectSet<uiWellLogDisplay> logdisps_;
     uiWellStratDisplay*		stratdisp_;
     uiWellDisplayMarkerEdit*	mrkedit_;
+    uiWellDisplayControl*	control_;
     Params			pms_;
-    BufferString		info_;
     MultiID                     wellid_;
 
     void			addLogPanel(bool,bool);
     void			addWDNotifiers(Well::Data&);
-    Well::Data*			getWD() const;
     void			removeWDNotifiers(Well::Data&);
-    void 			setPosInfo(CallBacker*);
+    Well::Data*			getWD() const;
     void			setStratDisp();
-    int 			getDispWidth();
-
     void                        gatherInfo();
     void                        setAxisRanges();
 
@@ -345,9 +326,12 @@ public:
 protected:
 
     uiWellDisplay& 	welldisp_;
+    uiWellDispInfoPanel* wellinfo_;
     Well::Data&		wd_;
     
     void		closeWin(CallBacker*);
+    void		dispInfoMsg(CallBacker*);
+    void		mkInfoPanel(CallBacker*);
     void		updateProperties(CallBacker*);
 };
 

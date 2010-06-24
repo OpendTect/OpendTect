@@ -28,6 +28,7 @@ class uiPolyLineItem;
 class uiWellLogDisplay;
 class uiLabel;
 class uiTextItem;
+class uiWellDisplayControl;
 
 namespace Well
 {
@@ -61,17 +62,20 @@ public:
     void        		drawUserPicks();
     bool        		isEmpty(); 
 
+    Notifier<uiTieView> 	infoMsgChanged;
+
 protected:
 
-    uiFlatViewer*		vwr_;
-
     ObjectSet<uiWellLogDisplay>& logsdisp_;
-    WellTie::DataHolder&  	dataholder_;
-    const WellTie::Setup& 	wtsetup_;
-    const WellTie::Params::DataParams* params_;
-    WellTie::PickSet*		seispickset_;
-    WellTie::PickSet*		synthpickset_;
+    DataHolder&  		dataholder_;
+    const Setup& 		wtsetup_;
+    const Params::DataParams* 	params_;
+    uiWellDisplayControl*       wellcontrol_;
 
+    PickSet*			seispickset_;
+    PickSet*			synthpickset_;
+
+    uiFlatViewer*		vwr_;
     SeisTrcBuf*			trcbuf_;
     SeisTrcBufDataPack*		seistrcdp_;
     ObjectSet<SeisTrc>		trcs_;
@@ -99,6 +103,7 @@ protected:
     void        		drawCShot();
     void        		initFlatViewer();
     void        		initLogViewers();
+    void        		initWellControl();
     void			loadHorizons();
     void			drawHorizons();
     void 			removePack();
@@ -108,6 +113,7 @@ protected:
     void			setUpUdfTrc(SeisTrc&,const char*,int);
     void			setUpValTrc(SeisTrc&,const char*,int);
     void        		setDataPack(SeisTrcBuf*,const char*,int);
+    void 			setInfoMsg(CallBacker*);
     void			zoomChg(CallBacker*);
 };
 

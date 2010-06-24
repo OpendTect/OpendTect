@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.69 2009-11-30 11:50:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.70 2010-06-24 11:55:33 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -13,7 +13,6 @@ static const char* rcsID = "$Id: well.cc,v 1.69 2009-11-30 11:50:32 cvsbruno Exp
 #include "welldisp.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
-#include "stratlevel.h"
 #include "stratunitrepos.h"
 #include "idxable.h"
 #include "bendpointfinder.h"
@@ -374,32 +373,18 @@ Well::Marker::Marker( int lvlid, float dh )
     : levelid_(lvlid)
     , dah_(dh)
 {
-    const Strat::Level* lvl = level();
-    if ( lvl )
-    {
-	setName( lvl->name() );
-	setColor( lvl->color_ );
-    }
-}
-
-
-const Strat::Level* Well::Marker::level() const
-{
-    return levelid_ < 0 ? 0 : Strat::RT().levelFromID( levelid_ );
 }
 
 
 const BufferString& Well::Marker::name() const
 {
-    const Strat::Level* lvl = level();
-    return lvl ? lvl->name() : NamedObject::name();
+    return NamedObject::name();
 }
 
 
 Color Well::Marker::color() const
 {
-    const Strat::Level* lvl = level();
-    return lvl ? lvl->color_ : color_;
+    return color_;
 }
 
 

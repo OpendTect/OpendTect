@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.37 2010-04-23 10:02:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.38 2010-06-24 11:55:34 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -261,9 +261,12 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     clipratefld_->valuechanged.notify( propchgcb );
 
     logarithmfld_ = new uiCheckBox( this, "Logarithmic" );
-    logarithmfld_->setName( BufferString("Logarithmic") );
     logarithmfld_->attach( rightOf, rangefld_ );
     logarithmfld_->activated.notify( propchgcb );
+    
+    revertlogfld_ = new uiCheckBox( this, "Revert" );
+    revertlogfld_->attach( rightOf, cliprangefld_ );
+    revertlogfld_->activated.notify( propchgcb );
 
     logfillfld_ = new uiCheckBox( this, "log filled" );
     logfillfld_->attach( rightOf, colfld_ );   
@@ -361,6 +364,7 @@ void uiWellLogDispProperties::doPutToScreen()
     NotifyStopper nso( ovlapfld_->valueChanging );
     NotifyStopper nsr( repeatfld_->valueChanging );
     NotifyStopper nsl( logarithmfld_->activated );
+    NotifyStopper nsrev( revertlogfld_->activated );
 
     logsfld_->box()-> setText( logprops().name_ );
     rangefld_->setValue( logprops().range_ );
@@ -368,6 +372,7 @@ void uiWellLogDispProperties::doPutToScreen()
     filllogsfld_->box()-> setText( logprops().fillname_ );
     stylefld_->setValue( logprops().iswelllog_ );
     logarithmfld_->setChecked( logprops().islogarithmic_ ); 
+    revertlogfld_->setChecked( logprops().islogreverted_ ); 
     coltablistfld_->setText( logprops().seqname_ ); 
     ovlapfld_->setValue( logprops().repeatovlap_ );
     repeatfld_->setValue( logprops().repeat_ );
@@ -400,19 +405,20 @@ void uiWellLogDispProperties::doGetFromScreen()
     }
     logprops().range_ = rangefld_->getFInterval();
     logprops().fillrange_ = colorrangefld_->getFInterval();
+    bool isreverted = revertlogfld_->isChecked();
+    if ( logprops().islogreverted_ != isreverted )
+    {
+	logprops().islogreverted_ = isreverted;
+	logprops().range_.sort( !isreverted ); 
+    }
     logprops().islogarithmic_ = logarithmfld_->isChecked(); 
     logprops().islogfill_ = logfillfld_->isChecked();
     logprops().issinglecol_ = singlfillcolfld_->isChecked();
     logprops().seqname_ = coltablistfld_-> text();
-    if ( stylefld_->getBoolValue() == true )
-	logprops().repeat_ = 1;
-    else
-	logprops().repeat_ = repeatfld_->getValue();
+    logprops().repeat_ = stylefld_->getBoolValue() ? 1 : repeatfld_->getValue();
     logprops().repeatovlap_ = ovlapfld_->getValue();
-    if (logprops().iswelllog_ )
-	logprops().seiscolor_ = fillcolorfld_->color();
-    else
-	logprops().seiscolor_ = seiscolorfld_->color();
+    logprops().seiscolor_ = logprops().iswelllog_ ? fillcolorfld_->color() 
+						  : seiscolorfld_->color();
     logprops().name_ = logsfld_->box()->text();
     logprops().fillname_ = filllogsfld_->box()->text();
     deflogwidth = logprops().logwidth_ = logwidthfld_->box()->getValue();
@@ -470,7 +476,8 @@ void uiWellLogDispProperties::isStyleChanged( CallBacker* )
 void uiWellLogDispProperties::recoverProp( )
 {
     putToScreen();
-    if ( logprops().name_ == "None" || logprops().name_ ==  "none" ) selNone();
+    if ( logprops().name_ == "None" || logprops().name_ ==  "none" ) 
+	selNone();
     isSeismicSel(0);
     choiceSel(0);
     isFilledSel(0);

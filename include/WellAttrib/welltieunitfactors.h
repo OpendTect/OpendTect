@@ -70,6 +70,8 @@ public :
 				: wd_(d)
 				, iscsdisp_(false)
 				, ismarkerdisp_(d->haveMarkers())
+				, isvwrmarkerdisp_(d->haveMarkers())
+				, isvwrhordisp_(false)
 				, iszinft_(false)
 				, iszintime_(true)
 				{}
@@ -78,6 +80,8 @@ public :
 	bool                    iscscorr_;
 	bool 			iscsdisp_;
 	bool                    ismarkerdisp_;
+	bool                    isvwrmarkerdisp_;
+	bool                    isvwrhordisp_;
 	bool                    iszinft_;
 	bool                    iszintime_;
 	void			resetWD(const Well::Data* wd)

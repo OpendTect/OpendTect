@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.72 2010-06-01 13:31:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.73 2010-06-24 11:55:34 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.72 2010-06-01 13:3
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uiseparator.h"
+#include "uistatusbar.h"
 #include "uitoolbar.h"
 #include "uiwelldlgs.h"
 #include "uiwelllogdisplay.h"
@@ -88,6 +89,7 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts )
     infodlg_->redrawNeeded.notify( mCB(datadrawer_,uiTieView,redrawViewer) );
     dataholder_.pickmgr()->pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
     stretcher_->timeChanged.notify(mCB(this,uiTieWin,timeChanged));
+    datadrawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
     
     BufferString title( "Tie "); 
     title += dataholder_.wd()->name(); title += " to "; title += wts.seisnm_;
@@ -266,7 +268,7 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     
     matchhormrksbut_ = new uiPushButton( taskgrp,"Match markers and horizons",
 	               mCB(this,uiTieWin,matchHorMrks), true );
-    matchhormrksbut_->attach( leftOf, infobut_ );
+    matchhormrksbut_->attach( rightOf, infobut_ );
 }
 
 
@@ -485,6 +487,12 @@ bool uiTieWin::acceptOK( CallBacker* )
     return false;
 }
 
+
+void uiTieWin::dispInfoMsg( CallBacker* cb )
+{
+    mCBCapsuleUnpack(BufferString,mesg,cb);
+    statusBar()->message( mesg.buf() );
+}
 
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.20 2010-06-23 12:41:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.21 2010-06-24 11:55:34 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.20 2010-06-23 12:41:54 c
 #include "uistratlvlsel.h"
 #include "uistrattreewin.h"
 #include "uitblimpexpdatasel.h"
-#include "stratlevel.h"
 #include "uitable.h"
 
 #include "ctxtioobj.h"
@@ -37,14 +36,14 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.20 2010-06-23 12:41:54 c
 
 
 
-static const char* mrkrcollbls[] = { "Level", "Depth (MD)",
-    				     "[Name]", "[Color]", 0 };
+static const char* mrkrcollbls[] = { "[Name]", "Depth (MD)", 
+				     "[Color]", "Level", 0 };
 static const int cNrEmptyRows = 5;
 
-static const int cLevelCol = 0;
+static const int cNameCol  = 0;
 static const int cDepthCol = 1;
-static const int cNameCol  = 2;
-static const int cColorCol = 3;
+static const int cColorCol = 2;
+static const int cLevelCol = 3;
 
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
@@ -137,19 +136,21 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     {
 	int irow = startrow + idx;
 	const Well::Marker* marker = markers[idx];
-	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false, false );
+	
+	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false );
 	levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
 	table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
 	levelsel->setID( marker->levelID() );
 	table_->setValue( RowCol(irow,cDepthCol), marker->dah()*zfac );
 	table_->setText( RowCol(irow,cNameCol), marker->name() );
 	table_->setColor( RowCol(irow,cColorCol), marker->color() );
-	updateFromLevel( irow, levelsel );
+	if ( marker->levelID() >= 0 )
+	    updateFromLevel( irow, levelsel );
     }
     Well::Marker mrk;
     for ( int irow=startrow+nrnew; irow<nrrows; irow++ )
     {
-	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false, false );
+	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false );
 	levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
 	table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
 	table_->setText( RowCol(irow,cDepthCol), "" );
@@ -172,16 +173,27 @@ void uiMarkerDlg::stratLvlChg( CallBacker* cb )
 
 void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
 {
-    const Strat::Level* lvl = levelsel->selected();
-    const bool havelvl = lvl && lvl->id_ >= 0;
+    int selid = levelsel->getID();
+    const bool havelvl = ( selid >= 0 );
 
     RowCol rc( irow, cColorCol );
     if ( havelvl )
     {
-	rc.col = cColorCol; table_->setColor( rc, lvl->color_ );
-	rc.col = cNameCol; table_->setText( rc, lvl->name() );
+	rc.col = cColorCol; table_->setColor( rc, levelsel->getColor() );
+	rc.col = cNameCol; table_->setText( rc, levelsel->getName() );
     }
-
+    else
+    {
+	//TODO get back from orignal list
+	/*
+	const Well::Marker* marker = markers[irow];
+	if ( marker ) 
+	{
+	    table_->setColor( rc, marker->getColor() );
+	    table_->setText( rc, marker->name_ );
+	}
+	*/
+    }
     rc.col = cColorCol; table_->setCellReadOnly( rc, havelvl );
     rc.col = cNameCol; table_->setCellReadOnly( rc, havelvl );
 }
@@ -273,6 +285,7 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 	mDynamicCastGet(uiStratLevelSel*,levelsel,
 			table_->getCellGroup(RowCol(idx,cLevelCol)))
 	const int lvlid = levelsel ? levelsel->getID() : -1;
+
 	const bool havelvl = lvlid >= 0;
 	const bool havenm = txt && *txt;
 	if ( !havelvl && !havenm )

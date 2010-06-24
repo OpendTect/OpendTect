@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiwelldisplaycontrol.h,v 1.8 2010-05-19 12:31:21 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaycontrol.h,v 1.9 2010-06-24 11:55:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,53 +16,63 @@ ________________________________________________________________________
 #include "menuhandler.h"
 
 class MouseEvent;
+class MouseEventHandler;
 class uiMenuHandler;
 class uiWellLogDisplay;
 
 namespace Well { class Data; class Marker; }
 
 
-mClass uiWellDisplayMarkerEdit : public CallBacker
+mClass uiWellDisplayControl : public CallBacker
 {
 public:
-				uiWellDisplayMarkerEdit(uiWellLogDisplay&,
-						     Well::Data*);
-				~uiWellDisplayMarkerEdit();
+				uiWellDisplayControl(uiWellLogDisplay&, 
+							Well::Data*);
+				~uiWellDisplayControl();
+
+    Notifier<uiWellDisplayControl>  infoChanged;
+    
+    void			addLogDisplay(uiWellLogDisplay&);
+    void			removeLogDisplay(uiWellLogDisplay&);
     
     const uiMenuHandler*	menu() const { return menu_; }
     void			addMenu(uiMenuHandler*);
-    void 			addLogDisplay(uiWellLogDisplay&);
-    void 			removeLogDisplay(uiWellLogDisplay&);
     void 			setEditOn(bool yn) 	{ edit_ = yn; }
-    
+
 protected:
 
-    Well::Data*			wd_ ;
-
     ObjectSet<uiWellLogDisplay> logdisps_;
-    Well::Marker* 		selmarker_;
-    Well::Marker* 		curmarker_;
-    Well::Marker* 		lastmarker_;
-    Well::Marker* 		selectMarker(CallBacker*,bool allowrghtclk);
 
+    BufferString                info_;
     uiMenuHandler*		menu_;
     MenuItem            	addmrkmnuitem_;
     MenuItem            	remmrkmnuitem_;
+
+    Well::Data*			wd_;
+    Well::Marker* 		selmarker_;
+    Well::Marker* 		curmarker_;
+    Well::Marker* 		lastmarker_;
+
+    float 			mousePos(int); 
     bool                        mousepressed_;
     bool			needsave_;
     bool			edit_;
-   
+    
+    Well::Marker* 		selectMarker(CallBacker*,bool allowrghtclk);
+    MouseEventHandler& 		mouseEventHandler(int);
+
     void                        changeMarkerPos(Well::Marker*);
+    void 			getPosInfo(int,float,BufferString&) const;
     bool                        handleUserClick(const MouseEvent&);
-    float			mousePos(); 
     void			trigMarkersChanged();
 
     void                        createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
-    void                        mouseMoved(CallBacker*);
+    void 			mouseMoved(CallBacker*);
     void                        mousePressed(CallBacker*);
     void			mouseRelease(CallBacker*);
-    void 			usrClickCB(CallBacker*);
+    void 			usrClicked(CallBacker*);
+    void			setPosInfo(CallBacker*);
     void			resetMarkerCursors(CallBacker*);
 };
 

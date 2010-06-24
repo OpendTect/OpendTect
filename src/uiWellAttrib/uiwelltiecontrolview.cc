@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.27 2010-06-03 10:34:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.28 2010-06-24 11:55:34 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -64,7 +64,11 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* toolbar,uiFlatViewer* vwr)
     mDefBut(zoomoutbut_,"zoombackward.png",altZoomCB,"Zoom out");
     mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode (Esc)");
     mDefBut(editbut_,"seedpickmode.png",editCB,"Pick mode (P)");
-    mDefBut(horbut_,"drawhoronseis.png",loadHorizons,"Load Horizon(s)");
+
+    toolbar_->addSeparator();
+    mDefBut(horbut_,"loadhoronseis.png",loadHorizons,"Load Horizon(s)");
+    mDefBut(hormrkdispbut_,"drawhoronseis.png",dispHorMrks,
+	    					"Marker display properties");
     editbut_->setToggleButton( true );
 
     vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
@@ -207,6 +211,47 @@ void uiControlView::setEditOn( bool yn )
 }
 
 
+class uiMrkDispDlg : public uiDialog
+{
+public :
+    uiMrkDispDlg( uiParent* p, DataHolder& dh )
+	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons","",mNoHelpID))
+	, dh_(dh)  
+	, pms_(*dh.uipms())  
+    {
+	setCtrlStyle( uiDialog::LeaveOnly );
+	dispmrkfld_ = new uiCheckBox( this, "display markers");
+	dispmrkfld_->setChecked( pms_.isvwrmarkerdisp_ );
+	dispmrkfld_->activated.notify( mCB(this,uiMrkDispDlg,dispChged) );
+	disphorfld_ = new uiCheckBox( this, "display horizons");
+	disphorfld_->setChecked( pms_.isvwrhordisp_ );
+	disphorfld_->activated.notify( mCB(this,uiMrkDispDlg,dispChged) );
+	disphorfld_->attach( alignedBelow, dispmrkfld_ );
+    }
+
+    void dispChged( CallBacker* )
+    {
+	pms_.isvwrmarkerdisp_ = dispmrkfld_->isChecked();
+	pms_.isvwrhordisp_ = disphorfld_->isChecked();
+	dh_.redrawViewerNeeded.trigger();
+    }
+
+protected:
+
+    uiCheckBox* 	dispmrkfld_;
+    uiCheckBox* 	disphorfld_;
+    Params::uiParams& 	pms_;
+    DataHolder& 	dh_;
+};
+
+
+void uiControlView::dispHorMrks( CallBacker* )
+{
+    uiMrkDispDlg dlg( this, *dataholder_ );
+    dlg.go();
+}
+
+
 void uiControlView::loadHorizons( CallBacker* )
 {
     if ( !dataholder_ ) 
@@ -230,6 +275,7 @@ void uiControlView::loadHorizons( CallBacker* )
     BufferString errmsg; uiTaskRunner tr( this );
     if ( !dataholder_->setUpHorizons( horselids, errmsg, tr ) ) 
     { mErrRet( errmsg, return; ) }
+    dataholder_->uipms()->isvwrhordisp_ = true;
     dataholder_->redrawViewerNeeded.trigger();
 }
 

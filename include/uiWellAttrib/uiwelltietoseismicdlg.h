@@ -75,10 +75,10 @@ protected:
     uiToolBar*          	toolbar_;
     ObjectSet<uiWellLogDisplay> logsdisp_;
 
-    WellTie::uiControlView* 	controlview_;
-    WellTie::uiInfoDlg* 	infodlg_; 
-    WellTie::uiTieView*		datadrawer_;
-    WellTie::EventStretch* 	stretcher_;
+    uiControlView* 		controlview_;
+    uiInfoDlg* 			infodlg_; 
+    uiTieView*			datadrawer_;
+    EventStretch* 		stretcher_;
     
     void			addControl();
     void 			addToolBarTools();
@@ -104,6 +104,7 @@ protected:
     void			clearPicks(CallBacker*);
     void 			dispParPushed(CallBacker*);
     void 			dispPropChg(CallBacker*);
+    void			dispInfoMsg(CallBacker*);
     void 			displayUserMsg(CallBacker*);
     bool 			doWork(CallBacker*);
     void			drawUserPick(CallBacker*);

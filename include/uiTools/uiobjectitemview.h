@@ -18,8 +18,6 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 
 class uiParent;
-class uiAttrItem;
-class uiLogItem;
 class uiObjectItem;
 
 mClass uiObjectItemView : public uiGraphicsView
@@ -44,7 +42,7 @@ public:
     
     void			resetViewArea(CallBacker*);
     void			setSceneLayoutPos(float,float);
-
+    
 protected:
 
     ObjectSet<uiObjectItem>	objectitems_;
