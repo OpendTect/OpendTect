@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.64 2010-05-12 04:30:56 cvssatyaki Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.65 2010-06-24 15:16:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,9 +34,9 @@ ________________________________________________________________________
 
 #define mFileSessMnu		(mFileMnu + 100)
 #define mFileImpMnu		(mFileMnu + 200)
-#define mFileExpMnu		(mFileMnu + 300)
-#define mFileManMnu		(mFileMnu + 400)
-#define mFilePreLoadMnu		(mFileMnu + 600)
+#define mFileExpMnu		(mFileMnu + 400)
+#define mFileManMnu		(mFileMnu + 600)
+#define mFilePreLoadMnu		(mFileMnu + 800)
 
 #define mManSurveyMnuItm	(mFileMnu + 10)
 #define mExitMnuItm		(mFileMnu + 20)
@@ -73,6 +73,8 @@ ________________________________________________________________________
 #define mImpVelocityAsciiMnuItm	(mFileImpMnu + 91)
 #define mImpPDFMnuItm		(mFileImpMnu + 100)
 #define mImpPDFAsciiMnuItm	(mFileImpMnu + 101)
+#define mImpPVDSMnuItm		(mFileImpMnu + 110)
+#define mImpPVDSAsciiMnuItm	(mFileImpMnu + 111)
 
 #define mExpSeisSEGY3DMnuItm	(mFileExpMnu + 11)
 #define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 12)

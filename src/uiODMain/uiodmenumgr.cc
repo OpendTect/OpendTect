@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.212 2010-06-02 13:20:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.213 2010-06-24 15:16:51 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -219,6 +219,7 @@ void uiODMenuMgr::fillImportMenu()
     uiPopupMenu* imppick = new uiPopupMenu( &appl_, "&PickSets" );
     uiPopupMenu* impwvlt = new uiPopupMenu( &appl_, "&Wavelets" );
     uiPopupMenu* impmute = new uiPopupMenu( &appl_, "&Mute Functions" );
+    uiPopupMenu* impcpd = new uiPopupMenu( &appl_, "&Cross-plot data" );
     uiPopupMenu* impvelfn = new uiPopupMenu( &appl_, "&Velocity Functions" );
     uiPopupMenu* imppdf =
 	new uiPopupMenu( &appl_, "Probability &Density Functions" );
@@ -231,11 +232,13 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertItem( impwvlt );
     impmnu_->insertItem( impmute );
     impmnu_->insertItem( impvelfn );
+    impmnu_->insertItem( impcpd );
     impmnu_->insertItem( imppdf );
 
     mInsertItem( imppick, "&Ascii ...", mImpPickAsciiMnuItm );
     mInsertItem( impwvlt, "&Ascii ...", mImpWvltAsciiMnuItm );
     mInsertItem( impmute, "&Ascii ...", mImpMuteDefAsciiMnuItm );
+    mInsertItem( impcpd, "&Ascii ...", mImpPVDSAsciiMnuItm );
     mInsertItem( impvelfn, "&Ascii ...", mImpVelocityAsciiMnuItm );
     mInsertItem( imppdf, "RokDoc &Ascii ...", mImpPDFAsciiMnuItm );
 
@@ -945,6 +948,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpFaultSSAscii2DMnuItm:	mDoOp(Imp,Flt,2); break;
     case mImpMuteDefAsciiMnuItm:	mDoOp(Imp,MDef,0); break;
     case mExpMuteDefAsciiMnuItm:	mDoOp(Exp,MDef,0); break;
+    case mImpPVDSAsciiMnuItm:		mDoOp(Imp,PVDS,0); break;
     case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
