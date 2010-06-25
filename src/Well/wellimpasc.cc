@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.71 2010-06-17 21:59:48 cvskris Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.72 2010-06-25 13:43:34 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -371,22 +371,10 @@ const char* Well::LASImporter::getLogData( std::istream& strm,
 Table::FormatDesc* Well::TrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
-
-    Table::TargetInfo* posinfo = new Table::TargetInfo( "X/Y", DoubleInpSpec(),
-	    						Table::Required );
-    posinfo->form(0).add( DoubleInpSpec() );
-    fd->bodyinfos_ += posinfo;
-
-    Table::TargetInfo* zti = new Table::TargetInfo( "Z", DoubleInpSpec(),
-	    					    Table::Required );
-    zti->setPropertyType( PropertyRef::Dist );
-    fd->bodyinfos_ += zti;
-
-    Table::TargetInfo* mdti = new Table::TargetInfo( "MD", FloatInpSpec(),
-						     Table::Optional );
-    mdti->setPropertyType( PropertyRef::Dist );
-    fd->bodyinfos_ += mdti;
-
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
+    Table::TargetInfo* ti = Table::TargetInfo::mkZPosition( false );
+    ti->setName( "MD" ); fd->bodyinfos_ += ti;
     return fd;
 }
 
@@ -401,16 +389,21 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
     float dah = 0;
     
     char buf[1024]; char valbuf[256];
+    const bool isxy = fd_.bodyinfos_[0]->selection_.form_ == 0;
 
     while ( true )
     {
 	const int ret = getNextBodyVals( strm_ );
 	if ( ret < 0 ) return false;
-	if ( ret == 0) break;
+	if ( ret == 0 ) break;
 
-	c.x = getdValue(0);
-	c.y = getdValue(1);
-	c.z = getdValue(2);
+	c.x = getdValue(0); c.y = getdValue(1);
+	if ( !isxy && !mIsUdf(c.x) && !mIsUdf(c.y) )
+	{
+	    Coord wc( SI().transform( BinID( mNINT(c.x), mNINT(c.y) ) ) );
+	    c.x = wc.x; c.y = wc.y;
+	}
+	c.z = getfValue(2);
 	if ( !c.isDefined() )
 	    continue;
 
@@ -430,10 +423,11 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	    prevc = tosurf ? surfcoord : c;
 	}
 
-	if ( !mIsUdf(getfValue(3)) )
-	    dah = getfValue(3);
-	else
+	float newdah = getfValue( 3 );
+	if ( mIsUdf(newdah) )
 	    dah += c.distTo( prevc );
+	else
+	    dah = newdah;
 
 	wd.track().addPoint( c, c.z, dah );
 	prevc = c;
@@ -443,18 +437,21 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 }
 
 
+static Table::TargetInfo* gtDepthTI( bool withuns )
+{
+    Table::TargetInfo* ti = Table::TargetInfo::mkZPosition( true, withuns );
+    ti->setName( "Depth" );
+    ti->form(0).setName( "MD" );
+    ti->add( new Table::TargetInfo::Form( "TVDSS", FloatInpSpec() ) );
+    return ti;
+}
+
+
 Table::FormatDesc* Well::MarkerSetAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "MarkerSet" );
 
-    Table::TargetInfo* depthinfo = new Table::TargetInfo( "Depth",
-	    		FloatInpSpec(), Table::Required, PropertyRef::Dist );
-
-    Table::TargetInfo::Form* depthform = 
-	new Table::TargetInfo::Form( "TVDSS", FloatInpSpec() );
-    depthinfo->form(0).setName( "MD" );
-    depthinfo->add( depthform );
-    fd->bodyinfos_ += depthinfo;
+    fd->bodyinfos_ += gtDepthTI( true );
 
 #define mAddNmSpec(nm,typ) \
     fd->bodyinfos_ += new Table::TargetInfo(nm,StringInpSpec(),Table::typ)
@@ -531,33 +528,15 @@ Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
 
 
 void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
-					  bool withunitfld )
+					  bool withunits )
 {
-    Table::TargetInfo* depthinfo = 0;
+    fd->bodyinfos_ += gtDepthTI( withunits );
 
-    if ( withunitfld )
-	depthinfo = new Table::TargetInfo( "Depth", FloatInpSpec(),
-					   Table::Required,
-					   PropertyRef::Dist );
-    else
-	depthinfo = new Table::TargetInfo( "Depth", FloatInpSpec(),
-					   Table::Required);
-
-    Table::TargetInfo::Form* depthform = 
-	new Table::TargetInfo::Form( "TVDSS", FloatInpSpec() );
-    depthinfo->form(0).setName( "MD" );
-    depthinfo->add( depthform );
-    fd->bodyinfos_ += depthinfo;
-
-    Table::TargetInfo* timeinfo =
-		new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
-				       PropertyRef::Time );
-
-    Table::TargetInfo::Form* timeform =
-    new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() );
-    timeinfo->form(0).setName( "TWT" );
-    timeinfo->add( timeform );
-    fd->bodyinfos_ += timeinfo;
+    Table::TargetInfo* ti = new Table::TargetInfo( "Time", FloatInpSpec(),
+	    			Table::Required, PropertyRef::Time );
+    ti->form(0).setName( "TWT" );
+    ti->add( new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() ) );
+    fd->bodyinfos_ += ti;
 }
 
 

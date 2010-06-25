@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.33 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.34 2010-06-25 13:43:34 cvsbert Exp $";
 
 #include "emhorizon2d.h"
 
@@ -462,23 +462,19 @@ Table::FormatDesc* Horizon2DAscIO::getDesc()
 void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 				     const BufferStringSet& hornms )
 {
-    fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
+    fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( "Trace nr", IntInpSpec(),
 	    				     Table::Required );
-
-    Table::TargetInfo* posinfo = new Table::TargetInfo( "", FloatInpSpec(),
-	   						Table::Required );
-    Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "Trace Nr",
-	    							 IntInpSpec());
-    posinfo->add( form );
-    posinfo->form(0).setName( "X/Y");
-    posinfo->form(0).add( FloatInpSpec() );
-    fd->bodyinfos_ += posinfo;
+    Table::TargetInfo* ti = new Table::TargetInfo( "Position", DoubleInpSpec(),
+	    				    Table::Required );
+    ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
+    fd->bodyinfos_ += ti;
 
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	BufferString fldname = hornms.get( idx );
-	Table::TargetInfo* ti = new Table::TargetInfo( fldname.buf(),
-		FloatInpSpec(), Table::Required, PropertyRef::surveyZType() );
+	ti = new Table::TargetInfo( fldname.buf(), FloatInpSpec(),
+			Table::Required, PropertyRef::surveyZType() );
 	ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
 	fd->bodyinfos_ += ti;
     }
@@ -497,7 +493,7 @@ void Horizon2DAscIO::updateDesc( Table::FormatDesc& fd,
 
 bool Horizon2DAscIO::isXY() const
 {
-    return formOf( false, 1 ) == 0;
+    return true;
 }
 
 
@@ -517,8 +513,7 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, TypeSet<float>& data )
     if ( ret <= 0 ) return ret;
 
     lnm = text(0);
-    const int lastvalidx = isXY() ? fd_.bodyinfos_.size()
-				  : fd_.bodyinfos_.size() - 1;
+    const int lastvalidx = fd_.bodyinfos_.size();
     for ( int idx=1; idx<=lastvalidx; idx++ )
 	data += getfValue( idx, udfval_ );
 

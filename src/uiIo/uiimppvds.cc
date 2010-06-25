@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiimppvds.cc,v 1.2 2010-06-25 11:17:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimppvds.cc,v 1.3 2010-06-25 13:43:34 cvsbert Exp $";
 
 #include "uiimppvds.h"
 
@@ -38,20 +38,8 @@ uiImpPVDS::uiImpPVDS( uiParent* p )
     su.withexamine(true).examstyle(uiFileInput::Setup::Table).forread(true);
     inpfld_ = new uiFileInput( this, "Input file", su );
 
-    Table::TargetInfo* posinfo = new Table::TargetInfo( "Position",
-					    DoubleInpSpec(), Table::Optional );
-    posinfo->form(0).setName( "X/Y" );
-    posinfo->form(0).add( DoubleInpSpec() );
-    Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "Inl/Crl",
-	    					IntInpSpec() );
-    form->add( IntInpSpec() );
-    posinfo->add( form );
-    fd_.bodyinfos_ += posinfo;
-    Table::TargetInfo* zinfo = new Table::TargetInfo( "Z", FloatInpSpec(),
-	    					      Table::Optional );
-    zinfo->setPropertyType( PropertyRef::Dist );
-    fd_.bodyinfos_ += zinfo;
-
+    fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( false );
+    fd_.bodyinfos_ += Table::TargetInfo::mkZPosition( false );
     dataselfld_ = new uiTableImpDataSel( this, fd_, mTODOHelpID );
     dataselfld_->attach( alignedBelow, inpfld_ );
 

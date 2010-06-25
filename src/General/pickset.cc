@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.66 2009-08-26 08:44:34 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.67 2010-06-25 13:43:34 cvsbert Exp $";
 
 #include "pickset.h"
 
@@ -498,24 +498,9 @@ Table::FormatDesc* PickSetAscIO::getDesc( bool iszreq )
 
 void PickSetAscIO::createDescBody( Table::FormatDesc* fd, bool iszreq )
 {
-    Table::TargetInfo* posinfo = new Table::TargetInfo( "", FloatInpSpec(),
-	    						Table::Required );
-    Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "Inl/Crl",
-	    						FloatInpSpec() );
-    form->add( FloatInpSpec() );
-    posinfo->add( form );
-    posinfo->form(0).setName( "X/Y");
-    posinfo->form(0).add( FloatInpSpec() );
-    fd->bodyinfos_ += posinfo;
-
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     if ( iszreq )
-    {
-	Table::TargetInfo* ti =
-	    new Table::TargetInfo( "Z Values", FloatInpSpec(), Table::Required,
-		    		   PropertyRef::surveyZType() );
-	ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
-	fd->bodyinfos_ += ti;
-    }
+	fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
 }
 
 
@@ -528,11 +513,7 @@ void PickSetAscIO::updateDesc( Table::FormatDesc& fd, bool iszreq )
 
 bool PickSetAscIO::isXY() const
 {
-    const Table::TargetInfo* xinfo = fd_.bodyinfos_[0];
-    if ( !xinfo ) return false;
-
-    const int sel = xinfo->selection_.form_;
-    return !sel;
+    return formOf( false, 0 ) == 0;
 }
 
 
@@ -547,8 +528,8 @@ bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps,
 	if ( ret < 0 ) mErrRet(errmsg_)
 	if ( ret == 0 ) break;
 
-	const float xread = getfValue( 0 );
-	const float yread = getfValue( 1 );
+	const double xread = getdValue( 0 );
+	const double yread = getdValue( 1 );
 	if ( mIsUdf(xread) || mIsUdf(yread) ) continue;
 
 	Coord pos( xread, yread );

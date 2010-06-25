@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.15 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.16 2010-06-25 13:43:34 cvsbert Exp $";
 
 #include "emfault3d.h"
 
@@ -442,16 +442,8 @@ Table::FormatDesc* FaultAscIO::getDesc( bool is2d )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Fault" );
 
-    Table::TargetInfo* posinfo = new Table::TargetInfo( "X/Y", FloatInpSpec(),
-	    						Table::Required );
-    posinfo->form(0).add( FloatInpSpec() );
-    fd->bodyinfos_ += posinfo;
-
-    Table::TargetInfo* zti = new Table::TargetInfo( "Z", FloatInpSpec(),
-						    Table::Required );
-    zti->setPropertyType( PropertyRef::surveyZType() );
-    zti->selection_.unit_ = UoMR().get( SI().getZUnitString(false) );
-    fd->bodyinfos_ += zti;
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
 	    				     Table::Optional );
     if ( is2d )
@@ -529,6 +521,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
     BinID firstbid;
 
     ObjectSet<FaultStick> sticks;
+    const bool isxy = isXY();
 
     while ( true )
     {
@@ -536,9 +529,15 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	crd.x = getfValue( 0 );
-	crd.y = getfValue( 1 );
+	crd.x = getfValue( 0 ); crd.y = getfValue( 1 );
+	if ( isxy && !mIsUdf(crd.x) && !mIsUdf(crd.y) )
+	{
+	    Coord wc( SI().transform(BinID(mNINT(crd.x),mNINT(crd.y))) );
+	    crd.x = wc.x; crd.y = wc.y;
+	}
 	crd.z = getfValue( 2 );
+	if ( !crd.isDefined() ) continue;
+
 	const int stickidx = getIntValue( 3 );
 
 	BufferString lnm;

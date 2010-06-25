@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackmuteasciio.cc,v 1.9 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackmuteasciio.cc,v 1.10 2010-06-25 13:43:34 cvsbert Exp $";
 
 #include "prestackmuteasciio.h"
 #include "prestackmutedef.h"
@@ -36,22 +36,12 @@ void MuteAscIO::updateDesc( Table::FormatDesc& fd, bool haveposinfo )
 void MuteAscIO::createDescBody( Table::FormatDesc& fd, bool haveposinfo )
 {
     if ( haveposinfo )
-    {
-	Table::TargetInfo* posinfo =
-	    new Table::TargetInfo( "X/Y", FloatInpSpec(), Table::Required );
-	posinfo->form(0).add( FloatInpSpec() );
-	posinfo->add( posinfo->form(0).duplicate("Inl/Crl") );
-	fd.bodyinfos_ += posinfo;
-    }
+	fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
 
     fd.bodyinfos_ += new Table::TargetInfo( sKey::Offset, FloatInpSpec(),
 					    Table::Required );
 
-    Table::TargetInfo* bti = new Table::TargetInfo( "Z Values" , FloatInpSpec(),
-	                                           Table::Required,
-					           PropertyRef::surveyZType() );
-    bti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
-    fd.bodyinfos_ += bti;
+    fd.bodyinfos_ += Table::TargetInfo::mkZPosition( true );
 }
 
 
@@ -66,15 +56,14 @@ float MuteAscIO::getUdfVal() const
 
 bool MuteAscIO::isXY() const
 {
-    const Table::TargetInfo* xinfo = fd_.bodyinfos_[0];
-    return xinfo ? xinfo->selection_.form_ == 0 : false;
+    return formOf( false, 0 ) == 0;
 }
 
 
 bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol, 
 			   PointBasedMathFunction::InterpolType iptype )
 {
-    bool isxy = isXY();
+    const bool isxy = isXY();
 
     while ( true )
     {

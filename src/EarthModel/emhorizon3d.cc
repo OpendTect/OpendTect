@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.126 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.127 2010-06-25 13:43:34 cvsbert Exp $";
 
 #include "emhorizon3d.h"
 
@@ -765,27 +765,17 @@ Table::FormatDesc* Horizon3DAscIO::getDesc()
 void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
 				     const BufferStringSet& attrnms )
 {
-    Table::TargetInfo* posinfo = new Table::TargetInfo( "", FloatInpSpec(),
-	   						Table::Required );
-    Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "Inl/Crl",
-	    						FloatInpSpec() );
-    form->add( FloatInpSpec() );
-    posinfo->add( form );
-    posinfo->form(0).setName( "X/Y");
-    posinfo->form(0).add( FloatInpSpec() );
-    fd->bodyinfos_ += posinfo;
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
 
     for ( int idx=0; idx<attrnms.size(); idx++ )
     {
-	BufferString fldname = attrnms.get( idx );
-	Table::TargetInfo* ti = new Table::TargetInfo( fldname.buf(),
-		FloatInpSpec(), Table::Required );
+	const BufferString fldname = attrnms.get( idx );
+	Table::TargetInfo* ti;
 	if ( fldname == "Z values" )
-	{
-	    ti->setPropertyType( PropertyRef::surveyZType() );
-	    ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
-	}
-
+	    ti = Table::TargetInfo::mkZPosition( true );
+	else
+	    ti = new Table::TargetInfo( fldname.buf(), FloatInpSpec(),
+		    			Table::Required );
 	fd->bodyinfos_ += ti;
     }
 }

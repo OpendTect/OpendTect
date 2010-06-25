@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.5 2009-09-28 12:25:40 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.6 2010-06-25 13:43:34 cvsbert Exp $";
 
 #include "velocityfunctionascio.h"
 
@@ -51,18 +51,8 @@ void FunctionAscIO::updateDesc( Table::FormatDesc& fd )
 
 void FunctionAscIO::createDescBody( Table::FormatDesc& fd )
 {
-    Table::TargetInfo* posinfo =
-	new Table::TargetInfo( "X/Y", FloatInpSpec(), Table::Required );
-    posinfo->form(0).add( FloatInpSpec() );
-    posinfo->add( posinfo->form(0).duplicate("Inl/Crl") );
-    fd.bodyinfos_ += posinfo;
-
-    Table::TargetInfo* bti = new Table::TargetInfo( "Z Values" , FloatInpSpec(),
-	    					   Table::Required,
-						   PropertyRef::surveyZType() );
-    bti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
-    fd.bodyinfos_ += bti;
-
+    fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    fd.bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     fd.bodyinfos_ += new Table::TargetInfo( "Velocity", FloatInpSpec(),
 	   				    Table::Required );
     fd.bodyinfos_ += new Table::TargetInfo( "Anisotropy", FloatInpSpec(),
@@ -81,14 +71,13 @@ float FunctionAscIO::getUdfVal() const
 
 bool FunctionAscIO::isXY() const
 {
-    const Table::TargetInfo* xinfo = fd_.bodyinfos_[0];
-    return xinfo ? xinfo->selection_.form_ == 0 : false;
+    return formOf( false, 0 ) == 0;
 }
 
 
 int FunctionAscIO::nextStep()
 {
-    bool isxy = isXY();
+    const bool isxy = isXY();
     float farr[3];
 
     const int oldpos = strm_.tellg();
@@ -111,10 +100,7 @@ int FunctionAscIO::nextStep()
     if ( isxy )
 	binid = SI().transform( Coord(getfValue(0),getfValue(1)) );
     else
-    {
-	binid.inl = getIntValue(0);
-	binid.crl = getIntValue(1);
-    }
+	{ binid.inl = getIntValue(0); binid.crl = getIntValue(1); }
 
     farr[0] = getfValue(2);
     farr[1] = getfValue(3);
