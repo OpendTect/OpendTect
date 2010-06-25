@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.1 2010-06-24 08:57:00 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.2 2010-06-25 06:12:03 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,9 @@ void uiODVw2DHor3DParentTreeItem::tempObjAddedCB( CallBacker* cb )
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return;
+
+    if ( findChild(applMgr()->EMServer()->getName(emid)) )
+	return;
 
     addChild( new uiODVw2DHor3DTreeItem(emid), false, false);    
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.1 2010-06-24 08:56:59 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.2 2010-06-25 06:12:03 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,9 @@ void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
     
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
     if ( !fss ) return;
+
+    if ( findChild(applMgr()->EMServer()->getName(emid)) )
+	return;
     
     addChild( new uiODVw2DFaultSS2DTreeItem(emid),false,false);
 }
