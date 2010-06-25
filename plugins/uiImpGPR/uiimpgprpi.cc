@@ -4,17 +4,19 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.11 2010-04-12 15:02:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.12 2010-06-25 12:04:57 cvsnanne Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
-#include "uimsg.h"
-#include "uimenu.h"
 #include "uidialog.h"
 #include "uifileinput.h"
 #include "uilabel.h"
+#include "uimenu.h"
+#include "uimsg.h"
 #include "uiseissel.h"
+#include "uisurvey.h"
 #include "uitaskrunner.h"
+
 #include "dztimporter.h"
 #include "survinfo.h"
 #include "strmprov.h"
@@ -65,9 +67,8 @@ uiImpGPRMgr::uiImpGPRMgr( uiODMain& a )
 
 void uiImpGPRMgr::updMnu( CallBacker* )
 {
-    if ( SI().has2D() )
-	appl_.menuMgr().getMnu( true, uiODApplMgr::Seis )->
-		insertItem(new uiMenuItem(menunm,mCB(this,uiImpGPRMgr,doWork)));
+    appl_.menuMgr().getMnu( true, uiODApplMgr::Seis )->insertItem(
+		new uiMenuItem(menunm,mCB(this,uiImpGPRMgr,doWork)) );
 }
 
 
@@ -80,7 +81,7 @@ uiDZTImporter( uiParent* p )
     , inpfld_(0)
 {
     if ( !SI().has2D() )
-	{ new uiLabel(this,"TODO: implement 3D loading"); }
+	{ new uiLabel(this,"TODO: implement 3D loading"); return; }
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter( "*.dzt" ).forread( true );
@@ -166,6 +167,8 @@ bool acceptOK( CallBacker* )
 
 void uiImpGPRMgr::doWork( CallBacker* )
 {
+    if ( !uiSurvey::survTypeOKForUser(true) ) return;
+
     uiDZTImporter dlg( &appl_ );
     dlg.go();
 }
