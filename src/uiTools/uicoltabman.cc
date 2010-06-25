@@ -7,12 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.43 2010-03-16 10:02:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.44 2010-06-25 08:04:23 cvsnanne Exp $";
 
 #include "uicoltabman.h"
 
 #include "bufstring.h"
-#include "coltab.h"
 #include "coltabindex.h"
 #include "coltabsequence.h"
 #include "draw.h"
@@ -111,7 +110,6 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     segmentfld_ = new uiGenInput( rightgrp, "Segmentation",
 				  StringListInpSpec(segtypes) );
     segmentfld_->valuechanged.notify( mCB(this,uiColorTableMan,segmentSel) );
-
     segmentfld_->attach( leftAlignedBelow, ctabcanvas_ );
     nrsegbox_ = new uiSpinBox( rightgrp, 0, 0 );
     nrsegbox_->setInterval( 2, 64 ); nrsegbox_->setValue( 8 );
@@ -356,16 +354,21 @@ bool uiColorTableMan::acceptOK( CallBacker* )
     ctab_.setUndefColor( undefcolfld_->color() );
     ctab_.setMarkColor( markercolfld_->color() );
 
-    if ( !(ctab_==*orgctab_) )
+    if ( !orgctab_ )
+    {
 	issaved_ = false;
+	saveColTab( true );
+    }
+    else
+    {
+	if ( !(ctab_==*orgctab_) )
+	    issaved_ = false;
 
-    if ( !issaved_ )
-	saveColTab( false );
+	if ( !issaved_ )
+	    saveColTab( false );
+    }
 
-    if ( !issaved_ ) 
-	return false;
-
-    return true;
+    return issaved_;
 }
 
 
@@ -406,19 +409,14 @@ void uiColorTableMan::setHistogram( const TypeSet<float>& hist )
 
 void uiColorTableMan::updateSegmentFields()
 {
-    NotifyStopper ns2( nrsegbox_->valueChanging );
+    NotifyStopper ns( nrsegbox_->valueChanging );
     int val = 0;
     if ( ctab_.isSegmentized() )
-	val = ctab_.nrSegments()>0
-	    ? 1
-	    : 2;
+	val = ctab_.nrSegments()>0 ? 1 : 2;
+
     segmentfld_->setValue( val );
     nrsegbox_->display( val==1 );
-
-    if ( val==1 )
-	nrsegbox_->setValue( ctab_.nrSegments() );
-    else
-	nrsegbox_->setValue( 8 );
+    nrsegbox_->setValue( val==1 ? ctab_.nrSegments() : 8 );
 }
 
 
@@ -446,7 +444,7 @@ void uiColorTableMan::doSegmentize()
     NotifyStopper ns( ctab_.colorChanged );
     if ( segmentfld_->getIntValue()==0 )
 	ctab_.setNrSegments( 0 );
-    else if  ( segmentfld_->getIntValue()==1 )
+    else if ( segmentfld_->getIntValue()==1 )
     {
 	const int nrseg = nrsegbox_->getValue();
 	if ( mIsUdf(nrseg) || nrseg < 2 )
@@ -502,6 +500,7 @@ void uiColorTableMan::markerChange( CallBacker* )
     updateSegmentFields();
     ctabcanvas_->setRGB();
     sequenceChange( 0 );
+    tableChanged.trigger();
 }
 
 
