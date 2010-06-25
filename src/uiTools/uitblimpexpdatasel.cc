@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.50 2010-06-17 21:59:48 cvskris Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.51 2010-06-25 11:16:37 cvsbert Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -78,7 +78,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     uiLabel* lbl = new uiLabel( this, lbltxt );
     if ( formfld_ )
 	lbl->attach( rightOf, formfld_ );
-    rightmostleftfld_ = formfld_ ? (uiObject*)formfld_ : (uiObject*)lbl;
+    rightmostleftfld_ = lbl;
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
     {
 	rightmostfld_ = rightmostleftfld_;
