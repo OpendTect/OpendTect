@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.22 2010-06-17 21:59:48 cvskris Exp $
+ RCS:		$Id: tabledef.h,v 1.23 2010-06-25 13:42:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,11 +190,19 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
+    static TargetInfo*	mkHorPosition( bool isreq )
+    				{ return mkPos(true,isreq); }
+    			//!< form(0)=(X,Y), form(1)=inl/crl
+    static TargetInfo*	mkZPosition( bool isreq, bool withunits=true )
+    				{ return mkPos(false,isreq,withunits); }
+
 protected:
 
     ReqSpec		req_;
     PropertyRef::StdType proptype_;
     ObjectSet<Form>	forms_;
+
+    static TargetInfo*	mkPos(bool,bool,bool wu=false);
 
 };
 

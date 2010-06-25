@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.29 2010-06-17 21:59:48 cvskris Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.30 2010-06-25 13:42:56 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -256,6 +256,33 @@ void TargetInfo::usePar( const IOPar& iopar )
 	selection_.elems_ += elem;
 	curfmsidx++;
     }
+}
+
+
+Table::TargetInfo* Table::TargetInfo::mkPos( bool ishor, bool isreq, bool wu )
+{
+    Table::TargetInfo* ti;
+    const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
+    if ( ishor )
+    {
+	ti = new TargetInfo( "Position", DoubleInpSpec(), reqspec );
+	ti->form(0).setName( "X Y" );
+	ti->form(0).add( DoubleInpSpec() );
+	Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "Inl Crl",
+								IntInpSpec() );
+	form->add( IntInpSpec() );
+	ti->add( form );
+    }
+    else
+    {
+	ti = new TargetInfo( "Z", FloatInpSpec(), reqspec );
+	if ( wu )
+	{
+	    ti->setPropertyType( PropertyRef::surveyZType() );
+	    ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
+	}
+    }
+    return ti;
 }
 
 
