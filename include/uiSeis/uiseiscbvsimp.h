@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseiscbvsimp.h,v 1.14 2010-01-22 11:32:47 cvsnanne Exp $
+ RCS:           $Id: uiseiscbvsimp.h,v 1.15 2010-06-25 09:49:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,8 +53,10 @@ protected:
     void		oinpSel(CallBacker*);
     void		modeSel(CallBacker*);
     void		typeChg(CallBacker*);
+    void		convertSel(CallBacker*);
 
     IOObj*		getfInpIOObj(const char*) const;
+    void		getOutputName(BufferString&) const;
 
     bool		acceptOK(CallBacker*);
 

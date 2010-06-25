@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.65 2010-04-23 09:33:21 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.66 2010-06-25 09:49:17 cvsnanne Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -120,7 +120,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 
 	convertfld = new uiCheckBox( this, 
 		"Convert underscores to spaces in Output Cube name",
-		mCB(this,uiSeisImpCBVS,finpSel) );
+		mCB(this,uiSeisImpCBVS,convertSel) );
     }
 
     uiSeisTransfer::Setup sts( Seis::Vol );
@@ -211,9 +211,8 @@ void uiSeisImpCBVS::oinpSel( CallBacker* cb )
 
 void uiSeisImpCBVS::finpSel( CallBacker* )
 {
-    const char* out = outfld->getInput();
     BufferString inp = finpfld->text();
-    if ( !*(const char*)inp ) return;
+    if ( inp.isEmpty() ) return;
 
     if ( !File::isEmpty(inp) )
     {
@@ -221,8 +220,23 @@ void uiSeisImpCBVS::finpSel( CallBacker* )
 	transffld->updateFrom( *ioobj );
     }
 
+    getOutputName( inp );
+    outfld->setInputText( inp );
+}
+
+
+void uiSeisImpCBVS::convertSel( CallBacker* )
+{
+    BufferString inp = finpfld->text();
+    getOutputName( inp );
+    outfld->setInputText( inp );
+}
+
+
+void uiSeisImpCBVS::getOutputName( BufferString& inp ) const
+{
     inp = FilePath( inp ).fileName();
-    if ( !*(const char*)inp ) return;
+    if ( inp.isEmpty() ) return;
 
     char* ptr = inp.buf();
     if ( convertfld->isChecked() )
@@ -241,7 +255,6 @@ void uiSeisImpCBVS::finpSel( CallBacker* )
 	 && *(ptr+4) == 's' )
 	*(ptr) = '\0';
 
-    outfld->setInputText( inp );
 }
 
 
