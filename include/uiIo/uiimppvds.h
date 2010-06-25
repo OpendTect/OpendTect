@@ -7,33 +7,33 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jun 2010
- RCS:           $Id: uiimppvds.h,v 1.1 2010-06-24 15:16:51 cvsbert Exp $
+ RCS:           $Id: uiimppvds.h,v 1.2 2010-06-25 11:17:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-class uiGenInput;
 class uiIOObjSel;
-class uiCheckBox;
+class uiGenInput;
 class uiFileInput;
+class uiTableImpDataSel;
+namespace Table { class FormatDesc; }
 
 
 mClass uiImpPVDS : public uiDialog 
 {
 public:
 			uiImpPVDS(uiParent*);
+			~uiImpPVDS();
 
 protected:
 
-    uiFileInput*	inpfld_;
-    uiGenInput*		haveposfld_;
-    uiGenInput*		posiscoordfld_;
-    uiCheckBox*		havezbox_;
-    uiIOObjSel*		outfld_;
-    uiGroup*		posgrp_;
+    Table::FormatDesc&	fd_;
 
-    void		havePosSel(CallBacker*);
+    uiFileInput*	inpfld_;
+    uiTableImpDataSel*	dataselfld_;
+    uiGenInput*		row1isdatafld_;;
+    uiIOObjSel*		outfld_;
 
     bool		acceptOK(CallBacker*);
 

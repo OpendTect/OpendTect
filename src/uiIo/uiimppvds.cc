@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiimppvds.cc,v 1.1 2010-06-24 15:16:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimppvds.cc,v 1.2 2010-06-25 11:17:02 cvsbert Exp $";
 
 #include "uiimppvds.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiimppvds.cc,v 1.1 2010-06-24 15:16:51 cvsbert 
 #include "uiioobjsel.h"
 #include "uibutton.h"
 #include "uitaskrunner.h"
+#include "uitblimpexpdatasel.h"
 #include "uimsg.h"
 
 #include "ctxtioobj.h"
@@ -23,44 +24,55 @@ static const char* rcsID = "$Id: uiimppvds.cc,v 1.1 2010-06-24 15:16:51 cvsbert 
 #include "ioobj.h"
 #include "strmprov.h"
 #include "datapointset.h"
+#include "tabledef.h"
+#include "tableascio.h"
 
 
 uiImpPVDS::uiImpPVDS( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import cross-plot data",
 				 "Import column data for cross-plots",
 				 mTODOHelpID))
+    , fd_(*new Table::FormatDesc("Cross-plot data"))
 {
     uiFileInput::Setup su( uiFileDialog::Txt );
     su.withexamine(true).examstyle(uiFileInput::Setup::Table).forread(true);
     inpfld_ = new uiFileInput( this, "Input file", su );
 
-    haveposfld_ = new uiGenInput( this, "Positions in file",
-	    				BoolInpSpec(true) );
-    haveposfld_->valuechanged.notify( mCB(this,uiImpPVDS,havePosSel) );
-    haveposfld_->attach( alignedBelow, inpfld_ );
-    posgrp_ = new uiGroup( this, "POs group" );
-    posgrp_->attach( alignedBelow, haveposfld_ );
-    posiscoordfld_ = new uiGenInput( posgrp_, "Positions are",
-	    				BoolInpSpec(true,"X Y","Inl Crl") );
-    havezbox_ = new uiCheckBox( posgrp_, "Z column" );
-    havezbox_->attach( rightOf, posiscoordfld_ );
-    posgrp_->setHAlignObj( posiscoordfld_ );
+    Table::TargetInfo* posinfo = new Table::TargetInfo( "Position",
+					    DoubleInpSpec(), Table::Optional );
+    posinfo->form(0).setName( "X/Y" );
+    posinfo->form(0).add( DoubleInpSpec() );
+    Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "Inl/Crl",
+	    					IntInpSpec() );
+    form->add( IntInpSpec() );
+    posinfo->add( form );
+    fd_.bodyinfos_ += posinfo;
+    Table::TargetInfo* zinfo = new Table::TargetInfo( "Z", FloatInpSpec(),
+	    					      Table::Optional );
+    zinfo->setPropertyType( PropertyRef::Dist );
+    fd_.bodyinfos_ += zinfo;
+
+    dataselfld_ = new uiTableImpDataSel( this, fd_, mTODOHelpID );
+    dataselfld_->attach( alignedBelow, inpfld_ );
+
+    row1isdatafld_ = new uiGenInput( this, "First row contains",
+	    			BoolInpSpec(false,"Data","Column names") );
+    row1isdatafld_->attach( alignedBelow, dataselfld_ );
 
     IOObjContext ctxt( mIOObjContext(PosVecDataSet) );
     ctxt.forread = false;
     outfld_ = new uiIOObjSel( this, ctxt, "Output data set" );
-    outfld_->attach( alignedBelow, posgrp_ );
+    outfld_->attach( alignedBelow, row1isdatafld_ );
 }
 
 
-void uiImpPVDS::havePosSel( CallBacker* )
+uiImpPVDS::~uiImpPVDS()
 {
-    posgrp_->display( haveposfld_->getBoolValue() );
+    delete &fd_;
 }
 
 
 bool uiImpPVDS::acceptOK( CallBacker* )
 {
-    uiMSG().error( "TODO" );
     return true;
 }
