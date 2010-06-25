@@ -330,3 +330,10 @@ Body.Selection.Depth: P`-1/0
 Body.Selection.Marker name: P`-1/1
 Group: MarkerSet
 !
+Name X Y
+Header.Size: 0
+Header.Token: -1`
+Body.Selection.Well name: P`-1/0
+Body.Selection.X/Y: P`-1/1`P`-1/2
+Group: Simple multi-welldata
+!
