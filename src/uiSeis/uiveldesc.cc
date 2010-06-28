@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.39 2010-05-18 12:07:57 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.40 2010-06-28 04:14:53 cvsnanne Exp $";
 
 #include "uiveldesc.h"
 
@@ -243,6 +243,8 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
     const char* res = SI().pars().find( sKeyDefVelCube );
     if ( res && *res && IOObj::isKey(res) )
 	setInput( MultiID(res) );
+    else
+	setInput( "" );
 
     trg_ = Time2DepthStretcher::getDefaultVAvg();
     brg_ = Time2DepthStretcher::getDefaultVAvg();
