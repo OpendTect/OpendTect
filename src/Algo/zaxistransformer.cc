@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: zaxistransformer.cc,v 1.7 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: zaxistransformer.cc,v 1.8 2010-06-28 04:25:15 cvsnanne Exp $";
 
 #include "zaxistransformer.h"
 
@@ -20,12 +20,13 @@ static const char* rcsID = "$Id: zaxistransformer.cc,v 1.7 2009-07-22 16:01:29 c
 
 
 ZAxisTransformer::ZAxisTransformer( ZAxisTransform& zat, bool forward )
-    : transform_( zat )
-    , forward_( forward )
-    , input_( 0 )
-    , output_( 0 )
-    , voiid_( -1 )
-    , interpolate_( false )
+    : transform_(zat)
+    , forward_(forward)
+    , input_(0)
+    , output_(0)
+    , voiid_(-1)
+    , interpolate_(false)
+    , rmvoi_(true)
 {
     transform_.ref();
 }
@@ -33,7 +34,9 @@ ZAxisTransformer::ZAxisTransformer( ZAxisTransform& zat, bool forward )
 
 ZAxisTransformer::~ZAxisTransformer()
 {
-    transform_.removeVolumeOfInterest( voiid_ );
+    if ( rmvoi_ )
+	transform_.removeVolumeOfInterest( voiid_ );
+
     transform_.unRef();
     delete output_;
 }
