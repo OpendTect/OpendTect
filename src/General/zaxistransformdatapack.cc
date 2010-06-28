@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: zaxistransformdatapack.cc,v 1.10 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: zaxistransformdatapack.cc,v 1.11 2010-06-28 04:09:54 cvsnanne Exp $";
 
 #include "zaxistransformdatapack.h"
 
@@ -46,6 +46,7 @@ ZAxisTransformDataPack::ZAxisTransformDataPack( const FlatDataPack& fdp,
 ZAxisTransformDataPack::~ZAxisTransformDataPack()
 {
     DPM( DataPackMgr::FlatID() ).release( inputdp_.id() );
+    transform_.removeVolumeOfInterest( voiid_ );
     transform_.unRef();
     delete outputcs_;
 }
@@ -117,6 +118,8 @@ bool ZAxisTransformDataPack::transform()
     if ( !transformer.execute() )
 	return false;
 
+    transformer.removeVoiOnDelete( false );
+    voiid_ = transformer.getVoiID();
     array3d_ = transformer.getOutput( true );
     if ( !array3d_ )
 	return false;

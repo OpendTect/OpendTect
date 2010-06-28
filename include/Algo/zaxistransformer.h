@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          September 2007
- RCS:           $Id: zaxistransformer.h,v 1.8 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: zaxistransformer.h,v 1.9 2010-06-28 04:09:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,9 @@ public:
 			                    take over the array.  */
     bool		loadTransformData(TaskRunner* =0);
 
+    int			getVoiID() const		{ return voiid_; }
+    void		removeVoiOnDelete( bool yn )	{ rmvoi_ = yn; }
+
 protected:
     bool		doPrepare(int);
     od_int64		nrIterations() const;
@@ -49,6 +52,7 @@ protected:
     int				voiid_;
     bool			forward_;
     bool			interpolate_;
+    bool			rmvoi_;
 
     const Array3D<float>*	input_;
     CubeSampling		inputcs_;
