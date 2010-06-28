@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.62 2010-03-22 04:25:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.63 2010-06-28 04:24:34 cvsnanne Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -19,10 +19,10 @@ static const char* rcsID = "$Id: uitreeview.cc,v 1.62 2010-03-22 04:25:03 cvssat
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QPixmap>
+#include <QScrollBar>
 #include <QSize>
 #include <QString>
 #include <QTreeWidgetItem>
-#include <iostream>
 
 #include "i_qlistview.h"
 
@@ -109,13 +109,14 @@ void uiListViewBody::resizeEvent( QResizeEvent* event )
 	return QTreeWidget::resizeEvent( event );
 
 // hack for OpendTect scene tree
-    const int lastcol = lvhandle_.nrColumns()-1;
     if ( lvhandle_.columnWidthMode(1) == uiListView::Fixed )
     {
 	const int fixedwidth = fixcolwidths_[ 1 ];
 	if ( mIsUdf(fixedwidth) || fixedwidth==0 )
 	    return QTreeWidget::resizeEvent( event );
-	setColumnWidth( 0, width()-fixedwidth-4 );
+	QScrollBar* sb = verticalScrollBar();
+	int sbwidth = sb && sb->isVisible() ? sb->width() : 0;
+	setColumnWidth( 0, width()-fixedwidth-sbwidth-4 );
     }
 
     QTreeWidget::resizeEvent( event );
