@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.81 2010-06-10 08:22:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.82 2010-06-28 04:26:48 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.81 2010-06-10 08:22:0
 #include "mousecursor.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -142,6 +143,22 @@ uiOD2DLineSetTreeItem::~uiOD2DLineSetTreeItem()
 	menuhandler_->handlenotifier.remove(
 		mCB(this,uiOD2DLineSetTreeItem,handleMenuCB) );
 	menuhandler_->unRef();
+    }
+}
+
+
+int uiOD2DLineSetTreeItem::uiListViewItemType() const
+{ return uiListViewItem::CheckBox; }
+
+
+void uiOD2DLineSetTreeItem::checkCB( CallBacker* )
+{
+    const bool checked = isChecked();
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	const int id = ((uiOD2DLineSetSubItem*)children_[idx])->displayID();
+	visserv->turnOn( id, checked ? children_[idx]->isChecked() : false );
     }
 }
 
@@ -337,7 +354,7 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller)
+    mDynamicCastGet(MenuHandler*,menu,caller)
     if ( mnuid==-1 || menu->isHandled() || menu->menuID() != selectionKey() )
 	return;
 
@@ -535,6 +552,7 @@ const char* uiOD2DLineSetTreeItem::parentType() const
 bool uiOD2DLineSetTreeItem::init()
 {
     applMgr()->seisServer()->get2DLineSetName( setid_, name_ );
+    checkStatusChange()->notify( mCB(this,uiOD2DLineSetTreeItem,checkCB) );
     return true;
 }
 
@@ -629,7 +647,7 @@ uiODDataTreeItem* uiOD2DLineSetSubItem::createAttribItem(
 void uiOD2DLineSetSubItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiMenuHandler*,menu,cb)
+    mDynamicCastGet(MenuHandler*,menu,cb)
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(displayid_))
     if ( !menu || menu->menuID() != displayID() || !s2d ) return;
@@ -643,7 +661,7 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( !menu || menu->isHandled() || mnuid==-1 )
 	return;
 
@@ -856,7 +874,7 @@ uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
 void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 {
     uiODAttribTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
     const uiVisPartServer* visserv_ = applMgr()->visServer();
 
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
@@ -923,7 +941,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     selcomps.erase();
     uiODAttribTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( !menu || mnuid==-1 || menu->isHandled() )
 	return;
 
