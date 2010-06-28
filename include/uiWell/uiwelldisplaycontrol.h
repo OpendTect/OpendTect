@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiwelldisplaycontrol.h,v 1.9 2010-06-24 11:55:33 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaycontrol.h,v 1.10 2010-06-28 04:23:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,8 @@ public:
     
     void			addLogDisplay(uiWellLogDisplay&);
     void			removeLogDisplay(uiWellLogDisplay&);
-    
-    const uiMenuHandler*	menu() const { return menu_; }
+
+    const uiMenuHandler*	menuHandler() const	{ return menu_; }
     void			addMenu(uiMenuHandler*);
     void 			setEditOn(bool yn) 	{ edit_ = yn; }
 
