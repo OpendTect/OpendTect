@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.9 2010-03-18 18:16:21 cvskris Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.10 2010-06-28 12:29:34 cvsnanne Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -60,10 +60,17 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     possubsel_ =  new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(false,false) );
     possubsel_->attach( alignedBelow, inputtimesel_ );
 
-    IOObjContext outputctxt = SeisTrcTranslatorGroup::ioContext();
-    outputctxt.forread = false;
-    outputsel_ = new uiSeisSel(uppgrp_,outputctxt,uiSeisSel::Setup(Seis::Vol));
-    outputsel_->attach( alignedBelow, possubsel_ );
+    IOObjContext outputtimectxt = inputtimectxt;
+    outputtimectxt.forread = false;
+    setup.seltxt( "Output Time Volume" );
+    outputtimesel_ = new uiSeisSel( uppgrp_, outputtimectxt, setup );
+    outputtimesel_->attach( alignedBelow, possubsel_ );
+
+    IOObjContext outputdepthctxt = inputdepthctxt;
+    outputdepthctxt.forread = false;
+    setup.seltxt( "Output Depth Volume" );
+    outputdepthsel_ = new uiSeisSel( uppgrp_, outputdepthctxt, setup );
+    outputdepthsel_->attach( alignedBelow, possubsel_ );
 
     uppgrp_->setHAlignObj( possubsel_ );
 
@@ -77,40 +84,25 @@ void uiBatchTime2DepthSetup::dirChangeCB( CallBacker* )
     const bool istime2depth = directionsel_->getBoolValue();
     inputtimesel_->display( istime2depth );
     inputdepthsel_->display( !istime2depth );
-    outputsel_->setLabelText( istime2depth
-	    ? "Ouput Depth Volume"
-	    : "Output Time Volume");
+    outputtimesel_->display( !istime2depth );
+    outputdepthsel_->display( istime2depth );
 }
 
 
 bool uiBatchTime2DepthSetup::prepareProcessing()
 {
-    const IOObj* outputioobj = outputsel_->ioobj(false);
-    if ( !outputioobj || !velsel_->ioobj( false ) )
+    if ( !velsel_->ioobj(false) )
 	return false;
-
-    PtrMan<IOObj> outputioobjclone = outputioobj->clone();
 
     if ( directionsel_->getBoolValue() )
     {
-	if ( !inputtimesel_->ioobj( false ) )
+	if ( !inputtimesel_->ioobj() || !outputdepthsel_->ioobj() )
 	    return false;
-
-	outputioobjclone->pars().set( ZDomain::sKey(), ZDomain::sKeyDepth() );
     }
     else
     {
-	if ( !inputdepthsel_->ioobj( false ) )
+	if ( !inputdepthsel_->ioobj() || !outputtimesel_->ioobj() )
 	    return false;
-
-	outputioobjclone->pars().set( ZDomain::sKey(), ZDomain::sKeyTWT() );
-    }
-
-    if ( !IOM().commitChanges(*outputioobjclone) )
-    {
-	uiMSG().error("Cannot write to database",
-		      "Check permissions in Seismics directory" );
-	return false;
     }
 
     return true;
@@ -119,20 +111,24 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 
 bool uiBatchTime2DepthSetup::fillPar( IOPar& par )
 {
-    if ( !outputsel_->ioobj(true) || !velsel_->ioobj( true ) )
+    if ( !velsel_->ioobj( true ) )
 	return false;
 
     const IOObj* input = directionsel_->getBoolValue()
 	? inputtimesel_->ioobj( true )
 	: inputdepthsel_->ioobj( true );
-
     if ( !input )
+	return false;
+
+    const IOObj* output = directionsel_->getBoolValue()
+	? outputdepthsel_->ioobj( true )
+	: outputtimesel_->ioobj( true );
+    if ( !output )
 	return false;
 
     par.set( ProcessTime2Depth::sKeyInputVolume(),  input->key() );
     possubsel_->fillPar( par );
-    par.set( ProcessTime2Depth::sKeyOutputVolume(),
-	     outputsel_->ioobj(true)->key() );
+    par.set( ProcessTime2Depth::sKeyOutputVolume(), output->key() );
     par.set( ProcessTime2Depth::sKeyVelocityModel(),
 	     velsel_->ioobj(true)->key() );
     par.setYN( ProcessTime2Depth::sKeyIsTimeToDepth(),

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2008
- RCS:		$Id: uibatchtime2depthsetup.h,v 1.4 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uibatchtime2depthsetup.h,v 1.5 2010-06-28 12:29:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,8 @@ protected:
     uiSeisSel*		inputdepthsel_;
 
     uiPosSubSel*	possubsel_;
-    uiSeisSel*		outputsel_;
+    uiSeisSel*		outputtimesel_;
+    uiSeisSel*		outputdepthsel_;
 };
 
 
