@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.30 2010-06-25 13:42:56 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.31 2010-06-28 13:12:58 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -359,6 +359,22 @@ bool FormatDesc::isGood() const
 }
 
 
+bool FormatDesc::bodyUsesCol( int icol ) const
+{
+    for ( int idx=0; idx<bodyinfos_.size(); idx++ )
+    {
+	const TargetInfo& info = *bodyinfos_[idx];
+	const TargetInfo::Selection& sel = info.selection_;
+	for ( int ielm=0; ielm<sel.elems_.size(); ielm++ )
+	{
+	    if ( sel.elems_[ielm].pos_.col == icol )
+		return true;
+	}
+    }
+    return false;
+}
+
+
 class AscIOImp_ExportHandler : public ExportHandler
 {
 
@@ -577,6 +593,9 @@ const char* putBodyRow( const BufferStringSet& bss )
 	else
 	    rv = "";
     }
+
+    if ( aio_.needfullline_ )
+	aio_.fullline_ = bss;
     rownr_++;
     return 0;
 }
