@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.32 2010-04-09 08:27:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.33 2010-06-28 04:13:45 cvsnanne Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -317,9 +317,9 @@ void uiWellSelGrp::moveButPush( CallBacker* cb )
 
     for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
     {
-	mDynamicCastGet(uiComboBox*,box,
+	mDynamicCastGet(uiComboBox*,wellbox,
 			selwellsbox_->getCellObject(RowCol(idx,1)))
-	if ( box ) box->setName( BufferString("Type",idx) );
+	if ( wellbox ) wellbox->setName( BufferString("Type",idx) );
     }
 }
 

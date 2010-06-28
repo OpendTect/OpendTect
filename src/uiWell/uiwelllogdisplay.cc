@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.51 2010-06-24 11:55:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.52 2010-06-28 04:13:45 cvsnanne Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -239,9 +239,9 @@ void uiWellLogDisplay::gatherInfo( bool first )
 }
 
 
-void uiWellLogDisplay::setDispProperties( Well::DisplayProperties& disp )
+void uiWellLogDisplay::setDispProperties( Well::DisplayProperties& prop )
 {
-    disp_ = disp;
+    disp_ = prop;
     logData( true ).wld_ = disp_.left_;
     logData( false ).wld_ = disp_.right_;
     dataChanged();
@@ -520,7 +520,7 @@ uiWellLogDisplay::MarkerItem* uiWellLogDisplay::getMarkerItem(
 
 void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
 {
-    MouseCursor cursor( MouseCursor::Arrow );
+    MouseCursor mousecursor( MouseCursor::Arrow );
     if ( highlightedmrk_ )
     {
 	uiWellLogDisplay::MarkerItem* mitm = getMarkerItem( highlightedmrk_ );
@@ -535,10 +535,10 @@ void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
 	mrkitm->itm_->setPenStyle( LineStyle(setup_.markerls_.type_,
 				    setup_.markerls_.width_+2, 
 				    mrkitm->color_) );
-	//cursor = MouseCursor::SizeVer;
+	//mousecursor = MouseCursor::SizeVer;
     }
-    if ( parent() ) parent()->setCursor( cursor );
-    cursor_ = cursor;
+    if ( parent() ) parent()->setCursor( mousecursor );
+    cursor_ = mousecursor;
     highlightedmrk_ = mrk;
     highlightedMarkerItemChged.trigger();
 }
