@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.213 2010-06-24 15:16:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.214 2010-06-28 10:46:21 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -395,11 +395,9 @@ void uiODMenuMgr::fillProcMenu()
 	   	   "attributes.png" );
     if ( SI().has3D() )
     {
-	ioPixmap pmvol( "volproc.png"  );
 	voitm->insertItem(
 	    new uiMenuItem("Volume &Builder ...",
-			mCB(&applMgr(),uiODApplMgr,createVolProcOutput),
-			&pmvol) );
+			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
 	voitm->insertItem(
 	    new uiMenuItem("&Time - depth conversion ...",
 			mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
@@ -1074,6 +1072,14 @@ void uiODMenuMgr::manHor( CallBacker* )
 	opt = 2;
     else if ( SI().getSurvDataType() == SurveyInfo::Only2D )
 	opt = 1;
+    else
+    {
+	int res = uiMSG().askGoOnAfter("Manage 2D or 3D Horizons",
+				       "Cancel","2D","3D");
+	if ( res == 2 ) return;
+	opt = res==0 ? 1 : 2;
+    }
+
     mDoOp(Man,Hor,opt);
 }
 
@@ -1085,6 +1091,13 @@ void uiODMenuMgr::manSeis( CallBacker* )
 	opt = 2;
     else if ( SI().getSurvDataType() == SurveyInfo::Only2D )
 	opt = 1;
+    else
+    {
+	int res = uiMSG().askGoOnAfter("Manage 2D or 3D Seismics",
+				       "Cancel","2D","3D");
+	if ( res == 2 ) return;
+	opt = res==0 ? 1 : 2;
+    }
     mDoOp(Man,Seis,opt);
 }
 
