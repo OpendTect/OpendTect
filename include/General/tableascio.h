@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Nov 2006
- RCS:		$Id: tableascio.h,v 1.12 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: tableascio.h,v 1.13 2010-06-28 13:12:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
 				    , imphndlr_(0)
 				    , exphndlr_(0)
 				    , cnvrtr_(0)
+				    , needfullline_(false)
 				    , hdrread_(false) { units_.allowNull(true);}
     virtual			~AscIO();
 
@@ -63,6 +64,8 @@ protected:
     ExportHandler*		exphndlr_;
     Converter*			cnvrtr_;
     mutable bool		hdrread_;
+    bool			needfullline_;
+    BufferStringSet		fullline_;
 
     friend class		AscIOImp_ExportHandler;
     friend class		AscIOExp_ImportHandler;
