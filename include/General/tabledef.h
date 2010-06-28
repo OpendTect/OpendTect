@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.23 2010-06-25 13:42:56 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.24 2010-06-28 13:12:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,13 +174,12 @@ public:
 	bool		isKeyworded( int ielem ) const
 			    { return ielem < elems_.size()
 				  && elems_[ielem].isKeyworded(); }
-	bool		isInFile( int ielem ) const
+	bool		isInFile( int ielem=0 ) const
 			    { return ielem < elems_.size()
 				  && elems_[ielem].isInFile(); }
 	const char*	getVal( int ielem ) const
 			    { return ielem >= elems_.size() ? 0
 				   : elems_[ielem].val_.buf(); }
-
 	bool		isFilled() const
 	    		{ return elems_.size() > 0 && !elems_[0].isEmpty(); }
     };
@@ -236,6 +235,7 @@ public:
     			{ return !eobtoken_.isEmpty(); }
 
     bool		isGood() const;
+    bool		bodyUsesCol(int) const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
