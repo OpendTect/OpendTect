@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.47 2010-06-24 10:58:37 cvsumesh Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.48 2010-06-29 10:57:57 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,7 @@ public:
     virtual int			selectionKey() const { return -1; }
     virtual bool		select();
     				/*!<Selects this item */
+    virtual bool		isSelected() const;
     void			setChecked(bool yn,bool trigger=false);
     bool			isChecked() const;
     NotifierAccess*		checkStatusChange();

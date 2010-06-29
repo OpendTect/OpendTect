@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.58 2010-06-24 10:58:41 cvsumesh Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.59 2010-06-29 10:57:57 cvsnanne Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -100,6 +100,9 @@ bool uiTreeItem::select(int selkey)
 
 bool uiTreeItem::select()
 { return select(selectionKey()); }
+
+bool uiTreeItem::isSelected() const
+{ return uilistviewitem_ ? uilistviewitem_->isSelected() : false; }
 
 
 void uiTreeItem::prepareForShutdown()
