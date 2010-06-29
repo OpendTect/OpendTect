@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.33 2009-10-13 13:46:45 cvshelene Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.34 2010-06-29 13:38:01 cvsnanne Exp $";
 
 
 #include "uimathattrib.h"
@@ -38,6 +38,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = new uiGenInput( this, "Formula (e.g. nearstk + c0 * farstk)",
 	    		     StringInpSpec().setName("Formula") );
+    inpfld_->updateRequested.notify( mCB(this,uiMathAttrib,parsePush) );
 
     parsebut_ = new uiPushButton( this, "Set", true );
     parsebut_->activated.notify( mCB(this,uiMathAttrib,parsePush) );
@@ -167,7 +168,7 @@ void uiMathAttrib::updateDisplay( bool userecfld )
 	const uiAttrSelData asd( is2d_, false );
 	for ( int idx=0; idx<nrvars_; idx++ )
 	{
-	    uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );
+	    uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
 	    attrbox->setDescSet( ads_ );
 	    attribflds_ += attrbox;
 	    xtable_->setCellGroup( RowCol(idx,0), attrbox );
