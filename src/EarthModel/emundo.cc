@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emundo.cc,v 1.8 2010-02-11 21:40:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emundo.cc,v 1.9 2010-06-29 07:42:30 cvsjaap Exp $";
 
 #include "emundo.h"
 
@@ -31,7 +31,7 @@ EM::SetPosUndoEvent::SetPosUndoEvent( const Coord3& oldpos_,
 
 
 const char* EM::SetPosUndoEvent::getStandardDesc() const
-{ return "Set/Changed positon"; }
+{ return "Set/Changed position"; }
 
 
 bool EM::SetPosUndoEvent::unDo()
@@ -223,7 +223,7 @@ EM::SetPosAttribUndoEvent::SetPosAttribUndoEvent( const EM::PosID& pid,
 
 
 const char* EM::SetPosAttribUndoEvent::getStandardDesc() const
-{ return "Set/Changed positon attribute"; }
+{ return "Set/Changed position attribute"; }
 
 #define mSetPosAttribUndoEvenUndoRedo( arg ) \
     EMManager& manager = EM::EMM(); \
@@ -289,5 +289,38 @@ bool EM::PosIDChangeEvent::reDo()
     emobject->setPos( from, savedpos, false );
     savedpos = topos;
     emobject->enableGeometryChecks( geomchecks );
+    return true;
+}
+
+
+EM::SetPrefColorEvent::SetPrefColorEvent( const EM::ObjectID& objid,
+					  const Color& oldcol,
+					  const Color& newcol )
+    : objectid_( objid )
+    , oldcolor_( oldcol )
+    , newcolor_( newcol )
+{}
+
+
+const char* EM::SetPrefColorEvent::getStandardDesc() const
+{ return "Color change"; }
+
+
+bool EM::SetPrefColorEvent::unDo()
+{
+    EM::EMObject* emobj = EM::EMM().getObject( objectid_ );
+    if ( !emobj ) return false;
+
+    emobj->setPreferredColor( oldcolor_, false );
+    return true;
+}
+
+
+bool EM::SetPrefColorEvent::reDo()
+{
+    EM::EMObject* emobj = EM::EMM().getObject( objectid_ );
+    if ( !emobj ) return false;
+
+    emobj->setPreferredColor( newcolor_, false );
     return true;
 }

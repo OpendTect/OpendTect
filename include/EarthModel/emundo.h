@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emundo.h,v 1.6 2009-09-01 21:54:20 cvskris Exp $
+ RCS:		$Id: emundo.h,v 1.7 2010-06-29 07:42:30 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "undo.h"
 #include "emposid.h"
 #include "position.h"
+#include "color.h"
 
 class IOPar;
 namespace Geometry { class ParametricSurface; };
@@ -102,6 +103,23 @@ protected:
     const EM::PosID	from;
     const EM::PosID	to;
     Coord3		savedpos;
+};
+
+
+mClass SetPrefColorEvent : public UndoEvent
+{
+public:
+    			SetPrefColorEvent(const EM::ObjectID&,
+					  const Color& oldcol,
+					  const Color& newcol);
+    const char*		getStandardDesc() const;
+    bool		unDo();
+    bool		reDo();
+
+protected:
+    const EM::ObjectID	objectid_;
+    const Color		oldcolor_;
+    const Color		newcolor_;
 };
 
 

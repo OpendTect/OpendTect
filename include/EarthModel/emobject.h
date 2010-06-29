@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.91 2009-11-04 06:41:20 cvsumesh Exp $
+ RCS:		$Id: emobject.h,v 1.92 2010-06-29 07:42:30 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -127,7 +127,8 @@ public:
     Geometry::Element*		sectionGeometry(const SectionID&);
 
     const Color&		preferredColor() const;
-    void			setPreferredColor(const Color&);
+    void			setPreferredColor(const Color&,
+						  bool addtohistory=false);
     void			setBurstAlert(bool yn);
     bool			hasBurstAlert() const;
 

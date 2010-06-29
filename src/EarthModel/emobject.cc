@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.104 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.105 2010-06-29 07:42:30 cvsjaap Exp $";
 
 #include "emobject.h"
 
@@ -209,10 +209,16 @@ const Color& EMObject::preferredColor() const
 { return preferredcolor_; }
 
 
-void EMObject::setPreferredColor( const Color& col )
+void EMObject::setPreferredColor( const Color& col, bool addtoundo )
 {
     if ( col==preferredcolor_ )
 	return;
+
+    if ( addtoundo )
+    {
+	UndoEvent* undo = new SetPrefColorEvent( id(), preferredcolor_, col );
+	EMM().undo().addEvent( undo );
+    }
 
     changed_ = true;
     preferredcolor_ = col;
