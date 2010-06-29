@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.10 2010-05-21 15:07:20 cvsbert Exp $
+ RCS:           $Id: odver.cc,v 1.11 2010-06-29 08:22:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: odver.cc,v 1.10 2010-05-21 15:07:20 cvsbert Exp $";
+static const char* rcsID = "$Id: odver.cc,v 1.11 2010-06-29 08:22:57 cvsbert Exp $";
 
 #include "odver.h"
 #include "oddirs.h"
@@ -127,7 +127,7 @@ bool OD::Platform::isValidName( const char* s, bool isshort )
     if ( !isshort )	return TypeDef().isValidName( s );
 
     const BufferString cmp(s);
-    return cmp == "lin64" || cmp == "win64"
-	|| cmp == "lin32" || cmp == "win32"
+    return cmp == "lux64" || cmp == "win64"
+	|| cmp == "lux32" || cmp == "win32"
 	|| cmp == "mac";
 }
