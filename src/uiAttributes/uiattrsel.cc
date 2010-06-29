@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.54 2010-05-31 08:14:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.55 2010-06-29 13:37:36 cvsnanne Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -472,9 +472,11 @@ bool uiAttrSelDlg::acceptOK( CallBacker* )
 }
 
 
+static const char* cDefLabel = "Input Data";
+
 uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 		      DescID curid, bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:"Input Data"),
+    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:cDefLabel),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ads)
     , ignoreid_(DescID::undef())
@@ -487,7 +489,7 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 
 uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
        		      bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:"Input Data"),
+    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:cDefLabel),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ad)
     , ignoreid_(DescID::undef())
@@ -634,7 +636,8 @@ bool uiAttrSel::getRanges( CubeSampling& cs ) const
 
 void uiAttrSel::doSel( CallBacker* )
 {
-    uiAttrSelDlg dlg( this, lbl_->text(), attrdata_, ignoreid_, usedasinput_ );
+    uiAttrSelDlg dlg( this, lbl_ ? lbl_->text() : cDefLabel,
+		      attrdata_, ignoreid_, usedasinput_ );
     if ( dlg.go() )
     {
 	attrdata_.attribid_ = dlg.attribID();
