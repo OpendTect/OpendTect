@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.28 2010-06-22 21:32:44 cvsyuancheng Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.29 2010-06-29 07:15:33 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -102,9 +102,11 @@ public:
     
     void			displayHorizonIntersections(bool yn); 
     bool			areHorizonIntersectionsDisplayed() const;
-    bool			hasHorizons() const		{ return horintersections_.size(); }
+    bool			hasHorizons() const
+					    { return horintersections_.size(); }
 
     Notifier<FaultDisplay>	colorchange;
+    Notifier<FaultDisplay>	displaymodechange;
 
     void			updateKnotMarkers();
 

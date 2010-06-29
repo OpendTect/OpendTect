@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.57 2010-06-24 12:46:40 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.58 2010-06-29 07:15:33 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -69,6 +69,7 @@ FaultDisplay::FaultDisplay()
     , activestickmarkerpickstyle_( visBase::PickStyle::create() )
     , showmanipulator_( false )
     , colorchange( this )
+    , displaymodechange( this )
     , usestexture_( false )
     , displaysticks_( false )
     , stickselectmode_( false )
@@ -460,6 +461,7 @@ void FaultDisplay::display( bool sticks, bool panels )
     updateStickDisplay();
     updateManipulator();
     updateKnotMarkers();
+    displaymodechange.trigger();
 }
 
 
@@ -871,6 +873,7 @@ void FaultDisplay::showManipulator( bool yn )
     updateStickDisplay();
     updateManipulator();
     updateKnotMarkers();
+    displaymodechange.trigger();
 }
 
 
@@ -1007,6 +1010,8 @@ void FaultDisplay::displayIntersections( bool yn )
 	updateKnotMarkers();
 	if ( !viseditor_->allMarkersDisplayed() )
 	    updateEditorMarkers();	
+
+	displaymodechange.trigger();
     }
 }
 
@@ -1024,6 +1029,7 @@ void FaultDisplay::displayHorizonIntersections( bool yn )
 	    horintersections_[idx]->touch( false );
 	horintersections_[idx]->turnOn( yn );
     }
+    displaymodechange.trigger();
 }
 
 
@@ -1237,6 +1243,9 @@ void FaultDisplay::setStickSelectMode( bool yn )
 	scene_->getPolySelection()->polygonFinished()->notify( cb );
     else
 	scene_->getPolySelection()->polygonFinished()->remove( cb );
+
+    if ( faulteditor_ )                                                 
+	faulteditor_->setLastClicked( EM::PosID::udf() ); 
 }
 
 
