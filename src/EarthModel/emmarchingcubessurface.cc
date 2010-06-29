@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.21 2010-03-17 20:35:19 cvskris Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.22 2010-06-29 16:29:34 cvskris Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -66,12 +66,8 @@ public:
 
 	IOPar par( astream );
 
-	BufferString dcs;
-	if ( par.get( sKeyInt32DataChar(), dcs ) )
-	{
-	    DataCharacteristics dc; dc.set( dcs.buf() );
-	    int32interpreter_ = new DataInterpreter<int>( dc );
-	}
+	int32interpreter_ =
+	    createDataInterpreter<int>( par, sKeyInt32DataChar(), true );
 
 	SamplingData<int> inlsampling;
 	SamplingData<int> crlsampling;
