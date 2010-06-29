@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.26 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.27 2010-06-29 07:37:15 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.26 2010-06-18 12
 #include "iopar.h"
 #include "mpeengine.h"
 #include "survinfo.h"
+#include "undo.h"
 #include "viscoord.h"
 #include "visevent.h"
 #include "vismarker.h"
@@ -41,6 +42,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     , eventcatcher_(0)
     , displaytransform_(0)
     , colorchange(this)
+    , displaymodechange(this)
     , viseditor_(0)
     , fsseditor_(0)
     , activesticknr_( mUdf(int) )
@@ -223,6 +225,8 @@ void FaultStickSetDisplay::setColor( Color nc )
 	emfss_->setPreferredColor( nc );
     else
 	getMaterial()->setColor( nc );
+
+    colorchange.trigger();
 }
 
 
@@ -487,6 +491,11 @@ Coord3 FaultStickSetDisplay::disp2world( const Coord3& displaypos ) const
 }
 
 
+#define mSetUserInteractionEnd() \
+    if ( !viseditor_->sower().moreToSow() ) \
+	EM::EMM().undo().setUserInteractionEnd( \
+					EM::EMM().undo().currentEventID() );
+
 void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 {
     if ( stickselectmode_ )
@@ -589,6 +598,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	else
 	    fssg.removeKnot( mousepid.sectionID(), mousepid.subID(), true );
 
+	mSetUserInteractionEnd();
 	updateEditPids();
 	return;
     }
@@ -630,6 +640,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
 	    fsseditor_->setLastClicked( EM::PosID(emfss_->id(),sid,subid) );
 	    setActiveStick( EM::PosID(emfss_->id(),sid,subid) );
+	    mSetUserInteractionEnd();
 	    updateEditPids();
 	}
     }
@@ -639,6 +650,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	editpids_.erase();
 	fssg.insertKnot( insertpid.sectionID(), insertpid.subID(), pos, true );
 	fsseditor_->setLastClicked( insertpid );
+	mSetUserInteractionEnd();
 	updateEditPids();
     }
 
@@ -783,6 +795,7 @@ void FaultStickSetDisplay::setDisplayOnlyAtSections( bool yn )
     updateSticks();
     updateEditPids();
     updateKnotMarkers();
+    displaymodechange.trigger();
 }
 
 
@@ -803,6 +816,9 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
 	scene_->getPolySelection()->polygonFinished()->notify( cb );
     else
 	scene_->getPolySelection()->polygonFinished()->remove( cb );
+
+    if ( fsseditor_ )
+	fsseditor_->setLastClicked( EM::PosID::udf() );
 }
 
 

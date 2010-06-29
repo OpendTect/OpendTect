@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.9 2010-05-28 07:44:34 cvsjaap Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.10 2010-06-29 07:37:15 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,7 @@ public:
     void			updateKnotMarkers();
 
     Notifier<FaultStickSetDisplay> colorchange;
+    Notifier<FaultStickSetDisplay> displaymodechange;
 
     void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);
