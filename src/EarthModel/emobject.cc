@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.105 2010-06-29 07:42:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.106 2010-06-29 13:40:06 cvsnanne Exp $";
 
 #include "emobject.h"
 
@@ -612,6 +612,7 @@ bool EMObject::usePar( const IOPar& par )
     if ( par.get(prefcolorstr,col) )
     {
 	Color newcol; newcol.setRgb(col);
+	newcol.setTransparency( 0 );
 	setPreferredColor( newcol );
     }
 
