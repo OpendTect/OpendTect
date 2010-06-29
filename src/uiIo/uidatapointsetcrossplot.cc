@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.68 2010-06-04 10:50:39 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.69 2010-06-29 06:07:25 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.68 2010-06-04 10:50:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.69 2010-06-29 06:07:25 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -1131,8 +1131,11 @@ Color uiDataPointSetCrossPlotter::getOverlayColor( uiDataPointSet::DRowID rid,
 {
     const float yval = uidps_.getVal( isy1 ? y3colid_ : y4colid_ ,
 	    			      rid, true );
-    ColTab::Mapper& mapper = isy1 ? y3mapper_ : y4mapper_;
+
     ColTab::Sequence& seq = isy1 ? y3ctab_ : y4ctab_;
+    if ( mIsUdf(yval) ) return seq.undefColor();
+
+    ColTab::Mapper& mapper = isy1 ? y3mapper_ : y4mapper_;
     return seq.color( mapper.position(yval) );
 }
 

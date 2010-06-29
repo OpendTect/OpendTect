@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.63 2010-06-22 10:49:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.64 2010-06-29 06:07:25 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -120,7 +120,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	titllbl->attach( hCentered );
     }
 
-    tbl_ = new uiTable( this, uiTable::Setup(size(),nrcols)
+    tbl_ = new uiTable( this, uiTable::Setup(size() ? size() : 10,nrcols)
 			  .rowgrow( setup_.canaddrow_ ).removerowallowed(false)
 			  .selmode( uiTable::Multi )
 			  .manualresize( true ), "Data Table" );
