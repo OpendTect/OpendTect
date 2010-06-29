@@ -5,13 +5,15 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.24 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.25 2010-06-29 16:22:50 cvskris Exp $";
 
 #include "datainterp.h"
 
 #include "datachar.h"
+#include "iopar.h"
 #include "ibmformat.h"
 #include "separstr.h"
+#include "strmoper.h"
 
 DefineEnumNames(DataCharacteristics,UserType,1,"Data storage") {
 	"0 - auto",
@@ -624,3 +626,63 @@ mDefDIPFIbmswp(od_int64,F,Float)
 #undef mTheType
 #define mTheType od_int64
 #include "i_datainterp.h"
+
+
+#define mImpl( type ) \
+template <> \
+type DataInterpreter<type>::get( std::istream& strm ) const \
+{ \
+    char buf[16]; \
+    StrmOper::readBlock( strm, buf, nrBytes() ); \
+    return get( buf, 0 ); \
+} \
+ \
+template <> \
+type readFromStream<type>( const DataInterpreter<type>* di, std::istream& strm ) \
+{ \
+    if ( di ) \
+	return di->get( strm ); \
+ \
+    type val; \
+    StrmOper::readBlock( strm, &val, sizeof(type) ); \
+ \
+    return val; \
+} \
+ \
+template <> DataInterpreter<type>* createDataInterpreter<type>( \
+			const DataCharacteristics& dchar, \
+			bool alsoifequal ) \
+{ \
+    type dummy; \
+    const DataCharacteristics owntype( dummy ); \
+    return !alsoifequal && dchar==owntype \
+	? 0 \
+	: new DataInterpreter<type>( dchar ); \
+} \
+ \
+ \
+template <> DataInterpreter<type>* \
+    createDataInterpreter<type>( const char* str, bool alsoifequal ) \
+{ \
+    DataCharacteristics writtentype; \
+    writtentype.set( str ); \
+ \
+    return createDataInterpreter<type>( writtentype, alsoifequal ); \
+} \
+ \
+ \
+template <> DataInterpreter<type>* \
+    createDataInterpreter<type>( const IOPar& par,  const char* key, \
+				 bool alsoifequal ) \
+{ \
+    const char* dc = par.find( key ); \
+    return dc ? createDataInterpreter<type>( dc, alsoifequal ) : 0; \
+}
+
+
+mImpl( int )
+mImpl( od_int64 )
+mImpl( float )
+mImpl( double )
+
+

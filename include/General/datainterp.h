@@ -8,14 +8,17 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datainterp.h,v 1.13 2009-08-04 08:13:02 cvsnanne Exp $
+ RCS:		$Id: datainterp.h,v 1.14 2010-06-29 16:22:50 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 
+#include "datachar.h"
 #include "general.h"
-class DataCharacteristics;
+
+class IOPar;
+
 
 /*!\brief Byte-level data interpreter.
 
@@ -36,6 +39,7 @@ template<class T>
 mGenClass DataInterpreter
 {
 public:
+    static DataInterpreter<T>	create();
 			DataInterpreter(const DataCharacteristics&,
 					bool ignoreendianness=false);
 			DataInterpreter(const DataInterpreter<T>&);
@@ -51,6 +55,7 @@ public:
 			{ (this->*swpfn)( buf, bufsz_in_elements );
 			  const_cast<DataInterpreter<T>*>(this)->swpSwap(); }
 
+    T			get(std::istream&) const;
     inline T		get( const void* buf, od_int64 nr ) const
 			{ return (this->*getfn)( buf, nr ); }
     inline void		put( void* buf, od_int64 nr, T t ) const
@@ -137,5 +142,37 @@ protected:
 
 };
 
+
+/*!Creates an interpreter. Implemented for int, int64, float & double.
+\param alsoifequal determines whether an interpreter should be created
+       if the format in DataChar is identical to the current machine's. */
+
+template <class T>
+DataInterpreter<T>* createDataInterpreter(const DataCharacteristics&,
+					  bool alsoifequal);
+
+/*!Creates an interpreter. Implemented for int, int64, float & double.
+\param alsoifequal determines whether an interpreter should be created
+       if the format in DataChar is identical to the current machine's. */
+
+
+template <class T>
+DataInterpreter<T>* createDataInterpreter(const char*,bool alsoifequal);
+
+/*!Creates an interpreter. Implemented for int, int64, float & double.
+\param alsoifequal determines whether an interpreter should be created
+       if the format in DataChar is identical to the current machine's. */
+
+
+template <class T>
+DataInterpreter<T>* createDataInterpreter(const IOPar& par,const char* key,
+					  bool alsoifequal);
+
+/*!Reads one value from a stream. If interpreter is provider, it is used.
+   Otherwise it is assumed that the stored datachar is identical to the 
+   current machine's. Implemented for int, int64, float & double. */
+
+template <class T>
+T readFromStream(const DataInterpreter<T>*,std::istream&);
 
 #endif
