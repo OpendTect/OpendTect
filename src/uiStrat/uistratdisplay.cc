@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.11 2010-06-24 11:54:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.12 2010-06-29 10:43:54 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -83,8 +83,8 @@ void uiStratDisplay::resetRangeFromUnits()
     float start = col.units_[0]->zpos_;
     float stop = col.units_[col.units_.size()-1]->zposbot_;
     rg.set( start, stop );
-    rg.sort( false );
     rangefld_->setValue( rg );
+    rg.sort( false );
     drawer_.setZRange( rg );
 }
 

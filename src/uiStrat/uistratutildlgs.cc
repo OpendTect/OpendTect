@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.19 2010-06-24 11:54:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.20 2010-06-29 10:43:54 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -86,7 +86,7 @@ void uiStratUnitDlg::setUnitProps( const Strat::UnitRef::Props& props )
 {
     unitnmfld_->setText( props.code_ );
     //TODO: rename unit needs extra work to update all the paths to the subunits
-    unitnmfld_->setSensitive(false);
+    //unitnmfld_->setSensitive(false);
     agestartfld_->setValue( props.timerg_.start );
     agestopfld_->setValue( props.timerg_.stop );
     colfld_->setColor( props.color_ );
@@ -118,6 +118,12 @@ bool uiStratUnitDlg::acceptOK( CallBacker* )
 	{ mErrRet( "Please specify a valid time range", return false ) }
     if ( !strcmp( unitnmfld_->text(), "" ) )
 	{ mErrRet( "Please specify the unit name", return false ) }
+    /*if ( uistratmgr_ && !uistratmgr_->isNewUnitName( unitnmfld_->text() ) )
+    { 
+	mErrRet( "Unit name already exists. Please specify a new unit name", 
+		 return false ) 
+    }
+    */
     if ( !strcmp( lvlnmfld_->text(), "" ) )
 	{ mErrRet( "Please specify a name for the unit level", return false ) }
     return true;

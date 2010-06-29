@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.37 2010-06-24 11:54:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.38 2010-06-29 10:43:54 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -183,12 +183,11 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
     const uiListViewItem* parit = lv_->currentItem();
     if ( parit )
     {
-	Interval<float> partimerg;
-	uistratmgr_->getPossibleTimeRange( getCodeFromLVIt(parit).buf(), 
-					   partimerg );
-	if (  partimerg.start == partimerg.stop )
+	Interval<float> timerg;
+	uistratmgr_->getPossibleTimeRange(getCodeFromLVIt(parit).buf(), timerg);
+	if ( timerg.start == timerg.stop )
 	{ uiMSG().error( "No time space left to add a new sub-unit" ); return; }
-	su.timerg_ = partimerg;
+	su.timerg_ = timerg;
     }
 
     uiStratUnitDlg newurdlg( lv_->parent(), su );
@@ -201,7 +200,7 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 }
 
 
-void uiStratRefTree::doInsertSubUnit( uiListViewItem* lvit, UnitRef::Props& pp )
+void uiStratRefTree::doInsertSubUnit( uiListViewItem* lvit, UnitRef::Props& pp ) const
 {
     uiListViewItem* newitem;
     uiListViewItem::Setup setup = uiListViewItem::Setup()
@@ -226,8 +225,7 @@ void uiStratRefTree::doInsertSubUnit( uiListViewItem* lvit, UnitRef::Props& pp )
 	parit->setOpen( true );
 	uistratmgr_->prepareParentUnit( getCodeFromLVIt( parit ).buf() );
     }
-    pp.code_ = getCodeFromLVIt( newitem );	
-    uistratmgr_->addUnit( pp, false );
+    uistratmgr_->addUnit( getCodeFromLVIt( newitem ), pp, false );	
 }
 
 
@@ -252,11 +250,13 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
     uiStratUnitDlg::Setup su( uistratmgr_ );
     uiStratUnitDlg urdlg( lv_->parent(), su );
     urdlg.setTitleText("Update Unit Properties");
-    BufferString uncode = getCodeFromLVIt( lvit);
+    BufferString uncode = getCodeFromLVIt( lvit );
     const UnitRef* unitref = uistratmgr_->getCurTree()->find( uncode );
     UnitRef::Props props;
     if ( unitref )
 	props = unitref->props();
+    else
+	return;
     props.code_ = lvit->text(0); 
     props.desc_ = lvit->text(2); 
     props.lithnm_ = lvit->text(cLithoCol); 
@@ -264,13 +264,11 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 
     if ( urdlg.go() )
     {
-	//TODO will require an update of all children
-	//lvit->setText( urdlg.getUnitName(), cUnitsCol );
         urdlg.getUnitProps( props );
+	lvit->setText( props.code_, cUnitsCol );
 	lvit->setText( props.desc_, cDescCol ); 
 	lvit->setText( props.lithnm_, cLithoCol );
-	props.code_ = uncode;
-	uistratmgr_->updateUnitProps( props );
+	uistratmgr_->updateUnitProps( unitref->getID(), props );
     }
 }
 
@@ -402,35 +400,42 @@ bool uiStratRefTree::canMoveUnit( bool up )
 
 
 
-void uiStratRefTree::resetUnconformities( CallBacker* cb )
+void uiStratRefTree::doSetUnconformities( CallBacker* cb )
 {
-    setUnconformities( *((NodeUnitRef*)tree_), true );
+    setUnconformities( *((NodeUnitRef*)tree_), true, 0 );
 }
 
+
+void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node, 
+						bool root, int nrunconf )
+{
+    if ( root )
+    {
+	mDynamicCastGet(const Strat::NodeUnitRef*,un,&node.ref(0))
+	if ( un )
+	    setUnconformities( *un, false, 0 );
+	return;
+    }
 
 #define mSetUpUnconf(timerg,pos)\
     Strat::UnitRef::Props props; props.timerg_ = timerg;\
     props.color_ = Color( 215, 215, 215 );\
     BufferString unconfcode( "" );\
     unconfcode += "Unconf";\
-    unconfcode += toString(cpt);\
+    unconfcode += toString(nrunconf++);\
     uiListViewItem* lit = listView()->findItem(node.code(),0,false);\
     if ( lit ) listView()->setCurrentItem(lit);\
+    props.isunconf_ = true;\
     props.code_ = unconfcode;\
+    BufferString lvlnm( unconfcode );\
+    lvlnm += "Level";\
+    props.lvlname_ = lvlnm.buf();\
     props.timerg_ = timerg;\
     doInsertSubUnit( lit, props );\
     for ( int idref=0; idref<pos; idref++ )\
-	moveUnit( true );
-void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node, bool root )
-{
-    if ( root )
-    {
-	mDynamicCastGet(const Strat::NodeUnitRef*,un,&node.ref(0))
-	setUnconformities( *un, false );
-	return;
-    }
+	moveUnit( true );\
 
-    const Interval<float> partimerg = node.props().timerg_; int cpt = 1; 
+    const Interval<float> partimerg = node.props().timerg_;  
     ObjectSet<UnitRef> refunits;
     tree_->gatherChildrenByTime( node, refunits );
     Interval<float> unconfrg;
@@ -440,13 +445,11 @@ void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node, bool roo
     {
 	unconfrg.set( partimerg.start, refstart );
 	mSetUpUnconf( unconfrg, node.nrRefs() );
-	cpt ++;
     }
     if ( partimerg.stop > refstop )
     {
 	unconfrg.set( refstop, partimerg.stop );
 	mSetUpUnconf( unconfrg, 0 )
-	cpt ++;
     }
     for ( int iref=0; iref<refunits.size()-1; iref++ )
     {
@@ -456,7 +459,6 @@ void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node, bool roo
 	{
 	    unconfrg.set( refstop, nextrefstart );
 	    mSetUpUnconf( unconfrg, iref+1 )
-	    cpt ++;
 	}
     }
     for ( int iref=0; iref<node.nrRefs(); iref++ )
@@ -464,6 +466,6 @@ void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node, bool roo
 	const Strat::UnitRef& ref = node.ref( iref );
 	mDynamicCastGet(const Strat::NodeUnitRef*,chldnur,&ref);
 	if ( chldnur )
-	    setUnconformities( *chldnur, false );
+	    setUnconformities( *chldnur, false, nrunconf );
     }
 }

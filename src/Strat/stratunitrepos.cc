@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.35 2010-06-24 11:54:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.36 2010-06-29 10:43:54 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -26,7 +26,6 @@ const char* Strat::UnitRepository::sKeyLith = "Lithology";
 static const char* sKeyProp = "Properties";
 static const char* sKeyGeneral = "General";
 static const char* sKeyUnits = "Units";
-static const char* sKeyLevel = "Level";
 
 
 const Strat::UnitRepository& Strat::UnRepo()
@@ -82,13 +81,14 @@ bool Strat::RefTree::addUnit( const char* code, const char* dumpstr, bool rev )
 }
 
 
-bool Strat::RefTree::addUnit( const UnitRef::Props& props, bool rev )
+bool Strat::RefTree::addUnit( const char* fullnm, 
+				const UnitRef::Props& props, bool rev )
 {
     FileMultiString unitdesc(
 	             toString(Strat::UnRepo().getLithID(props.lithnm_.buf())) );
     unitdesc += props.desc_;
-    addUnit( props.code_.buf(), unitdesc, rev );
-    setUnitProps( props );
+    addUnit( fullnm, unitdesc, rev );
+    setUnitProps( fullnm, props );
     return true;
 }
 
@@ -101,12 +101,21 @@ bool Strat::RefTree::addCopyOfUnit( const Strat::UnitRef& ur, bool rev )
 }
 
 
-void Strat::RefTree::setUnitProps( const UnitRef::Props& props )
+void Strat::RefTree::setUnitProps( const char* fnm, const UnitRef::Props& props)
 {
-    Strat::UnitRef* ur = find( props.code_ );
+    Strat::UnitRef* ur = find( fnm );
     if ( !ur ) return;
     ur->setProps( props );
-    constraintUnitTimes( *ur );
+    constraintUnits( *ur );
+}
+
+
+void Strat::RefTree::setUnitProps( int id, const UnitRef::Props& props )
+{
+    Strat::UnitRef* ur = find( id );
+    if ( !ur ) return;
+    ur->setProps( props );
+    constraintUnits( *ur );
 }
 
 
@@ -151,7 +160,7 @@ void Strat::RefTree::getLeavesUnitIDs( TypeSet<int>& ids,
 }
 
 
-Color Strat::RefTree::getUnitColor(int id ) const
+Color Strat::RefTree::getUnitColor( int id ) const
 {
     const Strat::UnitRef* ur = find( id );
     return ur ? ur->props().color_ : Color::NoColor();
@@ -180,43 +189,97 @@ void Strat::RefTree::gatherChildrenByTime( const NodeUnitRef& un,
 }
 
 
+void Strat::RefTree::constraintUnits( UnitRef& ur )
+{
+    constraintUnitTimes( *ur.upNode() );
+    constraintUnitLvlNames( *ur.upNode() );
+}
+
+
 #define mSetRangeOverlap(rg1,rg2)\
     if ( rg1.start < rg2.start )\
 	rg1.start = rg2.start;\
     if ( rg1.stop > rg2.stop )\
 	rg1.stop = rg2.stop;
-void Strat::RefTree::constraintUnitTimes( UnitRef& ur )
+void Strat::RefTree::constraintUnitTimes( NodeUnitRef& parun )
 {
-    Interval<float>& timerg = ur.props().timerg_;
-    NodeUnitRef* upur = ur.upNode();
-    if ( upur && !upur->code().isEmpty() )
+    Strat::UnitRef::Iter it( parun );
+    if ( !it.next() ) return;
+    Strat::UnitRef* ur = it.unit();
+    while ( ur )
     {
-	//parent's times
-	const Interval<float>& urtimerg = upur->props().timerg_;
-	mSetRangeOverlap( timerg, urtimerg )
-	
-	//children's times
-	bool found = false; ObjectSet<UnitRef> refunits;
-	gatherChildrenByTime( *upur, refunits );
-	for ( int idunit=0; idunit<refunits.size(); idunit++ )
+	Interval<float>& timerg = ur->props().timerg_;
+	NodeUnitRef* upur = ur->upNode();
+	if ( upur && !upur->code().isEmpty() )
 	{
-	    const UnitRef& un = *refunits[idunit];
-	    if ( un.code() == ur.code() ) 
-	    { found = true; continue; }
-	    const Interval<float> cmptimerg = un.props().timerg_;
-	    if ( !found )
+	    //parent's times
+	    const Interval<float>& urtimerg = upur->props().timerg_;
+	    mSetRangeOverlap( timerg, urtimerg )
+	    
+	    //children's times
+	    bool found = false; ObjectSet<UnitRef> refunits;
+	    gatherChildrenByTime( *upur, refunits );
+	    for ( int idunit=0; idunit<refunits.size(); idunit++ )
 	    {
-		if( timerg.start < cmptimerg.stop )
-		    timerg.start = cmptimerg.stop;
+		const UnitRef& un = *refunits[idunit];
+		if ( un.code() == ur->code() ) 
+		{ found = true; continue; }
+		const Interval<float> cmptimerg = un.props().timerg_;
+		if ( !found )
+		{
+		    if( timerg.start < cmptimerg.stop )
+			timerg.start = cmptimerg.stop;
+		}
+		else if( timerg.stop > cmptimerg.start )
+		    timerg.stop = cmptimerg.start;
 	    }
-	    else if( timerg.stop > cmptimerg.start )
-		timerg.stop = cmptimerg.start;
 	}
+	if ( !it.next() ) break;
+	ur = it.unit();
     }
-    mDynamicCastGet(NodeUnitRef*,nur,&ur);
-    if ( !nur ) return;
-    for ( int idunit=0; idunit<nur->nrRefs(); idunit++ )
-	constraintUnitTimes( nur->ref( idunit ) );
+}
+
+
+void Strat::RefTree::constraintUnitLvlNames( const NodeUnitRef& ur )
+{
+    Strat::UnitRef::Iter it( ur );
+    Strat::UnitRef* un = it.unit();
+    if ( un && (un->props().timerg_.start == ur.props().timerg_.start) )
+	un->props().lvlname_ = ur.props().lvlname_;
+    while ( un )
+    {
+	float lvltime = un->props().timerg_.start;
+	const char* lvlnm = un->props().lvlname_;
+	if ( !it.next() ) break;
+	un = it.unit();
+	if ( un->props().timerg_.start == lvltime )
+	    un->props().lvlname_ =lvlnm; 
+    }
+}
+
+
+void Strat::RefTree::resetChildrenNames( const NodeUnitRef& ur )
+{
+    UnitRef::Iter it( ur );
+    Strat::UnitRef* un = it.unit();
+    while ( un )
+    {
+	UnitRef* curun = un;
+	BufferString bs = curun->code();
+	while ( curun->upNode() )
+	{
+	    curun = curun->upNode();
+	    BufferString tmpb( curun->code() );
+	    if ( tmpb.isEmpty() ) 
+		break;
+	    CompoundKey kc( curun->code() );
+	    kc += bs.buf();
+	    bs = kc.buf();
+	}
+	un->props().code_ = bs.buf();
+	if ( !it.next() ) break;
+	un = it.unit();
+    }
 }
 
 
@@ -410,10 +473,9 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	}
 	unitidx ++;
     }
-/*
     while ( astrm.type() != ascistream::EndOfFile )
     {
-	if ( atEndOfSection(astrm) || !astrm.hasKeyword(sKeyLevel) )
+	if ( atEndOfSection(astrm) || !astrm.hasKeyword(sKeyProp) )
 	{ astrm.next(); continue; }
     }
 
@@ -426,7 +488,6 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	msg += fnm; ErrMsg( fnm );
 	delete tree;
     }
-    */
 }
 
 
@@ -620,12 +681,12 @@ void Strat::UnitRepository::copyCurTreeAtLoc( Repos::Source loc )
     UnitRef::Iter it( *curtree );
     const UnitRef& firstun = *it.unit(); firstun.fill( str );
     tree->addUnit( firstun.fullCode(), str );
-    tree->setUnitProps( firstun.props() );
+    tree->setUnitProps( firstun.fullCode(), firstun.props() );
     while ( it.next() )
     {
 	const UnitRef& un = *it.unit(); un.fill( str );
 	tree->addUnit( un.fullCode(), str );
-	tree->setUnitProps( un.props() );
+	tree->setUnitProps( un.fullCode(), un.props() );
     }
 
     const RefTree* oldsrctree  = getTreeFromSource( loc );
@@ -649,10 +710,11 @@ void Strat::UnitRepository::createDefaultTree()
 {
     RefTree* tree = new RefTree( "Stratigraphic tree", Repos::Survey );
     UnitRef::Props props;
-    props.code_ =  "Stratigraphic framework";
+    props.code_ =  "Super Group";
     props.timerg_.set( 0, 4.5e3 );
+    props.lvlname_ = "Top Level";
     props.color_ = Color::DgbColor();
     props.desc_ = "Stratigraphic Column";
-    tree->addUnit( props );
+    tree->addUnit( props.code_, props );
     trees_ += tree;
 }

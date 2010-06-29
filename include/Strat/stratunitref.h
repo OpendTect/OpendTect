@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.20 2010-06-24 11:54:00 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.21 2010-06-29 10:43:54 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,7 @@ public:
     mStruct Props
     {
 			Props()
+			: isunconf_(false)
 			{}
 
 	BufferString    code_;
@@ -69,6 +70,7 @@ public:
 	BufferString	lvlname_;
 	Interval<float> timerg_;
 	bool            isleaf_;
+	bool		isunconf_;
 	Color           color_;
     };
 
@@ -82,15 +84,18 @@ public:
     
     void		setProps( const Props& pp )
 			{
-			    props_.desc_   = pp.desc_;
-			    props_.lithnm_ = pp.lithnm_;
-			    props_.timerg_ = pp.timerg_; 
-			    props_.isleaf_ = pp.isleaf_; 
-			    props_.color_  = pp.color_; 
-			    props_.lvlname_= pp.lvlname_;
+			    props_.code_    = pp.code_;
+			    props_.desc_    = pp.desc_;
+			    props_.lithnm_  = pp.lithnm_;
+			    props_.timerg_  = pp.timerg_; 
+			    props_.isleaf_  = pp.isleaf_; 
+			    props_.color_   = pp.color_; 
+			    props_.lvlname_ = pp.lvlname_;
+			    props_.isunconf_ = pp.isunconf_;
+
 			}
 
-    void		acquireID() { id_ = getNewID(); }
+    virtual void	acquireID() { id_ = getNewID(); }
 
     NodeUnitRef*	upNode(int skip=0);
     const NodeUnitRef*	upNode( int skip=0 ) const
@@ -150,7 +155,7 @@ public:
 protected:
 
     ID			id_;
-    ID			getNewID() const; 
+    virtual ID		getNewID() const; 
 
     NodeUnitRef*	upnode_;
     Props		props_;
@@ -213,7 +218,7 @@ public:
 			LeafUnitRef( NodeUnitRef* up, const char* c,
 				     int lithidx=-1, const char* d=0 )
 			: UnitRef(up,c,d)
-			, lith_(lithidx)	{}
+			, lith_(lithidx) {}
 
     virtual bool	isLeaf() const		{ return true; }
     int			lithology() const	{ return lith_; }
@@ -230,16 +235,6 @@ protected:
 
 };
 
-
-mClass Unconformity : public UnitRef
-{
-public:
-
-			Unconformity( NodeUnitRef* up, const char* c,
-				     int lithidx=-1, const char* d=0 )
-			: UnitRef(up,c,d)
-			{}
-};
 
 
 inline int UnitRef::treeDepth() const

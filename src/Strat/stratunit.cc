@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.17 2010-06-24 11:54:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.18 2010-06-29 10:43:54 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -13,6 +13,9 @@ static const char* rcsID = "$Id: stratunit.cc,v 1.17 2010-06-24 11:54:01 cvsbrun
 #include "errh.h"
 #include "iopar.h"
 #include "keystrs.h"
+
+
+static const char* sKeyLevel = "Level";
 
 
 const Strat::Lithology& Strat::Lithology::undef()
@@ -103,6 +106,7 @@ void Strat::UnitRef::putTo( IOPar& iop ) const
 {
     iop.set( sKey::Time, props_.timerg_ );
     iop.set( sKey::Color, props_.color_ );
+    iop.set( sKeyLevel, props_.lvlname_ );
 }
 
 
@@ -110,6 +114,7 @@ void Strat::UnitRef::getFrom( const IOPar& iop )
 {
     iop.get( sKey::Time, props_.timerg_ );
     iop.get( sKey::Color, props_.color_ );
+    iop.get( sKeyLevel, props_.lvlname_ );
 }
 
 
@@ -211,7 +216,7 @@ Strat::UnitRef* Strat::NodeUnitRef::fnd( int id ) const
     {
 	const Strat::UnitRef& un = ref( idx );
 	if ( un.getID() == id )
-	    return fnd( un.code() );
+	    return const_cast<Strat::UnitRef*>(&un);
 	else if ( !un.isLeaf() )
 	    return ((Strat::NodeUnitRef&)un).fnd( id );
     }
@@ -340,3 +345,5 @@ bool Strat::UnitRef::Iter::toNext()
     curnode_ = 0;
     return false;
 }
+
+

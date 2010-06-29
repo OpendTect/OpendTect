@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.15 2010-06-24 11:54:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.16 2010-06-29 10:43:54 cvsbruno Exp $";
 
 #include "uistratlvlsel.h"
 
@@ -79,7 +79,7 @@ int uiStratLevelSel::selected() const
 int uiStratLevelSel::getID() const
 {
     int selidx = selected();
-    if ( selidx == 0 ) return -1;
+    if ( selidx <= 0 ) return -1;
     return ids_[selidx-1];
 }
 

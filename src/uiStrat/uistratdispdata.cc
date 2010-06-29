@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.5 2010-06-24 11:54:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.6 2010-06-29 10:43:54 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratmgr.h"
@@ -144,7 +144,7 @@ void uiStratTreeWriter::updateUnitProperties( const char* txt )
 
 void uiStratTreeWriter::fillUndef( CallBacker* cb )
 {
-    uitree_.resetUnconformities( cb );
+    uitree_.doSetUnconformities( cb );
 }
 
 
