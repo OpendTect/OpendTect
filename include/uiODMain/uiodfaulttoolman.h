@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Jaap Glas
  Date:		December 2009
- RCS:		$Id: uiodfaulttoolman.h,v 1.6 2010-06-18 14:50:26 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttoolman.h,v 1.7 2010-06-29 07:54:29 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -45,13 +45,15 @@ public:
     {
     public:			Setup()
 				    : outputfault_( true )
-				    , displayafter_( false )
+				    , displayifnot_( false )
+				    , saveifdisplayed_( true )
 				    , sequelnaming_( true )
 				    , colorrandom_( false )
 				{}
 
 	mDefSetupMemb(bool,outputfault)
-	mDefSetupMemb(bool,displayafter)
+	mDefSetupMemb(bool,displayifnot)
+	mDefSetupMemb(bool,saveifdisplayed)
 	mDefSetupMemb(bool,sequelnaming)
 	mDefSetupMemb(bool,colorrandom)
     };
@@ -63,8 +65,9 @@ public:
     uiIOObjSel*			getObjSel();
     uiColorInput*		getOutputColor(); 
 
-    bool			startDisplayAfter() const;
-    bool			createSequelName() const;
+    bool			displayAfterwards() const;
+    bool			saveAfterwards() const;
+    bool			generateSequelName() const;
     bool			randomSequelColor() const;
 
     void			setOutputFields(const uiComboBox& f3dcombo,
@@ -76,6 +79,8 @@ protected:
     void			outputTypeChg(CallBacker*);
     void			outputComboChg(CallBacker*);
     void			outputColorChg(CallBacker*);
+    void			displayCB(CallBacker*);
+    void			saveCB(CallBacker*);
     void			displayChg(CallBacker*);
     void			sequelNameCB(CallBacker*);
 
@@ -87,8 +92,12 @@ protected:
     uiSurfaceWrite*		fssoutputfld_;
     uiColorInput*		colorfld_;
     uiCheckBox*			displayfld_;
+    uiCheckBox*			savefld_;
     uiCheckBox*			sequelnamefld_;
     uiGenInput*			sequelcolorfld_;
+
+    bool			displayifnot_;
+    bool			saveifdisplayed_;
 };
 
 
@@ -106,6 +115,7 @@ public:
 protected:
     void			finaliseDoneCB( CallBacker* );
 
+    void			displayModeChg(CallBacker*);
     void			treeItemSelCB(CallBacker*);
     void			treeItemDeselCB(CallBacker*);
     void			addRemoveEMObjCB(CallBacker*);
@@ -137,13 +147,20 @@ protected:
     uiIOObjSel*			getObjSel();
     const uiIOObjSel*		getObjSel() const;
 
+    bool			displayAfterwards() const;
+    bool			saveAfterwards() const;
+
+    bool			areSticksAccessible() const;
+    void			enableStickAccess(bool yn);
+
     uiODMain&			appl_;
     uiToolBar*			toolbar_;
     uiFaultStickTransferDlg*	settingsdlg_;
 
     uiFaultStickTransferDlg::Setup settingssetup_;
 
-    int				editselbutidx_;
+    int				editbutidx_;
+    int				selbutidx_;
     int				removalbutidx_;
     int				copybutidx_;
     int				movebutidx_;
