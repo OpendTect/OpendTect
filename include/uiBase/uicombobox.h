@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.31 2010-01-27 13:48:27 cvsjaap Exp $
+ RCS:           $Id: uicombobox.h,v 1.32 2010-06-29 13:36:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,8 @@ protected:
     virtual int		getvalue_() const	{ return currentItem(); }
     virtual bool	clear_()		{ empty(); return true; }
 
-    virtual bool	notifyValueChanging_( const CallBack& )	{ return false;}
+    virtual bool	notifyUpdateRequested_(const CallBack&) {return false;}
+    virtual bool	notifyValueChanging_(const CallBack&)	{return false;}
     virtual bool	notifyValueChanged_( const CallBack& cb )   
 			    { selectionChanged.notify(cb); return true; }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.39 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uigeninput.h,v 1.40 2010-06-29 13:36:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,6 +220,7 @@ Returns true, if changes are accepted.
     Notifier<uiGenInput> checked;
     Notifier<uiGenInput> valuechanging;
     Notifier<uiGenInput> valuechanged;
+    Notifier<uiGenInput> updateRequested;
 
 protected:
 

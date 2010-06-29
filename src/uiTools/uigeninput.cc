@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninput.cc,v 1.91 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uigeninput.cc,v 1.92 2010-06-29 13:36:17 cvsnanne Exp $";
 
 #include "uigeninput.h"
 #include "uilineedit.h"
@@ -191,6 +191,9 @@ public:
     void		valChangedNotify(CallBacker*)
 			    { p_->valuechanged.trigger( *p_ ); }
 
+    void		updateReqNotify(CallBacker*)
+			{ p_->updateRequested.trigger( *p_ ); }
+
 protected:
 
     virtual bool        update_( const DataInpSpec& nw )
@@ -253,6 +256,7 @@ uiSimpleInputFld( uiGenInput* p, const DataInpSpec& dis,
 
     usrinpobj.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
     usrinpobj.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
+    usrinpobj.notifyUpdateRequested( mCB(this,uiInputFld,updateReqNotify) );
 }
 
 virtual	~uiSimpleInputFld()	{ delete &usrinpobj; }
@@ -692,16 +696,20 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 
 //-----------------------------------------------------------------------------
 
+#define mInitStdMembs \
+    : uiGroup(p,disptxt) \
+    , finalised(false) \
+    , idxes(*new TypeSet<FieldIdx>) \
+    , selText(""), withchk(false), withclr(false) \
+    , labl(0), cbox(0), selbut(0), clrbut(0) \
+    , valuechanging(this), valuechanged(this) \
+    , checked(this), updateRequested(this) \
+    , checked_(false), rdonly_(false), rdonlyset_(false) \
+    , elemszpol( uiObject::Undef )
+
 
 uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
-    : uiGroup( p, disptxt )
-    , finalised( false )
-    , idxes( *new TypeSet<FieldIdx> )
-    , selText("") , withchk(false) , withclr(false)
-    , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked( this ), valuechanging( this ), valuechanged( this )
-    , checked_(false), rdonly_(false), rdonlyset_(false)
-    , elemszpol( uiObject::Undef )
+    mInitStdMembs
 { 
     inputs += new StringInpSpec( inputStr );
     if ( disptxt && *disptxt )
@@ -712,14 +720,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
 
 uiGenInput::uiGenInput( uiParent* p, const char* disptxt,
 			const DataInpSpec& inp1 )
-    : uiGroup( p, disptxt )
-    , finalised( false )
-    , idxes( *new TypeSet<FieldIdx> )
-    , selText("") , withchk(false) , withclr(false)
-    , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked( this ), valuechanging( this ), valuechanged( this )
-    , checked_(false), rdonly_(false), rdonlyset_(false)
-    , elemszpol( uiObject::Undef )
+    mInitStdMembs
 {
     inputs += inp1.clone();
     const bool inputhasnm = inputs[0]->name() && *inputs[0]->name();
@@ -731,14 +732,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt,
 
 uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 	    , const DataInpSpec& inp1 , const DataInpSpec& inp2 )
-    : uiGroup( p, disptxt )
-    , finalised( false )
-    , idxes( *new TypeSet<FieldIdx> )
-    , selText("") , withchk(false) , withclr(false)
-    , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked( this ), valuechanging( this ), valuechanged( this )
-    , checked_(false), rdonly_(false), rdonlyset_(false)
-    , elemszpol( uiObject::Undef )
+    mInitStdMembs
 {
     inputs += inp1.clone();
     inputs += inp2.clone();
@@ -749,20 +743,14 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 	    , const DataInpSpec& inp1, const DataInpSpec& inp2 
 	    , const DataInpSpec& inp3 )
-    : uiGroup( p, disptxt )
-    , finalised( false )
-    , idxes( *new TypeSet<FieldIdx> )
-    , selText("") , withchk(false) , withclr(false)
-    , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked( this ), valuechanging( this ), valuechanged( this )
-    , checked_(false), rdonly_(false), rdonlyset_(false)
-    , elemszpol( uiObject::Undef )
+    mInitStdMembs
 {
     inputs += inp1.clone();
     inputs += inp2.clone();
     inputs += inp3.clone();
     mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
 }
+
 
 uiGenInput::~uiGenInput()
 {
@@ -785,6 +773,7 @@ const DataInpSpec* uiGenInput::dataInpSpec( int nr ) const
 	return( nr >= 0 && nr<flds.size() && flds[nr] ) ? &flds[nr]->spec(): 0;
     return ( nr<inputs.size() && inputs[nr] ) ? inputs[nr] : 0;
 }
+
 
 bool uiGenInput::newSpec(const DataInpSpec& nw, int nr)
 {

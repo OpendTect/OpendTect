@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.24 2009-10-07 13:26:33 cvsjaap Exp $
+ RCS:           $Id: uilineedit.h,v 1.25 2010-06-29 13:36:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,9 +89,11 @@ public:
 protected:
     
     virtual bool	notifyValueChanging_( const CallBack& cb )
-			    { textChanged.notify(cb); return true;}
+			{ textChanged.notify( cb ); return true;}
     virtual bool	notifyValueChanged_( const CallBack& cb ) 
-			    { editingFinished.notify(cb); return true;}
+			{ editingFinished.notify( cb ); return true;}
+    virtual bool	notifyUpdateRequested_( const CallBack& cb )
+    			{ returnPressed.notify( cb ); return true; }
 
 private:
 

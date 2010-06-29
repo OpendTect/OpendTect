@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.15 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: userinputobj.h,v 1.16 2010-06-29 13:36:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,16 +55,18 @@ public:
 
 
 		        /*! \brief intermediate value available
-			    \return true if this notification is supported
-			*/
+			    \return true if this notification is supported */
     bool		notifyValueChanging( const CallBack& cb )
-			    { return notifyValueChanging_( cb ); }
+			{ return notifyValueChanging_( cb ); }
 
 		        /*! \brief value change complete cq. commited
-			    \return true if this notification is supported
-			*/
+			    \return true if this notification is supported */
     bool		notifyValueChanged( const CallBack& cb )
-			    { return notifyValueChanged_( cb ); }
+			{ return notifyValueChanged_( cb ); }
+
+    			/*! \return true if this notification is supported */
+    bool		notifyUpdateRequested( const CallBack& cb )
+			{ return notifyUpdateRequested_( cb ); }
 
 
 			//! return false if not updated for whatever reason.
@@ -73,10 +75,10 @@ public:
 
 protected:
 			//! return false if not available
-    virtual bool	notifyValueChanging_( const CallBack& )	=0;
-
+    virtual bool	notifyValueChanging_(const CallBack&)	=0;
 			//! return false if not available
-    virtual bool	notifyValueChanged_( const CallBack& )	=0;
+    virtual bool	notifyValueChanged_(const CallBack&)	=0;
+    virtual bool	notifyUpdateRequested_(const CallBack&)	=0;
     virtual bool	update_( const DataInpSpec&)		=0;
 };
 
