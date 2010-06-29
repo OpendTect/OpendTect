@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.8 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.9 2010-06-29 07:45:58 cvsjaap Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -103,6 +103,7 @@ FSStoFault3DConverter::Setup::Setup()
     , stickslopethres_(mUdf(double))
     , useinlcrlslopesep_(false)
     , stickseldir_(Setup::Auto)
+    , addtohistory_(false)
 {
 }
 
@@ -120,7 +121,7 @@ FSStoFault3DConverter::FSStoFault3DConverter( const Setup& setup,
 bool FSStoFault3DConverter::convert()
 {
     fault3d_.geometry().selectAllSticks();
-    fault3d_.geometry().removeSelectedSticks();
+    fault3d_.geometry().removeSelectedSticks( setup_.addtohistory_ );
     bool selhorpicked;
 
     for ( int sidx=0; sidx<fss_.nrSections(); sidx++ )
@@ -392,15 +393,15 @@ bool FSStoFault3DConverter::writeSection( const SectionID& sid ) const
 	if ( stick->crds_.isEmpty() )
 	    continue;
 
-	if ( !fault3d_.geometry().insertStick(sid, sticknr, 0, stick->crds_[0],
-		    			      stick->normal_, false) )
+	if ( !fault3d_.geometry().insertStick( sid, sticknr, 0,
+			stick->crds_[0], stick->normal_, setup_.addtohistory_) )
 	    continue;
 
 	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
 	{
 	    const RowCol rc( sticknr, crdidx );
 	    fault3d_.geometry().insertKnot( sid, rc.toInt64(),
-					    stick->crds_[crdidx], false );
+				stick->crds_[crdidx], setup_.addtohistory_ );
 	}
 
 	sticknr++;

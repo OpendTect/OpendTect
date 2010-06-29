@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		March 2009
- RCS:		$Id: emfsstofault3d.h,v 1.4 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emfsstofault3d.h,v 1.5 2010-06-29 07:45:58 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,8 @@ public:
 	mDefSetupMemb(bool,useinlcrlslopesep);		// Default false
 	mDefSetupMemb(double,stickslopethres);		// Default mUdf(double)
 	mDefSetupMemb(DirSpec,stickseldir);		// Default Auto
+
+	mDefSetupMemb(bool,addtohistory);		// Default false
     };
 
 				FSStoFault3DConverter(const Setup&,

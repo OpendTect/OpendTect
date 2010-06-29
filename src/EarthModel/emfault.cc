@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault.cc,v 1.57 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.58 2010-06-29 07:45:58 cvsjaap Exp $";
 
 #include "emfault.h"
 
 #include "emfaultstickset.h"
+#include "emmanager.h"
 #include "survinfo.h"
 
 
@@ -27,7 +28,7 @@ const Coord3& FaultGeometry::getEditPlaneNormal( const SectionID& sid,
 
 
 void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
-					  const SectionID& destsid ) const
+			  const SectionID& destsid, bool addtohistory ) const
 {
     Geometry::FaultStickSet* destfss = destfssg.sectionGeometry( destsid );
     int sticknr = destfss->isEmpty() ? 0 : destfss->rowRange().stop+1;
@@ -65,13 +66,13 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
 		    destfssg.insertStick( destsid, sticknr, knotnr, pos,
 					  getEditPlaneNormal(sid,rc.row),
 					  lineSet(sid,rc.row),
-					  lineName(sid,rc.row), true );
+					  lineName(sid,rc.row), addtohistory );
 		}
 		else
 		{
 		    const RowCol destrc( sticknr,knotnr );
-		    destfssg.insertKnot( destsid, destrc.toInt64(),
-					 pos, true );
+		    destfssg.insertKnot( destsid, destrc.toInt64(), pos,
+					 addtohistory );
 		}
 		knotnr++;
 	    }
@@ -108,18 +109,20 @@ void FaultGeometry::selectSticks( bool select, const FaultGeometry* doublesref )
 }
 
 
-void FaultGeometry::removeSelectedSticks()
-{ while ( removeSelStick(0) ); }
+void FaultGeometry::removeSelectedSticks( bool addtohistory )
+{ while ( removeSelStick(0,addtohistory) ); }
 
 
-void FaultGeometry::removeSelectedDoubles( const FaultGeometry* ref )
+void FaultGeometry::removeSelectedDoubles( bool addtohistory,
+					   const FaultGeometry* ref )
 {
     for ( int selidx=nrSelectedSticks()-1; selidx>=0; selidx-- )
-	removeSelStick( selidx, (ref ? ref : this) );
+	removeSelStick( selidx, addtohistory, (ref ? ref : this) );
 }
 
 
-bool FaultGeometry::removeSelStick( int selidx, const FaultGeometry* doublesref)
+bool FaultGeometry::removeSelStick( int selidx, bool addtohistory,
+				    const FaultGeometry* doublesref)
 {
     for ( int sidx=nrSections()-1; sidx>=0; sidx-- )
     {
@@ -155,9 +158,9 @@ bool FaultGeometry::removeSelStick( int selidx, const FaultGeometry* doublesref)
 	    {
 
 		if ( rc.col == colrg.stop )
-		    removeStick( sid, rc.row, true );
+		    removeStick( sid, rc.row, addtohistory );
 		else
-		    removeKnot( sid, rc.toInt64(), true );
+		    removeKnot( sid, rc.toInt64(), addtohistory );
 	    }
 
 	    if ( nrSections()>1 && !fss->nrSticks() )
@@ -251,6 +254,114 @@ int FaultGeometry::nrStickDoubles( const SectionID& sid, int sticknr,
 
 
     return ref==this ? nrdoubles-1 : nrdoubles;
+}
+
+
+
+FaultStickUndoEvent::FaultStickUndoEvent( const EM::PosID& posid )
+    : posid_( posid )
+    , remove_( false )
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    mDynamicCastGet( Fault*, fault, emobj.ptr() );
+    if ( !fault ) return;
+
+    pos_ = fault->getPos( posid_ );
+    const int row = RowCol(posid_.subID()).row;
+    normal_ = fault->geometry().getEditPlaneNormal( posid_.sectionID(), row );
+}
+
+
+FaultStickUndoEvent::FaultStickUndoEvent( const EM::PosID& posid,
+				const Coord3& oldpos, const Coord3& oldnormal )
+    : posid_( posid )
+    , pos_( oldpos )
+    , normal_( oldnormal )
+    , remove_( true )
+{ }
+
+
+const char* FaultStickUndoEvent::getStandardDesc() const
+{ return remove_ ? "Remove stick" : "Insert stick"; }
+
+
+bool FaultStickUndoEvent::unDo()
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    mDynamicCastGet( Fault*, fault, emobj.ptr() );
+    if ( !fault ) return false;
+
+    const int row = RowCol(posid_.subID()).row;
+
+    return remove_
+	? fault->geometry().insertStick( posid_.sectionID(), row,
+		RowCol(posid_.subID()).col, pos_, normal_, false )
+	: fault->geometry().removeStick( posid_.sectionID(), row, false );
+}
+
+
+bool FaultStickUndoEvent::reDo()
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    mDynamicCastGet( Fault*, fault, emobj.ptr() );
+    if ( !fault ) return false;
+
+    const int row = RowCol(posid_.subID()).row;
+
+    return remove_
+	? fault->geometry().removeStick( posid_.sectionID(), row, false )
+	: fault->geometry().insertStick( posid_.sectionID(), row,
+		RowCol(posid_.subID()).col, pos_, normal_, false );
+}
+
+
+FaultKnotUndoEvent::FaultKnotUndoEvent( const EM::PosID& posid )
+    : posid_( posid )
+    , remove_( false )
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    if ( !emobj ) return;
+    pos_ = emobj->getPos( posid_ );
+}
+
+
+FaultKnotUndoEvent::FaultKnotUndoEvent( const EM::PosID& posid,
+					const Coord3& oldpos )
+    : posid_( posid )
+    , pos_( oldpos )
+    , remove_( true )
+{ }
+
+
+const char* FaultKnotUndoEvent::getStandardDesc() const
+{ return remove_ ? "Remove knot" : "Insert knot"; }
+
+
+bool FaultKnotUndoEvent::unDo()
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    mDynamicCastGet( Fault*, fault, emobj.ptr() );
+    if ( !fault ) return false;
+
+    return remove_
+	? fault->geometry().insertKnot( posid_.sectionID(), posid_.subID(),
+					pos_, false )
+	: fault->geometry().removeKnot( posid_.sectionID(), posid_.subID(),
+					false );
+}
+
+
+bool FaultKnotUndoEvent::reDo()
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    mDynamicCastGet( Fault*, fault, emobj.ptr() );
+    if ( !fault ) return false;
+
+    return remove_
+	? fault->geometry().removeKnot( posid_.sectionID(), posid_.subID(),
+					false )
+	: fault->geometry().insertKnot( posid_.sectionID(), posid_.subID(),
+					pos_, false );
 }
 
 

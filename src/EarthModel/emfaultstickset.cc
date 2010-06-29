@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfaultstickset.cc,v 1.9 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emfaultstickset.cc,v 1.10 2010-06-29 07:45:58 cvsjaap Exp $";
 
 #include "emfaultstickset.h"
 
@@ -16,12 +16,13 @@ static const char* rcsID = "$Id: emfaultstickset.cc,v 1.9 2010-06-18 12:23:27 cv
 #include "emsurfacetr.h"
 #include "iopar.h"
 #include "posfilter.h"
+#include "undo.h"
 
 
 namespace EM {
 
 mImplementEMObjFuncs( FaultStickSet, EMFaultStickSetTranslatorGroup::keyword() ) 
-
+    
 FaultStickSet::FaultStickSet( EMManager& em )
     : Fault(em)
     , geometry_( *this )
@@ -173,11 +174,9 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 
     if ( addtohistory )
     {
-	/* TODO
 	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).toInt64());
 	UndoEvent* undo = new FaultStickUndoEvent( posid );
 	EMM().undo().addEvent( undo, 0 );
-	*/
     }
 
     mTriggerSurfaceChange( surface_ );
@@ -223,11 +222,9 @@ bool FaultStickSetGeometry::removeStick( const SectionID& sid, int sticknr,
 
     if ( addtohistory )
     {
-	/* TODO
 	const PosID posid( surface_.id(), sid, rc.toInt64() );
 	UndoEvent* undo = new FaultStickUndoEvent( posid, pos, normal );
 	EMM().undo().addEvent( undo, 0 );
-	*/
     }
 
     mTriggerSurfaceChange( surface_ );
@@ -247,11 +244,9 @@ bool FaultStickSetGeometry::insertKnot( const SectionID& sid,
 
     if ( addtohistory )
     {
-	/*
 	const PosID posid( surface_.id(), sid, subid );
 	UndoEvent* undo = new FaultKnotUndoEvent( posid );
 	EMM().undo().addEvent( undo, 0 );
-	*/
     }
 
     mTriggerSurfaceChange( surface_ );
@@ -274,11 +269,9 @@ bool FaultStickSetGeometry::removeKnot( const SectionID& sid,
 
     if ( addtohistory )
     {
-	/*
 	const PosID posid( surface_.id(), sid, subid );
 	UndoEvent* undo = new FaultKnotUndoEvent( posid, pos );
 	EMM().undo().addEvent( undo, 0 );
-	*/
     }
 
     mTriggerSurfaceChange( surface_ );

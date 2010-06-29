@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.41 2010-02-12 10:35:01 cvsjaap Exp $
+ RCS:		$Id: emfault.h,v 1.42 2010-06-29 07:45:58 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "faultsticksurface.h"
+#include "undo.h"
+
 
 namespace EM
 {
@@ -46,22 +48,24 @@ public:
 							{ return 0; }
 
     virtual void	copySelectedSticksTo(FaultStickSetGeometry& destfssg,
-					     const SectionID& destsid) const;
+					     const SectionID& destsid,
+					     bool addtohistory) const;
 
     virtual int		nrSelectedSticks() const;
     virtual void	selectAllSticks(bool select=true);
-    virtual void	removeSelectedSticks();
+    virtual void	removeSelectedSticks(bool addtohistory);
 
     virtual void	selectStickDoubles(bool select=true,
 					   const FaultGeometry* ref=0);
-    virtual void	removeSelectedDoubles(const FaultGeometry* ref=0);
+    virtual void	removeSelectedDoubles(bool addtohistory,
+					      const FaultGeometry* ref=0);
     virtual int		nrStickDoubles(const SectionID&,int sticknr,
 				       const FaultGeometry* ref=0) const;
 
 protected:
     void		selectSticks(bool select=true,
 				     const FaultGeometry* doublesref=0);
-    bool		removeSelStick(int selidx,
+    bool		removeSelStick(int selidx,bool addtohistory,
 				       const FaultGeometry* doublesref=0);
 
     			FaultGeometry( Surface& surf )
@@ -85,6 +89,48 @@ protected:
 
     const IOObjContext&		getIOObjContext() const		= 0;
 };
+
+
+mClass FaultStickUndoEvent : public UndoEvent
+{
+public:
+			//Interface for insert
+			FaultStickUndoEvent(const EM::PosID&);
+			//Interface for removal
+			FaultStickUndoEvent(const EM::PosID&,
+					    const Coord3& oldpos,
+					    const Coord3& oldnormal );
+    const char*		getStandardDesc() const;
+    bool		unDo();
+    bool		reDo();
+
+protected:
+    Coord3		pos_;
+    Coord3		normal_;
+    EM::PosID		posid_;
+    bool		remove_;
+};
+
+
+mClass FaultKnotUndoEvent : public UndoEvent
+{
+public:
+			//Interface for insert
+			FaultKnotUndoEvent(const EM::PosID&);
+			//Interface for removal
+			FaultKnotUndoEvent(const EM::PosID&,
+					   const Coord3& oldpos);
+    const char*		getStandardDesc() const;
+    bool		unDo();
+    bool		reDo();
+
+protected:
+    Coord3		pos_;
+    Coord3		normal_;
+    EM::PosID		posid_;
+    bool		remove_;
+};
+
 
 
 } // namespace EM
