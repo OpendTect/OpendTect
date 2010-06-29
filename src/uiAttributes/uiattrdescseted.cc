@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.96 2010-05-28 10:35:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.97 2010-06-29 11:04:37 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -106,6 +106,12 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 }
 
 
+#define mInsertItemNoIcon( txt, func ) \
+{ \
+    uiMenuItem* itm = new uiMenuItem(txt,mCB(this,uiAttribDescSetEd,func));\
+    filemnu->insertItem( itm ); \
+}
+
 #define mInsertItem( txt, func, fnm ) \
 { \
     ioPixmap pm( fnm ); \
@@ -122,12 +128,12 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertItem( "&New set ...", newSet, "newset.png" );
     mInsertItem( "&Open set ...", openSet, "openset.png" );
     mInsertItem( "&Save set ...", savePush, "saveset.png" );
-    mInsertItem( "&Auto Load Attribute Set ...", autoSet, "" );
-    mInsertItem( "&Change input ...", changeInput, "" );
+    mInsertItemNoIcon( "&Auto Load Attribute Set ...", autoSet );
+    mInsertItemNoIcon( "&Change input ...", changeInput );
     filemnu->insertSeparator();
     mInsertItem( "Open &Default set ...", defaultSet, "defset.png" );
     mInsertItem( "&Import set ...", importSet, "impset.png" );
-    mInsertItem( "Import set from &file ...", importFile, "" );
+    mInsertItemNoIcon( "Import set from &file ...", importFile );
     mInsertItem( "&Reconstruct set from job file ...", job2Set, "job2set.png" );
 
     menu->insertItem( filemnu );
