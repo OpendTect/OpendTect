@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.21 2010-06-29 10:43:54 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.22 2010-06-29 13:03:30 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -188,8 +188,6 @@ public:
 
     UnitRef*		find( const char* urcode )	{ return fnd(urcode); }
     const UnitRef*	find( const char* urcode ) const{ return fnd(urcode); }
-    UnitRef*		find( int id )  		{ return fnd(id); }
-    const UnitRef*	find( int id ) const 		{ return fnd(id); }
 
     void		add(UnitRef*,bool rev =false);
     void		remove( int uridx ) 
@@ -204,8 +202,6 @@ protected:
     ObjectSet<UnitRef>	refs_;
 
     UnitRef*		fnd(const char*) const;
-    UnitRef*		fnd(int) 	 const;
-
 };
 
 

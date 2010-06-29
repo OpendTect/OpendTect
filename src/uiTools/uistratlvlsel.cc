@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.16 2010-06-29 10:43:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.17 2010-06-29 13:03:30 cvsbruno Exp $";
 
 #include "uistratlvlsel.h"
 
@@ -24,10 +24,13 @@ static void getLvlNms( BufferStringSet& bss, TypeSet<int>& ids )
 {
     Strat::RT().getUnitIDs( ids );
     bss.add( sNoLevelTxt );
-    for ( int idx=0; idx<ids.size(); idx++ )
+    for ( int idx=ids.size()-1; idx>=0; idx-- )
     {
 	BufferString lvlnm( Strat::RT().getUnitLvlName( ids[idx] ) );
-	if ( !lvlnm.isEmpty() ) bss.add( lvlnm );
+	if ( !lvlnm.isEmpty() ) 
+	    bss.add( lvlnm );
+	else 
+	    ids.remove( idx );
     }
 }
 

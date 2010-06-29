@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.18 2010-06-29 10:43:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.19 2010-06-29 13:03:30 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -204,23 +204,6 @@ Property* Strat::UnitRef::gtProp( const PropertyRef* pr ) const
 Strat::NodeUnitRef::~NodeUnitRef()
 {
     deepErase( refs_ );
-}
-
-
-Strat::UnitRef* Strat::NodeUnitRef::fnd( int id ) const
-{
-    if ( id < 0 )
-	return 0;
-
-    for ( int idx=0; idx<refs_.size(); idx++ )
-    {
-	const Strat::UnitRef& un = ref( idx );
-	if ( un.getID() == id )
-	    return const_cast<Strat::UnitRef*>(&un);
-	else if ( !un.isLeaf() )
-	    return ((Strat::NodeUnitRef&)un).fnd( id );
-    }
-    return 0;
 }
 
 

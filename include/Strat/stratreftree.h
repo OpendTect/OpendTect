@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.11 2010-06-29 10:43:54 cvsbruno Exp $
+ RCS:		$Id: stratreftree.h,v 1.12 2010-06-29 13:03:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,10 +38,11 @@ public:
     Repos::Source	source() const			{ return src_; }
     
 
+    Strat::UnitRef*     getFromID(int id) 		{ return fnd(id); }
+    const Strat::UnitRef* getFromID(int id) const 	{ return fnd(id); } 
+
     int			getID(const char* code) const;
     void		getUnitIDs(TypeSet<int>&) const;
-    void		getLeavesUnitIDs(TypeSet<int>&,
-	    				 const NodeUnitRef&,bool) const;
     const char*		getUnitLvlName(int unid) const;
     Color		getUnitColor(int unid) const;
     
@@ -67,6 +68,8 @@ protected:
     void		constraintUnitTimes(Strat::NodeUnitRef&);
     void		constraintUnitLvlNames(const Strat::NodeUnitRef&);
     void		resetChildrenNames(const NodeUnitRef&); 
+    
+    Strat::UnitRef*     fnd(int id) const;
 
     Repos::Source	src_;
     BufferString	treename_;
