@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.67 2009-09-22 16:39:26 cvsyuancheng Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.68 2010-06-30 05:53:24 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -142,7 +142,7 @@ public:
 	    				   const BufferStringSet&);
 
     bool			isXY() const;
-    int				getNextLine(TypeSet<float>&);
+    int				getNextLine(Coord&,TypeSet<float>&);
 
 protected:
 
