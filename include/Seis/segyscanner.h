@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.18 2009-09-10 13:21:23 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.19 2010-06-30 17:17:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
     const char*		nrDoneText() const	{ return "Traces scanned"; }
 
     const FileDataSet&	fileDataSet() const	{ return fds_; }
+    FileDataSet&	fileDataSet()		{ return fds_; }
 
     BufferStringSet	fnms_;		//!< Actually used, possibly with errs
     BufferStringSet	failedfnms_;	//!< Failed to open or read

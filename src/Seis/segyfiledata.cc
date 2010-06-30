@@ -3,17 +3,28 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.19 2010-02-04 16:14:10 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.20 2010-06-30 17:17:28 cvskris Exp $";
 
 #include "segyfiledata.h"
-#include "iopar.h"
-#include "survinfo.h"
-#include "horsampling.h"
+
 #include "ascstream.h"
-#include "separstr.h"
-#include "keystrs.h"
+#include "datainterp.h"
 #include "envvars.h"
-#include <iostream>
+#include "iopar.h"
+#include "idxable.h"
+#include "horsampling.h"
+#include "keystrs.h"
+#include "offsetazimuth.h"
+#include "segyhdr.h"
+#include "separstr.h"
+#include "seisposindexer.h"
+#include "survinfo.h"
+#include "strmoper.h"
+#include "segytr.h"
+
+#include <fstream>
+
+static const char* sKeyNrFiles = "Number of files";
 
 static const char* sKeyTraceSize = "Trace size";
 static const char* sKeyFormat = "SEG-Y sample format";
@@ -21,166 +32,339 @@ static const char* sKeySampling = "Z sampling";
 static const char* sKeyRev1Marked = "File marked as REV. 1";
 static const char* sKeyNrStanzas = "Nr REV.1 Text stanzas";
 static const char* sKeyStorageType = "Storage type";
-static bool writeascii = !__islittle__ || GetEnvVarYN("OD_WRITE_SEGYDEF_ASCII");
+static const char* sKeyNrUsable = "Nr Usable";
 
 
-SEGY::FileData::FileData( const char* fnm, Seis::GeomType gt )
-    : ManagedObjectSet<TraceInfo>(false)
-    , fname_(fnm)
-    , geom_(gt)
-    , trcsz_(-1)
-    , sampling_(SI().zRange(false).start,SI().zRange(false).step)
-    , segyfmt_(0)
-    , isrev1_(true)
-    , nrstanzas_(0)
+SEGY::FileDataSet::StoredData::StoredData( const char* filename,
+	od_int64 offset,
+	const DataCharacteristics& dc32 )
+    : int32di_( DataInterpreter<int>::create( dc32, false ) )
+    , start_( offset )
+    , istrm_( new std::ifstream(filename) )
+    , ostrm_( 0 )
+{}
+
+
+SEGY::FileDataSet::StoredData::StoredData( std::ostream& ostrm )
+    : int32di_( 0 )
+    , start_( ostrm.tellp() )
+    , istrm_( 0 )
+    , ostrm_( &ostrm )
+{}
+
+
+SEGY::FileDataSet::StoredData::~StoredData()
 {
+    delete istrm_;
+    delete int32di_;
 }
 
 
-SEGY::FileData& SEGY::FileData::operator =( const SEGY::FileData& fd )
+bool SEGY::FileDataSet::StoredData::getKey( od_int64 pos, Seis::PosKey& pk,
+					    bool& usable ) const
 {
-    if ( this == &fd ) return *this;
+    Threads::MutexLocker lock( lock_ );
 
-    fname_ = fd.fname_;
-    geom_ = fd.geom_;
-    trcsz_ = fd.trcsz_;
-    sampling_ = fd.sampling_;
-    segyfmt_ = fd.segyfmt_;
-    isrev1_ = fd.isrev1_;
-    nrstanzas_ = fd.nrstanzas_;
+    if ( !istrm_ || !istrm_->good() || pos<0 )
+	return false;
 
-    deepErase( *this );
-    for ( int idx=0; idx<fd.size(); idx++ )
-	*this += fd[idx]->clone();
+    static const int unitsz = sizeof(int)+sizeof(int)+sizeof(int)+sizeof(bool);
+    StrmOper::seek( *istrm_, start_+pos*unitsz, std::ios::beg );
+    if ( !istrm_->good() )
+	return false;
 
-    return *this;
+    BinID bid;
+    int offsetazimuth;
+    bid.inl = DataInterpreter<int>::get( int32di_, *istrm_ );
+    bid.crl = DataInterpreter<int>::get( int32di_, *istrm_ );
+    offsetazimuth = DataInterpreter<int>::get( int32di_, *istrm_ );
+    istrm_->read( (char*) &usable, sizeof(bool) );
+
+    if ( !istrm_->good() )
+	return false;
+
+    OffsetAzimuth oa;
+
+    pk.setBinID( bid );
+    pk.setOffset( oa.offset() );
+
+    return true;
 }
 
 
-bool SEGY::FileData::isRich() const
+bool SEGY::FileDataSet::StoredData::add( const Seis::PosKey& pk, bool usable ) 
 {
-    return isEmpty() ? false : (*this)[0]->isRich();
+    if ( !ostrm_ )
+	return false;
+
+    if ( !ostrm_->good() )
+	return false;
+
+    const BinID bid = pk.binID();
+    ostrm_->write( (const char*) &bid.inl, sizeof( bid.inl ) );
+    ostrm_->write( (const char*) &bid.crl, sizeof( bid.crl ) );
+
+    const OffsetAzimuth oa( pk.offset(), 0 );
+    const int oaint = oa.asInt();
+    ostrm_->write( (const char*) &oaint, sizeof(oaint) );
+    ostrm_->write( (const char*) &usable, sizeof(usable) );
+
+    return ostrm_->good();
 }
 
 
-int SEGY::FileData::nrNullTraces() const
+SEGY::FileDataSet::FileDataSet( const IOPar& iop, ascistream& strm )
+    : segypars_( iop )
+    , storeddata_( 0 )
+    , totalsz_( 0 )
+    , indexer_( 0 )
+    , coords_( 0 )
+    , nrusable_( 0 )
 {
-    if ( !isRich() ) return 0;
-
-    int nr = 0;
-    for ( int idx=0; idx<size(); idx++ )
-	if ( isNull(idx) ) nr++;
-    return nr;
+    readVersion1( strm );
 }
 
 
-int SEGY::FileData::nrUsableTraces() const
+SEGY::FileDataSet::FileDataSet( const IOPar& iop,
+				const char* filename,od_int64 start,
+				const DataCharacteristics& int32 )
+    : segypars_( iop )
+    , storeddata_( new StoredData( filename, start, int32 ) )
+    , totalsz_( 0 )
+    , indexer_( 0 )
+    , coords_( 0 )
+    , nrusable_( 0 )
+{}
+
+
+SEGY::FileDataSet::FileDataSet( const IOPar& iop )
+    : segypars_( iop )
+    , storeddata_( 0 )
+    , totalsz_( 0 )
+    , indexer_( 0 )
+    , coords_( 0 )
+    , nrusable_( 0 )
+{}
+
+
+bool SEGY::FileDataSet::setOutputStream( std::ostream& strm )
 {
-    int nr = 0;
-    for ( int idx=0; idx<size(); idx++ )
-	if ( isUsable(idx) ) nr++;
-    return nr;
+    delete storeddata_;
+    storeddata_ = new SEGY::FileDataSet::StoredData( strm );
+
+    return true;
 }
 
 
-void SEGY::FileData::getReport( IOPar& iop ) const
+bool SEGY::FileDataSet::usePar( const IOPar& par )
 {
-    iop.add( IOPar::sKeyHdr(), BufferString("Info for '",fname_.buf(),"'") );
-    iop.add( IOPar::sKeySubHdr(), "General info" );
-    const int nrtrcs = size();
-    if ( nrtrcs < 1 )
-	{ iop.add( "Number of traces found", "0" ); return; }
+    filenames_.erase();
+    cumsizes_.erase();;
 
-    int nr = nrNullTraces();
-    BufferString nrtrcsstr( "", nrtrcs );
-    if ( nr < 1 )
-	nrtrcsstr += " (none null; ";
+    totalsz_ = 0;
+    int nrfiles = 0;
+    if ( !par.get( sKeyNrFiles, nrfiles ) )
+	return false;
+
+    for ( int ifile=0; ifile<nrfiles; ifile++ )
+    {
+	BufferString key("File ");
+	key += ifile;
+
+	PtrMan<IOPar> filepars = par.subselect( key.buf() );
+	if ( !filepars )
+	    return false;
+
+	BufferString filenm;
+	if ( !filepars->get( sKey::FileName, filenm ) )
+	    return false;
+
+	od_int64 size;
+	if ( !filepars->get( sKey::Size, size ) )
+	    return false;
+
+	filenames_.add( filenm );
+	cumsizes_ += totalsz_;
+	totalsz_ += size;
+    }
+
+    Seis::getFromPar(par,geom_);
+
+    par.getYN( sKeyRev1Marked, isrev1_ );
+    par.get( sKeySampling, sampling_ );
+    par.get( sKeyTraceSize, trcsz_ );
+    par.get( sKeyNrStanzas, nrstanzas_ );
+    par.get( sKeyNrUsable, nrusable_ );
+
+    return true;
+}
+
+
+
+void SEGY::FileDataSet::fillPar( IOPar& par ) const
+{
+    const int nrfiles = nrFiles();
+    par.set( sKeyNrFiles, nrfiles );
+    par.setYN( sKeyRev1Marked, isrev1_ );
+    par.set( sKeySampling, sampling_ );
+    par.set( sKeyTraceSize, trcsz_ );
+    par.set( sKeyNrStanzas, nrstanzas_ );
+    par.set( sKeyNrUsable, nrusable_ );
+    Seis::putInPar( geom_, par );
+
+    for ( int ifile=0; ifile<nrfiles; ifile++ )
+    {
+	IOPar filepars;
+	filepars.set( sKey::FileName, fileName(ifile) );
+	const od_int64 nextsize = ifile<nrfiles-1
+	    ? cumsizes_[ifile+1]
+	    : totalsz_;
+
+	const od_int64 size = nextsize-cumsizes_[ifile];
+	filepars.set( sKey::Size, size );
+
+	BufferString key("File ");
+	key += ifile;
+	par.mergeComp( filepars, key.buf() );
+    }
+}
+
+
+FixedString SEGY::FileDataSet::fileName( int idx ) const
+{
+    if ( !filenames_.validIdx(idx) )
+	return sKey::EmptyString;
+
+    return filenames_[idx]->buf();
+}
+
+
+
+int SEGY::FileDataSet::nrFiles() const
+{ return filenames_.size(); }
+
+
+void SEGY::FileDataSet::addFile( const char* file )
+{
+    filenames_.add( file );
+    cumsizes_ += totalsz_;
+}
+
+
+bool SEGY::FileDataSet::addTrace( int fileidx, const Seis::PosKey& pk,
+				  const Coord& crd, bool usable )
+{
+    if ( !filenames_.validIdx(fileidx) )
+	return false;
+
+    if ( storeddata_ )
+    {
+	if ( !storeddata_->add( pk, usable ) )
+	    return false;
+    }
     else
-	{ nrtrcsstr += " ("; nrtrcsstr += nr; nrtrcsstr += " null; "; }
-    nr = nrUsableTraces();
-    if ( nr == nrtrcs )
-	nrtrcsstr += "all usable)";
+    {
+	keys_ += pk;
+	usable_ += usable;
+    }
+
+    if ( indexer_ ) indexer_->add( pk, totalsz_ );
+    if ( Seis::is2D(geom_) && coords_ )
+	coords_->set( pk.trcNr(), crd );
+
+    totalsz_ ++;
+
+    if ( usable )
+	nrusable_++;
+
+    return true;
+}
+
+
+SEGY::FileDataSet::TrcIdx SEGY::FileDataSet::getFileIndex( od_int64 idx ) const
+{
+    SEGY::FileDataSet::TrcIdx res;
+    if ( idx>=0 )
+    {
+	IdxAble::findPos( cumsizes_.arr(), cumsizes_.size(), idx, -1,
+			  res.filenr_ );
+	res.trcidx_ = idx - cumsizes_[res.filenr_];
+    }
+
+    return res;
+}
+
+
+
+bool SEGY::FileDataSet::readVersion1( ascistream& astrm )
+{
+    totalsz_ = 0;
+    cumsizes_.erase();
+    keys_.erase();
+    usable_.erase();
+
+    int nrfiles = 0;
+    segypars_.get( sKeyNrFiles, nrfiles );
+    Seis::GeomType gt;
+    if ( !Seis::getFromPar(segypars_,gt) )
+	return false;
+    
+    for ( int idx=0; idx<nrfiles; idx++ )
+    {
+	if ( !readVersion1File(astrm) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+void SEGY::FileDataSet::save2DCoords( bool yn )
+{
+    if ( yn==((bool)coords_) )
+	return;
+
+    if ( !coords_ ) coords_ = new SortedTable<int,Coord>;
     else
-	{ nrtrcsstr += nr; nrtrcsstr += " usable)"; }
-    iop.add( "Number of traces found", nrtrcsstr );
-    iop.add( "Number of samples in file", trcsz_ );
-    const Interval<float> zrg( sampling_.start,
-	    		       sampling_.start + (trcsz_-1)*sampling_.step );
-    iop.add( "Z range in file", zrg.start, zrg.stop );
-    iop.add( "Z step in file", sampling_.step );
-    iop.addYN( sKeyRev1Marked, isrev1_ );
-    if ( isrev1_ && nrstanzas_ > 0 )
-	iop.add( "Number of REV.1 extra stanzas", nrstanzas_ );
+    {
+	delete coords_;
+	coords_ = 0;
+    }
+}
 
-    int firstok = 0;
-    for ( ; firstok<nrtrcs; firstok++ )
-	if ( isUsable(firstok) ) break;
-    if ( firstok >= nrtrcs ) return;
 
-    HorSampling hs( false ); hs.start = hs.stop = binID(firstok);
-    Interval<int> nrrg( trcNr(firstok), trcNr(firstok) );
-    const Coord c0( coord(firstok) );
-    Interval<double> xrg( c0.x, c0.x ), yrg( c0.y, c0.y );
-    Interval<float> offsrg( offset(firstok), offset(firstok) );
-    Interval<float> azimrg( azimuth(firstok), azimuth(firstok) );
-    for ( int idx=firstok+1; idx<size(); idx++ )
-    {
-	if ( !isUsable(idx) ) continue;
-	hs.include( binID(idx) );
-	nrrg.include( trcNr(idx) );
-	const Coord c( coord(idx) );
-	xrg.include( c.x ); yrg.include( c.y );
-	offsrg.include( offset(idx) );
-	azimrg.include( azimuth(idx) );
-    }
+Coord SEGY::FileDataSet::get2DCoord( int nr ) const
+{
+    Coord res = Coord::udf();
+    if ( coords_ )
+	coords_->get( nr, res );
 
-    iop.add( IOPar::sKeySubHdr(), "Ranges" );
-    if ( Seis::is2D(geom_) )
-	iop.add( "Trace number range", nrrg.start, nrrg.stop );
-    else
-    {
-	iop.add( "Inline range", hs.start.inl, hs.stop.inl );
-	iop.add( "Crossline range", hs.start.crl, hs.stop.crl );
-    }
-    if ( isRich() )
-    {
-	iop.add( "X range", xrg.start, xrg.stop );
-	iop.add( "Y range", yrg.start, yrg.stop );
-    }
-    if ( Seis::isPS(geom_) )
-    {
-	iop.add( "Offset range", offsrg.start, offsrg.stop );
-	if ( isRich() )
-	    iop.add( "Azimuth range", azimrg.start, azimrg.stop );
-    }
+    return res;
 }
 
 
 #define mErrRet(s) { ErrMsg(s); return false; }
 
-bool SEGY::FileData::getFrom( ascistream& astrm )
+bool SEGY::FileDataSet::readVersion1File( ascistream& astrm )
 {
-    erase(); fname_.setEmpty(); trcsz_ = -1;
-    bool isasc = false; bool isrich = false;
+    BufferString fname;
+    int trcsz = -1;
+    bool isasc = false;
+    bool isrich = false;
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(sKey::FileName) )
-	    fname_ = astrm.value();
+	    fname = astrm.value();
 	if ( astrm.hasKeyword(sKey::Geometry) )
-	    geom_ = Seis::geomTypeOf( astrm.value() );
-	else if ( astrm.hasKeyword(sKeyTraceSize) )
-	    trcsz_ = astrm.getIValue();
-	else if ( astrm.hasKeyword(sKeyFormat) )
-	    segyfmt_ = astrm.getIValue();
-	else if ( astrm.hasKeyword(sKeyNrStanzas) )
-	    nrstanzas_ = astrm.getIValue();
-	else if ( astrm.hasKeyword(sKeyRev1Marked) )
-	    isrev1_ = astrm.getYN();
-	else if ( astrm.hasKeyword(sKeySampling) )
 	{
-	    sampling_.start = astrm.getFValue(0);
-	    sampling_.step = astrm.getFValue(1);
+	    const Seis::GeomType geom = Seis::geomTypeOf( astrm.value() );
+	    if ( filenames_.size()==0 )
+		geom_ = geom;
+	    else if ( geom!=geom_ )
+		return false;
 	}
+	else if ( astrm.hasKeyword(sKeyTraceSize) )
+	    trcsz = astrm.getIValue();
 	else if ( astrm.hasKeyword(sKeyStorageType) )
 	{
 	    isasc = *astrm.value() == 'A';
@@ -189,14 +373,19 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 		isrich = *fms[1] == 'R';
 	}
     }
-    if ( fname_.isEmpty() )
+
+    if ( fname.isEmpty() )
 	mErrRet("No filename found in header")
-    else if ( trcsz_ < 1 )
+    else if ( trcsz < 1 )
 	mErrRet("Invalid trace size in header")
+
+    addFile( fname.str() );
 
     const bool is2d = Seis::is2D( geom_ );
     const bool isps = Seis::isPS( geom_ );
     BinID bid;
+
+    const int fileidx = nrFiles()-1;
 
     if ( isasc )
     {
@@ -204,26 +393,22 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 
 	while ( !atEndOfSection(astrm.next()) )
 	{
+	    Seis::PosKey pk;
+	    Coord crd( Coord::udf() );
 	    keyw = astrm.keyWord(); val = astrm.value();
-	    RichTraceInfo* rti = isrich ? new RichTraceInfo( geom_ ) : 0;
-	    TraceInfo* ti = rti ? rti : new TraceInfo( geom_ );
 	    if ( is2d )
-		ti->pos_.setTrcNr( keyw.getIValue(0) );
+		pk.setTrcNr( keyw.getIValue(0) );
 	    else
-		ti->pos_.binID().use( keyw[0] );
+		pk.binID().use( keyw[0] );
 	    if ( isps )
-		ti->pos_.setOffset( keyw.getFValue(1) );
+		pk.setOffset( keyw.getFValue(1) );
 
 	    const char ch( *val[0] );
-	    ti->usable_ = ch != 'U';
+	    const bool usable = ch != 'U';
 	    if ( isrich )
-	    {
-		rti->coord_.use( val[1] );
-		rti->azimuth_ = val.getFValue( 2 );
-		rti->null_ = ch == 'N';
-	    }
+		crd.use( val[1] );
 
-	    *this += ti;
+	    addTrace( fileidx, pk, crd, usable );
 	}
     }
     else
@@ -235,6 +420,7 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 	if ( isrich )
 	    entrylen += 2*sizeof(double) + sizeof(float);
 	char* buf = new char [entrylen];
+	Coord crd( Coord::udf() );
 
 	while ( strm.good() )
 	{
@@ -243,9 +429,7 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 		{ strm.ignore( 1 ); break; }
 
 	    strm.read( buf, entrylen );
-	    RichTraceInfo* rti = is2d ? new RichTraceInfo( geom_ ) : 0;
-	    TraceInfo* ti = rti ? rti : new TraceInfo( geom_ );
-	    ti->usable_ = buf[0] != 'U';
+	    const bool usable = buf[0] != 'U';
 
 	    char* bufpos = buf + 1;
 
@@ -255,26 +439,24 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 #else
 # define mGetVal(attr,typ) { SwapBytes(bufpos,sizeof(typ)); mGtVal(attr,typ); }
 #endif
+	    Seis::PosKey pk;
 
 	    if ( is2d )
-		mGetVal(ti->pos_.trcNr(),int)
+		mGetVal(pk.trcNr(),int)
 	    else
 	    {
-		mGetVal(ti->pos_.inLine(),int)
-		mGetVal(ti->pos_.xLine(),int)
+		mGetVal(pk.inLine(),int)
+		mGetVal(pk.xLine(),int)
 	    }
 	    if ( isps )
-		mGetVal(ti->pos_.offset(),float)
-
+		mGetVal(pk.offset(),float)
 	    if ( isrich )
 	    {
-		mGetVal(rti->coord_.x,double);
-		mGetVal(rti->coord_.y,double);
-		mGetVal(rti->azimuth_,double);
-		rti->null_ = buf[0] == 'N';
+		mGetVal( crd.x, double );
+		mGetVal( crd.y, double );
 	    }
 
-	    *this += ti;
+	    addTrace( fileidx, pk, crd, usable );
 	}
 
 	delete [] buf;
@@ -285,118 +467,98 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 }
 
 
-bool SEGY::FileData::putTo( ascostream& astrm ) const
+
+void SEGY::FileDataSet::setAuxData( const Seis::GeomType& gt,
+				    const SEGYSeisTrcTranslator& tr )
 {
-    const bool isrich = !isEmpty() && (*this)[0]->isRich();
+    geom_ = gt;
 
-    astrm.put( sKey::FileName, fname_ );
-    astrm.put( sKey::Geometry, Seis::nameOf(geom_) );
-    astrm.put( sKeyTraceSize, trcsz_ );
-    astrm.put( sKeySampling, sampling_.start, sampling_.step );
-    astrm.put( sKeyFormat, segyfmt_ );
-    astrm.putYN( sKeyRev1Marked, isrev1_ );
+    trcsz_ = tr.inpNrSamples();
+    sampling_ = tr.inpSD();
+    isrev1_ = tr.isRev1();
+    nrstanzas_ = tr.binHeader().nrstzs;
+}
+
+
+void SEGY::FileDataSet::getReport( IOPar& iop ) const
+{
+    iop.add( IOPar::sKeySubHdr(), "General info" );
+    if ( totalsz_ < 1 )
+    { iop.add( "Number of traces found", "0" ); return; }
+
+    BufferString nrtrcsstr;
+
+    if ( nrusable_ == totalsz_ )
+	nrtrcsstr += "all usable)";
+    else
+    { nrtrcsstr += nrusable_; nrtrcsstr += " usable)"; }
+    iop.add( "Number of traces found", nrtrcsstr );
+    iop.add( "Number of samples in file", trcsz_ );
+    const Interval<float> zrg( sampling_.interval(trcsz_) );
+    iop.add( "Z range in file", zrg.start, zrg.stop );
+    iop.add( "Z step in file", sampling_.step );
+    iop.addYN( "File marked as REV. 1", isrev1_ );
     if ( isrev1_ && nrstanzas_ > 0 )
-	astrm.put( sKeyNrStanzas, nrstanzas_ );
-    FileMultiString fms( writeascii ? "Ascii" : "Binary" );
-    if ( isrich ) fms += "Rich";
-    astrm.put( sKeyStorageType, fms );
-    astrm.newParagraph();
+	iop.add( "Number of REV.1 extra stanzas", nrstanzas_ );
 
-    const bool is2d = Seis::is2D( geom_ );
-    const bool isps = Seis::isPS( geom_ );
-
-    if ( writeascii )
+    int firstok = 0;
+    bool usable;
+    Seis::PosKey pk;
+    for ( ; firstok<totalsz_; firstok++ )
     {
-	FileMultiString keyw; FileMultiString val;
-	for ( int itrc=0; itrc<size(); itrc++ )
-	{
-	    const TraceInfo& ti = *(*this)[itrc];
-	    keyw.setEmpty();
-	    if ( is2d )
-		keyw += ti.trcNr();
-	    else
-		ti.binID().fill( keyw.buf() );
-	    if ( isps )
-		keyw += ti.offset();
-
-	    val = ti.usable_ ? (ti.isNull() ? "Null" : "OK") : "Unusable";
-	    if ( isrich )
-	    {
-		BufferString s( 128, true );
-		ti.coord().fill( s.buf() ); val += s;
-		val += ti.azimuth();
-	    }
-	    astrm.put( keyw.buf(), val.buf() );
-	}
+	getDetails( firstok, pk, usable );
+	if ( usable ) 
+	    break;
     }
+	
+    if ( firstok >= totalsz_ ) return;
+
+    HorSampling hs( false ); hs.start = hs.stop = pk.binID();
+    Interval<int> nrrg( pk.trcNr(), pk.trcNr() );
+    Interval<float> offsrg( pk.offset(), pk.offset() );
+
+    for ( int idx=firstok+1; idx<totalsz_; idx++ )
+    {
+	getDetails( firstok, pk, usable );
+	if ( !usable )
+	    continue;
+	hs.include( pk.binID() );
+	nrrg.include( pk.trcNr() );
+	offsrg.include( pk.offset() );
+    }
+
+    iop.add( IOPar::sKeySubHdr(), "Ranges" );
+    if ( Seis::is2D(geom_) )
+	iop.add( "Trace number range", nrrg.start, nrrg.stop );
     else
     {
-	std::ostream& strm = astrm.stream();
-	for ( int itrc=0; itrc<size(); itrc++ )
-	{
-	    const TraceInfo& ti = *(*this)[itrc];
-	    const char ch = ti.usable_ ? (ti.isNull() ? 'N' : 'O') : 'U';
-	    strm.write( &ch, 1 );
-
-#define mPutVal(attr,typ) \
-	    { \
-		typ tmp; tmp = ti.attr; \
-		strm.write( (const char*)(&tmp), sizeof(typ) ); \
-	    }
-	    if ( is2d )
-		mPutVal(trcNr(),int)
-	    else
-		{ mPutVal(pos_.inLine(),int); mPutVal(pos_.xLine(),int) }
-	    if ( isps )
-		mPutVal(offset(),float)
-	    if ( isrich )
-	    {
-		mPutVal(coord().x,double);
-		mPutVal(coord().y,double);
-		mPutVal(azimuth(),float);
-	    }
-	}
-
-	strm << "\n";
+	iop.add( "Inline range", hs.start.inl, hs.stop.inl );
+	iop.add( "Crossline range", hs.start.crl, hs.stop.crl );
     }
 
-    astrm.newParagraph();
-    return astrm.stream().good();
+    if ( Seis::isPS(geom_) )
+	iop.add( "Offset range", offsrg.start, offsrg.stop );
 }
 
 
-SEGY::FileDataSet& SEGY::FileDataSet::operator =( const SEGY::FileDataSet& fds )
+bool SEGY::FileDataSet::getDetails( od_int64 idx, Seis::PosKey& pk,
+				    bool& usable ) const
 {
-    if ( this != &fds )
-    {
-	deepErase( *this );
-	deepCopy( *this, fds );
-	pars_ = fds.pars_;
-    }
-    return *this;
-}
+    if ( idx<0 || idx>=totalsz_ )
+	return false;
 
+    if ( storeddata_ )
+	return storeddata_->getKey( idx, pk, usable );
 
-bool SEGY::FileDataSet::toNext( SEGY::FileDataSet::TrcIdx& ti, bool nll,
-				bool unu ) const
-{
-    if ( ti.filenr_ < 0 )
-	{ ti.trcidx_ = -1; ti.filenr_= 0; }
-
-    if ( isEmpty() || ti.filenr_ >= size() )
-	{ ti.filenr_ = -1; ti.trcidx_ = 0; return false; }
-
-    ti.trcidx_++;
-    if ( ti.trcidx_ >= (*this)[ti.filenr_]->size() )
-	{ ti.filenr_++; ti.trcidx_ = -1; return toNext( ti, nll, unu ); }
-
-    if ( nll && unu )
-	return true;
-
-    const FileData& fd = *(*this)[ti.filenr_];
-    if ( (!nll && fd.isNull(ti.trcidx_))
-      || (!unu && !fd.isUsable(ti.trcidx_)) )
-	return toNext( ti, nll, unu );
+    pk = keys_[idx];
+    usable = usable_[idx];
 
     return true;
+}
+
+
+void SEGY::FileDataSet::setIndexer( Seis::PosIndexer* n )
+{
+    indexer_ = n;
+    if ( indexer_ ) indexer_->empty();
 }

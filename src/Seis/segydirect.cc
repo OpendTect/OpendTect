@@ -4,23 +4,29 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.22 2010-06-24 21:05:23 cvskris Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.23 2010-06-30 17:17:28 cvskris Exp $";
 
 #include "segydirectdef.h"
 
+#include "ascstream.h"
 #include "datainterp.h"
 #include "datachar.h"
-#include "segyfiledata.h"
-#include "seisposindexer.h"
+#include "file.h"
+#include "filepath.h"
 #include "idxable.h"
-#include "strmoper.h"
-#include "strmprov.h"
-#include "ascstream.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "keystrs.h"
 #include "offsetazimuth.h"
 #include "posinfo.h"
+#include "segyfiledata.h"
+#include "segyscanner.h"
+#include "seispsioprov.h"
+#include "seisposindexer.h"
+#include "strmoper.h"
+#include "strmprov.h"
 #include "survinfo.h"
-#include "filepath.h"
+
 #include <iostream>
 
 
@@ -37,131 +43,44 @@ const char* DirectDef::sKeyInt64DataChar = "Int64 datachar";
 class PosKeyList : public Seis::PosKeyList
 {
 public:
-virtual FileDataSet::TrcIdx find( const Seis::PosKey& pk,
-			  const Seis::PosIndexer& idxer,
-       			  bool chkoffs ) const			= 0;
-};
 
-class StreamPosKeyList : public PosKeyList
-{
-public:
-
-StreamPosKeyList( const char* fnm, od_int64 start, TypeSet<od_int64>& csize,
-       		  od_int64 totsz )
-    : start_( start )
-    , cumszs_( csize )
-    , sd_( StreamProvider(fnm).makeIStream() )
-    , totsz_( totsz )
-{ }
-
-
-od_int64 size() const { return totsz_; }
-
-
-Seis::PosKey key( od_int64 nr ) const
-{
-    std::istream* strm = sd_.istrm;
-    if ( !strm || !strm->good() || nr<0 )
-	return Seis::PosKey::undef();
-
-    static const int unitsz = sizeof(int)+sizeof(int)+sizeof(int)+sizeof(bool);
-    StrmOper::seek( *strm, start_+nr*unitsz, std::ios::beg );
-    BinID bid;
-    int offsetazimuth;
-    //TODO fix endianness
-    strm->read( (char*) &bid.inl, sizeof( bid.inl ) );
-    strm->read( (char*) &bid.crl, sizeof( bid.crl ) );
-    strm->read( (char*) &offsetazimuth, sizeof( offsetazimuth ) );
-
-    if ( !strm->good() )
-	return Seis::PosKey::undef();
-
-    OffsetAzimuth oa;
-    oa.setFrom( offsetazimuth );
-
-    Seis::PosKey res( bid, oa.offset() );
-    return res;
-}
-
-
-FileDataSet::TrcIdx find( const Seis::PosKey& pk,
-			  const Seis::PosIndexer& idxer,
-       			  bool chkoffs ) const
-{
-    od_int64 nr = idxer.findFirst( pk, chkoffs );
-    FileDataSet::TrcIdx tidx;
-    if ( nr < 0 ) return tidx;
-
-    IdxAble::findPos( cumszs_.arr(), cumszs_.size(), nr, -1, tidx.filenr_ );
-    tidx.trcidx_ = nr - cumszs_[tidx.filenr_];
-    return tidx;
-}
-
-    StreamData		sd_;
-    TypeSet<od_int64>	cumszs_;
-    od_int64		start_;
-    od_int64		totsz_;
-};
-
-class FDSPosKeyList : public PosKeyList
-{
-public:
-
-FDSPosKeyList()
+PosKeyList()
 {
     setFDS( 0 );
 }
 
 void setFDS( const FileDataSet* fds )
 {
-    fds_ = fds; totsz_ = 0; cumszs_.erase();
-    if ( !fds_ ) return;
-
-    for ( int idx=0; idx<fds_->size(); idx++ )
-    {
-	const int sz = (*fds_)[idx]->size();
-	cumszs_ += totsz_;
-	totsz_ += sz;
-    }
-
+    fds_ = fds; 
 }
 
-od_int64 size() const
-{
-    return totsz_;
-}
+od_int64 size() const { return fds_->size(); }
 
 Seis::PosKey key( od_int64 nr ) const
 {
-    if ( !fds_ || nr < 0 )              return Seis::PosKey::undef();
+    Seis::PosKey pk;
+    bool usable;
+    if ( !fds_ || !fds_->getDetails( nr, pk, usable ) || !usable )
+	return Seis::PosKey::undef();
 
-    int idx;
-    IdxAble::findPos( cumszs_.arr(), cumszs_.size(), nr, -1, idx );
-    if ( idx < 0 )                      return Seis::PosKey::undef();
-
-    const FileData& fd = *(*fds_)[idx];
-    const int relidx = nr - cumszs_[idx];
-    if ( relidx >= fd.size() )          return Seis::PosKey::undef();
-    const SEGY::TraceInfo& ti = *fd[relidx];
-
-    if ( !ti.isUsable() )               return Seis::PosKey::undef();
-    if ( !Seis::is2D( fd.geom_ ) )
+    const Seis::GeomType geom = fds_->geomType();
+    if ( !Seis::is2D( geom ) )
     {
-	const BinID bid = ti.pos_.binID();
+	const BinID bid = pk.binID();
 	if ( bid.inl<=0 || bid.crl<=0 )
 	    return Seis::PosKey::undef();
     }
     else
     {
-	const int trcnr = ti.pos_.trcNr();
+	const int trcnr = pk.trcNr();
 	if ( trcnr<0 )
 	    return Seis::PosKey::undef();
     }
 
-    if ( Seis::isPS( fd.geom_ ) && ti.pos_.offset()<0 )
+    if ( Seis::isPS( geom ) && pk.offset()<0 )
 	return Seis::PosKey::undef();
 
-    return ti.pos_;
+    return pk;
 }
 
 FileDataSet::TrcIdx find( const Seis::PosKey& pk,
@@ -169,15 +88,9 @@ FileDataSet::TrcIdx find( const Seis::PosKey& pk,
        			  bool chkoffs ) const
 {
     od_int64 nr = idxer.findFirst( pk, chkoffs );
-    FileDataSet::TrcIdx tidx;
-    if ( nr < 0 ) return tidx;
-
-    IdxAble::findPos( cumszs_.arr(), cumszs_.size(), nr, -1, tidx.filenr_ );
-    tidx.trcidx_ = nr - cumszs_[tidx.filenr_];
-    return tidx;
+    return fds_->getFileIndex( nr );
 }
 
-    TypeSet<od_int64>	cumszs_;
     od_int64		totsz_;
     const FileDataSet*	fds_;
 };
@@ -187,11 +100,11 @@ FileDataSet::TrcIdx find( const Seis::PosKey& pk,
 #define mDefMembInitList \
     : fds_(0) \
     , myfds_(0) \
-    , curfidx_(-1) \
     , keylist_( 0 ) \
     , cubedata_( *new PosInfo::CubeData ) \
     , linedata_( *new PosInfo::Line2DData ) \
-    , indexer_( 0 )
+    , indexer_( 0 ) \
+    , outstreamdata_( 0 )
 
 SEGY::DirectDef::DirectDef()
     mDefMembInitList
@@ -213,52 +126,38 @@ SEGY::DirectDef::~DirectDef()
     delete myfds_;
     delete keylist_;
     delete indexer_;
+    delete outstreamdata_;
 }
 
 
-void SEGY::DirectDef::setData( FileDataSet* fds )
-{
-    if ( fds != myfds_ )
-	delete myfds_;
-
-    fds_ = myfds_ = fds;
-
-    delete keylist_;
-    delete indexer_;
-
-    SEGY::FDSPosKeyList* keylist = new SEGY::FDSPosKeyList;
-    keylist_ = keylist;
-    keylist->setFDS( fds_ );
-    indexer_ = new Seis::PosIndexer( *keylist_, true, true );
-    getPosData( cubedata_ );
-    getPosData( linedata_ );
-}
-
-
-void SEGY::DirectDef::setData( const FileDataSet& fds, bool nc )
+void SEGY::DirectDef::setData( FileDataSet& fds )
 {
     if ( &fds != myfds_ )
 	delete myfds_;
-    if ( nc )
-	{ myfds_ = 0; fds_ = &fds; }
-    else
-	fds_ = myfds_ = new FileDataSet( fds );
+
+    myfds_ = 0;
+
+    fds_ = &fds;
 
     delete keylist_;
     delete indexer_;
 
-    SEGY::FDSPosKeyList* keylist = new SEGY::FDSPosKeyList;
-    keylist_ = keylist;
-    keylist->setFDS( fds_ );
-    indexer_ = new Seis::PosIndexer( *keylist_, true, true );
-    getPosData( cubedata_ );
-    getPosData( linedata_ );
+    keylist_ = new SEGY::PosKeyList;
+    keylist_->setFDS( fds_ );
+    indexer_ = new Seis::PosIndexer( *keylist_, false, true );
+    fds.setIndexer( indexer_ );
 }
 
 
 SEGY::FileDataSet::TrcIdx SEGY::DirectDef::find( const Seis::PosKey& pk,
 						 bool chkoffs ) const
 {
+    if ( !keylist_ || !indexer_ )
+    {
+	SEGY::FileDataSet::TrcIdx res;
+	return res;
+    }
+
     return keylist_->find( pk, *indexer_, chkoffs );
 }
 
@@ -290,139 +189,104 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
     int version = 1;
     iop1.get( sKey::Version, version );
     if ( version==1 )
-	return readV1FromFile( iop1, astrm, fnm );
-
-    BufferString dc;
-    mGetInterp( sKeyFloatDataChar, float, floatinterp );
-    mGetInterp( sKeyInt64DataChar, od_int64, int64interp );
-    mGetInterp( sKeyInt32DataChar, od_int32, int32interp );
-
-    segypars_.getFrom( astrm );
-
-    od_int64 datastart = 0; 
-    od_int64 textpars = 0; 
-    od_int64 cubedatastart = 0;
-    od_int64 indexstart = 0; 
-
-    std::istream& strm = *sd.istrm;
-    strm.read( (char*) &datastart, sizeof(datastart) );
-    strm.read( (char*) &textpars, sizeof(textpars) );
-    strm.read( (char*) &cubedatastart, sizeof(cubedatastart) );
-    strm.read( (char*) &indexstart, sizeof(indexstart) );
-    if ( !strm.good() )
-	return false;
-
-    StrmOper::seek( strm, textpars, std::ios::beg );
-    ascistream astrm2( strm, false );
-
-    IOPar iop2; iop2.getFrom( astrm2 );
-    int nrfiles = 0;
-    iop2.get( sKeyNrFiles, nrfiles );
-    if ( !strm.good() )
-	return false;
-
-    filenames_.erase();
-    TypeSet<od_int64> cumsizes;
-    od_int64 accumulatedsize = 0;
-    for ( int ifile=0; ifile<nrfiles; ifile++ )
     {
-	BufferString key("File ");
-	key += ifile;
+	delete myfds_;
+	fds_ = myfds_ = new FileDataSet( iop1, astrm );
 
-	PtrMan<IOPar> filepars = iop2.subselect( key.buf() );
-	if ( !filepars )
-	    return false;
+	keylist_ = new SEGY::PosKeyList;
+	keylist_->setFDS( fds_ );
 
-	BufferString filenm;
-	if ( !filepars->get( sKey::FileName, filenm ) )
-	    return false;
-
-	od_int64 size;
-	if ( !filepars->get( sKey::Size, size ) )
-	    return false;
-
-	filenames_.add( filenm );
-	cumsizes += accumulatedsize;
-	accumulatedsize += size;
+	indexer_ = new Seis::PosIndexer( *keylist_, true, true );
+	getPosData( cubedata_ );
+	getPosData( linedata_ );
     }
-
-    const od_int64 curpos = strm.tellg();
-    if ( curpos!=cubedatastart )
-	StrmOper::seek( strm, cubedatastart, std::ios::beg );
-
-    if ( !cubedata_.read( strm, false ) || !linedata_.read( strm, false ) )
-	return false;
-
-    delete myfds_;
-    fds_ = myfds_ = 0;
-
-    delete keylist_;
-    delete indexer_;
-
-    keylist_ = new SEGY::StreamPosKeyList( fnm, datastart, cumsizes,
-	    				   accumulatedsize );
-    indexer_ = new Seis::PosIndexer( *keylist_, false, true );
-    if ( !indexer_->readFrom( fnm, indexstart, false, int32interp, int64interp,
-	 floatinterp ) )
-	return false;
-
-    return true;
-}
-
-
-bool SEGY::DirectDef::readV1FromFile( const IOPar& iop, ascistream& astrm,
-				      const char* fnm ) 
-{
-    int nrfiles = 0;
-    iop.get( sKeyNrFiles, nrfiles );
-    Seis::GeomType gt;
-    if ( !Seis::getFromPar(iop,gt) )
-	mErrRet(BufferString("Missing crucial info in '",fnm,"'"))
-    
-    FileDataSet* fds = new FileDataSet( iop );
-    for ( int idx=0; idx<nrfiles; idx++ )
+    else
     {
-	FileData* fd = new FileData(0,gt);
-	if ( !fd->getFrom(astrm) )
+	const char* readerror = "Cannot read file";
+	BufferString dc;
+
+	PtrMan<DataInterpreter<float> > floatinterp =
+	    DataInterpreter<float>::create(iop1,sKeyFloatDataChar,false );
+	PtrMan<DataInterpreter<od_int64> > int64interp =
+	    DataInterpreter<od_int64>::create(iop1,sKeyInt64DataChar,false );
+	PtrMan<DataInterpreter<od_int32> > int32interp =
+	    DataInterpreter<od_int32>::create(iop1,sKeyInt32DataChar,false );
+
+	IOPar segypars;
+	segypars.getFrom( astrm );
+
+	std::istream& strm = *sd.istrm;
+	const od_int64 datastart =
+	    DataInterpreter<od_int64>::get(int64interp,strm);
+	const od_int64 textpars =
+	    DataInterpreter<od_int64>::get(int64interp,strm);
+	const od_int64 cubedatastart =
+	    DataInterpreter<od_int64>::get(int64interp,strm);
+	const od_int64 indexstart =
+	    DataInterpreter<od_int64>::get(int64interp,strm);
+	if ( !strm.good() )
+	    mErrRet( readerror );
+
+	StrmOper::seek( strm, textpars, std::ios::beg );
+	ascistream astrm2( strm, false );
+
+	IOPar iop2;
+	iop2.getFrom( astrm2 );
+	if ( !strm.good() )
+	    mErrRet( readerror );
+
+	FixedString int32typestr = iop1.find( sKeyInt32DataChar );
+	DataCharacteristics int32type;
+	int32type.set( int32typestr );
+	FileDataSet* fds = new FileDataSet(segypars,fnm,datastart,int32type);
+	if ( !fds->usePar(iop2) )
 	{
-	    BufferString emsg( "Error reading " );
-	    if ( nrfiles > 1 )
-		{ emsg += idx+1; emsg += getRankPostFix(idx+1); emsg += " "; }
-	    emsg += "file data from '"; emsg += fnm; emsg += "'";
 	    delete fds;
-	    mErrRet(emsg)
+	    mErrRet( readerror );
 	}
-	*fds += fd;
+
+	const od_int64 curpos = strm.tellg();
+	if ( curpos!=cubedatastart )
+	    StrmOper::seek( strm, cubedatastart, std::ios::beg );
+
+	if ( !cubedata_.read( strm, false ) || !linedata_.read(strm,false) )
+	{
+	    delete fds;
+	    mErrRet( readerror );
+	}
+
+	delete keylist_;
+	delete indexer_;
+
+	delete myfds_;
+	fds_ = myfds_ = fds;
+
+	keylist_ = new SEGY::PosKeyList;
+	keylist_->setFDS( fds_ );
+
+	indexer_ = new Seis::PosIndexer( *keylist_, false, true );
+
+	if ( !indexer_->readFrom( fnm, indexstart, false, int32interp,
+		    		  int64interp, floatinterp ) )
+	    mErrRet( readerror );
     }
 
-    setData( fds );
     return true;
 }
 
 
 FixedString SEGY::DirectDef::fileName( int idx ) const
 {
-    if ( fds_ )
-    {
-	if ( fds_->validIdx( idx ) )
-	    return (*fds_)[idx]->fname_.buf();
-    }
-    else
-    {
-	if ( filenames_.validIdx( idx ) )
-	    return filenames_[idx]->buf();
-    }
+    if ( !fds_ )
+	return sKey::EmptyString;
 
-    return sKey::EmptyString;
+    return fds_->fileName( idx );
 }
 
 
-const IOPar& SEGY::DirectDef::segyPars() const
+const IOPar* SEGY::DirectDef::segyPars() const
 {
-    if ( fds_ )
-	return fds_->pars();
-
-    return segypars_;
+    return fds_ ? &fds_->segyPars() : 0;
 }
 
 #define mSetDc( par, type, string ) \
@@ -433,15 +297,14 @@ const IOPar& SEGY::DirectDef::segyPars() const
     par.set( string, dc )
 
 
-
-bool SEGY::DirectDef::writeToFile( const char* fnm ) const
+bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
 {
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() )
+    delete outstreamdata_;
+    outstreamdata_ = new StreamData( StreamProvider(fnm).makeOStream() );
+    if ( !outstreamdata_->usable() )
 	mErrRet(BufferString("Cannot open '",fnm,"' for write"))
 
-    const int nrfiles = fds_ ? fds_->size() : 0;
-    ascostream astrm( *sd.ostrm );
+    ascostream astrm( *outstreamdata_->ostrm );
     astrm.putHeader( sKeyFileType );
 
     IOPar iop1;
@@ -451,80 +314,71 @@ bool SEGY::DirectDef::writeToFile( const char* fnm ) const
     mSetDc( iop1, od_int32, sKeyInt32DataChar );
     mSetDc( iop1, float, sKeyFloatDataChar );
     iop1.putTo( astrm );
-    fds_->pars().putTo( astrm );
+    fds_->segyPars().putTo( astrm );
 
     std::ostream& strm = astrm.stream();
-    const od_uint64 headerstart = strm.tellp();
+    offsetstart_ = strm.tellp();
     
     //Reserve space for offsets, which are written at the end
-    od_int64 datastart = 0; 
-    od_int64 textpars = 0; 
-    od_int64 cubedatastart = 0; 
-    od_int64 indexstart = 0; 
+    datastart_ = 0; 
+    textparstart_ = 0; 
+    cubedatastart_ = 0; 
+    indexstart_ = 0; 
 
 #define mWriteOffsets \
-    strm.write( (const char*) &datastart, sizeof(datastart) ); \
-    strm.write( (const char*) &textpars, sizeof(textpars) ); \
-    strm.write( (const char*) &cubedatastart, sizeof(cubedatastart) ); \
-    strm.write( (const char*) &indexstart, sizeof(indexstart) )
+    strm.write( (const char*) &datastart_, sizeof(datastart_) ); \
+    strm.write( (const char*) &textparstart_, sizeof(textparstart_) ); \
+    strm.write( (const char*) &cubedatastart_, sizeof(cubedatastart_) ); \
+    strm.write( (const char*) &indexstart_, sizeof(indexstart_) )
 
     mWriteOffsets;
 
     //Write the data
-    datastart = strm.tellp();
-    for ( int ifile=0; ifile<nrfiles; ifile++ )
-    {
-	const SEGY::FileData& fd = *(*fds_)[ifile];
-	for ( int idx=0; idx<fd.size(); idx++ )
-	{
-	    const BinID bid = fd.binID( idx );
-	    strm.write( (const char*) &bid.inl, sizeof( bid.inl ) );
-	    strm.write( (const char*) &bid.crl, sizeof( bid.crl ) );
+    datastart_ = strm.tellp();
 
-	    const OffsetAzimuth oa( fd.offset( idx ), 0 );
-	    const int oaint = oa.asInt();
-	    strm.write( (const char*) &oaint, sizeof(oaint) );
-	    const bool usable = fd.isUsable( idx );
-	    strm.write( (const char*) &usable, sizeof(usable) );
-	}
-    }
+    return strm.good();
+}
 
-    strm << '\n'; //Just for nice formatting
 
-    textpars = strm.tellp();
+bool SEGY::DirectDef::writeFootersToFile() 
+{
+    if ( !outstreamdata_ )
+	return false;
+
+    std::ostream& strm = *outstreamdata_->ostrm;
+
+    strm << "\n!\n"; //Just for nice formatting
+
+    textparstart_ = strm.tellp();
     IOPar iop2;
-    iop2.set( sKeyNrFiles, nrfiles );
+    fds_->fillPar( iop2 );
 
-    for ( int ifile=0; ifile<nrfiles; ifile++ )
-    {
-	IOPar filepars;
-	const SEGY::FileData& fd = *(*fds_)[ifile];
-	filepars.set( sKey::FileName, fd.fname_ );
-	filepars.set( sKey::Size, fd.size() );
-	
-	BufferString key("File ");
-	key += ifile;
-	iop2.mergeComp( filepars, key.buf() );
-    }
-
-    ascostream astrm2( sd.ostrm );
+    ascostream astrm2( strm );
     iop2.putTo( astrm2 );
 
-    cubedatastart = strm.tellp();
+    cubedatastart_ = strm.tellp();
+
+    getPosData( cubedata_ );
+    getPosData( linedata_ );
 
     cubedata_.write( strm, false );
     linedata_.write( strm, false );
 
-    indexstart = strm.tellp();
+    indexstart_ = strm.tellp();
 
     indexer_->dumpTo( strm );
 
     const od_int64 eof = strm.tellp();
-    strm.seekp( headerstart, std::ios::beg  );
+    strm.seekp( offsetstart_, std::ios::beg  );
     mWriteOffsets;
 
     strm.seekp( eof, std::ios::beg );
-    return strm.good();
+    const bool res = strm.good();
+    outstreamdata_->close();
+    delete outstreamdata_;
+    outstreamdata_ = 0;
+
+    return res;
 }
 
 
@@ -569,16 +423,22 @@ void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
     nrrg.sort();
     for ( int nr=nrrg.start; nr<=nrrg.stop; nr++ )
     {
-	const FileDataSet::TrcIdx tidx = keylist_->find( Seis::PosKey(nr),
-		*indexer_, false );
-	if ( !tidx.isValid() ) continue;
+	const od_int64 tidx = indexer_->findFirst( Seis::PosKey(nr), false );
+	if ( tidx<0 )
+	    continue;
 
 	PosInfo::Line2DPos l2dpos( nr );
-	l2dpos.coord_ = (*(*fds_)[tidx.filenr_])[tidx.trcidx_]->coord();
+	l2dpos.coord_ = fds_->get2DCoord( nr );
 	ld.posns_ += l2dpos;
     }
-    const FileData& fd = *(*fds_)[0];
-    ld.zrg_ = fd.sampling_.interval( fd.trcsz_ );
+
+    ld.zrg_ = fds_->getSampling().interval( fds_->getTrcSz() );
+}
+
+
+std::ostream* SEGY::DirectDef::getOutputStream()
+{
+    return outstreamdata_ ? outstreamdata_->ostrm : 0;
 }
 
 
@@ -592,3 +452,139 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
     ret = fp.fullPath();
     return ret.buf();
 }
+
+
+SEGY::PreStackIndexer::PreStackIndexer( const MultiID& mid,
+					const char* line,
+					const FileSpec& sgyfile, bool is2d,
+				        const IOPar& segypar )
+    : Executor( "Pre Stack SEGY Indexer" )
+    , directdef_( 0 )
+    , ioobj_( IOM().get( mid ) )
+    , linename_( line )
+{
+    if ( !ioobj_ )
+	return;
+
+    scanner_ =
+	new SEGY::Scanner( sgyfile, is2d ? Seis::LinePS : Seis::VolPS,
+			   segypar );
+}
+
+SEGY::PreStackIndexer::~PreStackIndexer()
+{
+    delete ioobj_;
+    delete directdef_;
+    delete scanner_;
+}
+
+
+#undef mErrRet
+#define mErrRet( s1, s2 ) \
+{ \
+    msg_ = s1; \
+    msg_ += " "; \
+    msg_ += s2; \
+    return ErrorOccurred(); \
+}
+
+
+int SEGY::PreStackIndexer::nextStep()
+{
+    if ( !ioobj_ )
+    {
+	msg_ = "Cannot find output object.";
+	return ErrorOccurred();
+    }
+
+    if ( !directdef_ )
+    {
+	BufferString outfile = ioobj_->fullUserExpr( Conn::Write );
+	if ( !outfile )
+	{
+	    msg_ = "Cannot create output filename";
+	    return ErrorOccurred();
+	}
+
+	if ( !linename_.isEmpty() )
+	{
+	    if ( !File::isDirectory(outfile) )
+	    {
+		File::createDir(outfile);
+		if ( !File::isDirectory(outfile) )
+		    mErrRet("Cannot create directory for output:\n",outfile)
+	    }
+	    if ( !File::isWritable(outfile) )
+		mErrRet("Output directory is not writable:\n",outfile)
+
+	    outfile = SEGY::DirectDef::get2DFileName( outfile, linename_ );
+	}
+
+	if ( File::exists(outfile) && !File::isWritable(outfile) )
+	    mErrRet("Cannot overwrite output file:\n",outfile)
+
+	msg_ = "Setting up output indexing";
+	directdef_ = new SEGY::DirectDef;
+	directdef_->setData( scanner_->fileDataSet() );
+	if ( Seis::is2D(scanner_->geomType() ) )
+	    scanner_->fileDataSet().save2DCoords( true );
+
+	if ( !directdef_->writeHeadersToFile( outfile ) )
+	    mErrRet( "Cannot write to file", outfile )
+
+	scanner_->fileDataSet().setOutputStream(*directdef_->getOutputStream());
+	return MoreToDo();
+    }
+
+    msg_ = scanner_->message();
+    const int res = scanner_->nextStep();
+    if ( res==ErrorOccurred() )
+	msg_ = scanner_->message();
+    else if ( res==Finished() )
+    {
+	const SEGY::FileDataSet& fds = scanner_->fileDataSet();
+	if ( !fds.nrFiles() )
+	{
+	    IOM().permRemove( ioobj_->key() );
+	    msg_ = "No files scanned";
+	    return ErrorOccurred();
+	}
+
+	if ( fds.isEmpty() )
+	{
+	    IOM().permRemove( ioobj_->key() );
+	    msg_ = fds.nrFiles()>1
+		? "No traces found in any of the files"
+		: "No traces found in file";
+
+	    return ErrorOccurred();
+	}
+
+	if ( !directdef_->writeFootersToFile() )
+	{
+	    msg_ = "Cannot complete file output";
+	    return ErrorOccurred();
+	}
+
+	if ( !Seis::is2D(fds.geomType()) )
+	    SPSIOPF().mk3DPostStackProxy( *ioobj_ );
+    }
+
+    return res;
+}
+
+
+const char* SEGY::PreStackIndexer::message() const
+{ return msg_.buf(); }
+
+
+od_int64 SEGY::PreStackIndexer::nrDone() const
+{ return scanner_->nrDone(); }
+
+
+od_int64 SEGY::PreStackIndexer::totalNr() const
+{ return scanner_->totalNr(); }
+
+
+const char* SEGY::PreStackIndexer::nrDoneText() const
+{ return "Traces scanned"; }

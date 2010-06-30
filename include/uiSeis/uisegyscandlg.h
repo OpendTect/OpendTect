@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyscandlg.h,v 1.8 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.h,v 1.9 2010-06-30 17:17:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisegyreaddlg.h"
-namespace SEGY { class Scanner; }
+namespace SEGY { class Scanner; class PreStackIndexer; }
 class CtxtIOObj;
 class uiSeisSel;
 class uiSeis2DLineSel;
@@ -35,16 +35,15 @@ public :
 
 protected:
 
-    SEGY::Scanner*	scanner_;
-    bool		forsurvsetup_;
-    CtxtIOObj&		ctio_;
+    SEGY::PreStackIndexer*	indexer_;
+    SEGY::Scanner*		scanner_;
+    bool			forsurvsetup_;
+    CtxtIOObj&			ctio_;
 
-    uiSeisSel*		outfld_;
-    uiSeis2DLineSel*	lnmfld_;
+    uiSeisSel*			outfld_;
+    uiSeis2DLineSel*		lnmfld_;
 
-    virtual bool	doWork(const IOObj&);
-    bool		mkOutput(const char*,const char*);
-
+    virtual bool		doWork(const IOObj&);
 };
 
 

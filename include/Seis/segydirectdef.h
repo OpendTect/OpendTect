@@ -7,20 +7,24 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.14 2010-06-15 20:48:39 cvskris Exp $
+ RCS:		$Id: segydirectdef.h,v 1.15 2010-06-30 17:17:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "segyfiledata.h"
 #include "bufstringset.h"
+#include "executor.h"
 
+class StreamData;
+class IOObj;
 namespace Seis { class PosIndexer; }
 namespace PosInfo { class CubeData; class Line2DData; }
 
 
 namespace SEGY {
 
+class FileSpec;
 class Scanner;
 class FileDataSet;
 class PosKeyList;
@@ -33,18 +37,24 @@ public:
     			DirectDef();			//!< Create empty
     			DirectDef(const char*);	//!< Read from file
 			~DirectDef();
-    bool		isEmpty() const;
 
-    void		setData(FileDataSet*);
-    void		setData(const FileDataSet&,bool no_copy=false);
 
-    FixedString		fileName(int idx) const;
-    const IOPar&	segyPars() const;
-
-    FileDataSet::TrcIdx	find(const Seis::PosKey&,bool chkoffs) const;
-
+			//Functions to read/query
     bool		readFromFile(const char*);
-    bool		writeToFile(const char*) const;
+    const IOPar*	segyPars() const;
+    FileDataSet::TrcIdx	find(const Seis::PosKey&,bool chkoffs) const;
+    FixedString		fileName(int idx) const;
+
+    			//Functions to write
+    void		setData(FileDataSet&);
+    bool		writeHeadersToFile(const char*);
+    			/*!<Write the headers. After calling, the fds should
+			    be dumped into the stream. */
+    std::ostream*	getOutputStream();
+    bool		writeFootersToFile();
+    			/*!<After fds has been dumped, write the 
+			    remainder of the file */
+
     const char*		errMsg() const		{ return errmsg_.buf(); }
 
     static const char*	sKeyDirectDef;
@@ -53,13 +63,14 @@ public:
     static const char*	sKeyInt64DataChar;
     static const char*	sKeyInt32DataChar;
     static const char*	sKeyFloatDataChar;
+
     static const char*	get2DFileName(const char*,const char*);
 
     const PosInfo::CubeData&	cubeData() const { return cubedata_; }
     const PosInfo::Line2DData&	lineData() const { return linedata_; }
 
+
 protected:
-    bool		readV1FromFile(const IOPar&, ascistream&, const char* );
     void		getPosData(PosInfo::CubeData&) const;
     void		getPosData(PosInfo::Line2DData&) const;
 
@@ -68,19 +79,52 @@ protected:
     PosInfo::Line2DData& linedata_;
 
     const FileDataSet*	fds_;
-    BufferStringSet	filenames_;
-    IOPar		segypars_;
+    FileDataSet*	myfds_;
     SEGY::PosKeyList*	keylist_;
     Seis::PosIndexer*	indexer_;
 
-    int			curfidx_;
     mutable BufferString errmsg_;
 
-private:
-
-    FileDataSet*	myfds_;
+    StreamData*		outstreamdata_;
+    od_int64		offsetstart_;
+    od_int64		datastart_;
+    od_int64		textparstart_;
+    od_int64		cubedatastart_;
+    od_int64		indexstart_;
 };
 
-}
+
+/*!Scans a pre-stack file and creates an index file that can be read by OD. */
+mClass PreStackIndexer : public Executor
+{
+public:
+    			PreStackIndexer(const MultiID& mid,
+				const char* linename,
+				const FileSpec&,
+					bool is2d,const IOPar&);
+    			~PreStackIndexer();
+
+    int                 nextStep();
+
+    const char*         message() const;
+    od_int64            nrDone() const;
+    od_int64            totalNr() const;
+    const char*         nrDoneText() const;
+
+    const Scanner*	scanner() const { return scanner_; }
+
+protected:
+
+    IOObj*		ioobj_;
+    BufferString	linename_;
+
+    Scanner*		scanner_;
+    BufferString	msg_;
+    DirectDef*		directdef_;
+    
+};
+
+
+}; //Namespace
 
 #endif

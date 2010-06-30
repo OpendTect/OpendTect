@@ -7,111 +7,36 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.11 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: segyfiledata.h,v 1.12 2010-06-30 17:17:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
-#include "position.h"
-#include "seisposkey.h"
-#include "samplingdata.h"
-#include "manobjectset.h"
+#include "bufstringset.h"
 #include "iopar.h"
+#include "manobjectset.h"
+#include "position.h"
+#include "samplingdata.h"
+#include "seisposkey.h"
+#include "sortedtable.h"
+#include "thread.h"
 
 class ascostream;
+class DataCharacteristics;
+template <class T> class DataInterpreter;
+class SEGYSeisTrcTranslator;
+namespace Seis { class PosIndexer; }
  
 
 namespace SEGY
 {
 
-struct TraceInfo
-{
-			TraceInfo( Seis::GeomType gt=Seis::Vol )
-			    : pos_(gt), usable_(true)	{}
-    virtual		~TraceInfo()			{}
-    virtual TraceInfo*	clone() const		{ return new TraceInfo(*this); }
-    bool		operator ==( const TraceInfo& ti ) const
-			{ return pos_ == ti.pos_; }
 
-    Seis::PosKey	pos_;
-    bool		usable_;
-
-    inline BinID	binID() const		{ return pos_.binID(); }
-    inline int		trcNr() const		{ return pos_.trcNr(); }
-    inline float	offset() const		{ return pos_.offset(); }
-    inline bool		isUsable() const	{ return usable_; }
-
-    virtual bool	isRich() const		{ return false; }
-    virtual Coord	coord() const		{ return Coord(0,0); }
-    virtual float	azimuth() const		{ return 0; }
-    virtual bool	isNull() const		{ return false; }
-};
+/*!<Stores scanned data from SEGY-files. */
 
 
-struct RichTraceInfo : public TraceInfo
-{
-			RichTraceInfo( Seis::GeomType gt=Seis::Vol )
-			    : TraceInfo(gt), azimuth_(0), null_(false)	{}
-    virtual TraceInfo*	clone() const	{ return new RichTraceInfo(*this); }
-    bool		operator ==( const RichTraceInfo& ti ) const
-			{ return pos_ == ti.pos_; }
-    bool		operator ==( const TraceInfo& ti ) const
-			{ return pos_ == ti.pos_; }
-
-    virtual bool	isRich() const		{ return true; }
-    virtual Coord	coord() const		{ return coord_; }
-    virtual float	azimuth() const		{ return azimuth_; }
-    virtual bool	isNull() const		{ return null_; }
-
-    Coord		coord_;
-    float		azimuth_;
-    bool		null_;
-};
-
-
-/*\brief Data usually obtained by scanning a SEG-Y file. */
-
-mClass FileData : public ManagedObjectSet<TraceInfo>
-{
-public:
-
-    			FileData(const char* fnm,Seis::GeomType);
-    			FileData( const FileData& fd )
-			: ManagedObjectSet<TraceInfo>(false)	{ *this = fd; }
-    FileData&		operator =(const FileData&);
-
-    BufferString	fname_;
-    Seis::GeomType	geom_;
-    int			trcsz_;
-    SamplingData<float>	sampling_;
-    int			segyfmt_;
-    bool		isrev1_;
-    int			nrstanzas_;
-
-#define mSEGYFileDataDefFn(ret,nm) \
-    inline ret		nm( int idx ) const	{ return (*this)[idx]->nm(); }
-			mSEGYFileDataDefFn(BinID,binID)
-			mSEGYFileDataDefFn(Coord,coord)
-			mSEGYFileDataDefFn(int,trcNr)
-			mSEGYFileDataDefFn(float,offset)
-			mSEGYFileDataDefFn(float,azimuth)
-			mSEGYFileDataDefFn(bool,isNull)
-			mSEGYFileDataDefFn(bool,isUsable)
-#undef mSEGYFileDataDefFn
-
-    bool		isRich() const;
-    int			nrNullTraces() const;
-    int			nrUsableTraces() const;
-
-    void		getReport(IOPar&) const;
-    bool		getFrom(ascistream&);
-    bool		putTo(ascostream&) const;
-
-};
-
-
-mClass FileDataSet : public ManagedObjectSet<FileData>
+mClass FileDataSet
 {
 public:
 
@@ -126,21 +51,109 @@ public:
 	int		trcidx_;
     };
 
-    			FileDataSet( const IOPar& iop )
-			: ManagedObjectSet<FileData>(false)	{ pars_ = iop; }
-    			FileDataSet( const FileDataSet& fd )
-			: ManagedObjectSet<FileData>(false)	{ *this = fd; }
-    FileDataSet&	operator =(const FileDataSet&);
+    			FileDataSet(const IOPar& iop, ascistream& );
+			//!<Reads old version of file into memory
+    			FileDataSet(const IOPar& iop);
+			/*!<Creates empty set, can later be filled from
+			    scanning. */
 
-    bool		toNext(TrcIdx&,bool allownull=true,
-	    			bool allownotusable=false) const;
+			FileDataSet(const IOPar&,const char* filename,
+				od_int64 start,
+				const DataCharacteristics& int32 );
+			/*!<Reads new version of file, only auxdata is read
+			    in, the bulk of the data remains on disk. */
+    			FileDataSet(const FileDataSet& fd);
+			//!<Not implemented, just to make linker complain.
 
-    const IOPar&	pars() const				{ return pars_; }
+    void		save2DCoords(bool yn);
+
+    bool		setOutputStream(std::ostream&);
+    			/*!<Will store all information to the stream, rather 
+			    than in memory. */
+    void		setAuxData(const Seis::GeomType&,
+	    			   const SEGYSeisTrcTranslator&);
+
+    void		addFile(const char* fnm);
+    bool		addTrace(int fileidx,const Seis::PosKey&,const Coord&,
+	    			 bool usable);
+
+    const SamplingData<float>&	getSampling() const { return sampling_; }
+    int				getTrcSz() const { return trcsz_; }
+
+    				//Auxdata
+    int				nrFiles() const;
+    FixedString			fileName(int) const;
+    bool			isEmpty() const		{ return totalsz_==1; }
+    od_int64			size() const		{ return totalsz_; }
+    bool			isRev1() const		{ return isrev1_; }
+    Seis::GeomType		geomType() const	{ return geom_; }
+    const IOPar&		segyPars() const	{ return segypars_;}
+
+    				//TraceData
+    bool			getDetails(od_int64,Seis::PosKey&,
+	    				   bool& usable) const;
+    Coord			get2DCoord(int trcnr) const;
+    TrcIdx			getFileIndex(od_int64) const;
+
+
+    //bool		toNext(TrcIdx&,bool allownull=true,
+	    			//bool allownotusable=false) const;
+
+    void			setIndexer(Seis::PosIndexer* n);
+				/*!<addTrace will send the trace info to the
+				    indexer. Indexer must be kept alive outside
+				    object. */
+
+    void			getReport(IOPar&) const;
+
+    bool			usePar(const IOPar& iop);
+    				//!<Read auxdata from storage
+    void			fillPar(IOPar& iop) const;
+    				//!<Write auxdata
 
 protected:
+    struct		StoredData
+    {
+			StoredData(const char* filename,od_int64 start,
+				const DataCharacteristics& int32);
+			StoredData(std::ostream&);
+			~StoredData();
 
-    IOPar		pars_;
+	bool		getKey(od_int64, Seis::PosKey&, bool& ) const;
+	bool		add(const Seis::PosKey&,bool);
 
+    protected:
+	DataInterpreter<int>*		int32di_;
+
+	mutable Threads::Mutex		lock_;
+	std::istream*			istrm_;
+	od_int64			start_;
+
+	std::ostream*			ostrm_;
+    };
+
+    bool			readVersion1( ascistream& );
+    bool			readVersion1File( ascistream& );
+
+    				//Auxdata
+    IOPar			segypars_;
+    Seis::GeomType		geom_;
+    bool			isrev1_;
+    SamplingData<float>		sampling_;
+    int				trcsz_;
+    int				nrstanzas_;
+    BufferStringSet		filenames_;
+    TypeSet<od_int64>		cumsizes_;
+    int				totalsz_;
+    int				nrusable_;
+
+    				//TraceData
+    TypeSet<Seis::PosKey>	keys_;
+    BoolTypeSet			usable_;
+    StoredData*			storeddata_;
+    SortedTable<int,Coord>*	coords_; //trcnr vs coord
+
+    Seis::PosIndexer*		indexer_;
 };
 
 } // namespace

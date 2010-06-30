@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.26 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.27 2010-06-30 17:17:28 cvskris Exp $";
 
 #include "uisegyscandlg.h"
 
+#include "ioman.h"
 #include "uisegydef.h"
 #include "uiseissel.h"
 #include "uiseislinesel.h"
@@ -31,9 +32,10 @@ static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.26 2010-03-25 03:55:14 cvs
 
 
 uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
-				IOPar& iop, bool ss )
+			      IOPar& iop, bool ss )
     : uiSEGYReadDlg(p,su,iop,ss)
     , scanner_(0)
+    , indexer_(0)
     , forsurvsetup_(ss)
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_,false))
     , outfld_(0)
@@ -90,6 +92,7 @@ uiSEGYScanDlg::~uiSEGYScanDlg()
 {
     delete ctio_.ioobj;
     delete scanner_;
+    delete indexer_;
     delete &ctio_;
 }
 
@@ -140,55 +143,55 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	}
     }
 
-    SEGY::FileSpec fs; fs.usePar( pars_ );
-    delete scanner_; scanner_ = new SEGY::Scanner( fs, setup_.geom_, pars_ );
-    if ( setup_.rev_ == uiSEGYRead::Rev0 )
-	scanner_->setForceRev0( true );
-    if ( forsurvsetup_ || Seis::is2D(setup_.geom_) )
-	scanner_->setRichInfo( true );
+    SEGY::FileSpec fs;
+    fs.usePar( pars_ );
+
+    Executor* exec = 0;
+
+    delete scanner_;
+    scanner_ = 0;
+
+    delete indexer_;
+    indexer_ = 0;
+
+    if ( outfld_ )
+    {
+	exec = indexer_ = new SEGY::PreStackIndexer( ctio_.ioobj->key(),lnm,fs,
+		Seis::is2D(setup_.geom_), pars_ );
+    }
+    else
+    {
+	exec = scanner_ = new SEGY::Scanner( fs, setup_.geom_, pars_ );
+
+	if ( setup_.rev_ == uiSEGYRead::Rev0 )
+	    scanner_->setForceRev0( true );
+	if ( forsurvsetup_ )
+	    scanner_->setRichInfo( true );
+    }
+
     uiTaskRunner tr( parent_ );
-    bool rv = tr.execute(*scanner_);
-    if ( !rv ) return false;
-
-    if ( !displayWarnings(scanner_->warnings(),outfld_) )
-	return false;
-
-    return outfld_ ? mkOutput( pathnm, lnm ) : true;
-}
-
-
-bool uiSEGYScanDlg::mkOutput( const char* pathnm, const char* lnm )
-{
-    const SEGY::FileDataSet& fds = scanner_->fileDataSet();
-    if ( fds.isEmpty() )
-	mErrRet("No files found",0)
-    bool anydata = false;
-    for ( int idx=0; idx<fds.size() ; idx++ )
+    bool rv = tr.execute(*exec);
+    if ( !rv )
     {
-	if ( !fds[idx]->isEmpty() )
-	    { anydata = true; break; }
-    }
-    if ( !anydata )
-	mErrRet(fds.size() > 1 ? "No traces found in any of the files"
-				: "No traces found in file",0)
-    presentReport( parent(), *scanner_ );
-
-    SEGY::DirectDef dd;
-    dd.setData( fds, true );
-
-    BufferString fnm;
-    if ( *lnm ) fnm = SEGY::DirectDef::get2DFileName( pathnm, lnm );
-    else	fnm = pathnm;
-
-    if ( !dd.writeToFile( fnm ) )
-    {
-	uiMSG().error( "Cannot write data definition file to disk.\n"
-			"You cannot use the data store." );
+	if ( outfld_ )
+	    IOM().permRemove( ctio_.ioobj->key() );
 	return false;
     }
 
-    if ( !Seis::is2D(setup_.geom_) )
-	SPSIOPF().mk3DPostStackProxy( *ctio_.ioobj );
+    if ( !displayWarnings( scanner_
+		? scanner_->warnings()
+		: indexer_->scanner()->warnings()
+	, outfld_) )
+    {
+	if ( outfld_ )
+	    IOM().permRemove( ctio_.ioobj->key() );
+
+	return false;
+    }
+
+    if ( indexer_ )
+	presentReport( parent(), *indexer_->scanner() );
+
     return true;
 }
 

@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.28 2009-11-11 10:00:41 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.29 2010-06-30 17:17:28 cvskris Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -81,7 +81,7 @@ void SEGY::Scanner::closeTr()
 
 void SEGY::Scanner::getReport( IOPar& iop ) const
 {
-    const bool isrev1 = !forcerev0_ && (fds_.isEmpty() || fds_[0]->isrev1_);
+    const bool isrev1 = !forcerev0_ && (fds_.isEmpty() || fds_.isRev1() );
 
     iop.add( IOPar::sKeyHdr(), "Provided information" );
     FileSpec fs; fs.usePar( pars_ ); fs.getReport( iop, isrev1 );
@@ -106,8 +106,7 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
     }
     addErrReport( iop );
 
-    for ( int idx=0; idx<fds_.size(); idx++ )
-	fds_[idx]->getReport( iop );
+    fds_.getReport( iop );
 }
 
 
@@ -119,7 +118,7 @@ void SEGY::Scanner::addErrReport( IOPar& iop ) const
 	const char* fnm = fnms_.get( idx );
 	if ( scanerrfnms_.indexOf(fnm) < 0 )
 	{
-	    if ( idx < fds_.size() )
+	    if ( idx < fds_.nrFiles() )
 		iop.add( "Successfully scanned", fnm );
 	    else
 		iop.add( "Not scanned", fnm );
@@ -164,10 +163,9 @@ int SEGY::Scanner::nextStep()
 
 int SEGY::Scanner::readNext()
 {
-    if ( curfidx_ < 0 || curfidx_ >= fds_.size() )
+    if ( curfidx_ < 0 || curfidx_ >= fds_.nrFiles() )
 	return finish( true );
 
-    SEGY::FileData& fd = *fds_[curfidx_];
     if ( !tr_->read(trc_) )
     {
 	const char* emsg = tr_->errMsg();
@@ -189,19 +187,8 @@ int SEGY::Scanner::readNext()
     if ( notrcinfo_ )
 	return Executor::MoreToDo();
 
-    SEGY::TraceInfo* sgyti = richinfo_ ? new SEGY::RichTraceInfo( geom_ )
-				       : new SEGY::TraceInfo( geom_ );
-    sgyti->pos_= ti.posKey( geom_ );
-    sgyti->usable_ = tr_->trcHeader().isusable;
-    if ( richinfo_ )
-    {
-	SEGY::RichTraceInfo* rti = static_cast<SEGY::RichTraceInfo*>(sgyti);
-	rti->coord_ = ti.coord;
-	rti->null_ = trc_.isNull();
-	if ( Seis::isPS(geom_) )
-	    rti->azimuth_ = ti.azimuth;
-    }
-    fd += sgyti;
+    fds_.addTrace( curfidx_, ti.posKey( geom_ ), ti.coord,
+	    	   tr_->trcHeader().isusable );
 
     return Executor::MoreToDo();
 }
@@ -266,11 +253,7 @@ StepInterval<float> SEGY::Scanner::zRange() const
     if ( fds_.isEmpty() )
 	return SI().zRange( false );
 
-    const FileData& fd = *fds_[0];
-    StepInterval<float> ret;
-    ret.start = fd.sampling_.start;
-    ret.step = fd.sampling_.step;
-    ret.stop = ret.start + (fd.trcsz_-1) * ret.step;
+    StepInterval<float> ret( fds_.getSampling().interval(fds_.getTrcSz()) );
 
     return ret;
 }
@@ -278,22 +261,24 @@ StepInterval<float> SEGY::Scanner::zRange() const
 
 void SEGY::Scanner::initFileData()
 {
-    FileData* newfd = new FileData( fnms_.get(curfidx_), geom_ );
-    if ( !fds_.isEmpty() && tr_->inpNrSamples() != fds_[0]->trcsz_ )
+    if ( !curfidx_ )
+    {
+	fds_.setAuxData( geom_, *tr_ );
+    }
+    else if ( tr_->inpNrSamples() != fds_.getTrcSz() )
     {
 	BufferString emsg( "Wrong #samples: " ); tr_->inpNrSamples();
 	emsg += "(must be same as first file: ";
-	emsg += fds_[0]->trcsz_; emsg += ")";
+	emsg += fds_.getTrcSz(); emsg += ")";
 	addFailed( tr_->errMsg() );
-	delete newfd;
 	return;
     }
-
+/*
     newfd->trcsz_ = tr_->inpNrSamples();
     newfd->sampling_ = tr_->inpSD();
     newfd->segyfmt_ = tr_->filePars().fmt_;
     newfd->isrev1_ = tr_->isRev1();
     newfd->nrstanzas_ = tr_->binHeader().nrstzs;
-
-    fds_ += newfd;
+    */
+    fds_.addFile( fnms_.get(curfidx_) );
 }
