@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.39 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.40 2010-06-30 17:38:43 cvskarthika Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -135,7 +135,9 @@ const visBase::PointSet* Horizon2DDisplay::getPointSet(
 
 void Horizon2DDisplay::setLineStyle( const LineStyle& lst )
 {
-    EMObjectDisplay::drawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
+    // TODO: set the draw style correctly after properly implementing 
+    // different line styles. Only SOLID is supported now.
+    //EMObjectDisplay::drawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
 
     EMObjectDisplay::setLineStyle( lst );
     for ( int idx=0; idx<lines_.size(); idx++ )
