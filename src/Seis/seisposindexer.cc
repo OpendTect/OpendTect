@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.11 2010-06-24 21:05:23 cvskris Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.12 2010-06-30 14:11:49 cvskris Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -64,6 +64,9 @@ void Seis::PosIndexer::empty()
     deepErase( idxsets_ );
     maxidx_ = -1;
     curinl_ = -1;
+    inlrg_.start = inlrg_.stop = crlrg_.start = crlrg_.stop = 0;
+    offsrg_.start = offsrg_.stop = 0;
+    nrrejected_ = 0;
 }
 
 #define mWrite( val ) \
@@ -205,8 +208,7 @@ bool Seis::PosIndexer::readLine( TypeSet<int>& crlset,
 	DataInterpreter<int>* int32interp,
 	DataInterpreter<od_int64>* int64interp ) const
 {
-    int nrtrcs;
-    mRead( nrtrcs, int32interp, 4 );
+    int nrtrcs = DataInterpreter<int>::get( int32interp, *strm_ );
     if ( !strm_->good() )
 	return false;
 
@@ -473,57 +475,10 @@ od_int64 Seis::PosIndexer::findFirst( const Seis::PosKey& pk, bool wo ) const
 void Seis::PosIndexer::reIndex()
 {
     empty();
-    inlrg_.start = inlrg_.stop = crlrg_.start = crlrg_.stop = 0;
-    offsrg_.start = offsrg_.stop = 0;
-    nrrejected_ = 0;
 
     const od_int64 sz = pkl_.size();
-    od_int64 firstok = 0;
-    for ( ; firstok<sz; firstok++ )
-    {
-	const PosKey key = pkl_.key(firstok);
-	if ( !key.isUndef() &&
-	     (!excludeunreasonable_ || isReasonable( key.binID() ) ) )
-	    break;
-
-	nrrejected_++;
-    }
-    if ( firstok >= sz )
-	return;
-
-    const PosKey prevpk( pkl_.key(firstok) );
-    const Seis::GeomType gt( sz > 0 ? prevpk.geomType() : Seis::Vol );
-    is2d_ = Seis::is2D( gt ); isps_ = Seis::isPS( gt );
-
-    add( prevpk.binID(), firstok );
-
-    inlrg_.start = inlrg_.stop = is2d_ ? 1 : prevpk.inLine();
-    crlrg_.start = crlrg_.stop = prevpk.xLine();
-    offsrg_.start = offsrg_.stop = isps_ ? prevpk.offset() : 0;
-
-    BinID prevbid( mUdf(int), mUdf(int) );
-    od_int64 startidx = firstok;
-    for ( od_int64 idx=firstok+1; idx<sz; idx++ )
-    {
-	const PosKey curpk( pkl_.key(idx) );
-	const BinID& curbid( curpk.binID() );
-	if ( curpk.isUndef() ||
-	     (excludeunreasonable_ && !isReasonable( curpk.binID() ) ) )
-	{
-	    nrrejected_++;
-	    continue;
-	}
-
-	maxidx_ = idx;
-	if ( isps_ ) offsrg_.include( curpk.offset() );
-	if ( curbid == prevbid )
-	    continue;
-
-	add( curbid, idx );
-	if ( !is2d_ ) inlrg_.include( curpk.inLine() );
-	crlrg_.include( curpk.xLine() );
-	prevbid = curbid;
-    }
+    for ( od_int64 idx=0; idx<sz; idx++ )
+	add( pkl_.key( idx ), idx );
 }
 
 
@@ -542,9 +497,28 @@ bool Seis::PosIndexer::isReasonable( const BinID& bid ) const
 }
 
 
-
 void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 {
+    if ( pk.isUndef() ||
+	 (excludeunreasonable_ && !isReasonable( pk.binID() ) ) )
+    {
+	nrrejected_++;
+	return;
+    }
+
+    if ( crlsets_.isEmpty() )
+    {
+	is2d_ = Seis::is2D( pk.geomType() );
+	isps_ = Seis::isPS( pk.geomType() );
+
+	inlrg_.start = inlrg_.stop = is2d_ ? 1 : pk.inLine();
+	crlrg_.start = crlrg_.stop = pk.xLine();
+	offsrg_.start = offsrg_.stop = isps_ ? pk.offset() : 0;
+    }
+
+    maxidx_ = posidx;
+    if ( isps_ ) offsrg_.include( pk.offset() );
+
     bool ispresent = !inls_.isEmpty();
     int inlidx = is2d_ ? 0 : getIndex( inls_, pk.inLine(), ispresent );
     if ( !ispresent )
@@ -563,12 +537,17 @@ void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 	    crlsets_.insertAt( new TypeSet<int>, inlidx );
 	    idxsets_.insertAt( new TypeSet<od_int64>, inlidx );
 	}
+
+	if ( !is2d_ ) inlrg_.include( pk.inLine() );
     }
 
     TypeSet<int>& crls = *crlsets_[inlidx];
     TypeSet<od_int64>& idxs = *idxsets_[inlidx];
     int crlidx = getIndex( crls, pk.xLine(), ispresent );
-    if ( ispresent ) return;
+    if ( ispresent )
+	return;
+
+    crlrg_.include( pk.xLine() );
 
     if ( crlidx >= crls.size()-1 )
     {
