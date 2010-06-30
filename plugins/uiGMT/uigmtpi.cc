@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.25 2010-06-30 05:44:11 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.26 2010-06-30 09:10:46 cvsraman Exp $";
 
 #include "envvars.h"
 #include "file.h"
@@ -95,6 +95,7 @@ class uiGMTMgr :  public CallBacker
 {
 public:
 			uiGMTMgr(uiODMain*);
+			~uiGMTMgr();
 
     uiODMain*		appl_;
     uiGMTMainWin*	dlg_;
@@ -113,6 +114,12 @@ uiGMTMgr::uiGMTMgr( uiODMain* a )
     appl_->menuMgr().dTectMnuChanged.notify( mCB(this,uiGMTMgr,updateMenu) );
     updateToolBar(0);
     updateMenu(0);
+}
+
+
+uiGMTMgr::~uiGMTMgr()
+{
+    delete dlg_;
 }
 
 
