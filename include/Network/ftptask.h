@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2010
- RCS:		$Id: ftptask.h,v 1.1 2010-05-11 10:01:22 cvsnanne Exp $
+ RCS:		$Id: ftptask.h,v 1.2 2010-06-30 12:45:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,8 @@ public:
     			~FtpTask();
 
     int			nextStep();
+    virtual void	controlWork(Control);
+
     const char*		message() const		{ return msg_; }
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const		{ return nrdone_; }

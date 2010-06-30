@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: ftptask.cc,v 1.1 2010-05-11 10:01:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: ftptask.cc,v 1.2 2010-06-30 12:45:00 cvsnanne Exp $";
 
 #include "ftptask.h"
 #include "odftp.h"
@@ -19,6 +19,7 @@ FtpTask::FtpTask( ODFtp& ftp )
     , nrdone_(0)
     , totalnr_(0)
     , ftp_(ftp)
+    , state_(MoreToDo())
 {
     ftp_.dataTransferProgress.notify( mCB(this,FtpTask,progressCB) );
     ftp_.done.notify( mCB(this,FtpTask,doneCB) );
@@ -36,6 +37,14 @@ int FtpTask::nextStep()
 { return state_; }
 
 
+void FtpTask::controlWork( Control c )
+{
+    msg_ = "Data transfer aborted";
+    Task::controlWork( c );
+    ftp_.abort();
+}
+
+
 void FtpTask::progressCB( CallBacker* )
 {
     nrdone_ = ftp_.nrDone();
@@ -45,6 +54,4 @@ void FtpTask::progressCB( CallBacker* )
 
 
 void FtpTask::doneCB( CallBacker* )
-{
-    state_ = ftp_.isOK() ? Finished() : ErrorOccurred();
-}
+{ state_ = ftp_.isOK() ? Finished() : ErrorOccurred(); }

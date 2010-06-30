@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odftp.cc,v 1.7 2010-05-11 10:01:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: odftp.cc,v 1.8 2010-06-30 12:45:00 cvsnanne Exp $";
 
 #include "odftp.h"
 #include "qftpconn.h"
@@ -66,7 +66,9 @@ int ODFtp::get( const char* file, const char* dest )
     QFile* qfile = new QFile( dest );
     qfile->open( QIODevice::WriteOnly );
     qfiles_ += qfile;
-    const int cmdid = qftp_->get( file, qfile );
+    qftp_->rawCommand( "TYPE I" );
+    qftp_->rawCommand( BufferString("SIZE ",file).buf() );
+    const int cmdid = qftp_->get( file, qfile, QFtp::Binary );
     getids_ += cmdid;
     return cmdid;
 }
