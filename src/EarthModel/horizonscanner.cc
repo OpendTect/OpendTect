@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.42 2010-06-18 06:51:18 cvsnageswara Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.43 2010-06-30 05:52:33 cvsraman Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -199,8 +199,7 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
 }
 
 
-#define mGetZFac SI().zIsTime() ? 0.001 \
-	      : (SI().zInMeter() ? mFromFeetFactor : mToFeetFactor)
+#define mGetZFac SI().zIsTime() ? 0.001 : 1
 	
 bool HorizonScanner::analyzeData()
 {
@@ -219,9 +218,9 @@ bool HorizonScanner::analyzeData()
     Coord crd;
     float val;
     TypeSet<float> data;
-    while ( ascio_->getNextLine(data) > 0 )
+    while ( ascio_->getNextLine(crd,data) > 0 )
     {
-	if ( data.size() < 3 ) break;
+	if ( !data.size() ) break;
 
 	if ( count > maxcount ) 
 	{
@@ -229,8 +228,6 @@ bool HorizonScanner::analyzeData()
 	    else break;
 	}
 
-	crd.x = data[0];
-	crd.y = data[1];
 	BinID bid( mNINT(crd.x), mNINT(crd.y) );
 
 	bool validplacement = false;
@@ -243,7 +240,7 @@ bool HorizonScanner::analyzeData()
 	    continue;
 	}
 
-	val = data[2];
+	val = data[0];
 	bool validvert = false;
 	if ( !mIsUdf(val) ) 
 	{
@@ -301,8 +298,9 @@ int HorizonScanner::nextStep()
 	mErrRet("Error during initialization."
 		"\nPlease check the format definition")
 
+    Coord crd;
     TypeSet<float> data;
-    const int ret = ascio_->getNextLine( data );
+    const int ret = ascio_->getNextLine( crd, data );
     if ( ret < 0 )
 	mErrRet("Error during data interpretation."
 		"\nPlease check the format definition")
@@ -321,34 +319,27 @@ int HorizonScanner::nextStep()
 
     if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size()-2, false );
 
-    Coord crd;
-    BinID bid;
-
     float fac = 1;
     if ( doscale_ )
 	fac = mGetZFac;
 
+    BinID bid;
     if ( isxy_ )
-    {
-	crd.x = data[0];
-	crd.y = data[1];
 	bid = SI().transform( crd );
-    }
     else
     {
-	bid.inl = mNINT( data[0] );
-	bid.crl = mNINT( data[1] );
-	crd = SI().transform( bid );
+	bid.inl = mNINT( crd.x );
+	bid.crl = mNINT( crd.y );
     }
 
     bool validpos = true;
     int validx = 0;
-    while ( validx < data.size()-2 )
+    while ( validx < data.size() )
     {
 	if ( firsttime_ )
 	    valranges_ += Interval<float>(mUdf(float),-mUdf(float));
 
-	const float val = data[validx+2];
+	const float val = data[validx];
 	if ( isgeom_ && validx==0 && !isInsideSurvey(bid,fac*val) )
 	{
 	    validpos = false;
@@ -364,14 +355,14 @@ int HorizonScanner::nextStep()
 	validpos = false;
 
     if ( validpos )
-	bvalset_->add( bid, data.arr()+2 );
+	bvalset_->add( bid, data.arr() );
 
     else if ( rejectedlines_.size()<1024 )
     {
-	BufferString rej( "", data[0], "\t" );
-	rej += data[1];
+	BufferString rej( "", crd.x, "\t" );
+	rej += crd.y;
 	if ( isgeom_ )
-	    { rej += "\t"; rej += data[2]; }
+	    { rej += "\t"; rej += data[0]; }
 	rejectedlines_.add( rej.buf() );
     }
 

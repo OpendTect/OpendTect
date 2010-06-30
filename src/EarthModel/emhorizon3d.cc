@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.127 2010-06-25 13:43:34 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.128 2010-06-30 05:52:33 cvsraman Exp $";
 
 #include "emhorizon3d.h"
 
@@ -797,7 +797,7 @@ bool Horizon3DAscIO::isXY() const
 }
 
 
-int Horizon3DAscIO::getNextLine( TypeSet<float>& data )
+int Horizon3DAscIO::getNextLine( Coord& pos, TypeSet<float>& data )
 {
     data.erase();
     if ( !finishedreadingheader_ )
@@ -810,9 +810,12 @@ int Horizon3DAscIO::getNextLine( TypeSet<float>& data )
     }
 
     int ret = getNextBodyVals( strm_ );
-    if ( ret <= 0 ) return ret;
+    if ( ret <= 0 || fd_.bodyinfos_.size() < 3 )
+	return -1;
 
-    for ( int idx=0; idx<=fd_.bodyinfos_.size(); idx++ )
+    pos.x = getdValue( 0, udfval_ );
+    pos.y = getdValue( 1, udfval_ );
+    for ( int idx=2; idx<=fd_.bodyinfos_.size(); idx++ )
 	data += getfValue( idx, udfval_ );
 
     return ret;

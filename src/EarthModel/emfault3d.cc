@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.17 2010-06-29 07:45:58 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.18 2010-06-30 05:52:33 cvsraman Exp $";
 
 #include "emfault3d.h"
 
@@ -396,13 +396,13 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	crd.x = getfValue( 0 ); crd.y = getfValue( 1 );
+	crd.x = getdValue( 0 ); crd.y = getdValue( 1 );
 	if ( isxy && !mIsUdf(crd.x) && !mIsUdf(crd.y) )
 	{
 	    Coord wc( SI().transform(BinID(mNINT(crd.x),mNINT(crd.y))) );
 	    crd.x = wc.x; crd.y = wc.y;
 	}
-	crd.z = getfValue( 2 );
+	crd.z = getdValue( 2 );
 	if ( !crd.isDefined() ) continue;
 
 	const int stickidx = getIntValue( 3 );
