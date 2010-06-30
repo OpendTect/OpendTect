@@ -4,8 +4,11 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.24 2010-05-21 11:54:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.25 2010-06-30 05:44:11 cvsraman Exp $";
 
+#include "envvars.h"
+#include "file.h"
+#include "filepath.h"
 #include "gmtdef.h"
 #include "ioman.h"
 #include "pixmap.h"
@@ -57,36 +60,34 @@ uiGMTIntro( uiParent* p )
 
     BufferString msg = "You need to install the GMT mapping tool package\n";
     msg += "before you can use this utility\n";
-    msg += "Also make sure that your PATH variable includes\n";
-    msg += "the GMT bin directory";
+    msg += "Also make sure that the environment variable GMTROOT is set ";
+    msg += "to the GMT installation directory\n and your PATH variable ";
+    msg += "includes the GMT bin directory";
 
     uiLabel* lbl = new uiLabel( this, msg );
     lbl->setAlignment( Alignment::HCenter );
 
-    uiToolButton* gmtbut = new uiToolButton( this, "GMT Home",
-	    				     ioPixmap("gmt_logo.png"),
-					     mCB(this,uiGMTIntro,gmtPush) );
-    gmtbut->setToolTip( "Go to GMT Home page" );
+    uiPushButton* gmtbut = new uiPushButton( this, "Download GMT",
+					     mCB(this,uiGMTIntro,gmtPush),
+					     true );
+    gmtbut->setToolTip( "Click to go to the Download centre" );
     gmtbut->attach( centeredBelow, lbl );
-
-    skipfld_ = new uiCheckBox( this, "Don't show this message again" );
-    skipfld_->attach( centeredBelow, gmtbut );
 }
 
 protected:
 
 void gmtPush( CallBacker* )
 {
-    uiDesktopServices::openUrl( "http://www.soest.hawaii.edu/gmt" );
+    uiDesktopServices::openUrl(
+	    __islinux__ ? "http://www.opendtect.org/index.php/download.html"
+	    		: "http://www.soest.hawaii.edu/gmt" );
 }
 
 bool acceptOK( CallBacker* )
 {
-    mSetDefault( ODGMT::sKeySkipWarning, setYN, skipfld_->isChecked() );
     return true;
 }
 
-    uiCheckBox*		skipfld_;
 };
 
 
@@ -138,9 +139,8 @@ void uiGMTMgr::createMap( CallBacker* )
 {
     if ( !dlg_ )
     {
-	bool skipwarning = false;
-	mGetDefault( ODGMT::sKeySkipWarning, getYN, skipwarning );
-	if ( !skipwarning )
+	FilePath gmtroot( GetEnvVar("GMTROOT") );
+	if ( !File::isDirectory(gmtroot.fullPath()) )
 	{
 	    uiGMTIntro introdlg( appl_ );
 	    if ( !introdlg.go() )
