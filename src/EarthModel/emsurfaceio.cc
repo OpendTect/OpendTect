@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.136 2010-06-30 05:52:01 cvsraman Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.137 2010-06-30 14:02:42 cvskris Exp $";
 
 #include "emsurfaceio.h"
 
@@ -155,13 +155,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     BufferString dc;
 #define mGetDataChar( type, str, interpr ) \
     delete interpr; \
-    if ( par.get(str,dc) ) \
-    { \
-	DataCharacteristics writtendatachar; \
-	writtendatachar.set( dc.buf() ); \
-	interpr = new DataInterpreter<type>( writtendatachar ); \
-    } \
-    else interpr = 0
+    interpr = DataInterpreter<type>::create( par, str, true )
 
     mGetDataChar( int, sKeyInt16DataChar(), int16interpreter_ );
     mGetDataChar( int, sKeyInt32DataChar(), int32interpreter_ );

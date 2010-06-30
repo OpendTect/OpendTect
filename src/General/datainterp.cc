@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.25 2010-06-29 16:22:50 cvskris Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.26 2010-06-30 14:02:42 cvskris Exp $";
 
 #include "datainterp.h"
 
@@ -638,7 +638,8 @@ type DataInterpreter<type>::get( std::istream& strm ) const \
 } \
  \
 template <> \
-type readFromStream<type>( const DataInterpreter<type>* di, std::istream& strm ) \
+type DataInterpreter<type>::get( const DataInterpreter<type>* di, \
+				 std::istream& strm ) \
 { \
     if ( di ) \
 	return di->get( strm ); \
@@ -649,7 +650,8 @@ type readFromStream<type>( const DataInterpreter<type>* di, std::istream& strm )
     return val; \
 } \
  \
-template <> DataInterpreter<type>* createDataInterpreter<type>( \
+template <> DataInterpreter<type>* \
+DataInterpreter<type>::create( \
 			const DataCharacteristics& dchar, \
 			bool alsoifequal ) \
 { \
@@ -662,21 +664,21 @@ template <> DataInterpreter<type>* createDataInterpreter<type>( \
  \
  \
 template <> DataInterpreter<type>* \
-    createDataInterpreter<type>( const char* str, bool alsoifequal ) \
+DataInterpreter<type>::create( const char* str, bool alsoifequal ) \
 { \
     DataCharacteristics writtentype; \
     writtentype.set( str ); \
  \
-    return createDataInterpreter<type>( writtentype, alsoifequal ); \
+    return create( writtentype, alsoifequal ); \
 } \
  \
  \
 template <> DataInterpreter<type>* \
-    createDataInterpreter<type>( const IOPar& par,  const char* key, \
-				 bool alsoifequal ) \
+DataInterpreter<type>::create( const IOPar& par,  const char* key, \
+			       bool alsoifequal ) \
 { \
     const char* dc = par.find( key ); \
-    return dc ? createDataInterpreter<type>( dc, alsoifequal ) : 0; \
+    return dc ? create( dc, alsoifequal ) : 0; \
 }
 
 
