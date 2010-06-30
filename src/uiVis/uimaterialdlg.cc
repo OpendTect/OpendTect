@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.24 2010-03-25 15:28:59 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.25 2010-06-30 17:35:53 cvskarthika Exp $";
 
 #include "uimaterialdlg.h"
 
@@ -32,8 +32,12 @@ uiLineStyleGrp::uiLineStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
     , survobj_(so)
     , backup_(*so->lineStyle())
 {
-    field_ = new uiSelLineStyle( this, backup_, "Line style", true,
+    field_ = new uiSelLineStyle( this, backup_, "Line style", false,
 				 so->hasSpecificLineColor(), true );
+      // withdrawstyle parameter is false -> do not have the option to change
+      // the line style.
+      // TODO: include this option after properly implementing all line styles.
+
     field_->changed.notify( mCB(this,uiLineStyleGrp,changedCB) );
 
     // set maximum limit for line width
