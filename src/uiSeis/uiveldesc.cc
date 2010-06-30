@@ -7,31 +7,29 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.40 2010-06-28 04:14:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.41 2010-06-30 06:45:56 cvsnanne Exp $";
 
 #include "uiveldesc.h"
 
 #include "ctxtioobj.h"
-#include "emmanager.h"
-#include "emsurfacetr.h"
-#include "emsurfaceiodata.h"
 #include "ioman.h"
-#include "seistrctr.h"
 #include "seisselection.h"
+#include "seistrctr.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
-#include "uibutton.h"
-#include "uigeninput.h"
-#include "uicombobox.h"
-#include "uimsg.h"
-#include "uistaticsdesc.h"
-#include "uitaskrunner.h"
 #include "unitofmeasure.h"
 #include "zdomain.h"
 
-static const char* sKeyDefVelCube = "Default.Cube.Velocity";
+#include "uibutton.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uimsg.h"
+#include "uistaticsdesc.h"
+#include "uitaskrunner.h"
 
+
+static const char* sKeyDefVelCube = "Default.Cube.Velocity";
 
 uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
     : uiGroup( p, "Velocity type selector" )
