@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2008
- RCS:           $Id: seisposindexer.h,v 1.9 2010-06-24 21:05:23 cvskris Exp $
+ RCS:           $Id: seisposindexer.h,v 1.10 2010-06-30 14:04:39 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -86,6 +86,9 @@ public:
     const TypeSet<int>&		getInls() const { return inls_; }
     void			getCrls(int inl,TypeSet<int>&) const;
 
+    void			add(const Seis::PosKey&, od_int64 offset );
+    				//!<Adds the pk to index. Called from reIndex
+    void			empty();
 protected:
     bool			readHeader(DataInterpreter<int>*,
 					DataInterpreter<od_int64>*,
@@ -123,8 +126,6 @@ protected:
     od_int64			nrrejected_;
 
     bool			isReasonable(const BinID&) const;
-    void			empty();
-    void			add(const PosKey&,od_int64);
     int				getFirstIdxs(const BinID&,int&,int&);
 };
 
