@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedtable.h,v 1.6 2009-09-01 16:14:19 cvskris Exp $
+ RCS:		$Id: sortedtable.h,v 1.7 2010-06-30 14:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,7 @@ public:
     int 		size() const { return vals_.size(); }
     void		set( IDT id, T val );
     			/*<! If id is set twice, it the old value will
-			     be replaced by the new one 
-			*/
+			     be replaced by the new one */
     bool		get( IDT id, T& val ) const;
     			/*!< If id is not found, val is unchanged and
 			     false is returned. If id is found, val is set
