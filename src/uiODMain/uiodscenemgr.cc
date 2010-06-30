@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.208 2010-06-24 11:29:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.209 2010-06-30 06:38:43 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -39,12 +39,16 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.208 2010-06-24 11:29:00 cvs
 #include "uitreeitemmanager.h"
 #include "uiwindowgrabber.h"
 
+#include "ioman.h"
+#include "ioobj.h"
 #include "pickset.h"
 #include "ptrman.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
 #include "visdata.h"
+#include "visdata.h"
+#include "welltransl.h"
 
 // For factories
 #include "uiodhortreeitem.h"
@@ -289,20 +293,14 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
 void uiODSceneMgr::setSceneName( int sceneid, const char* nm )
 {
     visServ().setObjectName( sceneid, nm );
+    Scene* scene = getScene( sceneid );
+    if ( !scene ) return;
 
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-    {
-	Scene& scene = *scenes_[idx];
-	if ( scene.itemmanager_->sceneID() == sceneid )
-	{
-	    scene.mdiwin_->setTitle( nm );
-	    scene.dw_->setDockName( nm );
-	    uiTreeItem* itm = scene.itemmanager_->findChild( sceneid );
-	    if ( itm )
-		itm->updateColumnText( uiODSceneMgr::cNameColumn() );
-	    return;
-	}
-    }
+    scene->mdiwin_->setTitle( nm );
+    scene->dw_->setDockName( nm );
+    uiTreeItem* itm = scene->itemmanager_->findChild( sceneid );
+    if ( itm )
+	itm->updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 
 
@@ -698,6 +696,25 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
     zoomslider_->setSensitive( isperspective );
 }
 
+int uiODSceneMgr::askSelectScene() const
+{
+    BufferStringSet scenenms; TypeSet<int> sceneids;
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	int sceneid = scenes_[idx]->itemmanager_->sceneID();
+	sceneids += sceneid;
+	scenenms.add( getSceneName(sceneid) );
+    }
+
+    if ( sceneids.size() < 2 )
+	return sceneids.isEmpty() ? -1 : sceneids[0];
+
+    StringListInpSpec* inpspec = new StringListInpSpec( scenenms );
+    uiGenInputDlg dlg( &appl_, "Choose scene", "", inpspec );
+    const int selidx = dlg.go() ? dlg.getIntValue() : -1;
+    return sceneids.validIdx(selidx) ? sceneids[selidx] : -1;
+}
+
 
 void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 {
@@ -709,13 +726,8 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 
 const uiSoViewer* uiODSceneMgr::getSoViewer( int sceneid ) const
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-    {
-	if ( scenes_[idx]->sovwr_->sceneID() == sceneid )
-	    return scenes_[idx]->sovwr_;
-    }
-
-    return 0;
+    const Scene* scene = getScene( sceneid );
+    return scene ? scene->sovwr_ : 0;
 }
 
 
@@ -937,46 +949,52 @@ void uiODSceneMgr::disabTrees( bool yn )
 }
 
 
+int uiODSceneMgr::addWellItem( const MultiID& mid, int sceneid )
+{
+    Scene* scene = getScene( sceneid );
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !scene || !ioobj ) return -1;
+
+    if ( strcmp(ioobj->group(),mTranslGroupName(Well)) )
+	return -1;
+
+    uiODDisplayTreeItem* itm = new uiODWellTreeItem( mid );
+    scene->itemmanager_->addChild( itm, false );
+    return itm->displayID();
+}
+
+
 int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 {
+    Scene* scene = getScene( sceneid );
+    if ( !scene ) return -1;
+
     FixedString type = applMgr().EMServer()->getType(emid);
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-    {
-	Scene& scene = *scenes_[idx];
-	if ( sceneid>=0 && sceneid!=scene.sovwr_->sceneID() ) continue;
+    uiODDisplayTreeItem* itm;
+    if ( type=="Horizon" ) 
+	itm = new uiODHorizonTreeItem(emid,false);
+    else if ( type=="2D Horizon" )
+	itm = new uiODHorizon2DTreeItem(emid);
+    else if ( type=="Fault" )
+	itm = new uiODFaultTreeItem(emid);
+    else if ( type=="FaultStickSet" )
+	itm = new uiODFaultStickSetTreeItem(emid);
+    else if ( type=="RandomPosBody" )
+	itm = new uiODBodyDisplayTreeItem(emid);
 
-	uiODDisplayTreeItem* itm;
-	if ( type=="Horizon" ) 
-	    itm = new uiODHorizonTreeItem(emid,false);
-	else if ( type=="2D Horizon" )
-	    itm = new uiODHorizon2DTreeItem(emid);
-	else if ( type=="Fault" )
-	    itm = new uiODFaultTreeItem(emid);
-	else if ( type=="FaultStickSet" )
-	    itm = new uiODFaultStickSetTreeItem(emid);
-	else if ( type=="RandomPosBody" )
-	    itm = new uiODBodyDisplayTreeItem(emid);
-
-	scene.itemmanager_->addChild( itm, false );
-	return itm->displayID();
-    }
-
-    return -1;
+    scene->itemmanager_->addChild( itm, false );
+    return itm->displayID();
 }
 
 
 int uiODSceneMgr::addRandomLineItem( int visid, int sceneid )
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-    {
-	Scene& scene = *scenes_[idx];
-	if ( sceneid>=0 && sceneid!=scene.sovwr_->sceneID() ) continue;
+    Scene* scene = getScene( sceneid );
+    if ( !scene ) return -1;
 
-	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( visid );
-	scene.itemmanager_->addChild( itm, false );
-	return itm->displayID();
-    }
-    return -1;
+    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( visid );
+    scene->itemmanager_->addChild( itm, false );
+    return itm->displayID();
 }
 
 
@@ -1033,20 +1051,39 @@ void uiODSceneMgr::doDirectionalLight(CallBacker*)
 }
 
 
-float uiODSceneMgr::getHeadOnLightIntensity( int sceneid )
+float uiODSceneMgr::getHeadOnLightIntensity( int sceneid ) const
 {
-    const uiSoViewer* vwr = getSoViewer( sceneid );
-    return vwr ? vwr->getHeadOnLightIntensity() : 0;
+    const Scene* scene = getScene( sceneid );
+    return scene && scene->sovwr_
+	? scene->sovwr_->getHeadOnLightIntensity() : 0;
 }
 
 
 void uiODSceneMgr::setHeadOnLightIntensity( int sceneid, float value )
 {
-    uiSoViewer* vwr = const_cast <uiSoViewer*> (getSoViewer( sceneid ));
-    if ( vwr )
-	vwr->setHeadOnLightIntensity( value );
+    Scene* scene = getScene( sceneid );
+    if ( scene && scene->sovwr_ )
+	scene->sovwr_->setHeadOnLightIntensity( value );
 }
 
+
+uiODSceneMgr::Scene* uiODSceneMgr::getScene( int sceneid )
+{
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	if ( scenes_[idx]->itemmanager_->sceneID() == sceneid )
+	    return scenes_[idx];
+    }
+
+    return 0;
+}
+
+
+const uiODSceneMgr::Scene* uiODSceneMgr::getScene( int sceneid ) const
+{ return const_cast<uiODSceneMgr*>(this)->getScene( sceneid ); }
+
+
+// uiODSceneMgr::Scene
 uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
         : lv_(0)
 	, dw_(0)

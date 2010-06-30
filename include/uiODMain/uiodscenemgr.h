@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.77 2010-06-24 11:28:54 cvsumesh Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.78 2010-06-30 06:38:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,6 @@ class uiListView;
 class uiMdiArea;
 class uiMdiAreaWindow;
 class uiODTreeTop;
-//class uiODViewer2D;
 class uiSliderExtra;
 class uiSoViewer;
 class uiThumbWheel;
@@ -34,8 +33,6 @@ class uiTreeFactorySet;
 class uiTreeItem;
 class uiWindowGrabber;
 class ZAxisTransform;
-
-namespace EM { class HorizonPainter; }
 
 
 /*!\brief Manages the scenes and the corresponding trees.
@@ -103,6 +100,7 @@ public:
     void			vWheelMoved(CallBacker*);
     void			dWheelMoved(CallBacker*);
 
+    int				askSelectScene() const; // returns sceneid
     const uiSoViewer*		getSoViewer(int sceneid) const;
     void			getSoViewers(ObjectSet<uiSoViewer>&);
     void			getSceneNames(BufferStringSet&,int& act) const;
@@ -125,6 +123,7 @@ public:
     void			disabRightClick( bool yn );
     void			disabTrees( bool yn );
 
+    int				addWellItem(const MultiID&,int sceneid);
     int				addEMItem(const EM::ObjectID&,int);
     int 			addRandomLineItem(int,int);
     void			removeTreeItem(int displayid);
@@ -138,7 +137,7 @@ public:
     static int			cColorColumn()		{ return 1; }
     void			setViewSelectMode(int);
 
-    float			getHeadOnLightIntensity(int);
+    float			getHeadOnLightIntensity(int) const;
     void 			setHeadOnLightIntensity(int, float);
 
 protected:
@@ -155,22 +154,8 @@ protected:
     uiLabel*			dummylbl;
     uiLabel*			rotlbl;
 
-    mClass Scene
-    {
-    public:
-				Scene(uiMdiArea*);
-				~Scene();
-       
-	uiDockWin*		dw_;
-	uiListView*		lv_;
-	uiMdiAreaWindow* 	mdiwin_;
-	uiSoViewer*		sovwr_;
-	uiODTreeTop*		itemmanager_;
-    };
-
     uiODMain&			appl_;
     uiMdiArea*			mdiarea_;
-    ObjectSet<Scene>		scenes_;
     void			mdiAreaChanged(CallBacker*);
 
     int				vwridx_;
@@ -185,8 +170,24 @@ protected:
     inline uiODMenuMgr&		menuMgr()     { return appl_.menuMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
+    mClass Scene
+    {
+    public:
+				Scene(uiMdiArea*);
+				~Scene();
+       
+	uiDockWin*		dw_;
+	uiListView*		lv_;
+	uiMdiAreaWindow* 	mdiwin_;
+	uiSoViewer*		sovwr_;
+	uiODTreeTop*		itemmanager_;
+    };
+
+    ObjectSet<Scene>		scenes_;
     Scene&			mkNewScene();
     void			initTree(Scene&,int);
+    Scene*			getScene(int sceneid);
+    const Scene*		getScene(int sceneid) const;
 
     friend class		uiODMain;
 };
