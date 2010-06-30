@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.135 2010-06-21 05:59:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.136 2010-06-30 05:52:01 cvsraman Exp $";
 
 #include "emsurfaceio.h"
 
@@ -393,6 +393,8 @@ BufferString dgbSurfaceReader::lineSet( int idx ) const
 void dgbSurfaceReader::selSections(const TypeSet<SectionID>& sel)
 {
     sectionsel_ = sel;
+    sectionindex_ = 0;
+    oldsectionindex_ = -1;
 }
 
 
