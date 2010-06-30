@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.20 2010-06-18 12:23:27 cvskris Exp $
+ RCS:		$Id: rcol.h,v 1.21 2010-06-30 07:34:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,8 +51,8 @@ inline const clss& clss::operator*=( int factor ) \
 	    { row *= factor; col *= factor;  return *this; }  \
 inline const clss& clss::operator/=( const clss& rc ) \
 	    { row /= rc.row; col /= rc.col;  return *this; }  \
-inline int& clss::operator[](int idx) { return idx ? row : col; } \
-inline int clss::operator[](int idx) const { return idx ? row : col; } \
+inline int& clss::operator[](int idx) { return idx==0 ? row : col; } \
+inline int clss::operator[](int idx) const { return idx==0 ? row : col; } \
 inline int clss::toInt32() const \
 { return (((unsigned int) row)<<16)+ ((unsigned int) col & 0xFFFF); } \
 inline void clss::fromInt32(int ll) \
