@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.105 2010-05-10 07:52:57 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.106 2010-07-01 08:15:32 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -74,7 +74,7 @@ MPEDisplay::MPEDisplay()
     , as_(*new Attrib::SelSpec())
     , manipulated_(false)
     , movement( this )
-    , slicemoving(this)
+//    , slicemoving(this)
     , boxDraggerStatusChange( this )
     , planeOrientationChange( this )
     , curtexturecs_(false)
@@ -358,8 +358,21 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
     const int dim = dim_;
 #endif
 
-    const Coord3 center = drg->center();
-    const Coord3 size = drg->size();
+    Coord3 center = drg->center();
+    Coord3 size = drg->size();
+
+#ifndef USE_TEXTURE
+    if ( voltrans_ )
+    {
+	// seems to work even without this... check if required
+	center = voltrans_->transform( center );
+	Coord3 scale = voltrans_->getScale();
+	size[0] *= scale[0];
+	size[1] *= scale[1];
+	size[2] *= scale[2];
+    }
+#endif
+
     if ( !dim )
     {
 	planebox.hrg.start.inl = SI().inlRange(true).snap(center.x);
@@ -403,7 +416,10 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 
 void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 {
-    if ( attrib || as_ == as ) 
+    // Does checking for as_ = as give update problems? See comment of 
+    // version 1.50 of vismultiattribsurvobj
+    if ( attrib ) 
+//    if ( attrib || as_ == as ) 
 	return;
     as_ = as;
 
@@ -422,7 +438,8 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     userrefs_.replace( attrib, attrnms );
 
     if ( ( !usrref || !*usrref ) && channels_->getChannels2RGBA() )
-	channels_->getChannels2RGBA()->setEnabled( attrib, true );
+	channels_->getChannels2RGBA()->setEnabled( attrib, false );
+    // check if last argument should be false or true
 #endif
 }
 
@@ -446,11 +463,12 @@ const char* MPEDisplay::getSelSpecUserRef() const
 
 NotifierAccess* MPEDisplay::getMovementNotifier() 
 {
-#ifdef USE_TEXTURE
+    return &movement; 
+/*#ifdef USE_TEXTURE
     return &movement; 
 #else
     return &slicemoving;
-#endif
+#endif*/
 }
 
 
@@ -459,7 +477,8 @@ NotifierAccess* MPEDisplay::getManipulationNotifier()
 #ifdef USE_TEXTURE
     return 0; 
 #else
-    return &slicemoving;
+//    return &slicemoving;
+    return &movement;
 #endif
 }
 
@@ -568,7 +587,22 @@ void MPEDisplay::moveMPEPlane( int nr )
 
     Coord3 center = drg->center();
     Coord3 width = boxdragger_->width();
+
+    Interval<float> sx, sy, sz;
+    drg->getSpaceLimits( sx, sy, sz );
     
+#ifndef USE_TEXTURE
+    if ( voltrans_ )
+    {
+	center = voltrans_->transform( center );
+	Coord3 spacelim( sx.start, sy.start, sz.start );
+	spacelim = voltrans_->transform( spacelim );
+	sx.start = spacelim.x;	sy.start = spacelim.y;	sz.start = spacelim.z;
+	spacelim = voltrans_->transform( Coord3( sx.stop, sy.stop, sz.stop ) ); 
+	sx.stop = spacelim.x;	sy.stop = spacelim.y;	sz.stop = spacelim.z;
+    }
+#endif
+
     center.x = 0.5 * ( SI().inlRange(true).snap( center.x - width.x/2 ) +
 	    	       SI().inlRange(true).snap( center.x + width.x/2 ) );
     center.y = 0.5 * ( SI().crlRange(true).snap( center.y - width.y/2 ) +
@@ -576,9 +610,6 @@ void MPEDisplay::moveMPEPlane( int nr )
     center.z = 0.5 * ( SI().zRange(true).snap( center.z - width.z/2 ) +
 		       SI().zRange(true).snap( center.z + width.z/2 ) );
 
-    Interval<float> sx, sy, sz;
-    drg->getSpaceLimits( sx, sy, sz );
-    
     const int nrsteps = abs(nr);
     const float sign = nr > 0 ? 1.001 : -1.001;
     // sign is slightly to big to avoid that it does not trigger a track
@@ -597,12 +628,18 @@ void MPEDisplay::moveMPEPlane( int nr )
 	else
 	    center.z += sign * SI().zStep();
 
-	// This check fails for volume display-based rendering and plane is 
-	// stationary in x and y dimensions.
 	if ( !sx.includes(center.x) || !sy.includes(center.y) || 
 	     !sz.includes(center.z) )
 	    return;
-	drg->setCenter( center, false );
+	
+	Coord3 newcenter( center );
+#ifdef USE_TEXTURE
+	drg->setCenter( newcenter, false );
+#else
+        if ( voltrans_ )
+	    newcenter = voltrans_->transformBack( center );
+	slices_[dim_]->setCenter( newcenter, false );
+#endif
     }
 }
 
@@ -647,6 +684,9 @@ void MPEDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 
 void MPEDisplay::updateMouseCursorCB( CallBacker* cb )
 {
+    mouseClickCB( cb );
+    return;
+
 #ifndef USE_TEXTURE
     char newstatus = 1; // 1=pan, 2=tabs
     if ( cb )
@@ -951,7 +991,7 @@ const int MPEDisplay::getPlaneOrientation() const
 
 void MPEDisplay::mouseClickCB( CallBacker* cb )
 {
-#ifdef USE_TEXTURE
+//#ifdef USE_TEXTURE
     if ( sceneeventcatcher_->isHandled() || !isOn() ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
@@ -966,15 +1006,25 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
     {
 	if ( eventinfo.pressed )
 	{
-	    int dim = dragger_->getDim();
+#ifdef USE_TEXTURE
+ 	    int dim = dragger_->getDim();
 	    if ( ++dim>=3 )
 		dim = 0;
-
 	    dragger_->setDim( dim );
 	    MPE::TrackPlane ntp = engine_.trackPlane();
 	    getPlanePosition( ntp.boundingBox() );
 	    engine_.setTrackPlane( ntp, false );
 	    updateTextureCoords();
+#else
+	    if ( ++dim_>=3 )
+		dim_ = 0;
+	    for ( int i = 0; i < 3; i++ )
+		slices_[i]->turnOn( dim_ == i );
+	    MPE::TrackPlane ntp = engine_.trackPlane();
+	    getPlanePosition( ntp.boundingBox() );
+	    engine_.setTrackPlane( ntp, false );
+	    updateRanges( true, true );
+#endif
 	    movement.trigger();
 	    planeOrientationChange.trigger();
 	}
@@ -1011,7 +1061,7 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	showBoxDragger( false );
 	sceneeventcatcher_->setHandled();
     }
-#endif
+//#endif
 }
 
 
@@ -1816,17 +1866,23 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 
     slicename_ = slice->name();
     sliceposition_ = slicePosition( slice );
-    slicemoving.trigger();
+//    movement/*slicemoving*/.trigger();
 
-	if ( isSelected() ) return;
+    if ( isSelected() ) return;
 	
     while( true ) {
 	MPE::TrackPlane newplane = engine_.trackPlane();
 	CubeSampling& planebox = newplane.boundingBox();
+	// get the position of the plane from the dragger
 	getPlanePosition( planebox );
 
+	// nothing to do if dragger is in sync with engine
 	if ( planebox==engine_.trackPlane().boundingBox() )
 	    return;
+
+	// bring slice to the position specified by dragger
+	// will be done automatically by the callback on dragger of slice?
+	updateSlice();
 
 	const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
 	const int dim = slice->getDragger()->getDim();
@@ -1871,7 +1927,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 				      || trkmode==MPE::TrackPlane::Erase );
 	movement.trigger();
 	planeOrientationChange.trigger();
-	}
+    }
 #endif
 }
 
