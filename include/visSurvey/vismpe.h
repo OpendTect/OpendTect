@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.63 2010-02-23 21:25:14 cvskris Exp $
+RCS:        $Id: vismpe.h,v 1.64 2010-07-01 08:15:17 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -271,9 +271,9 @@ protected:
     visBase::Transformation*	voltrans_;
     ObjectSet<visBase::OrthogonalSlice>	slices_;
     MouseCursor			mousecursor_;
-    Notifier<MPEDisplay>	slicemoving;
+//    Notifier<MPEDisplay>	slicemoving;
     DataPack::ID		cacheid_;
-	const Attrib::CubeDataPack* volumecache_;
+    const Attrib::CubeDataPack* volumecache_;
     BufferString		sliceposition_;
     BufferString		slicename_;
     CubeSampling		csfromsession_;
