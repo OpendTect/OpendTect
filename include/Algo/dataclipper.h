@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.16 2009-09-11 09:56:28 cvsbert Exp $
+ RCS:		$Id: dataclipper.h,v 1.17 2010-07-01 20:08:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -134,15 +134,20 @@ mClass DataClipSampler
 {
 public:
 			DataClipSampler(int bufsz=10000);
+			~DataClipSampler() 	{ delete [] vals_; }
+
+    void		reset()			{ count_ = 0; }
 
     void		add(float);
     void		add(const float*,int);
-    void		reset()			{ count_ = 0; }
+    void		finish() const;
 
-    int			nrVals() const
-    			{ return count_ > maxnrvals_ ? maxnrvals_ : count_; }
+    int			nrVals() const;
+    const float*	vals() const		{ return vals_; }
+
     void		report(IOPar&) const;
     Interval<float>	getRange(float clipratio) const;
+
 
 protected:
 
@@ -152,12 +157,6 @@ protected:
     bool		finished_;
 
     const char*		getClipRgStr(float) const;
-
-public:
-
-    void		finish() const;
-    const float*	vals() const		{ return vals_; }
-
 };
 
 

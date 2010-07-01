@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.29 2010-06-30 17:17:28 cvskris Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.30 2010-07-01 20:11:47 cvskris Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -44,6 +44,8 @@ SEGY::Scanner::Scanner( const FileSpec& fs, Seis::GeomType gt, const IOPar& i )
 {
     init( fs );
 }
+
+
 SEGY::Scanner::Scanner( const IOPar& i, Seis::GeomType gt )
     : mDefMembInit
 {
@@ -68,6 +70,7 @@ SEGY::Scanner::~Scanner()
     delete &trc_;
     delete &clipsmplr_;
     delete const_cast<IOPar*>(&pars_);
+    delete &dtctor_;
 }
 
 
