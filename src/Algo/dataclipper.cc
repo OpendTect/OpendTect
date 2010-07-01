@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.29 2010-02-22 11:06:21 cvsbert Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.30 2010-07-01 20:13:05 cvskris Exp $";
 
 
 #include "dataclipper.h"
@@ -300,6 +300,9 @@ void DataClipSampler::add( float val )
 
     count_++;
 }
+
+int DataClipSampler::nrVals() const
+{ return count_ > maxnrvals_ ? maxnrvals_ : count_; }
 
 
 void DataClipSampler::finish() const
