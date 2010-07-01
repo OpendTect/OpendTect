@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.14 2010-02-04 16:13:26 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.15 2010-07-01 22:54:37 cvskris Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -21,6 +21,13 @@ PosInfo::Detector::Detector( const Setup& su )
 	, errmsg_("No positions found")
 {
     reInit();
+}
+
+
+PosInfo::Detector::~Detector()
+{
+    delete &sorting_;
+    deepErase( lds_ );
 }
 
 

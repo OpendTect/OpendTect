@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2008
- RCS:		$Id: posinfodetector.h,v 1.6 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: posinfodetector.h,v 1.7 2010-07-01 22:54:37 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -61,6 +61,8 @@ public:
     };
 
     			Detector(const Setup&);
+    			~Detector();
+
     bool		is2D() const		{ return setup_.is2d_; }
     bool		isPS() const		{ return setup_.isps_; }
     void		reInit();
