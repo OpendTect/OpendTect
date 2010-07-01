@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.97 2010-06-29 11:04:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.98 2010-07-01 09:26:09 cvsnageswara Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -51,9 +51,7 @@ static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.97 2010-06-29 11:04:37 c
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "uilabel.h"
 #include "uilistbox.h"
-#include "uilineedit.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
@@ -225,12 +223,9 @@ void uiAttribDescSetEd::createGroups()
     helpbut_->activated.notify( mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
 
-    attrnmfld_ = new uiLineEdit( rightgrp, "Attribute name" );
-    attrnmfld_->setHSzPol( uiObject::Medium );
+    attrnmfld_ = new uiGenInput( rightgrp, "Attribute name" );
     attrnmfld_->attach( alignedBelow, degrp );
-    attrnmfld_->returnPressed.notify( mCB(this,uiAttribDescSetEd,addPush) );
-    uiLabel* lbl = new uiLabel( rightgrp, "Attribute name" );
-    lbl->attach( leftOf, attrnmfld_ );
+    attrnmfld_->updateRequested.notify( mCB(this,uiAttribDescSetEd,addPush) );
 
     addbut_ = new uiPushButton( rightgrp, "Add as new", true );
     addbut_->attach( alignedBelow, attrnmfld_ );

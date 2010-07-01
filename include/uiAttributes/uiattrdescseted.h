@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.24 2010-01-18 10:38:13 cvssatyaki Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.25 2010-07-01 09:26:09 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,6 @@ namespace Pick { class Set; }
 class uiAttrDescEd;
 class uiAttrTypeSel;
 class uiGenInput;
-class uiLineEdit;
 class uiListBox;
 class uiPushButton;
 class uiToolBar;
@@ -90,7 +89,7 @@ protected:
     uiPushButton*		rmbut_;
     uiPushButton*		addbut_;
     uiPushButton*		revbut_;
-    uiLineEdit*			attrnmfld_;
+    uiGenInput*			attrnmfld_;
     uiGenInput*			attrsetfld_;
     uiToolButton*       	helpbut_;
     uiToolButton*       	moveupbut_;
