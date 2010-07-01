@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.42 2010-06-18 21:35:46 cvskris Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.43 2010-07-01 20:04:52 cvskris Exp $";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"
@@ -516,6 +516,12 @@ void uiSEGYRead::rev1qDlgClose( CallBacker* )
 
 uiSEGYRead::~uiSEGYRead()
 {
+    if ( examdlg_ )
+    {
+	examdlg_->windowClosed.remove( mCB(this,uiSEGYRead,examDlgClose) );
+	examdlg_ = 0;
+    }
+
     delete defdlg_;
     delete impdlg_;
     delete scandlg_;
