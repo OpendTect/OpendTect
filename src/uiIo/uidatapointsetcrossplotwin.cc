@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.24 2010-06-17 22:17:15 cvskris Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.25 2010-07-01 11:38:35 cvsnageswara Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.24 2010-06-17 22:17:15 cvskris Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.25 2010-07-01 11:38:35 cvsnageswara Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.24 2010-06-17
 #include "uidatapointsetcrossplot.h"
 #include "uidatapointset.h"
 #include "uidialog.h"
-#include "uilineedit.h"
+#include "uigeninput.h"
 #include "uicolor.h"
 #include "uicolortable.h"
 #include "uicombobox.h"
@@ -126,7 +126,6 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 		  "Set selectable", true );
     seltb_.turnOn( setselecttbid_, true );
 
-
     if ( uidps_.displayMgr() )
     {
 	BufferString fnm, tooltip;
@@ -198,9 +197,11 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 		{ col = getRandomColor(); }
 		while ( !ctseqs.addIfNew(col) );
 	    }
+
 	    plotter_.y1grpColors().add( coly1 );
 	    plotter_.y2grpColors().add( coly2 );
 	}
+
 	grpfld_->attach( rightOf, eachfld_ );
 	grpfld_->setCurrentItem( 0 );
 	grpfld_->selectionChanged.notify(
@@ -234,6 +235,7 @@ void uiDataPointSetCrossPlotWin::setDensityPlot( CallBacker* cb )
     eachfld_->setSensitive( !ison );
     if ( ison && plotter_.isY2Shown() )
 	uiMSG().message( "Y2 cannot be displayed in density plot" );
+
     ison ?  eachfld_->setValue( 100 ) : eachfld_->setValue( plotter_.plotperc_);
     eachfld_->setSensitive( !ison );
     plotter_.setDensityPlot( ison, disptb_.isOn(showy2tbid_) );
@@ -270,6 +272,7 @@ void uiDataPointSetCrossPlotWin::colTabChanged( CallBacker* )
 void uiDataPointSetCrossPlotWin::removeSelections( CallBacker* )
 {
     if ( !plotter_.selectionAreas().size() ) return;
+
     plotter_.removeSelections();
     plotter_.drawContent();
 }
@@ -280,6 +283,7 @@ void uiDataPointSetCrossPlotWin::showTableSel( CallBacker* )
     if ( plotter_.isADensityPlot() )
     {
 	if ( !plotter_.selectionAreas().size() ) return;
+
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	Array2D<float>* data =
 	    new Array2DImpl<float>( plotter_.arrArea().width() + 1,
@@ -289,6 +293,7 @@ void uiDataPointSetCrossPlotWin::showTableSel( CallBacker* )
 	plotter_.setTRMsg( "Showing selected points in table" );
 	plotter_.calculateDensity( data, true );
     }
+
     uidps_.notifySelectedCell();
 }
 
@@ -338,6 +343,7 @@ uiSelColorDlg( uiParent* p, const BufferStringSet& names,
     BufferStringSet collabel;
     collabel.add( "Y1" );
     if ( isy2shwn ) collabel.add( "Y2" );
+
     tbl_->setColumnLabels( collabel );
     for ( int idx=0; idx<names.size(); idx++ )
     {
@@ -365,6 +371,7 @@ bool acceptOk( CallBacker* )
 	y1cols_[idx] = tbl_->getColor( RowCol(idx,0) );
 	if ( isy2shown_ ) y2cols_[idx] = tbl_->getColor( RowCol(idx,1) );
     }
+
     return true;
 }
     uiTable*			tbl_;
@@ -416,6 +423,7 @@ uiSetSelGrpTab( uiTabStackDlg* p,
 void setCurSelGrp( CallBacker* )
 {
     if ( tbl_->currentRow() < 0 ) return;
+
     curselgrp_ = tbl_->currentRow();
     selGrpChanged.trigger();
 }
@@ -425,12 +433,14 @@ void changeSelGrbNm( CallBacker* )
 {
     if ( tbl_->currentRow() < 0 || !selgrps_.validIdx(tbl_->currentRow()) )
 	return;
+
     for ( int idx=0; idx<tbl_->nrRows(); idx++ )
     {
 	uiDataPointSetCrossPlotter::SelectionGrp* selgrp = selgrps_[ idx ];
 	selgrp->name_ = tbl_->text( RowCol(idx,0) );
 	selgrp->col_ = tbl_->getColor( RowCol(idx,1) );
     }
+
     selGrpChanged.trigger();
 }
 
@@ -453,6 +463,7 @@ void addSelGrp( CallBacker* cb )
 void remSelGrp( CallBacker* )
 {
     if ( tbl_->nrRows() <= 1 ) return;
+
     selgrps_.remove( tbl_->currentRow() );
     tbl_->removeRow( tbl_->currentRow() );
     curselgrp_ = tbl_->currentRow();
@@ -463,6 +474,7 @@ void remSelGrp( CallBacker* )
 void changeColCB( CallBacker* )
 {
     if ( tbl_->currentRow() < 0 ) return;
+
     RowCol rc = tbl_->notifiedCell();
     if ( !rc.col ) return;
 
@@ -506,11 +518,11 @@ uiSetSelDomainTab( uiTabStackDlg* p , DataColInfo* info,
 {
     uiLabel* label =
 	new uiLabel( this, "Ranges (e.g. 0>x0 && x0>1.5 && -6125<x1)" );
-    uiLabel* linelabel = new uiLabel( this, "Enter Ranges" );
-    linelabel->attach( leftAlignedBelow, label );
-    inpfld_ = new uiLineEdit( this, "Enter Ranges" );
-    inpfld_->setHSzPol( uiObject::WideMax );
-    inpfld_->attach( rightTo, linelabel );
+
+    inpfld_ = new uiGenInput( this, "Enter Ranges" );
+    inpfld_->setElemSzPol( uiObject::WideMax );
+    inpfld_->updateRequested.notify( mCB(this,uiSetSelDomainTab,parsePush) );
+    label->attach( leftAlignedAbove, inpfld_ ); 
 
     setbut_ = new uiPushButton( this, "Set", true );
     setbut_->activated.notify( mCB(this,uiSetSelDomainTab,parsePush) );
@@ -533,7 +545,7 @@ uiSetSelDomainTab( uiTabStackDlg* p , DataColInfo* info,
     vartable_->display( false );
     if ( !mathobjstr.isEmpty() )
     {
-	inpfld_->setvalue_( mathobjstr );
+	inpfld_->setText( mathobjstr );
 	parsePush(0);
     }
 }
@@ -547,7 +559,7 @@ uiSetSelDomainTab( uiTabStackDlg* p , DataColInfo* info,
 
 void parsePush( CallBacker* )
 {
-    mathexprstring_ = inpfld_->getvalue_();
+    mathexprstring_ = inpfld_->text();
     MathExpressionParser mep( mathexprstring_ );
     mathobj_ = mep.parse();
     if ( !mathobj_ )
@@ -557,6 +569,7 @@ void parsePush( CallBacker* )
 	vartable_->display( false );
 	return;
     }
+
     updateDisplay();
 }
 
@@ -577,6 +590,7 @@ void updateDisplay()
 	vartable_->setRowLabel( idx, mathobj_->uniqueVarName(idx) );
 	vartable_->setCellObject( RowCol(idx,0), varsel );
     }
+
     vartable_->display( true );
 }
 
@@ -594,6 +608,7 @@ bool acceptOK()
 	mDynamicCastGet( uiComboBox*, box, obj );
 	if ( !box )
 	    continue;
+
 	dcolids_ += datainfo_->colids_[box->currentItem()];
     }
 
@@ -619,7 +634,7 @@ bool acceptOK()
     
     MathExpression*	mathObject()		{ return mathobj_; }
     
-    uiLineEdit*		inpfld_;
+    uiGenInput*		inpfld_;
     uiPushButton*	setbut_;
     uiTable*		vartable_;
 };
@@ -718,8 +733,10 @@ void uiDataPointSetCrossPlotWin::setSelectionDomain( CallBacker* )
     uiDataPointSet::DColID dcid=-dps.nrFixedCols()+1;
     for ( ; dcid<dps.nrCols(); dcid++ )
 	colnames.add( uidps_.userName(dcid) );
+
     if ( !selsettdlg_ )
 	selsettdlg_ = new uiSelectionSettDlg( plotter_, colnames );
+
     selsettdlg_->go();
 }
 
@@ -793,7 +810,7 @@ void uiDataPointSetCrossPlotWin::selOption( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 {
-    MouseCursorChanger cursorchanger(MouseCursor::Wait);
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     if ( mIsUdf(plotter_.plotperc_) ) return; // window is closing
 
     float newperc = eachfld_->getFValue();
@@ -805,6 +822,7 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 	    uiMSG().message( "Density Plot will always display all data" );
 	    eachfld_->setValue( (float)100 );
 	}
+
 	return;
     }
     
@@ -842,6 +860,7 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 	    eachfld_->setSensitive( true );
 	    return;
 	}
+
 	disptb_.turnOn( densityplottbid_, !wantnormalplot_ );
 	const bool ison = disptb_.isOn( densityplottbid_ );
 	disptb_.setToolTip( densityplottbid_, ison ? "Show normal plot"
@@ -849,6 +868,7 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 	eachfld_->setSensitive( !ison );
 	if ( ison )
 	    eachfld_->setValue( 100 );
+
 	eachfld_->setSensitive( !ison );
 	plotter_.setDensityPlot( !wantnormalplot_, disptb_.isOn(showy2tbid_) );
     }
@@ -861,6 +881,7 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
 {
     if ( !grpfld_ ) return;
+
     plotter_.curgrp_ = grpfld_->currentItem();
     plotter_.dataChanged();
 }
@@ -887,6 +908,7 @@ void uiDataPointSetCrossPlotWin::exportPDF( CallBacker* )
     uiDataPointSet::DColID dcid=-dps.nrFixedCols()+1;
     for ( ; dcid<dps.nrCols(); dcid++ )
 	colnames.add( uidps_.userName(dcid) );
+
     uiCreateDPSPDF dlg( this, plotter_, colnames );
     dlg.go();
 }
@@ -903,6 +925,7 @@ void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
 {
     if ( !propdlg_ )
 	propdlg_ = new uiDataPointSetCrossPlotterPropDlg( &plotter_ );
+
     propdlg_->go();
 }
 
@@ -949,15 +972,12 @@ void uiDataPointSetCrossPlotWin::setMultiColorCB( CallBacker* )
 void uiDataPointSetCrossPlotWin::changeColCB( CallBacker* )
 {
     const bool ison = maniptb_.isOn( multicolcodtbid_ );
-  
     if ( ison )
     {
 	uiSelColorDlg seldlg( this, uidps_.groupNames(), plotter_.y1grpColors(),
 			      plotter_.y2grpColors(), plotter_.isY2Shown() );
 	if ( !seldlg.go() )
-	{
 	    return;
-	}
 	
 	setGrpColors();
 	plotter_.drawContent( false );
