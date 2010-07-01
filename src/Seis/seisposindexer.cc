@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.12 2010-06-30 14:11:49 cvskris Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.13 2010-07-01 20:13:53 cvskris Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -499,8 +499,7 @@ bool Seis::PosIndexer::isReasonable( const BinID& bid ) const
 
 void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 {
-    if ( pk.isUndef() ||
-	 (excludeunreasonable_ && !isReasonable( pk.binID() ) ) )
+    if ( pk.isUndef() )
     {
 	nrrejected_++;
 	return;
@@ -514,6 +513,12 @@ void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 	inlrg_.start = inlrg_.stop = is2d_ ? 1 : pk.inLine();
 	crlrg_.start = crlrg_.stop = pk.xLine();
 	offsrg_.start = offsrg_.stop = isps_ ? pk.offset() : 0;
+    }
+
+    if ( excludeunreasonable_ && !isReasonable( pk.binID() ) )
+    {
+	nrrejected_++;
+	return;
     }
 
     maxidx_ = posidx;
