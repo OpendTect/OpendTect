@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitabbar.cc,v 1.24 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitabbar.cc,v 1.25 2010-07-02 18:04:39 cvskris Exp $";
 
 #include "uitabbar.h"
 #include "uiobjbody.h"
@@ -51,6 +51,12 @@ uiTabBar::uiTabBar( uiParent* parnt, const char* nm, const CallBack* cb )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selected( this )
 { if( cb ) selected.notify(*cb); }
+
+
+uiTabBar::~uiTabBar()
+{
+    deepErase( tabs_ );
+}
 
 
 uiTabBarBody& uiTabBar::mkbody( uiParent* parnt, const char* nm )
