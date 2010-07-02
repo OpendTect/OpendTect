@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.12 2010-06-30 17:17:28 cvskris Exp $
+ RCS:		$Id: segyfiledata.h,v 1.13 2010-07-02 13:13:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ public:
     			FileDataSet(const IOPar& iop);
 			/*!<Creates empty set, can later be filled from
 			    scanning. */
+    			~FileDataSet();
 
 			FileDataSet(const IOPar&,const char* filename,
 				od_int64 start,

@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.20 2010-06-30 17:17:28 cvskris Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.21 2010-07-02 13:13:00 cvskris Exp $";
 
 #include "segyfiledata.h"
 
@@ -145,6 +145,14 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop )
     , coords_( 0 )
     , nrusable_( 0 )
 {}
+
+
+
+SEGY::FileDataSet::~FileDataSet()
+{
+    delete storeddata_;
+    delete coords_;
+}
 
 
 bool SEGY::FileDataSet::setOutputStream( std::ostream& strm )
@@ -486,7 +494,7 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
     if ( totalsz_ < 1 )
     { iop.add( "Number of traces found", "0" ); return; }
 
-    BufferString nrtrcsstr;
+    BufferString nrtrcsstr( "", totalsz_, " (" );
 
     if ( nrusable_ == totalsz_ )
 	nrtrcsstr += "all usable)";
@@ -501,30 +509,42 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
     if ( isrev1_ && nrstanzas_ > 0 )
 	iop.add( "Number of REV.1 extra stanzas", nrstanzas_ );
 
-    int firstok = 0;
-    bool usable;
-    Seis::PosKey pk;
-    for ( ; firstok<totalsz_; firstok++ )
+    HorSampling hs( false );
+    Interval<int> nrrg;
+    Interval<float> offsrg;
+
+    if ( indexer_ )
     {
-	getDetails( firstok, pk, usable );
-	if ( usable ) 
-	    break;
+	hs.set( indexer_->inlRange(), indexer_->crlRange() );
+	offsrg = indexer_->offsetRange();
+	nrrg = indexer_->trcNrRange();
     }
-	
-    if ( firstok >= totalsz_ ) return;
-
-    HorSampling hs( false ); hs.start = hs.stop = pk.binID();
-    Interval<int> nrrg( pk.trcNr(), pk.trcNr() );
-    Interval<float> offsrg( pk.offset(), pk.offset() );
-
-    for ( int idx=firstok+1; idx<totalsz_; idx++ )
+    else
     {
-	getDetails( firstok, pk, usable );
-	if ( !usable )
-	    continue;
-	hs.include( pk.binID() );
-	nrrg.include( pk.trcNr() );
-	offsrg.include( pk.offset() );
+	int firstok = 0;
+	bool usable;
+	Seis::PosKey pk;
+	for ( ; firstok<totalsz_; firstok++ )
+	{
+	    if ( getDetails( firstok, pk, usable ) && usable )
+		break;
+	}
+	    
+	if ( firstok >= totalsz_ ) return;
+
+	hs.start = hs.stop = pk.binID();
+	nrrg.start = nrrg.stop = pk.trcNr();
+	offsrg.start = offsrg.stop = pk.offset();
+
+	for ( int idx=firstok+1; idx<totalsz_; idx++ )
+	{
+	    if ( !getDetails( firstok, pk, usable ) || !usable )
+		continue;
+
+	    hs.include( pk.binID() );
+	    nrrg.include( pk.trcNr() );
+	    offsrg.include( pk.offset() );
+	}
     }
 
     iop.add( IOPar::sKeySubHdr(), "Ranges" );
