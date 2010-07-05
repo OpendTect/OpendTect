@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter3d.cc,v 1.1 2010-06-24 08:46:24 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter3d.cc,v 1.2 2010-07-05 16:05:15 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,6 +125,7 @@ bool HorizonPainter3D::addPolyLine()
 		auxdata->linestyle_.color_ = hor3d->preferredColor();
 		auxdata->fillcolor_ = hor3d->preferredColor();
 		auxdata->enabled_ = linenabled_;
+		auxdata->name_ = hor3d->name();
 		marker = new Marker3D;
 		(*secmarkerln) += marker;
 		marker->marker_ = auxdata;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.cc,v 1.1 2010-06-24 08:46:24 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter2d.cc,v 1.2 2010-07-05 16:05:15 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,7 @@ bool HorizonPainter2D::addPolyLine()
 		auxdata->linestyle_.color_ = hor2d->preferredColor();
 		auxdata->fillcolor_ = hor2d->preferredColor();
 		auxdata->enabled_ = linenabled_;
+		auxdata->name_ = hor2d->name();
 		marker = new Marker2D;
 		(*secmarkerln) += marker;
 		marker->marker_ = auxdata;
