@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initseis.cc,v 1.7 2009-12-15 12:20:18 cvsbert Exp $";
+static const char* rcsID = "$Id: initseis.cc,v 1.8 2010-07-05 05:22:20 cvsnageswara Exp $";
 
 #include "initseis.h"
 #include "timedepthconv.h"
@@ -29,6 +29,8 @@ mDefSimpleTranslatorioContext(SeisTrc,Seis)
 
 void Seis::initStdClasses()
 {
+    LinearT2DTransform::initClass();
+    LinearD2TTransform::initClass();
     Time2DepthStretcher::initClass();
     Depth2TimeStretcher::initClass();
     Seis::ODSeqInp::initClass();
