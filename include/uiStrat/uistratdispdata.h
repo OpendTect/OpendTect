@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.4 2010-06-24 11:54:00 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.5 2010-07-05 16:08:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,8 +40,8 @@ public:
 			    {}
 
 	float 		zpos_;
-	BufferString	name_;
 	Color 		col_;
+	BufferString	name_;
 	Color 		nmcol_;
 	int 		colidx_;	
 	bool		isnmabove_;
@@ -97,7 +97,8 @@ protected:
 mClass uiStratAnnotGather : public CallBacker
 {
 public:
-	                        uiStratAnnotGather(AnnotData&,const uiStratMgr&);
+	                        uiStratAnnotGather(AnnotData&,
+						    const uiStratMgr&);
 	                        ~uiStratAnnotGather(){};
 
     Notifier<uiStratAnnotGather> newtreeRead;
@@ -106,7 +107,7 @@ protected:
 
     const uiStratMgr&	uistratmgr_;
     AnnotData& 		data_;
-    
+
     void		addUnits(const Strat::NodeUnitRef&,int);
     void		addUnit(const Strat::UnitRef&,int);
     void 		readFromTree();				
@@ -124,9 +125,7 @@ public:
 	                        ~uiStratTreeWriter(){};
 
     uiListViewItem*		getItemFromTree(const char*);
-    void			addUnit(const char*);
-    void 			removeUnit(const char*);
-    void 			updateUnitProperties(const char*);
+    void			handleUnit(const char*);
     void 			fillUndef(CallBacker*);
 
 protected:

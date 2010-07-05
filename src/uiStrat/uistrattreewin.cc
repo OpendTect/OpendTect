@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.43 2010-06-24 11:54:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.44 2010-07-05 16:08:07 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -168,9 +168,9 @@ void uiStratTreeWin::createToolBar()
 					      mCB(this,uiStratTreeWin,helpCB) );
     helpbut->setToolTip( "Help" );
     tb_->addObject( helpbut );
-    
     tb_->addSeparator();
-    mDefBut(switchviewbut_,"stratframeworkgraph.png",switchViewCB,"Switch View..." );
+    mDefBut(switchviewbut_,"stratframeworkgraph.png",
+	    				switchViewCB,"Switch View..." );
     switchviewbut_->setToggleButton( true );
 }
 
@@ -205,25 +205,7 @@ void uiStratTreeWin::unitSelCB(CallBacker*)
 {
     moveUnitCB(0);
     newUnitSelected.trigger();
-    /*
-    uiListViewItem* item = uitree_->listView()->selectedItem();
-    BufferString bs;
-    
-    if ( item )
-    {
-	bs = item->text();
-
-	while ( item->parent() )
-	{
-	    item = item->parent();
-	    CompoundKey kc( item->text() );
-	    kc += bs.buf();
-	    bs = kc.buf();
-	}
-    }
-
-    const Strat::UnitRef* ur = uitree_->findUnit( bs.buf() ); 
-*/ }
+}
 
 
 void uiStratTreeWin::editCB( CallBacker* )
@@ -272,6 +254,8 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
     istreedisp_ = istreedisp_ ? false : true;
     uistratdisp_->display( !istreedisp_ );
     uitree_->listView()->display( istreedisp_ );
+    switchviewbut_->setPixmap( istreedisp_ ? "strat_tree.png" 
+	    				   : "stratframeworkgraph.png" ); 
 }
 
 

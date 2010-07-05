@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uiwellstratdisplay.h,v 1.8 2010-05-19 12:31:21 cvsbruno Exp $
+ RCS:           $Id: uiwellstratdisplay.h,v 1.9 2010-07-05 16:08:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,8 @@ protected:
     uiStratAnnotGather		uidatagather_;
   
     virtual void		dataChanged(CallBacker*);
-    void 			setUnitPos(AnnotData::Unit&);
+
+    void 			setUnitPos(AnnotData::Unit&,AnnotData::Unit&);
 };
 
 #endif

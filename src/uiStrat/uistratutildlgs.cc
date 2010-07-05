@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.20 2010-06-29 10:43:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.21 2010-07-05 16:08:07 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -33,6 +33,7 @@ uiStratUnitDlg::uiStratUnitDlg( uiParent* p, Setup& su )
 				 "Specify properties of a new unit",
 				 "110.0.1"))
     , uistratmgr_(su.uistratmgr_)
+    , entrancename_(su.entrancename_)				 
 {
     unitnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
     unitnmfld_->valuechanged.notify( mCB(this,uiStratUnitDlg,selNameCB) );
@@ -118,12 +119,12 @@ bool uiStratUnitDlg::acceptOK( CallBacker* )
 	{ mErrRet( "Please specify a valid time range", return false ) }
     if ( !strcmp( unitnmfld_->text(), "" ) )
 	{ mErrRet( "Please specify the unit name", return false ) }
-    /*if ( uistratmgr_ && !uistratmgr_->isNewUnitName( unitnmfld_->text() ) )
+    if ( uistratmgr_ && !uistratmgr_->isNewUnitName( unitnmfld_->text() ) 
+		&& !strcmp(unitnmfld_->text(),entrancename_.buf()) ) 
     { 
 	mErrRet( "Unit name already exists. Please specify a new unit name", 
 		 return false ) 
     }
-    */
     if ( !strcmp( lvlnmfld_->text(), "" ) )
 	{ mErrRet( "Please specify a name for the unit level", return false ) }
     return true;

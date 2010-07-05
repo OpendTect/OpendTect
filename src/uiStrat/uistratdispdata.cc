@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.6 2010-06-29 10:43:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.7 2010-07-05 16:08:07 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratmgr.h"
@@ -18,9 +18,10 @@ static const char* rcsID = "$Id: uistratdispdata.cc,v 1.6 2010-06-29 10:43:54 cv
 #include "color.h"
 #include "stratunitrepos.h"
 
+
 #define mAskStratMgrNotif(nm)\
     uistratmgr_.nm.notify( mCB(this,uiStratAnnotGather,triggerDataChange) );
-uiStratAnnotGather::uiStratAnnotGather( AnnotData& ad, const uiStratMgr& mgr)
+uiStratAnnotGather::uiStratAnnotGather( AnnotData& ad, const uiStratMgr& mgr )
     : CallBacker(CallBacker::CallBacker()) 	
     , data_(ad) 
     , uistratmgr_(mgr) 
@@ -45,12 +46,12 @@ void uiStratAnnotGather::triggerDataChange( CallBacker* )
 void uiStratAnnotGather::readFromTree()
 {
     data_.eraseData();
-
+    static const char* colnms[] = { "Super Group", "Group", 
+    				 "Formation", "Member", "Type", 0 };
 #define mAddCol( title )\
     data_.addCol( new AnnotData::Column( title ) );
-    mAddCol( "Formation" );
-    mAddCol( "Member" );
-    mAddCol( "Type" );
+    for ( int idcol=0; colnms[idcol]; idcol++ )
+	mAddCol( colnms[idcol] );
 
     addUnits( *((Strat::NodeUnitRef*)uistratmgr_.getCurTree()), 0 );
     newtreeRead.trigger();
@@ -59,6 +60,9 @@ void uiStratAnnotGather::readFromTree()
 
 void uiStratAnnotGather::addUnits( const Strat::NodeUnitRef& nur, int order ) 
 {
+    if ( order == 0 )
+    { addUnit( nur, 0 ); order++; }
+
     for ( int iref=0; iref<nur.nrRefs(); iref++ )
     {
 	const Strat::UnitRef& ref = nur.ref( iref );
@@ -109,36 +113,13 @@ uiStratTreeWriter::uiStratTreeWriter( uiStratRefTree& tree )
 
 #define mGetLItem(t) uiListViewItem* lit = uitree_.listView()->findItem(t,0,false); if ( lit ) { uitree_.listView()->setCurrentItem(lit); } else return;
 
-void uiStratTreeWriter::addUnit( const char* txt )
+void uiStratTreeWriter::handleUnit( const char* txt )
 {
     if ( txt )
     {
 	mGetLItem( txt )
-	uitree_.insertSubUnit(  lit );
+	uitree_.handleMenu( lit );
     }
-    else
-    {
-	uiListViewItem* lit = uitree_.listView()->firstItem();
-	if ( lit ) 
-	{
-	    uitree_.listView()->setCurrentItem(lit);
-	    uitree_.insertSubUnit(  lit );
-	}
-    }
-}
-
-
-void uiStratTreeWriter::removeUnit( const char* txt )
-{
-    mGetLItem( txt )
-    uitree_.removeUnit(  lit );
-}
-
-
-void uiStratTreeWriter::updateUnitProperties( const char* txt )
-{
-    mGetLItem( txt )
-    uitree_.updateUnitProperties( lit );
 }
 
 

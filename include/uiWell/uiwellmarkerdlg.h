@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: uiwellmarkerdlg.h,v 1.8 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: uiwellmarkerdlg.h,v 1.9 2010-07-05 16:08:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ protected:
     uiTable*			table_;
     uiGenInput*			unitfld_;
     const Well::Track&		track_;
+
+    ObjectSet<const Well::Marker> markers_;
 
     int				getNrRows() const;
     int				rowNrFor(uiStratLevelSel*) const;

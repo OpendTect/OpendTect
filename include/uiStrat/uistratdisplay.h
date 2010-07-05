@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.13 2010-06-24 11:54:00 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.14 2010-07-05 16:08:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,9 +66,11 @@ public:
 	ObjectSet<uiPolygonItem> unititms_;
     };
     
+    int				startcol_;
     const ColumnItem&		colItem(int idx) const { return *colitms_[idx];}
 
 protected:
+
     ObjectSet<ColumnItem>	colitms_;
 
     uiGraphicsScene&		scene_;
@@ -82,9 +84,9 @@ protected:
     //graphics
     void			addUnit(float);
     void			drawColumns();
-    void			drawBorders(int);
-    void			drawMarkers(int);
-    void			drawUnits(int);
+    void			drawBorders(ColumnItem&,int);
+    void			drawMarkers(ColumnItem&,int);
+    void			drawUnits(ColumnItem&,int);
     void			eraseAll();
     void			updateAxis(); 
 };
@@ -168,24 +170,23 @@ protected :
     uiStratAnnotGather		uidatagather_;
     uiStratTreeWriter		uidatawriter_;
 
-    MenuItem            	speclvlmnuitem_;
-    MenuItem            	propunitmnuitem_;
-    MenuItem            	addsubunitmnuitem_;
-    
     uiGenInput*                 rangefld_;
     uiLabeledSpinBox*           stepfld_;
     uiGroup*			dispparamgrp_;
     uiPushButton*		fillbutton_;
+    uiPushButton*		viewcolbutton_;
    
+    bool			isUnitBelowCurrent() const;
     void			createDispParamGrp();
     void			makeAnnots();
     void			makeAnnotCol(const char*,int,bool);
     void			resetRangeFromUnits();
 
-    void			dispParamChgd(CallBacker*);
-    virtual void		dataChanged(CallBacker*);
-    virtual void                handleMenuCB(CallBacker*);
     virtual void                createMenuCB(CallBacker*);
+    virtual void		dataChanged(CallBacker*);
+    void			dispParamChgd(CallBacker*);
+    virtual void                handleMenuCB(CallBacker*);
+    void			selCols(CallBacker*);
 };
 
 

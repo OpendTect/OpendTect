@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.12 2010-06-29 10:43:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.13 2010-07-05 16:08:07 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -31,8 +31,6 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& tree )
     : uiAnnotDisplay(p,"Stratigraphy viewer")
     , uidatagather_(uiStratAnnotGather(data_,tree.stratmgr()))
     , uidatawriter_(uiStratTreeWriter(tree ))
-    , propunitmnuitem_("&Properties ...",1)			
-    , addsubunitmnuitem_("&Create sub-unit...",2)
 {
     uidatagather_.newtreeRead.notify( mCB(this,uiStratDisplay,dataChanged) );
     createDispParamGrp();
@@ -59,9 +57,73 @@ void uiStratDisplay::createDispParamGrp()
 	rangefld_->setValue( zrg );
 	setZRange( Interval<float>( zrg.stop, zrg.start ) );
     }
-    const CallBack cb = mCB( &uidatawriter_, uiStratTreeWriter, fillUndef );
-    fillbutton_ = new uiPushButton( dispparamgrp_,"&Fill undefined",cb,true ); 
-    fillbutton_->attach( rightOf, rangefld_ );
+   
+    const CallBack cbv = mCB( this, uiStratDisplay, selCols );
+    viewcolbutton_ = new uiPushButton( dispparamgrp_,"&View ",cbv,true ); 
+    viewcolbutton_->attach( rightOf, rangefld_ );
+    const CallBack cbf = mCB( &uidatawriter_, uiStratTreeWriter, fillUndef );
+    fillbutton_ = new uiPushButton( dispparamgrp_,"&Fill undefined",cbf,true ); 
+    fillbutton_->attach( rightOf, viewcolbutton_ );
+}
+
+
+class uiColViewerDlg : public uiDialog
+{
+public :
+    uiColViewerDlg( uiParent* p, uiAnnotDrawer& drawer, AnnotData& ad )
+	: uiDialog(p,uiDialog::Setup("View Columns","",mNoHelpID))
+	, drawer_(drawer) 
+	, data_(ad)			  
+    {
+	setCtrlStyle( LeaveOnly );
+
+	BufferStringSet colnms;
+	for ( int idx=0; idx<data_.nrCols(); idx++ )
+	    colnms.add( data_.getCol( idx )->name_ );
+
+	for ( int idx=0; idx<colnms.size(); idx++ )
+	{
+	    uiCheckBox* box = new uiCheckBox( this, colnms.get(idx) );
+	    box->setChecked( idx >= drawer_.startcol_ );
+	    box->activated.notify( mCB(this,uiColViewerDlg,selChg) );
+	    colboxflds_ += box;
+	    if ( idx ) box->attach( alignedBelow, colboxflds_[idx-1] ); 
+	}
+    }
+
+    void selChg( CallBacker* cb )
+    {
+	mDynamicCastGet(uiCheckBox*,box,cb)
+	if ( !cb ) return;
+
+	int idsel = colboxflds_.indexOf( box );
+	for ( int idbox=0; idbox<colboxflds_.size(); idbox++ )
+	{
+	    NotifyStopper ns( colboxflds_[idbox]->activated );
+	    bool ison = false;
+	    if ( idsel<idbox )
+		ison = true;
+	    else if ( idsel == idbox ) 
+		ison = !colboxflds_[idbox]->isChecked();
+	    
+	    colboxflds_[idbox]->setChecked( ison );
+	}
+	drawer_.startcol_ = idsel; 
+	drawer_.draw();
+    }
+
+protected:
+
+    ObjectSet<uiCheckBox> 	colboxflds_;
+    uiAnnotDrawer&		drawer_;
+    AnnotData&			data_;
+};
+
+
+void uiStratDisplay::selCols( CallBacker* cb )
+{
+    uiColViewerDlg dlg( parent(), drawer_, data_ );
+    dlg.go();
 }
 
 
@@ -114,54 +176,15 @@ void uiStratDisplay::dispParamChgd( CallBacker* cb )
 
 void uiStratDisplay::createMenuCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( !menu ) return;
-
-
-    int cidx = getColIdxFromPos();
-    AnnotData::Column* col = cidx >=0 ? data_.getCol( cidx ) : 0;
-    if ( !col ) return;
-    bool unitfound = getUnitFromPos();
-    bool canaddunit = ( cidx == 0 );
-    mAddMenuItem(menu,&addunitmnuitem_,
-			    !unitfound &&col->iseditable_ && canaddunit, false);
-    mAddMenuItem( menu, &remunitmnuitem_, unitfound && col->iseditable_, false);
-    mAddMenuItem( menu, &propunitmnuitem_, unitfound && col->iseditable_,false);
-    mAddMenuItem( menu, &addsubunitmnuitem_,unitfound &&col->iseditable_,false);
+    handleMenuCB( cb );
 }
-
 
 
 void uiStratDisplay::handleMenuCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet( MenuHandler*, menu, caller );
-    if ( mnuid==-1 || menu->isHandled() )
-    return;
-
     const AnnotData::Unit* unit = getUnitFromPos();
-    bool ishandled = true;
-    if ( mnuid == addsubunitmnuitem_.id )
-    {
-	int colidx = getColIdxFromPos();
-	if ( colidx >= 0 )
-	    uidatawriter_.addUnit( unit->name_ );
-	resetRangeFromUnits();
-    }
-    if ( mnuid == addunitmnuitem_.id )
-    {
-	int colidx = getColIdxFromPos();
-	if ( colidx == 0 )
-	    uidatawriter_.addUnit( 0 );
-	resetRangeFromUnits();
-    }
-    if ( mnuid == addcolmnuitem_.id )
-    {
-    }
-    if ( mnuid == remunitmnuitem_.id && unit )
-	uidatawriter_.removeUnit( unit->name_ );
-    if ( mnuid == propunitmnuitem_.id && unit )
-	uidatawriter_.updateUnitProperties( unit->name_ );
+    if ( !unit ) return;
+    uidatawriter_.handleUnit( unit->name_ );
 }
 
 
@@ -212,6 +235,25 @@ void uiStratDisplay::makeAnnotCol( const char* txt, int annotpos, bool level )
 }
 
 
+bool uiStratDisplay::isUnitBelowCurrent() const
+{
+    const AnnotData::Unit* curunit = getUnitFromPos();
+    if ( !curunit ) return false;
+    Interval<float> rg( curunit->zpos_, curunit->zposbot_ );
+    int cidx = getColIdxFromPos( );
+    if ( cidx > 0 || (cidx+1) < nrCols() ) 
+    {
+	for ( int idunit=0; idunit<nrUnits(cidx+1); idunit++ )
+	{
+	    const AnnotData::Unit* unit = getUnit( idunit, cidx+1 );
+	    if ( unit->zpos_ >= rg.start && unit->zposbot_ <= rg.stop )
+		return false;
+	}
+    }
+    return true;
+}
+
+
 
 
 
@@ -221,6 +263,7 @@ uiAnnotDrawer::uiAnnotDrawer( uiGraphicsScene& sc, const AnnotData& ad )
     , xax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Top)))
     , yax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Left)
 							.nogridline(true)))
+    , startcol_(0)	  
 {
     xax_->setBounds( Interval<float>( 0, 100 ) );
 }
@@ -262,16 +305,18 @@ void uiAnnotDrawer::draw()
 
 void uiAnnotDrawer::drawColumns()
 {
-    for ( int idx=0; idx<nrCols(); idx++ )
+    eraseAll();
+    for ( int idcol=startcol_; idcol<nrCols(); idcol++ )
     {
-	ColumnItem* colitm = new ColumnItem( data_.getCol( idx )->name_ );
+	ColumnItem* colitm = new ColumnItem( data_.getCol( idcol )->name_ );
 	colitms_ += colitm;
-	colitm->size_ = (int)xax_->getVal( (int)(scene_.width()+10) )/nrCols() ;
-	if ( colitm->size_ <0 ) colitm->size_ = 0;
-
-	drawBorders( idx );
-	drawMarkers( idx );
-	drawUnits( idx );
+	colitm->size_ = (int)xax_->getVal( (int)(scene_.width()+10) )
+	    	      /( nrCols()-startcol_ ) ;
+	if ( colitm->size_ <0 ) 
+	    colitm->size_ = 0;
+	drawUnits( *colitm, idcol );
+	drawBorders( *colitm, idcol );
+	drawMarkers( *colitm, idcol );
     }
 }
 
@@ -297,12 +342,10 @@ void uiAnnotDrawer::eraseAll()
 }
 
 
-void uiAnnotDrawer::drawBorders( int colidx )
+void uiAnnotDrawer::drawBorders( ColumnItem& colitm, int colidx )
 {
-    ColumnItem* colitm = colitms_[colidx];
-
-    int x1 = xax_->getPix( (colidx)*colitm->size_ );
-    int x2 = xax_->getPix( (colidx+1)*colitm->size_ );
+    int x1 = xax_->getPix( (colidx-startcol_)*colitm.size_ );
+    int x2 = xax_->getPix( (colidx+1-startcol_)*colitm.size_ );
     int y1 = yax_->getPix( yax_->range().stop );
     int y2 = yax_->getPix( yax_->range().start );
 	
@@ -314,27 +357,26 @@ void uiAnnotDrawer::drawBorders( int colidx )
     rectpts += uiPoint( x1, y1  );
     uiPolyLineItem* pli = scene_.addItem( new uiPolyLineItem( rectpts ) );
     pli->setPenStyle( LineStyle(LineStyle::Solid,1,Color::Black()) );
-    colitm->borderitm_ = pli;
+    colitm.borderitm_ = pli;
 
-    uiTextItem* ti = scene_.addItem( new uiTextItem( colitm->name_ ) );
+    uiTextItem* ti = scene_.addItem( new uiTextItem( colitm.name_ ) );
     ti->setTextColor( Color::Black() );
     ti->setPos( x1, y1 - 18 );
     ti->setZValue( 2 );
-    colitm->bordertxtitm_ = ti;
+    colitm.bordertxtitm_ = ti;
 }
 
 
-void uiAnnotDrawer::drawMarkers( int colidx )
+void uiAnnotDrawer::drawMarkers( ColumnItem& colitm, int colidx )
 {
-    ColumnItem* colitm = colitms_[colidx];
-    mRemoveSet( colitm->mrkitms_ );
-    mRemoveSet( colitm->mrktxtitms_ );
+    mRemoveSet( colitm.mrkitms_ );
+    mRemoveSet( colitm.mrktxtitms_ );
     for ( int idx=0; idx<data_.getCol(colidx)->markers_.size(); idx++ )
     {
 	const AnnotData::Marker& mrk = *data_.getCol(colidx)->markers_[idx];
 
-	int x1 = xax_->getPix( (colidx)*colitm->size_ );
-	int x2 = xax_->getPix( (colidx+1)*colitm->size_ );
+	int x1 = xax_->getPix( (colidx-startcol_)*colitm.size_ );
+	int x2 = xax_->getPix( (colidx-startcol_+1)*colitm.size_ );
 	int y = yax_->getPix( mrk.zpos_ );
 
 	uiLineItem* li = scene_.addItem( new uiLineItem(x1,y,x2,y,true) );
@@ -343,26 +385,27 @@ void uiAnnotDrawer::drawMarkers( int colidx )
 	ti->setPos( x1 + (x2-x1)/2, y ); 
 	ti->setZValue( 2 );
 	ti->setTextColor( mrk.col_ );
-	colitm->mrktxtitms_ += ti;
-	colitm->mrkitms_ += li;
+	colitm.mrktxtitms_ += ti;
+	colitm.mrkitms_ += li;
     }
 }
 
 
-void uiAnnotDrawer::drawUnits( int colidx ) 
+void uiAnnotDrawer::drawUnits( ColumnItem& colitm, int colidx ) 
 {
-    ColumnItem* colitm = colitms_[colidx];
-    mRemoveSet( colitm->unittxtitms_ );
-    mRemoveSet( colitm->unititms_ );
+    mRemoveSet( colitm.unittxtitms_ );
+    mRemoveSet( colitm.unititms_ );
 
     for ( int idx=0; idx<data_.getCol(colidx)->units_.size(); idx++ )
     {
 	const AnnotData::Unit& unit = *data_.getCol(colidx)->units_[idx];
 
-	int x1 = xax_->getPix( (colidx)*colitm->size_ );
-	int x2 = xax_->getPix( (colidx+1)*colitm->size_ );
-	int y1 = yax_->getPix( unit.zpos_ );
-	int y2 = yax_->getPix( unit.zposbot_ );
+	int x1 = xax_->getPix( (colidx-startcol_)*colitm.size_ );
+	int x2 = xax_->getPix( (colidx-startcol_+1)*colitm.size_ );
+	bool ztop = ( unit.zpos_ < yax_->range().stop );
+	bool zbase = ( unit.zposbot_ > yax_->range().start );
+	int y1 = yax_->getPix( ztop ? yax_->range().stop : unit.zpos_ );
+	int y2 = yax_->getPix( zbase ? yax_->range().start : unit.zposbot_ );
 
 	TypeSet<uiPoint> rectpts;
 	rectpts += uiPoint( x1, y1 );
@@ -378,8 +421,8 @@ void uiAnnotDrawer::drawUnits( int colidx )
 	ti->setTextColor( Color::Black() );
 	ti->setPos( x1, y2 - abs((y2-y1)/2) -10 );
 	ti->setZValue( 2 );
-	colitm->unittxtitms_ += ti;
-	colitm->unititms_ += pli;
+	colitm.unittxtitms_ += ti;
+	colitm.unititms_ += pli;
     }
 }
 

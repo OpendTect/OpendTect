@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.52 2010-06-28 04:13:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.53 2010-07-05 16:08:07 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -620,9 +620,7 @@ uiWellDisplay::uiWellDisplay( uiWellDisplay& orgdisp, const ShapeSetup& su )
 
     for ( int idx=0; idx<orgdisp.nrLogDisp(); idx++ )
     {
-	if ( su.nrlogpanels_ >= idx )
-	{ if ( control_ ) control_->removeLogDisplay( *logdisps_[idx] ); }
-	else 
+	if ( su.nrlogpanels_ > idx )
 	{
 	    uiWellLogDisplay* log = orgdisp.logDisplay(idx);
 	    log->reParent( this );
@@ -630,6 +628,8 @@ uiWellDisplay::uiWellDisplay( uiWellDisplay& orgdisp, const ShapeSetup& su )
 	    log->setStretch( 2, 2 );
 	    logdisps_ += log;
 	}
+	else if ( control_ ) 
+	    control_->removeLogDisplay(*orgdisp.logDisplay(idx));
     }
     
     for ( int idx=logdisps_.size(); idx<su.nrlogpanels_; idx++ )

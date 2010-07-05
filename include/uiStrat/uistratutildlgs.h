@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.13 2010-06-24 11:54:00 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.14 2010-07-05 16:08:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,11 +36,13 @@ public:
 	public :
 	    		Setup(uiStratMgr* mgr)
 			    : uistratmgr_(mgr)
-			    , timerg_(0,4500)  
+			    , timerg_(0,4500)
+			    , entrancename_("")	     
 			    {}
 			
 	mDefSetupMemb(uiStratMgr*,uistratmgr)
 	mDefSetupMemb(Interval<float>,timerg)
+	mDefSetupMemb(BufferString,entrancename)	     
     };
 
 			uiStratUnitDlg(uiParent*,Setup&);
@@ -59,6 +61,7 @@ protected:
     uiColorInput*	colfld_;
     
     uiStratMgr*		uistratmgr_;
+    BufferString&	entrancename_;
 
     void		selLithCB(CallBacker*);
     void		selNameCB(CallBacker*);

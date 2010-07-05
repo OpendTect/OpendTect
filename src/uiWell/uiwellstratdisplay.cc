@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.10 2010-06-24 11:54:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.11 2010-07-05 16:08:07 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
-#include "stratlevel.h"
+#include "stratunitrepos.h"
 #include "uigraphicsscene.h"
 #include "uistrattreewin.h"
 #include "welld2tmodel.h"
@@ -40,6 +40,7 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
 					 .noborderspace(true)
 					 .border(uiBorder(0))
 					 .nogridline(true) ), true );
+    drawer_.xAxis()->setBounds( StepInterval<float>( 0, 100, 10 ) );
    
     uidatagather_.newtreeRead.notify( mCB(this,uiWellStratDisplay,dataChanged));
     dataChanged(0);
@@ -50,11 +51,12 @@ void uiWellStratDisplay::dataChanged( CallBacker* )
 {
     for ( int colidx=0; colidx<nrCols(); colidx++ )
     {
-	for ( int idx=0; idx<nrUnits( colidx ); idx++ )
+	for ( int idx=0; idx<nrUnits( colidx )-1; idx++ )
 	{
-	    AnnotData::Unit* unit = getUnit( idx, colidx );
-	    if ( unit )
-		setUnitPos( *unit );
+	    AnnotData::Unit* cunit = getUnit( idx, colidx );
+	    AnnotData::Unit* nunit = getUnit( idx+1, colidx );
+	    if ( cunit && nunit )
+		setUnitPos( *cunit, *nunit );
 	}
     }
     setZRange( Interval<float>( (dispData().zrg_.stop/1000), 
@@ -62,30 +64,40 @@ void uiWellStratDisplay::dataChanged( CallBacker* )
 }
 
 
-void uiWellStratDisplay::setUnitPos( AnnotData::Unit& unit )  
+void uiWellStratDisplay::setUnitPos( AnnotData::Unit& cunit, 
+					AnnotData::Unit& nunit )  
 {
     if ( !dispdata_.markers_ ) return;
-    float& toppos = unit.zpos_; 
-    float& botpos = unit.zposbot_;
+    float& ctoppos = cunit.zpos_; 
+    float& cbotpos = cunit.zposbot_; 
+    float& ntoppos = nunit.zpos_;
+    float& nbotpos = nunit.zposbot_;
     const Well::Marker* topmrk = 0;
     const Well::Marker* basemrk = 0;
     for ( int idx=0; idx<dispdata_.markers_->size(); idx++ )
     {
+	const char* lvlnm = 
+	    Strat::RT().getUnitLvlName( (*dispdata_.markers_)[idx]->levelID() );
+	if ( lvlnm && !strcmp( lvlnm, cunit.annots_[0]->buf() ) )
+	    topmrk = (*dispdata_.markers_)[idx];
+	if ( lvlnm && !strcmp( lvlnm, nunit.annots_[0]->buf() ) )
+	    basemrk = (*dispdata_.markers_)[idx];
     }
     if ( !topmrk || !basemrk ) 
     { 
-	toppos = mUdf(float); 
-	botpos = mUdf(float); 
+	ntoppos = mUdf(float); 
+	cbotpos = mUdf(float); 
     }
     else
     {
-	toppos = topmrk->dah();
-	botpos = basemrk->dah();
+	ctoppos = topmrk->dah();
+	cbotpos = basemrk->dah();
 	if ( dispdata_.zistime_ && dispdata_.d2tm_ ) 
 	{ 
-	    toppos = dispdata_.d2tm_->getTime( toppos ); 
-	    botpos = dispdata_.d2tm_->getTime( botpos ); 
+	    ctoppos = dispdata_.d2tm_->getTime( ctoppos ); 
+	    cbotpos = dispdata_.d2tm_->getTime( cbotpos ); 
 	}
+	ntoppos = cbotpos;
     }
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.21 2010-06-24 11:55:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.22 2010-07-05 16:08:07 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -132,10 +132,12 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     const int nrrows = nrnew + cNrEmptyRows + startrow;
     table_->setNrRows( nrrows );
 
+    markers_.erase();
     for ( int idx=0; idx<nrnew; idx++ )
     {
 	int irow = startrow + idx;
 	const Well::Marker* marker = markers[idx];
+	markers_ += marker;
 	
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false );
 	levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
@@ -182,17 +184,15 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
 	rc.col = cColorCol; table_->setColor( rc, levelsel->getColor() );
 	rc.col = cNameCol; table_->setText( rc, levelsel->getName() );
     }
-    else
+    //TODO replace by former marker but this does not handle add/remove marker:
+    else if ( irow <  markers_.size() )
     {
-	//TODO get back from orignal list
-	/*
-	const Well::Marker* marker = markers[irow];
+	const Well::Marker* marker = markers_[irow];
 	if ( marker ) 
 	{
-	    table_->setColor( rc, marker->getColor() );
-	    table_->setText( rc, marker->name_ );
+	    rc.col = cColorCol; table_->setColor( rc, marker->color() );
+	    rc.col = cNameCol; table_->setText( rc, marker->name() );
 	}
-	*/
     }
     rc.col = cColorCol; table_->setCellReadOnly( rc, havelvl );
     rc.col = cNameCol; table_->setCellReadOnly( rc, havelvl );
@@ -291,10 +291,9 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 	if ( !havelvl && !havenm )
 	    continue;
 
-	Well::Marker* marker = lvlid >= 0 ? new Well::Marker( lvlid, z )
-					  : new Well::Marker( txt, z );
-	if ( !havelvl )
-	    marker->setColor( table_->getColor( RowCol(idx,cColorCol) ) );
+	Well::Marker* marker = new Well::Marker( txt, z );
+	if ( lvlid >= 0 ) marker->setLevelID( lvlid );
+	marker->setColor( table_->getColor( RowCol(idx,cColorCol) ) );
 	markers += marker;
     }
 }

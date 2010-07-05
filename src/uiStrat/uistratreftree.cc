@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.38 2010-06-29 10:43:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.39 2010-07-05 16:08:07 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -158,22 +158,31 @@ void uiStratRefTree::rClickCB( CallBacker* )
 {
     uiListViewItem* lvit = lv_->itemNotified();
     if ( !lvit || !lvit->dragEnabled() ) return;
+    handleMenu( lvit );
+}
 
+
+void uiStratRefTree::handleMenu( uiListViewItem* lvit )
+{
     int col = lv_->columnNotified();
     uiPopupMenu mnu( lv_->parent(), "Action" );
     mnu.insertSeparator();
     mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 0 );
-    mnu.insertItem( new uiMenuItem("&Remove"), 1 );
+    mnu.insertItem( new uiMenuItem("&Subdivide unit..."), 1 );
     mnu.insertItem( new uiMenuItem("&Properties..."), 2 );
+    if ( lv_->currentItem() != lv_->firstItem() )
+	mnu.insertItem( new uiMenuItem("&Remove"), 3 );
 
     const int mnuid = mnu.exec();
     if ( mnuid<0 ) return;
     else if ( mnuid==0 )
 	insertSubUnit( lvit );
     else if ( mnuid== 1 )
-	removeUnit( lvit );
+	subdivideUnit( lvit );
     else if ( mnuid==2 )
 	updateUnitProperties( lvit );
+    else if ( mnuid==3 )
+	removeUnit( lvit );
 }
 
 
@@ -198,6 +207,40 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	doInsertSubUnit( lvit, props );
     }
 }
+
+
+void uiStratRefTree::subdivideUnit( uiListViewItem* it ) 
+{
+    if ( !it ) return;
+
+    BufferString uncode = getCodeFromLVIt( it );
+    const UnitRef* unitref = uistratmgr_->getCurTree()->find( uncode );
+    if ( !unitref ) 
+    { uiMSG().error( "Can not find unit" ); return; }
+
+    uiListViewItem* parit = it->parent();
+    if ( !parit )
+    { uiMSG().error( "You can not subdivide the top unit" ); return; }
+    lv_->setCurrentItem( parit );
+
+    Interval<float> timerg = unitref->props().timerg_;
+    UnitRef::Props props = unitref->props();
+    for ( int idx=0; idx<2; idx++ )
+    {
+	props.timerg_.start = timerg.start + (float)idx*timerg.width()/2;
+	props.timerg_.stop = timerg.start + (float)(idx+1)*timerg.width()/2;
+	if ( idx ==1  )
+	{
+	    BufferString bfs( props.code_ );
+	    props.code_ = bfs.buf();
+	    bfs += unitref->getID()+1;
+	    doInsertSubUnit( parit, props );
+	}
+	else
+	    uistratmgr_->updateUnitProps( unitref->getID(), props );
+    }
+}
+
 
 
 void uiStratRefTree::doInsertSubUnit( uiListViewItem* lvit, UnitRef::Props& pp ) const
@@ -435,31 +478,11 @@ void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node,
     for ( int idref=0; idref<pos; idref++ )\
 	moveUnit( true );\
 
-    const Interval<float> partimerg = node.props().timerg_;  
-    ObjectSet<UnitRef> refunits;
-    tree_->gatherChildrenByTime( node, refunits );
-    Interval<float> unconfrg;
-    const float refstart = refunits[0]->props().timerg_.start;
-    const float refstop = refunits[refunits.size()-1]->props().timerg_.stop;
-    if ( partimerg.start < refstart )
+    TypeSet< Interval<float> > timergs;
+    tree_->getLeavesTimeGaps( node, timergs );
+    for ( int idx=0; idx<timergs.size()-1; idx++ )
     {
-	unconfrg.set( partimerg.start, refstart );
-	mSetUpUnconf( unconfrg, node.nrRefs() );
-    }
-    if ( partimerg.stop > refstop )
-    {
-	unconfrg.set( refstop, partimerg.stop );
-	mSetUpUnconf( unconfrg, 0 )
-    }
-    for ( int iref=0; iref<refunits.size()-1; iref++ )
-    {
-	const float refstop = refunits[iref]->props().timerg_.stop;
-	const float nextrefstart = refunits[iref+1]->props().timerg_.start;
-	if ( refstop < nextrefstart )
-	{
-	    unconfrg.set( refstop, nextrefstart );
-	    mSetUpUnconf( unconfrg, iref+1 )
-	}
+	mSetUpUnconf( timergs[idx], node.nrRefs() - idx );
     }
     for ( int iref=0; iref<node.nrRefs(); iref++ )
     {

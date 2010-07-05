@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.12 2010-06-29 13:03:30 cvsbruno Exp $
+ RCS:		$Id: stratreftree.h,v 1.13 2010-07-05 16:08:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,8 +46,10 @@ public:
     const char*		getUnitLvlName(int unid) const;
     Color		getUnitColor(int unid) const;
     
-    void		gatherChildrenByTime(const NodeUnitRef&,
+    void		gatherLeavesByTime(const NodeUnitRef&,
 	    					ObjectSet<UnitRef>&) const;
+    void		getLeavesTimeGaps(const NodeUnitRef&,
+					   TypeSet< Interval<float> >&) const;
 
     bool		addCopyOfUnit(const UnitRef&,bool rev=false);
     bool		addUnit(const char*,const UnitRef::Props&,
@@ -66,7 +68,7 @@ protected:
     int			getFreeLevelID() const;
     void		constraintUnits(Strat::UnitRef&);
     void		constraintUnitTimes(Strat::NodeUnitRef&);
-    void		constraintUnitLvlNames(const Strat::NodeUnitRef&);
+    void		constraintUnitLvlNames(Strat::UnitRef&);
     void		resetChildrenNames(const NodeUnitRef&); 
     
     Strat::UnitRef*     fnd(int id) const;
