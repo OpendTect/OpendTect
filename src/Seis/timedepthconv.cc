@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.26 2010-06-10 08:33:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.27 2010-07-05 05:14:47 cvsnageswara Exp $";
 
 #include "timedepthconv.h"
 
@@ -855,3 +855,197 @@ int VelocityModelScanner::nextStep()
 
     return MoreToDo();
 }
+
+
+//LinearT2DTransform
+const char* LinearT2DTransform::sName()
+{ return "LinearT2D"; }
+
+
+void LinearT2DTransform::initClass()
+{ ZATF().addCreator( create, sName() ); }
+
+
+ZAxisTransform* LinearT2DTransform::create()
+{ return new LinearT2DTransform; }
+
+
+LinearT2DTransform::LinearT2DTransform()
+{
+    startvel_ = 0;
+    dv_ = 0;
+}
+
+
+bool LinearT2DTransform::usePar( const IOPar& iop )
+{
+    iop.get( "V0,dV", startvel_, dv_ );
+    return true;
+}
+
+
+void LinearT2DTransform::transform( const BinID& bid,
+				    const SamplingData<float>& sd,
+				    int sz, float* res ) const
+{
+    if ( sz < 0 )
+	return;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float time = sd.start + idx*sd.step;
+	res[idx] = ( startvel_*time/2 ) + ( 0.5*dv_*time*time )/4;
+    }
+}
+
+
+void LinearT2DTransform::transformBack( const BinID& bid,
+					const SamplingData<float>& sd,
+					int sz, float* res ) const
+{
+    if ( sz < 0 )
+	return;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float depth = sd.start + idx*sd.step;
+	const float val = sqrt( startvel_*startvel_ + 2*dv_*depth );
+	res[idx] = (val - startvel_) / (dv_);
+    }
+}
+
+
+Interval<float> LinearT2DTransform::getZInterval( bool time ) const
+{
+    Interval<float> zrg = SI().zRange( false );
+    const bool survistime = SI().zIsTime();
+    if ( time && survistime ) return zrg;
+
+    BinIDValue startbidval( 0, 0, zrg.start );
+    BinIDValue stopbidval( 0, 0, zrg.stop );
+    if ( survistime && !time )
+    {
+	zrg.start = ZAxisTransform::transform( startbidval );
+	zrg.stop = ZAxisTransform::transform( stopbidval );
+    }
+    else if ( !survistime && time )
+    {
+	zrg.start = ZAxisTransform::transformBack( startbidval );
+	zrg.stop = ZAxisTransform::transformBack( stopbidval );
+    }
+
+    return zrg;
+}
+
+
+const char* LinearT2DTransform::getToZDomainString() const
+{
+    return ZDomain::sKeyDepth();
+}
+
+
+const char* LinearT2DTransform::getFromZDomainString() const
+{
+    return ZDomain::sKeyTWT();
+}
+
+
+const char* LinearT2DTransform::getZDomainID() const
+{ return ""; }
+
+
+//LinearD2TTransform
+const char* LinearD2TTransform::sName()
+{ return "LinearD2T"; }
+
+
+void LinearD2TTransform::initClass()
+{ ZATF().addCreator( create, sName() ); }
+
+
+ZAxisTransform* LinearD2TTransform::create()
+{ return new LinearD2TTransform; }
+
+
+LinearD2TTransform::LinearD2TTransform()
+{
+    startvel_ = 0;
+    dv_ = 0;
+}
+
+
+bool LinearD2TTransform::usePar( const IOPar& iop )
+{
+    iop.get( "V0,dV", startvel_, dv_ );
+    return true;
+}
+
+
+void LinearD2TTransform::transform( const BinID& bid,
+				    const SamplingData<float>& sd,
+				    int sz, float* res ) const
+{
+    if ( sz < 0 )
+	return;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float depth = sd.start + idx*sd.step;
+	const float val = sqrt( startvel_*startvel_ + 2*dv_*depth );
+	res[idx] = (val - startvel_) / (dv_);
+    }
+}
+
+
+void LinearD2TTransform::transformBack( const BinID& bid,
+					const SamplingData<float>& sd,
+					int sz, float* res ) const
+{
+    if ( sz < 0 )
+	return;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float time = sd.start + idx*sd.step;
+	res[idx] = ( startvel_*time/2 ) + ( 0.5*dv_*time*time )/4;
+    }
+}
+
+
+Interval<float> LinearD2TTransform::getZInterval( bool depth ) const
+{
+    Interval<float> zrg = SI().zRange( false );
+    const bool survistime = SI().zIsTime();
+    if ( !survistime && depth )	return zrg;
+
+    BinIDValue startbidval( 0, 0, zrg.start );
+    BinIDValue stopbidval( 0, 0, zrg.stop );
+    if ( survistime && depth )
+    {
+	zrg.start = ZAxisTransform::transformBack( startbidval );
+	zrg.stop = ZAxisTransform::transformBack( stopbidval );
+    }
+    else if ( !survistime && !depth )
+    {
+	zrg.start = ZAxisTransform::transform( startbidval );
+	zrg.stop = ZAxisTransform::transform( stopbidval );
+    }
+
+    return zrg;
+}
+
+
+const char* LinearD2TTransform::getToZDomainString() const
+{
+    return ZDomain::sKeyTWT();
+}
+
+
+const char* LinearD2TTransform::getFromZDomainString() const
+{
+    return ZDomain::sKeyDepth();
+}
+
+
+const char* LinearD2TTransform::getZDomainID() const
+{ return ""; }

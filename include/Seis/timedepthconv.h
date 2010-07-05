@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.17 2010-03-19 15:44:12 cvsyuancheng Exp $
+ RCS:		$Id: timedepthconv.h,v 1.18 2010-07-05 05:14:47 cvsnageswara Exp $
 ________________________________________________________________________
 
 */
@@ -22,14 +22,13 @@ ________________________________________________________________________
 
 class BinID;
 class CubeDataPack;
-class SeisTrc;
+class IOObj;
 class FlatDataPack;
 class MultiID;
-class IOObj;
+class SeisTrc;
 class SeisTrcReader;
-template <class T> class ValueSeries;
-
 template <class T> class Array3D;
+template <class T> class ValueSeries;
 
 
 mClass VelocityStretcher : public ZAxisTransform
@@ -155,7 +154,7 @@ mClass VelocityModelScanner : public SequentialTask
 {
 public:
     				VelocityModelScanner(const IOObj&,
-					const VelocityDesc&); 	
+					const VelocityDesc&);
 				~VelocityModelScanner();
 
     const char*			message() const		{ return msg_.buf(); }
@@ -186,6 +185,66 @@ protected:
 
     Interval<float>		startavgvel_;
     Interval<float>		stopavgvel_;
+};
+
+
+mClass LinearT2DTransform : public ZAxisTransform
+{
+public:
+    static const char*		sName();
+    const char*			name() const	{ return sName(); }
+    static void			initClass();
+    static ZAxisTransform*	create();
+
+    				LinearT2DTransform();
+
+    void			transform(const BinID&,
+	    				  const SamplingData<float>&,
+					  int sz,float* res) const;
+    void			transformBack(const BinID&,
+	    				      const SamplingData<float>&,
+					      int sz,float* res) const;
+    Interval<float>		getZInterval(bool time) const;
+    const char*			getToZDomainString() const;
+    const char*			getFromZDomainString() const;
+    const char*			getZDomainID() const;
+    bool			usePar(const IOPar&);
+    bool			needsVolumeOfInterest() const
+    				{ return false; }
+
+protected:
+    float			startvel_;
+    float			dv_;
+};
+
+
+mClass LinearD2TTransform : public ZAxisTransform
+{
+public:
+    static const char*		sName();
+    const char*			name() const	{ return sName(); }
+    static void			initClass();
+    static ZAxisTransform*	create();
+
+    				LinearD2TTransform();
+
+    void			transform(const BinID&,
+	    				  const SamplingData<float>&,
+					  int sz,float* res) const;
+    void			transformBack(const BinID&,
+	    				      const SamplingData<float>&,
+					      int sz,float* res) const;
+    Interval<float>		getZInterval(bool depth) const;
+    const char*			getToZDomainString() const;
+    const char*			getFromZDomainString() const;
+    const char*			getZDomainID() const;
+    bool			usePar(const IOPar&);
+    bool			needsVolumeOfInterest() const
+    				{ return false; }
+
+protected:
+    float			startvel_;
+    float			dv_;
 };
 
 #endif
