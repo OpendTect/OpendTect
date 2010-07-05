@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.24 2009-10-16 09:15:14 cvsnanne Exp $
+ RCS:           $Id: pixmap.h,v 1.25 2010-07-05 09:01:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,14 +27,8 @@ class uiRGBArray;
 
 /*!\brief Off-screen pixel-based paint device
 
-  The most important constructor is the one accepting a file name.
-  If the filename starts with '>', it is assumed to be a filename only, no
-  directory. The icon will be loaded from the $WORK/data/icons.cur directory,
-  or if not found there, from $WORK/data/icons.Default.
-  If the file does not exist, or is of an unknown format, the pixmap becomes a
-  null pixmap. If format is specified, attempts to read the pixmap using the
-  specified format. If format is not specified (default), the loader reads
-  a few bytes from the header to guess the file format. 
+  Recommended: put your icons in the data/icons.Default directory, and
+  specify .png files without any path.
 
 */
 
@@ -79,24 +73,24 @@ protected:
 
 
 
-//!A pixmap with the depth of 2 (b/w)
+/*! \brief pixmap with the depth of 2 (b/w)
+
+If the file does not exist, or is of an unknown format, the pixmap becomes
+a null pixmap. 
+
+If format is specified, attempts to read the pixmap using the specified format.
+If format is not specified (default), the loader reads a few bytes from the
+header to guess the file format. 
+
+*/
+
 mClass ioBitmap : public ioPixmap
 {
 public:
-			/*! \brief Constructs a bitmap from the file fileName. 
-
-			If the file does not exist, or is of an unknown format,
-			the pixmap becomes a null pixmap. 
-
-			If format is specified, attempts to read the pixmap 
-			using the specified format. If format is not specified
-			(default), the loader reads a few bytes from the header
-			to guess the file format. 
-
-			*/
 			ioBitmap(const char* filename,const char* fmt=0); 
     QBitmap* 		Bitmap();
     const QBitmap*  	Bitmap() const;
+
 };
 
 
