@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.379 2010-06-07 11:03:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.380 2010-07-06 16:04:54 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -892,12 +892,11 @@ bool uiODApplMgr::handleEMServEv( int evid )
 {
     if ( evid == uiEMPartServer::evDisplayHorizon() )
     {
-	TypeSet<int> sceneids;
-	visserv_->getChildIds( -1, sceneids );
-	if ( sceneids.isEmpty() ) return false;
+	const int sceneid = sceneMgr().askSelectScene();
+	if ( sceneid<0 ) return false;
 
 	const EM::ObjectID emid = emserv_->selEMID();
-	sceneMgr().addEMItem( emid, sceneids[0] );
+	sceneMgr().addEMItem( emid, sceneid );
 	sceneMgr().updateTrees();
 	return true;
     }
