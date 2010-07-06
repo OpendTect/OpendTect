@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.37 2010-05-28 04:44:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.38 2010-07-06 16:17:26 cvsnanne Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -134,17 +134,15 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 
 void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 {
-    const uiVisPartServer* visserv = applMgr()->visServer();
-
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-
     bool isonly2d = false;
+    const uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(sceneID()));
     if ( so ) isonly2d = so->getAllowedDataType() == Only2D;
 
     selattrmnuitem_.removeItems();
     createSelMenu( selattrmnuitem_, displayID(), attribNr(), sceneID() );
 
+    mDynamicCastGet(MenuHandler*,menu,cb);
     if ( selattrmnuitem_.nrItems() || Only2D )
 	mAddMenuItem( menu, &selattrmnuitem_,
 		      !visserv->isLocked(displayID()), false );
@@ -163,7 +161,7 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
     uiODDataTreeItem::handleMenuCB( cb );
 
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 

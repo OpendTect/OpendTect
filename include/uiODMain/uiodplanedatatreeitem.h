@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.12 2009-11-11 11:12:49 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.13 2010-07-06 16:17:26 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,7 @@ public:
 protected:
     BufferString	createDisplayName() const;
 
+    void		addToToolBarCB(CallBacker*);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 

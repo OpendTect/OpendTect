@@ -7,14 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.209 2010-06-30 06:38:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.210 2010-07-06 16:17:26 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
 
 #include "uiattribpartserv.h"
 #include "uiodapplmgr.h"
-#include "uiodmenumgr.h"
 #include "uiempartserv.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
@@ -29,6 +28,7 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.209 2010-06-30 06:38:43 cvs
 #include "uilistview.h"
 #include "uimdiarea.h"
 #include "uimsg.h"
+#include "uiodmenumgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uiprintscenedlg.h"
 #include "uislider.h"
@@ -46,7 +46,6 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.209 2010-06-30 06:38:43 cvs
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
-#include "visdata.h"
 #include "visdata.h"
 #include "welltransl.h"
 
@@ -89,6 +88,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , lasthrot_(0), lastvrot_(0), lastdval_(0)
     , tifs_(new uiTreeFactorySet)
     , wingrabber_(new uiWindowGrabber(a))
+    , toolbarhandler_(*new uiTreeItemTBHandler(a))
     , activeSceneChanged(this)
     , sceneClosed(this)
     , treeToBeAdded(this)
@@ -155,6 +155,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     zoomslider_->setStretch( 0, 0 );
     zoomslider_->attach( rightAlignedBelow, mdiarea_ );
 
+    toolbarhandler_.ref();
     leftgrp->attach( leftOf, mdiarea_ );
     appl_.finaliseDone.notify( mCB(this,uiODSceneMgr,afterFinalise) );
 }
@@ -166,6 +167,7 @@ uiODSceneMgr::~uiODSceneMgr()
     delete tifs_;
     delete mdiarea_;
     delete wingrabber_;
+    toolbarhandler_.unRef();
 }
 
 
@@ -241,7 +243,6 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( name ) setSceneName( sceneid, name );
 
     visServ().setZAxisTransform( sceneid, zt, 0 );
-
     return sceneid;
 }
 
@@ -696,6 +697,7 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
     zoomslider_->setSensitive( isperspective );
 }
 
+
 int uiODSceneMgr::askSelectScene() const
 {
     BufferStringSet scenenms; TypeSet<int> sceneids;
@@ -878,9 +880,21 @@ void uiODSceneMgr::setItemInfo( int id )
 }
 
 
+MenuHandler& uiODSceneMgr::getToolBarHandler()
+{ return toolbarhandler_; }
+
+
+void uiODSceneMgr::updateItemToolbar( int id )
+{
+    toolbarhandler_.setMenuID( id );
+    toolbarhandler_.addButtons();
+}
+
+
 void uiODSceneMgr::updateSelectedTreeItem()
 {
     const int id = visServ().getSelObjectId();
+    updateItemToolbar( id );
 
     if ( id != -1 )
     {
@@ -969,7 +983,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
     Scene* scene = getScene( sceneid );
     if ( !scene ) return -1;
 
-    FixedString type = applMgr().EMServer()->getType(emid);
+    FixedString type = applMgr().EMServer()->getType( emid );
     uiODDisplayTreeItem* itm;
     if ( type=="Horizon" ) 
 	itm = new uiODHorizonTreeItem(emid,false);

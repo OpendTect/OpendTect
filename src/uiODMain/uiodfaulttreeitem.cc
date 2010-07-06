@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.41 2010-06-24 11:29:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.42 2010-07-06 16:17:26 cvsnanne Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -224,8 +224,7 @@ void uiODFaultTreeItem::prepareForShutdown()
 void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-
+    mDynamicCastGet(MenuHandler*,menu,cb);
     if ( menu->menuID()!=displayID() )
 	return;
 
@@ -261,7 +260,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 
@@ -524,7 +523,7 @@ void uiODFaultStickSetTreeItem::prepareForShutdown()
 void uiODFaultStickSetTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
     if ( menu->menuID()!=displayID() )
 	return;
 
@@ -550,7 +549,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 

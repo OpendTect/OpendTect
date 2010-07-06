@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.72 2010-06-24 11:29:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.73 2010-07-06 16:17:26 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -202,7 +202,7 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
 void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODAttribTreeItem::createMenuCB( cb );
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
@@ -240,7 +240,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODAttribTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
@@ -365,7 +365,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiMenuHandler*,menu,cb);
-
     if ( menu->menuID()!=displayID() )
 	return;
 
@@ -436,15 +435,16 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
+    mDynamicCastGet(uiMenuHandler*,uimenu,caller);
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 
     EM::SectionID sectionid = -1;
     if ( uivisemobj_->nrSections()==1 )
 	sectionid = uivisemobj_->getSectionID(0);
-    else if ( menu->getPath() )
-	sectionid = uivisemobj_->getSectionID( menu->getPath() );
+    else if ( uimenu && uimenu->getPath() )
+	sectionid = uivisemobj_->getSectionID( uimenu->getPath() );
     
     uiMPEPartServer* mps = applMgr()->mpeServer();
     uiEMPartServer* ems = applMgr()->EMServer();
@@ -504,7 +504,9 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->enableTree( false );
 
-	if ( mps->addTracker(emid_,menu->getPickedPos())!=-1 )
+	const Coord3 pickedpos =
+	    uimenu ? uimenu->getPickedPos() : Coord3::udf();
+	if ( mps->addTracker(emid_,pickedpos) != -1 )
 	{
 	    mps->useSavedSetupDlg( emid_, sectionid );
 	    uivisemobj_->checkTrackingStatus();

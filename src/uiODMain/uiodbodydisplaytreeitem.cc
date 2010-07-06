@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.25 2010-05-31 15:01:22 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.26 2010-07-06 16:17:26 cvsnanne Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -355,8 +355,7 @@ void uiODBodyDisplayTreeItem::prepareForShutdown()
 void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-
+    mDynamicCastGet(MenuHandler*,menu,cb);
     if ( menu->menuID()!=displayID() )
 	return;
 
@@ -405,7 +404,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 

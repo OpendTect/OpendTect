@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.57 2010-06-21 14:41:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.58 2010-07-06 16:17:26 cvsnanne Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -290,7 +290,7 @@ bool uiODWellTreeItem::init()
 void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
     if ( menu->menuID()!=displayID() )
 	return;
 
@@ -322,7 +322,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 

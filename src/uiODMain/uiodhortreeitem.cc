@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.61 2010-06-24 11:29:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.62 2010-07-06 16:17:26 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -349,7 +349,7 @@ bool uiODHorizonTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODEarthModelSurfaceTreeItem::createMenuCB( cb );
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
 
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
 
@@ -401,7 +401,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODEarthModelSurfaceTreeItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller)
+    mDynamicCastGet(MenuHandler*,menu,caller)
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 
@@ -689,7 +689,7 @@ bool uiODHorizon2DTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 void uiODHorizon2DTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODEarthModelSurfaceTreeItem::createMenuCB( cb );
-    mDynamicCastGet(uiMenuHandler*,menu,cb)
+    mDynamicCastGet(MenuHandler*,menu,cb)
 
     if ( menu->menuID()!=displayID() )
     {
@@ -714,7 +714,7 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODEarthModelSurfaceTreeItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller)
+    mDynamicCastGet(MenuHandler*,menu,caller)
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 

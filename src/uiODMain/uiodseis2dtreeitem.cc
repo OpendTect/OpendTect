@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.82 2010-06-28 04:26:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.83 2010-07-06 16:17:26 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -206,7 +206,7 @@ void uiOD2DLineSetTreeItem::selectAddLines()
 }
 
 
-void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
+void uiOD2DLineSetTreeItem::createAttrMenu( MenuHandler* menu )
 {	
     Attrib::SelSpec as;
     applMgr()->attrServer()->resetMenuItems();
@@ -304,7 +304,7 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
 
 void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
     if ( !menu || menu->menuID() != selectionKey() )
 	return;
 

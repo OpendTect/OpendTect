@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.40 2010-06-24 11:29:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.41 2010-07-06 16:17:26 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -74,6 +74,8 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , hidemnuitem_("&Hide",cHideIdx )
     , removemnuitem_("&Remove",cRemoveIdx)
 {
+    removemnuitem_.iconfnm = "stop.png";
+    displyhistgram_.iconfnm = "chart.png";
 }
 
 
@@ -85,6 +87,10 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 	menu->createnotifier.remove(mCB(this,uiODDisplayTreeItem,createMenuCB));
 	menu->handlenotifier.remove(mCB(this,uiODDisplayTreeItem,handleMenuCB));
     }
+
+    MenuHandler& tb = ODMainWin()->sceneMgr().getToolBarHandler();
+    tb.createnotifier.remove( mCB(this,uiODDisplayTreeItem,addToToolBarCB) );
+    tb.handlenotifier.remove( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
 
     ODMainWin()->viewer2DMgr().remove2DViewer( displayid_ );
 }
@@ -151,6 +157,10 @@ bool uiODDisplayTreeItem::init()
     MenuHandler* menu = visserv_->getMenuHandler();
     menu->createnotifier.notify( mCB(this,uiODDisplayTreeItem,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
+
+    MenuHandler& tb = ODMainWin()->sceneMgr().getToolBarHandler();
+    tb.createnotifier.notify( mCB(this,uiODDisplayTreeItem,addToToolBarCB) );
+    tb.handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
 
     return true;
 }
@@ -246,10 +256,28 @@ const char* uiODDisplayTreeItem::getLockMenuText()
 }
 
 
+void uiODDisplayTreeItem::addToToolBarCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
+    if ( !tb || tb->menuID() != displayID() || !isSelected() )
+	return;
+
+    if ( visserv_->hasAttrib(displayid_) &&
+	 visserv_->canHaveMultipleAttribs(displayid_) )
+    {
+	mAddMenuItem( tb, &displyhistgram_, true, false );
+    }
+    else
+	mResetMenuItem( &displyhistgram_ );
+
+    mAddMenuItem( tb, &removemnuitem_, !visserv_->isLocked(displayid_),false);
+}
+
+
 void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( menu->menuID() != displayID() )
+    if ( !menu || menu->menuID() != displayID() )
 	return;
 
     if ( visserv_->hasAttrib(displayid_) &&
@@ -291,7 +319,7 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 

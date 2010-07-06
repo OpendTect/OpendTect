@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.78 2010-06-30 06:38:43 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.79 2010-07-06 16:17:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ class uiODTreeTop;
 class uiSliderExtra;
 class uiSoViewer;
 class uiThumbWheel;
+class uiTreeItemTBHandler;
 class uiTreeFactorySet;
 class uiTreeItem;
 class uiWindowGrabber;
@@ -119,6 +120,7 @@ public:
     void			rebuildTrees();
     void			setItemInfo(int visid);
     void			updateSelectedTreeItem();
+    void			updateItemToolbar(int visid);
     int				getIDFromName(const char*) const;
     void			disabRightClick( bool yn );
     void			disabTrees( bool yn );
@@ -129,6 +131,7 @@ public:
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);
     void			findItems(const char*,ObjectSet<uiTreeItem>&);
+    MenuHandler&		getToolBarHandler();
 
     uiTreeFactorySet*		treeItemFactorySet()	{ return tifs_; }
     uiDockWin*			viewer2DWin()		{ return 0; }
@@ -163,6 +166,7 @@ protected:
     uiTreeFactorySet*		tifs_;
     uiSliderExtra*		zoomslider_;
     uiWindowGrabber*		wingrabber_;
+    uiTreeItemTBHandler&	toolbarhandler_;
 
     void			wheelMoved(CallBacker*,int wh,float&);
 

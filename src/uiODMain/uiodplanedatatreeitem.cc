@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.42 2010-05-25 04:38:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.43 2010-07-06 16:17:26 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -69,6 +69,7 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, Orientation o, Type t )
     , gridlinesmnuitem_("&Gridlines ...",cGridLinesIdx)
 {
     displayid_ = did;
+    positionmnuitem_.iconfnm = "orientation64.png";
 }
 
 
@@ -202,11 +203,22 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     return res;
 }
 
+void uiODPlaneDataTreeItem::addToToolBarCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
+    if ( !tb || tb->menuID() != displayID() || !isSelected() )
+	return;
+
+    mAddMenuItem( tb, &positionmnuitem_, !visserv_->isLocked(displayid_),
+	          false );
+    uiODDisplayTreeItem::addToToolBarCB( cb );
+}
+
 
 void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
     if ( menu->menuID() != displayID() )
 	return;
 
@@ -220,7 +232,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
     

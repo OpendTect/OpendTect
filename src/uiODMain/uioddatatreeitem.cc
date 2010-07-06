@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.52 2010-06-24 11:29:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.53 2010-07-06 16:17:26 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -49,7 +49,10 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , addto2dvieweritem_("Display in a &2D Viewer as")
     , view2dwvaitem_("&Wiggle")
     , view2dvditem_("&VD")
-{}
+{
+    statisticsitem_.iconfnm = "chart.png";
+    removemnuitem_.iconfnm = "stop.png";
+}
 
 
 uiODDataTreeItem::~uiODDataTreeItem()
@@ -60,6 +63,10 @@ uiODDataTreeItem::~uiODDataTreeItem()
 	menu_->handlenotifier.remove( mCB(this,uiODDataTreeItem,handleMenuCB) );
 	menu_->unRef();
     }
+
+    MenuHandler& tb = ODMainWin()->sceneMgr().getToolBarHandler();
+    tb.createnotifier.remove( mCB(this,uiODDataTreeItem,addToToolBarCB) );
+    tb.handlenotifier.remove( mCB(this,uiODDataTreeItem,handleMenuCB) );
 }
 
 /*
@@ -106,6 +113,10 @@ bool uiODDataTreeItem::init()
 		    		     attribNr() ) );
     }
 
+    MenuHandler& tb = ODMainWin()->sceneMgr().getToolBarHandler();
+    tb.createnotifier.notify( mCB(this,uiODDataTreeItem,addToToolBarCB) );
+    tb.handlenotifier.notify( mCB(this,uiODDataTreeItem,handleMenuCB) );
+
     return uiTreeItem::init();
 }
 
@@ -150,6 +161,26 @@ int uiODDataTreeItem::attribNr() const
 }
 
 
+void uiODDataTreeItem::addToToolBarCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
+    if ( !tb || tb->menuID() != displayID() || !isSelected() )
+	return;
+
+    uiVisPartServer* visserv = applMgr()->visServer();
+    const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
+    const bool hasdatapack = dpid>DataPack::cNoID();
+    if ( hasdatapack )
+	mAddMenuItem( tb, &statisticsitem_, true, false )
+    else
+	mResetMenuItem( &statisticsitem_ )
+
+    const bool islocked = visserv->isLocked( displayID() );
+    mAddMenuItem( tb, &removemnuitem_,
+		  !islocked && visserv->canRemoveAttrib( displayID()), false );
+}
+
+
 bool uiODDataTreeItem::showSubMenu()
 {
     if ( !menu_ )
@@ -166,7 +197,7 @@ bool uiODDataTreeItem::showSubMenu()
 
 void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
 
     uiVisPartServer* visserv = applMgr()->visServer();
     const bool isfirst = !siblingIndex();
@@ -256,7 +287,7 @@ bool uiODDataTreeItem::select()
 void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
