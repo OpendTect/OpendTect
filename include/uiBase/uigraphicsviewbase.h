@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.13 2010-03-04 09:22:29 cvsbruno Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.14 2010-07-06 14:12:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiobj.h"
 
 class Color;
-class ioPixmap;
 class uiGraphicsItem;
 class uiGraphicsScene;
 class uiGraphicsViewBody;
