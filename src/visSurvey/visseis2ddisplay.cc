@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.98 2010-06-07 13:44:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.99 2010-07-06 17:32:54 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -87,7 +87,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int nrsamp = data2dh_.dataset_[0]->nrsamples_;
    
     const SamplingData<float>& sd = data2dh_.trcinfoset_[0]->sampling; 
-    Interval<float> zrg = s2d_.getZRange(!s2d_.datatransform_);
+    StepInterval<float> zrg = s2d_.getZRange(!s2d_.datatransform_);
     const int arrzsz = arr_.info().getSize(1);
     StepInterval<int> arraysrg( mNINT(zrg.start/sd.step),
 				mNINT(zrg.stop/sd.step),1 );
@@ -255,7 +255,7 @@ StepInterval<float> Seis2DDisplay::getMaxZRange( bool displayspace ) const
 }
 
 
-void Seis2DDisplay::setZRange( const Interval<float>& nzrg )
+void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
 {
     if ( mIsUdf(geometry_.zrg_.start) )
 	return;
@@ -273,7 +273,7 @@ void Seis2DDisplay::setZRange( const Interval<float>& nzrg )
 }
 
 
-Interval<float> Seis2DDisplay::getZRange( bool displayspace ) const
+StepInterval<float> Seis2DDisplay::getZRange( bool displayspace ) const
 {
     if ( datatransform_ && !displayspace )
 	return datatransform_->getZInterval( true );
@@ -422,23 +422,23 @@ void Seis2DDisplay::setData( int attrib,
 	    cs.hrg.step.crl = 1;
 	    assign( cs.zrg, curzrg_ );
 	    if ( voiidx_ < 0 )
-		voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
+		voiidx_ = datatransform_->addVolumeOfInterest(
+						getLineName(), cs, true );
 	    else
-		datatransform_->setVolumeOfInterest( voiidx_, cs, true );
+		datatransform_->setVolumeOfInterest( voiidx_, getLineName(),
+						     cs, true );
 	    datatransform_->loadDataIfMissing( voiidx_ );
 
-	    ZAxisTransformSampler outpsampler( *datatransform_,true,BinID(0,0),
+	    ZAxisTransformSampler outpsampler( *datatransform_,true,
 				SamplingData<double>(cs.zrg.start,cs.zrg.step));
+	    outpsampler.setLineName( getLineName() );
 	    mTryAlloc( tmparr, Array2DImpl<float>( cs.nrCrl(), cs.nrZ() ) );
 	    usedarr = tmparr;
-	    const int inl = datatransform_->lineIndex( getLineName() );
 	    const float firstz = data2dh.dataset_[0]->z0_ * sd.step;
 	    const int z0idx = arrayzrg.nearestIndex( firstz );
-	    for ( int crlidx=0; crlidx<cs.nrCrl() && inl>=0; crlidx++ )
+	    for ( int crlidx=0; crlidx<cs.nrCrl(); crlidx++ )
 	    {
-		BinID bid = cs.hrg.atIndex( 0, crlidx );
-		bid.inl = inl;
-		outpsampler.setBinID( bid );
+		outpsampler.setTrcNr( trcnrrg_.atIndex(crlidx) );
 		outpsampler.computeCache( Interval<int>(0,cs.nrZ()-1) );
 
 		const float* inputptr = arr->getData() +
@@ -560,7 +560,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
     if ( mindist<0 || mIsUdf(mindist) )
 	return mUdf(float);
 
-    Interval<float> zrg = getZRange( true );
+    StepInterval<float> zrg = getZRange( true );
     float zdif = 0;
     if ( !zrg.includes(xytpos.z) )
     {
