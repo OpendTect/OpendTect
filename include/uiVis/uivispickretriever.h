@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispickretriever.h,v 1.5 2010-02-19 13:45:55 cvskarthika Exp $
+ RCS:           $Id: uivispickretriever.h,v 1.6 2010-07-06 17:37:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "pickretriever.h"
+#include "position.h"
 
 namespace visSurvey { class Scene; }
 class uiVisPartServer;

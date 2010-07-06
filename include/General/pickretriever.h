@@ -6,12 +6,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: pickretriever.h,v 1.4 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: pickretriever.h,v 1.5 2010-07-06 17:37:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "zaxistransform.h"
+#include "callback.h"
+#include "refcount.h"
+
+class Coord3;
 
 /*!Interface to when an application wants a pick somewere in a 3D environment.
    There should normally only be one instance in memory, and that should
