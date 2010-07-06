@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.19 2010-04-30 14:05:03 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.20 2010-07-06 17:28:49 cvsnanne Exp $";
 
 #include "zaxistransform.h"
 
@@ -57,6 +57,12 @@ int ZAxisTransform::addVolumeOfInterest( const CubeSampling&, bool )
 void ZAxisTransform::setVolumeOfInterest( int, const CubeSampling&, bool )
 {}
 
+int ZAxisTransform::addVolumeOfInterest( const char*, const CubeSampling&, bool)
+{ return -1; }
+
+void ZAxisTransform::setVolumeOfInterest( int, const char*, const CubeSampling&,					  bool )
+{}
+
 
 void ZAxisTransform::removeVolumeOfInterest( int ) {}
 
@@ -102,6 +108,37 @@ float ZAxisTransform::transformBack( const BinIDValue& pos ) const
 }
 
 
+void ZAxisTransform::transform( const char* linenm, int trcnr,
+		const SamplingData<float>& sd, int sz, float* res ) const
+{
+    transform( BinID(lineIndex(linenm),trcnr), sd, sz, res );
+}
+
+
+float ZAxisTransform::transform( const char* linenm, int trcnr, float z ) const
+{
+    float res = mUdf(float);
+    transform( linenm, trcnr, SamplingData<float>(z,1), 1, &res );
+    return res;
+}
+
+
+void ZAxisTransform::transformBack( const char* linenm, int trcnr,
+		const SamplingData<float>& sd, int sz, float* res ) const
+{
+    transformBack( BinID(lineIndex(linenm),trcnr), sd, sz, res );
+}
+
+
+float ZAxisTransform::transformBack( const char* linenm, int trcnr,
+				     float z ) const
+{
+    float res = mUdf(float);
+    transformBack( linenm, trcnr, SamplingData<float>(z,1), 1, &res );
+    return res;
+}
+
+
 float ZAxisTransform::getZIntervalCenter( bool from ) const
 {
     const Interval<float> rg = getZInterval( from );
@@ -129,17 +166,24 @@ void ZAxisTransform::fillPar( IOPar& par ) const
 
 
 ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
-					      bool b, const BinID& nbid,
+					      bool b,
 					      const SamplingData<double>& nsd )
-    : transform_( trans )
-    , back_( b )
-    , bid_( nbid )
-    , sd_( nsd )
+    : transform_(trans)
+    , back_(b)
+    , bid_(0,0)
+    , sd_(nsd)
 { transform_.ref(); }
 
 
 ZAxisTransformSampler::~ZAxisTransformSampler()
 { transform_.unRef(); }
+
+
+void ZAxisTransformSampler::setLineName( const char* lnm )
+{ bid_.inl = transform_.lineIndex(lnm); }
+
+void ZAxisTransformSampler::setTrcNr( int trcnr )
+{ bid_.crl = trcnr; }
 
 
 float ZAxisTransformSampler::operator[](int idx) const

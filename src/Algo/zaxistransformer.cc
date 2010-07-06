@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: zaxistransformer.cc,v 1.8 2010-06-28 04:25:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: zaxistransformer.cc,v 1.9 2010-07-06 17:28:49 cvsnanne Exp $";
 
 #include "zaxistransformer.h"
 
@@ -109,7 +109,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 {
     if ( !input_ ) return true;
 
-    ZAxisTransformSampler outpsampler( transform_, forward_, BinID(0,0),
+    ZAxisTransformSampler outpsampler( transform_, forward_,
 	SamplingData<double>(outputcs_.zrg.start, outputcs_.zrg.step));
 
     const int inputzsz = input_->info().getSize(mZ);

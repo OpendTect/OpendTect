@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.26 2010-04-30 14:05:03 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.27 2010-07-06 17:28:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,14 @@ public:
     virtual bool		needsVolumeOfInterest() const	{ return true; }
     virtual int			addVolumeOfInterest(const CubeSampling&,
 	    					    bool zistrans=false);
+    virtual int			addVolumeOfInterest(const char* linenm,
+						    const CubeSampling&,
+						    bool zistrans=false);
     virtual void		setVolumeOfInterest(int,const CubeSampling&,
 	    					    bool zistrans=false);
+    virtual void		setVolumeOfInterest(int,const char* linenm,
+						    const CubeSampling&,
+						    bool zistrans=false);
     virtual void		removeVolumeOfInterest(int);
     virtual bool		loadDataIfMissing(int,TaskRunner* =0);
     				
@@ -59,6 +65,18 @@ public:
 					   int sz,float* res) const	= 0;
     virtual float		transformBack(const BinIDValue&) const;
     float			transformBack(const Coord3&) const;
+
+    				// 2D
+    virtual void		transform(const char* linenm,int trcnr,
+	    				  const SamplingData<float>&,
+					  int sz,float* res) const;
+    virtual float		transform(const char* linenm,int trcnr,
+					  float z) const;
+    virtual void		transformBack(const char* linenm,int trcnr,
+					      const SamplingData<float>&,
+					      int sz,float* res) const;
+    virtual float		transformBack(const char* linenm,int trcnr,
+					      float z) const;
 
     virtual Interval<float>	getZInterval(bool from) const		= 0;
     				/*!<\Returns the z interval in either to
@@ -100,11 +118,13 @@ mDefineFactory( ZAxisTransform, ZATF );
 mClass ZAxisTransformSampler
 {
 public:
-    				ZAxisTransformSampler( const ZAxisTransform&,
-				   bool back, const BinID& bid,
-				   const SamplingData<double>& );
+    				ZAxisTransformSampler(const ZAxisTransform&,
+				   bool back,const SamplingData<double>&);
     virtual			~ZAxisTransformSampler();
-    void			setBinID(const BinID& nbid) { bid_=nbid; }
+
+    void			setBinID( const BinID& bid )	{ bid_ = bid; }
+    void			setLineName(const char*);
+    void			setTrcNr(int);
 
     float			operator[](int idx) const;
     void			computeCache(const Interval<int>& range);
