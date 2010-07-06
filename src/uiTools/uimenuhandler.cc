@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenuhandler.cc,v 1.16 2010-05-14 09:07:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.17 2010-07-06 15:54:49 cvsnanne Exp $";
 
 
 #include "uimenuhandler.h"
 #include "mousecursor.h"
 #include "pixmap.h"
 #include "uimenu.h"
+#include "uitoolbar.h"
 
 const int uiMenuHandler::fromTree()	{ return 1; }
 const int uiMenuHandler::fromScene()	{ return 0; }
@@ -132,3 +133,31 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
     return menu;
 }
 
+
+
+uiTreeItemTBHandler::uiTreeItemTBHandler( uiParent* uiparent )
+    : MenuHandler(-1)
+    , uiparent_(uiparent)
+{
+    tb_ = new uiToolBar( uiparent, "Item tools" );
+    tb_->buttonClicked.notify( mCB(this,uiTreeItemTBHandler,butClickCB) );
+}
+
+
+void uiTreeItemTBHandler::addButtons()
+{
+    removeItems();
+    tb_->clear();
+    createnotifier.trigger();
+    for ( int idx=0; idx<nrItems(); idx++ )
+	tb_->addButton( *getItem(idx) );
+}
+
+void uiTreeItemTBHandler::butClickCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,butid,cb);
+    if ( butid == -1 ) return;
+
+    ishandled_ = false;
+    handlenotifier.trigger( butid, this );
+}
