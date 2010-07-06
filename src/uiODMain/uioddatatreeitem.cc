@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.53 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.54 2010-07-06 16:34:52 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -50,7 +50,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , view2dwvaitem_("&Wiggle")
     , view2dvditem_("&VD")
 {
-    statisticsitem_.iconfnm = "chart.png";
+    statisticsitem_.iconfnm = "histogram.png";
     removemnuitem_.iconfnm = "stop.png";
 }
 

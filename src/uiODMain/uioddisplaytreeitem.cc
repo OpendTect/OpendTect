@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.41 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.42 2010-07-06 16:34:52 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -75,7 +75,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , removemnuitem_("&Remove",cRemoveIdx)
 {
     removemnuitem_.iconfnm = "stop.png";
-    displyhistgram_.iconfnm = "chart.png";
+    displyhistgram_.iconfnm = "histogram.png";
 }
 
 
