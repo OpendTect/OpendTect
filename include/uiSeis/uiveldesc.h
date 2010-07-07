@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.18 2010-04-21 16:06:45 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.19 2010-07-07 21:30:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,8 @@ public:
 
 protected:
 
-    void			updateEditButton(CallBacker*);
+    void			selectionDoneCB(CallBacker*);
+    void			updateEditButton();
     void			editCB(CallBacker*);
     uiPushButton*		editcubebutt_;
     Interval<float>		trg_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.41 2010-06-30 06:45:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.42 2010-07-07 21:30:28 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -138,7 +138,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
     veldescfld_ = new uiVelocityDesc( this, vsu );
     veldescfld_->attach( alignedBelow, volselfld_ );
 
-    BufferString str( "Vavg at top " );
+    BufferString str( "Vavg range at top " );
     str += VelocityDesc::getVelUnit( true );
 
     topavgvelfld_ =
@@ -149,7 +149,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 			    mCB(this,uiVelocityDescDlg, scanAvgVelCB ), false );
     scanavgvel_->attach( rightOf, topavgvelfld_ );
 
-    str = "Vavg at bottom ";
+    str = "Vavg range at bottom ";
     str += VelocityDesc::getVelUnit( true );
 
     botavgvelfld_ =
@@ -219,10 +219,14 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
     if ( !ioobj )
 	return false;
 
-    ioobj->pars().set( VelocityStretcher::sKeyTopVavg(),
-	    	       topavgvelfld_->getFInterval(0) );
-    ioobj->pars().set( VelocityStretcher::sKeyBotVavg(),
-	    	       botavgvelfld_->getFInterval(0) );
+    Interval<float> range = topavgvelfld_->getFInterval(0);
+    range.sort();
+    ioobj->pars().set( VelocityStretcher::sKeyTopVavg(), range );
+
+    range = botavgvelfld_->getFInterval(0);
+    range.sort();
+    ioobj->pars().set( VelocityStretcher::sKeyBotVavg(), range );
+
     return veldescfld_->updateAndCommit( *ioobj, true );
 }
 
@@ -235,8 +239,8 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
     editcubebutt_ = new uiPushButton( this, "",
 	    mCB(this,uiVelSel,editCB), false );
     editcubebutt_->attach( rightOf, selbut_ );
-    updateEditButton( 0 );
-    selectionDone.notify( mCB(this,uiVelSel,updateEditButton) );
+    selectionDoneCB( 0 );
+    selectionDone.notify( mCB(this,uiVelSel,selectionDoneCB) );
 
     const char* res = SI().pars().find( sKeyDefVelCube );
     if ( res && *res && IOObj::isKey(res) )
@@ -275,18 +279,37 @@ void uiVelSel::editCB(CallBacker*)
     brg_ = dlg.getVelocityBottomRange();
     velrgchanged.trigger();
     
-    updateEditButton( 0 );
+    updateEditButton();
 }
 
 
 void uiVelSel::setInput( const MultiID& mid )
 {
     uiIOObjSel::setInput( mid );
-    updateEditButton( 0 );
+    updateEditButton();
 }
 
 
-void uiVelSel::updateEditButton(CallBacker*)
+void uiVelSel::selectionDoneCB( CallBacker* cb )
+{
+    trg_ = Time2DepthStretcher::getDefaultVAvg();
+    brg_ = Time2DepthStretcher::getDefaultVAvg();
+
+    PtrMan<IOObj> ioobj = getIOObj( true );
+    if ( ioobj )
+    {
+	ioobj->pars().get( VelocityStretcher::sKeyTopVavg(), trg_ );
+	ioobj->pars().get( VelocityStretcher::sKeyBotVavg(), brg_ );
+	trg_.sort();
+	brg_.sort();
+    }
+
+    velrgchanged.trigger();
+    updateEditButton();
+}
+
+
+void uiVelSel::updateEditButton()
 {
     editcubebutt_->setText( ioobj(true) ? "Edit ..." : "Create ..." );
 }
@@ -307,7 +330,7 @@ uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
 	
     BufferString str = t2d ? sKey::Depth.str() : sKey::Time.str();
     str += " range ";
-    str += UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
+    str += UnitOfMeasure::zUnitAnnot( !t2d, true, true );
 
     rangefld_ = new uiGenInput(this, str.buf(),
 	    		       FloatInpIntervalSpec(true) );
@@ -330,7 +353,17 @@ ZAxisTransform* uiTimeDepthBase::getSelection()
 
 
 StepInterval<float> uiTimeDepthBase::getZRange() const
-{ return rangefld_->getFStepInterval(); } 
+{
+    StepInterval<float> res = rangefld_->getFStepInterval();
+    if ( !t2d_ )
+    {
+	res.start /= 1000;
+	res.stop /= 1000;
+	res.step /= 1000;
+    }
+
+    return res;
+} 
 
 
 void uiTimeDepthBase::setZRangeCB( CallBacker* )
@@ -345,14 +378,12 @@ void uiTimeDepthBase::setZRangeCB( CallBacker* )
 	rg.start = zrg.start * topvelrg.start / 2;
 	rg.stop = zrg.stop * botvelrg.stop / 2;
 	rg.step = (rg.stop-rg.start) / zrg.nrSteps();
-	rg.step = rg.step;
     }
     else if ( !t2d_ && !SI().zIsTime() )
     {
-	rg.start = 2 * zrg.start / topvelrg.stop;
-	rg.stop = 2 * zrg.stop / botvelrg.start;
+	rg.start = 2000 * zrg.start / topvelrg.stop;
+	rg.stop = 2000 * zrg.stop / botvelrg.start;
 	rg.step = (rg.stop-rg.start) / zrg.nrSteps();
-	rg.step = rg.step;
     }
     else
 	rg = SI().zRange( true );
