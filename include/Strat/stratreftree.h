@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.13 2010-07-05 16:08:07 cvsbruno Exp $
+ RCS:		$Id: stratreftree.h,v 1.14 2010-07-07 11:18:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
 	    			bool rev=false);
     void		setUnitProps(int id,const UnitRef::Props&);
     void		setUnitProps(const char*,const UnitRef::Props&);
+    void		setUnitProps(Strat::UnitRef&,const UnitRef::Props&);
     void		removeEmptyNodes(); //!< recommended after add
     bool		write(std::ostream&) const;
     				//!< for printing, export or something.
@@ -66,10 +67,9 @@ public:
 protected:
 
     int			getFreeLevelID() const;
-    void		constraintUnits(Strat::UnitRef&);
-    void		constraintUnitTimes(Strat::NodeUnitRef&);
-    void		constraintUnitLvlNames(Strat::UnitRef&);
-    void		resetChildrenNames(const NodeUnitRef&); 
+    void		constrainUnits(Strat::UnitRef&);
+    void		constrainUnitTimes(Strat::NodeUnitRef&);
+    void		constrainUnitLvlNames(Strat::UnitRef&);
     
     Strat::UnitRef*     fnd(int id) const;
 

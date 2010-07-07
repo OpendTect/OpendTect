@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.38 2010-07-05 16:08:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.39 2010-07-07 11:18:30 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -105,8 +105,7 @@ void Strat::RefTree::setUnitProps( const char* fnm, const UnitRef::Props& props)
 {
     Strat::UnitRef* ur = find( fnm );
     if ( !ur ) return;
-    ur->setProps( props );
-    constraintUnits( *ur );
+    setUnitProps( *ur, props );
 }
 
 
@@ -114,8 +113,14 @@ void Strat::RefTree::setUnitProps( int id, const UnitRef::Props& props )
 {
     Strat::UnitRef* ur = getFromID( id );
     if ( !ur ) return;
-    ur->setProps( props );
-    constraintUnits( *ur );
+    setUnitProps( *ur, props );
+}
+
+
+void Strat::RefTree::setUnitProps( Strat::UnitRef& ur, const UnitRef::Props& pp)
+{
+    ur.setProps( pp );
+    constrainUnits( ur );
 }
 
 
@@ -186,10 +191,12 @@ void Strat::RefTree::gatherLeavesByTime( const NodeUnitRef& un,
 }
 
 
-void Strat::RefTree::constraintUnits( UnitRef& ur )
+void Strat::RefTree::constrainUnits( UnitRef& ur )
 {
-    constraintUnitTimes( *ur.upNode() );
-    constraintUnitLvlNames( ur );
+    mDynamicCastGet(NodeUnitRef*,nur,&ur)
+    if ( nur )
+	constrainUnitTimes( *nur );
+    constrainUnitLvlNames( ur );
 }
 
 
@@ -198,10 +205,9 @@ void Strat::RefTree::constraintUnits( UnitRef& ur )
 	rg1.start = rg2.start;\
     if ( rg1.stop > rg2.stop )\
 	rg1.stop = rg2.stop;
-void Strat::RefTree::constraintUnitTimes( NodeUnitRef& parun )
+void Strat::RefTree::constrainUnitTimes( NodeUnitRef& un )
 {
-    Strat::UnitRef::Iter it( parun );
-    if ( !it.next() ) return;
+    Strat::UnitRef::Iter it( un );
     Strat::UnitRef* ur = it.unit();
     while ( ur )
     {
@@ -212,6 +218,11 @@ void Strat::RefTree::constraintUnitTimes( NodeUnitRef& parun )
 	    //parent's times
 	    const Interval<float>& urtimerg = upur->props().timerg_;
 	    mSetRangeOverlap( timerg, urtimerg )
+	    if ( timerg.start >= urtimerg.stop ) 
+	    {
+		upur->remove( upur->indexOf( ur ) );
+		break;
+	    }
 	    
 	    //children's times
 	    bool found = false; ObjectSet<UnitRef> refunits;
@@ -227,8 +238,11 @@ void Strat::RefTree::constraintUnitTimes( NodeUnitRef& parun )
 		    if( timerg.start < cmptimerg.stop )
 			timerg.start = cmptimerg.stop;
 		}
-		else if( timerg.stop > cmptimerg.start )
-		    timerg.stop = cmptimerg.start;
+		else 
+		{
+		    if( timerg.stop > cmptimerg.start )
+			timerg.stop = cmptimerg.start;
+		}
 	    }
 	}
 	if ( !it.next() ) break;
@@ -240,6 +254,7 @@ void Strat::RefTree::constraintUnitTimes( NodeUnitRef& parun )
 void Strat::RefTree::getLeavesTimeGaps( const NodeUnitRef& node,
 				    TypeSet< Interval<float> >& timergs ) const
 {
+    if ( node.nrRefs() <= 0 ) return;
     Interval<float> partimerg = node.props().timerg_;
     ObjectSet<UnitRef> refunits;
     gatherLeavesByTime( node, refunits );
@@ -261,7 +276,7 @@ void Strat::RefTree::getLeavesTimeGaps( const NodeUnitRef& node,
 }
 
 
-void Strat::RefTree::constraintUnitLvlNames( UnitRef& lur )
+void Strat::RefTree::constrainUnitLvlNames( UnitRef& lur )
 {
     float timestart = lur.props().timerg_.start; 
     BufferString lvlnm = lur.props().lvlname_;
@@ -271,31 +286,6 @@ void Strat::RefTree::constraintUnitLvlNames( UnitRef& lur )
 	if( timestart == ur->props().timerg_.start )
 	    ur->props().lvlname_ = lvlnm.buf();
 	ur = ur->upNode();
-    }
-}
-
-
-void Strat::RefTree::resetChildrenNames( const NodeUnitRef& ur )
-{
-    UnitRef::Iter it( ur );
-    Strat::UnitRef* un = it.unit();
-    while ( un )
-    {
-	UnitRef* curun = un;
-	BufferString bs = curun->code();
-	while ( curun->upNode() )
-	{
-	    curun = curun->upNode();
-	    BufferString tmpb( curun->code() );
-	    if ( tmpb.isEmpty() ) 
-		break;
-	    CompoundKey kc( curun->code() );
-	    kc += bs.buf();
-	    bs = kc.buf();
-	}
-	un->props().code_ = bs.buf();
-	if ( !it.next() ) break;
-	un = it.unit();
     }
 }
 
@@ -725,13 +715,5 @@ void Strat::UnitRepository::createDefaultTree()
     props.color_ = Color::DgbColor();
     props.desc_ = "Stratigraphic Column";
     tree->addUnit( props.code_, props );
-    
-    BufferString bs( "Group" );
-    CompoundKey kc( props.code_ );
-    kc += bs.buf();
-    props.code_ = "Group";
-    props.desc_ = "First Subgroup";
-    tree->addUnit( kc.buf(), props );
-    
     trees_ += tree;
 }

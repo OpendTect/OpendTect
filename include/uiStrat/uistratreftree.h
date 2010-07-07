@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.22 2010-07-05 16:08:07 cvsbruno Exp $
+ RCS:           $Id: uistratreftree.h,v 1.23 2010-07-07 11:18:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ public:
     void                expand(bool) const;
     void                makeTreeEditable(bool) const;
     void		handleMenu(uiListViewItem*);
-    void		updateLvlsPixmaps();
+    void		updateUnitsPixmaps();
     void		updateLithoCol();
     void		moveUnit(bool);
     bool		canMoveUnit(bool);
@@ -70,7 +70,7 @@ protected:
     void 		doSetUnconformities(CallBacker*);
 
     void		addNode(uiListViewItem*,const Strat::NodeUnitRef&,bool);
-    ioPixmap*		createUnitPixmap(const Strat::UnitRef*) const;
+    ioPixmap*		createUnitPixmap(const Color& col) const;
     			//becomes yours!
 
     BufferString	getCodeFromLVIt(const uiListViewItem*) const;
