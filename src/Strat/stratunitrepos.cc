@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.39 2010-07-07 11:18:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.40 2010-07-07 16:17:26 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -15,7 +15,6 @@ static const char* rcsID = "$Id: stratunitrepos.cc,v 1.39 2010-07-07 11:18:30 cv
 #include "separstr.h"
 #include "iopar.h"
 #include "ioman.h"
-#include "color.h"
 #include "debug.h"
 #include "sorting.h"
 
@@ -191,7 +190,7 @@ void Strat::RefTree::gatherLeavesByTime( const NodeUnitRef& un,
 }
 
 
-void Strat::RefTree::constrainUnits( UnitRef& ur )
+void Strat::RefTree::constrainUnits( UnitRef& ur ) const
 {
     mDynamicCastGet(NodeUnitRef*,nur,&ur)
     if ( nur )
@@ -205,7 +204,7 @@ void Strat::RefTree::constrainUnits( UnitRef& ur )
 	rg1.start = rg2.start;\
     if ( rg1.stop > rg2.stop )\
 	rg1.stop = rg2.stop;
-void Strat::RefTree::constrainUnitTimes( NodeUnitRef& un )
+void Strat::RefTree::constrainUnitTimes( NodeUnitRef& un ) const
 {
     Strat::UnitRef::Iter it( un );
     Strat::UnitRef* ur = it.unit();
@@ -276,16 +275,56 @@ void Strat::RefTree::getLeavesTimeGaps( const NodeUnitRef& node,
 }
 
 
-void Strat::RefTree::constrainUnitLvlNames( UnitRef& lur )
+void Strat::RefTree::constrainUnitLvlNames( UnitRef& lur ) const
 {
     float timestart = lur.props().timerg_.start; 
     BufferString lvlnm = lur.props().lvlname_;
+    if ( lvlnm.isEmpty() )
+    {
+	lvlnm += lur.props().code_; lvlnm += " Level";
+	lur.props().lvlname_ = lvlnm.buf();
+    }
     NodeUnitRef* ur = lur.upNode();
-    while ( ur->upNode() )
+    while ( ur && ur->upNode() )
     {
 	if( timestart == ur->props().timerg_.start )
 	    ur->props().lvlname_ = lvlnm.buf();
+	    
 	ur = ur->upNode();
+    }
+}
+
+
+void Strat::RefTree::assignEqualTimesToUnits( Interval<float> toptimerg ) const
+{
+    UnitRef::Iter it( *this );
+    Strat::UnitRef* un = const_cast<Strat::RefTree*>( this );
+    while ( un )
+    {
+	Interval<float> timerg( 0, 0 );
+	if ( un->upNode() ) 
+	{
+	    constrainUnitLvlNames( *un );
+	    timerg = un->props().timerg_; 
+	}
+	else
+	    timerg = toptimerg;
+
+	if ( !un->isLeaf() ) 
+	{
+	    const int nrrefs = ((NodeUnitRef*)un)->nrRefs();
+	    if ( timerg.width() < nrrefs)
+		break;
+	    for ( int idx=0; idx<nrrefs; idx++ )
+	    {
+		Interval<float>& rg = 
+		    		((NodeUnitRef*)un)->ref(idx).props().timerg_;
+		rg.start = timerg.start + (float)idx*timerg.width()/(nrrefs);
+		rg.stop = timerg.start +(float)(idx+1)*timerg.width()/(nrrefs);
+	    }
+	}
+	if ( !it.next() ) break;
+	un = it.unit();
     }
 }
 
@@ -488,7 +527,17 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 
     sfio.closeSuccess();
     if ( tree->nrRefs() > 0 )
+    {
+	//*!support for older version
+	//TODO make this whole time structure optionnal 
+	//( then no graph display but still the ui-tree available )
+	float timestop = tree->props().timerg_.stop;
+	if ( mIsUdf( timestop ) || timestop == 0 )
+	    tree->assignEqualTimesToUnits( Interval<float>( 0, 4.5e3 ) );
+	//*!
+	
 	trees_ += tree;
+    }
     else
     {
 	BufferString msg( "No valid layers found in:\n" );
@@ -717,3 +766,5 @@ void Strat::UnitRepository::createDefaultTree()
     tree->addUnit( props.code_, props );
     trees_ += tree;
 }
+
+

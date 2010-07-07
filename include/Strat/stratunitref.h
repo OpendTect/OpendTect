@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.22 2010-06-29 13:03:30 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.23 2010-07-07 16:17:26 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "color.h"
+#include "randcolor.h"
 #include "compoundkey.h"
 #include "ranges.h"
 #include "sets.h"
@@ -62,6 +62,7 @@ public:
     {
 			Props()
 			: isunconf_(false)
+			, color_(getRandStdDrawColor())  
 			{}
 
 	BufferString    code_;
