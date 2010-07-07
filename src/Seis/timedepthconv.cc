@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.27 2010-07-05 05:14:47 cvsnageswara Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.28 2010-07-07 21:37:48 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -811,20 +811,41 @@ int VelocityModelScanner::nextStep()
 	    return MoreToDo();
     }
 
-    if ( !mIsUdf(resvs.value(0)) )
+    int first = -1, last = -1;
+    for ( int idx=0; idx<sz; idx++ )
     {
+	if ( !mIsUdf(resvs.value(idx) ) )
+	{
+	    first = idx;
+	    break;
+	}
+    }
+
+
+    for ( int idx=sz-1; idx>=0; idx-- )
+    {
+	if ( !mIsUdf(resvs.value(idx) ) )
+	{
+	    last = idx;
+	    break;
+	}
+    }
+
+    if ( first!=-1 && last!=-1 && first!=last )
+    {
+	const float firsttime = sd.atIndex(first);
 	float v0 = -1;
-    	if ( sd.start>0 )
-    	    v0 = zistime_ ? 2*resvs.value(0)/sd.start 
-			  : ( resvs.value(0)>0.0001 ? 
-				  2*sd.start/resvs.value(0) : 1500 );
+    	if ( firsttime>0 )
+    	    v0 = zistime_ ? 2*resvs.value(first)/firsttime
+			  : ( resvs.value(first)>0.0001
+				  ?  2*firsttime/resvs.value(first)
+				  : 1500 );
     	else
     	{
-    	    if ( !mIsUdf(resvs.value(1)) )
-    	    {
-     		const float diff0 = resvs.value(1) - resvs.value(0); 
-     		v0 = zistime_ ? 2 * diff0 / sd.step : 2 * sd.step / diff0;
-    	    }
+	    const float diff0 = resvs.value(first+1) - resvs.value(first); 
+	    v0 = zistime_
+		? 2 * diff0 / sd.step
+		: 2 * sd.step / diff0;
     	}
 
 	if ( v0 > 0 )
@@ -837,12 +858,11 @@ int VelocityModelScanner::nextStep()
 	    else
 		startavgvel_.include( v0 );
 	}
-    }
-    
-    if ( !mIsUdf(resvs.value(sz-1)) && !mIsUdf(resvs.value(sz-2)) )
-    {
-	const float diff1 = resvs.value(sz-1) - resvs.value(sz-2);
-	const float v1 = zistime_ ? 2 * diff1 / sd.step : 2 * sd.step / diff1;
+
+	const float diff1 = resvs.value(last) - resvs.value(first);
+	const float v1 = zistime_
+	    ? 2 * diff1 / ((last-first)* sd.step)
+	    : 2 * (last-first) * sd.step / diff1;
 
 	if ( !definedv1_ )
 	{
