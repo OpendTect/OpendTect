@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.14 2010-07-05 16:08:07 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.15 2010-07-07 11:16:53 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class uiListBox;
 class uiCheckBox;
 class uiStratMgr;
 class uiSpinBox;
+class uiTable;
 namespace Strat { class Lithology; }
 
 /*!\brief Displays a dialog to create new stratigraphic unit */
@@ -68,6 +69,34 @@ protected:
     bool		acceptOK(CallBacker*);
 
 };
+
+
+/*!\brief Displays a Table to create new units from an existing one */
+
+mClass uiStratUnitDivideDlg : public uiDialog
+{
+public:
+				uiStratUnitDivideDlg(uiParent*,
+						const uiStratMgr& mgr,
+						const Strat::UnitRef::Props&);
+
+    void			gatherProps(ObjectSet<Strat::UnitRef::Props>&); 
+
+protected :
+
+    uiTable*                    table_;
+    const Strat::UnitRef::Props& parentprop_;
+    const uiStratMgr&		uistratmgr_;
+
+    void			setUnit(int,const Strat::UnitRef::Props&);
+    bool			areTimesOK(
+				    ObjectSet<Strat::UnitRef::Props>&) const;
+
+    void			mouseClick(CallBacker*);
+    bool			acceptOK(CallBacker*);
+    void			resetUnits(CallBacker*);
+};
+
 
 
 /*!\brief Displays a dialog to create new lithology */

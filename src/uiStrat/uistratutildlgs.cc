@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.21 2010-07-05 16:08:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.22 2010-07-07 11:16:53 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.21 2010-07-05 16:08:07 c
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistratmgr.h"
+#include "uitable.h"
 
 static const char* sNoLithoTxt      = "---None---";
 
@@ -58,8 +59,8 @@ uiStratUnitDlg::uiStratUnitDlg( uiParent* p, Setup& su )
     
     uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox( this, "" );
     agestopfld_ = lblbox2->box();
-    agestopfld_->setValue( su.timerg_.stop );
     agestopfld_->setInterval( su.timerg_ );
+    agestopfld_->setValue( su.timerg_.stop );
     lblbox2->attach( rightOf, lblbox1 );
 
     lvlnmfld_ = new uiGenInput( this, "Level (top) name", StringInpSpec() );
@@ -112,21 +113,23 @@ void uiStratUnitDlg::getUnitProps( Strat::UnitRef::Props& props) const
 }
 
 
-
 bool uiStratUnitDlg::acceptOK( CallBacker* )
 {
     if ( agestartfld_->getValue() >= agestopfld_->getValue() )
 	{ mErrRet( "Please specify a valid time range", return false ) }
     if ( !strcmp( unitnmfld_->text(), "" ) )
 	{ mErrRet( "Please specify the unit name", return false ) }
-    if ( uistratmgr_ && !uistratmgr_->isNewUnitName( unitnmfld_->text() ) 
-		&& !strcmp(unitnmfld_->text(),entrancename_.buf()) ) 
-    { 
-	mErrRet( "Unit name already exists. Please specify a new unit name", 
-		 return false ) 
+
+    BufferString namemsg( "Unit name already used. Please specify a new name" );
+    if ( strcmp(unitnmfld_->text(),entrancename_.buf()) )
+    {
+	if ( uistratmgr_ && !uistratmgr_->isNewUnitName(unitnmfld_->text()) ) 
+	{ mErrRet( namemsg, return false ) }
     }
+
     if ( !strcmp( lvlnmfld_->text(), "" ) )
 	{ mErrRet( "Please specify a name for the unit level", return false ) }
+
     return true;
 }
 
@@ -279,3 +282,161 @@ bool uiStratLithoDlg::acceptOK( CallBacker* )
     return true;
 }
 
+
+
+static const char* unitcollbls[] = { "[Name]", "[Color]", 
+				     "Start(my)", "Stop(my)", 0 };
+static const int cNrEmptyRows = 2;
+
+static const int cNameCol  = 0;
+static const int cColorCol = 1;
+static const int cStartCol = 2;
+static const int cStopCol = 3;
+
+uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p, const uiStratMgr& mgr, 
+				const Strat::UnitRef::Props& parentprop ) 
+    : uiDialog(p,uiDialog::Setup("Subdivide Stratigraphic Unit",
+			     "Specify number and properties of the new units",
+			     mNoHelpID))
+    , parentprop_(parentprop)
+    , uistratmgr_(mgr)		     
+{
+    table_ = new uiTable( this, uiTable::Setup().rowdesc("Unit")
+						.rowgrow(true)
+						.defrowlbl("")
+						,"Subdivide Unit Table" );
+    table_->setColumnLabels( unitcollbls );
+    table_->setColumnReadOnly( cColorCol, true );
+    table_->setColumnResizeMode( uiTable::ResizeToContents );
+    table_->setNrRows( cNrEmptyRows );
+    table_->leftClicked.notify( mCB(this,uiStratUnitDivideDlg,mouseClick) );
+
+    table_->rowInserted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
+    table_->rowDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
+    
+    if ( table_->nrRows() )
+	setUnit( 0, parentprop_ );
+
+    resetUnits( 0 );
+}
+
+
+void uiStratUnitDivideDlg::mouseClick( CallBacker* )
+{
+    RowCol rc = table_->notifiedCell();
+    if ( rc.col != cColorCol || table_->isCellReadOnly(rc) ) return;
+
+    Color newcol = table_->getColor( rc );
+    if ( selectColor(newcol,this,"Unit color") )
+    table_->setColor( rc, newcol );
+}
+
+
+void uiStratUnitDivideDlg::resetUnits( CallBacker* cb ) 
+{
+    Interval<float> timerg = parentprop_.timerg_;
+    ObjectSet<Strat::UnitRef::Props> pps;
+    gatherProps( pps );
+    const int nrrows = table_->nrRows();
+    for ( int idx=0; idx<nrrows; idx++ )
+    {
+	Strat::UnitRef::Props* pp = pps[idx];
+	if ( !pp )
+	    break;
+	BufferString bs( pp->code_ );
+	if ( bs.isEmpty() )
+	{
+	    BufferString code( "New Unit" );
+	    code += idx+1;
+	    pp->code_ = code;
+	    pp->color_ = getRandStdDrawColor();
+	}
+	pp->timerg_.start = timerg.start + (float)idx*timerg.width()/(nrrows);
+	pp->timerg_.stop = timerg.start +(float)(idx+1)*timerg.width()/(nrrows);
+	table_->setRowReadOnly( idx, false );
+	setUnit( idx, *pp );
+    }
+    deepErase( pps );
+    table_->setCellReadOnly( RowCol( 0, cStartCol ), true );
+    table_->setCellReadOnly( RowCol( nrrows-1, cStopCol ), true );
+}
+
+
+void uiStratUnitDivideDlg::setUnit( int irow, const Strat::UnitRef::Props& pp ) 
+{
+    table_->setText( RowCol(irow,cNameCol), pp.code_ );
+    table_->setValue( RowCol(irow,cStartCol), pp.timerg_.start  );
+    table_->setValue( RowCol(irow,cStopCol), pp.timerg_.stop  );
+    table_->setColor( RowCol(irow,cColorCol), pp.color_ );	       
+}
+
+
+void uiStratUnitDivideDlg::gatherProps( ObjectSet<Strat::UnitRef::Props>& pps ) 
+{
+    const int nrrows = table_->nrRows();
+    for ( int idx=0; idx<nrrows; idx++ )
+    {
+	Strat::UnitRef::Props* pp = new Strat::UnitRef::Props();
+	pp->code_ = table_->text( RowCol(idx,cNameCol) ); 
+	pp->timerg_.start = table_->getfValue( RowCol(idx,cStartCol) );
+	pp->timerg_.stop = table_->getfValue( RowCol(idx,cStopCol) );
+	pp->color_ = table_->getColor( RowCol(idx,cColorCol) );
+	pps += pp;
+    }
+}
+
+
+bool uiStratUnitDivideDlg::areTimesOK( 
+				ObjectSet<Strat::UnitRef::Props>& pps ) const
+{
+    if ( pps.size() > 1 )
+	return true;
+    for ( int idx=0; idx<pps.size()-1; idx++ )
+    {
+	const Strat::UnitRef::Props& curpp = *pps[idx];
+	const Strat::UnitRef::Props& nextpp = *pps[idx+1];
+	if ( curpp.timerg_.width() < 1 || nextpp.timerg_.width() < 1 )
+	    return false;
+	if ( curpp.timerg_.stop > nextpp.timerg_.start )
+	    return false;
+    }
+    return ( pps[0]->timerg_.width() >= 1 );
+}
+
+
+bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
+{
+    BufferStringSet bfs;
+    ObjectSet<Strat::UnitRef::Props> pps;
+    gatherProps( pps );
+    for ( int idx=0; idx<pps.size(); idx++ )
+    {
+	BufferString code( pps[idx]->code_ );
+	BufferString errmsg;
+	if ( code.isEmpty() )
+	{
+	    errmsg += "Empty unit name. ";
+	}
+	if ( errmsg.isEmpty() && strcmp( code.buf() , parentprop_.code_ ) )
+	{
+	    if ( !uistratmgr_.isNewUnitName(pps[idx]->code_) ) 
+		errmsg += "Unit name already used. ";
+	}
+	bfs.addIfNew( code );
+	if ( errmsg.isEmpty() && bfs.size() < idx+1 )
+	{
+	    errmsg += "Unit name previously used in the list. ";
+	}
+	if ( !errmsg.isEmpty() )
+	{
+	    errmsg += "Please specify a new name for the unit number ";
+	    errmsg += idx+1;
+	    mErrRet( errmsg, deepErase( pps ); return false )	
+	}
+    }
+    if ( !areTimesOK( pps ) )
+	{ mErrRet( "No valid times specified", deepErase(pps); return false; ) }
+
+    deepErase( pps );
+    return true;
+}
