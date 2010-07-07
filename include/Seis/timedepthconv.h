@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.18 2010-07-05 05:14:47 cvsnageswara Exp $
+ RCS:		$Id: timedepthconv.h,v 1.19 2010-07-07 21:48:21 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -149,6 +149,7 @@ protected:
     RefMan<Time2DepthStretcher>		stretcher_;
 };
 
+/*! Scans a velocity model for minimum top/bottom average velocity. */
 
 mClass VelocityModelScanner : public SequentialTask
 {
@@ -158,9 +159,9 @@ public:
 				~VelocityModelScanner();
 
     const char*			message() const		{ return msg_.buf(); }
-    od_int64			totalNr() const { return subsel_.totalNr(); }
+    od_int64			totalNr() const		{ return subsel_.totalNr(); }
     od_int64			nrDone() const		{ return nrdone_; }
-    const char*			nrDoneText() const { return "Position scanned";}
+    const char*			nrDoneText() const	{ return "Position scanned";}
 
     const Interval<float>&	getTopVAvg() const	{ return startavgvel_; }
     const Interval<float>&	getBotVAvg() const	{ return stopavgvel_; }
