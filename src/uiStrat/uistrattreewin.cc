@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.44 2010-07-05 16:08:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.45 2010-07-07 08:58:20 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -76,6 +76,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , istreedisp_(false)		
 {
     IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
+    IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
     mAskStratMgrNotif(unitCreated)
     mAskStratMgrNotif(unitChanged)
     mAskStratMgrNotif(unitRemoved)
