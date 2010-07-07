@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.99 2010-07-06 17:32:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.100 2010-07-07 21:00:23 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -88,10 +88,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
    
     const SamplingData<float>& sd = data2dh_.trcinfoset_[0]->sampling; 
     StepInterval<float> zrg = s2d_.getZRange(!s2d_.datatransform_);
-    const int arrzsz = arr_.info().getSize(1);
     StepInterval<int> arraysrg( mNINT(zrg.start/sd.step),
 				mNINT(zrg.stop/sd.step),1 );
-
     const float firstz = data2dh_.dataset_[0]->z0_*sd.step;
     const int firstdhsample = sd.nearestIndex( firstz );
     const bool samplebased = 
@@ -104,7 +102,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	return false;
     }
 
+    const bool usez0 = s2d_.datatransform_ || zrg.start <= sd.start; 
     const int trcsz = arr_.info().getSize(0);
+    const int arrzsz = arr_.info().getSize(1);
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const int trcnr = data2dh_.trcinfoset_[idx]->nr;
@@ -123,7 +123,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	}
 
 	const ValueSeries<float>* dataseries = dh->series( valseridx_ );
-	const int shift = s2d_.datatransform_ ? 0 : dh->z0_;
+	const int shift = usez0 ? dh->z0_ : mNINT(sd.start/sd.step);
 	for ( int idy=0; idy<nrsamp; idy++ )
 	{
 	    const int smp = firstdhsample+idy;
@@ -134,7 +134,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		continue;
 	    }
 	    
-	    const int validx = s2d_.datatransform_ ? smp - dh->z0_ : smp;
+	    const int validx = usez0 ? smp : smp+shift-dh->z0_;
 	    const float val = dh->dataPresent(smp+shift)
 		? dataseries->value( validx )
 		: mUdf(float);
@@ -377,10 +377,9 @@ void Seis2DDisplay::setData( int attrib,
 
     StepInterval<float> arrayzrg;
     arrayzrg.setFrom( getZRange(!datatransform_) );
+
     arrayzrg.step = sd.step;
     const int arrzsz = arrayzrg.nrSteps()+1;
-    StepInterval<int> arraysrg( mNINT(arrayzrg.start/sd.step),
-	    			mNINT(arrayzrg.stop/sd.step), 1 );
 
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, arr,
 	    Array2DImpl<float>( trcnrrg_.width()+1, arrzsz ) );
