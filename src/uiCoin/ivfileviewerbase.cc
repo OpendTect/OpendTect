@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.8 2010-04-23 08:28:23 cvsnanne Exp $";
+static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.9 2010-07-07 13:10:45 cvskris Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -73,6 +73,7 @@ int main( int narg, char** argv )
     SoQtExaminerViewer* myViewer = new SoQtExaminerViewer( myWindow );
     myViewer->setTitle( filename );
     myViewer->setTransparencyType( SoGLRenderAction::SORTED_OBJECT_BLEND );
+    myViewer->setBackgroundColor( SbColor( 0.5, 0.5, 0.5) );
 
     myViewer->setSceneGraph( myGraph );
     myViewer->show();
