@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.158 2010-06-07 10:00:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.159 2010-07-07 12:24:18 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -651,7 +651,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 				       int firstcol )
 {
-    ExecutorGroup execgrp( "Calulating Attribute", true );
+    ExecutorGroup execgrp( "Calculating Attribute", true );
     BufferString errmsg;
 
     ObjectSet<EngineMan> aems;
