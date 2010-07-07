@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.49 2010-06-10 08:29:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.50 2010-07-07 20:58:34 cvskris Exp $";
 
 #include "attribsel.h"
 
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: attribsel.cc,v 1.49 2010-06-10 08:29:35 cvsnann
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
+#include "survinfo.h"
 #include "zdomain.h"
 
 namespace Attrib
@@ -258,6 +259,8 @@ void SelInfo::fillStored( const char* filter )
     const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
     GlobExpr* ge = filter && *filter ? new GlobExpr( filter ) : 0;
 
+    const char* survdomain = SI().getZDomainString();
+
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
@@ -265,9 +268,15 @@ void SelInfo::fillStored( const char* filter )
 	if ( SeisTrcTranslator::isPS( ioobj ) ) continue;
 	const bool is2d = SeisTrcTranslator::is2D(ioobj,true);
 	const bool isvalid3d = !is2d && ioobj.isReadDefault();
-	const bool isz = ioobj.pars().find(ZDomain::sKey()) ||
-	    		 ioobj.pars().find( "Depth Domain" );
-	if ( isz || (is2d_ != is2d) || (!is2d && !isvalid3d) )
+
+	if ( (is2d_ != is2d) || (!is2d && !isvalid3d) )
+	    continue;
+
+	FixedString zdomain = ioobj.pars().find(ZDomain::sKey());
+	if ( !zdomain )
+	    zdomain = ioobj.pars().find( "Depth Domain" );
+
+	if ( zdomain && zdomain!=survdomain )
 	    continue;
 
 	const char* res = ioobj.pars().find( sKey::Type );
