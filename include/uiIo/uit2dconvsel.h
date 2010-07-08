@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2010
- RCS:           $Id: uit2dconvsel.h,v 1.2 2010-05-31 15:11:37 cvsbert Exp $
+ RCS:           $Id: uit2dconvsel.h,v 1.3 2010-07-08 06:00:55 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
 #include "factory.h"
+
 class IOPar;
 class uiIOObjSel;
 class uiGenInput;
@@ -34,16 +35,19 @@ public:
 			    : tiedto_(tied)
 			    , optional_(opt)
 			    , fldtext_(opt ? "Convert to Depth"
-				    	   : "Depth conversion")	{}
+				    	   : "Depth conversion")
+		    	    , ist2d_(true)	{}
+
 	mDefSetupMemb(BufferString,fldtext)
 	mDefSetupMemb(bool,optional)
 	mDefSetupMemb(uiIOObjSel*,tiedto)
+	mDefSetupMemb(bool,ist2d)
     };
 
 			uiT2DConvSel(uiParent*,const Setup&);
 
-    void		usePar(const IOPar&);
-    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+    bool		fillPar(IOPar&i,bool typeonly=false) const;
 
 protected:
 
@@ -54,41 +58,37 @@ protected:
 
     void				inpSel(CallBacker*);
     void				choiceSel(CallBacker*);
-
 };
 
 
 mClass uiT2DConvSelGroup : public uiGroup
 {
 public:
-    			uiT2DConvSelGroup( uiParent* p, const char* gnm )
+   			uiT2DConvSelGroup( uiParent* p, const char* gnm )
 			    : uiGroup(p,gnm)	{}
 
-    virtual void	fillPar(IOPar&) const	= 0;
-    virtual void	usePar(const IOPar&)	= 0;
+      virtual bool	fillPar(IOPar&) const	= 0;
+      virtual bool	usePar(const IOPar&)	= 0;
 
     mDefineFactory1ParamInClass(uiT2DConvSelGroup,uiParent*,factory);
-
 };
 
 
 mClass uiT2DLinConvSelGroup : public uiT2DConvSelGroup
 {
 public:
-
     				uiT2DLinConvSelGroup(uiParent*);
 
     static void			initClass();
     static uiT2DConvSelGroup*	create( uiParent* p )
     				{ return new uiT2DLinConvSelGroup(p); }
 
-    virtual void		fillPar(IOPar&) const;
-    virtual void		usePar(const IOPar&);
+    virtual bool		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
 protected:
 
     uiGenInput*		fld_;
-
 };
 
 #endif

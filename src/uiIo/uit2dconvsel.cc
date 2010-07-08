@@ -8,15 +8,18 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uit2dconvsel.cc,v 1.2 2010-05-31 15:11:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uit2dconvsel.cc,v 1.3 2010-07-08 06:00:55 cvsnageswara Exp $";
 
 #include "uit2dconvsel.h"
+
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uicombobox.h"
 #include "ioobj.h"
 #include "survinfo.h"
+#include "veldesc.h"
 #include "zdomain.h"
+
 
 mImplFactory1Param(uiT2DConvSelGroup,uiParent*,uiT2DConvSelGroup::factory);
 
@@ -40,6 +43,7 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
 	grps_ += grp;
 	if ( idx == 0 )
 	    setHAlignObj( grp );
+
 	grp->attach( rightOf, lcb );
     }
 
@@ -49,6 +53,7 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
 	setup_.tiedto_->selectionDone.notify( cb );
 	finaliseDone.notify( cb );
     }
+
     const CallBack cb( mCB(this,uiT2DConvSel,choiceSel) );
     choicefld_->selectionChanged.notify( cb );
     finaliseDone.notify( cb );
@@ -77,58 +82,71 @@ void uiT2DConvSel::inpSel( CallBacker* cb )
 }
 
 
-void uiT2DConvSel::usePar( const IOPar& iop )
+bool uiT2DConvSel::usePar( const IOPar& iop )
 {
     const char* typ = iop.find( sKey::Type );
     if ( !typ || !*typ || !choicefld_->isPresent(typ) )
-	return;
+	return false;
 
     int selidx = choicefld_->indexOf( typ );
-    if ( selidx < 0 ) return;
+    if ( selidx < 0 ) return false;
 
     if ( setup_.optional_ ) selidx--;
     if ( selidx >= 0 )
 	grps_[selidx]->usePar( iop );
 
     choicefld_->setCurrentItem( selidx );
+    return true;
 }
 
 
-void uiT2DConvSel::fillPar( IOPar& iop ) const
+bool uiT2DConvSel::fillPar( IOPar& iop, bool typeonly ) const
 {
-    iop.set( sKey::Type, choicefld_->text() );
+    BufferString typestr = choicefld_->text();
+    typestr += setup_.ist2d_ ? "T2D" : "D2T";
+    iop.set( sKey::Name, typestr );
+    if ( typeonly )
+	return true;
+
     mGetGroupIdx;
-    if ( grpidx >= 0 )
-	grps_[grpidx]->fillPar( iop );
+    return grpidx < 0 ? false : grps_[grpidx]->fillPar( iop );
 }
 
 
+//uiT2DLinConvSelGroup
 uiT2DLinConvSelGroup::uiT2DLinConvSelGroup( uiParent* p )
     : uiT2DConvSelGroup(p,"Linear T2D conv sel")
 {
     //TODO handle Z unit properly
     const float dv = SI().zInFeet() ? 3000 : 1000;
-    fld_ = new uiGenInput( this, "V0,dV/s", FloatInpSpec(0), FloatInpSpec(dv) );
+    BufferString text( "V0 " );
+    text.add( VelocityDesc::getVelUnit(true) );
+    text.add( ", dV/s" );
+    fld_ = new uiGenInput( this, text, FloatInpSpec(0), FloatInpSpec(dv) );
 }
 
 
 #define mDefA0A1 float a0 = fld_->getfValue(0); float a1 = fld_->getfValue(1)
 
-
-void uiT2DLinConvSelGroup::usePar( const IOPar& iop )
+//uiT2DLinConvSelGroup
+bool uiT2DLinConvSelGroup::usePar( const IOPar& iop )
 {
     //TODO handle Z unit properly
     mDefA0A1;
     if ( iop.get("V0,dV",a0,a1) )
 	{ fld_->setValue( a0, 0 ); fld_->setValue( a1, 1 ); }
+
+    return true;
 }
 
 
-void uiT2DLinConvSelGroup::fillPar( IOPar& iop ) const
+bool uiT2DLinConvSelGroup::fillPar( IOPar& iop ) const
 {
     //TODO handle Z unit properly
     mDefA0A1;
     iop.set( "V0,dV", a0, a1 );
+
+    return true;
 }
 
 
