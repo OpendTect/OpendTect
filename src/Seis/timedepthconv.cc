@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.29 2010-07-08 05:41:32 cvsnageswara Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.30 2010-07-08 18:28:57 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -235,7 +235,7 @@ protected:
 	if ( !veltranslator->goTo(curbid_) || !reader_.get(velocitytrc) )
 	{
 	    Time2DepthStretcher::udfFill( arrvs, nrz );
-		return MoreToDo();
+	    return MoreToDo();
 	}
 
 	const SeisTrcValueSeries trcvs( velocitytrc, 0 );
