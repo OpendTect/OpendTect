@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellt2dconv.cc,v 1.1 2010-05-31 15:12:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellt2dconv.cc,v 1.2 2010-07-08 06:07:30 cvsnageswara Exp $";
 
 #include "uiwellt2dconv.h"
 #include "uiioobjsel.h"
@@ -21,22 +21,26 @@ uiT2DWellConvSelGroup::uiT2DWellConvSelGroup( uiParent* p )
 }
 
 
-void uiT2DWellConvSelGroup::usePar( const IOPar& iop )
+bool uiT2DWellConvSelGroup::usePar( const IOPar& iop )
 {
     const IOObj* ioobj = fld_->ioobj();
     MultiID ky; if ( ioobj ) ky = ioobj->key();
     if ( iop.get("ID",ky) )
 	fld_->setInput( ky );
+
+    return true;
 }
 
 
-void uiT2DWellConvSelGroup::fillPar( IOPar& iop ) const
+bool uiT2DWellConvSelGroup::fillPar( IOPar& iop ) const
 {
     const IOObj* ioobj = fld_->ioobj();
     if ( !ioobj )
 	iop.removeWithKey("ID");
     else
 	iop.set( "ID", ioobj->key() );
+
+    return true;
 }
 
 
