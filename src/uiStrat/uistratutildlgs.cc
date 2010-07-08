@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.22 2010-07-07 11:16:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.23 2010-07-08 08:40:49 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -310,9 +310,9 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p, const uiStratMgr& mgr,
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setNrRows( cNrEmptyRows );
     table_->leftClicked.notify( mCB(this,uiStratUnitDivideDlg,mouseClick) );
-
     table_->rowInserted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
     table_->rowDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
+    table_->setMinimumWidth( 450 );
     
     if ( table_->nrRows() )
 	setUnit( 0, parentprop_ );
