@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.45 2010-07-08 18:48:35 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.46 2010-07-08 21:31:42 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -127,7 +127,7 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 
 uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 				      const uiVelocityDesc::Setup* vsu )
-    : uiDialog( this, uiDialog::Setup("Edit velocity information",0,"103.6.7") )
+    : uiDialog( p, uiDialog::Setup("Edit velocity information",0,"103.6.7") )
 {
     uiSeisSel::Setup ssu( Seis::Vol ); ssu.seltxt( "Velocity cube" );
     volselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
