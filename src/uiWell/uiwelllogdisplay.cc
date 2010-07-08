@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.53 2010-07-05 16:08:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.54 2010-07-08 12:51:09 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -34,14 +34,16 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.53 2010-07-05 16:08:07 
 #include <iostream>
 
 
-#define mDefZPosInLoop(val)\
-    float zpos = val;\
+#define mDefZPos(zpos)\
     if ( data_.zistime_ && data_.d2tm_ )\
 	zpos = data_.d2tm_->getTime( zpos )*1000;\
-    if ( !data_.zrg_.includes( zpos ) )\
-	continue;\
     if ( data_.dispzinft_ && !data_.zistime_)\
 	zpos *= mToFeetFactor;
+#define mDefZPosInLoop(val)\
+    float zpos = val;\
+    mDefZPos(zpos)\
+    if ( !data_.zrg_.includes( zpos ) )\
+	continue;
 uiWellLogDisplay::LineData::LineData( uiGraphicsScene& scn, Setup su )
     : zrg_(mUdf(float),0)
     , setup_(su)  
@@ -370,6 +372,15 @@ void uiWellLogDisplay::drawLine( LogData& ld, const Well::DahObj* dahobj )
 }
 
 
+static const int cMaxNrLogSamples = 2000;
+#define mGetLoopSize(nrsamp,step)\
+{\
+    if ( nrsamp > cMaxNrLogSamples )\
+    {\
+	step = (float)nrsamp/cMaxNrLogSamples;\
+	nrsamp = cMaxNrLogSamples;\
+    }\
+}
 void uiWellLogDisplay::drawFilling( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
@@ -377,16 +388,20 @@ void uiWellLogDisplay::drawFilling( bool first )
     mRemoveSet( ld.curvepolyitms_ );
 
     float colstep = ( ld.xax_.range().stop - ld.xax_.range().start ) / 255;
-    const int sz = ld.wl_ ? ld.wl_->size() : 0;
+    int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 ) return;
+    float step = 1;
+    mGetLoopSize( sz, step );
 
     ObjectSet< TypeSet<uiPoint> > pts;
     TypeSet<int> colorintset;
     uiPoint closept;
+
+    float zfirst = ld.wl_->dah(0);
+    mDefZPos( zfirst )
     closept.x = ( first || ld.xrev_ ) ? ld.xax_.getPix(ld.xax_.range().stop) 
 				      : ld.xax_.getPix(ld.xax_.range().start);
-    closept.y = ( first || ld.xrev_ ) ? ld.yax_.getPix(ld.yax_.range().stop) 
-				      : ld.yax_.getPix(ld.yax_.range().stop);
+    closept.y = ld.yax_.getPix( zfirst ); 
     int prevcolidx = 0;
     TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
     *curpts += closept; 
@@ -394,15 +409,15 @@ void uiWellLogDisplay::drawFilling( bool first )
     uiPoint pt;
     for ( int idx=0; idx<sz; idx++ )
     {
-	float dah = ld.wl_->dah( idx );
-	if ( idx && idx < sz-1 )
+	const int index = mNINT(idx*step);
+	float dah = ld.wl_->dah( index );
+	if ( index && index < sz-1 )
 	{
-	    if ( dah >= ld.wl_->dah( idx+1 ) || dah <= ld.wl_->dah( idx-1 ) )
+	    if ( dah >= ld.wl_->dah(index+1) || dah <= ld.wl_->dah(index-1) )
 		continue;
 	}
-
 	mDefZPosInLoop( dah )
-	float val = ld.wl_->value( idx );
+	float val = ld.wl_->value( index );
 
 	if ( mIsUdf(val) )
 	{
