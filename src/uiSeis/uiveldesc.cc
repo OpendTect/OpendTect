@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.44 2010-07-08 05:51:01 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.45 2010-07-08 18:48:35 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -344,6 +344,8 @@ uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
     rangefld_ = new uiGenInput(this, str.buf(),
 	    		       FloatInpIntervalSpec(true) );
     rangefld_->attach( alignedBelow, velsel_ );
+
+    setHAlignObj( rangefld_ );
     
     setZRangeCB( 0 );
 }
@@ -462,6 +464,7 @@ bool uiTimeDepthBase::acceptOK()
     }
 
     selname_ = ioobj->name();
+    selkey_ = ioobj->key();
 
     return true;
 }
