@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.43 2010-07-07 21:49:40 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.44 2010-07-08 05:51:01 cvsnageswara Exp $";
 
 #include "uiveldesc.h"
 
@@ -232,15 +232,19 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
 
 
 uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
-		    const uiSeisSel::Setup& setup )
+		    const uiSeisSel::Setup& setup, bool iseditbutton )
     : uiSeisSel( p, ctxt, setup )
     , velrgchanged( this )
+    , editcubebutt_(0)
 {
-    editcubebutt_ = new uiPushButton( this, "",
-	    mCB(this,uiVelSel,editCB), false );
-    editcubebutt_->attach( rightOf, selbut_ );
-    selectionDoneCB( 0 );
-    selectionDone.notify( mCB(this,uiVelSel,selectionDoneCB) );
+    if ( iseditbutton )
+    {
+	editcubebutt_ = new uiPushButton( this, "",
+		mCB(this,uiVelSel,editCB), false );
+	editcubebutt_->attach( rightOf, selbut_ );
+	selectionDoneCB( 0 );
+	selectionDone.notify( mCB(this,uiVelSel,selectionDoneCB) );
+    }
 
     const char* res = SI().pars().find( sKeyDefVelCube );
     if ( res && *res && IOObj::isKey(res) )
@@ -315,7 +319,8 @@ void uiVelSel::selectionDoneCB( CallBacker* cb )
 
 void uiVelSel::updateEditButton()
 {
-    editcubebutt_->setText( ioobj(true) ? "Edit ..." : "Create ..." );
+    if ( editcubebutt_ )
+	editcubebutt_->setText( ioobj(true) ? "Edit ..." : "Create ..." );
 }
 
 uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )

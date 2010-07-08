@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.19 2010-07-07 21:30:28 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.20 2010-07-08 05:51:01 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,8 @@ mClass uiVelSel : public uiSeisSel
 {
 public:
     				uiVelSel(uiParent*,IOObjContext&,
-					 const uiSeisSel::Setup&);
+					 const uiSeisSel::Setup&,
+					 bool iseditbutton=true);
 
     void			setInput(const MultiID&);
     static const IOObjContext&	ioContext();
