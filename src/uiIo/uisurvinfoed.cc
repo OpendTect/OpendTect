@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.119 2010-05-17 06:56:38 cvsraman Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.120 2010-07-08 11:16:33 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -738,6 +738,8 @@ bool uiSurveyInfoEditor::setCoords()
   
     const char* msg = si_.set3Pts( c, b, xline );
     if ( msg ) { uiMSG().error( msg ); return false; }
+    else if ( mUseAdvanced() )
+	si_.gen3Pts();
 
     return true;
 }
