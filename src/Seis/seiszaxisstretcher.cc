@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.8 2010-07-06 17:32:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.9 2010-07-08 18:38:27 cvskris Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -43,7 +43,7 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
     ztransform_.ref();
 
     seisreader_ = new SeisTrcReader( &in );
-    if ( !seisreader_->prepareWork(Seis::Scan) ||!seisreader_->seisTranslator())
+    if ( !seisreader_->prepareWork(Seis::Scan) || !seisreader_->seisTranslator())
     {
 	delete seisreader_;
 	seisreader_ = 0;
@@ -59,14 +59,13 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
     
     CubeSampling cs( true );
     cs.hrg = outcs_.hrg;
-     seisreader_->setSelData( new Seis::RangeSelData(cs) );
+    seisreader_->setSelData( new Seis::RangeSelData(cs) );
 
     totalnr_ = cs.hrg.totalNr();
 
     seiswriter_ = new SeisTrcWriter( &out );
 
-    StepInterval<float> trcrg = ztransform_.getZInterval( !forward_ );
-    trcrg.step = ztransform_.getGoodZStep();
+    StepInterval<float> trcrg = outcs_.zrg;
 
     SamplingData<double> sd( trcrg );
     sampler_ =  new ZAxisTransformSampler(ztransform_,forward_,sd);
@@ -180,9 +179,9 @@ bool SeisZAxisStretcher::newChunk( int inl )
     cs.hrg = curhrg_;
 
     if ( voiid_<0 )
-	voiid_ = ztransform_.addVolumeOfInterest( cs, !forward_ );
+	voiid_ = ztransform_.addVolumeOfInterest( cs, forward_ );
     else
-	ztransform_.setVolumeOfInterest( voiid_, cs, !forward_ );
+	ztransform_.setVolumeOfInterest( voiid_, cs, forward_ );
 
     return ztransform_.loadDataIfMissing( voiid_ );
 }

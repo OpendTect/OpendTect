@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.4 2009-09-03 15:03:10 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.5 2010-07-08 18:38:27 cvskris Exp $";
 
 #include "batchprog.h"
 #include "process_time2depth.h"
@@ -15,15 +15,23 @@ static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.4 2009-09-03 15:03
 #include "ioobj.h"
 #include "multiid.h"
 #include "seiszaxisstretcher.h"
+#include "survinfo.h"
 #include "timedepthconv.h"
 
 #include "prog.h"
 
 bool BatchProgram::go( std::ostream& strm )
 { 
-    CubeSampling cs;
-    if ( !cs.usePar( pars() ) )
-    { cs.init( true ); }
+    CubeSampling outputcs;
+    if ( !outputcs.hrg.usePar( pars() ) )
+    { outputcs.hrg.init( true ); }
+
+    if ( !pars().get( SurveyInfo::sKeyZRange(), outputcs.zrg ) )
+    {
+	strm << "Cannot read output sampling";
+	return false;
+    }
+
 
     MultiID inputmid;
     if ( !pars().get( ProcessTime2Depth::sKeyInputVolume(), inputmid) )
@@ -77,7 +85,7 @@ bool BatchProgram::go( std::ostream& strm )
 	return false;
     }
 
-    SeisZAxisStretcher exec( *inputioobj, *outputioobj, cs, *ztransform,
+    SeisZAxisStretcher exec( *inputioobj, *outputioobj, outputcs, *ztransform,
 	   		     true );
     exec.setName( "Time to depth conversion");
     if ( !exec.isOK() )
