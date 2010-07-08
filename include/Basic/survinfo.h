@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.91 2010-03-18 19:45:28 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.92 2010-07-08 11:16:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -224,6 +224,7 @@ public:
     static SurveyInfo*	read(const char*);
     void		setRange(const CubeSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
+    void		gen3Pts();
     void		setComment( const char* s )	{ comment_ = s; }
     void		setInvalid() const;
 
