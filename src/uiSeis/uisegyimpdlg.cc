@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.24 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.25 2010-07-08 11:34:09 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -52,7 +52,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 	BufferString ttl( "Import " );
 	ttl += Seis::nameOf( setup_.geom_ );
 	SEGY::FileSpec fs; fs.usePar( iop );
-	ttl += " '"; ttl += fs.fname_; ttl += "'";
+	ttl += " '"; ttl += getLimitedDisplayString(fs.fname_,40,0); ttl += "'";
 	setTitleText( ttl );
     }
 
