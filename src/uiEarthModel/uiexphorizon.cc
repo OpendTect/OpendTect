@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.68 2010-05-10 03:13:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.69 2010-07-08 06:04:31 cvsnageswara Exp $";
 
 #include "uiexphorizon.h"
 
@@ -20,25 +20,28 @@ static const char* rcsID = "$Id: uiexphorizon.cc,v 1.68 2010-05-10 03:13:53 cvsn
 #include "file.h"
 #include "filepath.h"
 #include "ioobj.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "mousecursor.h"
 #include "ptrman.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
-#include "keystrs.h"
-#include "mousecursor.h"
-#include "uifileinput.h"
-#include "uigeninput.h"
-#include "uiiosurface.h"
-#include "uibutton.h"
-#include "uimsg.h"
-#include "uitaskrunner.h"
 #include "unitofmeasure.h"
-#include "uiunitsel.h"
-#include "uizaxistransform.h"
 #include "zaxistransform.h"
 #include "zdomain.h"
 
+#include "uibutton.h"
+#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uiiosurface.h"
+#include "uimsg.h"
+#include "uitaskrunner.h"
+#include "uit2dconvsel.h"
+#include "uiunitsel.h"
+
 #include <stdio.h>
+
 
 static const char* exptyps[] = { "X/Y", "Inl/Crl", "IESX (3d_ci7m)", 0 };
 
@@ -50,8 +53,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     setCtrlStyle( DoAndStay );
 
     infld_ = new uiSurfaceRead( this,
-	    uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword())
-	    .withsubsel(true) );
+	    	     uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword())
+		     		    .withsubsel(true) );
     infld_->inpChange.notify( mCB(this,uiExportHorizon,inpSel) );
     infld_->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
 
@@ -60,41 +63,32 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
 
     settingsbutt_ = new uiPushButton( this, "Settings",
- 			      mCB(this,uiExportHorizon, settingsCB), false);
+	    			      mCB(this,uiExportHorizon, settingsCB),
+				      false);
     settingsbutt_->attach( rightOf, typfld_ );
     const char* zmodes[] = { sKey::Yes, sKey::No, "Transformed", 0 };
-    transfld_ = new uiZAxisTransformSel( this, true, SI().getZDomainString(),
-	    				 0 );
-    if ( !transfld_->nrTransforms() )
-    {
-	zmodes[2] = 0;
- 	transfld_->display( false );
- 	transfld_ = 0;
-    }
- 
+
     zfld_ = new uiGenInput( this, "Output Z", StringListInpSpec( zmodes ) );
     zfld_->valuechanged.notify( mCB(this,uiExportHorizon,addZChg ) );
     zfld_->setText( sKey::No );
-
     zfld_->attach( alignedBelow, typfld_ );
 
-    if ( transfld_ )
-    {
-	transfld_->attach( alignedBelow, zfld_ );
-     	transfld_->selectionDone()->notify( mCB(this,uiExportHorizon,addZChg) );
-    }
+    uiT2DConvSel::Setup su( 0, false );
+    transfld_ = new uiT2DConvSel( this, su );
+    transfld_->display( false );
+    transfld_->attach( alignedBelow, zfld_ );
 
     unitsel_ = new uiUnitSel( this, SI().zIsTime() ? PropertyRef::Time
-	    					: PropertyRef::Dist, "Z Unit" );
-    unitsel_->attach( alignedBelow,
-	    transfld_ ? (uiGroup*) transfld_ : (uiGroup*) zfld_ );
+	    					   : PropertyRef::Dist,
+				    "Z Unit" );
+    unitsel_->attach( alignedBelow, transfld_ );
 
     udffld_ = new uiGenInput( this, "Undefined value",
-	    		     StringInpSpec(sKey::FloatUdf) );
+	    		      StringInpSpec(sKey::FloatUdf) );
     udffld_->attach( alignedBelow, unitsel_ );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
-	    		      uiFileInput::Setup().forread(false) );
+	    		       uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, udffld_ );
 
     typChg( 0 );
@@ -194,15 +188,26 @@ bool uiExportHorizon::writeAscii()
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
-    const FixedString zdomain = getZDomain();
-    RefMan<ZAxisTransform> zat = 0;
-    if ( zfld_->getIntValue()==2 && transfld_ )
-	zat = transfld_->getSelection();
+    RefMan<ZAxisTransform> zatf = 0;
+    IOPar iop;
+    if ( typfld_->getIntValue()==2 || zfld_->getIntValue()==2 )
+    {
+	if ( !transfld_->fillPar( iop ) )
+	    return false;
+
+	zatf = ZAxisTransform::create( iop );
+	if ( !zatf )
+	{
+	    uiMSG().message( " Depth conversion on selected option",
+		   	     " is not implemented" );
+	    return false;
+	}
+    }
 
     const UnitOfMeasure* unit = unitsel_->getUnit();
     TypeSet<int>& sections = sels.selsections;
     int zatvoi = -1;
-    if ( zat && zat->needsVolumeOfInterest() ) //Get BBox
+    if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
     {
 	CubeSampling bbox;
 	bool first = true;
@@ -236,12 +241,12 @@ bool uiExportHorizon::writeAscii()
  
  	}
  
- 	if ( !first )
+ 	if ( !first && zatf->needsVolumeOfInterest() )
  	{
- 	    zatvoi = zat->addVolumeOfInterest( bbox, false );
- 	    if ( !zat->loadDataIfMissing( zatvoi, &taskrunner ) )
+ 	    zatvoi = zatf->addVolumeOfInterest( bbox, false );
+ 	    if ( !zatf->loadDataIfMissing( zatvoi, &taskrunner ) )
  	    {
- 		uiMSG().error("Cannot load data for z-transform");
+ 		uiMSG().error( "Cannot load data for z-transform" );
  		return false;
  	    }
  	}
@@ -292,11 +297,17 @@ bool uiExportHorizon::writeAscii()
 		break;
 
 	    Coord3 crd = hor->getPos( posid );
-	    if ( zat )
-		crd.z = zat->transform( crd );
+	    if ( zatf )
+		crd.z = zatf->transform( crd );
+
+	    if ( zatf && SI().depthsInFeetByDefault() )
+	    {
+		const UnitOfMeasure* uom = UoMR().get( "ft" );
+		crd.z = uom->getSIValue( crd.z );
+	    }
 
 	    if ( !mIsUdf(crd.z) && unit )
-		crd.z = unit->userValue( crd.z );
+		crd.z = unit->getUserValueFromSI( crd.z );
 
 	    if ( dogf )
 	    {
@@ -350,8 +361,8 @@ bool uiExportHorizon::writeAscii()
 	sdo.close();
     }
 
-    if ( zat && zatvoi>=0 )
-	zat->removeVolumeOfInterest( zatvoi );
+    if ( zatf && zatvoi>=0 )
+	zatf->removeVolumeOfInterest( zatvoi );
 
     return true;
 }
@@ -359,17 +370,11 @@ bool uiExportHorizon::writeAscii()
 
 bool uiExportHorizon::acceptOK( CallBacker* )
 {
-    if ( zfld_->getIntValue()==2 && transfld_ )
-    {
-	if ( !transfld_->acceptOK() )
-	    return false;
-    }
-
     if ( !strcmp(outfld_->fileName(),"") )
 	mErrRet( "Please select output file" );
 
-    if ( File::exists(outfld_->fileName()) && 
-		    !uiMSG().askOverwrite("Output file exists. Overwrite?") )
+    if ( File::exists(outfld_->fileName()) &&
+	    	      !uiMSG().askOverwrite("Output file exists. Overwrite?") )
 	return false;
 
     writeAscii();
@@ -400,10 +405,9 @@ void uiExportHorizon::addZChg( CallBacker* )
 {
     settingsbutt_->display( typfld_->getIntValue()==2 );
     zfld_->display( typfld_->getIntValue() != 2 );
-    if ( transfld_ )
-	transfld_->display(typfld_->getIntValue()==2||zfld_->getIntValue()==2);
+    transfld_->display( typfld_->getIntValue()==2 || zfld_->getIntValue()==2 );
 
-    bool displayunit = typfld_->getIntValue() != 2 && zfld_->getIntValue()!=1;
+    bool displayunit = typfld_->getIntValue()!=2 && zfld_->getIntValue()!=1;
     if ( displayunit )
     {
 	FixedString zdomain = getZDomain();
@@ -428,11 +432,17 @@ void uiExportHorizon::addZChg( CallBacker* )
 FixedString uiExportHorizon::getZDomain() const
 {
     FixedString zdomain = SI().getZDomainString();
-    if ( zfld_->getIntValue()==2 && transfld_ )
+    RefMan<ZAxisTransform> zat = 0;
+    if ( typfld_->getIntValue()==2 || zfld_->getIntValue()==2 )
     {
-	FixedString transdomain = transfld_->getZDomain();
-	if ( !transdomain.isEmpty() )
-	    zdomain = transdomain;
+	IOPar iop;
+	transfld_->fillPar( iop, true );
+	zat = ZAxisTransform::create( iop );
+	if ( !zat )
+	    return zdomain;
+
+	zdomain = zat->getToZDomainString();
+
     }
 
     return zdomain;
