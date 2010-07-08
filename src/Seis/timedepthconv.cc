@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.28 2010-07-07 21:37:48 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.29 2010-07-08 05:41:32 cvsnageswara Exp $";
 
 #include "timedepthconv.h"
 
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: timedepthconv.cc,v 1.28 2010-07-07 21:37:48 cvs
 #include "velocitycalc.h"
 #include "zdomain.h"
 
-const char* Time2DepthStretcher::sName() 	{ return "Time2Depth"; }
+const char* Time2DepthStretcher::sName() 	{ return "VelocityT2D"; }
 
 void Time2DepthStretcher::initClass()
 { ZATF().addCreator( create, sName() ); }
@@ -618,8 +618,7 @@ void Time2DepthStretcher::releaseData()
 //Depth2Time
 
 
-
-const char* Depth2TimeStretcher::sName() 	{ return "Depth2Time"; }
+const char* Depth2TimeStretcher::sName() 	{ return "VelocityD2T"; }
 
 void Depth2TimeStretcher::initClass()
 { ZATF().addCreator( create, sName() ); }
