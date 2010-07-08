@@ -7,13 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiseis.cc,v 1.1 2009-07-26 04:14:18 cvskris Exp $";
+static const char* rcsID = "$Id: inituiseis.cc,v 1.2 2010-07-08 05:54:22 cvsnageswara Exp $";
 
 #include "inituiseis.h"
 #include "uiveldesc.h"
+#include "uit2dvelconvselgroup.h"
 
 void uiSeis::initStdClasses()
 {
     uiTime2Depth::initClass();
     uiDepth2Time::initClass();
+    uiT2DVelConvSelGroup::initClass();
 }
