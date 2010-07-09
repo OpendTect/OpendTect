@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.136 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.137 2010-07-09 22:12:21 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -910,6 +910,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     surf->ref();
     surf->setDisplayTransformation( transformation_ );
     surf->setZAxisTransform( zaxistransform_, tr );
+    if ( scene_ ) surf->setRightHandSystem( scene_->isRightHandSystem() );
 
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
