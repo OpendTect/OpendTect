@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.19 2010-06-10 09:35:26 cvsranojay Exp $";
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.20 2010-07-09 22:11:41 cvskris Exp $";
 
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.19 2010-06-10 09:35:26
 #include <SoTextureChannelSetElement.h>
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoTextureQualityElement.h>
+#include <Inventor/elements/SoShapeStyleElement.h>
 #include <Inventor/elements/SoTextureUnitElement.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
 #include <Inventor/elements/SoGLTextureImageElement.h>
@@ -30,6 +31,7 @@ static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.19 2010-06-10 09:35:26
 #include "Inventor/actions/SoCallbackAction.h"
 #include "Inventor/actions/SoRayPickAction.h"
 #include "Inventor/sensors/SoFieldSensor.h"
+#include "Inventor/nodes/SoTransparencyType.h"
 #include "Inventor/SbImage.h"
 
 #include <Inventor/system/gl.h>
@@ -137,6 +139,26 @@ void SoTextureComposer::GLRender( SoGLRenderAction* action )
     }
 
     SoTextureUnitElement::set( state, this, prevunit );
+    const char ti = SoTextureComposerElement::getTransparencyInfo( state );
+
+    GLenum alphafunc = 0;
+    bool transparency = false;
+    if ( ti==SoTextureComposerInfo::cHasTransparency() )
+	transparency = true;
+    else if ( ti==SoTextureComposerInfo::cHasNoIntermediateTransparency() )
+	alphafunc = GL_GREATER;
+#if COIN_MAJOR_VERSION>3
+    SoLazyElement::setAlphaTest( state, alphafunc, 0.5 );
+#else
+    SoLazyElement::setAlphaTest( state, (bool) alphafunc );
+#endif
+
+    if ( !transparency )
+    {
+	SoShapeStyleElement::setTransparencyType(action->getState(),
+					     SoTransparencyType::NONE );
+	SoLazyElement::setTransparencyType( state, SoTransparencyType::NONE );
+    }
 
     needregenration_ = false;
 }
@@ -172,7 +194,8 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
     if ( nrchannels<1 )
 	return; //correct return?
 
-    int nrcomponents = nrchannels; if ( nrcomponents==2 ) //Only allow 1, 3 or 4 components
+    int nrcomponents = nrchannels;
+    if ( nrcomponents==2 ) //Only allow 1, 3 or 4 components
 	nrcomponents = 3;
 
     const SbImage* channelsimages =
@@ -222,21 +245,6 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 	    return;
 
 	needregenration_ = true;
-    }
-
-    if ( !unit )
-    {
-	const char ti = SoTextureComposerElement::getTransparencyInfo( state );
-
-	if ( texturedata->ti_!=ti )
-	{
-	    texturedata->ti_ = ti;
-
-	    const uint32_t flags =
-		SoTextureComposerInfo::getGLImageFlags(
-			texturedata->glimage_->getFlags(), ti );
-	    texturedata->glimage_->setFlags( flags );
-	}
     }
 
     const float quality = SoTextureQualityElement::get(state);
@@ -476,35 +484,6 @@ void SoTextureComposerInfo::initClass()
     SO_ENABLE( SoGLRenderAction, SoTextureComposerElement );
     SO_ENABLE( SoCallbackAction, SoTextureComposerElement );
     SO_ENABLE( SoRayPickAction, SoTextureComposerElement );
-}
-
-
-uint32_t SoTextureComposerInfo::getGLImageFlags( uint32_t flags, char ti )
-{
-    uint32_t mask = 0xFFFFFFFF;
-    mask = mask^SoGLImage::FORCE_TRANSPARENCY_TRUE;
-    mask = mask^SoGLImage::FORCE_TRANSPARENCY_FALSE;
-    mask = mask^SoGLImage::FORCE_ALPHA_TEST_TRUE;
-    mask = mask^SoGLImage::FORCE_ALPHA_TEST_FALSE;
-    flags &= mask;
-
-    if ( ti==SoTextureComposerInfo::cHasTransparency() )
-    {
-	flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
-	flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
-    }
-    else if ( ti==SoTextureComposerInfo::cHasNoIntermediateTransparency() )
-    {
-	flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
-	flags |= SoGLImage::FORCE_ALPHA_TEST_TRUE;
-    }
-    else if ( ti==SoTextureComposerInfo::cHasNoTransparency() )
-    {
-	flags |= SoGLImage::FORCE_TRANSPARENCY_FALSE;
-	flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
-    }
-
-    return flags;
 }
 
 
