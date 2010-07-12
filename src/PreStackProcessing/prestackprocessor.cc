@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.25 2010-07-09 10:36:22 cvshelene Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.26 2010-07-12 22:20:14 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -401,7 +401,7 @@ bool ProcessManager::usePar( const IOPar& par )
 	    return false;
 	}
 
-	const char* steperr = proc->errMsg();
+	const FixedString steperr = proc->errMsg();
 	if ( steperr )
 	{
 	    errmsg_ = "Could not parse processing step ";
