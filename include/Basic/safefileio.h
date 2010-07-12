@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: safefileio.h,v 1.6 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: safefileio.h,v 1.7 2010-07-12 21:54:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ public:
 			SafeFileIO(const char*,bool locked=false);
 
     bool		open(bool forread,bool ignorelock=false);
-    const char*		errMsg() const		{ return errmsg_.buf(); }
+    const char*		errMsg() const		{ return errmsg_.str(); }
     std::istream&	istrm()			{ return *sd_.istrm; }
     std::ostream&	ostrm()			{ return *sd_.ostrm; }
     StreamData&		strmdata()		{ return sd_; }
