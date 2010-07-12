@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.42 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.43 2010-07-12 22:41:54 cvskris Exp $";
 
 #include "mathattrib.h"
 
@@ -129,7 +129,7 @@ Math::Math( Desc& dsc )
     MathExpressionParser mep( expr->getStringValue() );
     expression_ = mep.parse();
     errmsg_ += mep.errMsg();
-    if ( !mep.errMsg().isEmpty() ) return;
+    if ( mep.errMsg() ) return;
 
     mDescGetParamGroup(FloatParam,cstset,dsc,cstStr())
     for ( int idx=0; idx<cstset->size(); idx++ )
