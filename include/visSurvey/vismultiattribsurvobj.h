@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.35 2010-03-25 19:49:08 cvsyuancheng Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.36 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -97,7 +97,7 @@ public:
     bool			canEnableTextureInterpolation() const
 				{ return channels_; }
 
-    const char*			errMsg() const { return errmsg_.buf(); }
+    const char*			errMsg() const { return errmsg_.str(); }
     
     static const char*		sKeyTC2RGBA();
 protected:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seiscbvs2d.h,v 1.14 2009-12-15 12:20:18 cvsbert Exp $
+ RCS:		$Id: seiscbvs2d.h,v 1.15 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,14 +59,14 @@ public:
 			SeisCBVS2DLinePutter(const char*,const IOPar&);
 			~SeisCBVS2DLinePutter();
 
-    const char*		errMsg() const      		{ return errmsg.buf(); }
+    const char*		errMsg() const      		{ return errmsg_.str();}
     int			nrWritten() const		{ return nrwr; }
     bool		put(const SeisTrc&);
     bool		close();
 
     int                 nrwr;
     BufferString        fname;
-    BufferString        errmsg;
+    BufferString        errmsg_;
     CBVSSeisTrcTranslator* tr;
     BinID               bid;
     DataCharacteristics::UserType preseldt;

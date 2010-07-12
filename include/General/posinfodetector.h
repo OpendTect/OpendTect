@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2008
- RCS:		$Id: posinfodetector.h,v 1.7 2010-07-01 22:54:37 cvskris Exp $
+ RCS:		$Id: posinfodetector.h,v 1.8 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -76,7 +76,7 @@ public:
 
     bool		finish();
     bool		usable() const		{ return !*errMsg(); }
-    const char*		errMsg() const		{ return errmsg_.buf(); }
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
     int			nrPositions( bool uniq=true ) const
 			{ return uniq ? nruniquepos_ : nrpos_; }

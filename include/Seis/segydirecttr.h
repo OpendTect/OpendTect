@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.7 2010-06-15 20:48:39 cvskris Exp $
+ RCS:		$Id: segydirecttr.h,v 1.8 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ public:
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
-    const char*		errMsg() const		{ return errmsg_.buf(); } 
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
     const PosInfo::CubeData& posData() const;
 
@@ -58,7 +58,7 @@ public:
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
-    const char*		errMsg() const		{ return errmsg_.buf(); } 
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
     const PosInfo::Line2DData& posData() const;
 

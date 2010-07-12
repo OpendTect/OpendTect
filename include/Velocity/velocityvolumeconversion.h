@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityvolumeconversion.h,v 1.2 2009-12-07 19:39:20 cvskris Exp $
+ RCS:		$Id: velocityvolumeconversion.h,v 1.3 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ public:
 					 const HorSampling& ranges,
 					 const VelocityDesc& outdesc );
 			~VolumeConverter();
-    const char*		errMsg() const { return errmsg_.buf(); }
+    const char*		errMsg() const { return errmsg_.str(); }
 
     static const char*	sKeyInput();
     static const char*	sKeyOutput();

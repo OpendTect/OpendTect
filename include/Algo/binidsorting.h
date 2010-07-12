@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: binidsorting.h,v 1.4 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: binidsorting.h,v 1.5 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ public:
     			//!< Check errMsg() to see whether a vaild sorting found
     BinIDSorting	getSorting() const;
     			//!< Can be used after add() returns true
-    const char*		errMsg() const		{ return errmsg_; }
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
 protected:
 

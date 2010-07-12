@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.24 2010-04-27 15:21:07 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.25 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ public:
     virtual void	getHistory(const IOPar&);
     virtual void	processInput();
 
-    const char*		errMsg()		{ return errmsg_; }
+    const char*		errMsg()		{ return errmsg_.str(); }
     bool		getRanges(CubeSampling&) const;
     			//!< Tries to determine ranges of currently selected.
 

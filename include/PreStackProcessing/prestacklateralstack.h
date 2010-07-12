@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestacklateralstack.h,v 1.1 2009-11-25 22:22:54 cvskris Exp $
+ RCS:		$Id: prestacklateralstack.h,v 1.2 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,7 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    const char*		errMsg() const		{ return errmsg_; }
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
 
 protected:

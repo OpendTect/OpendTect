@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		June 2005
- RCS:		$Id: posvecdatasettr.h,v 1.3 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: posvecdatasettr.h,v 1.4 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ public:
     virtual bool	read(const IOObj&,PosVecDataSet&)		= 0;
     virtual bool	write(const IOObj&,const PosVecDataSet&)	= 0;
 
-    const char*		errMsg() const		{ return errmsg_.buf(); }
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
 protected:
 

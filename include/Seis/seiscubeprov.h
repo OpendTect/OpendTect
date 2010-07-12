@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.14 2010-06-17 21:24:43 cvskris Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.15 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -82,7 +82,7 @@ public:
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
     AdvanceState	advance();	
-    const char*		errMsg() const		{ return errmsg_; }
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
     BinID		getPos() const;
     int			getTrcNr() const;

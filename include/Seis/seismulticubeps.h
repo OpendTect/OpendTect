@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2008
- RCS:		$Id: seismulticubeps.h,v 1.7 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seismulticubeps.h,v 1.8 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ public:
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
-    const char*		errMsg() const		{ return errmsg_.buf(); } 
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
     const PosInfo::CubeData& posData() const	{ return posdata_; }
     bool		getSampleNames(BufferStringSet&) const

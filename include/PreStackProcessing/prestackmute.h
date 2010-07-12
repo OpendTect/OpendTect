@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.10 2010-02-17 21:12:15 cvskris Exp $
+ RCS:		$Id: prestackmute.h,v 1.11 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    const char*		errMsg() const		{ return errmsg_; }
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
     static const char*	sName()			{ return "Mute"; }
     static const char*	sTaperLength()		{ return "Taper Length";}

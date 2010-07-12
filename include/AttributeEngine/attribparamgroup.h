@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: attribparamgroup.h,v 1.10 2010-04-20 22:03:25 cvskris Exp $
+ RCS:           $Id: attribparamgroup.h,v 1.11 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 */
 
@@ -171,7 +171,7 @@ ParamGroup<PT>* ParamGroup<PT>::clone() const
 
 template <class PT> inline
 const char* ParamGroup<PT>::errMsg() const
-{ return errmsg_; }
+{ return errmsg_.str(); }
 
 
 template <class PT> inline

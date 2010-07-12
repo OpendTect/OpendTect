@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: visrandomposbodydisplay.h,v 1.5 2010-02-22 22:42:40 cvskris Exp $
+ RCS:		$Id: visrandomposbodydisplay.h,v 1.6 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -54,7 +54,7 @@ public:
     EM::ObjectID		getEMID() const;
     EM::RandomPosBody*		getEMBody() const	{ return embody_; }
 
-    const char*			errMsg() const { return errmsg_.buf(); }
+    const char*			errMsg() const { return errmsg_.str(); }
 protected:
 
     static const char*		sKeyPSEarthModelID()	{ return "EM ID"; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.50 2010-06-10 14:21:27 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.51 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,7 @@ public:
 				{ return TypeSet< Interval<int> >(); }
 
     bool 			isDataType(const char*) const;
-    const char*			errMsg() const	{ return errmsg_.buf(); }
+    const char*			errMsg() const	{ return errmsg_.str(); }
 
     static const char*		seisidkey();
     static const char*		attribkey();
@@ -236,7 +236,7 @@ public:
 	    				    const SeisTrcInfo&);
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
 	    					TypeSet<float>&) const;
-    const char*			errMsg() const	{ return errmsg_.buf(); }
+    const char*			errMsg() const	{ return errmsg_.str(); }
 
 protected:
 

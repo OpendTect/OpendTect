@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.15 2010-06-30 17:17:28 cvskris Exp $
+ RCS:		$Id: segydirectdef.h,v 1.16 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
     			/*!<After fds has been dumped, write the 
 			    remainder of the file */
 
-    const char*		errMsg() const		{ return errmsg_.buf(); }
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
     static const char*	sKeyDirectDef;
     static const char*	sKeyFileType;

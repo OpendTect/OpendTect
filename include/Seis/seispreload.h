@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: seispreload.h,v 1.8 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:           $Id: seispreload.h,v 1.9 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,7 @@ public:
     bool		loadPS2D(const BufferStringSet&) const;
 
     void		unLoad() const;
-    const char*		errMsg() const			{ return errmsg_; }
+    const char*		errMsg() const			{ return errmsg_.str(); }
 
     static void		load(const IOPar&,TaskRunner* tr=0);
     			//!< Seis.N.[loadObj_fmt]

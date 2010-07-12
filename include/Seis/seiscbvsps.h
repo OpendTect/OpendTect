@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.18 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.19 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
     			SeisCBVSPSIO(const char* dirnm);
 			// Check errMsg() to see failure
     virtual		~SeisCBVSPSIO();
-    const char*		errMsg() const		{ return errmsg_.buf(); } 
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
     BufferString	get2DFileName(const char* lnm) const;
     bool		get3DFileNames(BufferStringSet&,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpps.h,v 1.5 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seisimpps.h,v 1.6 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
     void		setSampleNames( const BufferStringSet& bss )
 						{ samplenms_ = bss; }
 
-    const char*		errMsg() const		{ return errmsg_.buf(); }
+    const char*		errMsg() const		{ return errmsg_.str(); }
     const SeisTrcWriter* trcWriter() const	{ return wrr_; }
     bool		constGatherSize() const	{ return gathersize_ > 0; }
 

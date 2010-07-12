@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.23 2010-02-22 22:42:40 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.24 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -76,7 +76,7 @@ public:
     bool		setEMID(const EM::ObjectID&);
     EM::ObjectID	getEMID() const;
 
-    const char*		errMsg() const { return errmsg_.buf(); }
+    const char*		errMsg() const { return errmsg_.str(); }
 
     SurveyObject::AttribFormat	getAttributeFormat(int) const;
     int				nrAttribs() const;

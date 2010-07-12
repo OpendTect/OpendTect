@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.10 2009-07-22 16:01:18 cvsbert Exp $
+ * ID       : $Id: seisseqio.h,v 1.11 2010-07-12 22:52:41 cvskris Exp $
 -*/
 
 #include "seistype.h"
@@ -36,7 +36,7 @@ public:
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&)		= 0;
 
-    const char*		errMsg() const			{ return errmsg_; }
+    const char*		errMsg() const			{ return errmsg_.str(); }
 
     static const char*	sKeyODType;
 

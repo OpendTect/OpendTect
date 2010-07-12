@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.61 2010-04-02 08:59:03 cvsbruno Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.62 2010-07-12 22:52:41 cvskris Exp $
 
 
 
@@ -126,7 +126,7 @@ public:
     
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
-    const char*			errMsg() const { return errmsg_.buf(); }
+    const char*			errMsg() const { return errmsg_.str(); }
 
 protected:
 

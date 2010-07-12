@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		December 2007
- RCS:		$Id: hilberttransform.h,v 1.8 2010-06-17 15:03:43 cvskris Exp $
+ RCS:		$Id: hilberttransform.h,v 1.9 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
     bool		transform(const ArrayND<float>&,
 				  ArrayND<float_complex>&) const;
 
-    const char*		errMsg() const		{ return errmsg_.buf(); }
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
 protected:
 

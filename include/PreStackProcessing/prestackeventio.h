@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventio.h,v 1.10 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:		$Id: prestackeventio.h,v 1.11 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -135,7 +135,7 @@ public:
     const char*		nrDoneText() const { return "Files copied"; }
 
     int			nextStep();
-    const char*		errMsg() const { return errmsg_[0] ? errmsg_.buf() : 0;}
+    const char*		errMsg() const { return errmsg_.str(); }
 
 protected:
     void		errorCleanup();

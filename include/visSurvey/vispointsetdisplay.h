@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: vispointsetdisplay.h,v 1.11 2010-03-31 06:45:24 cvssatyaki Exp $
+ RCS:		$Id: vispointsetdisplay.h,v 1.12 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,7 @@ public:
     void			setDisplayTransformation(mVisTrans*);
     mVisTrans*			getDisplayTransformation();
 
-    const char*			errMsg() const { return errmsg_.buf(); }
+    const char*			errMsg() const { return errmsg_.str(); }
 
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     void			removeSelection(const Selector<Coord3>&);

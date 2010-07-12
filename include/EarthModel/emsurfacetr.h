@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.17 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.18 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -114,7 +114,7 @@ public:
     Executor*			writer(const IOObj&,bool fullimplremove=true);
 				/*!< Executor is managed by client. */ 
 
-    const char*			errMsg() const		{ return errmsg_.buf();}
+    const char*			errMsg() const		{ return errmsg_.str(); }
 
     virtual bool		implRemove(const IOObj*) const;
     virtual bool		implRename(const IOObj*,const char*,

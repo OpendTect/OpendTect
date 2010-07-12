@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Nov 2006
- RCS:		$Id: tableascio.h,v 1.13 2010-06-28 13:12:17 cvsbert Exp $
+ RCS:		$Id: tableascio.h,v 1.14 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ public:
     virtual			~AscIO();
 
     const FormatDesc&		desc() const		{ return fd_; }
-    const char*			errMsg() const		{ return errmsg_.buf();}
+    const char*			errMsg() const		{ return errmsg_.str(); }
 
 protected:
 

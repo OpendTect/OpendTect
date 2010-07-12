@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.81 2010-04-14 12:18:11 cvsranojay Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.82 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -141,7 +141,7 @@ public:
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> knotmoving_;
 
-    const char*			errMsg() const { return errmsg_.buf(); }
+    const char*			errMsg() const { return errmsg_.str(); }
     void			setPolyLineMode(bool mode ); 
     bool			createFromPolyLine();
     void			setColor(Color);

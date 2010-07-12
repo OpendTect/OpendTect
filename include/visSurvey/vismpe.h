@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.64 2010-07-01 08:15:17 cvskarthika Exp $
+RCS:        $Id: vismpe.h,v 1.65 2010-07-12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -181,7 +181,7 @@ public:
 /*    void                setAttribTransparency(int,unsigned char);
     unsigned char       getAttribTransparency(int) const;*/
 
-    const char*		errMsg() const { return errmsg_.buf(); }
+    const char*		errMsg() const { return errmsg_.str(); }
     
 protected:
     
