@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.24 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.25 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -89,7 +89,7 @@ int nextStep()
     {
 	prevlineidx_ = bid.inl;
 	prevtrcnr_ = -1;
-	linegeom_.posns_.erase();
+	linegeom_.setEmpty();
 	if ( !uiSeisPartServer::get2DLineGeometry(setid_,linenm,linegeom_) )
 	    return Executor::ErrorOccurred();
 
@@ -149,7 +149,7 @@ int nextStep()
 void interpolateAndSetVals( int hidx, int lineid, int curtrcnr, int prevtrcnr,
 			    float curval, float prevval )
 {
-    if ( linegeom_.posns_.isEmpty() ) return;
+    if ( linegeom_.isEmpty() ) return;
 
     const int nrpos = abs( curtrcnr - prevtrcnr ) - 1;
     const bool isrev = curtrcnr < prevtrcnr;

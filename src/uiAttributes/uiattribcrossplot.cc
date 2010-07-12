@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.47 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.48 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.47 2010-04-20 22:03:25
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "posprovider.h"
 #include "posfilterset.h"
 #include "posvecdataset.h"

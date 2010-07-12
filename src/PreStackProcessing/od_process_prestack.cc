@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.7 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.8 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "batchprog.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: od_process_prestack.cc,v 1.7 2010-02-24 10:44:3
 #include "mmsockcommunic.h"
 #include "progressmeter.h"
 #include "posinfo.h"
+#include "posinfo2d.h"
 #include "flatposdata.h"
 #include "prestackgather.h"
 #include "seispsread.h"
@@ -229,12 +230,13 @@ bool BatchProgram::go( std::ostream& strm )
 	    !pars().get( PreStack::ProcessManager::sKeyCDPRange(), cdprange ) )
 	{
 	    const PosInfo::Line2DData& posdata = reader2d->posData();
-	    for ( int idx=0; idx<posdata.posns_.size(); idx++ )
+	    for ( int idx=0; idx<posdata.positions().size(); idx++ )
 	    {
 		if ( !idx )
-		    cdprange.start = cdprange.stop = posdata.posns_[idx].nr_;
+		    cdprange.start = cdprange.stop
+			= posdata.positions()[idx].nr_;
 		else
-		    cdprange.include( posdata.posns_[idx].nr_ );
+		    cdprange.include( posdata.positions()[idx].nr_ );
 	    }
 	}
     }

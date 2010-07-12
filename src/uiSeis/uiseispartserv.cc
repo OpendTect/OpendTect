@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.119 2010-06-10 08:26:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.120 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "uiseispartserv.h"
 
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: uiseispartserv.cc,v 1.119 2010-06-10 08:26:51 c
 #include "seis2dline.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "survinfo.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
@@ -251,7 +251,7 @@ bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
 	return false;
 
     if ( setzrange )
-	geom.zrg_ = maxzrg;
+	geom.setZRange( maxzrg );
 
     return true;
 }

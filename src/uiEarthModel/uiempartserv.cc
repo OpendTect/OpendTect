@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.205 2010-06-24 10:55:41 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.206 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "uiempartserv.h"
 
@@ -39,7 +39,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.205 2010-06-24 10:55:41 cvs
 #include "ioobj.h"
 #include "parametricsurface.h"
 #include "pickset.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "posvecdataset.h"
 #include "ptrman.h"
 #include "surfaceinfo.h"
@@ -1178,16 +1178,18 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 
 	if ( lineid1<0 || ( issecondhor && lineid2<0 ) ) continue;
 
-	for ( int trcidx=0; trcidx<ld->posns_.size(); trcidx++ )
+	const TypeSet<PosInfo::Line2DPos>& posns = ld->positions();
+	for ( int trcidx=0; trcidx<posns.size(); trcidx++ )
 	{
+	    const PosInfo::Line2DPos& l2dp = posns[trcidx];
 	    const EM::SubID subid1 = 
-		RowCol( lineid1, ld->posns_[trcidx].nr_ ).toInt64();
+		RowCol( lineid1, l2dp.nr_ ).toInt64();
 	    const float z1 = hor2d1->getPos(0,subid1).z;
 	    float z2 = mUdf(float);
 	    if ( issecondhor )
 	    {
 		const EM::SubID subid2 =
-		    RowCol( lineid2, ld->posns_[trcidx].nr_ ).toInt64();
+		    RowCol( lineid2, l2dp.nr_ ).toInt64();
 		z2 = hor2d2->getPos(0,subid2).z;
 	    }
 
@@ -1195,7 +1197,7 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	    {
 		Interval<float> zrg( z1, issecondhor ? z2 : z1 );	
 		zrgs += zrg;
-		coords += ld->posns_[trcidx].coord_;
+		coords += l2dp.coord_;
 	    }
 	}
     }

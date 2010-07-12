@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.19 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.20 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.19 2010-06-18 12:23:27 
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "survinfo.h"
 
 const char* Pos::EMSurfaceProvider::id1Key()		{ return "ID.1"; }
@@ -395,17 +395,16 @@ Coord Pos::EMSurfaceProvider2D::curCoord() const
 bool Pos::EMSurfaceProvider2D::includes( const Coord& c, float z ) const
 {
     PosInfo::Line2DPos pos;
-    if ( lineData() && lineData()->getPos( c, pos ) )
-    {
+    if ( lineData() && lineData()->getPos( c, pos, SI().inlDistance() ) )
 	return includes( pos.nr_, z );
-    }
+
     return false;
 }
 
 
 bool Pos::EMSurfaceProvider2D::includes( int nr, float z ) const
 {
-    if ( !lineData() || lineData()->getLineName().isEmpty() )
+    if ( !lineData() || lineData()->lineName().isEmpty() )
 	return false;
 
     mDynamicCastGet(EM::Horizon2D*,hor2d1,surf1_);
@@ -415,16 +414,15 @@ bool Pos::EMSurfaceProvider2D::includes( int nr, float z ) const
     Interval<float> zrg;
     BinID bid;
     bid.crl = nr;
-    bid.inl = hor2d1->geometry().lineIndex( lineData()->getLineName().buf() );
-    const Coord3 crd1 = hor2d1->getPos( hor2d1->sectionID(0),
-	    				bid.toInt64() );
+    bid.inl = hor2d1->geometry().lineIndex( lineData()->lineName().buf() );
+    const Coord3 crd1 = hor2d1->getPos( hor2d1->sectionID(0), bid.toInt64() );
     if ( !crd1.isDefined() )
 	return false;
 
     mDynamicCastGet(EM::Horizon2D*,hor2d2,surf2_);
     if ( hor2d2 )
     {
-	bid.inl = hor2d2->geometry().lineIndex(lineData()->getLineName().buf());
+	bid.inl = hor2d2->geometry().lineIndex(lineData()->lineName().buf());
 	const Coord3 crd2 = hor2d2->getPos( hor2d2->sectionID(0),
 					    bid.toInt64() );
 	if ( !crd2.isDefined() )

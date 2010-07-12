@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: horizon2dscanner.h,v 1.6 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:		$Id: horizon2dscanner.h,v 1.7 2010-07-12 14:24:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
 #include "bufstringset.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "ranges.h"
 #include "multiid.h"
 

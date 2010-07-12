@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.95 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.96 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "attribstorprovider.h"
 
@@ -36,6 +36,8 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.95 2010-04-20 22:03:2
 #include "survinfo.h"
 #include "threadwork.h"
 #include "task.h"
+#include <math.h>
+
 
 namespace Attrib
 {
@@ -783,20 +785,21 @@ float StorageProvider::getMaxDistBetwTrcs() const
     if ( !lset || !lset->getGeometry(ls2ddata) )
 	return mUdf(float);
 
-    float maxdist = 0;
+    double maxdistsq = 0;
     for ( int lidx=0; lidx<ls2ddata.nrLines(); lidx++ )
     {
-	const PosInfo::Line2DData l2dd = ls2ddata.lineData( lidx );
-	for ( int pidx=0; pidx<l2dd.posns_.size()-1; pidx++ )
+	const TypeSet<PosInfo::Line2DPos>& posns
+	    			= ls2ddata.lineData(lidx).positions();
+	for ( int pidx=1; pidx<posns.size(); pidx++ )
 	{
-	    const float dist =
-		l2dd.posns_[pidx].coord_.distTo( l2dd.posns_[pidx+1].coord_ );
-	    if ( dist > maxdist )
-		maxdist = dist;
+	    const double distsq =
+		posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
+	    if ( distsq > maxdistsq )
+		maxdistsq = distsq;
 	}
     }
 
-    return mIsZero(maxdist, 1e-3) ? mUdf(float) : maxdist;
+    return maxdistsq < 1e-3 ? mUdf(float) : (float)sqrt(maxdistsq);
 }
 
 

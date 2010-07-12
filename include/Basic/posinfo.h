@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.18 2010-01-08 09:41:44 cvsumesh Exp $
+ RCS:		$Id: posinfo.h,v 1.19 2010-07-12 14:24:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,7 +126,7 @@ protected:
 };
 
 
-/*!\brief Cube Data Iterator */
+/*!\brief Iterator for Cube Data*/
 
 mClass CubeDataIterator
 {
@@ -142,57 +142,6 @@ protected:
 
     bool		firstpos_;
     CubeData		cubedata_;
-};
-
-/*!\brief One position on a 2D line */
-
-mClass Line2DPos
-{
-public:
-
-		Line2DPos( int n=0 ) : nr_(n)            {}
-    bool	operator ==( const Line2DPos& p ) const { return nr_ == p.nr_; }
-    bool	operator !=( const Line2DPos& p ) const { return nr_ != p.nr_; }
-    bool	operator >( const Line2DPos& p ) const  { return nr_ > p.nr_; }
-
-    int		nr_;
-    Coord	coord_;
-
-};
-
-
-/*!\brief Position info for a 2D line */
-
-mClass Line2DData
-{
-public:
-			Line2DData(const char* lnm=0);
-
-    BufferString	lnm_;			
-    StepInterval<float> zrg_;
-    TypeSet<Line2DPos>  posns_;
-
-    bool		getPos(const Coord& crd,Line2DPos& l2p,
-	    		       float thr=mUdf(float)) const;
-    			/*!\Returns false if distance between crd && l2p.coord_
-			    is larger than threshold thr */
-    bool		getPos(int,Line2DPos&) const;
-    void		limitTo(Interval<int> trcrg);
-    void                dump(std::ostream&,bool pretty=true) const;
-    bool		read(std::istream&,bool asc);
-    bool		write(std::ostream&,bool asc) const;
-    StepInterval<int>	getTraceNrRange() const;
-    bool		getNearestTrace(const Coord3&,int& idx,
-	    				float& sqdist) const;
-    			/*!\For complete trace range */
-    bool		getNearestTrace(const Coord3&,const StepInterval<int>&,
-	    				int& idx,float& sqdist) const;
-    			/*!\For given trace range */
-    Coord		getNormal(int trcnr) const;
-    void		setLineName(const BufferString& lnm)
-			{ lnm_ = lnm; }
-    const BufferString&	getLineName() const		{ return lnm_; }
-    			/*!\Return empty buffer string if no linename */
 };
 
 } // namespace PosInfo

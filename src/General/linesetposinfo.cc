@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: linesetposinfo.cc,v 1.3 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: linesetposinfo.cc,v 1.4 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "linesetposinfo.h"
 #include "survinfo.h"
@@ -71,9 +71,9 @@ void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
     {
 	BinIDValueSet* newbivset = new BinIDValueSet( bivset.nrVals(), true );
 	BinID prevbid(-1,-1);
-	for ( int idy=0; idy<lineData(idx).posns_.size(); idy++ )
+	for ( int idy=0; idy<lineData(idx).positions().size(); idy++ )
 	{
-	    BinID bid = SI().transform( lineData(idx).posns_[idy].coord_ );
+	    BinID bid = SI().transform( lineData(idx).positions()[idy].coord_ );
 	    if ( bid == prevbid ) continue;
 	    prevbid = bid;
 	    if ( bivset.includes(bid) )

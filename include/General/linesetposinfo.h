@@ -7,12 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: linesetposinfo.h,v 1.3 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: linesetposinfo.h,v 1.4 2010-07-12 14:24:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "posinfo.h"
+#include "posinfo2d.h"
 class BinIDValueSet;
 
 
@@ -59,7 +59,6 @@ protected:
     Info*		findLine(const char*) const;
 
 };
-
 
 } // namespace PosInfo
 

@@ -7,12 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		3-8-2008
- RCS:		$Id: vissplittextureseis2d.h,v 1.9 2009-09-17 16:38:29 cvsyuancheng Exp $
+ RCS:		$Id: vissplittextureseis2d.h,v 1.10 2010-07-12 14:24:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "visobject.h"
 
 class SoSeparator;

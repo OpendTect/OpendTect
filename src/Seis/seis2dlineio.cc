@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID = "$Id: seis2dlineio.cc,v 1.6 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: seis2dlineio.cc,v 1.7 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: seis2dlineio.cc,v 1.6 2010-03-25 03:55:14 cvsra
 #include "seistrcprop.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "file.h"
 #include "seisbuf.h"
 #include "sorting.h"
@@ -203,7 +203,7 @@ bool Seis2DLineMerger::nextFetcher()
     if ( !ls_->getGeometry(lid,l2dd) )
 	mErrRet("Cannot open")
     nrdone_ = 0;
-    totnr_ = l2dd.posns_.size();
+    totnr_ = l2dd.positions().size();
     if ( totnr_ < 0 )
 	mErrRet("No data in")
     fetcher_ = ls_->lineFetcher( lid, tbuf, 1 );

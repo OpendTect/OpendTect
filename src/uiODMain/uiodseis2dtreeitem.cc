@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.83 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.84 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -39,7 +39,7 @@ static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.83 2010-07-06 16:17:2
 #include "externalattrib.h"
 #include "linekey.h"
 #include "keystrs.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "viscolortab.h"

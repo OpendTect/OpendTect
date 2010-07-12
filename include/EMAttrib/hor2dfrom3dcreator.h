@@ -6,13 +6,13 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          April 2010
-RCS:           $Id: hor2dfrom3dcreator.h,v 1.1 2010-04-19 05:41:43 cvssatyaki Exp $
+RCS:           $Id: hor2dfrom3dcreator.h,v 1.2 2010-07-12 14:24:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 
 namespace EM { class Horizon3D; class Horizon2D; }
 class BufferString;

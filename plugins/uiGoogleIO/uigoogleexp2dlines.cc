@@ -16,7 +16,7 @@ static const char* rcsID = "$Id";
 #include "uimsg.h"
 #include "oddirs.h"
 #include "ioobj.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "strmprov.h"
 #include "draw.h"
 #include "survinfo.h"
@@ -131,19 +131,19 @@ void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm,
     PosInfo::Line2DData l2dd;
     if ( iln < 0 || !lset.getGeometry(iln,l2dd) )
 	return;
-    const int nrposns = l2dd.posns_.size();
+    const int nrposns = l2dd.positions().size();
     if ( nrposns < 2 )
 	return;
 
     const int lnmchoice = putlnmfld_->getIntValue();
     if ( lnmchoice != 0 && lnmchoice < 3 )
-	wrr.writePlaceMark( 0, l2dd.posns_[0].coord_, lnm );
+	wrr.writePlaceMark( 0, l2dd.positions()[0].coord_, lnm );
     if ( lnmchoice == 1 || lnmchoice == 3 )
-	wrr.writePlaceMark( 0, l2dd.posns_[nrposns-1].coord_, lnm );
+	wrr.writePlaceMark( 0, l2dd.positions()[nrposns-1].coord_, lnm );
 
     TypeSet<Coord> crds;
     for ( int idx=0; idx<nrposns; idx++ )
-	crds += l2dd.posns_[idx].coord_;
+	crds += l2dd.positions()[idx].coord_;
 
     BendPointFinder2D bpf( crds, 1 );
     bpf.execute();

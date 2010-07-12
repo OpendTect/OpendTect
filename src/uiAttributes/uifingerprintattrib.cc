@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.65 2010-04-13 08:31:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.66 2010-07-12 14:24:33 cvsbert Exp $";
 
 -*/
 
@@ -29,7 +29,7 @@ static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.65 2010-04-13 08:31:
 #include "pickset.h"
 #include "picksettr.h"
 #include "pixmap.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "ptrman.h"
 #include "seisselection.h"
 #include "seistrctr.h"
@@ -592,14 +592,11 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 	{
 	    PosInfo::Line2DData* geometry = new PosInfo::Line2DData;
 	    if ( !lineset.getGeometry(lineindex,*geometry) )
-	    {
-		delete geometry;
-		return undef;
-	    }
-	    StepInterval<int> trcrg;
-	    lineset.getRanges( lineindex, trcrg, geometry->zrg_ );
+		{ delete geometry; return undef; }
+
 	    const int trcnr = refposfld_->getBinID().crl;
-	    return SI().transform( geometry->posns_[trcnr-trcrg.start].coord_ );
+	    const int trcidx = geometry->indexOf( trcnr );
+	    return SI().transform( geometry->positions()[trcidx].coord_ );
 	}
     }
 

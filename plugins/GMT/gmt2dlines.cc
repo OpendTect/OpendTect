@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmt2dlines.cc,v 1.14 2010-04-09 08:31:27 cvsbert Exp $";
+static const char* rcsID = "$Id: gmt2dlines.cc,v 1.15 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "gmt2dlines.h"
 
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: gmt2dlines.cc,v 1.14 2010-04-09 08:31:27 cvsber
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
 #include "seis2dline.h"
@@ -99,14 +99,15 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	PosInfo::Line2DData geom;
 	LineKey lk( linenms.get(idx), attribnm );
 	const int lidx = lset.indexOf( lk );
-	if ( lidx<0  || !lset.getGeometry(lidx,geom) || geom.posns_.size()<11)
+	if ( lidx<0  || !lset.getGeometry(lidx,geom) || geom.isEmpty() )
 	    continue;
+	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 
 	*sd.ostrm << "> " << linenms.get(idx) << std::endl;
 
-	for ( int tdx=0; tdx<geom.posns_.size(); tdx++ )
+	for ( int tdx=0; tdx<posns.size(); tdx++ )
 	{
-	    Coord pos = geom.posns_[tdx].coord_;
+	    Coord pos = posns[tdx].coord_;
 	    *sd.ostrm << pos.x << " " << pos.y << std::endl;
 	}
     }
@@ -133,12 +134,13 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     {
 	PosInfo::Line2DData geom;
 	const int lidx = lset.indexOf( linenms.get(idx) );
-	if ( lidx<0  || !lset.getGeometry(lidx,geom) || geom.posns_.size()<11)
+	if ( lidx<0  || !lset.getGeometry(lidx,geom) || geom.isEmpty() )
 	    continue;
+	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 
-	const int nrtrcs = geom.posns_.size();
-	Coord pos = geom.posns_[0].coord_;
-	Coord vec = geom.posns_[1].coord_ - geom.posns_[0].coord_;
+	const int nrtrcs = posns.size();
+	Coord pos = posns[0].coord_;
+	Coord vec = posns[1].coord_ - posns[0].coord_;
 	float angle = atan2( vec.y, vec.x );
 	float dy = sin( angle );
 	float dx = cos( angle );
@@ -162,8 +164,8 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	getYN( ODGMT::sKeyPostStop, poststop );
 	if ( poststop )
 	{
-	    pos = geom.posns_[nrtrcs-1].coord_;
-	    Coord vec = geom.posns_[nrtrcs-2].coord_ - pos;
+	    pos = posns[nrtrcs-1].coord_;
+	    Coord vec = posns[nrtrcs-2].coord_ - pos;
 	    angle = atan2( vec.y, vec.x );
 	    dy = sin( angle );
 	    dx = cos( angle );
@@ -182,14 +184,13 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	{
 	    int labelintv = 100;
 	    get( ODGMT::sKeyLabelIntv, labelintv );
-	    for ( int tdx=0; tdx<geom.posns_.size(); tdx+=labelintv )
+	    for ( int tdx=0; tdx<posns.size(); tdx+=labelintv )
 	    {
-		BufferString lbl = "- "; lbl += geom.posns_[tdx].nr_;
-		Coord pos = geom.posns_[tdx].coord_;
-		if ( tdx > 4 && tdx < geom.posns_.size()-5 )
+		BufferString lbl = "- "; lbl += posns[tdx].nr_;
+		Coord pos = posns[tdx].coord_;
+		if ( tdx > 4 && tdx < posns.size()-5 )
 		{
-		    vec = geom.posns_[tdx+5].coord_
-				- geom.posns_[tdx-5].coord_;
+		    vec = posns[tdx+5].coord_ - posns[tdx-5].coord_;
 		    angle = atan2( vec.y, vec.x );
 		    angle *= 180 / M_PI;
 		    perpangle = angle > 0 ? angle - 90 : angle + 90;

@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.14 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.15 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.14 2009-07-22 16:01
 #include "binidvalset.h"
 #include "picksettr.h"
 #include "seis2dline.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "survinfo.h"
 #include "uitaskrunner.h"
 #include "ptrman.h"
@@ -71,13 +71,13 @@ static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
     {
 	const int lineidx = Stats::RandGen::getIndex( nrlines );
 	PosInfo::Line2DData& geometry = *geoms[lineidx];
-	const int nrcoords = geometry.posns_.size();
+	const int nrcoords = geometry.positions().size();
 	const int crdidx = Stats::RandGen::getIndex( nrcoords );
-	const Coord& pos = geometry.posns_[crdidx].coord_;
+	const Coord& pos = geometry.positions()[crdidx].coord_;
 
 	const BinID bid = SI().transform( pos );
-	const float zpos = geometry.zrg_.start +
-				    Stats::RandGen::get()*geometry.zrg_.width();
+	const float zpos = geometry.zRange().start +
+			    Stats::RandGen::get()*geometry.zRange().width();
 	rangesset->add( bid, zpos );
     }
 }

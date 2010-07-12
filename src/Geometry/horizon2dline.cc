@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.16 2010-06-17 19:00:58 cvskris Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.17 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "horizon2dline.h"
 
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "undefval.h"
 #include <limits.h>
 
@@ -80,17 +80,18 @@ void Horizon2DLine::syncRow( int rowid ,const PosInfo::Line2DData& geom )
 	(*rows_[rowidx])[colidx] = Coord3( Coord::udf(), z );
     }
 
-    const int nrtraces = geom.posns_.size();
-    for ( int tridx=geom.posns_.size()-1; tridx>=0; tridx-- )
+    const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
+    const int nrtraces = posns.size();
+    for ( int tridx=posns.size()-1; tridx>=0; tridx-- )
     {
-	int colidx = colsampling_[rowidx].nearestIndex( geom.posns_[tridx].nr_ );
-	if ( colsampling_[rowidx].atIndex(colidx) != geom.posns_[tridx].nr_ )
+	int colidx = colsampling_[rowidx].nearestIndex( posns[tridx].nr_ );
+	if ( colsampling_[rowidx].atIndex(colidx) != posns[tridx].nr_ )
 	    continue;
 	
 	if ( !rows_[rowidx]->size() )
 	{
 	    *rows_[rowidx] += Coord3::udf();
-	    colsampling_[rowidx].start = geom.posns_[tridx].nr_;
+	    colsampling_[rowidx].start = posns[tridx].nr_;
 	    colidx = 0;
 	}
 
@@ -109,7 +110,7 @@ void Horizon2DLine::syncRow( int rowid ,const PosInfo::Line2DData& geom )
 	}
 
 	const double z = (*rows_[rowidx])[colidx].z;
-	(*rows_[rowidx])[colidx] = Coord3( geom.posns_[tridx].coord_, z );
+	(*rows_[rowidx])[colidx] = Coord3( geom.positions()[tridx].coord_, z );
     }
 
     for ( int colidx=rows_[rowidx]->size()-1; colidx>=0; colidx-- )
@@ -236,18 +237,20 @@ Interval<float> Horizon2DLine::zRange( int rowid ) const
 
 void Horizon2DLine::geometry( int rowid, PosInfo::Line2DData& ld ) const
 {
-    ld.posns_.erase();
+    ld.setEmpty();
     const int rowidx = rowid - firstrow_;
     if ( !rows_.validIdx(rowidx) )
 	return;
 
-    assign( ld.zrg_, zRange(rowid) );
+    const Interval<float> myzrg( zRange(rowid) );
+    const StepInterval<float> zrg( myzrg.start, myzrg.stop, ld.zRange().step );
+    ld.setZRange( zrg );
     for ( int idx=0; idx<rows_[rowidx]->size(); idx++ )
     {
 	PosInfo::Line2DPos pos;
 	pos.nr_ = colsampling_[rowidx].atIndex( idx );
 	pos.coord_ = (*rows_[rowidx])[idx];
-	ld.posns_ += pos;
+	ld.add( pos );
     }
 }
 

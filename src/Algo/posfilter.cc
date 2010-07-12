@@ -4,12 +4,12 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.13 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.14 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "posfilterset.h"
 #include "posfilterstd.h"
 #include "posprovider.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "survinfo.h"
 #include "executor.h"
 #include "iopar.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.4 2010-04-26 10:05:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.5 2010-07-12 14:24:33 cvsbert Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -181,24 +181,25 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
     if ( lineidx < 0 ) { pErrMsg("Huh"); return; }
 
     PosInfo::Line2DData l2dd;
-    if ( !lineset_->getGeometry(lineidx,l2dd) || l2dd.posns_.isEmpty() )
+    if ( !lineset_->getGeometry(lineidx,l2dd) || l2dd.isEmpty() )
 	return;
 
 #define mAddZRangeTxt(memb) txt += zistm ? mNINT(1000*memb) : memb
 
-    const int sz = l2dd.posns_.size();
+    const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
+    const int sz = posns.size();
     BufferString txt( "Number of traces: " ); txt += sz;
-    const PosInfo::Line2DPos& firstpos = l2dd.posns_[0];
+    const PosInfo::Line2DPos& firstpos = posns[0];
     txt += "\nFirst trace: "; txt += firstpos.nr_;
     txt += " ("; txt += firstpos.coord_.x;
     txt += ","; txt += firstpos.coord_.y; txt += ")";
-    const PosInfo::Line2DPos& lastpos = l2dd.posns_[sz-1];
+    const PosInfo::Line2DPos& lastpos = posns[sz-1];
     txt += "\nLast trace: "; txt += lastpos.nr_;
     txt += " ("; txt += lastpos.coord_.x;
     txt += ","; txt += lastpos.coord_.y; txt += ")";
-    txt += "\nZ-range: "; mAddZRangeTxt(l2dd.zrg_.start); txt += " - ";
-    mAddZRangeTxt(l2dd.zrg_.stop);
-    txt += " ["; mAddZRangeTxt(l2dd.zrg_.step); txt += "]";
+    txt += "\nZ-range: "; mAddZRangeTxt(l2dd.zRange().start); txt += " - ";
+    mAddZRangeTxt(l2dd.zRange().stop);
+    txt += " ["; mAddZRangeTxt(l2dd.zRange().step); txt += "]";
 
     SeisIOObjInfo sobinf( objinfo_->ioObj() );
     const int nrcomp = sobinf.nrComponents( linekey );

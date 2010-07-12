@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.16 2010-06-11 09:18:44 cvsnageswara Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.17 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -209,7 +209,7 @@ int Horizon2DScanner::nextStep()
 	if ( invalidnms_.indexOf(linenm) >= 0 )
 	    return Executor::MoreToDo();
 
-	linegeom_.posns_.erase();
+	linegeom_.setEmpty();
 	if ( !uiSeisPartServer::get2DLineGeometry(setid_,linenm,linegeom_) )
 	{
 	    invalidnms_.addIfNew( linenm );
@@ -220,7 +220,7 @@ int Horizon2DScanner::nextStep()
 	curline_ = linenm;
     }
 
-    if ( !linegeom_.posns_.size() )
+    if ( linegeom_.isEmpty() )
 	return Executor::ErrorOccurred();
 
     PosInfo::Line2DPos pos;
@@ -236,7 +236,7 @@ int Horizon2DScanner::nextStep()
     else
     {
 	const Coord coord( data[0], data[1] );
-	if ( !linegeom_.getPos(coord,pos) )
+	if ( !linegeom_.getPos(coord,pos,SI().inlDistance()) )
 	    return Executor::MoreToDo();
     }
 
@@ -246,7 +246,8 @@ int Horizon2DScanner::nextStep()
     int validx = 0;
     const int nrvals = data.size() - 2;
     int nrvalidvals = 0;
-    Interval<float> validzrg( linegeom_.zrg_.start, linegeom_.zrg_.stop );
+    Interval<float> validzrg( linegeom_.zRange().start,
+			      linegeom_.zRange().stop );
     validzrg.widen( validzrg.width() );
     while ( validx < nrvals )
     {

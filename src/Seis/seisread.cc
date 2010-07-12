@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.97 2009-08-03 13:51:14 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.98 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: seisread.cc,v 1.97 2009-08-03 13:51:14 cvsbert 
 #include "survinfo.h"
 #include "keystrs.h"
 #include "posinfo.h"
+#include "posinfo2d.h"
 #include "cubesampling.h"
 #include "binidvalset.h"
 #include "errh.h"
@@ -724,15 +725,16 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
 bool SeisTrcReader::initBounds2D( const PosInfo::Line2DData& l2dd,
 				  Seis::Bounds2D& b2d ) const
 {
-    b2d.zrg_ = l2dd.zrg_;
+    b2d.zrg_ = l2dd.zRange();
 
-    int prevnr = l2dd.posns_[0].nr_;
+    const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
+    int prevnr = posns[0].nr_;
     bool havefoundaselected = false;
     b2d.nrrg_.step = mUdf(int);
 
-    for ( int idx=0; idx<l2dd.posns_.size(); idx++ )
+    for ( int idx=0; idx<posns.size(); idx++ )
     {
-	const int curnr = l2dd.posns_[idx].nr_;
+	const int curnr = posns[idx].nr_;
 	if ( idx != 0 )
 	{
 	    const int step = abs( curnr - prevnr );
@@ -743,7 +745,7 @@ bool SeisTrcReader::initBounds2D( const PosInfo::Line2DData& l2dd,
 	if ( !havefoundaselected )
 	{
 	    b2d.nrrg_.start = b2d.nrrg_.stop = curnr;
-	    b2d.mincoord_ = b2d.maxcoord_ = l2dd.posns_[idx].coord_;
+	    b2d.mincoord_ = b2d.maxcoord_ = posns[idx].coord_;
 	    havefoundaselected = true;
 	}
 
@@ -790,7 +792,10 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 	    continue;
 
 	PosInfo::Line2DData l2dd;
-	if ( !lset->getGeometry(iln,l2dd) || l2dd.posns_.size() < 2 )
+	if ( !lset->getGeometry(iln,l2dd) )
+	    continue;
+	const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
+	if ( posns.size() < 2 )
 	    continue;
 
 	if ( iiter == 0 )
@@ -801,12 +806,12 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 		continue;
 	}
 
-	for ( int idx=0; idx<l2dd.posns_.size(); idx++ )
+	for ( int idx=0; idx<posns.size(); idx++ )
 	{
-	    const int nr = l2dd.posns_[idx].nr_;
+	    const int nr = posns[idx].nr_;
 	    if ( b2d->nrrg_.start > nr ) b2d->nrrg_.start = nr;
 	    else if ( b2d->nrrg_.stop < nr ) b2d->nrrg_.stop = nr;
-	    const Coord c( l2dd.posns_[idx].coord_ );
+	    const Coord c( posns[idx].coord_ );
 	    if ( b2d->mincoord_.x > c.x ) b2d->mincoord_.x = c.x;
 	    else if ( b2d->maxcoord_.x < c.x ) b2d->maxcoord_.x = c.x;
 	    if ( b2d->mincoord_.y > c.y ) b2d->mincoord_.y = c.y;

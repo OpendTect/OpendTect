@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.61 2010-04-09 08:37:12 cvsbert Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.62 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "visprestackviewer.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: visprestackviewer.cc,v 1.61 2010-04-09 08:37:12
 #include "ioman.h"
 #include "iopar.h"
 #include "posinfo.h"
+#include "posinfo2d.h"
 #include "prestackgather.h"
 #include "prestackprocessor.h"
 #include "seispsioprov.h"
@@ -387,7 +388,8 @@ const StepInterval<int> Viewer3D::getTraceRange( const BinID& bid ) const
 	if ( !seis2d_ || !rdr2d ) 
 	    return StepInterval<int>(mUdf(int),mUdf(int),1);
 
-	TypeSet<PosInfo::Line2DPos>  posnrs = rdr2d->posData().posns_;
+	const TypeSet<PosInfo::Line2DPos>& posnrs
+	    = rdr2d->posData().positions();
 	const int nrtraces = posnrs.size();
 	if ( !nrtraces )
 	     return StepInterval<int>(mUdf(int),mUdf(int),1);
@@ -432,7 +434,7 @@ int Viewer3D::getNearTraceNr( int trcnr ) const
     if ( !rdr2d )
 	return -1;
 
-    const TypeSet<PosInfo::Line2DPos>& posnrs = rdr2d->posData().posns_;
+    const TypeSet<PosInfo::Line2DPos>& posnrs = rdr2d->posData().positions();
     if ( posnrs.isEmpty() )
 	return -1;
 

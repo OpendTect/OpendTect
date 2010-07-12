@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.52 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.53 2010-07-12 14:24:33 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.52 2010-03-25 03:55:14 cvsran
 #include "seispacketinfo.h"
 #include "seisselection.h"
 #include "seisbuf.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "cbvsio.h"
 #include "executor.h"
 #include "survinfo.h"
@@ -220,7 +220,7 @@ int SeisCBVS2DLineGetter::nextStep()
 bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
 					    PosInfo::Line2DData& geom ) const
 {
-    geom.posns_.erase();
+    geom.setEmpty();
     BufferString fnm = gtFileName(iop);
     if ( !isUsable(iop) )
     {
@@ -243,15 +243,15 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
     tr->readMgr()->getPositions( coords );
     tr->readMgr()->getPositions( binids );
 
-    geom.zrg_.start = cbvsinf.sd.start;
-    geom.zrg_.step = cbvsinf.sd.step;
-    geom.zrg_.stop = cbvsinf.sd.start + (cbvsinf.nrsamples-1) * cbvsinf.sd.step;
+    StepInterval<float> zrg( cbvsinf.sd.start, 0, cbvsinf.sd.step );
+    zrg.stop = cbvsinf.sd.start + (cbvsinf.nrsamples-1) * cbvsinf.sd.step;
+    geom.setZRange( zrg );
     const int sz = mMIN(coords.size(),binids.size());
     for ( int idx=0; idx<sz; idx++ )
     {
 	PosInfo::Line2DPos p( binids[idx].crl );
 	p.coord_ = coords[idx];
-	geom.posns_ += p;
+	geom.add( p );
     }
 
     return true;
