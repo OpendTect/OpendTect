@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.53 2009-12-15 12:20:18 cvsbert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.54 2010-07-12 22:39:42 cvskris Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -69,7 +69,7 @@ bool SeisTrcWriter::close()
 {
     bool ret = true;
     if ( putter )
-	{ ret = putter->close(); if ( !ret ) errmsg = putter->errMsg(); }
+	{ ret = putter->close(); if ( !ret ) errmsg_ = putter->errMsg(); }
 
     delete putter; putter = 0;
     delete pswriter; pswriter = 0;
@@ -84,19 +84,19 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 {
     if ( !ioobj )
     {
-	errmsg = "Info for output seismic data not found in Object Manager";
+	errmsg_ = "Info for output seismic data not found in Object Manager";
 	return false;
     }
 
     if ( !psioprov && ((is2d && !lset) || (!is2d && !trl)) )
     {
-	errmsg = "No data storer available for '";
-	errmsg += ioobj->name(); errmsg += "'";
+	errmsg_ = "No data storer available for '";
+	errmsg_ += ioobj->name(); errmsg_ += "'";
 	return false;
     }
     if ( is2d && !lkp && ( !seldata || seldata->lineKey().isEmpty() ) )
     {
-	errmsg = "Internal: 2D seismic can only be stored if line key known";
+	errmsg_ = "Internal: 2D seismic can only be stored if line key known";
 	return false;
     }
 
@@ -112,7 +112,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	    		: psioprov->make3DWriter( psstorkey );
 	if ( !pswriter )
 	{
-	    errmsg = "Cannot open Pre-Stack data store for write";
+	    errmsg_ = "Cannot open Pre-Stack data store for write";
 	    return false;
 	}
 	pswriter->usePar( ioobj->pars() );
@@ -136,7 +136,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 Conn* SeisTrcWriter::crConn( int inl, bool first )
 {
     if ( !ioobj )
-	{ errmsg = "No data from object manager"; return 0; }
+	{ errmsg_ = "No data from object manager"; return 0; }
 
     if ( isMultiConn() )
     {
@@ -152,8 +152,8 @@ bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
 {
     if ( !conn || conn->bad() || !trl )
     {
-	errmsg = "Cannot write to ";
-	errmsg += ioobj->fullUserExpr(false);
+	errmsg_ = "Cannot write to ";
+	errmsg_ += ioobj->fullUserExpr(false);
 	delete conn;
 	return false;
     }
@@ -161,7 +161,7 @@ bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
     strl()->cleanUp();
     if ( !strl()->initWrite(conn,trc) )
     {
-	errmsg = strl()->errMsg();
+	errmsg_ = strl()->errMsg();
 	delete conn;
 	return false;
     }
@@ -201,7 +201,7 @@ bool SeisTrcWriter::next2DLine()
     BufferString lnm = lk.lineName();
     if ( lnm.isEmpty() )
     {
-	errmsg = "Cannot write to empty line name";
+	errmsg_ = "Cannot write to empty line name";
 	return false;
     }
 
@@ -218,7 +218,7 @@ bool SeisTrcWriter::next2DLine()
     putter = lset->linePutter( lineiopar );
     if ( !putter )
     {
-	errmsg = "Cannot create 2D line writer";
+	errmsg_ = "Cannot create 2D line writer";
 	return false;
     }
 
@@ -238,7 +238,7 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 
     bool res = putter->put( trc );
     if ( !res )
-	errmsg = putter->errMsg();
+	errmsg_ = putter->errMsg();
     return res;
 }
 
@@ -264,7 +264,7 @@ bool SeisTrcWriter::put( const SeisTrc& intrc )
 	    return false;
 	if ( !pswriter->put(*trc) )
 	{
-	    errmsg = pswriter->errMsg();
+	    errmsg_ = pswriter->errMsg();
 	    return false;
 	}
     }
@@ -279,7 +279,7 @@ bool SeisTrcWriter::put( const SeisTrc& intrc )
 	    return false;
 	else if ( !strl()->write(*trc) )
 	{
-	    errmsg = strl()->errMsg();
+	    errmsg_ = strl()->errMsg();
 	    strl()->close(); delete trl; trl = 0;
 	    return false;
 	}

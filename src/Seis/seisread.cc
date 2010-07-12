@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.98 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.99 2010-07-12 22:39:42 cvskris Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -92,7 +92,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 {
     if ( !ioobj )
     {
-	errmsg = "Info for input seismic data not found in Object Manager";
+	errmsg_ = "Info for input seismic data not found in Object Manager";
 	return false;
     }
     else if ( psioprov )
@@ -100,15 +100,15 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 	const char* fnm = ioobj->fullUserExpr(Conn::Read);
 	if ( is2d )
 	{
-	    errmsg = "SeisTrcReader cannot read from 2D Pre-Stack data store";
+	    errmsg_ = "SeisTrcReader cannot read from 2D Pre-Stack data store";
 	    return false;
 	}
 	psrdr_ = psioprov->make3DReader( fnm );
     }
     if ( (is2d && !lset) || (!is2d && !trl) || (psioprov && !psrdr_) )
     {
-	errmsg = "No data interpreter available for '";
-	errmsg += ioobj->name(); errmsg += "'";
+	errmsg_ = "No data interpreter available for '";
+	errmsg_ += ioobj->name(); errmsg_ += "'";
 	return false;
     }
 
@@ -119,8 +119,8 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     Conn* conn = openFirst();
     if ( !conn )
     {
-	errmsg = "Cannot open data files for '";
-	errmsg += ioobj->name(); errmsg += "'";
+	errmsg_ = "Cannot open data files for '";
+	errmsg_ += ioobj->name(); errmsg_ += "'";
 	return false;
     }
 
@@ -143,7 +143,7 @@ void SeisTrcReader::startWork()
 	pscditer_ = new PosInfo::CubeDataIterator( psrdr_->posData() );
 	if ( !pscditer_->next(curpsbid_) )
 	{
-	    errmsg = "Pre-stack data storage is empty";
+	    errmsg_ = "Pre-stack data storage is empty";
 	    return;
 	}
 	pscditer_->reset();
@@ -219,21 +219,21 @@ bool SeisTrcReader::initRead( Conn* conn )
     mDynamicCastGet(SeisTrcTranslator*,sttrl,trl)
     if ( !sttrl )
     {
-	errmsg = trl->userName();
-	errmsg +=  "found where seismic cube was expected";
+	errmsg_ = trl->userName();
+	errmsg_ +=  "found where seismic cube was expected";
 	cleanUp(); return false;
     }
 
     if ( !sttrl->initRead(conn,readmode) )
     {
-	errmsg = sttrl->errMsg();
+	errmsg_ = sttrl->errMsg();
 	cleanUp(); return false;
     }
     const int nrcomp = sttrl->componentInfo().size();
     if ( nrcomp < 1 )
     {
 	// Why didn't the translator return false?
-	errmsg = "Internal: no data components found";
+	errmsg_ = "Internal: no data components found";
 	cleanUp(); return false;
     }
 
@@ -286,7 +286,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     {
 	const char* emsg = sttrl.errMsg();
 	if ( emsg && *emsg )
-	    { errmsg = emsg; return -1; }
+	    { errmsg_ = emsg; return -1; }
 	return nextConn( ti );
     }
 
@@ -375,7 +375,7 @@ bool SeisTrcReader::get( SeisTrc& trc )
 
     if ( !strl()->read(trc) )
     {
-	errmsg = strl()->errMsg();
+	errmsg_ = strl()->errMsg();
 	strl()->skip();
 	return false;
     }
@@ -409,7 +409,7 @@ int SeisTrcReader::getPS( SeisTrcInfo& ti )
 	    return 2;
 
 	if ( !psrdr_->getGather(curpsbid_,*tbuf_) )
-	    { errmsg = psrdr_->errMsg(); return -1; }
+	    { errmsg_ = psrdr_->errMsg(); return -1; }
     }
 
     ti = tbuf_->get(0)->info();
@@ -494,7 +494,7 @@ bool SeisTrcReader::ensureCurLineAttribOK( const BufferString& attrnm )
 
     bool ret = curlineidx < nrlines;
     if ( !ret && nrfetchers < 1 )
-	errmsg = "No line found matching selection";
+	errmsg_ = "No line found matching selection";
     return ret;
 }
 
@@ -528,7 +528,7 @@ bool SeisTrcReader::mkNextFetcher()
     else
     {
 	if ( nrfetchers > 0 )
-	{ errmsg = ""; return false; }
+	{ errmsg_ = ""; return false; }
 
 	bool found = false;
 	for ( ; curlineidx<nrlines; curlineidx++ )
@@ -538,8 +538,8 @@ bool SeisTrcReader::mkNextFetcher()
 	}
 	if ( !found )
 	{
-	    errmsg = "Line key not found in line set: ";
-	    errmsg += seldata->lineKey();
+	    errmsg_ = "Line key not found in line set: ";
+	    errmsg_ += seldata->lineKey();
 	    return false;
 	}
     }
@@ -569,7 +569,7 @@ bool SeisTrcReader::readNext2D()
     int res = fetcher->doStep();
     if ( res == Executor::ErrorOccurred() )
     {
-	errmsg = fetcher->message();
+	errmsg_ = fetcher->message();
 	return false;
     }
     else if ( res == 0 )
@@ -589,10 +589,10 @@ bool SeisTrcReader::readNext2D()
 int SeisTrcReader::get2D( SeisTrcInfo& ti )
 {
     if ( !fetcher && !mkNextFetcher() )
-	return errmsg.isEmpty() ? 0 : -1;
+	return errmsg_.isEmpty() ? 0 : -1;
 
     if ( !readNext2D() )
-	return errmsg.isEmpty() ? 0 : -1;
+	return errmsg_.isEmpty() ? 0 : -1;
 
     inforead = true;
     SeisTrcInfo& trcti = tbuf_->get( 0 )->info();
@@ -656,7 +656,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 
     if ( !strl()->initRead(conn) )
     {
-	errmsg = strl()->errMsg();
+	errmsg_ = strl()->errMsg();
 	return -1;
     }
 

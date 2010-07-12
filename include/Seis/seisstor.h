@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.21 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seisstor.h,v 1.22 2010-07-12 22:39:42 cvskris Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -41,7 +41,7 @@ public:
     			{ return Seis::geomTypeOf(is2D(),isPS()); }
 
     const char*		errMsg() const
-			{ return errmsg; }
+			{ return errmsg_.str(); }
     int			tracesHandled() const
 			{ return nrtrcs; }
 
@@ -104,7 +104,7 @@ protected:
     Seis2DLineSet*	lset;
     Seis::SelData*	seldata;
     const SeisPSIOProvider* psioprov;
-    BufferString	errmsg;
+    BufferString	errmsg_;
 
     SeisTrcTranslator*	strl() const;
 

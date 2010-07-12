@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.53 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.54 2010-07-12 22:39:42 cvskris Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -358,8 +358,8 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 	if ( !res )
 	{
 	    info.binid = oldbid;
-	    errmsg = "Cannot open 2D line file:\n";
-	    errmsg += tr->errMsg();
+	    errmsg_ = "Cannot open 2D line file:\n";
+	    errmsg_ += tr->errMsg();
 	    return false;
 	}
 	if ( preseldt != DataCharacteristics::Auto )
@@ -382,10 +382,10 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 	nrwr++;
     else
     {
-	errmsg = "Cannot write "; errmsg += nrwr + 1;
-	errmsg += getRankPostFix( nrwr + 1 );
-	errmsg += " trace to 2D line file:\n";
-	errmsg += tr->errMsg();
+	errmsg_ = "Cannot write "; errmsg_ += nrwr + 1;
+	errmsg_ += getRankPostFix( nrwr + 1 );
+	errmsg_ += " trace to 2D line file:\n";
+	errmsg_ += tr->errMsg();
 	return false;
     }
     return true;
@@ -396,7 +396,7 @@ bool SeisCBVS2DLinePutter::close()
     if ( !tr ) return true;
     tr->setIs2D( true );
     bool ret = tr->close();
-    if ( ret ) errmsg = tr->errMsg();
+    if ( ret ) errmsg_ = tr->errMsg();
     return ret; 
 }
 
