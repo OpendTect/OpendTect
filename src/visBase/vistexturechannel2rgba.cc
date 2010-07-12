@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.53 2010-06-15 06:27:59 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.54 2010-07-12 16:37:08 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -30,8 +30,8 @@ static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.53 2010-06-15 06:
 #include "Inventor/nodes/SoTextureUnit.h"
 #include "Inventor/nodes/SoVertexShader.h"
 #include "Inventor/nodes/SoShaderParameter.h"
+#include "Inventor/nodes/SoTexture2.h"
 #include "SoOD.h"
-#include "SoColorTableTexture.h"
 
 #define mNrColors	255
 #define mLayersPerUnit	4
@@ -522,7 +522,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	complexity->textureQuality.setValue(0.1);
 	shadinggroup_->addChild( complexity );
 
-	shaderctab_ = new SoColorTableTexture;
+	shaderctab_ = new SoTexture2;
 	shadinggroup_->addChild( shaderctab_ );
 
 	SoShaderProgram* shaderprogram = new SoShaderProgram;
@@ -604,54 +604,32 @@ void ColTabTextureChannel2RGBA::setShadingVars()
     if ( layeropacity_->value.getNum()>nrchannels )
 	layeropacity_->value.deleteValues( nrchannels, -1 );
 
-    int firstlayer = -1;
-	int currlayer = -1;
-    char firstlayertrans = 1;  // 1 = SoTextureComposerInfo::cHasTransparency
-
+    int firstlayer = 0;
+    char firstlayertrans = SoTextureComposerInfo::cHasNoTransparency();
     numlayers_->value.setValue( nrchannels );
 
     for ( int idx=nrchannels-1; idx>=0; idx-- )
     {
+	if ( enabled_.size()<=idx || !enabled_[idx] )
+	    continue;
 	const SbImage& channel = channels_->getChannels()[idx];
 	SbVec3s size; int dummy2;
 	const unsigned char* vals = channel.getValue( size, dummy2 );
 	// Starting from the front layer, find the (foremost) layer which is 
 	// fully opaque (if any). That will be the first layer to be rendered 
 	// (rendering starts at this layer and proceeds forward).
-	if ( vals && enabled_.size()>idx && enabled_[idx] )
-	{
-	    if ( opacity_[idx] != 0 )
-	    {
-	        // layer opacity indicates "not transparent"
-		currlayer = idx;
-		char currlayertrans = getTextureTransparency( idx );
-		if ( currlayertrans ==
-			       	SoTextureComposerInfo::cHasNoTransparency() )
-		{
-		    // opaque layer found
-		    firstlayer = idx;
-		    firstlayertrans = currlayertrans;
-		    break;
-		}
-	    }
-	}
+	if ( !vals )
+	    continue;
+
+	if ( opacity_[idx] == 0 )
+	    continue;
+
+	firstlayer = idx;
+	firstlayertrans = getTextureTransparency( idx );
+	if ( firstlayertrans==SoTextureComposerInfo::cHasNoTransparency() )
+	    break;
     }
 
-    // no opaque layer; rendering must start from backmost layer
-    if ( firstlayer == -1 )
-    {
-        // to do (later): 
-	// 1. get rid of layers that are fully transparent & find thei backmost
-	// layer that is not fully transparent & start rendering from that.
-	// 2. Set cHasIntermediateTransparency as result when ALL 
-	// the layers have cHasIntermediateTransparency
-
-        firstlayer = ( currlayer == -1 ) ? 0 : currlayer;
-	//firstlayertrans = getTextureTransparency( firstlayer );
-	// Let firstlayertrans remain SoTextureComposerInfo::cHasTransparency()
-	// a rendering problem occurs if it is cHasIntermediateTransparency
-    }
-    
     for ( int idx=0; idx<nrchannels; idx++ )
     {
 	const SbImage& channel = channels_->getChannels()[idx];
