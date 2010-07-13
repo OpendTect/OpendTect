@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.210 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.211 2010-07-13 10:49:53 cvsbert Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -812,9 +812,9 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     for ( int idx=0; idx<tifs_->nrFactories(); idx++ )
     {
 	SurveyInfo::Pol2D pol2d = (SurveyInfo::Pol2D)tifs_->getPol2D( idx );
-	if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D ||
+	if ( SI().survDataType() == SurveyInfo::Both2DAnd3D ||
 	     pol2d == SurveyInfo::Both2DAnd3D ||
-	     pol2d == SI().getSurvDataType() )
+	     pol2d == SI().survDataType() )
 	{
 	    idxs += idx;
 	    placeidxs += tifs_->getPlacementIdx( idx );

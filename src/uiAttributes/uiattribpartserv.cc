@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.159 2010-07-07 12:24:18 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.160 2010-07-13 10:49:53 cvsbert Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1108,7 +1108,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
        					      bool& dousemulticomp )
 {
-    const bool needext = SI().getSurvDataType()==SurveyInfo::Both2DAnd3D;
+    const bool needext = SI().has2D() && SI().has3D();
     const bool is3d = stored3dmnuitem_.findItem(mnuid) ||
 		      calc3dmnuitem_.findItem(mnuid) ||
 		      nla3dmnuitem_.findItem(mnuid) ||

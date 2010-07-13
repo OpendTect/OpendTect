@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.120 2010-07-08 11:16:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.121 2010-07-13 10:49:53 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -553,8 +553,7 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
     pathfld_->setReadOnly( true );
     updStatusBar( orgstorepath_ );
 
-    SurveyInfo::Pol2D survtyp = si_.getSurvDataType();
-    pol2dfld_->setCurrentItem( (int)survtyp );
+    pol2dfld_->setCurrentItem( (int)si_.survDataType() );
     
     if ( si_.sampling(false).hrg.totalNr() )
 	setValues();

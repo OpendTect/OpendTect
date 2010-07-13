@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.214 2010-06-28 10:46:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.215 2010-07-13 10:49:53 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -338,7 +338,7 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_, "&Faults ...", mManFaultMnuItm, "man_flt.png" )
     mInsertPixmapItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm,
 	    			"man_fltss.png" );
-    if ( SI().getSurvDataType() == SurveyInfo::No2D )
+    if ( SI().survDataType() == SurveyInfo::No2D )
 	mInsertPixmapItem( manmnu_, "&Horizons ...", mManHor3DMnuItm,
 			   "man_hor.png" )
     else
@@ -434,7 +434,7 @@ void uiODMenuMgr::fillProcMenu()
 void uiODMenuMgr::fillAnalMenu()
 {
     analmnu_->clear();
-    SurveyInfo::Pol2D survtype = SI().getSurvDataType();
+    SurveyInfo::Pol2D survtype = SI().survDataType();
     const ioPixmap attrpm( "attributes.png" );
     if ( survtype == SurveyInfo::Both2DAnd3D )
     {
@@ -645,7 +645,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 {
     mAddTB(dtecttb_,"survey.png","Survey setup",false,manSurvCB);
 
-    SurveyInfo::Pol2D survtype = SI().getSurvDataType();
+    SurveyInfo::Pol2D survtype = SI().survDataType();
     if ( survtype == SurveyInfo::Only2D )
     {
 	mAddTB(dtecttb_,"attributes.png","Edit attributes",false,editAttr2DCB);
@@ -707,11 +707,11 @@ void uiODMenuMgr::fillManTB()
     mAddTB(mantb_,"man_wvlt.png","Manage Wavelets",false,manWvlt);
     mAddTB(mantb_,"man_strat.png","Manage Stratigraphy",false,manStrat);
  
-    if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
+    if ( SI().survDataType() == SurveyInfo::Both2DAnd3D )
 	mAddPopUp( "Seismics Menu", "2D Seismics", "3D Seismics",
 		   mManSeis2DMnuItm, mManSeis3DMnuItm, seisid );
  
-    if ( SI().getSurvDataType() != SurveyInfo::No2D )
+    if ( SI().survDataType() != SurveyInfo::No2D )
 	mAddPopUp( "Horizon Menu", "2D Horizons", "3D Horizons",
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
 
@@ -1068,9 +1068,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 void uiODMenuMgr::manHor( CallBacker* )
 {
     int opt = 0;
-    if ( SI().getSurvDataType() == SurveyInfo::No2D )
+    if ( SI().survDataType() == SurveyInfo::No2D )
 	opt = 2;
-    else if ( SI().getSurvDataType() == SurveyInfo::Only2D )
+    else if ( SI().survDataType() == SurveyInfo::Only2D )
 	opt = 1;
     else
     {
@@ -1087,9 +1087,9 @@ void uiODMenuMgr::manHor( CallBacker* )
 void uiODMenuMgr::manSeis( CallBacker* )
 {
     int opt = 0;
-    if ( SI().getSurvDataType() == SurveyInfo::No2D )
+    if ( SI().survDataType() == SurveyInfo::No2D )
 	opt = 2;
-    else if ( SI().getSurvDataType() == SurveyInfo::Only2D )
+    else if ( SI().survDataType() == SurveyInfo::Only2D )
 	opt = 1;
     else
     {

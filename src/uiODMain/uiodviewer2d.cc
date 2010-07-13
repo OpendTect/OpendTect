@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.35 2010-06-24 11:29:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.36 2010-07-13 10:49:53 cvsbert Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -201,9 +201,9 @@ void uiODViewer2D::createTree( uiMainWin* mw )
     for ( int idx=0; idx < tifs_->nrFactories(); idx++ )
     {
 	SurveyInfo::Pol2D pol2d = (SurveyInfo::Pol2D)tifs_->getPol2D( idx );
-	if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D
+	if ( SI().survDataType() == SurveyInfo::Both2DAnd3D
 	     || pol2d == SurveyInfo::Both2DAnd3D
-	     || pol2d == SI().getSurvDataType() )
+	     || pol2d == SI().survDataType() )
 	{
 	    idxs += idx;
 	    placeidxs += tifs_->getPlacementIdx(idx);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.57 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.58 2010-07-13 10:49:53 cvsbert Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -154,13 +154,8 @@ void uiSeisWvltMan::mrgPush( CallBacker* )
 
 void uiSeisWvltMan::extractPush( CallBacker* cb )
 {
-    bool is2d;
-    SurveyInfo::Pol2D survtyp = SI().getSurvDataType();
-    if ( survtyp == 2 )
-	is2d = true;
-    else if ( survtyp == 0 )
-	is2d = false;
-    else
+    bool is2d = SI().has2D();
+    if ( is2d && SI().has3D() )
     {
 	int res = uiMSG().askGoOnAfter( "Which data do you want to use?",
 		0, "&3D", "&2D" );
