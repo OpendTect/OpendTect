@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.122 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.123 2010-07-13 19:26:32 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -118,9 +118,9 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     Provider* newprov = PF().create( desc );
     if ( !newprov )
     {
-	if ( desc.errMsg().size() )
+	if ( desc.errMsg() )
 	{
-	    errstr = desc.errMsg().buf();
+	    errstr = desc.errMsg();
 	    errstr +=" for ";
 	}
 	else

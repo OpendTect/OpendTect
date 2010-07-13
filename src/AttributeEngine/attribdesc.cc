@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.74 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.75 2010-07-13 19:26:32 cvskris Exp $";
 
 #include "attribdesc.h"
 
@@ -335,8 +335,8 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 }
 
 
-const BufferString& Desc::errMsg() const
-{ return errmsg_; }
+const char* Desc::errMsg() const
+{ return errmsg_.str(); }
 
 
 bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const

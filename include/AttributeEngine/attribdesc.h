@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.50 2010-04-20 22:03:25 cvskris Exp $
+ RCS:           $Id: attribdesc.h,v 1.51 2010-07-13 19:26:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,7 +120,7 @@ public:
     SatisfyLevel		isSatisfied() const;
 				/*!< Checks whether all inputs are satisfied. */
 
-    const BufferString&		errMsg() const;
+    const char*			errMsg() const;
     void			setErrMsg( const char* str )	{ errmsg_=str; }
 
     bool			isIdenticalTo(const Desc&,
