@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_velocityconv.cc,v 1.1 2009-12-04 19:02:37 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_velocityconv.cc,v 1.2 2010-07-13 20:05:58 cvskris Exp $";
 
 #include "batchprog.h"
 #include "velocityvolumeconversion.h"
@@ -72,6 +72,17 @@ bool BatchProgram::go( std::ostream& strm )
     {
 	strm << conv.errMsg();
 	return false;
+    }
+
+    if ( veldesc.type_ != VelocityDesc::Unknown )
+	veldesc.fillPar( outputioobj->pars() );
+    else
+	veldesc.removePars( outputioobj->pars() );
+
+    if ( !IOM().commitChanges(*outputioobj) ) 
+    {                   
+	strm << "Cannot write velocity information";
+	return false;               
     }
 
     return true;
