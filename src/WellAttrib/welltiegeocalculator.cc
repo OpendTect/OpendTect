@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.48 2010-04-27 08:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.49 2010-07-13 12:34:20 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -99,7 +99,7 @@ void GeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 			     const TypeSet<float>& dpt,	
 			     TypeSet<float>& outp, bool t2vel  )
 {
-    if ( t2vel )
+    if ( t2vel && ( timevel.size()>= 2 ) )
     {
 	for ( int idx=0; idx<timevel.size()-1; idx++ )
 	    outp +=  ( timevel[idx+1]-timevel[idx] )
