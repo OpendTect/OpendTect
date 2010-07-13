@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.41 2010-04-08 14:23:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.42 2010-07-13 09:12:27 cvsraman Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -511,6 +511,7 @@ void uiTextItem::setText( const char* txt )
     if ( curtxt == txt ) return;
 
     qtextitem_->setPlainText( QString(txt) );
+    updatePos();
 }
 
 
