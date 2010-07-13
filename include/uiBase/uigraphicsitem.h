@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.22 2010-04-01 09:19:08 cvsbruno Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.23 2010-07-13 09:11:39 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
     void		scaleAroundXY(float sx,float sy,int x,int y);
     void		setZValue(int);
     uiPoint		transformToScenePos(const uiPoint& itmpos) const;
+    void		setItemIgnoresTransformations(bool);
     virtual uiRect	boundingRect() const;
 
     virtual void	setPenStyle(const LineStyle&);
