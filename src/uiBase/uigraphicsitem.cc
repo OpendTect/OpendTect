@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.22 2010-04-01 09:19:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.23 2010-07-13 08:57:27 cvsraman Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -89,6 +89,9 @@ uiPoint uiGraphicsItem::transformToScenePos( const uiPoint& pt ) const
     return uiPoint( mNINT(qpt.x()),  mNINT( qpt.y()) );
 }
 
+
+void uiGraphicsItem::setItemIgnoresTransformations( bool yn )
+{ qgraphicsitem_->setFlag( QGraphicsItem::ItemIgnoresTransformations, yn ); }
 
 void uiGraphicsItem::setPenColor( const Color& col )
 {
