@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.93 2010-07-13 10:49:04 cvsbert Exp $
+ RCS:		$Id: survinfo.h,v 1.94 2010-07-13 21:42:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,8 @@ public:
     const char*		getZUnitString(bool withparens=true) const;
     const char*		getZDomainString() const;
     float		zFactor() const;
+    			//!< Factor between real and displayed unit in UI
+    static float	zFactor(bool time);
     			//!< Factor between real and displayed unit in UI
     bool		depthsInFeetByDefault() const;
 
