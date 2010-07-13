@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.70 2010-06-24 11:55:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.71 2010-07-13 14:34:20 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -403,6 +403,20 @@ int Well::MarkerSet::indexOf( const char* mname ) const
 	    return idx;
     }
     return -1;
+}
+
+
+void Well::MarkerSet::insertNew( Well::Marker* newmrk ) 
+{
+    int idlist = 0;
+    for ( int idmrk=0; idmrk<size(); idmrk++ )
+    {
+	Well::Marker& mrk = *(*this)[idmrk];
+	if ( newmrk->dah() > mrk.dah() )
+	    break;
+	idlist++;
+    }
+    insertAt( newmrk, idlist );
 }
 
 
