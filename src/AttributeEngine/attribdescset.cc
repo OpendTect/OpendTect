@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.93 2010-05-12 10:22:35 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.94 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -743,7 +743,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 
 const char* DescSet::errMsg() const
 {
-    return errmsg_.isEmpty() ? 0 : errmsg_.buf();
+    return errmsg_.str();
 }
 
 

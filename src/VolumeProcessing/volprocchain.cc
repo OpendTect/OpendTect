@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.15 2010-05-28 22:13:48 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.16 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -113,7 +113,7 @@ ChainExecutor::~ChainExecutor()
 
 
 const char* ChainExecutor::errMsg() const
-{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+{ return errmsg_.str(); }
 
 
 bool ChainExecutor::setCalculationScope( const CubeSampling& cs )
@@ -439,7 +439,7 @@ void Chain::setStorageID( const MultiID& mid )
 
 
 const char* Chain::errMsg() const
-{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+{ return errmsg_.str(); }
 
 
 Step::Step( Chain& chain )

@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: volumereader.cc,v 1.2 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: volumereader.cc,v 1.3 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "volumereader.h"
 
@@ -164,7 +164,7 @@ bool VolumeReader::usePar( const IOPar& par )
 
 
 const char* VolumeReader::errMsg() const
-{ return errmsg_[0] ? errmsg_.buf() : 0; }
+{ return errmsg_.str(); }
 
 
 ProcessingStep* VolumeReader::create( ProcessingChain& pc )

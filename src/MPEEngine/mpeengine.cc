@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.100 2010-04-12 11:20:34 cvsumesh Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.101 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -712,7 +712,7 @@ void Engine::removeEditor( const EM::ObjectID& objid )
 
 
 const char* Engine::errMsg() const
-{ return errmsg_[0] ? (const char*) errmsg_ : 0 ; }
+{ return errmsg_.str(); }
 
 
 CubeSampling Engine::getDefaultActiveVolume()

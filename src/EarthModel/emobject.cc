@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.106 2010-06-29 13:40:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.107 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -602,7 +602,7 @@ bool EMObject::isEmpty() const
 
 const char* EMObject::errMsg() const
 {
-    return errmsg_[0] ? errmsg_.buf() : 0;
+    return errmsg_.str();
 }
 
 

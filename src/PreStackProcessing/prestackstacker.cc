@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackstacker.cc,v 1.8 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackstacker.cc,v 1.9 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "prestackstacker.h"
 
@@ -38,7 +38,7 @@ Stack::~Stack()
 
 
 const char* Stack::errMsg() const
-{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+{ return errmsg_.str(); }
 
 
 #define mErrRet(s) \

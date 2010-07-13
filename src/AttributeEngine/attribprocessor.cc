@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.69 2009-11-18 21:59:09 cvskris Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.70 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "attribprocessor.h"
 
@@ -72,7 +72,7 @@ int Processor::nextStep()
     if ( !isinited_ )
 	init();
 
-    errmsg_ = provider_->errMsg().buf();
+    errmsg_ = provider_->errMsg();
     if ( errmsg_.size() )
 	return ErrorOccurred();
 
@@ -83,7 +83,7 @@ int Processor::nextStep()
     res = provider_->moveToNextTrace();
     if ( res < 0 || !nriter_ )
     {
-	errmsg_ = provider_->errMsg().buf();
+	errmsg_ = provider_->errMsg();
 	if ( errmsg_.size() )
 	    return ErrorOccurred();
     }

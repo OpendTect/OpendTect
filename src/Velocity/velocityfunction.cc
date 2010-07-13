@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunction.cc,v 1.4 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: velocityfunction.cc,v 1.5 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "velocityfunction.h"
 
@@ -123,7 +123,7 @@ BufferString FunctionSource::userName() const
 
 
 const char* FunctionSource::errMsg() const
-{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+{ return errmsg_.str(); }
 
 
 void FunctionSource::getSurroundingPositions( const BinID& bid, 

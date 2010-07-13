@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.31 2010-06-28 13:12:58 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.32 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -565,7 +565,8 @@ const char* mkErrMsg( const HdrInfo& hdrinf, const char* msg )
 	    errmsg_ += hdrinf.keyw_; errmsg_ += "'";
 	}
     }
-    return errmsg_;
+
+    return errmsg_.str();
 }
 
 

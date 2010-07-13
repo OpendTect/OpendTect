@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.45 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.46 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -229,7 +229,7 @@ od_int64 dgbSurfDataWriter::totalNr() const
 
 
 const char* dgbSurfDataWriter::message() const
-{ return errmsg_.buf(); }
+{ return errmsg_.str(); }
 
 
 
@@ -425,6 +425,6 @@ od_int64 dgbSurfDataReader::totalNr() const
 
 
 const char* dgbSurfDataReader::message() const
-{ return errmsg_.buf(); }
+{ return errmsg_.str(); }
 
 }; //nsamespace

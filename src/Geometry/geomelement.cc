@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: geomelement.cc,v 1.9 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: geomelement.cc,v 1.10 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "geomelement.h"
 #include "survinfo.h"
@@ -47,7 +47,7 @@ IntervalND<float> Element::boundingBox(bool) const
 
 
 const char* Element::errMsg() const
-{ return errmsg_ && errmsg_->size() ? (const char*) (*errmsg_) : 0; }
+{ return errmsg_ ? errmsg_->str() : 0; }
 
 
 BufferString& Element::errmsg()

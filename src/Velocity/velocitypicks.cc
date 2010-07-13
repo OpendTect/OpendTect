@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.10 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.11 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -890,7 +890,7 @@ void Picks::get(const EM::ObjectID& emid, TypeSet<RowCol>& res ) const
 
 
 const char* Picks::errMsg() const
-{ return errmsg_[0] ? errmsg_.buf() : 0; }
+{ return errmsg_.str(); }
 
 
 void Picks::setAll( float vel, bool addtoundo )
@@ -1037,7 +1037,7 @@ void PicksMgr::surveyChange( CallBacker* )
 
 const char* PicksMgr::errMsg() const
 {
-    return errmsg_.isEmpty() ? 0 : errmsg_.buf();
+    return errmsg_.str();
 }
 
 

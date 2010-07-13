@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.123 2010-07-13 19:26:32 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.124 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1366,15 +1366,15 @@ float Provider::crldist() const
 }
 
 
-BufferString Provider::errMsg() const
+const char* Provider::errMsg() const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs_[idx] && inputs_[idx]->errMsg().size() )
+	if ( inputs_[idx] && inputs_[idx]->errMsg() )
 	    return inputs_[idx]->errMsg();
     }
     
-    return errmsg_;
+    return errmsg_.str();
 }
 
 

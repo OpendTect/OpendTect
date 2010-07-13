@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: sectionadjuster.cc,v 1.14 2009-09-01 21:59:25 cvskris Exp $";
+static const char* rcsID = "$Id: sectionadjuster.cc,v 1.15 2010-07-13 21:10:30 cvskris Exp $";
 
 
 #include "sectionadjuster.h"
@@ -48,7 +48,7 @@ void SectionAdjuster::setPositions(const TypeSet<EM::SubID>& p,
 int SectionAdjuster::nextStep() { return 0; }
 
 
-const char* SectionAdjuster::errMsg() const { return errmsg_[0] ? errmsg_ : 0; }
+const char* SectionAdjuster::errMsg() const { return errmsg_.str(); }
 
 
 CubeSampling SectionAdjuster::getAttribCube( const Attrib::SelSpec& spec ) const

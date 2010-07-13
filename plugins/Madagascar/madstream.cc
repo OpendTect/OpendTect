@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.32 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.33 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -560,7 +560,7 @@ bool MadStream::isOK() const
 
 const char* MadStream::errMsg() const
 {
-    return errmsg_.isEmpty() ? 0 : errmsg_.buf();
+    return errmsg_.str();
 }
 
 

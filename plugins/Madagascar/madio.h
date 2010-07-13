@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: madio.h,v 1.6 2009-07-22 16:01:27 cvsbert Exp $
+ * ID       : $Id: madio.h,v 1.7 2010-07-13 21:10:30 cvskris Exp $
 -*/
 
 #include "bufstring.h"
@@ -32,7 +32,7 @@ public:
 
     StreamData		open() const;		//!< if !usable() -> errMsg()
     StreamData		openMask() const;	//!< if !usable() -> errMsg()
-    const char*		errMsg() const		{ return errmsg_; }
+    const char*		errMsg() const		{ return errmsg_.str(); }
 
     static const char*	defPath();	//!< returns Madagascar dir in survey
     static const char*	madDataPath();

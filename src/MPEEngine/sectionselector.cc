@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselector.cc,v 1.3 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: sectionselector.cc,v 1.4 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "sectionselectorimpl.h"
 
@@ -32,7 +32,7 @@ int SectionSourceSelector::nextStep() { return 0; }
 
 
 const char* SectionSourceSelector::errMsg() const
-{ return errmsg_[0] ? errmsg_ : 0; }
+{ return errmsg_.str(); }
 
 
 const TypeSet<EM::SubID>& SectionSourceSelector::selectedPositions() const

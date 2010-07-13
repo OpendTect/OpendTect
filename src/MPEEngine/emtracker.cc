@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.38 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.39 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "emtracker.h"
 
@@ -208,7 +208,7 @@ void EMTracker::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
 }
 
 const char* EMTracker::errMsg() const
-{ return errmsg_[0] ? (const char*) errmsg_ : 0; }
+{ return errmsg_.str(); }
 
 
 SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid, bool create )

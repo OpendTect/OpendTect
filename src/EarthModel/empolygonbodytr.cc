@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbodytr.cc,v 1.5 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: empolygonbodytr.cc,v 1.6 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "embodytr.h"
 #include "empolygonbody.h"
@@ -42,7 +42,7 @@ polygonEMBodyTranslator::~polygonEMBodyTranslator()
 
 const char* polygonEMBodyTranslator::errMsg() const
 {
-    return errmsg_.isEmpty() ? 0 : errmsg_.buf();
+    return errmsg_.str();
 }
 
 

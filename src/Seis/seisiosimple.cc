@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.20 2010-03-15 09:28:11 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.21 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -299,7 +299,9 @@ int SeisIOSimple::nextStep()
 
     int rv = readExpTrc();
     if ( rv < 0 )
-	return errmsg_.isEmpty() ? Executor::Finished() : Executor::ErrorOccurred();
+	return errmsg_.isEmpty()
+	    ? Executor::Finished()
+	    : Executor::ErrorOccurred();
 
     return rv == 0 ? Executor::MoreToDo() : writeExpTrc();
 }

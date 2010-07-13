@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdesced.cc,v 1.34 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiattrdesced.cc,v 1.35 2010-07-13 21:10:30 cvskris Exp $";
 
 
 
@@ -262,7 +262,7 @@ const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
 	errmsg_ = editdesc->errMsg();
 
     areUIParsOK();
-    return errmsg_.size() ? errmsg_.buf() : 0;
+    return errmsg_.str();
 }
 
 

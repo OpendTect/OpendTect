@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultseedpicker.cc,v 1.9 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: faultseedpicker.cc,v 1.10 2010-07-13 21:10:30 cvskris Exp $";
 
 #include "faultseedpicker.h"
 
@@ -162,7 +162,7 @@ bool FaultSeedPicker::stopSeedPick(bool iscancel)
 
 
 const char* FaultSeedPicker::errMsg() const
-{ return errmsg_[0] ? (const char*) errmsg_ : 0; }
+{ return errmsg_.str(); }
 
 
 bool FaultSeedPicker::sectionIsEmpty() const
