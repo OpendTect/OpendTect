@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.14 2010-05-21 16:58:35 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.15 2010-07-14 15:00:58 cvshelene Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -251,7 +251,7 @@ void uiStratAmpCalc::fillInEngineIOPar( IOPar& iop, const HorSampling& hs) const
     iop.set( IOPar::compKey(sKey::Output, sKey::Type), sKey::Cube );
     IOPar subselpar;
     hs.fillPar( subselpar );
-    subselpar.set( sKey::Range, SI().zRange(false) );
+    subselpar.set( sKey::ZRange, SI().zRange(false) );
     iop.mergeComp( subselpar, IOPar::compKey(sKey::Output,sKey::Subsel) );
 }
 
