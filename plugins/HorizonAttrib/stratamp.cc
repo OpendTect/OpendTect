@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratamp.cc,v 1.9 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: stratamp.cc,v 1.10 2010-07-14 15:03:31 cvshelene Exp $";
 
 #include "stratamp.h"
 
@@ -169,6 +169,7 @@ int StratAmpCalc::nextStep()
     z2 += bothorshift_;
     Interval<int> sampintv( trc->info().nearestSample(z1),
 	    		    trc->info().nearestSample(z2) );
+    sampintv.sort();
 
     if ( sampintv.start < 0 )
 	sampintv.start = 0;
