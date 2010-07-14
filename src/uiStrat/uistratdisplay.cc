@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.13 2010-07-05 16:08:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.14 2010-07-14 10:05:13 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -31,6 +31,7 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& tree )
     : uiAnnotDisplay(p,"Stratigraphy viewer")
     , uidatagather_(uiStratAnnotGather(data_,tree.stratmgr()))
     , uidatawriter_(uiStratTreeWriter(tree ))
+    , assignlvlmnuitem_("&Specify marker boundary")
 {
     uidatagather_.newtreeRead.notify( mCB(this,uiStratDisplay,dataChanged) );
     createDispParamGrp();
@@ -176,21 +177,31 @@ void uiStratDisplay::dispParamChgd( CallBacker* cb )
 
 void uiStratDisplay::createMenuCB( CallBacker* cb )
 {
-    handleMenuCB( cb );
+    if ( getUnitFromPos() ) 
+	handleMenuCB( cb );
+    else if ( getMrkFromPos() )
+    {
+	mDynamicCastGet(uiMenuHandler*,menu,cb);
+	if ( !menu ) return;
+	mAddMenuItem( menu, &assignlvlmnuitem_, true, false);
+    }
 }
 
 
 void uiStratDisplay::handleMenuCB( CallBacker* cb )
 {
     const AnnotData::Unit* unit = getUnitFromPos();
-    if ( !unit ) return;
-    uidatawriter_.handleUnit( unit->name_ );
+    if ( unit ) 
+	uidatawriter_.handleUnitMenu( unit->name_ );
+    const AnnotData::Marker* mrk = getMrkFromPos();
+    if ( mrk )
+	uidatawriter_.handleLvlMenu( mrk->id_ );
 }
 
 
 void uiStratDisplay::makeAnnots()
 {
-    makeAnnotCol( "Levels", 0, true ); 
+    makeAnnotCol( "Boundaries", 0, true ); 
     /*
     makeAnnotCol( "Lithology", 4, false );
     makeAnnotCol( "Description", 5, false );
@@ -211,13 +222,14 @@ void uiStratDisplay::makeAnnotCol( const char* txt, int annotpos, bool level )
 	    const BufferStringSet& annot = unit->annots_;
 	    if ( level )
 	    {
+		const BufferString& nm = *annot[annotpos];
 		AnnotData::Marker* mrk = new AnnotData::Marker( 
-					    annot[annotpos]->buf(), 
-					    unit->zpos_ );
+						nm.buf(), unit->zpos_ );
+		mrk->isdotted_ = nm.isEmpty();
+		mrk->id_ = unit->id_;
 		mrk->col_ = Color( 
-				(unsigned int)atoi(annot[annotpos+1]->buf()) );
+			     (unsigned int)atoi(annot[annotpos+1]->buf()) );
 		annotcol->markers_ += mrk;
-		mrk->isnmabove_ = false;
 	    }
 	    else
 	    {
@@ -380,7 +392,8 @@ void uiAnnotDrawer::drawMarkers( ColumnItem& colitm, int colidx )
 	int y = yax_->getPix( mrk.zpos_ );
 
 	uiLineItem* li = scene_.addItem( new uiLineItem(x1,y,x2,y,true) );
-	li->setPenStyle( LineStyle(LineStyle::Solid,2,mrk.col_) );
+	LineStyle::Type lst = mrk.isdotted_ ? LineStyle::Dot : LineStyle::Solid;
+	li->setPenStyle( LineStyle(lst,2,mrk.col_) );
 	uiTextItem* ti = scene_.addItem( new uiTextItem( mrk.name_.buf() ) );
 	ti->setPos( x1 + (x2-x1)/2, y ); 
 	ti->setZValue( 2 );
@@ -624,19 +637,36 @@ int uiAnnotDisplay::getColIdxFromPos() const
 }
 
 
-const AnnotData::Unit* uiAnnotDisplay::getUnitFromPos() const
+const AnnotData::Unit* uiAnnotDisplay::getUnitFromPos( bool nocolidx ) const
 {
-    int cidx = getColIdxFromPos();
+    int cidx = nocolidx ? 0 : getColIdxFromPos();
     if ( cidx >=0 && cidx<nrCols() )
     {
 	Geom::Point2D<float> pos = getPos(); 
 	for ( int idunit=0; idunit<nrUnits(cidx); idunit++ )
 	{
 	    const AnnotData::Unit* unit = getUnit( idunit, cidx );
-	    if ( pos.y < unit->zposbot_ && pos.y > unit->zpos_ )
+	    if ( pos.y < unit->zposbot_ && pos.y >= unit->zpos_ )
 		return unit;
 	}
     }
     return 0;
 }
 
+
+#define mEps 10 
+const AnnotData::Marker* uiAnnotDisplay::getMrkFromPos() const
+{
+    int cidx = getColIdxFromPos();
+    if ( cidx >=0 && cidx<nrCols() )
+    {
+	Geom::Point2D<float> pos = getPos(); 
+	for ( int idmrk=0; idmrk<nrMarkers(cidx); idmrk++ )
+	{
+	    const AnnotData::Marker* mrk = getMarker( idmrk, cidx );
+	    if ( pos.y < (mrk->zpos_+mEps)  && pos.y > (mrk->zpos_-mEps) )
+		return mrk;
+	}
+    }
+    return 0;
+}

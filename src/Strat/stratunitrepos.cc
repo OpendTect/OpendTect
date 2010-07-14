@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.40 2010-07-07 16:17:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.41 2010-07-14 10:05:13 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -110,7 +110,7 @@ void Strat::RefTree::setUnitProps( const char* fnm, const UnitRef::Props& props)
 
 void Strat::RefTree::setUnitProps( int id, const UnitRef::Props& props )
 {
-    Strat::UnitRef* ur = getFromID( id );
+    Strat::UnitRef* ur = getByID( id );
     if ( !ur ) return;
     setUnitProps( *ur, props );
 }
@@ -160,21 +160,6 @@ Strat::UnitRef* Strat::RefTree::fnd( int id ) const
 }
 
 
-
-Color Strat::RefTree::getUnitColor( int id ) const
-{
-    const Strat::UnitRef* ur = getFromID( id );
-    return ur ? ur->props().color_ : Color::NoColor();
-}
-
-
-const char* Strat::RefTree::getUnitLvlName( int id ) const
-{
-    const Strat::UnitRef* ur = getFromID( id );
-    return ur ? ur->props().lvlname_.buf() : 0;
-}
-
-
 void Strat::RefTree::gatherLeavesByTime( const NodeUnitRef& un, 
 					ObjectSet<UnitRef>& refunits ) const
 {
@@ -195,7 +180,7 @@ void Strat::RefTree::constrainUnits( UnitRef& ur ) const
     mDynamicCastGet(NodeUnitRef*,nur,&ur)
     if ( nur )
 	constrainUnitTimes( *nur );
-    constrainUnitLvlNames( ur );
+    constrainUnitLvls( ur );
 }
 
 
@@ -261,9 +246,9 @@ void Strat::RefTree::getLeavesTimeGaps( const NodeUnitRef& node,
     const float refstop = refunits[refunits.size()-1]->props().timerg_.stop;
 
     if ( partimerg.start < refstart )
-    timergs += Interval<float>( partimerg.start, refstart );
+	timergs += Interval<float>( partimerg.start, refstart );
     if ( partimerg.stop > refstop )
-    timergs += Interval<float>( refstop, partimerg.stop );
+	timergs += Interval<float>( refstop, partimerg.stop );
 
     for ( int iref=0; iref<refunits.size()-1; iref++ )
     {
@@ -275,22 +260,27 @@ void Strat::RefTree::getLeavesTimeGaps( const NodeUnitRef& node,
 }
 
 
-void Strat::RefTree::constrainUnitLvlNames( UnitRef& lur ) const
+void Strat::RefTree::constrainUnitLvls( UnitRef& lur ) const
 {
     float timestart = lur.props().timerg_.start; 
-    BufferString lvlnm = lur.props().lvlname_;
-    if ( lvlnm.isEmpty() )
-    {
-	lvlnm += lur.props().code_; lvlnm += " Level";
-	lur.props().lvlname_ = lvlnm.buf();
-    }
+    int lvlid = lur.props().lvlid_;
     NodeUnitRef* ur = lur.upNode();
     while ( ur && ur->upNode() )
     {
 	if( timestart == ur->props().timerg_.start )
-	    ur->props().lvlname_ = lvlnm.buf();
-	    
+	    ur->props().lvlid_ = lvlid;
 	ur = ur->upNode();
+    }
+    mDynamicCastGet(NodeUnitRef*,un,&lur)
+    if ( !un ) return; 
+    UnitRef::Iter it( *un );
+    Strat::UnitRef* llur = it.unit();
+    while ( llur )
+    {
+	if( timestart == llur->props().timerg_.start )
+	    llur->props().lvlid_ = lvlid;
+	if ( !it.next() ) break;
+	llur = it.unit();
     }
 }
 
@@ -304,7 +294,7 @@ void Strat::RefTree::assignEqualTimesToUnits( Interval<float> toptimerg ) const
 	Interval<float> timerg( 0, 0 );
 	if ( un->upNode() ) 
 	{
-	    constrainUnitLvlNames( *un );
+	    constrainUnitLvls( *un );
 	    timerg = un->props().timerg_; 
 	}
 	else
@@ -347,6 +337,7 @@ void Strat::RefTree::removeEmptyNodes()
 	par.remove( par.indexOf(un) );
     }
 }
+
 
 
 bool Strat::RefTree::write( std::ostream& strm ) const
@@ -760,7 +751,6 @@ void Strat::UnitRepository::createDefaultTree()
     UnitRef::Props props;
     props.code_ =  "Super Group";
     props.timerg_.set( 0, 4.5e3 );
-    props.lvlname_ = "Top Level";
     props.color_ = Color::DgbColor();
     props.desc_ = "Stratigraphic Column";
     tree->addUnit( props.code_, props );

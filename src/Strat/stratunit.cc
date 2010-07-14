@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.19 2010-06-29 13:03:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.20 2010-07-14 10:05:13 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -106,7 +106,7 @@ void Strat::UnitRef::putTo( IOPar& iop ) const
 {
     iop.set( sKey::Time, props_.timerg_ );
     iop.set( sKey::Color, props_.color_ );
-    iop.set( sKeyLevel, props_.lvlname_ );
+    iop.set( sKeyLevel, props_.lvlid_ );
 }
 
 
@@ -114,7 +114,7 @@ void Strat::UnitRef::getFrom( const IOPar& iop )
 {
     iop.get( sKey::Time, props_.timerg_ );
     iop.get( sKey::Color, props_.color_ );
-    iop.get( sKeyLevel, props_.lvlname_ );
+    iop.get( sKeyLevel, props_.lvlid_ );
 }
 
 

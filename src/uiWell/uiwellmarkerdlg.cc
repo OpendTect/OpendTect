@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.22 2010-07-05 16:08:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.23 2010-07-14 10:05:13 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.22 2010-07-05 16:08:07 c
 #include "uimsg.h"
 #include "uistratlvlsel.h"
 #include "uistrattreewin.h"
+#include "uistratmgr.h"
 #include "uitblimpexpdatasel.h"
 #include "uitable.h"
 
@@ -70,13 +71,18 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     uiButton* rfbut = new uiPushButton( this, "&Read file",
 	    				mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightTo, unitfld_ ); rfbut->attach( rightBorder );
-
+    
+    /*
     uiToolButton* sb = new uiToolButton( this, "Create new Levels",
 					ioPixmap("man_strat.png"),
 					mCB(this,uiMarkerDlg,doStrat) );
     sb->setToolTip( "Edit Stratigraphy to define Levels" );
     sb->attach( leftOf, rfbut );
-    unitfld_->attach( ensureLeftOf, sb );
+    */
+    stratmrkfld_ = new uiCheckBox( this, "Set as stratigraphic markers" );
+    stratmrkfld_->attach( ensureBelow, unitfld_ ); 
+    stratmrkfld_->attach( hCentered ); 
+    stratmrkfld_->setChecked( true ); 
 
     setPrefWidthInChar( 60 );
 }
@@ -236,6 +242,7 @@ bool acceptOK( CallBacker* )
 	return false;
 
     keep_ = !replfld_->getBoolValue();
+    
     return true;
 }
 
@@ -299,7 +306,27 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 }
 
 
+void uiMarkerDlg::setAsStratLevels()
+{
+    Well::MarkerSet mrkset; BufferStringSet mrknmset;
+    TypeSet<Color> colors;
+    getMarkerSet( mrkset );
+    for ( int idmrk=0; idmrk<mrkset.size(); idmrk++ )
+    {
+	mrknmset.add( mrkset[idmrk]->name() );
+	colors += mrkset[idmrk]->color();
+    }
+
+    //TODO the tree should not be edited directly by casting the uistratWin !!
+    (const_cast<uiStratTreeWin&>(StratTWin())).addLevels( mrknmset, colors );
+    
+    //TODO link with new level ids
+}
+
+
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
+    if ( stratmrkfld_->isChecked() )
+	setAsStratLevels();
     return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.45 2010-07-07 08:58:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.46 2010-07-14 10:05:13 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -64,6 +64,10 @@ uiStratTreeWin& StratTreeWin()
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
     : uiMainWin(p,"Manage Stratigraphy", 0, true)
     , uistratmgr_(*new uiStratMgr(this))
+    , levelCreated(this)
+    , levelChanged(this)
+    , levelRemoved(this)
+    , newLevelSelected(this)
     , unitCreated(this)		//TODO support
     , unitChanged(this)		//TODO support
     , unitRemoved(this)		//TODO support
@@ -178,14 +182,34 @@ void uiStratTreeWin::createToolBar()
 
 void uiStratTreeWin::createGroups()
 {
-    uitree_ = new uiStratRefTree( this, &uistratmgr_ );
+    uiGroup* leftgrp = new uiGroup( this, "LeftGroup" );
+    leftgrp->setStretch( 1, 1 );
+    uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
+    rightgrp->setStretch( 1, 1 );
+
+    uitree_ = new uiStratRefTree( leftgrp, &uistratmgr_ );
     CallBack selcb = mCB( this,uiStratTreeWin,unitSelCB );
     CallBack renmcb = mCB(this,uiStratTreeWin,unitRenamedCB);
     uitree_->listView()->selectionChanged.notify( selcb );
     uitree_->listView()->itemRenamed.notify( renmcb );
     uitree_->listView()->display( istreedisp_ );
 
-    uistratdisp_ = new uiStratDisplay( this, *uitree_ );
+    uistratdisp_ = new uiStratDisplay( leftgrp, *uitree_ );
+
+    uiLabeledListBox* llb = new uiLabeledListBox( rightgrp, "Markers", false,
+						uiLabeledListBox::AboveMid );
+    lvllistfld_ = llb->box();
+    lvllistfld_->setStretch( 2, 2 );
+    lvllistfld_->setFieldWidth( 10 );
+    lvllistfld_->selectionChanged.notify( mCB( this, uiStratTreeWin,
+				                        selLvlChgCB ) );
+    lvllistfld_->rightButtonClicked.notify( mCB( this, uiStratTreeWin,
+		                                         rClickLvlCB ) );
+    fillLvlList();
+
+    uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
+    splitter->addGroup( leftgrp );
+    splitter->addGroup( rightgrp );
 }
 
 
@@ -263,6 +287,99 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
 void uiStratTreeWin::openCB( CallBacker* )
 {
     pErrMsg("Not implemented yet: uiStratTreeWin::openCB");
+}
+
+
+void uiStratTreeWin::selLvlChgCB( CallBacker* )
+{
+    newLevelSelected.trigger();
+    needsave_ = true;
+}
+
+
+void uiStratTreeWin::rClickLvlCB( CallBacker* )
+{
+    if ( strcmp( editmnuitem_->text(), mLockTxt(true) ) ) return;
+    int curit = lvllistfld_->currentItem();
+    uiPopupMenu mnu( this, "Action" );
+    mnu.insertItem( new uiMenuItem("Create &New ..."), 0 );
+    if ( curit>-1 && !lvllistfld_->isPresent( sNoLevelTxt ) )
+    {
+	mnu.insertItem( new uiMenuItem("&Edit ..."), 1 );
+	mnu.insertItem( new uiMenuItem("&Remove"), 2 );
+    }
+    const int mnuid = mnu.exec();
+    if ( mnuid<0 || mnuid>2 ) return;
+    if ( mnuid != 2 )
+    editLevel( mnuid ? false : true );
+    else
+    {
+	uistratmgr_.removeLevel( lvllistfld_->getText() );
+	lvllistfld_->removeItem( lvllistfld_->currentItem() );
+	uitree_->updateUnitsPixmaps();
+	uitree_->listView()->triggerUpdate();
+	if ( lvllistfld_->isEmpty() )
+	       lvllistfld_->addItem( sNoLevelTxt );
+	levelRemoved.trigger();
+	needsave_ = true;
+    }
+}
+
+
+void uiStratTreeWin::fillLvlList()
+{
+    lvllistfld_->empty();
+    BufferStringSet lvlnms;
+    TypeSet<Color> lvlcolors;
+    uistratmgr_.getLvlsProps( lvlnms, lvlcolors );
+    for ( int idx=0; idx<lvlnms.size(); idx++ )
+	lvllistfld_->addItem( lvlnms[idx]->buf(), lvlcolors[idx] );
+
+    if ( !lvlnms.size() )
+	lvllistfld_->addItem( sNoLevelTxt );
+}
+
+
+void uiStratTreeWin::addLevels( const BufferStringSet& nms, 
+				    const TypeSet<Color>& cols )
+{
+    uistratmgr_.addLevels( nms, cols );
+    fillLvlList();
+    levelCreated.trigger(); 
+}
+
+
+void uiStratTreeWin::editLevel( bool create )
+{
+    uiStratLevelDlg newlvldlg( this, &uistratmgr_ );
+    if ( !create )
+	newlvldlg.setLvlInfo( lvllistfld_->getText() );
+    if ( newlvldlg.go() )
+    {
+	updateLvlList( create );
+	create ? levelCreated.trigger() : levelChanged.trigger();
+    }
+    needsave_ = true;
+}
+
+
+void uiStratTreeWin::updateLvlList( bool create )
+{
+    if ( create && lvllistfld_->isPresent( sNoLevelTxt ) )
+	lvllistfld_->removeItem( 0 );
+
+    BufferString lvlnm;
+    Color lvlcol;
+    int lvlidx = create ? lvllistfld_->size()
+			: lvllistfld_->currentItem();
+    uistratmgr_.getLvlProps( lvlidx, lvlnm, lvlcol );
+    if ( create )
+	lvllistfld_->addItem( lvlnm, lvlcol );
+    else
+    {
+	lvllistfld_->setItemText( lvlidx, lvlnm );
+	lvllistfld_->setPixmap( lvlidx, lvlcol );
+    }
 }
 
 

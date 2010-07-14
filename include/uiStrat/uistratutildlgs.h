@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.15 2010-07-07 11:16:53 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.16 2010-07-14 10:05:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,6 @@ protected:
     uiGenInput*		unitnmfld_;
     uiGenInput*		unitdescfld_;
     uiGenInput*		unitlithfld_;
-    uiGenInput*		lvlnmfld_;
     uiSpinBox*		agestartfld_;
     uiSpinBox*		agestopfld_;
     uiColorInput*	colfld_;
@@ -65,7 +64,6 @@ protected:
     BufferString&	entrancename_;
 
     void		selLithCB(CallBacker*);
-    void		selNameCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
@@ -126,5 +124,43 @@ protected:
 
     bool		acceptOK(CallBacker*);
 };
+
+
+mClass uiStratLevelDlg : public uiDialog
+{
+public:
+
+    uiStratLevelDlg(uiParent*,uiStratMgr*);
+
+    void                setLvlInfo(const char*);
+
+protected:
+
+    BufferString        oldlvlnm_;
+    uiStratMgr*         uistratmgr_;
+
+    uiGenInput*         lvlnmfld_;
+    uiColorInput*       lvlcolfld_;
+
+    bool                acceptOK(CallBacker*);
+};
+
+
+mClass uiStratLinkLvlUnitDlg : public uiDialog
+{
+public:
+
+    			uiStratLinkLvlUnitDlg(uiParent*,int,uiStratMgr&);
+
+    int 		lvlid_;
+
+protected:
+
+    uiGenInput*         lvllistfld_;
+    TypeSet<int>	ids_;
+
+    bool		acceptOK(CallBacker*);
+};
+
 
 #endif

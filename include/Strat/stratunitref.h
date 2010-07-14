@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.23 2010-07-07 16:17:26 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.24 2010-07-14 10:05:13 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -62,17 +62,18 @@ public:
     {
 			Props()
 			: isunconf_(false)
+			, lvlid_(-1)  
 			, color_(getRandStdDrawColor())  
 			{}
 
 	BufferString    code_;
 	BufferString    desc_;
 	BufferString    lithnm_;
-	BufferString	lvlname_;
 	Interval<float> timerg_;
 	bool            isleaf_;
 	bool		isunconf_;
 	Color           color_;
+	int		lvlid_;
     };
 
 
@@ -91,7 +92,7 @@ public:
 			    props_.timerg_  = pp.timerg_; 
 			    props_.isleaf_  = pp.isleaf_; 
 			    props_.color_   = pp.color_; 
-			    props_.lvlname_ = pp.lvlname_;
+			    props_.lvlid_ = pp.lvlid_;
 			    props_.isunconf_ = pp.isunconf_;
 
 			}

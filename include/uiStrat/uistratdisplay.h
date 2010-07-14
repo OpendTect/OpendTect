@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.14 2010-07-05 16:08:07 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.15 2010-07-14 10:05:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ protected:
     uiGraphicsScene&		scene_;
     uiAxisHandler* 		yax_; 
     uiAxisHandler* 		xax_; 
-
+    
     //data
     const AnnotData&		data_;
     int 			nrCols() const { return data_.nrCols(); }
@@ -145,7 +145,8 @@ protected:
     //position
     int				getColIdxFromPos() const; 
     AnnotData::Column*		getColFromPos() const; 
-    const AnnotData::Unit* 	getUnitFromPos() const;
+    const AnnotData::Unit* 	getUnitFromPos(bool nocolidx=false) const;
+    const AnnotData::Marker* 	getMrkFromPos() const;
     Geom::Point2D<float> 	getPos() const;
 
     virtual void                createMenuCB(CallBacker*);
@@ -175,6 +176,8 @@ protected :
     uiGroup*			dispparamgrp_;
     uiPushButton*		fillbutton_;
     uiPushButton*		viewcolbutton_;
+    
+    MenuItem            	assignlvlmnuitem_;
    
     bool			isUnitBelowCurrent() const;
     void			createDispParamGrp();

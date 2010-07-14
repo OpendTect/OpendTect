@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.23 2010-07-08 08:40:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.24 2010-07-14 10:05:13 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.23 2010-07-08 08:40:49 c
 #include "stratlith.h"
 #include "stratunitrepos.h"
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "uicolor.h"
 #include "uidialog.h"
 #include "uigeninput.h"
@@ -27,6 +28,7 @@ static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.23 2010-07-08 08:40:49 c
 #include "uitable.h"
 
 static const char* sNoLithoTxt      = "---None---";
+static const char* sNoLevelTxt      = "--Undefined--";
 
 #define mErrRet(msg,act) uiMSG().error(msg); act;
 uiStratUnitDlg::uiStratUnitDlg( uiParent* p, Setup& su ) 
@@ -37,7 +39,6 @@ uiStratUnitDlg::uiStratUnitDlg( uiParent* p, Setup& su )
     , entrancename_(su.entrancename_)				 
 {
     unitnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
-    unitnmfld_->valuechanged.notify( mCB(this,uiStratUnitDlg,selNameCB) );
     unitdescfld_ = new uiGenInput( this, "Description", StringInpSpec() );
     unitdescfld_->attach( alignedBelow, unitnmfld_ );
     unitlithfld_ = new uiGenInput( this, "Lithology", StringInpSpec() );
@@ -62,17 +63,6 @@ uiStratUnitDlg::uiStratUnitDlg( uiParent* p, Setup& su )
     agestopfld_->setInterval( su.timerg_ );
     agestopfld_->setValue( su.timerg_.stop );
     lblbox2->attach( rightOf, lblbox1 );
-
-    lvlnmfld_ = new uiGenInput( this, "Level (top) name", StringInpSpec() );
-    lvlnmfld_->attach( alignedBelow, lblbox1 );
-}
-
-
-void uiStratUnitDlg::selNameCB( CallBacker* )
-{
-    BufferString lvlnm( unitnmfld_->text() );
-    lvlnm += " Level";
-    lvlnmfld_->setText( lvlnm );
 }
 
 
@@ -87,15 +77,12 @@ void uiStratUnitDlg::selLithCB( CallBacker* )
 void uiStratUnitDlg::setUnitProps( const Strat::UnitRef::Props& props ) 
 {
     unitnmfld_->setText( props.code_ );
-    //TODO: rename unit needs extra work to update all the paths to the subunits
-    //unitnmfld_->setSensitive(false);
     agestartfld_->setValue( props.timerg_.start );
     agestopfld_->setValue( props.timerg_.stop );
     colfld_->setColor( props.color_ );
     unitdescfld_->setText( props.desc_ );
     unitlithfld_->setText( props.lithnm_ );
     unitlithfld_->setSensitive( props.isleaf_ );
-    lvlnmfld_->setText( props.lvlname_ );
 }
 
 
@@ -109,7 +96,6 @@ void uiStratUnitDlg::getUnitProps( Strat::UnitRef::Props& props) const
     props.timerg_ = Interval<float> ( agestartfld_->getValue(), 
 				      agestopfld_->getValue() );
     props.color_ = colfld_->color();
-    props.lvlname_ = lvlnmfld_->text();
 }
 
 
@@ -126,9 +112,6 @@ bool uiStratUnitDlg::acceptOK( CallBacker* )
 	if ( uistratmgr_ && !uistratmgr_->isNewUnitName(unitnmfld_->text()) ) 
 	{ mErrRet( namemsg, return false ) }
     }
-
-    if ( !strcmp( lvlnmfld_->text(), "" ) )
-	{ mErrRet( "Please specify a name for the unit level", return false ) }
 
     return true;
 }
@@ -281,6 +264,44 @@ bool uiStratLithoDlg::acceptOK( CallBacker* )
     selChg( 0 );
     return true;
 }
+
+
+uiStratLevelDlg::uiStratLevelDlg( uiParent* p, uiStratMgr* uistratmgr )
+    : uiDialog(p,uiDialog::Setup("Create/Edit level",mNoDlgTitle,"110.0.2"))
+    , uistratmgr_( uistratmgr )
+{
+    lvlnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
+    lvlcolfld_ = new uiColorInput( this,
+    uiColorInput::Setup(getRandStdDrawColor() ).
+    lbltxt("Color") );
+    lvlcolfld_->attach( alignedBelow, lvlnmfld_ );
+}
+
+
+void uiStratLevelDlg::setLvlInfo( const char* lvlnm )
+{
+    Interval<float> lvltrg;
+    Color lvlcol;
+    if ( !lvlnm || !*lvlnm || !uistratmgr_->getLvlPars(lvlnm,lvlcol) )
+    return;
+
+    lvlnmfld_->setText( lvlnm );
+    lvlcolfld_->setColor( lvlcol );
+    oldlvlnm_ = lvlnm;
+}
+
+
+bool uiStratLevelDlg::acceptOK( CallBacker* )
+{
+    BufferString newlvlnm = lvlnmfld_->text();
+    Color newlvlcol = lvlcolfld_->color();
+    Interval<float> newlvlrg;
+
+    uistratmgr_->setLvlPars( oldlvlnm_, newlvlnm, newlvlcol );
+    return true;
+}
+
+
 
 
 
@@ -438,5 +459,33 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	{ mErrRet( "No valid times specified", deepErase(pps); return false; ) }
 
     deepErase( pps );
+    return true;
+}
+
+
+
+uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, int unid,
+	                                              uiStratMgr& uistratmgr )
+    : uiDialog(p,uiDialog::Setup("Link markers and stratigraphic unit boundary",
+		mNoDlgTitle,"110.0.3"))
+    , lvlid_(-1)				       
+{
+    BufferStringSet lvlnms;
+    lvlnms.add( sNoLevelTxt );
+    TypeSet<Color> colors;
+    uistratmgr.getLvlsProps( lvlnms, colors, &ids_ );
+    lvlid_ = uistratmgr.getUnitLvlID( unid );
+
+    BufferString bs = "Select marker";
+    lvllistfld_ = new uiGenInput( this, bs, StringListInpSpec( lvlnms ) );
+    if ( lvlid_ >=0 )
+	lvllistfld_->setValue( ids_.indexOf( lvlid_ ) +1 );
+}
+
+
+bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
+{
+    const int lvlidx = lvllistfld_->getIntValue()-1;
+    lvlid_ = lvlidx >=0 ? ids_[lvlidx] : -1;
     return true;
 }

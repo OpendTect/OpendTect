@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.40 2010-07-07 11:18:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.41 2010-07-14 10:05:13 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -217,12 +217,9 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
     const UnitRef* unitref = uistratmgr_->getCurTree()->find( uncode );
     if ( !unitref ) 
     { uiMSG().error( "Can not find unit" ); return; }
-    if ( !unitref->isLeaf() ) 
-    { uiMSG().error( "Only children units can be subdivised" ); return; }
     uiListViewItem* parit = lvit->parent();
-    if ( !parit )
-    { uiMSG().error( "The top unit can not be subdivided" ); return; }
-    lv_->setCurrentItem( parit );
+    if ( parit )
+	lv_->setCurrentItem( parit );
 
     uiStratUnitDivideDlg dlg( lv_->parent(), *uistratmgr_, unitref->props() );
     if ( dlg.go() )
@@ -235,8 +232,6 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 	for ( int idx=0; idx<pps.size(); idx++ )
 	{
 	    BufferString lvlnm( pps[idx]->code_ );
-	    lvlnm += " Level";
-	    pps[idx]->lvlname_ = lvlnm.buf();
 	    if ( idx == 0 )
 		uistratmgr_->updateUnitProps( unitref->getID(), *pps[idx] );
 	    else
@@ -464,7 +459,24 @@ bool uiStratRefTree::canMoveUnit( bool up )
 }
 
 
-void uiStratRefTree::doSetUnconformities( CallBacker* cb )
+void uiStratRefTree::setUnitLvl( int unid ) 
+{
+    const UnitRef* unitref = uistratmgr_->getCurTree()->getByID( unid );
+    if ( !unitref ) 
+	return;
+
+    uiStratLinkLvlUnitDlg dlg( lv_->parent(), unid, *uistratmgr_ );
+    if ( dlg.go() )
+    {
+	UnitRef::Props pp;
+	pp = unitref->props();
+	pp.lvlid_ = dlg.lvlid_;
+	uistratmgr_->updateUnitProps( unid, pp );
+    }
+}
+
+
+void uiStratRefTree::doSetUnconformities( CallBacker* ) 
 {
     setUnconformities( *((NodeUnitRef*)tree_), true, 0 );
 }
@@ -475,9 +487,12 @@ void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node,
 {
     if ( root )
     {
-	mDynamicCastGet(const Strat::NodeUnitRef*,un,&node.ref(0))
-	if ( un )
-	    setUnconformities( *un, false, 0 );
+	for ( int idx=0; idx<node.nrRefs(); idx++ )
+	{
+	    mDynamicCastGet(const Strat::NodeUnitRef*,un,&node.ref(0))
+	    if ( un )
+		setUnconformities( *un, false, 0 );
+	}
 	return;
     }
 
@@ -491,9 +506,6 @@ void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node,
     if ( lit ) listView()->setCurrentItem(lit);\
     props.isunconf_ = true;\
     props.code_ = unconfcode;\
-    BufferString lvlnm( unconfcode );\
-    lvlnm += "Level";\
-    props.lvlname_ = lvlnm.buf();\
     props.timerg_ = timerg;\
     doInsertSubUnit( lit, props );\
     for ( int idref=0; idref<pos; idref++ )\

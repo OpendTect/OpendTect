@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.7 2010-07-05 16:08:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.8 2010-07-14 10:05:13 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratmgr.h"
@@ -61,7 +61,7 @@ void uiStratAnnotGather::readFromTree()
 void uiStratAnnotGather::addUnits( const Strat::NodeUnitRef& nur, int order ) 
 {
     if ( order == 0 )
-    { addUnit( nur, 0 ); order++; }
+	order++;
 
     for ( int iref=0; iref<nur.nrRefs(); iref++ )
     {
@@ -95,11 +95,19 @@ void uiStratAnnotGather::addUnit( const Strat::UnitRef& uref, int order )
 						 timerg.stop );
     unit->col_ = uref.props().color_;
     unit->colidx_ = order;
-    unit->annots_.add( BufferString( uref.props().lvlname_) );
-    unit->annots_.add( toString( unit->col_.rgb() ) );
+    BufferString nm;
+    Color col;
+    const int lvlid = uref.props().lvlid_;
+    if ( lvlid >= 0 )
+	uistratmgr_.getLvlPropsByID( lvlid, nm, col );
+    else 
+	col = Color::Black();
+    unit->annots_.add( nm );
+    unit->annots_.add( toString( col.rgb() ) );
     unit->annots_.add( uref.description() );
     mDynamicCastGet(const Strat::LeafUnitRef*,un,&uref)
     unit->annots_.add( un ? uistratmgr_.getLithName( *un ) : "" );
+    unit->id_ = uref.getID();
     if ( order >= data_.nrCols() ) return;
     data_.getCol(order)->units_ += unit;
 }
@@ -113,13 +121,20 @@ uiStratTreeWriter::uiStratTreeWriter( uiStratRefTree& tree )
 
 #define mGetLItem(t) uiListViewItem* lit = uitree_.listView()->findItem(t,0,false); if ( lit ) { uitree_.listView()->setCurrentItem(lit); } else return;
 
-void uiStratTreeWriter::handleUnit( const char* txt )
+void uiStratTreeWriter::handleUnitMenu( const char* txt )
 {
     if ( txt )
     {
 	mGetLItem( txt )
 	uitree_.handleMenu( lit );
     }
+}
+
+
+void uiStratTreeWriter::handleLvlMenu( int unid )
+{
+    if ( unid >=0 )
+	uitree_.setUnitLvl( unid );
 }
 
 

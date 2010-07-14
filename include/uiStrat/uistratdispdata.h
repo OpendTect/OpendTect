@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.5 2010-07-05 16:08:07 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.6 2010-07-14 10:05:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,15 +36,16 @@ public:
 			    : zpos_(pos)
 			    , name_(nm)
 			    , colidx_(0)       
-			    , isnmabove_(false)	
+			    , isdotted_(false)	
 			    {}
 
 	float 		zpos_;
 	Color 		col_;
 	BufferString	name_;
+	int		id_;
 	Color 		nmcol_;
 	int 		colidx_;	
-	bool		isnmabove_;
+	bool		isdotted_;
     };
 
     mStruct Unit : public Marker
@@ -125,7 +126,8 @@ public:
 	                        ~uiStratTreeWriter(){};
 
     uiListViewItem*		getItemFromTree(const char*);
-    void			handleUnit(const char*);
+    void			handleUnitMenu(const char*);
+    void			handleLvlMenu(int);
     void 			fillUndef(CallBacker*);
 
 protected:

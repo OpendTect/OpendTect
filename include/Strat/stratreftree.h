@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.15 2010-07-07 16:17:26 cvsbruno Exp $
+ RCS:		$Id: stratreftree.h,v 1.16 2010-07-14 10:05:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "stratunitref.h"
+#include "stratlevel.h"
 #include "repos.h"
 
 namespace Strat
@@ -38,13 +39,14 @@ public:
     Repos::Source	source() const			{ return src_; }
     
 
-    Strat::UnitRef*     getFromID(int id) 		{ return fnd(id); }
-    const Strat::UnitRef* getFromID(int id) const 	{ return fnd(id); } 
+    Strat::UnitRef*     getByID(int id) 		{ return fnd(id); }
+    const Strat::UnitRef* getByID(int id) const 	{ return fnd(id); } 
+     
+    const LevelSet&     levels() const          	{ return lvls_; }
+    LevelSet&           levels()                	{ return lvls_; }
 
     int			getID(const char* code) const;
     void		getUnitIDs(TypeSet<int>&) const;
-    const char*		getUnitLvlName(int unid) const;
-    Color		getUnitColor(int unid) const;
     
     void		gatherLeavesByTime(const NodeUnitRef&,
 	    					ObjectSet<UnitRef>&) const;
@@ -67,12 +69,12 @@ public:
 
 protected:
 
-    int			getFreeLevelID() const;
     void		constrainUnits(Strat::UnitRef&) const;
     void		constrainUnitTimes(Strat::NodeUnitRef&) const;
-    void		constrainUnitLvlNames(Strat::UnitRef&) const;
+    void		constrainUnitLvls(Strat::UnitRef&) const;
     
     Strat::UnitRef*     fnd(int id) const;
+    LevelSet            lvls_;
 
     Repos::Source	src_;
     BufferString	treename_;
