@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.15 2010-07-01 22:54:37 cvskris Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.16 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -206,7 +206,7 @@ bool PosInfo::Detector::add( const PosInfo::CrdBidOffs& cbo )
     if ( !sortanal_->add(cbo.binid_) )
 	return true;
 
-    if ( setup_.reqsorting_ && *sortanal_->errMsg() )
+    if ( setup_.reqsorting_ && sortanal_->errMsg() )
     {
 	errmsg_ = sortanal_->errMsg();
 	return false;

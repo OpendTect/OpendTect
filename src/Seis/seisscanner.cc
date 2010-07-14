@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.43 2010-02-22 11:06:21 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.44 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -55,7 +55,7 @@ SeisScanner::~SeisScanner()
 
 const char* SeisScanner::message() const
 {
-    return *rdr_.errMsg() ? rdr_.errMsg() : curmsg_.buf();
+    return rdr_.errMsg() ? rdr_.errMsg() : curmsg_.buf();
 }
 
 
@@ -213,7 +213,7 @@ void SeisScanner::launchBrowser( const IOPar& startpar, const char* fnm ) const
 
 int SeisScanner::nextStep()
 {
-    if ( *rdr_.errMsg() )
+    if ( rdr_.errMsg() )
 	return Executor::ErrorOccurred();
 
     int res = rdr_.get( trc_.info() );

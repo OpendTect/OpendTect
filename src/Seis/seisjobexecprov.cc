@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.39 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.40 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -301,7 +301,7 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 	if ( isok )
 	{
 	    CBVSReader rdr( sd.istrm, false ); // stream closed by reader
-	    isok = !rdr.errMsg() || !*rdr.errMsg();
+	    isok = !rdr.errMsg();
 	    if ( isok )
 		isok = rdr.info().geom.start.crl || rdr.info().geom.start.crl;
 	}

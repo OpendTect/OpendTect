@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.23 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.24 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "sectiontracker.h"
 
@@ -285,7 +285,7 @@ mGet( SectionExtender, extender, extender_ )
 mGet( SectionAdjuster, adjuster, adjuster_ )
 
 const char* SectionTracker::errMsg() const
-{ return errmsg[0] ? (const char*) errmsg : 0; }
+{ return errmsg.str(); }
 
 
 CubeSampling SectionTracker::getAttribCube( const Attrib::SelSpec& spec ) const

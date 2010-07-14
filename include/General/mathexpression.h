@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.17 2010-07-12 22:41:54 cvskris Exp $
+ RCS:           $Id: mathexpression.h,v 1.18 2010-07-14 16:54:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ public:
     static MathExpression::VarType varTypeOf(const char*);
     static int			constIdxOf(const char*);
 
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    const char*			errMsg() const	{ return errmsg_.str(); }
 
 protected:
 

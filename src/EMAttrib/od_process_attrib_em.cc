@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.68 2010-04-23 15:33:30 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.69 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -235,9 +235,9 @@ static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc,
 		writer = new SeisTrcWriter( ioseisout );
 		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
 		{ 
-		    BufferString err = strlen( writer->errMsg() ) ? 
-						    writer->errMsg() : 
-						    "ERROR: no trace computed";
+		    BufferString err = writer->errMsg()
+			?  writer->errMsg()
+			: "ERROR: no trace computed";
 		    mErrRet( err );
 		}
 	    }

@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seismerge.cc,v 1.7 2010-02-22 16:10:26 cvsbert Exp $";
+static const char* rcsID = "$Id: seismerge.cc,v 1.8 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "seismerge.h"
 #include "seisread.h"
@@ -57,7 +57,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 
     wrr_ = new SeisTrcWriter( 0 );
     wrr_->usePar( outiop );
-    if ( wrr_->errMsg() && *wrr_->errMsg() )
+    if ( wrr_->errMsg() )
     {
 	errmsg_ = wrr_->errMsg();
 	deepErase( rdrs_ );
@@ -106,7 +106,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
 
     wrr_ = new SeisTrcWriter( 0 );
     wrr_->usePar( *outiop );
-    if ( wrr_->errMsg() && *wrr_->errMsg() )
+    if ( wrr_->errMsg() )
     {
 	errmsg_ = wrr_->errMsg();
 	deepErase( rdrs_ );

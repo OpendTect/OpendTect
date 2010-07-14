@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.15 2010-06-21 05:59:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.16 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "prestackeventio.h"
 
@@ -244,7 +244,7 @@ void EventReader::setSelection( const HorSampling* hs )
 
 
 const char* EventReader::errMsg() const
-{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+{ return errmsg_.str(); }
 
 
 int EventReader::nextStep()
@@ -686,7 +686,7 @@ int EventWriter::nextStep()
 
 
 const char* EventWriter::errMsg() const
-{ return errmsg_[0] ? errmsg_.buf() : 0; }
+{ return errmsg_.str(); }
 
 
 bool EventWriter::writeAuxData( const char* fnm )
@@ -1174,7 +1174,7 @@ void EventPatchReader::getPositions( BinIDValueSet& bidset ) const
 
 
 const char* EventPatchReader::errMsg() const
-{ return errmsg_[0] ? errmsg_.buf() : 0; }
+{ return errmsg_.str(); }
 
 
 int EventPatchReader::nextStep()
@@ -1399,7 +1399,7 @@ void EventPatchWriter::setSelection( const HorSampling& hrg )
 
 const char* EventPatchWriter::errMsg() const
 {
-    return errmsg_.size() ? errmsg_.buf() : 0;
+    return errmsg_.str();
 }
 
 #define mSetDc( type, string ) \

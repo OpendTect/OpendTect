@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.102 2010-06-09 13:01:26 cvshelene Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.103 2010-07-14 16:54:12 cvskris Exp $";
 
 #include "attribengman.h"
 
@@ -380,7 +380,8 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
     DescSet* descset = addtoset ? new DescSet( *addtoset ) 
 				: new DescSet( attrspecs_[0].is2D() );
 
-    if ( !addtoset && !descset->usePar(nlamodel_->pars(),nlamodel_->versionNr()) )
+    if ( !addtoset &&
+	 !descset->usePar(nlamodel_->pars(),nlamodel_->versionNr()) )
     {
 	errmsg = descset->errMsg();
 	delete descset;

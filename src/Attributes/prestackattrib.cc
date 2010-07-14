@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.19 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.20 2010-07-14 16:54:12 cvskris Exp $";
 
 #include "prestackattrib.h"
 
@@ -211,7 +211,7 @@ void PSAttrib::prepPriorToBoundsCalc()
     if ( !psrdr_ )
 	mErrRet("Cannot create reader for ",psid_," pre-stack data store")
     const char* emsg = psrdr_->errMsg();
-    if ( emsg && *emsg ) mErrRet("PS Reader: ",emsg,"");
+    if ( emsg ) mErrRet("PS Reader: ",emsg,"");
 
     mTryAlloc( propcalc_, ::PreStack::PropCalc( setup_ ) );
 }

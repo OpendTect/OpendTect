@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionextender.cc,v 1.14 2009-10-29 08:49:38 cvsumesh Exp $";
+static const char* rcsID = "$Id: sectionextender.cc,v 1.15 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "sectionextender.h"
 #include "mpeengine.h"
@@ -85,7 +85,7 @@ void SectionExtender::extendInVolume(const BinID& bidstep, float zstep)
 }
 
 
-const char* SectionExtender::errMsg() const { return errmsg[0] ? errmsg : 0; }
+const char* SectionExtender::errMsg() const { return errmsg.str(); }
 
 
 const TypeSet<EM::SubID>& SectionExtender::getAddedPositions() const

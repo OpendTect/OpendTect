@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seismulticubeps.cc,v 1.7 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seismulticubeps.cc,v 1.8 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "seismulticubeps.h"
 #include "seispsioprov.h"
@@ -95,7 +95,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 	SeisTrcReader* rdr = new SeisTrcReader( ioobj );
 	if ( !rdr->ioObj() || !rdr->prepareWork() )
 	{
-	    if ( rdr->errMsg() && *rdr->errMsg() )
+	    if ( rdr->errMsg() )
 		errmsg_ = rdr->errMsg();
 	    else
 	    {

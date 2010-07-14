@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.136 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.137 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -302,7 +302,7 @@ void uiSeisMMProc::startWork( CallBacker* )
     }
 
     jobprov = new SeisJobExecProv( progname, iop );
-    if ( jobprov->errMsg() && *jobprov->errMsg() )
+    if ( jobprov->errMsg() )
 	mErrRet(jobprov->errMsg())
 
     int nr_inl_job = 1;
@@ -377,7 +377,7 @@ void uiSeisMMProc::mkJobRunner( int nr_inl_job )
     if ( jobrunner ) delete jobrunner;
 
     jobrunner = jobprov->getRunner( nr_inl_job );
-    if ( jobprov->errMsg() && *jobprov->errMsg() )
+    if ( jobprov->errMsg() )
     {
 	delete jobrunner; jobrunner = 0;
 	mErrRet(jobprov->errMsg())

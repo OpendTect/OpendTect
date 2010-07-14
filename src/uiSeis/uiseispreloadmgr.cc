@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.20 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.21 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -250,7 +250,7 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     if ( !spl.loadVol() )
     {
 	const char* emsg = spl.errMsg();
-	if ( emsg && *emsg )
+	if ( emsg )
 	    uiMSG().error( emsg );
     }
 
@@ -355,7 +355,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     if ( !spl.loadLines(dlg.lnms_,dlg.attrnms_) )
     {
 	const char* emsg = spl.errMsg();
-	if ( emsg && *emsg )
+	if ( emsg )
 	    uiMSG().error( emsg );
     }
 
@@ -381,7 +381,7 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
     if ( !spl.loadPS3D(&inlrg) )
     {
 	const char* emsg = spl.errMsg();
-	if ( emsg && *emsg )
+	if ( emsg )
 	    uiMSG().error( emsg );
     }
 
@@ -455,7 +455,7 @@ void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
     if ( !spl.loadPS2D(dlg.lnms_) )
     {
 	const char* emsg = spl.errMsg();
-	if ( emsg && *emsg )
+	if ( emsg )
 	    uiMSG().error( emsg );
     }
 

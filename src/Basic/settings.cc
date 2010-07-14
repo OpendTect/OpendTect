@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.42 2010-06-08 06:07:27 cvsdgb Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.43 2010-07-14 16:54:12 cvskris Exp $";
 
 #include "settings.h"
 
@@ -183,7 +183,7 @@ bool Settings::write( bool do_merge ) const
     if ( !sfio.open(false) )
     {
 	BufferString msg( "Cannot open user settings file for write" );
-	if ( *sfio.errMsg() )
+	if ( sfio.errMsg() )
 	{ msg += "\n\t"; msg += sfio.errMsg(); }
 	    ErrMsg( msg );
 	return false;

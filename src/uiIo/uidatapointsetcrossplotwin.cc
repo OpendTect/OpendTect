@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.25 2010-07-01 11:38:35 cvsnageswara Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.26 2010-07-14 16:54:13 cvskris Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.25 2010-07-01 11:38:35 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.26 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -564,7 +564,7 @@ void parsePush( CallBacker* )
     mathobj_ = mep.parse();
     if ( !mathobj_ )
     {
-	if ( *mep.errMsg() ) uiMSG().error( mep.errMsg() );
+	if ( mep.errMsg() ) uiMSG().error( mep.errMsg() );
 	dcolids_.erase();
 	vartable_->display( false );
 	return;

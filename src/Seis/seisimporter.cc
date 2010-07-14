@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.24 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.25 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -267,7 +267,7 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	    sorting_ = new BinIDSorting( sortanal_->getSorting() );
 	    delete sortanal_; sortanal_ = 0;
 	}
-	else if ( *sortanal_->errMsg() )
+	else if ( sortanal_->errMsg() )
 	{
 	    errmsg_ = sortanal_->errMsg();
 	    rv = false;
@@ -299,7 +299,7 @@ SeisInlCrlSwapper( const char* inpfnm, IOObj* out, int nrtrcs )
     trcnr_ = geom_->start.inl - geom_->step.inl;
 
     wrr_ = new SeisTrcWriter( out_ );
-    if ( *wrr_->errMsg() )
+    if ( wrr_->errMsg() )
 	{ errmsg_ = wrr_->errMsg(); return; }
 
     nrdone_++;

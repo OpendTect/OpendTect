@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.35 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.36 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -219,7 +219,7 @@ const char* CBVSWriteMgr::errMsg_() const
     for ( int idx=0; idx<writers_.size(); idx++ )
     {
 	const char* s = writers_[idx]->errMsg();
-	if ( s && *s ) return s;
+	if ( s ) return s;
     }
     return 0;
 }

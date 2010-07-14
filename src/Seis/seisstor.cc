@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.45 2010-07-12 22:39:42 cvskris Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.46 2010-07-14 16:54:13 cvskris Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
@@ -260,7 +260,7 @@ bool Seis::ODSeqInp::usePar( const IOPar& iop )
     {
 	rdr_ = new SeisTrcReader;
 	rdr_->usePar( iop );
-	if ( rdr_->errMsg() && *rdr_->errMsg() )
+	if ( rdr_->errMsg() )
 	{
 	    errmsg_ = rdr_->errMsg();
 	    delete rdr_; rdr_ = 0;
@@ -379,7 +379,7 @@ bool Seis::ODSeqOut::usePar( const IOPar& iop )
     if ( wrr_ ) delete wrr_;
     IOObj* i = 0; wrr_ = new SeisTrcWriter( i );
     wrr_->usePar( iop );
-    if ( wrr_->errMsg() && *wrr_->errMsg() )
+    if ( wrr_->errMsg() )
     {
 	errmsg_ = wrr_->errMsg();
 	delete wrr_; wrr_ = 0;
