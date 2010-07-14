@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.35 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.36 2010-07-14 13:58:28 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
+#include "binidvalset.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "strmprov.h"
@@ -26,6 +27,7 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.35 2010-06-18 12:23:27 cvskr
 
 #include "welldata.h"
 #include "welld2tmodel.h"
+#include "wellhorpos.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -201,25 +203,19 @@ bool DataHolder::setUpHorizons( const TypeSet<MultiID>& horids,
 	    }
 	}
 	mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
-	RowCol rc = binID();
-	mDynamicCastGet(EM::Horizon2D*,hor2d,emobj.ptr())
-	if ( hor2d ) 
-	{
-	    hor = hor2d;
-	    const int lineidx = hor2d->geometry().lineIndex( 
-		    				setup_.linekey_.lineName() );
-	    const int lineID = lineidx==-1 ? mUdf(int)
-					   : hor2d->geometry().lineID(lineidx);
-	    if ( lineidx < 0 ) 
-		continue; 
-	    rc = BinID( lineID, binID().crl );
-	}
 	if ( !hor ) continue;
-
-	const EM::PosID posid(hor->id(), hor->sectionID(0), rc.toInt64());
-	float zval = hor->getPos( posid ).z*1000;
-	hordatas_ += new HorData( zval,  hor->preferredColor() );
-	hordatas_[hordatas_.size()-1]->name_ = hor->name();
+	WellHorPos whpos( wd()->track(), *hor );
+	BinIDValueSet bivset(2,false);
+	whpos.intersectWellHor( bivset );
+	if ( bivset.nrVals() )
+	{
+	    BinIDValueSet::Pos pos = bivset.getPos( 0 );
+	    float zval; BinID bid;
+	    bivset.get( pos, bid, zval );
+	    zval *= 1000;
+	    hordatas_ += new HorData( zval, hor->preferredColor() );
+	    hordatas_[hordatas_.size()-1]->name_ = hor->name();
+	}
     }
     return true;
 }
