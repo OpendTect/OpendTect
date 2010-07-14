@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.116 2010-06-21 13:03:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.117 2010-07-14 10:02:50 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -191,8 +191,8 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
     if ( !dp ) return uiWorldRect(0,0,1,1);
 
     const FlatPosData& pd = dp->posData();
-    StepInterval<double> rg0( pd.range(true) ); rg0.sort( true );
-    StepInterval<double> rg1( pd.range(false) ); rg1.sort( true );
+    StepInterval<double> rg0( pd.range(true) ); 
+    StepInterval<double> rg1( pd.range(false) );
     if ( useseldataranges_ ) 
     { 
 	if ( rg0.overlaps( xseldatarange_ ) && rg1.overlaps( yseldatarange_ ) )
@@ -201,6 +201,8 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 	    rg1.start = yseldatarange_.start; rg1.stop = yseldatarange_.stop;
 	}
     }
+    rg0.sort( true ); 
+    rg1.sort( true );
 
     rg0.start -= dim0extfac_ * rg0.step; rg0.stop += dim0extfac_ * rg0.step;
     if ( !wva )
