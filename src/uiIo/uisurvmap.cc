@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.30 2009-11-02 07:58:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.31 2010-07-14 06:11:05 cvsraman Exp $";
 
 #include "uisurvmap.h"
 
-#include "uigraphicsitem.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
@@ -24,36 +23,223 @@ static const char* rcsID = "$Id: uisurvmap.cc,v 1.30 2009-11-02 07:58:47 cvsnann
 #include "angles.h"
 
 
-uiSurveyMap::uiSurveyMap( uiParent* parent )
-    : uiGraphicsView( parent, "Survey map view" )
+uiSurveyBoxObject::uiSurveyBoxObject( bool withlabel )
+    : uiBaseMapObject("Survey Box")
+    , survinfo_(0)
 {
-    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
-    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
+    for ( int idx=0; idx<4; idx++ )
+    {
+        uiMarkerItem* markeritem = new uiMarkerItem( MarkerStyle2D::Square );
+	markeritem->setZValue( 1 );
+	itemgrp_->add( markeritem );
+	vertices_ += markeritem;
+    }
+
+    Color red( 255, 0, 0, 0);
+    LineStyle ls( LineStyle::Solid, 3, red );
+    for ( int idx=0; idx<4; idx++ )
+    {
+	uiLineItem* lineitem = new uiLineItem();
+	lineitem->setPenColor( red );
+	lineitem->setPenStyle( ls );
+	itemgrp_->add( lineitem );
+	edges_ += lineitem;
+    }
+
+    if ( !withlabel )
+	return;
+
+    const mDeclAlignment( postxtalign, HCenter, VCenter );
+    for ( int idx=0; idx<4; idx++ )
+    {
+        uiTextItem* textitem = new uiTextItem();
+	textitem->setTextColor( Color::Black() );
+	textitem->setAlignment( postxtalign );
+	textitem->setFont(
+		FontList().get(FontData::key(FontData::GraphicsSmall)) );
+	textitem->setZValue( 1 );
+	itemgrp_->add( textitem );
+	labels_ += textitem;
+    }
 }
 
 
-void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
+void uiSurveyBoxObject::setSurveyInfo( const SurveyInfo& si )
 {
-    scene().removeAllItems();
+    survinfo_ = &si;
+}
 
-    if ( survinfo->sampling(false).hrg.totalNr() < 2 )
-    	return;
 
-    drawAngleN( survinfo->computeAngleXInl() );
+void uiSurveyBoxObject::updateGeometry()
+{
+    if ( !survinfo_ || !transform_ )
+	return;
 
+    const CubeSampling& cs = survinfo_->sampling( false );
+    Coord mapcnr[4];
+    mapcnr[0] = survinfo_->transform( cs.hrg.start );
+    mapcnr[1] = survinfo_->transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
+    mapcnr[2] = survinfo_->transform( cs.hrg.stop );
+    mapcnr[3] = survinfo_->transform( BinID(cs.hrg.stop.inl,cs.hrg.start.crl) );
+
+    uiPoint cpt[4];
+    for ( int idx=0; idx<vertices_.size(); idx++ )
+    {
+        cpt[idx] = transform_->transform( uiWorldPoint(mapcnr[idx].x,
+		    				      mapcnr[idx].y) );
+	vertices_[idx]->setPos( cpt[idx] );
+    }
+
+    for ( int idx=0; idx<edges_.size(); idx++ )
+	edges_[idx]->setLine( cpt[idx], idx!=3 ? cpt[idx+1] : cpt[0], true );
+
+    for ( int idx=0; idx<labels_.size(); idx++ )
+    {
+	const int oppidx = idx < 2 ? idx + 2 : idx - 2;
+	const bool bot = cpt[idx].y > cpt[oppidx].y;
+        BinID bid = survinfo_->transform( mapcnr[idx] );
+        const int spacing =  bot ? 10 : -10;
+	BufferString annot;
+        annot += bid.inl; annot += "/"; annot += bid.crl;
+	uiPoint txtpos( cpt[idx].x, cpt[idx].y+spacing );
+	labels_[idx]->setPos( txtpos );
+	labels_[idx]->setText( annot.buf() );
+    }
+}
+
+
+uiNorthArrowObject::uiNorthArrowObject( bool withangle )
+    : uiBaseMapObject("North Arrow")
+    , survinfo_(0)
+    , angleline_(0),anglelabel_(0)
+{   
+    ArrowStyle arrowstyle( 3, ArrowStyle::HeadOnly );
+    arrowstyle.linestyle_.width_ = 3;
+    arrow_ = new uiArrowItem;
+    arrow_->setArrowStyle( arrowstyle );
+    itemgrp_->add( arrow_ );
+
+    if ( !withangle )
+	return;
+
+    angleline_ = new uiLineItem;
+    angleline_->setPenStyle( LineStyle(LineStyle::Dot,2,Color(255,0,0)) );
+    itemgrp_->add( angleline_ );
+
+    mDeclAlignment( txtalign, Right, Bottom );
+    anglelabel_ = new uiTextItem();
+    anglelabel_->setAlignment( txtalign );
+    itemgrp_->add( anglelabel_ );
+}
+
+
+void uiNorthArrowObject::setSurveyInfo( const SurveyInfo& si )
+{
+    survinfo_ = &si;
+}
+
+
+void uiNorthArrowObject::updateGeometry()
+{
+    if ( !survinfo_ || !transform_ )
+	return;
+
+    static const float halfpi = M_PI * .5;
+    static const float quartpi = M_PI * .25;
+
+    float mathang = survinfo_->computeAngleXInl();
+
+	    // To [0,pi]
+    if ( mathang < 0 )			mathang += M_PI;
+    if ( mathang > M_PI )		mathang -= M_PI;
+	    // Find angle closest to N, not necessarily X vs inline
+    if ( mathang < quartpi )		mathang += halfpi;
+    if ( mathang > halfpi+quartpi )	mathang -= halfpi;
+
+    float usrang = Angle::rad2usrdeg( mathang );
+    if ( usrang > 180 ) usrang = 360 - usrang;
+
+    const bool northisleft = mathang < halfpi;
+    const int arrowlen = 30;
+    const int sideoffs = 10;
+    const int yarrowtop = 20;
+
+    float dx = arrowlen * tan( halfpi-mathang );
+    const int dxpix = mNINT( dx );
+    float worldxmin, worldxmax;
+    transform_->getWorldXRange( worldxmin, worldxmax );
+    const int xmax = transform_->toUiX( worldxmax );
+    const int lastx = xmax - 1 - sideoffs;
+    const uiPoint origin( lastx - (northisleft?dxpix:0), arrowlen + yarrowtop );
+    const uiPoint arrowtop( origin.x, yarrowtop );
+
+    arrow_->setTailHeadPos( origin, arrowtop );
+    if ( !angleline_ )
+	return;
+
+    angleline_->setLine( origin, uiPoint(origin.x+dxpix,yarrowtop), true );
+    float usrang100 = usrang * 100;
+    if ( usrang100 < 0 ) usrang100 = -usrang100;
+    int iusrang = (int)(usrang100 + .5);
+    BufferString angtxt;
+    if ( iusrang )
+    {
+	angtxt += iusrang / 100;
+	iusrang = iusrang % 100;
+	if ( iusrang )
+	{
+	    angtxt += ".";
+	    angtxt += iusrang / 10; iusrang = iusrang % 10;
+	    if ( iusrang )
+		angtxt += iusrang;
+	}
+    }
+	
+    anglelabel_->setPos( lastx, yarrowtop );
+    anglelabel_->setText( angtxt );
+}
+
+
+uiSurveyMap::uiSurveyMap( uiParent* parent )
+    : uiBaseMap(parent)
+    , survbox_(0),northarrow_(0)
+    , survinfo_(0)
+{
+    view_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
+    view_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     const mDeclAlignment( txtalign, Left, Top );
 
-    uiTextItem* textitem = scene().addItem(
-	    new uiTextItem(uiPoint(10,10),survinfo->name(),txtalign) );
-    textitem->setPenColor( Color::Black() );
-    textitem->setFont( FontList().get(FontData::key(FontData::GraphicsLarge)));
+    title_ = view_.scene().addItem( new uiTextItem(uiPoint(10,10),"Survey name",
+						   txtalign) );
+    title_->setPenColor( Color::Black() );
+    title_->setFont( FontList().get(FontData::key(FontData::GraphicsLarge)));
+}
 
-    const CubeSampling& cs = survinfo->sampling( false );
+
+void uiSurveyMap::drawMap( const SurveyInfo* si )
+{
+    if ( !survbox_ )
+    {
+	survbox_ = new uiSurveyBoxObject( true );
+	addObject( survbox_ );
+	northarrow_ = new uiNorthArrowObject( true );
+	addObject( northarrow_ );
+    }
+
+    if ( !si )
+	return;
+
+    if ( si != survinfo_ )
+	survinfo_ = si;
+
+    view_.setViewArea( 0, 0, view_.scene().width(), view_.scene().height() );
+
+    const CubeSampling& cs = si->sampling( false );
     Coord mapcnr[4];
-    mapcnr[0] = survinfo->transform( cs.hrg.start );
-    mapcnr[1] = survinfo->transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
-    mapcnr[2] = survinfo->transform( cs.hrg.stop );
-    mapcnr[3] = survinfo->transform( BinID(cs.hrg.stop.inl,cs.hrg.start.crl) );
+    mapcnr[0] = si->transform( cs.hrg.start );
+    mapcnr[1] = si->transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
+    mapcnr[2] = si->transform( cs.hrg.stop );
+    mapcnr[3] = si->transform( BinID(cs.hrg.stop.inl,cs.hrg.start.crl) );
 
     Coord mincoord = mapcnr[0];
     Coord maxcoord = mapcnr[2];
@@ -75,114 +261,21 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     maxcoord = center + hipart;
 
     uiWorldRect wr( mincoord.x, maxcoord.y, maxcoord.x, mincoord.y );
-    uiSize sz( width(), height() );
-    uiWorld2Ui w2ui( sz, wr );
-    uiPoint cpt[4];
-    for ( int idx=0; idx<4; idx++ )
-    {
-        cpt[idx] = w2ui.transform( uiWorldPoint(mapcnr[idx].x, mapcnr[idx].y) );
-        uiMarkerItem* markeritem = scene().addItem(
-	    new uiMarkerItem(cpt[idx],MarkerStyle2D::Square) );
-	markeritem->setZValue( 1 );
-    }
-
-    Color red( 255, 0, 0, 0);
-    LineStyle ls( LineStyle::Solid, 3, red );
-    for ( int idx=0; idx<4; idx++ )
-    {
-	uiLineItem* lineitm =
-	    new uiLineItem( cpt[idx], idx!=3 ? cpt[idx+1] : cpt[0], true );
-	scene().addItem( lineitm );
-	lineitm->setPenStyle( ls );
-    }
-
-    const mDeclAlignment( postxtalign, HCenter, VCenter );
-    bool printxy = false;
-    for ( int idx=0; idx<4; idx++ )
-    {
-	const bool bot = cpt[idx].y > height()/2;
-        BinID bid = survinfo->transform( mapcnr[idx] );
-        const int spacing =  bot ? 10 : -10;
-	BufferString annot;
-        annot += bid.inl; annot += "/"; annot += bid.crl;
-	uiPoint txtpos( cpt[idx].x, cpt[idx].y+spacing );
-        uiTextItem* textitm1 = scene().addItem(
-		new uiTextItem(txtpos,annot.buf(),postxtalign) );
-	textitm1->setPenColor( Color::Black() );
-	textitm1->setFont(
-		FontList().get(FontData::key(FontData::GraphicsSmall)) );
-	textitm1->setZValue( 1 );
-
-	if ( printxy )
-	{
-	    double xcoord = double( int( mapcnr[idx].x*10 + .5 ) ) / 10;
-	    double ycoord = double( int( mapcnr[idx].y*10 + .5 ) ) / 10;
-	    annot = "("; annot += xcoord; annot += ",";
-	    annot += ycoord; annot += ")";
-	    uiPoint txtpos( cpt[idx].x, mNINT(cpt[idx].y+1.5*spacing) );
-	    uiTextItem* textitm2 = scene().addItem(
-		new uiTextItem(txtpos,annot.buf(),txtalign) );
-	    textitm2->setPenColor( Color::Black() );
-	    textitm2->setFont(
-		    FontList().get(FontData::key(FontData::GraphicsSmall)) );
-	}
-    }
-
-    setViewArea( 0, 0, scene().width(), scene().height() );
+    uiSize sz( view_.scene().width(), view_.scene().height() );
+    w2ui_.set( sz, wr );
+    title_->setText( si->name() );
+    survbox_->setSurveyInfo( *si );
+    survbox_->updateGeometry();
+    northarrow_->setSurveyInfo( *si );
+    northarrow_->updateGeometry();
 }
 
 
-void uiSurveyMap::drawAngleN( float mathang )
+void uiSurveyMap::reSizeCB( CallBacker* )
 {
-    static const float halfpi = M_PI * .5;
-    static const float quartpi = M_PI * .25;
+    if ( !survinfo_ )
+	return;
 
-	    // To [0,pi]
-    if ( mathang < 0 )			mathang += M_PI;
-    if ( mathang > M_PI )		mathang -= M_PI;
-	    // Find angle closest to N, not necessarily X vs inline
-    if ( mathang < quartpi )		mathang += halfpi;
-    if ( mathang > halfpi+quartpi )	mathang -= halfpi;
-
-    float usrang = Angle::rad2usrdeg( mathang );
-    if ( usrang > 180 ) usrang = 360 - usrang;
-    if ( mIsEqual(usrang,0,0.01) ) return;
-
-    const bool northisleft = mathang < halfpi;
-    const int arrowlen = 30;
-    const int sideoffs = 10;
-    const int yarrowtop = 20;
-
-    float dx = arrowlen * tan( halfpi-mathang );
-    const int dxpix = mNINT( dx );
-    const int lastx = width() - 1 - sideoffs;
-    const uiPoint origin( lastx - (northisleft?dxpix:0),
-	    		  arrowlen + yarrowtop );
-    const uiPoint arrowtop( origin.x, yarrowtop );
-
-    ArrowStyle arrowstyle( 3, ArrowStyle::HeadOnly );
-    arrowstyle.linestyle_.width_ = 3;
-    uiArrowItem* northarrow = new uiArrowItem( origin, arrowtop, arrowstyle );
-    scene().addItem( northarrow );
-
-    uiLineItem* li = new uiLineItem( origin, uiPoint(origin.x+dxpix,yarrowtop),
-	    			     true );
-    li->setPenStyle( LineStyle(LineStyle::Dot,2,Color(255,0,0)) );
-    scene().addItem( li );
-
-    float usrang100 = usrang * 100;
-    if ( usrang100 < 0 ) usrang100 = -usrang100;
-    int iusrang = (int)(usrang100 + .5);
-    BufferString angtxt; angtxt += iusrang / 100;
-    iusrang = iusrang % 100;
-    if ( iusrang )
-    {
-	angtxt += ".";
-	angtxt += iusrang / 10; iusrang = iusrang % 10;
-	if ( iusrang )
-	    angtxt += iusrang;
-    }
-    mDeclAlignment( txtalign, Right, Bottom );
-    uiTextItem* ti = scene().addItem(
-	    new uiTextItem(uiPoint(lastx,yarrowtop),angtxt,txtalign) );
+    drawMap( survinfo_ );
 }
+

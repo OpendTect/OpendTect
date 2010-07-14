@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.117 2010-06-09 06:25:27 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.118 2010-07-14 06:11:05 cvsraman Exp $";
 
 #include "uisurvey.h"
 
@@ -164,7 +164,6 @@ uiSurvey::uiSurvey( uiParent* p )
     survmap_->setStretch( 0, 0 );
     survmap_->setPrefWidth( mMapWidth );
     survmap_->setPrefHeight( mMapHeight );
-    survmap_->reSize.notify( mCB(this,uiSurvey,selChange) );
 
     uiGroup* leftgrp = new uiGroup( this, "Survey selection left" );
     listbox_ = new uiListBox( leftgrp, dirlist_, "Surveys" );
