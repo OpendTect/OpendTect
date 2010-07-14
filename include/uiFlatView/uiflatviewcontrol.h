@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.31 2010-03-05 09:24:34 cvsbruno Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.32 2010-07-14 10:03:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ public:
 	    			   Geom::Size2D<double>& sizes );
     			//!< retains uiWorldRect's LR/TB swapping
     			//!< Changes the input to the actual new values
-    void		flip(bool hor);
+    virtual void	flip(bool hor);
     			//!< reverses uiWorldRect's LR or TB swapping
 
     static bool		havePan(Geom::Point2D<double> oldcentre,
