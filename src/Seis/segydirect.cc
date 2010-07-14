@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.24 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.25 2010-07-14 16:53:21 cvskris Exp $";
 
 #include "segydirectdef.h"
 
@@ -350,13 +350,6 @@ bool SEGY::DirectDef::writeFootersToFile()
 
     strm << "\n!\n"; //Just for nice formatting
 
-    textparstart_ = strm.tellp();
-    IOPar iop2;
-    fds_->fillPar( iop2 );
-
-    ascostream astrm2( strm );
-    iop2.putTo( astrm2 );
-
     cubedatastart_ = strm.tellp();
 
     getPosData( cubedata_ );
@@ -368,6 +361,15 @@ bool SEGY::DirectDef::writeFootersToFile()
     indexstart_ = strm.tellp();
 
     indexer_->dumpTo( strm );
+
+    //Put this at the end, so one can manipulate the filenames without
+    //breaking the indexing
+    textparstart_ = strm.tellp();
+    IOPar iop2;
+    fds_->fillPar( iop2 );
+
+    ascostream astrm2( strm );
+    iop2.putTo( astrm2 );
 
     const od_int64 eof = strm.tellp();
     strm.seekp( offsetstart_, std::ios::beg  );
