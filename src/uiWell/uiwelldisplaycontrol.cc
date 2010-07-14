@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.10 2010-06-24 11:55:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.11 2010-07-14 09:56:37 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -142,7 +142,7 @@ void uiWellDisplayControl::getPosInfo( int dispidx, float pos,
     if ( data.zistime_ )
     {
 	time = pos;
-	if ( data.d2tm_ )
+	if ( data.d2tm_ && data.d2tm_->size() >= 1 )
 	    dah = data.d2tm_->getDepth( pos*0.001 );
     }
     else
@@ -280,6 +280,10 @@ protected :
 };
 
 
+#define mSetZVal(val)\
+    if ( logdisps_[0]->data().zistime_ && wd_ &&\
+	    wd_->haveD2TModel() && wd_->d2TModel()->size() > 0 )\
+	val = wd_->d2TModel()->getDepth( val/1000 );
 void uiWellDisplayControl::handleMenuCB( CallBacker* cb )
 {
     if ( !wd_ ) return;
@@ -292,24 +296,15 @@ void uiWellDisplayControl::handleMenuCB( CallBacker* cb )
     if ( logdisps_.isEmpty() ) return;
     if ( mnuid==addmrkmnuitem_.id )
     {
-	uiWellDispAddMarkerDlg mrkdlg( menu_->getParent(),  mousePos(0) );
+	float mousepos = mousePos(0);
+	mSetZVal( mousepos )
+	uiWellDispAddMarkerDlg mrkdlg( menu_->getParent(), mousepos );
 	if ( mrkdlg.go() )
 	{
 	    Well::Marker* newmrk = mrkdlg.marker();
 	    if ( !newmrk ) return;
-	    Well::MarkerSet& mrkset = wd_->markers();
-	    for ( int idx=0; idx<mrkset.size(); idx++ )
-	    {
-		Well::Marker& mrk = *mrkset[idx]; 
-		if ( newmrk->dah() > mrk.dah() )
-		    continue;
-		else 
-		{ 
-		    mrkset.insertAt( newmrk, idx );
-		    trigMarkersChanged();
-		    return;
-		}
-	    }
+	    wd_->markers().insertNew( newmrk );
+	    trigMarkersChanged();
 	}
     }
     else if ( mnuid==remmrkmnuitem_.id  && selectMarker( 0, true ) )
@@ -371,10 +366,6 @@ Well::Marker* uiWellDisplayControl::selectMarker( CallBacker* cb, bool allowrigh
 }
 
 
-#define mSetZVal(val)\
-    if ( logdisps_[0]->data().zistime_ && wd_ &&\
-	    wd_->haveD2TModel() && wd_->d2TModel()->size() > 0 )\
-	val = wd_->d2TModel()->getDepth( val/1000 );
 void uiWellDisplayControl::changeMarkerPos( Well::Marker* mrk )
 {
     if ( selmarker_ )
