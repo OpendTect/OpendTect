@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.43 2010-07-12 22:41:54 cvskris Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.44 2010-07-14 10:32:48 cvshelene Exp $";
 
 #include "mathattrib.h"
 
@@ -374,6 +374,8 @@ void Math::setUpVarsSets()
 	    }
 	}
     }
+    if ( expression_->isRecursive() )
+	adjustVarSampReqs();
 
     while ( recstartvals_.size()< -maxshift_ )
 	recstartvals_+= recstartvals_.size() ? 
@@ -403,4 +405,17 @@ const Interval<float>* Math::desZMargin( int inp, int ) const
 {
     return &desintv_;
 }
+
+
+void Math::adjustVarSampReqs()
+{
+    for ( int idx=0; idx<varstable_.size(); idx++ )
+    {
+	Interval<int> varsgate = varstable_[idx].sampgate_;
+	varsgate.start - maxshift_ <= varsgate.stop
+			? varstable_[idx].sampgate_.start -= maxshift_
+			: varstable_[idx].sampgate_.start = varsgate.stop;
+    }
+}
+
 }; // namespace Attrib
