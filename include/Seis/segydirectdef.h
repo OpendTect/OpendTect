@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.16 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: segydirectdef.h,v 1.17 2010-07-15 18:43:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ public:
     			PreStackIndexer(const MultiID& mid,
 				const char* linename,
 				const FileSpec&,
-					bool is2d,const IOPar&);
+				bool is2d,const IOPar&);
     			~PreStackIndexer();
 
     int                 nextStep();
