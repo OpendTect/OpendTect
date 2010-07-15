@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.54 2010-07-08 12:51:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.55 2010-07-15 14:32:53 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -253,8 +253,6 @@ void uiWellLogDisplay::setDispProperties( Well::DisplayProperties& prop )
 void uiWellLogDisplay::setAxisRanges( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
-    const int sz = ld.wl_ ? ld.wl_->size() : 0;
-    if ( sz < 2 ) return;
 
     Interval<float> dispvalrg( ld.valrg_ );
     if ( ld.xrev_ ) Swap( dispvalrg.start, dispvalrg.stop );
@@ -283,14 +281,13 @@ void uiWellLogDisplay::draw()
     setAxisRelations();
     if ( mIsUdf(data_.zrg_.start) ) return;
 
-    drawLog( true );
-    drawLog( false );
-
     ld1_.xax_.plotAxis(); ld1_.yax_.plotAxis();
     ld2_.xax_.plotAxis(); ld2_.yax_.plotAxis();
 
     drawMarkers();
     drawZPicks();
+    drawLog( true );
+    drawLog( false );
 }
 
 
