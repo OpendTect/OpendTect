@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.69 2010-07-08 06:04:31 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.70 2010-07-15 10:12:29 cvsnageswara Exp $";
 
 #include "uiexphorizon.h"
 
@@ -74,6 +74,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     zfld_->attach( alignedBelow, typfld_ );
 
     uiT2DConvSel::Setup su( 0, false );
+    SI().zIsTime() ? su.ist2d(true) : su.ist2d(false);
     transfld_ = new uiT2DConvSel( this, su );
     transfld_->display( false );
     transfld_->attach( alignedBelow, zfld_ );
@@ -145,6 +146,23 @@ bool uiExportHorizon::writeAscii()
     const bool doxy = typfld_->getIntValue() == 0;
     const bool addzpos = zfld_->getIntValue() != 1;
     const bool dogf = typfld_->getIntValue() == 2;
+
+    RefMan<ZAxisTransform> zatf = 0;
+    IOPar iop;
+    if ( dogf || zfld_->getIntValue()==2 )
+    {
+	if ( !transfld_->fillPar( iop ) )
+	    return false;
+
+	zatf = ZAxisTransform::create( iop );
+	if ( !zatf )
+	{
+	    uiMSG().message( " Conversion on selected option",
+		   	     " is not implemented" );
+	    return false;
+	}
+    }
+
     BufferString udfstr = udffld_->text();
     if ( udfstr.isEmpty() ) udfstr = sKey::FloatUdf;
 
@@ -188,21 +206,6 @@ bool uiExportHorizon::writeAscii()
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
-    RefMan<ZAxisTransform> zatf = 0;
-    IOPar iop;
-    if ( typfld_->getIntValue()==2 || zfld_->getIntValue()==2 )
-    {
-	if ( !transfld_->fillPar( iop ) )
-	    return false;
-
-	zatf = ZAxisTransform::create( iop );
-	if ( !zatf )
-	{
-	    uiMSG().message( " Depth conversion on selected option",
-		   	     " is not implemented" );
-	    return false;
-	}
-    }
 
     const UnitOfMeasure* unit = unitsel_->getUnit();
     TypeSet<int>& sections = sels.selsections;
