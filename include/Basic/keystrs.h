@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.58 2010-04-23 15:31:17 cvshelene Exp $
+ RCS:		$Id: keystrs.h,v 1.59 2010-07-15 18:44:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ namespace sKey
     mExt FixedString	IOSelection	mImpl("I/O Selection");
     mExt FixedString	Keys		mImpl("Keys");
     mExt FixedString	LineKey		mImpl("Line key");
+    mExt FixedString	LineName	mImpl("Line name");
     mExt FixedString	Log		mImpl("Log");
     mExt FixedString	LogFile		mImpl("Log file");
     mExt FixedString	Name		mImpl("Name");
