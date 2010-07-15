@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.31 2010-07-14 06:11:05 cvsraman Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.32 2010-07-15 07:26:09 cvsbruno Exp $";
 
 #include "uisurvmap.h"
 
@@ -261,7 +261,7 @@ void uiSurveyMap::drawMap( const SurveyInfo* si )
     maxcoord = center + hipart;
 
     uiWorldRect wr( mincoord.x, maxcoord.y, maxcoord.x, mincoord.y );
-    uiSize sz( view_.scene().width(), view_.scene().height() );
+    uiSize sz( (int)view_.scene().width(), (int)view_.scene().height() );
     w2ui_.set( sz, wr );
     title_->setText( si->name() );
     survbox_->setSurveyInfo( *si );
