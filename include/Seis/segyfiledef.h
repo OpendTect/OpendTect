@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.16 2009-12-08 12:48:43 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.17 2010-07-15 18:44:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
     			FileDef()		{}
 
     virtual void	fillPar(IOPar&) const				= 0;
-    virtual void	usePar(const IOPar&)				= 0;
+    virtual bool	usePar(const IOPar&)				= 0;
     virtual void	getReport(IOPar&,bool isrev1=true) const	= 0;
 
     static const char*	sKeySEGYRev();
@@ -71,7 +71,7 @@ public:
     static void		fillParFromIOObj(const IOObj&,IOPar&);
 
     virtual void	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
+    virtual bool	usePar(const IOPar&);
     virtual void	getReport(IOPar&,bool) const;
 
 };
@@ -104,7 +104,7 @@ public:
     void		setForRead(bool);
 
     virtual void	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
+    virtual bool	usePar(const IOPar&);
     virtual void	getReport(IOPar&,bool) const;
 
 protected:
@@ -166,7 +166,7 @@ public:
     static const char*	sKeyCoordFileName();
 
     virtual void	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
+    virtual bool	usePar(const IOPar&);
     virtual void	getReport(IOPar&,bool) const;
     static void		shallowClear(IOPar&);
 

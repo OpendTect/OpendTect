@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.18 2009-12-03 15:28:31 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.19 2010-07-15 18:44:46 cvskris Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -110,10 +110,13 @@ void SEGY::FileSpec::fillPar( IOPar& iop ) const
 }
 
 
-void SEGY::FileSpec::usePar( const IOPar& iop )
+bool SEGY::FileSpec::usePar( const IOPar& iop )
 {
-    iop.get( sKey::FileName, fname_ );
+    if ( !iop.get( sKey::FileName, fname_ ) )
+	return false;
+
     getMultiFromString( iop.find(sKeyFileNrs()) );
+    return true;
 }
 
 
@@ -215,11 +218,15 @@ void SEGY::FilePars::fillPar( IOPar& iop ) const
 }
 
 
-void SEGY::FilePars::usePar( const IOPar& iop )
+bool SEGY::FilePars::usePar( const IOPar& iop )
 {
-    iop.get( sKeyNrSamples(), ns_ );
-    iop.get( sKeyByteSwap(), byteswap_ );
+    if ( !iop.get( sKeyNrSamples(), ns_ ) ||
+	 !iop.get( sKeyByteSwap(), byteswap_ ) )
+	return false;
+
     fmt_ = fmtOf( iop.find(sKeyNumberFormat()), forread_ );
+
+    return true;
 }
 
 
@@ -327,9 +334,10 @@ void SEGY::FileReadOpts::fillPar( IOPar& iop ) const
 }
 
 
-void SEGY::FileReadOpts::usePar( const IOPar& iop )
+bool SEGY::FileReadOpts::usePar( const IOPar& iop )
 {
     thdef_.usePar( iop );
+
     int icopt = getICOpt( icdef_ );
     iop.get( sKeyICOpt(), icopt );
     icdef_ = getICType( icopt );
@@ -346,6 +354,8 @@ void SEGY::FileReadOpts::usePar( const IOPar& iop )
     iop.get( sKeyCoordStart(), startcoord_ );
     iop.get( sKeyCoordStep(), stepcoord_ );
     iop.get( sKeyCoordFileName(), coordfnm_ );
+
+    return true;
 }
 
 
