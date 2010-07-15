@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: wellhorpos.cc,v 1.1 2010-07-14 13:58:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellhorpos.cc,v 1.2 2010-07-15 14:33:54 cvsbruno Exp $";
 
 
 #include "wellhorpos.h"
@@ -15,13 +15,14 @@ static const char* rcsID = "$Id: wellhorpos.cc,v 1.1 2010-07-14 13:58:28 cvsbrun
 #include "binidvalset.h"
 #include "emhorizon.h"
 #include "emhorizon2d.h"
+#include "emmanager.h"
 #include "position.h"
 #include "survinfo.h"
 #include "welltrack.h"
 
 
-WellHorPos::WellHorPos( const Well::Track& tr, const EM::Horizon& hor )
-    : horizon_(hor)
+WellHorPos::WellHorPos( const Well::Track& tr, const EM::ObjectID& mid )
+    : horid_(mid)
     , track_(tr)  
 {
     transformWellCoordsToBinIDs();
@@ -61,7 +62,9 @@ void WellHorPos::intersectWellHor( BinIDValueSet& bidset ) const
 
 void WellHorPos::setBidsFromHorType( BinIDValueSet& bidset ) const
 {
-    mDynamicCastGet(const EM::Horizon2D*,hor2d,&horizon_)
+    EM::EMObject* emobj = EM::EMM().getObject( horid_ );
+    if ( !emobj ) return;
+    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
     if ( hor2d )
     {
 	for ( int idline=0; idline<hor2d->geometry().nrLines(); idline++ )
@@ -94,7 +97,11 @@ void WellHorPos::intersectBinIDsHor( BinIDValueSet& bidset ) const
 
 void WellHorPos::intersectBinIDHor( const BinID& bid, float& pos ) const
 {
+    EM::EMObject* emobj = EM::EMM().getObject( horid_ );
+    if ( !emobj ) return;
+    mDynamicCastGet(EM::Horizon*,hor,emobj)
+    if ( !hor ) return;
     RowCol rc = BinID( bid );
-    const EM::PosID posid(horizon_.id(),horizon_.sectionID(0),rc.toInt64());
-    pos = horizon_.getPos( posid ).z;
+    const EM::PosID posid(hor->id(),hor->sectionID(0),rc.toInt64());
+    pos = hor->getPos( posid ).z;
 }

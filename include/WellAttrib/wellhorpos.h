@@ -7,24 +7,26 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jul 2010
- RCS:           $Id: wellhorpos.h,v 1.1 2010-07-14 13:58:28 cvsbruno Exp $
+ RCS:           $Id: wellhorpos.h,v 1.2 2010-07-15 14:33:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
+#include "emposid.h"
 
 /*!brief used to give well info at horizon intersection. !*/
 
 namespace Well { class Track; }
-namespace EM   { class Horizon; }
 class BinID;
 class BinIDValueSet;
+class MultiID;
 
 mClass WellHorPos
 {
 public:
-    				WellHorPos(const Well::Track&,const EM::Horizon&);		
+    				WellHorPos(const Well::Track&,
+					   const EM::ObjectID&);	
 
     void			intersectWellHor(BinIDValueSet&) const;
     				//in principle, only one position per well but 
@@ -34,7 +36,7 @@ public:
 
 protected:
 
-    const EM::Horizon&		horizon_;
+    const EM::ObjectID& 	horid_;
     const Well::Track&		track_;
     TypeSet<BinID>		wellbids_;
 
