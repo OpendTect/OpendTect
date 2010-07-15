@@ -7,16 +7,22 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.27 2010-06-30 17:17:28 cvskris Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.28 2010-07-15 18:45:32 cvskris Exp $";
 
 #include "uisegyscandlg.h"
 
+#include "datainpspec.h"
 #include "ioman.h"
+#include "keystrs.h"
+#include "oddirs.h"
+#include "segybatchio.h"
+#include "uigeninput.h"
 #include "uisegydef.h"
 #include "uiseissel.h"
 #include "uiseislinesel.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uibatchlaunch.h"
 #include "uibutton.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
@@ -39,6 +45,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     , forsurvsetup_(ss)
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_,false))
     , outfld_(0)
+    , parfilefld_(0)
     , lnmfld_(0)
 {
     uiObject* attobj = 0;
@@ -75,6 +82,11 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 	    lnmfld_ = new uiSeis2DLineSel( this );
 	    lnmfld_->attach( alignedBelow, outfld_ );
 	}
+
+	parfilefld_ = new uiGenInput( this, "Parameter file",
+		StringInpSpec( GetProcFileName("scan_segy.par" ) ) );
+	parfilefld_->attach( alignedBelow,
+		lnmfld_ ? (uiObject*) lnmfld_ : (uiObject*) outfld_ );
     }
 
     if ( attobj )
@@ -112,7 +124,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 {
     BufferString pathnm, lnm;
     if ( outfld_ )
-    {
+    { 
 	if ( lnmfld_ )
 	{
 	    lnm = lnmfld_->lineName();
@@ -156,8 +168,14 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 
     if ( outfld_ )
     {
-	exec = indexer_ = new SEGY::PreStackIndexer( ctio_.ioobj->key(),lnm,fs,
-		Seis::is2D(setup_.geom_), pars_ );
+	pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyIndexPS() );
+	pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
+	pars_.set( sKey::Output, ctio_.ioobj->key() );
+	pars_.set( sKey::LineName, lnm );
+	uiBatchLaunch launcher( this, pars_, 0, "process_segyio", false );
+	launcher.setParFileName( parfilefld_->text() );
+
+	return launcher.go();
     }
     else
     {

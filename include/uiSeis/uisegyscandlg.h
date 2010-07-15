@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyscandlg.h,v 1.9 2010-06-30 17:17:28 cvskris Exp $
+ RCS:           $Id: uisegyscandlg.h,v 1.10 2010-07-15 18:45:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ protected:
     CtxtIOObj&			ctio_;
 
     uiSeisSel*			outfld_;
+    uiGenInput*			parfilefld_;
     uiSeis2DLineSel*		lnmfld_;
 
     virtual bool		doWork(const IOObj&);
