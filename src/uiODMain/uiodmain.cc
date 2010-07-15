@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.127 2010-06-24 11:29:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.128 2010-07-15 10:08:01 cvsnageswara Exp $";
 
 #include "uiodmain.h"
 
@@ -77,6 +77,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.127 2010-06-24 11:29:00 cvsumes
 #include "initvolumeprocessing.h"
 #include "initvelocity.h"
 #include "inituivelocity.h"
+#include "initwell.h"
 
 
 extern "C" const char* GetSettingsDataDir();
@@ -110,6 +111,7 @@ static void initNonUiStdClasses()
     Attributes::initStdClasses();
     MPEEngine::initStdClasses();
     Velocity::initStdClasses();
+    Well::initStdClasses();
 }
 
 
