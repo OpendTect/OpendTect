@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.21 2010-07-02 13:13:00 cvskris Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.22 2010-07-15 20:11:31 cvskris Exp $";
 
 #include "segyfiledata.h"
 
@@ -187,13 +187,13 @@ bool SEGY::FileDataSet::usePar( const IOPar& par )
 	if ( !filepars->get( sKey::FileName, filenm ) )
 	    return false;
 
-	od_int64 size;
-	if ( !filepars->get( sKey::Size, size ) )
+	od_int64 filesz;
+	if ( !filepars->get( sKey::Size, filesz ) )
 	    return false;
 
 	filenames_.add( filenm );
 	cumsizes_ += totalsz_;
-	totalsz_ += size;
+	totalsz_ += filesz;
     }
 
     Seis::getFromPar(par,geom_);
@@ -228,8 +228,8 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
 	    ? cumsizes_[ifile+1]
 	    : totalsz_;
 
-	const od_int64 size = nextsize-cumsizes_[ifile];
-	filepars.set( sKey::Size, size );
+	const od_int64 filesz = nextsize-cumsizes_[ifile];
+	filepars.set( sKey::Size, filesz );
 
 	BufferString key("File ");
 	key += ifile;
