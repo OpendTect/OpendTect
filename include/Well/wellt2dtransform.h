@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          July 2010
- RCS:           $Id: wellt2dtransform.h,v 1.1 2010-07-15 10:08:01 cvsnageswara Exp $
+ RCS:           $Id: wellt2dtransform.h,v 1.2 2010-07-16 10:23:28 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,6 @@ public:
     bool			usePar(const IOPar&);
     bool			needsVolumeOfInterest() const
 				{ return false; }
-    TypeSet<float>		getTimeSet() { return times_; }
 
 protected:
     bool			calcDepths();
