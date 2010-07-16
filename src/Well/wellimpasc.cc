@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.72 2010-06-25 13:43:34 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.73 2010-07-16 07:07:35 cvsraman Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -439,8 +439,14 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 
 static Table::TargetInfo* gtDepthTI( bool withuns )
 {
-    Table::TargetInfo* ti = Table::TargetInfo::mkZPosition( true, withuns );
-    ti->setName( "Depth" );
+    Table::TargetInfo* ti = new Table::TargetInfo( "Depth", FloatInpSpec(),
+	   					   Table::Required );
+    if ( withuns )
+    {
+	ti->setPropertyType( PropertyRef::Dist );
+	ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
+    }
+
     ti->form(0).setName( "MD" );
     ti->add( new Table::TargetInfo::Form( "TVDSS", FloatInpSpec() ) );
     return ti;
