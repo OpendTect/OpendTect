@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.25 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.26 2010-07-16 14:56:03 cvshelene Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -195,7 +195,7 @@ protected:
 
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p ) 
     : uiDialog(p,uiDialog::Setup("Import 2D Horizon","Specify parameters",
-				 "104.0.0"))
+				 "104.0.15"))
     , displayfld_(0)
     , dataselfld_(0)
     , scanner_(0)
