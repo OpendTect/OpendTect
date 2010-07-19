@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.5 2010-03-15 03:58:19 cvsnageswara Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.6 2010-07-19 09:06:56 cvsnageswara Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -36,7 +36,7 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     , fft_( new FFT() )
     , totalnr_(0)
     , msg_("Extracting wavelet")
-    , wvlt_(*new Wavelet)
+    , wvlt_(*new Wavelet("",-wvltsize/2))
     , lineidx_(-1)
 {
     initFFT();
@@ -71,6 +71,7 @@ void WaveletExtractor::init3D()
     mDynamicCastGet(const Seis::TableSelData*,tsd,sd_)
     if ( tsd )
 	isdouble_ = tsd->binidValueSet().hasDuplicateBinIDs();
+
     if ( rsd )
 	totalnr_ = rsd->cubeSampling().hrg.totalNr();
     else if ( tsd && isdouble_ )
@@ -88,6 +89,7 @@ void WaveletExtractor::init2D()
 	range = sdset_[idx]->crlRange();
 	totalnr_ += range.nrSteps() + 1;
     }
+
     getNextLine();
 }
 
@@ -124,6 +126,7 @@ bool WaveletExtractor::getNextLine()
     seisrdr_ = new SeisTrcReader( &iobj_ );
     seisrdr_->setSelData( sdset_[lineidx_]->clone() );
     seisrdr_->prepareWork();
+
     return true;
 }
 
@@ -148,6 +151,7 @@ int WaveletExtractor::nextStep()
     {
 	if ( seisrdr_->is2D() && getNextLine() )
 	    return MoreToDo();
+
 	if ( finish(nrusedtrcs_) )
 	    return Finished();
 	else
@@ -175,6 +179,7 @@ int WaveletExtractor::nextStep()
     }
 
     nrdone_++;
+
     return MoreToDo();
 }
 
@@ -209,9 +214,11 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     }
 
     if ( z2 < z1 ) { float tmp; mSWAP( z1, z2, tmp ); }
+
     startsample = trc.nearestSample( z1 + extz.start );
     const int stopsample = trc.nearestSample( z2 + extz.stop );
     signalsz = stopsample - startsample + 1;
+
     return signalsz >= wvltsize_;
 }
 
@@ -229,7 +236,6 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
 	if ( !mIsUdf(val) )
 	{
 	    signal.set( sidx, val );
-
 	    if ( val == 0 )
 		count++;
 	}
@@ -307,8 +313,10 @@ bool WaveletExtractor::finish( int nrusedtrcs )
 
     if ( !doWaveletIFFT() )
 	return false;
+
     if ( !rotateWavelet() )
 	return false;
+
     if ( !taperWavelet() )
 	    return false;
 
@@ -335,12 +343,10 @@ bool WaveletExtractor::doWaveletIFFT()
     fft_->init();
 
     Array1DImpl<float_complex> signal( wvltsize_ ), transfsig( wvltsize_ );
-
     for ( int idx=0; idx<wvltsize_; idx++ )
 	signal.set( idx, wvlt_.samples()[idx] );
 
     fft_->transform( signal, transfsig );
-
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
 	if ( idx>=wvltsize_/2 )
@@ -376,9 +382,7 @@ bool WaveletExtractor::rotateWavelet()
 
 bool WaveletExtractor::taperWavelet()
 { 
-
     WaveletAttrib wvltattr( wvlt_ );
-
     Array1DImpl<float> taperwvlt( wvltsize_ );
     for ( int idx=0; idx<wvltsize_; idx++ )
 	taperwvlt.set( idx, wvlt_.samples()[idx] );
