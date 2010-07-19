@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.73 2010-07-16 07:07:35 cvsraman Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.74 2010-07-19 09:36:08 cvsnageswara Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -373,8 +373,11 @@ Table::FormatDesc* Well::TrackAscIO::getDesc()
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
-    Table::TargetInfo* ti = Table::TargetInfo::mkZPosition( false );
-    ti->setName( "MD" ); fd->bodyinfos_ += ti;
+    Table::TargetInfo* ti = new Table::TargetInfo( "MD", FloatInpSpec(),
+	   					   Table::Optional );
+    ti->setPropertyType( PropertyRef::Dist );
+    ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
+    fd->bodyinfos_ += ti;
     return fd;
 }
 
