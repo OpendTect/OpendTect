@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.73 2010-06-24 11:54:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.74 2010-07-19 15:17:25 cvshelene Exp $";
 
 
 #include "uisurfaceman.h"
@@ -64,12 +64,15 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.73 2010-06-24 11:54:01 cvsb
     mGet( typ, "Copy 2D horizon", "Copy 3D horizon", "Copy horizon", \
 	       "Copy FaultStickSet", "Copy 3D fault" )
 
+#define mGetHelpID(typ) \
+    mGet( typ, "104.2.1", "104.2.0", "104.2.0", "104.2.4", "104.2.5")
+
 using namespace EM;
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     : uiObjFileMan(p,uiDialog::Setup("Surface file management",
                                      mGetManageStr(typ),
-                                     "104.2.0").nrstatusflds(1),
+                                     mGetHelpID(typ)).nrstatusflds(1),
 		   mGetIoContext(typ) )
     , attribfld_(0)
 {

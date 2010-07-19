@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.26 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.27 2010-07-19 15:17:25 cvshelene Exp $";
 
 #include "uiseisfmtscale.h"
 #include "uicompoundparsel.h"
@@ -59,7 +59,7 @@ public:
 uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 		   bool fixedfmtscl, bool withext )
     : uiDialog(p,uiDialog::Setup("Format / Scaling","Format and scaling",
-				 "103.0.10"))
+				 "103.0.17"))
     , optimfld_(0)
     , trcgrowfld_(0)
     , data_(d)

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 -*/
 
-static const char* rcsID = "$Id: uiimpfaultstickset2d.cc,v 1.4 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiimpfaultstickset2d.cc,v 1.5 2010-07-19 15:17:25 cvshelene Exp $";
 
 #include "uiimpfaultstickset2d.h"
 
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uiimpfaultstickset2d.cc,v 1.4 2010-03-25 03:55:
 
 uiImportFaultStickSet2D::uiImportFaultStickSet2D( uiParent* p,
 						  const char* type )
-    : uiImportFault(p,type)
+    : uiImportFault(p,type,true)
     , linesetnms_(*new BufferStringSet)
 {
     fd_ = EM::FaultAscIO::getDesc(true);

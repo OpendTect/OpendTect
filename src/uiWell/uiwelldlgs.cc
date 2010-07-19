@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.89 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.90 2010-07-19 15:17:26 cvshelene Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -51,7 +51,7 @@ static const int nremptyrows = 5;
 uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	: uiDialog(p,uiDialog::Setup("Well Track",
 				     "Edit Well Track",
-				     mTODOHelpID))
+				     "107.1.7"))
 	, wd_(d)
     	, track_(d.track())
     	, orgtrack_(new Well::Track(d.track()))
@@ -133,7 +133,7 @@ public:
 
 uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
     	: uiDialog(p,uiDialog::Setup("Read new Well Track",
-		    		     "Specify new Well Track",mTODOHelpID))
+		    		     "Specify new Well Track","107.1.8"))
 	, track_(track)							  
 {
     wtinfld_ = new uiFileInput( this, "Well Track File",

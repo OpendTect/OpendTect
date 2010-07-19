@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.18 2010-02-02 12:08:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.19 2010-07-19 15:17:26 cvshelene Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -42,7 +42,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 	velfld_->attach( alignedBelow, filefld_ );
     }
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "105.0.5" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "107.0.3" );
     dataselfld_->attach( alignedBelow, setup_.fileoptional_ ? velfld_
 	    						    : filefld_ );
     

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.54 2010-07-16 14:56:03 cvshelene Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.55 2010-07-19 15:17:25 cvshelene Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -158,10 +158,23 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 }
 
 
+#define mGet( ioobj, hor2d, hor3d, emfss, flt3d ) \
+    !strcmp(ioobj.group(),EMHorizon2DTranslatorGroup::keyword()) ? hor2d : \
+    (!strcmp(ioobj.group(),EMHorizon3DTranslatorGroup::keyword()) ? hor3d : \
+    (!strcmp(ioobj.group(),EMFaultStickSetTranslatorGroup::keyword()) ? emfss\
+								      : flt3d ))
+
+#define mGetHelpID(ioobj) \
+    mGet( ioobj, "104.2.7", "104.2.6", "104.2.8", "104.2.9")
+
+#define mGetWinNm(ioobj) \
+    mGet( ioobj, "Copy 2D horizon", "Copy 3D horizon", "Copy FaultStickSet",\
+	  "Copy 3D fault")
+
 
 uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
 			      const uiSurfaceRead::Setup& su )
-    : uiDialog(p,Setup("Copy surface",mNoDlgTitle,"104.0.14"))
+    : uiDialog(p,Setup(mGetWinNm(ioobj),mNoDlgTitle,mGetHelpID(ioobj)))
     , ctio_(*mkCtxtIOObj(ioobj))
 {
     inpfld = new uiSurfaceRead( this, su );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.12 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.13 2010-07-19 15:17:26 cvshelene Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -134,7 +134,7 @@ BufferString getSummary() const
 uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Zero-offset VSP",
 				 "Import Zero-offset VSP as Well Log",
-				 "107.0.3") )
+				 "107.0.1") )
     , istimefld_(0)
     , unitfld_(0)
     , ctio_(*mMkCtxtIOObj(Well))

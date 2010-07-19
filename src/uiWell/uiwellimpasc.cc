@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.62 2010-06-23 12:41:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.63 2010-07-19 15:17:26 cvshelene Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -60,7 +60,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     vertwelllbl_->attach( rightTo, havetrckbox_ );
     vertwelllbl_->attach( alignedWith, trckinpfld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 0 );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "107.0.2" );
     dataselfld_->attach( alignedBelow, trckinpfld_ );
 
     coordfld_ = new uiGenInput( this, "Coordinate",
