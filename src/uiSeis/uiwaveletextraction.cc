@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.18 2010-03-26 05:39:55 cvsraman Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.19 2010-07-19 09:24:54 cvsnageswara Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -105,14 +105,14 @@ void uiWaveletExtraction::createCommonUIFlds()
 	   		 uiPosProvGroup::Setup(linesel2dfld_,false,true) );
     surfacesel_->attach( alignedBelow, zextraction_ );
 
-    BufferString lbl = "Wavelet Length ";
+    BufferString lbl = "Wavelet length ";
     lbl += SI().getZUnitString();
     wtlengthfld_ = new uiGenInput( this, lbl, IntInpSpec(120) );
     wtlengthfld_->attach( alignedBelow, surfacesel_ );
 
     BufferString taperlbl = "Taper length ";
     taperlbl += SI().getZUnitString();
-    taperfld_ = new uiGenInput( this, taperlbl, IntInpSpec(5) );
+    taperfld_ = new uiGenInput( this, taperlbl, IntInpSpec(20) );
     taperfld_->attach( alignedBelow, wtlengthfld_ );
 
     wvltphasefld_ = new uiGenInput( this, "Phase (Degrees)", IntInpSpec(0) );
@@ -135,6 +135,13 @@ void uiWaveletExtraction::choiceSelCB( CallBacker* )
 {
     zrangefld_->display( zextraction_->getBoolValue() );
     surfacesel_->display( !zextraction_->getBoolValue() );
+    if ( !zextraction_->getBoolValue() )
+    {
+	Interval<float> defextraz( -.2, .2 );
+	IOPar extrazpar;
+	extrazpar.set( "Surface.Extra Z", defextraz );
+	surfacesel_->usePar( extrazpar );
+    }
 }
 
 
@@ -146,10 +153,14 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
     	 si = new SeisIOObjInfo( seissel3dfld_->ioobj() );
     else
 	 si = new SeisIOObjInfo( linesel2dfld_->getIOObj() );
-    si->getRanges( cs );
 
+    si->getRanges( cs );
     if ( !linesel2dfld_ && subselfld3d_ )
-	subselfld3d_->setInput( *seissel3dfld_->ioobj() );
+    {
+	cs.hrg.step.inl = cs.hrg.step.crl = 10;
+	subselfld3d_->uiSeisSubSel::setInput( cs );
+    }
+
     if ( zextraction_->getBoolValue() )
     {
 	zrangefld_->setRangeLimits( cs.zrg );
