@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.19 2010-06-30 17:17:28 cvskris Exp $
+ RCS:		$Id: segyscanner.h,v 1.20 2010-07-19 05:38:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
     void		setMaxNrtraces( int n )	{ nrtrcs_ = n; }
     void		setForceRev0( bool yn )	{ forcerev0_ = yn; }
     void		setRichInfo( bool yn )	{ richinfo_ = yn; }
+    void		collectInfoPerTrace( bool yn )	{ notrcinfo_ = !yn; }
 
     int			nextStep();
     const char*		message() const		{ return msg_.buf(); }
@@ -85,6 +86,7 @@ protected:
     mutable od_int64	totnr_;
     PosInfo::Detector&	dtctor_;
     BufferStringSet	trwarns_;
+    bool		notrcinfo_;
 
     int			openNext();
     int			readNext();
@@ -96,10 +98,6 @@ protected:
     void		initFileData();
     void		addErrReport(IOPar&) const;
 
-public:
-
-    bool		notrcinfo_;
-    void		collectInfoPerTrace( bool yn )	{ notrcinfo_ = !yn; }
 
 };
 
