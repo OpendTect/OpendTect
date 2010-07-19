@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.16 2009-12-07 18:51:49 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.17 2010-07-19 12:19:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "samplingdata.h"
 #include "veldesc.h"
+#include "keystrs.h"
 
 template <class T> class ValueSeries;
 
@@ -60,13 +61,70 @@ protected:
     const char*			errmsg_;
 };
 
+/*!Base class for computing a moveout curve. */
+mClass MoveoutComputer
+{
+public:
+    virtual 		~MoveoutComputer()		{}
+
+    virtual int		nrVariables() const				= 0;
+    virtual const char*	variableName(int) const				= 0;
+
+    virtual bool	computeMoveout(const float* variables,
+	    				     int nroffsets,
+	    				     const float* offsets,
+					     float* res) const		= 0;
+    bool		findBestVariable(float* variables, int variabletochange,
+			    const Interval<float>& searchrg,int nroffsets,
+			    const float* offsets, const float* moveout ) const;
+};
+
+
+/*Computes moveout in depth from RMO at a certain reference offset */
+
+mClass RMOComputer : public MoveoutComputer
+{
+public:
+    int 	nrVariables() const	{ return 3; }
+    const char*	variableName(int idx) const
+		{
+		    switch ( idx ) 
+		    {
+			case 0: return sKey::Depth;
+			case 1: return "RMO";
+			case 2: return "Reference offset";
+		    };
+
+		    return 0;
+		}
+    bool	computeMoveout(const float*,int,const float*,float*) const;
+    static bool	computeMoveout(float d0, float rmo, float refoffset,
+	    		       int,const float*,float*);
+};
+
 
 /*! Computes moveout with anisotropy, according to the equation
-by Alkhalifah and Tsvankin 1995.
-All enteties are assumed to be in the same units (i.e. feet or meter).*/
+by Alkhalifah and Tsvankin 1995. */
 
-mGlobal bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
-		     int nroffsets, const float* offsets, float* res );
+mClass NormalMoveout : public MoveoutComputer
+{
+public:
+    int 	nrVariables() const	{ return 3; }
+    const char*	variableName(int idx)
+		{
+		    switch ( idx ) 
+		    {
+			case 0: return sKey::Time;
+			case 1: return "Vrms";
+			case 2: return "Effective anisotrophy";
+		    };
+
+		    return 0;
+		}
+    bool	computeMoveout(const float*,int,const float*,float*) const;
+    static bool	computeMoveout(float t0, float Vrms, float effectiveanisotropy,
+	    		       int,const float*,float*);
+};
 
 
 /*!Converts a series of Vrms to Vint. Vrms may contain undefined values, as

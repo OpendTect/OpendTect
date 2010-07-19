@@ -4,10 +4,11 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.22 2010-03-19 15:43:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.23 2010-07-19 12:19:18 cvskris Exp $";
 
 #include "velocitycalc.h"
 
+#include "genericnumer.h"
 #include "idxable.h"
 #include "math2.h"
 #include "valseries.h"
@@ -375,8 +376,102 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 }
 
 
-bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
-		     int nroffsets, const float* offsets, float* res )
+class MoveoutComputerError : public FloatMathFunction
+{
+public:
+    MoveoutComputerError( const MoveoutComputer& m,float* variables,
+	    int variabletochange, int nroffsets,
+	    const float* offsets, const float* moveout )
+	: calc_( m )
+	, variables_( variables )
+	, variable_( variabletochange )
+	, nroffsets_( nroffsets )
+	, realmoveouts_( moveout )
+	, calcmoveouts_( new float[nroffsets] )
+    {}
+
+    ~MoveoutComputerError() { delete [] calcmoveouts_; }
+
+    float		getValue(float val) const
+    {
+	variables_[variable_] = val;
+	if ( !calc_.computeMoveout( variables_, nroffsets_, offsets_,
+	      calcmoveouts_ ) )
+	    return mUdf(float);
+
+	float sqsum = 0;
+	for ( int idx=0; idx<nroffsets_; idx++ )
+	{
+	    const float diff = calcmoveouts_[idx]-realmoveouts_[idx];
+	    sqsum += diff*diff;
+	}
+
+	return sqsum;
+    }
+
+
+protected:
+    const MoveoutComputer&	calc_;
+    mutable float*		variables_;
+    const int			variable_;
+    int				nroffsets_;
+    const float*		offsets_;
+    const float*		realmoveouts_;
+    mutable float*		calcmoveouts_;
+};
+
+
+
+bool MoveoutComputer::findBestVariable( float* variables, int variabletochange,
+	const Interval<float>& range, int nroffsets, const float* offsets,
+	const float* moveout ) const
+{
+    MoveoutComputerError errorfunc(*this, variables, variabletochange,
+	    nroffsets, offsets, moveout );
+    const float res = findExtreme( errorfunc, true, range.start, range.stop );
+    if ( mIsUdf(res) )
+	return false;
+    variables[variabletochange] = res;
+
+    return true;
+}
+
+
+bool RMOComputer::computeMoveout( const float* variables, int nroffsets,
+	const float* offsets, float* res ) const
+{
+    return computeMoveout( variables[0], variables[1], variables[2],
+	    nroffsets, offsets, res );
+}
+
+
+bool RMOComputer::computeMoveout( float d0, float rmo, float refoffset,
+	int nroffsets, const float* offsets, float* res )
+{
+    for ( int idx=0; idx<nroffsets; idx++ )
+    {
+	float ratio = offsets[idx]/refoffset;
+	ratio *= ratio;
+	res[idx] = d0 + rmo * ratio;
+    }
+
+    return true;
+}
+
+
+
+
+bool NormalMoveout::computeMoveout( const float* variables, int nroffsets,
+	const float* offsets, float* res ) const
+{
+    return computeMoveout( variables[0], variables[1], variables[2],
+	    nroffsets, offsets, res );
+}
+
+
+bool NormalMoveout::computeMoveout( float t0, float Vrms,
+	float effectiveanisotropy, int nroffsets, const float* offsets,
+	float* res )
 {
     const double t0_2 = t0*t0;
     const double v2 = Vrms*Vrms;
