@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.62 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.63 2010-07-20 14:41:07 cvskris Exp $";
 
 #include "visprestackviewer.h"
 
@@ -522,6 +522,9 @@ void Viewer3D::dataChangedCB( CallBacker* )
 	? startpos + direction*offsetrange_.width()*factor_ / offsetscale
 	: startpos + direction*width_ / offsetscale;
 
+    if ( seis2d_ )
+	seis2dstoppos_ = stoppos;
+
     if ( autowidth_ )
 	width_ = offsetrange_.width()*factor_;
     else
@@ -882,33 +885,40 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
     if ( !flatviewer_  ) 
 	return;
 
-    if ( seis2d_ )
-    {
-	seis2d_->getMousePosInfo( ei, pos, val, info );
-	return;
-    }
-
-    if ( !section_ )
-	return;
-
     const FlatDataPack* fdp = flatviewer_->pack(false);
     if ( !fdp ) return;
 
     const FlatPosData& posdata = fdp->posData();
-    const BinID bid = SI().transform( pos );
-    const float distance = Math::Sqrt((float)bid_.sqDistTo( bid ));
-    float offset = mUdf(float);
-    
-    if ( SI().inlDistance()==0 || SI().crlDistance()==0 || width_==0 )
-	return;
 
+    float offset = mUdf(float);
     const StepInterval<double>& rg = posdata.range( true );
-    const float cal = posdata.width(true)*distance/width_;
-    if ( section_->getOrientation()==visSurvey::PlaneDataDisplay::Inline )
-	offset = cal*SI().inlDistance()+rg.start;
-    else
-	offset= cal*SI().crlDistance()+rg.start;
-   
+
+    if ( seis2d_ )
+    {
+	info += "   Tracenr: ";
+	info += trcnr_;
+	const float displaywidth = seis2dstoppos_.distTo(seis2dpos_);
+	float curdist = SI().binID2Coord().transformBackNoSnap( pos ).distTo( seis2dpos_ );
+	offset = rg.start + posdata.width(true)*curdist/displaywidth;
+	pos = Coord3( seis2dpos_, pos.z );
+    }
+    else if ( section_ )
+    {
+	const BinID bid = SI().transform( pos );
+	const float distance = Math::Sqrt((float)bid_.sqDistTo( bid ));
+	
+	if ( SI().inlDistance()==0 || SI().crlDistance()==0 || width_==0 )
+	    return;
+
+	const float cal = posdata.width(true)*distance/width_;
+	if ( section_->getOrientation()==visSurvey::PlaneDataDisplay::Inline )
+	    offset = cal*SI().inlDistance()+rg.start;
+	else
+	    offset= cal*SI().crlDistance()+rg.start;
+       
+	pos = Coord3( SI().transform( bid_ ), pos.z );
+    }
+
     int offsetsample;
     float traceoffset;
     if ( posdata.isIrregular() )
@@ -929,9 +939,9 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
     {
 	offsetsample = rg.nearestIndex( offset );
 	if ( offsetsample<0 )
-    	    offsetsample = 0;
-    	else if ( offsetsample>rg.nrSteps() )
- 	    offsetsample = rg.nrSteps();
+	    offsetsample = 0;
+	else if ( offsetsample>rg.nrSteps() )
+	    offsetsample = rg.nrSteps();
 
 	traceoffset = rg.atIndex( offsetsample );
     }
@@ -942,7 +952,6 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
     const int zsample = posdata.range(false).nearestIndex( pos.z );
     val = fdp->data().get( offsetsample, zsample );
 
-    pos = Coord3( SI().transform( bid_ ), pos.z );
 }
 
 

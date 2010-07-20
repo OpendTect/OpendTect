@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.27 2009-07-22 16:01:28 cvsbert Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.28 2010-07-20 14:41:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,7 @@ protected:
     int 				trcnr_;
     Coord				basedirection_;
     Coord				seis2dpos_;
+    Coord				seis2dstoppos_;
     
     bool				posside_;
     bool				autowidth_;
