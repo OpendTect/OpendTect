@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.27 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: draw.h,v 1.28 2010-07-21 05:56:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,11 +26,8 @@ public:
     enum VPos	{ Top, Bottom, VCenter };
 		DeclareEnumUtils(VPos)
 
-		Alignment( HPos h=Left, VPos v=Top )
-		    : hor_(h), ver_(v)					{}
-		Alignment( Pos h, Pos v )
-		    : hor_(h==Start?Left:(h==Stop?Right:HCenter))
-		    , ver_(v==Start?Top:(v==Stop?Bottom:VCenter))	{}
+		Alignment( HPos h=Left, VPos v=Top );
+		Alignment( Pos h, Pos v );
 
     HPos	hPos() const		{ return hor_; }
     VPos	vPos() const		{ return ver_; }
@@ -44,10 +41,8 @@ public:
     int		uiValue() const;
     void	setUiValue(int);
 
-    static HPos	opposite( HPos p )
-    		{ return p == Left ? Right : (p == Right ? Left : HCenter); }
-    static VPos	opposite( VPos p )
-    		{ return p == Top ? Bottom : (p == Bottom ? Top : VCenter); }
+    static HPos	opposite( HPos p );
+    static VPos	opposite( VPos p );
 
 protected:
 
@@ -64,31 +59,23 @@ mClass MarkerStyle2D
 {
 public:
 
-    enum Type		{ None, Square, Circle, Cross };
-			DeclareEnumUtils(Type)
+    enum Type			{ None, Square, Circle, Cross };
+				DeclareEnumUtils(Type)
 
-			MarkerStyle2D( Type tp=Square, int sz=2,
-				       Color col=Color::Black() )
-			: type_(tp), size_(sz), color_(col)	{}
+				MarkerStyle2D( Type tp=Square, int sz=2,
+					       Color col=Color::Black() );
 
-    bool		operator==(const MarkerStyle2D& a) const
-			{ return a.type_==type_ && a.size_==size_ &&
-			         a.color_==color_; }
-    MarkerStyle2D&	operator=(const MarkerStyle2D& a) 
-			{ type_ = a.type_ ;
-			  size_ = a.size_;
-			  color_ = a.color_;
-		          return *this;	}
+    bool			operator==(const MarkerStyle2D& a) const;
+    const MarkerStyle2D&	operator=(const MarkerStyle2D& a);
 
-    Type		type_;
-    int			size_;
-    Color		color_;
+    Type			type_;
+    int				size_;
+    Color			color_;
 
-    inline bool		isVisible() const
-			{ return type_!=None && size_>0 && color_.isVisible(); }
+    bool			isVisible() const;
 
-    void		toString(BufferString&) const;
-    void		fromString(const char*);
+    void			toString(BufferString&) const;
+    void			fromString(const char*);
 
 };
 
@@ -102,19 +89,19 @@ public:
 			DeclareEnumUtils(Type)
 
 			MarkerStyle3D( Type tp=Cube, int sz=3,
-				       Color col=Color::White() )
-			: type_(tp), size_(sz), color_(col)	{}
+				       Color col=Color::White() );
 
     Type		type_;
     int			size_;
     Color		color_;
 
-    inline bool		isVisible() const
-			{ return size_>0 && color_.isVisible(); }
+    bool		isVisible() const;
 
     void		toString(BufferString&) const;
     void		fromString(const char*);
 
+    bool		operator==(const MarkerStyle3D& b) const;
+    bool		operator!=(const MarkerStyle3D& b) const;
 };
 
 
@@ -127,21 +114,16 @@ public:
 			// directly to a UI enum.
 			DeclareEnumUtils(Type)
 
-			LineStyle( Type t=Solid,int w=1,Color c=Color::Black() )
-			: type_(t), width_(w), color_(c)	{}
+			LineStyle( Type t=Solid,int w=1,Color c=Color::Black() );
 
-    bool		operator ==( const LineStyle& ls ) const
-			{ return type_ == ls.type_ && width_ == ls.width_
-			      && color_ == ls.color_; }
-    bool		operator !=( const LineStyle& ls ) const
-			{ return !(*this == ls); }
+    bool		operator ==( const LineStyle& ls ) const;
+    bool		operator !=( const LineStyle& ls ) const;
 
     Type		type_;
     int			width_;
     Color		color_;
 
-    inline bool		isVisible() const
-			{ return type_!=None && width_>0 && color_.isVisible();}
+    bool		isVisible() const;
 
     void		toString(BufferString&) const;
     void		fromString(const char*);
@@ -155,11 +137,9 @@ public:
     enum Type		{ Line, Triangle, Square, Cross };
     enum HandedNess	{ TwoHanded, LeftHanded, RightHanded };
 
-			ArrowHeadStyle( int sz=1, Type t=Line,
-			      HandedNess h=TwoHanded )
-			    : sz_(sz), type_(t), handedness_(h)	{}
+		ArrowHeadStyle( int sz=1, Type t=Line, HandedNess h=TwoHanded );
 
-    inline void		setBoldNess( int b )	{ sz_ = 3*b; }
+    void	setBoldNess(int b);
 
     int		sz_;
     Type	type_;
@@ -174,21 +154,11 @@ public:
 
     enum Type		{ HeadOnly, TwoSided, TailOnly, HeadNorTail };
 
-			ArrowStyle( int boldness=1, Type t=HeadOnly )
-			: type_(t)
-			, linestyle_(LineStyle::Solid,boldness)
-			{ setBoldNess(boldness); }
+			ArrowStyle( int boldness=1, Type t=HeadOnly );
+    void		setBoldNess( int b );
 
-    inline void		setBoldNess( int b )
-			{ linestyle_.width_ = b;
-			  headstyle_.setBoldNess(b);
-			  tailstyle_.setBoldNess(b); }
-
-    inline bool		hasHead() const
-    			{ return headstyle_.sz_ > 0 && type_ < TailOnly; }
-    inline bool		hasTail() const
-    			{ return tailstyle_.sz_ > 0
-			      && (type_ == TwoSided || type_ == TailOnly); }
+    bool		hasHead() const;
+    bool		hasTail() const;
 
     Type		type_;
     LineStyle		linestyle_;	//!< contains the color
