@@ -7,17 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseedpropdlg.cc,v 1.6 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseedpropdlg.cc,v 1.7 2010-07-21 07:55:31 cvskris Exp $";
 
 #include "uiseedpropdlg.h"
 
-//#include "color.h"
-//#include "draw.h"
-//#include "pickset.h"
-
-#include "uicolor.h"
-#include "uigeninput.h"
-#include "uislider.h"
+#include "uimarkerstyle.h"
 
 
 uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject* emobj )
@@ -30,40 +24,45 @@ uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject* emobj )
 
 void uiSeedPropDlg::doFinalise( CallBacker* )
 {
-    sliderfld->sldr()->setValue( markerstyle_.size_ );
-    colselfld->setColor( markerstyle_.color_ );
-    typefld->setValue( markerstyle_.type_ - MarkerStyle3D::None );
+    stylefld_->setMarkerStyle( markerstyle_ );
 }
 
 
 void uiSeedPropDlg::sliderMove( CallBacker* )
 {
-    const float sldrval = sliderfld->sldr()->getValue();
-    const int newsize = mNINT(sldrval);
-    if ( markerstyle_.size_ == newsize ) 
+    MarkerStyle3D style;
+    stylefld_->getMarkerStyle( style );
+    if ( markerstyle_==style )
 	return;
-    markerstyle_.size_ = newsize;
+
+    markerstyle_ = style;
+
     updateMarkerStyle();
 }
 
 
 void uiSeedPropDlg::typeSel( CallBacker* )
 {
-    const MarkerStyle3D::Type newtype = 
-	(MarkerStyle3D::Type) (MarkerStyle3D::None + typefld->getIntValue());
-    if ( markerstyle_.type_ == newtype ) 
+    MarkerStyle3D style;
+    stylefld_->getMarkerStyle( style );
+    if ( markerstyle_==style )
 	return;
-    markerstyle_.type_ = newtype;
+
+    markerstyle_ = style;
+
     updateMarkerStyle();
 }
 
 
 void uiSeedPropDlg::colSel( CallBacker* )
 {
-    const Color newcolor = colselfld->color();
-    if ( markerstyle_.color_ == newcolor )
-    	return;
-    markerstyle_.color_ = newcolor;
+    MarkerStyle3D style;
+    stylefld_->getMarkerStyle( style );
+    if ( markerstyle_==style )
+	return;
+
+    markerstyle_ = style;
+
     updateMarkerStyle();
 }
 

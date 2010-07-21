@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.16 2010-06-21 19:25:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.17 2010-07-21 07:55:31 cvskris Exp $";
 
 #include "uipickpropdlg.h"
 
@@ -15,9 +15,8 @@ static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.16 2010-06-21 19:25:58 cvs
 #include "draw.h"
 #include "pickset.h"
 #include "uibutton.h"
-#include "uicolor.h"
 #include "uigeninput.h"
-#include "uilabel.h"
+#include "uimarkerstyle.h"
 #include "uislider.h"
 #include "vispicksetdisplay.h"
 #include "vistristripset.h"
@@ -42,10 +41,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     drawstylefld_->valuechanged.notify( mCB(this,uiPickPropDlg,drawStyleCB) );
     drawstylefld_->attach( rightOf, usedrawstylefld_ );
     
-    typefld->attach( alignedBelow, usedrawstylefld_ );
-    typefld->setName( "Shape" );
-    sliderfld->label()->setText( "Size" );
-    colselfld->setLblText( "Color" );
+    stylefld_->attach( alignedBelow, usedrawstylefld_ );
 
     drawSel( 0 );
 }
@@ -97,30 +93,37 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
 
 void uiPickPropDlg::doFinalise( CallBacker* )
 {
-    sliderfld->sldr()->setValue( set_.disp_.pixsize_ );
-    colselfld->setColor( set_.disp_.color_ );
-    typefld->setValue( set_.disp_.markertype_ );
+    const MarkerStyle3D style( (MarkerStyle3D::Type) set_.disp_.markertype_,
+	    set_.disp_.pixsize_, set_.disp_.color_ );
+    stylefld_->setMarkerStyle( style );
 }
 
 
 void uiPickPropDlg::sliderMove( CallBacker* )
 {
-    const float sldrval = sliderfld->sldr()->getValue();
-    set_.disp_.pixsize_ = mNINT(sldrval);
+    MarkerStyle3D style;
+    stylefld_->getMarkerStyle( style );
+
+    set_.disp_.pixsize_ = style.size_;
     Pick::Mgr().reportDispChange( this, set_ );
 }
 
 
 void uiPickPropDlg::typeSel( CallBacker* )
 {
-    set_.disp_.markertype_ = typefld->getIntValue();//Didn't inlude None -1
+    MarkerStyle3D style;
+    stylefld_->getMarkerStyle( style );
+
+    set_.disp_.markertype_ = style.type_;
     Pick::Mgr().reportDispChange( this, set_ );
 }
 
 
 void uiPickPropDlg::colSel( CallBacker* )
 {
-    set_.disp_.color_ = colselfld->color();
+    MarkerStyle3D style;
+    stylefld_->getMarkerStyle( style );
+    set_.disp_.color_ = style.color_;
     Pick::Mgr().reportDispChange( this, set_ );
 }
 

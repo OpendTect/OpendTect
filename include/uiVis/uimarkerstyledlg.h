@@ -6,17 +6,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uimarkerstyledlg.h,v 1.3 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uimarkerstyledlg.h,v 1.4 2010-07-21 07:55:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
-class uiColorInput;
-class uiGenInput;
-class uiSliderExtra;
-
+class uiMarkerStyle3D;
 
 mClass uiMarkerStyleDlg : public uiDialog
 {
@@ -24,9 +21,7 @@ protected:
 
     			uiMarkerStyleDlg(uiParent*,const char* title);
 
-    uiSliderExtra*	sliderfld;
-    uiGenInput*		typefld;
-    uiColorInput*	colselfld;
+    uiMarkerStyle3D*	stylefld_;
 
     bool		acceptOK(CallBacker*);
     virtual void	doFinalise(CallBacker*)		=0;

@@ -7,14 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimarkerstyledlg.cc,v 1.11 2010-03-16 10:02:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uimarkerstyledlg.cc,v 1.12 2010-07-21 07:55:31 cvskris Exp $";
 
 #include "uimarkerstyledlg.h"
 
-#include "uicolor.h"
-#include "uigeninput.h"
-#include "uislider.h"
-#include "color.h"
+#include "uimarkerstyle.h"
 #include "draw.h"
 
 
@@ -24,31 +21,13 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const char* title )
 		       		   mNoHelpID)
 		   .canceltext(""))
 {
-    //Here we list all the types of MarkerStyle3D, except None and Point in 
-    //order. If use all, use StringListInpSpec(MarkerStyle3D::TypeNames()
-    StringListInpSpec str;
-    str.addString( "Cube" ); 
-    str.addString( "Cone" ); 
-    str.addString( "Cylinder" ); 
-    str.addString( "Sphere" ); 
-    str.addString( "Arrow" ); 
-    str.addString( "Cross" ); 
-    typefld = new uiGenInput( this, "Shape", str );
-    typefld->valuechanged.notify( mCB(this,uiMarkerStyleDlg,typeSel) );
-
-    sliderfld = new uiSliderExtra( this, 
-	    			   uiSliderExtra::Setup("Size").withedit(true)
-				   ,"Slider Size");
-    sliderfld->sldr()->setMinValue( 1 );
-    sliderfld->sldr()->setMaxValue( 15 );
-    sliderfld->sldr()->valueChanged.notify(
-		mCB(this,uiMarkerStyleDlg,sliderMove));
-    sliderfld->attach( alignedBelow, typefld );
-
-    colselfld = new uiColorInput( this,
-	    		uiColorInput::Setup(Color::White()).lbltxt("Color") );
-    colselfld->attach( alignedBelow, sliderfld );
-    colselfld->colorChanged.notify( mCB(this,uiMarkerStyleDlg,colSel) );
+    MarkerStyle3D::Type excludedtypes[] =
+				{ MarkerStyle3D::None, MarkerStyle3D::Point };
+    stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>( 1, 15 ),
+	    2, excludedtypes );
+    stylefld_->typeSel()->notify( mCB(this,uiMarkerStyleDlg,typeSel) );
+    stylefld_->sliderMove()->notify( mCB(this,uiMarkerStyleDlg,sliderMove));
+    stylefld_->colSel()->notify( mCB(this,uiMarkerStyleDlg,colSel) );
 
     finaliseStart.notify( mCB(this,uiMarkerStyleDlg,doFinalise) );
 }
@@ -56,7 +35,7 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const char* title )
 
 bool uiMarkerStyleDlg::acceptOK( CallBacker* )
 {
-    sliderfld->processInput();
-    sliderMove(0);
+    MarkerStyle3D style;
+    stylefld_->getMarkerStyle( style ); //just to process text input on fld
     return true;
 }
