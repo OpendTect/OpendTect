@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimarkerstyle.cc,v 1.1 2010-07-21 07:09:21 cvskris Exp $";
+static const char* rcsID = "$Id: uimarkerstyle.cc,v 1.2 2010-07-21 07:54:36 cvskris Exp $";
 
 #include "uimarkerstyle.h"
 
@@ -62,6 +62,8 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 		    uiColorInput::Setup(Color::White()).lbltxt("Color") );
 	colselfld_->attach( alignedBelow, sliderfld_ );
     }
+
+    setHAlignObj( sliderfld_ );
 }
 
 
@@ -79,12 +81,29 @@ NotifierAccess* uiMarkerStyle3D::colSel()
 
 void uiMarkerStyle3D::getMarkerStyle( MarkerStyle3D& st ) const
 {
-    sliderfld_->processInput();
-    sliderfld_->sldr()->valueChanged.trigger( 0 );
-
     st.type_ = types_[typefld_->getIntValue()];
-    st.size_ = sliderfld_->sldr()->getValue();
+    st.size_ = getSize();
     if ( colselfld_ ) st.color_ = colselfld_->color();
+}
+
+
+MarkerStyle3D::Type uiMarkerStyle3D::getType() const
+{ return types_[typefld_->getIntValue()]; }
+
+
+Color uiMarkerStyle3D::getColor() const
+{ return colselfld_ ? colselfld_->color() : Color::Black(); }
+
+
+int uiMarkerStyle3D::getSize() const
+{
+    const int sz = mNINT(sliderfld_->sldr()->getValue() );
+    sliderfld_->processInput();
+    const int res = mNINT(sliderfld_->sldr()->getValue() );
+    if ( res!=sz )
+	sliderfld_->sldr()->valueChanged.trigger( 0 );
+
+    return res;
 }
 
 

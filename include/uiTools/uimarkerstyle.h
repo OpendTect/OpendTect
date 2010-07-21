@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2010
- RCS:           $Id: uimarkerstyle.h,v 1.1 2010-07-21 07:09:21 cvskris Exp $
+ RCS:           $Id: uimarkerstyle.h,v 1.2 2010-07-21 07:54:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,10 @@ public:
     NotifierAccess*	sliderMove();
     NotifierAccess*	typeSel();
     NotifierAccess*	colSel();
+
+    MarkerStyle3D::Type	getType() const;
+    Color		getColor() const;
+    int			getSize() const;
 
     void    		setMarkerStyle(const MarkerStyle3D& style);
     void		getMarkerStyle(MarkerStyle3D& style) const;
