@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.121 2010-07-13 10:49:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.122 2010-07-21 20:24:09 cvsnanne Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -851,18 +851,24 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
     if ( cb == inlfld_ )
     {
 	StepInterval<int> irg = inlfld_->getIStepInterval();
+	if ( mIsUdf(irg.step) ) return;
+
 	irg.stop = irg.atIndex( irg.getIndex(irg.stop) );
 	inlfld_->setValue( irg );
     }
     else if ( cb == crlfld_ )
     {
 	StepInterval<int> crg = crlfld_->getIStepInterval();
+	if ( mIsUdf(crg.step) ) return;
+
 	crg.stop = crg.atIndex( crg.getIndex(crg.stop) );
 	crlfld_->setValue( crg );
     }
     else if ( cb == zfld_ )
     {
 	StepInterval<double> zrg = zfld_->getDStepInterval();
+	if ( mIsUdf(zrg.step) ) return;
+
 	zrg.stop = zrg.atIndex( zrg.getIndex(zrg.stop) );
 	zfld_->setValue( zrg );
     }
