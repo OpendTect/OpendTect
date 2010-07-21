@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.17 2010-07-19 12:19:18 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.18 2010-07-21 05:57:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,9 +74,12 @@ public:
 	    				     int nroffsets,
 	    				     const float* offsets,
 					     float* res) const		= 0;
-    bool		findBestVariable(float* variables, int variabletochange,
+    float		findBestVariable(float* variables, int variabletochange,
 			    const Interval<float>& searchrg,int nroffsets,
 			    const float* offsets, const float* moveout ) const;
+    			/*!<On success, rms error will be returned, otherwise
+			    mUdf(float). On success variables[variabletochang]
+			    will be set to the best fit. */
 };
 
 

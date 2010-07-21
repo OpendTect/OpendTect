@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.23 2010-07-19 12:19:18 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.24 2010-07-21 05:57:54 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -388,6 +388,7 @@ public:
 	, nroffsets_( nroffsets )
 	, realmoveouts_( moveout )
 	, calcmoveouts_( new float[nroffsets] )
+	, offsets_( offsets )
     {}
 
     ~MoveoutComputerError() { delete [] calcmoveouts_; }
@@ -422,7 +423,7 @@ protected:
 
 
 
-bool MoveoutComputer::findBestVariable( float* variables, int variabletochange,
+float MoveoutComputer::findBestVariable( float* variables, int variabletochange,
 	const Interval<float>& range, int nroffsets, const float* offsets,
 	const float* moveout ) const
 {
@@ -430,10 +431,10 @@ bool MoveoutComputer::findBestVariable( float* variables, int variabletochange,
 	    nroffsets, offsets, moveout );
     const float res = findExtreme( errorfunc, true, range.start, range.stop );
     if ( mIsUdf(res) )
-	return false;
-    variables[variabletochange] = res;
+	return res;
 
-    return true;
+    variables[variabletochange] = res;
+    return Math::Sqrt( errorfunc.getValue( res ) );
 }
 
 
