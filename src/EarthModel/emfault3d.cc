@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.18 2010-06-30 05:52:33 cvsraman Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.19 2010-07-22 07:24:48 cvsjaap Exp $";
 
 #include "emfault3d.h"
 
@@ -36,13 +36,6 @@ Fault3D::Fault3D( EMManager& em )
 
 Fault3D::~Fault3D()
 {}
-
-
-void Fault3D::removeAll()
-{
-    Surface::removeAll();
-    geometry_.removeAll();
-}
 
 
 Fault3DGeometry& Fault3D::geometry()
@@ -397,7 +390,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( ret == 0 ) break;
 
 	crd.x = getdValue( 0 ); crd.y = getdValue( 1 );
-	if ( isxy && !mIsUdf(crd.x) && !mIsUdf(crd.y) )
+	if ( !isxy && !mIsUdf(crd.x) && !mIsUdf(crd.y) )
 	{
 	    Coord wc( SI().transform(BinID(mNINT(crd.x),mNINT(crd.y))) );
 	    crd.x = wc.x; crd.y = wc.y;
