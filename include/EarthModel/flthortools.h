@@ -7,22 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.14 2010-03-31 07:14:42 raman Exp $
+ RCS:		$Id: flthortools.h,v 1.15 2010-07-22 12:49:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "arrayndimpl.h"
-#include "cubesampling.h"
-#include "multiid.h"
 #include "positionlist.h"
 #include "sets.h"
+#include "thread.h"
 
 namespace EM { class Fault; }
 class IOObj;
 class BinIDValueSet;
 
-namespace SSIS
+namespace HorizonCube
 {
 
 mClass FaultTrace : public Coord3List
@@ -90,7 +88,6 @@ protected:
     bool		get2DFaultTrace();
 };
 
-
-}; // namespace SSIS
+} // namespace HorizonCube
 
 #endif

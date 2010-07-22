@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.23 2010-07-13 08:27:09 bert Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.24 2010-07-22 12:49:54 nanne Exp $";
 
 #include "flthortools.h"
 
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: flthortools.cc,v 1.23 2010-07-13 08:27:09 bert 
 #include "trigonometry.h"
 
 
-namespace SSIS
+namespace HorizonCube
 {
 
 int FaultTrace::nextID( int previd ) const
@@ -481,4 +481,4 @@ void FaultTraceExtractor::useHorizons()
     }
 }
 
-} // namespace SSIS
+} // namespace HorizonCube
