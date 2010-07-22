@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter3d.cc,v 1.2 2010-07-05 16:05:15 cvsbruno Exp $
+ RCS:		$Id: emhorizonpainter3d.cc,v 1.3 2010-07-22 05:21:44 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,8 +122,10 @@ bool HorizonPainter3D::addPolyLine()
 		viewer_.appearance().annot_.auxdata_ += auxdata;
 		auxdata->poly_.erase();
 		auxdata->linestyle_ = markerlinestyle_;
-		auxdata->linestyle_.color_ = hor3d->preferredColor();
-		auxdata->fillcolor_ = hor3d->preferredColor();
+		Color prefcol = hor3d->preferredColor();
+		prefcol.setTransparency( 0 );
+		auxdata->linestyle_.color_ = prefcol;
+		auxdata->fillcolor_ = prefcol;
 		auxdata->enabled_ = linenabled_;
 		auxdata->name_ = hor3d->name();
 		marker = new Marker3D;
@@ -212,9 +214,11 @@ void HorizonPainter3D::changePolyLineColor()
     for ( int idx=0; idx<markerline_.size(); idx++ )
     {
 	SectionMarker3DLine* secmarkerlines = markerline_[idx];
+	Color prefcol = emobj->preferredColor();
+	prefcol.setTransparency( 0 );
+
 	for ( int markidx=0; markidx<secmarkerlines->size(); markidx++ )
-	    (*secmarkerlines)[markidx]->marker_->linestyle_.color_ =
-							emobj->preferredColor();
+	    (*secmarkerlines)[markidx]->marker_->linestyle_.color_ = prefcol;
     }
 
     viewer_.handleChange( FlatView::Viewer::Annot );

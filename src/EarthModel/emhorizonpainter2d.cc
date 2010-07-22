@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.cc,v 1.2 2010-07-05 16:05:15 cvsbruno Exp $
+ RCS:		$Id: emhorizonpainter2d.cc,v 1.3 2010-07-22 05:21:44 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,8 +133,10 @@ bool HorizonPainter2D::addPolyLine()
 		viewer_.appearance().annot_.auxdata_ += auxdata;
 		auxdata->poly_.erase();
 		auxdata->linestyle_ = markerlinestyle_;
-		auxdata->linestyle_.color_ = hor2d->preferredColor();
-		auxdata->fillcolor_ = hor2d->preferredColor();
+		Color prefcol = hor2d->preferredColor();
+		prefcol.setTransparency( 0 );
+		auxdata->linestyle_.color_ = prefcol;
+		auxdata->fillcolor_ = prefcol;
 		auxdata->enabled_ = linenabled_;
 		auxdata->name_ = hor2d->name();
 		marker = new Marker2D;
@@ -223,9 +225,12 @@ void HorizonPainter2D::changePolyLineColor()
     for ( int idx=0; idx<markerline_.size(); idx++ )
     {
 	SectionMarker2DLine* secmarkerlines = markerline_[idx];
+
+	Color prefcol = emobj->preferredColor();
+	prefcol.setTransparency( 0 );
+
 	for ( int markidx=0; markidx<secmarkerlines->size(); markidx++ )
-	    (*secmarkerlines)[markidx]->marker_->linestyle_.color_ =
-							emobj->preferredColor();
+	    (*secmarkerlines)[markidx]->marker_->linestyle_.color_ = prefcol;
     }
 
     viewer_.handleChange( FlatView::Viewer::Annot );
