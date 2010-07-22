@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.13 2009-07-28 08:13:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.14 2010-07-22 08:29:47 cvsjaap Exp $";
 
 #include "uivisslicepos3d.h"
 
@@ -22,8 +22,8 @@ uiSlicePos3DDisp::uiSlicePos3DDisp( uiParent* p )
     : uiSlicePos( p )
     , curpdd_(0)
 {
-    sliceposbox_->setSensitive( curpdd_ );
-    slicestepbox_->setSensitive( curpdd_ );
+    sliceposbox_->setChildrenSensitive( curpdd_ );
+    slicestepbox_->setChildrenSensitive( curpdd_ );
     prevbut_->setSensitive( curpdd_ );
     nextbut_->setSensitive( curpdd_ );
 }
@@ -45,8 +45,8 @@ void uiSlicePos3DDisp::setDisplay( Display* pdd )
 					mCB(this,uiSlicePos3DDisp,updatePos) );
     }
 
-    sliceposbox_->setSensitive( curpdd_ );
-    slicestepbox_->setSensitive( curpdd_ );
+    sliceposbox_->setChildrenSensitive( curpdd_ );
+    slicestepbox_->setChildrenSensitive( curpdd_ );
     prevbut_->setSensitive( curpdd_ );
     nextbut_->setSensitive( curpdd_ );
 
