@@ -4,17 +4,22 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.1 2010-06-24 08:57:00 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.2 2010-07-22 05:22:40 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodvw2dvariabledensity.h"
 
+#include "uicolortable.h"
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
+#include "uiflatviewstdcontrol.h"
+#include "uiflatviewcoltabed.h"
 #include "uilistview.h"
 #include "uiodviewer2d.h"
+#include "uiodviewer2dmgr.h"
+#include "pixmap.h"
 
 #include "visvw2dseismic.h"
 #include "visvw2ddataman.h"
@@ -58,7 +63,7 @@ bool uiODVW2DVariableDensityTreeItem::init()
 	    mCB(this,uiODVW2DVariableDensityTreeItem,dataChangedCB) );
 
     uilistviewitem_->setCheckable( true );
-    uilistviewitem_->setChecked( fdpw );
+    uilistviewitem_->setChecked( fdpv );
     uilistviewitem_->setCheckable( fdpw && fdpv );
 
     checkStatusChange()->notify(
@@ -66,6 +71,25 @@ bool uiODVW2DVariableDensityTreeItem::init()
 
     dummyview_ = new VW2DSeis();
     viewer2D()->dataMgr()->addObject( dummyview_ );
+
+    if ( fdpv )
+    {
+	if ( !vwr.control() )
+	    displayMiniCtab(0);
+	
+	mDynamicCastGet( uiFlatViewStdControl*, fltvwctrl, vwr.control() );
+	if ( fltvwctrl && !fltvwctrl->colTabEd() )
+	    displayMiniCtab(0);
+
+	uiFlatViewColTabEd* ctabed = fltvwctrl->colTabEd();
+	if ( !ctabed->colTabGrp() )
+	    displayMiniCtab(0);
+
+	mDynamicCastGet( uiColorTable*, uicoltab, ctabed->colTabGrp() );
+
+	if ( uicoltab )
+	    displayMiniCtab( &uicoltab->colTabSeq() );
+    }
 
     return true;
 }
@@ -103,6 +127,8 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
     if ( !viewer2D()->viewwin()->nrViewers() )
 	return;
 
+    displayMiniCtab(0);
+
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     const DataPack* fdpw = vwr.pack( true );
     const DataPack* fdpv = vwr.pack( false );
@@ -117,5 +143,42 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 	    dpid_ = fdpv->id();
     }
 
+    if ( !fdpv )
+	displayMiniCtab(0);
+
+    if ( fdpv )
+    {
+	if ( !vwr.control() )
+	    displayMiniCtab(0);
+	
+	mDynamicCastGet( uiFlatViewStdControl*, fltvwctrl, vwr.control() );
+	if ( fltvwctrl && !fltvwctrl->colTabEd() )
+	    displayMiniCtab(0);
+
+	uiFlatViewColTabEd* ctabed = fltvwctrl->colTabEd();
+	if ( !ctabed->colTabGrp() )
+	    displayMiniCtab(0);
+
+	mDynamicCastGet( uiColorTable*, uicoltab, ctabed->colTabGrp() );
+	if ( uicoltab )
+	    displayMiniCtab( &uicoltab->colTabSeq() );
+    }
+
+
     viachkbox_ = false;
+}
+
+
+void uiODVW2DVariableDensityTreeItem::displayMiniCtab(
+						const ColTab::Sequence* seq )
+{
+    if ( !seq )
+    {
+	uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
+	return;
+    }
+
+    PtrMan<ioPixmap> pixmap = new ioPixmap( *seq, cPixmapWidth(),
+	    				    cPixmapHeight(), true );
+    uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }

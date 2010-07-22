@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.2 2010-06-25 06:12:03 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.3 2010-07-22 05:22:40 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
+#include "uiodviewer2dmgr.h"
+#include "pixmap.h"
 
 #include "emfaultstickset.h"
 #include "emmanager.h"
@@ -106,12 +108,21 @@ uiODVw2DFaultSSTreeItem::~uiODVw2DFaultSSTreeItem()
     applMgr()->EMServer()->tempobjAbtToDel.remove(
 	    mCB(this,uiODVw2DFaultSSTreeItem,emobjAbtToDelCB) );
 
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( emobj )
+	emobj->change.remove( mCB(this,uiODVw2DFaultSSTreeItem,emobjChangeCB) );
+
     viewer2D()->dataMgr()->removeObject( fssview_ );
 }
 
 
 bool uiODVw2DFaultSSTreeItem::init()
 {
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return false;
+
+    emobj->change.notify( mCB(this,uiODVw2DFaultSSTreeItem,emobjChangeCB) );
+    displayMiniCtab();
     name_ = applMgr()->EMServer()->getName( emid_ );
     uilistviewitem_->setCheckable(true);
     uilistviewitem_->setChecked( true );
@@ -130,6 +141,41 @@ bool uiODVw2DFaultSSTreeItem::init()
 	    mCB(this,uiODVw2DFaultSSTreeItem,emobjAbtToDelCB) );
 
     return true;
+}
+
+
+void uiODVw2DFaultSSTreeItem::displayMiniCtab()
+{
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
+    uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
+
+    PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
+    pixmap->fill( emobj->preferredColor() );
+
+    uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+}
+
+
+void uiODVw2DFaultSSTreeItem::emobjChangeCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
+	    			cbdata, caller, cb );
+    mDynamicCastGet(EM::EMObject*,emobject,caller);
+    if ( !emobject ) return;
+
+    switch( cbdata.event )
+    {
+	case EM::EMObjectCallbackData::Undef:
+	    break;
+	case EM::EMObjectCallbackData::PrefColorChange:
+	    {
+		displayMiniCtab();
+		break;
+	    }
+	default: break;
+    }
 }
 
 
