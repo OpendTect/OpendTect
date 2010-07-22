@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.75 2010-07-21 05:56:13 cvskris Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.76 2010-07-22 06:02:23 cvsranojay Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -158,7 +158,7 @@ ArrowHeadStyle::ArrowHeadStyle( int sz, Type t, HandedNess h )
 {}
 
 
-void ArrowHeadStyle::ArrowHeadStyle::setBoldNess( int b )
+void ArrowHeadStyle::setBoldNess( int b )
 { sz_ = 3*b; }
 
 
