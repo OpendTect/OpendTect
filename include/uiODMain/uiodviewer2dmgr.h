@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.h,v 1.1 2010-06-24 08:54:11 cvsumesh Exp $
+ RCS:		$Id: uiodviewer2dmgr.h,v 1.2 2010-07-22 05:19:08 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,9 @@ public:
 
     uiTreeFactorySet*		treeItemFactorySet2D()	{ return tifs2d_; }
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
+
+    static int			cNameColumn()		{ return 0; }
+    static int			cColorColumn()		{ return 1; }
 
 protected:
 

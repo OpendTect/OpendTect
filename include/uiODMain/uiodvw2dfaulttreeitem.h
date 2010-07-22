@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: uiodvw2dfaulttreeitem.h,v 1.1 2010-06-24 08:54:11 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.h,v 1.2 2010-07-22 05:19:08 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,11 @@ protected:
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);
     void		emobjAbtToDelCB(CallBacker*);
+    void		displayMiniCtab();
+
+    const int 		cPixmapWidth()				{ return 16; }
+    const int		cPixmapHeight()				{ return 10; }
+    void		emobjChangeCB(CallBacker*);
 
     EM::ObjectID        emid_;
     VW2DFaut*		faultview_;
