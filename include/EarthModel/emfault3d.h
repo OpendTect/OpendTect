@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault3d.h,v 1.9 2010-02-04 17:20:24 cvsjaap Exp $
+ RCS:		$Id: emfault3d.h,v 1.10 2010-07-22 07:29:20 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -71,7 +71,6 @@ protected:
 mClass Fault3D : public Fault
 { mDefineEMObjFuncs( Fault3D );
 public:
-    void                        removeAll();
     Fault3DGeometry&		geometry();
     const Fault3DGeometry&	geometry() const;
     void			apply(const Pos::Filter&);

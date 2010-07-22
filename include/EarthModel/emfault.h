@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.42 2010-06-29 07:45:58 cvsjaap Exp $
+ RCS:		$Id: emfault.h,v 1.43 2010-07-22 07:29:20 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -79,6 +79,7 @@ protected:
 mClass Fault : public Surface
 {
 public:
+    virtual void		removeAll();
     virtual FaultGeometry&	geometry()			= 0;
     virtual const FaultGeometry& geometry() const
 				{ return const_cast<Fault*>(this)->geometry(); }

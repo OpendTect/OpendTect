@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault.cc,v 1.58 2010-06-29 07:45:58 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.59 2010-07-22 07:29:20 cvsjaap Exp $";
 
 #include "emfault.h"
 
@@ -17,6 +17,13 @@ static const char* rcsID = "$Id: emfault.cc,v 1.58 2010-06-29 07:45:58 cvsjaap E
 
 
 namespace EM {
+
+
+void Fault::removeAll()
+{
+    Surface::removeAll();
+    geometry().removeAll();
+}
 
 
 const Coord3& FaultGeometry::getEditPlaneNormal( const SectionID& sid,
