@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.19 2010-04-23 08:34:43 cvsbruno Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.20 2010-07-22 05:17:06 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
     			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
     			~uiFlatViewStdControl();
     virtual uiToolBar*	toolBar()		{ return tb_; }
+    virtual uiFlatViewColTabEd* colTabEd()	{ return ctabed_; }
 
 protected:
 
