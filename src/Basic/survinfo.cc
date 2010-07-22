@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.138 2010-07-13 21:42:52 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.139 2010-07-22 13:56:00 cvsnanne Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -653,6 +653,13 @@ const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
     if ( !b2c_.set3Pts( c[0], c[1], c[2], b[0], b[1], xline ) )
 	return "Cannot construct a valid transformation matrix from this input"
 	       "\nPlease check whether the data is on a single straight line.";
+
+    set3coords[0] = c[0];
+    set3coords[1] = c[1];
+    set3coords[2] = c[2];
+    set3binids[0] = transform( set3coords[0] );
+    set3binids[1] = transform( set3coords[1] );
+    set3binids[2] = transform( set3coords[2] );
 
     return 0;
 }
