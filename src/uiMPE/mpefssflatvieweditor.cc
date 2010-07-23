@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.9 2010-06-24 08:49:56 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.10 2010-07-23 05:06:27 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,10 +40,6 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
     , seedhasmoved_(false)
     , mousepid_(-1)
 {
-    ed->movementStarted.notify(
-	    mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
-    ed->movementFinished.notify(
-	    mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
     fsspainter_->abouttorepaint_.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
     fsspainter_->repaintdone_.notify( 
@@ -53,10 +49,6 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 
 FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 {
-    editor_->movementStarted.remove(
-	    mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
-    editor_->movementFinished.remove(
-	    mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
     setMouseEventHandler( 0 );
     delete fsspainter_;
     deepErase( markeridinfo_ );
@@ -67,6 +59,10 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 {
     if ( meh_ )
     {
+	editor_->movementStarted.remove(
+		mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
+	editor_->movementFinished.remove(
+		mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
 	meh_->movement.remove(
 		mCB(this,FaultStickSetFlatViewEditor,mouseMoveCB) );
 	meh_->buttonPressed.remove(
@@ -79,6 +75,10 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 
     if ( meh_ )
     {
+	editor_->movementStarted.notify(
+		mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
+	editor_->movementFinished.notify(
+		mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
 	meh_->movement.notify(
 		mCB(this,FaultStickSetFlatViewEditor,mouseMoveCB) );
 	meh_->buttonPressed.notify(
@@ -118,10 +118,7 @@ void FaultStickSetFlatViewEditor::enableKnots( bool yn )
 void FaultStickSetFlatViewEditor::updateActStkContainer()
 {
     cleanActStkContainer();
-
-    if ( MPE::engine().getActiveFSSObjID() != -1 &&
-	 (MPE::engine().getActiveFSSObjID()==fsspainter_->getFaultSSID()) )
-	fillActStkContainer();
+    fillActStkContainer();
 }
 
 
@@ -161,10 +158,7 @@ void FaultStickSetFlatViewEditor::fssRepaintATSCB( CallBacker* )
 
 void FaultStickSetFlatViewEditor::fssRepaintedCB( CallBacker* )
 {
-    if ( MPE::engine().getActiveFSSObjID() != -1 &&
-	 (MPE::engine().getActiveFSSObjID()==fsspainter_->getFaultSSID()) )
-	fillActStkContainer();
-
+    fillActStkContainer();
     activestickid_ = mUdf(int);
 }
 
@@ -198,7 +192,7 @@ void FaultStickSetFlatViewEditor::seedMovementStartedCB( CallBacker* cb )
 
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
 
-    EM::ObjectID emid = MPE::engine().getActiveFSSObjID();
+    EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return;
 
     if ( emid !=fsspainter_->getFaultSSID() )
@@ -244,7 +238,7 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     Coord3 coord3 = dp->getCoord( ix.nearest_, iy.nearest_ );
     coord3.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : pos.y;
 
-    EM::ObjectID emid = MPE::engine().getActiveFSSObjID();
+    EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return; 
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
@@ -278,7 +272,7 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     if ( seedhasmoved_ )
 	return;
 
-    EM::ObjectID emid = MPE::engine().getActiveFSSObjID();
+    EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return; 
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
@@ -347,7 +341,7 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     if ( (edidauxdataid==-1) || (displayedknotid==-1) )
 	return;
 
-    EM::ObjectID emid = MPE::engine().getActiveFSSObjID();
+    EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return;
 
     int stickid = -1;
@@ -403,7 +397,8 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	seedhasmoved_ = false;
 	return;
     }
-     EM::ObjectID emid = MPE::engine().getActiveFSSObjID();
+    
+    EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return; 
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );

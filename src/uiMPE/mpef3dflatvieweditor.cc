@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.3 2010-06-24 08:49:56 cvsumesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.4 2010-07-23 05:06:27 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,10 +40,6 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
     , seedhasmoved_(false)
     , mousepid_(-1)
 {
-    ed->movementStarted.notify(
-	    mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
-    ed->movementFinished.notify(
-	    mCB(this,Fault3DFlatViewEditor,seedMovementFinishedCB) );
     f3dpainter_->abouttorepaint_.notify(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
     f3dpainter_->repaintdone_.notify( 
@@ -53,10 +49,6 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 
 Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 {
-    editor_->movementStarted.remove(
-	    mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
-    editor_->movementFinished.remove(
-	    mCB(this,Fault3DFlatViewEditor,seedMovementFinishedCB) );
     setMouseEventHandler( 0 );
     delete f3dpainter_;
     deepErase( markeridinfo_ );
@@ -67,6 +59,10 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 {
     if ( meh_ )
     {
+	editor_->movementStarted.remove(
+		mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
+	editor_->movementFinished.remove(
+		mCB(this,Fault3DFlatViewEditor,seedMovementFinishedCB) );
 	meh_->movement.remove(
 		mCB(this,Fault3DFlatViewEditor,mouseMoveCB) );
 	meh_->buttonPressed.remove(
@@ -79,6 +75,10 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 
     if ( meh_ )
     {
+	editor_->movementStarted.notify(
+		mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
+	editor_->movementFinished.notify(
+		mCB(this,Fault3DFlatViewEditor,seedMovementFinishedCB) );
 	meh_->movement.notify(
 		mCB(this,Fault3DFlatViewEditor,mouseMoveCB) );
 	meh_->buttonPressed.notify(
@@ -123,10 +123,7 @@ void Fault3DFlatViewEditor::f3dRepaintATSCB( CallBacker* )
 
 void Fault3DFlatViewEditor::f3dRepaintedCB( CallBacker* )
 {
-    if ( MPE::engine().getActiveFaultObjID() != -1 &&
-	 (MPE::engine().getActiveFaultObjID()==f3dpainter_->getFaultID()) )
-	fillActStkContainer();
-
+    fillActStkContainer();
     activestickid_ = mUdf(int);
 }
 
@@ -160,7 +157,7 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
 
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
 
-    EM::ObjectID emid = MPE::engine().getActiveFaultObjID();
+    EM::ObjectID emid = f3dpainter_->getFaultID();
     if ( emid == -1 ) return; 
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
@@ -201,7 +198,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
     Coord3 coord3 = dp->getCoord( ix.nearest_, iy.nearest_ );
     coord3.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : pos.y;
 
-    EM::ObjectID emid = MPE::engine().getActiveFaultObjID();
+    EM::ObjectID emid = f3dpainter_->getFaultID();
     if ( emid == -1 ) return; 
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
@@ -236,7 +233,7 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
     if ( seedhasmoved_ )
 	return;
 
-    EM::ObjectID emid = MPE::engine().getActiveFaultObjID();
+    EM::ObjectID emid = f3dpainter_->getFaultID();
     if ( emid == -1 ) return; 
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
@@ -303,7 +300,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     if ( (edidauxdataid==-1) || (displayedknotid==-1) )
 	return;
 
-    EM::ObjectID emid = MPE::engine().getActiveFaultObjID();
+    EM::ObjectID emid = f3dpainter_->getFaultID();
     if ( emid == -1 ) return;
 
     int stickid = mUdf(int);
@@ -360,7 +357,8 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 	seedhasmoved_ = false;
 	return;
     }
-    EM::ObjectID emid = MPE::engine().getActiveFaultObjID();
+
+    EM::ObjectID emid = f3dpainter_->getFaultID();
     if ( emid == -1 ) return; 
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
@@ -471,9 +469,7 @@ void Fault3DFlatViewEditor::cleanActStkContainer()
 void Fault3DFlatViewEditor::updateActStkContainer()
 {
     cleanActStkContainer();
-    if ( MPE::engine().getActiveFaultObjID() != -1 &&
-	 (MPE::engine().getActiveFSSObjID()==f3dpainter_->getFaultID()) )
-	fillActStkContainer();
+    fillActStkContainer();
 }
 
 
