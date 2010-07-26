@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.12 2010-06-29 07:54:29 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.13 2010-07-26 13:50:35 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -48,13 +48,17 @@ static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.12 2010-06-29 07:54:29 
 
 static void comboCopy( const uiComboBox& from, uiComboBox& to )
 {
-    NotifyStopper notifystopper( to.editTextChanged );
+    if ( !to.editTextChanged.isEnabled() )
+	return;
 
+    to.editTextChanged.disable();
     to.empty();
     for ( int idx=0; idx<from.size(); idx++ )
 	to.addItem( from.textOfItem(idx) );
 
     to.setText( from.text() );
+    to.editTextChanged.enable();
+    to.editTextChanged.trigger();
 }
 
 
@@ -172,7 +176,6 @@ void uiFaultStickTransferDlg::outputComboChg( CallBacker* cb )
 {
     NotifyStopper ns( getObjSel()->inpBox()->editTextChanged );
     comboCopy( *getObjSel()->inpBox(), *ftbman_->getOutputCombo() );
-    ftbman_->getOutputCombo()->editTextChanged.trigger();
     displayChg( 0 );
 }
 
@@ -246,7 +249,6 @@ void uiFaultStickTransferDlg::setOutputFields( const uiComboBox& faultcombo,
 {
     comboCopy( faultcombo, *faultoutputfld_->getObjSel()->inpBox() );
     comboCopy( fsscombo, *fssoutputfld_->getObjSel()->inpBox() );
-    displayChg( 0 );
 }
 
 
@@ -448,7 +450,6 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 	editSelectToggleCB( 0 );
 	enableToolbar( true );
 	comboCopy( *getObjSel()->inpBox(), *tboutputcombo_ );
-	outputColorChg( 0 );
 
 	IOM().surveyChanged.notifyIfNotNotified(
 				    mCB(this,uiODFaultToolMan,surveyChg) );
@@ -547,8 +548,8 @@ void uiODFaultToolMan::showSettings( bool yn )
 	    settingsdlg_->setOutputFields(
 				*manfaultoutput_->getObjSel()->inpBox(),
 				*manfssoutput_->getObjSel()->inpBox() );
-	    outputColorChg( 0 );
 	}
+
 	return;
     }
 
@@ -668,7 +669,6 @@ void uiODFaultToolMan::outputComboChg( CallBacker* cb )
 {
     NotifyStopper ns( tboutputcombo_->editTextChanged );
     comboCopy( *tboutputcombo_, *getObjSel()->inpBox() );
-    getObjSel()->inpBox()->editTextChanged.trigger();
     outputColorChg( 0 );
 }
 
