@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.27 2010-07-26 09:53:19 cvshelene Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.28 2010-07-26 12:29:52 cvshelene Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.27 2010-07-26 09:53:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.28 2010-07-26 12:29:52 cvshelene Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -646,7 +646,7 @@ public:
 uiSelectionSettDlg( uiDataPointSetCrossPlotter& p,
 		    const BufferStringSet& colnames )
     : uiTabStackDlg( p.parent(), uiDialog::Setup("Selection Settings",0,
-						 mTODOHelpID)
+						 "111.0.4")
 				    .savebutton(!p.isADensityPlot())
 				    .savetext("Select on Ok").modal(false) )
     , plotter_( p )

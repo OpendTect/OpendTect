@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.3 2010-06-04 05:50:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.4 2010-07-26 12:29:52 cvshelene Exp $";
 
 #include "uidpsoverlayattrdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -20,7 +20,7 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 					  uiDataPointSetCrossPlotter& plotter )
     : uiDialog(p,uiDialog::Setup("Overlay Properties",
 				 "Display Properties within points",
-				 mTODOHelpID))
+				 "111.0.5"))
     , plotter_(plotter)
 {
     BufferStringSet colnames;

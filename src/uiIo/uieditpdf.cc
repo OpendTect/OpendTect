@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.16 2010-03-29 11:02:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.17 2010-07-26 12:29:52 cvshelene Exp $";
 
 #include "uieditpdf.h"
 
@@ -44,7 +44,7 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 	BufferString( ed ? "Edit '" : "Browse '",
 		      pdf.name().isEmpty() ? "PDF" : pdf.name().buf(),
 		      "'"),
-	mTODOHelpID))
+	"112.1.1"))
     , inpdf_(pdf)
     , editable_(ed)
     , chgd_(false)

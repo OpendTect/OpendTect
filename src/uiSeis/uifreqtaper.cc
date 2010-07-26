@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifreqtaper.cc,v 1.7 2010-03-16 10:09:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uifreqtaper.cc,v 1.8 2010-07-26 12:29:52 cvshelene Exp $";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"
@@ -36,7 +36,7 @@ static const char* rcsID = "$Id: uifreqtaper.cc,v 1.7 2010-03-16 10:09:58 cvsber
 
 uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     : uiDialog( p, uiDialog::Setup("Frequency taper",
-		    "Select taper parameters at cut-off frequency",mTODOHelpID))
+		    "Select taper parameters at cut-off frequency","101.3.3"))
     , cs_(new CubeSampling())		
     , posdlg_(0)
     , funcvals_(0)					

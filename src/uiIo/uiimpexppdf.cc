@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiimpexppdf.cc,v 1.1 2010-04-08 11:39:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpexppdf.cc,v 1.2 2010-07-26 12:29:52 cvshelene Exp $";
 
 #include "uiimpexppdf.h"
 
@@ -43,7 +43,7 @@ static const char* filefilter = "Text (*.txt *.dat)";
 
 uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Probability Density Function",
-				 "Specify parameters",mTODOHelpID))
+				 "Specify parameters","112.0.0"))
 {
     setCtrlStyle( DoAndStay );
 
@@ -296,7 +296,7 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 
 uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Probability Density Function",
-				 "Specify parameters",mTODOHelpID))
+				 "Specify parameters","112.0.1"))
 {
     setCtrlStyle( DoAndStay );
 

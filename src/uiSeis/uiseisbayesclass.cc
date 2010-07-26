@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.20 2010-05-04 10:51:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.21 2010-07-26 12:29:52 cvshelene Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -28,10 +28,10 @@ static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.20 2010-05-04 10:51:04 
 #include "probdenfunc.h"
 #include "probdenfunctr.h"
 
-#define mInpPDFsHelpID	mTODOHelpID
-#define mGetNormHelpID	mTODOHelpID
-#define mInpSeisHelpID	mTODOHelpID
-#define mOutputHelpID	mTODOHelpID
+#define mInpPDFsHelpID	"103.2.15"
+#define mGetNormHelpID	"103.2.16"
+#define mInpSeisHelpID	"103.2.17"
+#define mOutputHelpID	"103.2.18"
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
 static const int cMaxNrPDFs = 5;

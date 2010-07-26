@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.8 2010-04-15 12:05:25 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.9 2010-07-26 12:29:52 cvshelene Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -35,7 +35,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 				uiDataPointSetCrossPlotter& plotter,
        				const BufferStringSet& colnames )
     : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
-				 "Specify parameters",mTODOHelpID))
+				 "Specify parameters","111.0.3"))
     , plotter_(plotter)
     , createfrmfld_(0)
     , nrdisp_(1)
