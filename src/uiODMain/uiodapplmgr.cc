@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.382 2010-07-26 09:53:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.383 2010-07-26 11:21:21 cvshelene Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -281,7 +281,7 @@ void uiODApplMgr::setStereoOffset()
 void uiODApplMgr::addTimeDepthScene()
 {
     uiDialog::Setup setup("Velocity model",
-		"Select velocity model to base scene on","0.4.5");
+		"Select velocity model to base scene on","0.4.4");
     uiSingleGroupDlg dlg( &appl_, setup );
     uiTimeDepthBase* uitrans = SI().zIsTime() 
 	? (uiTimeDepthBase*) new uiTime2Depth( &dlg )
