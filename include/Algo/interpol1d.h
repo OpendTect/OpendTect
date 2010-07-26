@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: interpol1d.h,v 1.4 2010-02-24 10:46:16 cvsbert Exp $
+ RCS:		$Id: interpol1d.h,v 1.5 2010-07-26 14:15:31 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -75,6 +75,14 @@ template <class T>
 inline T linear1D( float x0, T v0, float x1, T v1, float x )
 {
     return v0 + (x-x0) * (v1-v0) / (x1-x0);
+} 
+
+/*!> Same as above, use when iT is from int family */
+template <class iT>
+inline iT linear1Di( float x0, iT v0, float x1, iT v1, float x )
+{
+    const float tmp = v0 + (x-x0) * (v1-v0) / (x1-x0);
+    return mRounded( iT, tmp );
 } 
 
 
