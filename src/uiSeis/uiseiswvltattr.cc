@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.22 2010-05-31 14:11:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.23 2010-07-26 12:42:00 cvshelene Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -29,7 +29,7 @@ static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.22 2010-05-31 14:11:36 cv
 
 
 uiSeisWvltSliderDlg::uiSeisWvltSliderDlg( uiParent* p, Wavelet& wvlt )
-    : uiDialog(p,uiDialog::Setup("","",mTODOHelpID))
+    : uiDialog(p,uiDialog::Setup("","","103.3.5"))
     , wvlt_(&wvlt)
     , orgwvlt_(new Wavelet(wvlt))
     , sliderfld_(0) 
@@ -101,6 +101,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     , freqvals_(new Array1DImpl<float>(mPadSz))
 {
     setCaption( "Taper Wavelet" );
+    setHelpID("103.3.6");
     uiSliderExtra::Setup su; 
     su.lbl_ = "Taper Wavelet (%)";
     su.sldrsize_ = 220;

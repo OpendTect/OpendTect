@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.17 2009-11-09 06:35:34 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.18 2010-07-26 12:42:00 cvshelene Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -124,7 +124,7 @@ static const char* centernms[] = { "maximum amplitude", "maximum Energy", 0 };
 uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     : uiSeisWvltCreate(p,uiDialog::Setup("Merge Wavelets",
 				 "Select two ore more wavelets to be stacked",
-				 mTODOHelpID))
+				 "103.3.7"))
     , maxwvltsize_(0)					      
     , stackedwvlt_(0)					      
     , curwvltnm_(curwvltnm)
