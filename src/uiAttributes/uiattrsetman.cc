@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsetman.cc,v 1.8 2009-09-01 08:50:45 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsetman.cc,v 1.9 2010-07-26 09:53:19 cvshelene Exp $";
 
 #include "uiattrsetman.h"
 
@@ -25,7 +25,7 @@ static const int cPrefWidth = 75;
 uiAttrSetMan::uiAttrSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Attribute Set file management",
 				     "Manage attribute sets",
-				     "101.3.3").nrstatusflds(1),
+				     "101.3.0").nrstatusflds(1),
 	           AttribDescSetTranslatorGroup::ioContext())
 {
     createDefaultUI();

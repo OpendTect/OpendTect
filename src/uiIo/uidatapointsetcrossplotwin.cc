@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.26 2010-07-14 16:54:13 cvskris Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.27 2010-07-26 09:53:19 cvshelene Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.26 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.27 2010-07-26 09:53:19 cvshelene Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -331,7 +331,7 @@ public:
 
 uiSelColorDlg( uiParent* p, const BufferStringSet& names,
 	       TypeSet<Color>& y1cols, TypeSet<Color>& y2cols, bool isy2shwn )
-    : uiDialog( p, uiDialog::Setup("Select Color for Y1 & Y2","","") )
+    : uiDialog( p, uiDialog::Setup("Select Color for Y1 & Y2","","111.0.5") )
     , names_( names )
     , y1cols_( y1cols )
     , y2cols_( y2cols )

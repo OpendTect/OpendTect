@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.34 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.35 2010-07-26 09:53:19 cvshelene Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -46,7 +46,7 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 					      const Attrib::DescSet& d )
 	: uiDialog(p,uiDialog::Setup("Attribute/Well cross-plotting",
 		     "Select attributes and logs for cross-plot"
-		     ,"107.3.1").modal(false))
+		     ,"111.1.1").modal(false))
 	, ads_(*new Attrib::DescSet(d.is2D()))
     	, posfiltfld_(0)
     	, curdps_(0)

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.64 2010-06-29 06:07:25 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.65 2010-07-26 09:53:19 cvshelene Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -51,7 +51,7 @@ static const char* sKeyGroups = "Groups";
 
 
 uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
-    : uiDialog::Setup(wintitl?wintitl:"Extracted data",mNoDlgTitle,"0.4.3")
+    : uiDialog::Setup(wintitl?wintitl:"Extracted data",mNoDlgTitle,"111.0.0")
     , isconst_(false)
     , canaddrow_(false)
     , directremove_(true)
@@ -1138,7 +1138,7 @@ class uiDataPointSetSave : public uiDialog
 public:
 
 uiDataPointSetSave( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup("Create output","Specify output","0.4.4"))
+    : uiDialog(p,uiDialog::Setup("Create output","Specify output","111.0.1"))
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
     , type_(typ)
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.11 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.12 2010-07-26 09:53:19 cvshelene Exp $";
 
 #include "uisrchprocfiles.h"
 
@@ -29,7 +29,7 @@ static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.11 2010-03-15 16:15:01 c
 uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
     : uiDialog(p,uiDialog::Setup("Find job specification file",
 			       "Select appropriate job specification file",
-				 "0.4.3").nrstatusflds(1))
+				 mNoHelpID).nrstatusflds(1))
     , ctio_(c)
     , iopkey_(iopky)
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.18 2010-04-08 11:34:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.19 2010-07-26 09:53:19 cvshelene Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -515,7 +515,7 @@ bool acceptOK()
 
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
-	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,"0.4.8")
+	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,"111.0.2")
 						.modal(false) )
 	, plotter_(*p)
     	, bdroptab_(0)

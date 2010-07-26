@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.48 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.49 2010-07-26 09:53:19 cvshelene Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -45,7 +45,7 @@ using namespace Attrib;
 uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	: uiDialog(p,uiDialog::Setup("Attribute cross-plotting",
 		     "Select attributes and locations for cross-plot"
-		     ,"101.3.0").modal(false))
+		     ,"111.1.0").modal(false))
 	, ads_(*new Attrib::DescSet(d.is2D()))
     	, lnmfld_(0)
     	, l2ddata_(0)
