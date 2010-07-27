@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.13 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.14 2010-07-27 08:59:04 cvsjaap Exp $";
 
 #include "faulteditor.h"
 
@@ -54,18 +54,27 @@ Geometry::ElementEditor* FaultEditor::createEditor( const EM::SectionID& sid )
 }
 
 
-static EM::PosID lastclicked_ = EM::PosID::udf();
+static EM::PosID lastclickedpid_ = EM::PosID::udf();
+static Coord3 lastclickedpos_;
 
 void FaultEditor::setLastClicked( const EM::PosID& pid )
 {
-    lastclicked_ = pid;
+    lastclickedpid_ = pid;
+    lastclickedpos_ = emObject().getPos( pid );
 
-    if ( sowingpivot_.isDefined() )
+    if ( sowingpivot_.isDefined() && lastclickedpos_.isDefined() )
+	sowinghistory_.insert( 0, lastclickedpos_ );
+}
+
+
+const EM::PosID& FaultEditor::getLastClicked() const
+{
+    if ( !lastclickedpid_.isUdf() )
     {
-	const Coord3 pos = emObject().getPos( pid );
-	if ( pos.isDefined() )
-	    sowinghistory_.insert( 0, pos );
+	if ( lastclickedpos_ != emObject().getPos(lastclickedpid_) )
+	    lastclickedpid_ = EM::PosID::udf();
     }
+    return lastclickedpid_;
 }
 
 
@@ -82,8 +91,8 @@ void FaultEditor::setSowingPivot( const Coord3 pos )
 #define mCompareCoord( crd ) Coord3( crd, crd.z*zfactor )
 
 static float distToStick( const Geometry::FaultStickSurface& surface,
-			  const EM::SectionID& cursid, const int curstick,
-			  const Coord3& mousepos, float zfactor )
+		  const EM::SectionID& cursid, const int curstick,
+		  const Coord3& mousepos, float zfactor )
 {
     if ( !mousepos.isDefined() )
 	return mUdf(float);
@@ -132,15 +141,16 @@ void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
     EM::SectionID sid;
     EM::PosID nearestpid0, nearestpid1;
 
-    if ( !makenewstick && !lastclicked_.isUdf() &&
-	 lastclicked_.objectID()==emObject().id() )
+    const EM::PosID lastclicked = getLastClicked();
+    if ( !makenewstick && !lastclicked.isUdf() &&
+	 lastclicked.objectID()==emObject().id() )
     {
-	sid = lastclicked_.sectionID();
+	sid = lastclicked.sectionID();
 	const Geometry::Element* ge = emObject().sectionGeometry( sid );
 	mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
 	if ( ge && surface )
 	{
-	    stick = RowCol( lastclicked_.subID() ).row;
+	    stick = RowCol( lastclicked.subID() ).row;
 	    const float dist = distToStick( *surface, sid, stick,
 					    pos, zfactor );
 

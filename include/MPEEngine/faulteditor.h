@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: faulteditor.h,v 1.9 2010-05-28 09:51:56 cvsjaap Exp $
+ RCS:           $Id: faulteditor.h,v 1.10 2010-07-27 08:59:04 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,12 +28,12 @@ public:
     static void			initClass();
 
     void			setLastClicked(const EM::PosID&);
+    const EM::PosID&		getLastClicked() const;
     void			setSowingPivot(const Coord3);
 
-    void			getInteractionInfo( bool& makenewstick,
-						    EM::PosID& insertpid,
-						    const Coord3&,
-						    float zfactor) const;
+    void			getInteractionInfo(bool& makenewstick,
+					EM::PosID& insertpid,
+					const Coord3&,float zfactor) const;
 
     bool			removeSelection(const Selector<Coord3>&);
 
