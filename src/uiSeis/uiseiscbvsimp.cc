@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.66 2010-06-25 09:49:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.67 2010-07-27 08:26:10 cvshelene Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -485,7 +485,7 @@ int nextStep()
 
 
 uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
-    : uiDialog(p,Setup("Copy 2D Seismic Data","",mTODOHelpID))
+    : uiDialog(p,Setup("Copy 2D Seismic Data","","103.1.8"))
     , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Line,false))
 {
     uiSeis2DMultiLineSel::Setup su( "Select Lineset to copy" );

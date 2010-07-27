@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.5 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.6 2010-07-27 08:26:10 cvshelene Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -338,7 +338,7 @@ public:
 uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 			 const BufferStringSet& sellns )
     : uiDialog(p,Setup("Merge lines","Merge two lines into a new one",
-		       mTODOHelpID) )
+		       "103.1.9") )
     , objinf_(objinf)
 {
     BufferStringSet lnms; objinf_.getLineNames( lnms );
@@ -494,7 +494,7 @@ public:
 uiSeis2DExtractFrom3D( uiParent* p, const uiSeisIOObjInfo& objinf,
 			 const BufferStringSet& sellns )
     : uiDialog(p,Setup("Extract from 3D","Get 3D data as 2D line attribute",
-		       mTODOHelpID) )
+		       "103.1.10") )
     , objinf_(objinf)
     , sellns_(sellns)
 {
