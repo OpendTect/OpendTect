@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.7 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.8 2010-07-27 09:00:03 cvsjaap Exp $";
 
 #include "faultstickseteditor.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.7 2010-06-18 12:23:2
 #include "stickseteditor.h"
 #include "mpeengine.h"
 #include "selector.h"
+#include "survinfo.h"
 #include "trigonometry.h"
 #include "undo.h"
 
@@ -70,18 +71,27 @@ void FaultStickSetEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 }
 
 
-static EM::PosID lastclicked_ = EM::PosID::udf();
+static EM::PosID lastclickedpid_ = EM::PosID::udf();
+static Coord3 lastclickedpos_;
 
 void FaultStickSetEditor::setLastClicked( const EM::PosID& pid )
 {
-    lastclicked_ = pid;
+    lastclickedpid_ = pid;
+    lastclickedpos_ = emObject().getPos( pid );
 
-    if ( sowingpivot_.isDefined() )
+    if ( sowingpivot_.isDefined() && lastclickedpos_.isDefined() )
+	sowinghistory_.insert( 0, lastclickedpos_ );
+}
+
+
+const EM::PosID& FaultStickSetEditor::getLastClicked() const
+{
+    if ( !lastclickedpid_.isUdf() )
     {
-	const Coord3 pos = emObject().getPos( pid );
-	if ( pos.isDefined() )
-	    sowinghistory_.insert( 0, pos );
+	if ( lastclickedpos_ != emObject().getPos(lastclickedpid_) )
+	    lastclickedpid_ = EM::PosID::udf();
     }
+    return lastclickedpid_;
 }
 
 
@@ -97,9 +107,10 @@ void FaultStickSetEditor::setSowingPivot( const Coord3 pos )
 #define mCompareCoord( crd ) Coord3( crd, crd.z*zfactor )
 
 float FaultStickSetEditor::distToStick(
-			  const int sticknr,const EM::SectionID& sid,
-			  const MultiID* lineset, const char* linenm,
-			  const Coord3& mousepos, float zfactor ) const
+				const int sticknr,const EM::SectionID& sid,
+				const MultiID* lineset, const char* linenm,
+				const Coord3& mousepos, float zfactor,
+				const Coord3* posnormal ) const
 {
     mDynamicCastGet( const EM::FaultStickSet*, emfss, &emObject() );
     if ( !emfss || !mousepos.isDefined() )
@@ -107,14 +118,35 @@ float FaultStickSetEditor::distToStick(
 
     const Geometry::Element* ge = emfss->sectionGeometry( sid );
     mDynamicCastGet(const Geometry::FaultStickSet*,fss,ge);
-    if ( !ge || !fss )
+    if ( !ge || !fss || fss->isStickHidden(sticknr) )
 	return mUdf(float);
 
-    Coord3 avgpos( 0, 0, 0 );
-    int count = 0;
+    const EM::FaultStickSetGeometry& fssg = emfss->geometry();
+
+    if ( fssg.pickedOn2DLine(sid, sticknr) )
+    {
+	if ( !lineset || *lineset!=*fssg.lineSet(sid,sticknr) ||
+	     strcmp(linenm,fssg.lineName(sid,sticknr)) )
+	    return mUdf(float);
+    }
+
     const StepInterval<int> colrange = fss->colRange( sticknr );
     if ( colrange.isUdf() )
 	return mUdf(float);
+
+    const Plane3 plane( fss->getEditPlaneNormal(sticknr),
+	    		mCompareCoord(mousepos), false );
+
+    if ( posnormal && *posnormal!=Coord3::udf() &&
+	 fabs( posnormal->dot(plane.normal()) ) < 0.5 )
+	return mUdf(float);
+
+    const float onestepdist = SI().oneStepDistance( plane.normal(), zfactor );
+
+    bool insameplane = false;
+    double prevdist = 0.0;
+    Coord3 avgpos( 0, 0, 0 );
+    int count = 0;
 
     for ( int knotidx=colrange.nrSteps(); knotidx>=0; knotidx-- )
     {
@@ -122,6 +154,13 @@ float FaultStickSetEditor::distToStick(
 	const Coord3 pos = fss->getKnot( rc );
 	if ( pos.isDefined() )
 	{
+	    const double curdist =
+			 plane.distanceToPoint( mCompareCoord(pos), true );
+
+	    if ( curdist*prevdist<0.0 || fabs(curdist)< 0.5*onestepdist )
+		insameplane = true;
+
+	    prevdist = curdist;
 	    avgpos += mCompareCoord( pos );
 	    count++;
 	}
@@ -130,34 +169,19 @@ float FaultStickSetEditor::distToStick(
     if ( !count )
 	return mUdf(float);
 
-    avgpos /= count;
-
-    const Plane3 plane( fss->getEditPlaneNormal(sticknr), avgpos, false );
-    const float disttoplane =
-		plane.distanceToPoint( mCompareCoord(mousepos), true );
-
-    const float disttoline = avgpos.Coord::distTo( mCompareCoord(mousepos) );
-
-    const EM::FaultStickSetGeometry& fssg = emfss->geometry();
-    const bool stickpickedon2dline = fssg.pickedOn2DLine( sid, sticknr );
-
-    if ( !stickpickedon2dline && fabs(disttoplane)>50 )
+    if ( fssg.pickedOnPlane(sid, sticknr) && !insameplane )
 	return mUdf(float);
 
-    if ( stickpickedon2dline )
-    {
-	if ( !lineset || *lineset!=*fssg.lineSet(sid,sticknr) ||
-	     strcmp(linenm,fssg.lineName(sid,sticknr)) )
-	    return mUdf(float);
-    }
+    avgpos /= count;
 
-    return disttoline;
+    return avgpos.Coord::distTo( mCompareCoord(mousepos) );
 }
 
 
 void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 				const MultiID* lineset, const char* linenm,
-				const Coord3& mousepos, float zfactor ) const
+				const Coord3& mousepos, float zfactor,
+				const Coord3* posnormal ) const
 {
     insertpid = EM::PosID::udf();
 
@@ -167,13 +191,14 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
     const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
 			? sowingpivot_ : mousepos;
 
-    if ( !lastclicked_.isUdf() && lastclicked_.objectID()==emobject.id() )
+    const EM::PosID lastclicked = getLastClicked();
+    if ( !lastclicked.isUdf() && lastclicked.objectID()==emobject.id() )
     {
-	sid = lastclicked_.sectionID();
-	sticknr = RowCol( lastclicked_.subID() ).row;
+	sid = lastclicked.sectionID();
+	sticknr = RowCol( lastclicked.subID() ).row;
 
-	const float dist = distToStick( sticknr, sid, 
-					lineset, linenm, pos, zfactor );
+	const float dist = distToStick( sticknr, sid, lineset, linenm,
+					pos, zfactor, posnormal );
 	if ( !mIsUdf(dist) )
 	{
 	    getPidsOnStick( insertpid, sticknr, sid, pos, zfactor );
@@ -181,7 +206,7 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 	}
     }
 
-    if ( getNearestStick(sticknr, sid, lineset, linenm, pos, zfactor) )
+    if ( getNearestStick(sticknr,sid,lineset,linenm,pos,zfactor,posnormal) )
 	getPidsOnStick( insertpid, sticknr, sid, pos, zfactor );
 }
 
@@ -207,7 +232,7 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 	{
 	    const int curstick = rowrange.atIndex(stickidx);
 	    const StepInterval<int> colrange = fss->colRange( curstick );
-	    if ( colrange.isUdf() )
+	    if ( fss->isStickHidden(curstick) || colrange.isUdf() )
 		continue;
 
 	    for ( int knotidx=colrange.nrSteps(); knotidx>=0; knotidx-- )
@@ -241,7 +266,8 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 
 bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
 				const MultiID* lineset, const char* linenm,
-				const Coord3& mousepos, float zfactor ) const
+				const Coord3& mousepos, float zfactor,
+				const Coord3* posnormal) const
 {
     mDynamicCastGet( const EM::FaultStickSet*, emfss, &emObject() );
     if ( !emfss || !mousepos.isDefined() )
@@ -268,13 +294,16 @@ bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
 
 	    const int cursticknr = rowrange.atIndex(stickidx);
 	    const float disttoline = distToStick( cursticknr, cursid, lineset,
-						  linenm, mousepos, zfactor );
-
-	    if ( mIsUdf(minlinedist) || disttoline<minlinedist )
+						  linenm, mousepos, zfactor,
+						  posnormal );
+	    if ( !mIsUdf(disttoline) )
 	    {
-		minlinedist = disttoline;
-		selsticknr = cursticknr;
-		selsid = cursid;
+		if ( mIsUdf(minlinedist) || disttoline<minlinedist )
+		{
+		    minlinedist = disttoline;
+		    selsticknr = cursticknr;
+		    selsid = cursid;
+		}
 	    }
 	}
     }
