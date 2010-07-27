@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.94 2010-07-13 21:42:52 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.95 2010-07-27 08:56:04 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,8 @@ public:
     float		zStep() const;
     float		inlDistance() const; //!< distance for one increment
     float		crlDistance() const;
+    float		oneStepDistance(const Coord3& normal,
+					float zfactor ) const;
     const CubeSampling&	sampling( bool work ) const
     			{ return work ? wcs_ : cs_; }
 

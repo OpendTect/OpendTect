@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.139 2010-07-22 13:56:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.140 2010-07-27 08:56:04 cvsjaap Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -397,6 +397,21 @@ float SurveyInfo::crlDistance() const
 
 
 float SurveyInfo::zStep() const { return cs_.zrg.step; }
+
+
+float SurveyInfo::oneStepDistance( const Coord3& normal, float zfactor ) const
+{
+    if ( fabs(normal.z) > 0.5 )
+	return (mIsUdf(zfactor) ? SI().zScale() : zfactor) * SI().zStep();
+
+    Coord norm2d = normal;
+    norm2d.normalize();
+
+    if ( fabs(norm2d.dot(SI().binID2Coord().rowDir())) > 0.5 )
+	return inlDistance();
+
+    return crlDistance();
+}
 
 
 void SurveyInfo::setRange( const CubeSampling& cs, bool work )
