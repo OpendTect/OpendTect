@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID = "$Id: faultstickset.cc,v 1.11 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: faultstickset.cc,v 1.12 2010-07-27 08:58:04 cvsjaap Exp $";
 
 #include "faultstickset.h"
 #include <math.h>
@@ -16,14 +16,14 @@ namespace Geometry
 #define mGetValidStickIdx( stickidx, sticknr, extra, errorres ) \
 \
     int stickidx = sticknr - firstrow_; \
-    if ( stickidx<-extra || stickidx>sticks_.size()+extra ) \
+    if ( stickidx<-extra || stickidx>=sticks_.size()+extra ) \
 	return errorres;
 
 #define mGetValidKnotIdx( knotidx, knotnr, stickidx, extra, errorres ) \
 \
     if ( !firstcols_.size() ) return errorres; \
     int knotidx = knotnr - firstcols_[stickidx]; \
-    if ( knotidx<-extra || knotidx>sticks_[stickidx]->size()+extra ) \
+    if ( knotidx<-extra || knotidx>=sticks_[stickidx]->size()+extra ) \
 	return errorres;
 
     
@@ -406,14 +406,40 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
 void FaultStickSet::selectStick( int sticknr, bool yn )
 {
     mGetValidStickIdx( stickidx, sticknr, 0, );
-    stickstatus_[stickidx] = yn ? Selected : NoStatus;
+    if ( yn )
+	stickstatus_[stickidx] |= Selected;
+    else
+	stickstatus_[stickidx] &= ~Selected;
 }
 
 
 bool FaultStickSet::isStickSelected( int sticknr ) const
 {
     mGetValidStickIdx( stickidx, sticknr, 0, false );
-    return stickstatus_[stickidx] == Selected;
+    return stickstatus_[stickidx] & Selected;
+}
+
+
+void FaultStickSet::hideStick( int sticknr, bool yn )
+{
+    if ( yn == isStickHidden(sticknr) )
+	return;
+
+    mGetValidStickIdx( stickidx, sticknr, 0, );
+
+    if ( yn )
+	stickstatus_[stickidx] |= Hidden;
+    else
+	stickstatus_[stickidx] &= ~Hidden;
+
+    triggerNrPosCh( RowCol(stickidx,StickHide).toInt64() );
+}
+
+
+bool FaultStickSet::isStickHidden( int sticknr ) const
+{
+    mGetValidStickIdx( stickidx, sticknr, 0, false );
+    return stickstatus_[stickidx] & Hidden;
 }
 
 
