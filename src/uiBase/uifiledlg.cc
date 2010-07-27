@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.53 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.54 2010-07-27 13:43:28 cvsnanne Exp $";
 
 #include "uifiledlg.h"
 
@@ -168,7 +168,7 @@ int uiFileDialog::go()
 
     const char* wintitle = uiMainWin::uniqueWinTitle( caption_ );
     int refnr = beginCmdRecEvent( wintitle );
-    ODFileDialog* fd = new ODFileDialog( QString(dirname), QString(flt),
+    PtrMan<ODFileDialog> fd = new ODFileDialog( QString(dirname), QString(flt),
 					 qparent, "File dialog", true );
     fd->selectFile( QString(fname_) );
     fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
