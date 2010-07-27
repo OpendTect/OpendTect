@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.18 2010-06-24 11:28:54 cvsumesh Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.19 2010-07-27 09:58:50 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiODMain;
 class uiODVw2DTreeTop;
 class uiSlicePos2DView;
 class uiTreeFactorySet;
+class uiToolBar;
 class Vw2DDataManager;
 
 namespace Attrib { class SelSpec; }
@@ -65,13 +66,19 @@ protected:
     uiTreeFactorySet*		tifs_;
     uiODVw2DTreeTop*		treetp_;
 
-    int				seltbid_;
+    int				polyseltbid_;
+    bool			isPolySelect_;
 
     void			createViewWin(bool isvert);
     virtual void		createTree(uiMainWin*);
+    virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();
+
     void			winCloseCB(CallBacker*);
     void			posChg(CallBacker*);
+    void			selectionMode(CallBacker*);
+    void			handleToolClick(CallBacker*);
+    void			removeSelected(CallBacker*);
 };
 
 #endif

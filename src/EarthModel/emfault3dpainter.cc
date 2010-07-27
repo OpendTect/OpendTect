@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.cc,v 1.5 2010-06-24 10:52:11 cvsumesh Exp $
+ RCS:		$Id: emfault3dpainter.cc,v 1.6 2010-07-27 09:58:54 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -453,6 +453,8 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 	    break;
 	case EM::EMObjectCallbackData::PositionChange:
 	{
+	    if ( emf3d->hasBurstAlert() )
+		return;
 	    abouttorepaint_.trigger();
 	    repaintFault3D();
 	    repaintdone_.trigger();

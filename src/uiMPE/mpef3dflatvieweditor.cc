@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.4 2010-07-23 05:06:27 cvsumesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.5 2010-07-27 09:58:54 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,8 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
 	editor_->movementFinished.remove(
 		mCB(this,Fault3DFlatViewEditor,seedMovementFinishedCB) );
+	editor_->removeSelected.remove(
+		mCB(this,Fault3DFlatViewEditor,removeSelectionCB) );
 	meh_->movement.remove(
 		mCB(this,Fault3DFlatViewEditor,mouseMoveCB) );
 	meh_->buttonPressed.remove(
@@ -79,6 +81,8 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
 	editor_->movementFinished.notify(
 		mCB(this,Fault3DFlatViewEditor,seedMovementFinishedCB) );
+	editor_->removeSelected.notify(
+		mCB(this,Fault3DFlatViewEditor,removeSelectionCB) );
 	meh_->movement.notify(
 		mCB(this,Fault3DFlatViewEditor,mouseMoveCB) );
 	meh_->buttonPressed.notify(
@@ -488,6 +492,66 @@ void Fault3DFlatViewEditor::fillActStkContainer()
 
 	markeridinfo_ += merkeridinfo;
     }
+}
+
+
+const int Fault3DFlatViewEditor::getStickId( int markerid ) const
+{
+    if ( !markeridinfo_.size() )
+	return mUdf( int );
+
+    for ( int stkmkridx=0; stkmkridx<markeridinfo_.size(); stkmkridx++ )
+    {
+	if ( markeridinfo_[stkmkridx]->merkerid_ == markerid )
+	{
+	    return markeridinfo_[stkmkridx]->stickid_;
+	}
+    }
+
+    return mUdf( int );
+}
+
+
+void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
+{
+    TypeSet<int> selectedids;
+    TypeSet<int> selectedidxs;
+    editor_->getPointSelections( selectedids, selectedidxs );
+
+    if ( !selectedids.size() ) return;
+
+    RefMan<EM::EMObject> emobject =
+			EM::EMM().getObject( f3dpainter_->getFaultID() );
+
+    mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
+    if ( !emf3d )
+	return;
+
+    int sid = emf3d->sectionID( 0 );
+    mDynamicCastGet( const Geometry::FaultStickSet*, fss,
+	    	     emf3d->sectionGeometry( sid ) );
+    if ( !fss ) return;
+
+    emf3d->setBurstAlert( true );
+
+    RowCol rc;
+    for ( int ids=0; ids<selectedids.size(); ids++ )
+    {
+	int stickid = getStickId( selectedids[ids] );
+	rc.row = stickid;
+
+	int knotid = -1;
+	StepInterval<int> colrg = fss->colRange( rc.row );
+	knotid = colrg.start + selectedidxs[ids]*colrg.step;
+	rc.col = knotid;
+
+	emf3d->geometry().removeKnot( sid, rc.toInt64(), false );
+
+	if ( !emf3d->geometry().nrKnots(sid,stickid) )
+	    emf3d->geometry().removeStick( sid, stickid, false );
+    }
+
+    emf3d->setBurstAlert( false );
 }
 
 } //namespace MPE

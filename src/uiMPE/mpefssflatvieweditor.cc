@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.10 2010-07-23 05:06:27 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.11 2010-07-27 09:58:54 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,8 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
 	editor_->movementFinished.remove(
 		mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
+	editor_->removeSelected.remove(
+		mCB(this,FaultStickSetFlatViewEditor,removeSelectionCB) );
 	meh_->movement.remove(
 		mCB(this,FaultStickSetFlatViewEditor,mouseMoveCB) );
 	meh_->buttonPressed.remove(
@@ -79,6 +81,8 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
 	editor_->movementFinished.notify(
 		mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
+	editor_->removeSelected.notify(
+		mCB(this,FaultStickSetFlatViewEditor,removeSelectionCB) );
 	meh_->movement.notify(
 		mCB(this,FaultStickSetFlatViewEditor,mouseMoveCB) );
 	meh_->buttonPressed.notify(
@@ -485,6 +489,65 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 			 pos, true );
 	fsseditor->setLastClicked( interactpid );
     }
+}
+
+
+const int FaultStickSetFlatViewEditor::getStickId( int markerid ) const
+{
+    if ( !markeridinfo_.size() )
+	return mUdf( int );
+
+    for ( int stkmkridx=0; stkmkridx<markeridinfo_.size(); stkmkridx++ )
+    {
+	if ( markeridinfo_[stkmkridx]->merkerid_ == markerid )
+	{
+	    return markeridinfo_[stkmkridx]->stickid_;
+	}
+    }
+
+    return mUdf( int );
+}
+
+
+void FaultStickSetFlatViewEditor::removeSelectionCB( CallBacker* cb )
+{
+    TypeSet<int> selectedids;
+    TypeSet<int> selectedidxs;
+    editor_->getPointSelections( selectedids, selectedidxs );
+
+    if ( !selectedids.size() ) return;
+
+    RefMan<EM::EMObject> emobject = 
+			EM::EMM().getObject( fsspainter_->getFaultSSID() );
+    
+    mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
+    if ( !emfss ) return;
+    
+    int sid = emfss->sectionID( 0 );
+    mDynamicCastGet(const Geometry::FaultStickSet*,
+	    	    fss, emfss->sectionGeometry(sid ) );
+    if ( !fss ) return;
+
+    emfss->setBurstAlert( true );
+
+    RowCol rc;
+    for ( int ids=0; ids<selectedids.size(); ids++ )
+    {
+	int stickid = getStickId( selectedids[ids] );
+	rc.row = stickid;
+	
+	int knotid = -1;
+	StepInterval<int> colrg = fss->colRange( rc.row );
+	knotid = colrg.start + selectedidxs[ids]*colrg.step;
+	rc.col = knotid;
+
+	emfss->geometry().removeKnot( sid, rc.toInt64(), false );
+	
+	if ( !emfss->geometry().nrKnots(sid,stickid) )
+	    emfss->geometry().removeStick( sid, stickid, false );
+    }
+
+    emfss->setBurstAlert( false );
 }
 
 

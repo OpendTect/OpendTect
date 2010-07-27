@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.6 2010-06-24 10:52:11 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.7 2010-07-27 09:58:54 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -312,6 +312,8 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 	    break;
 	case EM::EMObjectCallbackData::PositionChange:
 	{
+	    if ( emfss->hasBurstAlert() )
+		return;
 	    abouttorepaint_.trigger();
 	    repaintFSS();
 	    repaintdone_.trigger();

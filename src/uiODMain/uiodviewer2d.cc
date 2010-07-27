@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.37 2010-07-22 05:22:39 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.38 2010-07-27 09:58:54 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -19,13 +19,14 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.37 2010-07-22 05:22:39 cvsu
 #include "uiflatviewslicepos.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewpropdlg.h"
+#include "uilistview.h"
+#include "uimenu.h"
 #include "uiodmain.h"
 #include "uiodviewer2dmgr.h"
+#include "uiodvw2dtreeitem.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
-
-#include "uilistview.h"
-#include "uiodvw2dtreeitem.h"
+#include "pixmap.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
@@ -47,9 +48,12 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , wvaselspec_(*new Attrib::SelSpec)
     , viewwin_(0)
     , slicepos_(0)
+    , viewstdcontrol_(0)
     , datamgr_(new Vw2DDataManager)
     , tifs_(0)
     , treetp_(0)
+    , polyseltbid_(-1)
+    , isPolySelect_(true)
 {
     basetxt_ = "2D Viewer - ";
     BufferString info;
@@ -179,6 +183,7 @@ void uiODViewer2D::createViewWin( bool isvert )
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
 	    uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0")
 						      .withedit(true) );
+    createPolygonSelBut( viewstdcontrol_->toolBar() );
     viewwin_->addControl( viewstdcontrol_ );
     createViewWinEditors();
 }
@@ -226,6 +231,32 @@ void uiODViewer2D::createTree( uiMainWin* mw )
     lv->display( true );
     mw->addDockWindow( *treedoc, uiMainWin::Left );
     treedoc->display( true );
+}
+
+
+void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
+{
+    if ( !tb ) return;
+
+    polyseltbid_ = tb->addButton( "polygonselect.png",
+	    			  mCB(this,uiODViewer2D,selectionMode),
+				  "Polygon Selection mode", true );
+    uiPopupMenu* polymnu = new uiPopupMenu( tb, "PoluMenu" );
+
+    uiMenuItem* polyitm = new uiMenuItem( "Polygon",
+	    			      mCB(this,uiODViewer2D,handleToolClick) );
+    polymnu->insertItem( polyitm, 0 );
+    polyitm->setPixmap( ioPixmap("polygonselect.png") );
+
+    uiMenuItem* rectitm = new uiMenuItem( "Rectangle",
+	    			      mCB(this,uiODViewer2D,handleToolClick) );
+    polymnu->insertItem( rectitm, 1 );
+    rectitm->setPixmap( ioPixmap("rectangleselect.png") );
+
+    tb->setButtonMenu( polyseltbid_, polymnu );
+
+    tb->addButton( "trashcan.png", mCB(this,uiODViewer2D,removeSelected),
+	    	   "Remove PolySelection", false );
 }
 
 
@@ -297,5 +328,52 @@ void uiODViewer2D::posChg( CallBacker* )
 	attrserv->setTargetSelSpec( wvaselspec_ );
 	DataPack::ID dpid = attrserv->createOutput( cs, DataPack::cNoID() );
 	setUpView( dpid, true );
+    }
+}
+
+
+void uiODViewer2D::selectionMode( CallBacker* cb )
+{
+    if ( !viewstdcontrol_ || !viewstdcontrol_->toolBar() )
+	return;
+
+    viewstdcontrol_->toolBar()->setPixmap( polyseltbid_, isPolySelect_ ?
+	    			"polygonselect.png" : "rectangleselect.png" );
+    viewstdcontrol_->toolBar()->setToolTip( polyseltbid_, isPolySelect_ ?
+	    		"Polygon Selection mode" : "Rectangle Selection mode" );
+
+    if ( !auxdataeditors_.size() )
+	return;
+
+    for ( int edidx=0; edidx<auxdataeditors_.size(); edidx++ )
+    {
+	auxdataeditors_[edidx]->setSelectionPolygonRectangle( !isPolySelect_ );
+	auxdataeditors_[edidx]->setSelActive(
+		viewstdcontrol_->toolBar()->isOn(polyseltbid_) );
+    }
+}
+
+
+void uiODViewer2D::handleToolClick( CallBacker* cb )
+{
+    mDynamicCastGet(uiMenuItem*,itm,cb)
+    if ( !itm ) return;
+
+    isPolySelect_ = itm->id()==0;
+    selectionMode( cb );
+}
+
+
+void uiODViewer2D::removeSelected( CallBacker* cb )
+{
+    if ( !viewstdcontrol_->toolBar()->isOn(polyseltbid_) )
+	return;
+
+    if ( !auxdataeditors_.size() )
+	return;
+
+    for ( int edidx=0; edidx<auxdataeditors_.size(); edidx++ )
+    {
+	auxdataeditors_[edidx]->removePolygonSelected( -1 );
     }
 }

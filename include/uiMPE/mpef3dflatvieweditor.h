@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.h,v 1.2 2010-06-24 11:19:35 cvsumesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.h,v 1.3 2010-07-27 09:58:50 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ protected:
 
     void 			seedMovementStartedCB(CallBacker*);
     void			seedMovementFinishedCB(CallBacker*);
+    void			removeSelectionCB(CallBacker*);
 
     void			mouseMoveCB(CallBacker*);
     void			mousePressCB(CallBacker*);
@@ -60,6 +61,7 @@ protected:
 
     void			cleanActStkContainer();
     void			fillActStkContainer();
+    const int			getStickId(int markerid) const;
 
     EM::Fault3DPainter*		f3dpainter_;
     bool			seedhasmoved_;
