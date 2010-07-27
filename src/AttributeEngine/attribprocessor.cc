@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.70 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.71 2010-07-27 13:40:11 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -341,6 +341,22 @@ void Processor::prepareForTableOutput()
 		    		    2*provider_->getRefStep() );
 	    provider_->setExtraZ( extraz );
 	    provider_->setNeedInterpol(true);
+	}
+    }
+
+    if ( outputs_.size() >1 )
+    {
+	for ( int idx=0; idx<outputs_.size(); idx++ )
+	{
+	    mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );
+	    if ( locoutp )
+		locoutp->setPossibleBinIDDuplic();
+	    else
+	    {
+		mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
+		if ( taboutp )
+		    taboutp->setPossibleBinIDDuplic();
+	    }
 	}
     }
 }

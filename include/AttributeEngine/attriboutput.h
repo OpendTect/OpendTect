@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.51 2010-07-12 22:52:41 cvskris Exp $
+ RCS:           $Id: attriboutput.h,v 1.52 2010-07-27 13:40:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -260,6 +260,7 @@ public:
 	    				    const SeisTrcInfo&);
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
 	    					TypeSet<float>&) const;
+    void                        setPossibleBinIDDuplic() { arebiddupl_ = true; }
     
     //TODO : check where we want to put this: output?
     static const char*		filenamekey();
@@ -324,6 +325,8 @@ public:
     
     void			setMaxDistBetwTrcs( float maxdist )
 						{ maxdisttrcs_ = maxdist; }
+    void                        setPossibleBinIDDuplic() { arebiddupl_ = true; }
+
 protected:
     DataPointSet&		datapointset_;
 
