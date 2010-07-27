@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.14 2010-06-17 19:00:58 cvskris Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.15 2010-07-27 08:56:57 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,7 +116,7 @@ protected:
     ObjectSet<IndexedGeometry>			paneltriangles_;
     ObjectSet<IndexedGeometry>			panellines_;
 
-    TypeSet<int>				stickshift_;
+    BoolTypeSet					stickhidden_;
     TypeSet<int>				texturecolcoords_;
     ObjectSet< TypeSet<int> >			textureknotcoords_;	
     int						maximumtexturesize_;

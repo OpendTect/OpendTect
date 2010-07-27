@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.41 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.42 2010-07-27 08:56:57 cvsjaap Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -1058,7 +1058,9 @@ bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
 
 void ExplFaultStickSurface::addToGeometries( IndexedGeometry* ig )
 {
-    if ( !ig ) return;
+    if ( !ig || ig->isHidden() )
+	return;
+
     geometrieslock_.writeLock();
     if ( geometries_.indexOf( ig )!=-1 )
     {
@@ -1396,6 +1398,18 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
 	    emptyPanel( stickidx );
 	    removePanel( !stickidx ? 0 : stickidx-1 );
 	    removeStick( stickidx );
+	}
+	if ( rc.col==FaultStickSurface::StickHide )
+	{
+	    if ( sticks_.validIdx(stickidx) )
+	    {
+		const int sticknr = surface_->rowRange().atIndex( stickidx );
+		sticks_[stickidx]->hide( surface_->isStickHidden(sticknr) );
+
+		removeFromGeometries( sticks_[stickidx] );
+		if ( displaysticks_ )
+		    addToGeometries( sticks_[stickidx] );
+	    }
 	}
     }
 

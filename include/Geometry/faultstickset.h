@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        J.C. Glas
 Date:          November 2008
-RCS:           $Id: faultstickset.h,v 1.8 2010-06-17 19:00:58 cvskris Exp $
+RCS:           $Id: faultstickset.h,v 1.9 2010-07-27 08:56:57 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,8 @@ public:
     bool		isKnotDefined(const RowCol&) const;
 
     const Coord3&	getEditPlaneNormal(int stick) const;				
-    enum ChangeTag	{StickChange=__mUndefIntVal+1,StickInsert,StickRemove};
+    enum ChangeTag	{ StickChange=__mUndefIntVal+1, StickInsert,
+			  StickRemove, StickHide };
     
     			// To be used by surface reader only
     void		addUdfRow(int stickidx,int firstknotnr,int nrknots);
@@ -59,9 +60,11 @@ public:
     bool		isTwisted(int sticknr1,int sticknr2,
 				  double zscale) const;
 
-    enum StickStatus	{ NoStatus=0, Selected };
+    enum StickStatus	{ NoStatus=0, Selected=1, Hidden=2 };
     void		selectStick(int stick,bool yn);
     bool		isStickSelected(int stick) const;
+    void		hideStick(int stick,bool yn);
+    bool		isStickHidden(int stick) const;
 
 
 protected:
@@ -74,9 +77,7 @@ protected:
     TypeSet<int>		firstcols_;
     
     TypeSet<Coord3>		editplanenormals_;
-
-
-    TypeSet<StickStatus>	stickstatus_;
+    TypeSet<unsigned int>	stickstatus_;
 };
 
 };

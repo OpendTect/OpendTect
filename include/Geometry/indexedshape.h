@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.12 2009-07-22 16:01:16 cvsbert Exp $
+RCS:           $Id: indexedshape.h,v 1.13 2010-07-27 08:56:57 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,9 @@ public:
     void	removeAll();
     bool	isEmpty() const;
 
+    bool	isHidden() const			{ return ishidden_; }
+    void	hide(bool yn)				{ ishidden_ = yn; }
+
 
     mutable Threads::Mutex	lock_;
 
@@ -54,6 +57,8 @@ public:
     mutable bool		ischanged_;
 
 protected:
+    bool			ishidden_;
+
     Coord3List*			coordlist_;
     Coord3List*			texturecoordlist_;
     Coord3List*			normallist_;
