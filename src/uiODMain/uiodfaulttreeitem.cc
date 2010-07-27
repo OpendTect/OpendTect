@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.42 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.43 2010-07-27 09:01:58 cvsjaap Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -233,15 +233,18 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
     if ( !fd )
 	return;
 
-    mAddMenuItem( menu, &singlecolmnuitem_, faultdisplay_->arePanelsDisplayed(),
+    mAddMenuItem( menu, &singlecolmnuitem_,
+		  faultdisplay_->arePanelsDisplayedInFull(),
 		  !faultdisplay_->showingTexture() );
     mAddMenuItem( &displaymnuitem_, &displayplanemnuitem_, true,
 		  faultdisplay_->arePanelsDisplayed() );
     mAddMenuItem( &displaymnuitem_, &displaystickmnuitem_, true,
 		  faultdisplay_->areSticksDisplayed() );
-    mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
+    mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, 
+		  faultdisplay_->canDisplayIntersections(),
 		  faultdisplay_->areIntersectionsDisplayed() );
-    mAddMenuItem( &displaymnuitem_, &displayintersecthorizonmnuitem_, true,
+    mAddMenuItem( &displaymnuitem_, &displayintersecthorizonmnuitem_,
+		  faultdisplay_->canDisplayHorizonIntersections(),
 		  faultdisplay_->areHorizonIntersectionsDisplayed() );
     mAddMenuItem( menu, &displaymnuitem_, true, true );
 
@@ -288,11 +291,9 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==displayplanemnuitem_.id )
     {
 	menu->setIsHandled(true);
-
 	const bool stickchecked = displaystickmnuitem_.checked;
 	const bool planechecked = displayplanemnuitem_.checked;
 	faultdisplay_->display( stickchecked || planechecked, !planechecked );
-	faultdisplay_->displayIntersections( false );
     }
     else if ( mnuid==displaystickmnuitem_.id )
     {
@@ -300,32 +301,18 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	const bool stickchecked = displaystickmnuitem_.checked;
 	const bool planechecked = displayplanemnuitem_.checked;
 	faultdisplay_->display( !stickchecked, stickchecked || planechecked );
-	faultdisplay_->displayIntersections( false );
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
 	menu->setIsHandled(true);
 	const bool interchecked = displayintersectionmnuitem_.checked;
 	faultdisplay_->displayIntersections( !interchecked );
-	if ( interchecked && displayintersecthorizonmnuitem_.checked &&
-		faultdisplay_->hasHorizons() )
-	    return;
-
-	faultdisplay_->display( false, interchecked );
     }
     else if ( mnuid==displayintersecthorizonmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	if ( !faultdisplay_->hasHorizons() )
-	{
-	    uiMSG().warning( "No horizon loaded" );
-	    return;
-	}
-	
 	const bool interchecked = displayintersecthorizonmnuitem_.checked;
 	faultdisplay_->displayHorizonIntersections( !interchecked );
-	if ( !displayintersectionmnuitem_.checked )
-	    faultdisplay_->display( false, interchecked );
     }
     else if ( mnuid==singlecolmnuitem_.id )
     {
