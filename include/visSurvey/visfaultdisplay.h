@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.29 2010-06-29 07:15:33 cvsjaap Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.30 2010-07-27 09:00:43 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,9 @@ namespace visBase
 
 namespace EM { class Fault3D; }
 namespace MPE { class FaultEditor; }
-namespace Geometry { class ExplFaultStickSurface; class ExplPlaneIntersection; }
+namespace Geometry { class ExplFaultStickSurface;
+		     class ExplPlaneIntersection;
+		     class FaultStickSurface; }
 
 
 namespace visSurvey
@@ -86,6 +88,7 @@ public:
     void			display(bool sticks,bool panels);
     bool			areSticksDisplayed() const;
     bool			arePanelsDisplayed() const;
+    bool			arePanelsDisplayedInFull() const;
 
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
@@ -99,11 +102,11 @@ public:
 
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
+    bool			canDisplayIntersections() const;
     
     void			displayHorizonIntersections(bool yn); 
     bool			areHorizonIntersectionsDisplayed() const;
-    bool			hasHorizons() const
-					    { return horintersections_.size(); }
+    bool			canDisplayHorizonIntersections() const;
 
     Notifier<FaultDisplay>	colorchange;
     Notifier<FaultDisplay>	displaymodechange;
@@ -123,8 +126,12 @@ protected:
 	    						 const DataPointSet*,
 							 int column,
 							 TaskRunner*); 
-
+    void			updatePanelDisplay();
     void			updateStickDisplay();
+    void			updateIntersectionDisplay();
+    void			updateHorizonIntersectionDisplay();
+    void			updateDisplay();
+
     void			updateSingleColor();
     void			updateManipulator();
 
@@ -151,6 +158,14 @@ protected:
 
     Coord3			disp2world(const Coord3& displaypos) const;
 
+    bool			coincidesWith2DLine(
+					    const Geometry::FaultStickSurface&,
+					    int sticknr) const;
+    bool			coincidesWithPlane(
+					    const Geometry::FaultStickSurface&,
+					    int sticknr) const;
+    void			updateStickHiding();
+
     visBase::EventCatcher*		eventcatcher_;
     visBase::Transformation*		displaytransform_;
     visBase::ShapeHints*		shapehints_;
@@ -169,6 +184,7 @@ protected:
     ObjectSet<visBase::GeomIndexedShape> horintersections_;
     ObjectSet<Geometry::ExplFaultStickSurface>	horshapes_;
     ObjectSet<const SurveyObject>	horobjs_;
+    bool				displayintersections_;
     bool				displayhorintersections_;
     
     visBase::PickStyle*			activestickmarkerpickstyle_;
@@ -189,6 +205,7 @@ protected:
     bool				usestexture_;
 
     bool				displaysticks_;
+    bool				displaypanels_;
 
     bool				stickselectmode_;
     bool				ctrldown_;

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.58 2010-06-29 07:15:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.59 2010-07-27 09:00:43 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -42,6 +42,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.58 2010-06-29 07:15:33 c
 #include "vispolyline.h"
 #include "vispolygonselection.h"
 #include "visshapehints.h"
+#include "visseis2ddisplay.h"
 #include "vistransform.h"
 
 mCreateFactoryEntry( visSurvey::FaultDisplay );
@@ -72,7 +73,9 @@ FaultDisplay::FaultDisplay()
     , displaymodechange( this )
     , usestexture_( false )
     , displaysticks_( false )
+    , displaypanels_( true )
     , stickselectmode_( false )
+    , displayintersections_( false )
     , displayhorintersections_( false )
 {
     activestickmarkerpickstyle_->ref();
@@ -315,14 +318,12 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 
     viseditor_->setEditor( faulteditor_ );
     
-    paneldisplay_->turnOn( true );
     displaysticks_ = emfault_->isEmpty();
 
     nontexturecol_ = emfault_->preferredColor();
     updateSingleColor();
-    updateStickDisplay();
+    updateDisplay();
     updateManipulator();
-    updateKnotMarkers();
 
     return true;
 }
@@ -437,38 +438,103 @@ Color FaultDisplay::getColor() const
 { return getMaterial()->getColor(); }
 
 
+void FaultDisplay::updatePanelDisplay()
+{
+    if ( paneldisplay_ )
+    {
+	const bool dodisplay = arePanelsDisplayed() &&
+			       !areIntersectionsDisplayed() &&
+			       !areHorizonIntersectionsDisplayed();
+	if ( dodisplay )
+	    paneldisplay_->touch( false );
+
+	paneldisplay_->turnOn( dodisplay );
+    }
+}
+
+
 void FaultDisplay::updateStickDisplay()
 {
-    if ( !stickdisplay_ )
-	return;
+    if ( stickdisplay_ )
+    {
+	bool dodisplay = areSticksDisplayed();
+	if ( arePanelsDisplayedInFull() && emfault_->nrSections() )
+	{
+	    const EM::SectionID sid = emfault_->sectionID( 0 );
+	    if ( emfault_->geometry().nrSticks(sid) == 1 )
+		dodisplay = true;
+	}
 
-    const EM::SectionID sid = emfault_->sectionID( 0 );
+	if ( dodisplay )
+	    stickdisplay_->touch( false );
 
-    const bool dodisplay = displaysticks_ ||
-	    (arePanelsDisplayed() && emfault_->geometry().nrSticks(sid)==1 );
-    
-    stickdisplay_->turnOn( dodisplay );
+	stickdisplay_->turnOn( dodisplay );
+    }
+
+    updateKnotMarkers();
+    updateEditorMarkers();	
+}
+
+
+void FaultDisplay::updateIntersectionDisplay()
+{
+    if ( intersectiondisplay_ )
+    {
+	const bool dodisplay = areIntersectionsDisplayed() &&
+			       arePanelsDisplayed();
+	if ( dodisplay )
+	    intersectiondisplay_->touch( false );
+
+	intersectiondisplay_->turnOn( dodisplay );
+    }
+
+    updateStickHiding();
+}
+
+
+void FaultDisplay::updateHorizonIntersectionDisplay()
+{
+    for ( int idx=0; idx<horintersections_.size(); idx++ )
+    {
+	const bool dodisplay = areHorizonIntersectionsDisplayed() &&
+			       arePanelsDisplayed(); 
+	if ( dodisplay )
+	    horintersections_[idx]->touch( false );
+
+	horintersections_[idx]->turnOn( dodisplay );
+    }
+}
+
+
+void FaultDisplay::updateDisplay()
+{
+    updatePanelDisplay();
+    updateStickDisplay();
+    updateIntersectionDisplay();
+    updateHorizonIntersectionDisplay();
 }
 
 
 void FaultDisplay::display( bool sticks, bool panels )
 {
     displaysticks_ = sticks;
+    displaypanels_ = panels;
 
-    if ( paneldisplay_ )
-	paneldisplay_->turnOn( panels );
-
-    updateStickDisplay();
+    updateDisplay();
     updateManipulator();
-    updateKnotMarkers();
     displaymodechange.trigger();
 }
 
 
-bool FaultDisplay::areSticksDisplayed() const { return displaysticks_; }
+bool FaultDisplay::areSticksDisplayed() const
+{ return displaysticks_; }
 
 
 bool FaultDisplay::arePanelsDisplayed() const
+{ return displaypanels_; }
+
+
+bool FaultDisplay::arePanelsDisplayedInFull() const
 {
     return paneldisplay_ ? paneldisplay_->isOn() : false;
 }
@@ -555,6 +621,9 @@ Coord3 FaultDisplay::disp2world( const Coord3& displaypos ) const
 }
 
 
+#define mZScale() \
+    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : SI().zScale() )
+
 void FaultDisplay::mouseCB( CallBacker* cb )
 {
     if ( stickselectmode_ )
@@ -591,10 +660,6 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
     Coord3 pos = disp2world( eventinfo.displaypickedpos );
 
-    const float zscale = scene_
-	? scene_->getZScale() *scene_->getZStretch()
-	: SI().zScale();
-
     const EM::PosID pid = viseditor_ ?
        viseditor_->mouseClickDragger(eventinfo.pickedobjids) : EM::PosID::udf();
 
@@ -605,7 +670,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 			OD::leftMouseButton(eventinfo.buttonstate_);
 
     EM::PosID insertpid;
-    faulteditor_->getInteractionInfo( makenewstick, insertpid, pos, zscale );
+    faulteditor_->getInteractionInfo( makenewstick, insertpid, pos, mZScale() );
     if ( pid.isUdf() && !viseditor_->isDragging() )
 	setActiveStick( makenewstick ? EM::PosID::udf() : insertpid );
 
@@ -645,13 +710,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 		{
 		    EM::EMM().undo().setUserInteractionEnd(
 			    EM::EMM().undo().currentEventID() );
-		    paneldisplay_->touch( false );
-		    stickdisplay_->touch( false );
-		    if ( intersectiondisplay_ )
-			intersectiondisplay_->touch( false );
-    
-		    for ( int idx=0; idx<horintersections_.size(); idx++ )
-			horintersections_[idx]->touch( false );
+		    updateDisplay();
 		}
 	    }
 	}
@@ -696,12 +755,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 		EM::EMM().undo().setUserInteractionEnd(
 		    EM::EMM().undo().currentEventID() );
 
-		paneldisplay_->touch( false );
-		stickdisplay_->touch( false );
-		intersectiondisplay_->touch( false );
-	    
-		for ( int idx=0; idx<horintersections_.size(); idx++ )
-		    horintersections_[idx]->touch( false );
+		updateDisplay();
 		setActiveStick( insertpid );
 		faulteditor_->editpositionchange.trigger();
 	    }
@@ -793,6 +847,20 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
 
+    if ( cbdata.event == EM::EMObjectCallbackData::SectionChange )
+    {
+	if ( emfault_ && emfault_->nrSections() )
+	{
+	    mDynamicCastGet( Geometry::FaultStickSurface*, fss,
+			     emfault_->sectionGeometry(emfault_->sectionID(0)) )
+
+	    if ( explicitpanels_ )
+		explicitpanels_->setSurface( fss );
+	    if ( explicitsticks_ )
+		explicitsticks_->setSurface( fss );
+	}
+    }
+
     if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert ||
 	 cbdata.event==EM::EMObjectCallbackData::SectionChange ||
 	 cbdata.event==EM::EMObjectCallbackData::PositionChange )
@@ -806,12 +874,6 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	}
 	else
 	    updateActiveStickMarker();
-
-	paneldisplay_->touch( false );
-	stickdisplay_->touch( false );
-	intersectiondisplay_->touch( false );
-	for ( int idx=0; idx<horintersections_.size(); idx++ )
-	    horintersections_[idx]->touch( false );
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
@@ -819,7 +881,7 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	updateSingleColor();
     }
 
-    updateKnotMarkers();
+    updateDisplay();
 }
 
 
@@ -870,9 +932,8 @@ void FaultDisplay::updateActiveStickMarker()
 void FaultDisplay::showManipulator( bool yn )
 {
     showmanipulator_ = yn;
-    updateStickDisplay();
+    updateDisplay();
     updateManipulator();
-    updateKnotMarkers();
     displaymodechange.trigger();
 }
 
@@ -881,11 +942,8 @@ void FaultDisplay::updateManipulator()
 {
     const bool show = showmanipulator_ && areSticksDisplayed();
     if ( viseditor_ )
-    {
-	bool ison = areIntersectionsDisplayed() ? true 
-	    					: show && !stickselectmode_;
-	viseditor_->turnOn( ison );	
-    }
+	viseditor_->turnOn( show && !stickselectmode_ );	
+
     if ( activestickmarker_ )
 	activestickmarker_->turnOn( show && !stickselectmode_);
     if ( scene_ )
@@ -1002,39 +1060,62 @@ bool FaultDisplay::hasCache( int attrib ) const
 
 void FaultDisplay::displayIntersections( bool yn )
 {
-    if ( intersectiondisplay_ )
-    {
-	if ( yn ) intersectiondisplay_->touch( false );
-	intersectiondisplay_->turnOn( yn );
-
-	updateKnotMarkers();
-	if ( !viseditor_->allMarkersDisplayed() )
-	    updateEditorMarkers();	
-
-	displaymodechange.trigger();
-    }
+    displayintersections_ = yn;
+    updateDisplay();
+    displaymodechange.trigger();
 }
 
 
 bool FaultDisplay::areIntersectionsDisplayed() const
-{ return intersectiondisplay_ ? intersectiondisplay_->isOn() : false; }
+{ return displayintersections_; }
+
+
+bool FaultDisplay::canDisplayIntersections() const
+{
+    if ( scene_ )
+    {
+	for ( int idx=0; idx<scene_->size(); idx++ )
+	{
+	    visBase::DataObject* dataobj = scene_->getObject( idx );
+	    mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
+	    mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
+	    if ( (plane && plane->isOn()) || (s2dd && s2dd->isOn()) )
+		return true;
+	}
+    }
+
+    return displayintersections_;
+}
 
 
 void FaultDisplay::displayHorizonIntersections( bool yn )
 {
     displayhorintersections_ = yn;
-    for ( int idx=0; idx<horintersections_.size(); idx++ )
-    {
-	if ( yn )
-	    horintersections_[idx]->touch( false );
-	horintersections_[idx]->turnOn( yn );
-    }
+    updateDisplay();
     displaymodechange.trigger();
 }
 
 
 bool FaultDisplay::areHorizonIntersectionsDisplayed() const
 {  return displayhorintersections_; }
+
+
+bool FaultDisplay::canDisplayHorizonIntersections() const
+{
+    if ( scene_ )
+    {
+	for ( int idx=0; idx<scene_->size(); idx++ )
+	{
+	    visBase::DataObject* dataobj = scene_->getObject( idx );
+	    mDynamicCastGet( HorizonDisplay*, hor, dataobj );
+	    if ( hor && hor->isOn() )
+		return true;
+	}
+    }
+
+    return displayhorintersections_;
+}
+
 
 #define mCreateNewHorIntersection() \
     visBase::GeomIndexedShape* line = visBase::GeomIndexedShape::create();\
@@ -1051,7 +1132,7 @@ bool FaultDisplay::areHorizonIntersectionsDisplayed() const
 		 line->getInventorNode() ); \
     line->turnOn( false ); \
     Geometry::ExplFaultStickSurface* shape = 0; \
-    mTryAlloc( shape, Geometry::ExplFaultStickSurface(0,zscale) ); \
+    mTryAlloc( shape, Geometry::ExplFaultStickSurface(0,mZScale()) ); \
     shape->display( false, false ); \
     line->setSurface( shape ); \
     shape->setSurface( fss ); \
@@ -1068,8 +1149,6 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
     if ( !emfault_ )
 	return;
    
-    const float zscale = 
-	scene_  ? scene_->getZScale() *scene_->getZStretch() : SI().zScale();
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
 		     emfault_->sectionGeometry( emfault_->sectionID(0)) );
     
@@ -1147,7 +1226,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	horobjs_.remove( usedids[idx] );
     horobjs_ = usedhors;
     
-    displayHorizonIntersections( displayhorintersections_ );
+    updateHorizonIntersectionDisplay();
 }
 
 
@@ -1158,7 +1237,6 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
     
     if ( !explicitintersections_ ) return;
 
-    const int oldsz = intersectionobjs_.size();
     ObjectSet<const SurveyObject> usedobjects;
     TypeSet<int> planeids;
 
@@ -1220,15 +1298,10 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 
     intersectionobjs_ = usedobjects;
     planeids_ = planeids;
-
-    if ( areIntersectionsDisplayed() ) 
-    {
-	if ( oldsz != intersectionobjs_.size() )
-	    updateEditorMarkers();
-	
-	intersectiondisplay_->touch( false );
-    }
+    updateIntersectionDisplay();
+    updateStickDisplay();
 }
+
 
 void FaultDisplay::setStickSelectMode( bool yn )
 {
@@ -1243,9 +1316,6 @@ void FaultDisplay::setStickSelectMode( bool yn )
 	scene_->getPolySelection()->polygonFinished()->notify( cb );
     else
 	scene_->getPolySelection()->polygonFinished()->remove( cb );
-
-    if ( faulteditor_ )                                                 
-	faulteditor_->setLastClicked( EM::PosID::udf() ); 
 }
 
 
@@ -1281,39 +1351,19 @@ bool FaultDisplay::isInStickSelectMode() const
 
 void FaultDisplay::updateEditorMarkers()
 {
-    if ( !viseditor_ || !viseditor_->isOn() )
+    if ( !emfault_ || !viseditor_ || !viseditor_->isOn() )
 	return;
-    
-    TypeSet<CubeSampling> cs;
-    for ( int idx=0; idx<intersectionobjs_.size(); idx++ )
-    {
-	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,p,
-		intersectionobjs_[idx]);
-	if ( p ) cs += p->getCubeSampling();
-    }
     
     PtrMan<EM::EMObjectIterator> iter = emfault_->geometry().createIterator(-1);    while ( true )
     {
 	const EM::PosID pid = iter->next();
 	if ( pid.objectID() == -1 )
 	    break;
-	
-	const Coord3 pos = emfault_->getPos( pid );
-	bool onplane = false;
-	for ( int idx=0; idx<cs.size(); idx++ )
-	{
-	    if ( !cs[idx].zrg.includes(pos.z) )
-		continue;
-	    
-	    BinID bid = SI().transform(pos);
-	    if ( !cs[idx].hrg.includes(bid) )
-		continue;
-	    
-	    onplane = true;
-	    break;
-	}
-	
-	viseditor_->turnOnMarker( pid, onplane );
+
+	const int sid = pid.sectionID();
+	const int sticknr = RowCol( pid.subID() ).row;
+	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
+	viseditor_->turnOnMarker( pid, !fs->isStickHidden(sticknr) );
     }
 }
 
@@ -1336,6 +1386,12 @@ void FaultDisplay::updateKnotMarkers()
 	if ( pid.objectID() == -1 )
 	    break;
 
+	const int sid = pid.sectionID();
+	const int sticknr = RowCol( pid.subID() ).row;
+	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
+	if ( fs->isStickHidden(sticknr) )
+	    continue;
+
 	const Coord3 pos = emfault_->getPos( pid );
 
 	visBase::Marker* marker = visBase::Marker::create();
@@ -1344,12 +1400,119 @@ void FaultDisplay::updateKnotMarkers()
 	marker->setDisplayTransformation( displaytransform_ );
 	marker->setCenterPos(pos);
 	marker->setScreenSize(3);
-
-	const int sid = emfault_->sectionID(0);
-	const int sticknr = RowCol( pid.subID() ).row;
-	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
 	const int groupidx = fs->isStickSelected(sticknr) ? 1 : 0;
 	knotmarkers_[groupidx]->addObject( marker );
+    }
+}
+
+
+bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
+					int sticknr ) const
+{
+    RowCol rc( sticknr, 0 );
+    const StepInterval<int> rowrg = fss.rowRange();
+    if ( !scene_ || !rowrg.includes(sticknr) || rowrg.snap(sticknr)!=sticknr )
+	return false;
+
+    for ( int idx=0; idx<scene_->size(); idx++ )
+    {
+	visBase::DataObject* dataobj = scene_->getObject( idx );
+	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
+	if ( !s2dd || !s2dd->isOn() )
+	    continue;
+
+	const float onestepdist = SI().oneStepDistance(Coord3(0,0,1),mZScale());
+
+	const StepInterval<int> colrg = fss.colRange( rc.row );
+	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+	{
+	    Coord3 pos = fss.getKnot(rc);
+	    if ( displaytransform_ )
+		pos = displaytransform_->transform( pos ); 
+
+	    if ( s2dd->calcDist( pos ) <= 0.5*onestepdist )
+		return true;
+	}
+    }
+    return false;
+}
+
+
+bool FaultDisplay::coincidesWithPlane( const Geometry::FaultStickSurface& fss,
+				       int sticknr ) const
+{
+    RowCol rc( sticknr, 0 );
+    const StepInterval<int> rowrg = fss.rowRange();
+    if ( !scene_ || !rowrg.includes(sticknr) || rowrg.snap(sticknr)!=sticknr )
+	return false;
+
+    for ( int idx=0; idx<scene_->size(); idx++ )
+    {
+	visBase::DataObject* dataobj = scene_->getObject( idx );
+	mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
+	if ( !plane || !plane->isOn() )
+	    continue;
+
+	const Coord3 vec1 = fss.getEditPlaneNormal(sticknr).normalize();
+	const Coord3 vec2 = plane->getNormal(Coord3()).normalize();
+	if ( fabs(vec1.dot(vec2)) < 0.5 )
+	    continue;
+
+	const Coord3 planenormal = plane->getNormal( Coord3::udf() );
+	const float onestepdist = SI().oneStepDistance( planenormal,mZScale() );
+
+	float prevdist;
+	Coord3 prevpos;
+
+	const StepInterval<int> colrg = fss.colRange( rc.row );
+	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+	{
+	    Coord3 curpos = fss.getKnot(rc);
+	    if ( displaytransform_ )
+		curpos = displaytransform_->transform( curpos );
+
+	    const float curdist = plane->calcDist( curpos );
+	    if ( curdist <= 0.5*onestepdist )
+		return true;
+
+	    if ( rc.col != colrg.start )
+	    {
+		const float frac = prevdist / (prevdist+curdist);
+		Coord3 interpos = (1-frac)*prevpos + frac*curpos;
+		if ( plane->calcDist(interpos) <= 0.5*onestepdist )
+		    return true;
+	    }
+
+	    prevdist = curdist;
+	    prevpos = curpos;
+	}
+    }
+    return false;
+}
+
+
+void FaultDisplay::updateStickHiding()
+{
+    if ( !emfault_ )
+	return;
+
+    for ( int sidx=0; sidx<emfault_->nrSections(); sidx++ )
+    {
+	int sid = emfault_->sectionID( sidx );
+	mDynamicCastGet( Geometry::FaultStickSurface*, fss,
+			 emfault_->sectionGeometry( sid ) );
+	if ( fss->isEmpty() )
+	    continue;
+
+	RowCol rc;
+	const StepInterval<int> rowrg = fss->rowRange();
+
+	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+	{
+	    fss->hideStick( rc.row, areIntersectionsDisplayed() &&
+				    !coincidesWithPlane(*fss, rc.row) &&
+				    !coincidesWith2DLine(*fss, rc.row) );
+	}
     }
 }
 
