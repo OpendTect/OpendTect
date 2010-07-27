@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.9 2010-07-26 12:29:52 cvshelene Exp $";
+static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.10 2010-07-27 06:42:33 cvssatyaki Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -186,7 +186,7 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 	prdf->setDimName( dimnr, probflds_[dimnr]->selColName() );
 	StepInterval<float> dimrg = probflds_[dimnr]->selColRange();
 	SamplingData<float>& sd = pdf.sampling( dimnr );
-	sd.start = dimrg.start;
+	sd.start = dimrg.start + dimrg.step/2;
 	sd.step = dimrg.step;
 	
 	DPSDensityCalcND::AxisParam* axparam =
