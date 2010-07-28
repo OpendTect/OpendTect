@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Nanne Hemstra
  Date:		January 2010
  Contents:	File utitlities
- RCS:		$Id: file.h,v 1.5 2010-05-31 12:29:16 cvsranojay Exp $
+ RCS:		$Id: file.h,v 1.6 2010-07-28 08:04:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,6 @@ namespace File
     mGlobal const char*	getCurrentPath();
     mGlobal const char*	getHomePath();
     mGlobal const char*	getTempPath();
-    mGlobal bool	Recursive();	
-    mGlobal bool	NonRecursive();
 
 } // namespace File
 
