@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.19 2010-07-19 09:24:54 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.20 2010-07-28 10:42:24 cvsnageswara Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -75,8 +75,9 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     }
     else
     {
-	uiSeis2DMultiLineSel::Setup su( "Select lines" );
-	linesel2dfld_ = new uiSeis2DMultiLineSel( this, su.withz(true) );
+	uiSeis2DMultiLineSel::Setup lnsetup( "Select lines" );
+	lnsetup.withattr( true ).allattribs( false ).steering( false );
+	linesel2dfld_ = new uiSeis2DMultiLineSel( this, lnsetup );
 	linesel2dfld_->butPush.notify( 
 				mCB(this,uiWaveletExtraction,inputSelCB) );
     }
@@ -150,11 +151,39 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
     CubeSampling cs;
     PtrMan<SeisIOObjInfo> si=0;
     if ( !linesel2dfld_ )
-    	 si = new SeisIOObjInfo( seissel3dfld_->ioobj() );
+    {
+	si = new SeisIOObjInfo( seissel3dfld_->ioobj() );
+	si->getRanges( cs );
+    }
     else
-	 si = new SeisIOObjInfo( linesel2dfld_->getIOObj() );
+    {
+	BufferString attrnm = linesel2dfld_->getAttribName();
+	BufferStringSet sellineset = linesel2dfld_->getSelLines();
+	si = new SeisIOObjInfo( linesel2dfld_->getIOObj() );
+	StepInterval<int> trcrg;
+	StepInterval<float> commonzrg;
+	for ( int idx=0; idx<sellineset.size(); idx++ )
+	{
+	    StepInterval<float> zrg( 0, 0, 1 );
+	    LineKey lkey( sellineset[idx]->buf(), attrnm );
+	    if ( !si->getRanges( lkey, trcrg, zrg ) )
+		return;
 
-    si->getRanges( cs );
+	    if ( !idx )
+		commonzrg = zrg;
+	    else
+		commonzrg.limitTo( zrg );
+	}
+
+	if ( commonzrg.nrSteps() == 0 )
+	{
+	    uiMSG().message( "No common Z Range in selected lines.\n"
+		    	     "Please change selection" );
+	}
+
+	cs.zrg = commonzrg;
+    }
+
     if ( !linesel2dfld_ && subselfld3d_ )
     {
 	cs.hrg.step.inl = cs.hrg.step.crl = 10;
@@ -300,7 +329,7 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 	StepInterval<float> zrg = zrangefld_->getRange();
 	Seis::RangeSelData range;
 	range.setZRange( zrg );
-	Interval<int> inlrg(0,0);
+	Interval<int> inlrg( 0, 0 );
 	range.cubeSampling().hrg.setInlRange( inlrg );
 
 	ObjectSet<Seis::SelData> sdset;
@@ -310,7 +339,10 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 	for ( int lidx=0; lidx<sellines.size(); lidx++ )
 	{
 	    range.cubeSampling().hrg.setCrlRange( trcrgs[lidx] );
-	    range.lineKey().setLineName( sellines.get(lidx).buf() );
+	    BufferString linenm = sellines.get(lidx).buf();
+	    BufferString attrnm = linesel2dfld_->getAttribName();
+	    LineKey lk( linenm, attrnm );
+	    range.lineKey() = lk;
 	    sd_ = range.clone();
 	    sdset += sd_;
 	}

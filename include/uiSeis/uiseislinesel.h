@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.24 2010-04-23 09:33:36 cvsraman Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.25 2010-07-28 10:42:24 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,8 @@ public:
 				    , withlinesetsel_(true)
 				    , withz_(false)
 				    , withattr_(false)
+				    , allattribs_(true)
+				    , steering_(false)
 				    , withstep_(false)
 				    , filldef_(true)	{}
 
@@ -99,6 +101,8 @@ public:
 	mDefSetupMemb(bool,withlinesetsel)
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(bool,withattr)
+	mDefSetupMemb(bool,allattribs)
+	mDefSetupMemb(bool,steering)
 	mDefSetupMemb(bool,withstep)
 	mDefSetupMemb(bool,filldef)
     };

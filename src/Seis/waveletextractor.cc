@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.6 2010-07-19 09:06:56 cvsnageswara Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.7 2010-07-28 10:42:24 cvsnageswara Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -142,29 +142,26 @@ const char* WaveletExtractor::message() const
 int WaveletExtractor::nextStep()
 {
     SeisTrc trc;
-    const int trcinfo = seisrdr_->get( trc.info() );
+    const int res = seisrdr_->get( trc.info() );
 
-    if ( trcinfo == -1 )
+    if ( res == -1 )
+    {
+	msg_ = "Error reading input data";
 	return ErrorOccurred();
+    }
 
-    if ( trcinfo == 0 )
+    if ( res == 0 )
     {
 	if ( seisrdr_->is2D() && getNextLine() )
 	    return MoreToDo();
 
-	if ( finish(nrusedtrcs_) )
-	    return Finished();
-	else
-	{
-	    msg_ = "Problem while reading data. Please change selection";
-	    return ErrorOccurred();
-	}
+	return finish(nrusedtrcs_) ? Finished() : ErrorOccurred();
     }
 
-    if ( trcinfo == 2 )
+    if ( res == 2 )
 	return MoreToDo();
 
-    if ( trcinfo ==1 )
+    if ( res == 1 )
     {
 	seisrdr_->get( trc );
 	if ( trc.isNull() )
@@ -304,21 +301,15 @@ void WaveletExtractor::normalisation( Array1DImpl<float>& normal )
 bool WaveletExtractor::finish( int nrusedtrcs )
 {
     if ( nrusedtrcs == 0 )
-	return false;
+    { msg_ = "No valid traces read"; return false; }
 
     float * stackedarr = wvlt_.samples();
     stackedarr[0] = 0;
     for ( int i=1; i<wvltsize_; i++ )
 	stackedarr[i] = sqrt( stackedarr[i] / nrusedtrcs );
 
-    if ( !doWaveletIFFT() )
-	return false;
-
-    if ( !rotateWavelet() )
-	return false;
-
-    if ( !taperWavelet() )
-	    return false;
+    if ( !doWaveletIFFT() || !rotateWavelet() || !taperWavelet() )
+    { msg_ = "Failed to generate wavelet"; return false; }
 
    return true;
 }
