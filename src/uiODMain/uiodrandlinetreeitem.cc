@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.40 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.41 2010-07-28 07:56:11 cvshelene Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -47,7 +47,7 @@ class uiRandomLinePolyLineDlg : public uiDialog
 {
 public:
 uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
-    : uiDialog(p,Setup("Create Random Line from Polyline","",mTODOHelpID)
+    : uiDialog(p,Setup("Create Random Line from Polyline","","109.0.6")
 		 .modal(false))
     , rtd_(rtd) 
 {
@@ -241,7 +241,8 @@ void uiODRandomLineParentTreeItem::genRandLineFromWell()
 void uiODRandomLineParentTreeItem::genRandLineFromTable()
 {
     uiDialog dlg( getUiParent(),
-	    	  uiDialog::Setup("Random lines","Specify node positions","") );
+	    	  uiDialog::Setup("Random lines","Specify node positions",
+		      		  "109.0.4") );
     uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
     Interval<float> zrg = SI().zRange(true);
     zrg.scale( SI().zFactor() );
@@ -473,7 +474,8 @@ void uiODRandomLineTreeItem::editNodes()
     TypeSet<BinID> bids;
     rtd->getAllKnotPos( bids );
     uiDialog dlg( getUiParent(),
-	    	  uiDialog::Setup("Random lines","Specify node positions","") );
+	    	  uiDialog::Setup("Random lines","Specify node positions",
+		      		  "109.0.4") );
     uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
     table->setBinIDs( bids );
 

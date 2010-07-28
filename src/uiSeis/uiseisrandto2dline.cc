@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.16 2010-06-10 08:26:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.17 2010-07-28 07:56:11 cvshelene Exp $";
 
 #include "uiseisrandto2dline.h"
 
@@ -112,7 +112,7 @@ const char* uiSeisRandTo2DBase::getAttribName() const
 
 uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
 					      const Geometry::RandomLine* rln )
-    : uiDialog(p,uiDialog::Setup("Save as 2D line","",""))
+    : uiDialog(p,uiDialog::Setup("Save as 2D line","","109.0.5"))
     , rdlgeom_(rln)
 {
     basegrp_ = new uiSeisRandTo2DBase( this, !rln );
