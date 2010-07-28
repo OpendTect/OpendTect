@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.107 2010-03-18 05:32:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.108 2010-07-28 08:04:09 cvsnanne Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1221,7 +1221,7 @@ bool StreamProvider::setReadOnly( bool yn ) const
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr() ? false :
-	       File::makeWritable( fname_, false, !yn );
+	       File::makeWritable( fname_, !yn, false );
 
     sprintf( oscommand.buf(), "%s %s 'chmod %s %s && echo 1'",
 	      rshcomm_.buf(), hostname_.buf(), yn ? "a-w" : "ug+w",

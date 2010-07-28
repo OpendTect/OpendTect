@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.118 2010-07-14 06:11:05 cvsraman Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.119 2010-07-28 08:04:09 cvsnanne Exp $";
 
 #include "uisurvey.h"
 
@@ -133,7 +133,7 @@ static bool copySurv( const char* from, const char* todirnm, int mb )
         return false;
     }
 
-    File::makeWritable( todir, File::Recursive(), mC_True );
+    File::makeWritable( todir, true, true );
     return true;
 }
 

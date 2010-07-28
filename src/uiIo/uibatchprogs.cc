@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.46 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.47 2010-07-28 08:04:09 cvsnanne Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -280,7 +280,7 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
     if ( !File::exists(targetex) )
     {
 	File::copy( sourceex, targetex );
-	File::makeWritable( targetex, File::NonRecursive(), mC_True );
+	File::makeWritable( targetex, true, false );
     }
 
     if ( browser )

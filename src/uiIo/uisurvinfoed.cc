@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.122 2010-07-21 20:24:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.123 2010-07-28 08:04:09 cvsnanne Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -159,7 +159,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	if ( !copySurv(mGetSetupFileName("BasicSurvey"),0,
 		       orgstorepath_,orgdirname_) )
 	    return;
-	File::makeWritable( dirnm, File::Recursive(), mC_True );
+	File::makeWritable( dirnm, true, true );
 
 	fulldirpath = dirnm;
     }

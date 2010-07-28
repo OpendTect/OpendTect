@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.30 2010-06-10 06:24:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.31 2010-07-28 08:04:09 cvsnanne Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -639,7 +639,7 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 	    ? GetSetupDataFileName(ODSetupLoc_ApplSetupOnly,"ColTabs",0)
 	    : GetSetupDataFileName(ODSetupLoc_SWDirOnly,"ColTabs",0) );
     if ( File::exists(fnm) && !File::isWritable(fnm)
-		&& !File::makeWritable(fnm,File::NonRecursive(),mC_True) )
+		&& !File::makeWritable(fnm,true,false) )
     {
 	BufferString msg( "Cannot make:\n" ); msg == fnm; msg += "\nwritable.";
 	ErrMsg( msg ); return false;
