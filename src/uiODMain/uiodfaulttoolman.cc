@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.13 2010-07-26 13:50:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.14 2010-07-28 09:32:12 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -66,7 +66,7 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 						  const Setup& su,
 						  uiODFaultToolMan* ftbman )
     : uiDialog( &appl, uiDialog::Setup("Faultstick transfer",
-				 "Transfer settings",mTODOHelpID).modal(false) )
+				 "Transfer settings","104.1.8").modal(false) )
     , appl_( appl )
     , ftbman_( ftbman )
     , displayifnot_( su.displayifnot_ )
