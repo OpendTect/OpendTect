@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityvolumeconversion.h,v 1.3 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: velocityvolumeconversion.h,v 1.4 2010-07-28 08:12:03 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -32,8 +32,8 @@ namespace Vel
 mClass VolumeConverter : public ParallelTask
 {
 public:
-			VolumeConverter( IOObj* input,
-					 IOObj* output,
+			VolumeConverter( const IOObj& input,
+					 const IOObj& output,
 					 const HorSampling& ranges,
 					 const VelocityDesc& outdesc );
 			~VolumeConverter();

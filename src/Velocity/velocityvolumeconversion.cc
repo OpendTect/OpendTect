@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.3 2009-12-07 19:39:20 cvskris Exp $";
+static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.4 2010-07-28 08:12:03 cvsnanne Exp $";
 
 #include "velocityvolumeconversion.h"
 
@@ -29,13 +29,13 @@ namespace Vel
 const char* VolumeConverter::sKeyInput() { return "Input"; }
 const char* VolumeConverter::sKeyOutput() { return "Output"; }
 
-VolumeConverter::VolumeConverter( IOObj* input, IOObj* output,
+VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
 				  const HorSampling& ranges,
 				  const VelocityDesc& desc )
     : hrg_( ranges )
     , veldesc_( desc )
-    , input_( input )
-    , output_( output )
+    , input_( input.clone() )
+    , output_( output.clone() )
     , reader_( 0 )
     , writer_( 0 )
     , maxbuffersize_( 1000 )
@@ -282,7 +282,12 @@ bool VolumeConverter::writeTraces()
 	lock_.lock();
 
 	if ( !trcidxs.size() )
+	{
+	    const int thridx = curtrcs_.indexOf( first );
+	    if ( curtrcs_.validIdx(thridx) )
+		curtrcs_[thridx] = -1;
 	    break;
+	}
     }
 
     return res;

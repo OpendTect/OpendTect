@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_velocityconv.cc,v 1.2 2010-07-13 20:05:58 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_velocityconv.cc,v 1.3 2010-07-28 08:12:03 cvsnanne Exp $";
 
 #include "batchprog.h"
 #include "velocityvolumeconversion.h"
@@ -19,60 +19,44 @@ static const char* rcsID = "$Id: od_process_velocityconv.cc,v 1.2 2010-07-13 20:
 
 #include "prog.h"
 
+#define mErrRet( msg ) \
+{ \
+    strm << msg; \
+    return false; \
+}
+
 bool BatchProgram::go( std::ostream& strm )
 { 
     HorSampling hrg;
     if ( !hrg.usePar( pars() ) )
-    {
 	hrg.init( true );
-    }
 
     MultiID inputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyInput(), inputmid) )
-    {
-	strm << "Cannot read input volume id"; 
-	return false;
-    }
+	mErrRet( "Cannot read input volume id" )
 
     PtrMan<IOObj> inputioobj = IOM().get( inputmid );
     if ( !inputioobj )
-    {
-	strm << "Cannot read input volume object"; 
-	return false;
-    }
+	mErrRet( "Cannot read input volume object" )
 
     MultiID outputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyOutput(), outputmid ) )
-    {
-	strm << "Cannot read output volume id"; 
-	return false;
-    }
+	mErrRet( "Cannot read output volume id" )
 
     PtrMan<IOObj> outputioobj = IOM().get( outputmid );
     if ( !outputioobj )
-    {
-	strm << "Cannot read output volume object"; 
-	return false;
-    }
+	mErrRet( "Cannot read output volume object" )
 
     VelocityDesc veldesc;
     if ( !veldesc.usePar( pars() ) )
-    {
-	strm << "Cannot read output velocity definition";
-	return false;
-    }
+	mErrRet( "Cannot read output velocity definition" )
 
-    Vel::VolumeConverter conv( inputioobj, outputioobj, hrg, veldesc );
-    inputioobj.set( 0, false );
-    outputioobj.set( 0, false );
+    Vel::VolumeConverter conv( *inputioobj, *outputioobj, hrg, veldesc );
     TextStreamProgressMeter progressmeter( strm );
     conv.setProgressMeter( &progressmeter );
 
     if ( !conv.execute() )
-    {
-	strm << conv.errMsg();
-	return false;
-    }
+	mErrRet( conv.errMsg() )
 
     if ( veldesc.type_ != VelocityDesc::Unknown )
 	veldesc.fillPar( outputioobj->pars() );
@@ -80,10 +64,7 @@ bool BatchProgram::go( std::ostream& strm )
 	veldesc.removePars( outputioobj->pars() );
 
     if ( !IOM().commitChanges(*outputioobj) ) 
-    {                   
-	strm << "Cannot write velocity information";
-	return false;               
-    }
+	mErrRet( "Cannot write velocity information" )
 
     return true;
 }
