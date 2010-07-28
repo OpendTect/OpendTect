@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.32 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.33 2010-07-28 13:25:04 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -259,7 +259,8 @@ void TargetInfo::usePar( const IOPar& iopar )
 }
 
 
-Table::TargetInfo* Table::TargetInfo::mkPos( bool ishor, bool isreq, bool wu )
+Table::TargetInfo* Table::TargetInfo::mkPos( bool ishor, bool isreq, bool wu,
+       					     int zopt )
 {
     Table::TargetInfo* ti;
     const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
@@ -278,8 +279,21 @@ Table::TargetInfo* Table::TargetInfo::mkPos( bool ishor, bool isreq, bool wu )
 	ti = new TargetInfo( "Z", FloatInpSpec(), reqspec );
 	if ( wu )
 	{
-	    ti->setPropertyType( PropertyRef::surveyZType() );
-	    ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
+	    if ( zopt == 0 )
+	    {
+		ti->setPropertyType( PropertyRef::surveyZType() );
+		ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
+	    }
+	    else if ( zopt < 0 )
+	    {
+		ti->setPropertyType( PropertyRef::Time );
+		ti->selection_.unit_ = UoMR().get( "Milliseconds" );
+	    }
+	    else
+	    {
+		ti->setPropertyType( PropertyRef::Dist );
+		ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
+	    }
 	}
     }
     return ti;

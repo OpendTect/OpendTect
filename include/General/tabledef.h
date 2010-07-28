@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.24 2010-06-28 13:12:32 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.25 2010-07-28 13:25:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,6 +194,10 @@ public:
     			//!< form(0)=(X,Y), form(1)=inl/crl
     static TargetInfo*	mkZPosition( bool isreq, bool withunits=true )
     				{ return mkPos(false,isreq,withunits); }
+    static TargetInfo*	mkDepthPosition( bool isreq, bool withunits=true )
+    				{ return mkPos(false,isreq,withunits,1); }
+    static TargetInfo*	mkTimePosition( bool isreq, bool withunits=true )
+    				{ return mkPos(false,isreq,withunits,-1); }
 
 protected:
 
@@ -201,7 +205,7 @@ protected:
     PropertyRef::StdType proptype_;
     ObjectSet<Form>	forms_;
 
-    static TargetInfo*	mkPos(bool,bool,bool wu=false);
+    static TargetInfo*	mkPos(bool,bool,bool wu=false,int zopt=0);
 
 };
 
