@@ -27,7 +27,7 @@ static const char* rcsID = "$Id";
 
 uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Wells to KML",
-				 "Specify wells to output","0.3.10") )
+				 "Specify wells to output","107.1.11") )
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Wells", true );
     selfld_ = llb->box();

@@ -24,7 +24,7 @@ static const char* rcsID = "$Id";
 uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
 		const TypeSet<Coord>& crds, const char* nm )
     : uiDialog(p,uiDialog::Setup("Export Random Line to KML",
-				 "Specify how to export","0.3.10") )
+				 "Specify how to export","109.0.7") )
     , crds_(crds)
 {
     static const char* choices[]

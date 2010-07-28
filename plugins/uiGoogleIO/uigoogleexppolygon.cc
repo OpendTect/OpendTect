@@ -22,7 +22,7 @@ static const char* rcsID = "$Id";
 
 uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
     : uiDialog(p,uiDialog::Setup("Export Polygon to KML",
-				 "Specify output parameters","0.3.10") )
+				 "Specify output parameters","105.1.0") )
     , ps_(ps)
 {
     Color defcol( ps_.disp_.color_ ); defcol.setTransparency( 150 );

@@ -31,7 +31,7 @@ static const char* sIconFileName = "markerdot";
 
 uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     : uiDialog(p,uiDialog::Setup("Export selected 2D seismics to KML",
-				 "Specify how to export","0.3.10") )
+				 "Specify how to export","103.1.12") )
     , s2dfm_(p)
     , putallfld_(0)
     , allsel_(false)
