@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.15 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.16 2010-07-29 16:04:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,15 +17,21 @@ ________________________________________________________________________
 class uiSpinBox;
 class uiLineEdit;
 
-/*!\brief Selects sub-Z-range. Default will be SI() work Z Range. */
+/*!\brief Selects sub-Z-range. Default will be SI() work Z Range.
+
+  Constructor's 'domflag' can be 'T' = Time, 'D' = Depth;
+  everything else = SI()'s Z domain
+ */
 
 mClass uiSelZRange : public uiGroup
 {
 public:
                         uiSelZRange(uiParent*,bool wstep,
-				    bool isrel=false,const char* lbltxt=0);
+				    bool isrel=false,const char* lbltxt=0,
+				    char domflag='S');
 			uiSelZRange(uiParent* p,StepInterval<float> limitrg,
-				    bool wstep,const char* lbltxt=0);
+				    bool wstep,const char* lbltxt=0,
+				    char domflag='S');
 
     StepInterval<float>	getRange() const;
     void		setRange(const StepInterval<float>&);
@@ -39,7 +45,8 @@ protected:
     bool		isrel_;
 
     void		valChg(CallBacker*);
-    void		makeInpFields(const char*,bool,StepInterval<float>);
+    void		makeInpFields(const char*,bool,StepInterval<float>,
+	    			      bool);
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.21 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.22 2010-07-29 16:04:18 cvsbert Exp $";
 
 #include "uiselsurvranges.h"
 #include "survinfo.h"
@@ -20,42 +20,46 @@ static const float cMaxUnsnappedZStep = 0.999f;
 
 
 uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
-			  const char* lbltxt )
+			  const char* lbltxt, char domflag )
 	: uiGroup(p,"Z range selection")
 	, stepfld_(0)
 	, isrel_(isrel)
 {
+    const bool siistime = SI().zIsTime();
+    const bool othdom = (siistime && domflag == 'D')
+		     || (!siistime && domflag == 'T');
+
     StepInterval<float> limitrg( -cUnLim, cUnLim, 1 );
-    if ( !isrel_ )
+    if ( !othdom && !isrel_ )
 	limitrg = SI().zRange( false );
 
-    makeInpFields( lbltxt, wstep, limitrg );
+    makeInpFields( lbltxt, wstep, limitrg, othdom );
     if ( isrel_ )
 	setRange( StepInterval<float>(0,0,1) );
-    else
+    else if ( !othdom )
 	setRange( SI().zRange(true) );
 }
 
 
 uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
-			  const char* lbltxt )
+			  const char* lbltxt, char domflag )
 	: uiGroup(p,"Z range selection")
 	, stepfld_(0)
 {
-    makeInpFields( lbltxt, wstep, limitrg );
+    makeInpFields( lbltxt, wstep, limitrg, domflag );
     setRange( limitrg );
 }
 
 
 void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
-				 StepInterval<float> limitrg )
+				 StepInterval<float> limitrg, bool othdom )
 {
-    const float zfac = SI().zFactor();
+    const float zfac = othdom ? 1 : SI().zFactor();
     const StepInterval<float>& sizrg( SI().zRange(false) );
 
-    if ( limitrg.step > sizrg.step ) limitrg.step = sizrg.step;
+    if ( !othdom && limitrg.step > sizrg.step ) limitrg.step = sizrg.step;
     limitrg.scale( zfac );
-    const bool cansnap = sizrg.step > cMaxUnsnappedZStep / zfac;
+    const bool cansnap = !othdom && sizrg.step > cMaxUnsnappedZStep / zfac;
     const int nrdecimals = cansnap ? 0 : 2;
     StepInterval<int> izrg( mNINT(limitrg.start), mNINT(limitrg.stop),
 			   mNINT(limitrg.step) );

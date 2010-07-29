@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselection.h,v 1.7 2009-11-03 10:50:59 cvsbert Exp $
+ RCS:		$Id: seisselection.h,v 1.8 2010-07-29 16:04:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,10 @@ namespace Pos { class Provider; }
 namespace Seis
 {
 
-/*!\brief setup for subselection of seismic data */
+/*!\brief setup for subselection of seismic data
+domflag_: 'T' for Time, 'D' for depth, any other SI()'s domain.
+
+ */
 
 mClass SelSetup
 {
@@ -36,6 +39,7 @@ public:
 		    , fornewentry_(false)
 		    , multiline_(false)			//!< 2D only
 		    , withoutz_(false)
+		    , domflag_('S')
 		    , withstep_(true)			{}
 		SelSetup( bool is_2d, bool is_ps=false )
 		    : is2d_(is_2d)
@@ -44,10 +48,12 @@ public:
 		    , fornewentry_(false)
 		    , multiline_(false)			//!< 2D only
 		    , withoutz_(false)
+		    , domflag_('S')
 		    , withstep_(true)			{}
 
     mDefSetupClssMemb(SelSetup,bool,is2d)
     mDefSetupClssMemb(SelSetup,bool,isps)
+    mDefSetupClssMemb(SelSetup,char,domflag)
     mDefSetupClssMemb(SelSetup,bool,onlyrange)
     mDefSetupClssMemb(SelSetup,bool,fornewentry)
     mDefSetupClssMemb(SelSetup,bool,multiline)

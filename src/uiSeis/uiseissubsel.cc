@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.67 2010-02-11 11:13:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.68 2010-07-29 16:04:18 cvsbert Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -45,7 +45,8 @@ uiSeisSubSel::uiSeisSubSel( uiParent* p, const Seis::SelSetup& ss )
     uiPosSubSel::Setup pss( ss.is2d_, !ss.withoutz_ );
     pss.withstep(ss.withstep_)
 	.choicetype(ss.onlyrange_ ? uiPosSubSel::Setup::OnlyRanges
-				  : uiPosSubSel::Setup::OnlySeisTypes);
+				  : uiPosSubSel::Setup::OnlySeisTypes)
+    	.domflag(ss.domflag_);
 
     selfld_ = new uiPosSubSel( this, pss );
     setHAlignObj( selfld_ );

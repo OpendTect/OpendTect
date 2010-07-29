@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uipossubsel.h,v 1.4 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uipossubsel.h,v 1.5 2010-07-29 16:04:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class uiPosProvSel;
   like Seis::Selection.
 
   Users can always choose to not subselect at all.
+  Setup's domflag_: 'T' is time, 'D' is depth, other is SI()'s domain.
  
  */
 
@@ -41,11 +42,13 @@ public:
 				   : ( with_z	? "Volume subselection"
 						: "Area subselection"))
 			    , is2d_(is_2d)
+			    , domflag_('S')
 			    , withz_(with_z)
 			    , withstep_(true)
 			    , choicetype_(OnlyRanges)	{}
 	mDefSetupMemb(BufferString,seltxt)
 	mDefSetupMemb(bool,is2d)
+	mDefSetupMemb(char,domflag)
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(bool,withstep)
 	mDefSetupMemb(ChoiceType,choicetype)
@@ -65,6 +68,7 @@ public:
 
     bool		isAll() const;
     void		setToAll();
+
 
     Notifier<uiPosSubSel> selChange;
     uiPosProvSel*	provSel()		{ return ps_; }

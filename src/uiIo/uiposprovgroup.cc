@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.25 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.26 2010-07-29 16:04:18 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -57,7 +57,8 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     }
     if ( setup_.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, su.cs_.zrg, su.withstep_ );
+	zrgfld_ = new uiSelZRange( this, su.cs_.zrg, su.withstep_,
+				   0, su.domflag_ );
 	zrgfld_->attach( alignedBelow, attobj );
     }
 
@@ -167,7 +168,7 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 
     if ( su.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, true );
+	zrgfld_ = new uiSelZRange( this, true, false, 0, su.domflag_ );
 	zrgfld_->attach( alignedBelow, attachobj );
     }
 

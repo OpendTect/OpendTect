@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroup.h,v 1.10 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiposprovgroup.h,v 1.11 2010-07-29 16:04:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,12 +29,14 @@ public:
 			    : uiPosFiltGroup::Setup(is_2d)
 			    , withstep_(with_step)
 			    , withz_(with_z)
+			    , domflag_('S')
 			    , cs_(!is_2d)
 			 { if ( is_2d ) cs_.set2DDef(); }
 
 	virtual	~Setup()				{}
 	mDefSetupMemb(bool,withstep)
 	mDefSetupMemb(bool,withz)
+	mDefSetupMemb(char,domflag)
 	mDefSetupMemb(CubeSampling,cs)
     };
 
