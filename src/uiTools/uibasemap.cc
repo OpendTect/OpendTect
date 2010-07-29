@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibasemap.cc,v 1.1 2010-07-14 06:08:56 cvsraman Exp $";
+static const char* rcsID = "$Id: uibasemap.cc,v 1.2 2010-07-29 10:57:03 cvsraman Exp $";
 
 #include "uibasemap.h"
 #include "uigraphicsscene.h"
@@ -66,4 +66,11 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
     const int index = objects_.indexOf( uiobj );
     if ( index >= 0 )
 	delete objects_.remove( index );
+}
+
+
+void uiBaseMap::reDraw()
+{
+    for ( int idx=0; idx<objects_.size(); idx++ )
+	objects_[idx]->updateGeometry();
 }
