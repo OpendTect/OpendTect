@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.31 2009-09-29 09:18:01 cvshelene Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.32 2010-07-29 13:49:43 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.31 2009-09-29 09:18:01 cvs
 #include "bufstringset.h"
 #include "linekey.h"
 #include "keystrs.h"
+#include "zdomain.h"
 #include "errh.h"
 
 #define mGoToSeisDir() \
@@ -132,6 +133,25 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
     getBPS( spinf.maxbytespsamp, -1 );
     return true;
 }
+
+
+bool SeisIOObjInfo::isTime() const
+{
+    const bool siistime = SI().zIsTime();
+    mChk(siistime);
+    const bool issidom = ZDomain::isSIDomain( ioobj_->pars() );
+    return siistime ? issidom : !issidom;
+}
+
+
+bool SeisIOObjInfo::isDepth() const
+{
+    const bool siisdepth = !SI().zIsTime();
+    mChk(siisdepth);
+    const bool issidom = ZDomain::isSIDomain( ioobj_->pars() );
+    return siisdepth ? issidom : !issidom;
+}
+
 
 int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 {

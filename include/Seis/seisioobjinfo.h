@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.15 2009-07-23 09:08:09 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.16 2010-07-29 13:49:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
 
     Seis::GeomType	geomType() const	{ return geomtype_; }
     const IOObj*	ioObj() const		{ return ioobj_; }
+    bool		isTime() const;
+    bool		isDepth() const;
 
     mStruct SpaceInfo
     {
