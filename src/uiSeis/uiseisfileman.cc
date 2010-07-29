@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.109 2010-07-27 14:16:09 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.110 2010-07-29 16:05:23 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -128,13 +128,9 @@ void uiSeisFileMan::mkFileInfo()
 #define mRangeTxt(line) \
     txt += cs.hrg.start.line; txt += " - "; txt += cs.hrg.stop.line; \
     txt += " ["; txt += cs.hrg.step.line; txt += "]"
-
-    const bool issidomain = ZDomain::isSIDomain( curioobj_->pars() );
-    const bool zistm = (SI().zIsTime() && issidomain)
-		    || (!SI().zIsTime() && !issidomain);
-
 #define mAddZRangeTxt(memb) txt += zistm ? mNINT(1000*memb) : memb
 
+    const bool zistm = oinf.isTime();
     CubeSampling cs;
     if ( !is2d_ )
     {
@@ -167,7 +163,7 @@ void uiSeisFileMan::mkFileInfo()
 	    const char* typstr = curioobj_->pars().find( "Velocity Type" );
 	    txt += typstr ? typstr : "<unknown>";
 	}
-	if ( !issidomain )
+	if ( !ZDomain::isSIDomain(curioobj_->pars()) )
 	    { txt += "\nDomain: "; txt += zistm ? ZDomain::sKeyTWT()
 						: ZDomain::sKeyDepth(); }
     }
