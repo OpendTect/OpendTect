@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: visvw2dfaultss2d.h,v 1.1 2010-06-24 08:37:17 cvsumesh Exp $
+ RCS:		$Id: visvw2dfaultss2d.h,v 1.2 2010-07-29 12:02:32 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
 
     void		draw();
     void		enablePainting(bool yn);
-    void		selected();
+    void		selected(bool enabled=true);
 
     NotifierAccess*     deSelection()                   { return &deselted_; }
 

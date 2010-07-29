@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor3d.cc,v 1.1 2010-06-24 08:49:56 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor3d.cc,v 1.2 2010-07-29 12:03:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "horflatvieweditor3d.h"
 
+#include "emhorizonpainter3d.h"
 #include "emobject.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
@@ -35,6 +36,7 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 						  const EM::ObjectID& emid )
     : editor_(ed)
     , emid_(emid)
+    , horpainter_( new EM::HorizonPainter3D(ed->viewer(),emid) )
     , mehandler_(0)
     , vdselspec_(0)
     , wvaselspec_(0)
@@ -52,12 +54,16 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 
 HorizonFlatViewEditor3D::~HorizonFlatViewEditor3D()
 {
+    delete horpainter_;
     setMouseEventHandler( 0 );
 }
 
 
 void HorizonFlatViewEditor3D::setCubeSampling( const CubeSampling& cs )
-{ curcs_ = cs; }
+{
+    curcs_ = cs;
+    horpainter_->setCubeSampling( cs );
+}
 
 
 void HorizonFlatViewEditor3D::setSelSpec( const Attrib::SelSpec* as, bool wva )
@@ -102,6 +108,24 @@ void HorizonFlatViewEditor3D::setMouseEventHandler( MouseEventHandler* meh )
 	else
 	    MPE::engine().setActiveTracker( -1 );
     }
+}
+
+
+void HorizonFlatViewEditor3D::enableLine( bool yn )
+{
+    horpainter_->enableLine( yn );
+}
+
+
+void HorizonFlatViewEditor3D::enableSeed( bool yn )
+{
+    horpainter_->enableSeed( yn );
+}
+
+
+void HorizonFlatViewEditor3D::paint()
+{
+    horpainter_->paint();
 }
 
 

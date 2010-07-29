@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon3d.h,v 1.1 2010-06-24 08:37:17 cvsumesh Exp $
+ RCS:		$Id: visvw2dhorizon3d.h,v 1.2 2010-07-29 12:02:32 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,6 @@ class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
 namespace Attrib { class SelSpec; }
-namespace EM { class HorizonPainter3D; }
 namespace MPE { class HorizonFlatViewEditor3D; }
 
 
@@ -37,7 +36,7 @@ public:
 
     void		draw();
     void		enablePainting(bool yn);
-    void		selected();
+    void		selected(bool enabled=true);
 
     void		setSeedPicking(bool ison);
     void		setTrackerSetupActive(bool ison );
@@ -57,7 +56,6 @@ protected:
     const Attrib::SelSpec*		vdselspec_;
     const Attrib::SelSpec*		wvaselspec_;
 
-    ObjectSet<EM::HorizonPainter3D>     horpainters_;
     ObjectSet<MPE::HorizonFlatViewEditor3D>     horeds_;
     Notifier<Vw2DHorizon3D>		deselted_;
     const ObjectSet<uiFlatViewAuxDataEditor>&	auxdataeditors_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.h,v 1.1 2010-06-24 08:48:33 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor2d.h,v 1.2 2010-07-29 12:02:32 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,9 @@ class FlatDataPack;
 class MouseEvent;
 class MouseEventHandler;
 
-namespace FlatView { class AuxDataEditor; }
 namespace Attrib { class SelSpec; }
+namespace EM { class HorizonPainter2D; }
+namespace FlatView { class AuxDataEditor; }
 
 namespace MPE
 {
@@ -39,10 +40,15 @@ public:
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
     
     FlatView::AuxDataEditor* getEditor()		{ return editor_; }
-    void		setLineName( const char* lnm )
-			{ linenm_ = lnm; }
+    void		setLineName(const char*);
     void		setLineSetID( const MultiID& lsetid )
 			{ lsetid_ = lsetid; }
+
+    TypeSet<int>&	getPaintingCanvTrcNos();
+    TypeSet<float>&	getPaintingCanDistances();
+    void		enableLine(bool);
+    void		enableSeed(bool);
+    void		paint();
 
     void		setMouseEventHandler(MouseEventHandler*);
     void		setSeedPicking(bool);
@@ -68,6 +74,7 @@ protected:
 	    			  const MouseEvent&) const;
 
     EM::ObjectID        	emid_;
+    EM::HorizonPainter2D*	horpainter_;
     FlatView::AuxDataEditor*	editor_;
     MouseEventHandler*		mehandler_;
     CubeSampling		curcs_;

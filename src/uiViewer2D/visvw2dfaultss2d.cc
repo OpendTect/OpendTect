@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: visvw2dfaultss2d.cc,v 1.1 2010-06-24 08:41:01 cvsumesh Exp $
+ RCS:		$Id: visvw2dfaultss2d.cc,v 1.2 2010-07-29 12:03:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,16 +107,19 @@ void VW2DFautSS2D::enablePainting( bool yn )
 }
 
 
-void VW2DFautSS2D::selected()
+void VW2DFautSS2D::selected( bool enabled )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	if ( fsseds_[ivwr] )
 	{
 	    uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	    fsseds_[ivwr]->setMouseEventHandler(
-		    &vwr.rgbCanvas().scene().getMouseEventHandler() );
-	    fsseds_[ivwr]->enableKnots( true );
+	    if ( enabled )
+		fsseds_[ivwr]->setMouseEventHandler(
+			&vwr.rgbCanvas().scene().getMouseEventHandler() );
+	    else
+		fsseds_[ivwr]->setMouseEventHandler( 0 );
+	    fsseds_[ivwr]->enableKnots( true && enabled );
 	}
     }
 }

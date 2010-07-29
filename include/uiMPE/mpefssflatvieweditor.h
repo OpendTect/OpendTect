@@ -1,4 +1,3 @@
-
 #ifndef mpefssflatvieweditor_h
 #define mpefssflatvieweditor_h
 
@@ -8,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.h,v 1.6 2010-07-27 09:58:50 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.h,v 1.7 2010-07-29 12:02:32 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/

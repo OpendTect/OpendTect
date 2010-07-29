@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.3 2010-07-22 05:22:40 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.4 2010-07-29 12:03:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,7 +230,7 @@ bool uiODVw2DHor3DTreeItem::select()
 	return false;
 
     viewer2D()->dataMgr()->setSelected( horview_ );
-    horview_->selected();
+    horview_->selected( isChecked() );
     
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {

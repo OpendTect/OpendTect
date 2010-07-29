@@ -1,11 +1,10 @@
-
 /*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.11 2010-07-27 09:58:54 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.12 2010-07-29 12:03:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor3d.h,v 1.1 2010-06-24 08:48:33 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor3d.h,v 1.2 2010-07-29 12:02:32 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "emposid.h"
 
-namespace FlatView { class AuxDataEditor; }
 namespace Attrib { class SelSpec; }
+namespace EM { class HorizonPainter3D; }
+namespace FlatView { class AuxDataEditor; }
 
 class FlatDataPack;
 class MouseEvent;
@@ -41,6 +42,10 @@ public:
     FlatView::AuxDataEditor* getEditor()                { return editor_; }
     void		setMouseEventHandler(MouseEventHandler*);
 
+    void		enableLine(bool);
+    void		enableSeed(bool);
+    void		paint();
+
     void		setSeedPicking(bool);
     void		setTrackerSetupActive(bool yn)
 			{ trackersetupactive_ = yn; }
@@ -64,6 +69,7 @@ protected:
 	    			  const MouseEvent&) const;
 
     EM::ObjectID		emid_;
+    EM::HorizonPainter3D*	horpainter_;
     FlatView::AuxDataEditor*	editor_;
     MouseEventHandler*		mehandler_;
     CubeSampling		curcs_;

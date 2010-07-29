@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon2d.cc,v 1.1 2010-06-24 08:41:01 cvsumesh Exp $
+ RCS:		$Id: visvw2dhorizon2d.cc,v 1.2 2010-07-29 12:03:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 #include "attribdatapack.h"
 #include "flatauxdataeditor.h"
-#include "emhorizonpainter2d.h"
 #include "horflatvieweditor2d.h"
 #include "mpeengine.h"
 
@@ -41,7 +40,6 @@ Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
 	    fdp = viewerwin_->viewer( ivwr ).pack( false );
 	if ( !fdp ) 
 	{ 
-	    horpainters_ += 0;
 	    horeds_ += 0;
 	    continue;
 	}
@@ -49,14 +47,9 @@ Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
 	mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,fdp);
 	if ( !dp2ddh ) 
 	{ 
-	    horpainters_ += 0; 
 	    horeds_ += 0;
 	    continue; 
 	}
-
-	EM::HorizonPainter2D* hor = 
-	    new EM::HorizonPainter2D( viewerwin_->viewer(ivwr), oid );
-	horpainters_ += hor;
 
 	MPE::HorizonFlatViewEditor2D* hored = 
 	    new MPE::HorizonFlatViewEditor2D( 
@@ -68,7 +61,6 @@ Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
 
 Vw2DHorizon2D::~Vw2DHorizon2D()
 { 
-    deepErase(horpainters_);
     deepErase(horeds_);
 }
 
@@ -123,14 +115,6 @@ void Vw2DHorizon2D::draw()
 	 mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,fdp);
 	 if ( !dp2ddh ) continue;
 
-	 horpainters_[ivwr]->setLineName( linenm_ );
-	 horpainters_[ivwr]->setCubeSampling(
-		 		dp2ddh->dataholder().getCubeSampling() );
-	 dp2ddh->getPosDataTable( horpainters_[ivwr]->getTrcNos(),
-		 		  horpainters_[ivwr]->getDistances() );
-	 horpainters_[ivwr]->paint();
-	 horpainters_[ivwr]->enableSeed( trackerenbed );
-
 	 if ( horeds_[ivwr] )
 	     horeds_[ivwr]->setMouseEventHandler(
 	     		&vwr.rgbCanvas().scene().getMouseEventHandler() );
@@ -139,24 +123,28 @@ void Vw2DHorizon2D::draw()
 	 horeds_[ivwr]->setSelSpec( vdselspec_, false );
 	 horeds_[ivwr]->setLineSetID( lsetid_ );
 	 horeds_[ivwr]->setLineName( linenm_ );
+	 dp2ddh->getPosDataTable( horeds_[ivwr]->getPaintingCanvTrcNos(),
+		 		  horeds_[ivwr]->getPaintingCanDistances() );
+	 horeds_[ivwr]->paint();
+	 horeds_[ivwr]->enableSeed( trackerenbed );
     }
 }
 
 
 void Vw2DHorizon2D::enablePainting( bool yn )
 {
-    for ( int idx=0; idx<horpainters_.size(); idx++ )
+    for ( int idx=0; idx<horeds_.size(); idx++ )
     {
-	if ( horpainters_[idx] )
+	if ( horeds_[idx] )
 	{
-	    horpainters_[idx]->enableLine( yn );
-	    horpainters_[idx]->enableSeed( yn );
+	    horeds_[idx]->enableLine( yn );
+	    horeds_[idx]->enableSeed( yn );
 	}
     }
 }
 
 
-void Vw2DHorizon2D::selected()
+void Vw2DHorizon2D::selected( bool enabled )
 {
     bool trackerenbed = false;
     if (  MPE::engine().getTrackerByObject(emid_) != -1 )
@@ -167,12 +155,13 @@ void Vw2DHorizon2D::selected()
 	if ( horeds_[ivwr] )
 	{
 	    uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	    horeds_[ivwr]->setMouseEventHandler(
-		    &vwr.rgbCanvas().scene().getMouseEventHandler() );
+	    if ( enabled )
+		horeds_[ivwr]->setMouseEventHandler(
+			&vwr.rgbCanvas().scene().getMouseEventHandler() );
+	    else
+		horeds_[ivwr]->setMouseEventHandler( 0 );
+	    horeds_[ivwr]->enableSeed( trackerenbed && enabled );
 	}
-
-	if ( horpainters_[ivwr] )
-	    horpainters_[ivwr]->enableSeed( trackerenbed );
     }
 
 }
@@ -203,10 +192,10 @@ void Vw2DHorizon2D::triggerDeSel()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	if ( horeds_[ivwr] )
+	{
 	    horeds_[ivwr]->setMouseEventHandler( 0 );
-
-	if ( horpainters_[ivwr] )
-	    horpainters_[ivwr]->enableSeed( false );
+	    horeds_[ivwr]->enableSeed( false );
+	}
     }
 
     deselted_.trigger();
