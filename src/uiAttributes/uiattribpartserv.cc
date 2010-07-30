@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.160 2010-07-13 10:49:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.161 2010-07-30 07:03:27 cvsnageswara Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1339,7 +1339,7 @@ IOObj* uiAttribPartServer::getIOObj( const Attrib::SelSpec& as ) const
 {
     if ( as.isNLA() ) return 0;
 
-    const Attrib::DescSet* attrset = DSHolder().getDescSet( false, true );
+    const Attrib::DescSet* attrset = DSHolder().getDescSet( as.is2D(), true );
     if ( !attrset ) return 0;
 
     const Attrib::Desc* desc = attrset->getDesc( as.id() );
