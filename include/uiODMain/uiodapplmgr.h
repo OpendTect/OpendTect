@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.103 2010-06-24 15:16:51 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.104 2010-07-30 04:45:38 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,6 +186,7 @@ public:
     int				otherFormatAttrib() const
 				    { return otherformatattrib_; }
     int				createMapDataPack(const DataPointSet&,int col);
+    void			useDefColTab(int visid,int attrib);
 
 protected:
 
@@ -226,7 +227,6 @@ protected:
     void			surveyChanged(CallBacker*);
     void			colSeqChg(CallBacker*);
     void			colMapperChg(CallBacker*);
-    void			useDefColTab(int visid,int attrib);
     void			setHistogram(int visid,int attrib);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
