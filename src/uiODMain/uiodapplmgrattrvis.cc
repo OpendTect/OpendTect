@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.13 2010-05-18 03:42:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.14 2010-07-30 07:07:11 cvsnageswara Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -19,7 +19,9 @@ static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.13 2010-05-18 03:42:2
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "seis2dline.h"
 #include "survinfo.h"
+#include "visseis2ddisplay.h"
 #include "vissurvobj.h"
 
 #include "uiattribpartserv.h"
@@ -272,6 +274,24 @@ static bool useOldDefColTab( const IOPar& par, ColTab::MapperSetup& ms,
 }
 
 
+#define mGet2DDataFile { \
+	mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, \
+			 am_.visserv_->getObject( visid ) ); \
+	if ( !s2d ) \
+	    return; \
+	const char* linenm = s2d->getLineName(); \
+	LineKey lk( linenm, as->userRef() ); \
+	Seis2DLineSet seis2dlnset( *ioobj ); \
+	const int lineidx = seis2dlnset.indexOf( lk ); \
+	if ( lineidx < 0 ) \
+	    return; \
+	const IOPar par2d = seis2dlnset.getInfo( lineidx ); \
+	BufferString fnm; \
+	par2d.get( "File name", fnm ); \
+	fp.setFileName( fnm ); \
+    }
+
+ 
 void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 {
     if ( am_.appl_.isRestoringSession() ) return;
@@ -282,20 +302,22 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     ColTab::MapperSetup mapper;
     ColTab::Sequence seq( 0 );
     PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
-    if ( ioobj )
+    if ( !ioobj )
+	return;
+
+    FilePath fp( ioobj->fullUserExpr(true) );
+    if ( as->is2D() )
+	mGet2DDataFile
+
+    fp.setExtension( "par" );
+    IOPar iop;
+    if ( iop.read( fp.fullPath(), sKey::Pars) && !iop.isEmpty() )
     {
-	FilePath fp( ioobj->fullUserExpr(true) );
-	fp.setExtension( "par" );
-	BufferString fnm = fp.fullPath();
-	IOPar iop;
-	if ( iop.read(fnm,sKey::Pars) && !iop.isEmpty() )
+	if ( !useOldDefColTab(iop,mapper,seq) )
 	{
-	    if ( !useOldDefColTab(iop,mapper,seq) )
-	    {
-		const char* ctname = iop.find( sKey::Name );
-		seq = ColTab::Sequence( ctname );
-		mapper.usePar( iop );
-	    }
+	    const char* ctname = iop.find( sKey::Name );
+	    seq = ColTab::Sequence( ctname );
+	    mapper.usePar( iop );
 	}
     }
 
@@ -310,19 +332,21 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
 {
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec(visid,attrib);
-    IOObj* ioobj = am_.attrserv_->getIOObj( *as );
+    PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
     if ( !ioobj ) return;
 
     FilePath fp( ioobj->fullUserExpr(true) );
-    fp.setExtension( "par" );
-    BufferString fnm = fp.fullPath();
     IOPar iop;
+    if ( as->is2D() )
+	mGet2DDataFile
+
+    fp.setExtension( "par" );
+
     const ColTab::Sequence& ctseq = *am_.visserv_->getColTabSequence(
 	    visid, attrib );
     const ColTab::MapperSetup& mapper = *am_.visserv_->getColTabMapperSetup(
 	    visid, attrib );
     iop.set( sKey::Name, ctseq.name() );
     mapper.fillPar( iop );
-    iop.write( fnm, sKey::Pars );
-    delete ioobj;
+    iop.write( fp.fullPath(), sKey::Pars );
 }

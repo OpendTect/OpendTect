@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.84 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.85 2010-07-30 07:07:11 cvsnageswara Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -1065,7 +1065,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 
     updateColumnText(0);
     setChecked( s2d->isOn() );
-    applMgr()->updateColorTable( displayID(), attribNr() );
+    applMgr()->useDefColTab( displayID(), attribNr() );
 
     return true;
 }
