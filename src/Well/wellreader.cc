@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.39 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.40 2010-08-02 07:19:23 cvsnanne Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -41,6 +41,7 @@ const char* Well::IO::sExtMarkers()	{ return ".wlm"; }
 const char* Well::IO::sExtD2T()		{ return ".wlt"; }
 const char* Well::IO::sExtCSMdl()	{ return ".csmdl"; }
 const char* Well::IO::sExtDispProps()	{ return ".disp"; }
+const char* Well::IO::sExtWellTieSetup() { return ".tie"; }
 
 
 Well::IO::IO( const char* f, bool fr )

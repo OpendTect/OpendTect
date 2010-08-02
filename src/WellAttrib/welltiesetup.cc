@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiesetup.cc,v 1.5 2009-11-11 15:14:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiesetup.cc,v 1.6 2010-08-02 07:19:23 cvsnanne Exp $";
 
 
 #include "welltiesetup.h"
@@ -128,7 +128,6 @@ static const char* rdHdr( std::istream& strm, const char* fileky )
 
 
 const char* IO::sKeyWellTieSetup()   { return "Well Tie Setup"; }
-const char* IO::sExtWellTieSetup()   { return ".tie"; }
 
 
 bool Reader::getWellTieSetup() const

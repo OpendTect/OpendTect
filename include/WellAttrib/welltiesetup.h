@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.15 2010-05-31 14:14:04 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.16 2010-08-02 07:19:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,6 @@ public:
 				{}
 
     static const char*  	sKeyWellTieSetup();
-    static const char*  	sExtWellTieSetup();
 };
 
 
