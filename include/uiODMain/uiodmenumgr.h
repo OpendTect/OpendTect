@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.55 2010-07-06 16:09:52 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.56 2010-08-02 07:20:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,13 +40,10 @@ mClass uiODMenuMgr : public CallBacker
 
 public:
 
-    // TODO: winMnu() only here for backward compatibility
-    // Remove in version 3.4
     uiPopupMenu*	fileMnu()		{ return surveymnu_; }
     uiPopupMenu*	surveyMnu()		{ return surveymnu_; }
     uiPopupMenu*	analMnu()		{ return analmnu_; }
     uiPopupMenu*	procMnu()		{ return procmnu_; }
-    uiPopupMenu*	winMnu()		{ return scenemnu_; }
     uiPopupMenu*	sceneMnu()		{ return scenemnu_; }
     uiPopupMenu*	viewMnu()		{ return viewmnu_; }
     uiPopupMenu*	utilMnu()		{ return utilmnu_; }
