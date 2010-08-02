@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.39 2010-07-07 13:24:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.40 2010-08-02 12:08:00 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -367,14 +367,14 @@ void uiWellLogDispProperties::doPutToScreen()
     NotifyStopper nsr( repeatfld_->valueChanging );
     NotifyStopper nsl( logarithmfld_->activated );
     NotifyStopper nsrev( revertlogfld_->activated );
-
+    
+    revertlogfld_->setChecked( logprops().islogreverted_ ); 
     logsfld_->box()-> setText( logprops().name_ );
     rangefld_->setValue( logprops().range_ );
     colorrangefld_->setValue( logprops().fillrange_ );
     filllogsfld_->box()-> setText( logprops().fillname_ );
     stylefld_->setValue( logprops().iswelllog_ );
     logarithmfld_->setChecked( logprops().islogarithmic_ ); 
-    revertlogfld_->setChecked( logprops().islogreverted_ ); 
     coltablistfld_->setText( logprops().seqname_ ); 
     ovlapfld_->setValue( logprops().repeatovlap_ );
     repeatfld_->setValue( logprops().repeat_ );
@@ -406,13 +406,14 @@ void uiWellLogDispProperties::doGetFromScreen()
         logprops().isdatarange_ = true;
     }
     logprops().range_ = rangefld_->getFInterval();
-    logprops().fillrange_ = colorrangefld_->getFInterval();
     bool isreverted = revertlogfld_->isChecked();
-    if ( logprops().islogreverted_ != isreverted )
-    {
-	logprops().islogreverted_ = isreverted;
-	logprops().range_.sort( !isreverted ); 
-    }
+    if ( !logprops().range_.isRev() && isreverted )
+	logprops().range_.sort( false ); 
+    if ( logprops().range_.isRev() && !isreverted )
+	logprops().range_.sort( true ); 
+
+    logprops().fillrange_ = colorrangefld_->getFInterval();
+    logprops().islogreverted_ = revertlogfld_->isChecked();
     logprops().islogarithmic_ = logarithmfld_->isChecked(); 
     logprops().islogfill_ = logfillfld_->isChecked();
     logprops().issinglecol_ = singlfillcolfld_->isChecked();
@@ -577,7 +578,7 @@ void uiWellLogDispProperties::updateRange( CallBacker* )
 		        logsfld_->box()->currentItem() ); 
     const int logno = wl_->indexOf( lognm );
     if ( logno<0 ) return; 
-
+    
     rangefld_->setValue( wl_->getLog(logno).valueRange() );
     propChanged.trigger();
 }
