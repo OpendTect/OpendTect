@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibasemap.cc,v 1.2 2010-07-29 10:57:03 cvsraman Exp $";
+static const char* rcsID = "$Id: uibasemap.cc,v 1.3 2010-08-02 07:08:57 cvsraman Exp $";
 
 #include "uibasemap.h"
 #include "uigraphicsscene.h"
@@ -21,6 +21,12 @@ uiBaseMapObject::uiBaseMapObject( const char* nm )
     , itemgrp_(new uiGraphicsItemGroup(true))
     , transform_(0)
 {}
+
+
+uiBaseMapObject::~uiBaseMapObject()
+{
+    delete itemgrp_;
+}
 
 
 void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
@@ -40,8 +46,11 @@ uiBaseMap::uiBaseMap( uiParent* p )
 
 uiBaseMap::~uiBaseMap()
 {
-    delete &view_;
+    for ( int idx=0; idx<objects_.size(); idx++ )
+	view_.scene().removeItem( objects_[idx]->itemGrp() );
+
     deepErase( objects_ );
+    delete &view_;
 }
 
 
@@ -64,6 +73,7 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
 	return;
 
     const int index = objects_.indexOf( uiobj );
+    view_.scene().removeItem( objects_[index]->itemGrp() );
     if ( index >= 0 )
 	delete objects_.remove( index );
 }

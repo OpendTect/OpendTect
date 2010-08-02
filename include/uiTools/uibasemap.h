@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Jul 2010
- RCS:           $Id: uibasemap.h,v 1.2 2010-07-29 10:56:00 cvsraman Exp $
+ RCS:           $Id: uibasemap.h,v 1.3 2010-08-02 07:08:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ mClass uiBaseMapObject : public BaseMapObject
 {
 public:
     				uiBaseMapObject(const char*);
-    virtual			~uiBaseMapObject() {}
+    virtual			~uiBaseMapObject();
 
 //    float			getDepth() const;
 //    void			setDepth(float);
