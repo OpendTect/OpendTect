@@ -54,23 +54,6 @@ set flags=""
 if ( $nrcpus > 1 ) set flags="-j$nrcpus"
 
 set hostnm=`hostname`
-if ( $USER == dgb && ($hostnm == dgb3 || $hostnm == dgbindia10) ) then
-    cdw
-    cd ..
-    set oddir=$WORK:t
-    set dgbdir=`echo $oddir | sed 's/od/dgb/'`
-    if ( $doupd == yes ) then
-	echo "dvs update $oddir"
-	cd $oddir; dvs update
-	echo ""
-	echo "dvs update $dgbdir"
-	sleep 2;
-	cd ../$dgbdir; dvs update
-    endif
-    cdw
-    goto programmer_doc
-endif
-
 if ( $hostnm == dgb26 ) then
     cdw; cd src; ./cpdeps
     cdw; cd plugins; ./cpdeps
