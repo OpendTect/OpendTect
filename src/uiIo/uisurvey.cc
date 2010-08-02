@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.119 2010-07-28 08:04:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.120 2010-08-02 07:17:46 cvsnanne Exp $";
 
 #include "uisurvey.h"
 
@@ -412,8 +412,7 @@ void uiSurvey::rmButPushed( CallBacker* )
     BufferString msg( "This will remove the entire survey:\n\t" );
     msg += selnm;
     msg += "\nFull path: "; msg += truedirnm;
-    msg += "\nAre you sure you wish to continue?";
-    if ( !uiMSG().askContinue( msg ) ) return;
+    if ( !uiMSG().askRemove( msg ) ) return;
 
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
