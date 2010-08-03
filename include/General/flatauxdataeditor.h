@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.16 2009-09-10 11:11:49 cvssatyaki Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.17 2010-08-03 09:02:07 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
     void		removeAuxData(int id);
     void		enableEdit(int id,bool allowadd,bool allowmove,
 				   bool allowdelete);
+    void		enablePolySel(int id,bool allowsel);
     void		setAddAuxData(int id);
     			//!<Added points will be added to this set.
     int			getAddAuxData() const;
@@ -121,6 +122,7 @@ protected:
     BoolTypeSet				allowadd_;
     BoolTypeSet				allowmove_;
     BoolTypeSet				allowremove_;
+    BoolTypeSet				allowpolysel_;
     BoolTypeSet				doedit_;
 
     int					addauxdataid_;
