@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.31 2010-03-03 09:52:13 cvsumesh Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.32 2010-08-03 09:02:12 cvsumesh Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -95,6 +95,7 @@ int AuxDataEditor::addAuxData( FlatView::Annotation::AuxData* nd, bool doedit )
     allowmove_ += true;
     allowremove_ += true;
     doedit_ += doedit;
+    allowpolysel_ +=true;
 
     return res;
 }
@@ -114,6 +115,7 @@ void AuxDataEditor::removeAuxData( int id )
     allowmove_.remove( idx );
     allowremove_.remove( idx );
     doedit_.remove( idx );
+    allowpolysel_.remove( idx );
 }
 
 
@@ -125,6 +127,14 @@ void AuxDataEditor::enableEdit( int id, bool allowadd, bool allowmove,
     allowadd_[idx] = allowadd;
     allowmove_[idx] = allowmove;
     allowremove_[idx] = allowdelete;
+}
+
+
+void AuxDataEditor::enablePolySel( int id, bool allowsel )
+{
+    const int idx = ids_.indexOf( id );
+
+    allowpolysel_[idx] = allowsel;
 }
 
 
@@ -225,6 +235,8 @@ void AuxDataEditor::getPointSelections(
 
 	for ( int idy=0; idy<auxdata_.size(); idy++ )
 	{
+	    if ( !allowpolysel_[idy] ) continue;
+
 	    const int auxdataid = ids_[idy];
 	    const Rect wr = getWorldRect( auxdataid );
 	    RCol2Coord trans;
