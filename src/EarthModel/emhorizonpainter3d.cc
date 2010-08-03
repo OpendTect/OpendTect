@@ -4,16 +4,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter3d.cc,v 1.3 2010-07-22 05:21:44 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter3d.cc,v 1.4 2010-08-03 09:03:35 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emhorizonpainter3d.h"
 
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
-#include "emobject.h"
 
 namespace EM
 {
@@ -27,6 +26,8 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
     , linenabled_(true)
     , seedenabled_(true)
     , markerseeds_(0)
+    , abouttorepaint_(this)
+    , repaintdone_(this)
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( emobj )
@@ -70,7 +71,7 @@ bool HorizonPainter3D::addPolyLine()
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( !emobj ) return false;
     
-    mDynamicCastGet(EM::Horizon*,hor3d,emobj);
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return false;
     
     for ( int ids=0; ids<hor3d->nrSections(); ids++ )
@@ -190,10 +191,22 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 	    {
 		if ( emobject->hasBurstAlert() )
 		    return;
+
+		abouttorepaint_.trigger();
 		repaintHorizon();
+		repaintdone_.trigger();
 		break;
 	    }
 	default: break;
+    }
+}
+
+
+void HorizonPainter3D::getDisplayedHor( ObjectSet<Marker3D>& disphor )
+{
+    for ( int secidx=0; secidx<markerline_.size(); secidx++ )
+    {
+	disphor.append( *markerline_[secidx] );
     }
 }
 
@@ -227,7 +240,7 @@ void HorizonPainter3D::changePolyLineColor()
 
 void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 {
-    mDynamicCastGet(EM::Horizon*,hor3d,EM::EMM().getObject( id_ ));
+    mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject( id_ ));
     if ( !hor3d ) return;
 
     if ( id_ != pid.objectID() ) return;

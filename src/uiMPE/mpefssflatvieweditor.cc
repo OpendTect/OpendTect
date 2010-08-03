@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.12 2010-07-29 12:03:17 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.13 2010-08-03 09:03:35 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,22 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 
 FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 {
-    setMouseEventHandler( 0 );
+    if ( meh_ )
+    {
+	editor_->movementStarted.remove(
+		mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
+	editor_->movementFinished.remove(
+		mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
+	editor_->removeSelected.remove(
+		mCB(this,FaultStickSetFlatViewEditor,removeSelectionCB) );
+	meh_->movement.remove(
+		mCB(this,FaultStickSetFlatViewEditor,mouseMoveCB) );
+	meh_->buttonPressed.remove(
+		mCB(this,FaultStickSetFlatViewEditor,mousePressCB) );
+	meh_->buttonReleased.remove(
+		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
+    }
+//	setMouseEventHandler( 0 );
     delete fsspainter_;
     deepErase( markeridinfo_ );
 }
@@ -89,6 +104,9 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 	meh_->buttonReleased.notify(
 		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
     }
+
+    for ( int idx=0; idx<markeridinfo_.size(); idx++ )
+	editor_->enablePolySel( markeridinfo_[idx]->merkerid_, meh_ );
 }
 
 
@@ -102,6 +120,7 @@ void FaultStickSetFlatViewEditor::setCubeSampling( const CubeSampling& cs )
 void FaultStickSetFlatViewEditor::drawFault()
 {
     fsspainter_->paint();
+    updateActStkContainer();
 }
 
 
@@ -147,6 +166,7 @@ void FaultStickSetFlatViewEditor::fillActStkContainer()
 			    dispdstkmrkinfos[idx]->marker_, true );
 	merkeridinfo->stickid_ = dispdstkmrkinfos[idx]->stickid_;
 	editor_->enableEdit( merkeridinfo->merkerid_, false, true, false );
+	editor_->enablePolySel( merkeridinfo->merkerid_, meh_ );
 
 	markeridinfo_ += merkeridinfo;
     }

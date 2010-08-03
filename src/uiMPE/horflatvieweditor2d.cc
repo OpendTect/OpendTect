@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.cc,v 1.2 2010-07-29 12:03:17 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor2d.cc,v 1.3 2010-08-03 09:03:35 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,17 +54,29 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
     , updseedpkingstatus_(this)
 {
     curcs_.setEmpty();
-    editor_->movementFinished.notify(
-	    mCB(this,HorizonFlatViewEditor2D,movementEndCB) );
-    editor_->removeSelected.notify(
-	    mCB(this,HorizonFlatViewEditor2D,removePosCB) );
+    horpainter_->abouttorepaint_.notify(
+	    mCB(this,HorizonFlatViewEditor2D,horRepaintATSCB) );
+    horpainter_->repaintdone_.notify(
+	    mCB(this,HorizonFlatViewEditor2D,horRepaintedCB) );
 }
 
 
 HorizonFlatViewEditor2D::~HorizonFlatViewEditor2D()
 {
-    setMouseEventHandler( 0 );
+    if ( mehandler_ )
+    {
+	editor_->removeSelected.remove(
+		mCB(this,HorizonFlatViewEditor2D,removePosCB) );
+	mehandler_->movement.remove(
+		mCB(this,HorizonFlatViewEditor2D,mouseMoveCB) );
+	mehandler_->buttonPressed.remove(
+		mCB(this,HorizonFlatViewEditor2D,mousePressCB) );
+	mehandler_->buttonReleased.remove(
+		mCB(this,HorizonFlatViewEditor2D,mouseReleaseCB) );
+    }
+//	setMouseEventHandler( 0 );
     delete horpainter_;
+    deepErase( markeridinfos_ );
 }
 
 
@@ -109,6 +121,7 @@ void HorizonFlatViewEditor2D::enableSeed( bool yn )
 void HorizonFlatViewEditor2D::paint()
 {
     horpainter_->paint();
+    fillAuxInfoContainer();
 }
 
 
@@ -158,6 +171,9 @@ void HorizonFlatViewEditor2D::setMouseEventHandler( MouseEventHandler* meh )
 	else
 	    MPE::engine().setActiveTracker( -1 );
     }
+
+    for ( int idx=0; idx<markeridinfos_.size(); idx++ )
+	editor_->enablePolySel( markeridinfos_[idx]->merkerid_, mehandler_ );
 }
 
 
@@ -405,6 +421,72 @@ bool HorizonFlatViewEditor2D::doTheSeed(EMSeedPicker& spk, const Coord3& crd,
 }
 
 
+void HorizonFlatViewEditor2D::cleanAuxInfoContainer()
+{
+    for ( int idx=0; idx<markeridinfos_.size(); idx++ )
+	editor_->removeAuxData( markeridinfos_[idx]->merkerid_ );
+
+    if ( markeridinfos_.size() )
+	deepErase( markeridinfos_ );
+}
+
+
+void HorizonFlatViewEditor2D::fillAuxInfoContainer()
+{
+    ObjectSet<EM::HorizonPainter2D::Marker2D> disphormrkinfos;
+    horpainter_->getDisplayedHor( disphormrkinfos );
+
+    for ( int idx=0; idx<disphormrkinfos.size(); idx++ )
+    {
+	Hor2DMarkerIdInfo* markeridinfo = new Hor2DMarkerIdInfo;
+	markeridinfo->merkerid_ = editor_->addAuxData(
+					disphormrkinfos[idx]->marker_, true );
+	markeridinfo->marker_ = disphormrkinfos[idx]->marker_;
+	markeridinfo->sectionid_ = disphormrkinfos[idx]->sectionid_;
+	editor_->enableEdit( markeridinfo->merkerid_, false, false, true );
+	editor_->enablePolySel( markeridinfo->merkerid_, mehandler_ );
+
+	markeridinfos_ += markeridinfo;
+    }
+}
+
+
+void HorizonFlatViewEditor2D::horRepaintATSCB( CallBacker* )
+{
+    cleanAuxInfoContainer();
+}
+
+
+void HorizonFlatViewEditor2D::horRepaintedCB( CallBacker* )
+{
+    fillAuxInfoContainer();
+}
+
+
+FlatView::Annotation::AuxData* HorizonFlatViewEditor2D::getAuxData( int markid )
+{
+    for ( int idx=0; idx<markeridinfos_.size(); idx++ )
+    {
+	if ( markeridinfos_[idx]->merkerid_ == markid )
+	    return markeridinfos_[idx]->marker_;
+    }
+
+    return 0;
+}
+
+
+EM::SectionID HorizonFlatViewEditor2D::getSectionID( int markid )
+{
+    for ( int idx=0; idx<markeridinfos_.size(); idx++ )
+    {
+	if ( markeridinfos_[idx]->merkerid_ == markid )
+	    return markeridinfos_[idx]->sectionid_;
+    }
+
+    return -1;
+}
+
+
 bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
 					EM::PosID& pid ) const
 {
@@ -449,6 +531,37 @@ void HorizonFlatViewEditor2D::movementEndCB( CallBacker* )
 
 
 void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
-{}
+{
+    TypeSet<int> selectedids;
+    TypeSet<int> selectedidxs;
+    editor_->getPointSelections( selectedids, selectedidxs );
+
+    if ( !selectedids.size() ) return;
+
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
+    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj.ptr());
+    if ( !hor2d ) return;
+
+    hor2d->setBurstAlert( true );
+
+    BinID bid;
+
+    for ( int ids=0; ids<selectedids.size(); ids++ )
+    {
+	bid.inl = hor2d->geometry().lineIndex( linenm_ );
+
+	int posidx = horpainter_->getDistances().indexOf(
+		getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x );
+	bid.crl = horpainter_->getTrcNos()[posidx];
+
+	EM::PosID posid( emid_, getSectionID(selectedids[ids]),
+			 bid.getSerialized() );
+	emobj->unSetPos( posid, false );
+    }
+
+    hor2d->setBurstAlert( false );
+}
 
 }//namespace MPE

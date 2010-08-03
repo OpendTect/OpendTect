@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.7 2010-07-27 09:58:54 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.8 2010-08-03 09:03:35 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -326,7 +326,6 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 	    abouttorepaint_.trigger();
 	    repaintFSS();
 	    repaintdone_.trigger();
-	    viewer_.handleChange( FlatView::Viewer::Annot );
 	    break;
 	}
 	default:

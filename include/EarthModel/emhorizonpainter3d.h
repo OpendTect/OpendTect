@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter3d.h,v 1.1 2010-06-24 08:44:53 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter3d.h,v 1.2 2010-08-03 09:03:28 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,11 @@ public:
 	    FlatView::Annotation::AuxData*	marker_;
 	    EM::SectionID                       sectionid_;	    
 	};
+
+    void		getDisplayedHor(ObjectSet<Marker3D>&);
+
+    Notifier<HorizonPainter3D>	abouttorepaint_;
+    Notifier<HorizonPainter3D>	repaintdone_;
 
 protected:
 

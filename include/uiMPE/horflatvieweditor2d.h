@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.h,v 1.2 2010-07-29 12:02:32 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor2d.h,v 1.3 2010-08-03 09:03:28 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "cubesampling.h"
 #include "emposid.h"
+#include "flatview.h"
 
 class FlatDataPack;
 class MouseEvent;
@@ -59,6 +60,9 @@ public:
 
 protected:
 
+    void		horRepaintATSCB(CallBacker*);
+    void		horRepaintedCB(CallBacker*);
+
     void		mouseMoveCB(CallBacker*);
     void		mousePressCB(CallBacker*);
     void		mouseReleaseCB(CallBacker*);
@@ -73,9 +77,23 @@ protected:
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
 	    			  const MouseEvent&) const;
 
+    	mStruct Hor2DMarkerIdInfo
+	{
+	    FlatView::Annotation::AuxData*	marker_;
+	    int					merkerid_;
+	    EM::SectionID			sectionid_;
+	};
+
+    void			cleanAuxInfoContainer();
+    void			fillAuxInfoContainer();
+    FlatView::Annotation::AuxData* getAuxData(int markerid);
+    EM::SectionID		getSectionID(int markerid);
+
     EM::ObjectID        	emid_;
     EM::HorizonPainter2D*	horpainter_;
+
     FlatView::AuxDataEditor*	editor_;
+    ObjectSet<Hor2DMarkerIdInfo> markeridinfos_;
     MouseEventHandler*		mehandler_;
     CubeSampling		curcs_;
     const Attrib::SelSpec*	vdselspec_;

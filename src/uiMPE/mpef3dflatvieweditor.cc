@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.5 2010-07-27 09:58:54 cvsumesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.6 2010-08-03 09:03:35 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,22 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 
 Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 {
-    setMouseEventHandler( 0 );
+    if ( meh_ )
+    {
+	editor_->movementStarted.remove(
+		mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
+	editor_->movementFinished.remove(
+		mCB(this,Fault3DFlatViewEditor,seedMovementFinishedCB) );
+	editor_->removeSelected.remove(
+		mCB(this,Fault3DFlatViewEditor,removeSelectionCB) );
+	meh_->movement.remove(
+		mCB(this,Fault3DFlatViewEditor,mouseMoveCB) );
+	meh_->buttonPressed.remove(
+		mCB(this,Fault3DFlatViewEditor,mousePressCB) );
+	meh_->buttonReleased.remove(
+		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
+    }
+//	setMouseEventHandler( 0 );
     delete f3dpainter_;
     deepErase( markeridinfo_ );
 }
@@ -90,6 +105,9 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 	meh_->buttonReleased.notify(
 		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
     }
+
+    for ( int idx=0; idx<markeridinfo_.size(); idx++ )
+	editor_->enablePolySel( markeridinfo_[idx]->merkerid_, meh_ );
 }
 
 
@@ -103,6 +121,7 @@ void Fault3DFlatViewEditor::setCubeSampling( const CubeSampling& cs )
 void Fault3DFlatViewEditor::drawFault()
 {
     f3dpainter_->paint();
+    updateActStkContainer();
 }
 
 
@@ -489,6 +508,7 @@ void Fault3DFlatViewEditor::fillActStkContainer()
 			    dispdstkmrkinfos[idx]->marker_, true );
 	merkeridinfo->stickid_ = dispdstkmrkinfos[idx]->stickid_;
 	editor_->enableEdit( merkeridinfo->merkerid_, false, true, false );
+	editor_->enablePolySel( merkeridinfo->merkerid_, meh_ );
 
 	markeridinfo_ += merkeridinfo;
     }

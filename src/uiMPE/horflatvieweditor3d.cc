@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor3d.cc,v 1.2 2010-07-29 12:03:17 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor3d.cc,v 1.3 2010-08-03 09:03:35 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "horflatvieweditor3d.h"
 
 #include "emhorizonpainter3d.h"
-#include "emobject.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
 #include "emtracker.h"
@@ -45,17 +45,29 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
     , updseedpkingstatus_(this)
 {
     curcs_.setEmpty();
-    editor_->movementFinished.notify(
-	    mCB(this,HorizonFlatViewEditor3D,movementEndCB) );
-    editor_->removeSelected.notify(
-	    mCB(this,HorizonFlatViewEditor3D,removePosCB) );
+    horpainter_->abouttorepaint_.notify(
+	    mCB(this,HorizonFlatViewEditor3D,horRepaintATSCB) );
+    horpainter_->repaintdone_.notify(
+	    mCB(this,HorizonFlatViewEditor3D,horRepaintedCB) );
 }
 
 
 HorizonFlatViewEditor3D::~HorizonFlatViewEditor3D()
 {
+    if ( mehandler_ )
+    {
+	editor_->removeSelected.remove(
+		 mCB(this,HorizonFlatViewEditor3D,removePosCB) );
+	mehandler_->movement.remove(
+		mCB(this,HorizonFlatViewEditor3D,mouseMoveCB) );
+	mehandler_->buttonPressed.remove(
+		mCB(this,HorizonFlatViewEditor3D,mousePressCB) );
+	mehandler_->buttonReleased.remove(
+		mCB(this,HorizonFlatViewEditor3D,mouseReleaseCB) );
+    }
+//	setMouseEventHandler( 0 );
     delete horpainter_;
-    setMouseEventHandler( 0 );
+    deepErase( markeridinfos_ );
 }
 
 
@@ -79,6 +91,8 @@ void HorizonFlatViewEditor3D::setMouseEventHandler( MouseEventHandler* meh )
 {
     if ( mehandler_ )
     {
+	editor_->removeSelected.remove(
+		mCB(this,HorizonFlatViewEditor3D,removePosCB) );
 	mehandler_->movement.remove(
 		mCB(this,HorizonFlatViewEditor3D,mouseMoveCB) );
 	mehandler_->buttonPressed.remove(
@@ -91,6 +105,8 @@ void HorizonFlatViewEditor3D::setMouseEventHandler( MouseEventHandler* meh )
 
     if ( mehandler_ )
     {
+	editor_->removeSelected.notify(
+		mCB(this,HorizonFlatViewEditor3D,removePosCB) );
 	mehandler_->movement.notify(
 		mCB(this,HorizonFlatViewEditor3D,mouseMoveCB) );
 	mehandler_->buttonPressed.notify(
@@ -108,6 +124,9 @@ void HorizonFlatViewEditor3D::setMouseEventHandler( MouseEventHandler* meh )
 	else
 	    MPE::engine().setActiveTracker( -1 );
     }
+
+    for ( int idx=0; idx<markeridinfos_.size(); idx++ )
+	editor_->enablePolySel( markeridinfos_[idx]->merkerid_, mehandler_ );
 }
 
 
@@ -126,6 +145,7 @@ void HorizonFlatViewEditor3D::enableSeed( bool yn )
 void HorizonFlatViewEditor3D::paint()
 {
     horpainter_->paint();
+    fillAuxInfoContainer();
 }
 
 
@@ -386,11 +406,115 @@ bool HorizonFlatViewEditor3D::doTheSeed(EMSeedPicker& spk, const Coord3& crd,
 }
 
 
+void HorizonFlatViewEditor3D::cleanAuxInfoContainer()
+{
+    for ( int idx=0; idx<markeridinfos_.size(); idx++ )
+	editor_->removeAuxData( markeridinfos_[idx]->merkerid_ );
+
+    if ( markeridinfos_.size() )
+	deepErase( markeridinfos_ );
+}
+
+
+void HorizonFlatViewEditor3D::fillAuxInfoContainer()
+{
+    ObjectSet<EM::HorizonPainter3D::Marker3D> disphormrkinfos;
+    horpainter_->getDisplayedHor( disphormrkinfos );
+
+    for ( int idx=0; idx<disphormrkinfos.size(); idx++ )
+    {
+	Hor3DMarkerIdInfo* markeridinfo = new Hor3DMarkerIdInfo;
+	markeridinfo->merkerid_ = editor_->addAuxData(
+					disphormrkinfos[idx]->marker_, true );
+	markeridinfo->marker_ = disphormrkinfos[idx]->marker_;
+	markeridinfo->sectionid_ = disphormrkinfos[idx]->sectionid_;
+	editor_->enableEdit( markeridinfo->merkerid_, false, false, true );
+	editor_->enablePolySel( markeridinfo->merkerid_, mehandler_ );
+
+	markeridinfos_ += markeridinfo;
+    }
+}
+
+
+void HorizonFlatViewEditor3D::horRepaintATSCB( CallBacker* )
+{
+    cleanAuxInfoContainer();
+}
+
+
+void HorizonFlatViewEditor3D::horRepaintedCB( CallBacker* )
+{
+    fillAuxInfoContainer();
+}
+
+
+FlatView::Annotation::AuxData* HorizonFlatViewEditor3D::getAuxData( int markid )
+{
+    for ( int idx=0; idx<markeridinfos_.size(); idx++ )
+    {
+	if ( markeridinfos_[idx]->merkerid_ == markid )
+	    return markeridinfos_[idx]->marker_;
+    }
+
+    return 0;
+}
+
+
+EM::SectionID HorizonFlatViewEditor3D::getSectionID( int markid )
+{
+    for ( int idx=0; idx<markeridinfos_.size(); idx++ )
+    {
+	if ( markeridinfos_[idx]->merkerid_ == markid )
+	    return markeridinfos_[idx]->sectionid_;
+    }
+
+    return -1;
+}
+
+
 void HorizonFlatViewEditor3D::movementEndCB( CallBacker* )
 {}
 
 
 void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
-{}
+{
+    TypeSet<int> selectedids;
+    TypeSet<int> selectedidxs;
+    editor_->getPointSelections( selectedids, selectedidxs );
+
+    if ( !selectedids.size() ) return;
+
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj.ptr());
+    if ( !hor3d ) return;
+
+    hor3d->setBurstAlert( true );
+
+    BinID bid;
+
+    for ( int ids=0; ids<selectedids.size(); ids++ )
+    {
+	if ( curcs_.nrInl() == 1 )
+	{
+	    bid.inl = curcs_.hrg.start.inl;
+	    bid.crl = 
+		mNINT(getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x);
+	}
+	else if ( curcs_.nrCrl() == 1 )
+	{
+	    bid.inl = 
+		mNINT(getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x);
+	    bid.crl = curcs_.hrg.start.crl;
+	}
+
+	EM::PosID posid( emid_, getSectionID(selectedids[ids]),
+			 bid.getSerialized() );
+	emobj->unSetPos( posid, false );
+    }
+
+    hor3d->setBurstAlert( false );
+}
 
 } // namespace MPE

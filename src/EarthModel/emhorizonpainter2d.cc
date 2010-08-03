@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.cc,v 1.3 2010-07-22 05:21:44 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter2d.cc,v 1.4 2010-08-03 09:03:35 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
     , linenabled_(true)
     , seedenabled_(true)
     , markerseeds_(0)
+    , abouttorepaint_(this)
+    , repaintdone_(this)
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( emobj )
@@ -199,13 +201,23 @@ void HorizonPainter2D::horChangeCB( CallBacker* cb )
 		if ( emobject->hasBurstAlert() )
 		    return;
 
+		abouttorepaint_.trigger();
 		repaintHorizon();
-
+		repaintdone_.trigger();
 		break;
 	    }
 	default:
 	    break;
     }
+}
+
+
+void HorizonPainter2D::getDisplayedHor( ObjectSet<Marker2D>& disphor )
+{
+    for ( int secidx=0; secidx<markerline_.size(); secidx++ )
+    {
+	disphor.append( *markerline_[secidx] );
+    } 
 }
 
 
