@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.130 2010-06-18 05:19:35 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.131 2010-08-03 18:36:56 cvsyuancheng Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -231,6 +231,17 @@ void uiImportHorizon::scanPush( CallBacker* )
 }
 
 
+#define mNotCompatibleRet(ic) \
+    const int df = n##ic##lnrg.start - ic##rg.start; \
+    if ( df%2 && !(ic##rg.step%2) && !(n##ic##lnrg.step%2) ) \
+    { \
+	BufferString msg = "The horizon is not compatible with suvrvey "; \
+	msg +=  "trace, do you want to continue?"; \
+	if ( !uiMSG().askGoOn(msg) ) \
+    	    return false; \
+    }
+
+
 bool uiImportHorizon::doScan()
 {
     BufferStringSet filenms;
@@ -238,10 +249,27 @@ bool uiImportHorizon::doScan()
 
     scanner_ = new HorizonScanner( filenms, fd_, isgeom_ );
     uiTaskRunner taskrunner( this );
-    taskrunner.execute( *scanner_ );
+    if ( !taskrunner.execute( *scanner_ ) )
+	return false;
 
+    const StepInterval<int> nilnrg = scanner_->inlRg();
+    const StepInterval<int> nclnrg = scanner_->crlRg();
     CubeSampling cs( true );
-    cs.hrg.set( scanner_->inlRg(), scanner_->crlRg() );
+    const StepInterval<int> irg = cs.hrg.inlRange();
+    const StepInterval<int> crg = cs.hrg.crlRange();
+    if ( irg.start>nilnrg.stop || crg.start>nclnrg.stop ||
+	 irg.stop<nilnrg.start || crg.stop<nclnrg.start )
+	uiMSG().warning( "Your horizon is out of the survey range." );
+    else if ( irg.step > 1 )
+    {
+	mNotCompatibleRet(i);
+    }
+    else if ( crg.step > 1 )
+    {
+	mNotCompatibleRet(c);
+    }
+    
+    cs.hrg.set( nilnrg, nclnrg );
     subselfld_->setInput( cs );
     return true;
 }
