@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID = "$Id: seiscube2linedata.cc,v 1.3 2010-04-26 10:04:47 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscube2linedata.cc,v 1.4 2010-08-03 11:16:27 cvsraman Exp $";
 
 #include "seiscube2linedata.h"
 #include "seisread.h"
@@ -149,7 +149,7 @@ bool SeisCube2LineDataExtracter::getNextFetcher()
 int SeisCube2LineDataExtracter::handleTrace()
 {
     SeisTrc* trc = tbuf_.remove( 0 );
-    const SeisTrcInfo ti( trc->info() );
+    SeisTrcInfo ti( trc->info() );
     delete trc;
     if ( !rdr_.seisTranslator()->goTo( SI().transform(trc->info().coord) ) )
 	return MoreToDo();
@@ -158,6 +158,7 @@ int SeisCube2LineDataExtracter::handleTrace()
     if ( !rdr_.get(trc3d) )
 	return MoreToDo();
 
+    ti.sampling = trc3d.info().sampling;
     trc3d.info() = ti;
     if ( !wrr_.put(trc3d) )
 	{ msg_ = wrr_.errMsg(); return ErrorOccurred(); }
