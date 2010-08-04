@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.46 2010-04-15 07:18:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.47 2010-08-04 14:04:12 cvsnanne Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -115,10 +115,6 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
 void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
-    if ( qev->modifiers() == Qt::ControlModifier )
-	bs = OD::ControlButton;
-    else if ( qev->modifiers() == Qt::ShiftModifier )
-	bs = OD::ShiftButton;
     mousepressedbs_ = OD::NoButton;
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
