@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.98 2010-06-21 05:59:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.99 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -407,7 +407,7 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
     fileopts_.setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
 
     iopar.getYN( SEGY::FileDef::sKeyForceRev0(), forcerev0_ );
-    othdomain_ = !ZDomain::isSIDomain( iopar );
+    othdomain_ = !ZDomain::isSI( iopar );
 }
 
 

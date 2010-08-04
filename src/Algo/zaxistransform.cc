@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.20 2010-07-06 17:28:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.21 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "zaxistransform.h"
 
@@ -37,17 +37,19 @@ ZAxisTransform* ZAxisTransform::create( const IOPar& par )
     return res;
 }
 
-    
 
-    
-    
-
-ZAxisTransform::ZAxisTransform()
+ZAxisTransform::ZAxisTransform( const ZDomain::Def& from,
+				const ZDomain::Def& to )
+    : fromzdomaininfo_(*new ZDomain::Info(from))
+    , tozdomaininfo_(*new ZDomain::Info(to))
 {}
 
 
 ZAxisTransform::~ZAxisTransform()
-{ }
+{
+    delete &fromzdomaininfo_;
+    delete &tozdomaininfo_;
+}
 
 
 int ZAxisTransform::addVolumeOfInterest( const CubeSampling&, bool )
@@ -65,19 +67,6 @@ void ZAxisTransform::setVolumeOfInterest( int, const char*, const CubeSampling&,
 
 
 void ZAxisTransform::removeVolumeOfInterest( int ) {}
-
-
-const char* ZAxisTransform::getToZDomainUnit( bool ) const
-{ return sKey::EmptyString; }
-
-
-void ZAxisTransform::getToZDomainInfo( ZDomain::Info& info ) const
-{
-    info.zfactor_ = getZFactor();
-    info.name_ = getToZDomainString();
-    info.id_ = getZDomainID();
-    info.unitstr_ = getToZDomainUnit( false );
-}
 
 
 bool ZAxisTransform::loadDataIfMissing(int,TaskRunner*)
@@ -155,13 +144,36 @@ float ZAxisTransform::getGoodZStep() const
 }
 
 
-const char* ZAxisTransform::getFromZDomainString() const
-{ return SI().getZDomainString(); }
+const ZDomain::Info& ZAxisTransform::fromZDomainInfo() const
+{ return const_cast<ZAxisTransform*>(this)->fromZDomainInfo(); }
+
+const ZDomain::Info& ZAxisTransform::toZDomainInfo() const
+{ return const_cast<ZAxisTransform*>(this)->toZDomainInfo(); }
+
+const char* ZAxisTransform::fromZDomainKey() const
+{ return fromzdomaininfo_.key(); }
+
+const char* ZAxisTransform::toZDomainKey() const
+{ return tozdomaininfo_.key(); }
 
 
 void ZAxisTransform::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name, name() );
+}
+
+
+bool ZAxisTransform::usePar( const IOPar& par )
+{
+    const char* res = par.find( sKey::ID );
+    if ( !res || !*res )
+	res = par.find( IOPar::compKey(ZDomain::sKey(),sKey::ID) );
+    if ( !res || !*res )
+	res = par.find( "ZDomain ID" );
+
+    fromzdomaininfo_.setID( res );
+    tozdomaininfo_.setID( res );
+    return true;
 }
 
 

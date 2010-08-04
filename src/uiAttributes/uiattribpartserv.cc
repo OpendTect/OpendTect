@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.161 2010-07-30 07:03:27 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.162 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -51,8 +51,7 @@ static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.161 2010-07-30 07:03:27
 #include "survinfo.h"
 #include "settings.h"
 #include "volprocchain.h"
-#include "uivolprocchain.h"
-#include "uivolprocbatchsetup.h"
+#include "zdomain.h"
 
 #include "uiattrdesced.h"
 #include "uiattrdescseted.h"
@@ -68,6 +67,8 @@ static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.161 2010-07-30 07:03:27
 #include "uiseisioobjinfo.h"
 #include "uisetpickdirs.h"
 #include "uitaskrunner.h"
+#include "uivolprocbatchsetup.h"
+#include "uivolprocchain.h"
 
 #include <math.h>
 
@@ -302,16 +303,15 @@ const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 }
 
 
-bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zdomainkey,
-				       const char* zdomainid, bool is2d )
+bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
+				       const ZDomain::Info* zdominfo, bool is2d)
 {
     const DescSetMan* adsman = DSHolder().getDescSetMan( is2d );
     uiAttrSelData attrdata( *adsman->descSet() );
     attrdata.attribid_ = selspec.isNLA() ? SelSpec::cNoAttrib() : selspec.id();
     attrdata.outputnr_ = selspec.isNLA() ? selspec.id().asInt() : -1;
     attrdata.nlamodel_ = getNLAModel(is2d);
-    attrdata.zdomainkey_ = zdomainkey;
-    attrdata.zdomainid_ = zdomainid;
+    attrdata.zdomaininfo_ = zdominfo;
     uiAttrSelDlg dlg( parent(), "View Data", attrdata, DescID::undef(), false );
     if ( !dlg.go() )
 	return false;
@@ -1076,21 +1076,20 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
 
 
 MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
-						     const char* zdomkey,
-						     const char* zdomid,
+						     const ZDomain::Info& zdinf,
 						     bool is2d, bool useext)
 {
     MenuItem* zdomainmnuitem = is2d ? &zdomain2dmnuitem_ 
 				    : &zdomain3dmnuitem_;
-    BufferString itmtxt = zdomkey;
-    itmtxt += useext ? ( is2d ? " Cubes" : " 2D Lines") : " Data";
+    BufferString itmtxt = zdinf.userName();
+    itmtxt += useext ? (!is2d ? " Cubes" : " 2D Lines") : " Data";
     zdomainmnuitem->text = itmtxt;
     zdomainmnuitem->removeItems();
     zdomainmnuitem->checkable = true;
     zdomainmnuitem->checked = false;
 
     BufferStringSet ioobjnms;
-    SelInfo::getZDomainItems( zdomkey, zdomid, ioobjnms );
+    SelInfo::getZDomainItems( zdinf, ioobjnms );
     for ( int idx=0; idx<ioobjnms.size(); idx++ )
     {
 	const BufferString& nm = ioobjnms.get( idx );

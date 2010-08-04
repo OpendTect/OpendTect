@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.140 2010-07-27 08:56:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.141 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -43,68 +43,6 @@ const char* SurveyInfo::sKeyWSProjName()    { return "Workstation Project Name";
 const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
-
-FixedString ZDomain::sKey()		{ return FixedString("ZDomain"); }
-FixedString ZDomain::sKeyID()		{ return FixedString("ZDomain ID"); }
-FixedString ZDomain::sKeyTWT()		{ return FixedString("TWT"); }
-FixedString ZDomain::sKeyDepth()	{ return FixedString("Depth"); }
-FixedString ZDomain::getDefault(){return FixedString(SI().getZDomainString()); }    
-
-namespace ZDomain
-{
-const char* Info::sKeyUnit()		{ return "ZDomain Unit"; }
-const char* Info::sKeyFactor()		{ return "ZDomain factor"; }
-
-bool isSIDomain( const IOPar& iop )
-{
-    const char* domstr = iop.find( sKey() );
-    if ( !domstr || !*domstr ) return true;
-    return *domstr == *(SI().zIsTime() ? sKeyTWT() : sKeyDepth());
-}
-
-void setSIDomain( IOPar& iop, bool yn )
-{
-    if ( yn )
-	iop.removeWithKey( ZDomain::sKey() );
-    else
-	iop.set( sKey(), SI().zIsTime() ? sKeyDepth() : sKeyTWT() );
-}
-
-Info::Info( bool fromsi )
-    : zfactor_(fromsi ? SI().zFactor() : 1)
-    , name_(fromsi ? SI().getZDomainString() : sKey::EmptyString.str() )
-    , unitstr_(fromsi ? SI().getZUnitString() : sKey::EmptyString.str() )
-    , id_( sKey::EmptyString )
-{}
-
-
-bool Info::usePar( const IOPar& par )
-{
-    if ( !par.get( sKey(), name_ ) )
-	return false;
-
-    if ( !par.get( sKeyID(), id_ ) )
-	id_ = sKey::EmptyString;
-
-    if ( !par.get( sKeyUnit(), unitstr_ ) )
-	unitstr_ = sKey::EmptyString;
-
-    if ( !par.get( sKeyFactor(), zfactor_ ) )
-	zfactor_ = 1;
-
-    return true;
-}
-
-
-void Info::fillPar( IOPar& par ) const
-{
-    par.set( sKey(), name_ );
-    par.set( sKeyID(), id_ );
-    par.set( sKeyUnit(), unitstr_ );
-    par.set( sKeyFactor(), zfactor_ );
-}
-
-}; //namespace ZDomain
 
 
 SurveyInfo* SurveyInfo::theinst_ = 0;
@@ -554,9 +492,11 @@ SurveyInfo::Unit SurveyInfo::zUnit() const
 }
 
 
-const char* SurveyInfo::getZDomainString() const
-{ return zistime_ ? ZDomain::sKeyTWT() : ZDomain::sKeyDepth(); }
-
+void SurveyInfo::putZDomain( IOPar& iop ) const
+{
+    iop.set( ZDomain::sKey(), zistime_ ? ZDomain::sKeyTime()
+	    			       : ZDomain::sKeyDepth() );
+}
 
 const char* SIDistUnitString( bool feet, bool wb )
 {

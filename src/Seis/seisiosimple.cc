@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.21 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.22 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -162,8 +162,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 {
     PtrMan<IOObj> ioobj = IOM().get( data_.seiskey_ );
     if ( !ioobj ) return;
-    const bool issidomain = ZDomain::isSIDomain( ioobj->pars() );
-    zistm_ = (issidomain && SI().zIsTime()) || (!issidomain && !SI().zIsTime());
+    zistm_ = ZDomain::isTime( ioobj->pars() );
 
     SeisStoreAccess* sa;
     if ( isimp_ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.27 2010-04-23 15:33:29 cvshelene Exp $
+ RCS:           $Id: attribsel.h,v 1.28 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ class NLAModel;
   output is to be expected.
  
  */
+
+namespace ZDomain { class Info; }
 
 namespace Attrib 
 {
@@ -68,7 +70,7 @@ public:
 			    { defstring_ = def;}
     void		setZDomainKey( const char* key )
 			    { zdomainkey_ = key; }
-    void		setDepthDomainKey(const Desc&);
+    void		setZDomainKey(const Desc&);
 
     void		set( const char* r, DescID i, bool isnla, 
 	    		     const char* objr )
@@ -159,11 +161,8 @@ public:
 				     bool onlymulticomp=false);
     			//!< 2D only
     void		fillStored(const char* filter=0);
-    static void		getZDomainItems(const char* zdomainkey,
-	    				const char* zdomainid,
+    static void		getZDomainItems(const ZDomain::Info&,
 					BufferStringSet& objnms);
-    			//!< Filters on given DepthDomain key and id
-    			//!< To filter only on key, set id=0
 
 protected:
 

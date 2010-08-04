@@ -5,7 +5,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          July 2010
- RCS:           $Id: wellt2dtransform.cc,v 1.1 2010-07-15 10:08:01 cvsnageswara Exp $
+ RCS:           $Id: wellt2dtransform.cc,v 1.2 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "interpol1d.h"
+#include "multiid.h"
 #include "position.h"
 #include "welldata.h"
 #include "wellman.h"
@@ -23,25 +24,58 @@ ________________________________________________________________________
 
 #include <cmath>
 
-const char* Well:: WellT2DTransform::sName()
+const char* WellT2DTransform::sName()
 { return "WellT2D"; }
 
 
-void Well::WellT2DTransform::initClass()
+void WellT2DTransform::initClass()
 { ZATF().addCreator( create, sName() ); }
 
 
-ZAxisTransform* Well::WellT2DTransform::create()
+ZAxisTransform* WellT2DTransform::create()
 { return new WellT2DTransform; }
 
 
-Well::WellT2DTransform::WellT2DTransform()
+WellT2DTransform::WellT2DTransform()
+    : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
+    , data_(0)
 {
-    mid_ = 0; data_ = 0;
 }
 
 
-void Well::WellT2DTransform::transform( const BinID& bid,
+bool WellT2DTransform::calcDepths()
+{
+    const Well::D2TModel* wllmodel = data_ ? data_->d2TModel() : 0;
+    if ( !wllmodel )
+	return false;
+
+    const Well::Track& track = data_->track();
+    const int modelsz = wllmodel->size();
+    const float time0 = wllmodel->t( 0 );
+    const float dah0 = wllmodel->getDah( time0 );
+    times_ += time0; depths_ += dah0;
+    float vertdepth = dah0;
+    for ( int idx=0; idx<=modelsz-2; idx++ )
+    {
+	const float prevtime = wllmodel->t( idx );
+	const float dah1 = wllmodel->getDah( prevtime );
+	const Coord3 prevcrd = track.getPos( dah1 );
+	const float nexttime = wllmodel->t( idx+1 );
+	times_ += nexttime;
+	const float dah2 = wllmodel->getDah( nexttime );
+	const Coord3 nextcrd = track.getPos( dah2 );
+	const float hyp = dah2 - dah1;
+	const float dist = sqrt( ((prevcrd.x-nextcrd.x)*(prevcrd.x-nextcrd.x)) +
+			   ((prevcrd.y-nextcrd.y)*(prevcrd.y-nextcrd.y)) ); 
+	vertdepth += sqrt( (hyp*hyp) - (dist*dist) );
+	depths_ += vertdepth;
+    }
+    
+    return true;
+}
+
+
+void WellT2DTransform::transform( const BinID& bid,
 					const SamplingData<float>& sd,
 					int sz, float* res ) const
 {
@@ -65,39 +99,8 @@ void Well::WellT2DTransform::transform( const BinID& bid,
 }
 
 
-bool Well::WellT2DTransform::calcDepths()
-{
-    Well::D2TModel* wllmodel = data_->d2TModel();
-    if ( !wllmodel )
-	return false;
 
-    Well::Track track = data_->track();
-    const int modelsz = wllmodel->size();
-    const float time0 = wllmodel->t( 0 );
-    const float dah0 = wllmodel->getDepth( time0 );
-    times_ += time0; depths_ += dah0;
-    float vertdepth = dah0;
-    for ( int idx=0; idx<=modelsz-2; idx++ )
-    {
-	const float prevtime = wllmodel->t( idx );
-	const float dah1 = wllmodel->getDepth( prevtime );
-	const Coord3 prevcrd = track.getPos( dah1 );
-	const float nexttime = wllmodel->t( idx+1 );
-	times_ += nexttime;
-	const float dah2 = wllmodel->getDepth( nexttime );
-	const Coord3 nextcrd = track.getPos( dah2 );
-	const float hyp = dah2 - dah1;
-	const float dist = sqrt( ((prevcrd.x-nextcrd.x)*(prevcrd.x-nextcrd.x)) +
-			   ((prevcrd.y-nextcrd.y)*(prevcrd.y-nextcrd.y)) ); 
-	vertdepth += sqrt( (hyp*hyp) - (dist*dist) );
-	depths_ += vertdepth;
-    }
-    
-    return true;
-}
-
-
-void Well::WellT2DTransform::transformBack( const BinID& bid,
+void WellT2DTransform::transformBack( const BinID& bid,
 					    const SamplingData<float>& sd,
 					    int sz, float* res ) const
 {
@@ -118,7 +121,7 @@ void Well::WellT2DTransform::transformBack( const BinID& bid,
 }
 
 
-Interval<float> Well::WellT2DTransform::getZInterval( bool time ) const
+Interval<float> WellT2DTransform::getZInterval( bool time ) const
 {
     Interval<float> zrg( 0, 0 );
     zrg.start = depths_[0];
@@ -128,29 +131,21 @@ Interval<float> Well::WellT2DTransform::getZInterval( bool time ) const
 }
 
 
-const char* Well::WellT2DTransform::getToZDomainString() const
-{ return ZDomain::sKeyDepth(); }
-
-
-const char* Well::WellT2DTransform::getZDomainID() const
-{ return ""; }
-
-
-bool Well::WellT2DTransform::fillPar( IOPar& iop )
-{ return true; }
-
-
-bool Well::WellT2DTransform::usePar( const IOPar& iop )
+bool WellT2DTransform::usePar( const IOPar& iop )
 {
-    iop.get( "ID", mid_ );
-    if ( !mid_ )
+    if ( !ZAxisTransform::usePar(iop) )
 	return false;
+    if ( !tozdomaininfo_.hasID() )
+	{ errmsg_ = "Z Transform: No ID for Well provided"; return false; }
 
-    data_ = Well::MGR().get( mid_ );
+    data_ = Well::MGR().get( MultiID(tozdomaininfo_.getID()) );
     if ( !data_ )
+    {
+	errmsg_ = "Z Transform: Cannot find Well with ID ";
+	errmsg_ += tozdomaininfo_.getID();
 	return false;
+    }
 
     calcDepths();
-
     return true;;
 }

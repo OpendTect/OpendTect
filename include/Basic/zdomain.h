@@ -6,42 +6,99 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra & K. Tingdahl
- Date:		April 2009
- RCS:		$Id: zdomain.h,v 1.8 2010-03-18 19:23:12 cvskris Exp $
+ Date:		April 2009 / Aug 2010
+ RCS:		$Id: zdomain.h,v 1.9 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "fixedstring.h"
+#include "bufstring.h"
 class IOPar;
 
 
 namespace ZDomain
 {
-    mBasicExtern FixedString	sKey();
-    mBasicExtern FixedString	sKeyID();
-    mBasicExtern FixedString	sKeyTWT();
-    mBasicExtern FixedString	sKeyDepth();
-    mBasicExtern FixedString	getDefault();
 
-    mBasicExtern bool		isSIDomain(const IOPar&);
-    mBasicExtern void		setSIDomain(IOPar&,bool);
+class Def;
+
+mGlobal const Def&	SI();
+mGlobal const Def&	Depth();
+mGlobal const Def&	Time();
+
+mGlobal bool		isSI(const IOPar&);
+mGlobal bool		isDepth(const IOPar&);
+mGlobal bool		isTime(const IOPar&);
+mGlobal void		setSI(IOPar&);
+mGlobal void		setDepth(IOPar&);
+mGlobal void		setTime(IOPar&);
 
 
-mStruct Info
+mClass Def
 {
-    			Info(bool fromsi=true);
-    BufferString	name_;
-    BufferString	unitstr_;
-    BufferString	id_;
-    float		zfactor_;
+public:
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    static const Def&	get(const char*);
+    static const Def&	get(const IOPar&);
+    void		set(IOPar&) const;	//!< Only key
 
-    static const char*	sKeyUnit();
-    static const char*	sKeyFactor();
+    const char*		key() const		{ return key_; }
+    const char*		userName() const	{ return usrnm_; }
+    const char*		unitStr(bool withparens=false) const;
+    float		userFactor() const	{ return usrfac_; }
+
+    bool		isSI() const;
+    bool		isTime() const;
+    bool		isDepth() const;
+
+    bool		operator ==( const Def& def ) const
+			{ return key_ == def.key_; }
+
+    // For plugins:
+    			Def( const char* ky, const char* usrnm,
+				const char* defun, float usrfac=1 )
+			    : key_(ky), usrnm_(usrnm)
+			    , defunit_(defun), usrfac_(usrfac)	{}
+    static bool		add(Def*);
+
+protected:
+
+    BufferString	key_;
+    BufferString	usrnm_;
+    BufferString	defunit_;
+    float		usrfac_; // usually 1 or 1000, not FeetFac
+
 };
+
+
+mClass Info
+{
+public:
+    			Info(const Def&);
+    			Info(const Info&);
+    			Info(const IOPar&);
+    			~Info();
+
+    const Def&		def_;
+    IOPar&		pars_;
+
+    bool		hasID() const;
+    const char*		getID() const;
+    void		setID(const char*);
+
+    bool		isCompatibleWith(const IOPar&) const;
+
+    // Convenience
+    const char*		key() const		{ return def_.key(); }
+    const char*		userName() const	{ return def_.userName(); }
+    const char*		unitStr(bool wp=false) const
+    						{ return def_.unitStr(wp); }
+    float		userFactor() const	{ return def_.userFactor(); }
+
+};
+
+mGlobal const char*	sKey();
+mGlobal const char*	sKeyTime();
+mGlobal const char*	sKeyDepth();
 
 } // namespace ZDomain
 

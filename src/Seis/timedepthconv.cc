@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.30 2010-07-08 18:28:57 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.31 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "timedepthconv.h"
 
@@ -27,6 +27,14 @@ static const char* rcsID = "$Id: timedepthconv.cc,v 1.30 2010-07-08 18:28:57 cvs
 #include "velocitycalc.h"
 #include "zdomain.h"
 
+
+VelocityStretcher::VelocityStretcher( const ZDomain::Def& from,
+				      const ZDomain::Def& to )
+    : ZAxisTransform(from,to)
+    , errmsg_(0)
+{}
+
+
 const char* Time2DepthStretcher::sName() 	{ return "VelocityT2D"; }
 
 void Time2DepthStretcher::initClass()
@@ -38,7 +46,8 @@ ZAxisTransform* Time2DepthStretcher::create()
 
 
 Time2DepthStretcher::Time2DepthStretcher()
-    : velreader_( 0 )
+    : VelocityStretcher(ZDomain::Time(),ZDomain::Depth())
+    , velreader_( 0 )
     , topvavg_ ( getDefaultVAvg().start, getDefaultVAvg().start )
     , botvavg_ ( getDefaultVAvg().stop, getDefaultVAvg().stop )
 {
@@ -64,6 +73,9 @@ bool Time2DepthStretcher::setVelData( const MultiID& mid )
 	return false;
     }
 
+    fromzdomaininfo_.setID( mid );
+    tozdomaininfo_.setID( mid );
+
     veldesc_.type_ = VelocityDesc::Interval;
     veldesc_.usePar( velioobj->pars() );
 
@@ -73,14 +85,8 @@ bool Time2DepthStretcher::setVelData( const MultiID& mid )
     velioobj->pars().get( sKeyTopVavg(), topvavg_ );
     velioobj->pars().get( sKeyBotVavg(), botvavg_ );
 
-    BufferString depthdomain = ZDomain::getDefault().str();
-    velioobj->pars().get( ZDomain::sKey(), depthdomain );
-
-    if ( depthdomain==ZDomain::sKeyTWT() )
-	velintime_ = true;
-    else if ( depthdomain==ZDomain::sKeyDepth() )
-	velintime_ = false;
-    else
+    velintime_ = ZDomain::isTime( velioobj->pars() );
+    if ( !velintime_ && !ZDomain::isDepth(velioobj->pars()) )
     {
 	releaseData();
 	return false;
@@ -586,14 +592,6 @@ float Time2DepthStretcher::getGoodZStep() const
 }
 
 
-const char* Time2DepthStretcher::getToZDomainString() const
-{ return ZDomain::sKeyDepth(); }
-
-
-const char* Time2DepthStretcher::getFromZDomainString() const
-{ return ZDomain::sKeyTWT(); }
-
-
 const char* Time2DepthStretcher::getZDomainID() const
 {
     return velreader_ && velreader_->ioObj()
@@ -629,7 +627,8 @@ ZAxisTransform* Depth2TimeStretcher::create()
 
 
 Depth2TimeStretcher::Depth2TimeStretcher()
-    : stretcher_( new Time2DepthStretcher )
+    : VelocityStretcher(ZDomain::Depth(),ZDomain::Time())
+    , stretcher_( new Time2DepthStretcher )
 {}
 
 
@@ -717,14 +716,6 @@ float Depth2TimeStretcher::getGoodZStep() const
 }
 
 
-const char* Depth2TimeStretcher::getToZDomainString() const
-{ return stretcher_->getFromZDomainString(); }
-
-
-const char* Depth2TimeStretcher::getFromZDomainString() const
-{ return stretcher_->getToZDomainString(); }
-
-
 const char* Depth2TimeStretcher::getZDomainID() const
 { return stretcher_->getZDomainID(); }
 
@@ -748,9 +739,7 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
     if ( bd3 ) subsel_ = bd3->cs_.hrg;
 
     hsiter_.setSampling(  subsel_ );
-    const char* veldomain = input.pars().find( ZDomain::sKey() );
-    if ( veldomain )
-	zistime_ = veldomain==ZDomain::sKeyTWT();
+    zistime_ = ZDomain::isTime( input.pars() );
 }
 
 
@@ -890,6 +879,7 @@ ZAxisTransform* LinearT2DTransform::create()
 
 
 LinearT2DTransform::LinearT2DTransform()
+    : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
 {
     startvel_ = 0;
     dv_ = 0;
@@ -957,22 +947,6 @@ Interval<float> LinearT2DTransform::getZInterval( bool time ) const
 }
 
 
-const char* LinearT2DTransform::getToZDomainString() const
-{
-    return ZDomain::sKeyDepth();
-}
-
-
-const char* LinearT2DTransform::getFromZDomainString() const
-{
-    return ZDomain::sKeyTWT();
-}
-
-
-const char* LinearT2DTransform::getZDomainID() const
-{ return ""; }
-
-
 //LinearD2TTransform
 const char* LinearD2TTransform::sName()
 { return "LinearD2T"; }
@@ -987,6 +961,7 @@ ZAxisTransform* LinearD2TTransform::create()
 
 
 LinearD2TTransform::LinearD2TTransform()
+    : ZAxisTransform(ZDomain::Depth(),ZDomain::Time())
 {
     startvel_ = 0;
     dv_ = 0;
@@ -1052,19 +1027,3 @@ Interval<float> LinearD2TTransform::getZInterval( bool depth ) const
 
     return zrg;
 }
-
-
-const char* LinearD2TTransform::getToZDomainString() const
-{
-    return ZDomain::sKeyTWT();
-}
-
-
-const char* LinearD2TTransform::getFromZDomainString() const
-{
-    return ZDomain::sKeyDepth();
-}
-
-
-const char* LinearD2TTransform::getZDomainID() const
-{ return ""; }

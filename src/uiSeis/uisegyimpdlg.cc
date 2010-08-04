@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.25 2010-07-08 11:34:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.26 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -245,13 +245,13 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     const char* lnm = is2d && transffld_->selFld2D() ?
 		      transffld_->selFld2D()->selectedLine() : 0;
 
-    const IOObj* useinioobj = &inioobj; IOObj* newioobj = 0;
-    const bool outissidom = ZDomain::isSIDomain( outioobj.pars() );
+    const IOObj* useinioobj = &inioobj; IOObj* tmpioobj = 0;
+    const bool outissidom = ZDomain::isSI( outioobj.pars() );
     if ( !outissidom )
     {
-	newioobj = inioobj.clone();
-	ZDomain::setSIDomain( newioobj->pars(), false );
-	useinioobj = newioobj;
+	tmpioobj = inioobj.clone();
+	ZDomain::Def::get(inioobj.pars()).set( tmpioobj->pars() );
+	useinioobj = tmpioobj;
     }
 
     bool retval;
@@ -262,8 +262,10 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 	uiSEGYImpSimilarDlg dlg( this, *useinioobj, outioobj, attrnm );
 	retval = dlg.go();
     }
-    delete newioobj;
 
+    if ( tmpioobj )
+	IOM().commitChanges( *tmpioobj );
+    delete tmpioobj;
     return retval;
 }
 

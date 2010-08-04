@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.37 2010-04-27 08:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.38 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -171,7 +171,7 @@ float Params::DataParams::d2T( float zval, bool istime ) const
     const Well::D2TModel* d2t = wd_ ? wd_->d2TModel() : 0; 
     if ( !d2t ) return 0;
     
-    return istime?  d2t->getTime( zval ) : d2t->getDepth( zval );
+    return istime?  d2t->getTime( zval ) : d2t->getDah( zval );
 }
 
 

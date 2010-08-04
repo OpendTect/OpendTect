@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.27 2010-07-06 17:28:49 cvsnanne Exp $
+ RCS:           $Id: zaxistransform.h,v 1.28 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class CubeSampling;
 class IOPar;
 class TaskRunner;
 
-namespace ZDomain { class Info; }
+namespace ZDomain { class Def; class Info; }
 
 /*! Baseclass for z stretching in different ways. The z-stretch may be dependent
 on the location (binid). The various transforms can be retrieved from factory
@@ -33,13 +33,13 @@ ZATF().
 mClass ZAxisTransform
 { mRefCountImpl(ZAxisTransform);
 public:
+
     static ZAxisTransform*	create(const IOPar&);
     				/*!<\note Result will be reffed once. It is
 				          caller's responsibility to unref. */
-    				ZAxisTransform();
-    virtual const char*		name() const 				= 0;
-    virtual bool		isOK() const			{ return true; }
-    virtual const char*		errMsg()			{ return 0; }
+    virtual const char*		name() const 		= 0;
+    virtual bool		isOK() const		{ return true; }
+    virtual const char*		errMsg()		{ return errmsg_; }
 
     virtual bool		needsVolumeOfInterest() const	{ return true; }
     virtual int			addVolumeOfInterest(const CubeSampling&,
@@ -90,17 +90,12 @@ public:
 				    implementation gives the same step as in
 				    SI() (i.e. non transformed domain) */
 
-    virtual const char*		getToZDomainString() const		= 0;
-    				/*!\returns a name for the transformed z-domain,
-				    such as "TWT", "Depth" ... */
-    virtual const char*		getFromZDomainString() const;
-    				/*!\returns a name for the untransformed
-				    z-domain, such as "TWT", "Depth" ... */
-    virtual const char*		getZDomainID() const			= 0;
-    virtual float		getZFactor() const		{ return 1; }
-    				//!\Should be used in user interfaces
-    virtual const char*		getToZDomainUnit(bool withparens) const;
-    void			getToZDomainInfo(ZDomain::Info&) const;
+    ZDomain::Info&		fromZDomainInfo() { return fromzdomaininfo_; }	
+    ZDomain::Info&		toZDomainInfo()	  { return tozdomaininfo_; }
+    const ZDomain::Info&	fromZDomainInfo() const;
+    const ZDomain::Info&	toZDomainInfo() const;
+    const char*			fromZDomainKey() const;
+    const char*			toZDomainKey() const;
 
     virtual int			lineIndex( const char* linename ) const
 				{ return 0; }
@@ -108,7 +103,15 @@ public:
 
     virtual NotifierAccess*	changeNotifier()		{ return 0; }
     virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&)		{ return true; }
+    virtual bool		usePar(const IOPar&);
+
+protected:
+    				ZAxisTransform(const ZDomain::Def& from,
+					       const ZDomain::Def& to);
+
+    ZDomain::Info&		tozdomaininfo_;
+    ZDomain::Info&		fromzdomaininfo_;
+    mutable BufferString	errmsg_;
 };
 
 

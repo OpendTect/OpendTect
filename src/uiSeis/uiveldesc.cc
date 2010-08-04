@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.47 2010-07-13 22:04:27 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.48 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiveldesc.h"
 
@@ -427,9 +427,9 @@ bool uiTimeDepthBase::acceptOK()
 
     BufferString zdomain = ioobj->pars().find( ZDomain::sKey() ).str();
     if ( zdomain.isEmpty() )
-	zdomain = SI().getZDomainString();
+	zdomain = ZDomain::SI().key();
 
-    if ( zdomain==ZDomain::sKeyTWT() )
+    if ( zdomain==ZDomain::sKeyTime() )
     {
 	if ( desc.type_ != VelocityDesc::Interval &&
 	     desc.type_ != VelocityDesc::RMS )
@@ -475,7 +475,7 @@ bool uiTimeDepthBase::acceptOK()
 
 FixedString uiTimeDepthBase::getZDomain() const
 {
-    return t2d_ ? ZDomain::sKeyDepth() : ZDomain::sKeyTWT();
+    return t2d_ ? ZDomain::sKeyDepth() : ZDomain::sKeyTime();
 }
 
 
@@ -489,7 +489,7 @@ void uiTime2Depth::initClass()
 uiZAxisTransform* uiTime2Depth::create( uiParent* p, const char* fromdomain,
 					const char* todomain )
 {
-    if ( fromdomain && fromdomain!=ZDomain::sKeyTWT() )
+    if ( fromdomain && fromdomain!=ZDomain::sKeyTime() )
 	return 0;
 
     if ( todomain && todomain!=ZDomain::sKeyDepth() )
@@ -517,7 +517,7 @@ uiZAxisTransform* uiDepth2Time::create( uiParent* p, const char* fromdomain,
     if ( fromdomain && fromdomain!=ZDomain::sKeyDepth() )
 	return 0;
 
-    if ( todomain && todomain!=ZDomain::sKeyTWT() )
+    if ( todomain && todomain!=ZDomain::sKeyTime() )
 	return 0;
 
     return new uiDepth2Time( p );

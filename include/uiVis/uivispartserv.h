@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.261 2010-06-24 11:27:15 cvsumesh Exp $
+ RCS:           $Id: uivispartserv.h,v 1.262 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,8 @@ namespace FlatView  { class DataDispPars; }
 namespace Threads   { class Mutex; }
 namespace visBase   { class DataObject; }
 namespace visSurvey { class Scene; }
-namespace ColTab { class Sequence; struct MapperSetup; }
+namespace ColTab    { class Sequence; struct MapperSetup; }
+namespace ZDomain   { class Info; }
 
 
 /*! \brief The Visualisation Part Server */
@@ -193,10 +194,8 @@ public:
     int			getSelAttribNr() const;
     void		setSelObjectId(int visid,int attrib=-1);
     int			getSceneID(int visid) const;
-    const char*		getZDomainString(int sceneid) const;
-    			/*!< Returns Z domain key of scene */
-    const char*		getZDomainID(int sceneid) const;
-    			/*!< Returns Z domain id of scene */
+    const ZDomain::Info* zDomainInfo(int sceneid) const;
+    			/*!< Returns Z domain info of scene */
 
     			//Events and their functions
     void		unlockEvent();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.55 2010-06-29 13:37:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.56 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uiattrsel.cc,v 1.55 2010-06-29 13:37:36 cvsnann
 #include "cubesampling.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "zdomain.h"
 
 #include "nlamodel.h"
 #include "nladesign.h"
@@ -55,6 +56,7 @@ using namespace Attrib;
     , outputnr_(-1) \
     , compnr_(-1) \
     , shwcubes_(true) \
+    , zdomaininfo_(0) \
 { \
     if ( fillwithdef ) \
 	attribid_ = attrset_->ensureDefStoredPresent(); \
@@ -206,9 +208,10 @@ void uiAttrSelDlg::createSelectionButtons()
 	nlafld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
 
-    if ( !attrdata_.zdomainkey_.isEmpty() )
+    if ( attrdata_.zdomaininfo_ )
     {
-	zdomainfld_ = new uiRadioButton( selgrp_, attrdata_.zdomainkey_);
+	zdomainfld_ = new uiRadioButton( selgrp_,
+					 attrdata_.zdomaininfo_->key() );
 	zdomainfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
 }
@@ -252,11 +255,10 @@ void uiAttrSelDlg::createSelectionFields()
 	nlaoutfld_->attach( rightOf, selgrp_ );
     }
 
-    if ( !attrdata_.zdomainkey_.isEmpty() )
+    if ( attrdata_.zdomaininfo_ )
     {
 	BufferStringSet nms;
-	SelInfo::getZDomainItems( attrdata_.zdomainkey_, attrdata_.zdomainid_,
-				  nms );
+	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
 	zdomoutfld_ = new uiListBox( this, nms );
 	zdomoutfld_->setHSzPol( uiObject::Wide );
 	zdomoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
@@ -387,7 +389,6 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     DescSet* descset = 0;
     attrdata_.attribid_ = DescID::undef();
     attrdata_.outputnr_ = -1;
-    zdomainkey_ = "";
     if ( !selgrp_ || !in_action_ ) return true;
 
     int selidx = -1;
@@ -405,9 +406,11 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	attrdata_.outputnr_ = selidx;
     else if ( seltyp == 3 )
     {
+	if ( !attrdata_.zdomaininfo_ )
+	    { pErrMsg( "Huh" ); return false; }
+
 	BufferStringSet nms;
-	SelInfo::getZDomainItems( attrdata_.zdomainkey_, attrdata_.zdomainid_,
-				  nms );
+	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
 	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
 	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx) );
 	if ( !ioobj ) return false;
@@ -417,7 +420,6 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
 		: eDSHolder().getDescSet( is2D(), true );
 	attrdata_.attribid_ = descset->getStoredID( linekey, 0, true );
-	zdomainkey_ = attrdata_.zdomainkey_;
     }
     else
     {
@@ -464,6 +466,10 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
     return true;
 }
+
+
+const char* uiAttrSelDlg::zDomainKey() const
+{ return attrdata_.zdomaininfo_ ? attrdata_.zdomaininfo_->key() : ""; }
 
 
 bool uiAttrSelDlg::acceptOK( CallBacker* )

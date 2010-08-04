@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.70 2010-07-15 10:12:29 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.71 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiexphorizon.h"
 
@@ -74,7 +74,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     zfld_->attach( alignedBelow, typfld_ );
 
     uiT2DConvSel::Setup su( 0, false );
-    SI().zIsTime() ? su.ist2d(true) : su.ist2d(false);
+    su.ist2d( SI().zIsTime() );
     transfld_ = new uiT2DConvSel( this, su );
     transfld_->display( false );
     transfld_->attach( alignedBelow, zfld_ );
@@ -414,14 +414,13 @@ void uiExportHorizon::addZChg( CallBacker* )
     if ( displayunit )
     {
 	FixedString zdomain = getZDomain();
-
 	if ( zdomain==ZDomain::sKeyDepth() )
 	{
 	    unitsel_->setPropType( PropertyRef::Dist );
 	    if ( SI().zInFeet() || SI().depthsInFeetByDefault() )
 		unitsel_->setUnit( "Feet" );
 	}
-	else if ( zdomain==ZDomain::sKeyTWT() )
+	else if ( zdomain==ZDomain::sKeyTime() )
 	{
 	    unitsel_->setPropType( PropertyRef::Time );
 	    unitsel_->setUnit( "Milliseconds" );
@@ -434,18 +433,15 @@ void uiExportHorizon::addZChg( CallBacker* )
 
 FixedString uiExportHorizon::getZDomain() const
 {
-    FixedString zdomain = SI().getZDomainString();
+    FixedString zdomain = ZDomain::SI().key();
     RefMan<ZAxisTransform> zat = 0;
     if ( typfld_->getIntValue()==2 || zfld_->getIntValue()==2 )
     {
 	IOPar iop;
 	transfld_->fillPar( iop, true );
 	zat = ZAxisTransform::create( iop );
-	if ( !zat )
-	    return zdomain;
-
-	zdomain = zat->getToZDomainString();
-
+	if ( zat )
+	    zdomain = zat->toZDomainKey();
     }
 
     return zdomain;

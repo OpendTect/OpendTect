@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.50 2010-07-07 20:58:34 cvskris Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.51 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "attribsel.h"
 
@@ -63,22 +63,15 @@ bool SelSpec::operator!=( const SelSpec& ss ) const
 }
 
 
-void SelSpec::setDepthDomainKey( const Desc& desc )
+void SelSpec::setZDomainKey( const Desc& desc )
 {
-    zdomainkey_ = "";
-
+    zdomainkey_.setEmpty();
     BufferString storedid = desc.getStoredID();
     if ( storedid.isEmpty() ) return;
 
     PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
     if ( ioobj )
-    {
-	if ( !ioobj->pars().get( ZDomain::sKey(), zdomainkey_ ) )
-	{
-	    //Legacy. Can be removed in od4
-	    ioobj->pars().get( "Depth Domain", zdomainkey_ );
-	}
-    }
+	ioobj->pars().get( ZDomain::sKey(), zdomainkey_ );
 }
 
 
@@ -89,7 +82,7 @@ void SelSpec::set( const Desc& desc )
     id_ = desc.id();
     ref_ = desc.userRef();
     desc.getDefStr( defstring_ );
-    setDepthDomainKey( desc );
+    setZDomainKey( desc );
     setDiscr( *desc.descSet() );
 }
 
@@ -147,7 +140,7 @@ void SelSpec::setIDFromRef( const DescSet& ds )
     }
     const Desc* desc = ds.getDesc( id_ );
     if ( desc )
-	setDepthDomainKey( *desc );
+	setZDomainKey( *desc );
     setDiscr( ds );
 }
 
@@ -167,7 +160,7 @@ void SelSpec::setRefFromID( const DescSet& ds )
     {
 	ref_ = desc->userRef();
 	desc->getDefStr( defstring_ );
-	setDepthDomainKey( *desc );
+	setZDomainKey( *desc );
     }
     setDiscr( ds );
 }
@@ -259,8 +252,6 @@ void SelInfo::fillStored( const char* filter )
     const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
     GlobExpr* ge = filter && *filter ? new GlobExpr( filter ) : 0;
 
-    const char* survdomain = SI().getZDomainString();
-
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
@@ -272,11 +263,7 @@ void SelInfo::fillStored( const char* filter )
 	if ( (is2d_ != is2d) || (!is2d && !isvalid3d) )
 	    continue;
 
-	FixedString zdomain = ioobj.pars().find(ZDomain::sKey());
-	if ( !zdomain )
-	    zdomain = ioobj.pars().find( "Depth Domain" );
-
-	if ( zdomain && zdomain!=survdomain )
+	if ( !ZDomain::isSI(ioobj.pars()) )
 	    continue;
 
 	const char* res = ioobj.pars().find( sKey::Type );
@@ -379,7 +366,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 }
 
 
-void SelInfo::getZDomainItems( const char* zdomainkey, const char* zdomainid,
+void SelInfo::getZDomainItems( const ZDomain::Info& zinf,
 			       BufferStringSet& nms )
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
@@ -387,19 +374,7 @@ void SelInfo::getZDomainItems( const char* zdomainkey, const char* zdomainid,
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	const char* dres = ioobj.pars().find( "Depth Domain" ); // Legacy
-	if ( dres && !strcmp(dres,zdomainkey) )
-	{
-	    IOObj& myioobj = const_cast<IOObj&>(ioobj);
-	    ioobj.pars().remove( "Depth Domain" );
-	    ioobj.pars().set( ZDomain::sKey(), dres );
-	}
-
-	const char* zkey = ioobj.pars().find( ZDomain::sKey() );
-	const char* zid = ioobj.pars().find( ZDomain::sKeyID() );
-	const bool matchkey = zkey && !strcmp(zkey,zdomainkey);
-	const bool matchid = zid && !strcmp(zid,zdomainid);
-	if ( matchkey && (!zdomainid || !zid || matchid) )
+	if ( zinf.isCompatibleWith(ioobj.pars()) )
 	    nms.add( ioobj.name() );
     }
 

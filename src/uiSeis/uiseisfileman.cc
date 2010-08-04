@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.110 2010-07-29 16:05:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.111 2010-08-04 13:30:46 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -163,9 +163,9 @@ void uiSeisFileMan::mkFileInfo()
 	    const char* typstr = curioobj_->pars().find( "Velocity Type" );
 	    txt += typstr ? typstr : "<unknown>";
 	}
-	if ( !ZDomain::isSIDomain(curioobj_->pars()) )
-	    { txt += "\nDomain: "; txt += zistm ? ZDomain::sKeyTWT()
-						: ZDomain::sKeyDepth(); }
+	if ( !ZDomain::isSI(curioobj_->pars()) )
+	    { txt += "\nDomain: ";
+		txt += ZDomain::Def::get(curioobj_->pars()).userName(); }
     }
 
     if ( !strcmp(curioobj_->translator(),"CBVS") )

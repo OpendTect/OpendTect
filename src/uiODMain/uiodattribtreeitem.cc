@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.38 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.39 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.38 2010-07-06 16:17:2
 #include "keystrs.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "zdomain.h"
 
 #include "uiattribpartserv.h"
 #include "uilistview.h"
@@ -76,7 +77,7 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
     if ( scene && scene->getZAxisTransform() ) \
     {\
 	subitem = attrserv->zDomainAttribMenuItem( *as,\
-	    scene->getZDomainString(), scene->getZDomainID(), is2d, needext );\
+	    scene->zDomainInfo(), is2d, needext );\
 	if ( subitem ) \
 	    mAddMenuItem(&mnu,subitem,subitem->nrItems(),subitem->checked);\
     }\
@@ -115,8 +116,7 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 	Pol2D3D p2d3d = so->getAllowedDataType();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid));
 
-	const FixedString zdomain = scene->getZDomainString();
-	const bool needtransform = zdomain && zdomain!=SI().getZDomainString();
+	const bool needtransform = !scene->zDomainInfo().def_.isSI();
 	const bool cantransform = !needtransform || scene->getZAxisTransform();
 
 	bool need2dlist = SI().has2D() && p2d3d != Only3D;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.67 2010-07-27 08:26:10 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.68 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -86,6 +86,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	    		    : "Create CBVS cube definition" );
     tmpid_ = "100010."; tmpid_ += IOObj::tmpID();
 
+    uiSeisTransfer::Setup sts( Seis::Vol );
     uiGroup* attobj = 0;
     if ( fromioobj )
     {
@@ -96,6 +97,15 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	compfld_ = new uiLabeledComboBox( this, "Component(s)" );
 	attobj = compfld_;
 	compfld_->attach( alignedBelow, oinpfld );
+	if ( inctio_.ioobj )
+	{
+	    SeisIOObjInfo oinf( *inctio_.ioobj );
+	    if ( oinf.isTime() != SI().zIsTime() )
+	    {
+		sts.domflag_ = oinf.isTime() ? -1 : 1;
+		oinpfld->setSensitive( false );
+	    }
+	}
     }
     else
     {
@@ -123,16 +133,15 @@ void uiSeisImpCBVS::init( bool fromioobj )
 		mCB(this,uiSeisImpCBVS,convertSel) );
     }
 
-    uiSeisTransfer::Setup sts( Seis::Vol );
     sts.withnullfill(fromioobj).withstep(true).onlyrange(false)
 				.fornewentry(true);
     transffld = new uiSeisTransfer( this, sts );
     transffld->attach( alignedBelow, attobj );
 
+    uiSeisSel::Setup sssu( Seis::Vol );
     outctio_.ctxt.forread = false;
     outctio_.ctxt.trglobexpr = "CBVS";
     IOM().to( outctio_.ctxt.getSelKey() );
-    uiSeisSel::Setup sssu( Seis::Vol );
     if ( !fromioobj )
 	sssu.enabotherdomain( true );
     outfld = new uiSeisSel( this, outctio_, sssu );

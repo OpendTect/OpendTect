@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.14 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.15 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "emhorizonztransform.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.14 2010-06-18 12:23:
 #include "iopar.h"
 #include "survinfo.h"
 #include "sorting.h"
+#include "zdomain.h"
 
 namespace EM
 {
@@ -30,7 +31,8 @@ void HorizonZTransform::initClass()
 
 
 HorizonZTransform::HorizonZTransform( const Horizon* hor )
-    : horizon_( 0 )
+    : ZAxisTransform(ZDomain::SI(),ZDomain::SI())
+    , horizon_( 0 )
     , horchanged_( false )
     , change_( this )
 {
@@ -50,14 +52,6 @@ HorizonZTransform::~HorizonZTransform()
 }
 
 
-const char* HorizonZTransform::getZDomainID() const
-{ return horizon_ ? horizon_->multiID() : 0; }
-
-
-const char* HorizonZTransform::getToZDomainString() const
-{ return getFromZDomainString(); }
-
-
 void HorizonZTransform::setHorizon( const Horizon& hor )
 {
     if ( horizon_ )
@@ -71,6 +65,9 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
     horizon_->ref();
     const_cast<Horizon*>(horizon_)
 	->change.notify( mCB(this,HorizonZTransform,horChangeCB) );
+
+    fromzdomaininfo_.setID( horizon_->multiID() );
+    tozdomaininfo_.setID( horizon_->multiID() );
 
     horchanged_ = true;
     calculateHorizonRange();

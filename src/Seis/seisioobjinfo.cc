@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.32 2010-07-29 13:49:43 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.33 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -139,8 +139,7 @@ bool SeisIOObjInfo::isTime() const
 {
     const bool siistime = SI().zIsTime();
     mChk(siistime);
-    const bool issidom = ZDomain::isSIDomain( ioobj_->pars() );
-    return siistime ? issidom : !issidom;
+    return ZDomain::isTime( ioobj_->pars() );
 }
 
 
@@ -148,8 +147,7 @@ bool SeisIOObjInfo::isDepth() const
 {
     const bool siisdepth = !SI().zIsTime();
     mChk(siisdepth);
-    const bool issidom = ZDomain::isSIDomain( ioobj_->pars() );
-    return siisdepth ? issidom : !issidom;
+    return ZDomain::isDepth( ioobj_->pars() );
 }
 
 

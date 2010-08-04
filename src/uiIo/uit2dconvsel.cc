@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uit2dconvsel.cc,v 1.3 2010-07-08 06:00:55 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uit2dconvsel.cc,v 1.4 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uit2dconvsel.h"
 
@@ -78,7 +78,7 @@ void uiT2DConvSel::inpSel( CallBacker* cb )
     const IOObj* ioobj = setup_.tiedto_->ioobj();
     if ( !ioobj ) return;
 
-    choicefld_->setSensitive( ZDomain::isSIDomain(ioobj->pars()) );
+    choicefld_->setSensitive( ZDomain::isSI(ioobj->pars()) );
 }
 
 

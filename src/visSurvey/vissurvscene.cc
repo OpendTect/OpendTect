@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.137 2010-06-04 03:03:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.138 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "vissurvscene.h"
 
@@ -28,9 +28,9 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.137 2010-06-04 03:03:09 cvs
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "vissurvobj.h"
+#include "vistopbotimage.h"
 #include "zaxistransform.h"
 #include "zdomain.h"
-#include "vistopbotimage.h"
 
 
 mCreateFactoryEntry( visSurvey::Scene );
@@ -67,7 +67,7 @@ Scene::Scene()
     , coordselector_( 0 )
     , zscale_( SI().zScale() )
     , infopar_(*new IOPar)
-    , zdomaininfo_( true )
+    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
@@ -97,7 +97,7 @@ void Scene::updateAnnotationText()
     	annot_->setText( 1, "Cross-line" );
 
     if ( SI().zRange(true).width() )
-    	annot_->setText( 2, getZDomainString() );
+    	annot_->setText( 2, zDomainUserName() );
 }
 
 
@@ -171,6 +171,7 @@ Scene::~Scene()
 
     delete coordselector_;
     delete &infopar_;
+    delete zdomaininfo_;
 }
 
 
@@ -209,32 +210,38 @@ bool Scene::isRightHandSystem() const
 }
 
 
-void Scene::getZDomainInfo( ZDomain::Info& info ) const
+const ZDomain::Info& Scene::zDomainInfo() const
+{ return *zdomaininfo_; }
+
+void Scene::setZDomainInfo( const ZDomain::Info& zdinf )
 {
-    info = zdomaininfo_;
+    delete zdomaininfo_;
+    zdomaininfo_ = new ZDomain::Info( zdinf );
+    updateAnnotationText();
 }
 
 
-const char* Scene::getZDomainString() const
-{ return zdomaininfo_.name_; }
+const char* Scene::zDomainKey() const
+{ return zdomaininfo_->key(); }
 
+const char* Scene::zDomainUserName() const
+{ return zdomaininfo_->userName(); }
 
-const char* Scene::getZDomainID() const
-{ return zdomaininfo_.id_; }
+const char* Scene::zDomainUnitStr( bool withparens ) const
+{ return zdomaininfo_->unitStr( withparens ); }
 
+float Scene::zDomainUserFactor() const
+{ return zdomaininfo_->userFactor(); }
 
-float Scene::getZDomainFactor() const { return zdomaininfo_.zfactor_; }
-
-
-const char* Scene::getZDomainUnitString() const
-{ return datatransform_ ? "" : SI().getZUnitString(); }
+const char* Scene::zDomainID() const
+{ return zdomaininfo_->getID(); }
 
 
 void Scene::getAllowedZDomains( BufferString& dms ) const
 {
-    FileMultiString fms( getZDomainString() );
+    FileMultiString fms( zDomainKey() );
     if ( datatransform_ )
-	fms.add( datatransform_->getToZDomainString() );
+	fms.add( datatransform_->toZDomainKey() );
     dms = fms.buf();
 }
 
@@ -530,19 +537,16 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     if ( datatransform_ ) datatransform_->ref();
 
     CubeSampling cs = SI().sampling( true );
-    if ( zat )
+    if ( !zat )
+	setZDomainInfo( ZDomain::Info(ZDomain::SI()) );
+    else
     {
 	const Interval<float> zrg = zat->getZInterval( false );
 	cs.zrg.start = zrg.start;
 	cs.zrg.stop = zrg.stop;
 	cs.zrg.step = zat->getGoodZStep();
 
-	zat->getToZDomainInfo( zdomaininfo_ );
-    }
-    else
-    {
-	ZDomain::Info zi( true );
-	zdomaininfo_ = zi;
+	setZDomainInfo( zat->toZDomainInfo() );
     }
 
     setCubeSampling( cs );
@@ -555,13 +559,6 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 	so->setZAxisTransform( zat,0 );
     }
 
-    updateAnnotationText();
-}
-
-
-void Scene::setZDomainInfo( const ZDomain::Info& zdi )
-{
-    zdomaininfo_ = zdi;
     updateAnnotationText();
 }
 
@@ -715,7 +712,8 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     }
     else
     {
-	zdomaininfo_.fillPar( par );
+	zdomaininfo_->def_.set( par );
+	par.mergeComp( zdomaininfo_->pars_, ZDomain::sKey() );
 	cs_.fillPar( par );
 	par.set( sKey::Scale, zscale_ );
     }
@@ -767,7 +765,7 @@ int Scene::usePar( const IOPar& par )
     if ( zstretch != curzstretch_ )
 	setZStretch( zstretch );
   
-    ZDomain::Info zdomaininfo; 
+    ZDomain::Info zdomaininfo( ZDomain::SI() ); 
     PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
     if ( transpar )
     {
@@ -776,16 +774,14 @@ int Scene::usePar( const IOPar& par )
 	if ( transform && transform->usePar( *transpar ) )
 	    setZAxisTransform( transform,0 );
     }
-    else if ( zdomaininfo.usePar( par ) &&
-	      zdomaininfo.name_!=SI().getZDomainString() )
+    else
     {
-	CubeSampling cs;
-	float zscale;
+	CubeSampling cs; float zscale;
 	if ( cs.usePar( par ) && par.get( sKey::Scale, zscale ) )
 	{
 	    setCubeSampling( cs );
 	    setZScale( zscale );
-	    setZDomainInfo( zdomaininfo );
+	    delete zdomaininfo_; zdomaininfo_ = new ZDomain::Info( par );
 	}
     }
 

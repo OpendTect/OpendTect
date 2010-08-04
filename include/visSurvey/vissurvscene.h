@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.69 2010-05-14 13:35:58 cvskarthika Exp $
+ RCS:		$Id: vissurvscene.h,v 1.70 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "cubesampling.h"
 #include "position.h"
-#include "zdomain.h"
-
 
 class Color;
 class MouseCursor;
@@ -140,12 +138,15 @@ public:
     bool			isRightHandSystem() const;
 
     void			setZDomainInfo(const ZDomain::Info&);
-    void			getZDomainInfo(ZDomain::Info&) const;
-    const char*			getZDomainString() const;
-    const char*			getZDomainID() const;
-    const char*			getZDomainUnitString() const;
-    float			getZDomainFactor() const;
+    const ZDomain::Info&	zDomainInfo() const;
     void			getAllowedZDomains(BufferString&) const;
+
+    // Convenience
+    const char*			zDomainKey() const;
+    const char*			zDomainUserName() const;
+    const char*			zDomainUnitStr(bool withparens=false) const;
+    float			zDomainUserFactor() const;
+    const char*			zDomainID() const;
 
     void			setAnnotColor(const Color&);
     const Color&		getAnnotColor() const;
@@ -201,7 +202,7 @@ protected:
     IOPar&			infopar_;
     float			curzstretch_;
 
-    ZDomain::Info		zdomaininfo_;
+    ZDomain::Info*		zdomaininfo_;
     float			zscale_;
 
     bool			appallowshad_;	   //from application

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.57 2010-05-19 06:47:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.58 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uislicesel.h"
 
@@ -106,7 +106,7 @@ void uiSliceSel::createCrlFld()
 void uiSliceSel::createZFld()
 {
     BufferString label = istsl_ ? "Z " : "Z range ";
-    label += zdominfo_.unitstr_;
+    label += zdominfo_.unitStr(true);
     z0fld_ = new uiLabeledSpinBox( this, label, 0, istsl_ ? "Z" : "Z Start" );
     z1fld_ = new uiSpinBox( this, 0, "Z Stop" );
     z1fld_->attach( rightTo, z0fld_ );
@@ -135,7 +135,7 @@ uiSliceScroll( uiSliceSel* ss )
 	, slcsel_(ss)
 	, inauto_(false)
 	, paused_(false)
-	, zfact_(ss->zdominfo_.zfactor_)
+	, zfact_(ss->zdominfo_.userFactor())
 {
     setCtrlStyle( LeaveOnly );
     timer = new Timer( "uiSliceScroll timer" );
@@ -388,13 +388,13 @@ void uiSliceSel::readInput()
 	crlrg.stop += hs.step.crl;
 
     Interval<float> zrg;
-    zrg.start = z0fld_->box()->getValue() / zdominfo_.zfactor_;
+    zrg.start = z0fld_->box()->getValue() / zdominfo_.userFactor();
     zrg.start = maxcs_.zrg.snap( zrg.start );
     if ( istsl_ )
 	zrg.stop = zrg.start;
     else
     {
-	zrg.stop = z1fld_->getValue() / zdominfo_.zfactor_;
+	zrg.stop = z1fld_->getValue() / zdominfo_.userFactor();
 	zrg.sort();
 	zrg.stop = maxcs_.zrg.snap( zrg.stop );
 	if ( mIsEqual(zrg.start,zrg.stop,mDefEps) )
@@ -427,7 +427,8 @@ void uiSliceSel::updateUI()
     setBoxValues( crl1fld_, maxcrlrg, crlrg.stop );
 
     int nrdec = 0;
-    float step = maxcs_.zrg.step * zdominfo_.zfactor_;
+    const float zfac = zdominfo_.userFactor();
+    float step = maxcs_.zrg.step * zfac;
     while ( true )
     {
 	if ( step>1 || mIsEqual(step,1,mDefEps) )
@@ -438,21 +439,21 @@ void uiSliceSel::updateUI()
 
     if ( nrdec==0 )
     {
-	Interval<int> zrg( mNINT(cs_.zrg.start*zdominfo_.zfactor_), 
-			   mNINT(cs_.zrg.stop*zdominfo_.zfactor_) );
+	Interval<int> zrg( mNINT(cs_.zrg.start*zfac), 
+			   mNINT(cs_.zrg.stop*zfac) );
 	StepInterval<int> maxzrg = 
-	    StepInterval<int>( mNINT(maxcs_.zrg.start*zdominfo_.zfactor_),
-			       mNINT(maxcs_.zrg.stop*zdominfo_.zfactor_),
-			       mNINT(maxcs_.zrg.step*zdominfo_.zfactor_) );
+	    StepInterval<int>( mNINT(maxcs_.zrg.start*zfac),
+			       mNINT(maxcs_.zrg.stop*zfac),
+			       mNINT(maxcs_.zrg.step*zfac) );
 	setBoxValues( z0fld_->box(), maxzrg, zrg.start );
 	setBoxValues( z1fld_, maxzrg, zrg.stop );
     }
     else
     {
 	StepInterval<float> zrg = cs_.zrg;
-	zrg.scale( zdominfo_.zfactor_ );
+	zrg.scale( zfac );
 	StepInterval<float> maxzrg = maxcs_.zrg;
-	maxzrg.scale( zdominfo_.zfactor_ );
+	maxzrg.scale( zfac );
 
 	z0fld_->box()->setInterval( maxzrg );
 	z0fld_->box()->setValue( cs_.zrg.start );

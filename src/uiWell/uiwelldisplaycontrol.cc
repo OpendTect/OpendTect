@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.11 2010-07-14 09:56:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.12 2010-08-04 13:30:46 cvsbert Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -143,7 +143,7 @@ void uiWellDisplayControl::getPosInfo( int dispidx, float pos,
     {
 	time = pos;
 	if ( data.d2tm_ && data.d2tm_->size() >= 1 )
-	    dah = data.d2tm_->getDepth( pos*0.001 );
+	    dah = data.d2tm_->getDah( pos*0.001 );
     }
     else
     {
@@ -283,7 +283,7 @@ protected :
 #define mSetZVal(val)\
     if ( logdisps_[0]->data().zistime_ && wd_ &&\
 	    wd_->haveD2TModel() && wd_->d2TModel()->size() > 0 )\
-	val = wd_->d2TModel()->getDepth( val/1000 );
+	val = wd_->d2TModel()->getDah( val/1000 );
 void uiWellDisplayControl::handleMenuCB( CallBacker* cb )
 {
     if ( !wd_ ) return;

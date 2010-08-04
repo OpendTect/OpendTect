@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.21 2010-03-19 12:51:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.22 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -355,6 +355,7 @@ uiPosSubSel::uiPosSubSel( uiParent* p, const uiPosSubSel::Setup& su )
     ppsu.seltxt( su.seltxt_ )
 	.allownone( true )
 	.choicetype( (uiPosProvider::Setup::ChoiceType)su.choicetype_ );
+    ppsu.domflag( su.domflag_ );
     ps_ = new uiPosProvSel( this, ppsu );
     ps_->butPush.notify( mCB(this,uiPosSubSel,selChg) );
     setHAlignObj( ps_ );

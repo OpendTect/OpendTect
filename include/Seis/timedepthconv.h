@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.19 2010-07-07 21:48:21 cvskris Exp $
+ RCS:		$Id: timedepthconv.h,v 1.20 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -41,7 +41,8 @@ public:
     static const char*		sKeyBotVavg()	{ return "Bottom Vavg"; }
 
 protected:
-    				VelocityStretcher() : errmsg_( 0 ) {}
+    				VelocityStretcher(const ZDomain::Def& from,
+						  const ZDomain::Def& to);
     mutable const char*		errmsg_;
 
 };
@@ -206,9 +207,6 @@ public:
 	    				      const SamplingData<float>&,
 					      int sz,float* res) const;
     Interval<float>		getZInterval(bool time) const;
-    const char*			getToZDomainString() const;
-    const char*			getFromZDomainString() const;
-    const char*			getZDomainID() const;
     bool			usePar(const IOPar&);
     bool			needsVolumeOfInterest() const
     				{ return false; }
@@ -236,9 +234,6 @@ public:
 	    				      const SamplingData<float>&,
 					      int sz,float* res) const;
     Interval<float>		getZInterval(bool depth) const;
-    const char*			getToZDomainString() const;
-    const char*			getFromZDomainString() const;
-    const char*			getZDomainID() const;
     bool			usePar(const IOPar&);
     bool			needsVolumeOfInterest() const
     				{ return false; }

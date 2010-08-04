@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.45 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.46 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -627,7 +627,7 @@ void uiGDPositionDlg::popUpPosDlg()
 	inputcs.zrg.start = 0;
     }
 
-    ZDomain::Info info;
+    ZDomain::Info info( ZDomain::SI() );
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD
 			       : (isinl ? uiSliceSel::Inl : uiSliceSel::Crl);
     posdlg_ = new uiSliceSelDlg( this, inputcs, cs_, dummycb, tp, info );

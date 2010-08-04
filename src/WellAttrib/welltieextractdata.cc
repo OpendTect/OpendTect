@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.27 2009-12-22 15:37:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.28 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -53,7 +53,7 @@ int TrackExtractor::nextStep()
 	return ErrorOccurred();
     double time = timeintv_.atIndex( nrdone_ );
 
-    Coord3 pos = track_.getPos( d2t_.getDepth(time) );
+    Coord3 pos = track_.getPos( d2t_.getDah(time) );
     pos.z = time;
 
     BinID bid = SI().transform( pos );
@@ -263,7 +263,7 @@ int LogResampler::nextStep()
 	    			timeintv_.nrSteps() || !orglog_.size() ) 
 	return Executor::Finished();
    
-    float curdah = wd_.d2TModel()->getDepth( curtime );
+    float curdah = wd_.d2TModel()->getDah( curtime );
     curidx_ = orglog_.indexOf( curdah );
     if ( curidx_ < 0 ) 
 	curidx_ = 0;

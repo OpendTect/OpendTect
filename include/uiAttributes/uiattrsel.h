@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.25 2010-07-12 22:52:41 cvskris Exp $
+ RCS:           $Id: uiattrsel.h,v 1.26 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; };
+namespace ZDomain { class Info; }
 
 class CubeSampling;
 class IOObj;
@@ -42,8 +43,7 @@ public:
     int				outputnr_;
     int				compnr_;
     bool			shwcubes_;
-    BufferString		zdomainkey_;
-    BufferString		zdomainid_;
+    const ZDomain::Info*	zdomaininfo_;
 
     bool			is2D() const;
     const Attrib::DescSet&	attrSet() const		{ return *attrset_; }
@@ -84,7 +84,7 @@ public:
 			//!< -1 if not selected
     int			outputNr() const	{ return attrdata_.outputnr_; }
 			//!< -1 if not selected
-    const char*		zDomainKey() const	{ return zdomainkey_; }
+    const char*		zDomainKey() const;
 
     bool		is2D() const		{ return attrdata_.is2D(); }
     const Attrib::DescSet& getAttrSet() const	{ return attrdata_.attrSet(); }

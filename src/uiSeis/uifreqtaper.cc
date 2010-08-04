@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifreqtaper.cc,v 1.8 2010-07-26 12:29:52 cvshelene Exp $";
+static const char* rcsID = "$Id: uifreqtaper.cc,v 1.9 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"
@@ -80,7 +80,7 @@ class uiFreqTaperSelLineDlg : public uiDialog
 {
 public:
 
-    uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
+uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
 	: uiDialog(p,uiDialog::Setup("Select line from Data",0,mNoHelpID))
 	, linesfld_(0)  
 	, objinfo_(objinfo)  
@@ -130,7 +130,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
     if ( lineposdlg.go() )
     {
 	delete posdlg_; posdlg_ = 0;
-	ZDomain::Info info;
+	ZDomain::Info info( ZDomain::SI() );
 	uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD
 				   : (lineposdlg.isInl() ? uiSliceSel::Inl 
 							 : uiSliceSel::Crl);

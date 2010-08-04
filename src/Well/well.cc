@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.71 2010-07-13 14:34:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.72 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -802,7 +802,7 @@ float Well::D2TModel::getTime( float dh ) const
 }
 
 
-float Well::D2TModel::getDepth( float time ) const
+float Well::D2TModel::getDah( float time ) const
 {
     int idx1;
     if ( IdxAble::findFPPos(t_,t_.size(),time,-1,idx1) )

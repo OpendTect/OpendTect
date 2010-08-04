@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.14 2010-07-30 07:07:11 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.15 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -21,8 +21,7 @@ static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.14 2010-07-30 07:07:1
 #include "keystrs.h"
 #include "seis2dline.h"
 #include "survinfo.h"
-#include "visseis2ddisplay.h"
-#include "vissurvobj.h"
+#include "zdomain.h"
 
 #include "uiattribpartserv.h"
 #include "uicolortable.h"
@@ -31,7 +30,8 @@ static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.14 2010-07-30 07:07:1
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
-
+#include "visseis2ddisplay.h"
+#include "vissurvobj.h"
 
 void uiODApplMgrAttrVisHandler::survChg( bool before )
 {
@@ -115,15 +115,12 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( id, attrib );
     if ( !as ) return false;
 
-    const char* zdomkey =
-	am_.visserv_->getZDomainString( am_.visserv_->getSceneID(id) );
-    const char* zdomid =
-	am_.visserv_->getZDomainID( am_.visserv_->getSceneID(id) );
-    BufferString survzdom = SI().getZDomainString();
-    const bool samezdom = survzdom == zdomkey;
+    const ZDomain::Info* zdinf =
+	am_.visserv_->zDomainInfo( am_.visserv_->getSceneID(id) );
+    const bool issi = !zdinf || zdinf->def_.isSI();
     Attrib::SelSpec myas( *as );
-    const bool selok = am_.attrserv_->selectAttrib( myas, samezdom ? 0 :zdomkey,
-	    					    zdomid, myas.is2D() );
+    const bool selok = am_.attrserv_->selectAttrib( myas, issi ? 0 : zdinf,
+	    					    myas.is2D() );
     if ( selok )
 	am_.visserv_->setSelSpec( id, attrib, myas );
     return selok;

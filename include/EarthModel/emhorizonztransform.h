@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.13 2009-11-23 04:55:11 cvsumesh Exp $
+ RCS:		$Id: emhorizonztransform.h,v 1.14 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ accordingly. In case of reverse faulting, the area between the two patches will
 not be included.  */
 
 mClass HorizonZTransform : public ZAxisTransform
-			, public CallBacker
+			 , public CallBacker
 {
 public:
     static void		initClass();
@@ -46,14 +46,13 @@ public:
     Interval<float>	getDepthRange() const		{ return depthrange_; }
 
     int			lineIndex(const char* lnm) const;
-    const char*		getZDomainID() const;
-    const char*		getToZDomainString() const;
     NotifierAccess*	changeNotifier()		{ return &change_; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
+
     static ZAxisTransform* create() { return new HorizonZTransform( 0 ); }
 
     			~HorizonZTransform();
@@ -65,10 +64,9 @@ protected:
     Interval<float>	depthrange_;
     bool		horchanged_;
     Notifier<HorizonZTransform> change_;
+
 };
 
-
-}; // Namespace
-
+} // namespace EM
 
 #endif

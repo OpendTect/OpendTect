@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.13 2010-07-19 15:17:26 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.14 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -374,7 +374,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     {
 	float z = trc.samplePos( isamp );
 	if ( !isdpth_ )
-	    z = wd->d2TModel()->getDepth( z );
+	    z = wd->d2TModel()->getDah( z );
 	else if ( inptvd )
 	    prevdah = z = wd->track().getDahForTVD( z, prevdah );
 

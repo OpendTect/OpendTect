@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.70 2010-06-24 11:55:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.71 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiwelltieview.h"
 
@@ -179,8 +179,8 @@ bool uiTieView::setLogsParams()
 	logsdisp_[idx]->data().zistime_ = uipms->iszintime_;
 	logsdisp_[idx]->doDataChange();
     }
-    const float startdah = d2tm->getDepth( zrange_.start );
-    const float stopdah = d2tm->getDepth( zrange_.stop );
+    const float startdah = d2tm->getDah( zrange_.start );
+    const float stopdah = d2tm->getDah( zrange_.stop );
     setLogsRanges( startdah, stopdah );
     return true;
 }
@@ -347,7 +347,7 @@ void uiTieView::zoomChg( CallBacker* )
     uiWorldRect curwr = vwr_->curView();
     const float start = curwr.top();
     const float stop  = curwr.bottom();
-    setLogsRanges( d2tm->getDepth(start*0.001), d2tm->getDepth(stop*0.001) );
+    setLogsRanges( d2tm->getDah(start*0.001), d2tm->getDah(stop*0.001) );
     drawCShot();
 }
 

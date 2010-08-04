@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.95 2010-07-27 08:56:04 cvsjaap Exp $
+ RCS:		$Id: survinfo.h,v 1.96 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,6 @@ public:
     inline bool		zInFeet() const		{ return !zistime_ && zinfeet_;}
     const char*		getXYUnitString(bool withparens=true) const;
     const char*		getZUnitString(bool withparens=true) const;
-    const char*		getZDomainString() const;
     float		zFactor() const;
     			//!< Factor between real and displayed unit in UI
     static float	zFactor(bool time);
@@ -111,6 +110,7 @@ public:
     			//!< see snap() for direction
 
     const IOPar&	pars() const			{ return pars_; }
+    void		putZDomain(IOPar&) const;
 
     // Some public fns moved to bottom because they are rarely used; some fns
     // that have 'no user servicable parts inside' are at the very bottom

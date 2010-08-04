@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.452 2010-06-24 11:27:21 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.453 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uivispartserv.h"
 
@@ -478,17 +478,10 @@ int uiVisPartServer::getSceneID( int visid ) const
 }
 
 
-const char* uiVisPartServer::getZDomainString( int sceneid ) const
+const ZDomain::Info* uiVisPartServer::zDomainInfo( int sceneid ) const
 {
     const visSurvey::Scene* scene = getScene( sceneid );
-    return scene ? scene->getZDomainString() : 0;
-}
-
-
-const char* uiVisPartServer::getZDomainID( int sceneid ) const
-{
-    const visSurvey::Scene* scene = getScene( sceneid );
-    return scene ? scene->getZDomainID() : 0;
+    return scene ? &scene->zDomainInfo() : 0;
 }
 
 
@@ -1886,7 +1879,7 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     inlcrlmousepos_ = scene->getMousePos(false);
     mouseposval_ = scene->getMousePosValue();
     mouseposstr_ = scene->getMousePosString();
-    zfactor_ = scene->getZDomainFactor();
+    zfactor_ = scene->zDomainUserFactor();
     sendEvent( evMouseMove() );
 }
 

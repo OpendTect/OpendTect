@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.73 2010-06-24 11:55:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.74 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -583,7 +583,7 @@ uiInfoDlg::~uiInfoDlg()
 bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
 {
     mGetWD(return false)
-    zrg.start = wd->d2TModel()->getDepth( 0 );
+    zrg.start = wd->d2TModel()->getDah( 0 );
     zrg.stop = wd->track().dah( wd->track().size()-1 );
 
     const Interval<int> mintv = zrangeflds_[0]->getIInterval();

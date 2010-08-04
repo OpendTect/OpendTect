@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.91 2010-03-16 09:51:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.92 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -443,18 +443,15 @@ void uiSeisSel::updateInput()
 
 void uiSeisSel::commitSucceeded()
 {
-    if ( !othdombox_ ) return;
+    if ( !othdombox_ || !othdombox_->isChecked() ) return;
 
-    const bool sidom = !othdombox_->isChecked();
-    ZDomain::setSIDomain( dlgiopar_, sidom );
+    const ZDomain::Def* def = SI().zIsTime() ? &ZDomain::Depth()
+					     : &ZDomain::Time();
+    def->set( dlgiopar_ );
     if ( inctio_.ioobj )
     {
-	const bool wassidom = ZDomain::isSIDomain( inctio_.ioobj->pars() );
-	if ( sidom != wassidom )
-	{
-	    ZDomain::setSIDomain( inctio_.ioobj->pars(), sidom );
-	    IOM().commitChanges( *inctio_.ioobj );
-	}
+	def->set( inctio_.ioobj->pars() );
+	IOM().commitChanges( *inctio_.ioobj );
     }
 }
 

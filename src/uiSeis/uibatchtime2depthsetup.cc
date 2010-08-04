@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.11 2010-07-08 21:31:42 cvskris Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.12 2010-08-04 13:30:46 cvsbert Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -41,13 +41,14 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     d2tfld_->attach( alignedBelow, directionsel_ );
 
     IOObjContext inputtimectxt = SeisTrcTranslatorGroup::ioContext();
-    inputtimectxt.parconstraints.add( ZDomain::sKey(), ZDomain::sKeyTWT() );
+    inputtimectxt.parconstraints.add( ZDomain::sKey(), ZDomain::sKeyTime() );
     inputtimectxt.allowcnstrsabsent = SI().zIsTime();
     inputtimectxt.forread = true;
     uiSeisSel::Setup setup(Seis::Vol); setup.seltxt("Input Time Volume");
     inputtimesel_ = new uiSeisSel( uppgrp_, inputtimectxt, setup );
     inputtimesel_->attach( alignedBelow, t2dfld_ );
-    inputtimesel_->selectionDone.notify( mCB(this,uiBatchTime2DepthSetup,updateZRangeCB));
+    inputtimesel_->selectionDone.notify(
+	    		mCB(this,uiBatchTime2DepthSetup,updateZRangeCB));
 
     IOObjContext inputdepthctxt = SeisTrcTranslatorGroup::ioContext();
     inputdepthctxt.parconstraints.add( ZDomain::sKey(), ZDomain::sKeyDepth() );

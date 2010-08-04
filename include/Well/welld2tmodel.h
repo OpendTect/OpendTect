@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.19 2009-11-30 15:29:40 cvsbruno Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.20 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ public:
     D2TModel&		operator =(const D2TModel&);
 
     float		getTime(float d_ah) const;
-    float		getDepth(float) const;
+    float		getDah(float time) const; //!< Returns dah
     float		getVelocity(float d_ah) const;
 
     inline float	t( int idx ) const	{ return t_[idx]; }

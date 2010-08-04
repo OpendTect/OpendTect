@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.68 2010-03-31 13:44:20 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.69 2010-08-04 13:30:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ class uiAttribCrossPlot;
 namespace ColTab { struct MapperSetup; }
 namespace Pick { class Set; }
 namespace VolProc { class Chain; }
+namespace ZDomain { class Info; }
 template <class T> class Interval;
 template <class T> class Array3D;
 
@@ -98,8 +99,8 @@ public:
     bool		attrSetEditorActive() const	{ return attrsetdlg_; }
     void		updateSelSpec(Attrib::SelSpec&) const;
 
-    bool		selectAttrib(Attrib::SelSpec&,const char* zdomkey,
-	    			     const char* zdomid,bool is2d);
+    bool		selectAttrib(Attrib::SelSpec&,const ZDomain::Info*,
+	    			     bool is2d);
     bool		setPickSetDirs(Pick::Set&,const NLAModel*);
     void		outputVol(MultiID&,bool);
     bool		replaceSet(const IOPar&,bool,float);
@@ -145,7 +146,7 @@ public:
     MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&,bool is2d,
 	    				  bool);
     MenuItem*         	zDomainAttribMenuItem(const Attrib::SelSpec&,
-	    				      const char* zkey,const char* zid,
+	    				      const ZDomain::Info&,
 					      bool is2d,bool);
     void         	fillInStoredAttribMenuItem(MenuItem*,bool,bool,
 	    					   const Attrib::SelSpec&,bool,
