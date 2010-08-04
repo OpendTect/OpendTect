@@ -1,4 +1,4 @@
-#ifndef faultsticksetpreditor_h
+#ifndef faultstickseteditor_h
 #define faultstickseteditor_h
                                                                                 
 /*+
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2008
- RCS:           $Id: faultstickseteditor.h,v 1.7 2010-07-27 09:00:03 cvsjaap Exp $
+ RCS:           $Id: faultstickseteditor.h,v 1.8 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

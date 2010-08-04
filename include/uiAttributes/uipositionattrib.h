@@ -1,5 +1,5 @@
-#ifndef uiposattrib_h
-#define uiposattrib_h
+#ifndef uipositionattrib_h
+#define uipositionattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.h,v 1.8 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uipositionattrib.h,v 1.9 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

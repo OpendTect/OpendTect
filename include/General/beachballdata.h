@@ -1,10 +1,10 @@
-#ifndef bouncydata_h
-#define bouncydata_h
+#ifndef beachballdata_h
+#define beachballdata_h
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: beachballdata.h,v 1.6 2009-09-16 14:46:14 cvskarthika Exp $
+ * ID       : $Id: beachballdata.h,v 1.7 2010-08-04 14:49:36 cvsbert Exp $
 -*/
 
 #include "color.h"
@@ -13,9 +13,9 @@
 
 namespace visBeachBall 
 { 
-// Classes for communicating properties between plugin and visBase.
 
-// Class for the basic properties of the ball
+//!\brief basic properties of the ball
+
 mClass BallProperties: public ::NamedObject
 {
 public:
@@ -64,7 +64,8 @@ protected:
 };
 
 
-// class for the dynamic properties of the ball
+//!\brief dynamic properties of the ball
+
 mClass BallDynamics: public ::NamedObject
 {
 public:
@@ -95,9 +96,7 @@ public:
 protected:
 
     float			speed_;
-    // Vector from origin to the point stored in directionvec_ gives the 
-    // direction of movement.
-    Coord3			directionvec_;
+    Coord3			directionvec_;	//!< movement dir
 
 };
 

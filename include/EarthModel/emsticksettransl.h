@@ -1,5 +1,5 @@
-#ifndef emsticksettrans_h
-#define emsticksettrans_h
+#ifndef emsticksettransl_h
+#define emsticksettransl_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsticksettransl.h,v 1.7 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emsticksettransl.h,v 1.8 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 

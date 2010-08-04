@@ -1,5 +1,5 @@
-#ifndef horizon3dtesselateor_h
-#define horizon3dtesselateor_h
+#ifndef horizon3dtesselator_h
+#define horizon3dtesselator_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		August 2009
- RCS:		$Id: horizon3dtesselator.h,v 1.4 2010-03-05 21:16:11 cvsyuancheng Exp $
+ RCS:		$Id: horizon3dtesselator.h,v 1.5 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 

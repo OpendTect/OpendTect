@@ -1,5 +1,5 @@
-#ifndef uiwindowfuncseldlg_h
-#define uiwindowfuncseldlg_h
+#ifndef uifreqtaper_h
+#define uifreqtaper_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Nov 2009
- RCS:		$Id: uifreqtaper.h,v 1.7 2010-03-16 10:09:58 cvsbert Exp $
+ RCS:		$Id: uifreqtaper.h,v 1.8 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

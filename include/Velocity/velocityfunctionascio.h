@@ -1,5 +1,5 @@
-#ifndef velocitfunctionyasciio_h
-#define velocitfunctionyasciio_h
+#ifndef velocityfunctionascio_h
+#define velocityfunctionascio_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: velocityfunctionascio.h,v 1.4 2009-09-28 12:24:04 cvskris Exp $
+ RCS:		$Id: velocityfunctionascio.h,v 1.5 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

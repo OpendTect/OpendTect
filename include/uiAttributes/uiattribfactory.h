@@ -1,5 +1,5 @@
-#ifndef uiattrfact_h
-#define uiattrfact_h
+#ifndef uiattribfactory_h
+#define uiattribfactory_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiattribfactory.h,v 1.8 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uiattribfactory.h,v 1.9 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

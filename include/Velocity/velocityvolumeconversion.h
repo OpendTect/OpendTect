@@ -1,5 +1,5 @@
-#ifndef velocityvolumeconversation_h
-#define velocityvolumeconversation_h
+#ifndef velocityvolumeconversion_h
+#define velocityvolumeconversion_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityvolumeconversion.h,v 1.4 2010-07-28 08:12:03 cvsnanne Exp $
+ RCS:		$Id: velocityvolumeconversion.h,v 1.5 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 

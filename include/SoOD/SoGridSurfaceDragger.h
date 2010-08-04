@@ -1,5 +1,5 @@
-#ifndef sogridsurfacedragger_h
-#define sogridsurfacedragger_h
+#ifndef SoGridSurfaceDragger_h
+#define SoGridSurfaceDragger_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Marc Gerritsen, Jeroen Post
  Date:          23-04-2003
- RCS:           $Id: SoGridSurfaceDragger.h,v 1.6 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:           $Id: SoGridSurfaceDragger.h,v 1.7 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,5 +1,5 @@
-#ifndef vollateralprocsmoother_h
-#define vollateralprocsmoother_h
+#ifndef volproclateralsmoother_h
+#define volproclateralsmoother_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: volproclateralsmoother.h,v 1.3 2010-05-11 13:55:05 cvsyuancheng Exp $
+ RCS:		$Id: volproclateralsmoother.h,v 1.4 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,12 +1,12 @@
-#ifndef uiodhelpmnumgr_h
-#define uiodhelpmnumgr_h
+#ifndef uiodhelpmenumgr_h
+#define uiodhelpmenumgr_h
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Aug 2005
- RCS:           $Id: uiodhelpmenumgr.h,v 1.9 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiodhelpmenumgr.h,v 1.10 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

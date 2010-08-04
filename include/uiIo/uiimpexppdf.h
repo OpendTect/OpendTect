@@ -1,4 +1,4 @@
-#ifndef uiimexpppdf_h
+#ifndef uiimpexppdf_h
 #define uiimpexppdf_h
 
 /*+
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra / Bert
  Date:          Jan 2010
- RCS:           $Id: uiimpexppdf.h,v 1.1 2010-04-08 11:39:09 cvsbert Exp $
+ RCS:           $Id: uiimpexppdf.h,v 1.2 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

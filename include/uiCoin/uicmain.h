@@ -1,5 +1,5 @@
-#ifndef vizmain_h
-#define vizmain_h
+#ifndef uicmain_h
+#define uicmain_h
 
 /*+
 ________________________________________________________________________
@@ -7,12 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.h,v 1.7 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uicmain.h,v 1.8 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uimain.h>
+#include "uimain.h"
 
 
 /*!\brief COIN - Qt main window */

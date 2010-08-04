@@ -1,5 +1,5 @@
-#ifndef dpsdipsmgr_h
-#define dpsdipsmgr_h
+#ifndef dpsdispmgr_h
+#define dpsdispmgr_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Nov 2009
- RCS:		$Id: dpsdispmgr.h,v 1.3 2010-03-31 06:45:24 cvssatyaki Exp $
+ RCS:		$Id: dpsdispmgr.h,v 1.4 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
 mClass DataPointSetDisplayMgr : public CallBacker
 {
 public:
+
     typedef int			DispID;
     virtual			~DataPointSetDisplayMgr()		{}
     virtual void		lock()					= 0;
@@ -53,7 +54,8 @@ public:
     virtual int			getNrViewers() const			= 0;
     virtual const char*		getViewerName(int) const		= 0;
 
-    virtual void		setDisplayCol(DispID,const TypeSet<Color>&)	= 0;
+    virtual void		setDisplayCol(DispID,
+	    				      const TypeSet<Color>&)	= 0;
     virtual DispID		addDisplay(const TypeSet<int>& parents,
 	    				   const DataPointSet&)		= 0;
     virtual void		updateDisplay(DispID id,
@@ -75,7 +77,10 @@ public:
 				    delete dispmgrgrps_.remove( nr ); }
 
     void			removeAllGrps()
-    { while ( dispmgrgrps_.size()) removeDispMgrGrp(dispmgrgrps_.size()-1); }
+				{
+				    while ( !dispmgrgrps_.isEmpty() )
+					removeDispMgrGrp(dispmgrgrps_.size()-1);
+				}
     
     const ObjectSet<DataPointSetDisplayMgrGrp>& groups() const
 				{ return dispmgrgrps_; }
@@ -84,6 +89,7 @@ protected:
 
     TypeSet<int>		availableviewers_;
     ObjectSet<DataPointSetDisplayMgrGrp> dispmgrgrps_;
+
 };
 	    				   
 #endif

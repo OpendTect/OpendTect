@@ -1,5 +1,5 @@
-#ifndef SoSoScale3Dragger_h
-#define SoSoScale3Dragger_h
+#ifndef SoScale3Dragger_h
+#define SoScale3Dragger_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoScale3Dragger.h,v 1.6 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: SoScale3Dragger.h,v 1.7 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 

@@ -1,5 +1,5 @@
-#ifndef uiexporti2dhorizon_h
-#define uiexporti2dhorizon_h
+#ifndef uiexport2dhorizon_h
+#define uiexport2dhorizon_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          June 2008
- RCS:           $Id: uiexport2dhorizon.h,v 1.4 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiexport2dhorizon.h,v 1.5 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

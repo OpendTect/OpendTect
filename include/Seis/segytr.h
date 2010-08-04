@@ -1,5 +1,5 @@
-#ifndef segytrctr_h
-#define segytrctr_h
+#ifndef segytr_h
+#define segytr_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.39 2010-02-12 10:31:27 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.40 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.

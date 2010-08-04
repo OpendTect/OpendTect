@@ -1,12 +1,12 @@
-#ifndef uimarkerstyle3d_h
-#define uimarkerstyle3d_h
+#ifndef uimarkerstyle_h
+#define uimarkerstyle_h
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2010
- RCS:           $Id: uimarkerstyle.h,v 1.2 2010-07-21 07:54:36 cvskris Exp $
+ RCS:           $Id: uimarkerstyle.h,v 1.3 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,5 +1,5 @@
-#ifndef visvolrendisplay_h
-#define visvolrendisplay_h
+#ifndef visvolren_h
+#define visvolren_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          April 2004
- RCS:           $Id: visvolren.h,v 1.5 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:           $Id: visvolren.h,v 1.6 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

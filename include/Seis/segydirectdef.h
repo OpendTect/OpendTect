@@ -1,5 +1,5 @@
-#ifndef segydirect_h
-#define segydirect_h
+#ifndef segydirectdef_h
+#define segydirectdef_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.17 2010-07-15 18:43:36 cvskris Exp $
+ RCS:		$Id: segydirectdef.h,v 1.18 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

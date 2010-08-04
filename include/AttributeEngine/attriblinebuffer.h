@@ -1,5 +1,5 @@
-#ifndef attribbuffer_h
-#define attribbuffer_h
+#ifndef attriblinebuffer_h
+#define attriblinebuffer_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriblinebuffer.h,v 1.8 2010-04-20 22:03:25 cvskris Exp $
+ RCS:           $Id: attriblinebuffer.h,v 1.9 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

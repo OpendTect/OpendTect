@@ -1,6 +1,5 @@
-
-#ifndef emfaultstickseteditor_h
-#define emfaultstickseteditor_h
+#ifndef emfaultsticksetflatvieweditor_h
+#define emfaultsticksetflatvieweditor_h
 
 /*+
 ________________________________________________________________________
@@ -8,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultsticksetflatvieweditor.h,v 1.2 2010-03-16 07:15:08 cvsumesh Exp $
+ RCS:		$Id: emfaultsticksetflatvieweditor.h,v 1.3 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

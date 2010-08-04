@@ -1,5 +1,5 @@
-#ifndef uistratwin_h
-#define uistratwin_h
+#ifndef uistrattreewin_h
+#define uistrattreewin_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.30 2010-07-14 10:05:13 cvsbruno Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.31 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,12 +1,12 @@
-#ifndef uiscenedlg_h
-#define uiscenedlg_h
+#ifndef uiscenepropdlg_h
+#define uiscenepropdlg_h
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.h,v 1.6 2010-05-14 13:30:48 cvskarthika Exp $
+ RCS:           $Id: uiscenepropdlg.h,v 1.7 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

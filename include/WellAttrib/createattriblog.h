@@ -1,12 +1,12 @@
-#ifndef createattriblogdlg_h
-#define createattriblogdlg_h
+#ifndef createattriblog_h
+#define createattriblog_h
 /*+
  ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2008
- RCS:           $Id: createattriblog.h,v 1.1 2010-05-26 09:26:26 cvsbruno Exp $
+ RCS:           $Id: createattriblog.h,v 1.2 2010-08-04 14:49:36 cvsbert Exp $
  _______________________________________________________________________
 
 -*/

@@ -1,5 +1,5 @@
-#ifndef uisteersel_h
-#define uisteersel_h
+#ifndef uisteeringsel_h
+#define uisteeringsel_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.14 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.15 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,10 @@ ________________________________________________________________________
 #include "uiattrsel.h"
 #include "attribdescid.h"
 
-namespace Attrib { class Desc; class DescSet; class SelSpec; };
-
-class ChangeTracker;
 class uiGenInput;
 class uiLabel;
+namespace Attrib { class Desc; class DescSet; class SelSpec; };
+
 
 mClass uiSteerCubeSel : public uiSeisSel
 {
@@ -81,9 +80,9 @@ protected:
 
     uiLabel*			nosteerlbl_;
     uiGenInput*			typfld_;
-    uiSteerCubeSel*		inpfld_;
     uiGenInput*			dirfld_;
     uiGenInput*			dipfld_;
+    uiSteerCubeSel*		inpfld_;
 
     bool			is2d_;
     bool			notypechange_;

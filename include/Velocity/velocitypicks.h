@@ -1,5 +1,5 @@
-#ifndef poststackpick_h
-#define poststackpick_h
+#ifndef velocitypicks_h
+#define velocitypicks_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.7 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: velocitypicks.h,v 1.8 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 

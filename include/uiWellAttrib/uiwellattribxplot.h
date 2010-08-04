@@ -1,5 +1,5 @@
-#ifndef uiattribcrossplot_h
-#define uiattribcrossplot_h
+#ifndef uiwellattribxplot_h
+#define uiwellattribxplot_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.9 2009-11-30 12:17:10 cvssatyaki Exp $
+ RCS:           $Id: uiwellattribxplot.h,v 1.10 2010-08-04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
