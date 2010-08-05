@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.59 2010-07-27 09:00:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.60 2010-08-05 14:21:08 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -641,6 +641,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
    
     CubeSampling mouseplanecs; 
     mouseplanecs.setEmpty();
+    Coord3 editnormal = Coord3::udf();
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
@@ -651,17 +652,21 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	if ( plane )
 	{
 	    mouseplanecs = plane->getCubeSampling();
+	    editnormal = plane->getNormal( Coord3::udf() );
 	    break;
 	}
     }
-
-    if ( locked_ )
-	return;
 
     Coord3 pos = disp2world( eventinfo.displaypickedpos );
 
     const EM::PosID pid = viseditor_ ?
        viseditor_->mouseClickDragger(eventinfo.pickedobjids) : EM::PosID::udf();
+
+    if ( pid.isUdf() && mouseplanecs.isEmpty() )
+    {
+	setActiveStick( EM::PosID::udf() );
+	return;
+    }
 
     bool makenewstick = eventinfo.type==visBase::MouseClick &&
 			!OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
@@ -670,11 +675,13 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 			OD::leftMouseButton(eventinfo.buttonstate_);
 
     EM::PosID insertpid;
-    faulteditor_->getInteractionInfo( makenewstick, insertpid, pos, mZScale() );
+    faulteditor_->getInteractionInfo( makenewstick, insertpid, pos,
+				      mZScale(), &editnormal );
+
     if ( pid.isUdf() && !viseditor_->isDragging() )
 	setActiveStick( makenewstick ? EM::PosID::udf() : insertpid );
 
-    if ( !pos.isDefined() || viseditor_->isDragging() )
+    if ( locked_ || !pos.isDefined() || viseditor_->isDragging() )
 	return;
 
     if ( !pid.isUdf() )
@@ -696,16 +703,13 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    {
 		bool res;
 		const int rmstick = RowCol(pid.subID()).row;
-		if ( emfault_->geometry().nrKnots(pid.sectionID(),rmstick)==1 )
-		{
-		    res = emfault_->geometry().removeStick( pid.sectionID(),
-							    rmstick, true );
 
-		    faulteditor_->setLastClicked( EM::PosID::udf() );
-		}
+		EM::Fault3DGeometry& f3dg = emfault_->geometry(); 
+		if ( f3dg.nrKnots(pid.sectionID(),rmstick)==1 )
+		    res = f3dg.removeStick( pid.sectionID(), rmstick, true );
 		else
-		    res = emfault_->geometry().removeKnot( pid.sectionID(),
-							   pid.subID(), true );
+		    res = f3dg.removeKnot( pid.sectionID(), pid.subID(), true );
+
 		if ( res && !viseditor_->sower().moreToSow() )
 		{
 		    EM::EMM().undo().setUserInteractionEnd(
@@ -733,18 +737,12 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     if ( makenewstick )
     {
 	//Add Stick
-	Coord3 editnormal(0,0,1);
 	if ( mouseplanecs.isEmpty() )
 	    return;
 
 	const int insertstick = insertpid.isUdf()
 	    ? mUdf(int)
 	    : RowCol(insertpid.subID()).row;
-
-	if (  mouseplanecs.defaultDir()==CubeSampling::Inl )
-	    editnormal = Coord3( SI().binID2Coord().rowDir(), 0 );
-	else if ( mouseplanecs.defaultDir()==CubeSampling::Crl ) 
-	    editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
 	if ( emfault_->geometry().insertStick( insertpid.sectionID(),
 	       insertstick, 0, pos, editnormal, true ) )
@@ -1308,6 +1306,7 @@ void FaultDisplay::setStickSelectMode( bool yn )
     stickselectmode_ = yn;
     ctrldown_ = false;
 
+    setActiveStick( EM::PosID::udf() );
     updateManipulator();
     updateKnotMarkers();
 
