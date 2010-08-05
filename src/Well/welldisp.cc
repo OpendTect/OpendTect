@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.15 2010-06-23 14:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.16 2010-08-05 11:46:38 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -33,6 +33,7 @@ static const char* sKeyLeftFillName = "Left Filled Log name";
 static const char* sKeyLeftCliprate = "Left Cliprate";
 static const char* sKeyLeftFillRange = "Left Filled Log Range";
 static const char* sKeyLeftRange = "Left Log Range";
+static const char* sKeyLeftRevertRange = "Left Revert Range Bool";
 static const char* sKeyLeftSeqname = "Left Sequence name";
 static const char* sKeyLeftLogWidth = "Left Log Width";
 static const char* sKeyLeftScale = "Log scale";
@@ -50,6 +51,7 @@ static const char* sKeyRightFillName = "Right Filled Log name";
 static const char* sKeyRightCliprate = "Right Cliprate";
 static const char* sKeyRightFillRange = "Right Filled Log Range";
 static const char* sKeyRightRange = "Right Log Range";
+static const char* sKeyRightRevertRange = "Right Revert Range Bool";
 static const char* sKeyRightSeqname = "Right Sequence name";
 static const char* sKeyRightLogWidth = "Right Log Width";
 static const char* sKeyRightScale = "Log scale";
@@ -151,6 +153,7 @@ void Well::DisplayProperties::Log::doUseLeftPar( const IOPar& iop )
     iop.get( IOPar::compKey(subjectName(),sKeyLeftFillName), fillname_ );
     iop.get( IOPar::compKey(subjectName(),sKeyLeftRange), range_ );
     iop.get( IOPar::compKey(subjectName(),sKeyLeftFillRange), fillrange_ );
+    iop.getYN(IOPar::compKey(subjectName(),sKeyLeftRevertRange),islogreverted_);
     iop.get( IOPar::compKey(subjectName(),sKeyLeftCliprate), cliprate_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyLeftStyle), iswelllog_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyLeftFill), islogfill_ );
@@ -173,6 +176,7 @@ void Well::DisplayProperties::Log::doUseRightPar( const IOPar& iop )
     iop.get( IOPar::compKey(subjectName(),sKeyRightFillName), fillname_ );
     iop.get( IOPar::compKey(subjectName(),sKeyRightRange), range_ );
     iop.get( IOPar::compKey(subjectName(),sKeyRightFillRange), fillrange_ );
+    iop.getYN(IOPar::compKey(subjectName(),sKeyRightRevertRange),islogreverted_);
     iop.get( IOPar::compKey(subjectName(),sKeyRightCliprate), cliprate_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightStyle), iswelllog_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightFill), islogfill_ );
@@ -196,6 +200,7 @@ void Well::DisplayProperties::Log::doFillLeftPar( IOPar& iop ) const
     iop.set( IOPar::compKey(subjectName(),sKeyLeftFillName), fillname_ );
     iop.set( IOPar::compKey(subjectName(),sKeyLeftRange), range_ );
     iop.set( IOPar::compKey(subjectName(),sKeyLeftFillRange), fillrange_ );
+    iop.setYN(IOPar::compKey(subjectName(),sKeyLeftRevertRange),islogreverted_);
     iop.set( IOPar::compKey(subjectName(),sKeyLeftCliprate), cliprate_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyLeftStyle), iswelllog_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyLeftFill), islogfill_ );
@@ -218,6 +223,7 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& iop ) const
     iop.set( IOPar::compKey(subjectName(),sKeyRightFillName), fillname_ );
     iop.set( IOPar::compKey(subjectName(),sKeyRightRange), range_ );
     iop.set( IOPar::compKey(subjectName(),sKeyRightFillRange), fillrange_ );
+    iop.setYN(IOPar::compKey(subjectName(),sKeyRightRevertRange),islogreverted_);
     iop.set( IOPar::compKey(subjectName(),sKeyRightCliprate), cliprate_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightStyle), iswelllog_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightFill), islogfill_ );
