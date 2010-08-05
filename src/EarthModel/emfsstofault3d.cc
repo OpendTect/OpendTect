@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.9 2010-06-29 07:45:58 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.10 2010-08-05 14:20:27 cvsjaap Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -330,19 +330,19 @@ void FSStoFault3DConverter::geometricSort( double zscale )
 void FSStoFault3DConverter::untwistSticks( double zscale )
 {
     bool reverse = false;
+    int refidx = 0;
     for ( int idx=1; idx<sticks_.size(); idx++ )
     {
-
-	if ( curfssg_ && curfssg_->isTwisted(sticks_[idx-1]->sticknr_,
+	if ( curfssg_ && curfssg_->isTwisted(sticks_[refidx]->sticknr_,
 					     sticks_[idx]->sticknr_, zscale) )
 	    reverse = !reverse;
 
-	if ( reverse )
-	{
-	    const int nrknots = sticks_[idx]->crds_.size();
-	    for ( int idy=0; idy<nrknots/2; idy++ )
-		sticks_[idx]->crds_.swap( idy, nrknots-1-idy );
-	}
+	const int nrknots = sticks_[idx]->crds_.size();
+	if ( nrknots > 1 )
+	    refidx = idx;
+
+	for ( int idy=0; reverse && idy<nrknots/2; idy++ )
+	    sticks_[idx]->crds_.swap( idy, nrknots-1-idy );
     }
 }
 
