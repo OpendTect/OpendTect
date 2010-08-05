@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.55 2010-07-19 15:17:25 cvshelene Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.56 2010-08-05 15:35:47 cvshelene Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -183,7 +183,9 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
     ctio_.ctxt.forread = false;
     ctio_.setObj( 0 );
 
-    if ( strcmp(ioobj.group(),EM::FaultStickSet::typeStr()) )
+    if ( !strcmp(ioobj.group(), EMFault3DTranslatorGroup::keyword() ) )
+	outfld = new uiIOObjSel( this, ctio_, "Output Fault" );
+    else if ( strcmp(ioobj.group(),EM::FaultStickSet::typeStr()) )
 	outfld = new uiIOObjSel( this, ctio_, "Output Surface" );
     else
 	outfld = new uiIOObjSel( this, ctio_, "Output Stickset" );

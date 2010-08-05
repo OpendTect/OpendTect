@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.131 2010-08-03 18:36:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.132 2010-08-05 15:35:47 cvshelene Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -56,7 +56,7 @@ static const char* sZVals = "Z values";
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     : uiDialog(p,uiDialog::Setup("Import Horizon",
 					   "Specify parameters",
-					   "104.0.0"))
+					   "104.0.2"))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , isgeom_(isgeom)
     , filludffld_(0)
@@ -115,6 +115,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
     if ( isgeom_ )
     {
+	setHelpID("104.0.0");
 	filludffld_ = new uiGenInput( this, "Fill undefined parts",
 				      BoolInpSpec(true) );
 	filludffld_->valuechanged.notify(mCB(this,uiImportHorizon,fillUdfSel));

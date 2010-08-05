@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.74 2010-07-19 15:17:25 cvshelene Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.75 2010-08-05 15:35:47 cvshelene Exp $";
 
 
 #include "uisurfaceman.h"
@@ -67,10 +67,15 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.74 2010-07-19 15:17:25 cvsh
 #define mGetHelpID(typ) \
     mGet( typ, "104.2.1", "104.2.0", "104.2.0", "104.2.4", "104.2.5")
 
+#define mGetWinTittle(typ) \
+    mGet( typ, "2D Horizons management", "3D Horizons management",\
+	  "Horizons management", "FaultStickSets management",\
+	  "3D Faults management")
+
 using namespace EM;
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
-    : uiObjFileMan(p,uiDialog::Setup("Surface file management",
+    : uiObjFileMan(p,uiDialog::Setup(mGetWinTittle(typ),
                                      mGetManageStr(typ),
                                      mGetHelpID(typ)).nrstatusflds(1),
 		   mGetIoContext(typ) )
@@ -468,7 +473,7 @@ void uiSurfaceMan::stratSel( CallBacker* )
 
 
 uiSurface2DMan::uiSurface2DMan( uiParent* p, const IOObjInfo& info )
-    :uiDialog(p,uiDialog::Setup("Surface file management","Manage 2D horizons",
+    :uiDialog(p,uiDialog::Setup("2D Horizons management","Manage 2D horizons",
 				"104.2.1"))
     , eminfo_(info)
 {

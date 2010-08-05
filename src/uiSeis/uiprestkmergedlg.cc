@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.21 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.22 2010-08-05 15:35:47 cvshelene Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -42,7 +42,7 @@ static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.21 2010-03-15 16:15:01 
 uiPreStackMergeDlg::uiPreStackMergeDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Merge Pre-Stack Data",
 				 "Select data stores to merge into one",
-				 "109.0.0"))
+				 "103.4.3"))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
     , volsbox_(0), selvolsbox_(0)
@@ -288,9 +288,7 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 
 
 uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
-    : uiDialog(p,uiDialog::Setup("Copy Pre-Stack Data",
-				 "",
-				 "109.0.0"))
+    : uiDialog(p,uiDialog::Setup("Copy Pre-Stack Data","","103.4.2"))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
 {

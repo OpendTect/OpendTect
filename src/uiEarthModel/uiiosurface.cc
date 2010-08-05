@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.79 2010-04-07 12:09:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.80 2010-08-05 15:35:47 cvshelene Exp $";
 
 #include "uiiosurface.h"
 
@@ -452,7 +452,9 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
     : uiIOSurface(p,true,setup.typ_)
     , inpChange(this)
 {
-    if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
+    if ( setup.typ_ == EMFault3DTranslatorGroup::keyword() )
+	mkObjFld( "Input Fault" );
+    else if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
 	mkObjFld( "Input Stickset" );
     else
 	mkObjFld( "Input Surface" );
