@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.8 2010-07-27 09:00:03 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.9 2010-08-05 14:19:03 cvsjaap Exp $";
 
 #include "faultstickseteditor.h"
 
@@ -72,26 +72,43 @@ void FaultStickSetEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 
 
 static EM::PosID lastclickedpid_ = EM::PosID::udf();
-static Coord3 lastclickedpos_;
 
 void FaultStickSetEditor::setLastClicked( const EM::PosID& pid )
 {
     lastclickedpid_ = pid;
-    lastclickedpos_ = emObject().getPos( pid );
 
-    if ( sowingpivot_.isDefined() && lastclickedpos_.isDefined() )
-	sowinghistory_.insert( 0, lastclickedpos_ );
+    EM::EMObject& emobj = const_cast<EM::EMObject&>( emObject() );
+    Geometry::Element* ge = emobj.sectionGeometry( pid.sectionID() );
+    mDynamicCastGet( Geometry::FaultStickSet*, fss, ge );
+    if ( fss )
+	fss->preferStick( RowCol(pid.subID()).row  );
+
+    if ( sowingpivot_.isDefined() )
+    {
+	const Coord3 pos = emObject().getPos( pid );
+	if ( pos.isDefined() )
+	    sowinghistory_.insert( 0, pos );
+    }
 }
 
 
-const EM::PosID& FaultStickSetEditor::getLastClicked() const
+int FaultStickSetEditor::getLastClickedStick() const
 {
-    if ( !lastclickedpid_.isUdf() )
+    if ( lastclickedpid_.objectID() != emObject().id() )
+	return mUdf(int);
+
+    const EM::SectionID& sid = lastclickedpid_.sectionID();
+    const Geometry::Element* ge = emObject().sectionGeometry( sid );
+    mDynamicCastGet( const Geometry::FaultStickSet*, fss, ge );
+
+    if ( fss )
     {
-	if ( lastclickedpos_ != emObject().getPos(lastclickedpid_) )
-	    lastclickedpid_ = EM::PosID::udf();
+	const int lastclickedsticknr = RowCol( lastclickedpid_.subID() ).row;
+	if ( lastclickedsticknr == fss->preferredStickNr() )
+	    return lastclickedsticknr;
     }
-    return lastclickedpid_;
+
+    return mUdf(int);
 }
 
 
@@ -107,7 +124,7 @@ void FaultStickSetEditor::setSowingPivot( const Coord3 pos )
 #define mCompareCoord( crd ) Coord3( crd, crd.z*zfactor )
 
 float FaultStickSetEditor::distToStick(
-				const int sticknr,const EM::SectionID& sid,
+				int sticknr,const EM::SectionID& sid,
 				const MultiID* lineset, const char* linenm,
 				const Coord3& mousepos, float zfactor,
 				const Coord3* posnormal ) const
@@ -185,17 +202,15 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 {
     insertpid = EM::PosID::udf();
 
-    int sticknr;
+    int sticknr = getLastClickedStick();
     EM::SectionID sid;
 
     const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
 			? sowingpivot_ : mousepos;
 
-    const EM::PosID lastclicked = getLastClicked();
-    if ( !lastclicked.isUdf() && lastclicked.objectID()==emobject.id() )
+    if ( !mIsUdf(sticknr) )
     {
-	sid = lastclicked.sectionID();
-	sticknr = RowCol( lastclicked.subID() ).row;
+	sid = lastclickedpid_.sectionID();
 
 	const float dist = distToStick( sticknr, sid, lineset, linenm,
 					pos, zfactor, posnormal );

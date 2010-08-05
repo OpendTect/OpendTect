@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2008
- RCS:           $Id: faultstickseteditor.h,v 1.8 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: faultstickseteditor.h,v 1.9 2010-08-05 14:19:03 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ mClass FaultStickSetEditor : public ObjectEditor
 {
 public:
     				FaultStickSetEditor(EM::FaultStickSet&);
+
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
 
@@ -31,7 +32,6 @@ public:
     void			getEditIDs(TypeSet<EM::PosID>&) const;
 
     void			setLastClicked(const EM::PosID&); 
-    const EM::PosID&		getLastClicked() const;
     void			setSowingPivot(const Coord3);
 
     void			getInteractionInfo( EM::PosID& insertpid,
@@ -42,7 +42,7 @@ public:
     bool			removeSelection(const Selector<Coord3>&);
 
 protected:
-    float		distToStick(const int sticknr,const EM::SectionID& sid,
+    float		distToStick(int sticknr,const EM::SectionID& sid,
 				    const MultiID* lineset,const char* linenm,
 				    const Coord3& pos,float zfactor,
 				    const Coord3* posnormal) const;
@@ -55,6 +55,7 @@ protected:
 				    float zfactor) const;
 
     Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    int				getLastClickedStick() const;
 
     const TypeSet<EM::PosID>*	editpids_;
 

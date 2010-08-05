@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.28 2010-07-27 09:01:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.29 2010-08-05 14:19:03 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -547,6 +547,12 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 		return;
 	}
 
+	if ( !s2dd && !plane )
+	{
+	    setActiveStick( EM::PosID::udf() );
+	    return;
+	}
+
 	pos = disp2world( eventinfo.displaypickedpos );
     }
 
@@ -557,7 +563,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     if ( mousepid.isUdf() && !viseditor_->isDragging() )
 	setActiveStick( insertpid );
 
-    if ( locked_ || !pos.isDefined() || 
+    if ( locked_ || !pos.isDefined() ||
 	 eventinfo.type!=visBase::MouseClick || viseditor_->isDragging() ||
 	 OD::altKeyboardButton(eventinfo.buttonstate_) ||
 	 !OD::leftMouseButton(eventinfo.buttonstate_) )
@@ -568,6 +574,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	fsseditor_->setLastClicked( mousepid );
 	setActiveStick( mousepid );
     }
+
 
     if ( !mousepid.isUdf() && OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
 	 !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
@@ -580,10 +587,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	editpids_.erase();
 	const int rmnr = RowCol(mousepid.subID()).row;
 	if ( fssg.nrKnots(mousepid.sectionID(), rmnr) == 1 )
-	{
 	    fssg.removeStick( mousepid.sectionID(), rmnr, true );
-	    fsseditor_->setLastClicked( EM::PosID::udf() );
-	}
 	else
 	    fssg.removeKnot( mousepid.sectionID(), mousepid.subID(), true );
 
@@ -604,26 +608,23 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) || insertpid.isUdf() )
     {
 	// Add stick
-	if ( plane || s2dd )
-	{
-	    const Coord3 editnormal( plane ? plane->getNormal(Coord3()) :
+	const Coord3 editnormal( plane ? plane->getNormal(Coord3()) :
 		    Coord3(s2dd->getNormal(s2dd->getNearestTraceNr(pos)),0) );
 
-	    const int sid = emfss_->sectionID(0);
-	    Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
+	const int sid = emfss_->sectionID(0);
+	Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
 
-	    const int insertsticknr = 
+	const int insertsticknr = 
 			!fss || fss->isEmpty() ? 0 : fss->rowRange().stop+1;
 
-	    editpids_.erase();
-	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
-			      lineset, linenm, true );
-	    const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
-	    fsseditor_->setLastClicked( EM::PosID(emfss_->id(),sid,subid) );
-	    setActiveStick( EM::PosID(emfss_->id(),sid,subid) );
-	    mSetUserInteractionEnd();
-	    updateEditPids();
-	}
+	editpids_.erase();
+	fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
+			  lineset, linenm, true );
+	const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
+	fsseditor_->setLastClicked( EM::PosID(emfss_->id(),sid,subid) );
+	setActiveStick( EM::PosID(emfss_->id(),sid,subid) );
+	mSetUserInteractionEnd();
+	updateEditPids();
     }
     else
     {
@@ -900,10 +901,6 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 }
 
 
-
-
-
-
 void FaultStickSetDisplay::setDisplayOnlyAtSections( bool yn )
 {
     displayonlyatsections_ = yn;
@@ -921,6 +918,7 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
     stickselectmode_ = yn;
     ctrldown_ = false;
 
+    setActiveStick( EM::PosID::udf() );
     updateEditPids();
     updateKnotMarkers();
 

@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID = "$Id: faultstickset.cc,v 1.12 2010-07-27 08:58:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickset.cc,v 1.13 2010-08-05 14:19:03 cvsjaap Exp $";
 
 #include "faultstickset.h"
 #include <math.h>
@@ -442,6 +442,27 @@ bool FaultStickSet::isStickHidden( int sticknr ) const
     return stickstatus_[stickidx] & Hidden;
 }
 
+
+void FaultStickSet::preferStick( int sticknr )
+{
+    for ( int idx=0; idx<stickstatus_.size(); idx++ )
+	stickstatus_[idx] &= ~Preferred;
+
+    mGetValidStickIdx( stickidx, sticknr, 0, );
+    stickstatus_[stickidx] |= Preferred;
+}
+
+
+int FaultStickSet::preferredStickNr() const
+{
+    for ( int idx=0; idx<stickstatus_.size(); idx++ )
+    {
+	if ( stickstatus_[idx] & Preferred )
+	    return firstrow_+idx;
+    }
+
+    return  mUdf(int);
+}
 
 
 } // namespace Geometry
