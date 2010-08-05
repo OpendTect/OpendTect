@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.24 2010-07-14 10:05:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.25 2010-08-05 11:50:33 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -280,7 +280,6 @@ uiStratLevelDlg::uiStratLevelDlg( uiParent* p, uiStratMgr* uistratmgr )
 
 void uiStratLevelDlg::setLvlInfo( const char* lvlnm )
 {
-    Interval<float> lvltrg;
     Color lvlcol;
     if ( !lvlnm || !*lvlnm || !uistratmgr_->getLvlPars(lvlnm,lvlcol) )
     return;
@@ -295,8 +294,6 @@ bool uiStratLevelDlg::acceptOK( CallBacker* )
 {
     BufferString newlvlnm = lvlnmfld_->text();
     Color newlvlcol = lvlcolfld_->color();
-    Interval<float> newlvlrg;
-
     uistratmgr_->setLvlPars( oldlvlnm_, newlvlnm, newlvlcol );
     return true;
 }
@@ -464,8 +461,8 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 
 
 
-uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, int unid,
-	                                              uiStratMgr& uistratmgr )
+uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, int unid, 
+						const uiStratMgr& uistratmgr )
     : uiDialog(p,uiDialog::Setup("Link markers and stratigraphic unit boundary",
 		mNoDlgTitle,"110.0.3"))
     , lvlid_(-1)				       
@@ -473,9 +470,9 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, int unid,
     BufferStringSet lvlnms;
     lvlnms.add( sNoLevelTxt );
     TypeSet<Color> colors;
-    uistratmgr.getLvlsProps( lvlnms, colors, &ids_ );
-    lvlid_ = uistratmgr.getUnitLvlID( unid );
+    lvlid_ = unid < 0 ? uistratmgr.botLvlID() : uistratmgr.getUnitLvlID(unid);
 
+    uistratmgr.getLvlsProps( lvlnms, colors, &ids_ );
     BufferString bs = "Select marker";
     lvllistfld_ = new uiGenInput( this, bs, StringListInpSpec( lvlnms ) );
     if ( lvlid_ >=0 )

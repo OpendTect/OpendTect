@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.16 2010-07-14 10:05:13 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.17 2010-08-05 11:50:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,7 +150,7 @@ mClass uiStratLinkLvlUnitDlg : public uiDialog
 {
 public:
 
-    			uiStratLinkLvlUnitDlg(uiParent*,int,uiStratMgr&);
+    			uiStratLinkLvlUnitDlg(uiParent*,int,const uiStratMgr&);
 
     int 		lvlid_;
 

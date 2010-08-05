@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.23 2010-07-14 10:05:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.24 2010-08-05 11:50:34 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -19,7 +19,6 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.23 2010-07-14 10:05:13 c
 #include "uimsg.h"
 #include "uistratlvlsel.h"
 #include "uistrattreewin.h"
-#include "uistratmgr.h"
 #include "uitblimpexpdatasel.h"
 #include "uitable.h"
 
@@ -33,6 +32,7 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.23 2010-07-14 10:05:13 c
 #include "welldata.h"
 #include "wellimpasc.h"
 #include "wellmarker.h"
+#include "wellstratman.h"
 #include "welltrack.h"
 
 
@@ -181,16 +181,15 @@ void uiMarkerDlg::stratLvlChg( CallBacker* cb )
 
 void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
 {
-    int selid = levelsel->getID();
-    const bool havelvl = ( selid >= 0 );
-
+    const bool havelvl = ( levelsel->getID() >= 0 );
     RowCol rc( irow, cColorCol );
     if ( havelvl )
     {
 	rc.col = cColorCol; table_->setColor( rc, levelsel->getColor() );
 	rc.col = cNameCol; table_->setText( rc, levelsel->getName() );
     }
-    //TODO replace by former marker but this does not handle add/remove marker:
+    //TODO this will replace by former marker name
+    //     but this does not handle add/remove marker.
     else if ( irow <  markers_.size() )
     {
 	const Well::Marker* marker = markers_[irow];
@@ -291,42 +290,26 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 	const char* txt = table_->text( RowCol(idx,cNameCol) );
 	mDynamicCastGet(uiStratLevelSel*,levelsel,
 			table_->getCellGroup(RowCol(idx,cLevelCol)))
-	const int lvlid = levelsel ? levelsel->getID() : -1;
-
-	const bool havelvl = lvlid >= 0;
 	const bool havenm = txt && *txt;
-	if ( !havelvl && !havenm )
+	if ( !havenm )
 	    continue;
 
 	Well::Marker* marker = new Well::Marker( txt, z );
-	if ( lvlid >= 0 ) marker->setLevelID( lvlid );
 	marker->setColor( table_->getColor( RowCol(idx,cColorCol) ) );
+	//TODO remove
+	const int lvlid = levelsel ? levelsel->getID() : -1;
+	if ( lvlid >= 0 ) 
+	    marker->setLevelID( lvlid );
+	else if ( stratmrkfld_->isChecked() )
+	    marker->setLevelID( 
+		    Well::StratMGR().addLevel(marker->name(),marker->color()) );
+
 	markers += marker;
     }
 }
 
 
-void uiMarkerDlg::setAsStratLevels()
-{
-    Well::MarkerSet mrkset; BufferStringSet mrknmset;
-    TypeSet<Color> colors;
-    getMarkerSet( mrkset );
-    for ( int idmrk=0; idmrk<mrkset.size(); idmrk++ )
-    {
-	mrknmset.add( mrkset[idmrk]->name() );
-	colors += mrkset[idmrk]->color();
-    }
-
-    //TODO the tree should not be edited directly by casting the uistratWin !!
-    (const_cast<uiStratTreeWin&>(StratTWin())).addLevels( mrknmset, colors );
-    
-    //TODO link with new level ids
-}
-
-
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
-    if ( stratmrkfld_->isChecked() )
-	setAsStratLevels();
     return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.8 2010-07-14 10:05:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.9 2010-08-05 11:50:33 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratmgr.h"
@@ -20,45 +20,69 @@ static const char* rcsID = "$Id: uistratdispdata.cc,v 1.8 2010-07-14 10:05:13 cv
 
 
 #define mAskStratMgrNotif(nm)\
-    uistratmgr_.nm.notify( mCB(this,uiStratAnnotGather,triggerDataChange) );
-uiStratAnnotGather::uiStratAnnotGather( AnnotData& ad, const uiStratMgr& mgr )
-    : CallBacker(CallBacker::CallBacker()) 	
-    , data_(ad) 
-    , uistratmgr_(mgr) 
-    , newtreeRead(this)  
+    uistratmgr_.nm.notify( mCB(this,uiStratTreeToDispTransl,triggerDataChange));
+uiStratTreeToDispTransl::uiStratTreeToDispTransl( AnnotData& ad, 
+						  const uiStratMgr& mgr )
+    : CallBacker(CallBacker::CallBacker())
+    , data_(ad)
+    , uistratmgr_(mgr)
+    , newtreeRead(this)
 {
     mAskStratMgrNotif(unitCreated)
     mAskStratMgrNotif(unitChanged)
     mAskStratMgrNotif(unitRemoved)
     mAskStratMgrNotif(lithChanged)
     mAskStratMgrNotif(lithRemoved)
+    mAskStratMgrNotif(lvlChanged)
 
     readFromTree();
 }
 
 
-void uiStratAnnotGather::triggerDataChange( CallBacker* )
+#define mAskStratMgrRemove(nm)\
+    uistratmgr_.nm.remove( mCB(this,uiStratTreeToDispTransl,triggerDataChange));
+uiStratTreeToDispTransl::~uiStratTreeToDispTransl()
+{
+    mAskStratMgrRemove(unitCreated)
+    mAskStratMgrRemove(unitChanged)
+    mAskStratMgrRemove(unitRemoved)
+    mAskStratMgrRemove(lithChanged)
+    mAskStratMgrRemove(lithRemoved)
+    mAskStratMgrRemove(lvlChanged)
+}
+
+
+void uiStratTreeToDispTransl::triggerDataChange( CallBacker* )
 {
     readFromTree();
 }
 
 
-void uiStratAnnotGather::readFromTree()
+static int idlitho = 5;
+static int iddesc = 6;
+static int idboundaries = 7;
+
+void uiStratTreeToDispTransl::readFromTree()
 {
     data_.eraseData();
-    static const char* colnms[] = { "Super Group", "Group", 
-    				 "Formation", "Member", "Type", 0 };
+    static const char* colnms[] = { "Super Group", "Group", "Formation", 
+	    "Member", "Type", "Lithology", "Description", "Boundaries", 0 };
 #define mAddCol( title )\
     data_.addCol( new AnnotData::Column( title ) );
     for ( int idcol=0; colnms[idcol]; idcol++ )
 	mAddCol( colnms[idcol] );
+    
+    data_.getCol( idlitho )->isaux_ = true;
+    data_.getCol( idboundaries )->isaux_ = true;
+    data_.getCol( iddesc )->isaux_ = true;
 
     addUnits( *((Strat::NodeUnitRef*)uistratmgr_.getCurTree()), 0 );
+    addBottomBoundary();
     newtreeRead.trigger();
 }
 
 
-void uiStratAnnotGather::addUnits( const Strat::NodeUnitRef& nur, int order ) 
+void uiStratTreeToDispTransl::addUnits( const Strat::NodeUnitRef& nur, int order ) 
 {
     if ( order == 0 )
 	order++;
@@ -87,41 +111,68 @@ void uiStratAnnotGather::addUnits( const Strat::NodeUnitRef& nur, int order )
 }
 
 
-void uiStratAnnotGather::addUnit( const Strat::UnitRef& uref, int order )
+void uiStratTreeToDispTransl::addUnit( const Strat::UnitRef& uref, int order )
 {
     Interval<float> timerg = uref.props().timerg_;
     AnnotData::Unit* unit = new AnnotData::Unit( uref.code(), 
-	    				 	 timerg.start, 
+	    					 timerg.start, 
 						 timerg.stop );
+    const int lvlid = uref.props().lvlid_;
     unit->col_ = uref.props().color_;
     unit->colidx_ = order;
-    BufferString nm;
-    Color col;
-    const int lvlid = uref.props().lvlid_;
-    if ( lvlid >= 0 )
-	uistratmgr_.getLvlPropsByID( lvlid, nm, col );
-    else 
-	col = Color::Black();
-    unit->annots_.add( nm );
-    unit->annots_.add( toString( col.rgb() ) );
-    unit->annots_.add( uref.description() );
-    mDynamicCastGet(const Strat::LeafUnitRef*,un,&uref)
-    unit->annots_.add( un ? uistratmgr_.getLithName( *un ) : "" );
     unit->id_ = uref.getID();
+    unit->col_ = uref.props().color_;
     if ( order >= data_.nrCols() ) return;
     data_.getCol(order)->units_ += unit;
+
+    addBoundary( unit->id_, uref.props().lvlid_, timerg.start );
+    mDynamicCastGet(const Strat::LeafUnitRef*,un,&uref)
+    if ( un ) addAnnot( uistratmgr_.getLithName( *un ), timerg, true );
+    addAnnot( uref.description(), timerg, false );
 }
 
 
+void uiStratTreeToDispTransl::addAnnot( const char* nm, Interval<float>& posrg,						bool islitho )
+{
+    AnnotData::Unit* unit = new AnnotData::Unit(nm,posrg.start,posrg.stop); 
+    data_.getCol( islitho ? idlitho : iddesc )->units_ += unit; 
+}
 
 
-uiStratTreeWriter::uiStratTreeWriter( uiStratRefTree& tree ) 
-    : uitree_(tree)
+void uiStratTreeToDispTransl::addBoundary( int unid, int lvlid, float zpos )
+{
+    BufferString lvlnm; Color lvlcol;
+    if ( lvlid >= 0 && uistratmgr_.getLvl( lvlid ) )
+	uistratmgr_.getLvlPropsByID( lvlid, lvlnm, lvlcol );
+    else 
+	lvlcol = Color::Black();
+
+    AnnotData::Marker* mrk = new AnnotData::Marker( lvlnm, zpos );
+    mrk->isdotted_ = lvlnm.isEmpty();
+    mrk->id_ = unid;
+    mrk->col_ = lvlcol;
+    data_.getCol( idboundaries )->markers_ += mrk;
+}
+
+
+void uiStratTreeToDispTransl::addBottomBoundary()
+{
+    const AnnotData::Column& col = *data_.getCol(0);
+    float z = col.units_[col.units_.size()-1]->zposbot_;
+    botzpos_ = z;
+    int lvlid = uistratmgr_.getCurTree()->botLvlID();
+    botlvlid_ = lvlid;
+    addBoundary( -1, lvlid, z );
+}
+
+
+uiStratDispToTreeTransl::uiStratDispToTreeTransl( uiStratRefTree& uitree ) 
+    : uitree_(uitree)
 {}
 
 #define mGetLItem(t) uiListViewItem* lit = uitree_.listView()->findItem(t,0,false); if ( lit ) { uitree_.listView()->setCurrentItem(lit); } else return;
 
-void uiStratTreeWriter::handleUnitMenu( const char* txt )
+void uiStratDispToTreeTransl::handleUnitMenu( const char* txt )
 {
     if ( txt )
     {
@@ -131,14 +182,16 @@ void uiStratTreeWriter::handleUnitMenu( const char* txt )
 }
 
 
-void uiStratTreeWriter::handleLvlMenu( int unid )
+void uiStratDispToTreeTransl::handleUnitLvlMenu( int unid )
 {
     if ( unid >=0 )
 	uitree_.setUnitLvl( unid );
+    else
+	uitree_.setBottomLvl();
 }
 
 
-void uiStratTreeWriter::fillUndef( CallBacker* cb )
+void uiStratDispToTreeTransl::fillUndef( CallBacker* cb )
 {
     uitree_.doSetUnconformities( cb );
 }

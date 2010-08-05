@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.24 2010-06-24 11:54:00 cvsbruno Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.25 2010-08-05 11:50:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "stratreftree.h"
+#include "stratlevel.h"
 #include "callback.h"
 
 namespace Strat
@@ -22,6 +23,7 @@ class Lithology;
 class UnitRepository;
 
 mGlobal const UnitRepository& UnRepo();
+UnitRepository& eUnRepo();
 mGlobal const RefTree& RT();
 RefTree& eRT();
 
@@ -60,14 +62,24 @@ public:
     void		removeLith(int lithid);
     static const char*	sKeyLith;
 
+    void		resetUnitLevels();
+
+    const LevelSet&     levels() const                  { return lvls_; }
+    LevelSet&           levels()                        { return lvls_; }
+    
+    mutable Notifier<UnitRepository> levelChanged;
+
     void		copyCurTreeAtLoc(Repos::Source);
     const RefTree*	getTreeFromSource(Repos::Source) const;
     bool		write(Repos::Source) const;
+    bool		writeLvls(std::ostream&) const;
     void		reRead();
 
     mutable Notifier<UnitRepository> changed;
 
     int			getNewLithID() const	{ return ++lastlithid_; }
+    void		readFile(const Repos::FileProvider&,Repos::Source);
+
 
 protected:
 
@@ -76,6 +88,7 @@ protected:
 
     ObjectSet<RefTree>	trees_;
     ObjectSet<Lithology> liths_;
+    LevelSet            lvls_;
     int			curtreeidx_;
     mutable int		lastlithid_;
 
@@ -95,6 +108,8 @@ private:
 
     ObjectSet<Lithology> unusedliths_;
     void		addTreeFromFile(const Repos::FileProvider&,
+	    				Repos::Source);
+    void		addLvlsFromFile(const Repos::FileProvider&,
 	    				Repos::Source);
     void		createDefaultTree();
 

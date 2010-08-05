@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uiwellstratdisplay.h,v 1.9 2010-07-05 16:08:07 cvsbruno Exp $
+ RCS:           $Id: uiwellstratdisplay.h,v 1.10 2010-08-05 11:50:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,11 +38,15 @@ public:
 protected:
 
     Well::Well2DDispData  	dispdata_;
-    uiStratAnnotGather		uidatagather_;
+    uiStratTreeToDispTransl	uidatagather_;
   
     virtual void		dataChanged(CallBacker*);
+    const AnnotData::Unit*	getNextTimeUnit(float) const;
+    void 			setUnitBotPos(AnnotData::Unit&);
+    void 			setUnitTopPos(AnnotData::Unit&);
+    float			getPosFromMarkers(const AnnotData::Unit&) const;
+    float 			getPosMarkerLvlMatch(int) const;
 
-    void 			setUnitPos(AnnotData::Unit&,AnnotData::Unit&);
 };
 
 #endif

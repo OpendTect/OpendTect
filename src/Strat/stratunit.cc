@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.20 2010-07-14 10:05:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.21 2010-08-05 11:50:33 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: stratunit.cc,v 1.20 2010-07-14 10:05:13 cvsbrun
 #include "keystrs.h"
 
 
-static const char* sKeyLevel = "Level";
+static const char* sKeyLevel = "Level_ID";
 
 
 const Strat::Lithology& Strat::Lithology::undef()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.15 2010-07-14 10:05:13 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.16 2010-08-05 11:50:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ public:
 
 	BufferString		name_;
 	int			size_;
+	int			pos_;
 	
 	uiPolyLineItem*		borderitm_;
 	uiTextItem*		bordertxtitm_;
@@ -66,7 +67,6 @@ public:
 	ObjectSet<uiPolygonItem> unititms_;
     };
     
-    int				startcol_;
     const ColumnItem&		colItem(int idx) const { return *colitms_[idx];}
 
 protected:
@@ -106,6 +106,10 @@ public:
     				{ return data_.getCol(colidx)->units_.size();}
     int				nrMarkers(int colidx) const 
     				{ return data_.getCol(colidx)->markers_.size();}
+    AnnotData::Column* 		getColumn(int colidx) 
+    				{ return data_.getCol(colidx); }
+    const AnnotData::Column* 	getColumn(int colidx) const 
+    				{ return data_.getCol(colidx); }
     AnnotData::Marker* 		getMarker(int idx, int colidx) 
     				{ return data_.getCol(colidx)->markers_[idx]; }
     AnnotData::Unit* 		getUnit(int idx,int colidx) 
@@ -168,8 +172,8 @@ public:
 
 protected :
 
-    uiStratAnnotGather		uidatagather_;
-    uiStratTreeWriter		uidatawriter_;
+    uiStratTreeToDispTransl	uidatagather_;
+    uiStratDispToTreeTransl	uidatawriter_;
 
     uiGenInput*                 rangefld_;
     uiLabeledSpinBox*           stepfld_;
@@ -181,8 +185,6 @@ protected :
    
     bool			isUnitBelowCurrent() const;
     void			createDispParamGrp();
-    void			makeAnnots();
-    void			makeAnnotCol(const char*,int,bool);
     void			resetRangeFromUnits();
 
     virtual void                createMenuCB(CallBacker*);

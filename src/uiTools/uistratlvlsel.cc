@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.19 2010-07-14 10:05:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.20 2010-08-05 11:50:33 cvsbruno Exp $";
 
 #include "uistratlvlsel.h"
 
@@ -24,8 +24,8 @@ static const char* sTiedToTxt	= "Tied to Level";
 static void getLvlNms( BufferStringSet& bss )
 {
     bss.add( sNoLevelTxt );
-    for ( int idx=0; idx<Strat::RT().levels().size(); idx++ )
-	bss.add( Strat::RT().levels()[idx]->name() );
+    for ( int idx=0; idx<Strat::UnRepo().levels().size(); idx++ )
+	bss.add( Strat::UnRepo().levels()[idx]->name() );
 }
 
 
@@ -54,6 +54,7 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl )
     StratTWin().unitCreated.notify( mCB(this,uiStratLevelSel,chgCB) );
     StratTWin().unitChanged.notify( mCB(this,uiStratLevelSel,chgCB) );
     StratTWin().unitRemoved.notify( mCB(this,uiStratLevelSel,chgCB) );
+    Strat::UnRepo().levelChanged.notify( mCB(this,uiStratLevelSel,chgCB) );
 
     setHAlignObj( selfld_ );
 }
@@ -64,6 +65,7 @@ uiStratLevelSel::~uiStratLevelSel()
     StratTWin().unitCreated.remove( mCB(this,uiStratLevelSel,chgCB) );
     StratTWin().unitChanged.remove( mCB(this,uiStratLevelSel,chgCB) );
     StratTWin().unitRemoved.remove( mCB(this,uiStratLevelSel,chgCB) );
+    Strat::UnRepo().levelChanged.remove( mCB(this,uiStratLevelSel,chgCB) );
 }
 
 
@@ -71,7 +73,7 @@ const Strat::Level* uiStratLevelSel::selected() const
 {
     const int selidx =selfld_->currentItem();
     if ( selidx == 0 ) return 0;
-    const Strat::Level* lvl = Strat::RT().levels().getByName( selfld_->text() );
+    const Strat::Level* lvl = Strat::UnRepo().levels().getByName( selfld_->text() );
     return lvl;
 }
 
@@ -85,7 +87,7 @@ int uiStratLevelSel::getID() const
 
 void uiStratLevelSel::setID( int id )
 {
-    const Strat::Level* lvl = Strat::RT().levels().getByID( id );
+    const Strat::Level* lvl = Strat::UnRepo().levels().getByID( id );
     if ( !lvl )
 	selfld_->setCurrentItem( (int)0 );
     else
@@ -103,7 +105,7 @@ Color uiStratLevelSel::getColor() const
 const char* uiStratLevelSel::getName() const
 {
     const Strat::Level* lvl = selected();
-    return lvl && lvl->id_ >= 0 ? lvl->name() : "";
+    return lvl && lvl->id_ >= 0 ? lvl->name().buf() : "";
 }
 
 

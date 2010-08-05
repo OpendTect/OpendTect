@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.14 2010-07-14 10:05:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.15 2010-08-05 11:50:33 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -29,8 +29,8 @@ static const char* rcsID = "$Id: uistratdisplay.cc,v 1.14 2010-07-14 10:05:13 cv
 
 uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& tree )
     : uiAnnotDisplay(p,"Stratigraphy viewer")
-    , uidatagather_(uiStratAnnotGather(data_,tree.stratmgr()))
-    , uidatawriter_(uiStratTreeWriter(tree ))
+    , uidatagather_(uiStratTreeToDispTransl(data_,tree.stratmgr()))
+    , uidatawriter_(uiStratDispToTreeTransl(tree ))
     , assignlvlmnuitem_("&Specify marker boundary")
 {
     uidatagather_.newtreeRead.notify( mCB(this,uiStratDisplay,dataChanged) );
@@ -62,7 +62,7 @@ void uiStratDisplay::createDispParamGrp()
     const CallBack cbv = mCB( this, uiStratDisplay, selCols );
     viewcolbutton_ = new uiPushButton( dispparamgrp_,"&View ",cbv,true ); 
     viewcolbutton_->attach( rightOf, rangefld_ );
-    const CallBack cbf = mCB( &uidatawriter_, uiStratTreeWriter, fillUndef );
+    const CallBack cbf = mCB(&uidatawriter_,uiStratDispToTreeTransl,fillUndef);
     fillbutton_ = new uiPushButton( dispparamgrp_,"&Fill undefined",cbf,true ); 
     fillbutton_->attach( rightOf, viewcolbutton_ );
 }
@@ -85,7 +85,7 @@ public :
 	for ( int idx=0; idx<colnms.size(); idx++ )
 	{
 	    uiCheckBox* box = new uiCheckBox( this, colnms.get(idx) );
-	    box->setChecked( idx >= drawer_.startcol_ );
+	    box->setChecked( data_.getCol( idx )->isdisplayed_ );
 	    box->activated.notify( mCB(this,uiColViewerDlg,selChg) );
 	    colboxflds_ += box;
 	    if ( idx ) box->attach( alignedBelow, colboxflds_[idx-1] ); 
@@ -102,14 +102,16 @@ public :
 	{
 	    NotifyStopper ns( colboxflds_[idbox]->activated );
 	    bool ison = false;
+	    /*
 	    if ( idsel<idbox )
 		ison = true;
 	    else if ( idsel == idbox ) 
-		ison = !colboxflds_[idbox]->isChecked();
-	    
-	    colboxflds_[idbox]->setChecked( ison );
+	    */
+	    ison = colboxflds_[idbox]->isChecked();
+
+	    //colboxflds_[idbox]->setChecked( ison );
+	    data_.getCol( idbox )->isdisplayed_ = ison;
 	}
-	drawer_.startcol_ = idsel; 
 	drawer_.draw();
     }
 
@@ -130,7 +132,6 @@ void uiStratDisplay::selCols( CallBacker* cb )
 
 void uiStratDisplay::dataChanged( CallBacker* cb )
 {
-    makeAnnots();
     drawer_.draw();
 }
 
@@ -195,55 +196,7 @@ void uiStratDisplay::handleMenuCB( CallBacker* cb )
 	uidatawriter_.handleUnitMenu( unit->name_ );
     const AnnotData::Marker* mrk = getMrkFromPos();
     if ( mrk )
-	uidatawriter_.handleLvlMenu( mrk->id_ );
-}
-
-
-void uiStratDisplay::makeAnnots()
-{
-    makeAnnotCol( "Boundaries", 0, true ); 
-    /*
-    makeAnnotCol( "Lithology", 4, false );
-    makeAnnotCol( "Description", 5, false );
-    */
-}
-
-
-void uiStratDisplay::makeAnnotCol( const char* txt, int annotpos, bool level )
-{
-    AnnotData::Column* annotcol = new AnnotData::Column( txt );
-    for ( int idcol=0; idcol<nrCols(); idcol++ )
-    {
-	const AnnotData::Column& col = *data_.getCol( idcol );
-	for ( int idunit=0; idunit<col.units_.size(); idunit++ )
-	{
-	    const AnnotData::Unit* unit = col.units_[idunit];
-	    if ( !unit || !unit->annots_.size() ) continue;
-	    const BufferStringSet& annot = unit->annots_;
-	    if ( level )
-	    {
-		const BufferString& nm = *annot[annotpos];
-		AnnotData::Marker* mrk = new AnnotData::Marker( 
-						nm.buf(), unit->zpos_ );
-		mrk->isdotted_ = nm.isEmpty();
-		mrk->id_ = unit->id_;
-		mrk->col_ = Color( 
-			     (unsigned int)atoi(annot[annotpos+1]->buf()) );
-		annotcol->markers_ += mrk;
-	    }
-	    else
-	    {
-		AnnotData::Unit* newunit = new AnnotData::Unit(  
-					    annot[annotpos]->buf(),
-					    unit->zpos_,
-					    unit->zposbot_ );
-		newunit->col_ = Color::White();
-		annotcol->units_ += newunit;
-	    }
-	}
-    }
-    annotcol->iseditable_ = false;
-    data_.addCol( annotcol );
+	uidatawriter_.handleUnitLvlMenu( mrk->id_ );
 }
 
 
@@ -275,7 +228,6 @@ uiAnnotDrawer::uiAnnotDrawer( uiGraphicsScene& sc, const AnnotData& ad )
     , xax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Top)))
     , yax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Left)
 							.nogridline(true)))
-    , startcol_(0)	  
 {
     xax_->setBounds( Interval<float>( 0, 100 ) );
 }
@@ -318,17 +270,21 @@ void uiAnnotDrawer::draw()
 void uiAnnotDrawer::drawColumns()
 {
     eraseAll();
-    for ( int idcol=startcol_; idcol<nrCols(); idcol++ )
+    int pos = 0;
+    for ( int idcol=0; idcol<nrCols(); idcol++ )
     {
+	if ( !data_.getCol( idcol )->isdisplayed_ ) continue;
 	ColumnItem* colitm = new ColumnItem( data_.getCol( idcol )->name_ );
 	colitms_ += colitm;
+	colitm->pos_ = pos;
 	colitm->size_ = (int)xax_->getVal( (int)(scene_.width()+10) )
-	    	      /( nrCols()-startcol_ ) ;
+	    	      /( data_.nrDisplayedCols() ) ;
 	if ( colitm->size_ <0 ) 
 	    colitm->size_ = 0;
 	drawUnits( *colitm, idcol );
 	drawBorders( *colitm, idcol );
 	drawMarkers( *colitm, idcol );
+	pos ++;
     }
 }
 
@@ -356,8 +312,8 @@ void uiAnnotDrawer::eraseAll()
 
 void uiAnnotDrawer::drawBorders( ColumnItem& colitm, int colidx )
 {
-    int x1 = xax_->getPix( (colidx-startcol_)*colitm.size_ );
-    int x2 = xax_->getPix( (colidx+1-startcol_)*colitm.size_ );
+    int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
+    int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
     int y1 = yax_->getPix( yax_->range().stop );
     int y2 = yax_->getPix( yax_->range().start );
 	
@@ -387,8 +343,8 @@ void uiAnnotDrawer::drawMarkers( ColumnItem& colitm, int colidx )
     {
 	const AnnotData::Marker& mrk = *data_.getCol(colidx)->markers_[idx];
 
-	int x1 = xax_->getPix( (colidx-startcol_)*colitm.size_ );
-	int x2 = xax_->getPix( (colidx-startcol_+1)*colitm.size_ );
+	int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
+	int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
 	int y = yax_->getPix( mrk.zpos_ );
 
 	uiLineItem* li = scene_.addItem( new uiLineItem(x1,y,x2,y,true) );
@@ -412,9 +368,10 @@ void uiAnnotDrawer::drawUnits( ColumnItem& colitm, int colidx )
     for ( int idx=0; idx<data_.getCol(colidx)->units_.size(); idx++ )
     {
 	const AnnotData::Unit& unit = *data_.getCol(colidx)->units_[idx];
+	if ( !unit.draw_ ) continue;
 
-	int x1 = xax_->getPix( (colidx-startcol_)*colitm.size_ );
-	int x2 = xax_->getPix( (colidx-startcol_+1)*colitm.size_ );
+	int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
+	int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
 	bool ztop = ( unit.zpos_ < yax_->range().stop );
 	bool zbase = ( unit.zposbot_ > yax_->range().start );
 	int y1 = yax_->getPix( ztop ? yax_->range().stop : unit.zpos_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.24 2010-07-14 10:05:13 cvsbruno Exp $
+ RCS:           $Id: uistratreftree.h,v 1.25 2010-08-05 11:50:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
     void		updateLithoCol();
     void		moveUnit(bool);
     bool		canMoveUnit(bool);
+    void		setBottomLvl();
 
 protected:
 
@@ -77,7 +78,7 @@ protected:
 
     BufferString	getCodeFromLVIt(const uiListViewItem*) const;
 
-    friend class 	uiStratTreeWriter;
+    friend class 	uiStratDispToTreeTransl;
 };
 
 

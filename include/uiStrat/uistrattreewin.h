@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.31 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.32 2010-08-05 11:50:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
 
-class uiListBox;
 class uiListViewItem;
 class uiMenuItem;
 class uiStratLevelDlg;
@@ -24,8 +23,6 @@ class uiStratTreeWin;
 class uiStratDisplay;
 class uiToolBar;
 class uiToolButton;
-
-namespace Strat{ class Level; }
 
 mGlobal const uiStratTreeWin& StratTWin();
 mGlobal uiStratTreeWin& StratTreeWin();
@@ -45,11 +42,6 @@ public:
     
     const uiStratMgr&	mgr() const	{ return uistratmgr_; }
     
-    void                addLevels(const BufferStringSet&,const TypeSet<Color>&);
-
-    mutable Notifier<uiStratTreeWin>    levelCreated;
-    mutable Notifier<uiStratTreeWin>    levelChanged;
-    mutable Notifier<uiStratTreeWin>    levelRemoved;
     mutable Notifier<uiStratTreeWin>    newLevelSelected;
     mutable Notifier<uiStratTreeWin>	newUnitSelected;
 
@@ -72,7 +64,6 @@ protected:
     uiStratMgr&			uistratmgr_;
     uiStratRefTree*		uitree_;
     uiStratDisplay*		uistratdisp_;
-    uiListBox*                  lvllistfld_;
     uiMenuItem*			expandmnuitem_;
     uiMenuItem*			editmnuitem_;
     uiMenuItem*			savemnuitem_;
@@ -94,12 +85,6 @@ protected:
     void			createMenu();
     void			createToolBar();
     void			createGroups();
-
-    void                        fillLvlList();
-    void                        updateLvlList(bool);
-    void                        editLevel(bool);
-    void                        fillInLvlPars(Strat::Level*,
-					    const uiStratLevelDlg&,bool);
 
     void			editCB(CallBacker*);
     void			openCB(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.12 2010-07-14 10:05:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.13 2010-08-05 11:50:34 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -22,7 +22,7 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
 					const Well::Well2DDispData& dd)
     : uiAnnotDisplay(p,"")
     , dispdata_(dd)
-    , uidatagather_(uiStratAnnotGather(data_,StratTWin().mgr()))
+    , uidatagather_(uiStratTreeToDispTransl(data_,StratTWin().mgr()))
 {
     if ( nobg )
     {
@@ -47,59 +47,116 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
 }
 
 
+const AnnotData::Unit* uiWellStratDisplay::getNextTimeUnit( float pos ) const
+{
+    for ( int colidx=0; colidx<nrCols(); colidx++ )
+    {
+	for ( int idx=0; idx<nrUnits( colidx ); idx++ )
+	{
+	    const AnnotData::Unit* unit = getUnit( idx, colidx );
+	    if ( unit && unit->zpos_ == pos )
+		return unit;
+	}
+    }
+    return 0;
+}
+
+
 void uiWellStratDisplay::dataChanged( CallBacker* )
 {
     for ( int colidx=0; colidx<nrCols(); colidx++ )
     {
-	for ( int idx=0; idx<nrUnits( colidx )-1; idx++ )
+	AnnotData::Column& col = *getColumn( colidx );
+	if ( col.isaux_ ) continue;
+	for ( int idx=0; idx<nrUnits( colidx ); idx++ )
 	{
-	    AnnotData::Unit* cunit = getUnit( idx, colidx );
-	    AnnotData::Unit* nunit = getUnit( idx+1, colidx );
-	    if ( cunit && nunit )
-		setUnitPos( *cunit, *nunit );
+	    AnnotData::Unit* unit = getUnit( idx, colidx );
+	    if ( unit )
+	    {
+		setUnitTopPos( *unit );
+		setUnitBotPos( *unit );
+	    }
 	}
     }
     setZRange( Interval<float>( (dispData().zrg_.stop/1000), 
 				(dispData().zrg_.start )/1000) );
+
+    for ( int colidx=0; colidx<nrCols(); colidx++ )
+    {
+	AnnotData::Column& col = *getColumn( colidx );
+	col.isdisplayed_ = false;
+	if ( col.isaux_ ) continue;
+	for ( int idx=0; idx<nrUnits( colidx ); idx++ )
+	{
+	    AnnotData::Unit* unit = getUnit( idx, colidx );
+	    if ( unit->draw_ == true )
+	    {
+		col.isdisplayed_ = true;
+		break;
+	    }
+	}
+    }
+    drawer_.draw();
 }
 
 
-void uiWellStratDisplay::setUnitPos( AnnotData::Unit& cunit, 
-					AnnotData::Unit& nunit )  
+void uiWellStratDisplay::setUnitTopPos( AnnotData::Unit& unit )
 {
-    if ( !dispdata_.markers_ ) return;
-    float& ctoppos = cunit.zpos_; 
-    float& cbotpos = cunit.zposbot_; 
-    float& ntoppos = nunit.zpos_;
-    float& nbotpos = nunit.zposbot_;
-    const Well::Marker* topmrk = 0;
-    const Well::Marker* basemrk = 0;
+    float& toppos = unit.zpos_; 
+    const Well::Marker* mrk = 0;
+    toppos = getPosFromMarkers( unit );
+    unit.draw_ = !mIsUdf( toppos );
+}
+
+
+void uiWellStratDisplay::setUnitBotPos( AnnotData::Unit& unit )
+{
+    if ( !unit.draw_ ) return;
+    float& botpos = unit.zposbot_;
+    const AnnotData::Unit* nextunit = getNextTimeUnit( botpos );
+    if ( nextunit ) 
+    {
+	botpos = getPosFromMarkers( *nextunit );
+    }
+    else if ( unit.zposbot_ == uidatagather_.botzpos_ )
+    {
+	botpos = getPosMarkerLvlMatch( uidatagather_.botlvlid_ );
+    }
+    unit.draw_ = !mIsUdf( botpos );
+}
+
+
+float uiWellStratDisplay::getPosFromMarkers( const AnnotData::Unit& unit ) const
+{
+    float pos = mUdf(float);
+    if ( !dispdata_.markers_ ) return pos;
+    const Strat::UnitRef* uref = Strat::RT().getByID( unit.id_ );
+    if ( uref )
+	pos = getPosMarkerLvlMatch( uref->props().lvlid_ );
+    return pos;
+}
+
+
+float uiWellStratDisplay::getPosMarkerLvlMatch( int lvlid ) const
+{
+    float pos = mUdf( float );
+    const Well::Marker* mrk = 0;
     for ( int idx=0; idx<dispdata_.markers_->size(); idx++ )
     {
-	/*
-	const char* lvlnm = 
-	    Strat::RT().getUnitLvlName( (*dispdata_.markers_)[idx]->levelID() );
-	if ( lvlnm && !strcmp( lvlnm, cunit.annots_[0]->buf() ) )
-	    topmrk = (*dispdata_.markers_)[idx];
-	if ( lvlnm && !strcmp( lvlnm, nunit.annots_[0]->buf() ) )
-	    basemrk = (*dispdata_.markers_)[idx];
-	    */
-    }
-    if ( !topmrk || !basemrk ) 
-    { 
-	ntoppos = mUdf(float); 
-	cbotpos = mUdf(float); 
-    }
-    else
-    {
-	ctoppos = topmrk->dah();
-	cbotpos = basemrk->dah();
-	if ( dispdata_.zistime_ && dispdata_.d2tm_ ) 
-	{ 
-	    ctoppos = dispdata_.d2tm_->getTime( ctoppos ); 
-	    cbotpos = dispdata_.d2tm_->getTime( cbotpos ); 
+	const Well::Marker* curmrk = (*dispdata_.markers_)[idx];
+	if ( curmrk && curmrk->levelID() >=0 )
+	{
+	    if ( lvlid == curmrk->levelID() )
+		mrk = curmrk;
 	}
-	ntoppos = cbotpos;
     }
+    if ( mrk ) 
+    {
+	pos = mrk->dah();
+	if ( dispdata_.zistime_ && dispdata_.d2tm_ ) 
+	    pos = dispdata_.d2tm_->getTime( pos ); 
+    }
+    return pos;
 }
+
 

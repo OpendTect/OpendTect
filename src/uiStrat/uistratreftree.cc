@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.41 2010-07-14 10:05:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.42 2010-08-05 11:50:33 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -473,6 +473,14 @@ void uiStratRefTree::setUnitLvl( int unid )
 	pp.lvlid_ = dlg.lvlid_;
 	uistratmgr_->updateUnitProps( unid, pp );
     }
+}
+
+
+void uiStratRefTree::setBottomLvl() 
+{
+    uiStratLinkLvlUnitDlg dlg( lv_->parent(), -1, *uistratmgr_ );
+    if ( dlg.go() )
+	uistratmgr_->setBotLvlID( dlg.lvlid_ );
 }
 
 

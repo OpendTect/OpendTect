@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.41 2010-07-14 10:05:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.42 2010-08-05 11:50:33 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -25,6 +25,7 @@ const char* Strat::UnitRepository::sKeyLith = "Lithology";
 static const char* sKeyProp = "Properties";
 static const char* sKeyGeneral = "General";
 static const char* sKeyUnits = "Units";
+static const char* sKeyLevel = "Level";
 
 
 const Strat::UnitRepository& Strat::UnRepo()
@@ -388,10 +389,12 @@ bool Strat::RefTree::write( std::ostream& strm ) const
 
 
 
+
 Strat::UnitRepository::UnitRepository()
     : curtreeidx_(-1)
     , lastlithid_(-1)
     , changed(this)
+    , levelChanged(this)
 {
     IOM().surveyChanged.notify( mCB(this,Strat::UnitRepository,survChg) );
 }
@@ -422,6 +425,8 @@ void Strat::UnitRepository::reRead()
     addTreeFromFile( rfp, Repos::Data );
     addTreeFromFile( rfp, Repos::User );
     addTreeFromFile( rfp, Repos::Survey );
+    addLvlsFromFile( rfp, Repos::Survey );
+    resetUnitLevels();
 
     if ( trees_.isEmpty() )
 	createDefaultTree();
@@ -443,11 +448,38 @@ bool Strat::UnitRepository::write( Repos::Source src ) const
     if ( !sfio.open(false) )
 	{ ErrMsg(sfio.errMsg()); return false; }
 
-    if ( !tree->write(sfio.ostrm()) )
+    if ( !tree->write(sfio.ostrm()) || !writeLvls(sfio.ostrm()) )
 	{ sfio.closeFail(); return false; }
 
     sfio.closeSuccess();
     return true;
+}
+
+
+bool Strat::UnitRepository::writeLvls( std::ostream& strm ) const
+{
+    ascostream astrm( strm );
+    const UnitRepository& repo = UnRepo();
+    BufferString str;
+    
+    astrm.newParagraph();
+    IOPar iop( sKeyLevel );
+    for ( int idx=0; idx<levels().size(); idx ++ )
+    {
+	iop.clear();
+	levels()[idx]->putTo( iop );
+	iop.putTo( astrm );
+    }
+    return strm.good();
+}
+
+
+void Strat::UnitRepository::readFile( const Repos::FileProvider& rfp,
+					     Repos::Source src )
+{
+    addTreeFromFile( rfp,src ); 
+    addLvlsFromFile( rfp, src );
+    resetUnitLevels();
 }
 
 
@@ -519,14 +551,12 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
     sfio.closeSuccess();
     if ( tree->nrRefs() > 0 )
     {
-	//*!support for older version
-	//TODO make this whole time structure optionnal 
-	//( then no graph display but still the ui-tree available )
+	/*!support for older version
+	TODO make this whole time structure optionnal 
+	( then no graph display but still the ui-tree available )!*/
 	float timestop = tree->props().timerg_.stop;
 	if ( mIsUdf( timestop ) || timestop == 0 )
 	    tree->assignEqualTimesToUnits( Interval<float>( 0, 4.5e3 ) );
-	//*!
-	
 	trees_ += tree;
     }
     else
@@ -534,6 +564,52 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	BufferString msg( "No valid layers found in:\n" );
 	msg += fnm; ErrMsg( fnm );
 	delete tree;
+    }
+}
+
+
+void Strat::UnitRepository::addLvlsFromFile( const Repos::FileProvider& rfp,
+					     Repos::Source src )
+{
+    const BufferString fnm( rfp.fileName(src) );
+    SafeFileIO sfio( fnm );
+    if ( !sfio.open(true) ) return;
+
+    ascistream astrm( sfio.istrm(), true );
+    if ( !astrm.isOfFileType(filetype) )
+	{ sfio.closeFail(); return; }
+
+    deepErase( lvls_ );
+    while ( astrm.next().type() != ascistream::EndOfFile )
+    {
+	if ( atEndOfSection(astrm) )
+	    continue;
+	if ( !astrm.hasKeyword(sKeyLevel) )
+	    continue;
+
+	Level* lvl = new Level( "" );
+	IOPar iop; iop.getFrom( astrm );
+	lvl->getFrom( iop );
+	levels() += lvl;
+	levels().constraintID( lvl->id_ );
+    }
+}
+
+
+void Strat::UnitRepository::resetUnitLevels() 
+{
+    for ( int idx=0; idx<trees_.size(); idx++ )
+    {
+	UnitRef::Iter it( *trees_[idx] );
+	UnitRef* un = it.unit(); 
+	while ( un )
+	{
+	    if ( !levels().getByID( un->props().lvlid_ ) ) 
+		un->props().lvlid_ = -1;
+	    if ( !it.next() )
+		break;
+	    un = it.unit();
+	}
     }
 }
 
