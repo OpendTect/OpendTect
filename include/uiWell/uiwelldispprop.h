@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.22 2010-06-24 11:55:33 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.23 2010-08-05 11:48:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,6 @@ public:
 
     void		putToScreen();
     void		getFromScreen();
-    virtual void 	resetProps(Well::DisplayProperties::BasicProps&) {}
 
     Notifier<uiWellDispProperties>	propChanged;
 
@@ -83,7 +82,7 @@ public:
     Well::DisplayProperties::Track&	trackprops()
 	{ return static_cast<Well::DisplayProperties::Track&>(*props_); }
 
-    void 		resetProps(Well::DisplayProperties::BasicProps&);
+    void 		resetProps(Well::DisplayProperties::Track&);
 
 protected:
 
@@ -105,7 +104,7 @@ public:
     Well::DisplayProperties::Markers&	mrkprops()
 	{ return static_cast<Well::DisplayProperties::Markers&>(*props_); }
     
-    void 		resetProps(Well::DisplayProperties::BasicProps&);
+    void 		resetProps(Well::DisplayProperties::Markers&);
 
 protected:
 
@@ -132,8 +131,9 @@ public:
     Well::DisplayProperties::Log&	logprops()
 	{ return static_cast<Well::DisplayProperties::Log&>(*props_); }
     
-    void 		resetProps(Well::DisplayProperties::BasicProps&);
+    void 		resetProps(Well::DisplayProperties::Log&);
     void		setLogSet(const Well::LogSet*);
+    void		setWellStyleOnly(bool);
 
 protected:
 
@@ -153,7 +153,7 @@ protected:
     void  		setFldSensitive(bool);
     void 		logSel(CallBacker*);
     void 		selNone();
-    void 		setFieldVals( bool );
+    void 		setFieldVals();
 
     uiGenInput*		stylefld_;
     uiGenInput*         clipratefld_;

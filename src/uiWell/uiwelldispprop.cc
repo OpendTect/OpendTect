@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.40 2010-08-02 12:08:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.41 2010-08-05 11:48:30 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -107,9 +107,9 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 }
 
 
-void uiWellTrackDispProperties::resetProps( Well::DisplayProperties::BasicProps& pp )
+void uiWellTrackDispProperties::resetProps( Well::DisplayProperties::Track& pp )
 {
-    props_ = &pp;
+    trackprops() = pp;
     propChg(0);
 }
 
@@ -185,9 +185,9 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 }
 
 
-void uiWellMarkersDispProperties::resetProps( Well::DisplayProperties::BasicProps& pp )
+void uiWellMarkersDispProperties::resetProps( Well::DisplayProperties::Markers& pp )
 {
-    props_ = &pp;
+    mrkprops() = pp;
     propChg(0);
 }
 
@@ -351,9 +351,9 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 }
 
 
-void uiWellLogDispProperties::resetProps( Well::DisplayProperties::BasicProps& pp )
+void uiWellLogDispProperties::resetProps( Well::DisplayProperties::Log& pp )
 {
-    props_ = &pp;
+    logprops() = pp;
     recoverProp();
     propChg(0);
 }
@@ -478,9 +478,8 @@ void uiWellLogDispProperties::isStyleChanged( CallBacker* )
 
 void uiWellLogDispProperties::recoverProp( )
 {
-    putToScreen();
-    if ( logprops().name_ == "None" || logprops().name_ ==  "none" ) 
-	selNone();
+    doPutToScreen();
+    logSel(0);
     isSeismicSel(0);
     choiceSel(0);
     isFilledSel(0);
@@ -504,7 +503,7 @@ void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
 
 void uiWellLogDispProperties::logSel( CallBacker* )
 {
-    setFieldVals( false );
+    setFieldVals();
     BufferString fillname = filllogsfld_->box()->text();
     filllogsfld_-> box() -> setText( logsfld_->box()->text() );
 }
@@ -536,6 +535,7 @@ void uiWellLogDispProperties::setFldSensitive( bool yn )
     rangefld_->setSensitive( yn );
     colorrangefld_->setSensitive( yn );
     cliprangefld_->setSensitive( yn );
+    revertlogfld_->setSensitive( yn );
     colfld_->setSensitive( yn );
     seiscolorfld_->setSensitive( yn );
     fillcolorfld_->setSensitive( yn );
@@ -560,10 +560,10 @@ void uiWellLogDispProperties::choiceSel( CallBacker* )
 }
 
 
-void uiWellLogDispProperties::setFieldVals( bool def )
+void uiWellLogDispProperties::setFieldVals()
 {
     BufferString sel = logsfld_->box()->text();
-    if ( sel == "None")
+    if ( sel == "None" || sel == "none" )
     {
 	selNone();
 	return;
@@ -615,3 +615,12 @@ void uiWellLogDispProperties::calcRange( const char* lognm,
     }
 }
 
+
+void uiWellLogDispProperties::setWellStyleOnly( bool yn )
+{
+    stylefld_->display( !yn );
+    seiscolorfld_->display( !yn );
+    ovlapfld_->display( !yn ); 
+    repeatfld_->display( !yn );
+    stylefld_->setValue( yn );
+}
