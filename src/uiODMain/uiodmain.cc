@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.128 2010-07-15 10:08:01 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.129 2010-08-06 07:44:42 cvsbruno Exp $";
 
 #include "uiodmain.h"
 
@@ -641,10 +641,6 @@ bool uiODMain::askStore( bool& askedanything )
     if ( SI().has2D() && !askStoreAttribs( true, askedanything ) )
 	return false;
     if ( SI().has3D() && !askStoreAttribs( false, askedanything ) )
-	return false;
-
-    uiStratTreeWin& stratwin = const_cast<uiStratTreeWin&> ( StratTWin() );
-    if ( !stratwin.closeOK() )
 	return false;
 
     return true;
