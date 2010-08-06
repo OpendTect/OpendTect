@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.32 2010-08-05 11:50:33 cvsbruno Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.33 2010-08-06 07:52:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,6 @@ protected:
     uiToolButton*		moveunitdownbut_;
     uiToolButton*		switchviewbut_;
     bool			needsave_;
-    bool			needcloseok_;
     bool			istreedisp_;
 
     void			createMenu();

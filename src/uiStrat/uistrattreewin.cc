@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.47 2010-08-05 11:50:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.48 2010-08-06 07:52:33 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -73,7 +73,6 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , lithChanged(this)		//TODO support
     , lithRemoved(this)		//TODO support
     , needsave_(false)
-    , needcloseok_(true)
     , istreedisp_(false)		
 {
     IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
@@ -315,8 +314,6 @@ void uiStratTreeWin::unitRenamedCB( CallBacker* )
 
 bool uiStratTreeWin::closeOK()
 {
-    if ( !needcloseok_ )
-	return true;
     if ( needsave_ || uistratmgr_.needSave() )
     {
 	int res = uiMSG().askSave( 
@@ -340,10 +337,9 @@ bool uiStratTreeWin::closeOK()
 void uiStratTreeWin::forceCloseCB( CallBacker* )
 {
     IOM().surveyChanged.remove( mCB(this,uiStratTreeWin,forceCloseCB ) );
-    needcloseok_ = false;
+    IOM().applicationClosing.remove( mCB(this,uiStratTreeWin,forceCloseCB ) );
     if ( stratwin )
 	stratwin->close();
-    needcloseok_ = true;
     stratwin = 0;
 }
 
