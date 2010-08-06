@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.56 2010-08-05 15:35:47 cvshelene Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.57 2010-08-06 10:01:12 cvshelene Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -168,8 +168,8 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
     mGet( ioobj, "104.2.7", "104.2.6", "104.2.8", "104.2.9")
 
 #define mGetWinNm(ioobj) \
-    mGet( ioobj, "Copy 2D horizon", "Copy 3D horizon", "Copy FaultStickSet",\
-	  "Copy 3D fault")
+    mGet( ioobj, "Copy 2D horizon", "Copy 3D horizon", "Copy faultStickSet",\
+	  "Copy fault")
 
 
 uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
