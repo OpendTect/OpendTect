@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.16 2010-07-29 16:04:18 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.17 2010-08-06 10:44:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,26 +16,25 @@ ________________________________________________________________________
 #include "cubesampling.h"
 class uiSpinBox;
 class uiLineEdit;
+namespace ZDomain { class Def; }
 
-/*!\brief Selects sub-Z-range. Default will be SI() work Z Range.
-
-  Constructor's 'domflag' can be 'T' = Time, 'D' = Depth;
-  everything else = SI()'s Z domain
- */
+/*!\brief Selects sub-Z-range. Default will be SI() work Z Range. */
 
 mClass uiSelZRange : public uiGroup
 {
 public:
                         uiSelZRange(uiParent*,bool wstep,
 				    bool isrel=false,const char* lbltxt=0,
-				    char domflag='S');
+				    const char* zdomkey=0);
 			uiSelZRange(uiParent* p,StepInterval<float> limitrg,
 				    bool wstep,const char* lbltxt=0,
-				    char domflag='S');
+				    const char* zdomkey=0);
 
     StepInterval<float>	getRange() const;
     void		setRange(const StepInterval<float>&);
     void		setRangeLimits(const StepInterval<float>&);
+
+    const ZDomain::Def&	zDomainDef() const	{ return zddef_; }
 
 protected:
 
@@ -43,10 +42,13 @@ protected:
     uiSpinBox*		stopfld_;
     uiSpinBox*		stepfld_;
     bool		isrel_;
+    const ZDomain::Def&	zddef_; // keep above othdom_.
+    const bool		othdom_; // keep above cansnap_
+    const bool		cansnap_;
 
     void		valChg(CallBacker*);
-    void		makeInpFields(const char*,bool,StepInterval<float>,
-	    			      bool);
+    void		makeInpFields(const char*,bool,
+	    			      const StepInterval<float>*);
 
 };
 

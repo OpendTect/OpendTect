@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.16 2010-07-29 13:49:43 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.17 2010-08-06 10:44:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class MultiID;
 class CubeSampling;
 class BinIDValueSet;
 class BufferStringSet;
+namespace ZDomain { class Def; }
 
 /*!\brief Info on IOObj for seismics */
 
@@ -47,6 +48,7 @@ public:
     const IOObj*	ioObj() const		{ return ioobj_; }
     bool		isTime() const;
     bool		isDepth() const;
+    const ZDomain::Def&	zDomainDef() const;
 
     mStruct SpaceInfo
     {

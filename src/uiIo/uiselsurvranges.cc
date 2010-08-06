@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.22 2010-07-29 16:04:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.23 2010-08-06 10:44:32 cvsbert Exp $";
 
 #include "uiselsurvranges.h"
 #include "survinfo.h"
+#include "zdomain.h"
 #include "uispinbox.h"
 #include "uilineedit.h"
 #include "uilabel.h"
@@ -19,73 +20,81 @@ static const int cUnLim = 1000000;
 static const float cMaxUnsnappedZStep = 0.999f;
 
 
+#define mDefConstrList(isrel) \
+    uiGroup(p,"Z range selection") \
+    , stepfld_(0) \
+    , isrel_(isrel) \
+    , zddef_(ZDomain::Def::get(domky)) \
+    , othdom_(&zddef_ != &ZDomain::SI()) \
+    , cansnap_( !othdom_ \
+	&& SI().zRange(false).step > cMaxUnsnappedZStep / zddef_.userFactor() )
+
+
 uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
-			  const char* lbltxt, char domflag )
-	: uiGroup(p,"Z range selection")
-	, stepfld_(0)
-	, isrel_(isrel)
+			  const char* lbltxt, const char* domky )
+	: mDefConstrList(isrel)
 {
-    const bool siistime = SI().zIsTime();
-    const bool othdom = (siistime && domflag == 'D')
-		     || (!siistime && domflag == 'T');
-
-    StepInterval<float> limitrg( -cUnLim, cUnLim, 1 );
-    if ( !othdom && !isrel_ )
-	limitrg = SI().zRange( false );
-
-    makeInpFields( lbltxt, wstep, limitrg, othdom );
+    const StepInterval<float> limitrg( SI().zRange(false) );
+    makeInpFields( lbltxt, wstep, !othdom_ && !isrel_ ? &limitrg : 0 );
     if ( isrel_ )
 	setRange( StepInterval<float>(0,0,1) );
-    else if ( !othdom )
+    else if ( !othdom_ )
 	setRange( SI().zRange(true) );
 }
 
 
 uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
-			  const char* lbltxt, char domflag )
-	: uiGroup(p,"Z range selection")
-	, stepfld_(0)
+			  const char* lbltxt, const char* domky )
+	: mDefConstrList(false)
 {
-    makeInpFields( lbltxt, wstep, limitrg, domflag );
+    makeInpFields( lbltxt, wstep, &limitrg );
     setRange( limitrg );
 }
 
 
 void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
-				 StepInterval<float> limitrg, bool othdom )
+				 const StepInterval<float>* inplimitrg )
 {
-    const float zfac = othdom ? 1 : SI().zFactor();
+    const float zfac = zddef_.userFactor();
     const StepInterval<float>& sizrg( SI().zRange(false) );
 
-    if ( !othdom && limitrg.step > sizrg.step ) limitrg.step = sizrg.step;
+    StepInterval<float> limitrg( -cUnLim, cUnLim, 1 );
+    if ( inplimitrg )
+	limitrg = *inplimitrg;
+    if ( !othdom_ && limitrg.step > sizrg.step )
+	limitrg.step = sizrg.step;
     limitrg.scale( zfac );
-    const bool cansnap = !othdom && sizrg.step > cMaxUnsnappedZStep / zfac;
-    const int nrdecimals = cansnap ? 0 : 2;
-    StepInterval<int> izrg( mNINT(limitrg.start), mNINT(limitrg.stop),
-			   mNINT(limitrg.step) );
+
+    const int nrdecimals = cansnap_ ? 0 : 2;
+    const StepInterval<int> izrg( mNINT(limitrg.start),
+	    			  mNINT(limitrg.stop), mNINT(limitrg.step) );
+
     startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
-    if ( !lbltxt ) lbltxt = "Z Range";
-    uiLabel* lbl = new uiLabel( this, lbltxt, startfld_ );
+    BufferString ltxt( lbltxt );
+    if ( ltxt.isEmpty() )
+	{ ltxt = zddef_.userName(); ltxt += " range"; }
+    ltxt.add( " " ).add( zddef_.unitStr(true) );
+    uiLabel* lbl = new uiLabel( this, ltxt, startfld_ );
+
     stopfld_ = new uiSpinBox( this, nrdecimals, "Z stop" );
-    stopfld_->doSnap( true );
     stopfld_->attach( rightOf, startfld_ );
-    if ( !cansnap )
+    if ( !cansnap_ )
 	{ startfld_->setInterval( limitrg ); stopfld_->setInterval( limitrg ); }
     else
 	{ startfld_->setInterval( izrg ); stopfld_->setInterval( izrg ); }
-    startfld_->doSnap( cansnap ); stopfld_->doSnap( cansnap );
+    startfld_->doSnap( cansnap_ ); stopfld_->doSnap( cansnap_ );
 
     if ( wstep )
     {
 	stepfld_ = new uiSpinBox( this, nrdecimals, "Z step" );
-	if ( cansnap )
+	if ( cansnap_ )
 	    stepfld_->setInterval(
 		StepInterval<int>(izrg.step,izrg.width(),izrg.step) );
 	else
 	    stepfld_->setInterval(
 		StepInterval<int>(mNINT(limitrg.step),mNINT(limitrg.width()),
 		    		  mNINT(limitrg.step)) );
-	stepfld_->doSnap( cansnap );
+	stepfld_->doSnap( cansnap_ );
 	lbl = new uiLabel( this, "step", stepfld_ );
 	lbl->attach( rightOf, stopfld_ );
     }
@@ -99,9 +108,10 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 
 StepInterval<float> uiSelZRange::getRange() const
 {
+    const float zfac = zddef_.userFactor();
     StepInterval<float> zrg( startfld_->getFValue(), stopfld_->getFValue(), 
 	    		     stepfld_ ? stepfld_->getFValue() : 1 );
-    zrg.scale( 1 / SI().zFactor() );
+    zrg.scale( 1 / zddef_.userFactor() );
     if ( !stepfld_ )
 	zrg.step = SI().zRange(true).step;
     return zrg;
@@ -111,9 +121,9 @@ StepInterval<float> uiSelZRange::getRange() const
 void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
 {
     StepInterval<float> zrg( inpzrg );
-    zrg.scale( SI().zFactor() );
+    zrg.scale( zddef_.userFactor() );
 
-    if ( SI().zRange(false).step > cMaxUnsnappedZStep / SI().zFactor() )
+    if ( cansnap_ )
     {
 	startfld_->setValue( mNINT(zrg.start) );
 	stopfld_->setValue( mNINT(zrg.stop) );
@@ -147,7 +157,7 @@ void uiSelZRange::valChg( CallBacker* cb )
 void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )
 {
     StepInterval<float> zrg( zlimits );
-    zrg.scale( SI().zFactor() );
+    zrg.scale( zddef_.userFactor() );
     startfld_->setInterval( zrg );
     stopfld_->setInterval( zrg );
 }

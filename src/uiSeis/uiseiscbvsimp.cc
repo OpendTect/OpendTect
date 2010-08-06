@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.68 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.69 2010-08-06 10:44:32 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.68 2010-08-04 13:30:46 cvs
 #include "keystrs.h"
 #include "executor.h"
 #include "scaler.h"
+#include "zdomain.h"
 
 #include "uibutton.h"
 #include "uifileinput.h"
@@ -100,9 +101,11 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	if ( inctio_.ioobj )
 	{
 	    SeisIOObjInfo oinf( *inctio_.ioobj );
-	    if ( oinf.isTime() != SI().zIsTime() )
+	    const bool oistime = oinf.isTime();
+	    if ( oistime != SI().zIsTime() )
 	    {
-		sts.domflag_ = oinf.isTime() ? -1 : 1;
+		sts.zdomkey_ = (oistime ? ZDomain::Depth() : ZDomain::Time())
+		    			.key();
 		oinpfld->setSensitive( false );
 	    }
 	}
