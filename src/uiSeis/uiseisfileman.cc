@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.111 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.112 2010-08-06 10:43:58 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -125,12 +125,13 @@ void uiSeisFileMan::mkFileInfo()
 	    { txt += "\nNumber of attributes: "; txt += nms.size(); }
     }
 
-#define mRangeTxt(line) \
-    txt += cs.hrg.start.line; txt += " - "; txt += cs.hrg.stop.line; \
-    txt += " ["; txt += cs.hrg.step.line; txt += "]"
-#define mAddZRangeTxt(memb) txt += zistm ? mNINT(1000*memb) : memb
+#define mAddRangeTxt(line) \
+    .add(" range: ").add(cs.hrg.start.line).add(" - ").add(cs.hrg.stop.line) \
+    .add(" [").add(cs.hrg.step.line).add("]")
+#define mAddZValTxt(memb) .add(zistm ? mNINT(1000*memb) : memb)
 
     const bool zistm = oinf.isTime();
+    const ZDomain::Def& zddef = oinf.zDomainDef();
     CubeSampling cs;
     if ( !is2d_ )
     {
@@ -138,13 +139,13 @@ void uiSeisFileMan::mkFileInfo()
 	{
 	    txt = "";
 	    if ( !mIsUdf(cs.hrg.stop.inl) )
-		{ txt += "Inline range: "; mRangeTxt(inl); }
+		{ txt.add("Inline") mAddRangeTxt(inl); }
 	    if ( !mIsUdf(cs.hrg.stop.crl) )
-		{ txt += "\nCrossline range: "; mRangeTxt(crl); }
-	    txt += "\nZ-range: "; 
-	    mAddZRangeTxt(cs.zrg.start); txt += " - ";
-	    mAddZRangeTxt(cs.zrg.stop); 
-	    txt += " ["; mAddZRangeTxt(cs.zrg.step); txt += "]";
+		{ txt.add("\nCrossline") mAddRangeTxt(crl); }
+	    txt.add("\n").add(zddef.userName()).add(" range ")
+		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zrg.start)
+		.add(" - ") mAddZValTxt(cs.zrg.stop) 
+		.add(" [") mAddZValTxt(cs.zrg.step) .add("]");
 	}
     }
 
@@ -163,9 +164,6 @@ void uiSeisFileMan::mkFileInfo()
 	    const char* typstr = curioobj_->pars().find( "Velocity Type" );
 	    txt += typstr ? typstr : "<unknown>";
 	}
-	if ( !ZDomain::isSI(curioobj_->pars()) )
-	    { txt += "\nDomain: ";
-		txt += ZDomain::Def::get(curioobj_->pars()).userName(); }
     }
 
     if ( !strcmp(curioobj_->translator(),"CBVS") )
@@ -189,8 +187,8 @@ void uiSeisFileMan::mkFileInfo()
 
     } // if ( oinf.isOK() )
 
-    if ( !txt.isEmpty() ) txt += "\n";
-    txt += getFileInfo();
+    if ( txt.isEmpty() ) txt += "<Empty>";
+    txt.add( "\n" ).add( getFileInfo() );
 
     infofld->setText( txt );
 }
