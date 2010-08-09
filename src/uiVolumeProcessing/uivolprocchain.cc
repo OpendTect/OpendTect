@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.18 2009-08-27 09:58:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.19 2010-08-09 20:04:14 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
@@ -308,20 +308,20 @@ void uiChain::readPush( CallBacker* )
     IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
     ctxt.forread = true;
     uiIOObjSelDlg dlg( this, ctxt );
-     dlg.selGrp()->setConfirmOverwrite( false );
-     if ( !dlg.go() || !dlg.nrSel() )
-	 return;
+    dlg.selGrp()->setConfirmOverwrite( false );
+    if ( !dlg.go() || !dlg.nrSel() )
+	return;
 
-     BufferString errmsg;
-     if ( VolProcessingTranslator::retrieve( chain_, dlg.ioObj(), errmsg ) )
-     {
-	 updObj( *dlg.ioObj() );
-	 updateList();
-	 return;
-     }
+    BufferString errmsg;
+    if ( VolProcessingTranslator::retrieve( chain_, dlg.ioObj(), errmsg ) )
+    {
+	updObj( *dlg.ioObj() );
+	updateList();
+	return;
+    }
 
-     updateList();
-     uiMSG().error(errmsg);
+    updateList();
+    uiMSG().error(errmsg);
 }
 
 
