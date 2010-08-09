@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.36 2010-06-24 11:55:33 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.37 2010-08-09 14:44:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 #include "uiaxishandler.h"
-#include "uicursor.h"
 #include "draw.h"
 #include "multiid.h"
 #include "welldisp.h"
@@ -30,7 +29,6 @@ class uiPolygonItem;
 class uiTextItem;
 class uiStratDisplay;
 class uiWellStratDisplay;
-class uiWellDisplayMarkerEdit;
 class uiWellDisplayControl;
 class uiWellDispInfoPanel;
 
@@ -170,7 +168,8 @@ public:
     };
 
     Notifier<uiWellLogDisplay>  highlightedMarkerItemChged;
-    void 			highlightMarkerItem(const Well::Marker*);
+    void 			highlightMarkerItem(const Well::Marker*,
+						    bool trigchg=true);
     MarkerItem* 		getMarkerItem(const Well::Marker*);
     const Well::Marker*		highlightedmrk_;
     ObjectSet<MarkerItem>&   	markerItems() { return  markeritms_; } 
@@ -191,7 +190,6 @@ public:
     Well::Well2DDispData&	data() 		{ return data_; }
     Well::DisplayProperties& 	disp()		{ return disp_; }
     const Well::Well2DDispData&	data() const 	{ return data_; }
-    const MouseCursor&		cursor() const 	{ return cursor_; }
     
 protected:
 
@@ -207,7 +205,6 @@ protected:
     ObjectSet<MarkerItem>	markeritms_;
     ObjectSet<uiLineItem>	zpickitms_;
     
-    MouseCursor			cursor_;
 
     void			init(CallBacker*);
     void			dataChanged();
@@ -279,6 +276,7 @@ public:
     int 			nrLogDisp() const { return logdisps_.size();}	
     uiWellLogDisplay* 		logDisplay(int i) 	{ return logdisps_[i]; }
     const uiWellLogDisplay* 	logDisplay(int i) const	{ return logdisps_[i]; }
+    bool			isPresent(const uiWellLogDisplay*) const;
 
     MultiID                     getWellID() 		{ return wellid_; }
     uiWellStratDisplay*		stratDisp() 		{ return stratdisp_; }
@@ -300,7 +298,6 @@ public:
 
     ObjectSet<uiWellLogDisplay> logdisps_;
     uiWellStratDisplay*		stratdisp_;
-    uiWellDisplayMarkerEdit*	mrkedit_;
     uiWellDisplayControl*	control_;
     Params			pms_;
     MultiID                     wellid_;

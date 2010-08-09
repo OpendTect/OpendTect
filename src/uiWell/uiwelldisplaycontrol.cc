@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.12 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.13 2010-08-09 14:43:12 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
 #include "uicolor.h"
+#include "uibutton.h"
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uigraphicsitemimpl.h"
@@ -24,7 +25,7 @@ static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.12 2010-08-04 13:30
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellmarker.h"
-
+#include "wellstratman.h"
 
 
 uiWellDisplayControl::uiWellDisplayControl( uiWellLogDisplay& l, Well::Data* w) 
@@ -258,6 +259,10 @@ public :
 	csu.lbltxt( "Color" ).withalpha(false);
 	colorfld_ = new uiColorInput( this, csu, "Color" );
 	colorfld_->attach( alignedBelow, depthfld_ );
+
+	stratmrkfld_ = new uiCheckBox( this, "Set as stratigraphic markers" );
+	stratmrkfld_->attach( alignedBelow, colorfld_ );
+	stratmrkfld_->setChecked( true );
     }
 
     bool acceptOK( CallBacker* )
@@ -266,10 +271,13 @@ public :
 	float dpt = depthfld_->getfValue();
 	marker_ = new Well::Marker( nm, dpt );
 	marker_->setColor( colorfld_->color() );
+	if ( stratmrkfld_->isChecked() )
+	    marker_->setLevelID( 
+		Well::StratMGR().addLevel(marker_->name(),marker_->color()) );
 	return true;
     }
 
-    Well::Marker* marker() { return marker_; }
+    Well::Marker* marker() 	{ return marker_; }
 
 protected :
 
@@ -277,6 +285,7 @@ protected :
     uiGenInput*		namefld_;
     uiGenInput*		depthfld_;
     uiColorInput*	colorfld_;
+    uiCheckBox*		stratmrkfld_;
 };
 
 

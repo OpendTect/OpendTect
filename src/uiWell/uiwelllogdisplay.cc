@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.55 2010-07-15 14:32:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.56 2010-08-09 14:43:12 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -530,9 +530,9 @@ uiWellLogDisplay::MarkerItem* uiWellLogDisplay::getMarkerItem(
 }
 
 
-void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
+void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk, 
+					    bool trigchg  )
 {
-    MouseCursor mousecursor( MouseCursor::Arrow );
     if ( highlightedmrk_ )
     {
 	uiWellLogDisplay::MarkerItem* mitm = getMarkerItem( highlightedmrk_ );
@@ -547,12 +547,10 @@ void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
 	mrkitm->itm_->setPenStyle( LineStyle(setup_.markerls_.type_,
 				    setup_.markerls_.width_+2, 
 				    mrkitm->color_) );
-	//mousecursor = MouseCursor::SizeVer;
     }
-    if ( parent() ) parent()->setCursor( mousecursor );
-    cursor_ = mousecursor;
     highlightedmrk_ = mrk;
-    highlightedMarkerItemChged.trigger();
+    if ( trigchg )
+	highlightedMarkerItemChged.trigger();
 }
 
 
@@ -815,6 +813,16 @@ void uiWellDisplay::setDispProperties( Well::DisplayProperties& disp, int pannr)
     }
 }
 
+
+bool uiWellDisplay::isPresent( const uiWellLogDisplay* ld ) const
+{
+    for ( int idl=0; idl<logdisps_.size(); idl++ )
+    {
+	if ( logdisps_[idl] == ld )
+	    return true;
+    }
+    return false;
+}
 
 
 uiWellDisplayWin::uiWellDisplayWin( uiParent* p, Well::Data& wd )
