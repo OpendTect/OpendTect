@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.32 2010-07-15 07:26:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.33 2010-08-09 08:50:18 cvsraman Exp $";
 
 #include "uisurvmap.h"
 
@@ -200,14 +200,18 @@ void uiNorthArrowObject::updateGeometry()
 }
 
 
-uiSurveyMap::uiSurveyMap( uiParent* parent )
+uiSurveyMap::uiSurveyMap( uiParent* parent, bool withtitle )
     : uiBaseMap(parent)
     , survbox_(0),northarrow_(0)
     , survinfo_(0)
+    , title_(0)
 {
     view_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     view_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     const mDeclAlignment( txtalign, Left, Top );
+
+    if ( !withtitle )
+	return;
 
     title_ = view_.scene().addItem( new uiTextItem(uiPoint(10,10),"Survey name",
 						   txtalign) );
@@ -220,10 +224,14 @@ void uiSurveyMap::drawMap( const SurveyInfo* si )
 {
     if ( !survbox_ )
     {
-	survbox_ = new uiSurveyBoxObject( true );
+	const bool hastitle = title_;
+	survbox_ = new uiSurveyBoxObject( hastitle );
 	addObject( survbox_ );
-	northarrow_ = new uiNorthArrowObject( true );
-	addObject( northarrow_ );
+	if ( hastitle )
+	{
+	    northarrow_ = new uiNorthArrowObject( true );
+	    addObject( northarrow_ );
+	}
     }
 
     if ( !si )
@@ -253,7 +261,9 @@ void uiSurveyMap::drawMap( const SurveyInfo* si )
 
     const Coord diff( maxcoord - mincoord );
     float canvsz = mMAX(diff.x,diff.y);
-    canvsz *= 1.5;
+    if ( title_ )
+	canvsz *= 1.5;
+
     const Coord center( (mincoord.x+maxcoord.x)/2, (mincoord.y+maxcoord.y)/2 );
     const Coord lowpart( canvsz/2, 0.47*canvsz );
     const Coord hipart( canvsz/2, 0.53*canvsz );
@@ -263,19 +273,21 @@ void uiSurveyMap::drawMap( const SurveyInfo* si )
     uiWorldRect wr( mincoord.x, maxcoord.y, maxcoord.x, mincoord.y );
     uiSize sz( (int)view_.scene().width(), (int)view_.scene().height() );
     w2ui_.set( sz, wr );
-    title_->setText( si->name() );
+    if ( title_ )
+	title_->setText( si->name() );
+
     survbox_->setSurveyInfo( *si );
-    survbox_->updateGeometry();
-    northarrow_->setSurveyInfo( *si );
-    northarrow_->updateGeometry();
+    if ( northarrow_ )
+	northarrow_->setSurveyInfo( *si );
 }
 
 
-void uiSurveyMap::reSizeCB( CallBacker* )
+void uiSurveyMap::reDraw()
 {
     if ( !survinfo_ )
 	return;
 
     drawMap( survinfo_ );
+    uiBaseMap::reDraw();
 }
 

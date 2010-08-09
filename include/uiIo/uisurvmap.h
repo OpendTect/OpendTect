@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.19 2010-07-14 06:09:58 cvsraman Exp $
+ RCS:           $Id: uisurvmap.h,v 1.20 2010-08-09 08:50:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ protected:
 mClass uiSurveyMap : public uiBaseMap
 {
 public:
-			uiSurveyMap(uiParent*);
+			uiSurveyMap(uiParent*,bool withtitle=true);
 
     void		drawMap(const SurveyInfo*);
 
@@ -77,7 +77,7 @@ protected:
 
     const SurveyInfo*	survinfo_;
 
-    void		reSizeCB(CallBacker*);
+    void		reDraw();
 };
 
 #endif
