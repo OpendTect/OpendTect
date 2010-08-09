@@ -4,16 +4,19 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellman.cc,v 1.8 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: wellman.cc,v 1.9 2010-08-09 14:41:51 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "wellman.h"
+#include "wellstratman.h"
 #include "welltransl.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 
 Well::Man* Well::Man::mgr_ = 0;
+Well::StratMgr* Well::StratMgr::mgr_ = 0;
+
 
 Well::Man& Well::MGR()
 {
