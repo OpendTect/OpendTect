@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibasemap.cc,v 1.3 2010-08-02 07:08:57 cvsraman Exp $";
+static const char* rcsID = "$Id: uibasemap.cc,v 1.4 2010-08-09 20:00:56 cvskris Exp $";
 
 #include "uibasemap.h"
 #include "uigraphicsscene.h"
@@ -16,8 +16,8 @@ static const char* rcsID = "$Id: uibasemap.cc,v 1.3 2010-08-02 07:08:57 cvsraman
 #include "uiworld2ui.h"
 
 
-uiBaseMapObject::uiBaseMapObject( const char* nm )
-    : BaseMapObject(nm)
+uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
+    : bmobject_( bmo )
     , itemgrp_(new uiGraphicsItemGroup(true))
     , transform_(0)
 {}
@@ -56,7 +56,7 @@ uiBaseMap::~uiBaseMap()
 
 void uiBaseMap::addObject( BaseMapObject* obj )
 {
-    mDynamicCastGet(uiBaseMapObject*,uiobj,obj)
+    uiBaseMapObject* uiobj = new uiBaseMapObject( obj );
     if ( !uiobj )
 	return;
 
@@ -68,14 +68,25 @@ void uiBaseMap::addObject( BaseMapObject* obj )
 
 void uiBaseMap::removeObject( const BaseMapObject* obj )
 {
-    mDynamicCastGet(const uiBaseMapObject*,uiobj,obj)
-    if ( !uiobj )
-	return;
+    int index = -1;
+    for ( int idx=0; idx<objects_.size(); idx++ )
+    {
+	if ( objects_[idx]->bmobject_==obj )
+	{
+	    index = idx;
+	    break;
+	}
+    }
 
-    const int index = objects_.indexOf( uiobj );
+    if ( index==-1 )
+    {
+	pErrMsg( "Base map object not found" );
+    }
+
+    const uiBaseMapObject* uiobj = objects_[index];
+
     view_.scene().removeItem( objects_[index]->itemGrp() );
-    if ( index >= 0 )
-	delete objects_.remove( index );
+    delete objects_.remove( index );
 }
 
 
