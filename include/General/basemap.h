@@ -7,12 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2009
- RCS:		$Id: basemap.h,v 1.4 2010-07-14 06:06:59 cvsraman Exp $
+ RCS:		$Id: basemap.h,v 1.5 2010-08-09 20:00:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
+
+namespace OD { class RGBImage; }
+
+class Coord;
+class Color;
 
 
 /*!Object that can be painted in a basemap. */
@@ -21,39 +26,43 @@ ________________________________________________________________________
 mClass BaseMapObject : public NamedObject
 {
 public:
-				BaseMapObject(const char* nm)
-				    : NamedObject(nm)
-				{}
+				BaseMapObject(const char* nm);
 
     virtual const char*		getType() const				= 0;
 
-    virtual void		updateGeometry()			= 0;
+    virtual void		updateGeometry()			{}
 
     virtual void		setDepth(int val)	{ depth_ = val; }
     virtual int			getDepth() const	{ return depth_; }
     				/*!<Determines what should be painted ontop of
 				    what */
 
-//    virtual int			nrShapes() const;
-//    virtual const char*		getShapeName(int shapeidx) const;
-//    virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const; 
+    virtual int			nrShapes() const;
+    virtual const char*		getShapeName(int shapeidx) const;
+    virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const; 
     				/*!<Returns a number of coordinates that
 				    may form a be connected or filled. */
-//    virtual char		connectPoints(int shapeidx) const;
-    				/*!\retval 0 - dont connect
-				   \retval 1 - connect
-				   \retval 2 - connect as polygon.
-				   \retval 3 - connect as polygon and fill */
-//    virtual const Color*	getColor(int shapeidx) const;
+    virtual char		connectPoints(int shapeidx) const;
+    				/*!\retval cDontConnect() - don't connect
+				   \retval cConnect() - connect
+				   \retval cPolygon() - connect as polygon.
+				   \retval cFilledPolygon() - connect as
+				   		polygon and fill */
+    virtual const Color*	getColor(int shapeidx) const;
 
-//    virtual const OD::Image*	getImage(Coord& origin,Coord& p11) const;
+    virtual const OD::RGBImage*	getImage(Coord& origin,Coord& p11) const;
     				/*!<Returns image in xy plane. p11 is the
 				    coordinate of the corner opposite of the
 				    origin. */
-//    virtual const OD::Image*	getPreview(int approxdiagonal) const;
+    virtual const OD::RGBImage*	getPreview(int approxdiagonal) const;
     				/*!<Returns a preview image that has
 				    approximately the size of the specified
 				    diagonal. */
+    static char			cDontConnect()		{ return 0; }
+    static char			cConnect()		{ return 1; }
+    static char			cPolygon()		{ return 2; }
+    static char			cFilledPolygon()	{ return 3; }
+
 protected:
 
     int				depth_;
@@ -66,7 +75,9 @@ mClass BaseMap
 {
 public:
     virtual void		addObject(BaseMapObject*) 		= 0;
-    				/*!<Object maintained by caller */
+    				/*!<Object maintained by caller. Adding an
+				    existing will trigger update */
+
     virtual void		removeObject(const BaseMapObject*) 	= 0;
 };
 
