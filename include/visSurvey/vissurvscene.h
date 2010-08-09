@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.70 2010-08-04 13:30:46 cvsbert Exp $
+ RCS:		$Id: vissurvscene.h,v 1.71 2010-08-09 20:01:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "position.h"
 
+class BaseMap;
 class Color;
 class MouseCursor;
 class TaskRunner;
@@ -135,6 +136,9 @@ public:
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     ZAxisTransform*		getZAxisTransform();
 
+    void			setBaseMap(BaseMap*);
+    BaseMap*			getBaseMap();
+
     bool			isRightHandSystem() const;
 
     void			setZDomainInfo(const ZDomain::Info&);
@@ -183,6 +187,8 @@ protected:
     visBase::Transformation*	inlcrl2disptransform_;
     visBase::Transformation*	utm2disptransform_;
     ZAxisTransform*		datatransform_;
+
+    BaseMap*			basemap_;
 
     visBase::Annotation*	annot_;
     visBase::Marker*		marker_;

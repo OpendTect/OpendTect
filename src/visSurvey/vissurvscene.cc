@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.138 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.139 2010-08-09 20:01:50 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -67,6 +67,7 @@ Scene::Scene()
     , coordselector_( 0 )
     , zscale_( SI().zScale() )
     , infopar_(*new IOPar)
+    , basemap_( 0 )
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
@@ -526,6 +527,14 @@ void Scene::mouseMoveCB( CallBacker* cb )
 
     mouseposchange.trigger();
 }
+
+
+void Scene::setBaseMap( BaseMap* bm )
+{ basemap_ = bm; }
+
+
+BaseMap* Scene::getBaseMap()
+{ return basemap_; }
 
 
 void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
