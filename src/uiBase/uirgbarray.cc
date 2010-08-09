@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirgbarray.cc,v 1.12 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uirgbarray.cc,v 1.13 2010-08-09 14:53:50 cvskris Exp $";
 
 #include "uirgbarray.h"
 
@@ -36,14 +36,16 @@ uiRGBArray::~uiRGBArray()
 }
 
 
-void uiRGBArray::setSize( int d0, int d1 )
+bool uiRGBArray::setSize( int d0, int d1 )
 {
     if ( qimg_->width() == d0 && qimg_->height() == d1 )
-	return;
+	return true;
 
     delete qimg_;
     qimg_ = new QImage( d0, d1, withalpha_ ? QImage::Format_ARGB32 
 	    				   : QImage::Format_RGB32 );
+
+    return true;
 }
 
 

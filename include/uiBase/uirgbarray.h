@@ -7,24 +7,25 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B. Bril & H. Huck
  Date:          08/09/06
- RCS:           $Id: uirgbarray.h,v 1.7 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uirgbarray.h,v 1.8 2010-08-09 14:53:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "color.h"
+#include "odimage.h"
 
 class QImage;
 
 
-mClass uiRGBArray
+mClass uiRGBArray : public OD::RGBImage
 {
 public:
                         uiRGBArray(bool withalpha);
 			uiRGBArray(const uiRGBArray&);
     virtual		~uiRGBArray();
 
-    void                setSize(int,int);
+    char		nrComponents() const { return withalpha_ ? 4 : 3; }
+    bool                setSize(int,int);
     int			getSize(bool xdir) const;
     Color		get(int,int) const;
     void		set(int,int,const Color&);
