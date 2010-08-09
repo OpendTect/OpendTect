@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visboxdragger.cc,v 1.18 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: visboxdragger.cc,v 1.19 2010-08-09 10:06:29 cvsranojay Exp $";
 
 #include "visboxdragger.h"
 #include "ranges.h"
@@ -92,7 +92,7 @@ BoxDragger::BoxDragger()
     boxsep->addChild( strip );
     const int tricoordindices[] =
 	{ 0, 1, 2, 3, 6, 7, 4, 5, 0, 1, -1, 0, 2, 4, 6, -1, 1, 5, 3, 7 };
-    strip->coordIndex.setValuesPointer( 20, tricoordindices );
+    strip->coordIndex.setValues( 0, 20, tricoordindices );
 
     const int trinormindices[] =
 	{ 0, 1, 2, 3, 6, 7, 4, 5, 0, 1, -1, 0, 2, 4, 6, -1, 1, 5, 3, 7 };
@@ -104,7 +104,7 @@ BoxDragger::BoxDragger()
 	{ 0, 1, 3, 2, 0, 4, 6, 2, -1, 4, 5, 7, 6, -1, 3, 7, -1, 1, 5 };
     SoIndexedLineSet* lines = new SoIndexedLineSet;
     boxsep->addChild( lines );
-    lines->coordIndex.setValuesPointer( 19, linecoordincices );
+    lines->coordIndex.setValues( 0, 19, linecoordincices );
 
     boxdragger_->setPart( "boxGeom", boxsep );
     boxsep->unref();
