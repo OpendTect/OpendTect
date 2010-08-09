@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.14 2010-07-14 10:05:13 cvsbruno Exp $
+ RCS:		$Id: wellmarker.h,v 1.15 2010-08-09 14:42:53 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,8 @@ public:
     			MarkerSet()		{}
 
   const Well::Marker*   getByName(const char*) const;
+  const Well::Marker*   getByLvlID(int lvlid) const;
+
   int			indexOf(const char*) const;		  
   void			insertNew(Well::Marker*); //becomes mine
 };
