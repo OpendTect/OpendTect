@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          July 2005
- RCS:           $Id: attribdescid.h,v 1.8 2010-06-10 08:29:35 cvsnanne Exp $
+ RCS:           $Id: attribdescid.h,v 1.9 2010-08-09 13:48:59 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ public:
     inline bool		operator !=( const DescID& id ) const
 			{ return id.id_ != id_ || isstored_ != id.isstored_;; }
 
-    static inline DescID undef()		{ return DescID(-1,true); }
+    static inline DescID undef()		{ return DescID(-1,false); }
 
     int			asInt() const		{ return id_; }
     int&		asInt()			{ return id_; }
