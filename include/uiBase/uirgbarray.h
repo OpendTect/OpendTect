@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B. Bril & H. Huck
  Date:          08/09/06
- RCS:           $Id: uirgbarray.h,v 1.8 2010-08-09 14:53:50 cvskris Exp $
+ RCS:           $Id: uirgbarray.h,v 1.9 2010-08-09 19:58:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
     bool                setSize(int,int);
     int			getSize(bool xdir) const;
     Color		get(int,int) const;
-    void		set(int,int,const Color&);
+    bool		set(int,int,const Color&);
     void		clear(const Color&);
 
     const QImage&	qImage() const		{ return *qimg_; } ;

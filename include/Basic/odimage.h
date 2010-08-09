@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          August 2010
- RCS:           $Id: odimage.h,v 1.1 2010-08-09 14:51:13 cvskris Exp $
+ RCS:           $Id: odimage.h,v 1.2 2010-08-09 19:58:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ public:
     virtual bool	setSize(int,int)			= 0;
     virtual int		getSize(bool xdir) const		= 0;
     virtual Color	get(int,int) const			= 0;
-    virtual void	set(int,int,const Color&)		= 0;
+    virtual bool	set(int,int,const Color&)		= 0;
 
     virtual void	fill(unsigned char*) const;
     			/*!Fills array with content. Each pixel's components are

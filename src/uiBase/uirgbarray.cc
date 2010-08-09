@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirgbarray.cc,v 1.13 2010-08-09 14:53:50 cvskris Exp $";
+static const char* rcsID = "$Id: uirgbarray.cc,v 1.14 2010-08-09 19:58:41 cvskris Exp $";
 
 #include "uirgbarray.h"
 
@@ -59,10 +59,10 @@ Color uiRGBArray::get( int i0, int i1 ) const
 }
 
 
-void uiRGBArray::set( int i0, int i1, const Color& c )
+bool uiRGBArray::set( int i0, int i1, const Color& c )
 {
     if ( qimg_->width()<=i0 || qimg_->height()<=i1 )
-	return;
+	return false;
 
     if ( withalpha_ )
     {
@@ -71,6 +71,8 @@ void uiRGBArray::set( int i0, int i1, const Color& c )
     }
     else
 	qimg_->setPixel( i0, i1, (QRgb)c.rgb() );
+
+    return true;
 }
 
 
