@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.76 2010-08-06 09:56:23 cvshelene Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.77 2010-08-09 14:36:57 cvsbruno Exp $";
 
 
 #include "uisurfaceman.h"
@@ -386,7 +386,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
 {
     tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3), 
 			"Stratigraphy Table" );
-    BufferStringSet lbls; lbls.add( "Name" ).add( "Color" ).add( "Level" );
+    BufferStringSet lbls; lbls.add( "Name" ).add( "Color" ).add( "Marker" );
     tbl_->setColumnLabels( lbls );
     tbl_->setTableReadOnly( true );
     tbl_->setRowResizeMode( uiTable::Interactive );
@@ -394,10 +394,10 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     tbl_->setColumnStretchable( 2, true );
     tbl_->setPrefWidth( 400 );
 
-    uiToolButton* sb = new uiToolButton( this, "Create new Levels",
+    uiToolButton* sb = new uiToolButton( this, "Create new Markers",
 				ioPixmap("man_strat.png"),
 				mCB(this,uiSurfaceStratDlg,doStrat) );
-    sb->setToolTip( "Edit Stratigraphy to define Levels" );
+    sb->setToolTip( "Edit Stratigraphy to define Markers" );
     sb->attach( rightOf, tbl_ );
 
     IOPar par;
