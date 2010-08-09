@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseisioobjinfo.h,v 1.13 2010-07-29 13:49:43 cvsbert Exp $
+ RCS:           $Id: uiseisioobjinfo.h,v 1.14 2010-08-09 10:46:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ public:
     bool		isPS() const		{ return sii.isPS(); }
     bool		isTime() const		{ return sii.isTime(); }
     bool		isDepth() const		{ return sii.isDepth(); }
+    const ZDomain::Def&	zDomainDef() const	{ return sii.zDomainDef(); }
 
     bool		provideUserInfo() const;
     bool		checkSpaceLeft(const SeisIOObjInfo::SpaceInfo&) const;
@@ -64,6 +65,7 @@ public:
 
     static const char*	sKeyEstMBs;
 
+    const SeisIOObjInfo& ioObjInfo() const	{ return sii; }
     const IOObj*	ioObj() const		{ return sii.ioObj(); }
 
 protected:

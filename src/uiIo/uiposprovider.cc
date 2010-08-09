@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.23 2010-08-06 10:44:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.24 2010-08-09 10:46:58 cvsbert Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -384,6 +384,7 @@ mDefFn(void,fillPar,IOPar&,iop,const,)
 mDefFn(Pos::Provider*,curProvider,,,,return)
 mDefFn(const Pos::Provider*,curProvider,,,const,return)
 mDefFn(const CubeSampling&,envelope,,,const,return)
+mDefFn(const CubeSampling&,inputLimit,,,const,return)
 mDefFn(bool,isAll,,,const,return)
 mDefFn(void,setToAll,,,,)
 mDefFn(void,setInputLimit,const CubeSampling&,cs,,)

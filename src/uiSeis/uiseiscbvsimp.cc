@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.69 2010-08-06 10:44:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.70 2010-08-09 10:46:58 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -101,13 +101,9 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	if ( inctio_.ioobj )
 	{
 	    SeisIOObjInfo oinf( *inctio_.ioobj );
-	    const bool oistime = oinf.isTime();
-	    if ( oistime != SI().zIsTime() )
-	    {
-		sts.zdomkey_ = (oistime ? ZDomain::Depth() : ZDomain::Time())
-		    			.key();
+	    sts.zdomkey_ = oinf.zDomainDef().key();
+	    if ( sts.zdomkey_ != ZDomain::SI().key() )
 		oinpfld->setSensitive( false );
-	    }
 	}
     }
     else

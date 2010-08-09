@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.69 2010-08-06 10:44:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.70 2010-08-09 10:46:58 cvsbert Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiseissubsel.cc,v 1.69 2010-08-06 10:44:32 cvsb
 #include "uibutton.h"
 #include "uilistbox.h"
 #include "uiseisioobjinfo.h"
+#include "uimsg.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "survinfo.h"
@@ -27,7 +28,7 @@ static const char* rcsID = "$Id: uiseissubsel.cc,v 1.69 2010-08-06 10:44:32 cvsb
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "posprovider.h"
-#include "uimsg.h"
+#include "zdomain.h"
 
 
 uiSeisSubSel* uiSeisSubSel::get( uiParent* p, const Seis::SelSetup& s )
@@ -148,7 +149,16 @@ void uiSeis3DSubSel::setInput( const IOObj& ioobj )
     if ( !oinf.getRanges(cs) )
 	clear();
     else
+    {
 	selfld_->setInput( cs );
+	if ( &oinf.zDomainDef() != &ZDomain::SI() )
+	{
+	    CubeSampling limcs( selfld_->inputLimit() );
+	    limcs.zrg.start = -1e9; limcs.zrg.stop = 1e9;
+	    limcs.zrg.step = 0.001;
+	    selfld_->setInputLimit( limcs );
+	}
+    }
 }
 
 

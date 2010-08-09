@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uipossubsel.h,v 1.6 2010-08-06 10:44:32 cvsbert Exp $
+ RCS:           $Id: uipossubsel.h,v 1.7 2010-08-09 10:46:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ public:
     const Pos::Provider* curProvider() const;
 
     const CubeSampling&	envelope() const;
+    const CubeSampling&	inputLimit() const;
     void		setInput(const CubeSampling&,bool chgtype=true);
     void                setInputLimit(const CubeSampling&);
 
