@@ -7,16 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibuttonstateedit.cc,v 1.4 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uibuttonstateedit.cc,v 1.5 2010-08-09 15:04:02 cvskris Exp $";
 
 #include "uibuttonstateedit.h"
 #include "uigeninput.h"
 #include "keyenum.h"
 #include "keystrs.h"
 
-uiButtonStateEdit::uiButtonStateEdit( uiParent* parent, const char* label,
+uiButtonStateEdit::uiButtonStateEdit( uiParent* p, const char* label,
 				      int initialstate )
-    : uiGroup( parent )
+    : uiGroup( p )
 {
     states_ += 0;
     states_ += (int) OD::ShiftButton;
