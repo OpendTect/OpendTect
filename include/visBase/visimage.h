@@ -7,18 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Feb 2007
- RCS:		$Id: visimage.h,v 1.4 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visimage.h,v 1.5 2010-08-09 20:02:38 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visdata.h"
+#include "odimage.h"
 
 template <class T> class Array2D;
 
 class SoTexture2;
 class Color;
+class SbImage;
+
 
 namespace visBase
 {
@@ -44,7 +47,26 @@ protected:
     SoTexture2*		texture_;
 };
 
+
+mClass RGBImage : public OD::RGBImage
+{
+public:
+    		RGBImage();
+    		RGBImage(SbImage*);
+
+    bool	hasAlpha() const;
+    char	nrComponents() const;
+    bool	setSize(int,int);
+    int		getSize(bool xdir) const;
+    Color	get(int,int) const;
+    bool	set(int,int,const Color&);
+
+    void	fill(unsigned char*) const;
+protected:
+
+    SbImage*	image_;
+};
+
 };
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visimage.cc,v 1.6 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visimage.cc,v 1.7 2010-08-09 20:02:38 cvskris Exp $";
 
 #include "visimage.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: visimage.cc,v 1.6 2009-07-22 16:01:45 cvsbert E
 #include "color.h"
 
 #include "Inventor/nodes/SoTexture2.h"
+#include "Inventor/SbImage.h"
 
 mCreateFactoryEntry( visBase::Image );
 
@@ -92,5 +93,73 @@ const char* Image::getFileName() const
 
 SoNode* Image::getInventorNode()
 { return texture_; }
+
+
+bool RGBImage::hasAlpha() const
+{ return nrComponents()==4; }
+
+
+char RGBImage::nrComponents() const
+{
+    int bytesperpixel;
+    SbVec2s size;
+
+    image_->getValue( size, bytesperpixel );
+    return bytesperpixel;
+}
+
+
+bool RGBImage::setSize( int xsz, int ysz )
+{ return false; }
+
+
+int RGBImage::getSize( bool xdir ) const
+{
+    const SbVec3s size = image_->getSize();
+    return size[xdir?0:1];
+}
+
+
+void RGBImage::fill( unsigned char* res ) const
+{
+    int bytesperpixel;
+    SbVec2s size;
+
+    unsigned char* ptr = image_->getValue( size, bytesperpixel );
+    const int ptrsz = size[0]*size[1]*bytesperpixel;
+
+    memcpy( res, ptr, ptrsz );
+}
+
+
+bool RGBImage::set(int idx, int idy, const Color& col )
+{ return false; }
+
+
+Color RGBImage::get(int idx, int idy ) const
+{
+    int bytesperpixel;
+    SbVec2s size;
+
+    unsigned char* ptr = image_->getValue( size, bytesperpixel );
+    ptr += idx*size[1]+idy;
+
+    Color res;
+    const char nc = nrComponents();
+    if ( nc<3 )
+    {
+	unsigned char col = *ptr;
+	res.set( col, col, col, nc==2 ? ptr[1] : 0 );
+    }
+    else
+    {
+	res.set( *ptr, ptr[1], ptr[2], nc==4 ? ptr[3] : 0 );
+    }
+
+    return res;
+}
+
+
+    
 
 }; // namespace visBase
