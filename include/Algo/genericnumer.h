@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.27 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: genericnumer.h,v 1.28 2010-08-10 21:53:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -124,6 +124,9 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
 
 mGlobal float similarity(const FloatMathFunction&,const FloatMathFunction&, 
 		 float x1, float x2, float dist, int sz, bool normalize );
+
+
+mGlobal double LanczosKernel( int size, double x );
 
 /*!> uses parabolic search for the position where a function gets
 a specific value. The target value must be in the interval f(x1) and f(x2).

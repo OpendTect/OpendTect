@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID = "$Id: genericnumer.cc,v 1.19 2010-03-10 05:38:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: genericnumer.cc,v 1.20 2010-08-10 21:53:45 cvskris Exp $";
 
 #include "genericnumer.h"
 #include "undefval.h"
@@ -163,6 +163,20 @@ float similarity( const FloatMathFunction& a, const FloatMathFunction& b,
     sampb.sd.step = dist;
 
     return similarity( sampa, sampb, sz, normalize, 0, 0 );
+}
+
+
+double LanczosKernel( int size, double x )
+{
+    if ( x<=-size || x>=size )
+	return 0;
+
+    if ( x==0.0)
+	return 1;
+
+    const double x_pi = x * M_PI;
+
+    return size * sin( x_pi ) * sin( x_pi/size ) / ( x_pi*x_pi );
 }
 
 
