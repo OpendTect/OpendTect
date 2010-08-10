@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.33 2010-08-09 08:50:18 cvsraman Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.34 2010-08-10 06:06:26 cvsraman Exp $";
 
 #include "uisurvmap.h"
 
@@ -19,12 +19,13 @@ static const char* rcsID = "$Id: uisurvmap.cc,v 1.33 2010-08-09 08:50:18 cvsrama
 
 #include "cubesampling.h"
 #include "draw.h"
+#include "survboxobject.h"
 #include "survinfo.h"
 #include "angles.h"
 
 
-uiSurveyBoxObject::uiSurveyBoxObject( bool withlabel )
-    : uiBaseMapObject("Survey Box")
+uiSurveyBoxObject::uiSurveyBoxObject( SurvBoxObject* so )
+    : uiBaseMapObject(so)
     , survinfo_(0)
 {
     for ( int idx=0; idx<4; idx++ )
@@ -45,9 +46,6 @@ uiSurveyBoxObject::uiSurveyBoxObject( bool withlabel )
 	itemgrp_->add( lineitem );
 	edges_ += lineitem;
     }
-
-    if ( !withlabel )
-	return;
 
     const mDeclAlignment( postxtalign, HCenter, VCenter );
     for ( int idx=0; idx<4; idx++ )
@@ -108,8 +106,8 @@ void uiSurveyBoxObject::updateGeometry()
 }
 
 
-uiNorthArrowObject::uiNorthArrowObject( bool withangle )
-    : uiBaseMapObject("North Arrow")
+uiNorthArrowObject::uiNorthArrowObject( NorthArrowObject* no )
+    : uiBaseMapObject(no)
     , survinfo_(0)
     , angleline_(0),anglelabel_(0)
 {   
@@ -118,9 +116,6 @@ uiNorthArrowObject::uiNorthArrowObject( bool withangle )
     arrow_ = new uiArrowItem;
     arrow_->setArrowStyle( arrowstyle );
     itemgrp_->add( arrow_ );
-
-    if ( !withangle )
-	return;
 
     angleline_ = new uiLineItem;
     angleline_->setPenStyle( LineStyle(LineStyle::Dot,2,Color(255,0,0)) );
@@ -225,12 +220,12 @@ void uiSurveyMap::drawMap( const SurveyInfo* si )
     if ( !survbox_ )
     {
 	const bool hastitle = title_;
-	survbox_ = new uiSurveyBoxObject( hastitle );
-	addObject( survbox_ );
+	SurvBoxObject* so = new SurvBoxObject( "Survey" );
+	addObject( so );
 	if ( hastitle )
 	{
-	    northarrow_ = new uiNorthArrowObject( true );
-	    addObject( northarrow_ );
+	    NorthArrowObject* no = new NorthArrowObject( "North" );
+	    addObject( no );
 	}
     }
 

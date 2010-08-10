@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.20 2010-08-09 08:50:01 cvsraman Exp $
+ RCS:           $Id: uisurvmap.h,v 1.21 2010-08-10 06:05:58 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,11 +19,13 @@ class uiArrowItem;
 class uiLineItem;
 class uiMarkerItem;
 class uiTextItem;
+class SurvBoxObject;
+class NorthArrowObject;
 
 mClass uiSurveyBoxObject : public uiBaseMapObject
 {
 public:
-    			uiSurveyBoxObject(bool withlabels);
+    			uiSurveyBoxObject(SurvBoxObject*);
 
     const char*		getType() const		{ return "SurveyBox"; }
 
@@ -44,7 +46,7 @@ protected:
 mClass uiNorthArrowObject : public uiBaseMapObject
 {
 public:
-    			uiNorthArrowObject(bool withangle);
+    			uiNorthArrowObject(NorthArrowObject*);
 
     const char*		getType() const		{ return "NorthArrow"; }
 
