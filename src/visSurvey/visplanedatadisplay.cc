@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.233 2010-06-04 03:01:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.234 2010-08-10 13:33:22 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.233 2010-06-04 03:01
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribsel.h"
+#include "basemap.h"
 #include "coltabsequence.h"
 #include "cubesampling.h"
 #include "datapointset.h"
@@ -45,6 +46,69 @@ mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
 
 namespace visSurvey {
 
+class PlaneDataDisplayBaseMapObject : public BaseMapObject
+{
+public:
+		PlaneDataDisplayBaseMapObject(PlaneDataDisplay* pdd);
+
+    const char*	getType() const;
+    void	updateGeometry();
+    int		nrShapes() const;
+    const char*	getShapeName(int);
+    void	getPoints(int,TypeSet<Coord>& res) const;
+    char	connectPoints(int) const;
+
+protected:
+    PlaneDataDisplay*		pdd_;
+};
+
+
+PlaneDataDisplayBaseMapObject::PlaneDataDisplayBaseMapObject(
+							PlaneDataDisplay* pdd)
+    : BaseMapObject( pdd->name() )
+    , pdd_( pdd )
+{}
+
+
+const char* PlaneDataDisplayBaseMapObject::getType() const
+{ return eString(PlaneDataDisplay::Orientation,pdd_->getOrientation()); }
+
+
+void PlaneDataDisplayBaseMapObject::updateGeometry()
+{}
+
+
+int PlaneDataDisplayBaseMapObject::nrShapes() const
+{ return 1; }
+
+
+const char* PlaneDataDisplayBaseMapObject::getShapeName(int)
+{ return pdd_->name(); }
+
+
+void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
+{
+    const HorSampling hrg = pdd_->getCubeSampling(true,false).hrg;
+    if ( pdd_->getOrientation()==PlaneDataDisplay::Timeslice )
+    {
+	res += SI().transform(hrg.start);
+	res += SI().transform(BinID(hrg.start.inl, hrg.stop.crl) );
+	res += SI().transform(hrg.stop);
+	res += SI().transform(BinID(hrg.stop.inl, hrg.start.crl) );
+    }
+    else
+    {
+	res += SI().transform(hrg.start);
+	res += SI().transform(hrg.stop);
+    }
+}
+
+
+char PlaneDataDisplayBaseMapObject::connectPoints(int) const
+{ return BaseMapObject::cPolygon(); }
+
+
+
 DefineEnumNames(PlaneDataDisplay,Orientation,1,"Orientation")
 { "Inline", "Crossline", "Timeslice", 0 };
 
@@ -63,6 +127,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , orientation_( Inline )
     , csfromsession_( false )			    
     , eventcatcher_( 0 )
+    , basemapobj_( 0 )
 {
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
@@ -161,6 +226,8 @@ PlaneDataDisplay::~PlaneDataDisplay()
     draggerrect_->unRef();
     draggerdrawstyle_->unRef();
     draggermaterial_->unRef();
+
+    setBaseMap( 0 );
 }
 
 
@@ -669,6 +736,8 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
 
     //channels_->clearAll();
     movefinished_.trigger();
+    if ( basemapobj_ )
+	basemapobj_->updateGeometry();
 }
 
 
@@ -1036,9 +1105,31 @@ bool PlaneDataDisplay::isVerticalPlane() const
 
 void PlaneDataDisplay::setScene( Scene* sc )
 {
+    if ( sc )
+	setBaseMap( sc->getBaseMap() );
+
     SurveyObject::setScene( sc );
 
     if ( sc ) updateRanges( false, false );
+}
+
+
+void PlaneDataDisplay::setBaseMap( BaseMap* bm )
+{
+    if ( basemapobj_ )
+    {
+	if ( scene_ && scene_->getBaseMap() )
+	    scene_->getBaseMap()->removeObject( basemapobj_ );
+
+	delete basemapobj_;
+	basemapobj_ = 0;
+    }
+
+    if ( bm )
+    {
+	basemapobj_ = new PlaneDataDisplayBaseMapObject( this );
+	bm->addObject( basemapobj_ );
+    }
 }
 
 

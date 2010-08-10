@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.124 2010-03-25 19:49:08 cvsyuancheng Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.125 2010-08-10 13:33:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,6 +34,8 @@ namespace visBase
 
 class BinIDValueSet;
 class FlatDataPack;
+class BaseMapObject;
+
 namespace Attrib { class Flat3DDataPack; }
 
 namespace visSurvey
@@ -143,6 +145,7 @@ public:
 protected:
 
 				~PlaneDataDisplay();
+    void			setBaseMap(BaseMap*);
     void			setVolumeDataPackNoCache(int attrib,
 	    				const Attrib::Flat3DDataPack*);
     void			setRandomPosDataNoCache(int attrib,
@@ -187,6 +190,8 @@ protected:
     visBase::Material*			draggermaterial_;
     visBase::PickStyle*			rectanglepickstyle_;
     visBase::SplitTexture2Rectangle*	rectangle_;
+
+    BaseMapObject*			basemapobj_;
 
     visBase::GridLines*			gridlines_;
     Orientation				orientation_;
