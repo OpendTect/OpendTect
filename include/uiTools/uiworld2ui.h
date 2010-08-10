@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.15 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.16 2010-08-10 10:09:39 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 #include "uigeom.h"
+
+class SurveyInfo;
 
 mClass World2UiData
 {
@@ -59,6 +61,9 @@ public:
     void		set( const uiWorldRect& wr, uiSize sz );
     void		set( uiSize sz, const uiWorldRect& wr );
     void		set( const uiRect& rc, const uiWorldRect& wr );
+    void		set( int maxdimpix, const SurveyInfo& si );
+    			//! Quite useful for survey level maps.
+
     void		setRemap( const uiSize& sz, const uiWorldRect& wrdrc );
     void		setRemap( const uiRect& rc, const uiWorldRect& wrdrc );
 			//! For most cases we are dealing with cartesian coord.

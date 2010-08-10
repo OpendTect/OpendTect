@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiworld2ui.cc,v 1.9 2009-12-22 14:48:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiworld2ui.cc,v 1.10 2010-08-10 10:12:25 cvsraman Exp $";
 
 #include "uiworld2ui.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiworld2ui.cc,v 1.9 2009-12-22 14:48:10 cvsbert
 #include "posgeom.h"
 #include "ranges.h"
 #include "axislayout.h"
+#include "survinfo.h"
 
 World2UiData::World2UiData()
 {}
@@ -71,6 +72,22 @@ void uiWorld2Ui::set( const World2UiData& w )
 
 void uiWorld2Ui::set( const uiWorldRect& wr, uiSize sz )
 { set( sz, wr ); }
+
+
+void uiWorld2Ui::set( int maxdimpix, const SurveyInfo& si )
+{
+    Coord mincoord = si.minCoord( false );
+    Coord maxcoord = si.maxCoord( false );
+    Coord diff = maxcoord - mincoord;
+    double maxdim = mMAX( diff.x, diff.y );
+    const Coord center( (mincoord.x+maxcoord.x)/2, (mincoord.y+maxcoord.y)/2 );
+    const Coord radius( maxdim, maxdim );
+    mincoord = center - radius;
+    maxcoord = center + radius;
+    uiSize sz( maxdimpix, maxdimpix );
+    uiWorldRect wr( mincoord.x, maxcoord.y, maxcoord.x, mincoord.y );
+    set( sz, wr );
+}
 
 
 void uiWorld2Ui::set( uiSize sz, const uiWorldRect& wr )
