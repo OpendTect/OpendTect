@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocityfunctionstored.cc,v 1.4 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionstored.cc,v 1.5 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uivelocityfunctionstored.h"
 
@@ -46,14 +46,14 @@ uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
     IOObjContext context = StoredFunctionSource::ioContext();
     if ( SI().zIsTime() )
     {
-	context.parconstraints.set(
+	context.toselect.require_.set(
 	    StoredFunctionSource::sKeyVelocityType(),
 	    VelocityDesc::TypeNames()[(int)VelocityDesc::Interval],
 	    VelocityDesc::TypeNames()[(int)VelocityDesc::RMS] );
     }
     else
     {
-	context.parconstraints.set(
+	context.toselect.require_.set(
 	    StoredFunctionSource::sKeyVelocityType(),
 	    VelocityDesc::TypeNames()[(int)VelocityDesc::Interval] );
     }

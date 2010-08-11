@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.98 2010-07-01 09:26:09 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.99 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -91,9 +91,8 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , adsman_(0)
     , updating_fields_(false)
 {
-    setctio_.ctxt.parconstraints.set( sKey::Type, adsm->is2D() ? "2D" : "3D" );
-    setctio_.ctxt.includeconstraints = true;
-    setctio_.ctxt.allowcnstrsabsent = true;
+    setctio_.ctxt.toselect.dontallow_.set( sKey::Type,
+	    				   adsm->is2D() ? "3D" : "2D" );
 
     createMenuBar();
     createToolBar();

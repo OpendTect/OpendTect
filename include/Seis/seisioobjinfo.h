@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.17 2010-08-06 10:44:32 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.18 2010-08-11 14:50:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,26 +76,20 @@ public:
     // 2D only
     void		getLineNames( BufferStringSet& b, bool add=true,
 	    				const BinIDValueSet* bvs=0 ) const
-				{ getNms(b,add,false,bvs); }
+				{ getNms(b,add,false,bvs,0); }
     void		getAttribNames( BufferStringSet& b, bool add=true,
 	    				const BinIDValueSet* bvs=0,
-	   				const char* datatyp=0,
-	   				bool allowcnstabsent=false,
-	   				bool incl=true ) const
-				{ getNms(b,add,true,bvs,
-					 datatyp,allowcnstabsent,incl); }
+	   				int steerpol=0) const
+				{ getNms(b,add,true,bvs,steerpol); }
     void		getAttribNamesForLine( const char* nm,
-	    				       BufferStringSet& b,
-					       bool add=true,
-	   				       const char* datatyp=0,
-	   				       bool allowcnstabsent=false,
-	   				       bool incl=true ) const
-				{ getNmsSubSel(nm,b,add,false,
-					       datatyp,allowcnstabsent,incl); }
+						BufferStringSet& b,
+						bool add=true,
+						int steerpol=0) const
+				{ getNmsSubSel(nm,b,add,false,steerpol); }
     void		getLineNamesWithAttrib( const char* nm,
 	    				       BufferStringSet& b,
 					       bool add=true ) const
-				{ getNmsSubSel(nm,b,add,true); }
+				{ getNmsSubSel(nm,b,add,true,0); }
     bool		getRanges(const LineKey& lk,StepInterval<int>& trcrg,
 	    			  StepInterval<float>& zrg) const;
 
@@ -120,15 +114,9 @@ protected:
     void		setType();
 
     void		getNms(BufferStringSet&,bool,bool,
-	    			const BinIDValueSet*,
-				const char* datatype=0,
-				bool allowcnstabsent=false,
-				bool incl=true) const;
+	    			const BinIDValueSet*,int steerpol) const;
     void		getNmsSubSel(const char*,BufferStringSet&,
-	    				bool,bool,
-					const char* datatype=0,
-					bool allowcnstabsent=false,
-					bool incl=true) const;
+	    				bool,bool,int steerpol) const;
     int			getComponentInfo(LineKey,BufferStringSet*) const;
 
 };

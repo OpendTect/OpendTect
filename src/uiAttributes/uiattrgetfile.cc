@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.14 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.15 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uiattrgetfile.h"
 #include "uiattrsrchprocfiles.h"
@@ -144,9 +144,7 @@ CtxtIOObj& uiAttrSrchProcFiles::mkCtio( bool is2d )
 {
     ctioptr_ = uiSeisSel::mkCtxtIOObj(is2d?Seis::Line:Seis::Vol,true);
     ctioptr_->ctxt.forread = true;
-    ctioptr_->ctxt.parconstraints.set( sKey::Type, sKey::Attribute );
-    ctioptr_->ctxt.includeconstraints = true;
-    ctioptr_->ctxt.allowcnstrsabsent = false;
+    ctioptr_->ctxt.toselect.require_.set( sKey::Type, sKey::Attribute );
     return *ctioptr_;
 }
 

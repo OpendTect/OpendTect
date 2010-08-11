@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emrandomposbody.cc,v 1.12 2010-03-31 06:45:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emrandomposbody.cc,v 1.13 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "emrandomposbody.h"
 
@@ -340,7 +340,7 @@ const IOObjContext& RandomPosBody::getIOObjContext() const
     {
 	res = new IOObjContext(EMBodyTranslatorGroup::ioContext() );
 	res->deftransl = randposEMBodyTranslator::sKeyUserName();
-	res->trglobexpr = randposEMBodyTranslator::sKeyUserName();
+	res->toselect.allowtransls_ = randposEMBodyTranslator::sKeyUserName();
     }
     
     return *res;

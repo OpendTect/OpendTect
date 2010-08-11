@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventtransl.cc,v 1.3 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackeventtransl.cc,v 1.4 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "prestackeventtransl.h"
 
@@ -24,7 +24,7 @@ const IOObjContext& PSEventTranslatorGroup::ioContext()
     {
 	ctxt = new IOObjContext( 0 );
 	ctxt->stdseltype = IOObjContext::Surf;
-	ctxt->trglobexpr = mDGBKey;
+	ctxt->toselect.allowtransls_ = mDGBKey;
     }
 
     ctxt->trgroup = &theInst();

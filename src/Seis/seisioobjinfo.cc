@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.34 2010-08-06 10:44:32 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.35 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -269,9 +269,7 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
 
 
 void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
-				const BinIDValueSet* bvs,
-       				const char* datatype,
-				bool allowcnstabsent, bool incl ) const
+				const BinIDValueSet* bvs, int steerpol ) const
 {
     if ( !isOK() )
 	return;
@@ -301,28 +299,14 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
 	    }
 	}
 
-	if ( attr && datatype )
+	if ( attr && steerpol )
 	{
-	    const char* founddatatype = lset->datatype(idx);
-
-	    if ( !founddatatype)
-	    {
-		if ( allowcnstabsent )
-		{
-		    if ( strcmp(datatype,nm) )  	bss.add( nm );
-		}
-		else
-		{
-		    if ( !strcmp(datatype,nm) )		bss.add( nm );
-		}
-	    }
-	    else
-	    {
-		if ( !strcmp(datatype,founddatatype) && incl )
-		    bss.add( nm );
-	    }
+	    const char* lndt = lset->datatype(idx);
+	    const bool issteer = lndt && !strcmp( lndt, sKey::Steering );
+	    if ( (steerpol < 0 && issteer) || (steerpol > 0 && !issteer) )
+		continue;
 	}
-	else
+
 	bss.add( nm );
     }
 
@@ -331,9 +315,7 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
 
 
 void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
-				    bool add, bool l4a,
-       				    const char* datatype,
-				    bool allowcnstabsent, bool incl ) const
+				    bool add, bool l4a, int steerpol ) const
 {
     mGetLineSet;
     if ( !nm || !*nm ) return;
@@ -348,30 +330,13 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 
 	if ( target == requested )
 	{
-	    if ( !l4a && datatype )
+	    if ( !l4a && steerpol )
 	    {
-		const char* founddatatype = lset->datatype(idx);
-
-		if ( !founddatatype)
-		{
-		    if ( allowcnstabsent )
-		    {
-			if ( strcmp(datatype,listadd) )
-		    	    bss.addIfNew( listadd );
-		    }
-		    else
-		    {
-			if ( !strcmp(datatype,listadd) )
-			    bss.addIfNew( listadd );
-		    }
-		}
-		else
-		{
-		    if ( !strcmp(datatype,founddatatype) && incl )
-			bss.addIfNew( listadd );
-		}
+		const char* lndt = lset->datatype(idx);
+		const bool issteer = lndt && !strcmp( lndt, sKey::Steering );
+		if ( (steerpol < 0 && issteer) || (steerpol > 0 && !issteer) )
+		    continue;
 	    }
-	    else
 	    bss.addIfNew( listadd );
 	}
     }
@@ -427,10 +392,8 @@ void SeisIOObjInfo::initDefault( const char* typ )
 	return;
 
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
-    ctxt.parconstraints.set( sKey::Type, typ );
-    ctxt.includeconstraints = true;
-    ctxt.allowcnstrsabsent = typ && *typ ? false : true;
-    ctxt.trglobexpr = "CBVS";
+    ctxt.toselect.require_.set( sKey::Type, typ );
+    ctxt.toselect.allowtransls_ = "CBVS";
     int nrpresent = 0;
     PtrMan<IOObj> ioobj = IOM().getFirst( ctxt, &nrpresent );
     if ( !ioobj || nrpresent > 1 )

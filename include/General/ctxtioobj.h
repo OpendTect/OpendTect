@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.34 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.35 2010-08-11 14:50:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,28 @@ ________________________________________________________________________
 class IOPar;
 class TranslatorGroup;
 
+/*!\brief Holds constraints on IOObj selection */
+
+mClass IOObjSelConstraints
+{
+public:
+    
+    			IOObjSelConstraints();
+    			IOObjSelConstraints(const IOObjSelConstraints&);
+    			~IOObjSelConstraints();
+    IOObjSelConstraints& operator =(const IOObjSelConstraints&);
+
+    IOPar&		require_;
+    IOPar&		dontallow_;
+
+    BufferString	allowtransls_;		//!< Glob expression
+    bool		allownonreaddefault_;	//!< allow 'alien' like SEG-Y
+
+    bool		isGood(const IOObj&) const;
+    void		clear();
+};
+
+
 /*!\brief Holds the context for selecting and/or creating IOObjs.
 
 Usually, this objects is obtained by calling the ioContext() method of
@@ -31,7 +53,6 @@ we'll be blobbing stuff in the root of the survey.
 
 */
 
-
 mClass IOObjContext : public NamedObject
 {
 public:
@@ -40,14 +61,10 @@ public:
 			  None };
 			DeclareEnumUtils(StdSelType)
 
-
 			IOObjContext(const TranslatorGroup*,
 				     const char* prefname=0);
-			//!< defaults: see init() implementation
 			IOObjContext(const IOObjContext&);
-			IOObjContext(const IOPar&);
-			~IOObjContext();
-    IOObjContext&	operator=(const IOObjContext&);
+    IOObjContext&	operator =(const IOObjContext&);
 
     //! intrinsics
     StdSelType		stdseltype;
@@ -61,18 +78,9 @@ public:
     MultiID		selkey;		//!< If set, overrules the 'standard'
     bool		maydooper;	//!< Will we allow add/remove etc?
     BufferString	deftransl;	//!< Translator to use for new entry
-    BufferString	trglobexpr;	//!< Only select when matches globexpr
-    bool		inctrglobexpr;	//!< If false, disallow any matches
-    					//!< Multiple: fill with FileMultiString
-    IOPar&		parconstraints;	//!< Allow only/not with these pars
-    bool		includeconstraints; //!< Are cnstr's only/not allowed
-    bool		allowcnstrsabsent; //!< Are absent cnstrs OK?
-    bool		allownonreaddefault; //!< also SEG-Y etc.
+    IOObjSelConstraints	toselect;
 
     bool		validIOObj(const IOObj&) const;
-
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
 
     struct StdDirData
     {
@@ -91,13 +99,7 @@ public:
     void		fillTrGroup();
     			//!< Uses stdseltype to make a trgroup
     			//!< Should never be necessary
-
-private:
-
-    void		init();
-
 };
-
 
 
 /*!\brief Holds an IOObjCtxt plus a pointer to an IOObj and/or an IOPar.
@@ -107,8 +109,6 @@ use setObj or setPar, the old object pointed to will be deleted. If you
 don't want that, you'll have to just assign.
 
 */
-
-
 
 mClass CtxtIOObj : public NamedObject
 {

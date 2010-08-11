@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodytr.cc,v 1.6 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: embodytr.cc,v 1.7 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "embodytr.h"
 #include "embody.h"
@@ -30,7 +30,7 @@ const IOObjContext& EMBodyTranslatorGroup::ioContext()
     {
 	ctxt = new IOObjContext( 0 );
 	ctxt->stdseltype = IOObjContext::Surf;
-	ctxt->allownonreaddefault = true;
+	ctxt->toselect.allownonreaddefault_ = true;
     }
 
     ctxt->trgroup = &theInst();

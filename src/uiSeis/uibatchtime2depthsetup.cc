@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.12 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.13 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -41,23 +41,32 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     d2tfld_->attach( alignedBelow, directionsel_ );
 
     IOObjContext inputtimectxt = SeisTrcTranslatorGroup::ioContext();
-    inputtimectxt.parconstraints.add( ZDomain::sKey(), ZDomain::sKeyTime() );
-    inputtimectxt.allowcnstrsabsent = SI().zIsTime();
-    inputtimectxt.forread = true;
+    IOObjContext inputdepthctxt = SeisTrcTranslatorGroup::ioContext();
+    inputtimectxt.forread = inputdepthctxt.forread = true;
+    if ( SI().zIsTime() )
+    {
+	inputdepthctxt.toselect.require_.set( ZDomain::sKey(),
+					      ZDomain::sKeyDepth() );
+	inputtimectxt.toselect.dontallow_.set( ZDomain::sKey(),
+						ZDomain::sKeyDepth() );
+    }
+    else
+    {
+	inputtimectxt.toselect.require_.set( ZDomain::sKey(),
+					     ZDomain::sKeyTime() );
+	inputdepthctxt.toselect.dontallow_.set( ZDomain::sKey(),
+						ZDomain::sKeyTime() );
+    }
     uiSeisSel::Setup setup(Seis::Vol); setup.seltxt("Input Time Volume");
     inputtimesel_ = new uiSeisSel( uppgrp_, inputtimectxt, setup );
     inputtimesel_->attach( alignedBelow, t2dfld_ );
     inputtimesel_->selectionDone.notify(
 	    		mCB(this,uiBatchTime2DepthSetup,updateZRangeCB));
-
-    IOObjContext inputdepthctxt = SeisTrcTranslatorGroup::ioContext();
-    inputdepthctxt.parconstraints.add( ZDomain::sKey(), ZDomain::sKeyDepth() );
-    inputdepthctxt.allowcnstrsabsent = !SI().zIsTime();
-    inputdepthctxt.forread = true;
     setup.seltxt("Input Depth Volume");
     inputdepthsel_ = new uiSeisSel( uppgrp_, inputdepthctxt, setup );
     inputdepthsel_->attach( alignedBelow, t2dfld_ );
-    inputdepthsel_->selectionDone.notify(mCB(this,uiBatchTime2DepthSetup,updateZRangeCB));
+    inputdepthsel_->selectionDone.notify(
+	    		mCB(this,uiBatchTime2DepthSetup,updateZRangeCB) );
 
     possubsel_ =  new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(false,false) );
     possubsel_->attach( alignedBelow, inputtimesel_ );

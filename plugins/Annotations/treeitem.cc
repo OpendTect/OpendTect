@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.49 2010-06-23 08:19:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.50 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -279,9 +279,7 @@ bool AnnotTreeItem::readPicks( Pick::Set& ps )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
-    ctio->ctxt.parconstraints.set( sKey::Type, managerName(), oldSelKey() );
-    ctio->ctxt.includeconstraints = true;
-    ctio->ctxt.allowcnstrsabsent = false;
+    ctio->ctxt.toselect.require_.set( sKey::Type, managerName(), oldSelKey() );
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
 	mDelCtioRet;
@@ -449,11 +447,8 @@ char SubItem::createIOEntry( const char* nm, bool overwrite, MultiID& mid,
 	return 0;
 
     CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = false;
-    ctio.ctxt.maychdir = false;
-    ctio.ctxt.parconstraints.set( sKey::Type, mannm );
-    ctio.ctxt.includeconstraints = true;
-    ctio.ctxt.allowcnstrsabsent = false;
+    ctio.ctxt.forread = ctio.ctxt.maychdir = false;
+    ctio.ctxt.toselect.require_.set( sKey::Type, mannm );
     ctio.setName( nm );
     ctio.fillObj();
     if ( !ctio.ioobj )
@@ -487,11 +482,8 @@ void SubItem::storeAs( bool trywitoutdlg ) const
     else
     {
 	CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
-	ctio.ctxt.forread = false;
-	ctio.ctxt.maychdir = false;
-	ctio.ctxt.parconstraints.set( sKey::Type, managerName() );
-	ctio.ctxt.includeconstraints = true;
-	ctio.ctxt.allowcnstrsabsent = false;
+	ctio.ctxt.forread = ctio.ctxt.maychdir = false;
+	ctio.ctxt.toselect.require_.set( sKey::Type, managerName() );
 	ctio.setName( nm );
 	uiIOObjSelDlg dlg( getUiParent(), ctio );
 	if ( !dlg.go() )

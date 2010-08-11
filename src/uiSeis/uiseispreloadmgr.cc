@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.21 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.22 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -232,7 +232,7 @@ BufferString uiSeisPreLoadMgr::getFilesText( const BufferStringSet& fnms,
 void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
-    ctio->ctxt.trglobexpr = "CBVS";
+    ctio->ctxt.toselect.allowtransls_ = "CBVS";
     uiIOObjSelDlg dlg( this, *ctio );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
@@ -267,7 +267,7 @@ uiSeisPreLoadMgrSel2D( uiParent* p )
 				 "103.0.14"))
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
-    ctio_.ctxt.trglobexpr = "2D";
+    ctio_.ctxt.toselect.allowtransls_ = "2D";
     IOM().to( ctio_.ctxt.getSelKey() );
     IODirEntryList del( IOM().dirPtr(), ctio_.ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
@@ -366,7 +366,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS3D);
-    ctio->ctxt.trglobexpr = "CBVS";
+    ctio->ctxt.toselect.allowtransls_ = "CBVS";
     uiIOObjSelDlg dlg( this, *ctio, "Select data store/part to load" );
     dlg.setCaption( "Select data store" );
     uiSelNrRange* inlrgfld = new uiSelNrRange( dlg.selGrp()->getTopGroup(),
@@ -445,7 +445,7 @@ bool acceptOK( CallBacker* )
 void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS2D);
-    ctio->ctxt.trglobexpr = "CBVS";
+    ctio->ctxt.toselect.allowtransls_ = "CBVS";
     uiSeisPreLoadMgrPS2DSel dlg( this, *ctio );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 

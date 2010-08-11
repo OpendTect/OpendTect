@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.57 2010-08-06 10:01:12 cvshelene Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.58 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -217,7 +217,7 @@ CtxtIOObj* uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
 
 void uiCopySurface::setInputKey( const char* key )
 {
-    inpfld->getObjSel()->ctxtIOObj(true).ctxt.trglobexpr = key;
+    inpfld->getObjSel()->ctxtIOObj(true).ctxt.toselect.allowtransls_ = key;
 }
 
 

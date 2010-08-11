@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.58 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.59 2010-08-11 14:50:45 cvsbert Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -293,9 +293,7 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
 {
     ctioout_.ctxt.forread = false;
-    ctioout_.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
-    ctioout_.ctxt.includeconstraints = false;
-    ctioout_.ctxt.allowcnstrsabsent = true;
+    ctioout_.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
     outpfld_ = new uiSeisSel( prnt, ctioout_,
 	    		      uiSeisSel::Setup(ads_.is2D(),false)
 			      .selattr(true) );

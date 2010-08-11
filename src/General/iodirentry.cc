@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.23 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.24 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -58,7 +58,7 @@ IODirEntryList::IODirEntryList( IODir* id, const TranslatorGroup* tr,
     , cur_(-1)
 {
     ctxt.maychdir = maycd;
-    ctxt.trglobexpr = f;
+    ctxt.toselect.allowtransls_ = f;
     fill( id );
 }
 
@@ -101,8 +101,7 @@ void IODirEntryList::fill( IODir* iodir, const char* nmfilt )
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj* ioobj = ioobjs[idx];
-	if ( ioobj->isTmp()
-	  || (!ctxt.allownonreaddefault && !ioobj->isReadDefault()) )
+	if ( ioobj->isTmp() )
 	    continue;
 
 	int selres = 2;

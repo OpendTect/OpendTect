@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacetr.cc,v 1.34 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: emsurfacetr.cc,v 1.35 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "emsurfacetr.h"
 
@@ -33,7 +33,7 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
     {
 	ctxt = new IOObjContext( 0 );
 	ctxt->stdseltype = IOObjContext::Surf;
-	ctxt->trglobexpr = mDGBKey;
+	ctxt->toselect.allowtransls_ = mDGBKey;
     }
     ctxt->trgroup = &theInst();
     return *ctxt;
@@ -51,7 +51,7 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
     {
 	ctxt = new IOObjContext( 0 );
 	ctxt->stdseltype = IOObjContext::Surf;
-	ctxt->trglobexpr = mDGBKey;
+	ctxt->toselect.allowtransls_ = mDGBKey;
     }
     ctxt->trgroup = &theInst();
     return *ctxt;
@@ -60,7 +60,7 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 
 const char* EMAnyHorizonTranslatorGroup::keyword()	{ return "Any Horizon"; }
 mDefSimpleTranslatorioContextWithExtra(EMAnyHorizon,Surf,
-				       ctxt->trglobexpr=mDGBKey)
+				       ctxt->toselect.allowtransls_=mDGBKey)
 
 int EMAnyHorizonTranslatorGroup::selector( const char* s )
 { 

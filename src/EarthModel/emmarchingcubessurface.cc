@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.23 2010-06-30 14:02:42 cvskris Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.24 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -324,7 +324,7 @@ const IOObjContext& EM::MarchingCubesSurface::getIOObjContext() const
     {
 	res = new IOObjContext(EMBodyTranslatorGroup::ioContext() );
 	res->deftransl = mcEMBodyTranslator::sKeyUserName();
-	res->trglobexpr = mcEMBodyTranslator::sKeyUserName();
+	res->toselect.allowtransls_ = mcEMBodyTranslator::sKeyUserName();
     }
 
     return *res; 

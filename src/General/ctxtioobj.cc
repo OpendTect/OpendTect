@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.47 2010-07-13 10:49:53 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.48 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -58,64 +58,153 @@ const IOObjContext::StdDirData* IOObjContext::getStdDirData(
 { return stddirdata + (int)sst; }
 
 
+IOObjSelConstraints::IOObjSelConstraints()
+    : require_(*new IOPar)
+    , dontallow_(*new IOPar)
+    , allownonreaddefault_(false)
+{
+}
+
+
+IOObjSelConstraints::IOObjSelConstraints( const IOObjSelConstraints& oth )
+    : require_(*new IOPar(oth.require_))
+    , dontallow_(*new IOPar(oth.dontallow_))
+    , allowtransls_(oth.allowtransls_)
+    , allownonreaddefault_(oth.allownonreaddefault_)
+{
+}
+
+
+IOObjSelConstraints::~IOObjSelConstraints()
+{
+    delete &require_;
+    delete &dontallow_;
+}
+
+
+IOObjSelConstraints& IOObjSelConstraints::operator =(
+				const IOObjSelConstraints& oth )
+{
+    if ( this != &oth )
+    {
+	require_ = oth.require_;
+	dontallow_ = oth.dontallow_;
+	allowtransls_ = oth.allowtransls_;
+	allownonreaddefault_ = oth.allownonreaddefault_;
+    }
+    return *this;
+}
+
+
+void IOObjSelConstraints::clear()
+{
+    require_.clear();
+    dontallow_.clear();
+    allowtransls_.setEmpty();
+    allownonreaddefault_ = false;
+}
+
+
+bool IOObjSelConstraints::isGood( const IOObj& ioobj ) const
+{
+    if ( !allownonreaddefault_ && !ioobj.isReadDefault() )
+	return false;
+
+    if ( !allowtransls_.isEmpty() )
+    {
+	FileMultiString fms( allowtransls_ );
+	const int sz = fms.size();
+	bool isok = false;
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    GlobExpr ge( fms[idx] );
+	    if ( ge.matches( ioobj.translator() ) )
+		{ isok = true; break; }
+	}
+	if ( !isok )
+	    return false;
+    }
+
+    for ( int ireq=0; ireq<require_.size(); ireq++ )
+    {
+	FileMultiString fms( require_.getValue(ireq) );
+	const int fmssz = fms.size();
+	const char* val = ioobj.pars().find( require_.getKey(ireq) );
+	const bool valisempty = !val || !*val;
+
+	if ( fmssz == 0 && valisempty ) continue;
+
+	bool isok = false;
+	for ( int ifms=0; ifms<fmssz; ifms++ )
+	{
+	    const BufferString fmsstr( fms[ifms] );
+	    const bool fmsstrisempty = fmsstr.isEmpty();
+	    if ( fmsstrisempty && valisempty )
+		isok = true;
+	    else if ( fmsstrisempty != valisempty )
+		continue;
+	    else
+		isok = fmsstr == val;
+	    if ( isok )
+		break;
+	}
+	if ( !isok ) return false;
+    }
+
+    for ( int ipar=0; ipar<ioobj.pars().size(); ipar++ )
+    {
+	const char* notallowedvals = dontallow_.find(
+					ioobj.pars().getKey( ipar ) );
+	if ( !notallowedvals )
+	    continue;
+
+	FileMultiString fms( notallowedvals );
+	const int fmssz = fms.size();
+	const char* val = ioobj.pars().getValue( ipar );
+	const bool valisempty = !val || !*val;
+	if ( valisempty && fmssz < 1 )
+	    return false;
+
+	for ( int ifms=0; ifms<fmssz; ifms++ )
+	{
+	    const BufferString fmsstr( fms[ifms] );
+	    if ( fmsstr == val )
+		return false;
+	}
+    }
+
+    return true;
+}
+
+
 IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
 	: NamedObject(prefname)
 	, trgroup(trg)
-	, parconstraints(*new IOPar)
+	, newonlevel(1)
+	, stdseltype(None)
 {
-    init();
+    multi = maychdir	= false;
+    forread = maydooper = true;
 }
 
 
-IOObjContext::IOObjContext( const IOObjContext& rp )
-	: NamedObject("")
-	, parconstraints(*new IOPar)
+IOObjContext::IOObjContext( const IOObjContext& oth )
+    : NamedObject(oth.name())
 {
-    *this = rp;
+    *this = oth;
 }
 
 
-void IOObjContext::init()
+#define mCpMemb(nm) nm = oth.nm
+
+IOObjContext& IOObjContext::operator =( const IOObjContext& oth )
 {
-    newonlevel		= 1;
-    multi = maychdir	=
-    allownonreaddefault	= false;
-    forread = maydooper =
-    inctrglobexpr	= true;
-    deftransl		= "";
-    stdseltype		= None;
-    includeconstraints	= true;
-    allowcnstrsabsent	= false;
-    parconstraints.clear();
-}
-
-
-IOObjContext::~IOObjContext()
-{
-    delete &parconstraints;
-}
-
-
-IOObjContext& IOObjContext::operator=( const IOObjContext& ct )
-{
-    if ( this != &ct )
+    if ( this != &oth )
     {
-	setName( ct.name() );
-	trgroup = ct.trgroup;
-	newonlevel = ct.newonlevel;
-	multi = ct.multi;
-	stdseltype = ct.stdseltype;
-	forread = ct.forread;
-	maychdir = ct.maychdir;
-	maydooper = ct.maydooper;
-	selkey = ct.selkey;
-	deftransl = ct.deftransl;
-	trglobexpr = ct.trglobexpr;
-	inctrglobexpr = ct.inctrglobexpr;
-	parconstraints = ct.parconstraints;
-	includeconstraints = ct.includeconstraints;
-	allowcnstrsabsent = ct.allowcnstrsabsent;
-	allownonreaddefault = ct.allownonreaddefault;
+	mCpMemb(stdseltype); mCpMemb(trgroup); mCpMemb(newonlevel);
+	mCpMemb(multi); mCpMemb(maychdir); mCpMemb(forread);
+	mCpMemb(selkey); mCpMemb(maydooper); mCpMemb(deftransl);
+	mCpMemb(toselect);
     }
     return *this;
 }
@@ -127,7 +216,7 @@ BufferString IOObjContext::getDataDirName( StdSelType sst )
     FilePath fp( GetDataDir() ); fp.add( sdd->dirnm );
     BufferString dirnm = fp.fullPath();
     if ( !File::exists(dirnm) )
-    {
+    {	// Try legacy names
 	if ( sst == IOObjContext::NLA )
 	    fp.setFileName( "NNs" );
 	else if ( sst == IOObjContext::Surf )
@@ -151,28 +240,6 @@ MultiID IOObjContext::getSelKey() const
 	? MultiID( stdseltype == None ? "" : getStdDirData(stdseltype)->id )
 	: selkey;
 }
-
-
-void IOObjContext::fillPar( IOPar& iopar ) const
-{
-    iopar.set( "Name", (const char*)name() );
-    iopar.set( "Translator group", trgroup ? trgroup->userName().buf() :"" );
-    iopar.set( "Data type", eString(IOObjContext::StdSelType,stdseltype) );
-    iopar.set( "Level for new objects", newonlevel );
-    iopar.setYN( "Multi-entries", multi );
-    iopar.setYN( "Entries in other directories", maychdir );
-    iopar.setYN( "Selection.For read", forread );
-    iopar.setYN( "Selection.Allow operations", maydooper );
-    iopar.set( "Selection.Default translator", (const char*)deftransl );
-    iopar.set( "Selection.Dir key", (const char*)selkey );
-    iopar.set( "Selection.Translator subsel", trglobexpr );
-    iopar.setYN( "Selection.Include Translator subsel", inctrglobexpr );
-    iopar.mergeComp( parconstraints, sKeySelConstr );
-    iopar.setYN( IOPar::compKey(sKeySelConstr,"Include"), includeconstraints );
-    iopar.setYN( IOPar::compKey(sKeySelConstr,"AllowAbsent"),allowcnstrsabsent);
-    iopar.setYN( "Allow non-standard data types", allownonreaddefault );
-}
-
 
 void IOObjContext::fillTrGroup()
 {
@@ -203,43 +270,6 @@ void IOObjContext::fillTrGroup()
 }
 
 
-void IOObjContext::usePar( const IOPar& iopar )
-{
-    const char* res = iopar.find( "Name" );
-    if ( res ) setName( res );
-    res = iopar.find( "Translator group" );
-    if ( res ) trgroup = &TranslatorGroup::getGroup( res, true );
-    res = iopar.find( "Data type" );
-    if ( res ) stdseltype = eEnum(IOObjContext::StdSelType,res);
-    fillTrGroup();
-
-    iopar.get( "Level for new objects", newonlevel );
-    iopar.getYN( "Multi-entries", multi );
-    iopar.getYN( "Entries in other directories", maychdir );
-    iopar.getYN( "Selection.For read", forread );
-    iopar.getYN( "Selection.Allow operations", maydooper );
-    iopar.getYN( "Selection.Include Translator subsel", inctrglobexpr );
-    iopar.getYN( "Allow non-standard data types", allownonreaddefault );
-
-    res = iopar.find( "Selection.Default translator" );
-    if ( res ) deftransl = res;
-    res = iopar.find( "Selection.Dir key" );
-    if ( res ) selkey = res;
-    res = iopar.find( "Selection.Translator subsel" );
-    if ( res ) trglobexpr = res;
-
-    IOPar* subiop = iopar.subselect( sKeySelConstr );
-    if ( subiop )
-    {
-	parconstraints.merge( *subiop );
-	iopar.getYN( IOPar::compKey(sKeySelConstr,"Include"),
-					includeconstraints );
-	iopar.getYN( IOPar::compKey(sKeySelConstr,"AllowAbsent"),
-					allowcnstrsabsent);
-    }
-}
-
-
 bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 {
     if ( trgroup )
@@ -258,52 +288,7 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 	}
     }
 
-    if ( !trglobexpr.isEmpty() )
-    {
-	FileMultiString fms( trglobexpr );
-	const int sz = fms.size();
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    GlobExpr ge( fms[idx] );
-	    if ( ge.matches( ioobj.translator() ) )
-	    {
-		if ( inctrglobexpr )
-		    break;
-		else
-		    return false;
-	    }
-	    else if ( idx == sz-1 )
-		return false;
-	}
-    }
-
-    if ( parconstraints.size() < 1 )
-	return true;
-
-    int nrequal = 0, nrdiff = 0;
-    for ( int idx=0; idx<parconstraints.size(); idx++ )
-    {
-	const char* ioobjval = ioobj.pars().find( parconstraints.getKey(idx) );
-	if ( !ioobjval ) continue;
-
-	FileMultiString fms( parconstraints.getValue(idx) );
-	const int nrvals = fms.size();
-	bool ismatch = false;
-	for ( int idy=0; idy<nrvals; idy++ )
-	{
-	    if ( !strcmp(ioobjval,fms[idy]) )
-		{ ismatch = true; break; }
-	}
-	if ( ismatch )	nrequal++;
-	else		nrdiff++;
-    }
-
-    if ( includeconstraints )
-	return allowcnstrsabsent ? nrdiff == 0
-	    			 : nrequal == parconstraints.size();
-    else
-	return allowcnstrsabsent ? nrequal == 0
-	    			 : nrdiff == parconstraints.size();
+    return toselect.isGood( ioobj );
 }
 
 
@@ -342,8 +327,8 @@ void CtxtIOObj::fillDefault( bool oone2 )
 		&& ctxt.deftransl == "2D" )
 	    is3d = false;
 	keystr = is3d ? sKey::DefCube : sKey::DefLineSet;
-	FixedString typestr = ctxt.parconstraints.find( sKey::Type );
-	if ( is3d && !typestr.isEmpty() && ctxt.includeconstraints )
+	FixedString typestr = ctxt.toselect.require_.find( sKey::Type );
+	if ( is3d && !typestr.isEmpty() )
 	    keystr = IOPar::compKey(keystr,typestr);
     }
     else

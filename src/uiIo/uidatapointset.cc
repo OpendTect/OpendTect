@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.65 2010-07-26 09:53:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.66 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -1144,11 +1144,7 @@ uiDataPointSetSave( uiParent* p, const char* typ )
 {
     ctio_.ctxt.forread = false;
     if ( !type_.isEmpty() )
-    {
-	ctio_.ctxt.parconstraints.set( sKey::Type, typ );
-	ctio_.ctxt.includeconstraints = true;
-	ctio_.ctxt.allowcnstrsabsent = false;
-    }
+	ctio_.ctxt.toselect.require_.set( sKey::Type, typ );
     const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
 
     tabfld_ = new uiGenInput( this, "Output to",

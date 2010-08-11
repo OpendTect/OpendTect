@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.48 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.49 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uiveldesc.h"
 
@@ -264,9 +264,7 @@ const IOObjContext& uiVelSel::ioContext()
     {
 	velctxt = new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
 	velctxt->deftransl = "CBVS";
-	velctxt->parconstraints.setYN( VelocityDesc::sKeyIsVelocity(), true );
-	velctxt->includeconstraints = true;
-	velctxt->allowcnstrsabsent = false;
+	velctxt->toselect.require_.setYN( VelocityDesc::sKeyIsVelocity(), true);
     }
 
     return *velctxt;

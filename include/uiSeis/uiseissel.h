@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.45 2010-03-16 09:51:56 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.46 2010-08-11 14:50:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,24 +29,20 @@ public:
 			    : geom_(gt)
 			    , selattr_(gt==Seis::Line)
 			    , allowsetdefault_(true)
-			    , allowcnstrsabsent_(false)
-			    , include_(true)
+			    , steerpol_(-1)
 			    , enabotherdomain_(false)	{}
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
 			    , selattr_(is2d && !isps)
 			    , allowsetdefault_(true)
-			    , allowcnstrsabsent_(false)
-			    , include_(true)
+			    , steerpol_(-1)
 			    , enabotherdomain_(false)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,selattr)		//!< 2D: can user select attrib?
 	mDefSetupMemb(bool,allowsetdefault)	//!< Fill with def cube/line?
-	mDefSetupMemb(bool,allowcnstrsabsent)	//!< ctio constraints
-	mDefSetupMemb(bool,include)		//!< include or exclude constr.
 	mDefSetupMemb(bool,enabotherdomain)	//!< write only: T vs Depth
-	mDefSetupMemb(BufferString,datatype)	
+	mDefSetupMemb(int,steerpol)		//!< -1=no, 0=maybe, 1=only
 	mDefSetupMemb(BufferString,defaultkey)
     };
 
@@ -106,9 +102,8 @@ protected:
 
     uiListBox*		attrlistfld_;
     uiGenInput*		attrfld_;
-    bool		allowcnstrsabsent_;	//2D only
-    BufferString	datatype_;		//2D only
-    bool		include_;		//2D only, datatype_ companion
+    int			steerpol_;
+    BufferString	notalloweddatatype_;	// 2D only
 
     void		entrySel(CallBacker*);
     void 		attrNmSel(CallBacker*);

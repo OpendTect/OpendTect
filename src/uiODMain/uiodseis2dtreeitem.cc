@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.86 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.87 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -887,8 +887,7 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     const char* objnm = visserv_->getObjectName( displayID() );
 
     BufferStringSet attribnames;
-    seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, attribnames,
-	    			  sKey::Steering );
+    seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, attribnames );
     const Attrib::DescSet* ads = attrserv->curDescSet(true);
     const Attrib::Desc* desc = ads->getDesc( as.id() );
     const bool isstored = desc && desc->isStored();
@@ -916,8 +915,7 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( &selattrmnuitem_, nla, true, false );
 
     BufferStringSet steerdatanames;
-    seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, steerdatanames,
-	    			  sKey::Steering, true );
+    seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, steerdatanames, 1 );
     docheckparent = false;
     steeringitm_.removeItems();
     for ( int idx=0; idx<steerdatanames.size(); idx++ )

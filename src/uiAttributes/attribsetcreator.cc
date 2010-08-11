@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsetcreator.cc,v 1.17 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsetcreator.cc,v 1.18 2010-08-11 14:50:45 cvsbert Exp $";
 
 
 #include "attribsetcreator.h"
@@ -100,7 +100,7 @@ void mkGrp( uiGroup* mkgrp, const char* lbltxt,
     {
     	CtxtIOObj* newctio = mMkCtxtIOObj(SeisTrc);
 	newctio->ctxt.forread = true;
-	newctio->ctxt.trglobexpr = "CBVS";
+	newctio->ctxt.toselect.allowtransls_ = "CBVS";
 	if ( neednewgrp )
 	{
 	    uiGroup* newgrp = new uiGroup( fldgrp, "selsN" );

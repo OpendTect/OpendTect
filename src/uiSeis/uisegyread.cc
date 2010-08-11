@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.43 2010-07-01 20:04:52 cvskris Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.44 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"
@@ -298,12 +298,15 @@ CtxtIOObj* uiSEGYRead::getCtio( bool forread, Seis::GeomType gt )
 {
     CtxtIOObj* ret = mMkCtxtIOObj( SeisTrc );
     IOObjContext& ctxt = ret->ctxt;
-    ctxt.deftransl = ctxt.trglobexpr = "SEG-Y";
+    ctxt.deftransl = ctxt.toselect.allowtransls_ = "SEG-Y";
     ctxt.forread = forread;
-    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIs2D(), Seis::is2D(gt) );
-    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIsPS(), Seis::isPS(gt) );
-    ctxt.includeconstraints = ctxt.allownonreaddefault = true;
-    ctxt.allowcnstrsabsent = false;
+    ctxt.toselect.allownonreaddefault_ = true;
+    IOPar* cnstr = Seis::is2D(gt) ? &ctxt.toselect.require_
+				  : &ctxt.toselect.dontallow_;
+    cnstr->setYN( SeisTrcTranslator::sKeyIs2D(), true );
+    cnstr = Seis::isPS(gt) ? &ctxt.toselect.require_
+			   : &ctxt.toselect.dontallow_;
+    cnstr->setYN( SeisTrcTranslator::sKeyIsPS(), true );
     return ret;
 }
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.27 2010-08-06 10:44:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.28 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -154,8 +154,7 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
     , zrgfld_(0)
     , stepfld_(0)
 {
-    ctio_.ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
-    ctio_.ctxt.allowcnstrsabsent = false;
+    ctio_.ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
     polyfld_ = new uiIOObjSel( this, ctio_, sKey::Polygon );
 
     uiGroup* attachobj = polyfld_;

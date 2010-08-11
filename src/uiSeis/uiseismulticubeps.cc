@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.9 2009-08-28 12:30:38 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.10 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uiseismulticubeps.h"
 #include "uilistbox.h"
@@ -45,7 +45,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
 	, curselidx_(-1)
 {
     ctio_.ctxt.forread = false;
-    ctio_.ctxt.deftransl = ctio_.ctxt.trglobexpr = "MultiCube";
+    ctio_.ctxt.deftransl = ctio_.ctxt.toselect.allowtransls_ = "MultiCube";
 
     fillEntries();
     if ( entries_.isEmpty() )

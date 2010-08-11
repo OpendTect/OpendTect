@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.44 2010-06-09 13:01:26 cvshelene Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.45 2010-08-11 14:50:45 cvsbert Exp $";
 
 
 #include "uisteeringsel.h"
@@ -257,10 +257,7 @@ void uiSteeringSel::setType( int nr, bool nochg )
 static uiSeisSel::Setup mkSeisSelSetup( bool is2d, const char* txt )
 {
     uiSeisSel::Setup sssu( is2d, false );
-    sssu.selattr( is2d )
-	.datatype( is2d ? sKey::Steering.str() : "" )
-	.allowcnstrsabsent( false ).include( is2d )
-	.seltxt( txt );
+    sssu.selattr( is2d ).steerpol(1).seltxt( txt );
     return sssu;
 }
 
@@ -293,9 +290,7 @@ const IOObjContext& uiSteerCubeSel::ioContext()
     {
 	ctxt = new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
 	ctxt->deftransl = "CBVS";
-	ctxt->parconstraints.set( sKey::Type, sKey::Steering );
-	ctxt->includeconstraints = true;
-	ctxt->allowcnstrsabsent = false;
+	ctxt->toselect.require_.set( sKey::Type, sKey::Steering );
     }
 
     return *ctxt;

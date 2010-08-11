@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.26 2010-02-09 07:26:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.27 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uiattrinpdlg.h"
 
@@ -40,9 +40,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     , seisinpfld_(0)
     , steerinpfld_(0)
 {
-    ctio_.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
-    ctio_.ctxt.includeconstraints = false;
-    ctio_.ctxt.allowcnstrsabsent = true;
+    ctio_.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
     
     BufferString infotxt( "Provide input for the following attributes: " );
     uiLabel* infolbl = new uiLabel( this, infotxt );
@@ -87,9 +85,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
     , seisinpfld_(0)
     , steerinpfld_(0)
 {
-    ctio_.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
-    ctio_.ctxt.includeconstraints = false;
-    ctio_.ctxt.allowcnstrsabsent = true;
+    ctio_.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
 
     uiSeisSel::Setup sssu( is2d, false );
     if ( hasseis )

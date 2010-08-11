@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.92 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.93 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -60,25 +60,27 @@ static void adaptCtxt( const IOObjContext& c, const uiSeisSel::Setup& s,
 {
     IOObjContext& ctxt = const_cast<IOObjContext&>( c );
 
-    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( s.geom_,
-	    					       ctxt.forread );
+    ctxt.toselect.allowtransls_ = uiSeisSelDlg::standardTranslSel( s.geom_,
+							   ctxt.forread );
+
+    if ( s.steerpol_ < 0 )
+	ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
+    else if ( s.geom_ != Seis::Line && s.steerpol_ > 0 )
+	ctxt.toselect.require_.set( sKey::Type, sKey::Steering );
 
     if ( ctxt.deftransl.isEmpty() )
 	ctxt.deftransl = s.geom_ == Seis::Line ? "2D" : "CBVS";
     else if ( !c.forread )
-	ctxt.trglobexpr = ctxt.deftransl;
+	ctxt.toselect.allowtransls_ = ctxt.deftransl;
     else
     {
-	FileMultiString fms( ctxt.trglobexpr );
+	FileMultiString fms( ctxt.toselect.allowtransls_ );
 	if ( fms.indexOf(ctxt.deftransl.buf()) < 0 )
 	{
 	    fms += ctxt.deftransl;
-	    ctxt.trglobexpr = fms;
+	    ctxt.toselect.allowtransls_ = fms;
 	}
     }
-
-    if ( s.geom_ == Seis::Line && !ctxt.allowcnstrsabsent && chgtol )
-	ctxt.allowcnstrsabsent = true;	//change required to get any 2D LineSet
 }
 
 
@@ -96,13 +98,10 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     : uiIOObjSelDlg(p,getDlgCtio(c,setup),"",false)
     , attrfld_(0)
     , attrlistfld_(0)
-    , datatype_(setup.datatype_)
+    , steerpol_(setup.steerpol_)
 {
     const bool is2d = Seis::is2D( setup.geom_ );
     const bool isps = Seis::isPS( setup.geom_ );
-
-    allowcnstrsabsent_ = setup.allowcnstrsabsent_;
-    include_ = setup.include_;
 
     BufferString titletxt( "Setup " );
     if ( setup.seltxt_ )
@@ -177,8 +176,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     attrfld_->display( is2d && !isps );
 
     BufferStringSet nms;
-    oinf.getAttribNames( nms, true, 0, getDataType(), 
-	    		 allowcnstrsabsent_, include_ );
+    oinf.getAttribNames( nms, true, 0, steerpol_ );
 
     if ( selgrp_->getCtxtIOObj().ctxt.forread )
     {
@@ -205,24 +203,12 @@ void uiSeisSelDlg::attrNmSel( CallBacker* )
 
 const char* uiSeisSelDlg::getDataType()
 {
-    if ( datatype_.isEmpty() )
-	return 0;
-
-    static BufferString typekey;
-    typekey.setEmpty();
-    switch ( Seis::dataTypeOf(datatype_.buf()) )
-    {
-	case Seis::Dip:
-	    typekey += sKey::Steering;
-	    break;
-
-	// TODO: support other datatypes
-
-	default:
-	    return 0;
-    }
-
-    return typekey.buf();
+    if ( steerpol_ )
+	return steerpol_ < 0 ? 0 : sKey::Steering;
+    const IOObj* ioobj = ioObj();
+    if ( !ioobj ) return 0;
+    const char* res = ioobj->pars().find( sKey::Type );
+    return !res || strcmp(res,sKey::Steering) ? 0 : res;
 }
 
 
@@ -266,6 +252,7 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
     	, seissetup_(mkSetup(su,ctxt.forread))
     	, othdombox_(0)
 {
+    workctio_.ctxt = inctio_.ctxt;
     if ( !ctxt.forread && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
@@ -278,6 +265,7 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
     	, seissetup_(mkSetup(su,c.ctxt.forread))
     	, othdombox_(0)
 {
+    workctio_.ctxt = inctio_.ctxt;
     if ( !c.ctxt.forread && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
@@ -343,20 +331,21 @@ IOObjContext uiSeisSel::ioContext( Seis::GeomType geom, bool forread )
 void uiSeisSel::fillContext( Seis::GeomType geom, bool forread,
 			     IOObjContext& ctxt )
 {
-    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( geom, forread );
+    ctxt.toselect.allowtransls_
+		= uiSeisSelDlg::standardTranslSel( geom, forread );
     ctxt.forread = forread;
 
     if ( ctxt.deftransl.isEmpty() )
 	ctxt.deftransl = geom==Seis::Line ? "2D" : "CBVS";
     else if ( !forread )
-	ctxt.trglobexpr = ctxt.deftransl;
+	ctxt.toselect.allowtransls_ = ctxt.deftransl;
     else
     {
-	FileMultiString fms( ctxt.trglobexpr );
+	FileMultiString fms( ctxt.toselect.allowtransls_ );
 	if ( fms.indexOf(ctxt.deftransl.buf()) < 0 )
 	{
 	    fms += ctxt.deftransl;
-	    ctxt.trglobexpr = fms;
+	    ctxt.toselect.allowtransls_ = fms;
 	}
     }
 }

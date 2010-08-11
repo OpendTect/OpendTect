@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.12 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.13 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "velocitypicks.h"
 
@@ -61,7 +61,6 @@ PicksMgr& VPM()
 }
 
 
-const char* Picks::sKeyIsVelPick()	{ return "Velocity Picks"; }
 const char* Picks::sKeyVelocityPicks()	{ return "Velocity Picks"; }
 const char* Picks::sKeyRefOffset()	{ return "Reference offset"; }
 const char* Picks::sKeyGatherID()	{ return "Gather"; }
@@ -383,15 +382,14 @@ void Picks::fillIOObjPar( IOPar& par ) const
 
     par.set( sKey::Type, sKeyVelocityPicks() );
     par.set( sKeyGatherID(), gatherid_ );
-    par.setYN( sKeyIsVelPick(), true );
     par.set( ZDomain::sKey(), zDomain() );
 }
 
 
 bool Picks::useIOObjPar( const IOPar& par ) 
 {
-    bool dummy;
-    if ( !par.getYN( sKeyIsVelPick(), dummy ) || !dummy )
+    const char* res = par.find( sKey::Type );
+    if ( !res || strcmp(res,sKeyVelocityPicks()) )
 	return false;
 
     par.get( sKeyGatherID(), gatherid_ );
@@ -934,27 +932,14 @@ void Picks::setGatherID( const MultiID& m )
 
 const IOObjContext& Picks::getStorageContext()
 {
-    static PtrMan<IOObjContext> ptr = 0;
-
-    if ( !ptr )
+    static PtrMan<IOObjContext> ret = 0;
+    if ( !ret )
     {
-	ptr = new IOObjContext(PickSetTranslatorGroup::ioContext());
-	ptr->setName( "Velocity picks" );
-
-	//In 3.2, subselection was made by sKeyIsVelPick() == Yes.
-	//In 3.4 and beyond we write the sKey::Type == sKeyVelocityPicks()
-	//as well as the 3.2 style in the .omf
-	//Since we still need to read 3.2 picks, we will continue to use
-	//the 3.2 selection here. Once we can drop the 3.2 selection,
-	//the selections should be the sKey::Type == sKeyVelocityPicks()
-
-	ptr->parconstraints.setYN( sKeyIsVelPick(), getYesNoString(true) );
-	ptr->parconstraints.remove( sKey::Type ); //Block Type selection
-	ptr->includeconstraints = true;
-	ptr->allowcnstrsabsent = false;
+	ret = new IOObjContext(PickSetTranslatorGroup::ioContext());
+	ret->setName( "Velocity picks" );
+	ret->toselect.require_.set( sKey::Type, sKeyVelocityPicks() );
     }
-    
-    return *ptr;
+    return *ret;
 }
 
 

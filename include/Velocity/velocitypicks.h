@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.8 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:		$Id: velocitypicks.h,v 1.9 2010-08-11 14:50:45 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -141,7 +141,6 @@ public:
 				    the valset. First value in valset will
 				    be horizon depth, second will be velocity.*/
 
-    static const char*		sKeyIsVelPick();
     static const char*		sKeyVelocityPicks();
     static const char*		sKeyRefOffset();
     static const char*		sKeyGatherID();

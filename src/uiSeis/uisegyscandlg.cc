@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.28 2010-07-15 18:45:32 cvskris Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.29 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -68,7 +68,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     {
 	ctio_.setObj( 0 );
 	IOObjContext& ctxt = ctio_.ctxt;
-	ctxt.deftransl = ctxt.trglobexpr = "SEGYDirect";
+	ctxt.deftransl = ctxt.toselect.allowtransls_ = "SEGYDirect";
 	uiSeisSel::Setup sssu( setup_.geom_ ); sssu.selattr( false );
 	outfld_ = new uiSeisSel( this, ctio_, sssu );
 	if ( optsgrp_ )

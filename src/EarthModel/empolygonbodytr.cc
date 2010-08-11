@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbodytr.cc,v 1.6 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: empolygonbodytr.cc,v 1.7 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "embodytr.h"
 #include "empolygonbody.h"
@@ -23,7 +23,7 @@ const IOObjContext& polygonEMBodyTranslator::getIOObjContext()
     {
 	res = new IOObjContext(EMBodyTranslatorGroup::ioContext() );
 	res->deftransl = polygonEMBodyTranslator::sKeyUserName();
-	res->trglobexpr = polygonEMBodyTranslator::sKeyUserName();
+	res->toselect.allowtransls_ = polygonEMBodyTranslator::sKeyUserName();
     }
 
     return *res;

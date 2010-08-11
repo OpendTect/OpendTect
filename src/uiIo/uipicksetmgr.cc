@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.14 2010-02-17 02:46:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.15 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"
@@ -110,10 +110,8 @@ bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
     ctio->ctxt.forread = false;
     ctio->ctxt.maychdir = false;
 
-    ctio->ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
-    ctio->ctxt.includeconstraints = ispoly;
-    ctio->ctxt.allowcnstrsabsent = !ispoly;
-
+    if ( ispoly )
+	ctio->ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
     ctio->setName( oldname );
     uiIOObjSelDlg dlg( parent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )

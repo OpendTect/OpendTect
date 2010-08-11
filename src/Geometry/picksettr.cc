@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: picksettr.cc,v 1.23 2009-10-15 10:05:55 cvsbert Exp $";
+static const char* rcsID = "$Id: picksettr.cc,v 1.24 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -19,7 +19,6 @@ static const char* rcsID = "$Id: picksettr.cc,v 1.23 2009-10-15 10:05:55 cvsbert
 #include "iopar.h"
 #include "ptrman.h"
 #include "survinfo.h"
-#include "separstr.h"
 #include "streamconn.h"
 #include "ioman.h"
 #include "polygon.h"
@@ -27,12 +26,7 @@ static const char* rcsID = "$Id: picksettr.cc,v 1.23 2009-10-15 10:05:55 cvsbert
 #include "keystrs.h"
 
 mDefSimpleTranslatorioContextWithExtra( PickSet, Loc,
-	FileMultiString fms;
-	fms.add( sKey::Polygon );
-	fms.add( sKeyPickSet() );
-	ctxt->parconstraints.set( sKey::Type, fms.buf() );
-	ctxt->includeconstraints=true;
-	ctxt->allowcnstrsabsent=true;)
+	ctxt->toselect.require_.set( sKey::Type, "PickSet``Polygon" )	)
 
 int PickSetTranslatorGroup::selector( const char* key )
 {

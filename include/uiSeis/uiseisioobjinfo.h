@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseisioobjinfo.h,v 1.14 2010-08-09 10:46:58 cvsbert Exp $
+ RCS:           $Id: uiseisioobjinfo.h,v 1.15 2010-08-11 14:50:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,19 +46,12 @@ public:
 				{ sii.getLineNames(b,add,bvs); }
     void		getAttribNames( BufferStringSet& b, bool add=true,
 	    				const BinIDValueSet* bvs=0,
-	   				const char* datatyp=0,
-	   				bool allowcnstabsent=false,
-	   				bool incl=true ) const
-				{ sii.getAttribNames(b,add,bvs,datatyp,
-					             allowcnstabsent,incl); }
+	   				int steeropt=-1 ) const
+				{ sii.getAttribNames(b,add,bvs,steeropt); }
     void		getAttribNamesForLine( const char* nm,
 					BufferStringSet& b, bool add=true,
-					const char* datatyp=0,
-	    				bool allowcnstabsent=false,
-	   				bool incl=true ) const
-				{ sii.getAttribNamesForLine(nm,b,add,datatyp,
-							    allowcnstabsent,
-							    incl); }
+					int steeropt=-1 ) const
+				{ sii.getAttribNamesForLine(nm,b,add,steeropt);}
     void		getLineNamesWithAttrib( const char* nm,
 					BufferStringSet& b, bool add=true) const
 				{ sii.getLineNamesWithAttrib(nm,b,add); }

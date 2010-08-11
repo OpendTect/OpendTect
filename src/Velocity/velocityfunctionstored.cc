@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.7 2010-04-06 12:00:42 cvsranojay Exp $";
+static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.8 2010-08-11 14:50:45 cvsbert Exp $";
 
 #include "velocityfunctionstored.h"
 
@@ -44,19 +44,16 @@ const char* StoredFunctionSource::sKeyVelocityType()
 
 IOObjContext& StoredFunctionSource::ioContext()
 {
-    static PtrMan<IOObjContext> ptr = 0;
+    static PtrMan<IOObjContext> ret = 0;
 
-    if ( !ptr )
+    if ( !ret )
     {
-	ptr = new IOObjContext(PickSetTranslatorGroup::ioContext());
-	ptr->setName( "RMO picks" );
-
-	ptr->parconstraints.set( sKey::Type, sKeyVelocityFunction() );
-	ptr->includeconstraints = true;
-	ptr->allowcnstrsabsent = false;
+	ret = new IOObjContext(PickSetTranslatorGroup::ioContext());
+	ret->setName( "RMO picks" );
+	ret->toselect.require_.set( sKey::Type, sKeyVelocityFunction() );
     }
-					    
-    return *ptr;
+
+    return *ret;
 }
 
 
