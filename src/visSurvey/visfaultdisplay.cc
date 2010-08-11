@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.60 2010-08-05 14:21:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.61 2010-08-11 09:30:35 cvsnanne Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1249,7 +1249,7 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	const BinID b00 = cs.hrg.start, b11 = cs.hrg.stop;
 	BinID b01, b10;
 
-	if ( plane->getOrientation()==PlaneDataDisplay::Timeslice )
+	if ( plane->getOrientation()==PlaneDataDisplay::Zslice )
 	{
 	    b01 = BinID( cs.hrg.start.inl, cs.hrg.stop.crl );
 	    b10 = BinID( cs.hrg.stop.inl, cs.hrg.start.crl );

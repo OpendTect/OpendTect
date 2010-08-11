@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.126 2010-05-24 12:32:26 cvsranojay Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.127 2010-08-11 09:30:35 cvsnanne Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -1072,7 +1072,7 @@ bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
 	mDynamicCastGet(const HorizonDisplay*,hd,so);
 	mDynamicCastGet(const PlaneDataDisplay*,pdd,so);
 	validpicksurface = hd ||
-		(pdd && pdd->getOrientation() == PlaneDataDisplay::Timeslice);
+		(pdd && pdd->getOrientation() == PlaneDataDisplay::Zslice);
 
 	if ( eventid!=-1 )
 	    break;

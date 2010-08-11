@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.40 2010-06-17 21:59:48 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.41 2010-08-11 09:30:35 cvsnanne Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -98,7 +98,7 @@ visBase::Transformation* MPEClickCatcher::getDisplayTransformation()
 	plane = 0; \
     bool legalclick = !plane; \
     mCheckTracker( typ, Horizon3D, legalclick, \
-		   plane->getOrientation()!=PlaneDataDisplay::Timeslice ); \
+		   plane->getOrientation()!=PlaneDataDisplay::Zslice ); \
     mCheckTracker( typ, Fault3D, legalclick, true ); \
     mCheckTracker( typ, FaultStickSet, legalclick, true );
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.44 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.45 2010-08-11 09:30:35 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -362,7 +362,7 @@ void uiODPlaneDataTreeItem::movePlane( bool forward )
 	cs.hrg.start.crl += cs.hrg.step.crl * dir;
 	cs.hrg.stop.crl = cs.hrg.start.crl;
     }
-    else if ( pdd->getOrientation() == visSurvey::PlaneDataDisplay::Timeslice )
+    else if ( pdd->getOrientation() == visSurvey::PlaneDataDisplay::Zslice )
     {
 	cs.zrg.start += cs.zrg.step * dir;
 	cs.zrg.stop = cs.zrg.start;
@@ -456,7 +456,7 @@ uiTreeItem* uiODZsliceTreeItemFactory::create( int visid, uiTreeItem* ) const
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
 
-    if ( !pdd || pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Timeslice )
+    if ( !pdd || pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Zslice )
 	return 0;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.137 2010-07-09 22:12:21 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.138 2010-08-11 09:30:35 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1476,7 +1476,7 @@ static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 }
 
 
-static void drawHorizonOnTimeSlice( const CubeSampling& cs, float zshift,
+static void drawHorizonOnZSlice( const CubeSampling& cs, float zshift,
 			const EM::Horizon3D* hor, const EM::SectionID&  sid, 
 			const ZAxisTransform* zaxistransform, 
 			visBase::IndexedShape* line, int& cii )
@@ -1718,7 +1718,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	    else
 	    {
-		drawHorizonOnTimeSlice( cs, getTranslation().z, horizon, sid,  
+		drawHorizonOnZSlice( cs, getTranslation().z, horizon, sid,  
 				        zaxistransform_, line, cii );
 	    }
 	}
@@ -1790,7 +1790,7 @@ void HorizonDisplay::updateSectionSeeds(
     for ( int idx=0; idx<objs.size(); idx++ )
     {
 	mDynamicCastGet(const PlaneDataDisplay*,plane,objs[idx]);
-	if ( plane && plane->getOrientation()!=PlaneDataDisplay::Timeslice )
+	if ( plane && plane->getOrientation()!=PlaneDataDisplay::Zslice )
 	{
 	    planelist += idx; 
 	    if ( movedobj==plane->id() ) 

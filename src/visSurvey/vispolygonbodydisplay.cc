@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.10 2010-06-24 12:46:40 cvsjaap Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.11 2010-08-11 09:30:35 cvsnanne Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -733,7 +733,7 @@ void PolygonBodyDisplay::otherObjectsMoved(
 	const BinID b00 = cs.hrg.start, b11 = cs.hrg.stop;
 	BinID b01, b10;
 
-	if ( plane->getOrientation()==PlaneDataDisplay::Timeslice )
+	if ( plane->getOrientation()==PlaneDataDisplay::Zslice )
 	{
 	    b01 = BinID( cs.hrg.start.inl, cs.hrg.stop.crl );
 	    b10 = BinID( cs.hrg.stop.inl, cs.hrg.start.crl );

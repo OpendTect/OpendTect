@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.234 2010-08-10 13:33:22 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.235 2010-08-11 09:30:35 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.234 2010-08-10 13:33
 #include "settings.h"
 #include "simpnumer.h"
 #include "survinfo.h"
+#include "zdomain.h"
 
 #include "viscolortab.h"
 #include "viscoord.h"
@@ -89,7 +90,7 @@ const char* PlaneDataDisplayBaseMapObject::getShapeName(int)
 void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
 {
     const HorSampling hrg = pdd_->getCubeSampling(true,false).hrg;
-    if ( pdd_->getOrientation()==PlaneDataDisplay::Timeslice )
+    if ( pdd_->getOrientation()==PlaneDataDisplay::Zslice )
     {
 	res += SI().transform(hrg.start);
 	res += SI().transform(BinID(hrg.start.inl, hrg.stop.crl) );
@@ -110,7 +111,7 @@ char PlaneDataDisplayBaseMapObject::connectPoints(int) const
 
 
 DefineEnumNames(PlaneDataDisplay,Orientation,1,"Orientation")
-{ "Inline", "Crossline", "Timeslice", 0 };
+{ "Inline", "Crossline", "Z-slice", 0 };
 
 PlaneDataDisplay::PlaneDataDisplay()
     : MultiTextureSurveyObject( true )
@@ -271,7 +272,7 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
     if ( resetic || resetz || newpos.isEmpty() )
     {
 	newpos = survey;
-	if ( orientation_==Timeslice && datatransform_ && resetz )
+	if ( orientation_==Zslice && datatransform_ && resetz )
 	{
 	    const float center = datatransform_->getZIntervalCenter(false);
 	    if ( !mIsUdf(center) )
@@ -318,7 +319,7 @@ CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
 
 Coord3 PlaneDataDisplay::getNormal( const Coord3& pos ) const
 {
-    if ( orientation_==Timeslice )
+    if ( orientation_==Zslice )
 	return Coord3(0,0,1);
     
     return Coord3( orientation_==Inline ? SI().binID2Coord().rowDir() :
@@ -366,7 +367,7 @@ float PlaneDataDisplay::maxDist() const
 {
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
     float maxzdist = zfactor * scene_->getZStretch() * SI().zStep() / 2;
-    return orientation_==Timeslice ? maxzdist : SurveyObject::sDefMaxDist();
+    return orientation_==Zslice ? maxzdist : SurveyObject::sDefMaxDist();
 }
 
 
@@ -440,7 +441,7 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
     else if ( orientation_==Crossline &&
 	      dragcs.hrg.start.crl!=oldcs.hrg.start.crl )
 	showplane = true;
-    else if ( orientation_==Timeslice && dragcs.zrg.start!=oldcs.zrg.start )
+    else if ( orientation_==Zslice && dragcs.zrg.start!=oldcs.zrg.start )
 	showplane = true;
    
     draggerdrawstyle_->setDrawStyle( showplane
@@ -570,7 +571,7 @@ SurveyObject::AttribFormat
     if ( alreadytransformed )
 	return SurveyObject::Cube;
 
-    return datatransform_ && orientation_==Timeslice
+    return datatransform_ && orientation_==Zslice
 	? SurveyObject::RandomPos
 	: SurveyObject::Cube;
 }
@@ -1060,9 +1061,12 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
     }
     else
     {
-	info = SI().zIsTime() ? "Time: " : "Depth: ";
 	float val = getCubeSampling(true,true).zrg.start;
-	info += SI().zIsTime() ? mNINT(val * 1000) : val;
+	if ( !scene_ ) { info = val; return; }
+
+	const ZDomain::Info& zdinf = scene_->zDomainInfo();
+	info = zdinf.userName(); info += ": ";
+	info += val*zdinf.userFactor();
     }
 }
 
@@ -1099,7 +1103,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 
 bool PlaneDataDisplay::isVerticalPlane() const
 {
-    return orientation_ != PlaneDataDisplay::Timeslice;
+    return orientation_ != PlaneDataDisplay::Zslice;
 }
 
 

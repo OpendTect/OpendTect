@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.125 2010-08-10 13:33:22 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.126 2010-08-11 09:30:35 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -56,7 +56,7 @@ public:
 
     bool			isInlCrl() const	{ return true; }
 
-    enum Orientation		{ Inline=0, Crossline=1, Timeslice=2 };
+    enum Orientation		{ Inline=0, Crossline=1, Zslice=2 };
     				DeclareEnumUtils(Orientation);
 
     static PlaneDataDisplay*	create()
