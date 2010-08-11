@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.7 2010-07-29 13:36:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.8 2010-08-11 09:55:38 cvsnanne Exp $";
 
 #include "uislicepos.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uislicepos.cc,v 1.7 2010-07-29 13:36:29 cvsnann
 
 uiSlicePos::uiSlicePos( uiParent* p )
     : positionChg(this)
+    , zfactor_(1)
 {
     toolbar_ = new uiToolBar( p, "Slice position" );
 
@@ -66,7 +67,7 @@ void uiSlicePos::initSteps( CallBacker* )
 {
     laststeps_[0] = SI().inlStep();
     laststeps_[1] = SI().crlStep();
-    laststeps_[2] = mNINT( SI().zStep()*SI().zFactor() );
+    laststeps_[2] = mNINT( SI().zStep()*zfactor_ );
 }
 
 
@@ -97,7 +98,7 @@ void uiSlicePos::slicePosChanged( Orientation orientation,
     else if ( orientation == uiSlicePos::Crossline )
 	curcs_.hrg.start.crl = curcs_.hrg.stop.crl = posbox->getValue();
     else
-	curcs_.zrg.start = curcs_.zrg.stop = posbox->getValue()/SI().zFactor();
+	curcs_.zrg.start = curcs_.zrg.stop = posbox->getValue()/zfactor_;
 
     if ( oldcs == curcs_ )
 	return;
@@ -137,7 +138,7 @@ void uiSlicePos::setBoxRg( Orientation orientation, const CubeSampling& survcs )
     }
     else
     {
-	const float zfac = SI().zFactor();
+	const float zfac = zfactor_;
 	posbox->setInterval( survcs.zrg.start*zfac, survcs.zrg.stop*zfac);
 	stepbox->setInterval( survcs.zrg.step*zfac,
 			      (survcs.zrg.stop-survcs.zrg.start)*zfac,
@@ -156,7 +157,7 @@ void uiSlicePos::setPosBoxVal( Orientation orientation, const CubeSampling& cs )
     else if ( orientation == uiSlicePos::Crossline )
 	posbox->setValue( cs.hrg.start.crl );
     else
-	posbox->setValue( cs.zrg.start*SI().zFactor() );
+	posbox->setValue( cs.zrg.start*zfactor_ );
 }
 
 

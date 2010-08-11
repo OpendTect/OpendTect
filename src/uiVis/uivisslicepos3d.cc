@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.14 2010-07-22 08:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.15 2010-08-11 09:55:38 cvsnanne Exp $";
 
 #include "uivisslicepos3d.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.14 2010-07-22 08:29:47 c
 #include "uibutton.h"
 #include "uispinbox.h"
 #include "visplanedatadisplay.h"
+#include "vissurvscene.h"
 
 #define Display visSurvey::PlaneDataDisplay
 
@@ -52,6 +53,8 @@ void uiSlicePos3DDisp::setDisplay( Display* pdd )
 
     if ( !curpdd_ ) return;
 
+    zfactor_ = curpdd_->getScene()
+	? curpdd_->getScene()->zDomainUserFactor() : 1;
     setBoxLabel( (uiSlicePos::Orientation) curpdd_->getOrientation() );
     setBoxRanges();
     setPosBoxValue();

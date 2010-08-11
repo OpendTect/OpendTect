@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uislicepos.h,v 1.4 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uislicepos.h,v 1.5 2010-08-11 09:55:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ protected:
     uiToolButton*	prevbut_;
     uiToolButton*	nextbut_;
     int			laststeps_[3];
+    float		zfactor_;
     CubeSampling	curcs_;
 
     void		setBoxLabel(Orientation);
