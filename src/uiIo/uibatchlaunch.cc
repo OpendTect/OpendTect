@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.88 2010-06-02 06:12:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.89 2010-08-11 20:51:41 cvskris Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -92,11 +92,16 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
     optfld_->box()->setCurrentItem( 0 );
     optfld_->box()->selectionChanged.notify( mCB(this,uiBatchLaunch,optSel) );
 
-    StringListInpSpec spec;
+    BufferStringSet hostnames;
     for ( int idx=0; idx<hdl.size(); idx++ )
-	spec.addString( hdl[idx]->name() );
+	hostnames.add( hdl[idx]->name() );
+    const char* localhost = hostnames.size() ? hostnames[0]->buf() : 0;
+    hostnames.sort();
+    const int localhostidx = localhost ? hostnames.indexOf( localhost ) : 0;
+    StringListInpSpec spec( hostnames );
     remhostfld_ = new uiGenInput( this, "Hostname", spec );
     remhostfld_->attach( alignedBelow, remfld_ );
+    remhostfld_->setValue( localhostidx );
 
     static BufferString fname = "";
     if ( fname.isEmpty() )
