@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.17 2010-08-11 08:36:36 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.18 2010-08-11 11:52:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,8 +211,8 @@ public:
 
     struct Setup
     {
-				Setup(Interval<float>& maxrg)
-				    : maxrg_(maxrg)
+				Setup(Interval<float>& rg)
+				    : maxrg_(rg)
 				    {}
 
 	mDefSetupMemb(uiToolBar*,tb)
