@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.141 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.142 2010-08-11 19:38:32 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -332,6 +332,26 @@ float SurveyInfo::crlDistance() const
     const Coord c01 = transform( BinID(0,1) );
     return c00.distTo(c01);
 }
+
+
+float SurveyInfo::computeArea( const Interval<int>& inlrg,
+			       const Interval<int>& crlrg ) const 
+{
+    const Coord c00 = transform( BinID(inlrg.start,crlrg.start) );
+    const Coord c01 = transform( BinID(inlrg.start,crlrg.stop) );
+    const Coord c10 = transform( BinID(inlrg.stop,crlrg.start) );
+
+    const float scale = xyInFeet() ? mFromFeetFactor : 1; 
+    const double d01 = c00.distTo( c01 ) * scale;
+    const double d10 = c00.distTo( c10 ) * scale;
+
+    return d01*d10;
+}
+
+
+float SurveyInfo::computeArea( bool work ) const 
+{ return computeArea( inlRange( work ), crlRange( work ) ); }
+
 
 
 float SurveyInfo::zStep() const { return cs_.zrg.step; }

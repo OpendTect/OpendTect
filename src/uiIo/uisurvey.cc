@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.120 2010-08-02 07:17:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.121 2010-08-11 19:38:32 cvskris Exp $";
 
 #include "uisurvey.h"
 
@@ -229,20 +229,24 @@ uiSurvey::uiSurvey( uiParent* p )
     crllbl_ = new uiLabel( infoleft, "" );
     zlbl_ = new uiLabel( inforight, "" ); 
     binlbl_ = new uiLabel( inforight, "" );
+    arealbl_ = new uiLabel( inforight, "" );
 #if 0
     inllbl_->setHSzPol( uiObject::widevar );
     crllbl_->setHSzPol( uiObject::widevar );
     zlbl_->setHSzPol( uiObject::widevar );
     binlbl_->setHSzPol( uiObject::widevar );
+    arealbl_->setHSzPol( uiObject::widevar );
 #else
     inllbl_->setPrefWidthInChar( 40 );
     crllbl_->setPrefWidthInChar( 40 );
     zlbl_->setPrefWidthInChar( 40 );
     binlbl_->setPrefWidthInChar( 40 );
+    arealbl_->setPrefWidthInChar( 40 );
 #endif
 
     crllbl_->attach( alignedBelow, inllbl_ );
     binlbl_->attach( alignedBelow, zlbl_ );
+    arealbl_->attach( alignedBelow, crllbl_ );
    
     uiSeparator* horsep2 = new uiSeparator( this );
     horsep2->attach( stretchedBelow, infoleft, -2 );
@@ -528,6 +532,7 @@ void uiSurvey::mkInfo()
     BufferString zinfo( "Z range " );
     zinfo += si.getZUnitString(); zinfo += ": ";
     BufferString bininfo( "Bin size (m/line): " );
+    BufferString areainfo( "Area (sq ", SI().xyInFeet() ? "mi" : "km", "): " );
 
     if ( si.sampling(false).hrg.totalNr() )
     {
@@ -549,6 +554,11 @@ void uiSurvey::mkInfo()
 	int nr, rest;    
 	bininfo += "inl: "; mkString(inldist);
 	bininfo += "  crl: "; mkString(crldist);
+	float area = SI().computeArea(false) * 1e-6; //in km2
+	if ( SI().xyInFeet() )
+	    area /= 2.590; // square miles
+
+	areainfo += area;
     }
 
     #define mkZString(nr) \
@@ -562,6 +572,7 @@ void uiSurvey::mkInfo()
     inllbl_->setText( inlinfo );
     crllbl_->setText( crlinfo );
     binlbl_->setText( bininfo );
+    arealbl_->setText( areainfo );
     zlbl_->setText( zinfo );
     notes_->setText( si.comment() );
 
