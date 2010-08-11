@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.162 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.163 2010-08-11 13:47:28 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1140,10 +1140,10 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     {
 	const MenuItem* item = stored3dmnuitem_.findItem(mnuid);
 	if ( !item ) item = steering3dmnuitem_.findItem(mnuid);
-	int idx = attrinf.ioobjnms_.indexOf(item->text);
-	attribid = eDSHolder().getDescSet(false,true)
-	    			->getStoredID( attrinf.ioobjids_.get(idx) );
-	idlkey = LineKey( attrinf.ioobjids_.get(idx) );
+	const int idx = attrinf.ioobjnms_.indexOf(item->text);
+	const char* objidstr = attrinf.ioobjids_.get(idx);
+	attribid = eDSHolder().getDescSet(false,true)->getStoredID( objidstr );
+	idlkey = LineKey( objidstr );
 	isstored = true;
     }
     else if ( stored2dmnuitem_.findItem(mnuid) ||
