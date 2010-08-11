@@ -6,14 +6,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.h,v 1.9 2009-12-15 14:53:45 cvsbruno Exp $
+ RCS:           $Id: waveletattrib.h,v 1.10 2010-08-11 16:55:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "commondefs.h"
 
-class FFT;
+namespace Fourier { class CC; }
 class HilbertTransform;
 class Wavelet;
 class ArrayNDWindow;
@@ -40,7 +40,7 @@ public:
 protected:
 
     HilbertTransform*	hilbert_;
-    FFT*		fft_;
+    Fourier::CC*	fft_;
     int			wvltsz_;
     Array1DImpl<float>* wvltarr_;
 };

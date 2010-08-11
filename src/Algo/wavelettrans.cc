@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.19 2010-04-30 20:36:25 cvskris Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.20 2010-08-11 16:55:33 cvsyuancheng Exp $";
 
 #include <iostream>
 
@@ -318,27 +318,19 @@ void WaveletTransform::getInfo( WaveletType wt, int& len,
 }
 
 
-DWT::DWT(
-					    WaveletTransform::WaveletType t )
-    : wt( t )
+DWT::DWT( WaveletTransform::WaveletType t )
+    : wt_( t )
 {}
 
 
-bool DWT::real2real() const
+bool DWT::setup()
 {
-    return !WaveletTransform::isCplx( wt );
-    //Transform cannot be real if kernel is cplx
-}
+    if ( !GenericTransformND::setup() ) return false;
 
-
-bool DWT::init()
-{
-    if ( !GenericTransformND::init() ) return false;
-
-    for ( int idx=0; idx<owntransforms.size(); idx++ )
+    for ( int idx=0; idx<transforms_.size(); idx++ )
     {
-	((FilterWT1D*)owntransforms[idx])->setWaveletType( wt );
-	if ( !owntransforms[idx]->init() ) return false;
+	((FilterWT1D*)transforms_[idx])->setWaveletType( wt_ );
+	if ( !transforms_[idx]->init() ) return false;
     }
 
     return true;
@@ -347,64 +339,63 @@ bool DWT::init()
 
 bool DWT::FilterWT1D::init()
 {
-    if ( size < 0 ) return false;
+    if ( sz_ < 0 ) return false;
 
     TypeSet<float> tcc;
-    WaveletTransform::getInfo( wt, filtersz, tcc );
+    WaveletTransform::getInfo( wt_, filtersz_, tcc );
 
-    if ( cc ) delete cc;
-    cc = new float[filtersz+1];
+    if ( cc_ ) delete [] cc_;
+    cc_ = new float[filtersz_+1];
 
     float len = 0;
-    for ( int idx=0; idx<=filtersz; idx++ )
+    for ( int idx=0; idx<=filtersz_; idx++ )
     { len += tcc[idx]*tcc[idx]; }
 
-    for ( int idx=0; idx<=filtersz; idx++ )
-    { cc[idx] = tcc[idx] / len; }
+    for ( int idx=0; idx<=filtersz_; idx++ )
+    { cc_[idx] = tcc[idx] / len; }
 
-    if ( cr ) delete cr;
-    cr = new float[filtersz+1];
+    if ( cr_ ) delete [] cr_;
+    cr_ = new float[filtersz_+1];
 
     int sig = -1;
-    for ( int k=1; k<=filtersz; k++ )
+    for ( int k=1; k<=filtersz_; k++ )
     {
-	cr[filtersz+1-k]=sig*cc[k];
+	cr_[filtersz_+1-k]=sig*cc_[k];
 	sig = -sig;
     }
 
-    ioff = -2; // -(filtersz >> 1);
-    joff = -filtersz;
+    ioff_ = -2; // -(filtersz_ >> 1);
+    joff_ = -filtersz_;
 
     return true;
 }
 
 
-void DWT::FilterWT1D::transform1D( const float_complex* in,
-						  float_complex* out,
-						  int space ) const
+bool DWT::FilterWT1D::run( bool )
 {
-    transform1Dt( in, out, space );
+    if ( cinput_ && coutput_ )
+    {
+	for ( int idx=0; idx<nr_; idx++ )
+	{
+	    int offset = batchstarts_ ? batchstarts_[idx] : idx*batchsampling_;
+	    transform1Dt( cinput_+offset, coutput_+offset, sampling_ );
+	}
+    }
+    else if ( rinput_ && routput_ )
+    {
+	for ( int idx=0; idx<nr_; idx++ )
+	{
+	    int offset = batchstarts_ ? batchstarts_[idx] : idx*batchsampling_;
+	    transform1Dt( rinput_+offset, routput_+offset, sampling_ );
+	}
+    }
+
+    return true;
 }
 
 
-void DWT::FilterWT1D::transform1D( const float* in,
-						  float* out,
-						  int space ) const
-{
-    transform1Dt( in, out, space );
-}
-
-
-void DWT::FilterWT1D::setWaveletType(
-					WaveletTransform::WaveletType nt )
-{ wt = nt; }
-
-
-bool DWT::isPossible( int sz ) const
-{
-    if ( sz < 4 ) return false;
-    return isPower( sz, 2 );
-}
+void DWT::FilterWT1D::setWaveletType( WaveletTransform::WaveletType nt )
+{ wt_ = nt; }
 
 
 // ***** CWTWavelets *****
@@ -488,15 +479,20 @@ DefineEnumNames(CWT,WaveletType,0,"Wavelet Type")
 CWT::CWT()
     : info_(0)
     , wt_(WaveletType(0))
-    , inited(false)
+    , inited_(false)
     , freqrg_(0,0,0)
+    , fft_(new Fourier::CC())
+    , ifft_(new Fourier::CC())
 {
+    ifft_->setNormalization( true );
 }
 
 
 CWT::~CWT()
 {
     delete info_;
+    delete fft_;
+    delete ifft_;
 }
 
 
@@ -513,13 +509,15 @@ bool CWT::isPossible( int sz ) const
 
 bool CWT::setDir( bool forward )
 {
-    if ( inited && forward == fft_.getDir() ) return true;
+    if ( inited_ && forward == fft_->getDir() ) return true;
     if ( !forward ) return false;
 
-    fft_.setDir( forward );
-    ifft_.setDir( !forward );
+    fft_->setDir( forward );
+    fft_->setNormalization( !forward );
+    ifft_->setDir( !forward );
+    ifft_->setNormalization( forward );
 
-    inited = false;
+    inited_ = false;
     return true;
 }
 
@@ -528,30 +526,25 @@ bool CWT::setInputInfo( const ArrayNDInfo& ni )
 {
     if ( info_ && info_->getSize(0) == ni.getSize(0) ) return true;
 
-    if ( !TransformND::isPossible(ni) ) return false;
-
-    fft_.setInputInfo( ni );
-    ifft_.setInputInfo( ni );
+    fft_->setInputInfo( ni );
+    ifft_->setInputInfo( ni );
 
     delete info_;
     info_ = ni.clone();
 
-    inited = false;
+    inited_ = false;
     return true;
 }
 
 
 bool CWT::init()
 {
-    if ( inited ) return true;
+    if ( inited_ ) return true;
+    
     const int ndim = info_->getNDim();
-
-    fft_.init();
-    ifft_.init();
-
     const int nrsamp = info_->getSize( 0 );
-
     const int nrsteps = freqrg_.nrSteps()+1;
+    
     for ( int idx=0; idx<nrsteps; idx++ ) 
     {
 	if ( outfreqidxs_.indexOf(idx) < 0 )
@@ -562,13 +555,13 @@ bool CWT::init()
 	wvlts_.createWavelet( wt_, nrsamp, curscale );
     }
 
-    inited = true;
+    inited_ = true;
     return true;
 }
 
 
 bool CWT::transform( const ArrayND<float_complex>& inp,
-		     ArrayND<float>& outp ) const
+		     ArrayND<float>& outp ) 
 {
     const int ndim = inp.info().getNDim();
     if ( ndim > 1 ) return false;
@@ -581,7 +574,10 @@ bool CWT::transform( const ArrayND<float_complex>& inp,
 
     const int nrsamples = inp.info().getSize( 0 );
     Array1DImpl<float_complex> freqdom( nrsamples );
-    fft_.transform( inp, freqdom );
+    fft_->setInput( inp.getData() );
+    fft_->setOutput( freqdom.getData() );
+    if ( !fft_->run( true ) )
+	return false;
 
     const int nrsteps = freqrg_.nrSteps()+1;
     arr2d->setSize( nrsamples, nrsteps );
@@ -601,7 +597,7 @@ bool CWT::transform( const ArrayND<float_complex>& inp,
 
 void CWT::transform( int nrsamples, float curscale, int scaleidx,
 		     const Array1DImpl<float_complex>& freqdom,
-		     Array2DImpl<float>& outp ) const
+		     Array2DImpl<float>& outp )
 {
     const TypeSet<float>& wavelet = *wvlts_.getWavelet( curscale );
 
@@ -614,7 +610,9 @@ void CWT::transform( int nrsamples, float curscale, int scaleidx,
     }
 
     Array1DImpl<float_complex> newsignal( nrsamples );
-    ifft_.transform( filtered, newsignal );
+    ifft_->setInput( filtered.getData() );
+    ifft_->setOutput( newsignal.getData() );
+    ifft_->run( true );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {

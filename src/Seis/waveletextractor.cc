@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.7 2010-07-28 10:42:24 cvsnageswara Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.8 2010-08-11 16:55:33 cvsyuancheng Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
-#include "fft.h"
+#include "fourier.h"
 #include "genericnumer.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
@@ -33,13 +33,15 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     , phase_(0)
     , nrusedtrcs_(0)
     , nrdone_(0)
-    , fft_( new FFT() )
+    , fft_( new Fourier::CC() )
     , totalnr_(0)
     , msg_("Extracting wavelet")
     , wvlt_(*new Wavelet("",-wvltsize/2))
     , lineidx_(-1)
 {
-    initFFT();
+    fft_->setInputInfo( Array1DInfoImpl(wvltsize_) );
+    fft_->setDir( true );
+    
     initWavelet();
     seisrdr_ = new SeisTrcReader( &ioobj );
 }
@@ -105,14 +107,6 @@ void WaveletExtractor::setSelData( ObjectSet<Seis::SelData>& sdset )
 {
     sdset_ = sdset;
     init2D();
-}
-
-
-void WaveletExtractor::initFFT()
-{
-    fft_->setInputInfo( Array1DInfoImpl(wvltsize_) );
-    fft_->setDir( true );
-    fft_->init();
 }
 
 
@@ -266,13 +260,15 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
     removeBias( &temp );
     normalisation( temp );
 
+    Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
     Array1DImpl<float_complex> timedomsignal( wvltsize_ );
     for ( int idx=0; idx<wvltsize_; idx++ )
 	timedomsignal.set( idx, temp.arr()[idx] );
-
-    Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
-    fft_->transform( timedomsignal, freqdomsignal );
-
+    
+    fft_->setInput( timedomsignal.getData() );
+    fft_->setOutput( freqdomsignal.getData() );
+    fft_->run( true );
+    
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
 	const float val = std::abs( freqdomsignal.arr()[idx] );
@@ -331,13 +327,15 @@ void WaveletExtractor::setPhase( int phase )
 bool WaveletExtractor::doWaveletIFFT()
 {
     fft_->setDir( false );
-    fft_->init();
 
     Array1DImpl<float_complex> signal( wvltsize_ ), transfsig( wvltsize_ );
     for ( int idx=0; idx<wvltsize_; idx++ )
 	signal.set( idx, wvlt_.samples()[idx] );
 
-    fft_->transform( signal, transfsig );
+    fft_->setInput( signal.getData() );
+    fft_->setOutput( transfsig.getData() );
+    fft_->run( true );
+
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
 	if ( idx>=wvltsize_/2 )

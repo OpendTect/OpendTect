@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: costrans.cc,v 1.8 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: costrans.cc,v 1.9 2010-08-11 16:55:33 cvsyuancheng Exp $";
 
 
 #include "costrans.h"
@@ -13,18 +13,18 @@ static const char* rcsID = "$Id: costrans.cc,v 1.8 2009-07-22 16:01:29 cvsbert E
 
 bool CosineTransform::CosineTransform1D::init()
 {
-    if ( !isPower( size, 2 ) )
+    if ( !isPower( sz_ , 2 ) )
     {
-	isfast = false;
+	isfast_ = false;
     }
     else
     {
-	isfast = true;
+	isfast_ = true;
 	initcosarray();
     }
 
-    two_over_size = 2.0/(double)size;
-    root2_over_rootsize = Math::Sqrt(2.0/(double)size);
+    two_over_size_ = 2.0/(double)sz_ ;
+    root2_over_rootsize_ = Math::Sqrt(2.0/(double)sz_ );
 
     return true;
 }
@@ -32,50 +32,51 @@ bool CosineTransform::CosineTransform1D::init()
 
 void CosineTransform::CosineTransform1D::initcosarray()
 {
-    power = isPower( size, 2 );
+    power_ = isPower( sz_ , 2 );
 
-    if( cosarray ) delete cosarray;
+    if ( cosarray_ ) delete [] cosarray_;
 
-    cosarray = new float[size];
+    cosarray_ = new float[sz_];
 
-    int hsz=size/2;
+    int hsz=sz_ /2;
 
-    for ( int i=0; i<=hsz-1; i++ ) cosarray[hsz+i]=4*i+1;
+    for ( int i=0; i<=hsz-1; i++ ) cosarray_[hsz+i]=4*i+1;
 
-    for ( int group=1; group<=power-1; group++ )
+    for ( int group=1; group<=power_-1; group++ )
     {
 	int base= 1 << (group-1);
 	int nitems = base;
-	float factor = 1.0*(1<<(power-group));
+	float factor = 1.0*(1<<(power_-group));
 
 	for ( int item=1; item<=nitems; item++ )
 	{
-	    cosarray[base+item-1] = factor*cosarray[hsz+item-1];
+	    cosarray_[base+item-1] = factor*cosarray_[hsz+item-1];
 	}
     }
 
-    for ( int i=1; i<size; i++ )
-	cosarray[i] = 1.0/(2.0*cos(cosarray[i]*M_PI/(2.0*size)));
+    for ( int i=1; i<sz_ ; i++ )
+	cosarray_[i] = 1.0/(2.0*cos(cosarray_[i]*M_PI/(2.0*sz_ )));
 }
 
-void CosineTransform::CosineTransform1D::transform1D( const float_complex* in,
-						      float_complex* out,
-						      int space ) const
+bool CosineTransform::CosineTransform1D::run( bool )
 {
-    templ_transform1D( in, out, space );
-}
+    if ( cinput_ && coutput_ )
+    {
+	for ( int idx=0; idx<nr_; idx++ )
+	{
+	    int offset = batchstarts_ ? batchstarts_[idx] : idx*batchsampling_;
+	    templ_transform1D( cinput_+offset, coutput_+offset, sampling_ );
+	}
+    }
+    else if ( rinput_ && routput_ )
+    {
+	for ( int idx=0; idx<nr_; idx++ )
+	{
+	    int offset = batchstarts_ ? batchstarts_[idx] : idx*batchsampling_;
+	    templ_transform1D( rinput_+offset, routput_+offset, sampling_ );
+	}
+    }
 
-
-void CosineTransform::CosineTransform1D::transform1D( const float* in,
-						      float* out,
-						      int space ) const
-{
-    templ_transform1D( in, out, space );
-}
-
-
-bool CosineTransform::isPossible( int sz ) const
-{
     return true;
 }
 

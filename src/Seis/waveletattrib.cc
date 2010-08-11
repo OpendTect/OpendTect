@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.cc,v 1.8 2009-12-15 14:53:45 cvsbruno Exp $
+ RCS:           $Id: waveletattrib.cc,v 1.9 2010-08-11 16:55:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "arrayndutils.h"
-#include "fft.h"
+#include "fourier.h"
 #include "hilberttransform.h"
 #include "wavelet.h"
 
@@ -21,7 +21,7 @@ ________________________________________________________________________
 WaveletAttrib::WaveletAttrib( const Wavelet& wvlt )
 	: wvltarr_(0)
 	, wvltsz_(0)  
-	, fft_(new FFT(false))
+	, fft_(new Fourier::CC())
 	, hilbert_(new HilbertTransform())
 {
     setNewWavelet( wvlt );
@@ -44,19 +44,23 @@ void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
 }
 
 
-#define mDoTransform( transfm, isforward, inp, outp,sz )\
+#define mDoFFT( isforward, inp, outp, sz )\
 {\
-    transfm->setInputInfo( Array1DInfoImpl(sz) );\
-    transfm->setDir( isforward );\
-    transfm->init();\
-    transfm->transform(inp,outp);\
+    fft_->setInputInfo( Array1DInfoImpl(sz) );\
+    fft_->setDir( isforward );\
+    fft_->setInput( inp.getData() );\
+    fft_->setOutput( outp.getData() );\
+    fft_->run( true ); \
 }
 
 
 void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb )
 {
     hilbert_->setCalcRange( 0, wvltsz_, 0 );
-    mDoTransform( hilbert_, true, *wvltarr_, hilb, wvltsz_ );
+    hilbert_->setInputInfo( Array1DInfoImpl(wvltsz_) );
+    hilbert_->setDir( true );
+    hilbert_->init();
+    hilbert_->transform( *wvltarr_, hilb );
 } 
 
 
@@ -68,7 +72,7 @@ void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool degree )
     for ( int sampidx=0; sampidx<wvltsz_; sampidx++ )
 	cindata.set( sampidx, wvltarr_->get( sampidx ) );
 
-    mDoTransform( fft_, true, cindata, coutdata, wvltsz_ );
+    mDoFFT( true, cindata, coutdata, wvltsz_ );
 
     for ( int idx=0; idx<wvltsz_; idx++ )
     {
@@ -121,9 +125,9 @@ void WaveletAttrib::muteZeroFrequency( Array1DImpl<float>& vals )
     for ( int idx=0; idx<arraysz; idx++ )
 	cvals.set( idx, vals.get(idx) );
 
-    mDoTransform( fft_, true, cvals, tmparr, arraysz );
+    mDoFFT( true, cvals, tmparr, arraysz );
     tmparr.set( 0, 0 );
-    mDoTransform( fft_, false, tmparr, cvals,  arraysz );
+    mDoFFT( false, tmparr, cvals,  arraysz );
 
     for ( int idx=0; idx<arraysz; idx++ )
 	vals.set( idx, cvals.get( idx ).real() );
@@ -144,7 +148,7 @@ void WaveletAttrib::getFrequency( Array1DImpl<float>& padfreq, int padfac )
     for ( int idx=0; idx<wvltsz_; idx++ )
 	czeropaddedarr.set( padfac>1 ? idx+padshift : idx, wvltarr_->get(idx));
 
-    mDoTransform( fft_, true, czeropaddedarr, cfreqarr, zpadsz );
+    mDoFFT( true, czeropaddedarr, cfreqarr, zpadsz );
 
     for ( int idx=0; idx<zpadsz; idx++ )
 	padfreq.set( idx, abs( cfreqarr.get(idx) ) );
@@ -164,7 +168,7 @@ void WaveletAttrib::applyFreqWindow( const ArrayNDWindow& window, int padfac,
     for ( int idx=0; idx<wvltsz_; idx++ )
 	ctimearr.set( idx + padshift, timedata.get(idx) );
     
-    mDoTransform( fft_, true, ctimearr, cfreqarr, padsz );
+    mDoFFT( true, ctimearr, cfreqarr, padsz );
 
     bool isoddpadsz = ( padsz%2 !=0 );
 
@@ -177,7 +181,7 @@ void WaveletAttrib::applyFreqWindow( const ArrayNDWindow& window, int padfac,
     }
     if ( isoddpadsz ) cfreqarr.set( (int)(padsz/2)+1, 0 );
 
-    mDoTransform( fft_, false, cfreqarr, ctimearr, padsz );
+    mDoFFT( false, cfreqarr, ctimearr, padsz );
 
     for ( int idx=0; idx<wvltsz_; idx++ )
 	timedata.set( idx, ctimearr.get( idx + padshift ).real() );

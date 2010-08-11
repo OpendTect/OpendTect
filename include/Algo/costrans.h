@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: costrans.h,v 1.11 2010-05-04 18:52:42 cvsyuancheng Exp $
+ RCS:           $Id: costrans.h,v 1.12 2010-08-11 16:55:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -43,51 +43,30 @@ standard, where it is used extensively.
 
 mClass CosineTransform : public GenericTransformND
 {
-public:
-    
-    bool        	real2real() const		{ return true; }
-    bool		real2complex() const		{ return false; }
-    bool		complex2real() const		{ return false; }
-    bool		complex2complex() const		{ return true; }
-		 
-    bool		biDirectional() const		{ return true; }
-
 protected:
 
     mClass CosineTransform1D : public GenericTransformND::Transform1D
     {
     public:
-	void		setSize(int nsz) { size=nsz; }
-	int		getSize() const { return size; }
-	void		setDir(bool nf) { forward=nf; }
-	bool		getDir() const { return forward; }
-
-	bool		init();
-
-	void		transform1D( const float_complex*, float_complex*,
-				     int space) const;
-	void		transform1D( const float*, float*, int space) const;
-
 			CosineTransform1D()
-			    : size (-1)
-			    , cosarray( 0 )
-			    , forward( true )
+			    : cosarray_( 0 )
 			{}	
 
-			~CosineTransform1D() { delete cosarray; }
+			~CosineTransform1D() { delete [] cosarray_; }
+
+	bool		init();
+	bool		run(bool);
+
     protected:
 
-	float*		cosarray;
-	int		size;
-	bool		forward;
-	int 		power;
-	bool		isfast;
+	float*		cosarray_;
+	int 		power_;
+	bool		isfast_;
 
-	float		two_over_size;
-	float		root2_over_rootsize;
+	float		two_over_size_;
+	float		root2_over_rootsize_;
 
 #include <templ_costransimpl.h>
-
 
 	void				initcosarray();
     };
@@ -95,7 +74,6 @@ protected:
     Transform1D*			createTransform() const
 					{ return new CosineTransform1D; }
 
-    bool				isPossible( int ) const;
     bool				isFast( int ) const;
 
 };

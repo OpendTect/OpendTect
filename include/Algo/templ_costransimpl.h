@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          2001
- RCS:           $Id: templ_costransimpl.h,v 1.4 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: templ_costransimpl.h,v 1.5 2010-08-11 16:55:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
  This is part of another include file. Do not protect against multiple
@@ -17,15 +17,15 @@ ________________________________________________________________________
 template<class T> inline
 void inv_sums(T* signal, int space) const
 {
-    for ( int stage=1; stage<power; stage++ )
+    for ( int stage=1; stage<power_; stage++ )
     {
 	int nthreads = 1 << (stage-1);
 	int stepsize = nthreads << 1;
-	int nsteps   = (1 << (power-stage)) - 1;
+	int nsteps   = (1 << (power_-stage)) - 1;
 
 	for ( int thread=1; thread<=nthreads; thread++ )
 	{
-	    int curptr=size-thread; 
+	    int curptr=sz_-thread; 
 
 	    for ( int step=1; step<=nsteps; step++ )
 	    {
@@ -40,11 +40,11 @@ void inv_sums(T* signal, int space) const
 template<class T> inline
 void fwd_sums(T* signal, int space) const
 {
-    for ( int stage=power-1; stage>=1; stage-- )
+    for ( int stage=power_-1; stage>=1; stage-- )
     {
 	int nthreads = 1 << (stage-1);
 	int stepsize = nthreads << 1;
-	int nsteps   = (1 << (power-stage)) - 1;
+	int nsteps   = (1 << (power_-stage)) - 1;
 
 	for ( int thread=1; thread<=nthreads; thread++)
 	{
@@ -63,14 +63,14 @@ void fwd_sums(T* signal, int space) const
 template<class T> inline
 void scramble( T* signal, int space ) const
 {
-    int hsz = size >> 1;
+    int hsz = sz_ >> 1;
     int qtrsz = hsz >> 1;
 
-    bitrev( signal, space, size );
+    bitrev( signal, space, sz_ );
     bitrev( signal, space, hsz );
     bitrev( &signal[hsz*space], space, hsz );
 
-    int ii1 = (size-1)*space;
+    int ii1 = (sz_-1)*space;
     int ii2 = hsz*space;
 
     for ( int i=0; i<qtrsz; i++ )
@@ -86,9 +86,9 @@ void scramble( T* signal, int space ) const
 template<class T> inline
 void unscramble(T* signal, int space ) const
 {
-    int hsz = size >> 1;
+    int hsz = sz_ >> 1;
     int qtrsz = hsz >> 1;
-    int ii1 = (size-1)*space;
+    int ii1 = (sz_-1)*space;
     int ii2 = hsz*space;
 
     for ( int i=0; i<qtrsz; i++ )
@@ -102,22 +102,22 @@ void unscramble(T* signal, int space ) const
 
     bitrev( signal, space, hsz);
     bitrev( &signal[hsz*space], space, hsz);
-    bitrev( signal, space, size);
+    bitrev( signal, space, sz_);
 }
 
 
 template<class T> inline
 void inv_butterflies( T* signal, int space) const
 {
-    for ( int stage=1; stage<=power; stage++ )
+    for ( int stage=1; stage<=power_; stage++ )
     {
-	int ngroups = 1 << (power-stage);
+	int ngroups = 1 << (power_-stage);
 	int wingspan = 1 << (stage-1);
 	int increment = wingspan << 1;
 
 	for ( int butterfly=1; butterfly<=wingspan; butterfly++ )
 	{
-	    T Cfac = cosarray[wingspan+butterfly-1];
+	    T Cfac = cosarray_[wingspan+butterfly-1];
 	    int baseptr=0;
 
 	    for ( int group=1; group<=ngroups; group++ )
@@ -137,15 +137,15 @@ void inv_butterflies( T* signal, int space) const
 template<class T> inline
 void fwd_butterflies(T* signal, int space ) const
 {
-    for ( int stage=power; stage>=1; stage-- )
+    for ( int stage=power_; stage>=1; stage-- )
     {
-	int ngroups = 1 << (power-stage);
+	int ngroups = 1 << (power_-stage);
 	int wingspan = 1 << (stage-1);
 	int increment = wingspan << 1;
 
 	for ( int butterfly=1; butterfly<=wingspan; butterfly++ )
 	{
-	    T Cfac = cosarray[wingspan+butterfly-1];
+	    T Cfac = cosarray_[wingspan+butterfly-1];
 	    int baseptr = 0;
 
 	    for ( int group=1; group<=ngroups; group++ )
@@ -198,61 +198,61 @@ void bitrev( T* in, int space, int len ) const
 template <class T> inline
 void templ_transform1D( const T* in, T* out, int space ) const
 {
-    if ( isfast )
+    if ( isfast_ )
     {
 	if ( in != out )
 	{
-	    int end = size*space;
+	    int end = sz_*space;
 
 	    for ( int idx=0; idx<end; idx+=space )
 		out[idx] = in[idx];
 	}
 
-	if ( forward )
+	if ( forward_ )
 	{
 	    scramble( out, space );
 	    fwd_butterflies( out, space );
-	    bitrev( out, space, size );
+	    bitrev( out, space, sz_ );
 	    fwd_sums( out, space );
 	}
 	else
 	{
 	    out[0] *= invroot2;
 	    inv_sums( out, space );
-	    bitrev( out, space, size );
+	    bitrev( out, space, sz_ );
 	    inv_butterflies( out, space );
 	    unscramble( out, space );
 
-	    int end = size*space;
+	    int end = sz_*space;
 	    for ( int idx=0; idx<end; idx+=space )
-		out[idx] *= two_over_size;
+		out[idx] *= two_over_size_;
 	}
 
-	if ( forward ) out[0] *= invroot2;
+	if ( forward_ ) out[0] *= invroot2;
     }
     else
     {
-	ArrPtrMan<T> tmp = new T [size];
+	ArrPtrMan<T> tmp = new T [sz_];
 	const T* indata = in;
 	int inspace = space;
 
 	if ( in == out )
 	{
-	    for ( int idx=0; idx<size; idx++ )
+	    for ( int idx=0; idx<sz_; idx++ )
 		tmp[idx] = in[idx*space];
 
 	    indata = tmp;
 	    inspace = 1;
 	}
 
-	if ( forward )
+	if ( forward_ )
 	{
-	    for ( int idf=0; idf<size; idf++ )
+	    for ( int idf=0; idf<sz_; idf++ )
 	    {
 		T sum = 0;
-		double factor = idf*M_PI/2.0/size;
+		double factor = idf*M_PI/2.0/sz_;
 
-		for ( int idx=0; idx<size; idx++ )
+		for ( int idx=0; idx<sz_; idx++ )
 		{
 		    T toadd = indata[idx*inspace];
 		    toadd *= ((double)(cos( (2*idx+1) * factor )));
@@ -264,16 +264,16 @@ void templ_transform1D( const T* in, T* out, int space ) const
 	}
 	else
 	{
-	    double factor = M_PI/2/size;
+	    double factor = M_PI/2/sz_;
 
-	    for ( int idx=0; idx<size; idx++ )
+	    for ( int idx=0; idx<sz_; idx++ )
 	    {
 		T sum = 0;
 
-		for ( int idf=0; idf<size; idf++ )
+		for ( int idf=0; idf<sz_; idf++ )
 		{
 		    T contrib = indata[idf*inspace];
-		    contrib *= (idf?two_over_size:two_over_size*invroot2) *
+		    contrib *= (idf?two_over_size_:two_over_size_*invroot2) *
 				cos((2*idx+1)*idf*factor);
 		    sum += contrib;
 		}
@@ -282,6 +282,6 @@ void templ_transform1D( const T* in, T* out, int space ) const
 	    }
 	}
 
-	if ( forward ) out[0] *= invroot2;
+	if ( forward_ ) out[0] *= invroot2;
     }
 }

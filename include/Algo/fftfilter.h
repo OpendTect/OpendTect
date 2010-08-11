@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          6-10-2009
-RCS:           $Id: fftfilter.h,v 1.6 2010-05-11 14:21:08 cvsbruno Exp $
+RCS:           $Id: fftfilter.h,v 1.7 2010-08-11 16:55:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include <complex>
 
-class FFT;
+namespace Fourier { class CC; }
 class ArrayNDWindow;
 
 template <class T> class Array1DImpl;
@@ -65,7 +65,7 @@ protected:
 			float* win_;
     };
 
-    FFT*		fft_; 
+    Fourier::CC*	fft_; 
     Window*		timewindow_;
     Window*		hfreqwindow_;
     Window*		lfreqwindow_;

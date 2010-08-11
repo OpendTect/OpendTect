@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.18 2010-05-03 15:11:44 cvsyuancheng Exp $
+ RCS:           $Id: wavelettrans.h,v 1.19 2010-08-11 16:55:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 @$*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "arraynd.h"
 #include "arrayndimpl.h"
-#include "fft.h"
+#include "fourier.h"
 #include "ranges.h"
 
 /*!\brief
@@ -82,15 +82,7 @@ mClass DWT : public GenericTransformND
 {
 public:
 			DWT( WaveletTransform::WaveletType );
-
-    bool		real2real() const;
-    bool		real2complex() const		{ return false; }
-    bool		complex2real() const		{ return false; }
-    bool		complex2complex() const		{ return true; }
-
-    bool		biDirectional( ) const		{ return true; };
-
-    bool		init();
+    bool		setup();
 
 protected:
 
@@ -98,59 +90,45 @@ protected:
     {
     public:
 	
-	void		setSize(int nsz) { size=nsz; }
-	int		getSize() const { return size; }
-	void		setDir(bool nf) { forward=nf; }
-	bool		getDir() const { return forward; }
-
 	bool		init();
-
-	void		transform1D( const float_complex*, float_complex*,
-				     int space) const;
-	void		transform1D( const float*, float*, int space) const;
-
+	bool		run(bool);
 			FilterWT1D()
-			    : size (-1)
-			    , cc( 0 )
-			    , cr( 0 )
-			    , forward( true )
-			    , wt ( WaveletTransform::Haar )
+			    : cc_( 0 )
+			    , cr_( 0 )
+			    , wt_( WaveletTransform::Haar )
 			{}	
 
-			~FilterWT1D() { delete cr; delete cc; }
+			~FilterWT1D() { delete [] cr_; delete [] cc_; }
 
 	void		setWaveletType( WaveletTransform::WaveletType );
     protected:
 
 #include <templ_wavlttransimpl.h>
 
-	WaveletTransform::WaveletType		wt;
-	int			size;
-	bool			forward;
+	WaveletTransform::WaveletType		wt_;
 
-	float*			cc;		// Filter Parameters
-	float*			cr;
-	int			filtersz;
-	int			joff;
-	int			ioff;
+	float*			cc_;		// Filter Parameters
+	float*			cr_;
+	int			filtersz_;
+	int			joff_;
+	int			ioff_;
     };
 
     Transform1D*		createTransform() const
 				{ return new FilterWT1D; }
 
-    bool			isPossible( int ) const;
-    bool			isFast( int ) const { return true; };
-
-
-    WaveletTransform::WaveletType	wt;
+    WaveletTransform::WaveletType	wt_;
 };
 
 
-mClass CWT : public TransformND
+mClass CWT 
 {
 public:
 			CWT();
 			~CWT();
+
+    bool		init();
+
 
     enum		WaveletType { Morlet, Gaussian, MexicanHat };
     			DeclareEnumUtils(WaveletType);
@@ -173,7 +151,6 @@ public:
     bool		setDir(bool forw);
     bool		getDir() const			{ return true; }
 
-    bool		init();
 
     bool		transform(const ArrayND<float>&,
 				   ArrayND<float>& ) const
@@ -182,7 +159,7 @@ public:
 				   ArrayND<float_complex>& ) const
 			{ return false; }
     bool		transform(const ArrayND<float_complex>& input,
-	    				ArrayND<float>& output) const;
+	    				ArrayND<float>& output);
 
     float		getScale(int ns,float dt,float freq) const;
 
@@ -215,14 +192,14 @@ protected:
 
     void		transform(int,float,int,
 	    			  const Array1DImpl<float_complex>&,
-				  Array2DImpl<float>&) const;
+				  Array2DImpl<float>&);
 
-    FFT			fft_;
-    FFT			ifft_;
-	    			     
+    Fourier::CC*	fft_;
+    Fourier::CC*	ifft_;
+
     ArrayNDInfo*	info_;
-
-    bool		inited;
+	    			     
+    bool		inited_;
     float		dt_;
     WaveletType		wt_;
 

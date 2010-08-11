@@ -6,14 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          July 2009
- RCS:           $Id: waveletextractor.h,v 1.4 2009-11-23 04:59:34 cvsnageswara Exp $ 
+ RCS:           $Id: waveletextractor.h,v 1.5 2010-08-11 16:55:33 cvsyuancheng Exp $ 
  ________________________________________________________________________
                  
 -*/   
 
 #include "executor.h"
 
-class FFT;
+namespace Fourier { class CC; }
 class IOObj;
 namespace Seis { class SelData; }
 class SeisTrc;
@@ -35,7 +35,6 @@ public:
 
 protected:
 
-    void			initFFT();
     void			initWavelet();
     void			init2D();
     void			init3D();
@@ -61,7 +60,7 @@ protected:
     const Seis::SelData*	sd_;
     ObjectSet<Seis::SelData>    sdset_;
     SeisTrcReader*		seisrdr_;
-    FFT*			fft_;
+    Fourier::CC*		fft_;
     int				lineidx_;
     float			paramval_;
     int				wvltsize_;

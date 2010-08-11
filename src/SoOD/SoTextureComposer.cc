@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.20 2010-07-09 22:11:41 cvskris Exp $";
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.21 2010-08-11 16:55:33 cvsyuancheng Exp $";
 
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"
@@ -147,7 +147,7 @@ void SoTextureComposer::GLRender( SoGLRenderAction* action )
 	transparency = true;
     else if ( ti==SoTextureComposerInfo::cHasNoIntermediateTransparency() )
 	alphafunc = GL_GREATER;
-#if COIN_MAJOR_VERSION>3
+#if COIN_MAJOR_VERSION>4
     SoLazyElement::setAlphaTest( state, alphafunc, 0.5 );
 #else
     SoLazyElement::setAlphaTest( state, (bool) alphafunc );

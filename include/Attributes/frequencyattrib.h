@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.16 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.17 2010-08-11 16:55:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribprovider.h"
 #include "bufstringset.h"
-#include "fft.h"
+#include "fourier.h"
 #include "mathfunc.h"
 #include "valseries.h"
 #include "valseriesinterpol.h"
@@ -57,6 +57,7 @@ class ArrayNDWindow;
 class BinID;
 template<class T> class Array1DImpl;
 
+
 namespace Attrib
 {
 
@@ -97,8 +98,6 @@ protected:
     Interval<float>		gate_;
     Interval<int>		samplegate_;
     bool			dumptofile_;
-    int				fftsz_;
-    FFT				fft_;
     ArrayNDWindow*		window_;
     BufferString		windowtype_;
     float			df_;
@@ -113,6 +112,8 @@ protected:
 
     BufferStringSet		dumpset_;
     bool			fftisinit_;
+    int				fftsz_;
+    Fourier::CC*		fft_;
 
     Array1DImpl<float_complex>*	signal_;
     Array1DImpl<float_complex>*	timedomain_;

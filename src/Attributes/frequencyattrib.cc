@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.27 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.28 2010-08-11 16:55:33 cvsyuancheng Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -81,9 +81,9 @@ void Frequency::updateDesc( Desc& desc )
 
 Frequency::Frequency( Desc& ds )
     : Provider(ds)
+    , fft_(new Fourier::CC())
     , fftisinit_(false)
     , fftsz_(-1)
-    , fft_(false)
     , window_(0)
     , variable_(0)	       
     , signal_(0)
@@ -134,10 +134,11 @@ Frequency::~Frequency()
 	}
     }
 
-    delete window_;
-    delete signal_;
-    delete timedomain_;
-    delete freqdomain_;
+    delete window_; 
+    delete signal_; 
+    delete timedomain_; 
+    delete freqdomain_; 
+    delete fft_; 
 }
 
 
@@ -189,18 +190,17 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
     Frequency* myself = const_cast<Frequency*>(this);
     if ( !fftisinit_ )
     {
-	myself->fftsz_ = FFT::nearestBiggerFastSize((samplegate_.width()+1)*3);
-	myself->fft_.setInputInfo(Array1DInfoImpl(fftsz_));
-	myself->fft_.setDir(true);
-	myself->fft_.init();
+	myself->fftsz_ = Fourier::CC::nextFastSize((samplegate_.width()+1)*3);
+	myself->fft_->setInputInfo(Array1DInfoImpl(fftsz_));
+    	myself->fft_->setDir(true);
 
-	myself->df_ = FFT::getDf( refstep_, fftsz_ );
+	myself->df_ = Fourier::CC::getDf( refstep_, fftsz_ );
 	myself->signal_ = new Array1DImpl<float_complex>(samplegate_.width()+1);
 	myself->timedomain_ = new Array1DImpl<float_complex>( fftsz_ );
 	myself->freqdomain_ = new Array1DImpl<float_complex>( fftsz_ );
 	myself->fftisinit_ = true;
     }
-    	
+    
     const int sz = samplegate_.width()+1;
     for ( int idx=0; idx<fftsz_; idx++)
 	myself->timedomain_->set( idx, 0 );
@@ -228,7 +228,10 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	    myself->timedomain_->set( sz+idy, signal_->get(idy) );
 
 	TypeSet<float> freqdomainpower( fftsz_, 0 );
-	fft_.transform( *timedomain_, *myself->freqdomain_ );
+	fft_->setInput( timedomain_->getData() );
+	fft_->setOutput( myself->freqdomain_->getData() ); 
+	if ( !fft_->run( true ) )
+	    return false;
 
 	int maxnr = -1;
 	float maxval = 0;
@@ -236,8 +239,8 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 
 	for ( int idy=0; idy<=fftsz_/2; idy++ )
 	{
-	    float val = abs( freqdomain_->get(idy) );
-	    float val2 = val * val;
+	    const float val = abs( freqdomain_->get(idy) );
+	    const float val2 = val * val;
 	    freqdomainpower[idy] = val2;
 
 	    sum += val2;

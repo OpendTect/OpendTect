@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initalgo.cc,v 1.18 2010-01-12 12:18:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: initalgo.cc,v 1.19 2010-08-11 16:55:33 cvsyuancheng Exp $";
 
 #include "initalgo.h"
 
-#include "fft.h"
 #include "gridder2d.h"
 #include "array2dinterpolimpl.h"
 #include "posfilterstd.h"
@@ -19,8 +18,6 @@ static const char* rcsID = "$Id: initalgo.cc,v 1.18 2010-01-12 12:18:30 cvsyuanc
 
 void Algo::initStdClasses()
 {
-    FFT::initClass();
-
     BartlettWindow::initClass();
     BoxWindow::initClass();
     CosTaperWindow::initClass();

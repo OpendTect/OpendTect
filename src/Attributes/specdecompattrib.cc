@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.30 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.31 2010-08-11 16:55:33 cvsyuancheng Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: specdecompattrib.cc,v 1.30 2010-04-20 22:03:25 
 #include "genericnumer.h"
 #include "survinfo.h"
 #include "strmprov.h"
+#include "transform.h"
 #include "envvars.h"
 #include "math2.h"
 
@@ -119,6 +120,7 @@ SpecDecomp::SpecDecomp( Desc& desc )
     , freqdomain_(0)
     , signal_(0)
     , scalelen_(0)
+    , fft_(new Fourier::CC())
 { 
     if ( !isOK() ) return;
 
@@ -154,6 +156,7 @@ SpecDecomp::SpecDecomp( Desc& desc )
 
 SpecDecomp::~SpecDecomp()
 {
+    delete fft_;
     delete window_;
 }
 
@@ -180,7 +183,7 @@ bool SpecDecomp::getInputData( const BinID& relpos, int idx )
 
 
 bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
-			      int z0, int nrsamples, int threadid ) const
+			      int z0, int nrsamples, int threadid ) const 
 {
     if ( !fftisinit_ )
     {
@@ -195,10 +198,10 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 	    const int minsz = mNINT( 2*fnyq/deltafreq_ );
 	    const_cast<SpecDecomp*>(this)->fftsz_ = sz_ > minsz ? sz_ : minsz;
 	    const_cast<SpecDecomp*>(this)->
-			fft_.setInputInfo(Array1DInfoImpl(fftsz_));
-	    const_cast<SpecDecomp*>(this)->fft_.setDir(true);
-	    const_cast<SpecDecomp*>(this)->fft_.init();
-	    const_cast<SpecDecomp*>(this)->df_ = FFT::getDf( refstep_, fftsz_ );
+			fft_->setInputInfo(Array1DInfoImpl(fftsz_));
+	    const_cast<SpecDecomp*>(this)->fft_->setDir(true);
+	    const_cast<SpecDecomp*>(this)->df_ = 
+		Fourier::CC::getDf(refstep_,fftsz_);
 
 	    const_cast<SpecDecomp*>(this)->window_ = 
 		new ArrayNDWindow( Array1DInfoImpl(sz_), false, 
@@ -265,7 +268,10 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 	for ( int idy=0; idy<sz_; idy++ )
 	    timedomain_->set( diff+idy, signal_->get(idy) );
 
-	fft_.transform( *timedomain_, *freqdomain_ );
+	fft_->setInput( timedomain_->getData() );
+	fft_->setOutput( freqdomain_->getData() );
+	if ( !fft_->run( true ) )
+	    return false;
 
 	for ( int idf=0; idf<outputinterest_.size(); idf++ )
 	{
@@ -299,9 +305,11 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
     ::DWT dwt(dwtwavelet_ );
 
     dwt.setInputInfo( inputdata.info() );
-    dwt.init();
-    dwt.transform( inputdata, transformed );
-
+    dwt.setInput( inputdata.getData() );
+    dwt.setOutput( transformed.getData() );
+    if ( !dwt.run(false) )
+	return false;
+    
     const int nrscales = isPower( len, 2 ) + 1;
     ArrPtrMan<float> spectrum =  new float[nrscales];
     spectrum[0] = fabs(transformed.get(0)); // scale 0 (dc)

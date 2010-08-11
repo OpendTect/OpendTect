@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.21 2010-05-25 08:34:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.22 2010-08-11 16:55:33 cvsyuancheng Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.21 2010-05-25 08:34:35 cv
 #include "arrayndwrapper.h"
 #include "bufstring.h"
 #include "datapackbase.h"
-#include "fft.h"
+#include "fourier.h"
 #include "strmprov.h"
 #include "survinfo.h"
 
@@ -123,11 +123,10 @@ void uiAmplSpectrum::setData( const Array3D<float>& array )
 
 void uiAmplSpectrum::initFFT( int nrsamples ) 
 {
-    fft_ = new FFT();
-    const int fftsz = fft_->nearestBiggerFastSize( nrsamples );
+    fft_ = new Fourier::CC();
+    const int fftsz = fft_->nextFastSize( nrsamples );
     fft_->setInputInfo( Array1DInfoImpl(fftsz) );
     fft_->setDir( true );
-    fft_->init();
 
     timedomain_ = new Array1DImpl<float_complex>( fftsz );
     freqdomain_ = new Array1DImpl<float_complex>( fftsz );
@@ -162,7 +161,10 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 		timedomain_->set( start+idz, mIsUdf(val) ? 0 : val );
 	    }
 
-	    fft_->transform( *timedomain_, *freqdomain_ );
+	    fft_->setInput( timedomain_->getData() );
+	    fft_->setOutput( freqdomain_->getData() );
+	    fft_->run( true );
+	    
 	    for ( int idz=0; idz<sz2; idz++ )
 		freqdomainsum_->arr()[idz] += abs(freqdomain_->get(idz));
 	}

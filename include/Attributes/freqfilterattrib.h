@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.15 2009-11-16 18:52:03 cvsbruno Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.16 2010-08-11 16:55:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "arrayndutils.h"
 #include "arrayndimpl.h"
-#include "fft.h"
+#include "fourier.h"
 #include <complex>
 
 
@@ -73,14 +73,14 @@ protected:
     
     const Interval<int>*	desZSampMargin(int input,int output) const;
 
-    int				filtertype;
-    float 			minfreq;
-    float                       maxfreq;
-    int				nrpoles;
-    bool			isfftfilter;
-    FFT                         fft;
-    FFT                         fftinv;
-    int                         fftsz;
+    int				filtertype_;
+    float 			minfreq_;
+    float                       maxfreq_;
+    int				nrpoles_;
+    bool			isfftfilter_;
+    Fourier::CC*		fft_;
+    Fourier::CC*		fftinv_;
+    int                         fftsz_;
 
     ArrayNDWindow*              window_;
     BufferString                windowtype_;
@@ -88,16 +88,16 @@ protected:
     float                       highfreqvariable_;
     float                       lowfreqvariable_;
 
-    Interval<int>		zmargin;
+    Interval<int>		zmargin_;
 
-    Array1DImpl<float_complex>  signal;
-    Array1DImpl<float_complex>  timedomain;
-    Array1DImpl<float_complex>  freqdomain;
-    Array1DImpl<float_complex>  tmpfreqdomain;
-    Array1DImpl<float_complex>  timecplxoutp;
+    Array1DImpl<float_complex>  signal_;
+    Array1DImpl<float_complex>  timedomain_;
+    Array1DImpl<float_complex>  freqdomain_;
+    Array1DImpl<float_complex>  tmpfreqdomain_;
+    Array1DImpl<float_complex>  timecplxoutp_;
     
-    const DataHolder*		redata;
-    const DataHolder*		imdata;
+    const DataHolder*		redata_;
+    const DataHolder*		imdata_;
 
     int				realidx_;
     int				imagidx_;

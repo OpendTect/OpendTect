@@ -7,16 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.49 2010-07-13 12:34:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.50 2010-08-11 16:55:33 cvsyuancheng Exp $";
 
 
 #include "welltiegeocalculator.h"
 
 #include "arrayndutils.h"
-#include "fft.h"
+#include "fourier.h"
 #include "fftfilter.h"
 #include "hilberttransform.h"
 #include "genericnumer.h"
+#include "spectrogram.h"
 #include "survinfo.h"
 #include "wavelet.h"
 #include "welllog.h"
@@ -290,6 +291,18 @@ bool GeoCalculator::isValidLogData( const TypeSet<float>& logdata )
     tf.init();\
     tf.transform(*inp,*outp);\
 }
+
+#define mDoFourierTransform(tf,isstraight,inp,outp,sz) \
+{   \
+    tf.setInputInfo(Array1DInfoImpl(sz));\
+    tf.setDir(isstraight);\
+    tf.setNormalization(!isstraight); \
+    tf.setInput(inp->getData());\
+    tf.setOutput(outp->getData());\
+    tf.run(true); \
+}
+
+
 void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
 {
     const int filtersz = vals.info().getSize(0);
@@ -309,7 +322,7 @@ void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
 	filter.setLowFreqBorderWindow( lwin.getData(), winsz );
     }
 
-    float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
+    float df = Fourier::CC::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
     filter.FFTFreqFilter( df, cutf, true, orgvals, vals );
     const int bordersz = (int)(filtersz/20);
     for ( int idx=0; idx<(int)(filtersz/20); idx++ )
@@ -440,14 +453,14 @@ void GeoCalculator::deconvolve( const Array1DImpl<float>& tinputvals,
     mDoTransform( hil, true, filtervals, cfiltervals, filtersz );
     delete filtervals;
    
-    FFT fft(false);
+    Fourier::CC fft;
     Array1DImpl<float_complex>* cfreqinputvals = 
 				new Array1DImpl<float_complex>( filtersz );
-    mDoTransform( fft, true, cinputvals, cfreqinputvals, filtersz );
+    mDoFourierTransform( fft, true, cinputvals, cfreqinputvals, filtersz );
     delete cinputvals;
     Array1DImpl<float_complex>* cfreqfiltervals = 
 				new Array1DImpl<float_complex>( filtersz );
-    mDoTransform( fft, true, cfiltervals, cfreqfiltervals, filtersz );
+    mDoFourierTransform( fft, true, cfiltervals, cfreqfiltervals, filtersz );
 
     Spectrogram spec;
     Array1DImpl<float_complex>* cspecfiltervals = 
@@ -491,7 +504,7 @@ void GeoCalculator::deconvolve( const Array1DImpl<float>& tinputvals,
 
     Array1DImpl<float_complex>* ctimedeconvvals = 
 				new Array1DImpl<float_complex>( filtersz );
-    mDoTransform( fft, false, cdeconvvals, ctimedeconvvals, filtersz );
+    mDoFourierTransform( fft, false, cdeconvvals, ctimedeconvvals, filtersz );
     delete cdeconvvals;
 
     int mid = (int)(filtersz)/2;

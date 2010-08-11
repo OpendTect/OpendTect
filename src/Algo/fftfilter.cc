@@ -4,25 +4,23 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.11 2010-05-11 14:21:08 cvsbruno Exp $
+RCS:           $Id: fftfilter.cc,v 1.12 2010-08-11 16:55:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
 
 #include "arrayndimpl.h"
 #include "fftfilter.h"
-#include "fft.h"
+#include "fourier.h"
 
 #include <complex>
 
 FFTFilter::FFTFilter()
-    : fft_(0)	      
+    : fft_( new Fourier::CC() )	      
     , timewindow_(0)	      	      
     , hfreqwindow_(0)	      	      
     , lfreqwindow_(0)	      	      
-{
-    fft_ = new FFT();
-} 
+{} 
 
     
 FFTFilter::~FFTFilter()
@@ -34,13 +32,17 @@ FFTFilter::~FFTFilter()
 }
 
 
-#define mDoTransform(tf,isstraight,inp,outp,sz)\
+#define mDoFFT(isstraight,inp,outp,sz)\
 {\
-    tf->setInputInfo(Array1DInfoImpl(sz));\
-    tf->setDir(isstraight);\
-    tf->init();\
-    tf->transform(inp,outp);\
+    fft_->setInputInfo(Array1DInfoImpl(sz));\
+    fft_->setDir(isstraight);\
+    fft_->setNormalization(!isstraight); \
+    fft_->setInput(inp.getData());\
+    fft_->setOutput(outp.getData());\
+    fft_->run(true);\
 }
+
+
 void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
 				  const Array1DImpl<float>& input,
 				  Array1DImpl<float>& output )
@@ -52,7 +54,7 @@ void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
     initFilter( input, cfreqinput );
 
     FFTFreqFilter( df, cutfreq, islowpass, cfreqinput, cfreqoutput );
-    mDoTransform( fft_, false, cfreqoutput, coutvals, arraysize );
+    mDoFFT( false, cfreqoutput, coutvals, arraysize );
 
     for ( int idx=0; idx<arraysize; idx++ )
     {
@@ -75,7 +77,7 @@ void FFTFilter::FFTBandPassFilter( float df, float minfreq, float maxfreq,
     initFilter( input, cfreqinput );
     
     FFTBandPassFilter( df, minfreq, maxfreq, cfreqinput, cfreqoutput );
-    mDoTransform( fft_, false, cfreqoutput, coutvals, arraysize );
+    mDoFFT( false, cfreqoutput, coutvals, arraysize );
 
     for ( int idx=0; idx<arraysize; idx++ )
     {
@@ -104,7 +106,7 @@ void FFTFilter::initFilter( const Array1DImpl<float>& timeinput,
     for ( int idx=0; idx<arraysize; idx++ )
 	ctimeinput.set( idx, ctimeinput.get( idx) );
 
-    mDoTransform( fft_, true, ctimeinput, cfreqoutput, arraysize );
+    mDoFFT( true, ctimeinput, cfreqoutput, arraysize );
 }
 
 

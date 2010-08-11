@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.14 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.15 2010-08-11 16:55:33 cvsyuancheng Exp $
 ________________________________________________________________________
 -*/
 
 #include "attribprovider.h"
 #include "arrayndutils.h"
 #include "wavelettrans.h"
-#include "fft.h"
+#include "fourier.h"
 
 
 /*!\brief Spectral Decomposition Attribute
@@ -87,7 +87,7 @@ protected:
     Interval<int>               	samplegate_;
 
     ArrayNDWindow*              	window_;
-    FFT                         	fft_;
+    Fourier::CC*                       	fft_;
     CWT                         	cwt_;
     int                         	scalelen_;
 
