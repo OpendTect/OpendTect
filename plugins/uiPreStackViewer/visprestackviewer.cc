@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.63 2010-07-20 14:41:07 cvskris Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.64 2010-08-11 12:17:43 cvsnanne Exp $";
 
 #include "visprestackviewer.h"
 
@@ -628,7 +628,7 @@ void Viewer3D::setSectionDisplay( visSurvey::PlaneDataDisplay* pdd )
 	section_->getOrientation()==visSurvey::PlaneDataDisplay::Crossline;
     basedirection_ = offsetalonginl ? Coord( 0, 1  ) : Coord( 1, 0 );
 
-    if ( section_->getOrientation() == visSurvey::PlaneDataDisplay::Timeslice )
+    if ( section_->getOrientation() == visSurvey::PlaneDataDisplay::Zslice )
 	return;
     
     if ( section_->getMovementNotifier() )

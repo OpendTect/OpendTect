@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.55 2010-05-11 03:28:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.56 2010-08-11 12:17:43 cvsnanne Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -96,7 +96,7 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
     mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, dataobj.ptr() );
-    if ( (pdd && pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Timeslice) 
+    if ( (pdd && pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Zslice) 
 	   || s2d ) 
     {
 	uiSeisPartServer* seisserv = ODMainWin()->applMgr().seisServer();
