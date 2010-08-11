@@ -4,7 +4,7 @@
  * DATE     : August 2010
 -*/
 
-static const char* rcsID = "$Id: odimage.cc,v 1.1 2010-08-09 14:51:13 cvskris Exp $";
+static const char* rcsID = "$Id: odimage.cc,v 1.2 2010-08-11 19:33:43 cvskris Exp $";
 
 #include "odimage.h"
 
@@ -23,7 +23,8 @@ void RGBImage::fill( unsigned char* res ) const
 {
     const int xsize = getSize( true );
     const int ysize = getSize( false );
-    const bool hasalpha = hasAlpha();
+
+    const int nrcomponents = nrComponents();
 
     for ( int idx=0; idx<xsize; idx++ )
     {
@@ -31,12 +32,55 @@ void RGBImage::fill( unsigned char* res ) const
 	{
 	    const Color col = get( idx, idy );
 	    (*res++) = col.r();
-	    (*res++) = col.g();
-	    (*res++) = col.b();
-	    if ( hasalpha )
+	    if ( nrcomponents==2 )
 		(*res++) = col.t();
+	    else
+	    {
+		(*res++) = col.g();
+		(*res++) = col.b();
+		if ( nrcomponents==4 )
+		    (*res++) = col.t();
+	    }
 	}
     }
 }
+
+
+bool RGBImage::put( unsigned char const* source )
+{
+    const int xsize = getSize( true );
+    const int ysize = getSize( false );
+    const bool nrcomponents = nrComponents();
+
+    Color col;
+    for ( int idx=0; idx<xsize; idx++ )
+    {
+	for ( int idy=0; idy<ysize; idy++ )
+	{
+	    if ( nrcomponents==1 )
+		col.set( *source, *source, *source, 0 );
+	    else if ( nrcomponents==2 )
+		col.set( *source, *source, *source, source[1] );
+	    else if ( nrcomponents==3 )
+		col.set( *source, source[1], source[2], 0 );
+	    else
+		col.set( *source, source[1], source[2], source[3] );
+
+	    if ( !set( idx, idy, col ) )
+		return false;
+
+	    source += nrcomponents;
+	}
+    }
+
+    return true;
+}
+
+
+int RGBImage::bufferSize() const
+{
+    return nrComponents()*getSize(true)*getSize(false);
+}
+
 
 };
