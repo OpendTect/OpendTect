@@ -4,280 +4,345 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.8 2010-05-03 15:11:44 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.9 2010-08-11 16:53:28 cvsyuancheng Exp $";
 
 #include <transform.h>
 #include <arraynd.h>
 
 
-bool GenericTransformND::setInputInfo( const ArrayNDInfo& ni )
-{
-    if ( !isPossible( ni ) ) return false;
-
-    delete info;
-    info = ni.clone();
-    return true;
-}
-
-
-const ArrayNDInfo& GenericTransformND::getInputInfo() const
-{ return *info; }
-
-
-bool GenericTransformND::setDir( bool forward_ )
-{
-    if ( !biDirectional() && forward_==false ) return false;
-    forward = forward_;
-
-    return true;
-}
-
-
-bool GenericTransformND::getDir() const
-{ return forward; }
-
-
-bool GenericTransformND::init()
-{
-    if ( !biDirectional() && forward==false ) return false;
-    if ( !info ) return false;
-
-    if ( owntransforms.size() ) deepErase( owntransforms );
-    if ( transforms.size() ) transforms.erase();
-    
-    const int ndim = info->getNDim();
-
-    for ( int idx=0; idx<ndim; idx++ )
-    {
-	const int sz = info->getSize( idx );
-
-	bool found = false;
-
-	for ( int idy=0; idy<owntransforms.size(); idy++ )
-	{
-	    if ( owntransforms[idy]->getSize() == sz )
-	    {
-		transforms += owntransforms[idy];
-		found = true;
-		break;
-	    }
-	}
-
-	if ( found ) continue;
-
-	Transform1D* trans = createTransform();
-	trans->setSize( sz );
-	trans->setDir(forward);
-	trans->init();
-
-	owntransforms += trans;
-	transforms += trans;
-    }
-
-    return true;
-}
-
-
-bool TransformND::isPossible( const ArrayNDInfo& in ) const
-{
-    const int ndim = in.getNDim();
-
-    for ( int idx=0; idx<ndim; idx++ )
-    {
-	if ( !isPossible(in.getSize(idx)) ) return false;
-    }
-
-    return true;
-}
-
-
-void TransformND::getNearBigPsblSz( const ArrayNDInfo& in,
-					  ArrayNDInfo& out ) const
-{
-    const int ndim = in.getNDim();
-
-    for ( int idx=0; idx<ndim; idx++ )
-	out.setSize(idx,getNearBigPsblSz(in.getSize(idx)));
-}
-
-
-int  TransformND::getNearBigPsblSz( int sz ) const
-{
-    while ( !isPossible( sz ) ) sz++;
-    return sz;
-}
-
-
-bool TransformND::isFast( const ArrayNDInfo& in ) const
-{
-    const int ndim = in.getNDim();
-
-    for ( int idx=0; idx<ndim; idx++ )
-    {
-	if ( !isFast(in.getSize(idx) ) ) return false;
-    }
-
-    return true;
-}
-
-
-void TransformND::getNearBigFastSz( const ArrayNDInfo& in,
-					  ArrayNDInfo& out ) const
-{
-    const int ndim = in.getNDim();
-
-    for ( int idx=0; idx<ndim; idx++ )
-	out.setSize(idx,getNearBigFastSz(in.getSize(idx)));
-}
-
-
-int  TransformND::getNearBigFastSz( int sz ) const
-{
-    while ( !isFast( sz ) ) sz++;
-    return sz;
-}
-
-
 GenericTransformND::GenericTransformND()
-    : forward ( true )
-    , info( 0 )
+    : forward_ ( true )
+    , info_( 0 )
+    , curdim_( -1 )
+    , parallel_( true )
+    , nr_( 1 )
+    , sampling_( 1 )
+    , batchsampling_( 1 )
+    , batchstarts_( 0 )
+    , cinput_( 0 )
+    , rinput_( 0 )
+    , coutput_( 0 )
+    , routput_( 0 )
 {}
 
 
 GenericTransformND::~GenericTransformND()
 {
-    delete info;
-    deepErase( owntransforms );
+    delete info_;
+    deepErase( transforms_ );
+    deepEraseArr( transforms1dstarts_ );
 }
 
 
-bool GenericTransformND::transform( const ArrayND<float>& in,
-				    ArrayND<float>& out ) const
-
+bool GenericTransformND::setInputInfo( const ArrayNDInfo& ni )
 {
-    if ( !real2real() ) return false;
+    delete info_;
+    info_ = ni.clone();
+    curdim_ = -1;
+    return true;
+}
 
-    if ( out.info() != in.info() || out.info() != *info ) return false;
 
-    const float* ind = in.getData();
-    float* outd = out.getData();
+const ArrayNDInfo& GenericTransformND::getInputInfo() const
+{ return *info_; }
 
-    if ( !ind || !outd ) return false;
 
-    const int ndim = info->getNDim();
+bool GenericTransformND::setDir( bool forward )
+{
+    forward_ = forward;
+    curdim_ = -1;
+    return true;
+}
+
+
+void GenericTransformND::setInput( const float_complex* id )
+{
+    if ( !id ) return;
+    
+    cinput_ = id;
+    rinput_ = 0;
+    
+    for ( int idx=0; idx<transforms_.size(); idx++ )
+	transforms_[idx]->setInputData( id );
+}
+
+
+void GenericTransformND::setInput( const float* id )
+{
+    if ( !id ) return;
+    
+    rinput_ = id;
+    cinput_ = 0;
+
+    for ( int idx=0; idx<transforms_.size(); idx++ )
+	transforms_[idx]->setInputData( id );
+}
+
+
+
+void GenericTransformND::setOutput( float_complex* od )
+{
+    if ( !od ) return;
+    
+    coutput_ = od;
+    routput_ = 0;
+
+    for ( int idx=0; idx<transforms_.size(); idx++ )
+	transforms_[idx]->setOutputData( od );
+}
+
+
+void GenericTransformND::setOutput( float* od )
+{
+    if ( !od ) return;
+    
+    routput_ = od;
+    coutput_ = 0;
+    
+    for ( int idx=0; idx<transforms_.size(); idx++ )
+	transforms_[idx]->setOutputData( od );
+}
+
+
+
+void GenericTransformND::setSampling( int sampling )
+{ sampling_ = sampling; }
+
+
+void GenericTransformND::setScope( int nr, int batchsampling )
+{
+    curdim_ = -1;
+    nr_ = nr;
+    batchsampling_ = batchsampling;
+    batchstarts_ = 0;
+}
+
+
+void GenericTransformND::setScope( int nr, const int* batchstarts )
+{
+    curdim_ = -1;
+    nr_ = nr;
+    batchstarts_ = batchstarts;
+}
+
+
+bool GenericTransformND::run( bool parallel )
+{
+    parallel_ = parallel;
+    return execute();
+}
+
+
+int GenericTransformND::nextStep()
+{
+    if ( curdim_<0 )
+    {
+	if ( !setup() )
+	return ErrorOccurred();
+    }
+
+    if ( !transforms_[curdim_]->run( parallel_ ) )
+	return ErrorOccurred();
+
+    curdim_++;
+    if ( curdim_>=info_->getNDim() )
+    {
+	curdim_ = 0;
+	return Finished();
+    }
+
+    return MoreToDo();
+}
+
+
+bool GenericTransformND::setup()
+{
+    if ( !info_ ) return false;
+    deepEraseArr( transforms1dstarts_ );
+    deepErase( transforms_ );
+    nr1dtransforms_.erase();
+
+    TypeSet<int> starts;
+    for ( int idx=0; idx<nr_; idx++ )
+	starts += batchstarts_ ? batchstarts_[idx] : batchsampling_ * idx;
+
+    const int ndim = info_->getNDim();
     if ( ndim==1 )
     {
-	transforms[0]->transform1D( ind, outd, 1 );
+	Transform1D* trans = createTransform();
+	trans->setSize( info_->getSize(0) );
+	trans->setSampling( sampling_ );
+	trans->setDir( forward_ );
+	transforms_ += trans;
+
+	int* offsets = new int[nr_];
+	memcpy( offsets, starts.arr(), sizeof(int)*starts.size() );
+
+	transforms1dstarts_ += offsets;
+	nr1dtransforms_ += nr_;
     }
     else
     {
-	transformND( ind, outd, 0 );
+	ArrayNDInfoImpl curarrsz( ndim-1 );
+	int globalarrpos[ndim];
+	memset( globalarrpos, 0, ndim*sizeof(int) );
+	for ( int dim=0; dim<ndim; dim++ )
+	{
+	    globalarrpos[dim] = 0;
+	    for ( int idy=0; idy<ndim; idy++ )
+	    {
+		if ( idy==dim )
+		    continue;
+
+		const int curdim = idy>dim ? idy-1 : idy;
+		curarrsz.setSize( curdim, info_->getSize(idy) );
+	    }
+
+	    ArrayNDIter iter( curarrsz );
+	    TypeSet<int> offsets;
+
+	    do
+	    {
+		for ( int idy=0; idy<ndim; idy++ )
+		{
+		    if ( idy==dim )
+			continue;
+
+		    const int curdim = idy>dim ? idy-1 : idy;
+		    globalarrpos[idy] = iter.getPos()[curdim];
+		}
+
+		const od_int64 offset = info_->getOffset( globalarrpos );
+		//Multiply by sampling_ ?
+		offsets += offset;
+	    } while ( iter.next() );
+
+
+	    int* offsetptr = new int[offsets.size()*nr_];
+	    int* ptr = offsetptr;
+
+	    for ( int idx=0; idx<nr_; idx++ )
+	    {
+		for ( int idy=0; idy<offsets.size(); idy++, ptr++ )
+		    *ptr = offsets[idy]+starts[idx];
+	    }
+
+	    int nextarrpos[ndim];
+	    memcpy( nextarrpos, globalarrpos, ndim*sizeof(int) );
+	    nextarrpos[dim] = 1;
+
+	    //Compute sampling for 1D transform
+	    const od_int64 offset = info_->getOffset( globalarrpos );
+	    const od_int64 nextoffset = info_->getOffset( nextarrpos );
+	    const int sampling = sampling_*(nextoffset-offset);
+
+	    Transform1D* trans = createTransform();
+	    trans->setSize( info_->getSize(dim) );
+	    trans->setSampling( sampling );
+	    trans->setDir(forward_);
+	    trans->setScope( offsets.size()*nr_, offsetptr );
+
+	    if ( !trans->init() )
+	    {
+		delete [] offsetptr;
+		delete trans;
+		return false;
+	    }
+
+	    transforms1dstarts_ += offsetptr;
+	    nr1dtransforms_ += offsets.size()*nr_;
+	    transforms_ += trans;
+	}
     }
+
+    for ( int idx=0; idx<ndim; idx++ )
+    {
+	transforms_[idx]->setInputData( idx ? routput_ : rinput_ );
+	transforms_[idx]->setInputData( idx ? coutput_ : cinput_ );
+	transforms_[idx]->setOutputData( routput_ );
+	transforms_[idx]->setOutputData( coutput_ );
+    }
+
+    curdim_ = 0;
 
     return true;
 }
 
 
-bool GenericTransformND::transform( const ArrayND<float_complex>& in,
-				    ArrayND<float_complex>& out ) const
+GenericTransformND::Transform1D::Transform1D()
+    : sz_( -1 )
+    , sampling_( 1 )
+    , batchsampling_( 1 )
+    , batchstarts_( 0 )
+    , cinput_( 0 )
+    , rinput_( 0 )
+    , coutput_( 0 )
+    , routput_( 0 )
+    , nr_( 1 )
+    , forward_( true )
+{}
 
+
+void GenericTransformND::Transform1D::setInputData(const float_complex* id )
 {
-    if ( !complex2complex() ) return false;
-    if ( out.info() != in.info() || out.info() != *info ) return false;
-
-    const float_complex* ind = in.getData();
-    float_complex* outd = out.getData();
-
-    if ( !ind || !outd ) return false;
-
-    const int ndim = info->getNDim();
-    if ( ndim==1 )
-    {
-	transforms[0]->transform1D( ind, outd, 1 );
-    }
-    else
-    {
-	transformND( ind, outd, 0 );
-    }
-
-    return true;
+    if ( !id ) return;
+    
+    cinput_ = id;
+    rinput_ = 0;
 }
 
 
-void GenericTransformND::transformND( const float* in, float* out,
-				      int dimnr ) const
+void GenericTransformND::Transform1D::setInputData( const float* id )
 {
-    const int ndim = info->getNDim();
-    int nrsmall = info->getSize(dimnr);
-
-    int smallsz = 1;
-    for ( int idx=dimnr+1; idx<ndim; idx++ )
-	smallsz *= info->getSize(idx);
-
-    int off = 0;
-    if ( ndim-dimnr==2 )
-    {
-	const Transform1D* smalltransform = transforms[ndim-1];
-	for ( int idx=0; idx<nrsmall; idx++ )
-	{
-	    smalltransform->transform1D( in+off, out+off, 1 );
-	    off += smallsz;
-	}
-    }
-    else
-    {
-	for ( int idx=0; idx<nrsmall; idx++ )
-	{
-	    transformND( in+off, out+off, dimnr+1 );
-	    off += smallsz;
-	}
-    }
-
-    off = 0;
-    const Transform1D* smalltransform = transforms[dimnr];
-    for ( int idx=0; idx<smallsz; idx++ )
-    {
-	smalltransform->transform1D( out+off, out+off, smallsz );
-	off++;
-    }
+    if ( !id ) return;
+    
+    rinput_ = id;
+    cinput_ = 0;
 }
 
 
-void GenericTransformND::transformND( const float_complex* in,
-				      float_complex* out, int dimnr) const
+void GenericTransformND::Transform1D::setOutputData( float_complex* od )
 {
-    const int ndim = info->getNDim();
-    int nrsmall = info->getSize(dimnr);
-
-    int smallsz = 1;
-    for ( int idx=1; idx<ndim; idx++ )
-	smallsz *= info->getSize(idx);
-
-    int off = 0;
-    if ( ndim-dimnr==2 )
-    {
-	const Transform1D* smalltransform = transforms[ndim-1];
-	for ( int idx=0; idx<nrsmall; idx++ )
-	{
-	    smalltransform->transform1D( in+off, out+off, 1 );
-	    off += smallsz;
-	}
-    }
-    else
-    {
-	for ( int idx=0; idx<nrsmall; idx++ )
-	{
-	    transformND( in+off, out+off, dimnr+1 );
-	    off += smallsz;
-	}
-    }
-
-    off = 0;
-    const Transform1D* smalltransform = transforms[dimnr];
-    for ( int idx=0; idx<smallsz; idx++ )
-    {
-	smalltransform->transform1D( out+off, out+off, smallsz );
-	off++;
-    }
+    if ( !od ) return;
+    
+    coutput_ = od;
+    routput_ = 0;
 }
+
+
+void GenericTransformND::Transform1D::setOutputData( float* od )
+{
+    if ( !od ) return;
+    
+    routput_ = od;
+    coutput_ = 0;
+}
+
+
+void GenericTransformND::Transform1D::setSize( int sz )
+{ sz_ = sz; }
+
+
+void GenericTransformND::Transform1D::setDir( bool forward )
+{ forward_ = forward; }
+
+
+void GenericTransformND::Transform1D::setSampling( int sampling )
+{ sampling_ = sampling; }
+
+
+void GenericTransformND::Transform1D::setScope( int nr, int batchsampling )
+{
+    nr_ = nr;
+    batchsampling_ = batchsampling;
+    batchstarts_ = 0;
+}
+
+
+void GenericTransformND::Transform1D::setScope( int nr, const int* batchstarts )
+{
+    nr_ = nr;
+    batchstarts_ = batchstarts;
+}
+
 
