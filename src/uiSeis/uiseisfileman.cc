@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.113 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.114 2010-08-11 20:34:38 cvskris Exp $";
 
 
 #include "uiseisfileman.h"
@@ -142,6 +142,18 @@ void uiSeisFileMan::mkFileInfo()
 		{ txt.add("Inline") mAddRangeTxt(inl); }
 	    if ( !mIsUdf(cs.hrg.stop.crl) )
 		{ txt.add("\nCrossline") mAddRangeTxt(crl); }
+	    float area = SI().computeArea( cs.hrg.inlRange(),
+		    			   cs.hrg.crlRange() )*1e-6;
+	    BufferString areaunit;
+	    if ( SI().xyInFeet() )
+	    {
+		area /= 2.590;
+		areaunit = "(sq mi): ";
+	    }
+	    else
+		areaunit = "(sq km): ";
+	    txt.add("\nArea ").add( areaunit.buf() ).add( area );
+
 	    txt.add("\n").add(zddef.userName()).add(" range ")
 		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zrg.start)
 		.add(" - ") mAddZValTxt(cs.zrg.stop) 
