@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.15 2010-08-05 11:50:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.16 2010-08-11 08:36:36 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -20,10 +20,12 @@ static const char* rcsID = "$Id: uistratdisplay.cc,v 1.15 2010-08-05 11:50:33 cv
 #include "uispinbox.h"
 #include "uistratutildlgs.h"
 #include "uistratreftree.h"
+#include "uitoolbar.h"
 #include "uimenuhandler.h"
 
 #include "genericnumer.h"
 #include "draw.h"
+#include "pixmap.h"
 #include "randcolor.h"
 #include "survinfo.h"
 
@@ -32,10 +34,34 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& tree )
     , uidatagather_(uiStratTreeToDispTransl(data_,tree.stratmgr()))
     , uidatawriter_(uiStratDispToTreeTransl(tree ))
     , assignlvlmnuitem_("&Specify marker boundary")
+    , uicontrol_(0)
+    , maxrg_(Interval<float>(0,4.5e3))
 {
+    disableScrollZoom();
+    scene().setMouseEventActive( true );
     uidatagather_.newtreeRead.notify( mCB(this,uiStratDisplay,dataChanged) );
     createDispParamGrp();
     dataChanged( 0 );
+}
+
+
+void uiStratDisplay::addControl( uiToolBar* tb )
+{
+    mDynamicCastGet(uiGraphicsView*,v,const_cast<uiStratDisplay*>(this))
+    uiStratViewControl::Setup su( maxrg_ ); su.tb_ = tb;
+    uicontrol_ = new uiStratViewControl( *v, su ); 
+    uicontrol_->rangeChanged.notify( mCB(this,uiStratDisplay,controlRange) );
+    resetRangeFromUnits();
+}
+
+
+void uiStratDisplay::controlRange( CallBacker* )
+{
+    if ( uicontrol_ )
+    {
+	rangefld_->setValue( uicontrol_->range() );
+	dispParamChgd(0);
+    }
 }
 
 
@@ -143,20 +169,19 @@ void uiStratDisplay::resetRangeFromUnits()
     const AnnotData::Column& col = *data_.getCol(0);
     if ( col.units_.size() == 0 )
 	return;
+
     Interval<float> rg;
     float start = col.units_[0]->zpos_;
     float stop = col.units_[col.units_.size()-1]->zposbot_;
     rg.set( start, stop );
     rangefld_->setValue( rg );
-    rg.sort( false );
-    drawer_.setZRange( rg );
+    setZRange( rg );
 }
 
 
 void uiStratDisplay::setZRange( Interval<float> zrg )
 {
-    if ( zrg.start < 0 ) zrg.start = 0;
-    if ( zrg.stop  > 4.5e3 ) zrg.stop = 4.5e3;
+    zrg.sort(false);
     uiAnnotDisplay::setZRange( zrg );
 }
 
@@ -171,8 +196,15 @@ void uiStratDisplay::display( bool yn, bool shrk, bool maximize )
 void uiStratDisplay::dispParamChgd( CallBacker* cb )
 {
     Interval<float> rg = rangefld_->getFInterval();
-    rg.sort( false );
-    drawer_.setZRange( rg );
+    rg.start = (int)rg.start; rg.stop = (int)rg.stop;
+    if ( rg.start < maxrg_.start || rg.stop > maxrg_.stop 
+	    || rg.stop <= rg.start || rg.stop <= 0 ) 
+	rg = maxrg_;
+
+    rangefld_->setValue( rg );
+    if ( uicontrol_ ) 
+	uicontrol_->setRange( rg );
+    setZRange( rg );
 }
 
 
@@ -365,17 +397,20 @@ void uiAnnotDrawer::drawUnits( ColumnItem& colitm, int colidx )
     mRemoveSet( colitm.unittxtitms_ );
     mRemoveSet( colitm.unititms_ );
 
+    Interval<float> rg =  yax_->range();
     for ( int idx=0; idx<data_.getCol(colidx)->units_.size(); idx++ )
     {
 	const AnnotData::Unit& unit = *data_.getCol(colidx)->units_[idx];
-	if ( !unit.draw_ ) continue;
+	if ( ( unit.zpos_ >rg.start && unit.zposbot_ > rg.start ) ||
+	     ( unit.zpos_ < rg.stop && unit.zposbot_ < rg.stop ) ||
+		!unit.draw_ ) continue;
 
 	int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
 	int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
-	bool ztop = ( unit.zpos_ < yax_->range().stop );
-	bool zbase = ( unit.zposbot_ > yax_->range().start );
-	int y1 = yax_->getPix( ztop ? yax_->range().stop : unit.zpos_ );
-	int y2 = yax_->getPix( zbase ? yax_->range().start : unit.zposbot_ );
+	bool ztop = ( unit.zpos_ < rg.stop );
+	bool zbase = ( unit.zposbot_ > rg.start );
+	int y1 = yax_->getPix( ztop ? rg.stop : unit.zpos_ );
+	int y2 = yax_->getPix( zbase ? rg.start : unit.zposbot_ );
 
 	TypeSet<uiPoint> rectpts;
 	rectpts += uiPoint( x1, y1 );
@@ -611,7 +646,7 @@ const AnnotData::Unit* uiAnnotDisplay::getUnitFromPos( bool nocolidx ) const
 }
 
 
-#define mEps 10 
+#define mEps 50 
 const AnnotData::Marker* uiAnnotDisplay::getMrkFromPos() const
 {
     int cidx = getColIdxFromPos();
@@ -626,4 +661,148 @@ const AnnotData::Marker* uiAnnotDisplay::getMrkFromPos() const
 	}
     }
     return 0;
+}
+
+
+#define mDefBut(but,fnm,cbnm,tt) \
+        but = new uiToolButton( tb_, 0, ioPixmap(fnm), \
+		mCB(this,uiStratViewControl,cbnm) ); \
+    but->setToolTip( tt ); \
+    tb_->addObject( but );
+
+uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
+    : viewer_(v)
+    , zoomfac_(1)
+    , manip_(false)		 
+    , rangeChanged(this)
+    , tb_(su.tb_)
+    , boundingrange_(su.maxrg_)	 
+{
+    if ( tb_ ) 
+	tb_->addSeparator();
+    else
+    {	
+	tb_ = new uiToolBar( v.parent(), "Viewer toolbar", uiToolBar::Top );
+	mDynamicCastGet(uiMainWin*,mw,v.parent())
+	if ( mw )
+	    mw->addToolBar( tb_ );
+    }
+    mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
+    mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
+    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode")
+
+    viewer_.getKeyboardEventHandler().keyPressed.notify(
+				mCB(this,uiStratViewControl,keyPressed) );
+
+    MouseEventHandler& meh = mouseEventHandler();
+    meh.wheelMove.notify( mCB(this,uiStratViewControl,wheelMoveCB) );
+    meh.buttonPressed.notify(mCB(this,uiStratViewControl,handDragStarted));
+    meh.buttonReleased.notify(mCB(this,uiStratViewControl,handDragged));
+    meh.movement.notify( mCB(this,uiStratViewControl,handDragging));
+}
+
+
+void uiStratViewControl::setSensitive( bool yn )
+{
+    manipdrawbut_->setSensitive( yn );
+    zoominbut_->setSensitive( yn );
+    zoomoutbut_->setSensitive( yn );
+}
+
+
+void uiStratViewControl::zoomCB( CallBacker* but )
+{
+    const bool zoomin = but == zoominbut_;
+    const Interval<float> rg( range_ );
+    const float margin = rg.width()/4;
+    if ( zoomin && rg.width() > 2)
+    {
+	range_.set( rg.start + margin, rg.stop - margin );
+    }
+    else 
+    {
+	range_.set( rg.start - margin, rg.stop + margin );
+    }
+    if ( range_.start < boundingrange_.start 
+	    			|| range_.stop > boundingrange_.stop)
+	range_ = boundingrange_;
+
+    rangeChanged.trigger();
+}
+
+
+MouseEventHandler& uiStratViewControl::mouseEventHandler()
+{
+    return viewer_.getNavigationMouseEventHandler();
+}
+
+
+void uiStratViewControl::wheelMoveCB( CallBacker* )
+{
+    const MouseEventHandler& mvh = mouseEventHandler();
+    const MouseEvent& ev = mvh.event();
+    if ( mIsZero(ev.angle(),0.01) )
+	return;
+    zoomCB( ev.angle() < 0 ? zoominbut_ : zoomoutbut_ );
+}
+
+
+void uiStratViewControl::stateCB( CallBacker* )
+{
+    if ( !manipdrawbut_ ) return;
+    manip_ = !manip_;
+
+    manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
+    viewer_.setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
+			         : uiGraphicsViewBase::ScrollHandDrag);
+    viewer_.scene().setMouseEventActive( true );
+}
+
+
+void uiStratViewControl::keyPressed( CallBacker* )
+{
+    const KeyboardEvent& ev = viewer_.getKeyboardEventHandler().event();
+    if ( ev.key_ == OD::Escape )
+	stateCB( 0 );
+}
+
+
+void uiStratViewControl::handDragStarted( CallBacker* )
+{
+    if ( mouseEventHandler().event().rightButton() )
+	return;
+    mousepressed_ = true;
+    startdragpos_ = mouseEventHandler().event().pos().y;
+}
+
+
+#define mHandDragFac width/80
+void uiStratViewControl::handDragging( CallBacker* )
+{
+    if ( viewer_.dragMode() != uiGraphicsViewBase::ScrollHandDrag 
+	|| !mousepressed_ || !manip_ ) return;
+    viewdragged_ = true;
+    stopdragpos_ = mouseEventHandler().event().pos().y;
+    bool goingup = ( startdragpos_ > stopdragpos_ );
+    float fac = goingup? -1 : 1;
+    Interval<float> rg( range_ );
+    float width = rg.width();
+    float center = rg.start + width/2 - fac*mHandDragFac;
+    rg.set( center - width/2, center + width/2 );
+    if ( rg.start < boundingrange_.start )
+	rg.set( boundingrange_.start, range_.stop ); 
+    if ( rg.stop > boundingrange_.stop )
+	rg.set( range_.start, boundingrange_.stop );
+
+    range_ = rg;
+    rangeChanged.trigger();
+}
+
+
+void uiStratViewControl::handDragged( CallBacker* )
+{
+    mousepressed_ = false;
+    if ( viewer_.dragMode() != uiGraphicsViewBase::ScrollHandDrag )
+	return;
+    viewdragged_ = false;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.48 2010-08-06 07:52:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.49 2010-08-11 08:36:36 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -191,6 +191,7 @@ void uiStratTreeWin::createGroups()
     uitree_->listView()->display( istreedisp_ );
 
     uistratdisp_ = new uiStratDisplay( leftgrp, *uitree_ );
+    uistratdisp_->addControl( tb_ );
 
     uiStratLvlList* lvllist = new uiStratLvlList( rightgrp, uistratmgr_ );
 
@@ -264,6 +265,8 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
 {
     istreedisp_ = istreedisp_ ? false : true;
     uistratdisp_->display( !istreedisp_ );
+    if ( uistratdisp_->control() )
+	uistratdisp_->control()->setSensitive( !istreedisp_ );
     uitree_->listView()->display( istreedisp_ );
     switchviewbut_->setPixmap( istreedisp_ ? "strat_tree.png" 
 	    				   : "stratframeworkgraph.png" ); 

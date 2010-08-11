@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.16 2010-08-05 11:50:33 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.17 2010-08-11 08:36:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@ class uiPolygonItem;
 class uiPolyLineItem;
 class uiTextItem;
 class uiPushButton;
+class uiToolButton;
+class uiStratViewControl; 
 class MouseEvent;
 
 
@@ -169,11 +171,16 @@ public:
     
     void			display(bool,bool shrk=false,bool max=false);
     virtual void		setZRange(Interval<float>);
+    
+    void			addControl(uiToolBar*);
+    uiStratViewControl*		control() 	{ return uicontrol_; }
 
 protected :
 
     uiStratTreeToDispTransl	uidatagather_;
     uiStratDispToTreeTransl	uidatawriter_;
+
+    uiStratViewControl*		uicontrol_;
 
     uiGenInput*                 rangefld_;
     uiLabeledSpinBox*           stepfld_;
@@ -182,17 +189,76 @@ protected :
     uiPushButton*		viewcolbutton_;
     
     MenuItem            	assignlvlmnuitem_;
+
+    Interval<float>		maxrg_;
    
     bool			isUnitBelowCurrent() const;
     void			createDispParamGrp();
     void			resetRangeFromUnits();
 
     virtual void                createMenuCB(CallBacker*);
+    void			controlRange(CallBacker*);
     virtual void		dataChanged(CallBacker*);
     void			dispParamChgd(CallBacker*);
     virtual void                handleMenuCB(CallBacker*);
     void			selCols(CallBacker*);
 };
 
+
+mClass uiStratViewControl : public CallBacker
+{
+public:
+
+    struct Setup
+    {
+				Setup(Interval<float>& maxrg)
+				    : maxrg_(maxrg)
+				    {}
+
+	mDefSetupMemb(uiToolBar*,tb)
+	mDefSetupMemb(Interval<float>,maxrg)
+    };
+
+				uiStratViewControl(uiGraphicsView&,Setup&);
+				~uiStratViewControl()
+				{};
+
+    void			setRange( Interval<float> rg )
+    				{ range_ = rg; }	
+    const Interval<float>&	range() const 	
+    				{ return range_; }
+    
+    void			setSensitive(bool);
+
+    Notifier<uiStratViewControl> rangeChanged;
+
+protected:
+
+    uiGraphicsView&		viewer_;
+    uiToolButton*       	manipdrawbut_;
+    uiToolButton*       	zoominbut_;
+    uiToolButton*       	zoomoutbut_;
+    uiToolBar*			tb_;
+
+    Interval<float>		range_;
+    Interval<float>		boundingrange_;
+    float 			zoomfac_;
+
+    float			startdragpos_;
+    float			stopdragpos_;
+    bool 			mousepressed_;
+    bool 			viewdragged_;
+    bool 			manip_;
+
+    MouseEventHandler& 		mouseEventHandler();
+
+    void			zoomCB(CallBacker*);
+    void			handDragged(CallBacker* );
+    void 			handDragStarted(CallBacker*);
+    void			handDragging(CallBacker*);
+    void			keyPressed(CallBacker*);
+    void			stateCB(CallBacker*);
+    void			wheelMoveCB(CallBacker*);
+};
 
 #endif
