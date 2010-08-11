@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.120 2010-06-03 09:36:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.121 2010-08-11 09:30:52 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -51,7 +51,7 @@ const char* VolumeDisplay::sKeyVolumeID()	{ return "Cube ID"; }
 const char* VolumeDisplay::sKeyVolRen()		{ return "Volren"; }
 const char* VolumeDisplay::sKeyInline()		{ return "Inline"; } 
 const char* VolumeDisplay::sKeyCrossLine()	{ return "Crossline"; }
-const char* VolumeDisplay::sKeyTime()		{ return "Time"; }
+const char* VolumeDisplay::sKeyTime()		{ return "Z-slice"; }
 
 const char* VolumeDisplay::sKeyNrSlices()	{ return "Nr of slices"; }
 const char* VolumeDisplay::sKeySlice()		{ return "SliceID "; }
