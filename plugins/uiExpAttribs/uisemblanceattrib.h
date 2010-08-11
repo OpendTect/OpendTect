@@ -5,38 +5,51 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          January 2008
- RCS:           $Id: uisemblanceattrib.h,v 1.2 2009-07-22 16:01:28 cvsbert Exp $
+ Author:        N. Hemstra
+ Date:          Jan 2008
+ RCS:           $Id: uisemblanceattrib.h,v 1.3 2010-08-11 10:01:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrdesced.h"
 
-namespace Attrib { class Desc; }
 class uiAttrSel;
 class uiGenInput;
+class uiStepOutSel;
+class uiSteeringSel;
 
 
-class uiSemblanceAttrib : public uiAttrDescEd
+/*! \brief Semblance Attribute description editor */
+
+mClass uiSemblanceAttrib : public uiAttrDescEd
 {
 public:
+
 			uiSemblanceAttrib(uiParent*,bool);
-    			mDeclReqAttribUIFns
+
+    void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
 
-    uiAttrSel*		inpfld_;
-   
-    uiGenInput*		sz3dfld_;
-    uiGenInput*		sz2dfld_;
+    uiAttrSel*		inpfld;
+    uiSteeringSel*	steerfld;
+    uiGenInput*		gatefld;
+    uiGenInput*		extfld;
+    uiStepOutSel*	pos0fld;
+    uiStepOutSel*	pos1fld;
+    uiStepOutSel*	stepoutfld;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
+
+    void		extSel(CallBacker*);
+
+    			mDeclReqAttribUIFns
 };
+
 
 #endif

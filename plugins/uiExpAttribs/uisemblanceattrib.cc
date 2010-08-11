@@ -2,111 +2,171 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          January 2008
+ Author:        N. Hemstra
+ Date:          January  2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisemblanceattrib.cc,v 1.5 2010-04-20 18:09:13 cvskris Exp $";
+
+static const char* rcsID = "$Id: uisemblanceattrib.cc,v 1.6 2010-08-11 10:01:48 cvshelene Exp $";
+
 
 #include "uisemblanceattrib.h"
 #include "semblanceattrib.h"
 
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "survinfo.h"
-
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
-
-
+#include "uisteeringsel.h"
+#include "uistepoutsel.h"
 
 using namespace Attrib;
 
-mInitAttribUI(uiSemblanceAttrib,Semblance,"Semblance","Experimental")
+static const char* extstrs3d[] =
+{
+	"None",
+	"Mirror 90 degrees",
+	"Mirror 180 degrees",
+	"Full block",
+	0
+};
+
+static const char* extstrs2d[] =
+{
+	"None",
+	"Mirror 180 degrees",
+	"Full block",
+	0
+};
+
+static const char* outpstrs[] =
+{
+	"Average",
+	"Min",
+	"Max",
+	0
+};
+
+mInitAttribUI(uiSemblanceAttrib,Semblance,"Semblance",sKeyBasicGrp())
+
 
 uiSemblanceAttrib::uiSemblanceAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d,"")
-    , sz2dfld_(0)
-    , sz3dfld_(0)
+	: uiAttrDescEd(p,is2d,"101.0.14")
+
 {
-    inpfld_ = createInpFld( is2d );
+    inpfld = createInpFld( is2d );
 
-    uiGenInput* attachobj = 0;
-    if ( is2d )
-    {
-	sz2dfld_ = new uiGenInput( this, "Calculation size (trc/sample)",
-			IntInpSpec().setName("trcsz"),
-			IntInpSpec().setName("zsz") );
-	attachobj = sz2dfld_;
-    }
-    else
-    {
-	sz3dfld_ = new uiGenInput( this, "Calculation size (inl/crl/sample)",
-			IntInpSpec().setName("inlsz"),
-			IntInpSpec().setName("crlsz"),
-			IntInpSpec().setName("zsz") );
-	attachobj = sz3dfld_;
-    }
+    gatefld = new uiGenInput( this, gateLabel(),
+			      FloatInpIntervalSpec().setName("Z start",0)
+			      			    .setName("Z stop",1) );
 
-    attachobj->attach( alignedBelow, inpfld_ );
-    setHAlignObj( inpfld_ );
+    gatefld->attach( alignedBelow, inpfld );
+
+    extfld = new uiGenInput( this, "Extension",
+	    		     StringListInpSpec( is2d_ ? extstrs2d : extstrs3d));
+    extfld->valuechanged.notify( mCB(this,uiSemblanceAttrib,extSel) );
+    extfld->attach( alignedBelow, gatefld );
+    
+    uiStepOutSel::Setup setup( is2d );
+    setup.seltxt( "Trace positions" ).allowneg( true );
+    pos0fld = new uiStepOutSel( this, setup );
+    pos0fld->setFieldNames( "Trc1 Inl", "Trc1 Crl" );
+    pos0fld->attach( alignedBelow, extfld );
+    setup.seltxt( "&" );
+    pos1fld = new uiStepOutSel( this, setup );
+    pos1fld->setFieldNames( "Trc2 Inl", "Trc2 Crl" );
+    pos1fld->attach( rightOf, pos0fld );
+
+    stepoutfld = new uiStepOutSel( this, is2d );
+    stepoutfld->attach( alignedBelow, extfld );
+    stepoutfld->setFieldNames( "Inl Stepout", "Crl Stepout" );
+
+    steerfld = new uiSteeringSel( this, 0, is2d );
+    steerfld->attach( alignedBelow, stepoutfld );
+
+    setHAlignObj( pos0fld );
+
+    extSel(0);
 }
 
 
-bool uiSemblanceAttrib::setParameters( const Desc& desc )
+void uiSemblanceAttrib::extSel( CallBacker* )
+{
+    const char* ext = extfld->text();
+    
+    pos0fld->display( strcmp(ext,extstrs3d[3]) );
+    pos1fld->display( strcmp(ext,extstrs3d[3]) );
+    stepoutfld->display( !strcmp(ext,extstrs3d[3]) );
+}
+
+
+bool uiSemblanceAttrib::setParameters( const Attrib::Desc& desc )
 {
     if ( strcmp(desc.attribName(),Semblance::attribName()) )
 	return false;
 
-    if ( sz3dfld_ )
-    {
-	mIfGetInt( Semblance::inlszStr(), isz_, sz3dfld_->setValue(isz_,0) );
-	mIfGetInt( Semblance::crlszStr(), csz_, sz3dfld_->setValue(csz_,1) );
-	mIfGetInt( Semblance::zszStr(), zsz_, sz3dfld_->setValue(zsz_,2) );
-    }
-    else
-    {
-	mIfGetInt( Semblance::crlszStr(), csz_, sz2dfld_->setValue(csz_,0) );
-	mIfGetInt( Semblance::zszStr(), zsz_, sz2dfld_->setValue(zsz_,1) );
-    }
+    mIfGetFloatInterval( Semblance::gateStr(), gate, gatefld->setValue(gate) )
+    mIfGetBinID( Semblance::stepoutStr(), stepout, 
+	         stepoutfld->setBinID(stepout) )
+    mIfGetBinID( Semblance::pos0Str(), pos0, pos0fld->setBinID(pos0) )
+    mIfGetBinID( Semblance::pos1Str(), pos1, pos1fld->setBinID(pos1) )
+    mIfGetEnum( Semblance::extensionStr(), extension,
+		extfld->setText(extstrs3d[extension]) )
 
+    extSel(0);
     return true;
 }
 
 
-bool uiSemblanceAttrib::setInput( const Desc& desc )
+bool uiSemblanceAttrib::setInput( const Attrib::Desc& desc )
 {
-    putInp( inpfld_, desc, 0 );
+    putInp( inpfld, desc, 0 );
+    putInp( steerfld, desc, 1 );
     return true;
 }
 
 
-bool uiSemblanceAttrib::getParameters( Desc& desc )
+bool uiSemblanceAttrib::getParameters( Attrib::Desc& desc )
 {
     if ( strcmp(desc.attribName(),Semblance::attribName()) )
 	return false;
 
-    if ( sz3dfld_ )
-    {
-	mSetInt( Semblance::inlszStr(), sz3dfld_->getIntValue(0) );
-	mSetInt( Semblance::crlszStr(), sz3dfld_->getIntValue(1) );
-	mSetInt( Semblance::zszStr(), sz3dfld_->getIntValue(2) );
-    }
+    const char* ext = extfld->text();
+    if ( !strcmp(ext,extstrs3d[3]) )
+    {	mSetBinID( Semblance::stepoutStr(), stepoutfld->getBinID() ); }
     else
     {
-	mSetInt( Semblance::inlszStr(), 1 );
-	mSetInt( Semblance::crlszStr(), sz2dfld_->getIntValue(0) );
-	mSetInt( Semblance::zszStr(), sz2dfld_->getIntValue(1) );
+	mSetBinID( Semblance::pos0Str(), pos0fld->getBinID() );
+	mSetBinID( Semblance::pos1Str(), pos1fld->getBinID() );
     }
+
+    BufferStringSet strs( extstrs3d );
+    mSetEnum( Semblance::extensionStr(), strs.indexOf(ext) );
+    mSetFloatInterval( Semblance::gateStr(), gatefld->getFInterval() );
+    mSetBool( Semblance::steeringStr(), steerfld->willSteer() );
 
     return true;
 }
 
 
-bool uiSemblanceAttrib::getInput( Desc& desc )
+bool uiSemblanceAttrib::getInput( Attrib::Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
+    inpfld->processInput();
+    fillInp( inpfld, desc, 0 );
+    fillInp( steerfld, desc, 1 );
     return true;
+}
+
+
+void uiSemblanceAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    params += EvalParam( timegatestr(), Semblance::gateStr() );
+
+    if ( !strcmp(extstrs3d[3],extfld->text()) )
+	params += EvalParam( stepoutstr(), Semblance::stepoutStr() );
+    else
+	params += EvalParam( "Trace positions", Semblance::pos0Str(),
+			     Semblance::pos1Str() );
 }
