@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.95 2010-08-12 13:37:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.96 2010-08-12 14:58:56 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -55,31 +55,32 @@ static const char* gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
 }
 
 
-static void adaptCtxt( const IOObjContext& c, const uiSeisSel::Setup& s,
+static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
 			bool chgtol )
 {
-    IOObjContext& ctxt = const_cast<IOObjContext&>( c );
+    IOObjContext& ctxt = const_cast<IOObjContext&>( ct );
 
-    ctxt.toselect.allowtransls_ = uiSeisSelDlg::standardTranslSel( s.geom_,
+    ctxt.toselect.allowtransls_ = uiSeisSelDlg::standardTranslSel( su.geom_,
 							   ctxt.forread );
 
-    if ( s.steerpol_ == uiSeisSel::Setup::NoSteering )
-	ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
-    else if ( s.geom_ != Seis::Line
-	    && s.steerpol_ == uiSeisSel::Setup::OnlySteering )
-	ctxt.toselect.require_.set( sKey::Type, sKey::Steering );
-
-    if ( s.geom_ != Seis::Line && s.zdomkey_ != "*" )
+    if ( su.geom_ != Seis::Line )
     {
-	BufferString vstr( s.zdomkey_ );
-	if ( vstr.isEmpty() )
-	    vstr.add( "`" ).add( ZDomain::SI().key() );
-	ctxt.toselect.require_.set( ZDomain::sKey(), vstr );
+	if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
+	    ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
+	else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
+	    ctxt.toselect.require_.set( sKey::Type, sKey::Steering );
+	if ( su.zdomkey_ != "*" )
+	{
+	    BufferString vstr( su.zdomkey_ );
+	    if ( vstr.isEmpty() )
+		vstr.add( "`" ).add( ZDomain::SI().key() );
+	    ctxt.toselect.require_.set( ZDomain::sKey(), vstr );
+	}
     }
 
     if ( ctxt.deftransl.isEmpty() )
-	ctxt.deftransl = s.geom_ == Seis::Line ? "2D" : "CBVS";
-    else if ( !c.forread )
+	ctxt.deftransl = su.geom_ == Seis::Line ? "2D" : "CBVS";
+    else if ( !ctxt.forread )
 	ctxt.toselect.allowtransls_ = ctxt.deftransl;
     else
     {
