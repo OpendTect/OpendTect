@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.39 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.40 2010-08-12 10:39:02 cvsbert Exp $";
 
 #include "uiseislinesel.h"
 
@@ -228,7 +228,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
 	uiSeisSel::Setup setup(Seis::Line);
 	setup.selattr(setup_.withattr_).filldef(setup_.filldef_);
 	if ( setup_.withattr_ && !setup_.allattribs_ )
-	    setup.selattr( true ).steerpol(setup_.steering_?1:-1);
+	    setup.selattr( true ).wantSteering(setup_.steering_);
 
 	linesetfld_ = new uiSeisSel( this, ctio_, setup );
 	linesetfld_->selectionDone.notify( mCB(this,uiSeis2DMultiLineSelDlg,

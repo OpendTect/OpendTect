@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.71 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.72 2010-08-12 10:39:02 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -93,7 +93,9 @@ void uiSeisImpCBVS::init( bool fromioobj )
     {
 	inctio_.ctxt.forread = true;
 	inctio_.ctxt.toselect.allowtransls_ = "CBVS";
-	oinpfld = new uiSeisSel( this, inctio_, uiSeisSel::Setup(Seis::Vol) );
+	uiSeisSel::Setup sssu( Seis::Vol );
+	sssu.steerpol( uiSeisSel::Setup::InclSteer );
+	oinpfld = new uiSeisSel( this, inctio_, sssu );
 	oinpfld->selectionDone.notify( mCB(this,uiSeisImpCBVS,oinpSel) );
 	compfld_ = new uiLabeledComboBox( this, "Component(s)" );
 	attobj = compfld_;

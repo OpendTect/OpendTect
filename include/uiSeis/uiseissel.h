@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.46 2010-08-11 14:50:45 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.47 2010-08-12 10:39:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,25 +25,33 @@ public:
 
     struct Setup : public uiIOObjSel::Setup
     {
+	enum SteerPol	{ NoSteering, OnlySteering, InclSteer };
+
 			Setup( Seis::GeomType gt )
 			    : geom_(gt)
 			    , selattr_(gt==Seis::Line)
 			    , allowsetdefault_(true)
-			    , steerpol_(-1)
+			    , steerpol_(NoSteering)
 			    , enabotherdomain_(false)	{}
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
 			    , selattr_(is2d && !isps)
 			    , allowsetdefault_(true)
-			    , steerpol_(-1)
+			    , steerpol_(NoSteering)
 			    , enabotherdomain_(false)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,selattr)		//!< 2D: can user select attrib?
 	mDefSetupMemb(bool,allowsetdefault)	//!< Fill with def cube/line?
 	mDefSetupMemb(bool,enabotherdomain)	//!< write only: T vs Depth
-	mDefSetupMemb(int,steerpol)		//!< -1=no, 0=maybe, 1=only
-	mDefSetupMemb(BufferString,defaultkey)
+	mDefSetupMemb(SteerPol,steerpol)
+	mDefSetupMemb(BufferString,zdomkey)
+
+	Setup&		wantSteering( bool yn=true )
+			{
+			    steerpol_ = yn ? OnlySteering : NoSteering;
+			    return *this;
+			}
     };
 
 			uiSeisSel(uiParent*,CtxtIOObj&,const Setup&);

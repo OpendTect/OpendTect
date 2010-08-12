@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.45 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.46 2010-08-12 10:39:02 cvsbert Exp $";
 
 
 #include "uisteeringsel.h"
@@ -257,7 +257,7 @@ void uiSteeringSel::setType( int nr, bool nochg )
 static uiSeisSel::Setup mkSeisSelSetup( bool is2d, const char* txt )
 {
     uiSeisSel::Setup sssu( is2d, false );
-    sssu.selattr( is2d ).steerpol(1).seltxt( txt );
+    sssu.selattr( is2d ).wantSteering().seltxt( txt );
     return sssu;
 }
 
