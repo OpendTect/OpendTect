@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.117 2010-07-14 10:02:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.118 2010-08-12 11:41:49 cvsumesh Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -487,7 +487,7 @@ bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
     if ( bss.indexOf(appearance().annot_.x1_.name_) >= 0 )
 	axesdrawer_.altdim0_ = bss.indexOf( appearance().annot_.x1_.name_ );
 
-    const FlatView::Annotation& annot = appearance().annot_;
+    FlatView::Annotation& annot = appearance().annot_;
 
     drawGridAnnot( annot.color_.isVisible(), drawarea, wr );
 
@@ -687,10 +687,12 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 }
 
 
-void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
+void uiFlatViewer::drawAux( FlatView::Annotation::AuxData& ad,
 			    const uiRect& drawarea, const uiWorldRect& wr )
 {
     if ( !ad.enabled_ || ad.isEmpty() ) return;
+
+    ad.dispids_.erase();
 
     const FlatView::Annotation& annot = appearance().annot_;
     const uiRect datarect( drawarea );
@@ -736,6 +738,8 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	    polyitem->fill();
 	    polyitem->setPenStyle( ad.linestyle_ );
 	    polylineitemset_->add( polyitem );
+	    ad.dispids_ += polyitem->id();
+	    polyitem->setVisible( ad.displayed_ );
 	    //TODO clip polygon
 	}
 	else
@@ -754,6 +758,8 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 		polyitem->setPenStyle( ad.linestyle_ );
 		polyitem->setZValue(1);
 		polylineitemset_->add( polyitem );
+		ad.dispids_ += polyitem->id();
+		polyitem->setVisible( ad.displayed_ );
 	    }
 	    
 	    deepErase( lines );
@@ -767,6 +773,8 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	    pointitem_ = new uiMarkerItem(
 		    ptlist[0], MarkerStyle2D(MarkerStyle2D::Square,4,usecol) );
 	    canvas_.scene().addItem( pointitem_ );
+	    ad.dispids_ += pointitem_->id();
+	    pointitem_->setVisible( ad.displayed_ );
 	}
 	else
 	    pointitem_->setPos( ptlist[0] );
@@ -795,6 +803,8 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	    markeritem->setPos( ptlist[idx] );
 	    markeritem->setZValue( 2 );
 	    markeritemset_->add( markeritem );
+	    ad.dispids_ += markeritem->id();
+	    markeritem->setVisible( ad.displayed_ );
 	}
     }
 
@@ -813,6 +823,19 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	adnm->setTextColor( ad.linestyle_.color_ );
 	adnm->setPos( ptlist[listpos] );
 	adnameitemset_->add( adnm );
+    }
+}
+
+
+void uiFlatViewer::hideAuxDataObjects( FlatView::Annotation::AuxData& ad,
+				       bool yn )
+{
+    for ( int idx=0; idx<ad.dispids_.size(); idx++ )
+    {
+	uiGraphicsItem* itm = canvas_.scene().getItem( ad.dispids_[idx] );
+	if ( itm )
+	    itm->setVisible(!yn);
+	ad.displayed_ = !yn;
     }
 }
 
