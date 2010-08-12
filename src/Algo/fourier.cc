@@ -4,7 +4,7 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID = "$Id: fourier.cc,v 1.1 2010-08-11 16:40:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: fourier.cc,v 1.2 2010-08-12 13:25:26 cvsdgb Exp $";
 
 #include "fourier.h"
 #include "odmemory.h"
@@ -991,8 +991,13 @@ bool FFTCC1D::doFinish()
 		idx1 = 0;
  		do 
  		{
+#ifdef __win__
+		    data_[kidx].real( rtmp_[idx1] );
+		    data_[kidx].imag( itmp_[idx1] );
+#else
  		    data_[kidx].real() = rtmp_[idx1];
  		    data_[kidx].imag() = itmp_[idx1];
+#endif
  		    idx1++;
  		    kidx -= sample_;		    
  		} while ( kidx != tidx );

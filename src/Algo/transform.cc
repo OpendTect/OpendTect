@@ -4,7 +4,7 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.9 2010-08-11 16:53:28 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.10 2010-08-12 13:25:26 cvsdgb Exp $";
 
 #include <transform.h>
 #include <arraynd.h>
@@ -184,7 +184,7 @@ bool GenericTransformND::setup()
     else
     {
 	ArrayNDInfoImpl curarrsz( ndim-1 );
-	int globalarrpos[ndim];
+	mAllocVarLenArr(int,globalarrpos,ndim);
 	memset( globalarrpos, 0, ndim*sizeof(int) );
 	for ( int dim=0; dim<ndim; dim++ )
 	{
@@ -227,7 +227,7 @@ bool GenericTransformND::setup()
 		    *ptr = offsets[idy]+starts[idx];
 	    }
 
-	    int nextarrpos[ndim];
+	    mAllocVarLenArr(int,nextarrpos,ndim);
 	    memcpy( nextarrpos, globalarrpos, ndim*sizeof(int) );
 	    nextarrpos[dim] = 1;
 
