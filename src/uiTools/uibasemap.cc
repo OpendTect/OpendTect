@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibasemap.cc,v 1.4 2010-08-09 20:00:56 cvskris Exp $";
+static const char* rcsID = "$Id: uibasemap.cc,v 1.5 2010-08-12 04:42:50 cvsraman Exp $";
 
 #include "uibasemap.h"
 #include "uigraphicsscene.h"
@@ -60,6 +60,12 @@ void uiBaseMap::addObject( BaseMapObject* obj )
     if ( !uiobj )
 	return;
 
+    addObject( uiobj );
+}
+
+
+void uiBaseMap::addObject( uiBaseMapObject* uiobj )
+{
     view_.scene().addItem( uiobj->itemGrp() );
     objects_ += uiobj;
     uiobj->setTransform( &w2ui_ );
