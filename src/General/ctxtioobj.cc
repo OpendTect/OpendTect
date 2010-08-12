@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.48 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.49 2010-08-12 14:56:13 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -150,6 +150,9 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj ) const
 	}
 	if ( !isok ) return false;
     }
+
+    if ( dontallow_.isEmpty() )
+	return true;
 
     for ( int ipar=0; ipar<ioobj.pars().size(); ipar++ )
     {
