@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.13 2010-08-05 11:50:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.14 2010-08-12 09:36:01 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -47,40 +47,28 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
 }
 
 
-const AnnotData::Unit* uiWellStratDisplay::getNextTimeUnit( float pos ) const
+void uiWellStratDisplay::gatherOrgUnits()
 {
+    deepErase( orgunits_ );
     for ( int colidx=0; colidx<nrCols(); colidx++ )
     {
 	for ( int idx=0; idx<nrUnits( colidx ); idx++ )
 	{
-	    const AnnotData::Unit* unit = getUnit( idx, colidx );
-	    if ( unit && unit->zpos_ == pos )
-		return unit;
+	    AnnotData::Column& col = *getColumn( colidx );
+	    if ( col.isaux_ ) continue;
+	    const AnnotData::Unit* un = getUnit( idx, colidx );
+	    AnnotData::Unit* newun = 
+		    new AnnotData::Unit( un->name_, un->zpos_, un->zposbot_ );
+	    newun->id_ = un->id_;
+	    orgunits_ += newun;
 	}
     }
-    return 0;
 }
 
 
 void uiWellStratDisplay::dataChanged( CallBacker* )
 {
-    for ( int colidx=0; colidx<nrCols(); colidx++ )
-    {
-	AnnotData::Column& col = *getColumn( colidx );
-	if ( col.isaux_ ) continue;
-	for ( int idx=0; idx<nrUnits( colidx ); idx++ )
-	{
-	    AnnotData::Unit* unit = getUnit( idx, colidx );
-	    if ( unit )
-	    {
-		setUnitTopPos( *unit );
-		setUnitBotPos( *unit );
-	    }
-	}
-    }
-    setZRange( Interval<float>( (dispData().zrg_.stop/1000), 
-				(dispData().zrg_.start )/1000) );
-
+    gatherOrgUnits();
     for ( int colidx=0; colidx<nrCols(); colidx++ )
     {
 	AnnotData::Column& col = *getColumn( colidx );
@@ -89,13 +77,19 @@ void uiWellStratDisplay::dataChanged( CallBacker* )
 	for ( int idx=0; idx<nrUnits( colidx ); idx++ )
 	{
 	    AnnotData::Unit* unit = getUnit( idx, colidx );
-	    if ( unit->draw_ == true )
+	    if ( unit )
 	    {
-		col.isdisplayed_ = true;
-		break;
+		unit->draw_ = false;
+		setUnitTopPos( *unit );
+		setUnitBotPos( *unit );
+		if ( unit->draw_ )
+		    col.isdisplayed_ = true;
 	    }
 	}
     }
+    deepErase( orgunits_ );
+    setZRange( Interval<float>( (dispData().zrg_.stop/1000), 
+				(dispData().zrg_.start )/1000) );
     drawer_.draw();
 }
 
@@ -123,6 +117,18 @@ void uiWellStratDisplay::setUnitBotPos( AnnotData::Unit& unit )
 	botpos = getPosMarkerLvlMatch( uidatagather_.botlvlid_ );
     }
     unit.draw_ = !mIsUdf( botpos );
+}
+
+
+const AnnotData::Unit* uiWellStratDisplay::getNextTimeUnit( float pos ) const
+{
+    for ( int idx=0; idx<orgunits_.size(); idx++ )
+    {
+	const AnnotData::Unit* unit = orgunits_[idx];
+	if ( unit && unit->zpos_ == pos )
+	    return unit;
+    }
+    return 0;
 }
 
 
