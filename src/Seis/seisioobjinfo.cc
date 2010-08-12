@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.36 2010-08-12 13:37:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.37 2010-08-12 14:58:12 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.36 2010-08-12 13:37:48 cvs
 #include "seisselection.h"
 #include "seistrctr.h"
 #include "ptrman.h"
+#include "globexpr.h"
 #include "iostrm.h"
 #include "ioman.h"
 #include "iodir.h"
@@ -266,6 +267,21 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
     if ( lset->nrLines() == 0 ) \
 	return
 
+#define mGetZDomainGE \
+    const GlobExpr zdomge( o2d.zdomky_.isEmpty() ? ZDomain::SI().key() \
+	    					 : o2d.zdomky_.buf() )
+#define mChkOpts \
+   if ( o2d.steerpol_ != 2 ) \
+    { \
+	const char* lndt = lset->datatype(idx); \
+	const bool issteer = lndt && !strcmp( lndt, sKey::Steering ); \
+	if ( (o2d.steerpol_ == 0 && issteer) \
+	  || (o2d.steerpol_ == 1 && !issteer) ) \
+	    continue; \
+    } \
+    if ( !zdomge.matches(lset->zDomainKey(idx)) ) \
+	continue
+
 
 void SeisIOObjInfo::getNms( BufferStringSet& bss,
 			    const SeisIOObjInfo::Opts2D& o2d, bool attr ) const
@@ -280,6 +296,7 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
     }
 
     mGetLineSet;
+    mGetZDomainGE;
 
     BufferStringSet rejected;
     for ( int idx=0; idx<lset->nrLines(); idx++ )
@@ -287,7 +304,8 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 	const char* nm = attr ? lset->attribute(idx) : lset->lineName(idx);
 	if ( bss.indexOf(nm) >= 0 )
 	    continue;
-	else if ( o2d.bvs_ )
+
+	if ( o2d.bvs_ )
 	{
 	    if ( rejected.indexOf(nm) >= 0 )
 		continue;
@@ -297,15 +315,7 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 		continue;
 	    }
 	}
-
-	if ( attr && o2d.steerpol_ != 2 )
-	{
-	    const char* lndt = lset->datatype(idx);
-	    const bool issteer = lndt && !strcmp( lndt, sKey::Steering );
-	    if ( (o2d.steerpol_ == 0 && issteer)
-	      || (o2d.steerpol_ == 1 && !issteer) )
-		continue;
-	}
+	mChkOpts;
 
 	bss.add( nm );
     }
@@ -317,9 +327,10 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 			    const SeisIOObjInfo::Opts2D& o2d, bool l4a ) const
 {
-    mGetLineSet;
     if ( !nm || !*nm ) return;
 
+    mGetLineSet;
+    mGetZDomainGE;
     const BufferString target( nm );
     for ( int idx=0; idx<lset->nrLines(); idx++ )
     {
@@ -330,14 +341,7 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 
 	if ( target == requested )
 	{
-	    if ( !l4a && o2d.steerpol_ != 2 )
-	    {
-		const char* lndt = lset->datatype(idx);
-		const bool issteer = lndt && !strcmp( lndt, sKey::Steering );
-		if ( (o2d.steerpol_ == 0 && issteer)
-		  || (o2d.steerpol_ == 1 && !issteer) )
-		    continue;
-	    }
+	    mChkOpts;
 	    bss.addIfNew( listadd );
 	}
     }
