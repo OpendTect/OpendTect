@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.42 2010-08-05 11:50:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.43 2010-08-12 12:19:55 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -26,6 +26,7 @@ static const char* sKeyProp = "Properties";
 static const char* sKeyGeneral = "General";
 static const char* sKeyUnits = "Units";
 static const char* sKeyLevel = "Level";
+static const char* sKeyBottomLvlID = "Bottom Level";
 
 
 const Strat::UnitRepository& Strat::UnRepo()
@@ -382,8 +383,10 @@ bool Strat::RefTree::write( std::ostream& strm ) const
 	uniop.putTo( astrm );
     }
     
+    astrm.put( sKeyBottomLvlID );
+    astrm.put( toString( botLvlID() ) );
+    
     astrm.newParagraph();
-
     return strm.good();
 }
 
@@ -527,7 +530,10 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
     int unitidx = 0;
     while ( astrm.next().type() != ascistream::EndOfFile )
     {
-	if ( !astrm.hasKeyword(sKeyProp) )
+	if ( astrm.hasKeyword(sKeyBottomLvlID) )
+	    tree->setBotLvlID( atoi( astrm.next().keyWord() ) );
+
+	else if ( !astrm.hasKeyword(sKeyProp) )
 	    break;
 
 	if ( unitidx >= uncodes.size() ) 
@@ -542,12 +548,6 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	}
 	unitidx ++;
     }
-    while ( astrm.type() != ascistream::EndOfFile )
-    {
-	if ( atEndOfSection(astrm) || !astrm.hasKeyword(sKeyProp) )
-	{ astrm.next(); continue; }
-    }
-
     sfio.closeSuccess();
     if ( tree->nrRefs() > 0 )
     {
@@ -600,7 +600,8 @@ void Strat::UnitRepository::resetUnitLevels()
 {
     for ( int idx=0; idx<trees_.size(); idx++ )
     {
-	UnitRef::Iter it( *trees_[idx] );
+	Strat::RefTree* tree = trees_[idx];
+	UnitRef::Iter it( *tree );
 	UnitRef* un = it.unit(); 
 	while ( un )
 	{
@@ -610,6 +611,8 @@ void Strat::UnitRepository::resetUnitLevels()
 		break;
 	    un = it.unit();
 	}
+	if ( !levels().getByID( tree->botLvlID() ) )
+	    tree->setBotLvlID( -1 );
     }
 }
 
