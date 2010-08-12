@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.34 2010-06-29 13:38:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.35 2010-08-12 08:30:37 cvsnanne Exp $";
 
 
 #include "uimathattrib.h"
@@ -102,20 +102,17 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 void uiMathAttrib::parsePush( CallBacker* )
 {
     const BufferString usrinp( inpfld_->text() );
-    if ( usrinp.isEmpty() ) return;
-
     MathExpressionParser mep( usrinp );
     MathExpression* expr = mep.parse();
-    if ( !expr )
+    if ( !usrinp.isEmpty() && !expr )
     {
 	BufferString errmsg = "Invalid formula:\n";
 	errmsg += mep.errMsg();
 	errmsg += "\nFormula should have variable names";
 	errmsg += "or constants c0, c1, c2 ...\n";
 	errmsg += "Please read documentation for detailed examples\n ";
-	errmsg += "over recursive formulas, shift....";
+	errmsg += "on recursive formulas, shift....";
 	uiMSG().error( errmsg.buf() );
-	return;
     }
 
     getVarsNrAndNms( expr );
@@ -131,9 +128,9 @@ void uiMathAttrib::getVarsNrAndNms( MathExpression* expr )
     nrspecs_ = 0;
     varnms.erase();
     cstnms.erase();
-    for ( int idx=0; idx<expr->nrUniqueVarNames(); idx++ )
+    for ( int idx=0; expr && idx<expr->nrUniqueVarNames(); idx++ )
     {
-	const char* varnm = expr->uniqueVarName(idx);
+	const char* varnm = expr->uniqueVarName( idx );
 	MathExpression::VarType vtyp = MathExpressionParser::varTypeOf( varnm );
 	switch ( vtyp )
 	{
@@ -179,11 +176,11 @@ void uiMathAttrib::updateDisplay( bool userecfld )
 	xtable_->setRowLabels( varnms );
 
     xtable_->display( nrvars_ );
-    
+
     ctable_->setNrRows( nrcsts_ );
     ctable_->setRowLabels( cstnms );
     ctable_->display( nrcsts_ );
-    
+
     recstartfld_->display( userecfld );
     recstartposfld_->display( userecfld );
 }
