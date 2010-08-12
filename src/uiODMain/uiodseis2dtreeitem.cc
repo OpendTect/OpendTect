@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.87 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.88 2010-08-12 13:37:48 cvsbert Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -887,7 +887,7 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     const char* objnm = visserv_->getObjectName( displayID() );
 
     BufferStringSet attribnames;
-    seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, attribnames );
+    seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, attribnames, 0 );
     const Attrib::DescSet* ads = attrserv->curDescSet(true);
     const Attrib::Desc* desc = ads->getDesc( as.id() );
     const bool isstored = desc && desc->isStored();

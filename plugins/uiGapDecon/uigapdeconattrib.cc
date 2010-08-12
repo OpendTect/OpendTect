@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.46 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.47 2010-08-12 13:37:48 cvsbert Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -576,8 +576,8 @@ uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs,
 {
     if ( is2d )
     {
+	SeisIOObjInfo objinfo( mid_ );
 	BufferStringSet linenames;
-	uiSeisIOObjInfo objinfo( mid_ );
 	objinfo.getLineNames( linenames );
 	linesfld_ = new uiLabeledComboBox( this, 
 					   "Compute autocorrelation on line:" );

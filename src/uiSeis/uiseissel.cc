@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.94 2010-08-12 10:39:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.95 2010-08-12 13:37:48 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -68,6 +68,14 @@ static void adaptCtxt( const IOObjContext& c, const uiSeisSel::Setup& s,
     else if ( s.geom_ != Seis::Line
 	    && s.steerpol_ == uiSeisSel::Setup::OnlySteering )
 	ctxt.toselect.require_.set( sKey::Type, sKey::Steering );
+
+    if ( s.geom_ != Seis::Line && s.zdomkey_ != "*" )
+    {
+	BufferString vstr( s.zdomkey_ );
+	if ( vstr.isEmpty() )
+	    vstr.add( "`" ).add( ZDomain::SI().key() );
+	ctxt.toselect.require_.set( ZDomain::sKey(), vstr );
+    }
 
     if ( ctxt.deftransl.isEmpty() )
 	ctxt.deftransl = s.geom_ == Seis::Line ? "2D" : "CBVS";
@@ -177,7 +185,9 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     attrfld_->display( is2d && !isps );
 
     BufferStringSet nms;
-    oinf.getAttribNames( nms, true, 0, (int)steerpol_ );
+    SeisIOObjInfo::Opts2D o2d;
+    o2d.steerpol_ = (int)steerpol_;
+    oinf.getAttribNames( nms, o2d );
 
     if ( selgrp_->getCtxtIOObj().ctxt.forread )
     {

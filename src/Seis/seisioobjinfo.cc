@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.35 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.36 2010-08-12 13:37:48 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -259,7 +259,6 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
 
 
 #define mGetLineSet \
-    if ( !add ) bss.erase(); \
     if ( !isOK() || !is2D() || isPS() ) return; \
  \
     PtrMan<Seis2DLineSet> lset \
@@ -268,8 +267,8 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
 	return
 
 
-void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
-				const BinIDValueSet* bvs, int steerpol ) const
+void SeisIOObjInfo::getNms( BufferStringSet& bss,
+			    const SeisIOObjInfo::Opts2D& o2d, bool attr ) const
 {
     if ( !isOK() )
 	return;
@@ -288,22 +287,23 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
 	const char* nm = attr ? lset->attribute(idx) : lset->lineName(idx);
 	if ( bss.indexOf(nm) >= 0 )
 	    continue;
-	else if ( bvs )
+	else if ( o2d.bvs_ )
 	{
 	    if ( rejected.indexOf(nm) >= 0 )
 		continue;
-	    if ( !lset->haveMatch(idx,*bvs) )
+	    if ( !lset->haveMatch(idx,*o2d.bvs_) )
 	    {
 		rejected.add( nm );
 		continue;
 	    }
 	}
 
-	if ( attr && steerpol )
+	if ( attr && o2d.steerpol_ != 2 )
 	{
 	    const char* lndt = lset->datatype(idx);
 	    const bool issteer = lndt && !strcmp( lndt, sKey::Steering );
-	    if ( (steerpol < 0 && issteer) || (steerpol > 0 && !issteer) )
+	    if ( (o2d.steerpol_ == 0 && issteer)
+	      || (o2d.steerpol_ == 1 && !issteer) )
 		continue;
 	}
 
@@ -315,7 +315,7 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
 
 
 void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
-				    bool add, bool l4a, int steerpol ) const
+			    const SeisIOObjInfo::Opts2D& o2d, bool l4a ) const
 {
     mGetLineSet;
     if ( !nm || !*nm ) return;
@@ -330,11 +330,12 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 
 	if ( target == requested )
 	{
-	    if ( !l4a && steerpol )
+	    if ( !l4a && o2d.steerpol_ != 2 )
 	    {
 		const char* lndt = lset->datatype(idx);
 		const bool issteer = lndt && !strcmp( lndt, sKey::Steering );
-		if ( (steerpol < 0 && issteer) || (steerpol > 0 && !issteer) )
+		if ( (o2d.steerpol_ == 0 && issteer)
+		  || (o2d.steerpol_ == 1 && !issteer) )
 		    continue;
 	    }
 	    bss.addIfNew( listadd );

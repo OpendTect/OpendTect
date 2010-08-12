@@ -110,7 +110,7 @@ bool uiGoogleExport2DSeis::acceptOK( CallBacker* )
     for ( int idx=0; idx<sellnms_.size(); idx++ )
     {
 	BufferStringSet attrnms;
-	oinf.getAttribNamesForLine( sellnms_.get(idx), attrnms );
+	oinf.ioObjInfo().getAttribNamesForLine( sellnms_.get(idx), attrnms );
 	if ( attrnms.isEmpty() ) continue;
 	int iattr = attrnms.indexOf( LineKey::sKeyDefAttrib() );
 	if ( iattr < 0 ) iattr = 0;

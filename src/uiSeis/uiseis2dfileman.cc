@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.8 2010-08-12 09:47:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.9 2010-08-12 13:37:48 cvsbert Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -123,7 +123,7 @@ void uiSeis2DFileMan::fillLineBox()
     uiListBox* lb = linefld_;
     const int curitm = lb->size() ? lb->currentItem() : 0;
     BufferStringSet linenames;
-    objinfo_->getLineNames( linenames );
+    objinfo_->ioObjInfo().getLineNames( linenames );
     lb->empty();
     lb->addItems( linenames );
     lb->setSelected( curitm );
@@ -138,7 +138,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	BufferStringSet attrs;
-	objinfo_->getAttribNamesForLine( sellines.get(idx), attrs, true, 0 );
+	objinfo_->ioObjInfo().getAttribNamesForLine( sellines.get(idx), attrs );
 	if ( !idx )
 	{
 	    sharedattribs = attrs;
@@ -341,7 +341,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 		       "103.1.9") )
     , objinf_(objinf)
 {
-    BufferStringSet lnms; objinf_.getLineNames( lnms );
+    BufferStringSet lnms; objinf_.ioObjInfo().getLineNames( lnms );
     uiLabeledComboBox* lcb1 = new uiLabeledComboBox( this, lnms, "First line" );
     uiLabeledComboBox* lcb2 = new uiLabeledComboBox( this, lnms, "Add" );
     lcb2->attach( alignedBelow, lcb1 );
@@ -396,7 +396,7 @@ bool acceptOK( CallBacker* )
     if ( !outnm || !*outnm )
 	mErrRet( "Please enter a name for the merged line" );
 
-    BufferStringSet lnms; objinf_.getLineNames( lnms );
+    BufferStringSet lnms; objinf_.ioObjInfo().getLineNames( lnms );
     if ( lnms.isPresent( outnm ) )
 	mErrRet( "Output line name already in Line Set" );
 

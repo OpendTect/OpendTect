@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.19 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.20 2010-08-12 13:37:48 cvsbert Exp $";
 
 #include "uiseis2dgeom.h"
 #include "bufstringset.h"
@@ -79,7 +79,7 @@ void uiSeisDump2DGeom::seisSel( CallBacker* )
     if ( ctio.ioobj )
     {
 	uiSeisIOObjInfo oinf( *ctio.ioobj );
-	oinf.getLineNames( lnms );
+	oinf.ioObjInfo().getLineNames( lnms );
     }
 
     lnmsfld->newSpec( StringListInpSpec(lnms), 0 );

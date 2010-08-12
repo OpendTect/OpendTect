@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.1 2010-07-05 10:01:54 cvshelene Exp $";
+static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.2 2010-08-12 13:37:48 cvsbert Exp $";
 
 #include "uitrcpositiondlg.h"
 
@@ -19,71 +19,71 @@ static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.1 2010-07-05 10:01:54 c
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 				    bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup("Attribute trace position",0,mTODOHelpID) )                               
-    , linesfld_( 0 )                                                            
-    , trcnrfld_( 0 )                                                            
-    , inlfld_( 0 )                                                              
-    , crlfld_( 0 )                                                              
-    , mid_( mid )                                                               
-{                                                                               
-    if ( is2d )                                                                 
-    {                                                                           
-	BufferStringSet linenames;                                              
-	uiSeisIOObjInfo objinfo( mid );                                         
-	objinfo.getLineNames( linenames );                                      
-	BufferString str = "Compute attribute on line:";                 
-	linesfld_ = new uiLabeledComboBox( this, str );                         
-	for ( int idx=0; idx<linenames.size(); idx++ )                          
-	    linesfld_->box()->addItem( linenames.get(idx) );                    
-	linesfld_->box()->selectionChanged.notify(                              
+    : uiDialog( p, uiDialog::Setup("Attribute trace position",0,mTODOHelpID) )
+    , linesfld_( 0 )
+    , trcnrfld_( 0 )
+    , inlfld_( 0 )
+    , crlfld_( 0 )
+    , mid_( mid )
+{
+    if ( is2d )
+    {
+	BufferStringSet linenames;
+	uiSeisIOObjInfo objinfo( mid );
+	objinfo.ioObjInfo().getLineNames( linenames );
+	BufferString str = "Compute attribute on line:";
+	linesfld_ = new uiLabeledComboBox( this, str );
+	for ( int idx=0; idx<linenames.size(); idx++ )
+	    linesfld_->box()->addItem( linenames.get(idx) );
+	linesfld_->box()->selectionChanged.notify(
 					mCB(this,uiTrcPositionDlg,lineSel) );
-	trcnrfld_ = new uiLabeledSpinBox( this, "at trace nr:" );               
-	trcnrfld_->attach( alignedBelow, linesfld_ );                           
-    }                                                                           
-    else                                                                        
-    {                                                                           
-	BufferString str = "Compute attribute at position:";             
-	inlfld_ = new uiLabeledSpinBox( this, str );                            
-	crlfld_ = new uiSpinBox( this );                                        
-	crlfld_->attach( rightTo, inlfld_ );                                    
-	inlfld_->box()->setInterval( cs.hrg.inlRange() );                       
-	crlfld_->setInterval( cs.hrg.crlRange() );                              
-    }                                                                           
+	trcnrfld_ = new uiLabeledSpinBox( this, "at trace nr:" );
+	trcnrfld_->attach( alignedBelow, linesfld_ );
+    }
+    else
+    {
+	BufferString str = "Compute attribute at position:";
+	inlfld_ = new uiLabeledSpinBox( this, str );
+	crlfld_ = new uiSpinBox( this );
+	crlfld_->attach( rightTo, inlfld_ );
+	inlfld_->box()->setInterval( cs.hrg.inlRange() );
+	crlfld_->setInterval( cs.hrg.crlRange() );
+    }
 }
 
 
-LineKey uiTrcPositionDlg::getLineKey() const                    
-{                                                                               
-    LineKey lk;                                                                 
+LineKey uiTrcPositionDlg::getLineKey() const
+{
+    LineKey lk;
     if ( !linesfld_ ) return lk;
 
-    lk.setLineName( linesfld_->box()->text() );                                 
-    return lk; 
-}                                                                               
-                                                                                
-                                                                                
+    lk.setLineName( linesfld_->box()->text() );
+    return lk;
+}
+
+
 CubeSampling uiTrcPositionDlg::getCubeSampling() const
-{                                                                               
+{
     CubeSampling cs;
-    if ( trcnrfld_ )                                                            
-    {                                                                           
-	int trcnr = trcnrfld_->box()->getValue();                               
-	cs.hrg.set( cs.hrg.inlRange(), StepInterval<int>( trcnr, trcnr, 1 ) );  
-    }                                                                           
-    else                                                                        
-    {                                                                           
-	int inlnr = inlfld_->box()->getValue();                                 
-	int crlnr = crlfld_->getValue();                                        
-	cs.hrg.set( StepInterval<int>( inlnr, inlnr, 1 ),                       
-		    StepInterval<int>( crlnr, crlnr, 1 ) );                     
-    }                                                                           
-    return cs;                                                                  
-}                                                                               
-                                                                                
-                                                                                
+    if ( trcnrfld_ )
+    {
+	int trcnr = trcnrfld_->box()->getValue();
+	cs.hrg.set( cs.hrg.inlRange(), StepInterval<int>( trcnr, trcnr, 1 ) );
+    }
+    else
+    {
+	int inlnr = inlfld_->box()->getValue();
+	int crlnr = crlfld_->getValue();
+	cs.hrg.set( StepInterval<int>( inlnr, inlnr, 1 ),
+		    StepInterval<int>( crlnr, crlnr, 1 ) );
+    }
+    return cs;
+}
+
+
 void uiTrcPositionDlg::lineSel( CallBacker* cb )
-{    
-    CubeSampling cs;                                                            
-    SeisTrcTranslator::getRanges( mid_, cs, getLineKey() );                     
-    trcnrfld_->box()->setInterval( cs.hrg.crlRange() );                         
+{
+    CubeSampling cs;
+    SeisTrcTranslator::getRanges( mid_, cs, getLineKey() );
+    trcnrfld_->box()->setInterval( cs.hrg.crlRange() );
 }

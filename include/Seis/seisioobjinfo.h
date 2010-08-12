@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.18 2010-08-11 14:50:45 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.19 2010-08-12 13:37:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,23 +73,31 @@ public:
     void		getComponentNames(BufferStringSet&,
 	    				LineKey lk=LineKey()) const;
 
+    mStruct Opts2D
+    {
+				Opts2D()
+				    : bvs_(0), steerpol_(2)	{}
+	const BinIDValueSet*	bvs_;
+	BufferString		zdomky_;	//!< empty=only SI()'s
+	int			steerpol_;	//!< 0=only, 1=none, 2=both
+				//!< Casts into uiSeisSel::Setup::SteerPol
+    };
+
     // 2D only
-    void		getLineNames( BufferStringSet& b, bool add=true,
-	    				const BinIDValueSet* bvs=0 ) const
-				{ getNms(b,add,false,bvs,0); }
-    void		getAttribNames( BufferStringSet& b, bool add=true,
-	    				const BinIDValueSet* bvs=0,
-	   				int steerpol=0) const
-				{ getNms(b,add,true,bvs,steerpol); }
+    void		getLineNames( BufferStringSet& b,
+	    			      Opts2D o2d=Opts2D() ) const
+				{ getNms(b,o2d,false); }
+    void		getAttribNames( BufferStringSet& b,
+					Opts2D o2d=Opts2D() ) const
+				{ getNms(b,o2d,true); }
     void		getAttribNamesForLine( const char* nm,
 						BufferStringSet& b,
-						bool add=true,
-						int steerpol=0) const
-				{ getNmsSubSel(nm,b,add,false,steerpol); }
+						Opts2D o2d=Opts2D() ) const
+				{ getNmsSubSel(nm,b,o2d,false); }
     void		getLineNamesWithAttrib( const char* nm,
 	    				       BufferStringSet& b,
-					       bool add=true ) const
-				{ getNmsSubSel(nm,b,add,true,0); }
+					       Opts2D o2d=Opts2D() ) const
+				{ getNmsSubSel(nm,b,o2d,true); }
     bool		getRanges(const LineKey& lk,StepInterval<int>& trcrg,
 	    			  StepInterval<float>& zrg) const;
 
@@ -113,10 +121,9 @@ protected:
 
     void		setType();
 
-    void		getNms(BufferStringSet&,bool,bool,
-	    			const BinIDValueSet*,int steerpol) const;
-    void		getNmsSubSel(const char*,BufferStringSet&,
-	    				bool,bool,int steerpol) const;
+    void		getNms(BufferStringSet&,const Opts2D&,bool) const;
+    void		getNmsSubSel(const char*,BufferStringSet&,const Opts2D&,
+	    			     bool) const;
     int			getComponentInfo(LineKey,BufferStringSet*) const;
 
 };

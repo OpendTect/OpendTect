@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseisioobjinfo.h,v 1.15 2010-08-11 14:50:45 cvsbert Exp $
+ RCS:           $Id: uiseisioobjinfo.h,v 1.16 2010-08-12 13:37:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,22 +39,6 @@ public:
 					{ return sii.getBPS(b,icmp); }
     void		getDefKeys( BufferStringSet& b ,bool add=true ) const
 					{ return sii.getDefKeys(b,add); }
-
-    			// 2D only
-    void		getLineNames(BufferStringSet& b, bool add=true,
-	    				const BinIDValueSet* bvs=0 ) const
-				{ sii.getLineNames(b,add,bvs); }
-    void		getAttribNames( BufferStringSet& b, bool add=true,
-	    				const BinIDValueSet* bvs=0,
-	   				int steeropt=-1 ) const
-				{ sii.getAttribNames(b,add,bvs,steeropt); }
-    void		getAttribNamesForLine( const char* nm,
-					BufferStringSet& b, bool add=true,
-					int steeropt=-1 ) const
-				{ sii.getAttribNamesForLine(nm,b,add,steeropt);}
-    void		getLineNamesWithAttrib( const char* nm,
-					BufferStringSet& b, bool add=true) const
-				{ sii.getLineNamesWithAttrib(nm,b,add); }
 
     static const char*	sKeyEstMBs;
 
