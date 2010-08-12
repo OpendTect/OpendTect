@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.34 2010-08-10 06:06:26 cvsraman Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.35 2010-08-12 04:49:53 cvsraman Exp $";
 
 #include "uisurvmap.h"
 
@@ -19,14 +19,12 @@ static const char* rcsID = "$Id: uisurvmap.cc,v 1.34 2010-08-10 06:06:26 cvsrama
 
 #include "cubesampling.h"
 #include "draw.h"
-#include "survboxobject.h"
 #include "survinfo.h"
 #include "angles.h"
 
 
-uiSurveyBoxObject::uiSurveyBoxObject( SurvBoxObject* so )
-    : uiBaseMapObject(so)
-    , survinfo_(0)
+uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo, bool withlabels )
+    : uiBaseMapObject(bmo)
 {
     for ( int idx=0; idx<4; idx++ )
     {
@@ -46,6 +44,9 @@ uiSurveyBoxObject::uiSurveyBoxObject( SurvBoxObject* so )
 	itemgrp_->add( lineitem );
 	edges_ += lineitem;
     }
+
+    if ( !withlabels )
+	return;
 
     const mDeclAlignment( postxtalign, HCenter, VCenter );
     for ( int idx=0; idx<4; idx++ )
@@ -73,12 +74,13 @@ void uiSurveyBoxObject::updateGeometry()
     if ( !survinfo_ || !transform_ )
 	return;
 
-    const CubeSampling& cs = survinfo_->sampling( false );
+    const SurveyInfo& si = *survinfo_;
+    const CubeSampling& cs = si.sampling( false );
     Coord mapcnr[4];
-    mapcnr[0] = survinfo_->transform( cs.hrg.start );
-    mapcnr[1] = survinfo_->transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
-    mapcnr[2] = survinfo_->transform( cs.hrg.stop );
-    mapcnr[3] = survinfo_->transform( BinID(cs.hrg.stop.inl,cs.hrg.start.crl) );
+    mapcnr[0] = si.transform( cs.hrg.start );
+    mapcnr[1] = si.transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
+    mapcnr[2] = si.transform( cs.hrg.stop );
+    mapcnr[3] = si.transform( BinID(cs.hrg.stop.inl,cs.hrg.start.crl) );
 
     uiPoint cpt[4];
     for ( int idx=0; idx<vertices_.size(); idx++ )
@@ -95,7 +97,7 @@ void uiSurveyBoxObject::updateGeometry()
     {
 	const int oppidx = idx < 2 ? idx + 2 : idx - 2;
 	const bool bot = cpt[idx].y > cpt[oppidx].y;
-        BinID bid = survinfo_->transform( mapcnr[idx] );
+        BinID bid = si.transform( mapcnr[idx] );
         const int spacing =  bot ? 10 : -10;
 	BufferString annot;
         annot += bid.inl; annot += "/"; annot += bid.crl;
@@ -106,9 +108,8 @@ void uiSurveyBoxObject::updateGeometry()
 }
 
 
-uiNorthArrowObject::uiNorthArrowObject( NorthArrowObject* no )
-    : uiBaseMapObject(no)
-    , survinfo_(0)
+uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
+    : uiBaseMapObject(bmo)
     , angleline_(0),anglelabel_(0)
 {   
     ArrowStyle arrowstyle( 3, ArrowStyle::HeadOnly );
@@ -116,6 +117,9 @@ uiNorthArrowObject::uiNorthArrowObject( NorthArrowObject* no )
     arrow_ = new uiArrowItem;
     arrow_->setArrowStyle( arrowstyle );
     itemgrp_->add( arrow_ );
+
+    if ( !withangle )
+	return;
 
     angleline_ = new uiLineItem;
     angleline_->setPenStyle( LineStyle(LineStyle::Dot,2,Color(255,0,0)) );
@@ -169,7 +173,7 @@ void uiNorthArrowObject::updateGeometry()
     const uiPoint arrowtop( origin.x, yarrowtop );
 
     arrow_->setTailHeadPos( origin, arrowtop );
-    if ( !angleline_ )
+    if ( !angleline_ || !anglelabel_ )
 	return;
 
     angleline_->setLine( origin, uiPoint(origin.x+dxpix,yarrowtop), true );
@@ -219,13 +223,12 @@ void uiSurveyMap::drawMap( const SurveyInfo* si )
 {
     if ( !survbox_ )
     {
-	const bool hastitle = title_;
-	SurvBoxObject* so = new SurvBoxObject( "Survey" );
-	addObject( so );
-	if ( hastitle )
+	survbox_ = new uiSurveyBoxObject( 0, true );
+	addObject( survbox_ );
+	if ( title_ )
 	{
-	    NorthArrowObject* no = new NorthArrowObject( "North" );
-	    addObject( no );
+	    northarrow_ = new uiNorthArrowObject( 0, true );
+	    addObject( northarrow_ );
 	}
     }
 
@@ -237,43 +240,18 @@ void uiSurveyMap::drawMap( const SurveyInfo* si )
 
     view_.setViewArea( 0, 0, view_.scene().width(), view_.scene().height() );
 
-    const CubeSampling& cs = si->sampling( false );
-    Coord mapcnr[4];
-    mapcnr[0] = si->transform( cs.hrg.start );
-    mapcnr[1] = si->transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
-    mapcnr[2] = si->transform( cs.hrg.stop );
-    mapcnr[3] = si->transform( BinID(cs.hrg.stop.inl,cs.hrg.start.crl) );
-
-    Coord mincoord = mapcnr[0];
-    Coord maxcoord = mapcnr[2];
-    for ( int idx=0; idx<4; idx++ )
-    {
-        if ( mapcnr[idx].x < mincoord.x ) mincoord.x = mapcnr[idx].x;
-        if ( mapcnr[idx].y < mincoord.y ) mincoord.y = mapcnr[idx].y;
-        if ( mapcnr[idx].x > maxcoord.x ) maxcoord.x = mapcnr[idx].x;
-        if ( mapcnr[idx].y > maxcoord.y ) maxcoord.y = mapcnr[idx].y;
-    }
-
-    const Coord diff( maxcoord - mincoord );
-    float canvsz = mMAX(diff.x,diff.y);
-    if ( title_ )
-	canvsz *= 1.5;
-
-    const Coord center( (mincoord.x+maxcoord.x)/2, (mincoord.y+maxcoord.y)/2 );
-    const Coord lowpart( canvsz/2, 0.47*canvsz );
-    const Coord hipart( canvsz/2, 0.53*canvsz );
-    mincoord = center - lowpart;
-    maxcoord = center + hipart;
-
-    uiWorldRect wr( mincoord.x, maxcoord.y, maxcoord.x, mincoord.y );
-    uiSize sz( (int)view_.scene().width(), (int)view_.scene().height() );
-    w2ui_.set( sz, wr );
+    int maxmapsize = mMIN( view_.scene().width(), view_.scene().height() );
+    w2ui_.set( maxmapsize, *si );
     if ( title_ )
 	title_->setText( si->name() );
 
     survbox_->setSurveyInfo( *si );
+    survbox_->updateGeometry();
     if ( northarrow_ )
+    {
 	northarrow_->setSurveyInfo( *si );
+	northarrow_->updateGeometry();
+    }
 }
 
 
@@ -283,6 +261,5 @@ void uiSurveyMap::reDraw()
 	return;
 
     drawMap( survinfo_ );
-    uiBaseMap::reDraw();
 }
 
