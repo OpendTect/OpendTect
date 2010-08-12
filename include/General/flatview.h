@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.47 2010-06-14 18:57:17 cvsyuancheng Exp $
+ RCS:           $Id: flatview.h,v 1.48 2010-08-12 11:41:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,10 @@ public:
 	Interval<double>*	x2rg_;		//!<if 0, use viewer's rg & zoom
 
 	TypeSet<Point>		poly_;
+
+	TypeSet<int>		dispids_;	//!<ids of corresponding displed						//!<object
+	bool			displayed_;
+
 	bool			close_;
 
 	bool			isEmpty() const;
@@ -333,6 +337,8 @@ public:
     void		useStoredDefaults(const char* key);
 
     void		getAuxInfo(const Point&,IOPar&) const;
+    virtual void	hideAuxDataObjects(Annotation::AuxData&,bool)	{}
+			//! true==hide, false==show
     
     virtual Interval<float> getDataRange(bool) const
     			{ return Interval<float>(mUdf(float),mUdf(float)); }

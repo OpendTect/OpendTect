@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.45 2010-06-21 13:03:20 cvsbruno Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.46 2010-08-12 11:41:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,8 @@ public:
     			//restrain the data ranges between the selected ranges
     const Interval<double>& getSelDataRange(bool forx) const
     			{ return forx ? xseldatarange_ : yseldatarange_; } 
-    void		disableReSizeDrawNotifier(); 
+    void		disableReSizeDrawNotifier();
+    void		hideAuxDataObjects(FlatView::Annotation::AuxData&,bool);
 
 protected:
 
@@ -140,7 +141,7 @@ protected:
 
     void			drawGridAnnot(bool,const uiRect&,
 	    				      const uiWorldRect&);
-    void			drawAux(const FlatView::Annotation::AuxData&,
+    void			drawAux(FlatView::Annotation::AuxData&,
 	    				const uiRect&,const uiWorldRect&);
 
     void			reset();
