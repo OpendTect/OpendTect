@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.16 2010-08-11 08:36:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.17 2010-08-12 12:16:22 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -646,7 +646,7 @@ const AnnotData::Unit* uiAnnotDisplay::getUnitFromPos( bool nocolidx ) const
 }
 
 
-#define mEps 50 
+#define mEps drawer_.yAxis()->range().width()/100
 const AnnotData::Marker* uiAnnotDisplay::getMrkFromPos() const
 {
     int cidx = getColIdxFromPos();
