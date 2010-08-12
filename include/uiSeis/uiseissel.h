@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.47 2010-08-12 10:39:02 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.48 2010-08-12 13:38:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ public:
 
     struct Setup : public uiIOObjSel::Setup
     {
-	enum SteerPol	{ NoSteering, OnlySteering, InclSteer };
+	enum SteerPol	{ NoSteering=0, OnlySteering=1, InclSteer=2 };
 
 			Setup( Seis::GeomType gt )
 			    : geom_(gt)
