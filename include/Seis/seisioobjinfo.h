@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.19 2010-08-12 13:37:48 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.20 2010-08-12 14:57:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,8 @@ public:
 				Opts2D()
 				    : bvs_(0), steerpol_(2)	{}
 	const BinIDValueSet*	bvs_;
-	BufferString		zdomky_;	//!< empty=only SI()'s
+	BufferString		zdomky_;	//!< default=empty=only SI()'s
+				//!< Will be matched as GlobExpr
 	int			steerpol_;	//!< 0=only, 1=none, 2=both
 				//!< Casts into uiSeisSel::Setup::SteerPol
     };
