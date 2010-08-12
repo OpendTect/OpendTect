@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.47 2010-03-23 16:16:00 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.48 2010-08-12 14:57:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
     const char*		lineName(int) const;	//!< returns pars_[idx]->name()
     const char*		attribute(int) const;
     const char*		datatype(int) const;
+    const char*		zDomainKey(int) const;
     LineKey		lineKey( int idx ) const
     			{ return LineKey( lineName(idx), attribute(idx) ); }
     int			indexOf(const char* linekey) const;

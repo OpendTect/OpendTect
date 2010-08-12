@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.80 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.81 2010-08-12 14:57:01 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.80 2010-07-12 14:24:33 cvsber
 #include "survinfo.h"
 #include "filepath.h"
 #include "keystrs.h"
+#include "zdomain.h"
 
 #include <sstream>
 
@@ -107,6 +108,14 @@ const char* Seis2DLineSet::datatype( int idx ) const
     const char* res = idx >=0 && idx < pars_.size()
 		    ? pars_[idx]->find(sKey::DataType) : 0;
     return res;
+}
+
+
+const char* Seis2DLineSet::zDomainKey( int idx ) const
+{
+    const char* res = idx >=0 && idx < pars_.size()
+		    ? pars_[idx]->find(ZDomain::sKey()) : 0;
+    return res && *res ? res : ZDomain::SI().key();
 }
 
 
