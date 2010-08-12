@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.21 2010-05-10 16:10:45 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.22 2010-08-12 18:38:48 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -55,16 +55,6 @@ bool BatchProgram::go( std::ostream& strm )
 	return true;
     }
 
-    int nrcubes = 1;
-    for ( int idx=0; idx<chain->nrSteps(); idx++ )
-    {
-	if ( !chain->getStep(idx)->canInputAndOutputBeSame() )
-	{
-	    nrcubes = 2;
-	    break;
-	}
-    }
-
     CubeSampling cs( true );
     if ( !cs.usePar( pars() ) )
 	strm << "Could not read ranges - Will process full survey\n";
@@ -72,9 +62,33 @@ bool BatchProgram::go( std::ostream& strm )
     PtrMan<VolProc::ChainExecutor> pce = new VolProc::ChainExecutor( *chain );
 
     char itemsize = sizeof(float);
+    HorSampling inputhrg = cs.hrg;
+    StepInterval<int> inputzrg(
+	chain->getZSampling().nearestIndex( cs.zrg.start ),
+	chain->getZSampling().nearestIndex( cs.zrg.stop ),
+	mNINT(cs.zrg.step/chain->getZSampling().step ) );
+    if ( inputzrg.step<1 ) inputzrg.step = 1;
 
+    od_uint64 nrbytes = 0;
 
-    od_uint64 nrbytes = cs.totalNr() * itemsize * nrcubes;
+    for ( int idx=chain->nrSteps()-1; idx>=0; idx-- )
+    {
+	const od_uint64 outputsize =
+	    inputhrg.totalNr() * inputzrg.nrSteps() * itemsize;
+
+	od_uint64 inputsize = 0;
+	if ( !chain->getStep(idx)->canInputAndOutputBeSame() )
+	{
+	    inputzrg = chain->getStep(idx)->getInputZRg( inputzrg );
+	    inputhrg = chain->getStep(idx)->getInputHRg( inputhrg );
+	    inputsize = inputhrg.totalNr() * inputzrg.nrSteps() * itemsize;
+	}
+
+	const od_uint64 totalsize = inputsize+outputsize;
+	if ( totalsize>nrbytes )
+	    nrbytes = totalsize;
+    }
+
     strm << "Allocating " << getBytesString( nrbytes ) << " in memory\n";
     
     if ( !pce->setCalculationScope( cs ) )
