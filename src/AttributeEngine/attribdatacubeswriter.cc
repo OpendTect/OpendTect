@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.7 2010-08-12 17:49:25 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.8 2010-08-13 12:16:51 cvskris Exp $";
 
 #include "attribdatacubeswriter.h"
 
@@ -25,37 +25,42 @@ DataCubesWriter::DataCubesWriter( const MultiID& mid,
 				  const TypeSet<int>& cubeindices )
     : Executor( "Attribute volume writer" )
     , nrdone_( 0 )
+    , hrg_( dc.cubeSampling().hrg )
+    , zrg_( dc.z0_, dc.z0_+dc.getZSz()-1 )
     , totalnr_( dc.cubeSampling().hrg.totalNr() )
     , cube_( dc )
     , iterator_( dc.cubeSampling().hrg )
     , currentpos_( 0 )
     , mid_( mid )
     , writer_( 0 )
-    , trc_( *new SeisTrc( dc.getZSz() ) )
+    , trc_( 0 )
     , cubeindices_( cubeindices )
 { 
     cube_.ref();
-    const CubeSampling cs = cube_.cubeSampling();
-
-    trc_.info().sampling.start = cs.zrg.start;
-    trc_.info().sampling.step = cs.zrg.step;
-    trc_.info().nr = 0;
-
-    for ( int idx=1; idx<cubeindices_.size(); idx++ )
-	trc_.data().addComponent( dc.getZSz(), DataCharacteristics() );
 }
 
 
 DataCubesWriter::~DataCubesWriter()
 {
     cube_.unRef();
-    delete &trc_;
+    delete trc_;
     delete writer_;
 }    
 
 
 od_int64 DataCubesWriter::nrDone() const
 { return nrdone_; }    
+
+
+void DataCubesWriter::setSelection( const HorSampling& hrg,
+				    const Interval<int>& zrg )
+{
+    zrg_ = zrg;
+    hrg_ = hrg;
+
+    iterator_.setSampling( hrg );
+    totalnr_ = hrg.totalNr();
+}
 
 
 od_int64 DataCubesWriter::totalNr() const
@@ -70,13 +75,30 @@ int DataCubesWriter::nextStep()
 	if ( !ioobj ) return ErrorOccurred(); 
 
 	writer_ = new SeisTrcWriter( ioobj );
+
+	const Interval<int> cubezrg( cube_.z0_, cube_.z0_+cube_.getZSz()-1 );
+	if ( !cubezrg.includes( zrg_.start ) || !cubezrg.includes( zrg_.stop ) )
+	    zrg_ = cubezrg;
+
+	const int trcsz = zrg_.width()+1;
+	trc_ = new SeisTrc( trcsz );
+
+	trc_->info().sampling.start = zrg_.start * cube_.zstep_;
+	trc_->info().sampling.step = cube_.zstep_;
+	trc_->info().nr = 0;
+
+	for ( int idx=1; idx<cubeindices_.size(); idx++ )
+	    trc_->data().addComponent( trcsz, DataCharacteristics() );
+
     }
 
     if ( !iterator_.next( currentpos_ ) )
 	return Finished();
 
-    trc_.info().binid = currentpos_;
-    trc_.info().coord = SI().transform( currentpos_ );
+    const int trcsz = zrg_.width()+1;
+
+    trc_->info().binid = currentpos_;
+    trc_->info().coord = SI().transform( currentpos_ );
     const int inlidx = cube_.inlsampling_.nearestIndex( currentpos_.inl );
     const int crlidx = cube_.crlsampling_.nearestIndex( currentpos_.crl );
 
@@ -84,17 +106,18 @@ int DataCubesWriter::nextStep()
     {
 	for ( int zidx=0; zidx<cube_.getZSz(); zidx++ )
 	{
-	    const float value =
-		cube_.getCube(cubeindices_[idx]).get( inlidx, crlidx, zidx );
-	    trc_.set( zidx, value, idx );
+	    const int zpos = zrg_.start+zidx;
+	    const float value = cube_.getCube(cubeindices_[idx]).get(
+					      inlidx, crlidx, zpos-cube_.z0_ );
+	    trc_->set( zidx, value, idx );
 	}
     }
     
-    if ( !writer_->put( trc_ ) )
+    if ( !writer_->put( *trc_ ) )
 	return ErrorOccurred();
 
     nrdone_++;
-    trc_.info().nr++;
+    trc_->info().nr++;
     return MoreToDo();
 }  
 
