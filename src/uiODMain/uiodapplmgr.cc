@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.383 2010-07-26 11:21:21 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.384 2010-08-13 07:35:41 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1314,7 +1314,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    if ( dpss.isEmpty() )
 		{ uiMSG().error("No valid data locations found"); return false;}
 	    if ( !attrserv_->extractData(dpss) )
-		return true;
+		{ deepErase(dpss); return true; }
 	    IOPar& iop = nlaserv_->storePars();
 	    attrserv_->curDescSet(nlaserv_->is2DEvent())->fillPar( iop );
 	    if ( iop.name().isEmpty() )
