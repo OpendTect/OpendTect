@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.5 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.6 2010-08-13 15:29:25 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -24,13 +24,18 @@ public:
 	LateralSmootherTask(const Array3D<float>& input,
 		int i0, int i1, int i2,
 		Array3D<float>& output,
-		int o0, int o1, int o2, const Array2DFilterPars& pars )
+		int o0, int o1, int o2,
+		const Interval<int>& i0samples,
+		const Interval<int>& i1samples,
+		const Array2DFilterPars& pars )
 	    : input_( input )
 	    , output_( output )
 	    , i0_( i0 ), i1_( i1 ), i2_( i2 )
 	    , o0_( o0 ), o1_( o1 ), o2_( o2 )
 	    , pars_( pars )
 	    , totalsz_( output.info().getSize( 2 ) )
+	    , i0samples_( i0samples )
+	    , i1samples_( i1samples )
 	{}
 
     od_int64			nrIterations() const { return totalsz_; }
@@ -41,46 +46,37 @@ public:
 private:
     bool doWork( od_int64 start, od_int64 stop, int )
     {
-	Array2DImpl<float> inputslice( input_.info().getSize(0),
-				       input_.info().getSize(1) );
-	if ( !inputslice.isOK() )
-	    return false;
+	Array2DSlice<float> inputslice( input_ );
+	inputslice.setDimMap( 0, 0 );
+	inputslice.setDimMap( 1, 1 );
 
-	Array2DSlice<float> output( output_ );
-	output.setDimMap( 0, 0 );
-	output.setDimMap( 1, 1 );
+	Array2DSlice<float> outputslice( output_ );
+	outputslice.setDimMap( 0, 0 );
+	outputslice.setDimMap( 1, 1 );
+
+	const RowCol origin( o0_-i0_,  o1_-i1_ );
 
 	for ( od_int64 idx=start; idx<=stop && shouldContinue();
 	      idx++, addToNrDone( 1 ) )
 	{
 	    const int depthindex = o2_+idx;
 	    const int inputdepth = depthindex-i2_;
+	    inputslice.setPos( 2, inputdepth );
+	    if ( !inputslice.init() )
+		return false;
 
-	    for ( int idy=inputslice.info().getSize(0)-1; idy>=0; idy-- )
-	    {
-		for ( int idz=inputslice.info().getSize(1)-1; idz>=0; idz-- )
-		    inputslice.set( idy, idz, input_.get(idy,idz,inputdepth) );
-	    }
+	    outputslice.setPos( 2, idx );
+	    if ( !outputslice.init() )
+		return false;
 
 	    PtrMan<Array2DFilterer<float> > filter =
-		new Array2DFilterer<float>( inputslice, pars_ );
+		new Array2DFilterer<float>( inputslice, outputslice, origin,
+					    pars_ );
+
+	    filter->setScope( i0samples_, i1samples_ );
+
 	    if ( !filter->execute() )
 		return false;
-
-	    output.setPos( 2, idx );
-
-	    if ( !output.init() )
-		return false;
-
-	    for ( int idy=output.info().getSize(0)-1; idy>=0; idy-- )
-	    {
-		const int input0 = o0_+idy - i0_;
-		for ( int idz=output.info().getSize(1)-1; idz>=0; idz-- )
-		{
-		    const int input1 = o1_+idz - i1_;
-		    output.set( idy, idz, inputslice.get( input0, input1 ) );
-		}
-	    }
 	}
 
 	return true;
@@ -93,6 +89,9 @@ private:
 
     Array3D<float>&		output_;
     int				o0_, o1_, o2_;
+
+    const Interval<int>		i0samples_;
+    const Interval<int>		i1samples_;
     const Array2DFilterPars&	pars_;
 };
 
@@ -200,6 +199,13 @@ Task* LateralSmoother::createTask()
 	pars_.rowdist_ = mUdf(float);
     }
 
+    Interval<int> inlsamples( input_->inlsampling_.nearestIndex(hrg_.start.inl),
+	    		      input_->inlsampling_.nearestIndex(hrg_.stop.inl));
+
+    Interval<int> crlsamples( input_->crlsampling_.nearestIndex(hrg_.start.crl),
+	    		      input_->crlsampling_.nearestIndex(hrg_.stop.crl));
+
+
     return new LateralSmootherTask( input_->getCube( 0 ),
 	    input_->inlsampling_.start,
 	    input_->crlsampling_.start,
@@ -208,6 +214,7 @@ Task* LateralSmoother::createTask()
 	    output_->inlsampling_.start,
 	    output_->crlsampling_.start,
 	    output_->z0_,
+	    inlsamples, crlsamples,
 	    pars_ );
 
     return 0;
