@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.74 2010-08-12 15:43:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.75 2010-08-13 12:29:21 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -388,7 +388,22 @@ Color Well::Marker::color() const
 }
 
 
-const Well::Marker* Well::MarkerSet::getByName(const char* mname) const
+ObjectSet<Well::Marker>& Well::MarkerSet::operator += ( Well::Marker* mrk )
+{
+    if ( mrk && isPresent( mrk->name().buf() ) )
+    {
+	BufferString msg( "Marker " );
+	msg += mrk->name().buf();
+	msg += " is already present";
+	pErrMsg( msg );
+    }
+    else
+	ObjectSet<Well::Marker>::operator += ( mrk );
+    return *this;
+}
+
+
+const Well::Marker* Well::MarkerSet::getByName( const char* mname ) const
 {
     const int idx = indexOf( mname );
     return  idx < 0 ? 0 : (*this)[idx]; 
@@ -408,6 +423,8 @@ int Well::MarkerSet::indexOf( const char* mname ) const
 
 void Well::MarkerSet::insertNew( Well::Marker* newmrk ) 
 {
+    if ( newmrk && isPresent( newmrk->name().buf() ) )
+	return;
     int idlist = 0;
     for ( int idmrk=0; idmrk<size(); idmrk++ )
     {
