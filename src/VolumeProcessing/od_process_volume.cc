@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.22 2010-08-12 18:38:48 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.23 2010-08-13 15:23:12 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: od_process_volume.cc,v 1.22 2010-08-12 18:38:48
 #include "initvolumeprocessing.h"
 #include "initvelocity.h"
 #include "arrayndimpl.h"
+#include "survinfo.h"
 
 bool BatchProgram::go( std::ostream& strm )
 { 
@@ -61,15 +62,21 @@ bool BatchProgram::go( std::ostream& strm )
     
     PtrMan<VolProc::ChainExecutor> pce = new VolProc::ChainExecutor( *chain );
 
-    char itemsize = sizeof(float);
+
+    const float zstep = chain->getZStep();
     HorSampling inputhrg = cs.hrg;
-    StepInterval<int> inputzrg(
-	chain->getZSampling().nearestIndex( cs.zrg.start ),
-	chain->getZSampling().nearestIndex( cs.zrg.stop ),
-	mNINT(cs.zrg.step/chain->getZSampling().step ) );
-    if ( inputzrg.step<1 ) inputzrg.step = 1;
+    StepInterval<int> outputzrg( mNINT(cs.zrg.start/zstep),
+				 mNINT(cs.zrg.stop/zstep),
+				 mNINT(cs.zrg.step/zstep) );
+    if ( outputzrg.step<1 ) outputzrg.step = 1;
+    StepInterval<int> inputzrg = outputzrg;
 
     od_uint64 nrbytes = 0;
+    const char itemsize = sizeof(float);
+
+    const HorSampling survhrg = SI().sampling(false).hrg;
+    const Interval<int> survzrg( mNINT(SI().zRange(false).start/zstep),
+				 mNINT(SI().zRange(false).stop/zstep) );
 
     for ( int idx=chain->nrSteps()-1; idx>=0; idx-- )
     {
@@ -77,19 +84,29 @@ bool BatchProgram::go( std::ostream& strm )
 	    inputhrg.totalNr() * inputzrg.nrSteps() * itemsize;
 
 	od_uint64 inputsize = 0;
-	if ( !chain->getStep(idx)->canInputAndOutputBeSame() )
+
+	const bool needsinput =  idx &&
+	                chain->getStep(idx)->needsInput( inputhrg );
+	if ( needsinput )
 	{
 	    inputzrg = chain->getStep(idx)->getInputZRg( inputzrg );
 	    inputhrg = chain->getStep(idx)->getInputHRg( inputhrg );
-	    inputsize = inputhrg.totalNr() * inputzrg.nrSteps() * itemsize;
+	    inputzrg.limitTo( survzrg );
+	    inputhrg.limitTo( survhrg );
+
+	    if ( !chain->getStep(idx)->canInputAndOutputBeSame() )
+		inputsize = inputhrg.totalNr() * inputzrg.nrSteps() * itemsize;
 	}
 
 	const od_uint64 totalsize = inputsize+outputsize;
 	if ( totalsize>nrbytes )
 	    nrbytes = totalsize;
+
+	if ( !needsinput )
+	    break;
     }
 
-    strm << "Allocating " << getBytesString( nrbytes ) << " in memory\n";
+    strm << "Allocating " << getBytesString( nrbytes ) << " memory\n";
     
     if ( !pce->setCalculationScope( cs ) )
     {
@@ -150,6 +167,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     const TypeSet<int> indices( 1, 0 );
     Attrib::DataCubesWriter writer( outputid, *cube, indices );
+    writer.setSelection( cs.hrg, outputzrg );
     if ( !writer.execute( &strm ) )
     {
 	return false;
