@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.31 2010-04-23 05:41:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.32 2010-08-13 08:04:54 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "conn.h"
@@ -297,9 +297,11 @@ bool IOObj::isReadDefault() const
 bool IOObj::isSurveyDefault( const MultiID& ky )
 {
     IOPar* dpar = SI().pars().subselect( "Default" );
-    if ( !dpar || dpar->isEmpty() ) return false;
-
-    return dpar->findKeyFor( ky );
+    bool ret = false;
+    if ( dpar && !dpar->isEmpty() )
+	ret = dpar->findKeyFor( ky );
+    delete dpar;
+    return ret;
 }
 
 
