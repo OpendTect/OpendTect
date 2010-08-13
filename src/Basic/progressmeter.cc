@@ -22,6 +22,7 @@ TextStreamProgressMeter::TextStreamProgressMeter( std::ostream& out,
     : strm_(out)
     , rowlen_(rowlen)
     , finished_(true)
+    , totalnr_(0)
 { reset(); }
 
 
@@ -147,16 +148,36 @@ void TextStreamProgressMeter::setName( const char* newname )
 void TextStreamProgressMeter::annotate( bool withrate )
 {
     // Show numbers
-    strm_ << ' ' << nrdone_;
+    strm_ << ' ';
+    float percentage = 0;
+    if ( totalnr_>0 )
+    {
+	percentage = ((float) nrdone_)/totalnr_;
+	strm_ << mNINT(percentage*100) << "%";
+    }
+    else
+	strm_ << nrdone_;
+
 
     // Show rate
     int newtime = Time::getMilliSeconds();
     int tdiff = newtime - oldtime_;
     if ( withrate && tdiff > 0 )
     {
-	int nrdone = nrdone_ - lastannotatednrdone_;
+	float nrdone;
+	if ( totalnr_>0 )
+ 	{
+	    const float lastpercentage = ((float)lastannotatednrdone_)/totalnr_;
+	    nrdone = (percentage-lastpercentage)*100;
+	}
+ 	else
+ 	    nrdone = nrdone_ - lastannotatednrdone_;
+
 	int permsec = (int)(1.e6 * nrdone / tdiff + .5);
-	strm_ << " (" << permsec * .001 << "/s)";
+	strm_ << " (" << permsec * .001;
+	if ( totalnr_>0 ) strm_ << "%";
+	strm_ << "/s)";
+
     }
     strm_ << std::endl;
 

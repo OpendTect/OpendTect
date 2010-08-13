@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.15 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:           $Id: progressmeter.h,v 1.16 2010-08-13 12:26:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
     void	setStarted();
     void	setFinished();
     void	setNrDone(od_int64);
+    void	setTotalNr(od_int64 t)		{ totalnr_ = t; }
     void	setMessage(const char*);
 
     void	operator++();
@@ -64,6 +65,7 @@ protected:
     od_int64		nrdoneperchar_;
     od_int64		nrdone_;
     od_int64		lastannotatednrdone_;
+    od_int64		totalnr_;
     int 		oldtime_; 
     int 		nrdotsonline_; 
     bool		inited_;
