@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.12 2010-05-28 22:13:48 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.13 2010-08-13 15:21:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -44,10 +44,9 @@ mClass Chain
 public:
     				Chain();
 
-    void			setZSampling(const SamplingData<float>&,
-	    				     bool zit);
-    const SamplingData<float>&	getZSampling() const;
-    bool			zIsT() const { return zit_; }
+    void			setZStep(float z,bool zit) {zstep_=z,zit_=zit; }
+    float			getZStep() const	   { return zstep_; }
+    bool			zIsT() const		   { return zit_; }
 
     int				nrSteps() const; 
     Step*			getStep(int);
@@ -75,8 +74,10 @@ protected:
     static const char*		sKeyStepType()	{ return "Type"; }
     MultiID			storageid_;
     ObjectSet<Step>		steps_;
-    SamplingData<float>		zsampling_;
+
+    float			zstep_;
     bool			zit_;
+
     BufferString		errmsg_;
 };
 
@@ -109,7 +110,11 @@ public:
 
     virtual bool		setInput(const Attrib::DataCubes*);
     				//!<\returns true if it wants to keep the data.
-    virtual void		setOutput(Attrib::DataCubes*);
+    virtual void		setOutput(Attrib::DataCubes*,
+	    			    const StepInterval<int>& inlrg,
+				    const StepInterval<int>& crlrg,
+				    const StepInterval<int>& zrg);
+
     virtual bool		canInputAndOutputBeSame() const { return false;}
     virtual bool		needsFullVolume() const { return true;}
     const Attrib::DataCubes*	getOutput() const	{ return output_; }
@@ -143,6 +148,11 @@ protected:
     Attrib::DataCubes*		output_;
     const Attrib::DataCubes*	input_;
     BufferString		username_;
+
+
+    HorSampling			hrg_;
+    StepInterval<int>		zrg_;
+
 };
 
 

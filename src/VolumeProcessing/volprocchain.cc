@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.16 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.17 2010-08-13 15:21:03 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -27,7 +27,7 @@ public:
 protected:
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
 		{
-		    const HorSampling hrg( step_.output_->cubeSampling().hrg );
+		    const HorSampling hrg( step_.hrg_ );
 		    BinID curbid = hrg.start;
 
 		    const int nrinls = start/hrg.nrCrl();
@@ -124,8 +124,7 @@ bool ChainExecutor::setCalculationScope( const CubeSampling& cs )
     zrg_.stop = mNINT( cs.zrg.stop/cs.zrg.step );
     zrg_.step = 1;
 
-    chain_.setZSampling( SamplingData<float>( cs.zrg.start, cs.zrg.step ),
-	    		 SI().zIsTime() );
+    chain_.setZStep( cs.zrg.step, SI().zIsTime() );
 
     currentstep_ = 0;
     return true;
@@ -160,12 +159,20 @@ bool ChainExecutor::prepareNewStep()
     if ( currentstep_>=steps_.size() )
 	return false;
 
+    const HorSampling survhrg = SI().sampling( false ).hrg;
+    const float zstep = chain_.getZStep();
+    const Interval<int> survzrg( mNINT(SI().zRange(false).start/zstep),
+	    			 mNINT(SI().zRange(false).stop/zstep) );
+
     HorSampling hrg( hrg_ ); 
     StepInterval<int> zrg = zrg_;
     for ( int idx=steps_.size()-1; idx>currentstep_; idx-- )
     {
 	hrg = chain_.getStep( idx )->getInputHRg( hrg );
 	zrg = chain_.getStep( idx )->getInputZRg( zrg );
+
+	hrg.limitTo( survhrg );
+	zrg.limitTo( survzrg );
     }
 
     RefMan<Attrib::DataCubes> tmpres = curinput_;
@@ -190,12 +197,8 @@ bool ChainExecutor::prepareNewStep()
 
     bool initoutput = false;
 
-    if ( curinput_ && steps_[currentstep_]->canInputAndOutputBeSame() &&
-	 curinput_->getInlSz()==nrinl && curinput_->getCrlSz()==nrcrl &&
-	 curinput_->getZSz()==nrz )
-    {
+    if ( curinput_ && steps_[currentstep_]->canInputAndOutputBeSame() )
 	curoutput_ = curinput_;
-    }
     else if ( tmpres && tmpres!=curinput_ )
     {
 	initoutput = true;
@@ -208,9 +211,6 @@ bool ChainExecutor::prepareNewStep()
 	curoutput_ = new Attrib::DataCubes();
     }
 
-    if ( curoutput_->getInlSz()!=nrinl || curoutput_->getCrlSz()!=nrcrl ||
-	 curoutput_->getZSz()!=nrz )
-	curoutput_->setSize( nrinl, nrcrl, nrz );
 
     if ( initoutput )
     {
@@ -220,7 +220,11 @@ bool ChainExecutor::prepareNewStep()
 	curoutput_->crlsampling_.step = crlrg.step;
 	curoutput_->crlsampling_.step = crlrg.step;
 	curoutput_->z0_ = zrg.start;
-	curoutput_->zstep_ = chain_.getZSampling().step;
+	curoutput_->zstep_ = chain_.getZStep();
+
+	if ( curoutput_->getInlSz()!=nrinl || curoutput_->getCrlSz()!=nrcrl ||
+	     curoutput_->getZSz()!=nrz )
+	    curoutput_->setSize( nrinl, nrcrl, nrz );
     }
 
     if ( !curoutput_->nrCubes() && !curoutput_->addCube( mUdf(float), false ) )
@@ -229,7 +233,7 @@ bool ChainExecutor::prepareNewStep()
 	return false;
     }
 
-    steps_[currentstep_]->setOutput( curoutput_ );
+    steps_[currentstep_]->setOutput( curoutput_, inlrg, crlrg, zrg );
     if ( steps_[currentstep_]->setInput( curinput_ ) )
 	curinput_ = 0;
 
@@ -291,23 +295,13 @@ const char* ChainExecutor::message() const
 
 
 Chain::Chain()
-    : zsampling_( SI().zRange(true).start, SI().zRange(true).step )
+    : zstep_( SI().zRange(true).step )
+    , zit_( SI().zIsTime() )
 {}
 
 
 Chain::~Chain()
 { deepErase( steps_ ); }
-
-
-void Chain::setZSampling( const SamplingData<float>& nsd, bool zit )
-{
-    zsampling_ = nsd;
-    zit_ = zit;
-}
-
-
-const SamplingData<float>& Chain::getZSampling() const
-{ return zsampling_; }
 
 
 int Chain::nrSteps() const
@@ -500,11 +494,17 @@ bool Step::setInput( const Attrib::DataCubes* ni )
 }
 
 
-void Step::setOutput( Attrib::DataCubes* ni )
+ void Step::setOutput( Attrib::DataCubes* ni,
+ 	const StepInterval<int>& inlrg,
+ 	const StepInterval<int>& crlrg,
+ 	const StepInterval<int>& zrg) 
 {
     if ( output_ ) output_->unRef();
     output_ = ni;
     if ( output_ ) output_->ref();
+
+    hrg_.set( inlrg, crlrg );
+    zrg_ = zrg;
 }
 
 
