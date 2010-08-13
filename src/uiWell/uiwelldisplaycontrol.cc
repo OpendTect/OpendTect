@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.13 2010-08-09 14:43:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.14 2010-08-13 12:30:01 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.13 2010-08-09 14:43
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uimenuhandler.h"
+#include "uimsg.h"
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
 
@@ -244,13 +245,14 @@ bool uiWellDisplayControl::handleUserClick( const MouseEvent& ev )
 }
 
 
+#define mErrRet(msg) { uiMSG().error( msg ); return false; }
 class uiWellDispAddMarkerDlg : public uiDialog
 {
 public : 
-    uiWellDispAddMarkerDlg( uiParent* p, float dah )
+    uiWellDispAddMarkerDlg( uiParent* p, const Well::MarkerSet& ms, float dah )
 	: uiDialog(p,uiDialog::Setup("Add marker",
 				     "Specify properties",mNoHelpID))
-	, marker_(0)							     
+	, ms_(ms)
     {
 	namefld_ = new uiGenInput( this, "Name", StringInpSpec("Marker") );
 	depthfld_ = new uiGenInput( this, "Depth", FloatInpSpec(dah) );
@@ -267,25 +269,32 @@ public :
 
     bool acceptOK( CallBacker* )
     {
-	const char* nm = namefld_->text();
-	float dpt = depthfld_->getfValue();
-	marker_ = new Well::Marker( nm, dpt );
-	marker_->setColor( colorfld_->color() );
-	if ( stratmrkfld_->isChecked() )
-	    marker_->setLevelID( 
-		Well::StratMGR().addLevel(marker_->name(),marker_->color()) );
+	name_ = namefld_->text();
+	if ( !strcmp( name_, "" ) )
+	    mErrRet( "Please specify a marker name" )
+	if ( ms_.isPresent( name_.buf() ) )
+	    mErrRet("Marker name already existing" )
+	dah_ = depthfld_->getfValue();
+	if ( mIsUdf( dah_ ) )
+	    mErrRet( "No valid position entered" )
+	col_ = colorfld_->color();
+	isstrat_ = stratmrkfld_->isChecked();
 	return true;
     }
 
-    Well::Marker* marker() 	{ return marker_; }
+    float 		dah_;
+    Color 		col_;
+    BufferString 	name_;
+    bool 		isstrat_;
 
 protected :
 
-    Well::Marker*	marker_;
     uiGenInput*		namefld_;
     uiGenInput*		depthfld_;
     uiColorInput*	colorfld_;
     uiCheckBox*		stratmrkfld_;
+
+    const Well::MarkerSet& ms_;
 };
 
 
@@ -307,12 +316,16 @@ void uiWellDisplayControl::handleMenuCB( CallBacker* cb )
     {
 	float mousepos = mousePos(0);
 	mSetZVal( mousepos )
-	uiWellDispAddMarkerDlg mrkdlg( menu_->getParent(), mousepos );
+	Well::MarkerSet& mrkset = wd_->markers();
+	uiWellDispAddMarkerDlg mrkdlg( menu_->getParent(), mrkset, mousepos );
 	if ( mrkdlg.go() )
 	{
-	    Well::Marker* newmrk = mrkdlg.marker();
-	    if ( !newmrk ) return;
-	    wd_->markers().insertNew( newmrk );
+	    BufferString nm( mrkdlg.name_ ); Color col = mrkdlg.col_;
+	    Well::Marker* marker = new Well::Marker( nm, mrkdlg.dah_ );
+	    marker->setColor( col );
+	    if (  mrkdlg.isstrat_ )
+		marker->setLevelID( Well::StratMGR().addLevel( nm, col ) );
+	    mrkset.insertNew( marker );
 	    trigMarkersChanged();
 	}
     }
@@ -334,7 +347,7 @@ void uiWellDisplayControl::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,cb);
     if ( !menu ) return;
 
-    if ( logdisps_.size() && selectMarker(0,true) ) 
+    if ( logdisps_.isEmpty() && selectMarker(0,true) ) 
 	mAddMenuItem( menu, &remmrkmnuitem_, true, false )
     mAddMenuItem( menu, &addmrkmnuitem_, true, false )
 }
