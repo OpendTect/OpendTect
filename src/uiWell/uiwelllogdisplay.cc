@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.56 2010-08-09 14:43:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.57 2010-08-13 12:30:37 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -626,6 +626,7 @@ uiWellDisplay::uiWellDisplay( uiWellDisplay& orgdisp, const ShapeSetup& su )
     , wellid_(orgdisp.getWellID())       	       
 {
     mGetWD(return);
+    orgdisp.removeWDNotifiers( *wd );
     setNoBackGround();
 
     for ( int idx=0; idx<orgdisp.nrLogDisp(); idx++ )
@@ -793,7 +794,7 @@ void uiWellDisplay::dataChanged( CallBacker* cb )
 	logdisp->data().copyFrom( pms_.data_ );
 	logdisp->doDataChange();
     }
-    if ( stratdisp_ )
+    if ( hasStratDisp() )
     {
 	stratdisp_->dispData().copyFrom( pms_.data_ );
 	stratdisp_->doDataChange();
