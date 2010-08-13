@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.15 2010-05-11 13:55:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.16 2010-08-13 15:24:42 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -255,7 +255,7 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
     Attrib::DataCubes* output = task_.getStep().getOutput();
     const bool zit = task_.getStep().getChain().zIsT();
     const int zsz = output->getZSz();
-    const SamplingData<double>& zsd = task_.getStep().getChain().getZSampling();
+    const SamplingData<double> zsd(output->zstep_*output->z0_,output->zstep_);
 
     Vel::Function* func = velfuncs_[thread];
     const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
@@ -337,7 +337,7 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 	return false;
 
     const int zsz = output.getZSz();
-    const SamplingData<double>& zsd = task_.getStep().getChain().getZSampling();
+    const SamplingData<double> zsd(output.zstep_*output.z0_,output.zstep_);
     const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
 
     Gridder2D* gridder = gridders_[thread];
