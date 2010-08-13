@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.6 2010-08-13 15:29:25 cvskris Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.7 2010-08-13 16:04:58 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -27,23 +27,29 @@ public:
 		int o0, int o1, int o2,
 		const Interval<int>& i0samples,
 		const Interval<int>& i1samples,
+		const Interval<int>& i2samples,
 		const Array2DFilterPars& pars )
 	    : input_( input )
 	    , output_( output )
 	    , i0_( i0 ), i1_( i1 ), i2_( i2 )
 	    , o0_( o0 ), o1_( o1 ), o2_( o2 )
 	    , pars_( pars )
-	    , totalsz_( output.info().getSize( 2 ) )
+	    , totalsz_( (i0samples.width()+1)*
+		    	(i1samples.width()+1)*(i2samples.width()+1) )
 	    , i0samples_( i0samples )
 	    , i1samples_( i1samples )
+	    , i2samples_( i2samples )
 	{}
 
-    od_int64			nrIterations() const { return totalsz_; }
-    const char*			message() const { return "Smothing laterally"; }
-    const char*			nrDoneText() const
-    				{ return "Timeslices processed"; }
+    od_int64		nrIterations() const {return i2samples_.width()+1; }
+    od_int64		totalNr() const { return totalsz_; }
+    const char*		message() const { return "Smothing laterally"; }
+    const char*		nrDoneText() const { return "Samples processed"; }
 
 private:
+    void		reportRowDone(CallBacker*)
+			{ addToNrDone( i1samples_.width()+1 ); }
+
     bool doWork( od_int64 start, od_int64 stop, int )
     {
 	Array2DSlice<float> inputslice( input_ );
@@ -56,16 +62,16 @@ private:
 
 	const RowCol origin( o0_-i0_,  o1_-i1_ );
 
-	for ( od_int64 idx=start; idx<=stop && shouldContinue();
-	      idx++, addToNrDone( 1 ) )
+	for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
 	{
-	    const int depthindex = o2_+idx;
+	    const int depthindex = i2samples_.start+idx;
 	    const int inputdepth = depthindex-i2_;
+	    const int outputdepth = depthindex-o2_;
 	    inputslice.setPos( 2, inputdepth );
 	    if ( !inputslice.init() )
 		return false;
 
-	    outputslice.setPos( 2, idx );
+	    outputslice.setPos( 2, outputdepth );
 	    if ( !outputslice.init() )
 		return false;
 
@@ -74,6 +80,8 @@ private:
 					    pars_ );
 
 	    filter->setScope( i0samples_, i1samples_ );
+	    filter->poststep.notify(
+		    mCB(this,LateralSmootherTask,reportRowDone) );
 
 	    if ( !filter->execute() )
 		return false;
@@ -92,6 +100,7 @@ private:
 
     const Interval<int>		i0samples_;
     const Interval<int>		i1samples_;
+    const Interval<int>		i2samples_;
     const Array2DFilterPars&	pars_;
 };
 
@@ -214,7 +223,7 @@ Task* LateralSmoother::createTask()
 	    output_->inlsampling_.start,
 	    output_->crlsampling_.start,
 	    output_->z0_,
-	    inlsamples, crlsamples,
+	    inlsamples, crlsamples, zrg_,
 	    pars_ );
 
     return 0;
