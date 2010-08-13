@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.20 2010-06-17 21:24:43 cvskris Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.21 2010-08-13 11:42:12 cvsbert Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -60,6 +60,8 @@ void SeisMSCProvider::init()
 SeisMSCProvider::~SeisMSCProvider()
 {
     rdr_.close();
+    for ( int idx=0; idx<tbufs_.size(); idx++ )
+	tbufs_[idx]->deepErase();
     deepErase( tbufs_ );
     delete &rdr_;
     delete reqmask_;
@@ -140,9 +142,8 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
     SeisTrc* trc = new SeisTrc;
     int res = readTrace( *trc );
     if ( res < 1 )
-	delete trc;
-    if ( res <= 0 )
     {
+	delete trc;
 	readstate_ = res==0 ? ReadAtEnd : ReadErr;
 	return advance();
     }
@@ -405,7 +406,8 @@ bool SeisMSCProvider::doAdvance()
 
 	    if ( !tbufs_[0]->isEmpty() )
 	    {
-		delete tbufs_[0]->remove(0); 
+		SeisTrc* deltrc = tbufs_[0]->remove(0);
+		delete deltrc;
 		if ( pivotidx_ == 0 )
 		    pivotidy_--;
 	    }
