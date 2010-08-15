@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: transform.h,v 1.13 2010-08-11 16:53:28 cvsyuancheng Exp $
+ RCS:           $Id: transform.h,v 1.14 2010-08-15 19:54:44 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -84,7 +84,7 @@ mProtected:
     float_complex*		coutput_;
     float*			routput_;
 
-    class Transform1D
+    mClass Transform1D
     {
     public:
 	virtual		~Transform1D()				{}
@@ -109,7 +109,7 @@ mProtected:
 	virtual bool	init() { return true; }
 	virtual bool	run(bool parallel)				= 0;
 
-    protected:
+    mProtected:
 				
     				Transform1D();
 
