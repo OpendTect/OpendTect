@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Nov 2006
- RCS:           $Id: array2dfilter.h,v 1.10 2010-08-13 15:12:22 cvskris Exp $
+ RCS:           $Id: array2dfilter.h,v 1.11 2010-08-16 19:40:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -230,6 +230,7 @@ inline void Array2DFilterer<T>::doPoint( int row, int col )
 {
     calc_->clear();
 
+    const bool isweighted = calc_->isWeighted();
     const int startrow = row - pars_.stepout_.row;
     int firstrow = startrow;
     if ( firstrow < 0 ) firstrow = 0;
@@ -262,9 +263,7 @@ inline void Array2DFilterer<T>::doPoint( int row, int col )
 		|| (issiderow && !iscentercol) ) )
 		continue;
 
-	    if ( !calc_->isWeighted() )
-		*calc_ += *buf;
-	    else
+	    if ( isweighted )
 	    {
 		const int coldist = icol - col;
 		const int coldist2 = coldist*coldist;
@@ -272,6 +271,8 @@ inline void Array2DFilterer<T>::doPoint( int row, int col )
 		wt = 1 / (1 + pars_.distfac_ * wt);
 		calc_->addValue( *buf, wt );
 	    }
+	    else
+		*calc_ += *buf;
 	}
     }
 
