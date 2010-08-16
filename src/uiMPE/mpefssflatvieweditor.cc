@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.13 2010-08-03 09:03:35 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.14 2010-08-16 14:45:23 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
     fsspainter_->repaintdone_.notify( 
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintedCB) );
+    editor_->sower().alternateSowingOrder();
 }
 
 
@@ -218,7 +219,7 @@ void FaultStickSetFlatViewEditor::seedMovementStartedCB( CallBacker* cb )
     EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return;
 
-    if ( emid !=fsspainter_->getFaultSSID() )
+    if ( emid != fsspainter_->getFaultSSID() )
 	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
@@ -290,8 +291,38 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 }
 
 
+bool FaultStickSetFlatViewEditor::getMousePosInfo(
+			const Geom::Point2D<int>& mousepos,
+			IndexInfo& ix, IndexInfo& iy, Coord3& worldpos ) const
+{
+    const FlatDataPack* dp = editor_->viewer().pack( false );
+    if ( !dp )
+	dp = editor_->viewer().pack( true );
+
+    if ( !dp ) return false;
+
+    const uiRect datarect( editor_->getMouseArea() );
+    if ( !mousepos.isDefined() || !datarect.isInside(mousepos) )
+	return false;
+
+    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
+    const uiWorldPoint wp = w2u.transform( mousepos-datarect.topLeft() );
+
+    const FlatPosData& pd = dp->posData();
+    ix = pd.indexInfo( true, wp.x );
+    iy = pd.indexInfo( false, wp.y );
+    worldpos = dp->getCoord( ix.nearest_, iy.nearest_ );
+    worldpos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
+    return true;
+}
+
+
 void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 {
+    const MouseEvent& mouseevent = meh_->event();
+    if ( editor_ && editor_->sower().accept(mouseevent, false) )
+	return;
+
     if ( seedhasmoved_ )
 	return;
 
@@ -311,28 +342,14 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     if ( !fsseditor )
 	return;
 
-    const FlatDataPack* dp = editor_->viewer().pack( false );
-    if ( !dp )
-	dp = editor_->viewer().pack( true );
-
-    if ( !dp ) return;
-
-    const MouseEvent& mouseevent = meh_->event();
-    const uiRect datarect( editor_->getMouseArea() );
-    if ( !datarect.isInside(mouseevent.pos()) ) return;
-
-    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
-    const uiWorldPoint wp = w2u.transform( mouseevent.pos()-datarect.topLeft());
-
-    const FlatPosData& pd = dp->posData();
-    const IndexInfo ix = pd.indexInfo( true, wp.x );
-    const IndexInfo iy = pd.indexInfo( false, wp.y );
-    Coord3 pos = dp->getCoord( ix.nearest_, iy.nearest_ );
-    pos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
+    IndexInfo ix(0), iy(0); Coord3 pos;
+    if ( !getMousePosInfo(mouseevent.pos(), ix, iy, pos) )
+	return;
 
     EM::PosID pid;
     fsseditor->getInteractionInfo( pid, &fsspainter_->getLineSetID(),
 			fsspainter_->getLineName(), pos, SI().zScale() );
+    // TODO: zFactor needs multiplication by Viewer's zStretch.
 
     if ( pid.isUdf() )
 	return; 
@@ -361,11 +378,16 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     if ( editor_->getSelPtIdx().size() > 0 )
 	displayedknotid = editor_->getSelPtIdx()[0];
 
-    if ( (edidauxdataid==-1) || (displayedknotid==-1) )
-	return;
-
     EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return;
+
+    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+
+    if ( (edidauxdataid==-1) || (displayedknotid==-1) )
+    {
+	editor_->sower().activate( emobject->preferredColor(), meh_->event() );
+	return;
+    }
 
     int stickid = -1;
 
@@ -379,8 +401,6 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     }
 
     if ( stickid == -1 ) return;
-
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
 
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return;
@@ -434,30 +454,24 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( !fsseditor )
 	return;
 
-    const FlatDataPack* dp = editor_->viewer().pack( false );
-    if ( !dp )
-	dp = editor_->viewer().pack( true );
-
-    if ( !dp ) return;
-
     const MouseEvent& mouseevent = meh_->event();
-    const uiRect datarect( editor_->getMouseArea() );
-    if ( !datarect.isInside(mouseevent.pos()) ) return;
+    IndexInfo ix(0), iy(0); Coord3 pos;
 
-    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
-    const uiWorldPoint wp = w2u.transform( mouseevent.pos()-datarect.topLeft());
+    Coord3 worldpivot = Coord3::udf();
+    getMousePosInfo( editor_->sower().pivotPos(), ix, iy, worldpivot );
+    fsseditor->setSowingPivot( worldpivot );
+    if ( editor_->sower().accept(mouseevent,true) )
+	return;
 
-    const FlatPosData& pd = dp->posData();
-    const IndexInfo ix = pd.indexInfo( true, wp.x );
-    const IndexInfo iy = pd.indexInfo( false, wp.y );
-    Coord3 pos = dp->getCoord( ix.nearest_, iy.nearest_ );
-    pos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
+    if ( !getMousePosInfo(mouseevent.pos(), ix, iy, pos) )
+	return;
 
     EM::FaultStickSetGeometry& fssg = emfss->geometry();
     EM::PosID interactpid;
     fsseditor->getInteractionInfo( interactpid, &fsspainter_->getLineSetID() ,
 				   fsspainter_->getLineName(), pos,
 				   SI().zScale() );
+    // TODO: zFactor needs multiplication by Viewer's zStretch.
 
     if ( !mousepid_.isUdf() && mouseevent.ctrlStatus() 
 	 && !mouseevent.shiftStatus() )

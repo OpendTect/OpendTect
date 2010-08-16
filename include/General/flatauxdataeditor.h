@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.17 2010-08-03 09:02:07 cvsumesh Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.18 2010-08-16 14:45:23 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,12 +14,60 @@ ________________________________________________________________________
 #include "flatview.h"
 #include "callback.h"
 #include "geometry.h"
+#include "keyenum.h"
+#include "rcol2coord.h"
 
 class MouseEventHandler;
+class MouseEvent;
 class MenuHandler;
+class Color;
 
 namespace FlatView
 {
+
+mClass Sower : public CallBacker
+{
+    friend class	AuxDataEditor;
+
+public:
+    enum		SowingMode { Idle=0, Furrowing,
+				     FirstSowing, SequentSowing };
+
+    SowingMode		mode()				{ return mode_; }
+
+    void		reverseSowingOrder(bool yn=true);
+    void		alternateSowingOrder(bool yn=true);
+
+    bool		moreToSow() const;
+    void		stopSowing();
+
+    Geom::Point2D<int>	pivotPos() const;
+
+    bool		accept(const MouseEvent&,bool released=false,
+			       OD::ButtonState mask=OD::LeftButton);
+    bool		activate(const Color&,const MouseEvent&);
+
+protected:
+    			Sower(Viewer&,MouseEventHandler&);
+			~Sower();
+
+    void		setView(const Rect& wv,
+	    			const Geom::Rectangle<int>& mouserect);
+
+    Viewer&			viewer_;
+    RCol2Coord			transformation_;
+    Annotation::AuxData*	sowingline_;
+    MouseEventHandler&		mouseeventhandler_;
+    SowingMode			mode_;
+    ObjectSet<MouseEvent>	eventlist_;
+    TypeSet<Coord>		mousecoords_;
+    TypeSet<int>		bendpoints_;
+
+    bool			reversesowingorder_;
+    bool			alternatesowingorder_;
+};
+
+
 
 /*!Editor for FlatView::Annotation::AuxData. Allows the enduser to
    click-drag-release the points in data.
@@ -90,6 +138,8 @@ public:
     const Viewer&	viewer() const	{ return viewer_; }
     Viewer&		viewer()	{ return viewer_; }
 
+    Sower&		sower()		{ return *sower_; }
+
     void			setSelActive( bool yn ) { isselactive_ = yn; }
     bool			isSelActive() const	{ return isselactive_; }
     const TypeSet<int>&				getIds() const;
@@ -117,6 +167,7 @@ protected:
     			//!<\returns true if something is selected
 
     Viewer&				viewer_;
+    Sower*				sower_;
     ObjectSet<Annotation::AuxData>	auxdata_;
     TypeSet<int>			ids_;
     BoolTypeSet				allowadd_;

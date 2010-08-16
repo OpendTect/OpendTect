@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.h,v 1.7 2010-07-29 12:02:32 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.h,v 1.8 2010-08-16 14:45:23 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emposid.h"
 
 class MouseEventHandler;
+class IndexInfo;
 
 namespace EM { class FaultStickPainter; }
 namespace FlatView { class AuxDataEditor; }
@@ -69,6 +70,11 @@ protected:
     void			cleanActStkContainer();
     void			fillActStkContainer();
     const int			getStickId(int markerid) const; 
+    
+    bool			getMousePosInfo(
+	    				const Geom::Point2D<int>& mousepos,
+					IndexInfo& ix, IndexInfo& iy,
+					Coord3& worldpos ) const;
 
     EM::FaultStickPainter*  	fsspainter_;
     bool			seedhasmoved_;

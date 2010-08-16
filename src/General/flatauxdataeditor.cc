@@ -7,14 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.32 2010-08-03 09:02:12 cvsumesh Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.33 2010-08-16 14:45:23 cvsjaap Exp $";
 
 #include "flatauxdataeditor.h"
 
+#include "bendpointfinder.h"
+#include "mousecursor.h"
 #include "mouseevent.h"
 #include "menuhandler.h"
 #include "polygon.h"
-#include "rcol2coord.h"
 
 
 namespace FlatView
@@ -36,6 +37,7 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , isselactive_( true )
     , movementlimit_( 0 )
     , menuhandler_( 0 )
+    , sower_( new Sower(v,meh) )
 {
     meh.buttonPressed.notify( mCB(this,AuxDataEditor,mousePressCB) );
     meh.buttonReleased.notify( mCB(this,AuxDataEditor,mouseReleaseCB) );
@@ -55,6 +57,7 @@ AuxDataEditor::~AuxDataEditor()
 	delete feedback_;
     }
 
+    delete sower_;
     removeSelectionPolygon();
     viewer_.handleChange( Viewer::Annot );
     limitMovement( 0 );
@@ -156,6 +159,8 @@ void AuxDataEditor::setView( const Rect& wv,
 {
     curview_ = wv;
     mousearea_ = mouserect;
+
+    sower_->setView( wv, mouserect );
 }
 
 
@@ -204,6 +209,13 @@ void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 }
 
 
+#define mGetRCol2CoordTransform( trans, view, mousearea ) \
+    RCol2Coord trans; \
+    trans.set3Pts( view.topLeft(), view.topRight(), view.bottomLeft(), \
+		   RowCol( mousearea.topLeft().x, mousearea.topLeft().y ), \
+		   RowCol( mousearea.topRight().x, mousearea.topRight().y ), \
+		   mousearea.bottomLeft().y );
+
 
 void AuxDataEditor::getPointSelections(
 	const ObjectSet<Annotation::AuxData>& polygonsel,
@@ -211,12 +223,7 @@ void AuxDataEditor::getPointSelections(
 {
     ids.erase();
     idxs.erase();
-    RCol2Coord polytrans;
-    polytrans.set3Pts( curview_.topLeft(), curview_.topRight(),
-	    curview_.bottomLeft(), 
-	    RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
-	    RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
-	    mousearea_.bottomLeft().y );
+    mGetRCol2CoordTransform( polytrans, curview_, mousearea_ );
 
     for ( int idx=0; idx<polygonsel.size(); idx++ )
     {
@@ -239,11 +246,7 @@ void AuxDataEditor::getPointSelections(
 
 	    const int auxdataid = ids_[idy];
 	    const Rect wr = getWorldRect( auxdataid );
-	    RCol2Coord trans;
-	    trans.set3Pts( wr.topLeft(), wr.topRight(),wr.bottomLeft(), 
-		       RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
-		       RowCol( mousearea_.topRight().x,mousearea_.topRight().y),
-		       mousearea_.bottomLeft().y );
+	    mGetRCol2CoordTransform( trans, wr, mousearea_ );
 
 	    for ( int idz=0; idz<auxdata_[idy]->poly_.size(); idz++ )
 	    {
@@ -368,11 +371,7 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
     if ( seldatasetidx_!=-1 )
     {
 	const Rect wr = getWorldRect( ids_[seldatasetidx_] );
-	RCol2Coord trans;
-	trans.set3Pts( wr.topLeft(), wr.topRight(),wr.bottomLeft(), 
-		   RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
-		   RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
-		   mousearea_.bottomLeft().y );
+	mGetRCol2CoordTransform( trans, wr, mousearea_ );
 
 	selptcoord_ = selptidx_.size()
 	    ? (FlatView::Point) auxdata_[seldatasetidx_]->poly_[selptidx_[0]]
@@ -419,11 +418,7 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	if ( seldatasetidx_!=-1 && allowadd_[seldatasetidx_] )
 	{
 	    const Rect wr = getWorldRect(ids_[seldatasetidx_]);
-	    RCol2Coord trans;
-	    trans.set3Pts( wr.topLeft(), wr.topRight(), wr.bottomLeft(), 
-		   RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
-		   RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
-		   mousearea_.bottomLeft().y );
+	    mGetRCol2CoordTransform( trans, wr, mousearea_ );
 
 	    selptcoord_ = trans.transform( RowCol(ev.pos().x,ev.pos().y) );
 	    movementFinished.trigger();
@@ -509,11 +504,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	    return;
 
 	const Rect wr = getWorldRect(ids_[seldatasetidx_]);
-	RCol2Coord trans;
-	trans.set3Pts( wr.topLeft(), wr.topRight(), wr.bottomLeft(), 
-	       RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
-	       RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
-	       mousearea_.bottomLeft().y );
+	mGetRCol2CoordTransform( trans, wr, mousearea_ );
 
 	const Geom::Point2D<int> mousedisplaypos =
 	    mousearea_.moveInside(ev.pos());
@@ -549,12 +540,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
     }
     else if ( addauxdataid_!=-1 )
     {
-	RCol2Coord trans;
-	trans.set3Pts( curview_.topLeft(), curview_.topRight(),
-		curview_.bottomLeft(), 
-		RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
-		RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
-		mousearea_.bottomLeft().y );
+	mGetRCol2CoordTransform( trans, curview_, mousearea_ );
 
 	if ( (!hasmoved_ && !ev.shiftStatus()) || !polygonsel_.size() )
 	{
@@ -596,7 +582,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	    }
 	}
 
-	    prevpt_ = ev.pos();
+	prevpt_ = ev.pos();
 	mousehandler_.setHandled( true );
     }
 
@@ -620,11 +606,7 @@ bool AuxDataEditor::updateSelection( const Geom::Point2D<int>& pt )
 	    continue;
 
 	const Rect wr = getWorldRect( ids_[idx] );
-	RCol2Coord transform;
-	transform.set3Pts( wr.topLeft(), wr.topRight(), wr.bottomLeft(), 
-	       RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
-	       RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
-	       mousearea_.bottomLeft().y );
+	mGetRCol2CoordTransform( transform, wr, mousearea_ );
 
 	const TypeSet<Point>& dataset = auxdata_[idx]->poly_;
 
@@ -678,6 +660,137 @@ void AuxDataEditor::limitMovement( const Rect* r )
 {
     delete movementlimit_;
     movementlimit_ = r ? new Rect(*r) : 0;
+}
+
+
+Sower::Sower( Viewer& vwr, MouseEventHandler& meh )
+    : viewer_( vwr )
+    , mouseeventhandler_( meh )
+    , mode_( Idle )
+    , reversesowingorder_( false )
+    , alternatesowingorder_( false )
+{
+    sowingline_ = new Annotation::AuxData( 0 );
+    viewer_.appearance().annot_.auxdata_ += sowingline_;
+}
+
+
+Sower::~Sower()
+{
+    deepErase( eventlist_ );
+
+    const int idx = viewer_.appearance().annot_.auxdata_.indexOf( sowingline_ );
+    delete viewer_.appearance().annot_.auxdata_.remove( idx );
+}
+
+
+void Sower::reverseSowingOrder( bool yn )
+{ reversesowingorder_ = yn; }
+
+
+void Sower::alternateSowingOrder( bool yn )
+{ alternatesowingorder_ = yn; }
+
+
+void Sower::setView( const Rect& curview,const Geom::Rectangle<int>& mousearea )
+{
+    mGetRCol2CoordTransform( trans, curview, mousearea );
+    transformation_ = trans;
+}
+
+
+bool Sower::activate( const Color& color, const MouseEvent& mouseevent )
+{
+    if ( mode_ != Idle )
+	return false;
+
+    mode_ = Furrowing;
+    if ( !accept(mouseevent, false, OD::ButtonState(~OD::NoButton)) )
+	return false;
+
+    sowingline_->linestyle_ = LineStyle( LineStyle::Solid, 1, color );
+    return true;
+}
+
+
+Geom::Point2D<int> Sower::pivotPos() const
+{
+    if ( mode_<FirstSowing || eventlist_.isEmpty() )
+	return Geom::Point2D<int>::udf();
+
+    Geom::Point2D<int> sum = eventlist_[0]->pos();
+    sum += eventlist_[eventlist_.size()-1]->pos();
+
+    return sum/2;
+}
+
+
+bool Sower::moreToSow() const
+{ return mode_>=FirstSowing && bendpoints_.size()>1; }
+
+
+void Sower::stopSowing()
+{ bendpoints_.erase(); }
+
+
+bool Sower::accept( const MouseEvent& mouseevent, bool released,
+		    OD::ButtonState mask )
+{
+    if ( mode_ != Furrowing )
+	return false;
+
+    mouseeventhandler_.setHandled( true );
+
+    if ( !released )
+    {
+	const RowCol rc = RowCol( mouseevent.x(), mouseevent.y() );
+	const Point pt = transformation_.transform( rc );
+	sowingline_->poly_ += pt;
+	viewer_.handleChange( Viewer::Annot );
+
+	unsigned int butstate = mouseevent.buttonState();
+	if ( eventlist_.size() )
+	{
+	    butstate = eventlist_[0]->buttonState();
+	    butstate &= mask;
+	}
+
+	eventlist_ += new MouseEvent( (OD::ButtonState) butstate,
+				      mouseevent.x(), mouseevent.y(),
+				      mouseevent.angle() );
+	mousecoords_ += Coord( mouseevent.x(), mouseevent.y() );
+	return true;
+    }
+
+    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+
+    BendPointFinder2D bpfinder ( mousecoords_, 2 );
+    bpfinder.execute(true);
+    bendpoints_ = bpfinder.bendPoints();
+    if ( reversesowingorder_ )
+	bendpoints_.reverse();
+
+    mode_ = FirstSowing;
+    while ( bendpoints_.size() )
+    {
+	int eventidx = bendpoints_[0];
+	mouseeventhandler_.triggerButtonPressed( *eventlist_[eventidx] ); 
+	mouseeventhandler_.triggerButtonReleased( *eventlist_[eventidx] ); 
+
+	bendpoints_.remove( 0 );
+	if ( alternatesowingorder_ )
+	    bendpoints_.reverse();
+
+	mode_ = SequentSowing;
+    }
+
+    sowingline_->poly_.erase();
+    viewer_.handleChange( Viewer::Annot );
+    deepErase( eventlist_ );
+    mousecoords_.erase();
+
+    mode_ = Idle;
+    return true;
 }
 
 
