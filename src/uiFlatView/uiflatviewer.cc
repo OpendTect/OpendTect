@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.118 2010-08-12 11:41:49 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.119 2010-08-16 11:52:09 cvsumesh Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -823,20 +823,106 @@ void uiFlatViewer::drawAux( FlatView::Annotation::AuxData& ad,
 	adnm->setTextColor( ad.linestyle_.color_ );
 	adnm->setPos( ptlist[listpos] );
 	adnameitemset_->add( adnm );
+	ad.dispids_ += adnm->id();
+	adnm->setVisible( ad.displayed_ );
     }
 }
 
 
-void uiFlatViewer::hideAuxDataObjects( FlatView::Annotation::AuxData& ad,
+void uiFlatViewer::showAuxDataObjects( FlatView::Annotation::AuxData& ad,
 				       bool yn )
 {
     for ( int idx=0; idx<ad.dispids_.size(); idx++ )
     {
 	uiGraphicsItem* itm = canvas_.scene().getItem( ad.dispids_[idx] );
 	if ( itm )
-	    itm->setVisible(!yn);
-	ad.displayed_ = !yn;
+	    itm->setVisible( yn );
+	ad.displayed_ = yn;
     }
+}
+
+
+void uiFlatViewer::updateProperties( const FlatView::Annotation::AuxData& ad )
+{
+    for ( int idx=0; idx<ad.dispids_.size(); idx++ )
+    {
+	uiGraphicsItem* itm = canvas_.scene().getItem( ad.dispids_[idx] );
+	if ( !itm ) continue;
+
+	mDynamicCastGet(uiPolygonItem*,polygon,itm);
+	if ( polygon )
+	{
+	    polygon->setFillColor( ad.fillcolor_, true );
+	    polygon->setPenStyle( ad.linestyle_ );
+	    continue;
+	}
+
+	mDynamicCastGet(uiPolyLineItem*,polyln,itm);
+	if ( polyln )
+	{
+	    polyln->setPenStyle( ad.linestyle_ );
+	    continue;
+	}
+
+	mDynamicCastGet(uiMarkerItem*,marker,itm);
+	{
+	    if ( !ad.markerstyles_.size() ) continue;
+
+	    marker->setPenColor( ad.markerstyles_[0].color_ );
+	    marker->setFillColor( ad.markerstyles_[0].color_ );
+	    continue;
+	}
+
+	mDynamicCastGet(uiTextItem*,adnm,itm);
+	{
+	    adnm->setTextColor( ad.linestyle_.color_ );
+	}
+    }
+}
+
+
+void uiFlatViewer::remove( const FlatView::Annotation::AuxData& ad )
+{
+    for ( int idx=0; idx<ad.dispids_.size(); idx++ )
+    {
+	uiGraphicsItem* itm = canvas_.scene().getItem( ad.dispids_[idx] );
+	if ( !itm ) continue;
+
+	mDynamicCastGet(uiPolygonItem*,polygon,itm);
+	if ( polygon )
+	{
+	    (*polylineitemset_) -= canvas_.scene().removeItem( itm );
+	    continue;
+	}
+
+	mDynamicCastGet(uiPolyLineItem*,polyln,itm);
+	if ( polyln )
+	{
+	    (*polylineitemset_) -= canvas_.scene().removeItem( itm );
+	    continue;
+	}
+
+	mDynamicCastGet(uiMarkerItem*,marker,itm);
+	if ( marker )
+	{
+	    (*markeritemset_) -= canvas_.scene().removeItem( itm );
+	    continue;
+	}
+
+	mDynamicCastGet(uiTextItem*,adnm,itm);
+	if ( adnm )
+	{
+	    (*adnameitemset_) -= canvas_.scene().removeItem( itm );
+	    continue;
+	}
+    }
+}
+
+
+void uiFlatViewer::reGenerate( FlatView::Annotation::AuxData& ad )
+{
+    remove( ad );
+    drawAux( ad, canvas_.arrArea(), wr_ );
 }
 
 

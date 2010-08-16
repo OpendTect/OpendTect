@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.46 2010-08-12 11:41:29 cvsumesh Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.47 2010-08-16 11:52:05 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,10 @@ public:
     const Interval<double>& getSelDataRange(bool forx) const
     			{ return forx ? xseldatarange_ : yseldatarange_; } 
     void		disableReSizeDrawNotifier();
-    void		hideAuxDataObjects(FlatView::Annotation::AuxData&,bool);
+    void		showAuxDataObjects(FlatView::Annotation::AuxData&,bool);
+    void		updateProperties(const FlatView::Annotation::AuxData&);
+    void		reGenerate(FlatView::Annotation::AuxData&);
+    void		remove(const FlatView::Annotation::AuxData&);
 
 protected:
 
