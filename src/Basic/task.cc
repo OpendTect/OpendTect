@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.23 2010-05-20 06:33:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.24 2010-08-16 20:02:51 cvskris Exp $";
 
 #include "task.h"
 
@@ -365,7 +365,8 @@ Threads::ThreadWorkManager& ParallelTask::twm()
 
 bool ParallelTask::execute( bool parallel )
 {
-    totalnrcache_ = nrIterations();
+    totalnrcache_ = totalNr();
+    const od_int64 nriterations = nrIterations();
     if ( totalnrcache_<=0 )
 	return true;
 
@@ -384,7 +385,7 @@ bool ParallelTask::execute( bool parallel )
 
     const int minthreadsize = minThreadSize();
     int maxnrthreads = parallel
-	? mMIN( totalnrcache_/minthreadsize, maxNrThreads() )
+	? mMIN( nriterations/minthreadsize, maxNrThreads() )
 	: 1;
 
     if ( maxnrthreads<1 )
@@ -393,14 +394,14 @@ bool ParallelTask::execute( bool parallel )
     if ( Threads::getNrProcessors()==1 || maxnrthreads==1 )
     {
 	if ( !doPrepare( 1 ) ) return false;
-	bool res = doFinish( doWork( 0, totalnrcache_-1, 0 ) );
+	bool res = doFinish( doWork( 0, nriterations-1, 0 ) );
 	if ( progressmeter_ ) progressmeter_->setFinished();
 	return res;
     }
 
     //Don't take all threads, as we may want to have spare ones.
     const int nrthreads = mMIN(Threads::getNrProcessors(),maxnrthreads);
-    const od_int64 size = totalnrcache_;
+    const od_int64 size = nriterations;
     if ( !size ) return true;
 
     mAllocVarLenArr( ParallelTaskRunner, runners, nrthreads );
@@ -427,7 +428,7 @@ bool ParallelTask::execute( bool parallel )
 
     bool res;
     if ( tasks.size()<2 )
-	res = doWork( 0, totalnrcache_-1, 0 );
+	res = doWork( 0, nriterations-1, 0 );
     else
     {
 	if ( stopAllOnFailure() )
