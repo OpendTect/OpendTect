@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.40 2010-06-22 21:32:44 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.41 2010-08-16 14:41:34 cvsjaap Exp $";
 
 #include "vismpeeditor.h"
 
@@ -22,9 +22,12 @@ static const char* rcsID = "$Id: vismpeeditor.cc,v 1.40 2010-06-22 21:32:44 cvsy
 #include "vishingeline.h"
 #include "vismarker.h"
 #include "vismaterial.h"
+#include "vispolygonselection.h"
 #include "vispolyline.h"
 #include "visshapescale.h"
+#include "vissurvscene.h"
 #include "vistransform.h"
+#include "vistransmgr.h"
 
 mCreateFactoryEntry( visSurvey::MPEEditor );
 
@@ -557,6 +560,11 @@ void Sower::setEventCatcher( visBase::EventCatcher* eventcatcher )
 bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo )
 {
     if ( mode_ != Idle )
+	return false;
+
+    Scene* scene = STM().currentScene();
+    if ( scene && scene->getPolySelection()->getSelectionType() !=
+	    					visBase::PolygonSelection::Off )
 	return false;
 
     mode_ = Furrowing;
