@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.23 2010-08-13 15:23:12 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.24 2010-08-16 15:35:35 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -81,7 +81,7 @@ bool BatchProgram::go( std::ostream& strm )
     for ( int idx=chain->nrSteps()-1; idx>=0; idx-- )
     {
 	const od_uint64 outputsize =
-	    inputhrg.totalNr() * inputzrg.nrSteps() * itemsize;
+	    inputhrg.totalNr() * (inputzrg.nrSteps()+1) * itemsize;
 
 	od_uint64 inputsize = 0;
 
@@ -95,7 +95,8 @@ bool BatchProgram::go( std::ostream& strm )
 	    inputhrg.limitTo( survhrg );
 
 	    if ( !chain->getStep(idx)->canInputAndOutputBeSame() )
-		inputsize = inputhrg.totalNr() * inputzrg.nrSteps() * itemsize;
+		inputsize =
+		    inputhrg.totalNr() * (inputzrg.nrSteps()+1) * itemsize;
 	}
 
 	const od_uint64 totalsize = inputsize+outputsize;
