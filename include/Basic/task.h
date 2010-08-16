@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.25 2009-12-07 19:37:07 cvskris Exp $
+ RCS:		$Id: task.h,v 1.26 2010-08-16 20:01:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -259,6 +259,8 @@ private:
     ProgressMeter*			progressmeter_;
     Threads::Mutex*			nrdonemutex_;
     od_int64				nrdone_;
+
+private:
     od_int64				totalnrcache_;
 };
 
