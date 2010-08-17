@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.69 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.70 2010-08-17 06:42:47 cvsbert Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -556,7 +556,7 @@ bool CallBackMgr::sync2DGeometryCB( CallBacker* cb )
 	{
 	    BufferStringSet attribs;
 	    SeisIOObjInfo sobjinfo( lsetid );
-	    sobjinfo.getAttribNamesForLine( linenm, attribs, true );
+	    sobjinfo.getAttribNamesForLine( linenm, attribs );
 	    if ( attribs.isEmpty() ) return false;
 	    lineidx = lineset.indexOf( LineKey(linenm,attribs.get(0)) );
 	    if ( lineidx < 0 ) return false;
