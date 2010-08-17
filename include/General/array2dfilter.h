@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Nov 2006
- RCS:           $Id: array2dfilter.h,v 1.11 2010-08-16 19:40:59 cvskris Exp $
+ RCS:           $Id: array2dfilter.h,v 1.12 2010-08-17 20:05:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -205,8 +205,8 @@ template <class T> inline int Array2DFilterer<T>::nextStep()
 template <class T> inline void Array2DFilterer<T>::filterRow( int row )
 {
     const T* inputptr = pars_.filludf_
-	? input_.getData() + input_.info().getOffset( row, 0 )
-	: 0;
+	? 0
+	: input_.getData() + input_.info().getOffset( row, 0 );
 
     if ( inputptr )
     {
