@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.14 2010-07-28 09:32:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.15 2010-08-17 11:33:49 cvsranojay Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -338,8 +338,8 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     manoutputcolor_->colorChanged.notify(
 	    			mCB(this,uiODFaultToolMan,outputColorChg) );
 
-    tbcolorbutton_ = new uiPushButton( toolbar_, "",
-			    mCB(this,uiODFaultToolMan,colorPressedCB), false );
+    tbcolorbutton_ = new uiToolButton( toolbar_, "",
+			    mCB(this,uiODFaultToolMan,colorPressedCB) );
     tbcolorbutton_->setName( "Output color" );
     tbcolorbutton_->setToolTip( tbcolorbutton_->name() );
     toolbar_->addObject( tbcolorbutton_ );
@@ -705,8 +705,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 	}
     }
 
-    ioPixmap colorpm( 50, 20 );
-
+    ioPixmap colorpm( 20, 20 );
     colorpm.fill( manoutputcolor_->color() );
     tbcolorbutton_->setPixmap( colorpm );
 

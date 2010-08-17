@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Jaap Glas
  Date:		December 2009
- RCS:		$Id: uiodfaulttoolman.h,v 1.7 2010-06-29 07:54:29 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttoolman.h,v 1.8 2010-08-17 11:33:49 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -25,9 +25,9 @@ class uiGenInput;
 class uiIOObjSel;
 class uiLineEdit;
 class uiODMain;
-class uiPushButton;
 class uiSurfaceWrite;
 class uiToolBar;
+class uiToolButton;
 class uiColorInput;
 
 
@@ -169,7 +169,7 @@ protected:
     int				redobutidx_;
 
     uiComboBox*			tboutputcombo_;
-    uiPushButton*		tbcolorbutton_;
+    uiToolButton*		tbcolorbutton_;
     
     uiSurfaceWrite*		manfaultoutput_;
     uiSurfaceWrite*		manfssoutput_;

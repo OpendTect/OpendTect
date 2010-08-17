@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.66 2010-05-25 04:29:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.67 2010-08-17 11:33:49 cvsranojay Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -131,8 +131,14 @@ protected:
 
     void		resizeEvent( QResizeEvent* ev )
 			{
-			    if ( ev ) qbutsize_ = ev->size();
-			    setIconFrac( iconfrac_ );
+			    uiParent* parent = handle_.parent();
+			    mDynamicCastGet(uiToolBar*,tb,parent)
+			    if ( parent && !tb )
+			    {
+			        if ( ev ) qbutsize_ = ev->size();
+				setIconFrac( iconfrac_ );
+			    }
+
 			    QPushButton::resizeEvent( ev );
 			}
 
