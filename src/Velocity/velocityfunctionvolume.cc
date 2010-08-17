@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.8 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.9 2010-08-17 20:32:46 cvskris Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -196,15 +196,46 @@ bool VolumeFunctionSource::setFrom( const MultiID& velid )
 }
 
 
+void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
+{
+    if ( !velreader_ || !velreader_->seisTranslator() )
+	return;
+
+    const SeisPacketInfo& packetinfo =
+	velreader_->seisTranslator()->packetInfo();
+
+    if ( !packetinfo.cubedata )
+	return;
+
+    const PosInfo::CubeData& cubedata = *packetinfo.cubedata;
+
+    for ( int idx=0; idx<cubedata.size(); idx++ )
+    {
+	const PosInfo::LineData& line = *cubedata[idx];
+	const int inl = line.linenr_;
+	for ( int idy=0; idy<line.segments_.size(); idy++ )
+	{
+	    const StepInterval<int> crls = line.segments_[idy];
+	    for ( int crl=crls.start; crl<=crls.stop; crl+=crls.step )
+	    {
+		bids.add( BinID(inl,crl) );
+	    }
+	}
+    }
+}
+
+
 void VolumeFunctionSource::getAvailablePositions(
 	HorSampling& hrg ) const
 {
     if ( !velreader_ || !velreader_->seisTranslator() )
 	return;
 
-
     const SeisPacketInfo& packetinfo =
 	velreader_->seisTranslator()->packetInfo();
+
+    if ( packetinfo.cubedata )
+	return;
 
     hrg.set( packetinfo.inlrg, packetinfo.crlrg );
 }

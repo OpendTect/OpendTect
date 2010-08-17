@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctionvolume.h,v 1.5 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: velocityfunctionvolume.h,v 1.6 2010-08-17 20:32:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -74,6 +74,7 @@ public:
     VolumeFunction*		createFunction(const BinID&);
 
     void			getAvailablePositions(HorSampling&) const;
+    void			getAvailablePositions(BinIDValueSet&) const;
     bool			getVel(const BinID&,SamplingData<float>&,
 	    			       TypeSet<float>&);
 
