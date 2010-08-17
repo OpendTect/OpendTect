@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.14 2009-08-14 21:34:32 cvsyuancheng Exp $
+ RCS:		$Id: gridder2d.h,v 1.15 2010-08-17 19:59:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,38 +135,7 @@ protected:
 
 /*!Uses Delaunay triangulation to find a points neighbors and does inverse
    distance between the neighbors. */
-mClass TriangulatedNeighborhoodGridder2D : public Gridder2D
-{
-public:
-    			TriangulatedNeighborhoodGridder2D();
-    			TriangulatedNeighborhoodGridder2D(
-				const TriangulatedNeighborhoodGridder2D&);
-			~TriangulatedNeighborhoodGridder2D();
 
-    static const char* 	sName() 	{ return "TriangulatedNeighborhood"; }
-    static const char* 	sUserName() 	{ return "Triangulated Neighborhood";}
-
-    void		setGridArea(const Interval<float>&,
-	    			    const Interval<float>&);
-
-    static Gridder2D*	create(); 
-    static void		initClass();
-    const char*		name() const		{ return sName(); }
-    Gridder2D*		clone() const;
-    
-    bool		init();
-protected:
-
-    DAGTriangleTree*		triangles_;
-    Triangle2DInterpolator*	interpolator_;
-    Interval<float>		xrg_;
-    Interval<float>		yrg_;
-};
-
-
-/*!Use Delaunay triangulation to triangulate all points, including the point
-  of investigation, and use inverse distance among the point of investigation's
-  neighborhood. */
 mClass TriangulatedGridder2D: public Gridder2D
 {
 public:
@@ -177,6 +146,8 @@ public:
 
     static const char* 	sName() 		{ return "Triangulated"; }
     static const char* 	sUserName() 		{ return "Triangulation"; }
+
+    bool		setPoints(const TypeSet<Coord>&);
 
     void		setGridArea(const Interval<float>&,
 	    			    const Interval<float>&);
@@ -194,7 +165,6 @@ protected:
     Triangle2DInterpolator*	interpolator_;
     Interval<float>		xrg_;
     Interval<float>		yrg_;
-    TypeSet<int>		addedindices_;
 };
 
 

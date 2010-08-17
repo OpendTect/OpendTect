@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.21 2009-08-18 21:29:27 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.22 2010-08-17 19:59:08 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -243,136 +243,6 @@ void InverseDistanceGridder2D::fillPar( IOPar& par ) const
     par.set( sKeySearchRadius(), getSearchRadius() );
 }
 
-
-TriangulatedNeighborhoodGridder2D::TriangulatedNeighborhoodGridder2D()
-    : triangles_( 0 )
-    , interpolator_( 0 )  
-    , xrg_( mUdf(float), mUdf(float) )
-    , yrg_( mUdf(float), mUdf(float) )
-{}
-
-
-TriangulatedNeighborhoodGridder2D::TriangulatedNeighborhoodGridder2D(
-	const TriangulatedNeighborhoodGridder2D& b )
-    : triangles_( 0 )
-    , interpolator_( 0 )  
-    , xrg_( b.xrg_ )
-    , yrg_( b.yrg_ )
-{
-    if ( b.triangles_ )
-    {
-	triangles_ = new DAGTriangleTree( *b.triangles_ );
-	interpolator_ = new Triangle2DInterpolator( *triangles_ );
-    }
-}
-
-
-TriangulatedNeighborhoodGridder2D::~TriangulatedNeighborhoodGridder2D()
-{ 
-    delete triangles_; 
-    delete interpolator_;
-}
-
-
-void TriangulatedNeighborhoodGridder2D::setGridArea( const Interval<float>& xrg,
-						     const Interval<float>& yrg)
-{
-    xrg_ = xrg;
-    yrg_ = yrg;
-}
-
-
-Gridder2D* TriangulatedNeighborhoodGridder2D::create()
-{
-    return new TriangulatedNeighborhoodGridder2D;
-}
-
-
-void TriangulatedNeighborhoodGridder2D::initClass()
-{
-    Gridder2D::factory().addCreator( create, sName(), sUserName() );
-}
-
-
-Gridder2D* TriangulatedNeighborhoodGridder2D::clone() const
-{ return new TriangulatedNeighborhoodGridder2D( *this ); }
-
-
-bool TriangulatedNeighborhoodGridder2D::init()
-{
-    usedvalues_.erase();
-    weights_.erase();
-
-    inited_ = false;
-
-    if ( !points_ || !points_->size() || !gridpoint_.isDefined() )
-	return true;
-
-    if ( points_->size()==1 )
-    {
-	usedvalues_ += 0;
-	weights_ += 1;
-	inited_ = true;
-	return true;
-    }
-
-    if ( !triangles_ )
-    {
-	triangles_ = new DAGTriangleTree;
-	Interval<double> xrg, yrg;
-	if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) ) 
-	{
-	    delete triangles_;
-	    triangles_ = 0;
-	    return false;
-	}
-
-	TypeSet<Coord>* pts = new TypeSet<Coord>;
-	for ( int idx=0; idx<points_->size(); idx++ )
-	    (*pts) += (*points_)[idx];
-
-	if ( !triangles_->setCoordList( pts, OD::TakeOverPtr ) )
-	{
-	    delete triangles_;
-	    triangles_ = 0;
-	    return false;
-	}
-
-	if ( !mIsUdf(xrg_.start) ) xrg.include( xrg_.start );
-	if ( !mIsUdf(xrg_.stop) ) xrg.include( xrg_.stop );
-	if ( !mIsUdf(yrg_.start) ) yrg.include( yrg_.start );
-	if ( !mIsUdf(yrg_.stop) ) yrg.include( yrg_.stop );
-
-	if ( !triangles_->setBBox( xrg, yrg ) )
-	{
-	    delete triangles_;
-	    triangles_ = 0;
-	    return false;
-	}
-
-	ParallelDTriangulator triangulator( *triangles_ );
-	triangulator.dataIsRandom( false );
-	if ( !triangulator.execute( false ) )
-	{
-	    delete triangles_;
-	    triangles_ = 0;
-	    return false;
-	}
-    
-	if ( interpolator_ )
-    	    delete interpolator_;
-	
-    	interpolator_ = new Triangle2DInterpolator( *triangles_ );
-    }
-
-    if ( !interpolator_->computeWeights(gridpoint_,usedvalues_,weights_) )
-	return false;
-
-    inited_ = true;
-    return true;
-}
-
-
 TriangulatedGridder2D::TriangulatedGridder2D()
     : triangles_( 0 )
     , interpolator_( 0 )  
@@ -461,34 +331,15 @@ bool TriangulatedGridder2D::init()
 	if ( !mIsUdf(yrg_.start) ) yrg.include( yrg_.start );
 	if ( !mIsUdf(yrg_.stop) ) yrg.include( yrg_.stop );
 
-	TypeSet<Coord>* pts = new TypeSet<Coord>;
-	for ( int idx=0; idx<points_->size(); idx++ )
-	    (*pts) += (*points_)[idx];
-
-	const float radius = Math::Sqrt( xrg.width()*xrg.width() + 
-				   yrg.width()*yrg.width() )/2*1.05;
-	const int nrptsinsert = 10; //should be >2.
-	for ( int idx=0; idx<nrptsinsert/2; idx++ )
-	{
-	    const double length = radius*((float)idx*4/(nrptsinsert-2)-1);
-	    const double x = xrg.center()+length;
-	    const double y = Math::Sqrt( radius*radius-length*length ); 
-	    (*pts) += Coord( x, yrg.center()+y );
-	    if ( idx && idx<nrptsinsert/2-1 )
-		(*pts) += Coord( x, yrg.center()-y );
-	}
-
-	addedindices_.erase();
-    	for ( int idx=pts->size()-1; idx>=points_->size(); idx-- )
-    	    addedindices_ += idx;
-
-	if ( !triangles_->setCoordList( pts, OD::TakeOverPtr ) )
+	if ( !triangles_->setCoordList( const_cast<TypeSet<Coord>*>(points_),
+					OD::UsePtr ) ||
+	     !triangles_->setBBox( xrg, yrg ) )
 	{
 	    delete triangles_;
 	    triangles_ = 0;
 	    return false;
 	}
-	
+
 	ParallelDTriangulator triangulator( *triangles_ );
 	triangulator.dataIsRandom( false ); 
 	if ( !triangulator.execute( false ) )
@@ -504,62 +355,27 @@ bool TriangulatedGridder2D::init()
 	interpolator_ = new Triangle2DInterpolator( *triangles_ );
     }
 
-    TypeSet<int> vertices;
-    TypeSet<float> weight;
-    if ( !interpolator_->computeWeights(gridpoint_,vertices,weight) )
+    if ( !interpolator_->computeWeights(gridpoint_,usedvalues_,weights_) )
 	return false;
-
-    for ( int idx=0; idx<vertices.size(); idx++ )
-    {
-	if ( vertices[idx]>=points_->size() )
-	{
-	    TypeSet<int> conns;
-	    TypeSet<double> ws;
-	    triangles_->getConnectionAndWeights(vertices[idx],conns,ws,false);
-	    
-	    double weightsum = 0;
-	    for ( int idy=0; idy<ws.size(); idy++ )
-	    {
-		if ( addedindices_.indexOf(conns[idy])!=-1 )
-		{
-		    ws.remove( idy );
-		    conns.remove( idy );
-		    idy--;
-		    continue;
-		}
-		
-		weightsum += ws[idy];
-	    }
-	    
-	    for ( int idy=0; idy<ws.size(); idy++ )
-	    {
-		const int ptidx = usedvalues_.indexOf( conns[idy] );
-		if ( ptidx==-1 )
-		{
-		    usedvalues_ += conns[idy];
-		    weights_ += weight[idx]*ws[idy]/weightsum;
-		}
-		else
-		{
-		    weights_[ptidx] += weight[idx]*ws[idy]/weightsum;
-		}
-	    }
-	}
-	else
-	{
-	    const int ptidx = usedvalues_.indexOf( vertices[idx] );
-	    if ( ptidx==-1 )
-	    {
-		usedvalues_ += vertices[idx];
-		weights_ += weight[idx];
-	    }
-	    else
-		weights_[ptidx] += weight[idx];
-	}
-    }
 
     inited_ = true;
     return true;
 }
+
+
+bool TriangulatedGridder2D::setPoints( const TypeSet<Coord>& pts )
+{
+    if ( points_==&pts )
+	return true;
+
+    if ( !Gridder2D::setPoints(pts) )
+	return false;
+
+    delete triangles_;
+    triangles_ = 0;
+
+    return true;
+}
+
 
 
