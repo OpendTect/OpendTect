@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.33 2010-05-31 14:14:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.34 2010-08-17 14:04:21 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -280,6 +280,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 	mErrRet("Please select the input seimic data")
     wtsetup_.seisnm_ = seisfld->getInput();
     wtsetup_.vellognm_ = vellogfld_->text();
+    wtsetup_.denlognm_ = denlogfld_->text();
     if ( !strcmp( wtsetup_.denlognm_, wtsetup_.vellognm_ ) )
 	mErrRet("velocity and density logs are the same, please select different logs")
     if ( !strcmp ( wtsetup_.vellognm_, sKeyPlsSel ) )
