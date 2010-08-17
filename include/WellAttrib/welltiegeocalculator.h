@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.20 2010-08-11 16:55:33 cvsyuancheng Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.21 2010-08-17 14:21:57 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
     void 		TWT2Vel(const TypeSet<float>&,
 	     			const TypeSet<float>&,
 				TypeSet<float>&,bool);
+    void		ensureValidD2TModel(Well::D2TModel&);
 
 //logs operations
     void 		checkShot2Log(const Well::D2TModel*,

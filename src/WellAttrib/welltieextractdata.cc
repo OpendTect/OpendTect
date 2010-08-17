@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.28 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.29 2010-08-17 14:21:57 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -52,6 +52,8 @@ int TrackExtractor::nextStep()
     if ( prevbid_.inl<0 || prevbid_.crl<0 )
 	return ErrorOccurred();
     double time = timeintv_.atIndex( nrdone_ );
+    if ( time > timeintv_.stop )
+	return Executor::Finished();
 
     Coord3 pos = track_.getPos( d2t_.getDah(time) );
     pos.z = time;
@@ -63,15 +65,14 @@ int TrackExtractor::nextStep()
     if ( time < d2t_.getTime( track_.dah( 0 ) ) )
 	bid = prevbid_;
 
-    if ( !bid.inl && !bid.crl )
+    if ( !SI().inlRange(true).includes(bid.inl) 
+	    || !SI().crlRange(true).includes(bid.crl)  )
     {
 	bid = prevbid_;
 	bidset_ += bid;
 	nrdone_++;
        	return Executor::MoreToDo();
     }
-    if ( time > timeintv_.stop )
-	return Executor::Finished();
     
     bidset_ += bid;
     prevbid_ = bid;
@@ -114,6 +115,7 @@ void SeismicExtractor::setTimeIntv( const StepInterval<float>& itv )
 
 void SeismicExtractor::collectTracesAroundPath() 
 {
+    if ( !bidset_.size() ) return;
     Interval<int> inlrg( bidset_[0].inl, bidset_[0].inl );
     Interval<int> crlrg( bidset_[0].crl, bidset_[0].crl );
 
@@ -219,6 +221,7 @@ LogResampler::LogResampler( Well::Log* newl, const Well::Log& orgl,
 	, isavg_(true) 
 	, vals_(0)	       
 	, dahs_(0)	       
+	, prevval_(0)  
 {
     if ( newlog_ ) newlog_->erase();
 
@@ -277,6 +280,10 @@ int LogResampler::nextStep()
 	curval += ( val_[curidx_+1] + val_[curidx_-1] + val_[curidx_] )/3;
     else
 	curval = orglog_.getValue( curdah, true );
+    if ( mIsUdf(curval) )
+	curval = prevval_;
+    
+    prevval_ = curval;
 
     if ( newlog_ )
 	newlog_->addValue( curdah, curval );

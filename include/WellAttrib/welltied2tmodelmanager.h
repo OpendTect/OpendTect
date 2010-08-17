@@ -43,8 +43,8 @@ class Params;
 mClass D2TModelMGR
 {
 public:
-				D2TModelMGR(WellTie::DataHolder&);
-				~D2TModelMGR();
+			D2TModelMGR(WellTie::DataHolder&);
+			~D2TModelMGR();
 
     			// operations
     bool 		undo();
@@ -73,6 +73,8 @@ protected:
     bool			emptyoninit_;
 
     Well::Data* 		wd();
+
+    void			ensureValid(Well::D2TModel&);
 };
 
 }; //namespace WellTie

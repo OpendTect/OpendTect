@@ -136,6 +136,7 @@ protected:
 
     int                 nrdone_;
     int                 curidx_;
+    float 		prevval_;
 
     void        	fillProcLog(const Well::Log&);
     StepInterval<float> timeintv_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.50 2010-08-11 16:55:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.51 2010-08-17 14:21:57 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -76,21 +76,41 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
 
     TWT2Vel( vals, dpt, time, false );
     mAllocVarLenArr( int, zidxs, vals.size() );
-    for ( int idx=0; idx<time.size(); idx++ )
-	zidxs[idx] += idx;
-    sort_coupled( time.arr(), mVarLenArr(zidxs), vals.size() );
-    
+
     Well::D2TModel* d2tnew = new Well::D2TModel;
     d2tnew->add( wd().track().dah(0)-wd().track().value(0), 0 ); //set KB Depth
-
     for ( int idx=1; idx<time.size(); idx++ )
     {
 	if ( time[idx]<=0 )
 	    continue;
 	d2tnew->add( dpt[idx], time[idx] );
     }
-
     return d2tnew;
+}
+
+
+void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t )
+{
+    const int sz = d2t.size();
+    TypeSet<float> dahs, times;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	dahs += d2t.dah( idx ); 
+	times += d2t.value( idx ); 
+    }
+    mAllocVarLenArr( int, zidxs, sz );
+    for ( int idx=0; idx<sz; idx++ )
+	zidxs[idx] = idx;
+    sort_coupled( times.arr(), mVarLenArr(zidxs), sz );
+    d2t.erase();
+    d2t.add( dahs[zidxs[0]], times[zidxs[0]] );
+    for ( int idx=1; idx<sz; idx++ )
+    {
+	int idx0 = zidxs[idx-1]; 
+	int idx1 = zidxs[idx];
+	if ( dahs[idx1] >= dahs[idx0])
+	    d2t.add( dahs[idx1], times[idx1] );
+    }
 }
 
 

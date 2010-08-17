@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.23 2010-04-27 08:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.24 2010-08-17 14:21:57 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -50,8 +50,10 @@ D2TModelMGR::D2TModelMGR( WellTie::DataHolder& dh )
 	WellTie::CheckShotCorr cscorr( dh );
 
     if ( (emptyoninit_ || wd()->haveCheckShotModel()) 
-	    				&& !dh.setup().useexistingd2tm_ )
+	    			|| !dh.setup().useexistingd2tm_ )
 	setFromVelLog( dh.params()->dpms_.currvellognm_, true );
+
+    ensureValid( d2T() );
 } 
 
 
@@ -185,6 +187,12 @@ bool D2TModelMGR::commitToWD()
 	delete orgd2t_;
 
     return true;
+}
+
+
+void D2TModelMGR::ensureValid( Well::D2TModel& d2t )
+{
+    geocalc_.ensureValidD2TModel( d2t );
 }
 
 
