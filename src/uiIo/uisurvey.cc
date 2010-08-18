@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.121 2010-08-11 19:38:32 cvskris Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.122 2010-08-18 04:00:20 cvsnanne Exp $";
 
 #include "uisurvey.h"
 
@@ -227,9 +227,9 @@ uiSurvey::uiSurvey( uiParent* p )
 
     inllbl_ = new uiLabel( infoleft, "" ); 
     crllbl_ = new uiLabel( infoleft, "" );
+    arealbl_ = new uiLabel( infoleft, "" );
     zlbl_ = new uiLabel( inforight, "" ); 
     binlbl_ = new uiLabel( inforight, "" );
-    arealbl_ = new uiLabel( inforight, "" );
 #if 0
     inllbl_->setHSzPol( uiObject::widevar );
     crllbl_->setHSzPol( uiObject::widevar );
