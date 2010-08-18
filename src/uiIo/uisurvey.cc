@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.122 2010-08-18 04:00:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.123 2010-08-18 04:32:05 cvsnanne Exp $";
 
 #include "uisurvey.h"
 
@@ -532,7 +532,7 @@ void uiSurvey::mkInfo()
     BufferString zinfo( "Z range " );
     zinfo += si.getZUnitString(); zinfo += ": ";
     BufferString bininfo( "Bin size (m/line): " );
-    BufferString areainfo( "Area (sq ", SI().xyInFeet() ? "mi" : "km", "): " );
+    BufferString areainfo( "Area (sq ", si.xyInFeet() ? "mi" : "km", "): " );
 
     if ( si.sampling(false).hrg.totalNr() )
     {
@@ -554,8 +554,8 @@ void uiSurvey::mkInfo()
 	int nr, rest;    
 	bininfo += "inl: "; mkString(inldist);
 	bininfo += "  crl: "; mkString(crldist);
-	float area = SI().computeArea(false) * 1e-6; //in km2
-	if ( SI().xyInFeet() )
+	float area = si.computeArea(false) * 1e-6; //in km2
+	if ( si.xyInFeet() )
 	    area /= 2.590; // square miles
 
 	areainfo += area;
