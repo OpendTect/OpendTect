@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.2 2010-07-22 05:22:40 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.3 2010-08-18 06:57:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,10 @@ ________________________________________________________________________
 #include "uilistview.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
-#include "pixmap.h"
 
+
+#include "coltabsequence.h"
+#include "pixmap.h"
 #include "visvw2dseismic.h"
 #include "visvw2ddataman.h"
 
@@ -145,25 +147,14 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 
     if ( !fdpv )
 	displayMiniCtab(0);
-
-    if ( fdpv )
+    else
     {
 	if ( !vwr.control() )
 	    displayMiniCtab(0);
-	
-	mDynamicCastGet( uiFlatViewStdControl*, fltvwctrl, vwr.control() );
-	if ( fltvwctrl && !fltvwctrl->colTabEd() )
-	    displayMiniCtab(0);
 
-	uiFlatViewColTabEd* ctabed = fltvwctrl->colTabEd();
-	if ( !ctabed->colTabGrp() )
-	    displayMiniCtab(0);
-
-	mDynamicCastGet( uiColorTable*, uicoltab, ctabed->colTabGrp() );
-	if ( uicoltab )
-	    displayMiniCtab( &uicoltab->colTabSeq() );
+	ColTab::Sequence seq( vwr.appearance().ddpars_.vd_.ctab_ );
+	displayMiniCtab( &seq );
     }
-
 
     viachkbox_ = false;
 }
