@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.8 2009-11-10 21:43:13 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.9 2010-08-18 06:05:43 cvsnanne Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -195,7 +195,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 
 GriddedSource::GriddedSource()
     : notifier_( this )
-    , gridder_( new TriangulatedNeighborhoodGridder2D )
+    , gridder_( new TriangulatedGridder2D )
 {
     initGridder( gridder_ );
 }
