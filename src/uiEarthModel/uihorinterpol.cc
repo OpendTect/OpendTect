@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.15 2010-01-18 16:14:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.16 2010-08-18 04:33:29 cvsnageswara Exp $";
 
 #include "uihorinterpol.h"
 
@@ -152,6 +152,7 @@ bool uiHorizonInterpolDlg::interpolate3D()
 
     uiTaskRunner tr( this );
 
+    bool success = false;
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
     {
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
@@ -184,6 +185,7 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	    ErrMsg( msg ); continue;
 	}
 
+	success = true;
 	EM::SectionID usedsid = usedhor3d->geometry().sectionID( idx );;
 	if ( !usedhor3d->setArray2D( *arr, usedsid, true, "Interpolation" ) )
 	{
@@ -193,7 +195,7 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	}
     }
 
-    return true;
+    return success;
 }
 
 
