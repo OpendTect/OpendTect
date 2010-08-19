@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.129 2010-08-06 07:44:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.130 2010-08-19 11:33:47 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -81,6 +81,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.129 2010-08-06 07:44:42 cvsbrun
 
 
 extern "C" const char* GetSettingsDataDir();
+extern void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
 static const int cCTHeight = 200;
 
 
@@ -196,6 +197,8 @@ uiODMain::uiODMain( uicMain& a )
     setIconText( icntxt.buf() );
     uiapp_.setTopLevel( this );
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
+    // TODO uncomment when transfer to S2DPOS() is complete
+    // OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
 
     if ( !ensureGoodDataDir()
       || (IOM().bad() && !ensureGoodSurveySetup()) )
@@ -219,6 +222,7 @@ uiODMain::~uiODMain()
     delete &lastsession_;
     delete &timer_;
 }
+
 
 
 bool uiODMain::ensureGoodDataDir()
