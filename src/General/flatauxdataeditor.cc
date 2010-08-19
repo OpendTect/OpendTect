@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.33 2010-08-16 14:45:23 cvsjaap Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.34 2010-08-19 12:02:59 cvsumesh Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -547,7 +547,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	    Annotation::AuxData* polysel = new Annotation::AuxData( 0 );
 	    polysel->linestyle_ = polygonsellst_;
 	    polysel->fillcolor_.setTransparency( 255 );
-	    polysel->poly_ += trans.transform( RowCol(prevpt_.x,prevpt_.y) );
+	    //polysel->poly_ += trans.transform( RowCol(prevpt_.x,prevpt_.y) );
 	    polygonsel_ += polysel;
 	    viewer_.appearance().annot_.auxdata_ += polysel;
 	}
@@ -557,8 +557,10 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	const Point pt = trans.transform( RowCol(ev.pos().x,ev.pos().y) );
 	if ( isselactive_ )
 	{
+
 	    if ( polygonselrect_ )
 	    {
+		polygonsel_[polyidx]->poly_ += pt;
 		if ( polygonsel_[polyidx]->poly_.size()>1 )
 		{
 		    polygonsel_[polyidx]->poly_.remove( 1,
