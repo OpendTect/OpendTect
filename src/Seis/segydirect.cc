@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.25 2010-07-14 16:53:21 cvskris Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.26 2010-08-19 06:45:53 cvsranojay Exp $";
 
 #include "segydirectdef.h"
 
@@ -34,12 +34,12 @@ static const char* rcsID = "$Id: segydirect.cc,v 1.25 2010-07-14 16:53:21 cvskri
 namespace SEGY
 {
 
-const char* DirectDef::sKeyDirectDef = "DirectSEG-Y";
-const char* DirectDef::sKeyFileType = "SEG-Y Direct Definition";
-const char* DirectDef::sKeyNrFiles = "Number of files";
-const char* DirectDef::sKeyFloatDataChar = "Float datachar";
-const char* DirectDef::sKeyInt32DataChar = "Int32 datachar";
-const char* DirectDef::sKeyInt64DataChar = "Int64 datachar";
+const char* DirectDef::sKeyDirectDef()  { return "DirectSEG-Y"; }
+const char* DirectDef::sKeyFileType()   { return "SEG-Y Direct Definition"; }
+const char* DirectDef::sKeyNrFiles()	{ return "Number of files"; }
+const char* DirectDef::sKeyFloatDataChar()  { return "Float datachar"; }
+const char* DirectDef::sKeyInt32DataChar()  { return "Int32 datachar"; }
+const char* DirectDef::sKeyInt64DataChar()  { return "Int64 datachar"; }
 
 class PosKeyList : public Seis::PosKeyList
 {
@@ -183,7 +183,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	mErrRet(BufferString("Cannot open '",fnm,"'"))
 
     ascistream astrm( *sd.istrm, true );
-    if ( !astrm.isOfFileType(sKeyFileType) )
+    if ( !astrm.isOfFileType(sKeyFileType()) )
 	mErrRet(BufferString("Input file '",fnm,"' has wrong file type"))
 
     IOPar iop1; iop1.getFrom( astrm );
@@ -194,7 +194,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	delete myfds_;
 	fds_ = myfds_ = new FileDataSet( iop1, astrm );
 
-	keylist_ = new SEGY::PosKeyList;
+	keylist_ = new SEGY::PosKeyList();
 	keylist_->setFDS( fds_ );
 
 	indexer_ = new Seis::PosIndexer( *keylist_, true, true );
@@ -207,11 +207,11 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	BufferString dc;
 
 	PtrMan<DataInterpreter<float> > floatinterp =
-	    DataInterpreter<float>::create(iop1,sKeyFloatDataChar,false );
+	    DataInterpreter<float>::create(iop1,sKeyFloatDataChar(),false );
 	PtrMan<DataInterpreter<od_int64> > int64interp =
-	    DataInterpreter<od_int64>::create(iop1,sKeyInt64DataChar,false );
+	    DataInterpreter<od_int64>::create(iop1,sKeyInt64DataChar(),false );
 	PtrMan<DataInterpreter<od_int32> > int32interp =
-	    DataInterpreter<od_int32>::create(iop1,sKeyInt32DataChar,false );
+	    DataInterpreter<od_int32>::create(iop1,sKeyInt32DataChar(),false );
 
 	IOPar segypars;
 	segypars.getFrom( astrm );
@@ -236,7 +236,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	if ( !strm.good() )
 	    mErrRet( readerror );
 
-	FixedString int32typestr = iop1.find( sKeyInt32DataChar );
+	FixedString int32typestr = iop1.find( sKeyInt32DataChar() );
 	DataCharacteristics int32type;
 	int32type.set( int32typestr );
 	FileDataSet* fds = new FileDataSet(segypars,fnm,datastart,int32type);
@@ -306,14 +306,14 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
 	mErrRet(BufferString("Cannot open '",fnm,"' for write"))
 
     ascostream astrm( *outstreamdata_->ostrm );
-    astrm.putHeader( sKeyFileType );
+    astrm.putHeader( sKeyFileType() );
 
     IOPar iop1;
     iop1.set( sKey::Version, 2 );
     BufferString dc;
-    mSetDc( iop1, od_int64, sKeyInt64DataChar );
-    mSetDc( iop1, od_int32, sKeyInt32DataChar );
-    mSetDc( iop1, float, sKeyFloatDataChar );
+    mSetDc( iop1, od_int64, sKeyInt64DataChar() );
+    mSetDc( iop1, od_int32, sKeyInt32DataChar() );
+    mSetDc( iop1, float, sKeyFloatDataChar() );
     iop1.putTo( astrm );
     fds_->segyPars().putTo( astrm );
 
