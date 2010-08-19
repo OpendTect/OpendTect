@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.1 2010-08-18 14:50:36 cvsbert Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.2 2010-08-19 11:30:49 cvsbert Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -16,14 +16,13 @@ static const char* rcsID = "$Id: surv2dgeom.cc,v 1.1 2010-08-18 14:50:36 cvsbert
 #include "ascstream.h"
 #include "oddirs.h"
 #include "safefileio.h"
-#include "envvars.h"
-#include "iopar.h"
+#include "settings.h"
 #include <iostream>
 
 static PosInfo::Survey2D* theinst = 0;
 static const char* sIdxFilename = "idx.txt";
 static const char* sKeyStor = "Storage";
-static bool cWriteBinary = GetEnvVarYN( "OD_WRITE_BINARY_2DGEOMETRY" );
+static bool cWriteAscii = Settings::common().isTrue("2DGeometry.Write Ascii");
 
 
 namespace PosInfo {
@@ -85,9 +84,9 @@ void PosInfo::Survey2D::readIdxFiles()
 {
     if ( lsnm_.isEmpty() )
     {
-	lsfp_ = basefp_;
-	lsfp_.add( sIdxFilename );
-	readIdxFile( lsfp_.fullPath(), lsindex_ );
+	FilePath fp( basefp_ );
+	fp.add( sIdxFilename );
+	readIdxFile( fp.fullPath(), lsindex_ );
 	if ( lsindex_.isEmpty() )
 	    return;
 	lsnm_ = lsindex_.getKey(0);
@@ -95,11 +94,12 @@ void PosInfo::Survey2D::readIdxFiles()
     const int idxky = lsindex_.indexOf( lsnm_.buf() );
     if ( idxky < 0 )
     {	// selected lsnm_ doesn't exist (anymore): reset to default
-	lsindex_.clear(); lsnm_.setEmpty();
+	lsindex_.clear(); lineindex_.clear(); lsnm_.setEmpty();
 	readIdxFiles();  return;
     }
 
-    lsfp_.setFileName( lsindex_.getValue(idxky) );
+    lsfp_ = basefp_;
+    lsfp_.add( lsindex_.getValue(idxky) );
     FilePath fp( lsfp_ ); fp.add( sIdxFilename );
     readIdxFile( fp.fullPath(), lineindex_ );
 }
@@ -116,7 +116,7 @@ void PosInfo::Survey2D::readIdxFile( const char* fnm, IOPar& iop )
 }
 
 
-void PosInfo::Survey2D::writeIdxFile( bool lines )
+void PosInfo::Survey2D::writeIdxFile( bool lines ) const
 {
     FilePath fp( lines ? lsfp_ : basefp_ ); fp.add( sIdxFilename );
     SafeFileIO sfio( fp.fullPath(), true );
@@ -196,21 +196,24 @@ BufferString PosInfo::Survey2D::getNewStorageName( const char* nm,
 
 
 
-void PosInfo::Survey2D::setCurLineSet( const char* lsnm )
+void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 {
     if ( lsnm_ == lsnm )
 	return;
 
-    lsnm_ = lsnm;
-    readIdxFiles();
+    PosInfo::Survey2D& self = *const_cast<PosInfo::Survey2D*>( this );
+    self.lsnm_ = lsnm;
+    self.readIdxFiles();
     if ( !lsnm || lsnm_ == lsnm )
 	return;
 
     // New line set specified
+    self.lsnm_ = lsnm;
     const BufferString dirnm( getNewStorageName(lsnm,basefp_,lsindex_) );
-    lsindex_.add( lsnm, dirnm );
-    FilePath fp( basefp_ ); fp.add( dirnm );
-    File::createDir( fp.fullPath() );
+    self.lsindex_.add( lsnm, dirnm );
+    self.lineindex_.clear();
+    self.lsfp_ = basefp_; self.lsfp_.add( dirnm );
+    File::createDir( lsfp_.fullPath() );
     writeIdxFile( false );
 }
 
@@ -228,13 +231,13 @@ bool PosInfo::Survey2D::getGeometry( PosInfo::Line2DData& l2dd ) const
 	return false;
 
     ascistream astrm( sfio.istrm() ); // read header
-    bool isbinary = cWriteBinary;
+    bool isascii = cWriteAscii;
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( !strcmp(astrm.keyWord(),sKeyStor) )
-	    isbinary = *astrm.value() == 'B';
+	    isascii = *astrm.value() != 'B';
     }
-    if ( !l2dd.read(sfio.istrm(),isbinary) )
+    if ( !l2dd.read(sfio.istrm(),isascii) )
     {
 	sfio.closeFail();
 	return false;
@@ -262,9 +265,9 @@ bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
 
     ascostream astrm( sfio.ostrm() );
     astrm.putHeader( "Line2D Geometry" );
-    astrm.put( sKeyStor, cWriteBinary ? "Binary" : "Ascii" );
+    astrm.put( sKeyStor, cWriteAscii ? "Ascii" : "Binary" );
     astrm.newParagraph();
-    if ( l2dd.write(sfio.ostrm(),cWriteBinary) )
+    if ( l2dd.write(sfio.ostrm(),cWriteAscii,true) )
     {
 	sfio.closeSuccess();
 	if ( lidx < 0 )

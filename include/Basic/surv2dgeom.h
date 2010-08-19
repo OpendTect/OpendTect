@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: surv2dgeom.h,v 1.1 2010-08-18 14:50:36 cvsbert Exp $
+ RCS:		$Id: surv2dgeom.h,v 1.2 2010-08-19 11:30:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
     void		getLines(BufferStringSet&,const char* lsnm=0) const;
 
     const char*		curLineSet() const	{ return lsnm_.buf(); }
-    void		setCurLineSet(const char*);
+    void		setCurLineSet(const char*) const;
 
     bool		getGeometry(Line2DData&) const; //!< using lineName()
     bool		setGeometry(const Line2DData&);
@@ -56,7 +56,7 @@ private:
 
     void		readIdxFiles();
     static void		readIdxFile(const char*,IOPar&);
-    void		writeIdxFile(bool);
+    void		writeIdxFile(bool) const;
     void		getKeys(const IOPar&,BufferStringSet&) const;
     BufferString	getNewStorageName(const char*,const FilePath&,
 	    				  const IOPar&) const;
