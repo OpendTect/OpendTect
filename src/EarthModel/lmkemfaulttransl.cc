@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.6 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.7 2010-08-19 05:28:03 cvsranojay Exp $";
 
 #include "lmkemfaulttransl.h"
 
@@ -24,16 +24,18 @@ static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.6 2010-06-18 12:23:27 c
 #include <iostream>
 
 
-const char* lmkEMFault3DTranslator::pointtypestr = "FAULT_PTYPE";
-const char* lmkEMFault3DTranslator::xstr = "FAULT_X";
-const char* lmkEMFault3DTranslator::ystr = "FAULT_Y";
-const char* lmkEMFault3DTranslator::zstr = "FAULT_Z";
-const char* lmkEMFault3DTranslator::domainstr = "FAULT_DOMAIN";
-const char* lmkEMFault3DTranslator::surveystr = "FAULT_SURVEY";
-const char* lmkEMFault3DTranslator::domainunitstr = "FAULT_DOMAIN_UNIT";
-const char* lmkEMFault3DTranslator::distancunitestr="FAULT_DISTANCE_UNIT";
-const char* lmkEMFault3DTranslator::lineidstr="FAULT_LINEID";
-const char* lmkEMFault3DTranslator::tracestr="FAULT_TRACE";
+const char* lmkEMFault3DTranslator::pointtypestr() { return "FAULT_PTYPE"; }
+const char* lmkEMFault3DTranslator::xstr()	   { return "FAULT_X"; }
+const char* lmkEMFault3DTranslator::ystr()	   { return "FAULT_Y"; }
+const char* lmkEMFault3DTranslator::zstr()	   { return "FAULT_Z"; }
+const char* lmkEMFault3DTranslator::domainstr()	   { return "FAULT_DOMAIN"; }
+const char* lmkEMFault3DTranslator::surveystr()	   { return "FAULT_SURVEY"; }
+const char* lmkEMFault3DTranslator::domainunitstr()
+				    { return "FAULT_DOMAIN_UNIT"; }
+const char* lmkEMFault3DTranslator::distancunitestr()
+				    { return "FAULT_DISTANCE_UNIT"; }
+const char* lmkEMFault3DTranslator::lineidstr()	{ return "FAULT_LINEID"; }
+const char* lmkEMFault3DTranslator::tracestr() 	{ return "FAULT_TRACE"; }
 
 
 #define mWriteFormatRecord(nm)				\
@@ -73,23 +75,23 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
 	*formatsd.istrm >> fieldname >> rg.start >> rg.stop;
 	if ( !*formatsd.istrm ) break;
 
-	if ( fieldname==lmkEMFault3DTranslator::xstr )
+	if ( fieldname==lmkEMFault3DTranslator::xstr() )
 	    xinterval = rg;
-	else if ( fieldname==lmkEMFault3DTranslator::ystr )
+	else if ( fieldname==lmkEMFault3DTranslator::ystr() )
 	    yinterval = rg;
-	else if ( fieldname==lmkEMFault3DTranslator::zstr )
+	else if ( fieldname==lmkEMFault3DTranslator::zstr() )
 	    zinterval = rg;
-	else if ( fieldname==lmkEMFault3DTranslator::pointtypestr )
+	else if ( fieldname==lmkEMFault3DTranslator::pointtypestr() )
 	    pointtypeinterval = rg;
-	else if ( fieldname==lmkEMFault3DTranslator::domainstr )
+	else if ( fieldname==lmkEMFault3DTranslator::domainstr() )
 	    domaininterval = rg;
-	else if ( fieldname==lmkEMFault3DTranslator::domainunitstr )
+	else if ( fieldname==lmkEMFault3DTranslator::domainunitstr() )
 	    domainunitinterval = rg;
-	else if ( fieldname==lmkEMFault3DTranslator::distancunitestr )
+	else if ( fieldname==lmkEMFault3DTranslator::distancunitestr() )
 	    distancuniteinterval = rg;
-	else if ( fieldname==lmkEMFault3DTranslator::lineidstr )
+	else if ( fieldname==lmkEMFault3DTranslator::lineidstr() )
 	    lineidinterval = rg;
-	else if ( fieldname==lmkEMFault3DTranslator::tracestr )
+	else if ( fieldname==lmkEMFault3DTranslator::tracestr() )
 	    traceinterval = rg;
     }
     formatsd.close();
@@ -106,13 +108,13 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
 		zinterval.start==-1 || zinterval.stop==-1 ||
 		pointtypeinterval.start==-1 || pointtypeinterval.stop==-1 )
     {
-	msg = lmkEMFault3DTranslator::xstr;
+	msg = lmkEMFault3DTranslator::xstr();
 	msg += ", "; 
-	msg += lmkEMFault3DTranslator::ystr;
+	msg += lmkEMFault3DTranslator::ystr();
 	msg += ", "; 
-	msg += lmkEMFault3DTranslator::zstr;
+	msg += lmkEMFault3DTranslator::zstr();
 	msg += "and ";
-	msg += lmkEMFault3DTranslator::pointtypestr;
+	msg += lmkEMFault3DTranslator::pointtypestr();
 	msg += " must be provided for reading";
 	error = true;
 	return;

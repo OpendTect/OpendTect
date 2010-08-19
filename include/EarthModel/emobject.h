@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.92 2010-06-29 07:42:30 cvsjaap Exp $
+ RCS:		$Id: emobject.h,v 1.93 2010-08-19 05:27:58 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -259,13 +259,12 @@ protected:
     bool			insideselremoval_;
     bool			selremoving_; 
 
-    static const char*		prefcolorstr;
-    static const char*		nrposattrstr;
-    static const char*		posattrprefixstr;
-    static const char*		posattrsectionstr;
-    static const char*		posattrposidstr;
-    
-    static const char*		markerstylestr;
+    static const char*		prefcolorstr();
+    static const char*		nrposattrstr();
+    static const char*		posattrprefixstr();
+    static const char*		posattrsectionstr();
+    static const char*		posattrposidstr();
+    static const char*		markerstylestr();
 };
 
 

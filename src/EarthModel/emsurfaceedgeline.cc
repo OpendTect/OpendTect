@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.43 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.44 2010-08-19 05:28:03 cvsranojay Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -30,18 +30,18 @@ static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.43 2010-06-18 12:23:27
 namespace EM {
 
 
-const char* EdgeLineSegment::key = "Nodes";
+const char* EdgeLineSegment::key() { return "Nodes"; }
 
-const char* EdgeLineSegment::classnamestr = "Segment Type";
+const char* EdgeLineSegment::classnamestr() { return "Segment Type"; }
 
 
-const char* EdgeLine::nrsegmentsstr = "Nr segments";
-const char* EdgeLine::segmentprefixstr = "Segment ";
+const char* EdgeLine::nrsegmentsstr()	{ return "Nr segments"; }
+const char* EdgeLine::segmentprefixstr(){ return "Segment "; }
 
-const char* EdgeLineSet::nrlinesstr = "Nr lines";
-const char* EdgeLineSet::lineprefixstr = "Line ";
+const char* EdgeLineSet::nrlinesstr()	{ return "Nr lines"; }
+const char* EdgeLineSet::lineprefixstr(){ return "Line "; }
 
-const char* EdgeLineManager::sectionkey = "Sectionlines ";
+const char* EdgeLineManager::sectionkey(){ return "Sectionlines "; }
 
 
 mEdgeLineSegmentFactoryEntry(EdgeLineSegment);
@@ -291,15 +291,15 @@ void EdgeLineSegment::fillPar( IOPar& par ) const
     for ( int idx=0; idx<size(); idx++ )
 	subids += nodes_[idx].toInt64();
 
-    par.set( key, subids );
-    par.set( classnamestr, className() );
+    par.set( key(), subids );
+    par.set( classnamestr(), className() );
 }
 
 
 bool EdgeLineSegment::usePar( const IOPar& par )
 {
     TypeSet<SubID> subids;
-    if ( !par.get( key, subids ) )
+    if ( !par.get( key(), subids ) )
 	return false;
 
     nodes_.erase();
@@ -656,7 +656,7 @@ EdgeLineSegment* EM::EdgeLineSegment::factory( const IOPar& par,
 						   const SectionID& sect )
 {
     BufferString name;
-    if ( !par.get( classnamestr, name ) )
+    if ( !par.get( classnamestr(), name ) )
 	return 0;
 
     for ( int idx=0; idx<factories().size(); idx++ )
@@ -1402,13 +1402,13 @@ int EdgeLine::cutLineBy( const RowCol& start, const RowCol& stop,
 
 void EdgeLine::fillPar( IOPar& par ) const
 {
-    par.set( nrsegmentsstr, nrSegments() );
+    par.set( nrsegmentsstr(), nrSegments() );
     for ( int idx=0; idx<nrSegments(); idx++ )
     {
 	IOPar segmentpar;
 	segments[idx]->fillPar( segmentpar );
 
-	BufferString key = segmentprefixstr;
+	BufferString key = segmentprefixstr();
 	key += idx;
 
 	par.mergeComp( segmentpar, key.buf() );
@@ -1420,10 +1420,10 @@ bool EdgeLine::usePar( const IOPar& par )
 {
     deepErase( segments );
     int nrsegments = 0;
-    par.get( nrsegmentsstr, nrsegments );
+    par.get( nrsegmentsstr(), nrsegments );
     for ( int idx=0; idx<nrsegments; idx++ )
     {
-	BufferString key = segmentprefixstr;
+	BufferString key = segmentprefixstr();
 	key += idx;
 
 	PtrMan<IOPar> segmentpar = par.subselect( key.buf() );
@@ -1802,10 +1802,10 @@ void EdgeLineSet::changedLineCB(CallBacker*)
 
 void EdgeLineSet::fillPar( IOPar& par ) const
 {
-    par.set( nrlinesstr, nrLines() );
+    par.set( nrlinesstr(), nrLines() );
     for ( int idx=0; idx<nrLines(); idx++ )
     {
-	BufferString key = lineprefixstr;
+	BufferString key = lineprefixstr();
 	key += idx;
 
 	IOPar linepar;
@@ -1830,10 +1830,10 @@ bool EdgeLineSet::usePar( const IOPar& par )
     removeAll();
 
     int nrlines = 0;
-    par.get( nrlinesstr, nrlines );
+    par.get( nrlinesstr(), nrlines );
     for ( int idx=0; idx<nrlines; idx++ )
     {
-	BufferString key = lineprefixstr;
+	BufferString key = lineprefixstr();
 	key += idx;
 
 	PtrMan<IOPar> linepar = par.subselect(key.buf());
@@ -1972,7 +1972,7 @@ void EdgeLineManager::fillPar( IOPar& par ) const
 
 	IOPar elspar;
 	els->fillPar( elspar );
-	BufferString key = sectionkey;
+	BufferString key = sectionkey();
 	key += horizon_.geometry().sectionID(idx);
 	par.mergeComp( elspar, key.buf() );
     }
@@ -1984,7 +1984,7 @@ bool EdgeLineManager::usePar( const IOPar& par )
     removeAll();
     for ( int idx=0; idx<horizon_.geometry().nrSections(); idx++ )
     {
-	BufferString key = sectionkey;
+	BufferString key = sectionkey();
 	key += horizon_.geometry().sectionID(idx);
 
 	PtrMan<IOPar> elspar = par.subselect(key.buf());

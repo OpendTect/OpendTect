@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.23 2010-06-17 20:03:12 cvskris Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.24 2010-08-19 05:27:58 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -153,13 +153,13 @@ protected:
     EM::Horizon3D&	horizon_;
     EM::SectionID	section;
 
-    static const char*	key;
+    static const char*	key();
 
 
 private:
     friend					class EdgeLineSegmentFactory;
     static ObjectSet<EdgeLineSegmentFactory>&	factories();
-    static const char*				classnamestr;
+    static const char*				classnamestr();
 
     void			posChangeCB(CallBacker*);
 
@@ -245,8 +245,8 @@ protected:
 
     const FloatMathFunction*	t2d;
 
-    static const char*		segmentprefixstr;
-    static const char*		nrsegmentsstr;
+    static const char*		segmentprefixstr();
+    static const char*		nrsegmentsstr();
 };
 
 
@@ -326,8 +326,8 @@ protected:
     EM::Horizon3D&	horizon_;
     EM::SectionID	section;
 
-    static const char*	nrlinesstr;
-    static const char*	lineprefixstr;
+    static const char*	nrlinesstr();
+    static const char*	lineprefixstr();
 };
 
 
@@ -350,7 +350,7 @@ public:
     CNotifier<EdgeLineManager,SectionID>	addremovenotify;
 
 protected:
-    static const char*		sectionkey;
+    static const char*		sectionkey();
     Horizon3D&			horizon_;
     ObjectSet<EdgeLineSet>	linesets;
 

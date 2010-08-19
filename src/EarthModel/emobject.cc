@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.107 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.108 2010-08-19 05:28:03 cvsranojay Exp $";
 
 #include "emobject.h"
 
@@ -33,12 +33,12 @@ int EMObject::sEdgeControlNode()	{ return PosAttrib::EdgeControlNode; }
 int EMObject::sTerminationNode()	{ return PosAttrib::TerminationNode; }
 int EMObject::sSeedNode()		{ return PosAttrib::SeedNode; }
 
-const char* EMObject::prefcolorstr 	= "Color";
-const char* EMObject::posattrprefixstr 	= "Pos Attrib ";
-const char* EMObject::posattrsectionstr = " Section";
-const char* EMObject::posattrposidstr 	= " SubID";
-const char* EMObject::nrposattrstr 	= "Nr Pos Attribs";
-const char* EMObject::markerstylestr	= " Marker Style";
+const char* EMObject::prefcolorstr() 	    { return "Color"; }
+const char* EMObject::posattrprefixstr()    { return "Pos Attrib "; }
+const char* EMObject::posattrsectionstr()   { return " Section"; }
+const char* EMObject::posattrposidstr()	    { return " SubID"; }
+const char* EMObject::nrposattrstr()	    { return "Nr Pos Attribs"; }
+const char* EMObject::markerstylestr()	    { return " Marker Style"; }
 
 EMObject::EMObject( EMManager& emm )
     : manager_( emm )
@@ -609,7 +609,7 @@ const char* EMObject::errMsg() const
 bool EMObject::usePar( const IOPar& par )
 {
     int col;
-    if ( par.get(prefcolorstr,col) )
+    if ( par.get(prefcolorstr(),col) )
     {
 	Color newcol; newcol.setRgb(col);
 	newcol.setTransparency( 0 );
@@ -620,10 +620,10 @@ bool EMObject::usePar( const IOPar& par )
 	removePosAttribList( posAttrib(idx), false );
 
     int nrattribs = 0;
-    par.get( nrposattrstr, nrattribs );
+    par.get( nrposattrstr(), nrattribs );
     for ( int idx=0; idx<nrattribs; idx++ )
     {
-	BufferString attribkey = posattrprefixstr;
+	BufferString attribkey = posattrprefixstr();
 	attribkey += idx;
 
 	int attrib;
@@ -634,10 +634,10 @@ bool EMObject::usePar( const IOPar& par )
 	TypeSet<SubID> subids;
 
 	BufferString sectionkey = attribkey;
-	sectionkey += posattrsectionstr;
+	sectionkey += posattrsectionstr();
 
 	BufferString subidkey = attribkey;
-	subidkey += posattrposidstr;
+	subidkey += posattrposidstr();
 
 	par.get( sectionkey.buf(), sections );
 	par.get( subidkey.buf(), subids );
@@ -656,7 +656,7 @@ bool EMObject::usePar( const IOPar& par )
 	    continue;
 
 	BufferString markerstylekey = attribkey;
-	markerstylekey += markerstylestr;
+	markerstylekey += markerstylestr();
 	BufferString markerstyleparstr;
 	if ( par.get(markerstylekey.buf(),markerstyleparstr) )
 	    posattribs_[curposattridx]->style_.fromString(
@@ -669,7 +669,7 @@ bool EMObject::usePar( const IOPar& par )
 
 void EMObject::fillPar( IOPar& par ) const
 {
-    par.set( prefcolorstr, (int)preferredColor().rgb() );
+    par.set( prefcolorstr(), (int)preferredColor().rgb() );
 
     int keyid = 0;
     for ( int idx=0; idx<nrPosAttribs(); idx++ )
@@ -678,7 +678,7 @@ void EMObject::fillPar( IOPar& par ) const
 	const TypeSet<PosID>* pids = getPosAttribList( attrib );
 	if ( !pids ) continue;
 
-	BufferString attribkey = posattrprefixstr;
+	BufferString attribkey = posattrprefixstr();
 	attribkey += keyid++;
 	par.set( attribkey.buf(), attrib );
 
@@ -691,21 +691,21 @@ void EMObject::fillPar( IOPar& par ) const
 	}
 
 	BufferString patchkey = attribkey;
-	patchkey += posattrsectionstr;
+	patchkey += posattrsectionstr();
 	BufferString subidkey = attribkey;
-	subidkey += posattrposidstr;
+	subidkey += posattrposidstr();
 
 	par.set( patchkey.buf(), attrpatches );
 	par.set( subidkey.buf(), subids );
 	
 	BufferString markerstylekey = attribkey;
-	markerstylekey += markerstylestr;
+	markerstylekey += markerstylestr();
 	BufferString markerstyleparstr;
 	posattribs_[idx]->style_.toString( markerstyleparstr );
 	par.set( markerstylekey.buf(), markerstyleparstr.buf() );
     }
 
-    par.set( nrposattrstr, keyid );
+    par.set( nrposattrstr(), keyid );
 }
 
 

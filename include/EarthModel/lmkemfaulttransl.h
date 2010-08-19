@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: lmkemfaulttransl.h,v 1.3 2009-09-11 08:39:55 cvsbert Exp $
+ RCS:		$Id: lmkemfaulttransl.h,v 1.4 2010-08-19 05:27:58 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -35,16 +35,16 @@ public:
 
     BufferString	warningmsg;
 
-    static const char*	xstr;
-    static const char*	ystr;
-    static const char*	zstr;
-    static const char*	pointtypestr;
-    static const char*	domainstr;
-    static const char*	surveystr;
-    static const char*	domainunitstr;
-    static const char*	distancunitestr;
-    static const char*	lineidstr;
-    static const char*	tracestr;
+    static const char*	xstr();
+    static const char*	ystr();
+    static const char*	zstr();
+    static const char*	pointtypestr();
+    static const char*	domainstr();
+    static const char*	surveystr();
+    static const char*	domainunitstr();
+    static const char*	distancunitestr();
+    static const char*	lineidstr();
+    static const char*	tracestr();
 };
 
 
