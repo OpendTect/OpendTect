@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.2 2010-08-19 11:30:49 cvsbert Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.3 2010-08-19 13:06:51 cvsbert Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -284,4 +284,36 @@ bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
     }
 
     return true;
+}
+
+
+void PosInfo::Survey2D::removeLine( const char* lnm )
+{
+    const int lidx = lineindex_.indexOf( lnm );
+    if ( lidx < 0 ) return;
+
+    FilePath fp( lsfp_ ); fp.add( lineindex_.getValue(lidx) );
+    SafeFileIO sfio( fp.fullPath() );
+    sfio.remove();
+    lineindex_.remove( lidx );
+}
+
+
+void PosInfo::Survey2D::removeLineSet( const char* lsnm )
+{
+    if ( !lsnm || !*lsnm ) return;
+
+    const bool iscurls = lsnm_ == lsnm;
+    const int lsidx = lsindex_.indexOf( lsnm );
+    if ( lsidx < 0 ) return;
+
+    FilePath fp( basefp_ ); fp.add( lsindex_.getValue(lsidx) );
+    const BufferString dirnm( fp.fullPath() );
+    if ( File::exists(dirnm) )
+	File::removeDir(dirnm);
+    lsindex_.remove( lsidx );
+    if ( !iscurls ) return;
+
+    lsnm = lsindex_.isEmpty() ? "" : lsindex_.getKey( 0 );
+    setCurLineSet( lsnm );
 }
