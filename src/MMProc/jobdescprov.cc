@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobdescprov.cc,v 1.15 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: jobdescprov.cc,v 1.16 2010-08-19 06:36:48 cvsranojay Exp $";
 
 #include "jobdescprov.h"
 #include "iopar.h"
@@ -17,8 +17,10 @@ static const char* rcsID = "$Id: jobdescprov.cc,v 1.15 2009-07-22 16:01:32 cvsbe
 #include "undefval.h"
 #include <iostream>
 
-const char* InlineSplitJobDescProv::sKeyMaxInlRg = "Maximum Inline Range";
-const char* InlineSplitJobDescProv::sKeyMaxCrlRg = "Maximum Crossline Range";
+const char* InlineSplitJobDescProv::sKeyMaxInlRg()  
+    { return "Maximum Inline Range"; }
+const char* InlineSplitJobDescProv::sKeyMaxCrlRg()
+    { return "Maximum Crossline Range"; }
 
 
 JobDescProv::JobDescProv( const IOPar& iop )
@@ -129,7 +131,7 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
     rg.sort();
 
     Interval<int> maxrg( Interval<int>().setFrom(rg) );
-    inpiopar_.get( sKeyMaxInlRg, maxrg );
+    inpiopar_.get( sKeyMaxInlRg(), maxrg );
     if ( !mIsUdf(maxrg.start) && rg.start < maxrg.start )
 	rg.start = maxrg.start;
     if ( !mIsUdf(maxrg.stop) && rg.stop > maxrg.stop )

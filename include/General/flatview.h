@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.49 2010-08-16 11:52:05 cvsumesh Exp $
+ RCS:           $Id: flatview.h,v 1.50 2010-08-19 06:36:50 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,22 +212,22 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    static const char*	sKeyVD;
-    static const char*	sKeyWVA;
-    static const char*	sKeyShow;
-    static const char*	sKeyDispRg;
-    static const char*	sKeyColTab;
-    static const char*	sKeyLinearInter;
-    static const char*	sKeyBlocky;
-    static const char*  sKeyAutoScale;
-    static const char*	sKeyClipPerc;
-    static const char*	sKeyWiggCol;
-    static const char*	sKeyMidCol;
-    static const char*	sKeyLeftCol;
-    static const char*	sKeyRightCol;
-    static const char*	sKeyOverlap;
-    static const char*	sKeySymMidValue;
-    static const char*	sKeyMidLineValue;
+    static const char*	sKeyVD();
+    static const char*	sKeyWVA();
+    static const char*	sKeyShow();
+    static const char*	sKeyDispRg();
+    static const char*	sKeyColTab();
+    static const char*	sKeyLinearInter();
+    static const char*	sKeyBlocky();
+    static const char*  sKeyAutoScale();
+    static const char*	sKeyClipPerc();
+    static const char*	sKeyWiggCol();
+    static const char*	sKeyMidCol();
+    static const char*	sKeyLeftCol();
+    static const char*	sKeyRightCol();
+    static const char*	sKeyOverlap();
+    static const char*	sKeySymMidValue();
+    static const char*	sKeyMidLineValue();
 };
 
 

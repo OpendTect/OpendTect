@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Apr 2002
- RCS:		$Id: jobdescprov.h,v 1.8 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: jobdescprov.h,v 1.9 2010-08-19 06:36:50 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,8 +103,8 @@ public:
     void		setNrInlsPerJob(const int nr)	{ ninlperjob_ = nr; }
     int			getNrInlsPerJob()		{ return ninlperjob_; }
 
-    static const char*	sKeyMaxInlRg; //!< absolute limit - will override
-    static const char*	sKeyMaxCrlRg; //!< absolute limit - will override
+    static const char*	sKeyMaxInlRg(); //!< absolute limit - will override
+    static const char*	sKeyMaxCrlRg(); //!< absolute limit - will override
 
 protected:
 

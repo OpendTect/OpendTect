@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.16 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: coltabsequence.h,v 1.17 2010-08-19 06:36:50 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,12 +105,12 @@ public:
     void		setMarkColor( Color c )
 			{ markcolor_ = c; triggerAll(); }
 
-    static const char*	sKeyValCol;
-    static const char*	sKeyMarkColor;
-    static const char*	sKeyUdfColor;
-    static const char*	sKeyTransparency;
-    static const char*	sKeyCtbl;
-    static const char*	sKeyNrSegments;
+    static const char*	sKeyValCol();
+    static const char*	sKeyMarkColor();
+    static const char*	sKeyUdfColor();
+    static const char*	sKeyTransparency();
+    static const char*	sKeyCtbl();
+    static const char*	sKeyNrSegments();
     
 protected:
 

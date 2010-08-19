@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.31 2010-07-28 08:04:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.32 2010-08-19 06:36:48 cvsranojay Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -21,12 +21,12 @@ static const char* rcsID = "$Id: coltabsequence.cc,v 1.31 2010-07-28 08:04:09 cv
 #include "strmprov.h"
 #include <iostream>
 
-const char* ColTab::Sequence::sKeyValCol = "Value-Color";
-const char* ColTab::Sequence::sKeyMarkColor = "Marker color";
-const char* ColTab::Sequence::sKeyUdfColor = "Undef color";
-const char* ColTab::Sequence::sKeyTransparency = "Transparency";
-const char* ColTab::Sequence::sKeyCtbl = "Color table";
-const char* ColTab::Sequence::sKeyNrSegments = "Nr segments";
+const char* ColTab::Sequence::sKeyValCol()	{ return "Value-Color"; }
+const char* ColTab::Sequence::sKeyMarkColor()	{ return "Marker color"; }
+const char* ColTab::Sequence::sKeyUdfColor()	{ return "Undef color"; }
+const char* ColTab::Sequence::sKeyTransparency(){ return "Transparency"; }
+const char* ColTab::Sequence::sKeyCtbl()	{ return "Color table"; }
+const char* ColTab::Sequence::sKeyNrSegments()	{ return "Nr segments"; }
 
 static const char* sKeyCtabSettsKey = "coltabs";
 
@@ -364,12 +364,12 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
     FileMultiString fms;
     fms += (int)markcolor_.r(); fms += (int)markcolor_.g();
     fms += (int)markcolor_.b(); fms += (int)markcolor_.t();
-    iopar.set( sKeyMarkColor, fms );
+    iopar.set( sKeyMarkColor(), fms );
     fms.setEmpty();
     fms += (int)undefcolor_.r(); fms += (int)undefcolor_.g();
     fms += (int)undefcolor_.b(); fms += (int)undefcolor_.t();
-    iopar.set( sKeyUdfColor, fms );
-    iopar.set( sKeyNrSegments, nrsegments_ );
+    iopar.set( sKeyUdfColor(), fms );
+    iopar.set( sKeyNrSegments(), nrsegments_ );
 
     for ( int idx=0; idx<x_.size(); idx++ )
     {
@@ -377,14 +377,14 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 	fms += x_[idx];
 	fms += (int)r_[idx]; fms += (int)g_[idx]; fms += (int)b_[idx];
 	fms += transparencyAt( x_[idx] );
-	BufferString str( sKeyValCol );
+	BufferString str( sKeyValCol() );
 	str += "."; str += idx;
 	iopar.set( str, fms );
     }
 
     for ( int idx=0; idx<tr_.size(); idx++ )
     {
-	BufferString key( sKeyTransparency );
+	BufferString key( sKeyTransparency() );
 	key += "."; key += idx;
 	iopar.set( key, tr_[idx].x, tr_[idx].y );
     }
@@ -400,20 +400,20 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 
     setName( res );
 
-    if ( !getfromPar( iopar, markcolor_, sKeyMarkColor, 0 ) ||
-	 !getfromPar( iopar, undefcolor_, sKeyUdfColor, 0 ) )
+    if ( !getfromPar( iopar, markcolor_, sKeyMarkColor(), 0 ) ||
+	 !getfromPar( iopar, undefcolor_, sKeyUdfColor(), 0 ) )
     {
 	*this = backup;
 	return false;
     }
 
     nrsegments_ = 0;
-    const bool hadnrsegments = iopar.get( sKeyNrSegments, nrsegments_ );
+    const bool hadnrsegments = iopar.get( sKeyNrSegments(), nrsegments_ );
 
     x_.erase(); r_.erase(); g_.erase(); b_.erase(); tr_.erase();
     for ( int idx=0; ; idx++ )
     {
-	BufferString key( sKeyValCol );
+	BufferString key( sKeyValCol() );
 	key += "."; key += idx;
 	Color col;
 	float px;
@@ -431,7 +431,7 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 
     for ( int idx=0; ; idx++ )
     {
-	BufferString key( sKeyTransparency );
+	BufferString key( sKeyTransparency() );
 	key += "."; key += idx;
 	Geom::Point2D<float> pt;
 	if ( !iopar.get( key, pt.x, pt.y ) ) break;

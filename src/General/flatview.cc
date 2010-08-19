@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.59 2010-08-12 11:41:49 cvsumesh Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.60 2010-08-19 06:36:48 cvsranojay Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -31,22 +31,22 @@ const char* Annotation::sKeyShwGridLines()  { return "Show grid lines"; }
 const char* Annotation::sKeyIsRev()	    { return "Reversed"; }
 const char* Annotation::sKeyShwAux()	    { return "Show aux data"; }
 
-const char* DataDispPars::sKeyVD = "VD";
-const char* DataDispPars::sKeyWVA = "WVA";
-const char* DataDispPars::sKeyShow = "Show";
-const char* DataDispPars::sKeyDispRg = "Range";
-const char* DataDispPars::sKeyColTab = "Color Table";
-const char* DataDispPars::sKeyLinearInter = "Linear Interpolation";
-const char* DataDispPars::sKeyBlocky = "Blocky";
-const char* DataDispPars::sKeyAutoScale = "Auto Scale";
-const char* DataDispPars::sKeyClipPerc = "Percentage Clip";
-const char* DataDispPars::sKeyWiggCol = "Wiggle color";
-const char* DataDispPars::sKeyMidCol = "Mid color";
-const char* DataDispPars::sKeyLeftCol = "Left color";
-const char* DataDispPars::sKeyRightCol = "Right color";
-const char* DataDispPars::sKeyOverlap = "Overlap";
-const char* DataDispPars::sKeySymMidValue = "Sym Mid value";
-const char* DataDispPars::sKeyMidLineValue = "Mid Line value";
+const char* DataDispPars::sKeyVD()	{ return "VD"; }
+const char* DataDispPars::sKeyWVA()	{ return "WVA"; }
+const char* DataDispPars::sKeyShow()	{ return "Show"; }
+const char* DataDispPars::sKeyDispRg()  { return "Range"; }
+const char* DataDispPars::sKeyColTab()  { return "Color Table"; }
+const char* DataDispPars::sKeyLinearInter()  { return "Linear Interpolation"; }
+const char* DataDispPars::sKeyBlocky()	 { return "Blocky"; }
+const char* DataDispPars::sKeyAutoScale(){ return "Auto Scale"; }
+const char* DataDispPars::sKeyClipPerc() { return "Percentage Clip"; }
+const char* DataDispPars::sKeyWiggCol()  { return "Wiggle color"; }
+const char* DataDispPars::sKeyMidCol()	 { return "Mid color"; }
+const char* DataDispPars::sKeyLeftCol()  { return "Left color"; }
+const char* DataDispPars::sKeyRightCol() { return "Right color"; }
+const char* DataDispPars::sKeyOverlap()  { return "Overlap"; }
+const char* DataDispPars::sKeySymMidValue()  { return "Sym Mid value"; }
+const char* DataDispPars::sKeyMidLineValue() { return "Mid Line value"; }
 
 }
 
@@ -314,59 +314,59 @@ void FlatView::Annotation::AuxData::empty()
 
 
 #define mIOPDoWVA(fn,keynm,memb) \
-    iop.fn( IOPar::compKey(sKeyWVA,keynm), memb )
+    iop.fn( IOPar::compKey(sKeyWVA(),keynm), memb )
 #define mIOPDoVD(fn,keynm,memb) \
-    iop.fn( IOPar::compKey(sKeyVD,keynm), memb )
+    iop.fn( IOPar::compKey(sKeyVD(),keynm), memb )
 
 void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 {
-    mIOPDoVD( setYN, sKeyShow, vd_.show_ );
-    mIOPDoVD( set, sKeyDispRg, vd_.rg_ );
-    mIOPDoVD( set, sKeyColTab, vd_.ctab_ );
-    mIOPDoVD( setYN, sKeyLinearInter, vd_.lininterp_ );
-    mIOPDoVD( setYN, sKeyBlocky, vd_.blocky_ );
-    mIOPDoVD( setYN, sKeyAutoScale, vd_.autoscale_ );
-    mIOPDoVD( set, sKeyClipPerc, vd_.clipperc_ );
-    mIOPDoVD( set, sKeySymMidValue, vd_.symmidvalue_ );
+    mIOPDoVD( setYN, sKeyShow(), vd_.show_ );
+    mIOPDoVD( set, sKeyDispRg(), vd_.rg_ );
+    mIOPDoVD( set, sKeyColTab(), vd_.ctab_ );
+    mIOPDoVD( setYN, sKeyLinearInter(), vd_.lininterp_ );
+    mIOPDoVD( setYN, sKeyBlocky(), vd_.blocky_ );
+    mIOPDoVD( setYN, sKeyAutoScale(), vd_.autoscale_ );
+    mIOPDoVD( set, sKeyClipPerc(), vd_.clipperc_ );
+    mIOPDoVD( set, sKeySymMidValue(), vd_.symmidvalue_ );
 
-    mIOPDoWVA( setYN, sKeyShow, wva_.show_ );
-    mIOPDoWVA( set, sKeyDispRg, wva_.rg_ );
-    mIOPDoWVA( setYN, sKeyBlocky, wva_.blocky_ );
-    mIOPDoWVA( setYN, sKeyAutoScale, wva_.autoscale_ );
-    mIOPDoWVA( set, sKeyClipPerc, wva_.clipperc_ );
-    mIOPDoWVA( set, sKeyWiggCol, wva_.wigg_ );
-    mIOPDoWVA( set, sKeyMidCol, wva_.mid_ );
-    mIOPDoWVA( set, sKeyLeftCol, wva_.left_ );
-    mIOPDoWVA( set, sKeyRightCol, wva_.right_ );
-    mIOPDoWVA( set, sKeyOverlap, wva_.overlap_ );
-    mIOPDoWVA( set, sKeySymMidValue, wva_.symmidvalue_ );
-    mIOPDoWVA( set, sKeyMidLineValue, wva_.midlinevalue_ );
+    mIOPDoWVA( setYN, sKeyShow(), wva_.show_ );
+    mIOPDoWVA( set, sKeyDispRg(), wva_.rg_ );
+    mIOPDoWVA( setYN, sKeyBlocky(), wva_.blocky_ );
+    mIOPDoWVA( setYN, sKeyAutoScale(), wva_.autoscale_ );
+    mIOPDoWVA( set, sKeyClipPerc(), wva_.clipperc_ );
+    mIOPDoWVA( set, sKeyWiggCol(), wva_.wigg_ );
+    mIOPDoWVA( set, sKeyMidCol(), wva_.mid_ );
+    mIOPDoWVA( set, sKeyLeftCol(), wva_.left_ );
+    mIOPDoWVA( set, sKeyRightCol(), wva_.right_ );
+    mIOPDoWVA( set, sKeyOverlap(), wva_.overlap_ );
+    mIOPDoWVA( set, sKeySymMidValue(), wva_.symmidvalue_ );
+    mIOPDoWVA( set, sKeyMidLineValue(), wva_.midlinevalue_ );
 }
 
 
 void FlatView::DataDispPars::usePar( const IOPar& iop )
 {
-    mIOPDoVD( getYN, sKeyShow, vd_.show_ );
-    mIOPDoVD( get, sKeyDispRg, vd_.rg_ );
-    mIOPDoVD( get, sKeyColTab, vd_.ctab_ );
-    mIOPDoVD( getYN, sKeyLinearInter, vd_.lininterp_ );
-    mIOPDoVD( getYN, sKeyBlocky, vd_.blocky_ );
-    mIOPDoVD( getYN, sKeyAutoScale, vd_.autoscale_ );
-    mIOPDoVD( get, sKeyClipPerc, vd_.clipperc_ );
-    mIOPDoVD( get, sKeySymMidValue, vd_.symmidvalue_ );
+    mIOPDoVD( getYN, sKeyShow(), vd_.show_ );
+    mIOPDoVD( get, sKeyDispRg(), vd_.rg_ );
+    mIOPDoVD( get, sKeyColTab(), vd_.ctab_ );
+    mIOPDoVD( getYN, sKeyLinearInter(), vd_.lininterp_ );
+    mIOPDoVD( getYN, sKeyBlocky(), vd_.blocky_ );
+    mIOPDoVD( getYN, sKeyAutoScale(), vd_.autoscale_ );
+    mIOPDoVD( get, sKeyClipPerc(), vd_.clipperc_ );
+    mIOPDoVD( get, sKeySymMidValue(), vd_.symmidvalue_ );
 
-    mIOPDoWVA( getYN, sKeyShow, wva_.show_ );
-    mIOPDoWVA( get, sKeyDispRg, wva_.rg_ );
-    mIOPDoWVA( getYN, sKeyBlocky, wva_.blocky_ );
-    mIOPDoWVA( getYN, sKeyAutoScale, wva_.autoscale_ );
-    mIOPDoWVA( get, sKeyClipPerc, wva_.clipperc_ );
-    mIOPDoWVA( get, sKeyWiggCol, wva_.wigg_ );
-    mIOPDoWVA( get, sKeyMidCol, wva_.mid_ );
-    mIOPDoWVA( get, sKeyLeftCol, wva_.left_ );
-    mIOPDoWVA( get, sKeyRightCol, wva_.right_ );
-    mIOPDoWVA( get, sKeyOverlap, wva_.overlap_ );
-    mIOPDoWVA( get, sKeySymMidValue, wva_.symmidvalue_ );
-    mIOPDoWVA( get, sKeyMidLineValue, wva_.midlinevalue_ );
+    mIOPDoWVA( getYN, sKeyShow(), wva_.show_ );
+    mIOPDoWVA( get, sKeyDispRg(), wva_.rg_ );
+    mIOPDoWVA( getYN, sKeyBlocky(), wva_.blocky_ );
+    mIOPDoWVA( getYN, sKeyAutoScale(), wva_.autoscale_ );
+    mIOPDoWVA( get, sKeyClipPerc(), wva_.clipperc_ );
+    mIOPDoWVA( get, sKeyWiggCol(), wva_.wigg_ );
+    mIOPDoWVA( get, sKeyMidCol(), wva_.mid_ );
+    mIOPDoWVA( get, sKeyLeftCol(), wva_.left_ );
+    mIOPDoWVA( get, sKeyRightCol(), wva_.right_ );
+    mIOPDoWVA( get, sKeyOverlap(), wva_.overlap_ );
+    mIOPDoWVA( get, sKeySymMidValue(), wva_.symmidvalue_ );
+    mIOPDoWVA( get, sKeyMidLineValue(), wva_.midlinevalue_ );
 }
 
 
