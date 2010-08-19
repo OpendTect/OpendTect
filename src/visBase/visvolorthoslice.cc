@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.12 2009-11-17 09:50:27 cvskarthika Exp $";
+static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.13 2010-08-19 08:32:39 cvsranojay Exp $";
 
 
 #include "visvolorthoslice.h"
@@ -24,8 +24,8 @@ mCreateFactoryEntry( visBase::OrthogonalSlice );
 namespace visBase
 {
 
-const char* OrthogonalSlice::dimstr = "Dim";
-const char* OrthogonalSlice::slicestr = "Slice";
+const char* OrthogonalSlice::dimstr()	 { return "Dim"; }
+const char* OrthogonalSlice::slicestr()  { return "Slice"; }
 
 OrthogonalSlice::OrthogonalSlice()
     : VisualObjectImpl( false )
@@ -188,8 +188,8 @@ void OrthogonalSlice::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( par, saveids );
 
-    par.set( dimstr, getDim() );
-    par.set( slicestr, getSliceNr() );
+    par.set( dimstr(), getDim() );
+    par.set( slicestr(), getSliceNr() );
 }
 
 
@@ -199,11 +199,11 @@ int OrthogonalSlice::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     int dim;
-    if ( par.get(dimstr,dim) )
+    if ( par.get(dimstr(),dim) )
 	setDim(dim);
 
     int slicenr;
-    if ( par.get(slicestr,slicenr) )
+    if ( par.get(slicestr(),slicenr) )
 	setSliceNr(slicenr);
 
     return 1;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: visvolorthoslice.h,v 1.9 2009-11-17 09:50:27 cvskarthika Exp $
+ RCS:           $Id: visvolorthoslice.h,v 1.10 2010-08-19 08:32:31 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,8 +67,8 @@ protected:
     SoOrthoSlice*		slice;
     int				xdatasz,ydatasz,zdatasz;
 
-    static const char*		dimstr;
-    static const char*		slicestr;
+    static const char*		dimstr();
+    static const char*		slicestr();
 };
 
 

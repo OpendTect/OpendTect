@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistransform.cc,v 1.25 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.26 2010-08-19 08:32:39 cvsranojay Exp $";
 
 #include "vistransform.h"
 #include "iopar.h"
@@ -23,7 +23,7 @@ mCreateFactoryEntry( visBase::Rotation );
 namespace visBase
 {
 
-const char* Transformation::matrixstr = "Matrix Row ";
+const char* Transformation::matrixstr()  { return "Matrix Row "; }
 
 Transformation::Transformation()
     : transform_( new SoMatrixTransform )
@@ -175,16 +175,16 @@ void Transformation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     DataObject::fillPar( par, saveids );
     const SbMat& matrix = transform_->matrix.getValue().getValue();
 
-    BufferString key = matrixstr; key += 1; 
+    BufferString key = matrixstr(); key += 1; 
     par.set( key, matrix[0][0], matrix[1][0], matrix[2][0], matrix[3][0] );
 
-    key = matrixstr; key += 2;
+    key = matrixstr(); key += 2;
     par.set( key, matrix[0][1], matrix[1][1], matrix[2][1], matrix[3][1] );
 
-    key = matrixstr; key += 3;
+    key = matrixstr(); key += 3;
     par.set( key, matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2] );
 
-    key = matrixstr; key += 4;
+    key = matrixstr(); key += 4;
     par.set( key, matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3] );
 }
 
@@ -195,20 +195,20 @@ int Transformation::usePar( const IOPar& par )
     if ( res!= 1 ) return res;
 
     double matrix[4][4];
-    BufferString key = matrixstr; key += 1; 
+    BufferString key = matrixstr(); key += 1; 
     SbMatrix inverse = transform_->matrix.getValue();
     if ( !par.get( key, matrix[0][0],matrix[1][0],matrix[2][0],matrix[3][0] ))
 	return -1;
 
-    key = matrixstr; key += 2;
+    key = matrixstr(); key += 2;
     if ( !par.get( key, matrix[0][1],matrix[1][1],matrix[2][1],matrix[3][1] ))
 	return -1;
 
-    key = matrixstr; key += 3;
+    key = matrixstr(); key += 3;
     if ( !par.get( key, matrix[0][2],matrix[1][2],matrix[2][2],matrix[3][2] ))
 	return -1;
 
-    key = matrixstr; key += 4;
+    key = matrixstr(); key += 4;
     if ( !par.get( key, matrix[0][3],matrix[1][3],matrix[2][3],matrix[3][3] ))
 	return -1;
 

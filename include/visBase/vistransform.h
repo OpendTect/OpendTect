@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.18 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vistransform.h,v 1.19 2010-08-19 08:32:31 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ private:
 
     SoMatrixTransform*	transform_;
 
-    static const char*	matrixstr;
+    static const char*	matrixstr();
 };
 
 
