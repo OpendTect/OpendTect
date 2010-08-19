@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.24 2010-05-21 04:50:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.25 2010-08-19 07:06:10 cvsranojay Exp $";
 
 #include "odsession.h"
 #include "ascstream.h"
@@ -17,18 +17,18 @@ static const char* rcsID = "$Id: odsession.cc,v 1.24 2010-05-21 04:50:59 cvsnann
 #include "survinfo.h"
 
 
-const char* ODSession::visprefix = "Vis";
-const char* ODSession::sceneprefix = "Scene";
-const char* ODSession::attrprefix = "Attribs";	//backward comp 2.4
-const char* ODSession::attr2dprefix = "2D.Attribs";
-const char* ODSession::attr3dprefix = "3D.Attribs";
-const char* ODSession::attr2dstoredprefix = "2D.Stored.Attribs";
-const char* ODSession::attr3dstoredprefix = "3D.Stored.Attribs";
-const char* ODSession::nlaprefix = "NLA";
-const char* ODSession::trackprefix = "Tracking";
-const char* ODSession::pluginprefix = "Plugins";
-const char* ODSession::sKeyUseStartup = "dTect.Use startup session";
-const char* ODSession::sKeyStartupID = "Session.Auto ID";
+const char* ODSession::visprefix()	{ return "Vis"; }
+const char* ODSession::sceneprefix()	{ return "Scene"; }
+const char* ODSession::attrprefix()	{ return "Attribs"; }//backward comp 2.4
+const char* ODSession::attr2dprefix()	{ return "2D.Attribs"; }
+const char* ODSession::attr3dprefix()	{ return "3D.Attribs"; }
+const char* ODSession::attr2dstoredprefix()  { return "2D.Stored.Attribs"; }
+const char* ODSession::attr3dstoredprefix()  { return "3D.Stored.Attribs"; }
+const char* ODSession::nlaprefix()	{ return "NLA"; }
+const char* ODSession::trackprefix()	{ return "Tracking"; }
+const char* ODSession::pluginprefix()	{ return "Plugins"; }
+const char* ODSession::sKeyUseStartup() { return "dTect.Use startup session"; }
+const char* ODSession::sKeyStartupID()  { return "Session.Auto ID"; }
 
 
 ODSession::ODSession()
@@ -92,43 +92,43 @@ bool ODSession::operator==( const ODSession& sess ) const
 
 bool ODSession::usePar( const IOPar& par )
 {
-    PtrMan<IOPar> vissubpars = par.subselect(visprefix);
+    PtrMan<IOPar> vissubpars = par.subselect(visprefix());
     if ( !vissubpars ) return false;
     vispars_ = *vissubpars;
 
-    PtrMan<IOPar> scenesubpars = par.subselect(sceneprefix);
+    PtrMan<IOPar> scenesubpars = par.subselect(sceneprefix());
     if ( scenesubpars )
         scenepars_ = *scenesubpars;
 
-    PtrMan<IOPar> attrsubpars = par.subselect(attrprefix);
+    PtrMan<IOPar> attrsubpars = par.subselect(attrprefix());
     if ( attrsubpars )
 	attrpars_ = *attrsubpars;		//backward comp 2.4
 
-    PtrMan<IOPar> attr2dsubpars = par.subselect(attr2dprefix);
+    PtrMan<IOPar> attr2dsubpars = par.subselect(attr2dprefix());
     if ( attr2dsubpars )
 	attrpars2d_ = *attr2dsubpars;
 
-    PtrMan<IOPar> attr3dsubpars = par.subselect(attr3dprefix);
+    PtrMan<IOPar> attr3dsubpars = par.subselect(attr3dprefix());
     if ( attr3dsubpars )
 	attrpars3d_ = *attr3dsubpars;
     
-    PtrMan<IOPar> attr2dstoredsubpars = par.subselect(attr2dstoredprefix);
+    PtrMan<IOPar> attr2dstoredsubpars = par.subselect(attr2dstoredprefix());
     if ( attr2dstoredsubpars )
 	attrpars2dstored_ = *attr2dstoredsubpars;
 
-    PtrMan<IOPar> attr3dstoredsubpars = par.subselect(attr3dstoredprefix);
+    PtrMan<IOPar> attr3dstoredsubpars = par.subselect(attr3dstoredprefix());
     if ( attr3dstoredsubpars )
 	attrpars3dstored_ = *attr3dstoredsubpars;
     
-    PtrMan<IOPar> nlasubpars = par.subselect(nlaprefix);
+    PtrMan<IOPar> nlasubpars = par.subselect(nlaprefix());
     if ( nlasubpars )
 	nlapars_ = *nlasubpars;
 
-    PtrMan<IOPar> mpesubpars = par.subselect(trackprefix);
+    PtrMan<IOPar> mpesubpars = par.subselect(trackprefix());
     if ( mpesubpars )
 	mpepars_ = *mpesubpars;
 
-    PtrMan<IOPar> pluginsubpars = par.subselect(pluginprefix);
+    PtrMan<IOPar> pluginsubpars = par.subselect(pluginprefix());
     if ( pluginsubpars )
         pluginpars_ = *pluginsubpars;
 
@@ -148,16 +148,16 @@ bool ODSession::usePar( const IOPar& par )
 
 void ODSession::fillPar( IOPar& par ) const
 {
-    par.mergeComp( vispars_, visprefix );
-    par.mergeComp( scenepars_, sceneprefix );
-    par.mergeComp( attrpars_, attrprefix );	//backward comp 2.4
-    par.mergeComp( attrpars2d_, attr2dprefix );
-    par.mergeComp( attrpars3d_, attr3dprefix );
-    par.mergeComp( attrpars2dstored_, attr2dstoredprefix );
-    par.mergeComp( attrpars3dstored_, attr3dstoredprefix );
-    par.mergeComp( nlapars_, nlaprefix );
-    par.mergeComp( mpepars_, trackprefix );
-    par.mergeComp( pluginpars_, pluginprefix );
+    par.mergeComp( vispars_, visprefix() );
+    par.mergeComp( scenepars_, sceneprefix() );
+    par.mergeComp( attrpars_, attrprefix() );	//backward comp 2.4
+    par.mergeComp( attrpars2d_, attr2dprefix() );
+    par.mergeComp( attrpars3d_, attr3dprefix() );
+    par.mergeComp( attrpars2dstored_, attr2dstoredprefix() );
+    par.mergeComp( attrpars3dstored_, attr3dstoredprefix() );
+    par.mergeComp( nlapars_, nlaprefix() );
+    par.mergeComp( mpepars_, trackprefix() );
+    par.mergeComp( pluginpars_, pluginprefix() );
 }
 
 
@@ -174,8 +174,8 @@ IOPar& ODSession::attrpars( bool is2d, bool isstored )
 
 void ODSession::getStartupData( bool& douse, MultiID& id )
 {
-    Settings::common().getYN( sKeyUseStartup, douse );
-    id = SI().pars().find( sKeyStartupID );
+    Settings::common().getYN( sKeyUseStartup(), douse );
+    id = SI().pars().find( sKeyStartupID() );
 }
 
 
@@ -185,13 +185,13 @@ void ODSession::setStartupData( bool douse, const MultiID& id )
     getStartupData( curuse, curid );
     if ( curuse != douse )
     {
-	Settings::common().setYN( sKeyUseStartup, douse );
+	Settings::common().setYN( sKeyUseStartup(), douse );
 	Settings::common().write();
     }
 
     if ( curid != id )
     {
-	SI().getPars().set( sKeyStartupID, (const char*)id );
+	SI().getPars().set( sKeyStartupID(), (const char*)id );
 	SI().savePars();
     }
 }

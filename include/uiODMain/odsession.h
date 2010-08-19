@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: odsession.h,v 1.10 2010-03-31 13:44:20 cvshelene Exp $
+ RCS:		$Id: odsession.h,v 1.11 2010-08-19 07:06:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -59,19 +59,19 @@ protected:
 
     BufferString	versionnr_;
 
-    static const char*	visprefix;
-    static const char*	sceneprefix;
-    static const char*	attrprefix;
-    static const char*	attr2dprefix;
-    static const char*	attr3dprefix;
-    static const char*	attr2dstoredprefix;
-    static const char*	attr3dstoredprefix;
-    static const char*	nlaprefix;
-    static const char*	trackprefix;
-    static const char*	pluginprefix;
+    static const char*	visprefix();
+    static const char*	sceneprefix();
+    static const char*	attrprefix();
+    static const char*	attr2dprefix();
+    static const char*	attr3dprefix();
+    static const char*	attr2dstoredprefix();
+    static const char*	attr3dstoredprefix();
+    static const char*	nlaprefix();
+    static const char*	trackprefix();
+    static const char*	pluginprefix();
 
-    static const char*	sKeyUseStartup;
-    static const char*	sKeyStartupID;
+    static const char*	sKeyUseStartup();
+    static const char*	sKeyStartupID();
 };
 
 
