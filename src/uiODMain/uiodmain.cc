@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.130 2010-08-19 11:33:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.131 2010-08-19 12:08:33 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -197,12 +197,13 @@ uiODMain::uiODMain( uicMain& a )
     setIconText( icntxt.buf() );
     uiapp_.setTopLevel( this );
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
-    // TODO uncomment when transfer to S2DPOS() is complete
-    // OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
 
     if ( !ensureGoodDataDir()
       || (IOM().bad() && !ensureGoodSurveySetup()) )
 	::exit( 0 );
+
+    // TODO uncomment when transfer to S2DPOS() is complete
+    // OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
 
     applmgr_ = new uiODApplMgr( *this );
     if ( buildUI() )
