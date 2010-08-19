@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2010 (org 2005 / 2008)
- RCS:		$Id: posinfo2d.h,v 1.1 2010-07-12 14:24:33 cvsbert Exp $
+ RCS:		$Id: posinfo2d.h,v 1.2 2010-08-19 11:28:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ public:
 
     void                dump(std::ostream&,bool pretty=true) const;
     bool		read(std::istream&,bool asc);
-    bool		write(std::ostream&,bool asc) const;
+    bool		write(std::ostream&,bool asc,bool newlns=false) const;
 
     StepInterval<int>	trcNrRange() const;
     Coord		getNormal(int trcnr) const;
