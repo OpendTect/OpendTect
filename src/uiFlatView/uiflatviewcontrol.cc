@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.50 2010-02-12 11:50:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.51 2010-08-19 07:48:06 cvsbruno Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -21,11 +21,6 @@ static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.50 2010-02-12 11:50:12
 #include "datapackbase.h"
 #include "uiobjdisposer.h"
 
-
-#define mDefBut(butnm,grp,fnm,cbnm,tt) \
-    butnm = new uiToolButton( grp, 0, ioPixmap(fnm), \
-			      mCB(this,uiFlatViewControl,cbnm) ); \
-    butnm->setToolTip( tt )
 
 uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
 				      bool wrubb, bool withwva )
