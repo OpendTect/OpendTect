@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: odsessionfact.h,v 1.2 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: odsessionfact.h,v 1.3 2010-08-19 07:09:04 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "odsession.h"
 
-defineTranslatorGroup(ODSession,ODSessionTranslator::keyword);
+defineTranslatorGroup(ODSession,ODSessionTranslator::keyword());
 defineTranslator(dgb,ODSession,mDGBKey);
 
 

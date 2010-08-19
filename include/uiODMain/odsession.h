@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: odsession.h,v 1.11 2010-08-19 07:06:41 cvsranojay Exp $
+ RCS:		$Id: odsession.h,v 1.12 2010-08-19 07:09:04 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -101,7 +101,7 @@ public:
     			//!< BufferString has errmsg, if any
     			//!< If true returned, errmsg contains warnings
 
-    static const char*	keyword;
+    static const char*	keyword();
 
 };
     

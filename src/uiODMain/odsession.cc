@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.25 2010-08-19 07:06:10 cvsranojay Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.26 2010-08-19 07:09:14 cvsranojay Exp $";
 
 #include "odsession.h"
 #include "ascstream.h"
@@ -202,7 +202,7 @@ int ODSessionTranslatorGroup::selector( const char* key )
     int retval = defaultSelector( theInst().userName(), key );
     if ( retval ) return retval;
 
-    if ( defaultSelector(ODSessionTranslator::keyword,key) ) return 1;
+    if ( defaultSelector(ODSessionTranslator::keyword(),key) ) return 1;
     return 0;
 }
 
@@ -242,7 +242,7 @@ bool ODSessionTranslator::store( const ODSession& session,
 }
 
 
-const char* ODSessionTranslator::keyword = "Session setup";
+const char* ODSessionTranslator::keyword() { return "Session setup"; }
 
 
 const char* dgbODSessionTranslator::read( ODSession& session, Conn& conn )
@@ -273,7 +273,7 @@ const char* dgbODSessionTranslator::write( const ODSession& session, Conn& conn)
     if ( !conn.forWrite() || !conn.isStream() )
 	return "Internal error: bad connection";
 
-    IOPar iop( ODSessionTranslator::keyword );
+    IOPar iop( ODSessionTranslator::keyword() );
     session.fillPar( iop );
     if ( !iop.write(((StreamConn&)conn).oStream(),mTranslGroupName(ODSession)) )
 	return "Cannot write d-Tect session to file";
