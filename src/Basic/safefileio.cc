@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: safefileio.cc,v 1.10 2010-08-19 11:30:13 cvsbert Exp $";
+static const char* rcsID = "$Id: safefileio.cc,v 1.11 2010-08-19 13:05:58 cvsbert Exp $";
 
 #include "safefileio.h"
 
@@ -146,6 +146,22 @@ bool SafeFileIO::commitWrite()
 	File::remove( bakfnm_ );
 
     return true;
+}
+
+
+bool SafeFileIO::remove()
+{
+    if ( locked_ )
+	waitForLock();
+
+    if ( File::exists(newfnm_) )
+	File::remove( newfnm_ );
+    if ( File::exists(bakfnm_) )
+	File::remove( bakfnm_ );
+    if ( File::exists(filenm_) )
+	File::remove( filenm_ );
+
+    return File::exists(filenm_);
 }
 
 

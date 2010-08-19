@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: safefileio.h,v 1.7 2010-07-12 21:54:19 cvskris Exp $
+ RCS:		$Id: safefileio.h,v 1.8 2010-08-19 13:05:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,8 @@ public:
     			//!< when true, will remove the lock after retries
     			//!< i.e. we'll assume the lock is phony then
     			//!< this is safety-- but robustness++
+
+    bool		remove();
 
 protected:
 
