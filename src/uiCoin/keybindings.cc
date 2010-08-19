@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: keybindings.cc,v 1.11 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: keybindings.cc,v 1.12 2010-08-19 06:55:43 cvsranojay Exp $";
 
 #include "keybindings.h"
 #include "settings.h"
@@ -23,16 +23,16 @@ static const char* rcsID = "$Id: keybindings.cc,v 1.11 2009-07-22 16:01:39 cvsbe
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 
 
-const char* KeyBindings::sName =        "Name";
-const char* KeyBindings::sRotate =      "Rotate";
-const char* KeyBindings::sPan =         "Pan";
-const char* KeyBindings::sZoom =        "Zoom";
-const char* KeyBindings::sControl =     "Control";
-const char* KeyBindings::sShift =       "Shift";
-const char* KeyBindings::sLeft =        "Left";
-const char* KeyBindings::sRight =       "Right";
-const char* KeyBindings::sMiddle =      "Middle";
-const char* KeyBindings::sNone =        "None";
+const char* KeyBindings::sName()    { return "Name"; }
+const char* KeyBindings::sRotate()  { return "Rotate"; }
+const char* KeyBindings::sPan()	    { return "Pan"; }
+const char* KeyBindings::sZoom()    { return "Zoom"; }
+const char* KeyBindings::sControl() { return "Control"; }
+const char* KeyBindings::sShift()   { return "Shift"; }
+const char* KeyBindings::sLeft()    { return "Left"; }
+const char* KeyBindings::sRight()   { return "Right"; }
+const char* KeyBindings::sMiddle()  { return "Middle"; }
+const char* KeyBindings::sNone()    { return "None"; }
 
 
 KeyBindMan::KeyBindMan()
@@ -58,18 +58,18 @@ KeyBindMan::KeyBindMan()
     {
         IOPar iopar( astrm );
         KeyBindings keybind;
-        if ( iopar.hasKey(KeyBindings::sName) )
+        if ( iopar.hasKey(KeyBindings::sName()) )
         {
             BufferString res;
-            iopar.get( KeyBindings::sName, res );
+            iopar.get( KeyBindings::sName(), res );
             keybind.name = res;
         }
-        if ( iopar.hasKey(KeyBindings::sZoom) )
-            iopar.get( KeyBindings::sZoom, keybind.zoom );
-        if ( iopar.hasKey(KeyBindings::sRotate) )
-            iopar.get( KeyBindings::sRotate, keybind.rotate );
-        if ( iopar.hasKey(KeyBindings::sPan) )
-            iopar.get( KeyBindings::sPan, keybind.pan );
+        if ( iopar.hasKey(KeyBindings::sZoom()) )
+            iopar.get( KeyBindings::sZoom(), keybind.zoom );
+        if ( iopar.hasKey(KeyBindings::sRotate()) )
+            iopar.get( KeyBindings::sRotate(), keybind.rotate );
+        if ( iopar.hasKey(KeyBindings::sPan()) )
+            iopar.get( KeyBindings::sPan(), keybind.pan );
         while ( !atEndOfSection(astrm) ) astrm.next();
         astrm.next();
         keyset += new KeyBindings( keybind );
@@ -110,18 +110,18 @@ void KeyBindMan::setKeyBindings( const char* name, bool saveinsett )
     FileMultiString fms;
     res = keys.zoom;
     fms = FileMultiString(res);
-    zoom.mousebut = fms.size() ? fms[0] : KeyBindings::sRight;
-    zoom.keybut = fms.size() > 1 ? fms[1] : KeyBindings::sNone;
+    zoom.mousebut = fms.size() ? fms[0] : KeyBindings::sRight();
+    zoom.keybut = fms.size() > 1 ? fms[1] : KeyBindings::sNone();
 
     res = keys.rotate;
     fms = FileMultiString(res);
-    rotate.mousebut = fms.size() ? fms[0] : KeyBindings::sLeft;
-    rotate.keybut = fms.size() > 1 ? fms[1] : KeyBindings::sNone;
+    rotate.mousebut = fms.size() ? fms[0] : KeyBindings::sLeft();
+    rotate.keybut = fms.size() > 1 ? fms[1] : KeyBindings::sNone();
 
     res = keys.pan;
     fms = FileMultiString(res);
-    pan.mousebut = fms.size() ? fms[0] : KeyBindings::sMiddle;
-    pan.keybut = fms.size() > 1 ? fms[1] : KeyBindings::sNone;
+    pan.mousebut = fms.size() ? fms[0] : KeyBindings::sMiddle();
+    pan.keybut = fms.size() > 1 ? fms[1] : KeyBindings::sNone();
 }
 
 
@@ -164,13 +164,13 @@ const SoEvent* KeyBindMan::processSoEvent( const SoEvent* const event,
         switch ( mouseevent->getButton() )
         {
             case SoMouseButtonEvent::BUTTON1:
-                buttxt = KeyBindings::sLeft;
+                buttxt = KeyBindings::sLeft();
                 break;
             case SoMouseButtonEvent::BUTTON2:
-                buttxt = KeyBindings::sRight;
+                buttxt = KeyBindings::sRight();
                 break;
             case SoMouseButtonEvent::BUTTON3:
-                buttxt = KeyBindings::sMiddle;
+                buttxt = KeyBindings::sMiddle();
                 break;
             case SoMouseButtonEvent::BUTTON4:
                 break;

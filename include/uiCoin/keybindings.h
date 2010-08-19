@@ -7,7 +7,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          Dec 2002
- RCS:           $Id: keybindings.h,v 1.8 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: keybindings.h,v 1.9 2010-08-19 06:55:51 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -37,17 +37,17 @@ public:
     BufferString		pan;
 
 
-    static const char*		sName;
-    static const char*		sRotate;
-    static const char*		sPan;
-    static const char*		sZoom;
+    static const char*		sName();
+    static const char*		sRotate();
+    static const char*		sPan();
+    static const char*		sZoom();
 
-    static const char*		sControl;
-    static const char*		sShift;
-    static const char*		sRight;
-    static const char*		sLeft;
-    static const char*		sMiddle;
-    static const char*		sNone;
+    static const char*		sControl();
+    static const char*		sShift();
+    static const char*		sRight();
+    static const char*		sLeft();
+    static const char*		sMiddle();
+    static const char*		sNone();
 };
 
 
