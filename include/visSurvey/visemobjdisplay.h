@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.65 2010-07-12 22:52:41 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.66 2010-08-19 08:43:37 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,13 +155,13 @@ protected:
 
     bool				burstalertison_;
 
-    static const char*			sKeyEarthModelID;
-    static const char*			sKeyResolution;
-    static const char*			sKeyEdit;
-    static const char*			sKeyOnlyAtSections;
-    static const char*			sKeyLineStyle;
-    static const char*			sKeySections;
-    static const char*			sKeyPosAttrShown;
+    static const char*			sKeyEarthModelID();
+    static const char*			sKeyResolution();
+    static const char*			sKeyEdit();
+    static const char*			sKeyOnlyAtSections();
+    static const char*			sKeyLineStyle();
+    static const char*			sKeySections();
+    static const char*			sKeyPosAttrShown();
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.130 2010-03-25 10:14:07 cvsumesh Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.131 2010-08-19 08:43:37 cvsranojay Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -35,12 +35,13 @@ static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.130 2010-03-25 10:14:07 
 namespace visSurvey
 {
 
-const char* EMObjectDisplay::sKeyEarthModelID = "EarthModel ID";
-const char* EMObjectDisplay::sKeyEdit = "Edit";
-const char* EMObjectDisplay::sKeyOnlyAtSections = "Display only on sections";
-const char* EMObjectDisplay::sKeyLineStyle = "Linestyle";
-const char* EMObjectDisplay::sKeySections = "Displayed Sections";
-const char* EMObjectDisplay::sKeyPosAttrShown = "Pos Attribs shown";
+const char* EMObjectDisplay::sKeyEarthModelID()  { return "EarthModel ID"; }
+const char* EMObjectDisplay::sKeyEdit()		 { return "Edit"; }
+const char* EMObjectDisplay::sKeyOnlyAtSections()  
+			    { return "Display only on sections"; }
+const char* EMObjectDisplay::sKeyLineStyle()	{ return "Linestyle"; }
+const char* EMObjectDisplay::sKeySections()	{ return "Displayed Sections"; }
+const char* EMObjectDisplay::sKeyPosAttrShown() { return "Pos Attribs shown"; }
 
 
 EMObjectDisplay::EMObjectDisplay()
@@ -559,21 +560,21 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
     if ( emobject_ && !emobject_->isFullyLoaded() )
-	par.set( sKeySections, displayedSections() );
+	par.set( sKeySections(), displayedSections() );
 
-    par.set( sKeyEarthModelID, getMultiID() );
-    par.setYN( sKeyEdit, isEditingEnabled() );
-    par.setYN( sKeyOnlyAtSections, getOnlyAtSectionsDisplay() );
+    par.set( sKeyEarthModelID(), getMultiID() );
+    par.setYN( sKeyEdit(), isEditingEnabled() );
+    par.setYN( sKeyOnlyAtSections(), getOnlyAtSectionsDisplay() );
     par.set( sKey::Color, (int)getColor().rgb() );
 
     if ( lineStyle() )
     {
 	BufferString str;
 	lineStyle()->toString( str );
-	par.set( sKeyLineStyle, str );
+	par.set( sKeyLineStyle(), str );
     }
 
-    par.set( sKeyPosAttrShown, posattribs_ );
+    par.set( sKeyPosAttrShown(), posattribs_ );
     fillSOPar( par, saveids );
 }
 
@@ -583,7 +584,7 @@ int EMObjectDisplay::usePar( const IOPar& par )
     int res = visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
-    if ( !par.get(sKeyEarthModelID,parmid_) )
+    if ( !par.get(sKeyEarthModelID(),parmid_) )
 	return -1;
 
     PtrMan<IOObj> ioobj = IOM().get( parmid_ );
@@ -600,24 +601,24 @@ int EMObjectDisplay::usePar( const IOPar& par )
     if ( scene_ )
 	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
 
-    par.get( sKeySections, parsections_ );
+    par.get( sKeySections(), parsections_ );
     BufferString linestyle;
-    if ( par.get(sKeyLineStyle,linestyle) )
+    if ( par.get(sKeyLineStyle(),linestyle) )
     {
 	LineStyle ls;
 	ls.fromString( linestyle );
 	setLineStyle( ls );
     }
 
-    par.getYN( sKeyEdit, enableedit_ );
+    par.getYN( sKeyEdit(), enableedit_ );
 
     nontexturecolisset_ = par.get(sKey::Color,(int&)nontexturecol_.rgb() );
 
     bool filter = false;
-    par.getYN( sKeyOnlyAtSections, filter );
+    par.getYN( sKeyOnlyAtSections(), filter );
     setOnlyAtSectionsDisplay(filter);
 
-    par.get( sKeyPosAttrShown, parposattrshown_ );
+    par.get( sKeyPosAttrShown(), parposattrshown_ );
 
     return useSOPar( par );
 }

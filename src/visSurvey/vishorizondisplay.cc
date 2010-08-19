@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.138 2010-08-11 09:30:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.139 2010-08-19 08:43:37 cvsranojay Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1908,7 +1908,7 @@ int HorizonDisplay::usePar( const IOPar& par )
     if ( scene_ )
 	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
 
-    if ( !par.get(sKeyEarthModelID,parmid_) )
+    if ( !par.get(sKeyEarthModelID(),parmid_) )
 	return -1;
 
     par.get( sKeyRowRange(), parrowrg_ );
