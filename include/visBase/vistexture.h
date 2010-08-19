@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.24 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vistexture.h,v 1.25 2010-08-19 08:21:10 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -143,11 +143,11 @@ protected:
     ObjectSet<SequentialTask> texturemakers;
     ThreadWorker*	threadworker;
 
-    static const char*	colortabstr;
-    static const char*	texturequalitystr;
-    static const char*	usestexturestr;
-    static const char*	resolutionstr;
-    static const char*	coltabmodstr;
+    static const char*	colortabstr();
+    static const char*	texturequalitystr();
+    static const char*	usestexturestr();
+    static const char*	resolutionstr();
+    static const char*	coltabmodstr();
 };
 
 };

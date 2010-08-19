@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.41 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.42 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "vistexture.h"
 
@@ -64,11 +64,11 @@ int visBaseTextureColorIndexMaker::nextStep()
 namespace visBase
 {
 
-const char* Texture::colortabstr = "ColorTable ID";
-const char* Texture::usestexturestr = "Uses texture";
-const char* Texture::texturequalitystr = "Texture quality";
-const char* Texture::resolutionstr = "Resolution";
-const char* Texture::coltabmodstr = "ColorTableModifier ID";
+const char* Texture::colortabstr()	{ return "ColorTable ID"; }
+const char* Texture::usestexturestr()	{ return "Uses texture"; }
+const char* Texture::texturequalitystr()  { return "Texture quality"; }
+const char* Texture::resolutionstr()	  { return "Resolution"; }
+const char* Texture::coltabmodstr()	  { return "ColorTableModifier ID"; }
 
 
 Texture::Texture()
@@ -586,14 +586,14 @@ void Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     DataObject::fillPar( par, saveids );
 
     int ctid = colortab->id();
-    par.set( colortabstr, ctid );
+    par.set( colortabstr(), ctid );
 
-    par.set( texturequalitystr, getTextureQuality() );
-    par.setYN( usestexturestr, isOn() );
-    par.set( resolutionstr, resolution );
+    par.set( texturequalitystr(), getTextureQuality() );
+    par.setYN( usestexturestr(), isOn() );
+    par.set( resolutionstr(), resolution );
 
     int ctmid = coltabmod->id();
-    par.set( coltabmodstr, ctmid );
+    par.set( coltabmodstr(), ctmid );
 
     if ( saveids.indexOf(ctid) == -1 ) saveids += ctid;
     if ( saveids.indexOf(ctmid) == -1 ) saveids += ctmid;
@@ -606,7 +606,7 @@ int Texture::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     int coltabid;
-    if ( !par.get( colortabstr, coltabid ) ) return -1;
+    if ( !par.get( colortabstr(), coltabid ) ) return -1;
     DataObject* dataobj = DM().getObject( coltabid );
     if ( !dataobj ) return 0;
     mDynamicCastGet(VisColorTab*,coltab,dataobj)
@@ -614,7 +614,7 @@ int Texture::usePar( const IOPar& par )
     setColorTab( *coltab );
 
     int ctmid = -1;
-    if ( par.get( coltabmodstr, ctmid ) )
+    if ( par.get( coltabmodstr(), ctmid ) )
     {
 	dataobj = DM().getObject( ctmid );
 	if ( !dataobj ) return 0;
@@ -626,15 +626,15 @@ int Texture::usePar( const IOPar& par )
     }
 
     int newres = 0;
-    par.get( resolutionstr, newres );
+    par.get( resolutionstr(), newres );
     setResolution( newres );
 
     float texturequality = 1;
-    par.get( texturequalitystr, texturequality );
+    par.get( texturequalitystr(), texturequality );
     setTextureQuality( texturequality );
 
     bool usetext = true;
-    par.getYN( usestexturestr, usetext );
+    par.getYN( usestexturestr(), usetext );
     turnOn( usetext );
 
     return 1;

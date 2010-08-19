@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.48 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.49 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -23,8 +23,8 @@ mCreateFactoryEntry( visBase::TextureRect );
 namespace visBase
 {
 
-const char* TextureRect::rectangleidstr = "Rectangle ID";
-const char* TextureRect::textureidstr = "Texture ID";
+const char* TextureRect::rectangleidstr()  { return "Rectangle ID"; }
+const char* TextureRect::textureidstr()    { return "Texture ID"; }
 
 TextureRect::TextureRect()
     : VisualObjectImpl( false )
@@ -224,10 +224,10 @@ void TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     VisualObjectImpl::fillPar( par, saveids );
 
     int rectid = rectangle->id();
-    par.set( rectangleidstr, rectid );
+    par.set( rectangleidstr(), rectid );
 
     int textureid = textureset->getTexture(0)->id();
-    par.set( textureidstr, textureid );
+    par.set( textureidstr(), textureid );
 
     if ( saveids.indexOf(rectid) == -1 ) saveids += rectid;
     if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
@@ -240,7 +240,7 @@ int TextureRect::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     int textureid;
-    if ( !par.get( textureidstr, textureid ) ) return -1;
+    if ( !par.get( textureidstr(), textureid ) ) return -1;
     DataObject* dataobj = DM().getObject( textureid );
     if ( !dataobj ) return 0;
     mDynamicCastGet(Texture2*,texture_,dataobj);
@@ -249,7 +249,7 @@ int TextureRect::usePar( const IOPar& par )
     textureset->addTexture( texture_ );
 
     int rectid;
-    if ( !par.get( rectangleidstr, rectid ) ) return -1;
+    if ( !par.get( rectangleidstr(), rectid ) ) return -1;
     dataobj = DM().getObject( rectid );
     if ( !dataobj ) return 0;
     mDynamicCastGet( Rectangle*, rect, dataobj );

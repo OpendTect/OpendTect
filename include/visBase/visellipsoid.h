@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		10-10-2007
- RCS:		$Id: visellipsoid.h,v 1.3 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visellipsoid.h,v 1.4 2010-08-19 08:21:10 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -56,8 +56,8 @@ protected:
     Transformation*	transformation_;
     SoMatrixTransform*	position_;
     
-    static const char*	centerposstr_;
-    static const char*	widthstr_;
+    static const char*	centerposstr();
+    static const char*	widthstr();
 };
 
 };

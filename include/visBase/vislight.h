@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislight.h,v 1.9 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: vislight.h,v 1.10 2010-08-19 08:21:10 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -47,8 +47,8 @@ protected:
 
     SoLight*		light;	
 
-    static const char*	isonstr;
-    static const char*	intensitystr;
+    static const char*	isonstr();
+    static const char*	intensitystr();
 };
 
 /*!\brief
@@ -68,7 +68,7 @@ public:
     int			usePar( const IOPar& );
 
 protected:
-    static const char*	positionstr;
+    static const char*	positionstr();
 
 };
 
@@ -91,7 +91,7 @@ public:
     int			usePar( const IOPar& );
 
 protected:
-    static const char*	directionstr;
+    static const char*	directionstr();
 
 };
 
@@ -124,10 +124,10 @@ public:
     int			usePar( const IOPar& );
 
 protected:
-    static const char*	directionstr;
-    static const char*	positionstr;
-    static const char*	coneanglestr;
-    static const char*	dropoffratestr;
+    static const char*	directionstr();
+    static const char*	positionstr();
+    static const char*	coneanglestr();
+    static const char*	dropoffratestr();
 };
 
 };

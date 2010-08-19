@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdrawstyle.h,v 1.10 2010-02-20 00:58:42 cvskarthika Exp $
+ RCS:		$Id: visdrawstyle.h,v 1.11 2010-08-19 08:21:10 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,9 +59,9 @@ private:
     LineStyle		linestyle;
     SoDrawStyle*	drawstyle;
 
-    static const char*	linestylestr;
-    static const char*	drawstylestr;
-    static const char*	pointsizestr;
+    static const char*	linestylestr();
+    static const char*	drawstylestr();
+    static const char*	pointsizestr();
 };
 
 };

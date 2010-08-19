@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscoltabmod.cc,v 1.13 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: viscoltabmod.cc,v 1.14 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "viscoltabmod.h"
 
@@ -22,10 +22,10 @@ mCreateFactoryEntry( visBase::VisColTabMod );
 namespace visBase
 {
 
-const char* VisColTabMod::clipratestr	= "Cliprate";
-const char* VisColTabMod::rangestr 	= "Range";
-const char* VisColTabMod::reversestr 	= "Reverse display";
-const char* VisColTabMod::useclipstr 	= "Use clipping";
+const char* VisColTabMod::clipratestr()  { return  "Cliprate"; }
+const char* VisColTabMod::rangestr()	 { return  "Range"; }
+const char* VisColTabMod::reversestr()	 { return  "Reverse display"; }
+const char* VisColTabMod::useclipstr()	 { return  "Use clipping"; }
 
 
 VisColTabMod::VisColTabMod()
@@ -96,10 +96,10 @@ int VisColTabMod::usePar( const IOPar& par )
     int res = DataObject::usePar( par );
     if ( res != 1 ) return res;
 
-    par.get( clipratestr, cliprate0, cliprate1 );
-    par.get( rangestr, range );
-    par.getYN( reversestr, reverse );
-    par.getYN( useclipstr, useclip );
+    par.get( clipratestr(), cliprate0, cliprate1 );
+    par.get( rangestr(), range );
+    par.getYN( reversestr(), reverse );
+    par.getYN( useclipstr(), useclip );
 
     return 1;
 }
@@ -108,10 +108,10 @@ int VisColTabMod::usePar( const IOPar& par )
 void VisColTabMod::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
-    par.set( clipratestr, cliprate0, cliprate1 );
-    par.set( rangestr, range );
-    par.setYN( reversestr, reverse );
-    par.setYN( useclipstr, useclip );
+    par.set( clipratestr(), cliprate0, cliprate1 );
+    par.set( rangestr(), range );
+    par.setYN( reversestr(), reverse );
+    par.setYN( useclipstr(), useclip );
 }
 
 }; // namespace visBase

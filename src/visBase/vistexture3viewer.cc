@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.23 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.24 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "vistexture3viewer.h"
 
@@ -32,7 +32,7 @@ mCreateFactoryEntry( visBase::Texture3Slice );
 namespace visBase
 {
 
-const char* Texture3Viewer::textureidstr = "Texture ID";
+ const char* Texture3Viewer::textureidstr()  { return "Texture ID"; }
 
 Texture3Viewer::Texture3Viewer()
     : VisualObjectImpl( false )
@@ -153,7 +153,7 @@ void Texture3Viewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     VisualObjectImpl::fillPar( par, saveids );
 
     int textureid = texture->id();
-    par.set( textureidstr, textureid );
+    par.set( textureidstr(), textureid );
 
     if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
 }
@@ -165,7 +165,7 @@ int Texture3Viewer::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     int textureid;
-    if ( !par.get( textureidstr, textureid ) ) return 1; // old session file
+    if ( !par.get( textureidstr(), textureid ) ) return 1; // old session file
     DataObject* dobj = DM().getObject( textureid );
     if ( !dobj ) return 0;
     mDynamicCastGet(Texture3*,texture_,dobj)

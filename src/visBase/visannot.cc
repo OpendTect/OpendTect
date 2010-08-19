@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.31 2009-12-22 14:48:10 cvsbert Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.32 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -26,10 +26,10 @@ mCreateFactoryEntry( visBase::Annotation );
 namespace visBase
 {
 
-const char* Annotation::textprefixstr = "Text ";
-const char* Annotation::cornerprefixstr = "Corner ";
-const char* Annotation::showtextstr = "Show Text";
-const char* Annotation::showscalestr = "Show Scale";
+const char* Annotation::textprefixstr()	    { return "Text "; }
+const char* Annotation::cornerprefixstr()   { return "Corner "; }
+const char* Annotation::showtextstr()	    { return "Show Text"; }
+const char* Annotation::showscalestr()	    { return "Show Scale"; }
 
 Annotation::Annotation()
     : VisualObjectImpl( false )
@@ -288,7 +288,7 @@ void Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     BufferString key;
     for ( int idx=0; idx<8; idx++ )
     {
-	key = cornerprefixstr;
+	key = cornerprefixstr();
 	key += idx;
 	Coord3 pos = getCorner( idx );
 	par.set( key, pos.x, pos.y, pos.z );
@@ -296,7 +296,7 @@ void Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     for ( int idx=0; idx<3; idx++ )
     {
-	key = textprefixstr;
+	key = textprefixstr();
 	key += idx;
 	Text2* text = (Text2*)texts->getObject( idx );
 	if ( !text ) continue;
@@ -304,8 +304,8 @@ void Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	par.set( key, (const char*)text->getText() );
     }
 
-    par.setYN( showtextstr, isTextShown() );
-    par.setYN( showscalestr, isScaleShown() );
+    par.setYN( showtextstr(), isTextShown() );
+    par.setYN( showscalestr(), isScaleShown() );
 }
 
 
@@ -317,7 +317,7 @@ int Annotation::usePar( const IOPar& par )
     BufferString key;
     for ( int idx=0; idx<8; idx++ )
     {
-	key = cornerprefixstr;
+	key = cornerprefixstr();
 	key += idx;
 
 	double x, y, z;
@@ -329,7 +329,7 @@ int Annotation::usePar( const IOPar& par )
 
     for ( int idx=0; idx<3; idx++ )
     {
-	key = textprefixstr;
+	key = textprefixstr();
 	key += idx;
 
 	const char* text = par.find( key );
@@ -339,11 +339,11 @@ int Annotation::usePar( const IOPar& par )
     }
 
     bool yn = true;
-    par.getYN( showtextstr, yn );
+    par.getYN( showtextstr(), yn );
     showText( yn );
 
     yn = true;
-    par.getYN( showscalestr, yn );
+    par.getYN( showscalestr(), yn );
     showScale( yn );
 
     return 1;

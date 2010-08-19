@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vislight.cc,v 1.10 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vislight.cc,v 1.11 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "vislight.h"
 #include "iopar.h"
@@ -24,8 +24,8 @@ mCreateFactoryEntry( visBase::SpotLight );
 namespace visBase
 {
 
-const char* Light::isonstr = "Is On";
-const char* Light::intensitystr = "Intensity";
+const char* Light::isonstr()  { return "Is On"; }
+const char* Light::intensitystr()  { return "Intensity"; }
 
 
 Light::Light( SoLight* light_ )
@@ -65,8 +65,8 @@ void Light::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 {
     DataObject::fillPar( par, storeids );
 
-    par.setYN( isonstr, isOn() );
-    par.set( intensitystr, intensity() );
+    par.setYN( isonstr(), isOn() );
+    par.set( intensitystr(), intensity() );
 }
 
 
@@ -76,13 +76,13 @@ int Light::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     bool yn;
-    if ( !par.getYN( isonstr, yn ))
+    if ( !par.getYN( isonstr(), yn ))
 	return -1;
 
     turnOn( yn );
 
     double intens;
-    if ( !par.get( intensitystr, intens ))
+    if ( !par.get( intensitystr(), intens ))
 	return -1;
 
     setIntensity( intens );
@@ -90,7 +90,7 @@ int Light::usePar( const IOPar& par )
 }
 
 
-const char* PointLight::positionstr = sKey::Position;
+const char* PointLight::positionstr() { return sKey::Position; }
 
 PointLight::PointLight()
     : Light( new SoPointLight )
@@ -113,7 +113,7 @@ void PointLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 {
     Light::fillPar( par, storeids );
 
-    par.set( positionstr, position(0), position(1), position(2) );
+    par.set( positionstr(), position(0), position(1), position(2) );
 }
 
 
@@ -123,7 +123,7 @@ int PointLight::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     double x, y, z;
-    if ( !par.get( positionstr, x, y, z ))
+    if ( !par.get( positionstr(), x, y, z ))
 	return -1;
 
     setPosition( x, y, z );
@@ -131,7 +131,7 @@ int PointLight::usePar( const IOPar& par )
 }
 
 
-const char* DirectionalLight::directionstr = "Direction";
+const char* DirectionalLight::directionstr() { return "Direction"; }
 
 
 DirectionalLight::DirectionalLight()
@@ -155,7 +155,7 @@ void DirectionalLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 {
     Light::fillPar( par, storeids );
 
-    par.set( directionstr, direction(0), direction(1), direction(2) );
+    par.set( directionstr(), direction(0), direction(1), direction(2) );
 }
 
 
@@ -165,7 +165,7 @@ int DirectionalLight::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     double x, y, z;
-    if ( !par.get( directionstr, x, y, z ))
+    if ( !par.get( directionstr(), x, y, z ))
 	return -1;
 
     setDirection( x, y, z );
@@ -173,10 +173,10 @@ int DirectionalLight::usePar( const IOPar& par )
 }
 
 
-const char* SpotLight::directionstr = "Direction";
-const char* SpotLight::positionstr = sKey::Position;
-const char* SpotLight::coneanglestr = "Cone Angle";
-const char* SpotLight::dropoffratestr = "Drop Off Rate";
+const char* SpotLight::directionstr()  { return "Direction"; }
+const char* SpotLight::positionstr()   { return sKey::Position; }
+const char* SpotLight::coneanglestr()  { return "Cone Angle"; }
+const char* SpotLight::dropoffratestr(){ return "Drop Off Rate"; }
 
 SpotLight::SpotLight()
     : Light( new SoSpotLight )
@@ -235,10 +235,10 @@ void SpotLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 {
     Light::fillPar( par, storeids );
 
-    par.set( directionstr, direction(0), direction(1), direction(2) );
-    par.set( positionstr, position(0), position(1), position(2) );
-    par.set( coneanglestr, coneAngle() );
-    par.set( dropoffratestr, dropOffRate() );
+    par.set( directionstr(), direction(0), direction(1), direction(2) );
+    par.set( positionstr(), position(0), position(1), position(2) );
+    par.set( coneanglestr(), coneAngle() );
+    par.set( dropoffratestr(), dropOffRate() );
 }
 
 
@@ -248,22 +248,22 @@ int SpotLight::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     double x, y, z;
-    if ( !par.get( directionstr, x, y, z ))
+    if ( !par.get( directionstr(), x, y, z ))
 	return -1;
 
     setDirection( x, y, z );
 
-    if ( !par.get( positionstr, x, y, z ))
+    if ( !par.get( positionstr(), x, y, z ))
 	return -1;
 
     setPosition( x, y, z );
 
-    if ( !par.get( coneanglestr, x ))
+    if ( !par.get( coneanglestr(), x ))
 	return -1;
 
     setConeAngle( x );
 
-    if ( !par.get( dropoffratestr, x ))
+    if ( !par.get( dropoffratestr(), x ))
 	return -1;
 
     setDropOffRate( x );

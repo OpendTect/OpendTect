@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.23 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.24 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -25,9 +25,9 @@ mCreateFactoryEntry( visBase::DepthTabPlaneDragger );
 namespace visBase
 {
 
-const char* DepthTabPlaneDragger::dimstr    = "Dimension";
-const char* DepthTabPlaneDragger::sizestr   = "Size.";
-const char* DepthTabPlaneDragger::centerstr = "Center.";
+const char* DepthTabPlaneDragger::dimstr()	{ return "Dimension"; }
+const char* DepthTabPlaneDragger::sizestr()	{ return "Size."; }
+const char* DepthTabPlaneDragger::centerstr()	{ return "Center."; }
 
 DepthTabPlaneDragger::DepthTabPlaneDragger()
     : VisualObjectImpl( false )
@@ -416,16 +416,16 @@ void DepthTabPlaneDragger::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( par, saveids );
 
-    par.set( dimstr, getDim() );
+    par.set( dimstr(), getDim() );
 
     const_cast<Coord3&>(centers_[dim_]) = center();
     for ( int idx=0; idx<3; idx++ )
     {
-	BufferString str( centerstr );
+	BufferString str( centerstr() );
 	str += idx;
 	par.set( str, centers_[idx] );
 
-	str = sizestr;
+	str = sizestr();
 	str += idx;
 	par.set( str, sizes_[idx] );
     }
@@ -439,11 +439,11 @@ int DepthTabPlaneDragger::usePar( const IOPar& par )
 
     for ( int idx=0; idx<3; idx++ )
     {
-	BufferString str( centerstr );
+	BufferString str( centerstr() );
 	str += idx;
 	par.get( str, centers_[idx] );
 
-	str = sizestr;
+	str = sizestr();
 	str += idx;
 	par.get( str, sizes_[idx] );
     }
@@ -452,7 +452,7 @@ int DepthTabPlaneDragger::usePar( const IOPar& par )
     setCenter( centers_[dim_], false );
 
     int dim = 0;
-    par.get( dimstr, dim );
+    par.get( dimstr(), dim );
     setDim( dim );
 
     return 1;

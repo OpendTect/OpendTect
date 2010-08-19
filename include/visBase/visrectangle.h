@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.35 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: visrectangle.h,v 1.36 2010-08-19 08:21:10 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -176,16 +176,16 @@ protected:
     SoTranslation*	maniprecttrans;
     SoScale*		maniprectscale;
 
-    static const char*	orientationstr;
-    static const char*	origostr;
-    static const char*	widthstr;
-    static const char*	xrangestr;
-    static const char*	yrangestr;
-    static const char*	zrangestr;
-    static const char*	xwidhtrange;
-    static const char*	ywidhtrange;
-    static const char*	draggersizestr;
-    static const char*	snappingstr;
+    static const char*	orientationstr();
+    static const char*	origostr();
+    static const char*	widthstr();
+    static const char*	xrangestr();
+    static const char*	yrangestr();
+    static const char*	zrangestr();
+    static const char*	xwidhtrange();
+    static const char*	ywidhtrange();
+    static const char*	draggersizestr();
+    static const char*	snappingstr();
 };
 
 };

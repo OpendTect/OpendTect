@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.23 2010-05-21 15:54:40 cvsjaap Exp $
+ RCS:		$Id: visevent.h,v 1.24 2010-08-19 08:21:10 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -105,7 +105,7 @@ protected:
     SoEventCallback*		node_;
     ObjectSet<Transformation>	utm2display_;
 
-    static const char*		eventtypestr;
+    static const char*		eventtypestr();
 
     bool			rehandling_;
     bool			rehandled_;

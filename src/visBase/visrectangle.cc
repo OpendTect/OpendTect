@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrectangle.cc,v 1.49 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.50 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "visrectangle.h"
 #include "iopar.h"
@@ -456,16 +456,16 @@ bool RectangleDragger::tabsShown() const
 }
 
 
-const char* Rectangle::orientationstr = "Orientation";
-const char* Rectangle::origostr = "Origo";
-const char* Rectangle::widthstr = "Width";
-const char* Rectangle::xrangestr = "XRange";
-const char* Rectangle::yrangestr = "YRange";
-const char* Rectangle::zrangestr = "ZRange";
-const char* Rectangle::xwidhtrange = "XWidth";
-const char* Rectangle::ywidhtrange = "YWidth";
-const char* Rectangle::draggersizestr = "DraggerSize";
-const char* Rectangle::snappingstr = "Snapping";
+const char* Rectangle::orientationstr()  { return "Orientation"; }
+const char* Rectangle::origostr()	 { return "Origo"; }
+const char* Rectangle::widthstr()	 { return "Width"; }
+const char* Rectangle::xrangestr()	 { return "XRange"; }
+const char* Rectangle::yrangestr()	 { return "YRange"; }
+const char* Rectangle::zrangestr()	 { return "ZRange"; }
+const char* Rectangle::xwidhtrange()	 { return "XWidth"; }
+const char* Rectangle::ywidhtrange()	 { return "YWidth"; }
+const char* Rectangle::draggersizestr()  { return "DraggerSize"; }
+const char* Rectangle::snappingstr()	 { return "Snapping"; }
 
 Rectangle::Rectangle()
     : VisualObjectImpl( false )
@@ -577,38 +577,38 @@ int Rectangle::usePar( const IOPar& iopar )
     if ( res != 1 ) return res;
 
     int ori;
-    if ( iopar.get( orientationstr, ori ) )
+    if ( iopar.get( orientationstr(), ori ) )
 	setOrientation( (Orientation) ori );
 
     Coord3 pos;
-    if ( iopar.get( origostr, pos.x, pos.y, pos.z ) )
+    if ( iopar.get( origostr(), pos.x, pos.y, pos.z ) )
 	setOrigo( pos );
 
     float xwidth, ywidth;
-    if ( iopar.get( widthstr, xwidth, ywidth ) )
+    if ( iopar.get( widthstr(), xwidth, ywidth ) )
 	setWidth( xwidth, ywidth );
 
     StepInterval<float> range;
-    if ( iopar.get( xrangestr, range ) )
+    if ( iopar.get( xrangestr(), range ) )
 	xrange = range;
-    if ( iopar.get( yrangestr, range ) )
+    if ( iopar.get( yrangestr(), range ) )
 	yrange = range;
-    if ( iopar.get( zrangestr, range ) )
+    if ( iopar.get( zrangestr(), range ) )
 	zrange = range;
 
     Interval<float> wrange;
-    if ( iopar.get( xwidhtrange, wrange ))
+    if ( iopar.get( xwidhtrange(), wrange ))
 	wxrange = wrange;
 
-    if ( iopar.get( ywidhtrange, wrange ))
+    if ( iopar.get( ywidhtrange(), wrange ))
 	wyrange = wrange;
 
     float w, h, d;
-    if ( iopar.get( draggersizestr, w, h, d ) )
+    if ( iopar.get( draggersizestr(), w, h, d ) )
 	setDraggerSize( w, h, d );
 
     bool dosnap;
-    if ( iopar.getYN( snappingstr, dosnap ) )
+    if ( iopar.getYN( snappingstr(), dosnap ) )
 	setSnapping( dosnap );
 
     return 1;
@@ -619,23 +619,23 @@ void Rectangle::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( iopar, saveids );
 
-    iopar.set( orientationstr, (int)orientation() );
+    iopar.set( orientationstr(), (int)orientation() );
 
     Coord3 pos = origo();
-    iopar.set( origostr, pos.x, pos.y, pos.z );
-    iopar.set( widthstr, width(0), width(1) );
+    iopar.set( origostr(), pos.x, pos.y, pos.z );
+    iopar.set( widthstr(), width(0), width(1) );
 
-    iopar.set( xrangestr, xrange );
-    iopar.set( yrangestr, yrange );
-    iopar.set( zrangestr, zrange );
+    iopar.set( xrangestr(), xrange );
+    iopar.set( yrangestr(), yrange );
+    iopar.set( zrangestr(), zrange );
 
-    iopar.set( xwidhtrange, wxrange );
-    iopar.set( ywidhtrange, wyrange );
+    iopar.set( xwidhtrange(), wxrange );
+    iopar.set( ywidhtrange(), wyrange );
 
     Coord3 draggersize = getDraggerSize();
-    iopar.set( draggersizestr, draggersize.x, draggersize.y, draggersize.z );
+    iopar.set( draggersizestr(), draggersize.x, draggersize.y, draggersize.z );
 
-    iopar.setYN( snappingstr, isSnapping() );
+    iopar.setYN( snappingstr(), isSnapping() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdrawstyle.cc,v 1.16 2010-05-21 14:58:21 cvsbert Exp $";
+static const char* rcsID = "$Id: visdrawstyle.cc,v 1.17 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "visdrawstyle.h"
 #include "iopar.h"
@@ -23,9 +23,9 @@ namespace visBase
 DefineEnumNames( DrawStyle, Style, 1, "Style" )
 { "Filled", "Lines", "Points", "Invisible", 0 };
 
-const char* DrawStyle::linestylestr = "Line Style";
-const char* DrawStyle::drawstylestr = "Draw Style";
-const char* DrawStyle::pointsizestr = "Point Size";
+const char* DrawStyle::linestylestr()  { return "Line Style"; }
+const char* DrawStyle::drawstylestr()  { return "Draw Style"; }
+const char* DrawStyle::pointsizestr()  { return "Point Size"; }
 
 DrawStyle::DrawStyle()
     : drawstyle( new SoDrawStyle )
@@ -114,13 +114,13 @@ void DrawStyle::getLineWidthBounds( int& min, int& max )
 
 int DrawStyle::usePar( const IOPar& par )
 {
-    const char* linestylepar = par.find( linestylestr );
+    const char* linestylepar = par.find( linestylestr() );
     if ( !linestylepar ) return -1;
 
     linestyle.fromString( linestylepar );
     updateLineStyle();
 
-    const char* stylepar = par.find( drawstylestr );
+    const char* stylepar = par.find( drawstylestr() );
     if ( !stylepar ) return -1;
 
     int enumid = getIndexInStringArrCI( stylepar, StyleNames(), 0, 1, -1 );
@@ -129,7 +129,7 @@ int DrawStyle::usePar( const IOPar& par )
     setDrawStyle( (Style)enumid );
 
     float pointsize;
-    if ( !par.get( pointsizestr, pointsize ) )
+    if ( !par.get( pointsizestr(), pointsize ) )
 	return -1;
     setPointSize( pointsize );
 
@@ -143,10 +143,10 @@ void DrawStyle::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     BufferString linestyleval;
     linestyle.toString( linestyleval );
-    par.set( linestylestr, linestyleval );
+    par.set( linestylestr(), linestyleval );
 
-    par.set( drawstylestr, StyleNames()[(int)getDrawStyle()] );
-    par.set( pointsizestr, getPointSize() );
+    par.set( drawstylestr(), StyleNames()[(int)getDrawStyle()] );
+    par.set( pointsizestr(), getPointSize() );
 }
 
 }; // namespace visBase

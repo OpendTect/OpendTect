@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgridlines.cc,v 1.13 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visgridlines.cc,v 1.14 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "visgridlines.h"
 
@@ -24,10 +24,10 @@ mCreateFactoryEntry( visBase::GridLines );
 namespace visBase
 {
 
-const char* GridLines::sKeyLineStyle = "Line style";
-const char* GridLines::sKeyInlShown = "Inlines shown";
-const char* GridLines::sKeyCrlShown = "Crosslines shown";
-const char* GridLines::sKeyZShown = "Zlines shown";
+const char* GridLines::sKeyLineStyle()  { return "Line style"; }
+const char* GridLines::sKeyInlShown()   { return "Inlines shown"; }
+const char* GridLines::sKeyCrlShown()   { return "Crosslines shown"; }
+const char* GridLines::sKeyZShown()     { return "Zlines shown"; }
 
 GridLines::GridLines()
     : VisualObjectImpl(false)
@@ -301,13 +301,13 @@ void GridLines::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     getLineStyle( ls );
     BufferString lsstr;
     ls.toString( lsstr );
-    par.set( sKeyLineStyle, lsstr );
+    par.set( sKeyLineStyle(), lsstr );
 
     gridcs_.fillPar( par );
 
-    par.setYN( sKeyInlShown, areInlinesShown() );
-    par.setYN( sKeyCrlShown, areCrosslinesShown() );
-    par.setYN( sKeyZShown, areZlinesShown() );
+    par.setYN( sKeyInlShown(), areInlinesShown() );
+    par.setYN( sKeyCrlShown(), areCrosslinesShown() );
+    par.setYN( sKeyZShown(), areZlinesShown() );
 }
 
 
@@ -319,19 +319,19 @@ int GridLines::usePar( const IOPar& par )
     gridcs_.usePar( par );
 
     bool inlshown = false;
-    par.getYN( sKeyInlShown, inlshown );
+    par.getYN( sKeyInlShown(), inlshown );
     showInlines( inlshown );
 
     bool crlshown = false;
-    par.getYN( sKeyCrlShown, crlshown );
+    par.getYN( sKeyCrlShown(), crlshown );
     showCrosslines( crlshown );
 
     bool zshown = false;
-    par.getYN( sKeyZShown, zshown );
+    par.getYN( sKeyZShown(), zshown );
     showZlines( zshown );
 
     BufferString lsstr;
-    if ( par.get(sKeyLineStyle,lsstr) )
+    if ( par.get(sKeyLineStyle(),lsstr) )
     {
 	LineStyle ls;
 	ls.fromString( lsstr );

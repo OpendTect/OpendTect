@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.33 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vistexturerect.h,v 1.34 2010-08-19 08:21:10 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -83,8 +83,8 @@ public:
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
 
-    static const char*		rectangleidstr;
-    static const char*		textureidstr;
+    static const char*		rectangleidstr();
+    static const char*		textureidstr();
 
 protected:
 

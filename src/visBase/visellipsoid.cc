@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visellipsoid.cc,v 1.3 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visellipsoid.cc,v 1.4 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "visellipsoid.h"
 
@@ -23,8 +23,8 @@ mCreateFactoryEntry( visBase::Ellipsoid );
 namespace visBase
 {
 
-const char* Ellipsoid::centerposstr_ = "Center Pos";
-const char* Ellipsoid::widthstr_ = "Width";
+const char* Ellipsoid::centerposstr()   { return "Center Pos"; }
+const char* Ellipsoid::widthstr()	{ return "Width"; }
 
 
 Ellipsoid::Ellipsoid()
@@ -128,12 +128,12 @@ int Ellipsoid::usePar( const IOPar& iopar )
     if ( res != 1 ) return res;
 
     Coord3 pos;
-    if ( !iopar.get( centerposstr_, pos.x, pos.y, pos.z ) )
+    if ( !iopar.get( centerposstr(), pos.x, pos.y, pos.z ) )
 	return -1;
 
     setCenterPos( pos );
 
-    if ( !iopar.get( widthstr_, pos.x, pos.y, pos.z ) )
+    if ( !iopar.get( widthstr(), pos.x, pos.y, pos.z ) )
 	return -1;
 
     setWidth( pos );
@@ -147,10 +147,10 @@ void Ellipsoid::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     Shape::fillPar( iopar, saveids );
 
     Coord3 pos = getCenterPos();
-    iopar.set( centerposstr_, pos.x, pos.y, pos.z );
+    iopar.set( centerposstr(), pos.x, pos.y, pos.z );
 
     pos = getWidth();
-    iopar.set( widthstr_, pos.x, pos.y, pos.z );
+    iopar.set( widthstr(), pos.x, pos.y, pos.z );
 }
 
 

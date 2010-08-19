@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.11 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.12 2010-08-19 08:21:10 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -122,9 +122,9 @@ private:
     static void			valueChangedCB(void*, SoDragger* );
     static void			finishCB( void*, SoDragger* );
 
-    static const char*		dimstr;
-    static const char*		sizestr;
-    static const char*		centerstr;
+    static const char*		dimstr();
+    static const char*		sizestr();
+    static const char*		centerstr();
 };
 
 };

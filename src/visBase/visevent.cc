@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visevent.cc,v 1.29 2010-05-21 15:54:40 cvsjaap Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.30 2010-08-19 08:21:17 cvsranojay Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -33,7 +33,7 @@ namespace visBase
 
 
 
-const char* EventCatcher::eventtypestr = "EventType";
+const char* EventCatcher::eventtypestr()  { return "EventType"; }
 //const char EventInfo::leftMouseButton() { return 0; }
 //const char EventInfo::middleMouseButton() { return 1; }
 //const char EventInfo::rightMouseButton() { return 2; }
@@ -99,7 +99,7 @@ void EventCatcher::setUtm2Display( ObjectSet<Transformation>& nt )
 void EventCatcher::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
-    par.set( eventtypestr, (int) type_ );
+    par.set( eventtypestr(), (int) type_ );
 }
 
 
@@ -109,7 +109,7 @@ int EventCatcher::usePar( const IOPar& par )
     if ( res!= 1 ) return res;
 
     int inttype;
-    if ( !par.get( eventtypestr, inttype ))
+    if ( !par.get( eventtypestr(), inttype ))
 	return -1;
 
     setEventType( (EventType) inttype );

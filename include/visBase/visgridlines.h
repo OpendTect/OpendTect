@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		December 2005
- RCS:		$Id: visgridlines.h,v 1.9 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visgridlines.h,v 1.10 2010-08-19 08:21:10 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -83,10 +83,10 @@ protected:
     void			drawCrosslines();
     void			drawZlines();
 
-    static const char*		sKeyLineStyle;
-    static const char*		sKeyInlShown;
-    static const char*		sKeyCrlShown;
-    static const char*		sKeyZShown;
+    static const char*		sKeyLineStyle();
+    static const char*		sKeyInlShown();
+    static const char*		sKeyCrlShown();
+    static const char*		sKeyZShown();
 };
 
 
