@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.34 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.35 2010-08-19 07:31:44 cvsranojay Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -236,7 +236,8 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
     FilePath fp( fnm );
     BufferString ext = fp.extension();
     if ( ext.isEmpty() ) ext = "sgy";
-    BufferString setupnm( "Exp " ); setupnm += uiSEGYFileSpec::sKeyLineNmToken;
+    BufferString setupnm( "Exp " ); 
+    setupnm += uiSEGYFileSpec::sKeyLineNmToken();
 
     uiLabel* lbl = 0;
     const bool isrealattrib = strcmp(attrnm_,LineKey::sKeyDefAttrib());
@@ -259,7 +260,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
     if ( lbl )
 	llb->attach( alignedBelow, lbl );
 
-    BufferString newfnm( uiSEGYFileSpec::sKeyLineNmToken );
+    BufferString newfnm( uiSEGYFileSpec::sKeyLineNmToken() );
     if ( isrealattrib )
     {
 	setupnm += " ("; setupnm += attrnm_; setupnm += ")";
@@ -270,7 +271,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
     newfnm += "."; newfnm += ext;
     fp.setFileName( newfnm );
     BufferString txt( "Output (Line name replaces '" );
-    txt += uiSEGYFileSpec::sKeyLineNmToken; txt += "')";
+    txt += uiSEGYFileSpec::sKeyLineNmToken(); txt += "')";
 
     fnmfld_ = new uiFileInput( this, txt,
 		    uiFileInput::Setup(fp.fullPath()).forread(false) );
@@ -290,10 +291,10 @@ bool acceptOK( CallBacker* )
 	uiMSG().error( "Directory provided not usable" );
 	return false;
     }
-    if ( !strstr(fp.fullPath().buf(),uiSEGYFileSpec::sKeyLineNmToken) )
+    if ( !strstr(fp.fullPath().buf(),uiSEGYFileSpec::sKeyLineNmToken()) )
     {
 	BufferString msg( "The file name has to contain at least one '" );
-	msg += uiSEGYFileSpec::sKeyLineNmToken; msg += "'\n";
+	msg += uiSEGYFileSpec::sKeyLineNmToken(); msg += "'\n";
 	msg += "That will then be replaced by the line name";
 	uiMSG().error( msg );
 	return false;
@@ -347,7 +348,7 @@ bool doExp( const FilePath& fp )
     {
 	const BufferString& lnm = *lnms[idx];
 	BufferString filenm( fp.fullPath() );
-	replaceString( filenm.buf(), uiSEGYFileSpec::sKeyLineNmToken, lnm );
+	replaceString( filenm.buf(), uiSEGYFileSpec::sKeyLineNmToken(), lnm );
 	IOObj* newioobj = getSubstIOObj( filenm );
 	if ( !doWork( newioobj, lnm, idx > lnms.size()-2, nofails ) )
 	    return false;

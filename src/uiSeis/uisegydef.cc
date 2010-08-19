@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.34 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.35 2010-08-19 07:31:44 cvsranojay Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -34,7 +34,7 @@ static const char* rcsID = "$Id: uisegydef.cc,v 1.34 2010-03-25 03:55:14 cvsrano
 #include "pixmap.h"
 #include "uimsg.h"
 
-const char* uiSEGYFileSpec::sKeyLineNmToken = "#L";
+const char* uiSEGYFileSpec::sKeyLineNmToken()  { return "#L"; }
 static const char* sgyfileflt = "SEG-Y files (*.sgy *.SGY *.segy)";
 static const char* sKeyEnableByteSwapWrite = "Enable SEG-Y byte swap writing";
 static int enabbyteswapwrite = -1;

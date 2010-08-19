@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.26 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.27 2010-08-19 07:31:44 cvsranojay Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -122,12 +122,12 @@ uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio,
     FilePath fp( fnm );
     BufferString ext = fp.extension();
     if ( ext.isEmpty() ) ext = "sgy";
-    BufferString setupnm( "Imp "); setupnm += uiSEGYFileSpec::sKeyLineNmToken;
+    BufferString setupnm( "Imp "); setupnm += uiSEGYFileSpec::sKeyLineNmToken();
 
-    BufferString newfnm( uiSEGYFileSpec::sKeyLineNmToken );
+    BufferString newfnm( uiSEGYFileSpec::sKeyLineNmToken() );
     newfnm += "."; newfnm += ext;
     fp.setFileName( newfnm );
-    BufferString txt( "Input ('" ); txt += uiSEGYFileSpec::sKeyLineNmToken;
+    BufferString txt( "Input ('" ); txt += uiSEGYFileSpec::sKeyLineNmToken();
     txt += "' will become line name)";
     fnmfld_ = new uiFileInput( this, txt,
 		    uiFileInput::Setup(fp.fullPath()).forread(true) );
@@ -144,10 +144,10 @@ bool acceptOK( CallBacker* )
 	uiMSG().error( "Directory provided not usable" );
 	return false;
     }
-    if ( !strstr(fp.fullPath().buf(),uiSEGYFileSpec::sKeyLineNmToken) )
+    if ( !strstr(fp.fullPath().buf(),uiSEGYFileSpec::sKeyLineNmToken()) )
     {
 	BufferString msg( "The file name has to contain at least one '" );
-	msg += uiSEGYFileSpec::sKeyLineNmToken; msg += "'\n";
+	msg += uiSEGYFileSpec::sKeyLineNmToken(); msg += "'\n";
 	msg += "That will then become the line name";
 	uiMSG().error( msg );
 	return false;
@@ -185,7 +185,7 @@ bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
 bool doImp( const FilePath& fp )
 {
     BufferString mask( fp.fileName() );
-    replaceString( mask.buf(), uiSEGYFileSpec::sKeyLineNmToken, "*" );
+    replaceString( mask.buf(), uiSEGYFileSpec::sKeyLineNmToken(), "*" );
     FilePath maskfp( fp ); maskfp.setFileName( mask );
     const int nrtok = countCharacter( mask.buf(), '*' );
     DirList dl( fp.pathOnly(), DirList::FilesOnly, mask );

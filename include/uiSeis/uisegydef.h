@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.14 2010-03-12 14:58:23 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.15 2010-08-19 07:31:48 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ public:
 
     void		setInp2D(bool);
 
-    static const char*	sKeyLineNmToken;
+    static const char*	sKeyLineNmToken();
 
 protected:
 
