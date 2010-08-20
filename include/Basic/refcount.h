@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.16 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: refcount.h,v 1.17 2010-08-20 02:19:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,20 @@ public: \
 		    __refcount.refcount_++; \
 		    __refcount.unLock(); \
 		    refNotify(); \
+		} \
+    bool	refIfReffed() const \
+		{ \
+		    __refcount.lock(); \
+		    if ( !__refcount.refcount_ )  \
+		    { \
+			__refcount.unLock(); \
+			return false; \
+		    } \
+\
+		    __refcount.refcount_++; \
+		    __refcount.unLock(); \
+		    refNotify(); \
+		    return true; \
 		} \
     void	unRef() const \
 		{ \
