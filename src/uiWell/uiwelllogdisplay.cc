@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.57 2010-08-13 12:30:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.58 2010-08-20 15:02:27 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -576,7 +576,13 @@ void uiWellLogDisplay::drawZPicks()
 }
 
 
-
+float uiWellLogDisplay::mousePos() const
+{
+    const MouseEventHandler& meh = scene_->getMouseEventHandler();
+    if ( !meh.hasEvent() ) return 0;
+    const MouseEvent& ev = meh.event();
+    return logData(true).yax_.getVal( ev.pos().y );
+}
 
 
 
@@ -609,7 +615,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, const MultiID& wid )
     if ( s.withstratdisp_ )
 	setStratDisp();
     
-    control_ = new uiWellDisplayControl( *logDisplay(0), wd);
+    control_ = new uiWellDisplayControl( *logDisplay(0) );
 
     setHSpacing( 0 );
     setStretch( 2, 2 );
@@ -838,7 +844,7 @@ uiWellDisplayWin::uiWellDisplayWin( uiParent* p, Well::Data& wd )
     setStretch( 2, 2 );
     welldisp_.setInitialSize( uiSize(50,600) );
     const_cast<uiWellDisplayControl*>(
-	welldisp_.control())->infoChanged.notify(
+	welldisp_.control())->posChanged.notify(
 		mCB(this,uiWellDisplayWin,dispInfoMsg) );
     BufferString msg( "2D Viewer " );
     msg += wd.name();
