@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.101 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.102 2010-08-20 21:56:05 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -45,6 +45,8 @@ static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.101 2010-07-12 14:24:33
 //For parsing old pars
 #include "attribsel.h"
 #include "vistexture2.h"
+
+#define mMaxImageSize 32767
 
 mCreateFactoryEntry( visSurvey::Seis2DDisplay );
 
@@ -236,9 +238,13 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     triangles_->setPath( linepositions );
 
     setTraceNrRange( maxtrcnrrg_ );
-    setZRange( geometry_.zRange() );
-    updateRanges( false, true );
 
+    StepInterval<float> zrg = geometry_.zRange();
+    if ( zrg.nrSteps()+1 > mMaxImageSize )
+	zrg.stop = zrg.start + (mMaxImageSize-1) * zrg.step;
+    setZRange( zrg );
+	    
+    updateRanges( false, true );
     geomchanged_.trigger();
 }
 
@@ -304,9 +310,11 @@ void Seis2DDisplay::setTraceNrRange( const StepInterval<int>& trcrg )
     if ( !rg.width() || trcnrrg_==rg )
 	return;
 
-    trcnrrg_.start = rg.start;
-    trcnrrg_.stop = rg.stop;
+    trcnrrg_ = rg;
     trcnrrg_.step = trcrg.step;
+    if ( trcnrrg_.nrSteps()+1 > mMaxImageSize )
+	trcnrrg_.stop = trcnrrg_.start + (mMaxImageSize - 1)*trcrg.step;
+    
     updateVizPath();
 }
 
@@ -382,7 +390,7 @@ void Seis2DDisplay::setData( int attrib,
     const int arrzsz = arrayzrg.nrSteps()+1;
 
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, arr,
-	    Array2DImpl<float>( trcnrrg_.width()+1, arrzsz ) );
+	    Array2DImpl<float>( trcnrrg_.nrSteps()+1, arrzsz ) );
     if ( !arr->isOK() )
 	return;
 
@@ -418,7 +426,7 @@ void Seis2DDisplay::setData( int attrib,
 	    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
 	    cs.hrg.start.crl = trcnrrg_.start;
 	    cs.hrg.stop.crl = trcnrrg_.stop;
-	    cs.hrg.step.crl = 1;
+	    cs.hrg.step.crl = trcnrrg_.step; //or 1 if steps are different;
 	    assign( cs.zrg, curzrg_ );
 	    if ( voiidx_ < 0 )
 		voiidx_ = datatransform_->addVolumeOfInterest(
@@ -453,8 +461,8 @@ void Seis2DDisplay::setData( int attrib,
 	    }
 	}
 
-	const int sz0 = usedarr->info().getSize(0) * (resolution_+1);
-	const int sz1 = usedarr->info().getSize(1) * (resolution_+1);
+	int sz0 = usedarr->info().getSize(0) * (resolution_+1);
+	int sz1 = usedarr->info().getSize(1) * (resolution_+1);
 	if ( texture_ )
 	{
 	    Array2DSlice<float> slice( *usedarr );
@@ -474,6 +482,13 @@ void Seis2DDisplay::setData( int attrib,
 	}
 	else
 	{
+	    //If the size is too big to display, use low resolution only
+	    if ( sz0 > mMaxImageSize && resolution_ > 0 )
+		sz0 = usedarr->info().getSize(0);
+	    
+	    if ( sz1 > mMaxImageSize && resolution_ > 0 )
+		sz1 = usedarr->info().getSize(1);
+			
 	    mDeclareAndTryAlloc( float*, tarr, float[sz0*sz1] );
 	    
 	    if ( resolution_==0 )
