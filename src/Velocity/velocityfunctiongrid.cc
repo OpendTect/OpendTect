@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.10 2010-08-20 03:20:00 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.11 2010-08-20 03:41:47 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -452,12 +452,6 @@ void GriddedSource::getSources( TypeSet<MultiID>& mids ) const
 
 const ObjectSet<FunctionSource>& GriddedSource::getSources() const
 { return datasources_; }
-
-
-void GriddedSource::getAvailablePositions( HorSampling& hrg ) const
-{
-    hrg = HorSampling(true);
-}
 
 
 GriddedFunction* GriddedSource::createFunction()

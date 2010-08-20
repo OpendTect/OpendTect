@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctiongrid.h,v 1.5 2010-08-20 03:20:00 cvskris Exp $
+ RCS:		$Id: velocityfunctiongrid.h,v 1.6 2010-08-20 03:41:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -73,7 +73,6 @@ public:
 
     void		setSource(ObjectSet<FunctionSource>&);
     void		setSource(const TypeSet<MultiID>&);
-    void		getAvailablePositions(HorSampling&) const;
     void		getSources(TypeSet<MultiID>&) const;
 
     const ObjectSet<FunctionSource>&	getSources() const;

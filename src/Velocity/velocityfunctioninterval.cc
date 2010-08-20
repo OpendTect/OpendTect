@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctioninterval.cc,v 1.5 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: velocityfunctioninterval.cc,v 1.6 2010-08-20 03:41:47 cvskris Exp $";
 
 #include "velocityfunctioninterval.h"
 
@@ -104,13 +104,6 @@ void IntervalSource::setInput( FunctionSource* input )
 		mCB( this, IntervalSource, sourceChangeCB ));
 	}
     }
-}
-
-
-void IntervalSource::getAvailablePositions( HorSampling& hrg ) const
-{
-    if ( inputsource_ )
-	inputsource_->getAvailablePositions( hrg );
 }
 
 

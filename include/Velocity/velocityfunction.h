@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunction.h,v 1.6 2010-08-20 02:38:04 cvskris Exp $
+ RCS:		$Id: velocityfunction.h,v 1.7 2010-08-20 03:41:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,6 @@ ________________________________________________________________________
 namespace Attrib { class DataHolder; };
 
 class BinIDValueSet;
-class HorSampling;
 
 
 namespace Vel
@@ -88,7 +87,6 @@ public:
     virtual void		getSurroundingPositions(const BinID&,
 				    BinIDValueSet&) const;
     virtual void		getAvailablePositions(BinIDValueSet&) const {}
-    virtual void		getAvailablePositions(HorSampling&) const {}
 
     RefMan<const Function>	getFunction(const BinID&);
     virtual Function*		createFunction(const BinID&)		= 0;

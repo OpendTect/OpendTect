@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunction.cc,v 1.5 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunction.cc,v 1.6 2010-08-20 03:41:47 cvskris Exp $";
 
 #include "velocityfunction.h"
 
@@ -132,64 +132,7 @@ void FunctionSource::getSurroundingPositions( const BinID& bid,
     BinIDValueSet mybids( 0, false );
     getAvailablePositions( mybids );
     if ( !mybids.isEmpty() )
-    {
-	bids.append( mybids );
-	return;
-	//PositionNeighborFinder<BinID,int> neighborfinder( 2 );
-	//neighborfinder.setCenter( bid );
-	//for ( int idx=mybids.size()-1; idx>=0; idx-- )
-	    //neighborfinder.addPosition( mybids[idx] );
-//
-	//mybids.erase();
-	//neighborfinder.getPositions( mybids );
-//
-    }
-
-    HorSampling hs;
-    getAvailablePositions( hs );
-
-    if ( hs.includes( bid ) )
-	bids.add( bid );
-    else
-    {
-	const StepInterval<int> inlrg = hs.inlRange();
-	const StepInterval<int> crlrg = hs.crlRange();
-	if ( inlrg.includes(bid.inl) && crlrg.includes(bid.crl) )
-	{
-	    const float finlidx = inlrg.getfIndex(bid.inl);
-	    const float fcrlidx = crlrg.getfIndex(bid.crl);
-	    const int previnl = inlrg.atIndex( (int) finlidx );
-	    const int prevcrl = crlrg.atIndex( (int) fcrlidx );
-
-	    for ( int inlidx=-1; inlidx<=2; inlidx++ )
-	    {
-		const int inl = previnl+inlidx * inlrg.step;
-		if ( !inlrg.includes(inl) )
-		    continue;
-
-		for ( int crlidx=-1; crlidx<=2; crlidx++ )
-		{
-		    const int crl = prevcrl+crlidx * crlrg.step;
-		    if ( !crlrg.includes(crl) )
-			continue;
-
-		    bids.add( BinID(inl,crl) );
-		}
-	    }
-	}
-	else if ( inlrg.includes(bid.inl) )
-	{
-	    const int crl = bid.crl<crlrg.start ? crlrg.start : crlrg.stop;
-	    for ( int inl=inlrg.start; inl<=inlrg.stop; inl+=inlrg.step )
-		bids.add( BinID(inl,crl) );
-	}
-	else if ( crlrg.includes(bid.crl) )
-	{
-	    const int inl = bid.inl<inlrg.start ? inlrg.start : inlrg.stop;
-	    for ( int crl=crlrg.start; crl<=crlrg.stop; crl+=crlrg.step )
-		bids.add( BinID(inl,crl) );
-	}
-    }
+	bids.append( mybids ); //Filter?
 }
 
 
