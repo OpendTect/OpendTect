@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.15 2010-08-17 19:59:08 cvskris Exp $
+ RCS:		$Id: gridder2d.h,v 1.16 2010-08-20 01:37:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,6 +165,8 @@ protected:
     Triangle2DInterpolator*	interpolator_;
     Interval<float>		xrg_;
     Interval<float>		yrg_;
+
+    Coord			center_;
 };
 
 
