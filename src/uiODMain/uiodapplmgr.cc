@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.384 2010-08-13 07:35:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.385 2010-08-20 02:31:26 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -380,13 +380,10 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc = 
 			    Attrib::ExtAttrFact().create( 0, myas, false );
-
 		if ( !calc )
 		{
-		    BufferString errstr = "Selected attribute '";
-		    errstr += myas.userRef();
-		    errstr += "' is not present in the set\n";
-		    errstr += "and cannot be created";
+		    BufferString errstr( "Selected attribute '", myas.userRef(),
+			 "'\nis not present in the set and cannot be created" );
 		    uiMSG().error( errstr );
 		    return false;
 		}
@@ -409,8 +406,9 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    const DataPack::ID newid = attrserv_->createOutput( cs, cacheid );
 	    if ( newid == DataPack::cNoID() )
 	    {
-		visserv_->setSelSpec( visid, attrib, Attrib::SelSpec() ); // clearing texture
-		visserv_->setSelSpec( visid, attrib, myas ); // set back original selspec
+		// clearing texture and set back original selspec
+		visserv_->setSelSpec( visid, attrib, Attrib::SelSpec() );
+		visserv_->setSelSpec( visid, attrib, myas );
 		return false;
 	    }
 
