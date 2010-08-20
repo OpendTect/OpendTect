@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.45 2010-02-17 17:18:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.46 2010-08-20 02:24:47 cvskris Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -295,6 +295,12 @@ bool DAGTriangleTree::getTriangle( const Coord& pt, int& dupid,
 
     if ( ti0==cNoVertex() && ti1==cNoVertex() )
 	return false;
+
+    if ( ti0==cNoVertex() )
+    {
+	ti0 = ti1;
+	ti1 = cNoVertex();
+    }
 
     vertices += triangles_[ti0].coordindices_[0];
     vertices += triangles_[ti0].coordindices_[1];
