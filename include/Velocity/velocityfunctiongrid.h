@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctiongrid.h,v 1.4 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: velocityfunctiongrid.h,v 1.5 2010-08-20 03:20:00 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "binidvalset.h"
 #include "samplingdata.h"
 #include "thread.h"
 #include "velocityfunction.h"
@@ -48,13 +49,14 @@ protected:
 
     bool		computeVelocity(float z0, float dz, int nr,
 					float* res ) const;
-    const Function*	getOldFunction(const BinID& bid, int source);
+    const Function*	getInputFunction(const BinID& bid,int& source);
 
     ObjectSet<const Function>		velocityfunctions_;
     TypeSet<int>			sources_;
-    TypeSet<Coord>			points_;
 
     Gridder2D*				gridder_;
+
+    mutable TypeSet<float>		gridvalues_;
 };
 
 
@@ -88,16 +90,22 @@ protected:
     friend		class GriddedFunction;
     GriddedFunction*	createFunction(const BinID&);
     			~GriddedSource();
-    static void		initGridder( Gridder2D*	);
+    bool		initGridder();
     static const char*	sKeyGridder() { return "Gridder"; }
 
     void		sourceChangeCB(CallBacker*);
 
-    ObjectSet<FunctionSource>	datasources_;
+    ObjectSet<FunctionSource>		datasources_;
 
     Notifier<GriddedSource>		notifier_;
     BinID				changebid_;
     Gridder2D*				gridder_;
+    bool				gridderinited_;
+
+    BinIDValueSet			sourcepos_;		//All sources
+
+    TypeSet<BinID>			gridsourcebids_;	//Filtered
+    TypeSet<Coord>			gridsourcecoords_;	//Filtered
 };
 
 

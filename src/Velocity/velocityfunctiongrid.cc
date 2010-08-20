@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.9 2010-08-18 06:05:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.10 2010-08-20 03:20:00 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.9 2010-08-18 06:05:
 #include "iopar.h"
 #include "keystrs.h"
 #include "survinfo.h"
+#include "task.h"
 
 namespace Vel
 {
@@ -48,72 +49,67 @@ bool GriddedFunction::fetchSources()
     mDynamicCastGet( GriddedSource&, gvs, source_ );
     ObjectSet<FunctionSource>& velfuncsources = gvs.datasources_;
 
-    const Coord workpos = SI().transform( bid_ );
-    if ( gridder_ && !gridder_->setGridPoint( workpos ) ) 
-	return false;
-
-    const bool wantsall = gridder_ && gridder_->wantsAllPoints();
-
     ObjectSet<const Function> velfuncs;
     TypeSet<int> velfuncsource;
-    TypeSet<Coord> points;
-    bool perfectfound = false;
 
-    for ( int idx=0; idx<velfuncsources.size() && !perfectfound; idx++ )
+    //Search for perfect fit (i.e no gridding)
+    if ( gvs.sourcepos_.valid(bid_) )
     {
-	BinIDValueSet bids( 0, false );
-	velfuncsources[idx]->getSurroundingPositions( bid_, bids );
-
-	if ( bids.isEmpty() )
-	    continue;
-
-	BinIDValueSet::Pos pos;
-
-	while ( bids.next( pos ) )
+	int funcsource;
+	RefMan<const Function> velfunc = getInputFunction( bid_, funcsource );
+	if  ( velfunc )
 	{
-	    const BinID curbid = bids.getBinID(pos);
-	    const Coord curpos = SI().transform( curbid );
-	    if ( gridder_ && !gridder_->isPointUsable(workpos,curpos) )
-		continue;
-
-	    if ( !gridder_ && curbid!=bid_ )
-		continue;
-
-	    RefMan<const Function> velfunc = getOldFunction( curbid, idx );
-
-	    if ( !velfunc )
-		velfunc = velfuncsources[idx]->getFunction( curbid );
-
-	    if ( !velfunc )
-		continue;
-
-	    if ( curbid==bid_ )
-	    {
-		perfectfound = true;
-		deepUnRef(velfuncs);
-		velfuncsource.erase();
-		points.erase();
-	    }
-		    
 	    velfunc->ref();
 	    velfuncs += velfunc;
-	    points += curpos;
-	    velfuncsource += idx;
-
-	    if ( perfectfound )
-		break;
+	    velfuncsource += funcsource;
 	}
+    }
+
+    if ( !velfuncs.size() ) //no perfect fit
+    {
+	const Coord workpos = SI().transform( bid_ );
+	if ( gridder_ && (!gridder_->setGridPoint( workpos ) || 
+	     !gridder_->init()) )
+	    return false;
+
+	const TypeSet<BinID>& binids = gvs.gridsourcebids_;
+	const TypeSet<int>& gridinput = gridder_->usedValues();
+	for ( int idx=0; idx<gridinput.size(); idx++ )
+	{
+	    const BinID curbid = binids[gridinput[idx]];
+
+	    int funcsource;
+	    RefMan<const Function> velfunc = getInputFunction(curbid,funcsource);
+	    if ( !velfunc )
+	    {
+		pErrMsg("Error");
+		deepUnRef( velfuncs );
+		return false;
+	    }
+
+	    velfunc->ref();
+	    velfuncs += velfunc;
+	    velfuncsource += funcsource;
+	}
+    }
+
+    if ( !velfuncs.size() )
+	return false;
+
+    if ( velfuncs.size()>1 && !gridder_ )
+    {
+	deepUnRef( velfuncs );
+	return false;
     }
 
     deepUnRef( velocityfunctions_ );
     velocityfunctions_ = velfuncs;
     sources_ = velfuncsource;
-    points_ = points;
 
-    if ( !gridder_ )
-	return perfectfound;
+    if ( !gridvalues_.size()!=gvs.gridsourcecoords_.size() )
+	gridvalues_.setSize( gvs.gridsourcecoords_.size(), mUdf(float) );
 
-    return points_.size() && gridder_->setPoints(points_) && gridder_->init();
+    return true;
 }
 
 
@@ -139,15 +135,33 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
 
 
 const Function*
-GriddedFunction::getOldFunction( const BinID& bid, int source ) 
+GriddedFunction::getInputFunction( const BinID& bid, int& funcsource ) 
 { 
-    for ( int idx=velocityfunctions_.size()-1; idx>=0; idx-- )
+    mDynamicCastGet( GriddedSource&, gvs, source_ );
+    ObjectSet<FunctionSource>& velfuncsources = gvs.datasources_;
+
+    const Function* velfunc = 0;
+    for ( funcsource=0; funcsource<velfuncsources.size();
+	  funcsource++ )
     {
-	if ( sources_[idx]==source && velocityfunctions_[idx]->getBinID()==bid )
-	    return velocityfunctions_[idx];
+	for ( int idx=velocityfunctions_.size()-1; idx>=0; idx-- )
+	{
+	    if ( sources_[idx]==funcsource &&
+		    velocityfunctions_[idx]->getBinID()==bid )
+	    {
+		velfunc = velocityfunctions_[idx];
+		break;
+	    }
+	}
+
+	if ( !velfunc )
+	    velfunc = velfuncsources[funcsource]->createFunction( bid_ );
+	    //velfunc = velfuncsources[funcsource]->getFunction( bid_ );
+
+	if ( velfunc ) break;
     }
 
-    return 0;
+    return velfunc;
 }
 
 
@@ -161,32 +175,25 @@ StepInterval<float> GriddedFunction::getAvailableZ() const
 bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 				       float* res ) const
 {
-    TypeSet<float> values( velocityfunctions_.size(), mUdf(float) );
-    TypeSet<int> usedpts;
-    for ( int idy=0; idy<velocityfunctions_.size(); idy++ )
-    {
-	if ( gridder_ && !gridder_->isPointUsed( idy ) )
-	    continue;
-
-	usedpts += idy;
-    }
+    mDynamicCastGet( GriddedSource&, gvs, source_ );
+    const bool nogridding = velocityfunctions_.size()==1;
 
     for ( int idx=0; idx<nr; idx++ )
     {
 	const float z = z0+idx*dz;
-	for ( int idy=0; idy<usedpts.size(); idy++ )
+	if ( nogridding )
 	{
-	    values[usedpts[idy]] =
-		velocityfunctions_[usedpts[idy]]->getVelocity( z );
+	    res[idx] = velocityfunctions_[0]->getVelocity( z );
+	    continue;
 	}
 
-	if ( gridder_ )	
-	{
-	    gridder_->setValues( values, false );
-	    res[idx] = gridder_->getValue();
-	}
-	else
-	    res[idx] = values[0];
+	const TypeSet<int>& usedpoints = gridder_->usedValues();
+	for ( int idy=usedpoints.size()-1; idy>=0; idy-- )
+	    gridvalues_[usedpoints[idy]] =
+		velocityfunctions_[idy]->getVelocity( z );
+	    
+	gridder_->setValues( gridvalues_, false );
+	res[idx] = gridder_->getValue();
     }
 
     return true;
@@ -196,9 +203,8 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 GriddedSource::GriddedSource()
     : notifier_( this )
     , gridder_( new TriangulatedGridder2D )
-{
-    initGridder( gridder_ );
-}
+    , sourcepos_( 0, false )
+{ }
 
 
 GriddedSource::~GriddedSource()
@@ -226,8 +232,100 @@ const VelocityDesc& GriddedSource::getDesc() const
 }
 
 
-void GriddedSource::initGridder( Gridder2D* gridder )
+class GridderSourceFilter : public ParallelTask
 {
+public:
+GridderSourceFilter( const BinIDValueSet& bvs, TypeSet<BinID>& bids,
+		     TypeSet<Coord>& coords )
+    : bvs_( bvs )
+    , bids_( bids )
+    , coords_( coords )
+    , moretodo_( true )
+{}
+
+
+od_int64 nrIterations() const { return bvs_.totalSize(); }
+bool doWork(od_int64 start, od_int64 stop, int )
+{
+    TypeSet<BinID> sourcebids;
+    const BinID step( SI().inlRange(false).step, SI().crlRange(false).step );
+    while ( true )
+    {
+	TypeSet<BinIDValueSet::Pos> positions;
+	lock_.lock();
+	if ( moretodo_ )
+	{
+	    for ( int idx=0; idx<10000; idx++ )
+	    {
+		if ( !bvs_.next(pos_) )
+		{
+		    moretodo_ = false;
+		    break;
+		}
+
+		positions += pos_;
+	    }
+	}
+
+	lock_.unLock();
+	if ( !positions.size() )
+	    break;
+
+	for ( int idx=positions.size()-1; idx>=0; idx-- )
+	{
+	    const BinID bid = bvs_.getBinID(positions[idx]);
+	    BinID neighbor( bid.inl-step.inl, bid.crl-step.crl );
+	    if ( !bvs_.valid(neighbor) ) { sourcebids+=bid; continue; }
+	    neighbor.crl += step.crl;
+	    if ( !bvs_.valid(neighbor) ) { sourcebids+=bid; continue; }
+	    neighbor.crl += step.crl;
+	    if ( !bvs_.valid(neighbor) ) { sourcebids+=bid; continue; }
+
+	    neighbor.crl = bid.crl-step.crl;
+	    neighbor.inl += step.inl;
+	    if ( !bvs_.valid(neighbor) ) { sourcebids+=bid; continue; }
+	    neighbor.crl += 2*step.crl;
+	    if ( !bvs_.valid(neighbor) ) { sourcebids+=bid; continue; }
+
+	    neighbor.crl = bid.crl-step.crl;
+	    neighbor.inl += step.inl;
+	    if ( !bvs_.valid(neighbor) ) { sourcebids+=bid; continue; }
+	    neighbor.crl += step.crl;
+	    if ( !bvs_.valid(neighbor) ) { sourcebids+=bid; continue; }
+	    neighbor.crl += step.crl;
+	    if ( !bvs_.valid(neighbor) ) { sourcebids+=bid; continue; }
+	}
+    }
+
+    TypeSet<Coord> coords;
+
+    for ( int idx=0; idx<sourcebids.size(); idx++ )
+	coords += SI().transform( sourcebids[idx] );
+
+    Threads::MutexLocker lock( lock_ );
+    bids_.append( sourcebids );
+    coords_.append( coords );
+
+    return true;
+}
+protected:
+
+    const BinIDValueSet& bvs_;
+    BinIDValueSet::Pos  pos_;
+
+    TypeSet<BinID>&     bids_;
+    TypeSet<Coord>&     coords_;
+    bool                moretodo_;
+
+    Threads::Mutex      lock_;
+};
+
+
+bool GriddedSource::initGridder()
+{
+    if ( gridderinited_ )
+	return true;
+
     const Interval<int> inlrg = SI().inlRange( true );
     const Interval<int> crlrg = SI().crlRange( true );
     Interval<float> xrg, yrg;
@@ -244,7 +342,27 @@ void GriddedSource::initGridder( Gridder2D* gridder )
     c = SI().transform( BinID(inlrg.stop,crlrg.stop) );
     xrg.include( c.x ); yrg.include( c.y );
 
-    gridder->setGridArea( xrg, yrg );
+    gridder_->setGridArea( xrg, yrg );
+
+    sourcepos_.empty();
+    gridsourcecoords_.erase();
+    gridsourcebids_.erase();
+
+
+    for ( int idx=0; idx<datasources_.size(); idx++ )
+    {
+	BinIDValueSet bids( 0, false );
+	datasources_[idx]->getAvailablePositions( bids );
+
+	sourcepos_.append( bids );
+    }
+
+    GridderSourceFilter filter( sourcepos_, gridsourcebids_, gridsourcecoords_ );
+    if ( !filter.execute( true ) || !gridder_->setPoints( gridsourcecoords_ ) )
+	return false;
+
+    gridderinited_ = true;
+    return true;
 }
 
 
@@ -259,7 +377,7 @@ void GriddedSource::setGridder( Gridder2D* ng )
     delete gridder_;
     gridder_ = ng;
 
-    initGridder( gridder_ );
+    initGridder();
 
     functionslock_.readLock();
 
