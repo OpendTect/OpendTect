@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.41 2010-08-05 11:48:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.42 2010-08-20 15:02:48 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -188,7 +188,6 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 void uiWellMarkersDispProperties::resetProps( Well::DisplayProperties::Markers& pp )
 {
     mrkprops() = pp;
-    propChg(0);
 }
 
 
@@ -355,7 +354,6 @@ void uiWellLogDispProperties::resetProps( Well::DisplayProperties::Log& pp )
 {
     logprops() = pp;
     recoverProp();
-    propChg(0);
 }
 
 
@@ -369,7 +367,7 @@ void uiWellLogDispProperties::doPutToScreen()
     NotifyStopper nsrev( revertlogfld_->activated );
     
     revertlogfld_->setChecked( logprops().islogreverted_ ); 
-    logsfld_->box()-> setText( logprops().name_ );
+    logsfld_->box()->setText( logprops().name_ );
     rangefld_->setValue( logprops().range_ );
     colorrangefld_->setValue( logprops().fillrange_ );
     filllogsfld_->box()-> setText( logprops().fillname_ );
@@ -478,7 +476,7 @@ void uiWellLogDispProperties::isStyleChanged( CallBacker* )
 
 void uiWellLogDispProperties::recoverProp( )
 {
-    doPutToScreen();
+    putToScreen();
     logSel(0);
     isSeismicSel(0);
     choiceSel(0);
@@ -616,7 +614,7 @@ void uiWellLogDispProperties::calcRange( const char* lognm,
 }
 
 
-void uiWellLogDispProperties::setWellStyleOnly( bool yn )
+void uiWellLogDispProperties::disableSeisStyle( bool yn )
 {
     stylefld_->display( !yn );
     seiscolorfld_->display( !yn );

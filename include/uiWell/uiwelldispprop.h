@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.23 2010-08-05 11:48:30 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.24 2010-08-20 15:02:48 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,7 @@ public:
     
     void 		resetProps(Well::DisplayProperties::Log&);
     void		setLogSet(const Well::LogSet*);
-    void		setWellStyleOnly(bool);
+    void		disableSeisStyle(bool);
 
 protected:
 
