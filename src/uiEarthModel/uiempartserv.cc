@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.206 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.207 2010-08-20 11:23:26 cvsnageswara Exp $";
 
 #include "uiempartserv.h"
 
@@ -50,6 +50,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.206 2010-07-12 14:24:33 cvs
 #include "uiarray2dchg.h"
 #include "uiarray2dinterpol.h"
 #include "uichangesurfacedlg.h"
+#include "uiempreloaddlg.h"
 #include "uiexpfault.h"
 #include "uiexphorizon.h"
 #include "uigeninputdlg.h"
@@ -72,6 +73,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.206 2010-07-12 14:24:33 cvs
 #include "uihorsavefieldgrp.h"
 
 #include <math.h>
+
 
 const int uiEMPartServer::evDisplayHorizon()	    { return 0; }
 const int uiEMPartServer::evRemoveTreeObject()	    { return 1; }
@@ -1256,4 +1258,11 @@ void uiEMPartServer::signalTenpObjAdd( const EM::ObjectID& id )
 void uiEMPartServer::signalTempObjAbtToDel( const EM::ObjectID& id )
 {
     tempobjAbtToDel.trigger( id );
+}
+
+
+void uiEMPartServer::managePreLoad()
+{
+    uiHorizonPreLoadDlg dlg( appserv().parent(), "Pre-loaded horizons" );
+    dlg.go();
 }

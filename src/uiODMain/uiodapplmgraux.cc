@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.21 2010-06-24 15:16:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.22 2010-08-20 11:23:26 cvsnageswara Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -262,6 +262,8 @@ void uiODApplMgrDispatcher::manPreLoad( int iot )
 	case uiODApplMgr::Seis:
 	    am_.seisserv_->managePreLoad();
 	break;
+	case uiODApplMgr::Hor:
+	    am_.emserv_->managePreLoad();
 	default:
 	break;
     }

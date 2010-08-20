@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.215 2010-07-13 10:49:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.216 2010-08-20 11:23:26 cvsnageswara Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -200,6 +200,7 @@ void uiODMenuMgr::fillSurveyMenu()
 
     preloadmnu_ = new uiPopupMenu( &appl_, "&Pre-load");
     mInsertItem( preloadmnu_, "&Seismics ...", mPreLoadSeisMnuItm );
+    mInsertItem( preloadmnu_, "&Horizons ...", mPreLoadHorMnuItm );
     surveymnu_->insertItem( preloadmnu_ );
 
     surveymnu_->insertSeparator();
@@ -966,6 +967,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManPDFMnuItm:			mDoOp(Man,PDF,0); break;
 
     case mPreLoadSeisMnuItm:	applMgr().manPreLoad(uiODApplMgr::Seis); break;
+    case mPreLoadHorMnuItm:	applMgr().manPreLoad(uiODApplMgr::Hor); break;
     case mExitMnuItm: 		appl_.exit(); break;
     case mEditAttrMnuItm: 	applMgr().editAttribSet(); break;
     case mEdit2DAttrMnuItm: 	applMgr().editAttribSet(true); break;

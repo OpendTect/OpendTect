@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.65 2010-06-24 15:16:51 cvsbert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.66 2010-08-20 11:23:26 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,6 +113,7 @@ ________________________________________________________________________
 #define mManStratMnuItm		(mFileManMnu + 95)
 #define mManPDFMnuItm		(mFileManMnu + 100)
 #define mPreLoadSeisMnuItm	(mFilePreLoadMnu + 10)
+#define mPreLoadHorMnuItm	(mFilePreLoadMnu + 11)
 
 
 /* 'Processing' menu */

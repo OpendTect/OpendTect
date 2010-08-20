@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.99 2010-06-24 10:55:36 cvsumesh Exp $
+ RCS:           $Id: uiempartserv.h,v 1.100 2010-08-20 11:23:26 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,6 +150,7 @@ public:
     CNotifier<uiEMPartServer,const EM::ObjectID&>	tempobjAbtToDel;
     void		signalTempObjAbtToDel(const EM::ObjectID&);  
 
+    void		managePreLoad();
 protected:
 
     void		selectSurfaces(ObjectSet<EM::EMObject>&,
