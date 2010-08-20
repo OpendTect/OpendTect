@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.22 2010-08-17 19:59:08 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.23 2010-08-20 02:33:48 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -248,6 +248,7 @@ TriangulatedGridder2D::TriangulatedGridder2D()
     , interpolator_( 0 )  
     , xrg_( mUdf(float), mUdf(float) )
     , yrg_( mUdf(float), mUdf(float) )
+    , center_( 0, 0 )
 {}
 
 
@@ -257,6 +258,7 @@ TriangulatedGridder2D::TriangulatedGridder2D(
     , interpolator_( 0 )  
     , xrg_( b.xrg_ )
     , yrg_( b.yrg_ )
+    , center_( b.center_ )
 {
     if ( b.triangles_ )
     {
@@ -316,46 +318,10 @@ bool TriangulatedGridder2D::init()
     }
 
     if ( !triangles_ )
-    {
-	triangles_ = new DAGTriangleTree;
-	Interval<double> xrg, yrg;
-	if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) )
-	{
-	    delete triangles_;
-	    triangles_ = 0;
-	    return false;
-	}
+	return false;
 
-	if ( !mIsUdf(xrg_.start) ) xrg.include( xrg_.start );
-	if ( !mIsUdf(xrg_.stop) ) xrg.include( xrg_.stop );
-	if ( !mIsUdf(yrg_.start) ) yrg.include( yrg_.start );
-	if ( !mIsUdf(yrg_.stop) ) yrg.include( yrg_.stop );
-
-	if ( !triangles_->setCoordList( const_cast<TypeSet<Coord>*>(points_),
-					OD::UsePtr ) ||
-	     !triangles_->setBBox( xrg, yrg ) )
-	{
-	    delete triangles_;
-	    triangles_ = 0;
-	    return false;
-	}
-
-	ParallelDTriangulator triangulator( *triangles_ );
-	triangulator.dataIsRandom( false ); 
-	if ( !triangulator.execute( false ) )
-	{
-	    delete triangles_;
-	    triangles_ = 0;
-	    return false;
-	}
-    
-	if ( interpolator_ )
-    	    delete interpolator_;
-	
-	interpolator_ = new Triangle2DInterpolator( *triangles_ );
-    }
-
-    if ( !interpolator_->computeWeights(gridpoint_,usedvalues_,weights_) )
+    if ( !interpolator_->computeWeights(gridpoint_-center_,usedvalues_,
+					weights_) )
 	return false;
 
     inited_ = true;
@@ -372,10 +338,60 @@ bool TriangulatedGridder2D::setPoints( const TypeSet<Coord>& pts )
 	return false;
 
     delete triangles_;
-    triangles_ = 0;
+    triangles_ = new DAGTriangleTree;
+    Interval<double> xrg, yrg;
+    if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) ) 
+    {
+	delete triangles_;
+	triangles_ = 0;
+	return false;
+    }
+
+    if ( !mIsUdf(xrg_.start) ) xrg.include( xrg_.start );
+    if ( !mIsUdf(xrg_.stop) ) xrg.include( xrg_.stop );
+    if ( !mIsUdf(yrg_.start) ) yrg.include( yrg_.start );
+    if ( !mIsUdf(yrg_.stop) ) yrg.include( yrg_.stop );
+
+    TypeSet<Coord>* translatedpoints =
+	new TypeSet<Coord>( points_->size(), Coord::udf() );
+
+    center_.x = xrg.center();
+    center_.y = yrg.center();
+
+    for ( int idx=points_->size()-1; idx>=0; idx-- )
+	(*translatedpoints)[idx] = (*points_)[idx]-center_;
+
+    if ( !triangles_->setCoordList( translatedpoints, OD::TakeOverPtr ) )
+    {
+	delete triangles_;
+	triangles_ = 0;
+	return false;
+    }
+
+    xrg.start -= center_.x;
+    xrg.stop -= center_.x;
+    yrg.start -= center_.y;
+    yrg.stop -= center_.y;
+
+    if ( !triangles_->setBBox( xrg, yrg ) )
+    {
+	delete triangles_;
+ 	triangles_ = 0;
+	return false;
+    }
+    
+    ParallelDTriangulator triangulator( *triangles_ );
+    triangulator.dataIsRandom( false );
+    if ( !triangulator.execute( false ) )
+    {
+	delete triangles_;
+	triangles_ = 0;
+	return false;
+    }
+
+    delete interpolator_;
+    
+    interpolator_ = new Triangle2DInterpolator( *triangles_ );
 
     return true;
 }
-
-
-
