@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctionvolume.h,v 1.6 2010-08-17 20:32:46 cvskris Exp $
+ RCS:		$Id: velocityfunctionvolume.h,v 1.7 2010-08-20 03:41:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -73,7 +73,6 @@ public:
 
     VolumeFunction*		createFunction(const BinID&);
 
-    void			getAvailablePositions(HorSampling&) const;
     void			getAvailablePositions(BinIDValueSet&) const;
     bool			getVel(const BinID&,SamplingData<float>&,
 	    			       TypeSet<float>&);
@@ -83,8 +82,12 @@ public:
 protected:
     static FunctionSource* create(const MultiID&);
     				~VolumeFunctionSource();
-    
-    SeisTrcReader*		velreader_;
+   
+    SeisTrcReader*		getReader();
+
+    ObjectSet<SeisTrcReader>	velreader_;
+    ObjectSet<void>		threads_;
+
     Threads::Mutex		readerlock_;
     bool			zit_;
     VelocityDesc		desc_;

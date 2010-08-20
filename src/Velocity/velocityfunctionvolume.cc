@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.10 2010-08-18 06:05:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.11 2010-08-20 03:41:22 cvskris Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -156,13 +156,14 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
 
 
 VolumeFunctionSource::VolumeFunctionSource()
-    : velreader_( 0 )
-    , zit_( SI().zIsTime() )
+    : zit_( SI().zIsTime() )
 {}
 
 
 VolumeFunctionSource::~VolumeFunctionSource()
-{ delete velreader_; }
+{
+    deepErase( velreader_ );
+}
 
 
 bool VolumeFunctionSource::zIsTime() const
@@ -171,8 +172,8 @@ bool VolumeFunctionSource::zIsTime() const
 
 bool VolumeFunctionSource::setFrom( const MultiID& velid )
 {
-    delete velreader_;
-    velreader_ = 0;
+    deepErase( velreader_ );
+    threads_.erase();
 
     PtrMan<IOObj> velioobj = IOM().get( velid );
     if ( !velioobj )
@@ -180,14 +181,6 @@ bool VolumeFunctionSource::setFrom( const MultiID& velid )
 
     if ( !desc_.usePar( velioobj->pars() ) )
         return false;
-
-    velreader_ = new SeisTrcReader( velioobj );
-    if ( !velreader_->prepareWork() )
-    {
-	delete velreader_;
-	velreader_ = 0;
-	return false;
-    }
 
     zit_ = SI().zIsTime();
     velioobj->pars().getYN( sKeyZIsTime(), zit_ );
@@ -198,13 +191,43 @@ bool VolumeFunctionSource::setFrom( const MultiID& velid )
 }
 
 
+SeisTrcReader* VolumeFunctionSource::getReader()
+{
+    Threads::MutexLocker lock( readerlock_ );
+    void* thread = Threads::Thread::currentThread();
+
+    const int idx = threads_.indexOf( thread );
+    if ( threads_.validIdx(idx) )
+	return velreader_[idx];
+
+    PtrMan<IOObj> velioobj = IOM().get( mid_ );
+    if ( !velioobj )
+	return 0;
+
+    SeisTrcReader* velreader = new SeisTrcReader( velioobj );
+    if ( !velreader->prepareWork() )
+    {
+	delete velreader;
+	return 0;
+    }
+
+    velreader_ += velreader;
+    threads_ += thread;
+
+    return velreader;
+}
+
+
 void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
 {
-    if ( !velreader_ || !velreader_->seisTranslator() )
+    VolumeFunctionSource* myself = const_cast<VolumeFunctionSource*>(this);
+    SeisTrcReader* velreader = myself->getReader();
+
+    if ( !velreader || !velreader->seisTranslator() )
 	return;
 
     const SeisPacketInfo& packetinfo =
-	velreader_->seisTranslator()->packetInfo();
+	velreader->seisTranslator()->packetInfo();
 
     if ( !packetinfo.cubedata )
 	return;
@@ -227,34 +250,18 @@ void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
 }
 
 
-void VolumeFunctionSource::getAvailablePositions(
-	HorSampling& hrg ) const
-{
-    if ( !velreader_ || !velreader_->seisTranslator() )
-	return;
-
-    const SeisPacketInfo& packetinfo =
-	velreader_->seisTranslator()->packetInfo();
-
-    if ( packetinfo.cubedata )
-	return;
-
-    hrg.set( packetinfo.inlrg, packetinfo.crlrg );
-}
-
-
 bool VolumeFunctionSource::getVel( const BinID& bid,
 			    SamplingData<float>& sd, TypeSet<float>& trcdata )
 {
-    Threads::MutexLocker lock( readerlock_ );
-    if ( !velreader_ )
+    SeisTrcReader* velreader = getReader();
+    if ( !velreader )
     {
 	pErrMsg("No reader available");
 	return false;
     }
 
     mDynamicCastGet( SeisTrcTranslator*, veltranslator,
-		     velreader_->translator() );
+		     velreader->translator() );
 
     if ( !veltranslator || !veltranslator->supportsGoTo() )
     {
@@ -266,10 +273,8 @@ bool VolumeFunctionSource::getVel( const BinID& bid,
 	return false;
 
     SeisTrc velocitytrc;
-    if ( !velreader_->get(velocitytrc) )
+    if ( !velreader->get(velocitytrc) )
 	return false;
-
-    lock.unLock();
 
     trcdata.setSize( velocitytrc.size(), mUdf(float) );
     for ( int idx=0; idx<velocitytrc.size(); idx++ )
@@ -285,12 +290,14 @@ VolumeFunction*
 VolumeFunctionSource::createFunction(const BinID& binid)
 {
     VolumeFunction* res = new VolumeFunction( *this );
+    res->ref();
     if ( !res->moveTo(binid) )
     {
-	delete res;
+	res->unRef();
 	return 0;
     }
 
+    res->unRefNoDelete();
     return res;
 }
 
