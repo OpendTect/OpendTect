@@ -7,22 +7,22 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: wellhorpos.cc,v 1.3 2010-08-13 12:31:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellhorpos.cc,v 1.4 2010-08-23 09:57:59 cvsbruno Exp $";
 
 
 #include "wellhorpos.h"
 
 #include "binidvalset.h"
-#include "emhorizon.h"
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "position.h"
 #include "survinfo.h"
 #include "welltrack.h"
 
 
-WellHorPos::WellHorPos( const Well::Track& tr, const EM::ObjectID& mid )
-    : horid_(mid)
+WellHorPos::WellHorPos( const Well::Track& tr  )
+    : horid_(-1)
     , track_(tr)  
 {
     transformWellCoordsToBinIDs();
@@ -50,32 +50,19 @@ void WellHorPos::transformWellCoordsToBinIDs()
 
 void WellHorPos::intersectWellHor( BinIDValueSet& bidset ) const
 {
+    bidset.empty();
     for ( int idwellbid=0; idwellbid<wellbids_.size(); idwellbid ++ )
     {
 	BinID bid = BinID( wellbids_[idwellbid] );
-	setBidsFromHorType( bid );
 	bidset.add( bid );
     }
     intersectBinIDsHor( bidset );
 }
 
 
-void WellHorPos::setBidsFromHorType( BinID& bid ) const
-{
-    EM::EMObject* emobj = EM::EMM().getObject( horid_ );
-    if ( !emobj ) return;
-    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
-    if ( hor2d )
-    {
-	for ( int idline=0; idline<hor2d->geometry().nrLines(); idline++ )
-	    bid.inl = idline;
-    }
-}
-
-
 void WellHorPos::intersectBinIDsHor( BinIDValueSet& bidset ) const
 {
-    for ( int idx=0; idx<bidset.nrVals(); idx ++ )
+    for ( int idx=0; idx<wellbids_.size(); idx ++ )
     {
 	BinIDValueSet::Pos pos = bidset.getPos( idx );
 	float zval; BinID bid;
@@ -89,11 +76,46 @@ void WellHorPos::intersectBinIDsHor( BinIDValueSet& bidset ) const
 }
 
 
-void WellHorPos::intersectBinIDHor( const BinID& bid, float& pos ) const
+void WellHorPos::intersectBinIDHor( const BinID& bid, float& zpos ) const
 {
+    zpos = mUdf( float );
     EM::EMObject* emobj = EM::EMM().getObject( horid_ );
     if ( !emobj ) return;
-    mDynamicCastGet(EM::Horizon*,hor,emobj)
-    pos = hor ? hor->getPos( hor->sectionID(0), bid.getSerialized() ).z 
-	      : mUdf( float );
+
+    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+
+    if ( hor3d )
+    {
+	const EM::SubID subid = bid.toInt64();
+	const Coord3& pos = emobj->getPos( emobj->sectionID(0), subid ); 
+	const BinID horbid = SI().transform( pos );
+	if ( bid == horbid )
+	    zpos = pos.z;
+	return;
+    }
+    else
+    {
+	mDynamicCastGet( const Geometry::RowColSurface*, rcs, 
+			    emobj->sectionGeometry(0));
+	if ( !rcs ) return;
+
+	const StepInterval<int> rowrg = rcs->rowRange();
+	RowCol rc;
+	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+	{
+	    const StepInterval<int> colrg = rcs->colRange( rc.row );
+	    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+	    {
+		const Coord3& pos = emobj->getPos( 
+					emobj->sectionID(0), rc.toInt64() );
+		const BinID horbid = SI().transform( pos );
+		if ( bid == horbid )
+		{
+		    zpos = pos.z;
+		    return;
+		}
+	    }
+	}
+    }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jul 2010
- RCS:           $Id: wellhorpos.h,v 1.3 2010-08-13 12:31:12 cvsbruno Exp $
+ RCS:           $Id: wellhorpos.h,v 1.4 2010-08-23 09:57:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,24 +25,25 @@ class MultiID;
 mClass WellHorPos
 {
 public:
-    				WellHorPos(const Well::Track&,
-					   const EM::ObjectID&);	
+    				WellHorPos(const Well::Track&);
 
     void			intersectWellHor(BinIDValueSet&) const;
+    				//get BinIDs at Well/Horizon intersection
     				//in principle, only one position per well but 
-    				//there may be more than one intersection (faults)
-    void			intersectBinIDsHor(BinIDValueSet&) const;
-    void			intersectBinIDHor(const BinID&,float&) const;
+    				//there may be more than one intersection 
+    				//( faults )
+    void			setHorizon(const EM::ObjectID& emid)
+				{ horid_ = emid; }
 
 protected:
 
-    const EM::ObjectID& 	horid_;
     const Well::Track&		track_;
     TypeSet<BinID>		wellbids_;
+    EM::ObjectID 	 	horid_;
 
+    void			intersectBinIDsHor(BinIDValueSet&) const;
+    void			intersectBinIDHor(const BinID&,float&) const;
     void 			transformWellCoordsToBinIDs();
-    void			setBidsFromHorType(BinID&) const;
-
 };
 
 #endif

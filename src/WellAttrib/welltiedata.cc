@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.37 2010-07-15 14:33:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.38 2010-08-23 09:57:59 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "binidvalset.h"
@@ -204,7 +204,8 @@ bool DataHolder::setUpHorizons( const TypeSet<MultiID>& horids,
 	}
 	mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
 	if ( !hor ) continue;
-	WellHorPos whpos( wd()->track(), emid );
+	WellHorPos whpos( wd()->track() );
+	whpos.setHorizon( emid );
 	BinIDValueSet bivset(2,false);
 	whpos.intersectWellHor( bivset );
 	if ( bivset.nrVals() )
