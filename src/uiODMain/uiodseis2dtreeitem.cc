@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.90 2010-08-23 04:32:27 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.91 2010-08-23 18:03:34 cvsyuancheng Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -606,7 +606,7 @@ bool uiOD2DLineSetSubItem::init()
 	return false;
     
     //If restore, we use the old display range after set the geometry.
-    const StepInterval<int> oldtrcnrrg = s2d->getTraceNrRange();
+    const Interval<int> oldtrcnrrg = s2d->getTraceNrRange();
     const Interval<float> oldzrg = s2d->getZRange( true );
     if ( newdisplay && (geometry->positions().size() > 32767 ||
 			geometry->zRange().nrSteps() > 32766) )
