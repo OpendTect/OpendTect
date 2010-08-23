@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.33 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.34 2010-08-23 08:57:28 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -98,6 +98,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     }
     else
     {
+	ssu.steerpol(uiSeisSel::Setup::InclSteer);
 	seisfld_ = new uiSeisSel( this, ctio_, ssu );
 	seisfld_->selectionDone.notify( mCB(this,uiSeisIOSimple,inpSeisSel) );
 	sep = mkDataManipFlds();
