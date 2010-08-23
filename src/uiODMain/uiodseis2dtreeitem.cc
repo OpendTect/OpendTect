@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.89 2010-08-20 19:48:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.90 2010-08-23 04:32:27 cvsraman Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -608,8 +608,8 @@ bool uiOD2DLineSetSubItem::init()
     //If restore, we use the old display range after set the geometry.
     const StepInterval<int> oldtrcnrrg = s2d->getTraceNrRange();
     const Interval<float> oldzrg = s2d->getZRange( true );
-    if ( newdisplay && geometry->positions().size()>32767 ||
-		       geometry->zRange().nrSteps() >32766 )
+    if ( newdisplay && (geometry->positions().size() > 32767 ||
+			geometry->zRange().nrSteps() > 32766) )
     {
 	BufferString msg = "Either trace size or z size is beyond max display";
 	msg += " size of 32767, you can right click the line name to change";
