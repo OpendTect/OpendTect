@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.26 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.27 2010-08-23 13:44:03 cvsbert Exp $";
 
 
 #include "uiscalingattrib.h"
@@ -47,6 +47,7 @@ static const char* scalingtypestr[] =
     "Z^n",
     "Window",
     "AGC",
+    "Squeeze",
     0
 };
 
@@ -65,6 +66,13 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 
     nfld = new uiGenInput( this, "n", FloatInpSpec() );
     nfld->attach( alignedBelow, typefld );
+
+    sqrgfld = new uiGenInput( this, "Value range (empty=unlimited)",
+	    			FloatInpIntervalSpec() );
+    sqrgfld->attach( alignedBelow, typefld );
+    squrgfld = new uiGenInput( this, "Untouched range (empty=all)",
+	    			FloatInpIntervalSpec() );
+    squrgfld->attach( alignedBelow, sqrgfld );
 
     statsfld = new uiGenInput( this, "Basis", StringListInpSpec(statstypestr) );
     statsfld->attach( alignedBelow, typefld );
@@ -110,13 +118,16 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 void uiScalingAttrib::typeSel( CallBacker* )
 {
     const int typeval = typefld->getIntValue();
-    nfld->display( !typeval );
+    nfld->display( typeval==0 );
 
     statsfld->display( typeval==1 );
     table->display( typeval==1 );
 
     windowfld->display( typeval==2);
     lowenergymute->display( typeval==2);
+
+    sqrgfld->display( typeval==3 );
+    squrgfld->display( typeval==3 );
 }
 
 
@@ -141,6 +152,9 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	    	 windowfld->setValue(wndwidthval) );
     mIfGetFloat( Scaling::mutefractionStr(), mutefactor,
 				lowenergymute->setValue(mutefactor*100));    
+    mIfGetFloatInterval( Scaling::sqrangeStr(), sqrg, sqrgfld->setValue(sqrg) );
+    mIfGetFloatInterval( Scaling::squntouchedStr(), squrg,
+	    				squrgfld->setValue(squrg) );
 
     table->clearTable();
 
@@ -201,6 +215,8 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     mSetEnum( Scaling::statsTypeStr(), statsfld->getIntValue() );
     mSetFloat( Scaling::widthStr(), windowfld->getfValue() );
     mSetFloat( Scaling::mutefractionStr(), lowenergymute->getfValue()/100 );
+    mSetFloatInterval( Scaling::sqrangeStr(), sqrgfld->getFInterval() );
+    mSetFloatInterval( Scaling::squntouchedStr(), squrgfld->getFInterval() );
 
     TypeSet<ZGate> tgs;
     TypeSet<float> factors;
@@ -256,4 +272,6 @@ void uiScalingAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 	params += EvalParam( "Width", Scaling::widthStr() );
 	params += EvalParam( "Mute fraction", Scaling::mutefractionStr() );
     }
+    else if ( typeval == 3 )
+	params += EvalParam( "Untouched range", Scaling::squntouchedStr() );
 }

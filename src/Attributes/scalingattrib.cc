@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.34 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.35 2010-08-23 13:44:03 cvsbert Exp $";
 
 #include "scalingattrib.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: scalingattrib.cc,v 1.34 2010-04-20 22:03:25 cvs
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "statruncalc.h"
+#include "squeezing.h"
 #include "survinfo.h"
 #include <math.h>
 
@@ -31,6 +32,7 @@ static const char* rcsID = "$Id: scalingattrib.cc,v 1.34 2010-04-20 22:03:25 cvs
 #define mScalingTypeZPower   0
 #define mScalingTypeWindow   1
 #define mScalingTypeAGC	     2			
+#define mScalingTypeSqueeze  3			
 
 static inline float interpolator( float fact1, float fact2, 
 				  float t1, float t2, float curt )
@@ -57,6 +59,7 @@ void Scaling::initClass()
     scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeZPower) );
     scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeWindow) );
     scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeAGC) );
+    scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeSqueeze) );
     desc->addParam( scalingtype );
 
     FloatParam* powerval = new FloatParam( powervalStr() );
@@ -92,6 +95,13 @@ void Scaling::initClass()
     desc->addParam( widthval );
     widthval->setDefaultValue( 500 );
 
+    FloatGateParam* fgparm = new FloatGateParam(sqrangeStr());
+    fgparm->setDefaultValue( Interval<float>(mUdf(float),mUdf(float)) );
+    desc->addParam( fgparm );
+    fgparm = new FloatGateParam(squntouchedStr());
+    fgparm->setDefaultValue( Interval<float>(mUdf(float),mUdf(float)) );
+    desc->addParam( fgparm );
+
     FloatParam* mutefractionval = new FloatParam( mutefractionStr() );
     mutefractionval->setLimits( Interval<float>(0,mUdf(float)) );
     desc->setParamEnabled( mutefractionStr(), false );
@@ -109,33 +119,33 @@ void Scaling::updateDesc( Desc& desc )
 {
     BufferString type = desc.getValParam( scalingTypeStr() )->getStringValue();
     
+    desc.setParamEnabled( powervalStr(), false );
+    desc.setParamEnabled( statsTypeStr(), false );
+    desc.setParamEnabled( gateStr(), false );
+    desc.setParamEnabled( widthStr(), false );
+    desc.setParamEnabled( factorStr(), false );
+    desc.setParamEnabled( mutefractionStr(), false );
+    desc.setParamEnabled( sqrangeStr(), false );
+    desc.setParamEnabled( squntouchedStr(), false );
     if ( type == scalingTypeNamesStr(mScalingTypeZPower) )
-    {
 	desc.setParamEnabled( powervalStr(), true );
-	desc.setParamEnabled( statsTypeStr(), false );
-	desc.setParamEnabled( gateStr(), false );
-	desc.setParamEnabled( widthStr(), false );
-	desc.setParamEnabled( mutefractionStr(), false );
-    }
     else if ( type == scalingTypeNamesStr(mScalingTypeWindow) )
     {
-	desc.setParamEnabled( powervalStr(), false );
 	desc.setParamEnabled( statsTypeStr(), true );
 	desc.setParamEnabled( gateStr(), true );
-	desc.setParamEnabled( widthStr(), false );
-	desc.setParamEnabled( mutefractionStr(), false );
+	const int statstype = desc.getValParam(statsTypeStr())->getIntValue();
+	desc.setParamEnabled( factorStr(), statstype==mStatsTypeUser );
     }
     else if ( type == scalingTypeNamesStr(mScalingTypeAGC) )
     {
-	desc.setParamEnabled( powervalStr(), false );
-	desc.setParamEnabled( statsTypeStr(), false );
-	desc.setParamEnabled( gateStr(), false );
 	desc.setParamEnabled( widthStr(), true );
 	desc.setParamEnabled( mutefractionStr(), true );
     }
-
-    const int statstype = desc.getValParam(statsTypeStr())->getIntValue();
-    desc.setParamEnabled( factorStr(), statstype==mStatsTypeUser );
+    else if ( type == scalingTypeNamesStr(mScalingTypeSqueeze) )
+    {
+	desc.setParamEnabled( sqrangeStr(), true );
+	desc.setParamEnabled( squntouchedStr(), true );
+    }
 }
 
 
@@ -154,6 +164,7 @@ const char* Scaling::scalingTypeNamesStr( int type )
     //still T in parfile for backward compatibility
     if ( type==mScalingTypeZPower ) return "T^n";
     if ( type==mScalingTypeAGC ) return "AGC";
+    if ( type==mScalingTypeSqueeze ) return "Squeeze";
     return "Window";
 }
 
@@ -167,6 +178,8 @@ Scaling::Scaling( Desc& desc )
     mGetFloat( powerval_, powervalStr() );
     mGetFloat( width_, widthStr() );
     mGetFloat( mutefraction_, mutefractionStr() );
+    mGetFloatInterval( sqrg_, sqrangeStr() );
+    mGetFloatInterval( squrg_, squntouchedStr() );
 
     mDescGetParamGroup(ZGateParam,gateset,desc_,gateStr())
     for ( int idx=0; idx<gateset->size(); idx++ )
@@ -287,13 +300,17 @@ void Scaling::getTrendsFromStats( const TypeSet<Interval<int> >& sgates,
 bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 			   int z0, int nrsamples, int threadid ) const
 {
-    if ( scalingtype_ == mScalingTypeZPower )
+    if ( scalingtype_ == mScalingTypeSqueeze )
+    {
+	scaleSqueeze( output, z0, nrsamples );
+	return true;
+    }
+    else if ( scalingtype_ == mScalingTypeZPower )
     {
 	scaleZN( output, z0, nrsamples );
 	return true;
     }
-
-    if ( scalingtype_ == mScalingTypeAGC )
+    else if ( scalingtype_ == mScalingTypeAGC )
     {
 	scaleAGC( output, z0, nrsamples );
 	return true;
@@ -354,6 +371,20 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 
     return true;
 }
+
+
+void Scaling::scaleSqueeze( const DataHolder& output, int z0,
+			    int nrsamples) const
+{
+    DataSqueezer<float> dsq( sqrg_ );
+    dsq.setUntouchedRange( squrg_ );
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	const float v = getInputValue( *inputdata_, dataidx_, idx, z0 );
+       	setOutputValue( output, 0, idx, z0, dsq.value(v) );
+    }
+}
+
 
 
 void Scaling::scaleZN( const DataHolder& output, int z0, int nrsamples) const

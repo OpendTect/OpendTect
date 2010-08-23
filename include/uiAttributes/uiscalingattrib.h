@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.h,v 1.10 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uiscalingattrib.h,v 1.11 2010-08-23 13:44:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,8 @@ protected:
     uiTable*		table;
     uiGenInput*         windowfld;
     uiGenInput*         lowenergymute;
+    uiGenInput*         sqrgfld;
+    uiGenInput*         squrgfld;
 
     void		typeSel(CallBacker*);
     void		statsSel(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.19 2010-04-12 13:29:19 cvshelene Exp $
+ RCS:           $Id: scalingattrib.h,v 1.20 2010-08-23 13:44:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ public:
     static const char*	widthStr()		{ return "width"; }
     static const char*	mutefractionStr()	{ return "mutefraction"; }
     static const char*	statsTypeStr()		{ return "statstype"; }
+    static const char*	sqrangeStr()		{ return "sqrange"; }
+    static const char*	squntouchedStr()	{ return "squntouched"; }
     static const char*	statsTypeNamesStr(int type);
     static const char*	scalingTypeNamesStr(int type);
 
@@ -64,6 +66,7 @@ protected:
     void		getSampleGates(const TypeSet<Interval<float> >& oldtgs,
 				       TypeSet< Interval<int> >& newsampgates,
 				       int z0,int nrsamples) const;
+    void		scaleSqueeze(const DataHolder&, int, int) const;
     void		scaleZN(const DataHolder&, int, int) const;
     void		scaleAGC(const DataHolder&,int z0,int nrsamples) const;
     void		getScaleFactorsFromStats(
@@ -81,6 +84,10 @@ protected:
     const DataHolder*	inputdata_;
     int			dataidx_;
     Interval<int>	desgate_;
+
+    // for Squeeze
+    Interval<float>	sqrg_;
+    Interval<float>	squrg_;
 
     // for AGC
     float		width_;
