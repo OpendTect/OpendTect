@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.66 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.67 2010-08-23 07:06:03 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -1379,4 +1379,10 @@ void uiDataPointSet::removeHiddenRows()
 bool uiDataPointSet::isSelectionValid( DRowID rid ) const
 {
     return xplotwin_ ? xplotwin_->plotter().isSelectionValid(rid) : false;
+}
+
+
+int uiDataPointSet::getSelectionGroupIdx( int selareaid ) const
+{
+    return xplotwin_ ? xplotwin_->plotter().getSelGrpIdx(selareaid) : -1;
 }

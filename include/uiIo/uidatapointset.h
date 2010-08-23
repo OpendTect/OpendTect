@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.29 2010-05-12 04:30:56 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.h,v 1.30 2010-08-23 07:06:03 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,6 +124,8 @@ public:
 
     void			notifySelectedCell();
     void			reDoTable();
+
+    int 			getSelectionGroupIdx(int selaareaid) const;
 
     const DataPointSetDisplayMgr* displayMgr() const	{ return dpsdispmgr_; }
     void			setDisplayMgr( DataPointSetDisplayMgr* dispmgr )

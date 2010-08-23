@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: densitycalc.h,v 1.5 2010-02-16 06:14:56 cvssatyaki Exp $
+ RCS:           $Id: densitycalc.h,v 1.6 2010-08-23 07:06:03 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,7 +148,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		    else
 		    {
 			ptselected = true;
-			dps_.setSelected( rid, true );
+			dps_.setSelected( rid, uidps_.getSelectionGroupIdx(
+				    	  selarea->id_) );
 			RowCol rcol( uidps_.tRowID(rid),
 				     uidps_.tColID(y_.colid_) );
 			selrowcols_ += rcol;
@@ -158,7 +159,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	}
 
 	if ( !ptselected )
-	    dps_.setSelected( rid, false );
+	    dps_.setSelected( rid, -1 );
 	if ( !data_->info().validPos(datapt.x,datapt.y) )
 	    continue;
 	const int freqx = mNINT(datapt.x/cellxsize_);
