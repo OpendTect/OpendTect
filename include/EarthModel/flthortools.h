@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.15 2010-07-22 12:49:54 nanne Exp $
+ RCS:		$Id: flthortools.h,v 1.16 2010-08-24 11:01:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,6 @@ ________________________________________________________________________
 namespace EM { class Fault; }
 class IOObj;
 class BinIDValueSet;
-
-namespace HorizonCube
-{
 
 mClass FaultTrace : public Coord3List
 {
@@ -87,7 +84,5 @@ protected:
     void		useHorizons();
     bool		get2DFaultTrace();
 };
-
-} // namespace HorizonCube
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.24 2010-07-22 12:49:54 nanne Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.25 2010-08-24 11:01:02 nanne Exp $";
 
 #include "flthortools.h"
 
@@ -26,9 +26,6 @@ static const char* rcsID = "$Id: flthortools.cc,v 1.24 2010-07-22 12:49:54 nanne
 #include "survinfo.h"
 #include "trigonometry.h"
 
-
-namespace HorizonCube
-{
 
 int FaultTrace::nextID( int previd ) const
 { return previd >= -1 && previd < coords_.size()-1 ? previd + 1 : -1; }
@@ -480,5 +477,3 @@ void FaultTraceExtractor::useHorizons()
 	}
     }
 }
-
-} // namespace HorizonCube
