@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: wellhorpos.cc,v 1.4 2010-08-23 09:57:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellhorpos.cc,v 1.5 2010-08-24 12:41:13 cvsbruno Exp $";
 
 
 #include "wellhorpos.h"
@@ -51,27 +51,12 @@ void WellHorPos::transformWellCoordsToBinIDs()
 void WellHorPos::intersectWellHor( BinIDValueSet& bidset ) const
 {
     bidset.empty();
-    for ( int idwellbid=0; idwellbid<wellbids_.size(); idwellbid ++ )
-    {
-	BinID bid = BinID( wellbids_[idwellbid] );
-	bidset.add( bid );
-    }
-    intersectBinIDsHor( bidset );
-}
-
-
-void WellHorPos::intersectBinIDsHor( BinIDValueSet& bidset ) const
-{
     for ( int idx=0; idx<wellbids_.size(); idx ++ )
     {
-	BinIDValueSet::Pos pos = bidset.getPos( idx );
-	float zval; BinID bid;
-	bidset.get( pos, bid, zval );
+	float zval; BinID bid = wellbids_[idx];
 	intersectBinIDHor( bid, zval );
-	if ( mIsUdf( zval ))
-	    bidset.remove( pos );
-	else 
-	    bidset.set( pos, zval );
+	if ( !mIsUdf( zval ))
+	    bidset.add( bid, zval );
     }
 }
 

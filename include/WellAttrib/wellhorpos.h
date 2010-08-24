@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jul 2010
- RCS:           $Id: wellhorpos.h,v 1.4 2010-08-23 09:57:59 cvsbruno Exp $
+ RCS:           $Id: wellhorpos.h,v 1.5 2010-08-24 12:41:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,6 @@ protected:
     TypeSet<BinID>		wellbids_;
     EM::ObjectID 	 	horid_;
 
-    void			intersectBinIDsHor(BinIDValueSet&) const;
     void			intersectBinIDHor(const BinID&,float&) const;
     void 			transformWellCoordsToBinIDs();
 };
