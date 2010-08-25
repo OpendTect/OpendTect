@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.16 2010-08-10 10:09:39 cvsraman Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.17 2010-08-25 11:54:50 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ public:
     void		set( const uiWorldRect& wr, uiSize sz );
     void		set( uiSize sz, const uiWorldRect& wr );
     void		set( const uiRect& rc, const uiWorldRect& wr );
-    void		set( int maxdimpix, const SurveyInfo& si );
+    void		set( uiRect rc, const SurveyInfo& si );
     			//! Quite useful for survey level maps.
 
     void		setRemap( const uiSize& sz, const uiWorldRect& wrdrc );

@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiworld2ui.cc,v 1.10 2010-08-10 10:12:25 cvsraman Exp $";
+static const char* rcsID = "$Id: uiworld2ui.cc,v 1.11 2010-08-25 11:56:54 cvsraman Exp $";
 
 #include "uiworld2ui.h"
 
@@ -74,19 +74,31 @@ void uiWorld2Ui::set( const uiWorldRect& wr, uiSize sz )
 { set( sz, wr ); }
 
 
-void uiWorld2Ui::set( int maxdimpix, const SurveyInfo& si )
+void uiWorld2Ui::set( uiRect rc, const SurveyInfo& si )
 {
+    if ( !rc.hNrPics() || !rc.vNrPics() )
+	return;
+
     Coord mincoord = si.minCoord( false );
     Coord maxcoord = si.maxCoord( false );
     Coord diff = maxcoord - mincoord;
-    double maxdim = mMAX( diff.x, diff.y );
-    const Coord center( (mincoord.x+maxcoord.x)/2, (mincoord.y+maxcoord.y)/2 );
-    const Coord radius( maxdim, maxdim );
-    mincoord = center - radius;
-    maxcoord = center + radius;
-    uiSize sz( maxdimpix, maxdimpix );
+    double xfac = diff.x / rc.hNrPics();
+    double yfac = diff.y / rc.vNrPics();
+    if ( xfac > yfac )
+    {
+	int extrapix = rc.vNrPics() - diff.y / xfac;
+	rc.setTop( rc.top() + extrapix / 2 );
+	rc.setBottom( rc.bottom() - extrapix + extrapix / 2 );
+    }
+    else
+    {
+	int extrapix = rc.hNrPics() - diff.x / yfac;
+	rc.setLeft( rc.left() + extrapix / 2 );
+	rc.setRight( rc.right() - extrapix + extrapix / 2 );
+    }
+
     uiWorldRect wr( mincoord.x, maxcoord.y, maxcoord.x, mincoord.y );
-    set( sz, wr );
+    set( rc, wr );
 }
 
 
