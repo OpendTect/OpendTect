@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.1 2010-08-20 11:23:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.2 2010-08-25 08:33:39 cvsnageswara Exp $";
 
 #include "emhorizonpreload.h"
 
@@ -40,79 +40,52 @@ HorizonPreLoad::HorizonPreLoad()
 
 
 bool HorizonPreLoad::loadHorizon( const MultiID& mid, TaskRunner* tr )
-
 {
-    bool isfound = true;
-    for ( int idx=0; idx<midset_.size(); idx++ )
+    if ( midset_.isPresent(mid) )
     {
-	if ( midset_.validIdx(idx) )
-	{
-	    if ( mid == midset_[idx] )
-	    {
-		isfound = false;
-		errmsg_ = "The selected horizon '";
-		errmsg_.add( nameset_.get(idx) )
-		       .add( "' is already pre-loaded" );
-		break;
-	    }
-	}
+	const int idx = midset_.indexOf( mid );
+	errmsg_ = "The selected horizon '";
+	errmsg_.add( nameset_.get(idx) )
+	       .add( "' is already pre-loaded" );
+
+	return false;
     }
 
-    if ( isfound )
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid, tr );
+    if ( !emobj )
     {
-	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid, tr );
-	if ( !emobj )
-	{
-	    errmsg_ = "Problem while loading horizon";
-	    return false;
-	}
-
-	midset_ += mid;
-	nameset_.add( emobj->name() );
-	emobj->ref();
+	errmsg_ = "Problem while loading horizon";
+	return false;
     }
 
-    return isfound;
+    midset_ += mid;
+    nameset_.add( emobj->name() );
+    emobj->ref();
+
+    return true;
 }
 
 
 const BufferString HorizonPreLoad::name( const MultiID& mid ) const
 {
     BufferString horname;
-    for ( int idx=0; idx<midset_.size(); idx++ )
-    {
-	if ( midset_.validIdx(idx) )
-	{
-	    if ( mid == midset_[idx] )
-	    {
-		horname = nameset_.get( idx );
-		break;
-	    }
-	}
+    if ( !midset_.isPresent(mid) )
+	return horname;
 
-	continue;
-    }
+    const int horidx = midset_.indexOf( mid );
 
-    return horname;
+    return horname = nameset_.get( horidx );
 }
 
 
-const MultiID HorizonPreLoad::getMultiID( const BufferString& horname )
+const MultiID HorizonPreLoad::getMultiID( const BufferString& horname ) const
 {
     MultiID mid( -1 );
-    for ( int idx=0; idx<nameset_.size(); idx++ )
-    {
-	if ( strcmp( horname, nameset_.get(idx) ) == 0 )
-	{
-	    mid = midset_[idx]; 
-	    break;
-	}
-    }
+    if ( !nameset_.isPresent(horname) )
+	return mid;
 
-    if ( mid.ID( 0 ) < 0 )
-	errmsg_ = "Not a valid name";
-
-    return mid;
+    const int mididx = nameset_.indexOf( horname );
+    return mid = midset_[mididx];
 }
 
 
