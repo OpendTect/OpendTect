@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Jul 2010
- RCS:           $Id: uibasemap.h,v 1.5 2010-08-12 04:41:44 cvsraman Exp $
+ RCS:           $Id: uibasemap.h,v 1.6 2010-08-25 11:55:40 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ public:
     void			setTransform(const uiWorld2Ui*);
 
     uiGraphicsItemGroup*	itemGrp()		{ return itemgrp_; }
-    void			updateGeometry()	{} //TODO: Implement: Read geometry from object_
+    virtual void		updateGeometry()	{} //TODO: Implement: Read geometry from object_
 
 protected:
     friend			class uiBaseMap;
