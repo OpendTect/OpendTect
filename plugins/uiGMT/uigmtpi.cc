@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.27 2010-08-13 11:03:33 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.28 2010-08-25 07:11:11 cvsnageswara Exp $";
 
 #include "envvars.h"
 #include "file.h"
@@ -185,5 +185,6 @@ mExternC const char* InituiGMTPlugin( int, char** )
     uiGMTCoastlineGrp::initClass();
     uiGMTAdvGrp::initClass();
     uiGMTSurfaceGrid::initClass();
+    uiGMTNearNeighborGrid::initClass();
     return 0;
 }

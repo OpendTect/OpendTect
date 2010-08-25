@@ -8,51 +8,26 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: gmtarray2dinterpol.cc,v 1.1 2010-08-13 11:03:33 cvsnageswara Exp $";
+static const char* rcsID = "$Id: gmtarray2dinterpol.cc,v 1.2 2010-08-25 07:11:11 cvsnageswara Exp $";
 
 #include "gmtarray2dinterpol.h"
 
 #include "arraynd.h"
+#include "file.h"
+#include "filepath.h"
+#include "math2.h"
+#include "oddirs.h"
 #include "string2.h"
 #include "strmdata.h"
 #include "strmprov.h"
-#include "oddirs.h"
-
-#include "file.h"
-#include "filepath.h"
 
 #include <iostream>
 
 static const char* sKeyGMTUdf = "NaN";
 
-const char* GMTArray2DInterpol::sType()
-{ return "Continuous curvature(GMT)"; }
-
-
-void GMTArray2DInterpol::initClass()
-{
-    Array2DInterpol::factory().addCreator( create, sType() );
-}
-
-
-Array2DInterpol* GMTArray2DInterpol::create()
-{
-    return new GMTArray2DInterpol;
-}
-
-
 GMTArray2DInterpol::GMTArray2DInterpol()
-    : cmd_("@surface -I1 ")
-    , msg_("Continuous curvature")
-    , tmpfnm_("")
-    , nrdone_(0)
+    : nrdone_(0)
 {}
-
-
-void GMTArray2DInterpol::setPar( IOPar& iop )
-{
-    iopar_  = iop;
-}
 
 
 od_int64 GMTArray2DInterpol::nrIterations() const
@@ -67,25 +42,6 @@ const char* GMTArray2DInterpol::message() const
 }
 
 
-bool GMTArray2DInterpol::mkCommand()
-{
-    if ( iopar_.isEmpty() )
-    {
-	msg_ = "Tension parameter missing";
-	return false;
-    }
-
-    float tension;
-    iopar_.get( "Tension", tension );
-    tmpfnm_ = FilePath::getTempName( "grd" );
-    cmd_.add( "-T" ).add( tension )
-	.add( " -G" ).add( tmpfnm_ )
-	.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 );
-
-    return true;
-}
-
-
 bool GMTArray2DInterpol::doPrepare( int nrthreads )
 {
     if ( filltype_ != Array2DInterpol::Full )
@@ -94,10 +50,11 @@ bool GMTArray2DInterpol::doPrepare( int nrthreads )
 	return false;
     }
 
-    if ( !mkCommand() )
+    BufferString gmtcmd;
+    if ( !mkCommand(gmtcmd) )
 	return false;
 
-    sd_ = StreamProvider( cmd_ ).makeOStream();
+    sd_ = StreamProvider( gmtcmd ).makeOStream();
     if ( !sd_.usable() )
 	return false;
 
@@ -126,6 +83,7 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 
 	    *sd_.ostrm << ridx << " " << cidx << " " << arr_->get(ridx,cidx)
 						     << std::endl;
+
 	}
 
 	nrdone_++;
@@ -139,17 +97,16 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 
 bool GMTArray2DInterpol::doFinish( bool success )
 {
-    cmd_ = "@grd2xyz ";
-    cmd_.add( tmpfnm_ );
+    BufferString cmd = "@grd2xyz ";
+    cmd.add( tmpfnm_ );
 
-    sd_ = StreamProvider( cmd_ ).makeIStream( true, false );
+    sd_ = StreamProvider( cmd ).makeIStream( true, false );
     if ( !sd_.usable() )
 	return false;
 
     nrdone_ = 0;
     for ( int ridx=0; ridx<nrrows_; ridx++ )
     {
-
 	if ( !*sd_.istrm )
 	    break;
 
@@ -181,11 +138,110 @@ bool GMTArray2DInterpol::doFinish( bool success )
     sd_.close();
     if ( nrdone_ == 0 )
     {
-	msg_ = "Invalid positinos found";
+	msg_ = "Invalid positions found";
 	return false;
     }
 
     File::remove( tmpfnm_ );
+
+    return true;
+}
+
+
+//GMTSurfaceGrid
+GMTSurfaceGrid::GMTSurfaceGrid()
+{
+    msg_ = "Continuous curvature";
+}
+
+
+const char* GMTSurfaceGrid::sType()
+{ return "Continuous curvature(GMT)"; }
+
+
+void GMTSurfaceGrid::initClass()
+{
+    Array2DInterpol::factory().addCreator( create, sType() );
+}
+
+
+Array2DInterpol* GMTSurfaceGrid::create()
+{
+    return new GMTSurfaceGrid;
+}
+
+
+void GMTSurfaceGrid::setPar( const IOPar& iop )
+{
+    iopar_  = iop;
+}
+
+
+bool GMTSurfaceGrid::mkCommand( BufferString& cmd )
+{
+    if ( iopar_.isEmpty() )
+    {
+	msg_ = "Tension parameter missing";
+	return false;
+    }
+
+    float tension;
+    iopar_.get( "Tension", tension );
+    tmpfnm_ = FilePath::getTempName( "grd" );
+    cmd = "@surface -I1 ";
+    cmd.add( "-T" ).add( tension )
+       .add( " -G" ).add( tmpfnm_ )
+       .add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 );
+
+    return true;
+}
+
+
+//GMTNearNeighborGrid
+GMTNearNeighborGrid::GMTNearNeighborGrid()
+{
+    msg_ = "Nearest neighbor";
+}
+
+
+const char* GMTNearNeighborGrid::sType()
+{ return "Nearest neighbor(GMT)"; }
+
+
+void GMTNearNeighborGrid::initClass()
+{
+    Array2DInterpol::factory().addCreator( create, sType() );
+}
+
+
+Array2DInterpol* GMTNearNeighborGrid::create()
+{
+    return new GMTNearNeighborGrid;
+}
+
+
+void GMTNearNeighborGrid::setPar( const IOPar& iop )
+{
+    iopar_  = iop;
+}
+
+
+bool GMTNearNeighborGrid::mkCommand( BufferString& cmd )
+{
+    if ( iopar_.isEmpty() )
+    {
+	msg_ = "Search radius parameter missing";
+	return false;
+    }
+
+    float radius;
+    iopar_.get( "Radius", radius );
+    tmpfnm_ = FilePath::getTempName( "grd" );
+    cmd = "@nearneighbor -I1 ";
+    cmd.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 )
+       .add( " -S" ).add( radius )
+       .add( " -N4/2" )
+       .add( " -G" ).add( tmpfnm_ );
 
     return true;
 }

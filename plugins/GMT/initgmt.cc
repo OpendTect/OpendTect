@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initgmt.cc,v 1.10 2010-08-13 11:03:33 cvsnageswara Exp $";
+static const char* rcsID = "$Id: initgmt.cc,v 1.11 2010-08-25 07:11:11 cvsnageswara Exp $";
 
 #include "gmtarray2dinterpol.h"
 #include "gmtbasemap.h"
@@ -32,5 +32,6 @@ void GMT::initStdClasses()
     GMT2DLines::initClass();
     GMTRandLines::initClass();
     GMTCommand::initClass();
-    GMTArray2DInterpol::initClass();
+    GMTSurfaceGrid::initClass();
+    GMTNearNeighborGrid::initClass();
 }

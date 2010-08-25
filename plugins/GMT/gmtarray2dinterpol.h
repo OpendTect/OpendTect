@@ -7,15 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: gmtarray2dinterpol.h,v 1.1 2010-08-13 11:03:33 cvsnageswara Exp $
+ RCS:           $Id: gmtarray2dinterpol.h,v 1.2 2010-08-25 07:11:11 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "array2dinterpol.h"
 
-#include "iopar.h"
 #include "bufstring.h"
+#include "iopar.h"
 #include "strmdata.h"
 
 
@@ -24,13 +24,8 @@ mClass GMTArray2DInterpol : public Array2DInterpol
 public:
     				GMTArray2DInterpol();
 
-    static const char*		sType();
-    const char*			type() const		{ return sType(); }
-    static void			initClass();
-    static Array2DInterpol*	create();
-
-    void			setPar(IOPar&);
-    bool			mkCommand();
+    virtual void		setPar(const IOPar&)		=0;
+    virtual bool		mkCommand(BufferString&)	=0;
 
 protected:
     od_int64			nrIterations() const;
@@ -44,10 +39,39 @@ protected:
 
     BufferString		msg_;
     IOPar			iopar_;
-    BufferString		cmd_;
     StreamData			sd_;
     BufferString		tmpfnm_;
     int				nrdone_;
+};
+
+
+mClass GMTSurfaceGrid : public GMTArray2DInterpol
+{
+public:
+    				GMTSurfaceGrid();
+
+    static const char*		sType();
+    const char*			type() const		{ return sType(); }
+    static void			initClass();
+    static Array2DInterpol*	create();
+
+    void			setPar(const IOPar&);
+    bool			mkCommand(BufferString&);
+};
+
+
+mClass GMTNearNeighborGrid : public GMTArray2DInterpol
+{
+public:
+    				GMTNearNeighborGrid();
+
+    static const char*		sType();
+    const char*			type() const		{ return sType(); }
+    static void			initClass();
+    static Array2DInterpol*	create();
+
+    void			setPar(const IOPar&);
+    bool			mkCommand(BufferString&);
 };
 
 #endif

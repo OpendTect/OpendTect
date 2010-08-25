@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: uigmtarray2dinterpol.h,v 1.1 2010-08-13 11:03:33 cvsnageswara Exp $
+ RCS:           $Id: uigmtarray2dinterpol.h,v 1.2 2010-08-25 07:11:11 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,18 +19,7 @@ class IOPar;
 class uiGenInput;
 
 
-mClass uiGMTArray2DInterpol : public uiArray2DInterpol
-{
-public:
-				uiGMTArray2DInterpol(uiParent* p)
-				    : uiArray2DInterpol( p, "GMT grid" ) {}
-
-    bool			acceptOK()		{ return true; }
-    virtual void		fillPar(IOPar&) const		= 0;
-};
-
-
-mClass uiGMTSurfaceGrid	: public uiGMTArray2DInterpol
+mClass uiGMTSurfaceGrid	: public uiArray2DInterpol
 {
 public:
 				uiGMTSurfaceGrid(uiParent*);
@@ -44,6 +33,24 @@ public:
 
 protected:
     uiGenInput*			tensionfld_;
+};
+
+
+mClass uiGMTNearNeighborGrid : public uiArray2DInterpol
+{
+public:
+				uiGMTNearNeighborGrid(uiParent*);
+
+    static const char*		sName();
+    static void			initClass();
+    static uiArray2DInterpol*	create(uiParent*);
+
+    BufferString		mkCommand();
+    void			fillPar(IOPar&) const;
+    bool			acceptOK();
+
+protected:
+    uiGenInput*			rediusfld_;
 };
 
 #endif
