@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.12 2010-08-25 13:42:13 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.13 2010-08-25 13:45:38 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -199,14 +199,14 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	    const float vel = velocityfunctions_[idy]->getVelocity( z );
 	    if ( mIsZero(vel,1e-3) )
 	    {
-		undefpos += idy;
+		undefpos += usedpoints[idy];
 		nrnull ++;
 		continue;
 	    }
 
 	    if ( mIsUdf(vel) )
 	    {
-		undefpos += idy;
+		undefpos += usedpoints[idy];
 		continue;
 	    }
 
@@ -233,7 +233,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 
 	    const float averageslowness = slownesssum/nrslowness;
 	    for ( int idy=undefpos.size()-1; idy>=0; idy-- )
-		gridvalues_[usedpoints[undefpos[idy]]] = averageslowness;
+		gridvalues_[undefpos[idy]] = averageslowness;
 	}
 
 	gridder_->setValues( gridvalues_, false );
