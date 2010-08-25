@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: positionattrib.cc,v 1.32 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: positionattrib.cc,v 1.33 2010-08-25 14:19:23 cvsyuancheng Exp $";
 
 
 #include "positionattrib.h"
@@ -220,17 +220,19 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 		ds++;
 	    }
 	}
-	if ( stats.isEmpty() ) return false;
 
-	const int posidx = stats.getIndex( statstype );
-	BinID bid = bidv[posidx].binid;
-	const DataHolder* odata = outdata_->get( bid.inl+stepout_.inl, 
-						bid.crl+stepout_.crl );
-
-	float val = 0;
-	if ( odata && !odata->isEmpty() && odata->series(outidx_) )
-	    val = getInterpolInputValue( *odata, outidx_,
-		    			 bidv[posidx].value, z0 );
+	float val = mUdf(float);
+	if ( !stats.isEmpty() ) 
+	{
+    	    const int posidx = stats.getIndex( statstype );
+    	    BinID bid = bidv[posidx].binid;
+    	    const DataHolder* odata = outdata_->get( bid.inl+stepout_.inl, 
+						     bid.crl+stepout_.crl );
+	    val = 0;
+    	    if ( odata && !odata->isEmpty() && odata->series(outidx_) )
+    		val = getInterpolInputValue( *odata, outidx_,
+			bidv[posidx].value, z0 );
+	}
 
 	setOutputValue( output, 0, idx, z0, val );
     }
