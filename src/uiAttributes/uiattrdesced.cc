@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdesced.cc,v 1.35 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: uiattrdesced.cc,v 1.36 2010-08-25 11:20:20 cvshelene Exp $";
 
 
 
@@ -261,7 +261,10 @@ const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
     if ( editdesc->isSatisfied() == Desc::Error )
 	errmsg_ = editdesc->errMsg();
 
-    areUIParsOK();
+    const bool isuiok = areUIParsOK();
+    if ( !isuiok && errmsg_.isEmpty() )
+	errmsg_= "Please review your parameters, some of them are not correct";
+
     return errmsg_.str();
 }
 
