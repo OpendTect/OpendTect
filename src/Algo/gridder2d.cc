@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.23 2010-08-20 02:33:48 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.24 2010-08-25 18:22:03 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -27,9 +27,9 @@ Gridder2D::Gridder2D()
 {}
 
 
-Gridder2D::Gridder2D( const Gridder2D & )
-    : values_( 0 )
-    , points_( 0 )
+Gridder2D::Gridder2D( const Gridder2D& g )
+    : values_( g.values_ )
+    , points_( g.points_ )
     , inited_( false )
 {}
 
@@ -254,7 +254,8 @@ TriangulatedGridder2D::TriangulatedGridder2D()
 
 TriangulatedGridder2D::TriangulatedGridder2D( 
 				const TriangulatedGridder2D& b )
-    : triangles_( 0 )
+    : Gridder2D( b )
+    , triangles_( 0 )
     , interpolator_( 0 )  
     , xrg_( b.xrg_ )
     , yrg_( b.yrg_ )
@@ -331,7 +332,7 @@ bool TriangulatedGridder2D::init()
 
 bool TriangulatedGridder2D::setPoints( const TypeSet<Coord>& pts )
 {
-    if ( points_==&pts )
+    if ( points_==&pts && triangles_ )
 	return true;
 
     if ( !Gridder2D::setPoints(pts) )
