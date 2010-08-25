@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.23 2010-08-06 10:44:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.24 2010-08-25 12:00:45 cvsraman Exp $";
 
 #include "uiselsurvranges.h"
 #include "survinfo.h"
@@ -237,6 +237,7 @@ void uiSelNrRange::makeInpFields( const char* lbltxt, StepInterval<int> limitrg,
 	stepfld_->setInterval( StepInterval<int>(limitrg.step,limitrg.width(),
 		    				 limitrg.step) );
 	stepfld_->doSnap( true );
+	stepfld_->valueChanging.notify( cb );
 	lbl = new uiLabel( this, "step", stepfld_ );
 	if ( stopfld )
 	    lbl->attach( rightOf, stopfld );
