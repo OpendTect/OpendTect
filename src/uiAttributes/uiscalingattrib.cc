@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.27 2010-08-23 13:44:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.28 2010-08-25 11:21:30 cvshelene Exp $";
 
 
 #include "uiscalingattrib.h"
@@ -274,4 +274,21 @@ void uiScalingAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     }
     else if ( typeval == 3 )
 	params += EvalParam( "Untouched range", Scaling::squntouchedStr() );
+}
+
+
+bool uiScalingAttrib::areUIParsOK()
+{
+    const int typeval = typefld->getIntValue();
+    if ( typeval < 3 ) return true;
+
+    const bool areparamsok = !(  sqrgfld->isUndef(0) && sqrgfld->isUndef(1)
+	    		      && squrgfld->isUndef(0) && squrgfld->isUndef(1) );
+    if ( !areparamsok )
+    {
+	errmsg_ = "Please fill in either start or stop of value range \n";
+    	errmsg_ += "or untouched range.";
+    }
+
+    return areparamsok;
 }

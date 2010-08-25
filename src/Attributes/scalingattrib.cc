@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.35 2010-08-23 13:44:03 cvsbert Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.36 2010-08-25 11:21:30 cvshelene Exp $";
 
 #include "scalingattrib.h"
 
@@ -97,9 +97,11 @@ void Scaling::initClass()
 
     FloatGateParam* fgparm = new FloatGateParam(sqrangeStr());
     fgparm->setDefaultValue( Interval<float>(mUdf(float),mUdf(float)) );
+    fgparm->setRequired( false );
     desc->addParam( fgparm );
     fgparm = new FloatGateParam(squntouchedStr());
     fgparm->setDefaultValue( Interval<float>(mUdf(float),mUdf(float)) );
+    fgparm->setRequired( false );
     desc->addParam( fgparm );
 
     FloatParam* mutefractionval = new FloatParam( mutefractionStr() );

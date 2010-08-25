@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.h,v 1.11 2010-08-23 13:44:03 cvsbert Exp $
+ RCS:           $Id: uiscalingattrib.h,v 1.12 2010-08-25 11:21:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ protected:
     bool		getInput(Attrib::Desc&);
 
     void		getEvalParams(TypeSet<EvalParam>&) const;
+
+    bool		areUIParsOK();
 
     			mDeclReqAttribUIFns
 };
