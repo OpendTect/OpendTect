@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.11 2010-08-20 03:41:47 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.12 2010-08-25 13:42:13 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -187,13 +187,58 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	    continue;
 	}
 
+	TypeSet<int> undefpos;
+	int nrnull = 0;
+
+	double slownesssum = 0;
+	int nrslowness = 0;
+
 	const TypeSet<int>& usedpoints = gridder_->usedValues();
 	for ( int idy=usedpoints.size()-1; idy>=0; idy-- )
-	    gridvalues_[usedpoints[idy]] =
-		velocityfunctions_[idy]->getVelocity( z );
-	    
+	{
+	    const float vel = velocityfunctions_[idy]->getVelocity( z );
+	    if ( mIsZero(vel,1e-3) )
+	    {
+		undefpos += idy;
+		nrnull ++;
+		continue;
+	    }
+
+	    if ( mIsUdf(vel) )
+	    {
+		undefpos += idy;
+		continue;
+	    }
+
+	    const float slowness = 1.0/vel;
+
+	    gridvalues_[usedpoints[idy]] = slowness;
+	    slownesssum += slowness;
+	    nrslowness++;
+	}
+
+	if ( nrslowness<usedpoints.size() )
+	{
+	    if ( nrnull==usedpoints.size() ) //All are null
+	    {
+		res[idx] = 0;
+		continue;
+	    }
+
+	    if ( !nrslowness )
+	    {
+		res[idx] = mUdf(float);
+		continue;
+	    }
+
+	    const float averageslowness = slownesssum/nrslowness;
+	    for ( int idy=undefpos.size()-1; idy>=0; idy-- )
+		gridvalues_[usedpoints[undefpos[idy]]] = averageslowness;
+	}
+
 	gridder_->setValues( gridvalues_, false );
-	res[idx] = gridder_->getValue();
+	const float slowness = gridder_->getValue();
+	res[idx] = mIsZero(slowness, 1e-7 ) ? mUdf(float) : 1.0/slowness;
     }
 
     return true;
@@ -204,6 +249,7 @@ GriddedSource::GriddedSource()
     : notifier_( this )
     , gridder_( new TriangulatedGridder2D )
     , sourcepos_( 0, false )
+    , gridderinited_( false )
 { }
 
 
@@ -368,7 +414,7 @@ bool GriddedSource::initGridder()
 
 void GriddedSource::setGridder( Gridder2D* ng )
 {
-    if ( gridder_ && ng && *ng==*gridder_ )
+    if ( gridderinited_ && gridder_ && ng && *ng==*gridder_ )
     {
 	delete ng;
 	return;
