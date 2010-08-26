@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "attribprocessor.h"
+#include "attribprovider.h"
 #include "attribfactory.h"
 #include "attribdatacubes.h"
 #include "attribdataholder.h"
@@ -60,6 +61,10 @@ FlatDataPack* uiAttribPanel::computeAttrib()
 	uiMSG().error( errmsg );
 	return 0;
     }
+
+    const bool issingtrc = cs_.nrInl()==1 && cs_.nrCrl()==1;
+    if ( issingtrc && proc->getProvider() )
+	proc->getProvider()->enableAllOutputs( true );
 
     proc->setName( getProcName() );
     uiTaskRunner dlg( parent_ );
