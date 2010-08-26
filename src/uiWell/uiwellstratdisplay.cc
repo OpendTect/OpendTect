@@ -7,16 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.14 2010-08-12 09:36:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.15 2010-08-26 14:34:47 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
 #include "stratunitrepos.h"
+#include "survinfo.h"
 #include "uigraphicsscene.h"
 #include "uistrattreewin.h"
+#include "welldisp.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
-#include "welldisp.h"
+#include "wellstratman.h"
 
 uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
 					const Well::Well2DDispData& dd)
@@ -88,8 +90,9 @@ void uiWellStratDisplay::dataChanged( CallBacker* )
 	}
     }
     deepErase( orgunits_ );
-    setZRange( Interval<float>( (dispData().zrg_.stop/1000), 
-				(dispData().zrg_.start )/1000) );
+    float fac = SI().zIsTime() ? 0.001 : 1;
+    setZRange( Interval<float>( dispData().zrg_.stop*fac, 
+				dispData().zrg_.start*fac ) );
     drawer_.draw();
 }
 
@@ -146,6 +149,7 @@ float uiWellStratDisplay::getPosFromMarkers( const AnnotData::Unit& unit ) const
 float uiWellStratDisplay::getPosMarkerLvlMatch( int lvlid ) const
 {
     float pos = mUdf( float );
+    if ( lvlid<0 || !Well::StratMGR().getLvl( lvlid ) ) return pos;
     const Well::Marker* mrk = 0;
     for ( int idx=0; idx<dispdata_.markers_->size(); idx++ )
     {
@@ -153,14 +157,13 @@ float uiWellStratDisplay::getPosMarkerLvlMatch( int lvlid ) const
 	if ( curmrk && curmrk->levelID() >=0 )
 	{
 	    if ( lvlid == curmrk->levelID() )
-		mrk = curmrk;
+	    {
+		pos = curmrk->dah();
+		if ( dispdata_.zistime_ && dispdata_.d2tm_ ) 
+		    pos = dispdata_.d2tm_->getTime( pos ); 
+		return pos;
+	    }
 	}
-    }
-    if ( mrk ) 
-    {
-	pos = mrk->dah();
-	if ( dispdata_.zistime_ && dispdata_.d2tm_ ) 
-	    pos = dispdata_.d2tm_->getTime( pos ); 
     }
     return pos;
 }
