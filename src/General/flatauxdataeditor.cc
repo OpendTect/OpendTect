@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.34 2010-08-19 12:02:59 cvsumesh Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.35 2010-08-26 12:10:34 cvsjaap Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -748,6 +748,9 @@ bool Sower::accept( const MouseEvent& mouseevent, bool released,
 	const RowCol rc = RowCol( mouseevent.x(), mouseevent.y() );
 	const Point pt = transformation_.transform( rc );
 	sowingline_->poly_ += pt;
+	if ( sowingline_->poly_.size() == 1 )	    // Do not want the marker  
+	    sowingline_->poly_ += pt;		    // from one-point polyline
+
 	viewer_.handleChange( Viewer::Annot );
 
 	unsigned int butstate = mouseevent.buttonState();
