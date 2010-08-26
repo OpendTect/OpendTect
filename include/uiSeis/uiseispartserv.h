@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.44 2010-08-12 13:37:48 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.45 2010-08-26 04:11:05 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,6 @@ public:
 				       CubeSampling&,SeisTrcBuf&);
     void 		getStoredGathersList(bool for3d,BufferStringSet&) const;
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
-    void		create2DGridFromRln(const Geometry::RandomLine&) const;
 
     void		processTime2Depth() const;
     void		processVelConv() const;
