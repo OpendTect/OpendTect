@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.42 2010-08-05 11:50:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.43 2010-08-26 14:31:37 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -307,8 +307,8 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
     urdlg.setTitleText("Update Unit Properties");
     UnitRef::Props props;
     props = unitref->props();
-    props.code_ = lvit->text(0); 
-    props.desc_ = lvit->text(2); 
+    props.code_ = lvit->text(cUnitsCol); 
+    props.desc_ = lvit->text(cDescCol); 
     props.lithnm_ = lvit->text(cLithoCol); 
     urdlg.setUnitProps( props );
 
