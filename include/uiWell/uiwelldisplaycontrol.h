@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiwelldisplaycontrol.h,v 1.11 2010-08-20 15:02:27 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaycontrol.h,v 1.12 2010-08-26 14:37:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "callback.h"
 
-class KeyboardEventHandler;
 class MouseEventHandler;
 class uiWellLogDisplay;
 
@@ -30,14 +29,17 @@ public:
     void			addLogDisplay(uiWellLogDisplay&);
     void			removeLogDisplay(uiWellLogDisplay&);
 
-    float 			mousePos() const; 
     bool			isMouseDown() const 	{ return ismousedown_;} 
     void			setMouseDown(bool yn)   { ismousedown_ = yn; } 
+    bool			isCtrlPressed() const	{return isctrlpressed_;}
+    void			setCtrlPressed(bool);
 
     const uiWellLogDisplay*	selLogDisp() const	{ return seldisp_; }
     Well::Marker*		selMarker()		{ return selmarker_; }
 
-    KeyboardEventHandler*	keyboardEventHandler(); 
+    float			time()  	{ return time_; }
+    float			depth()		{ return depth_; }
+
     MouseEventHandler*		mouseEventHandler();
     
     Notifier<uiWellDisplayControl>  posChanged;
@@ -51,6 +53,7 @@ protected:
 
     BufferString                info_;
     bool			ismousedown_;
+    bool			isctrlpressed_;
 
     Well::Marker* 		selmarker_;
     Well::Marker* 		lastselmarker_;
@@ -59,15 +62,16 @@ protected:
     void			setSelMarkerCB(CallBacker*);
 
     MouseEventHandler& 		mouseEventHandler(int);
-    KeyboardEventHandler& 	keyboardEventHandler(int);
 
     void 			getPosInfo(BufferString&) const;
+    float 			mousePos() const; 
+    
+    float			time_;
+    float			depth_;
 
     void 			mouseMovedCB(CallBacker*);
     void                        mousePressedCB(CallBacker*);
     void                        mouseReleasedCB(CallBacker*);
-    void			keyPressedCB(CallBacker*);
-    void			keyReleasedCB(CallBacker*);
     void			setPosInfo(CallBacker*);
 };
 

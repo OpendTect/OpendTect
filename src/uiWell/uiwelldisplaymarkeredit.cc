@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.1 2010-08-20 15:02:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.2 2010-08-26 14:37:28 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.1 2010-08-20 15:
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "randcolor.h"
+#include "survinfo.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "wellstratman.h"
@@ -31,19 +32,22 @@ static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.1 2010-08-20 15:
 
 
 
-void WellDispMarkerParams::setParsFromMarker( const Well::Marker& mrk )
+void WellDispMarkerParams::getFromMarker( const Well::Marker& mrk )
 {
     name_ = mrk.name();
     col_ = mrk.color();
     dah_ = mrk.dah();
+    isstrat_ = ( mrk.levelID() > 0 );
 }
 
 
-void WellDispMarkerParams::setParsToMarker( Well::Marker& mrk )
+void WellDispMarkerParams::putToMarker( Well::Marker& mrk )
 {
     mrk.setName( name_ );
     mrk.setDah( dah_ );
     mrk.setColor( col_ );
+    if ( isstrat_ )
+	mrk.setLevelID( Well::StratMGR().addLevel( name_, col_ ) );
 }
 
 
@@ -53,16 +57,18 @@ uiWellDispMarkerEditGrp::uiWellDispMarkerEditGrp( uiParent* p,
 						  WellDispMarkerParams& par )
 	: uiGroup(p,"Edit Markers Group")
 	, par_(par) 
+	, istime_(SI().zIsTime())
 	, dispparchg(this)	   
 {
     namefld_ = new uiGenInput( this, "Name", StringInpSpec("Marker") );
 
-    depthfld_ = new uiGenInput( this, "Depth", FloatInpSpec(0) );
-    depthfld_->attach( alignedBelow, namefld_ );
+    bool istime = SI().zIsTime();
+    posfld_ = new uiGenInput( this, istime ? "Time" : "Depth", FloatInpSpec(0));
+    posfld_->attach( alignedBelow, namefld_ );
     uiColorInput::Setup csu( getRandStdDrawColor() );
     csu.lbltxt( "Color" ).withalpha(false);
     colorfld_ = new uiColorInput( this, csu, "Color" );
-    colorfld_->attach( alignedBelow, depthfld_ );
+    colorfld_->attach( alignedBelow, posfld_ );
 
     stratmrkfld_ = new uiCheckBox( this, "Set as stratigraphic marker" );
     stratmrkfld_->attach( alignedBelow, colorfld_ );
@@ -71,7 +77,7 @@ uiWellDispMarkerEditGrp::uiWellDispMarkerEditGrp( uiParent* p,
     CallBack parchgcb = mCB(this, uiWellDispMarkerEditGrp, getFromScreen );
     namefld_->valuechanged.notify( parchgcb );
     colorfld_->colorChanged.notify( parchgcb );
-    depthfld_->valuechanged.notify( parchgcb ); 
+    posfld_->valuechanged.notify( parchgcb ); 
     stratmrkfld_->activated.notify( parchgcb );
 }
 
@@ -80,6 +86,7 @@ void uiWellDispMarkerEditGrp::setDefault()
 {
     par_.name_ = "Marker";
     par_.dah_ = 0;
+    par_.time_= 0;
     par_.col_ = getRandStdDrawColor();
     par_.isstrat_ = true;
 
@@ -90,7 +97,7 @@ void uiWellDispMarkerEditGrp::setDefault()
 void uiWellDispMarkerEditGrp::getFromScreen( CallBacker* )
 {
     par_.name_ = namefld_->text();
-    par_.dah_ = depthfld_->getfValue();
+    par_.time_ = posfld_->getfValue();
     par_.col_ = colorfld_->color();
     par_.isstrat_ = stratmrkfld_->isChecked();
     dispparchg.trigger();
@@ -111,15 +118,16 @@ void uiWellDispMarkerEditGrp::putToScreen()
 {
     namefld_->setText( par_.name_ );
     colorfld_->setColor( par_.col_ );
-    depthfld_->setValue( par_.dah_ );
+    posfld_->setValue( par_.time_ );
     stratmrkfld_->setChecked( par_.isstrat_ );
 }
 
 
-void uiWellDispMarkerEditGrp::setPos( float pos )
+void uiWellDispMarkerEditGrp::setPos( float time, float depth )
 {
-    par_.dah_ = pos;
-    depthfld_->setValue( pos );
+    par_.dah_ = depth;
+    par_.time_ = time;
+    posfld_->setValue( istime_ ? time : depth );
 }
 
 
@@ -127,7 +135,7 @@ void uiWellDispMarkerEditGrp::setFldsSensitive( bool yn )
 {
     namefld_->setSensitive( yn );
     colorfld_->setSensitive( yn );
-    depthfld_->setSensitive( yn );
+    posfld_->setSensitive( yn );
     stratmrkfld_->setSensitive( yn);
 }
 
@@ -140,6 +148,8 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p,
 				"Select editing mode",mTODOHelpID)
 				.modal(false))
 {
+    setCtrlStyle( LeaveOnly );
+
     modefld_ = new uiGenInput( this, "Select mode", 
 			    BoolInpSpec(true,"Add/Remove","Edit Selected") );
     modefld_->valuechanged.notify( mCB(this,uiWellDispEditMarkerDlg,modeChg) );
@@ -176,29 +186,6 @@ bool uiWellDispEditMarkerDlg::isAddRemMode() const
 }
 
 
-bool uiWellDispEditMarkerDlg::rejectOK( CallBacker* )
-{
-    /*
-    if ( addedmarkers_.size() )
-    {
-	BufferString msg( "Some markers have been added "); 
-	msg += "if you cancel, they will be removed ";
-	msg += ", do you want to continue ?";
-	if ( uiMSG().askGoOn(msg) )
-	{
-	    for ( int idx=addedmarkers_.size()-1; idx>=0; idx-- )
-		removeMarker( *addedmarkers_[idx] );
-	    return true;
-	}
-	else 
-	    return false;
-    }
-    */
-    return true;
-}
-
-
-
 
 uiWellDispMarkerEditor::uiWellDispMarkerEditor( uiParent* p )
     : editdlg_(0)	
@@ -209,7 +196,8 @@ uiWellDispMarkerEditor::uiWellDispMarkerEditor( uiParent* p )
     , curctrl_(0)
     , curwd_(0)	 
     , lasteditwd_(0)
-    , lasteditmrk_(0)	     
+    , lasteditmrk_(0)	    
+    , editFinished(this)			    
 {
     menu_ = new uiMenuHandler( p, -1 );	
     menu_->ref();
@@ -261,8 +249,8 @@ void uiWellDispMarkerEditor::handleCtrlChangeCB( CallBacker* cb )
     if ( ctrl == curctrl_ )
 	{ curmrk_ = curctrl_ ? curctrl_->selMarker() : 0; return; }
     curctrl_ = 0; curmrk_ = 0; curwd_ = 0;
-    if ( !ctrl || !ctrl->mouseEventHandler() ) return;
-    if ( !ctrl->mouseEventHandler()->hasEvent() ) return;
+    if ( !ctrl || !ctrl->mouseEventHandler() 
+	    	|| !ctrl->mouseEventHandler()->hasEvent() ) return;
     curctrl_ = ctrl;
     int widx = ctrls_.indexOf( ctrl );
     curwd_ =  ( widx >=0 && widx<wds_.size() ) ? wds_[widx] : 0;
@@ -279,21 +267,12 @@ void uiWellDispMarkerEditor::handleUsrClickCB( CallBacker* cb )
 
 void uiWellDispMarkerEditor::posChgCB( CallBacker* cb )
 {
+    if ( !isediting_ ) return;
     MouseEventHandler* mevh = curctrl_->mouseEventHandler();
-    if ( !mevh || !mevh->hasEvent() || mevh->isHandled() ) return;
+    if ( !mevh || !mevh->hasEvent()  ) return;
 
-    if ( editdlg_ && curctrl_ )
-    {
-	if ( editdlg_->isAddRemMode() || curctrl_->isMouseDown() )
-	    editdlg_->grp().setPos( curctrl_->mousePos() );
-	else if ( !editdlg_->isAddRemMode() && curctrl_->isMouseDown() )
-	{
-	    curmrk_->setDah( par_.dah_ );
-	    if ( curwd_ ) 
-		curwd_->markerschanged.trigger();
-	}
-	mevh->setHandled( true );
-    }
+    if ( editdlg_ && curctrl_ && editdlg_->isAddRemMode()  )
+	editdlg_->grp().setPos( curctrl_->time(), curctrl_->depth() );
 }
 
 
@@ -358,19 +337,16 @@ void uiWellDispMarkerEditor::handleEditMarker()
     if ( !mevh || !mevh->hasEvent() || mevh->isHandled() ) return;
     if ( isaddremmode )
     {
-	const KeyboardEventHandler* kevh = curctrl_->keyboardEventHandler();
-	if ( !kevh ) return;
-	const KeyboardEvent* ev = kevh->hasEvent() ? &kevh->event() : 0;
-	if ( ev && ev->key_ == OD::Control && curmrk_ )
+	if ( curctrl_->isCtrlPressed() && curmrk_ )
 	    removeMarker();
-	else 
+	else if ( !curctrl_->isCtrlPressed() ) 
 	    addNewMarker();
     }
     else if ( curmrk_ )
     {
 	lasteditwd_ = curwd_;
 	lasteditmrk_ = curmrk_;
-	par_.setParsFromMarker( *curmrk_ );
+	par_.getFromMarker( *curmrk_ );
 	editdlg_->grp().putToScreen();
 	editdlg_->grp().setFldsSensitive( true );
     }
@@ -383,15 +359,8 @@ void uiWellDispMarkerEditor::handleEditMarker()
 
 void uiWellDispMarkerEditor::editDlgClosedCB( CallBacker* )
 {
+    editFinished.trigger();
     isediting_ = false;
-    /*
-    for ( int idx=0; idx<wds_.size(); idx++ )
-    {
-	Well::Writer wtr( curfnm_, *wd );
-	if ( !wtr.putMarkers() )
-	uiMSG().error( "Cannot write new markers to disk" );
-    }
-    */
 }
 
 
@@ -400,17 +369,18 @@ void uiWellDispMarkerEditor::addNewMarker()
     if ( curwd_->markers().isPresent( par_.name_.buf() ) )
 	mErrRet("Marker name already exists", return )
     Well::Marker* mrk = new Well::Marker( par_.name_, par_.dah_ );
-    mrk->setColor( par_.col_ );
+    par_.putToMarker( *mrk );
     curwd_->markers().insertNew( mrk );
 }
 
 
 void uiWellDispMarkerEditor::editMarkerCB( CallBacker* )
 {
+    if ( !isediting_ ) return;
     bool isaddremmode = editdlg_->isAddRemMode();
     if ( !isaddremmode && lasteditmrk_ )
     {
-	par_.setParsToMarker( *lasteditmrk_ );
+	par_.putToMarker( *lasteditmrk_ );
 	if ( lasteditwd_ ) 
 	    lasteditwd_->markerschanged.trigger();
     }

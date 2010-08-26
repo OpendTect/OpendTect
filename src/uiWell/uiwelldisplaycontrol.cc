@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.15 2010-08-20 15:02:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.16 2010-08-26 14:37:28 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -17,7 +17,6 @@ static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.15 2010-08-20 15:02
 #include "uiwelllogdisplay.h"
 
 #include "mouseevent.h"
-#include "keyboardevent.h"
 #include "welld2tmodel.h"
 #include "welllog.h"
 #include "wellmarker.h"
@@ -29,6 +28,9 @@ uiWellDisplayControl::uiWellDisplayControl( uiWellLogDisplay& l )
     , seldisp_(0)			
     , lastselmarker_(0)
     , ismousedown_(false)		       
+    , isctrlpressed_(false)
+    , time_(0)					       
+    , depth_(0)					       
     , posChanged(this)
     , mousePressed(this)
     , mouseReleased(this)
@@ -65,14 +67,9 @@ void uiWellDisplayControl::removeLogDisplay( uiWellLogDisplay& disp )
 MouseEventHandler& uiWellDisplayControl::mouseEventHandler( int dispidx )
     { return logdisps_[dispidx]->scene().getMouseEventHandler(); }
 
-KeyboardEventHandler& uiWellDisplayControl::keyboardEventHandler( int dispidx )
-    { return logdisps_[dispidx]->getKeyboardEventHandler(); }
 
 MouseEventHandler* uiWellDisplayControl::mouseEventHandler()
     { return seldisp_ ? &seldisp_->scene().getMouseEventHandler() : 0; }
-
-KeyboardEventHandler* uiWellDisplayControl::keyboardEventHandler()
-    { return seldisp_ ? &seldisp_->getKeyboardEventHandler() : 0; }
 
 
 void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
@@ -82,6 +79,21 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 	return;
     if ( !mevh->hasEvent() || mevh->isHandled() ) 
 	return;
+
+    const Well::Well2DDispData& data = seldisp_->data();
+    float pos = mousePos();
+    if ( data.zistime_ )
+    {
+	time_ = pos;
+	if ( data.d2tm_ && data.d2tm_->size() >= 1 )
+	    depth_ = data.d2tm_->getDah( pos*0.001 );
+    }
+    else
+    {
+	depth_ = pos;
+	if ( data.d2tm_ )
+	    time_ = data.d2tm_->getTime( pos )*1000;
+    }
 
     BufferString info;
     getPosInfo( info );
@@ -108,48 +120,23 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
 {
     info.setEmpty();
     if ( !seldisp_ ) return;
-    const Well::Well2DDispData& data = seldisp_->data();
-    float pos = mousePos();
-    if ( data.markers_ )
+    if ( selmarker_ )
     {
-	for ( int idx=0; idx<data.markers_->size(); idx++ )
-	{
-	    const Well::Marker* marker = (*data.markers_)[idx];
-	    if ( !marker ) continue;
-		float markerpos = marker->dah();
-	    if ( data.zistime_ && data.d2tm_ )
-		markerpos = data.d2tm_->getTime( markerpos )*1000;
-	    if ( !mIsEqual(markerpos,pos,5) )
-		continue;
-	    info += " Marker: ";
-	    info += marker->name();
-	    info += "  ";
-	    break;
-	}
-    }
-    float time = 0, dah = 0;
-    if ( data.zistime_ )
-    {
-	time = pos;
-	if ( data.d2tm_ && data.d2tm_->size() >= 1 )
-	    dah = data.d2tm_->getDah( pos*0.001 );
-    }
-    else
-    {
-	dah = pos;
-	if ( data.d2tm_ )
-	    time = data.d2tm_->getTime( pos )*1000;
+	float markerpos = selmarker_->dah();
+	info += " Marker: ";
+	info += selmarker_->name();
+	info += "  ";
     }
     info += "  MD: ";
-    info += toString( mNINT(dah) );
+    info += toString( mNINT(depth_) );
     info += "  Time: ";
-    info += toString( mNINT(time) );
+    info += toString( mNINT(time_) );
 
 #define mGetLogPar( ld )\
     info += "   ";\
     info += ld.wl_->name();\
     info += ":";\
-    info += toString( ld.wl_->getValue( dah ) );\
+    info += toString( ld.wl_->getValue( depth_ ) );\
     info += ld.wl_->unitMeasLabel();\
 
     const uiWellLogDisplay::LogData& ldata1 = seldisp_->logData(true);
@@ -179,6 +166,8 @@ void uiWellDisplayControl::mousePressedCB( CallBacker* cb )
 	return;
 
     ismousedown_ = true;
+    isctrlpressed_ = seldisp_ ? seldisp_->isCtrlPressed() : false;
+
     mousePressed.trigger();
 }
 
@@ -192,6 +181,7 @@ void uiWellDisplayControl::mouseReleasedCB( CallBacker* cb )
 	return;
 
     ismousedown_ = false;
+    isctrlpressed_ = false;
     mouseReleased.trigger();
 }
 
@@ -232,4 +222,13 @@ void uiWellDisplayControl::setSelMarkerCB( CallBacker* )
 }
 
 
+void uiWellDisplayControl::setCtrlPressed( bool yn )
+{
+    for ( int idx=0; idx<logdisps_.size(); idx++)
+    {
+	uiWellLogDisplay* ld = logdisps_[idx];
+	ld->setCtrlPressed( yn );
+    }
+    isctrlpressed_ = yn;
+}
 

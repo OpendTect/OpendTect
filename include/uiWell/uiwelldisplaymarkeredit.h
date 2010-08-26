@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.1 2010-08-20 15:02:27 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.2 2010-08-26 14:37:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,13 +33,14 @@ mStruct WellDispMarkerParams
 				    : dah_(0)
 				    {}
 
+    float 			time_;
     float 			dah_;
     Color               	col_;
     BufferString        	name_;
     bool                	isstrat_;
 
-    void			setParsFromMarker(const Well::Marker&);
-    void			setParsToMarker(Well::Marker&);
+    void			getFromMarker(const Well::Marker&);
+    void			putToMarker(Well::Marker&);
 };
 
 
@@ -54,7 +55,7 @@ public :
     void			setFldsSensitive(bool yn);
     void			putToScreen();
 
-    void			setPos(float);
+    void			setPos(float,float);
 
     Notifier<uiWellDispMarkerEditGrp> dispparchg;
 
@@ -62,11 +63,13 @@ protected :
 
     WellDispMarkerParams&	par_;
 
+    bool			istime_;
+
     void			getFromScreen(CallBacker*);
 
     uiGenInput* 		modefld_;
     uiGenInput* 		namefld_;
-    uiGenInput*			depthfld_;
+    uiGenInput*			posfld_;
     uiColorInput*		colorfld_;
     uiCheckBox*			stratmrkfld_;
 };
@@ -91,7 +94,6 @@ protected:
     uiWellDispMarkerEditGrp*	mrkgrp_;
     uiGenInput*			modefld_;
 
-    bool			rejectOK(CallBacker*);
     void			modeChg(CallBacker*);
 };
 
@@ -105,6 +107,8 @@ public:
 
     void 			addCtrl(uiWellDisplayControl&,Well::Data&);
     void 			removeCtrl(uiWellDisplayControl&,Well::Data&);
+
+    Notifier<uiWellDispMarkerEditor> editFinished;
 
 protected:
 
