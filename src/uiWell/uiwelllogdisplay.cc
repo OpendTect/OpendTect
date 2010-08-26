@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.58 2010-08-20 15:02:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.59 2010-08-26 14:36:06 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -485,7 +485,8 @@ void uiWellLogDisplay::drawMarkers()
     for ( int idx=0; idx<data_.markers_->size(); idx++ )
     {
 	Well::Marker& mrkr = *((*data_.markers_)[idx]);
-	if ( mrkr.color() == Color::NoColor() ) continue;
+	if ( mrkr.color() == Color::NoColor() || 
+		mrkr.color() == Color::White()  ) continue;
 
 	mDefZPosInLoop( mrkr.dah() )
 	mDefHorLineX1X2Y();
@@ -686,6 +687,11 @@ void uiWellDisplay::setInitialSize( uiSize sz )
 	logdisps_[idx]->setPrefWidth( (int)(sz.width()/logdisps_.size()) ); 
 	logdisps_[idx]->setPrefHeight( sz.height() );
     }
+    if ( stratdisp_ )
+    {
+	stratdisp_->setPrefWidth( (int)(sz.width()/(2*logdisps_.size()+1)));
+	stratdisp_->setPrefHeight( sz.height() );
+    }
 }
 
 
@@ -749,7 +755,7 @@ void uiWellDisplay::setStratDisp()
     else
 	stratdisp_ = new uiWellStratDisplay( this, true, pms_.data_ );
     if ( nrLogDisp() )
-	stratdisp_->attach( ensureRightOf, logdisps_[nrLogDisp()-1] );
+	stratdisp_->attach( rightOf, logdisps_[nrLogDisp()-1] );
     stratdisp_->setStretch( 2, 2 );
 }
 
