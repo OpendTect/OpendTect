@@ -7,18 +7,23 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2003
- RCS:           $Id: uispecdecompattrib.h,v 1.9 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uispecdecompattrib.h,v 1.10 2010-08-26 08:24:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "multiid.h"
 #include "uiattrdesced.h"
+#include "uiattribpanel.h"
 
 namespace Attrib { class Desc; };
 
 class uiGenInput;
 class uiImagAttrSel;
 class uiLabeledSpinBox;
+class uiPushButton;
+class uiSpecDecompPanel;
+class uiTrcPositionDlg;
 
 /*! \brief Spectral Decomposition Attribute description editor */
 
@@ -52,14 +57,44 @@ protected:
     void		inputSel(CallBacker*);
     void		typeSel(CallBacker*);
     void		stepChg(CallBacker*);
+    void		panelTFPush(CallBacker*);
 
     void		checkOutValSnapped() const;
+    void		getInputMID(MultiID&) const;
+    Attrib::DescID	createSpecDecompDesc(Attrib::DescSet*) const;
+    void		createHilbertDesc(Attrib::DescSet*,
+	    				  Attrib::DescID&) const;
+    Attrib::Desc*	createNewDesc(Attrib::DescSet*,Attrib::DescID,
+	    			      const char*,int,int,BufferString) const;
+    void		fillInSDDescParams(Attrib::Desc*) const;
+    bool		passStdCheck(const Attrib::Desc*,const char*,
+	    			     int seloutidx,int inpidx,
+				     Attrib::DescID inpid) const;
 
     float		nyqfreq_;
     int			nrsamples_; //!< Nr of samples in selected data
     float		ds_; //!< Sample spacing of selected data
 
+    uiPushButton*	tfpanelbut_;
+    uiSpecDecompPanel*	panelview_;	//!< Time Frequency panel
+    uiTrcPositionDlg*	positiondlg_;
+
     			mDeclReqAttribUIFns
+};
+
+
+class uiSpecDecompPanel	: public uiAttribPanel
+{
+public:
+    				uiSpecDecompPanel( uiParent* p )
+				    : uiAttribPanel( p )		{};
+
+protected:
+
+    virtual const char*         getProcName();
+    virtual const char*         getPackName();
+    virtual const char*         getPanelName();
+
 };
 
 #endif

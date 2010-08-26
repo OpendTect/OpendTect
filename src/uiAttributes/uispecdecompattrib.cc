@@ -7,22 +7,27 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.28 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.29 2010-08-26 08:24:58 cvshelene Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
 
 #include "attribdesc.h"
+#include "attribdescset.h"
+#include "attribfactory.h"
 #include "attribparam.h"
 #include "cubesampling.h"
+#include "hilbertattrib.h"
 #include "survinfo.h"
 #include "wavelettrans.h"
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uispinbox.h"
+#include "uitrcpositiondlg.h"
 
 using namespace Attrib;
 
@@ -34,6 +39,8 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     , nyqfreq_(0)
     , nrsamples_(0)
     , ds_(0)
+    , panelview_( new uiSpecDecompPanel(p) )
+    , positiondlg_( 0 )
     
 {
     inpfld_ = createImagInpFld( is2d );
@@ -49,10 +56,15 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, typefld_ );
 
+    BufferString tfstr = "&Display Time/Frequency panel";
+    CallBack cbtfpanel = mCB(this,uiSpecDecompAttrib,panelTFPush);
+    tfpanelbut_ = new uiPushButton( this, tfstr, cbtfpanel, true );
+    tfpanelbut_->attach( alignedBelow, gatefld_ );
+
     BufferString lbl( "Output frequency (" );
     lbl += zIsTime() ? "Hz" : "cycles/mm"; lbl += ")";
     outpfld_ = new uiLabeledSpinBox( this, lbl, 1 );
-    outpfld_->attach( alignedBelow, gatefld_ );
+    outpfld_->attach( alignedBelow, tfpanelbut_ );
     outpfld_->box()->doSnap( true );
 
     stepfld_ = new uiLabeledSpinBox( this, "step", 1 );
@@ -224,3 +236,167 @@ void uiSpecDecompAttrib::checkOutValSnapped() const
     }
 }
 
+
+void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )                                  
+{                                                                               
+    if ( inpfld_->attribID() == DescID::undef() )                               
+    {                                                                           
+	uiMSG().error( "Please, first, fill in the Input Data field" );         
+	return;                                                                 
+    }                                                                           
+
+    MultiID mid;                                                                
+    getInputMID( mid );                                                         
+    CubeSampling cs;                                                            
+    inpfld_->getRanges( cs );                                                   
+    if ( positiondlg_ ) delete positiondlg_;                                    
+    positiondlg_ = new uiTrcPositionDlg( this, cs, ads_->is2D(), mid );
+    if ( !positiondlg_->go() ) return;                                          
+
+    DescSet* dset = new DescSet( *ads_ ); 
+    DescID inpid = inpfld_->attribID();                                       
+    DescID specdecompid = createSpecDecompDesc( dset ); 
+
+    LineKey lk;                                                                 
+    cs = positiondlg_->getCubeSampling();                                       
+    if ( dset->is2D() )                                                         
+	lk = LineKey( positiondlg_->getLineKey() );                             
+
+    Interval<float> gate = gatefld_->getFInterval();                            
+    gate.scale( 1/SI().zFactor() );                                             
+    cs.zrg.start = gate.start;                                                  
+    cs.zrg.stop = gate.stop;                                                    
+
+    panelview_->compAndDispAttrib( dset, specdecompid, cs, lk );                            
+}
+
+
+void uiSpecDecompAttrib::getInputMID( MultiID& mid ) const                              
+{                                                                               
+    if ( !ads_->is2D() ) return;                                                
+	                                                                                
+    Desc* tmpdesc = ads_->getFirstStored( false );                              
+    if ( !tmpdesc ) return;                                                     
+    mid = MultiID( tmpdesc->getStoredID().buf() );                              
+}
+
+
+DescID uiSpecDecompAttrib::createSpecDecompDesc( DescSet* dset ) const
+{                  
+    inpfld_->processInput();
+    DescID inpid = inpfld_->attribID();                                         
+    
+    Desc* newdesc = createNewDesc( dset, inpid,                                 
+				   SpecDecomp::attribName(), 0, 0, "" );
+    if ( !newdesc )                                                             
+	return DescID::undef();
+
+    DescID hilbid;
+    createHilbertDesc( dset, hilbid );
+    if ( !newdesc->setInput( 1, dset->getDesc(hilbid)) )
+	return DescID::undef();
+    
+    fillInSDDescParams( newdesc );                                              
+    newdesc->updateParams();                                                    
+    newdesc->setUserRef( "spectral decomposition" );                                           
+    return dset->addDesc( newdesc );                                            
+}
+
+
+Desc* uiSpecDecompAttrib::createNewDesc( DescSet* descset, DescID inpid,
+					 const char* attribnm, int seloutidx,
+					 int inpidx, BufferString specref) const
+{                                                                               
+    Desc* inpdesc = descset->getDesc( inpid );                                  
+    Desc* newdesc = PF().createDescCopy( attribnm );                            
+    if ( !newdesc || !inpdesc )                                                 
+	return 0;                                                                   
+    newdesc->selectOutput( seloutidx );                                         
+    newdesc->setInput( inpidx, inpdesc );                                       
+    newdesc->setHidden( true );                                                 
+    BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += specref; 
+    newdesc->setUserRef( usrref );                                              
+    return newdesc;                                                             
+}
+
+
+#define mSetParam( type, nm, str, fn )\
+{\
+    mDynamicCastGet(type##Param*, nm, newdesc->getValParam(str))\
+    nm->setValue( fn );\
+}
+
+
+void uiSpecDecompAttrib::fillInSDDescParams( Desc* newdesc ) const
+{
+    mSetParam(Enum,type,SpecDecomp::transformTypeStr(),
+	      typefld_->getBoolValue() ? 0 : 2)
+    mSetParam(Enum,cwt,SpecDecomp::cwtwaveletStr(),waveletfld_->getIntValue())
+    mSetParam(ZGate,gate,SpecDecomp::gateStr(), gatefld_->getFInterval())
+
+    const float freqscale = zIsTime() ? 1 : 1000;
+    mSetParam(Float,dfreq,SpecDecomp::deltafreqStr(),
+	      stepfld_->box()->getFValue()/freqscale)
+}
+
+
+void uiSpecDecompAttrib::createHilbertDesc( DescSet* descset,
+					    DescID& inputid ) const
+{                                                                               
+    if ( inputid == DescID::undef() )                                           
+    {                                                                           
+	inpfld_->processInput();                                                
+	inputid = inpfld_->attribID();                                          
+    }                                                                           
+
+    TypeSet<DescID> attribids;                                                  
+    descset->getIds( attribids );                                               
+    for ( int idx=0; idx<attribids.size(); idx++ )                              
+    {                                                                           
+	const Desc* dsc = descset->getDesc( attribids[idx] );                   
+	if ( !passStdCheck( dsc, Hilbert::attribName(), 0 , 0 , inputid ) )     
+	    continue;                                                           
+
+	inputid = attribids[idx];                                               
+	return;                                                                 
+    }                                                                           
+
+    Desc* newdesc = createNewDesc( descset, inputid, Hilbert::attribName(), 0,  
+				   0, "_imag" );
+    inputid = newdesc ? descset->addDesc( newdesc ) : DescID::undef();          
+}
+
+
+bool uiSpecDecompAttrib::passStdCheck( const Desc* dsc, const char* attribnm,
+				       int seloutidx, int inpidx,
+				       DescID inpid ) const
+{                                                                               
+    if ( strcmp( dsc->attribName(), attribnm ) )                                
+	return false;                                                           
+
+    if ( dsc->selectedOutput() != seloutidx )                                   
+	return false;	                                                                                    
+    const Desc* inputdesc = dsc->getInput( inpidx );                            
+    if ( !inputdesc || inputdesc->id() != inpid )                               
+	return false;		                                                                                    
+    return true;                                                                
+}
+
+//______________________________________________________________________
+
+const char* uiSpecDecompPanel::getProcName()
+{
+    return "Compute all frequencies for a single trace";
+}
+
+
+const char* uiSpecDecompPanel::getPackName()
+{
+    return "Spectral Decomposition time/frequency spectrum";
+}
+
+
+const char* uiSpecDecompPanel::getPanelName()
+{
+    return "Time Frequency spectrum";
+}
