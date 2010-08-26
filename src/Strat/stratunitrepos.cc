@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.43 2010-08-12 12:19:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.44 2010-08-26 14:33:04 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -98,7 +98,12 @@ bool Strat::RefTree::addCopyOfUnit( const Strat::UnitRef& ur, bool rev )
 {
     BufferString str;
     ur.fill( str );
-    return addUnit( ur.fullCode(), str );
+    if ( addUnit( ur.fullCode(), str ) )
+    {
+	setUnitProps( ur.fullCode(), ur.props() );
+	return true;
+    }
+    return false;
 }
 
 
@@ -241,7 +246,7 @@ void Strat::RefTree::getLeavesTimeGaps( const NodeUnitRef& node,
 				    TypeSet< Interval<float> >& timergs ) const
 {
     if ( node.nrRefs() <= 0 ) return;
-    Interval<float> partimerg = node.props().timerg_;
+    const Interval<float> partimerg = node.props().timerg_;
     ObjectSet<UnitRef> refunits;
     gatherLeavesByTime( node, refunits );
     const float refstart = refunits[0]->props().timerg_.start;
@@ -408,6 +413,7 @@ Strat::UnitRepository::~UnitRepository()
     deepErase( trees_ );
     deepErase( liths_ );
     deepErase( unusedliths_ );
+    deepErase( levels() );
 }
 
 
@@ -523,7 +529,8 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	    msg += astrm.keyWord(); msg += "'";
 	    ErrMsg( msg );
 	}
-	uncodes.add( astrm.keyWord() );
+	else
+	    uncodes.add( astrm.keyWord() );
     }
     tree->removeEmptyNodes();
 
@@ -662,7 +669,7 @@ void Strat::UnitRepository::addLith( const char* str, Repos::Source src )
 	liths_ += newlith;
 
     if ( newlith->id_ > lastlithid_ )
-    lastlithid_ = newlith->id_;
+	lastlithid_ = newlith->id_;
 }
 
 

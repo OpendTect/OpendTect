@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.24 2010-07-14 10:05:13 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.25 2010-08-26 14:33:03 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -88,13 +88,11 @@ public:
 			{
 			    props_.code_    = pp.code_;
 			    props_.desc_    = pp.desc_;
-			    props_.lithnm_  = pp.lithnm_;
 			    props_.timerg_  = pp.timerg_; 
 			    props_.isleaf_  = pp.isleaf_; 
 			    props_.color_   = pp.color_; 
 			    props_.lvlid_ = pp.lvlid_;
 			    props_.isunconf_ = pp.isunconf_;
-
 			}
 
     virtual void	acquireID() { id_ = getNewID(); }

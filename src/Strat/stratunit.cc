@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.21 2010-08-05 11:50:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.22 2010-08-26 14:33:04 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -140,7 +140,7 @@ bool Strat::LeafUnitRef::use( const char* str )
     const int sz = fms.size();
     if ( sz < 2 ) return false;
 
-    props_.lithnm_ = atoi( fms[0] );
+    lith_ = atoi( fms[0] );
     props_.desc_ = fms[1];
     return true;
 }
