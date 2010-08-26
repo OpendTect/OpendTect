@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.27 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.28 2010-08-26 14:47:55 cvskris Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -116,46 +116,45 @@ const char* DipFilter::filterTypeNamesStr( int type )
 
 DipFilter::DipFilter( Desc& ds )
     : Provider( ds )
-    , kernel(0,0,0)
+    , kernel_(0,0,0)
 {
     if ( !isOK() ) return;
 
-    inputdata.allowNull(true);
+    inputdata_.allowNull(true);
     
-    mGetEnum( type, typeStr() );
-    mGetInt( size, sizeStr() );
-    if ( size%2 == 0 )
-	size++;
+    mGetEnum( type_, typeStr() );
+    mGetInt( size_, sizeStr() );
+    if ( size_%2 == 0 )
+	size_++;
 
-    if ( type == mFilterTypeLowPass || type == mFilterTypeBandPass )
-	mGetFloat( maxvel, maxvelStr() );
+    if ( type_ == mFilterTypeLowPass || type_ == mFilterTypeBandPass )
+	mGetFloat( maxvel_, maxvelStr() );
 
-    if ( type == mFilterTypeHighPass || type == mFilterTypeBandPass )
-	mGetFloat( minvel, minvelStr() );
+    if ( type_ == mFilterTypeHighPass || type_ == mFilterTypeBandPass )
+	mGetFloat( minvel_, minvelStr() );
 
-    mGetBool( filterazi, filteraziStr() );
+    mGetBool( filterazi_, filteraziStr() );
 
-    if ( filterazi )
+    if ( filterazi_ )
     {
-	mGetFloat( minazi, minaziStr() );
-	mGetFloat( maxazi, maxaziStr() );
+	mGetFloat( minazi_, minaziStr() );
+	mGetFloat( maxazi_, maxaziStr() );
     
-	aziaperture = maxazi-minazi;
-	while ( aziaperture > 180 ) aziaperture -= 360;
-	while ( aziaperture < -180 ) aziaperture += 360;
+	aziaperture_ = maxazi_-minazi_;
+	while ( aziaperture_ > 180 ) aziaperture_ -= 360;
+	while ( aziaperture_ < -180 ) aziaperture_ += 360;
 
-	azi = minazi + aziaperture/2;
-	while ( azi > 90 ) azi -= 180;
-	while ( azi < -90 ) azi += 180;
+	azi_ = minazi_ + aziaperture_/2;
+	while ( azi_ > 90 ) azi_ -= 180;
+	while ( azi_ < -90 ) azi_ += 180;
     }
 
-    mGetFloat( taperlen, taperlenStr() );
-    taperlen = taperlen/100;
+    mGetFloat( taperlen_, taperlenStr() );
+    taperlen_ = taperlen_/100;
 
-    kernel.setSize( desc_.is2D() ? 1 : size, size, size );
-    valrange = Interval<float>(minvel,maxvel);
-    stepout = desc_.is2D() ? BinID( 0, size/2 ) : BinID( size/2, size/2 );
-    initKernel();
+    kernel_.setSize( desc_.is2D() ? 1 : size_, size_, size_ );
+    valrange_ = Interval<float>(minvel_,maxvel_);
+    stepout_ = desc_.is2D() ? BinID( 0, size_/2 ) : BinID( size_/2, size_/2 );
 }
 
 
@@ -167,23 +166,29 @@ bool DipFilter::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool DipFilter::initKernel()
 {
+    if ( mIsZero( refstep_, 1e-7 ) || mIsUdf(refstep_) )
+    {
+ 	pErrMsg("No reference step" );
+	return false;
+    }
+
     const bool is2d = desc_.is2D();
-    const int hsz = size/2;
+    const int hsz = size_/2;
     const int hszinl = is2d ? 0 : hsz;
 
     float kernelsum = 0;
 
     for ( int kii=-hszinl; kii<=hszinl; kii++ )
     {
-	float ki = kii * inldist();
-	float ki2 = ki*ki;
+	const float ki = kii * inldist();
+	const float ki2 = ki*ki;
 
 	for ( int kci=-hsz; kci<=hsz; kci++ )
 	{
-	    float kc = kci * crldist();
-	    float kc2 = kc*kc;
+	    const float kc = kci * crldist();
+	    const float kc2 = kc*kc;
 
-	    float spatialdist = Math::Sqrt(ki2+kc2);
+	    const float spatialdist = Math::Sqrt(ki2+kc2);
 
 	    for ( int kti=-hsz; kti<=hsz; kti++ )
 	    {
@@ -199,13 +204,13 @@ bool DipFilter::initKernel()
 		float factor = 1;
 		if ( kii || kci || kti )
 		{
-		    if ( type==mFilterTypeLowPass )
+		    if ( type_==mFilterTypeLowPass )
 		    {
-			if ( kti && val < valrange.stop )
+			if ( kti && val < valrange_.stop )
 			{
-			    float ratio = val / valrange.stop;
-			    ratio -= (1-taperlen);
-			    ratio /= taperlen;
+			    float ratio = val / valrange_.stop;
+			    ratio -= (1-taperlen_);
+			    ratio /= taperlen_;
 
 			    factor = taper( 1-ratio );
 			}
@@ -214,13 +219,13 @@ bool DipFilter::initKernel()
 			    factor = 0;
 			}
 		    }
-		    else if ( type==mFilterTypeHighPass )
+		    else if ( type_==mFilterTypeHighPass )
 		    {
-			if ( kti && val > valrange.start )
+			if ( kti && val > valrange_.start )
 			{
-			    float ratio = val / valrange.start;
+			    float ratio = val / valrange_.start;
 			    ratio -= 1;
-			    ratio /= taperlen;
+			    ratio /= taperlen_;
 			    factor = taper( ratio );
 			}
 			else if ( kti )
@@ -228,11 +233,11 @@ bool DipFilter::initKernel()
 		    }
 		    else
 		    {
-			if ( kti && valrange.includes( val ) )
+			if ( kti && valrange_.includes( val ) )
 			{
-			    float htaperlen = taperlen/2;
-			    float ratio = (val - valrange.start)
-				   	  / valrange.width();
+			    float htaperlen = taperlen_/2;
+			    float ratio = (val - valrange_.start)
+				   	  / valrange_.width();
 
 			    if ( ratio > (1-htaperlen))
 			    {
@@ -252,20 +257,20 @@ bool DipFilter::initKernel()
 			}
 		    }
 
-		    if ( ( kii || kci ) && filterazi
+		    if ( ( kii || kci ) && filterazi_
 			    		&& !mIsZero(factor,mDefEps) )
 		    {
-			float htaperlen = taperlen/2;
-			float diff = azimuth - azi;
+			float htaperlen = taperlen_/2;
+			float diff = azimuth - azi_;
 			while ( diff > 90 )
 			    diff -= 180;
 			while ( diff < -90 )
 			    diff += 180;
 
 			diff = fabs(diff);
-			if ( diff<aziaperture/2 )
+			if ( diff<aziaperture_/2 )
 			{
-			    float ratio = diff / (aziaperture/2);
+			    float ratio = diff / (aziaperture_/2);
 
 			    if ( ratio > (1-htaperlen))
 			    {
@@ -281,22 +286,19 @@ bool DipFilter::initKernel()
 		    }
 		}
 
-		kernel.set( hszinl+kii, hsz+kci, hsz+kti, factor );
+		kernel_.set( hszinl+kii, hsz+kci, hsz+kti, factor );
 		kernelsum += factor;
 	    }
 	}
     }
 
-    for ( int kii=-hszinl; kii<=hszinl; kii++ )
+    float* kernelptr = kernel_.getData();
+    const float* stopptr = kernelptr + kernel_.info().getTotalSz();
+
+    while ( kernelptr!=stopptr )
     {
-	for ( int kci=-hsz; kci<=hsz; kci++ )
-	{
-	    for ( int kti=-hsz; kti<=hsz; kti++ )
-	    {
-		kernel.set( hszinl+kii, hsz+kci, hsz+kti, 
-			 kernel.get( hszinl+kii, hsz+kci, hsz+kti )/ kernelsum);
-	    }
-	}
+	*kernelptr /= kernelsum;
+	kernelptr++;
     }
 
     return true;
@@ -314,22 +316,22 @@ float DipFilter::taper( float pos ) const
 
 bool DipFilter::getInputData( const BinID& relpos, int index )
 {
-    while ( inputdata.size()< (1+stepout.inl*2) * (1+stepout.crl*2) )
-	inputdata += 0;
+    while ( inputdata_.size()< (1+stepout_.inl*2) * (1+stepout_.crl*2) )
+	inputdata_ += 0;
     
     int idx = 0;
 
     const BinID bidstep = inputs_[0]->getStepoutStep();
-    for ( int inl=-stepout.inl; inl<=stepout.inl; inl++ )
+    for ( int inl=-stepout_.inl; inl<=stepout_.inl; inl++ )
     {
-	for ( int crl=-stepout.crl; crl<=stepout.crl; crl++ )
+	for ( int crl=-stepout_.crl; crl<=stepout_.crl; crl++ )
 	{
 	    const BinID truepos( relpos.inl + inl*abs(bidstep.inl),
 				 relpos.crl + crl*abs(bidstep.crl) );
 	    const DataHolder* dh = inputs_[0]->getData( truepos, index );
 	    if ( !dh ) return false;
 
-	    inputdata.replace( idx, dh );
+	    inputdata_.replace( idx, dh );
 	    idx++;
 	}
     }
@@ -344,8 +346,8 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( outputinterest_.isEmpty() ) return false;
 
-    const int hsz = size/2;
-    const int sizeinl = desc_.is2D() ? 1 : size;
+    const int hsz = size_/2;
+    const int sizeinl = desc_.is2D() ? 1 : size_;
     for ( int idx=0; idx<nrsamples; idx++)
     {
 	int dhoff = 0;
@@ -353,21 +355,21 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 	float sum = 0;
 	for ( int idi=0; idi<sizeinl; idi++ )
 	{
-	    for ( int idc=0; idc<size; idc++ )
+	    for ( int idc=0; idc<size_; idc++ )
 	    {
-		const DataHolder* dh = inputdata[dhoff++];
+		const DataHolder* dh = inputdata_[dhoff++];
 		if ( !dh ) continue;
 
 		Interval<int> dhinterval( dh->z0_, dh->z0_+dh->nrsamples_ );
 
 		int s = idx - hsz;
-		for ( int idt=0; idt<size; idt++ )
+		for ( int idt=0; idt<size_; idt++ )
 		{
 		    if ( dhinterval.includes(s+z0) && 
 			 s+z0-dh->z0_<dh->nrsamples_ )
 		    {
 			sum += getInputValue( *dh, dataidx_, s, z0 ) *
-			       kernel.get( idi, idc, idt );
+			       kernel_.get( idi, idc, idt );
 			nrvalues++;
 		    }
 
@@ -385,6 +387,6 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 
 
 const BinID* DipFilter::reqStepout( int inp, int out ) const
-{ return &stepout; }
+{ return &stepout_; }
 
 }; // namespace Attrib
