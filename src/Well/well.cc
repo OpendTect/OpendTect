@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.75 2010-08-13 12:29:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.76 2010-08-26 14:30:51 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -403,10 +403,10 @@ ObjectSet<Well::Marker>& Well::MarkerSet::operator += ( Well::Marker* mrk )
 }
 
 
-const Well::Marker* Well::MarkerSet::getByName( const char* mname ) const
+Well::Marker* Well::MarkerSet::gtByName( const char* mname ) const
 {
     const int idx = indexOf( mname );
-    return  idx < 0 ? 0 : (*this)[idx]; 
+    return  idx < 0 ? 0 : const_cast<Well::Marker*>((*this)[idx]); 
 }
 
 
