@@ -7,12 +7,13 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.91 2010-08-23 18:03:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.92 2010-08-26 04:07:44 cvsraman Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
 #include "uiattribpartserv.h"
 #include "uiattr2dsel.h"
+#include "uicreate2dgrid.h"
 #include "mousecursor.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
@@ -59,18 +60,27 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Add"), 0 );
+    mnu.insertItem( new uiMenuItem("&Create from 3D"), 1 );
 
     const int mnuid = mnu.exec();
-    if ( mnuid < 0 ) return false;
+    if ( mnuid == 0 )
+    {
+	MultiID mid;
+	const bool success =
+	    ODMainWin()->applMgr().seisServer()->select2DSeis( mid );
+	if ( !success ) return false;
 
-    MultiID mid;
-    const bool success =
-	ODMainWin()->applMgr().seisServer()->select2DSeis( mid );
-    if ( !success ) return false;
-
-    uiOD2DLineSetTreeItem* newitm = new uiOD2DLineSetTreeItem( mid );
-    addChild( newitm, false );
-    newitm->selectAddLines();
+	uiOD2DLineSetTreeItem* newitm = new uiOD2DLineSetTreeItem( mid );
+	addChild( newitm, false );
+	newitm->selectAddLines();
+    }
+    else if ( mnuid == 1 )
+    {
+	uiCreate2DGrid dlg( ODMainWin(), 0 );
+	dlg.go();
+    }
+    else
+	return false;
 
     return true;
 }

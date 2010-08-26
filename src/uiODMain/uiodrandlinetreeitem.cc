@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.41 2010-07-28 07:56:11 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.42 2010-08-26 04:07:44 cvsraman Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.41 2010-07-28 07:56
 
 #include "uibutton.h"
 #include "uicolor.h"
+#include "uicreate2dgrid.h"
 #include "uidialog.h"
 #include "uiempartserv.h"
 #include "uiioobjsel.h"
@@ -460,7 +461,8 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    }
 
 	    rln->setName( rtd->name() );
-	    applMgr()->seisServer()->create2DGridFromRln( *rln );
+	    uiCreate2DGrid dlg( ODMainWin(), rln );
+	    dlg.go();
 	}
     }
 }
