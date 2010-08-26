@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.33 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.34 2010-08-26 04:19:51 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -247,6 +247,7 @@ void MadStream::initWrite( IOPar* par )
     }
     else
     {
+	SPSIOPF().mk3DPostStackProxy( *ioobj );
 	const LineKey lk = seldata ? seldata->lineKey() : 0;
 	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj,lk.lineName())
 	    	       : SPSIOPF().get3DWriter(*ioobj);
