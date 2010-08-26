@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.h,v 1.8 2010-08-16 14:45:23 cvsjaap Exp $
+ RCS:           $Id: mpefssflatvieweditor.h,v 1.9 2010-08-26 11:39:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,9 +72,11 @@ protected:
     const int			getStickId(int markerid) const; 
     
     bool			getMousePosInfo(
-	    				const Geom::Point2D<int>& mousepos,
-					IndexInfo& ix, IndexInfo& iy,
-					Coord3& worldpos ) const;
+				    const Geom::Point2D<int>& mousepos,
+				    IndexInfo& ix, IndexInfo& iy,
+				    Coord3& worldpos) const;
+    Coord3			getScaleVector() const;
+				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
 
     EM::FaultStickPainter*  	fsspainter_;
     bool			seedhasmoved_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2008
- RCS:           $Id: faultstickseteditor.h,v 1.9 2010-08-05 14:19:03 cvsjaap Exp $
+ RCS:           $Id: faultstickseteditor.h,v 1.10 2010-08-26 11:39:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,33 +34,39 @@ public:
     void			setLastClicked(const EM::PosID&); 
     void			setSowingPivot(const Coord3);
 
+    void			setZScale(float);
+    void			setScaleVector(const Coord3& v);
+    				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
+
     void			getInteractionInfo( EM::PosID& insertpid,
 				    const MultiID* lineset,const char* linenm,
-				    const Coord3& pos,float zfactor,
-				    const Coord3* posnormal=0) const;
+				    const Coord3& pos,
+				    const Coord3* posnorm=0) const;
 
     bool			removeSelection(const Selector<Coord3>&);
 
 protected:
     float		distToStick(int sticknr,const EM::SectionID& sid,
-				    const MultiID* lineset,const char* linenm,
-				    const Coord3& pos,float zfactor,
-				    const Coord3* posnormal) const;
+				const MultiID* lineset,const char* linenm,
+				const Coord3& pos,const Coord3* posnorm) const;
     bool		getNearestStick(int& sticknr,EM::SectionID& sid,
-				    const MultiID* lineset,const char* linenm,
-				    const Coord3& pos,float zfactor,
-				    const Coord3* posnormal) const;
+				const MultiID* lineset,const char* linenm,
+				const Coord3& pos,const Coord3* posnorm) const;
     void		getPidsOnStick(EM::PosID& insertpid,int sticknr,
-				    const EM::SectionID&, const Coord3&,
-				    float zfactor) const;
+				const EM::SectionID&,const Coord3& pos) const;
 
     Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    Coord3			scalevector_;
+    Coord			xtrans_;
+    Coord			ytrans_;
+
     int				getLastClickedStick() const;
 
     const TypeSet<EM::PosID>*	editpids_;
 
     Coord3			sowingpivot_;
     TypeSet<Coord3>		sowinghistory_;
+
 };
 
 

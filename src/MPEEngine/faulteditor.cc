@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.15 2010-08-05 14:19:59 cvsjaap Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.16 2010-08-26 11:39:30 cvsjaap Exp $";
 
 #include "faulteditor.h"
 
@@ -26,6 +26,7 @@ namespace MPE
 
 FaultEditor::FaultEditor( EM::Fault3D& fault )
     : ObjectEditor(fault)
+    , scalevector_( 0, 1, SI().zScale() )
     , sowingpivot_(Coord3::udf())
 {}
 
@@ -105,11 +106,23 @@ void FaultEditor::setSowingPivot( const Coord3 pos )
 }
 
 
-#define mCompareCoord( crd ) Coord3( crd, crd.z*zfactor )
+void FaultEditor::setZScale( float zscale )
+{ scalevector_ = Coord3( 0, 1, zscale ); }
 
-static float distToStick( const Geometry::FaultStickSurface& surface,
-			  int curstick, const Coord3& mousepos,
-			  float zfactor, const Coord3* posnormal )
+
+void FaultEditor::setScaleVector( const Coord3& scalevec )
+{ scalevector_ = scalevec; }
+
+
+#define mWorldScale(crd) \
+    Coord3( crd.x, crd.y, SI().zScale()*crd.z )
+
+#define mCustomScale(crd) \
+    Coord3( crd.x, Coord(scalevector_).dot(crd), scalevector_.z*crd.z )
+
+
+float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
+	  int curstick, const Coord3& mousepos,const Coord3* posnormal ) const
 {
     if ( !mousepos.isDefined() )
 	return mUdf(float);
@@ -128,9 +141,10 @@ static float distToStick( const Geometry::FaultStickSurface& surface,
 	return mUdf(float);
 
     const Plane3 plane( posnormal ? *posnormal : sticknormal,
-			mCompareCoord(mousepos), false );
+			mWorldScale(mousepos), false );
 
-    const float onestepdist = SI().oneStepDistance( plane.normal(), zfactor );
+    const float onestepdist =
+		mWorldScale( SI().oneStepTranslation( plane.normal()) ).abs();
 
     bool insameplane = false;
     double prevdist = 0.0;
@@ -143,14 +157,13 @@ static float distToStick( const Geometry::FaultStickSurface& surface,
 	const Coord3 pos = surface.getKnot( rc );
 	if ( pos.isDefined() )
 	{
-	    const double curdist =
-			 plane.distanceToPoint( mCompareCoord(pos), true );
+	    const double curdist = plane.distanceToPoint(mWorldScale(pos),true);
 
 	    if ( curdist*prevdist<0.0 || fabs(curdist)< 0.5*onestepdist )
 		insameplane = true;
 
 	    prevdist = curdist;
-	    avgpos += mCompareCoord( pos );
+	    avgpos += pos;
 	    count++;
 	}
     }
@@ -160,12 +173,12 @@ static float distToStick( const Geometry::FaultStickSurface& surface,
 
     avgpos /= count;
  
-    return avgpos.Coord::distTo( mCompareCoord(mousepos) );
+    return mCustomScale(avgpos).Coord::distTo( mCustomScale(mousepos) );
 }
 
 
 static Coord3 avgStickPos( const Geometry::FaultStickSurface& surface,
-			   int sticknr, float zfactor )
+			   int sticknr )
 {
     const StepInterval<int> colrange = surface.colRange( sticknr );
     if ( colrange.isUdf() )
@@ -179,7 +192,7 @@ static Coord3 avgStickPos( const Geometry::FaultStickSurface& surface,
 	const Coord3 pos = surface.getKnot( rc );
 	if ( pos.isDefined() )
 	{
-	    avgpos += mCompareCoord( pos );
+	    avgpos += pos;
 	    count++;
 	}
     }
@@ -188,9 +201,9 @@ static Coord3 avgStickPos( const Geometry::FaultStickSurface& surface,
 }
 
 
-static float panelIntersectDist( const Geometry::FaultStickSurface& surface,
-				 int sticknr, const Coord3& mousepos,
-				 float zfactor, const Coord3& posnormal )
+float FaultEditor::panelIntersectDist(
+			const Geometry::FaultStickSurface& surface, int sticknr,
+			const Coord3& mousepos, const Coord3& posnormal ) const
 {
     if ( !mousepos.isDefined() || !posnormal.isDefined() || !posnormal.abs() )
 	return mUdf(float);
@@ -202,20 +215,22 @@ static float panelIntersectDist( const Geometry::FaultStickSurface& surface,
     const int sticknr0 = sticknr<rowrange.start ? rowrange.stop : sticknr;
     const int sticknr1 = sticknr>=rowrange.stop ? rowrange.start : sticknr+1;
 
-    Coord3 avgpos0 = avgStickPos( surface, sticknr0, zfactor );
-    Coord3 avgpos1 = avgStickPos( surface, sticknr1, zfactor );
+    Coord3 avgpos0 = avgStickPos( surface, sticknr0 );
+    Coord3 avgpos1 = avgStickPos( surface, sticknr1 );
 
     if ( !avgpos0.isDefined() || !avgpos1.isDefined() )
 	return mUdf(float);
 
-    const Plane3 plane( posnormal, mCompareCoord(mousepos), false );
+    const Plane3 plane( posnormal, mWorldScale(mousepos), false );
 
-    float d0 = plane.distanceToPoint( avgpos0, true );
-    float d1 = plane.distanceToPoint( avgpos1, true );
+    float d0 = plane.distanceToPoint( mWorldScale(avgpos0), true );
+    float d1 = plane.distanceToPoint( mWorldScale(avgpos1), true );
     if ( mIsUdf(d0) || mIsUdf(d1) )
 	return mUdf(float);
 
-    const float onestepdist = SI().oneStepDistance( plane.normal(), zfactor );
+    const float onestepdist =
+		mWorldScale( SI().oneStepTranslation( plane.normal()) ).abs();
+	
     if ( fabs(d0) < 0.5*onestepdist )
 	d0 = 0.0;
     if ( fabs(d1) < 0.5*onestepdist )
@@ -240,12 +255,12 @@ static float panelIntersectDist( const Geometry::FaultStickSurface& surface,
     else if ( d0*d1 > 0.0 )
 	return mUdf(float);
 
-    return pos.Coord::distTo( mCompareCoord(mousepos) );
+    return mCustomScale(pos).Coord::distTo( mCustomScale(mousepos) );
 }
 
 
-static int getSecondKnotNr( const Geometry::FaultStickSurface& surface,
-			    int sticknr, const Coord3& mousepos, float zfactor )
+int FaultEditor::getSecondKnotNr( const Geometry::FaultStickSurface& surface,
+				  int sticknr, const Coord3& mousepos ) const
 {
     const StepInterval<int> rowrange = surface.rowRange();
     if ( rowrange.isUdf() || !mousepos.isDefined() )
@@ -268,13 +283,13 @@ static int getSecondKnotNr( const Geometry::FaultStickSurface& surface,
 	if ( colrange1.isUdf() || !colrange1.nrSteps() )
 	    continue;
 
-	const Coord3 p0 = mCompareCoord( mousepos );
-	const Coord3 p1 = mCompareCoord( surface.getKnot(
-		    			 RowCol(sticknr,colrange0.start) ) );
-	const Coord3 p2 = mCompareCoord( surface.getKnot(
-		    			 RowCol(refnr,colrange1.start) ) );
-	const Coord3 p3 = mCompareCoord( surface.getKnot(
-		    			 RowCol(refnr,colrange1.stop) ) );
+	const Coord3 p0 = mWorldScale( mousepos );
+	const Coord3 p1 = mWorldScale( surface.getKnot(
+				       RowCol(sticknr,colrange0.start) ) );
+	const Coord3 p2 = mWorldScale( surface.getKnot(
+				       RowCol(refnr,colrange1.start) ) );
+	const Coord3 p3 = mWorldScale( surface.getKnot(
+				       RowCol(refnr,colrange1.stop) ) );
 
 	if ( p0.distTo(p2)+p1.distTo(p3) < p0.distTo(p3)+p1.distTo(p2) )
 	    res = colrange0.start - colrange0.step;
@@ -287,8 +302,7 @@ static int getSecondKnotNr( const Geometry::FaultStickSurface& surface,
 		
 
 void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
-				      const Coord3& mousepos, float zfactor,
-				      const Coord3* posnormal ) const
+		      const Coord3& mousepos, const Coord3* posnormal ) const
 { 
     insertpid = EM::PosID::udf();
 
@@ -308,24 +322,23 @@ void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
 	mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
 	if ( ge && surface )
 	{
-	    const float dist = distToStick( *surface, sticknr,
-					    pos, zfactor, posnormal );
+	    const float dist = distToStick( *surface, sticknr, pos, posnormal );
 	    if ( !mIsUdf(dist) )
 	    {
-		getPidsOnStick( insertpid, sticknr, sid, pos, zfactor );
+		getPidsOnStick( insertpid, sticknr, sid, pos );
 		return;
 	    }
 	}
     }
 
     makenewstick = makenewstick ||
-		   mIsUdf( getNearestStick(sticknr,sid,pos,zfactor,posnormal) );
+		   mIsUdf( getNearestStick(sticknr, sid, pos, posnormal) );
 
     if ( makenewstick )
     {
 	sid = emObject().sectionID( 0 );
 	sticknr = 0;
-	getInsertStick( sticknr, sid, pos, zfactor, posnormal );
+	getInsertStick( sticknr, sid, pos, posnormal );
 
 	insertpid.setObjectID( emObject().id() );
 	insertpid.setSectionID( sid );
@@ -333,7 +346,7 @@ void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
 	return;
     }
 
-    getPidsOnStick( insertpid, sticknr, sid, pos, zfactor );
+    getPidsOnStick( insertpid, sticknr, sid, pos );
 }
 
 
@@ -391,8 +404,7 @@ bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
 
 
 float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
-				    const Coord3& mousepos, float zfactor,
-				    const Coord3* posnormal ) const
+			const Coord3& mousepos, const Coord3* posnormal ) const
 {
     int selsid, selstick;
     float mindist = mUdf(float);
@@ -414,7 +426,7 @@ float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 	{
 	    const int curstick = rowrange.atIndex( stickidx );
 	    const float dist = distToStick( *surface, curstick,
-					    mousepos, zfactor, posnormal );
+					    mousepos, posnormal );
 	    if ( mIsUdf(dist) )
 		continue;
 
@@ -438,8 +450,7 @@ float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 
 
 bool FaultEditor::getInsertStick( int& stick, EM::SectionID& sid,
-				  const Coord3& mousepos, float zfactor,
-				  const Coord3* posnormal ) const
+		      const Coord3& mousepos, const Coord3* posnormal ) const
 {
     int selsid, selstick;
     float mindist = mUdf(float);
@@ -467,8 +478,8 @@ bool FaultEditor::getInsertStick( int& stick, EM::SectionID& sid,
 	for ( int stickidx=rowrange.nrSteps(); stickidx>=-1; stickidx-- )
 	{
 	    const int sticknr = rowrange.atIndex( stickidx );
-	    const float dist = panelIntersectDist( *surface, sticknr, mousepos,
-						   zfactor, normal );
+	    const float dist = panelIntersectDist( *surface, sticknr,
+						   mousepos, normal );
 	    if ( mIsUdf(dist) )
 		continue;
 
@@ -492,7 +503,7 @@ bool FaultEditor::getInsertStick( int& stick, EM::SectionID& sid,
 
 
 void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
-	const EM::SectionID& sid, const Coord3& mousepos, float zfactor ) const
+			const EM::SectionID& sid, const Coord3& mousepos ) const
 {
     EM::PosID nearestpid0 = EM::PosID::udf();
     EM::PosID nearestpid1 = EM::PosID::udf();
@@ -520,7 +531,7 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pos )
-	    sqdist = mCompareCoord(pos).sqDistTo( mCompareCoord(mousepos) );
+	    sqdist = mCustomScale(pos).sqDistTo( mCustomScale(mousepos) );
 
 	if ( nearestknotidx==-1 || sqdist<minsqdist )
 	{
@@ -541,7 +552,7 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 
     if ( definedknots.size()<=1 )
     {
-	const int insertcol = getSecondKnotNr(*surface,stick,mousepos,zfactor);
+	const int insertcol = getSecondKnotNr( *surface, stick, mousepos );
 	insertpid.setObjectID( emObject().id() );
 	insertpid.setSectionID( sid );
 	insertpid.setSubID( RowCol( stick, insertcol ).toInt64() );
@@ -564,7 +575,7 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
     Coord3 v0 = nextpos-prevpos;
     Coord3 v1 = mousepos-pos;
 
-    bool takeprevious = mCompareCoord(v0).dot( mCompareCoord(v1) ) < 0;
+    bool takeprevious = mCustomScale(v0).dot( mCustomScale(v1) ) < 0;
     if ( sowinghistory_.size() > 1 )
 	takeprevious = sowinghistory_[1]==prevpos;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.143 2010-08-26 04:24:56 cvsraman Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.144 2010-08-26 11:39:30 cvsjaap Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -357,18 +357,26 @@ float SurveyInfo::computeArea( bool work ) const
 float SurveyInfo::zStep() const { return cs_.zrg.step; }
 
 
-float SurveyInfo::oneStepDistance( const Coord3& normal, float zfactor ) const
+Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
 {
-    if ( fabs(normal.z) > 0.5 )
-	return (mIsUdf(zfactor) ? SI().zScale() : zfactor) * SI().zStep();
+    Coord3 translation( 0, 0, 0 ); 
 
-    Coord norm2d = normal;
-    norm2d.normalize();
+    if ( fabs(planenormal.z) > 0.5 )
+    {
+	translation.z = SI().zStep();
+    }
+    else
+    {
+	Coord norm2d = planenormal;
+	norm2d.normalize();
 
-    if ( fabs(norm2d.dot(SI().binID2Coord().rowDir())) > 0.5 )
-	return inlDistance();
+	if ( fabs(norm2d.dot(SI().binID2Coord().rowDir())) > 0.5 )
+	   translation.x = inlDistance();
+	else
+	    translation.y = crlDistance();
+    }
 
-    return crlDistance();
+    return translation;
 }
 
 

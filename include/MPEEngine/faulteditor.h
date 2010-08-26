@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: faulteditor.h,v 1.11 2010-08-05 14:19:59 cvsjaap Exp $
+ RCS:           $Id: faulteditor.h,v 1.12 2010-08-26 11:39:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "emeditor.h"
 
 namespace EM { class Fault3D; };
+namespace Geometry { class FaultStickSurface; };
+
 template <class T> class Selector;
 
 namespace MPE
@@ -31,25 +33,37 @@ public:
     void			setLastClicked(const EM::PosID&);
     void			setSowingPivot(const Coord3);
 
+
+    void			setZScale(float);
+    void			setScaleVector(const Coord3& v);
+    				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
+
     void			getInteractionInfo(bool& makenewstick,
-					EM::PosID& insertpid,
-					const Coord3& mousepos,float zfactor,
-					const Coord3* posnormal=0) const;
+				    EM::PosID& insertpid,const Coord3& pos,
+				    const Coord3* posnormal=0) const;
 
     bool			removeSelection(const Selector<Coord3>&);
 
 protected:
+    float		distToStick(const Geometry::FaultStickSurface&,
+				    int curstick,const Coord3& pos,
+				    const Coord3* posnormal) const;
+    float		panelIntersectDist(const Geometry::FaultStickSurface&,
+				    int sticknr,const Coord3& mousepos,
+				    const Coord3& posnormal) const;
+    int			getSecondKnotNr(const Geometry::FaultStickSurface&,
+				    int sticknr,const Coord3& mousepos) const;
+
     float		getNearestStick(int& stick,EM::SectionID& sid,
-			    const Coord3& mousepos,float zfactor,
-			    const Coord3* posnormal) const;
+			    const Coord3& pos,const Coord3* posnormal) const;
     bool		getInsertStick(int& stick,EM::SectionID& sid,
-			    const Coord3& mousepos,float zfactor,
-			    const Coord3* posnormal) const;
+			    const Coord3& pos,const Coord3* posnormal) const;
     void		getPidsOnStick( EM::PosID& insertpid,int stick,
-			    const EM::SectionID&,const Coord3&,
-			    float zfactor) const;
+			    const EM::SectionID&,const Coord3& pos) const;
 
     Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    Coord3			scalevector_;
+
     int				getLastClickedStick() const;
 
     Coord3			sowingpivot_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.29 2010-08-05 14:19:03 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.30 2010-08-26 11:39:30 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -478,6 +478,7 @@ Coord3 FaultStickSetDisplay::disp2world( const Coord3& displaypos ) const
     return pos;
 }
 
+
 #define mZScale() \
     ( scene_ ? scene_->getZScale()*scene_->getZStretch() : SI().zScale() )
 
@@ -557,8 +558,8 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     }
 
     EM::PosID insertpid;
-    fsseditor_->getInteractionInfo( insertpid, lineset, linenm,
-				    pos, mZScale(), normal );
+    fsseditor_->setZScale( mZScale() );
+    fsseditor_->getInteractionInfo( insertpid, lineset, linenm, pos, normal );
 
     if ( mousepid.isUdf() && !viseditor_->isDragging() )
 	setActiveStick( insertpid );
@@ -789,7 +790,8 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	     strcmp(linenm,s2dd->getLineName())  )
 	    continue;
 
-	const float onestepdist = SI().oneStepDistance(Coord3(0,0,1),mZScale());
+	const float onestepdist =
+	    Coord3(1,1,mZScale()).dot( SI().oneStepTranslation(Coord3(0,0,1)) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
@@ -826,8 +828,9 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	if ( fabs(vec1.dot(vec2)) < 0.5 )
 	    continue;
 
-	const float onestepdist = SI().oneStepDistance(
-				  plane->getNormal(Coord3::udf()), mZScale() );
+	const float onestepdist = Coord3(1,1,mZScale()).dot(
+		    SI().oneStepTranslation(plane->getNormal(Coord3::udf())) );
+
 	float prevdist;
 	Coord3 prevpos;
 

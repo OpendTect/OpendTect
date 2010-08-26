@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.6 2010-08-03 09:03:35 cvsumesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.7 2010-08-26 11:39:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -293,7 +293,8 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
 
     bool shdmakenewstick = false;
     EM::PosID pid;
-    f3deditor->getInteractionInfo( shdmakenewstick, pid, pos, SI().zScale() );
+    const Coord3 normal( cs_.isEmpty() ? Coord3::udf() : cs_.defaultNormal() );
+    f3deditor->getInteractionInfo( shdmakenewstick, pid, pos, &normal );
 
     if ( pid.isUdf() || shdmakenewstick )
 	return; 
@@ -415,8 +416,8 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 
     bool makenewstick = !mouseevent.ctrlStatus() && mouseevent.shiftStatus();
     EM::PosID interactpid;
-    f3deditor->getInteractionInfo( makenewstick, interactpid, pos,
-	    			   SI().zScale() );
+    const Coord3 normal( cs_.isEmpty() ? Coord3::udf() : cs_.defaultNormal() );
+    f3deditor->getInteractionInfo( makenewstick, interactpid, pos, &normal );
 
     if ( !mousepid_.isUdf() && mouseevent.ctrlStatus() 
 	 && !mouseevent.shiftStatus() )
@@ -444,17 +445,12 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 
     if ( makenewstick )
     {
-	Coord3 editnormal( 0, 0, 1 );
+	Coord3 editnormal = cs_.defaultNormal();
 	if ( cs_.isEmpty() ) return;
 
 	const int insertsticknr = interactpid.isUdf()
 	    ? mUdf( int )
 	    : RowCol(interactpid.subID()).row;
-
-	if ( cs_.defaultDir()==CubeSampling::Inl )
-	    editnormal = Coord3( SI().binID2Coord().rowDir(), 0 );
-	else if ( cs_.defaultDir()==CubeSampling::Crl )
-	    editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
 	if ( emf3d->geometry().insertStick(interactpid.sectionID(),
 		insertsticknr,0,pos,editnormal,true) )

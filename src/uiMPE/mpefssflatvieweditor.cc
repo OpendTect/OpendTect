@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.14 2010-08-16 14:45:23 cvsjaap Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.15 2010-08-26 11:39:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include "uiworld2ui.h"
+
 
 namespace MPE
 {
@@ -302,7 +303,7 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
     if ( !dp ) return false;
 
     const uiRect datarect( editor_->getMouseArea() );
-    if ( !mousepos.isDefined() || !datarect.isInside(mousepos) )
+    if ( !mousepos.isDefined() || datarect.isOutside(mousepos) )
 	return false;
 
     const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
@@ -314,6 +315,52 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
     worldpos = dp->getCoord( ix.nearest_, iy.nearest_ );
     worldpos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
     return true;
+}
+
+
+Coord3 FaultStickSetFlatViewEditor::getScaleVector() const
+{
+    Coord3 scalevec( 0, 1, SI().zScale() );
+
+    const uiRect datarect( editor_->getMouseArea() );
+    IndexInfo ix(0), iy(0);
+    Coord3 p0, p1, p2;
+
+    if ( !getMousePosInfo(datarect.bottomLeft(),  ix, iy, p0) ||
+	 !getMousePosInfo(datarect.bottomRight(), ix, iy, p1) ||
+	 !getMousePosInfo(datarect.topLeft(),     ix, iy, p2) )
+    {
+	return scalevec;
+    }
+
+    const int du = datarect.topLeft().x - datarect.bottomRight().x;
+    const int dv = datarect.topLeft().y - datarect.bottomRight().y;
+    if ( !du || !dv )
+	return scalevec;
+
+    const float dz = p2.z - p1.z;
+
+    if ( mIsZero(dz,mDefEps) )	// z-slice
+    {
+	const Coord eu = (p1-p0) / du;
+	const Coord ev = (p2-p0) / dv;
+
+	const float det = fabs( eu.x*ev.y - eu.y*ev.x );
+
+	const Coord ex(  ev.y/det, -eu.y/det );
+	const Coord ey( -ev.x/det,  eu.x/det );
+
+	scalevec = Coord3( ex.dot(ey)*det, ey.sqAbs()*det, scalevec.z );
+    }
+    else
+    {
+	float ds = Coord(p1).distTo(p2);
+	// Assumption: straight in case of 2D line
+
+	scalevec.z = fabs( (ds*dv) / (dz*du) );
+    }
+
+    return scalevec;
 }
 
 
@@ -347,9 +394,10 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 	return;
 
     EM::PosID pid;
+    const Coord3 normal( cs_.isEmpty() ? Coord3::udf() : cs_.defaultNormal() );
+    fsseditor->setScaleVector( getScaleVector() );
     fsseditor->getInteractionInfo( pid, &fsspainter_->getLineSetID(),
-			fsspainter_->getLineName(), pos, SI().zScale() );
-    // TODO: zFactor needs multiplication by Viewer's zStretch.
+				   fsspainter_->getLineName(), pos, &normal );
 
     if ( pid.isUdf() )
 	return; 
@@ -468,10 +516,10 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
     EM::FaultStickSetGeometry& fssg = emfss->geometry();
     EM::PosID interactpid;
+    const Coord3 normal( cs_.isEmpty() ? Coord3::udf() : cs_.defaultNormal() );
+    fsseditor->setScaleVector( getScaleVector() );
     fsseditor->getInteractionInfo( interactpid, &fsspainter_->getLineSetID() ,
-				   fsspainter_->getLineName(), pos,
-				   SI().zScale() );
-    // TODO: zFactor needs multiplication by Viewer's zStretch.
+				   fsspainter_->getLineName(), pos, &normal );
 
     if ( !mousepid_.isUdf() && mouseevent.ctrlStatus() 
 	 && !mouseevent.shiftStatus() )
@@ -490,7 +538,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
     if ( mouseevent.shiftStatus() || interactpid.isUdf() )
     {
-	Coord3 editnormal( 0, 0, 1 );
+	Coord3 editnormal = cs_.defaultNormal();
 
 	const MultiID* lineset = 0;
 	const char* linenm = 0;
@@ -501,10 +549,6 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	    lineset = &fsspainter_->getLineSetID();
 	    linenm = fsspainter_->getLineName();
 	}
-	else if ( cs_.defaultDir()==CubeSampling::Inl )
-	    editnormal = Coord3( SI().binID2Coord().rowDir(), 0 );
-	else if ( cs_.defaultDir()==CubeSampling::Crl )
-	    editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
 	const int sid = emfss->sectionID(0);
 	Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );

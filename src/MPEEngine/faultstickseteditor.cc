@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.9 2010-08-05 14:19:03 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.10 2010-08-26 11:39:30 cvsjaap Exp $";
 
 #include "faultstickseteditor.h"
 
@@ -27,6 +27,7 @@ namespace MPE
 FaultStickSetEditor::FaultStickSetEditor( EM::FaultStickSet& emfss )
     : ObjectEditor(emfss)
     , editpids_(0)
+    , scalevector_( 0, 1, SI().zScale() )
     , sowingpivot_(Coord3::udf())
 {}
 
@@ -121,13 +122,24 @@ void FaultStickSetEditor::setSowingPivot( const Coord3 pos )
 }
 
 
-#define mCompareCoord( crd ) Coord3( crd, crd.z*zfactor )
+void FaultStickSetEditor::setZScale( float zscale )
+{ scalevector_ = Coord3( 0, 1, zscale ); }
 
-float FaultStickSetEditor::distToStick(
-				int sticknr,const EM::SectionID& sid,
-				const MultiID* lineset, const char* linenm,
-				const Coord3& mousepos, float zfactor,
-				const Coord3* posnormal ) const
+
+void FaultStickSetEditor::setScaleVector( const Coord3& scalevec )
+{ scalevector_ = scalevec; }
+
+
+#define mWorldScale(crd) \
+    Coord3( crd.x, crd.y, SI().zScale()*crd.z )
+
+#define mCustomScale(crd) \
+    Coord3( crd.x, Coord(scalevector_).dot(crd), scalevector_.z*crd.z )
+
+
+float FaultStickSetEditor::distToStick( int sticknr,const EM::SectionID& sid,
+			const MultiID* lineset, const char* linenm,
+			const Coord3& mousepos, const Coord3* posnormal ) const
 {
     mDynamicCastGet( const EM::FaultStickSet*, emfss, &emObject() );
     if ( !emfss || !mousepos.isDefined() )
@@ -151,14 +163,15 @@ float FaultStickSetEditor::distToStick(
     if ( colrange.isUdf() )
 	return mUdf(float);
 
-    const Plane3 plane( fss->getEditPlaneNormal(sticknr),
-	    		mCompareCoord(mousepos), false );
+    const Plane3 plane( fss->getEditPlaneNormal(sticknr), 
+	    		mWorldScale(mousepos), false );
 
     if ( posnormal && *posnormal!=Coord3::udf() &&
 	 fabs( posnormal->dot(plane.normal()) ) < 0.5 )
 	return mUdf(float);
 
-    const float onestepdist = SI().oneStepDistance( plane.normal(), zfactor );
+    const float onestepdist =
+		mWorldScale( SI().oneStepTranslation(plane.normal()) ).abs();
 
     bool insameplane = false;
     double prevdist = 0.0;
@@ -171,14 +184,13 @@ float FaultStickSetEditor::distToStick(
 	const Coord3 pos = fss->getKnot( rc );
 	if ( pos.isDefined() )
 	{
-	    const double curdist =
-			 plane.distanceToPoint( mCompareCoord(pos), true );
+	    const double curdist = plane.distanceToPoint(mWorldScale(pos),true);
 
 	    if ( curdist*prevdist<0.0 || fabs(curdist)< 0.5*onestepdist )
 		insameplane = true;
 
 	    prevdist = curdist;
-	    avgpos += mCompareCoord( pos );
+	    avgpos += pos;
 	    count++;
 	}
     }
@@ -191,14 +203,13 @@ float FaultStickSetEditor::distToStick(
 
     avgpos /= count;
 
-    return avgpos.Coord::distTo( mCompareCoord(mousepos) );
+    return mCustomScale(avgpos).Coord::distTo( mCustomScale(mousepos) );
 }
 
 
 void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
-				const MultiID* lineset, const char* linenm,
-				const Coord3& mousepos, float zfactor,
-				const Coord3* posnormal ) const
+			const MultiID* lineset, const char* linenm,
+			const Coord3& mousepos, const Coord3* posnormal ) const
 {
     insertpid = EM::PosID::udf();
 
@@ -213,16 +224,16 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 	sid = lastclickedpid_.sectionID();
 
 	const float dist = distToStick( sticknr, sid, lineset, linenm,
-					pos, zfactor, posnormal );
+					pos, posnormal );
 	if ( !mIsUdf(dist) )
 	{
-	    getPidsOnStick( insertpid, sticknr, sid, pos, zfactor );
+	    getPidsOnStick( insertpid, sticknr, sid, pos );
 	    return;
 	}
     }
 
-    if ( getNearestStick(sticknr,sid,lineset,linenm,pos,zfactor,posnormal) )
-	getPidsOnStick( insertpid, sticknr, sid, pos, zfactor );
+    if ( getNearestStick(sticknr, sid, lineset, linenm, pos, posnormal) )
+	getPidsOnStick( insertpid, sticknr, sid, pos );
 }
 
 
@@ -280,9 +291,8 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 
 
 bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
-				const MultiID* lineset, const char* linenm,
-				const Coord3& mousepos, float zfactor,
-				const Coord3* posnormal) const
+			const MultiID* lineset, const char* linenm,
+			const Coord3& mousepos, const Coord3* posnormal) const
 {
     mDynamicCastGet( const EM::FaultStickSet*, emfss, &emObject() );
     if ( !emfss || !mousepos.isDefined() )
@@ -309,8 +319,7 @@ bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
 
 	    const int cursticknr = rowrange.atIndex(stickidx);
 	    const float disttoline = distToStick( cursticknr, cursid, lineset,
-						  linenm, mousepos, zfactor,
-						  posnormal );
+						  linenm, mousepos, posnormal );
 	    if ( !mIsUdf(disttoline) )
 	    {
 		if ( mIsUdf(minlinedist) || disttoline<minlinedist )
@@ -333,7 +342,7 @@ bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
 
 
 void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
-	const EM::SectionID& sid, const Coord3& mousepos, float zfactor ) const
+		    const EM::SectionID& sid, const Coord3& mousepos ) const
 {
     EM::PosID nearestpid0 = EM::PosID::udf();
     EM::PosID nearestpid1 = EM::PosID::udf();
@@ -361,7 +370,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pos )
-	    sqdist = mCompareCoord(pos).sqDistTo( mCompareCoord(mousepos) );
+	    sqdist = mCustomScale(pos).sqDistTo( mCustomScale(mousepos) );
 
 	if ( nearestknotidx==-1 || sqdist<minsqdist )
 	{
@@ -410,7 +419,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
     Coord3 v0 = nextpos-prevpos;
     Coord3 v1 = mousepos-pos;
 
-    bool takeprevious = mCompareCoord(v0).dot( mCompareCoord(v1) ) < 0;
+    bool takeprevious = mCustomScale(v0).dot( mCustomScale(v1) ) < 0;
     if ( sowinghistory_.size() > 1 )
 	takeprevious = sowinghistory_[1]==prevpos;
 

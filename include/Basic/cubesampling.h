@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.36 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: cubesampling.h,v 1.37 2010-08-26 11:39:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
     Dir			defaultDir() const;
     			//!< 'flattest' direction, i.e. direction with
     			//!< smallest size. If equal, prefer Inl then Crl then Z
+    Coord3		defaultNormal() const;
     bool		isFlat() const; //!< is one of directions size 1?
 
     void		init(bool settoSI=true);

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.61 2010-08-11 09:30:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.62 2010-08-26 11:39:30 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -675,8 +675,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 			OD::leftMouseButton(eventinfo.buttonstate_);
 
     EM::PosID insertpid;
-    faulteditor_->getInteractionInfo( makenewstick, insertpid, pos,
-				      mZScale(), &editnormal );
+    faulteditor_->setZScale( mZScale() );
+    faulteditor_->getInteractionInfo(makenewstick, insertpid, pos, &editnormal);
 
     if ( pid.isUdf() && !viseditor_->isDragging() )
 	setActiveStick( makenewstick ? EM::PosID::udf() : insertpid );
@@ -1420,7 +1420,8 @@ bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
 	if ( !s2dd || !s2dd->isOn() )
 	    continue;
 
-	const float onestepdist = SI().oneStepDistance(Coord3(0,0,1),mZScale());
+	const float onestepdist =
+	    Coord3(1,1,mZScale()).dot( SI().oneStepTranslation(Coord3(0,0,1)) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
@@ -1458,7 +1459,8 @@ bool FaultDisplay::coincidesWithPlane( const Geometry::FaultStickSurface& fss,
 	    continue;
 
 	const Coord3 planenormal = plane->getNormal( Coord3::udf() );
-	const float onestepdist = SI().oneStepDistance( planenormal,mZScale() );
+	const float onestepdist = 
+	    Coord3(1,1,mZScale()).dot( SI().oneStepTranslation(planenormal) );
 
 	float prevdist;
 	Coord3 prevpos;
