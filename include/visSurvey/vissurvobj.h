@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.118 2010-05-26 06:31:45 cvsranojay Exp $
+ RCS:		$Id: vissurvobj.h,v 1.119 2010-08-27 02:46:21 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "vissurvscene.h"
 
-
+class BaseMap;
 class DataPointSet;
 class IOPar;
 class LineStyle;
@@ -51,6 +51,7 @@ namespace visSurvey
 mClass SurveyObject
 {
 public:
+    virtual void		setBaseMap(BaseMap*)	{}
     virtual Coord3		getNormal(const Coord3& pos) const
 				{ return Coord3::udf(); }
     				/*!<Position and Normal are both in
