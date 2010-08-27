@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.26 2009-11-19 08:31:53 cvsnageswara Exp $
+ RCS:		$Id: binidvalset.h,v 1.27 2010-08-27 17:58:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "sets.h"
 #include "ranges.h"
 class IOPar;
+namespace PosInfo { class CubeData; }
+class HorSampling;
 
 
 /*!\brief A sorted set of BinIDs and values
@@ -150,12 +152,14 @@ public:
 				    bool inside=true);
     			//!< Removes vectors with value for column valnr
     			//!< in- or outside interval
+    void		remove(const HorSampling& hrg,bool inside);
 
     			// Convenience stuff
     Pos			add(const BinIDValue&);
     Pos			add(const BinID&,float);
     Pos			add(const BinID&,float,float);
     Pos			add(const BinID&,const TypeSet<float>&);
+    void		add(const PosInfo::CubeData&);
     void		get(const Pos&,BinIDValues&) const;
     void		get(const Pos&,BinIDValue&) const;
     void		get(const Pos&,BinID&,float&) const;
@@ -199,6 +203,8 @@ protected:
     void		addNew(Pos&,int,const float*);
     void		sortPart(TypeSet<int>&,TypeSet<float>&,
 	    			 int,int,int,bool);
+
+    void		removeLine(int idx);
 
     inline int		getInl( const Pos& pos ) const
     			{ return inls_[pos.i]; }

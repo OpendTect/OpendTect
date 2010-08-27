@@ -4,12 +4,13 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.34 2009-11-19 08:31:53 cvsnageswara Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.35 2010-08-27 17:58:21 cvskris Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
 #include "separstr.h"
 #include "idxable.h"
+#include "posinfo.h"
 #include "sorting.h"
 #include "strmoper.h"
 #include "survinfo.h"
@@ -560,6 +561,58 @@ BinIDValueSet::Pos BinIDValueSet::add( const BinIDValues& bivs )
     return add( bivs.binid, locbivs.values() );
 }
 
+class BinIDValueSetFromCubeData : public ParallelTask
+{
+public:
+BinIDValueSetFromCubeData( BinIDValueSet& bvs, const PosInfo::CubeData& cubedata )
+    : bvs_( bvs )
+    , cubedata_( cubedata )
+{
+    //Add first pos on each inline so all inlines are in, thus
+    //threadsafe to add things as long as each inline is separate
+    for ( int idx=0; idx<cubedata.size(); idx++ )
+    {
+	const PosInfo::LineData& line = *cubedata_[idx];
+	const int inl = line.linenr_;
+	if ( line.segments_.size() )
+	    bvs.add( BinID(inl,line.segments_[0].start) );
+    }
+}
+
+od_int64 nrIterations() const { return cubedata_.size(); }
+
+bool doWork( od_int64 start, od_int64 stop, int )
+{
+    for ( int idx=start; idx<=stop; idx++ )
+    {
+	const PosInfo::LineData& line = *cubedata_[idx];
+	const int inl = line.linenr_;
+	for ( int idy=0; idy<line.segments_.size(); idy++ )
+	{
+	    StepInterval<int> crls = line.segments_[idy];
+	    if ( !idy )
+		crls.start += crls.step; //We added first crl in constructor
+	    for ( int crl=crls.start; crl<=crls.stop; crl+=crls.step )
+	    {
+		bvs_.add( BinID(inl,crl) );
+	    }
+	}
+    }
+
+    return true;
+}
+
+BinIDValueSet&		bvs_;
+PosInfo::CubeData	cubedata_;
+
+};
+
+
+void BinIDValueSet::add( const PosInfo::CubeData& cubedata )
+{
+    BinIDValueSetFromCubeData task( *this, cubedata );
+    task.execute();
+}
 
 void BinIDValueSet::set( BinIDValueSet::Pos pos, const float* vals )
 {
@@ -630,11 +683,7 @@ void BinIDValueSet::remove( const Pos& pos )
     }
     else
     {
-	inls_.remove( pos.i );
-	delete crlsets_[pos.i];
-	crlsets_.remove( pos.i );
-	delete valsets_[pos.i];
-	valsets_.remove( pos.i );
+	removeLine( pos.i );
     }
 }
 
@@ -861,6 +910,46 @@ void BinIDValueSet::removeRange( int valnr, const Interval<float>& rg,
 	    poss += pos;
     }
     remove( poss );
+}
+
+
+void BinIDValueSet::remove( const HorSampling& hrg, bool removeinside )
+{
+    const StepInterval<int> inlrg = hrg.inlRange();
+    const StepInterval<int> crlrg = hrg.crlRange();
+
+    for ( int idx=inls_.size()-1; idx>=0; idx-- )
+    {
+	const int inl = inls_[idx];
+	bool isin = inlrg.includes(inl) && inlrg.snap( inl )==inl;
+	if ( isin==removeinside )
+	    removeLine( idx );
+	else
+	{
+	    TypeSet<int>& crls = *crlsets_[idx];
+	    TypeSet<float>& vals = *valsets_[idx];
+	    for ( int idy=crls.size()-1; idy>=0; idy-- )
+	    {
+		const int crl = crls[idy];
+		isin = crlrg.includes(crl) && crlrg.snap( crl )==crl;
+		if ( isin==removeinside )
+		{
+		    crls.remove( idy );
+		    vals.remove( idy*nrvals_, idy*nrvals_+nrvals_-1 );
+		}
+	    }
+	}
+    }
+}
+
+
+void BinIDValueSet::removeLine( int idx )
+{
+    inls_.remove( idx );
+    delete crlsets_[idx];
+    crlsets_.remove( idx );
+    delete valsets_[idx];
+    valsets_.remove( idx );
 }
 
 
