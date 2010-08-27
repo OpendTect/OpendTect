@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.92 2010-06-22 10:49:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.93 2010-08-27 06:41:45 cvsjaap Exp $";
 
 
 #include "uitable.h"
@@ -729,6 +729,9 @@ const char* uiTable::rowLabel( int row ) const
 {
     static BufferString ret;
     QTableWidgetItem* itm = body_->verticalHeaderItem( row );
+    if ( !itm )
+	return 0;
+
     ret = itm->text().toAscii().data();
     return ret;
 }
@@ -766,6 +769,9 @@ const char* uiTable::columnLabel( int col ) const
 {
     static BufferString ret;
     QTableWidgetItem* itm = body_->horizontalHeaderItem( col );
+    if ( !itm )
+	return 0;
+
     ret = itm->text().toAscii().data();
     return ret;
 }
