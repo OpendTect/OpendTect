@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.31 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.32 2010-08-27 02:50:28 cvsnanne Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -342,11 +342,11 @@ StringListInpSpec::StringListInpSpec( const StringListInpSpec& oth )
     , cur_(oth.cur_)
     , defaultval_(oth.defaultval_)
     , isset_(oth.isset_)
-{ deepCopy( strings_, oth.strings_ ); }
+{ strings_ = oth.strings_; }
 
 
 StringListInpSpec::~StringListInpSpec()
-{ deepErase(strings_); }
+{}
 
 
 bool StringListInpSpec::isUndef( int idx ) const
@@ -367,20 +367,20 @@ void StringListInpSpec::addString( const char* txt )
 
 const char* StringListInpSpec::text( int idx ) const
 {
-    if ( isUndef() ) return "";
-    else return (const char*)*strings_[cur_];
+    return isUndef() ? "" : strings_.get( cur_ ).buf();
 }
 
 
 void StringListInpSpec::setItemText( int idx, const char* s )
-{ *strings_[cur_] = s; }
+{ strings_.get( cur_ ) = s; }
 
 
 bool StringListInpSpec::setText( const char* s, int nr )
 {
     for ( int idx=0; idx<strings_.size(); idx++ )
     {
-	if ( *strings_[idx] == s ) { cur_ = idx; isset_ = true; return true; }
+	if ( strings_.get(idx) == s )
+	{ cur_ = idx; isset_ = true; return true; }
     }
 
     return false;
