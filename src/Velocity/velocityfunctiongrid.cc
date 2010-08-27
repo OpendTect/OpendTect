@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.13 2010-08-25 13:45:38 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.14 2010-08-27 18:00:27 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -155,8 +155,8 @@ GriddedFunction::getInputFunction( const BinID& bid, int& funcsource )
 	}
 
 	if ( !velfunc )
-	    velfunc = velfuncsources[funcsource]->createFunction( bid_ );
-	    //velfunc = velfuncsources[funcsource]->getFunction( bid_ );
+	    velfunc = velfuncsources[funcsource]->createFunction( bid );
+	    //velfunc = velfuncsources[funcsource]->getFunction( bid );
 
 	if ( velfunc ) break;
     }
