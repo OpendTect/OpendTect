@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.385 2010-08-20 02:31:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.386 2010-08-27 03:11:00 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -312,6 +312,12 @@ void uiODApplMgr::addTimeDepthScene()
 	scene->setZScale( zscale );
 	sceneMgr().viewAll( 0 ); sceneMgr().tile();
     }
+}
+
+
+void uiODApplMgr::showBaseMap()
+{
+    dispatcher_.showBaseMap();
 }
 
 

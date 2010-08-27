@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.216 2010-08-20 11:23:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.217 2010-08-27 03:11:00 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -539,6 +539,7 @@ void uiODMenuMgr::fillViewMenu()
     if ( !viewmnu_ ) return;
 
     viewmnu_->clear();
+    mInsertItem( viewmnu_, "&Base Map ...", mBaseMapMnuItm );
     mInsertItem( viewmnu_, "&Work area ...", mWorkAreaMnuItm );
     mInsertItem( viewmnu_, "&Z-scale ...", mZScaleMnuItm );
     uiPopupMenu* stereoitm = new uiPopupMenu( &appl_, "&Stereo viewing" );
@@ -992,6 +993,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mTileAutoMnuItm: 	sceneMgr().tile(); break;
     case mTileHorMnuItm: 	sceneMgr().tileHorizontal(); break;
     case mTileVerMnuItm: 	sceneMgr().tileVertical(); break;
+    case mBaseMapMnuItm:	applMgr().showBaseMap(); break;
     case mWorkAreaMnuItm: 	applMgr().setWorkingArea(); break;
     case mZScaleMnuItm: 	applMgr().setZStretch(); break;
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;

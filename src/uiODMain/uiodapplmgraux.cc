@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.22 2010-08-20 11:23:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.23 2010-08-27 03:11:00 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
+#include "uiodscenemgr.h"
 
 #include "attribdescset.h"
 #include "bidvsetarrayadapter.h"
@@ -44,15 +45,18 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.22 2010-08-20 11:23:26 cv
 #include "uiimpexppdf.h"
 #include "uiimppvds.h"
 #include "uiseisbayesclass.h"
+#include "uisurvmap.h"
+#include "vissurvscene.h"
 
-#include "uiempartserv.h"
-#include "uinlapartserv.h"
-#include "uiseispartserv.h"
-#include "uiwellpartserv.h"
-#include "uipickpartserv.h"
 #include "uiattribpartserv.h"
 #include "uiemattribpartserv.h"
+#include "uiempartserv.h"
+#include "uinlapartserv.h"
+#include "uipickpartserv.h"
+#include "uiseispartserv.h"
+#include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
+#include "uiwellpartserv.h"
 
 
 bool uiODApplService::eventOccurred( const uiApplPartServer* ps, int evid )
@@ -286,6 +290,30 @@ void uiODApplMgrDispatcher::posConversion()
 void uiODApplMgrDispatcher::posDlgClose( CallBacker* )
 {
     convposdlg_ = 0;
+}
+
+
+void uiODApplMgrDispatcher::showBaseMap()
+{
+    if ( !basemapdlg_ )
+    {
+	const int sceneid = am_.sceneMgr().askSelectScene();
+	mDynamicCastGet(visSurvey::Scene*,scene,
+			am_.visserv_->getObject(sceneid) );
+	if ( !scene ) return;
+
+	basemapdlg_ = new uiDialog( par_, uiDialog::Setup("Base Map","","") );
+	basemapdlg_->setModal( false );
+	basemapdlg_->setCtrlStyle( uiDialog::LeaveOnly );
+	basemap_ = new uiSurveyMap( basemapdlg_ );
+	basemap_->setPrefHeight( 250 );
+	basemap_->setPrefWidth( 250 );
+	basemap_->drawMap( &SI() );
+	scene->setBaseMap( basemap_ );
+    }
+
+    basemapdlg_->show();
+    basemapdlg_->raise();
 }
 
 

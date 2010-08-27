@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.66 2010-08-20 11:23:26 cvsnageswara Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.67 2010-08-27 03:11:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,6 +152,7 @@ ________________________________________________________________________
 /* "View' menu */
 
 #define mWorkAreaMnuItm		(mViewMnu + 10)
+#define mBaseMapMnuItm		(mViewMnu + 11)
 #define mZScaleMnuItm		(mViewMnu + 20)
 
 #define mViewStereoMnu		(mViewMnu + 100)

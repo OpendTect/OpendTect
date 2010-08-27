@@ -6,18 +6,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.11 2010-05-12 04:30:56 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.12 2010-08-27 03:11:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
 #include "uiapplserv.h"
-class uiVelSel;
+
 class CtxtIOObj;
-class uiODApplMgr;
 class DataPointSet;
 class uiConvertPos;
+class uiDialog;
+class uiODApplMgr;
+class uiSurveyMap;
+class uiVelSel;
 
 
 /*!\brief uiApplService for OD */
@@ -60,8 +62,11 @@ mClass uiODApplMgrDispatcher : public CallBacker
     void		setFonts();
     void		openXPlot();
 
-    void		posDlgClose(CallBacker*);
+    void		showBaseMap();
+    uiSurveyMap*	basemap_;
+    uiDialog*		basemapdlg_;
 
+    void		posDlgClose(CallBacker*);
     uiConvertPos*	convposdlg_;
     uiODApplMgr&	am_;
     uiParent*		par_;
