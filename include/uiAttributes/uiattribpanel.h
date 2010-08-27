@@ -25,7 +25,7 @@ namespace Attrib { class EngineMan; class DescSet; class DataCubes;
 
 /*! \brief Attribute preview in a 2d viewer */
 
-class uiAttribPanel
+mClass uiAttribPanel
 {
 public:
     			uiAttribPanel(uiParent*);
