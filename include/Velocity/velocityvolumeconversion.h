@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityvolumeconversion.h,v 1.5 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:		$Id: velocityvolumeconversion.h,v 1.6 2010-08-27 17:59:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,7 @@ public:
     static const char*	sKeyOutput();
 
 protected:
-    od_int64		nrIterations() const { return hrg_.totalNr(); }
+    od_int64		nrIterations() const { return totalnr_; }
     bool		doPrepare(int);
     bool		doFinish(bool);
     bool		doWork(od_int64,od_int64,int);
@@ -52,11 +52,12 @@ protected:
     char		getNewTrace(SeisTrc&,int threadidx);
     bool		writeTraces();
 
+    od_int64		totalnr_;
     IOObj*		input_;
     IOObj*		output_;
     VelocityDesc	veldesc_;
     HorSampling		hrg_;
-    BufferString	errmsg_;
+    FixedString		errmsg_;
 
     SeisTrcReader*	reader_;
     SeisTrcWriter*	writer_;
@@ -64,8 +65,7 @@ protected:
     int			maxbuffersize_;
 
     Threads::ConditionVar	lock_;
-    TypeSet<int>	curtrcs_;
-    int			getTrcIdx(const BinID&) const;
+    TypeSet<BinID>		activetraces_;
 };
 
 

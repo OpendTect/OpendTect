@@ -8,17 +8,20 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.4 2010-07-28 08:12:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.5 2010-08-27 17:59:42 cvskris Exp $";
 
 #include "velocityvolumeconversion.h"
 
+#include "binidvalset.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "seisbounds.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
+#include "seistrctr.h"
 #include "seiswrite.h"
+#include "seispacketinfo.h"
 #include "sorting.h"
 #include "varlenarray.h"
 #include "velocitycalc.h"
@@ -38,8 +41,34 @@ VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
     , output_( output.clone() )
     , reader_( 0 )
     , writer_( 0 )
-    , maxbuffersize_( 1000 )
-{ }
+{
+    reader_ = new SeisTrcReader( input_ );
+    if ( !reader_->prepareWork() )
+    {
+	delete reader_;
+	reader_ = 0;
+	errmsg_ = "Cannot read input";
+	return;
+    }
+
+    const SeisPacketInfo& packetinfo =
+	    reader_->seisTranslator()->packetInfo();
+
+    if ( packetinfo.cubedata )
+    {
+	BinIDValueSet bivs( 0, false );
+	bivs.add( *packetinfo.cubedata );
+	bivs.remove( hrg_, false );
+	totalnr_ = bivs.totalSize();
+    }
+    else
+    {
+	totalnr_ = hrg_.totalNr();
+    }
+
+    Seis::SelData* seldata = new Seis::RangeSelData( hrg_ );
+    reader_->setSelData( seldata );
+}
 
 
 VolumeConverter::~VolumeConverter()
@@ -54,9 +83,13 @@ VolumeConverter::~VolumeConverter()
 bool VolumeConverter::doFinish( bool res )
 {
     if ( res )
-    {
 	return writeTraces();
-    }
+
+    delete reader_;
+    reader_ = 0;
+
+    delete writer_;
+    writer_ = 0;
 
     return res;
 }
@@ -64,16 +97,18 @@ bool VolumeConverter::doFinish( bool res )
 
 bool VolumeConverter::doPrepare( int nrthreads )
 {
+    if ( errmsg_ )
+	return false;
+
+    maxbuffersize_ = 4*nrthreads;
+
     if ( !input_ || !output_ )
     {
 	errmsg_ = "Either input or output cannot be found";
 	return false;
     }
 
-    delete [] reader_;
-    reader_ = 0;
-
-    delete [] writer_;
+    delete writer_;
     writer_ = 0;
 
     VelocityDesc inpdesc;
@@ -103,22 +138,22 @@ bool VolumeConverter::doPrepare( int nrthreads )
 
     //Check input Vel
 
-    reader_ = new SeisTrcReader( input_ );
-    if ( !reader_->prepareWork() )
+    if ( !reader_ )
     {
-	delete reader_;
-	reader_ = 0;
-	errmsg_ = "Cannot read input";
-	return false;
+	reader_ = new SeisTrcReader( input_ );
+	if ( !reader_->prepareWork() )
+	{
+	    delete reader_;
+	    reader_ = 0;
+	    errmsg_ = "Cannot read input";
+	    return false;
+	}
+
+	Seis::SelData* seldata = new Seis::RangeSelData( hrg_ );
+	reader_->setSelData( seldata );
     }
 
-    Seis::SelData* seldata = new Seis::RangeSelData( hrg_ );
-    reader_->setSelData( seldata );
-
     writer_ = new SeisTrcWriter( output_ );
-
-    curtrcs_.setSize( nrthreads, -1 );
-    curtrcs_.fillWith( -1 );
 
     return true;
 }
@@ -178,12 +213,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 
 	Threads::MutexLocker lock( lock_ );	
 	if ( outputtrc )
-	{
-	    while ( threadidx && outputs_.size()>=maxbuffersize_ )
-		lock_.wait();
-
 	    outputs_ += outputtrc;
-	}
 
 	res = getNewTrace( trc, threadidx );
     }
@@ -194,12 +224,15 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 
 char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 {
-    curtrcs_[threadidx] = -1;
-
     if ( !threadidx ) //Thread doing the writing
     {
 	if ( !writeTraces() )
 	    return -1;
+    }
+    else
+    {
+	while ( activetraces_.size()>=maxbuffersize_ )
+	    lock_.wait();
     }
 
     if ( !reader_ )
@@ -214,7 +247,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 	if ( !reader_->get( trc ) )
 	    return -1;
 
-	curtrcs_[threadidx] = getTrcIdx( trc.info().binid );
+	activetraces_ += trc.info().binid;
 	return 1;
     }
 
@@ -231,72 +264,62 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 bool VolumeConverter::writeTraces()
 {
     bool res = true;
-    while ( outputs_.size() )
+
+    while ( true )
     {
-	int first = -1;
-	for ( int idx=0; idx<curtrcs_.size(); idx++ )
+	ObjectSet<SeisTrc> trctowrite;
+	int idx = 0;
+	while ( idx<activetraces_.size() )
 	{
-	    if ( curtrcs_[idx]==-1 )
-		continue;
+	    const BinID& bid = activetraces_[idx];
 
-	    if ( first==-1 || curtrcs_[idx]<first )
-		first = curtrcs_[idx];
-	}
-
-	mAllocVarLenArr( SeisTrc*, trctowrite, outputs_.size() );
-	TypeSet<int> trcidxs;
-	for ( int idx=outputs_.size()-1; idx>=0; idx-- )
-	{
-	    const int trcidx = getTrcIdx( outputs_[idx]->info().binid );
-	    if ( first==-1 || trcidx<first )
+	    SeisTrc* trc = 0;
+	    for ( int idy=0; idy<outputs_.size(); idy++ )
 	    {
-		trctowrite[trcidxs.size()] = outputs_[idx];
-		outputs_.remove( idx );
-		trcidxs += trcidx;
-	    }
-	}
-
-	lock_.signal( true ); //Tell waiting threads that they may add to buf
-	lock_.unLock();
-
-	if ( trcidxs.size() )
-	{
-	    int* trcidxsptr = trcidxs.arr();
-	    sort_coupled<int, SeisTrc*>( trcidxsptr,trctowrite,trcidxs.size() );
-
-	    for ( int idx=0; res && idx<trcidxs.size(); idx++ )
-	    {
-		if ( !writer_->put( *trctowrite[idx] ) )
+		if ( outputs_[idy]->info().binid==bid )
 		{
-		    errmsg_ = "Cannot write output.";
-		    res = false;
+		    trc = outputs_.remove( idy );
+		    break;
 		}
 	    }
 
-	    for ( int idx=0; idx<trcidxs.size(); idx++ )
-		delete trctowrite[idx];
+	    if ( !trc )
+	    {
+		idx--;
+		break;
+	    }
 
-	    addToNrDone( trcidxs.size() );
+	    trctowrite += trc;
+	    idx++;
 	}
+
+	if ( idx>=0 )
+	    activetraces_.remove( 0, idx );
+
+	if ( !trctowrite.size() )
+	    return true;
+
+	lock_.signal(true);
+	lock_.unLock();
+
+	for ( int idy=0; res && idy<trctowrite.size(); idy++ )
+	{
+	    if ( !writer_->put( *trctowrite[idy] ) )
+	    {
+		errmsg_ = "Cannot write output.";
+		res = false;
+	    }
+	}
+
+	addToNrDone( trctowrite.size() );
+	deepErase( trctowrite );
 
 	lock_.lock();
-
-	if ( !trcidxs.size() )
-	{
-	    const int thridx = curtrcs_.indexOf( first );
-	    if ( curtrcs_.validIdx(thridx) )
-		curtrcs_[thridx] = -1;
-	    break;
-	}
+	if ( !res )
+	    return res;
     }
 
     return res;
-}
-
-
-int VolumeConverter::getTrcIdx( const BinID& bid ) const
-{
-    return bid.inl * hrg_.nrCrl() + bid.crl;
 }
 
 }; //namespace
