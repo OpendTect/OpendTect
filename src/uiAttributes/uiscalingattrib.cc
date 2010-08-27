@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.28 2010-08-25 11:21:30 cvshelene Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.29 2010-08-27 14:06:50 cvshelene Exp $";
 
 
 #include "uiscalingattrib.h"
@@ -138,6 +138,28 @@ void uiScalingAttrib::statsSel( CallBacker* )
 }
 
 
+#define mIfGetSqueezeRgs( str, var, setfunc ) \
+Attrib::ValParam* valparam##var =\
+		    const_cast<Attrib::ValParam*>(desc.getValParam(str));\
+if ( valparam##var ) \
+{ \
+    Interval<float> var; \
+    var.start = valparam##var->getfValue(0); \
+    var.stop = valparam##var->getfValue(1); \
+    if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
+    {\
+	mDynamicCastGet(Attrib::FloatGateParam*,gateparam##var,valparam##var);\
+	if ( gateparam##var ) \
+	{\
+	    if ( mIsUdf(var.start) )\
+	        var.start = gateparam##var->getDefaultGateValue().start;\
+	    if ( mIsUdf(var.stop) )\
+	        var.stop = gateparam##var->getDefaultGateValue().stop;\
+	}\
+    }\
+    setfunc; \
+}
+
 bool uiScalingAttrib::setParameters( const Desc& desc )
 {
     if ( strcmp(desc.attribName(),Scaling::attribName()) )
@@ -152,9 +174,9 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	    	 windowfld->setValue(wndwidthval) );
     mIfGetFloat( Scaling::mutefractionStr(), mutefactor,
 				lowenergymute->setValue(mutefactor*100));    
-    mIfGetFloatInterval( Scaling::sqrangeStr(), sqrg, sqrgfld->setValue(sqrg) );
-    mIfGetFloatInterval( Scaling::squntouchedStr(), squrg,
-	    				squrgfld->setValue(squrg) );
+    mIfGetSqueezeRgs( Scaling::sqrangeStr(), sqrg, sqrgfld->setValue(sqrg) );
+    mIfGetSqueezeRgs( Scaling::squntouchedStr(), squrg,
+	    	      squrgfld->setValue(squrg) );
 
     table->clearTable();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.36 2010-08-25 11:21:30 cvshelene Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.37 2010-08-27 14:06:50 cvshelene Exp $";
 
 #include "scalingattrib.h"
 
@@ -170,6 +170,24 @@ const char* Scaling::scalingTypeNamesStr( int type )
     return "Window";
 }
 
+#define mGetSqueezeRgs( var, varstring ) \
+{\
+    var.start = desc_.getValParam(varstring)->getfValue(0); \
+    var.stop = desc_.getValParam(varstring)->getfValue(1); \
+    if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
+    {\
+	Attrib::ValParam* valparam##var = \
+	      const_cast<Attrib::ValParam*>(desc_.getValParam(varstring));\
+	mDynamicCastGet(Attrib::ZGateParam*,gateparam##var,valparam##var);\
+	if ( gateparam##var ) \
+	{ \
+	    if ( mIsUdf(var.start) ) \
+	        var.start = gateparam##var->getDefaultGateValue().start;\
+	    if ( mIsUdf(var.stop) ) \
+	        var.stop = gateparam##var->getDefaultGateValue().stop;\
+	}\
+    }\
+}
 
 Scaling::Scaling( Desc& desc )
     : Provider( desc )
@@ -180,8 +198,24 @@ Scaling::Scaling( Desc& desc )
     mGetFloat( powerval_, powervalStr() );
     mGetFloat( width_, widthStr() );
     mGetFloat( mutefraction_, mutefractionStr() );
-    mGetFloatInterval( sqrg_, sqrangeStr() );
-    mGetFloatInterval( squrg_, squntouchedStr() );
+
+sqrg_.start = desc_.getValParam(sqrangeStr())->getfValue(0);
+sqrg_.stop = desc_.getValParam(sqrangeStr())->getfValue(1);
+if ( mIsUdf(sqrg_.start) || mIsUdf(sqrg_.stop) )
+{
+Attrib::ValParam* var = 
+const_cast<Attrib::ValParam*>(desc_.getValParam(sqrangeStr()));
+mDynamicCastGet(Attrib::ZGateParam*,gateparamvar,var);
+if ( gateparamvar ) 
+{ 
+if ( mIsUdf(sqrg_.start) ) 
+sqrg_.start = gateparamvar->getDefaultGateValue().start;
+if ( mIsUdf(sqrg_.stop) ) 
+sqrg_.stop = gateparamvar->getDefaultGateValue().stop;
+}
+}
+//    mGetSqueezeRgs( sqrg_, sqrangeStr() );
+    mGetSqueezeRgs( squrg_, squntouchedStr() );
 
     mDescGetParamGroup(ZGateParam,gateset,desc_,gateStr())
     for ( int idx=0; idx<gateset->size(); idx++ )
