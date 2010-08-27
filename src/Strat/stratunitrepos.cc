@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.45 2010-08-27 10:11:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.46 2010-08-27 14:06:48 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -294,9 +294,8 @@ void Strat::RefTree::constrainUnitLvls( UnitRef& lur ) const
 
 void Strat::RefTree::assignEqualTimesToUnits( Interval<float> toptimerg ) const
 {
+    Strat::UnitRef* un = const_cast<Strat::RefTree*>( this );
     UnitRef::Iter it( *this );
-    Strat::UnitRef* un = it.unit();
-    un->props().timerg_ = toptimerg;
     while ( un )
     {
 	Interval<float> timerg( 0, 0 );
@@ -322,7 +321,7 @@ void Strat::RefTree::assignEqualTimesToUnits( Interval<float> toptimerg ) const
 		rg.stop = timerg.start +(float)(idx+1)*timerg.width()/(nrrefs);
 	    }
 	}
-	if ( !it.next() ) break;
+	if ( un->upNode() && !it.next() ) break;
 	un = it.unit();
     }
 }
@@ -563,7 +562,7 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	/*!support for older version
 	TODO make this whole time structure optionnal 
 	( then no graph display but still the ui-tree available )!*/
-	float timestop = tree->props().timerg_.stop;
+	float timestop = tree->ref(0).props().timerg_.stop;
 	if ( mIsUdf( timestop ) || timestop == 0 )
 	    tree->assignEqualTimesToUnits( Interval<float>( 0, 4.5e3 ) );
 	trees_ += tree;
