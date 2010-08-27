@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.58 2009-09-08 15:16:05 cvsbert Exp $
+ RCS:		$Id: ranges.h,v 1.59 2010-08-27 02:48:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ public:
     const Interval<T>&	setFrom(const Interval<X>&);
 
     inline T		width(bool allowrev=true) const;
-    inline T		center() const;
+    inline virtual T	center() const;
     inline void		shift(const T& len);
     inline void		widen(const T& len,bool allowrev=true);
     inline virtual void	scale(const T&);
@@ -130,6 +130,7 @@ public:
     inline int		nrSteps() const;
     virtual inline void	sort(bool asc=true);
     inline void		scale(const T&);
+    inline T		center() const;
 
     inline bool		isCompatible(const StepInterval<T>&,
 	    			     float eps=mDefEps) const;
@@ -580,6 +581,9 @@ void StepInterval<T>::scale( const T& factor )
     step *= factor;
 }
 
+template <class T> inline
+T StepInterval<T>::center() const
+{ return snap( Interval<T>::center() ); }
 
 template <class T> inline
 T StepInterval<T>::snapStep( const T& inputstep ) const
