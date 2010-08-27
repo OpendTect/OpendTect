@@ -56,5 +56,4 @@ protected:
     uiParent*			parent_;
 };
 
-
 #endif
