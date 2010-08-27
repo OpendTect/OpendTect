@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.59 2010-08-26 14:36:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.60 2010-08-27 14:26:35 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -646,8 +646,10 @@ uiWellDisplay::uiWellDisplay( uiWellDisplay& orgdisp, const ShapeSetup& su )
 	    log->setStretch( 2, 2 );
 	    logdisps_ += log;
 	}
-	else if ( control_ ) 
+	else if ( control_ )
 	    control_->removeLogDisplay(*orgdisp.logDisplay(idx));
+
+	orgdisp.removeLogDisplay( orgdisp.logDisplay(idx) ); 
     }
     
     for ( int idx=logdisps_.size(); idx<su.nrlogpanels_; idx++ )

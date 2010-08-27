@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.38 2010-08-20 15:02:27 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.39 2010-08-27 14:26:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -304,6 +304,8 @@ public:
     MultiID                     wellid_;
 
     void			addLogPanel(bool,bool);
+    void			removeLogDisplay(uiWellLogDisplay* ld)
+				{ logdisps_ -= ld; }
     void			addWDNotifiers(Well::Data&);
     void			removeWDNotifiers(Well::Data&);
     Well::Data*			getWD() const;
