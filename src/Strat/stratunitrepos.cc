@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.44 2010-08-26 14:33:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.45 2010-08-27 10:11:37 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -295,7 +295,8 @@ void Strat::RefTree::constrainUnitLvls( UnitRef& lur ) const
 void Strat::RefTree::assignEqualTimesToUnits( Interval<float> toptimerg ) const
 {
     UnitRef::Iter it( *this );
-    Strat::UnitRef* un = const_cast<Strat::RefTree*>( this );
+    Strat::UnitRef* un = it.unit();
+    un->props().timerg_ = toptimerg;
     while ( un )
     {
 	Interval<float> timerg( 0, 0 );
@@ -314,6 +315,7 @@ void Strat::RefTree::assignEqualTimesToUnits( Interval<float> toptimerg ) const
 		break;
 	    for ( int idx=0; idx<nrrefs; idx++ )
 	    {
+
 		Interval<float>& rg = 
 		    		((NodeUnitRef*)un)->ref(idx).props().timerg_;
 		rg.start = timerg.start + (float)idx*timerg.width()/(nrrefs);
