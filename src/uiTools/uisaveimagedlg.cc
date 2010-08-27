@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.13 2010-04-05 05:18:34 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.14 2010-08-27 18:41:49 cvskris Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.13 2010-04-05 05:18:34 cv
 
 static const char* sKeySnapshot = "snapshot";
 
-BufferString uiSaveImageDlg::dirname_ = "";
+BufferString uiSaveImageDlg::dirname_;
 
 static const char* imageformats[] =
 { "jpg", "png", "bmp", "xbm", "xpm", "ps", "eps", 0 };
