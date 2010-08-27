@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.19 2010-06-09 10:41:35 cvsraman Exp $";
+static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.20 2010-08-27 05:01:00 cvsraman Exp $";
 
 #include "uihorizonsortdlg.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.19 2010-06-09 10:41:35 
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "horizonrelation.h"
 #include "horizonsorter.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -29,9 +30,10 @@ static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.19 2010-06-09 10:41:35 
 #include "ptrman.h"
 
 
-uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d )
+uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d, bool loadneeded )
     : uiDialog(p,Setup("Horizon sorter","Select horizons",""))
     , is2d_( is2d )
+    , loadneeded_(loadneeded)
 {
     if ( is2d )
 	horsel_ = new uiHorizon2DSel( this );
@@ -75,6 +77,12 @@ void uiHorizonSortDlg::getSortedHorizons( ObjectSet<EM::Horizon>& hors ) const
 }
 
 
+void uiHorizonSortDlg::getSortedHorizonIDs( TypeSet<MultiID>& horids ) const
+{
+    horids = horids_;
+}
+
+
 bool uiHorizonSortDlg::acceptOK( CallBacker* )
 {
     TypeSet<MultiID> horids;
@@ -84,6 +92,9 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	uiMSG().error( "Please select at least two horizons" );
 	return false;
     }
+
+    if ( !loadneeded_ && sortFromRelationTree(horids) )
+	return true;
 
     TypeSet<MultiID> loadids;
     for ( int idx=0; idx<horids.size(); idx++ )
@@ -106,7 +117,12 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
     uiTaskRunner taskrunner( this );
     if ( !taskrunner.execute(execgrp) ) return false;
 
-    horsorter->getSortedList( horids );
+    horsorter->getSortedList( horids_ );
+    updateRelationTree( horids_ );
+    bbox_.hrg = horsorter->getBoundingBox();
+    if ( !loadneeded_ )
+	return true;
+
     deepUnRef( horizons_ );
 
     for ( int idx=0; idx<horids.size(); idx++ )
@@ -120,6 +136,34 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	horizons_ += horizon;
     }
 
-    bbox_.hrg = horsorter->getBoundingBox();
     return true;
 }
+
+
+bool uiHorizonSortDlg::sortFromRelationTree( const TypeSet<MultiID>& ids )
+{
+    EM::RelationTree reltree( is2d_ );
+    TypeSet<MultiID> sortedids;
+    reltree.getSorted( ids, sortedids );
+    if ( sortedids.size() == ids.size() )
+    {
+	horids_ = sortedids;
+	return true;
+    }
+
+    return false;
+}
+
+
+void uiHorizonSortDlg::updateRelationTree( const TypeSet<MultiID>& ids )
+{
+    if ( ids.size() < 2 )
+	return;
+
+    EM::RelationTree reltree( is2d_ );
+    for ( int idx=1; idx<ids.size(); idx++ )
+	reltree.addRelation( ids[idx-1], ids[idx], false );
+
+    reltree.write();
+}
+
