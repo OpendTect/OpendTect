@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.cc,v 1.1 2010-08-26 03:58:25 cvsraman Exp $
+ RCS:		$Id: uicreate2dgrid.cc,v 1.2 2010-08-27 06:23:29 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ void setBaseLine( const Grid2D::Line* baseline )
     itemgrp_->add( item ); \
 }
 
-void updateGeometry()
+void update()
 {
     itemgrp_->removeAll( true );
     lines_.erase();
