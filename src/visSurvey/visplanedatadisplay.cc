@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.235 2010-08-11 09:30:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.236 2010-08-27 03:16:34 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -76,7 +76,9 @@ const char* PlaneDataDisplayBaseMapObject::getType() const
 
 
 void PlaneDataDisplayBaseMapObject::updateGeometry()
-{}
+{
+    changed.trigger();
+}
 
 
 int PlaneDataDisplayBaseMapObject::nrShapes() const
@@ -106,7 +108,10 @@ void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
 
 
 char PlaneDataDisplayBaseMapObject::connectPoints(int) const
-{ return BaseMapObject::cPolygon(); }
+{
+    return pdd_->getOrientation()==PlaneDataDisplay::Zslice
+	? BaseMapObject::cPolygon() : BaseMapObject::cConnect();
+}
 
 
 
@@ -1109,9 +1114,7 @@ bool PlaneDataDisplay::isVerticalPlane() const
 
 void PlaneDataDisplay::setScene( Scene* sc )
 {
-    if ( sc )
-	setBaseMap( sc->getBaseMap() );
-
+    setBaseMap( sc ? sc->getBaseMap() : 0 );
     SurveyObject::setScene( sc );
 
     if ( sc ) updateRanges( false, false );
