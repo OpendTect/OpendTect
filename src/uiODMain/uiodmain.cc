@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.131 2010-08-19 12:08:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.132 2010-08-27 18:40:42 cvskris Exp $";
 
 #include "uiodmain.h"
 
@@ -222,6 +222,10 @@ uiODMain::~uiODMain()
     delete ctabwin_;
     delete &lastsession_;
     delete &timer_;
+
+    delete menumgr_;
+    delete viewer2dmgr_;
+    delete scenemgr_;
 }
 
 
@@ -720,6 +724,9 @@ bool uiODMain::closeOK()
     removeDockWindow( ctabwin_ );
     delete scenemgr_;
     delete menumgr_;
+
+    scenemgr_ = 0;
+    menumgr_ = 0;
 
     return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uithumbwheel.cc,v 1.12 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uithumbwheel.cc,v 1.13 2010-08-27 18:41:03 cvskris Exp $";
 
 #include "uithumbwheel.h"
 #include "i_qthumbwhl.h"
@@ -25,6 +25,7 @@ public:
 
                         uiThumbWheelBody( uiThumbWheel& handle,
 				  uiParent* parnt, const char* nm, bool hor);
+			~uiThumbWheelBody() { delete &messenger_; }
 
     //virtual int 	nrTxtLines() const			{ return 1; }
 
