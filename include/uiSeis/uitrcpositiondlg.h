@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          July 2010
- RCS:           $Id: uitrcpositiondlg.h,v 1.1 2010-07-05 10:01:54 cvshelene Exp $
+ RCS:           $Id: uitrcpositiondlg.h,v 1.2 2010-08-27 05:31:06 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiLabeledSpinBox;
 class uiSpinBox;
 class uiLabeledComboBox;
 
-class uiTrcPositionDlg: public uiDialog
+mClass uiTrcPositionDlg: public uiDialog
 {                                                                               
 public:                                                                         
 				uiTrcPositionDlg(uiParent*,const CubeSampling&,
