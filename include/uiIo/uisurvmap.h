@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.22 2010-08-12 04:48:06 cvsraman Exp $
+ RCS:           $Id: uisurvmap.h,v 1.23 2010-08-27 03:09:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
 
     const char*		getType() const		{ return "SurveyBox"; }
 
-    void		updateGeometry();
+    void		update();
     void		setSurveyInfo(const SurveyInfo&);
 
 protected:
@@ -49,7 +49,7 @@ public:
 
     const char*		getType() const		{ return "NorthArrow"; }
 
-    void		updateGeometry();
+    void		update();
     void		setSurveyInfo(const SurveyInfo&);
 
 protected:

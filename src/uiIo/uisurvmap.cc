@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.37 2010-08-25 11:59:58 cvsraman Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.38 2010-08-27 03:09:32 cvsnanne Exp $";
 
 #include "uisurvmap.h"
 
@@ -69,7 +69,7 @@ void uiSurveyBoxObject::setSurveyInfo( const SurveyInfo& si )
 }
 
 
-void uiSurveyBoxObject::updateGeometry()
+void uiSurveyBoxObject::update()
 {
     if ( !survinfo_ || !transform_ )
 	return;
@@ -138,7 +138,7 @@ void uiNorthArrowObject::setSurveyInfo( const SurveyInfo& si )
 }
 
 
-void uiNorthArrowObject::updateGeometry()
+void uiNorthArrowObject::update()
 {
     if ( !survinfo_ || !transform_ )
 	return;
