@@ -8,9 +8,10 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibasemap.cc,v 1.5 2010-08-12 04:42:50 cvsraman Exp $";
+static const char* rcsID = "$Id: uibasemap.cc,v 1.6 2010-08-27 03:11:56 cvsnanne Exp $";
 
 #include "uibasemap.h"
+#include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uiworld2ui.h"
@@ -20,7 +21,10 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     : bmobject_( bmo )
     , itemgrp_(new uiGraphicsItemGroup(true))
     , transform_(0)
-{}
+{
+    if ( bmobject_ )
+	bmobject_->changed.notify( mCB(this,uiBaseMapObject,changedCB) );
+}
 
 
 uiBaseMapObject::~uiBaseMapObject()
@@ -29,9 +33,37 @@ uiBaseMapObject::~uiBaseMapObject()
 }
 
 
+void uiBaseMapObject::changedCB( CallBacker* )
+{
+    update();
+}
+
+
 void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
 {
     transform_ = w2ui;
+}
+
+
+void uiBaseMapObject::update()
+{
+    if ( !bmobject_ ) return;
+
+    TypeSet<Coord> crds;
+    bmobject_->getPoints( -1, crds );
+    
+    if ( bmobject_->connectPoints(-1) == BaseMapObject::cConnect() )
+    {
+	if ( itemgrp_->isEmpty() )
+	    itemgrp_->add( new uiLineItem() );
+
+	mDynamicCastGet(uiLineItem*,li,itemgrp_->getUiItem(0))
+	if ( !li ) return;
+
+	uiPoint pt1 = transform_->transform( uiWorldPoint(crds[0]) );
+	uiPoint pt2 = transform_->transform( uiWorldPoint(crds[1]) );
+	li->setLine( pt1, pt2 );
+    }
 }
 
 
@@ -99,5 +131,5 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
 void uiBaseMap::reDraw()
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
-	objects_[idx]->updateGeometry();
+	objects_[idx]->update();
 }

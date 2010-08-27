@@ -7,22 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Jul 2010
- RCS:           $Id: uibasemap.h,v 1.6 2010-08-25 11:55:40 cvsraman Exp $
+ RCS:           $Id: uibasemap.h,v 1.7 2010-08-27 03:11:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "basemap.h"
-#include "uigraphicsitem.h"
 #include "uigroup.h"
 
 
+class uiGraphicsItemGroup;
 class uiGraphicsView;
-class uiParent;
 class uiWorld2Ui;
 
-mClass uiBaseMapObject
+mClass uiBaseMapObject : public CallBacker
 {
 public:
     				uiBaseMapObject(BaseMapObject*);
@@ -31,10 +30,12 @@ public:
     void			setTransform(const uiWorld2Ui*);
 
     uiGraphicsItemGroup*	itemGrp()		{ return itemgrp_; }
-    virtual void		updateGeometry()	{} //TODO: Implement: Read geometry from object_
+    virtual void		update();
 
 protected:
     friend			class uiBaseMap;
+
+    void			changedCB(CallBacker*);
 
     uiGraphicsItemGroup*	itemgrp_;
     const uiWorld2Ui*		transform_;
@@ -43,8 +44,7 @@ protected:
 };
 
 
-mClass uiBaseMap : public BaseMap,
-       		   public uiGroup
+mClass uiBaseMap : public BaseMap, public uiGroup
 {
 public:
 				uiBaseMap(uiParent*);
