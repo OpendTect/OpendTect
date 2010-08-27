@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.139 2010-08-09 20:01:50 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.140 2010-08-27 03:16:58 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -530,7 +530,14 @@ void Scene::mouseMoveCB( CallBacker* cb )
 
 
 void Scene::setBaseMap( BaseMap* bm )
-{ basemap_ = bm; }
+{
+    basemap_ = bm;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	mDynamicCastGet(SurveyObject*,so,getObject(idx));
+	if ( so ) so->setBaseMap( bm );
+    }
+}
 
 
 BaseMap* Scene::getBaseMap()
