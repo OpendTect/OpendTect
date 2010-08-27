@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.204 2010-06-04 08:19:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.205 2010-08-27 18:42:17 cvskris Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -351,6 +351,9 @@ uiMainWinBody::~uiMainWinBody()
 	deletefrombody_ = true;
 	delete &handle_;
     }
+
+    delete statusbar;
+    delete menubar;
 }
 
 
