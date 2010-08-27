@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.211 2010-07-13 10:49:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.212 2010-08-27 03:17:55 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -37,6 +37,7 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.211 2010-07-13 10:49:53 cvs
 #include "uithumbwheel.h"
 #include "uitoolbar.h"
 #include "uitreeitemmanager.h"
+#include "uiviscoltabed.h"
 #include "uiwindowgrabber.h"
 
 #include "ioman.h"
@@ -280,6 +281,7 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     uiODSceneMgr::Scene* scene = scenes_[idxnr];
     scene->itemmanager_->askContinueAndSaveIfNeeded( false );
     scene->itemmanager_->prepareForShutdown();
+    appl_.colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
     visServ().removeScene( scene->itemmanager_->sceneID() );
     
     appl_.removeDockWindow( scene->dw_ );
