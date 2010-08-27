@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimdiarea.cc,v 1.6 2010-06-21 11:42:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimdiarea.cc,v 1.7 2010-08-27 02:49:32 cvsnanne Exp $";
 
 #include "uimdiarea.h"
 #include "i_qmdiarea.h"
@@ -25,6 +25,7 @@ class uiMdiAreaBody : public uiObjBodyImpl<uiMdiArea,QMdiArea>
 { 	
 public:
     			uiMdiAreaBody(uiMdiArea&,uiParent*,const char*);
+			~uiMdiAreaBody();
 
 protected:
     i_MdiAreaMessenger& messenger_;
@@ -35,6 +36,9 @@ uiMdiAreaBody::uiMdiAreaBody( uiMdiArea& handle, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiMdiArea,QMdiArea>(handle,p,nm)
     , messenger_(*new i_MdiAreaMessenger(this,&handle))
 {}
+
+uiMdiAreaBody::~uiMdiAreaBody()
+{ delete &messenger_; }
 
 
 
@@ -51,6 +55,10 @@ uiMdiAreaBody& uiMdiArea::mkbody( uiParent* p, const char* nm )
     body_ = new uiMdiAreaBody( *this, p, nm );
     return *body_;
 }
+
+
+uiMdiArea::~uiMdiArea()
+{ delete body_; }
 
 
 void uiMdiArea::tile()		{ body_->tileSubWindows(); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2008
- RCS:           $Id: uimdiarea.h,v 1.5 2010-06-22 04:47:07 cvsranojay Exp $
+ RCS:           $Id: uimdiarea.h,v 1.6 2010-08-27 02:49:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ friend class		uiMdiAreaBody;
 friend class		i_MdiAreaMessenger;
 public:
 			uiMdiArea(uiParent*,const char* nm="uiMdiArea");
+			~uiMdiArea();
 
     void		tileHorizontal();
     void		tileVertical();
