@@ -8,13 +8,16 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonrelation.cc,v 1.1 2010-08-26 06:43:26 cvsraman Exp $";
+static const char* rcsID = "$Id: horizonrelation.cc,v 1.2 2010-08-27 04:56:53 cvsraman Exp $";
 
 #include "horizonrelation.h"
 #include "ctxtioobj.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "separstr.h"
+
+namespace EM
+{
 
 
 RelationTree::Node::Node( const MultiID& id )
@@ -61,9 +64,15 @@ void RelationTree::Node::fillChildren( const FileMultiString& fms,
 
 
 
-RelationTree::RelationTree( bool is2d )
+const char* RelationTree::sKeyHorizonRelations()
+{ return "Horizon Relations"; }
+
+RelationTree::RelationTree( bool is2d, bool doread )
     : is2d_(is2d)
-{}
+{
+    if ( doread )
+	read();
+}
 
 
 RelationTree::~RelationTree()
@@ -119,7 +128,7 @@ int RelationTree::findRelation( const MultiID& id1, const MultiID& id2	) const
 }
 
 
-void RelationTree::removeNode( const MultiID& id )
+void RelationTree::removeNode( const MultiID& id, bool dowrite )
 {
     const int index = findNode( id );
     if ( index < 0 )
@@ -140,10 +149,13 @@ void RelationTree::removeNode( const MultiID& id )
     }
 
     delete nodes_.remove( index );
+    if ( dowrite )
+	write();
 }
 
 
-void RelationTree::addRelation( const MultiID& id1, const MultiID& id2  )
+void RelationTree::addRelation( const MultiID& id1, const MultiID& id2,
+				bool dowrite )
 {
     const int idx1 = findNode( id1 );
     RelationTree::Node* node1 = idx1 < 0 ? 0 : nodes_[idx1];
@@ -162,7 +174,11 @@ void RelationTree::addRelation( const MultiID& id1, const MultiID& id2  )
     }
 
     if ( !node1->hasChild(node2) )
+    {
 	node1->children_ += node2;
+	if ( dowrite )
+	    write();
+    }
 }
 
 
@@ -171,7 +187,7 @@ bool RelationTree::write() const
     IOPar par;
     FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf) );
     fp.add( "horizonrelations.txt" );
-    if ( par.read(fp.fullPath(),0) )
+    if ( par.read(fp.fullPath(),sKeyHorizonRelations()) )
 	par.removeWithKey( is2d_ ? "2D" : "3D" );
 
     IOPar subpar;
@@ -179,7 +195,7 @@ bool RelationTree::write() const
 	nodes_[idx]->fillPar( subpar );
 
     par.mergeComp( subpar, is2d_ ? "2D" : "3D" );
-    return par.write( fp.fullPath(), 0 );
+    return par.write( fp.fullPath(), sKeyHorizonRelations() );
 }
 
 
@@ -189,7 +205,7 @@ bool RelationTree::read()
     IOPar par;
     FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf) );
     fp.add( "horizonrelations.txt" );
-    if ( !par.read(fp.fullPath(),0) )
+    if ( !par.read(fp.fullPath(),sKeyHorizonRelations()) )
 	return false;
 
     PtrMan<IOPar> subpar = par.subselect( is2d_ ? "2D" : "3D" );
@@ -240,7 +256,7 @@ bool RelationTree::getSorted( const TypeSet<MultiID>& unsortedids,
 		break;
 	    else if ( rel == 1 )
 	    {
-		sortedids.insert( idx, mid );
+		sortedids.insert( idy, mid );
 		break;
 	    }
 	    else if ( idy == sortedids.size() - 1 )
@@ -254,4 +270,4 @@ bool RelationTree::getSorted( const TypeSet<MultiID>& unsortedids,
     return sortedids.size() > 1;
 }
 
-
+} // namespace EM
