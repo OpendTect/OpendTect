@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.207 2010-08-20 11:23:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.208 2010-08-27 04:53:00 cvsnageswara Exp $";
 
 #include "uiempartserv.h"
 
@@ -1263,6 +1263,6 @@ void uiEMPartServer::signalTempObjAbtToDel( const EM::ObjectID& id )
 
 void uiEMPartServer::managePreLoad()
 {
-    uiHorizonPreLoadDlg dlg( appserv().parent(), "Pre-loaded horizons" );
+    uiHorizonPreLoadDlg dlg( appserv().parent() );
     dlg.go();
 }

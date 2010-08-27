@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.2 2010-08-25 08:33:39 cvsnageswara Exp $";
+static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.3 2010-08-27 04:53:00 cvsnageswara Exp $";
 
 #include "emhorizonpreload.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.2 2010-08-25 08:33:39 c
 #include "multiid.h"
 #include "task.h"
 
+static const MultiID udfmid( "-1" );
 
 namespace EM
 {
@@ -39,7 +40,7 @@ HorizonPreLoad::HorizonPreLoad()
 }
 
 
-bool HorizonPreLoad::loadHorizon( const MultiID& mid, TaskRunner* tr )
+bool HorizonPreLoad::load( const MultiID& mid, TaskRunner* tr )
 {
     if ( midset_.isPresent(mid) )
     {
@@ -66,40 +67,34 @@ bool HorizonPreLoad::loadHorizon( const MultiID& mid, TaskRunner* tr )
 }
 
 
-const BufferString HorizonPreLoad::name( const MultiID& mid ) const
+const MultiID& HorizonPreLoad::getMultiID( const char* horname ) const
 {
-    BufferString horname;
-    if ( !midset_.isPresent(mid) )
-	return horname;
-
-    const int horidx = midset_.indexOf( mid );
-
-    return horname = nameset_.get( horidx );
-}
-
-
-const MultiID HorizonPreLoad::getMultiID( const BufferString& horname ) const
-{
-    MultiID mid( -1 );
     if ( !nameset_.isPresent(horname) )
-	return mid;
+	return udfmid;
 
     const int mididx = nameset_.indexOf( horname );
-    return mid = midset_[mididx];
+
+    return midset_[mididx];
 }
 
 
-bool HorizonPreLoad::unloadHorizon( const BufferString& horname )
+bool HorizonPreLoad::unload( const char* horname )
 {
     if ( !nameset_.isPresent(horname) )
+    {
+	errmsg_ = "";
 	return false;
+    }
 
     const int selidx = nameset_.indexOf( horname );
     const MultiID mid = midset_[selidx];
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
     EM::EMObject* emobj = EM::EMM().getObject( emid );
     if ( !emobj )
+    {
+	errmsg_ = "Invalid ID";
 	return false;
+    }
 
     emobj->unRef();
     midset_.remove( selidx );
@@ -112,7 +107,7 @@ bool HorizonPreLoad::unloadHorizon( const BufferString& horname )
 void HorizonPreLoad::surveyChgCB( CallBacker* )
 {
     for ( int idx=0; idx<nameset_.size(); idx++ )
-	unloadHorizon( nameset_.get(idx) );
+	unload( nameset_.get(idx) );
 
     midset_.erase();
     nameset_.erase();
