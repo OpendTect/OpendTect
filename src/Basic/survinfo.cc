@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.144 2010-08-26 11:39:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.145 2010-08-27 09:04:53 cvshelene Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -550,10 +550,10 @@ const char* SurveyInfo::getZUnitString( bool wb ) const
 }
 
 
-void SurveyInfo::setZUnit( bool istime, bool meter )
+void SurveyInfo::setZUnit( bool istime, bool infeet )
 {
     zistime_ = istime;
-    zinfeet_ = istime ? false : !meter;
+    zinfeet_ = istime ? false : infeet;
 }
 
 float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )

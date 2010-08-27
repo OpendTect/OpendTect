@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.123 2010-07-28 08:04:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.124 2010-08-27 09:04:53 cvshelene Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -705,7 +705,7 @@ bool uiSurveyInfoEditor::setRanges()
     if ( hs.step.crl < 1 ) hs.step.crl = 1;
 
     const int curzunititem = zunitfld_->currentItem();
-    si_.setZUnit( curzunititem == 0, curzunititem == 1 );
+    si_.setZUnit( curzunititem == 0, curzunititem == 2 );
     cs.zrg = zfld_->getFStepInterval();
     if ( mIsUdf(cs.zrg.start) || mIsUdf(cs.zrg.stop) || mIsUdf(cs.zrg.step) )
 	mErrRet("Please enter the Z Range")
@@ -769,7 +769,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     delete impiop_; impiop_ = 0; lastsip_ = 0;
 
     const int curzunititem = zunitfld_->currentItem();
-    si_.setZUnit( curzunititem == 0, curzunititem == 1 );
+    si_.setZUnit( curzunititem == 0, curzunititem == 2 );
 
     uiSurvInfoProvider* sip = survInfoProvs()[sipidx-1];
     PtrMan<uiDialog> dlg = sip->dialog( this );
