@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2009
- RCS:		$Id: basemap.h,v 1.5 2010-08-09 20:00:28 cvskris Exp $
+ RCS:		$Id: basemap.h,v 1.6 2010-08-27 02:45:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,8 @@ public:
     static char			cConnect()		{ return 1; }
     static char			cPolygon()		{ return 2; }
     static char			cFilledPolygon()	{ return 3; }
+
+    Notifier<BaseMapObject>	changed;
 
 protected:
 

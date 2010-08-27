@@ -4,12 +4,13 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: basemap.cc,v 1.1 2010-08-09 20:00:28 cvskris Exp $";
+static const char* rcsID = "$Id: basemap.cc,v 1.2 2010-08-27 02:45:29 cvsnanne Exp $";
 
 #include "basemap.h"
 
 BaseMapObject::BaseMapObject( const char* nm )
     : NamedObject(nm)
+    , changed(this)
 {}
 
 
