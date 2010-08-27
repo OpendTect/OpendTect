@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.386 2010-08-27 03:11:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.387 2010-08-27 18:04:22 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -127,6 +127,7 @@ uiODApplMgr::~uiODApplMgr()
     delete &dispatcher_;
     delete visdpsdispmgr_;
 
+    delete &attrvishandler_;
     delete &mousecursorexchange_;
 }
 

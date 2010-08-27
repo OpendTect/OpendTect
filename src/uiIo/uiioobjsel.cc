@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.148 2010-07-08 11:33:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.149 2010-08-27 18:03:20 cvskris Exp $";
 
 #include "uiioobjsel.h"
 
@@ -176,6 +176,7 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
     if ( manipgrpsubj )
 	delete manipgrpsubj->manipgrp_;
     delete manipgrpsubj;
+    delete ctio_.ioobj;
 }
 
 
@@ -408,7 +409,7 @@ bool uiIOObjSelGrp::processInput()
 
     if ( itmidx != curitm )
 	setCur( itmidx );
-    IOObj* ioobj = getIOObj( itmidx );
+    PtrMan<IOObj> ioobj = getIOObj( itmidx );
     if ( ioobj && ioobj->implExists(true) )
     {
 	bool ret = true;
@@ -423,7 +424,6 @@ bool uiIOObjSelGrp::processInput()
 	if ( !ret )
 	{
 	    asked2overwrite_ = false;
-	    delete ioobj;
 	    return false;
 	}
 
@@ -431,6 +431,7 @@ bool uiIOObjSelGrp::processInput()
     }
 
     ctio_.setObj( ioobj );
+    ioobj.set( 0, false );
     return true;
 }
 
