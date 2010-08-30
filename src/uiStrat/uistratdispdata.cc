@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.10 2010-08-12 11:17:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.11 2010-08-30 07:36:23 cvssatyaki Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratmgr.h"
@@ -23,8 +23,7 @@ static const char* rcsID = "$Id: uistratdispdata.cc,v 1.10 2010-08-12 11:17:11 c
     uistratmgr_.nm.notify( mCB(this,uiStratTreeToDispTransl,triggerDataChange));
 uiStratTreeToDispTransl::uiStratTreeToDispTransl( AnnotData& ad, 
 						  const uiStratMgr& mgr )
-    : CallBacker(CallBacker::CallBacker())
-    , data_(ad)
+    : data_(ad)
     , uistratmgr_(mgr)
     , newtreeRead(this)
 {

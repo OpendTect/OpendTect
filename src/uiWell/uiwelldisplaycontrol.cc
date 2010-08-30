@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.16 2010-08-26 14:37:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.17 2010-08-30 07:35:37 cvssatyaki Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -23,8 +23,7 @@ static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.16 2010-08-26 14:37
 
 
 uiWellDisplayControl::uiWellDisplayControl( uiWellLogDisplay& l ) 
-    : CallBacker(CallBacker::CallBacker())
-    , selmarker_(0)	
+    : selmarker_(0)	
     , seldisp_(0)			
     , lastselmarker_(0)
     , ismousedown_(false)		       
