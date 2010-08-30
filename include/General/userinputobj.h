@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.16 2010-06-29 13:36:17 cvsnanne Exp $
+ RCS:           $Id: userinputobj.h,v 1.17 2010-08-30 12:47:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,10 +48,9 @@ public:
     virtual void	initClearValue()		= 0;
     virtual void	clear()				= 0;
 
-    virtual bool	hasItems()			{ return false; }
     virtual void        addItem( const char* txt )	{ setText( txt ); }
-    void		addItems(const char**);
-    void		addItems(const BufferStringSet&);
+//    void		addItems(const char**);
+//    void		addItems(const BufferStringSet&);
 
 
 		        /*! \brief intermediate value available
