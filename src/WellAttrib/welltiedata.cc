@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.38 2010-08-23 09:57:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.39 2010-08-30 06:56:25 cvssatyaki Exp $";
 
 #include "arrayndimpl.h"
 #include "binidvalset.h"
@@ -48,8 +48,7 @@ namespace WellTie
 
 
 DataHolder::DataHolder( const WellTie::Setup& s )
-    	: CallBacker(CallBacker::CallBacker())
-	, wellid_(s.wellid_)				  
+	: wellid_(s.wellid_)				  
 	, setup_(s)
 	, factors_(s.unitfactors_) 	  
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))

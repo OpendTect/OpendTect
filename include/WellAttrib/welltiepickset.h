@@ -94,8 +94,7 @@ mClass PickSetMGR : public CallBacker
 public:
 
 			PickSetMGR(const DataHolder& dh)
-			    : CallBacker(CallBacker::CallBacker())
-			    , dholder_(dh)
+			    : dholder_(dh)
 			    , evtype_ (VSEvent::Extr)
 			    , pickadded(this)
 			    {}
