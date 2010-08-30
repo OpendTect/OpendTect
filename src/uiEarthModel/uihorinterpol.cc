@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.16 2010-08-18 04:33:29 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.17 2010-08-30 06:44:03 cvssatyaki Exp $";
 
 #include "uihorinterpol.h"
 
@@ -35,9 +35,8 @@ static const char* rcsID = "$Id: uihorinterpol.cc,v 1.16 2010-08-18 04:33:29 cvs
 
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
-    : uiDialog( p, uiDialog::Setup::Setup("Horizon Gridding",
-	       				  "Gridding parameters",
-					  "HelpID" ) )
+    : uiDialog( p, uiDialog::Setup("Horizon Gridding","Gridding parameters",
+				   "HelpID") )
     , horizon_( hor )
     , is2d_( is2d )
     , inputhorsel_( 0 )

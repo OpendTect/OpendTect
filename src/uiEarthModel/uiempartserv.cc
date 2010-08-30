@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.208 2010-08-27 04:53:00 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.209 2010-08-30 06:44:03 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -865,9 +865,9 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     if ( interpolate )
     {
 	uiSingleGroupDlg dlg( parent(),
-		uiDialog::Setup::Setup( "Interpolate horizon data",
-					"Interpolation parameters",
-					(const char*) 0 ) );
+		uiDialog::Setup( "Interpolate horizon data",
+				 "Interpolation parameters",
+				  (const char*) 0 ) );
 
 	uiArray2DInterpolSel* settings =
 	    new uiArray2DInterpolSel( &dlg, false, false, true, 0 );
