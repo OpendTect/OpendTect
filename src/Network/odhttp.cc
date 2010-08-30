@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.1 2010-08-30 10:05:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.2 2010-08-30 11:32:36 cvsnanne Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -30,6 +30,8 @@ ODHttp::ODHttp()
     error_ = false;
     requestid_ = 0;
     connectionstate_ = -1;
+
+    requestFinished.notify( mCB(this,ODHttp,reqFinishedCB) );
 }
 
 
@@ -83,4 +85,17 @@ void ODHttp::setMessage( const char* msg )
 {
     message_ = msg;
     messageReady.trigger();
+}
+
+
+void ODHttp::reqFinishedCB( CallBacker* )
+{
+    const int reqidx = getids_.indexOf( requestid_ );
+    if ( qfiles_.validIdx(reqidx) )
+    {
+	QFile* qfile = qfiles_[reqidx];
+	qfile->close();
+	delete qfiles_.remove( reqidx );
+	getids_.remove( reqidx );
+    }
 }

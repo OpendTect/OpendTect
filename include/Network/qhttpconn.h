@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: qhttpconn.h,v 1.1 2010-08-30 10:05:10 cvsnanne Exp $
+ RCS:           $Id: qhttpconn.h,v 1.2 2010-08-30 11:32:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,8 @@ QHttpConnector( QHttp* sender, ODHttp* receiver )
     connect( sender_, SIGNAL(requestStarted(int)),
 	     this, SLOT(requestStarted(int)) );
 
-    connect( sender_, SIGNAL(requestFinished(int)),
-	     this, SLOT(requestFinished(int)) );
+    connect( sender_, SIGNAL(requestFinished(int,bool)),
+	     this, SLOT(requestFinished(int,bool)) );
 
     connect( sender_, SIGNAL(done(bool)),
 	     this, SLOT(done(bool)) );
