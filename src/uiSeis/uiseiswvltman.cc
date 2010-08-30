@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.58 2010-07-13 10:49:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.59 2010-08-30 13:00:48 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -244,6 +244,7 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 {
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
+    wvlt->setName( curioobj_->name().buf() );
 
     wvltpropdlg_ = new uiWaveletDispPropDlg( this, *wvlt );
     if ( wvltpropdlg_ ->go() )
