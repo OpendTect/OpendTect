@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: gridcreator.cc,v 1.1 2010-08-26 03:55:44 cvsraman Exp $";
+static const char* rcsID = "$Id: gridcreator.cc,v 1.2 2010-08-30 04:17:15 cvsraman Exp $";
 
 
 #include "gridcreator.h"
@@ -92,8 +92,6 @@ Seis2DLineCreator::Seis2DLineCreator( const IOObj& input,
 	seldata->lineKey() = lk;
 	wrr_->setSelData( seldata );
     }
-
-    msg_ = lk.lineName();
 }
 
 
@@ -111,8 +109,17 @@ int Seis2DLineCreator::nextStep()
     if ( res == -1 ) return ErrorOccurred();
     if ( res == 0 ) return Finished();
     if ( res == 2 ) return MoreToDo();
-    if ( !rdr_->get(trc) || !wrr_->put(trc) )
+    if ( !rdr_->get(trc) )
+    {
+	msg_ = "Error reading input trace";
 	return ErrorOccurred();
+    }
+
+    if ( !wrr_->put(trc) )
+    {
+	msg_ = "Error writing output trace";
+	return ErrorOccurred();
+    }
 
     nrdone_++;
     return MoreToDo();
