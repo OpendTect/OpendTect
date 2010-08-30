@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.29 2010-08-27 14:06:50 cvshelene Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.30 2010-08-30 12:50:27 cvsbert Exp $";
 
 
 #include "uiscalingattrib.h"
@@ -138,28 +138,6 @@ void uiScalingAttrib::statsSel( CallBacker* )
 }
 
 
-#define mIfGetSqueezeRgs( str, var, setfunc ) \
-Attrib::ValParam* valparam##var =\
-		    const_cast<Attrib::ValParam*>(desc.getValParam(str));\
-if ( valparam##var ) \
-{ \
-    Interval<float> var; \
-    var.start = valparam##var->getfValue(0); \
-    var.stop = valparam##var->getfValue(1); \
-    if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
-    {\
-	mDynamicCastGet(Attrib::FloatGateParam*,gateparam##var,valparam##var);\
-	if ( gateparam##var ) \
-	{\
-	    if ( mIsUdf(var.start) )\
-	        var.start = gateparam##var->getDefaultGateValue().start;\
-	    if ( mIsUdf(var.stop) )\
-	        var.stop = gateparam##var->getDefaultGateValue().stop;\
-	}\
-    }\
-    setfunc; \
-}
-
 bool uiScalingAttrib::setParameters( const Desc& desc )
 {
     if ( strcmp(desc.attribName(),Scaling::attribName()) )
@@ -174,11 +152,13 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	    	 windowfld->setValue(wndwidthval) );
     mIfGetFloat( Scaling::mutefractionStr(), mutefactor,
 				lowenergymute->setValue(mutefactor*100));    
-    mIfGetSqueezeRgs( Scaling::sqrangeStr(), sqrg, sqrgfld->setValue(sqrg) );
-    mIfGetSqueezeRgs( Scaling::squntouchedStr(), squrg,
-	    	      squrgfld->setValue(squrg) );
 
-    table->clearTable();
+    const Attrib::ValParam* vp = desc.getValParam(Scaling::sqrangeStr());
+    if ( vp )
+	sqrgfld->setValue( Interval<float>(vp->getfValue(0),vp->getfValue(1)) );
+    vp = desc.getValParam(Scaling::squntouchedStr());
+    if ( vp )
+	squrgfld->setValue( Interval<float>(vp->getfValue(0),vp->getfValue(1)));
 
     int nrtgs = 0;
     if ( desc.getParam(Scaling::gateStr()) )
@@ -187,12 +167,11 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	nrtgs = gateset->size();
     }
     
+    table->clearTable();
     while ( nrtgs > table->nrRows() )
 	table->insertRows( 0, 1 );
-    
     while ( nrtgs < table->nrRows() && table->nrRows() > initnrrows )
 	table->removeRow( 0 );
-
     if ( desc.getParam(Scaling::gateStr()) )
     {
 	mDescGetConstParamGroup(ZGateParam,gateset,desc,Scaling::gateStr());
@@ -203,7 +182,6 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	    table->setValue( RowCol(idx,stopcol), param.getfValue(1) );
 	}
     }
-
     if ( desc.getParam(Scaling::factorStr()) )
     {
 	mDescGetConstParamGroup(ValParam,factorset,desc,Scaling::factorStr());
@@ -302,15 +280,14 @@ void uiScalingAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 bool uiScalingAttrib::areUIParsOK()
 {
     const int typeval = typefld->getIntValue();
-    if ( typeval < 3 ) return true;
-
-    const bool areparamsok = !(  sqrgfld->isUndef(0) && sqrgfld->isUndef(1)
-	    		      && squrgfld->isUndef(0) && squrgfld->isUndef(1) );
-    if ( !areparamsok )
+    if ( typeval == 3 )
     {
-	errmsg_ = "Please fill in either start or stop of value range \n";
-    	errmsg_ += "or untouched range.";
+	if ( sqrgfld->isUndef(0) && sqrgfld->isUndef(1) )
+	{
+	    errmsg_ = "Please fill in at least one value range limit\n";
+	    return false;
+	}
     }
 
-    return areparamsok;
+    return true;
 }
