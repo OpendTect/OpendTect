@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.25 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.26 2010-08-30 12:49:48 cvsbert Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -141,9 +141,9 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
 #define mCreateLabel1(val) \
     evallbl_ = parlbl_; evallbl_ += " ["; evallbl_ += val; evallbl_ += "]";
 
-#define mCreateLabel2(val1,val2) \
-    evallbl_ = parlbl_; evallbl_ += " ["; evallbl_ += val1; \
-    evallbl_ += ","; evallbl_ += val2; evallbl_ += "]";
+#define mCreateLabel2(val1,val2) evallbl_ = parlbl_; \
+    evallbl_ += " ["; if ( !mIsUdf(val1) ) evallbl_ += val1; \
+    evallbl_ += ","; if ( !mIsUdf(val2) ) evallbl_ += val2; evallbl_ += "]";
 
 void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 {
@@ -163,11 +163,11 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 
     if ( gatepar )
     {
-	Interval<float> newrg;
-	newrg.start = initfld->getFInterval().start + 
-	    			idx * incrfld->getFInterval().start;
-	newrg.stop = initfld->getFInterval().stop + 
-	    			idx * incrfld->getFInterval().stop;
+	const Interval<float> oldrg( initfld->getFInterval() );
+	const Interval<float> incr( incrfld->getFInterval() );
+	Interval<float> newrg( oldrg );
+	if ( !mIsUdf(oldrg.start) ) newrg.start += idx * incr.start;
+	if ( !mIsUdf(oldrg.stop) ) newrg.stop += idx * incr.stop;
 	mCreateLabel2(newrg.start,newrg.stop)
 	gatepar->setValue( newrg );
     }
