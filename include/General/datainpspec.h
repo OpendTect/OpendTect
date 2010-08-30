@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.71 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: datainpspec.h,v 1.72 2010-08-30 12:47:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,10 +212,18 @@ public:
     virtual bool	hasLimits() const		{ return limits_; }
     virtual bool	isInsideLimits( int idx=0 ) const
 			{
-			    if ( isUndef(idx) ) return false;
 			    if ( !limits_ ) return true;
+			    if ( !isUndef(idx) )
+				return limits_->includes( value() );;
 
-			    return limits_->includes( value() );
+			    const bool startudf = mIsUdf(limits_->start);
+			    const bool stopudf = mIsUdf(limits_->stop);
+			    if ( startudf && stopudf ) return true;
+			    if ( startudf )
+				return value() < limits_->stop;
+			    if ( stopudf )
+				return value() > limits_->start;
+			    return false;
 			}
 
     const StepInterval<T>* limits() const		{ return limits_; }
@@ -376,12 +384,21 @@ public:
 
     virtual bool	hasLimits() const	
 			{ return startlimits_||stoplimits_||steplimits_; }
-    virtual bool	isInsideLimits(int idx=0) const
+    virtual bool	isInsideLimits( int idx=0 ) const
 			{
-			    if ( isUndef(idx) ) return false;
-			    const Interval<T>* limits_ = limits(idx);
-			    return limits_ ? limits_->includes( value(idx) ) 
-					   : true;
+			    const Interval<T>* lims = limits(idx);
+			    if ( !lims ) return true;
+			    if ( !isUndef(idx) )
+				return lims->includes( value(idx) );;
+
+			    const bool startudf = mIsUdf(lims->start);
+			    const bool stopudf = mIsUdf(lims->stop);
+			    if ( startudf && stopudf ) return true;
+			    if ( startudf )
+				return value(idx) < lims->stop;
+			    if ( stopudf )
+				return value(idx) > lims->start;
+			    return false;
 			}
 
 
