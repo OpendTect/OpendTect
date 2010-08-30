@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.19 2010-05-31 14:14:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.20 2010-08-30 07:20:55 cvssatyaki Exp $";
 
 #include "uiwelltieeventstretch.h"
 #include "arrayndimpl.h"
@@ -25,8 +25,7 @@ namespace WellTie
 {
 
 EventStretch::EventStretch( WellTie::DataHolder& dh ) 
-	: CallBacker(CallBacker::CallBacker())
-	, timeChanged(this)
+	: timeChanged(this)
 	, params_(*dh.params())
 	, wtsetup_(dh.setup())
 	, geocalc_(dh.geoCalc())

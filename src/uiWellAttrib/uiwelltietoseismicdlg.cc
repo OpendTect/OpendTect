@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.74 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.75 2010-08-30 07:20:55 cvssatyaki Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -521,7 +521,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder& dh,
     estwvltlengthfld_->setValue( 
 		    dataholder_.wvltset()[0]->samplePositions().width()*1000 );
 
-    uiSeparator* verSepar = new uiSeparator( viewersgrp, false );
+    uiSeparator* verSepar = new uiSeparator( viewersgrp,"Verical", false );
     verSepar->attach( rightTo, wvltgrp );
 
     corrgrp->attach( rightOf, verSepar );
