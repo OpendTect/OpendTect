@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.5 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.6 2010-08-30 12:49:12 cvsbert Exp $";
 
 #include "uiattrtypesel.h"
 #include "uiattrdesced.h"
@@ -165,6 +165,10 @@ int uiAttrTypeSel::curGrpIdx() const
 
 void uiAttrTypeSel::updAttrNms( const char* selattrnm )
 {
+    BufferString curattrnm( selattrnm );
+    if ( !selattrnm || !*selattrnm )
+	curattrnm = attrfld->text();
+
     attrfld->empty();
     const int grpidx = curGrpIdx();
     if ( grpidx < 0 )
@@ -176,12 +180,14 @@ void uiAttrTypeSel::updAttrNms( const char* selattrnm )
 	if ( grpidx == 0 || attrgroups_[idx] == grpidx )
 	    nms.add( attrnms_.get(idx) );
     }
+
+    int curitm = 0;
     nms.sort();
     for ( int idx=0; idx<nms.size(); idx++ )
 	attrfld->addItem( nms.get(idx) );
 
-    if ( selattrnm )
-	attrfld->setText( selattrnm );
+    if ( curattrnm )
+	attrfld->setText( curattrnm );
 }
 
 
