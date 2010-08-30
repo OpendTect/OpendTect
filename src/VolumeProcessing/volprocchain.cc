@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.17 2010-08-13 15:21:03 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.18 2010-08-30 04:51:36 cvsnanne Exp $";
 
 #include "volprocchain.h"
 
@@ -227,7 +227,7 @@ bool ChainExecutor::prepareNewStep()
 	    curoutput_->setSize( nrinl, nrcrl, nrz );
     }
 
-    if ( !curoutput_->nrCubes() && !curoutput_->addCube( mUdf(float), false ) )
+    if ( !curoutput_->nrCubes() && !curoutput_->addCube(mUdf(float),0) )
     {
 	errmsg_ = "Cannot allocate enough memory.";
 	return false;
