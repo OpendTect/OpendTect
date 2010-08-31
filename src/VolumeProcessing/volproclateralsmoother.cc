@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.8 2010-08-25 18:21:00 cvskris Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.9 2010-08-31 17:23:58 cvsyuancheng Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -42,7 +42,7 @@ LateralSmootherTask(const Array3D<float>& input,
     , i2samples_( i2samples )
     , kernel_( 0 )
 {
-    if ( true || (pars_.type_!=Stats::Average && !mIsUdf(pars_.rowdist_) ) )
+    if ( pars_.type_!=Stats::Average && !mIsUdf(pars_.rowdist_) )
 	return;
     
     createKernel();
@@ -62,7 +62,7 @@ void createKernel()
 
     kernel_ = new Array2DImpl<float_complex>( i0kernelsz, i1kernelsz );
     kernel_->setAll( float_complex(0,0) );
-
+    
     float_complex weight( 0, 0 );
     float_complex unit( 1.0, 0 );
 
@@ -107,15 +107,16 @@ void createKernel()
     fft.run( true );
 }
 
-
 od_int64		nrIterations() const {return i2samples_.width()+1; }
 od_int64		totalNr() const { return totalsz_; }
 const char*		message() const { return "Smothing laterally"; }
 const char*		nrDoneText() const { return "Samples processed"; }
 
 private:
-void		reportRowDone(CallBacker*)
-			{ addToNrDone( i1samples_.width()+1 ); }
+
+void reportRowDone(CallBacker*) 
+{ addToNrDone(i1samples_.width()+1); }
+
 
 bool doWork( od_int64 start, od_int64 stop, int thread )
 {
@@ -173,15 +174,14 @@ bool processKernel( int start, int stop, int thread )
     Array2DImpl<float_complex> dataslice( ksz0, ksz1 );
     dataslice.setAll( float_complex(0,0) );
 
-    const int kernelorigin0 = i0samples_.start-pars_.stepout_.row;
-    const int kernelorigin1 = i1samples_.start-pars_.stepout_.col;
+    const int kernelorigin0 = (i0samples_.stop+i0samples_.start-ksz0)/2;
+    const int kernelorigin1 = (i1samples_.stop+i1samples_.start-ksz1)/2;
     const int lastinput0 = input_.info().getSize(0)-1;
     const int lastinput1 = input_.info().getSize(1)-1;
     const int outputsz0 = i0samples_.width()+1;
     const int outputsz1 = i1samples_.width()+1;
 
     Fourier::CC fft;
-    fft.setNormalization( true );
     fft.setInputInfo( dataslice.info() );
     fft.setInput( dataslice.getData() );
     fft.setOutput( dataslice.getData() );
@@ -201,15 +201,15 @@ bool processKernel( int start, int stop, int thread )
 
 	for ( int idx0=0; idx0<ksz0 && !dofilter; idx0++ )
 	{
-	    int inputpos0 = kernelorigin0+idx0;
-	    if ( inputpos0<0 || inputpos0>lastinput0 )
-		continue;
+	    const int inputpos0 = kernelorigin0+idx0;
+	    if ( inputpos0 < 0 || inputpos0 > lastinput0 )
+		continue; 
 
 	    for ( int idx1=0; idx1<ksz1; idx1++ )
 	    {
-		int inputpos1 = kernelorigin1+idx1;
-		if ( inputpos1<0 || inputpos1>lastinput1 )
-		    continue;
+		const int inputpos1 = kernelorigin1+idx1;
+		if ( inputpos1 < 0 || inputpos1 > lastinput1 )
+		    continue;  
 
 		const float val = input_.get(inputpos0,inputpos1,inputdepth);
 		if ( mIsUdf(val) )
@@ -250,7 +250,6 @@ bool processKernel( int start, int stop, int thread )
 	    continue;
 	}
 
-
 	fft.setDir( true );
 	fft.run( false );
 
@@ -265,8 +264,9 @@ bool processKernel( int start, int stop, int thread )
 	}
 
 	fft.setDir( false );
+	fft.setNormalization( true );
 	fft.run( false );
-
+    
 	for ( int idx0=0; idx0<outputsz0; idx0++ )
 	{
 	    const int inputpos0 = idx0+i0samples_.start;
@@ -311,7 +311,7 @@ bool processKernel( int start, int stop, int thread )
 void LateralSmoother::initClass()
 {
     VolProc::PS().addCreator( create, LateralSmoother::sKeyType(),
-	    LateralSmoother::sUserName() );
+	    		      LateralSmoother::sUserName() );
 }
 
 
@@ -325,11 +325,11 @@ bool LateralSmoother::needsInput(const HorSampling&) const
     
 LateralSmoother::LateralSmoother(Chain& pc)
     : Step( pc )
-{ }
+{}
 
 
 LateralSmoother::~LateralSmoother()
-{ }    
+{}    
 
 
 HorSampling LateralSmoother::getInputHRg( const HorSampling& hrg ) const
