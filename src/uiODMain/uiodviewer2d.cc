@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.38 2010-07-27 09:58:54 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.39 2010-08-31 06:05:36 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -76,12 +76,12 @@ uiODViewer2D::~uiODViewer2D()
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
 
-    deepErase( auxdataeditors_ );
-
     delete treetp_;
     delete datamgr_;
 
     delete viewwin();
+
+    deepErase( auxdataeditors_ );
 }
 
 
@@ -282,10 +282,10 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
 	DPM(DataPackMgr::FlatID()).release( packid );
     }
     
-    deepErase( auxdataeditors_ );
-
     delete treetp_; treetp_ = 0;
     datamgr_->removeAll();
+
+    deepErase( auxdataeditors_ );
 
     mDynamicCastGet(uiMainWin*,mw,cb)
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
