@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiattributes.cc,v 1.5 2010-03-22 10:13:06 cvsbert Exp $";
+static const char* rcsID = "$Id: inituiattributes.cc,v 1.6 2010-08-31 11:40:55 cvsnanne Exp $";
 
 #include "inituiattributes.h"
 
-#include "uicoherencyattrib.h"
 #include "uiconvolveattrib.h"
 #include "uideltaresampleattrib.h"
 #include "uidipfilterattrib.h"
@@ -35,7 +34,6 @@ static const char* rcsID = "$Id: inituiattributes.cc,v 1.5 2010-03-22 10:13:06 c
 
 void uiAttributes::initStdClasses()
 {
-    uiCoherencyAttrib::initClass();
     uiConvolveAttrib::initClass();
     uiDeltaResampleAttrib::initClass();
     uiDipFilterAttrib::initClass();

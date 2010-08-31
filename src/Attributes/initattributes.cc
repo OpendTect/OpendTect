@@ -7,10 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initattributes.cc,v 1.6 2010-03-22 10:13:06 cvsbert Exp $";
+static const char* rcsID = "$Id: initattributes.cc,v 1.7 2010-08-31 11:40:55 cvsnanne Exp $";
 
 #include "initattributes.h"
-#include "coherencyattrib.h"
 #include "convolveattrib.h"
 #include "deltaresampleattrib.h"
 #include "dipfilterattrib.h"
@@ -35,7 +34,6 @@ static const char* rcsID = "$Id: initattributes.cc,v 1.6 2010-03-22 10:13:06 cvs
 
 void Attributes::initStdClasses()
 {
-    Attrib::Coherency::initClass();
     Attrib::Convolve::initClass();
     Attrib::DeltaResample::initClass();
     Attrib::DipFilter::initClass();
