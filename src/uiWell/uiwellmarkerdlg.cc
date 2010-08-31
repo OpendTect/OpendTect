@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.25 2010-08-20 15:01:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.26 2010-08-31 09:37:11 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -38,7 +38,7 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.25 2010-08-20 15:01:10 c
 
 
 static const char* mrkrcollbls[] = { "[Name]", "Depth (MD)", 
-				     "[Color]", "Level", 0 };
+				 "[Color]", "Stratigraphic marker", 0 };
 static const int cNrEmptyRows = 5;
 
 static const int cNameCol  = 0;
@@ -147,6 +147,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	if ( !Well::StratMGR().getLvl( marker->levelID() ) )
 	    const_cast<Well::Marker*>(markers[idx])->setLevelID( -1 );
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false );
+	levelsel->setSensitive( false );
 	levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
 	table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
 	levelsel->setID( marker->levelID() );
@@ -161,6 +162,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     {
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false );
 	levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
+	levelsel->setSensitive( false );
 	table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
 	table_->setText( RowCol(irow,cDepthCol), "" );
 	table_->setText( RowCol(irow,cNameCol), "" );
