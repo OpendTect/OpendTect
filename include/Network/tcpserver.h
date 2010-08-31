@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: tcpserver.h,v 1.7 2010-06-21 06:13:08 cvsranojay Exp $
+ RCS:           $Id: tcpserver.h,v 1.8 2010-08-31 10:43:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,9 +31,11 @@ public:
     			TcpServer();
 			~TcpServer();
 
-    bool		listen(const char* host,int port);
+    bool		listen(const char* host,int port=0);
     			//!<If host is 0, server will listen to any host
     bool		isListening() const;
+    int			port() const;
+
     void		close();
     bool		hasPendingConnections() const;
     int			write(int id,const char*);
