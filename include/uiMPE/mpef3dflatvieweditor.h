@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.h,v 1.3 2010-07-27 09:58:50 cvsumesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.h,v 1.4 2010-08-31 14:33:26 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "emposid.h"
 
 class MouseEventHandler;
+class IndexInfo;
 
 namespace EM { class Fault3DPainter; }
 namespace FlatView { class AuxDataEditor; }
@@ -62,6 +63,13 @@ protected:
     void			cleanActStkContainer();
     void			fillActStkContainer();
     const int			getStickId(int markerid) const;
+
+    bool			getMousePosInfo(
+	    				const Geom::Point2D<int>& mousepos,
+					IndexInfo& ix, IndexInfo& iy,
+					Coord3& worldpos) const;
+    Coord3			getScaleVector() const;
+    				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
 
     EM::Fault3DPainter*		f3dpainter_;
     bool			seedhasmoved_;

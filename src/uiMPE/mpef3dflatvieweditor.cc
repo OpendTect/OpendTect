@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.7 2010-08-26 11:39:30 cvsjaap Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.8 2010-08-31 14:33:26 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
     f3dpainter_->repaintdone_.notify( 
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintedCB) );
+    editor_->sower().alternateSowingOrder();
 }
 
 
@@ -251,8 +252,84 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
 }
 
 
+bool Fault3DFlatViewEditor::getMousePosInfo(
+			const Geom::Point2D<int>& mousepos,
+			IndexInfo& ix, IndexInfo& iy, Coord3& worldpos ) const
+{
+    const FlatDataPack* dp = editor_->viewer().pack( false );
+    if ( !dp )
+	dp = editor_->viewer().pack( true );
+
+    if ( !dp ) return false;
+
+    const uiRect datarect( editor_->getMouseArea() );
+    if ( !mousepos.isDefined() || datarect.isOutside(mousepos) )
+	return false;
+
+    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
+    const uiWorldPoint wp = w2u.transform( mousepos-datarect.topLeft() );
+
+    const FlatPosData& pd = dp->posData();
+    ix = pd.indexInfo( true, wp.x );
+    iy = pd.indexInfo( false, wp.y );
+    worldpos = dp->getCoord( ix.nearest_, iy.nearest_ );
+    worldpos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
+    return true;
+}
+
+
+Coord3 Fault3DFlatViewEditor::getScaleVector() const
+{
+    Coord3 scalevec( 0, 1, SI().zScale() );
+
+    const uiRect datarect( editor_->getMouseArea() );
+    IndexInfo ix(0), iy(0);
+    Coord3 p0, p1, p2;
+
+    if ( !getMousePosInfo(datarect.bottomLeft(),  ix, iy, p0) ||
+	 !getMousePosInfo(datarect.bottomRight(), ix, iy, p1) ||
+	 !getMousePosInfo(datarect.topLeft(),     ix, iy, p2) )
+    {
+	return scalevec;
+    }
+
+    const int du = datarect.topLeft().x - datarect.bottomRight().x;
+    const int dv = datarect.topLeft().y - datarect.bottomRight().y;
+    if ( !du || !dv )
+	return scalevec;
+
+    const float dz = p2.z - p1.z;
+
+    if ( mIsZero(dz,mDefEps) )	// z-slice
+    {
+	const Coord eu = (p1-p0) / du;
+	const Coord ev = (p2-p0) / dv;
+
+	const float det = fabs( eu.x*ev.y - eu.y*ev.x );
+
+	const Coord ex(  ev.y/det, -eu.y/det );
+	const Coord ey( -ev.x/det,  eu.x/det );
+
+	scalevec = Coord3( ex.dot(ey)*det, ey.sqAbs()*det, scalevec.z );
+    }
+    else
+    {
+	float ds = Coord(p1).distTo(p2);
+	// Assumption: straight in case of 2D line
+
+	scalevec.z = fabs( (ds*dv) / (dz*du) );
+    }
+
+    return scalevec;
+}
+
+
 void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
 {
+    const MouseEvent& mouseevent = meh_->event();
+    if ( editor_ && editor_->sower().accept(mouseevent, false) )
+	return;
+
     if ( seedhasmoved_ )
 	return;
 
@@ -272,28 +349,14 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
     if ( !f3deditor )
 	return;
 
-    const FlatDataPack* dp = editor_->viewer().pack( false );
-    if ( !dp )
-	dp = editor_->viewer().pack( true );
-
-    if ( !dp ) return;
-
-    const MouseEvent& mouseevent = meh_->event();
-    const uiRect datarect( editor_->getMouseArea() );
-    if ( !datarect.isInside(mouseevent.pos()) ) return;
-
-    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
-    const uiWorldPoint wp = w2u.transform( mouseevent.pos()-datarect.topLeft());
-
-    const FlatPosData& pd = dp->posData();
-    const IndexInfo ix = pd.indexInfo( true, wp.x );
-    const IndexInfo iy = pd.indexInfo( false, wp.y );
-    Coord3 pos = dp->getCoord( ix.nearest_, iy.nearest_ );
-    pos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
+    IndexInfo ix(0), iy(0); Coord3 pos;
+    if ( !getMousePosInfo(mouseevent.pos(), ix, iy, pos) )
+	return;
 
     bool shdmakenewstick = false;
     EM::PosID pid;
     const Coord3 normal( cs_.isEmpty() ? Coord3::udf() : cs_.defaultNormal() );
+    f3deditor->setScaleVector( getScaleVector() );
     f3deditor->getInteractionInfo( shdmakenewstick, pid, pos, &normal );
 
     if ( pid.isUdf() || shdmakenewstick )
@@ -321,11 +384,17 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     if ( editor_->getSelPtIdx().size() > 0 )
 	displayedknotid = editor_->getSelPtIdx()[0];
 
-    if ( (edidauxdataid==-1) || (displayedknotid==-1) )
-	return;
-
     EM::ObjectID emid = f3dpainter_->getFaultID();
     if ( emid == -1 ) return;
+
+    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+
+    if ( (edidauxdataid==-1) || (displayedknotid==-1) )
+    {
+	editor_->sower().activate( emobject->preferredColor(), meh_->event() );
+	return;
+    }
+
 
     int stickid = mUdf(int);
 
@@ -339,8 +408,6 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     }
 
     if ( stickid == mUdf(int) ) return;
-
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
 
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d ) return;
@@ -395,28 +462,22 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
     if ( !f3deditor )
 	return;
 
-    const FlatDataPack* dp = editor_->viewer().pack( false );
-    if ( !dp )
-	dp = editor_->viewer().pack( true );
-
-    if ( !dp ) return;
-
     const MouseEvent& mouseevent = meh_->event();
-    const uiRect datarect( editor_->getMouseArea() );
-    if ( !datarect.isInside(mouseevent.pos()) ) return;
+    IndexInfo ix(0), iy(0); Coord3 pos;
 
-    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
-    const uiWorldPoint wp = w2u.transform( mouseevent.pos()-datarect.topLeft());
+    Coord3 worldpivot = Coord3::udf();
+    getMousePosInfo( editor_->sower().pivotPos(), ix, iy, worldpivot );
+    f3deditor->setSowingPivot( worldpivot );
+    if ( editor_->sower().accept(mouseevent,true) )
+	return;
 
-    const FlatPosData& pd = dp->posData();
-    const IndexInfo ix = pd.indexInfo( true, wp.x );
-    const IndexInfo iy = pd.indexInfo( false, wp.y );
-    Coord3 pos = dp->getCoord( ix.nearest_, iy.nearest_ );
-    pos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
+    if ( !getMousePosInfo(mouseevent.pos(), ix, iy, pos) )
+	return;
 
     bool makenewstick = !mouseevent.ctrlStatus() && mouseevent.shiftStatus();
     EM::PosID interactpid;
     const Coord3 normal( cs_.isEmpty() ? Coord3::udf() : cs_.defaultNormal() );
+    f3deditor->setScaleVector( getScaleVector() );
     f3deditor->getInteractionInfo( makenewstick, interactpid, pos, &normal );
 
     if ( !mousepid_.isUdf() && mouseevent.ctrlStatus() 
