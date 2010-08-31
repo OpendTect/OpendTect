@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.105 2010-08-27 03:11:00 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.106 2010-08-31 13:56:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,6 +164,7 @@ public:
 				    { editAttribSet(false);}
     void			doVolProc(CallBacker*);
     void			tieWellToSeismic(CallBacker*);
+    void			setupRdmLinePreview(const TypeSet<Coord>&);
 
     inline uiODMenuMgr&		menuMgr()	{ return appl_.menuMgr(); }
     void			enableMenusAndToolBars(bool);
@@ -229,7 +230,6 @@ protected:
     void			colSeqChg(CallBacker*);
     void			colMapperChg(CallBacker*);
     void			setHistogram(int visid,int attrib);
-    void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
     void			storeEMObject();
 
