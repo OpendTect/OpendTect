@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.24 2010-07-21 05:57:54 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.25 2010-09-01 22:19:37 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -86,6 +86,12 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 	    {
 		mTryAlloc( ownvrms, float[sz] );
 		vrms = ownvrms.ptr();
+
+		if ( vrms )
+		{
+		    for ( int idx=0; idx<sz; idx++ )
+			ownvrms[idx] = vel.value( idx );
+		}
 	    }
 
 	    if ( !vrms ) 
@@ -96,6 +102,8 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 
 	    if ( !computeDix( vrms, sd, sz, ownvint->arr() ) )
 		break;
+
+	    vint = ownvint.ptr();
 
 	    //Don't break, go into Vint
 	}
