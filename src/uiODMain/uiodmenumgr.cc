@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.217 2010-08-27 03:11:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.218 2010-09-01 11:50:28 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -1069,20 +1069,27 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 }
 
 
-void uiODMenuMgr::manHor( CallBacker* )
+int uiODMenuMgr::ask2D3D( const char* txt, int res2d, int res3d, int rescncl )
 {
-    int opt = 0;
-    if ( SI().survDataType() == SurveyInfo::No2D )
-	opt = 2;
-    else if ( SI().survDataType() == SurveyInfo::Only2D )
-	opt = 1;
+    int res = rescncl;
+    if ( !SI().has2D() )
+	res = res3d;
+    else if ( !SI().has3D() )
+	res = res2d;
     else
     {
-	int res = uiMSG().askGoOnAfter("Manage 2D or 3D Horizons",
-				       "Cancel","2D","3D");
-	if ( res == 2 ) return;
-	opt = res==0 ? 1 : 2;
+	const int msg = uiMSG().askGoOnAfter( txt, "Cancel", "2D", "3D" );
+	res = msg == 2 ? rescncl : ( msg == 0 ? res2d : res3d );
     }
+
+    return res;
+}
+
+
+void uiODMenuMgr::manHor( CallBacker* )
+{
+    const int opt = ask2D3D( "Manage 2D or 3D Horizons", 1, 2, 0 );
+    if ( opt == 0 ) return;
 
     mDoOp(Man,Hor,opt);
 }
@@ -1090,18 +1097,9 @@ void uiODMenuMgr::manHor( CallBacker* )
 
 void uiODMenuMgr::manSeis( CallBacker* )
 {
-    int opt = 0;
-    if ( SI().survDataType() == SurveyInfo::No2D )
-	opt = 2;
-    else if ( SI().survDataType() == SurveyInfo::Only2D )
-	opt = 1;
-    else
-    {
-	int res = uiMSG().askGoOnAfter("Manage 2D or 3D Seismics",
-				       "Cancel","2D","3D");
-	if ( res == 2 ) return;
-	opt = res==0 ? 1 : 2;
-    }
+    const int opt = ask2D3D( "Manage 2D or 3D Seismics", 1, 2, 0 );
+    if ( opt == 0 ) return;
+
     mDoOp(Man,Seis,opt);
 }
 

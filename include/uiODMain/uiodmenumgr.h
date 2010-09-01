@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.56 2010-08-02 07:20:02 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.57 2010-09-01 11:50:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,9 @@ public:
     void		enableActButton(bool);
     void		setCameraPixmap(bool isperspective);
     void		updateSceneMenu();
-//    void		updateWindowsMenu() { updateSceneMenu(); }
-    			// Backward compatibility, remove in od3.4
+
+    static int		ask2D3D(const char* txt,int res2d=2,int res3d=3,
+				int rescncl=0);
 
     Notifier<uiODMenuMgr> dTectTBChanged;
     Notifier<uiODMenuMgr> dTectMnuChanged;
