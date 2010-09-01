@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.33 2010-05-25 03:07:10 cvsraman Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.34 2010-09-01 04:06:41 cvsranojay Exp $";
 
 #include "batchprog.h"
 
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id: od_process_attrib.cc,v 1.33 2010-05-25 03:07:10
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "mmsockcommunic.h"
 #include "progressmeter.h"
 #include "ptrman.h"
 #include "seisjobexecprov.h"
@@ -33,6 +32,13 @@ static const char* rcsID = "$Id: od_process_attrib.cc,v 1.33 2010-05-25 03:07:10
 #include "separstr.h"
 #include "socket.h"
 #include "thread.h"
+
+#ifndef _USENEWSOCKETS_
+#define  JobCommunic MMSockCommunic
+#include "mmsockcommunic.h"
+#else
+#include "jobcommunic.h"
+#endif
 
 
 #define mDestroyWorkers \
@@ -46,13 +52,13 @@ defineTranslatorGroup(AttribDescSet,"Attribute definitions");
 
 #define mRetHostErr(s) \
 	{  \
-	    if ( comm ) comm->setState( MMSockCommunic::HostError ); \
+	    if ( comm ) comm->setState( JobCommunic::HostError ); \
 	    mRetError(s) \
 	}
 
 #define mRetJobErr(s) \
 	{  \
-	    if ( comm ) comm->setState( MMSockCommunic::JobError ); \
+	    if ( comm ) comm->setState( JobCommunic::JobError ); \
 	    mRetError(s) \
 	}
 
@@ -69,7 +75,7 @@ defineTranslatorGroup(AttribDescSet,"Attribute definitions");
 #define mSetCommState(State) \
 	if ( comm ) \
 	{ \
-	    comm->setState( MMSockCommunic::State ); \
+	    comm->setState( JobCommunic::State ); \
 	    if ( !comm->updateState() ) \
 		mRetHostErr( comm->errMsg() ) \
 	}
@@ -277,7 +283,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     if ( !comm ) return true;
 
-    comm->setState( MMSockCommunic::Finished );
+    comm->setState( JobCommunic::Finished );
     bool ret = comm->sendState();
 
     if ( ret )

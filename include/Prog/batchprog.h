@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.40 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: batchprog.h,v 1.41 2010-09-01 04:06:41 cvsranojay Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -23,9 +23,11 @@ ________________________________________________________________________
 #include <iosfwd>
 class IOPar;
 class IOObj;
-class StreamData;
 class IOObjContext;
 class MMSockCommunic;
+class JobCommunic;
+class StreamData;
+
 
 /*!\brief Main object for 'standard' batch programs.
 
@@ -109,13 +111,21 @@ protected:
     void		progKilled(CallBacker*);
     void		killNotify( bool yn );
 
+#ifndef _USENEWSOCKETS_
     MMSockCommunic*	mmComm()		{ return comm; }
+#else
+    JobCommunic*	mmComm()		{ return comm; }
+#endif
 
     int 		jobId()			{ return jobid; }
 
 private:
 
+#ifndef _USENEWSOCKETS_
     MMSockCommunic*	comm;
+#else
+    JobCommunic*	comm;
+#endif
     int			jobid;
 };
 

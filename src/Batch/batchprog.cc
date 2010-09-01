@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.109 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.110 2010-09-01 04:06:41 cvsranojay Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -19,7 +19,12 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.109 2010-03-25 03:55:14 cvsran
 #include "plugins.h"
 #include "strmprov.h"
 #include "ctxtioobj.h"
+#ifndef _USENEWSOCKETS_
 #include "mmsockcommunic.h"
+#define JobCommunic MMSockCommunic
+#else
+#include "jobcommunic.h"
+#endif
 #include "keystrs.h"
 #include "ascstream.h"
 #include "debugmasks.h"
@@ -115,7 +120,13 @@ void BatchProgram::init( int* pac, char** av )
     }
 
     if ( masterhost.size() && masterport > 0 )  // both must be set.
+    {
+#ifndef _USENEWSOCKETS_
 	comm = new MMSockCommunic( masterhost, masterport, jobid, sdout );
+#else
+	comm = new JobCommunic( masterhost, masterport, jobid, sdout );
+#endif
+    }
      
     if ( !fn || !*fn )
     {
@@ -204,20 +215,28 @@ BatchProgram::~BatchProgram()
 
     if ( comm )
     {
+#ifndef _USENEWSOCKETS_
 	MMSockCommunic::State s = comm->state();
+#else
+	JobCommunic::State s = comm->state();
+#endif
 
-	bool isSet =  s == MMSockCommunic::AllDone 
-	           || s == MMSockCommunic::JobError
-		   || s == MMSockCommunic::HostError;
+	bool isSet =  s == JobCommunic::AllDone 
+	           || s == JobCommunic::JobError
+		   || s == JobCommunic::HostError;
 
 	if ( !isSet )
-	    comm->setState( stillok ? MMSockCommunic::AllDone
-				    : MMSockCommunic::HostError );
+	    comm->setState( stillok ? JobCommunic::AllDone
+				    : JobCommunic::HostError );
 
        	bool ok = comm->sendState( true );
 
 	if ( ok )	infoMsg( "Successfully wrote final status" );
 	else		infoMsg( "Could not write final status" );
+
+#ifdef _NEWSOCKETS_
+	comm->disConnect();
+#endif
     }
 
     killNotify( false );
@@ -251,7 +270,7 @@ void BatchProgram::progKilled( CallBacker* )
 
     if ( comm ) 
     {
-	comm->setState( MMSockCommunic::Killed );
+	comm->setState( JobCommunic::Killed );
 	comm->sendState( true );
     }
 
