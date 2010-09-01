@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.39 2010-08-31 06:05:36 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.40 2010-09-01 09:33:34 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -79,9 +79,8 @@ uiODViewer2D::~uiODViewer2D()
     delete treetp_;
     delete datamgr_;
 
-    delete viewwin();
-
     deepErase( auxdataeditors_ );
+    delete viewwin();
 }
 
 
