@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.cc,v 1.8 2010-08-31 14:35:55 cvsjaap Exp $
+ RCS:		$Id: emfault3dpainter.cc,v 1.9 2010-09-01 10:36:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -216,7 +216,7 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
     PtrMan<Geometry::IndexedShape> faultsurf =
 		    new Geometry::ExplFaultStickSurface(
 			f3d.geometry().sectionGeometry(sid), SI().zScale() );
-    //faultsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
+    faultsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
     if ( !faultsurf->update(true,0) )
 	return false;
     
@@ -240,7 +240,7 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
     intersectn->addPlane( normal, pts );
 
     Geometry::IndexedShape* idxshape = intersectn;
-    //idxshape->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
+    idxshape->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
 
     if ( !idxshape->update(true,0) )
 	return false;
