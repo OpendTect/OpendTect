@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.42 2010-07-27 08:56:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.43 2010-09-01 10:38:05 cvsumesh Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -332,9 +332,17 @@ bool doWork( od_int64 start, od_int64 stop, int )
     for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
 	if ( updatesticksnotpanels_ )
+	{
+	    mutex_.lock();
 	    explsurf_.fillStick( idx );
+	    mutex_.unLock();
+	}
 	else
+	{
+	    mutex_.lock();
 	    explsurf_.fillPanel( idx );
+	    mutex_.unLock();
+	}
     }
     return true;
 }
@@ -343,6 +351,7 @@ protected:
 
     ExplFaultStickSurface&	explsurf_;
     bool			updatesticksnotpanels_;
+    Threads::Mutex      mutex_;
 };
 
 
