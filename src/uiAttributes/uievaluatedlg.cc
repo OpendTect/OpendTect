@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.26 2010-08-30 12:49:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.27 2010-09-02 14:08:33 cvshelene Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -176,7 +176,12 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 	BinID bid;
 	bid.inl = initfld->getBinID().inl + idx * incrfld->getBinID().inl;
 	bid.crl = initfld->getBinID().crl + idx * incrfld->getBinID().crl;
-	mCreateLabel2(bid.inl,bid.crl)
+	
+	if ( desc.is2D() )
+	    { mCreateLabel1(bid.crl) }
+	else
+	    { mCreateLabel2(bid.inl,bid.crl) }
+
 	bidpar->setValue( bid.inl, 0 );
 	bidpar->setValue( bid.crl, 1 );
 
@@ -192,8 +197,16 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 	    bidpar2->setValue( bid2.inl, 0 );
 	    bidpar2->setValue( bid2.crl, 1 );
 
-	    evallbl_ += "&["; evallbl_ += bid2.inl; 
-	    evallbl_ += ","; evallbl_ += bid2.crl; evallbl_ += "]";
+	    evallbl_ += "[";
+	    if ( desc.is2D() )
+		evallbl_ += bid2.crl;
+	    else
+	    {
+		evallbl_ += bid2.inl;
+		evallbl_ += ",";
+		evallbl_ += bid2.crl;
+	    }
+	    evallbl_ += "]";
 	}
     }
     else if ( fpar )
