@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.15 2010-08-26 11:39:30 cvsjaap Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.16 2010-09-02 08:59:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -477,6 +477,11 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 }
 
 
+#define mSetUserInteractionEnd() \
+    if ( !editor_->sower().moreToSow() ) \
+	EM::EMM().undo().setUserInteractionEnd( \
+					EM::EMM().undo().currentEventID() );
+
 void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 {
     if ( !editor_->viewer().appearance().annot_.editable_ 
@@ -533,6 +538,9 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	}
 	else
 	    fssg.removeKnot( mousepid_.sectionID(), mousepid_.subID(), true );
+
+
+	mSetUserInteractionEnd();
 	return;
     }
 
@@ -559,12 +567,14 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 			  lineset, linenm, true );
 	const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
 	fsseditor->setLastClicked( EM::PosID(emfss->id(),sid,subid) );
+	mSetUserInteractionEnd();
     }
     else
     {
 	fssg.insertKnot( interactpid.sectionID(), interactpid.subID(),
 			 pos, true );
 	fsseditor->setLastClicked( interactpid );
+	mSetUserInteractionEnd();
     }
 }
 

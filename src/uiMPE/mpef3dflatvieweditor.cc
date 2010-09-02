@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.8 2010-08-31 14:33:26 cvsjaap Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.9 2010-09-02 08:59:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -436,6 +436,10 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     mousepid_ = mousepid;
 }
 
+#define mSetUserInteractionEnd() \
+    if ( !editor_->sower().moreToSow() ) \
+	EM::EMM().undo().setUserInteractionEnd( \
+					EM::EMM().undo().currentEventID() );
 
 void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 {
@@ -496,8 +500,8 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 	    res = emf3d->geometry().removeKnot( mousepid_.sectionID(),
 		    				mousepid_.subID(), true );
 	if ( res )
-	    EM::EMM().undo().setUserInteractionEnd(
-			EM::EMM().undo().currentEventID() );
+	    mSetUserInteractionEnd();
+
 	return;
     }
 
@@ -516,8 +520,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 	if ( emf3d->geometry().insertStick(interactpid.sectionID(),
 		insertsticknr,0,pos,editnormal,true) )
 	{
-	    EM::EMM().undo().setUserInteractionEnd(
-			EM::EMM().undo().currentEventID() );
+	    mSetUserInteractionEnd();
 	    f3deditor->setLastClicked( interactpid );
 	    f3deditor->editpositionchange.trigger();
 	}
@@ -527,8 +530,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 	if ( emf3d->geometry().insertKnot(interactpid.sectionID(),
 		interactpid.subID(),pos,true) )
 	{
-	    EM::EMM().undo().setUserInteractionEnd(
-			EM::EMM().undo().currentEventID() );
+	    mSetUserInteractionEnd();
 	    f3deditor->setLastClicked( interactpid );
 	    f3deditor->editpositionchange.trigger();
 	}
