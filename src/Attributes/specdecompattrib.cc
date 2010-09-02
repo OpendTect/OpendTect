@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.31 2010-08-11 16:55:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.32 2010-09-02 13:04:04 cvshelene Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -432,5 +432,22 @@ void SpecDecomp::getCompNames( BufferStringSet& nms ) const
 	nms.add( tmpstr.buf() );
     }
 }
+
+
+bool SpecDecomp::prepPriorToOutputSetup()
+{
+    return areAllOutputsEnabled();
+}
+
+
+bool SpecDecomp::areAllOutputsEnabled() const
+{
+    for ( int idx=0; idx<nrOutputs(); idx++ )
+	if ( !outputinterest_[idx] )
+	    return false;
+
+    return true;
+}
+
 
 }//namespace

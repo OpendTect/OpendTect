@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.15 2010-08-11 16:55:33 cvsyuancheng Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.16 2010-09-02 13:04:04 cvshelene Exp $
 ________________________________________________________________________
 -*/
 
@@ -57,6 +57,7 @@ public:
     static const char*	transTypeNamesStr(int);
 
     void                getCompNames(BufferStringSet&) const;
+    bool		prepPriorToOutputSetup();
 
 protected:
     			~SpecDecomp();
@@ -76,6 +77,8 @@ protected:
 
     const Interval<float>*	reqZMargin(int input, int output) const;
     const Interval<int>*	desZSampMargin(int input, int output) const;
+
+    bool		areAllOutputsEnabled() const;
 
     int					transformtype_;
     ArrayNDWindow::WindowType		windowtype_;

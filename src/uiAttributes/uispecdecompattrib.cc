@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.29 2010-08-26 08:24:58 cvshelene Exp $";
+static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.30 2010-09-02 13:04:04 cvshelene Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -262,12 +262,7 @@ void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
     if ( dset->is2D() )                                                         
 	lk = LineKey( positiondlg_->getLineKey() );                             
 
-    Interval<float> gate = gatefld_->getFInterval();                            
-    gate.scale( 1/SI().zFactor() );                                             
-    cs.zrg.start = gate.start;                                                  
-    cs.zrg.stop = gate.stop;                                                    
-
-    panelview_->compAndDispAttrib( dset, specdecompid, cs, lk );                            
+    panelview_->compAndDispAttrib( dset, specdecompid, cs, lk ); 
 }
 
 
