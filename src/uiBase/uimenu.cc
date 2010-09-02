@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.62 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.63 2010-09-02 05:44:30 cvsnanne Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -120,6 +120,9 @@ int insertMenu( uiPopupMenu* pmnu, uiPopupMenu* before )
 
 void init( uiMenuItem* it, QAction* action, int id, int idx )
 {
+    if ( !action ) return;
+
+    action->setIconVisibleInMenu( true );
     it->setId( id );
     it->setMenu( this );
     it->setAction( action );
