@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: gmtarray2dinterpol.h,v 1.2 2010-08-25 07:11:11 cvsnageswara Exp $
+ RCS:           $Id: gmtarray2dinterpol.h,v 1.3 2010-09-02 07:01:53 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ mClass GMTArray2DInterpol : public Array2DInterpol
 {
 public:
     				GMTArray2DInterpol();
+    				~GMTArray2DInterpol();
 
     virtual void		setPar(const IOPar&)		=0;
     virtual bool		mkCommand(BufferString&)	=0;
@@ -37,11 +38,14 @@ protected:
     bool			doFinish(bool);
     int				maxNrThreads() const	{ return 1; }
 
+    int				nrdone_;
     BufferString		msg_;
     IOPar			iopar_;
     StreamData			sd_;
-    BufferString		tmpfnm_;
-    int				nrdone_;
+    StreamData			sdmask_;
+    BufferString		path_;
+    BufferString		defundefpath_;
+    bool*			nodes_;
 };
 
 
@@ -57,6 +61,7 @@ public:
 
     void			setPar(const IOPar&);
     bool			mkCommand(BufferString&);
+    const char*			infoMsg() const;
 };
 
 
@@ -72,6 +77,7 @@ public:
 
     void			setPar(const IOPar&);
     bool			mkCommand(BufferString&);
+    const char*			infoMsg() const;
 };
 
 #endif
