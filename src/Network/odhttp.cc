@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.2 2010-08-30 11:32:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.3 2010-09-02 07:51:32 cvsnanne Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
 
 #include <QFile>
 #include <QHttp>
+#include <QUrl>
 
 
 ODHttp::ODHttp()
@@ -61,7 +62,8 @@ int ODHttp::get( const char* path, const char* dest )
 	qfiles_ += qfile;
     }
 
-    const int cmdid = qhttp_->get( path, qfile );
+    QUrl qurl( path );
+    const int cmdid = qhttp_->get( qurl.toEncoded(), qfile );
     getids_ += cmdid;
     return cmdid;
 }
