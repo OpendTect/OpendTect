@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.46 2010-08-30 08:27:51 cvskarthika Exp $
+#	RCS :		$Id: Makefile,v 1.47 2010-09-02 15:00:58 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -57,7 +57,6 @@ PROG.cc := oib2a.cc
 
 USECOIN := yes
 USEQT   := yes
-USE_SIMAGE := yes
 
 ifeq ($(HDIR),win)
     USE_SIM_VOL := Yes

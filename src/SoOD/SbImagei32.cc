@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SbImagei32.cc,v 1.1 2010-08-30 08:32:01 cvskarthika Exp $";
+static const char* rcsID = "$Id: SbImagei32.cc,v 1.2 2010-09-02 15:00:58 cvskris Exp $";
 
 #include "SbImagei32.h"
 
@@ -33,7 +33,6 @@ static const char* rcsID = "$Id: SbImagei32.cc,v 1.1 2010-08-30 08:32:01 cvskart
 #endif // COIN_THREADSAFE
 
 //#include "glue/simage_wrapper.h"
-#include "simage.h"
 //#include "coindefs.h"
 
 #ifndef COIN_WORKAROUND_NO_USING_STD_FUNCS
@@ -73,11 +72,6 @@ public:
 
 		case INTERNAL_DATA:
 		    delete[] bytes;
-		    bytes = NULL;
-		    break;
-
-		case SIMAGE_DATA:
-		    /*simage_wrapper()->*/simage_free_image(bytes);
 		    bytes = NULL;
 		    break;
 
@@ -363,85 +357,6 @@ SbString SbImagei32::searchForFile( const SbString& basename, \
 }
 
 
-// Reads image data from filename. In Coin, simage is used to load image files,
-// and several common file formats are supported. simage can be downloaded from
-// our webpages.  If loading fails for some reason this method returns FALSE, 
-// and the instance is set to an empty image. If the file is successfully 
-// loaded, the file image data are copied into this class.
-// If numdirectories > 0, this method will search for filename in all 
-// directories in searchdirectories.
-SbBool SbImagei32::readFile( const SbString& filename,
-                  const SbString* const* searchdirectories,
-                  const int numdirectories )
-{
-    // FIXME: Add 3D image support when that is added to simage...
-
-    if (filename.getLength() == 0)
-    {
-	// This is really an internal error, should perhaps assert...
-	SoDebugError::post( "SbImagei32::readFile",
-		"attempted to read file from empty filename." );
-	return FALSE;
-    }
-
-    SbString finalname = SbImagei32::searchForFile( filename, searchdirectories,
-	    numdirectories );
-    if (finalname.getLength() == 0)
-    {
-	SoDebugError::post( "SbImagei32::readFile",
-		"couldn't find '%s'.", filename.getString() );
-	return FALSE;
-    }
-
-    // use callback to load the image if it's set
-    if (SbImagei32P::readimagecallbacks)
-    {
-	for ( int i=0; i < SbImagei32P::readimagecallbacks->getLength(); i++ )
-	{
-	    SbImagei32P::ReadImageCBData cbdata = 
-		(*SbImagei32P::readimagecallbacks)[i];
-	    if ( cbdata.cb( finalname, this, cbdata.closure ) )
-		return TRUE;
-	}
-
-	if ( !simage_check_supported( filename.getString() ) )
-//	if ( !simage_wrapper()->available )
-	    return FALSE;
-    }
-
-    // try simage
-    int w, h, nc;
-    unsigned char * simagedata = simage_read_image( finalname.getString(), 
-		&w, &h, &nc) ;
-    if ( simagedata )
-    {
-	//FIXME: Add 3'rd dimension...
-	setValuePtr( SbVec3i32(static_cast<short>(w), static_cast<short>(h),
-		     static_cast<short>(0) ), nc, simagedata );
-
-	// NB, this is a trick. We use setValuePtr() to set the size
-	// and data pointer, and then we change the data type to simage
-	PRIVATE(this)->datatype = SbImagei32P::SIMAGE_DATA;
-	return TRUE;
-    }
-
-#if COIN_DEBUG
-    else
-    {
-	SoDebugError::post( "SbImagei32::readFile", "(%s) %s",
-		filename.getString(),
-		// FIXME: "getlasterror" is a crap strategy, as
-		// it places extra burden on the client to
-		// lock. Should keep a single entry-lock within
-		// simage_wrapper() to work around
-		// this.
-		simage_get_last_error() );
-    }
-#endif // COIN_DEBUG
-
-    setValue( SbVec3i32( 0, 0, 0 ), 0, NULL );
-    return FALSE;
-}
 
 
 // int SbImagei32::operator!=(const SbImagei32 & image) const
