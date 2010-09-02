@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor3d.cc,v 1.3 2010-08-03 09:03:35 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor3d.cc,v 1.4 2010-09-02 09:00:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,6 +155,10 @@ void HorizonFlatViewEditor3D::setSeedPicking( bool yn )
 
 void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 {
+    const MouseEvent& mouseevent = mehandler_->event();
+    if ( editor_ && editor_->sower().accept(mouseevent, false) )
+	return;
+
     if ( MPE::engine().getTrackerByObject(emid_) != -1 )
     {
 	int trackeridx = MPE::engine().getTrackerByObject( emid_ );
@@ -168,6 +172,35 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 
 void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 {
+    if ( curcs_.isEmpty() || !editor_->viewer().appearance().annot_.editable_
+			  || editor_->isSelActive() )
+	return;
+
+    if ( !seedpickingon_ ) return;
+
+    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+    if ( !tracker || tracker->objectID() != emid_ || tracker->is2D() )
+	return;
+
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
+
+    if ( !seedpicker || !seedpicker->canAddSeed() ||
+	 !seedpicker->canSetSectionID() ||
+	 !seedpicker->setSectionID(emobj->sectionID(0)) )
+	return;
+
+    bool pickinvd = true;
+    if ( !checkSanity(*tracker,*seedpicker,pickinvd) )
+	return;
+
+    const MouseEvent& mouseevent = mehandler_->event();
+    const Color& prefcol = emobj->preferredColor();
+
+    if ( editor_ && editor_->sower().activate(prefcol, mouseevent) )
+	return;
 }
 
 
@@ -176,8 +209,6 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
     if ( curcs_.isEmpty() || !editor_->viewer().appearance().annot_.editable_
 	    || editor_->isSelActive() )
 	return;
-
-    if ( !seedpickingon_ ) return;
 
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
     if ( !tracker ) return;
@@ -197,6 +228,19 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
 	 !seedpicker->setSectionID(emobj->sectionID(0)) )
 	return;
 
+    const MouseEvent& mouseevent = mehandler_->event();
+
+    if ( editor_ )
+    {
+	const bool sequentsowing = editor_->sower().mode() ==
+				   FlatView::Sower::SequentSowing;
+	seedpicker->setSowerMode( sequentsowing );
+	if ( editor_->sower().accept(mouseevent,true) )
+	    return;
+    }
+
+    if ( !seedpickingon_ ) return;
+
     bool pickinvd = true;
 
     if ( !checkSanity(*tracker,*seedpicker,pickinvd) )
@@ -205,7 +249,6 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
     const FlatDataPack* dp = editor_->viewer().pack( !pickinvd );
     if ( !dp ) return;
 
-    const MouseEvent& mouseevent = mehandler_->event();
     const uiRect datarect( editor_->getMouseArea() );
     if ( !datarect.isInside(mouseevent.pos()) ) return;
 
@@ -236,7 +279,10 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
 
     const int currentevent = EM::EMM().undo().currentEventID();
     if ( currentevent != prevevent )
-	EM::EMM().undo().setUserInteractionEnd(currentevent);
+    {
+	if ( !editor_ || !editor_->sower().moreToSow() )
+	    EM::EMM().undo().setUserInteractionEnd(currentevent);
+    }
 }
 
 
