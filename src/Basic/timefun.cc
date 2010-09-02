@@ -5,7 +5,7 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.19 2010-03-03 07:28:10 cvsranojay Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.20 2010-09-02 06:35:57 cvsraman Exp $";
 
 #include "timefun.h"
 #include "bufstring.h"
@@ -69,4 +69,12 @@ const char* getDateString( const char* fmt, bool local )
 const char* getTimeString( const char* fmt, bool local )
 { return getDateTimeString( fmt, local ); }
 
+bool isEarlier(const char* first, const char* second, const char* fmt )
+{
+    QString fmtstr( fmt );
+    QDateTime qdt1 = QDateTime::fromString( first, fmtstr );
+    QDateTime qdt2 = QDateTime::fromString( second, fmtstr );
+    return qdt1 < qdt2;
 }
+
+} // namespace Time

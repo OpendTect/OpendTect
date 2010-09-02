@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.108 2010-05-21 14:58:21 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.109 2010-09-02 06:35:57 cvsraman Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -307,6 +307,60 @@ int SetEnvVar( const char* env, const char* val )
     putenv( buf );
     return mC_True;
 #endif
+}
+
+
+static void writeEntries( const char* fnm, int nrentries,
+			  GetEnvVarEntry* entries[] )
+{
+    FILE* fp;
+    int idx;
+
+    fp = fnm && *fnm ? fopen( fnm, "w" ) : 0;
+    if ( !fp ) return;
+
+    for ( idx=0; idx<nrentries; idx++ )
+	fprintf( fp, "%s %s\n", entries[idx]->varname, entries[idx]->value );
+
+    fclose( fp );
+}
+
+
+int writeEnvVar( const char* env, const char* val )
+{
+    int nrentries = 0;
+    GetEnvVarEntry* entries[mMaxNrEnvEntries];
+    int idx, entryidx = -1;
+
+    if ( !env || !*env ) return 0;
+    if ( insysadmmode_ )
+	loadEntries( GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1),
+		     &nrentries, entries );
+    else
+	loadEntries( GetSettingsFileName("envvars"), &nrentries, entries );
+
+    for ( idx=0; idx<nrentries; idx++ )
+    {
+	if ( !strcmp( entries[idx]->varname, env ) )
+	{
+	    entryidx = idx;
+	    break;
+	}
+    }
+
+    if ( entryidx < 0 )
+    {
+	entries[nrentries] = mMALLOC(1,GetEnvVarEntry);
+	entryidx = nrentries++;
+    }
+
+    strcpy( entries[entryidx]->varname, env );
+    strcpy( entries[entryidx]->value, val );
+    if ( insysadmmode_ )
+	writeEntries( GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1),
+		      nrentries, entries );
+    else
+	writeEntries( GetSettingsFileName("envvars"), nrentries, entries );
 }
 
 
