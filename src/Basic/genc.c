@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.109 2010-09-02 06:35:57 cvsraman Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.110 2010-09-02 06:40:36 cvsraman Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -326,7 +326,7 @@ static void writeEntries( const char* fnm, int nrentries,
 }
 
 
-int writeEnvVar( const char* env, const char* val )
+int WriteEnvVar( const char* env, const char* val )
 {
     int nrentries = 0;
     GetEnvVarEntry* entries[mMaxNrEnvEntries];

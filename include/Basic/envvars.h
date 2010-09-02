@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: envvars.h,v 1.7 2010-09-02 06:36:23 cvsraman Exp $
+ RCS:		$Id: envvars.h,v 1.8 2010-09-02 06:41:07 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,9 @@ mGlobal char* GetOSEnvVar(const char*);
 		/*!< Raw 'getenv' call */
 mGlobal int SetEnvVar(const char* env,const char* val);
 		/*!< sets environment variable to a value. */
-mGlobal int writeEnvVar(const char* env,const char* val);
-		/*!< Writes environment variable to .od/envvars */
+mGlobal int WriteEnvVar(const char* env,const char* val);
+		/*!< Writes environment variable to .od/envvars for user
+		     or data/Envvars for SysAdm */
 
 mGlobal char GetEnvSeparChar();
 		/*!< The character separating entries in an env variable */
