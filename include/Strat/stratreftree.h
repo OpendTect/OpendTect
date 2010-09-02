@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.17 2010-08-05 11:50:33 cvsbruno Exp $
+ RCS:		$Id: stratreftree.h,v 1.18 2010-09-02 16:22:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,8 +53,8 @@ public:
     void		assignEqualTimesToUnits(Interval<float>) const;
 
     bool		addCopyOfUnit(const UnitRef&,bool rev=false);
-    bool		addUnit(const char*,const UnitRef::Props&,
-	    			bool rev=false);
+    bool		addUnit(const char*,const char*,
+				const UnitRef::Props&,bool rev=false);
     bool		addUnit(const char*,const char* unit_dump,
 	    			bool rev=false);
     void		setUnitProps(int id,const UnitRef::Props&);

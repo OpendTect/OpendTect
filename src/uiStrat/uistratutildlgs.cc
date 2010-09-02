@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.25 2010-08-05 11:50:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.26 2010-09-02 16:22:43 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -74,25 +74,27 @@ void uiStratUnitDlg::selLithCB( CallBacker* )
 } 
 
 
-void uiStratUnitDlg::setUnitProps( const Strat::UnitRef::Props& props ) 
+void uiStratUnitDlg::setUnitProps( const Strat::UnitRef::Props& props, 
+				    const BufferString& lithnm, bool isleaf ) 
 {
     unitnmfld_->setText( props.code_ );
     agestartfld_->setValue( props.timerg_.start );
     agestopfld_->setValue( props.timerg_.stop );
     colfld_->setColor( props.color_ );
     unitdescfld_->setText( props.desc_ );
-    unitlithfld_->setText( props.lithnm_ );
-    unitlithfld_->setSensitive( props.isleaf_ );
+    unitlithfld_->setText( lithnm.buf() );
+    unitlithfld_->setSensitive( isleaf );
 }
 
 
 
-void uiStratUnitDlg::getUnitProps( Strat::UnitRef::Props& props) const
+void uiStratUnitDlg::getUnitProps( Strat::UnitRef::Props& props, 
+					BufferString& lithnm ) const
 {
     props.code_ = unitnmfld_->text();
     props.desc_ = unitdescfld_->text();
     const char* txt = unitlithfld_->text();
-    props.lithnm_ = !strcmp( txt, sNoLithoTxt ) ? 0 : txt;
+    lithnm = !strcmp( txt, sNoLithoTxt ) ? 0 : txt;
     props.timerg_ = Interval<float> ( agestartfld_->getValue(), 
 				      agestopfld_->getValue() );
     props.color_ = colfld_->color();

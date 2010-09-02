@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.46 2010-08-27 14:06:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.47 2010-09-02 16:22:43 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -12,7 +12,6 @@ static const char* rcsID = "$Id: stratunitrepos.cc,v 1.46 2010-08-27 14:06:48 cv
 #include "ascstream.h"
 #include "keystrs.h"
 #include "bufstringset.h"
-#include "separstr.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "debug.h"
@@ -82,12 +81,9 @@ bool Strat::RefTree::addUnit( const char* code, const char* dumpstr, bool rev )
 }
 
 
-bool Strat::RefTree::addUnit( const char* fullnm, 
+bool Strat::RefTree::addUnit( const char* fullnm, const char* unitdesc,
 				const UnitRef::Props& props, bool rev )
 {
-    FileMultiString unitdesc(
-	             toString(Strat::UnRepo().getLithID(props.lithnm_.buf())) );
-    unitdesc += props.desc_;
     addUnit( fullnm, unitdesc, rev );
     setUnitProps( fullnm, props );
     return true;
@@ -484,15 +480,6 @@ bool Strat::UnitRepository::writeLvls( std::ostream& strm ) const
 }
 
 
-void Strat::UnitRepository::readFile( const Repos::FileProvider& rfp,
-					     Repos::Source src )
-{
-    addTreeFromFile( rfp,src ); 
-    addLvlsFromFile( rfp, src );
-    resetUnitLevels();
-}
-
-
 void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 					     Repos::Source src )
 {
@@ -840,7 +827,7 @@ void Strat::UnitRepository::createDefaultTree()
     props.timerg_.set( 0, 4.5e3 );
     props.color_ = Color::DgbColor();
     props.desc_ = "Stratigraphic Column";
-    tree->addUnit( props.code_, props );
+    tree->addUnit( props.code_, "", props );
     trees_ += tree;
 }
 

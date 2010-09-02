@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.49 2010-08-11 08:36:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.50 2010-09-02 16:22:43 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -302,9 +302,14 @@ protected:
 
 void uiStratTreeWin::openCB( CallBacker* )
 {
+    uiMSG().error( "Not Implemented yet" );
+    return;
+    //TODO
+    /*
     openDlg dlg( this );
     if ( dlg.go() )
 	uistratmgr_.openStratFile( dlg.filenm_ );
+    */
 }
 
 

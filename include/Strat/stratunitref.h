@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.25 2010-08-26 14:33:03 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.26 2010-09-02 16:22:43 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -68,9 +68,7 @@ public:
 
 	BufferString    code_;
 	BufferString    desc_;
-	BufferString    lithnm_;
 	Interval<float> timerg_;
-	bool            isleaf_;
 	bool		isunconf_;
 	Color           color_;
 	int		lvlid_;
@@ -89,7 +87,6 @@ public:
 			    props_.code_    = pp.code_;
 			    props_.desc_    = pp.desc_;
 			    props_.timerg_  = pp.timerg_; 
-			    props_.isleaf_  = pp.isleaf_; 
 			    props_.color_   = pp.color_; 
 			    props_.lvlid_ = pp.lvlid_;
 			    props_.isunconf_ = pp.isunconf_;

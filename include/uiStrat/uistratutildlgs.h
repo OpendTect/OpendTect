@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.17 2010-08-05 11:50:33 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.18 2010-09-02 16:22:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,10 @@ public:
 
 			uiStratUnitDlg(uiParent*,Setup&);
 
-    void		setUnitProps(const Strat::UnitRef::Props&);
-    void		getUnitProps(Strat::UnitRef::Props&) const;	
+    void		setUnitProps(const Strat::UnitRef::Props&,
+	    				const BufferString&, bool);
+    void		getUnitProps(Strat::UnitRef::Props&,
+	    				BufferString&) const;	
 
 protected:
 

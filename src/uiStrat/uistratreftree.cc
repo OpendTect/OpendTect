@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.43 2010-08-26 14:31:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.44 2010-09-02 16:22:43 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -203,8 +203,9 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
     if ( newurdlg.go() )
     {
 	UnitRef::Props props; 
-	newurdlg.getUnitProps( props );
-	doInsertSubUnit( lvit, props );
+	BufferString lithnm;
+	newurdlg.getUnitProps( props, lithnm );
+	doInsertSubUnit( lvit, props, lithnm );
     }
 }
 
@@ -235,7 +236,7 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 	    if ( idx == 0 )
 		uistratmgr_->updateUnitProps( unitref->getID(), *pps[idx] );
 	    else
-		doInsertSubUnit( parit, *pps[idx] );
+		doInsertSubUnit( parit, *pps[idx], 0  );
 	}
 	deepErase( pps );
     }
@@ -243,13 +244,13 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 
 
 
-void uiStratRefTree::doInsertSubUnit( uiListViewItem* lvit, UnitRef::Props& pp ) const
+void uiStratRefTree::doInsertSubUnit( uiListViewItem* lvit, UnitRef::Props& pp, 					const char* lithnm ) const
 {
     uiListViewItem* newitem;
     uiListViewItem::Setup setup = uiListViewItem::Setup()
 			    .label( pp.code_ )
 			    .label( pp.desc_ )
-			    .label( pp.lithnm_ );
+			    .label( lithnm );
     newitem = lvit ? new uiListViewItem( lvit, setup )
 		   : new uiListViewItem( lv_, setup );
     newitem->setRenameEnabled( cUnitsCol, false );	//TODO
@@ -274,7 +275,7 @@ void uiStratRefTree::doInsertSubUnit( uiListViewItem* lvit, UnitRef::Props& pp )
 	parit->setOpen( true );
 	uistratmgr_->prepareParentUnit( getCodeFromLVIt( parit ).buf() );
     }
-    uistratmgr_->addUnit( getCodeFromLVIt( newitem ), pp, false );	
+    uistratmgr_->addUnit( getCodeFromLVIt( newitem ), lithnm, pp, false );	
 }
 
 
@@ -309,15 +310,15 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
     props = unitref->props();
     props.code_ = lvit->text(cUnitsCol); 
     props.desc_ = lvit->text(cDescCol); 
-    props.lithnm_ = lvit->text(cLithoCol); 
-    urdlg.setUnitProps( props );
+    BufferString lithnm = lvit->text(cLithoCol); 
+    urdlg.setUnitProps( props, lithnm, unitref->isLeaf() );
 
     if ( urdlg.go() )
     {
-        urdlg.getUnitProps( props );
+        urdlg.getUnitProps( props, lithnm );
 	lvit->setText( props.code_, cUnitsCol );
 	lvit->setText( props.desc_, cDescCol ); 
-	lvit->setText( props.lithnm_, cLithoCol );
+	lvit->setText( lithnm.buf(), cLithoCol );
 
 	mDynamicCastGet(const Strat::NodeUnitRef*,nur,unitref)
 	if ( nur )
@@ -331,6 +332,8 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 	}
 	updateUnitsPixmaps();
 	uistratmgr_->updateUnitProps( unitref->getID(), props );
+	if( unitref->isLeaf() )
+	    uistratmgr_->updateUnitLith( unitref->getID(), lithnm.buf() );
     }
 }
 
@@ -507,7 +510,7 @@ void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node,
 #define mSetUpUnconf(timerg,pos)\
     Strat::UnitRef::Props props; props.timerg_ = timerg;\
     props.color_ = Color( 215, 215, 215 );\
-    BufferString unconfcode( "" );\
+    BufferString unconfcode("");\
     unconfcode += "Unconf";\
     unconfcode += toString(nrunconf++);\
     uiListViewItem* lit = listView()->findItem(node.code(),0,false);\
@@ -515,7 +518,7 @@ void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node,
     props.isunconf_ = true;\
     props.code_ = unconfcode;\
     props.timerg_ = timerg;\
-    doInsertSubUnit( lit, props );\
+    doInsertSubUnit( lit, props, 0 );\
     for ( int idref=0; idref<pos; idref++ )\
 	moveUnit( true );\
 

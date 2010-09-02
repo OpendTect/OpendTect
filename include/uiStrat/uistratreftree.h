@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.25 2010-08-05 11:50:33 cvsbruno Exp $
+ RCS:           $Id: uistratreftree.h,v 1.26 2010-09-02 16:22:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,8 @@ protected:
 
     void		insertSubUnit(uiListViewItem*);
     void		subdivideUnit(uiListViewItem*);
-    void		doInsertSubUnit(uiListViewItem*,Strat::UnitRef::Props&) 					const;
+    void		doInsertSubUnit(uiListViewItem*,Strat::UnitRef::Props&,
+	    				const char*) const;
     void		makeNewTreeItem(uiListViewItem*);
     void		removeUnit(uiListViewItem*);
     void		updateUnitProperties(uiListViewItem*);

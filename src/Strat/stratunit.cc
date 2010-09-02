@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.22 2010-08-26 14:33:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.23 2010-09-02 16:22:43 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -129,7 +129,7 @@ bool Strat::UnitRef::use( const char* str )
 void Strat::LeafUnitRef::fill( BufferString& str ) const
 {
     FileMultiString fms;
-    fms += props_.lithnm_; fms += props_.desc_;
+    fms += lith_; fms += props_.desc_;
     str = fms;
 }
 
