@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibasemap.cc,v 1.6 2010-08-27 03:11:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibasemap.cc,v 1.7 2010-09-02 10:23:38 cvsnanne Exp $";
 
 #include "uibasemap.h"
 #include "uigraphicsitemimpl.h"
@@ -63,6 +63,32 @@ void uiBaseMapObject::update()
 	uiPoint pt1 = transform_->transform( uiWorldPoint(crds[0]) );
 	uiPoint pt2 = transform_->transform( uiWorldPoint(crds[1]) );
 	li->setLine( pt1, pt2 );
+    }
+    else if ( bmobject_->connectPoints(-1) == BaseMapObject::cPolygon() )
+    {
+	if ( itemgrp_->isEmpty() )
+	    itemgrp_->add( new uiPolygonItem() );
+
+	mDynamicCastGet(uiPolygonItem*,itm,itemgrp_->getUiItem(0))
+	if ( !itm ) return;
+
+	TypeSet<uiPoint> pts;
+	for ( int idx=0; idx<crds.size(); idx++ )
+	    pts += transform_->transform( uiWorldPoint(crds[idx]) );
+	itm->setPolygon( pts );
+    }
+    else if ( bmobject_->connectPoints(-1) == BaseMapObject::cDontConnect() )
+    {
+	if ( itemgrp_->isEmpty() )
+	    itemgrp_->add( new uiMarkerItem(true) );
+
+	mDynamicCastGet(uiMarkerItem*,itm,itemgrp_->getUiItem(0))
+	if ( !itm ) return;
+
+	const Color* col = bmobject_->getColor(-1);
+	if ( col ) itm->setFillColor( *col );
+	if ( crds.size() > 0 )
+	    itm->setPos( transform_->transform( uiWorldPoint(crds[0]) ) );
     }
 }
 
