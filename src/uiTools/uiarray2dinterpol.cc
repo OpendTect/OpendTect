@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.10 2010-01-27 21:31:14 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.11 2010-09-02 06:55:47 cvsnageswara Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -209,7 +209,15 @@ bool uiArray2DInterpolSel::acceptOK()
 	delete result_;
 
     if ( !params_[methodidx] )
+    {
 	result_ = Array2DInterpol::factory().create(methods[methodidx]->buf());
+	BufferString msg( result_->infoMsg() );
+	if ( !msg.isEmpty() )
+	{
+	    uiMSG().message( msg );
+	    return false;
+	}
+    }
     else
     {
 	if ( !params_[methodidx]->acceptOK() )
