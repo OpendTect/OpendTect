@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K.Tingdahl
  Date:		Jan 2006
- RCS:		$Id: multidimstorage.h,v 1.7 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: multidimstorage.h,v 1.8 2010-09-02 10:10:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
     					/*!<Adds values to stucture. */
     template <class IDX> void		remove(const IDX& index);
     void				empty();
-    					/*!<\removes everything. */
+    					/*!<removes everything. */
 
     template <class POS,class IDX> bool	findFirst(const POS&,IDX&) const;
     template <class IDX> bool		getIndex(int global_pos,IDX&) const;
@@ -82,7 +82,7 @@ public:
     void				removeDuplicates();
 
     inline bool				divide(ObjectSet<int>&) const;
-    					/*!divides all items into chunks
+    					/*!<divides all items into chunks
 					   of (about equal size). */
     template <class IDX> bool 		sort(TypeSet<IDX>& indices) const;
     					/*!<Sorts the array in order of
@@ -91,7 +91,7 @@ public:
     template <class POS> void		getIndicesInRange(const POS& start,
 	    					   const POS& stop,
 						   TypeSet<int>& res) const;
-    					/*!<\brief Returns all indices within
+    					/*!<\returns all indices within
 						   a given range. */
 
 protected:
