@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	Time functions
- RCS:		$Id: timefun.h,v 1.13 2010-03-04 06:52:28 cvsranojay Exp $
+ RCS:		$Id: timefun.h,v 1.14 2010-09-02 06:37:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,11 @@ protected:
 				      bool local=true);
     mGlobal const char*	getTimeString(const char* fmt=defTimeFmt(),
 				      bool local=true);
+
+    mGlobal bool isEarlier(const char* first, const char* second,
+	    		   const char* fmt=defDateTimeFmt());
+			/*! returns true if the first DateTime string is
+			  earlier than the second */
 
 } // namespace Time
 
