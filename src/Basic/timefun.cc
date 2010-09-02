@@ -5,7 +5,7 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.20 2010-09-02 06:35:57 cvsraman Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.21 2010-09-02 11:09:36 cvsraman Exp $";
 
 #include "timefun.h"
 #include "bufstring.h"
@@ -50,8 +50,8 @@ int passedSince( int timestamp )
 }
 
 
-const char* defDateTimeFmt()	{ return "ddd MMM dd yyyy, hh:mm:ss"; }
-const char* defDateFmt()	{ return "ddd MMM dd yyyy"; }
+const char* defDateTimeFmt()	{ return "ddd dd MMM yyyy , hh:mm:ss"; }
+const char* defDateFmt()	{ return "ddd dd MMM yyyy"; }
 const char* defTimeFmt()	{ return "hh:mm:ss"; }
 
 const char* getDateTimeString( const char* fmt, bool local )
