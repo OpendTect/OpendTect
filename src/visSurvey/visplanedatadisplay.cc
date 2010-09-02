@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.236 2010-08-27 03:16:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.237 2010-09-02 10:07:28 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -133,7 +133,6 @@ PlaneDataDisplay::PlaneDataDisplay()
     , orientation_( Inline )
     , csfromsession_( false )			    
     , eventcatcher_( 0 )
-    , basemapobj_( 0 )
 {
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
@@ -1114,9 +1113,7 @@ bool PlaneDataDisplay::isVerticalPlane() const
 
 void PlaneDataDisplay::setScene( Scene* sc )
 {
-    setBaseMap( sc ? sc->getBaseMap() : 0 );
     SurveyObject::setScene( sc );
-
     if ( sc ) updateRanges( false, false );
 }
 

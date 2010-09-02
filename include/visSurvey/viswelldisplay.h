@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.62 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.63 2010-09-02 10:07:28 cvsnanne Exp $
 
 
 
@@ -123,6 +123,7 @@ public:
     void			setupPicking(bool);
     void			showKnownPositions();
     void                        restoreDispProp();
+    Well::Data*			getWD() const;
     
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
@@ -131,10 +132,11 @@ public:
 protected:
 
     virtual			~WellDisplay();
+    void			setBaseMap(BaseMap*);
     void			setWell(visBase::Well*);
     void			updateMarkers(CallBacker*);
     void			fullRedraw(CallBacker*);
-    TypeSet<Coord3>		getTrackPos(Well::Data*);
+    TypeSet<Coord3>		getTrackPos(const Well::Data*);
     void			displayLog(Well::LogDisplayPars*,int);
     void			setLogProperties(visBase::Well::LogParams&);
     void                        pickCB(CallBacker* cb=0);
@@ -142,7 +144,6 @@ protected:
     void 			saveDispProp( const Well::Data* wd );
     void			setLogInfo(BufferString&,BufferString&,float,bool) const;
     
-    Well::Data*			getWD() const;
     Well::DisplayProperties* 	dispprop_;
 
     Coord3                      mousepressposition_;

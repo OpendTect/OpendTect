@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.119 2010-08-27 02:46:21 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.120 2010-09-02 10:07:28 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "vissurvscene.h"
 
 class BaseMap;
+class BaseMapObject;
 class DataPointSet;
 class IOPar;
 class LineStyle;
@@ -266,7 +267,7 @@ public:
 						  TaskRunner*)	{}
     virtual void		readAuxData()				{}
 
-    virtual void		setScene( Scene* scn )	{ scene_ = scn; }
+    virtual void		setScene(Scene* scn);
     virtual const Scene*	getScene() const	{ return scene_; }
     virtual Scene*		getScene()		{ return scene_; }
 
@@ -307,6 +308,7 @@ public:
 protected:
     				SurveyObject() 
 				: scene_(0)
+				, basemapobj_(0)
 				, locked_(false)	{};
 
 				~SurveyObject()		{ deepErase(userrefs_);}
@@ -317,6 +319,7 @@ protected:
     Scene*			scene_;
     bool			locked_;
     ObjectSet<BufferStringSet>	userrefs_;
+    BaseMapObject*		basemapobj_;
 };
 
 

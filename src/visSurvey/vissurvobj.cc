@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.53 2010-05-21 08:26:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.54 2010-09-02 10:07:28 cvsnanne Exp $";
 
 #include "vissurvobj.h"
 
@@ -65,6 +65,13 @@ BufferString SurveyObject::getResolutionName( int res ) const
     if ( res == 1 ) return "Moderate";
     if ( res == 2 ) return "High";
     else return "Default";
+}
+
+
+void SurveyObject::setScene( Scene* sc )
+{
+    setBaseMap( sc ? sc->getBaseMap() : 0 );
+    scene_ = sc;
 }
 
 

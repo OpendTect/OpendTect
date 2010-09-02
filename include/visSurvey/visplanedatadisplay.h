@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.126 2010-08-11 09:30:35 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.127 2010-09-02 10:07:28 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -190,8 +190,6 @@ protected:
     visBase::Material*			draggermaterial_;
     visBase::PickStyle*			rectanglepickstyle_;
     visBase::SplitTexture2Rectangle*	rectangle_;
-
-    BaseMapObject*			basemapobj_;
 
     visBase::GridLines*			gridlines_;
     Orientation				orientation_;
