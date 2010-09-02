@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	Nanne Hemstra
  Date:		January 2010
  Contents:	File utitlities
- RCS:		$Id: file.h,v 1.6 2010-07-28 08:04:34 cvsnanne Exp $
+ RCS:		$Id: file.h,v 1.7 2010-09-02 11:07:21 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
+#include "timefun.h"
 
 
 /*!\brief Interface for several file and directory related services */
@@ -45,8 +46,10 @@ namespace File
     mGlobal int		getKbSize(const char*);
     			//!<Returns 0 on error
 
-    mGlobal const char* timeCreated(const char*);
-    mGlobal const char*	timeLastModified(const char*);
+    mGlobal const char* timeCreated(const char* filenm,
+	    			    const char* fmt=Time::defDateTimeFmt());
+    mGlobal const char*	timeLastModified(const char* filenm,
+	    			    const char* fmt=Time::defDateTimeFmt());
     mGlobal od_int64	getTimeInSeconds(const char*); //! Last modified time
 
     mGlobal const char*	getCurrentPath();
