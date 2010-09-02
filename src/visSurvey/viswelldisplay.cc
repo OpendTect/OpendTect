@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.125 2010-09-02 10:07:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.126 2010-09-02 11:20:58 cvsnanne Exp $";
 
 #include "viswelldisplay.h"
 
@@ -949,23 +949,8 @@ TypeSet<Coord3> WellDisplay::getWellCoords() const
 }
 
 
-void WellDisplay::setBaseMap( BaseMap* bm )                                
-{                                                                               
-    if ( basemapobj_ )                                                          
-    {                                                                           
-	if ( scene_ && scene_->getBaseMap() )                                   
-	    scene_->getBaseMap()->removeObject( basemapobj_ );                  
-
-	delete basemapobj_;                                                     
-	basemapobj_ = 0;                                                        
-    }
-
-    if ( bm )                                                                   
-    {                                                                           
-	basemapobj_ = new WellDisplayBaseMapObject( this );                
-	bm->addObject( basemapobj_ );                                           
-    }
-}
+BaseMapObject* WellDisplay::createBaseMapObject()
+{ return new WellDisplayBaseMapObject( this ); }
 
 }; // namespace visSurvey
 

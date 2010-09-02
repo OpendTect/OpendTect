@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.120 2010-09-02 10:07:28 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.121 2010-09-02 11:20:58 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,7 @@ namespace visSurvey
 mClass SurveyObject
 {
 public:
-    virtual void		setBaseMap(BaseMap*)	{}
+    virtual void		setBaseMap(BaseMap*);
     virtual Coord3		getNormal(const Coord3& pos) const
 				{ return Coord3::udf(); }
     				/*!<Position and Normal are both in
@@ -319,6 +319,8 @@ protected:
     Scene*			scene_;
     bool			locked_;
     ObjectSet<BufferStringSet>	userrefs_;
+
+    virtual BaseMapObject*	createBaseMapObject()	{ return 0; }
     BaseMapObject*		basemapobj_;
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.63 2010-09-02 10:07:28 cvsnanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.64 2010-09-02 11:20:58 cvsnanne Exp $
 
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "welllogdisp.h"
 
+class BaseMapObject;
 class LineStyle;
 
 namespace visBase
@@ -132,7 +133,8 @@ public:
 protected:
 
     virtual			~WellDisplay();
-    void			setBaseMap(BaseMap*);
+
+    BaseMapObject*		createBaseMapObject();
     void			setWell(visBase::Well*);
     void			updateMarkers(CallBacker*);
     void			fullRedraw(CallBacker*);

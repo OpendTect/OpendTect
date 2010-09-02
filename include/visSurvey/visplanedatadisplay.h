@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.127 2010-09-02 10:07:28 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.128 2010-09-02 11:20:58 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -145,7 +145,8 @@ public:
 protected:
 
 				~PlaneDataDisplay();
-    void			setBaseMap(BaseMap*);
+
+    BaseMapObject*		createBaseMapObject();
     void			setVolumeDataPackNoCache(int attrib,
 	    				const Attrib::Flat3DDataPack*);
     void			setRandomPosDataNoCache(int attrib,

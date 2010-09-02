@@ -4,11 +4,12 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.54 2010-09-02 10:07:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.55 2010-09-02 11:20:58 cvsnanne Exp $";
 
 #include "vissurvobj.h"
 
 #include "attribsel.h"
+#include "basemap.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "vistexturechannel2rgba.h"
@@ -65,6 +66,26 @@ BufferString SurveyObject::getResolutionName( int res ) const
     if ( res == 1 ) return "Moderate";
     if ( res == 2 ) return "High";
     else return "Default";
+}
+
+
+void SurveyObject::setBaseMap( BaseMap* bm )
+{
+    if ( basemapobj_ )
+    {
+	if ( scene_ && scene_->getBaseMap() )
+	    scene_->getBaseMap()->removeObject( basemapobj_ );
+
+	delete basemapobj_;
+	basemapobj_ = 0;
+    }
+
+    if ( bm )
+    {
+	basemapobj_ = createBaseMapObject();
+	if ( basemapobj_ )
+	    bm->addObject( basemapobj_ );
+    }
 }
 
 

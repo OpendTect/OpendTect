@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.237 2010-09-02 10:07:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.238 2010-09-02 11:20:58 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1118,23 +1118,8 @@ void PlaneDataDisplay::setScene( Scene* sc )
 }
 
 
-void PlaneDataDisplay::setBaseMap( BaseMap* bm )
-{
-    if ( basemapobj_ )
-    {
-	if ( scene_ && scene_->getBaseMap() )
-	    scene_->getBaseMap()->removeObject( basemapobj_ );
-
-	delete basemapobj_;
-	basemapobj_ = 0;
-    }
-
-    if ( bm )
-    {
-	basemapobj_ = new PlaneDataDisplayBaseMapObject( this );
-	bm->addObject( basemapobj_ );
-    }
-}
+BaseMapObject* PlaneDataDisplay::createBaseMapObject()
+{ return new PlaneDataDisplayBaseMapObject( this ); }
 
 
 void PlaneDataDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
