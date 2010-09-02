@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.19 2010-07-28 08:04:34 cvsnanne Exp $
+ RCS:		$Id: file.cc,v 1.20 2010-09-02 11:10:10 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,23 +213,21 @@ int getKbSize( const char* fnm )
 }
 
 
-static const char* sKeyTimeFormat = "ddd dd MMM yyyy , hh:mm:ss";
-
-const char* timeCreated( const char* fnm )
+const char* timeCreated( const char* fnm, const char* fmt )
 {
     static BufferString timestr;
     QFileInfo qfi( fnm );
-    QString qstr = qfi.created().toString( sKeyTimeFormat );
+    QString qstr = qfi.created().toString( fmt );
     timestr = qstr.toAscii().constData();
     return timestr.buf();
 }
 
 
-const char* timeLastModified( const char* fnm )
+const char* timeLastModified( const char* fnm, const char* fmt )
 {
     static BufferString timestr;
     QFileInfo qfi( fnm );
-    QString qstr = qfi.lastModified().toString( sKeyTimeFormat );
+    QString qstr = qfi.lastModified().toString( fmt );
     timestr = qstr.toAscii().constData();
     return timestr.buf();
 }
