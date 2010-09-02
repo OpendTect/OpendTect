@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.h,v 1.2 2010-07-22 05:19:08 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.h,v 1.3 2010-09-02 08:56:14 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ protected:
     void		updateCS(const CubeSampling&,bool upd);
     void                checkCB(CallBacker*);
     void		deSelCB(CallBacker*);
+    void		mousePressInVwrCB(CallBacker*);
     void		musReleaseInVwrCB(CallBacker*);
     void		msRelEvtCompletedInVwrCB(CallBacker*);
     void		displayMiniCtab();

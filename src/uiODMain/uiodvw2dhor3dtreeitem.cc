@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.4 2010-07-29 12:03:17 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.5 2010-09-02 08:56:14 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,6 +125,8 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
 	MouseEventHandler* meh =
 	    		&vwr.rgbCanvas().scene().getMouseEventHandler();
+	meh->buttonPressed.remove(
+		mCB(this,uiODVw2DHor3DTreeItem,mousePressInVwrCB) );
 	meh->buttonReleased.remove(
 		mCB(this,uiODVw2DHor3DTreeItem,musReleaseInVwrCB) );
 	meh->buttonReleased.remove(
@@ -157,6 +159,8 @@ bool uiODVw2DHor3DTreeItem::init()
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
 	MouseEventHandler* meh =
 	    		&vwr.rgbCanvas().scene().getMouseEventHandler();
+	meh->buttonPressed.notify(
+		mCB(this,uiODVw2DHor3DTreeItem,mousePressInVwrCB) );
 	meh->buttonReleased.notify(
 		mCB(this,uiODVw2DHor3DTreeItem,musReleaseInVwrCB) );
     }
@@ -312,7 +316,7 @@ void uiODVw2DHor3DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 }
 
 
-void uiODVw2DHor3DTreeItem::musReleaseInVwrCB( CallBacker* )
+void uiODVw2DHor3DTreeItem::mousePressInVwrCB( CallBacker* )
 {
     if ( !uilistviewitem_->isSelected() || !horview_ )
 	return;
@@ -322,7 +326,17 @@ void uiODVw2DHor3DTreeItem::musReleaseInVwrCB( CallBacker* )
 
     horview_->setSeedPicking( applMgr()->visServer()->isPicking() );
     horview_->setTrackerSetupActive(
-	    		applMgr()->visServer()->isTrackingSetupActive() );
+	    applMgr()->visServer()->isTrackingSetupActive() );
+}
+
+
+void uiODVw2DHor3DTreeItem::musReleaseInVwrCB( CallBacker* )
+{
+    if ( !uilistviewitem_->isSelected() || !horview_ )
+	return;
+
+    if ( !viewer2D()->viewwin()->nrViewers() )
+	return;
 
     if ( !applMgr()->visServer()->isPicking() )
 	return;
