@@ -7,21 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika S
  Date:          August 2010
- RCS:           $Id: SbImagei32.h,v 1.1 2010-08-30 08:32:20 cvskarthika Exp $
+ RCS:           $Id: SbImagei32.h,v 1.2 2010-09-03 08:49:33 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <Inventor/SbVec2i32.h>
 #include <Inventor/SbVec3i32.h>
-#include <Inventor/SbString.h>
-//#include <stddef.h> // for NULL
+
+#ifdef COIN_THREADSAFE
+#include <Inventor/threads/SbRWMutex.h>
+#endif
+
 #include "soodbasic.h"
 
 class SbImagei32;
-
-typedef SbBool SbImagei32ScheduleReadCB(const SbString &, SbImagei32 *, void *);
-typedef SbBool SbImagei32ReadImageCB(const SbString &, SbImagei32 *, void *);
 
 // This class is a clone of SbImage, which allows images of large size (upto 
 // 2^31 per dimension) to be handled.
@@ -30,58 +30,51 @@ mClass SbImagei32
 {
 public:
 
-    			SbImagei32(void);
-    			SbImagei32(const unsigned char* bytes, const SbVec2i32& 
-				size, const int bytesperpixel);
-			SbImagei32(const unsigned char* bytes, const SbVec3i32& 
-				size, const int bytesperpixel);
+    			SbImagei32();
+    			SbImagei32(const unsigned char* data, const SbVec2i32& 
+				sz, const int bytesperpixel);
+			SbImagei32(const unsigned char* data, const SbVec3i32& 
+				sz, const int bytesperpixel);
 			~SbImagei32();
 
-	void 		setValue(const SbVec2i32& size, const int bytesperpixel,
-				const unsigned char* bytes);
-	void		setValue(const SbVec3i32& size, const int bytesperpixel,
-				const unsigned char* bytes);
-	void 		setValuePtr(const SbVec2i32& size, const int 
-				bytesperpixel, const unsigned char* bytes);
-	void 		setValuePtr(const SbVec3i32& size, const int 
-				bytesperpixel, const unsigned char* bytes);
-	unsigned char* 	getValue(SbVec2i32& size, int& bytesperpixel) const;
-	unsigned char* 	getValue(SbVec3i32& size, int& bytesperpixel) const;
-	SbVec3i32 	getSize(void) const;
+    bool		setValue(const SbVec2i32& sz, const int bytesperpixel,
+				const unsigned char* data);
+    bool		setValue(const SbVec3i32& sz, const int bytesperpixel,
+				const unsigned char* data);
+    void 		setValuePtr(const SbVec2i32& sz, const int 
+				bytesperpixel, const unsigned char* data);
+    void 		setValuePtr(const SbVec3i32& sz, const int 
+				bytesperpixel, const unsigned char* data);
+    unsigned char* 	getValue(SbVec2i32& sz, int& bytesperpixel) const;
+    unsigned char* 	getValue(SbVec3i32& sz, int& bytesperpixel) const;
+    SbVec3i32 		getSize() const;
 
-	SbBool		readFile(const SbString& filename, const SbString* 
-				const* searchdirectories=NULL, const int 
-				numdirectories=0);
-
-	int		operator==(const SbImagei32& image) const;
-	int		operator!=(const SbImagei32& image) const {
+    int			operator==(const SbImagei32& image) const;
+    int			operator!=(const SbImagei32& image) const {
 	    		    return ! operator == (image); }
-	SbImagei32& 	operator=(const SbImagei32& image);
+    SbImagei32& 	operator=(const SbImagei32& image);
 
-	static void 	addReadImageCB(SbImagei32ReadImageCB* cb, 
-				void* closure);
-	static void 	removeReadImageCB(SbImagei32ReadImageCB* cb, 
-				void* closure);
+    SbBool		hasData() const;
 
-	static SbString	searchForFile(const SbString& basename, const SbString*
-	       			const* dirlist, const int numdirs);
-
-	SbBool		hasData(void) const;
-
+    // methods for delaying image loading until it is actually needed.
+    void		readLock() const;
+    void		readUnlock() const;
+    
 private:
 
-	class SbImagei32P*	pimpl;
-  
-public:
+    void		freeData();
+    void                writeLock();
+    void                writeUnlock();
 
-  // methods for delaying image loading until it is actually needed.
-    void		readLock(void) const;
-    void		readUnlock(void) const;
-
-    SbBool 		scheduleReadFile(SbImagei32ScheduleReadCB* cb, void* 
-	    			closure, const SbString& filename, const 
-				SbString* const* searchdirectories = NULL,
-				const int numdirectories = 0);
+    enum        	DataType { INTERNAL_DATA, SETVALUEPTR_DATA };
+    DataType            datatype;
+    unsigned char*	bytes;
+    SbVec3i32           size;
+    int                 bpp;
+    
+#ifdef COIN_THREADSAFE
+    SbRWMutex		rwmutex;
+#endif
 
 };
 
