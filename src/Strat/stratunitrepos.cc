@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.47 2010-09-02 16:22:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.48 2010-09-03 07:30:00 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -94,12 +94,7 @@ bool Strat::RefTree::addCopyOfUnit( const Strat::UnitRef& ur, bool rev )
 {
     BufferString str;
     ur.fill( str );
-    if ( addUnit( ur.fullCode(), str ) )
-    {
-	setUnitProps( ur.fullCode(), ur.props() );
-	return true;
-    }
-    return false;
+    return addUnit( ur.fullCode(), str, ur.props() );
 }
 
 
