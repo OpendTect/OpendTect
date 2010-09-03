@@ -8,17 +8,25 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonrelation.cc,v 1.2 2010-08-27 04:56:53 cvsraman Exp $";
+static const char* rcsID = "$Id: horizonrelation.cc,v 1.3 2010-09-03 05:31:35 cvsraman Exp $";
 
 #include "horizonrelation.h"
 #include "ctxtioobj.h"
+#include "file.h"
 #include "filepath.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "separstr.h"
+#include "timefun.h"
 
 namespace EM
 {
 
+const char* RelationTree::Node::sKeyChildIDs()	{ return "Child IDs"; }
+const char* RelationTree::Node::sKeyLastModified()
+{ return "Last Modified"; }
 
 RelationTree::Node::Node( const MultiID& id )
     : id_(id)
@@ -43,7 +51,17 @@ void RelationTree::Node::fillPar( IOPar& par ) const
     for ( int idx=0; idx<children_.size(); idx++ )
 	childids.addIfNew( children_[idx]->id_.buf() );
 
-    par.set( id_.buf(), childids );
+    par.set( sKey::ID, id_ );
+    par.set( sKeyChildIDs(), childids );
+    PtrMan<IOObj> ioobj = IOM().get( id_ );
+    if ( !ioobj )
+	return;
+
+    const char* fnm = ioobj->fullUserExpr( true );
+    if ( !fnm || !*fnm || !File::exists(fnm) )
+	return;
+
+    par.set( sKeyLastModified(), File::timeLastModified(fnm) );
 }
 
 
@@ -188,16 +206,34 @@ bool RelationTree::write() const
     FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf) );
     fp.add( "horizonrelations.txt" );
     if ( par.read(fp.fullPath(),sKeyHorizonRelations()) )
-	par.removeWithKey( is2d_ ? "2D" : "3D" );
+	par.removeWithKey( is2d_ ? "Horizon2D" : "Horizon3D" );
 
     IOPar subpar;
     for ( int idx=0; idx<nodes_.size(); idx++ )
-	nodes_[idx]->fillPar( subpar );
+    {
+	IOPar nodepar;
+	nodes_[idx]->fillPar( nodepar );
+	subpar.mergeComp( nodepar, toString(idx) );
+    }
 
-    par.mergeComp( subpar, is2d_ ? "2D" : "3D" );
+    par.mergeComp( subpar, is2d_ ? "Horizon2D" : "Horizon3D" );
     return par.write( fp.fullPath(), sKeyHorizonRelations() );
 }
 
+
+static bool hasBeenModified( const MultiID& id, const char* datestamp )
+{
+    PtrMan<IOObj> ioobj = IOM().get( id );
+    if ( !ioobj )
+	return false;
+
+    const char* fnm = ioobj->fullUserExpr( true );
+    if ( !fnm || !*fnm || !File::exists(fnm) )
+	return false;
+
+    const char* moddate = File::timeLastModified( fnm );
+    return Time::isEarlier( datestamp, moddate );
+}
 
 bool RelationTree::read()
 {
@@ -208,27 +244,41 @@ bool RelationTree::read()
     if ( !par.read(fp.fullPath(),sKeyHorizonRelations()) )
 	return false;
 
-    PtrMan<IOPar> subpar = par.subselect( is2d_ ? "2D" : "3D" );
+    PtrMan<IOPar> subpar = par.subselect( is2d_ ? "Horizon2D" : "Horizon3D" );
     if ( !subpar )
 	return false;
 
-    for ( int idx=0; idx<subpar->size(); idx++ )
+    for ( int idx=0; idx<1024; idx++ )
     {
-	MultiID id( subpar->getKey(idx) );
+	MultiID id;
+	PtrMan<IOPar> nodepar = subpar->subselect( idx );
+	if ( !nodepar || !nodepar->get(sKey::ID,id) )
+	    break;
+
 	RelationTree::Node* node = new RelationTree::Node( id );
 	nodes_ += node;
     }
 
-    for ( int idx=0; idx<subpar->size(); idx++ )
+    TypeSet<MultiID> outdatednodes;
+    for ( int idx=0; idx<nodes_.size(); idx++ )
     {
-	MultiID id( subpar->getKey(idx) );
+	FileMultiString fms;
+	PtrMan<IOPar> nodepar = subpar->subselect( idx );
+	if ( !nodepar )
+	    break;
+
 	RelationTree::Node* node = nodes_[idx];
-	if ( id != node->id_ )
-	    return false;
-	
-	FileMultiString fms( subpar->getValue(idx) );
 	node->fillChildren( fms, *this );
+	BufferString datestamp;
+	if ( !nodepar->get(RelationTree::Node::sKeyLastModified(),datestamp) )
+	    continue;
+
+	if ( hasBeenModified(node->id_,datestamp.buf()) )
+	    outdatednodes += node->id_;
     }
+
+    for ( int idx=0; idx<outdatednodes.size(); idx++ )
+	removeNode( outdatednodes[idx], false );
 
     return true;
 }
