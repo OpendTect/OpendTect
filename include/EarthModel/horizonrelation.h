@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Jul 2010
- RCS:           $Id: horizonrelation.h,v 1.2 2010-08-27 04:53:39 cvsraman Exp $
+ RCS:           $Id: horizonrelation.h,v 1.3 2010-09-03 05:31:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
 	void			fillChildren(const FileMultiString&i,
 						 const RelationTree&);
 
+	static const char*	sKeyChildIDs();
+	static const char*	sKeyLastModified();
     };
 
 
@@ -75,6 +77,7 @@ protected:
     bool			is2d_;
 
     int				findNode(const MultiID&) const;
+
     static const char*		sKeyHorizonRelations();
 };
 
