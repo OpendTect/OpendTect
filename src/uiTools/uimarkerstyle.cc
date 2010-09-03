@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimarkerstyle.cc,v 1.2 2010-07-21 07:54:36 cvskris Exp $";
+static const char* rcsID = "$Id: uimarkerstyle.cc,v 1.3 2010-09-03 14:21:53 cvskris Exp $";
 
 #include "uimarkerstyle.h"
 
@@ -47,7 +47,7 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 	types_ += type;
     }
 
-    typefld_ = new uiGenInput( this, "Shape", str );
+    typefld_ = new uiGenInput( this, "Marker Shape", str );
 
     sliderfld_ = new uiSliderExtra( this, 
 	    			   uiSliderExtra::Setup("Size").withedit(true)
