@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.20 2010-08-27 05:01:00 cvsraman Exp $";
+static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.21 2010-09-03 06:00:47 cvsraman Exp $";
 
 #include "uihorizonsortdlg.h"
 
@@ -93,33 +93,53 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    if ( !loadneeded_ && sortFromRelationTree(horids) )
-	return true;
-
-    TypeSet<MultiID> loadids;
-    for ( int idx=0; idx<horids.size(); idx++ )
+    bool sorted = sortFromRelationTree( horids );
+    uiTaskRunner taskrunner( this );
+    PtrMan<Executor> horreader = 0;
+    if ( !sorted || loadneeded_ )
     {
-	const EM::ObjectID oid = EM::EMM().getObjectID( horids[idx] );
-	const EM::EMObject* emobj = EM::EMM().getObject(oid);
-	if ( !emobj || !emobj->isFullyLoaded() )
-	    loadids += horids[idx];
+	TypeSet<MultiID> loadids;
+	for ( int idx=0; idx<horids.size(); idx++ )
+	{
+	    const EM::ObjectID oid = EM::EMM().getObjectID( horids[idx] );
+	    const EM::EMObject* emobj = EM::EMM().getObject(oid);
+	    if ( !emobj || !emobj->isFullyLoaded() )
+		loadids += horids[idx];
+	}
+
+	horreader = EM::EMM().objectLoader( loadids );
+	if ( horreader && !taskrunner.execute(*horreader) )
+	    return false;
     }
 
-    ExecutorGroup execgrp("Reading horizons");
+    PtrMan<HorizonSorter> horsorter = 0;
+    if ( sorted )
+    {
+	for ( int idx=0; idx<horids.size(); idx++ )
+	{
+	    EM::SurfaceIOData sd;
+	    if ( EM::EMM().getSurfaceData(horids[idx],sd) )
+		return false;
 
-    Executor* horreader = EM::EMM().objectLoader( loadids );
-    if ( horreader )
-	execgrp.add( horreader );
+	    if ( !idx )
+		bbox_.hrg = sd.rg;
+	    else
+	    {
+		bbox_.hrg.include( sd.rg.start);
+		bbox_.hrg.include( sd.rg.stop);
+	    }
+	}
+    }
+    else
+    {
+	horsorter = new HorizonSorter( horids, is2d_ );
+	if ( !taskrunner.execute(*horsorter) ) return false;
 
-    HorizonSorter* horsorter = new HorizonSorter( horids, is2d_ );
-    execgrp.add( horsorter );
+	horsorter->getSortedList( horids_ );
+	updateRelationTree( horids_ );
+	bbox_.hrg = horsorter->getBoundingBox();
+    }
 
-    uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(execgrp) ) return false;
-
-    horsorter->getSortedList( horids_ );
-    updateRelationTree( horids_ );
-    bbox_.hrg = horsorter->getBoundingBox();
     if ( !loadneeded_ )
 	return true;
 
@@ -143,15 +163,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 bool uiHorizonSortDlg::sortFromRelationTree( const TypeSet<MultiID>& ids )
 {
     EM::RelationTree reltree( is2d_ );
-    TypeSet<MultiID> sortedids;
-    reltree.getSorted( ids, sortedids );
-    if ( sortedids.size() == ids.size() )
-    {
-	horids_ = sortedids;
-	return true;
-    }
-
-    return false;
+    return reltree.getSorted( ids, horids_ );
 }
 
 
