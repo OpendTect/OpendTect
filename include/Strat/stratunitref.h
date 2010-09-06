@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.26 2010-09-02 16:22:43 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.27 2010-09-06 13:57:50 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -60,11 +60,7 @@ public:
     
     mStruct Props
     {
-			Props()
-			: isunconf_(false)
-			, lvlid_(-1)  
-			, color_(getRandStdDrawColor())  
-			{}
+			Props(); // random color
 
 	BufferString    code_;
 	BufferString    desc_;

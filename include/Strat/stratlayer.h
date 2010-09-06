@@ -5,34 +5,46 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
- Date:		Jan 2004
- RCS:		$Id: stratlayer.h,v 1.4 2009-07-22 16:01:19 cvsbert Exp $
+ Author:	Bert
+ Date:		Sep 2010
+ RCS:		$Id: stratlayer.h,v 1.5 2010-09-06 13:57:50 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "objectset.h"
+#include "compoundkey.h"
 #include "stratunitref.h"
+class Property;
 
 namespace Strat
 {
+class LeafUnitRef;
 
 /*!\brief data for a layer */
 
-mClass Layer : public Unit
+mClass Layer
 {
 public:
+
+    typedef CompoundKey	ID;
 
 			Layer( const LeafUnitRef* r )
 			: ref_(r)			{}
 
-    const UnitRef*	unitRef() const			{ return ref_; }
-    const LeafUnitRef*	leafUnitRef() const		{ return ref_; }
+    const LeafUnitRef&	unitRef() const;
+    void		setRef( const LeafUnitRef* r )	{ ref_ = r; }
+
+    ObjectSet<Property>&	properties()		{ return props_; }
+    const ObjectSet<Property>&	properties() const	{ return props_; }
+
+    ID			id() const; // returns unitRef().fullCode()
 
 protected:
 
     const LeafUnitRef*	ref_;
+    ObjectSet<Property>	props_;
 
 };
 

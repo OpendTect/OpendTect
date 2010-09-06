@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.23 2010-09-02 16:22:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.24 2010-09-06 13:57:50 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: stratunit.cc,v 1.23 2010-09-02 16:22:43 cvsbrun
 #include "errh.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "randcolor.h"
 
 
 static const char* sKeyLevel = "Level_ID";
@@ -80,6 +81,14 @@ bool Strat::Lithology::use( const char* str )
     porous_ = sz > 2 ? *fms[2] == 'P' : false;
 
     return true;
+}
+
+
+Strat::UnitRef::Props::Props()
+    : isunconf_(false)
+    , lvlid_(-1)
+    , color_(getRandStdDrawColor())
+{
 }
 
 
@@ -328,5 +337,3 @@ bool Strat::UnitRef::Iter::toNext()
     curnode_ = 0;
     return false;
 }
-
-
