@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.17 2009-08-27 15:55:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.18 2010-09-06 04:58:59 cvsraman Exp $";
 
 #include "uihorizonrelations.h"
 
@@ -30,6 +30,7 @@ static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.17 2009-08-27 15:55:3
 #include "ctxtioobj.h"
 #include "horizonmodifier.h"
 #include "horizonsorter.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "filepath.h"
 #include "iopar.h"
@@ -39,7 +40,6 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     : uiDialog(p,Setup("Horizon relations",mNoDlgTitle,"104.2.2"))
     , is2d_( is2d )
 {
-    read();
     relationfld_ = new uiLabeledListBox( this, "Order (top to bottom)",
 				         false, uiLabeledListBox::AboveLeft );
 
@@ -66,17 +66,19 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
 
 void uiHorizonRelationsDlg::readHorizonCB( CallBacker* )
 {
-    uiHorizonSortDlg dlg( this, is2d_ );
+    uiHorizonSortDlg dlg( this, is2d_, false );
     if ( !dlg.go() ) return;
 
     hornames_.erase();
     horids_.erase();
-    ObjectSet<EM::Horizon> horizons;
-    dlg.getSortedHorizons( horizons );
-    for ( int idx=0; idx<horizons.size(); idx++ )
+    dlg.getSortedHorizonIDs( horids_ );
+    for ( int idx=0; idx<horids_.size(); idx++ )
     {
-	hornames_.add( horizons[idx]->name() );
-	horids_ += horizons[idx]->multiID();
+	PtrMan<IOObj> ioobj = IOM().get( horids_[idx] );
+	if ( !ioobj )
+	    horids_.remove( idx-- );
+
+	hornames_.add( ioobj->name() );
     }
 
     fillRelationField( hornames_ );
@@ -89,58 +91,6 @@ void uiHorizonRelationsDlg::fillRelationField( const BufferStringSet& strs )
     relationfld_->box()->addItems( strs );
     crossbut_->setSensitive( strs.size() > 1 );
     waterbut_->setSensitive( strs.size() > 1 );
-}
-
-
-bool uiHorizonRelationsDlg::rejectOK( CallBacker* )
-{
-    write();
-    return true;
-}
-
-
-void readFile( IOPar& par )
-{
-    FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf) );
-    fp.add( "horizonrelations.txt" );
-    par.read( fp.fullPath(), 0 );
-}
-
-
-void uiHorizonRelationsDlg::read()
-{
-    hornames_.erase();
-    horids_.erase();
-    EM::EMM().sortedHorizonsList( horids_, is2d_ );
-    for ( int idx=0; idx<horids_.size(); idx++ )
-    {
-	BufferString hornm = EM::EMM().objectName( horids_[idx] );
-	if ( hornm.isEmpty() )
-	{
-	    horids_.remove( idx );
-	    idx--;
-	}
-	else
-	    hornames_.add( hornm );
-    }
-}
-
-
-bool uiHorizonRelationsDlg::write()
-{
-    IOPar iopar;
-    readFile( iopar );
-    iopar.removeWithKey( is2d_ ? "2D" : "3D" );
-
-    IOPar subpar;
-    for ( int idx=0; idx<horids_.size(); idx++ )
-	subpar.set( IOPar::compKey("Horizon",idx), horids_[idx] );
-
-    iopar.mergeComp( subpar, is2d_ ? "2D" : "3D" );
-    FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf) );
-    fp.add( "horizonrelations.txt" );
-    const bool res = iopar.write( fp.fullPath(), 0 );
-    return res;
 }
 
 
