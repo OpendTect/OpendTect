@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.123 2010-08-18 04:32:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.124 2010-09-06 05:01:44 cvsraman Exp $";
 
 #include "uisurvey.h"
 
@@ -271,7 +271,6 @@ uiSurvey::~uiSurvey()
 {
     delete impiop_;
     delete survinfo_;
-    delete survmap_;
 }
 
 
