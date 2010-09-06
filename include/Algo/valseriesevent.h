@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.16 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: valseriesevent.h,v 1.17 2010-09-06 05:01:00 cvsraman Exp $
 ________________________________________________________________________
 
 */
@@ -367,8 +367,8 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
 }
 
 
-//  Gives a TypeSet of all the Max/Min events making sure that there is a 
-//  reverse event type i.e. Min/Max between any two of these events:
+//  Gives a TypeSet of all the events of a type making sure that there is an 
+//  'opposite'(with phase diff 180deg) event type between any two of them:
 template <class VT,class PT>
 inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 					Interval<PT> pg, VSEvent::Type evtype )
@@ -379,8 +379,10 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 	revtype = VSEvent::Min;
     else if ( evtype == VSEvent::Min )
 	revtype = VSEvent::Max;
-    else 
-	return false;
+    else if ( evtype == VSEvent::ZCNegPos )
+	revtype = VSEvent::ZCPosNeg;
+    else if ( evtype == VSEvent::ZCPosNeg )
+	revtype = VSEvent::ZCNegPos;
 
     const bool isascending = pg.stop > pg.start;
     posset.erase();
@@ -390,11 +392,11 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 	if ( mIsUdf(reqev.pos) ) break;
 
 	posset += reqev.pos;
-	curg.start = reqev.pos;
+	curg.start = reqev.pos + 1e-5;
 	ValueSeriesEvent<VT,PT> revev = find( revtype, curg, 1 );
 	if ( mIsUdf(revev.pos) ) break;
 
-	curg.start = revev.pos;
+	curg.start = revev.pos + 1e-5;
     }
 
     if ( !posset.size() ) return false;

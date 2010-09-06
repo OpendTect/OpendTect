@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.cc,v 1.2 2010-08-27 06:23:29 cvsraman Exp $
+ RCS:		$Id: uicreate2dgrid.cc,v 1.3 2010-09-06 05:01:00 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ void update()
     if ( !grid_ || !transform_ ) return;
 
     LineStyle ls;
-    int graphicszval = 2;
+    int graphicszval = 1;
     for ( int idx=0; idx<grid_->size(true); idx++ )
     {
 	const Grid2D::Line* line2d = grid_->getLine( idx, true );
@@ -101,7 +101,7 @@ void update()
 
     ls.width_ = 2;
     ls.color_.set( 200, 100, 100 );
-    graphicszval = 3;
+    graphicszval = 2;
     if ( baseline_ )
 	mDrawLine( baseline_ );
 }
@@ -135,8 +135,8 @@ ui2DGridLines::~ui2DGridLines()
 
 void ui2DGridLines::updateRange()
 {
-    if ( computeGrid() )
-	gridChanged.trigger();
+    computeGrid();
+    gridChanged.trigger();
 }
 
 
@@ -304,8 +304,10 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
     : ui2DGridLines(p,hs)
     , rdlfld_(0)
 {
-    baseline_ = new Grid2D::Line( rdl ? rdl->nodePosition(0) : BinID::udf(),
-	    			  rdl ? rdl->nodePosition(1) : BinID::udf() );
+    const BinID startnode = rdl ? rdl->nodePosition(0) : BinID::udf();
+    const BinID stopnode = rdl ? rdl->nodePosition( rdl->nrNodes() - 1 )
+			       : BinID::udf();
+    baseline_ = new Grid2D::Line( startnode, stopnode );
     BufferString lbltxt( "Parallel line spacing " );
     lbltxt += SI().getXYUnitString();
     pardistfld_ = new uiGenInput( this, lbltxt.buf(), IntInpSpec() );
@@ -383,11 +385,8 @@ void ui2DGridLinesFromRandLine::paramsChgCB( CallBacker* cb )
 	}
 
 	const Geometry::RandomLine* rdl = geom.isEmpty() ? 0 : geom.lines()[0];
-	if ( !rdl || rdl->nrNodes() != 2 )
-	    return;
-	
 	baseline_->start_ = rdl->nodePosition( 0 );
-	baseline_->stop_ = rdl->nodePosition( 1 );
+	baseline_->stop_ = rdl->nodePosition( rdl->nrNodes() - 1 );
     }
 
     ui2DGridLines::updateRange();
@@ -517,6 +516,7 @@ uiGroup* uiCreate2DGrid::createPreviewGroup()
     uiGroup* grp = new uiGroup( uppgrp_, "Preview Group" );
     previewmap_ = new uiSurveyMap( grp, false );
     preview_ = new uiGrid2DMapObject;
+    preview_->itemGrp()->setZValue( 1 );
     previewmap_->addObject( preview_ );
     previewmap_->setStretch( 0, 0 );
     previewmap_->setPrefWidth( 300 );
