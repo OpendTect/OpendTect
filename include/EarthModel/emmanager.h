@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.49 2010-02-11 18:04:39 cvsyuancheng Exp $
+ RCS:		$Id: emmanager.h,v 1.50 2010-09-06 04:53:15 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -110,7 +110,8 @@ public:
     void		syncGeometry(const ObjectID&);
     void		burstAlertToAll(bool yn);
 
-    void		sortedHorizonsList(TypeSet<MultiID>&,bool is2d) const;
+    bool		sortHorizonsList(const TypeSet<MultiID>&,
+	    				 TypeSet<MultiID>&,bool is2d) const;
 
     void		removeSelected(const ObjectID&,const Selector<Coord3>&,
 	    			       TaskRunner*);
