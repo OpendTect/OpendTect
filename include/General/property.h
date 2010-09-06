@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.10 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.11 2010-09-06 13:57:08 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -66,8 +66,11 @@ public:
 			: ref_(pr)		{}
     virtual		~Property()		{}
 
-    virtual float	value() const		= 0;
     const PropertyRef*	ref() const		{ return ref_; }
+
+    virtual float	value() const		= 0;
+    virtual bool	canSet() const		{ return false; }
+    virtual void	setValue(float) const	{}
 
     virtual bool	dependsOn(const Property*) const { return false; }
 

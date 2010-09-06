@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.7 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.8 2010-09-06 13:57:08 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -26,9 +26,12 @@ public:
 
     			ValueProperty( const PropertyRef* pr,
 				       float v=mUdf(float) )
-			: Property(pr), val_(v)		{}
+			: Property(pr)
+			, val_(v)		{}
 
     virtual float	value() const		{ return val_; }
+    virtual bool	canSet() const		{ return true; }
+    virtual void	setValue( float v )	{ val_ = v; }
 
     float		val_;
 
@@ -54,6 +57,7 @@ public:
     			//!< Must be done for all inputs after each setDef()
 
     virtual float	value() const;
+    virtual bool	canSet() const		{ return false; }
     virtual bool	dependsOn(const Property*) const;
 
 protected:
@@ -70,15 +74,26 @@ protected:
 mClass IndirectProperty : public Property
 {
 public:
-    			IndirectProperty( Property* pr )
-			: Property(pr->ref()), pr_(pr)	{}
+
+    			IndirectProperty( const Property& pr, bool readonly )
+			: Property(pr.ref())
+			, pr_(const_cast<Property&>(pr))
+    			, ro_(readonly)			{}
 
     virtual float	value() const
-    			{ return pr_->value(); }
+    			{ return pr_.value(); }
+    virtual bool	canSet() const
+    			{ return !ro_ && pr_.canSet();}
+    virtual void	setValue( float v )
+    			{ if ( !ro_ ) pr_.setValue( v ); }
     virtual bool        dependsOn( const Property* pr ) const
-    			{ return pr_->dependsOn(pr); }
+    			{ return pr_.dependsOn(pr); }
 
-    const Property*	pr_;
+protected:
+
+    Property&	pr_;
+    bool	ro_;
+
 };
 
 
