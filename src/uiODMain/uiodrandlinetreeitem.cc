@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.42 2010-08-26 04:07:44 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.43 2010-09-06 05:08:23 cvsraman Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -453,13 +453,6 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	}
 	else if ( mnuid == create2dgridmnuitem_.id )
 	{
-	    if ( rtd->nrKnots() > 2 )
-	    {
-		uiMSG().error( "Grids can only be created from Random Lines\n"
-			       "with only 2 nodes" );
-		return;
-	    }
-
 	    rln->setName( rtd->name() );
 	    uiCreate2DGrid dlg( ODMainWin(), rln );
 	    dlg.go();
