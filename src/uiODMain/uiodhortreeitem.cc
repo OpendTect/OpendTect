@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.62 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.63 2010-09-06 05:03:37 cvsraman Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -158,8 +158,18 @@ uiTreeItem* gtItm( const MultiID& mid, ObjectSet<uiTreeItem>& itms )
 
 void uiODHorizonParentTreeItem::sort()
 {
-    TypeSet<MultiID> sortedmids;
-    EM::EMM().sortedHorizonsList( sortedmids, false );
+    TypeSet<MultiID> mids, sortedmids;
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,itm,children_[idx])
+	if ( !itm || !itm->visEMObject() )
+	    continue;
+
+	const EM::ObjectID emid = itm->visEMObject()->getObjectID();
+	mids += EM::EMM().getMultiID( emid );
+    }
+
+    EM::EMM().sortHorizonsList( mids, sortedmids, false );
     uiTreeItem* previtm = 0;
     for ( int idx=sortedmids.size()-1; idx>=0; idx-- )
     {
@@ -553,9 +563,6 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
     {
-	TypeSet<MultiID> sortedmids;
-	EM::EMM().sortedHorizonsList( sortedmids, true );
-
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, true ); 
 	for ( int idx=0; idx<objs.size(); idx++ )
@@ -607,8 +614,18 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 
 void uiODHorizon2DParentTreeItem::sort()
 {
-    TypeSet<MultiID> sortedmids;
-    EM::EMM().sortedHorizonsList( sortedmids, true );
+    TypeSet<MultiID> mids, sortedmids;
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,itm,children_[idx])
+	if ( !itm || !itm->visEMObject() )
+	    continue;
+
+	const EM::ObjectID emid = itm->visEMObject()->getObjectID();
+	mids += EM::EMM().getMultiID( emid );
+    }
+
+    EM::EMM().sortHorizonsList( mids, sortedmids, true );
     uiTreeItem* previtm = 0;
     for ( int idx=sortedmids.size()-1; idx>=0; idx-- )
     {
