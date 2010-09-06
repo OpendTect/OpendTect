@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.5 2010-09-02 08:56:14 cvsjaap Exp $
+ RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.6 2010-09-06 05:02:54 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,9 +60,6 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 {
     if ( mnuid == 0 )
     {
-	TypeSet<MultiID> sortedmids;
-	EM::EMM().sortedHorizonsList( sortedmids, true );
-
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, true );
 
