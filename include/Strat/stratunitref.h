@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.28 2010-09-07 16:03:06 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.29 2010-09-07 16:18:38 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -57,7 +57,9 @@ public:
 
     virtual bool	isLeaf() const			= 0;
     CompoundKey		fullCode() const;
-    const ID		getID() const 		{ return id_; }
+
+    const ID		getID() const 			{ return id_; }
+    virtual void	acquireID() 			{ id_ = getNewID(); }
     
     const BufferString&	code() const			{ return code_; }
     void		setCode( const char* c )	{ code_ = c; }
@@ -72,7 +74,6 @@ public:
 
     void		copyParFrom(const Strat::UnitRef&);
     
-    virtual void	acquireID() { id_ = getNewID(); }
 
     NodeUnitRef*	upNode(int skip=0);
     const NodeUnitRef*	upNode( int skip=0 ) const
