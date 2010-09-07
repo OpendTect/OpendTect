@@ -7,18 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetdatadir.cc,v 1.30 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisetdatadir.cc,v 1.31 2010-09-07 04:38:43 cvsnanne Exp $";
 
 #include "uisetdatadir.h"
+
 #include "uifileinput.h"
 #include "uimsg.h"
-#include "ioman.h"
-#include "settings.h"
+#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "envvars.h"
 #include "oddirs.h"
 #include "oddatadirmanip.h"
+#include "settings.h"
+
 #include <stdlib.h>
 
 #ifdef __win__
@@ -33,29 +34,26 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Set Data Directory",
 		    		     "Specify a data storage directory",
 		    		     "8.0.1"))
-	, oddirfld(0)
 	, olddatadir(GetBaseDataDir())
 {
     const bool oldok = OD_isValidRootDataDir( olddatadir );
     BufferString oddirnm, basedirnm;
-    const char* titltxt = 0;
+    const char* titletxt = 0;
 
     if ( !olddatadir.isEmpty() )
     {
 	if ( oldok )
 	{
-	    titltxt = 
-		  "Locate an OpendTect Data Root directory\n"
-		  "or specify a new directory name to create";
+	    titletxt =	"Locate an OpendTect Data Root directory\n"
+			"or specify a new directory name to create";
 	    basedirnm = olddatadir;
 	}
 	else
 	{
-	    titltxt = 
-		  "OpendTect needs a place to store your data files.\n"
-		  "\nThe current OpendTect Data Root is invalid.\n"
-		  "* Locate a valid data root directory\n"
-		  "* Or specify a new directory name to create";
+	    titletxt =	"OpendTect needs a place to store your data files.\n"
+			"\nThe current OpendTect Data Root is invalid.\n"
+			"* Locate a valid data root directory\n"
+			"* Or specify a new directory name to create";
 
 	    FilePath fp( olddatadir );
 	    oddirnm = fp.fileName();
@@ -64,35 +62,28 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     }
     else
     {
-	titltxt =
-	"OpendTect needs a place to store your data files:"
-	" the OpendTect Data Root.\n\n"
-	"You have not yet specified a location for it,\n"
-	"and there is no 'DTECT_DATA' set in your environment.\n\n"
-	"Please specify where the OpendTect Data Root should\n"
-	"be created or select an existing OpendTect Data Root.\n"
+	titletxt =
+	    "OpendTect needs a place to store your data files:"
+	    " the OpendTect Data Root.\n\n"
+	    "You have not yet specified a location for it,\n"
+	    "and there is no 'DTECT_DATA' set in your environment.\n\n"
+	    "Please specify where the OpendTect Data Root should\n"
+	    "be created or select an existing OpendTect Data Root.\n"
 #ifndef __win__
-	"\n\nNote that you can still put surveys and "
-	"individual cubes on other disks;\nbut this is where the "
-	"'base' data store will be."
+	    "\nNote that you can still put surveys and "
+	    "individual cubes on other disks;\nbut this is where the "
+	    "'base' data store will be."
 #endif
-	;
+	    ;
 	oddirnm = "ODData";
 	basedirnm = GetPersonalDir();
     }
-    setTitleText( titltxt );
+    setTitleText( titletxt );
 
-    const char* basetxt = oldok ? "OpendTect Data Root Directory"
-				: "Location";
+    const char* basetxt = "OpendTect Data Root Directory";
     basedirfld = new uiFileInput( this, basetxt,
 			      uiFileInput::Setup(uiFileDialog::Gen,basedirnm)
 			      .directories(true) );
-    if ( !oldok )
-    {
-	oddirfld = new uiGenInput( this, "Directory name", oddirnm );
-	oddirfld->attach( alignedBelow, basedirfld );
-	olddatadir = "";
-    }
 }
 
 
@@ -104,15 +95,7 @@ bool uiSetDataDir::acceptOK( CallBacker* )
     if ( datadir.isEmpty() || !File::isDirectory(datadir) )
 	mErrRet( "Please enter a valid (existing) location" )
 
-    if ( oddirfld )
-    {
-	BufferString oddirnm = oddirfld->text();
-	if ( oddirnm.isEmpty() )
-	    mErrRet( "Please enter a (sub-)directory name" )
-
-	datadir = FilePath( datadir ).add( oddirnm ).fullPath();
-    }
-    else if ( datadir == olddatadir )
+    if ( datadir == olddatadir )
 	return true;
 
     FilePath fpdd( datadir ); FilePath fps( GetSoftwareDir(0) );
