@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.387 2010-08-27 18:04:22 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.388 2010-09-07 04:36:43 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -382,7 +382,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( !cs.isDefined() )
 		return false;
 
-	    if ( myas.id() == Attrib::SelSpec::cOtherAttrib() )
+	    if ( myas.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc = 
