@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.49 2010-08-12 14:56:13 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.50 2010-09-07 12:53:31 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -134,6 +134,8 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj ) const
 
 	if ( fmssz == 0 && valisempty ) continue;
 
+	const FileMultiString valfms( val );
+	const int valfmssz = valfms.size();
 	bool isok = false;
 	for ( int ifms=0; ifms<fmssz; ifms++ )
 	{
@@ -144,7 +146,14 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj ) const
 	    else if ( fmsstrisempty != valisempty )
 		continue;
 	    else
-		isok = fmsstr == val;
+	    {
+		isok = false;
+		for ( int ifms2=0; ifms2<valfmssz; ifms2++ )
+		{
+		    if ( fmsstr == valfms[ifms2] )
+			{ isok = true; break; }
+		}
+	    }
 	    if ( isok )
 		break;
 	}
@@ -168,11 +177,16 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj ) const
 	if ( valisempty && fmssz < 1 )
 	    return false;
 
+	const FileMultiString valfms( val );
+	const int valfmssz = valfms.size();
 	for ( int ifms=0; ifms<fmssz; ifms++ )
 	{
 	    const BufferString fmsstr( fms[ifms] );
-	    if ( fmsstr == val )
-		return false;
+	    for ( int ifms2=0; ifms2<valfmssz; ifms2++ )
+	    {
+		if ( fmsstr == valfms[ifms2] )
+		    { return false; }
+	    }
 	}
     }
 
