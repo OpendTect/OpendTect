@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimdiarea.cc,v 1.7 2010-08-27 02:49:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimdiarea.cc,v 1.8 2010-09-07 04:41:42 cvsnanne Exp $";
 
 #include "uimdiarea.h"
 #include "i_qmdiarea.h"
@@ -29,6 +29,8 @@ public:
 
 protected:
     i_MdiAreaMessenger& messenger_;
+
+    void		resizeEvent(QResizeEvent*);
 };
 
 
@@ -40,6 +42,12 @@ uiMdiAreaBody::uiMdiAreaBody( uiMdiArea& handle, uiParent* p, const char* nm )
 uiMdiAreaBody::~uiMdiAreaBody()
 { delete &messenger_; }
 
+
+void uiMdiAreaBody::resizeEvent( QResizeEvent* event )
+{
+    // TODO: Resize subwindows
+    QMdiArea::resizeEvent( event );
+}
 
 
 uiMdiArea::uiMdiArea( uiParent* p, const char* nm )
