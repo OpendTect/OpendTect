@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.9 2009-10-23 21:33:49 cvskris Exp $
+ RCS:           $Id: mouseevent.h,v 1.10 2010-09-07 04:46:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ void MyClass::handleMouseClick( CallBacker* cb )
     }
 }
 
-/endcode
+\endcode
 
 */
 
