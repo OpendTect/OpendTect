@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.45 2010-04-09 08:06:00 cvsbert Exp $
+ RCS:		$Id: trigonometry.h,v 1.46 2010-09-07 04:44:32 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -305,29 +305,29 @@ public:
     			Line2(const Coord&,double slope);
 			Line2(const Coord&,const Coord&);
 
-    Coord		direction() const;	/*!<\Normalized */
+    Coord		direction() const;	/*!<Normalized */
 
     Coord		closestPoint(const Coord& point) const;
-    			/*!<\returns the point on the line that is closest to
+    			/*!<\return the point on the line that is closest to
 			 	     the given point */
 
     Coord		intersection(const Line2&,bool checkinlimit=true) const;
 
     double		distanceTo(const Line2&) const;
-    			/*!<\gives diatance to another parallel line */
+    			/*!<Gives distance to another parallel line */
     bool		getParallelLine(Line2& line,double dist) const;
-			/*!<\Gives a parallel line at a distance dist */
+			/*!<Gives a parallel line at a distance dist */
     bool		getPerpendicularLine(Line2& line,const Coord& pt) const;
-    			/*!<\Gives a perpendicular line through point pt*/
+    			/*!<Gives a perpendicular line through point pt*/
 
     double		slope_;
     double		yintcpt_;
 
-    bool		isvertical_;		/*!<\Parallel to y-axis */
-    double		xintcpt_;		/*!<\only if isvertical_ true */
+    bool		isvertical_;		/*!<Parallel to y-axis */
+    double		xintcpt_;		/*!<only if isvertical_ true */
 
-    Coord		start_;			/*!<\For line-segments only */
-    Coord		stop_;			/*!<\For line-segments only */
+    Coord		start_;			/*!<For line-segments only */
+    Coord		stop_;			/*!<For line-segments only */
 };
 
 /*!\brief

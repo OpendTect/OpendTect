@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.72 2010-08-30 12:47:20 cvsbert Exp $
+ RCS:           $Id: datainpspec.h,v 1.73 2010-09-07 04:45:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,9 +99,9 @@ public:
     virtual bool	setText( const char*, int idx=0)=0;
 
     void		fillPar(IOPar&) const;
-    			/*!\Saves the _values_ (from text()) */
+    			/*!Saves the _values_ (from text()) */
     bool		usePar(const IOPar&);
-    			/*!\Sets the _values_ (with setText()) */
+    			/*!Sets the _values_ (with setText()) */
 
     virtual int		getIntValue( int idx=0 ) const;
     virtual double	getdValue( int idx=0 ) const;
