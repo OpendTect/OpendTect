@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.28 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.29 2010-09-07 04:41:09 cvsnanne Exp $";
 
 #include "parametricsurface.h"
 
@@ -122,6 +122,13 @@ bool ParametricSurface::setKnot( const RowCol& rc, const Coord3& np )
 	}
 
 	int rowindex = rowIndex( rc.row );
+	if ( rowindex < -1 )
+	{
+	    const int nrtoinsert = rc.row - origin_.row;
+	    bool res = insertRow( origin_.row-step_.row, nrtoinsert );
+	    rowindex = rowIndex( rc.row );
+	}
+
 	while ( rowindex<0 )
 	{
 	    if ( !insertRow(origin_.row-step_.row) )
