@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: zdomain.cc,v 1.1 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: zdomain.cc,v 1.2 2010-09-07 12:52:37 cvsbert Exp $";
 
 #include "zdomain.h"
 #include "survinfo.h"
@@ -144,10 +144,17 @@ const char* ZDomain::Def::unitStr( bool withparens ) const
 
 const ZDomain::Def& ZDomain::Def::get( const char* ky )
 {
+    if ( !ky || !*ky )
+	return ZDomain::SI();
+
+    if ( *ky == '`' )
+	ky++; // cope with "`TWT"
+
     const ObjectSet<ZDomain::Def>& defs = DEFS();
     for ( int idx=0; idx<defs.size(); idx++ )
 	if ( defs[idx]->key_ == ky )
 	    return *defs[idx];
+
     return ZDomain::SI();
 }
 
