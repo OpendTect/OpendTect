@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.37 2010-08-27 14:06:50 cvshelene Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.38 2010-09-07 14:23:56 cvshelene Exp $";
 
 #include "scalingattrib.h"
 
@@ -199,22 +199,7 @@ Scaling::Scaling( Desc& desc )
     mGetFloat( width_, widthStr() );
     mGetFloat( mutefraction_, mutefractionStr() );
 
-sqrg_.start = desc_.getValParam(sqrangeStr())->getfValue(0);
-sqrg_.stop = desc_.getValParam(sqrangeStr())->getfValue(1);
-if ( mIsUdf(sqrg_.start) || mIsUdf(sqrg_.stop) )
-{
-Attrib::ValParam* var = 
-const_cast<Attrib::ValParam*>(desc_.getValParam(sqrangeStr()));
-mDynamicCastGet(Attrib::ZGateParam*,gateparamvar,var);
-if ( gateparamvar ) 
-{ 
-if ( mIsUdf(sqrg_.start) ) 
-sqrg_.start = gateparamvar->getDefaultGateValue().start;
-if ( mIsUdf(sqrg_.stop) ) 
-sqrg_.stop = gateparamvar->getDefaultGateValue().stop;
-}
-}
-//    mGetSqueezeRgs( sqrg_, sqrangeStr() );
+    mGetSqueezeRgs( sqrg_, sqrangeStr() );
     mGetSqueezeRgs( squrg_, squntouchedStr() );
 
     mDescGetParamGroup(ZGateParam,gateset,desc_,gateStr())
@@ -382,7 +367,9 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 		if ( sgidx+1 < samplegates.size() && 
 		     samplegates[sgidx+1].includes(csamp) )
 		{
-		    scalefactors[sgidx+1] = trends_[sgidx+1].valueAtX( csamp );
+		    if ( statstype_ == mStatsTypeDetrend )
+			scalefactors[sgidx+1] =trends_[sgidx+1].valueAtX(csamp);
+
 		    scalefactor = interpolator( scalefactors[sgidx], 
 			    			scalefactors[sgidx+1],
 						samplegates[sgidx+1].start,
