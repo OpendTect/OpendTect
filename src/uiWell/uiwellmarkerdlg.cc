@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.26 2010-08-31 09:37:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.27 2010-09-07 16:03:06 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -29,10 +29,10 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.26 2010-08-31 09:37:11 c
 #include "tabledef.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "stratunitrepos.h"
 #include "welldata.h"
 #include "wellimpasc.h"
 #include "wellmarker.h"
-#include "wellstratman.h"
 #include "welltrack.h"
 
 
@@ -144,7 +144,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	int irow = startrow + idx;
 	const Well::Marker* marker = markers[idx];
 	markers_ += marker;
-	if ( !Well::StratMGR().getLvl( marker->levelID() ) )
+	if ( !Strat::UnRepo().getLvl( marker->levelID() ) )
 	    const_cast<Well::Marker*>(markers[idx])->setLevelID( -1 );
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false );
 	levelsel->setSensitive( false );
@@ -304,7 +304,7 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 	marker->setLevelID( lvlid >= 0 ? lvlid : -1 );
 	if ( stratmrkfld_->isChecked() )
 	    marker->setLevelID( 
-		    Well::StratMGR().addLevel(marker->name(),marker->color()) );
+		    Strat::eUnRepo().addLevel(marker->name(),marker->color()) );
 
 	markers += marker;
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.27 2010-09-06 13:57:50 cvsbert Exp $
+ RCS:		$Id: stratunitref.h,v 1.28 2010-09-07 16:03:06 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -48,9 +48,10 @@ public:
 			UnitRef( NodeUnitRef* up, const char* unitcode,
 			      const char* descr=0 )
 			: upnode_(up)
+			, lvlid_(-1)  
     			{
-			    props().code_= unitcode;
-			    props().desc_ = descr;
+			    code_= unitcode;
+			    desc_ = descr;
 			}
     virtual		~UnitRef();
 
@@ -58,36 +59,19 @@ public:
     CompoundKey		fullCode() const;
     const ID		getID() const 		{ return id_; }
     
-    mStruct Props
-    {
-			Props(); // random color
+    const BufferString&	code() const			{ return code_; }
+    void		setCode( const char* c )	{ code_ = c; }
+    const BufferString&	description() const		{ return desc_; }
+    void		setDescription( const char* d )	{ desc_ = d; }
+    bool		isUnconf()			{ return isunconf_; }
+    void		setIsUnconf(bool yn)		{ isunconf_ = yn; }
+    int			getLvlID() const		{ return lvlid_; }
+    void		setLvlID(int lvlid) 		{ lvlid_ = lvlid; }
+    Interval<float>	timeRange() const		{ return timerg_; }
+    void		setTimeRange(Interval<float> rg) {timerg_ = rg; }
 
-	BufferString    code_;
-	BufferString    desc_;
-	Interval<float> timerg_;
-	bool		isunconf_;
-	Color           color_;
-	int		lvlid_;
-    };
-
-
-    const BufferString&	code() const			{ return props_.code_; }
-    void		setCode( const char* c )	{ props_.code_ = c; }
-    const BufferString&	description() const		{ return props_.desc_; }
-    void		setDescription( const char* d )	{ props_.desc_ = d; }
-    const Props&	props() const			{ return props_; }
-    Props&		props()				{ return props_; }
+    void		copyParFrom(const Strat::UnitRef&);
     
-    void		setProps( const Props& pp )
-			{
-			    props_.code_    = pp.code_;
-			    props_.desc_    = pp.desc_;
-			    props_.timerg_  = pp.timerg_; 
-			    props_.color_   = pp.color_; 
-			    props_.lvlid_ = pp.lvlid_;
-			    props_.isunconf_ = pp.isunconf_;
-			}
-
     virtual void	acquireID() { id_ = getNewID(); }
 
     NodeUnitRef*	upNode(int skip=0);
@@ -151,7 +135,13 @@ protected:
     virtual ID		getNewID() const; 
 
     NodeUnitRef*	upnode_;
-    Props		props_;
+
+    BufferString    	code_;
+    BufferString    	desc_;
+    bool		isunconf_;
+    Interval<float> 	timerg_;
+    Color           	color_;
+    int			lvlid_;
 
     ObjectSet<Property>	properties_;
     Property*		gtProp(const PropertyRef* p) const;

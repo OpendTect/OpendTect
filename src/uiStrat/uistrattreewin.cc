@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.50 2010-09-02 16:22:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.51 2010-09-07 16:03:06 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
 #include "compoundkey.h"
 #include "ioman.h"
+#include "stratunitrepos.h"
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uidialog.h"
@@ -24,7 +25,6 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.50 2010-09-02 16:22:43 cv
 #include "uimsg.h"
 #include "uiparent.h"
 #include "uisplitter.h"
-#include "uistratmgr.h"
 #include "uistratreftree.h"
 #include "uistratlvllist.h"
 #include "uistratutildlgs.h"
@@ -57,32 +57,17 @@ uiStratTreeWin& StratTreeWin()
     return *stratwin;
 }
 
-#define mAskStratMgrNotif(nm) \
-    CallBack nm##cb = mCB( this,uiStratTreeWin,nm##CB );\
-    uistratmgr_.nm.notify( nm##cb );
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
     : uiMainWin(p,"Manage Stratigraphy", 0, true)
-    , uistratmgr_(*new uiStratMgr(this))
     , newLevelSelected(this)
-    , unitCreated(this)		//TODO support
-    , unitChanged(this)		//TODO support
-    , unitRemoved(this)		//TODO support
     , newUnitSelected(this)
-    , lithCreated(this)		//TODO support
-    , lithChanged(this)		//TODO support
-    , lithRemoved(this)		//TODO support
     , needsave_(false)
-    , istreedisp_(false)		
+    , istreedisp_(false)	
+    , repos_(Strat::eUnRepo())
 {
     IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
     IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
-    mAskStratMgrNotif(unitCreated)
-    mAskStratMgrNotif(unitChanged)
-    mAskStratMgrNotif(unitRemoved)
-    mAskStratMgrNotif(lithCreated)
-    mAskStratMgrNotif(lithChanged)
-    mAskStratMgrNotif(lithRemoved)
     createMenu();
     createToolBar();
     createGroups();
@@ -96,14 +81,6 @@ uiStratTreeWin::~uiStratTreeWin()
 {
 }
 
-#define mImplCBFunctions(nm)\
-    void uiStratTreeWin::nm##CB(CallBacker*) { nm.trigger(); }
-
-mImplCBFunctions(unitCreated)
-mImplCBFunctions(unitChanged)
-mImplCBFunctions(unitRemoved)
-mImplCBFunctions(lithCreated)
-mImplCBFunctions(lithChanged)
 
 void uiStratTreeWin::popUp() const
 {
@@ -183,7 +160,7 @@ void uiStratTreeWin::createGroups()
     uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
     rightgrp->setStretch( 1, 1 );
 
-    uitree_ = new uiStratRefTree( leftgrp, &uistratmgr_ );
+    uitree_ = new uiStratRefTree( leftgrp, repos_ );
     CallBack selcb = mCB( this,uiStratTreeWin,unitSelCB );
     CallBack renmcb = mCB(this,uiStratTreeWin,unitRenamedCB);
     uitree_->listView()->selectionChanged.notify( selcb );
@@ -193,7 +170,7 @@ void uiStratTreeWin::createGroups()
     uistratdisp_ = new uiStratDisplay( leftgrp, *uitree_ );
     uistratdisp_->addControl( tb_ );
 
-    uiStratLvlList* lvllist = new uiStratLvlList( rightgrp, uistratmgr_ );
+    uiStratLvlList* lvllist = new uiStratLvlList( rightgrp );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
@@ -232,16 +209,16 @@ void uiStratTreeWin::editCB( CallBacker* )
     lockbut_->setToolTip( doedit ? mLockTxt(false) : mEditTxt(false) );
     lockbut_->setOn( !doedit );
     if ( doedit )
-	uistratmgr_.createTmpTree( false );
+	repos_.createTmpTree( false );
 }
 
 
 void uiStratTreeWin::resetCB( CallBacker* )
 {
-    const Strat::RefTree* bcktree = uistratmgr_.getBackupTree();
+    const Strat::RefTree* bcktree = repos_.getBackupTree();
     if ( !bcktree ) return;
     bool iseditmode = !strcmp( editmnuitem_->text(), mEditTxt(true) );
-    uistratmgr_.reset( iseditmode );
+    repos_.reset( iseditmode );
     uitree_->setTree( bcktree, true );
     uitree_->expand( true );
 }
@@ -249,15 +226,42 @@ void uiStratTreeWin::resetCB( CallBacker* )
 
 void uiStratTreeWin::saveCB( CallBacker* )
 {
-    uistratmgr_.save();
+    repos_.save();
     needsave_ = false;
 }
 
 
+static const char* infolvltrs[] =
+{
+    "Survey level",
+    "OpendTect data level",
+    "User level",
+    "Global level",
+    0
+};
+
 void uiStratTreeWin::saveAsCB( CallBacker* )
 {
-    uistratmgr_.saveAs();
-    needsave_ = false;
+    const char* dlgtit = "Save the stratigraphy at:";
+    const char* helpid = 0;
+    uiDialog savedlg( parent_, uiDialog::Setup( "Save Stratigraphy",
+		    dlgtit, helpid ) );
+    BufferStringSet bfset( infolvltrs );
+    uiListBox saveloclist( &savedlg, bfset );
+    savedlg.go();
+    if ( savedlg.uiResult() == 1 )
+    {
+	const char* savetxt = saveloclist.getText();
+	Repos::Source src = Repos::Survey;
+	if ( !strcmp( savetxt, infolvltrs[1] ) )
+	    src = Repos::Data;
+	else if ( !strcmp( savetxt, infolvltrs[2] ) )
+	    src = Repos::User;
+	else if ( !strcmp( savetxt, infolvltrs[3] ) )
+	    src = Repos::ApplSetup;
+
+	repos_.saveAs( src );
+    }
 }
 
 
@@ -322,16 +326,16 @@ void uiStratTreeWin::unitRenamedCB( CallBacker* )
 
 bool uiStratTreeWin::closeOK()
 {
-    if ( needsave_ || uistratmgr_.needSave() )
+    if ( needsave_ || repos_.needSave() )
     {
 	int res = uiMSG().askSave( 
 			"Do you want to save this stratigraphic framework?" );
 	if ( res == 1 )
-	    uistratmgr_.save();
+	    repos_.save();
 	else if ( res == 0 )
 	{
 	    resetCB( 0 );
-	    uistratmgr_.createTmpTree( true );
+	    repos_.createTmpTree( true );
 	    return true;
 	}
 	else if ( res == -1 )
@@ -359,13 +363,6 @@ void uiStratTreeWin::moveUnitCB( CallBacker* cb )
 
     moveunitupbut_->setSensitive( uitree_->canMoveUnit( true ) );
     moveunitdownbut_->setSensitive( uitree_->canMoveUnit( false ) );
-}
-
-
-void uiStratTreeWin::lithRemovedCB( CallBacker* cb )
-{
-    uitree_->updateLithoCol();
-    lithRemoved.trigger();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.25 2010-08-05 11:50:33 cvsbruno Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.26 2010-09-07 16:03:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "stratreftree.h"
 #include "stratlevel.h"
 #include "callback.h"
+#include "repos.h"
 
 namespace Strat
 {
@@ -35,6 +36,11 @@ mClass UnitRepository : public CallBacker
 {
 public:
 
+    const RefTree*       getBackupTree() const;
+    const RefTree*       getCurTree() const;
+    void 		 createTmpTree(bool);
+    void 		 reset(bool);
+
     int			nrTrees() const		{ return trees_.size(); }
     const RefTree*	tree(int idx=0) const	{ return idx<0? 0: trees_[idx];}
     RefTree*		tree(int idx=0)		{ return idx<0? 0: trees_[idx];}
@@ -43,6 +49,26 @@ public:
     inline int		currentTree() const	{ return curtreeidx_; }
     void                replaceTree(RefTree*,int treeidx =-1);
 
+    void		copyCurTreeAtLoc(Repos::Source);
+    const RefTree*	getTreeFromSource(Repos::Source) const;
+    bool		write(Repos::Source) const;
+    void		readFile(const Repos::FileProvider&,Repos::Source);
+    void		reRead();
+
+    void 		save();
+    void 		saveAs(Repos::Source&);
+    bool 		needSave()              { return needsave_; }
+
+    //unit management
+    bool		addUnit(const char*,bool rev = false);
+    void 		updateUnit(int,const UnitRef&);
+    void 		moveUnit(const char*,bool);
+    void 		prepareParentUnit(const char*);
+    void 		removeUnit(const char*);
+    void 		updateUnitLith(int,const char*);
+
+    UnitRef*		find( int id )			{ return fnd(id); }
+    const UnitRef*	find( int id )	const 		{ return fnd(id); }
     UnitRef*		find( const char* code )	{ return fnd(code); }
     const UnitRef*	find( const char* code ) const	{ return fnd(code); }
     UnitRef*		find( const char* c, int idx )	{ return fnd(c,idx);}
@@ -50,41 +76,77 @@ public:
     UnitRef*		findAny( const char* code )	{ return fndAny(code); }
     const UnitRef*	findAny( const char* c ) const	{ return fndAny(c); }
     int			treeOf(const char* code) const;
+    bool 		isNewUnitName(const char*) const;
+    void 		getNewUnitTimeRange(const char*,Interval<float>&) const;
 
+
+    //lith management
     int			nrLiths() const			{ return liths_.size();}
     const Lithology&	lith( int idx ) const		{ return *liths_[idx]; }
     Lithology&		lith( int idx )			{ return *liths_[idx]; }
+
+    void 		getLithoNames(BufferStringSet&) const;
+    int			getNewLithID() const	{ return ++lastlithid_; }
+    Strat::Lithology* 	createNewLith(const char*,bool isporous=true);
+    BufferString 	getLithName(const Strat::LeafUnitRef&) const;
+    const Strat::Lithology* getLith(const char*) const;
+    void 		deleteLith(int);
+
     int			findLith(const char*) const;
     int			findLith(int) const;
     BufferString	getLithName(int lithid) const;
     int			getLithID(BufferString) const;
     void		addLith(Lithology*);
     void		removeLith(int lithid);
-    static const char*	sKeyLith;
 
+
+    //lvl management
+    void                removeLevel(const char*);
+    void                removeAllLevels();
     void		resetUnitLevels();
 
+    const Level*        getLvl( int id ) const;
+    void                getLvlsProps(BufferStringSet&,TypeSet<Color>&,
+				    TypeSet<int>* ids = 0) const;
+    void                getLvlProps(int,BufferString&,Color&) const;
+    void                getLvlPropsByID(int,BufferString&,Color&) const;
+    bool                getLvlPars(const char*,Color&) const;
+    void                setLvlPars(const char*,const char*,Color);
+
+    void                addLevels(const BufferStringSet&,const TypeSet<Color>&);
+    int                 addLevel(const char*,const Color&);
     const LevelSet&     levels() const                  { return lvls_; }
     LevelSet&           levels()                        { return lvls_; }
-    
-    mutable Notifier<UnitRepository> levelChanged;
 
-    void		copyCurTreeAtLoc(Repos::Source);
-    const RefTree*	getTreeFromSource(Repos::Source) const;
-    bool		write(Repos::Source) const;
-    bool		writeLvls(std::ostream&) const;
-    void		reRead();
+    int 		getUnitLvlID(int) const;
+    int 		botLvlID() const;
+    void 		setBotLvlID(int);
 
-    mutable Notifier<UnitRepository> changed;
+    //notifiers
+    mutable Notifier<UnitRepository> 	levelChanged;
+    mutable Notifier<UnitRepository>    unitCreated;
+    mutable Notifier<UnitRepository>    unitChanged;
+    mutable Notifier<UnitRepository>    unitRemoved;
+    mutable Notifier<UnitRepository> 	lithoCreated;
+    mutable Notifier<UnitRepository> 	lithoChanged;
+    mutable Notifier<UnitRepository> 	lithoRemoved;
+    mutable Notifier<UnitRepository> 	changed;
 
-    int			getNewLithID() const	{ return ++lastlithid_; }
-    void		readFile(const Repos::FileProvider&,Repos::Source);
-
+    //sKeys
+    static const char*	sKeyLith;
+    static const char*	sKeyProp;
+    static const char*	sKeyBottomLvlID;
+    static const char*	sKeyLevel;
+    static const char*	filenamebase;
+    static const char*	filetype;
 
 protected:
 
     			UnitRepository();
     virtual		~UnitRepository();
+
+    RefTree*            tmptree_;
+    bool 		needsave_;
 
     ObjectSet<RefTree>	trees_;
     ObjectSet<Lithology> liths_;
@@ -99,6 +161,8 @@ protected:
     void		addLith(const char*,Repos::Source);
 
     void		survChg(CallBacker*);
+
+    bool		writeLvls(std::ostream&) const;
 
 private:
 

@@ -7,26 +7,26 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvllist.cc,v 1.1 2010-08-05 11:50:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvllist.cc,v 1.2 2010-09-07 16:03:06 cvsbruno Exp $";
 
 #include "uistratlvllist.h"
 
 #include "bufstringset.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "stratunitrepos.h"
 #include "uistratutildlgs.h"
-#include "uistratmgr.h"
 
 static const char* sNoLevelTxt      = "--- Empty ---";
 
-uiStratLvlList::uiStratLvlList( uiParent* p, uiStratMgr& mgr )
+uiStratLvlList::uiStratLvlList( uiParent* p )
     : uiLabeledListBox(p,"Markers",false,uiLabeledListBox::AboveMid)
-    , uistratmgr_(mgr)
+    , unitrepos_(Strat::eUnRepo())
 {
     box()->setStretch( 2, 2 );
     box()->setFieldWidth( 10 );
     box()->rightButtonClicked.notify( mCB(this,uiStratLvlList,rClickLvlCB));
-    uistratmgr_.lvlChanged.notify( mCB(this,uiStratLvlList,fill) );
+    unitrepos_.levelChanged.notify( mCB(this,uiStratLvlList,fill) );
 
     fill(0);
 }
@@ -34,7 +34,7 @@ uiStratLvlList::uiStratLvlList( uiParent* p, uiStratMgr& mgr )
 
 uiStratLvlList::~uiStratLvlList()
 {
-    uistratmgr_.lvlChanged.remove( mCB(this,uiStratLvlList,fill) );
+    unitrepos_.levelChanged.remove( mCB(this,uiStratLvlList,fill) );
 }
 
 
@@ -55,7 +55,7 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
 	editLevel( mnuid ? false : true );
     else if ( mnuid == 2 )
     {
-	uistratmgr_.removeLevel( box()->getText() );
+	unitrepos_.removeLevel( box()->getText() );
 	box()->removeItem( box()->currentItem() );
 	if ( box()->isEmpty() )
 	    box()->addItem( sNoLevelTxt );
@@ -66,7 +66,7 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
 	msg += "present in the list";
 	msg += ", do you want to continue ?";
 	if ( uiMSG().askGoOn(msg) )
-	    uistratmgr_.removeAllLevels();
+	    unitrepos_.removeAllLevels();
     }
 }
 
@@ -76,7 +76,7 @@ void uiStratLvlList::fill( CallBacker* )
     box()->empty();
     BufferStringSet lvlnms;
     TypeSet<Color> lvlcolors;
-    uistratmgr_.getLvlsProps( lvlnms, lvlcolors );
+    unitrepos_.getLvlsProps( lvlnms, lvlcolors );
     for ( int idx=0; idx<lvlnms.size(); idx++ )
 	box()->addItem( lvlnms[idx]->buf(), lvlcolors[idx] );
 
@@ -87,7 +87,7 @@ void uiStratLvlList::fill( CallBacker* )
 
 void uiStratLvlList::editLevel( bool create )
 {
-    uiStratLevelDlg newlvldlg( this, &uistratmgr_ );
+    uiStratLevelDlg newlvldlg( this );
     if ( !create )
 	newlvldlg.setLvlInfo( box()->getText() );
      newlvldlg.go();
@@ -102,7 +102,7 @@ void uiStratLvlList::update( bool create )
     BufferString lvlnm;
     Color lvlcol;
     int lvlidx = create ? box()->size() : box()->currentItem();
-    uistratmgr_.getLvlProps( lvlidx, lvlnm, lvlcol );
+    unitrepos_.getLvlProps( lvlidx, lvlnm, lvlcol );
     if ( create )
     {
 	box()->addItem( lvlnm, lvlcol );

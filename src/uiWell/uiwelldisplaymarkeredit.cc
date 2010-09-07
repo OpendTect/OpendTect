@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.2 2010-08-26 14:37:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.3 2010-09-07 16:03:06 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -25,9 +25,9 @@ static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.2 2010-08-26 14:
 #include "mouseevent.h"
 #include "randcolor.h"
 #include "survinfo.h"
+#include "stratunitrepos.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
-#include "wellstratman.h"
 #include "welldata.h"
 
 
@@ -47,7 +47,7 @@ void WellDispMarkerParams::putToMarker( Well::Marker& mrk )
     mrk.setDah( dah_ );
     mrk.setColor( col_ );
     if ( isstrat_ )
-	mrk.setLevelID( Well::StratMGR().addLevel( name_, col_ ) );
+	mrk.setLevelID( Strat::eUnRepo().addLevel( name_, col_ ) );
 }
 
 

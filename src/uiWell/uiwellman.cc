@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.63 2010-09-02 16:22:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.64 2010-09-07 16:03:06 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -27,7 +27,6 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.63 2010-09-02 16:22:43 cvsbrun
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellman.h"
-#include "wellstratman.h"
 #include "wellmarker.h"
 #include "wellreader.h"
 #include "welltransl.h"
@@ -203,8 +202,7 @@ void uiWellMan::edMarkers( CallBacker* )
 
     dlg.getMarkerSet( wd->markers() );
     Well::Writer wtr( curfnm_, *wd );
-    if ( !wtr.putMarkers() 
-	    || !Well::StratMGR().assignSameStrat2AllWells( *wd, curfnm_ ) )
+    if ( !wtr.putMarkers() ) 
 	uiMSG().error( "Cannot write new markers to disk" );
 
     wd->markerschanged.trigger();

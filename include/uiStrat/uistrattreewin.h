@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.33 2010-08-06 07:52:33 cvsbruno Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.34 2010-09-07 16:03:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,12 +17,13 @@ ________________________________________________________________________
 class uiListViewItem;
 class uiMenuItem;
 class uiStratLevelDlg;
-class uiStratMgr;
 class uiStratRefTree;
 class uiStratTreeWin;
 class uiStratDisplay;
 class uiToolBar;
 class uiToolButton;
+
+namespace Strat { class UnitRepository; }
 
 mGlobal const uiStratTreeWin& StratTWin();
 mGlobal uiStratTreeWin& StratTreeWin();
@@ -40,30 +41,14 @@ public:
     void		popUp() const;
     virtual bool	closeOK();
     
-    const uiStratMgr&	mgr() const	{ return uistratmgr_; }
-    
     mutable Notifier<uiStratTreeWin>    newLevelSelected;
     mutable Notifier<uiStratTreeWin>	newUnitSelected;
 
-    
-#define mCreateCoupledNotifCB(nm) \
-public: \
-    mutable Notifier<uiStratTreeWin> nm;\
-protected: \
-    void nm##CB(CallBacker*);
-
-    mCreateCoupledNotifCB( unitCreated )
-    mCreateCoupledNotifCB( unitChanged )
-    mCreateCoupledNotifCB( unitRemoved )
-    mCreateCoupledNotifCB( lithCreated )
-    mCreateCoupledNotifCB( lithChanged )
-    mCreateCoupledNotifCB( lithRemoved )
-
 protected:
 
-    uiStratMgr&			uistratmgr_;
     uiStratRefTree*		uitree_;
     uiStratDisplay*		uistratdisp_;
+    Strat::UnitRepository&	repos_;
     uiMenuItem*			expandmnuitem_;
     uiMenuItem*			editmnuitem_;
     uiMenuItem*			savemnuitem_;

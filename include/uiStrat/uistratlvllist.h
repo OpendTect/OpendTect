@@ -7,25 +7,24 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistratlvllist.h,v 1.1 2010-08-05 11:50:33 cvsbruno Exp $
+ RCS:           $Id: uistratlvllist.h,v 1.2 2010-09-07 16:03:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uilistbox.h"
 
-namespace Strat{ class Level; }
-class uiStratMgr;
+namespace Strat{ class Level; class UnitRepository; }
 
 mClass uiStratLvlList : public uiLabeledListBox
 {
 public:
 
-				uiStratLvlList(uiParent*,uiStratMgr&);
+				uiStratLvlList(uiParent*);
 				~uiStratLvlList();
 protected:
 
-    uiStratMgr&			uistratmgr_;
+    Strat::UnitRepository& 	unitrepos_;
 
     void                        update(bool);
     void                        editLevel(bool);

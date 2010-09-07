@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.24 2010-09-06 13:57:50 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.25 2010-09-07 16:03:06 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -84,14 +84,6 @@ bool Strat::Lithology::use( const char* str )
 }
 
 
-Strat::UnitRef::Props::Props()
-    : isunconf_(false)
-    , lvlid_(-1)
-    , color_(getRandStdDrawColor())
-{
-}
-
-
 Strat::UnitRef::ID Strat::UnitRef::getNewID() const
 {
     static Strat::UnitRef::ID curid = 1;
@@ -107,30 +99,37 @@ Strat::UnitRef::~UnitRef()
 
 void Strat::UnitRef::fill( BufferString& str ) const
 {
-    str = props_.desc_;
+    str = desc_;
 }
 
 
 void Strat::UnitRef::putTo( IOPar& iop ) const
 {
-    iop.set( sKey::Time, props_.timerg_ );
-    iop.set( sKey::Color, props_.color_ );
-    iop.set( sKeyLevel, props_.lvlid_ );
+    iop.set( sKey::Time, timerg_ );
+    iop.set( sKey::Color, color_ );
+    iop.set( sKeyLevel, lvlid_ );
 }
 
 
 void Strat::UnitRef::getFrom( const IOPar& iop )
 {
-    iop.get( sKey::Time, props_.timerg_ );
-    iop.get( sKey::Color, props_.color_ );
-    iop.get( sKeyLevel, props_.lvlid_ );
+    iop.get( sKey::Time, timerg_ );
+    iop.get( sKey::Color, color_ );
+    iop.get( sKeyLevel, lvlid_ );
 }
 
+
+void Strat::UnitRef::copyParFrom( const Strat::UnitRef& unit )
+{
+    IOPar iop; 
+    unit.putTo( iop ); 
+    getFrom( iop ); 
+}
 
 
 bool Strat::UnitRef::use( const char* str )
 {
-    props_.desc_ = str;
+    desc_ = str;
     return true;
 }
 
@@ -138,7 +137,7 @@ bool Strat::UnitRef::use( const char* str )
 void Strat::LeafUnitRef::fill( BufferString& str ) const
 {
     FileMultiString fms;
-    fms += lith_; fms += props_.desc_;
+    fms += lith_; fms += desc_;
     str = fms;
 }
 
@@ -150,7 +149,7 @@ bool Strat::LeafUnitRef::use( const char* str )
     if ( sz < 2 ) return false;
 
     lith_ = atoi( fms[0] );
-    props_.desc_ = fms[1];
+    desc_ = fms[1];
     return true;
 }
 
@@ -170,7 +169,7 @@ CompoundKey Strat::UnitRef::fullCode() const
 
     for ( int idx=treeDepth()-1; idx>=0; idx-- )
 	kc += upNode( idx )->code();
-    kc += props_.code_;
+    kc += code_;
 
     return kc;
 }

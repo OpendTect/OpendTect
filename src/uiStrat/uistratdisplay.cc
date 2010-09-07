@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.17 2010-08-12 12:16:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.18 2010-09-07 16:03:06 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: uistratdisplay.cc,v 1.17 2010-08-12 12:16:22 cv
 
 uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& tree )
     : uiAnnotDisplay(p,"Stratigraphy viewer")
-    , uidatagather_(uiStratTreeToDispTransl(data_,tree.stratmgr()))
+    , uidatagather_(uiStratTreeToDispTransl(data_))
     , uidatawriter_(uiStratDispToTreeTransl(tree ))
     , assignlvlmnuitem_("&Specify marker boundary")
     , uicontrol_(0)

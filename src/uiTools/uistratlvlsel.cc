@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.20 2010-08-05 11:50:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.21 2010-09-07 16:03:06 cvsbruno Exp $";
 
 #include "uistratlvlsel.h"
 
@@ -51,9 +51,9 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl )
     }
     selfld_->selectionChanged.notify( mCB(this,uiStratLevelSel,selCB) );
 
-    StratTWin().unitCreated.notify( mCB(this,uiStratLevelSel,chgCB) );
-    StratTWin().unitChanged.notify( mCB(this,uiStratLevelSel,chgCB) );
-    StratTWin().unitRemoved.notify( mCB(this,uiStratLevelSel,chgCB) );
+    Strat::UnRepo().unitCreated.notify( mCB(this,uiStratLevelSel,chgCB) );
+    Strat::UnRepo().unitChanged.notify( mCB(this,uiStratLevelSel,chgCB) );
+    Strat::UnRepo().unitRemoved.notify( mCB(this,uiStratLevelSel,chgCB) );
     Strat::UnRepo().levelChanged.notify( mCB(this,uiStratLevelSel,chgCB) );
 
     setHAlignObj( selfld_ );
@@ -62,9 +62,9 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl )
 
 uiStratLevelSel::~uiStratLevelSel()
 {
-    StratTWin().unitCreated.remove( mCB(this,uiStratLevelSel,chgCB) );
-    StratTWin().unitChanged.remove( mCB(this,uiStratLevelSel,chgCB) );
-    StratTWin().unitRemoved.remove( mCB(this,uiStratLevelSel,chgCB) );
+    Strat::UnRepo().unitCreated.remove( mCB(this,uiStratLevelSel,chgCB) );
+    Strat::UnRepo().unitChanged.remove( mCB(this,uiStratLevelSel,chgCB) );
+    Strat::UnRepo().unitRemoved.remove( mCB(this,uiStratLevelSel,chgCB) );
     Strat::UnRepo().levelChanged.remove( mCB(this,uiStratLevelSel,chgCB) );
 }
 
@@ -73,7 +73,7 @@ const Strat::Level* uiStratLevelSel::selected() const
 {
     const int selidx =selfld_->currentItem();
     if ( selidx == 0 ) return 0;
-    const Strat::Level* lvl = Strat::UnRepo().levels().getByName( selfld_->text() );
+    const Strat::Level* lvl = Strat::UnRepo().levels().getByName(selfld_->text());
     return lvl;
 }
 

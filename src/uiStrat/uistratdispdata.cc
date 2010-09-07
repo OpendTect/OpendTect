@@ -7,47 +7,49 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.11 2010-08-30 07:36:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.12 2010-09-07 16:03:06 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
-#include "uistratmgr.h"
 #include "uistratreftree.h"
 #include "uilistview.h"
 
+#include "keystrs.h"
+#include "iopar.h"
 #include "bufstringset.h"
 #include "color.h"
 #include "stratunitrepos.h"
 
 
-#define mAskStratMgrNotif(nm)\
-    uistratmgr_.nm.notify( mCB(this,uiStratTreeToDispTransl,triggerDataChange));
-uiStratTreeToDispTransl::uiStratTreeToDispTransl( AnnotData& ad, 
-						  const uiStratMgr& mgr )
+#define mAskStratRepoNotif(nm)\
+    unitrepos_.nm.notify( mCB(this,uiStratTreeToDispTransl,triggerDataChange));
+
+uiStratTreeToDispTransl::uiStratTreeToDispTransl( AnnotData& ad ) 
     : data_(ad)
-    , uistratmgr_(mgr)
+    , unitrepos_(Strat::UnRepo())
     , newtreeRead(this)
 {
-    mAskStratMgrNotif(unitCreated)
-    mAskStratMgrNotif(unitChanged)
-    mAskStratMgrNotif(unitRemoved)
-    mAskStratMgrNotif(lithChanged)
-    mAskStratMgrNotif(lithRemoved)
-    mAskStratMgrNotif(lvlChanged)
+    mAskStratRepoNotif(unitCreated)
+    mAskStratRepoNotif(unitChanged)
+    mAskStratRepoNotif(unitRemoved)
+    mAskStratRepoNotif(lithoChanged)
+    mAskStratRepoNotif(lithoRemoved)
+    mAskStratRepoNotif(levelChanged)
 
     readFromTree();
 }
 
 
-#define mAskStratMgrRemove(nm)\
-    uistratmgr_.nm.remove( mCB(this,uiStratTreeToDispTransl,triggerDataChange));
+#define mAskStratRepoRemove(nm)\
+    unitrepos_.nm.remove( mCB(this,uiStratTreeToDispTransl,triggerDataChange));
+
 uiStratTreeToDispTransl::~uiStratTreeToDispTransl()
 {
-    mAskStratMgrRemove(unitCreated)
-    mAskStratMgrRemove(unitChanged)
-    mAskStratMgrRemove(unitRemoved)
-    mAskStratMgrRemove(lithChanged)
-    mAskStratMgrRemove(lithRemoved)
-    mAskStratMgrRemove(lvlChanged)
+    mAskStratRepoRemove(unitCreated)
+    mAskStratRepoRemove(unitChanged)
+    mAskStratRepoRemove(unitRemoved)
+    mAskStratRepoRemove(lithoChanged)
+    mAskStratRepoRemove(lithoRemoved)
+    mAskStratRepoRemove(levelChanged)
 }
 
 
@@ -75,7 +77,7 @@ void uiStratTreeToDispTransl::readFromTree()
     data_.getCol( idboundaries )->isaux_ = true;
     data_.getCol( iddesc )->isaux_ = true;
 
-    addUnits( *((Strat::NodeUnitRef*)uistratmgr_.getCurTree()), 0 );
+    addUnits( *((Strat::NodeUnitRef*)unitrepos_.getCurTree()), 0 );
     addBottomBoundary();
     newtreeRead.trigger();
 }
@@ -112,20 +114,24 @@ void uiStratTreeToDispTransl::addUnits( const Strat::NodeUnitRef& nur, int order
 
 void uiStratTreeToDispTransl::addUnit( const Strat::UnitRef& uref, int order )
 {
-    Interval<float> timerg = uref.props().timerg_;
+    Interval<float> timerg; Color col; int lvlid;
+    IOPar iop; uref.putTo( iop ); 
+    iop.get( sKey::Time, timerg );
+    iop.get( sKey::Color, col );
+    iop.get( Strat::UnitRepository::sKeyLevel, lvlid );
+
     AnnotData::Unit* unit = new AnnotData::Unit( uref.code(), 
 	    					 timerg.start, 
 						 timerg.stop );
-    unit->col_ = uref.props().color_;
+    unit->col_ = col;
     unit->colidx_ = order;
     unit->id_ = uref.getID();
-    unit->col_ = uref.props().color_;
     if ( order >= data_.nrCols() ) return;
     data_.getCol(order)->units_ += unit;
 
-    addBoundary( unit->id_, uref.props().lvlid_, timerg.start );
+    addBoundary( unit->id_, lvlid, timerg.start );
     mDynamicCastGet(const Strat::LeafUnitRef*,un,&uref)
-    if ( un ) addAnnot( uistratmgr_.getLithName( *un ), timerg, true );
+    if ( un ) addAnnot( unitrepos_.getLithName( *un ), timerg, true );
     addAnnot( uref.description(), timerg, false );
 }
 
@@ -140,8 +146,8 @@ void uiStratTreeToDispTransl::addAnnot( const char* nm, Interval<float>& posrg,	
 void uiStratTreeToDispTransl::addBoundary( int unid, int lvlid, float zpos )
 {
     BufferString lvlnm; Color lvlcol;
-    if ( lvlid >= 0 && uistratmgr_.getLvl( lvlid ) )
-	uistratmgr_.getLvlPropsByID( lvlid, lvlnm, lvlcol );
+    if ( lvlid >= 0 && unitrepos_.getLvl( lvlid ) )
+	unitrepos_.getLvlPropsByID( lvlid, lvlnm, lvlcol );
     else 
 	lvlcol = Color::Black();
 
@@ -158,7 +164,7 @@ void uiStratTreeToDispTransl::addBottomBoundary()
     const AnnotData::Column& col = *data_.getCol(0);
     float z = col.units_[col.units_.size()-1]->zposbot_;
     botzpos_ = z;
-    int lvlid = uistratmgr_.getCurTree()->botLvlID();
+    int lvlid = unitrepos_.getCurTree()->botLvlID();
     botlvlid_ = lvlid;
     addBoundary( -1, lvlid, z );
 }

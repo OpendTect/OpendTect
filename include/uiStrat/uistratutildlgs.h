@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.18 2010-09-02 16:22:43 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.19 2010-09-07 16:03:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,34 +24,18 @@ class uiCheckBox;
 class uiStratMgr;
 class uiSpinBox;
 class uiTable;
-namespace Strat { class Lithology; }
+namespace Strat { class Lithology; class UnitRepository; }
 
-/*!\brief Displays a dialog to create new stratigraphic unit */
+/*!\brief Displays a dialog to create/edit a new stratigraphic unit */
 
-mClass uiStratUnitDlg : public uiDialog
+mClass uiStratUnitEditDlg : public uiDialog
 {
 public:
+			uiStratUnitEditDlg(uiParent*,Strat::UnitRef&);
 
-    mClass Setup
-    {
-	public :
-	    		Setup(uiStratMgr* mgr)
-			    : uistratmgr_(mgr)
-			    , timerg_(0,4500)
-			    , entrancename_("")	     
-			    {}
-			
-	mDefSetupMemb(uiStratMgr*,uistratmgr)
-	mDefSetupMemb(Interval<float>,timerg)
-	mDefSetupMemb(BufferString,entrancename)	     
-    };
-
-			uiStratUnitDlg(uiParent*,Setup&);
-
-    void		setUnitProps(const Strat::UnitRef::Props&,
-	    				const BufferString&, bool);
-    void		getUnitProps(Strat::UnitRef::Props&,
-	    				BufferString&) const;	
+    BufferString& 	getLithology() 	{ return lithnm_; }
+    void 		setLithology(const BufferString& lith) 	
+    			{ lithnm_ = lith; }
 
 protected:
 
@@ -62,12 +46,15 @@ protected:
     uiSpinBox*		agestopfld_;
     uiColorInput*	colfld_;
     
-    uiStratMgr*		uistratmgr_;
-    BufferString&	entrancename_;
+    Strat::UnitRef& 	unit_;
+    BufferString	entrancename_;
+    BufferString	lithnm_;
+
+    void		getFromScreen();
+    void		putToScreen();
 
     void		selLithCB(CallBacker*);
     bool		acceptOK(CallBacker*);
-
 };
 
 
@@ -77,21 +64,18 @@ mClass uiStratUnitDivideDlg : public uiDialog
 {
 public:
 				uiStratUnitDivideDlg(uiParent*,
-						const uiStratMgr& mgr,
-						const Strat::UnitRef::Props&);
+						const Strat::UnitRef&);
 
-    void			gatherProps(ObjectSet<Strat::UnitRef::Props>&); 
+    void			gatherUnits(ObjectSet<Strat::UnitRef>&); 
 
 protected :
 
     uiTable*                    table_;
-    const Strat::UnitRef::Props& parentprop_;
-    const uiStratMgr&		uistratmgr_;
+    const Strat::UnitRef& 	parentunit_;
 
-    void			setUnit(int,const Strat::UnitRef::Props&);
-    bool			areTimesOK(
-				    ObjectSet<Strat::UnitRef::Props>&) const;
+    bool			areTimesOK(ObjectSet<Strat::UnitRef>&) const;
 
+    void			setUnit(int,const Strat::UnitRef&);
     void			mouseClick(CallBacker*);
     bool			acceptOK(CallBacker*);
     void			resetUnits(CallBacker*);
@@ -105,7 +89,8 @@ mClass uiStratLithoDlg : public uiDialog
 {
 public:
 
-			uiStratLithoDlg(uiParent*, uiStratMgr*);
+			uiStratLithoDlg(uiParent*);
+
     const char*		getLithName() const;
     void		setSelectedLith(const char*);
 
@@ -116,7 +101,7 @@ protected:
     uiCheckBox*		isporbox_;
 
     Strat::Lithology*	prevlith_;
-    uiStratMgr*		uistratmgr_;
+    Strat::UnitRepository& stratrepos_;
 
     void		fillLiths();
     void		newLith(CallBacker*);
@@ -132,14 +117,13 @@ mClass uiStratLevelDlg : public uiDialog
 {
 public:
 
-    uiStratLevelDlg(uiParent*,uiStratMgr*);
+    uiStratLevelDlg(uiParent*);
 
     void                setLvlInfo(const char*);
 
 protected:
 
     BufferString        oldlvlnm_;
-    uiStratMgr*         uistratmgr_;
 
     uiGenInput*         lvlnmfld_;
     uiColorInput*       lvlcolfld_;
@@ -152,11 +136,13 @@ mClass uiStratLinkLvlUnitDlg : public uiDialog
 {
 public:
 
-    			uiStratLinkLvlUnitDlg(uiParent*,int,const uiStratMgr&);
+    			uiStratLinkLvlUnitDlg(uiParent*,Strat::UnitRef*);
 
     int 		lvlid_;
 
 protected:
+
+    Strat::UnitRef*	unit_;
 
     uiGenInput*         lvllistfld_;
     TypeSet<int>	ids_;

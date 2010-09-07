@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.26 2010-09-02 16:22:43 cvsbruno Exp $
+ RCS:           $Id: uistratreftree.h,v 1.27 2010-09-07 16:03:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,10 +20,10 @@ class ioPixmap;
 class uiParent;
 class uiListView;
 class uiListViewItem;
-class uiStratMgr;
 namespace Strat {
     class RefTree;
     class NodeUnitRef;
+    class UnitRepository;
 }
 
 
@@ -33,14 +33,13 @@ mClass uiStratRefTree : public CallBacker
 {
 public:
 
-			uiStratRefTree(uiParent*,uiStratMgr*);
+			uiStratRefTree(uiParent*,Strat::UnitRepository&);
 			~uiStratRefTree();
 
     void		setTree(const Strat::RefTree*,bool force =false);
 
     uiListView*		listView()		{ return lv_; }
     const uiListView*	listView() const	{ return lv_; }
-    const uiStratMgr&	stratmgr() const	{ return *uistratmgr_; }
     void                expand(bool) const;
     void                makeTreeEditable(bool) const;
     void		handleMenu(uiListViewItem*);
@@ -55,15 +54,14 @@ protected:
     const Strat::RefTree* tree_;
 
     uiListView*		lv_;
-    uiStratMgr*		uistratmgr_;
+    Strat::UnitRepository& repos_;
 
     void		rClickCB(CallBacker*);
     void		repoChangedCB(CallBacker*);
 
     void		insertSubUnit(uiListViewItem*);
     void		subdivideUnit(uiListViewItem*);
-    void		doInsertSubUnit(uiListViewItem*,Strat::UnitRef::Props&,
-	    				const char*) const;
+    Strat::UnitRef*	doInsertSubUnit(uiListViewItem*,const char*) const; 
     void		makeNewTreeItem(uiListViewItem*);
     void		removeUnit(uiListViewItem*);
     void		updateUnitProperties(uiListViewItem*);

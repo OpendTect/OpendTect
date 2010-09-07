@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.7 2010-08-05 11:50:33 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.8 2010-09-07 16:03:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,9 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 
-namespace Strat{ class UnitRef; class NodeUnitRef; class RefTree; }
+namespace Strat{ class UnitRef; class NodeUnitRef; 
+    		 class RefTree; class UnitRepository; }
 class uiStratRefTree;
-class uiStratMgr;
 class uiListViewItem;
 
 mClass AnnotData
@@ -119,8 +119,7 @@ protected:
 mClass uiStratTreeToDispTransl : public CallBacker
 {
 public:
-	                        uiStratTreeToDispTransl(AnnotData&,
-						    const uiStratMgr&);
+	                        uiStratTreeToDispTransl(AnnotData&);
 	                        ~uiStratTreeToDispTransl();
 
     Notifier<uiStratTreeToDispTransl> newtreeRead;
@@ -130,7 +129,7 @@ public:
 
 protected:
 
-    const uiStratMgr&	uistratmgr_;
+    const Strat::UnitRepository& unitrepos_;
     AnnotData& 		data_;
 
     void		addUnits(const Strat::NodeUnitRef&,int);

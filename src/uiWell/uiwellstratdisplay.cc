@@ -7,24 +7,23 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.15 2010-08-26 14:34:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.16 2010-09-07 16:03:06 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
 #include "stratunitrepos.h"
 #include "survinfo.h"
 #include "uigraphicsscene.h"
-#include "uistrattreewin.h"
 #include "welldisp.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
-#include "wellstratman.h"
 
 uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
 					const Well::Well2DDispData& dd)
     : uiAnnotDisplay(p,"")
     , dispdata_(dd)
-    , uidatagather_(uiStratTreeToDispTransl(data_,StratTWin().mgr()))
+    , uidatagather_(uiStratTreeToDispTransl(data_))
+    , transparency_(0)							
 {
     if ( nobg )
     {
@@ -85,7 +84,11 @@ void uiWellStratDisplay::dataChanged( CallBacker* )
 		setUnitTopPos( *unit );
 		setUnitBotPos( *unit );
 		if ( unit->draw_ )
+		{
+		    unit->col_.setTransparency( transparency_ );
+		    unit->nmcol_.setTransparency( transparency_ );
 		    col.isdisplayed_ = true;
+		}
 	    }
 	}
     }
@@ -139,9 +142,9 @@ float uiWellStratDisplay::getPosFromMarkers( const AnnotData::Unit& unit ) const
 {
     float pos = mUdf(float);
     if ( !dispdata_.markers_ ) return pos;
-    const Strat::UnitRef* uref = Strat::RT().getByID( unit.id_ );
+    const Strat::UnitRef* uref = Strat::UnRepo().find( unit.id_ );
     if ( uref )
-	pos = getPosMarkerLvlMatch( uref->props().lvlid_ );
+	pos = getPosMarkerLvlMatch( uref->getLvlID() );
     return pos;
 }
 
@@ -149,7 +152,7 @@ float uiWellStratDisplay::getPosFromMarkers( const AnnotData::Unit& unit ) const
 float uiWellStratDisplay::getPosMarkerLvlMatch( int lvlid ) const
 {
     float pos = mUdf( float );
-    if ( lvlid<0 || !Well::StratMGR().getLvl( lvlid ) ) return pos;
+    if ( lvlid<0 || !Strat::UnRepo().getLvl( lvlid ) ) return pos;
     const Well::Marker* mrk = 0;
     for ( int idx=0; idx<dispdata_.markers_->size(); idx++ )
     {
