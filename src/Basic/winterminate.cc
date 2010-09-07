@@ -4,7 +4,7 @@
  * SOURCE   : http://support.microsoft.com/kb/178893
 -*/
 
-static const char* rcsID = "$Id: winterminate.cc,v 1.3 2010-09-06 09:40:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: winterminate.cc,v 1.4 2010-09-07 04:58:58 cvsranojay Exp $";
 
 #include "winterminate.h"
 
@@ -60,12 +60,12 @@ DWORD WINAPI TerminateApp( DWORD dwPID, DWORD dwTimeout )
 }
 
 
-bool CALLBACK TerminateAppEnum( HWND hwnd, LPARAM lParam )
+BOOL CALLBACK TerminateAppEnum( HWND hwnd, LPARAM lParam )
 {
     DWORD dwID;
     GetWindowThreadProcessId( hwnd, &dwID );
     if ( dwID == (DWORD)lParam )
 	PostMessage( hwnd, WM_CLOSE, 0, 0 );
 
-    return true;
+    return TRUE;
 }
