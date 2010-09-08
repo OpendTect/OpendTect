@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.2 2010-09-08 06:24:50 cvsranojay Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.3 2010-09-08 13:27:39 cvsbruno Exp $";
 
 
 #include "stratreftree.h"
@@ -52,7 +52,6 @@ bool RefTree::addCopyOfUnit( const UnitRef& ur, bool rev )
     BufferString str;
     ur.fill( str );
     return addUnit( ur.fullCode(), str );
-    //ur.copyFrom( );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.46 2010-09-08 09:16:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.47 2010-09-08 13:27:39 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -169,7 +169,8 @@ void uiStratRefTree::handleMenu( uiListViewItem* lvit )
     uiPopupMenu mnu( lv_->parent(), "Action" );
     mnu.insertSeparator();
     mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 0 );
-    mnu.insertItem( new uiMenuItem("&Subdivide unit..."), 1 );
+    if ( lvit->nrChildren() == 0 )
+	mnu.insertItem( new uiMenuItem("&Subdivide unit..."), 1 );
     mnu.insertItem( new uiMenuItem("&Properties..."), 2 );
     if ( lv_->currentItem() != lv_->firstItem() )
 	mnu.insertItem( new uiMenuItem("&Remove"), 3 );
@@ -189,17 +190,45 @@ void uiStratRefTree::handleMenu( uiListViewItem* lvit )
 
 void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 {
-    Strat::UnitRef* un = doInsertSubUnit( lvit, "<New unit name>" );
-    if( !un ) return;
-    uiStratUnitEditDlg newurdlg( lv_->parent(), *un );
+    const Strat::UnitRef* parun = getUnitFromLVIT( lvit );
+    if ( !parun ) return;
+
+    Strat::UnitRef* newun = createNewUnit( "<New Unit>", parun->getID() );
+    if ( !newun ) return;
+
+    uiStratUnitEditDlg newurdlg( lv_->parent(), *newun );
     if ( newurdlg.go() )
     {
+	if( newun->isLeaf() )
+	    repos_.updateUnitLith(newun->getID(),newurdlg.getLithology().buf());
+	insertUnitInLVIT( lvit, *newun );
 	repos_.unitChanged.trigger();
-	if( un->isLeaf() )
-	    repos_.updateUnitLith( un->getID(), newurdlg.getLithology().buf() );
     }
     else
-	removeUnit( lv_->currentItem() );
+	repos_.removeUnit( newun->getID() );
+
+}
+
+
+Strat::UnitRef* uiStratRefTree::createNewUnit(const char* code, int parid) const
+{
+    BufferString fullcode; 
+    repos_.getFullCode( parid, fullcode );
+    Interval<float> timerg;
+    repos_.getNewUnitTimeRange( parid, timerg );
+    if ( !fullcode.isEmpty() && timerg.width() == 0 )
+	{ uiMSG().error("No time space left to add a new unit"); return 0; }
+
+    repos_.prepareParentUnit( parid );
+    CompoundKey ck; ck += fullcode; ck += code;
+    if ( repos_.addUnit( ck.buf() ) )
+    {
+	UnitRef* newunit = repos_.find( ck.buf() );
+	if ( newunit ) 
+	    newunit->setTimeRange( timerg );
+	return newunit;
+    }
+    return 0;
 }
 
 
@@ -207,13 +236,15 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 {
     if ( !lvit ) return;
 
-    BufferString uncode = getCodeFromLVIt( lvit );
-    const UnitRef* startunit = repos_.getCurTree()->find( uncode );
-    if ( startunit ) 
-    { uiMSG().error( "Can not find unit" ); return; }
+    Strat::UnitRef* startunit = getUnitFromLVIT( lvit );
+    if ( !startunit ) return;
+
     uiListViewItem* parit = lvit->parent();
     if ( parit )
 	lv_->setCurrentItem( parit );
+
+    const Strat::UnitRef* parnode = startunit->upNode();
+    if ( !parnode ) return;
 
     uiStratUnitDivideDlg dlg( lv_->parent(), *startunit );
     if ( dlg.go() )
@@ -221,25 +252,40 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 	ObjectSet<Strat::UnitRef> units;
 	dlg.gatherUnits( units );
 	if ( units.size() <= 0 )
-	{ uiMSG().error( "no valid unit found" ); return; }
+	    { uiMSG().error( "can not modify unit" ); return; }
 
+	removeUnit( lvit );
+	lvit = parit;
 	for ( int idx=0; idx<units.size(); idx++ )
 	{
-	    if ( idx > 0 )
-		doInsertSubUnit( parit, units[idx]->code() );
-	    repos_.updateUnit( units[idx]->getID(), *units[idx] );
+	    Strat::UnitRef* newun = createNewUnit( units[idx]->code(), 
+						    parnode->getID() );
+	    if ( newun )
+	    {
+		repos_.updateUnit( newun->getID(), *units[idx] );
+		insertUnitInLVIT( lvit, *newun );
+	    }
 	}
 	deepErase( units );
     }
 }
 
 
+Strat::UnitRef* uiStratRefTree::getUnitFromLVIT( uiListViewItem* lvit ) const
+{
+    BufferString uncode = getCodeFromLVIt( lvit );
+    Strat::UnitRef* unit = repos_.find( uncode.buf() );
+    if ( !unit ) 
+	{ uiMSG().error( "Can not find unit" ); return 0; }
+    return unit;
+}
 
-Strat::UnitRef* uiStratRefTree::doInsertSubUnit( uiListViewItem* lvit, 
-						const char* code ) const
+
+void uiStratRefTree::insertUnitInLVIT( uiListViewItem* lvit, 
+					const Strat::UnitRef& unit ) const
 {
     uiListViewItem* newitem;
-    uiListViewItem::Setup setup = uiListViewItem::Setup().label( code );
+    uiListViewItem::Setup setup = uiListViewItem::Setup().label( unit.code() );
     newitem = lvit ? new uiListViewItem( lvit, setup )
 		   : new uiListViewItem( lv_, setup );
     newitem->setRenameEnabled( cUnitsCol, false );	//TODO
@@ -248,42 +294,20 @@ Strat::UnitRef* uiStratRefTree::doInsertSubUnit( uiListViewItem* lvit,
     newitem->setDragEnabled( true );
     newitem->setDropEnabled( true );
    
-    if ( !repos_.isNewUnitName( code ) ) 
-    { 
-	uiMSG().error( "Can not insert sub-unit, unit name already in use" ); 
-	return 0; 
-    }
-
     lv_->setCurrentItem( newitem );
     uiListViewItem* parit = newitem->parent();
-    Interval<float> timerg;
-    if ( parit )
-    {
-	repos_.getNewUnitTimeRange( getCodeFromLVIt(parit).buf(), timerg );
-	if ( timerg.start == timerg.stop )
-	{ uiMSG().error("No time space left to add a new sub-unit"); return 0; }
-
-	parit->setOpen( true );
-	repos_.prepareParentUnit( getCodeFromLVIt( parit ).buf() );
-    }
-    if ( repos_.addUnit( code ) )
-    {
-	UnitRef* unitref = repos_.find( code );
-	if ( unitref ) 
-	{
-	    unitref->setTimeRange( timerg );
-	    mCreateAndSetUnitPixmap( (*unitref), lvit )
-	}
-	return unitref;
-    }
-    return 0;
+    if ( !parit ) return;
+    parit->setOpen( true );
+    mCreateAndSetUnitPixmap( unit, lvit )
 }
 
 
 void uiStratRefTree::removeUnit( uiListViewItem* lvit )
 {
     if ( !lvit ) return;
-    repos_.removeUnit( getCodeFromLVIt( lvit ).buf() );
+    const Strat::UnitRef* un = getUnitFromLVIT( lvit );
+    if ( !un ) return;
+    repos_.removeUnit( un->getID() );
     if ( lvit->parent() )
 	lvit->parent()->removeItem( lvit );
     else
@@ -482,31 +506,31 @@ void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node,
     {
 	for ( int idx=0; idx<node.nrRefs(); idx++ )
 	{
-	    mDynamicCastGet(const Strat::NodeUnitRef*,un,&node.ref(0))
+	    mDynamicCastGet(const Strat::NodeUnitRef*,un,&node.ref(idx))
 	    if ( un )
 		setUnconformities( *un, false, 0 );
 	}
 	return;
     }
 
-#define mSetUpUnconf(timerg,pos)\
-    BufferString unconfcode("");\
-    unconfcode += "Unconf";\
-    unconfcode += toString(nrunconf++);\
-    uiListViewItem* lit = listView()->findItem(node.code(),0,false);\
-    if ( lit ) listView()->setCurrentItem(lit);\
-    Strat::UnitRef* un = doInsertSubUnit( lit, unconfcode.buf() );\
-    if ( !un ) return;\
-    IOPar iop; iop.set( sKey::Color, Color( 215, 215, 215 ) );\
-    iop.set( sKey::Time, timerg );\
-    for ( int idref=0; idref<pos; idref++ )\
-	moveUnit( true );\
-
     TypeSet< Interval<float> > timergs;
     tree_->getLeavesTimeGaps( node, timergs );
     for ( int idx=0; idx<timergs.size(); idx++ )
     {
-	mSetUpUnconf( timergs[idx], node.nrRefs() - idx );
+	Interval<float> timerg = timergs[idx];
+	BufferString unconfcode("Unconf");
+	unconfcode += toString( nrunconf++ );
+	uiListViewItem* lit = listView()->findItem(node.code(),0,false);
+	if ( lit ) listView()->setCurrentItem(lit);
+	Strat::UnitRef* un = createNewUnit( unconfcode, node.getID() );
+	if ( !un ) continue;;
+	IOPar iop; iop.set( sKey::Color, Color( 215, 215, 215 ) );
+	iop.set( sKey::Time, timerg );
+	un->getFrom( iop );
+	insertUnitInLVIT( lit, *un );
+	repos_.unitChanged.trigger();
+	for ( int idref=0; idref<(node.nrRefs()-idx); idref++ )
+	    moveUnit( true );
     }
     for ( int iref=0; iref<node.nrRefs(); iref++ )
     {

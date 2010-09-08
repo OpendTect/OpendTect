@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.29 2010-09-08 07:57:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.30 2010-09-08 13:27:39 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -379,8 +379,12 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 	Interval<float> rg;
        	rg.set( timerg.start + (float)idx*timerg.width()/(nrrows),
 	        timerg.start + (float)(idx+1)*timerg.width()/(nrrows) );
-	unit.setTimeRange( rg );
 	table_->setRowReadOnly( idx, false );
+	IOPar iop;  
+	Color col = getRandStdDrawColor();
+	iop.set( sKey::Color, col ); 
+	iop.set( sKey::Time, rg ); 
+	unit.getFrom( iop ); 
 	setUnit( idx, unit );
     }
     deepErase( units );
@@ -394,7 +398,8 @@ void uiStratUnitDivideDlg::setUnit( int irow, const Strat::UnitRef& unit )
     table_->setText( RowCol(irow,cNameCol), unit.code() );
     table_->setValue( RowCol(irow,cStartCol), unit.timeRange().start );
     table_->setValue( RowCol(irow,cStopCol), unit.timeRange().stop );
-    table_->setColor( RowCol(irow,cColorCol), getRandStdDrawColor() );
+    IOPar iop; unit.putTo( iop ); Color col; iop.get( sKey::Color, col ); 
+    table_->setColor( RowCol(irow,cColorCol), col );
 }
 
 
@@ -403,7 +408,6 @@ void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::UnitRef>& units )
     const int nrrows = table_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	const bool isleaf = parentunit_.isLeaf();
 	const char* code = table_->text( RowCol(idx,cNameCol) );
 	Strat::UnitRef* un = (Strat::UnitRef*)new Strat::LeafUnitRef( 0, code );
 	IOPar iop; 

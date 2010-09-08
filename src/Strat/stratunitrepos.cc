@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.54 2010-09-08 10:43:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.55 2010-09-08 13:27:39 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "ascstream.h"
@@ -156,12 +156,11 @@ int UnitRepository::botLvlID() const
 }
 
 
-void UnitRepository::getNewUnitTimeRange( const char* parcode,
-					    Interval<float>& rg ) const
+void UnitRepository::getNewUnitTimeRange( int parid, Interval<float>& rg ) const
 {
-    mDynamicCastGet(const UnitRef*,un,find(parcode))
+    mDynamicCastGet(const UnitRef*,un,find(parid))
     if ( !un ) return;
-    IOPar iop; un->putTo( iop ); iop.get( sKey::Time, rg ); 
+    rg = un->timeRange();
 
     mDynamicCastGet(const NodeUnitRef*,parun,un)
     if ( !parun ) return;
@@ -169,12 +168,14 @@ void UnitRepository::getNewUnitTimeRange( const char* parcode,
     RT().getLeavesTimeGaps( *parun, timergs );
     if ( timergs.size() )
 	rg = timergs[timergs.size()-1];
+    else if ( !parun->nrRefs() )
+	rg.set( 0, 0);
 }
 
 
-void UnitRepository::prepareParentUnit( const char* parcode )
+void UnitRepository::prepareParentUnit( int parid )
 {
-    Strat::UnitRef* parun = find( parcode );
+    Strat::UnitRef* parun = find( parid );
     if ( !parun || !parun->isLeaf() ) return;
 
     NodeUnitRef* upnode = parun->upNode();
@@ -191,9 +192,9 @@ void UnitRepository::prepareParentUnit( const char* parcode )
 }
 
 
-void UnitRepository::removeUnit( const char* uncode )
+void UnitRepository::removeUnit( int id )
 {
-    UnitRef* ur = find( uncode );
+    UnitRef* ur = find( id );
     if ( !ur ) return;
 
     NodeUnitRef* upnode = ur->upNode();
@@ -291,9 +292,9 @@ void UnitRepository::updateUnitLith( int id, const char* lithotxt)
 }
 
 
-void UnitRepository::moveUnit( const char* uncode, bool up )
+void UnitRepository::moveUnit( const char* code, bool up )
 {
-    UnitRef* ur = find( uncode );
+    UnitRef* ur = find( code );
     if ( !ur ) return;
 
     NodeUnitRef* upnode = const_cast<NodeUnitRef*>(ur->upNode());
@@ -302,6 +303,7 @@ void UnitRepository::moveUnit( const char* uncode, bool up )
     int uridx = upnode->indexOf( ur );
     int targetidx = up ? uridx-1 : uridx+1;
     upnode->swapChildren( uridx, targetidx );
+    unitChanged.trigger();
     needsave_ = true;
 }
 
@@ -309,6 +311,12 @@ void UnitRepository::moveUnit( const char* uncode, bool up )
 bool UnitRepository::isNewUnitName( const char* urcode ) const
 {
     return find( urcode ) ? false : true;
+}
+
+
+void UnitRepository::getFullCode( int id, BufferString& fullcode ) const
+{
+    fullcode = find( id ) ? find( id )->fullCode() : "";
 }
 
 
@@ -441,8 +449,7 @@ void UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	/*!support for older version
 	TODO make this whole time structure optionnal 
 	( then no graph display but still the ui-tree available )!*/
-	IOPar iop; Interval<float> timerg; tree->ref(0).putTo( iop );
-	iop.get( sKey::Time, timerg );
+	Interval<float> timerg; tree->ref(0).timeRange();
 	float timestop = timerg.stop;
 	if ( mIsUdf( timestop ) || timestop == 0 )
 	    tree->assignEqualTimesToUnits( Interval<float>( 0, 4.5e3 ) );

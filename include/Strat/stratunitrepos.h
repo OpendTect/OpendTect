@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.28 2010-09-08 07:07:22 cvsbruno Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.29 2010-09-08 13:27:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,10 +36,10 @@ mClass UnitRepository : public CallBacker
 {
 public:
 
-    const RefTree*       getBackupTree() const;
-    const RefTree*       getCurTree() const;
-    void 		 createTmpTree(bool);
-    void 		 reset(bool);
+    const RefTree* 	getBackupTree() const;
+    const RefTree* 	getCurTree() const;
+    void 		createTmpTree(bool);
+    void 		reset(bool);
 
     int			nrTrees() const		{ return trees_.size(); }
     const RefTree*	tree(int idx=0) const	{ return idx<0? 0: trees_[idx];}
@@ -60,12 +60,15 @@ public:
     bool 		needSave()              { return needsave_; }
 
     //unit management
-    bool		addUnit(const char*,bool rev = false);
+    bool		addUnit(const char* code,bool rev = false);
     void 		updateUnit(int,const UnitRef&);
-    void 		moveUnit(const char*,bool);
-    void 		prepareParentUnit(const char*);
-    void 		removeUnit(const char*);
+    void 		moveUnit(const char* code,bool);
+    void 		prepareParentUnit(int);
+    void 		removeUnit(int);
     void 		updateUnitLith(int,const char*);
+    int 		getUnitLvlID(int) const;
+    bool 		isNewUnitName(const char*) const;
+    void 		getNewUnitTimeRange(int,Interval<float>&) const;
 
     UnitRef*		find( int id )			{ return fnd(id); }
     const UnitRef*	find( int id )	const 		{ return fnd(id); }
@@ -76,9 +79,7 @@ public:
     UnitRef*		findAny( const char* code )	{ return fndAny(code); }
     const UnitRef*	findAny( const char* c ) const	{ return fndAny(c); }
     int			treeOf(const char* code) const;
-    bool 		isNewUnitName(const char*) const;
-    void 		getNewUnitTimeRange(const char*,Interval<float>&) const;
-
+    void		getFullCode(int id,BufferString&) const;
 
     //lith management
     int			nrLiths() const			{ return liths_.size();}
@@ -117,7 +118,6 @@ public:
     const LevelSet&     levels() const                  { return lvls_; }
     LevelSet&           levels()                        { return lvls_; }
 
-    int 		getUnitLvlID(int) const;
     int 		botLvlID() const;
     void 		setBotLvlID(int);
 
