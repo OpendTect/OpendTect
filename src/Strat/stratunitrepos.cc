@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.53 2010-09-08 08:12:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.54 2010-09-08 10:43:02 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "ascstream.h"
@@ -261,7 +261,7 @@ void UnitRepository::deleteLith( int id )
 
 bool UnitRepository::addUnit( const char* code, bool rev )
 {
-    if ( eRT().addUnit( code, "", rev ) )
+    if ( isNewUnitName( code ) && eRT().addUnit( code, "", rev ) )
     {
 	unitCreated.trigger();
 	return true;
