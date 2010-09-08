@@ -7,90 +7,145 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.13 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: convolve2d.h,v 1.14 2010-09-08 20:50:09 cvskris Exp $
 ________________________________________________________________________
 
 
 */
 
+#include "complex"
 #include "arraynd.h"
 #include "task.h"
 #include "rowcol.h"
 
-/*!Convolves (or correlates) two 2D signals. */
+namespace Fourier { class CC; }
+typedef std::complex<float> float_complex;
 
+/*!Convolves (or correlates) two 2D signals. */
 
 template <class T>
 class Convolver2D : public ParallelTask
 {
 public:
-    inline		Convolver2D();
+				Convolver2D();
+				~Convolver2D();
 
-    inline void		setX(const Array2D<T>&,int first0=0,int first1=0);
-    inline void		setY(const Array2D<T>&,int first0=0,int first1=0);
-    inline void		setZ(Array2D<T>& z )		{ z_ = &z; }
-    void		setNormalize( bool n )		{ normalize_ = n; }
-    			/*!<If true, the sum will be divided by
-			    the sum of Y. */
-    void		setCorrelate( bool yn )		{ correlate_ = yn; }
-    			/*!<If true, the convolution will be replaced by a
-			   correllation. */
-    void		setHasUdfs(bool yn)		{ hasudfs_ = yn; }
-    			//!<Default is false
+    inline void			setX(const Array2D<T>&,bool hasudfs);
+    inline const Array2D<T>*	getX() const		{ return x_; }
+    inline void			setY(const Array2D<T>&,bool hasudfs);
+    inline const Array2D<T>*	getY() const		{ return x_; }
+    inline void			setZ(Array2D<T>& z )	{ z_ = &z; }
+    void			setNormalize( bool n )	{ normalize_ = n; }
+				/*!<If true, the sum will be divided by
+				    the sum of Y. */
+    void			setCorrelate( bool yn )	{ correlate_ = yn; }
+				/*!<If true, the convolution will be replaced
+				    by a correllation. */
 
 protected:
-    inline bool		doWork( od_int64, od_int64, int );
-    od_int64		nrIterations() const { return z_->info().getSize( 0 ); }
+    bool		doWork(od_int64,od_int64,int);
+    bool		doNonFFTWork(od_int64,od_int64,int);
+    bool		doPrepare(int);
+    od_int64		nrIterations() const;
+    bool		shouldFFT() const;
+
     const Array2D<T>*	x_;
-    int			xshift0_;
-    int			xshift1_;
     const Array2D<T>*	y_;
-    int			yshift0_;
-    int			yshift1_;
     Array2D<T>*		z_;
     bool		normalize_;
     bool		correlate_;
-    bool		hasudfs_;
+    bool		xhasudfs_;
+    bool		yhasudfs_;
+
+    float_complex*	xf_;
+    float_complex*	yf_;
+    float_complex*	zf_;
+
+    Fourier::CC*	fft_;
+};
+
+
+template <> inline
+bool Convolver2D<float>::shouldFFT() const
+{
+    if ( xhasudfs_ || yhasudfs_ || x_->info()!=y_->info() ||
+	 x_->info()!=z_->info() )
+	return false;
+
+    return true;
+}
+
+
+template <class T> inline
+bool Convolver2D<T>::shouldFFT() const
+{ return false; }
+
+
+class FFTConvolve2D : public Convolver2D<float>
+{
+    typedef 		Convolver2D<float> inherited;
+public:
+    			FFTConvolve2D();
+    od_int64		nrIterations() const;
+    void		setX(const Array2D<float>&);
+    void		setY(const Array2D<float>&);
+
+protected:
+    bool		doPrepare(int);
+    bool		doWork(od_int64,od_int64,int);
+    od_int64		totalNr() const;
+
+    char			dofft_; //1 - yes, -1 no, 0 no idea
+    Array2D<float_complex>*	xf_;
+    Array2D<float_complex>*	yf_;
+    Array2D<float_complex>*	zf_;
 };
 
 
 template <class T> inline
 Convolver2D<T>::Convolver2D()
     : x_( 0 )
-    , xshift0_( 0 )
-    , xshift1_( 0 )
     , y_( 0 )
-    , yshift0_( 0 )
-    , yshift1_( 0 )
     , z_( 0 )
     , normalize_( false )
     , correlate_( false )
-    , hasudfs_( false )
+    , xhasudfs_( false )
+    , yhasudfs_( false )
+    , xf_( 0 )
+    , yf_( 0 )
+    , zf_( 0 )
+    , fft_( 0 )
 {}
 
 
+template <>
+Convolver2D<float>::~Convolver2D();
+
+
+template <class T>
+Convolver2D<T>::~Convolver2D()
+{}
+
 template <class T> inline
-void Convolver2D<T>::setX( const Array2D<T>& x, int first0, int first1 )
+void Convolver2D<T>::setX( const Array2D<T>& x, bool hasudfs )
 {
     x_ = &x;
-    xshift0_ = first0;
-    xshift1_ = first1;
+    xhasudfs_ = hasudfs;
 }
 
 
 template <class T> inline
-void Convolver2D<T>::setY( const Array2D<T>& y, int first0, int first1 )
+void Convolver2D<T>::setY( const Array2D<T>& y, bool hasudfs )
 {
     y_ = &y;
-    yshift0_ = first0;
-    yshift1_ = first1;
+    yhasudfs_ = hasudfs;
 }
 
 
 #define mConvolver2DSetY( dim ) \
 const int firsty##dim = correlate_ \
-    ? -xshift##dim##_-zvar[dim]+yshift##dim##_ \
-    : zvar[dim]+xshift##dim##_+yshift##dim##_; \
+    ? -zvar[dim] \
+    : zvar[dim]; \
 \
 const char y##dim##inc = correlate_ ? 1 : -1
 
@@ -119,10 +174,28 @@ if ( idy##dim>=ysz##dim ) \
 }
 
 
+template <class T> inline
+od_int64 Convolver2D<T>::nrIterations() const
+{
+    return shouldFFT()
+	? 1 
+	: z_->info().getSize( 0 );
+}
+
+
+template <>
+bool Convolver2D<float>::doWork( od_int64 start, od_int64 stop, int );
 
 
 template <class T> inline
-bool Convolver2D<T>::doWork( od_int64 start, od_int64 stop, int )
+bool Convolver2D<T>::doWork( od_int64 start, od_int64 stop, int thread )
+{
+    return doNonFFTWork( start, stop, thread );
+}
+
+
+template <class T> inline
+bool Convolver2D<T>::doNonFFTWork( od_int64 start, od_int64 stop, int )
 {
     const int xsz0 = x_->info().getSize( 0 );
     const int xsz1 = x_->info().getSize( 1 );

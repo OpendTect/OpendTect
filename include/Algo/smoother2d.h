@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother2d.h,v 1.2 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: smoother2d.h,v 1.3 2010-09-08 20:50:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,9 @@ class Smoother2D : public Task
 public:
 
 				Smoother2D();
+				~Smoother2D();
 
-    void			setInput(const Array2D<T>&);
+    void			setInput(const Array2D<T>&,bool hasudf);
     void			setOutput(Array2D<T>&);
    		 		/*!Must be at least the size of input.*/
     bool			setWindow(const char* nm,float param,
@@ -54,8 +55,10 @@ public:
 protected:
 
     Convolver2D<T>		convolver_;
+    bool			hasudf_;
 
-    Array2DImpl<T>		window_;
+    Array2DImpl<T>*		window_;
+    int				windowsz0_, windowsz1_;
     BufferString		windowname_;
     float			windowparam_;
 };
@@ -64,12 +67,16 @@ protected:
 template <class T> inline
 Smoother2D<T>::Smoother2D()
     : windowparam_( mUdf(float) )
-    , window_( 1, 1 )
+    , window_( 0 )
 {
     convolver_.setNormalize( true );
     convolver_.setCorrelate( false );
-    window_.set( 0, 0, 1 );
 }
+
+
+template <class T> inline
+Smoother2D<T>::~Smoother2D()
+{ delete window_; }
 
 
 template <class T> inline
@@ -88,9 +95,15 @@ float Smoother2D<T>::getWindowParam() const
 
 
 template <class T> inline
-void Smoother2D<T>::setInput( const Array2D<T>& ni )
+void Smoother2D<T>::setInput( const Array2D<T>& ni, bool hasudf )
 {
-    convolver_.setX( ni, 0, 0 );
+    const Array2D<float>* input = convolver_.getX();
+
+    if ( !input || hasudf_!=hasudf || input->info()!=ni.info() )
+    { delete window_; window_ = 0; }
+
+    convolver_.setX( ni, hasudf );
+    hasudf_ = hasudf;
 }
 
 
@@ -105,37 +118,12 @@ template <class T> inline
 bool Smoother2D<T>::setWindow( const char* nm, float param,
 			       int sz0, int sz1 )
 {
-    PtrMan<WindowFunction> wf = WinFuncs().create( nm );
-    if ( !wf )
-	return false;
-
-    if ( wf->hasVariable() && !wf->setVariable( param ) )
-	return false;
-
-    if ( sz0<=0 || sz1<=0 )
-	return false;
-
-    window_.setSize( sz0, sz1 );
-    if ( !window_.isOK() )
-	return false;
-
-    const int hsz0 = sz0/2; const int hsz1 = sz1/2;
-    Coord pos;
-
-    for ( int idx0=0; idx0<sz0; idx0++ )
-    {
-	pos[0] = hsz0 ? ((double)(idx0-hsz0))/hsz0 : 0;
-	for ( int idx1=0; idx1<sz1; idx1++ )
-	{
-	    pos[1] = hsz1 ? ((double)(idx1-hsz1))/hsz1 : 0;
-	    window_.set( idx0, idx1, wf->getValue( pos.abs() ) );
-	}
-    }
-
-    convolver_.setY( window_, hsz0, hsz1 );
-
     windowname_ = nm;
-    windowparam_ = wf->hasVariable() ? param : 1e30;
+    windowparam_ = param;
+    windowsz0_ = sz0;
+    windowsz1_ = sz1;
+
+    delete window_; window_ = 0;
 
     return true;
 }
@@ -147,6 +135,7 @@ void Smoother2D<T>::fillPar( IOPar& par ) const
     par.set( sKeyWinFunc(), windowname_ );
     if ( !mIsUdf(windowparam_) )
 	par.set( sKeyWinParam(), windowparam_ );
+
     par.set(sKeyWinSize(),window_.info().getSize(0),window_.info().getSize(1));
 }
 
@@ -178,8 +167,55 @@ mImplSetFunc( controlWork, Task::Control);
 template <class T> inline
 bool Smoother2D<T>::execute()
 {
-    if ( !window_.isOK() )
+    const Array2D<float>* input = convolver_.getX();
+    if ( !input )
 	return false;
+
+    if ( !window_ )
+    {
+	PtrMan<WindowFunction> wf = WinFuncs().create( windowname_ );
+	if ( !wf )
+	    return false;
+
+	if ( wf->hasVariable() &&
+		(mIsUdf(windowparam_) || !wf->setVariable( windowparam_ ) ) )
+	    return false;
+
+	if ( windowsz0_<=0 || windowsz1_<=0 )
+	    return false;
+
+	if ( typeid(T)==typeid(float) && input->getData() && !hasudf_ )
+	    window_ = new Array2DImpl<T>( input->info() );
+	else
+	    window_ = new Array2DImpl<T>( windowsz0_, windowsz1_ );
+
+	if ( !window_->isOK() )
+	    return false;
+
+	const int hwinsz0 = windowsz0_/2; const int hwinsz1 = windowsz0_/2;
+	Coord pos;
+
+	const int sz0 = window_->info().getSize( 0 );
+	const int sz1 = window_->info().getSize( 1 );
+	const int hsz0 = sz0/2;
+	const int hsz1 = sz1/2;
+
+	for ( int idx0=0; idx0<sz0; idx0++ )
+	{
+	    pos[0] = hwinsz0 ? ((double)(idx0))/hwinsz0 : 0;
+	    if ( idx0>hsz0 )
+		pos[0] = 1-pos[0];
+	    for ( int idx1=0; idx1<sz1; idx1++ )
+	    {
+		pos[1] = hwinsz1 ? ((double)(idx1))/hwinsz1 : 0;
+		if ( idx1>hsz1 )
+		    pos[1] = 1-pos[1];
+		window_->set( idx0, idx1, wf->getValue( pos.abs() ) );
+	    }
+	}
+
+	convolver_.setY( *window_, false );
+    }
 
     return convolver_.execute();
 }
