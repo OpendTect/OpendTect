@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.25 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: similarityattrib.h,v 1.26 2010-09-08 15:14:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,12 @@ Output:
 3       Min
 4       Max
 
+or
+
+0	Coherency-like similarity
+1	Coherency-like Inline dip (Trace dip in 2D)
+2	Coherency-like Crossline dip
+
 */
 
 namespace Attrib
@@ -64,10 +70,13 @@ public:
     static const char*		steeringStr()	{ return "steering"; }
     static const char*		normalizeStr()	{ return "normalize"; }
     static const char*		extensionStr()	{ return "extension"; }
+    static const char*		sKeyMaxDip()    { return "maxdip"; }
+    static const char*		sKeyDDip()      { return "ddip"; }
     static const char*		extensionTypeStr(int);
     void			initSteering();
 
     void			prepPriorToBoundsCalc();
+//TODO    void			prepareForComputeData();
 
 protected:
     				~Similarity() {}
@@ -83,6 +92,10 @@ protected:
 	    				    const BinID& relpos,
 					    int z0,int nrsamples,
 					    int threadid) const;
+    float			calcCoh(float t,const Interval<int>& rsg,
+				    float,float,
+				    const Array2DImpl<DataHolder*>& re,
+				    const Array2DImpl<DataHolder*>& im) const;
 
     const BinID*		reqStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
@@ -95,6 +108,8 @@ protected:
     Interval<float>		gate_;
     int				extension_;
     TypeSet<BinID>		trcpos_;
+    float			maxdip_;
+    float			ddip_;
 
     Interval<float>             desgate_;
 
@@ -102,8 +117,14 @@ protected:
     TypeSet<int>		steerindexes_;
     bool			donormalize_;
     int				dataidx_;
+    int				imdataidx_;
     TypeSet<int>                pos0s_;
     TypeSet<int>                pos1s_;
+
+    float			distinl_;
+    float			distcrl_;
+
+    bool			iscoh_;//TODO: remove asap
 
     ObjectSet<const DataHolder>	inputdata_;
     const DataHolder*		steeringdata_;

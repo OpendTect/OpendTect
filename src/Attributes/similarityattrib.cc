@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.44 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.45 2010-09-08 15:14:37 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: similarityattrib.cc,v 1.44 2010-04-20 22:03:25 
 #define mExtensionRot90		1
 #define mExtensionRot180	2
 #define mExtensionCube		3
+#define mExtensionCohLike	4
 
 namespace Attrib
 {
@@ -57,6 +58,7 @@ void Similarity::initClass()
     extension->addEnum( extensionTypeStr(mExtensionRot90) );
     extension->addEnum( extensionTypeStr(mExtensionRot180) );
     extension->addEnum( extensionTypeStr(mExtensionCube) );
+    extension->addEnum( extensionTypeStr(mExtensionCohLike) );
     extension->setDefaultValue( mExtensionRot90 );
     desc->addParam( extension );
 
@@ -65,12 +67,23 @@ void Similarity::initClass()
     desc->addParam( steering );
 
     desc->addParam( new BoolParam( normalizeStr(), false, false ) );
-    desc->addInput( InputSpec("Input data",true) );
-    desc->setNrOutputs( Seis::UnknowData, 5 );
 
+    FloatParam* maxdip = new FloatParam( sKeyMaxDip() );
+    maxdip->setLimits( Interval<float>(0,mUdf(float)) );
+    maxdip->setDefaultValue( 250 );
+    desc->addParam( maxdip );
+
+    FloatParam* ddip = new FloatParam( sKeyDDip() );
+    ddip->setLimits( Interval<float>(0,mUdf(float)) );
+    ddip->setDefaultValue( 10 );
+    desc->addParam( ddip );
+
+    desc->addInput( InputSpec("Input data",true) );
     InputSpec steeringspec( "Steering data", false );
     steeringspec.issteering_ = true;
     desc->addInput( steeringspec );
+
+    desc->setNrOutputs( Seis::UnknowData, 5 );
 
     mAttrEndInitClass
 }
@@ -80,11 +93,17 @@ void Similarity::updateDesc( Desc& desc )
 {
     BufferString extstr = desc.getValParam(extensionStr())->getStringValue();
     const bool iscube = extstr == extensionTypeStr( mExtensionCube );
-    desc.setParamEnabled( pos0Str(), !iscube );
-    desc.setParamEnabled( pos1Str(), !iscube );
+    const bool iscohlike = extstr == extensionTypeStr( mExtensionCohLike );
+    desc.setParamEnabled( pos0Str(), !iscube && !iscohlike );
+    desc.setParamEnabled( pos1Str(), !iscube && !iscohlike );
     desc.setParamEnabled( stepoutStr(), iscube );
+    desc.setParamEnabled( sKeyMaxDip(), iscohlike );
+    desc.setParamEnabled( sKeyDDip(), iscohlike );
 
-    desc.inputSpec(1).enabled_ = desc.getValParam(steeringStr())->getBoolValue();
+    desc.inputSpec(1).enabled_ =desc.getValParam(steeringStr())->getBoolValue();
+    
+    if ( iscohlike )
+	desc.setNrOutputs( Seis::UnknowData, desc.is2D()? 2 : 3 );
 }
 
 
@@ -93,7 +112,8 @@ const char* Similarity::extensionTypeStr( int type )
     if ( type==mExtensionNone ) return "None";
     if ( type==mExtensionRot90 ) return "90";
     if ( type==mExtensionRot180 ) return "180";
-    return "Cube";
+    if ( type==mExtensionCube ) return "Cube";
+    return "Coherency like";
 }
 
 
@@ -113,6 +133,16 @@ Similarity::Similarity( Desc& desc )
     mGetEnum( extension_, extensionStr() );
     if ( extension_==mExtensionCube )
 	mGetBinID( stepout_, stepoutStr() )
+    else if ( extension_==mExtensionCohLike )
+    {
+	mGetBinID( stepout_, stepoutStr() )
+	pos0_ = BinID( stepout_.inl, 0 );
+	pos1_ = BinID( 0, stepout_.crl );
+	mGetFloat( maxdip_, sKeyMaxDip() );
+	maxdip_ = maxdip_/dipFactor();
+	mGetFloat( ddip_, sKeyDDip() );
+	ddip_ = ddip_/dipFactor();
+    }
     else
     {
 	mGetBinID( pos0_, pos0Str() )
@@ -164,6 +194,9 @@ bool Similarity::getTrcPos()
     {
 	trcpos_ += pos0_;
 	trcpos_ += pos1_;
+	trcpos_ += BinID(0,0);
+
+//	pos0s_ += BinID(0,0);
 
 	if ( extension_==mExtensionRot90 )
 	{
@@ -242,8 +275,13 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 				    mNINT(gate_.stop/refstep_) );
 
     const int gatesz = samplegate.width() + 1;
-    const int nrpairs = extension_==mExtensionCube ? pos0s_.size()
-						   : inputdata_.size()/2;
+
+    int nrpairs = 2;
+    if ( extension_==mExtensionCube )
+	nrpairs = pos0s_.size();
+    else
+	nrpairs = inputdata_.size()/2;
+
     const int firstsample = inputdata_[0] ? z0-inputdata_[0]->z0_ : z0;
 
     Stats::RunCalcSetup rcsetup;
