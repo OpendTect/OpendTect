@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.52 2010-09-08 07:57:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.53 2010-09-08 08:12:44 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "ascstream.h"
@@ -56,6 +56,8 @@ const UnitRepository& UnRepo()
 UnitRepository::UnitRepository()
     : curtreeidx_(-1)
     , lastlithid_(-1)
+    , tmptree_( 0 )
+    , needsave_(false)  		   
     , changed(this)
     , levelChanged(this)
     , unitCreated(this)
