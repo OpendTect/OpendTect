@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.45 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.46 2010-09-08 09:16:10 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -499,7 +499,6 @@ void uiStratRefTree::setUnconformities( const Strat::NodeUnitRef& node,
     if ( !un ) return;\
     IOPar iop; iop.set( sKey::Color, Color( 215, 215, 215 ) );\
     iop.set( sKey::Time, timerg );\
-    un->setIsUnconf( true );\
     for ( int idref=0; idref<pos; idref++ )\
 	moveUnit( true );\
 
