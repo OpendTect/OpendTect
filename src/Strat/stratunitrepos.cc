@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.49 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.50 2010-09-08 06:24:50 cvsranojay Exp $";
 
 #include "stratunitrepos.h"
 #include "ascstream.h"
@@ -17,12 +17,12 @@ static const char* rcsID = "$Id: stratunitrepos.cc,v 1.49 2010-09-07 16:03:06 cv
 #include "safefileio.h"
 #include "stratlith.h"
 
-const char* Strat::UnitRepository::sKeyLith = "Lithology";
-const char* Strat::UnitRepository::filenamebase = "StratUnits";
-const char* Strat::UnitRepository::sKeyLevel = "Level";
-const char* Strat::UnitRepository::filetype = "Stratigraphic Tree";
-const char* Strat::UnitRepository::sKeyProp = "Properties";
-const char* Strat::UnitRepository::sKeyBottomLvlID = "Bottom Level";
+const char* Strat::UnitRepository::sKeyLith()	{ return "Lithology"; }
+const char* Strat::UnitRepository::filenamebase() { return "StratUnits"; }
+const char* Strat::UnitRepository::sKeyLevel()	{ return "Level"; }
+const char* Strat::UnitRepository::filetype()	{ return "Stratigraphic Tree"; }
+const char* Strat::UnitRepository::sKeyProp()	{ return "Properties"; }
+const char* Strat::UnitRepository::sKeyBottomLvlID() { return "Bottom Level"; }
 
 
 namespace Strat
@@ -315,7 +315,7 @@ void UnitRepository::reRead()
     deepErase( trees_ );
     deepErase( liths_ );
 
-    Repos::FileProvider rfp( filenamebase );
+    Repos::FileProvider rfp( filenamebase() );
     addTreeFromFile( rfp, Repos::Rel );
     addTreeFromFile( rfp, Repos::ApplSetup );
     addTreeFromFile( rfp, Repos::Data );
@@ -338,7 +338,7 @@ bool UnitRepository::write( Repos::Source src ) const
     if ( !tree )
 	return false;
 
-    Repos::FileProvider rfp( filenamebase );
+    Repos::FileProvider rfp( filenamebase() );
     const BufferString fnm = rfp.fileName( src );
     SafeFileIO sfio( fnm );
     if ( !sfio.open(false) )
@@ -359,7 +359,7 @@ bool UnitRepository::writeLvls( std::ostream& strm ) const
     BufferString str;
     
     astrm.newParagraph();
-    IOPar iop( sKeyLevel );
+    IOPar iop( sKeyLevel() );
     for ( int idx=0; idx<levels().size(); idx ++ )
     {
 	iop.clear();
@@ -378,7 +378,7 @@ void UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
     if ( !sfio.open(true) ) return;
 
     ascistream astrm( sfio.istrm(), true );
-    if ( !astrm.isOfFileType(filetype) )
+    if ( !astrm.isOfFileType(filetype()) )
 	{ sfio.closeFail(); return; }
 
     RefTree* tree = 0;
@@ -386,7 +386,7 @@ void UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
     {
 	if ( astrm.hasKeyword(sKey::Name) )
 	    tree = new RefTree( astrm.value(), src );
-	else if ( astrm.hasKeyword(sKeyLith) )
+	else if ( astrm.hasKeyword(sKeyLith()) )
 	    addLith( astrm.value(), src );
     }
     if ( !tree )
@@ -415,10 +415,10 @@ void UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
     int unitidx = 0;
     while ( astrm.next().type() != ascistream::EndOfFile )
     {
-	if ( astrm.hasKeyword(sKeyBottomLvlID) )
+	if ( astrm.hasKeyword(sKeyBottomLvlID()) )
 	    tree->setBotLvlID( atoi( astrm.next().keyWord() ) );
 
-	else if ( !astrm.hasKeyword(sKeyProp) )
+	else if ( !astrm.hasKeyword(sKeyProp()) )
 	    break;
 
 	if ( unitidx >= uncodes.size() ) 
@@ -463,7 +463,7 @@ void UnitRepository::addLvlsFromFile( const Repos::FileProvider& rfp,
     if ( !sfio.open(true) ) return;
 
     ascistream astrm( sfio.istrm(), true );
-    if ( !astrm.isOfFileType(filetype) )
+    if ( !astrm.isOfFileType(filetype()) )
 	{ sfio.closeFail(); return; }
 
     deepErase( lvls_ );
@@ -471,7 +471,7 @@ void UnitRepository::addLvlsFromFile( const Repos::FileProvider& rfp,
     {
 	if ( atEndOfSection(astrm) )
 	    continue;
-	if ( !astrm.hasKeyword(sKeyLevel) )
+	if ( !astrm.hasKeyword(sKeyLevel()) )
 	    continue;
 
 	Level* lvl = new Level( "" );

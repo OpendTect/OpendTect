@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.1 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.2 2010-09-08 06:24:50 cvsranojay Exp $";
 
 
 #include "stratreftree.h"
@@ -281,17 +281,17 @@ bool RefTree::write( std::ostream& strm ) const
 {
     ascostream astrm( strm );
     const UnitRepository& repo = UnRepo();
-    astrm.putHeader( UnitRepository::filetype );
+    astrm.putHeader( UnitRepository::filetype() );
     astrm.put( sKeyGeneral );
     astrm.put( sKey::Name, treename_ );
     BufferString str;
     Lithology::undef().fill( str );
-    astrm.put( UnitRepository::sKeyLith, str );
+    astrm.put( UnitRepository::sKeyLith(), str );
     for ( int idx=0; idx<repo.nrLiths(); idx++ )
     {
 	const Lithology& lith = repo.lith( idx );
 	lith.fill( str );
-	astrm.put( UnitRepository::sKeyLith, str );
+	astrm.put( UnitRepository::sKeyLith(), str );
     }
     astrm.newParagraph();
     astrm.put( sKeyUnits );
@@ -310,7 +310,7 @@ bool RefTree::write( std::ostream& strm ) const
     }
     astrm.newParagraph();
 
-    IOPar uniop( UnitRepository::sKeyProp );
+    IOPar uniop( UnitRepository::sKeyProp() );
     for ( int idx=0; idx<unitrefs.size(); idx++ )
     {
 	uniop.clear();
@@ -318,7 +318,7 @@ bool RefTree::write( std::ostream& strm ) const
 	uniop.putTo( astrm );
     }
     
-    astrm.put( UnitRepository::sKeyBottomLvlID );
+    astrm.put( UnitRepository::sKeyBottomLvlID() );
     astrm.put( toString( botLvlID() ) );
     
     astrm.newParagraph();

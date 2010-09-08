@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.26 2010-09-07 16:03:06 cvsbruno Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.27 2010-09-08 06:24:50 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,12 +133,12 @@ public:
     mutable Notifier<UnitRepository> 	changed;
 
     //sKeys
-    static const char*	sKeyLith;
-    static const char*	sKeyProp;
-    static const char*	sKeyBottomLvlID;
-    static const char*	sKeyLevel;
-    static const char*	filenamebase;
-    static const char*	filetype;
+    static const char*	sKeyLith();
+    static const char*	sKeyProp();
+    static const char*	sKeyBottomLvlID();
+    static const char*	sKeyLevel();
+    static const char*	filenamebase();
+    static const char*	filetype();
 
 protected:
 

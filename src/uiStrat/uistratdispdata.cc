@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.12 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.13 2010-09-08 06:28:35 cvsranojay Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
@@ -118,7 +118,7 @@ void uiStratTreeToDispTransl::addUnit( const Strat::UnitRef& uref, int order )
     IOPar iop; uref.putTo( iop ); 
     iop.get( sKey::Time, timerg );
     iop.get( sKey::Color, col );
-    iop.get( Strat::UnitRepository::sKeyLevel, lvlid );
+    iop.get( Strat::UnitRepository::sKeyLevel(), lvlid );
 
     AnnotData::Unit* unit = new AnnotData::Unit( uref.code(), 
 	    					 timerg.start, 
