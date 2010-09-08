@@ -4,14 +4,16 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.9 2010-08-31 17:23:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.10 2010-09-08 20:51:02 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
 #include "arrayndslice.h"
+#include "array2dinterpolimpl.h"
 #include "arrayndimpl.h"
 #include "fourier.h"
 #include "keystrs.h"
+#include "smoother2d.h"
 #include "survinfo.h"
 
 
@@ -42,70 +44,12 @@ LateralSmootherTask(const Array3D<float>& input,
     , i2samples_( i2samples )
     , kernel_( 0 )
 {
-    if ( pars_.type_!=Stats::Average && !mIsUdf(pars_.rowdist_) )
-	return;
-    
-    createKernel();
 }
 
 
 ~LateralSmootherTask()
 { delete kernel_; }
 
-
-void createKernel()
-{
-    const int i0kernelsz =
-     Fourier::CC::nextFastSize(2*(2*pars_.stepout_.row+i0samples_.width()+1));
-    const int i1kernelsz =
-     Fourier::CC::nextFastSize(2*(2*pars_.stepout_.col+i1samples_.width()+1));
-
-    kernel_ = new Array2DImpl<float_complex>( i0kernelsz, i1kernelsz );
-    kernel_->setAll( float_complex(0,0) );
-    
-    float_complex weight( 0, 0 );
-    float_complex unit( 1.0, 0 );
-
-    for ( int idx=0; idx<=pars_.stepout_.row; idx++ )
-    {
-	for ( int idy=0; idy<=pars_.stepout_.col; idy++ )
-	{
-	    kernel_->set( idx, idy, unit );
-	    weight += unit;
-	    if ( idx )
-	    {
-		kernel_->set( i0kernelsz-idx, idy, unit );
-		weight += unit;
-		if ( idy )
-		{
-		    kernel_->set( i0kernelsz-idx, i1kernelsz-idy, unit );
-		    weight += unit;
-		}
-	    }
-	    else if ( idy )
-	    {
-		kernel_->set( idx, i1kernelsz-idy, unit );
-		weight += unit;
-	    }
-	}
-    }
-
-    float_complex* kernelptr = kernel_->getData();
-    float_complex* stopptr = kernelptr + kernel_->info().getTotalSz();
-
-    while ( kernelptr!=stopptr )
-    {
-	*kernelptr /= weight;
-	kernelptr++;
-    }
-
-    Fourier::CC fft;
-    fft.setInputInfo( kernel_->info() );
-    fft.setDir( true );
-    fft.setInput( kernel_->getData() );
-    fft.setOutput( kernel_->getData() );
-    fft.run( true );
-}
 
 od_int64		nrIterations() const {return i2samples_.width()+1; }
 od_int64		totalNr() const { return totalsz_; }
@@ -120,7 +64,7 @@ void reportRowDone(CallBacker*)
 
 bool doWork( od_int64 start, od_int64 stop, int thread )
 {
-    if ( kernel_ )
+    if ( pars_.type_==Stats::Average ) //&& !mIsUdf(pars_.rowdist_) )
 	return processKernel( start, stop, thread );
     return processFilter( start, stop, thread );
 }
@@ -169,10 +113,27 @@ bool processFilter( od_int64 start, od_int64 stop, int thread )
 
 bool processKernel( int start, int stop, int thread )
 {
-    const int ksz0 = kernel_->info().getSize( 0 );
-    const int ksz1 = kernel_->info().getSize( 1 );
-    Array2DImpl<float_complex> dataslice( ksz0, ksz1 );
-    dataslice.setAll( float_complex(0,0) );
+    const int ksz0 =
+	Fourier::CC::nextFastSize( 2*pars_.stepout_.row+i0samples_.width()+1 );
+    const int ksz1 =
+	Fourier::CC::nextFastSize( 2*pars_.stepout_.col+i1samples_.width()+1 );
+
+    Smoother2D<float> smoother;
+    smoother.setWindow( mIsUdf(pars_.rowdist_)
+		? BoxWindow::sName()
+		: HanningWindow::sName(),
+	    mUdf(float), pars_.stepout_.row*2+1, pars_.stepout_.col*2+1 );
+
+    Array2DImpl<float> inputslice( ksz0, ksz1 );
+    if ( !inputslice.isOK() )
+	return false;
+
+    Array2DImpl<float> outputslice( ksz0, ksz1 );
+    if ( !outputslice.isOK() )
+	return false;
+
+    smoother.setInput( inputslice, false );
+    smoother.setOutput( outputslice );
 
     const int kernelorigin0 = (i0samples_.stop+i0samples_.start-ksz0)/2;
     const int kernelorigin1 = (i1samples_.stop+i1samples_.start-ksz1)/2;
@@ -181,13 +142,15 @@ bool processKernel( int start, int stop, int thread )
     const int outputsz0 = i0samples_.width()+1;
     const int outputsz1 = i1samples_.width()+1;
 
-    Fourier::CC fft;
-    fft.setInputInfo( dataslice.info() );
-    fft.setInput( dataslice.getData() );
-    fft.setOutput( dataslice.getData() );
+    const float searchradius = mMAX( pars_.stepout_.row, pars_.stepout_.col );
 
-    const od_int64 totalsz = dataslice.info().getTotalSz();
-    const float_complex* stopptr = kernel_->getData()+totalsz;
+    InverseDistanceArray2DInterpol interpol;
+    interpol.setFillType( Array2DInterpol::Full );
+    interpol.setRowStep( 1 );
+    interpol.setColStep( 1 );
+    interpol.setClassification( false );
+    interpol.setSearchRadius( searchradius );
+
 
     for ( od_int64 depthidx=start; depthidx<=stop && shouldContinue();
 	  depthidx++ )
@@ -196,77 +159,43 @@ bool processKernel( int start, int stop, int thread )
 	const int inputdepth = depthindex-i2_;
 	const int outputdepth = depthindex-o2_;
 
-	bool dofilter = false;
-	int lastfilter;
+	inputslice.setAll( mUdf(float) );
 
-	for ( int idx0=0; idx0<ksz0 && !dofilter; idx0++ )
+	bool missingdata = false;
+	for ( int idx0=0; idx0<ksz0; idx0++ )
 	{
 	    const int inputpos0 = kernelorigin0+idx0;
 	    if ( inputpos0 < 0 || inputpos0 > lastinput0 )
+	    {
+		missingdata = true;
 		continue; 
+	    }
 
 	    for ( int idx1=0; idx1<ksz1; idx1++ )
 	    {
 		const int inputpos1 = kernelorigin1+idx1;
 		if ( inputpos1 < 0 || inputpos1 > lastinput1 )
-		    continue;  
-
-		const float val = input_.get(inputpos0,inputpos1,inputdepth);
-		if ( mIsUdf(val) )
 		{
-		    dofilter = true;
-		    const int zsz = input_.info().getSize(2);
-		    int nextdefined = -1;
-		    for ( int idx=inputdepth+1; idx<zsz; idx++ )
-		    {
-			if ( !mIsUdf(input_.get(inputpos0,inputpos1,idx ) ) )
-			{
-			    nextdefined = idx;
-			    break;
-			}
-		    }
-
-		    if ( nextdefined==-1 )
-			return processFilter( depthidx, stop, thread );
-		    else
-		    {
-			lastfilter = nextdefined+i2_-i2samples_.start-1;
-			if ( lastfilter>stop )
-			    lastfilter = stop;
-		    }
+		    missingdata = true;
+		    continue;  
 		}
 
-		dataslice.set( idx0, idx1, float_complex( val, 0 ) );
+		const float val = input_.get(inputpos0,inputpos1,inputdepth);
+		if ( !missingdata && mIsUdf( val ) )
+		    missingdata = true;
+
+		inputslice.set( idx0, idx1, val );
 	    }
 	}
 
-	if ( dofilter )
+	if ( missingdata )
 	{
-	    if ( !processFilter( depthidx, lastfilter, thread ) )
-		return false;
-
-	    depthidx = lastfilter;
-
-	    continue;
+	    interpol.setArray( inputslice, 0 );
+	    interpol.execute();
 	}
 
-	fft.setDir( true );
-	fft.run( false );
+	smoother.execute();
 
-	const float_complex* fkernelptr = kernel_->getData();
-	float_complex* dataptr = dataslice.getData();
-
-	while ( fkernelptr!=stopptr )
-	{
-	    *dataptr *= *fkernelptr;
-	    dataptr++;
-	    fkernelptr++;
-	}
-
-	fft.setDir( false );
-	fft.setNormalization( true );
-	fft.run( false );
-    
 	for ( int idx0=0; idx0<outputsz0; idx0++ )
 	{
 	    const int inputpos0 = idx0+i0samples_.start;
@@ -280,7 +209,7 @@ bool processKernel( int start, int stop, int thread )
 		const int kernelpos1 = inputpos1-kernelorigin1;
 		const int outputpos1 = globalpos1-o1_;
 
-		const float val = dataslice.get(kernelpos0,kernelpos1).real();
+		const float val = outputslice.get(kernelpos0,kernelpos1);
 		output_.set( outputpos0, outputpos1, outputdepth, val );
 	    }
 	}
