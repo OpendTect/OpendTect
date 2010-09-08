@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.25 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.26 2010-09-08 07:57:32 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: stratunit.cc,v 1.25 2010-09-07 16:03:06 cvsbrun
 #include "randcolor.h"
 
 
-static const char* sKeyLevel = "Level_ID";
+const char* Strat::UnitRef::sKeyLevel() { return "Level"; }
 
 
 const Strat::Lithology& Strat::Lithology::undef()
@@ -107,7 +107,7 @@ void Strat::UnitRef::putTo( IOPar& iop ) const
 {
     iop.set( sKey::Time, timerg_ );
     iop.set( sKey::Color, color_ );
-    iop.set( sKeyLevel, lvlid_ );
+    iop.set( sKeyLevel(), lvlid_ );
 }
 
 
@@ -115,7 +115,7 @@ void Strat::UnitRef::getFrom( const IOPar& iop )
 {
     iop.get( sKey::Time, timerg_ );
     iop.get( sKey::Color, color_ );
-    iop.get( sKeyLevel, lvlid_ );
+    iop.get( sKeyLevel(), lvlid_ );
 }
 
 

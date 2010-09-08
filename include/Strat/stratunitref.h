@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.29 2010-09-07 16:18:38 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.30 2010-09-08 07:57:32 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -92,6 +92,7 @@ public:
     
     void		putTo(IOPar&) const;
     void		getFrom(const IOPar&);
+    static const char* 	sKeyLevel();
 
     void		add( Property* p )
     			{ properties_ += p; }

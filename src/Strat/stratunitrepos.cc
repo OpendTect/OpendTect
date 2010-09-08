@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.51 2010-09-08 07:07:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.52 2010-09-08 07:57:32 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "ascstream.h"
@@ -17,16 +17,16 @@ static const char* rcsID = "$Id: stratunitrepos.cc,v 1.51 2010-09-08 07:07:22 cv
 #include "safefileio.h"
 #include "stratlith.h"
 
-const char* Strat::UnitRepository::sKeyLith()	{ return "Lithology"; }
-const char* Strat::UnitRepository::filenamebase() { return "StratUnits"; }
-const char* Strat::UnitRepository::sKeyLevel()	{ return "Level"; }
-const char* Strat::UnitRepository::filetype()	{ return "Stratigraphic Tree"; }
-const char* Strat::UnitRepository::sKeyProp()	{ return "Properties"; }
-const char* Strat::UnitRepository::sKeyBottomLvlID() { return "Bottom Level"; }
-
 
 namespace Strat
 {
+
+const char* UnitRepository::sKeyLith()		{ return "Lithology"; }
+const char* UnitRepository::filenamebase() 	{ return "StratUnits"; }
+const char* UnitRepository::filetype()		{ return "Stratigraphic Tree"; }
+const char* UnitRepository::sKeyProp()		{ return "Properties"; }
+const char* UnitRepository::sKeyBottomLvlID() 	{ return "Bottom Level"; }
+const char* UnitRepository::sKeyLevel() 	{ return UnitRef::sKeyLevel(); }
 
 const UnitRepository& UnRepo()
 {
@@ -776,7 +776,7 @@ const Level* UnitRepository::getLvl( int id ) const
 void UnitRepository::getLvlsPars( BufferStringSet& nms, TypeSet<Color>& cols, 
 				    TypeSet<int>* ids ) const
 {
-    const int nrlevels = UnRepo().levels().isEmpty();
+    const int nrlevels = UnRepo().levels().size();
     for ( int idx=0; idx<nrlevels; idx++ )
     {
 	const Level* lvl = UnRepo().levels()[idx];
