@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.30 2010-09-08 07:57:32 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.31 2010-09-08 08:38:22 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -65,8 +65,6 @@ public:
     void		setCode( const char* c )	{ code_ = c; }
     const BufferString&	description() const		{ return desc_; }
     void		setDescription( const char* d )	{ desc_ = d; }
-    bool		isUnconf()			{ return isunconf_; }
-    void		setIsUnconf(bool yn)		{ isunconf_ = yn; }
     int			getLvlID() const		{ return lvlid_; }
     void		setLvlID(int lvlid) 		{ lvlid_ = lvlid; }
     Interval<float>	timeRange() const		{ return timerg_; }
@@ -140,7 +138,6 @@ protected:
 
     BufferString    	code_;
     BufferString    	desc_;
-    bool		isunconf_;
     Interval<float> 	timerg_;
     Color           	color_;
     int			lvlid_;
@@ -210,9 +207,13 @@ public:
     virtual void	fill(BufferString&) const;
     virtual bool	use(const char*);
 
+    bool		isUnconf() const		{ return isunconf_; }
+    void		setIsUnconf(bool yn)		{ isunconf_ = yn; }
+
 protected:
 
     int			lith_;
+    bool		isunconf_;
 
 };
 
