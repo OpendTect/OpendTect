@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.27 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.28 2010-09-08 07:07:22 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -484,7 +484,7 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, Strat::UnitRef* ur )
     TypeSet<Color> colors;
     lvlid_ = ur ? Strat::UnRepo().botLvlID() : ur->getLvlID();
 
-    Strat::UnRepo().getLvlsProps( lvlnms, colors, &ids_ );
+    Strat::UnRepo().getLvlsPars( lvlnms, colors, &ids_ );
     BufferString bs = "Select marker";
     lvllistfld_ = new uiGenInput( this, bs, StringListInpSpec( lvlnms ) );
     if ( lvlid_ >=0 )

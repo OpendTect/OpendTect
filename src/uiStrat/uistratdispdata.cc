@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.13 2010-09-08 06:28:35 cvsranojay Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.14 2010-09-08 07:07:22 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
@@ -147,7 +147,7 @@ void uiStratTreeToDispTransl::addBoundary( int unid, int lvlid, float zpos )
 {
     BufferString lvlnm; Color lvlcol;
     if ( lvlid >= 0 && unitrepos_.getLvl( lvlid ) )
-	unitrepos_.getLvlPropsByID( lvlid, lvlnm, lvlcol );
+	unitrepos_.getLvlPars( lvlid, lvlnm, lvlcol );
     else 
 	lvlcol = Color::Black();
 

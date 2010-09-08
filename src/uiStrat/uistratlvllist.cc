@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvllist.cc,v 1.2 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvllist.cc,v 1.3 2010-09-08 07:07:22 cvsbruno Exp $";
 
 #include "uistratlvllist.h"
 
@@ -76,7 +76,7 @@ void uiStratLvlList::fill( CallBacker* )
     box()->empty();
     BufferStringSet lvlnms;
     TypeSet<Color> lvlcolors;
-    unitrepos_.getLvlsProps( lvlnms, lvlcolors );
+    unitrepos_.getLvlsPars( lvlnms, lvlcolors );
     for ( int idx=0; idx<lvlnms.size(); idx++ )
 	box()->addItem( lvlnms[idx]->buf(), lvlcolors[idx] );
 
@@ -102,7 +102,7 @@ void uiStratLvlList::update( bool create )
     BufferString lvlnm;
     Color lvlcol;
     int lvlidx = create ? box()->size() : box()->currentItem();
-    unitrepos_.getLvlProps( lvlidx, lvlnm, lvlcol );
+    unitrepos_.getLvlPars( lvlidx, lvlnm, lvlcol );
     if ( create )
     {
 	box()->addItem( lvlnm, lvlcol );

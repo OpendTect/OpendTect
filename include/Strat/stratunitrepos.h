@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.27 2010-09-08 06:24:50 cvsranojay Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.28 2010-09-08 07:07:22 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,10 +106,9 @@ public:
     void		resetUnitLevels();
 
     const Level*        getLvl( int id ) const;
-    void                getLvlsProps(BufferStringSet&,TypeSet<Color>&,
+    void                getLvlsPars(BufferStringSet&,TypeSet<Color>&,
 				    TypeSet<int>* ids = 0) const;
-    void                getLvlProps(int,BufferString&,Color&) const;
-    void                getLvlPropsByID(int,BufferString&,Color&) const;
+    void                getLvlPars(int id,BufferString&,Color&) const;
     bool                getLvlPars(const char*,Color&) const;
     void                setLvlPars(const char*,const char*,Color);
 

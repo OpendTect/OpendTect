@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.50 2010-09-08 06:24:50 cvsranojay Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.51 2010-09-08 07:07:22 cvsbruno Exp $";
 
 #include "stratunitrepos.h"
 #include "ascstream.h"
@@ -773,7 +773,7 @@ const Level* UnitRepository::getLvl( int id ) const
 }
 
 
-void UnitRepository::getLvlsProps( BufferStringSet& nms, TypeSet<Color>& cols, 
+void UnitRepository::getLvlsPars( BufferStringSet& nms, TypeSet<Color>& cols, 
 				    TypeSet<int>* ids ) const
 {
     const int nrlevels = UnRepo().levels().isEmpty();
@@ -788,14 +788,7 @@ void UnitRepository::getLvlsProps( BufferStringSet& nms, TypeSet<Color>& cols,
 }
 
 
-void UnitRepository::getLvlProps( int idx, BufferString& nm, Color& col ) const
-{
-    const Level* lvl = UnRepo().levels()[idx];
-    if ( lvl ) getLvlPropsByID( lvl->id_, nm, col );
-}
-
-
-void UnitRepository::getLvlPropsByID(int id,BufferString& nm, Color& col ) const
+void UnitRepository::getLvlPars(int id,BufferString& nm, Color& col ) const
 {
     const Strat::Level* lvl = Strat::UnRepo().levels().getByID( id );
     if ( !lvl ) return;
