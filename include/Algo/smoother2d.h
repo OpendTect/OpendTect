@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother2d.h,v 1.3 2010-09-08 20:50:09 cvskris Exp $
+ RCS:		$Id: smoother2d.h,v 1.4 2010-09-09 22:02:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,19 +200,25 @@ bool Smoother2D<T>::execute()
 	const int hsz0 = sz0/2;
 	const int hsz1 = sz1/2;
 
+	double weightsum = 0;
+
 	for ( int idx0=0; idx0<sz0; idx0++ )
 	{
-	    pos[0] = hwinsz0 ? ((double)(idx0))/hwinsz0 : 0;
-	    if ( idx0>hsz0 )
-		pos[0] = 1-pos[0];
+	    const int pos0 = idx0>hsz0 ? idx0-sz0 : idx0;
+	    pos[0] = hwinsz0 ? ((double)(pos0))/hwinsz0 : pos0;
 	    for ( int idx1=0; idx1<sz1; idx1++ )
 	    {
-		pos[1] = hwinsz1 ? ((double)(idx1))/hwinsz1 : 0;
-		if ( idx1>hsz1 )
-		    pos[1] = 1-pos[1];
-		window_->set( idx0, idx1, wf->getValue( pos.abs() ) );
+		const int pos1 = idx1>hsz1 ? idx1-sz1 : idx1;
+		pos[1] = hwinsz1 ? ((double)(pos1))/hwinsz1 : pos1;
+		const float weight = wf->getValue( pos.abs() );
+		window_->set( idx0, idx1, weight );
+		weightsum += weight;
 	    }
 	}
+
+	if ( weightsum>1 )
+	    mPointerOperation( float, window_->getData(), /= weightsum,
+		        window_->info().getTotalSz(), ++ );
 
 	convolver_.setY( *window_, false );
     }
