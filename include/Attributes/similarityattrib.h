@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.26 2010-09-08 15:14:37 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.27 2010-09-09 13:51:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,11 +45,9 @@ Output:
 3       Min
 4       Max
 
-or
-
-0	Coherency-like similarity
-1	Coherency-like Inline dip (Trace dip in 2D)
-2	Coherency-like Crossline dip
+and if Coherency-like extension chosen:
+5	Coherency-like Inline dip (Trace dip in 2D)
+6	Coherency-like Crossline dip
 
 */
 
@@ -76,7 +74,6 @@ public:
     void			initSteering();
 
     void			prepPriorToBoundsCalc();
-//TODO    void			prepareForComputeData();
 
 protected:
     				~Similarity() {}
@@ -123,8 +120,6 @@ protected:
 
     float			distinl_;
     float			distcrl_;
-
-    bool			iscoh_;//TODO: remove asap
 
     ObjectSet<const DataHolder>	inputdata_;
     const DataHolder*		steeringdata_;

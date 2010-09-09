@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.45 2010-09-08 15:14:37 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.46 2010-09-09 13:51:16 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -99,8 +99,10 @@ void Similarity::updateDesc( Desc& desc )
     desc.setParamEnabled( stepoutStr(), iscube );
     desc.setParamEnabled( sKeyMaxDip(), iscohlike );
     desc.setParamEnabled( sKeyDDip(), iscohlike );
+    desc.setParamEnabled( steeringStr(), !iscohlike );
 
-    desc.inputSpec(1).enabled_ =desc.getValParam(steeringStr())->getBoolValue();
+    desc.inputSpec(1).enabled_ =
+	    iscohlike ? false : desc.getValParam(steeringStr())->getBoolValue();
     
     if ( iscohlike )
 	desc.setNrOutputs( Seis::UnknowData, desc.is2D()? 2 : 3 );
@@ -127,10 +129,15 @@ Similarity::Similarity( Desc& desc )
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1/zFactor() );
 
-    mGetBool( dosteer_, steeringStr() );
     mGetBool( donormalize_, normalizeStr() );
-
     mGetEnum( extension_, extensionStr() );
+
+    if ( extension_==mExtensionCohLike )
+	dosteer_ = false;
+    else
+	mGetBool( dosteer_, steeringStr() );
+    
+
     if ( extension_==mExtensionCube )
 	mGetBinID( stepout_, stepoutStr() )
     else if ( extension_==mExtensionCohLike )
@@ -194,9 +201,6 @@ bool Similarity::getTrcPos()
     {
 	trcpos_ += pos0_;
 	trcpos_ += pos1_;
-	trcpos_ += BinID(0,0);
-
-//	pos0s_ += BinID(0,0);
 
 	if ( extension_==mExtensionRot90 )
 	{
@@ -208,6 +212,8 @@ bool Similarity::getTrcPos()
 	    trcpos_ += BinID(-pos0_.inl,-pos0_.crl);
 	    trcpos_ += BinID(-pos1_.inl,-pos1_.crl);
 	}
+	else
+	    trcpos_ += BinID(0,0);
     }
 
     if ( dosteer_ )
@@ -276,9 +282,11 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
     const int gatesz = samplegate.width() + 1;
 
-    int nrpairs = 2;
+    int nrpairs;
     if ( extension_==mExtensionCube )
 	nrpairs = pos0s_.size();
+    else if ( extension_==mExtensionCohLike )
+	nrpairs = 2;
     else
 	nrpairs = inputdata_.size()/2;
 
@@ -301,45 +309,70 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	stats.clear();
 	for ( int pair=0; pair<nrpairs; pair++ )
 	{
-	    const int idx0 = extension_==mExtensionCube ? pos0s_[pair] : pair*2;
-	    const int idx1 = extension_==mExtensionCube ? pos1s_[pair]
-							: pair*2 +1;
+	    const int idx0 = extension_==mExtensionCube
+			? pos0s_[pair]
+			: extension_==mExtensionCohLike ? 2 : pair*2;
+	    const int idx1 = extension_==mExtensionCube
+			? pos1s_[pair]
+			: extension_==mExtensionCohLike ? pair : pair*2 +1;
+
 	    float s0 = firstsample + idx + samplegate.start;
 	    float s1 = s0;
 
 	    if ( !inputdata_[idx0] || !inputdata_[idx1] )
 		continue;
-	     
-	    if ( dosteer_ )
+	    
+	    bool docontinue = true;
+	    float curdip = -maxdip_;
+	    while ( docontinue )	//loop necessary for Coherency-Like ext
 	    {
-		ValueSeries<float>* serie0 = 
-			steeringdata_->series( steerindexes_[idx0] );
-		if ( serie0 ) s0 += serie0->value( z0+idx-steeringdata_->z0_ );
+		if ( dosteer_ )
+		{
+		    ValueSeries<float>* serie0 = 
+			    steeringdata_->series( steerindexes_[idx0] );
+		    if ( serie0 )
+			s0 += serie0->value( z0+idx-steeringdata_->z0_ );
 
-		ValueSeries<float>* serie1 = 
-			steeringdata_->series( steerindexes_[idx1] );
-		if ( serie1 ) s1 += serie1->value( z0+idx-steeringdata_->z0_ );
+		    ValueSeries<float>* serie1 = 
+			    steeringdata_->series( steerindexes_[idx1] );
+		    if ( serie1 )
+			s1 += serie1->value( z0+idx-steeringdata_->z0_ );
+		}
+
+		if ( extension_ == mExtensionCohLike )
+		{
+		    float dist = pair ? distcrl_ : distinl_;
+		    s1 += (curdip * dist)/refstep_;
+		}
+
+
+		//make sure data extracted from input DataHolders is at exact z
+		float extras0 = mIsUdf(extrazfspos) ? 0 :
+		    (extrazfspos-inputdata_[idx0]->extrazfromsamppos_)/refstep_;
+		float extras1 = mIsUdf(extrazfspos) ? 0 :
+		    (extrazfspos-inputdata_[idx1]->extrazfromsamppos_)/refstep_;
+
+		SimiFunc vals0( *(inputdata_[idx0]->series(dataidx_)), 
+				inputdata_[idx0]->nrsamples_-1 );
+		SimiFunc vals1( *(inputdata_[idx1]->series(dataidx_)), 
+				inputdata_[idx1]->nrsamples_-1 );
+		const bool valids0 = s0>=0 && 
+				     (s0+gatesz)<=inputdata_[idx0]->nrsamples_;
+		if ( !valids0 ) s0 = firstsample + idx + samplegate.start;
+
+		const bool valids1 = s1>=0 && 
+				     (s1+gatesz)<=inputdata_[idx1]->nrsamples_;
+		if ( !valids1 ) s1 = firstsample + idx + samplegate.start;
+
+		stats += similarity( vals0, vals1, s0+extras0, s1+extras1, 1,
+				     gatesz, donormalize_ );
+
+		if ( extension_ == mExtensionCohLike )
+		    curdip += ddip_;
+
+		docontinue = extension_==mExtensionCohLike ? curdip<maxdip_
+		    					   : false;
 	    }
-
-	    //make sure data extracted from input DataHolders is at exact z pos
-	    float extras0 = mIsUdf(extrazfspos) ? 0 :
-		(extrazfspos - inputdata_[idx0]->extrazfromsamppos_)/refstep_;
-	    float extras1 = mIsUdf(extrazfspos) ? 0 :
-		(extrazfspos - inputdata_[idx1]->extrazfromsamppos_)/refstep_;
-	    SimiFunc vals0( *(inputdata_[idx0]->series(dataidx_)), 
-			    inputdata_[idx0]->nrsamples_-1 );
-	    SimiFunc vals1( *(inputdata_[idx1]->series(dataidx_)), 
-			    inputdata_[idx1]->nrsamples_-1 );
-	    const bool valids0 = s0>=0 && 
-				 (s0+gatesz)<=inputdata_[idx0]->nrsamples_;
-	    if ( !valids0 ) s0 = firstsample + idx + samplegate.start;
-
-	    const bool valids1 = s1>=0 && 
-				 (s1+gatesz)<=inputdata_[idx1]->nrsamples_;
-	    if ( !valids1 ) s1 = firstsample + idx + samplegate.start;
-
-	    stats += similarity( vals0, vals1, s0+extras0, s1+extras1, 1,
-		    		 gatesz, donormalize_ );
 	}
 
 	if ( stats.size() < 1 )
