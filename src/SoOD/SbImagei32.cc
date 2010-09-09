@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SbImagei32.cc,v 1.3 2010-09-03 08:49:20 cvskarthika Exp $";
+static const char* rcsID = "$Id: SbImagei32.cc,v 1.4 2010-09-09 07:51:09 cvskarthika Exp $";
 
 #include "SbImagei32.h"
 
@@ -17,19 +17,18 @@ static const char* rcsID = "$Id: SbImagei32.cc,v 1.3 2010-09-03 08:49:20 cvskart
 
 // Default constructor.
 SbImagei32::SbImagei32() : bytes( NULL ), datatype( SETVALUEPTR_DATA ), 
-    			   size( 0, 0, 0 ), bpp( 0 )
-#ifdef COIN_THREADSAFE
-			, rwmutex( SbRWMutex::READ_PRECEDENCE )
+       			   size( 0, 0, 0 ), bpp( 0 )
+#ifdef SBIMAGEI32_THREADSAFE
+			   , rwmutex( SbRWMutex::READ_PRECEDENCE )
 #endif
 { }
 
 
 // Constructor which sets 2D data using setValue().
 SbImagei32::SbImagei32( const unsigned char* data, const SbVec2i32& sz, 
-	const int bytesperpixel ) 
-			: bytes( NULL )
-#ifdef COIN_THREADSAFE
-			, rwmutex( SbRWMutex::READ_PRECEDENCE )
+	const int bytesperpixel ) : bytes( NULL )
+#ifdef SBIMAGEI32_THREADSAFE
+				    , rwmutex( SbRWMutex::READ_PRECEDENCE )
 #endif
 {
     setValue( sz, bytesperpixel, data );
@@ -38,10 +37,9 @@ SbImagei32::SbImagei32( const unsigned char* data, const SbVec2i32& sz,
 
 // Constructor which sets 3D data using setValue().
 SbImagei32::SbImagei32( const unsigned char *data, const SbVec3i32& sz, 
-	const int bytesperpixel )
-			: bytes( NULL )
-#ifdef COIN_THREADSAFE
-			, rwmutex( SbRWMutex::READ_PRECEDENCE )
+	const int bytesperpixel ) : bytes( NULL )
+#ifdef SBIMAGEI32_THREADSAFE
+				    , rwmutex( SbRWMutex::READ_PRECEDENCE )
 #endif
 {
     setValue( sz, bytesperpixel, data );
@@ -57,11 +55,10 @@ SbImagei32::~SbImagei32()
 void SbImagei32::freeData()
 {
     if ( bytes )
-    {
 	switch ( datatype )
 	{
 	    default:
-		assert(0 && "unknown data type");
+		pErrMsg( "Unknown data type!");
 		break;
 
 	    case INTERNAL_DATA:
@@ -73,7 +70,6 @@ void SbImagei32::freeData()
 		bytes = NULL;
 		break;
 	}
-    }
 
     datatype = SETVALUEPTR_DATA;
 }
@@ -116,29 +112,23 @@ bool SbImagei32::setValue( const SbVec2i32& sz, const int bytesperpixel,
 // Sets the image to size and bytesperpixel. If bytes != NULL, data are copied 
 // from data into this class' image data. If bytes == NULL, the image data are
 // left uninitialized.
-// The image data will always be allocated in multiples of four. This means 
-// that if you set an image with size == (1,1,1) and bytesperpixel == 1, four 
-// bytes will be allocated to hold the data. This is mainly done to simplify 
-// the export code in SoSFImage and normally you'll  not have to worry about 
-// this feature.
 // If the depth of the image (size[2]) is zero, the image is considered a 2D 
 // image.
 bool SbImagei32::setValue( const SbVec3i32& sz, const int bytesperpixel,
 	const unsigned char* data )
 {
     bool ret = true;
+    int buffersize = int(sz[0]) * int(sz[1]) * int(sz[2]==0?1:sz[2]) * 
+	bytesperpixel;
     
     writeLock();
-    if ( bytes && 
-	 datatype == INTERNAL_DATA )
+    if ( bytes && datatype == INTERNAL_DATA )
     {
 	// check for special case where we don't have to reallocate
-	if ( data && ( sz == size) && 
-	     ( bytesperpixel == bpp) )
+	if ( data && ( sz == size ) && 
+	     ( bytesperpixel == bpp ) )
 	{
-	    memcpy( bytes, data, 
-		    int(sz[0]) * int(sz[1]) * int(sz[2]==0?1:sz[2]) *
-		    bytesperpixel );
+	    memcpy( bytes, data, buffersize * bytesperpixel );
 	    writeUnlock();
 	    return ret;
 	}
@@ -147,27 +137,17 @@ bool SbImagei32::setValue( const SbVec3i32& sz, const int bytesperpixel,
     freeData();
     size = sz;
     bpp = bytesperpixel;
-    int buffersize = int(sz[0]) * int(sz[1]) * int(sz[2]==0?1:sz[2]) * 
-	bytesperpixel;
 
-    if (buffersize)
+    if ( buffersize )
     {
-	// Align buffers because the binary file format has the data aligned
-	// (simplifies export code in SoSFImage).
-	buffersize = ((buffersize + 3) / 4) * 4;
 	bytes = new unsigned char[buffersize];
 	datatype = INTERNAL_DATA;
 
-	if (bytes)
-	{
-	    // Important: don't copy buffersize num bytes here!
-	    (void)memcpy(bytes, data,
-		    int(sz[0]) * int(sz[1]) * int(sz[2]==0?1:sz[2]) * 
-		    bytesperpixel);
-	}
+	if ( bytes )
+	    memcpy( bytes, data, buffersize * bytesperpixel ); 
 	else
 	{
-	    BufferString msg( "SbImagei32: Unable to allocate memory! ");
+	    BufferString msg( "Unable to allocate memory! ");
 	    msg += sz[0];
 	    msg += " ";
 	    msg += sz[1];
@@ -217,7 +197,7 @@ int SbImagei32::operator == ( const SbImagei32& image ) const
     else if ( bpp != image.bpp ) ret = 0;
     else if ( bytes == NULL || 
 	    image.bytes == NULL )
-	ret = (bytes == image.bytes);
+	ret = ( bytes == image.bytes );
     else
     {
 	ret = memcmp( bytes, image.bytes,
@@ -248,7 +228,7 @@ SbImagei32& SbImagei32::operator = ( const SbImagei32& image )
 	    switch ( image.datatype )
 	    {
 		default:
-		    assert(0 && "unknown data type");
+		    pErrMsg( "Unknown data type!");
 		    break;
 
 		case INTERNAL_DATA:
@@ -292,28 +272,28 @@ SbVec3i32 SbImagei32::getSize() const
 
 void SbImagei32::readLock() const
 {
-#ifdef COIN_THREADSAFE
+#ifdef SBIMAGEI32_THREADSAFE
     rwmutex.readLock();
 #endif
 }
 
 void SbImagei32::readUnlock() const
 {
-#ifdef COIN_THREADSAFE
+#ifdef SBIMAGEI32_THREADSAFE
     rwmutex.readUnlock();
 #endif
 }
   
 void SbImagei32::writeLock()
 {
-#ifdef COIN_THREADSAFE
+#ifdef SBIMAGEI32_THREADSAFE
     rwmutex.writeLock();
 #endif
 }
 
 void SbImagei32::writeUnlock()
 {
-#ifdef COIN_THREADSAFE
+#ifdef SBIMAGEI32_THREADSAFE
     rwmutex.writeUnlock();
 #endif
 }
