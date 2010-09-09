@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.21 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: general.h,v 1.22 2010-09-09 21:40:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,5 +99,45 @@ The point of this is clear when SomeClass is constructed:
 
 
 #endif
+
+/* Applies an operation to all members in an array. Quicker than for-loops.
+Instead of:
+\code
+for ( int idx=0; idx<sz; idx++ )
+    ptr[idx] /= 5;
+\endcode
+
+You can do:
+\code
+
+mPointerOperation( float, ptr, /= 5, sz, ++ );
+\endcode
+
+This will expand to :
+\code
+{
+    float* __incptr = ptr;
+    const float* __stopptr = __incptr + sz;
+    while( __incptr!=__stopptr )
+    {
+        *__incptr /= 5;
+	__incptr ++;
+    }
+}
+\endcode
+
+*/
+
+#define mPointerOperation( type, ptr, ops, totalnr, inc ) \
+{ \
+    type* __incptr = ptr; \
+    const type* __stopptr = __incptr + totalnr; \
+    while ( __incptr!=__stopptr ) \
+    { \
+	*__incptr ops; \
+	__incptr inc; \
+    } \
+}
+
 
 #endif
