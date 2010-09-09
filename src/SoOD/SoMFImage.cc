@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoMFImage.cc,v 1.6 2010-06-22 11:10:54 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoMFImage.cc,v 1.7 2010-09-09 08:26:16 cvskarthika Exp $";
 
 
 #include "SoMFImage.h"
@@ -32,14 +32,14 @@ SbBool SoMFImage::read1Value( SoInput* in, int index )
 
     static const char* prematuremsg = "Premature end of file";
 
-    if ( !in->read(size[0]) || !in->read(size[1]) || !in->read(size[2]) ||
-         !in->read(nc) )
+    if ( !in->read( size[0] ) || !in->read( size[1] ) || !in->read( size[2] ) ||
+         !in->read( nc ) )
 	mErrRet;
 
     if ( size[0]<0 || size[1]<0 || size[2]<0 || nc<0 || nc>4 )
     {
 	SoReadError::post( in, "Invalid image specification %dx%dx%dx%d",
-			   size[0], size[1], size[2], nc);
+			   size[0], size[1], size[2], nc );
 	return false;
     }
 
@@ -48,7 +48,7 @@ SbBool SoMFImage::read1Value( SoInput* in, int index )
     if ( !buffersize && (size[0] || size[1] || size[2] || nc) )
     {
 	SoReadError::post( in, "Invalid image specification %dx%dx%dx%d",
-			   size[0], size[1], size[2], nc);
+			   size[0], size[1], size[2], nc );
 	return false;
     }
 
@@ -59,12 +59,12 @@ SbBool SoMFImage::read1Value( SoInput* in, int index )
 	return true;
     }
 
-    values[index].setValue(size, nc, 0 );
-    unsigned char* pixblock = values[index].getValue(size, nc);
+    values[index].setValue( size, nc, 0 );
+    unsigned char* pixblock = values[index].getValue( size, nc );
 
     if ( in->isBinary() && in->getIVVersion() >= 2.1f)
     {
-	if ( !in->readBinaryArray(pixblock,buffersize) )
+	if ( !in->readBinaryArray( pixblock,buffersize ) )
 	    mErrRet;
     }
     else
@@ -74,7 +74,7 @@ SbBool SoMFImage::read1Value( SoInput* in, int index )
 	for ( int i=0; i<numpixels; i++ )
 	{
 	    unsigned int l;
-	    if ( !in->read(l) )
+	    if ( !in->read( l ) )
 		mErrRet;
 
 	    for ( int j=0; j<nc; j++ )
@@ -93,7 +93,7 @@ void SoMFImage::write1Value( SoOutput* out, int index ) const
 {
     int nc;
     SbVec3s size;
-    unsigned char * pixblock = values[index].getValue(size, nc);
+    unsigned char * pixblock = values[index].getValue( size, nc );
 
     const bool binary = out->isBinary();
 
@@ -119,7 +119,7 @@ void SoMFImage::write1Value( SoOutput* out, int index ) const
     }
     else
     {
-	out->write('\n');
+	out->write( '\n' );
 	out->indent();
 
 	int numpixels = size[0] * size[1] * size[2];
@@ -135,13 +135,150 @@ void SoMFImage::write1Value( SoOutput* out, int index ) const
 	    out->write( data );
 	    if ( ((i+1)%8 == 0) && (i+1 != numpixels))
 	    {
-		out->write('\n');
+		out->write( '\n' );
 		out->indent();
 	    }
 	    else
 	    {
-		out->write(' ');
+		out->write( ' ' );
 	    }
 	}
     }
 }
+
+
+
+SO_MFIELD_SOURCE( SoMFImagei32, SbImagei32, const SbImagei32& );
+
+void SoMFImagei32::initClass()
+{
+    SO_MFIELD_INIT_CLASS( SoMFImagei32, SoMField );
+}
+
+
+SbBool SoMFImagei32::read1Value( SoInput* in, int index )
+{
+    SbVec3i32 size;
+    int nc;
+
+    static const char* prematuremsg = "Premature end of file";
+
+    if ( !in->read( size[0] ) || !in->read( size[1] ) || !in->read( size[2] ) ||
+         !in->read( nc ) )
+	mErrRet;
+
+    if ( size[0]<0 || size[1]<0 || size[2]<0 || nc<0 || nc>4 )
+    {
+	SoReadError::post( in, "Invalid image specification %dx%dx%dx%d",
+			   size[0], size[1], size[2], nc );
+	return false;
+    }
+
+    const double buffersize = size[0] * size[1] * size[2] * nc;
+
+    if ( buffersize >= sizeof (int) )
+    {
+	SoReadError::post( in, "Image too large to be handled: %dx%dx%dx%d",
+		size[0], size[1], size[2], nc );
+	return false;
+    }
+
+    if ( !buffersize && (size[0] || size[1] || size[2] || nc) )
+    {
+	SoReadError::post( in, "Invalid image specification %dx%dx%dx%d",
+			   size[0], size[1], size[2], nc );
+	return false;
+    }
+
+
+    if ( !buffersize ) 
+    {
+	values[index].setValue( SbVec3i32(0,0,0), 0, NULL );
+	return true;
+    }
+
+    values[index].setValue(size, nc, 0 );
+    unsigned char* pixblock = values[index].getValue( size, nc );
+
+    if ( in->isBinary() && in->getIVVersion() >= 2.1f)
+    {
+	if ( !in->readBinaryArray( pixblock, (int) buffersize ) )
+	    mErrRet;
+    }
+    else
+    {
+	int byte = 0;
+	const int numpixels = size[0] * size[1] * size[2];
+	for ( int i=0; i<numpixels; i++ )
+	{
+	    unsigned int l;
+	    if ( !in->read( l ) )
+		mErrRet;
+
+	    for ( int j=0; j<nc; j++ )
+		pixblock[byte++] =
+		    (unsigned char) ((l >> (8 * (nc-j-1))) & 0xFF);
+	}
+    }
+
+    return true;
+}
+
+
+void SoMFImagei32::write1Value( SoOutput* out, int index ) const
+{
+    int nc;
+    SbVec3i32 size;
+    unsigned char * pixblock = values[index].getValue( size, nc );
+
+    const bool binary = out->isBinary();
+
+    out->write( size[0] ); mWriteSpace;
+    out->write( size[1] ); mWriteSpace;
+    out->write( size[2] ); mWriteSpace;
+    out->write( nc );
+
+
+    if ( out->isBinary() )
+    {
+	int buffersize = size[0] * size[1] * size[2] * nc;
+	if ( buffersize )
+	{
+	    out->writeBinaryArray( pixblock, buffersize );
+	    int padsize = ((buffersize + 3) / 4) * 4 - buffersize;
+	    if ( padsize )
+	    {
+		unsigned char pads[3] = {'\0','\0','\0'};
+		out->writeBinaryArray( pads, padsize );
+	    }
+	}
+    }
+    else
+    {
+	out->write( '\n' );
+	out->indent();
+
+	int numpixels = size[0] * size[1] * size[2];
+	for ( int i=0; i<numpixels; i++ )
+	{
+	    unsigned int data = 0;
+	    for ( int j=0; j<nc; j++ )
+	    {
+		if ( j ) data <<= 8;
+		data |= (uint32_t)(pixblock[i * nc + j]);
+	    }
+
+	    out->write( data );
+	    if ( ((i+1)%8 == 0) && (i+1 != numpixels))
+	    {
+		out->write( '\n' );
+		out->indent();
+	    }
+	    else
+	    {
+		out->write( ' ' );
+	    }
+	}
+    }
+}
+
