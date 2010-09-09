@@ -4,7 +4,7 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID = "$Id: convolve2d.cc,v 1.1 2010-09-08 20:50:09 cvskris Exp $";
+static const char* rcsID = "$Id: convolve2d.cc,v 1.2 2010-09-09 21:47:55 cvskris Exp $";
 
 #include "convolve2d.h"
 
@@ -35,6 +35,7 @@ bool Convolver2D<float>::doPrepare( int )
     {
 	fft_ = new Fourier::CC;
 	fft_->setInputInfo( x_->info() );
+	fft_->setNormalization( true );
     }
 
     return true;
@@ -44,18 +45,12 @@ bool Convolver2D<float>::doPrepare( int )
     if ( !freqdomain ) \
     { \
 	freqdomain = new float_complex[totalsz]; \
+	memset( freqdomain, 0, sizeof(float_complex)*totalsz ); \
+ \
 	const float* xptr = realdomain->getData(); \
-	const float* stopptr = xptr + totalsz; \
-	float* xfptr = (float*) freqdomain; \
-	memset( xfptr, 0, sizeof(float_complex)*totalsz ); \
  \
-	while ( xptr!=stopptr ) \
-	{ \
-	    *xfptr = *xptr; \
-	    xptr++; \
-	    xfptr += 2; \
-	} \
- \
+	mPointerOperation( float, (float*) freqdomain, = *xptr, \
+			   totalsz*2, += 2; xptr++ ); \
 	fft_->setInput( freqdomain ); \
 	fft_->setOutput( freqdomain ); \
 	fft_->setDir( true ); \
@@ -77,33 +72,21 @@ bool Convolver2D<float>::doWork( od_int64 start, od_int64 stop, int threadid )
     mInitFreqDomain( y_, yf_ );
     if ( !zf_ ) zf_ = new float_complex[totalsz];
 
-    float_complex* zfptr = zf_;
     const float_complex* xfptr = xf_;
     const float_complex* yfptr = yf_;
-    const float_complex* stopptr = zfptr + totalsz;
 
-    while ( zfptr!=stopptr )
-    {
-	*zfptr = *xfptr * *yfptr;
-	xfptr++;
-	yfptr++;
-	zfptr++;
-    }
+    mPointerOperation( float_complex, zf_, = *xfptr * *yfptr, totalsz,
+	   		++; xfptr++; yfptr++ );
 
     fft_->setInput( zf_ );
     fft_->setOutput( zf_ );
     fft_->setDir( false );
     fft_->execute();
 
-    float* zptr = z_->getData();
-    float* zfptr_real = (float*) zf_;
+    const float* zfptr_real = (float*) zf_;
 
-    while ( zfptr!=stopptr )
-    {
-	*zptr = *zfptr_real;
-	zptr++;
-	zfptr_real += 2; 
-    }
+    mPointerOperation( float, z_->getData(), = *zfptr_real, totalsz,
+	    	       ++; zfptr_real += 2 );
 
     return true;
 }
