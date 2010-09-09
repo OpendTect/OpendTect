@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.24 2010-01-27 23:00:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.25 2010-09-09 22:00:14 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -65,6 +65,7 @@ Array2DInterpol::Array2DInterpol()
     , nrrows_( -1 )
     , nrcols_( -1 )
     , filltype_( Full )
+    , maxholesize_( mUdf(float) )
     , rowstep_( 1 )
     , colstep_( 1 )
     , mask_( 0 )
@@ -882,6 +883,7 @@ public:
 		continue;
 
 	    const int col = idx%nrcols_;
+	    const int row = idx/nrcols_;
 
 	    int nrsources = 0;
 
@@ -903,7 +905,8 @@ public:
 
 		    if ( offset<0 )
 		    {
-			idz -= offset+1;
+			const int targetrow = row+idz;
+			idz -= targetrow+1;
 			continue;
 		    }
 
