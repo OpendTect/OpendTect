@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uibasemap.cc,v 1.7 2010-09-02 10:23:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibasemap.cc,v 1.8 2010-09-09 17:04:19 cvskris Exp $";
 
 #include "uibasemap.h"
 #include "uigraphicsitemimpl.h"
@@ -109,6 +109,7 @@ uiBaseMap::~uiBaseMap()
 
     deepErase( objects_ );
     delete &view_;
+    delete &w2ui_;
 }
 
 
