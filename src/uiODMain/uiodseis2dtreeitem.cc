@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.92 2010-08-26 04:07:44 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.93 2010-09-09 04:53:10 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -60,7 +60,7 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Add"), 0 );
-    mnu.insertItem( new uiMenuItem("&Create from 3D"), 1 );
+    mnu.insertItem( new uiMenuItem("&Create from 3D ..."), 1 );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
