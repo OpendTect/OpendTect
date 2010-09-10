@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initsood.cc,v 1.23 2010-07-12 16:37:08 cvskris Exp $";
+static const char* rcsID = "$Id: initsood.cc,v 1.24 2010-09-10 16:18:01 cvskarthika Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -67,6 +67,7 @@ void SoOD::initStdClasses()
 
     //Then fields
     SoMFImage::initClass();
+    SoMFImagei32::initClass();
 
     //Then nodes
     SoArrow::initClass();
