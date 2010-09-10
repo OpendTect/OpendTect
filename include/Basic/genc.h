@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.40 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: genc.h,v 1.41 2010-09-10 11:52:47 cvsranojay Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -32,6 +32,11 @@ mGlobal int GetPID();
 
 mGlobal const char* GetLocalHostName();
 		/*!< returns (as expected) local host name */
+
+#ifdef __win__
+mGlobal const char* GetLocalIP();
+		/*!< returns local IP Address */
+#endif
 
 mGlobal int isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */

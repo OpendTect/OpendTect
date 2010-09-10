@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.110 2010-09-02 06:40:36 cvsraman Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.111 2010-09-10 11:52:47 cvsranojay Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -31,6 +31,18 @@ static const char* rcsID = "$Id: genc.c,v 1.110 2010-09-02 06:40:36 cvsraman Exp
 static int insysadmmode_ = 0;
 mGlobal int InSysAdmMode() { return insysadmmode_; }
 mGlobal void SetInSysAdmMode() { insysadmmode_ = 1; }
+
+#ifdef __win__
+const char* GetLocalIP()
+{
+    static char ret[16];
+    struct in_addr addr;
+    struct hostent* remotehost = gethostbyname( GetLocalHostName() );
+    addr.s_addr = *(u_long *)remotehost->h_addr_list[0];
+    strcpy( ret, inet_ntoa(addr) );
+    return ret;
+}
+#endif
 
 
 const char* GetLocalHostName()
