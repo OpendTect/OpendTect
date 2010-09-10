@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.10 2010-09-08 20:51:02 cvskris Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.11 2010-09-10 17:37:32 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -132,6 +132,14 @@ bool processKernel( int start, int stop, int thread )
     if ( !outputslice.isOK() )
 	return false;
 
+    PtrMan<Array2DImpl<bool> > wasudf = 0;
+    if ( !pars_.filludf_ )
+    {
+	wasudf = new Array2DImpl<bool>( ksz0, ksz1 );
+	if ( !wasudf->isOK() )
+	    return false;
+    }
+
     smoother.setInput( inputslice, false );
     smoother.setOutput( outputslice );
 
@@ -142,15 +150,16 @@ bool processKernel( int start, int stop, int thread )
     const int outputsz0 = i0samples_.width()+1;
     const int outputsz1 = i1samples_.width()+1;
 
-    const float searchradius = mMAX( pars_.stepout_.row, pars_.stepout_.col );
-
     InverseDistanceArray2DInterpol interpol;
     interpol.setFillType( Array2DInterpol::Full );
     interpol.setRowStep( 1 );
     interpol.setColStep( 1 );
     interpol.setClassification( false );
-    interpol.setSearchRadius( searchradius );
+    interpol.setSearchRadius( 10 );
 
+    bool* wasudfptr = wasudf ? wasudf->getData() : 0;
+    float* inputsliceptr = inputslice.getData();
+    const float* outputsliceptr = outputslice.getData();
 
     for ( od_int64 depthidx=start; depthidx<=stop && shouldContinue();
 	  depthidx++ )
@@ -160,31 +169,49 @@ bool processKernel( int start, int stop, int thread )
 	const int outputdepth = depthindex-o2_;
 
 	inputslice.setAll( mUdf(float) );
+	if ( wasudf ) wasudf->setAll( true );
 
 	bool missingdata = false;
 	for ( int idx0=0; idx0<ksz0; idx0++ )
 	{
 	    const int inputpos0 = kernelorigin0+idx0;
-	    if ( inputpos0 < 0 || inputpos0 > lastinput0 )
+	    if ( inputpos0<0 )
 	    {
+		idx0 -= inputpos0+1;
 		missingdata = true;
 		continue; 
+	    }
+
+	    if ( inputpos0>lastinput0 )
+	    {
+		missingdata = true;
+		break;
 	    }
 
 	    for ( int idx1=0; idx1<ksz1; idx1++ )
 	    {
 		const int inputpos1 = kernelorigin1+idx1;
-		if ( inputpos1 < 0 || inputpos1 > lastinput1 )
+		if ( inputpos1<0 )
 		{
+		    idx1 -= inputpos1+1;
 		    missingdata = true;
-		    continue;  
+		    continue; 
 		}
 
-		const float val = input_.get(inputpos0,inputpos1,inputdepth);
-		if ( !missingdata && mIsUdf( val ) )
+		if ( inputpos1>lastinput1 )
+		{
 		    missingdata = true;
+		    break;
+		}
 
-		inputslice.set( idx0, idx1, val );
+		const int offset = inputslice.info().getOffset( idx0, idx1 );
+		const float val = input_.get(inputpos0,inputpos1,inputdepth);
+		if ( mIsUdf(val) )
+		    missingdata = true;
+		else if ( wasudfptr )
+		    wasudfptr[offset] = false;
+
+		inputsliceptr[offset] = val;
 	    }
 	}
 
@@ -209,7 +236,13 @@ bool processKernel( int start, int stop, int thread )
 		const int kernelpos1 = inputpos1-kernelorigin1;
 		const int outputpos1 = globalpos1-o1_;
 
-		const float val = outputslice.get(kernelpos0,kernelpos1);
+		const int offset =
+		    outputslice.info().getOffset( kernelpos0, kernelpos1 );
+
+		if ( wasudfptr && wasudfptr[offset] )
+		    continue;
+
+		const float val = outputsliceptr[offset];
 		output_.set( outputpos0, outputpos1, outputdepth, val );
 	    }
 	}
