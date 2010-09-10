@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.19 2010-07-19 15:17:26 cvshelene Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.20 2010-09-10 11:51:28 cvsbert Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -38,7 +38,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 	velfld_ = new uiGenInput( this, "Temporary model velocity (m/s)",
-				  FloatInpSpec(4000) );
+				  FloatInpSpec(2000) );
 	velfld_->attach( alignedBelow, filefld_ );
     }
 
