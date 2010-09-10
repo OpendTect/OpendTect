@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother2d.h,v 1.4 2010-09-09 22:02:24 cvskris Exp $
+ RCS:		$Id: smoother2d.h,v 1.5 2010-09-10 14:27:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,6 +184,7 @@ bool Smoother2D<T>::execute()
 	if ( windowsz0_<=0 || windowsz1_<=0 )
 	    return false;
 
+	//Can we setup for fft? If so, all volumes should have same size
 	if ( typeid(T)==typeid(float) && input->getData() && !hasudf_ )
 	    window_ = new Array2DImpl<T>( input->info() );
 	else
@@ -192,7 +193,8 @@ bool Smoother2D<T>::execute()
 	if ( !window_->isOK() )
 	    return false;
 
-	const int hwinsz0 = windowsz0_/2; const int hwinsz1 = windowsz0_/2;
+	const float hwinsz0 = ((float)windowsz0_)/2;
+	const float hwinsz1 = ((float)windowsz1_)/2;
 	Coord pos;
 
 	const int sz0 = window_->info().getSize( 0 );
@@ -204,12 +206,12 @@ bool Smoother2D<T>::execute()
 
 	for ( int idx0=0; idx0<sz0; idx0++ )
 	{
-	    const int pos0 = idx0>hsz0 ? idx0-sz0 : idx0;
-	    pos[0] = hwinsz0 ? ((double)(pos0))/hwinsz0 : pos0;
+	    const float pos0 = idx0>hsz0 ? idx0-sz0 : idx0;
+	    pos[0] = pos0/hwinsz0;
 	    for ( int idx1=0; idx1<sz1; idx1++ )
 	    {
-		const int pos1 = idx1>hsz1 ? idx1-sz1 : idx1;
-		pos[1] = hwinsz1 ? ((double)(pos1))/hwinsz1 : pos1;
+		const float pos1 = idx1>hsz1 ? idx1-sz1 : idx1;
+		pos[1] = pos1/hwinsz1;
 		const float weight = wf->getValue( pos.abs() );
 		window_->set( idx0, idx1, weight );
 		weightsum += weight;
