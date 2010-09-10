@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.28 2010-08-26 14:47:55 cvskris Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.29 2010-09-10 14:06:36 cvskris Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -292,14 +292,8 @@ bool DipFilter::initKernel()
 	}
     }
 
-    float* kernelptr = kernel_.getData();
-    const float* stopptr = kernelptr + kernel_.info().getTotalSz();
-
-    while ( kernelptr!=stopptr )
-    {
-	*kernelptr /= kernelsum;
-	kernelptr++;
-    }
+    mPointerOperation( float, kernel_.getData(), /=kernelsum,
+	    kernel_.info().getTotalSz(), ++ );
 
     return true;
 }
