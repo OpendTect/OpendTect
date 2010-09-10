@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.14 2010-09-08 20:50:09 cvskris Exp $
+ RCS:           $Id: convolve2d.h,v 1.15 2010-09-10 06:28:19 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -18,13 +18,19 @@ ________________________________________________________________________
 #include "task.h"
 #include "rowcol.h"
 
+#if defined(__msvc__) && defined(ALGO_EXPORTS)
+# define mAlgoClass	class dll_export
+#else
+# define mAlgoClass	class
+#endif
+
 namespace Fourier { class CC; }
 typedef std::complex<float> float_complex;
 
 /*!Convolves (or correlates) two 2D signals. */
 
 template <class T>
-class Convolver2D : public ParallelTask
+mAlgoClass Convolver2D : public ParallelTask
 {
 public:
 				Convolver2D();
