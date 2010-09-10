@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.60 2010-04-07 13:10:19 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.61 2010-09-10 11:50:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,8 +51,10 @@ public:
 			IOPar(const IOPar&);
 			~IOPar();
     IOPar&		operator =(const IOPar&);
-    bool		operator ==( const IOPar& iop ) const
+    inline bool		operator ==( const IOPar& iop ) const
 			{ return isEqual(iop); }
+    inline bool		operator !=( const IOPar& iop ) const
+			{ return !isEqual(iop); }
 
     int			size() const;
     inline bool		isEmpty() const		{ return size() == 0; }
