@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.139 2010-08-19 08:43:37 cvsranojay Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.140 2010-09-10 12:01:42 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -355,14 +355,6 @@ bool HorizonDisplay::updateFromEM( TaskRunner* tr )
 
 void HorizonDisplay::updateFromMPE()
 {
-    const bool hastracker = MPE::engine().getTrackerByObject(getObjectID())>=0;
-	
-    //if ( hastracker && !restoresessupdate_ )
-    //{
-	//useWireframe( true );
-	//useTexture( false );
-    //}
-
     if ( geometryRowRange().nrSteps()<=1 || geometryColRange().nrSteps()<=1 )
 	setResolution( 0, 0 ); //Automatic resolution
 
@@ -1338,60 +1330,75 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 } 
 
 
-#define mTraverseLine( linetype,startbid,faststop,faststep,slowdim,fastdim ) \
-\
-    const StepInterval<int> inlrg = horizon->geometry().rowRange(sid);\
-    const StepInterval<int> crlrg = horizon->geometry().colRange(sid); \
-\
-    const int target##linetype = cs.hrg.start.linetype; \
-    if ( !linetype##rg.includes(target##linetype) ) \
-    { \
-	mEndLine; \
-	continue; \
-    } \
- \
-    const int rgindex = linetype##rg.getIndex(target##linetype); \
-    const int prev##linetype = linetype##rg.atIndex(rgindex); \
-    const int next##linetype = prev##linetype<target##linetype \
-	? linetype##rg.atIndex(rgindex+1) \
-	: prev##linetype; \
- \
-    for ( BinID bid=startbid; bid[fastdim]<=faststop; bid[fastdim]+=faststep ) \
-    { \
-	if ( !cs.hrg.includes(bid) ) \
-	{ \
-	    mEndLine; \
-	    continue; \
-	} \
- \
-	BinID prevbid( bid ); prevbid[slowdim] = prev##linetype; \
-	BinID nextbid( bid ); nextbid[slowdim] = next##linetype; \
-	Coord3 prevpos(horizon->getPos(sid,prevbid.toInt64())); \
-	if ( zaxistransform_ ) prevpos.z =zaxistransform_->transform(prevpos); \
-	Coord3 pos = prevpos; \
-	if ( nextbid!=prevbid && prevpos.isDefined() ) \
-	{ \
-	    Coord3 nextpos = \
-		horizon->getPos(sid,nextbid.toInt64()); \
-	    if ( zaxistransform_ ) nextpos.z = \
-	    	zaxistransform_->transform(nextpos); \
-	    if ( nextpos.isDefined() ) \
-	    { \
-		const float frac = float( target##linetype - prev##linetype ) \
-				   / linetype##rg.step; \
-		pos = (1-frac)*prevpos + frac*nextpos; \
-	    } \
-	} \
- \
-	if ( !pos.isDefined() || !cs.zrg.includes(pos.z) ) \
-	{ \
-	    mEndLine; \
-	    continue; \
-	} \
- \
-	line->setCoordIndex(cii++, line->getCoordinates()->addPos(pos)); \
-    } \
+void traverseLine( bool oninline, ZAxisTransform* zat, const CubeSampling& cs,
+		   const EM::Horizon3D* horizon, EM::SectionID sid,
+		   visBase::IndexedShape* line, int& cii )
+{
+    const StepInterval<int> inlrg = horizon->geometry().rowRange(sid);
+    const StepInterval<int> crlrg = horizon->geometry().colRange(sid);
+
+    StepInterval<int> rg; int targetline; BinID startbid;
+    int faststop, faststep, slowdim, fastdim;
+    if ( oninline )
+    {
+	rg = inlrg; targetline = cs.hrg.start.inl;
+	startbid = BinID( targetline, crlrg.start );
+	faststop = crlrg.stop; faststep = crlrg.step;
+	slowdim = 0; fastdim = 1;
+    }
+    else
+    {
+	rg = crlrg; targetline = cs.hrg.start.crl;
+	startbid = BinID( inlrg.start, targetline );
+	faststop = inlrg.stop; faststep = inlrg.step;
+	slowdim = 1; fastdim = 0;
+    }
+
+    if ( !rg.includes(targetline) )
+    {
+	mEndLine;
+	return;
+    }
+
+    const int rgindex = rg.getIndex(targetline);
+    const int prevline = rg.atIndex(rgindex);
+    const int nextline = prevline<targetline ? rg.atIndex(rgindex+1) : prevline;
+
+    for ( BinID bid=startbid; bid[fastdim]<=faststop; bid[fastdim]+=faststep )
+    {
+	if ( !cs.hrg.includes(bid) )
+	{
+	    mEndLine;
+	    continue;
+	}
+
+	BinID prevbid( bid ); prevbid[slowdim] = prevline;
+	BinID nextbid( bid ); nextbid[slowdim] = nextline;
+	Coord3 prevpos(horizon->getPos(sid,prevbid.toInt64()));
+	if ( zat ) prevpos.z = zat->transform( prevpos );
+	Coord3 pos = prevpos;
+	if ( nextbid!=prevbid && prevpos.isDefined() )
+	{
+	    Coord3 nextpos =
+		horizon->getPos(sid,nextbid.toInt64());
+	    if ( zat ) nextpos.z = zat->transform(nextpos);
+	    if ( nextpos.isDefined() )
+	    {
+		const float frac = float( targetline - prevline ) / rg.step;
+		pos = (1-frac)*prevpos + frac*nextpos;
+	    }
+	}
+
+	if ( !pos.isDefined() || !cs.zrg.includes(pos.z) )
+	{
+	    mEndLine;
+	    continue;
+	}
+
+	line->setCoordIndex(cii++, line->getCoordinates()->addPos(pos));
+    }
     mEndLine
+}
 
 
 static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist, 
@@ -1708,13 +1715,13 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	    else if ( cs.hrg.start.inl==cs.hrg.stop.inl )
 	    {
-		mTraverseLine( inl, BinID(targetinl,crlrg.start),
-			       crlrg.stop, crlrg.step, 0, 1 );
+		traverseLine( true, zaxistransform_, cs, horizon, sid,
+			      line, cii );
 	    }
 	    else if ( cs.hrg.start.crl==cs.hrg.stop.crl )
 	    {
-		mTraverseLine( crl, BinID(inlrg.start,targetcrl),
-			       inlrg.stop, inlrg.step, 1, 0 );
+		traverseLine( false, zaxistransform_, cs, horizon, sid,
+			      line, cii );
 	    }
 	    else
 	    {
