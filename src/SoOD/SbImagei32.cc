@@ -7,13 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SbImagei32.cc,v 1.4 2010-09-09 07:51:09 cvskarthika Exp $";
+static const char* rcsID = "$Id: SbImagei32.cc,v 1.5 2010-09-10 05:37:31 cvsnanne Exp $";
 
 #include "SbImagei32.h"
-
-#include "bufstring.h"
-#include "ranges.h"
-#include <string>
+#include <string.h>
 
 // Default constructor.
 SbImagei32::SbImagei32() : bytes( NULL ), datatype( SETVALUEPTR_DATA ), 
@@ -58,7 +55,8 @@ void SbImagei32::freeData()
 	switch ( datatype )
 	{
 	    default:
-		pErrMsg( "Unknown data type!");
+		SoDebugError::postWarning( "SbImagei32::freeData",
+					   "Unknown data type!" );
 		break;
 
 	    case INTERNAL_DATA:
@@ -147,14 +145,13 @@ bool SbImagei32::setValue( const SbVec3i32& sz, const int bytesperpixel,
 	    memcpy( bytes, data, buffersize * bytesperpixel ); 
 	else
 	{
-	    BufferString msg( "Unable to allocate memory! ");
+	    SbString msg( "Unable to allocate memory! ");
 	    msg += sz[0];
 	    msg += " ";
 	    msg += sz[1];
 	    msg += " ";
 	    msg += sz[2];
-	    pErrMsg( msg );
-
+	    SoDebugError::postWarning( "SbImagei32::setValue", msg.getString());
 	    ret = false;
 	}
     }
@@ -228,7 +225,8 @@ SbImagei32& SbImagei32::operator = ( const SbImagei32& image )
 	    switch ( image.datatype )
 	    {
 		default:
-		    pErrMsg( "Unknown data type!");
+		    SoDebugError::postWarning( "SbImagei32::freeData",
+					       "Unknown data type!" );
 		    break;
 
 		case INTERNAL_DATA:
