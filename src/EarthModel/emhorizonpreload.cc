@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.4 2010-09-10 06:44:52 cvsnageswara Exp $";
+static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.5 2010-09-10 07:26:56 cvsnageswara Exp $";
 
 #include "emhorizonpreload.h"
 
@@ -54,9 +54,10 @@ bool HorizonPreLoad::load( const TypeSet<MultiID>& midset, TaskRunner* tr )
     PtrMan<ExecutorGroup> execgrp = new ExecutorGroup( "Pre-loading horizons" );
     for ( int idx=0; idx<midset.size(); idx++ )
     {
-	if ( midset_.indexOf( midset[idx] ) > -1 )
+	const int selidx = midset_.indexOf( midset[idx] );
+	if ( selidx > -1 )
 	{
-	    msg1.add( " '" ).add( nameset_.get(idx) ).add( "' " );
+	    msg1.add( " '" ).add( nameset_.get(selidx) ).add( "' " );
 	    nralreadyloaded++;
 	    continue;
 	}
