@@ -7,9 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SbImagei32.cc,v 1.5 2010-09-10 05:37:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: SbImagei32.cc,v 1.6 2010-09-10 11:28:15 cvsranojay Exp $";
 
 #include "SbImagei32.h"
+
+#include <Inventor/errors/SoDebugError.h>
 #include <string.h>
 
 // Default constructor.
