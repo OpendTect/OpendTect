@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.25 2010-07-28 13:25:04 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.26 2010-09-10 11:50:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,10 +69,11 @@ public:
 
 			~Form()	{ deepErase(specs_); }
 
-	Form&		add( DataInpSpec* spec )
-			    { specs_ += spec; return *this; }
 	Form&		add( const DataInpSpec& spec )
 			    { specs_ += spec.clone(); return *this; }
+	Form&		add( DataInpSpec* spec )
+			    { specs_ += spec ? spec : new StringInpSpec;
+			      return *this; }
 
 	Form*		duplicate( const char* nm ) const
 	    		{
