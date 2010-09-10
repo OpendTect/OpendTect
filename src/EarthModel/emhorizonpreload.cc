@@ -8,16 +8,17 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.3 2010-08-27 04:53:00 cvsnageswara Exp $";
+static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.4 2010-09-10 06:44:52 cvsnageswara Exp $";
 
 #include "emhorizonpreload.h"
 
 #include "bufstring.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "executor.h"
 #include "ioman.h"
 #include "multiid.h"
-#include "task.h"
+#include "ptrman.h"
 
 static const MultiID udfmid( "-1" );
 
@@ -40,28 +41,60 @@ HorizonPreLoad::HorizonPreLoad()
 }
 
 
-bool HorizonPreLoad::load( const MultiID& mid, TaskRunner* tr )
+bool HorizonPreLoad::load( const TypeSet<MultiID>& midset, TaskRunner* tr )
 {
-    if ( midset_.isPresent(mid) )
-    {
-	const int idx = midset_.indexOf( mid );
-	errmsg_ = "The selected horizon '";
-	errmsg_.add( nameset_.get(idx) )
-	       .add( "' is already pre-loaded" );
-
+    errmsg_ = "";
+    if ( midset.isEmpty() )
 	return false;
+
+    BufferString msg1( "The selected horizon(s):\n" );
+    BufferString msg2( "Could not pre-load:\n" );
+    int nralreadyloaded = 0;
+    int nrproblems = 0;
+    PtrMan<ExecutorGroup> execgrp = new ExecutorGroup( "Pre-loading horizons" );
+    for ( int idx=0; idx<midset.size(); idx++ )
+    {
+	if ( midset_.indexOf( midset[idx] ) > -1 )
+	{
+	    msg1.add( " '" ).add( nameset_.get(idx) ).add( "' " );
+	    nralreadyloaded++;
+	    continue;
+	}
+
+	EM::ObjectID emid = EM::EMM().getObjectID( midset[idx] );
+	EM::EMObject* emobj = EM::EMM().getObject( emid );
+	if ( !emobj || !emobj->isFullyLoaded() )
+	{
+	    Executor* exec = EM::EMM().objectLoader( midset[idx] );
+	    if ( !exec )
+	    {
+		BufferString name( EM::EMM().objectName(midset[idx]) );
+		msg2.add( " '" ).add( name ).add( "' " );
+		nrproblems++;
+		continue;
+	    }
+
+	    execgrp->add( exec );
+	    emid = EM::EMM().getObjectID( midset[idx] );
+	    emobj = EM::EMM().getObject( emid );
+	}
+
+	midset_ += midset[idx];
+	nameset_.add( emobj->name() );
+	emobj->ref();
     }
 
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid, tr );
-    if ( !emobj )
+    if ( nralreadyloaded > 0 )
     {
-	errmsg_ = "Problem while loading horizon";
-	return false;
+	msg1.add( " already pre-loaded" );
+	errmsg_.add( msg1 );
     }
 
-    midset_ += mid;
-    nameset_.add( emobj->name() );
-    emobj->ref();
+    if ( nrproblems > 0 )
+	errmsg_.add( "\n" ).add( msg2 );
+
+    if ( execgrp->nrExecutors() != 0 && !tr->execute( *execgrp ) )
+	return false;
 
     return true;
 }
@@ -78,27 +111,36 @@ const MultiID& HorizonPreLoad::getMultiID( const char* horname ) const
 }
 
 
-bool HorizonPreLoad::unload( const char* horname )
+bool HorizonPreLoad::unload( const BufferStringSet& hornames )
 {
-    if ( !nameset_.isPresent(horname) )
-    {
-	errmsg_ = "";
+    if ( hornames.isEmpty() )
 	return false;
+
+    errmsg_ = "";
+    int invalidids = 0;
+    for ( int hidx=0; hidx<hornames.size(); hidx++ )
+    {
+	const int selidx = nameset_.indexOf( hornames.get(hidx) );
+	if ( selidx < 0 )
+	    continue;
+
+	const MultiID mid = midset_[selidx];
+	EM::ObjectID emid = EM::EMM().getObjectID( mid );
+	EM::EMObject* emobj = EM::EMM().getObject( emid );
+	if ( !emobj )
+	{
+	    invalidids++;
+	    errmsg_ = "Found Invalid ID(s)";
+	    continue;
+	}
+
+	emobj->unRef();
+	midset_.remove( selidx );
+	nameset_.remove( selidx );
     }
 
-    const int selidx = nameset_.indexOf( horname );
-    const MultiID mid = midset_[selidx];
-    EM::ObjectID emid = EM::EMM().getObjectID( mid );
-    EM::EMObject* emobj = EM::EMM().getObject( emid );
-    if ( !emobj )
-    {
-	errmsg_ = "Invalid ID";
+    if ( invalidids > 0 )
 	return false;
-    }
-
-    emobj->unRef();
-    midset_.remove( selidx );
-    nameset_.remove( selidx );
 
     return true;
 }
@@ -106,9 +148,7 @@ bool HorizonPreLoad::unload( const char* horname )
 
 void HorizonPreLoad::surveyChgCB( CallBacker* )
 {
-    for ( int idx=0; idx<nameset_.size(); idx++ )
-	unload( nameset_.get(idx) );
-
+    unload( nameset_ );
     midset_.erase();
     nameset_.erase();
     errmsg_ = "";

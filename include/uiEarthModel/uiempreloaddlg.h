@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: uiempreloaddlg.h,v 1.3 2010-08-27 04:53:00 cvsnageswara Exp $
+ RCS:           $Id: uiempreloaddlg.h,v 1.4 2010-09-10 06:44:52 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiListBox;
-class uiToolButton;
 class uiPushButton;
 class uiTextEdit;
+class uiToolButton;
 class BufferString;
 class MultiID;
 
@@ -50,7 +50,7 @@ protected:
     void		selCB(CallBacker*);
     void		openPushCB(CallBacker*);
     void		savePushCB(CallBacker*);
-    void		loadSavedHorizon(const MultiID&);
+    void		loadSavedHorizon(const TypeSet<MultiID>&);
 };
 
 

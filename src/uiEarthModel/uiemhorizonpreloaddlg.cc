@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.1 2010-08-27 04:53:00 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.2 2010-09-10 06:44:52 cvsnageswara Exp $";
 
 #include "uiempreloaddlg.h"
 
@@ -43,7 +43,7 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     : uiEMPreLoadDlg(p)
 {
     setCtrlStyle( LeaveOnly );
-    listfld_ = new uiListBox( this, "Loaded entries" );
+    listfld_ = new uiListBox( this, "Loaded entries", true );
     listfld_->selectionChanged.notify(mCB(this,uiHorizonPreLoadDlg,selCB) );
 
     uiToolButton* opentb = new uiToolButton( this, "Retrieve pre-loads",
@@ -106,19 +106,18 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 	return false;
 
     EM::HorizonPreLoad& hpl = EM::HPreL();
+    TypeSet<MultiID> midset;
     for ( int idx=0; idx<hordlg.nrSel(); idx++ )
     {
 	const MultiID mid = hordlg.selected( idx );
-	uiTaskRunner tr( this );
-	if ( !hpl.load(mid, &tr) )
-	{
-	    uiMSG().message( hpl.errorMsg() );
-	    continue;
-	}
-
-	listfld_->addItem( EM::EMM().objectName(mid) );
+	midset += mid;
     }
 
+    uiTaskRunner tr( this );
+    hpl.load(midset, &tr);
+    uiMSG().message( hpl.errorMsg() );
+    listfld_->empty();
+    listfld_->addItems( hpl.getPreloadedNames() );
     listfld_->setCurrentItem( 0 );
 
     return true;
@@ -127,24 +126,28 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 
 void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
 {
-    const int selidx = listfld_->currentItem();
-    if ( selidx < 0 )
+    BufferStringSet selhornms;
+    listfld_->getSelectedItems( selhornms );
+    if ( selhornms.isEmpty() )
 	return;
 
-    BufferString msg( "Unload '" );
-    msg.add( listfld_->textOfItem(selidx) )
-       .add( "'?\n(This will not delete the object from disk)" );
+    BufferString msg( "Unload " );
+    msg.add( "selected horizon(s)" )
+       .add( "'?\n(This will not delete the object(s) from disk)" );
     if ( !uiMSG().askGoOn( msg ) )
 	return;
 
     EM::HorizonPreLoad& hpl = EM::HPreL();
-    if ( !hpl.unload( listfld_->textOfItem(selidx)) )
+    if ( !hpl.unload(selhornms) )
     {
 	uiMSG().message( hpl.errorMsg() );
 	return;
     }
 
-    listfld_->removeItem( selidx );
+    listfld_->empty();
+    const BufferStringSet& names = hpl.getPreloadedNames();
+    if ( !names.isEmpty() )
+	listfld_->addItems( names );
 }
 
 
@@ -165,10 +168,7 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     const MultiID& mid = hpl.getMultiID( listfld_->textOfItem(selidx) );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
-    {
-	uiMSG().message( hpl.errorMsg() );
 	return;
-    }
 
     BufferString type( EM::EMM().objectType(mid) );
     BufferString info;
@@ -202,6 +202,7 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 
     EM::HorizonPreLoad& hpl = EM::HPreL();
     PtrMan<IOPar> par = fulliop.subselect( "Hor" );
+    TypeSet<MultiID> midset;
     for ( int idx=0; idx<par->size(); idx++ )
     {
 	PtrMan<IOPar> multiidpar = par->subselect( idx );
@@ -213,32 +214,29 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	    continue;
 
 	const MultiID mid( id );
-	loadSavedHorizon( mid );
+	midset += mid;
     }
+
+    if ( midset.isEmpty() )
+	return;
+
+    loadSavedHorizon( midset );
 }
 
 
-void uiHorizonPreLoadDlg::loadSavedHorizon( const MultiID& mid )
+void uiHorizonPreLoadDlg::loadSavedHorizon( const TypeSet<MultiID>& midset )
 {
-    EM::HorizonPreLoad& hpl = EM::HPreL();
-    const BufferStringSet& loadedhornms = hpl.getPreloadedNames();
-    const BufferString horname = EM::EMM().objectName( mid );
-    if ( loadedhornms.isPresent( horname ) )
-    {
-	hpl.unload( horname );
-	const int horidx = listfld_->indexOf( horname );
-	if ( horidx < 0 )
-	    return;
-
-	listfld_->removeItem( horidx );
-    }
-
-    uiTaskRunner tr( this );
-    if ( !hpl.load( mid, &tr ) )
+    if ( midset.isEmpty() )
 	return;
 
-    listfld_->addItem( horname );
-    listfld_->setCurrentItem( 0 );
+    uiTaskRunner tr( this );
+    EM::HorizonPreLoad& hpl = EM::HPreL();
+    hpl.load( midset, &tr );
+    uiMSG().message( hpl.errorMsg() );
+    listfld_->empty();
+    BufferStringSet hornms = hpl.getPreloadedNames();
+    if ( !hornms.isEmpty() )
+	listfld_->addItems( hornms );
 }
 
 
@@ -275,7 +273,7 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     ascostream astrm( *sd.ostrm );
     if ( !astrm.putHeader("Pre-loads") )
     {
-	uiMSG().message( "Cannot write to output file:\n",fnm );
+	uiMSG().message( "Cannot write to output file:\n", fnm );
 	return;
     }
 
