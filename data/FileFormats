@@ -300,13 +300,10 @@ Group: MarkerSet
 !
 Name X Y
 Header.Size: 0
-Header.Token: -1`
+Header.Token: -1` 
+Body.Selection.Well name: P`-1/0
 Body.Position.Form: X Y
-Body.Selection.Position: P`-1/0`P`-1/1
-Body.Top depth.Form: Z
-Body.Top depth.Unit: Feet
-Body.Bottom depth.Form: Z
-Body.Bottom depth.Unit: Feet
+Body.Selection.Position: P`-1/1`P`-1/2
 Group: Simple multi-welldata
 !
 XYZ(ms) MD(m)
