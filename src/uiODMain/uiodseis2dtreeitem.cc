@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.93 2010-09-09 04:53:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.94 2010-09-10 10:32:47 cvssatyaki Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -948,7 +948,19 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( &selattrmnuitem_, &steeringitm_, true, docheckparent );
 
-    mAddMenuItem( &selattrmnuitem_, &attrnoneitm_, as.id().isValid(), false );
+    BufferStringSet zattribnms;
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+    seisserv->get2DZdomainAttribs( s2d->lineSetID(), objnm,
+				   scene->zDomainKey(), zattribnms );
+    mAddMenuItem( &selattrmnuitem_, &attrnoneitm_, true, false );
+    for ( int idx=0; idx<zattribnms.size(); idx++ )
+    {
+	FixedString nm = zattribnms.get(idx).buf();
+	MenuItem* item = new MenuItem(nm);
+	const bool docheck = isstored && nm==as.userRef();
+	if ( docheck ) docheckparent=true;
+	mAddManagedMenuItem( &attrnoneitm_,item,true,docheck);
+    }
 }
 
 

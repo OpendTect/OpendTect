@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.123 2010-08-26 04:11:26 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.124 2010-09-10 10:32:47 cvssatyaki Exp $";
 
 #include "uiseispartserv.h"
 
@@ -319,4 +319,12 @@ void uiSeisPartServer::processVelConv() const
 {
     Vel::uiBatchVolumeConversion dlg( appserv().parent() );
     dlg.go();
+}
+
+
+void uiSeisPartServer::get2DZdomainAttribs( const MultiID& mid,
+	const char* linenm, const char* zdomainstr, BufferStringSet& attribs )
+{
+    mGet2DLineSet()
+    lineset.getZDomainAttrib( attribs, linenm, zdomainstr );
 }

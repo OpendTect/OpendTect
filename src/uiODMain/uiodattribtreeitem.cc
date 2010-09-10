@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.39 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.40 2010-09-10 10:32:47 cvssatyaki Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -126,7 +126,7 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 	attrserv->resetMenuItems();
 	if ( need3dlist )
 	    mCreateItemsList( false, need2dlist );
-	if ( need2dlist && p2d3d != Only2D )
+	if ( need2dlist && p2d3d != Only3D )
 	    mCreateItemsList( true, need3dlist );
     }
 }

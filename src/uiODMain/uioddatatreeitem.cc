@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.54 2010-07-06 16:34:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.55 2010-09-10 10:32:47 cvssatyaki Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -52,6 +52,8 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
 {
     statisticsitem_.iconfnm = "histogram.png";
     removemnuitem_.iconfnm = "stop.png";
+    view2dwvaitem_.iconfnm = "wva.png";
+    view2dvditem_.iconfnm = "vd.png";
 }
 
 
@@ -170,10 +172,45 @@ void uiODDataTreeItem::addToToolBarCB( CallBacker* cb )
     uiVisPartServer* visserv = applMgr()->visServer();
     const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
     const bool hasdatapack = dpid>DataPack::cNoID();
+    const bool isvert = visserv->isVerticalDisp( displayID() );
+    
     if ( hasdatapack )
+    {
 	mAddMenuItem( tb, &statisticsitem_, true, false )
+	if ( isvert )
+	    mAddMenuItem( tb, &amplspectrumitem_, true, false )
+    }
     else
+    {
 	mResetMenuItem( &statisticsitem_ )
+	mResetMenuItem( &amplspectrumitem_ )
+    }
+
+    if ( visserv->canHaveMultipleAttribs(displayID()) && hasTransparencyMenu() )
+	mAddMenuItem( tb, &changetransparencyitem_, true, false )
+    else
+	mResetMenuItem( &changetransparencyitem_ );
+
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	                applMgr()->visServer()->getObject(sceneID()));
+    const bool hasztransform = scene && scene->getZAxisTransform();
+//TODO:remove when Z-transformed scenes are ok for 2D Viewer
+
+    if ( visserv->canBDispOn2DViewer(displayID()) && !hasztransform
+	    && dpid>DataPack::cNoID() )
+    {
+	const Attrib::SelSpec* as =
+	    visserv->getSelSpec( displayID(), attribNr() );
+	const bool hasattrib = as && as->id()!=Attrib::SelSpec::cAttribNotSel();
+
+	mAddMenuItem( tb, &view2dvditem_, hasattrib, false )
+	mAddMenuItem( tb, &view2dwvaitem_, hasattrib, false )
+    }
+    else
+    {
+	mResetMenuItem( &view2dwvaitem_ );
+	mResetMenuItem( &view2dvditem_ );
+    }
 
     const bool islocked = visserv->isLocked( displayID() );
     mAddMenuItem( tb, &removemnuitem_,

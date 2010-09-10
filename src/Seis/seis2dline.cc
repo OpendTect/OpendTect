@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.81 2010-08-12 14:57:01 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.82 2010-09-10 10:32:47 cvssatyaki Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -599,6 +599,22 @@ void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
     }
 
     nms.sort();
+}
+
+
+void Seis2DLineSet::getZDomainAttrib( BufferStringSet& nms, const char* linenm,
+				      const char* zdomainstr )
+{
+    for ( int idx=0; idx<nrLines(); idx++ )
+    {
+	if ( !strcmp(linenm,lineName(idx)) )
+	{
+	    BufferString ztype = zDomainKey( idx );
+	    if ( zdomainstr && ztype!=zdomainstr )
+		continue;
+	    nms.add( attribute(idx) );
+	}
+    }
 }
 
 

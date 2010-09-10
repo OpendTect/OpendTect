@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.45 2010-08-26 04:11:05 cvsraman Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.46 2010-09-10 10:32:47 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,9 @@ public:
     static void		get2DStoredAttribs(const MultiID&,
 				    const char* linenm,BufferStringSet& attribs,
 				    int steerpol=2);
+    void		get2DZdomainAttribs(const MultiID&, const char* linenm,
+	    				    const char* zdomainstr,
+					    BufferStringSet& attribs);
     bool		create2DOutput(const MultiID&,const char* linekey,
 				       CubeSampling&,SeisTrcBuf&);
     void 		getStoredGathersList(bool for3d,BufferStringSet&) const;
