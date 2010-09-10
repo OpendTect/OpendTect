@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.63 2010-07-19 15:17:26 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.64 2010-09-10 11:52:29 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -45,8 +45,6 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     , ctio_( *mMkCtxtIOObj(Well) )
     , fd_( *Well::TrackAscIO::getDesc() )			       
     , trckinpfld_(0)
-    , zrgfld_(0)
-    , tmzrgfld_(0)
 {
     setCtrlStyle( DoAndStay );
 
@@ -66,20 +64,11 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     coordfld_ = new uiGenInput( this, "Coordinate",
 	    			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );
-    if ( !SI().zIsTime() )
-    {
-	zrgfld_ = new uiSelZRange( this, false );
-	zrgfld_->attach( alignedBelow, coordfld_ );
-    }
-    else
-    {
-	tmzrgfld_ = new uiGenInput( this, "Depth range", FloatInpSpec(0),
-	       						 FloatInpSpec()	);
-	tmzrgfld_->attach( alignedBelow, coordfld_ );
-	tmzrginftbox_ = new uiCheckBox( this, "Feet" );
-	tmzrginftbox_->attach( rightOf, tmzrgfld_ );
-	tmzrginftbox_->setChecked( SI().xyInFeet() );
-    }
+
+    kbelevfld_ = new uiGenInput( this, "KB Elevation", FloatInpSpec(0) );
+    kbelevfld_->attach( alignedBelow, coordfld_ );
+    tdfld_ = new uiGenInput( this, "TD", FloatInpSpec() );
+    tdfld_->attach( alignedBelow, kbelevfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, dataselfld_ );
@@ -125,13 +114,8 @@ void uiWellImportAsc::haveTrckSel( CallBacker* )
     dataselfld_->display( havetrck );
     vertwelllbl_->display( !havetrck );
     coordfld_->display( !havetrck );
-    if ( zrgfld_ )
-	zrgfld_->display( !havetrck );
-    else
-    {
-	tmzrgfld_->display( !havetrck );
-	tmzrginftbox_->display( !havetrck );
-    }
+    kbelevfld_->display( !havetrck );
+    tdfld_->display( !havetrck );
 }
 
 
@@ -260,18 +244,25 @@ bool uiWellImportAsc::doWork()
     }
     else
     {
-	const Coord c( coordfld_->getCoord() );
-	Interval<float> zrg;
-        if ( zrgfld_ )
-	    zrg = zrgfld_->getRange();
-	else
+	float kbelev = kbelevfld_->getfValue();
+	if ( mIsUdf(kbelev) ) kbelev = 0;
+	else if ( SI().depthsInFeetByDefault() ) kbelev *= mFromFeetFactor;
+
+	float td = tdfld_->getfValue();
+	if ( !mIsUdf(td) && SI().depthsInFeetByDefault() )
+	    td *= mFromFeetFactor;
+	if ( mIsUdf(td) || td < 1e-6 )
 	{
-	    zrg = tmzrgfld_->getFInterval();
-	    if ( tmzrginftbox_->isChecked() )
-		zrg.scale( mFromFeetFactor );
+	    float survzstop = SI().zRange(false).stop;
+	    if ( SI().zIsTime() )
+		survzstop *= 2000;
+	    td = survzstop - kbelev;
 	}
+
+	Interval<float> zrg( -kbelev, td - kbelev );
+	const Coord c( coordfld_->getCoord() );
 	wd_.track().addPoint( c, zrg.start, 0 );
-	wd_.track().addPoint( c, zrg.stop );
+	wd_.track().addPoint( c, zrg.stop, td );
     }
 
     if ( SI().zIsTime() )
@@ -300,6 +291,8 @@ bool uiWellImportAsc::checkInpFlds()
     {
 	if ( !*trckinpfld_->fileName() )
 	    mErrRet("Please specify a well track file")
+	if ( !dataselfld_->commit() )
+	    return false;
     }
     else
     {
@@ -314,9 +307,6 @@ bool uiWellImportAsc::checkInpFlds()
 
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty() ? "Please enter a name for the well" : 0 )
-
-    if ( !dataselfld_->commit() )
-	return false;
 
     return true;
 }
