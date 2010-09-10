@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odftp.cc,v 1.8 2010-06-30 12:45:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: odftp.cc,v 1.9 2010-09-10 07:09:53 cvsnanne Exp $";
 
 #include "odftp.h"
 #include "qftpconn.h"
@@ -63,11 +63,16 @@ void ODFtp::abort()
 
 int ODFtp::get( const char* file, const char* dest )
 {
-    QFile* qfile = new QFile( dest );
-    qfile->open( QIODevice::WriteOnly );
-    qfiles_ += qfile;
-    qftp_->rawCommand( "TYPE I" );
-    qftp_->rawCommand( BufferString("SIZE ",file).buf() );
+    QFile* qfile = 0;
+    if ( dest )
+    {
+	qfile = new QFile( dest );
+	qfile->open( QIODevice::WriteOnly );
+	qfiles_ += qfile;
+	qftp_->rawCommand( "TYPE I" );
+	qftp_->rawCommand( BufferString("SIZE ",file).buf() );
+    }
+
     const int cmdid = qftp_->get( file, qfile, QFtp::Binary );
     getids_ += cmdid;
     return cmdid;
@@ -78,7 +83,12 @@ void ODFtp::transferDoneCB( CallBacker* )
 {
     int cmdidx = getids_.indexOf( commandid_ );
     if ( qfiles_.validIdx(cmdidx) )
-	qfiles_[cmdidx]->close();
+    {
+	QFile* qfile = qfiles_[cmdidx];
+	qfile->close();
+	delete qfiles_.remove( cmdidx );
+	getids_.remove( cmdidx );
+    }
 }
 
 
@@ -109,6 +119,12 @@ bool ODFtp::hasPendingCommands() const
 
 od_int64 ODFtp::bytesAvailable() const
 { return qftp_->bytesAvailable(); }
+
+BufferString ODFtp::readBuffer() const
+{
+    QString result = qftp_->readAll();
+    return result.toAscii().data();
+}
 
 
 void ODFtp::setMessage( const char* msg )
