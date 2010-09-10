@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.24 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.25 2010-09-10 14:05:21 cvskris Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -531,17 +531,10 @@ void GeomIndexedShape::reMap( TaskRunner* tr )
     {
 	const int numvals = strips_[idx]->coordIndex.getNum();
 	const int* ciptr = strips_[idx]->coordIndex.getValues( 0 );
-	const int* stopptr = ciptr+numvals;
 	strips_[idx]->materialIndex.setNum( numvals );
-	int* miptr = strips_[idx]->materialIndex.startEditing();
 
-	while ( ciptr!=stopptr )
-	{
-	    const int ci = *ciptr;
-	    *miptr =  ci==-1 ? -1 : material[ci];
-	    miptr++;
-	    ciptr++;
-	}
+	mPointerOperation( int, strips_[idx]->materialIndex.startEditing(),
+		= *ciptr==-1 ? -1 : material[*ciptr], numvals, ++; ciptr++ );
 
 	strips_[idx]->materialIndex.finishEditing();
     }

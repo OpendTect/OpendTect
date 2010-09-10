@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.25 2010-09-09 22:00:14 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.26 2010-09-10 14:03:36 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -1199,15 +1199,8 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
     if ( !curdefined_ )
 	return false;
 
-    bool* ptr = curdefined_;
-    const bool* stopptr = ptr+nrcells_;
     int idx = 0;
-    while ( ptr!=stopptr )
-    {
-	const bool isdef = isDefined( idx++ );
-	*ptr = isdef;
-	ptr++;
-    }
+    mPointerOperation( bool, curdefined_, = isDefined( idx++ ), nrcells_, ++ );
 
     delete [] nodestofill_;
     mTryAlloc( nodestofill_, bool[nrcells_] );
@@ -1217,7 +1210,8 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
     getNodesToFill( curdefined_, nodestofill_, tr );
 
     totalnr_ = 0;
-    ptr = curdefined_;
+    const bool* ptr = curdefined_;
+    const bool* stopptr = curdefined_+nrcells_;
     idx = 0;
     const bool* nodestofillptr = nodestofill_;
     Interval<int> xrg, yrg;

@@ -4,7 +4,7 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.15 2009-11-17 21:58:15 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.16 2010-09-10 14:07:47 cvskris Exp $";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"
@@ -207,24 +207,12 @@ bool MarchingCubesSurfaceEditor::doFinish( bool success )
 
 bool MarchingCubesSurfaceEditor::doWork( od_int64 start, od_int64 stop, int )
 {
-    int* changedsurfptr = changedsurface_->getData();
-    const int* stopptr = changedsurface_->getData()+stop;
-    const int* origptr = originalsurface_->getData();
-    unsigned const char* kernelptr = kernel_->getData();
+    const int* origptr = originalsurface_->getData()+start;
+    unsigned const char* kernelptr = kernel_->getData()+start;
 
-    changedsurfptr += start;
-    origptr += start;
-    kernelptr += start;
-
-    while ( changedsurfptr<=stopptr )
-    {
-	*changedsurfptr = *origptr + (factor_*(*kernelptr)>>8);
-	kernelptr++;
-	changedsurfptr++;
-	origptr++; 
-	addToNrDone(1);
-    }
-    
+    mPointerOperation( int, changedsurface_->getData()+start,
+	    = *origptr + (factor_*(*kernelptr)>>8), stop-start+1,
+	    ++; kernelptr++; origptr++; addToNrDone(1) );
 
     return true;
 }

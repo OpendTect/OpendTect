@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.29 2010-06-07 13:52:16 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.30 2010-09-10 14:08:36 cvskris Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -220,10 +220,7 @@ void BufferString::replaceAt( int atidx, const char* string, bool cut )
     {
 	const int newsz = cursz + nrtopad + strsz + 1;
 	setBufSize( newsz );
-	char* ptr = buf_ + cursz;
-	const char* stopptr = buf_ + atidx;
-	while ( ptr != stopptr )
-	    *ptr++ = ' ';
+	mPointerOperation( char, buf_+cursz, = ' ', atidx, ++ );
 	buf_[atidx] = '\0';
 	cursz = newsz;
     }
