@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: remjobexec.cc,v 1.2 2010-09-10 11:59:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: remjobexec.cc,v 1.3 2010-09-13 08:24:21 cvsnanne Exp $";
 
 
 #include "remjobexec.h"
@@ -15,8 +15,8 @@ static const char* rcsID = "$Id: remjobexec.cc,v 1.2 2010-09-10 11:59:03 cvsrano
 #include "filepath.h"
 #include "iopar.h"
 #include "oddirs.h"
-#include "TcpSocket.h"
 #include "strmprov.h"
+#include "tcpsocket.h"
 
 #define mErrRet( s ) { uiErrorMsg( s ); exit(0); }
 

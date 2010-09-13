@@ -4,13 +4,13 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: mmproc.cc,v 1.3 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: mmproc.cc,v 1.4 2010-09-13 08:22:46 cvsnanne Exp $";
 
 #include "mmassetmgr.h"
 #include "mmprogspec.h"
 
 
-static const ObjectSet<MMProc::AssetMgr>& MMProc::ASMGRS()
+const ObjectSet<MMProc::AssetMgr>& MMProc::ASMGRS()
 {
     static ObjectSet<MMProc::AssetMgr>* mgrs = 0;
     if ( !mgrs ) mgrs = new ObjectSet<MMProc::AssetMgr>;
