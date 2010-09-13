@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: remcommhandler.cc,v 1.2 2010-09-10 11:59:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: remcommhandler.cc,v 1.3 2010-09-13 08:24:49 cvsnanne Exp $";
 
 #include "remcommhandler.h"
 
@@ -51,9 +51,12 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
     mCBCapsuleUnpack(int,socketid,cb);
     IOPar par;
     server_.read( socketid, par );
+    if ( par.isEmpty() )
+	mErrRet( "Could not read any parameters from server" );
 
-    if ( par.size() && !initEnv( par ) ) 
+    if ( !initEnv(par) ) 
 	mErrRet( "Environment Creation Failed" );
+
     FilePath fp( odbinpath_ );
     fp.add( batfile_ );
     BufferString cmd( "@", fp.fullPath() );
@@ -66,12 +69,12 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
 bool RemCommHandler::initEnv( const IOPar& par )
 {
     BufferString procnm, hostnm, portnm, survnm, dataroot, parfile, jobid;
-    
-    par.get( "Proc Name", procnm );
-    par.get( "Host Name", hostnm );
-    par.get( "Port Name", portnm );
-    par.get( "Job ID", jobid );
-    par.get( "Par File", parfile );
+    const bool res = par.get( "Proc Name", procnm ) &&
+		     par.get( "Host Name", hostnm ) &&
+		     par.get( "Port Name", portnm ) &&
+		     par.get( "Job ID", jobid ) &&
+		     par.get( "Par File", parfile );
+    if ( !res ) return false;
     
     FILE* fp = fopen( batfile_.buf(), "w" );
     if ( !fp ) return false;
