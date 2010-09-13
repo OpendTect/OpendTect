@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: remcommhandler.cc,v 1.4 2010-09-13 09:21:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: remcommhandler.cc,v 1.5 2010-09-13 11:03:15 cvsranojay Exp $";
 
 #include "remcommhandler.h"
 
@@ -82,7 +82,7 @@ bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
     FILE* fp = fopen( batfnm.fullPath(), "w" );
     if ( !fp ) return false;
 
-    fprintf( fp, "%s", cmd );
+    fprintf( fp, "%s", cmd.buf() );
     fclose( fp );
     cmd = batfnm.fullPath();
 #endif
