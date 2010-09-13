@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.60 2010-08-27 14:26:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.61 2010-09-13 14:05:09 cvsjaap Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -114,11 +114,7 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
 	    				.noxgridline(su.noxgridline_))
 {
     if ( su.nobackground_ )
-    {
-	setNoSytemBackGroundAttribute();
-	uisetBackgroundColor( Color( 255, 255, 255, 255 )  );
-	scene().setBackGroundColor( Color( 255, 255, 255, 255 )  );
-    }
+	setNoBackGround();
 
     data_.dispzinft_ = SI().depthsInFeetByDefault();
     reSize.notify( mCB(this,uiWellLogDisplay,reSized) );

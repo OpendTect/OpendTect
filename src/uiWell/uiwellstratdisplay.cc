@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.16 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.17 2010-09-13 14:05:09 cvsjaap Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -26,11 +26,7 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
     , transparency_(0)							
 {
     if ( nobg )
-    {
-	setNoSytemBackGroundAttribute();
-	uisetBackgroundColor( Color( 255, 255, 255, 255 )  );
-	scene().setBackGroundColor( Color( 255, 255, 255, 255 )  );
-    }
+	setNoBackGround();
     drawer_.setNewAxis( new uiAxisHandler(scene_,
 					  uiAxisHandler::Setup(uiRect::Left)
 					  .noborderspace(true)
