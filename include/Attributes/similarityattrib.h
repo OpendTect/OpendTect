@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.27 2010-09-09 13:51:16 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.28 2010-09-13 14:10:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,8 +68,8 @@ public:
     static const char*		steeringStr()	{ return "steering"; }
     static const char*		normalizeStr()	{ return "normalize"; }
     static const char*		extensionStr()	{ return "extension"; }
-    static const char*		sKeyMaxDip()    { return "maxdip"; }
-    static const char*		sKeyDDip()      { return "ddip"; }
+    static const char*		maxdipStr()	{ return "maxdip"; }
+    static const char*		ddipStr()	{ return "ddip"; }
     static const char*		extensionTypeStr(int);
     void			initSteering();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.46 2010-09-09 13:51:16 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.47 2010-09-13 14:10:33 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -68,12 +68,12 @@ void Similarity::initClass()
 
     desc->addParam( new BoolParam( normalizeStr(), false, false ) );
 
-    FloatParam* maxdip = new FloatParam( sKeyMaxDip() );
+    FloatParam* maxdip = new FloatParam( maxdipStr() );
     maxdip->setLimits( Interval<float>(0,mUdf(float)) );
     maxdip->setDefaultValue( 250 );
     desc->addParam( maxdip );
 
-    FloatParam* ddip = new FloatParam( sKeyDDip() );
+    FloatParam* ddip = new FloatParam( ddipStr() );
     ddip->setLimits( Interval<float>(0,mUdf(float)) );
     ddip->setDefaultValue( 10 );
     desc->addParam( ddip );
@@ -97,15 +97,15 @@ void Similarity::updateDesc( Desc& desc )
     desc.setParamEnabled( pos0Str(), !iscube && !iscohlike );
     desc.setParamEnabled( pos1Str(), !iscube && !iscohlike );
     desc.setParamEnabled( stepoutStr(), iscube );
-    desc.setParamEnabled( sKeyMaxDip(), iscohlike );
-    desc.setParamEnabled( sKeyDDip(), iscohlike );
+    desc.setParamEnabled( maxdipStr(), iscohlike );
+    desc.setParamEnabled( ddipStr(), iscohlike );
     desc.setParamEnabled( steeringStr(), !iscohlike );
 
     desc.inputSpec(1).enabled_ =
 	    iscohlike ? false : desc.getValParam(steeringStr())->getBoolValue();
     
     if ( iscohlike )
-	desc.setNrOutputs( Seis::UnknowData, desc.is2D()? 2 : 3 );
+	desc.setNrOutputs( Seis::UnknowData, desc.is2D()? 6 : 7 );
 }
 
 
@@ -145,9 +145,9 @@ Similarity::Similarity( Desc& desc )
 	mGetBinID( stepout_, stepoutStr() )
 	pos0_ = BinID( stepout_.inl, 0 );
 	pos1_ = BinID( 0, stepout_.crl );
-	mGetFloat( maxdip_, sKeyMaxDip() );
+	mGetFloat( maxdip_, maxdipStr() );
 	maxdip_ = maxdip_/dipFactor();
-	mGetFloat( ddip_, sKeyDDip() );
+	mGetFloat( ddip_, ddipStr() );
 	ddip_ = ddip_/dipFactor();
     }
     else
@@ -213,7 +213,7 @@ bool Similarity::getTrcPos()
 	    trcpos_ += BinID(-pos1_.inl,-pos1_.crl);
 	}
 	else
-	    trcpos_ += BinID(0,0);
+	    trcpos_.addIfNew( BinID(0,0) );
     }
 
     if ( dosteer_ )
@@ -286,7 +286,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
     if ( extension_==mExtensionCube )
 	nrpairs = pos0s_.size();
     else if ( extension_==mExtensionCohLike )
-	nrpairs = 2;
+	nrpairs = inputdata_.size() - 1;
     else
 	nrpairs = inputdata_.size()/2;
 
@@ -307,11 +307,13 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	stats.clear();
+	float inldip = 0;
+	float dipatmax = 0;
 	for ( int pair=0; pair<nrpairs; pair++ )
 	{
 	    const int idx0 = extension_==mExtensionCube
 			? pos0s_[pair]
-			: extension_==mExtensionCohLike ? 2 : pair*2;
+			: extension_==mExtensionCohLike ? nrpairs : pair*2;
 	    const int idx1 = extension_==mExtensionCube
 			? pos1s_[pair]
 			: extension_==mExtensionCohLike ? pair : pair*2 +1;
@@ -323,6 +325,8 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		continue;
 	    
 	    bool docontinue = true;
+	    float maxcoh = 0;
+	    dipatmax = 0;
 	    float curdip = -maxdip_;
 	    while ( docontinue )	//loop necessary for Coherency-Like ext
 	    {
@@ -341,7 +345,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
 		if ( extension_ == mExtensionCohLike )
 		{
-		    float dist = pair ? distcrl_ : distinl_;
+		    float dist = pair || desc_.is2D() ? distcrl_ : distinl_;
 		    s1 += (curdip * dist)/refstep_;
 		}
 
@@ -364,15 +368,26 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 				     (s1+gatesz)<=inputdata_[idx1]->nrsamples_;
 		if ( !valids1 ) s1 = firstsample + idx + samplegate.start;
 
-		stats += similarity( vals0, vals1, s0+extras0, s1+extras1, 1,
-				     gatesz, donormalize_ );
 
+		float simival = similarity( vals0, vals1, s0+extras0,
+					    s1+extras1, 1, gatesz,donormalize_);
+		stats += simival;
+		
 		if ( extension_ == mExtensionCohLike )
+		{
 		    curdip += ddip_;
+		    if ( simival > maxcoh )
+		    {
+			maxcoh = simival;
+			dipatmax = curdip;
+		    }
+		}
 
 		docontinue = extension_==mExtensionCohLike ? curdip<maxdip_
 		    					   : false;
 	    }
+	    if ( extension_==mExtensionCohLike && !pair )
+		inldip = dipatmax;
 	}
 
 	if ( stats.size() < 1 )
@@ -392,6 +407,12 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		setOutputValue( output, 3, idx, z0, stats.min() );
 	    if ( outputinterest_[4] )
 	       	setOutputValue( output, 4, idx, z0, stats.max() );
+	    if ( outputinterest_[5] )
+	       	setOutputValue( output, 5, idx, z0,
+				desc_.is2D() ? dipatmax*dipFactor()
+					     : inldip*dipFactor() );
+	    if ( !desc_.is2D() && outputinterest_[6] )
+	       	setOutputValue( output, 6, idx, z0, dipatmax*dipFactor() );
 	}
     }
 
