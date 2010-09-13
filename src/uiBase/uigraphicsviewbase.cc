@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.25 2010-04-23 08:38:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.26 2010-09-13 10:48:27 cvsbruno Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -430,10 +430,10 @@ Color uiGraphicsViewBase::uibackgroundColor() const
 }
 
 
-void uiGraphicsViewBase::setNoSytemBackGroundAttribute()
+void uiGraphicsViewBase::setNoBackGround()
 {
     body_->setAttribute( Qt::WA_NoSystemBackground );
+    uisetBackgroundColor( Color( 255, 255, 255, 255 )  );
+    scene_->setBackGroundColor( Color( 255, 255, 255, 255 )  );
 }
-
-
 
