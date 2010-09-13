@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.64 2010-09-10 11:52:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.65 2010-09-13 05:03:31 cvsnanne Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -291,6 +291,7 @@ bool uiWellImportAsc::checkInpFlds()
     {
 	if ( !*trckinpfld_->fileName() )
 	    mErrRet("Please specify a well track file")
+
 	if ( !dataselfld_->commit() )
 	    return false;
     }
@@ -300,8 +301,8 @@ bool uiWellImportAsc::checkInpFlds()
 	{
 	    if ( !uiMSG().askGoOn(
 			"Well coordinate seems to be far outside the survey."
-		    	"\nIs this correct?") );
-	    return false;
+		    	"\nIs this correct?") )
+		return false;
 	}
     }
 
