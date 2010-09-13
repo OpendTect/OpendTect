@@ -7,12 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: remcommhandler.cc,v 1.3 2010-09-13 08:24:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: remcommhandler.cc,v 1.4 2010-09-13 09:21:25 cvsnanne Exp $";
 
 #include "remcommhandler.h"
 
 #include "filepath.h"
-#include "genc.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "strmprov.h"
@@ -22,12 +21,11 @@ static const char* rcsID = "$Id: remcommhandler.cc,v 1.3 2010-09-13 08:24:49 cvs
 
 #define mErrRet( s ) { uiErrorMsg( s ); return; }
 
-RemCommHandler::RemCommHandler( const int port )
-    : hostaddress_(System::localAddress())
-    , port_(port)
+static const char* sRemProcFile() 	{ return "remproc.bat"; }
+
+RemCommHandler::RemCommHandler( int port )
+    : port_(port)
     , server_(*new TcpServer)
-    , odbinpath_(*new FilePath(GetBinPlfDir()))
-    , batfile_("remproc.bat")
 {
     server_.readyRead.notify( mCB(this,RemCommHandler,dataReceivedCB) );
 }
@@ -35,14 +33,13 @@ RemCommHandler::RemCommHandler( const int port )
 
 RemCommHandler::~RemCommHandler()
 {
-    delete hostaddress_;
     delete &server_;
 }
 
 
 void RemCommHandler::listen() const
 {   
-    server_.listen(  hostaddress_, port_ );
+    server_.listen( System::localAddress(), port_ );
 }
 
 
@@ -54,19 +51,16 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
     if ( par.isEmpty() )
 	mErrRet( "Could not read any parameters from server" );
 
-    if ( !initEnv(par) ) 
-	mErrRet( "Environment Creation Failed" );
-
-    FilePath fp( odbinpath_ );
-    fp.add( batfile_ );
-    BufferString cmd( "@", fp.fullPath() );
+    BufferString tmpcmd;
+    bool res = mkCommand( par, tmpcmd );
+    BufferString cmd( "@", tmpcmd );
     StreamProvider sp( cmd );
     if ( !sp.executeCommand() )
 	mErrRet( "Command Execution failed" );
 }
 
 
-bool RemCommHandler::initEnv( const IOPar& par )
+bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
 {
     BufferString procnm, hostnm, portnm, survnm, dataroot, parfile, jobid;
     const bool res = par.get( "Proc Name", procnm ) &&
@@ -75,25 +69,31 @@ bool RemCommHandler::initEnv( const IOPar& par )
 		     par.get( "Job ID", jobid ) &&
 		     par.get( "Par File", parfile );
     if ( !res ) return false;
-    
-    FILE* fp = fopen( batfile_.buf(), "w" );
+
+    cmd = procnm;
+    cmd.add( " -masterhost " ).add( hostnm )
+       .add( " -masterport " ).add( portnm )
+       .add( " -jobid " ).add( jobid )
+       .add( " \" " ).add( parfile ).add( "\"" );
+
+#ifdef __win__
+    FilePath batfnm( GetBinPlfDir() );
+    batfnm.add( sRemProcFile() );
+    FILE* fp = fopen( batfnm.fullPath(), "w" );
     if ( !fp ) return false;
-    
-    fprintf( fp, "set DTECT_DATA=S:\n" );
-    fprintf( fp, "%s -masterhost %s -masterport %s -jobid %s \"%s\""
-	       , procnm.buf()
-	       , hostnm.buf()
-	       , portnm.buf()
-	       , jobid.buf()
-	       , parfile.buf() );
+
+    fprintf( fp, "%s", cmd );
     fclose( fp );
+    cmd = batfnm.fullPath();
+#endif
+
     return true;
 }
 
 
 void RemCommHandler::uiErrorMsg( const char* msg )
 {
-    FilePath fp( odbinpath_ );
+    FilePath fp( GetBinPlfDir() );
     fp.add( "DispMsg" );
 
     BufferString cmd = fp.fullPath();
