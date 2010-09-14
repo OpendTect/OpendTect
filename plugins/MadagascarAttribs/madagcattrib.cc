@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: madagcattrib.cc,v 1.2 2010-09-14 03:25:11 cvsnageswara Exp $";
+static const char* rcsID = "$Id: madagcattrib.cc,v 1.3 2010-09-14 04:36:51 cvsnageswara Exp $";
 
 #include "madagcattrib.h"
 #include "attribdataholder.h"
@@ -76,6 +76,9 @@ const Interval<int>* MadAGC::desZSampMargin(int,int) const
 {
     return &dessamps_;
 }
+
+const BinID* MadAGC::reqStepout(int input,int output) const
+{ return &reqstepout_; }
 
 
 bool MadAGC::computeData( const DataHolder& output, const BinID& relpos, 
