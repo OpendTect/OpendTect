@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: madagcattrib.cc,v 1.1 2009-10-27 15:55:06 cvshelene Exp $";
+static const char* rcsID = "$Id: madagcattrib.cc,v 1.2 2010-09-14 03:25:11 cvsnageswara Exp $";
 
 #include "madagcattrib.h"
 #include "attribdataholder.h"
@@ -57,13 +57,13 @@ MadAGC::MadAGC( Desc& desc_ )
 
 bool MadAGC::getInputData( const BinID& relpos, int zintv )
 {
-    const BinID bidstep = inputs[0]->getStepoutStep();
+    const BinID bidstep = inputs_[0]->getStepoutStep();
     for ( int idi=-reqstepout_.inl; idi<=reqstepout_.inl; idi++ )
     {
 	for ( int idc=-reqstepout_.crl; idc<=reqstepout_.crl; idc++ )
 	{
 	    const DataHolder* inputn =
-		    inputs[0]->getData( relpos+BinID(idi,idc)*bidstep, zintv );
+		    inputs_[0]->getData( relpos+BinID(idi,idc)*bidstep, zintv );
 	    if ( !inputn ) return false;
 	    inputdata_ += inputn;
 	}
