@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddataman.cc,v 1.1 2010-06-24 08:41:01 cvsumesh Exp $
+ RCS:		$Id: visvw2ddataman.cc,v 1.2 2010-09-14 09:39:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 Vw2DDataManager::Vw2DDataManager()
     : selectedid_( -1 )
     , freeid_( 0 )
+    , addRemove( this )
 {}
 
 
@@ -28,31 +29,31 @@ Vw2DDataManager::~Vw2DDataManager()
 
 void Vw2DDataManager::addObject( Vw2DDataObject* obj )
 {
-    if ( objects_.indexOf(obj)==-1 )
-    {
-	objects_ += obj;
-	obj->setID(freeid_++);
-	obj->ref();
+    if ( objects_.indexOf(obj)!=-1) return;
 
-	if ( selectedid_ != -1 )
-	    deSelect( selectedid_ );
+    objects_ += obj;
+    obj->setID(freeid_++);
+    obj->ref();
+    
+    if ( selectedid_ != -1 )
+	deSelect( selectedid_ );
 
-	selectedid_ = obj->id();
-    }
+    selectedid_ = obj->id();
+    addRemove.trigger();
 }
 
 
 void Vw2DDataManager::removeObject( Vw2DDataObject* dobj )
 {
-    if ( objects_.indexOf(dobj)!=-1 )
-    {
-	objects_ -= dobj;
+    if ( objects_.indexOf(dobj) == -1 ) return;
+    
+    objects_ -= dobj;
+    
+    if ( dobj->id() == selectedid_ )
+	selectedid_ = -1;
 
-	if ( dobj->id() == selectedid_ )
-	    selectedid_ = -1;
-
-	dobj->unRef();
-    }
+    dobj->unRef();
+    addRemove.trigger();
 }
 
 
@@ -66,6 +67,8 @@ void Vw2DDataManager::removeAll()
 
     selectedid_ = -1;
     freeid_ = 0;
+
+    addRemove.trigger();
 }
 
 

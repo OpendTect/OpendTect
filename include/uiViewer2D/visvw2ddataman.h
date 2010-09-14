@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddataman.h,v 1.1 2010-06-24 08:37:17 cvsumesh Exp $
+ RCS:		$Id: visvw2ddataman.h,v 1.2 2010-09-14 09:39:22 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ public:
     Vw2DDataObject*		getObject(int id);
 
     void			setSelected(Vw2DDataObject*);
+
+    Notifier<Vw2DDataManager>	addRemove;
 
 protected:
 
