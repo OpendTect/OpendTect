@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.h,v 1.1 2010-09-14 10:32:32 cvsbert Exp $
+ RCS:           $Id: sqlquery.h,v 1.2 2010-09-14 10:43:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
 
-#ifdef __have_msql__
+#ifdef __have_qsql__
 # define mQSqlQuery QSqlQuery
 #else
 # define mQSqlQuery dummyQSqlQuery

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqldatabase.cc,v 1.2 2010-09-14 10:32:32 cvsbert Exp $
+ RCS:           $Id: sqldatabase.cc,v 1.3 2010-09-14 10:43:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include <QString>
 
-#ifdef __have_sql__
+#ifdef __have_qsql__
 
 #include <QSqlDatabase>
 #include <QSqlError>
