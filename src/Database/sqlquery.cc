@@ -4,12 +4,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.cc,v 1.2 2010-09-14 10:43:54 cvsbert Exp $
+ RCS:           $Id: sqlquery.cc,v 1.3 2010-09-14 11:19:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sqlquery.h"
+#include "sqldatabase.h"
 #include "bufstringset.h"
 #include <QString>
 
@@ -21,7 +22,7 @@ ________________________________________________________________________
 #include <QVariant>
 
 #else
-#include "sqldatabase.h"
+
 class mQSqlQuery
 {
 public:
@@ -63,9 +64,9 @@ od_int64 mQSqlQuery::retidx_ = 1;
 #endif
 
 
-SqlDB::Query::Query( SqlDB::Access& db )
+SqlDB::Query::Query( SqlDB::Access& acc )
 {
-    qsqlquery_ = new mQSqlQuery( *(db.qDataBase()) );
+    qsqlquery_ = new mQSqlQuery( *(acc.qDataBase()) );
 }
 
 

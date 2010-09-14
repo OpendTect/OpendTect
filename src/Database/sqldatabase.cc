@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqldatabase.cc,v 1.3 2010-09-14 10:43:54 cvsbert Exp $
+ RCS:           $Id: sqldatabase.cc,v 1.4 2010-09-14 11:19:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,7 @@ bool SqlDB::ConnectionData::usePar( const IOPar& iop )
 
 SqlDB::Access::Access( const char* qtyp, const char* dbtyp )
     : dbtype_(dbtyp)
+    , cd_(dbtyp)
 {
     qdb_ = new mQSqlDatabase( mQSqlDatabase::addDatabase(qtyp) );
 }
@@ -100,10 +101,10 @@ SqlDB::Access::~Access()
 
 bool SqlDB::Access::open()
 {
-    qdb_->setHostName( cd_.hostname_ );
-    qdb_->setDatabaseName( cd_.dbname_ );
-    qdb_->setUserName( cd_.username_ );
-    qdb_->setPassword( cd_.pwd_ );
+    qdb_->setHostName( QString(cd_.hostname_.buf()) );
+    qdb_->setDatabaseName( QString(cd_.dbname_.buf()) );
+    qdb_->setUserName( QString(cd_.username_.buf()) );
+    qdb_->setPassword( QString(cd_.pwd_.buf()) );
     qdb_->setPort( cd_.port_ );
     return qdb_->open();
 }
