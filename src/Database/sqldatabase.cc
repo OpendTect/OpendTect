@@ -4,22 +4,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqldatabase.cc,v 1.1 2010-09-10 13:26:03 cvsbert Exp $
+ RCS:           $Id: sqldatabase.cc,v 1.2 2010-09-14 10:32:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sqldatabase.h"
-#include "bufstring.h"
-#include "bufstringset.h"
+#include "settings.h"
 #include <QString>
 
 #ifdef __have_sql__
 
 #include <QSqlDatabase>
 #include <QSqlError>
-#include <QSqlQuery>
-#include <QVariant>
 
 #else
 
@@ -27,7 +24,7 @@ class mQSqlDatabase
 {
 public:
 
-    		mQSqlDatabase(int)	{}
+    		mQSqlDatabase(int)		{}
     static int	addDatabase(const char*)	{ return 0; }
     void	setHostName(const char*)	{}
     void	setDatabaseName(const char*)	{}
@@ -43,257 +40,94 @@ public:
 
 };
 
-class mQSqlQuery
-{
-public:
-
-    		mQSqlQuery(const mQSqlDatabase&)	{}
-    void	setHostName(const char*)		{}
-    bool	exec(const char*)			{ return false; }
-    bool	next() const				{ return false; }
-    struct ValStruct { QString toString() const	{ return "Dummy value"; } };
-    ValStruct	value(int) const			{ return ValStruct(); }
-    struct ErrStruct { QString text() const	{ return "Dummy database"; } };
-    ErrStruct	lastError()				{ return ErrStruct(); }
-    bool	isActive() const			{ return false; }
-    void	finish() const				{}
-
-};
-
 #endif
 
 
-//SqlDataBase
-SqlDataBase::SqlDataBase( const char* database )
+SqlDB::ConnectionData::ConnectionData( const char* dbtype )
+    : port_(3306)
 {
-    qsqldatabase_ = new mQSqlDatabase( mQSqlDatabase::addDatabase(database) );
+    if ( !dbtype || !*dbtype ) return;
+
+    IOPar* iop = Settings::fetch("DB").subselect( dbtype );
+    if ( !iop || iop->isEmpty() ) return;
+
+    usePar( *iop );
 }
 
 
-SqlDataBase::~SqlDataBase()
+void SqlDB::ConnectionData::fillPar( IOPar& iop ) const
 {
-    delete qsqldatabase_;
-}
+#define mSetInPar(memb,ky) \
+    if ( memb##_.isEmpty() ) \
+        iop.removeWithKey( sKey##ky() ); \
+    else \
+	iop.set( sKey##ky(), memb##_ )
 
-void SqlDataBase::setHostName( const char* hostname )
-{
-    qsqldatabase_->setHostName( hostname );
-}
-
-
-void SqlDataBase::setDatabaseName( const char* dbname )
-{
-    qsqldatabase_->setDatabaseName( dbname );
-}
-
-
-void SqlDataBase::setUserName( const char* username )
-{
-    qsqldatabase_->setUserName( username );
+    mSetInPar(hostname,HostName);
+    mSetInPar(username,UserName);
+    mSetInPar(pwd,Password);
+    mSetInPar(dbname,DBName);
+    iop.set( sKeyPort(), port_ );
 }
 
 
-void SqlDataBase::setPassword( const char* passwd )
+bool SqlDB::ConnectionData::usePar( const IOPar& iop )
 {
-    qsqldatabase_->setPassword( passwd );
+#define mGetFromPar(memb,ky) \
+    memb##_ = iop.find( sKey##ky() )
+    mGetFromPar(hostname,HostName);
+    mGetFromPar(username,UserName);
+    mGetFromPar(pwd,Password);
+    mGetFromPar(dbname,DBName);
+    iop.get( sKeyPort(), port_ );
+
+    return isOK();
 }
 
 
-void SqlDataBase::setPort( int port )
+SqlDB::Access::Access( const char* qtyp, const char* dbtyp )
+    : dbtype_(dbtyp)
 {
-    qsqldatabase_->setPort( port );
+    qdb_ = new mQSqlDatabase( mQSqlDatabase::addDatabase(qtyp) );
 }
 
 
-bool SqlDataBase::open()
+SqlDB::Access::~Access()
 {
-    return qsqldatabase_->open();
+    delete qdb_;
 }
 
 
-bool SqlDataBase::isOpen() const
+bool SqlDB::Access::open()
 {
-    return qsqldatabase_->isOpen();
+    qdb_->setHostName( cd_.hostname_ );
+    qdb_->setDatabaseName( cd_.dbname_ );
+    qdb_->setUserName( cd_.username_ );
+    qdb_->setPassword( cd_.pwd_ );
+    qdb_->setPort( cd_.port_ );
+    return qdb_->open();
 }
 
 
-BufferString SqlDataBase::errorMsg() const
+bool SqlDB::Access::isOpen() const
 {
-    QString qerror = qsqldatabase_->lastError().text();
-    BufferString error = qerror.toAscii().data();
-    return error;
+    return qdb_->isOpen();
 }
 
 
-bool SqlDataBase::commit()
+BufferString SqlDB::Access::errMsg() const
 {
-    return qsqldatabase_->commit();
+    return BufferString( qdb_->lastError().text().toAscii().data() );
 }
 
 
-void SqlDataBase::close() const
+bool SqlDB::Access::commit()
 {
-    qsqldatabase_->close();
+    return qdb_->commit();
 }
 
 
-//MySqlDataBase
-MySqlDataBase::MySqlDataBase()
-    : SqlDataBase("QMYSQL")
+void SqlDB::Access::close() const
 {
-}
-
-
-//Query
-Query::Query( SqlDataBase& db )
-{
-    qsqlquery_ = new mQSqlQuery( *(db.qDataBase()) );
-}
-
-
-Query::~Query()
-{
-    delete qsqlquery_;
-}
-
-
-bool Query::execute( const char* querystr )
-{
-    return qsqlquery_->exec( querystr );
-}
-
-
-bool Query::next() const
-{
-    return qsqlquery_->next();
-}
-
-
-BufferString Query::data( int columnid ) const
-{
-    QString record = qsqlquery_->value(columnid).toString();
-    BufferString datastr( record.toAscii().data() );
-    return datastr;
-}
-
-
-BufferString Query::errorMsg() const
-{
-    QString qerror = qsqlquery_->lastError().text();
-    BufferString error = qerror.toAscii().data();
-    return error;
-}
-
-
-bool Query::isActive() const
-{
-    return qsqlquery_->isActive();
-}
-
-
-void Query::finish() const
-{
-    if ( qsqlquery_->isActive() )
-	qsqlquery_->finish();
-}
-
-
-BufferString Query::getCurrentDateTime()
-{
-    execute( "SELECT CURRENT_TIMESTAMP()" );
-    BufferString datetime;
-    while ( next() )
-	datetime = data(0);
-
-    return datetime;
-}
-
-
-bool Query::insert( const BufferStringSet& colnms,
-                    const BufferStringSet& values,
-                    const BufferString& tablenm )
-{
-    BufferString qstr = getInsertString( colnms, values, tablenm );
-    return execute( qstr );
-}
-
-
-BufferString Query::getInsertString( const BufferStringSet& colnms,
-				     const BufferStringSet& values,
-				     const BufferString& tablenm ) const
-{
-    BufferString querystr;
-    if ( colnms.size() != values.size() )
-	return querystr;
-
-    const int nrvals = values.size();
-    querystr = "INSERT INTO "; querystr.add( tablenm ).add( " (" );
-    for ( int idx=0; idx<nrvals; idx++ )
-    {
-	querystr.add( colnms[idx]->buf() )
-		.add( idx != nrvals-1 ? "," : ")" );
-    }
-
-    querystr.add( " VALUES (" );
-
-    for ( int idx=0; idx<nrvals; idx++ )
-    {
-	querystr.add( "'" ).add( values[idx]->buf() )
-	    	.add( idx != nrvals-1 ? "'," : "' )" );
-    }
-
-    return querystr;
-}
-
-
-BufferString Query::getUpdateString( const BufferStringSet& colnms,
-				     const BufferStringSet& values,
-				     const BufferString& tablenm,
-				     int bugid ) const
-{
-    BufferString querystr;
-    if ( bugid<0 || colnms.size()!=values.size() )
-	return querystr;
-
-    const int nrvals = values.size();
-    querystr = "UPDATE "; querystr.add( tablenm ).add( " SET " );
-    for ( int idx=0; idx<nrvals; idx++ )
-    {
-	querystr.add( colnms[idx]->buf() ).add( "='" )
-	    	.add( values[idx]->buf() )
-		.add( idx != nrvals-1 ? "'," : "'" );
-    }
-    querystr.add( " WHERE id=" ).add( bugid );
-
-    return querystr;
-}
-
-
-BufferString Query::select( const BufferStringSet& colnms,
-			    const BufferString& tablenm, int id )
-{
-    BufferString querystr;
-    if ( id < 0 )
-	return querystr;
-
-    const int nrvals = colnms.size();
-    querystr.add( "SELECT " );
-    for ( int idx=0; idx<nrvals; idx++ )
-    {
-	querystr.add( colnms[idx]->buf() );
-	querystr.add( idx != nrvals-1 ? "," : " " );
-    }
-
-    querystr.add( "FROM " ).add( tablenm ).add( " WHERE id=" ).add( id );
-
-    return querystr;
-}
-
-
-bool Query::update( const BufferStringSet& colnms,
-		    const BufferStringSet& values,
-		    const BufferString& tablenm, int bugid )
-{
-    BufferString qstr = getUpdateString( colnms, values, tablenm, bugid );
-    return execute( qstr );
+    qdb_->close();
 }
