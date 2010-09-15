@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor3d.cc,v 1.4 2010-09-02 09:00:50 cvsjaap Exp $
+ RCS:		$Id: horflatvieweditor3d.cc,v 1.5 2010-09-15 05:56:03 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,7 +176,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 			  || editor_->isSelActive() )
 	return;
 
-    if ( !seedpickingon_ ) return;
+    //if ( !seedpickingon_ ) return;
 
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
     if ( !tracker || tracker->objectID() != emid_ || tracker->is2D() )
@@ -239,7 +239,7 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
 	    return;
     }
 
-    if ( !seedpickingon_ ) return;
+    //if ( !seedpickingon_ ) return;
 
     bool pickinvd = true;
 

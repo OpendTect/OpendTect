@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.43 2010-07-27 09:01:58 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.44 2010-09-15 05:56:59 cvsumesh Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -69,8 +69,9 @@ bool uiODFaultParentTreeItem::showSubMenu()
 
 	emo->setPreferredColor( getRandomColor(false) );
 	BufferString newname = "<New fault ";
-	static int faultnr = 1;
-	newname += faultnr++;
+	//static int faultnr = 1;
+	//newname += faultnr++;
+	emo->makeNameUnique( newname );
 	newname += ">";
 	emo->setName( newname.buf() );
 	emo->setFullyLoaded( true );
@@ -366,8 +367,9 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 
 	emo->setPreferredColor( getRandomColor(false) );
 	BufferString newname = "<New sticks ";
-	static int faultnr = 1;
-	newname += faultnr++;
+	//static int faultnr = 1;
+	//newname += faultnr++;
+	emo->makeNameUnique( newname );
 	newname += ">";
 	emo->setName( newname.buf() );
 	emo->setFullyLoaded( true );

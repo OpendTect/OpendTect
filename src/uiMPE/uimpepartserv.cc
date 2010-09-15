@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.112 2010-05-10 10:42:28 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.113 2010-09-15 05:56:03 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -105,7 +105,8 @@ uiMPEPartServer::~uiMPEPartServer()
     sendEvent( uiMPEPartServer::evEndSeedPick() );
     sendEvent( uiMPEPartServer::evShowToolbar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
-    if ( setupgrp_ ) setupgrp_->mainwin()->close();
+    if ( setupgrp_ && setupgrp_->mainwin() ) 
+	setupgrp_->mainwin()->close();
 }
 
 
@@ -216,7 +217,8 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 
     activetrackerid_ = trackerid;
 
-    if ( !sendEvent(::uiMPEPartServer::evAddTreeObject()) )
+    if ( (addedtosceneid!=-1) && 
+	 !sendEvent(::uiMPEPartServer::evAddTreeObject()) )
     {
 	pErrMsg("Could not create tracker" );
 	MPE::engine().removeTracker( trackerid );
@@ -507,7 +509,7 @@ void uiMPEPartServer::noTrackingRemoval()
 
     NotifyStopper notifystopper( MPE::engine().trackeraddremove );
 
-    if ( trackercurrentobject_ != -1 )
+    if ( (trackercurrentobject_!= -1) && (cursceneid_!=-1) )
 	sendEvent( ::uiMPEPartServer::evRemoveTreeObject() );
 
     const int trackerid = getTrackerID( trackercurrentobject_ );
@@ -517,6 +519,12 @@ void uiMPEPartServer::noTrackingRemoval()
     trackercurrentobject_ = -1;
     initialundoid_ = mUdf(int);
     seedhasbeenpicked_ = false;
+
+    if ( cursceneid_ == -1 )
+    {
+	setupbeingupdated_ = false;
+	setupgrp_ = 0;
+    }
 
     MPE::engine().trackeraddremove.trigger();
     sendEvent( uiMPEPartServer::evShowToolbar() );
@@ -1118,7 +1126,9 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     if ( freshdlg )
     {
 	seedpicker->setSeedConnectMode( 0 );
-	sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
+
+	if ( cursceneid_ != -1 )
+	    sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
     }
     else
     {
@@ -1164,7 +1174,8 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	simichgenotifier->notify(
 			  mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB));
 
-    sendEvent( uiMPEPartServer::evStartSeedPick() );
+    if ( cursceneid_ != -1 )
+	sendEvent( uiMPEPartServer::evStartSeedPick() );
 
     NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
     if ( addrmseednotifier )

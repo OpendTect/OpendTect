@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.6 2010-09-06 05:02:54 cvsraman Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.7 2010-09-15 05:56:59 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodvw2dhor3dtreeitem.h"
 
+#include "uiattribpartserv.h"
 #include "uiflatviewer.h"
 #include "uiflatviewwin.h"
 #include "uiempartserv.h"
@@ -18,6 +19,7 @@ ________________________________________________________________________
 #include "uilistview.h"
 #include "uirgbarraycanvas.h"
 #include "uimenu.h"
+#include "uimpepartserv.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
@@ -28,6 +30,8 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "mpeengine.h"
 #include "mouseevent.h"
 
@@ -51,7 +55,8 @@ uiODVw2DHor3DParentTreeItem::~uiODVw2DHor3DParentTreeItem()
 bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&New ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
     handleSubMenu( mnu.exec() );
     return true;
 }
@@ -60,6 +65,18 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 {
     if ( mnuid == 0 )
+    {
+	applMgr()->visServer()->reportTrackingSetupActive( true );
+	uiMPEPartServer* mps = applMgr()->mpeServer();
+	mps->setCurrentAttribDescSet(
+				applMgr()->attrServer()->curDescSet(false) );
+	mps->addTracker( EM::Horizon3D::typeStr(), -1 );
+
+	const int trackid = mps->activeTrackerID();
+	addChild( new uiODVw2DHor3DTreeItem(mps->getEMObjectID(trackid)),
+		  false, false );
+    }
+    else if ( mnuid == 1 )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false );
@@ -260,9 +277,25 @@ bool uiODVw2DHor3DTreeItem::select()
 bool uiODVw2DHor3DTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Remove ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&Save ... "), 0 );
+    mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
 
     if ( mnu.exec() == 0 )
+    {
+	bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+	if ( !savewithname )
+	{
+	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
+	    savewithname = !ioobj;
+	}
+	applMgr()->EMServer()->storeObject( emid_, savewithname );
+	const MultiID mid = applMgr()->EMServer()->getStorageID(emid_);
+	applMgr()->mpeServer()->saveSetup( mid );
+	name_ = applMgr()->EMServer()->getName( emid_ );
+	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+	return true;
+    }
+    else if ( mnu.exec() == 1 )
     {
 	parent_->removeChild( this );
     }

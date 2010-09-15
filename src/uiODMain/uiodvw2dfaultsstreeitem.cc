@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.3 2010-07-22 05:22:40 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.4 2010-09-15 05:56:59 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,9 @@ ________________________________________________________________________
 #include "emfaultstickset.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "randcolor.h"
 
 #include "visvw2dfaultss3d.h"
 #include "visvw2ddataman.h"
@@ -42,7 +45,8 @@ uiODVw2DFaultSSParentTreeItem::~uiODVw2DFaultSSParentTreeItem()
 bool uiODVw2DFaultSSParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&New ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
     handleSubMenu( mnu.exec() );
     
     return true;
@@ -52,6 +56,23 @@ bool uiODVw2DFaultSSParentTreeItem::showSubMenu()
 bool uiODVw2DFaultSSParentTreeItem::handleSubMenu( int mnuid )
 {
     if ( mnuid == 0 )
+    {
+	RefMan<EM::EMObject> emo =
+	    	EM::EMM().createTempObject( EM::FaultStickSet::typeStr() );
+	if ( !emo )
+	    return false;
+
+	emo->setPreferredColor( getRandomColor(false) );
+	BufferString newname = "<New sticks ";
+	//static int faultnr = 1;
+	//newname += faultnr++;
+	emo->makeNameUnique( newname );
+	newname += ">";
+	emo->setName( newname.buf() );
+	emo->setFullyLoaded( true );
+	addChild( new uiODVw2DFaultSSTreeItem(emo->id()), false, false );
+    }
+    else if ( mnuid == 1 )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaultStickSets( objs );
@@ -194,11 +215,26 @@ bool uiODVw2DFaultSSTreeItem::select()
 bool uiODVw2DFaultSSTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Remove ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&Save ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
 
-    if (  mnu.exec() == 0 )
+    if ( mnu.exec() == 0 )
+    {
+	bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+	if ( !savewithname )
+	{
+	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
+	    savewithname = !ioobj;
+	}
+	applMgr()->EMServer()->storeObject( emid_, savewithname );
+	name_ = applMgr()->EMServer()->getName( emid_ );
+	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+	return true;
+    }
+    else if (  mnu.exec() == 1 )
     {
 	parent_->removeChild( this );
+	return true;
     }
 
     return true;
