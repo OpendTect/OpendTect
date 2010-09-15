@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.13 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.14 2010-09-15 09:01:25 cvsbert Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -106,6 +106,7 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 {
     const bool istime2depth = directionsel_->getBoolValue();
     PtrMan<IOObj> velioobj = 0;
+    const IOObj* outioobj = 0;
     if ( istime2depth )
     {
 	if ( !t2dfld_->acceptOK() )
@@ -113,8 +114,10 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 
 	velioobj = IOM().get( t2dfld_->selID() );
 
-	if ( !inputtimesel_->ioobj() || !outputdepthsel_->ioobj() )
+	outioobj = outputdepthsel_->ioobj();
+	if ( !inputtimesel_->ioobj() || !outioobj )
 	    return false;
+	ZDomain::Depth().set( outioobj->pars() );
     }
     else
     {
@@ -122,15 +125,14 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 	    return false;
 
 	velioobj = IOM().get( d2tfld_->selID() );
-	if ( !inputdepthsel_->ioobj() || !outputtimesel_->ioobj() )
+	outioobj = outputtimesel_->ioobj();
+	if ( !inputdepthsel_->ioobj() || !outioobj )
 	    return false;
+	ZDomain::Time().set( outioobj->pars() );
     }
 
-    if ( !velioobj )
-	return false;
-
-
-    return true;
+    IOM().commitChanges( *outioobj );
+    return velioobj ? true : false;
 }
 
 
