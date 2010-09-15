@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.34 2010-06-25 13:43:34 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.35 2010-09-15 05:51:41 cvsumesh Exp $";
 
 #include "emhorizon2d.h"
 
@@ -383,6 +383,13 @@ TypeSet<Coord3> Horizon2D::getPositions( int lineidx, int trcnr ) const
     for ( int idx=0; idx<nrSections(); idx++ )
 	crds += getPos( sectionID(idx), RowCol(lineidx,trcnr).toInt64() );
     return crds;
+}
+
+
+void Horizon2D::makeNameUnique( BufferString&  nm )
+{
+    static int faultnr = 1;
+    nm += faultnr++;
 }
 
 

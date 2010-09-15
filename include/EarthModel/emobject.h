@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.93 2010-08-19 05:27:58 cvsranojay Exp $
+ RCS:		$Id: emobject.h,v 1.94 2010-09-15 05:51:36 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -112,6 +112,7 @@ public:
     void			setName( const char* nm )  { objname_ = nm; }
     				/*!<The IOObj name overrules this */
     BufferString		name() const;
+    virtual void		makeNameUnique(BufferString& nm)	{}
 
     virtual int			nrSections() const 			= 0;
     virtual SectionID		sectionID(int) const			= 0;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C Glas
  Date:		November 2008
- RCS:		$Id: emfaultstickset.h,v 1.6 2010-02-04 17:20:24 cvsjaap Exp $
+ RCS:		$Id: emfaultstickset.h,v 1.7 2010-09-15 05:51:36 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -88,6 +88,7 @@ public:
     FaultStickSetGeometry&		geometry();
     const FaultStickSetGeometry&	geometry() const;
     void				apply(const Pos::Filter&);
+    void				makeNameUnique(BufferString& nm);
 
 protected:
     const IOObjContext&			getIOObjContext() const;
