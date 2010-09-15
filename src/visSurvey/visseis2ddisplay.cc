@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.103 2010-08-23 18:03:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.104 2010-09-15 06:46:41 cvskarthika Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -46,7 +46,7 @@ static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.103 2010-08-23 18:03:34
 #include "attribsel.h"
 #include "vistexture2.h"
 
-#define mMaxImageSize 32767
+#define mMaxImageSize 300000000	// 32767
 
 mCreateFactoryEntry( visSurvey::Seis2DDisplay );
 
