@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrgbatexturechannel2rgba.cc,v 1.6 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visrgbatexturechannel2rgba.cc,v 1.7 2010-09-15 06:35:39 cvskarthika Exp $";
 
 #include "visrgbatexturechannel2rgba.h"
 
@@ -84,7 +84,7 @@ bool RGBATextureChannel2RGBA::isEnabled( int ch ) const
 }
 
 
-bool RGBATextureChannel2RGBA::createRGBA( SbImage& res ) const
+bool RGBATextureChannel2RGBA::createRGBA( SbImagei32& res ) const
 {
     return false;
 }

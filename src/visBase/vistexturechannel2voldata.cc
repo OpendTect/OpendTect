@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.12 2010-07-01 07:45:02 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.13 2010-09-15 06:35:39 cvskarthika Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -108,12 +108,21 @@ void touch()
 { voldata_->touch(); }
 
 
-void setChannelData( int channel,const SbImage& image )
+void setChannelData( int channel,const SbImagei32& image )
 {
+    SbVec3i32 size;
     SbVec3s tmpsize;
     int bpp;
-    unsigned char* data = image.getValue( tmpsize, bpp );
-	    
+    unsigned char* data = image.getValue( size, bpp );
+
+    if ( size[0] > SHRT_MAX || size[1] > SHRT_MAX || size[2] > SHRT_MAX )
+    {
+	pErrMsg( "Image is too large to fit the volume!" );
+	return;
+    }
+
+    tmpsize = SbVec3s( size[0], size[1], size[2] );
+
     if ( data && ( bpp >=1 ) && (bpp <=2) )
     {
 	SoVolumeData::DataType dt;
@@ -124,9 +133,10 @@ void setChannelData( int channel,const SbImage& image )
 }
 
 
-const SbImage* getChannelData() const
+const SbImagei32* getChannelData() const
 {
     SbVec3s size;
+    SbVec3i32 tmpsize;
     void* ptr;
     SoVolumeData::DataType dt;
     
@@ -140,7 +150,12 @@ const SbImage* getChannelData() const
 	    bpp = 2;
 		
 	if ( bpp )
-	    return new SbImage( (unsigned char*) ptr, size, bpp );
+	{
+	    tmpsize[0] = size[0];
+	    tmpsize[1] = size[1];
+	    tmpsize[2] = size[2];
+	    return new SbImagei32( (unsigned char*) ptr, tmpsize, bpp );
+	}
     }
     
     return 0;

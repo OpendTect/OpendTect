@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoTextureChannelSetElement.h,v 1.7 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: SoTextureChannelSetElement.h,v 1.8 2010-09-15 06:31:55 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 #include "soodbasic.h"
 
-class SbImage;
+class SbImagei32;
 
 /*!  Element that holds one image per texture unit.  */
 
@@ -27,13 +27,13 @@ mClass SoTextureChannelSetElement : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoTextureChannelSetElement);
 public:
-    static void			set(SoState*,SoNode*,const SbImage*,
+    static void			set(SoState*,SoNode*,const SbImagei32*,
 				    const int nrchannels,
 				    const SbList<uint32_t>* addnodeids=0);
     				//!<The nodeid's will be added to the matchinfo
 
     static int			getNrChannels(SoState*);
-    static const SbImage*	getChannels(SoState*);
+    static const SbImagei32*	getChannels(SoState*);
 
     SbBool 			matches(const SoElement* element) const;
     SoElement* 			copyMatchInfo() const;
@@ -41,14 +41,14 @@ public:
     static void			initClass();
 private:
 				~SoTextureChannelSetElement();
-    void			setElt(const SbImage*, const int nrchannels);
+    void			setElt(const SbImagei32*, const int nrchannels);
     static SoElement*		getElement(SoState* const state,
 				    const int stackIndex,
 				    SoNode* const node,
 				    const SbList<uint32_t>* additionalnodeids);
 
 
-    const SbImage*		channels_;
+    const SbImagei32*		channels_;
     int				nrchannels_;
     SbList<uint32_t>		additionalnodeids_;
 };

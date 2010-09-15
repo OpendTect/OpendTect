@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.67 2010-05-31 11:23:24 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.68 2010-09-15 06:35:39 cvskarthika Exp $";
 
 
 #include "vismultitexture2.h"
@@ -509,7 +509,7 @@ void MultiTexture2::updateSoTextureInternal( int texturenr )
     }
     else
     {
-	const SbImage image( texture0, SbVec2s(size_.col,size_.row), 1 );
+	const SbImagei32 image( texture0, SbVec2i32(size_.col,size_.row), 1 );
 	texture_->image.set1Value( texturenr, image );
     }
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.32 2010-03-25 15:22:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.33 2010-09-15 06:35:39 cvskarthika Exp $";
 
 #include "vistexturechannels.h"
 
@@ -695,7 +695,7 @@ SoNode* TextureChannels::getInventorNode()
 { return onoff_; }
 
 
-const SbImage* TextureChannels::getChannels() const
+const SbImagei32* TextureChannels::getChannels() const
 {
     return tc_->getChannelData();
 }
@@ -716,9 +716,9 @@ void TextureChannels::update( int channel, bool tc2rgba )
     if ( !tc_ )
 	return;
 
-    SbImage image;
+    SbImagei32 image;
     const int curversion = channelinfo_[channel]->getCurrentVersion();
-    image.setValuePtr( SbVec3s( size_[0], size_[1], size_[2] ), 1,
+    image.setValuePtr( SbVec3i32( size_[0], size_[1], size_[2] ), 1,
 	    	       channelinfo_[channel]->mappeddata_[curversion] );
     tc_->setChannelData( channel, image );
 

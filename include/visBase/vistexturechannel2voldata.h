@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Karthika
  Date:		Nov 2009
- RCS:		$Id: vistexturechannel2voldata.h,v 1.7 2010-02-18 13:47:45 cvskarthika Exp $
+ RCS:		$Id: vistexturechannel2voldata.h,v 1.8 2010-09-15 06:37:10 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ public:
     static TextureChannel2VolData*	create()
 			mCreateDataObj(TextureChannel2VolData);
 
-    bool        	createRGBA(SbImage&) const	{ return false; }
+    bool        	createRGBA(SbImagei32&) const	{ return false; }
     bool		canSetSequence() const	{ return true; }
     void		setSequence(int channel,const ColTab::Sequence&);
     const ColTab::Sequence* getSequence(int channel) const;

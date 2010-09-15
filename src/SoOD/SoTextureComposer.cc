@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.22 2010-08-25 14:22:18 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.23 2010-09-15 06:29:40 cvskarthika Exp $";
 
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"
@@ -32,9 +32,12 @@ static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.22 2010-08-25 14:22:18
 #include "Inventor/actions/SoRayPickAction.h"
 #include "Inventor/sensors/SoFieldSensor.h"
 #include "Inventor/nodes/SoTransparencyType.h"
-#include "Inventor/SbImage.h"
 
 #include <Inventor/system/gl.h>
+
+#include "limits.h"
+#include "SbImagei32.h"
+
 
 SO_NODE_SOURCE( SoTextureComposer );
 
@@ -198,15 +201,15 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
     if ( nrcomponents==2 ) //Only allow 1, 3 or 4 components
 	nrcomponents = 3;
 
-    const SbImage* channelsimages =
+    const SbImagei32* channelsimages =
 	SoTextureChannelSetElement::getChannels( state )+firstchannel;
-    SbVec3s channelsize;
+    SbVec3i32 channelsize;
 
     const unsigned char* channels[4];
     int bytesperpixel[4];
     for ( int idx=0; idx<nrchannels; idx++ )
     {
-	SbVec3s thischannelsize;
+	SbVec3i32 thischannelsize;
 	channels[idx] =
 	    channelsimages[idx].getValue( thischannelsize, bytesperpixel[idx] );
 	if ( channels[idx] )
@@ -220,6 +223,13 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 	origsz[0] = channelsize[0] - origstart[0];
 	origsz[1] = channelsize[1] - origstart[1];
 	origsz[2] = channelsize[2] - origstart[2];
+    }
+
+    // Check if size is within limits
+    if ( origsz[0] > SHRT_MAX || origsz[1] > SHRT_MAX || origsz[2] > SHRT_MAX )
+    {
+	SoDebugError::postWarning( "SoTextureComposer::GLRenderUnit", 
+		"Texture unit is too large to be rendered!" );
     }
 
     const SbVec3s sz( origsz[0], origsz[1], origsz[2] );

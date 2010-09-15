@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoTextureChannelSet.h,v 1.5 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:           $Id: SoTextureChannelSet.h,v 1.6 2010-09-15 06:31:55 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ public:
     static		void initClass();
 			SoTextureChannelSet();
 
-    SoMFImage		channels;
+    SoMFImagei32	channels;
 
 protected:
     void		GLRender(SoGLRenderAction*);

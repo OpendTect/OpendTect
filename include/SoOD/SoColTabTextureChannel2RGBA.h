@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.10 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.11 2010-09-15 06:31:55 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -39,7 +39,7 @@ public:
     static		void initClass();
 			SoColTabTextureChannel2RGBA();
 
-    SoMFImage		colorsequences;
+    SoMFImagei32	colorsequences;
 			/*!< Colorsequences for all images. The colorsequence
 			     is an 1-dimensional image where the size in
 			     dim0 and dim1 are 1. */
@@ -49,19 +49,19 @@ public:
 			     0 is completely transperant, 255 is completely
 			     opaque. */
 
-    const SbImage&	getRGBA(int rgba) const;
+    const SbImagei32&	getRGBA(int rgba) const;
 			/*!<\param rgba is 0 for red, 1 for green, 2 for
 			           blue and 3 for opacity. */
 
-    void		processChannels( const SbImage* channels,
+    void		processChannels( const SbImagei32* channels,
 	    				 int nrchannels);
 protected:
 			~SoColTabTextureChannel2RGBA();
     void		sendRGBA(SoState*,const SbList<uint32_t>& dep);
-    void		getTransparencyStatus( const SbImage* channels,
-	    		    long size, int channelidx, char& fullyopaque,
+    void		getTransparencyStatus( const SbImagei32* channels,
+	    		    int size, int channelidx, char& fullyopaque,
 			    char& fullytrans) const;
-    void		computeRGBA( const SbImage* channels,
+    void		computeRGBA( const SbImagei32* channels,
 	    			     int start, int stop,
 				     int firstchannel, int lastchannel );
     static void		fieldChangeCB( void* data, SoSensor* );
@@ -73,7 +73,7 @@ protected:
     SoFieldSensor*				opacitysensor_;
     SoFieldSensor*				enabledsensor_;
 
-    SbImage					rgba_[4];
+    SbImagei32					rgba_[4];
     char					ti_;
     SoElement*					matchinfo_;
 

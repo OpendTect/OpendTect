@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureChannelSetElement.cc,v 1.4 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoTextureChannelSetElement.cc,v 1.5 2010-09-15 06:29:40 cvskarthika Exp $";
 
 #include "SoTextureChannelSetElement.h"
 
@@ -24,7 +24,7 @@ SoTextureChannelSetElement::~SoTextureChannelSetElement()
 
 
 void SoTextureChannelSetElement::set( SoState* const state, SoNode* node,
-				   const SbImage* channels,
+				   const SbImagei32* channels,
        				   int nrchannels,
 				   const SbList<uint32_t>* additionalnodeids)
 {
@@ -36,7 +36,7 @@ void SoTextureChannelSetElement::set( SoState* const state, SoNode* node,
 }
 
 
-void SoTextureChannelSetElement::setElt( const SbImage* channels,
+void SoTextureChannelSetElement::setElt( const SbImagei32* channels,
 				      int nrchannels )
 {
     channels_ = channels;
@@ -53,7 +53,7 @@ int SoTextureChannelSetElement::getNrChannels( SoState* state )
 }
 
 
-const SbImage* SoTextureChannelSetElement::getChannels( SoState* state )
+const SbImagei32* SoTextureChannelSetElement::getChannels( SoState* state )
 {
     const SoTextureChannelSetElement* elem = (SoTextureChannelSetElement*)
 	getConstElement(state,classStackIndex);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoColTabTextureChannel2RGBA.cc,v 1.15 2010-08-26 22:00:59 cvskris Exp $";
+static const char* rcsID = "$Id: SoColTabTextureChannel2RGBA.cc,v 1.16 2010-09-15 06:29:40 cvskarthika Exp $";
 
 
 #include "SoColTabTextureChannel2RGBA.h"
@@ -34,7 +34,7 @@ SoColTabTextureChannel2RGBA::SoColTabTextureChannel2RGBA()
     , matchinfo_( 0 )
 {
     SO_NODE_CONSTRUCTOR( SoColTabTextureChannel2RGBA );
-    SO_NODE_ADD_FIELD( colorsequences, (SbImage(0, SbVec2s(0,0), 0)) );
+    SO_NODE_ADD_FIELD( colorsequences, (SbImagei32(0, SbVec2i32(0,0), 0)) );
     SO_NODE_ADD_FIELD( opacity, (255) );
     SO_NODE_ADD_FIELD( enabled, (true) );
 
@@ -100,12 +100,13 @@ void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
     if ( !nrchannels )
     {
 	for ( int idx=0; idx<4; idx++ )
-	    rgba_[idx].setValue( SbVec3s(1,1,1), 1, 0 );
+	    rgba_[idx].setValue( SbVec3i32(1,1,1), 1, 0 );
 	sendRGBA( state, dep );
 	return;
     }
 
-    const SbImage* channels = SoTextureChannelSetElement::getChannels( state );
+    const SbImagei32* channels = SoTextureChannelSetElement::getChannels( 
+	    state );
 
     processChannels( channels, nrchannels );
     needsregeneration_ = false;
@@ -116,23 +117,23 @@ void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
 }
 
 
-const SbImage& SoColTabTextureChannel2RGBA::getRGBA(int rgba) const
+const SbImagei32& SoColTabTextureChannel2RGBA::getRGBA(int rgba) const
 {
     return rgba_[rgba];
 }
 
 
-void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
+void SoColTabTextureChannel2RGBA::processChannels( const SbImagei32* channels,
 	int nrchannels )
 {
     if ( !nrchannels ) return;
 
     //All channels should have the same size or be empty.
-    SbVec3s size3;
-    long size = 0;
+    SbVec3i32 size3;
+    int size = 0;
     for ( int idx=0; idx<nrchannels; idx++ )
     {
-	const SbVec3s chsize3 = channels[idx].getSize();
+	const SbVec3i32 chsize3 = channels[idx].getSize();
 	const int chsize = chsize3[0]*chsize3[1]*chsize3[2];
 	if ( !size )
 	{
@@ -187,7 +188,7 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
     if ( lastchannel==-1 || firstchannel==-1 )
     {
 	for ( int idx=0; idx<4; idx++ )
-	    rgba_[idx].setValue( SbVec3s(1,1,1), 1, 0 );
+	    rgba_[idx].setValue( SbVec3i32(1,1,1), 1, 0 );
 	return;
     }
 
@@ -198,7 +199,7 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
     else
 	ti_ = SoTextureComposerInfo::cHasNoIntermediateTransparency();
 
-    //Set size of outputS
+    //Set size of outputs
     for ( int idx=0; idx<4; idx++ )
 	rgba_[idx].setValue( size3, 1, 0 );
 
@@ -206,10 +207,11 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 }
 
 
-void SoColTabTextureChannel2RGBA::computeRGBA( const SbImage* channels,
+void SoColTabTextureChannel2RGBA::computeRGBA( const SbImagei32* channels,
 	int start, int stop, int firstchannel, int lastchannel )
 {
-    SbVec3s size; int bytesperpixel;
+    SbVec3i32 size; int bytesperpixel;
+
     unsigned char* red = rgba_[0].getValue( size, bytesperpixel ) + start;
     unsigned char* green = rgba_[1].getValue( size, bytesperpixel )+start;
     unsigned char* blue = rgba_[2].getValue( size, bytesperpixel )+ start;
@@ -282,10 +284,10 @@ void SoColTabTextureChannel2RGBA::sendRGBA( SoState* state,
 
 
 void SoColTabTextureChannel2RGBA::getTransparencyStatus(
-	const SbImage* channels, long size, int channelidx,
+	const SbImagei32* channels, int size, int channelidx,
 	char& fullopacity, char& fulltransparency ) const
 {
-    SbVec3s seqsize; int seqbytesperpixel;
+    SbVec3i32 seqsize; int seqbytesperpixel;
     unsigned const char* channel =
 	channels[channelidx].getValue( seqsize, seqbytesperpixel );
 
@@ -313,7 +315,7 @@ void SoColTabTextureChannel2RGBA::getTransparencyStatus(
 
     for ( int idx=0; idx<size; idx++ )
     {
-	const unsigned int coltabindex = channel[idx];
+	const unsigned int coltabindex = channel[idx];  
 	const unsigned opacity = colseq[coltabindex*seqbytesperpixel+3];
 
 	if ( opacity!=255 )

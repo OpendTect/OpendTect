@@ -7,13 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureChannelSet.cc,v 1.3 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoTextureChannelSet.cc,v 1.4 2010-09-15 06:29:40 cvskarthika Exp $";
 
 
 #include "SoTextureChannelSet.h"
 
 #include <SoTextureChannelSetElement.h>
 #include "Inventor/actions/SoGLRenderAction.h"
+#include "Inventor/SbVec2i32.h"
+
+#include "SbImagei32.h"
 
 
 SO_NODE_SOURCE( SoTextureChannelSet );
@@ -28,7 +31,7 @@ void SoTextureChannelSet::initClass()
 SoTextureChannelSet::SoTextureChannelSet()
 {
     SO_NODE_CONSTRUCTOR( SoTextureChannelSet );
-    SO_NODE_ADD_FIELD( channels, (SbImage(0, SbVec2s(0,0), 0)) );
+    SO_NODE_ADD_FIELD( channels, (SbImagei32(0, SbVec2i32(0,0), 0)) );
 }
 
 

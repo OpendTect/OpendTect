@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.14 2010-03-25 15:22:41 cvsyuancheng Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.15 2010-09-15 06:37:10 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "odmemory.h"
 
 class SoSwitch;
-class SbImage;
+class SbImagei32;
 class TaskRunner;
 
 template <class T> class Array2D;
@@ -74,7 +74,7 @@ public:
     const TextureChannel2RGBA*	getChannels2RGBA() const;
 
     SoNode*			getInventorNode();
-    const SbImage*		getChannels() const;
+    const SbImagei32*		getChannels() const;
     void			touchMappedData();
     
 protected:

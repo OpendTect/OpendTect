@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.54 2010-07-12 16:37:08 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.55 2010-09-15 06:35:39 cvskarthika Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -69,11 +69,11 @@ void touch()
 { tc_->touch(); }
 
 
-void setChannelData( int channel,const SbImage& image )
+void setChannelData( int channel,const SbImagei32& image )
 { tc_->channels.set1Value( channel, image ); }
 
 
-const SbImage* getChannelData() const
+const SbImagei32* getChannelData() const
 { return tc_->channels.getValues( 0 ); }
 
 
@@ -429,7 +429,7 @@ bool ColTabTextureChannel2RGBA::usesShading() const
 }
 
 
-bool ColTabTextureChannel2RGBA::createRGBA( SbImage& res ) const
+bool ColTabTextureChannel2RGBA::createRGBA( SbImagei32& res ) const
 {
     if ( !channels_ )
 	return false;
@@ -445,10 +445,10 @@ bool ColTabTextureChannel2RGBA::createRGBA( SbImage& res ) const
     od_int64 nrpixels;    
     for ( int rgba=0; rgba<4; rgba++ )
     {
-	const SbImage& image = conv->getRGBA( rgba );
+	const SbImagei32& image = conv->getRGBA( rgba );
 	if ( !rgba )
 	{
-	    const SbVec3s size = image.getSize();
+	    const SbVec3i32 size = image.getSize();
 	    nrpixels = size[0];
 	    nrpixels *= size[1];
 	    nrpixels *= size[2];
@@ -456,7 +456,7 @@ bool ColTabTextureChannel2RGBA::createRGBA( SbImage& res ) const
 	    res.setValue( image.getSize(), 4, 0 );
 	}
 
-	SbVec3s dummy;
+	SbVec3i32 dummy;
 	int dummy2;
 
 	const unsigned char* src = image.getValue( dummy, dummy2 );
@@ -612,8 +612,8 @@ void ColTabTextureChannel2RGBA::setShadingVars()
     {
 	if ( enabled_.size()<=idx || !enabled_[idx] )
 	    continue;
-	const SbImage& channel = channels_->getChannels()[idx];
-	SbVec3s size; int dummy2;
+	const SbImagei32& channel = channels_->getChannels()[idx];
+	SbVec3i32 size; int dummy2;
 	const unsigned char* vals = channel.getValue( size, dummy2 );
 	// Starting from the front layer, find the (foremost) layer which is 
 	// fully opaque (if any). That will be the first layer to be rendered 
@@ -632,8 +632,8 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 
     for ( int idx=0; idx<nrchannels; idx++ )
     {
-	const SbImage& channel = channels_->getChannels()[idx];
-	SbVec3s size; int dummy2;
+	const SbImagei32& channel = channels_->getChannels()[idx];
+	SbVec3i32 size; int dummy2;
 	const unsigned char* vals = channel.getValue( size, dummy2 );
 	layeropacity_->value.set1Value( idx,
 	    vals && idx<enabled_.size() && enabled_[idx]
@@ -756,8 +756,8 @@ void ColTabTextureChannel2RGBA::doFill(
     {
 	getColors( channelidx, cols );
     
-	SbImage image;
-	image.setValue( SbVec3s(1,1,256), 4, cols.arr() );
+	SbImagei32 image;
+	image.setValue( SbVec3i32(1,1,256), 4, cols.arr() );
 	conv->colorsequences.set1Value( channelidx, image );
 
 	conv->enabled.set1Value( channelidx,enabled_[channelidx] &&
@@ -849,9 +849,9 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
     }
 
     channels_->ref();
-    const SbImage& channel = channels_->getChannels()[channelidx];
+    const SbImagei32& channel = channels_->getChannels()[channelidx];
     
-    SbVec3s size;
+    SbVec3i32 size;
     int dummy;
     const unsigned char* vals = channel.getValue( size, dummy );
     od_int64 nrpixels = size[0];

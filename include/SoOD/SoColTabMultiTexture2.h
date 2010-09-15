@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoColTabMultiTexture2.h,v 1.6 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: SoColTabMultiTexture2.h,v 1.7 2010-09-15 06:31:55 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -63,7 +63,7 @@ public:
 			 	 Specifies which components that are affected
 				 by the current texture. */
 
-    SoMFImage		image;
+    SoMFImagei32	image;
     			/*!< The images themselves. */
     SoMFShort		numcolor;
     			/*!< Number of colors in colortable for each image.

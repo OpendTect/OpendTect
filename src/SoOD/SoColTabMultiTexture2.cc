@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.7 2009-09-21 20:16:54 cvskris Exp $";
+static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.8 2010-09-15 06:29:40 cvskarthika Exp $";
 
 #include "SoColTabMultiTexture2.h"
 
@@ -37,6 +37,7 @@ static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.7 2009-09-21 20:16
 #include <Inventor/threads/SbCondVar.h>
 #include <Inventor/C/glue/gl.h>
 
+#include "limits.h"
 
 class SoColTabMultiTextureProcessor
 {
@@ -209,8 +210,8 @@ void SoColTabMultiTextureProcessor::process( const SoColTabMultiTexture2& mt,
 
 bool SoColTabMultiTextureProcessor::prepare( int idx )
 {
-    SbVec2s lsz;
-    imagedata_ = texture_->image[idx].getValue(lsz,imagenc_);
+    SbVec2i32 lsz;
+    imagedata_ = texture_->image[idx].getValue( lsz,imagenc_ );
 
     opacity_ = idx>=texture_->opacity.getNum()
 	? 255
@@ -419,7 +420,7 @@ SoColTabMultiTexture2::SoColTabMultiTexture2()
 {
     SO_NODE_CONSTRUCTOR(SoColTabMultiTexture2);
 
-    SO_NODE_ADD_FIELD( image, (SbImage(0, SbVec2s(0,0), 0)) );
+    SO_NODE_ADD_FIELD( image, (SbImagei32(0, SbVec2i32(0,0), 0)) );
     SO_NODE_ADD_FIELD( numcolor, (0) );
     SO_NODE_ADD_FIELD( opacity, (255) );
     SO_NODE_ADD_FIELD( colors, (SbVec2s(0,0), 0, 0) );
@@ -705,9 +706,9 @@ const unsigned char* SoColTabMultiTexture2::createImage( SbVec2s& size, int& nc 
     bool nrimagesused = 0;
     for ( int idx=0; idx<numimages; idx++ )
     {
-	SbVec2s lsz;
+	SbVec2i32 lsz;
 	int lnc;
-	const unsigned char* bytes = image[idx].getValue(lsz,lnc);
+	const unsigned char* bytes = image[idx].getValue( lsz,lnc );
 	const short comp = idx>=component.getNum()
 	    ? RED | GREEN | BLUE | (lnc==4?OPACITY:0)
 	    : component[idx];
@@ -736,8 +737,19 @@ const unsigned char* SoColTabMultiTexture2::createImage( SbVec2s& size, int& nc 
 		     "Operations on opacity can ony be done with one or "
 		      "four components");
 
-	if ( !nrimagesused ) size = lsz;
-	else mCondErrRet( size!=lsz, "Images have different size" );
+	if ( !nrimagesused ) 
+	{
+	    // Check if size is within limits
+	    if ( lsz[0] > SHRT_MAX || lsz[1] > SHRT_MAX )
+	    {
+		SoDebugError::postWarning( "SoColTabMultiTexture2::GLRender",
+		    "Texture is too large to be rendered!" );
+	    }
+
+	    size = SbVec2s( lsz[0], lsz[1] );
+	}
+	else mCondErrRet( size[0]!=lsz[0] || size[1]!=lsz[1], 
+		"Images have different size" );
 
 	if ( !hastransperancy && doopacity )
 	{
@@ -776,9 +788,8 @@ const unsigned char* SoColTabMultiTexture2::createImage( SbVec2s& size, int& nc 
 }
 
 
-bool SoColTabMultiTexture2::findTransperancy( const unsigned char* colors, int ncol,
-					int nc, const unsigned char* idxs,
-					int nidx )
+bool SoColTabMultiTexture2::findTransperancy( const unsigned char* colors, 
+	int ncol, int nc, const unsigned char* idxs, int nidx )
 {
     if ( nc<4 ) return false;
 
@@ -805,11 +816,6 @@ bool SoColTabMultiTexture2::findTransperancy( const unsigned char* colors, int n
 
     return false;
 }
-
-
-
-
-
 
 
 void SoColTabMultiTexture2::imageChangeCB( void* data, SoSensor* )

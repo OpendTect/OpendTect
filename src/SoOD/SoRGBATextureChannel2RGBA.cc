@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoRGBATextureChannel2RGBA.cc,v 1.8 2010-03-01 15:19:11 cvskris Exp $";
+static const char* rcsID = "$Id: SoRGBATextureChannel2RGBA.cc,v 1.9 2010-09-15 06:29:40 cvskarthika Exp $";
 
 
 #include "SoRGBATextureChannel2RGBA.h"
@@ -61,7 +61,7 @@ void SoRGBATextureChannel2RGBA::GLRender( SoGLRenderAction* action )
     {
 	const int nrinputchannels =
 	    SoTextureChannelSetElement::getNrChannels( state );
-	const SbImage* inputchannels =
+	const SbImagei32* inputchannels =
 	    SoTextureChannelSetElement::getChannels( state );
 
 	for ( int idx=0; idx<4; idx++ )
@@ -70,7 +70,7 @@ void SoRGBATextureChannel2RGBA::GLRender( SoGLRenderAction* action )
 		? enabled[idx]
 		: false;
 
-	    SbVec3s size;
+	    SbVec3i32 size;
 	    int nc;
 	    unsigned const char* data = idx<nrinputchannels
 		? inputchannels[idx].getValue( size, nc )

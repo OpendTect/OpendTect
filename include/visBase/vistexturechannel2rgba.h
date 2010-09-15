@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.24 2010-07-12 16:37:08 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.25 2010-09-15 06:37:10 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class SoColTabTextureChannel2RGBA;
 class SoComplexity;
-class SbImage;
+class SbImagei32;
 class SoSwitch;
 class SoGroup;
 class SoTextureUnit;
@@ -52,7 +52,7 @@ public:
     virtual void		notifyChannelChange()			{}
     virtual void		enableInterpolation(bool);
     virtual bool		interpolationEnabled() const;
-    virtual bool		createRGBA(SbImage&) const		= 0;
+    virtual bool		createRGBA(SbImagei32&) const		= 0;
 				/*!<Fill the image with the output, using
 				    current settings. */
 
@@ -92,12 +92,13 @@ public:
     virtual void		touch()					= 0;
     virtual void		setNrChannels(int)			= 0;
 
-    virtual void		setChannelData(int channel,const SbImage&) = 0;
+    virtual void		setChannelData(int channel,const SbImagei32&) 
+				= 0;
     				/*!<The SbImage's dataptr is assumed to
 				    remain in memory until new SbImage comes,
 				    or object is deleted. */
 				 
-    virtual const SbImage*	getChannelData() const			= 0;
+    virtual const SbImagei32*	getChannelData() const			= 0;
 };
 
 
@@ -129,7 +130,7 @@ public:
     bool			usesShading() const;
     int				maxNrChannels() const;
 
-    bool			createRGBA(SbImage&) const;
+    bool			createRGBA(SbImagei32&) const;
 
     bool			canUseShading() const;
 protected:

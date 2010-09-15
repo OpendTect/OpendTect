@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoRGBATextureChannel2RGBA.h,v 1.7 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:           $Id: SoRGBATextureChannel2RGBA.h,v 1.8 2010-09-15 06:31:55 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -41,23 +41,23 @@ public:
 
     SoMFBool		enabled;
 
-    const SbImage&	getRGBA(int rgba) const;
+    const SbImagei32&	getRGBA(int rgba) const;
 			/*!<\param rgba is 0 for red, 1 for green, 2 for
 			           blue and 3 for opacity. */
 protected:
 			~SoRGBATextureChannel2RGBA();
     void		sendRGBA(SoState*);
-    void		getTransparencyStatus( const SbImage* channels,
+    void		getTransparencyStatus( const SbImagei32* channels,
 	    		    long size, int channelidx, char& fullyopaque,
 			    char& fullytrans) const;
-    void		computeRGBA( const SbImage* channels,
+    void		computeRGBA( const SbImagei32* channels,
 	    			     int start, int stop,
 				     int firstchannel, int lastchannel );
     static void		fieldChangeCB( void* data, SoSensor* );
 
     void		GLRender(SoGLRenderAction*);
 
-    SbImage		rgba_[4];
+    SbImagei32		rgba_[4];
     char		ti_;
     SoElement*		matchinfo_;
     int			prevnodeid_;
