@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor3d.h,v 1.3 2010-08-03 09:03:28 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor3d.h,v 1.4 2010-09-15 08:20:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
 
     FlatView::AuxDataEditor* getEditor()                { return editor_; }
+    const EM::HorizonPainter3D*	getPainter()		{ return horpainter_; }
     void		setMouseEventHandler(MouseEventHandler*);
 
     void		enableLine(bool);

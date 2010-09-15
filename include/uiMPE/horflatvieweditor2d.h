@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.h,v 1.3 2010-08-03 09:03:28 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor2d.h,v 1.4 2010-09-15 08:20:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,8 @@ public:
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
     
     FlatView::AuxDataEditor* getEditor()		{ return editor_; }
+    EM::HorizonPainter2D* getPainter() const 		{ return horpainter_; }
+
     void		setLineName(const char*);
     void		setLineSetID( const MultiID& lsetid )
 			{ lsetid_ = lsetid; }
@@ -55,6 +57,7 @@ public:
     void		setSeedPicking(bool);
     void		setTrackerSetupActive(bool yn)
 			{ trackersetupactive_ = yn; }
+
 
     Notifier<HorizonFlatViewEditor2D> updseedpkingstatus_;
 
