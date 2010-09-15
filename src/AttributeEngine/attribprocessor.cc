@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.71 2010-07-27 13:40:11 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.72 2010-09-15 14:55:39 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: attribprocessor.cc,v 1.71 2010-07-27 13:40:11 c
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
 #include "binidvalset.h"
+
+#include <limits.h>
 
 
 namespace Attrib
@@ -72,9 +74,14 @@ int Processor::nextStep()
     if ( !isinited_ )
 	init();
 
-    errmsg_ = provider_->errMsg();
     if ( errmsg_.size() )
 	return ErrorOccurred();
+
+    if ( provider_->errMsg() )
+    {
+	errmsg_ = provider_->errMsg();
+	return ErrorOccurred();
+    }
 
     if ( useshortcuts_ ) 
 	provider_->setUseSC();
@@ -374,8 +381,22 @@ void Processor::computeAndSetPosAndDesVol( CubeSampling& globalcs )
 	CubeSampling possvol;
 	if ( !possvol.includes(globalcs) )
 	    possvol = globalcs;
+	else if ( is2d_ && possvol == globalcs )
+	{
+	    possvol.hrg.stop.inl = possvol.hrg.start.inl = 0;
+	    possvol.hrg.start.crl = 0;
+	    possvol.hrg.stop.crl = INT_MAX/3*2;	//unlikely; still, a limitation.
+	    globalcs = possvol;
+	}
+
 	provider_->setDesiredVolume( possvol );
-	provider_->getPossibleVolume( -1, possvol );
+	if ( !provider_->getPossibleVolume( -1, possvol ) )
+	{
+	    errmsg_="Not possible to output required attribute in this area.\n";
+	    errmsg_ += "Please confront stepouts/timegates with available data";
+	    return;
+	}
+
 	provider_->resetDesiredVolume();
 	globalcs.limitToWithUdf( possvol );
 	
