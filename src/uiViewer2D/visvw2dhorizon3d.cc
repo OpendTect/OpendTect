@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon3d.cc,v 1.3 2010-09-15 05:54:28 cvsumesh Exp $
+ RCS:		$Id: visvw2dhorizon3d.cc,v 1.4 2010-09-15 08:30:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,3 +198,15 @@ void Vw2DHorizon3D::triggerDeSel()
 
     deselted_.trigger();
 }
+
+
+void Vw2DHorizon3D::getHorEditors(
+		    ObjectSet<const MPE::HorizonFlatViewEditor3D>& eds ) const
+{
+    for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
+    {
+	if ( horeds_[ivwr] )
+	eds += horeds_[ivwr];
+    }
+}
+

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddataman.cc,v 1.2 2010-09-14 09:39:29 cvsumesh Exp $
+ RCS:		$Id: visvw2ddataman.cc,v 1.3 2010-09-15 08:30:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,12 @@ void Vw2DDataManager::deSelect( int id )
 
     if ( selectedid_ == id )
 	selectedid_ = -1;
+}
+
+
+void Vw2DDataManager::getObjects( ObjectSet<Vw2DDataObject>& objs ) const
+{
+    objs.copy( objects_ );
 }
 
 

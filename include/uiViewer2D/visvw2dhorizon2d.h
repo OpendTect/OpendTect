@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon2d.h,v 1.3 2010-08-05 08:59:16 cvsbruno Exp $
+ RCS:		$Id: visvw2dhorizon2d.h,v 1.4 2010-09-15 08:30:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,9 @@ public:
     void		setTrackerSetupActive(bool ison );
     
     const EM::ObjectID& emID() const 			{ return emid_; }
+
+    void		getHorEditors(
+			  ObjectSet<const MPE::HorizonFlatViewEditor2D>&) const;
 
     NotifierAccess*	deSelection()			{ return &deselted_; }
 

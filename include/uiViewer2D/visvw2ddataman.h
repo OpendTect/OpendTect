@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddataman.h,v 1.2 2010-09-14 09:39:22 cvsumesh Exp $
+ RCS:		$Id: visvw2ddataman.h,v 1.3 2010-09-15 08:30:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,8 @@ public:
     void			addObject(Vw2DDataObject*);
     void			removeObject(Vw2DDataObject*);
     void                        removeAll();
+
+    void			getObjects(ObjectSet<Vw2DDataObject>&) const;
 
     const Vw2DDataObject*	getObject(int id) const;
     Vw2DDataObject*		getObject(int id);
