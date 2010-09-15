@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon3d.cc,v 1.2 2010-07-29 12:03:17 cvsumesh Exp $
+ RCS:		$Id: visvw2dhorizon3d.cc,v 1.3 2010-09-15 05:54:28 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "visvw2dhorizon3d.h"
 
 #include "attribdatapack.h"
+#include "emseedpicker.h"
 #include "flatauxdataeditor.h"
 #include "horflatvieweditor3d.h"
 #include "mpeengine.h"
@@ -153,6 +154,14 @@ void Vw2DHorizon3D::selected( bool enabled )
 	    horeds_[ivwr]->enableSeed( trackerenbed && enabled );
 	}
     }
+
+    const int trackerid = MPE::engine().getTrackerByObject(emid_);
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+
+    if ( !tracker ) return;
+
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    seedpicker->startSeedPick();
 }
 
 
