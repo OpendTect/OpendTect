@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.16 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.17 2010-09-15 05:53:18 cvsumesh Exp $";
 
 #include "horizon3dextender.h"
 
@@ -82,14 +82,16 @@ int Horizon3DExtender::nextStep()
 	    if ( !alldirs )
 	    {
 		directions += RowCol(direction.binid);
-		const bool expand =
+/*		const bool expand =
 		    extend && srcbid!=firstnode && srcbid!=lastnode;
 
 		if ( expand )
 		{
 		    directions += RowCol(direction.binid+sidehash);
 		    directions += RowCol(direction.binid-sidehash);
-		}
+		} */
+		directions += RowCol( direction.binid.inl*-1,
+				      direction.binid.crl*-1 );
 	    }
 	    else
 		directions = RowCol::clockWiseSequence();

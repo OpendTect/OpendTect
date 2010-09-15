@@ -8,13 +8,15 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.37 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.38 2010-09-15 05:53:18 cvsumesh Exp $";
 
 #include "horizon3dseedpicker.h"
 
 #include "autotracker.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "horizonadjuster.h"
+#include "sectionextender.h"
 #include "sectiontracker.h"
 #include "executor.h"
 #include "mpeengine.h"
@@ -367,12 +369,57 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
     if ( blockpicking_ ) 
 	return true;
     if ( seedconmode_ == DrawBetweenSeeds )
-	return interpolateSeeds(); 
+	return interpolateSeeds();
+
+   //TODO duw to this change way... positions change notifier is being fired
+   //TODO when tracking in this way... there should be no role of Engine().activ   //e volume. Replace that dependency by introducing data pack cubesampling. 
+
+    const EM::ObjectID emobjid = tracker_.objectID();
+    mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(emobjid));
+    if ( !hor ) return false;
     
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     engine().setTrackMode( TrackPlane::Extend );
 
-    PtrMan<Executor> execfromeng = engine().trackInVolume();
+    SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
+    SectionExtender* extender = sectracker->extender();
+    mDynamicCastGet( HorizonAdjuster*, adjuster, sectracker->adjuster() );
+
+    extender->setExtBoundary( getTrackBox() );
+    if ( extender->getExtBoundary().defaultDir() == CubeSampling::Inl )
+	extender->setDirection( BinIDValue(BinID(0,1), mUdf(float)) );
+    else if ( extender->getExtBoundary().defaultDir() == CubeSampling::Crl )
+	extender->setDirection( BinIDValue(BinID(1,0), mUdf(float)) );
+
+    TypeSet<EM::SubID> addedpos;
+    TypeSet<EM::SubID> addedpossrc;
+
+    for ( int idx=0; idx<seedlist_.size(); idx++ )
+	addedpos += seedlist_[idx].subID();
+
+    while ( addedpos.size() )
+    {
+	extender->reset();
+	extender->setStartPositions( addedpos );
+	while ( extender->nextStep()>0 );
+
+	addedpos = extender->getAddedPositions();
+	addedpossrc = extender->getAddedPositionsSource();
+
+	adjuster->reset();
+	adjuster->setPositions(addedpos,&addedpossrc);
+	while ( adjuster->nextStep()>0 );
+
+	for ( int idx=addedpos.size()-1; idx>=0; idx-- )
+	{
+	    if ( !hor->isDefined(sectionid_,addedpos[idx]) )
+		addedpos.remove(idx);
+	}
+    }
+
+    extender->unsetExtBoundary();
+
+/*    PtrMan<Executor> execfromeng = engine().trackInVolume();
 
     mDynamicCastGet( ExecutorGroup*, trkersgrp, execfromeng.ptr() );
     if ( !trkersgrp )
@@ -399,7 +446,7 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 	    autotrk->execute();
 	    autotrk->unsetTrackBoundary();
 	}
-    }
+    } */
 
     engine().setTrackMode( tm );
 
