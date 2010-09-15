@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqldatabase.cc,v 1.4 2010-09-14 11:19:56 cvsbert Exp $
+ RCS:           $Id: sqldatabase.cc,v 1.5 2010-09-15 04:41:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,10 +101,10 @@ SqlDB::Access::~Access()
 
 bool SqlDB::Access::open()
 {
-    qdb_->setHostName( QString(cd_.hostname_.buf()) );
-    qdb_->setDatabaseName( QString(cd_.dbname_.buf()) );
-    qdb_->setUserName( QString(cd_.username_.buf()) );
-    qdb_->setPassword( QString(cd_.pwd_.buf()) );
+    qdb_->setHostName( cd_.hostname_.buf() );
+    qdb_->setDatabaseName( cd_.dbname_.buf() );
+    qdb_->setUserName( cd_.username_.buf() );
+    qdb_->setPassword( cd_.pwd_.buf() );
     qdb_->setPort( cd_.port_ );
     return qdb_->open();
 }
@@ -128,7 +128,7 @@ bool SqlDB::Access::commit()
 }
 
 
-void SqlDB::Access::close() const
+void SqlDB::Access::close()
 {
     qdb_->close();
 }

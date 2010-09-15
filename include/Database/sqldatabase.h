@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqldatabase.h,v 1.3 2010-09-14 10:43:54 cvsbert Exp $
+ RCS:           $Id: sqldatabase.h,v 1.4 2010-09-15 04:41:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ public:
     BufferString	errMsg() const;
 
     bool		isOpen() const;
-    void		close() const;
+    void		close();
     const char*		dbType() const		{ return dbtype_; }
 
 protected:
