@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.h,v 1.2 2010-07-22 05:19:08 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.h,v 1.3 2010-09-15 10:14:00 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,6 @@ protected:
     bool			isSelectable() const            { return true; }
 
     DataPack::ID		dpid_;
-    bool			viachkbox_;
     VW2DSeis*			dummyview_;
     
     void			checkCB(CallBacker*);

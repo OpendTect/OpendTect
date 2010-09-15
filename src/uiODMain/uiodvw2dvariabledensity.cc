@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.3 2010-08-18 06:57:51 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.4 2010-09-15 10:13:56 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 
-
 #include "coltabsequence.h"
 #include "pixmap.h"
 #include "visvw2dseismic.h"
@@ -31,7 +30,6 @@ uiODVW2DVariableDensityTreeItem::uiODVW2DVariableDensityTreeItem()
     : uiODVw2DTreeItem( "Variable Density" )
     , dpid_(DataPack::cNoID())
     , dummyview_(0)
-    , viachkbox_(false)
 {}
 
 
@@ -64,9 +62,8 @@ bool uiODVW2DVariableDensityTreeItem::init()
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DVariableDensityTreeItem,dataChangedCB) );
 
-    uilistviewitem_->setCheckable( true );
     uilistviewitem_->setChecked( fdpv );
-    uilistviewitem_->setCheckable( fdpw && fdpv );
+    uilistviewitem_->setCheckable( fdpw && dpid_!=DataPack::cNoID() );
 
     checkStatusChange()->notify(
 	    mCB(this,uiODVW2DVariableDensityTreeItem,checkCB) );
@@ -78,19 +75,9 @@ bool uiODVW2DVariableDensityTreeItem::init()
     {
 	if ( !vwr.control() )
 	    displayMiniCtab(0);
-	
-	mDynamicCastGet( uiFlatViewStdControl*, fltvwctrl, vwr.control() );
-	if ( fltvwctrl && !fltvwctrl->colTabEd() )
-	    displayMiniCtab(0);
 
-	uiFlatViewColTabEd* ctabed = fltvwctrl->colTabEd();
-	if ( !ctabed->colTabGrp() )
-	    displayMiniCtab(0);
-
-	mDynamicCastGet( uiColorTable*, uicoltab, ctabed->colTabGrp() );
-
-	if ( uicoltab )
-	    displayMiniCtab( &uicoltab->colTabSeq() );
+	ColTab::Sequence seq( vwr.appearance().ddpars_.vd_.ctab_ );
+	displayMiniCtab( &seq );
     }
 
     return true;
@@ -110,8 +97,6 @@ bool uiODVW2DVariableDensityTreeItem::select()
 
 void uiODVW2DVariableDensityTreeItem::checkCB( CallBacker* )
 {
-    viachkbox_ = true;
-
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	DataPack::ID id = DataPack::cNoID();
@@ -134,16 +119,13 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     const DataPack* fdpw = vwr.pack( true );
     const DataPack* fdpv = vwr.pack( false );
+    
+    uilistviewitem_->setChecked( fdpv );
+    uilistviewitem_->setCheckable( fdpw &&
+	    			   (dpid_!=DataPack::cNoID() || fdpw) );
 
-    if ( !viachkbox_ )
-    {
-	uilistviewitem_->setCheckable( true );
-	uilistviewitem_->setChecked( fdpv );
-	uilistviewitem_->setCheckable( fdpw && fdpv );
-
-	if ( fdpv )
-	    dpid_ = fdpv->id();
-    }
+    if ( fdpv )
+	dpid_ = fdpv->id();
 
     if ( !fdpv )
 	displayMiniCtab(0);
@@ -155,8 +137,6 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 	ColTab::Sequence seq( vwr.appearance().ddpars_.vd_.ctab_ );
 	displayMiniCtab( &seq );
     }
-
-    viachkbox_ = false;
 }
 
 

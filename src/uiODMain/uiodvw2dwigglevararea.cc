@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.1 2010-06-24 08:57:00 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.2 2010-09-15 10:13:56 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ uiODVW2DWiggleVarAreaTreeItem::uiODVW2DWiggleVarAreaTreeItem()
     : uiODVw2DTreeItem( "Wiggle Var Area" )
     , dpid_(DataPack::cNoID())
     , dummyview_(0)
-    , viachkbox_(false)
 {}
 
 
@@ -56,9 +55,8 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,dataChangedCB) );
 
-    uilistviewitem_->setCheckable( true );
     uilistviewitem_->setChecked( fdpw );
-    uilistviewitem_->setCheckable( fdpw && fdpv );
+    uilistviewitem_->setCheckable( fdpv && dpid_!=DataPack::cNoID() );
 
     checkStatusChange()->notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,checkCB) );
@@ -83,8 +81,6 @@ bool uiODVW2DWiggleVarAreaTreeItem::select()
 
 void uiODVW2DWiggleVarAreaTreeItem::checkCB( CallBacker* )
 {
-    viachkbox_ = true;
-
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	DataPack::ID id = DataPack::cNoID();
@@ -107,16 +103,11 @@ void uiODVW2DWiggleVarAreaTreeItem::dataChangedCB( CallBacker* )
     const DataPack* fdpw = vwr.pack( true );
 
     const DataPack* fdpv = vwr.pack( false );
+    
+    uilistviewitem_->setChecked( fdpw );
+    uilistviewitem_->setCheckable( fdpv &&
+	    			   (dpid_!=DataPack::cNoID() || fdpw) );
 
-    if ( !viachkbox_ )
-    {
-	uilistviewitem_->setCheckable( true );
-	uilistviewitem_->setChecked( fdpw );
-	uilistviewitem_->setCheckable( fdpw && fdpv );
-
-	if ( fdpw )
-	    dpid_ = fdpw->id();
-    }
-
-    viachkbox_ = false;
+    if ( fdpw )
+	dpid_ = fdpw->id();
 }

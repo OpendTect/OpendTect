@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.h,v 1.1 2010-06-24 08:54:11 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dwigglevararea.h,v 1.2 2010-09-15 10:14:00 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,6 @@ protected:
     bool                        isSelectable() const            { return true; }
     
     DataPack::ID		dpid_;
-    bool			viachkbox_;
     VW2DSeis*			dummyview_;
 
     void			checkCB(CallBacker*);
