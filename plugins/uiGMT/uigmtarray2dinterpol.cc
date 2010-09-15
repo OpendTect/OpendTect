@@ -8,18 +8,27 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uigmtarray2dinterpol.cc,v 1.2 2010-08-25 07:11:11 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigmtarray2dinterpol.cc,v 1.3 2010-09-15 12:06:09 cvsnageswara Exp $";
 
 #include "uigmtarray2dinterpol.h"
 
 #include "uiarray2dinterpol.h"
+#include "uibutton.h"
 #include "uigeninput.h"
+#include "uigmtinfodlg.h"
+#include "uilabel.h"
 #include "uimsg.h"
 
 #include "commondefs.h"
+#include "envvars.h"
 #include "gmtarray2dinterpol.h"
 #include "iopar.h"
+#include "pixmap.h"
 #include "survinfo.h"
+
+static bool hasGMTInst()
+{ return GetEnvVar("GMT_SHAREDIR"); }
+
 
 //uiGMTSurfaceGrid
 const char* uiGMTSurfaceGrid::sName()
@@ -38,22 +47,49 @@ uiArray2DInterpol* uiGMTSurfaceGrid::create( uiParent* p )
 }
 
 
+#define mCreateUI( classname, function ) \
+{ \
+    BufferString msg( "To use this GMT algorithm you need to install GMT.", \
+	    	      "\nClick on GMT-button for more information" ); \
+    uiLabel* lbl = new uiLabel( this, msg ); \
+    uiPushButton* gmtbut = new uiPushButton( this, "", "gmt_logo.png", \
+	    				mCB(this,classname,function), true ); \
+    gmtbut->setToolTip( "GMT info" ); \
+    gmtbut->attach( alignedBelow, lbl ); \
+    setHAlignObj( lbl ); \
+}
+
+
 uiGMTSurfaceGrid::uiGMTSurfaceGrid( uiParent* p )
     : uiArray2DInterpol( p, "GMT grid" )
+    , tensionfld_(0)
 {
-    tensionfld_ = new uiGenInput( this, "Tension", FloatInpSpec(0.25) );
-    setHAlignObj( tensionfld_ );
+    if ( hasGMTInst() )
+    {
+	tensionfld_ = new uiGenInput( this, "Tension", FloatInpSpec(0.25) );
+	setHAlignObj( tensionfld_ );
+    }
+    else
+	mCreateUI(uiGMTSurfaceGrid,gmtPushCB);
 }
+
 
 
 void uiGMTSurfaceGrid::fillPar( IOPar& iop ) const
 {
-    iop.set( "Tension", tensionfld_->getfValue() );
+    if ( tensionfld_ )
+	iop.set( "Tension", tensionfld_->getfValue() );
 }
 
 
 bool uiGMTSurfaceGrid::acceptOK()
 {
+    if ( !tensionfld_ )
+    {
+	uiMSG().message( "No GMT instllation found" );
+	return false;
+    }
+
     if ( tensionfld_->getfValue()<0 || tensionfld_->getfValue()>1 )
     {
 	uiMSG().message( "Tension value should be in between 0 and 1" );
@@ -68,6 +104,13 @@ bool uiGMTSurfaceGrid::acceptOK()
     result_ = res;
 
     return true;
+}
+
+
+void uiGMTSurfaceGrid::gmtPushCB( CallBacker* )
+{
+    uiGMTInfoDlg dlg( this );
+    dlg.go();
 }
 
 
@@ -90,23 +133,44 @@ uiArray2DInterpol* uiGMTNearNeighborGrid::create( uiParent* p )
 
 uiGMTNearNeighborGrid::uiGMTNearNeighborGrid( uiParent* p )
     : uiArray2DInterpol( p, "GMT grid" )
+    , rediusfld_(0) 
 {
-    BufferString lbl( "Search radius " );
-    lbl.add( SI().getXYUnitString() );
-    rediusfld_ = new uiGenInput( this, lbl, FloatInpSpec(1) );
-    rediusfld_->setValue((int)mMAX(SI().inlDistance(), SI().crlDistance()) );
-    setHAlignObj( rediusfld_ );
+    if ( hasGMTInst() )
+    {
+	BufferString lbl( "Search radius " );
+	lbl.add( SI().getXYUnitString() );
+	rediusfld_ = new uiGenInput( this, lbl, FloatInpSpec(1) );
+	const int maxval = (int)mMAX(SI().inlDistance(), SI().crlDistance());
+	rediusfld_->setValue( maxval );
+	setHAlignObj( rediusfld_ );
+    }
+    else
+	mCreateUI(uiGMTNearNeighborGrid,gmtPushCB);
+}
+
+
+void uiGMTNearNeighborGrid::gmtPushCB( CallBacker* )
+{
+    uiGMTInfoDlg dlg( this );
+    dlg.go();
 }
 
 
 void uiGMTNearNeighborGrid::fillPar( IOPar& iop ) const
 {
-    iop.set( "Radius", rediusfld_->getfValue() );
+    if ( rediusfld_ )
+	iop.set( "Radius", rediusfld_->getfValue() );
 }
 
 
 bool uiGMTNearNeighborGrid::acceptOK()
 {
+    if ( !rediusfld_ )
+    {
+	uiMSG().message( "No GMT instllation found" );
+	return false;
+    }
+
     if ( rediusfld_->getfValue() <= 0 )
     {
 	uiMSG().message( "Search radius should be greater than 0" );
