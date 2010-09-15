@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.111 2010-09-10 11:52:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.112 2010-09-15 12:14:44 cvsnageswara Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -373,6 +373,8 @@ int WriteEnvVar( const char* env, const char* val )
 		      nrentries, entries );
     else
 	writeEntries( GetSettingsFileName("envvars"), nrentries, entries );
+
+    return 1;
 }
 
 
