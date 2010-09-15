@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.56 2010-09-13 06:33:36 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.57 2010-09-15 04:19:57 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -54,7 +54,6 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     removemnuitem_.iconfnm = "stop.png";
     view2dwvaitem_.iconfnm = "wva.png";
     view2dvditem_.iconfnm = "vd.png";
-    changetransparencyitem_.iconfnm = "transparency.png";
     amplspectrumitem_.iconfnm = "amplspectrum.png";
 }
 
@@ -187,11 +186,6 @@ void uiODDataTreeItem::addToToolBarCB( CallBacker* cb )
 	mResetMenuItem( &statisticsitem_ )
 	mResetMenuItem( &amplspectrumitem_ )
     }
-
-    if ( visserv->canHaveMultipleAttribs(displayID()) && hasTransparencyMenu() )
-	mAddMenuItem( tb, &changetransparencyitem_, true, false )
-    else
-	mResetMenuItem( &changetransparencyitem_ );
 
     mDynamicCastGet(visSurvey::Scene*,scene,
 	                applMgr()->visServer()->getObject(sceneID()));
