@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.96 2010-08-12 14:58:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.97 2010-09-16 07:08:45 cvssatyaki Exp $";
 
 #include "uiseissel.h"
 
@@ -109,6 +109,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     , attrfld_(0)
     , attrlistfld_(0)
     , steerpol_(setup.steerpol_)
+    , zdomainkey_(setup.zdomkey_)
 {
     const bool is2d = Seis::is2D( setup.geom_ );
     const bool isps = Seis::isPS( setup.geom_ );
@@ -184,13 +185,15 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     const bool is2d = oinf.is2D();
     const bool isps = oinf.isPS();
     attrfld_->display( is2d && !isps );
+    IOObjContext ctxt = selgrp_->getCtxtIOObj().ctxt;
 
     BufferStringSet nms;
     SeisIOObjInfo::Opts2D o2d;
     o2d.steerpol_ = (int)steerpol_;
+    o2d.zdomky_ = zdomainkey_;
     oinf.getAttribNames( nms, o2d );
 
-    if ( selgrp_->getCtxtIOObj().ctxt.forread )
+    if ( ctxt.forread )
     {
 	const int defidx = nms.indexOf( LineKey::sKeyDefAttrib() );
 	attrfld_->newSpec( StringListInpSpec(nms), 0 );

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.48 2010-08-12 13:38:23 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.49 2010-09-16 07:08:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,7 @@ protected:
     uiGenInput*		attrfld_;
     int			steerpol_;
     BufferString	notalloweddatatype_;	// 2D only
+    BufferString	zdomainkey_;	// 2D only
 
     void		entrySel(CallBacker*);
     void 		attrNmSel(CallBacker*);
