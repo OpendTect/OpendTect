@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.5 2010-09-10 07:26:56 cvsnageswara Exp $";
+static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.6 2010-09-16 12:36:14 cvsnageswara Exp $";
 
 #include "emhorizonpreload.h"
 
@@ -25,26 +25,32 @@ static const MultiID udfmid( "-1" );
 namespace EM
 {
 
-HorizonPreLoad& HPreL()
+HorizonPreLoader& HPreL()
 {
-    static PtrMan<HorizonPreLoad> hpl = 0;
+    static PtrMan<HorizonPreLoader> hpl = 0;
     if ( !hpl )
-	hpl = new HorizonPreLoad;
+	hpl = new HorizonPreLoader;
 
     return *hpl;
 }
 
 
-HorizonPreLoad::HorizonPreLoad()
+HorizonPreLoader::HorizonPreLoader()
 {
-    IOM().surveyToBeChanged.notify( mCB(this,HorizonPreLoad,surveyChgCB) );
+    IOM().surveyToBeChanged.notify( mCB(this,HorizonPreLoader,surveyChgCB) );
 }
 
 
-bool HorizonPreLoad::load( const TypeSet<MultiID>& midset, TaskRunner* tr )
+HorizonPreLoader::~HorizonPreLoader()
+{
+    IOM().surveyToBeChanged.remove( mCB(this,HorizonPreLoader,surveyChgCB) );
+}
+
+
+bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
 {
     errmsg_ = "";
-    if ( midset.isEmpty() )
+    if ( newmids.isEmpty() )
 	return false;
 
     BufferString msg1( "The selected horizon(s):\n" );
@@ -52,37 +58,35 @@ bool HorizonPreLoad::load( const TypeSet<MultiID>& midset, TaskRunner* tr )
     int nralreadyloaded = 0;
     int nrproblems = 0;
     PtrMan<ExecutorGroup> execgrp = new ExecutorGroup( "Pre-loading horizons" );
-    for ( int idx=0; idx<midset.size(); idx++ )
+    ObjectSet<EM::EMObject> emobjects;
+    for ( int idx=0; idx<newmids.size(); idx++ )
     {
-	const int selidx = midset_.indexOf( midset[idx] );
+	const int selidx = loadedmids_.indexOf( newmids[idx] );
 	if ( selidx > -1 )
 	{
-	    msg1.add( " '" ).add( nameset_.get(selidx) ).add( "' " );
+	    msg1.add( " '" ).add( loadednms_.get(selidx) ).add( "' " );
 	    nralreadyloaded++;
 	    continue;
 	}
 
-	EM::ObjectID emid = EM::EMM().getObjectID( midset[idx] );
+	EM::ObjectID emid = EM::EMM().getObjectID( newmids[idx] );
 	EM::EMObject* emobj = EM::EMM().getObject( emid );
 	if ( !emobj || !emobj->isFullyLoaded() )
 	{
-	    Executor* exec = EM::EMM().objectLoader( midset[idx] );
+	    Executor* exec = EM::EMM().objectLoader( newmids[idx] );
 	    if ( !exec )
 	    {
-		BufferString name( EM::EMM().objectName(midset[idx]) );
+		BufferString name( EM::EMM().objectName(newmids[idx]) );
 		msg2.add( " '" ).add( name ).add( "' " );
 		nrproblems++;
 		continue;
 	    }
 
 	    execgrp->add( exec );
-	    emid = EM::EMM().getObjectID( midset[idx] );
+	    emid = EM::EMM().getObjectID( newmids[idx] );
 	    emobj = EM::EMM().getObject( emid );
+	    emobjects += emobj;
 	}
-
-	midset_ += midset[idx];
-	nameset_.add( emobj->name() );
-	emobj->ref();
     }
 
     if ( nralreadyloaded > 0 )
@@ -97,62 +101,54 @@ bool HorizonPreLoad::load( const TypeSet<MultiID>& midset, TaskRunner* tr )
     if ( execgrp->nrExecutors() != 0 && !tr->execute( *execgrp ) )
 	return false;
 
+    for ( int idx=0; idx<emobjects.size(); idx++ )
+    {
+	loadedmids_ += emobjects[idx]->multiID();
+	loadednms_.add( emobjects[idx]->name() );
+	emobjects[idx]->ref();
+    }
+
     return true;
 }
 
 
-const MultiID& HorizonPreLoad::getMultiID( const char* horname ) const
+const MultiID& HorizonPreLoader::getMultiID( const char* horname ) const
 {
-    if ( !nameset_.isPresent(horname) )
-	return udfmid;
-
-    const int mididx = nameset_.indexOf( horname );
-
-    return midset_[mididx];
+    const int mididx = loadednms_.indexOf( horname );
+    return mididx < 0 ? udfmid : loadedmids_[mididx];
 }
 
 
-bool HorizonPreLoad::unload( const BufferStringSet& hornames )
+void HorizonPreLoader::unload( const BufferStringSet& hornames )
 {
     if ( hornames.isEmpty() )
-	return false;
+	return;
 
     errmsg_ = "";
-    int invalidids = 0;
     for ( int hidx=0; hidx<hornames.size(); hidx++ )
     {
-	const int selidx = nameset_.indexOf( hornames.get(hidx) );
+	const int selidx = loadednms_.indexOf( hornames.get(hidx) );
 	if ( selidx < 0 )
 	    continue;
 
-	const MultiID mid = midset_[selidx];
+	const MultiID mid = loadedmids_[selidx];
 	EM::ObjectID emid = EM::EMM().getObjectID( mid );
 	EM::EMObject* emobj = EM::EMM().getObject( emid );
-	if ( !emobj )
-	{
-	    invalidids++;
-	    errmsg_ = "Found Invalid ID(s)";
-	    continue;
-	}
+	if ( emobj )
+	    emobj->unRef();
 
-	emobj->unRef();
-	midset_.remove( selidx );
-	nameset_.remove( selidx );
+	loadedmids_.remove( selidx );
+	loadednms_.remove( selidx );
     }
-
-    if ( invalidids > 0 )
-	return false;
-
-    return true;
 }
 
 
-void HorizonPreLoad::surveyChgCB( CallBacker* )
+void HorizonPreLoader::surveyChgCB( CallBacker* )
 {
-    unload( nameset_ );
-    midset_.erase();
-    nameset_.erase();
+    unload( loadednms_ );
+    loadedmids_.erase();
+    loadednms_.erase();
     errmsg_ = "";
 }
 
-} //namespace
+} // namespace EM

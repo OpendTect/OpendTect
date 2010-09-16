@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.2 2010-09-10 06:44:52 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.3 2010-09-16 12:36:14 cvsnageswara Exp $";
 
 #include "uiempreloaddlg.h"
 
@@ -75,10 +75,10 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     infofld_->setPrefWidthInChar( 60 );
     infofld_->setPrefHeightInChar( 7 );
 
-    EM::HorizonPreLoad& hpl = EM::HPreL();
-    const BufferStringSet& names = hpl.getPreloadedNames();
-    if ( !names.isEmpty() )
-	listfld_->addItems( names );
+    EM::HorizonPreLoader& hpl = EM::HPreL();
+    const BufferStringSet& preloadnames = hpl.getPreloadedNames();
+    if ( !preloadnames.isEmpty() )
+	listfld_->addItems( preloadnames );
 
     selCB( 0 );
 }
@@ -105,16 +105,16 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
     if ( !hordlg.go() || !hordlg.ioObj() || hordlg.nrSel() <= 0 )
 	return false;
 
-    EM::HorizonPreLoad& hpl = EM::HPreL();
-    TypeSet<MultiID> midset;
+    EM::HorizonPreLoader& hpl = EM::HPreL();
+    TypeSet<MultiID> selmids;
     for ( int idx=0; idx<hordlg.nrSel(); idx++ )
     {
 	const MultiID mid = hordlg.selected( idx );
-	midset += mid;
+	selmids += mid;
     }
 
     uiTaskRunner tr( this );
-    hpl.load(midset, &tr);
+    hpl.load( selmids, &tr );
     uiMSG().message( hpl.errorMsg() );
     listfld_->empty();
     listfld_->addItems( hpl.getPreloadedNames() );
@@ -137,13 +137,8 @@ void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
     if ( !uiMSG().askGoOn( msg ) )
 	return;
 
-    EM::HorizonPreLoad& hpl = EM::HPreL();
-    if ( !hpl.unload(selhornms) )
-    {
-	uiMSG().message( hpl.errorMsg() );
-	return;
-    }
-
+    EM::HorizonPreLoader& hpl = EM::HPreL();
+    hpl.unload( selhornms );
     listfld_->empty();
     const BufferStringSet& names = hpl.getPreloadedNames();
     if ( !names.isEmpty() )
@@ -164,7 +159,7 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
 
     unloadbut_->setSensitive( true );
     savebut_->setSensitive( true );
-    EM::HorizonPreLoad& hpl = EM::HPreL();
+    EM::HorizonPreLoader& hpl = EM::HPreL();
     const MultiID& mid = hpl.getMultiID( listfld_->textOfItem(selidx) );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
@@ -200,9 +195,9 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	return;
     }
 
-    EM::HorizonPreLoad& hpl = EM::HPreL();
+    EM::HorizonPreLoader& hpl = EM::HPreL();
     PtrMan<IOPar> par = fulliop.subselect( "Hor" );
-    TypeSet<MultiID> midset;
+    TypeSet<MultiID> selmids;
     for ( int idx=0; idx<par->size(); idx++ )
     {
 	PtrMan<IOPar> multiidpar = par->subselect( idx );
@@ -214,24 +209,24 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	    continue;
 
 	const MultiID mid( id );
-	midset += mid;
+	selmids += mid;
     }
 
-    if ( midset.isEmpty() )
+    if ( selmids.isEmpty() )
 	return;
 
-    loadSavedHorizon( midset );
+    loadSavedHorizon( selmids );
 }
 
 
-void uiHorizonPreLoadDlg::loadSavedHorizon( const TypeSet<MultiID>& midset )
+void uiHorizonPreLoadDlg::loadSavedHorizon( const TypeSet<MultiID>& savedmids )
 {
-    if ( midset.isEmpty() )
+    if ( savedmids.isEmpty() )
 	return;
 
     uiTaskRunner tr( this );
-    EM::HorizonPreLoad& hpl = EM::HPreL();
-    hpl.load( midset, &tr );
+    EM::HorizonPreLoader& hpl = EM::HPreL();
+    hpl.load( savedmids, &tr );
     uiMSG().message( hpl.errorMsg() );
     listfld_->empty();
     BufferStringSet hornms = hpl.getPreloadedNames();
@@ -257,7 +252,7 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     }
 
     IOPar par;
-    EM::HorizonPreLoad& hpl = EM::HPreL();
+    EM::HorizonPreLoader& hpl = EM::HPreL();
     const BufferStringSet& hornames = hpl.getPreloadedNames();
     const int size = hornames.size();
     for ( int lhidx=0; lhidx<size; lhidx++ )

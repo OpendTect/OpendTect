@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: emhorizonpreload.h,v 1.4 2010-09-10 06:44:52 cvsnageswara Exp $
+ RCS:           $Id: emhorizonpreload.h,v 1.5 2010-09-16 12:36:14 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,28 +23,30 @@ class TaskRunner;
 namespace EM
 {
 
-mClass HorizonPreLoad : public CallBacker
+mClass HorizonPreLoader : public CallBacker
 {
 public:
-				HorizonPreLoad();
+				HorizonPreLoader();
+				~HorizonPreLoader();
 
     bool			load(const TypeSet<MultiID>&,TaskRunner* tr=0);
     const MultiID&		getMultiID(const char* name) const;
-    const BufferStringSet&	getPreloadedNames() const   { return nameset_; }
+    const BufferStringSet&	getPreloadedNames() const
+    				{ return loadednms_; }
     const char*			errorMsg() const	    { return errmsg_; }
-    bool			unload(const BufferStringSet& hornms);
+    void			unload(const BufferStringSet& hornms);
 
 protected:
     void		surveyChgCB(CallBacker*);
 
-    TypeSet<MultiID>	midset_;
-    BufferStringSet	nameset_;
+    TypeSet<MultiID>	loadedmids_;
+    BufferStringSet	loadednms_;
     BufferString	errmsg_;
 };
 
 
-mGlobal HorizonPreLoad& HPreL();
+mGlobal HorizonPreLoader& HPreL();
 
-} //namespace
+} //namespace EM
 
 #endif
