@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SbImagei32.cc,v 1.6 2010-09-10 11:28:15 cvsranojay Exp $";
+static const char* rcsID = "$Id: SbImagei32.cc,v 1.7 2010-09-16 11:03:58 cvsnanne Exp $";
 
 #include "SbImagei32.h"
 
@@ -140,11 +140,14 @@ bool SbImagei32::setValue( const SbVec3i32& sz, const int bytesperpixel,
 
     if ( buffersize )
     {
-	bytes = new unsigned char[buffersize];
+	bytes = new unsigned char[buffersize*bytesperpixel];
 	datatype = INTERNAL_DATA;
 
 	if ( bytes )
-	    memcpy( bytes, data, buffersize * bytesperpixel ); 
+	{
+	    if ( data )
+		memcpy( bytes, data, buffersize * bytesperpixel );
+	}
 	else
 	{
 	    SbString msg( "Unable to allocate memory! ");
