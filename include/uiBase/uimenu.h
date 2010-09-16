@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.55 2009-10-07 13:26:33 cvsjaap Exp $
+ RCS:           $Id: uimenu.h,v 1.56 2010-09-16 03:57:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,8 @@ public:
     void			insertSeparator(int) { insertSeparator(); }
     void			insertSeparator();
 
-    void			removeItem(int id);
+    void			removeItem(uiMenuItem*);
+    void			removeItem(int id,bool withdelete=true);
     void			clear();
 
 protected:

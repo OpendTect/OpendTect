@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.63 2010-09-02 05:44:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.64 2010-09-16 03:57:55 cvsnanne Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -408,7 +408,24 @@ void uiMenuItemContainer::clear()
 }
 
 
-void uiMenuItemContainer::removeItem( int id )
+void uiMenuItemContainer::removeItem( uiMenuItem* itm )
+{
+    for ( int idx=0; idx<body_->itms_.size(); idx++ )
+    {
+	if ( body_->itms_[idx] != itm )
+	    continue;
+
+	if ( body_->popup() )
+	    body_->popup()->removeAction( body_->actions_[idx] );
+
+	body_->itms_.remove( idx );
+	body_->actions_.remove( idx );
+	return;
+    }
+}
+
+
+void uiMenuItemContainer::removeItem( int id, bool withdelete )
 {
     for ( int idx=0; idx<body_->itms_.size(); idx++ )
     {
@@ -417,7 +434,9 @@ void uiMenuItemContainer::removeItem( int id )
 
 	if ( body_->popup() )
 	    body_->popup()->removeAction( body_->actions_[idx] );
-	delete body_->itms_.remove( idx );
+
+	uiMenuItem* itm = body_->itms_.remove( idx );
+	if ( withdelete ) delete itm;
 	body_->actions_.remove( idx );
 	return;
     }
