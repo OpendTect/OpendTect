@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.13 2010-09-15 06:35:39 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.14 2010-09-16 04:00:08 cvsnanne Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.13 2010-09-15 
 #include <Inventor/nodes/SoGroup.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
+
+#include <limits.h>
 
 mCreateFactoryEntry( visBase::TextureChannel2VolData );
 
