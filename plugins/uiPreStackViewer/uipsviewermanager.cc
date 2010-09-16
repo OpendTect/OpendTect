@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.56 2010-08-11 12:17:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.57 2010-09-16 12:57:57 cvskris Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -46,11 +46,11 @@ namespace PreStackView
 {
 
 uiViewer3DMgr::uiViewer3DMgr()
-    : selectpsdatamenuitem_( "D&isplay PS Gather" )
+    : selectpsdatamenuitem_( "D&isplay pre-stack data" )
     , positionmenuitem_( "&Show position window ..." )  
     , proptymenuitem_( "&Properties ..." )				 
     , resolutionmenuitem_( "&Resolution ..." )				 
-    , viewermenuitem_( "View in &2D Panel" )
+    , viewermenuitem_( "View in &2D panel" )
     , amplspectrumitem_( "&Amplitude spectrum ..." )
     , removemenuitem_( "&Remove" ) 
     , visserv_( ODMainWin()->applMgr().visServer() )
