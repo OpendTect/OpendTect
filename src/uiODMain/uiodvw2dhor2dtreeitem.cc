@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.8 2010-09-16 05:14:10 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.9 2010-09-16 10:08:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,8 +179,6 @@ bool uiODVw2DHor2DTreeItem::init()
 	    			  viewer2D()->dataEditor() );
     horview_->setSelSpec( &viewer2D()->selSpec(true), true );
     horview_->setSelSpec( &viewer2D()->selSpec(false), false );
-    horview_->setLineName(
-	    applMgr()->visServer()->getObjectName(viewer2D()->visid_) );
     
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 	    applMgr()->visServer()->getObject(viewer2D()->visid_));

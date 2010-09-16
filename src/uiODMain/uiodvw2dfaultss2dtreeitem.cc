@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.4 2010-09-15 05:56:59 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.5 2010-09-16 10:08:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,8 +157,6 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 
     fssview_ = new VW2DFautSS2D( emid_, viewer2D()->viewwin(),
 	    			 viewer2D()->dataEditor() );
-    fssview_->setLineName(
-	    	applMgr()->visServer()->getObjectName(viewer2D()->visid_) );
 
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 	    applMgr()->visServer()->getObject(viewer2D()->visid_));

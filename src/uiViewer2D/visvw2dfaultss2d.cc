@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: visvw2dfaultss2d.cc,v 1.2 2010-07-29 12:03:17 cvsumesh Exp $
+ RCS:		$Id: visvw2dfaultss2d.cc,v 1.3 2010-09-16 10:08:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,9 @@ void VW2DFautSS2D::draw()
 		    		     fsseds_[ivwr]->getDistances() );
 	    dp2ddh->getCoordDataTable( fsseds_[ivwr]->getTrcNos(),
 		    		       fsseds_[ivwr]->getCoords() );
-	    fsseds_[ivwr]->setLineName( linenm_ );
+	    BufferString* bs = new BufferString(); //TODO remove new
+	    dp2ddh->getLineName( *bs );
+	    fsseds_[ivwr]->setLineName( *bs );
 	    fsseds_[ivwr]->setLineID( lsetid_ );
 	    fsseds_[ivwr]->set2D( true );
 	    fsseds_[ivwr]->drawFault();

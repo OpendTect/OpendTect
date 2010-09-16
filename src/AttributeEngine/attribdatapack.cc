@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.38 2010-06-24 10:43:25 cvsumesh Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.39 2010-09-16 10:08:33 cvsumesh Exp $";
 
 #include "attribdatapack.h"
 
@@ -358,6 +358,12 @@ void Flat2DDHDataPack::getCoordDataTable( const TypeSet<int>& trcnrs,
 Array2D<float>& Flat2DDHDataPack::data()
 {
     return *arr2dsl_;
+}
+
+
+void Flat2DDHDataPack::getLineName( BufferString& nm ) const
+{
+    nm = linenm_;
 }
 
 

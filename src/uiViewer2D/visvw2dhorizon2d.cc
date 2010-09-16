@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon2d.cc,v 1.4 2010-09-15 08:30:21 cvsbruno Exp $
+ RCS:		$Id: visvw2dhorizon2d.cc,v 1.5 2010-09-16 10:08:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,7 +123,9 @@ void Vw2DHorizon2D::draw()
 	 horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	 horeds_[ivwr]->setSelSpec( vdselspec_, false );
 	 horeds_[ivwr]->setLineSetID( lsetid_ );
-	 horeds_[ivwr]->setLineName( linenm_ );
+	 BufferString* bs = new BufferString(); //TODO remove new
+	 dp2ddh->getLineName( *bs );
+	 horeds_[ivwr]->setLineName( *bs );
 	 dp2ddh->getPosDataTable( horeds_[ivwr]->getPaintingCanvTrcNos(),
 		 		  horeds_[ivwr]->getPaintingCanDistances() );
 	 horeds_[ivwr]->paint();
