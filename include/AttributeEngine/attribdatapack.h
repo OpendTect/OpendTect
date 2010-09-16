@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.30 2010-06-24 10:43:08 cvsumesh Exp $
+ RCS:		$Id: attribdatapack.h,v 1.31 2010-09-16 10:07:36 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,8 @@ public:
 	    				  TypeSet<Coord>& coords) const;
     Array2D<float>&	data();
 
+    void		setLineName(const char* nm)	{ linenm_ = nm; }
+    void		getLineName(BufferString&) const;
     Coord3		getCoord(int,int) const;
     double		getAltDim0Value(int,int) const;
     void		getAuxInfo(int,int,IOPar&) const;
@@ -106,6 +108,7 @@ protected:
     DataHolderArray*	array3d_;
     Array2DSlice<float>* arr2dsl_;
     bool		usesingtrc_;
+    BufferString	linenm_;
 
     void		setPosData();
 };
