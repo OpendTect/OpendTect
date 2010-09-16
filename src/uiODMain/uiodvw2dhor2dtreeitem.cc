@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.7 2010-09-15 05:56:59 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.8 2010-09-16 05:14:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,9 +241,10 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Save ... "), 0 );
-    mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 1 );
 
-    if (  mnu.exec() == 0 )
+    const int res = mnu.exec();
+    if ( res == 0 )
     {
 	bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
 	if ( !savewithname )
@@ -251,17 +252,16 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
 	    savewithname = !ioobj;
 	}
+
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
 	const MultiID mid = applMgr()->EMServer()->getStorageID(emid_);
 	applMgr()->mpeServer()->saveSetup( mid );
 	name_ = applMgr()->EMServer()->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	return true;
     }
-    else if (  mnu.exec() == 1 )
+    else if ( res == 1 )
     {
 	parent_->removeChild( this );
-	return true;
     }
 
     return true;
