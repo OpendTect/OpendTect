@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl/Y. Liu
  Date:		August 2001
- RCS:		$Id: fourier.h,v 1.1 2010-08-11 16:40:32 cvsyuancheng Exp $
+ RCS:		$Id: fourier.h,v 1.2 2010-09-17 15:44:47 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -33,6 +33,13 @@ public:
     bool		isFast(int sz) const;
     static int		nextFastSize(int sz); 
     
+    
+    static void pfarc(int isign,int n,const float* rz,float_complex* cz);
+    static void pfacr(int isign,int n,const float_complex*,float* rz);
+    static int npfaro(int nmin, int nmax);
+    static int npfao(int nmin, int nmax);
+
+protected:
     static void pfacc(char dir,int sz,int step,float_complex* signal);
     /*!<Prime number size FFT where the signal has a sampling not equal to 1, 
       i.e. every Nth value should be used.
@@ -46,13 +53,6 @@ public:
     static void pfacc(char dir,int sz,int step,int nr,int batchstep,
 		      float_complex* signal);
     static void pfacc(char dir,int sz,float_complex*);
-    
-    static void pfarc(int isign,int n,const float* rz,float_complex* cz);
-    static void pfacr(int isign,int n,const float_complex*,float* rz);
-    static int npfaro(int nmin, int nmax);
-    static int npfao(int nmin, int nmax);
-
-protected:
 
     bool		setup();
     bool		normalize_;
