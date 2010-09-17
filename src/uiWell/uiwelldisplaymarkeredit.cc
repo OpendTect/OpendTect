@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.4 2010-09-17 12:26:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.5 2010-09-17 15:10:54 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -168,6 +168,7 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
     mrkgrp_->attach( ensureBelow, modesep );
     grp().dispparchg.notify(mCB(this,uiWellDispEditMarkerDlg,editMarkerCB));
 
+    windowClosed.notify( mCB(this,uiWellDispEditMarkerDlg,editDlgClosedCB) );
     setMode( true );
 }
 
@@ -175,6 +176,11 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
 uiWellDispEditMarkerDlg::~uiWellDispEditMarkerDlg()
 {
     deepErase( orgmarkerssets_ );
+}
+
+
+void uiWellDispEditMarkerDlg::editDlgClosedCB( CallBacker* )
+{
     for ( int idx=0; idx<ctrls_.size(); idx++ )
 	activateSensors( *ctrls_[idx], false );
 }
