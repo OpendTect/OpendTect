@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.47 2010-09-13 14:10:33 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.48 2010-09-17 12:32:17 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -283,9 +283,11 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
     const int gatesz = samplegate.width() + 1;
 
     int nrpairs;
-    if ( extension_==mExtensionCube )
+    const bool iscubeext = extension_==mExtensionCube;
+    const bool iscohext = extension_==mExtensionCohLike;
+    if ( iscubeext )
 	nrpairs = pos0s_.size();
-    else if ( extension_==mExtensionCohLike )
+    else if ( iscohext )
 	nrpairs = inputdata_.size() - 1;
     else
 	nrpairs = inputdata_.size()/2;
@@ -311,12 +313,10 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	float dipatmax = 0;
 	for ( int pair=0; pair<nrpairs; pair++ )
 	{
-	    const int idx0 = extension_==mExtensionCube
-			? pos0s_[pair]
-			: extension_==mExtensionCohLike ? nrpairs : pair*2;
-	    const int idx1 = extension_==mExtensionCube
-			? pos1s_[pair]
-			: extension_==mExtensionCohLike ? pair : pair*2 +1;
+	    const int idx0 = iscubeext ? pos0s_[pair]
+				       : iscohext ? nrpairs : pair*2;
+	    const int idx1 = iscubeext ? pos1s_[pair]
+				       : iscohext ? pair : pair*2 +1;
 
 	    float s0 = firstsample + idx + samplegate.start;
 	    float s1 = s0;
@@ -343,7 +343,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 			s1 += serie1->value( z0+idx-steeringdata_->z0_ );
 		}
 
-		if ( extension_ == mExtensionCohLike )
+		if ( iscohext )
 		{
 		    float dist = pair || desc_.is2D() ? distcrl_ : distinl_;
 		    s1 += (curdip * dist)/refstep_;
@@ -373,7 +373,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 					    s1+extras1, 1, gatesz,donormalize_);
 		stats += simival;
 		
-		if ( extension_ == mExtensionCohLike )
+		if ( iscohext )
 		{
 		    curdip += ddip_;
 		    if ( simival > maxcoh )
@@ -383,10 +383,9 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		    }
 		}
 
-		docontinue = extension_==mExtensionCohLike ? curdip<maxdip_
-		    					   : false;
+		docontinue = iscohext ? curdip<maxdip_ : false;
 	    }
-	    if ( extension_==mExtensionCohLike && !pair )
+	    if ( iscohext && !pair )
 		inldip = dipatmax;
 	}
 
@@ -407,12 +406,15 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		setOutputValue( output, 3, idx, z0, stats.min() );
 	    if ( outputinterest_[4] )
 	       	setOutputValue( output, 4, idx, z0, stats.max() );
-	    if ( outputinterest_[5] )
-	       	setOutputValue( output, 5, idx, z0,
-				desc_.is2D() ? dipatmax*dipFactor()
-					     : inldip*dipFactor() );
-	    if ( !desc_.is2D() && outputinterest_[6] )
-	       	setOutputValue( output, 6, idx, z0, dipatmax*dipFactor() );
+	    if ( iscohext )
+	    {
+		if ( outputinterest_[5] )
+		    setOutputValue( output, 5, idx, z0,
+				    desc_.is2D() ? dipatmax*dipFactor()
+						 : inldip*dipFactor() );
+		if ( !desc_.is2D() && outputinterest_[6] )
+		    setOutputValue( output, 6, idx, z0, dipatmax*dipFactor() );
+	    }
 	}
     }
 
