@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.23 2010-09-15 06:29:40 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.24 2010-09-17 04:59:49 cvsranojay Exp $";
 
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"
@@ -32,6 +32,8 @@ static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.23 2010-09-15 06:29:40
 #include "Inventor/actions/SoRayPickAction.h"
 #include "Inventor/sensors/SoFieldSensor.h"
 #include "Inventor/nodes/SoTransparencyType.h"
+#include <Inventor/errors/SoDebugError.h>
+
 
 #include <Inventor/system/gl.h>
 
