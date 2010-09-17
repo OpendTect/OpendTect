@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.3 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.4 2010-09-17 12:26:07 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -142,13 +142,19 @@ void uiWellDispMarkerEditGrp::setFldsSensitive( bool yn )
 
 
 
-uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p,
-					      WellDispMarkerParams& par )
+uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Edit Markers Dialog",
 				"Select editing mode",mTODOHelpID)
 				.modal(false))
+	, curmrk_(0)
+	, curctrl_(0)
+	, curwd_(0)	 
+	, lasteditwd_(0)
+	, lasteditmrk_(0)
+	, hasedited_(false)
+	, needsave_(false)			   
 {
-    setCtrlStyle( LeaveOnly );
+    setOkText( "Ok/Save" );
 
     modefld_ = new uiGenInput( this, "Select mode", 
 			    BoolInpSpec(true,"Add/Remove","Edit Selected") );
@@ -157,11 +163,20 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p,
     uiSeparator* modesep = new uiSeparator( this, "Mode Sep" );
     modesep->attach( stretchedBelow, modefld_ );
 
-    mrkgrp_ = new uiWellDispMarkerEditGrp( this, par );
+    mrkgrp_ = new uiWellDispMarkerEditGrp( this, par_ );
     mrkgrp_->attach( ensureBelow, modefld_ );
     mrkgrp_->attach( ensureBelow, modesep );
+    grp().dispparchg.notify(mCB(this,uiWellDispEditMarkerDlg,editMarkerCB));
 
     setMode( true );
+}
+
+
+uiWellDispEditMarkerDlg::~uiWellDispEditMarkerDlg()
+{
+    deepErase( orgmarkerssets_ );
+    for ( int idx=0; idx<ctrls_.size(); idx++ )
+	activateSensors( *ctrls_[idx], false );
 }
 
 
@@ -186,152 +201,74 @@ bool uiWellDispEditMarkerDlg::isAddRemMode() const
 }
 
 
-
-uiWellDispMarkerEditor::uiWellDispMarkerEditor( uiParent* p )
-    : editdlg_(0)	
-    , menu_(0)	
-    , isediting_(false)  
-    , startmnuitem_("Start Marker Editing...",0)      			 
-    , curmrk_(0)
-    , curctrl_(0)
-    , curwd_(0)	 
-    , lasteditwd_(0)
-    , lasteditmrk_(0)	    
-    , editFinished(this)			    
+void uiWellDispEditMarkerDlg::addWellCtrl( uiWellDisplayControl& ctrl, 
+					      Well::Data& wd  )
 {
-    menu_ = new uiMenuHandler( p, -1 );	
-    menu_->ref();
-    menu_->createnotifier.notify(mCB(this,uiWellDispMarkerEditor,createMenuCB));
-    menu_->handlenotifier.notify(mCB(this,uiWellDispMarkerEditor,handleMenuCB));
-}
-
-
-uiWellDispMarkerEditor::~uiWellDispMarkerEditor()
-{
-    if ( menu_ ) menu_->unRef();
-    for ( int idx=ctrls_.size()-1; idx>=0; idx-- )
-	removeCtrl( *ctrls_[idx], *wds_[idx] );
-}
-
-
-void uiWellDispMarkerEditor::addCtrl( uiWellDisplayControl& ctrl, 
-					  Well::Data& wd  )
-{
-    CallBack cbclk = mCB( this, uiWellDispMarkerEditor,handleUsrClickCB );
-    CallBack cbchg = mCB( this, uiWellDispMarkerEditor,handleCtrlChangeCB );
-    CallBack cbpos = mCB( this, uiWellDispMarkerEditor,posChgCB );
-    ctrl.posChanged.notify( cbchg );
-    ctrl.posChanged.notify( cbpos );
-    ctrl.mousePressed.notify( cbclk ); 
     ctrls_ += &ctrl;
     wds_ += &wd;
+    orgmarkerssets_ += new Well::MarkerSet( wd.markers() );
+    activateSensors( ctrl, true );
 }
 
 
-void uiWellDispMarkerEditor::removeCtrl( uiWellDisplayControl& ctrl,
-       						Well::Data& wd )
+void uiWellDispEditMarkerDlg::activateSensors(uiWellDisplayControl& ctr,bool yn)
 {
-    CallBack cbclk = mCB( this, uiWellDispMarkerEditor,handleUsrClickCB );
-    CallBack cbpos = mCB( this, uiWellDispMarkerEditor,posChgCB );
-    CallBack cbchg = mCB( this, uiWellDispMarkerEditor,handleCtrlChangeCB );
-    ctrl.mousePressed.remove( cbclk ); 
-    ctrl.posChanged.remove( cbpos );
-    ctrl.posChanged.remove( cbchg );
-    ctrls_ -= &ctrl;
-    wds_ -= &wd;
+    CallBack cbclk = mCB( this, uiWellDispEditMarkerDlg,handleUsrClickCB );
+    CallBack cbpos = mCB( this, uiWellDispEditMarkerDlg,posChgCB );
+    CallBack cbchg = mCB( this, uiWellDispEditMarkerDlg,handleCtrlChangeCB );
+#define mNotify(action)\
+    ctr.posChanged.action( cbchg );\
+    ctr.posChanged.action( cbpos );\
+    ctr.mousePressed.action( cbclk );\
+
+    if ( yn ) 
+	{ mNotify( notify ) }
+    else
+	{ mNotify( remove ) }
 }
 
 
-void uiWellDispMarkerEditor::handleCtrlChangeCB( CallBacker* cb )
+void uiWellDispEditMarkerDlg::handleCtrlChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller(BufferString,mesg,caller,cb);
     mDynamicCastGet(uiWellDisplayControl*,ctrl,caller)
-    if ( ctrl == curctrl_ )
-	{ curmrk_ = curctrl_ ? curctrl_->selMarker() : 0; return; }
     curctrl_ = 0; curmrk_ = 0; curwd_ = 0;
     if ( !ctrl || !ctrl->mouseEventHandler() 
 	    	|| !ctrl->mouseEventHandler()->hasEvent() ) return;
     curctrl_ = ctrl;
     int widx = ctrls_.indexOf( ctrl );
-    curwd_ =  ( widx >=0 && widx<wds_.size() ) ? wds_[widx] : 0;
-    curmrk_ = curctrl_ ? curctrl_->selMarker() : 0;
+    curwd_ = ( widx >=0 && widx<wds_.size() ) ? wds_[widx] : 0;
+    if ( curctrl_ && curwd_ )
+    {
+	ObjectSet<Well::Marker>& mrkset = curwd_->markers();
+	int curmrkidx = mrkset.indexOf( curctrl_->selMarker() );
+	if ( curmrkidx >=0 )
+	    curmrk_ = mrkset[curmrkidx];
+    }
 }
 
 
-void uiWellDispMarkerEditor::handleUsrClickCB( CallBacker* cb )
+void uiWellDispEditMarkerDlg::handleUsrClickCB( CallBacker* cb )
 {
     handleEditMarker();
-    handleMenuMaker();
 }
 
 
-void uiWellDispMarkerEditor::posChgCB( CallBacker* cb )
+void uiWellDispEditMarkerDlg::posChgCB( CallBacker* cb )
 {
-    if ( !isediting_ ) return;
     MouseEventHandler* mevh = curctrl_->mouseEventHandler();
     if ( !mevh || !mevh->hasEvent()  ) return;
 
-    if ( editdlg_ && curctrl_ && editdlg_->isAddRemMode()  )
-	editdlg_->grp().setPos( curctrl_->time(), curctrl_->depth() );
+    if ( curctrl_ && isAddRemMode()  )
+	grp().setPos( curctrl_->time(), curctrl_->depth() );
 }
 
 
-void uiWellDispMarkerEditor::handleMenuMaker()
+
+void uiWellDispEditMarkerDlg::handleEditMarker()
 {
-    if ( !curctrl_ || isediting_ ) return;
-    MouseEventHandler* mevh = curctrl_->mouseEventHandler();
-    if ( !mevh || !mevh->hasEvent() || mevh->isHandled() ) return;
-
-    const MouseEvent& ev = mevh->event();
-    if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
-	 !ev.altStatus() )
-    {
-	if ( !menu_ ) return;
-	menu_->executeMenu(0);
-	mevh->setHandled( true );
-    }
-}
-
-
-void uiWellDispMarkerEditor::createMenuCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( !menu ) return;
-    mAddMenuItem( menu, &startmnuitem_, true, false )
-}
-
-
-void uiWellDispMarkerEditor::handleMenuCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet( MenuHandler*, menu, caller );
-    if ( mnuid==-1 || menu->isHandled() )
-	return;
-
-    bool ishandled = true;
-
-    if ( mnuid==startmnuitem_.id ) 
-    {
-	if ( !editdlg_ )
-	    editdlg_ = new uiWellDispEditMarkerDlg( menu_->getParent(), par_ );
-	editdlg_->go();
-	editdlg_->grp().dispparchg.notify( 
-		    mCB(this, uiWellDispMarkerEditor, editMarkerCB));
-	editdlg_->windowClosed.notify( 
-		    mCB(this, uiWellDispMarkerEditor, editDlgClosedCB));
-	isediting_ = true;
-    }
-    else
-	ishandled = false;
-
-    menu->setIsHandled( ishandled );
-}
-
- 
-void uiWellDispMarkerEditor::handleEditMarker()
-{
-    if ( !curctrl_ || !isediting_ || !curwd_ ) return;
-    bool isaddremmode = editdlg_->isAddRemMode();
+    if ( !curctrl_ || !curwd_ ) return;
+    bool isaddremmode = isAddRemMode();
     bool ishandled = true;
     MouseEventHandler* mevh = curctrl_->mouseEventHandler();
     if ( !mevh || !mevh->hasEvent() || mevh->isHandled() ) return;
@@ -347,39 +284,38 @@ void uiWellDispMarkerEditor::handleEditMarker()
 	lasteditwd_ = curwd_;
 	lasteditmrk_ = curmrk_;
 	par_.getFromMarker( *curmrk_ );
-	editdlg_->grp().putToScreen();
-	editdlg_->grp().setFldsSensitive( true );
+	if ( curwd_->haveD2TModel() )
+	    par_.time_ = 1000*curwd_->d2TModel()->getTime( par_.dah_ ); 
+	grp().putToScreen();
+	grp().setFldsSensitive( true );
     }
     else 
 	ishandled = false;
     mevh->setHandled( ishandled );
+    hasedited_ = true; 
     curwd_->markerschanged.trigger();
 }
 
 
-void uiWellDispMarkerEditor::editDlgClosedCB( CallBacker* )
-{
-    editFinished.trigger();
-    isediting_ = false;
-}
-
-
-void uiWellDispMarkerEditor::addNewMarker()
+void uiWellDispEditMarkerDlg::addNewMarker()
 {
     if ( curwd_->markers().isPresent( par_.name_.buf() ) )
 	mErrRet("Marker name already exists", return )
+    if ( curwd_ && curwd_->haveD2TModel() )
+	par_.dah_ =  curwd_->d2TModel()->getDah( par_.time_*0.001 );
     Well::Marker* mrk = new Well::Marker( par_.name_, par_.dah_ );
     par_.putToMarker( *mrk );
     curwd_->markers().insertNew( mrk );
 }
 
 
-void uiWellDispMarkerEditor::editMarkerCB( CallBacker* )
+void uiWellDispEditMarkerDlg::editMarkerCB( CallBacker* )
 {
-    if ( !isediting_ ) return;
-    bool isaddremmode = editdlg_->isAddRemMode();
+    bool isaddremmode = isAddRemMode();
     if ( !isaddremmode && lasteditmrk_ )
     {
+	if ( curwd_ && curwd_->haveD2TModel() )
+	    par_.dah_ =  curwd_->d2TModel()->getDah( par_.time_*0.001 );
 	par_.putToMarker( *lasteditmrk_ );
 	if ( lasteditwd_ ) 
 	    lasteditwd_->markerschanged.trigger();
@@ -387,10 +323,38 @@ void uiWellDispMarkerEditor::editMarkerCB( CallBacker* )
 }
 
 
-void uiWellDispMarkerEditor::removeMarker()
+void uiWellDispEditMarkerDlg::removeMarker()
 {
     if ( !curwd_ ) return;
     ObjectSet<Well::Marker>& mrkobjset = curwd_->markers();
     delete mrkobjset.remove( mrkobjset.indexOf(curmrk_),true );
+}
+
+
+bool uiWellDispEditMarkerDlg::acceptOK( CallBacker* )
+{
+    needsave_ = hasedited_;
+    return true;
+}
+
+
+bool uiWellDispEditMarkerDlg::rejectOK( CallBacker* )
+{
+    needsave_ = false;
+    if ( hasedited_ )
+    {
+	if ( uiMSG().askContinue( "All your edited markers will be lost" ) )
+	{
+	    for ( int idx=0; idx<wds_.size(); idx++ )
+	    {
+		wds_[idx]->markers() = *orgmarkerssets_[idx];
+		wds_[idx]->markerschanged.trigger();
+	    }
+	    return true;
+	}
+	else
+	    return false;
+    }
+    return true;
 }
 

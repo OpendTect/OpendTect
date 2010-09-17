@@ -7,332 +7,142 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.39 2010-08-27 14:26:35 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h
 ________________________________________________________________________
 
 -*/
 
-#include "uigraphicsview.h" 
-#include "uimainwin.h"
-#include "uigroup.h"
 
+#include "uiwelldahdisplay.h"
 #include "uiaxishandler.h"
 #include "draw.h"
-#include "multiid.h"
-#include "welldisp.h"
 
-class uiGraphicsScene;
+class uiTextItem;
 class uiLineItem;
-class uiMenuHandler;
 class uiPolyLineItem;
 class uiPolygonItem;
-class uiTextItem;
-class uiStratDisplay;
-class uiWellStratDisplay;
-class uiWellDisplayControl;
-class uiWellDispInfoPanel;
-
-class Params;
+class uiGraphicsScene;
 class UnitOfMeasure;
-namespace Well 
-{ 
-    class Log; 
-    class D2TModel; 
-    class Data;
-    class Marker;
-    class MarkerSet;
-    class Track; 
-    class DahObj;
-}
+
+namespace Well { class Log; class Marker; }
+
 
 /*!\brief creates a display of max 2 well logs. */
-mClass uiWellLogDisplay : public uiGraphicsView
+mClass uiWellLogDisplay : public uiWellDahDisplay
 {
 public:
 
     mStruct Setup
     {
-				Setup()
-				    : nrmarkerchars_(2)
-				    , markerls_(LineStyle::Dot,1)
-				    , pickls_(LineStyle::Solid,1,Color(0,200,0))
-				    , noxgridline_(false)
-				    , noygridline_(false)
-				    , border_(5)
-				    , yborder_(5)
-				    , noborderspace_(false)
-				    , axisticsz_(2)			   
-				    , noxpixbefore_(false)
-				    , noypixbefore_(false)
-				    , noxpixafter_(false)
-				    , noypixafter_(false)
-				    , noxaxisline_(false)
-				    , noyaxisline_(false)
-				    , nobackground_(false)		 
-				    {}
+			    Setup()
+			    : nrmarkerchars_(2)
+			    , markerls_(LineStyle::Dot,1)
+			    , pickls_(LineStyle::Solid,1,Color(0,200,0))
+			    , border_(5)
+			    , noborder_(false)
+			    , axisticsz_(2)
+			    {}
 
 	mDefSetupMemb(uiBorder,border)
-	mDefSetupMemb(uiBorder,yborder)
 	mDefSetupMemb(int,nrmarkerchars)  //!< Will display up to this nr chars
 	mDefSetupMemb(LineStyle,markerls) //!< will not use color
-	mDefSetupMemb(LineStyle,pickls)	  //!< color used if no PickData color
-	mDefSetupMemb(bool,noxpixbefore)
-	mDefSetupMemb(bool,noypixbefore)
-	mDefSetupMemb(bool,noxpixafter)
-	mDefSetupMemb(bool,noypixafter)
-	mDefSetupMemb(bool,noborderspace)
+	mDefSetupMemb(LineStyle,pickls)   //!< color used if no PickData color
+	mDefSetupMemb(bool,noborder)
 	mDefSetupMemb(int,axisticsz)
-	mDefSetupMemb(bool,noygridline)
-	mDefSetupMemb(bool,noxgridline)
-	mDefSetupMemb(bool,noyaxisline)
-	mDefSetupMemb(bool,noxaxisline)
-	mDefSetupMemb(bool,nobackground)
-    };
+    };  
 
-				uiWellLogDisplay(uiParent*,const Setup&);
-				~uiWellLogDisplay(){};
+			    uiWellLogDisplay(uiParent*,const Setup&);
+			    ~uiWellLogDisplay();
 
-    mStruct LineData
-    {
-	    mStruct Setup
-	    {
-				Setup()
-				    : border_(5)
-				    , noborderspace_(false)
-				    , xaxisticsz_(2)			   
-				    , noxgridline_(false)
-				    , noygridline_(false)
-				    , noxaxisline_(false)
-				    , noyaxisline_(false)
-				    {}
-
-		mDefSetupMemb(uiBorder,border)
-		mDefSetupMemb(bool,noborderspace)
-		mDefSetupMemb(int,xaxisticsz)
-		mDefSetupMemb(bool,noyaxisline)
-		mDefSetupMemb(bool,noxaxisline)
-		mDefSetupMemb(bool,noxgridline)
-		mDefSetupMemb(bool,noygridline)
-	    };
-
-				LineData(uiGraphicsScene&,Setup);
-
-	Interval<float>		zrg_;
-	Interval<float>		valrg_;
-	uiAxisHandler		xax_;
-	uiAxisHandler		yax_;
-	Setup 			setup_;
-	
-	// Get these (will be filled)
-	ObjectSet<uiPolyLineItem> curveitms_;
-	ObjectSet<uiPolygonItem> curvepolyitms_;
-	uiTextItem*		curvenmitm_;
-	Alignment 		al_;
-    };
-
-    mStruct LogData : public LineData
+    mStruct LogData
     {
 	// Set these
-	const Well::Log*	wl_;
-	const UnitOfMeasure*	unitmeas_;
-	bool			xrev_;
-	bool			isyaxisleft_;
-	Well::DisplayProperties::Log wld_;
+	const Well::Log*        wl_;
+	const UnitOfMeasure*    unitmeas_;
+	bool                    xrev_;
+	Well::DisplayProperties::Log disp_;
 
-	protected:
-				LogData(uiGraphicsScene&,bool,Setup);
+	// Get these (will be filled)
+	Interval<float>         zrg_;
+	Interval<float>         valrg_;
+	uiAxisHandler           xax_;
+	uiAxisHandler           yax_;
+	ObjectSet<uiPolyLineItem> curveitms_;
+	ObjectSet<uiPolygonItem> curvepolyitms_;
+	uiTextItem*             curvenmitm_;
 
-	void			copySetupFrom( const LogData& ld )
-	    			{ unitmeas_ = ld.unitmeas_; xrev_ = ld.xrev_; }
+    protected:
 
-	friend class		uiWellLogDisplay;
-    };
-    
-    const LogData&		logData(bool first=true) const
-    				{ return first ? ld1_ : ld2_; }
-    LogData&			logData(bool first=true)
-    				{ return first ? ld1_ : ld2_; }
+				LogData(uiGraphicsScene&,bool isfirst,
+					const uiWellLogDisplay::Setup&);
+	void                    copySetupFrom( const LogData& ld )
+				{
+				    unitmeas_   = ld.unitmeas_;
+				    xrev_       = ld.xrev_;
+				    disp_       = ld.disp_;
+				}
 
-    void 			setDispProperties(Well::DisplayProperties&);
-    void			doDataChange()  { dataChanged(); }
-
-    mStruct MarkerItem
-    {
-			MarkerItem(Well::Marker&);
-			~MarkerItem();
-
-	Well::Marker&	mrk_;
-	uiLineItem*	itm_;
-	uiTextItem*	txtitm_;
-	Color		color_;	
+	friend class            uiWellLogDisplay;
     };
 
-    Notifier<uiWellLogDisplay>  highlightedMarkerItemChged;
-    void 			highlightMarkerItem(const Well::Marker*,
-						    bool trigchg=true);
-    MarkerItem* 		getMarkerItem(const Well::Marker*);
-    const Well::Marker*		highlightedmrk_;
-    ObjectSet<MarkerItem>&   	markerItems() { return  markeritms_; } 
-    void			reDrawMarkers(CallBacker*);
+    LogData&                    logData( bool first=true )
+				{ return first ? ld1_ : ld2_; }
+    const LogData&              logData( bool first=true ) const
+				{ return first ? ld1_ : ld2_; }
 
     mStruct PickData
     {
-			PickData( float dah, Color c=Color::NoColor() )
-			    : dah_(dah), color_(c)	{}
-	bool		operator ==( const PickData& pd ) const
-	    		{ return mIsEqual(pd.dah_,dah_,1e-4); }
+				PickData( float dah, Color c=Color::NoColor() )
+				    : dah_(dah), color_(c)      {}
+	bool            	operator ==( const PickData& pd ) const
+	    			{ return mIsEqual(pd.dah_,dah_,1e-4); }
 
-	float		dah_;
-	Color		color_;	//!< default will use the global setup color
+	float           	dah_;
+	Color           	color_; //!< default will use the global 
+					//setup color
     };
+    TypeSet<PickData>&          zPicks()        { return zpicks_; }
 
-    TypeSet<PickData>&		zPicks()	{ return zpicks_; }
-    Well::Well2DDispData&	data() 		{ return data_; }
-    Well::DisplayProperties& 	disp()		{ return disp_; }
-    const Well::Well2DDispData&	data() const 	{ return data_; }
-    float 			mousePos() const;
-    
+    void                        dataChanged();
+
 protected:
 
-    LogData			ld1_;
-    LogData			ld2_;
+    LogData                     ld1_;
+    LogData                     ld2_;
+    Setup                       setup_;
 
-    TypeSet<PickData>		zpicks_;
+    TypeSet<PickData>           zpicks_;
+    ObjectSet<uiLineItem>       zpickitms_;
 
-    Setup			setup_;
-    Well::Well2DDispData	data_;
-    Well::DisplayProperties 	disp_;
-    
-    ObjectSet<MarkerItem>	markeritms_;
-    ObjectSet<uiLineItem>	zpickitms_;
-    
-
-    void			init(CallBacker*);
-    void			dataChanged();
-    void			reSized(CallBacker*);
-
-    void			setAxisRelations();
-    void			setAxisRanges(bool);
-    void			gatherInfo();
-    void			gatherInfo(bool);
-    void			draw();
-    void			drawLog(bool);
-    void			drawLine(LogData&,const Well::DahObj* ldah);
-    void			drawFilling(bool);
-    void			drawMarkers();
-    void			drawZPicks();
-};
-
-
-mClass uiWellDisplay : public uiGroup
-{
-public:
-
-    mStruct Setup
+    mStruct MarkerDraw
     {
-				Setup()
-				    : nrpanels_(1)
-				    , noborderspace_(false)
-				    , nobackground_(false)		   
-				    , withstratdisp_(false) 		    
-				    , withedit_(false)	       
-				    , wd_(0)				    
-				    {}
+				MarkerDraw( const Well::Marker& mrk )
+				: mrk_(mrk)
+				{}
 
-	mDefSetupMemb(Well::Data*,wd) 		// will be used if not null
-	mDefSetupMemb(int,nrpanels) 	 	// nr Log Panels
-	mDefSetupMemb(bool,nobackground) 	//transparent background
-	mDefSetupMemb(bool,noborderspace) 	//will remove all border&annots 
-	mDefSetupMemb(bool,withstratdisp) 	//Add Stratigraphy display
-	mDefSetupMemb(bool,withedit) 		//Add Marker Editor
+	const Well::Marker& 	mrk_;
+	uiTextItem*     	txtitm_;
+	uiLineItem*     	lineitm_;
     };
+    ObjectSet<MarkerDraw>       markerdraws_;
+    MarkerDraw*                 getMarkerDraw(const Well::Marker&);
 
-    mClass ShapeSetup
-    {
-	public:
-				    ShapeSetup(uiParent* p)
-				    : parent_(p)
-				    , withstrat_(false)
-				    , nrlogpanels_(1)
-				    {}
-	uiParent* 	parent_;
-	bool 		withstrat_;
-	int 		nrlogpanels_;
-    };
-
-    mStruct Params
-    {
-	public :		Params(Well::Data*);
-
-	Well::Data*		wd_;
-	Well::Well2DDispData	data_;
-    };	
-				uiWellDisplay(uiParent*,const Setup&,
-					      const MultiID& );
-				uiWellDisplay(uiWellDisplay&,const ShapeSetup&);
-				~uiWellDisplay();
-    
-    void			setLog(const char*,int,bool);
-    int 			nrLogDisp() 	  { return logdisps_.size();}	
-    int 			nrLogDisp() const { return logdisps_.size();}	
-    uiWellLogDisplay* 		logDisplay(int i) 	{ return logdisps_[i]; }
-    const uiWellLogDisplay* 	logDisplay(int i) const	{ return logdisps_[i]; }
-    bool			isPresent(const uiWellLogDisplay*) const;
-
-    MultiID                     getWellID() 		{ return wellid_; }
-    uiWellStratDisplay*		stratDisp() 		{ return stratdisp_; }
-    const uiWellStratDisplay*	stratDisp() const  	{ return stratdisp_; }
-    bool			hasStratDisp() const	{ return stratdisp_; }
-    const uiWellDisplayControl*	control() const		{ return control_; }
-    uiWellDisplayControl*	control() 		{ return control_; }
-   
-    void 			setDispProperties(Well::DisplayProperties&,
-						    int panelnr=0); 
-    
-    Well::Data*			wellData() const 	{ return getWD(); }
-    Params&			params()		{ return pms_; } 
-    const Params&		params() const		{ return pms_; } 
-    void                        dataChanged(CallBacker*);
-    int 			getDispWidth();
-
-    void			setInitialSize(uiSize);
-
-    ObjectSet<uiWellLogDisplay> logdisps_;
-    uiWellStratDisplay*		stratdisp_;
-    uiWellDisplayControl*	control_;
-    Params			pms_;
-    MultiID                     wellid_;
-
-    void			addLogPanel(bool,bool);
-    void			removeLogDisplay(uiWellLogDisplay* ld)
-				{ logdisps_ -= ld; }
-    void			addWDNotifiers(Well::Data&);
-    void			removeWDNotifiers(Well::Data&);
-    Well::Data*			getWD() const;
-    void			setStratDisp();
+    void                        init(CallBacker*);
+    void                        reSized(CallBacker*);
     void                        gatherInfo();
-    void                        setAxisRanges();
+    void                        draw();
 
-    void			welldataDelNotify(CallBacker*);
-};
+    void                        setAxisRelations();
+    void                        gatherInfo(bool);
+    void                        setAxisRanges(bool);
+    void                        drawCurve(bool);
+    void                        drawFilledCurve(bool);
+    void                        drawMarkers();
+    void                        drawZPicks();
 
-
-mClass uiWellDisplayWin : public uiMainWin
-{
-public:
-    			uiWellDisplayWin(uiParent*,Well::Data&);
-			~uiWellDisplayWin(){};
-
-protected:
-
-    uiWellDisplay& 	welldisp_;
-    uiWellDispInfoPanel* wellinfo_;
-    Well::Data&		wd_;
-    
-    void		closeWin(CallBacker*);
-    void		dispInfoMsg(CallBacker*);
-    void		mkInfoPanel(CallBacker*);
-    void		updateProperties(CallBacker*);
+    friend class                uiWellDisplay;
+    friend class                uiWellDisplayControl;
 };
 
 #endif
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.17 2010-08-30 07:35:37 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.18 2010-09-17 12:26:07 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -33,9 +33,16 @@ uiWellDisplayControl::uiWellDisplayControl( uiWellLogDisplay& l )
     , posChanged(this)
     , mousePressed(this)
     , mouseReleased(this)
+    , markerSel(this)			 
 {
     addLogDisplay( l );
 }    
+
+
+uiWellDisplayControl::~uiWellDisplayControl()
+{
+    clear();
+}
 
 
 void uiWellDisplayControl::addLogDisplay( uiWellLogDisplay& disp )
@@ -63,6 +70,16 @@ void uiWellDisplayControl::removeLogDisplay( uiWellLogDisplay& disp )
 }
 
 
+void uiWellDisplayControl::clear()
+{
+    for ( int idx=logdisps_.size()-1; idx>=0; idx-- )
+	removeLogDisplay( *logdisps_[idx] );
+
+    seldisp_ = 0; 	
+    lastselmarker_ = 0;
+}
+
+
 MouseEventHandler& uiWellDisplayControl::mouseEventHandler( int dispidx )
     { return logdisps_[dispidx]->scene().getMouseEventHandler(); }
 
@@ -79,39 +96,28 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
     if ( !mevh->hasEvent() || mevh->isHandled() ) 
 	return;
 
-    const Well::Well2DDispData& data = seldisp_->data();
-    float pos = mousePos();
-    if ( data.zistime_ )
+    if ( seldisp_ )
     {
-	time_ = pos;
-	if ( data.d2tm_ && data.d2tm_->size() >= 1 )
-	    depth_ = data.d2tm_->getDah( pos*0.001 );
-    }
-    else
-    {
-	depth_ = pos;
-	if ( data.d2tm_ )
-	    time_ = data.d2tm_->getTime( pos )*1000;
+	const uiWellDahDisplay::Data& zdata = seldisp_->zData();
+	float pos = seldisp_->logData(true).yax_.getVal(mevh->event().pos().y);
+	if ( zdata.zistime_ )
+	{
+	    time_ = pos;
+	    if ( zdata.d2tm_ && zdata.d2tm_->size() >= 1 )
+		depth_ = zdata.d2tm_->getDah( pos*0.001 );
+	}
+	else
+	{
+	    depth_ = pos;
+	    if ( zdata.d2tm_ )
+		time_ = zdata.d2tm_->getTime( pos )*1000;
+	}
     }
 
     BufferString info;
     getPosInfo( info );
     CBCapsule<BufferString> caps( info, this );
     posChanged.trigger( &caps );
-
-    setSelMarkerCB( cb );
-    if ( selmarker_ != lastselmarker_ )  
-    {
-	for ( int idx=0; idx<logdisps_.size(); idx++ )
-	    logdisps_[idx]->highlightMarkerItem( selmarker_ );
-	lastselmarker_ = selmarker_;
-    }
-}
-
-
-float uiWellDisplayControl::mousePos() const
-{
-    return  seldisp_ ? seldisp_->mousePos() : 0;
 }
 
 
@@ -204,19 +210,57 @@ void uiWellDisplayControl::setSelLogDispCB( CallBacker* cb )
 }
 
 
-void uiWellDisplayControl::setSelMarkerCB( CallBacker* ) 
+void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb ) 
 {
-    selmarker_ = 0;
     if ( !seldisp_ ) return;
     const MouseEvent& ev = seldisp_->getMouseEventHandler().event();
     int mousepos = ev.pos().y;
-    for ( int idx=0; idx<seldisp_->markerItems().size(); idx++ )
+    Well::Marker* selmrk = 0;
+    for ( int idx=0; idx<seldisp_->markerdraws_.size(); idx++ )
     {
-	if ( abs( seldisp_->markerItems()[idx]->itm_->getPos().y-mousepos )<2 )
+	uiWellLogDisplay::MarkerDraw& markerdraw = *seldisp_->markerdraws_[idx];
+	const Well::Marker& mrk = markerdraw.mrk_;
+	uiLineItem& li = *markerdraw.lineitm_;
+
+	if ( abs( li.getPos().y - mousepos )<2 ) 
 	{
-	    selmarker_ = &seldisp_->markerItems()[idx]->mrk_; 
+	    selmrk = const_cast<Well::Marker*>( &mrk );
 	    break;
 	}
+    }
+    bool markerchanged = ( lastselmarker_ != selmrk );
+    setSelMarker( selmrk );
+    if ( markerchanged )
+	markerSel.trigger();
+}
+
+
+void uiWellDisplayControl::setSelMarker( const Well::Marker* mrk )
+{
+    if ( lastselmarker_ && ( lastselmarker_ != mrk ) )
+	highlightMarker( *lastselmarker_, false );
+
+    if ( mrk )
+	highlightMarker( *mrk, true );
+
+    selmarker_ = mrk;
+
+    if ( lastselmarker_ != mrk )
+	lastselmarker_ = mrk;
+}
+
+
+void uiWellDisplayControl::highlightMarker( const Well::Marker& mrk, bool yn )
+{
+    for ( int iddisp=0; iddisp<logdisps_.size(); iddisp++ )
+    {
+	uiWellLogDisplay& ld = *logdisps_[iddisp];
+	const LineStyle& ls = ld.setup_.markerls_;
+	uiWellLogDisplay::MarkerDraw* mrkdraw = ld.getMarkerDraw( mrk );
+	if ( !mrkdraw ) continue;
+	uiLineItem& li = *mrkdraw->lineitm_;
+	int width = yn ? ls.width_+2 : ls.width_;
+	li.setPenStyle( LineStyle( ls.type_, width, mrk.color() ) ); 
     }
 }
 
@@ -230,4 +274,3 @@ void uiWellDisplayControl::setCtrlPressed( bool yn )
     }
     isctrlpressed_ = yn;
 }
-

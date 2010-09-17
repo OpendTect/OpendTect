@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.14 2010-09-08 07:07:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.15 2010-09-17 12:26:07 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
@@ -68,10 +68,9 @@ void uiStratTreeToDispTransl::readFromTree()
     data_.eraseData();
     static const char* colnms[] = { "Super Group", "Group", "Formation", 
 	    "Member", "Type", "Lithology", "Description", "Boundaries", 0 };
-#define mAddCol( title )\
-    data_.addCol( new AnnotData::Column( title ) );
+    
     for ( int idcol=0; colnms[idcol]; idcol++ )
-	mAddCol( colnms[idcol] );
+	data_.addCol( new AnnotData::Column( colnms[idcol] ) );
     
     data_.getCol( idlitho )->isaux_ = true;
     data_.getCol( idboundaries )->isaux_ = true;

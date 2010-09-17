@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.54 2010-06-23 14:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.55 2010-09-17 12:26:07 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.54 2010-06-23 14:21:09 cv
 #include "welllogset.h"
 #include "wellwriter.h"
 #include "uiwellrdmlinedlg.h"
-#include "uiwelllogdisplay.h"
+#include "uiwelldisplay.h"
 #include "uiwelldisppropdlg.h"
 #include "multiid.h"
 #include "ioobj.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.2 2010-08-26 14:37:28 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.3 2010-09-17 12:26:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,9 +79,8 @@ protected :
 mClass uiWellDispEditMarkerDlg : public uiDialog
 {
 public:
-				uiWellDispEditMarkerDlg(uiParent*,
-						WellDispMarkerParams&);
-				~uiWellDispEditMarkerDlg(){};
+				uiWellDispEditMarkerDlg(uiParent*);
+				~uiWellDispEditMarkerDlg();
 
 
     uiWellDispMarkerEditGrp&	grp() 			{ return *mrkgrp_; }
@@ -89,26 +88,11 @@ public:
     void			setMode(bool);
     bool 			isAddRemMode() const;
 
-protected:
+    void 			addWellCtrl(uiWellDisplayControl&,Well::Data&);
+    
+    void			startEdit();
 
-    uiWellDispMarkerEditGrp*	mrkgrp_;
-    uiGenInput*			modefld_;
-
-    void			modeChg(CallBacker*);
-};
-
-
-
-mClass uiWellDispMarkerEditor : public CallBacker
-{
-public:
-				uiWellDispMarkerEditor(uiParent*); 
-				~uiWellDispMarkerEditor();
-
-    void 			addCtrl(uiWellDisplayControl&,Well::Data&);
-    void 			removeCtrl(uiWellDisplayControl&,Well::Data&);
-
-    Notifier<uiWellDispMarkerEditor> editFinished;
+    bool 			needSave() 	{ return needsave_; }
 
 protected:
 
@@ -125,34 +109,35 @@ protected:
     Well::Data*			lasteditwd_;
     Well::Marker*		lasteditmrk_;
 
-    ObjectSet<Well::Marker>	addedmarkers_;
+    bool			needsave_;
 
-    bool 			isediting_;
+    ObjectSet<Well::MarkerSet>	orgmarkerssets_;
+    uiWellDispMarkerEditGrp*	mrkgrp_;
+    uiGenInput*			modefld_;
+
+    bool 			hasedited_;
     bool 			ismarkerhit_;
     bool 			ispressed_;
     
-    uiMenuHandler*		menu_;
-    MenuItem            	startmnuitem_;
-
-    void                        createMenuCB(CallBacker*);
-    void			handleMenuCB(CallBacker*);
-
-    void                        changeMarkerPos(Well::Marker&);
-
-    void			handleMenuMaker();
-    void			handleEditMarker();
-
     void			addNewMarker();
+    void                        changeMarkerPos(Well::Marker&);
+    void			handleEditMarker();
     void			removeMarker();
     void			setParsFromMarker(const Well::Marker&);
     void			setParsToMarker(Well::Marker&);
 
-    void			editDlgClosedCB(CallBacker*);
+    void 			activateSensors(bool yn);
+    void 			activateSensors(uiWellDisplayControl&,bool yn);
 
-    void			posChgCB(CallBacker*);
+    void			modeChg(CallBacker*);
+
+    bool			acceptOK(CallBacker*);
+    bool			rejectOK(CallBacker*);
+    void			editDlgClosedCB(CallBacker*);
+    void                        editMarkerCB(CallBacker*);
     void			handleUsrClickCB(CallBacker*);
     void			handleCtrlChangeCB(CallBacker*);
-    void                        editMarkerCB(CallBacker*);
+    void			posChgCB(CallBacker*);
 };
 
 #endif

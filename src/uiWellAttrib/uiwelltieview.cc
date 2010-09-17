@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.72 2010-08-20 15:02:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.73 2010-09-17 12:26:07 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -93,6 +93,9 @@ void uiTieView::initWellControl()
 
 void uiTieView::fullRedraw()
 {
+    if ( !setLogsParams() ) 
+	return;
+
     drawVelLog();
     drawDenLog();
     drawAILog();
@@ -100,9 +103,6 @@ void uiTieView::fullRedraw()
     drawLogDispWellMarkers();
     drawCShot();
     
-    if ( !setLogsParams() ) 
-	return;
-
     redrawViewer(0);
 }
 
@@ -174,14 +174,17 @@ bool uiTieView::setLogsParams()
     if ( !d2tm ) return false;
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
-	logsdisp_[idx]->data().d2tm_ = d2tm;
-	logsdisp_[idx]->data().dispzinft_ = uipms->iszinft_;
-	logsdisp_[idx]->data().zistime_ = uipms->iszintime_;
-	logsdisp_[idx]->doDataChange();
+	logsdisp_[idx]->logData(true).wl_ = 0;
+	logsdisp_[idx]->logData(false).wl_ = 0;
+	uiWellDahDisplay::Data data;
+	data.zrg_ = zrange_;
+	data.d2tm_ = d2tm;
+	data.markers_ = &wd->markers();
+	data.dispzinft_ = uipms->iszinft_;
+	data.zistime_ = uipms->iszintime_;
+	logsdisp_[idx]->setData( data );
     }
-    const float startdah = d2tm->getDah( zrange_.start );
-    const float stopdah = d2tm->getDah( zrange_.stop );
-    setLogsRanges( startdah, stopdah );
+    setLogsRanges( zrange_.start, zrange_.stop );
     return true;
 }
 
@@ -191,8 +194,8 @@ void uiTieView::drawVelLog()
     uiWellLogDisplay::LogData& wldld1 = logsdisp_[0]->logData(true);
     wldld1.wl_ = dataholder_.logset()->getLog( params_->dispcurrvellognm_ );
     wldld1.xrev_ = !wtsetup_.issonic_;
-    wldld1.wld_.color_ = Color::stdDrawColor(0);
-    wldld1.wld_.islogfill_ =false;
+    wldld1.disp_.color_ = Color::stdDrawColor(0);
+    wldld1.disp_.islogfill_ =false;
 }
 
 
@@ -200,9 +203,9 @@ void uiTieView::drawDenLog()
 {
     uiWellLogDisplay::LogData& wldld2 = logsdisp_[0]->logData(false);
     wldld2.wl_ = dataholder_.logset()->getLog( params_->denlognm_ );
-    wldld2.isyaxisleft_ = false;
-    wldld2.wld_.color_ = Color::stdDrawColor(1);
-    wldld2.wld_.islogfill_ =false;
+    wldld2.xrev_ = false;
+    wldld2.disp_.color_ = Color::stdDrawColor(1);
+    wldld2.disp_.islogfill_ =false;
 }
 
 
@@ -210,8 +213,9 @@ void uiTieView::drawAILog()
 {
     uiWellLogDisplay::LogData& wldld1 = logsdisp_[1]->logData(true);
     wldld1.wl_ = dataholder_.logset()->getLog( params_->ainm_ );
-    wldld1.wld_.color_ = Color::stdDrawColor(0);
-    wldld1.wld_.islogfill_ =false;
+    wldld1.xrev_ = true;
+    wldld1.disp_.color_ = Color::stdDrawColor(0);
+    wldld1.disp_.islogfill_ =false;
 }
 
 
@@ -219,9 +223,8 @@ void uiTieView::drawRefLog()
 {
     uiWellLogDisplay::LogData& wldld2 = logsdisp_[1]->logData(false);
     wldld2.wl_ = dataholder_.logset()->getLog( params_->refnm_ );
-    wldld2.isyaxisleft_ = false;
-    wldld2.wld_.color_ = Color::stdDrawColor(1);
-    wldld2.wld_.islogfill_ =false;
+    wldld2.disp_.color_ = Color::stdDrawColor(1);
+    wldld2.disp_.islogfill_ =false;
 }
 
 
@@ -316,19 +319,9 @@ void uiTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
 
 void uiTieView::setLogsRanges( float start, float stop )
 {
-    mGetWD(return)
-    const Well::D2TModel* d2tm = wd->d2TModel();
-    if ( !d2tm ) return; 
-    if ( dataholder_.uipms()->iszintime_ )
-    {
-	start = d2tm->getTime( start )*1000;
-	stop = d2tm->getTime( stop )*1000;
-    }
+    Interval<float> rg( start, stop ); 
     for (int idx=0; idx<logsdisp_.size(); idx++)
-    {
-	logsdisp_[idx]->data().zrg_ = Interval<float>( start, stop);
-	logsdisp_[idx]->doDataChange();
-    }
+	logsdisp_[idx]->setZRange( rg );
 }
 
 
@@ -347,7 +340,7 @@ void uiTieView::zoomChg( CallBacker* )
     uiWorldRect curwr = vwr_->curView();
     const float start = curwr.top();
     const float stop  = curwr.bottom();
-    setLogsRanges( d2tm->getDah(start*0.001), d2tm->getDah(stop*0.001) );
+    setLogsRanges( start, stop );
     drawCShot();
 }
 
@@ -384,7 +377,7 @@ void uiTieView::drawLogDispWellMarkers()
     if ( !wd ) return;
     bool ismarkerdisp = dataholder_.uipms()->ismarkerdisp_;
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
-	logsdisp_[idx]->data().markers_ = ismarkerdisp ? &wd->markers() : 0;
+	logsdisp_[idx]->setMarkers( ismarkerdisp ? &wd->markers() : 0 );
 }
 
 
@@ -534,7 +527,7 @@ void uiTieView::drawCShot()
     checkshotitm_ = scene.addItem( new uiPolyLineItem(pts) );
     LineStyle ls( LineStyle::Solid, 2, Color::DgbColor() );
     checkshotitm_->setPenStyle( ls );
-    logsdisp_[0]->doDataChange();
+    //logsdisp_[0]->doDataChange();
 }
 
 
