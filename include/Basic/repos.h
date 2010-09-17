@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: repos.h,v 1.6 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: repos.h,v 1.7 2010-09-17 12:53:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,8 @@ namespace Repos
   User: home/user dir, .od subdir, file "unitsofmeasure"
 
   The 'Temp' will not be visited by the 'next' iterator, it's more or less
-  added for as an undef or initial value.
+  added for as an undef or initial value. When specifying reverse, the iterator
+  will start at User.
 
   Usage example:
 
@@ -47,21 +48,23 @@ mClass FileProvider
 {
 public:
 
-			FileProvider( const char* base_name )
-			: basenm_(base_name)	{ reset(); }
+			FileProvider( const char* base_name, bool rev=false )
+			: basenm_(base_name)
+			, rev_(rev)		{ reset(); }
 
-    bool		next()			{ return next(cursource_); }
+    bool		next()			{ return next(cursource_,rev_);}
     void		reset()			{ cursource_ = Temp; }
     Source		source() const		{ return cursource_; }
     BufferString	fileName() const	{ return fileName(cursource_); }
 
     BufferString	fileName(Source) const;
-    static bool		next(Source&);
+    static bool		next(Source&,bool rev=false);
 
 protected:
 
-    Source		cursource_;
     const BufferString	basenm_;
+    Source		cursource_;
+    bool		rev_;
 
     void		getFname(BufferString&,bool) const;
 
