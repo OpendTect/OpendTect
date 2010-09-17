@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.15 2010-07-06 16:17:26 cvsnanne Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.16 2010-09-17 17:01:21 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,7 @@ public:
     int			displayID() const		{ return displayid_; }
 
     uiODDataTreeItem*	addAttribItem();
+    void		prepareForShutdown();
 
 protected:
 

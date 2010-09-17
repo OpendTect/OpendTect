@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.42 2010-07-06 16:34:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.43 2010-09-17 17:01:21 cvskris Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -344,11 +344,6 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    prepareForShutdown();
 
-	    mDynamicCastGet( const visSurvey::SurveyObject*, so,
-			     visserv_->getObject(displayid_) );
-	    if ( ODMainWin()->colTabEd().getSurvObj() == so )
-		ODMainWin()->colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
-
 	    visserv_->removeObject( displayid_, sceneID() );
 	    parent_->removeChild( this );
 	}
@@ -393,3 +388,15 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	uiMSG().message( "Not implemented yet" );
     }
 }
+
+
+void uiODDisplayTreeItem::prepareForShutdown()
+{
+    uiTreeItem::prepareForShutdown();
+    mDynamicCastGet( const visSurvey::SurveyObject*, so,
+		     visserv_->getObject(displayid_) );
+    if ( ODMainWin()->colTabEd().getSurvObj() == so )
+	ODMainWin()->colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
+}
+
+
