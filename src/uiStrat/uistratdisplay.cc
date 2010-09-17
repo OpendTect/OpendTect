@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.19 2010-09-17 14:24:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.20 2010-09-17 15:45:35 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -210,14 +210,9 @@ void uiStratDisplay::dispParamChgd( CallBacker* cb )
 
 void uiStratDisplay::createMenuCB( CallBacker* cb )
 {
-    if ( getUnitFromPos() ) 
-	handleMenuCB( cb );
-    else if ( getMrkFromPos() )
-    {
-	mDynamicCastGet(uiMenuHandler*,menu,cb);
-	if ( !menu ) return;
-	mAddMenuItem( menu, &assignlvlmnuitem_, true, false);
-    }
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    if ( !menu ) return;
+    mAddMenuItem( menu, &assignlvlmnuitem_, true, false);
 }
 
 
@@ -495,7 +490,10 @@ bool uiAnnotDisplay::handleUserClick( const MouseEvent& ev )
     if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	!ev.altStatus() )
     {
-	createMenuCB(0);
+	if ( getUnitFromPos() ) 
+	    handleMenuCB( 0 );
+	else if ( getMrkFromPos() )
+	    menu_.executeMenu(0);
 	return true;
     }
     return false;
