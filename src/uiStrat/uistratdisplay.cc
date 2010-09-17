@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.18 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.19 2010-09-17 14:24:36 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -495,7 +495,7 @@ bool uiAnnotDisplay::handleUserClick( const MouseEvent& ev )
     if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	!ev.altStatus() )
     {
-	menu_.executeMenu(0);
+	createMenuCB(0);
 	return true;
     }
     return false;
