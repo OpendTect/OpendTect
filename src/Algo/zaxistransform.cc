@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.21 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.22 2010-09-20 08:58:45 cvssatyaki Exp $";
 
 #include "zaxistransform.h"
 
@@ -179,11 +179,13 @@ bool ZAxisTransform::usePar( const IOPar& par )
 
 ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
 					      bool b,
-					      const SamplingData<double>& nsd )
+					      const SamplingData<double>& nsd,
+       					      bool is2d	)
     : transform_(trans)
     , back_(b)
     , bid_(0,0)
     , sd_(nsd)
+    , is2d_(is2d)
 { transform_.ref(); }
 
 
@@ -192,7 +194,12 @@ ZAxisTransformSampler::~ZAxisTransformSampler()
 
 
 void ZAxisTransformSampler::setLineName( const char* lnm )
-{ bid_.inl = transform_.lineIndex(lnm); }
+{
+    if ( !is2d_ )
+	return;
+    bid_.inl = transform_.lineIndex(lnm);
+    curlinenm_ = lnm;
+}
 
 void ZAxisTransformSampler::setTrcNr( int trcnr )
 { bid_.crl = trcnr; }
@@ -209,8 +216,12 @@ float ZAxisTransformSampler::operator[](int idx) const
     }
 
     const BinIDValue bidval( BinIDValue(bid_,sd_.atIndex(idx)) );
-    return back_ ? transform_.transformBack( bidval )
-	         : transform_.transform( bidval );
+    return back_ ? ( is2d_ ? transform_.transformBack(curlinenm_,bid_.crl,
+						      bidval.value)
+			   : transform_.transformBack(bidval) )
+	         : ( is2d_ ? transform_.transform(curlinenm_,bid_.crl,
+			     			  bidval.value)
+			   : transform_.transform(bidval) );
 }
 
 
