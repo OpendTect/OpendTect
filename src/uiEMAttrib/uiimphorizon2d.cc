@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.27 2010-07-19 15:17:25 cvshelene Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.28 2010-09-20 03:52:03 cvsnageswara Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -343,7 +343,7 @@ bool uiImportHorizon2D::doImport()
     if ( !scanner_ ) return false;
 
     const BinIDValueSet* valset = scanner_->getVals();
-    if ( valset->totalSize() == 0 )
+    if ( !valset || valset->totalSize() == 0 )
     {
 	BufferString msg( "No valid positions found\n" );
 	msg.add( "Please re-examine input files and format definition" );
