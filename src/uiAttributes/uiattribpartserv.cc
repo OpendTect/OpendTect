@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.164 2010-09-16 10:08:33 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.165 2010-09-20 09:01:00 cvssatyaki Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1188,6 +1188,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     }
     else if ( zdomainmnuitem->findItem(mnuid) )
     {
+	if ( is2d )
+	    return false;
 	const MenuItem* item = zdomainmnuitem->findItem( mnuid );
 	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
 	PtrMan<IOObj> ioobj = IOM().getLocal( item->text );

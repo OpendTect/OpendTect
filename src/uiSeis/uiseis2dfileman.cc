@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.9 2010-08-12 13:37:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.10 2010-09-20 09:01:00 cvssatyaki Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -137,8 +137,10 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
     BufferStringSet sharedattribs;
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
+	SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
 	BufferStringSet attrs;
-	objinfo_->ioObjInfo().getAttribNamesForLine( sellines.get(idx), attrs );
+	objinfo_->ioObjInfo().
+	    getAttribNamesForLine( sellines.get(idx), attrs, opts2d );
 	if ( !idx )
 	{
 	    sharedattribs = attrs;

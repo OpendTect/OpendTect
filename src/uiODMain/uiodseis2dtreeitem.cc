@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.95 2010-09-15 06:45:58 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.96 2010-09-20 09:01:00 cvssatyaki Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -886,6 +886,7 @@ uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
     , attrnoneitm_("&None")
     , storeditm_("Stored &2D data")
     , steeringitm_("Steer&ing 2D data")
+    , zattritm_("ZDomain Atrrib 2D data")
 {}
 
 
@@ -948,19 +949,28 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( &selattrmnuitem_, &steeringitm_, true, docheckparent );
 
+    zattritm_.removeItems();
+    zattritm_.enabled = false;
     BufferStringSet zattribnms;
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
     seisserv->get2DZdomainAttribs( s2d->lineSetID(), objnm,
 				   scene->zDomainKey(), zattribnms );
-    mAddMenuItem( &selattrmnuitem_, &attrnoneitm_, true, false );
-    for ( int idx=0; idx<zattribnms.size(); idx++ )
+    if ( zattribnms.size() )
     {
-	FixedString nm = zattribnms.get(idx).buf();
-	MenuItem* item = new MenuItem(nm);
-	const bool docheck = isstored && nm==as.userRef();
-	if ( docheck ) docheckparent=true;
-	mAddManagedMenuItem( &attrnoneitm_,item,true,docheck);
+    	mAddMenuItem( &selattrmnuitem_, &zattritm_, true, false );
+	for ( int idx=0; idx<zattribnms.size(); idx++ )
+	{
+	    FixedString nm = zattribnms.get(idx).buf();
+	    MenuItem* item = new MenuItem(nm);
+	    const bool docheck = isstored && nm==as.userRef();
+	    if ( docheck ) docheckparent=true;
+	    mAddManagedMenuItem( &zattritm_,item,true,docheck);
+	}
+
+	zattritm_.enabled = true;
     }
+
+    mAddMenuItem( &selattrmnuitem_, &attrnoneitm_, true, false );
 }
 
 
@@ -998,12 +1008,85 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	setAttrib( myas, uitr );
     }
+    else if ( zattritm_.itemIndex(mnuid)!=-1 )
+    {
+	MouseCursorChanger cursorchgr( MouseCursor::Wait );
+	menu->setIsHandled(true);
+	displayZDomainData( zattritm_.findItem(mnuid)->text, -1, uitr );
+    }
     else if ( mnuid==attrnoneitm_.id )
     {
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	menu->setIsHandled(true);
 	clearAttrib();
     }
+}
+
+
+bool uiOD2DLineSetAttribItem::displayZDomainData( const char* attribnm,
+						  int component,
+       						  uiTaskRunner& tr )
+{
+    uiVisPartServer* visserv = applMgr()->visServer();
+    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
+		    visserv->getObject( displayID() ))
+    if ( !s2d ) return false;
+
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+    SeisIOObjInfo::Opts2D o2d;
+    o2d.zdomky_ = scene->zDomainKey();
+    BufferStringSet attribnms;
+    SeisIOObjInfo objinfo( s2d->lineSetID() );
+    objinfo.getAttribNamesForLine( s2d->name(), attribnms, o2d );
+    if ( attribnms.indexOf(attribnm) < 0 )
+	return false;
+
+    uiAttribPartServer* attrserv = applMgr()->attrServer();
+    LineKey lk( s2d->lineSetID(), attribnm );
+    //First time to ensure all components are available
+    Attrib::DescID attribid = attrserv->getStoredID( lk, true );
+
+    attribid = attrserv->getStoredID( lk, true, component );
+
+    if ( !attribid.isValid() ) return false;
+
+    const Attrib::SelSpec* as = visserv->getSelSpec(  displayID(),0 );
+    Attrib::SelSpec myas( *as );
+    LineKey linekey( s2d->name(), attribnm );
+    myas.set( attribnm, attribid, false, 0 );
+    myas.set2DFlag();
+    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );
+    if ( !ds ) return false;
+    myas.setRefFromID( *ds );
+    myas.setUserRef( attribnm ); // Why is this necessary?
+    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
+    if ( !targetdesc ) return false;
+
+    BufferString defstring;
+    targetdesc->getDefStr( defstring );
+    myas.setDefString( defstring );
+    attrserv->setTargetSelSpec( myas );
+
+    CubeSampling cs;
+    cs.hrg.start.crl = s2d->getTraceNrRange().start;
+    cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
+    cs.zrg.setFrom( s2d->getZRange(true) );
+
+    const DataPack::ID dpid =
+	applMgr()->attrServer()->create2DOutput( cs, linekey, tr );
+    if ( dpid < 0 )
+	return false;
+
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
+    s2d->setSelSpec( attribNr(), myas );
+    s2d->setDataPackID( attribNr(), dpid, 0 );
+
+    updateColumnText(0);
+    setChecked( s2d->isOn() );
+    applMgr()->useDefColTab( displayID(), attribNr() );
+
+    return true;
+
 }
 
 

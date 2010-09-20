@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.20 2010-07-06 16:17:26 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.21 2010-09-20 09:01:00 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -118,6 +118,8 @@ public:
 				uiOD2DLineSetAttribItem(const char* parenttype);
     bool			displayStoredData(const char*,int component,
 	    					  uiTaskRunner&);
+    bool			displayZDomainData(const char*,int component,
+	    					  uiTaskRunner&);
     void			setAttrib(const Attrib::SelSpec&,
 					  uiTaskRunner&);
     void			clearAttrib();
@@ -128,6 +130,7 @@ protected:
 
     MenuItem			storeditm_;
     MenuItem			steeringitm_;
+    MenuItem			zattritm_;
     MenuItem			attrnoneitm_;
 };
 
