@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.24 2010-08-17 14:21:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.25 2010-09-20 13:48:42 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -138,6 +138,7 @@ void D2TModelMGR::replaceTime( const Array1DImpl<float>& timevals )
 
 void D2TModelMGR::setAsCurrent( Well::D2TModel* d2t )
 {
+    ensureValid( *d2t );
     if ( !d2t || d2t->size() < 1 || d2t->value(1)<0 )
     { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.51 2010-08-17 14:21:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.52 2010-09-20 13:48:42 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -75,16 +75,17 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
     }
 
     TWT2Vel( vals, dpt, time, false );
-    mAllocVarLenArr( int, zidxs, vals.size() );
+
+    const Well::Info& info = wd().info();
+    const Well::Track& track = wd().track();
+    const float rdelev = track.dah( 0 ) - track.value( 0 );
+    const float surfelev = -info.surfaceelev;
 
     Well::D2TModel* d2tnew = new Well::D2TModel;
-    d2tnew->add( wd().track().dah(0)-wd().track().value(0), 0 ); //set KB Depth
+    d2tnew->add( rdelev - surfelev, 0 ); //set KB Depth
     for ( int idx=1; idx<time.size(); idx++ )
-    {
-	if ( time[idx]<=0 )
-	    continue;
-	d2tnew->add( dpt[idx], time[idx] );
-    }
+	d2tnew->add( dpt[idx]-surfelev, time[idx] );
+
     return d2tnew;
 }
 
@@ -108,7 +109,7 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t )
     {
 	int idx0 = zidxs[idx-1]; 
 	int idx1 = zidxs[idx];
-	if ( dahs[idx1] >= dahs[idx0])
+	if ( dahs[idx1] >= dahs[idx0] && dahs[idx1] > dahs[0] && times[idx1]>0 )
 	    d2t.add( dahs[idx1], times[idx1] );
     }
 }
