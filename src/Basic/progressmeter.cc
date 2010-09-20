@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id";
+static const char* rcsID = "$Id: progressmeter.cc,v 1.22 2010-09-20 14:59:08 cvsbert Exp $";
 
 #include "progressmeter.h"
 #include "timefun.h"
