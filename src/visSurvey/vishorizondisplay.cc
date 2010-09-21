@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.140 2010-09-10 12:01:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.141 2010-09-21 07:03:18 cvskarthika Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1273,7 +1273,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	{
 	    const Color col = getColTabSequence(idx) ? 
 		getColTabSequence(idx)->color(fval) : Color();
-	    if ( col.t()==255 )
+	    if ( col != getColTabSequence(idx)->undefColor() && col.t() == 255 )
 		continue;
 	}
 	    
