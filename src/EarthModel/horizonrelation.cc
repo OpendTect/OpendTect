@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonrelation.cc,v 1.3 2010-09-03 05:31:35 cvsraman Exp $";
+static const char* rcsID = "$Id: horizonrelation.cc,v 1.4 2010-09-21 04:36:19 cvsraman Exp $";
 
 #include "horizonrelation.h"
 #include "ctxtioobj.h"
@@ -264,7 +264,7 @@ bool RelationTree::read()
     {
 	FileMultiString fms;
 	PtrMan<IOPar> nodepar = subpar->subselect( idx );
-	if ( !nodepar )
+	if ( !nodepar || !nodepar->get(RelationTree::Node::sKeyChildIDs(),fms) )
 	    break;
 
 	RelationTree::Node* node = nodes_[idx];
