@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.51 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.52 2010-09-21 09:16:34 cvssatyaki Exp $";
 
 #include "attribsel.h"
 
@@ -70,8 +70,23 @@ void SelSpec::setZDomainKey( const Desc& desc )
     if ( storedid.isEmpty() ) return;
 
     PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
-    if ( ioobj )
+    if ( !ioobj )
+	return;
+
+    if ( !desc.is2D() )
 	ioobj->pars().get( ZDomain::sKey(), zdomainkey_ );
+    else
+    {
+	Seis2DLineSet ls2d( *ioobj );
+	LineKey lk( storedid );
+	BufferStringSet lnms;
+	ls2d.getLineNamesWithAttrib( lnms, lk.attrName() );
+	if ( lnms.isEmpty() )
+	    return;
+
+	const int lineidx = ls2d.indexOf( LineKey(lnms.get(0),lk.attrName()) );
+	zdomainkey_ = ls2d.zDomainKey( lineidx );
+    }
 }
 
 
