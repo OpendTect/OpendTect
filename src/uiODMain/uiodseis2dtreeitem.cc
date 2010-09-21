@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.96 2010-09-20 09:01:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.97 2010-09-21 11:04:46 cvssatyaki Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -1012,7 +1012,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     {
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	menu->setIsHandled(true);
-	displayZDomainData( zattritm_.findItem(mnuid)->text, -1, uitr );
+	displayStoredData( zattritm_.findItem(mnuid)->text, -1, uitr );
     }
     else if ( mnuid==attrnoneitm_.id )
     {
@@ -1020,73 +1020,6 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	clearAttrib();
     }
-}
-
-
-bool uiOD2DLineSetAttribItem::displayZDomainData( const char* attribnm,
-						  int component,
-       						  uiTaskRunner& tr )
-{
-    uiVisPartServer* visserv = applMgr()->visServer();
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject( displayID() ))
-    if ( !s2d ) return false;
-
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
-    SeisIOObjInfo::Opts2D o2d;
-    o2d.zdomky_ = scene->zDomainKey();
-    BufferStringSet attribnms;
-    SeisIOObjInfo objinfo( s2d->lineSetID() );
-    objinfo.getAttribNamesForLine( s2d->name(), attribnms, o2d );
-    if ( attribnms.indexOf(attribnm) < 0 )
-	return false;
-
-    uiAttribPartServer* attrserv = applMgr()->attrServer();
-    LineKey lk( s2d->lineSetID(), attribnm );
-    //First time to ensure all components are available
-    Attrib::DescID attribid = attrserv->getStoredID( lk, true );
-
-    attribid = attrserv->getStoredID( lk, true, component );
-
-    if ( !attribid.isValid() ) return false;
-
-    const Attrib::SelSpec* as = visserv->getSelSpec(  displayID(),0 );
-    Attrib::SelSpec myas( *as );
-    LineKey linekey( s2d->name(), attribnm );
-    myas.set( attribnm, attribid, false, 0 );
-    myas.set2DFlag();
-    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );
-    if ( !ds ) return false;
-    myas.setRefFromID( *ds );
-    myas.setUserRef( attribnm ); // Why is this necessary?
-    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
-    if ( !targetdesc ) return false;
-
-    BufferString defstring;
-    targetdesc->getDefStr( defstring );
-    myas.setDefString( defstring );
-    attrserv->setTargetSelSpec( myas );
-
-    CubeSampling cs;
-    cs.hrg.start.crl = s2d->getTraceNrRange().start;
-    cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
-    cs.zrg.setFrom( s2d->getZRange(true) );
-
-    const DataPack::ID dpid =
-	applMgr()->attrServer()->create2DOutput( cs, linekey, tr );
-    if ( dpid < 0 )
-	return false;
-
-    MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    s2d->setSelSpec( attribNr(), myas );
-    s2d->setDataPackID( attribNr(), dpid, 0 );
-
-    updateColumnText(0);
-    setChecked( s2d->isOn() );
-    applMgr()->useDefColTab( displayID(), attribNr() );
-
-    return true;
-
 }
 
 
@@ -1101,7 +1034,8 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 
     BufferStringSet attribnms;
     SeisIOObjInfo objinfo( s2d->lineSetID() );
-    objinfo.getAttribNamesForLine( s2d->name(), attribnms );
+    SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
+    objinfo.getAttribNamesForLine( s2d->name(), attribnms, opts2d );
     if ( attribnms.indexOf(attribnm) < 0 )
 	return false;
 
@@ -1151,6 +1085,9 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );
     if ( !ds ) return false;
     myas.setRefFromID( *ds );
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+    if ( scene->zDomainKey() )
+	myas.setZDomainKey( scene->zDomainKey() );
     myas.setUserRef( attribnm ); // Why is this necessary?
     const Attrib::Desc* targetdesc = ds->getDesc( attribid );
     if ( !targetdesc ) return false;
@@ -1163,7 +1100,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     CubeSampling cs;
     cs.hrg.start.crl = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
-    cs.zrg.setFrom( s2d->getZRange(false) );
+    cs.zrg.setFrom( s2d->getZRange(true) );
 
     const DataPack::ID dpid =
 	applMgr()->attrServer()->create2DOutput( cs, linekey, tr );
