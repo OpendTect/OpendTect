@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.104 2010-09-15 06:46:41 cvskarthika Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.105 2010-09-21 11:05:35 cvssatyaki Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -67,11 +67,12 @@ public:
 
 Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d, 
 			      const Attrib::Data2DHolder& dh,  int seriesid,
-			      Array2DImpl<float>& array )
+			      Array2DImpl<float>& array, int attrib )
     : data2dh_( dh )
     , arr_( array )	
     , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
     , s2d_( s2d )
+    , attrib_( attrib )
 {
     const int trnrsz = s2d_.geometry_.positions().size();
     for ( int idx=0; idx<trnrsz; idx++ )
@@ -89,7 +90,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int nrsamp = data2dh_.dataset_[0]->nrsamples_;
    
     const SamplingData<float>& sd = data2dh_.trcinfoset_[0]->sampling; 
-    StepInterval<float> zrg = s2d_.getZRange(!s2d_.datatransform_);
+    StepInterval<float> zrg = s2d_.getZRange(!s2d_.datatransform_,attrib_);
     StepInterval<int> arraysrg( mNINT(zrg.start/sd.step),
 				mNINT(zrg.stop/sd.step),1 );
     const float firstz = data2dh_.dataset_[0]->z0_*sd.step;
@@ -158,6 +159,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const Seis2DDisplay&		s2d_;
     const int				valseridx_;
     TypeSet<int>			trcnrs_;
+    int					attrib_;
 };
 
 
@@ -254,7 +256,7 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 
 StepInterval<float> Seis2DDisplay::getMaxZRange( bool displayspace ) const
 {
-    if ( !datatransform_ || displayspace )
+    if ( !datatransform_ || !displayspace )
 	return geometry_.zRange();
 
     StepInterval<float> zrg;
@@ -269,7 +271,7 @@ void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
     if ( mIsUdf(geometry_.zRange().start) )
 	return;
 
-    const StepInterval<float> maxzrg = getMaxZRange( false );
+    const StepInterval<float> maxzrg = getMaxZRange( true );
     const Interval<float> zrg( mMAX(maxzrg.start,nzrg.start),
 			       mMIN(maxzrg.stop,nzrg.stop) );
     const bool hasdata = !cache_.isEmpty() && cache_[0];
@@ -286,8 +288,15 @@ void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
 }
 
 
-StepInterval<float> Seis2DDisplay::getZRange( bool displayspace ) const
+StepInterval<float> Seis2DDisplay::getZRange( bool displayspace, int attrib ) const
 {
+    const char* zdomain =
+	(attrib>=0 && attrib<nrAttribs()) ? getSelSpec(attrib)->zDomainKey()
+					  : 0;
+    const bool alreadytransformed = zdomain && *zdomain;
+    if ( alreadytransformed )
+	trcdisplayinfo_.zrg;
+
     if ( datatransform_ && !displayspace )
 	return datatransform_->getZInterval( true );
     return trcdisplayinfo_.zrg;
@@ -430,7 +439,7 @@ void Seis2DDisplay::setData( int attrib,
     const SamplingData<float>& sd = data2dh.trcinfoset_[0]->sampling;
 
     StepInterval<float> arrayzrg;
-    arrayzrg.setFrom( getZRange(!datatransform_) );
+    arrayzrg.setFrom( getZRange(!datatransform_,attrib) );
 
     arrayzrg.step = sd.step;
     const int arrzsz = arrayzrg.nrSteps()+1;
@@ -456,14 +465,15 @@ void Seis2DDisplay::setData( int attrib,
     {
 	arr->setAll( mUdf(float) );
 
-	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, sidx, *arr );
+	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, sidx, *arr,
+						  attrib );
 	if ( !arrayfiller.execute() )
 	    continue;
 
-	PtrMan<Array2D<float> > tmparr = 0;
-	Array2D<float>* usedarr = 0;
 	const char* zdomain = getSelSpec(attrib)->zDomainKey();
 	const bool alreadytransformed = zdomain && *zdomain;
+	PtrMan<Array2D<float> > tmparr = 0;
+	Array2D<float>* usedarr = 0;
 	if ( alreadytransformed || !datatransform_ )
 	    usedarr = arr;
 	else
