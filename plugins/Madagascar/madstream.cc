@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.34 2010-08-26 04:19:51 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.35 2010-09-21 09:28:12 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -247,11 +247,11 @@ void MadStream::initWrite( IOPar* par )
     }
     else
     {
-	SPSIOPF().mk3DPostStackProxy( *ioobj );
 	const LineKey lk = seldata ? seldata->lineKey() : 0;
 	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj,lk.lineName())
 	    	       : SPSIOPF().get3DWriter(*ioobj);
 	if ( !pswrr_ ) mErrRet( "Cannot write to output object" );
+	if ( !is2d_ ) SPSIOPF().mk3DPostStackProxy( *ioobj );
     }
     
     if ( is2d_ && !isps_ )
@@ -690,7 +690,8 @@ bool MadStream::writeTraces( bool writetofile )
 	return write2DTraces( writetofile );
 
     int inlstart=0, crlstart=1, inlstep=1, crlstep=1, nrinl=1, nrcrl, nrsamps;
-    int firstoffset=0, nrtrcsperbinid=1, nrbinids=0;
+    int nrtrcsperbinid=1, nrbinids=0;
+    SamplingData<float> offsetsd( 0, 1 );
     SamplingData<float> sd;
     bool haspos = false;
     PosInfo::CubeData cubedata;
@@ -715,6 +716,8 @@ bool MadStream::writeTraces( bool writetofile )
 
 	headerpars_->get( "n2", nrtrcsperbinid );
 	headerpars_->get( "n3", nrbinids );
+	headerpars_->get( "o2", offsetsd.start );
+	headerpars_->get( "d2", offsetsd.step );
     }
 
     if ( haspos )
@@ -745,7 +748,11 @@ bool MadStream::writeTraces( bool writetofile )
 		    SeisTrc* trc = new SeisTrc( nrsamps );
 		    trc->info().sampling = sd;
 		    trc->info().binid = BinID( inl, crl );
-		    if ( isps_ ) trc->info().nr = trcidx;
+		    if ( isps_ )
+		    {
+			trc->info().nr = trcidx;
+			trc->info().offset = offsetsd.atIndex( trcidx - 1 );
+		    }
 
 		    for ( int isamp=0; isamp<nrsamps; isamp++ )
 			trc->set( isamp, buf[isamp], 0 );
