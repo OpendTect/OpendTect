@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoColTabTextureChannel2RGBA.cc,v 1.16 2010-09-15 06:29:40 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoColTabTextureChannel2RGBA.cc,v 1.17 2010-09-22 15:41:31 cvsyuancheng Exp $";
 
 
 #include "SoColTabTextureChannel2RGBA.h"
@@ -234,7 +234,7 @@ void SoColTabTextureChannel2RGBA::computeRGBA( const SbImagei32* channels,
 
 	    const unsigned char* channel =
 		channels[channelidx].getValue( size, bytesperpixel );
-	    if ( !channels || bytesperpixel!=1 )
+	    if ( !channel || bytesperpixel!=1 )
 		continue;
 
 	    const unsigned int coltabindex = channel[idx];
