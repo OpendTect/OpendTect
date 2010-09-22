@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.12 2010-08-27 03:11:00 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.13 2010-09-22 11:43:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,10 @@ mClass uiODApplMgrDispatcher : public CallBacker
     friend class	uiODApplMgr;
 
     			uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
-			    : am_(a), par_(p), convposdlg_(0)	{}
+			    : am_(a), par_(p), convposdlg_(0)
+			    , basemap_(0), basemapdlg_(0)
+			    {}
+
     void		survChg(bool);
 
     void		doOperation(int,int,int);
