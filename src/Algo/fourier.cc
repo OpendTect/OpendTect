@@ -4,7 +4,7 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID = "$Id: fourier.cc,v 1.4 2010-09-01 17:03:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: fourier.cc,v 1.5 2010-09-22 18:22:29 cvsyuancheng Exp $";
 
 #include "fourier.h"
 #include "odmemory.h"
@@ -1010,8 +1010,8 @@ bool FFTCC1D::doFinish()
 
 
 
-/* The content of the following file is modified from Seismic Un*x, and may be used the
-   following conditions:
+/* The reminer of this file contains code  modified from Seismic Un*x, and may
+   be used the following conditions:
 
     Copyright 2007, Colorado School of Mines,
     All rights reserved.
