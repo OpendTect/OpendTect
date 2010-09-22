@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.21 2010-09-03 06:00:47 cvsraman Exp $";
+static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.22 2010-09-22 04:48:58 cvsraman Exp $";
 
 #include "uihorizonsortdlg.h"
 
@@ -163,7 +163,13 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 bool uiHorizonSortDlg::sortFromRelationTree( const TypeSet<MultiID>& ids )
 {
     EM::RelationTree reltree( is2d_ );
-    return reltree.getSorted( ids, horids_ );
+    TypeSet<MultiID> sortedids;
+    reltree.getSorted( ids, sortedids );
+    if ( sortedids.size() != ids.size() )
+	return false;
+
+    horids_ = sortedids;
+    return true;
 }
 
 
