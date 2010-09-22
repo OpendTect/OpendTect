@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.137 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.138 2010-09-22 08:39:37 cvsranojay Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -586,6 +586,7 @@ void uiSeisMMProc::addPush( CallBacker* )
 	const HostData* hd = hdl.find( hnm.buf() );
 	if ( !hd ) { pErrMsg("Huh"); continue; }
 
+#ifndef __win__
 	BufferString errmsg;
 	if ( !hd->isKnownAs(HostData::localHostName())
 		&& !isHostOK(*hd,hdl.rshComm(),errmsg) )
@@ -593,6 +594,7 @@ void uiSeisMMProc::addPush( CallBacker* )
 	    progrfld->append( errmsg.buf() );
 	    continue;
 	}
+#endif
 
 	if ( !jobrunner->addHost(*hd) && jobrunner->jobsLeft() > 0 )
 	{

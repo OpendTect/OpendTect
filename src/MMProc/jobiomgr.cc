@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.36 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.37 2010-09-22 08:39:37 cvsranojay Exp $";
 
 #include "jobiomgr.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: jobiomgr.cc,v 1.36 2010-03-25 03:55:14 cvsranoj
 #include "errh.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "hostdata.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -26,6 +27,7 @@ static const char* rcsID = "$Id: jobiomgr.cc,v 1.36 2010-03-25 03:55:14 cvsranoj
 #include "queue.h"
 #include "separstr.h"
 #include "socket.h"
+#include "string2.h"
 #include "strmprov.h"
 #include "thread.h"
 #include "timefun.h"
@@ -208,10 +210,11 @@ JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 
 	    char* ptr = strchr( shrthostnm.buf(), '.' );
 	    if ( ptr ) *ptr = '\0';
-
+#ifndef __win__
 	    if ( jhri_->hostdata_.isKnownAs(hostnm)  
 	      || jhri_->hostdata_.isKnownAs(shrthostnm) )
-		{ jhri = jhri_; break; }		
+#endif
+		{ jhri = jhri_; break; }	
 	}
     }
 
@@ -436,19 +439,36 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 {
     iopfp = basefp; iopfp.setExtension( ".par", false );
     const BufferString iopfnm( iopfp.fullPath() );
-    FilePath logfp(basefp); logfp.setExtension( ".log", false );
+
+#ifndef __win32__
+    FilePath logfp(basefp); 
+#else
+    BufferString bs( basefp.fullPath() );
+    replaceCharacter( bs.buf(), '.',  '_' );
+    FilePath logfp( bs ); 
+#endif
+
+    logfp.setExtension( ".log", false );
     const BufferString logfnm( logfp.fullPath() );
 
     FilePath remotelogfnm( machine.convPath( HostData::Data, logfp ));
 
     IOPar newiop( iop );
+#ifndef __win__
     newiop.set( sKey::LogFile, remotelogfnm.fullPath(machine.pathStyle()) );
+#else
+    newiop.set( sKey::LogFile, remotelogfnm.fullPath() );
+#endif
 
     const char* tmpstor = iop.find( sKey::TmpStor );
     if ( tmpstor )
     {
 	FilePath remotetmpdir = machine.convPath( HostData::Data, tmpstor );
+#ifndef __win__ 
 	newiop.set( sKey::TmpStor, remotetmpdir.fullPath(machine.pathStyle()) );
+#else
+	newiop.set( sKey::TmpStor, remotetmpdir.fullPath() );
+#endif
     }
 
     newiop.set( sKey::Survey, IOM().surveyName() );
@@ -487,8 +507,10 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 
 #ifdef __msvc__
 
-    cmd.add(progname);
-    cmd.addFlag( "-masterhost", HostData::localHostName() ); 
+    cmd.add( "odremexec" );
+    cmd.add( machine.name() );
+    cmd.add( progname );
+    cmd.addFlag( "-masterhost", GetLocalIP() ); 
     cmd.addFlag( "-masterport", iohdlr_.port() );
     cmd.addFlag( "-jobid", ji.descnr_ );
     FilePath parfp( iopfp );
