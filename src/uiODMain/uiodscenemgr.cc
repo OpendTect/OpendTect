@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.212 2010-08-27 03:17:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.213 2010-09-22 08:04:23 cvsbruno Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -61,6 +61,7 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.212 2010-08-27 03:17:55 cvs
 #include "uiodbodydisplaytreeitem.h"
 #include "uiodemsurftreeitem.h"
 #include "uiodrandlinetreeitem.h"
+#include "uiodseis2dtreeitem.h"
 #include "uiodvolrentreeitem.h"
 #include "uiodwelltreeitem.h"
 
@@ -1011,6 +1012,21 @@ int uiODSceneMgr::addRandomLineItem( int visid, int sceneid )
     uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( visid );
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
+}
+
+
+int uiODSceneMgr::add2DLineSetItem( const MultiID& mid, const char* name,
+       					int displayid, int sceneid )
+{
+    Scene* scene = getScene( sceneid );
+    if ( !scene ) return -1;
+
+    uiOD2DLineSetTreeItem* itm = new uiOD2DLineSetTreeItem( mid );
+    scene->itemmanager_->addChild( itm, false );
+
+    uiOD2DLineSetSubItem* subitm = new uiOD2DLineSetSubItem( name, displayid );
+    itm->addChild( subitm, false );
+    return subitm->displayID();
 }
 
 
