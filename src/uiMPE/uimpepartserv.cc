@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.113 2010-09-15 05:56:03 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.114 2010-09-23 04:47:19 cvsnanne Exp $";
 
 #include "uimpepartserv.h"
 
@@ -189,16 +189,11 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     cursceneid_ = addedtosceneid;
     NotifyStopper notifystopper( MPE::engine().trackeraddremove );
 
-    BufferString newname = "<New horizon ";
-    static int horizonno = 1;
-    newname += horizonno++;
-    newname += ">";
-
     EM::EMObject* emobj = EM::EMM().createTempObject( trackertype );
     if ( !emobj )
 	return false;
 
-    emobj->setName( newname.buf() );
+    emobj->setNewName();
     emobj->setFullyLoaded( true );
 
     EM::ObjectID objid = emobj->id();
