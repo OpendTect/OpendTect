@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: repos.cc,v 1.8 2010-09-17 12:53:53 cvsbert Exp $";
+static const char* rcsID = "$Id: repos.cc,v 1.9 2010-09-23 09:14:10 cvsbert Exp $";
 
 #include "repos.h"
 #include "filepath.h"
@@ -60,8 +60,8 @@ BufferString Repos::FileProvider::fileName( Repos::Source src ) const
     switch ( src )
     {
     case Repos::Temp: {
-	ret = FilePath::getTempName(0);
-	FilePath fp; fp.setFileName( basenm_ );
+	FilePath fp( FilePath::getTempName(0) );
+	fp.setFileName( basenm_ );
 	ret = fp.fullPath();
     } break;
     case Repos::Survey: {
