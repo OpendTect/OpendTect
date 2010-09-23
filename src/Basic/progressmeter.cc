@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: progressmeter.cc,v 1.22 2010-09-20 14:59:08 cvsbert Exp $";
+static const char* rcsID = "$Id: progressmeter.cc,v 1.23 2010-09-23 15:36:32 cvskris Exp $";
 
 #include "progressmeter.h"
 #include "timefun.h"
@@ -173,7 +173,7 @@ void TextStreamProgressMeter::annotate( bool withrate )
  	else
  	    nrdone = nrdone_ - lastannotatednrdone_;
 
-	int permsec = (int)(1.e6 * nrdone / tdiff + .5);
+	od_int64 permsec = (od_int64)(1.e6 * nrdone / tdiff + .5);
 	strm_ << " (" << permsec * .001;
 	if ( totalnr_>0 ) strm_ << "%";
 	strm_ << "/s)";
