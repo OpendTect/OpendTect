@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.99 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.100 2010-09-23 13:07:34 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -424,9 +424,11 @@ void SEGYSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
 }
 
 
-void SEGYSeisTrcTranslator::toPreSelected( DataCharacteristics& dc ) const
+void SEGYSeisTrcTranslator::selectWriteDataChar( DataCharacteristics& dc ) const
 {
-    if ( filepars_.fmt_ > 0 ) dc = getDataChar( filepars_.fmt_ );
+    if ( filepars_.fmt_ == 0 )
+	const_cast<int&>(filepars_.fmt_) = 1;
+    dc = getDataChar( filepars_.fmt_ );
 }
 
 
@@ -531,7 +533,7 @@ bool SEGYSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
 	addComp( dc );
 	toSupported( dc );
-	toPreSelected( dc );
+	selectWriteDataChar( dc );
 	tarcds[idx]->datachar = dc;
 	if ( idx ) tarcds[idx]->destidx = -1;
     }
