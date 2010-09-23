@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.4 2010-09-15 05:56:59 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.5 2010-09-23 04:46:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,12 +64,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 	    return false;
 
 	emo->setPreferredColor( getRandomColor(false) );
-	BufferString newname = "<New fault ";
-	//static int faultnr = 1;
-	//newname += faultnr++;
-	emo->makeNameUnique( newname );
-	newname += ">";
-	emo->setName( newname.buf() );
+	emo->setNewName();
 	emo->setFullyLoaded( true );
 	addChild( new uiODVw2DFaultTreeItem(emo->id()), false, false );
     }

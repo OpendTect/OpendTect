@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfaultstickset.cc,v 1.11 2010-09-15 05:51:41 cvsumesh Exp $";
+static const char* rcsID = "$Id: emfaultstickset.cc,v 1.12 2010-09-23 04:46:25 cvsnanne Exp $";
 
 #include "emfaultstickset.h"
 
@@ -62,13 +62,6 @@ void FaultStickSet::apply( const Pos::Filter& pf )
     }
 
     // TODO: Handle case in which fault sticks become fragmented.
-}
-
-
-void FaultStickSet::makeNameUnique( BufferString&  nm )
-{
-    static int faultnr = 1;
-    nm += faultnr++;
 }
 
 

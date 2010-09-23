@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.69 2010-09-15 05:51:36 cvsumesh Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.70 2010-09-23 04:46:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -92,8 +92,6 @@ public:
     void			removeAll();
     Horizon3DGeometry&		geometry();
     const Horizon3DGeometry&	geometry() const;
-
-    void			makeNameUnique(BufferString& nm);
 
     Array2D<float>*		createArray2D(SectionID,
 					      const ZAxisTransform* zt=0) const;

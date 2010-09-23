@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.24 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.25 2010-09-23 04:46:25 cvsnanne Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -42,7 +42,7 @@ public:
 	delete exec_;
     }
 
-    MarchingCubesSurfaceReader( EM::MarchingCubesSurface& surface, Conn* conn )
+    MarchingCubesSurfaceReader( MarchingCubesSurface& surface, Conn* conn )
 	: Executor( "Surface Loader" )
 	, conn_( conn )
 	, int32interpreter_( 0 )
@@ -96,7 +96,7 @@ public:
     static const char* sKeyCrlSampling()	{ return "Crossline sampling"; }
     static const char* sKeyZSampling()		{ return "Z sampling"; }
     static const char* sFileType()
-    { return EM::MarchingCubesSurface::typeStr(); }
+    { return MarchingCubesSurface::typeStr(); }
 
     static const char* sOldFileType() { return "MarchingCubesSurface"; }
 
@@ -124,7 +124,7 @@ public:
 
 protected:
 
-    EM::MarchingCubesSurface&	surface_;
+    MarchingCubesSurface&	surface_;
     Executor*			exec_;
     DataInterpreter<od_int32>*	int32interpreter_;
     Conn*			conn_;
@@ -142,7 +142,7 @@ public:
     delete exec_;
 }
 
-MarchingCubesSurfaceWriter( EM::MarchingCubesSurface& surface,
+MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
 			    Conn* conn, bool binary )
     : Executor( "Surface Writer" )
     , conn_( conn )
@@ -171,9 +171,9 @@ MarchingCubesSurfaceWriter( EM::MarchingCubesSurface& surface,
 
     par.set( MarchingCubesSurfaceReader::sKeyInlSampling(),
 	     surface.inlSampling().start,surface.inlSampling().step);
-    par.set( EM::MarchingCubesSurfaceReader::sKeyCrlSampling(),
+    par.set( MarchingCubesSurfaceReader::sKeyCrlSampling(),
 	     surface.crlSampling().start,surface.crlSampling().step);
-    par.set( EM::MarchingCubesSurfaceReader::sKeyZSampling(),
+    par.set( MarchingCubesSurfaceReader::sKeyZSampling(),
 	     surface.zSampling().start,surface.zSampling().step );
 
     par.set( sKey::Color, surface.preferredColor() );
@@ -209,11 +209,11 @@ protected:
     Executor*			exec_;
     Conn*			conn_;
     FixedString			errmsg_;
-    EM::MarchingCubesSurface&	surface_;
+    MarchingCubesSurface&	surface_;
 };
 
 
-void EM::MarchingCubesSurface::initClass()
+void MarchingCubesSurface::initClass()
 {
     SeparString sep( 0, FactoryBase::cSeparator() );
     sep += typeStr();
@@ -222,9 +222,9 @@ void EM::MarchingCubesSurface::initClass()
 }
 
 
-EMObject* EM::MarchingCubesSurface::create( EM::EMManager& emm ) \
+EMObject* MarchingCubesSurface::create( EMManager& emm ) \
 {
-    EMObject* obj = new EM::MarchingCubesSurface( emm );
+    EMObject* obj = new MarchingCubesSurface( emm );
     if ( !obj ) return 0;
     obj->ref();
     emm.addObject( obj );
@@ -233,15 +233,24 @@ EMObject* EM::MarchingCubesSurface::create( EM::EMManager& emm ) \
 }
 
 
-const char* EM::MarchingCubesSurface::typeStr()
+const char* MarchingCubesSurface::typeStr()
 { return mcEMBodyTranslator::sKeyUserName(); }
 
 
-const char* EM::MarchingCubesSurface::getTypeStr() const
+const char* MarchingCubesSurface::getTypeStr() const
 { return typeStr(); }
 
 
-EM::MarchingCubesSurface::MarchingCubesSurface( EM::EMManager& emm )
+void MarchingCubesSurface::setNewName()
+{
+    static int objnr = 1;
+    BufferString nm( "<New ", typeStr(), " " );
+    nm.add( objnr++ ).add( ">" );
+    setName( nm );
+}
+
+
+MarchingCubesSurface::MarchingCubesSurface( EMManager& emm )
     : EMObject( emm )
     , mcsurface_( new ::MarchingCubesSurface )
     , operator_( 0 )					      
@@ -251,26 +260,26 @@ EM::MarchingCubesSurface::MarchingCubesSurface( EM::EMManager& emm )
 }
 
 
-EM::MarchingCubesSurface::~MarchingCubesSurface()
+MarchingCubesSurface::~MarchingCubesSurface()
 {
     mcsurface_->unRef();
     delete operator_;
 }
 
 
-void EM::MarchingCubesSurface::refBody()
+void MarchingCubesSurface::refBody()
 {
-    EM::EMObject::ref();
+    EMObject::ref();
 }
 
 
-void EM::MarchingCubesSurface::unRefBody()
+void MarchingCubesSurface::unRefBody()
 {
-    EM::EMObject::unRef();
+    EMObject::unRef();
 }
 
 
-Executor* EM::MarchingCubesSurface::loader()
+Executor* MarchingCubesSurface::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
     if ( !ioobj )
@@ -280,17 +289,17 @@ Executor* EM::MarchingCubesSurface::loader()
     if ( !conn )
 	return 0;
 
-    return new EM::MarchingCubesSurfaceReader( *this, conn );
+    return new MarchingCubesSurfaceReader( *this, conn );
 }
 
 
-Executor* EM::MarchingCubesSurface::saver()
+Executor* MarchingCubesSurface::saver()
 {
     return saver( 0 );
 }
 
 
-Executor* EM::MarchingCubesSurface::saver( IOObj* inpioobj )
+Executor* MarchingCubesSurface::saver( IOObj* inpioobj )
 {
     PtrMan<IOObj> myioobj = 0;
     IOObj* ioobj = 0;
@@ -313,11 +322,11 @@ Executor* EM::MarchingCubesSurface::saver( IOObj* inpioobj )
 }
 
 
-bool EM::MarchingCubesSurface::isEmpty() const
+bool MarchingCubesSurface::isEmpty() const
 { return mcsurface_->isEmpty(); }
 
 
-const IOObjContext& EM::MarchingCubesSurface::getIOObjContext() const
+const IOObjContext& MarchingCubesSurface::getIOObjContext() const
 {
     static IOObjContext* res = 0;
     if ( !res )
@@ -331,29 +340,29 @@ const IOObjContext& EM::MarchingCubesSurface::getIOObjContext() const
 }
 
 
-bool EM::MarchingCubesSurface::useBodyPar( const IOPar& par )
-{ return EM::EMObject::usePar( par ); }
+bool MarchingCubesSurface::useBodyPar( const IOPar& par )
+{ return EMObject::usePar( par ); }
 
 
-void EM::MarchingCubesSurface::fillBodyPar( IOPar& par ) const
-{ EM::EMObject::fillPar( par ); }
+void MarchingCubesSurface::fillBodyPar( IOPar& par ) const
+{ EMObject::fillPar( par ); }
 
 
-void EM::MarchingCubesSurface::setBodyOperator( BodyOperator* op )
+void MarchingCubesSurface::setBodyOperator( BodyOperator* op )
 {
     if ( operator_ ) delete operator_;
     operator_ = op;
 }
 
 
-void EM::MarchingCubesSurface::createBodyOperator()
+void MarchingCubesSurface::createBodyOperator()
 {
     if ( operator_ ) delete operator_;
-    operator_ = new EM::BodyOperator();
+    operator_ = new BodyOperator();
 }
 
 
-bool EM::MarchingCubesSurface::regenerateMCBody( TaskRunner* tr )
+bool MarchingCubesSurface::regenerateMCBody( TaskRunner* tr )
 {
     if ( !operator_ || !mcsurface_ ) 
 	return false;
@@ -370,9 +379,8 @@ bool EM::MarchingCubesSurface::regenerateMCBody( TaskRunner* tr )
 }
 
 
-ImplicitBody*
-EM::MarchingCubesSurface::createImplicitBody( TaskRunner* t,
-					      bool smooth ) const
+ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
+							bool smooth ) const
 {
     if ( !mcsurface_ )
     {
@@ -451,7 +459,7 @@ EM::MarchingCubesSurface::createImplicitBody( TaskRunner* t,
 }
 
 
-bool  EM::MarchingCubesSurface::setSurface( ::MarchingCubesSurface* ns )
+bool MarchingCubesSurface::setSurface( ::MarchingCubesSurface* ns )
 {
     if ( !ns )
 	return false;
@@ -464,15 +472,15 @@ bool  EM::MarchingCubesSurface::setSurface( ::MarchingCubesSurface* ns )
 }
 
 
-void EM::MarchingCubesSurface::setInlSampling( const SamplingData<int>& s )
+void MarchingCubesSurface::setInlSampling( const SamplingData<int>& s )
 { inlsampling_ = s; }
 
 
-void EM::MarchingCubesSurface::setCrlSampling( const SamplingData<int>& s )
+void MarchingCubesSurface::setCrlSampling( const SamplingData<int>& s )
 { crlsampling_ = s; }
 
 
-void EM::MarchingCubesSurface::setZSampling( const SamplingData<float>& s )
+void MarchingCubesSurface::setZSampling( const SamplingData<float>& s )
 { zsampling_ = s; }
 
 

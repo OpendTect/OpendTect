@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.108 2010-08-19 05:28:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.109 2010-09-23 04:46:25 cvsnanne Exp $";
 
 #include "emobject.h"
 
@@ -83,6 +83,9 @@ BufferString EMObject::name() const
     return ioobj ? BufferString(ioobj->name()) : objname_;
 }
 
+
+void EMObject::setNewName()
+{ setName("<New EM Object>"); }
 
 void EMObject::setMultiID( const MultiID& mid )
 { storageid_ = mid; }

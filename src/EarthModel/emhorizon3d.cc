@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.129 2010-09-15 05:51:41 cvsumesh Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.130 2010-09-23 04:46:25 cvsnanne Exp $";
 
 #include "emhorizon3d.h"
 
@@ -302,13 +302,6 @@ Horizon3DGeometry& Horizon3D::geometry()
 
 const Horizon3DGeometry& Horizon3D::geometry() const
 { return geometry_; }
-
-
-void Horizon3D::makeNameUnique( BufferString&  nm )
-{
-    static int faultnr = 1;
-    nm += faultnr++;
-}
 
 
 mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::keyword() );

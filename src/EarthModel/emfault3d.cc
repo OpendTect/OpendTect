@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.20 2010-09-15 05:51:41 cvsumesh Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.21 2010-09-23 04:46:25 cvsnanne Exp $";
 
 #include "emfault3d.h"
 
@@ -77,13 +77,6 @@ void Fault3D::apply( const Pos::Filter& pf )
     }
 
     // TODO: Handle cases in which fault becomes fragmented.
-}
-
-
-void Fault3D::makeNameUnique( BufferString&  nm )
-{
-    static int faultnr = 1;
-    nm += faultnr++;
 }
 
 

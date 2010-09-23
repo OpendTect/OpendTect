@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.44 2010-09-15 05:56:59 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.45 2010-09-23 04:46:25 cvsnanne Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -68,12 +68,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	    return false;
 
 	emo->setPreferredColor( getRandomColor(false) );
-	BufferString newname = "<New fault ";
-	//static int faultnr = 1;
-	//newname += faultnr++;
-	emo->makeNameUnique( newname );
-	newname += ">";
-	emo->setName( newname.buf() );
+	emo->setNewName();
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
 	applMgr()->EMServer()->signalTenpObjAdd( emo->id() );
@@ -366,12 +361,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	    return false;
 
 	emo->setPreferredColor( getRandomColor(false) );
-	BufferString newname = "<New sticks ";
-	//static int faultnr = 1;
-	//newname += faultnr++;
-	emo->makeNameUnique( newname );
-	newname += ">";
-	emo->setName( newname.buf() );
+	emo->setNewName();
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultStickSetTreeItem( emo->id() ), false );
 	applMgr()->EMServer()->signalTenpObjAdd( emo->id() );

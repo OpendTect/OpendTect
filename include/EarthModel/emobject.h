@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.94 2010-09-15 05:51:36 cvsumesh Exp $
+ RCS:		$Id: emobject.h,v 1.95 2010-09-23 04:46:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -112,7 +112,7 @@ public:
     void			setName( const char* nm )  { objname_ = nm; }
     				/*!<The IOObj name overrules this */
     BufferString		name() const;
-    virtual void		makeNameUnique(BufferString& nm)	{}
+    virtual void		setNewName();
 
     virtual int			nrSections() const 			= 0;
     virtual SectionID		sectionID(int) const			= 0;
@@ -278,6 +278,7 @@ public: \
     static EMObject*		create( EM::EMManager& emm ); \
     static const char*		typeStr(); \
     const char*			getTypeStr() const; \
+    void			setNewName(); \
 protected: \
 				~clss()
 
@@ -300,7 +301,14 @@ EMObject* clss::create( EM::EMManager& emm ) \
  \
  \
 const char* clss::typeStr() { return typenm; } \
-const char* clss::getTypeStr() const { return typeStr(); }
+const char* clss::getTypeStr() const { return typeStr(); } \
+void clss::setNewName() \
+{\
+    static int objnr = 1; \
+    BufferString nm( "<New ", typenm, " " ); \
+    nm.add( objnr++ ).add( ">" ); \
+    setName( nm ); \
+}
 
 /*!\mainpage Earth Model objects
 

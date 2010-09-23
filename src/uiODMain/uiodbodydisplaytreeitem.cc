@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.26 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.27 2010-09-23 04:46:25 cvsnanne Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -69,11 +69,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	    return false;
 
 	plg->setPreferredColor( getRandomColor(false) );
-	BufferString newname = "<New body ";
-	static int polygonsurfnr = 1;
-	newname += polygonsurfnr++;
-	newname += ">";
-	plg->setName( newname.buf() );
+	plg->setNewName();
 	plg->setFullyLoaded( true );
 	addChild( new uiODBodyDisplayTreeItem( plg->id() ), false );
 	
