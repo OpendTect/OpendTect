@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.97 2010-09-16 07:08:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.98 2010-09-24 12:10:21 cvsnanne Exp $";
 
 #include "uiseissel.h"
 
@@ -69,13 +69,6 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
 	    ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
 	else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
 	    ctxt.toselect.require_.set( sKey::Type, sKey::Steering );
-	if ( su.zdomkey_ != "*" )
-	{
-	    BufferString vstr( su.zdomkey_ );
-	    if ( vstr.isEmpty() )
-		vstr.add( "`" ).add( ZDomain::SI().key() );
-	    ctxt.toselect.require_.set( ZDomain::sKey(), vstr );
-	}
     }
 
     if ( ctxt.deftransl.isEmpty() )
