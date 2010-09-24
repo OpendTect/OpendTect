@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.94 2010-09-24 12:09:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.95 2010-09-24 18:27:53 cvsyuancheng Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -291,7 +291,7 @@ void uiObject::trlReady( CallBacker* cb )
     if ( id != translateid_ )
 	return;
 
-    wchar_t* translation = TrMgr().tr()->get();
+    const wchar_t* translation = TrMgr().tr()->get();
     QString txt = QString::fromWCharArray( translation );
     QString tt( name().buf() ); tt += "\n\n"; tt += txt;
     qwidget()->setToolTip( tt );
