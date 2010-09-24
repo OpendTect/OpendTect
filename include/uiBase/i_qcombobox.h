@@ -7,17 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qcombobox.h,v 1.7 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_qcombobox.h,v 1.8 2010-09-24 12:12:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uicombobox.h>
+#include "uicombobox.h"
 
-#include <qobject.h>
-#include <qwidget.h>
-#include <qcombobox.h> 
-#include <string.h>
+#include <QComboBox> 
 
 //! Helper class for uiComboBox to relay Qt's 'activated' messages to uiMenuItem.
 /*!
