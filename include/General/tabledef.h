@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.26 2010-09-10 11:50:40 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.27 2010-09-24 13:39:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "rowcol.h"
 #include "namedobj.h"
 #include "datainpspec.h"
-#include "property.h"
+#include "propertyref.h"
 
 class UnitOfMeasure;
 

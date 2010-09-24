@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.8 2010-09-06 13:57:08 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.9 2010-09-24 13:39:22 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ mClass ValueProperty : public Property
 {
 public:
 
-    			ValueProperty( const PropertyRef* pr,
+    			ValueProperty( const PropertyRef& pr,
 				       float v=mUdf(float) )
 			: Property(pr)
 			, val_(v)		{}
@@ -43,7 +43,7 @@ public:
 mClass MathProperty : public Property
 {
 public:
-    			MathProperty( const PropertyRef* pr, const char* ds=0 )
+    			MathProperty( const PropertyRef& pr, const char* ds=0 )
 			: Property(pr), expr_(0)
 			{ inps_.allowNull(true); setDef(ds); }
 			~MathProperty();

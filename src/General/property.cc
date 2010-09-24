@@ -4,20 +4,20 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.15 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.16 2010-09-24 13:39:22 cvsbert Exp $";
 
 #include "propertyimpl.h"
+#include "propertyref.h"
 #include "mathexpression.h"
 #include "survinfo.h"
-#include "file.h"
-#include "filepath.h"
 #include "ascstream.h"
-#include "strmprov.h"
+#include "safefileio.h"
+#include "ioman.h"
 #include "separstr.h"
-#include "debug.h"
 #include "repos.h"
 #include "errh.h"
 
+static const char* filenamebase = "Properties";
 
 DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 {
@@ -41,133 +41,147 @@ DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 	0
 };
 
+
 PropertyRef::StdType PropertyRef::surveyZType()
 {
     return SI().zIsTime() ? Time : Dist;
 }
 
-static const char* filenamebase = "Properties";
 
-
-PropertyRefRepository& PrRR()
+const PropertyRef& PropertyRef::undef()
 {
-    static PropertyRefRepository* prrepo = 0;
-    if ( !prrepo )
-    {
-	if ( DBG::isOn() ) DBG::message( "Creating PropertyRefRepository" );
-	prrepo = new PropertyRefRepository;
-	if ( DBG::isOn() )
-	{
-	    BufferString msg( "Total properties found: " );
-	    msg += prrepo->all().size();
-	    DBG::message( msg );
-	}
-    }
-    return *prrepo;
+    static PropertyRef udf( "undef" );
+    return udf;
 }
 
 
-PropertyRefRepository::PropertyRefRepository()
+class PropertyRefSetMgr : public CallBacker
 {
-    Repos::FileProvider rfp( filenamebase );
+public:
+
+PropertyRefSetMgr()
+    : prs_(0)
+{
+    IOM().surveyChanged.notify( mCB(this,PropertyRefSetMgr,doNull) );
+}
+
+void doNull( CallBacker* )
+{
+    prs_ = 0;
+}
+
+void getSet()
+{
+    Repos::FileProvider rfp( filenamebase, true );
     while ( rfp.next() )
-	addFromFile( rfp );
+    {
+	const BufferString fnm( rfp.fileName() );
+	SafeFileIO sfio( fnm, true );
+	if ( !sfio.open(true) )
+	    continue;
+
+	ascistream astrm( sfio.istrm(), true );
+	PropertyRefSet* tmp = new PropertyRefSet;
+	tmp->readFrom( astrm );
+	if ( tmp->isEmpty() )
+	    delete tmp;
+	else
+	    { prs_ = tmp; break; }
+    }
+
+    if ( !prs_ )
+	prs_ = new PropertyRefSet;
+}
+
+    PropertyRefSet*	prs_;
+
+};
+
+const PropertyRefSet& PROPS()
+{
+    PropertyRefSetMgr rsm;
+    if ( !rsm.prs_ )
+	rsm.getSet();
+    return *rsm.prs_;
 }
 
 
-void PropertyRefRepository::addFromFile( const Repos::FileProvider& rfp )
+PropertyRef* PropertyRefSet::gt( const char* nm ) const
 {
-    BufferString fnm = rfp.fileName();
-    if ( !File::exists(fnm) ) return;
-    StreamData sd = StreamProvider( fnm ).makeIStream();
-    if ( !sd.usable() ) return;
+    if ( !nm || !*nm ) return 0;
 
-    const Repos::Source src = rfp.source();
-    ascistream stream( *sd.istrm, true );
-    while ( !atEndOfSection( stream.next() ) )
+    for ( int idx=0; idx<size(); idx++ )
     {
-	FileMultiString fms( stream.value() );
+	if ( caseInsensitiveEqual((*this)[idx]->name().buf(),nm,0) )
+	    return const_cast<PropertyRef*>((*this)[idx]);
+    }
+    return 0;
+}
+
+
+void PropertyRefSet::add( PropertyRef* pr )
+{
+    if ( !pr ) return;
+
+    const PropertyRef* mypr = get( pr->name() );
+    if ( mypr )
+	delete replace( indexOf(mypr), pr );
+    else
+	*this += pr;
+}
+
+
+void PropertyRefSet::readFrom( ascistream& astrm )
+{
+    deepErase( *this );
+
+    while ( !atEndOfSection( astrm.next() ) )
+    {
+	FileMultiString fms( astrm.value() );
 	const int sz = fms.size();
 	if ( sz < 1 ) continue;
 
 	BufferString ptypestr = fms[0];
 	PropertyRef::StdType st = eEnum(PropertyRef::StdType,ptypestr);
 	bool hc = sz > 1 ? yesNoFromString(fms[1]) : false;
-	PropertyRef pr( stream.keyWord(), st, hc );
 
-	pr.source_ = src;
-	set( pr );
+	add( new PropertyRef(astrm.keyWord(),st,hc) );
     }
-
-    sd.close();
 }
 
 
-const PropertyRef* PropertyRefRepository::get( const char* nm ) const
+bool PropertyRefSet::writeTo( ascostream& astrm ) const
 {
-    if ( !nm || !*nm ) return 0;
-
-    for ( int idx=0; idx<entries.size(); idx++ )
+    astrm.putHeader( "Properties" );
+    for ( int idx=0; idx<size(); idx++ )
     {
-	if ( caseInsensitiveEqual(entries[idx]->name().buf(),nm,0) )
-	    return entries[idx];
+	const PropertyRef& pr = *(*this)[idx];
+	FileMultiString fms( eString(PropertyRef::StdType,pr.stdType()) );
+	fms += getYesNoString( pr.hcAffected() );
+	astrm.put( pr.name(), fms );
     }
-    return 0;
+    return astrm.stream().good();
 }
 
 
-bool PropertyRefRepository::set( const PropertyRef& pr )
-{
-    const PropertyRef* mypr = get( pr.name() );
-    if ( mypr )
-    {
-	PropertyRef& upd = *const_cast<PropertyRef*>( mypr );
-	upd = pr;
-	return false;
-    }
-    else
-    {
-	entries += new PropertyRef( pr );
-	return true;
-    }
-}
-
-
-bool PropertyRefRepository::write( Repos::Source src ) const
+bool PropertyRefSet::save( Repos::Source src ) const
 {
     Repos::FileProvider rfp( filenamebase );
     BufferString fnm = rfp.fileName( src );
 
-    bool havesrc = false;
-    for ( int idx=0; idx<entries.size(); idx++ )
-    {
-	if ( entries[idx]->source() == src )
-	    { havesrc = true; break; }
-    }
-    if ( !havesrc )
-	return !File::exists(fnm) || File::remove( fnm );
-
-    StreamData sd = StreamProvider( fnm ).makeOStream();
-    if ( !sd.usable() )
+    SafeFileIO sfio( fnm, true );
+    if ( !sfio.open(false) )
     {
 	BufferString msg( "Cannot write to " ); msg += fnm;
-	ErrMsg( fnm );
+	ErrMsg( sfio.errMsg() );
 	return false;
     }
 
-    ascostream strm( *sd.ostrm );
-    strm.putHeader( "Properties" );
-    for ( int idx=0; idx<entries.size(); idx++ )
-    {
-	const PropertyRef& pr = *entries[idx];
-	if ( pr.source_ != src ) continue;
+    ascostream astrm( sfio.ostrm() );
+    if ( !writeTo(astrm) )
+	{ sfio.closeFail(); return false; }
 
-	FileMultiString fms( eString(PropertyRef::StdType,pr.stdType()) );
-	fms += getYesNoString( pr.hcAffected() );
-	strm.put( pr.name(), fms );
-    }
-
-    sd.close();
+    sfio.closeSuccess();
     return true;
 }
 
@@ -208,7 +222,7 @@ void MathProperty::setInput( int idx, const Property* p )
     if ( p && p->dependsOn(this) )
     {
 	BufferString msg( "Invalid cyclic dependency for property " );
-	msg += ref()->name();
+	msg += ref().name();
 	ErrMsg( msg );
 	p = 0;
     }

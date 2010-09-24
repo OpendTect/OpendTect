@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Feb 2010
- RCS:           $Id: uiunitsel.h,v 1.1 2010-02-23 10:14:19 cvsraman Exp $
+ RCS:           $Id: uiunitsel.h,v 1.2 2010-09-24 13:39:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uigroup.h"
-#include "property.h"
+#include "propertyref.h"
 
 class uiComboBox;
 class UnitOfMeasure;

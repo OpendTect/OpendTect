@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.12 2010-07-07 21:05:12 cvskris Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.13 2010-09-24 13:39:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "namedobj.h"
-#include "property.h"
+#include "propertyref.h"
 #include "scaler.h"
 #include "repos.h"
 #include "survinfo.h"
