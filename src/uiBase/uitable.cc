@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.93 2010-08-27 06:41:45 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.94 2010-09-24 12:03:52 cvsnanne Exp $";
 
 
 #include "uitable.h"
@@ -103,6 +103,8 @@ uiTableBody::uiTableBody( uiTable& handle, uiParent* parnt, const char* nm,
 
     QHeaderView* hhdr = horizontalHeader();
     hhdr->setResizeMode( QHeaderView::Stretch );
+
+    setHorizontalScrollMode( QAbstractItemView::ScrollPerPixel );
 
     setMouseTracking( true );
 }
