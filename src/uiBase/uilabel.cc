@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilabel.cc,v 1.19 2010-03-19 04:08:05 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uilabel.cc,v 1.20 2010-09-24 12:00:15 cvsnanne Exp $";
 
 
 #include "uilabel.h"
@@ -87,6 +87,7 @@ uiLabelBody& uiLabel::mkbody( uiParent* p, const char* txt )
 void uiLabel::setText( const char* txt )
 { 
     body_->setText( QString(txt) );
+    setName( txt );
 }
 
 
