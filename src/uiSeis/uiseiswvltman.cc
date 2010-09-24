@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.59 2010-08-30 13:00:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.60 2010-09-24 06:36:28 cvsnageswara Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -165,14 +165,13 @@ void uiSeisWvltMan::extractPush( CallBacker* cb )
 	    is2d = res;
     }
 
-    if ( !wvltext_ )
+    if ( !wvltext_ || wvltext_->isHidden() )
     {
-	wvltext_ = new uiWaveletExtraction( this, is2d );
+	wvltext_ = new uiWaveletExtraction( 0, is2d );
 	wvltext_->extractionDone.notify( mCB(this,uiSeisWvltMan,updateCB) );
     }
 
     wvltext_->show();
-    wvltext_ = 0;
 }
 
 
