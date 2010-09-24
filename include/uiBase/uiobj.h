@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.66 2010-04-08 12:59:25 cvsbruno Exp $
+ RCS:           $Id: uiobj.h,v 1.67 2010-09-24 12:09:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,8 +66,9 @@ public:
 
     void		setToolTip(const char*);
     const char*		toolTip() const;
-
     static void		useNameToolTip(bool);
+
+    void		translate();
     
     void		display(bool yn,bool shrink=false,bool maximised=false);
     void		setFocus();
@@ -165,6 +166,8 @@ protected:
 private:
 
     uiParent*		parent_;
+    int			translateid_;
+    void		trlReady(CallBacker*);
 };
 
 

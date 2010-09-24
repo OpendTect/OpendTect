@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.64 2010-09-16 03:57:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.65 2010-09-24 12:09:01 cvsnanne Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -123,6 +123,7 @@ void init( uiMenuItem* it, QAction* action, int id, int idx )
     if ( !action ) return;
 
     action->setIconVisibleInMenu( true );
+    action->setToolTip( action->text() );
     it->setId( id );
     it->setMenu( this );
     it->setAction( action );
@@ -244,6 +245,9 @@ const char* uiMenuItem::text() const
 
 void uiMenuItem::setText( const char* txt )
 { if ( qaction_ ) qaction_->setText( txt ); }
+
+void uiMenuItem::setText( const wchar_t* txt )
+{ if ( qaction_ ) qaction_->setText( QString::fromWCharArray(txt) ); }
 
 void uiMenuItem::setPixmap( const ioPixmap& pm )
 {

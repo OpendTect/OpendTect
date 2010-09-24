@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.56 2010-09-16 03:57:55 cvsnanne Exp $
+ RCS:           $Id: uimenu.h,v 1.57 2010-09-24 12:09:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ public:
 
 				//! sets a new text 2b displayed
     void			setText(const char*);
+    void			setText(const wchar_t*);
     const char*			text() const;
 
     void			setPixmap(const ioPixmap&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.206 2010-09-07 04:43:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.207 2010-09-24 12:09:01 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -151,6 +151,8 @@ protected:
     virtual void	finalise( bool trigger_finalise_start_stop=true );
     void		closeEvent(QCloseEvent*);
     bool		event(QEvent*);  
+
+    void		keyPressEvent(QKeyEvent*);
 
     void		doShow(bool minimized=false);
     void		managePopupPos();
@@ -569,6 +571,15 @@ void uiMainWinBody::activateInGUIThread( const CallBack& cb, bool busywait )
 	if ( sleeptime < 1.28 )
 	    sleeptime *= 2;
     }
+}
+
+
+void uiMainWinBody::keyPressEvent( QKeyEvent* event )
+{
+    if ( event && event->key() == Qt::Key_F12 )
+	handle_.translate();
+
+    return QMainWindow::keyPressEvent( event );
 }
 
 
@@ -1106,6 +1117,42 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 
 void uiMainWin::activateInGUIThread( const CallBack& cb, bool busywait )
 { body_->activateInGUIThread( cb, busywait ); }
+
+
+void doTranslate( const uiBaseObject* obj )
+{
+    uiBaseObject* baseobj = const_cast<uiBaseObject*>( obj );
+    mDynamicCastGet(uiObject*,uiobj,baseobj);
+    mDynamicCastGet(uiGroupObj*,uigrpobj,baseobj);
+    if ( !uigrpobj && uiobj ) uiobj->translate();
+
+    if ( uigrpobj )
+    {
+	const ObjectSet<uiBaseObject>* children = uigrpobj->childList();
+	for ( int idx=0; idx<children->size(); idx++ )
+	    doTranslate( (*children)[idx] );
+    }
+
+    mDynamicCastGet(uiParent*,uipar,baseobj);
+    if ( !uipar ) return;
+
+    const ObjectSet<uiBaseObject>* children = uipar->childList();
+    for ( int idx=0; idx<children->size(); idx++ )
+	doTranslate( (*children)[idx] );
+}
+
+
+void uiMainWin::translate()
+{
+    doTranslate( body_->centralWidget_ );
+
+    for ( int idx=0; idx<body_->toolbars_.size(); idx++ )
+    {
+	const ObjectSet<uiObject>& objs = body_->toolbars_[idx]->objectList();
+	for ( int idy=0; idy<objs.size(); idy++ )
+	    doTranslate( objs[idy] );
+    }
+}
 
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and

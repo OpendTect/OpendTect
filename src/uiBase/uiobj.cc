@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.93 2010-04-08 12:59:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.94 2010-09-24 12:09:01 cvsnanne Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiobj.cc,v 1.93 2010-04-08 12:59:25 cvsbruno Ex
 
 #include "color.h"
 #include "errh.h"
+#include "texttranslator.h"
 #include "settings.h"
 #include "timer.h"
 
@@ -26,8 +27,6 @@ DefineEnumNames(uiRect,Side,1,"Side") { "Left", "Top", "Right", "Bottom", 0 };
 #define mBody_( imp_ )	dynamic_cast<uiObjectBody*>( imp_ )
 #define mBody()		mBody_( body() )
 #define mConstBody()	mBody_(const_cast<uiObject*>(this)->body())
-
-//#define pbody()		static_cast<uiParentBody*>( body() )
 
 void uiBaseObject::finalise()
 { if ( body() ) body()->finalise(); }
@@ -182,26 +181,36 @@ void uiParentBody::clearChildren()
 	children_[idx]->clear();
 }
 
-
+bool translateactive_ = false;
 bool uiObject::nametooltipactive_ = false;
 Color uiObject::normaltooltipcolor_;
 
 static ObjectSet<uiObject> uiobjectlist_;
 
+
+BufferString getCleanName( const char* nm )
+{
+    QString qstr( nm );
+    qstr.remove( QChar('&') );
+    return qstr.toAscii().data();
+}
+
 uiObject::uiObject( uiParent* p, const char* nm )
-    : uiBaseObject( nm, 0 )
+    : uiBaseObject( getCleanName(nm), 0 )
     , setGeometry(this)
     , closed(this)
     , parent_( p )				
     , normaltooltiptxt_("")
+    , translateid_(-1)
 { 
     if ( p ) p->addChild( *this );  
     uiobjectlist_ += this;
     doSetToolTip();
 }
 
+
 uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
-    : uiBaseObject( nm, &b )
+    : uiBaseObject( getCleanName(nm), &b )
     , setGeometry(this)
     , closed(this)
     , parent_( p )				
@@ -211,6 +220,7 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     uiobjectlist_ += this;
     doSetToolTip(); 
 }
+
 
 uiObject::~uiObject()
 {
@@ -231,13 +241,13 @@ uiObject::SzPolicy uiObject::szPol(bool hor) const
 
 void uiObject::setName( const char* nm )
 {
-    uiBaseObject::setName( nm );
+    uiBaseObject::setName( getCleanName(nm) );
     doSetToolTip();
 }
 
 
 const char* uiObject::toolTip() const
-    { return normaltooltiptxt_; }
+{ return normaltooltiptxt_; }
 
 
 void uiObject::setToolTip(const char* t)
@@ -249,8 +259,7 @@ void uiObject::setToolTip(const char* t)
 
 void uiObject::doSetToolTip()
 {
-    if ( !mBody() )
-	return;
+    if ( !mBody() ) return;
 
     if ( nametooltipactive_ )
     {
@@ -264,7 +273,31 @@ void uiObject::doSetToolTip()
     }
     else
 	mBody()->setToolTip( normaltooltiptxt_ );
-} 
+}
+
+
+void uiObject::translate()
+{
+    if ( !TrMgr().tr() ) return;
+
+    TrMgr().tr()->ready.notify( mCB(this,uiObject,trlReady) );
+    translateid_ = TrMgr().tr()->translate( name().buf() );
+}
+
+
+void uiObject::trlReady( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,id,cb);
+    if ( id != translateid_ )
+	return;
+
+    wchar_t* translation = TrMgr().tr()->get();
+    QString txt = QString::fromWCharArray( translation );
+    QString tt( name().buf() ); tt += "\n\n"; tt += txt;
+    qwidget()->setToolTip( tt );
+
+    TrMgr().tr()->ready.remove( mCB(this,uiObject,trlReady) );
+}
 
 
 void uiObject::display( bool yn, bool shrink, bool maximise )	

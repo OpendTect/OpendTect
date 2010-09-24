@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.83 2010-05-18 07:02:44 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.84 2010-09-24 12:09:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,6 +157,8 @@ public:
     static void		getTopLevelWindows(ObjectSet<uiMainWin>&,
 					   bool visibleonly=true);
     static const char*	uniqueWinTitle(const char* txt,QWidget* forwindow=0);
+
+    void		translate();
 
 
     bool		grab(const char* filenm,int zoom=1,
