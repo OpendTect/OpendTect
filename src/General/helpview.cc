@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.42 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.43 2010-09-24 11:46:40 cvsnanne Exp $";
 
 #include "helpview.h"
 
@@ -276,4 +276,13 @@ BufferString HelpViewer::getCreditsURLForWinID( const char* winid )
 bool HelpViewer::hasSpecificCredits( const char* winid )
 {
     return getCreditsSpecificFileName(winid);
+}
+
+
+#include "texttranslator.h"
+mGlobal TextTranslateMgr& TrMgr()
+{
+    static TextTranslateMgr* trmgr = 0;
+    if ( !trmgr ) trmgr = new TextTranslateMgr();
+    return *trmgr;
 }
