@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.41 2010-08-16 14:41:34 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.42 2010-09-26 11:14:34 cvsjaap Exp $";
 
 #include "vismpeeditor.h"
 
@@ -16,6 +16,8 @@ static const char* rcsID = "$Id: vismpeeditor.cc,v 1.41 2010-08-16 14:41:34 cvsj
 #include "emsurfacegeometry.h"
 #include "math2.h"
 #include "mousecursor.h"
+#include "mouseevent.h"
+#include "timefun.h"
 #include "visdatagroup.h"
 #include "visdragger.h"
 #include "visevent.h"
@@ -61,7 +63,7 @@ MPEEditor::MPEEditor()
     dummyemptysep_ = visBase::DataObjectGroup::create();
     dummyemptysep_->ref();
 
-    sower_ = new Sower();
+    sower_ = new Sower( *this );
     addChild( sower_->getInventorNode() );
 }
 
@@ -518,18 +520,27 @@ void MPEEditor::extendInteractionLine( const EM::PosID& pid )
 }
 
 
-Sower::Sower()
+Sower::Sower( const MPEEditor& mpeed )
     : visBase::VisualObjectImpl( false )
+    , editor_( mpeed )
     , eventcatcher_( 0 )
     , mode_( Idle )
     , sowingline_( visBase::PolyLine::create() )
     , reversesowingorder_( false )
     , alternatesowingorder_( false )
     , linelost_( false )
+    , singleseeded_( true )
+    , curpid_( EM::PosID::udf() )
+    , curpidstamp_( mUdf(int) )
 {
     sowingline_->ref();
     addChild( sowingline_->getInventorNode() );
     sowingline_->setMaterial( visBase::Material::create() );
+
+    setIfDragInvertMask( false );
+    setSequentSowMask();
+    setLaserMask();
+    setEraserMask();
 }
 
 
@@ -557,24 +568,33 @@ void Sower::setEventCatcher( visBase::EventCatcher* eventcatcher )
 { eventcatcher_ = eventcatcher; }
 
 
+#define mReturnHandled( yn ) \
+{ \
+    if ( yn && eventcatcher_ ) eventcatcher_->setHandled(); \
+    return yn; \
+}
+
 bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo )
 {
     if ( mode_ != Idle )
-	return false;
+	mReturnHandled( false );
 
     Scene* scene = STM().currentScene();
     if ( scene && scene->getPolySelection()->getSelectionType() !=
 	    					visBase::PolygonSelection::Off )
-	return false;
+	mReturnHandled( false );
+
+    if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
+	mReturnHandled( false );
 
     mode_ = Furrowing;
-    if ( !accept(eventinfo, OD::ButtonState(~OD::NoButton)) )
-	return false;
+    if ( !accept(eventinfo) )
+	mReturnHandled( false );
 
     sowingline_->getMaterial()->setColor( color );
     sowingline_->turnOn( true );
 
-    return true;
+    mReturnHandled( true );
 }
 
 
@@ -597,20 +617,34 @@ void Sower::stopSowing()
 { bendpoints_.erase(); }
 
 
-bool Sower::accept( const visBase::EventInfo& eventinfo, OD::ButtonState mask )
+bool Sower::accept( const visBase::EventInfo& eventinfo )
 {
-    if ( mode_ != Furrowing )
-	return false;
+    if ( eventinfo.tabletinfo )
+	return acceptTablet( eventinfo );
 
-    if ( eventcatcher_ )
-	eventcatcher_->setHandled();
+    return acceptMouse( eventinfo );
+}
+
+
+bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
+{
+    if ( mode_ == Idle &&
+	 eventinfo.type==visBase::MouseClick && !eventinfo.pressed )
+    {
+	const EM::PosID pid = editor_.mouseClickDragger(eventinfo.pickedobjids);
+	if ( pid.isUdf() )
+	    mReturnHandled( true );
+    }
+
+    if ( mode_ != Furrowing )
+	mReturnHandled( false );
 
     if ( eventinfo.type == visBase::Keyboard )
-	return true;
+	mReturnHandled( true );
 
+    const int sz = eventlist_.size();
     if ( eventinfo.type==visBase::MouseMovement || eventinfo.pressed )
     {
-	const int sz = eventlist_.size();
 	if ( sz && eventinfo.pickedobjids!=eventlist_[0]->pickedobjids )
 	{
 	    if ( eventinfo.worldpickedpos.isDefined() && !linelost_ )
@@ -618,32 +652,50 @@ bool Sower::accept( const visBase::EventInfo& eventinfo, OD::ButtonState mask )
 	    else
 		linelost_ = true;
 
-	    return true;
+	    mReturnHandled( true );
 	}
 
 	linelost_ = false;
 	sowingline_->addPoint( eventinfo.worldpickedpos );
 
-	visBase::EventInfo* newevent = new visBase::EventInfo( eventinfo );
-	newevent->detail = 0;		// TODO: copy-constructors
-	
-	if ( sz )
-	{
-	    newevent->type = visBase::MouseClick;
-	    unsigned int butstate = eventlist_[0]->buttonstate_;
-	    butstate &= mask;
-	    newevent->buttonstate_ = (OD::ButtonState) butstate;
-	}
+	if ( !sz )
+	    singleseeded_ = true;
+	else if ( eventinfo.mousepos.distTo(eventlist_[0]->mousepos) > 5 )
+	    singleseeded_ = false;
 
-	eventlist_ += newevent;
-	mousecoords_ += newevent->mousepos;
-	return true;
+	eventlist_ += new visBase::EventInfo( eventinfo );
+	mousecoords_ += eventinfo.mousepos;
+	mReturnHandled( true );
     }
+
+    if ( !sz )
+	mReturnHandled( true );
 
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
+    int butstate = eventlist_[0]->buttonstate_;
+    if ( !singleseeded_ )
+	butstate ^= ifdraginvertmask_;
+
+    eventlist_[0]->buttonstate_ = (OD::ButtonState) butstate;
+    butstate &= sequentsowmask_;
+
+    for ( int idx=sz-1; idx>0; idx--)
+    {
+	if ( singleseeded_ )
+	{
+	    eventlist_.remove( idx );
+	    mousecoords_.remove( idx );
+	}
+	else
+	{
+	    eventlist_[idx]->type = visBase::MouseClick;
+	    eventlist_[idx]->buttonstate_ = (OD::ButtonState) butstate;
+	}
+    }
+
     BendPointFinder2D bpfinder ( mousecoords_, 2 );
-    bpfinder.execute(true);
+    bpfinder.execute( true );
     bendpoints_ = bpfinder.bendPoints();
     if ( reversesowingorder_ )
 	bendpoints_.reverse();
@@ -666,6 +718,13 @@ bool Sower::accept( const visBase::EventInfo& eventinfo, OD::ButtonState mask )
 	mode_ = SequentSowing;
     }
 
+    reset();
+    mReturnHandled( true );
+}
+
+
+void Sower::reset()
+{
     sowingline_->turnOn( false );
     for ( int idx=sowingline_->size()-1; idx>=0; idx-- )
 	sowingline_->removePoint( idx );
@@ -674,8 +733,115 @@ bool Sower::accept( const visBase::EventInfo& eventinfo, OD::ButtonState mask )
     mousecoords_.erase();
 
     mode_ = Idle;
-    return true;
 }
+
+
+bool Sower::acceptTablet( const visBase::EventInfo& eventinfo )
+{
+    if ( !eventinfo.tabletinfo )
+	mReturnHandled( false );
+
+    const EM::PosID pid = editor_.mouseClickDragger( eventinfo.pickedobjids );
+    if ( pid != curpid_ )
+    {
+	curpidstamp_ = Time::getMilliSeconds();
+	curpid_ = pid;
+    }
+
+    if ( eventinfo.tabletinfo->pointertype_ == TabletInfo::Eraser )
+    {
+	if ( !pid.isUdf() )
+	    return acceptEraser( eventinfo );
+
+	mReturnHandled( true );
+    }
+
+    if ( mode_==Idle && eventinfo.type==visBase::MouseMovement &&
+	 !pid.isUdf() && !mIsUdf(curpidstamp_) &&
+	 Time::passedSince(curpidstamp_) > 300 )
+    {
+	curpidstamp_ = mUdf(int);
+	return acceptLaser( eventinfo );
+    }
+
+    if ( !pid.isUdf() && mode_==Furrowing && singleseeded_ )
+    {
+	reset();
+	mReturnHandled( false );
+    }
+
+    return acceptMouse( eventinfo );
+}
+
+
+bool Sower::acceptLaser( const visBase::EventInfo& eventinfo )
+{
+    if ( mode_!=Idle )
+	mReturnHandled( false );
+
+    mode_ = Lasering;
+
+    visBase::EventInfo newevent( eventinfo );
+    newevent.type = visBase::MouseClick;
+
+    int butstate = newevent.buttonstate_ | lasermask_;
+    newevent.buttonstate_ = (OD::ButtonState) butstate;
+
+    for ( int yn=1; yn>=0; yn-- )
+    {
+	newevent.pressed = yn;
+	if ( eventcatcher_ )
+	    eventcatcher_->reHandle( newevent );
+    }
+
+    mode_ = Idle;
+    mReturnHandled( true );
+}
+
+
+bool Sower::acceptEraser( const visBase::EventInfo& eventinfo )
+{
+    if ( mode_!=Idle )
+	mReturnHandled( false );
+
+    if ( eventinfo.type==visBase::MouseMovement &&
+	 !eventinfo.tabletinfo->pressure_ )
+	mReturnHandled( false );
+
+    mode_ = Erasing;
+
+    visBase::EventInfo newevent( eventinfo );
+    newevent.type = visBase::MouseClick;
+
+    int butstate = newevent.buttonstate_ | erasermask_;
+    newevent.buttonstate_ = (OD::ButtonState) butstate;
+
+    for ( int yn=1; yn>=0; yn-- )
+    {
+	newevent.pressed = yn;
+	if ( eventcatcher_ )
+	    eventcatcher_->reHandle( newevent );
+    }
+
+    mode_ = Idle;
+    mReturnHandled( true );
+}
+
+
+void Sower::setSequentSowMask( bool yn, OD::ButtonState mask )
+{ sequentsowmask_ = yn ? mask : OD::ButtonState(~OD::NoButton); }
+
+
+void Sower::setIfDragInvertMask( bool yn, OD::ButtonState mask )
+{ ifdraginvertmask_ = yn ? mask : OD::NoButton; }
+
+
+void Sower::setLaserMask( bool yn, OD::ButtonState mask )
+{ lasermask_ = yn ? mask : OD::NoButton; }
+
+
+void Sower::setEraserMask( bool yn, OD::ButtonState mask )
+{ erasermask_ = yn ? mask : OD::NoButton; }
 
 
 }; //namespace

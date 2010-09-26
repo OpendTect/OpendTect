@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.20 2010-06-22 21:32:44 cvsyuancheng Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.21 2010-09-26 11:14:34 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -45,35 +45,53 @@ class MPEEditor;
 */
 
 
+#define mCtrlLeftButton ( (OD::ButtonState) (OD::LeftButton+OD::ControlButton) )
+
 mClass Sower : public visBase::VisualObjectImpl
 {
     friend class	MPEEditor;
 
 public:
-    enum		SowingMode { Idle=0, Furrowing,
-				     FirstSowing, SequentSowing };
+    enum		SowingMode { Lasering=-2, Erasing=-1, Idle=0,
+				     Furrowing, FirstSowing, SequentSowing };
 
     SowingMode		mode()				{ return mode_; }
 
     void		reverseSowingOrder(bool yn=true);
     void		alternateSowingOrder(bool yn=true);
 
+    void		setSequentSowMask(bool yn=true,
+				      OD::ButtonState mask=OD::LeftButton);
+    void		setIfDragInvertMask(bool yn=true,
+				      OD::ButtonState mask=OD::ShiftButton);
+    void		setLaserMask(bool yn=true,
+				      OD::ButtonState mask=OD::LeftButton);
+    void		setEraserMask(bool yn=true,
+				      OD::ButtonState mask=mCtrlLeftButton);
+
     bool		moreToSow() const;
     void		stopSowing();
 
     Coord3		pivotPos() const;
 
-    bool		accept(const visBase::EventInfo&,
-			       OD::ButtonState mask=OD::LeftButton);
+    bool		accept(const visBase::EventInfo&);
     bool		activate(const Color&,const visBase::EventInfo&);
 
 protected:
-			Sower();
+			Sower(const MPEEditor&);
 			~Sower();
 
     void		setDisplayTransformation( mVisTrans* );
     void		setEventCatcher( visBase::EventCatcher* );
 
+    bool		acceptMouse(const visBase::EventInfo&);
+    bool		acceptTablet(const visBase::EventInfo&);
+    bool		acceptLaser(const visBase::EventInfo&);
+    bool		acceptEraser(const visBase::EventInfo&);
+
+    void		reset();
+
+    const MPEEditor&			editor_;
     visBase::EventCatcher*		eventcatcher_;
     visBase::PolyLine*			sowingline_;
     bool				linelost_;
@@ -84,6 +102,16 @@ protected:
 
     bool				reversesowingorder_;
     bool				alternatesowingorder_;
+
+    OD::ButtonState			sequentsowmask_;
+    OD::ButtonState			ifdraginvertmask_;
+    OD::ButtonState			lasermask_;
+    OD::ButtonState			erasermask_;
+
+    bool				singleseeded_;
+
+    EM::PosID				curpid_;
+    int					curpidstamp_;
 };
 
 
