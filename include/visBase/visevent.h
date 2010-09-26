@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.24 2010-08-19 08:21:10 cvsranojay Exp $
+ RCS:		$Id: visevent.h,v 1.25 2010-09-26 11:12:41 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "trigonometry.h"
 
 class SoEventCallback;
+class TabletInfo;
 
 namespace visBase
 {
@@ -30,14 +31,17 @@ namespace visBase
 
 class Detail;
 
-    
+
 enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4 };
 
 mClass EventInfo
 {
 public:
     				EventInfo();
+				EventInfo(const EventInfo&);
+
 				~EventInfo();
+    EventInfo&			operator=(const EventInfo&);
 
     EventType			type;
 
@@ -59,7 +63,13 @@ public:
     Coord3			displaypickedpos;	//display space
     Coord3			localpickedpos; 	//object space
     Coord3			worldpickedpos; 	//world space
+
     Detail*			detail;
+    void			setDetail(const Detail*);
+
+    TabletInfo*			tabletinfo;
+    void			setTabletInfo(const TabletInfo*);
+
     
     int				key;
     				/*!< Only set if type==Keyboard */
@@ -109,6 +119,9 @@ protected:
 
     bool			rehandling_;
     bool			rehandled_;
+
+    				// To repair Qt-Linux tablet bug
+    OD::ButtonState		curtabletbutstate_;
 };
 
 }; // Namespace

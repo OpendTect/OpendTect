@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.10 2010-09-07 04:46:43 cvsnanne Exp $
+ RCS:           $Id: mouseevent.h,v 1.11 2010-09-26 11:10:31 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,47 @@ ________________________________________________________________________
 #include "geometry.h"
 #include "position.h"
 
+
+mClass TabletInfo
+{
+    friend class	QtTabletEventFilter;
+
+public:
+			TabletInfo();
+
+    enum		EventType { None=0, Move=87, Press=92, Release=93,
+				    EnterProximity=171, LeaveProximity=172 };
+    EventType		eventtype_;
+    			// Use mouse event-type if possible. The two might
+			// mismatch because of a QTabletEvent bug for Linux.
+
+    enum		PointerType { UnknownPointer, Pen, Cursor, Eraser };
+    PointerType		pointertype_;
+
+    enum		TabletDevice { NoDevice, Puck, Stylus, Airbrush,
+				       FourDMouse, RotationStylus };
+    TabletDevice	device_;
+
+    Geom::Point2D<int>	globalpos_;
+    Geom::Point2D<int>	pos_;
+
+    double		pressure_;
+    double		rotation_;
+    double		tangentialpressure_;
+
+    od_int64		uniqueid_;
+
+    int			xtilt_;
+    int			ytilt_;
+    int			z_;
+
+    static const TabletInfo*	currentState();
+
+protected:
+    static TabletInfo&		latestState(); 	
+};
+
+
 mClass MouseEvent
 {
 public:
@@ -24,9 +65,18 @@ public:
  				MouseEvent( OD::ButtonState st=OD::NoButton,
 					    int xx=0, int yy=0, float aa=0 )
 				    : butstate_(st), pos_(xx,yy), angle_(aa)
-				    			{}
+				    , tabletinfo_(0)
+				{}
+
+				MouseEvent(const MouseEvent& me)
+				    : tabletinfo_(0)		{ *this = me; }
+
+				~MouseEvent();
+    MouseEvent&			operator=(const MouseEvent&);
 
     OD::ButtonState		buttonState() const	{ return butstate_; }
+    void			setButtonState(const OD::ButtonState&);
+
     const Geom::Point2D<int>&	pos() const		{ return pos_; }
     int				x() const		{ return pos_.x; }
     int				y() const		{ return pos_.y; }
@@ -44,12 +94,15 @@ public:
     bool			operator !=( const MouseEvent& ev ) const
 							{ return !(*this==ev); }
 
+    const TabletInfo*		tabletInfo() const;
+    void			setTabletInfo(const TabletInfo*);
+
 protected:
 
     OD::ButtonState		butstate_;
     Geom::Point2D<int>		pos_;
     float			angle_;
-
+    TabletInfo*			tabletinfo_;
 };
 
 /*!
@@ -89,6 +142,8 @@ mClass MouseEventHandler : public CallBacker
 {
 public:
     				MouseEventHandler();
+    				~MouseEventHandler();
+
     void			triggerMovement(const MouseEvent&);
     void			triggerButtonPressed(const MouseEvent&);
     void			triggerButtonReleased(const MouseEvent&);
@@ -111,13 +166,17 @@ public:
 
 protected:
 
-    const MouseEvent*		event_;
+    void			setEvent(const MouseEvent*);
+    MouseEvent*			event_;
+
     bool			ishandled_;
 
+    				// To repair Qt-Linux tablet bug
+    OD::ButtonState		curtabletbutstate_;
 };
 
 
-/*!Syncronizes cursor informatin between scenes. A window that catches a
+/*!Synchronizes cursor information between scenes. A window that catches a
    mouse movement may trigger the notifier. All windows interested in
    displaying a marker (or similar) at the current positions may subscribe to
    the notifier. */

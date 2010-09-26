@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.57 2010-06-23 09:35:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.58 2010-09-26 11:11:56 cvsjaap Exp $";
 
 #include "uimain.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uimain.cc,v 1.57 2010-06-23 09:35:00 cvsnanne E
 #include "errh.h"
 #include "envvars.h"
 #include "keyboardevent.h"
+#include "mouseevent.h"
 #include "oddirs.h"
 #include "settings.h"
 #include "uimsg.h"
@@ -108,6 +109,43 @@ bool KeyboardEventFilter::eventFilter( QObject* obj, QEvent* event )
 }
 
 
+mClass QtTabletEventFilter : public QObject
+{
+public:
+    			QtTabletEventFilter()
+			{};
+protected:
+    bool		eventFilter(QObject*,QEvent*);
+};
+
+
+bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* event )
+{
+    const QTabletEvent* qte = dynamic_cast<QTabletEvent*>( event );
+    if ( !qte )
+	return false;
+
+    TabletInfo& ti = TabletInfo::latestState();
+
+    ti.eventtype_ = (TabletInfo::EventType) qte->type();
+    ti.pointertype_ = (TabletInfo::PointerType) qte->pointerType();
+    ti.device_ = (TabletInfo::TabletDevice) qte->device();
+    ti.globalpos_.x = qte->globalX();
+    ti.globalpos_.y = qte->globalY();
+    ti.pos_.x = qte->x();
+    ti.pos_.y = qte->y();
+    ti.pressure_ = qte->pressure();
+    ti.rotation_ = qte->rotation();
+    ti.tangentialpressure_ = qte->tangentialPressure();
+    ti.uniqueid_ = qte->uniqueId();
+    ti.xtilt_ = qte->xTilt();
+    ti.ytilt_ = qte->yTilt();
+    ti.z_ = qte->z();
+
+    return false;		// Qt will resent it as a QMouseEvent
+}
+
+
 void myMessageOutput( QtMsgType type, const char *msg );
 
 
@@ -117,6 +155,7 @@ uiMain*	uiMain::themain_ = 0;
 
 KeyboardEventHandler* uiMain::keyhandler_ = 0;
 KeyboardEventFilter* uiMain::keyfilter_ = 0;
+QtTabletEventFilter* uiMain::tabletfilter_ = 0;
 
 
 static void initQApplication()
@@ -190,6 +229,9 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     keyfilter_ = new KeyboardEventFilter( kbeh );
     app_->installEventFilter( keyfilter_ );
 
+    tabletfilter_ = new QtTabletEventFilter();
+    app_->installEventFilter( tabletfilter_ );
+
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "... done." );
 
@@ -216,6 +258,7 @@ uiMain::~uiMain()
 
     delete keyhandler_;
     delete keyfilter_;
+    delete tabletfilter_;
 }
 
 

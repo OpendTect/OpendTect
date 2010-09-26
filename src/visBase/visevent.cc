@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visevent.cc,v 1.30 2010-08-19 08:21:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.31 2010-09-26 11:12:41 cvsjaap Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
 #include "visdataman.h"
 #include "vistransform.h"
 #include "iopar.h"
+#include "mouseevent.h"
 
 #include <Inventor/nodes/SoEventCallback.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
@@ -25,6 +26,7 @@ static const char* rcsID = "$Id: visevent.cc,v 1.30 2010-08-19 08:21:17 cvsranoj
 #include <Inventor/SoPickedPoint.h>
 #include <Inventor/SbViewportRegion.h>
 #include <Inventor/SbLinear.h>
+
 
 mCreateFactoryEntry( visBase::EventCatcher );
 
@@ -38,19 +40,90 @@ const char* EventCatcher::eventtypestr()  { return "EventType"; }
 //const char EventInfo::middleMouseButton() { return 1; }
 //const char EventInfo::rightMouseButton() { return 2; }
 
+
 EventInfo::EventInfo()
-    : detail(0)
+    : detail( 0 )
     , worldpickedpos( Coord3::udf() )
     , localpickedpos( Coord3::udf() )
     , displaypickedpos( Coord3::udf() )
     , buttonstate_( OD::NoButton )
+    , tabletinfo( 0 )
 {}
+
+
+EventInfo::EventInfo(const EventInfo& eventinfo )
+    : detail( 0 )
+    , tabletinfo( 0 )
+{
+    *this = eventinfo;
+}
 
 
 EventInfo::~EventInfo()
 {
+    setTabletInfo( 0 );
+    setDetail( 0 );
+}
+
+
+EventInfo& EventInfo::operator=( const EventInfo& eventinfo )
+{
+    if ( &eventinfo == this )
+	return *this;
+
+    type = eventinfo.type;
+    buttonstate_ = eventinfo.buttonstate_;
+    mouseline = eventinfo.mouseline;
+    pressed = eventinfo.pressed;
+    pickedobjids = eventinfo.pickedobjids;
+    displaypickedpos = eventinfo.displaypickedpos;
+    localpickedpos = eventinfo.localpickedpos;
+    worldpickedpos = eventinfo.worldpickedpos;
+    key = eventinfo.key;
+    mousepos = eventinfo.mousepos;
+
+    setTabletInfo( eventinfo.tabletinfo );
+    setDetail( eventinfo.detail );
+
+    return *this;
+}
+
+
+void EventInfo::setTabletInfo( const TabletInfo* newtabinf )
+{
+    if ( newtabinf )
+    {
+	if ( !tabletinfo )
+	    tabletinfo = new TabletInfo();
+
+	*tabletinfo = *newtabinf;
+    }
+    else if ( tabletinfo )
+    {
+	delete tabletinfo;
+	tabletinfo = 0;
+    }
+}
+
+
+void EventInfo::setDetail( const Detail* det )
+{
     if ( detail )
 	delete detail;
+
+    detail = 0;
+
+    mDynamicCastGet( const FaceDetail*, facedetail, det );
+    if ( facedetail )
+    {
+	detail = new FaceDetail( 0 );
+	*detail = *facedetail;
+    }
+    else if ( det )
+    {
+	detail = new Detail( (DetailType) 0 );
+	*detail = *det;
+    }
 }
 
 
@@ -61,9 +134,9 @@ EventCatcher::EventCatcher()
     , type_( Any )
     , rehandling_( false )
     , rehandled_( true )
+    , curtabletbutstate_( OD::NoButton )
 {
     node_->ref();
-
     setCBs();
 }
 
@@ -120,29 +193,23 @@ int EventCatcher::usePar( const IOPar& par )
     
 void EventCatcher::setCBs()
 {
-    if ( type_==MouseClick || type_==Any )
-	node_->addEventCallback( SoMouseButtonEvent::getClassTypeId(),
-				   internalCB, this );
-    if ( type_==Keyboard || type_==Any )
-	node_->addEventCallback( SoKeyboardEvent::getClassTypeId(),
-				   internalCB, this );
-    if ( type_==MouseMovement || type_==Any )
-	node_->addEventCallback( SoLocation2Event::getClassTypeId(),
-				    internalCB, this );
+    node_->addEventCallback( SoMouseButtonEvent::getClassTypeId(),
+			     internalCB, this );
+    node_->addEventCallback( SoKeyboardEvent::getClassTypeId(),
+			     internalCB, this );
+    node_->addEventCallback( SoLocation2Event::getClassTypeId(),
+			     internalCB, this );
 }
 
 
 void EventCatcher::removeCBs()
 {
-    if ( type_==MouseClick || type_==Any )
-	node_->removeEventCallback( SoMouseButtonEvent::getClassTypeId(),
-				   internalCB, this );
-    if ( type_==Keyboard || type_==Any )
-	node_->removeEventCallback( SoKeyboardEvent::getClassTypeId(),
-				   internalCB, this );
-    if ( type_==MouseMovement || type_==Any )
-	node_->removeEventCallback( SoLocation2Event::getClassTypeId(),
-				    internalCB, this );
+    node_->removeEventCallback( SoMouseButtonEvent::getClassTypeId(),
+				internalCB, this );
+    node_->removeEventCallback( SoKeyboardEvent::getClassTypeId(),
+				internalCB, this );
+    node_->removeEventCallback( SoLocation2Event::getClassTypeId(),
+				internalCB, this );
 }
 
 
@@ -266,7 +333,7 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     else
 	eventinfo.pickedobjids.erase();
 
-    SoType eventtype =  event->getTypeId();
+    SoType eventtype = event->getTypeId();
     if ( eventtype==SoKeyboardEvent::getClassTypeId() )
     {
 	const SoKeyboardEvent* kbevent = (const SoKeyboardEvent*) event;
@@ -277,9 +344,13 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     else if ( eventtype==SoLocation2Event::getClassTypeId() )
     {
 	eventinfo.type = MouseMovement;
+	eventinfo.setTabletInfo( TabletInfo::currentState() );
     }
     else if ( eventtype==SoMouseButtonEvent::getClassTypeId() )
     {
+	eventinfo.type = MouseClick;
+	eventinfo.setTabletInfo( TabletInfo::currentState() );
+
 	const SoMouseButtonEvent* mbevent = (const SoMouseButtonEvent*) event;
 	SoMouseButtonEvent::Button button = mbevent->getButton();
 	if ( button==SoMouseButtonEvent::BUTTON1 )
@@ -293,14 +364,46 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 	    eventinfo.pressed = true;
 	else
 	    eventinfo.pressed = false;
-
-	eventinfo.type = MouseClick;
     }
+
+    // Hack to repair missing mouse release events from tablet pen on Linux
+    if ( eventinfo.tabletinfo )
+    {
+	if ( eventinfo.type==MouseClick && eventinfo.pressed )
+	{
+	    eventcatcher->curtabletbutstate_ =
+			(OD::ButtonState) (buttonstate & OD::MouseButtonMask);
+	}
+	else if ( eventinfo.type==MouseClick && !eventinfo.pressed )
+	{
+	    if ( eventcatcher->curtabletbutstate_==OD::NoButton )
+	    {
+		eventinfo.type = MouseMovement;
+		buttonstate &= OD::MouseButtonMask;
+	    }
+	    else
+		eventcatcher->curtabletbutstate_ = OD::NoButton;
+	}
+	else if ( eventinfo.type==MouseMovement &&
+		  eventcatcher->curtabletbutstate_!=OD::NoButton &&
+		  !eventinfo.tabletinfo->pressure_ )
+	{
+	    eventinfo.type = MouseClick;
+	    buttonstate |= eventcatcher->curtabletbutstate_;
+	    eventinfo.pressed = false;
+	    eventcatcher->curtabletbutstate_ = OD::NoButton;
+	}
+    }
+    // End of hack
 
     eventinfo.buttonstate_ = (OD::ButtonState) buttonstate;
 
-    eventcatcher->eventhappened.trigger( eventinfo, eventcatcher );
-    eventcatcher->nothandled.trigger( eventinfo, eventcatcher );
+    if ( eventcatcher->eventType()==Any ||
+	 eventcatcher->eventType()==eventinfo.type )
+    {
+	eventcatcher->eventhappened.trigger( eventinfo, eventcatcher );
+	eventcatcher->nothandled.trigger( eventinfo, eventcatcher );
+    }
 }
 
 }; // namespace visBase
