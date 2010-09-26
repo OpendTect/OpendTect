@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolygonselection.cc,v 1.12 2009-12-16 15:09:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: vispolygonselection.cc,v 1.13 2010-09-26 11:13:20 cvsjaap Exp $";
 
 #include "vispolygonselection.h"
 
@@ -70,7 +70,10 @@ PolygonSelection::~PolygonSelection()
 void PolygonSelection::setSelectionType( PolygonSelection::SelectionType st )
 {
     if ( st==Off )
+    {
 	selector_->mode = SoPolygonSelect::OFF;
+	selector_->clear();
+    }
     else if ( st==Rectangle )
 	selector_->mode = SoPolygonSelect::RECTANGLE;
     else if ( st==Polygon )
@@ -98,6 +101,10 @@ void PolygonSelection::setLineStyle( const LineStyle& lst )
 
 const LineStyle& PolygonSelection::getLineStyle() const
 { return drawstyle_->lineStyle(); }
+
+
+void PolygonSelection::clear()
+{ selector_->clear(); }
 
 
 bool PolygonSelection::hasPolygon() const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		June 2008
- RCS:		$Id: vispolygonselection.h,v 1.9 2009-12-14 05:17:34 cvsranojay Exp $
+ RCS:		$Id: vispolygonselection.h,v 1.10 2010-09-26 11:13:20 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ public:
     void			setLineStyle(const LineStyle&);
     const LineStyle&		getLineStyle() const;
 
+    void			clear();
     bool			hasPolygon() const;
     bool			isSelfIntersecting() const;
     bool			isInside(const Coord3&,
