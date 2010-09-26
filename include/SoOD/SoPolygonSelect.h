@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPolygonSelect.h,v 1.5 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: SoPolygonSelect.h,v 1.6 2010-09-26 11:11:21 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,10 @@ class SoCache;
 
 mClass SoPolygonSelect : public SoNode
 {
+    friend class		SoTabletEventFilter;
+
     SO_NODE_HEADER(SoPolygonSelect);
+
 public:
 				SoPolygonSelect(void);
     static void			initClass(void);
@@ -51,6 +54,7 @@ public:
     SoCallbackList		paintStart;
     SoCallbackList		paintStop;
     SoCallbackList		polygonChange;
+    void			clear();
     bool			isPainting() const 	{ return mousedown_; }
 
 protected:
@@ -65,6 +69,16 @@ protected:
     SbMatrix		modelmatrix_;
 
     SoCache*		dependencychecker_;
+
+    SbList<SbVec2f>	polybuf_;
+    SbList<SbVec2f>	outdir_;
+    SbVec2f		prevpos_;
+
+    void		initRub( const SbVec2f& pt );
+    void		rub( const SbVec2f& pt );
+
+			// Not for casual use
+    static void		setTabletPressure(float);
 };
 
 #endif
