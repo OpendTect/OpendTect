@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.30 2010-08-26 11:39:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.31 2010-09-26 11:15:43 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.30 2010-08-26 11
 #include "executor.h"
 #include "faultstickseteditor.h"
 #include "iopar.h"
+#include "mouseevent.h"
 #include "mpeengine.h"
 #include "survinfo.h"
 #include "undo.h"
@@ -189,6 +190,7 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
 	viseditor_->setSceneEventCatcher( eventcatcher_ );
 	viseditor_->setDisplayTransformation( displaytransform_ );
 	viseditor_->sower().alternateSowingOrder();
+	viseditor_->sower().setIfDragInvertMask();
 	insertChild( childIndex(sticks_->getInventorNode()),
 		     viseditor_->getInventorNode() );
     }
@@ -648,10 +650,17 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
-    ctrldown_ = OD::ctrlKeyboardButton(eventinfo.buttonstate_);
+    bool leftmousebutton = OD::leftMouseButton( eventinfo.buttonstate_ );
+    ctrldown_ = OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
 
-    if ( eventinfo.type!=visBase::MouseClick ||
-	 !OD::leftMouseButton(eventinfo.buttonstate_) )
+    if ( eventinfo.tabletinfo &&
+	 eventinfo.tabletinfo->pointertype_==TabletInfo::Eraser )
+    {
+	leftmousebutton = true;
+	ctrldown_ = true;
+    }
+
+    if ( eventinfo.type!=visBase::MouseClick || !leftmousebutton )
 	return;
 
     EM::PosID pid = EM::PosID::udf();
@@ -682,12 +691,11 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
     	return;
 
     const int sticknr = RowCol( pid.subID() ).row;
-    const bool isselected = !OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
 
     const int sid = emfss_->sectionID(0);
     Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry( sid );
 
-    fss->selectStick( sticknr, isselected ); 
+    fss->selectStick( sticknr, !ctrldown_ ); 
     updateKnotMarkers();
     eventcatcher_->setHandled();
 }
@@ -955,6 +963,7 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
     }
 
     updateKnotMarkers();
+    scene_->getPolySelection()->clear();
 }
 
 

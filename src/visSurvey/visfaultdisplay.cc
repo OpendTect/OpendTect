@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.62 2010-08-26 11:39:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.63 2010-09-26 11:15:43 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.62 2010-08-26 11:39:30 c
 #include "faulteditor.h"
 #include "faulthorintersect.h"
 #include "iopar.h"
+#include "mouseevent.h"
 #include "mpeengine.h"
 #include "posvecdataset.h"
 #include "survinfo.h"
@@ -307,6 +308,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	viseditor_->setSceneEventCatcher( eventcatcher_ );
 	viseditor_->setDisplayTransformation( displaytransform_ );
 	viseditor_->sower().alternateSowingOrder();
+	viseditor_->sower().setIfDragInvertMask();
 	insertChild( childIndex(texture_->getInventorNode() ),
 		viseditor_->getInventorNode() );
     }
@@ -785,10 +787,17 @@ void FaultDisplay::stickSelectCB( CallBacker* cb )
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
-    ctrldown_ = OD::ctrlKeyboardButton(eventinfo.buttonstate_);
+    bool leftmousebutton = OD::leftMouseButton( eventinfo.buttonstate_ );
+    ctrldown_ = OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
 
-    if ( eventinfo.type!=visBase::MouseClick ||
-	 !OD::leftMouseButton(eventinfo.buttonstate_) )
+    if ( eventinfo.tabletinfo &&
+	 eventinfo.tabletinfo->pointertype_==TabletInfo::Eraser )
+    {
+	leftmousebutton = true;
+	ctrldown_ = true;
+    }
+
+    if ( eventinfo.type!=visBase::MouseClick || !leftmousebutton )
 	return;
 
     EM::PosID pid = EM::PosID::udf();
@@ -819,12 +828,11 @@ void FaultDisplay::stickSelectCB( CallBacker* cb )
 	return;
 
     const int sticknr = RowCol( pid.subID() ).row;
-    const bool isselected = !OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
 
     const int sid = emfault_->sectionID(0);
     Geometry::FaultStickSet* fss = emfault_->geometry().sectionGeometry( sid );
 
-    fss->selectStick( sticknr, isselected );
+    fss->selectStick( sticknr, !ctrldown_ );
     updateKnotMarkers();
     eventcatcher_->setHandled();
 }
@@ -1341,6 +1349,7 @@ void FaultDisplay::polygonFinishedCB( CallBacker* cb )
     }
 
     updateKnotMarkers();
+    scene_->getPolySelection()->clear();
 }
 
 
