@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlevel.cc,v 1.2 2010-09-27 11:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlevel.cc,v 1.3 2010-09-27 14:57:48 cvsbert Exp $";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -70,7 +70,6 @@ void getSet()
 	if ( rsrc != Repos::Temp )
 	    ls_->store( rsrc );
     }
-    IOM().surveyChanged.notify( mCB(this,LevelSetMgr,doNull) );
 }
 
     LevelSet*	ls_;
