@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.16 2009-07-29 06:25:54 cvsumesh Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.17 2010-09-27 04:58:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,26 +101,24 @@ protected:
 
     uiTabStack*			tabgrp_;
     uiButtonGroup*      	modeselgrp_;
-    uiGroup*			autogrp_;
-    uiAttrSel*			inpfld;
-    uiGenInput*			usesimifld;
-    uiGenInput*			thresholdtypefld;
-    uiGenInput*			evfld;
-    uiGenInput*			srchgatefld;
-    uiGenInput*			ampthresholdfld;
-    uiPushButton*		addstepbut;
-    uiGenInput*			simithresholdfld;
-    uiGenInput*			compwinfld;
-    uiGenInput*			extriffailfld;
-    uiGroup*			maingrp;
-    uiPushButton*		applybut;
-    const char* 		typestr_;
+    uiAttrSel*			inpfld_;
+    uiGenInput*			usesimifld_;
+    uiGenInput*			thresholdtypefld_;
+    uiGenInput*			evfld_;
+    uiGenInput*			srchgatefld_;
+    uiGenInput*			ampthresholdfld_;
+    uiPushButton*		addstepbut_;
+    uiGenInput*			simithresholdfld_;
+    uiGenInput*			compwinfld_;
+    uiGenInput*			extriffailfld_;
+    uiGroup*			maingrp_;
+    uiPushButton*		applybut_;
     uiColorInput*		colorfld_;
     uiSliderExtra*      	seedsliderfld_;
     uiGenInput*         	seedtypefld_;
     uiColorInput*       	seedcolselfld_;
 
-    bool			inwizard_;
+    bool			is2d_;
     EMSeedPicker::SeedModeOrder	mode_;
     MarkerStyle3D       	markerstyle_;
 

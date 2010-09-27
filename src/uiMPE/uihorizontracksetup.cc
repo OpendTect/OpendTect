@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.36 2010-04-27 15:21:07 cvshelene Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.37 2010-09-27 04:58:18 cvsnanne Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.36 2010-04-27 15:21:
 #include "draw.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
-#include "emsurfacetr.h"
+//#include "emsurfacetr.h"
 #include "horizonadjuster.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
@@ -83,8 +83,9 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
     : uiSetupGroup(p,"")
     , sectiontracker_(0)
     , attrset_(ads)
-    , inpfld(0)
-    , typestr_(typestr)
+    , inpfld_(0)
+    , addstepbut_(0)
+    , is2d_(!strcmp(typestr,EM::Horizon2D::typeStr()))
     , modechanged_(this)
     , eventchanged_(this)
     , similartychanged_(this)
@@ -102,7 +103,6 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
 
     uiGroup* propertiesgrp = createPropertyGroup();
     tabgrp_->addTab( propertiesgrp, "Properties" );
-    inwizard_ = p && !strncmp(p->name(),"Page",4);
 }
 
 
@@ -114,8 +114,7 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     modeselgrp_->setExclusive( true );
     grp->setHAlignObj( modeselgrp_ );
 
-    if ( typestr_ == EMHorizon3DTranslatorGroup::keyword() &&
-	 Horizon3DSeedPicker::nrSeedConnectModes()>0 )
+    if ( !is2d_ && Horizon3DSeedPicker::nrSeedConnectModes()>0 )
     {
 	for ( int idx=0; idx<Horizon3DSeedPicker::nrSeedConnectModes(); idx++ )
 	{
@@ -128,8 +127,7 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 				Horizon3DSeedPicker::defaultSeedConMode();
 	}
     }
-    else if ( typestr_ == EMHorizon2DTranslatorGroup::keyword() &&
-	      Horizon2DSeedPicker::nrSeedConnectModes()>0 )
+    else if ( is2d_ && Horizon2DSeedPicker::nrSeedConnectModes()>0 )
     {
 	for ( int idx=0; idx<Horizon2DSeedPicker::nrSeedConnectModes(); idx++ )
 	{
@@ -152,46 +150,50 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Event" );
 
     if ( attrset_ )
-	inpfld = new uiAttrSel( grp, *attrset_, "Input data",
+	inpfld_ = new uiAttrSel( grp, *attrset_, "Input data",
 	       			Attrib::DescID::undef(), false );
     else
-	inpfld = new uiAttrSel( grp, "Input data", uiAttrSelData(false), false);
-    grp->setHAlignObj( inpfld );
-    inpfld->selectionDone.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB) );
+	inpfld_ = new uiAttrSel( grp, "Input data",
+				 uiAttrSelData(false), false );
+    grp->setHAlignObj( inpfld_ );
+    inpfld_->selectionDone.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB));
 
-    evfld = new uiGenInput( grp, "Event type",
+    evfld_ = new uiGenInput( grp, "Event type",
 	    		    StringListInpSpec(sKeyEventNames()) );
-    evfld->attach( alignedBelow, inpfld );
-    evfld->valuechanged.notify( mCB(this,uiHorizonSetupGroup,selEventType) );
-    evfld->valuechanged.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB) );
+    evfld_->attach( alignedBelow, inpfld_ );
+    evfld_->valuechanged.notify( mCB(this,uiHorizonSetupGroup,selEventType) );
+    evfld_->valuechanged.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
     BufferString srchwindtxt( "Search window " );
     srchwindtxt += SI().getZUnitString();
-    srchgatefld = new uiGenInput( grp, srchwindtxt, FloatInpIntervalSpec() );
-    srchgatefld->attach( alignedBelow, evfld );
-    srchgatefld->valuechanged.notify( 
+    srchgatefld_ = new uiGenInput( grp, srchwindtxt, FloatInpIntervalSpec() );
+    srchgatefld_->attach( alignedBelow, evfld_ );
+    srchgatefld_->valuechanged.notify( 
 	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
-    thresholdtypefld = new uiGenInput( grp, "Threshold type",
+    thresholdtypefld_ = new uiGenInput( grp, "Threshold type",
 		BoolInpSpec(true,"Cut-off amplitude","Relative difference") );
-    thresholdtypefld->valuechanged.notify(
+    thresholdtypefld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,selAmpThresholdType) );
-    thresholdtypefld->attach( alignedBelow, srchgatefld );
+    thresholdtypefld_->attach( alignedBelow, srchgatefld_ );
 
-    ampthresholdfld = new uiGenInput ( grp, "Allowed difference (%)",
+    ampthresholdfld_ = new uiGenInput ( grp, "Allowed difference (%)",
 	    			       StringInpSpec() );
-    ampthresholdfld->attach( alignedBelow, thresholdtypefld );
-    ampthresholdfld->valuechanged.notify( 
+    ampthresholdfld_->attach( alignedBelow, thresholdtypefld_ );
+    ampthresholdfld_->valuechanged.notify( 
 	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
-    addstepbut = new uiPushButton( grp, "Steps",
-	    mCB(this,uiHorizonSetupGroup,addStepPushedCB), false );
-    addstepbut->attach( rightTo, ampthresholdfld );
+    if ( !is2d_ )
+    {
+	addstepbut_ = new uiPushButton( grp, "Steps",
+		mCB(this,uiHorizonSetupGroup,addStepPushedCB), false );
+	addstepbut_->attach( rightTo, ampthresholdfld_ );
+    }
 
-    extriffailfld = new uiGenInput( grp, "If tracking fails",
+    extriffailfld_ = new uiGenInput( grp, "If tracking fails",
 				    BoolInpSpec(true,"Extrapolate","Stop") );
-    extriffailfld->attach( alignedBelow, ampthresholdfld );
-    extriffailfld->valuechanged.notify( 
+    extriffailfld_->attach( alignedBelow, ampthresholdfld_ );
+    extriffailfld_->valuechanged.notify( 
 	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
     return grp;
@@ -202,26 +204,26 @@ uiGroup* uiHorizonSetupGroup::createSimiGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Similarity" );
 
-    usesimifld = new uiGenInput( grp, "Use similarity", BoolInpSpec(true) );
-    usesimifld->valuechanged.notify(
+    usesimifld_ = new uiGenInput( grp, "Use similarity", BoolInpSpec(true) );
+    usesimifld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,selUseSimilarity) );
-    usesimifld->valuechanged.notify( 
+    usesimifld_->valuechanged.notify( 
 	    mCB(this,uiHorizonSetupGroup, similartyChangeCB) );
 
     BufferString compwindtxt( "Compare window " );
     compwindtxt += SI().getZUnitString();
-    compwinfld = new uiGenInput( grp, compwindtxt, FloatInpIntervalSpec() );
-    compwinfld->attach( alignedBelow, usesimifld );
-    compwinfld->valuechanged.notify( 
+    compwinfld_ = new uiGenInput( grp, compwindtxt, FloatInpIntervalSpec() );
+    compwinfld_->attach( alignedBelow, usesimifld_ );
+    compwinfld_->valuechanged.notify( 
 	    mCB(this,uiHorizonSetupGroup, similartyChangeCB) );
 
-    simithresholdfld = new uiGenInput( grp, "Similarity threshold(0-1)",
+    simithresholdfld_ = new uiGenInput( grp, "Similarity threshold(0-1)",
 				       FloatInpSpec() );
-    simithresholdfld->attach( alignedBelow, compwinfld );
-    simithresholdfld->valuechanged.notify(
+    simithresholdfld_->attach( alignedBelow, compwinfld_ );
+    simithresholdfld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup, similartyChangeCB) );
 
-    grp->setHAlignObj( usesimifld );
+    grp->setHAlignObj( usesimifld_ );
     return grp;
 }
 
@@ -273,41 +275,41 @@ uiHorizonSetupGroup::~uiHorizonSetupGroup()
 
 void uiHorizonSetupGroup::selUseSimilarity( CallBacker* )
 {
-    const bool usesimi = usesimifld->getBoolValue();
-    compwinfld->display( usesimi );
-    simithresholdfld->display( usesimi );
+    const bool usesimi = usesimifld_->getBoolValue();
+    compwinfld_->display( usesimi );
+    simithresholdfld_->display( usesimi );
 }
 
 
 void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
 {
-    const bool absthreshold = thresholdtypefld->getBoolValue();
-    ampthresholdfld->setTitleText( absthreshold ? "       Amplitude value"
+    const bool absthreshold = thresholdtypefld_->getBoolValue();
+    ampthresholdfld_->setTitleText( absthreshold ? "       Amplitude value"
 						: "Allowed difference (%)" );
     if ( absthreshold )
     {
 	if (  horadj_->getAmplitudeThresholds().size() <=0 )
-	    ampthresholdfld->setValue( horadj_->amplitudeThreshold() );
+	    ampthresholdfld_->setValue( horadj_->amplitudeThreshold() );
 	else
 	{
 	    BufferString bs;
 	    bs += horadj_->getAmplitudeThresholds()[0];
 	    for (int idx=1;idx<horadj_->getAmplitudeThresholds().size();idx++)
 	    { bs += ","; bs += horadj_->getAmplitudeThresholds()[idx]; }
-	    ampthresholdfld->setText( bs.buf() );
+	    ampthresholdfld_->setText( bs.buf() );
 	}
     }
     else
     {
 	if ( horadj_->getAllowedVariances().size() <= 0 )
-	    ampthresholdfld->setValue( horadj_->allowedVariance()*100 );
+	    ampthresholdfld_->setValue( horadj_->allowedVariance()*100 );
 	else
 	{
 	    BufferString bs;
 	    bs += horadj_->getAllowedVariances()[0]*100;
 	    for ( int idx=1; idx<horadj_->getAllowedVariances().size(); idx++ )
 	    { bs += ","; bs += horadj_->getAllowedVariances()[idx]*100; }
-	    ampthresholdfld->setText( bs.buf() );
+	    ampthresholdfld_->setText( bs.buf() );
 	}
     }
 }
@@ -315,10 +317,10 @@ void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
 
 void uiHorizonSetupGroup::selEventType( CallBacker* )
 {
-    const VSEvent::Type ev = cEventTypes()[ evfld->getIntValue() ];
+    const VSEvent::Type ev = cEventTypes()[ evfld_->getIntValue() ];
     const bool thresholdneeded = ev==VSEvent::Min || ev==VSEvent::Max;
-    thresholdtypefld->setSensitive( thresholdneeded );
-    ampthresholdfld->setSensitive( thresholdneeded );
+    thresholdtypefld_->setSensitive( thresholdneeded );
+    ampthresholdfld_->setSensitive( thresholdneeded );
 }
 
 
@@ -419,16 +421,16 @@ void getValueString( BufferString& valstr )
 
 void uiHorizonSetupGroup::addStepPushedCB(CallBacker*)
 {
-    uiStepDialog dlg( this, ampthresholdfld->text() );
+    uiStepDialog dlg( this, ampthresholdfld_->text() );
     if ( dlg.go() )
     {
 	BufferString valstr;
 	dlg.getValueString( valstr );
-	ampthresholdfld->setText( valstr );
+	ampthresholdfld_->setText( valstr );
 	propertychanged_.trigger();
     }
 }
-    
+
 
 void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 {
@@ -450,19 +452,15 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 void uiHorizonSetupGroup::setAttribSet( const Attrib::DescSet* ads )
 { 
     attrset_ = ads; 
-    if ( inpfld )
-	inpfld->setDescSet( ads );
+    if ( inpfld_ )
+	inpfld_->setDescSet( ads );
 }
 
 
 void uiHorizonSetupGroup::initModeGroup()
 {
-    if ( typestr_ == EMHorizon3DTranslatorGroup::keyword() &&
-	    Horizon3DSeedPicker::nrSeedConnectModes()>0 )
-	modeselgrp_->selectButton( mode_ );
-    
-    else if ( typestr_ == EMHorizon2DTranslatorGroup::keyword() &&
-	    Horizon2DSeedPicker::nrSeedConnectModes()>0 )
+    if ( (!is2d_ && Horizon3DSeedPicker::nrSeedConnectModes()>0) ||
+	 (is2d_ && Horizon2DSeedPicker::nrSeedConnectModes()>0) )
 	modeselgrp_->selectButton( mode_ );
 }
 
@@ -473,38 +471,38 @@ void uiHorizonSetupGroup::initEventGroup()
     Attrib::DescID curid = horadj_->getAttributeSel(0) ?
 	horadj_->getAttributeSel(0)->id() : Attrib::DescID::undef();
     if ( attrset_ && attrset_->getDesc(curid) )
-	inpfld->setDesc( attrset_->getDesc(curid) );
+	inpfld_->setDesc( attrset_->getDesc(curid) );
 
     VSEvent::Type ev = horadj_->trackEvent();
     const int fldidx = ev == VSEvent::Min ? 0
 			    : (ev == VSEvent::Max ? 1
 			    : (ev == VSEvent::ZCPosNeg ? 2 : 3) );
-    evfld->setValue( fldidx );
+    evfld_->setValue( fldidx );
 
     Interval<float> srchintv(
 	    horadj_->permittedZRange().start * SI().zFactor(),
 	    horadj_->permittedZRange().stop * SI().zFactor() );
 
-    srchgatefld->setText( getStringFromFloat("%.5f",srchintv.start), 0 );
-    srchgatefld->setText( getStringFromFloat("%.5f",srchintv.stop), 1 );
+    srchgatefld_->setText( getStringFromFloat("%.5f",srchintv.start), 0 );
+    srchgatefld_->setText( getStringFromFloat("%.5f",srchintv.stop), 1 );
 
-    thresholdtypefld->setValue( horadj_->useAbsThreshold() );
-    extriffailfld->setValue( !horadj_->removesOnFailure() );
+    thresholdtypefld_->setValue( horadj_->useAbsThreshold() );
+    extriffailfld_->setValue( !horadj_->removesOnFailure() );
 }
 
 
 void uiHorizonSetupGroup::initSimiGroup()
 {
-    usesimifld->setValue( !horadj_->trackByValue() );
+    usesimifld_->setValue( !horadj_->trackByValue() );
 
     Interval<float> simiintv(
 	    horadj_->similarityWindow().start * SI().zFactor(),
 	    horadj_->similarityWindow().stop * SI().zFactor() );
 
-    compwinfld->setText( getStringFromFloat("%.5f",simiintv.start), 0 );
-    compwinfld->setText( getStringFromFloat("%.5f",simiintv.stop), 1 );
+    compwinfld_->setText( getStringFromFloat("%.5f",simiintv.start), 0 );
+    compwinfld_->setText( getStringFromFloat("%.5f",simiintv.stop), 1 );
 
-    simithresholdfld->setValue( horadj_->similarityThreshold() );
+    simithresholdfld_->setValue( horadj_->similarityThreshold() );
 }
 
 
@@ -554,11 +552,11 @@ const MarkerStyle3D& uiHorizonSetupGroup::getMarkerStyle()
 
 
 void uiHorizonSetupGroup::setAttribSelSpec( const Attrib::SelSpec* selspec )
-{ inpfld->setSelSpec( selspec ); }
+{ inpfld_->setSelSpec( selspec ); }
 
 
 bool uiHorizonSetupGroup::isSameSelSpec( const Attrib::SelSpec* selspec ) const
-{ return ( inpfld->attribID() == selspec->id() ); }
+{ return ( inpfld_->attribID() == selspec->id() ); }
 
 
 bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
@@ -569,16 +567,16 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     {   uiMSG().warning( "Unable to apply tracking setup" ); 
 	return true;
     }
-    if ( !inpfld ) return true;
+    if ( !inpfld_ ) return true;
 
-    VSEvent::Type evtyp = cEventTypes()[ evfld->getIntValue() ];
+    VSEvent::Type evtyp = cEventTypes()[ evfld_->getIntValue() ];
     if ( horadj_->trackEvent() != evtyp )
     {
 	fieldchange = true;
 	horadj_->setTrackEvent( evtyp );
     }
 
-    Interval<float> intv = srchgatefld->getFInterval();
+    Interval<float> intv = srchgatefld_->getFInterval();
     if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
 	mErrRet( "Search window should be minus to positive, ex. -20, 20");
     Interval<float> relintv( (float)intv.start/SI().zFactor(),
@@ -589,7 +587,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	horadj_->setPermittedZRange( relintv );
     }
 
-    const bool usesimi = usesimifld->getBoolValue();
+    const bool usesimi = usesimifld_->getBoolValue();
     if ( horadj_->trackByValue() == usesimi )
     {
 	fieldchange = true;
@@ -598,7 +596,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 
     if ( usesimi )
     {
-	Interval<float> intval = compwinfld->getFInterval();
+	Interval<float> intval = compwinfld_->getFInterval();
 	if ( intval.start>0 || intval.stop<0 || intval.start==intval.stop )
 	    mErrRet( "Compare window should be minus to positive, ex. -20, 20");
 	Interval<float> relintval( (float)intval.start/SI().zFactor(),
@@ -609,7 +607,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	    horadj_->setSimilarityWindow( relintval );
 	}
 	    
-	float mgate = simithresholdfld->getfValue();
+	float mgate = simithresholdfld_->getfValue();
 	if ( mgate > 1 || mgate <= 0)
 	    mErrRet( "Similarity threshold must be within 0 to 1" );
 	if ( horadj_->similarityThreshold() != mgate )
@@ -619,7 +617,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	}
     }
 	    
-    const bool useabs = thresholdtypefld->getBoolValue();
+    const bool useabs = thresholdtypefld_->getBoolValue();
     if ( horadj_->useAbsThreshold() != useabs )
     {
 	fieldchange = true;
@@ -628,7 +626,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 
     if ( useabs )
     {
-	SeparString ss( ampthresholdfld->text(), ',' );
+	SeparString ss( ampthresholdfld_->text(), ',' );
 	int idx = 0;
 	if ( ss.size() < 2 )
 	{
@@ -684,7 +682,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     }
     else
     {
-	SeparString ss( ampthresholdfld->text(), ',' );
+	SeparString ss( ampthresholdfld_->text(), ',' );
 	int idx = 0;
 	if ( ss.size() < 2 )
 	{
@@ -738,16 +736,16 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	}
     }
 
-    const bool rmonfail = !extriffailfld->getBoolValue();
+    const bool rmonfail = !extriffailfld_->getBoolValue();
     if ( horadj_->removesOnFailure() != rmonfail )    
     {
 	fieldchange = true;
 	horadj_->removeOnFailure( rmonfail );
     }
 
-    inpfld->processInput();
+    inpfld_->processInput();
     Attrib::SelSpec as;
-    inpfld->fillSelSpec( as );
+    inpfld_->fillSelSpec( as );
     if ( !as.id().isValid() )
 	mErrRet( "Please select the seismic data to track on" );
 
