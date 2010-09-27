@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.28 2010-09-20 03:52:03 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.29 2010-09-27 07:28:09 cvsnageswara Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -307,6 +307,14 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
     { uiMSG().error("Please select at least one horizon"); return; }
 
     if ( !dataselfld_->commit() ) return;
+
+    BufferString msg;
+    if ( !EM::Horizon2DAscIO::isFormatOK(fd_, msg) )
+    {
+	uiMSG().message( msg );
+	return;
+    }
+
     if ( scanner_ ) 
     {
 	if ( cb )

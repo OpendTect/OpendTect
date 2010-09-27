@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.23 2010-09-23 04:46:25 cvsnanne Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.24 2010-09-27 07:28:09 cvsnageswara Exp $
 ________________________________________________________________________
 
 
@@ -98,7 +98,8 @@ public:
     bool			unSetPos(const EM::SectionID&,const EM::SubID&,
 					 bool addtohistory);
     Coord3			getPos(const EM::PosID&) const;
-    Coord3			getPos(const EM::SectionID&,const EM::SubID&) const;
+    Coord3			getPos(const EM::SectionID&,
+				       const EM::SubID&) const;
     TypeSet<Coord3>		getPositions(int lineidx,int trcnr) const;
     Coord3			getPos(EM::SectionID,int lidx,int trcnr) const;
 
@@ -112,8 +113,8 @@ public:
 
     bool			setArray1D(const Array1D<float>&,SectionID sid,
 	    				   int lid,bool onlyfillundefs );
-    Array1D<float>*		createArray1D( SectionID, int rowid,
-	    				       const ZAxisTransform* = 0) const;
+    Array1D<float>*		createArray1D(SectionID,int rowid,
+	    				      const ZAxisTransform* =0) const;
 
 protected:
 
@@ -138,8 +139,10 @@ public:
     static void                 createDescBody(Table::FormatDesc*,
 	    				   const BufferStringSet&);
 
-    bool			isXY() const;
-    int				getNextLine(BufferString&,TypeSet<float>&);
+    static bool			isFormatOK(const Table::FormatDesc&,
+	    				   BufferString&);
+    int				getNextLine(BufferString& lnm,Coord& crd,
+					    int& trcnr,TypeSet<float>& data);
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.36 2010-09-23 04:46:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.37 2010-09-27 07:28:09 cvsnageswara Exp $";
 
 #include "emhorizon2d.h"
 
@@ -459,17 +459,30 @@ Table::FormatDesc* Horizon2DAscIO::getDesc()
 }
 
 
+bool Horizon2DAscIO::isFormatOK(  const Table::FormatDesc& fd,
+				  BufferString& msg )
+{
+    const bool trccoldefined = fd.bodyinfos_[2]->selection_.isInFile( 0 );
+    const bool xycolsdefined = fd.bodyinfos_[1]->selection_.isInFile( 0 )
+			       &&  fd.bodyinfos_[1]->selection_.isInFile( 1 );
+     if ( trccoldefined || xycolsdefined )
+	 return true;
+
+     msg = "At least one of 'Trace Nr' and 'X Y' columns need to be defined";
+     return false;
+}
+
+
 void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 				     const BufferStringSet& hornms )
 {
     fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
-    fd->bodyinfos_ += new Table::TargetInfo( "Trace nr", IntInpSpec(),
-	    				     Table::Required );
     Table::TargetInfo* ti = new Table::TargetInfo( "Position", DoubleInpSpec(),
-	    				    Table::Required );
+	    				    Table::Optional );
     ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
     fd->bodyinfos_ += ti;
-
+    fd->bodyinfos_ += new Table::TargetInfo( "Trace nr", IntInpSpec(),
+	    				     Table::Optional );
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	BufferString fldname = hornms.get( idx );
@@ -491,13 +504,8 @@ void Horizon2DAscIO::updateDesc( Table::FormatDesc& fd,
 
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
-bool Horizon2DAscIO::isXY() const
-{
-    return true;
-}
-
-
-int Horizon2DAscIO::getNextLine( BufferString& lnm, TypeSet<float>& data )
+int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
+     				 TypeSet<float>& data )
 {
     data.erase();
     if ( !finishedreadingheader_ )
@@ -505,17 +513,20 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, TypeSet<float>& data )
 	if ( !getHdrVals(strm_) )
 	    return -1;
 
-	udfval_ =  getfValue( 0 );
+	udfval_ = getfValue( 0 );
 	finishedreadingheader_ = true;
     }
 
     int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return ret;
 
-    lnm = text(0);
-    const int lastvalidx = fd_.bodyinfos_.size();
-    for ( int idx=1; idx<=lastvalidx; idx++ )
-	data += getfValue( idx, udfval_ );
+    lnm = text( 0 );
+    crd.x = getdValue( 1 );
+    crd.y = getdValue( 2 );
+    trcnr = getIntValue( 3 );
+    const int nrhors = vals_.size() - 4;
+    for ( int idx=0; idx<nrhors; idx++ )
+	data += getfValue( idx+4, udfval_ );
 
     return ret;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: horizon2dscanner.h,v 1.7 2010-07-12 14:24:33 cvsbert Exp $
+ RCS:		$Id: horizon2dscanner.h,v 1.8 2010-09-27 07:28:09 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,8 +41,6 @@ public:
     BinIDValueSet*	getVals()			{ return bvalset_; }
 
     bool		reInitAscIO(const char*);
-    void		setPosIsXY(bool yn)		{ isxy_ = yn; }
-    bool		posIsXY() const			{ return isxy_; }
 
     static const char*	defaultUserInfoFile();
     void		launchBrowser(const char* fnm=0) const;
@@ -61,7 +59,6 @@ protected:
     MultiID		setid_;
     BufferString	curline_;
     bool		isgeom_;
-    bool		isxy_;
     TypeSet<Interval<float> > valranges_;
     Table::FormatDesc&	fd_;
 

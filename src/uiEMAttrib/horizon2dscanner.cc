@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.17 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.18 2010-09-27 07:28:09 cvsnageswara Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -30,7 +30,6 @@ Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
     , fd_(fd)
     , ascio_(0)
     , setid_(setid)
-    , isxy_(false)
     , bvalset_(0)
     , fileidx_(0)
 {
@@ -144,9 +143,8 @@ void Horizon2DScanner::report( IOPar& iopar ) const
     iopar.set( "Total number of positions", nrpos );
     iopar.add( "Value ranges", "" );
     for ( int idx=0; idx<valranges_.size(); idx++ )
-	iopar.set( fd_.bodyinfos_[idx+2]->name(), valranges_[idx] );
+	iopar.set( fd_.bodyinfos_[idx+3]->name(), valranges_[idx] );
 }
-
 
 
 const char* Horizon2DScanner::defaultUserInfoFile()
@@ -179,7 +177,6 @@ bool Horizon2DScanner::reInitAscIO( const char* fnm )
 	return false;
 
     ascio_ = new EM::Horizon2DAscIO( fd_, *sd.istrm );
-    isxy_ = ascio_->isXY();
     return true;
 }
 
@@ -193,8 +190,9 @@ int Horizon2DScanner::nextStep()
 	return Executor::ErrorOccurred();
 
     BufferString linenm;
+    Coord crd; int trcnr;
     TypeSet<float> data;
-    const int ret = ascio_->getNextLine( linenm, data );
+    const int ret = ascio_->getNextLine( linenm, crd, trcnr, data );
     if ( ret < 0 ) return Executor::ErrorOccurred();
     if ( ret == 0 ) 
     {
@@ -224,27 +222,27 @@ int Horizon2DScanner::nextStep()
 	return Executor::ErrorOccurred();
 
     PosInfo::Line2DPos pos;
-    if ( !isxy_ )
+    if ( !mIsUdf(trcnr) )
     {
-	const int trcnr = mNINT( data[0] );
 	if ( !linegeom_.getPos(trcnr,pos) )
 	    return Executor::MoreToDo();
 
-	data[0] = pos.coord_.x;
-	data.insert( 1, pos.coord_.y );
+	crd = pos.coord_;
     }
-    else
+    else if ( crd.isDefined() )
     {
-	const Coord coord( data[0], data[1] );
-	if ( !linegeom_.getPos(coord,pos,SI().inlDistance()) )
+	if ( !linegeom_.getPos(crd,pos,SI().inlDistance()) )
 	    return Executor::MoreToDo();
     }
+    else
+	// no valid x/y nor trcnr
+	return Executor::ErrorOccurred();
 
     if ( !bvalset_ )
 	bvalset_ = new BinIDValueSet( data.size(), false );
 
     int validx = 0;
-    const int nrvals = data.size() - 2;
+    const int nrvals = data.size();
     int nrvalidvals = 0;
     Interval<float> validzrg( linegeom_.zRange().start,
 			      linegeom_.zRange().stop );
@@ -254,10 +252,10 @@ int Horizon2DScanner::nextStep()
 	while ( valranges_.size() < nrvals )
 	    valranges_ += Interval<float>(mUdf(float),-mUdf(float));
 
-	const float val = data[validx+2];
+	const float val = data[validx];
 
 	if ( mIsUdf(val) || !validzrg.includes(val) )
-	    data[validx+2] = mUdf(float);
+	    data[validx] = mUdf(float);
 	else
 	{
 	    nrvalidvals++;
