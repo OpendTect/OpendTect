@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.6 2010-06-25 13:43:34 cvsbert Exp $";
+static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.7 2010-09-27 06:32:12 cvsnanne Exp $";
 
 #include "velocityfunctionascio.h"
 
@@ -98,7 +98,7 @@ int FunctionAscIO::nextStep()
 
     BinID binid;
     if ( isxy )
-	binid = SI().transform( Coord(getfValue(0),getfValue(1)) );
+	binid = SI().transform( Coord(getdValue(0),getdValue(1)) );
     else
 	{ binid.inl = getIntValue(0); binid.crl = getIntValue(1); }
 
