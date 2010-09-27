@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.32 2010-08-19 06:36:48 cvsranojay Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.33 2010-09-27 05:15:49 cvsnanne Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -177,25 +177,25 @@ Color ColTab::Sequence::color( float x ) const
 }
 
 
-float ColTab::Sequence::transparencyAt( float x ) const
+float ColTab::Sequence::transparencyAt( float xpos ) const
 {
     const int sz = tr_.size();
-    if ( sz == 0 || x <= -mDefEps || x >= 1+mDefEps )	return 0;
+    if ( sz == 0 || xpos <= -mDefEps || xpos >= 1+mDefEps )	return 0;
 
     float x0 = tr_[0].x; float y0 = tr_[0].y;
-    if ( sz == 1 || x < x0+mDefEps )			return y0;
+    if ( sz == 1 || xpos < x0+mDefEps )			return y0;
     float x1 = tr_[sz-1].x; float y1 = tr_[sz-1].y;
-    if ( x > x1 - mDefEps )				return y1;
+    if ( xpos > x1 - mDefEps )				return y1;
 
     for ( int idx=1; idx<sz; idx++ )
     {
 	x1 = tr_[idx].x; y1 = tr_[idx].y;
-	if ( x < x1 + mDefEps )
+	if ( xpos < x1 + mDefEps )
 	{
-	    if ( mIsEqual(x,x1,mDefEps) )
+	    if ( mIsEqual(xpos,x1,mDefEps) )
 		return y1;
 	    x0 = tr_[idx-1].x; y0 = tr_[idx-1].y;
-	    const float frac = (x-x0) / (x1-x0);
+	    const float frac = (xpos-x0) / (x1-x0);
 	    return frac * y1 + (1-frac) * y0;
 	}
     }
