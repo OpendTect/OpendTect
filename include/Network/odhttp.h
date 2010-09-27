@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odhttp.h,v 1.5 2010-09-24 11:45:47 cvsnanne Exp $
+ RCS:           $Id: odhttp.h,v 1.6 2010-09-27 09:24:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class QFile;
 class QHttp;
 class QHttpConnector;
 
-class ODHttp : public CallBacker
+mClass ODHttp : public CallBacker
 {
 friend class QHttpConnector;
 
