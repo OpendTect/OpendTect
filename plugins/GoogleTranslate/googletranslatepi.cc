@@ -14,6 +14,7 @@ static const char* rcsID = "$Id Exp $";
 
 #include "plugins.h"
 #include "googletranslator.h"
+#include "settings.h"
 #include "texttranslator.h"
 
 
@@ -72,6 +73,12 @@ void GoogleTranslateMgr::fillMenu()
     enabitm_->setCheckable( true );
     enabitm_->setChecked( false );
 
+    BufferString curlang;
+    Settings::common().get( "Translator.Language", curlang );
+    const bool res = !curlang.isEmpty()
+	? TrMgr().tr()->setToLanguage( curlang ) : false;
+    enabitm_->setEnabled( res );
+
     uiPopupMenu* langmnu = new uiPopupMenu( &appl_, "&Language" );
     trmenu->insertItem( langmnu );
     const int nrlangs = TrMgr().tr()->nrSupportedLanguages();
@@ -81,6 +88,8 @@ void GoogleTranslateMgr::fillMenu()
 	langmnu->insertItem( itm, idx+1 );
 	itm->setText( TrMgr().tr()->getLanguageUserName(idx) );
 	itm->setCheckable( true );
+	if ( curlang == TrMgr().tr()->getLanguageName(idx) )
+	    itm->setChecked( true );
 	langitems_ += itm;
     }
 }
@@ -92,17 +101,24 @@ void GoogleTranslateMgr::handleMenu( CallBacker* cb )
     if ( !itm ) return;
 
     if ( itm->id() == 0 )
+    {
 	TrMgr().tr()->enable();
+	appl_.translate();
+    }
     else
     {
 	const int langidx = itm->id() - 1;
-	TrMgr().tr()->setToLanguage( TrMgr().tr()->getLanguageName(langidx) );
-	appl_.translate();
+	const char* lang = TrMgr().tr()->getLanguageName(langidx);
+	TrMgr().tr()->setToLanguage( lang );
 	for ( int idx=0; idx<langitems_.size(); idx++ )
 	    langitems_[idx]->setChecked( idx==langidx );
+	enabitm_->setEnabled( true );
+	Settings::common().set( "Translator.Language", lang );
+	Settings::common().write();
+	if ( TrMgr().tr()->enabled() )
+	    appl_.translate();
     }
 }
-
 
 
 mExternC const char* InitGoogleTranslatePlugin( int, char** )
