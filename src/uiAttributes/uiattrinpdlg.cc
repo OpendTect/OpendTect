@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.27 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.28 2010-09-27 12:10:55 cvsnanne Exp $";
 
 #include "uiattrinpdlg.h"
 
@@ -40,8 +40,6 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     , seisinpfld_(0)
     , steerinpfld_(0)
 {
-    ctio_.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
-    
     BufferString infotxt( "Provide input for the following attributes: " );
     uiLabel* infolbl = new uiLabel( this, infotxt );
 
@@ -57,7 +55,8 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 
     uiSeisSel::Setup sssu( is2d, false );
     sssu.seltxt( issteer ? "Input Steering cube" : "Input Seismics" );
-
+    sssu.steerpol( issteer ? uiSeisSel::Setup::OnlySteering
+			   : uiSeisSel::Setup::NoSteering );
     if ( issteer )
     {
 	steerinpfld_ = new uiSeisSel( this, ctiosteer_, sssu );
@@ -85,17 +84,17 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
     , seisinpfld_(0)
     , steerinpfld_(0)
 {
-    ctio_.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
-
     uiSeisSel::Setup sssu( is2d, false );
     if ( hasseis )
     {
+	sssu.steerpol( uiSeisSel::Setup::NoSteering );
 	sssu.seltxt( "Input Seismics" );
 	seisinpfld_ = new uiSeisSel( this, ctio_, sssu );
     }
 
     if ( hassteer )
     {
+	sssu.steerpol( uiSeisSel::Setup::OnlySteering );
 	sssu.seltxt( "Input Steering" );
 	steerinpfld_ = new uiSeisSel( this, ctiosteer_, sssu );
 	if ( hasseis )
