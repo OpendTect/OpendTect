@@ -2,31 +2,31 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Helene
- Date:          July 2007
+ Author:        Helene / Bruno
+ Date:          July 2007 / Sept 2010
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvllist.cc,v 1.3 2010-09-08 07:07:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvllist.cc,v 1.4 2010-09-27 11:05:19 cvsbruno Exp $";
 
 #include "uistratlvllist.h"
 
 #include "bufstringset.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "stratunitrepos.h"
+#include "stratlevel.h"
 #include "uistratutildlgs.h"
 
 static const char* sNoLevelTxt      = "--- Empty ---";
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
     : uiLabeledListBox(p,"Markers",false,uiLabeledListBox::AboveMid)
-    , unitrepos_(Strat::eUnRepo())
+    , levelset_(Strat::eLVLS())
 {
     box()->setStretch( 2, 2 );
     box()->setFieldWidth( 10 );
     box()->rightButtonClicked.notify( mCB(this,uiStratLvlList,rClickLvlCB));
-    unitrepos_.levelChanged.notify( mCB(this,uiStratLvlList,fill) );
+    levelset_.levelChanged.notify( mCB(this,uiStratLvlList,fill) );
 
     fill(0);
 }
@@ -34,7 +34,7 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
 
 uiStratLvlList::~uiStratLvlList()
 {
-    unitrepos_.levelChanged.remove( mCB(this,uiStratLvlList,fill) );
+    levelset_.levelChanged.remove( mCB(this,uiStratLvlList,fill) );
 }
 
 
@@ -55,7 +55,10 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
 	editLevel( mnuid ? false : true );
     else if ( mnuid == 2 )
     {
-	unitrepos_.removeLevel( box()->getText() );
+	const char* lvlnm = box()->getText();
+	if ( !levelset_.isPresent( lvlnm ) ) return;
+	const Strat::Level& lvl = *levelset_.get( lvlnm );
+	levelset_.remove( lvl.id() );
 	box()->removeItem( box()->currentItem() );
 	if ( box()->isEmpty() )
 	    box()->addItem( sNoLevelTxt );
@@ -66,7 +69,7 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
 	msg += "present in the list";
 	msg += ", do you want to continue ?";
 	if ( uiMSG().askGoOn(msg) )
-	    unitrepos_.removeAllLevels();
+	    levelset_.setEmpty();
     }
 }
 
@@ -76,7 +79,14 @@ void uiStratLvlList::fill( CallBacker* )
     box()->empty();
     BufferStringSet lvlnms;
     TypeSet<Color> lvlcolors;
-    unitrepos_.getLvlsPars( lvlnms, lvlcolors );
+
+    const Strat::LevelSet& lvls = Strat::LVLS();
+    for ( int idx=0; idx<lvls.size(); idx++ )
+    {
+	const Strat::Level& lvl = *lvls.levels()[idx];
+	lvlnms.add( lvl.name() );
+	lvlcolors += lvl.color();
+    }
     for ( int idx=0; idx<lvlnms.size(); idx++ )
 	box()->addItem( lvlnms[idx]->buf(), lvlcolors[idx] );
 
@@ -99,10 +109,11 @@ void uiStratLvlList::update( bool create )
     if ( create && box()->isPresent( sNoLevelTxt ) )
 	box()->removeItem( 0 );
 
-    BufferString lvlnm;
-    Color lvlcol;
     int lvlidx = create ? box()->size() : box()->currentItem();
-    unitrepos_.getLvlPars( lvlidx, lvlnm, lvlcol );
+    if ( lvlidx > levelset_.size() ) return;
+    const Strat::Level& lvl = *Strat::LVLS().levels()[lvlidx];
+    BufferString lvlnm( lvl.name() );
+    Color lvlcol = lvl.color();
     if ( create )
     {
 	box()->addItem( lvlnm, lvlcol );

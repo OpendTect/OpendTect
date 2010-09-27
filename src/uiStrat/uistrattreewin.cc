@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.51 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.52 2010-09-27 11:05:19 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.51 2010-09-07 16:03:06 cv
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "stratreftree.h"
 #include "uiparent.h"
 #include "uisplitter.h"
 #include "uistratreftree.h"
@@ -64,7 +65,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , newUnitSelected(this)
     , needsave_(false)
     , istreedisp_(false)	
-    , repos_(Strat::eUnRepo())
+    , repos_(*new Strat::RepositoryAccess())
 {
     IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
     IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
@@ -79,6 +80,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
 
 uiStratTreeWin::~uiStratTreeWin()
 {
+    delete &repos_;
 }
 
 
@@ -160,14 +162,20 @@ void uiStratTreeWin::createGroups()
     uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
     rightgrp->setStretch( 1, 1 );
 
-    uitree_ = new uiStratRefTree( leftgrp, repos_ );
+    Strat::RefTree* tree = new Strat::RefTree( eRT() );
+    uitree_ = new uiStratRefTree( leftgrp );
+    uitree_->setTree( *tree );
     CallBack selcb = mCB( this,uiStratTreeWin,unitSelCB );
     CallBack renmcb = mCB(this,uiStratTreeWin,unitRenamedCB);
     uitree_->listView()->selectionChanged.notify( selcb );
     uitree_->listView()->itemRenamed.notify( renmcb );
-    uitree_->listView()->display( istreedisp_ );
+    uitree_->listView()->display( false );
+
+    if ( !uitree_->haveTimes() )
+	uitree_->setEntranceDefaultTimes();
 
     uistratdisp_ = new uiStratDisplay( leftgrp, *uitree_ );
+    uistratdisp_->setTree( *tree );
     uistratdisp_->addControl( tb_ );
 
     uiStratLvlList* lvllist = new uiStratLvlList( rightgrp );
@@ -208,26 +216,28 @@ void uiStratTreeWin::editCB( CallBacker* )
 	    			: ioPixmap("readonly.png") );
     lockbut_->setToolTip( doedit ? mLockTxt(false) : mEditTxt(false) );
     lockbut_->setOn( !doedit );
-    if ( doedit )
-	repos_.createTmpTree( false );
 }
 
 
 void uiStratTreeWin::resetCB( CallBacker* )
 {
-    const Strat::RefTree* bcktree = repos_.getBackupTree();
+    Strat::RefTree* bcktree = new Strat::RefTree(); //for the time beeing...
     if ( !bcktree ) return;
     bool iseditmode = !strcmp( editmnuitem_->text(), mEditTxt(true) );
-    repos_.reset( iseditmode );
-    uitree_->setTree( bcktree, true );
+    uitree_->setTree( *bcktree, true );
     uitree_->expand( true );
 }
 
 
 void uiStratTreeWin::saveCB( CallBacker* )
 {
-    repos_.save();
-    needsave_ = false;
+    if ( uitree_->tree() )
+    {
+	repos_.writeTree( *uitree_->tree() );
+	needsave_ = false;
+    }
+    else
+	uiMSG().error( "Can not find tree" ); 
 }
 
 
@@ -260,7 +270,7 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
 	else if ( !strcmp( savetxt, infolvltrs[3] ) )
 	    src = Repos::ApplSetup;
 
-	repos_.saveAs( src );
+	repos_.writeTree( Strat::RT(), src );
     }
 }
 
@@ -277,43 +287,11 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
 }
 
 
-
-#define mErrRet(s) { uiMSG().error(s); return false; }
-class openDlg : public uiDialog
-{
-public:
-    openDlg( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Select Stratigraphy file","",mTODOHelpID))
-    {
-	fnmfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup("")
-				    .forread( true )
-				    .withexamine( true ) );
-    }
-
-    bool acceptOK(CallBacker*)
-    {
-	filenm_ = fnmfld_->fileName();
-	return true;
-    }
-
-    BufferString 	filenm_;
-
-protected:
-
-    uiFileInput*        fnmfld_;
-};
-
-
 void uiStratTreeWin::openCB( CallBacker* )
 {
     uiMSG().error( "Not Implemented yet" );
     return;
     //TODO
-    /*
-    openDlg dlg( this );
-    if ( dlg.go() )
-	uistratmgr_.openStratFile( dlg.filenm_ );
-    */
 }
 
 
@@ -326,16 +304,16 @@ void uiStratTreeWin::unitRenamedCB( CallBacker* )
 
 bool uiStratTreeWin::closeOK()
 {
-    if ( needsave_ || repos_.needSave() )
+    if ( needsave_ )
     {
 	int res = uiMSG().askSave( 
 			"Do you want to save this stratigraphic framework?" );
 	if ( res == 1 )
-	    repos_.save();
+	    saveCB( 0 );
 	else if ( res == 0 )
 	{
 	    resetCB( 0 );
-	    repos_.createTmpTree( true );
+	    //repos_.createTmpTree( true );
 	    return true;
 	}
 	else if ( res == -1 )
@@ -352,6 +330,7 @@ void uiStratTreeWin::forceCloseCB( CallBacker* )
     IOM().applicationClosing.remove( mCB(this,uiStratTreeWin,forceCloseCB ) );
     if ( stratwin )
 	stratwin->close();
+    delete uitree_;
     stratwin = 0;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.8 2010-09-07 16:03:06 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.9 2010-09-27 11:05:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,92 +24,83 @@ namespace Strat{ class UnitRef; class NodeUnitRef;
 class uiStratRefTree;
 class uiListViewItem;
 
-mClass AnnotData
+mClass StratDispData
 {
 public:
-			AnnotData() {};
-			~AnnotData() { eraseData(); };
+			StratDispData() {};
+			~StratDispData() { eraseData(); }
 
-    mStruct Annot
+    mStruct Unit
     {
-			Annot( const char* nm, float pos )
-			    : zpos_(pos)
-			    , name_(nm)
-			    , colidx_(0)
-			    , draw_(true)	
-			    {}
+			Unit(const char* nm,const Color& col)
+				: name_(nm)
+				, color_(col)
+				, isdisplayed_(true)		 
+				{}	 
 
-	float 		zpos_;
-	Color 		col_;
-	Color 		nmcol_;
-	BufferString	name_;
-	int		id_;
-	int 		colidx_;	
-	bool		draw_;
+	Interval<float>	zrg_;
+
+	const BufferString name_;
+	const Color	color_;
+	bool		isdisplayed_;
+	int		colidx_;
     };
 
-    mStruct Marker : public Annot
-    {
-			Marker( const char* nm, float pos )
-			    : Annot(nm,pos)
-			    , isdotted_(false)	
-			    {}
 
-	bool		isdotted_;
-    };
-
-    mStruct Unit : public Annot
-    {
-			Unit(const char* nm,float zpostop,float zposbot)
-			    : Annot(nm,zpostop)
-			    , zposbot_(zposbot)
-			    {}
-
-	float 		zposbot_;
-	BufferStringSet annots_;
-    };
-    
     mStruct Column 
     {
 			Column( const char* nm )
 			    : name_(nm)
-			    , iseditable_(true) 
-			    , isdisplayed_(true)	       	
-			    , isaux_(false)	       
+			    , isdisplayed_(true)
 			    {}
 
-	BufferString	name_;
-	bool		iseditable_;
+	const BufferString name_;
+	ObjectSet<Unit>	units_;
+
 	bool		isdisplayed_;
-	bool		isaux_;
-	ObjectSet<Marker> markers_;  
-	ObjectSet<Unit>	units_; 
     };
 
     void		eraseData() 
 			{ 
-			    for ( int idx=0; idx<columns_.size(); idx++ )
+			    for ( int idx=0; idx<cols_.size(); idx++ )
 			    {
-				deepErase( columns_[idx]->markers_ );
-				deepErase( columns_[idx]->units_ );
+				cols_[idx]->units_.erase();
 			    }
-			    deepErase( columns_ );
+			    cols_.erase();
 			}
-    const Column*	getCol( int idx ) const { return columns_[idx]; }
-    Column*		getCol( int idx ) 	{ return columns_[idx]; }
-    int			nrCols() const 		{ return columns_.size(); }
-    int			nrDisplayedCols() const
-			{
-			    int nrcols = 0;
-			    for ( int idx=0; idx<columns_.size(); idx++ )
-				nrcols += columns_[idx]->isdisplayed_ ? 1 : 0;
-			    return nrcols;
-			}    
-    void		addCol( Column* col) 	{ columns_ += col; }
-    
-protected:
 
-    ObjectSet<Column> 	columns_;  
+    void		addCol( Column* col )
+			    { cols_ += col; }
+    void		addUnit( int colidx, Unit* un )
+				    { cols_[colidx]->units_ += un; }
+
+    int 		nrCols() const 
+			    { return cols_.size(); }
+    int			nrUnits( int colidx ) const 
+			    { return cols_[colidx]->units_.size(); }
+    const Unit*		getUnit( int colidx, int uidx ) const 
+			    { return gtUnit( colidx, uidx ); }
+    Unit*		getUnit( int colidx, int uidx ) 
+			    { return gtUnit( colidx, uidx ); }
+    const Column*	getCol( int idx ) const 
+			    { return cols_[idx]; }
+    Column*		getCol( int idx ) 
+			    { return cols_[idx]; }
+
+    int 		nrDisplayedCols() const				
+			{
+			    int nr = 0;
+			    for ( int idx=0; idx<cols_.size(); idx++)
+				{ if ( cols_[idx]->isdisplayed_ ) nr++; }
+			    return nr;
+			}
+protected :
+
+    Unit*		gtUnit( int colidx, int uidx ) const 
+			    { return const_cast<Unit*>( 
+					    cols_[colidx]->units_[uidx] ); }
+
+    ObjectSet<Column> 	cols_;
 };
 
 
@@ -119,18 +110,18 @@ protected:
 mClass uiStratTreeToDispTransl : public CallBacker
 {
 public:
-	                        uiStratTreeToDispTransl(AnnotData&);
-	                        ~uiStratTreeToDispTransl();
+    			uiStratTreeToDispTransl(StratDispData&,Strat::RefTree&);
+			~uiStratTreeToDispTransl();
 
     Notifier<uiStratTreeToDispTransl> newtreeRead;
 
-    float		botzpos_;
-    int			botlvlid_;
-
 protected:
 
-    const Strat::UnitRepository& unitrepos_;
-    AnnotData& 		data_;
+    StratDispData& 	data_;
+    Strat::RefTree&	tree_;
+
+    bool 		withauxs_;
+    bool 		withlevels_;
 
     void		addUnits(const Strat::NodeUnitRef&,int);
     void		addUnit(const Strat::UnitRef&,int);
@@ -148,17 +139,17 @@ protected:
 mClass uiStratDispToTreeTransl : public CallBacker
 {
 public:
-	                        uiStratDispToTreeTransl(uiStratRefTree&);
-	                        ~uiStratDispToTreeTransl(){};
+    			uiStratDispToTreeTransl(uiStratRefTree&);
+	                ~uiStratDispToTreeTransl(){};
 
-    uiListViewItem*		getItemFromTree(const char*);
-    void			handleUnitMenu(const char*);
-    void			handleUnitLvlMenu(int);
-    void 			fillUndef(CallBacker*);
+    uiListViewItem*	getItemFromTree(const char*);
+
+    void		handleUnitMenu(const char*);
+    void		handleUnitLvlMenu(const char*);
 
 protected:
 
-    uiStratRefTree&     	uitree_;
+    uiStratRefTree&     uitree_;
 };
 
 #endif

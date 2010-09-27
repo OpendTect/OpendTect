@@ -7,14 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.30 2010-09-08 13:27:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.31 2010-09-27 11:05:19 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
 #include "iopar.h"
 #include "randcolor.h"
 #include "stratlith.h"
-#include "stratunitrepos.h"
+#include "stratlevel.h"
+#include "stratreftree.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uicolor.h"
@@ -31,7 +32,7 @@ static const char* sNoLithoTxt      = "---None---";
 static const char* sNoLevelTxt      = "--Undefined--";
 
 #define mErrRet(msg,act) uiMSG().error(msg); act;
-uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::UnitRef& unit ) 
+uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit ) 
     : uiDialog(p,uiDialog::Setup("Stratigraphic Unit Editor",
 				 "Edit the unit properties",
 				 "110.0.1"))
@@ -41,29 +42,73 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::UnitRef& unit )
     unitnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
     unitdescfld_ = new uiGenInput( this, "Description", StringInpSpec() );
     unitdescfld_->attach( alignedBelow, unitnmfld_ );
-    unitlithfld_ = new uiGenInput( this, "Lithology", StringInpSpec() );
-    unitlithfld_->attach( alignedBelow, unitdescfld_ );
-    CallBack cb = mCB(this,uiStratUnitEditDlg,selLithCB);
-    uiPushButton* sellithbut = new uiPushButton( this, "&Select", cb, false );
-    sellithbut->attach( rightTo, unitlithfld_ );
+
     colfld_ = new uiColorInput( this,
 			           uiColorInput::Setup(getRandStdDrawColor() ).
 				   lbltxt("Color") );
     colfld_->attach( alignedBelow, unitdescfld_ );
-    colfld_->attach( ensureBelow, sellithbut );
+
+    unitlithfld_ = new uiGenInput( this, "Lithology", StringInpSpec() );
+    unitlithfld_->attach( alignedBelow, colfld_ );
+    CallBack cb = mCB(this,uiStratUnitEditDlg,selLithCB);
+    uiPushButton* sellithbut = new uiPushButton( this, "&Select", cb, false );
+    sellithbut->attach( rightTo, unitlithfld_ );
+    unitlithfld_->setSensitive( unit_.isLeaved() );
+    sellithbut->setSensitive( unit_.isLeaved() );
 
     uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this, "Time range (My)" );
     agestartfld_ = lblbox1->box();
-    agestartfld_->setInterval( unit_.timeRange() );
-    lblbox1->attach( ensureBelow, colfld_ );
+    agestartfld_->setInterval( unit.timeRange() );
     lblbox1->attach( alignedBelow, unitlithfld_ );
     
     uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox( this, "" );
     agestopfld_ = lblbox2->box();
-    agestopfld_->setInterval( unit_.timeRange() );
+    agestopfld_->setInterval( unit.timeRange() );
     lblbox2->attach( rightOf, lblbox1 );
 
     putToScreen();
+}
+
+
+void uiStratUnitEditDlg::putToScreen()
+{
+    unitnmfld_->setText( unit_.code() );
+    unitdescfld_->setText( unit_.description() );
+    colfld_->setColor( unit_.color() );
+    unitlithfld_->setText( lithnm_.buf() );
+    agestartfld_->setValue( unit_.timeRange().start );
+    agestopfld_->setValue( unit_.timeRange().stop );
+}
+
+
+
+void uiStratUnitEditDlg::getFromScreen()
+{
+    unit_.setCode( unitnmfld_->text() );
+    unit_.setDescription( unitdescfld_->text() );
+    unit_.setColor( colfld_->color() );
+
+    const char* txt = unitlithfld_->text();
+    lithnm_ = !strcmp( txt, sNoLithoTxt ) ? 0 : txt;
+
+    Interval<float> rg( agestartfld_->getValue(), agestopfld_->getValue() );
+    unit_.setTimeRange( rg );
+}
+
+
+bool uiStratUnitEditDlg::acceptOK( CallBacker* )
+{
+    if ( !strcmp( unitnmfld_->text(), "" ) )
+	{ mErrRet( "Please specify the unit name", return false ) }
+
+    BufferString namemsg( "Unit name already used. Please specify a new name" );
+    if ( strcmp(unitnmfld_->text(),entrancename_.buf()) )
+    {
+	if ( Strat::eRT().find(unitnmfld_->text()) )
+	    { mErrRet( namemsg, return false ) }
+    }
+    getFromScreen();
+    return true;
 }
 
 
@@ -78,61 +123,11 @@ void uiStratUnitEditDlg::selLithCB( CallBacker* )
 } 
 
 
-void uiStratUnitEditDlg::putToScreen()
-{
-    unitnmfld_->setText( unit_.code() );
-    unitdescfld_->setText( unit_.description() );
-    unitlithfld_->setText( lithnm_.buf() );
-    unitlithfld_->setSensitive( unit_.isLeaf() );
-
-    IOPar iop; unit_.putTo( iop );
-    Color col; iop.get( sKey::Color, col );
-    Interval<float> timerg; iop.get( sKey::Time, timerg );
-    colfld_->setColor( col );
-    agestartfld_->setValue( timerg.start );
-    agestopfld_->setValue( timerg.stop );
-}
-
-
-
-void uiStratUnitEditDlg::getFromScreen()
-{
-    unit_.setCode( unitnmfld_->text() );
-    unit_.setDescription( unitdescfld_->text() );
-    const char* txt = unitlithfld_->text();
-    lithnm_ = !strcmp( txt, sNoLithoTxt ) ? 0 : txt;
-
-    IOPar iop; iop.set( sKey::Color, colfld_->color() );
-    Interval<float> rg( agestartfld_->getValue(), agestopfld_->getValue() );
-    iop.set( sKey::Time, rg);
-    unit_.getFrom( iop );
-}
-
-
-bool uiStratUnitEditDlg::acceptOK( CallBacker* )
-{
-    if ( agestartfld_->getValue() >= agestopfld_->getValue() )
-	{ mErrRet( "Please specify a valid time range", return false ) }
-    if ( !strcmp( unitnmfld_->text(), "" ) )
-	{ mErrRet( "Please specify the unit name", return false ) }
-
-    BufferString namemsg( "Unit name already used. Please specify a new name" );
-    if ( strcmp(unitnmfld_->text(),entrancename_.buf()) )
-    {
-	if ( !Strat::UnRepo().isNewUnitName(unitnmfld_->text()) )
-	    { mErrRet( namemsg, return false ) }
-    }
-
-    getFromScreen();
-
-    return true;
-}
-
 
 
 uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Select Lithology",mNoDlgTitle,"110.0.4"))
-    , stratrepos_(Strat::eUnRepo())
+    , lithos_(Strat::eRT().lithologies())  
     , prevlith_(0)
     , nmfld_(0)
 {
@@ -154,12 +149,12 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     sep->attach( heightSameAs, selfld_ );
     rightgrp->attach( rightTo, sep );
 
-    uiButton* renamebut = new uiPushButton( this, "Re&name selected",
-				    mCB(this,uiStratLithoDlg,renameCB), true );
-    renamebut->attach( alignedBelow, rightgrp );
+    uiButton* renamebut = new uiPushButton( rightgrp, "Re&name selected",
+			    mCB(this,uiStratLithoDlg,renameCB), true );
+    renamebut->attach( alignedBelow, newlithbut );
 
-    uiButton* rmbut = new uiPushButton( this, "&Remove selected",
-	    				mCB(this,uiStratLithoDlg,rmSel), true );
+    uiButton* rmbut = new uiPushButton( rightgrp, "&Remove Last",
+				    mCB(this,uiStratLithoDlg,rmLast), true );
     rmbut->attach( alignedBelow, renamebut );
 
     finaliseDone.notify( cb );
@@ -170,25 +165,30 @@ void uiStratLithoDlg::fillLiths()
 {
     BufferStringSet nms;
     nms.add( sNoLithoTxt );
-    stratrepos_.getLithoNames( nms );
+    for ( int idx=0; idx<lithos_.size(); idx++ )
+	nms.add( lithos_.getLith( idx ).name() );
     selfld_->empty();
     selfld_->addItems( nms );
 }
     
-
 
 void uiStratLithoDlg::newLith( CallBacker* )
 {
     const BufferString nm( nmfld_->text() );
     if ( nm.isEmpty() ) return;
 
-    if ( selfld_->isPresent( nm ) )
+    if ( selfld_->isPresent( nm ) || lithos_.isPresent( nm.buf() ) )
 	{ mErrRet( "Please specify a new, unique name", return ) }
 
-    const Strat::Lithology* lith =
-		    stratrepos_.createNewLith( nm, isporbox_->isChecked() );
-    if ( !lith ) lith = &Strat::Lithology::undef();
-    prevlith_ = const_cast<Strat::Lithology*>( lith );
+    const int lithid = selfld_->size();
+    const bool isporous = isporbox_->isChecked();
+    Strat::Lithology* newlith = new Strat::Lithology(lithid,nm.buf(),isporous);
+
+    const char* lithfailedmsg = lithos_.add( newlith );
+    if ( lithfailedmsg )
+	{ mErrRet( lithfailedmsg, return; ) } 
+
+    prevlith_ = const_cast<Strat::Lithology*>( &Strat::Lithology::undef() );
 
     selfld_->addItem( nm );
     selfld_->setCurrentItem( nm );
@@ -202,17 +202,17 @@ void uiStratLithoDlg::selChg( CallBacker* )
     if ( prevlith_ )
     {
 	const bool newpor = isporbox_->isChecked();
-	if ( newpor != prevlith_->porous_ && !prevlith_->isUdf() )
+	if ( newpor != prevlith_->porous() && !prevlith_->isUdf() )
 	{
-	    prevlith_->porous_ = isporbox_->isChecked();
-	    stratrepos_.lithoChanged.trigger();
+	    prevlith_->porous() = isporbox_->isChecked();
+	    lithos_.reportAnyChange();
 	}
     }
     const BufferString nm( selfld_->getText() );
-    const Strat::Lithology* lith = stratrepos_.getLith( nm );
+    const Strat::Lithology* lith = lithos_.get( nm );
     if ( !lith ) lith = &Strat::Lithology::undef();
     nmfld_->setText( lith->name() );
-    isporbox_->setChecked( lith->porous_ );
+    isporbox_->setChecked( lith->porous() );
     prevlith_ = const_cast<Strat::Lithology*>( lith );
 }
 
@@ -220,39 +220,30 @@ void uiStratLithoDlg::selChg( CallBacker* )
 void uiStratLithoDlg::renameCB( CallBacker* )
 {
     Strat::Lithology* lith = const_cast<Strat::Lithology*>(
-			 stratrepos_.getLith( selfld_->getText() ) );
+					 lithos_.get( selfld_->getText() ) );
     if ( !lith || lith->isUdf() ) return;
 
     lith->setName( nmfld_->text() );
     selfld_->setItemText( selfld_->currentItem(), nmfld_->text() );
-    stratrepos_.lithoChanged.trigger();
+    lithos_.reportAnyChange();
     prevlith_ = lith;
 }
 
 
-void uiStratLithoDlg::rmSel( CallBacker* )
+void uiStratLithoDlg::rmLast( CallBacker* )
 {
-    int selidx = selfld_->currentItem();
+    int selidx = selfld_->size()-1;
     if ( selidx < 0 ) return;
 
-    const Strat::Lithology* lith =
-		 stratrepos_.getLith( selfld_->textOfItem(selidx) );
+    const Strat::Lithology* lith = lithos_.get( selfld_->textOfItem(selidx) );
     if ( !lith || lith->isUdf() ) return;
 
     prevlith_ = 0;
-    stratrepos_.deleteLith( lith->id_ );
+    delete lithos_.lithologies().remove( lithos_.indexOf( lith->id() ) );
     fillLiths();
 
-    if ( selidx >= selfld_->size() )
-	selidx = selfld_->size() - 1;
-
-    if ( selidx < 0 )
-	nmfld_->setText( "" );
-    else
-    {
-	selfld_->setCurrentItem( selidx );
-	selChg( 0 );
-    }
+    selfld_->setCurrentItem( selidx-1 );
+    selChg( 0 );
 }
 
 
@@ -265,7 +256,7 @@ const char* uiStratLithoDlg::getLithName() const
 
 void uiStratLithoDlg::setSelectedLith( const char* lithnm )
 {
-    const Strat::Lithology* lith = stratrepos_.getLith( lithnm );
+    const Strat::Lithology* lith = lithos_.get( lithnm );
     if ( !lith ) return;
     selfld_->setCurrentItem( lithnm );
 }
@@ -292,7 +283,7 @@ uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
 void uiStratLevelDlg::setLvlInfo( const char* lvlnm )
 {
     Color lvlcol;
-    if ( !lvlnm || !*lvlnm || !Strat::UnRepo().getLvlPars(lvlnm,lvlcol) )
+    if ( !Strat::LVLS().isPresent(lvlnm) )
 	return;
 
     lvlnmfld_->setText( lvlnm );
@@ -305,7 +296,9 @@ bool uiStratLevelDlg::acceptOK( CallBacker* )
 {
     BufferString newlvlnm = lvlnmfld_->text();
     Color newlvlcol = lvlcolfld_->color();
-    Strat::eUnRepo().setLvlPars( oldlvlnm_, newlvlnm, newlvlcol );
+    if ( !Strat::LVLS().isPresent(newlvlnm) ) 
+	{ uiMSG().error( "can not find level" ); return false; }
+    Strat::eLVLS().get( newlvlnm )->setColor( newlvlcol );
     return true;
 }
 
@@ -362,7 +355,7 @@ void uiStratUnitDivideDlg::mouseClick( CallBacker* )
 
 void uiStratUnitDivideDlg::resetUnits( CallBacker* cb ) 
 {
-    Interval<float> timerg = parentunit_.timeRange();
+    Interval<float> timerg; // = parentunit_.timeRange();
     ObjectSet<Strat::UnitRef> units;
     gatherUnits( units );
     const int nrrows = table_->nrRows();
@@ -380,11 +373,7 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
        	rg.set( timerg.start + (float)idx*timerg.width()/(nrrows),
 	        timerg.start + (float)(idx+1)*timerg.width()/(nrrows) );
 	table_->setRowReadOnly( idx, false );
-	IOPar iop;  
 	Color col = getRandStdDrawColor();
-	iop.set( sKey::Color, col ); 
-	iop.set( sKey::Time, rg ); 
-	unit.getFrom( iop ); 
 	setUnit( idx, unit );
     }
     deepErase( units );
@@ -396,10 +385,9 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 void uiStratUnitDivideDlg::setUnit( int irow, const Strat::UnitRef& unit ) 
 {
     table_->setText( RowCol(irow,cNameCol), unit.code() );
-    table_->setValue( RowCol(irow,cStartCol), unit.timeRange().start );
-    table_->setValue( RowCol(irow,cStopCol), unit.timeRange().stop );
-    IOPar iop; unit.putTo( iop ); Color col; iop.get( sKey::Color, col ); 
-    table_->setColor( RowCol(irow,cColorCol), col );
+    //table_->setValue( RowCol(irow,cStartCol), unit.timeRange().start );
+    //table_->setValue( RowCol(irow,cStopCol), unit.timeRange().stop );
+    table_->setColor( RowCol(irow,cColorCol), unit.color() );
 }
 
 
@@ -409,13 +397,12 @@ void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::UnitRef>& units )
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	const char* code = table_->text( RowCol(idx,cNameCol) );
-	Strat::UnitRef* un = (Strat::UnitRef*)new Strat::LeafUnitRef( 0, code );
+	Strat::UnitRef* un = new Strat::LeavedUnitRef( 0, code );
 	IOPar iop; 
 	iop.set( sKey::Color, table_->getColor( RowCol(idx,cColorCol) ) );
 	iop.set( sKey::Time, 
 		Interval<float>(table_->getfValue( RowCol(idx,cStartCol) ),
 			        table_->getfValue( RowCol(idx,cStopCol) ) ) );
-	un->getFrom( iop );
 	units += un;
     }
 }
@@ -425,6 +412,8 @@ bool uiStratUnitDivideDlg::areTimesOK( ObjectSet<Strat::UnitRef>& units ) const
 {
     if ( units.size() > 1 )
 	return true;
+    //TODO
+    /*
     for ( int idx=0; idx<units.size()-1; idx++ )
     {
 	const Strat::UnitRef& curunit = *units[idx];
@@ -435,6 +424,8 @@ bool uiStratUnitDivideDlg::areTimesOK( ObjectSet<Strat::UnitRef>& units ) const
 	    return false;
     }
     return ( units[0]->timeRange().width() >= 1 );
+    */
+    return false;
 }
 
 
@@ -453,7 +444,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	}
 	if ( errmsg.isEmpty() && strcmp( code.buf(), parentunit_.code() ) )
 	{
-	    if ( !Strat::UnRepo().isNewUnitName(units[idx]->code()) ) 
+	    if ( Strat::eRT().find( code ) )
 		errmsg += "Unit name already used. ";
 	}
 	bfs.addIfNew( code );
@@ -477,7 +468,8 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 
 
 
-uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, Strat::UnitRef* ur ) 
+uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, 
+						Strat::LeavedUnitRef* ur ) 
     : uiDialog(p,uiDialog::Setup("Link markers and stratigraphic unit boundary",
 		mNoDlgTitle,"110.0.3"))
     , lvlid_(-1)		
@@ -486,9 +478,15 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, Strat::UnitRef* ur )
     BufferStringSet lvlnms;
     lvlnms.add( sNoLevelTxt );
     TypeSet<Color> colors;
-    lvlid_ = ur ? ur->getLvlID() : Strat::UnRepo().botLvlID();
+    lvlid_ = ur->levelID();
 
-    Strat::UnRepo().getLvlsPars( lvlnms, colors, &ids_ );
+    const Strat::LevelSet& lvls = Strat::LVLS();
+    for ( int idx=0; idx<lvls.size(); idx++ )
+    {
+	const Strat::Level& lvl = *lvls.levels()[idx];
+	lvlnms.add( lvl.name() );
+	colors += lvl.color();
+    }
     BufferString bs = "Select marker";
     lvllistfld_ = new uiGenInput( this, bs, StringListInpSpec( lvlnms ) );
     if ( lvlid_ >=0 )
@@ -501,10 +499,8 @@ bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
     const int lvlidx = lvllistfld_->getIntValue()-1;
     lvlid_ = lvlidx >=0 ? ids_[lvlidx] : -1;
     if ( unit_ ) 
-	unit_->setLvlID( lvlid_ );
-    else
-	Strat::eUnRepo().setBotLvlID( lvlid_);
+	unit_->setLevelID( lvlid_ );
 
-    Strat::eUnRepo().levelChanged.trigger();
+    Strat::eLVLS().levelChanged.trigger();
     return true;
 }

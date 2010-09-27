@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.19 2010-09-07 16:03:06 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.20 2010-09-27 11:05:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,38 +24,44 @@ class uiCheckBox;
 class uiStratMgr;
 class uiSpinBox;
 class uiTable;
-namespace Strat { class Lithology; class UnitRepository; }
+namespace Strat { class Lithology; class LithologySet; }
 
 /*!\brief Displays a dialog to create/edit a new stratigraphic unit */
+
 
 mClass uiStratUnitEditDlg : public uiDialog
 {
 public:
-			uiStratUnitEditDlg(uiParent*,Strat::UnitRef&);
+			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
+
+    void 		setLithology(const BufferString& lith) 	
+    					{ lithnm_ = lith; }
 
     BufferString& 	getLithology() 	{ return lithnm_; }
-    void 		setLithology(const BufferString& lith) 	
-    			{ lithnm_ = lith; }
 
 protected:
 
+    Strat::NodeUnitRef& unit()		{ return unit_; }
+
     uiGenInput*		unitnmfld_;
     uiGenInput*		unitdescfld_;
+    uiColorInput*	colfld_;
     uiGenInput*		unitlithfld_;
     uiSpinBox*		agestartfld_;
     uiSpinBox*		agestopfld_;
-    uiColorInput*	colfld_;
     
-    Strat::UnitRef& 	unit_;
+    Strat::NodeUnitRef& unit_;
+
     BufferString	entrancename_;
     BufferString	lithnm_;
 
     void		getFromScreen();
     void		putToScreen();
 
-    void		selLithCB(CallBacker*);
     bool		acceptOK(CallBacker*);
+    void		selLithCB(CallBacker*);
 };
+
 
 
 /*!\brief Displays a Table to create new units from an existing one */
@@ -101,12 +107,12 @@ protected:
     uiCheckBox*		isporbox_;
 
     Strat::Lithology*	prevlith_;
-    Strat::UnitRepository& stratrepos_;
+    Strat::LithologySet& lithos_;
 
     void		fillLiths();
     void		newLith(CallBacker*);
     void		selChg(CallBacker*);
-    void		rmSel(CallBacker*);
+    void		rmLast(CallBacker*);
     void		renameCB(CallBacker*);
 
     bool		acceptOK(CallBacker*);
@@ -136,13 +142,13 @@ mClass uiStratLinkLvlUnitDlg : public uiDialog
 {
 public:
 
-    			uiStratLinkLvlUnitDlg(uiParent*,Strat::UnitRef*);
+    			uiStratLinkLvlUnitDlg(uiParent*,Strat::LeavedUnitRef*);
 
     int 		lvlid_;
 
 protected:
 
-    Strat::UnitRef*	unit_;
+    Strat::LeavedUnitRef*	unit_;
 
     uiGenInput*         lvllistfld_;
     TypeSet<int>	ids_;

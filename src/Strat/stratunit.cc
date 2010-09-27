@@ -4,10 +4,12 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.28 2010-09-27 09:59:47 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.29 2010-09-27 11:05:19 cvsbruno Exp $";
 
 #include "stratunitref.h"
+#include "stratreftree.h"
 #include "stratlith.h"
+#include "stratunitrefiter.h"
 #include "property.h"
 #include "propertyref.h"
 #include "separstr.h"
@@ -17,141 +19,73 @@ static const char* rcsID = "$Id: stratunit.cc,v 1.28 2010-09-27 09:59:47 cvsbert
 #include "randcolor.h"
 
 
-const char* Strat::UnitRef::sKeyLevel() { return "Level"; }
+//class  UnitRef
 
-
-const Strat::Lithology& Strat::Lithology::undef()
+Strat::UnitRef::UnitRef( NodeUnitRef* up, const char* uc, const char* d )
+    : upnode_(up)
+    , code_(uc)
+    , desc_(d)
+    , changed(this)
+    , toBeDeleted(this)
 {
-    static Strat::Lithology* udf = 0;
-    if ( !udf )
-	udf = new Strat::Lithology( "Undefined" );
-    return *udf;
-}
-
-
-const Strat::LeafUnitRef& Strat::LeafUnitRef::undef()
-{
-    static Strat::LeafUnitRef* udf = 0;
-    if ( !udf )
-	udf = new Strat::LeafUnitRef( 0, "undef", Strat::Lithology::undef().id_,
-				      "Undefined" );
-    return *udf;
-}
-
-
-const Strat::NodeUnitRef& Strat::NodeUnitRef::undef()
-{
-    static Strat::NodeUnitRef* udf = 0;
-    if ( !udf )
-	udf = new Strat::NodeUnitRef( 0, "undef", "Undefined" );
-    return *udf;
-}
-
-
-Strat::Lithology& Strat::Lithology::operator =( const Strat::Lithology& l )
-{
-    if ( this != &l )
-    {
-	setName( l.name() );
-	id_ = l.id_;
-	porous_ = l.porous_;
-	src_ = l.src_;
-    }
-    return *this;
-}
-
-
-void Strat::Lithology::fill( BufferString& str ) const
-{
-    FileMultiString fms;
-    fms += name();
-    fms += id_;
-    fms += porous_ ? "P" : "N";
-    str = fms;
-}
-
-
-bool Strat::Lithology::use( const char* str )
-{
-    FileMultiString fms( str );
-    const int sz = fms.size();
-    if ( sz < 2 ) return false;
-
-    setName( fms[0] );
-    id_ = atoi( fms[1] );
-    porous_ = sz > 2 ? *fms[2] == 'P' : false;
-
-    return true;
-}
-
-
-Strat::UnitRef::ID Strat::UnitRef::getNewID() const
-{
-    static Strat::UnitRef::ID curid = 1;
-    return curid++;
 }
 
 
 Strat::UnitRef::~UnitRef()
 {
-    deepErase( properties_ );
+    notifChange( true );
 }
 
 
-void Strat::UnitRef::fill( BufferString& str ) const
+int Strat::UnitRef::treeDepth() const
 {
-    str = desc_;
+    return upnode_ ? upnode_->treeDepth() + 1 : 0;
 }
 
 
-void Strat::UnitRef::putTo( IOPar& iop ) const
-{
-    iop.set( sKey::Time, timerg_ );
-    iop.set( sKey::Color, color_ );
-    iop.set( sKeyLevel(), lvlid_ );
-}
-
-
-void Strat::UnitRef::getFrom( const IOPar& iop )
-{
-    iop.get( sKey::Time, timerg_ );
-    iop.get( sKey::Color, color_ );
-    iop.get( sKeyLevel(), lvlid_ );
-}
-
-
-void Strat::UnitRef::copyParFrom( const Strat::UnitRef& unit )
-{
-    IOPar iop; 
-    unit.putTo( iop ); 
-    getFrom( iop ); 
-}
-
-
-bool Strat::UnitRef::use( const char* str )
-{
-    desc_ = str;
-    return true;
-}
-
-
-void Strat::LeafUnitRef::fill( BufferString& str ) const
+void Strat::UnitRef::doFill( BufferString& str, int id ) const
 {
     FileMultiString fms;
-    fms += lith_; fms += desc_;
+    if ( !mIsUdf(id) )
+	fms += id;
+    fms += desc_;
     str = fms;
 }
 
 
-bool Strat::LeafUnitRef::use( const char* str )
+void Strat::UnitRef::doUse( const char* str, int* id )
 {
     FileMultiString fms( str );
     const int sz = fms.size();
-    if ( sz < 2 ) return false;
+    int nr = 0;
+    if ( sz > 1 )
+    {
+	if ( id )
+	    *id = atoi( fms[nr] );
+	nr++;
+    }
+    desc_ = fms[nr];
+}
 
-    lith_ = atoi( fms[0] );
-    desc_ = fms[1];
-    return true;
+
+void Strat::UnitRef::getPropsFrom( const IOPar& iop )
+{
+    pars_ = iop;
+    pars_.setName( "Properties" );
+    iop.get( sKey::Color, color_ );
+    pars_.removeWithKey( sKey::Color );
+    pars_.removeWithKey( "Level" ); // legacy
+}
+
+
+void Strat::UnitRef::putPropsTo( IOPar& iop ) const
+{
+    iop = pars_;
+    BufferString nm( sKeyPropsFor() );
+    nm += this == topNode() ? sKeyTreeProps() : fullCode().buf();
+    iop.setName( nm );
+    iop.set( sKey::Color, color_ );
+    iop.merge( pars_ );
 }
 
 
@@ -184,13 +118,13 @@ bool Strat::UnitRef::isBelow( const Strat::UnitRef* un ) const
 }
 
 
-bool Strat::UnitRef::precedes( const UnitRef& ur ) const
+bool Strat::UnitRef::precedes( const UnitRef& un ) const
 {
-    Iter it( *topNode() );
+    UnitRefIter it( *topNode() );
     do
     {
 	if ( it.unit() == this ) return true;
-	if ( it.unit() == &ur ) return false;
+	if ( it.unit() == &un ) return false;
     }
     while ( it.next() );
 
@@ -199,15 +133,41 @@ bool Strat::UnitRef::precedes( const UnitRef& ur ) const
 }
 
 
-Property* Strat::UnitRef::gtProp( const PropertyRef* pr ) const
+Strat::RefTree& Strat::UnitRef::refTree()
 {
-    if ( !pr ) return 0;
-    for ( int idx=0; idx<properties_.size(); idx++ )
-    {
-	if ( properties_[idx]->ref() == *pr )
-	    return const_cast<Property*>( properties_[idx] );
-    }
-    return 0;
+    return *((Strat::RefTree*)topNode());
+}
+
+
+const Strat::RefTree& Strat::UnitRef::refTree() const
+{
+    return *((Strat::RefTree*)topNode());
+}
+
+
+void Strat::UnitRef::setColor( Color c )
+{
+    if ( c != color_ )
+	{ color_ = c; notifChange(); }
+}
+
+
+void Strat::UnitRef::notifChange( bool isrem )
+{
+    (isrem ? toBeDeleted : changed).trigger();
+    RefTree& rt = refTree();
+    if ( &rt != this )
+	rt.reportChange( this, isrem );
+}
+
+
+//class NodeUnitRef
+
+
+Strat::NodeUnitRef::NodeUnitRef( NodeUnitRef* up, const char* c, const char* d )
+    : UnitRef(up,c,d)
+    , timerg_(mUdf(float),0)
+{
 }
 
 
@@ -217,10 +177,59 @@ Strat::NodeUnitRef::~NodeUnitRef()
 }
 
 
+void Strat::NodeUnitRef::getPropsFrom( const IOPar& iop )
+{
+    UnitRef::getPropsFrom( iop );
+    iop.get( sKey::Time, timerg_ );
+    pars_.removeWithKey( sKey::Time );
+}
+
+
+void Strat::NodeUnitRef::putPropsTo( IOPar& iop ) const
+{
+    UnitRef::putPropsTo( iop );
+    iop.set( sKey::Time, timerg_ );
+}
+
+
+void Strat::NodeUnitRef::setTimeRange( const Interval<float>& rg )
+{
+    const bool oldudf = mIsUdf(timerg_.start);
+    const bool newudf = mIsUdf(rg.start);
+    bool ischgd = oldudf != newudf;
+    if ( !ischgd && !oldudf )
+	ischgd = timerg_.start != rg.start || timerg_.stop != rg.stop;
+    if ( !ischgd ) return;
+
+    timerg_ = rg;
+    notifChange();
+}
+
+
+void Strat::NodeUnitRef::incTimeRange( const Interval<float>& rg )
+{
+    if ( mIsUdf(timerg_.start) )
+	setTimeRange( rg );
+    else
+    {
+	Interval<float> newrg( timerg_ );
+	newrg.include( rg );
+	setTimeRange( newrg );
+    }
+}
+
+
+void Strat::NodeUnitRef::swapChildren( int idx1, int idx2 )
+{
+    if ( idx1 == idx2 ) return;
+    refs_.swap( idx1, idx2 ); notifChange();
+}
+
+
 Strat::UnitRef* Strat::NodeUnitRef::fnd( const char* unitkey ) const
 {
     if ( !unitkey || !*unitkey )
-	return code().isEmpty() ? (Strat::UnitRef*)this : 0;
+	return code().isEmpty() ? const_cast<Strat::NodeUnitRef*>(this) : 0;
 
     CompoundKey ck( unitkey );
     const BufferString codelvl1( ck.key(0) );
@@ -244,97 +253,82 @@ Strat::UnitRef* Strat::NodeUnitRef::fnd( const char* unitkey ) const
 }
 
 
-void Strat::NodeUnitRef::add( UnitRef* ur, bool rev )
+bool Strat::NodeUnitRef::add( UnitRef* un, bool rev )
 {
+    if ( !un || hasLeaves() != un->isLeaf() )
+	return false;
+
     if ( rev )
-	refs_.insertAt( ur, 0 );
+	refs_.insertAt( un, 0 );
     else
-	refs_ += ur;
+	refs_ += un;
+
+    refTree().reportAdd( un );
+    return true;
 }
 
 
-Strat::UnitRef::Iter::Iter( const NodeUnitRef& ur, Pol p )
-	: itnode_(const_cast<NodeUnitRef*>(&ur))
-    	, pol_(p)
+Strat::UnitRef* Strat::NodeUnitRef::replace( int unidx, Strat::UnitRef* un )
 {
-    reset();
+    if ( !un || hasLeaves() != un->isLeaf() )
+	return false;
+
+    UnitRef* oldun = refs_.replace( unidx, un );
+    refTree().reportAdd( un );
+    return oldun;
 }
 
 
-void Strat::UnitRef::Iter::reset()
+void Strat::NodeUnitRef::takeChildrenFrom( Strat::NodeUnitRef* un )
 {
-    curidx_ = -1;
-    curnode_ = itnode_;
-    next();
+    if ( !un ) return;
+    refs_ = un->refs_; un->refs_.erase();
+    for ( int idx=0; idx<refs_.size(); idx++ )
+	refs_[idx]->upnode_ = this;
 }
 
 
-Strat::UnitRef* Strat::UnitRef::Iter::gtUnit() const
+int Strat::NodeUnitRef::nrLeaves() const
 {
-    const Strat::UnitRef* ret = curnode_;
-    if ( curnode_ && curidx_ >= 0 )
-	ret = &curnode_->ref( curidx_ );
-
-    return const_cast<Strat::UnitRef*>( ret );
+    UnitRefIter it( *this, UnitRefIter::Leaves );
+    int nr = 0;
+    while ( it.next() ) nr++;
+    return nr;
 }
 
 
-bool Strat::UnitRef::Iter::next()
-{
-    while ( toNext() )
-    {
-	if ( pol_ == All )
-	    return true;
-	const UnitRef* curun = unit();
-	if ( (pol_ == Nodes && !curun->isLeaf())
-	  || (pol_ == Leaves && curun->isLeaf()) )
-	    return true;
-    }
+//class LeavedUnitRef
 
-    return false;
+
+void Strat::LeavedUnitRef::setLevelID( Strat::Level::ID lid )
+{
+    if ( lid != levelid_ )
+	{ levelid_ = lid; notifChange(); }
 }
 
 
-bool Strat::UnitRef::Iter::toNext()
+//class LeafUnitRef
+
+
+const Strat::LeafUnitRef& Strat::LeafUnitRef::undef()
 {
-    if ( !curnode_ ) return false; // At end
+    static Strat::LeafUnitRef* udf = 0;
+    if ( !udf )
+	udf = new Strat::LeafUnitRef( 0, "undef",
+			      Strat::Lithology::undef().id(), "Undefined" );
+    return *udf;
+}
 
-    // First see if we can simply take next ref or go down
-    UnitRef* curun = gtUnit();
-    if ( curun->isLeaf() )
-    {
-	if ( curidx_ < curnode_->nrRefs() - 1 )
-	    { curidx_++; return true; }
-    }
-    else
-    {
-	if ( curun != curnode_ )
-	{
-	    curnode_ = (NodeUnitRef*)curun;
-	    if ( curnode_->nrRefs() > 0 )
-	    {
-		curidx_ = 0;
-		return true;
-	    }
-	}
-	else if ( curnode_->nrRefs() > 0 )
-	    { curidx_ = 0; return true; }
-    }
 
-    // OK so this node (and everything below) is done.
-    while ( true )
-    {
-	Strat::NodeUnitRef* par = curnode_->upNode();
-	if ( !par ) break;
+void Strat::LeafUnitRef::getPropsFrom( const IOPar& iop )
+{
+    UnitRef::getPropsFrom( iop );
+    pars_.removeWithKey( sKey::Time );
+}
 
-	curidx_ = par->indexOf( curnode_ );
-	curnode_ = par;
-	if ( curidx_ < par->nrRefs() - 1 )
-	    { curidx_++; return true; }
 
-	if ( curnode_ == itnode_ ) break;
-    }
-
-    curnode_ = 0;
-    return false;
+void Strat::LeafUnitRef::setLithology( int lid )
+{
+    if ( lid != lith_ )
+	{ lith_ = lid; notifChange(); }
 }

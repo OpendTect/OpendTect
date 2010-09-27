@@ -6,78 +6,85 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
- Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.31 2010-09-08 08:38:22 cvsbruno Exp $
+ Date:		Dec 2003 / Sep 2010
+ RCS:		$Id: stratunitref.h,v 1.32 2010-09-27 11:05:19 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "randcolor.h"
 #include "compoundkey.h"
-#include "ranges.h"
-#include "sets.h"
+#include "stratlevel.h"
+#include "iopar.h"
 
-class Property;
-class PropertyRef;
+
 class IOPar;
 
 namespace Strat
 {
 
 class NodeUnitRef;
+class RefTree;
 
 /*!\brief Reference data for a stratigraphic unit
 
   Every stratigraphy is a tree of units. A stratigraphy consists of reference
   units - every part of the subsurface can be attached to a reference unit.
 
-  If properties for this reference unit have a fixed value or calculation,
-  a property can be added to it. Any concrete unit should use this property
-  rather than define a definition itself. For example, salt units can be
-  defined to have porosity zero here.
-
  */
 
-mClass UnitRef
+mClass UnitRef : public CallBacker
 {
 public:
 
-    typedef int		ID;
+    enum Type		{ NodeOnly, Leaved, Leaf };
 
-			UnitRef( NodeUnitRef* up, const char* unitcode,
-			      const char* descr=0 )
-			: upnode_(up)
-			, lvlid_(-1)  
-    			{
-			    code_= unitcode;
-			    desc_ = descr;
-			}
+			UnitRef(NodeUnitRef*,const char*,const char* d=0);
     virtual		~UnitRef();
 
-    virtual bool	isLeaf() const			= 0;
+    virtual Type	type() const		= 0;
+    virtual bool	hasChildren() const	= 0;
+    bool		isLeaf() const		{ return type()==Leaf; }
+    bool		isLeaved() const	{ return type()==Leaved; }
     CompoundKey		fullCode() const;
 
-    const ID		getID() const 			{ return id_; }
-    virtual void	acquireID() 			{ id_ = getNewID(); }
-    
-    const BufferString&	code() const			{ return code_; }
-    void		setCode( const char* c )	{ code_ = c; }
-    const BufferString&	description() const		{ return desc_; }
-    void		setDescription( const char* d )	{ desc_ = d; }
-    int			getLvlID() const		{ return lvlid_; }
-    void		setLvlID(int lvlid) 		{ lvlid_ = lvlid; }
-    Interval<float>	timeRange() const		{ return timerg_; }
-    void		setTimeRange(Interval<float> rg) {timerg_ = rg; }
-
-    void		copyParFrom(const Strat::UnitRef&);
-    
+    const BufferString&	code() const		{ return code_; }
+    void		setCode(const char* c)	{ code_ = c; }
+    const BufferString&	description() const	{ return desc_; }
+    void		setDescription( const char* d )
+    						{ desc_ = d; }
+    Color		color() const		{ return color_; }
+    void		setColor(Color);
+    IOPar&		pars()			{ return pars_; }
+    const IOPar&	pars() const		{ return pars_; }
 
     NodeUnitRef*	upNode(int skip=0);
     const NodeUnitRef*	upNode( int skip=0 ) const
     			{ return ((UnitRef*)this)->upNode( skip ); }
     NodeUnitRef*	topNode();
     const NodeUnitRef*	topNode() const;
+    RefTree&		refTree(); // is the topNode
+    const RefTree&	refTree() const;
+
+    Notifier<UnitRef>	changed;
+    Notifier<UnitRef>	toBeDeleted;
+
+protected:
+
+    NodeUnitRef*	upnode_;
+
+    BufferString    	code_;
+    BufferString    	desc_;
+    Color		color_;
+    IOPar		pars_;
+
+    void		doFill(BufferString&,int) const;
+    void		doUse(const char*,int*);
+    void		notifChange(bool isrem=false);
+
+    friend class	NodeUnitRef;
+
+public:
 
     int			treeDepth() const;
     bool		isBelow(const UnitRef*) const;
@@ -85,65 +92,13 @@ public:
     bool		precedes(const UnitRef&) const;
     			//!< in terms of iterating through tree
 
-    virtual void	fill(BufferString&) const; //!< Without Unit code
-    virtual bool	use(const char*); //!< a string produced by fill()
-    
-    void		putTo(IOPar&) const;
-    void		getFrom(const IOPar&);
-    static const char* 	sKeyLevel();
+    virtual void	fill( BufferString& bs ) const	{ doFill(bs,mUdf(int));}
+    virtual void	use( const char* s )		{ doUse(s,0); }
+    virtual void	getPropsFrom(const IOPar&);
+    virtual void	putPropsTo(IOPar&) const;
 
-    void		add( Property* p )
-    			{ properties_ += p; }
-    Property*		property( const PropertyRef* p )
-    			{ return gtProp(p); }
-    const Property*	property( const PropertyRef* p ) const
-    			{ return gtProp(p); }
-    Property*		property( int propidx )
-    			{ return properties_[propidx]; }
-    int			nrProperties() const
-			{ return properties_.size(); }
-
-    //! Iterator. When constructed, returns unit itself (regardless of Pol).
-    //!< First next() goes to first (valid) unit.
-    mClass Iter
-    {
-    public:
-
-	enum Pol	{ All, Nodes, Leaves };
-
-			Iter(const NodeUnitRef&,Pol p=All);
-
-	void		reset();
-	bool		next();
-	UnitRef*	unit()		{ return gtUnit(); }
-	const UnitRef*	unit() const	{ return gtUnit(); }
-
-    protected:
-
-	Pol		pol_;
-	NodeUnitRef*	itnode_;
-	NodeUnitRef*	curnode_;
-	int		curidx_;
-	UnitRef*	gtUnit() const;
-	bool		toNext();
-
-    };
-
-protected:
-
-    ID			id_;
-    virtual ID		getNewID() const; 
-
-    NodeUnitRef*	upnode_;
-
-    BufferString    	code_;
-    BufferString    	desc_;
-    Interval<float> 	timerg_;
-    Color           	color_;
-    int			lvlid_;
-
-    ObjectSet<Property>	properties_;
-    Property*		gtProp(const PropertyRef* p) const;
+    static const char*	sKeyPropsFor()		{ return "Properties for "; }
+    static const char*	sKeyTreeProps()		{ return "entire tree"; }
 
 };
 
@@ -154,36 +109,92 @@ mClass NodeUnitRef : public UnitRef
 {
 public:
 
-			NodeUnitRef( NodeUnitRef* up, const char* c,
-				     const char* d=0 )
-			: UnitRef(up,c,d)		{}
+			NodeUnitRef(NodeUnitRef*,const char*,const char* d=0);
 			~NodeUnitRef();
 
-    virtual bool	isLeaf() const			{ return false; }
-    static const NodeUnitRef& undef();
+    virtual bool	hasChildren() const	{ return !refs_.isEmpty(); }
+    virtual bool	hasLeaves() const	= 0;
 
-    int			nrRefs() const			{ return refs_.size(); }
-    UnitRef&		ref( int idx )			{ return *refs_[idx]; }
-    const UnitRef&	ref( int idx ) const		{ return *refs_[idx]; }
+    virtual Interval<float> timeRange() const	{ return timerg_; }
+    virtual void	setTimeRange(const Interval<float>&);
+    void		incTimeRange(const Interval<float>&);
+
+    int			nrRefs() const		{ return refs_.size(); }
+    UnitRef&		ref( int idx )		{ return *refs_[idx]; }
+    const UnitRef&	ref( int idx ) const	{ return *refs_[idx]; }
     int			indexOf( const UnitRef* ur ) const
-    						{ return refs_.indexOf(ur); }
+			{ return refs_.indexOf((const NodeUnitRef*)ur); }
 
     UnitRef*		find( const char* urcode )	{ return fnd(urcode); }
     const UnitRef*	find( const char* urcode ) const{ return fnd(urcode); }
 
-    void		add(UnitRef*,bool rev =false);
-    void		remove( int uridx ) 
-    			{ UnitRef* r = refs_[uridx]; refs_ -= r; delete r; }
-    UnitRef*		replace( int uridx, UnitRef* newur )
-			{ return refs_.replace( uridx, newur); }
-    void		swapChildren( int idx1, int idx2 )
-			{ refs_.swap( idx1, idx2 ); }
+    virtual int		nrLeaves() const;
 
 protected:
 
     ObjectSet<UnitRef>	refs_;
+    Interval<float>	timerg_;
 
     UnitRef*		fnd(const char*) const;
+    void		takeChildrenFrom(NodeUnitRef*);
+    friend class	RefTree;
+
+public:
+
+    virtual bool	add(UnitRef*,bool rev=false);
+    virtual UnitRef*	replace(int uridx,UnitRef*);
+    void		swapChildren(int,int);
+    void		remove( int uridx ) 
+    			{ delete refs_.remove(uridx); }
+    void		remove( const UnitRef* ur )
+    			{ remove( indexOf( ur ) ); }
+
+    virtual void	getPropsFrom(const IOPar&);
+    virtual void	putPropsTo(IOPar&) const;
+
+};
+
+
+/*!\brief UnitRef for units containing non-Leaf units only */
+
+mClass NodeOnlyUnitRef : public NodeUnitRef
+{
+public:
+			NodeOnlyUnitRef( NodeUnitRef* up, const char* c,
+				     const char* d=0 )
+			: NodeUnitRef(up,c,d)	{}
+
+    virtual bool	hasLeaves() const	{ return false; }
+    virtual Type	type() const		{ return NodeOnly; }
+
+};
+
+
+/*!\brief UnitRef for units containing Leaf units only */
+
+mClass LeavedUnitRef : public NodeUnitRef
+{
+public:
+			LeavedUnitRef( NodeUnitRef* up, const char* c,
+				     const char* d=0 )
+			: NodeUnitRef(up,c,d)
+			, levelid_(-1)			{}
+
+    virtual Type	type() const		{ return Leaved; }
+    virtual bool	hasLeaves() const	{ return true; }
+
+    Level::ID		levelID() const		{ return levelid_; }
+    void		setLevelID(Level::ID);
+
+    virtual int		nrLeaves() const	{ return refs_.size(); }
+
+protected:
+
+    Level::ID		levelid_;
+
+    virtual void	fill( BufferString& bs ) const	{ doFill(bs,levelid_); }
+    virtual void	use( const char* s )	{ doUse(s,&levelid_); }
+
 };
 
 
@@ -198,29 +209,28 @@ public:
 			: UnitRef(up,c,d)
 			, lith_(lithidx) {}
 
-    virtual bool	isLeaf() const		{ return true; }
+    virtual Type	type() const		{ return Leaf; }
+    virtual bool	hasChildren() const	{ return false; }
     int			lithology() const	{ return lith_; }
-    void		setLithology( int l )	{ lith_ = l; }
+    void		setLithology(int);
 
     static const LeafUnitRef& undef();
-
-    virtual void	fill(BufferString&) const;
-    virtual bool	use(const char*);
-
-    bool		isUnconf() const		{ return isunconf_; }
-    void		setIsUnconf(bool yn)		{ isunconf_ = yn; }
 
 protected:
 
     int			lith_;
-    bool		isunconf_;
+
+    virtual void	fill( BufferString& bs ) const	{ doFill(bs,lith_); }
+    virtual void	use( const char* s )	{ doUse(s,&lith_); }
+
+
+public:
+
+    virtual void	getPropsFrom(const IOPar&);
 
 };
 
 
-
-inline int UnitRef::treeDepth() const
-{ return upnode_ ? upnode_->treeDepth() + 1 : 0; }
 inline NodeUnitRef* UnitRef::topNode()
 { return upnode_ ? upnode_->topNode() : (NodeUnitRef*)this; }
 inline const NodeUnitRef* UnitRef::topNode() const

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.5 2010-09-17 15:10:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.6 2010-09-27 11:05:19 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.5 2010-09-17 15:
 #include "mouseevent.h"
 #include "randcolor.h"
 #include "survinfo.h"
-#include "stratunitrepos.h"
+#include "stratlevel.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "welldata.h"
@@ -47,7 +47,13 @@ void WellDispMarkerParams::putToMarker( Well::Marker& mrk )
     mrk.setDah( dah_ );
     mrk.setColor( col_ );
     if ( isstrat_ )
-	mrk.setLevelID( Strat::eUnRepo().addLevel( name_, col_ ) );
+    {
+	const Strat::Level* lvl = Strat::eLVLS().add( name_.buf(), col_ );
+	if ( !lvl && Strat::LVLS().isPresent( name_.buf() ) )
+	    lvl =  Strat::LVLS().get( name_.buf() );
+
+	mrk.setLevelID( lvl ? lvl->id() : -1 ); 
+    }
 }
 
 
@@ -212,7 +218,9 @@ void uiWellDispEditMarkerDlg::addWellCtrl( uiWellDisplayControl& ctrl,
 {
     ctrls_ += &ctrl;
     wds_ += &wd;
-    orgmarkerssets_ += new Well::MarkerSet( wd.markers() );
+    Well::MarkerSet* orgmrks = new Well::MarkerSet();
+    orgmrks->copy( wd.markers() );
+    orgmarkerssets_ += orgmrks;
     activateSensors( ctrl, true );
 }
 
@@ -349,7 +357,9 @@ bool uiWellDispEditMarkerDlg::rejectOK( CallBacker* )
     needsave_ = false;
     if ( hasedited_ )
     {
-	if ( uiMSG().askContinue( "All your edited markers will be lost" ) )
+	BufferString msg = "Some markers have been edited and will be lost. \n";
+	msg += "Do you want to abort anyway or continue editing markers ? ";
+	if ( !uiMSG().askContinue( msg ) )
 	{
 	    for ( int idx=0; idx<wds_.size(); idx++ )
 	    {

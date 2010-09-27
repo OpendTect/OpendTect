@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.18 2010-08-11 11:52:28 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.19 2010-09-27 11:05:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,11 +34,13 @@ class uiStratViewControl;
 class MouseEvent;
 
 
-mClass uiAnnotDrawer 
+
+mClass uiStratDrawer 
 {
 public:
-				uiAnnotDrawer(uiGraphicsScene&,const AnnotData&);
-				~uiAnnotDrawer();
+				uiStratDrawer(uiGraphicsScene&,
+						const StratDispData&);
+				~uiStratDrawer();
 
     void			setZRange( StepInterval<float> rg ) 
     				{ yax_->setBounds(rg); draw(); }
@@ -80,8 +82,7 @@ protected:
     uiAxisHandler* 		xax_; 
     
     //data
-    const AnnotData&		data_;
-    int 			nrCols() const { return data_.nrCols(); }
+    const StratDispData&	data_;
     
     //graphics
     void			addUnit(float);
@@ -94,93 +95,28 @@ protected:
 };
 
 
-mClass uiAnnotDisplay : public uiGraphicsView
-{
-public:
-				uiAnnotDisplay(uiParent*,const char*);
-				~uiAnnotDisplay();
 
-    const AnnotData&		data() const 	{ return data_; }
-
-    virtual void		setZRange( Interval<float> rg ) 
-    				{ drawer_.setZRange( rg ); }
-    int				nrUnits(int colidx) const 
-    				{ return data_.getCol(colidx)->units_.size();}
-    int				nrMarkers(int colidx) const 
-    				{ return data_.getCol(colidx)->markers_.size();}
-    AnnotData::Column* 		getColumn(int colidx) 
-    				{ return data_.getCol(colidx); }
-    const AnnotData::Column* 	getColumn(int colidx) const 
-    				{ return data_.getCol(colidx); }
-    AnnotData::Marker* 		getMarker(int idx, int colidx) 
-    				{ return data_.getCol(colidx)->markers_[idx]; }
-    AnnotData::Unit* 		getUnit(int idx,int colidx) 
-    				{ return data_.getCol(colidx)->units_[idx]; }
-    const AnnotData::Marker* 	getMarker(int idx,int colidx) const 
-    				{ return data_.getCol(colidx)->markers_[idx]; }
-    const AnnotData::Unit* 	getUnit(int idx,int colidx) const 
-    				{ return data_.getCol(colidx)->units_[idx]; }
-    int 			nrCols() const { return data_.nrCols(); }
-    
-    uiAxisHandler* 		xAxis() 	{ return drawer_.yAxis(); }
-    uiAxisHandler* 		yAxis() 	{ return drawer_.xAxis(); }
-
-protected:
-
-    mClass uiCreateColDlg : public uiDialog
-    {
-	public :
-				uiCreateColDlg(uiParent*);
-	    BufferString        colname_;
-	protected:
-	    uiGenInput*         namefld_;
-	    bool		acceptOK(CallBacker*);
-    };
-
-    bool                	handleUserClick(const MouseEvent&);
-  
-    uiMenuHandler&      	menu_;
-    MenuItem            	addunitmnuitem_;
-    MenuItem            	remunitmnuitem_;
-    MenuItem            	addcolmnuitem_;
-
-    //data
-    AnnotData			data_;
-    uiAnnotDrawer		drawer_;
-    
-    //position
-    int				getColIdxFromPos() const; 
-    AnnotData::Column*		getColFromPos() const; 
-    const AnnotData::Unit* 	getUnitFromPos(bool nocolidx=false) const;
-    const AnnotData::Marker* 	getMrkFromPos() const;
-    Geom::Point2D<float> 	getPos() const;
-
-    virtual void                createMenuCB(CallBacker*);
-    virtual void                handleMenuCB(CallBacker*);
-    void			init(CallBacker*);
-    virtual void		reSized(CallBacker*);
-    void                	usrClickCB(CallBacker*);
-};
-
-
-mClass uiStratDisplay : public uiAnnotDisplay
+mClass uiStratDisplay : public uiGraphicsView
 {
 public:
 				uiStratDisplay(uiParent*,uiStratRefTree&);
 				~uiStratDisplay(){};
     
     void			display(bool,bool shrk=false,bool max=false);
-    virtual void		setZRange(Interval<float>);
+    void			setZRange(Interval<float>);
+    void			setTree(Strat::RefTree&);
     
     void			addControl(uiToolBar*);
     uiStratViewControl*		control() 	{ return uicontrol_; }
 
 protected :
 
-    uiStratTreeToDispTransl	uidatagather_;
+    uiStratTreeToDispTransl*	uidatagather_;
     uiStratDispToTreeTransl	uidatawriter_;
 
     uiStratViewControl*		uicontrol_;
+    StratDispData		data_;
+    uiStratDrawer		drawer_;
 
     uiGenInput*                 rangefld_;
     uiLabeledSpinBox*           stepfld_;
@@ -196,12 +132,22 @@ protected :
     void			createDispParamGrp();
     void			resetRangeFromUnits();
 
-    virtual void                createMenuCB(CallBacker*);
+    void                	createMenuCB(CallBacker*);
+    void                	handleMenuCB(CallBacker*);
+    bool			handleUserClick(const MouseEvent&);
     void			controlRange(CallBacker*);
-    virtual void		dataChanged(CallBacker*);
+    void			dataChanged(CallBacker*);
     void			dispParamChgd(CallBacker*);
-    virtual void                handleMenuCB(CallBacker*);
     void			selCols(CallBacker*);
+
+
+    int				getColIdxFromPos() const; 
+    StratDispData::Column*	getColFromPos() const; 
+    const StratDispData::Unit* 	getUnitFromPos(bool nocolidx=false) const;
+    Geom::Point2D<float> 	getPos() const;
+
+    void			reSized(CallBacker*);
+    void			usrClickCB(CallBacker*);
 };
 
 

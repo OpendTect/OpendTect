@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.34 2010-09-07 16:03:06 cvsbruno Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.35 2010-09-27 11:05:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class uiStratDisplay;
 class uiToolBar;
 class uiToolButton;
 
-namespace Strat { class UnitRepository; }
+namespace Strat { class RepositoryAccess; }
 
 mGlobal const uiStratTreeWin& StratTWin();
 mGlobal uiStratTreeWin& StratTreeWin();
@@ -48,7 +48,7 @@ protected:
 
     uiStratRefTree*		uitree_;
     uiStratDisplay*		uistratdisp_;
-    Strat::UnitRepository&	repos_;
+    Strat::RepositoryAccess&	repos_;
     uiMenuItem*			expandmnuitem_;
     uiMenuItem*			editmnuitem_;
     uiMenuItem*			savemnuitem_;

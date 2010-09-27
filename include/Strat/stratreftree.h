@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.19 2010-09-07 16:03:06 cvsbruno Exp $
+ RCS:		$Id: stratreftree.h,v 1.20 2010-09-27 11:05:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "stratunitref.h"
+#include "stratlith.h"
 #include "repos.h"
 
 namespace Strat
@@ -23,58 +24,53 @@ class Lithology;
 
 /*!\brief Tree of UnitRef's  */
 
-mClass RefTree : public NodeUnitRef
+mClass RefTree : public NodeOnlyUnitRef
 {
 public:
 
-    			RefTree( const char* nm, Repos::Source src )
-			: NodeUnitRef(0,"","Top Node")
-			, treename_(nm)
-			, src_(src)			
-			, botlvlid_(-1)
-			{}
-			~RefTree(){};
+			RefTree();
 
-    const BufferString&	treeName() const		{ return treename_; }
-    void		setTreeName( const char* nm )	{ treename_ = nm; }
     Repos::Source	source() const			{ return src_; }
     
-    Strat::UnitRef*     getByID(int id) 		{ return fnd(id); }
-    const Strat::UnitRef* getByID(int id) const 	{ return fnd(id); } 
-     
-    int			getID(const char* code) const;
-    void		getUnitIDs(TypeSet<int>&) const;
-    
-    void		assignEqualTimesToUnits(Interval<float>) const;
-    void		getLeavesTimeGaps(const NodeUnitRef&,
-					   TypeSet< Interval<float> >&) const;
+    LithologySet&	lithologies()			{ return liths_; }
+    const LithologySet&	lithologies() const		{ return liths_; }
 
-    bool		addCopyOfUnit(const UnitRef&,bool rev=false);
-    bool		addUnit(const char*,const char* unit_dump,
-	    			bool rev=false);
-    void		removeEmptyNodes(); //!< recommended after add
-    bool		write(std::ostream&) const;
-    				//!< for printing, export or something.
-    				//!< otherwise, use UnitRepository::write()
-    int			botLvlID() const	{ return botlvlid_; }
-    void		setBotLvlID(int id) 	{ botlvlid_ = id; }
+    static const char*	sKeyNoCode()			{ return "<no_code>"; }
+
+    Notifier<RefTree>	unitAdded;
+    Notifier<RefTree>	unitChanged;
+    Notifier<RefTree>	unitToBeDeleted;
+
+    const UnitRef*	notifUnit() const		{ return notifun_; }
+    			//!< if null, assume everything has changed
 
 protected:
 
-    void		constrainUnits(Strat::UnitRef&) const;
-    void		constrainUnitTimes(NodeUnitRef&) const;
-    void		constrainUnitLvls(UnitRef&) const;
-    void		gatherLeavesByTime(const NodeUnitRef&,
-	    					ObjectSet<UnitRef>&) const;
-    
-    Strat::UnitRef*     fnd(int id) const;
+    void		initTree();
+    bool		addUnit(const char*,const char* dump_str,UnitRef::Type);
+    void		setToActualTypes();
 
-    int			botlvlid_;
+    LithologySet	liths_;
+    const UnitRef*	notifun_;
+
+public:
 
     Repos::Source	src_;
-    BufferString	treename_;
+
+    				// for printing, export or something.
+    				// otherwise, use RepositoryAccess::write()
+    bool		read(std::istream&);
+    bool		write(std::ostream&) const;
+
+    friend class	RefTreeMgr;
+
+    void		reportChange(const UnitRef*,bool isrem=false);
+    void		reportAdd(const UnitRef*);
 
 };
+
+const RefTree& RT();
+inline RefTree& eRT()	{ return const_cast<RefTree&>( RT() ); }
 
 
 }; // namespace Strat

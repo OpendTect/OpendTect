@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.20 2010-09-17 15:45:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.21 2010-09-27 11:05:19 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -29,19 +29,40 @@ static const char* rcsID = "$Id: uistratdisplay.cc,v 1.20 2010-09-17 15:45:35 cv
 #include "randcolor.h"
 #include "survinfo.h"
 
-uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& tree )
-    : uiAnnotDisplay(p,"Stratigraphy viewer")
-    , uidatagather_(uiStratTreeToDispTransl(data_))
-    , uidatawriter_(uiStratDispToTreeTransl(tree ))
+uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
+    : uiGraphicsView(p,"Stratigraphy viewer")
+    , drawer_(uiStratDrawer(scene(),data_))
+    , uidatawriter_(uiStratDispToTreeTransl(uitree ))
+    , uidatagather_(0)
     , assignlvlmnuitem_("&Specify marker boundary")
     , uicontrol_(0)
-    , maxrg_(Interval<float>(0,4.5e3))
+    , maxrg_(Interval<float>(0,2e3))
 {
+    getMouseEventHandler().buttonReleased.notify(
+					mCB(this,uiStratDisplay,usrClickCB) );
+    reSize.notify( mCB(this,uiStratDisplay,reSized) );
+    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
+    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
+
+
     disableScrollZoom();
     scene().setMouseEventActive( true );
-    uidatagather_.newtreeRead.notify( mCB(this,uiStratDisplay,dataChanged) );
     createDispParamGrp();
     dataChanged( 0 );
+}
+
+
+void uiStratDisplay::setTree( Strat::RefTree& tree )
+{
+    delete uidatagather_;
+    uidatagather_ = new uiStratTreeToDispTransl( data_, tree );
+    uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,dataChanged) );
+}
+
+
+void uiStratDisplay::reSized( CallBacker* )
+{
+    drawer_.draw();
 }
 
 
@@ -74,13 +95,12 @@ void uiStratDisplay::createDispParamGrp()
 		    .setName(BufferString("range start"),0)
 		    .setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
-    if ( nrCols() && nrUnits(0) )
+    if ( data_.nrCols() && data_.nrUnits(0) > 1)
     {
-	const AnnotData::Unit& topunit = *getUnit(0,0);
-	const AnnotData::Unit& botunit = *getUnit(nrUnits(0)-1,0);
-	Interval<float> zrg;
-	zrg.start = topunit.zpos_; 
-	zrg.stop = botunit.zposbot_; 
+	const StratDispData::Unit& topunit = *data_.getUnit(0,0);
+	const StratDispData::Unit& botunit = 
+	    				*data_.getUnit(0,data_.nrUnits(0)-1);
+	Interval<float> zrg( topunit.zrg_.start, botunit.zrg_.stop );
 	rangefld_->setValue( zrg );
 	setZRange( Interval<float>( zrg.stop, zrg.start ) );
     }
@@ -88,16 +108,13 @@ void uiStratDisplay::createDispParamGrp()
     const CallBack cbv = mCB( this, uiStratDisplay, selCols );
     viewcolbutton_ = new uiPushButton( dispparamgrp_,"&View ",cbv,true ); 
     viewcolbutton_->attach( rightOf, rangefld_ );
-    const CallBack cbf = mCB(&uidatawriter_,uiStratDispToTreeTransl,fillUndef);
-    fillbutton_ = new uiPushButton( dispparamgrp_,"&Fill undefined",cbf,true ); 
-    fillbutton_->attach( rightOf, viewcolbutton_ );
 }
 
 
 class uiColViewerDlg : public uiDialog
 {
 public :
-    uiColViewerDlg( uiParent* p, uiAnnotDrawer& drawer, AnnotData& ad )
+    uiColViewerDlg( uiParent* p, uiStratDrawer& drawer, StratDispData& ad )
 	: uiDialog(p,uiDialog::Setup("View Columns","",mNoHelpID))
 	, drawer_(drawer) 
 	, data_(ad)			  
@@ -128,14 +145,7 @@ public :
 	{
 	    NotifyStopper ns( colboxflds_[idbox]->activated );
 	    bool ison = false;
-	    /*
-	    if ( idsel<idbox )
-		ison = true;
-	    else if ( idsel == idbox ) 
-	    */
 	    ison = colboxflds_[idbox]->isChecked();
-
-	    //colboxflds_[idbox]->setChecked( ison );
 	    data_.getCol( idbox )->isdisplayed_ = ison;
 	}
 	drawer_.draw();
@@ -144,8 +154,8 @@ public :
 protected:
 
     ObjectSet<uiCheckBox> 	colboxflds_;
-    uiAnnotDrawer&		drawer_;
-    AnnotData&			data_;
+    uiStratDrawer&		drawer_;
+    StratDispData&		data_;
 };
 
 
@@ -166,13 +176,13 @@ void uiStratDisplay::resetRangeFromUnits()
 {
     if ( data_.nrCols()<=0 )
 	return;
-    const AnnotData::Column& col = *data_.getCol(0);
+    const StratDispData::Column& col = *data_.getCol(0);
     if ( col.units_.size() == 0 )
 	return;
 
     Interval<float> rg;
-    float start = col.units_[0]->zpos_;
-    float stop = col.units_[col.units_.size()-1]->zposbot_;
+    float start = col.units_[0]->zrg_.start;
+    float stop = col.units_[col.units_.size()-1]->zrg_.stop;
     rg.set( start, stop );
     rangefld_->setValue( rg );
     setZRange( rg );
@@ -182,7 +192,7 @@ void uiStratDisplay::resetRangeFromUnits()
 void uiStratDisplay::setZRange( Interval<float> zrg )
 {
     zrg.sort(false);
-    uiAnnotDisplay::setZRange( zrg );
+    drawer_.setZRange( zrg );
 }
 
 
@@ -218,18 +228,16 @@ void uiStratDisplay::createMenuCB( CallBacker* cb )
 
 void uiStratDisplay::handleMenuCB( CallBacker* cb )
 {
-    const AnnotData::Unit* unit = getUnitFromPos();
+    const StratDispData::Unit* unit = getUnitFromPos();
     if ( unit ) 
 	uidatawriter_.handleUnitMenu( unit->name_ );
-    const AnnotData::Marker* mrk = getMrkFromPos();
-    if ( mrk )
-	uidatawriter_.handleUnitLvlMenu( mrk->id_ );
 }
 
 
 bool uiStratDisplay::isUnitBelowCurrent() const
 {
-    const AnnotData::Unit* curunit = getUnitFromPos();
+    /*
+    const StratDispData::Unit* curunit = getUnitFromPos();
     if ( !curunit ) return false;
     Interval<float> rg( curunit->zpos_, curunit->zposbot_ );
     int cidx = getColIdxFromPos( );
@@ -237,36 +245,106 @@ bool uiStratDisplay::isUnitBelowCurrent() const
     {
 	for ( int idunit=0; idunit<nrUnits(cidx+1); idunit++ )
 	{
-	    const AnnotData::Unit* unit = getUnit( idunit, cidx+1 );
+	    const StratDispData::Unit* unit = getUnit( idunit, cidx+1 );
 	    if ( unit->zpos_ >= rg.start && unit->zposbot_ <= rg.stop )
 		return false;
 	}
     }
+    */
     return true;
 }
 
 
 
+void uiStratDisplay::usrClickCB( CallBacker* cb )
+{
+    mDynamicCastGet(MouseEventHandler*,mevh,cb)
+    if ( !mevh )
+	return;
+    if ( !mevh->hasEvent() )
+	return;
+    if ( mevh->isHandled() )
+	return;
+
+    mevh->setHandled( handleUserClick(mevh->event()) );
+}
 
 
-uiAnnotDrawer::uiAnnotDrawer( uiGraphicsScene& sc, const AnnotData& ad )
+bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
+{
+    if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
+	    !ev.altStatus() )
+    {
+	if ( getUnitFromPos() ) 
+	    handleMenuCB( 0 );
+	return true;
+    }
+    return false;
+}
+
+
+Geom::Point2D<float> uiStratDisplay::getPos() const
+{
+    uiStratDisplay* self = const_cast<uiStratDisplay*>( this );
+    const float xpos = drawer_.xAxis()->getVal( 
+			self->getMouseEventHandler().event().pos().x ); 
+    const float ypos = drawer_.yAxis()->getVal( 
+			self->getMouseEventHandler().event().pos().y ); 
+    return Geom::Point2D<float>( xpos, ypos );
+}
+
+
+int uiStratDisplay::getColIdxFromPos() const 
+{
+    float xpos = getPos().x;
+    Interval<int> borders(0,0);
+    for ( int idx=0; idx<data_.nrCols(); idx++ )
+    {
+	borders.stop += drawer_.colItem(idx).size_;
+	if ( borders.includes( xpos ) ) 
+	return idx;
+	borders.start = borders.stop;
+    }
+    return -1;
+}
+
+
+const StratDispData::Unit* uiStratDisplay::getUnitFromPos( bool nocolidx ) const
+{
+    int cidx = nocolidx ? 0 : getColIdxFromPos();
+    if ( cidx >=0 && cidx<data_.nrCols() )
+    {
+	Geom::Point2D<float> pos = getPos(); 
+	for ( int idunit=0; idunit<data_.nrUnits(cidx); idunit++ )
+	{
+	    const StratDispData::Unit* unit = data_.getUnit( cidx, idunit );
+	    if ( pos.y < unit->zrg_.stop && pos.y >= unit->zrg_.start )
+		return unit;
+	}
+    }
+    return 0;
+}
+
+
+
+uiStratDrawer::uiStratDrawer( uiGraphicsScene& sc, const StratDispData& ad )
     : data_(ad) 
     , scene_(sc)  
     , xax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Top)))
     , yax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Left)
-							.nogridline(true)))
+							    .nogridline(true)))
 {
     xax_->setBounds( Interval<float>( 0, 100 ) );
 }
 
 
-uiAnnotDrawer::~uiAnnotDrawer()
+uiStratDrawer::~uiStratDrawer()
 {
     eraseAll();
 }
 
 
-void uiAnnotDrawer::setNewAxis( uiAxisHandler* axis, bool isxaxis )
+void uiStratDrawer::setNewAxis( uiAxisHandler* axis, bool isxaxis )
 {
     if ( isxaxis ) 
 	xax_ = axis; 
@@ -275,7 +353,7 @@ void uiAnnotDrawer::setNewAxis( uiAxisHandler* axis, bool isxaxis )
 }
 
 
-void uiAnnotDrawer::updateAxis()
+void uiStratDrawer::updateAxis()
 {
     xax_->setNewDevSize( (int)scene_.width()+10, (int)scene_.height()+10 );
     yax_->setNewDevSize( (int)scene_.height()+10, (int)scene_.width()+10 );
@@ -285,8 +363,7 @@ void uiAnnotDrawer::updateAxis()
 }
 
 
-
-void uiAnnotDrawer::draw()
+void uiStratDrawer::draw()
 {
     eraseAll();
     updateAxis();
@@ -294,11 +371,11 @@ void uiAnnotDrawer::draw()
 }
 
 
-void uiAnnotDrawer::drawColumns()
+void uiStratDrawer::drawColumns()
 {
     eraseAll();
     int pos = 0;
-    for ( int idcol=0; idcol<nrCols(); idcol++ )
+    for ( int idcol=0; idcol<data_.nrCols(); idcol++ )
     {
 	if ( !data_.getCol( idcol )->isdisplayed_ ) continue;
 	ColumnItem* colitm = new ColumnItem( data_.getCol( idcol )->name_ );
@@ -320,7 +397,7 @@ void uiAnnotDrawer::drawColumns()
     for ( int idx=0; idx<itms.size(); idx++ ) \
     scene_.removeItem( itms[idx] ); \
     deepErase( itms );
-void uiAnnotDrawer::eraseAll()
+void uiStratDrawer::eraseAll()
 {
     for ( int idx = colitms_.size()-1; idx>=0; idx-- )
     {
@@ -337,7 +414,7 @@ void uiAnnotDrawer::eraseAll()
 }
 
 
-void uiAnnotDrawer::drawBorders( ColumnItem& colitm, int colidx )
+void uiStratDrawer::drawBorders( ColumnItem& colitm, int colidx )
 {
     int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
     int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
@@ -362,13 +439,14 @@ void uiAnnotDrawer::drawBorders( ColumnItem& colitm, int colidx )
 }
 
 
-void uiAnnotDrawer::drawMarkers( ColumnItem& colitm, int colidx )
+void uiStratDrawer::drawMarkers( ColumnItem& colitm, int colidx )
 {
+    /*
     mRemoveSet( colitm.mrkitms_ );
     mRemoveSet( colitm.mrktxtitms_ );
     for ( int idx=0; idx<data_.getCol(colidx)->markers_.size(); idx++ )
     {
-	const AnnotData::Marker& mrk = *data_.getCol(colidx)->markers_[idx];
+	const StratDispData::Marker& mrk = *data_.getCol(colidx)->markers_[idx];
 
 	int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
 	int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
@@ -384,28 +462,30 @@ void uiAnnotDrawer::drawMarkers( ColumnItem& colitm, int colidx )
 	colitm.mrktxtitms_ += ti;
 	colitm.mrkitms_ += li;
     }
+    */
 }
 
 
-void uiAnnotDrawer::drawUnits( ColumnItem& colitm, int colidx ) 
+void uiStratDrawer::drawUnits( ColumnItem& colitm, int colidx ) 
 {
     mRemoveSet( colitm.unittxtitms_ );
     mRemoveSet( colitm.unititms_ );
 
-    Interval<float> rg =  yax_->range();
+    const Interval<float> rg = yax_->range();
     for ( int idx=0; idx<data_.getCol(colidx)->units_.size(); idx++ )
     {
-	const AnnotData::Unit& unit = *data_.getCol(colidx)->units_[idx];
-	if ( ( unit.zpos_ >rg.start && unit.zposbot_ > rg.start ) ||
-	     ( unit.zpos_ < rg.stop && unit.zposbot_ < rg.stop ) ||
-		!unit.draw_ ) continue;
+	const StratDispData::Unit& unit = *data_.getCol(colidx)->units_[idx];
+	Interval<float> unitrg = unit.zrg_;
+	if ( ( unit.zrg_.start > rg.start && unit.zrg_.stop > rg.start ) ||
+		 ( unit.zrg_.start < rg.stop && unit.zrg_.stop < rg.stop ) ||
+			!unit.isdisplayed_ ) continue;
 
 	int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
 	int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
-	bool ztop = ( unit.zpos_ < rg.stop );
-	bool zbase = ( unit.zposbot_ > rg.start );
-	int y1 = yax_->getPix( ztop ? rg.stop : unit.zpos_ );
-	int y2 = yax_->getPix( zbase ? rg.start : unit.zposbot_ );
+	bool ztop = ( unit.zrg_.start < rg.stop );
+	bool zbase = ( unit.zrg_.stop > rg.start );
+	int y1 = yax_->getPix( ztop ? rg.stop : unit.zrg_.start );
+	int y2 = yax_->getPix( zbase ? rg.start : unit.zrg_.stop );
 
 	TypeSet<uiPoint> rectpts;
 	rectpts += uiPoint( x1, y1 );
@@ -415,9 +495,9 @@ void uiAnnotDrawer::drawUnits( ColumnItem& colitm, int colidx )
 	rectpts += uiPoint( x1, y1 );
 	uiPolygonItem* pli = scene_.addPolygon( rectpts, true );
 	pli->setPenColor( Color::Black() );
-	if ( unit.col_ != Color::White() )
-	    pli->setFillColor( unit.col_ );
-	uiTextItem* ti = scene_.addItem( new uiTextItem( unit.name_ ) );
+	if ( unit.color_ != Color::White() )
+	    pli->setFillColor( unit.color_ );
+	uiTextItem* ti = scene_.addItem( new uiTextItem( unit.name_.buf() ) );
 	ti->setTextColor( Color::Black() );
 	ti->setPos( x1, y2 - abs((y2-y1)/2) -10 );
 	ti->setZValue( 2 );
@@ -427,239 +507,6 @@ void uiAnnotDrawer::drawUnits( ColumnItem& colitm, int colidx )
 }
 
 
-
-
-uiAnnotDisplay::uiAnnotDisplay( uiParent* p, const char* nm )
-    : uiGraphicsView(p,nm)
-    , data_(AnnotData()) 
-    , menu_(*new uiMenuHandler(p,-1))
-    , addunitmnuitem_("Add Unit...",0)
-    , remunitmnuitem_("Remove unit...",1)
-    , addcolmnuitem_("Add Column...",2)
-    , drawer_(uiAnnotDrawer(scene(),data_))
-{
-    getMouseEventHandler().buttonReleased.notify(
-					mCB(this,uiAnnotDisplay,usrClickCB) );
-    reSize.notify( mCB(this,uiAnnotDisplay,reSized) );
-    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
-    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
-
-    menu_.ref();
-    menu_.createnotifier.notify(mCB(this,uiAnnotDisplay,createMenuCB));
-    menu_.handlenotifier.notify(mCB(this,uiAnnotDisplay,handleMenuCB));
-    
-    finaliseDone.notify( mCB(this,uiAnnotDisplay,init) );
-}
-
-
-uiAnnotDisplay::~uiAnnotDisplay()
-{
-    menu_.unRef();
-}
-
-
-void uiAnnotDisplay::init( CallBacker* )
-{
-    drawer_.draw();
-    show();
-}
-
-
-void uiAnnotDisplay::reSized( CallBacker* )
-{
-    drawer_.draw();
-}
-
-
-void uiAnnotDisplay::usrClickCB( CallBacker* cb )
-{
-    mDynamicCastGet(MouseEventHandler*,mevh,cb)
-    if ( !mevh )
-	return;
-    if ( !mevh->hasEvent() )
-	return;
-    if ( mevh->isHandled() )
-	return;
-
-    mevh->setHandled( handleUserClick(mevh->event()) );
-}
-
-
-bool uiAnnotDisplay::handleUserClick( const MouseEvent& ev )
-{
-    if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
-	!ev.altStatus() )
-    {
-	if ( getUnitFromPos() ) 
-	    handleMenuCB( 0 );
-	else if ( getMrkFromPos() )
-	    menu_.executeMenu(0);
-	return true;
-    }
-    return false;
-}
-
-
-void uiAnnotDisplay::createMenuCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( !menu ) return;
-
-    int cidx = getColIdxFromPos();
-    AnnotData::Column* col = cidx >=0 ? data_.getCol( cidx ) : 0;
-    if ( !col ) return;
-    bool unitfound = getUnitFromPos();
-    mAddMenuItem( menu, &addunitmnuitem_, !unitfound && col->iseditable_,false);
-    mAddMenuItem( menu, &remunitmnuitem_, unitfound && col->iseditable_, false);
-}
-
-
-uiAnnotDisplay::uiCreateColDlg::uiCreateColDlg( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Specify column parameters","",mNoHelpID))
-{
-    namefld_ = new uiGenInput( this, "Title", StringInpSpec("Title") );
-}
-
-bool uiAnnotDisplay::uiCreateColDlg::acceptOK( CallBacker* )
-{ colname_ = namefld_->text(); return true; }
-		
-		    
-class uiCreateAnnotDlg : public uiDialog
-{
-public :
-    uiCreateAnnotDlg( uiParent* p, float zpos )
-	: uiDialog(p,uiDialog::Setup("Add Annotation",
-				    "Specify properties",mNoHelpID))
-    {
-	namefld_ = new uiGenInput( this, "Name", StringInpSpec("Annot") );
-	topdepthfld_ = new uiGenInput( this, "Top value", FloatInpSpec(zpos) );
-	topdepthfld_->attach( alignedBelow, namefld_ );
-	botdepthfld_ = new uiGenInput(this,"Bottom Value",FloatInpSpec(zpos+100));
-	botdepthfld_->attach( alignedBelow, topdepthfld_ );
-	uiColorInput::Setup csu( getRandStdDrawColor() );
-	csu.lbltxt( "Color" ).withalpha(false);
-	colorfld_ = new uiColorInput( this, csu, "Color" );
-	colorfld_->attach( alignedBelow, botdepthfld_ );
-    }
-
-    bool acceptOK( CallBacker* )
-    {
-	const char* nm = namefld_->text();
-	float topdpt = topdepthfld_->getfValue();
-	float botdpt = botdepthfld_->getfValue();
-	unit_ = new AnnotData::Unit( nm, topdpt, botdpt );
-	unit_->col_ =  colorfld_->color();
-	return true;
-    }
-
-    AnnotData::Unit* unit() { return unit_; }
-
-protected :
-
-    uiGenInput*         namefld_;
-    uiGenInput*         topdepthfld_;
-    uiGenInput*         botdepthfld_;
-    uiColorInput*       colorfld_;
-    AnnotData::Unit* 	unit_;
-};
-
-
-void uiAnnotDisplay::handleMenuCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet( MenuHandler*, menu, caller );
-    if ( mnuid==-1 || menu->isHandled() )
-    return;
-
-    bool ishandled = true;
-    if ( mnuid == addunitmnuitem_.id )
-    {
-	uiCreateAnnotDlg dlg( parent(), getPos().y );
-	if ( dlg.go() )
-	{
-	    AnnotData::Unit* unit = dlg.unit();
-	    if ( unit )
-	    {
-		int cidx = getColIdxFromPos();
-		AnnotData::Column* col = cidx >=0 ? data_.getCol( cidx ) : 0;
-		if ( col )
-		    col->units_ += unit;
-	    }
-	}
-    }
-    if ( mnuid == addcolmnuitem_.id )
-    {
-	uiCreateColDlg dlg( parent() );
-	if ( dlg.go() )
-	    data_.addCol( new AnnotData::Column( dlg.colname_ ) );
-    }
-    if ( mnuid == remunitmnuitem_.id )
-    {
-	//delete getColFromPos( xpos );
-    }
-    drawer_.draw();
-}
-
-
-Geom::Point2D<float> uiAnnotDisplay::getPos() const
-{
-    uiAnnotDisplay* self = const_cast<uiAnnotDisplay*>( this );
-    const float xpos = drawer_.xAxis()->getVal( 
-	    		self->getMouseEventHandler().event().pos().x ); 
-    const float ypos = drawer_.yAxis()->getVal( 
-	    		self->getMouseEventHandler().event().pos().y ); 
-    return Geom::Point2D<float>( xpos, ypos );
-}
-
-
-int uiAnnotDisplay::getColIdxFromPos() const 
-{
-    float xpos = getPos().x;
-    Interval<int> borders(0,0);
-    for ( int idx=0; idx<nrCols(); idx++ )
-    {
-	borders.stop += drawer_.colItem(idx).size_;
-	if ( borders.includes( xpos ) ) 
-	    return idx;
-	borders.start = borders.stop;
-    }
-    return -1;
-}
-
-
-const AnnotData::Unit* uiAnnotDisplay::getUnitFromPos( bool nocolidx ) const
-{
-    int cidx = nocolidx ? 0 : getColIdxFromPos();
-    if ( cidx >=0 && cidx<nrCols() )
-    {
-	Geom::Point2D<float> pos = getPos(); 
-	for ( int idunit=0; idunit<nrUnits(cidx); idunit++ )
-	{
-	    const AnnotData::Unit* unit = getUnit( idunit, cidx );
-	    if ( pos.y < unit->zposbot_ && pos.y >= unit->zpos_ )
-		return unit;
-	}
-    }
-    return 0;
-}
-
-
-#define mEps drawer_.yAxis()->range().width()/100
-const AnnotData::Marker* uiAnnotDisplay::getMrkFromPos() const
-{
-    int cidx = getColIdxFromPos();
-    if ( cidx >=0 && cidx<nrCols() )
-    {
-	Geom::Point2D<float> pos = getPos(); 
-	for ( int idmrk=0; idmrk<nrMarkers(cidx); idmrk++ )
-	{
-	    const AnnotData::Marker* mrk = getMarker( idmrk, cidx );
-	    if ( pos.y < (mrk->zpos_+mEps)  && pos.y > (mrk->zpos_-mEps) )
-		return mrk;
-	}
-    }
-    return 0;
-}
 
 
 #define mDefBut(but,fnm,cbnm,tt) \

@@ -4,324 +4,197 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.3 2010-09-08 13:27:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.4 2010-09-27 11:05:19 cvsbruno Exp $";
 
 
 #include "stratreftree.h"
-
+#include "stratunitrefiter.h"
 #include "ascstream.h"
-#include "iopar.h"
-#include "keystrs.h"
-#include "sorting.h"
-#include "stratlith.h"
-#include "stratunitrepos.h"
 
-static const char* sKeyGeneral = "General";
-static const char* sKeyUnits = "Units";
+static const char* sKeyStratTree = "Stratigraphic Tree";
+static const char* sKeyLith = "Lithology";
+static const char* sKeyLevelID = "Level.ID";
+static const char* sKeyTree = "Tree";
 
 
-namespace Strat
+Strat::RefTree::RefTree()
+    : NodeOnlyUnitRef(0,"","Contains all units")
+    , unitAdded(this)
+    , unitChanged(this)
+    , unitToBeDeleted(this)
+    , notifun_(0)
 {
+    initTree();
+}
 
-bool RefTree::addUnit( const char* code, const char* dumpstr, bool rev )
+
+void Strat::RefTree::initTree()
 {
-    if ( !code || !*code )
-	use( dumpstr );
+    src_ = Repos::Temp;
+    addUnit( sKeyNoCode(), "-1`", Leaved );
+}
 
-    CompoundKey ck( code );
+
+void Strat::RefTree::reportChange( const Strat::UnitRef* un, bool isrem )
+{
+    notifun_ = un;
+    if ( un )
+    {
+	(isrem ? unitToBeDeleted : unitChanged).trigger();
+	notifun_ = 0;
+    }
+}
+
+
+void Strat::RefTree::reportAdd( const Strat::UnitRef* un )
+{
+    notifun_ = un;
+    if ( un )
+    {
+	unitAdded.trigger();
+	notifun_ = 0;
+    }
+}
+
+
+bool Strat::RefTree::addUnit( const char* fullcode, const char* dumpstr,
+       			      Strat::UnitRef::Type typ )
+{
+    if ( !fullcode || !*fullcode )
+	return false;
+
+    CompoundKey ck( fullcode );
     UnitRef* par = find( ck.upLevel().buf() );
     if ( !par || par->isLeaf() )
 	return false;
 
-    const bool isleaf = strchr( dumpstr, '`' ); // a bit of a hack, really
-    const BufferString ky( ck.key( ck.nrKeys()-1 ) );
+    const BufferString newcode( ck.key( ck.nrKeys()-1 ) );
     NodeUnitRef* parnode = (NodeUnitRef*)par;
-    UnitRef* newun = isleaf ? (UnitRef*)new LeafUnitRef( parnode, ky )
-			    : (UnitRef*)new NodeUnitRef( parnode, ky );
-    if ( !newun->use(dumpstr) )
-	{ delete newun; return false; }
+    UnitRef* newun =
+	   typ == Leaf ?     (UnitRef*)new LeafUnitRef( parnode, newcode )
+	: (typ == NodeOnly ? (UnitRef*)new NodeOnlyUnitRef( parnode, newcode )
+			   : (UnitRef*)new LeavedUnitRef( parnode, newcode ) );
 
-    newun->acquireID();
-    parnode->add( newun, rev );
+    newun->use( dumpstr );
+    parnode->refs_ += newun;
     return true;
 }
 
 
-bool RefTree::addCopyOfUnit( const UnitRef& ur, bool rev )
+void Strat::RefTree::setToActualTypes()
 {
-    BufferString str;
-    ur.fill( str );
-    return addUnit( ur.fullCode(), str );
-}
-
-
-int RefTree::getID( const char* code ) const
-{
-    const UnitRef* ur = find( code );
-    return ur? ur->getID() : -1;
-}
-
-
-void RefTree::getUnitIDs( TypeSet<int>& ids ) const
-{
-    ids.erase();
-    UnitRef::Iter it( *this );
-    UnitRef* un = it.unit();
-    while ( un )
-    {
-	ids += un->getID();
-	if ( !it.next() ) break;
-	un = it.unit();
-    }
-}
-
-
-UnitRef* RefTree::fnd( int id ) const 
-{
-    UnitRef::Iter it( *this );
-    const UnitRef* un = it.unit();
-    while ( un )
-    {
-	un = it.unit();
-	if ( un->getID() == id )
-	    return const_cast<UnitRef*>(un);
-	if ( !it.next() ) break;
-	un = it.unit();
-    }
-    return 0;
-}
-
-
-void RefTree::gatherLeavesByTime( const NodeUnitRef& un, 
-					ObjectSet<UnitRef>& refunits ) const
-{
-    TypeSet<float> timestarts; TypeSet<int> sortedidxs;
-    for ( int idunit=0; idunit<un.nrRefs(); idunit++ )
-    {
-	IOPar iop; un.ref(idunit).putTo( iop );
-	Interval<float> rg; iop.get( sKey::Time, rg );
-	timestarts += rg.start;
-	sortedidxs += idunit;
-    }
-    sort_coupled( timestarts.arr(), sortedidxs.arr(), un.nrRefs() );
-    for ( int idunit=0; idunit<sortedidxs.size(); idunit++ )
-	refunits += const_cast<UnitRef*>( &un.ref(sortedidxs[idunit]) );
-}
-
-
-void RefTree::constrainUnits( UnitRef& ur ) const
-{
-    mDynamicCastGet(NodeUnitRef*,nur,&ur)
-    if ( nur )
-	constrainUnitTimes( *nur );
-    constrainUnitLvls( ur );
-}
-
-
-#define mSetRangeOverlap(rg1,rg2)\
-    if ( rg1.start < rg2.start )\
-	rg1.start = rg2.start;\
-    if ( rg1.stop > rg2.stop )\
-	rg1.stop = rg2.stop;
-void RefTree::constrainUnitTimes( NodeUnitRef& un ) const
-{
-    UnitRef::Iter it( un );
-    UnitRef* ur = it.unit();
-    while ( ur )
-    {
-	Interval<float> timerg = ur->timeRange();
-	NodeUnitRef* upur = ur->upNode();
-	if ( upur && !upur->code().isEmpty() )
-	{
-	    //parent's times
-	    const Interval<float> urtimerg = upur->timeRange();
-	    mSetRangeOverlap( timerg, urtimerg )
-	    if ( timerg.start >= urtimerg.stop ) 
-	    {
-		upur->remove( upur->indexOf( ur ) );
-		break;
-	    }
-	    
-	    //children's times
-	    bool found = false; ObjectSet<UnitRef> refunits;
-	    gatherLeavesByTime( *upur, refunits );
-	    for ( int idunit=0; idunit<refunits.size(); idunit++ )
-	    {
-		const UnitRef& un = *refunits[idunit];
-		if ( un.code() == ur->code() ) 
-		{ found = true; continue; }
-		const Interval<float> cmptimerg = un.timeRange();
-		if ( !found )
-		{
-		    if( timerg.start < cmptimerg.stop )
-			timerg.start = cmptimerg.stop;
-		}
-		else 
-		{
-		    if( timerg.stop > cmptimerg.start )
-			timerg.stop = cmptimerg.start;
-		}
-	    }
-	}
-	ur->setTimeRange( timerg );
-	if ( !it.next() ) break;
-	ur = it.unit();
-    }
-}
-
-
-void RefTree::getLeavesTimeGaps( const NodeUnitRef& node,
-				    TypeSet< Interval<float> >& timergs ) const
-{
-    if ( node.nrRefs() <= 0 ) return;
-    const Interval<float> partimerg = node.timeRange();
-    ObjectSet<UnitRef> refunits;
-    gatherLeavesByTime( node, refunits );
-    const float refstart = refunits[0]->timeRange().start;
-    const float refstop = refunits[refunits.size()-1]->timeRange().stop;
-
-    if ( partimerg.start < refstart )
-	timergs += Interval<float>( partimerg.start, refstart );
-    if ( partimerg.stop > refstop )
-	timergs += Interval<float>( refstop, partimerg.stop );
-
-    for ( int iref=0; iref<refunits.size()-1; iref++ )
-    {
-	const float refstop = refunits[iref]->timeRange().stop;
-	const float nextrefstart = refunits[iref+1]->timeRange().start;
-	if ( refstop < nextrefstart )
-	    timergs += Interval<float>( refstop, nextrefstart );
-    }
-}
-
-
-void RefTree::constrainUnitLvls( UnitRef& uref ) const
-{
-    float timestart = uref.timeRange().start; 
-    int lvlid = uref.getLvlID();
-    NodeUnitRef* ur = uref.upNode();
-    while ( ur && ur->upNode() )
-    {
-	if( timestart == ur->timeRange().start )
-	    ur->setLvlID( lvlid );
-	ur = ur->upNode();
-    }
-    mDynamicCastGet(NodeUnitRef*,un,&uref)
-    if ( !un ) return; 
-    UnitRef::Iter it( *un );
-    UnitRef* lur = it.unit();
-    while ( lur )
-    {
-	if( timestart == lur->timeRange().start )
-	    lur->setLvlID( lvlid );
-	if ( !it.next() ) break;
-	lur = it.unit();
-    }
-}
-
-
-void RefTree::assignEqualTimesToUnits( Interval<float> toptimerg ) const
-{
-    UnitRef* un = const_cast<RefTree*>( this );
-    UnitRef::Iter it( *this );
-    while ( un )
-    {
-	Interval<float> timerg( 0, 0 );
-	if ( un->upNode() ) 
-	{
-	    constrainUnitLvls( *un );
-	    timerg = un->timeRange(); 
-	}
-	else
-	    timerg = toptimerg;
-
-	if ( !un->isLeaf() ) 
-	{
-	    const int nrrefs = ((NodeUnitRef*)un)->nrRefs();
-	    if ( timerg.width() < nrrefs)
-		break;
-	    for ( int idx=0; idx<nrrefs; idx++ )
-	    {
-		UnitRef& ref = ((NodeUnitRef*)un)->ref(idx);
-		Interval<float> rg = ref.timeRange();
-		rg.start = timerg.start + (float)idx*timerg.width()/(nrrefs);
-		rg.stop = timerg.start +(float)(idx+1)*timerg.width()/(nrrefs);
-		ref.setTimeRange( rg );
-	    }
-	}
-	if ( un->upNode() && !it.next() ) break;
-	un = it.unit();
-    }
-}
-
-
-void RefTree::removeEmptyNodes()
-{
-    UnitRef::Iter it( *this );
-    ObjectSet<UnitRef> torem;
+    UnitRefIter it( *this );
+    ObjectSet<LeavedUnitRef> chrefs;
     while ( it.next() )
     {
-	UnitRef* curun = it.unit();
-	if ( !curun->isLeaf() && ((NodeUnitRef*)curun)->nrRefs() < 1 )
-	    torem += curun;
+	LeavedUnitRef* un = (LeavedUnitRef*)it.unit();
+	const bool haslvlid = un->levelID() >= 0;
+	if ( !haslvlid || !un->hasChildren() )
+	    chrefs += un;
     }
 
-    for ( int idx=0; idx<torem.size(); idx++ )
+    ObjectSet<LeavedUnitRef> norefs;
+    for ( int idx=0; idx<chrefs.size(); idx++ )
     {
-	UnitRef* un = torem[idx];
-	NodeUnitRef& par = *un->upNode();
-	par.remove( par.indexOf(un) );
+	LeavedUnitRef* un = chrefs[idx];
+	NodeUnitRef* par = un->upNode();
+	if ( un->hasChildren() )
+	    { norefs += un; continue; }
+	LeafUnitRef* newun = new LeafUnitRef( par, un->code(), un->levelID(),
+					      un->description() );
+	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
+	delete par->replace( par->indexOf(un), newun );
+    }
+    for ( int idx=0; idx<norefs.size(); idx++ )
+    {
+	LeavedUnitRef* un = norefs[idx];
+	NodeUnitRef* par = un->upNode();
+	NodeOnlyUnitRef* newun = new NodeOnlyUnitRef( par, un->code(),
+						    un->description() );
+	newun->takeChildrenFrom( un );
+	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
+	delete par->replace( par->indexOf(un), newun );
     }
 }
 
 
+bool Strat::RefTree::read( std::istream& strm )
+{
+    deepErase( refs_ ); liths_.setEmpty();
+    ascistream astrm( strm, true );
+    if ( !astrm.isOfFileType(sKeyStratTree) )
+	{ initTree(); return false; }
 
-bool RefTree::write( std::ostream& strm ) const
+    while ( !atEndOfSection( astrm.next() ) )
+    {
+	if ( astrm.hasKeyword(sKeyLith) )
+	{
+	    const BufferString nm( astrm.value() );
+	    Lithology* lith = new Lithology(astrm.value());
+	    if ( lith->id() < 0 || nm == Lithology::undef().name() )
+		delete lith;
+	    else
+		liths_.add( lith );
+	}
+    }
+
+    astrm.next(); // Read away the line: 'Units'
+    while ( !atEndOfSection( astrm.next() ) )
+	addUnit( astrm.keyWord(), astrm.value(), Strat::UnitRef::Leaved );
+    setToActualTypes();
+
+    const int propsforlen = strlen( sKeyPropsFor() );
+    while ( !atEndOfSection( astrm.next() ) )
+    {
+	IOPar iop; iop.getFrom( astrm );
+	const char* iopnm = iop.name().buf();
+	if ( *iopnm != 'P' || strlen(iopnm) < propsforlen )
+	    break;
+
+	BufferString unnm( iopnm + propsforlen );
+	UnitRef* un = unnm == sKeyTreeProps() ? this : find( unnm.buf() );
+	if ( un )
+	    un->getPropsFrom( iop );
+    }
+
+    if ( refs_.isEmpty() )
+	initTree();
+    return true;
+}
+
+
+bool Strat::RefTree::write( std::ostream& strm ) const
 {
     ascostream astrm( strm );
-    const UnitRepository& repo = UnRepo();
-    astrm.putHeader( UnitRepository::filetype() );
-    astrm.put( sKeyGeneral );
-    astrm.put( sKey::Name, treename_ );
-    BufferString str;
-    Lithology::undef().fill( str );
-    astrm.put( UnitRepository::sKeyLith(), str );
-    for ( int idx=0; idx<repo.nrLiths(); idx++ )
+    astrm.putHeader( sKeyStratTree );
+    astrm.put( "General" );
+    BufferString bstr;
+    for ( int idx=0; idx<liths_.size(); idx++ )
     {
-	const Lithology& lith = repo.lith( idx );
-	lith.fill( str );
-	astrm.put( UnitRepository::sKeyLith(), str );
+	liths_.getLith(idx).fill( bstr );
+	astrm.put( sKeyLith, bstr );
     }
+
     astrm.newParagraph();
-    astrm.put( sKeyUnits );
-    UnitRef::Iter it( *this );
-    if ( !it.unit() ) return strm.good();
-    const UnitRef& firstun = *it.unit(); firstun.fill( str );
-    astrm.put( firstun.fullCode(), str );
+    astrm.put( "Units" );
+    UnitRefIter it( *this );
     ObjectSet<const UnitRef> unitrefs;
-    unitrefs += &firstun;
-    
+    unitrefs += it.unit();;
+
     while ( it.next() )
     {
-	const UnitRef& un = *it.unit(); un.fill( str );
-	astrm.put( un.fullCode(), str );
+	const UnitRef& un = *it.unit(); un.fill( bstr );
+	astrm.put( un.fullCode(), bstr );
 	unitrefs += &un;
     }
     astrm.newParagraph();
 
-    IOPar uniop( UnitRepository::sKeyProp() );
     for ( int idx=0; idx<unitrefs.size(); idx++ )
     {
-	uniop.clear();
-	unitrefs[idx]->putTo( uniop );
-	uniop.putTo( astrm );
+	IOPar iop;
+	const UnitRef& un = *unitrefs[idx]; un.putPropsTo( iop );
+	iop.putTo( astrm );
     }
-    
-    astrm.put( UnitRepository::sKeyBottomLvlID() );
-    astrm.put( toString( botLvlID() ) );
-    
-    astrm.newParagraph();
+
     return strm.good();
 }
-
-};// namespace Strat

@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.18 2010-09-17 12:26:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.19 2010-09-27 11:05:19 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
-#include "stratunitrepos.h"
+#include "stratreftree.h"
 #include "uigraphicsscene.h"
 #include "welldisp.h"
 #include "welld2tmodel.h"
@@ -19,8 +19,8 @@ static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.18 2010-09-17 12:26:0
 
 uiWellStratDisplay::uiWellStratDisplay( uiParent* p )
     : uiWellDahDisplay(p,"Well Strat Display")
-    , annots_(AnnotData())  
-    , drawer_(uiAnnotDrawer(scene(),annots_))  
+    , data_(StratDispData())  
+    , drawer_(uiStratDrawer(scene(),data_))  
     , transparency_(0)							
 {
     drawer_.setNewAxis( new uiAxisHandler(scene_,
@@ -35,7 +35,7 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p )
 				.nogridline(true) ), true );
     drawer_.xAxis()->setBounds( StepInterval<float>( 0, 100, 10 ) );
 
-    uidatagather_ = new uiStratTreeToDispTransl( annots_ );
+    uidatagather_ = new uiStratTreeToDispTransl( data_, Strat::eRT() );
     uidatagather_->newtreeRead.notify(
 	    			mCB(this,uiWellStratDisplay,dataChangedCB));
 }
@@ -50,16 +50,15 @@ uiWellStratDisplay::~uiWellStratDisplay()
 void uiWellStratDisplay::gatherOrgUnits()
 {
     deepErase( orgunits_ );
-    for ( int colidx=0; colidx<annots_.nrCols(); colidx++ )
+    for ( int colidx=0; colidx<data_.nrCols(); colidx++ )
     {
-	AnnotData::Column& col = *annots_.getCol( colidx );
+	StratDispData::Column& col = *data_.getCol( colidx );
 	for ( int idx=0; idx<col.units_.size(); idx++ )
 	{
-	    if ( col.isaux_ ) continue;
-	    const AnnotData::Unit* un = col.units_[idx];
-	    AnnotData::Unit* newun = 
-		    new AnnotData::Unit( un->name_, un->zpos_, un->zposbot_ );
-	    newun->id_ = un->id_;
+	    const StratDispData::Unit* un = col.units_[idx];
+	    StratDispData::Unit* newun = 
+		    new StratDispData::Unit( un->name_, un->color_ );
+	    newun->zrg_ = un->zrg_;
 	    orgunits_ += newun;
 	}
     }
@@ -69,23 +68,22 @@ void uiWellStratDisplay::gatherOrgUnits()
 void uiWellStratDisplay::gatherInfo()
 {
     gatherOrgUnits();
-    for ( int colidx=0; colidx<annots_.nrCols(); colidx++ )
+    for ( int colidx=0; colidx<data_.nrCols(); colidx++ )
     {
-	AnnotData::Column& col = *annots_.getCol( colidx );
+	StratDispData::Column& col = *data_.getCol( colidx );
 	col.isdisplayed_ = false;
-	if ( col.isaux_ ) continue;
 	for ( int idx=0; idx<col.units_.size(); idx++ )
 	{
-	    AnnotData::Unit* unit = col.units_[idx];
+	    StratDispData::Unit* unit = col.units_[idx];
 	    if ( unit )
 	    {
-		unit->draw_ = false;
+		unit->isdisplayed_ = false;
 		setUnitTopPos( *unit );
 		setUnitBotPos( *unit );
-		if ( unit->draw_ )
+		if ( unit->isdisplayed_ )
 		{
-		    unit->col_.setTransparency( transparency_ );
-		    unit->nmcol_.setTransparency( transparency_ );
+		    //unit->col_.setTransparency( transparency_ );
+		    //unit->nmcol_.setTransparency( transparency_ );
 		    col.isdisplayed_ = true;
 		}
 	    }
@@ -97,55 +95,53 @@ void uiWellStratDisplay::gatherInfo()
 
 void uiWellStratDisplay::draw()
 {
+    Interval<float> zrg( zdata_.zrg_.start*0.001, zdata_.zrg_.stop*0.001 );
+    drawer_.yAxis()->setRange( zrg );
     drawer_.draw();
 }
 
 
-void uiWellStratDisplay::setUnitTopPos( AnnotData::Unit& unit )
+void uiWellStratDisplay::setUnitTopPos( StratDispData::Unit& unit )
 {
-    float& toppos = unit.zpos_; 
+    float& toppos = unit.zrg_.start; 
     const Well::Marker* mrk = 0;
     toppos = getPosFromMarkers( unit );
-    unit.draw_ = !mIsUdf( toppos );
+    unit.isdisplayed_ = !mIsUdf( toppos );
 }
 
 
-void uiWellStratDisplay::setUnitBotPos( AnnotData::Unit& unit )
+void uiWellStratDisplay::setUnitBotPos( StratDispData::Unit& unit )
 {
-    if ( !unit.draw_ ) return;
-    float& botpos = unit.zposbot_;
-    const AnnotData::Unit* nextunit = getNextTimeUnit( botpos );
+    if ( !unit.isdisplayed_ ) return;
+    float& botpos = unit.zrg_.stop;
+    const StratDispData::Unit* nextunit = getNextTimeUnit( botpos );
     if ( nextunit ) 
     {
 	botpos = getPosFromMarkers( *nextunit );
     }
-    else if ( unit.zposbot_ == uidatagather_->botzpos_ )
-    {
-	botpos = getPosMarkerLvlMatch( uidatagather_->botlvlid_ );
-    }
-    unit.draw_ = !mIsUdf( botpos );
+    unit.isdisplayed_ = !mIsUdf( botpos );
 }
 
 
-const AnnotData::Unit* uiWellStratDisplay::getNextTimeUnit( float pos ) const
+const StratDispData::Unit* uiWellStratDisplay::getNextTimeUnit( float pos ) const
 {
     for ( int idx=0; idx<orgunits_.size(); idx++ )
     {
-	const AnnotData::Unit* unit = orgunits_[idx];
-	if ( unit && unit->zpos_ == pos )
+	const StratDispData::Unit* unit = orgunits_[idx];
+	if ( unit && unit->zrg_.start == pos )
 	    return unit;
     }
     return 0;
 }
 
 
-float uiWellStratDisplay::getPosFromMarkers( const AnnotData::Unit& unit ) const
+float uiWellStratDisplay::getPosFromMarkers( const StratDispData::Unit& unit ) const
 {
     float pos = mUdf(float);
     if ( !zdata_.markers_ ) return pos;
-    const Strat::UnitRef* uref = Strat::UnRepo().find( unit.id_ );
-    if ( uref )
-	pos = getPosMarkerLvlMatch( uref->getLvlID() );
+    const Strat::UnitRef* uref = Strat::RT().find( unit.name_ );
+    if ( uref && uref->isLeaved() )
+	pos = getPosMarkerLvlMatch( ((Strat::LeavedUnitRef*)uref)->levelID() );
     return pos;
 }
 
@@ -153,7 +149,9 @@ float uiWellStratDisplay::getPosFromMarkers( const AnnotData::Unit& unit ) const
 float uiWellStratDisplay::getPosMarkerLvlMatch( int lvlid ) const
 {
     float pos = mUdf( float );
-    if ( lvlid<0 || !Strat::UnRepo().getLvl( lvlid ) ) return pos;
+    if ( !Strat::LVLS().isPresent(lvlid) )
+	return pos;
+
     const Well::Marker* mrk = 0;
     for ( int idx=0; idx<zdata_.markers_->size(); idx++ )
     {

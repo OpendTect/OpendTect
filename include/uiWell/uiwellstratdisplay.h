@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uiwellstratdisplay.h,v 1.13 2010-09-17 12:26:07 cvsbruno Exp $
+ RCS:           $Id: uiwellstratdisplay.h,v 1.14 2010-09-27 11:05:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ public:
 				uiWellStratDisplay(uiParent*);
 				~uiWellStratDisplay();
 
-    const AnnotData&		annotData() const { return annots_; }
+    const StratDispData&	stratData() const { return data_; }
 
     void			setTransparency(int t) 
     				{ transparency_ = t; dataChanged(); }
@@ -31,19 +31,20 @@ public:
 protected:
 
     uiStratTreeToDispTransl*	uidatagather_;
-    ObjectSet<const AnnotData::Unit> orgunits_;
-    AnnotData			annots_;
-    uiAnnotDrawer               drawer_;
+    ObjectSet<const StratDispData::Unit> orgunits_;
+    StratDispData		data_;
+    uiStratDrawer               drawer_;
   
     void			dataChangedCB(CallBacker*)
 				{ dataChanged(); }
     void			gatherInfo();
     void			draw();
     void			gatherOrgUnits();
-    const AnnotData::Unit*	getNextTimeUnit(float) const;
-    void 			setUnitBotPos(AnnotData::Unit&);
-    void 			setUnitTopPos(AnnotData::Unit&);
-    float			getPosFromMarkers(const AnnotData::Unit&) const;
+    const StratDispData::Unit*	getNextTimeUnit(float) const;
+    void 			setUnitBotPos(StratDispData::Unit&);
+    void 			setUnitTopPos(StratDispData::Unit&);
+    float			getPosFromMarkers(
+	    				const StratDispData::Unit&) const;
     float 			getPosMarkerLvlMatch(int) const;
 
     int				transparency_;
