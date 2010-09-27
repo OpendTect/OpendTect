@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.97 2010-09-21 11:04:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.98 2010-09-27 06:45:46 cvssatyaki Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -950,24 +950,28 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( &selattrmnuitem_, &steeringitm_, true, docheckparent );
 
     zattritm_.removeItems();
-    zattritm_.enabled = false;
-    BufferStringSet zattribnms;
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
-    seisserv->get2DZdomainAttribs( s2d->lineSetID(), objnm,
-				   scene->zDomainKey(), zattribnms );
-    if ( zattribnms.size() )
-    {
-    	mAddMenuItem( &selattrmnuitem_, &zattritm_, true, false );
-	for ( int idx=0; idx<zattribnms.size(); idx++ )
-	{
-	    FixedString nm = zattribnms.get(idx).buf();
-	    MenuItem* item = new MenuItem(nm);
-	    const bool docheck = isstored && nm==as.userRef();
-	    if ( docheck ) docheckparent=true;
-	    mAddManagedMenuItem( &zattritm_,item,true,docheck);
-	}
 
-	zattritm_.enabled = true;
+    if ( scene->getZAxisTransform() )
+    {
+	zattritm_.enabled = false;
+	BufferStringSet zattribnms;
+	seisserv->get2DZdomainAttribs( s2d->lineSetID(), objnm,
+				       scene->zDomainKey(), zattribnms );
+	if ( zattribnms.size() )
+	{
+	    mAddMenuItem( &selattrmnuitem_, &zattritm_, true, false );
+	    for ( int idx=0; idx<zattribnms.size(); idx++ )
+	    {
+		FixedString nm = zattribnms.get(idx).buf();
+		MenuItem* item = new MenuItem(nm);
+		const bool docheck = isstored && nm==as.userRef();
+		if ( docheck ) docheckparent=true;
+		mAddManagedMenuItem( &zattritm_,item,true,docheck);
+	    }
+
+	    zattritm_.enabled = true;
+	}
     }
 
     mAddMenuItem( &selattrmnuitem_, &attrnoneitm_, true, false );
