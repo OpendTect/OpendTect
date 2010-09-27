@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.21 2010-09-27 11:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.22 2010-09-27 14:01:44 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -38,6 +38,9 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     , uicontrol_(0)
     , maxrg_(Interval<float>(0,2e3))
 {
+    uidatagather_ = new uiStratTreeToDispTransl( data_ );
+    uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,dataChanged) );
+
     getMouseEventHandler().buttonReleased.notify(
 					mCB(this,uiStratDisplay,usrClickCB) );
     reSize.notify( mCB(this,uiStratDisplay,reSized) );
@@ -52,11 +55,9 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
 }
 
 
-void uiStratDisplay::setTree( Strat::RefTree& tree )
+uiStratDisplay::~uiStratDisplay()
 {
     delete uidatagather_;
-    uidatagather_ = new uiStratTreeToDispTransl( data_, tree );
-    uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,dataChanged) );
 }
 
 
