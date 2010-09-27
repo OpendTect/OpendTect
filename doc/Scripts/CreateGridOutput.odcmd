@@ -1,0 +1,25 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 11:09:13
+!
+
+[OpendTect Main Window]
+Menu "Processing`Create Grid Output`Grid"
+
+[Create surface output]
+Button "Select Quantity to output"
+
+[Select]
+Button "Ok"
+
+[Create surface output]
+Button "Select Calculate on surface"
+
+[Calculate on surface]
+Button "Ok (Select)"
+
+[Create surface output]
+Input "Attribute name" "FS4-Gridoutput" Hold
+Button "Proceed"
+
+[OpendTect Main Window]

@@ -1,0 +1,54 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 10:40:36
+!
+
+[OpendTect Main Window]
+Menu "Processing`Create Seismic Output`Between horizons"
+
+[Create Horizon delimited cube output]
+Button "Select Quantity to output"
+
+[Select]
+Button "Ok"
+
+[Create Horizon delimited cube output]
+Button "Select Calculate between top surface:"
+
+[Calculate between top surface:]
+Button "Ok (Select)"
+
+[Create Horizon delimited cube output]
+Button "Select and bottom surface:"
+
+[and bottom surface:]
+ListClick "Objects list" "Demo 6 --> FS8" Left
+Button "Ok (Select)"
+
+[Create Horizon delimited cube output]
+Button "Select Volume subselection"
+
+[Positions]
+Input "Inline start" 425 Enter
+Input "Inline stop" 425 Enter
+Button "Ok"
+
+[Create Horizon delimited cube output]
+Input "plus#1" 50 Hold
+Input "plus#2" -50 Hold
+Button "Select Output Cube"
+
+[Save Seismic Data as]
+Input "Name" "Cube-BetweenHorizon" Hold
+Button "Ok (Select)"
+
+[Create Horizon delimited cube output]
+Button "Extra options"
+
+[Extra options dialog]
+Button "Cancel"
+
+[Create Horizon delimited cube output]
+Button "Proceed"
+
+[OpendTect Main Window]

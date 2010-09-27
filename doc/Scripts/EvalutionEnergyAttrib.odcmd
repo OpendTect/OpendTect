@@ -1,0 +1,36 @@
+dTect V4.1
+OpendTect commands
+Wed 22 Sep 2010, 15:24:28
+!
+
+[OpendTect Main Window]
+TreeMenu "Inline" Left "Add"
+TreeClick "Inline`425`<right-click>" Left
+Button "Edit attributes"
+
+[Attribute Set 3D]
+Combo "Attribute group" "<All>"
+Combo "Attribute type" "Energy"
+Button "Select Input Data"
+
+[Select]
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Input "Attribute name" "EnergyAttrib" Hold
+Button "Add as new"
+Button "Evaluate attribute"
+
+[Evaluate attribute]
+Spin "Nr of slices" 3 Hold
+Spin "Nr of slices" -2 Hold
+Spin "Nr of slices" 1 Enter
+Button "Calculate"
+Slider "Slice slider" 100
+Button "Accept"
+
+[Attribute Set 3D]
+Button "Cancel"
+
+[OpendTect Main Window]
+TreeMenu "Inline`425" "Remove"

@@ -1,0 +1,35 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 09:03:46
+!
+
+[OpendTect Main Window]
+Menu "SSIS`HorizonCube`New"
+
+[HorizonCube Creator 3D]
+Button "Read horizons"
+
+[Horizon sorter]
+ListClick " " "Demo 0 --> FS4-10-10" Left
+ListClick " " "Demo 1 --> MFS4" CtrlLeft
+Button "Ok"
+
+[HorizonCube Creator 3D]
+Button "Select Faults"
+
+[Select Faults]
+ListClick "Objects list" "TestFault" Left
+Button "Ok (Select)"
+
+[HorizonCube Creator 3D]
+Button "Select Output HorizonCube"
+
+[Output HorizonCube]
+Input "Name" "testHorCube" Hold
+Button "Ok (Select)"
+
+[HorizonCube Creator 3D]
+Button "Go"
+Button "Dismiss"
+
+[OpendTect Main Window]

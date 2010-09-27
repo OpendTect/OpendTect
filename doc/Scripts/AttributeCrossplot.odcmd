@@ -1,0 +1,2018 @@
+dTect V4.2.0
+OpendTect commands
+Fri 24 Sep 2010, 17:34:13
+!
+
+[OpendTect Main Window]
+Menu "Analysis`Cross-plot`Attributes <--> Attributes"
+
+[Attribute cross-plotting]
+Button "Cancel"
+
+[OpendTect Main Window]
+Menu "Analysis`Attributes"
+
+[Attribute Set 3D]
+Combo "Attribute group" "<All>"
+Combo "Attribute type" "Convolve"
+Button "Select Input Data"
+
+[Select]
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Input "Attribute name" "Convolve" Hold
+Button "Add as new"
+Combo "Attribute type" "Energy"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+Button "Ok"
+
+[Attribute Set 3D]
+Input "Attribute name" "Energy" Hold
+Button "Add as new"
+Button "Ok"
+
+[OpendTect Main Window]
+Menu "Analysis`Cross-plot`Attributes <--> Attributes"
+
+[Attribute cross-plotting]
+ListSelect "Attributes to calculate" "Convolve" "Energy"
+Button "Select Location filters"
+
+[Filters]
+ListButton "Filter selection" "Range" On
+ListButton "Filter selection" "Subsample" On
+ListButton "Filter selection" "Random" On
+Input "Percentage to pass" 2 Hold
+ListButton "Filter selection" "Subsample" Off
+ListButton "Filter selection" "Range" Off
+ListClick "Filter selection" "Random" Left
+Button "Ok"
+
+[Attribute cross-plotting]
+Button "Ok"
+
+[Attribute data]
+Button "Toggle show X and Y columns" Off
+Button "Toggle show X and Y columns" On
+TableClick "Data Table" ColHead "X-Coord" 
+Button "Set data for X"
+TableClick "Data Table" ColHead "@*Convolve" 
+Button "Select as Y data"
+TableClick "Data Table" ColHead "Energy" 
+Button "Select as Y data"
+Button "Show crossplot"
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Button "Save image"
+
+[Create snapshot]
+Input "Select filename" "Attribute-crossplot" Hold
+Button "Ok"
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Combo "Selection Option" "Select only Y2"
+Combo "Selection Option" "Select only Y1"
+Combo "Selection Option" "Select both"
+Button "Toggle show Y2" Off
+Button "Toggle show Y2" On
+Button "Toggle show Y2" Off
+Button "Toggle show Y2" On
+Button "Show density plot" On
+
+[Information]
+Button "Ok"
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Combo "#1" "Faults 2"
+Combo "#1" "Grey scales"
+Combo "#1" "Seismics"
+Button "Show density plot" Off
+
+[Attribute data]
+TableSelect "Data Table" "468/404" "@*[Y]Convolve"
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Button "Overlay Attribute"
+
+[Overlay Properties]
+Combo "Table selection#1" "Grey scales"
+Button "Apply"
+Button "Ok"
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Button "Overlay Attribute"
+
+[Overlay Properties]
+Combo "Overlay Y2 Attribute" "None"
+Combo "Overlay Y1 Attribute" "Convolve"
+Button "Apply"
+Button "Ok"
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Button "Delete all selections"
+
+[Attribute data]
+TableFill "Data Table" "268/1124" "[X]X-Coord" 607021.66408 
+TableFill "Data Table" "692/364#1" "Y-Coord" 6088395.441906 
+TableFill "Data Table" "692/364#1" "@*[Y]Convolve" 177.72583 
+TableFill "Data Table" "692/364#1" "[Y2]Energy" 1457417.7 
+TableFill "Data Table" "676/1164" "[X]X-Coord" 620368.418738 
+TableFill "Data Table" "676/1164" "Y-Coord" 6076163.349092 
+TableFill "Data Table" "188/884#1" "Z (ms)" 804 
+TableFill "Data Table" "188/884#1" "@*[Y]Convolve" 196.75755 
+TableFill "Data Table" "188/884#1" "[Y2]Energy" 2508071.2 
+TableFill "Data Table" "692/364#2" "[X]X-Coord" 619457.049125 
+TableFill "Data Table" "348/852#1" "Y-Coord" 6080139.456565 
+TableFill "Data Table" "348/852#1" "@*[Y]Convolve" 204.0014 
+TableFill "Data Table" "348/852#1" "[Y2]Energy" 6793099 
+TableFill "Data Table" "484/1140#1" "[X]X-Coord" 617547.167468 
+TableFill "Data Table" "484/1140#1" "Y-Coord" 6076884.85067 
+TableFill "Data Table" "220/772#1" "Z (ms)" 804 
+TableFill "Data Table" "220/772#1" "@*[Y]Convolve" 208.08531 
+TableFill "Data Table" "220/772#1" "[Y2]Energy" 778311.18 
+TableFill "Data Table" "732/1180" "[X]X-Coord" 609649.677385 
+TableFill "Data Table" "732/1180" "Y-Coord" 6080265.643986 
+TableFill "Data Table" "364/460#1" "Z (ms)" 1204 
+TableFill "Data Table" "364/460#1" "@*[Y]Convolve" 216.31897 
+TableFill "Data Table" "364/460#1" "[Y2]Energy" 3929948.2 
+TableFill "Data Table" "188/884#2" "[X]X-Coord" 610893.884346 
+TableFill "Data Table" "300/508#1" "Y-Coord" 6078699.774302 
+TableFill "Data Table" "300/508#1" "@*[Y]Convolve" 219.81921 
+TableFill "Data Table" "300/508#1" "[Y2]Energy" 3773223.2 
+TableFill "Data Table" "348/852#2" "[X]X-Coord" 614953.758601 
+TableFill "Data Table" "348/852#2" "Y-Coord" 6076612.325381 
+TableFill "Data Table" "212/668#1" "Z (ms)" 804 
+TableFill "Data Table" "212/668#1" "@*[Y]Convolve" 225.85424 
+TableFill "Data Table" "212/668#1" "[Y2]Energy" 1426331.1 
+TableFill "Data Table" "220/772#2" "[X]X-Coord" 624527.703963 
+TableFill "Data Table" "244/1052#2" "Y-Coord" 6077680.08717 
+TableFill "Data Table" "244/1052#2" "@*[Y]Convolve" 226.40472 
+TableFill "Data Table" "244/1052#2" "[Y2]Energy" 2803401.2 
+TableFill "Data Table" "364/460#2" "[X]X-Coord" 607366.769965 
+TableFill "Data Table" "364/460#2" "Y-Coord" 6083203.045854 
+TableFill "Data Table" "484/372#1" "Z (ms)" 404 
+TableFill "Data Table" "484/372#1" "@*[Y]Convolve" 228.43997 
+TableFill "Data Table" "484/372#1" "[Y2]Energy" 1700822.6 
+TableFill "Data Table" "300/508#2" "[X]X-Coord" 614681.244395 
+TableFill "Data Table" "300/508#2" "Y-Coord" 6079205.730986 
+TableFill "Data Table" "316/660#1" "Z (ms)" 1204 
+TableFill "Data Table" "316/660#1" "@*[Y]Convolve" 230.64988 
+TableFill "Data Table" "316/660#1" "[Y2]Energy" 3499536.2 
+TableFill "Data Table" "212/668#2" "[X]X-Coord" 622482.706311 
+TableFill "Data Table" "212/668#2" "Y-Coord" 6086426.406643 
+TableFill "Data Table" "596/980#1" "Z (ms)" 1204 
+TableFill "Data Table" "596/980#1" "@*[Y]Convolve" 261.93283 
+TableFill "Data Table" "596/980#1" "[Y2]Energy" 8774304 
+TableFill "Data Table" "244/1052#3" "[X]X-Coord" 621705.352107 
+TableFill "Data Table" "244/1052#3" "Y-Coord" 6085604.377906 
+TableFill "Data Table" "564/948#1" "Z (ms)" 1604 
+TableFill "Data Table" "564/948#1" "@*[Y]Convolve" 263.01001 
+TableFill "Data Table" "564/948#1" "[Y2]Energy" 241116.95 
+TableFill "Data Table" "484/372#2" "[X]X-Coord" 612021.92841 
+TableFill "Data Table" "484/372#2" "Y-Coord" 6074129.484644 
+TableFill "Data Table" "116/548#1" "Z (ms)" 804 
+TableFill "Data Table" "116/548#1" "@*[Y]Convolve" 271.65692 
+TableFill "Data Table" "116/548#1" "[Y2]Energy" 2023641.1 
+TableFill "Data Table" "316/660#2" "[X]X-Coord" 611399.82493 
+TableFill "Data Table" "316/660#2" "Y-Coord" 6074912.419486 
+TableFill "Data Table" "148/524#1" "Z (ms)" 1604 
+TableFill "Data Table" "148/524#1" "@*[Y]Convolve" 295.57068 
+TableFill "Data Table" "148/524#1" "[Y2]Energy" 3715312 
+TableFill "Data Table" "596/980#2" "[X]X-Coord" 621483.093679 
+TableFill "Data Table" "596/980#2" "Y-Coord" 6086398.482432 
+TableFill "Data Table" "596/940#1" "Z (ms)" 1604 
+TableFill "Data Table" "596/940#1" "@*[Y]Convolve" 305.35598 
+TableFill "Data Table" "596/940#1" "[Y2]Energy" 410728.18 
+TableFill "Data Table" "564/948#2" "[X]X-Coord" 614131.732594 
+TableFill "Data Table" "564/948#2" "Y-Coord" 6077389.675381 
+TableFill "Data Table" "244/636#1" "Z (ms)" 804 
+TableFill "Data Table" "244/636#1" "@*[Y]Convolve" 311.36505 
+TableFill "Data Table" "244/636#1" "[Y2]Energy" 874836.18 
+TableFill "Data Table" "116/548#2" "[X]X-Coord" 613758.706832 
+TableFill "Data Table" "116/548#2" "Y-Coord" 6083581.683143 
+TableFill "Data Table" "492/628#1" "Z (ms)" 404 
+TableFill "Data Table" "492/628#1" "@*[Y]Convolve" 312.52008 
+TableFill "Data Table" "492/628#1" "[Y2]Energy" 1204577.1 
+TableFill "Data Table" "148/524#2" "[X]X-Coord" 611853.308564 
+TableFill "Data Table" "148/524#2" "Y-Coord" 6087329.944064 
+TableFill "Data Table" "644/556#1" "Z (ms)" 404 
+TableFill "Data Table" "644/556#1" "@*[Y]Convolve" 313.66299 
+TableFill "Data Table" "644/556#1" "[Y2]Energy" 2568002.7 
+TableFill "Data Table" "596/940#2" "[X]X-Coord" 623144.998205 
+TableFill "Data Table" "596/940#2" "Y-Coord" 6077041.226249 
+TableFill "Data Table" "220/996#1" "Z (ms)" 1204 
+TableFill "Data Table" "220/996#1" "@*[Y]Convolve" 319.40686 
+TableFill "Data Table" "220/996#1" "[Y2]Energy" 880464.06 
+TableFill "Data Table" "244/636#2" "[X]X-Coord" 615781.368583 
+TableFill "Data Table" "244/636#2" "Y-Coord" 6075635.053039 
+TableFill "Data Table" "172/700#1" "Z (ms)" 1604 
+TableFill "Data Table" "172/700#1" "@*[Y]Convolve" 326.72937 
+TableFill "Data Table" "172/700#1" "[Y2]Energy" 3460040.2 
+TableFill "Data Table" "492/628#2" "[X]X-Coord" 617974.932397 
+TableFill "Data Table" "180/788#1" "Y-Coord" 6075896.408644 
+TableFill "Data Table" "180/788#1" "@*[Y]Convolve" 330.8952 
+TableFill "Data Table" "180/788#1" "[Y2]Energy" 3532042.7 
+TableFill "Data Table" "644/556#2" "[X]X-Coord" 613103.0995 
+TableFill "Data Table" "644/556#2" "Y-Coord" 6085564.152038 
+TableFill "Data Table" "572/604#1" "Z (ms)" 1604 
+TableFill "Data Table" "572/604#1" "@*[Y]Convolve" 331.15088 
+TableFill "Data Table" "572/604#1" "[Y2]Energy" 2619549.5 
+TableFill "Data Table" "220/996#2" "[X]X-Coord" 615812.671263 
+TableFill "Data Table" "220/996#2" "Y-Coord" 6088841.0973 
+TableFill "Data Table" "700/716#1" "Z (ms)" 1604 
+TableFill "Data Table" "700/716#1" "@*[Y]Convolve" 336.09222 
+TableFill "Data Table" "700/716#1" "[Y2]Energy" 389601.43 
+TableFill "Data Table" "172/700#2" "[X]X-Coord" 624111.106984 
+TableFill "Data Table" "172/700#2" "Y-Coord" 6078268.684512 
+TableFill "Data Table" "268/1036#1" "Z (ms)" 404 
+TableFill "Data Table" "268/1036#1" "@*[Y]Convolve" 336.30047 
+TableFill "Data Table" "268/1036#1" "[Y2]Energy" 2116930.7 
+TableFill "Data Table" "180/788#2" "[X]X-Coord" 614914.670774 
+TableFill "Data Table" "180/788#2" "Y-Coord" 6078011.781775 
+TableFill "Data Table" "268/668#1" "Z (ms)" 804 
+TableFill "Data Table" "268/668#1" "@*[Y]Convolve" 344.30975 
+TableFill "Data Table" "268/668#1" "[Y2]Energy" 463992.46 
+TableFill "Data Table" "572/604#2" "[X]X-Coord" 605866.800725 
+TableFill "Data Table" "572/604#2" "Y-Coord" 6086762.554116 
+TableFill "Data Table" "628/316#1" "Z (ms)" 404 
+TableFill "Data Table" "628/316#1" "@*[Y]Convolve" 346.68603 
+TableFill "Data Table" "628/316#1" "[Y2]Energy" 579620.93 
+TableFill "Data Table" "532/1148#2" "[X]X-Coord" 613626.892596 
+TableFill "Data Table" "532/1148#2" "Y-Coord" 6073974.241039 
+TableFill "Data Table" "108/612#1" "Z (ms)" 404 
+TableFill "Data Table" "108/612#1" "@*[Y]Convolve" 347.27511 
+TableFill "Data Table" "108/612#1" "[Y2]Energy" 2672931.2 
+TableFill "Data Table" "700/716#2" "[X]X-Coord" 619362.121545 
+TableFill "Data Table" "700/716#2" "Y-Coord" 6083538.13638 
+TableFill "Data Table" "484/852#1" "Z (ms)" 1204 
+TableFill "Data Table" "484/852#1" "@*[Y]Convolve" 352.00888 
+TableFill "Data Table" "484/852#1" "[Y2]Energy" 11486637 
+TableFill "Data Table" "268/1036#2" "[X]X-Coord" 612026.4118 
+TableFill "Data Table" "396/556#1" "Y-Coord" 6081132.351459 
+TableFill "Data Table" "396/556#1" "@*[Y]Convolve" 358.25457 
+TableFill "Data Table" "396/556#1" "[Y2]Energy" 1003301.8 
+TableFill "Data Table" "268/668#2" "[X]X-Coord" 609882.003177 
+TableFill "Data Table" "604/476#1" "Y-Coord" 6086274.483932 
+TableFill "Data Table" "604/476#1" "@*[Y]Convolve" 370.44555 
+TableFill "Data Table" "604/476#1" "[Y2]Energy" 5009769.5 
+TableFill "Data Table" "628/316#2" "[X]X-Coord" 618951.108541 
+TableFill "Data Table" "628/316#2" "Y-Coord" 6083926.81138 
+TableFill "Data Table" "500/836#1" "Z (ms)" 804 
+TableFill "Data Table" "500/836#1" "@*[Y]Convolve" 372.39325 
+TableFill "Data Table" "500/836#1" "[Y2]Energy" 1204463.6 
+TableFill "Data Table" "108/612#2" "[X]X-Coord" 621188.243572 
+TableFill "Data Table" "108/612#2" "Y-Coord" 6089791.577406 
+TableFill "Data Table" "732/932#1" "Z (ms)" 1604 
+TableFill "Data Table" "732/932#1" "@*[Y]Convolve" 373.67639 
+TableFill "Data Table" "732/932#1" "[Y2]Energy" 433424.53 
+TableFill "Data Table" "484/852#2" "[X]X-Coord" 611237.889645 
+TableFill "Data Table" "484/852#2" "Y-Coord" 6080710.167407 
+TableFill "Data Table" "380/524#1" "Z (ms)" 404 
+TableFill "Data Table" "380/524#1" "@*[Y]Convolve" 376.68078 
+TableFill "Data Table" "380/524#1" "[Y2]Energy" 1553650.2 
+TableFill "Data Table" "396/556#2" "[X]X-Coord" 611565.143018 
+TableFill "Data Table" "396/556#2" "Y-Coord" 6083320.327538 
+TableFill "Data Table" "484/540#1" "Z (ms)" 804 
+TableFill "Data Table" "484/540#1" "@*[Y]Convolve" 383.67138 
+TableFill "Data Table" "484/540#1" "[Y2]Energy" 2287962.2 
+TableFill "Data Table" "636/1180" "[X]X-Coord" 620477.897072 
+TableFill "Data Table" "636/1180" "Y-Coord" 6086570.480564 
+TableFill "Data Table" "604/900#1" "Z (ms)" 1604 
+TableFill "Data Table" "604/900#1" "@*[Y]Convolve" 401.01913 
+TableFill "Data Table" "604/900#1" "[Y2]Energy" 427768.06 
+TableFill "Data Table" "604/476#2" "[X]X-Coord" 615153.681127 
+TableFill "Data Table" "604/476#2" "Y-Coord" 6076617.910223 
+TableFill "Data Table" "212/676#1" "Z (ms)" 1604 
+TableFill "Data Table" "212/676#1" "@*[Y]Convolve" 403.54101 
+TableFill "Data Table" "212/676#1" "[Y2]Energy" 5396863 
+TableFill "Data Table" "444/1180" "[X]X-Coord" 622482.706311 
+TableFill "Data Table" "596/980#2" "Y-Coord" 6086426.406643 
+TableFill "Data Table" "596/980#2" "@*[Y]Convolve" 404.85211 
+TableFill "Data Table" "596/980#2" "[Y2]Energy" 901117.75 
+TableFill "Data Table" "500/836#2" "[X]X-Coord" 617414.252646 
+TableFill "Data Table" "500/836#2" "Y-Coord" 6074480.197723 
+TableFill "Data Table" "124/764#1" "Z (ms)" 1604 
+TableFill "Data Table" "124/764#1" "@*[Y]Convolve" 405.43805 
+TableFill "Data Table" "124/764#1" "[Y2]Energy" 1028647.9 
+TableFill "Data Table" "732/932#2" "[X]X-Coord" 613435.936848 
+TableFill "Data Table" "732/932#2" "Y-Coord" 6087974.389827 
+TableFill "Data Table" "668/620#1" "Z (ms)" 804 
+TableFill "Data Table" "668/620#1" "@*[Y]Convolve" 410.14633 
+TableFill "Data Table" "668/620#1" "[Y2]Energy" 3159394.7 
+TableFill "Data Table" "380/524#2" "[X]X-Coord" 615503.270402 
+TableFill "Data Table" "284/692#1" "Y-Coord" 6078428.380986 
+TableFill "Data Table" "284/692#1" "@*[Y]Convolve" 420.14535 
+TableFill "Data Table" "284/692#1" "[Y2]Energy" 2788405.7 
+TableFill "Data Table" "484/540#2" "[X]X-Coord" 620462.245732 
+TableFill "Data Table" "484/540#2" "Y-Coord" 6079967.458433 
+TableFill "Data Table" "340/892#1" "Z (ms)" 404 
+TableFill "Data Table" "340/892#1" "@*[Y]Convolve" 420.25189 
+TableFill "Data Table" "340/892#1" "[Y2]Energy" 6018776.5 
+TableFill "Data Table" "604/900#2" "[X]X-Coord" 618267.581332 
+TableFill "Data Table" "604/900#2" "Y-Coord" 6086908.891985 
+TableFill "Data Table" "620/812#1" "Z (ms)" 804 
+TableFill "Data Table" "620/812#1" "@*[Y]Convolve" 427.39444 
+TableFill "Data Table" "620/812#1" "[Y2]Energy" 2534978.7 
+TableFill "Data Table" "212/676#2" "[X]X-Coord" 622660.292936 
+TableFill "Data Table" "628/988#1" "Y-Coord" 6087231.680853 
+TableFill "Data Table" "628/988#1" "@*[Y]Convolve" 428.35623 
+TableFill "Data Table" "628/988#1" "[Y2]Energy" 965224.43 
+TableFill "Data Table" "164/1196" "[X]X-Coord" 615208.420295 
+TableFill "Data Table" "164/1196" "Y-Coord" 6081821.475959 
+TableFill "Data Table" "420/684#1" "Z (ms)" 1604 
+TableFill "Data Table" "420/684#1" "@*[Y]Convolve" 460.77221 
+TableFill "Data Table" "420/684#1" "[Y2]Energy" 2886933.7 
+TableFill "Data Table" "596/980#3" "[X]X-Coord" 628730.560405 
+TableFill "Data Table" "596/980#3" "Y-Coord" 6084800.235669 
+TableFill "Data Table" "524/1228#1" "Z (ms)" 804 
+TableFill "Data Table" "524/1228#1" "@*[Y]Convolve" 465.17697 
+TableFill "Data Table" "524/1228#1" "[Y2]Energy" 4027361 
+TableFill "Data Table" "324/1140" "[X]X-Coord" 607471.764911 
+TableFill "Data Table" "324/1140" "Y-Coord" 6086607.310511 
+TableFill "Data Table" "620/380#1" "Z (ms)" 1604 
+TableFill "Data Table" "620/380#1" "@*[Y]Convolve" 467.01916 
+TableFill "Data Table" "620/380#1" "[Y2]Energy" 981638.12 
+TableFill "Data Table" "124/764#2" "[X]X-Coord" 617347.244941 
+TableFill "Data Table" "124/764#2" "Y-Coord" 6076879.265828 
+TableFill "Data Table" "220/764#1" "Z (ms)" 804 
+TableFill "Data Table" "220/764#1" "@*[Y]Convolve" 470.93603 
+TableFill "Data Table" "220/764#1" "[Y2]Energy" 1259111.2 
+TableFill "Data Table" "668/620#2" "[X]X-Coord" 619106.359265 
+TableFill "Data Table" "668/620#2" "Y-Coord" 6085531.774959 
+TableFill "Data Table" "564/844#1" "Z (ms)" 1604 
+TableFill "Data Table" "564/844#1" "@*[Y]Convolve" 488.36139 
+TableFill "Data Table" "564/844#1" "[Y2]Energy" 448247.81 
+TableFill "Data Table" "284/692#2" "[X]X-Coord" 613132.119963 
+TableFill "Data Table" "244/596#1" "Y-Coord" 6077361.75117 
+TableFill "Data Table" "244/596#1" "@*[Y]Convolve" 496.42895 
+TableFill "Data Table" "244/596#1" "[Y2]Energy" 4758625.5 
+TableFill "Data Table" "340/892#2" "[X]X-Coord" 625538.484545 
+TableFill "Data Table" "340/892#2" "Y-Coord" 6077308.166697 
+TableFill "Data Table" "228/1092#2" "Z (ms)" 1204 
+TableFill "Data Table" "228/1092#2" "@*[Y]Convolve" 497.26379 
+TableFill "Data Table" "228/1092#2" "[Y2]Energy" 1273689.8 
+TableFill "Data Table" "620/812#2" "[X]X-Coord" 628552.97378 
+TableFill "Data Table" "620/812#2" "Y-Coord" 6083994.961459 
+TableFill "Data Table" "492/1220#1" "Z (ms)" 1604 
+TableFill "Data Table" "492/1220#1" "@*[Y]Convolve" 499.77691 
+TableFill "Data Table" "492/1220#1" "[Y2]Energy" 407391.56 
+TableFill "Data Table" "628/988#2" "[X]X-Coord" 605683.630125 
+TableFill "Data Table" "604/308#1" "Y-Coord" 6086157.202248 
+TableFill "Data Table" "604/308#1" "@*[Y]Convolve" 518.97052 
+TableFill "Data Table" "604/308#1" "[Y2]Energy" 304948.87 
+TableFill "Data Table" "420/684#2" "[X]X-Coord" 612221.850937 
+TableFill "Data Table" "420/684#2" "Y-Coord" 6074135.069486 
+TableFill "Data Table" "116/556#1" "Z (ms)" 804 
+TableFill "Data Table" "116/556#1" "@*[Y]Convolve" 522.86651 
+TableFill "Data Table" "116/556#1" "[Y2]Energy" 1154103.7 
+TableFill "Data Table" "524/1228#2" "[X]X-Coord" 615879.678967 
+TableFill "Data Table" "524/1228#2" "Y-Coord" 6086442.029195 
+TableFill "Data Table" "604/716#1" "Z (ms)" 404 
+TableFill "Data Table" "604/716#1" "@*[Y]Convolve" 531.57733 
+TableFill "Data Table" "604/716#1" "[Y2]Energy" 1543803.8 
+TableFill "Data Table" "620/380#2" "[X]X-Coord" 610572.214948 
+TableFill "Data Table" "188/492#1" "Y-Coord" 6075889.691828 
+TableFill "Data Table" "188/492#1" "@*[Y]Convolve" 542.64178 
+TableFill "Data Table" "188/492#1" "[Y2]Energy" 2530975.2 
+TableFill "Data Table" "220/764#2" "[X]X-Coord" 628686.989188 
+TableFill "Data Table" "300/1220#1" "Y-Coord" 6079196.825249 
+TableFill "Data Table" "300/1220#1" "@*[Y]Convolve" 543.82348 
+TableFill "Data Table" "300/1220#1" "[Y2]Energy" 5398825 
+TableFill "Data Table" "564/1148" "[X]X-Coord" 615135.828615 
+TableFill "Data Table" "564/1148" "Y-Coord" 6084420.466406 
+TableFill "Data Table" "524/684#1" "Z (ms)" 804 
+TableFill "Data Table" "524/684#1" "@*[Y]Convolve" 561.9021 
+TableFill "Data Table" "524/684#1" "[Y2]Energy" 1041099.6 
+TableFill "Data Table" "564/844#2" "[X]X-Coord" 616412.438842 
+TableFill "Data Table" "700/740#1" "Y-Coord" 6088857.851827 
+TableFill "Data Table" "700/740#1" "@*[Y]Convolve" 562.98034 
+TableFill "Data Table" "700/740#1" "[Y2]Energy" 717756.43 
+TableFill "Data Table" "244/596#2" "[X]X-Coord" 623105.910377 
+TableFill "Data Table" "244/596#2" "Y-Coord" 6078440.682644 
+TableFill "Data Table" "276/996#1" "Z (ms)" 1604 
+TableFill "Data Table" "276/996#1" "@*[Y]Convolve" 575.03961 
+TableFill "Data Table" "276/996#1" "[Y2]Energy" 8336375.5 
+TableFill "Data Table" "228/1092#3" "[X]X-Coord" 623820.740266 
+TableFill "Data Table" "228/1092#3" "Y-Coord" 6088664.646301 
+TableFill "Data Table" "684/1036#1" "Z (ms)" 1604 
+TableFill "Data Table" "684/1036#1" "@*[Y]Convolve" 580.10614 
+TableFill "Data Table" "684/1036#1" "[Y2]Energy" 2168720 
+TableFill "Data Table" "492/1220#2" "[X]X-Coord" 618140.250485 
+TableFill "Data Table" "492/1220#2" "Y-Coord" 6084304.316696 
+TableFill "Data Table" "516/804#1" "Z (ms)" 804 
+TableFill "Data Table" "516/804#1" "@*[Y]Convolve" 583.18664 
+TableFill "Data Table" "516/804#1" "[Y2]Energy" 938294 
+TableFill "Data Table" "236/1196" "[X]X-Coord" 610820.19208 
+TableFill "Data Table" "236/1196" "Y-Coord" 6088501.553906 
+TableFill "Data Table" "692/516#1" "Z (ms)" 804 
+TableFill "Data Table" "692/516#1" "@*[Y]Convolve" 590.34063 
+TableFill "Data Table" "692/516#1" "[Y2]Energy" 2467509.7 
+TableFill "Data Table" "604/308#2" "[X]X-Coord" 616807.800505 
+TableFill "Data Table" "420/748#1" "Y-Coord" 6081866.154696 
+TableFill "Data Table" "420/748#1" "@*[Y]Convolve" 593.96612 
+TableFill "Data Table" "420/748#1" "[Y2]Energy" 4379520 
+TableFill "Data Table" "300/1108" "[X]X-Coord" 615381.52353 
+TableFill "Data Table" "172/684#1" "Y-Coord" 6075623.883355 
+TableFill "Data Table" "172/684#1" "@*[Y]Convolve" 601.26678 
+TableFill "Data Table" "172/684#1" "[Y2]Energy" 4850282.5 
+TableFill "Data Table" "116/556#2" "[X]X-Coord" 616834.619796 
+TableFill "Data Table" "116/556#2" "Y-Coord" 6088069.332143 
+TableFill "Data Table" "668/756#1" "Z (ms)" 1604 
+TableFill "Data Table" "668/756#1" "@*[Y]Convolve" 604.2702 
+TableFill "Data Table" "668/756#1" "[Y2]Energy" 207235.68 
+TableFill "Data Table" "500/1164" "[X]X-Coord" 620007.661512 
+TableFill "Data Table" "500/1164" "Y-Coord" 6074752.723013 
+TableFill "Data Table" "132/868#1" "Z (ms)" 804 
+TableFill "Data Table" "132/868#1" "@*[Y]Convolve" 611.2193 
+TableFill "Data Table" "132/868#1" "[Y2]Energy" 1225832 
+TableFill "Data Table" "604/716#2" "[X]X-Coord" 619967.473099 
+TableFill "Data Table" "604/716#2" "Y-Coord" 6083354.968564 
+TableFill "Data Table" "476/876#1" "Z (ms)" 1204 
+TableFill "Data Table" "476/876#1" "@*[Y]Convolve" 616.65966 
+TableFill "Data Table" "476/876#1" "[Y2]Energy" 4785178.5 
+TableFill "Data Table" "340/1180" "[X]X-Coord" 611070.370384 
+TableFill "Data Table" "620/524#1" "Y-Coord" 6086707.837669 
+TableFill "Data Table" "620/524#1" "@*[Y]Convolve" 626.19622 
+TableFill "Data Table" "620/524#1" "[Y2]Energy" 1267974.3 
+TableFill "Data Table" "188/492#2" "[X]X-Coord" 614285.882732 
+TableFill "Data Table" "188/492#2" "Y-Coord" 6086197.428117 
+TableFill "Data Table" "596/652#1" "Z (ms)" 804 
+TableFill "Data Table" "596/652#1" "@*[Y]Convolve" 626.92547 
+TableFill "Data Table" "596/652#1" "[Y2]Energy" 1112163.8 
+TableFill "Data Table" "300/1220#2" "[X]X-Coord" 607372.353941 
+TableFill "Data Table" "300/1220#2" "Y-Coord" 6083003.123512 
+TableFill "Data Table" "476/372#1" "Z (ms)" 404 
+TableFill "Data Table" "476/372#1" "@*[Y]Convolve" 627.47601 
+TableFill "Data Table" "476/372#1" "[Y2]Energy" 1671343.6 
+TableFill "Data Table" "524/684#2" "[X]X-Coord" 612237.502277 
+TableFill "Data Table" "524/684#2" "Y-Coord" 6080738.091617 
+TableFill "Data Table" "380/564#1" "Z (ms)" 1204 
+TableFill "Data Table" "380/564#1" "@*[Y]Convolve" 630.17169 
+TableFill "Data Table" "380/564#1" "[Y2]Energy" 4167620.5 
+TableFill "Data Table" "700/740#2" "[X]X-Coord" 619117.527215 
+TableFill "Data Table" "700/740#2" "Y-Coord" 6085131.930275 
+TableFill "Data Table" "548/844#1" "Z (ms)" 404 
+TableFill "Data Table" "548/844#1" "@*[Y]Convolve" 636.57745 
+TableFill "Data Table" "548/844#1" "[Y2]Energy" 3215595.5 
+TableFill "Data Table" "276/996#2" "[X]X-Coord" 625236.949876 
+TableFill "Data Table" "660/1092#1" "Y-Coord" 6088103.973169 
+TableFill "Data Table" "660/1092#1" "@*[Y]Convolve" 638.59149 
+TableFill "Data Table" "660/1092#1" "[Y2]Energy" 1172570.5 
+TableFill "Data Table" "684/1036#2" "[X]X-Coord" 616074.017518 
+TableFill "Data Table" "684/1036#2" "Y-Coord" 6086647.53638 
+TableFill "Data Table" "612/724#1" "Z (ms)" 804 
+TableFill "Data Table" "612/724#1" "@*[Y]Convolve" 651.38 
+TableFill "Data Table" "612/724#1" "[Y2]Energy" 804507.87 
+TableFill "Data Table" "516/804#2" "[X]X-Coord" 621123.43704 
+TableFill "Data Table" "252/916#1" "Y-Coord" 6077785.067197 
+TableFill "Data Table" "252/916#1" "@*[Y]Convolve" 653.59588 
+TableFill "Data Table" "252/916#1" "[Y2]Energy" 5833175.5 
+TableFill "Data Table" "692/516#2" "[X]X-Coord" 614020.053087 
+TableFill "Data Table" "692/516#2" "Y-Coord" 6081388.122222 
+TableFill "Data Table" "404/636#1" "Z (ms)" 1604 
+TableFill "Data Table" "404/636#1" "@*[Y]Convolve" 654.14904 
+TableFill "Data Table" "404/636#1" "[Y2]Energy" 3823947.5 
+TableFill "Data Table" "420/748#2" "[X]X-Coord" 615012.981157 
+TableFill "Data Table" "420/748#2" "Y-Coord" 6088818.757932 
+TableFill "Data Table" "700/684#1" "Z (ms)" 804 
+TableFill "Data Table" "700/684#1" "@*[Y]Convolve" 655.2843 
+TableFill "Data Table" "700/684#1" "[Y2]Energy" 3145731.7 
+TableFill "Data Table" "172/684#2" "[X]X-Coord" 623554.910622 
+TableFill "Data Table" "492/1020#1" "Y-Coord" 6083855.340406 
+TableFill "Data Table" "492/1020#1" "@*[Y]Convolve" 658.93811 
+TableFill "Data Table" "492/1020#1" "[Y2]Energy" 580814.25 
+TableFill "Data Table" "668/756#2" "[X]X-Coord" 614514.825721 
+TableFill "Data Table" "668/756#2" "Y-Coord" 6078000.612091 
+TableFill "Data Table" "268/652#1" "Z (ms)" 1204 
+TableFill "Data Table" "268/652#1" "@*[Y]Convolve" 671.26818 
+TableFill "Data Table" "268/652#1" "[Y2]Energy" 4393842.5 
+TableFill "Data Table" "132/868#2" "[X]X-Coord" 610287.432205 
+TableFill "Data Table" "132/868#2" "Y-Coord" 6086085.731274 
+TableFill "Data Table" "596/492#1" "Z (ms)" 1604 
+TableFill "Data Table" "596/492#1" "@*[Y]Convolve" 672.91125 
+TableFill "Data Table" "596/492#1" "[Y2]Energy" 1093915.3 
+TableFill "Data Table" "476/876#2" "[X]X-Coord" 609288.92016 
+TableFill "Data Table" "308/444#1" "Y-Coord" 6078855.017907 
+TableFill "Data Table" "308/444#1" "@*[Y]Convolve" 673.93969 
+TableFill "Data Table" "308/444#1" "[Y2]Energy" 5196216.5 
+TableFill "Data Table" "620/524#2" "[X]X-Coord" 614474.637307 
+TableFill "Data Table" "612/660#1" "Y-Coord" 6086602.857643 
+TableFill "Data Table" "612/660#1" "@*[Y]Convolve" 676.76843 
+TableFill "Data Table" "612/660#1" "[Y2]Energy" 437850.84 
+TableFill "Data Table" "596/652#2" "[X]X-Coord" 619722.87877 
+TableFill "Data Table" "540/868#1" "Y-Coord" 6084948.762459 
+TableFill "Data Table" "540/868#1" "@*[Y]Convolve" 687.14245 
+TableFill "Data Table" "540/868#1" "[Y2]Energy" 2284402.2 
+TableFill "Data Table" "476/372#2" "[X]X-Coord" 616203.549537 
+TableFill "Data Table" "476/372#2" "Y-Coord" 6074846.533355 
+TableFill "Data Table" "140/716#1" "Z (ms)" 804 
+TableFill "Data Table" "140/716#1" "@*[Y]Convolve" 690.21368 
+TableFill "Data Table" "140/716#1" "[Y2]Energy" 814878.75 
+TableFill "Data Table" "380/564#2" "[X]X-Coord" 606161.650832 
+TableFill "Data Table" "380/564#2" "Y-Coord" 6083369.459143 
+TableFill "Data Table" "492/324#1" "Z (ms)" 1604 
+TableFill "Data Table" "492/324#1" "@*[Y]Convolve" 693.27453 
+TableFill "Data Table" "492/324#1" "[Y2]Energy" 2298906.2 
+TableFill "Data Table" "548/844#2" "[X]X-Coord" 609554.749804 
+TableFill "Data Table" "548/844#2" "Y-Coord" 6083664.323801 
+TableFill "Data Table" "500/460#1" "Z (ms)" 1204 
+TableFill "Data Table" "500/460#1" "@*[Y]Convolve" 722.8114 
+TableFill "Data Table" "500/460#1" "[Y2]Energy" 3484017.2 
+TableFill "Data Table" "660/1092#2" "[X]X-Coord" 616581.058688 
+TableFill "Data Table" "660/1092#2" "Y-Coord" 6075657.392407 
+TableFill "Data Table" "172/732#1" "Z (ms)" 1204 
+TableFill "Data Table" "172/732#1" "@*[Y]Convolve" 726.59192 
+TableFill "Data Table" "172/732#1" "[Y2]Energy" 4520994.5 
+TableFill "Data Table" "612/724#2" "[X]X-Coord" 609659.74475 
+TableFill "Data Table" "612/724#2" "Y-Coord" 6087068.588459 
+TableFill "Data Table" "636/468#1" "Z (ms)" 404 
+TableFill "Data Table" "636/468#1" "@*[Y]Convolve" 736.58416 
+TableFill "Data Table" "636/468#1" "[Y2]Energy" 1553628.7 
+TableFill "Data Table" "252/916#2" "[X]X-Coord" 624376.936629 
+TableFill "Data Table" "460/1052#1" "Y-Coord" 6083077.990406 
+TableFill "Data Table" "460/1052#1" "@*[Y]Convolve" 742.93463 
+TableFill "Data Table" "460/1052#1" "[Y2]Energy" 1102234.1 
+TableFill "Data Table" "404/636#2" "[X]X-Coord" 613835.781901 
+TableFill "Data Table" "404/636#2" "Y-Coord" 6087985.559511 
+TableFill "Data Table" "668/636#1" "Z (ms)" 404 
+TableFill "Data Table" "668/636#1" "@*[Y]Convolve" 743.14618 
+TableFill "Data Table" "668/636#1" "[Y2]Energy" 2200688.5 
+TableFill "Data Table" "700/684#2" "[X]X-Coord" 622917.155802 
+TableFill "Data Table" "260/988#1" "Y-Coord" 6078035.253118 
+TableFill "Data Table" "260/988#1" "@*[Y]Convolve" 745.57367 
+TableFill "Data Table" "260/988#1" "[Y2]Energy" 2745647 
+TableFill "Data Table" "492/1020#2" "[X]X-Coord" 613897.20563 
+TableFill "Data Table" "580/636#1" "Y-Coord" 6085786.413748 
+TableFill "Data Table" "580/636#1" "@*[Y]Convolve" 765.79223 
+TableFill "Data Table" "580/636#1" "[Y2]Energy" 702124.37 
+TableFill "Data Table" "468/1148" "[X]X-Coord" 610594.550849 
+TableFill "Data Table" "468/1148" "Y-Coord" 6075090.00246 
+TableFill "Data Table" "156/492#1" "Z (ms)" 1204 
+TableFill "Data Table" "156/492#1" "@*[Y]Convolve" 767.26672 
+TableFill "Data Table" "156/492#1" "[Y2]Energy" 14899019 
+TableFill "Data Table" "268/652#2" "[X]X-Coord" 617234.464848 
+TableFill "Data Table" "268/652#2" "Y-Coord" 6088080.501827 
+TableFill "Data Table" "668/772#1" "Z (ms)" 804 
+TableFill "Data Table" "668/772#1" "@*[Y]Convolve" 786.0296 
+TableFill "Data Table" "668/772#1" "[Y2]Energy" 998175.87 
+TableFill "Data Table" "596/492#2" "[X]X-Coord" 619912.733932 
+TableFill "Data Table" "596/492#2" "Y-Coord" 6078151.402828 
+TableFill "Data Table" "268/868#1" "Z (ms)" 1204 
+TableFill "Data Table" "268/868#1" "@*[Y]Convolve" 790.78973 
+TableFill "Data Table" "268/868#1" "[Y2]Energy" 8392352 
+TableFill "Data Table" "732/1116" "[X]X-Coord" 608226.783213 
+TableFill "Data Table" "684/412#1" "Y-Coord" 6088229.028616 
+TableFill "Data Table" "684/412#1" "@*[Y]Convolve" 791.79028 
+TableFill "Data Table" "684/412#1" "[Y2]Energy" 475423.21 
+TableFill "Data Table" "308/444#2" "[X]X-Coord" 620572.824653 
+TableFill "Data Table" "308/444#2" "Y-Coord" 6083171.800749 
+TableFill "Data Table" "468/900#1" "Z (ms)" 1604 
+TableFill "Data Table" "468/900#1" "@*[Y]Convolve" 792.87848 
+TableFill "Data Table" "468/900#1" "[Y2]Energy" 784332.62 
+TableFill "Data Table" "612/660#2" "[X]X-Coord" 624398.171944 
+TableFill "Data Table" "612/660#2" "Y-Coord" 6089481.090195 
+TableFill "Data Table" "716/1060#1" "Z (ms)" 1204 
+TableFill "Data Table" "716/1060#1" "@*[Y]Convolve" 807.27435 
+TableFill "Data Table" "716/1060#1" "[Y2]Energy" 3129543.7 
+TableFill "Data Table" "540/868#2" "[X]X-Coord" 606478.836841 
+TableFill "Data Table" "540/868#2" "Y-Coord" 6079176.674802 
+TableFill "Data Table" "324/332#1" "Z (ms)" 1204 
+TableFill "Data Table" "324/332#1" "@*[Y]Convolve" 811.99231 
+TableFill "Data Table" "324/332#1" "[Y2]Energy" 4117300.7 
+TableFill "Data Table" "140/716#2" "[X]X-Coord" 612982.453215 
+TableFill "Data Table" "140/716#2" "Y-Coord" 6075556.865249 
+TableFill "Data Table" "172/588#1" "Z (ms)" 1204 
+TableFill "Data Table" "172/588#1" "@*[Y]Convolve" 815.60791 
+TableFill "Data Table" "172/588#1" "[Y2]Energy" 4846515.5 
+TableFill "Data Table" "492/324#2" "[X]X-Coord" 624193.766028 
+TableFill "Data Table" "492/324#2" "Y-Coord" 6082472.638538 
+TableFill "Data Table" "436/1044#1" "Z (ms)" 1204 
+TableFill "Data Table" "436/1044#1" "@*[Y]Convolve" 829.73077 
+TableFill "Data Table" "436/1044#1" "[Y2]Energy" 11188828 
+TableFill "Data Table" "244/1116" "[X]X-Coord" 611188.734453 
+TableFill "Data Table" "244/1116" "Y-Coord" 6075306.679328 
+TableFill "Data Table" "164/516#1" "Z (ms)" 1604 
+TableFill "Data Table" "164/516#1" "@*[Y]Convolve" 837.28558 
+TableFill "Data Table" "164/516#1" "[Y2]Energy" 2895832.7 
+TableFill "Data Table" "500/460#2" "[X]X-Coord" 616020.378937 
+TableFill "Data Table" "116/708#1" "Y-Coord" 6074241.181487 
+TableFill "Data Table" "116/708#1" "@*[Y]Convolve" 852.40161 
+TableFill "Data Table" "116/708#1" "[Y2]Energy" 7135176 
+TableFill "Data Table" "172/732#2" "[X]X-Coord" 614275.815367 
+TableFill "Data Table" "324/644#1" "Y-Coord" 6079394.483644 
+TableFill "Data Table" "324/644#1" "@*[Y]Convolve" 881.96759 
+TableFill "Data Table" "324/644#1" "[Y2]Energy" 8980192 
+TableFill "Data Table" "636/468#2" "[X]X-Coord" 609082.313072 
+TableFill "Data Table" "636/468#2" "Y-Coord" 6086252.144564 
+TableFill "Data Table" "604/444#1" "Z (ms)" 1604 
+TableFill "Data Table" "604/444#1" "@*[Y]Convolve" 882.40948 
+TableFill "Data Table" "604/444#1" "[Y2]Energy" 2006044.7 
+TableFill "Data Table" "284/1212" "[X]X-Coord" 620401.92259 
+TableFill "Data Table" "284/1212" "Y-Coord" 6074963.815039 
+TableFill "Data Table" "140/884#1" "Z (ms)" 1604 
+TableFill "Data Table" "140/884#1" "@*[Y]Convolve" 882.85144 
+TableFill "Data Table" "140/884#1" "[Y2]Energy" 22797430 
+TableFill "Data Table" "156/1156" "[X]X-Coord" 609665.328725 
+TableFill "Data Table" "156/1156" "Y-Coord" 6086868.666116 
+TableFill "Data Table" "628/468#1" "Z (ms)" 804 
+TableFill "Data Table" "628/468#1" "@*[Y]Convolve" 884.07885 
+TableFill "Data Table" "628/468#1" "[Y2]Energy" 4717094.5 
+TableFill "Data Table" "460/1052#2" "[X]X-Coord" 615207.319708 
+TableFill "Data Table" "708/692#1" "Y-Coord" 6089024.265116 
+TableFill "Data Table" "708/692#1" "@*[Y]Convolve" 884.80542 
+TableFill "Data Table" "708/692#1" "[Y2]Energy" 4123896.5 
+TableFill "Data Table" "668/636#2" "[X]X-Coord" 615201.735733 
+TableFill "Data Table" "668/636#2" "Y-Coord" 6089224.187458 
+TableFill "Data Table" "716/692#1" "Z (ms)" 1604 
+TableFill "Data Table" "716/692#1" "@*[Y]Convolve" 902.85083 
+TableFill "Data Table" "716/692#1" "[Y2]Energy" 650669.43 
+TableFill "Data Table" "260/988#2" "[X]X-Coord" 618868.449497 
+TableFill "Data Table" "260/988#2" "Y-Coord" 6079722.857354 
+TableFill "Data Table" "332/828#1" "Z (ms)" 1204 
+TableFill "Data Table" "332/828#1" "@*[Y]Convolve" 909.31036 
+TableFill "Data Table" "332/828#1" "[Y2]Energy" 3279800 
+TableFill "Data Table" "580/636#2" "[X]X-Coord" 606607.268274 
+TableFill "Data Table" "580/636#2" "Y-Coord" 6074578.460934 
+TableFill "Data Table" "140/332#1" "Z (ms)" 1204 
+TableFill "Data Table" "140/332#1" "@*[Y]Convolve" 911.40924 
+TableFill "Data Table" "140/332#1" "[Y2]Energy" 1769330.7 
+TableFill "Data Table" "156/492#2" "[X]X-Coord" 614047.972964 
+TableFill "Data Table" "156/492#2" "Y-Coord" 6080388.510512 
+TableFill "Data Table" "364/636#1" "Z (ms)" 1604 
+TableFill "Data Table" "364/636#1" "@*[Y]Convolve" 913.46277 
+TableFill "Data Table" "364/636#1" "[Y2]Energy" 5567540.5 
+TableFill "Data Table" "668/772#2" "[X]X-Coord" 615008.497768 
+TableFill "Data Table" "668/772#2" "Y-Coord" 6081815.891117 
+TableFill "Data Table" "420/676#1" "Z (ms)" 1604 
+TableFill "Data Table" "420/676#1" "@*[Y]Convolve" 913.79651 
+TableFill "Data Table" "420/676#1" "[Y2]Energy" 4452091 
+TableFill "Data Table" "268/868#2" "[X]X-Coord" 619917.217321 
+TableFill "Data Table" "268/868#2" "Y-Coord" 6085154.269643 
+TableFill "Data Table" "548/876#1" "Z (ms)" 404 
+TableFill "Data Table" "548/876#1" "@*[Y]Convolve" 914.72619 
+TableFill "Data Table" "548/876#1" "[Y2]Energy" 2500391 
+TableFill "Data Table" "684/412#2" "[X]X-Coord" 611887.913002 
+TableFill "Data Table" "684/412#2" "Y-Coord" 6078927.620854 
+TableFill "Data Table" "308/548#1" "Z (ms)" 1204 
+TableFill "Data Table" "308/548#1" "@*[Y]Convolve" 923.66168 
+TableFill "Data Table" "308/548#1" "[Y2]Energy" 3872093.5 
+TableFill "Data Table" "468/900#2" "[X]X-Coord" 609750.188941 
+TableFill "Data Table" "468/900#2" "Y-Coord" 6076667.041828 
+TableFill "Data Table" "220/460#1" "Z (ms)" 404 
+TableFill "Data Table" "220/460#1" "@*[Y]Convolve" 925.33374 
+TableFill "Data Table" "220/460#1" "[Y2]Energy" 1127337.8 
+TableFill "Data Table" "716/1060#2" "[X]X-Coord" 608932.646324 
+TableFill "Data Table" "716/1060#2" "Y-Coord" 6084447.258643 
+TableFill "Data Table" "532/436#1" "Z (ms)" 1604 
+TableFill "Data Table" "532/436#1" "@*[Y]Convolve" 940.47052 
+TableFill "Data Table" "532/436#1" "[Y2]Energy" 6816909 
+TableFill "Data Table" "324/332#2" "[X]X-Coord" 612648.51528 
+TableFill "Data Table" "324/332#2" "Y-Coord" 6080349.416617 
+TableFill "Data Table" "364/580#1" "Z (ms)" 404 
+TableFill "Data Table" "364/580#1" "@*[Y]Convolve" 947.2915 
+TableFill "Data Table" "364/580#1" "[Y2]Energy" 2528089.2 
+TableFill "Data Table" "172/588#2" "[X]X-Coord" 615536.774254 
+TableFill "Data Table" "172/588#2" "Y-Coord" 6077228.846933 
+TableFill "Data Table" "236/692#1" "Z (ms)" 404 
+TableFill "Data Table" "236/692#1" "@*[Y]Convolve" 950.67407 
+TableFill "Data Table" "236/692#1" "[Y2]Energy" 2440808.7 
+TableFill "Data Table" "436/1044#2" "[X]X-Coord" 625465.892866 
+TableFill "Data Table" "436/1044#2" "Y-Coord" 6079907.157144 
+TableFill "Data Table" "332/1092#1" "Z (ms)" 404 
+TableFill "Data Table" "332/1092#1" "@*[Y]Convolve" 951.40686 
+TableFill "Data Table" "332/1092#1" "[Y2]Energy" 2773893.7 
+TableFill "Data Table" "164/516#2" "[X]X-Coord" 614864.414995 
+TableFill "Data Table" "164/516#2" "Y-Coord" 6079811.082854 
+TableFill "Data Table" "340/668#1" "Z (ms)" 1204 
+TableFill "Data Table" "340/668#1" "@*[Y]Convolve" 954.0863 
+TableFill "Data Table" "340/668#1" "[Y2]Energy" 4281977.5 
+TableFill "Data Table" "116/708#2" "[X]X-Coord" 609649.677385 
+TableFill "Data Table" "116/708#2" "Y-Coord" 6080265.643986 
+TableFill "Data Table" "364/460#2" "Z (ms)" 1604 
+TableFill "Data Table" "364/460#2" "@*[Y]Convolve" 963.60217 
+TableFill "Data Table" "364/460#2" "[Y2]Energy" 23919516 
+TableFill "Data Table" "324/644#2" "[X]X-Coord" 621432.837901 
+TableFill "Data Table" "324/644#2" "Y-Coord" 6088197.783511 
+TableFill "Data Table" "668/940#1" "Z (ms)" 1604 
+TableFill "Data Table" "668/940#1" "@*[Y]Convolve" 973.4757 
+TableFill "Data Table" "668/940#1" "[Y2]Energy" 767070.56 
+TableFill "Data Table" "604/444#2" "[X]X-Coord" 614797.407291 
+TableFill "Data Table" "604/444#2" "Y-Coord" 6082210.150959 
+TableFill "Data Table" "436/668#1" "Z (ms)" 1204 
+TableFill "Data Table" "436/668#1" "@*[Y]Convolve" 985.14434 
+TableFill "Data Table" "436/668#1" "[Y2]Energy" 4676081.5 
+TableFill "Data Table" "140/884#2" "[X]X-Coord" 619296.214427 
+TableFill "Data Table" "292/844#1" "Y-Coord" 6078734.415328 
+TableFill "Data Table" "292/844#1" "@*[Y]Convolve" 986.12011 
+TableFill "Data Table" "292/844#1" "[Y2]Energy" 1100880.5 
+TableFill "Data Table" "628/468#2" "[X]X-Coord" 628765.164843 
+TableFill "Data Table" "628/468#2" "Y-Coord" 6076397.91246 
+TableFill "Data Table" "188/1220#1" "Z (ms)" 1604 
+TableFill "Data Table" "188/1220#1" "@*[Y]Convolve" 987.8623 
+TableFill "Data Table" "188/1220#1" "[Y2]Energy" 7394273.5 
+TableFill "Data Table" "708/692#2" "[X]X-Coord" 609905.439665 
+TableFill "Data Table" "708/692#2" "Y-Coord" 6078272.005407 
+TableFill "Data Table" "284/468#1" "Z (ms)" 1604 
+TableFill "Data Table" "284/468#1" "@*[Y]Convolve" 998.40783 
+TableFill "Data Table" "284/468#1" "[Y2]Energy" 2727486.2 
+TableFill "Data Table" "716/692#2" "[X]X-Coord" 613227.047544 
+TableFill "Data Table" "716/692#2" "Y-Coord" 6073963.071355 
+TableFill "Data Table" "108/596#1" "Z (ms)" 404 
+TableFill "Data Table" "108/596#1" "@*[Y]Convolve" 1005.2182 
+TableFill "Data Table" "108/596#1" "[Y2]Energy" 3693975 
+TableFill "Data Table" "332/828#2" "[X]X-Coord" 620401.92259 
+TableFill "Data Table" "332/828#2" "Y-Coord" 6074963.815039 
+TableFill "Data Table" "140/884#2" "Z (ms)" 404 
+TableFill "Data Table" "140/884#2" "@*[Y]Convolve" 1005.3331 
+TableFill "Data Table" "140/884#2" "[Y2]Energy" 7660695 
+TableFill "Data Table" "140/332#2" "[X]X-Coord" 620294.726472 
+TableFill "Data Table" "140/332#2" "Y-Coord" 6085965.128696 
+TableFill "Data Table" "580/892#1" "Z (ms)" 404 
+TableFill "Data Table" "580/892#1" "@*[Y]Convolve" 1009.8806 
+TableFill "Data Table" "580/892#1" "[Y2]Energy" 923076 
+TableFill "Data Table" "364/636#2" "[X]X-Coord" 620550.488752 
+TableFill "Data Table" "364/636#2" "Y-Coord" 6083971.490117 
+TableFill "Data Table" "500/900#1" "Z (ms)" 404 
+TableFill "Data Table" "500/900#1" "@*[Y]Convolve" 1029.6842 
+TableFill "Data Table" "500/900#1" "[Y2]Energy" 4073356.5 
+TableFill "Data Table" "420/676#2" "[X]X-Coord" 607893.945865 
+TableFill "Data Table" "588/396#1" "Y-Coord" 6085818.790827 
+TableFill "Data Table" "588/396#1" "@*[Y]Convolve" 1054.1942 
+TableFill "Data Table" "588/396#1" "[Y2]Energy" 1127454.1 
+TableFill "Data Table" "548/876#2" "[X]X-Coord" 619478.284441 
+TableFill "Data Table" "604/860#1" "Y-Coord" 6086542.556353 
+TableFill "Data Table" "604/860#1" "@*[Y]Convolve" 1057.9055 
+TableFill "Data Table" "604/860#1" "[Y2]Energy" 3972132 
+TableFill "Data Table" "308/548#2" "[X]X-Coord" 609433.002933 
+TableFill "Data Table" "388/452#1" "Y-Coord" 6080859.82617 
+TableFill "Data Table" "388/452#1" "@*[Y]Convolve" 1059.0332 
+TableFill "Data Table" "388/452#1" "[Y2]Energy" 3284600 
+TableFill "Data Table" "220/460#2" "[X]X-Coord" 622699.380763 
+TableFill "Data Table" "220/460#2" "Y-Coord" 6085832.224459 
+TableFill "Data Table" "572/988#1" "Z (ms)" 1204 
+TableFill "Data Table" "572/988#1" "@*[Y]Convolve" 1063.0306 
+TableFill "Data Table" "572/988#1" "[Y2]Energy" 3970860.7 
+TableFill "Data Table" "660/1140" "[X]X-Coord" 622821.127635 
+TableFill "Data Table" "660/1140" "Y-Coord" 6088636.72209 
+TableFill "Data Table" "684/996#1" "Z (ms)" 804 
+TableFill "Data Table" "684/996#1" "@*[Y]Convolve" 1069.7295 
+TableFill "Data Table" "684/996#1" "[Y2]Energy" 1014798.8 
+TableFill "Data Table" "532/436#2" "[X]X-Coord" 623022.150747 
+TableFill "Data Table" "532/436#2" "Y-Coord" 6081439.517775 
+TableFill "Data Table" "396/996#1" "Z (ms)" 404 
+TableFill "Data Table" "396/996#1" "@*[Y]Convolve" 1080.3319 
+TableFill "Data Table" "396/996#1" "[Y2]Energy" 3654795.7 
+TableFill "Data Table" "492/1172" "[X]X-Coord" 616164.46171 
+TableFill "Data Table" "492/1172" "Y-Coord" 6076245.989749 
+TableFill "Data Table" "196/716#1" "Z (ms)" 1204 
+TableFill "Data Table" "196/716#1" "@*[Y]Convolve" 1082.9049 
+TableFill "Data Table" "196/716#1" "[Y2]Energy" 6864470 
+TableFill "Data Table" "364/580#2" "[X]X-Coord" 622471.53836 
+TableFill "Data Table" "364/580#2" "Y-Coord" 6086826.251327 
+TableFill "Data Table" "612/980#1" "Z (ms)" 804 
+TableFill "Data Table" "612/980#1" "@*[Y]Convolve" 1083.087 
+TableFill "Data Table" "612/980#1" "[Y2]Energy" 1118213.5 
+TableFill "Data Table" "236/692#2" "[X]X-Coord" 609950.111468 
+TableFill "Data Table" "220/468#1" "Y-Coord" 6076672.62667 
+TableFill "Data Table" "220/468#1" "@*[Y]Convolve" 1083.9085 
+TableFill "Data Table" "220/468#1" "[Y2]Energy" 1141054.6 
+TableFill "Data Table" "332/1092#2" "[X]X-Coord" 616592.226639 
+TableFill "Data Table" "332/1092#2" "Y-Coord" 6075257.547723 
+TableFill "Data Table" "156/732#1" "Z (ms)" 804 
+TableFill "Data Table" "156/732#1" "@*[Y]Convolve" 1090.7756 
+TableFill "Data Table" "156/732#1" "[Y2]Energy" 688952.81 
+TableFill "Data Table" "340/668#2" "[X]X-Coord" 610965.375439 
+TableFill "Data Table" "340/668#2" "Y-Coord" 6083303.573012 
+TableFill "Data Table" "484/516#1" "Z (ms)" 1604 
+TableFill "Data Table" "484/516#1" "@*[Y]Convolve" 1160.8099 
+TableFill "Data Table" "484/516#1" "[Y2]Energy" 27879242 
+TableFill "Data Table" "364/460#3" "[X]X-Coord" 622493.874261 
+TableFill "Data Table" "580/980#1" "Y-Coord" 6086026.561959 
+TableFill "Data Table" "580/980#1" "@*[Y]Convolve" 1162.6275 
+TableFill "Data Table" "580/980#1" "[Y2]Energy" 526460.18 
+TableFill "Data Table" "668/940#2" "[X]X-Coord" 612498.848532 
+TableFill "Data Table" "668/940#2" "Y-Coord" 6078544.530696 
+TableFill "Data Table" "292/572#1" "Z (ms)" 804 
+TableFill "Data Table" "292/572#1" "@*[Y]Convolve" 1165.7949 
+TableFill "Data Table" "292/572#1" "[Y2]Energy" 6152185.5 
+TableFill "Data Table" "436/668#2" "[X]X-Coord" 605622.206396 
+TableFill "Data Table" "436/668#2" "Y-Coord" 6088356.348011 
+TableFill "Data Table" "692/308#1" "Z (ms)" 1604 
+TableFill "Data Table" "692/308#1" "@*[Y]Convolve" 1173.0236 
+TableFill "Data Table" "692/308#1" "[Y2]Energy" 1336689.6 
+TableFill "Data Table" "292/844#2" "[X]X-Coord" 623178.502057 
+TableFill "Data Table" "292/844#2" "Y-Coord" 6075841.692197 
+TableFill "Data Table" "172/996#1" "Z (ms)" 804 
+TableFill "Data Table" "172/996#1" "@*[Y]Convolve" 1198.5214 
+TableFill "Data Table" "172/996#1" "[Y2]Energy" 1524284.1 
+TableFill "Data Table" "188/1220#2" "[X]X-Coord" 621312.191616 
+TableFill "Data Table" "188/1220#2" "Y-Coord" 6078190.496723 
+TableFill "Data Table" "268/924#2" "Z (ms)" 404 
+TableFill "Data Table" "268/924#2" "@*[Y]Convolve" 1207.3181 
+TableFill "Data Table" "268/924#2" "[Y2]Energy" 6147918.5 
+TableFill "Data Table" "284/468#2" "[X]X-Coord" 608760.643674 
+TableFill "Data Table" "284/468#2" "Y-Coord" 6083442.062091 
+TableFill "Data Table" "492/428#1" "Z (ms)" 1204 
+TableFill "Data Table" "492/428#1" "@*[Y]Convolve" 1209.0396 
+TableFill "Data Table" "492/428#1" "[Y2]Energy" 4270850 
+TableFill "Data Table" "108/596#2" "[X]X-Coord" 607284.110921 
+TableFill "Data Table" "108/596#2" "Y-Coord" 6078999.091828 
+TableFill "Data Table" "316/364#1" "Z (ms)" 804 
+TableFill "Data Table" "316/364#1" "@*[Y]Convolve" 1209.6889 
+TableFill "Data Table" "316/364#1" "[Y2]Energy" 17693276 
+TableFill "Data Table" "140/884#3" "[X]X-Coord" 610349.95652 
+TableFill "Data Table" "140/884#3" "Y-Coord" 6076683.796355 
+TableFill "Data Table" "220/484#1" "Z (ms)" 1604 
+TableFill "Data Table" "220/484#1" "@*[Y]Convolve" 1215.242 
+TableFill "Data Table" "220/484#1" "[Y2]Energy" 2551064 
+TableFill "Data Table" "580/892#2" "[X]X-Coord" 607677.271412 
+TableFill "Data Table" "580/892#2" "Y-Coord" 6086412.973011 
+TableFill "Data Table" "612/388#1" "Z (ms)" 804 
+TableFill "Data Table" "612/388#1" "@*[Y]Convolve" 1226.841 
+TableFill "Data Table" "612/388#1" "[Y2]Energy" 9663457 
+TableFill "Data Table" "500/900#2" "[X]X-Coord" 606500.072156 
+TableFill "Data Table" "500/900#2" "Y-Coord" 6085579.77459 
+TableFill "Data Table" "580/340#1" "Z (ms)" 804 
+TableFill "Data Table" "580/340#1" "@*[Y]Convolve" 1231.2494 
+TableFill "Data Table" "580/340#1" "[Y2]Energy" 12803350 
+TableFill "Data Table" "588/396#2" "[X]X-Coord" 614969.409941 
+TableFill "Data Table" "588/396#2" "Y-Coord" 6083215.347512 
+TableFill "Data Table" "476/676#1" "Z (ms)" 404 
+TableFill "Data Table" "476/676#1" "@*[Y]Convolve" 1232.2652 
+TableFill "Data Table" "476/676#1" "[Y2]Energy" 1083969.1 
+TableFill "Data Table" "604/860#2" "[X]X-Coord" 611971.672632 
+TableFill "Data Table" "604/860#2" "Y-Coord" 6075928.785723 
+TableFill "Data Table" "188/548#1" "Z (ms)" 1604 
+TableFill "Data Table" "188/548#1" "@*[Y]Convolve" 1235.6845 
+TableFill "Data Table" "188/548#1" "[Y2]Energy" 3218048.5 
+TableFill "Data Table" "388/452#2" "[X]X-Coord" 616812.283894 
+TableFill "Data Table" "388/452#2" "Y-Coord" 6088869.021511 
+TableFill "Data Table" "700/756#1" "Z (ms)" 1604 
+TableFill "Data Table" "700/756#1" "@*[Y]Convolve" 1247.7668 
+TableFill "Data Table" "700/756#1" "[Y2]Energy" 862069.81 
+TableFill "Data Table" "572/988#2" "[X]X-Coord" 617601.906635 
+TableFill "Data Table" "572/988#2" "Y-Coord" 6082088.416407 
+TableFill "Data Table" "428/780#1" "Z (ms)" 1604 
+TableFill "Data Table" "428/780#1" "@*[Y]Convolve" 1256.8675 
+TableFill "Data Table" "428/780#1" "[Y2]Energy" 21741228 
+TableFill "Data Table" "684/996#2" "[X]X-Coord" 620855.406223 
+TableFill "Data Table" "636/916#1" "Y-Coord" 6087381.339616 
+TableFill "Data Table" "636/916#1" "@*[Y]Convolve" 1264.5523 
+TableFill "Data Table" "636/916#1" "[Y2]Energy" 1643149.1 
+TableFill "Data Table" "396/996#2" "[X]X-Coord" 628775.232208 
+TableFill "Data Table" "396/996#2" "Y-Coord" 6083200.856933 
+TableFill "Data Table" "460/1228#1" "Z (ms)" 1604 
+TableFill "Data Table" "460/1228#1" "@*[Y]Convolve" 1270.2793 
+TableFill "Data Table" "460/1228#1" "[Y2]Energy" 461144.56 
+TableFill "Data Table" "196/716#2" "[X]X-Coord" 618318.937696 
+TableFill "Data Table" "196/716#2" "Y-Coord" 6077906.801749 
+TableFill "Data Table" "260/804#1" "Z (ms)" 1604 
+TableFill "Data Table" "260/804#1" "@*[Y]Convolve" 1286.335 
+TableFill "Data Table" "260/804#1" "[Y2]Energy" 1549427.2 
+TableFill "Data Table" "612/980#2" "[X]X-Coord" 619146.547678 
+TableFill "Data Table" "612/980#2" "Y-Coord" 6076929.529407 
+TableFill "Data Table" "220/836#1" "Z (ms)" 1204 
+TableFill "Data Table" "220/836#1" "@*[Y]Convolve" 1292.4812 
+TableFill "Data Table" "220/836#1" "[Y2]Energy" 12498745 
+TableFill "Data Table" "220/468#2" "[X]X-Coord" 608082.70044 
+TableFill "Data Table" "220/468#2" "Y-Coord" 6086224.220353 
+TableFill "Data Table" "604/404#1" "Z (ms)" 804 
+TableFill "Data Table" "604/404#1" "@*[Y]Convolve" 1302.3479 
+TableFill "Data Table" "604/404#1" "[Y2]Energy" 7118838 
+TableFill "Data Table" "156/732#2" "[X]X-Coord" 617808.513723 
+TableFill "Data Table" "132/780#1" "Y-Coord" 6074691.28975 
+TableFill "Data Table" "132/780#1" "@*[Y]Convolve" 1343.1858 
+TableFill "Data Table" "132/780#1" "[Y2]Energy" 550634.81 
+TableFill "Data Table" "188/1156" "[X]X-Coord" 613970.897895 
+TableFill "Data Table" "188/1156" "Y-Coord" 6075984.634144 
+TableFill "Data Table" "188/628#1" "Z (ms)" 404 
+TableFill "Data Table" "188/628#1" "@*[Y]Convolve" 1354.4293 
+TableFill "Data Table" "188/628#1" "[Y2]Energy" 5160627 
+TableFill "Data Table" "484/516#2" "[X]X-Coord" 628702.640528 
+TableFill "Data Table" "484/516#2" "Y-Coord" 6085799.84738 
+TableFill "Data Table" "564/1228#1" "Z (ms)" 804 
+TableFill "Data Table" "564/1228#1" "@*[Y]Convolve" 1356.4338 
+TableFill "Data Table" "564/1228#1" "[Y2]Energy" 4680357.5 
+TableFill "Data Table" "580/980#2" "[X]X-Coord" 618824.878281 
+TableFill "Data Table" "108/820#1" "Y-Coord" 6074119.446934 
+TableFill "Data Table" "108/820#1" "@*[Y]Convolve" 1359.7321 
+TableFill "Data Table" "108/820#1" "[Y2]Energy" 2605083.2 
+TableFill "Data Table" "292/572#2" "[X]X-Coord" 606272.229753 
+TableFill "Data Table" "620/332#1" "Y-Coord" 6086573.801459 
+TableFill "Data Table" "620/332#1" "@*[Y]Convolve" 1360.5062 
+TableFill "Data Table" "620/332#1" "[Y2]Energy" 8546566 
+TableFill "Data Table" "692/308#2" "[X]X-Coord" 625544.068521 
+TableFill "Data Table" "692/308#2" "Y-Coord" 6077108.244355 
+TableFill "Data Table" "220/1092#1" "Z (ms)" 404 
+TableFill "Data Table" "220/1092#1" "@*[Y]Convolve" 1360.5703 
+TableFill "Data Table" "220/1092#1" "[Y2]Energy" 1302440.6 
+TableFill "Data Table" "172/996#2" "[X]X-Coord" 609620.656922 
+TableFill "Data Table" "172/996#2" "Y-Coord" 6088468.044853 
+TableFill "Data Table" "692/468#1" "Z (ms)" 1204 
+TableFill "Data Table" "692/468#1" "@*[Y]Convolve" 1366.8221 
+TableFill "Data Table" "692/468#1" "[Y2]Energy" 3060696.7 
+TableFill "Data Table" "268/924#3" "[X]X-Coord" 619312.966353 
+TableFill "Data Table" "268/924#3" "Y-Coord" 6078134.648302 
+TableFill "Data Table" "268/844#1" "Z (ms)" 1204 
+TableFill "Data Table" "268/844#1" "@*[Y]Convolve" 1377.9155 
+TableFill "Data Table" "268/844#1" "[Y2]Energy" 4141020.2 
+TableFill "Data Table" "492/428#2" "[X]X-Coord" 617301.472552 
+TableFill "Data Table" "492/428#2" "Y-Coord" 6085681.433722 
+TableFill "Data Table" "572/772#1" "Z (ms)" 404 
+TableFill "Data Table" "572/772#1" "@*[Y]Convolve" 1385.3795 
+TableFill "Data Table" "572/772#1" "[Y2]Energy" 1971300.5 
+TableFill "Data Table" "316/364#2" "[X]X-Coord" 620090.320556 
+TableFill "Data Table" "300/876#1" "Y-Coord" 6078956.677039 
+TableFill "Data Table" "300/876#1" "@*[Y]Convolve" 1391.4185 
+TableFill "Data Table" "300/876#1" "[Y2]Energy" 2111975 
+TableFill "Data Table" "220/484#2" "[X]X-Coord" 614119.464057 
+TableFill "Data Table" "548/644#1" "Y-Coord" 6084992.309222 
+TableFill "Data Table" "548/644#1" "@*[Y]Convolve" 1393.5236 
+TableFill "Data Table" "548/644#1" "[Y2]Energy" 2579247.5 
+TableFill "Data Table" "612/388#2" "[X]X-Coord" 629063.397753 
+TableFill "Data Table" "620/1244#1" "Y-Coord" 6087210.473459 
+TableFill "Data Table" "620/1244#1" "@*[Y]Convolve" 1396.3369 
+TableFill "Data Table" "620/1244#1" "[Y2]Energy" 2052175.7 
+TableFill "Data Table" "580/340#2" "[X]X-Coord" 619107.459851 
+TableFill "Data Table" "276/836#1" "Y-Coord" 6078328.985802 
+TableFill "Data Table" "276/836#1" "@*[Y]Convolve" 1411.0749 
+TableFill "Data Table" "276/836#1" "[Y2]Energy" 2854950.2 
+TableFill "Data Table" "476/676#2" "[X]X-Coord" 621843.850904 
+TableFill "Data Table" "476/676#2" "Y-Coord" 6087809.108511 
+TableFill "Data Table" "652/956#1" "Z (ms)" 1204 
+TableFill "Data Table" "652/956#1" "@*[Y]Convolve" 1415.5835 
+TableFill "Data Table" "652/956#1" "[Y2]Energy" 10593248 
+TableFill "Data Table" "188/548#2" "[X]X-Coord" 613165.623815 
+TableFill "Data Table" "188/548#2" "Y-Coord" 6076162.217118 
+TableFill "Data Table" "196/596#1" "Z (ms)" 804 
+TableFill "Data Table" "196/596#1" "@*[Y]Convolve" 1415.6401 
+TableFill "Data Table" "196/596#1" "[Y2]Energy" 4813670 
+TableFill "Data Table" "700/756#2" "[X]X-Coord" 609526.829927 
+TableFill "Data Table" "700/756#2" "Y-Coord" 6084663.935511 
+TableFill "Data Table" "540/460#1" "Z (ms)" 804 
+TableFill "Data Table" "540/460#1" "@*[Y]Convolve" 1420.332 
+TableFill "Data Table" "540/460#1" "[Y2]Energy" 4687114 
+TableFill "Data Table" "428/780#2" "[X]X-Coord" 610749.801573 
+TableFill "Data Table" "428/780#2" "Y-Coord" 6076694.966039 
+TableFill "Data Table" "220/500#1" "Z (ms)" 404 
+TableFill "Data Table" "220/500#1" "@*[Y]Convolve" 1424.6114 
+TableFill "Data Table" "220/500#1" "[Y2]Energy" 866496.93 
+TableFill "Data Table" "636/916#2" "[X]X-Coord" 613659.295862 
+TableFill "Data Table" "636/916#2" "Y-Coord" 6079977.496144 
+TableFill "Data Table" "348/620#1" "Z (ms)" 404 
+TableFill "Data Table" "348/620#1" "@*[Y]Convolve" 1461.1971 
+TableFill "Data Table" "348/620#1" "[Y2]Energy" 1990691.6 
+TableFill "Data Table" "460/1228#2" "[X]X-Coord" 611421.060245 
+TableFill "Data Table" "460/1228#2" "Y-Coord" 6081315.519275 
+TableFill "Data Table" "404/532#1" "Z (ms)" 804 
+TableFill "Data Table" "404/532#1" "@*[Y]Convolve" 1475.8949 
+TableFill "Data Table" "404/532#1" "[Y2]Energy" 5300947 
+TableFill "Data Table" "260/804#2" "[X]X-Coord" 617034.542322 
+TableFill "Data Table" "260/804#2" "Y-Coord" 6088074.916985 
+TableFill "Data Table" "668/764#1" "Z (ms)" 1204 
+TableFill "Data Table" "668/764#1" "@*[Y]Convolve" 1476.7786 
+TableFill "Data Table" "668/764#1" "[Y2]Energy" 5166774.5 
+TableFill "Data Table" "220/836#2" "[X]X-Coord" 619451.46515 
+TableFill "Data Table" "220/836#2" "Y-Coord" 6080339.378907 
+TableFill "Data Table" "356/852#1" "Z (ms)" 404 
+TableFill "Data Table" "356/852#1" "@*[Y]Convolve" 1491.8988 
+TableFill "Data Table" "356/852#1" "[Y2]Energy" 5193332.5 
+TableFill "Data Table" "612/1164" "[X]X-Coord" 614753.836075 
+TableFill "Data Table" "612/1164" "Y-Coord" 6076606.740539 
+TableFill "Data Table" "212/660#1" "Z (ms)" 1604 
+TableFill "Data Table" "212/660#1" "@*[Y]Convolve" 1502.8189 
+TableFill "Data Table" "212/660#1" "[Y2]Energy" 9503839 
+TableFill "Data Table" "604/404#2" "[X]X-Coord" 617757.157359 
+TableFill "Data Table" "604/404#2" "Y-Coord" 6083693.379985 
+TableFill "Data Table" "492/788#2" "Z (ms)" 1604 
+TableFill "Data Table" "492/788#2" "@*[Y]Convolve" 1503.2386 
+TableFill "Data Table" "492/788#2" "[Y2]Energy" 2622432 
+TableFill "Data Table" "132/780#2" "[X]X-Coord" 614658.908494 
+TableFill "Data Table" "132/780#2" "Y-Coord" 6080005.420354 
+TableFill "Data Table" "348/660#1" "Z (ms)" 1604 
+TableFill "Data Table" "348/660#1" "@*[Y]Convolve" 1507.582 
+TableFill "Data Table" "348/660#1" "[Y2]Energy" 5944302.5 
+TableFill "Data Table" "188/628#2" "[X]X-Coord" 623215.388712 
+TableFill "Data Table" "188/628#2" "Y-Coord" 6088847.814116 
+TableFill "Data Table" "692/1012#1" "Z (ms)" 1604 
+TableFill "Data Table" "692/1012#1" "@*[Y]Convolve" 1512.206 
+TableFill "Data Table" "692/1012#1" "[Y2]Energy" 1496146.5 
+TableFill "Data Table" "564/1228#2" "[X]X-Coord" 623644.254227 
+TableFill "Data Table" "564/1228#2" "Y-Coord" 6080656.582933 
+TableFill "Data Table" "364/1020#1" "Z (ms)" 1604 
+TableFill "Data Table" "364/1020#1" "@*[Y]Convolve" 1518.1984 
+TableFill "Data Table" "364/1020#1" "[Y2]Energy" 2394820.7 
+TableFill "Data Table" "108/820#2" "[X]X-Coord" 611843.241199 
+TableFill "Data Table" "108/820#2" "Y-Coord" 6080526.999591 
+TableFill "Data Table" "372/548#1" "Z (ms)" 804 
+TableFill "Data Table" "372/548#1" "@*[Y]Convolve" 1519.7592 
+TableFill "Data Table" "372/548#1" "[Y2]Energy" 2564547.5 
+TableFill "Data Table" "620/332#2" "[X]X-Coord" 615042.00162 
+TableFill "Data Table" "620/332#2" "Y-Coord" 6080616.357065 
+TableFill "Data Table" "372/676#1" "Z (ms)" 1204 
+TableFill "Data Table" "372/676#1" "@*[Y]Convolve" 1528.3835 
+TableFill "Data Table" "372/676#1" "[Y2]Energy" 6936470 
+TableFill "Data Table" "220/1092#2" "[X]X-Coord" 612988.03719 
+TableFill "Data Table" "220/1092#2" "Y-Coord" 6075356.942907 
+TableFill "Data Table" "164/588#1" "Z (ms)" 1204 
+TableFill "Data Table" "164/588#1" "@*[Y]Convolve" 1554.9298 
+TableFill "Data Table" "164/588#1" "[Y2]Energy" 7303796.5 
+TableFill "Data Table" "692/468#2" "[X]X-Coord" 607950.886204 
+TableFill "Data Table" "692/468#2" "Y-Coord" 6076616.778249 
+TableFill "Data Table" "220/388#1" "Z (ms)" 804 
+TableFill "Data Table" "220/388#1" "@*[Y]Convolve" 1560.5033 
+TableFill "Data Table" "220/388#1" "[Y2]Energy" 17292564 
+TableFill "Data Table" "268/844#2" "[X]X-Coord" 614085.960205 
+TableFill "Data Table" "268/844#2" "Y-Coord" 6086191.843274 
+TableFill "Data Table" "596/644#1" "Z (ms)" 804 
+TableFill "Data Table" "596/644#1" "@*[Y]Convolve" 1567.8228 
+TableFill "Data Table" "596/644#1" "[Y2]Energy" 977970.93 
+TableFill "Data Table" "572/772#2" "[X]X-Coord" 615730.012219 
+TableFill "Data Table" "572/772#2" "Y-Coord" 6084637.143275 
+TableFill "Data Table" "532/708#1" "Z (ms)" 804 
+TableFill "Data Table" "532/708#1" "@*[Y]Convolve" 1570.4878 
+TableFill "Data Table" "532/708#1" "[Y2]Energy" 1970377.7 
+TableFill "Data Table" "300/876#2" "[X]X-Coord" 623427.579775 
+TableFill "Data Table" "300/876#2" "Y-Coord" 6081250.765117 
+TableFill "Data Table" "388/1012#1" "Z (ms)" 404 
+TableFill "Data Table" "388/1012#1" "@*[Y]Convolve" 1589.6729 
+TableFill "Data Table" "388/1012#1" "[Y2]Energy" 2743803 
+TableFill "Data Table" "548/644#2" "[X]X-Coord" 609382.747155 
+TableFill "Data Table" "548/644#2" "Y-Coord" 6082659.127249 
+TableFill "Data Table" "460/452#1" "Z (ms)" 804 
+TableFill "Data Table" "460/452#1" "@*[Y]Convolve" 1608.7454 
+TableFill "Data Table" "460/452#1" "[Y2]Energy" 4579525 
+TableFill "Data Table" "620/1244#2" "[X]X-Coord" 616392.304113 
+TableFill "Data Table" "620/1244#2" "Y-Coord" 6075251.962881 
+TableFill "Data Table" "156/724#1" "Z (ms)" 1204 
+TableFill "Data Table" "156/724#1" "@*[Y]Convolve" 1609.5072 
+TableFill "Data Table" "156/724#1" "[Y2]Energy" 5944809.5 
+TableFill "Data Table" "276/836#2" "[X]X-Coord" 612498.848532 
+TableFill "Data Table" "276/836#2" "Y-Coord" 6078544.530696 
+TableFill "Data Table" "292/572#2" "Z (ms)" 404 
+TableFill "Data Table" "292/572#2" "@*[Y]Convolve" 1661.8691 
+TableFill "Data Table" "292/572#2" "[Y2]Energy" 1152602.6 
+TableFill "Data Table" "652/956#2" "[X]X-Coord" 610710.713745 
+TableFill "Data Table" "652/956#2" "Y-Coord" 6078094.422433 
+TableFill "Data Table" "276/500#1" "Z (ms)" 804 
+TableFill "Data Table" "276/500#1" "@*[Y]Convolve" 1670.8012 
+TableFill "Data Table" "276/500#1" "[Y2]Energy" 6140879 
+TableFill "Data Table" "196/596#2" "[X]X-Coord" 619535.22478 
+TableFill "Data Table" "196/596#2" "Y-Coord" 6077340.543776 
+TableFill "Data Table" "236/852#1" "Z (ms)" 1604 
+TableFill "Data Table" "236/852#1" "@*[Y]Convolve" 1684.5089 
+TableFill "Data Table" "236/852#1" "[Y2]Energy" 52128164 
+TableFill "Data Table" "540/460#2" "[X]X-Coord" 611342.88459 
+TableFill "Data Table" "516/532#1" "Y-Coord" 6084114.432064 
+TableFill "Data Table" "516/532#1" "@*[Y]Convolve" 1695.3011 
+TableFill "Data Table" "516/532#1" "[Y2]Energy" 2126316.7 
+TableFill "Data Table" "220/500#2" "[X]X-Coord" 607039.516592 
+TableFill "Data Table" "220/500#2" "Y-Coord" 6080592.885722 
+TableFill "Data Table" "380/356#1" "Z (ms)" 1604 
+TableFill "Data Table" "380/356#1" "@*[Y]Convolve" 1701.5066 
+TableFill "Data Table" "380/356#1" "[Y2]Energy" 13620907 
+TableFill "Data Table" "348/620#2" "[X]X-Coord" 610777.72145 
+TableFill "Data Table" "180/500#1" "Y-Coord" 6075695.354328 
+TableFill "Data Table" "180/500#1" "@*[Y]Convolve" 1702.8415 
+TableFill "Data Table" "180/500#1" "[Y2]Energy" 1865997.5 
+TableFill "Data Table" "404/532#2" "[X]X-Coord" 618584.767341 
+TableFill "Data Table" "404/532#2" "Y-Coord" 6082716.107643 
+TableFill "Data Table" "452/820#1" "Z (ms)" 1204 
+TableFill "Data Table" "452/820#1" "@*[Y]Convolve" 1721.5246 
+TableFill "Data Table" "452/820#1" "[Y2]Energy" 9816657 
+TableFill "Data Table" "668/764#2" "[X]X-Coord" 609099.064998 
+TableFill "Data Table" "668/764#2" "Y-Coord" 6085652.377538 
+TableFill "Data Table" "580/444#2" "Z (ms)" 804 
+TableFill "Data Table" "580/444#2" "@*[Y]Convolve" 1722.7852 
+TableFill "Data Table" "580/444#2" "[Y2]Energy" 11621125 
+TableFill "Data Table" "356/852#2" "[X]X-Coord" 618700.930237 
+TableFill "Data Table" "356/852#2" "Y-Coord" 6085720.527617 
+TableFill "Data Table" "572/828#1" "Z (ms)" 1204 
+TableFill "Data Table" "572/828#1" "@*[Y]Convolve" 1726.7058 
+TableFill "Data Table" "572/828#1" "[Y2]Energy" 2686419 
+TableFill "Data Table" "212/660#2" "[X]X-Coord" 611710.326377 
+TableFill "Data Table" "212/660#2" "Y-Coord" 6078122.346644 
+TableFill "Data Table" "276/540#1" "Z (ms)" 404 
+TableFill "Data Table" "276/540#1" "@*[Y]Convolve" 1751.4189 
+TableFill "Data Table" "276/540#1" "[Y2]Energy" 2580500.5 
+TableFill "Data Table" "492/788#3" "[X]X-Coord" 614236.72754 
+TableFill "Data Table" "492/788#3" "Y-Coord" 6080793.940038 
+TableFill "Data Table" "380/644#1" "Z (ms)" 404 
+TableFill "Data Table" "380/644#1" "@*[Y]Convolve" 1753.2198 
+TableFill "Data Table" "380/644#1" "[Y2]Energy" 1441021.3 
+TableFill "Data Table" "348/660#2" "[X]X-Coord" 607066.335883 
+TableFill "Data Table" "348/660#2" "Y-Coord" 6086796.063169 
+TableFill "Data Table" "628/364#1" "Z (ms)" 1204 
+TableFill "Data Table" "628/364#1" "@*[Y]Convolve" 1764.2132 
+TableFill "Data Table" "628/364#1" "[Y2]Energy" 3384798.7 
+TableFill "Data Table" "692/1012#2" "[X]X-Coord" 608743.891748 
+TableFill "Data Table" "516/428#1" "Y-Coord" 6084041.829117 
+TableFill "Data Table" "516/428#1" "@*[Y]Convolve" 1789.2053 
+TableFill "Data Table" "516/428#1" "[Y2]Energy" 7582192 
+TableFill "Data Table" "364/1020#2" "[X]X-Coord" 607283.010335 
+TableFill "Data Table" "364/1020#2" "Y-Coord" 6086201.880985 
+TableFill "Data Table" "604/372#1" "Z (ms)" 1204 
+TableFill "Data Table" "604/372#1" "@*[Y]Convolve" 1811.6522 
+TableFill "Data Table" "604/372#1" "[Y2]Energy" 3307085.2 
+TableFill "Data Table" "372/548#2" "[X]X-Coord" 613160.039839 
+TableFill "Data Table" "372/548#2" "Y-Coord" 6076362.13946 
+TableFill "Data Table" "204/596#1" "Z (ms)" 404 
+TableFill "Data Table" "204/596#1" "@*[Y]Convolve" 1822.6778 
+TableFill "Data Table" "204/596#1" "[Y2]Energy" 2267072.7 
+TableFill "Data Table" "372/676#2" "[X]X-Coord" 610155.617969 
+TableFill "Data Table" "212/476#1" "Y-Coord" 6076478.28917 
+TableFill "Data Table" "212/476#1" "@*[Y]Convolve" 1837.6781 
+TableFill "Data Table" "212/476#1" "[Y2]Energy" 2008202.6 
+TableFill "Data Table" "164/588#2" "[X]X-Coord" 612470.928655 
+TableFill "Data Table" "332/572#1" "Y-Coord" 6079544.142407 
+TableFill "Data Table" "332/572#1" "@*[Y]Convolve" 1841.4613 
+TableFill "Data Table" "332/572#1" "[Y2]Energy" 6050658.5 
+TableFill "Data Table" "572/1212" "[X]X-Coord" 617518.147005 
+TableFill "Data Table" "548/780#2" "Y-Coord" 6085087.251538 
+TableFill "Data Table" "548/780#2" "@*[Y]Convolve" 1871.8086 
+TableFill "Data Table" "548/780#2" "[Y2]Energy" 3299237.5 
+TableFill "Data Table" "220/388#2" "[X]X-Coord" 607484.033448 
+TableFill "Data Table" "220/388#2" "Y-Coord" 6079004.67667 
+TableFill "Data Table" "316/372#1" "Z (ms)" 404 
+TableFill "Data Table" "316/372#1" "@*[Y]Convolve" 1911.3017 
+TableFill "Data Table" "316/372#1" "[Y2]Energy" 4546386.5 
+TableFill "Data Table" "596/644#2" "[X]X-Coord" 614014.469112 
+TableFill "Data Table" "596/644#2" "Y-Coord" 6081588.044565 
+TableFill "Data Table" "412/636#1" "Z (ms)" 1204 
+TableFill "Data Table" "412/636#1" "@*[Y]Convolve" 1977.1407 
+TableFill "Data Table" "412/636#1" "[Y2]Energy" 5454273.5 
+TableFill "Data Table" "532/708#2" "[X]X-Coord" 619622.367213 
+TableFill "Data Table" "532/708#2" "Y-Coord" 6088547.364616 
+TableFill "Data Table" "684/868#2" "Z (ms)" 1204 
+TableFill "Data Table" "684/868#2" "@*[Y]Convolve" 1990.7292 
+TableFill "Data Table" "684/868#2" "[Y2]Energy" 6945355 
+TableFill "Data Table" "388/1012#2" "[X]X-Coord" 617818.581087 
+TableFill "Data Table" "404/788#1" "Y-Coord" 6081494.234222 
+TableFill "Data Table" "404/788#1" "@*[Y]Convolve" 1997.3654 
+TableFill "Data Table" "404/788#1" "[Y2]Energy" 4708005.5 
+TableFill "Data Table" "460/452#2" "[X]X-Coord" 606406.245161 
+TableFill "Data Table" "460/452#2" "Y-Coord" 6081775.665249 
+TableFill "Data Table" "428/332#1" "Z (ms)" 1604 
+TableFill "Data Table" "428/332#1" "@*[Y]Convolve" 2023.6561 
+TableFill "Data Table" "428/332#1" "[Y2]Energy" 5649732.5 
+TableFill "Data Table" "156/724#2" "[X]X-Coord" 615790.335361 
+TableFill "Data Table" "156/724#2" "Y-Coord" 6089640.786669 
+TableFill "Data Table" "732/716#1" "Z (ms)" 804 
+TableFill "Data Table" "732/716#1" "@*[Y]Convolve" 2048.7985 
+TableFill "Data Table" "732/716#1" "[Y2]Energy" 3134792.2 
+TableFill "Data Table" "580/1116" "[X]X-Coord" 606906.60177 
+TableFill "Data Table" "580/1116" "Y-Coord" 6078188.232775 
+TableFill "Data Table" "284/348#1" "Z (ms)" 1204 
+TableFill "Data Table" "284/348#1" "@*[Y]Convolve" 2064.9323 
+TableFill "Data Table" "284/348#1" "[Y2]Energy" 1936174.7 
+TableFill "Data Table" "292/572#3" "[X]X-Coord" 625337.461433 
+TableFill "Data Table" "516/1092#1" "Y-Coord" 6084505.371012 
+TableFill "Data Table" "516/1092#1" "@*[Y]Convolve" 2083.7666 
+TableFill "Data Table" "516/1092#1" "[Y2]Energy" 4320952 
+TableFill "Data Table" "276/500#2" "[X]X-Coord" 624193.766028 
+TableFill "Data Table" "436/1044#2" "Y-Coord" 6082472.638538 
+TableFill "Data Table" "436/1044#2" "@*[Y]Convolve" 2086.4077 
+TableFill "Data Table" "436/1044#2" "[Y2]Energy" 981977 
+TableFill "Data Table" "236/852#2" "[X]X-Coord" 625216.815147 
+TableFill "Data Table" "116/1076#1" "Y-Coord" 6074498.084223 
+TableFill "Data Table" "116/1076#1" "@*[Y]Convolve" 2114.3017 
+TableFill "Data Table" "116/1076#1" "[Y2]Energy" 10923392 
+TableFill "Data Table" "516/532#2" "[X]X-Coord" 621283.171153 
+TableFill "Data Table" "516/532#2" "Y-Coord" 6086392.89759 
+TableFill "Data Table" "596/932#1" "Z (ms)" 1204 
+TableFill "Data Table" "596/932#1" "@*[Y]Convolve" 2155.0383 
+TableFill "Data Table" "596/932#1" "[Y2]Energy" 6569736.5 
+TableFill "Data Table" "380/356#2" "[X]X-Coord" 612799.282614 
+TableFill "Data Table" "380/356#2" "Y-Coord" 6074951.513381 
+TableFill "Data Table" "148/580#1" "Z (ms)" 404 
+TableFill "Data Table" "148/580#1" "@*[Y]Convolve" 2252.9716 
+TableFill "Data Table" "148/580#1" "[Y2]Energy" 2476786.5 
+TableFill "Data Table" "180/500#2" "[X]X-Coord" 621022.925484 
+TableFill "Data Table" "180/500#2" "Y-Coord" 6081383.669354 
+TableFill "Data Table" "396/916#1" "Z (ms)" 804 
+TableFill "Data Table" "396/916#1" "@*[Y]Convolve" 2281.1079 
+TableFill "Data Table" "396/916#1" "[Y2]Energy" 2836170.2 
+TableFill "Data Table" "452/820#2" "[X]X-Coord" 605778.557705 
+TableFill "Data Table" "452/820#2" "Y-Coord" 6082758.522433 
+TableFill "Data Table" "468/308#1" "Z (ms)" 804 
+TableFill "Data Table" "468/308#1" "@*[Y]Convolve" 2307.0488 
+TableFill "Data Table" "468/308#1" "[Y2]Energy" 5922568 
+TableFill "Data Table" "580/444#3" "[X]X-Coord" 610877.13242 
+TableFill "Data Table" "324/508#1" "Y-Coord" 6079299.541328 
+TableFill "Data Table" "324/508#1" "@*[Y]Convolve" 2320.6357 
+TableFill "Data Table" "324/508#1" "[Y2]Energy" 5482189.5 
+TableFill "Data Table" "572/828#2" "[X]X-Coord" 613031.608406 
+TableFill "Data Table" "572/828#2" "Y-Coord" 6080960.353328 
+TableFill "Data Table" "388/596#1" "Z (ms)" 1604 
+TableFill "Data Table" "388/596#1" "@*[Y]Convolve" 2321.6799 
+TableFill "Data Table" "388/596#1" "[Y2]Energy" 27766508 
+TableFill "Data Table" "276/540#2" "[X]X-Coord" 611776.233495 
+TableFill "Data Table" "276/540#2" "Y-Coord" 6082926.067696 
+TableFill "Data Table" "468/548#1" "Z (ms)" 1604 
+TableFill "Data Table" "468/548#1" "@*[Y]Convolve" 2439.6931 
+TableFill "Data Table" "468/548#1" "[Y2]Energy" 9939317 
+TableFill "Data Table" "380/644#2" "[X]X-Coord" 614909.086798 
+TableFill "Data Table" "380/644#2" "Y-Coord" 6078211.704118 
+TableFill "Data Table" "276/668#1" "Z (ms)" 1604 
+TableFill "Data Table" "276/668#1" "@*[Y]Convolve" 2461.279 
+TableFill "Data Table" "276/668#1" "[Y2]Energy" 8563411 
+TableFill "Data Table" "628/364#2" "[X]X-Coord" 611721.494328 
+TableFill "Data Table" "628/364#2" "Y-Coord" 6077722.50196 
+TableFill "Data Table" "260/540#1" "Z (ms)" 404 
+TableFill "Data Table" "260/540#1" "@*[Y]Convolve" 2502.144 
+TableFill "Data Table" "260/540#1" "[Y2]Energy" 2613410.2 
+TableFill "Data Table" "516/428#2" "[X]X-Coord" 625288.306241 
+TableFill "Data Table" "300/1084#1" "Y-Coord" 6079101.882933 
+TableFill "Data Table" "300/1084#1" "@*[Y]Convolve" 2503.3984 
+TableFill "Data Table" "300/1084#1" "[Y2]Energy" 8006170.5 
+TableFill "Data Table" "604/372#2" "[X]X-Coord" 623649.838203 
+TableFill "Data Table" "604/372#2" "Y-Coord" 6080456.660591 
+TableFill "Data Table" "356/1020#1" "Z (ms)" 404 
+TableFill "Data Table" "356/1020#1" "@*[Y]Convolve" 2531.5542 
+TableFill "Data Table" "356/1020#1" "[Y2]Energy" 2603874.7 
+TableFill "Data Table" "204/596#2" "[X]X-Coord" 608427.806326 
+TableFill "Data Table" "204/596#2" "Y-Coord" 6081031.824301 
+TableFill "Data Table" "396/412#1" "Z (ms)" 1604 
+TableFill "Data Table" "396/412#1" "@*[Y]Convolve" 2535.6374 
+TableFill "Data Table" "396/412#1" "[Y2]Energy" 13619735 
+TableFill "Data Table" "212/476#2" "[X]X-Coord" 622844.564122 
+TableFill "Data Table" "212/476#2" "Y-Coord" 6080634.243565 
+TableFill "Data Table" "364/988#1" "Z (ms)" 404 
+TableFill "Data Table" "364/988#1" "@*[Y]Convolve" 2568.4902 
+TableFill "Data Table" "364/988#1" "[Y2]Energy" 3582255 
+TableFill "Data Table" "332/572#2" "[X]X-Coord" 620400.822004 
+TableFill "Data Table" "332/572#2" "Y-Coord" 6082166.604196 
+TableFill "Data Table" "428/892#1" "Z (ms)" 804 
+TableFill "Data Table" "428/892#1" "@*[Y]Convolve" 2587.4773 
+TableFill "Data Table" "428/892#1" "[Y2]Energy" 3677029.2 
+TableFill "Data Table" "172/1172" "[X]X-Coord" 611144.06265 
+TableFill "Data Table" "172/1172" "Y-Coord" 6076906.058065 
+TableFill "Data Table" "228/516#1" "Z (ms)" 404 
+TableFill "Data Table" "228/516#1" "@*[Y]Convolve" 2610.7905 
+TableFill "Data Table" "228/516#1" "[Y2]Energy" 2448129 
+TableFill "Data Table" "548/780#3" "[X]X-Coord" 623493.486893 
+TableFill "Data Table" "580/1020#2" "Y-Coord" 6086054.486169 
+TableFill "Data Table" "580/1020#2" "@*[Y]Convolve" 2624.3339 
+TableFill "Data Table" "580/1020#2" "[Y2]Energy" 5097830.5 
+TableFill "Data Table" "316/372#2" "[X]X-Coord" 606677.658781 
+TableFill "Data Table" "316/372#2" "Y-Coord" 6086385.048801 
+TableFill "Data Table" "612/348#1" "Z (ms)" 804 
+TableFill "Data Table" "612/348#1" "@*[Y]Convolve" 2635.9592 
+TableFill "Data Table" "612/348#1" "[Y2]Energy" 9984281 
+TableFill "Data Table" "412/636#2" "[X]X-Coord" 623161.750131 
+TableFill "Data Table" "412/636#2" "Y-Coord" 6076441.459223 
+TableFill "Data Table" "196/996#1" "Z (ms)" 804 
+TableFill "Data Table" "196/996#1" "@*[Y]Convolve" 2638.8723 
+TableFill "Data Table" "196/996#1" "[Y2]Energy" 11932455 
+TableFill "Data Table" "684/868#3" "[X]X-Coord" 612549.10431 
+TableFill "Data Table" "684/868#3" "Y-Coord" 6076745.229618 
+TableFill "Data Table" "220/572#1" "Z (ms)" 404 
+TableFill "Data Table" "220/572#1" "@*[Y]Convolve" 2643.1579 
+TableFill "Data Table" "220/572#1" "[Y2]Energy" 2402493.7 
+TableFill "Data Table" "404/788#2" "[X]X-Coord" 608367.483183 
+TableFill "Data Table" "404/788#2" "Y-Coord" 6076028.180907 
+TableFill "Data Table" "196/404#1" "Z (ms)" 1204 
+TableFill "Data Table" "196/404#1" "@*[Y]Convolve" 2689.561 
+TableFill "Data Table" "196/404#1" "[Y2]Energy" 9633854 
+TableFill "Data Table" "500/1188" "[X]X-Coord" 624560.107229 
+TableFill "Data Table" "484/1060#1" "Y-Coord" 6083683.342275 
+TableFill "Data Table" "484/1060#1" "@*[Y]Convolve" 2738.3921 
+TableFill "Data Table" "484/1060#1" "[Y2]Energy" 6808448.5 
+TableFill "Data Table" "428/332#2" "[X]X-Coord" 614342.823071 
+TableFill "Data Table" "228/644#1" "Y-Coord" 6076995.415539 
+TableFill "Data Table" "228/644#1" "@*[Y]Convolve" 2826.4172 
+TableFill "Data Table" "228/644#1" "[Y2]Energy" 33630156 
+TableFill "Data Table" "732/716#2" "[X]X-Coord" 618434.000006 
+TableFill "Data Table" "732/716#2" "Y-Coord" 6088114.01088 
+TableFill "Data Table" "668/820#1" "Z (ms)" 1204 
+TableFill "Data Table" "668/820#1" "@*[Y]Convolve" 2831.5378 
+TableFill "Data Table" "668/820#1" "[Y2]Energy" 7197556.5 
+TableFill "Data Table" "284/348#2" "[X]X-Coord" 623655.422178 
+TableFill "Data Table" "284/348#2" "Y-Coord" 6080256.738249 
+TableFill "Data Table" "348/1020#1" "Z (ms)" 804 
+TableFill "Data Table" "348/1020#1" "@*[Y]Convolve" 2849.3942 
+TableFill "Data Table" "348/1020#1" "[Y2]Energy" 14415154 
+TableFill "Data Table" "516/1092#2" "[X]X-Coord" 608637.796217 
+TableFill "Data Table" "516/1092#2" "Y-Coord" 6087840.353616 
+TableFill "Data Table" "668/428#1" "Z (ms)" 1204 
+TableFill "Data Table" "668/428#1" "@*[Y]Convolve" 2858.519 
+TableFill "Data Table" "668/428#1" "[Y2]Energy" 3845392 
+TableFill "Data Table" "436/1044#3" "[X]X-Coord" 611753.897594 
+TableFill "Data Table" "436/1044#3" "Y-Coord" 6083725.757064 
+TableFill "Data Table" "500/548#1" "Z (ms)" 1204 
+TableFill "Data Table" "500/548#1" "@*[Y]Convolve" 2882.3266 
+TableFill "Data Table" "500/548#1" "[Y2]Energy" 4928751.5 
+TableFill "Data Table" "116/1076#2" "[X]X-Coord" 620599.643944 
+TableFill "Data Table" "116/1076#2" "Y-Coord" 6089374.978195 
+TableFill "Data Table" "716/908#2" "Z (ms)" 1204 
+TableFill "Data Table" "716/908#2" "@*[Y]Convolve" 2926.3369 
+TableFill "Data Table" "716/908#2" "[Y2]Energy" 13052395 
+TableFill "Data Table" "596/932#2" "[X]X-Coord" 610625.853529 
+TableFill "Data Table" "684/508#1" "Y-Coord" 6088296.046722 
+TableFill "Data Table" "684/508#1" "@*[Y]Convolve" 2937.1977 
+TableFill "Data Table" "684/508#1" "[Y2]Energy" 4387720.5 
+TableFill "Data Table" "148/580#2" "[X]X-Coord" 610266.19689 
+TableFill "Data Table" "148/580#2" "Y-Coord" 6079682.631486 
+TableFill "Data Table" "340/484#1" "Z (ms)" 804 
+TableFill "Data Table" "340/484#1" "@*[Y]Convolve" 2949.6245 
+TableFill "Data Table" "340/484#1" "[Y2]Energy" 8182664.5 
+TableFill "Data Table" "396/916#2" "[X]X-Coord" 608606.493537 
+TableFill "Data Table" "140/412#1" "Y-Coord" 6074634.309355 
+TableFill "Data Table" "140/412#1" "@*[Y]Convolve" 2967.0737 
+TableFill "Data Table" "140/412#1" "[Y2]Energy" 11573748 
+TableFill "Data Table" "468/308#2" "[X]X-Coord" 625443.556964 
+TableFill "Data Table" "468/308#2" "Y-Coord" 6080706.846512 
+TableFill "Data Table" "364/1092#1" "Z (ms)" 404 
+TableFill "Data Table" "364/1092#1" "@*[Y]Convolve" 2988.6508 
+TableFill "Data Table" "364/1092#1" "[Y2]Energy" 2792852.7 
+TableFill "Data Table" "324/508#2" "[X]X-Coord" 610327.620619 
+TableFill "Data Table" "324/508#2" "Y-Coord" 6077483.485723 
+TableFill "Data Table" "252/484#1" "Z (ms)" 1204 
+TableFill "Data Table" "252/484#1" "@*[Y]Convolve" 3024.0691 
+TableFill "Data Table" "252/484#1" "[Y2]Energy" 4238497.5 
+TableFill "Data Table" "388/596#2" "[X]X-Coord" 623772.68566 
+TableFill "Data Table" "388/596#2" "Y-Coord" 6076058.369065 
+TableFill "Data Table" "180/1020#1" "Z (ms)" 804 
+TableFill "Data Table" "180/1020#1" "@*[Y]Convolve" 3028.3701 
+TableFill "Data Table" "180/1020#1" "[Y2]Energy" 4631745 
+TableFill "Data Table" "468/548#2" "[X]X-Coord" 608583.057049 
+TableFill "Data Table" "460/420#1" "Y-Coord" 6082636.78788 
+TableFill "Data Table" "460/420#1" "@*[Y]Convolve" 3034.8017 
+TableFill "Data Table" "460/420#1" "[Y2]Energy" 17974468 
+TableFill "Data Table" "188/1116" "[X]X-Coord" 606201.839246 
+TableFill "Data Table" "188/1116" "Y-Coord" 6074767.213592 
+TableFill "Data Table" "148/316#1" "Z (ms)" 804 
+TableFill "Data Table" "148/316#1" "@*[Y]Convolve" 3054.4782 
+TableFill "Data Table" "148/316#1" "[Y2]Energy" 39872740 
+TableFill "Data Table" "276/668#2" "[X]X-Coord" 613065.112259 
+TableFill "Data Table" "340/596#1" "Y-Coord" 6079760.819275 
+TableFill "Data Table" "340/596#1" "@*[Y]Convolve" 3073.5847 
+TableFill "Data Table" "340/596#1" "[Y2]Energy" 29364350 
+TableFill "Data Table" "260/540#2" "[X]X-Coord" 625431.288427 
+TableFill "Data Table" "260/540#2" "Y-Coord" 6088309.480353 
+TableFill "Data Table" "668/1100#1" "Z (ms)" 804 
+TableFill "Data Table" "668/1100#1" "@*[Y]Convolve" 3081.3403 
+TableFill "Data Table" "668/1100#1" "[Y2]Energy" 7857366 
+TableFill "Data Table" "300/1084#2" "[X]X-Coord" 624031.830743 
+TableFill "Data Table" "300/1084#2" "Y-Coord" 6088270.386458 
+TableFill "Data Table" "668/1044#1" "Z (ms)" 1204 
+TableFill "Data Table" "668/1044#1" "@*[Y]Convolve" 3097.9795 
+TableFill "Data Table" "668/1044#1" "[Y2]Energy" 6143519.5 
+TableFill "Data Table" "356/1020#2" "[X]X-Coord" 610827.977228 
+TableFill "Data Table" "356/1020#2" "Y-Coord" 6073896.05325 
+TableFill "Data Table" "108/500#1" "Z (ms)" 1204 
+TableFill "Data Table" "108/500#1" "@*[Y]Convolve" 3147.5647 
+TableFill "Data Table" "108/500#1" "[Y2]Energy" 13396786 
+TableFill "Data Table" "396/412#2" "[X]X-Coord" 609171.656678 
+TableFill "Data Table" "476/444#1" "Y-Coord" 6083053.387091 
+TableFill "Data Table" "476/444#1" "@*[Y]Convolve" 3151.3076 
+TableFill "Data Table" "476/444#1" "[Y2]Energy" 26123086 
+TableFill "Data Table" "364/988#2" "[X]X-Coord" 610832.460617 
+TableFill "Data Table" "364/988#2" "Y-Coord" 6080898.920065 
+TableFill "Data Table" "388/508#1" "Z (ms)" 804 
+TableFill "Data Table" "388/508#1" "@*[Y]Convolve" 3170.1381 
+TableFill "Data Table" "388/508#1" "[Y2]Energy" 7393747.5 
+TableFill "Data Table" "428/892#2" "[X]X-Coord" 619033.767585 
+TableFill "Data Table" "428/892#2" "Y-Coord" 6088130.765406 
+TableFill "Data Table" "668/844#1" "Z (ms)" 1204 
+TableFill "Data Table" "668/844#1" "@*[Y]Convolve" 3232.5571 
+TableFill "Data Table" "668/844#1" "[Y2]Energy" 11893587 
+TableFill "Data Table" "228/516#2" "[X]X-Coord" 608588.641025 
+TableFill "Data Table" "228/516#2" "Y-Coord" 6082436.865538 
+TableFill "Data Table" "452/420#1" "Z (ms)" 1604 
+TableFill "Data Table" "452/420#1" "@*[Y]Convolve" 3245.0854 
+TableFill "Data Table" "452/420#1" "[Y2]Energy" 18204626 
+TableFill "Data Table" "580/1020#3" "[X]X-Coord" 624816.970095 
+TableFill "Data Table" "580/1020#3" "Y-Coord" 6074486.914539 
+TableFill "Data Table" "116/1060#1" "Z (ms)" 1604 
+TableFill "Data Table" "116/1060#1" "@*[Y]Convolve" 3245.9304 
+TableFill "Data Table" "116/1060#1" "[Y2]Energy" 15288765 
+TableFill "Data Table" "612/348#2" "[X]X-Coord" 612593.776113 
+TableFill "Data Table" "156/572#1" "Y-Coord" 6075145.850881 
+TableFill "Data Table" "156/572#1" "@*[Y]Convolve" 3307.2048 
+TableFill "Data Table" "156/572#1" "[Y2]Energy" 4363456 
+TableFill "Data Table" "196/996#2" "[X]X-Coord" 617414.252646 
+TableFill "Data Table" "196/996#2" "Y-Coord" 6074480.197723 
+TableFill "Data Table" "124/764#2" "Z (ms)" 1204 
+TableFill "Data Table" "124/764#2" "@*[Y]Convolve" 3412.2429 
+TableFill "Data Table" "124/764#2" "[Y2]Energy" 17644998 
+TableFill "Data Table" "220/572#2" "[X]X-Coord" 609965.762807 
+TableFill "Data Table" "220/572#2" "Y-Coord" 6083275.648801 
+TableFill "Data Table" "484/476#1" "Z (ms)" 1604 
+TableFill "Data Table" "484/476#1" "@*[Y]Convolve" 3489.3381 
+TableFill "Data Table" "484/476#1" "[Y2]Energy" 12855396 
+TableFill "Data Table" "196/404#2" "[X]X-Coord" 623489.003504 
+TableFill "Data Table" "196/404#2" "Y-Coord" 6079051.619354 
+TableFill "Data Table" "300/1012#1" "Z (ms)" 804 
+TableFill "Data Table" "300/1012#1" "@*[Y]Convolve" 3500.8623 
+TableFill "Data Table" "300/1012#1" "[Y2]Energy" 8947340 
+TableFill "Data Table" "436/1156" "[X]X-Coord" 620395.238028 
+TableFill "Data Table" "436/1156" "Y-Coord" 6082366.526538 
+TableFill "Data Table" "436/892#1" "Z (ms)" 1204 
+TableFill "Data Table" "436/892#1" "@*[Y]Convolve" 3561.3813 
+TableFill "Data Table" "436/892#1" "[Y2]Energy" 18063136 
+TableFill "Data Table" "484/1060#2" "[X]X-Coord" 609177.240653 
+TableFill "Data Table" "484/1060#2" "Y-Coord" 6082853.464749 
+TableFill "Data Table" "468/444#1" "Z (ms)" 1604 
+TableFill "Data Table" "468/444#1" "@*[Y]Convolve" 3580.6987 
+TableFill "Data Table" "468/444#1" "[Y2]Energy" 11299536 
+TableFill "Data Table" "484/1140" "[X]X-Coord" 612231.918301 
+TableFill "Data Table" "484/1140" "Y-Coord" 6080938.013959 
+TableFill "Data Table" "388/564#1" "Z (ms)" 1604 
+TableFill "Data Table" "388/564#1" "@*[Y]Convolve" 3590.2443 
+TableFill "Data Table" "388/564#1" "[Y2]Energy" 32209176 
+TableFill "Data Table" "228/644#2" "[X]X-Coord" 609116.91751 
+TableFill "Data Table" "228/644#2" "Y-Coord" 6077849.821354 
+TableFill "Data Table" "268/436#1" "Z (ms)" 804 
+TableFill "Data Table" "268/436#1" "@*[Y]Convolve" 3862.8994 
+TableFill "Data Table" "268/436#1" "[Y2]Energy" 4706830.5 
+TableFill "Data Table" "668/820#2" "[X]X-Coord" 609744.604966 
+TableFill "Data Table" "228/460#1" "Y-Coord" 6076866.96417 
+TableFill "Data Table" "228/460#1" "@*[Y]Convolve" 3972.3166 
+TableFill "Data Table" "228/460#1" "[Y2]Energy" 3961225 
+TableFill "Data Table" "348/1020#2" "[X]X-Coord" 627891.782472 
+TableFill "Data Table" "348/1020#2" "Y-Coord" 6086177.352696 
+TableFill "Data Table" "580/1196#1" "Z (ms)" 1604 
+TableFill "Data Table" "580/1196#1" "@*[Y]Convolve" 3987.3208 
+TableFill "Data Table" "580/1196#1" "[Y2]Energy" 10514302 
+TableFill "Data Table" "668/428#2" "[X]X-Coord" 606673.175392 
+TableFill "Data Table" "668/428#2" "Y-Coord" 6079382.181986 
+TableFill "Data Table" "332/340#1" "Z (ms)" 1604 
+TableFill "Data Table" "332/340#1" "@*[Y]Convolve" 4024.937 
+TableFill "Data Table" "332/340#1" "[Y2]Energy" 17340500 
+TableFill "Data Table" "500/548#2" "[X]X-Coord" 611770.64952 
+TableFill "Data Table" "500/548#2" "Y-Coord" 6083125.990038 
+TableFill "Data Table" "476/548#1" "Z (ms)" 1604 
+TableFill "Data Table" "476/548#1" "@*[Y]Convolve" 4025.9736 
+TableFill "Data Table" "476/548#1" "[Y2]Energy" 6774070 
+TableFill "Data Table" "716/908#3" "[X]X-Coord" 608177.628021 
+TableFill "Data Table" "716/908#3" "Y-Coord" 6082825.540538 
+TableFill "Data Table" "468/404#1" "Z (ms)" 804 
+TableFill "Data Table" "468/404#1" "@*[Y]Convolve" 4047.6809 
+TableFill "Data Table" "468/404#1" "[Y2]Energy" 5975067 
+TableFill "Data Table" "684/508#2" "[X]X-Coord" 623577.246523 
+TableFill "Data Table" "460/1020#1" "Y-Coord" 6083055.651038 
+TableFill "Data Table" "460/1020#1" "@*[Y]Convolve" 4105.0029 
+TableFill "Data Table" "460/1020#1" "[Y2]Energy" 5365538.5 
+TableFill "Data Table" "340/484#2" "[X]X-Coord" 610399.111712 
+TableFill "Data Table" "436/492#1" "Y-Coord" 6082087.284433 
+TableFill "Data Table" "436/492#1" "@*[Y]Convolve" 4158.4824 
+TableFill "Data Table" "436/492#1" "[Y2]Energy" 7925837 
+TableFill "Data Table" "140/412#2" "[X]X-Coord" 624189.282639 
+TableFill "Data Table" "140/412#2" "Y-Coord" 6075469.771723 
+TableFill "Data Table" "156/1036#1" "Z (ms)" 404 
+TableFill "Data Table" "156/1036#1" "@*[Y]Convolve" 4196.208 
+TableFill "Data Table" "156/1036#1" "[Y2]Energy" 6707640.5 
+TableFill "Data Table" "364/1092#2" "[X]X-Coord" 609339.175938 
+TableFill "Data Table" "364/1092#2" "Y-Coord" 6077055.716828 
+TableFill "Data Table" "236/444#1" "Z (ms)" 804 
+TableFill "Data Table" "236/444#1" "@*[Y]Convolve" 4279.9692 
+TableFill "Data Table" "236/444#1" "[Y2]Energy" 4642579 
+TableFill "Data Table" "252/484#2" "[X]X-Coord" 617358.412892 
+TableFill "Data Table" "204/764#1" "Y-Coord" 6076479.421144 
+TableFill "Data Table" "204/764#1" "@*[Y]Convolve" 4327.5947 
+TableFill "Data Table" "204/764#1" "[Y2]Energy" 9554481 
+TableFill "Data Table" "180/1020#2" "[X]X-Coord" 608871.222595 
+TableFill "Data Table" "620/436#1" "Y-Coord" 6086646.404406 
+TableFill "Data Table" "620/436#1" "@*[Y]Convolve" 4465.2109 
+TableFill "Data Table" "620/436#1" "[Y2]Energy" 13306783 
+TableFill "Data Table" "460/420#2" "[X]X-Coord" 620218.751989 
+TableFill "Data Table" "116/876#1" "Y-Coord" 6074358.463171 
+TableFill "Data Table" "116/876#1" "@*[Y]Convolve" 4558.0019 
+TableFill "Data Table" "116/876#1" "[Y2]Energy" 41310740 
+TableFill "Data Table" "148/316#2" "[X]X-Coord" 625093.96769 
+TableFill "Data Table" "148/316#2" "Y-Coord" 6078896.375749 
+TableFill "Data Table" "292/1076#1" "Z (ms)" 1604 
+TableFill "Data Table" "292/1076#1" "@*[Y]Convolve" 4604.6005 
+TableFill "Data Table" "292/1076#1" "[Y2]Energy" 26200854 
+TableFill "Data Table" "340/596#2" "[X]X-Coord" 626693.3479 
+TableFill "Data Table" "340/596#2" "Y-Coord" 6078941.054486 
+TableFill "Data Table" "292/1140#1" "Z (ms)" 1204 
+TableFill "Data Table" "292/1140#1" "@*[Y]Convolve" 4715.4502 
+TableFill "Data Table" "292/1140#1" "[Y2]Energy" 13443303 
+TableFill "Data Table" "668/1100#2" "[X]X-Coord" 606412.929723 
+TableFill "Data Table" "668/1100#2" "Y-Coord" 6074372.95375 
+TableFill "Data Table" "132/324#1" "Z (ms)" 1604 
+TableFill "Data Table" "132/324#1" "@*[Y]Convolve" 5021.0766 
+TableFill "Data Table" "132/324#1" "[Y2]Energy" 88982240 
+TableFill "Data Table" "668/1044#2" "[X]X-Coord" 621562.36992 
+TableFill "Data Table" "668/1044#2" "Y-Coord" 6076396.780486 
+TableFill "Data Table" "196/932#1" "Z (ms)" 404 
+TableFill "Data Table" "196/932#1" "@*[Y]Convolve" 5151.8212 
+TableFill "Data Table" "196/932#1" "[Y2]Energy" 6296431.5 
+TableFill "Data Table" "708/1180" "[X]X-Coord" 614742.668124 
+TableFill "Data Table" "708/1180" "Y-Coord" 6077006.585223 
+TableFill "Data Table" "228/660#1" "Z (ms)" 1604 
+TableFill "Data Table" "228/660#1" "@*[Y]Convolve" 5202.8466 
+TableFill "Data Table" "228/660#1" "[Y2]Energy" 7732897 
+TableFill "Data Table" "108/500#2" "[X]X-Coord" 622761.905078 
+TableFill "Data Table" "108/500#2" "Y-Coord" 6076430.289539 
+TableFill "Data Table" "196/980#1" "Z (ms)" 404 
+TableFill "Data Table" "196/980#1" "@*[Y]Convolve" 5766.6757 
+TableFill "Data Table" "196/980#1" "[Y2]Energy" 8718499 
+TableFill "Data Table" "476/444#2" "[X]X-Coord" 617391.916744 
+TableFill "Data Table" "476/444#2" "Y-Coord" 6075279.887092 
+TableFill "Data Table" "156/764#1" "Z (ms)" 1204 
+TableFill "Data Table" "156/764#1" "@*[Y]Convolve" 6245.2236 
+TableFill "Data Table" "156/764#1" "[Y2]Energy" 13971975 
+TableFill "Data Table" "468/1108" "[X]X-Coord" 614398.662825 
+TableFill "Data Table" "468/1108" "Y-Coord" 6074996.192118 
+TableFill "Data Table" "148/644#1" "Z (ms)" 1604 
+TableFill "Data Table" "148/644#1" "@*[Y]Convolve" 8765.082 
+TableFill "Data Table" "148/644#1" "[Y2]Energy" 48701172 
+TableFill "Data Table" "388/508#2" "[X]X-Coord" 606990.3614 
+TableFill "Data Table" "388/508#2" "Y-Coord" 6075189.397644 
+TableFill "Data Table" "164/348#1" "Z (ms)" 1604 
+TableFill "Data Table" "164/348#1" "@*[Y]Convolve" 9114.8447 
+TableFill "Data Table" "164/348#1" "[Y2]Energy" 78394592 
+TableFill "Data Table" "668/844#2" "[X]X-Coord" 617207.645558 
+TableFill "Data Table" "668/844#2" "Y-Coord" 6081877.32438 
+TableFill "Data Table" "420/764#1" "Z (ms)" 1604 
+TableFill "Data Table" "420/764#1" "@*[Y]Convolve" 9498.1308 
+TableFill "Data Table" "420/764#1" "[Y2]Energy" 52311176 
+TableFill "Data Table" "452/420#2" "[X]X-Coord" 620378.486102 
+TableFill "Data Table" "452/420#2" "Y-Coord" 6082966.293564 
+TableFill "Data Table" "460/892#1" "Z (ms)" 4 
+TableFill "Data Table" "460/892#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "460/892#1" "[Y2]Energy" "" 
+TableFill "Data Table" "116/1060#2" "[X]X-Coord" 626026.572617 
+TableFill "Data Table" "116/1060#2" "Y-Coord" 6081323.368065 
+TableFill "Data Table" "388/1116#1" "Z (ms)" 4 
+TableFill "Data Table" "388/1116#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "388/1116#1" "[Y2]Energy" "" 
+TableFill "Data Table" "156/572#2" "[X]X-Coord" 621401.535221 
+TableFill "Data Table" "156/572#2" "Y-Coord" 6074991.73925 
+TableFill "Data Table" "140/924#1" "Z (ms)" 4 
+TableFill "Data Table" "140/924#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "140/924#1" "[Y2]Energy" "" 
+TableFill "Data Table" "124/764#3" "[X]X-Coord" 625955.081524 
+TableFill "Data Table" "124/764#3" "Y-Coord" 6076719.569355 
+TableFill "Data Table" "204/1108#1" "Z (ms)" 4 
+TableFill "Data Table" "204/1108#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "204/1108#1" "[Y2]Energy" "" 
+TableFill "Data Table" "484/476#2" "[X]X-Coord" 618418.348666 
+TableFill "Data Table" "484/476#2" "Y-Coord" 6081510.988749 
+TableFill "Data Table" "404/812#1" "Z (ms)" 4 
+TableFill "Data Table" "404/812#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "404/812#1" "[Y2]Energy" "" 
+TableFill "Data Table" "300/1012#2" "[X]X-Coord" 626770.422969 
+TableFill "Data Table" "300/1012#2" "Y-Coord" 6083344.930854 
+TableFill "Data Table" "468/1148" "Z (ms)" 1604 
+TableFill "Data Table" "468/1148" "@*[Y]Convolve" "" 
+TableFill "Data Table" "468/1148" "[Y2]Energy" 611545.56 
+TableFill "Data Table" "468/1124" "[X]X-Coord" 610433.716151 
+TableFill "Data Table" "468/1124" "Y-Coord" 6073684.961223 
+TableFill "Data Table" "100/484#1" "Z (ms)" 1604 
+TableFill "Data Table" "100/484#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "100/484#1" "[Y2]Energy" "" 
+TableFill "Data Table" "436/892#2" "[X]X-Coord" 619739.630696 
+TableFill "Data Table" "436/892#2" "Y-Coord" 6084348.995433 
+TableFill "Data Table" "516/868#1" "Z (ms)" 4 
+TableFill "Data Table" "516/868#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "516/868#1" "[Y2]Energy" "" 
+TableFill "Data Table" "468/444#2" "[X]X-Coord" 608234.568361 
+TableFill "Data Table" "100/396#1" "Y-Coord" 6073623.52796 
+TableFill "Data Table" "100/396#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "100/396#1" "[Y2]Energy" "" 
+TableFill "Data Table" "388/564#2" "[X]X-Coord" 618830.462256 
+TableFill "Data Table" "100/820#1" "Y-Coord" 6073919.524592 
+TableFill "Data Table" "100/820#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "100/820#1" "[Y2]Energy" "" 
+TableFill "Data Table" "268/436#2" "[X]X-Coord" 614042.388989 
+TableFill "Data Table" "268/436#2" "Y-Coord" 6080588.432854 
+TableFill "Data Table" "372/636#1" "Z (ms)" 4 
+TableFill "Data Table" "372/636#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "372/636#1" "[Y2]Energy" "" 
+TableFill "Data Table" "228/460#2" "[X]X-Coord" 622972.995555 
+TableFill "Data Table" "228/460#2" "Y-Coord" 6076036.029697 
+TableFill "Data Table" "180/988#1" "Z (ms)" 4 
+TableFill "Data Table" "180/988#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "180/988#1" "[Y2]Energy" "" 
+TableFill "Data Table" "580/1196#2" "[X]X-Coord" 626170.65539 
+TableFill "Data Table" "580/1196#2" "Y-Coord" 6083328.176328 
+TableFill "Data Table" "468/1124" "Z (ms)" 1204 
+TableFill "Data Table" "468/1124" "@*[Y]Convolve" "" 
+TableFill "Data Table" "468/1124" "[Y2]Energy" 7272474 
+TableFill "Data Table" "332/340#2" "[X]X-Coord" 627975.542102 
+TableFill "Data Table" "332/340#2" "Y-Coord" 6083178.517564 
+TableFill "Data Table" "460/1196#1" "Z (ms)" 4 
+TableFill "Data Table" "460/1196#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "460/1196#1" "[Y2]Energy" "" 
+TableFill "Data Table" "476/548#2" "[X]X-Coord" 616631.314466 
+TableFill "Data Table" "476/548#2" "Y-Coord" 6073858.091329 
+TableFill "Data Table" "100/732#1" "Z (ms)" 4 
+TableFill "Data Table" "100/732#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "100/732#1" "[Y2]Energy" "" 
+TableFill "Data Table" "468/404#2" "[X]X-Coord" 610394.628323 
+TableFill "Data Table" "468/404#2" "Y-Coord" 6075084.417618 
+TableFill "Data Table" "156/484#2" "Z (ms)" 4 
+TableFill "Data Table" "156/484#2" "@*[Y]Convolve" "" 
+TableFill "Data Table" "156/484#2" "[Y2]Energy" "" 
+TableFill "Data Table" "460/1020#2" "[X]X-Coord" 622028.122091 
+TableFill "Data Table" "460/1020#2" "Y-Coord" 6081211.671222 
+TableFill "Data Table" "388/956#1" "Z (ms)" 4 
+TableFill "Data Table" "388/956#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "388/956#1" "[Y2]Energy" "" 
+TableFill "Data Table" "436/492#2" "[X]X-Coord" 616830.136407 
+TableFill "Data Table" "436/492#2" "Y-Coord" 6081066.465328 
+TableFill "Data Table" "388/748#1" "Z (ms)" 4 
+TableFill "Data Table" "388/748#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "388/748#1" "[Y2]Energy" "" 
+TableFill "Data Table" "156/1036#2" "[X]X-Coord" 624787.949632 
+TableFill "Data Table" "156/1036#2" "Y-Coord" 6082689.315407 
+TableFill "Data Table" "444/1068#1" "Z (ms)" 4 
+TableFill "Data Table" "444/1068#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "444/1068#1" "[Y2]Energy" "" 
+TableFill "Data Table" "236/444#2" "[X]X-Coord" 627147.93212 
+TableFill "Data Table" "236/444#2" "Y-Coord" 6084155.789906 
+TableFill "Data Table" "500/1164" "Z (ms)" 1604 
+TableFill "Data Table" "500/1164" "@*[Y]Convolve" "" 
+TableFill "Data Table" "500/1164" "[Y2]Energy" 329913.59 
+TableFill "Data Table" "204/764#2" "[X]X-Coord" 610327.620619 
+TableFill "Data Table" "204/764#2" "Y-Coord" 6077483.485723 
+TableFill "Data Table" "252/484#2" "Z (ms)" 4 
+TableFill "Data Table" "252/484#2" "@*[Y]Convolve" "" 
+TableFill "Data Table" "252/484#2" "[Y2]Energy" "" 
+TableFill "Data Table" "620/436#2" "[X]X-Coord" 617773.909285 
+TableFill "Data Table" "620/436#2" "Y-Coord" 6083093.612959 
+TableFill "Data Table" "468/788#1" "Z (ms)" 4 
+TableFill "Data Table" "468/788#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "468/788#1" "[Y2]Energy" "" 
+TableFill "Data Table" "116/876#2" "[X]X-Coord" 627353.438622 
+TableFill "Data Table" "116/876#2" "Y-Coord" 6083961.452406 
+TableFill "Data Table" "492/1172" "Z (ms)" 804 
+TableFill "Data Table" "492/1172" "@*[Y]Convolve" "" 
+TableFill "Data Table" "492/1172" "[Y2]Energy" 3341386.7 
+TableFill "Data Table" "292/1076#2" "[X]X-Coord" 623599.582425 
+TableFill "Data Table" "292/1076#2" "Y-Coord" 6082255.96167 
+TableFill "Data Table" "428/1020#1" "Z (ms)" 4 
+TableFill "Data Table" "428/1020#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "428/1020#1" "[Y2]Energy" "" 
+TableFill "Data Table" "292/1140#2" "[X]X-Coord" 628597.645583 
+TableFill "Data Table" "292/1140#2" "Y-Coord" 6082395.582722 
+TableFill "Data Table" "428/1220#1" "Z (ms)" 4 
+TableFill "Data Table" "428/1220#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "428/1220#1" "[Y2]Energy" "" 
+TableFill "Data Table" "132/324#2" "[X]X-Coord" 610222.625673 
+TableFill "Data Table" "132/324#2" "Y-Coord" 6074079.221065 
+TableFill "Data Table" "116/476#1" "Z (ms)" 4 
+TableFill "Data Table" "116/476#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "116/476#1" "[Y2]Energy" "" 
+TableFill "Data Table" "196/932#2" "[X]X-Coord" 628409.991593 
+TableFill "Data Table" "196/932#2" "Y-Coord" 6074787.364039 
+TableFill "Data Table" "124/1204#1" "Z (ms)" 4 
+TableFill "Data Table" "124/1204#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "124/1204#1" "[Y2]Energy" "" 
+TableFill "Data Table" "228/660#2" "[X]X-Coord" 612926.613461 
+TableFill "Data Table" "228/660#2" "Y-Coord" 6077556.08867 
+TableFill "Data Table" "252/588#1" "Z (ms)" 4 
+TableFill "Data Table" "252/588#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "252/588#1" "[Y2]Energy" "" 
+TableFill "Data Table" "196/980#2" "[X]X-Coord" 613726.303566 
+TableFill "Data Table" "196/980#2" "Y-Coord" 6077578.428039 
+TableFill "Data Table" "252/620#1" "Z (ms)" 4 
+TableFill "Data Table" "252/620#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "252/620#1" "[Y2]Energy" "" 
+TableFill "Data Table" "156/764#2" "[X]X-Coord" 621800.279688 
+TableFill "Data Table" "156/764#2" "Y-Coord" 6082205.698091 
+TableFill "Data Table" "428/948#1" "Z (ms)" 4 
+TableFill "Data Table" "428/948#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "428/948#1" "[Y2]Energy" "" 
+TableFill "Data Table" "148/644#2" "[X]X-Coord" 616925.063987 
+TableFill "Data Table" "148/644#2" "Y-Coord" 6077667.785512 
+TableFill "Data Table" "252/748#1" "Z (ms)" 4 
+TableFill "Data Table" "252/748#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "252/748#1" "[Y2]Energy" "" 
+TableFill "Data Table" "164/348#2" "[X]X-Coord" 618229.594091 
+TableFill "Data Table" "164/348#2" "Y-Coord" 6081105.559222 
+TableFill "Data Table" "388/804#1" "Z (ms)" 4 
+TableFill "Data Table" "388/804#1" "@*[Y]Convolve" "" 
+TableFill "Data Table" "388/804#1" "[Y2]Energy" "" 
+TableFill "Data Table" "420/764#2" "[X]X-Coord" 627188.120534 
+TableFill "Data Table" "420/764#2" "Y-Coord" 6075553.544355 
+TableFill "Data Table" "156/1156" "Z (ms)" 404 
+TableFill "Data Table" "156/1156" "@*[Y]Convolve" "" 
+TableFill "Data Table" "156/1156" "[Y2]Energy" 2084139.8 
+TableFill "Data Table" "428/1020#2" "[X]X-Coord" 628993.007246 
+TableFill "Data Table" "148/1228#1" "Y-Coord" 6075403.885592 
+TableFill "Data Table" "516/868#2" "[X]X-Coord" 625309.541556 
+TableFill "Data Table" "556/1092#1" "Y-Coord" 6085504.982722 
+TableFill "Data Table" "140/924#2" "[X]X-Coord" 608834.33594 
+TableFill "Data Table" "140/924#2" "Y-Coord" 6073640.282487 
+TableFill "Data Table" "100/420#1" "Z (ms)" 404 
+TableFill "Data Table" "388/956#2" "[X]X-Coord" 608634.413414 
+TableFill "Data Table" "388/956#2" "Y-Coord" 6073634.697644 
+TableFill "Data Table" "100/412#1" "Z (ms)" 1204 
+TableFill "Data Table" "204/1108#2" "[X]X-Coord" 608322.81138 
+TableFill "Data Table" "260/404#1" "Y-Coord" 6077627.559644 
+TableFill "Data Table" "372/636#2" "[X]X-Coord" 609322.424012 
+TableFill "Data Table" "260/444#1" "Y-Coord" 6077655.483854 
+TableFill "Data Table" "428/948#2" "[X]X-Coord" 616031.546887 
+TableFill "Data Table" "100/708#1" "Y-Coord" 6073841.336802 
+TableFill "Data Table" "180/988#2" "[X]X-Coord" 628303.896062 
+TableFill "Data Table" "276/1204#1" "Y-Coord" 6078585.888539 
+TableFill "Data Table" "260/444#2" "[X]X-Coord" 628131.893412 
+TableFill "Data Table" "260/444#2" "Y-Coord" 6077580.691986 
+TableFill "Data Table" "236/1196" "Z (ms)" 1604 
+TableFill "Data Table" "236/1196" "[Y2]Energy" 4000173.5 
+TableFill "Data Table" "404/812#2" "[X]X-Coord" 625028.060572 
+TableFill "Data Table" "404/812#2" "Y-Coord" 6074092.654697 
+TableFill "Data Table" "100/1068#1" "Z (ms)" 1604 
+TableFill "Data Table" "100/412#2" "[X]X-Coord" 628297.2115 
+TableFill "Data Table" "572/1212" "Y-Coord" 6085988.600038 
+TableFill "Data Table" "572/1212" "[Y2]Energy" 14641483 
+TableFill "Data Table" "100/484#2" "[X]X-Coord" 627515.373907 
+TableFill "Data Table" "100/484#2" "Y-Coord" 6078163.704486 
+TableFill "Data Table" "260/1172#1" "Z (ms)" 4 
+TableFill "Data Table" "388/748#2" "[X]X-Coord" 618352.441548 
+TableFill "Data Table" "212/804#1" "Y-Coord" 6076707.267697 
+TableFill "Data Table" "100/708#2" "[X]X-Coord" 618796.958404 
+TableFill "Data Table" "148/820#1" "Y-Coord" 6075119.058644 
+TableFill "Data Table" "252/748#2" "[X]X-Coord" 626703.415265 
+TableFill "Data Table" "252/748#2" "Y-Coord" 6085743.998959 
+TableFill "Data Table" "564/1148" "Z (ms)" 1204 
+TableFill "Data Table" "564/1148" "[Y2]Energy" 12986073 
+TableFill "Data Table" "444/1068#2" "[X]X-Coord" 619278.361914 
+TableFill "Data Table" "604/852#1" "Y-Coord" 6086536.971511 
+TableFill "Data Table" "148/1228#2" "[X]X-Coord" 620989.421632 
+TableFill "Data Table" "444/916#1" "Y-Coord" 6082583.203407 
+TableFill "Data Table" "156/484#3" "[X]X-Coord" 627586.865 
+TableFill "Data Table" "156/484#3" "Y-Coord" 6082767.503196 
+TableFill "Data Table" "444/1180" "Z (ms)" 1604 
+TableFill "Data Table" "444/1180" "[Y2]Energy" 191819.15 
+TableFill "Data Table" "428/1220#2" "[X]X-Coord" 608088.284416 
+TableFill "Data Table" "596/404#1" "Y-Coord" 6086024.298011 
+TableFill "Data Table" "100/732#2" "[X]X-Coord" 612587.091551 
+TableFill "Data Table" "452/580#1" "Y-Coord" 6082548.56238 
+TableFill "Data Table" "556/1092#2" "[X]X-Coord" 609006.33859 
+TableFill "Data Table" "140/428#1" "Y-Coord" 6074645.479039 
+TableFill "Data Table" "460/1196#2" "[X]X-Coord" 626310.254774 
+TableFill "Data Table" "460/1196#2" "Y-Coord" 6078330.117776 
+TableFill "Data Table" "268/1124" "Z (ms)" 404 
+TableFill "Data Table" "268/1124" "[Y2]Energy" 1281265.3 
+TableFill "Data Table" "140/428#2" "[X]X-Coord" 605584.219154 
+TableFill "Data Table" "140/428#2" "Y-Coord" 6082553.015249 
+TableFill "Data Table" "460/300#1" "Z (ms)" 1604 
+TableFill "Data Table" "460/300#2" "[X]X-Coord" 627069.756465 
+TableFill "Data Table" "460/300#2" "Y-Coord" 6086954.702695 
+TableFill "Data Table" "612/1164" "Z (ms)" 1204 
+TableFill "Data Table" "612/1164" "[Y2]Energy" 3478306.7 
+TableFill "Data Table" "388/804#2" "[X]X-Coord" 608034.645835 
+TableFill "Data Table" "100/388#1" "Y-Coord" 6073617.943118 
+TableFill "Data Table" "116/476#2" "[X]X-Coord" 605900.304577 
+TableFill "Data Table" "580/316#1" "Y-Coord" 6085563.020064 
+TableFill "Data Table" "100/396#2" "[X]X-Coord" 621483.093679 
+TableFill "Data Table" "100/396#2" "Y-Coord" 6086398.482432 
+TableFill "Data Table" "596/940#2" "Z (ms)" 4 
+TableFill "Data Table" "100/420#2" "[X]X-Coord" 605723.818538 
+TableFill "Data Table" "100/420#2" "Y-Coord" 6077554.956697 
+TableFill "Data Table" "260/300#1" "Z (ms)" 1604 
+TableFill "Data Table" "460/892#2" "[X]X-Coord" 616468.278595 
+TableFill "Data Table" "620/740#1" "Y-Coord" 6086858.628406 
+TableFill "Data Table" "276/1204#2" "[X]X-Coord" 627360.123184 
+TableFill "Data Table" "196/1164#1" "Y-Coord" 6076558.740907 
+TableFill "Data Table" "124/1204#2" "[X]X-Coord" 623665.489543 
+TableFill "Data Table" "620/1028#1" "Y-Coord" 6087059.682722 
+TableFill "Data Table" "260/1172#2" "[X]X-Coord" 626864.249964 
+TableFill "Data Table" "620/1156#1" "Y-Coord" 6087149.040195 
+TableFill "Data Table" "148/820#2" "[X]X-Coord" 610772.137474 
+TableFill "Data Table" "188/500#1" "Y-Coord" 6075895.27667 
+TableFill "Data Table" "100/388#2" "[X]X-Coord" 626559.332492 
+TableFill "Data Table" "100/388#2" "Y-Coord" 6083739.190696 
+TableFill "Data Table" "484/1140" "Z (ms)" 1604 
+TableFill "Data Table" "484/1140" "[Y2]Energy" 1052574 
+TableFill "Data Table" "604/852#2" "[X]X-Coord" 628182.14919 
+TableFill "Data Table" "604/852#2" "Y-Coord" 6075781.390907 
+TableFill "Data Table" "164/1196" "Z (ms)" 404 
+TableFill "Data Table" "164/1196" "[Y2]Energy" 1576099.2 
+TableFill "Data Table" "252/484#3" "[X]X-Coord" 626127.084174 
+TableFill "Data Table" "252/484#3" "Y-Coord" 6077724.765907 
+TableFill "Data Table" "244/1116" "Z (ms)" 1204 
+TableFill "Data Table" "244/1116" "[Y2]Energy" 2246427.7 
+TableFill "Data Table" "468/788#2" "[X]X-Coord" 628498.234613 
+TableFill "Data Table" "468/788#2" "Y-Coord" 6078791.395723 
+TableFill "Data Table" "284/1212" "Z (ms)" 804 
+TableFill "Data Table" "284/1212" "[Y2]Energy" 4020179.5 
+TableFill "Data Table" "252/588#2" "[X]X-Coord" 625171.042759 
+TableFill "Data Table" "468/1084#1" "Y-Coord" 6083300.252117 
+TableFill "Data Table" "252/620#2" "[X]X-Coord" 625770.810337 
+TableFill "Data Table" "252/620#2" "Y-Coord" 6083317.006643 
+TableFill "Data Table" "468/1108" "Z (ms)" 404 
+TableFill "Data Table" "468/1108" "[Y2]Energy" 7414329 
+TableFill "Data Table" "388/1116#2" "[X]X-Coord" 627452.849592 
+TableFill "Data Table" "388/1116#2" "Y-Coord" 6087565.639406 
+TableFill "Data Table" "636/1180" "Z (ms)" 1204 
+TableFill "Data Table" "636/1180" "[Y2]Energy" 984369.43 
+TableFill "Data Table" "100/820#2" "[X]X-Coord" 626992.681397 
+TableFill "Data Table" "100/820#2" "Y-Coord" 6082550.826328 
+TableFill "Data Table" "436/1156" "Z (ms)" 404 
+TableFill "Data Table" "436/1156" "[Y2]Energy" 2891928 
+TableFill "Data Table" "100/1068#2" "[X]X-Coord" 625888.07382 
+TableFill "Data Table" "300/1108" "Y-Coord" 6079118.63746 
+TableFill "Data Table" "300/1108" "[Y2]Energy" 3711738.7 
+TableFill "Data Table" "188/500#2" "[X]X-Coord" 620649.899722 
+TableFill "Data Table" "644/908#1" "Y-Coord" 6087575.677116 
+TableFill "Data Table" "444/916#2" "[X]X-Coord" 626559.332492 
+TableFill "Data Table" "444/916#2" "Y-Coord" 6083739.190696 
+TableFill "Data Table" "484/1140#2" "Z (ms)" 404 
+TableFill "Data Table" "484/1140#2" "[Y2]Energy" 2945424.7 
+TableFill "Data Table" "452/580#2" "[X]X-Coord" 605684.730711 
+TableFill "Data Table" "452/580#2" "Y-Coord" 6078954.413091 
+TableFill "Data Table" "316/300#1" "Z (ms)" 1604 
+TableFill "Data Table" "468/1084#2" "[X]X-Coord" 619618.984411 
+TableFill "Data Table" "116/852#1" "Y-Coord" 6074341.708644 
+TableFill "Data Table" "580/316#2" "[X]X-Coord" 629096.901605 
+TableFill "Data Table" "572/1244#1" "Y-Coord" 6086010.939406 
+TableFill "Data Table" "620/740#2" "[X]X-Coord" 614075.892841 
+TableFill "Data Table" "324/636#1" "Y-Coord" 6079388.898802 
+TableFill "Data Table" "196/1164#2" "[X]X-Coord" 607438.261059 
+TableFill "Data Table" "668/380#1" "Y-Coord" 6087806.844564 
+TableFill "Data Table" "620/1028#2" "[X]X-Coord" 608589.741611 
+TableFill "Data Table" "164/412#1" "Y-Coord" 6075234.076381 
+TableFill "Data Table" "620/1156#2" "[X]X-Coord" 614787.339927 
+TableFill "Data Table" "164/660#1" "Y-Coord" 6075407.206486 
+TableFill "Data Table" "644/908#2" "[X]X-Coord" 626692.247314 
+TableFill "Data Table" "580/1148#1" "Y-Coord" 6086143.843643 
+TableFill "Data Table" "596/404#2" "[X]X-Coord" 627747.699699 
+TableFill "Data Table" "596/404#2" "Y-Coord" 6084172.544433 
+TableFill "Data Table" "500/1188" "Z (ms)" 1204 
+TableFill "Data Table" "500/1188" "[Y2]Energy" 5620520 
+TableFill "Data Table" "212/804#2" "[X]X-Coord" 614804.091853 
+TableFill "Data Table" "140/660#1" "Y-Coord" 6074807.43946 
+TableFill "Data Table" "596/940#3" "[X]X-Coord" 627576.797636 
+TableFill "Data Table" "596/940#3" "Y-Coord" 6075964.558723 
+TableFill "Data Table" "172/1172" "Z (ms)" 1604 
+TableFill "Data Table" "172/1172" "[Y2]Energy" 6779238.5 
+TableFill "Data Table" "260/300#2" "[X]X-Coord" 626659.844048 
+TableFill "Data Table" "260/300#2" "Y-Coord" 6080140.588538 
+TableFill "Data Table" "340/1140#1" "Z (ms)" 4 
+TableFill "Data Table" "340/1140#2" "[X]X-Coord" 627025.084663 
+TableFill "Data Table" "340/1140#2" "Y-Coord" 6088554.081432 
+TableFill "Data Table" "676/1164" "Z (ms)" 1204 
+TableFill "Data Table" "676/1164" "[Y2]Energy" 943198.06 
+TableFill "Data Table" "260/404#2" "[X]X-Coord" 627659.45668 
+TableFill "Data Table" "260/404#2" "Y-Coord" 6080168.512749 
+TableFill "Data Table" "340/1180" "Z (ms)" 1604 
+TableFill "Data Table" "340/1180" "[Y2]Energy" 1751083.7 
+TableFill "Data Table" "316/300#2" "[X]X-Coord" 626166.172001 
+TableFill "Data Table" "188/1116" "Y-Coord" 6076325.309513 
+TableFill "Data Table" "188/1116" "[Y2]Energy" 37756228 
+TableFill "Data Table" "116/852#2" "[X]X-Coord" 627165.784633 
+TableFill "Data Table" "116/852#2" "Y-Coord" 6076353.233723 
+TableFill "Data Table" "188/1156" "Z (ms)" 804 
+TableFill "Data Table" "188/1156" "[Y2]Energy" 9607443 
+TableFill "Data Table" "572/1244#2" "[X]X-Coord" 626725.751166 
+TableFill "Data Table" "572/1244#2" "Y-Coord" 6084944.30959 
+TableFill "Data Table" "532/1148#2" "Z (ms)" 804 
+TableFill "Data Table" "532/1148#2" "[Y2]Energy" 3179506.2 
+TableFill "Data Table" "140/660#2" "[X]X-Coord" 627402.593814 
+TableFill "Data Table" "140/660#2" "Y-Coord" 6089364.940485 
+TableFill "Data Table" "708/1180" "Z (ms)" 1204 
+TableFill "Data Table" "708/1180" "[Y2]Energy" 9817205 
+TableFill "Data Table" "324/636#2" "[X]X-Coord" 626436.485034 
+TableFill "Data Table" "324/636#2" "Y-Coord" 6088137.482222 
+TableFill "Data Table" "660/1140" "Z (ms)" 1604 
+TableFill "Data Table" "660/1140" "[Y2]Energy" 1245594.3 
+TableFill "Data Table" "668/380#2" "[X]X-Coord" 625786.461677 
+TableFill "Data Table" "668/380#2" "Y-Coord" 6089920.028774 
+TableFill "Data Table" "732/1116" "Z (ms)" 1604 
+TableFill "Data Table" "732/1116" "[Y2]Energy" 1196615.1 
+TableFill "Data Table" "164/412#2" "[X]X-Coord" 627385.841888 
+TableFill "Data Table" "164/412#2" "Y-Coord" 6089964.707511 
+TableFill "Data Table" "732/1180" "Z (ms)" 1604 
+TableFill "Data Table" "732/1180" "[Y2]Energy" 309253.93 
+TableFill "Data Table" "164/660#2" "[X]X-Coord" 626671.011999 
+TableFill "Data Table" "164/660#2" "Y-Coord" 6079740.743854 
+TableFill "Data Table" "324/1140" "Z (ms)" 804 
+TableFill "Data Table" "324/1140" "[Y2]Energy" 4207042.5 
+TableFill "Data Table" "580/1148#2" "[X]X-Coord" 625892.557209 
+TableFill "Data Table" "580/1148#2" "Y-Coord" 6086121.504275 
+TableFill "Data Table" "580/1116" "Z (ms)" 404 
+TableFill "Data Table" "580/1116" "[Y2]Energy" 4418390 
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Button "Show selections in table"
+
+[Attribute data]
+TableSelect "Data Table" "156/484#2" "@*[Y]Convolve" Off
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Button "Set selectable" On
+
+[Attribute data]
+TableSelect "Data Table" "468/940" "@*[Y]Convolve"
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Button "Set selectable" Off
+
+[Attribute data]
+TableSelect "Data Table" "580/1116" "[Y2]Energy"
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Button "Properties"
+
+[Settings]
+Combo "Axis" "X"
+Tab "Statistics"
+Button "Show regression line" On
+Button "Apply"
+Button "Ok"
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Button "PDF"
+
+[Create Probability Density Function]
+Button "More ->"
+Button "Select Probability Density Function"
+
+[Probability Density Function]
+Input "Name" "AttributeCrossplot-PDF" Hold
+Button "Ok (Select)"
+
+[Create Probability Density Function]
+Button "Go"
+
+[Information]
+Button "Ok"
+
+[Create Probability Density Function]
+Input "Range stop#3" 1000 Hold
+Button "Go"
+
+[Information]
+Button "Ok"
+
+[Create Probability Density Function]
+Button "<- Less"
+Button "Go"
+
+[Information]
+Button "Ok"
+
+[Create Probability Density Function]
+Button "Dismiss"
+
+[100/300-750/1250 (5 samples) / Remove 98% Cross-plot]
+Button "Show selected points in workSpace"
+Button "Selection mode"
+Button "Show selected points in workSpace"
+Button "Selection mode"
+Close
+
+[Attribute data]
+Button "Set Y one column right"
+Button "Set Y one column left"
+Button "Set sorted column to current"
+TableClick "Data Table" ColHead "Z (ms)" 
+Button "Set sorted column to current"
+Button "Show histogram and stats for column"
+
+[Data statistics]
+Close
+
+[Attribute data]
+Button "Save data"
+
+[Create output]
+Button "Text file" On
+Input "Output file" "CrossPlotData" Hold
+Button "Select Output file"
+
+[<no title>]
+Cancel
+
+[Create output]
+Button "Ok"
+
+[Attribute data]
+Button "Retrieve stored data"
+
+[Load Positioned Vector Data]
+Button "Cancel"
+
+[Attribute data]
+Button "Dismiss"
+
+[Attribute cross-plotting]
+Button "Cancel"
+
+[OpendTect Main Window]
+Menu "Survey`Select/Setup"
+
+[Survey selection]
+Button "Edit"
+
+[Survey setup]
+Button "Ok"
+
+[Survey selection]
+Button "Ok (Select)"
+
+[Data not saved]
+Button "Don't save"
+
+[OpendTect Main Window]

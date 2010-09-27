@@ -1,0 +1,108 @@
+dTect V4.2.0
+OpendTect commands
+Thu 23 Sep 2010, 14:37:24
+!
+
+[OpendTect Main Window]
+TreeMenu "Horizon" Left "Load"
+
+[Horizon selection]
+ListClick "Objects list" "Demo 0 --> FS4-10-10" Left
+ListClick "Objects list" "Demo 0 --> FS4" Left
+Button "Ok"
+
+[OpendTect Main Window]
+TreeMenu "Horizon`Demo 0 --> FS4" "Save as"
+
+[Output selection]
+Button "Select Area subselection"
+
+[Positions]
+Input "Inline step" 10 Enter
+Input "Crossline step" 10 Enter
+Button "Ok"
+
+[Output selection]
+Button "Select Output Surface"
+
+[Output Surface]
+Input "Name" "Demo 0 --> FS4_test" Hold
+Button "Ok (Select)"
+
+[Output selection]
+Button "Ok"
+
+[OpendTect Main Window]
+TreeMenu "Horizon`Demo 0 --> FS4" "Remove"
+TreeMenu "Horizon" "Load"
+
+[Horizon selection]
+ListClick "Objects list" "Demo 0 --> FS4-10-10-withHoles" Left
+ListClick "Objects list" "Demo 0 --> FS4_test" Left
+Button "Ok"
+
+[OpendTect Main Window]
+Wheel "Dolly" 1.34854
+Wheel "vRotate" 89.0036
+TreeMenu "Horizon`Demo 0 --> FS4_test" "Quick UVQ"
+
+[Quick UVQ]
+Button "Select Input Cube"
+
+[Load Seismic Data]
+ListClick "Objects list" "Median Dip Filtered Seismics" DoubleLeft
+
+[Quick UVQ]
+Button "Ok"
+
+[NN training* ]
+Sleep 15
+Button "Ok"
+Sleep 10
+
+[NN info]
+Button "Display"
+
+[''Quick UVQ' Neural Network' - class centers]
+Button "Zoom in"
+Button "Zoom out"
+Button "Flip left/right"
+Button "Flip left/right"
+Button "Flip left/right"
+Button "Set display parameters"
+
+[Display properties]
+Button "Right fill color"
+
+[Select color]
+ColorOk 255 85 0
+
+[Display properties]
+Button "Apply"
+Button "Apply"
+Button "Ok"
+
+[''Quick UVQ' Neural Network' - class centers]
+Close
+
+[NN info]
+Button "Dismiss"
+
+[OpendTect Main Window]
+Button "Make snapshot"
+
+[Specify snapshot]
+Button "Ok"
+
+[Create snapshot]
+Button "Select Select filename"
+
+[Save As]
+FileOk "/d12/nageswara/surveys/F3_Demo_for_Test/Misc/Snapshots/HorizonUVQ"
+
+[Create snapshot]
+Button "Ok"
+
+[OpendTect Main Window]
+TreeButton "Horizon`Demo 0 --> FS4_test`Class" Off
+TreeMenu "Horizon`Demo 0 --> FS4_test" "Remove"

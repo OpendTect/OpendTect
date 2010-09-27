@@ -1,0 +1,56 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 10:02:39
+!
+
+[OpendTect Main Window]
+Menu "Processing`Create Seismic Output`Time - depth conversion"
+
+[Time to depth volume conversion]
+Button "Select Velocity model"
+
+[Load Seismic Data]
+ListClick "Objects list" "vmb-volume-grid" Left
+ListClick "Objects list" "vmb-volume" Left
+Button "Ok (Select)"
+
+[Time to depth volume conversion]
+Button "Edit"
+
+[Edit velocity information]
+Button "Scan"
+Button "Select Velocity cube"
+
+[Load Seismic Data]
+Button "Cancel"
+
+[Edit velocity information]
+Combo "Velocity type" "Vrms"
+Button "Set as default" On
+Button "Set as default" Off
+Button "Ok"
+
+[Time to depth volume conversion]
+Button "Select Input Time Volume"
+
+[Load Seismic Data]
+ListClick "Objects list" "Median Dip Filtered Seismics" DoubleLeft
+
+[Time to depth volume conversion]
+Button "Select Area subselection"
+
+[Positions]
+Input "Inline start" 425 Enter
+Input "Inline stop" 425 Enter
+Button "Ok"
+
+[Time to depth volume conversion]
+Button "Select Output Depth Volume"
+
+[Save Seismic Data as]
+Input "Name" "TestCube-T2DConv" Hold
+Button "Ok (Select)"
+
+[Time to depth volume conversion]
+Button "Proceed"
+

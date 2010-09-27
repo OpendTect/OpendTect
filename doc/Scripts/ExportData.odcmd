@@ -1,0 +1,200 @@
+dTect V4.2.0
+OpendTect commands
+Wed 22 Sep 2010, 17:03:52
+!
+
+[OpendTect Main Window]
+Menu "Survey`Export`Seismics`SEG-Y`3D"
+
+[SEG-Y I/O]
+Button "Select Input Cube"
+
+[Load Seismic Data]
+ListClick "Objects list" "Median Dip Filtered Seismics" Left
+Button "Ok (Select)"
+
+[SEG-Y I/O]
+Button "Select Volume subselection"
+
+[Positions]
+Input "Inline start" 300 Enter
+Input "Inline stop" 300 Enter
+Input "Inline start" 320 Enter
+Button "Ok"
+
+[SEG-Y I/O]
+Button "Define Text header"
+
+[Define SEG-Y Text Header]
+Button "Ok"
+
+[SEG-Y I/O]
+Button "Select Output SEG-Y file"
+
+[Save As]
+FileOk "/d12/nageswara/surveys/F3_Demo_for_Test/Export/SeisExport.sgy"
+
+[SEG-Y I/O]
+Button "Go"
+
+[OpendTect Main Window]
+Menu "Survey`Export`Horizons`Ascii 3D"
+
+[Export Horizon]
+Button "Select Input Surface"
+
+[Input Surface]
+Button "Ok (Select)"
+
+[Export Horizon]
+Combo "Output Z" "Yes"
+Button "Select Output Ascii file"
+
+[<no title>]
+FileOk "/d12/nageswara/surveys/F3_Demo_for_Test/Export/HorizonExport.asc"
+
+[Export Horizon]
+Button "Go"
+Button "Dismiss"
+
+[OpendTect Main Window]
+Menu "Survey`Export`Faults`Ascii"
+
+[Export Fault]
+Button "Select Input Fault"
+
+[Input Fault]
+Button "Ok (Select)"
+
+[Export Fault]
+Button "Select Output Ascii file"
+
+[<no title>]
+FileOk "/d12/nageswara/surveys/F3_Demo_for_Test/Export/FaultExport.asc"
+
+[Export Fault]
+Button "Go"
+
+[OpendTect Main Window]
+Menu "Survey`Export`FaultStickSets`Ascii"
+
+[Export FaultStickSet]
+Button "Select Input FaultStickSet"
+
+[Input FaultStickSet]
+Button "Ok (Select)"
+
+[Export FaultStickSet]
+Button "Write line name if picked on 2D" Off
+Button "node index" On
+Button "node index" Off
+Button "Select Output Ascii file"
+
+[<no title>]
+FileOk "/d12/nageswara/surveys/F3_Demo_for_Test/Export/FaultSickSetExport.asc"
+
+[Export FaultStickSet]
+Button "Go"
+
+[OpendTect Main Window]
+Menu "Survey`Export`PickSets`Ascii"
+
+[Export PickSet]
+Button "Select Input PickSet"
+
+[Input PickSet]
+Button "Ok (Select)"
+
+[Export PickSet]
+Input "Output Ascii file" "PicksetExport.asc" Hold
+Button "Select Output Ascii file"
+
+[<no title>]
+FileOk "/d12/nageswara/surveys/F3_Demo_for_Test/Export/PicksetExport.asc"
+
+[Export PickSet]
+Button "Go"
+
+[Information]
+Button "Ok"
+
+[Export PickSet]
+Button "Dismiss"
+
+[OpendTect Main Window]
+Menu "Survey`Export`Wavelets`Ascii"
+
+[Wavelet export]
+Button "Select Wavelet"
+
+[Wavelet]
+ListClick "Objects list" "test" Left
+ListClick "Objects list" "Coloured Inversion Operator_bp" Left
+Button "Ok (Select)"
+
+[Wavelet export]
+Button "Select Output file"
+
+[<no title>]
+FileOk "/d12/nageswara/surveys/F3_Demo_for_Test/Export/TestWavelet.asc"
+
+[Wavelet export]
+Button "Ok"
+
+[OpendTect Main Window]
+Menu "Survey`Export`Mute Functions`Ascii"
+
+[Export Mute Function]
+Button "Select Input Mute Def"
+
+[Input Mute Def]
+Button "Cancel"
+
+[Export Mute Function]
+Button "Dismiss"
+
+[OpendTect Main Window]
+Menu "Survey`Export`Probability Density Functions`RokDoc Ascii"
+
+[Export Probability Density Function]
+Button "Select Probability Density Function"
+
+[Probability Density Function]
+Button "Cancel"
+
+[Export Probability Density Function]
+Button "Dismiss"
+
+[OpendTect Main Window]
+Menu "Survey`Export`HorizonCube"
+
+[Export HorizonCube to ASCII]
+Button "Select Select HorizonCube"
+
+[Select HorizonCube]
+Button "Cancel"
+
+[Export HorizonCube to ASCII]
+Button "Cancel"
+
+[OpendTect Main Window]
+Button "Manage well data"
+
+[Well file management]
+ListClick "Objects list" "F03-2" Left
+ListClick "Available logs" "Gamma Ray" Left
+Button "Export log"
+
+[Export Well logs]
+Button "Select Output file"
+
+[<no title>]
+FileOk "/d12/nageswara/surveys/F3_Demo_for_Test/Export/WellExport.dat"
+
+[Export Well logs]
+Button "Ok"
+
+[Well file management]
+Button "Dismiss"
+
+[OpendTect Main Window]

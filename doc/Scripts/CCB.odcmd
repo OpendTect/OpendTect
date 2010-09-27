@@ -1,0 +1,137 @@
+dTect V4.1
+OpendTect commands
+Fri 24 Sep 2010, 15:58:19
+!
+
+[OpendTect Main Window]
+Button "Common Contour Binning"
+
+[CCB Main window]
+Button "Select Horizon"
+
+[Horizon]
+Button "Ok (Select)"
+
+[CCB Main window]
+Button "Select Input Cube"
+
+[Load Seismic Data]
+ListClick "Objects list" "Median Dip Filtered Seismics" DoubleLeft
+
+[CCB Main window]
+Button "Select Volume subselection"
+
+[Positions]
+Input "Inline start" 425 Enter
+Input "Inline stop" 450 Enter
+Input "Crossline start" 500 Enter
+Input "Crossline stop" 800 Enter
+Button "Ok"
+
+[CCB Main window]
+Button "Go"
+
+[OpendTect Main Window]
+Button "Make snapshot"
+
+[Specify snapshot]
+Button "Window" On
+Button "Ok"
+
+[Window grabber]
+Input "Filename" "AmplitudeSpectra-ccb" Hold
+Button "Ok"
+
+[CCB Analysis]
+Button "Write cube" On
+Button "Flattened" Off
+Button "Flattened" On
+Combo "Display type" "Single Z"
+Combo "Display type" "Directional"
+Combo "Display type" "Stack"
+Button "Select Output Cube"
+
+[Save Seismic Data as]
+Input "Name" "TestCCB" Hold
+Button "Ok (Select)"
+
+[CCB Analysis]
+Button "Go"
+
+[CCB display]
+Button "Save image"
+
+[Create snapshot]
+Input "Select filename" "CCB-Display" Hold
+Button "Ok"
+
+[CCB display]
+Button "Zoom in"
+Button "Zoom in"
+Button "Zoom out"
+Button "Flip left/right"
+Button "Flip left/right"
+Button "Set display parameters"
+
+[Display properties]
+Button "Right fill color"
+
+[Select color]
+ColorOk 255 85 0
+
+[Display properties]
+Button "Apply"
+Button "Ok"
+
+[CCB display]
+Combo "Evaluate" "Frequency"
+Combo "Evaluate" "Phase"
+Combo "Evaluate" "Amplitude"
+Close
+
+[CCB Analysis]
+Button "Go"
+
+[CCB display]
+Close
+
+[CCB Analysis]
+Button "Dismiss"
+
+[CCB Main window]
+Button "Dismiss"
+
+[OpendTect Main Window]
+TreeMenu "Inline" Left "Add"
+TreeMenu "Inline`425`<right-click>" "Select Attribute`Stored Cubes`TestCCB" On
+Wheel "Dolly" 41.8047
+Button "Make snapshot"
+
+[Specify snapshot]
+Button "Ok"
+
+[Create snapshot]
+Input "Select filename" "CCB-lnLine" Hold
+Button "Ok"
+
+[OpendTect Main Window]
+TreeMenu "Inline`425" "Remove"
+Wheel "vRotate" -8.09123
+Wheel "Dolly" -12.1369
+Wheel "Dolly" -28.3193
+Button "Manage Seismic data"
+
+[Please specify]
+Button "3D"
+
+[Seismic file management]
+ListClick "Objects list" "TestCCB" Left
+Button "Remove this object"
+
+[Remove data]
+Button "Remove"
+
+[Seismic file management]
+Button "Dismiss"
+
+[OpendTect Main Window]

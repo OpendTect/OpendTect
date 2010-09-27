@@ -1,0 +1,82 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 11:26:00
+!
+
+[OpendTect Main Window]
+Menu "Processing`Create Grid Output`Stratal Amplitude"
+
+[Stratal Amplitude]
+Button "Select Quantity to output"
+
+[Select]
+Button "Ok"
+
+[Stratal Amplitude]
+Button "Double Horizon" On
+Button "Single Horizon" On
+Button "Select Horizon"
+
+[Horizon]
+Button "Ok (Select)"
+
+[Stratal Amplitude]
+Input "Top" -50 Hold
+Input "Bottom" 50 Hold
+Button "Select Area subselection"
+
+[Positions]
+Input "Inline start" 500 Enter
+Input "Inline stop" 650 Enter
+Input "Crossline start" 600 Enter
+Input "Crossline stop" 1000 Enter
+Button "Ok"
+
+[Stratal Amplitude]
+Input "Attribute name" "Strata_ Amplitude" Hold
+Button "Ok"
+
+[OpendTect Main Window]
+TreeMenu "Horizon" Left "Load"
+
+[Horizon selection]
+Button "Ok"
+
+[OpendTect Main Window]
+TreeMenu "Horizon`Demo 0 --> FS4" "Add attribute"
+TreeMenu "Horizon`Demo 0 --> FS4`<right-click>" "Select Attribute`Surface data (5)"
+
+[Surface data]
+ListClick "Select Data from List" "Strata_ Amplitude" Left
+Button "Ok"
+
+[OpendTect Main Window]
+Button "Make snapshot"
+
+[Specify snapshot]
+Button "Ok"
+
+[Create snapshot]
+Button "Select Select filename"
+
+[Save As]
+FileOk "/d12/nageswara/surveys/F3_Demo_for_Test/Misc/Snapshots/StratalAmplitude"
+
+[Create snapshot]
+Button "Ok"
+
+[OpendTect Main Window]
+TreeMenu "Horizon`Demo 0 --> FS4`Strata_ Amplitude#1" "Remove"
+Button "Manage Horizons"
+
+[3D Horizons management]
+ListClick "Calculated attributes" "Strata_ Amplitude" Left
+Button "Remove selected attribute(s)"
+
+[Remove data]
+Button "Remove"
+
+[3D Horizons management]
+Button "Dismiss"
+
+[OpendTect Main Window]

@@ -1,0 +1,56 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 11:30:02
+!
+
+[OpendTect Main Window]
+Menu "Processing`Create Grid Output`Isopach"
+
+[Create isopach]
+Button "Select Horizon"
+
+[Horizon]
+Button "Ok (Select)"
+
+[Create isopach]
+Button "Select Calculate to"
+
+[Calculate to]
+ListClick "Objects list" "Demo 2 --> FS6" Left
+Button "Ok (Select)"
+
+[Create isopach]
+Input "Attribute name" "I: Demo _Isopach" Hold
+Button "Ok"
+
+[OpendTect Main Window]
+TreeMenu "Horizon" Left "Load"
+
+[Horizon selection]
+Button "Ok"
+
+[OpendTect Main Window]
+TreeMenu "Horizon`Demo 0 --> FS4" "Add attribute"
+TreeMenu "Horizon`Demo 0 --> FS4`<right-click>" "Select Attribute`Surface data (5)"
+
+[Surface data]
+ListClick "Select Data from List" "I: Demo _Isopach" Left
+Button "Ok"
+
+[OpendTect Main Window]
+Button "Make snapshot"
+
+[Specify snapshot]
+Button "Ok"
+
+[Create snapshot]
+Button "Select Select filename"
+
+[Save As]
+FileOk "/d12/nageswara/surveys/F3_Demo_for_Test/Misc/Snapshots/Demo-Isopach"
+
+[Create snapshot]
+Button "Ok"
+
+[OpendTect Main Window]
+TreeMenu "Horizon`Demo 0 --> FS4`I: Demo _Isopach#1" "Remove"

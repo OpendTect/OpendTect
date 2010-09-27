@@ -1,0 +1,42 @@
+dTect V4.2.0
+OpendTect commands
+Thu 23 Sep 2010, 12:24:43
+!
+
+[OpendTect Main Window]
+Menu "Processing`Steering`Import"
+
+[Import Steering Seismics]
+Button "Select Inline dip"
+
+[Select]
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Import Steering Seismics]
+Button "Select Crossline dip"
+
+[Select]
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Import Steering Seismics]
+Button "Select Volume subselection"
+
+[Positions]
+Input "Inline start" 425 Enter
+Input "Inline stop" 425 Enter
+Button "Ok"
+
+[Import Steering Seismics]
+Button "Select Output Steering"
+
+[Save Seismic Data as]
+Input "Name" "SteeringImport" Hold
+Button "Ok (Select)"
+
+[Import Steering Seismics]
+Button "Proceed"
+
+[Please specify]
+Button "Yes"
+
+[OpendTect Main Window]

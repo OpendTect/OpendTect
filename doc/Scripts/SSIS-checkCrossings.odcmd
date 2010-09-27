@@ -1,0 +1,33 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 09:13:54
+!
+
+[OpendTect Main Window]
+Menu "SSIS`HorizonCube`Data Preparation`Horizons`Check crossings"
+
+[Horizon relations]
+Button "Read Horizons"
+
+[Horizon sorter]
+ListClick " " "Demo 0 _425" CtrlLeft
+Button "Ok"
+
+[Horizon relations]
+ListSelect "Order (top to bottom)" "Demo 0 _425"
+Button "Check crossings"
+
+[Horizon relations {2}]
+Button "Select Horizon"
+
+[Horizon]
+Input "Name" "ssis-checkCrossings" Hold
+Button "Ok (Select)"
+
+[Horizon relations {2}]
+Button "Ok"
+
+[Horizon relations]
+Button "Dismiss"
+
+[OpendTect Main Window]

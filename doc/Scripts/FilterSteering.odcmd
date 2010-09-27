@@ -1,0 +1,26 @@
+dTect V4.2.0
+OpendTect commands
+Thu 23 Sep 2010, 12:26:50
+!
+
+[OpendTect Main Window]
+Menu "Processing`Steering`Filter"
+
+[Filter Steering Seismics]
+Button "Select Input Cube"
+
+[Load Seismic Data]
+ListClick "Objects list" "TestSteering" Left
+Button "Ok (Select)"
+
+[Filter Steering Seismics]
+Button "Select Output Steering"
+
+[Save Seismic Data as]
+Input "Name" "SteeringFilter" Hold
+Button "Ok (Select)"
+
+[Filter Steering Seismics]
+Button "Proceed"
+
+[OpendTect Main Window]

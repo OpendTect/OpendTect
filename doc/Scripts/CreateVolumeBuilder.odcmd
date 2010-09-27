@@ -1,0 +1,147 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 09:47:25
+!
+
+[OpendTect Main Window]
+Menu "Processing`Create Seismic Output`Volume Builder"
+
+[Volume Builder: Create output]
+Button "Create"
+
+[Volume Builder: Setup]
+Button "Add button"
+
+[Edit step]
+Input "Top Value" 1500 Hold
+Button "Bottom value" On
+Input "Bottom Value" 2500 Hold
+Button "Horizon`Survey bottom" On
+Button "Select Bottom Horizon"
+
+[Bottom Horizon]
+ListClick "Objects list" "Demo 0 --> FS4-10-10" Left
+Button "Ok (Select)"
+
+[Edit step]
+Button "Gradient" On
+Button "Bottom value" On
+Button "Horizon`Survey top" On
+Button "Survey top" On
+Input "Name for this step" "Sediments" Hold
+Button "Ok"
+
+[Volume Builder: Setup]
+ListClick "Select Data" "Lateral Smoother" Left
+Button "Add button"
+
+[Edit step]
+Input "Inline_spinbox" 5 Enter
+Input "Crline_spinbox" 5 Enter
+Input "Name for this step" "LateralSmoother" Hold
+Button "Ok"
+
+[Volume Builder: Setup]
+ListClick "Select Data" "Gridding" Left
+Button "Add button"
+
+[Edit step]
+Combo "Algorithm" "Inverse distance"
+Input "Search radius [m]" 2 Hold
+Button "Add"
+
+[Add velocity function source]
+Combo "Type" "Volume"
+Button "Select Input Cube"
+
+[Load Seismic Data]
+ListClick "Objects list" "vmb-volume" Left
+Button "Ok (Select)"
+
+[Add velocity function source]
+Button "Edit"
+
+[Edit velocity information]
+Button "Yes" On
+Button "No`Has statics" On
+Combo "Velocity type" "Vrms"
+Button "Set as default" On
+Button "Set as default" Off
+Button "Scan"
+Button "Ok"
+
+[Add velocity function source]
+Button "Ok"
+
+[Edit step]
+Input "Name for this step" "Gridding" Hold
+Button "Ok"
+
+[Volume Builder: Setup]
+ListClick "Select Data" "Stored Volume" Left
+Button "Add button"
+
+[Edit step]
+Button "Select Input Cube"
+
+[Load Seismic Data]
+ListClick "Objects list" "Median Dip Filtered Seismics" DoubleLeft
+
+[Edit step]
+Button "Ok"
+
+[Volume Builder: Setup]
+Button "Select On OK, store As"
+
+[On OK, store As]
+Input "Name" "TestBuild" Hold
+Button "Ok (Select)"
+
+[Volume Builder: Setup]
+Button "Ok"
+
+[Volume Builder: Create output]
+Button "Select Volume subselection"
+
+[Positions]
+Input "Inline start" 425 Enter
+Input "Inline stop" 425 Enter
+Button "Ok"
+
+[Volume Builder: Create output]
+Button "Select Output Cube"
+
+[Save Seismic Data as]
+ListClick "Objects list" "TestBuild" Left
+Button "Remove this object"
+
+[Remove data]
+Button "Cancel"
+
+[Save Seismic Data as]
+Button "Ok (Select)"
+
+[Volume Builder: Create output]
+Button "Proceed"
+
+[Please specify]
+Button "Yes"
+
+[OpendTect Main Window]
+TreeMenu "Inline" Left "Add"
+TreeClick "Inline`425`<right-click>" Left
+TreeMenu "Inline`425`<right-click>" "Select Attribute`Stored Cubes`TestBuild" On
+TreeMenu "Inline`425" "Remove"
+Button "Manage Seismic data"
+
+[Seismic file management]
+ListClick "Objects list" "TestBuild" Left
+Button "Remove this object"
+
+[Remove data]
+Button "Remove"
+
+[Seismic file management]
+Button "Dismiss"
+
+[OpendTect Main Window]

@@ -1,0 +1,44 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 10:52:56
+!
+
+[OpendTect Main Window]
+Menu "Processing`Create Seismic Output`Along horizon"
+
+[Create Horizon delimited cube output]
+Button "Select Quantity to output"
+
+[Select]
+Button "Ok"
+
+[Create Horizon delimited cube output]
+Button "Select Calculate along surface"
+
+[Calculate along surface]
+Button "Ok (Select)"
+
+[Create Horizon delimited cube output]
+Button "Select Volume subselection"
+
+[Positions]
+Input "Inline start" 425 Enter
+Input "Inline stop" 430 Enter
+Button "Ok"
+
+[Create Horizon delimited cube output]
+Input "Z Interval Start" -50 Hold
+Input "Z Interval Stop" 50 Hold
+Button "Select Output Cube"
+
+[Save Seismic Data as]
+ListClick "Objects list" "Cube-AlongHorizon" Left
+Button "Ok (Select)"
+
+[Create Horizon delimited cube output]
+Button "Proceed"
+
+[Please specify]
+Button "Yes"
+
+[OpendTect Main Window]

@@ -1,0 +1,42 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 09:23:46
+!
+
+[OpendTect Main Window]
+Menu "Processing`Create Seismic Output`Volume Builder"
+
+[Volume Builder: Create output]
+Button "Dismiss"
+
+[OpendTect Main Window]
+Button "Create seismic output"
+
+[Create Volume Attribute]
+Button "Select Quantity to output"
+
+[Select]
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Create Volume Attribute]
+Button "Select Volume subselection"
+
+[Positions]
+Input "Inline start" 425 Enter
+Input "Inline stop" 425 Enter
+Button "Ok"
+
+[Create Volume Attribute]
+Button "Select Output Cube"
+
+[Save Seismic Data as]
+Input "Name" "test425" Hold
+Button "Ok (Select)"
+
+[Create Volume Attribute]
+Button "Proceed"
+
+[OpendTect Main Window]
+TreeMenu "Inline" Left "Add"
+TreeMenu "Inline`425`<right-click>" "Select Attribute`Stored Cubes`test425" On
+TreeMenu "Inline`425" "Remove"

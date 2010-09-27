@@ -1,0 +1,148 @@
+dTect V4.2.0
+OpendTect commands
+Fri 24 Sep 2010, 16:51:29
+!
+
+[OpendTect Main Window]
+Menu "Survey`Pre-load`Seismics"
+
+[Pre-load manager]
+Button "Add Cube"
+
+[Load Seismic Data]
+ListClick "Objects list" "Median Dip Filtered Seismics" Left
+Button "Ok (Select)"
+
+[Pre-load manager]
+Button "Save pre-loads"
+
+[Save pre-load settings]
+Input "Name" "seisPreload" Hold
+Button "Ok (Select)"
+
+[Pre-load manager]
+Button "Unload Selected"
+
+[Please specify]
+Button "Yes"
+
+[Pre-load manager]
+Button "Retrieve pre-loads"
+
+[Open pre-load settings]
+ListClick "Objects list" "seisPreload" Left
+Button "Ok (Select)"
+
+[Pre-load manager]
+Button "Unload Selected"
+
+[Please specify]
+Button "Yes"
+
+[Pre-load manager]
+Button "Retrieve pre-loads"
+
+[Open pre-load settings]
+Button "Remove this object"
+
+[Remove data]
+Button "Cancel"
+
+[Open pre-load settings]
+ListClick "Objects list" "seisPreload" Left
+Button "Remove this object"
+
+[Remove data]
+Button "Remove"
+
+[Open pre-load settings]
+Button "Cancel"
+
+[Pre-load manager]
+Button "Dismiss"
+
+[OpendTect Main Window]
+Menu "Survey`Pre-load`Horizons"
+
+[Pre-load manager]
+Button "Add 3D Horizon"
+
+[Load Horizon(s)]
+ListClick "Objects list" "Demo 0 --> FS4" Left
+ListClick "Objects list" "Demo 1 --> MFS4" CtrlLeft
+ListClick "Objects list" "Demo 2 --> FS6" CtrlLeft
+Button "Ok (Select)"
+
+[Pre-load manager]
+Button "Add 3D Horizon"
+
+[Load Horizon(s)]
+ListClick "Objects list" "Demo 5 --> FS7" Left
+Button "Ok (Select)"
+
+[Pre-load manager]
+Button "Dismiss"
+
+[OpendTect Main Window]
+TreeMenu "Horizon" Left "Load"
+
+[Horizon selection]
+Button "Ok"
+
+[OpendTect Main Window]
+Menu "Survey`Pre-load`Horizons"
+
+[Pre-load manager]
+Button "Save pre-loads"
+
+[Save pre-loadedsettings]
+Input "Name" "HorPreload" Hold
+Button "Ok (Select)"
+
+[Pre-load manager]
+ListSelect "Loaded entries" "Demo 1 --> MFS4" "Demo 5 --> FS7"
+Button "Unload selected"
+
+[Please specify]
+Button "Yes"
+
+[Pre-load manager]
+Button "Retrieve pre-loads"
+
+[Open pre-loaded settings]
+Case Sensitive
+ListClick "Objects list" "HorPreload" Left
+Button "Rename this object"
+
+[Input data]
+Input "New name" "HorPreloadTest" Hold
+Button "Ok"
+
+[Open pre-loaded settings]
+Button "Ok (Select)"
+
+[Pre-load manager]
+ListSelect "Loaded entries" "Demo 1 --> MFS4" "Demo 5 --> FS7"
+Button "Unload selected"
+
+[Please specify]
+Button "Yes"
+
+[Pre-load manager]
+Button "Retrieve pre-loads"
+
+[Open pre-loaded settings]
+ListClick "Objects list" "HorPreloadTest" Left
+Button "Remove this object"
+
+[Remove data]
+Button "Remove"
+
+[Open pre-loaded settings]
+Button "Cancel"
+
+[Pre-load manager]
+Button "Dismiss"
+
+[OpendTect Main Window]
+TreeMenu "Horizon`Demo 0 --> FS4" "Remove"

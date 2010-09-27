@@ -1,0 +1,46 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 10:13:59
+!
+
+[OpendTect Main Window]
+Menu "Processing`Create Seismic Output`Velocity conversion"
+
+[Velocity conversion]
+Button "Select Input velocity model"
+
+[Load Seismic Data]
+ListClick "Objects list" "vmb-volume-grid" Left
+Button "Ok (Select)"
+
+[Velocity conversion]
+Button "Edit"
+
+[Edit velocity information]
+Combo "Velocity type" "Vrms"
+Button "Yes" On
+Button "No`Has statics" On
+Button "Set as default" On
+Button "Set as default" Off
+Button "Scan"
+Button "Ok"
+
+[Velocity conversion]
+Button "Select Area subselection"
+
+[Positions]
+Input "Inline start" 425 Enter
+Input "Inline stop" 425 Enter
+Button "Ok"
+
+[Velocity conversion]
+Button "Select Output Cube"
+
+[Save Seismic Data as]
+Input "Name" "Cube-VelConv" Hold
+Button "Ok (Select)"
+
+[Velocity conversion]
+Button "Proceed"
+
+[OpendTect Main Window]

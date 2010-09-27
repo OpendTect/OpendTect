@@ -1,0 +1,185 @@
+dTect V4.2.0
+OpendTect commands
+Fri 24 Sep 2010, 16:42:56
+!
+
+[OpendTect Main Window]
+Menu "Survey`Manage`Wavelets"
+
+[Wavelet management]
+Button "Extract"
+
+[Wavelet Extraction]
+Button "Select Input Cube"
+
+[Load Seismic Data]
+ListClick "Objects list" "Median Dip Filtered Seismics" Left
+ListClick "Objects list" "Median Dip Filtered Seismics" DoubleLeft
+
+[Wavelet Extraction]
+Button "Select Area subselection"
+
+[Positions]
+Input "Inline start" 425 Enter
+Input "Inline stop" 425 Enter
+Input "Crossline start" 430 Enter
+Input "Crossline stop" 450 Enter
+Button "Ok"
+
+[Wavelet Extraction]
+Button "Z range" On
+Input "Taper length (ms)" 30 Hold
+Input "Phase (Degrees)" 60 Hold
+Button "Select Output wavelet"
+
+[Output wavelet]
+Input "Name" "TestWvlt" Hold
+Button "Ok (Select)"
+
+[Wavelet Extraction]
+Button "Go"
+
+[Wavelet management]
+ListSelect "Objects list" "TestWvlt"
+Button "Rotate phase"
+
+[Phase rotation Slider]
+Slider "wavelet slider" 48.0556
+Button "Cancel"
+
+[Wavelet management]
+Button "Reverse polarity"
+Button "Reverse polarity"
+Button "Display properties"
+
+[TestWvlt]
+Button "Dismiss"
+
+[Wavelet management]
+Button "Taper"
+
+[Taper Wavelet]
+Slider "wavelet slider" 8
+Button "Ok"
+
+[Wavelet management]
+Button "Taper"
+
+[Taper Wavelet]
+Button "Cancel"
+
+[Wavelet management]
+Button "Rename this object"
+
+[Input data]
+Input "New name" "TestWvlt_cp" Hold
+Button "Ok"
+
+[Wavelet management]
+Button "Remove this object"
+
+[Remove data]
+Button "Remove"
+
+[Wavelet Extraction]
+Input "Wavelet length (ms)" 150 Hold
+Input "Phase (Degrees)" 10 Hold
+Input "Select Output wavelet" "TestWvlt1" Hold
+Button "Go"
+Input "Phase (Degrees)" 15 Hold
+Input "Select Output wavelet" "TestWvlt2" Hold
+Button "Horizons" On
+Button "Select Surface"
+
+[Surface]
+Button "Ok (Select)"
+
+[Wavelet Extraction]
+Button "To a 2nd surface" On
+Button "Select Bottom surface"
+
+[Bottom surface]
+ListClick "Objects list" "Demo 2 --> FS6" Left
+Button "Ok (Select)"
+
+[Wavelet Extraction]
+Button "Go"
+
+[Wavelet management]
+Case Sensitive
+ListClick "Objects list" "TestWvlt1" Left
+Case Sensitive
+ListClick "Objects list" "TestWvlt2" Left
+Button "Merge"
+
+[Merge Wavelets]
+Button "Normalize wavelets" On
+Button "Center wavelets" On
+Combo "at" "maximum Energy"
+Combo "at" "maximum amplitude"
+Case Sensitive
+ListClick "uiListBox" "TestWvlt1" Left
+Case Sensitive
+ListClick "uiListBox" "TestWvlt1" Left
+Case Sensitive
+ListClick "uiListBox" "TestWvlt2" Left
+Case Sensitive
+ListSelect "uiListBox" "TestWvlt1" "TestWvlt2"
+ListSelect "uiListBox" "Stacked Wavelet" On
+Button "Ok"
+
+[Error]
+Button "OK"
+
+[Merge Wavelets]
+Input "Select Wavelet" "TestMerge" Hold
+Button "Ok"
+
+[Wavelet management]
+Case Sensitive
+ListClick "Objects list" "TestWvlt1" Left
+Case Sensitive
+ListClick "Objects list" "TestWvlt2" Left
+ListClick "Objects list" "TestMerge" Left
+Button "Generate"
+
+[Create Wavelet]
+Button "Cancel"
+
+[Wavelet management]
+Button "Import"
+
+[Wavelet import]
+Button "Select Input file"
+
+[<no title>]
+Cancel
+
+[Wavelet import]
+Button "Dismiss"
+
+[Wavelet management]
+Button "Remove this object"
+
+[Remove data]
+Button "Remove"
+
+[Wavelet management]
+Button "Remove this object"
+
+[Remove data]
+Button "Remove"
+
+[Wavelet management]
+Button "Remove this object"
+
+[Remove data]
+Button "Remove"
+
+[Wavelet Extraction]
+Button "Dismiss"
+
+[Wavelet management]
+Button "Dismiss"
+
+[OpendTect Main Window]

@@ -1,0 +1,521 @@
+dTect V4.2.0
+OpendTect commands
+Wed 22 Sep 2010, 13:29:00
+!
+
+[OpendTect Main Window]
+Button "Edit attributes"
+
+[Attribute Set 3D]
+Button "New attribute set"
+Combo "Attribute group" "<All>"
+Combo "Attribute type" "Convolve"
+Button "Select Input Data"
+
+[Select]
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Input "Attribute name" "ConvolveAttrib" Hold
+Spin "Filter size" 2 Hold
+Spin "Filter size" -1 Enter
+Button "Add as new"
+Combo "Attribute type" "Curvature"
+Button "Select Steering Data"
+
+[Load Seismic Data]
+Button "Ok (Select)"
+
+[Attribute Set 3D]
+Input "Attribute name" "CurvatureAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Delta Resample"
+Button "Select Input Cube"
+
+[Select]
+Button "Stored" On
+Button "Ok"
+
+[Attribute Set 3D]
+Button "Select Delta Cube"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics_flatened" Left
+Button "Ok"
+
+[Attribute Set 3D]
+Input "Attribute name" "DeltaResampleAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Dip"
+Button "Select Steering Data"
+
+[Load Seismic Data]
+Button "Ok (Select)"
+
+[Attribute Set 3D]
+Input "Attribute name" "DipAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Dip Angle"
+Button "Select Input Dip Attribute"
+
+[Select]
+Button "Ok"
+
+[Attribute Set 3D]
+Input "Attribute name" "DipAngleAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Energy"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" Left
+Button "Ok"
+
+[Attribute Set 3D]
+Input "Z stop" 20 Hold
+Input "Z start" -20 Hold
+Combo "Output" "Energy"
+Input "Attribute name" "EnergyAttrib" Hold
+Combo "Output" "Sqrt ( Energy )"
+Button "Add as new"
+Combo "Attribute type" "Event"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" Left
+Button "Ok"
+
+[Attribute Set 3D]
+Button "Multiple events" On
+Input "Attribute name" "EventAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "FingerPrint"
+Button "Manual" On
+TableExec "Right-click to add, insert or remove an attribute" "1" "Reference attributes" Button "Select Input Data Attribute 0"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" Left
+Button "Ok"
+
+[Attribute Set 3D]
+TableExec "Right-click to add, insert or remove an attribute" "2" "Reference attributes" Button "Select Input Data Attribute 1"
+
+[Select]
+Button "Cancel"
+
+[Attribute Set 3D]
+Button "Pickset" On
+Button "Reference position" On
+Button "Pickset" On
+Button "Select Pickset file"
+
+[Pickset file]
+Button "Cancel"
+
+[Attribute Set 3D]
+Button "Manual" On
+TableExec "Right-click to add, insert or remove an attribute" "1" "Reference attributes" Button "Select Input Data Attribute 0"
+
+[Select]
+Button "Ok"
+
+[Attribute Set 3D]
+Button "Calculate parameters"
+Input "Attribute name" "FingerPrintAttrib" Hold
+Button "Add as new"
+
+[Error]
+Button "OK"
+
+[Attribute Set 3D]
+TableExec "Right-click to add, insert or remove an attribute" "2" "Reference attributes" Button "Select Input Data Attribute 1"
+
+[Select]
+ListClick "Select Data" "ConvolveAttrib" Left
+Button "Ok"
+
+[Attribute Set 3D]
+Button "Calculate parameters"
+Button "Advanced"
+
+[FingerPrint attribute advanced options]
+Button "Calculate parameters"
+Button "Ok"
+
+[Attribute Set 3D]
+Button "Add as new"
+
+[Error]
+Button "OK"
+
+[Attribute Set 3D]
+Combo "Attribute type" "Frequency"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" Left
+Button "Ok"
+
+[Attribute Set 3D]
+Input "Z start" -1 Hold
+Input "Z start" -10 Hold
+Input "Z stop" 10 Hold
+Button "Yes" On
+Combo "Output" "Average frequency"
+Input "Attribute name" "" Hold
+Input "Attribute name" "FrequencyAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Frequency Filter"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Button "FFT" On
+Button "ButterWorth" On
+Combo "Filter type" "HighPass"
+Input "Min frequency" 13 Hold
+Input "Nr of poles" 10 Enter
+Input "Attribute name" "" Hold
+Input "Attribute name" "FrequencyFilterAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "GapDecon"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" Left
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Input "Correlation window (ms) start" 200 Hold
+Input "Correlation window (ms) stop" 500 Hold
+Button "Examine"
+
+[Gap Decon viewer position]
+Button "Next >>"
+
+[Positioning]
+Button "Ok"
+
+[Auto-correlation viewer (examine)]
+Close
+
+[Attribute Set 3D]
+Input "Lag size (ms)" 10 Hold
+Input "Gap size (ms)" 10 Hold
+Input "Attribute name" "" Hold
+Input "Attribute name" "GapdeconAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Horizon"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Button "Select Horizon"
+
+[Horizon]
+Button "Ok (Select)"
+
+[Attribute Set 3D]
+Input "Attribute name" "HorizonAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Instantaneous"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Combo "Output" "Phase"
+Input "Attribute name" "" Hold
+Input "Attribute name" "InstantaneousAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Match delta"
+Button "Select Reference Cube"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Button "Select Reference Cube"
+
+[Select]
+Button "Ok"
+
+[Attribute Set 3D]
+Button "Select Match Cube"
+
+[Select]
+ListClick "Select Data" "DipAttrib" Left
+Button "Ok"
+
+[Attribute Set 3D]
+Input "Maximum time shift (ms)" 200 Hold
+Input "Attribute name" "MatchDeltaAttrib" Hold
+Button "Add as new"
+
+[Attribute Set 3D]
+Combo "Attribute type" "Matching Pursuit"
+Button "Select Input Data"
+
+[Select]
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Button "Fast" On
+Combo "Output type" "Time-frequency power spectrum"
+Button "Display Time/Frequency panel"
+
+[Matching Pursuit trace position]
+Button "Ok"
+
+[Time Frequency Spectrum]
+Close
+
+[Attribute Set 3D]
+Button "Advanced"
+
+[Advanced parameters dialog]
+Button "Ok"
+
+[Attribute Set 3D]
+Input "Attribute name" "MatchingPursuitAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Mathematics"
+Input "Formula" "x0+x1" Hold
+Button "Set"
+TableExec "Variable attribute table" "x0" "Select input for" Button "Select"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+TableExec "Variable attribute table" "x1" "Select input for" Button "Select"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics_flatened" Left
+Button "Ok"
+
+[Attribute Set 3D]
+Input "Attribute name" "MathtAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Position"
+Button "Select Input attribute"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Input "Z start" 0 Hold
+Input "Z stop" 50 Hold
+Combo "Steering" "None"
+Combo "Operator" "Max"
+Button "Select Output attribute"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Input "Attribute name" "PositionAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "PreStack"
+Button "Select Input Data Store"
+
+[Load Pre-Stack Seismics]
+Button "Cancel"
+
+[Attribute Set 3D]
+Combo "Attribute type" "Reference"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Combo "Desired Output" "Y"
+Input "Attribute name" "ReferenceAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Reference shift"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Input "Z shift" 25 Hold
+Button "Yes" On
+Combo "Steering" "Central"
+Button "Select Steering Data"
+
+[Load Seismic Data]
+Button "Ok (Select)"
+
+[Attribute Set 3D]
+Input "Attribute name" "ReferenceShiftAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Scaling"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Combo "Type" "AGC"
+Input "Window width (ms)" 200 Hold
+Input "Attribute name" "" Hold
+Input "Attribute name" "ScalingAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Similarity"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Input "Z start" -10 Hold
+Input "Z stop" 10 Hold
+Spin "Trc1 Crl" -1 Enter
+Spin "Trc2 Crl" 1 Enter
+Combo "Output statistic" "Min"
+Combo "Output statistic" "Max"
+Combo "Output statistic" "Average"
+Input "Attribute name" "SimilarityAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Spectral Decomp"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Button "CWT" On
+Combo "Wavelet" "Morlet"
+Button "Display Time/Frequency panel"
+
+[Attribute trace position]
+Button "Ok"
+
+[Time Frequency spectrum]
+Button "Flip left/right"
+Button "Switch view mode"
+Button "Set display parameters"
+
+[Display properties]
+Button "Yes`Display blocky (no interpolation)" On
+Button "Yes`Use mid value" On
+Button "Cancel"
+
+[Time Frequency spectrum]
+Close
+
+[Attribute Set 3D]
+Input "Attribute name" "" Hold
+Input "Attribute name" "SpectralDecompAttrib-CWT" Hold
+Button "Add as new"
+Button "FFT" On
+Input "Z start" -25 Hold
+Input "Z start" 50 Hold
+Input "Z stop" 50 Hold
+Input "Z start" -50 Hold
+Button "Display Time/Frequency panel"
+
+[Attribute trace position]
+Button "Ok"
+
+[Time Frequency spectrum]
+Button "Flip left/right"
+Button "Flip left/right"
+Button "Set display parameters"
+
+[Display properties]
+Tab "Annotation"
+Tab "Wiggle Variable Area"
+Button "Cancel"
+
+[Time Frequency spectrum]
+Close
+
+[Attribute Set 3D]
+Input "Output frequency (Hz)" 125 Enter
+Input "step" 10 Enter
+Input "Output frequency (Hz)" 120 Enter
+Input "Attribute name" "SpectralDecompAttrib-FFT" Hold
+Button "Add as new"
+Combo "Attribute type" "Systems Tract"
+Button "Select Select HorizonCube"
+
+[Select HorizonCube]
+Button "Cancel"
+
+[Attribute Set 3D]
+Combo "Attribute type" "Tutorial"
+Combo "Attribute type" "Tutorial"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Combo "Action" "Smooth"
+Combo "Steering" "None"
+Spin "Stepout Inl" -1 Enter
+Spin "Stepout Crl" -1 Enter
+Input "Attribute name" "TutorialAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Velocity Fan Filter"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Button "Yes" On
+Button "No" On
+Input "Attribute name" "" Hold
+Input "Attribute name" "VelocityFanFilterAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Volume Statistics"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Attribute Set 3D]
+Input "Z start" -25 Hold
+Input "Z stop" 25 Hold
+Combo "Shape" "Cylinder"
+Spin "Inl Stepout" -1 Enter
+Spin "Crl Stepout" -1 Enter
+Combo "Output statistic" "Median"
+Combo "Steering" "None"
+Input "Attribute name" "" Hold
+Input "Attribute name" "VolumeStatisticsAttrib" Hold
+Button "Add as new"
+Button "Ok"
+
+[OpendTect Main Window]

@@ -1,0 +1,52 @@
+dTect V4.1
+OpendTect commands
+Thu 23 Sep 2010, 10:21:14
+!
+
+[OpendTect Main Window]
+Menu "Processing`Create Seismic Output`Pre Stack processing"
+
+[Pre stack processing]
+Button "Select Setup"
+
+[Setup]
+Button "Cancel"
+
+[Pre stack processing]
+Button "Edit"
+
+[Edit prestack processing]
+ListClick "Select Data" "AGC" Left
+ListClick "Select Data" "Super Gather" Left
+ListClick "Select Data" "Velocity correction" Left
+Button "Load"
+
+[Load Prestack Processor]
+Button "Cancel"
+
+[Edit prestack processing]
+Button "Ok"
+
+[Pre stack processing]
+Button "Select Input Data Store"
+
+[Load Pre-Stack Seismics]
+ListClick "Objects list" "PreStack 100" Left
+Button "Ok (Select)"
+
+[Pre stack processing]
+Button "Select Area subselection"
+
+[Positions]
+Button "Ok"
+
+[Pre stack processing]
+Button "Select Output Data Store"
+
+[Save Pre-Stack Seismics as]
+Button "Ok (Select)"
+
+[Pre stack processing]
+Button "Proceed"
+
+[OpendTect Main Window]
