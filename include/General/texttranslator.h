@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: texttranslator.h,v 1.1 2010-09-24 11:46:40 cvsnanne Exp $
+ RCS:		$Id: texttranslator.h,v 1.2 2010-09-27 05:14:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,12 +22,14 @@ public:
 
     virtual void		enable()			= 0;
     virtual void		disable()			= 0;
+    virtual bool		enabled() const			= 0;
 
     virtual int			nrSupportedLanguages() const	= 0;
     virtual const wchar_t*	getLanguageUserName(int) const	= 0;
     virtual const char*		getLanguageName(int) const	= 0;
+    virtual bool		supportsLanguage(const char*) const	= 0;
 
-    virtual void		setToLanguage(const char*)	= 0;
+    virtual bool		setToLanguage(const char*)	= 0;
     virtual const char*		getToLanguage() const		= 0;
 
     virtual int			translate(const char*)		= 0;
