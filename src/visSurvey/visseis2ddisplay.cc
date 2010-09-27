@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.105 2010-09-21 11:05:35 cvssatyaki Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.106 2010-09-27 06:46:35 cvssatyaki Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -97,7 +97,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int firstdhsample = sd.nearestIndex( firstz );
     const bool samplebased = 
 	mIsEqual( sd.getIndex(firstz),firstdhsample,1e-3 ) && 
-	mIsEqual( sd.step, s2d_.geometry_.zRange().step, 1e-3 );
+	mIsEqual( sd.step, s2d_.getScene()->getCubeSampling().zrg.step, 1e-3 );
 
     if ( !samplebased )
     {
@@ -295,7 +295,7 @@ StepInterval<float> Seis2DDisplay::getZRange( bool displayspace, int attrib ) co
 					  : 0;
     const bool alreadytransformed = zdomain && *zdomain;
     if ( alreadytransformed )
-	trcdisplayinfo_.zrg;
+	return trcdisplayinfo_.zrg;
 
     if ( datatransform_ && !displayspace )
 	return datatransform_->getZInterval( true );
