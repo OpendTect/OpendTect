@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.12 2010-09-24 13:39:22 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.13 2010-09-27 10:00:11 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "enums.h"
+#include "objectset.h"
 class PropertyRef;
 
 
@@ -27,7 +27,7 @@ public:
 			: ref_(pr)		{}
     virtual		~Property()		{}
 
-    const PropertyRef&	ref() const		{ return ref_; }
+    inline const PropertyRef& ref() const	{ return ref_; }
 
     virtual float	value() const		= 0;
     virtual bool	canSet() const		{ return false; }
@@ -38,6 +38,27 @@ public:
 protected:
 
     const PropertyRef&	ref_;
+
+};
+
+
+mClass PropertySet : public ObjectSet<Property>
+{
+public:
+
+    int			indexOf(const char*) const;
+    inline bool		isPresent( const char* nm ) const
+    			{ return indexOf(nm) >= 0; }
+    inline const Property* get( const char* nm ) const	{ return gt(nm); }
+    inline Property*	get( const char* nm )		{ return gt(nm); }
+
+    bool		prepareEval();
+    inline const char*	errMsg() const			{ return errmsg_; }
+
+protected:
+
+    BufferString	errmsg_;
+    Property*		gt(const char*) const;
 
 };
 

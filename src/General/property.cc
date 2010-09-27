@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.16 2010-09-24 13:39:22 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.17 2010-09-27 10:00:11 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: property.cc,v 1.16 2010-09-24 13:39:22 cvsbert 
 #include "safefileio.h"
 #include "ioman.h"
 #include "separstr.h"
+#include "globexpr.h"
 #include "repos.h"
 #include "errh.h"
 
@@ -42,16 +43,42 @@ DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 };
 
 
+const PropertyRef& PropertyRef::undef()
+{
+    static PropertyRef* udf = 0;
+    if ( !udf )
+    {
+	udf = new PropertyRef( "Undef" );
+	udf->aliases().add( "" );
+	udf->aliases().add( "undef*" );
+	udf->aliases().add( "?undef?" );
+	udf->aliases().add( "?undefined?" );
+	udf->aliases().add( "udf" );
+    }
+    return *udf;
+}
+
+
 PropertyRef::StdType PropertyRef::surveyZType()
 {
     return SI().zIsTime() ? Time : Dist;
 }
 
 
-const PropertyRef& PropertyRef::undef()
+bool PropertyRef::isKnownAs( const char* nm ) const
 {
-    static PropertyRef udf( "undef" );
-    return udf;
+    if ( !nm || !*nm )
+	return this == &undef();
+
+    if ( caseInsensitiveEqual(nm,name().buf(),0) )
+	return true;
+    for ( int idx=0; idx<aliases_.size(); idx++ )
+    {
+	GlobExpr ge( aliases_.get(idx), false );
+	if ( ge.matches(nm) )
+	    return true;
+    }
+    return false;
 }
 
 
@@ -106,61 +133,37 @@ const PropertyRefSet& PROPS()
 }
 
 
+int PropertyRefSet::indexOf( const char* nm ) const
+{
+    if ( nm && *nm )
+    {
+	for ( int idx=0; idx<size(); idx++ )
+	{
+	    const PropertyRef* pr = (*this)[idx];
+	    if ( (*this)[idx]->isKnownAs(nm) )
+		return idx;
+	}
+    }
+    return -1;
+}
+
+
 PropertyRef* PropertyRefSet::gt( const char* nm ) const
 {
-    if ( !nm || !*nm ) return 0;
-
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( caseInsensitiveEqual((*this)[idx]->name().buf(),nm,0) )
-	    return const_cast<PropertyRef*>((*this)[idx]);
-    }
-    return 0;
+    const int idx = indexOf( nm );
+    return idx < 0 ? 0 : const_cast<PropertyRef*>( (*this)[idx] );
 }
 
 
-void PropertyRefSet::add( PropertyRef* pr )
+int PropertyRefSet::add( PropertyRef* pr )
 {
-    if ( !pr ) return;
+    if ( !pr ) return -1;
 
-    const PropertyRef* mypr = get( pr->name() );
-    if ( mypr )
-	delete replace( indexOf(mypr), pr );
-    else
-	*this += pr;
-}
+    const int idx = indexOf( pr->name() );
+    if ( idx < 0 )
+	{ *this += pr; return size()-1; }
 
-
-void PropertyRefSet::readFrom( ascistream& astrm )
-{
-    deepErase( *this );
-
-    while ( !atEndOfSection( astrm.next() ) )
-    {
-	FileMultiString fms( astrm.value() );
-	const int sz = fms.size();
-	if ( sz < 1 ) continue;
-
-	BufferString ptypestr = fms[0];
-	PropertyRef::StdType st = eEnum(PropertyRef::StdType,ptypestr);
-	bool hc = sz > 1 ? yesNoFromString(fms[1]) : false;
-
-	add( new PropertyRef(astrm.keyWord(),st,hc) );
-    }
-}
-
-
-bool PropertyRefSet::writeTo( ascostream& astrm ) const
-{
-    astrm.putHeader( "Properties" );
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	const PropertyRef& pr = *(*this)[idx];
-	FileMultiString fms( eString(PropertyRef::StdType,pr.stdType()) );
-	fms += getYesNoString( pr.hcAffected() );
-	astrm.put( pr.name(), fms );
-    }
-    return astrm.stream().good();
+    return -1;
 }
 
 
@@ -183,6 +186,43 @@ bool PropertyRefSet::save( Repos::Source src ) const
 
     sfio.closeSuccess();
     return true;
+}
+
+
+void PropertyRefSet::readFrom( ascistream& astrm )
+{
+    deepErase( *this );
+
+    while ( !atEndOfSection( astrm.next() ) )
+    {
+	FileMultiString fms( astrm.value() );
+	const int sz = fms.size();
+	if ( sz < 1 ) continue;
+
+	BufferString ptypestr = fms[0];
+	PropertyRef::StdType st = eEnum(PropertyRef::StdType,ptypestr);
+	PropertyRef* pr = new PropertyRef( astrm.keyWord(), st );
+	for ( int ifms=1; ifms<sz; ifms++ )
+	    pr->aliases().add( fms[ifms] );
+
+	if ( add(pr) < 0 )
+	    delete pr;
+    }
+}
+
+
+bool PropertyRefSet::writeTo( ascostream& astrm ) const
+{
+    astrm.putHeader( "Properties" );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const PropertyRef& pr = *(*this)[idx];
+	FileMultiString fms( eString(PropertyRef::StdType,pr.stdType()) );
+	for ( int ial=0; ial<pr.aliases().size(); ial++ )
+	    fms += pr.aliases().get( ial );
+	astrm.put( pr.name(), fms );
+    }
+    return astrm.stream().good();
 }
 
 
@@ -232,8 +272,10 @@ void MathProperty::setInput( int idx, const Property* p )
 
 bool MathProperty::dependsOn( const Property* p ) const
 {
-    if ( p == this ) return true;
-    else if ( !p ) return false;
+    if ( p == this )
+	return true;
+    else if ( !p )
+	return false;
 
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
@@ -247,14 +289,73 @@ bool MathProperty::dependsOn( const Property* p ) const
 
 float MathProperty::value() const
 {
-    if ( !expr_ ) return mUdf(float);
+    if ( !expr_ )
+	return mUdf(float);
 
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
 	const Property* p = inps_[idx];
-	if ( !p ) return mUdf(float);
-	expr_->setVariableValue( idx, inps_[idx]->value() );
+	if ( !p )
+	    return mUdf(float);
+
+	const float v = inps_[idx]->value();
+	if ( mIsUdf(v) )
+	    return mUdf(float);
+
+	expr_->setVariableValue( idx, v );
     }
 
     return expr_->getValue();
+}
+
+
+int PropertySet::indexOf( const char* nm ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Property& p = *(*this)[idx];
+	if ( p.ref().name() == nm )
+	    return idx;
+    }
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Property& p = *(*this)[idx];
+	if ( p.ref().isKnownAs(nm) )
+	    return idx;
+    }
+    return -1;
+}
+
+
+Property* PropertySet::gt( const char* nm ) const
+{
+    const int idx = indexOf(nm);
+    return idx < 0 ? 0 : const_cast<Property*>( (*this)[idx] );
+}
+
+
+bool PropertySet::prepareEval()
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	Property* p = (*this)[idx];
+	mDynamicCastGet(MathProperty*,mp,p)
+	if ( !mp ) continue;
+
+	const int nrinps = mp->nrInputs();
+	for ( int idep=0; idep<nrinps; idep++ )
+	{
+	    const char* nm = mp->inputName( idep );
+	    const Property* depp = get( nm );
+	    if ( !depp )
+	    {
+		errmsg_ = "Missing input for '";
+		errmsg_.add(mp->ref().name()).add("': '").add(nm).add("'");
+		return false;
+	    }
+	    mp->setInput( idep, depp );
+	}
+    }
+
+    return true;
 }
