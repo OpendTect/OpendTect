@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.h,v 1.2 2010-09-15 10:14:00 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dwigglevararea.h,v 1.3 2010-09-27 09:26:30 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "uiodvw2dtreeitem.h"
 
 #include "datapack.h"
+#include "menuhandler.h"
 
+class uiMenuHandler;
 class VW2DSeis;
 
 
@@ -26,6 +28,7 @@ public:
 				~uiODVW2DWiggleVarAreaTreeItem();
 
     bool			select();
+    bool                        showSubMenu();
 
 protected:
 	
@@ -37,8 +40,16 @@ protected:
     DataPack::ID		dpid_;
     VW2DSeis*			dummyview_;
 
+    uiMenuHandler*              menu_;
+    MenuItem                    selattrmnuitem_;
+
+    void                        createSelMenu(MenuItem&);
+    bool			handleSelMenu(int mnuid);
+
     void			checkCB(CallBacker*);
     void			dataChangedCB(CallBacker*);
+    void                        createMenuCB(CallBacker*);
+    void                        handleMenuCB(CallBacker*);
 };
 
 
