@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.33 2010-07-28 13:25:04 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.34 2010-09-27 07:34:31 cvsnageswara Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -599,14 +599,13 @@ const char* putBodyRow( const BufferStringSet& bss )
 	}
     }
 
-    const char* rv = 0;
     for ( int iinf=0; iinf<bodyinfos_.size(); iinf++ )
     {
 	const BodyInfo& bodyinf = *bodyinfos_[iinf];
 	if ( bss.validIdx(bodyinf.col_) )
 	    aio_.addVal( bss.get(bodyinf.col_), bodyinf.sel_.unit_ );
 	else
-	    rv = "";
+	    aio_.addVal( "", 0 );
     }
 
     if ( aio_.needfullline_ )
