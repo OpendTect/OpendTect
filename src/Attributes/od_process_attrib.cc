@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.34 2010-09-01 04:06:41 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.35 2010-09-27 12:12:07 cvsnanne Exp $";
 
 #include "batchprog.h"
 
@@ -239,6 +239,7 @@ bool BatchProgram::go( std::ostream& strm )
 		strm << "\nEstimated number of positions to be processed"
 		     <<"(assuming regular input): "<< proc->totalNr()
 		     << "\nLoading cube data ..." << std::endl;
+		progressmeter.setTotalNr( proc->totalNr() );
 	    }
 
 	    if ( res > 0 )
