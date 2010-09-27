@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.43 2010-06-30 05:52:33 cvsraman Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.44 2010-09-27 06:25:59 cvsnanne Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -220,7 +220,7 @@ bool HorizonScanner::analyzeData()
     TypeSet<float> data;
     while ( ascio_->getNextLine(crd,data) > 0 )
     {
-	if ( !data.size() ) break;
+	if ( data.isEmpty() ) break;
 
 	if ( count > maxcount ) 
 	{
@@ -290,8 +290,9 @@ int HorizonScanner::nextStep()
 		dtctor_.add( SI().transform(bid), bid );
 	    }
 	}
-	dtctor_.finish(); 
-	return Executor::Finished(); 
+
+	dtctor_.finish();
+	return Executor::Finished();
     }
 
     if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_).buf() ) )
@@ -314,10 +315,10 @@ int HorizonScanner::nextStep()
 	return Executor::MoreToDo();
     }
 
-    if ( data.size() < 3 )
+    if ( data.size() < 1 )
 	mErrRet("Not enough data read to analyze")
 
-    if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size()-2, false );
+    if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
 
     float fac = 1;
     if ( doscale_ )

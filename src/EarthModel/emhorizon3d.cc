@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.130 2010-09-23 04:46:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.131 2010-09-27 06:25:59 cvsnanne Exp $";
 
 #include "emhorizon3d.h"
 
@@ -809,14 +809,15 @@ int Horizon3DAscIO::getNextLine( Coord& pos, TypeSet<float>& data )
 	finishedreadingheader_ = true;
     }
 
-    int ret = getNextBodyVals( strm_ );
-    if ( ret <= 0 || fd_.bodyinfos_.size() < 3 )
-	return -1;
+    const int ret = getNextBodyVals( strm_ );
+    const int nrattribs = fd_.bodyinfos_.size() - 1;
+    if ( ret <= 0 || nrattribs < 1 )
+	return ret;
 
     pos.x = getdValue( 0, udfval_ );
     pos.y = getdValue( 1, udfval_ );
-    for ( int idx=2; idx<=fd_.bodyinfos_.size(); idx++ )
-	data += getfValue( idx, udfval_ );
+    for ( int idx=0; idx<nrattribs; idx++ )
+	data += getfValue( idx+2, udfval_ );
 
     return ret;
 }
