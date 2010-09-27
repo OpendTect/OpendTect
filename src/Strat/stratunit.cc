@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.27 2010-09-24 13:39:22 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.28 2010-09-27 09:59:47 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -201,9 +201,10 @@ bool Strat::UnitRef::precedes( const UnitRef& ur ) const
 
 Property* Strat::UnitRef::gtProp( const PropertyRef* pr ) const
 {
+    if ( !pr ) return 0;
     for ( int idx=0; idx<properties_.size(); idx++ )
     {
-	if ( properties_[idx]->ref() == pr )
+	if ( properties_[idx]->ref() == *pr )
 	    return const_cast<Property*>( properties_[idx] );
     }
     return 0;
