@@ -5,7 +5,7 @@
  * FUNCTION : Multi-machine batch communicator.
 -*/
  
-static const char* rcsID = "$Id: jobcommunic.cc,v 1.2 2010-09-01 05:45:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: jobcommunic.cc,v 1.3 2010-09-27 05:16:15 cvsnanne Exp $";
 
 #include "jobcommunic.h"
 
@@ -110,11 +110,6 @@ bool JobCommunic::updateMsg( char tag , int status, const char* msg )
 
 bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 {
-   /* AlarmTimer watchdog( mCB( this, JobCommunic, alarmHndl ) );
-    watchdog.start( 3 * socktimeout_ );
-
-    timestamp_ = Time::getMilliSeconds();*/
-
     FileMultiString statstr;
 
     statstr += jobid_;
@@ -149,7 +144,6 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     socket_->read( inp );
     ret = !inp.isEmpty();
     masterinfo = inp[0];
-//    watchdog.stop();
 
     if ( !ret )
     {
@@ -177,10 +171,6 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 	ret = false;
     }
 
-  /*  if ( ret ) lastsucces_ = Time::getMilliSeconds();
-
-    checkMasterTimeout();*/
-    
     return ret;
 }
 
