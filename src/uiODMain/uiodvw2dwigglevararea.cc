@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.3 2010-09-27 09:26:34 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.4 2010-09-28 06:02:31 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -217,7 +217,10 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 		    	dp3d->cube().cubeSampling(), DataPack::cNoID() );
 
 	    if ( newid != DataPack::cNoID() )
+	    {
+		viewer2D()->setSelSpec( &selas, true );
 		viewer2D()->setUpView( newid, true );
+	    }
 	}
 
 	return true;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.5 2010-09-27 09:26:34 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.6 2010-09-28 06:02:31 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -259,7 +259,10 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 		    	dp3d->cube().cubeSampling(), DataPack::cNoID() );
 
 	    if ( newid != DataPack::cNoID() )
+	    {
+		viewer2D()->setSelSpec( &selas, false );
 		viewer2D()->setUpView( newid, false );
+	    }
 	}
 
 	return true;

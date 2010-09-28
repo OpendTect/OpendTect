@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.cc,v 1.2 2010-06-28 08:15:43 cvssatyaki Exp $
+ RCS:		$Id: uiodviewer2dmgr.cc,v 1.3 2010-09-28 06:02:31 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 
 #include "survinfo.h"
+#include "visseis2ddisplay.h"
 
 
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
@@ -78,6 +79,10 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
 {
     uiODViewer2D* vwr = new uiODViewer2D( appl_, visid );
+    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
+	    		visServ().getObject(visid));
+    if ( s2d )
+	vwr->setLineSetID(  s2d->lineSetID() );
     viewers2d_ += vwr;
     return *vwr;
 }

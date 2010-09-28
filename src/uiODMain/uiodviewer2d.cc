@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.40 2010-09-01 09:33:34 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.41 2010-09-28 06:02:31 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -61,6 +61,8 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     if ( info.isEmpty() )
 	info = appl.applMgr().visServer()->getObjectName( visid );
     basetxt_ += info;
+
+    linesetid_.setEmpty();
 
     initSelSpec( vdselspec_ );
     initSelSpec( wvaselspec_ );
