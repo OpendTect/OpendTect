@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seismerge.cc,v 1.8 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: seismerge.cc,v 1.9 2010-09-28 21:30:09 cvskris Exp $";
 
 #include "seismerge.h"
 #include "seisread.h"
@@ -240,7 +240,7 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
     {
 	SeisTrcPropChg stckr( trc );
 	for ( int idx=1; idx<sz; idx++ )
-	    stckr.stack( *buf.get(idx), false, 1 / ((float)idx) );
+	    stckr.stack( *buf.get(idx), false, idx );
     }
 
     SeisTrc* ret = new SeisTrc( trc );
