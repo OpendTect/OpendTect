@@ -2,21 +2,21 @@ dTect V4.1
 Properties
 Tue 28 Sep 2010, 11:05:43
 !
-Time: Time`twt`t
-Distance/Depth: Distance/Depth`dist`z
-Porosity: Porosity`phi`por
-Permeability: Permeability`perm
-Gamma Ray: Gamma Ray`gr
-Temperature: Temperature`temp
-Pressure: Pressure`p`pres
-Density: Density`rho`rhob
-P-wave velocity: Velocity`pvel`vel
-S-wave velocity: Velocity`svel
-Sonic: Sonic travel time`dt
-Acoustic Impedance: Acoustic Impedance`ai
-Elastic Impedance: Acoustic Impedance`ei
-Water Saturation: Saturation`sat
-Spontaneous Potential: Electrical Potential`sp
-Resistivity: Resistivity`res
-Poisson's Ratio: Poisson's Ratio`poi
+Time: Time`TWT`T
+Distance/Depth: Distance/Depth`Dist`Depth`Dpt`Z
+Porosity: Porosity`Phi`Por
+Permeability: Permeability`Perm
+Gamma Ray: Gamma Ray`GR
+Temperature: Temperature`Temp
+Pressure: Pressure`p`Pres
+Density: Density`Rho`RhoB
+P-wave velocity: Velocity`PVel`Vel`P-Vel
+S-wave velocity: Velocity`SVel`S-Vel
+Sonic: Sonic travel time`DT
+Acoustic Impedance: Acoustic Impedance`AI
+Elastic Impedance: Acoustic Impedance`EI
+Water Saturation: Saturation`Sat
+Spontaneous Potential: Electrical Potential`SP
+Resistivity: Resistivity`Res
+Poisson's Ratio: Poisson's Ratio`Poi
 Compressibility; Compressibility
