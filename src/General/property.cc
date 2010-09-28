@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.17 2010-09-27 10:00:11 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.18 2010-09-28 09:10:12 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -25,20 +25,20 @@ DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 	"Other",
 	"Time",
 	"Distance/Depth",
+	"Porosity",
+	"Permeability",
+	"Gamma Ray",
+	"Temperature",
+	"Pressure",
 	"Density",
 	"Velocity",
 	"Sonic travel time",
 	"Acoustic Impedance",
-	"Porosity",
-	"Permeability",
 	"Saturation",
-	"Gamma Ray",
 	"Electrical Potential",
 	"Resistivity",
 	"Poisson's Ratio",
 	"Compressibility",
-	"Temperature",
-	"Pressure",
 	0
 };
 
@@ -161,7 +161,7 @@ int PropertyRefSet::add( PropertyRef* pr )
 
     const int idx = indexOf( pr->name() );
     if ( idx < 0 )
-	{ *this += pr; return size()-1; }
+	{ ObjectSet<PropertyRef>::operator+=( pr ); return size()-1; }
 
     return -1;
 }
