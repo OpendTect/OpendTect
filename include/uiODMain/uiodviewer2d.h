@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.19 2010-07-27 09:58:50 cvsumesh Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.20 2010-09-28 06:02:09 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,11 @@ public:
 
     Attrib::SelSpec&		selSpec( bool wva )
     				{ return wva ? wvaselspec_ : vdselspec_; }
+
+    void			setLineSetID( const MultiID& lsetid )
+				{ linesetid_ = lsetid; }
+    const MultiID&		lineSetID() const
+				{ return linesetid_; }
     uiFlatViewWin*		viewwin_;
     uiODMain&			appl_;
 
@@ -65,6 +70,8 @@ protected:
     Vw2DDataManager*		datamgr_;
     uiTreeFactorySet*		tifs_;
     uiODVw2DTreeTop*		treetp_;
+
+    MultiID			linesetid_;
 
     int				polyseltbid_;
     bool			isPolySelect_;
