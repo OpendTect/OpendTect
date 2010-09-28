@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.18 2010-09-28 09:10:12 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.19 2010-09-28 13:06:28 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -103,7 +103,7 @@ void getSet()
     while ( rfp.next() )
     {
 	const BufferString fnm( rfp.fileName() );
-	SafeFileIO sfio( fnm, true );
+	SafeFileIO sfio( fnm );
 	if ( !sfio.open(true) )
 	    continue;
 

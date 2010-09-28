@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlevel.cc,v 1.3 2010-09-27 14:57:48 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlevel.cc,v 1.4 2010-09-28 13:06:28 cvsbert Exp $";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -418,7 +418,7 @@ void Strat::LevelSet::readPars( ascistream& astrm, bool isold )
 
 bool Strat::LevelSet::readFrom( const char* fnm )
 {
-    SafeFileIO sfio( fnm, true );
+    SafeFileIO sfio( fnm );
     if ( !sfio.open(true) )
 	return false;
 
