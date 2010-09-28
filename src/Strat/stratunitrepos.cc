@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.56 2010-09-27 11:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.57 2010-09-28 13:07:17 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratreftree.h"
@@ -85,7 +85,7 @@ Strat::RefTree* Strat::RepositoryAccess::readTree( Repos::Source src )
     src_ = src;
     Repos::FileProvider rfp( fileNameBase() );
     const BufferString fnm( rfp.fileName(src) );
-    SafeFileIO sfio( fnm, true );
+    SafeFileIO sfio( fnm );
     if ( !sfio.open(true) )
 	{ msg_ = "Cannot open"; mAddFilenameToMsg(fnm); return 0; }
 
