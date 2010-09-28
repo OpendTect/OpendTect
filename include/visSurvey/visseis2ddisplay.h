@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.48 2010-09-21 11:05:35 cvssatyaki Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.49 2010-09-28 12:33:58 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -131,6 +131,7 @@ public:
 protected:
 				~Seis2DDisplay();
     friend			class Seis2DTextureDataArrayFiller;
+    friend			class Seis2DArray;
     
     virtual void		addCache();
     void			removeCache(int);
@@ -180,6 +181,7 @@ protected:
 
     ZAxisTransform*				datatransform_;
     int						voiidx_;
+    int						seriesidx_;
 
     static const char*				sKeyLineSetID();
     static const char*				sKeyTrcNrRange();
