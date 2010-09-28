@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.20 2010-09-27 11:05:19 cvsbruno Exp $
+ RCS:		$Id: stratreftree.h,v 1.21 2010-09-28 04:59:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ public:
 
 };
 
-const RefTree& RT();
+mGlobal const RefTree& RT();
 inline RefTree& eRT()	{ return const_cast<RefTree&>( RT() ); }
 
 

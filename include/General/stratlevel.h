@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlevel.h,v 1.2 2010-09-27 11:05:19 cvsbruno Exp $
+ RCS:		$Id: stratlevel.h,v 1.3 2010-09-28 04:59:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -177,7 +177,7 @@ public:
 
 };
 
-const LevelSet& LVLS();
+mGlobal const LevelSet& LVLS();
 inline LevelSet& eLVLS()	{ return const_cast<LevelSet&>(LVLS()); }
 
 }; //namespace
