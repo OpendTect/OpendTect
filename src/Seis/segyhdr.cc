@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.84 2010-07-26 09:13:13 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.85 2010-09-29 10:12:17 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -702,8 +702,6 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
     const bool isneg = trwf < 0;
     if ( isneg )
 	trwf = -trwf;
-    else
-	trwf = trwf;
     float ret = Math::IntPowerOf( ((float)2), trwf );
     return isneg ? ret : 1. / ret;
 }
