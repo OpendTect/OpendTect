@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.99 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.100 2010-09-29 02:23:33 cvsnanne Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -653,8 +653,8 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 	msg += "'.\nThis will remove previous definition of the attribute.\n";
 	msg +="If you want to avoid this please use 'Cancel' and 'Add as new'.";
 	msg += "\nAre you sure you want to change the attribute type?";
-	int res = uiMSG().askRemove( msg );
-	if ( res == 1 )
+	bool res = uiMSG().askGoOn( msg, "Change", "Cancel" );
+	if ( res )
 	{
 	    checkusrref = false;
 	    DescID id = usedesc->id();
