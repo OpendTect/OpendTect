@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.49 2010-09-16 07:08:45 cvssatyaki Exp $
+ RCS:           $Id: uiseissel.h,v 1.50 2010-09-29 03:51:46 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,12 +32,14 @@ public:
 			    , selattr_(gt==Seis::Line)
 			    , allowsetdefault_(true)
 			    , steerpol_(NoSteering)
+			    , allowlinesetsel_(true)
 			    , enabotherdomain_(false)	{}
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
 			    , selattr_(is2d && !isps)
 			    , allowsetdefault_(true)
 			    , steerpol_(NoSteering)
+			    , allowlinesetsel_(true)
 			    , enabotherdomain_(false)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
@@ -46,6 +48,7 @@ public:
 	mDefSetupMemb(bool,enabotherdomain)	//!< write only: T vs Depth
 	mDefSetupMemb(SteerPol,steerpol)
 	mDefSetupMemb(BufferString,zdomkey)
+	mDefSetupMemb(bool,allowlinesetsel)
 
 	Setup&		wantSteering( bool yn=true )
 			{

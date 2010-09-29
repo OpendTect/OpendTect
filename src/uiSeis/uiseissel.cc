@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.98 2010-09-24 12:10:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.99 2010-09-29 03:51:46 cvssatyaki Exp $";
 
 #include "uiseissel.h"
 
@@ -107,6 +107,12 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     const bool is2d = Seis::is2D( setup.geom_ );
     const bool isps = Seis::isPS( setup.geom_ );
 
+    if ( is2d && !setup.allowlinesetsel_ )
+    {
+	selgrp_->getTopGroup()->display( false, true );
+	selgrp_->getNameField()->display( false, true );
+    }
+
     BufferString titletxt( "Setup " );
     if ( setup.seltxt_ )
 	titletxt += setup.seltxt_;
@@ -123,7 +129,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	    attrfld_ = new uiGenInput(selgrp_,"Attribute",StringListInpSpec());
 
 	    if ( selgrp_->getNameField() )
-		 attrfld_->attach( alignedBelow, selgrp_->getNameField() );
+		attrfld_->attach( alignedBelow, selgrp_->getNameField() );
 	    else
 		attrfld_->attach( ensureBelow, topgrp );
 	}
