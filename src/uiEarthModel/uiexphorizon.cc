@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.71 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.72 2010-09-29 02:25:54 cvsnanne Exp $";
 
 #include "uiexphorizon.h"
 
@@ -380,7 +380,9 @@ bool uiExportHorizon::acceptOK( CallBacker* )
 	    	      !uiMSG().askOverwrite("Output file exists. Overwrite?") )
 	return false;
 
-    writeAscii();
+    const bool res = writeAscii();
+    if ( res )
+	uiMSG().message( "Horizon successfully exported" );
     return false;
 }
 

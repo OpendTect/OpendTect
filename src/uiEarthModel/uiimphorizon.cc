@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.132 2010-08-05 15:35:47 cvshelene Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.133 2010-09-29 02:25:54 cvsnanne Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -412,7 +412,10 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 {
     if ( !checkInpFlds() ) return false;
 
-    return doImport();
+    const bool res = doImport();
+    if ( res )
+	uiMSG().message( "Horizon successfully imported" );
+    return false;
 }
 
 

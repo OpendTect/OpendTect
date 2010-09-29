@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.10 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.11 2010-09-29 02:25:54 cvsnanne Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -215,10 +215,13 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
 	mErrRet( "Please select output file" );
 
     if ( File::exists(outfld_->fileName()) && 
-			!uiMSG().askOverwrite("Output file exists. Overwrite?") )
+		!uiMSG().askOverwrite("Output file exists. Overwrite?") )
 	return false;
 
-    return doExport();
+    const bool res = doExport();
+    if ( res )
+	uiMSG().message( "Horizon successfully exported" );
+    return false;
 }
 
 
