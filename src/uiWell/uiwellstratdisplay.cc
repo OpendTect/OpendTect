@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.20 2010-09-27 14:01:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.21 2010-09-29 16:16:56 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -53,11 +53,11 @@ void uiWellStratDisplay::gatherOrgUnits()
     for ( int colidx=0; colidx<data_.nrCols(); colidx++ )
     {
 	StratDispData::Column& col = *data_.getCol( colidx );
-	for ( int idx=0; idx<col.units_.size(); idx++ )
+	for ( int idx=0; idx<data_.nrUnits(colidx); idx++ )
 	{
-	    const StratDispData::Unit* un = col.units_[idx];
+	    const StratDispData::Unit* un = data_.getUnit( colidx, idx );
 	    StratDispData::Unit* newun = 
-		    new StratDispData::Unit( un->name_, un->color_ );
+		    new StratDispData::Unit( un->name(), un->color_ );
 	    newun->zrg_ = un->zrg_;
 	    orgunits_ += newun;
 	}
@@ -72,9 +72,9 @@ void uiWellStratDisplay::gatherInfo()
     {
 	StratDispData::Column& col = *data_.getCol( colidx );
 	col.isdisplayed_ = false;
-	for ( int idx=0; idx<col.units_.size(); idx++ )
+	for ( int idx=0; idx<data_.nrUnits(colidx); idx++ )
 	{
-	    StratDispData::Unit* unit = col.units_[idx];
+	    StratDispData::Unit* unit = data_.getUnit( colidx, idx );
 	    if ( unit )
 	    {
 		unit->isdisplayed_ = false;
@@ -95,8 +95,7 @@ void uiWellStratDisplay::gatherInfo()
 
 void uiWellStratDisplay::draw()
 {
-    Interval<float> zrg( zdata_.zrg_.start*0.001, zdata_.zrg_.stop*0.001 );
-    drawer_.yAxis()->setRange( zrg );
+    drawer_.setZRange( zdata_.zrg_ );
     drawer_.draw();
 }
 
@@ -139,7 +138,7 @@ float uiWellStratDisplay::getPosFromMarkers( const StratDispData::Unit& unit ) c
 {
     float pos = mUdf(float);
     if ( !zdata_.markers_ ) return pos;
-    const Strat::UnitRef* uref = Strat::RT().find( unit.name_ );
+    const Strat::UnitRef* uref = Strat::RT().find( unit.name() );
     if ( uref && uref->isLeaved() )
 	pos = getPosMarkerLvlMatch( ((Strat::LeavedUnitRef*)uref)->levelID() );
     return pos;
@@ -162,7 +161,7 @@ float uiWellStratDisplay::getPosMarkerLvlMatch( int lvlid ) const
 	    {
 		pos = curmrk->dah();
 		if ( zdata_.zistime_ && zdata_.d2tm_ ) 
-		    pos = zdata_.d2tm_->getTime( pos ); 
+		    pos = zdata_.d2tm_->getTime( pos )*1000; 
 		return pos;
 	    }
 	}

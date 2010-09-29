@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.31 2010-09-27 11:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.32 2010-09-29 16:16:56 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -56,14 +56,16 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     unitlithfld_->setSensitive( unit_.isLeaved() );
     sellithbut->setSensitive( unit_.isLeaved() );
 
+    const Strat::NodeUnitRef* upnode = unit.upNode();
+    Interval<float> limitrg = upnode ? upnode->timeRange() : unit.timeRange(); 
     uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this, "Time range (My)" );
     agestartfld_ = lblbox1->box();
-    agestartfld_->setInterval( unit.timeRange() );
+    agestartfld_->setInterval( limitrg );
     lblbox1->attach( alignedBelow, unitlithfld_ );
     
     uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox( this, "" );
     agestopfld_ = lblbox2->box();
-    agestopfld_->setInterval( unit.timeRange() );
+    agestopfld_->setInterval( limitrg );
     lblbox2->attach( rightOf, lblbox1 );
 
     putToScreen();
@@ -72,7 +74,8 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 
 void uiStratUnitEditDlg::putToScreen()
 {
-    unitnmfld_->setText( unit_.code() );
+    BufferString code( unit_.code() );
+    unitnmfld_->setText( code.isEmpty() ? "<New Unit>" : unit_.code() );
     unitdescfld_->setText( unit_.description() );
     colfld_->setColor( unit_.color() );
     unitlithfld_->setText( lithnm_.buf() );
@@ -316,11 +319,11 @@ static const int cStartCol = 2;
 static const int cStopCol = 3;
 
 uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p, 
-					    const Strat::UnitRef& unit ) 
+					    const Strat::LeavedUnitRef& unit ) 
     : uiDialog(p,uiDialog::Setup("Subdivide Stratigraphic Unit",
 			     "Specify number and properties of the new units",
 			     mNoHelpID))
-    , parentunit_(unit)
+    , rootunit_(unit)
 {
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Unit")
 						.rowgrow(true)
@@ -336,7 +339,7 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
     table_->setMinimumWidth( 450 );
     
     if ( table_->nrRows() )
-	setUnit( 0, parentunit_ );
+	addUnitToTable( 0, rootunit_ );
 
     resetUnits( 0 );
 }
@@ -355,17 +358,17 @@ void uiStratUnitDivideDlg::mouseClick( CallBacker* )
 
 void uiStratUnitDivideDlg::resetUnits( CallBacker* cb ) 
 {
-    Interval<float> timerg; // = parentunit_.timeRange();
-    ObjectSet<Strat::UnitRef> units;
+    Interval<float> timerg = rootunit_.timeRange();
+    ObjectSet<Strat::LeavedUnitRef> units;
     gatherUnits( units );
     const int nrrows = table_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	Strat::UnitRef& unit = *units[idx];
+	Strat::LeavedUnitRef& unit = *units[idx];
 	BufferString bs( unit.code() );
 	if ( bs.isEmpty() )
 	{
-	    BufferString code( "New Unit" );
+	    BufferString code( "<New Unit>" );
 	    code += idx+1;
 	    unit.setCode( code );
 	}
@@ -373,8 +376,9 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
        	rg.set( timerg.start + (float)idx*timerg.width()/(nrrows),
 	        timerg.start + (float)(idx+1)*timerg.width()/(nrrows) );
 	table_->setRowReadOnly( idx, false );
-	Color col = getRandStdDrawColor();
-	setUnit( idx, unit );
+	unit.setTimeRange( rg ); 
+	unit.setColor( getRandStdDrawColor() ); 
+	addUnitToTable( idx, unit );
     }
     deepErase( units );
     table_->setCellReadOnly( RowCol( 0, cStartCol ), true );
@@ -382,49 +386,48 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 }
 
 
-void uiStratUnitDivideDlg::setUnit( int irow, const Strat::UnitRef& unit ) 
+void uiStratUnitDivideDlg::addUnitToTable( int irow, 
+					const Strat::LeavedUnitRef& unit ) 
 {
     table_->setText( RowCol(irow,cNameCol), unit.code() );
-    //table_->setValue( RowCol(irow,cStartCol), unit.timeRange().start );
-    //table_->setValue( RowCol(irow,cStopCol), unit.timeRange().stop );
+    table_->setValue( RowCol(irow,cStartCol), unit.timeRange().start );
+    table_->setValue( RowCol(irow,cStopCol), unit.timeRange().stop );
     table_->setColor( RowCol(irow,cColorCol), unit.color() );
 }
 
 
-void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::UnitRef>& units ) 
+void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::LeavedUnitRef>& units ) 
 {
     const int nrrows = table_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	const char* code = table_->text( RowCol(idx,cNameCol) );
-	Strat::UnitRef* un = new Strat::LeavedUnitRef( 0, code );
-	IOPar iop; 
-	iop.set( sKey::Color, table_->getColor( RowCol(idx,cColorCol) ) );
-	iop.set( sKey::Time, 
-		Interval<float>(table_->getfValue( RowCol(idx,cStartCol) ),
-			        table_->getfValue( RowCol(idx,cStopCol) ) ) );
+	Strat::NodeUnitRef* par = 
+	    		const_cast<Strat::NodeUnitRef*>( rootunit_.upNode() );
+	Strat::LeavedUnitRef* un = 
+	    		new Strat::LeavedUnitRef( par, code );
+	un->setColor( table_->getColor( RowCol(idx,cColorCol) ) );
+	Interval<float> rg( table_->getfValue( RowCol(idx,cStartCol) ),
+			    table_->getfValue( RowCol(idx,cStopCol) )  );
+	un->setTimeRange( rg ); 
 	units += un;
     }
 }
 
 
-bool uiStratUnitDivideDlg::areTimesOK( ObjectSet<Strat::UnitRef>& units ) const
+bool uiStratUnitDivideDlg::areTimesOK( 
+				ObjectSet<Strat::LeavedUnitRef>& units ) const
 {
-    if ( units.size() > 1 )
-	return true;
-    //TODO
-    /*
     for ( int idx=0; idx<units.size()-1; idx++ )
     {
-	const Strat::UnitRef& curunit = *units[idx];
-	const Strat::UnitRef& nextunit = *units[idx+1];
-	if ( curunit.timeRange().width()<1 || nextunit.timeRange().width()<1 )
+	const Strat::LeavedUnitRef& curunit = *units[idx];
+	const Strat::LeavedUnitRef& nextunit = *units[idx+1];
+	if ( !curunit.timeRange().width() || !nextunit.timeRange().width() )
 	    return false;
 	if ( curunit.timeRange().stop > nextunit.timeRange().start )
 	    return false;
     }
-    return ( units[0]->timeRange().width() >= 1 );
-    */
+    return ( units[0]->timeRange().width() >= 0 );
     return false;
 }
 
@@ -432,7 +435,7 @@ bool uiStratUnitDivideDlg::areTimesOK( ObjectSet<Strat::UnitRef>& units ) const
 bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 {
     BufferStringSet bfs;
-    ObjectSet<Strat::UnitRef> units;
+    ObjectSet<Strat::LeavedUnitRef> units;
     gatherUnits( units );
     for ( int idx=0; idx<units.size(); idx++ )
     {
@@ -442,7 +445,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	{
 	    errmsg += "Empty unit name. ";
 	}
-	if ( errmsg.isEmpty() && strcmp( code.buf(), parentunit_.code() ) )
+	if ( errmsg.isEmpty() && strcmp( code.buf(), rootunit_.code() ) )
 	{
 	    if ( Strat::eRT().find( code ) )
 		errmsg += "Unit name already used. ";
@@ -460,7 +463,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	}
     }
     if ( !areTimesOK( units) )
-	{ mErrRet( "No valid times specified", deepErase(units); return false; ) }
+	{ mErrRet("No valid times specified", deepErase(units); return false;) }
 
     deepErase( units );
     return true;
@@ -486,6 +489,7 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
 	const Strat::Level& lvl = *lvls.levels()[idx];
 	lvlnms.add( lvl.name() );
 	colors += lvl.color();
+	ids_ += lvl.id();
     }
     BufferString bs = "Select marker";
     lvllistfld_ = new uiGenInput( this, bs, StringListInpSpec( lvlnms ) );

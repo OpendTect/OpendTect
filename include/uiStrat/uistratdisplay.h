@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.20 2010-09-27 14:01:44 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.21 2010-09-29 16:16:56 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,13 +17,11 @@ ________________________________________________________________________
 #include "uiaxishandler.h"
 #include "uidialog.h"
 #include "geometry.h"
-#include "menuhandler.h"
 #include "uistratdispdata.h"
 
 class uiGenInput;
 class uiGraphicsScene;
 class uiLabeledSpinBox;
-class uiMenuHandler;
 class uiParent;
 class uiPolygonItem;
 class uiPolyLineItem;
@@ -65,10 +63,9 @@ public:
 	
 	uiPolyLineItem*		borderitm_;
 	uiTextItem*		bordertxtitm_;
-	ObjectSet<uiLineItem>	mrkitms_;
-	ObjectSet<uiTextItem>	mrktxtitms_;
-	ObjectSet<uiTextItem>	unittxtitms_;
+	ObjectSet<uiTextItem>	txtitms_;
 	ObjectSet<uiPolygonItem> unititms_;
+	ObjectSet<uiLineItem>	lvlitms_;
     };
     
     const ColumnItem&		colItem(int idx) const { return *colitms_[idx];}
@@ -87,9 +84,9 @@ protected:
     //graphics
     void			addUnit(float);
     void			drawColumns();
-    void			drawBorders(ColumnItem&,int);
-    void			drawMarkers(ColumnItem&,int);
-    void			drawUnits(ColumnItem&,int);
+    void			drawBorders(ColumnItem&);
+    void			drawLevels(ColumnItem&);
+    void			drawUnits(ColumnItem&);
     void			eraseAll();
     void			updateAxis(); 
 };
@@ -124,16 +121,10 @@ protected :
     uiPushButton*		fillbutton_;
     uiPushButton*		viewcolbutton_;
     
-    MenuItem            	assignlvlmnuitem_;
-
     Interval<float>		maxrg_;
    
-    bool			isUnitBelowCurrent() const;
     void			createDispParamGrp();
-    void			resetRangeFromUnits();
 
-    void                	createMenuCB(CallBacker*);
-    void                	handleMenuCB(CallBacker*);
     bool			handleUserClick(const MouseEvent&);
     void			controlRange(CallBacker*);
     void			dataChanged(CallBacker*);
@@ -143,7 +134,8 @@ protected :
 
     int				getColIdxFromPos() const; 
     StratDispData::Column*	getColFromPos() const; 
-    const StratDispData::Unit* 	getUnitFromPos(bool nocolidx=false) const;
+    const StratDispData::Unit* 	getUnitFromPos() const;
+    const StratDispData::Level* getLevelFromPos() const;
     Geom::Point2D<float> 	getPos() const;
 
     void			reSized(CallBacker*);

@@ -7,16 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.22 2010-09-27 14:01:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.23 2010-09-29 16:16:56 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
 #include "uibutton.h"
 #include "uicolor.h"
-#include "uigeninput.h"
 #include "uidialog.h"
+#include "uigeninput.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uimenu.h"
 #include "uispinbox.h"
 #include "uistratutildlgs.h"
 #include "uistratreftree.h"
@@ -34,7 +35,6 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     , drawer_(uiStratDrawer(scene(),data_))
     , uidatawriter_(uiStratDispToTreeTransl(uitree ))
     , uidatagather_(0)
-    , assignlvlmnuitem_("&Specify marker boundary")
     , uicontrol_(0)
     , maxrg_(Interval<float>(0,2e3))
 {
@@ -73,7 +73,6 @@ void uiStratDisplay::addControl( uiToolBar* tb )
     uiStratViewControl::Setup su( maxrg_ ); su.tb_ = tb;
     uicontrol_ = new uiStratViewControl( *v, su ); 
     uicontrol_->rangeChanged.notify( mCB(this,uiStratDisplay,controlRange) );
-    resetRangeFromUnits();
 }
 
 
@@ -96,15 +95,7 @@ void uiStratDisplay::createDispParamGrp()
 		    .setName(BufferString("range start"),0)
 		    .setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
-    if ( data_.nrCols() && data_.nrUnits(0) > 1)
-    {
-	const StratDispData::Unit& topunit = *data_.getUnit(0,0);
-	const StratDispData::Unit& botunit = 
-	    				*data_.getUnit(0,data_.nrUnits(0)-1);
-	Interval<float> zrg( topunit.zrg_.start, botunit.zrg_.stop );
-	rangefld_->setValue( zrg );
-	setZRange( Interval<float>( zrg.stop, zrg.start ) );
-    }
+    setZRange( maxrg_ );
    
     const CallBack cbv = mCB( this, uiStratDisplay, selCols );
     viewcolbutton_ = new uiPushButton( dispparamgrp_,"&View ",cbv,true ); 
@@ -173,23 +164,6 @@ void uiStratDisplay::dataChanged( CallBacker* cb )
 }
 
 
-void uiStratDisplay::resetRangeFromUnits()
-{
-    if ( data_.nrCols()<=0 )
-	return;
-    const StratDispData::Column& col = *data_.getCol(0);
-    if ( col.units_.size() == 0 )
-	return;
-
-    Interval<float> rg;
-    float start = col.units_[0]->zrg_.start;
-    float stop = col.units_[col.units_.size()-1]->zrg_.stop;
-    rg.set( start, stop );
-    rangefld_->setValue( rg );
-    setZRange( rg );
-}
-
-
 void uiStratDisplay::setZRange( Interval<float> zrg )
 {
     zrg.sort(false);
@@ -219,52 +193,10 @@ void uiStratDisplay::dispParamChgd( CallBacker* cb )
 }
 
 
-void uiStratDisplay::createMenuCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( !menu ) return;
-    mAddMenuItem( menu, &assignlvlmnuitem_, true, false);
-}
-
-
-void uiStratDisplay::handleMenuCB( CallBacker* cb )
-{
-    const StratDispData::Unit* unit = getUnitFromPos();
-    if ( unit ) 
-	uidatawriter_.handleUnitMenu( unit->name_ );
-}
-
-
-bool uiStratDisplay::isUnitBelowCurrent() const
-{
-    /*
-    const StratDispData::Unit* curunit = getUnitFromPos();
-    if ( !curunit ) return false;
-    Interval<float> rg( curunit->zpos_, curunit->zposbot_ );
-    int cidx = getColIdxFromPos( );
-    if ( cidx > 0 || (cidx+1) < nrCols() ) 
-    {
-	for ( int idunit=0; idunit<nrUnits(cidx+1); idunit++ )
-	{
-	    const StratDispData::Unit* unit = getUnit( idunit, cidx+1 );
-	    if ( unit->zpos_ >= rg.start && unit->zposbot_ <= rg.stop )
-		return false;
-	}
-    }
-    */
-    return true;
-}
-
-
-
 void uiStratDisplay::usrClickCB( CallBacker* cb )
 {
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
-    if ( !mevh )
-	return;
-    if ( !mevh->hasEvent() )
-	return;
-    if ( mevh->isHandled() )
+    if ( !mevh || !mevh->hasEvent() || mevh->isHandled() )
 	return;
 
     mevh->setHandled( handleUserClick(mevh->event()) );
@@ -273,11 +205,24 @@ void uiStratDisplay::usrClickCB( CallBacker* cb )
 
 bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 {
+
     if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	    !ev.altStatus() )
     {
-	if ( getUnitFromPos() ) 
-	    handleMenuCB( 0 );
+	const StratDispData::Unit* unit = getUnitFromPos();
+	if ( unit )
+	    uidatawriter_.handleUnitMenu( unit->name() );
+
+	const StratDispData::Level* lvl = getLevelFromPos();
+	if ( lvl )
+	{
+	    uiMenuItem* assmnuitm = new uiMenuItem( "Assign marker boundary" );
+	    uiPopupMenu menu( parent(), "Action" );
+	    menu.insertItem( assmnuitm, 0 );
+	    const int mnuid = menu.exec();
+	    if ( mnuid>=0 );
+		uidatawriter_.handleUnitLvlMenu( lvl->unitcode_ );
+	}
 	return true;
     }
     return false;
@@ -303,16 +248,16 @@ int uiStratDisplay::getColIdxFromPos() const
     {
 	borders.stop += drawer_.colItem(idx).size_;
 	if ( borders.includes( xpos ) ) 
-	return idx;
+	    return idx;
 	borders.start = borders.stop;
     }
     return -1;
 }
 
 
-const StratDispData::Unit* uiStratDisplay::getUnitFromPos( bool nocolidx ) const
+const StratDispData::Unit* uiStratDisplay::getUnitFromPos() const
 {
-    int cidx = nocolidx ? 0 : getColIdxFromPos();
+    const int cidx = getColIdxFromPos();
     if ( cidx >=0 && cidx<data_.nrCols() )
     {
 	Geom::Point2D<float> pos = getPos(); 
@@ -321,6 +266,24 @@ const StratDispData::Unit* uiStratDisplay::getUnitFromPos( bool nocolidx ) const
 	    const StratDispData::Unit* unit = data_.getUnit( cidx, idunit );
 	    if ( pos.y < unit->zrg_.stop && pos.y >= unit->zrg_.start )
 		return unit;
+	}
+    }
+    return 0;
+}
+
+
+#define mEps drawer_.yAxis()->range().width()/100
+const StratDispData::Level* uiStratDisplay::getLevelFromPos() const
+{
+    const int cidx = getColIdxFromPos();
+    if ( cidx >=0 && cidx<data_.nrCols() )
+    {
+	Geom::Point2D<float> pos = getPos(); 
+	for ( int idlvl=0; idlvl<data_.nrLevels(cidx); idlvl++ )
+	{
+	    const StratDispData::Level* lvl= data_.getLevel( cidx, idlvl );
+	    if ( pos.y < (lvl->zpos_+mEps)  && pos.y > (lvl->zpos_-mEps) )
+		return lvl;
 	}
     }
     return 0;
@@ -376,7 +339,9 @@ void uiStratDrawer::drawColumns()
 {
     eraseAll();
     int pos = 0;
-    for ( int idcol=0; idcol<data_.nrCols(); idcol++ )
+    const int nrcols = data_.nrCols(); 
+
+    for ( int idcol=0; idcol<nrcols; idcol++ )
     {
 	if ( !data_.getCol( idcol )->isdisplayed_ ) continue;
 	ColumnItem* colitm = new ColumnItem( data_.getCol( idcol )->name_ );
@@ -386,9 +351,9 @@ void uiStratDrawer::drawColumns()
 	    	      /( data_.nrDisplayedCols() ) ;
 	if ( colitm->size_ <0 ) 
 	    colitm->size_ = 0;
-	drawUnits( *colitm, idcol );
-	drawBorders( *colitm, idcol );
-	drawMarkers( *colitm, idcol );
+	drawBorders( *colitm );
+	drawLevels( *colitm );
+	drawUnits( *colitm );
 	pos ++;
     }
 }
@@ -406,16 +371,15 @@ void uiStratDrawer::eraseAll()
 
 	delete scene_.removeItem( colitm->borderitm_ ); 
 	delete scene_.removeItem( colitm->bordertxtitm_ ); 
-	mRemoveSet( colitm->mrktxtitms_ )
-	mRemoveSet( colitm->unittxtitms_ )
-	mRemoveSet( colitm->mrkitms_ )
+	mRemoveSet( colitm->txtitms_ )
+	mRemoveSet( colitm->lvlitms_ )
 	mRemoveSet( colitm->unititms_ )
     }
     deepErase( colitms_ );
 }
 
 
-void uiStratDrawer::drawBorders( ColumnItem& colitm, int colidx )
+void uiStratDrawer::drawBorders( ColumnItem& colitm )
 {
     int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
     int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
@@ -440,53 +404,60 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm, int colidx )
 }
 
 
-void uiStratDrawer::drawMarkers( ColumnItem& colitm, int colidx )
+void uiStratDrawer::drawLevels( ColumnItem& colitm )
 {
-    /*
-    mRemoveSet( colitm.mrkitms_ );
-    mRemoveSet( colitm.mrktxtitms_ );
-    for ( int idx=0; idx<data_.getCol(colidx)->markers_.size(); idx++ )
+    if ( colitm.lvlitms_.size() )
     {
-	const StratDispData::Marker& mrk = *data_.getCol(colidx)->markers_[idx];
+	mRemoveSet( colitm.lvlitms_ );
+	mRemoveSet( colitm.txtitms_ );
+    }
+    const int colidx = colitms_.indexOf( &colitm );
+    if ( colidx < 0 ) return;
+    for ( int idx=0; idx<data_.getCol(colidx)->levels_.size(); idx++ )
+    {
+	const StratDispData::Level& lvl = *data_.getCol(colidx)->levels_[idx];
 
 	int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
 	int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
-	int y = yax_->getPix( mrk.zpos_ );
+	int y = yax_->getPix( lvl.zpos_ );
 
 	uiLineItem* li = scene_.addItem( new uiLineItem(x1,y,x2,y,true) );
-	LineStyle::Type lst = mrk.isdotted_ ? LineStyle::Dot : LineStyle::Solid;
-	li->setPenStyle( LineStyle(lst,2,mrk.col_) );
-	uiTextItem* ti = scene_.addItem( new uiTextItem( mrk.name_.buf() ) );
+	LineStyle::Type lst = lvl.name_.isEmpty() ? LineStyle::Dot 
+	    					  : LineStyle::Solid;
+	li->setPenStyle( LineStyle(lst,2,lvl.color_) );
+	uiTextItem* ti = scene_.addItem( new uiTextItem( lvl.name_.buf() ) );
 	ti->setPos( x1 + (x2-x1)/2, y ); 
 	ti->setZValue( 2 );
-	ti->setTextColor( mrk.col_ );
-	colitm.mrktxtitms_ += ti;
-	colitm.mrkitms_ += li;
+	ti->setTextColor( lvl.color_ );
+    
+	colitm.txtitms_ += ti;
+	colitm.lvlitms_ += li;
     }
-    */
 }
 
 
-void uiStratDrawer::drawUnits( ColumnItem& colitm, int colidx ) 
+void uiStratDrawer::drawUnits( ColumnItem& colitm ) 
 {
-    mRemoveSet( colitm.unittxtitms_ );
+    mRemoveSet( colitm.txtitms_ );
     mRemoveSet( colitm.unititms_ );
+    const int colidx = colitms_.indexOf( &colitm );
+    if ( colidx < 0 ) return;
 
     const Interval<float> rg = yax_->range();
     for ( int idx=0; idx<data_.getCol(colidx)->units_.size(); idx++ )
     {
 	const StratDispData::Unit& unit = *data_.getCol(colidx)->units_[idx];
 	Interval<float> unitrg = unit.zrg_;
-	if ( ( unit.zrg_.start > rg.start && unit.zrg_.stop > rg.start ) ||
-		 ( unit.zrg_.start < rg.stop && unit.zrg_.stop < rg.stop ) ||
-			!unit.isdisplayed_ ) continue;
+	if ( ( !rg.includes(unitrg.start) && !rg.includes(unitrg.stop) )
+		|| !unit.isdisplayed_ ) continue;
+	unitrg.limitTo( rg );
 
 	int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
 	int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
-	bool ztop = ( unit.zrg_.start < rg.stop );
-	bool zbase = ( unit.zrg_.stop > rg.start );
-	int y1 = yax_->getPix( ztop ? rg.stop : unit.zrg_.start );
-	int y2 = yax_->getPix( zbase ? rg.start : unit.zrg_.stop );
+	bool ztop = ( unitrg.start < rg.stop );
+	bool zbase = ( unitrg.stop > rg.start );
+	int y1 = yax_->getPix( ztop ? rg.stop : unitrg.start );
+	int y2 = yax_->getPix( zbase ? rg.start : unitrg.stop );
 
 	TypeSet<uiPoint> rectpts;
 	rectpts += uiPoint( x1, y1 );
@@ -498,11 +469,11 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm, int colidx )
 	pli->setPenColor( Color::Black() );
 	if ( unit.color_ != Color::White() )
 	    pli->setFillColor( unit.color_ );
-	uiTextItem* ti = scene_.addItem( new uiTextItem( unit.name_.buf() ) );
+	uiTextItem* ti = scene_.addItem( new uiTextItem( unit.name() ) );
 	ti->setTextColor( Color::Black() );
 	ti->setPos( x1, y2 - abs((y2-y1)/2) -10 );
 	ti->setZValue( 2 );
-	colitm.unittxtitms_ += ti;
+	colitm.txtitms_ += ti;
 	colitm.unititms_ += pli;
     }
 }

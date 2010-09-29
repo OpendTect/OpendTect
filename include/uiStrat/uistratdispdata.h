@@ -7,19 +7,26 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.10 2010-09-27 14:01:44 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.11 2010-09-29 16:16:56 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "bufstringset.h"
 #include "callback.h"
 #include "color.h"
 #include "ranges.h"
 #include "bufstring.h"
+#include "bufstringset.h"
 
 
-namespace Strat{ class UnitRef; class NodeUnitRef; class RefTree; }
+namespace Strat
+{ 
+    class UnitRef; 
+    class LeavedUnitRef;
+    class NodeOnlyUnitRef; 
+    class NodeUnitRef; 
+    class RefTree; 
+}
 
 class uiStratRefTree;
 class uiListViewItem;
@@ -32,18 +39,33 @@ public:
 
     mStruct Unit
     {
-			Unit(const char* nm,const Color& col)
-				: name_(nm)
-				, color_(col)
+			Unit(const char* nm,const Color& col = Color::White() )
+				: color_(col)
 				, isdisplayed_(true)		 
-				{}	 
+				{
+				    names_.add( nm );
+				}	 
 
+	const char* name() const { return names_[0]->buf(); }
+
+	BufferStringSet names_;
+	const Color	color_;
 	Interval<float>	zrg_;
+	bool		isdisplayed_;
+    };
+
+
+    mStruct Level
+    {
+			Level(const char* nm,const char* unitcode)
+				: unitcode_(unitcode)
+				, name_( nm )
+				{} 
 
 	const BufferString name_;
-	const Color	color_;
-	bool		isdisplayed_;
-	int		colidx_;
+	const BufferString unitcode_;
+	Color		color_;
+	float		zpos_;
     };
 
 
@@ -55,37 +77,47 @@ public:
 			    {}
 
 	const BufferString name_;
-	ObjectSet<Unit>	units_;
-
 	bool		isdisplayed_;
+
+	ObjectSet<Unit>	units_;
+	ObjectSet<Level> levels_;
     };
+
+
 
     void		eraseData() 
 			{ 
 			    for ( int idx=0; idx<cols_.size(); idx++ )
 			    {
 				cols_[idx]->units_.erase();
+				cols_[idx]->levels_.erase();
 			    }
 			    cols_.erase();
 			}
 
     void		addCol( Column* col )
 			    { cols_ += col; }
-    void		addUnit( int colidx, Unit* un )
-				    { cols_[colidx]->units_ += un; }
 
     int 		nrCols() const 
 			    { return cols_.size(); }
     int			nrUnits( int colidx ) const 
 			    { return cols_[colidx]->units_.size(); }
-    const Unit*		getUnit( int colidx, int uidx ) const 
-			    { return gtUnit( colidx, uidx ); }
-    Unit*		getUnit( int colidx, int uidx ) 
-			    { return gtUnit( colidx, uidx ); }
+    void		addUnit( int colidx, Unit* un )
+			    { cols_[colidx]->units_ += un; }
+
     const Column*	getCol( int idx ) const 
 			    { return cols_[idx]; }
     Column*		getCol( int idx ) 
 			    { return cols_[idx]; }
+    Unit*		getUnit( int colidx, int uidx ) 
+			    { return gtUnit( colidx, uidx ); }
+    const Unit*		getUnit( int colidx, int uidx ) const 
+			    { return gtUnit( colidx, uidx ); }
+
+    int			nrLevels( int colidx ) const 
+			    { return cols_[colidx]->levels_.size(); }
+    const Level*	getLevel( int colidx, int lidx ) const 
+			    { return cols_[colidx]->levels_[lidx]; }
 
     int 		nrDisplayedCols() const				
 			{
@@ -94,13 +126,14 @@ public:
 				{ if ( cols_[idx]->isdisplayed_ ) nr++; }
 			    return nr;
 			}
+
 protected :
 
     Unit*		gtUnit( int colidx, int uidx ) const 
 			    { return const_cast<Unit*>( 
-					    cols_[colidx]->units_[uidx] ); }
+					cols_[colidx]->units_[uidx] ); }
 
-    ObjectSet<Column> 	cols_;
+    ObjectSet<Column> cols_;
 };
 
 
@@ -122,12 +155,16 @@ protected:
 
     bool 		withauxs_;
     bool 		withlevels_;
+    int			lithocolidx_;
+    int			desccolidx_;
+    int			levelcolidx_;
 
-    void		addUnits(const Strat::NodeUnitRef&,int);
-    void		addUnit(const Strat::UnitRef&,int);
+    void		readUnits();
+    void		addUnit(const Strat::NodeUnitRef&);
+    void		addDescs(const Strat::LeavedUnitRef&);
+    void		addLithologies(const Strat::LeavedUnitRef&);
+    void		addLevel(const Strat::LeavedUnitRef&);
     void		addAnnot(const char*,Interval<float>& posrg,bool);
-    void		addBoundary(int,int,float);
-    void		addBottomBoundary();
     void 		readFromTree();				
 
     void		triggerDataChange(CallBacker*);

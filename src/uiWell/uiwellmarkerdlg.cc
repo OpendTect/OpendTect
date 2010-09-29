@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.28 2010-09-27 11:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.29 2010-09-29 16:16:56 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -147,7 +147,6 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	if ( !Strat::LVLS().isPresent( marker->levelID() ) )
 	    const_cast<Well::Marker*>(markers[idx])->setLevelID( -1 );
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false );
-	levelsel->setSensitive( false );
 	levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
 	table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
 	levelsel->setID( marker->levelID() );

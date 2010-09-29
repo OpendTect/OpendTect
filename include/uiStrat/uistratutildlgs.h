@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.20 2010-09-27 11:05:19 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.21 2010-09-29 16:16:56 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,18 +70,19 @@ mClass uiStratUnitDivideDlg : public uiDialog
 {
 public:
 				uiStratUnitDivideDlg(uiParent*,
-						const Strat::UnitRef&);
+						const Strat::LeavedUnitRef&);
 
-    void			gatherUnits(ObjectSet<Strat::UnitRef>&); 
+    void			gatherUnits(ObjectSet<Strat::LeavedUnitRef>&); 
 
 protected :
 
     uiTable*                    table_;
-    const Strat::UnitRef& 	parentunit_;
+    const Strat::LeavedUnitRef& rootunit_;
 
-    bool			areTimesOK(ObjectSet<Strat::UnitRef>&) const;
+    bool			areTimesOK(
+	    				ObjectSet<Strat::LeavedUnitRef>&) const;
 
-    void			setUnit(int,const Strat::UnitRef&);
+    void			addUnitToTable(int,const Strat::LeavedUnitRef&);
     void			mouseClick(CallBacker*);
     bool			acceptOK(CallBacker*);
     void			resetUnits(CallBacker*);
