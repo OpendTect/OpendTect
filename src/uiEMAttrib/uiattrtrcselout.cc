@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.59 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.60 2010-09-29 03:50:46 cvssatyaki Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -296,7 +296,7 @@ void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
     ctioout_.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
     outpfld_ = new uiSeisSel( prnt, ctioout_,
 	    		      uiSeisSel::Setup(ads_.is2D(),false)
-			      .selattr(true) );
+			      .selattr(true).allowlinesetsel(false) );
     const bool noadvdlg = usesinglehor_ || ads_.is2D();
     outpfld_->attach( alignedBelow, noadvdlg ? cubeboundsfld_ : outsidevalfld_);
 }
@@ -347,6 +347,20 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	    BufferString msg( "Output attribute already exists. Do you\n"
 		    "want to continue and overwrite existing attribute?" );
 	    if ( !uiMSG().askOverwrite(msg) ) return false;
+	}
+
+	Attrib::Desc* desc = ads_.getDesc( attrfld_->attribID() );
+	EM::SurfaceIOData data;
+	EM::EMM().getSurfaceData( ctio_.ioobj->key(), data );
+	IOObj* lineobj = IOM().get( MultiID(desc->getStoredID()) );
+	Seis2DLineSet s2d( *lineobj );
+
+	BufferString msg = "The selected horizon is not the selected lineset. ";
+	msg += "Choose another attribute or horizon.";
+	if ( *data.linesets[0] != s2d.name() ) 
+	{
+	    uiMSG().error( msg );
+	    return false;
 	}
     }
 
@@ -519,11 +533,7 @@ void uiAttrTrcSelOut::attribSel( CallBacker* cb )
 		if ( ioobj )
 		{
 		    seissubselfld_->setInput( *ioobj );
-		    BufferString usrref = desc->isStored()
-			? BufferString( desc->userRef(), "_horout" )
-			: LineKey(ioobj->name(),attrfld_->getInput()).buf();
-
-		    outpfld_->setInputText( usrref );
+		    outpfld_->setInput( *ioobj );
 		    outpfld_->processInput();
 		}
 	    }
