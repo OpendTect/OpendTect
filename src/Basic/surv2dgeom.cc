@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.3 2010-08-19 13:06:51 cvsbert Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.4 2010-09-29 03:49:37 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -167,10 +167,17 @@ bool PosInfo::Survey2D::hasLine( const char* lnm, const char* lsnm ) const
 void PosInfo::Survey2D::getLines( BufferStringSet& nms, const char* lsnm ) const
 {
     if ( !lsnm || !strcmp(lsnm_.buf(),lsnm) )
+    {
 	getKeys(lineindex_,nms);
+	return;
+    }
+
+    const int idxky = lsindex_.indexOf( lsnm );
+    if ( idxky < 0 ) return;
 
     IOPar iop;
-    FilePath fp( lsfp_ ); fp.setFileName( lsnm ); fp.add( sIdxFilename );
+    FilePath fp( lsfp_ );
+    fp.setFileName( lsindex_.getValue(idxky) ); fp.add( sIdxFilename );
     readIdxFile( fp.fullPath(), iop );
     getKeys( iop, nms );
 }
