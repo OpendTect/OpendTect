@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.25 2010-08-24 11:01:02 nanne Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.26 2010-09-29 03:56:25 satyaki Exp $";
 
 #include "flthortools.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: flthortools.cc,v 1.25 2010-08-24 11:01:02 nanne
 #include "posinfo2d.h"
 #include "seis2dline.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "trigonometry.h"
 
 
@@ -321,8 +322,9 @@ bool FaultTraceExtractor::get2DFaultTrace()
     if ( lidx < 0 ) lidx = lset.indexOfFirstOccurrence( linenm_.buf() );
     if ( lidx < 0 ) return false;
 
-    PosInfo::Line2DData linegeom;
-    if ( !lset.getGeometry(lidx,linegeom) )
+    PosInfo::POS2DAdmin().setCurLineSet( lset.name() );
+    PosInfo::Line2DData linegeom( lk.lineName() );
+    if ( !PosInfo::POS2DAdmin().getGeometry(linegeom) )
 	return false;
 
     flttrc_ = new FaultTrace;
