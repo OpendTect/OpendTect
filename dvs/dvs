@@ -97,5 +97,23 @@ if ( $#argv > 0 ) then
 	exit $status
     endif
 
+    if ( "$1" == commit ) then
+	shift
+	foreach fil ( $* )
+	    set isascii=`file $fil | grep ASCII | wc -l`
+	    if ( -x $fil && $isascii == 1 ) then
+		set answer=N
+		echo "File $fil is ASCII and executable."
+		echo "Do you want to commit as executabe? (y/N)"
+		eval $get_answer
+		if ( "$answer" != "y" && "$answer" != "Y" ) then
+		    exit $status
+		endif
+	    endif
+	end
+	cvs commit $*
+	exit $status
+    endif
+
 endif
 cvs $cvsremoteargs $*
