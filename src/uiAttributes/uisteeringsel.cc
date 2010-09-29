@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.46 2010-08-12 10:39:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.47 2010-09-29 02:24:34 cvsnanne Exp $";
 
 
 #include "uisteeringsel.h"
@@ -302,6 +302,7 @@ CtxtIOObj* uiSteerCubeSel::mkCtxtIOObj( bool is2d, bool forread )
     CtxtIOObj* ret = mMkCtxtIOObj(SeisTrc);
     ret->ctxt = ioContext();
     ret->ctxt.forread = forread;
+    ret->ctxt.toselect.require_.set( sKey::Type, sKey::Steering );
     if ( is2d )
 	ret->ctxt.deftransl = "2D";
 
