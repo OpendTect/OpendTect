@@ -53,15 +53,6 @@ do_it:
 set flags=""
 if ( $nrcpus > 1 ) set flags="-j$nrcpus"
 
-set hostnm=`hostname`
-if ( $hostnm == dgb26 ) then
-    cdw; cd src; ./cpdeps
-    cdw; cd plugins; ./cpdeps
-    cdw; cd spec; ./cpdeps
-    set mods=.mods.noui
-    set dodeps=no
-endif
-
 set logdir=$WORK/dtect/log
 if ( ! -d $logdir ) then
     mkdir $logdir
@@ -114,8 +105,16 @@ cd ../spec
 make
 
 cdw
-cat `find . -name ls$HDIR | sort` > $logdir/error.log
-cat `find . -name ls$HDIR.prog | sort` >> $logdir/error.log
+cat `find -L . -name ls$HDIR | sort` > $logdir/error.log
+cat `find -L . -name ls$HDIR.prog | sort` >> $logdir/error.log
+set nrerr=`grep "error:" $logdir/error.log | wc -l`
+set nrwar=`grep "warning:" $logdir/error.log | wc -l`
+echo
+if ( $nrerr != 0 ) then
+    echo "Errors found: $nrerr"
+else if ( $nrwar != 0 ) then
+    echo "Warnings found"
+endif
 
 programmer_doc:
 
@@ -126,5 +125,3 @@ if ( $dodoc == yes ) then
     ./mk_paths_relative
     GenModDeps --html $WORK/Pmake/ModDeps.od index.html
 endif
-
-if ( $hostnm == dgb3 ) exit 0
