@@ -8,9 +8,9 @@ Porosity: Porosity`Phi`Por
 Permeability: Permeability`Perm
 Gamma Ray: Gamma Ray`GR
 Temperature: Temperature`Temp
-Pressure: Pressure`p`Pres
+Pressure: Pressure`Pres`P
 Density: Density`Rho`RhoB
-P-wave velocity: Velocity`PVel`Vel`P-Vel
+P-wave velocity: Velocity`PVel`Vel`P-Vel`V
 S-wave velocity: Velocity`SVel`S-Vel
 Sonic: Sonic travel time`DT
 Acoustic Impedance: Acoustic Impedance`AI
