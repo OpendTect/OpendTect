@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.55 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.56 2010-09-29 08:25:21 cvssatyaki Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -72,16 +72,24 @@ bool SeisTrcWriter::close()
     if ( putter )
 	{ ret = putter->close(); if ( !ret ) errmsg_ = putter->errMsg(); }
 
-    LineKey linekey = lkp ? lkp->lineKey() : seldata->lineKey();
-    const bool hasgeom =  PosInfo::POS2DAdmin().hasLineSet( lset->name() ) &&
-			    PosInfo::POS2DAdmin().hasLine( linekey.lineName(),
-				    			   lset->name() );
-    if ( is2D() && !hasgeom )
+    if ( is2D() )
     {
-	PosInfo::POS2DAdmin().setCurLineSet( lset->name() );
-	PosInfo::Line2DData l2dd( linekey.lineName() );
-	lset->getGeometry( lset->indexOf(linekey), l2dd );
-	PosInfo::POS2DAdmin().setGeometry( l2dd );
+	LineKey linekey = lkp ? lkp->lineKey() : seldata ? seldata->lineKey()
+	    						 : "";
+	const int lineidx = lset ? lset->indexOf(linekey) : -1;
+	if ( lineidx>=0 )
+	{
+	    const bool hasgeom = 
+		PosInfo::POS2DAdmin().hasLineSet( lset->name() ) &&
+		PosInfo::POS2DAdmin().hasLine(linekey.lineName(),lset->name());
+	    if ( !hasgeom )
+	    {
+		PosInfo::POS2DAdmin().setCurLineSet( lset->name() );
+		PosInfo::Line2DData l2dd( linekey.lineName() );
+		if ( lset->getGeometry( lineidx, l2dd ) )
+		    PosInfo::POS2DAdmin().setGeometry( l2dd );
+	    }
+	}
     }
 
     delete putter; putter = 0;
