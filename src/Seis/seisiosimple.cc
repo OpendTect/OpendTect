@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.22 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.23 2010-09-29 10:15:28 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -318,7 +318,8 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     {
 	if ( data_.isasc_ )
 	{
-	    *sd_.istrm >> nr;
+	    *sd_.istrm >> coord.x;
+	    nr = mNINT(coord.x);
 	    if ( data_.haverefnr_ )
 		*sd_.istrm >> refnr;
 	}
@@ -364,7 +365,10 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	else
 	{
 	    if ( data_.isasc_ )
-		*sd_.istrm >> bid.inl >> bid.crl;
+	    {
+		*sd_.istrm >> coord.x >> coord.y;
+		bid.inl = mNINT(coord.x); bid.crl = mNINT(coord.y);
+	    }
 	    else
 	    {
 		mStrmBinRead( bid.inl, int );
