@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.2 2010-09-27 10:00:11 cvsbert Exp $
+ RCS:		$Id: propertyref.h,v 1.3 2010-09-29 11:14:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -106,7 +106,7 @@ public:
 
 };
 
-const PropertyRefSet& PROPS();
+mGlobal const PropertyRefSet& PROPS();
 inline PropertyRefSet& ePROPS() { return const_cast<PropertyRefSet&>(PROPS()); }
 
 
