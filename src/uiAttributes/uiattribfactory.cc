@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribfactory.cc,v 1.11 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribfactory.cc,v 1.12 2010-09-29 11:46:09 cvshelene Exp $";
 
 #include "uiattribfactory.h"
 #include "uiattrdesced.h"
@@ -33,7 +33,7 @@ uiAttributeFactory& uiAF()
 
 int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
 			     const char* grpnm, uiAttrDescEdCreateFunc fn,
-       			     int domtyp	)
+       			     int domtyp, int dimtyp )
 {
     Entry* entry = getEntry( dispnm, true );
     if ( !entry )
@@ -46,10 +46,11 @@ int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
 	entry->grpnm_ = grpnm;
 	entry->crfn_ = fn;
 	entry->domtyp_ = domtyp;
+	entry->dimtyp_ = dimtyp;
     }
     else
     {
-	entry = new Entry( dispnm, attrnm, grpnm, fn, domtyp );
+	entry = new Entry( dispnm, attrnm, grpnm, fn, domtyp, dimtyp );
 	entries_ += entry;
     }
 
@@ -68,6 +69,7 @@ uiAttrDescEd* uiAttributeFactory::create( uiParent* p, const char* nm,
     {
 	ed->setDisplayName( entry->dispnm_ );
 	ed->setDomainType( (uiAttrDescEd::DomainType)entry->domtyp_ );
+	ed->setDimensionType( (uiAttrDescEd::DimensionType)entry->dimtyp_ );
     }
     return ed;
 }

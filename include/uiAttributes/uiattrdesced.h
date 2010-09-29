@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.31 2010-04-20 22:03:25 cvskris Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.32 2010-09-29 11:46:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,10 @@ public:
     DomainType		domainType() const		{ return domtyp_; }
     void		setDomainType( DomainType t )	{ domtyp_ = t; }
 
+    enum DimensionType	{ AnyDim, Only3D, Only2D };
+    DimensionType	dimensionType() const		{ return dimtyp_; }
+    void		setDimensionType( DimensionType t ) { dimtyp_ = t; }
+
     bool		is2D() const			{ return is2d_; }
 
     static const char*	getInputAttribName(uiAttrSel*,const Desc&);
@@ -149,6 +153,7 @@ protected:
     BufferString        helpid_;
     BufferString	attrnm_;
     DomainType		domtyp_;
+    DimensionType	dimtyp_;
     BufferString	errmsg_;
     DescSet*		ads_;
     bool		is2d_;
@@ -182,7 +187,7 @@ public: \
     static int factoryID() { return factoryid_; }
 
 
-#define mInitAttribUIPars( clss, attr, displaynm, grp, domtyp ) \
+#define mInitAttribUIPars( clss, attr, displaynm, grp, domtyp, dimtyp ) \
 \
 int clss::factoryid_ = -1; \
 \
@@ -190,7 +195,7 @@ void clss::initClass() \
 { \
     if ( factoryid_ < 0 ) \
 	factoryid_ = uiAF().add( displaynm, attr::attribName(), grp, \
-		     clss::createInstance, (int)domtyp ); \
+		     clss::createInstance, (int)domtyp, (int)dimtyp ); \
 } \
 \
 uiAttrDescEd* clss::createInstance( uiParent* p, bool is2d ) \
@@ -198,6 +203,7 @@ uiAttrDescEd* clss::createInstance( uiParent* p, bool is2d ) \
     uiAttrDescEd* de = new clss( p, is2d ); \
     de->setDisplayName( displaynm ); \
     de->setDomainType( domtyp ); \
+    de->setDimensionType( dimtyp ); \
     return de; \
 } \
 \
@@ -207,6 +213,7 @@ const char* clss::attribName() const \
 }
 
 #define mInitAttribUI( clss, attr, displaynm, grp ) \
-    mInitAttribUIPars(clss,attr,displaynm,grp,uiAttrDescEd::Both)
+    mInitAttribUIPars(clss,attr,displaynm,grp,uiAttrDescEd::Both, \
+	    	      uiAttrDescEd::AnyDim)
 
 #endif

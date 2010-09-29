@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.100 2010-09-29 02:23:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.101 2010-09-29 11:46:09 cvshelene Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -207,9 +207,15 @@ void uiAttribDescSetEd::createGroups()
 		|| (dt == uiAttrDescEd::Time && !SI().zIsTime()) )
 	    continue;
 
+	const bool is2d = inoutadsman_ ? inoutadsman_->is2D() : false;
+	uiAttrDescEd::DimensionType dimtyp =
+	    	(uiAttrDescEd::DimensionType)uiAF().dimensionType( idx );
+	if ( (dimtyp == uiAttrDescEd::Only3D && is2d)
+		|| (dimtyp == uiAttrDescEd::Only2D && !is2d) )
+	    continue;
+
 	const char* attrnm = uiAF().getDisplayName(idx);
 	attrtypefld_->add( uiAF().getGroupName(idx), attrnm );
-	const bool is2d = inoutadsman_ ? inoutadsman_->is2D() : false;
 	uiAttrDescEd* de = uiAF().create( degrp, attrnm, is2d, true );
 	desceds_ += de;
 	de->attach( alignedBelow, attrtypefld_ );
