@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.18 2010-09-06 04:58:59 cvsraman Exp $";
+static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.19 2010-09-29 02:22:50 cvsnanne Exp $";
 
 #include "uihorizonrelations.h"
 
@@ -99,7 +99,7 @@ class HorizonModifyDlg : public uiDialog
 public:
 HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 		  bool is2d, int nrcross )
-    : uiDialog(p,Setup("Horizon relations","Solve crossings","104.2.3"))
+    : uiDialog(p,Setup("Horizon relations (Solve crossings)","","104.2.3"))
     , mid1_(mid1)
     , mid2_(mid2)
     , is2d_(is2d)
@@ -109,12 +109,12 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     hornms.add( EM::EMM().objectName(mid1) );
     hornms.add( EM::EMM().objectName(mid2) );
 
-    BufferString msg = "'"; msg+= hornms.get(0); msg += "' crosses '";
-    msg += hornms.get(1); msg += "' at "; msg += nrcross; msg += " positions.";
+    BufferString msg( "'", hornms.get(0), "' crosses '" );
+    msg.add( hornms.get(1) ).add( "' at " ).add( nrcross ).add( " positions." );
     uiLabel* lbl = new uiLabel( this, msg );
 
     horizonfld_ = new uiGenInput( this, "Modify horizon",
-	    			 StringListInpSpec(hornms) );
+				  StringListInpSpec(hornms) );
     horizonfld_->valuechanged.notify( mCB(this,HorizonModifyDlg,horSel) );
     horizonfld_->attach( leftAlignedBelow, lbl );
 
@@ -172,8 +172,8 @@ bool acceptOK( CallBacker* )
     modifier.setStaticHorizon( topisstatic );
     modifier.doWork();
 
-    const EM::ObjectID objid = EM::EMM().getObjectID( 
-					    topisstatic ? mid2_ : mid1_ );
+    const EM::ObjectID objid =
+		EM::EMM().getObjectID( topisstatic ? mid2_ : mid1_ );
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     PtrMan<Executor> exec = 0;
     const bool saveas = savefld_->getBoolValue();
@@ -191,6 +191,7 @@ bool acceptOK( CallBacker* )
     }
 
     if ( !exec ) mErrRet("Cannot save horizon")
+
     uiTaskRunner taskrunner( this );
     return taskrunner.execute( *exec );
 }
