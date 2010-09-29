@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.cc,v 1.5 2010-09-15 05:56:03 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor2d.cc,v 1.6 2010-09-29 03:48:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
 #include "seis2dline.h"
+#include "surv2dgeom.h"
 #include "undo.h"
 
 #include "uimsg.h"
@@ -542,9 +543,18 @@ bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
     if ( !ioobj ) return false;
 
     const Seis2DLineSet lset( ioobj->fullUserExpr(true) );
+    PosInfo::POS2DAdmin().setCurLineSet( lset.name() );
     PosInfo::LineSet2DData linesetgeom;
-    if ( !lset.getGeometry(linesetgeom) )
-	return false;
+    for ( int idx=0; idx<lset.nrLines(); idx++ )
+    {
+	PosInfo::Line2DData& linegeom = linesetgeom.addLine(lset.lineName(idx));
+	PosInfo::POS2DAdmin().getGeometry( linegeom );
+	if ( linegeom.positions().isEmpty() )
+	{
+	    linesetgeom.removeLine( lset.lineName(idx) );
+	    continue;
+	}
+    }
 
     PosInfo::Line2DPos pos;
     linesetgeom.getLineData( linenm_ )->getPos( crd, pos, mDefEps );

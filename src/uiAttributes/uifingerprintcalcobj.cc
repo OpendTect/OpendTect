@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.15 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.16 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.15 2010-07-12 14:24
 #include "seis2dline.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "uitaskrunner.h"
 #include "ptrman.h"
 #include "statrand.h"
@@ -53,11 +54,13 @@ static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
     if ( lset->nrLines()==0 )
 	mErrRet( "Input lineset is empty" );
 
+    PosInfo::POS2DAdmin().setCurLineSet( lset->name() );
     ObjectSet<PosInfo::Line2DData> geoms;
     for ( int lineidx=0; lineidx<lset->nrLines(); lineidx++ )
     {
-	PosInfo::Line2DData* geometry = new PosInfo::Line2DData;
-	if ( !lset->getGeometry(lineidx,*geometry) )
+	PosInfo::Line2DData* geometry =
+	    new PosInfo::Line2DData( lset->lineName(lineidx) );
+	if ( !PosInfo::POS2DAdmin().getGeometry(*geometry) )
 	{
 	    delete geometry;
 	    continue;

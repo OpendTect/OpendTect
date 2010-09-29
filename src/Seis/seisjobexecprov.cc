@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.41 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.42 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.41 2010-08-11 14:50:45 c
 #include "strmprov.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "cubesampling.h"
 #include "separstr.h"
 #include <iostream>
@@ -111,6 +112,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 
 	if ( isrestart )
 	{
+	    PosInfo::POS2DAdmin().setCurLineSet( inpls->name() );
 	    for ( int idx=0; idx<nms.size(); idx++ )
 	    {
 		LineKey lk( nms.get(idx) );
@@ -118,8 +120,9 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 		const int lidx = inpls->indexOf( lk );
 		if ( lidx >= 0 )
 		{
-		    PosInfo::Line2DData geom;
-		    if ( inpls->getGeometry(lidx,geom) && !geom.isEmpty() )
+		    PosInfo::Line2DData geom( lk.lineName() );
+		    if ( PosInfo::POS2DAdmin().getGeometry(geom)
+			 && !geom.isEmpty() )
 		    {
 			nms.remove( idx );
 			idx--;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.49 2010-07-26 09:53:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.50 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.49 2010-07-26 09:53:19
 #include "posvecdataset.h"
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
+#include "surv2dgeom.h"
 
 #include "mousecursor.h"
 #include "uidatapointset.h"
@@ -168,13 +169,14 @@ void uiAttribCrossPlot::useLineName( bool emiterr )
     const int idxof = ls.indexOf( lk );
     if ( idxof < 0 )
 	mErrRet("Cannot find selected line in line set")
-    l2ddata_ = new PosInfo::Line2DData;
-    if ( !ls.getGeometry( idxof, *l2ddata_ ) )
+
+    PosInfo::POS2DAdmin().setCurLineSet( ls.name() );
+    l2ddata_ = new PosInfo::Line2DData( lk.lineName() );
+    if ( !PosInfo::POS2DAdmin().getGeometry( *l2ddata_ ) )
     {
 	delete l2ddata_; l2ddata_ = 0;
 	mErrRet("Cannot get geometry of selected line")
     }
-    l2ddata_->setLineName( lk );
 
     //TODO: use l2ddata_ for something
 }

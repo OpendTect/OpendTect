@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.66 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.67 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 -*/
 
@@ -35,6 +35,7 @@ static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.66 2010-07-12 14:24:
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "transl.h"
 
 #include "uiattribfactory.h"
@@ -584,14 +585,16 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 
     BufferString fnm = ioobj->fullUserExpr(true);
     Seis2DLineSet lineset( fnm );
+    PosInfo::POS2DAdmin().setCurLineSet( lineset.name() );
     for ( int idx=0 ;idx<lineset.nrLines();idx++ )
     {
 	const int lineindex = lineset.indexOfFirstOccurrence(
 							linefld_->lineName() );
 	if ( lineindex > -1 )
 	{
-	    PosInfo::Line2DData* geometry = new PosInfo::Line2DData;
-	    if ( !lineset.getGeometry(lineindex,*geometry) )
+	    PosInfo::Line2DData* geometry =
+		new PosInfo::Line2DData( lineset.lineName(idx) );
+	    if ( !PosInfo::POS2DAdmin().getGeometry(*geometry) )
 		{ delete geometry; return undef; }
 
 	    const int trcnr = refposfld_->getBinID().crl;

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.94 2010-09-06 04:54:24 cvsraman Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.95 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "emmanager.h"
 
@@ -53,7 +53,6 @@ mImplFactory1Param( EMObject, EMManager&, EMOF );
 EMManager::EMManager()
     : undo_( *new Undo() )
     , addRemove( this )
-    , syncGeomReq( this )
 {}
 
 
@@ -400,12 +399,6 @@ void EMManager::get2DHorizons( const MultiID& linesetid, const char* linenm,
     {
 //	dgbSurfaceReader reader( list[idx] );
     }
-}
-
-
-void EMManager::syncGeometry( const ObjectID& id )
-{
-    syncGeomReq.trigger( id );
 }
 
 

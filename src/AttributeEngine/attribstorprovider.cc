@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.96 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.97 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "attribstorprovider.h"
 
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.96 2010-07-12 14:24:3
 #include "seistrctr.h"
 #include "simpnumer.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "threadwork.h"
 #include "task.h"
 #include <math.h>
@@ -781,9 +782,21 @@ float StorageProvider::getMaxDistBetwTrcs() const
     if ( !reader.is2D() ) return mUdf(float);
 
     const Seis2DLineSet* lset = reader.lineSet();
-    PosInfo::LineSet2DData ls2ddata;
-    if ( !lset || !lset->getGeometry(ls2ddata) )
+    if ( !lset )
 	return mUdf(float);
+
+    PosInfo::POS2DAdmin().setCurLineSet( lset->name() );
+    PosInfo::LineSet2DData ls2ddata;
+    for ( int idx=0; idx<lset->nrLines(); idx++ )
+    {
+	PosInfo::Line2DData& linegeom = ls2ddata.addLine(lset->lineName(idx));
+	PosInfo::POS2DAdmin().getGeometry( linegeom );
+	if ( linegeom.positions().isEmpty() )
+	{
+	    ls2ddata.removeLine( lset->lineName(idx) );
+	    return mUdf(float);
+	}
+    }
 
     double maxdistsq = 0;
     for ( int lidx=0; lidx<ls2ddata.nrLines(); lidx++ )

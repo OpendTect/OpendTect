@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.20 2010-08-12 13:37:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.21 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "uiseis2dgeom.h"
 #include "bufstringset.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.20 2010-08-12 13:37:48 cvsb
 #include "ctxtioobj.h"
 #include "executor.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "strmprov.h"
 #include "oddirs.h"
 #include "ioobj.h"
@@ -115,10 +116,11 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
     lk.setAttrName( seisfld->attrNm() );
     Seis2DLineSet ls( ctio.ioobj->fullUserExpr(true) );
 
-    Executor* dmper = ls.geometryDumper( *sd.ostrm, incnr, zval, lk );
-    uiTaskRunner dlg( this );
-    bool rv = dlg.execute( *dmper );
+    PosInfo::POS2DAdmin().setCurLineSet( ls.name() );
+    PosInfo::Line2DData l2dd( lk.lineName() );
+    PosInfo::POS2DAdmin().getGeometry( l2dd );
+    l2dd.write( *sd.ostrm, true );
 
-    delete dmper; sd.close();
-    return rv;
+    sd.close();
+    return true;
 }

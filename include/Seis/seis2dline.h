@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.49 2010-09-10 10:32:47 cvssatyaki Exp $
+ RCS:		$Id: seis2dline.h,v 1.50 2010-09-29 03:48:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,8 +24,10 @@ class SeisTrcBuf;
 class CubeSampling;
 class BinIDValueSet;
 class BufferStringSet;
+class SeisTrcWriter;
 class Seis2DLinePutter;
 class Seis2DLineIOProvider;
+class OD_2DLineGeometryFrom2DLinesTransf;
 template <class T> class StepInterval;
 namespace PosInfo	{ class LineSet2DData; class Line2DData; }
 namespace Seis		{ class SelData; }
@@ -35,6 +37,9 @@ namespace Seis		{ class SelData; }
 
 mClass Seis2DLineSet : public NamedObject
 {
+    friend class SeisTrcWriter;
+    friend class OD_2DLineGeometryFrom2DLinesTransf;
+
 public:
 			Seis2DLineSet( const char* fnm )
 			    	: NamedObject("")	{ init( fnm ); }
@@ -66,12 +71,7 @@ public:
     void		getLineNamesWithAttrib(BufferStringSet&,
 	    					const char* attrnm) const;
 
-    bool		getGeometry(PosInfo::LineSet2DData&) const;
-    bool		getGeometry(int,PosInfo::Line2DData&) const;
-    Executor*		geometryDumper(std::ostream&,bool inc_nr,
-	    				float z_val=mUdf(float),
-	    				const char* linekey=0) const;
-
+    
     Executor*		lineFetcher(int,SeisTrcBuf&,int nrtrcsperstep=10,
 	    			    const Seis::SelData* sd=0) const;
     				//!< May return null
@@ -130,6 +130,13 @@ public:
     void		preparePreSet(IOPar& iop,const char* reallskey) const;
     static void		installPreSet(const IOPar&,const char* reallskey,
 				      const char* worklskey);
+
+private:
+    bool		getGeometry(PosInfo::LineSet2DData&) const;
+    bool		getGeometry(int,PosInfo::Line2DData&) const;
+    Executor*		geometryDumper(std::ostream&,bool inc_nr,
+	    				float z_val=mUdf(float),
+	    				const char* linekey=0) const;
 
 };
 

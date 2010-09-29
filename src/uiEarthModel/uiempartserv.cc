@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.209 2010-08-30 06:44:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.210 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -102,13 +102,11 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , tempobjAdded(this)
     , tempobjAbtToDel(this)			
 {
-    em_.syncGeomReq.notify( mCB(this,uiEMPartServer,syncGeometry) );
 }
 
 
 uiEMPartServer::~uiEMPartServer()
 {
-    em_.syncGeomReq.remove( mCB(this,uiEMPartServer,syncGeometry) );
     em_.empty();
 }
 
@@ -315,14 +313,6 @@ const EM::ObjectID uiEMPartServer::saveUnsavedEMObject()
     }
 
     return -1;
-}
-
-
-void uiEMPartServer::syncGeometry( CallBacker* cb )
-{
-    mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
-    selemid_ = emid;
-    sendEvent( evSyncGeometry() );
 }
 
 

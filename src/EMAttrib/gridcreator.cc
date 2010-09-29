@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: gridcreator.cc,v 1.2 2010-08-30 04:17:15 cvsraman Exp $";
+static const char* rcsID = "$Id: gridcreator.cc,v 1.3 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 
 #include "gridcreator.h"
@@ -357,7 +357,6 @@ bool Horizon2DGridCreator::finish( TaskRunner* tr )
 {
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
-	horizons_[idx]->syncGeometry();
 	PtrMan<Executor> saver = horizons_[idx]->saver();
 	if ( tr )
 	    tr->execute( *saver );

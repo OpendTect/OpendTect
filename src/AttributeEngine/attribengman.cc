@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.103 2010-07-14 16:54:12 cvskris Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.104 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "attribengman.h"
 
@@ -40,6 +40,7 @@ static const char* rcsID = "$Id: attribengman.cc,v 1.103 2010-07-14 16:54:12 cvs
 #include "seistrc.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 
 
 
@@ -753,8 +754,18 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     if ( !ioobj ) return;
     const Seis2DLineSet lset(ioobj->fullUserExpr(true));
 
+    PosInfo::POS2DAdmin().setCurLineSet( lset.name() );
     PosInfo::LineSet2DData linesetgeom;
-    if ( !lset.getGeometry( linesetgeom ) ) return;
+    for ( int idx=0; idx<lset.nrLines(); idx++ )
+    {
+	PosInfo::Line2DData& linegeom = linesetgeom.addLine(lset.lineName(idx));
+	PosInfo::POS2DAdmin().getGeometry( linegeom );
+	if ( linegeom.positions().isEmpty() )
+	{
+	    linesetgeom.removeLine( lset.lineName(idx) );
+	    continue;
+	}
+    }
 
     ObjectSet<BinIDValueSet> newbivsets;
     for ( int idx=0; idx<bivsets.size(); idx++ )

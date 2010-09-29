@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.132 2010-08-27 18:40:42 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.133 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "uiodmain.h"
 
@@ -203,7 +203,7 @@ uiODMain::uiODMain( uicMain& a )
 	::exit( 0 );
 
     // TODO uncomment when transfer to S2DPOS() is complete
-    // OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
+    OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
 
     applmgr_ = new uiODApplMgr( *this );
     if ( buildUI() )

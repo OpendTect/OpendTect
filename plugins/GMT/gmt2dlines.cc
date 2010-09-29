@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmt2dlines.cc,v 1.15 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: gmt2dlines.cc,v 1.16 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "gmt2dlines.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: gmt2dlines.cc,v 1.15 2010-07-12 14:24:33 cvsber
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 
 #include <math.h>
 
@@ -94,12 +95,14 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     if ( !sd.usable() ) mErrStrmRet("Failed")
 
     Seis2DLineSet lset( *ioobj );
+    PosInfo::POS2DAdmin().setCurLineSet( lset.name() );
     for ( int idx=0; idx<linenms.size(); idx++ )
     {
-	PosInfo::Line2DData geom;
 	LineKey lk( linenms.get(idx), attribnm );
+	PosInfo::Line2DData geom( lk.lineName() );
 	const int lidx = lset.indexOf( lk );
-	if ( lidx<0  || !lset.getGeometry(lidx,geom) || geom.isEmpty() )
+	if ( lidx<0  || !PosInfo::POS2DAdmin().getGeometry(geom)
+		     || geom.isEmpty() )
 	    continue;
 	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 
@@ -132,9 +135,10 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	    
     for ( int idx=0; idx<linenms.size(); idx++ )
     {
-	PosInfo::Line2DData geom;
+	PosInfo::Line2DData geom( linenms[idx]->buf() );
 	const int lidx = lset.indexOf( linenms.get(idx) );
-	if ( lidx<0  || !lset.getGeometry(lidx,geom) || geom.isEmpty() )
+	if ( lidx<0  || !PosInfo::POS2DAdmin().getGeometry(geom)
+		     || geom.isEmpty() )
 	    continue;
 	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.10 2010-09-20 09:01:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.11 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.10 2010-09-20 09:01:00 c
 #include "seis2dlinemerge.h"
 #include "seiscube2linedata.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "zdomain.h"
 #include "linesetposinfo.h"
 
@@ -182,8 +183,9 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
     const int lineidx = lineset_->indexOf( linekey );
     if ( lineidx < 0 ) { pErrMsg("Huh"); return; }
 
-    PosInfo::Line2DData l2dd;
-    if ( !lineset_->getGeometry(lineidx,l2dd) || l2dd.isEmpty() )
+    PosInfo::POS2DAdmin().setCurLineSet( lineset_->name() );
+    PosInfo::Line2DData l2dd( linekey.lineName() );
+    if ( !PosInfo::POS2DAdmin().getGeometry(l2dd) || l2dd.isEmpty() )
 	return;
 
 #define mAddZRangeTxt(memb) txt += zistm ? mNINT(1000*memb) : memb

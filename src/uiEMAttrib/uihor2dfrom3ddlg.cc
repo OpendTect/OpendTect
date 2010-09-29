@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.15 2010-04-20 04:31:16 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.16 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -90,10 +90,12 @@ bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
     uiTaskRunner writedlg( this );
     writedlg.execute( *saver );
 
+    EM::EMObjectCallbackData cbdata;
+    cbdata.event = EM::EMObjectCallbackData::PositionChange;
     saver = 0;
     if ( doDisplay() )
     {
-	horizon2d->syncGeometry();
+	horizon2d->change.trigger( cbdata );
 	horizon2d->unRefNoDelete();
     }
     else

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.218 2010-09-01 11:50:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.219 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -355,6 +355,8 @@ void uiODMenuMgr::fillManMenu()
 		       "man_picks.png" );
     mInsertPixmapItem( manmnu_, "Probability &Density Functions ...",
 		 mManPDFMnuItm, "man_prdfs.png" );
+    mInsertPixmapItem( manmnu_, "2D Geometry ..",
+		 mManGeomItm, "man2dgeom.png" );
     create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm,
 		   "man_seis.png" );
 
@@ -966,6 +968,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManSessMnuItm:		mDoOp(Man,Sess,0); break;
     case mManStratMnuItm:		mDoOp(Man,Strat,0); break;
     case mManPDFMnuItm:			mDoOp(Man,PDF,0); break;
+    case mManGeomItm:			mDoOp(Man,Geom,0); break;
 
     case mPreLoadSeisMnuItm:	applMgr().manPreLoad(uiODApplMgr::Seis); break;
     case mPreLoadHorMnuItm:	applMgr().manPreLoad(uiODApplMgr::Hor); break;

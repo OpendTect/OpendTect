@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.50 2010-09-06 04:53:15 cvsraman Exp $
+ RCS:		$Id: emmanager.h,v 1.51 2010-09-29 03:48:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -76,7 +76,6 @@ public:
 			*/
 
     Notifier<EMManager>				addRemove;
-    CNotifier<EMManager,const ObjectID&>	syncGeomReq;
 
     void		sendRemovalSignal(const ObjectID&);
     BufferString	objectName(const MultiID&) const;
@@ -107,7 +106,6 @@ public:
 			     (MultiID) and EarthModel id (ObjectID) may change
 			     due to "Save as" operations and similar. */
 
-    void		syncGeometry(const ObjectID&);
     void		burstAlertToAll(bool yn);
 
     bool		sortHorizonsList(const TypeSet<MultiID>&,

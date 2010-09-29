@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.100 2010-08-20 11:23:26 cvsnageswara Exp $
+ RCS:           $Id: uiempartserv.h,v 1.101 2010-09-29 03:48:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,7 +157,6 @@ protected:
 	    			       const char* type);
     bool		loadAuxData(const EM::ObjectID&,const TypeSet<int>&,
 				    bool removeold=true);
-    void		syncGeometry(CallBacker*);
     bool		changeAuxData(const EM::ObjectID&,const char* nm,
 	    			      bool interp,DataPointSet& res);
 

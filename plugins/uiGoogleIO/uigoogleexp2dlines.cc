@@ -22,6 +22,7 @@ static const char* rcsID = "$Id";
 #include "survinfo.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
+#include "surv2dgeom.h"
 #include "bendpointfinder.h"
 #include "latlong.h"
 #include <iostream>
@@ -128,8 +129,9 @@ void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm,
     const Seis2DLineSet& lset( *s2dfm_->lineset_ );
     LineKey lk( lnm, lset.attribute(iattr) );
     const int iln = lset.indexOf( lk );
-    PosInfo::Line2DData l2dd;
-    if ( iln < 0 || !lset.getGeometry(iln,l2dd) )
+    PosInfo::POS2DAdmin().setCurLineSet( lset.name() );
+    PosInfo::Line2DData l2dd( lk.lineName() );
+    if ( iln < 0 || !PosInfo::POS2DAdmin().getGeometry(l2dd) )
 	return;
     const int nrposns = l2dd.positions().size();
     if ( nrposns < 2 )

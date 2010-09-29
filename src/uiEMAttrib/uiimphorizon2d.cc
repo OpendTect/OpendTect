@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.29 2010-09-27 07:28:09 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.30 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -122,22 +122,23 @@ int nextStep()
     }
 
     Coord coord( 0, 0 );
-    for ( int vdx=2; vdx<nrvals; vdx++ )
+    for ( int validx=0; validx<nrvals; validx++ )
     {
-	const int hdx = vdx-2;
-	if ( hdx >= hors_.size() || !hors_[hdx] )
+	if ( validx >= hors_.size() || !hors_[validx] )
 	    break;
 
-	const float val = vals[vdx];
-	if ( mIsUdf(val) || lineidset_[hdx] < 0 )
+	const float val = vals[validx];
+	if ( mIsUdf(val) || lineidset_[validx] < 0 )
 	    continue;
 
-	EM::SubID subid = RowCol( lineidset_[hdx], curtrcnr_ ).toInt64();
-	Coord3 posval( coord, val );
-	hors_[hdx]->setPos( hors_[hdx]->sectionID(0), subid, posval, false );
-	if ( dointerpol && !mIsUdf(prevvals[vdx]) )
-	    interpolateAndSetVals( hdx, lineidset_[hdx], curtrcnr_, prevtrcnr_,
-		    		   val, prevvals[vdx] );
+	EM::SectionID sid = hors_[validx]->sectionID(0);
+	EM::SubID subid = RowCol( lineidset_[validx], curtrcnr_ ).toInt64();
+	Coord3 posval = hors_[validx]->getPos( sid, subid );
+	posval.z = val;
+	hors_[validx]->setPos( sid, subid, posval, false );
+	if ( dointerpol && !mIsUdf(prevvals[validx]) )
+	    interpolateAndSetVals( validx, lineidset_[validx], curtrcnr_,
+		    		   prevtrcnr_, val, prevvals[validx] );
     }
 
     prevtrcnr_ = curtrcnr_;

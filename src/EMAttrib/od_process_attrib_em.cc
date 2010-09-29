@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.70 2010-08-17 06:42:47 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.71 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -61,30 +61,6 @@ using namespace EM;
     std::cerr << s << std::endl; \
     return false; \
 }
-
-
-class CallBackMgr : public CallBacker
-{
-public:
-	
-    bool		sync2DGeometryCB(CallBacker*);
-
-			CallBackMgr(std::ostream& strm)
-			    : CallBacker()
-			    , strm_( strm )
-			{ 
-			    cb_ = mCB(this,CallBackMgr,sync2DGeometryCB);
-			    EM::EMM().syncGeomReq.notify( cb_ );
-			}
-			~CallBackMgr()
-			{
-			    EM::EMM().syncGeomReq.remove( cb_ );
-			}
-			
-protected:
-    CallBack		cb_;
-    std::ostream&	strm_;
-};
 
 
 static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
@@ -492,7 +468,6 @@ bool BatchProgram::go( std::ostream& strm )
 	    zbounds.scale( 1/SI().zFactor() );
 	}
 
-	CallBackMgr cbmgr(strm);
 	const bool is2d = attribset.is2D();
 	BinIDValueSet bivs(2,false);
 	TypeSet<DataPointSet::DataRow> startset;
@@ -533,40 +508,3 @@ bool BatchProgram::go( std::ostream& strm )
 
     return true;
 }
-
-
-bool CallBackMgr::sync2DGeometryCB( CallBacker* cb )
-{
-    mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
-    mDynamicCastGet( EM::Horizon2D*, h2d, EM::EMM().getObject( emid ) );
-    for ( int lidx=0; h2d && lidx<h2d->geometry().nrLines(); lidx++ )
-    {
-	const int lineid = h2d->geometry().lineID( lidx );
-	if ( h2d->geometry().syncBlocked(lineid) )
-	    continue;
-	const MultiID& lsetid = h2d->geometry().lineSet( lineid );
-	const char* linenm = h2d->geometry().lineName( lineid );
-	PosInfo::Line2DData ldat;
-	PtrMan<IOObj> ioobj = IOM().get( lsetid );
-	if ( !ioobj ) return false;
-	BufferString fnm = ioobj->fullUserExpr(true);
-	Seis2DLineSet lineset( fnm );
-	int lineidx = lineset.indexOf( linenm );
-	if ( lineidx < 0 )
-	{
-	    BufferStringSet attribs;
-	    SeisIOObjInfo sobjinfo( lsetid );
-	    sobjinfo.getAttribNamesForLine( linenm, attribs );
-	    if ( attribs.isEmpty() ) return false;
-	    lineidx = lineset.indexOf( LineKey(linenm,attribs.get(0)) );
-	    if ( lineidx < 0 ) return false;
-	}
-
-	lineset.getGeometry( lineidx, ldat );
-	h2d->geometry().syncLine( lsetid, linenm, ldat );
-    }
-
-    return true;
-}
-
-

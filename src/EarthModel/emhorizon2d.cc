@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.37 2010-09-27 07:28:09 cvsnageswara Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.38 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "emhorizon2d.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: emhorizon2d.cc,v 1.37 2010-09-27 07:28:09 cvsna
 #include "ioman.h"
 #include "selector.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "zaxistransform.h"
@@ -101,12 +102,15 @@ int Horizon2DGeometry::addLine( const MultiID& linesetid, const char* line,
 	const int lineid = section->addUdfRow( 0, 0, step );
 	if ( idx )
 	    continue;
+	PosInfo::POS2DAdmin().setCurLineSet( IOM().get(linesetid)->name() );
+	PosInfo::Line2DData linegeom( line );
+	PosInfo::POS2DAdmin().getGeometry( linegeom );
+	section->syncRow( lineid, linegeom );
 
 	lineids_ += lineid;
     }
 
     synclineid_ = lineids_[lineids_.size()-1];
-    ((Horizon2D&) surface_).syncGeometry();
     synclineid_ = -1;
 
     return lineids_[lineids_.size()-1];
@@ -126,6 +130,12 @@ int Horizon2DGeometry::addLine( const TypeSet<Coord>& path, int start, int step,
 	const int lineid = section->addRow( path, start, step );
 	if ( idx )
 	    continue;
+	
+	PosInfo::POS2DAdmin().setCurLineSet( IOM().get(linesetid)->name() );
+	PosInfo::Line2DData linegeom( line );
+	PosInfo::POS2DAdmin().getGeometry( linegeom );
+	section->syncRow( lineid, linegeom );
+
 
 	lineids_ += lineid;
     }
@@ -285,9 +295,18 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 
 	MultiID mid;
 	linesets_ += par.get(linesetkey.buf(),mid) ? mid : MultiID(-1);
+	
+	for ( int secidx=sections_.size()-1; secidx>=0; secidx-- )
+	{
+	    Geometry::Horizon2DLine* section =
+		reinterpret_cast<Geometry::Horizon2DLine*>( sections_[secidx] );
+	    PosInfo::POS2DAdmin().setCurLineSet( IOM().get(mid)->name() );
+	    PosInfo::Line2DData linegeom( linenames_[idx]->buf() );
+	    PosInfo::POS2DAdmin().getGeometry( linegeom );
+	    section->syncRow( lineids_[idx], linegeom );
+	}
     }
 
-    ((Horizon2D&) surface_).syncGeometry();
     return true;
 }
 
@@ -384,10 +403,6 @@ TypeSet<Coord3> Horizon2D::getPositions( int lineidx, int trcnr ) const
 	crds += getPos( sectionID(idx), RowCol(lineidx,trcnr).toInt64() );
     return crds;
 }
-
-
-void Horizon2D::syncGeometry()
-{ manager_.syncGeometry( id() ); }
 
 
 bool Horizon2D::setArray1D( const Array1D<float>& arr, SectionID sid, int lid,

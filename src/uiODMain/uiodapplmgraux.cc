@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.23 2010-08-27 03:11:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.24 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.23 2010-08-27 03:11:00 cv
 #include "timedepthconv.h"
 #include "veldesc.h"
 
+#include "ui2dgeomman.h"
 #include "uimsg.h"
 #include "uiconvpos.h"
 #include "uidatapointset.h"
@@ -244,6 +245,13 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	else if ( at == uiODApplMgr::Man )
 	{
 	    uiProbDenFuncMan dlg( par_ );
+	    dlg.go();
+	}
+    break;
+    mCase(Geom):
+	if ( at == uiODApplMgr::Man )
+	{
+	    ui2DGeomManageDlg dlg( par_ );
 	    dlg.go();
 	}
     break;

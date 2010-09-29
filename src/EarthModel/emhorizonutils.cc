@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonutils.cc,v 1.22 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emhorizonutils.cc,v 1.23 2010-09-29 03:48:48 cvssatyaki Exp $";
 
 #include "emhorizonutils.h"
 
@@ -164,8 +164,6 @@ void HorizonUtils::getExactCoords( std::ostream& strm, const MultiID& id,
     if ( !surface ) return;
 
     mDynamicCastGet(Horizon2D*,hor2d,surface);
-    if ( hor2d )
-	hor2d->syncGeometry();
 
     strm << "\nFetching surface positions ...\n" ;
     TextStreamProgressMeter pm( strm );
