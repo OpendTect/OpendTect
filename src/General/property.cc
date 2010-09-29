@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.19 2010-09-28 13:06:28 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.20 2010-09-29 11:14:33 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -92,12 +92,17 @@ PropertyRefSetMgr()
     IOM().surveyChanged.notify( mCB(this,PropertyRefSetMgr,doNull) );
 }
 
-void doNull( CallBacker* )
+~PropertyRefSetMgr()
 {
-    prs_ = 0;
+    delete prs_;
 }
 
-void getSet()
+void doNull( CallBacker* )
+{
+    delete prs_; prs_ = 0;
+}
+
+void createSet()
 {
     Repos::FileProvider rfp( filenamebase, true );
     while ( rfp.next() )
@@ -126,9 +131,9 @@ void getSet()
 
 const PropertyRefSet& PROPS()
 {
-    PropertyRefSetMgr rsm;
+    static PropertyRefSetMgr rsm;
     if ( !rsm.prs_ )
-	rsm.getSet();
+	rsm.createSet();
     return *rsm.prs_;
 }
 

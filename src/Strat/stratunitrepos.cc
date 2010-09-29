@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.57 2010-09-28 13:07:17 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.58 2010-09-29 11:14:33 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratreftree.h"
@@ -28,10 +28,10 @@ RefTreeMgr()
 
 void doNull( CallBacker* )
 {
-    rt_ = 0;
+    delete rt_; rt_ = 0;
 }
 
-void getTree()
+void createTree()
 {
     RepositoryAccess ra;
     rt_ = ra.readTree();
@@ -53,7 +53,7 @@ const Strat::RefTree& Strat::RT()
 {
     static Strat::RefTreeMgr mgr;
     if ( !mgr.rt_ )
-	mgr.getTree();
+	mgr.createTree();
 
     return *mgr.rt_;
 }

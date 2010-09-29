@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlevel.cc,v 1.5 2010-09-29 04:27:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: stratlevel.cc,v 1.6 2010-09-29 11:14:33 cvsbert Exp $";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -46,14 +46,16 @@ LevelSetMgr()
 }
 
 ~LevelSetMgr()
-{ delete ls_; }
+{
+    delete ls_;
+}
 
 void doNull( CallBacker* )
 {
     delete ls_; ls_ = 0;
 }
 
-void fillSet()
+void createSet()
 {
     Repos::FileProvider rfp( "StratLevels", true );
     while ( rfp.next() )
@@ -87,7 +89,7 @@ const Strat::LevelSet& Strat::LVLS()
 {
     static Strat::LevelSetMgr mgr;
     if ( !mgr.ls_ )
-	mgr.fillSet();
+	mgr.createSet();
 
     return *mgr.ls_;
 }
