@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.20 2010-09-28 06:02:09 cvsumesh Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.21 2010-09-29 07:04:37 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "emposid.h"
 
+class CubeSampling;
 class uiFlatViewAuxDataEditor;
 class uiFlatViewStdControl;
 class uiFlatViewWin;
@@ -80,6 +81,7 @@ protected:
     virtual void		createTree(uiMainWin*);
     virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();
+    void			adjustOthrDisp(bool wva,const CubeSampling&);
 
     void			winCloseCB(CallBacker*);
     void			posChg(CallBacker*);

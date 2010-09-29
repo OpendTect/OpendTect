@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.41 2010-09-28 06:02:31 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.42 2010-09-29 07:04:42 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -110,12 +110,6 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
-	if( dp3d )
-	{
-	    const CubeSampling& cs = dp3d->cube().cubeSampling();
-	    if ( slicepos_ ) slicepos_->setCubeSampling( cs );
-	}
-
 	DataPack::ID curpackid = viewwin()->viewer(ivwr).packID( wva );
 	viewwin()->viewer(ivwr).removePack( curpackid );
 	DPM(DataPackMgr::FlatID()).release( curpackid );
@@ -124,6 +118,13 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	    		viewwin()->viewer(ivwr).appearance().ddpars_;
 	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
 	viewwin()->viewer(ivwr).setPack( wva, packid, false, isnew );
+    }
+
+    if( dp3d )
+    {
+	const CubeSampling& cs = dp3d->cube().cubeSampling();
+	if ( slicepos_ ) slicepos_->setCubeSampling( cs );
+	adjustOthrDisp( wva, cs );
     }
     
     //updating stuff
@@ -140,6 +141,31 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     }
     
     viewwin()->start();
+}
+
+
+void uiODViewer2D::adjustOthrDisp( bool wva, const CubeSampling& cs )
+{
+    const DataPack* othrdp = viewwin()->viewer(0).pack( !wva );
+    if ( !othrdp ) return;
+
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,othrdp3d,othrdp);
+    if ( !othrdp3d )  return;
+
+    if ( othrdp3d->cube().cubeSampling() == cs ) return;
+
+    uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
+    attrserv->setTargetSelSpec( wva ? wvaselspec_ : vdselspec_ );
+    const DataPack::ID newid = attrserv->createOutput( cs, DataPack::cNoID() );
+    if ( newid == DataPack::cNoID() ) return;
+
+    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+    {
+	DataPack::ID othrcurpackid = viewwin()->viewer(ivwr).packID( !wva );
+	viewwin()->viewer(ivwr).removePack( othrcurpackid );
+	DPM(DataPackMgr::FlatID()).release( othrcurpackid );
+	viewwin()->viewer(ivwr).setPack( !wva, newid, false, false );
+    }
 }
 
 
@@ -323,8 +349,7 @@ void uiODViewer2D::posChg( CallBacker* )
 	DataPack::ID dpid = attrserv->createOutput( cs, DataPack::cNoID() );
 	setUpView( dpid, false );
     }
-
-    if ( wvaselspec_.id().asInt() > -1 )
+    else if ( wvaselspec_.id().asInt() > -1 )
     {
 	attrserv->setTargetSelSpec( wvaselspec_ );
 	DataPack::ID dpid = attrserv->createOutput( cs, DataPack::cNoID() );

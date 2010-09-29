@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.6 2010-09-28 06:02:31 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.7 2010-09-29 07:04:42 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,12 @@ ________________________________________________________________________
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
+#include "coltabmapper.h"
 #include "coltabsequence.h"
+#include "filepath.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include "pixmap.h"
 #include "visvw2dseismic.h"
 #include "visvw2ddataman.h"
@@ -258,11 +263,27 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	    const DataPack::ID newid = attrserv->createOutput(
 		    	dp3d->cube().cubeSampling(), DataPack::cNoID() );
 
-	    if ( newid != DataPack::cNoID() )
+	    if ( newid == DataPack::cNoID() ) return true;
+	    
+	    viewer2D()->setSelSpec( &selas, false );
+
+	    ColTab::MapperSetup mapper;
+	    ColTab::Sequence seq( 0 );
+	    PtrMan<IOObj> ioobj = attrserv->getIOObj( selas );
+	    if ( ioobj )
 	    {
-		viewer2D()->setSelSpec( &selas, false );
-		viewer2D()->setUpView( newid, false );
+		FilePath fp( ioobj->fullUserExpr(true) );
+		fp.setExtension( "par" );
+		IOPar iop;
+		if ( iop.read( fp.fullPath(), sKey::Pars) && !iop.isEmpty() )
+		{
+		    const char* ctname = iop.find( sKey::Name );
+		    vwr.appearance().ddpars_.vd_.ctab_ = ctname;
+		    seq = ColTab::Sequence( ctname );
+		    displayMiniCtab( &seq );
+		}
 	    }
+	    viewer2D()->setUpView( newid, false );
 	}
 
 	return true;
