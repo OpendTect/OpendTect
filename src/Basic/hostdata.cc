@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hostdata.cc,v 1.45 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: hostdata.cc,v 1.46 2010-09-29 11:50:57 cvsbert Exp $";
 
 #include "hostdata.h"
 #include "strmdata.h"
@@ -149,7 +149,8 @@ HostDataList::HostDataList( bool readhostfile )
     if ( GetEnvVar("DTECT_BATCH_HOSTS_FILENAME") )
 	bhfnm = GetEnvVar("DTECT_BATCH_HOSTS_FILENAME");
 
-    BufferString fname( SearchODFile(bhfnm.buf()) );
+    BufferString fname( GetSetupDataFileName(ODSetupLoc_ApplSetupPref,
+				bhfnm.buf(),mC_True) );
     if ( GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH") )
 	fname = GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH");
 

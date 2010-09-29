@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.18 2009-09-17 13:05:26 cvskris Exp $
+ RCS:		$Id: oddirs.h,v 1.19 2010-09-29 11:50:57 cvsbert Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -152,14 +152,6 @@ mGlobal const char* GetSettingsDir(void);
 mGlobal const char* GetSettingsFileName(const char*);
 /*!< Returns GetSettingsDir()/filenm */
 
-
-    /* Function delivering files/directies in all scopes */
-
-mGlobal const char* SearchODFile(const char*);
-/*!< Search for a configuration file in all scopes.
- 
-  Starts with user-specific, then system, then survey data.
- */
 
 mGlobal const char* GetScriptsDir(const char*);
 

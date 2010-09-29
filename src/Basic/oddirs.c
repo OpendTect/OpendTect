@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.21 2009-09-17 13:05:26 cvskris Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.22 2010-09-29 11:50:57 cvsbert Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -380,7 +380,8 @@ const char* GetSetupDataFileDir( ODSetupLocType lt, int acceptnone )
 }
 
 
-const char* GetSetupDataFileName( ODSetupLocType lt, const char* fnm, int acceptnone )
+const char* GetSetupDataFileName( ODSetupLocType lt, const char* fnm,
+				  int acceptnone )
 {
     static FileNameString filenm;
     const char* appldir;
@@ -403,13 +404,15 @@ const char* GetSetupDataFileName( ODSetupLocType lt, const char* fnm, int accept
     {
 	/* try 'other' file */
 	GetSetupDataFileName( lt == ODSetupLoc_ApplSetupPref
-		? ODSetupLoc_SWDirOnly : ODSetupLoc_ApplSetupOnly, fnm, acceptnone );
+		? ODSetupLoc_SWDirOnly : ODSetupLoc_ApplSetupOnly, fnm,
+				acceptnone );
 	if ( File_exists(filenm) )
 	    return filenm;
 
 	/* 'other' file also doesn't exist: revert */
 	GetSetupDataFileName( lt == ODSetupLoc_ApplSetupPref
-		? ODSetupLoc_ApplSetupOnly : ODSetupLoc_SWDirOnly, fnm, acceptnone );
+		? ODSetupLoc_ApplSetupOnly : ODSetupLoc_SWDirOnly, fnm,
+				acceptnone );
     }
 
     return filenm;
@@ -642,45 +645,4 @@ const char* GetSettingsDir(void)
 const char* GetSettingsFileName( const char* fnm )
 {
     return mkFullPath( GetSettingsDir(), fnm );
-}
-
-
-static const char* checkFile( const char* path, const char* subdir,
-			      const char* fname )
-{
-    static FileNameString filenamebuf;
-    if ( !path || !subdir || !fname ) return 0;
-
-    strcpy( filenamebuf, mkFullPath( path, subdir ) );
-    if ( fname && *fname )
-	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
-
-    if ( File_exists(filenamebuf) )
-	return filenamebuf;
- 
-    return 0;
-}
-
-
-const char* SearchODFile( const char* fname )
-{
-
-    const char* nm = checkFile( GetPersonalDir(), ".od", fname );
-    if ( !nm ) nm = checkFile( GetSettingsDir(), "", fname );
-    if ( !nm ) nm = checkFile( GetBaseDataDir(), "", fname );
-    if ( !nm ) nm = checkFile( GetApplSetupDir(), "data", fname );
-    if ( !nm ) nm = checkFile( GetSoftwareDir(0), "data", fname );
-    if ( !nm ) nm = checkFile( GetApplSetupDir(), "bin", fname );
-    if ( !nm ) nm = checkFile( GetSoftwareDir(0), "bin", fname );
-    if ( !nm ) nm = checkFile( GetApplSetupDir(), "", fname );
-    if ( !nm ) nm = checkFile( GetSoftwareDir(0), "", fname );
-
-    if ( od_debug_isOn(DBG_SETTINGS) )
-    {
-	sprintf( dbgstrbuf, "SearchODFile for '%s': '%s'",
-			 fname ? fname : "(null)", nm ? nm : "<none>");
-	od_debug_message( dbgstrbuf );
-    }
-
-    return nm;
 }
