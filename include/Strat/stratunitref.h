@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003 / Sep 2010
- RCS:		$Id: stratunitref.h,v 1.32 2010-09-27 11:05:19 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.33 2010-09-30 08:42:00 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -39,7 +39,7 @@ public:
 
     enum Type		{ NodeOnly, Leaved, Leaf };
 
-			UnitRef(NodeUnitRef*,const char*,const char* d=0);
+			UnitRef(NodeUnitRef*,const char* d=0);
     virtual		~UnitRef();
 
     virtual Type	type() const		= 0;
@@ -48,10 +48,10 @@ public:
     bool		isLeaved() const	{ return type()==Leaved; }
     CompoundKey		fullCode() const;
 
-    const BufferString&	code() const		{ return code_; }
-    void		setCode(const char* c)	{ code_ = c; }
+    virtual const BufferString&	code() const	= 0;
+    virtual void	setCode(const char*)	{}
     const BufferString&	description() const	{ return desc_; }
-    void		setDescription( const char* d )
+    virtual void	setDescription( const char* d )
     						{ desc_ = d; }
     Color		color() const		{ return color_; }
     void		setColor(Color);
@@ -73,7 +73,6 @@ protected:
 
     NodeUnitRef*	upnode_;
 
-    BufferString    	code_;
     BufferString    	desc_;
     Color		color_;
     IOPar		pars_;
@@ -115,6 +114,9 @@ public:
     virtual bool	hasChildren() const	{ return !refs_.isEmpty(); }
     virtual bool	hasLeaves() const	= 0;
 
+    virtual const BufferString&	code() const	{ return code_; }
+    virtual void	setCode( const char* c ) { code_ = c; }
+
     virtual Interval<float> timeRange() const	{ return timerg_; }
     virtual void	setTimeRange(const Interval<float>&);
     void		incTimeRange(const Interval<float>&);
@@ -134,6 +136,7 @@ protected:
 
     ObjectSet<UnitRef>	refs_;
     Interval<float>	timerg_;
+    BufferString    	code_;
 
     UnitRef*		fnd(const char*) const;
     void		takeChildrenFrom(NodeUnitRef*);
@@ -204,13 +207,11 @@ mClass LeafUnitRef : public UnitRef
 {
 public:
 
-			LeafUnitRef( NodeUnitRef* up, const char* c,
-				     int lithidx=-1, const char* d=0 )
-			: UnitRef(up,c,d)
-			, lith_(lithidx) {}
+			LeafUnitRef(NodeUnitRef*,int lithidx=-1,const char* desc=0);
 
     virtual Type	type() const		{ return Leaf; }
     virtual bool	hasChildren() const	{ return false; }
+    virtual const BufferString&	code() const;
     int			lithology() const	{ return lith_; }
     void		setLithology(int);
 

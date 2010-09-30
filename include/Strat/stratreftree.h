@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.21 2010-09-28 04:59:01 cvsranojay Exp $
+ RCS:		$Id: stratreftree.h,v 1.22 2010-09-30 08:42:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ public:
 protected:
 
     void		initTree();
-    bool		addUnit(const char*,const char* dump_str,UnitRef::Type);
+    bool		addLeavedUnit(const char*,const char*);
     void		setToActualTypes();
 
     LithologySet	liths_;

@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.29 2010-09-27 11:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.30 2010-09-30 08:42:00 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratreftree.h"
@@ -21,9 +21,8 @@ static const char* rcsID = "$Id: stratunit.cc,v 1.29 2010-09-27 11:05:19 cvsbrun
 
 //class  UnitRef
 
-Strat::UnitRef::UnitRef( NodeUnitRef* up, const char* uc, const char* d )
+Strat::UnitRef::UnitRef( NodeUnitRef* up, const char* d )
     : upnode_(up)
-    , code_(uc)
     , desc_(d)
     , changed(this)
     , toBeDeleted(this)
@@ -104,7 +103,7 @@ CompoundKey Strat::UnitRef::fullCode() const
 
     for ( int idx=treeDepth()-1; idx>=0; idx-- )
 	kc += upNode( idx )->code();
-    kc += code_;
+    kc += code();
 
     return kc;
 }
@@ -164,8 +163,9 @@ void Strat::UnitRef::notifChange( bool isrem )
 //class NodeUnitRef
 
 
-Strat::NodeUnitRef::NodeUnitRef( NodeUnitRef* up, const char* c, const char* d )
-    : UnitRef(up,c,d)
+Strat::NodeUnitRef::NodeUnitRef( NodeUnitRef* up, const char* uc, const char* d )
+    : UnitRef(up,d)
+    , code_(uc)
     , timerg_(mUdf(float),0)
 {
 }
@@ -309,13 +309,18 @@ void Strat::LeavedUnitRef::setLevelID( Strat::Level::ID lid )
 
 //class LeafUnitRef
 
+Strat::LeafUnitRef::LeafUnitRef( Strat::NodeUnitRef* up, int lithidx, const char* d )
+    : UnitRef(up,d)
+    , lith_(lithidx)
+{
+}
+
 
 const Strat::LeafUnitRef& Strat::LeafUnitRef::undef()
 {
     static Strat::LeafUnitRef* udf = 0;
     if ( !udf )
-	udf = new Strat::LeafUnitRef( 0, "undef",
-			      Strat::Lithology::undef().id(), "Undefined" );
+	udf = new Strat::LeafUnitRef( 0, Strat::Lithology::undef().id() );
     return *udf;
 }
 
@@ -324,6 +329,13 @@ void Strat::LeafUnitRef::getPropsFrom( const IOPar& iop )
 {
     UnitRef::getPropsFrom( iop );
     pars_.removeWithKey( sKey::Time );
+}
+
+
+const BufferString& Strat::LeafUnitRef::code() const
+{
+    const Lithology* lith =  refTree().lithologies().get(lith_);
+    return lith ? lith->name() : Lithology::undef().name();
 }
 
 

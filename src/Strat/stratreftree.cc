@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.5 2010-09-30 08:32:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.6 2010-09-30 08:42:00 cvsbert Exp $";
 
 
 #include "stratreftree.h"
@@ -31,7 +31,7 @@ Strat::RefTree::RefTree()
 void Strat::RefTree::initTree()
 {
     src_ = Repos::Temp;
-    addUnit( sKeyNoCode(), "-1`", Leaved );
+    addLeavedUnit( sKeyNoCode(), "-1`" );
 }
 
 
@@ -57,8 +57,7 @@ void Strat::RefTree::reportAdd( const Strat::UnitRef* un )
 }
 
 
-bool Strat::RefTree::addUnit( const char* fullcode, const char* dumpstr,
-       			      Strat::UnitRef::Type typ )
+bool Strat::RefTree::addLeavedUnit( const char* fullcode, const char* dumpstr )
 {
     if ( !fullcode || !*fullcode )
 	return false;
@@ -70,10 +69,7 @@ bool Strat::RefTree::addUnit( const char* fullcode, const char* dumpstr,
 
     const BufferString newcode( ck.key( ck.nrKeys()-1 ) );
     NodeUnitRef* parnode = (NodeUnitRef*)par;
-    UnitRef* newun =
-	   typ == Leaf ?     (UnitRef*)new LeafUnitRef( parnode, newcode )
-	: (typ == NodeOnly ? (UnitRef*)new NodeOnlyUnitRef( parnode, newcode )
-			   : (UnitRef*)new LeavedUnitRef( parnode, newcode ) );
+    UnitRef* newun = new LeavedUnitRef( parnode, newcode );
 
     newun->use( dumpstr );
     parnode->refs_ += newun;
@@ -100,8 +96,7 @@ void Strat::RefTree::setToActualTypes()
 	NodeUnitRef* par = un->upNode();
 	if ( un->hasChildren() )
 	    { norefs += un; continue; }
-	LeafUnitRef* newun = new LeafUnitRef( par, un->code(), un->levelID(),
-					      un->description() );
+	LeafUnitRef* newun = new LeafUnitRef( par, un->levelID(), un->description() );
 	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
 	delete par->replace( par->indexOf(un), newun );
     }
@@ -140,7 +135,7 @@ bool Strat::RefTree::read( std::istream& strm )
 
     astrm.next(); // Read away the line: 'Units'
     while ( !atEndOfSection( astrm.next() ) )
-	addUnit( astrm.keyWord(), astrm.value(), Strat::UnitRef::Leaved );
+	addLeavedUnit( astrm.keyWord(), astrm.value() );
     setToActualTypes();
 
     const int propsforlen = strlen( sKeyPropsFor() );
