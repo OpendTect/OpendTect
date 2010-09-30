@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.12 2010-05-18 15:05:24 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.13 2010-09-30 09:53:16 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 class IOObj;
 class IOObjContext;
+class uiButton;
 class uiIOObjSelGrp;
 class uiToolButton;
 class uiTextEdit;
@@ -23,8 +24,6 @@ class uiTextEdit;
 mClass uiObjFileMan : public uiDialog
 {
 public:
-				uiObjFileMan(uiParent*,const uiDialog::Setup&,
-					     const IOObjContext&);
 				~uiObjFileMan();
 
     static BufferString		getFileSizeString(double);
@@ -34,6 +33,8 @@ public:
     const IOObjContext&		ioobjContext() const	{ return ctxt_; }
 
 protected:
+				uiObjFileMan(uiParent*,const uiDialog::Setup&,
+					     const IOObjContext&);
 
     uiTextEdit*			infofld;
     uiIOObjSelGrp*		selgrp;
