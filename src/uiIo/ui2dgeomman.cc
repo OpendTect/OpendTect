@@ -7,20 +7,25 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.2 2010-09-29 07:24:07 cvssatyaki Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.3 2010-09-30 06:41:25 cvssatyaki Exp $";
 
 
 #include "ui2dgeomman.h"
 
 #include "bufstringset.h"
+#include "file.h"
+#include "geom2dascio.h"
 #include "surv2dgeom.h"
+#include "strmprov.h"
 
 #include "uibutton.h"
-#include "uilistbox.h"
-#include "uiseparator.h"
+#include "uifileinput.h"
 #include "uilabel.h"
+#include "uilistbox.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 #include "uitable.h"
+#include "uitblimpexpdatasel.h"
 
 
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
@@ -49,9 +54,11 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     linenamefld_->setPrefWidth( 200 );
     
     mangeombut_ =
-	new uiToolButton( this, "Manage Line Geometry", "man_linegeom.png",
-			  mCB(this,ui2DGeomManageDlg,manLineGeom) );
+	new uiPushButton( this, "Manage Line Geometry", 
+			  mCB(this,ui2DGeomManageDlg,manLineGeom), true );
     mangeombut_->attach( rightAlignedBelow, lnlb );
+
+
     lineSetSelCB( 0 );
 }
 
@@ -95,6 +102,73 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
     collbls.add( "Trace Number" ); collbls.add( "X" ); collbls.add( "Y" );
     table_->setColumnLabels( collbls );
 
+    readnewbut_ =
+	new uiPushButton( this, "Read New Geometry", 
+		      	  mCB(this,uiManageLineGeomDlg,impLineGeom), true );
+    readnewbut_->attach( centeredBelow, table_ );
+    
+    fillTable( geom );
+}
+
+mClass uiGeom2DImpDlg : public uiDialog
+{
+
+public:
+uiGeom2DImpDlg( uiParent* p, const char* linenm )
+    : uiDialog(p,uiDialog::Setup("Read new Line Geometry",linenm,"mTODOHelpID"))
+{
+    Table::FormatDesc* geomfd = Geom2dAscIO::getDesc();
+    geom2dinfld_ = new uiFileInput( this, "2D geometry File",
+				    uiFileInput::Setup().withexamine(true) );
+    dataselfld_ = new uiTableImpDataSel( this, *geomfd, "" );
+    dataselfld_->attach( alignedBelow, geom2dinfld_ );
+}
+
+bool acceptOK( CallBacker* )
+{
+    if ( File::isEmpty(geom2dinfld_->fileName()) )
+    {
+	uiMSG().error( "Invalid input file" );
+	return false;
+    }
+    return true;
+}
+
+    uiFileInput*	geom2dinfld_;
+    uiTableImpDataSel*	dataselfld_;
+};
+
+void impLineGeom( CallBacker* )
+{
+    uiGeom2DImpDlg dlg( this, linenm_ );
+    if ( !dlg.go() ) return;
+
+    BufferString filenm( dlg.geom2dinfld_->fileName() ); 
+    if ( !filenm.isEmpty() )
+    {
+	StreamData sd = StreamProvider( filenm ).makeIStream();
+	if ( !sd.usable() )
+	{
+	    uiMSG().error( "Cannot open input file" );
+	    return;
+	}
+
+	PosInfo::Line2DData geom( linenm_ );
+	Geom2dAscIO geomascio( dlg.dataselfld_->desc(), *sd.istrm );
+	if ( !geomascio.getData( geom ) )
+	    uiMSG().error( "Failed to convert into compatible data" );
+
+	sd.close();
+
+	table_->clearTable();
+	fillTable( geom );
+    }
+}
+
+
+void fillTable( const PosInfo::Line2DData& geom )
+{
+    const TypeSet<PosInfo::Line2DPos>& positions = geom.positions();
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
@@ -102,6 +176,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
 	table_->setValue( RowCol(idx,2), positions[idx].coord_.y );
     }
 }
+
 
 bool acceptOK( CallBacker* )
 {
@@ -119,8 +194,10 @@ bool acceptOK( CallBacker* )
     PosInfo::POS2DAdmin().setGeometry( geom );
     return true;
 }
-    const char* linenm_;
-    uiTable*	table_;
+
+    const char*		linenm_;
+    uiTable*		table_;
+    uiPushButton*	readnewbut_;
 };
 
 void ui2DGeomManageDlg::manLineGeom( CallBacker* )
