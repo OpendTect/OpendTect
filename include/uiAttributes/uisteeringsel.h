@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.15 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.16 2010-09-30 15:14:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,12 +61,13 @@ mClass uiSteeringSel : public uiGroup
 public:
 				uiSteeringSel(uiParent*,
 					      const Attrib::DescSet*,bool is2d,
-					      bool withconstdir=true);
+					      bool withconstdir=true,
+					      bool doinit=true);
 				~uiSteeringSel();
 
     Attrib::DescID		descID();
 
-    bool			willSteer() const;
+    virtual bool		willSteer() const;
     void			setDesc(const Attrib::Desc*);
     void			setDescSet(const Attrib::DescSet*);
     void			setType(int,bool fixed=false);
@@ -86,9 +87,11 @@ protected:
 
     bool			is2d_;
     bool			notypechange_;
+    bool			withconstdir_;
 
+    void			createFields();
     void			doFinalise(CallBacker*);
-    void			typeSel(CallBacker*);
+    virtual void		typeSel(CallBacker*);
 };
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.47 2010-09-29 02:24:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.48 2010-09-30 15:14:00 cvshelene Exp $";
 
 
 #include "uisteeringsel.h"
@@ -38,7 +38,7 @@ using namespace Attrib;
 IOPar& uiSteeringSel::inpselhist = *new IOPar( "Steering selection history" );
 
 uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads, 
-			      bool is2d, bool withconstdir)
+			      bool is2d, bool withconstdir, bool doinit )
     : uiGroup(p,"Steering selection")
     , ctio_( *uiSteerCubeSel::mkCtxtIOObj(is2d,true) )
     , descset_(ads)
@@ -48,7 +48,10 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
     , dipfld_(0)
     , notypechange_(false)
     , is2d_(is2d)
+    , withconstdir_(withconstdir)
 {
+    if ( !doinit ) return;
+
     const char* res = uiAF().attrNameOf( "Curvature" );
     if ( !res )
     {
@@ -57,14 +60,26 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
 	return;
     }
 
+    createFields();
+}
+
+
+uiSteeringSel::~uiSteeringSel()
+{
+    delete ctio_.ioobj; delete &ctio_;
+}
+
+
+void uiSteeringSel::createFields()
+{
     BufferStringSet steertyps;
     steertyps.add( "None" ).add( "Central" ).add( "Full" );
-    if ( withconstdir ) steertyps.add ( "Constant direction" );
+    if ( withconstdir_ ) steertyps.add ( "Constant direction" );
     typfld_ = new uiGenInput( this, "Steering", StringListInpSpec(steertyps) );
     typfld_->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
 
     ctio_.ctxt.forread = true;
-    inpfld_ = new uiSteerCubeSel( this, ctio_, ads, is2d_ );
+    inpfld_ = new uiSteerCubeSel( this, ctio_, descset_, is2d_ );
     inpfld_->getHistory( inpselhist );
     inpfld_->attach( alignedBelow, typfld_ );
 
@@ -80,12 +95,6 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
 }
 
 
-uiSteeringSel::~uiSteeringSel()
-{
-    delete ctio_.ioobj; delete &ctio_;
-}
-
-
 void uiSteeringSel::doFinalise(CallBacker*)
 {
     typeSel(0);
@@ -94,7 +103,7 @@ void uiSteeringSel::doFinalise(CallBacker*)
 
 void uiSteeringSel::typeSel( CallBacker* )
 {
-    if ( !typfld_ ) return; 
+    if ( !inpfld_ ) return; 
 
     int typ = typfld_->getIntValue();
     inpfld_->display( typ > 0 && typ < 3 );
@@ -111,7 +120,7 @@ bool uiSteeringSel::willSteer() const
 
 void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 {
-    if ( !typfld_ )
+    if ( !typfld_ || !willSteer() )
 	return;
     
     if ( !ad )
@@ -169,7 +178,7 @@ DescID uiSteeringSel::descID()
     if ( !typfld_ ) return DescID::undef();
 
     const int type = typfld_->getIntValue();
-    if ( type==0 ) return DescID::undef();
+    if ( !willSteer() ) return DescID::undef();
 
     if ( type==3 )
     {
