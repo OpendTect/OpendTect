@@ -6,12 +6,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.21 2010-05-18 15:14:44 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.22 2010-09-30 10:03:34 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjfileman.h"
+
+class uiButton;
 class uiToolButton;
 
 
@@ -24,9 +26,11 @@ public:
     bool		is2D() const		{ return is2d_; }
 
     static Notifier<uiSeisFileMan>* fieldsCreated();
+    void		addTool(uiButton*);
 
 protected:
 
+    uiButton*		lastexternal_;
     bool		is2d_;
 
     void		mergePush(CallBacker*);

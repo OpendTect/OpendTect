@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.114 2010-08-11 20:34:38 cvskris Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.115 2010-09-30 10:03:34 cvsnageswara Exp $";
 
 
 #include "uiseisfileman.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.114 2010-08-11 20:34:38 cv
 #include "survinfo.h"
 #include "zdomain.h"
 
+#include "uibutton.h"
 #include "uilistbox.h"
 #include "uitextedit.h"
 #include "uiioobjmanip.h"
@@ -54,6 +55,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				 is2d ? "103.1.11" : "103.1.0").nrstatusflds(1),
 	    	   SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
+    , lastexternal_(0)
 {
     ctxt_.toselect.allowtransls_ = is2d_ ? "2D" : "CBVS";
     createDefaultUI( true );
@@ -90,13 +92,27 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
 
-    fieldsCreated()->trigger( this );
     selChg(0);
+    fieldsCreated()->trigger( this );
 }
 
 
 uiSeisFileMan::~uiSeisFileMan()
 {
+}
+
+
+void uiSeisFileMan::addTool( uiButton* but )
+{
+    if ( lastexternal_ )
+	but->attach( rightOf, lastexternal_ );
+    else
+    {
+	but->attach( ensureBelow, selgrp );
+	infofld->attach( ensureBelow, but );
+    }
+
+    lastexternal_ = but;
 }
 
 

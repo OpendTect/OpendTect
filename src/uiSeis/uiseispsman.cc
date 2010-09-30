@@ -7,19 +7,29 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispsman.cc,v 1.18 2010-07-27 14:16:09 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.19 2010-09-30 10:03:34 cvsnageswara Exp $";
 
 
 #include "uiseispsman.h"
-#include "uiprestkmergedlg.h"
+
+#include "keystrs.h"
 #include "pixmap.h"
+#include "posinfo.h"
 #include "seispsioprov.h"
-#include "uitextedit.h"
+
+#include "uibutton.h"
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
+#include "uiprestkmergedlg.h"
 #include "uiseismulticubeps.h"
-#include "posinfo.h"
-#include "keystrs.h"
+#include "uitextedit.h"
+
+
+Notifier<uiSeisPreStackMan>* uiSeisPreStackMan::fieldsCreated()
+{
+    static Notifier<uiSeisPreStackMan> FieldsCreated(0);
+    return &FieldsCreated;
+}
 
 
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
@@ -29,6 +39,7 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 	    	   is2d ? SeisPS2DTranslatorGroup::ioContext()
 		        : SeisPS3DTranslatorGroup::ioContext())
     , is2d_(is2d)
+    , lastexternal_(0)
 {
     createDefaultUI( true );
     selgrp->setPrefWidthInChar( 50 );
@@ -47,12 +58,27 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 			     "Create Multi-Cube data store" );
     }
 
+    fieldsCreated()->trigger( this );
     selChg(0);
 }
 
 
 uiSeisPreStackMan::~uiSeisPreStackMan()
 {
+}
+
+
+void uiSeisPreStackMan::addTool( uiButton* but )
+{
+    if ( lastexternal_ )
+	but->attach( rightOf, lastexternal_ );
+    else
+    {
+	but->attach( ensureBelow, selgrp );
+	infofld->attach( ensureBelow, but );
+    }
+
+    lastexternal_ = but;
 }
 
 

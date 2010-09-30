@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.77 2010-08-09 14:36:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.78 2010-09-30 10:03:34 cvsnageswara Exp $";
 
 
 #include "uisurfaceman.h"
@@ -74,12 +74,20 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.77 2010-08-09 14:36:57 cvsb
 
 using namespace EM;
 
+Notifier<uiSurfaceMan>* uiSurfaceMan::fieldsCreated()
+{
+    static Notifier<uiSurfaceMan> FieldsCreated(0);
+    return &FieldsCreated;
+}
+
+
 uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     : uiObjFileMan(p,uiDialog::Setup(mGetWinTittle(typ),
                                      mGetManageStr(typ),
                                      mGetHelpID(typ)).nrstatusflds(1),
 		   mGetIoContext(typ) )
     , attribfld_(0)
+    , lastexternal_(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
@@ -119,12 +127,29 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 	infofld->attach( ensureBelow, relbut );
     }
 
+    fieldsCreated()->trigger( this );
     selChg( this ); 
 }
 
 
 uiSurfaceMan::~uiSurfaceMan()
 {}
+
+
+void uiSurfaceMan::addTool( uiButton* but )
+{
+    if ( lastexternal_ )
+	but->attach( rightOf, lastexternal_ );
+    else if ( attribfld_ )
+	but->attach( alignedBelow, attribfld_ );
+    else
+    {
+	but->attach( ensureBelow, selgrp );
+	infofld->attach( ensureBelow, but );
+    }
+
+    lastexternal_ = but;
+}
 
 
 const char* uiSurfaceMan::getDefKey() const

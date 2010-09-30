@@ -6,16 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.25 2010-04-28 03:44:49 cvssatyaki Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.26 2010-09-30 10:03:34 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "uiobjfileman.h"
+
 class BufferStringSet;
 namespace EM { class IOObjInfo; }
 
+class uiButton;
 class uiListBox;
 class uiStratLevelSel;
 class uiTextEdit;
@@ -27,8 +29,12 @@ public:
 			uiSurfaceMan(uiParent*,const char* typ);
 			~uiSurfaceMan();
 
+    static Notifier<uiSurfaceMan>* fieldsCreated();
+    void		addTool(uiButton*);
+
 protected:
 
+    uiButton*		lastexternal_;
     uiListBox*		attribfld_;
 
     bool		isCur2D() const;

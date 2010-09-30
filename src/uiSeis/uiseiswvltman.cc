@@ -7,42 +7,51 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.60 2010-09-24 06:36:28 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.61 2010-09-30 10:03:34 cvsnageswara Exp $";
 
 
 #include "uiseiswvltman.h"
-#include "uiseiswvltimpexp.h"
-#include "uiseiswvltgen.h"
-#include "uiseiswvltattr.h"
-#include "uiwaveletextraction.h"
-#include "wavelet.h"
-#include "ioobj.h"
-#include "ioman.h"
-#include "iostrm.h"
-#include "iopar.h"
-#include "ctxtioobj.h"
-#include "color.h"
-#include "oddirs.h"
-#include "dirlist.h"
-#include "survinfo.h"
+
 #include "arrayndimpl.h"
-#include "flatposdata.h"
-#include "filepath.h"
+#include "color.h"
+#include "ctxtioobj.h"
+#include "dirlist.h"
 #include "file.h"
+#include "filepath.h"
+#include "flatposdata.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "iostrm.h"
+#include "oddirs.h"
+#include "survinfo.h"
+#include "wavelet.h"
 
 #include "uibutton.h"
+#include "uiflatviewer.h"
+#include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uiioobjmanip.h"
-#include "uitextedit.h"
-#include "uiflatviewer.h"
 #include "uilistbox.h"
-#include "uiselsimple.h"
-#include "uigeninput.h"
-#include "uislider.h"
 #include "uimsg.h"
+#include "uiselsimple.h"
+#include "uiseiswvltattr.h"
+#include "uiseiswvltgen.h"
+#include "uiseiswvltimpexp.h"
+#include "uislider.h"
+#include "uitextedit.h"
+#include "uiwaveletextraction.h"
 
 
 #define mErrRet(s) { uiMSG().error(s); return; }
+
+Notifier<uiSeisWvltMan>* uiSeisWvltMan::fieldsCreated()
+{
+    static Notifier<uiSeisWvltMan> FieldsCreated(0);
+    return &FieldsCreated;
+}
+
+
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Wavelet management",
                                      "Manage wavelets",
@@ -51,6 +60,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     , curid_(DataPack::cNoID())
     , wvltext_(0)
     , wvltpropdlg_(0)			 
+    , lastexternal_(0)
 {
     createDefaultUI();
 
@@ -65,23 +75,23 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     selgrp->getManipGroup()->addButton( "wavelet_taper.png",
 	mCB(this,uiSeisWvltMan,taper), "Taper" );
 
-    uiGroup* butgrp = new uiGroup( this, "Imp/Create buttons" );
-    uiPushButton* impbut = new uiPushButton( butgrp, "&Import", false );
+    butgrp_ = new uiGroup( this, "Imp/Create buttons" );
+    uiPushButton* impbut = new uiPushButton( butgrp_, "&Import", false );
     impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
     impbut->setPrefWidthInChar( 12 );
-    uiPushButton* crbut = new uiPushButton( butgrp, "&Generate", false );
+    uiPushButton* crbut = new uiPushButton( butgrp_, "&Generate", false );
     crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
     crbut->attach( rightOf, impbut );
     crbut->setPrefWidthInChar( 12 );
-    uiPushButton* mergebut = new uiPushButton( butgrp, "&Merge", false );
+    uiPushButton* mergebut = new uiPushButton( butgrp_, "&Merge", false );
     mergebut->activated.notify( mCB(this,uiSeisWvltMan,mrgPush) );
     mergebut->attach( rightOf, crbut );
     mergebut->setPrefWidthInChar( 12 );
-    uiPushButton* extractbut = new uiPushButton( butgrp, "&Extract", false );
+    uiPushButton* extractbut = new uiPushButton( butgrp_, "&Extract", false );
     extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
     extractbut->attach( rightOf, mergebut );
     extractbut->setPrefWidthInChar( 12 );
-    butgrp->attach( centeredBelow, selgrp );
+    butgrp_->attach( centeredBelow, selgrp );
 
     wvltfld = new uiFlatViewer( this );
     FlatView::Appearance& app = wvltfld->appearance();
@@ -103,11 +113,12 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     wvltfld->setStretch( 1, 2 );
     wvltfld->setExtraBorders( uiRect(2,5,2,5) );
 
-    infofld->attach( ensureBelow, butgrp );
+    infofld->attach( ensureBelow, butgrp_ );
     infofld->attach( ensureBelow, wvltfld );
     selgrp->setPrefWidthInChar( 50 );
     infofld->setPrefWidthInChar( 60 );
 
+    fieldsCreated()->trigger( this );
     windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
 }
 
@@ -119,10 +130,25 @@ uiSeisWvltMan::~uiSeisWvltMan()
 	wvltext_->close();
 	wvltext_->extractionDone.remove( mCB(this,uiSeisWvltMan,updateCB) );
     }
+
     delete wvltext_;
 
     if ( wvltpropdlg_ )
 	delete wvltpropdlg_;
+}
+
+
+void uiSeisWvltMan::addTool( uiButton* but )
+{
+    if ( lastexternal_ )
+	but->attach( rightOf, lastexternal_ );
+    else
+    {
+	but->attach( leftAlignedBelow, butgrp_ );
+	infofld->attach( ensureBelow, but );
+    }
+
+    lastexternal_ = but;
 }
 
 
@@ -146,6 +172,7 @@ void uiSeisWvltMan::mrgPush( CallBacker* )
 {
     if ( selgrp->getListField()->size()<2 )
 	mErrRet( "At least two wavelets are needed to merge wavelets" );
+
     uiSeisWvltMerge dlg( this, curioobj_ ? curioobj_->name() : 0 );
     if ( dlg.go() )
 	selgrp->fullUpdate( dlg.storeKey() );
@@ -341,6 +368,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
 	else
 	    selgrp->fullUpdate( curioobj_->key() );
     }
+
     dlg.acting.remove( mCB(this,uiSeisWvltMan,updateViewer) );
     mkFileInfo();
 

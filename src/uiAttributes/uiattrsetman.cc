@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsetman.cc,v 1.9 2010-07-26 09:53:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsetman.cc,v 1.10 2010-09-30 10:03:34 cvsnageswara Exp $";
 
 #include "uiattrsetman.h"
 
+#include "uibutton.h"
 #include "uiioobjsel.h"
 #include "uitextedit.h"
 
@@ -20,24 +21,48 @@ static const char* rcsID = "$Id: uiattrsetman.cc,v 1.9 2010-07-26 09:53:19 cvshe
 #include "ctxtioobj.h"
 #include "survinfo.h"
 
+
 static const int cPrefWidth = 75;
+
+Notifier<uiAttrSetMan>* uiAttrSetMan::fieldsCreated()
+{
+    static Notifier<uiAttrSetMan> FieldsCreated(0);
+    return &FieldsCreated;
+}
+
 
 uiAttrSetMan::uiAttrSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Attribute Set file management",
 				     "Manage attribute sets",
 				     "101.3.0").nrstatusflds(1),
 	           AttribDescSetTranslatorGroup::ioContext())
+    , lastexternal_(0)
 {
     createDefaultUI();
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
 
+    fieldsCreated()->trigger( this );
     selChg( this );
 }
 
 
 uiAttrSetMan::~uiAttrSetMan()
 {
+}
+
+
+void uiAttrSetMan::addTool( uiButton* but )
+{
+    if ( lastexternal_ )
+	but->attach( rightOf, lastexternal_ );
+    else
+    {
+	but->attach( ensureBelow, selgrp );
+	infofld->attach( ensureBelow, but );
+    }
+
+    lastexternal_ = but;
 }
 
 

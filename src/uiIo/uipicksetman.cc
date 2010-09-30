@@ -7,39 +7,63 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetman.cc,v 1.11 2009-09-01 08:57:11 cvshelene Exp $";
+static const char* rcsID = "$Id: uipicksetman.cc,v 1.12 2010-09-30 10:03:34 cvsnageswara Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
 
+#include "uibutton.h"
 #include "uiioobjsel.h"
 #include "uiioobjmanip.h"
 #include "uitextedit.h"
 
 #include "ctxtioobj.h"
+#include "draw.h"
 #include "picksettr.h"
 #include "pickset.h"
-#include "draw.h"
 
 static const int cPrefWidth = 75;
+
+Notifier<uiPickSetMan>* uiPickSetMan::fieldsCreated()
+{
+    static Notifier<uiPickSetMan> FieldsCreated(0);
+    return &FieldsCreated;
+}
+
 
 uiPickSetMan::uiPickSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("PickSet file management",
 				     "Manage picksets",
 				     "105.0.6").nrstatusflds(1),
 	           PickSetTranslatorGroup::ioContext())
+    , lastexternal_(0)
 {
     createDefaultUI();
     selgrp->getManipGroup()->addButton( "mergepicksets.png",
 	    		mCB(this,uiPickSetMan,mergeSets), "Merge pick sets" );
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
+    fieldsCreated()->trigger( this );
     selChg( this );
 }
 
 
 uiPickSetMan::~uiPickSetMan()
 {
+}
+
+
+void uiPickSetMan::addTool( uiButton* but )
+{
+    if ( lastexternal_ )
+	but->attach( rightOf, lastexternal_ );
+    else
+    {
+	but->attach( ensureBelow, selgrp );
+	infofld->attach( ensureBelow, but );
+    }
+
+    lastexternal_ = but;
 }
 
 
