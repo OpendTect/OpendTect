@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.48 2010-09-17 12:32:17 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.49 2010-09-30 15:14:44 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -24,7 +24,6 @@ static const char* rcsID = "$Id: similarityattrib.cc,v 1.48 2010-09-17 12:32:17 
 #define mExtensionRot90		1
 #define mExtensionRot180	2
 #define mExtensionCube		3
-#define mExtensionCohLike	4
 
 namespace Attrib
 {
@@ -58,7 +57,6 @@ void Similarity::initClass()
     extension->addEnum( extensionTypeStr(mExtensionRot90) );
     extension->addEnum( extensionTypeStr(mExtensionRot180) );
     extension->addEnum( extensionTypeStr(mExtensionCube) );
-    extension->addEnum( extensionTypeStr(mExtensionCohLike) );
     extension->setDefaultValue( mExtensionRot90 );
     desc->addParam( extension );
 
@@ -67,6 +65,7 @@ void Similarity::initClass()
     desc->addParam( steering );
 
     desc->addParam( new BoolParam( normalizeStr(), false, false ) );
+    desc->addParam( new BoolParam( browsedipStr(), false, false ) );
 
     FloatParam* maxdip = new FloatParam( maxdipStr() );
     maxdip->setLimits( Interval<float>(0,mUdf(float)) );
@@ -93,18 +92,20 @@ void Similarity::updateDesc( Desc& desc )
 {
     BufferString extstr = desc.getValParam(extensionStr())->getStringValue();
     const bool iscube = extstr == extensionTypeStr( mExtensionCube );
-    const bool iscohlike = extstr == extensionTypeStr( mExtensionCohLike );
-    desc.setParamEnabled( pos0Str(), !iscube && !iscohlike );
-    desc.setParamEnabled( pos1Str(), !iscube && !iscohlike );
-    desc.setParamEnabled( stepoutStr(), iscube );
-    desc.setParamEnabled( maxdipStr(), iscohlike );
-    desc.setParamEnabled( ddipStr(), iscohlike );
-    desc.setParamEnabled( steeringStr(), !iscohlike );
+    const bool dosteer = desc.getValParam(steeringStr())->getBoolValue();
 
-    desc.inputSpec(1).enabled_ =
-	    iscohlike ? false : desc.getValParam(steeringStr())->getBoolValue();
+    desc.setParamEnabled( browsedipStr(), !dosteer );
+    const bool dobrowsedip = !dosteer &&
+			     desc.getValParam(browsedipStr())->getBoolValue();
+    desc.setParamEnabled( pos0Str(), !iscube );
+    desc.setParamEnabled( pos1Str(), !iscube );
+    desc.setParamEnabled( stepoutStr(), iscube );
+    desc.setParamEnabled( maxdipStr(), dobrowsedip );
+    desc.setParamEnabled( ddipStr(), dobrowsedip );
+
+    desc.inputSpec(1).enabled_ = dosteer;
     
-    if ( iscohlike )
+    if ( dobrowsedip )
 	desc.setNrOutputs( Seis::UnknowData, desc.is2D()? 6 : 7 );
 }
 
@@ -114,13 +115,13 @@ const char* Similarity::extensionTypeStr( int type )
     if ( type==mExtensionNone ) return "None";
     if ( type==mExtensionRot90 ) return "90";
     if ( type==mExtensionRot180 ) return "180";
-    if ( type==mExtensionCube ) return "Cube";
-    return "Coherency like";
+    return "Cube";
 }
 
 
 Similarity::Similarity( Desc& desc )
     : Provider( desc )
+    , dobrowsedip_( false )
 {
     if ( !isOK() ) return;
 
@@ -132,24 +133,20 @@ Similarity::Similarity( Desc& desc )
     mGetBool( donormalize_, normalizeStr() );
     mGetEnum( extension_, extensionStr() );
 
-    if ( extension_==mExtensionCohLike )
-	dosteer_ = false;
-    else
-	mGetBool( dosteer_, steeringStr() );
-    
-
-    if ( extension_==mExtensionCube )
-	mGetBinID( stepout_, stepoutStr() )
-    else if ( extension_==mExtensionCohLike )
+    mGetBool( dosteer_, steeringStr() );
+    if ( !dosteer_ )
+	{ mGetBool( dobrowsedip_, browsedipStr() ) }
+   
+    if ( dobrowsedip_ )
     {
-	mGetBinID( stepout_, stepoutStr() )
-	pos0_ = BinID( stepout_.inl, 0 );
-	pos1_ = BinID( 0, stepout_.crl );
 	mGetFloat( maxdip_, maxdipStr() );
 	maxdip_ = maxdip_/dipFactor();
 	mGetFloat( ddip_, ddipStr() );
 	ddip_ = ddip_/dipFactor();
     }
+
+    if ( extension_==mExtensionCube )
+	mGetBinID( stepout_, stepoutStr() )
     else
     {
 	mGetBinID( pos0_, pos0Str() )
@@ -169,12 +166,12 @@ Similarity::Similarity( Desc& desc )
     }
     getTrcPos();
 
-    const float maxdist = dosteer_ ? 
+    const float maxdist = dosteer_ || dobrowsedip_ ? 
 	mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) : 0;
     
-    const float maxsecdip = maxSecureDip();
-    desgate_ = Interval<float>( gate_.start-maxdist*maxsecdip, 
-	    			gate_.stop+maxdist*maxsecdip );
+    const float secdip = dosteer_ ? maxSecureDip() : maxdip_;
+    desgate_ = Interval<float>( gate_.start-maxdist*secdip, 
+	    			gate_.stop+maxdist*secdip );
 }
 
 
@@ -212,8 +209,6 @@ bool Similarity::getTrcPos()
 	    trcpos_ += BinID(-pos0_.inl,-pos0_.crl);
 	    trcpos_ += BinID(-pos1_.inl,-pos1_.crl);
 	}
-	else
-	    trcpos_.addIfNew( BinID(0,0) );
     }
 
     if ( dosteer_ )
@@ -284,11 +279,8 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
     int nrpairs;
     const bool iscubeext = extension_==mExtensionCube;
-    const bool iscohext = extension_==mExtensionCohLike;
     if ( iscubeext )
 	nrpairs = pos0s_.size();
-    else if ( iscohext )
-	nrpairs = inputdata_.size() - 1;
     else
 	nrpairs = inputdata_.size()/2;
 
@@ -313,10 +305,8 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	float dipatmax = 0;
 	for ( int pair=0; pair<nrpairs; pair++ )
 	{
-	    const int idx0 = iscubeext ? pos0s_[pair]
-				       : iscohext ? nrpairs : pair*2;
-	    const int idx1 = iscubeext ? pos1s_[pair]
-				       : iscohext ? pair : pair*2 +1;
+	    const int idx0 = iscubeext ? pos0s_[pair] : pair*2;
+	    const int idx1 = iscubeext ? pos1s_[pair] : pair*2 +1;
 
 	    float s0 = firstsample + idx + samplegate.start;
 	    float s1 = s0;
@@ -325,10 +315,10 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		continue;
 	    
 	    bool docontinue = true;
-	    float maxcoh = 0;
+	    float maxsimi = 0;
 	    dipatmax = 0;
 	    float curdip = -maxdip_;
-	    while ( docontinue )	//loop necessary for Coherency-Like ext
+	    while ( docontinue )	//loop necessary for dip browser
 	    {
 		if ( dosteer_ )
 		{
@@ -343,7 +333,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 			s1 += serie1->value( z0+idx-steeringdata_->z0_ );
 		}
 
-		if ( iscohext )
+		if ( dobrowsedip_ )
 		{
 		    float dist = pair || desc_.is2D() ? distcrl_ : distinl_;
 		    s1 += (curdip * dist)/refstep_;
@@ -371,21 +361,26 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
 		float simival = similarity( vals0, vals1, s0+extras0,
 					    s1+extras1, 1, gatesz,donormalize_);
-		stats += simival;
 		
-		if ( iscohext )
+		if ( dobrowsedip_ )
 		{
 		    curdip += ddip_;
-		    if ( simival > maxcoh )
+		    if ( simival > maxsimi )
 		    {
-			maxcoh = simival;
+			maxsimi = simival;
 			dipatmax = curdip;
 		    }
 		}
+		else
+		    stats += simival;
 
-		docontinue = iscohext ? curdip<maxdip_ : false;
+		docontinue = dobrowsedip_ ? curdip<maxdip_ : false;
+		if ( dobrowsedip_ && !docontinue )
+		    stats += maxsimi;
 	    }
-	    if ( iscohext && !pair )
+
+	    //TODO: inldip and crldip non-sense if coh pattern not preserved
+	    if ( dobrowsedip_ && !pair )
 		inldip = dipatmax;
 	}
 
@@ -406,7 +401,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		setOutputValue( output, 3, idx, z0, stats.min() );
 	    if ( outputinterest_[4] )
 	       	setOutputValue( output, 4, idx, z0, stats.max() );
-	    if ( iscohext )
+	    if ( dobrowsedip_ )
 	    {
 		if ( outputinterest_[5] )
 		    setOutputValue( output, 5, idx, z0,

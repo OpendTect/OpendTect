@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.27 2010-09-13 14:10:33 cvshelene Exp $";
+static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.28 2010-09-30 15:14:44 cvshelene Exp $";
 
 
 #include "uisimilarityattrib.h"
@@ -19,7 +19,6 @@ static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.27 2010-09-13 14:10:3
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
-#include "uisteeringsel.h"
 #include "uistepoutsel.h"
 
 using namespace Attrib;
@@ -30,7 +29,6 @@ static const char* extstrs3d[] =
 	"Mirror 90 degrees",
 	"Mirror 180 degrees",
 	"Full block",
-	"Coherency-like",
 	0
 };
 
@@ -39,7 +37,6 @@ static const char* extstrs2d[] =
 	"None",
 	"Mirror 180 degrees",
 	"Full block",
-	"Coherency-like",
 	0
 };
 
@@ -61,26 +58,10 @@ static const char* outpstrsext[] =
 	0
 };
 
-static const char* outpcoh2dstrs[] =
+static const char* outpdip3dstrs[] =
 {
-	"Average",
-	"Median",
-	"Variance",
-	"Min",
-	"Max",
-	"Trace Dip (max coherency)",
-	0
-};
-
-static const char* outpcoh3dstrs[] =
-{
-    	"Average",
-	"Median",
-	"Variance",
-	"Min",
-	"Max",
-	"Inline Dip (max coherency)",
-	"Crossline Dip (max coherency)",
+	"Inline Dip",
+	"Crossline Dip",
 	0
 };
 
@@ -118,26 +99,39 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     stepoutfld_->attach( alignedBelow, extfld_ );
     stepoutfld_->setFieldNames( "Inl Stepout", "Crl Stepout" );
 
-    outpstatsfld_ = new uiGenInput( this, "Output statistic",
-				   StringListInpSpec(outpstrs) );
-    outpstatsfld_->attach( alignedBelow, stepoutfld_ );
-
-    steerfld_ = new uiSteeringSel( this, 0, is2d );
-    steerfld_->attach( alignedBelow, outpstatsfld_ );
+    steerfld_ = new uiSimilarityAttrib::uiSimiSteeringSel( this, 0, is2d );
+    steerfld_->typeSelected.notify( mCB(this,uiSimilarityAttrib,steerTypeSel) );
+    steerfld_->attach( alignedBelow, stepoutfld_ );
 
     BufferString mdlbl = "Maximum dip";
     mdlbl += zIsTime() ? " (us/m)" : " (mm/m)";
     maxdipfld_ = new uiGenInput( this, mdlbl, FloatInpSpec() ); 
-    maxdipfld_->attach( alignedBelow, outpstatsfld_ );                   
+    maxdipfld_->attach( alignedBelow, steerfld_ );                   
 										
     BufferString ddlbl = "Delta dip";                                 
     ddlbl += zIsTime() ? " (us/m)" : " (mm/m)";
     deltadipfld_ = new uiGenInput( this, ddlbl, FloatInpSpec() );
     deltadipfld_->attach( alignedBelow, maxdipfld_ );
 
+    dooutpstatsfld_ = new uiGenInput( this, "Output",
+			BoolInpSpec(true,"Satistics","Dip at max similarity") );
+    dooutpstatsfld_->valuechanged.notify( mCB(this,uiSimilarityAttrib,outSel) );
+    dooutpstatsfld_->attach( alignedBelow, deltadipfld_ );
+
+    outpstatsfld_ = new uiGenInput( this, "Output statistic",
+				   StringListInpSpec(outpstrs) );
+    outpstatsfld_->attach( alignedBelow, dooutpstatsfld_ );
+
+    outpdipfld_ = new uiGenInput( this, "Select output",
+				  StringListInpSpec(outpdip3dstrs) );
+    outpdipfld_->attach( alignedBelow, dooutpstatsfld_ );
+    outpdipfld_->display(false);
+
     setHAlignObj( pos0fld_ );
 
     extSel(0);
+    steerTypeSel(0);
+    outSel(0);
 }
 
 
@@ -145,22 +139,19 @@ void uiSimilarityAttrib::extSel( CallBacker* )
 {
     const char* ext = extfld_->text();
     
-    pos0fld_->display( strcmp(ext,extstrs3d[3]) && strcmp(ext,extstrs3d[4]) );
-    pos1fld_->display( strcmp(ext,extstrs3d[3]) && strcmp(ext,extstrs3d[4]) );
-    stepoutfld_->display( !strcmp(ext,extstrs3d[3])||!strcmp(ext,extstrs3d[4]));
+    const bool iscube = !strcmp(ext,extstrs3d[3]);
+    pos0fld_->display( !iscube );
+    pos1fld_->display( !iscube );
+    stepoutfld_->display( iscube );
     outpstatsfld_->display( strcmp(ext,extstrs3d[0]) );
-    maxdipfld_->display( !strcmp(ext,extstrs3d[4]) );
-    deltadipfld_->display( !strcmp(ext,extstrs3d[4]) );
+}
 
-    BufferString cursel = outpstatsfld_->text();
-    const char** outlist = !strcmp(ext,extstrs3d[3])
-				? outpstrsext
-				: !strcmp(ext,extstrs3d[4])
-				    ? ( is2d_ ? outpcoh2dstrs : outpcoh3dstrs )
-				    : outpstrs;
-    StringListInpSpec spec( outlist );
-    outpstatsfld_->newSpec( spec, 0 );
-    outpstatsfld_->setText( cursel );
+
+void uiSimilarityAttrib::outSel(CallBacker*)
+{
+    const bool outstats = dooutpstatsfld_->getBoolValue();
+    outpdipfld_->display( !outstats );
+    outpstatsfld_->display( outstats );
 }
 
 
@@ -198,10 +189,21 @@ bool uiSimilarityAttrib::setOutput( const Attrib::Desc& desc )
     const char* ext = extfld_->text();
     const bool mirrorext = !strcmp(ext,extstrs3d[1]) || 
 			   !strcmp(ext,extstrs3d[2]);
-    if ( selattr>0 && mirrorext )
-	outpstatsfld_->setValue( selattr-2 );
+    dooutpstatsfld_->setValue( selattr<5 );
+    
+    if ( selattr<5 )
+    {
+	if ( selattr>0 && mirrorext )
+	    outpstatsfld_->setValue( selattr-2 );
+	else
+	    outpstatsfld_->setValue( selattr );
+    }
     else
-	outpstatsfld_->setValue( selattr );
+	outpdipfld_->setValue( selattr-5 );
+
+
+    const bool wantbdip = steerfld_->wantBrowseDip();
+    const bool ouptstats = dooutpstatsfld_;
 
     return true;
 }
@@ -213,7 +215,7 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
 	return false;
 
     const char* ext = extfld_->text();
-    if ( !strcmp(ext,extstrs3d[3]) || !strcmp(ext,extstrs3d[4]) )
+    if ( !strcmp(ext,extstrs3d[3]) )
     {	mSetBinID( Similarity::stepoutStr(), stepoutfld_->getBinID() ); }
     else
     {
@@ -226,7 +228,7 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
     mSetFloatInterval( Similarity::gateStr(), gatefld_->getFInterval() );
     mSetBool( Similarity::steeringStr(), steerfld_->willSteer() );
 
-    if ( !strcmp(ext,extstrs3d[4]) )
+    if ( steerfld_->wantBrowseDip() )
     {
 	mSetFloat( Similarity::maxdipStr(), maxdipfld_->getfValue() );
 	mSetFloat( Similarity::ddipStr(), deltadipfld_->getfValue() );
@@ -261,10 +263,83 @@ void uiSimilarityAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr(), Similarity::gateStr() );
 
-    if (   !strcmp(extstrs3d[3],extfld_->text())
-	|| !strcmp(extstrs3d[4],extfld_->text()) )
+    if (   !strcmp(extstrs3d[3],extfld_->text()) )
 	params += EvalParam( stepoutstr(), Similarity::stepoutStr() );
     else
 	params += EvalParam( "Trace positions", Similarity::pos0Str(),
 			     Similarity::pos1Str() );
 }
+
+
+void uiSimilarityAttrib::steerTypeSel(CallBacker*)
+{
+    const bool wantbdip = steerfld_->wantBrowseDip();
+    maxdipfld_->display( wantbdip );
+    deltadipfld_->display( wantbdip );
+
+    const bool usedip = wantbdip || steerfld_->willSteer();
+    dooutpstatsfld_->display( usedip );
+    outpstatsfld_->display( usedip );
+    outpdipfld_->display( usedip );
+    outSel(0);
+}
+
+
+uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
+						    const Attrib::DescSet* dset,
+						    bool is2d )
+    : uiSteeringSel( p, dset, is2d, true, false )
+    , typeSelected(this)
+{
+    const char* res = uiAF().attrNameOf( "Curvature" );
+    if ( !res )
+    {
+	BufferStringSet steertyps;
+	steertyps.add( "None" );
+	typfld_ = new uiGenInput( this, "Steering",
+				  StringListInpSpec(steertyps) );
+	typfld_->valuechanged.notify(
+		    mCB(this,uiSimilarityAttrib::uiSimiSteeringSel,typeSel));
+    }
+    else
+	createFields();
+
+    DataInpSpec* inpspec = const_cast<DataInpSpec*>(typfld_->dataInpSpec());
+    mDynamicCastGet(StringListInpSpec*,listspec,inpspec);
+    if ( !listspec ) return;
+
+    listspec->addString("Browse dip");
+//    typfld_->newSpec(listspec,0);
+
+}
+
+
+void uiSimilarityAttrib::uiSimiSteeringSel::typeSel(CallBacker*)
+{
+    typeSelected.trigger();
+    uiSteeringSel::typeSel(0);
+}
+
+
+bool uiSimilarityAttrib::uiSimiSteeringSel::willSteer() const
+{
+    if ( !typfld_ ) return false;
+
+    int typ = typfld_->getIntValue();
+    return typ && !wantBrowseDip();
+}
+
+
+bool uiSimilarityAttrib::uiSimiSteeringSel::wantBrowseDip() const
+{
+    if ( !typfld_ ) return false;
+
+    const char* hassteerplug = uiAF().attrNameOf( "Curvature" );
+    int typ = typfld_->getIntValue();
+
+    const bool browsedip = ( !hassteerplug && typ==1 ) ||
+			   ( hassteerplug && ( ( withconstdir_ && typ==4 )
+					    || ( !withconstdir_ && typ==3 ) ) );
+    return browsedip;
+}
+

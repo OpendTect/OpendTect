@@ -7,17 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisimilarityattrib.h,v 1.8 2010-09-13 14:10:33 cvshelene Exp $
+ RCS:           $Id: uisimilarityattrib.h,v 1.9 2010-09-30 15:14:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrdesced.h"
+#include "uisteeringsel.h"
 
 class uiAttrSel;
 class uiGenInput;
 class uiStepOutSel;
-class uiSteeringSel;
 
 
 /*! \brief Similarity Attribute description editor */
@@ -33,7 +33,6 @@ public:
 protected:
 
     uiAttrSel*		inpfld_;
-    uiSteeringSel*	steerfld_;
     uiGenInput*		gatefld_;
     uiGenInput*		extfld_;
     uiStepOutSel*	pos0fld_;
@@ -42,6 +41,8 @@ protected:
     uiGenInput*		outpstatsfld_;
     uiGenInput*		maxdipfld_;
     uiGenInput*		deltadipfld_;
+    uiGenInput*		outpdipfld_;
+    uiGenInput*		dooutpstatsfld_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
@@ -52,8 +53,27 @@ protected:
     bool		getOutput(Attrib::Desc&);
 
     void		extSel(CallBacker*);
+    void		outSel(CallBacker*);
+    void		steerTypeSel(CallBacker*);
 
     			mDeclReqAttribUIFns
+
+    mClass uiSimiSteeringSel : public uiSteeringSel
+    {                                                                           
+	public:                                                                     
+			uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,
+					  bool is2d);
+	   
+	    bool	willSteer() const;	
+	    bool	wantBrowseDip() const;
+				                                             
+	    Notifier<uiSimiSteeringSel>	typeSelected;
+
+	protected:                                                                  
+	    void	typeSel(CallBacker*);
+    };
+
+    uiSimiSteeringSel*	steerfld_;
 };
 
 

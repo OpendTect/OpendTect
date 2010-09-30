@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.28 2010-09-13 14:10:33 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.29 2010-09-30 15:14:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ Output:
 3       Min
 4       Max
 
-and if Coherency-like extension chosen:
+and if dip-browser chosen:
 5	Coherency-like Inline dip (Trace dip in 2D)
 6	Coherency-like Crossline dip
 
@@ -66,6 +66,7 @@ public:
     static const char*		pos1Str()	{ return "pos1"; }
     static const char*		stepoutStr()	{ return "stepout"; }
     static const char*		steeringStr()	{ return "steering"; }
+    static const char*		browsedipStr()	{ return "browsedip"; }
     static const char*		normalizeStr()	{ return "normalize"; }
     static const char*		extensionStr()	{ return "extension"; }
     static const char*		maxdipStr()	{ return "maxdip"; }
@@ -89,10 +90,6 @@ protected:
 	    				    const BinID& relpos,
 					    int z0,int nrsamples,
 					    int threadid) const;
-    float			calcCoh(float t,const Interval<int>& rsg,
-				    float,float,
-				    const Array2DImpl<DataHolder*>& re,
-				    const Array2DImpl<DataHolder*>& im) const;
 
     const BinID*		reqStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
@@ -110,6 +107,7 @@ protected:
 
     Interval<float>             desgate_;
 
+    bool			dobrowsedip_;
     bool			dosteer_;
     TypeSet<int>		steerindexes_;
     bool			donormalize_;
@@ -148,6 +146,7 @@ protected:
 	const ValueSeries<float>& func_;
 	int sz_;
     };
+
 };
 
 } // namespace Attrib
