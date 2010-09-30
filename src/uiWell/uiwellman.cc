@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.64 2010-09-07 16:03:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.65 2010-09-30 09:56:50 cvsnageswara Exp $";
 
 #include "uiwellman.h"
 
@@ -64,7 +64,6 @@ uiWellMan::uiWellMan( uiParent* p )
     , lastexternal_(0)
 {
     createDefaultUI();
-    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
     logsgrp_ = new uiGroup( this, "Logs group" );
     uiLabel* lbl = new uiLabel( logsgrp_, "Logs" );
