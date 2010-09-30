@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.20 2010-09-29 11:14:33 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.21 2010-09-30 08:42:50 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -231,6 +231,12 @@ bool PropertyRefSet::writeTo( ascostream& astrm ) const
 }
 
 
+const char* Property::name() const
+{
+    return ref_.name().buf();
+}
+
+
 MathProperty::~MathProperty()
 {
     delete expr_;
@@ -264,7 +270,7 @@ const char* MathProperty::inputName( int idx ) const
 
 void MathProperty::setInput( int idx, const Property* p )
 {
-    if ( p && p->dependsOn(this) )
+    if ( p && p->dependsOn(*this) )
     {
 	BufferString msg( "Invalid cyclic dependency for property " );
 	msg += ref().name();
@@ -275,12 +281,10 @@ void MathProperty::setInput( int idx, const Property* p )
 }
 
 
-bool MathProperty::dependsOn( const Property* p ) const
+bool MathProperty::dependsOn( const Property& p ) const
 {
-    if ( p == this )
+    if ( &p == this )
 	return true;
-    else if ( !p )
-	return false;
 
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
@@ -292,7 +296,7 @@ bool MathProperty::dependsOn( const Property* p ) const
 }
 
 
-float MathProperty::value() const
+float MathProperty::value( bool avg ) const
 {
     if ( !expr_ )
 	return mUdf(float);
@@ -303,7 +307,7 @@ float MathProperty::value() const
 	if ( !p )
 	    return mUdf(float);
 
-	const float v = inps_[idx]->value();
+	const float v = inps_[idx]->value(avg);
 	if ( mIsUdf(v) )
 	    return mUdf(float);
 
@@ -339,11 +343,19 @@ Property* PropertySet::gt( const char* nm ) const
 }
 
 
+void PropertySet::reset()
+{
+    for ( int idx=0; idx<size(); idx++ )
+	(*this)[idx]->reset();
+}
+
+
 bool PropertySet::prepareEval()
 {
     for ( int idx=0; idx<size(); idx++ )
     {
 	Property* p = (*this)[idx];
+	p->reset();
 	mDynamicCastGet(MathProperty*,mp,p)
 	if ( !mp ) continue;
 
