@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.4 2010-09-27 11:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.5 2010-09-30 08:32:00 cvsbruno Exp $";
 
 
 #include "stratreftree.h"
@@ -179,7 +179,7 @@ bool Strat::RefTree::write( std::ostream& strm ) const
     astrm.put( "Units" );
     UnitRefIter it( *this );
     ObjectSet<const UnitRef> unitrefs;
-    unitrefs += it.unit();;
+    unitrefs += it.unit();
 
     while ( it.next() )
     {
