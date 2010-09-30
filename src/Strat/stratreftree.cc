@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.6 2010-09-30 08:42:00 cvsbert Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.7 2010-09-30 15:00:13 cvsbruno Exp $";
 
 
 #include "stratreftree.h"
@@ -103,6 +103,8 @@ void Strat::RefTree::setToActualTypes()
     for ( int idx=0; idx<norefs.size(); idx++ )
     {
 	LeavedUnitRef* un = norefs[idx];
+	if ( un->ref(0).isLeaf() ) 
+	    continue;
 	NodeUnitRef* par = un->upNode();
 	NodeOnlyUnitRef* newun = new NodeOnlyUnitRef( par, un->code(),
 						    un->description() );
