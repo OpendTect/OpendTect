@@ -4,11 +4,11 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.1 2010-09-06 13:57:50 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.2 2010-09-30 10:58:10 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
-#include "property.h"
+#include "stratunitref.h"
 
 
 const Strat::LeafUnitRef& Strat::Layer::unitRef() const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.10 2010-09-30 08:42:50 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.11 2010-09-30 10:58:10 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -53,11 +53,13 @@ public:
 
     int			nrInputs() const;
     const char*		inputName(int) const;
+    bool		haveInput( int idx ) const	{ return inps_[idx]; }
     void		setInput(int,const Property*);
     			//!< Must be done for all inputs after each setDef()
 
     virtual float	value(bool) const;
     virtual bool	canSet() const		{ return false; }
+    virtual void	reset();
     virtual bool	dependsOn(const Property&) const;
 
 protected:

@@ -7,16 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2010
- RCS:		$Id: stratlayer.h,v 1.5 2010-09-06 13:57:50 cvsbert Exp $
+ RCS:		$Id: stratlayer.h,v 1.6 2010-09-30 10:58:10 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "objectset.h"
 #include "compoundkey.h"
-#include "stratunitref.h"
+#include "property.h"
 class Property;
+class PropertySet;
 
 namespace Strat
 {
@@ -34,17 +34,17 @@ public:
 			: ref_(r)			{}
 
     const LeafUnitRef&	unitRef() const;
-    void		setRef( const LeafUnitRef* r )	{ ref_ = r; }
+    inline void		setRef( const LeafUnitRef* r )	{ ref_ = r; }
 
-    ObjectSet<Property>&	properties()		{ return props_; }
-    const ObjectSet<Property>&	properties() const	{ return props_; }
+    PropertySet&	properties()		{ return props_; }
+    const PropertySet&	properties() const	{ return props_; }
 
     ID			id() const; // returns unitRef().fullCode()
 
 protected:
 
     const LeafUnitRef*	ref_;
-    ObjectSet<Property>	props_;
+    PropertySet		props_;
 
 };
 

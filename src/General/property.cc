@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.21 2010-09-30 08:42:50 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.22 2010-09-30 10:58:10 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -144,8 +144,14 @@ int PropertyRefSet::indexOf( const char* nm ) const
     {
 	for ( int idx=0; idx<size(); idx++ )
 	{
-	    const PropertyRef* pr = (*this)[idx];
-	    if ( (*this)[idx]->isKnownAs(nm) )
+	    const PropertyRef& pr = *(*this)[idx];
+	    if ( pr.name() == nm )
+		return idx;
+	}
+	for ( int idx=0; idx<size(); idx++ )
+	{
+	    const PropertyRef& pr = *(*this)[idx];
+	    if ( pr.isKnownAs(nm) )
 		return idx;
 	}
     }
@@ -296,6 +302,15 @@ bool MathProperty::dependsOn( const Property& p ) const
 }
 
 
+void MathProperty::reset()
+{
+    const int sz = expr_->nrVariables();
+    inps_.erase();
+    while ( sz > inps_.size() )
+	inps_ += 0;
+}
+
+
 float MathProperty::value( bool avg ) const
 {
     if ( !expr_ )
@@ -318,35 +333,73 @@ float MathProperty::value( bool avg ) const
 }
 
 
-int PropertySet::indexOf( const char* nm ) const
+int PropertySet::indexOf( const char* nm, bool matchaliases ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    if ( !nm || !*nm ) return -1;
+
+    for ( int idx=0; idx<props_.size(); idx++ )
     {
-	const Property& p = *(*this)[idx];
+	const Property& p = *props_[idx];
 	if ( p.ref().name() == nm )
 	    return idx;
     }
-    for ( int idx=0; idx<size(); idx++ )
+    if ( matchaliases )
     {
-	const Property& p = *(*this)[idx];
-	if ( p.ref().isKnownAs(nm) )
-	    return idx;
+	for ( int idx=0; idx<props_.size(); idx++ )
+	{
+	    const Property& p = *props_[idx];
+	    if ( p.ref().isKnownAs(nm) )
+		return idx;
+	}
     }
+
     return -1;
 }
 
 
-Property* PropertySet::gt( const char* nm ) const
+Property* PropertySet::gt( const char* nm, bool ma ) const
 {
-    const int idx = indexOf(nm);
-    return idx < 0 ? 0 : const_cast<Property*>( (*this)[idx] );
+    const int idx = indexOf(nm,ma);
+    return idx < 0 ? 0 : const_cast<Property*>( props_[idx] );
+}
+
+
+bool PropertySet::add( Property* p )
+{
+    if ( !p ) return false;
+    if ( indexOf(p->name(),false) >= 0 )
+	return false;
+    props_ += p;
+    return true;
+}
+
+
+int PropertySet::set( Property* p )
+{
+    if ( !p ) return -1;
+
+    int idxof = indexOf( p->name(), false );
+    if ( idxof >= 0 )
+    	delete props_.replace( idxof, p );
+    else
+    {
+	idxof = props_.size();
+	props_ += p;
+    }
+    return idxof;
+}
+
+
+void PropertySet::remove( int idx )
+{
+    delete props_.remove( idx );
 }
 
 
 void PropertySet::reset()
 {
     for ( int idx=0; idx<size(); idx++ )
-	(*this)[idx]->reset();
+	props_[idx]->reset();
 }
 
 
@@ -354,23 +407,30 @@ bool PropertySet::prepareEval()
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	Property* p = (*this)[idx];
+	Property* p = props_[idx];
 	p->reset();
 	mDynamicCastGet(MathProperty*,mp,p)
 	if ( !mp ) continue;
 
 	const int nrinps = mp->nrInputs();
-	for ( int idep=0; idep<nrinps; idep++ )
+	for ( int imatch=0; imatch<2; imatch++ )
 	{
-	    const char* nm = mp->inputName( idep );
-	    const Property* depp = get( nm );
-	    if ( !depp )
+	    const bool matchalias = imatch;
+	    for ( int idep=0; idep<nrinps; idep++ )
 	    {
-		errmsg_ = "Missing input for '";
-		errmsg_.add(mp->ref().name()).add("': '").add(nm).add("'");
-		return false;
+		if ( mp->haveInput(idep) ) continue;
+
+		const char* nm = mp->inputName( idep );
+		const Property*	depp = get( nm, matchalias );
+		if ( depp )
+		    mp->setInput( idep, depp );
+		else if ( matchalias )
+		{
+		    errmsg_ = "Missing input for '";
+		    errmsg_.add(mp->name()).add("': '").add(nm).add("'");
+		    return false;
+		}
 	    }
-	    mp->setInput( idep, depp );
 	}
     }
 

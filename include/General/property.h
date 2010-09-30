@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.14 2010-09-30 08:42:50 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.15 2010-09-30 10:58:10 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -19,9 +19,9 @@ class PropertyRef;
 
 /*!\brief A (usually petrophysical) property of some object.
 
-  Its purpose is to provide a value when asked. Some Property types return 'random'
-  values. To get a new value, you need to call reset(). To get the average value,
-  pass 'true' to value().
+  Its purpose is to provide a value when asked. Some Property types return
+  'random' values. To get a new value, you need to call reset(). To get the
+  average value, pass 'true' to value().
  
  */
 
@@ -50,25 +50,38 @@ protected:
 };
 
 
-mClass PropertySet : public ObjectSet<Property>
+mClass PropertySet
 {
 public:
 
-    int			indexOf(const char*) const;
-    inline bool		isPresent( const char* nm ) const
-    			{ return indexOf(nm) >= 0; }
-    inline const Property* get( const char* nm ) const	{ return gt(nm); }
-    inline Property*	get( const char* nm )		{ return gt(nm); }
+    virtual		~PropertySet()		{ erase(); }
 
-    bool		prepareEval(); //!< does a reset()
-    inline const char*	errMsg() const			{ return errmsg_; }
+    inline int		size() const		{ return props_.size(); }
+    inline bool		isEmpty() const		{ return props_.isEmpty(); }
+    int			indexOf(const char*,bool matchaliases=false) const;
+    inline bool		isPresent( const char* nm, bool ma=false ) const
+    			{ return indexOf(nm,ma) >= 0; }
+    inline const Property* get( const char* nm, bool ma=false ) const
+    						{ return gt(nm,ma); }
+    inline Property*	get( const char* nm, bool ma=false )
+    						{ return gt(nm,ma); }
 
-    void		reset();
+    bool		add(Property*); //!< refuses to add with identical name
+    int			set(Property*); //!< add or change into. returns index.
+    void		remove(int);
+    void		erase()			{ deepErase(props_); }
+
+    void		reset();	//!< clears 'memory'
+    bool		prepareEval();	//!< gets properties in usable state
+    inline const char*	errMsg() const		{ return errmsg_; }
+
 
 protected:
 
     BufferString	errmsg_;
-    Property*		gt(const char*) const;
+    Property*		gt(const char*,bool) const;
+
+    ObjectSet<Property>	props_;
 
 };
 
