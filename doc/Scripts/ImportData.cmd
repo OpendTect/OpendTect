@@ -1,4 +1,4 @@
-dTect V3.2
+dTect V4.2.0
 OpendTect commands
 Mon Jun 28 11:36:39 2008
 !
@@ -14,13 +14,15 @@ Button "Select Horizon"
 Input "Name" "Horizon-Import"
 Ok
 Button "Display after import" Off
+Button "Go"
 Button "Ok"
+Button "Dismiss"
 Comment "-----------Displaying Above Imported Horizon-------"
 TreeMenu "Horizon" "Load"
 ListClick "Objects list" "Horizon-Import" Double
 
 Comment "----------------Importing Pickset------------"
-Menu "Survey`Import`Picksets"
+Menu "Survey`Import`Picksets`Ascii"
 Input "Input Ascii file" "$EXPORTDIR$/PicksetExport.asc"
 Button "Define Format definition" 
 Combo "Unit" "Seconds"
@@ -32,7 +34,7 @@ Button "Go"
 Ok
 Button "Dismiss"
 Comment "--------Displaying Above Imported pickset--------"
-TreeMenu "Pickset" "Load"
+TreeMenu "PickSet/Polygon" "Load PickSet"
 ListClick "Objects list" "Pickset-Import" Double
 
 Comment "----------------Importing Fault------------"
@@ -85,34 +87,33 @@ Ok
 Ok
 Ok
 
-Comment "----------Importing Seismic Data--------------"
+#Comment "----------Importing Seismic Data--------------"
+#Menu "Survey`Import`Seismics`SEG-Y"
+#Window "SEG-Y tool"
+#Input "Input SEG-Y*" "$EXPORTDIR$/SeisExport.sgy"
+#Button "Next>>"
 
-Menu "Survey`Import`Seismics`SEG-Y"
-Window "SEG-Y tool"
-Input "Input SEG-Y*" "$EXPORTDIR$/SeisExport.sgy"
-Ok
-
-Window "Determine SEG-Y*"
-Ok
-Window "SEG-Y Scan"
-Button "Select Volume sub*"
-Window "Positions"
-Input "Inline start" 320
-Input "Inline stop" 320
-Ok
-Button "Select Output Cube"
-Input "Name" "SeisImport"
-Ok
-Ok
-Ok
-Comment "---------Displaying Above imported Seismics---------"
-TreeMenu "Inline" "Add"
-TreeMenu "Inline`*" "Position"
-Window "Positioning"
-Input "Inl nr" 320
-Ok
-Button "Stored"
-ListClick "Select Data" "Median Dip Filtered*" Double
+#Window "Determine SEG-Y*"
+#Ok
+#Window "SEG-Y Scan"
+#Button "Select Volume sub*"
+#Window "Positions"
+#Input "Inline start" 320
+#Input "Inline stop" 320
+#Ok
+#Button "Select Output Cube"
+#Input "Name" "SeisImport"
+#Ok
+#Ok
+#Ok
+#Comment "---------Displaying Above imported Seismics---------"
+#TreeMenu "Inline" "Add"
+#TreeMenu "Inline`*" "Position"
+#Window "Positioning"
+#Input "Inl nr" 320
+#Ok
+#Button "Stored"
+#ListClick "Select Data" "Median Dip Filtered*" Double
 
 Wheel "hRotate" 45
 Wheel "vRotate" 45
@@ -122,18 +123,16 @@ Ok
 Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_TreeItems-imported"
 Ok
 
-TreeMenu "Inline`*" "Remove"
-TreeMenu "PickSet`*" "Remove"
+#TreeMenu "Inline`*" "Remove"
+TreeMenu "PickSet/Polygon`*" "Remove"
 TreeMenu "Horizon`*" "Remove"
 TreeMenu "Fault`*" "Remove"
+TreeMenu "FaultStickSet`*" "Remove"
 
 Wheel "vRotate" -45
 Wheel "hRotate" -45
 
-Button "Manage seismic data"
-ListClick "Objects list" "SeisImport"
-Button "Remove this object"
-Button "Remove"
+Button "Manage Seismic data"
 ListClick "Objects list" "CBVS-Import"
 Button "Remove this object"
 Button "Remove"
@@ -145,13 +144,19 @@ Button "Remove this object"
 Button "Remove"
 Button "Dismiss"
 
-Button "Manage Pick Sets"
+Button "Manage PickSets/Polygons"
 ListClick "Objects list" "Pickset-Import"
 Button "Remove this object"
 Button "Remove"
 Button "Dismiss"
 
-Button "Manage faults"
+ButtonMenu "Manage Faults" "Faults"
+ListClick "Objects list" "TestFaultImport"
+Button "Remove this object"
+Button "Remove"
+Button "Dismiss"
+
+ButtonMenu "Manage Faults" "Faultsticksets"
 ListClick "Objects list" "TestFaultImport"
 Button "Remove this object"
 Button "Remove"
