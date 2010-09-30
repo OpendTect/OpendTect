@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.85 2010-09-29 10:12:17 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.86 2010-09-30 07:43:51 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -677,10 +677,9 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
 
 float SEGY::TrcHeader::postScale( int numbfmt ) const
 {
-    if ( numbfmt != 2 && numbfmt != 3 && numbfmt != 5 ) return 1.;
-
     // There seems to be software (Paradigm?) putting this on byte 189
-    // Then indeed, we'd expect this to be 4 byte. Duh.
+    // Then we'd expect this to be 4 byte. Sigh. How far do we need to go
+    // to support crap from SEG-Y vandals?
     static bool postscale_byte_established = false;
     static int postscale_byte;
     static bool postscale_isint;
@@ -695,10 +694,10 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
     short trwf = postscale_isint ?
 	IbmFormat::asInt( mGetBytes(postscale_byte-1,4) )
       : IbmFormat::asShort( mGetBytes(postscale_byte-1,2) );
-    if ( trwf == 0 || trwf > 60 || trwf < -60 ) return 1;
+    if ( trwf == 0 || trwf > 50 || trwf < -50 ) return 1;
 
-    // According to the standard, trwf cannot be negative ...
-    // But I'll support it anyway because some files are like this
+    // According to the standard, trwf cannot be negative, but hey, standards
+    // are for wimps, right?
     const bool isneg = trwf < 0;
     if ( isneg )
 	trwf = -trwf;
