@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2007
- RCS:           $Id: visvolrenscalarfield.h,v 1.10 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:           $Id: visvolrenscalarfield.h,v 1.11 2010-09-30 21:41:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,9 @@ public:
     Interval<float>		getVolumeSize(int dim) const;
 
     SoNode*			getInventorNode();
+
+    const char*			writeVolumeFile(std::ostream&) const;
+				//!<\returns 0 on success, otherwise errmsg
 
     virtual int			usePar(const IOPar&);
 

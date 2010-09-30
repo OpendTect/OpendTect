@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.24 2010-06-21 15:03:56 cvskarthika Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.25 2010-09-30 21:41:20 cvskris Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -16,6 +16,8 @@ static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.24 2010-06-21 15:03
 #include "viscolortab.h"
 #include "visdataman.h"
 #include "settings.h"
+
+#include "ostream"
 
 #include <Inventor/nodes/SoGroup.h>
 
@@ -323,6 +325,69 @@ int VolumeRenderScalarField::usePar( const IOPar& par )
 
     return 1;
 }
+
+struct VolFileHeader
+{
+    uint32_t	magic_number;
+    uint32_t	header_length;
+    uint32_t	width;
+    uint32_t	height;
+    uint32_t	images;
+    uint32_t	bits_per_voxel;
+    uint32_t	index_bits;
+    float	scaleX, scaleY, scaleZ;
+    float	rotX, rotY, rotZ;
+};
+
+static uint32_t hton_uint32(uint32_t value)
+{
+#ifdef __islittle__
+    SwapBytes( &value, 4 );
+#endif
+    return value;
+}
+
+static float hton_float(float value)
+{
+#ifdef __islittle__
+    SwapBytes( &value, 4 );
+#endif
+    return value;
+}
+
+		    
+
+const char* VolumeRenderScalarField::writeVolumeFile( std::ostream& strm ) const
+{
+    if ( !indexcache_ )
+	return "Nothing to write";
+
+    const char* writeerr = "Cannot write to stream";
+
+    struct VolFileHeader vh = {
+	hton_uint32(0x0b7e7759), // magic_number
+	hton_uint32(sizeof(struct VolFileHeader)),
+	0, 0, 0, // whatever -- these are replaced
+	hton_uint32(8), hton_uint32(0),
+	hton_float(1.0f), hton_float(1.0f), hton_float(1.0f),
+	hton_float(0.0f), hton_float(0.0f), hton_float(0.0f)
+      };
+
+    vh.width = hton_uint32(sz2_);
+    vh.height = hton_uint32(sz1_);
+    vh.images = hton_uint32(sz0_);
+    vh.bits_per_voxel = hton_uint32(8);
+
+    if ( !strm.write( (char*) &vh, sizeof(struct VolFileHeader) ) )
+	return writeerr;
+
+    const od_int64 totalsz = sz0_*sz1_*sz2_;
+    if ( !strm.write( (char*) indexcache_, totalsz ) )
+	return writeerr;
+
+    return 0;
+}
+
 
 
 } // namespace visBase

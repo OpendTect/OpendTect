@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.55 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.56 2010-09-30 21:41:20 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -12,6 +12,9 @@ static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.55 2010-08-04 13:30:4
 #include "uiamplspectrum.h"
 #include "uiattribpartserv.h"
 #include "mousecursor.h"
+#include "settings.h"
+#include "oddirs.h"
+#include "uifiledlg.h"
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -110,6 +113,7 @@ uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
     , addisosurfacemnuitem_("Iso s&urface")
     , selattrmnuitem_( uiODAttribTreeItem::sKeySelAttribMenuTxt(), 10000 )
     , colsettingsmnuitem_( uiODAttribTreeItem::sKeyColSettingsMenuTxt() )
+    , savevolumemnuitem_( "Save volume file" )
 { displayid_ = displayid; }
 
 
@@ -196,6 +200,14 @@ void uiODVolrenTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( &addmnuitem_, &addltimeslicemnuitem_, true, false );
     mAddMenuItem( &addmnuitem_, &addvolumemnuitem_, !hasVolume(), false );
     mAddMenuItem( &addmnuitem_, &addisosurfacemnuitem_, true, false );
+
+    bool yn = false;
+    Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), yn ); 
+    if ( yn )
+	mAddMenuItem( menu, &savevolumemnuitem_, true, false )
+    else
+	mResetMenuItem( &savevolumemnuitem_ );
+
 }
 
 
@@ -310,6 +322,19 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	dlg.go();
 
 	addChild( new uiODVolrenSubTreeItem(surfobjid), true );
+    }
+    else if ( mnuid==savevolumemnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	uiFileDialog filedlg( getUiParent(), false, GetPersonalDir(), "*.vol",
+			      "Select volume filename" );
+	if ( filedlg.go() )
+	{
+	    if ( !vd->writeVolume( filedlg.fileName() ) )
+	    {
+		uiMSG().error( vd->errMsg() );
+	    }
+	}
     }
     else if ( uiODAttribTreeItem::handleSelMenu( mnuid, displayID(), 0 ) )
     {

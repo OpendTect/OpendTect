@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.121 2010-09-02 11:20:58 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.122 2010-09-30 21:41:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -315,7 +315,7 @@ protected:
 
     static int			cValNameOffset()	{ return 12; }
 
-    BufferString		errmsg_;
+    mutable BufferString	errmsg_;
     Scene*			scene_;
     bool			locked_;
     ObjectSet<BufferStringSet>	userrefs_;

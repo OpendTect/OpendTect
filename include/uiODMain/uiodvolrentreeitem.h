@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: uiodvolrentreeitem.h,v 1.10 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiodvolrentreeitem.h,v 1.11 2010-09-30 21:41:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -74,6 +74,7 @@ protected:
     MenuItem		addltimeslicemnuitem_;
     MenuItem		addvolumemnuitem_;
     MenuItem		addisosurfacemnuitem_;
+    MenuItem		savevolumemnuitem_;
 };
 
 

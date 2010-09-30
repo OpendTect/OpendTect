@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.74 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.75 2010-09-30 21:41:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -161,6 +161,8 @@ public:
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
     const char*			errMsg() const { return errmsg_.str(); }
+
+    bool			writeVolume( const char* filenm ) const;
 
 protected:
 				~VolumeDisplay();

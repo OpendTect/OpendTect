@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.121 2010-08-11 09:30:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.122 2010-09-30 21:41:20 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -40,6 +40,8 @@ static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.121 2010-08-11 09:30:52
 #include "survinfo.h"
 #include "zaxistransform.h"
 #include "zaxistransformer.h"
+
+#include <fstream>
 
 #define mVisMCSurf visBase::MarchingCubesSurface
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
@@ -1258,6 +1260,24 @@ int VolumeDisplay::usePar( const IOPar& par )
 
     return 1;
 }
+
+
+bool VolumeDisplay::writeVolume( const char* filename ) const
+{
+    if ( !scalarfield_ )
+	return false;
+
+    std::ofstream strm( filename );
+    if ( !strm )
+    {
+	errmsg_ = "Cannot open file";
+	return false;
+    }
+
+    errmsg_ = scalarfield_->writeVolumeFile( strm );
+    return errmsg_.str();
+}
+
 
 
 } // namespace visSurvey
