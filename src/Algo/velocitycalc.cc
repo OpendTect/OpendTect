@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.25 2010-09-01 22:19:37 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.26 2010-10-01 21:58:34 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -136,14 +136,14 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 }
 
 
-bool TimeDepthConverter::calcDepths(ValueSeries<float>& res, int sz,
+bool TimeDepthConverter::calcDepths(ValueSeries<float>& res, int outputsz,
 				    const SamplingData<double>& timesamp) const
 {
     if ( !isOK() ) return false;
     if ( depths_ )
     {
 	const StepInterval<double> rg( sd_.interval( sz_ ) );
-	for ( int idx=0; idx<sz; idx++ )
+	for ( int idx=0; idx<outputsz; idx++ )
 	{
 	    const double time = timesamp.atIndex( idx );
 
@@ -169,7 +169,7 @@ bool TimeDepthConverter::calcDepths(ValueSeries<float>& res, int sz,
     else
     {
 	int timeidx = 0;
-	for ( int idx=0; idx<sz; idx++ )
+	for ( int idx=0; idx<outputsz; idx++ )
 	{
 	    const double time = timesamp.atIndex( idx );
 	    float depth;
@@ -180,8 +180,8 @@ bool TimeDepthConverter::calcDepths(ValueSeries<float>& res, int sz,
 	    }
 	    else if ( time>times_[sz_-1] )
 	    {
-		const double dt = time-times_[sz-1];
-		depth = sd_.atIndex(sz-1)+dt*lastvel_;
+		const double dt = time-times_[sz_-1];
+		depth = sd_.atIndex(sz_-1)+dt*lastvel_;
 	    }
 	    else
 	    {
@@ -202,14 +202,14 @@ bool TimeDepthConverter::calcDepths(ValueSeries<float>& res, int sz,
 }
 
 
-bool TimeDepthConverter::calcTimes( ValueSeries<float>& res, int sz,
+bool TimeDepthConverter::calcTimes( ValueSeries<float>& res, int outputsz,
 				    const SamplingData<double>& depthsamp) const
 {
     if ( !isOK() ) return false;
     if ( times_ )
     {
 	const StepInterval<double> depthrg( sd_.interval( sz_ ) );
-	for ( int idx=0; idx<sz; idx++ )
+	for ( int idx=0; idx<outputsz; idx++ )
 	{
 	    const double depth = depthsamp.atIndex( idx );
 
@@ -236,7 +236,7 @@ bool TimeDepthConverter::calcTimes( ValueSeries<float>& res, int sz,
     else
     {
 	int depthidx = 0;
-	for ( int idx=0; idx<sz; idx++ )
+	for ( int idx=0; idx<outputsz; idx++ )
 	{
 	    const double depth = depthsamp.atIndex( idx );
 	    float time;
@@ -247,8 +247,8 @@ bool TimeDepthConverter::calcTimes( ValueSeries<float>& res, int sz,
 	    }
 	    else if ( depth>depths_[sz_-1] )
 	    {
-		const double ddepth = depth-depths_[sz-1];
-		time = sd_.atIndex(sz-1)+ddepth/lastvel_;
+		const double ddepth = depth-depths_[sz_-1];
+		time = sd_.atIndex(sz_-1)+ddepth/lastvel_;
 	    }
 	    else
 	    {
