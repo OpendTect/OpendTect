@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvllist.cc,v 1.4 2010-09-27 11:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvllist.cc,v 1.5 2010-10-01 09:35:18 cvsbruno Exp $";
 
 #include "uistratlvllist.h"
 
 #include "bufstringset.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "randcolor.h"
 #include "stratlevel.h"
 #include "uistratutildlgs.h"
 
@@ -97,32 +98,16 @@ void uiStratLvlList::fill( CallBacker* )
 
 void uiStratLvlList::editLevel( bool create )
 {
-    uiStratLevelDlg newlvldlg( this );
-    if ( !create )
-	newlvldlg.setLvlInfo( box()->getText() );
-     newlvldlg.go();
-}
-
-
-void uiStratLvlList::update( bool create )
-{
-    if ( create && box()->isPresent( sNoLevelTxt ) )
-	box()->removeItem( 0 );
-
-    int lvlidx = create ? box()->size() : box()->currentItem();
-    if ( lvlidx > levelset_.size() ) return;
-    const Strat::Level& lvl = *Strat::LVLS().levels()[lvlidx];
-    BufferString lvlnm( lvl.name() );
-    Color lvlcol = lvl.color();
-    if ( create )
+    Strat::LevelSet& lvls = Strat::eLVLS();
+    const char* lvlnm = box()->getText();
+    Strat::Level* lvl = create ? lvls.add( lvlnm, getRandStdDrawColor() ) 
+			       : lvls.get( lvlnm ); 
+    if ( lvl )
     {
-	box()->addItem( lvlnm, lvlcol );
+	uiStratLevelDlg newlvldlg( this, *lvl );
+	newlvldlg.go();
     }
-    else
-    {
-	box()->setItemText( lvlidx, lvlnm );
-	box()->setPixmap( lvlidx, lvlcol );
-    }
+    else 
+	uiMSG().error( "Can not find level" ); 
 }
-
 

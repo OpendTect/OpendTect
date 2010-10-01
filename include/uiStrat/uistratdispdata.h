@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.11 2010-09-29 16:16:56 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.12 2010-10-01 09:35:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,19 +39,27 @@ public:
 
     mStruct Unit
     {
-			Unit(const char* nm,const Color& col = Color::White() )
-				: color_(col)
+			Unit(const char* nm, const char* fullcode=0,
+				    const Color& col = Color::White() )
+				: name_( nm )
+			 	, fullcode_(fullcode)
+				, color_(col)
 				, isdisplayed_(true)		 
-				{
-				    names_.add( nm );
-				}	 
+				{}	 
 
-	const char* name() const { return names_[0]->buf(); }
+	const char* 	name() const 	{ return name_.buf(); }
+	const char* 	fullCode() const { return fullcode_.buf(); }
 
-	BufferStringSet names_;
 	const Color	color_;
 	Interval<float>	zrg_;
 	bool		isdisplayed_;
+
+	int 		colidx_; //tree depth
+
+    protected :
+
+	BufferString 	name_;
+	BufferString    fullcode_;
     };
 
 
@@ -103,7 +111,7 @@ public:
     int			nrUnits( int colidx ) const 
 			    { return cols_[colidx]->units_.size(); }
     void		addUnit( int colidx, Unit* un )
-			    { cols_[colidx]->units_ += un; }
+			    { cols_[colidx]->units_ += un; un->colidx_=colidx; }
 
     const Column*	getCol( int idx ) const 
 			    { return cols_[idx]; }

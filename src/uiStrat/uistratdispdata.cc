@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.18 2010-09-29 16:16:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.19 2010-10-01 09:35:18 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
@@ -114,7 +114,7 @@ void uiStratTreeToDispTransl::readUnits()
 
 void uiStratTreeToDispTransl::addUnit( const Strat::NodeUnitRef& ur ) 
 {
-    StratDispData::Unit* un = new StratDispData::Unit( ur.code(), ur.color() );
+    StratDispData::Unit* un = new StratDispData::Unit( ur.code(), ur.fullCode(), 							ur.color() );
     un->zrg_ = ur.timeRange();
     data_.addUnit( ur.treeDepth()-1, un );
 }
@@ -131,16 +131,17 @@ void uiStratTreeToDispTransl::addDescs( const Strat::LeavedUnitRef& ur )
 void uiStratTreeToDispTransl::addLithologies( const Strat::LeavedUnitRef& ur )
 {
     const Strat::LithologySet& lithos = tree_.lithologies();
+    BufferString lithnm; 
     for ( int idx=0; idx<ur.nrRefs(); idx++ )
     {
 	Strat::LeafUnitRef& lref = (Strat::LeafUnitRef&)ur.ref( idx );
 	const int lithidx = lref.lithology();
 	const Strat::Lithology* lith = lithidx >= 0 ? lithos.get( lithidx ) : 0;
-	BufferString lithnm; if ( lith ) lithnm += lith->name();
-	StratDispData::Unit* un = new StratDispData::Unit( lithnm.buf() );
-	un->zrg_ = ur.timeRange();
-	data_.addUnit( lithocolidx_, un );
+	if ( lith ) { if ( idx ) lithnm += ", "; lithnm += lith->name(); }
     }
+    StratDispData::Unit* un = new StratDispData::Unit( lithnm.buf() );
+    un->zrg_ = ur.timeRange();
+    data_.addUnit( lithocolidx_, un );
 }
 
 
@@ -152,7 +153,8 @@ void uiStratTreeToDispTransl::addLevel( const Strat::LeavedUnitRef& ur )
     lvlcol = lvls.isPresent( id ) ? lvls.get( id )->color() : Color::Black();
     lvlnm = lvls.isPresent( id ) ? lvls.get( id )->name() : "";
 
-    StratDispData::Level* lvl = new StratDispData::Level(lvlnm.buf(),ur.code());
+    StratDispData::Level* lvl = new StratDispData::Level( lvlnm.buf(),
+	    						  ur.fullCode() );
     lvl->zpos_ = ur.timeRange().start;
     lvl->color_ = lvlcol; 
     data_.getCol( levelcolidx_ )->levels_ += lvl;

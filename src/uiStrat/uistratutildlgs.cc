@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.32 2010-09-29 16:16:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.33 2010-10-01 09:35:18 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -28,7 +28,7 @@ static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.32 2010-09-29 16:16:56 c
 #include "uiseparator.h"
 #include "uitable.h"
 
-static const char* sNoLithoTxt      = "---None---";
+static const char* sNoLithoTxt      = "--Undefined--";
 static const char* sNoLevelTxt      = "--Undefined--";
 
 #define mErrRet(msg,act) uiMSG().error(msg); act;
@@ -48,25 +48,32 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 				   lbltxt("Color") );
     colfld_->attach( alignedBelow, unitdescfld_ );
 
-    unitlithfld_ = new uiGenInput( this, "Lithology", StringInpSpec() );
-    unitlithfld_->attach( alignedBelow, colfld_ );
-    CallBack cb = mCB(this,uiStratUnitEditDlg,selLithCB);
-    uiPushButton* sellithbut = new uiPushButton( this, "&Select", cb, false );
-    sellithbut->attach( rightTo, unitlithfld_ );
-    unitlithfld_->setSensitive( unit_.isLeaved() );
-    sellithbut->setSensitive( unit_.isLeaved() );
-
     const Strat::NodeUnitRef* upnode = unit.upNode();
     Interval<float> limitrg = upnode ? upnode->timeRange() : unit.timeRange(); 
     uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this, "Time range (My)" );
     agestartfld_ = lblbox1->box();
     agestartfld_->setInterval( limitrg );
-    lblbox1->attach( alignedBelow, unitlithfld_ );
+    lblbox1->attach( alignedBelow, colfld_ );
     
     uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox( this, "" );
     agestopfld_ = lblbox2->box();
     agestopfld_->setInterval( limitrg );
     lblbox2->attach( rightOf, lblbox1 );
+
+    if ( unit_.isLeaved() )
+    {
+	uiSeparator* sep = new uiSeparator( this, false );
+	sep->attach( stretchedBelow, lblbox1 );
+
+	unitlithfld_ = new uiStratLithoBox( this );
+	unitlithfld_->setMultiSelect( true );
+	unitlithfld_->attach( alignedBelow, lblbox1 );
+	unitlithfld_->attach( ensureBelow, sep );
+
+	CallBack cb = mCB(this,uiStratUnitEditDlg,selLithCB);
+	uiPushButton* sellithbut = new uiPushButton( this, "&Edit", cb, false );
+	sellithbut->attach( rightTo, unitlithfld_ );
+    }
 
     putToScreen();
 }
@@ -78,9 +85,10 @@ void uiStratUnitEditDlg::putToScreen()
     unitnmfld_->setText( code.isEmpty() ? "<New Unit>" : unit_.code() );
     unitdescfld_->setText( unit_.description() );
     colfld_->setColor( unit_.color() );
-    unitlithfld_->setText( lithnm_.buf() );
     agestartfld_->setValue( unit_.timeRange().start );
     agestopfld_->setValue( unit_.timeRange().stop );
+    if ( unit_.isLeaved() )
+	unitlithfld_->setSelectedItems( lithids_ );
 }
 
 
@@ -91,11 +99,11 @@ void uiStratUnitEditDlg::getFromScreen()
     unit_.setDescription( unitdescfld_->text() );
     unit_.setColor( colfld_->color() );
 
-    const char* txt = unitlithfld_->text();
-    lithnm_ = !strcmp( txt, sNoLithoTxt ) ? 0 : txt;
-
     Interval<float> rg( agestartfld_->getValue(), agestopfld_->getValue() );
     unit_.setTimeRange( rg );
+
+    if ( unit_.isLeaved() )
+	unitlithfld_->getSelectedItems( lithids_ );
 }
 
 
@@ -118,12 +126,30 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 void uiStratUnitEditDlg::selLithCB( CallBacker* )
 {
     uiStratLithoDlg lithdlg( this );
-    if ( lithdlg.go() )
-    {
-	unitlithfld_->setText( lithdlg.getLithName() );
-	lithnm_ = lithdlg.getLithName();
-    }
+    lithdlg.go();
 } 
+
+
+
+uiStratLithoBox::uiStratLithoBox( uiParent* p )
+    : uiListBox( p, "Lithologies",false )
+    , lithos_(Strat::eRT().lithologies())  
+{
+    fillLiths( 0 );
+    lithos_.anyChange.notify( mCB( this, uiStratLithoBox, fillLiths ) );
+}
+
+
+void uiStratLithoBox::fillLiths( CallBacker* )
+{
+    BufferStringSet nms;
+    nms.add( sNoLithoTxt );
+    for ( int idx=0; idx<lithos_.size(); idx++ )
+	nms.add( lithos_.getLith( idx ).name() );
+    empty();
+    addItems( nms );
+}
+    
 
 
 
@@ -134,10 +160,9 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     , prevlith_(0)
     , nmfld_(0)
 {
-    selfld_ = new uiListBox( this, "Lithology", false );
+    selfld_ = new uiStratLithoBox( this );
     const CallBack cb( mCB(this,uiStratLithoDlg,selChg) );
     selfld_->selectionChanged.notify( cb );
-    fillLiths();
 
     uiGroup* rightgrp = new uiGroup( this, "right group" );
     nmfld_ = new uiGenInput( rightgrp, "Name", StringInpSpec() );
@@ -164,17 +189,6 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
 }
 
 
-void uiStratLithoDlg::fillLiths()
-{
-    BufferStringSet nms;
-    nms.add( sNoLithoTxt );
-    for ( int idx=0; idx<lithos_.size(); idx++ )
-	nms.add( lithos_.getLith( idx ).name() );
-    selfld_->empty();
-    selfld_->addItems( nms );
-}
-    
-
 void uiStratLithoDlg::newLith( CallBacker* )
 {
     const BufferString nm( nmfld_->text() );
@@ -193,7 +207,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
 
     prevlith_ = const_cast<Strat::Lithology*>( &Strat::Lithology::undef() );
 
-    selfld_->addItem( nm );
+    lithos_.reportAnyChange();
     selfld_->setCurrentItem( nm );
 }
 
@@ -243,7 +257,7 @@ void uiStratLithoDlg::rmLast( CallBacker* )
 
     prevlith_ = 0;
     delete lithos_.lithologies().remove( lithos_.indexOf( lith->id() ) );
-    fillLiths();
+    lithos_.reportAnyChange();
 
     selfld_->setCurrentItem( selidx-1 );
     selChg( 0 );
@@ -272,36 +286,36 @@ bool uiStratLithoDlg::acceptOK( CallBacker* )
 }
 
 
-uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
+uiStratLevelDlg::uiStratLevelDlg( uiParent* p, Strat::Level& lvl )
     : uiDialog(p,uiDialog::Setup("Create/Edit level",mNoDlgTitle,"110.0.2"))
+    , level_(lvl)  
 {
     lvlnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
     lvlcolfld_ = new uiColorInput( this,
-    uiColorInput::Setup(getRandStdDrawColor() ).
-    lbltxt("Color") );
+				uiColorInput::Setup(getRandStdDrawColor() ).
+				lbltxt("Color") );
     lvlcolfld_->attach( alignedBelow, lvlnmfld_ );
 }
 
 
-void uiStratLevelDlg::setLvlInfo( const char* lvlnm )
+void uiStratLevelDlg::getFromScreen()
 {
-    Color lvlcol;
-    if ( !Strat::LVLS().isPresent(lvlnm) )
-	return;
+    level_.setName( lvlnmfld_->text() );
+    level_.setColor( lvlcolfld_->color() );
+}
 
-    lvlnmfld_->setText( lvlnm );
-    lvlcolfld_->setColor( lvlcol );
-    oldlvlnm_ = lvlnm;
+
+
+void uiStratLevelDlg::putToScreen()
+{
+    lvlnmfld_->setText( level_.name() );
+    lvlcolfld_->setColor( level_.color() );
 }
 
 
 bool uiStratLevelDlg::acceptOK( CallBacker* )
 {
-    BufferString newlvlnm = lvlnmfld_->text();
-    Color newlvlcol = lvlcolfld_->color();
-    if ( !Strat::LVLS().isPresent(newlvlnm) ) 
-	{ uiMSG().error( "can not find level" ); return false; }
-    Strat::eLVLS().get( newlvlnm )->setColor( newlvlcol );
+    getFromScreen();
     return true;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.50 2010-09-29 16:16:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.51 2010-10-01 09:35:18 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -43,7 +43,6 @@ uiStratRefTree::uiStratRefTree( uiParent* p )
     BufferStringSet labels;
     labels.add( "Unit" );
     labels.add( "Description" );
-    labels.add( "Lithology" );
     lv_->addColumns( labels );
     mAddCol( 300, 0 );
     mAddCol( 200, 1 );
@@ -99,12 +98,13 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	    uiListViewItem* item;
 	    mDynamicCastGet(const LeafUnitRef*,lur,&ref);
 	    if ( !lur ) continue;
-	    const Strat::Lithology* litho = lur->lithology() >= 0 ?
-			&tree_->lithologies().getLith( lur->lithology() ) : 0;
+	    const int lidx = lur->lithology();
+	    const Strat::LithologySet& liths = tree_->lithologies();
+	    const Strat::Lithology* litho = ( lidx >= 0 && lidx<liths.size() ) ?
+				    &liths.getLith( lur->lithology() ) : 0;
 	    uiListViewItem::Setup setup = uiListViewItem::Setup()
 				.label( lur->code() )
-				.label( lur->description() ) 
-				.label( litho ? litho->name() : "" );
+				.label( lur->description() );
 	    if ( lvit )
 		item = new uiListViewItem( lvit, setup );
 	    else
@@ -160,8 +160,7 @@ void uiStratRefTree::handleMenu( uiListViewItem* lvit )
     uiPopupMenu mnu( lv_->parent(), "Action" );
     mnu.insertSeparator();
     mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 0 );
-    if ( lvit->nrChildren() == 0 )
-	mnu.insertItem( new uiMenuItem("&Subdivide unit..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Subdivide unit..."), 1 );
     mnu.insertItem( new uiMenuItem("&Properties..."), 2 );
     if ( lv_->currentItem() != lv_->firstItem() )
 	mnu.insertItem( new uiMenuItem("&Remove"), 3 );
@@ -205,12 +204,26 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	    parun->add( newun );
 	    ensureUnitTimeOK( *newun );
 	    insertUnitInLVIT( lvit, *newun );
+	    addLithologies( *newun, newurdlg.getLithologies() ); 
 	    tree_->unitAdded.trigger();
 	}
 	else
 	    uiMSG().error( "Cannot add unit" );
     }
     delete tmpun;
+}
+
+
+void uiStratRefTree::addLithologies( Strat::LeavedUnitRef& un, 
+					const TypeSet<int>& ids )
+{
+    uiListViewItem* lvit = lv_->currentItem();
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	LeafUnitRef* lur = new LeafUnitRef( &un, ids[idx] );
+	un.add( lur );
+	insertUnitInLVIT( lvit, *lur );
+    }
 }
 
 
@@ -234,7 +247,8 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
     if ( !lvit ) return;
 
     Strat::UnitRef* startunit = tree_->find( getCodeFromLVIt( lvit ) );
-    if ( !startunit || !startunit->isLeaved() ) return;
+    if ( !startunit || !startunit->isLeaved() ) 
+	{ uiMSG().error( "Only end units can be subdivided" ); return; }
 
     Strat::NodeUnitRef* parnode = startunit->upNode();
     if ( !parnode ) return;
@@ -318,7 +332,6 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 
     Strat::NodeUnitRef& nur = (Strat::NodeUnitRef&)(*unitref);
     uiStratUnitEditDlg urdlg( lv_->parent(), nur );
-    urdlg.setLithology( lvit->text(cLithoCol) );
     if ( urdlg.go() )
     {
 	ensureUnitTimeOK( nur ); 
@@ -335,10 +348,8 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 		    trg.limitTo( partrg );
 	    }
 	}
-	BufferString lithnm( urdlg.getLithology() );
 	lvit->setText( unitref->code(), cUnitsCol );
 	lvit->setText( unitref->description(), cDescCol );
-	lvit->setText( lithnm.buf(), cLithoCol );
 	tree_->unitChanged.trigger();
 	updateUnitsPixmaps();
     }
@@ -398,30 +409,6 @@ void uiStratRefTree::updateUnitsPixmaps()
 	lvit = lv_->findItem( un->code().buf(), 0, false );
 	if ( lvit )
 	    { mCreateAndSetUnitPixmap( (*un), lvit ) }
-    }
-}
-
-
-void uiStratRefTree::updateLithoCol()
-{
-    Strat::UnitRefIter it( *tree_ );
-    UnitRef* un = it.unit();
-    while ( un )
-    {
-	if ( un->isLeaf() )
-	{
-	    mDynamicCastGet( LeafUnitRef*, lur, un )
-	    const Strat::Lithology* litho = 
-			    &tree_->lithologies().getLith( lur->lithology() );
-	    if ( !litho )
-	    {
-		uiListViewItem* lvit = lv_->findItem(un->code().buf(),0,false);
-		if ( lvit )
-		    lvit->setText( "", cLithoCol );
-	    }
-	}
-	if ( !it.next() ) break;
-	un = it.unit();
     }
 }
 
@@ -528,7 +515,7 @@ void uiStratRefTree::getAvailableTime( const Strat::NodeUnitRef& unit,
 					Interval<float>& timerg ) const 
 {
     timerg = unit.timeRange();
-    if ( !unit.nrRefs() ) 
+    if ( !unit.nrRefs() || unit.isLeaved() ) 
 	return;
 
     const Strat::NodeUnitRef& firstun = (Strat::NodeUnitRef&)unit.ref(0);

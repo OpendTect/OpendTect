@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.21 2010-09-29 16:16:56 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.22 2010-10-01 09:35:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "ranges.h"
 #include "stratunitref.h"
+#include "uilistbox.h"
 
 class BufferStringSet;
 class uiColorInput;
@@ -28,16 +29,27 @@ namespace Strat { class Lithology; class LithologySet; }
 
 /*!\brief Displays a dialog to create/edit a new stratigraphic unit */
 
+mClass uiStratLithoBox : public uiListBox
+{
+public:
+    			uiStratLithoBox(uiParent*);
+protected:
+
+    void		fillLiths(CallBacker*);
+    Strat::LithologySet& lithos_;
+};
+
 
 mClass uiStratUnitEditDlg : public uiDialog
 {
 public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
 
-    void 		setLithology(const BufferString& lith) 	
-    					{ lithnm_ = lith; }
+    void 		setLithologies(const TypeSet<int>& lith) 	
+    					{ lithids_ = lith; }
 
-    BufferString& 	getLithology() 	{ return lithnm_; }
+    const TypeSet<int>& getLithologies() const 
+    					{ return lithids_; }
 
 protected:
 
@@ -46,20 +58,47 @@ protected:
     uiGenInput*		unitnmfld_;
     uiGenInput*		unitdescfld_;
     uiColorInput*	colfld_;
-    uiGenInput*		unitlithfld_;
     uiSpinBox*		agestartfld_;
     uiSpinBox*		agestopfld_;
+    uiStratLithoBox*	unitlithfld_;
     
     Strat::NodeUnitRef& unit_;
 
     BufferString	entrancename_;
-    BufferString	lithnm_;
+    TypeSet<int>	lithids_;
 
     void		getFromScreen();
     void		putToScreen();
 
     bool		acceptOK(CallBacker*);
     void		selLithCB(CallBacker*);
+};
+
+
+mClass uiStratLithoDlg : public uiDialog
+{
+public:
+
+			uiStratLithoDlg(uiParent*);
+
+    const char*		getLithName() const;
+    void		setSelectedLith(const char*);
+
+protected:
+
+    uiStratLithoBox*	selfld_;
+    uiGenInput*		nmfld_;
+    uiCheckBox*		isporbox_;
+
+    Strat::Lithology*	prevlith_;
+    Strat::LithologySet& lithos_;
+
+    void		newLith(CallBacker*);
+    void		selChg(CallBacker*);
+    void		rmLast(CallBacker*);
+    void		renameCB(CallBacker*);
+
+    bool		acceptOK(CallBacker*);
 };
 
 
@@ -92,48 +131,23 @@ protected :
 
 /*!\brief Displays a dialog to create new lithology */
 
-mClass uiStratLithoDlg : public uiDialog
-{
-public:
-
-			uiStratLithoDlg(uiParent*);
-
-    const char*		getLithName() const;
-    void		setSelectedLith(const char*);
-
-protected:
-
-    uiListBox*		selfld_;
-    uiGenInput*		nmfld_;
-    uiCheckBox*		isporbox_;
-
-    Strat::Lithology*	prevlith_;
-    Strat::LithologySet& lithos_;
-
-    void		fillLiths();
-    void		newLith(CallBacker*);
-    void		selChg(CallBacker*);
-    void		rmLast(CallBacker*);
-    void		renameCB(CallBacker*);
-
-    bool		acceptOK(CallBacker*);
-};
-
-
 mClass uiStratLevelDlg : public uiDialog
 {
 public:
 
-    uiStratLevelDlg(uiParent*);
+    uiStratLevelDlg(uiParent*,Strat::Level&);
 
     void                setLvlInfo(const char*);
 
 protected:
 
-    BufferString        oldlvlnm_;
+    Strat::Level& 	level_;
 
     uiGenInput*         lvlnmfld_;
     uiColorInput*       lvlcolfld_;
+
+    void		putToScreen();
+    void		getFromScreen();
 
     bool                acceptOK(CallBacker*);
 };
@@ -149,7 +163,7 @@ public:
 
 protected:
 
-    Strat::LeavedUnitRef*	unit_;
+    Strat::LeavedUnitRef* unit_;
 
     uiGenInput*         lvllistfld_;
     TypeSet<int>	ids_;
