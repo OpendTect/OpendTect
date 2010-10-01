@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.22 2010-10-01 09:35:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.23 2010-10-01 17:06:13 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -79,7 +79,7 @@ void uiWellStratDisplay::gatherLeavedUnits()
 	    if ( nur )
 	    {
 		units_ += nur;
-		unit.zrg_.set( 0, 0 );
+		unit.zrg_.set( mUdf(float), mUdf(float) );
 		dispunits_ += &unit;
 	    }
 	    mDynamicCastGet( const Strat::LeavedUnitRef*, lur,ur );
@@ -161,7 +161,10 @@ void uiWellStratDisplay::assignTimesToAllUnits()
 		{
 		    StratDispData::Unit& dispnode = *dispunits_[idnode];
 		    dispnode.isdisplayed_ = true;
-		    dispnode.zrg_.include( dunit.zrg_ );
+		    if ( mIsUdf ( dispnode.zrg_.start ) )
+			dispnode.zrg_ = dunit.zrg_;
+		    else
+			dispnode.zrg_.include( dunit.zrg_ );
 		    data_.getCol( dispnode.colidx_ )->isdisplayed_ = true;
 		}
 		un = (Strat::NodeOnlyUnitRef*)un->upNode();
