@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlevel.cc,v 1.6 2010-09-29 11:14:33 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlevel.cc,v 1.7 2010-10-01 15:02:59 cvsbruno Exp $";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -373,7 +373,9 @@ Strat::Level* Strat::LevelSet::set( const char* nm, const Color& col, int idx )
 	    lvls_.insertAt( lvl, idx );
 	    notiflvlidx_ = -1;
 	}
-	addLvl( lvl );
+	makeMine( *lvl );
+	ischanged_ = true;
+	levelAdded.trigger();
     }
 
     return lvl;
