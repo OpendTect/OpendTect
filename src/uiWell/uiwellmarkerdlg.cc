@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.29 2010-09-29 16:16:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.30 2010-10-01 15:23:11 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -72,13 +72,12 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	    				mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightTo, unitfld_ ); rfbut->attach( rightBorder );
     
-    /*
     uiToolButton* sb = new uiToolButton( this, "Create new Levels",
 					ioPixmap("man_strat.png"),
 					mCB(this,uiMarkerDlg,doStrat) );
     sb->setToolTip( "Edit Stratigraphy to define Levels" );
     sb->attach( leftOf, rfbut );
-    */
+
     stratmrkfld_ = new uiCheckBox( this, "Set as stratigraphic markers" );
     stratmrkfld_->attach( ensureBelow, unitfld_ ); 
     stratmrkfld_->attach( hCentered ); 
@@ -192,7 +191,7 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
     }
     //TODO this will replace by former marker name
     //     but this does not handle add/remove marker.
-    else if ( irow <  markers_.size() )
+    else if ( irow < markers_.size() )
     {
 	const Well::Marker* marker = markers_[irow];
 	if ( marker ) 
@@ -304,9 +303,9 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 	if ( stratmrkfld_->isChecked() )
 	{
 	    Strat::LevelSet& lvls = Strat::eLVLS();
-	    const Strat::Level* lvl = lvls.add(marker->name(),marker->color() );
-	    if ( !lvl && lvls.isPresent( marker->name() ) )
-		lvl = lvls.get(  marker->name() );
+	    const char* nm = marker->name(); const Color& col = marker->color();
+	    const Strat::Level* lvl = lvls.isPresent( nm ) ? lvls.get( nm ) 
+							   : lvls.add( nm, col);
 	    marker->setLevelID( lvl ? lvl->id() : -1 ); 
 	}
 
