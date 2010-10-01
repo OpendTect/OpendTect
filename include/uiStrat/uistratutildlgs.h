@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.22 2010-10-01 09:35:18 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.23 2010-10-01 15:04:20 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,21 +135,15 @@ mClass uiStratLevelDlg : public uiDialog
 {
 public:
 
-    uiStratLevelDlg(uiParent*,Strat::Level&);
+    uiStratLevelDlg(uiParent*);
 
-    void                setLvlInfo(const char*);
+    void                setLvlInfo(const char*,const Color& col);
+    void		getLvlInfo(BufferString&,Color& col) const;
 
 protected:
 
-    Strat::Level& 	level_;
-
     uiGenInput*         lvlnmfld_;
     uiColorInput*       lvlcolfld_;
-
-    void		putToScreen();
-    void		getFromScreen();
-
-    bool                acceptOK(CallBacker*);
 };
 
 

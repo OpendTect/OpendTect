@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.33 2010-10-01 09:35:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.34 2010-10-01 15:04:20 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -73,6 +73,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	CallBack cb = mCB(this,uiStratUnitEditDlg,selLithCB);
 	uiPushButton* sellithbut = new uiPushButton( this, "&Edit", cb, false );
 	sellithbut->attach( rightTo, unitlithfld_ );
+	unitlithfld_->setCurrentItem( 0 );
     }
 
     putToScreen();
@@ -103,7 +104,11 @@ void uiStratUnitEditDlg::getFromScreen()
     unit_.setTimeRange( rg );
 
     if ( unit_.isLeaved() )
+    {
+	if ( unitlithfld_->nrSelected() == 0 )
+	    unitlithfld_->setCurrentItem( 0 );
 	unitlithfld_->getSelectedItems( lithids_ );
+    }
 }
 
 
@@ -286,9 +291,8 @@ bool uiStratLithoDlg::acceptOK( CallBacker* )
 }
 
 
-uiStratLevelDlg::uiStratLevelDlg( uiParent* p, Strat::Level& lvl )
+uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Create/Edit level",mNoDlgTitle,"110.0.2"))
-    , level_(lvl)  
 {
     lvlnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
     lvlcolfld_ = new uiColorInput( this,
@@ -298,28 +302,18 @@ uiStratLevelDlg::uiStratLevelDlg( uiParent* p, Strat::Level& lvl )
 }
 
 
-void uiStratLevelDlg::getFromScreen()
+void uiStratLevelDlg::setLvlInfo( const char* lvlnm, const Color& col  )
 {
-    level_.setName( lvlnmfld_->text() );
-    level_.setColor( lvlcolfld_->color() );
+    lvlnmfld_->setText( lvlnm );
+    lvlcolfld_->setColor( col );
 }
 
 
-
-void uiStratLevelDlg::putToScreen()
+void uiStratLevelDlg::getLvlInfo( BufferString& lvlnm, Color& col ) const
 {
-    lvlnmfld_->setText( level_.name() );
-    lvlcolfld_->setColor( level_.color() );
+    lvlnm = lvlnmfld_->text();
+    col = lvlcolfld_->color();
 }
-
-
-bool uiStratLevelDlg::acceptOK( CallBacker* )
-{
-    getFromScreen();
-    return true;
-}
-
-
 
 
 

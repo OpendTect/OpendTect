@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvllist.cc,v 1.5 2010-10-01 09:35:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvllist.cc,v 1.6 2010-10-01 15:04:20 cvsbruno Exp $";
 
 #include "uistratlvllist.h"
 
@@ -21,13 +21,15 @@ static const char* rcsID = "$Id: uistratlvllist.cc,v 1.5 2010-10-01 09:35:18 cvs
 static const char* sNoLevelTxt      = "--- Empty ---";
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
-    : uiLabeledListBox(p,"Markers",false,uiLabeledListBox::AboveMid)
+    : uiLabeledListBox(p,"Regional markers",false,uiLabeledListBox::AboveMid)
     , levelset_(Strat::eLVLS())
 {
     box()->setStretch( 2, 2 );
     box()->setFieldWidth( 10 );
     box()->rightButtonClicked.notify( mCB(this,uiStratLvlList,rClickLvlCB));
     levelset_.levelChanged.notify( mCB(this,uiStratLvlList,fill) );
+    levelset_.levelAdded.notify( mCB(this,uiStratLvlList,fill) );
+    levelset_.levelToBeRemoved.notify( mCB(this,uiStratLvlList,fill) );
 
     fill(0);
 }
@@ -36,6 +38,8 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
 uiStratLvlList::~uiStratLvlList()
 {
     levelset_.levelChanged.remove( mCB(this,uiStratLvlList,fill) );
+    levelset_.levelAdded.remove( mCB(this,uiStratLvlList,fill) );
+    levelset_.levelToBeRemoved.remove( mCB(this,uiStratLvlList,fill) );
 }
 
 
@@ -60,13 +64,10 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
 	if ( !levelset_.isPresent( lvlnm ) ) return;
 	const Strat::Level& lvl = *levelset_.get( lvlnm );
 	levelset_.remove( lvl.id() );
-	box()->removeItem( box()->currentItem() );
-	if ( box()->isEmpty() )
-	    box()->addItem( sNoLevelTxt );
     }
     else if ( mnuid == 3 )
     {
-	BufferString msg ( "This will remove all the stratigraphic markers " ); 
+	BufferString msg ( "This will remove all the markers " ); 
 	msg += "present in the list";
 	msg += ", do you want to continue ?";
 	if ( uiMSG().askGoOn(msg) )
@@ -99,15 +100,24 @@ void uiStratLvlList::fill( CallBacker* )
 void uiStratLvlList::editLevel( bool create )
 {
     Strat::LevelSet& lvls = Strat::eLVLS();
-    const char* lvlnm = box()->getText();
-    Strat::Level* lvl = create ? lvls.add( lvlnm, getRandStdDrawColor() ) 
-			       : lvls.get( lvlnm ); 
-    if ( lvl )
+    BufferString oldnm = create ? "" : box()->getText();
+    uiStratLevelDlg newlvldlg( this );
+    Strat::Level* lvl = create ? 0 : lvls.get( oldnm ); 
+    if ( lvl ) newlvldlg.setLvlInfo( oldnm, lvl->color() );
+    if ( newlvldlg.go() )
     {
-	uiStratLevelDlg newlvldlg( this, *lvl );
-	newlvldlg.go();
+	BufferString nm; Color col;
+	newlvldlg.getLvlInfo( nm, col );
+	if ( !nm.isEmpty() && strcmp(oldnm,nm) && lvls.isPresent( nm ) )
+	    { uiMSG().error("Level name is empty or already exists"); return; }
+	if ( create )
+	    lvl = lvls.add( nm.buf(), col );
+	else if ( lvl )
+	{
+	    lvl->setName( nm.buf() );
+	    lvl->setColor( col );
+	}
+	lvls.store( Repos::Survey );
     }
-    else 
-	uiMSG().error( "Can not find level" ); 
 }
 
