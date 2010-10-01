@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.25 2010-09-30 21:41:20 cvskris Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.26 2010-10-01 08:11:52 cvskarthika Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -163,10 +163,14 @@ const ColTab::Sequence& VolumeRenderScalarField::getColTabSequence()
 { return sequence_; }
 
 
-void VolumeRenderScalarField::setColTabMapperSetup(const ColTab::MapperSetup& m,
-					           TaskRunner* tr )
+void VolumeRenderScalarField::setColTabMapperSetup( const ColTab::MapperSetup& 
+	ms, TaskRunner* tr )
 {
-    mapper_.setup_ = m;
+    if ( mapper_.setup_ == ms )
+	return;
+    
+    mapper_.setup_ = ms;
+    mapper_.setData( datacache_, sz0_*sz1_*sz2_, tr );
     makeIndices( false, tr );
 }
 
@@ -226,6 +230,17 @@ SoNode* VolumeRenderScalarField::getInventorNode()
     }
 
     return root_;
+}
+
+
+void VolumeRenderScalarField::clipData( TaskRunner* tr )
+{
+    if ( !datacache_ )
+	return;
+
+    const od_int64 totalsz = sz0_*sz1_*sz2_;
+    mapper_.setData( datacache_, totalsz, tr );
+    mapper_.setup_.triggerRangeChange();
 }
 
 
