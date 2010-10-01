@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.7 2010-10-01 17:12:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.8 2010-10-01 17:18:08 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -80,7 +80,7 @@ uiWellDispMarkerEditGrp::uiWellDispMarkerEditGrp( uiParent* p,
     colorfld_->attach( alignedBelow, posfld_ );
 
     stratmrkfld_ = new uiCheckBox( this, "Set as regional marker" );
-    stratmrkfld_->attach( alignedBelow, colorfld_ );
+    stratmrkfld_->attach( rightOf, colorfld_ );
     stratmrkfld_->setChecked( true );
 
     CallBack parchgcb = mCB(this, uiWellDispMarkerEditGrp, getFromScreen );
