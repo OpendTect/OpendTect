@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.30 2010-10-01 15:23:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.31 2010-10-01 16:13:57 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -78,10 +78,10 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     sb->setToolTip( "Edit Stratigraphy to define Levels" );
     sb->attach( leftOf, rfbut );
 
-    stratmrkfld_ = new uiCheckBox( this, "Set as stratigraphic markers" );
+    stratmrkfld_ = new uiCheckBox( this, "Set as regional markers" );
     stratmrkfld_->attach( ensureBelow, unitfld_ ); 
     stratmrkfld_->attach( hCentered ); 
-    stratmrkfld_->setChecked( true ); 
+    stratmrkfld_->setChecked( false ); 
 
     setPrefWidthInChar( 60 );
 }
