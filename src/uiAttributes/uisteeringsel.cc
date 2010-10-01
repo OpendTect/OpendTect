@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.48 2010-09-30 15:14:00 cvshelene Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.49 2010-10-01 14:55:58 cvshelene Exp $";
 
 
 #include "uisteeringsel.h"
@@ -120,7 +120,7 @@ bool uiSteeringSel::willSteer() const
 
 void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 {
-    if ( !typfld_ || !willSteer() )
+    if ( !typfld_ || !inpfld_ )
 	return;
     
     if ( !ad )
