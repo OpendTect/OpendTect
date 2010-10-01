@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2007
- RCS:           $Id: visvolrenscalarfield.h,v 1.11 2010-09-30 21:41:20 cvskris Exp $
+ RCS:           $Id: visvolrenscalarfield.h,v 1.12 2010-10-01 08:10:00 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ protected:
 
     void			makeColorTables();
     void			makeIndices(bool doset,TaskRunner*);
-    void			clipData();
+    void			clipData(TaskRunner*);
 
     SoGroup*			root_;
     SoTransferFunction*		transferfunc_;
