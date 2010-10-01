@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.3 2010-09-17 12:26:07 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.4 2010-10-01 17:12:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiColorInput;
 class uiGenInput;
+class uiListBox;
 class uiMenuHandler;
 class uiPushButton;
 class uiWellDisplayControl;
@@ -106,14 +107,15 @@ protected:
     Well::Data*			curwd_;
     Well::Marker*		curmrk_;
 
-    Well::Data*			lasteditwd_;
-    Well::Marker*		lasteditmrk_;
-
     bool			needsave_;
 
     ObjectSet<Well::MarkerSet>	orgmarkerssets_;
     uiWellDispMarkerEditGrp*	mrkgrp_;
     uiGenInput*			modefld_;
+
+    uiListBox*			mrklist_;
+    ObjectSet<Well::Marker>	tmplist_;
+    TypeSet<Color>		colors_;
 
     bool 			hasedited_;
     bool 			ismarkerhit_;
@@ -127,17 +129,22 @@ protected:
     void			setParsToMarker(Well::Marker&);
 
     void 			activateSensors(bool yn);
-    void 			activateSensors(uiWellDisplayControl&,bool yn);
+    void 			activateSensors(uiWellDisplayControl&,
+						    Well::Data&,bool);
 
     void			modeChg(CallBacker*);
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			editDlgClosedCB(CallBacker*);
-    void                        editMarkerCB(CallBacker*);
+     void                       editMarkerCB(CallBacker*);
     void			handleUsrClickCB(CallBacker*);
     void			handleCtrlChangeCB(CallBacker*);
     void			posChgCB(CallBacker*);
+
+    void			listLClickCB();
+    void			listRClickCB();
+    void			fillMarkerList(CallBacker*);
 };
 
 #endif
