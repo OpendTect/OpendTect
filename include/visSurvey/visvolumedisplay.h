@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.75 2010-09-30 21:41:20 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.76 2010-10-03 21:22:18 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -173,9 +173,7 @@ protected:
     void			updateIsoSurfColor();
     bool			pickable() const { return true; }
     bool			rightClickable() const { return true; }
-    bool			selectable() const { return false; }
-    				//!<Makes impossible to click on it and
-				//!<by mistake get the drag-box up
+    bool			selectable() const { return true; }
     bool			isSelected() const;
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
 
