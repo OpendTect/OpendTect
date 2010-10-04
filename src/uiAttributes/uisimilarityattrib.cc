@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.29 2010-10-04 09:13:56 cvshelene Exp $";
+static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.30 2010-10-04 18:03:42 cvshelene Exp $";
 
 
 #include "uisimilarityattrib.h"
@@ -174,6 +174,8 @@ bool uiSimilarityAttrib::setParameters( const Attrib::Desc& desc )
 		extfld_->setText(extstrs3d[extension]) )
     mIfGetFloat( Similarity::maxdipStr(), maxdip, maxdipfld_->setValue(maxdip));
     mIfGetFloat( Similarity::ddipStr(), ddip, deltadipfld_->setValue(ddip) );
+    mIfGetBool( Similarity::browsedipStr(), bdip,
+	    	steerfld_->setType( bdip ? steerfld_->browseDipIdxInList() :0));
 
     extSel(0);
     return true;
@@ -231,12 +233,19 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
     BufferStringSet strs( extstrs3d );
     mSetEnum( Similarity::extensionStr(), strs.indexOf(ext) );
     mSetFloatInterval( Similarity::gateStr(), gatefld_->getFInterval() );
-    mSetBool( Similarity::steeringStr(), steerfld_->willSteer() );
 
-    if ( steerfld_->wantBrowseDip() )
+    const bool usesteer = steerfld_->willSteer();
+    mSetBool( Similarity::steeringStr(), usesteer );
+
+    if ( !usesteer )
     {
-	mSetFloat( Similarity::maxdipStr(), maxdipfld_->getfValue() );
-	mSetFloat( Similarity::ddipStr(), deltadipfld_->getfValue() );
+	const bool wantbdip = steerfld_->wantBrowseDip();
+	mSetBool( Similarity::browsedipStr(), wantbdip );
+	if ( wantbdip )
+	{
+	    mSetFloat( Similarity::maxdipStr(), maxdipfld_->getfValue() );
+	    mSetFloat( Similarity::ddipStr(), deltadipfld_->getfValue() );
+	}
     }
 
     return true;
@@ -342,9 +351,12 @@ bool uiSimilarityAttrib::uiSimiSteeringSel::wantBrowseDip() const
     const char* hassteerplug = uiAF().attrNameOf( "Curvature" );
     int typ = typfld_->getIntValue();
 
-    const bool browsedip = ( !hassteerplug && typ==1 ) ||
-			   ( hassteerplug && ( ( withconstdir_ && typ==4 )
-					    || ( !withconstdir_ && typ==3 ) ) );
-    return browsedip;
+    return typ == browseDipIdxInList();
 }
 
+
+int uiSimilarityAttrib::uiSimiSteeringSel::browseDipIdxInList() const
+{
+    const char* hassteerplug = uiAF().attrNameOf( "Curvature" );
+    return hassteerplug ? withconstdir_ ? 4 : 3 : 1;
+}
