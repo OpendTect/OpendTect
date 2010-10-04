@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.23 2010-09-29 16:16:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.24 2010-10-04 17:15:17 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -468,7 +468,7 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 	uiPolygonItem* pli = scene_.addPolygon( rectpts, true );
 	pli->setPenColor( Color::Black() );
 	if ( unit.color_ != Color::White() )
-	    pli->setFillColor( unit.color_ );
+	    pli->setFillColor( unit.color_, true );
 	uiTextItem* ti = scene_.addItem( new uiTextItem( unit.name() ) );
 	ti->setTextColor( Color::Black() );
 	ti->setPos( x1, y2 - abs((y2-y1)/2) -10 );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.12 2010-10-01 09:35:18 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.13 2010-10-04 17:15:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public:
 	const char* 	name() const 	{ return name_.buf(); }
 	const char* 	fullCode() const { return fullcode_.buf(); }
 
-	const Color	color_;
+	Color		color_;
 	Interval<float>	zrg_;
 	bool		isdisplayed_;
 
