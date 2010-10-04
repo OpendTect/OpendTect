@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.11 2010-09-30 10:58:10 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.12 2010-10-04 08:13:42 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -67,34 +67,6 @@ protected:
     BufferString		def_;
     MathExpression*		expr_;
     ObjectSet<const Property>	inps_;
-
-};
-
-
-/*!\brief Property defined by other property */
-
-mClass IndirectProperty : public Property
-{
-public:
-
-    			IndirectProperty( const Property& pr, bool readonly )
-			: Property(pr.ref())
-			, pr_(const_cast<Property&>(pr))
-    			, ro_(readonly)			{}
-
-    virtual float	value( bool avg ) const
-    			{ return pr_.value(avg); }
-    virtual bool	canSet() const
-    			{ return !ro_ && pr_.canSet();}
-    virtual void	setValue( float v )
-    			{ if ( !ro_ ) pr_.setValue( v ); }
-    virtual bool        dependsOn( const Property& pr ) const
-    			{ return pr_.dependsOn(pr); }
-
-protected:
-
-    Property&	pr_;
-    bool	ro_;
 
 };
 
