@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003 / Sep 2010
- RCS:		$Id: stratunitref.h,v 1.33 2010-09-30 08:42:00 cvsbert Exp $
+ RCS:		$Id: stratunitref.h,v 1.34 2010-10-04 08:14:43 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -42,21 +42,20 @@ public:
 			UnitRef(NodeUnitRef*,const char* d=0);
     virtual		~UnitRef();
 
-    virtual Type	type() const		= 0;
-    virtual bool	hasChildren() const	= 0;
-    bool		isLeaf() const		{ return type()==Leaf; }
-    bool		isLeaved() const	{ return type()==Leaved; }
+    virtual Type	type() const			= 0;
+    virtual bool	hasChildren() const		= 0;
+    bool		isLeaf() const			{ return type()==Leaf; }
+    bool		isLeaved() const		{ return type()==Leaved; }
     CompoundKey		fullCode() const;
 
-    virtual const BufferString&	code() const	= 0;
-    virtual void	setCode(const char*)	{}
-    const BufferString&	description() const	{ return desc_; }
-    virtual void	setDescription( const char* d )
-    						{ desc_ = d; }
-    Color		color() const		{ return color_; }
+    virtual const BufferString&	code() const		= 0;
+    virtual void	setCode(const char*)		{}
+    const BufferString&	description() const		{ return desc_; }
+    virtual void	setDescription( const char* d )	{ desc_ = d; }
+    Color		color() const			{ return color_; }
     void		setColor(Color);
-    IOPar&		pars()			{ return pars_; }
-    const IOPar&	pars() const		{ return pars_; }
+    IOPar&		pars()				{ return pars_; }
+    const IOPar&	pars() const			{ return pars_; }
 
     NodeUnitRef*	upNode(int skip=0);
     const NodeUnitRef*	upNode( int skip=0 ) const
@@ -65,6 +64,7 @@ public:
     const NodeUnitRef*	topNode() const;
     RefTree&		refTree(); // is the topNode
     const RefTree&	refTree() const;
+    virtual bool	isParentOf(const UnitRef&) const { return false; }
 
     Notifier<UnitRef>	changed;
     Notifier<UnitRef>	toBeDeleted;
@@ -126,6 +126,7 @@ public:
     const UnitRef&	ref( int idx ) const	{ return *refs_[idx]; }
     int			indexOf( const UnitRef* ur ) const
 			{ return refs_.indexOf((const NodeUnitRef*)ur); }
+    virtual bool	isParentOf(const UnitRef&) const;
 
     UnitRef*		find( const char* urcode )	{ return fnd(urcode); }
     const UnitRef*	find( const char* urcode ) const{ return fnd(urcode); }
