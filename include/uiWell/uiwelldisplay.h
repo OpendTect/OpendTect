@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.1 2010-09-17 12:26:07 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.2 2010-10-04 17:21:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,11 +84,13 @@ public:
 
     void			applyWDChanged();
 
+    uiWellStratDisplay*		stratDisplay() 	{ return stratdisp_; }
     const uiWellStratDisplay*	stratDisplay() const 
-				{ return stratdisp_; }
+						{ return stratdisp_; }
 
     void			setDragMode(uiGraphicsViewBase::ODDragMode&);
 
+    //Only if more than 1 logdisplay, this should take place in wd ( TODO ) 
     void			setDisplayProperties(int,
 	    				const Well::DisplayProperties&);
     void			getDisplayProperties(
