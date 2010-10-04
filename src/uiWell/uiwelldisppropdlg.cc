@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.28 2010-08-05 11:48:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.29 2010-10-04 17:13:55 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -148,11 +148,8 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	wellselfld_->box()->addItems( wellnames );
 	wellselfld_->box()->selectionChanged.notify(
 		    mCB(this,uiMultiWellDispPropDlg,wellSelChg) );
-	wellselfld_->attach( centeredAbove, ts_ );
-
-	uiSeparator* sep = new uiSeparator( this, "Well Sel/Log Sel Sep" );
-	sep->attach( stretchedBelow, wellselfld_ );
-	setVSpacing( 25 );
+	wellselfld_->attach( hCentered );
+	ts_->attach( ensureBelow, wellselfld_ );
     }
 }
 
