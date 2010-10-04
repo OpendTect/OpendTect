@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.35 2010-09-27 11:05:19 cvsbruno Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.36 2010-10-04 17:11:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiListViewItem;
 class uiMenuItem;
-class uiStratLevelDlg;
+class uiStratLvlList;
 class uiStratRefTree;
 class uiStratTreeWin;
 class uiStratDisplay;
@@ -41,13 +41,11 @@ public:
     void		popUp() const;
     virtual bool	closeOK();
     
-    mutable Notifier<uiStratTreeWin>    newLevelSelected;
-    mutable Notifier<uiStratTreeWin>	newUnitSelected;
-
 protected:
 
     uiStratRefTree*		uitree_;
     uiStratDisplay*		uistratdisp_;
+    uiStratLvlList*		lvllist_;
     Strat::RepositoryAccess&	repos_;
     uiMenuItem*			expandmnuitem_;
     uiMenuItem*			editmnuitem_;

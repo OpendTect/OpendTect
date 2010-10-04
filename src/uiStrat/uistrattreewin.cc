@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.53 2010-09-27 14:01:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.54 2010-10-04 17:11:30 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -61,8 +61,6 @@ uiStratTreeWin& StratTreeWin()
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
     : uiMainWin(p,"Manage Stratigraphy", 0, true)
-    , newLevelSelected(this)
-    , newUnitSelected(this)
     , needsave_(false)
     , istreedisp_(false)	
     , repos_(*new Strat::RepositoryAccess())
@@ -175,7 +173,7 @@ void uiStratTreeWin::createGroups()
     uistratdisp_ = new uiStratDisplay( leftgrp, *uitree_ );
     uistratdisp_->addControl( tb_ );
 
-    uiStratLvlList* lvllist = new uiStratLvlList( rightgrp );
+    lvllist_ = new uiStratLvlList( rightgrp );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
@@ -327,6 +325,7 @@ void uiStratTreeWin::forceCloseCB( CallBacker* )
     IOM().applicationClosing.remove( mCB(this,uiStratTreeWin,forceCloseCB ) );
     if ( stratwin )
 	stratwin->close();
+    delete lvllist_;
     delete uitree_;
     stratwin = 0;
 }
