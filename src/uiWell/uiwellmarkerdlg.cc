@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.31 2010-10-01 16:13:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.32 2010-10-04 08:17:20 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -297,7 +297,6 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 
 	Well::Marker* marker = new Well::Marker( txt, z );
 	marker->setColor( table_->getColor( RowCol(idx,cColorCol) ) );
-	//TODO remove
 	const int lvlid = levelsel ? levelsel->getID() : -1;
 	marker->setLevelID( lvlid >= 0 ? lvlid : -1 );
 	if ( stratmrkfld_->isChecked() )
@@ -316,5 +315,19 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
+    BufferStringSet mrknames;
+    const int nrrows = getNrRows();
+    for ( int idx=0; idx<nrrows; idx++ )
+    {
+	const char* txt = table_->text( RowCol(idx,cNameCol) );
+	if ( !mrknames.addIfNew( txt ) )
+	{
+	    BufferString errmsg( txt );
+	    errmsg += " is present several times,";
+	    errmsg += " please make sure it is unique";  
+	    uiMSG().error( errmsg );
+	    return false;
+	}
+    }
     return true;
 }
