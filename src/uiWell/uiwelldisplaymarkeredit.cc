@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.8 2010-10-01 17:18:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.9 2010-10-04 17:18:05 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -227,7 +227,10 @@ void uiWellDispEditMarkerDlg::addWellCtrl( uiWellDisplayControl& ctrl,
     ctrls_ += &ctrl;
     wds_ += &wd;
     Well::MarkerSet* orgmrks = new Well::MarkerSet();
-    orgmrks->copy( wd.markers() );
+    for ( int idx=0; idx<wd.markers().size(); idx++ )
+    {
+	(*orgmrks) += new Well::Marker( *wd.markers()[idx] );
+    }
     orgmarkerssets_ += orgmrks;
     activateSensors( ctrl, wd, true );
     fillMarkerList( 0 );
@@ -344,7 +347,8 @@ bool uiWellDispEditMarkerDlg::rejectOK( CallBacker* )
 	{
 	    for ( int idx=0; idx<wds_.size(); idx++ )
 	    {
-		wds_[idx]->markers() = *orgmarkerssets_[idx];
+		deepErase( wds_[idx]->markers() );
+		wds_[idx]->markers().copy( *orgmarkerssets_[idx] );
 		wds_[idx]->markerschanged.trigger();
 	    }
 	    return true;
