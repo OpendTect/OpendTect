@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.23 2010-10-04 08:14:29 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.24 2010-10-04 09:10:24 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -421,7 +421,7 @@ bool PropertySet::prepareEval()
 		if ( mp->haveInput(idep) ) continue;
 
 		const char* nm = mp->inputName( idep );
-		const Property*	depp = get( nm, matchalias );
+		const Property*	depp = find( nm, matchalias );
 		if ( depp )
 		    mp->setInput( idep, depp );
 		else if ( matchalias )
