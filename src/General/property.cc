@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.22 2010-09-30 10:58:10 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.23 2010-10-04 08:14:29 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -357,7 +357,7 @@ int PropertySet::indexOf( const char* nm, bool matchaliases ) const
 }
 
 
-Property* PropertySet::gt( const char* nm, bool ma ) const
+Property* PropertySet::fnd( const char* nm, bool ma ) const
 {
     const int idx = indexOf(nm,ma);
     return idx < 0 ? 0 : const_cast<Property*>( props_[idx] );

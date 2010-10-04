@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.15 2010-09-30 10:58:10 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.16 2010-10-04 08:14:29 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -61,10 +61,12 @@ public:
     int			indexOf(const char*,bool matchaliases=false) const;
     inline bool		isPresent( const char* nm, bool ma=false ) const
     			{ return indexOf(nm,ma) >= 0; }
-    inline const Property* get( const char* nm, bool ma=false ) const
-    						{ return gt(nm,ma); }
-    inline Property*	get( const char* nm, bool ma=false )
-    						{ return gt(nm,ma); }
+    Property&		get( int idx )		{ return *props_[idx]; }
+    const Property&	get( int idx ) const	{ return *props_[idx]; }
+    inline const Property* find( const char* nm, bool ma=false ) const
+    						{ return fnd(nm,ma); }
+    inline Property*	find( const char* nm, bool ma=false )
+    						{ return fnd(nm,ma); }
 
     bool		add(Property*); //!< refuses to add with identical name
     int			set(Property*); //!< add or change into. returns index.
@@ -79,7 +81,7 @@ public:
 protected:
 
     BufferString	errmsg_;
-    Property*		gt(const char*,bool) const;
+    Property*		fnd(const char*,bool) const;
 
     ObjectSet<Property>	props_;
 
