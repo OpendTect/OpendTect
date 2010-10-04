@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.28 2010-09-30 15:14:44 cvshelene Exp $";
+static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.29 2010-10-04 09:13:56 cvshelene Exp $";
 
 
 #include "uisimilarityattrib.h"
@@ -144,6 +144,11 @@ void uiSimilarityAttrib::extSel( CallBacker* )
     pos1fld_->display( !iscube );
     stepoutfld_->display( iscube );
     outpstatsfld_->display( strcmp(ext,extstrs3d[0]) );
+
+    BufferString cursel = outpstatsfld_->text();
+    StringListInpSpec spec( !strcmp(ext,extstrs3d[3]) ? outpstrsext : outpstrs);
+    outpstatsfld_->newSpec( spec, 0 );
+    outpstatsfld_->setText( cursel );
 }
 
 
