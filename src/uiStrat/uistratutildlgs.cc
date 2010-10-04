@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.34 2010-10-01 15:04:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.35 2010-10-04 17:17:12 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -73,7 +73,17 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	CallBack cb = mCB(this,uiStratUnitEditDlg,selLithCB);
 	uiPushButton* sellithbut = new uiPushButton( this, "&Edit", cb, false );
 	sellithbut->attach( rightTo, unitlithfld_ );
-	unitlithfld_->setCurrentItem( 0 );
+
+	for ( int idx=0; idx<unit.nrRefs(); idx++ )
+	{
+	    const Strat::LeafUnitRef& l = (Strat::LeafUnitRef&)(unit.ref(idx));
+	    if ( l.lithology() >= 0 )
+		lithids_ += l.lithology();
+	}
+	if ( lithids_.size() )
+	    unitlithfld_->setSelectedItems( lithids_ );
+	else
+	    unitlithfld_->setCurrentItem( 0 );
     }
 
     putToScreen();

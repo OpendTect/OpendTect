@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.51 2010-10-01 09:35:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.52 2010-10-04 17:17:12 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -248,7 +248,7 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 
     Strat::UnitRef* startunit = tree_->find( getCodeFromLVIt( lvit ) );
     if ( !startunit || !startunit->isLeaved() ) 
-	{ uiMSG().error( "Only end units can be subdivided" ); return; }
+	{ uiMSG().error( "Only tail units can be subdivided" ); return; }
 
     Strat::NodeUnitRef* parnode = startunit->upNode();
     if ( !parnode ) return;
@@ -266,11 +266,14 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 	    {
 		IOPar iop; ur.putPropsTo( iop ); 
 		startunit->getPropsFrom( iop );
+		delete &ur;
 	    }
 	    else
 	    {
 		parnode->add( &ur );
+		TypeSet<int> liths; liths += -1;
 		insertUnitInLVIT( lvit->parent(), ur );
+		addLithologies( ur, liths );
 	    }
 	}
 	updateUnitsPixmaps();
@@ -348,6 +351,14 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 		    trg.limitTo( partrg );
 	    }
 	}
+	else
+	{
+	    for ( int iref=nur.nrRefs()-1; iref>=0; iref-- )
+		removeUnit( lvit->getChild( iref ) );
+
+	    addLithologies( (LeavedUnitRef&)nur, urdlg.getLithologies() ); 
+	}
+
 	lvit->setText( unitref->code(), cUnitsCol );
 	lvit->setText( unitref->description(), cDescCol );
 	tree_->unitChanged.trigger();
