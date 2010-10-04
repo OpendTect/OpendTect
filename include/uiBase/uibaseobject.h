@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibaseobject.h,v 1.4 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uibaseobject.h,v 1.5 2010-10-04 05:02:36 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,13 +19,8 @@ class uiBody;
 mClass uiBaseObject : public NamedObject
 {
 public:
-				uiBaseObject( const char* nm, uiBody* b )
-				    : NamedObject(nm)
-				    , finaliseStart(this)
-				    , finaliseDone(this)
-				    , cmdrecrefnr_(0)
-				    , body_(b)			{}
-    virtual			~uiBaseObject()			{}
+				uiBaseObject(const char* nm, uiBody*);
+    virtual			~uiBaseObject();
 
 				// implementation: uiobj.cc
     void			finalise();
@@ -50,6 +45,8 @@ public:
 				//!< triggered when about to start finalising
     Notifier<uiBaseObject>	finaliseDone;
     				//!< triggered when finalising finished
+    Notifier<uiBaseObject>	tobeDeleted;
+				//!< triggered in destructor
 
 protected:
 

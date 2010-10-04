@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.95 2010-09-24 18:27:53 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.96 2010-10-04 05:04:22 cvsranojay Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -27,6 +27,20 @@ DefineEnumNames(uiRect,Side,1,"Side") { "Left", "Top", "Right", "Bottom", 0 };
 #define mBody_( imp_ )	dynamic_cast<uiObjectBody*>( imp_ )
 #define mBody()		mBody_( body() )
 #define mConstBody()	mBody_(const_cast<uiObject*>(this)->body())
+
+uiBaseObject::uiBaseObject( const char* nm, uiBody* b )
+    : NamedObject(nm)
+    , finaliseStart(this)
+    , finaliseDone(this)
+    , tobeDeleted(this)
+    , cmdrecrefnr_(0)
+    , body_(b)
+{}
+
+
+uiBaseObject::~uiBaseObject()
+{ tobeDeleted.trigger(); }
+
 
 void uiBaseObject::finalise()
 { if ( body() ) body()->finalise(); }
