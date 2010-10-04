@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		February 2008
- RCS:		$Id: uivolproclateralsmoother.h,v 1.2 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: uivolproclateralsmoother.h,v 1.3 2010-10-04 19:56:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,10 +39,18 @@ protected:
 
     LateralSmoother*		smoother_;
 
-    uiGenInput*			ismedianfld_;
-    uiGenInput*			weightedfld_;
     uiLabeledSpinBox*		inllenfld_;
     uiLabeledSpinBox*		crllenfld_;
+    uiGenInput*			replaceudfsfld_;
+
+    uiGenInput*			ismedianfld_;
+    uiGenInput*			weightedfld_;
+    uiGenInput*			mirroredgesfld_;
+
+    uiGenInput*			udfhandling_;
+    uiGenInput*			udffixedvalue_;
+    
+
 };
 
 }; //namespace

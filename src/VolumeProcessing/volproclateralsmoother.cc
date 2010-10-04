@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.11 2010-09-10 17:37:32 cvskris Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.12 2010-10-04 19:56:14 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -31,7 +31,8 @@ LateralSmootherTask(const Array3D<float>& input,
 	const Interval<int>& i0samples,
 	const Interval<int>& i1samples,
 	const Interval<int>& i2samples,
-	const Array2DFilterPars& pars )
+	const Array2DFilterPars& pars,
+	bool mirroredges, bool interpolateudfs, float fixedval )
     : input_( input )
     , output_( output )
     , i0_( i0 ), i1_( i1 ), i2_( i2 )
@@ -43,6 +44,10 @@ LateralSmootherTask(const Array3D<float>& input,
     , i1samples_( i1samples )
     , i2samples_( i2samples )
     , kernel_( 0 )
+    , domt_( false )
+    , mirroredges_( mirroredges )
+    , interpolateundefs_( interpolateudfs )
+    , fixedval_( fixedval )
 {
 }
 
@@ -50,11 +55,11 @@ LateralSmootherTask(const Array3D<float>& input,
 ~LateralSmootherTask()
 { delete kernel_; }
 
-
-od_int64		nrIterations() const {return i2samples_.width()+1; }
-od_int64		totalNr() const { return totalsz_; }
-const char*		message() const { return "Smothing laterally"; }
-const char*		nrDoneText() const { return "Samples processed"; }
+od_int64	nrIterations() const {return i2samples_.width()+1; }
+od_int64	totalNr() const { return totalsz_; }
+const char*	message() const { return "Smothing laterally"; }
+const char*	nrDoneText() const { return "Samples processed"; }
+bool		doPrepare(int nrthreads) { domt_ = nrthreads==1; return true; }
 
 private:
 
@@ -110,7 +115,36 @@ bool processFilter( od_int64 start, od_int64 stop, int thread )
     return true;
 }
 
-
+#define mFixEdges( dim ) \
+if ( inputpos##dim<0 ) \
+{ \
+    if ( mirroredges_ ) \
+    { \
+	inputpos##dim = -inputpos##dim; \
+	if ( inputpos##dim>lastinput##dim ) \
+	    inputpos##dim = lastinput##dim; \
+    } \
+    else \
+    { \
+	idx##dim -= inputpos##dim+1; \
+	missingdata = true; \
+	continue;  \
+    } \
+} \
+else if ( inputpos##dim>lastinput##dim ) \
+{ \
+    if ( mirroredges_ ) \
+    { \
+	inputpos##dim = 2*lastinput##dim-inputpos##dim; \
+	if ( inputpos##dim<0 ) \
+	    inputpos##dim = 0; \
+    } \
+    else \
+    { \
+	missingdata = true; \
+	break; \
+    } \
+}
 bool processKernel( int start, int stop, int thread )
 {
     const int ksz0 =
@@ -124,24 +158,21 @@ bool processKernel( int start, int stop, int thread )
 		: HanningWindow::sName(),
 	    mUdf(float), pars_.stepout_.row*2+1, pars_.stepout_.col*2+1 );
 
-    Array2DImpl<float> inputslice( ksz0, ksz1 );
-    if ( !inputslice.isOK() )
+    Array2DImpl<float> slice( ksz0, ksz1 );
+    if ( !slice.isOK() )
 	return false;
 
-    Array2DImpl<float> outputslice( ksz0, ksz1 );
-    if ( !outputslice.isOK() )
-	return false;
+    const bool dontfilludf = !pars_.filludf_;
 
     PtrMan<Array2DImpl<bool> > wasudf = 0;
-    if ( !pars_.filludf_ )
+    if ( dontfilludf || !interpolateundefs_ )
     {
 	wasudf = new Array2DImpl<bool>( ksz0, ksz1 );
 	if ( !wasudf->isOK() )
 	    return false;
     }
 
-    smoother.setInput( inputslice, false );
-    smoother.setOutput( outputslice );
+    smoother.setOutput( slice );
 
     const int kernelorigin0 = (i0samples_.stop+i0samples_.start-ksz0)/2;
     const int kernelorigin1 = (i1samples_.stop+i1samples_.start-ksz1)/2;
@@ -158,69 +189,78 @@ bool processKernel( int start, int stop, int thread )
     interpol.setSearchRadius( 10 );
 
     bool* wasudfptr = wasudf ? wasudf->getData() : 0;
-    float* inputsliceptr = inputslice.getData();
-    const float* outputsliceptr = outputslice.getData();
+    float* sliceptr = slice.getData();
 
     for ( od_int64 depthidx=start; depthidx<=stop && shouldContinue();
 	  depthidx++ )
     {
+	double sum = 0;
+	od_int64 nrvals = 0;
 	const int depthindex = i2samples_.start+depthidx;
 	const int inputdepth = depthindex-i2_;
 	const int outputdepth = depthindex-o2_;
 
-	inputslice.setAll( mUdf(float) );
+	slice.setAll( mUdf(float) );
 	if ( wasudf ) wasudf->setAll( true );
 
 	bool missingdata = false;
 	for ( int idx0=0; idx0<ksz0; idx0++ )
 	{
-	    const int inputpos0 = kernelorigin0+idx0;
-	    if ( inputpos0<0 )
-	    {
-		idx0 -= inputpos0+1;
-		missingdata = true;
-		continue; 
-	    }
-
-	    if ( inputpos0>lastinput0 )
-	    {
-		missingdata = true;
-		break;
-	    }
+	    int inputpos0 = kernelorigin0+idx0;
+	    mFixEdges( 0 );
 
 	    for ( int idx1=0; idx1<ksz1; idx1++ )
 	    {
-		const int inputpos1 = kernelorigin1+idx1;
-		if ( inputpos1<0 )
-		{
-		    idx1 -= inputpos1+1;
-		    missingdata = true;
-		    continue; 
-		}
+		int inputpos1 = kernelorigin1+idx1;
+		mFixEdges( 1 );
 
-		if ( inputpos1>lastinput1 )
-		{
-		    missingdata = true;
-		    break;
-		}
-
-		const int offset = inputslice.info().getOffset( idx0, idx1 );
+		const int offset = slice.info().getOffset( idx0, idx1 );
 		const float val = input_.get(inputpos0,inputpos1,inputdepth);
 		if ( mIsUdf(val) )
 		    missingdata = true;
-		else if ( wasudfptr )
-		    wasudfptr[offset] = false;
+		else
+		{
+		    if ( wasudfptr )
+			wasudfptr[offset] = false;
 
-		inputsliceptr[offset] = val;
+		    sum += val;
+		    nrvals++;
+		}
+		    
+
+		sliceptr[offset] = val;
 	    }
 	}
 
 	if ( missingdata )
 	{
-	    interpol.setArray( inputslice, 0 );
-	    interpol.execute();
+	    if ( interpolateundefs_ || !wasudfptr )
+	    {
+		interpol.setArray( slice, 0 );
+		interpol.execute( domt_ );
+	    }
+	    else
+	    {
+		float val = 0;
+		if ( mIsUdf(fixedval_) )
+		{
+		    if ( nrvals )
+			val = sum/nrvals;
+		}
+		else
+		{
+		    val = fixedval_;
+		}
+
+		for ( int idx=slice.info().getTotalSz()-1; idx>=0; idx-- )
+		{
+		    if ( wasudfptr[idx] )
+			sliceptr[idx] = val;
+		}
+	    }
 	}
 
+	smoother.setInput( slice, false ); //trigger deletion of xf_
 	smoother.execute();
 
 	for ( int idx0=0; idx0<outputsz0; idx0++ )
@@ -237,12 +277,12 @@ bool processKernel( int start, int stop, int thread )
 		const int outputpos1 = globalpos1-o1_;
 
 		const int offset =
-		    outputslice.info().getOffset( kernelpos0, kernelpos1 );
+		    slice.info().getOffset( kernelpos0, kernelpos1 );
 
-		if ( wasudfptr && wasudfptr[offset] )
+		if ( dontfilludf && wasudfptr[offset] )
 		    continue;
 
-		const float val = outputsliceptr[offset];
+		const float val = sliceptr[offset];
 		output_.set( outputpos0, outputpos1, outputdepth, val );
 	    }
 	}
@@ -267,6 +307,12 @@ bool processKernel( int start, int stop, int thread )
     const Array2DFilterPars&	pars_;
 
     Array2DImpl<float_complex>*	kernel_;
+
+    bool			domt_;
+   
+    bool			mirroredges_;
+    bool			interpolateundefs_;
+    float			fixedval_;
 };
 
 
@@ -287,6 +333,9 @@ bool LateralSmoother::needsInput(const HorSampling&) const
     
 LateralSmoother::LateralSmoother(Chain& pc)
     : Step( pc )
+    , mirroredges_( true )
+    , interpolateundefs_( false )
+    , fixedvalue_( mUdf(float) )
 {}
 
 
@@ -329,6 +378,10 @@ void LateralSmoother::fillPar( IOPar& pars ) const
 
 bool LateralSmoother::usePar( const IOPar& pars )
 {
+    mirroredges_ = true;
+    interpolateundefs_ = false;
+    fixedvalue_ = mUdf(float);
+
     if ( !Step::usePar( pars ) )
 	return false;
 
@@ -343,6 +396,10 @@ bool LateralSmoother::usePar( const IOPar& pars )
 
     pars_.type_ = ismedian ? Stats::Median : Stats::Average;
     pars_.rowdist_ = isweighted ? 1 : mUdf(float);
+
+    pars.getYN( sKeyMirrorEdges(), mirroredges_ );
+    pars.getYN( sKeyInterpolateUdf(), interpolateundefs_ );
+    pars.get( sKeyFixedValue(), fixedvalue_ );
 
     return true;
 }
@@ -391,7 +448,7 @@ Task* LateralSmoother::createTask()
 	    output_->crlsampling_.start,
 	    output_->z0_,
 	    inlsamples, crlsamples, zrg_,
-	    pars_ );
+	    pars_, mirroredges_, interpolateundefs_, fixedvalue_ );
 
     return 0;
 }

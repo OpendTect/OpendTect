@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolproclateralsmoother.cc,v 1.2 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolproclateralsmoother.cc,v 1.3 2010-10-04 19:56:14 cvskris Exp $";
 
 #include "uivolproclateralsmoother.h"
 
@@ -12,7 +12,6 @@ static const char* rcsID = "$Id: uivolproclateralsmoother.cc,v 1.2 2009-07-22 16
 #include "uimsg.h"
 #include "volprocsmoother.h"
 #include "uigeninput.h"
-#include "uilabel.h"
 #include "uispinbox.h"
 #include "uigeninput.h"
 #include "uivolprocchain.h"
@@ -34,24 +33,11 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     , smoother_( hf )
 {
     const Array2DFilterPars* pars = hf ? &hf->getPars() : 0;
-    ismedianfld_ = new uiGenInput( this, sKey::Type,
-	    BoolInpSpec( pars && pars->type_==Stats::Median,
-			 Stats::TypeNames()[(int)Stats::Median],
-			 Stats::TypeNames()[(int)Stats::Average]) );
-    ismedianfld_->valuechanged.notify( mCB(this,uiLateralSmoother,updateFlds) );
-
-    weightedfld_ = new uiGenInput( this, "Weighted",
-	    BoolInpSpec( pars && !mIsUdf(pars->rowdist_) ) );
-    weightedfld_->attach( alignedBelow, ismedianfld_ );
-
-    uiLabel* label = new uiLabel( this, "Stepout" );
-    label->attach( alignedBelow, weightedfld_ );
 
     uiGroup* stepoutgroup = new uiGroup( this, "Stepout" );
     stepoutgroup->setFrame( true );
-    stepoutgroup->attach( alignedBelow, label );
 
-    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, "In-line", 0,
+    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, "In-line stepout", 0,
 	    			  	"Inline_spinbox" );
 
     const BinID step( SI().inlStep(), SI().crlStep() );
@@ -59,16 +45,59 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     if ( pars )
 	inllenfld_->box()->setValue( step.inl*pars->stepout_.row );
 
-    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, "Cross-line", 0,
+    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, "Cross-line stepout", 0,
 	    			       "Crline_spinbox" );
     crllenfld_->box()->setInterval( 0, 200*step.crl, step.crl );
     if ( pars )
 	crllenfld_->box()->setValue( step.crl*pars->stepout_.col );
     crllenfld_->attach( alignedBelow, inllenfld_ );
 
-    stepoutgroup->setHAlignObj( crllenfld_ );
-    addNameFld( stepoutgroup );
+    replaceudfsfld_ = new uiGenInput( stepoutgroup,
+	    "Overwrite undefined values",
+	    BoolInpSpec( pars && pars->filludf_ ));
+    replaceudfsfld_->attach( alignedBelow, crllenfld_ );
 
+    stepoutgroup->setHAlignObj( crllenfld_ );
+
+    ismedianfld_ = new uiGenInput( this, sKey::Type,
+	    BoolInpSpec( pars && pars->type_==Stats::Median,
+			 Stats::TypeNames()[(int)Stats::Median],
+			 Stats::TypeNames()[(int)Stats::Average]) );
+    ismedianfld_->valuechanged.notify( mCB(this,uiLateralSmoother,updateFlds) );
+    ismedianfld_->attach( alignedBelow, stepoutgroup );
+
+    weightedfld_ = new uiGenInput( this, "Weighted",
+	    BoolInpSpec( pars && !mIsUdf(pars->rowdist_) ) );
+    weightedfld_->attach( alignedBelow, ismedianfld_ );
+
+    mirroredgesfld_ = new uiGenInput( this, "Mirror edges",
+	    BoolInpSpec( smoother_ ? smoother_->getMirrorEdges() : true ) );
+    mirroredgesfld_->attach( alignedBelow, weightedfld_ );
+
+    const char* udfhanlingstrs[] =
+	{ "Average", "Fixed value", "Interpoate", 0 };
+    udfhandling_ = new uiGenInput( this, "Undefined substitution",
+	    StringListInpSpec( udfhanlingstrs ) );
+    udfhandling_->attach( alignedBelow, mirroredgesfld_ );
+    udfhandling_->valuechanged.notify( mCB(this,uiLateralSmoother,updateFlds) );
+
+    udffixedvalue_ = new uiGenInput( this, "Fixed value",
+	    FloatInpSpec( mUdf(float) ) );
+    udffixedvalue_->attach( alignedBelow, udfhandling_ );
+
+    if ( smoother_ && smoother_->getInterpolateUdfs() )
+	udfhandling_->setValue( 2 );
+    else if ( smoother_ && !mIsUdf(smoother_->getFixedValue() ) )
+    {
+	udffixedvalue_->setValue( smoother_->getFixedValue() );
+	udfhandling_->setValue( 1 );
+    }
+    else
+    {
+	udfhandling_->setValue( 0 );
+    }
+
+    addNameFld( udffixedvalue_ );
     updateFlds( 0 );
 }
 
@@ -95,8 +124,27 @@ bool uiLateralSmoother::acceptOK( CallBacker* cb )
 
     pars.stepout_.row = mNINT(inllenfld_->box()->getFValue()/SI().inlStep() );
     pars.stepout_.col = mNINT(crllenfld_->box()->getFValue()/SI().crlStep() );
+    pars.filludf_ = replaceudfsfld_->getBoolValue();
 
     smoother_->setPars( pars );
+
+    smoother_->setMirrorEdges( mirroredgesfld_->getBoolValue() );
+    smoother_->setInterpolateUdfs( udfhandling_->getIntValue()==2 );
+    if ( udfhandling_->getIntValue()==1 )
+    {
+	const float val = udffixedvalue_->getfValue();
+	if ( mIsUdf(val) )
+	{
+	    uiMSG().error( "Fixed value must be defined" );
+	    return false;
+	}
+
+	smoother_->setFixedValue( val );
+    }
+    else
+    {
+	smoother_->setFixedValue( mUdf(float) );
+    }
 
     return true;
 }
@@ -105,6 +153,10 @@ bool uiLateralSmoother::acceptOK( CallBacker* cb )
 void uiLateralSmoother::updateFlds( CallBacker* )
 {
     weightedfld_->display( !ismedianfld_->getBoolValue() );
+    udfhandling_->display( !ismedianfld_->getBoolValue() );
+    mirroredgesfld_->display( !ismedianfld_->getBoolValue() );
+    udffixedvalue_->display( !ismedianfld_->getBoolValue() &&
+			     udfhandling_->getIntValue()==1 );
 }
 
 

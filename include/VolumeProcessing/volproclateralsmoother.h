@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: volproclateralsmoother.h,v 1.4 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:		$Id: volproclateralsmoother.h,v 1.5 2010-10-04 19:56:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,34 +25,49 @@ namespace VolProc
 mClass LateralSmoother : public Step
 {
 public:
-    static void			initClass();
+    static void		initClass();
     
-				~LateralSmoother();
-				LateralSmoother(Chain&);
+			~LateralSmoother();
+			LateralSmoother(Chain&);
 
-    const char*			type() const;
-    bool			needsInput(const HorSampling&) const;
-    HorSampling			getInputHRg(const HorSampling&) const;
+    const char*		type() const;
+    bool		needsInput(const HorSampling&) const;
+    HorSampling		getInputHRg(const HorSampling&) const;
 
-    void			setPars(const Array2DFilterPars&);
+    void		setPars(const Array2DFilterPars&);
+    void		setMirrorEdges(bool yn) { mirroredges_=yn; }
+    void		setFixedValue(float v) { fixedvalue_=v; }
+    void		setInterpolateUdfs(bool b) {interpolateundefs_=b;}
+
     const Array2DFilterPars&	getPars() const	{ return pars_; }
+    bool		getMirrorEdges() const { return mirroredges_; }
+    float		getFixedValue() const { return fixedvalue_; }
+    bool		getInterpolateUdfs() const {return interpolateundefs_;}
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
     
-    bool			canInputAndOutputBeSame() const {return true;}
-    bool			needsFullVolume() const		{return false;}
+    bool		canInputAndOutputBeSame() const {return true;}
+    bool		needsFullVolume() const		{return false;}
 
-    static const char*		sKeyType()	{ return "LateralSmoother"; }
-    static const char*		sUserName()	{ return "Lateral Smoother"; }
+    static const char*	sKeyType()	{ return "LateralSmoother"; }
+    static const char*	sUserName()	{ return "Lateral Smoother"; }
 
-    Task*			createTask();
+    Task*		createTask();
 
 protected:
-    static const char*		sKeyIsMedian()	{ return "Is Median"; }
-    static const char*		sKeyIsWeighted(){ return "Is Weighted"; }
-    static Step*		create(Chain&);
-    Array2DFilterPars		pars_;
+    static const char*	sKeyIsMedian()	{ return "Is Median"; }
+    static const char*	sKeyIsWeighted(){ return "Is Weighted"; }
+    static const char*	sKeyMirrorEdges(){ return "Mirror Edges"; }
+    static const char*	sKeyInterpolateUdf(){ return "Interpolate Udf";}
+    static const char*	sKeyFixedValue() { return "Fixed Value"; }
+    
+    static Step*	create(Chain&);
+    Array2DFilterPars	pars_;
+
+    bool		mirroredges_;
+    bool		interpolateundefs_;
+    float		fixedvalue_;
 };
 
 }; //namespace
