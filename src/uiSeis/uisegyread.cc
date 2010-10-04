@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.44 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.45 2010-10-04 05:06:32 cvsranojay Exp $";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"
@@ -413,6 +413,7 @@ void uiSEGYRead::basicOptsGot()
     if ( exsu.nrtrcs_ > 0 )
     {
 	examdlg_ = new uiSEGYExamine( parent_, exsu );
+	examdlg_->tobeDeleted.notify( mCB(this,uiSEGYRead,examDlgClose) );
 	mLaunchVWDialogOnly(examdlg_,uiSEGYRead,examDlgClose);
     }
 
@@ -489,9 +490,7 @@ void uiSEGYRead::defDlgClose( CallBacker* )
 
 
 void uiSEGYRead::examDlgClose( CallBacker* )
-{
-    examdlg_ = 0;
-}
+{ examdlg_ = 0; }
 
 
 void uiSEGYRead::scanDlgClose( CallBacker* )
