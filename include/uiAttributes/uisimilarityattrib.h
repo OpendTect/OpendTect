@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisimilarityattrib.h,v 1.9 2010-09-30 15:14:44 cvshelene Exp $
+ RCS:           $Id: uisimilarityattrib.h,v 1.10 2010-10-04 18:04:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ protected:
 	   
 	    bool	willSteer() const;	
 	    bool	wantBrowseDip() const;
+	    int		browseDipIdxInList() const;
 				                                             
 	    Notifier<uiSimiSteeringSel>	typeSelected;
 
