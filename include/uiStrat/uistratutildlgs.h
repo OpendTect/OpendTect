@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.23 2010-10-01 15:04:20 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.24 2010-10-04 17:16:55 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,15 +45,9 @@ mClass uiStratUnitEditDlg : public uiDialog
 public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
 
-    void 		setLithologies(const TypeSet<int>& lith) 	
-    					{ lithids_ = lith; }
-
-    const TypeSet<int>& getLithologies() const 
-    					{ return lithids_; }
+    const TypeSet<int>& getLithologies() const 	{ return lithids_; }
 
 protected:
-
-    Strat::NodeUnitRef& unit()		{ return unit_; }
 
     uiGenInput*		unitnmfld_;
     uiGenInput*		unitdescfld_;
