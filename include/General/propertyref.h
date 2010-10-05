@@ -7,15 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.3 2010-09-29 11:14:12 cvsbert Exp $
+ RCS:		$Id: propertyref.h,v 1.4 2010-10-05 10:33:00 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "enums.h"
+#include "ranges.h"
 #include "namedobj.h"
+#include "enums.h"
 #include "bufstringset.h"
+#include "color.h"
 #include "repos.h"
 
 class ascistream;
@@ -61,10 +63,26 @@ public:
 
     inline bool		isHCAffected() const
 					{ return isHCAffected(stdtype_); }
-    inline BufferStringSet&		aliases()	{ return aliases_; }
-    inline const BufferStringSet&	aliases() const	{ return aliases_; }
+    inline BufferStringSet& aliases()			{ return aliases_; }
+    inline const BufferStringSet& aliases() const	{ return aliases_; }
 
-    static const PropertyRef&		undef();
+    static const PropertyRef& undef();
+
+    // Defaults for display
+    mStruct DispDefs
+    {
+			DispDefs()
+			: color_(Color::Black())
+			, range_(mUdf(float),mUdf(float))
+			, logarithmic_(false)		{}
+
+	Color		color_;
+	Interval<float>	range_;		//!< Internal units
+	BufferString	unit_;
+	bool		logarithmic_;
+    };
+
+    DispDefs		disp_;
 
 protected:
 
@@ -72,6 +90,8 @@ protected:
     BufferStringSet	aliases_;
 
     friend class	PropertyRefSet;
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
 };
 
 
@@ -84,8 +104,8 @@ public:
      inline bool	isPresent( const char* nm ) const
      			{ return indexOf(nm) >= 0; }
      int		indexOf(const char*) const;
-     inline PropertyRef* get( const char* nm )		{ return gt(nm); }
-     inline const PropertyRef* get( const char* nm ) const { return gt(nm); }
+     inline PropertyRef* find( const char* nm )		{ return fnd(nm); }
+     inline const PropertyRef* find( const char* nm ) const { return fnd(nm); }
 
      int		add(PropertyRef*);
 			//!< refuses if another one isKnownAs. If not added,
@@ -97,7 +117,7 @@ public:
 
 protected:
 
-     PropertyRef*	gt(const char*) const;
+     PropertyRef*	fnd(const char*) const;
 
 public:
 

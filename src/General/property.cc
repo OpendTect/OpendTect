@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.24 2010-10-04 09:10:24 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.25 2010-10-05 10:33:00 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -15,10 +15,13 @@ static const char* rcsID = "$Id: property.cc,v 1.24 2010-10-04 09:10:24 cvsbert 
 #include "ioman.h"
 #include "separstr.h"
 #include "globexpr.h"
-#include "repos.h"
+#include "keystrs.h"
+#include "iopar.h"
 #include "errh.h"
 
 static const char* filenamebase = "Properties";
+static const char* sKeyAliases = "Aliases";
+static const char* sKeyIsLog = "Logarithmic";
 
 DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 {
@@ -54,6 +57,8 @@ const PropertyRef& PropertyRef::undef()
 	udf->aliases().add( "?undef?" );
 	udf->aliases().add( "?undefined?" );
 	udf->aliases().add( "udf" );
+	udf->aliases().add( "unknown" );
+	udf->disp_.color_ = Color::LightGrey();
     }
     return *udf;
 }
@@ -79,6 +84,55 @@ bool PropertyRef::isKnownAs( const char* nm ) const
 	    return true;
     }
     return false;
+}
+
+
+void PropertyRef::usePar( const IOPar& iop )
+{
+    aliases_.erase();
+    FileMultiString fms( iop.find(sKeyAliases) );
+    int sz = fms.size();
+    for ( int ifms=0; ifms<sz; ifms++ )
+	aliases_.add( fms[ifms] );
+
+    fms = iop.find( sKey::Range );
+    sz = fms.size();
+    if ( sz > 1 )
+    {
+	disp_.range_.start = atof( fms[0] );
+	disp_.range_.stop = atof( fms[1] );
+	if ( sz > 2 )
+	    disp_.unit_ = fms[2];
+    }
+
+    iop.get( sKey::Color, disp_.color_ );
+    iop.getYN( sKeyIsLog, disp_.logarithmic_ );
+}
+
+
+void PropertyRef::fillPar( IOPar& iop ) const
+{
+    if ( aliases_.isEmpty() )
+	iop.removeWithKey( sKeyAliases );
+    else
+    {
+	FileMultiString fms( aliases_.get(0) );
+	for ( int idx=1; idx<aliases_.size(); idx++ )
+	    fms += aliases_.get(idx);
+	iop.set( sKeyAliases, fms );
+    }
+
+    iop.set( sKey::Color, disp_.color_ );
+    FileMultiString fms;
+    fms += toString( disp_.range_.start );
+    fms += toString( disp_.range_.stop );
+    if ( !disp_.unit_.isEmpty() )
+	fms += disp_.unit_;
+    iop.set( sKey::Range, fms );
+    if ( disp_.logarithmic_ )
+	iop.setYN( sKeyIsLog, true );
+    else
+	iop.removeWithKey( sKeyIsLog );
 }
 
 
@@ -159,7 +213,7 @@ int PropertyRefSet::indexOf( const char* nm ) const
 }
 
 
-PropertyRef* PropertyRefSet::gt( const char* nm ) const
+PropertyRef* PropertyRefSet::fnd( const char* nm ) const
 {
     const int idx = indexOf( nm );
     return idx < 0 ? 0 : const_cast<PropertyRef*>( (*this)[idx] );
@@ -204,17 +258,17 @@ void PropertyRefSet::readFrom( ascistream& astrm )
 {
     deepErase( *this );
 
-    while ( !atEndOfSection( astrm.next() ) )
+    while ( !atEndOfSection(astrm.next()) )
     {
-	FileMultiString fms( astrm.value() );
-	const int sz = fms.size();
-	if ( sz < 1 ) continue;
+	IOPar iop; iop.getFrom(astrm);
+	const BufferString propnm( iop.getKey(0) );
+	if ( find(propnm) )
+	    continue;
 
-	BufferString ptypestr = fms[0];
-	PropertyRef::StdType st = eEnum(PropertyRef::StdType,ptypestr);
-	PropertyRef* pr = new PropertyRef( astrm.keyWord(), st );
-	for ( int ifms=1; ifms<sz; ifms++ )
-	    pr->aliases().add( fms[ifms] );
+	const BufferString stdtypstr( iop.getValue(0) );
+	PropertyRef::StdType st = eEnum(PropertyRef::StdType,stdtypstr);
+	PropertyRef* pr = new PropertyRef( propnm, st );
+	pr->usePar( iop );
 
 	if ( add(pr) < 0 )
 	    delete pr;
@@ -228,10 +282,10 @@ bool PropertyRefSet::writeTo( ascostream& astrm ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const PropertyRef& pr = *(*this)[idx];
-	FileMultiString fms( eString(PropertyRef::StdType,pr.stdType()) );
-	for ( int ial=0; ial<pr.aliases().size(); ial++ )
-	    fms += pr.aliases().get( ial );
-	astrm.put( pr.name(), fms );
+	IOPar iop;
+	iop.set( pr.name(), eString(PropertyRef::StdType,pr.stdType()) );
+	pr.fillPar( iop );
+	iop.putTo( astrm );
     }
     return astrm.stream().good();
 }

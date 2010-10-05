@@ -1,22 +1,100 @@
-dTect V4.1
+dTect V4.2
 Properties
-Tue 28 Sep 2010, 11:05:43
+Tue 05 Oct 2010, 12:28:38
 !
-Time: Time`TWT`T
-Distance/Depth: Distance/Depth`Dist`Depth`Dpt`Z
-Porosity: Porosity`Phi`Por
-Permeability: Permeability`Perm
-Gamma Ray: Gamma Ray`GR
-Temperature: Temperature`Temp
-Pressure: Pressure`Pres`P
-Density: Density`Rho`RhoB
-P-wave velocity: Velocity`PVel`Vel`P-Vel`V
-S-wave velocity: Velocity`SVel`S-Vel
-Sonic: Sonic travel time`DT
-Acoustic Impedance: Acoustic Impedance`AI
-Elastic Impedance: Acoustic Impedance`EI
-Water Saturation: Saturation`Sat
-Spontaneous Potential: Electrical Potential`SP
-Resistivity: Resistivity`Res
-Poisson's Ratio: Poisson's Ratio`Poi
-Compressibility; Compressibility
+Time: Time
+Aliases: TWT`T
+Color: 0`0`0
+Range: 0`5`s
+!
+Depth: Distance/Depth
+Aliases: Depth`Dpt`Z
+Color: 0`0`0
+Range: 0`5000`m
+!
+Distance: Distance/Depth
+Aliases: Dist
+Color: 0`0`0
+Range: 0`10000`m
+!
+Porosity: Porosity
+Aliases: Phi`Por
+Color: 200`200`0
+Range: 0`30`%
+!
+Permeability: Permeability
+Aliases: Perm
+Color: 200`0`0
+Range: 1`1000000`mD
+Logarithmic: Yes
+!
+Gamma Ray: Gamma Ray
+Aliases: GR
+Color: 255`0`0
+Range: 0`150`API
+!
+Temperature: Temperature
+Aliases: Temp
+Color: 0`0`0
+Range: 0`100`deg.C
+!
+Pressure: Pressure
+Aliases: Pres`P
+Color: 0`0`255
+Range: 0`200`bar
+!
+Density: Density
+Aliases: Den`Rho`RhoB
+Color: 0`0`200
+Range: 2`2.8`g/cc
+!
+P-wave velocity: Velocity
+Aliases: PVel`Vel`P-Vel`V
+Color: 0`200`0
+Range: 1500`5000`m/s
+!
+S-wave velocity: Velocity
+Aliases: SVel`S-Vel
+Color: 0`255`0
+Range: 500`2000`m/s
+!
+Sonic: Sonic travel time
+Aliases: DT
+Color: 0`255`255
+Range: 50`200`us/m
+!
+Acoustic Impedance: Acoustic Impedance
+Aliases: AI
+Color: 255`150`0
+Range: 1000000`10000000
+!
+Elastic Impedance: Acoustic Impedance
+Aliases: EI
+Color: 200`255`100
+Range: 1000000`10000000
+!
+Water Saturation: Saturation
+Aliases: Sat
+Color: 0`200`255
+Range: 0`100`%
+!
+Spontaneous Potential: Electrical Potential
+Aliases: SP
+Color: 255`100`0
+Range: 0`0.5`V
+!
+Resistivity: Resistivity
+Aliases: Res
+Color: 200`200`0
+Range: 0`30`ohmm
+Logarithmic: Yes
+!
+Poisson's Ratio: Poisson's Ratio
+Aliases: Poi
+Color: 200`100`200
+Range: 0.1`0.5
+!
+Compressibility: Compressibility
+Color: 100`200`100
+Range: 2e-06`2e-10
+!
