@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegysip.cc,v 1.25 2010-02-18 12:10:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegysip.cc,v 1.26 2010-10-05 11:03:55 cvsbert Exp $";
 
 #include "uisegysip.h"
 #include "uisegyread.h"
@@ -131,5 +131,7 @@ void uiSEGYSurvInfoProvider::startImport( uiParent* p, const IOPar& iop )
 
 const char* uiSEGYSurvInfoProvider::importAskQuestion() const
 {
-    return "Import the scanned SEG-Y file(s) now?";
+    Seis::GeomType gt = Seis::Vol;
+    Seis::getFromPar( imppars_, gt );
+    return gt == Seis::Vol ? "Import the scanned SEG-Y file(s) now?" : 0;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.124 2010-09-06 05:01:44 cvsraman Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.125 2010-10-05 11:03:55 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -654,11 +654,14 @@ bool uiSurvey::acceptOK( CallBacker* )
 	return false;
 
     newSurvey();
-    if ( impiop_ && impsip_
-      && uiMSG().askGoOn(impsip_->importAskQuestion()) )
+    if ( impiop_ && impsip_ )
     {
-	IOM().to( "100010" );
-	impsip_->startImport( parent(), *impiop_ );
+	const char* askq = impsip_->importAskQuestion();
+	if ( askq && *askq && uiMSG().askGoOn(askq) )
+	{
+	    IOM().to( "100010" );
+	    impsip_->startImport( parent(), *impiop_ );
+	}
     }
 
     return true;
