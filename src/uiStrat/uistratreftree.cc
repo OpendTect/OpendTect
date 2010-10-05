@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.52 2010-10-04 17:17:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.53 2010-10-05 07:43:36 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -312,7 +312,7 @@ void uiStratRefTree::removeUnit( uiListViewItem* lvit )
     Strat::NodeUnitRef* upnode = un->upNode();
     if ( !upnode ) return;
     upnode->remove( un );
-    if ( !upnode->hasChildren() )
+    if ( !upnode->isLeaved() && !upnode->hasChildren() )
 	replaceUnit( *upnode, true );
     if ( lvit->parent() )
 	lvit->parent()->removeItem( lvit );
