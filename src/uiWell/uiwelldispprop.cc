@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.42 2010-08-20 15:02:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.43 2010-10-05 12:37:34 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -109,8 +109,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 
 void uiWellTrackDispProperties::resetProps( Well::DisplayProperties::Track& pp )
 {
-    trackprops() = pp;
-    propChg(0);
+    props_ = &pp; 
 }
 
 
@@ -187,7 +186,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 
 void uiWellMarkersDispProperties::resetProps( Well::DisplayProperties::Markers& pp )
 {
-    mrkprops() = pp;
+    props_ = &pp;
 }
 
 
@@ -352,7 +351,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 
 void uiWellLogDispProperties::resetProps( Well::DisplayProperties::Log& pp )
 {
-    logprops() = pp;
+    props_ = &pp;
     recoverProp();
 }
 
