@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.22 2010-04-23 11:32:25 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.23 2010-10-05 11:30:12 cvsnanne Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -38,7 +38,7 @@ static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.22 2010-04-23 11:32:25 cvsn
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
     : uiFullBatchDialog(p,uiFullBatchDialog::Setup("GMT Mapping Tool")
-					     .procprognm("odgmtexec")
+					     .procprognm("od_gmtexec")
 					     .modal(false)
 					     .showoutputopts(false))
     , addbut_(0)
