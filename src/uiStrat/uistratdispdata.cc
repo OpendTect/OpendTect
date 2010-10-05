@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.20 2010-10-04 17:15:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.21 2010-10-05 15:17:12 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
@@ -26,11 +26,12 @@ static const char* rcsID = "$Id: uistratdispdata.cc,v 1.20 2010-10-04 17:15:17 c
 #define mAskStratNotif(obj,nm,act)\
     obj.nm.act(mCB(this,uiStratTreeToDispTransl,triggerDataChange));
 
-uiStratTreeToDispTransl::uiStratTreeToDispTransl( StratDispData& ad ) 
+uiStratTreeToDispTransl::uiStratTreeToDispTransl( StratDispData& ad, 
+					bool witauxs, bool withlvls  ) 
     : data_(ad)
     , tree_(Strat::eRT()) 
-    , withauxs_(true)		  
-    , withlevels_(true)  
+    , withauxs_(witauxs)		  
+    , withlevels_(withlvls)  
     , newtreeRead(this)
 {
     mAskStratNotif(tree_,unitAdded,notify)

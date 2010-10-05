@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.13 2010-10-04 17:15:17 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.14 2010-10-05 15:17:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,7 +151,9 @@ protected :
 mClass uiStratTreeToDispTransl : public CallBacker
 {
 public:
-    			uiStratTreeToDispTransl(StratDispData&);
+    			uiStratTreeToDispTransl(StratDispData&,
+					bool withaux=true,
+					bool withlvls=true);
 			~uiStratTreeToDispTransl();
 
     Notifier<uiStratTreeToDispTransl> newtreeRead;
@@ -161,7 +163,7 @@ protected:
     StratDispData& 	data_;
     Strat::RefTree&	tree_;
 
-    bool 		withauxs_;
+    bool 		withauxs_; //lithologies & descriptions
     bool 		withlevels_;
     int			lithocolidx_;
     int			desccolidx_;
