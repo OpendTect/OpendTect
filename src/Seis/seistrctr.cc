@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.95 2010-04-29 10:53:25 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.96 2010-10-05 11:14:07 cvsranojay Exp $";
 
 #include "seistrctr.h"
 #include "seistrc.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.95 2010-04-29 10:53:25 cvsbert
 #include "cubesampling.h"
 #include "envvars.h"
 #include "errh.h"
+#include "file.h"
 #include <math.h>
 
 
@@ -427,8 +428,10 @@ bool SeisTrcTranslator::initConn( Conn* c, bool forread )
 	return false;
     }
 
-    if ( ((forread && c->forRead()) || (!forread && c->forWrite()) )
-      && !strcmp(c->connType(),connType()) )
+    const char* fnm = c->ioobj ? c->ioobj->fullUserExpr( forread ) : 0;
+    if ( ( File::isDirectory(fnm) || (forread && c->forRead()) 
+	 			  || (!forread && c->forWrite()) ) 
+	                          && !strcmp(c->connType(),connType()) )
     {
 	delete conn;
 	conn = c;

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.100 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.101 2010-10-05 11:14:07 cvsranojay Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: seisread.cc,v 1.100 2010-09-29 03:48:48 cvssaty
 #include "cubesampling.h"
 #include "binidvalset.h"
 #include "errh.h"
+#include "file.h"
 #include "iopar.h"
 
 
@@ -194,7 +195,8 @@ Conn* SeisTrcReader::openFirst()
 	iostrm->setConnNr( iostrm->fileNumbers().start );
 
     Conn* conn = ioobj->getConn( Conn::Read );
-    if ( !conn || conn->bad() )
+    const char* fnm = ioobj->fullUserExpr( Conn::Read );
+    if ( !conn || (conn->bad() && !File::isDirectory(fnm)) )
     {
 	delete conn; conn = 0;
 	if ( iostrm && isMultiConn() )
