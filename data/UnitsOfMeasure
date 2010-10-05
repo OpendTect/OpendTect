@@ -23,7 +23,8 @@ Kg/m2us: Acoustic Impedance`kg/m2us`1000000
 G/ft2s: Acoustic Impedance`g/ft2s`0.0107639
 Percent: Porosity`%`0.01
 Fraction: Porosity``1
-Darcy: Permeability`k`1
+Darcy: Permeability`D`9.8692327e-13
+mDarcy: Permeability`mD`9.8692327e-16
 Percent: Saturation`%`0.01
 Fraction: Saturation``1
 API: Gamma Ray`API`1
@@ -36,4 +37,5 @@ Degrees Fahrenheit: Temperature`deg.F`0.5555555`255.3722222222222222
 Kelvin: Temperature`K`1
 Pascal: Pressure`Pa`1
 Bar: Pressure`bar`1e5
+Psi: Pressure`psi`6894.7573
 !
