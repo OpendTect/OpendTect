@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.35 2010-10-04 17:17:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.36 2010-10-05 07:46:07 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -77,7 +77,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	for ( int idx=0; idx<unit.nrRefs(); idx++ )
 	{
 	    const Strat::LeafUnitRef& l = (Strat::LeafUnitRef&)(unit.ref(idx));
-	    if ( l.lithology() >= 0 )
+	    if ( l.lithology() > 0 )
 		lithids_ += l.lithology();
 	}
 	if ( lithids_.size() )
