@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.14 2010-08-05 11:48:30 cvsbruno Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.15 2010-10-05 15:17:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,8 @@ protected:
     uiTabStack*			ts_;
     ObjectSet<uiWellDispProperties> propflds_;
 
-    void			getFromScreen();
-    void			putToScreen();
+    virtual void		getFromScreen();
+    virtual void		putToScreen();
 
     virtual void		applyAllPush(CallBacker*);
     virtual void		propChg(CallBacker*);
