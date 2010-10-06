@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vislight.cc,v 1.11 2010-08-19 08:21:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: vislight.cc,v 1.12 2010-10-06 06:43:11 cvsranojay Exp $";
 
 #include "vislight.h"
 #include "iopar.h"
@@ -16,10 +16,13 @@ static const char* rcsID = "$Id: vislight.cc,v 1.11 2010-08-19 08:21:17 cvsranoj
 #include <Inventor/nodes/SoPointLight.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
 #include <Inventor/nodes/SoSpotLight.h>
+#include <Inventor/nodes/SoLightModel.h>
+
 
 mCreateFactoryEntry( visBase::PointLight );
 mCreateFactoryEntry( visBase::DirectionalLight );
 mCreateFactoryEntry( visBase::SpotLight );
+mCreateFactoryEntry( visBase::LightModel );
 
 namespace visBase
 {
@@ -271,4 +274,46 @@ int SpotLight::usePar( const IOPar& par )
     return 1;
 }
 
-}; // namespace visBase
+/// Light Model
+
+LightModel::LightModel()
+    : lightmodel_(new SoLightModel())
+{
+    lightmodel_->ref();
+    setModel( BaseColor );
+}
+
+
+LightModel::~LightModel()
+{
+    lightmodel_->unref();
+}
+
+
+void LightModel::setModel( Type tp )
+{
+    switch( tp )
+    {
+    case BaseColor:
+	lightmodel_->model = SoLightModel::BASE_COLOR;
+	break;
+    case Phong:
+	lightmodel_->model = SoLightModel::PHONG;
+	break;
+    }
+}
+
+
+LightModel::Type LightModel::getModel() const
+{
+    return lightmodel_->model.getValue() == SoLightModel::BASE_COLOR
+	? BaseColor : Phong;
+}
+
+
+SoNode* LightModel::getInventorNode()
+{
+    return lightmodel_;
+}
+
+} // namespace visBase

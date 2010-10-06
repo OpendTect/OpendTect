@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislight.h,v 1.10 2010-08-19 08:21:10 cvsranojay Exp $
+ RCS:		$Id: vislight.h,v 1.11 2010-10-06 06:43:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 
 class SoLight;
+class SoLightModel;
 
 namespace visBase
 {
@@ -130,7 +131,24 @@ protected:
     static const char*	dropoffratestr();
 };
 
+
+mClass LightModel : public DataObject
+{
+public:
+    static LightModel*	    create() 
+			    mCreateDataObj(LightModel);
+
+    enum Type		    { BaseColor, Phong };
+    void		    setModel(Type);
+    Type		    getModel() const;
+
+    SoNode*		    getInventorNode();
+
+protected:
+			    ~LightModel();
+    SoLightModel*	    lightmodel_;
 };
 
+} //visBase
 
 #endif
