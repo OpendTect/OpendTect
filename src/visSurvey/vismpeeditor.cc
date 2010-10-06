@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.42 2010-09-26 11:14:34 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.43 2010-10-06 13:47:58 cvsjaap Exp $";
 
 #include "vismpeeditor.h"
 
@@ -589,7 +589,10 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo )
 
     mode_ = Furrowing;
     if ( !accept(eventinfo) )
+    {
+	mode_ = Idle;
 	mReturnHandled( false );
+    }
 
     sowingline_->getMaterial()->setColor( color );
     sowingline_->turnOn( true );
@@ -628,7 +631,7 @@ bool Sower::accept( const visBase::EventInfo& eventinfo )
 
 bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 {
-    if ( mode_ == Idle &&
+    if ( mode_==Idle &&
 	 eventinfo.type==visBase::MouseClick && !eventinfo.pressed )
     {
 	const EM::PosID pid = editor_.mouseClickDragger(eventinfo.pickedobjids);
@@ -668,8 +671,11 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	mReturnHandled( true );
     }
 
-    if ( !sz )
+    if ( !sz || !sowingline_->isOn() )
+    {
+	reset();
 	mReturnHandled( true );
+    }
 
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
@@ -753,6 +759,15 @@ bool Sower::acceptTablet( const visBase::EventInfo& eventinfo )
 	if ( !pid.isUdf() )
 	    return acceptEraser( eventinfo );
 
+	for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+	{
+	    const int visid = eventinfo.pickedobjids[idx];
+	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
+	    mDynamicCastGet( const visBase::Marker*, marker, dataobj );
+	    if ( marker )
+		return acceptEraser( eventinfo );
+	}
+
 	mReturnHandled( true );
     }
 
@@ -765,10 +780,7 @@ bool Sower::acceptTablet( const visBase::EventInfo& eventinfo )
     }
 
     if ( !pid.isUdf() && mode_==Furrowing && singleseeded_ )
-    {
-	reset();
-	mReturnHandled( false );
-    }
+	sowingline_->turnOn( false );
 
     return acceptMouse( eventinfo );
 }
@@ -776,7 +788,7 @@ bool Sower::acceptTablet( const visBase::EventInfo& eventinfo )
 
 bool Sower::acceptLaser( const visBase::EventInfo& eventinfo )
 {
-    if ( mode_!=Idle )
+    if ( mode_ != Idle )
 	mReturnHandled( false );
 
     mode_ = Lasering;
@@ -801,7 +813,7 @@ bool Sower::acceptLaser( const visBase::EventInfo& eventinfo )
 
 bool Sower::acceptEraser( const visBase::EventInfo& eventinfo )
 {
-    if ( mode_!=Idle )
+    if ( mode_ != Idle )
 	mReturnHandled( false );
 
     if ( eventinfo.type==visBase::MouseMovement &&
