@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.67 2010-09-24 12:09:01 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.68 2010-10-06 13:43:13 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ class uiMainWin;
 class i_LayoutItem;
 class ioPixmap;
 class QWidget;
+class uiObjEventFilter;
 
 
 /*!\ The base class for most UI elements. */
@@ -134,6 +135,8 @@ public:
     const QWidget*	qwidget() const
 			{ return const_cast<uiObject*>(this)->qwidget(); }
 
+    virtual bool	handleLongTabletPress();
+
     virtual const ObjectSet<uiBaseObject>* childList() const	{ return 0; }
 
     Notifier<uiObject>	closed;
@@ -157,11 +160,13 @@ protected:
 
 			//! setGeometry should be triggered by this's layoutItem
     void 		triggerSetGeometry(const i_LayoutItem*, uiRect&);
-    
+
     void		doSetToolTip();
     static bool		nametooltipactive_;
     static Color	normaltooltipcolor_;
     BufferString	normaltooltiptxt_;
+
+    uiObjEventFilter*	uiobjeventfilter_;
 
 private:
 
@@ -179,6 +184,11 @@ private:
 	typedef fromclass<templ_arg> toclass;
 #define mTemplTypeDefT(fromclass,templ_arg,toclass) \
 	mTemplTypeDef(fromclass,templ_arg,toclass)
+
+
+#define mUsrEvGuiThread			QEvent::Type( QEvent::User + 0 )
+#define mUsrEvPopUpReady		QEvent::Type( QEvent::User + 1 )
+#define mUsrEvLongTabletPress		QEvent::Type( QEvent::User + 2 )
 
 
 /*! \mainpage Basic User Interface (uiBase)
