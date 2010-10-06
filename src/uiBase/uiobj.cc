@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.96 2010-10-04 05:04:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.97 2010-10-06 13:42:46 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -20,6 +20,8 @@ static const char* rcsID = "$Id: uiobj.cc,v 1.96 2010-10-04 05:04:22 cvsranojay 
 #include "texttranslator.h"
 #include "settings.h"
 #include "timer.h"
+
+#include <QEvent>
 
 
 DefineEnumNames(uiRect,Side,1,"Side") { "Left", "Top", "Right", "Bottom", 0 };
@@ -195,6 +197,31 @@ void uiParentBody::clearChildren()
 	children_[idx]->clear();
 }
 
+
+class uiObjEventFilter : public QObject
+{
+public:
+			uiObjEventFilter( uiObject& uiobj )
+			    : uiobject_( uiobj )
+			{}
+protected:
+    bool		eventFilter(QObject*,QEvent*);
+    uiObject&		uiobject_;
+};
+
+
+bool uiObjEventFilter::eventFilter( QObject* obj, QEvent* event )
+{
+    if ( event->type() == mUsrEvLongTabletPress )
+    {
+	uiobject_.handleLongTabletPress();
+	return true;
+    }
+
+    return false;
+}
+
+
 bool translateactive_ = false;
 bool uiObject::nametooltipactive_ = false;
 Color uiObject::normaltooltipcolor_;
@@ -209,6 +236,7 @@ BufferString getCleanName( const char* nm )
     return qstr.toAscii().data();
 }
 
+
 uiObject::uiObject( uiParent* p, const char* nm )
     : uiBaseObject( getCleanName(nm), 0 )
     , setGeometry(this)
@@ -220,6 +248,10 @@ uiObject::uiObject( uiParent* p, const char* nm )
     if ( p ) p->addChild( *this );  
     uiobjectlist_ += this;
     doSetToolTip();
+
+    uiobjeventfilter_ = new uiObjEventFilter( *this );
+    if ( body() && body()->qwidget() )
+	body()->qwidget()->installEventFilter( uiobjeventfilter_ );
 }
 
 
@@ -233,11 +265,16 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     if ( p ) p->manageChld( *this, b );  
     uiobjectlist_ += this;
     doSetToolTip(); 
+
+    uiobjeventfilter_ = new uiObjEventFilter( *this );
+    if ( body() && body()->qwidget() )
+	body()->qwidget()->installEventFilter( uiobjeventfilter_ );
 }
 
 
 uiObject::~uiObject()
 {
+    delete uiobjeventfilter_;
     closed.trigger();
     uiobjectlist_ -= this;
 }
@@ -546,4 +583,13 @@ void uiObject::reParent( uiParent* p )
     if ( !b ) return;
     mBody()->reParent( b );
     p->manageChld( *this, *mBody() );  
+}
+
+
+bool uiObject::handleLongTabletPress()
+{
+    if ( !parent() || !parent()->mainObject() || parent()->mainObject()==this )
+	return false;
+
+    return parent()->mainObject()->handleLongTabletPress();
 }

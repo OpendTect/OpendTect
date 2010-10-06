@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.41 2010-03-22 04:25:02 cvssatyaki Exp $
+ RCS:           $Id: uitreeview.h,v 1.42 2010-10-06 13:42:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,6 +113,8 @@ public:
     void		selectAll();
     void		expandAll();
     void		collapseAll();
+
+    bool		handleLongTabletPress();
 
 			//! re-draws at next X-loop
     void		triggerUpdate();

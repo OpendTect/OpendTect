@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.110 2010-06-10 08:19:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.111 2010-10-06 13:42:46 cvsjaap Exp $";
 
 #include "uilistbox.h"
 
@@ -724,6 +724,17 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
 
     lbitm->ischecked_ = ischecked;
     itemChecked.trigger();
+}
+
+
+bool uiListBox::handleLongTabletPress()
+{
+    BufferString msg = "rightButtonClicked ";
+    msg += currentItem();
+    const int refnr = beginCmdRecEvent( msg );
+    rightButtonClicked.trigger();
+    endCmdRecEvent( refnr, msg );
+    return true;
 }
 
 

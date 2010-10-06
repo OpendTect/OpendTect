@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.63 2010-06-28 04:24:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.64 2010-10-06 13:42:46 cvsjaap Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -502,6 +502,16 @@ void uiListView::collapseAll()
 */
 void uiListView::triggerUpdate()
 { body_->updateGeometry(); }
+
+
+bool uiListView::handleLongTabletPress()
+{
+    BufferString msg = "rightButtonClicked";
+    const int refnr = beginCmdRecEvent( msg );
+    rightButtonClicked.trigger();
+    endCmdRecEvent( refnr, msg );
+    return true;
+}
 
 
 void uiListView::setNotifiedItem( QTreeWidgetItem* itm)

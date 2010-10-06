@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.55 2010-06-10 08:19:41 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.56 2010-10-06 13:42:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,8 @@ public:
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
     Alignment::HPos	alignment() const		{ return alignment_; }
     void		setAlignment(Alignment::HPos);
+
+    bool		handleLongTabletPress();
 
     Notifier<uiListBox> selectionChanged;
     Notifier<uiListBox> doubleClicked;

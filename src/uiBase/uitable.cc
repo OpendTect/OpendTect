@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.94 2010-09-24 12:03:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.95 2010-10-06 13:42:46 cvsjaap Exp $";
 
 
 #include "uitable.h"
@@ -72,7 +72,7 @@ public:
 
     int			maxSelectable() const;
     uiTable::SelectionBehavior getSelBehavior() const;
-    
+
 protected:
     virtual void	mouseReleaseEvent(QMouseEvent*);
 
@@ -1228,4 +1228,15 @@ void uiTable::selectItems( const TypeSet<RowCol>& rcs, bool yn )
 	    continue;
 	itm->setSelected( yn );
     }
+}
+
+
+bool uiTable::handleLongTabletPress()
+{
+    BufferString msg = "rightClicked ";
+    msg += notifcell_.row; msg += " "; msg += notifcell_.col;
+    const int refnr = beginCmdRecEvent( msg ); 
+    rightClicked.trigger();
+    endCmdRecEvent( refnr, msg );
+    return true;
 }

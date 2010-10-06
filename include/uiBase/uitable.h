@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.62 2010-06-22 10:49:26 cvsbert Exp $
+ RCS:           $Id: uitable.h,v 1.63 2010-10-06 13:42:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -295,6 +295,8 @@ public:
 
     SelectionBehavior	getSelBehavior() const;
     int			maxSelectable() const;
+
+    bool		handleLongTabletPress();
 
 protected:
 
