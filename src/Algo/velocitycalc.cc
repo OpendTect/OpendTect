@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.26 2010-10-01 21:58:34 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.27 2010-10-06 20:14:03 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -37,14 +37,30 @@ bool TimeDepthConverter::isOK() const
 
 
 bool TimeDepthConverter::isVelocityDescUseable(const VelocityDesc& vd,
- 					       bool velintime)
+ 					       bool velintime,
+					       FixedString* errmsg )
 {
+    if ( vd.type_==VelocityDesc::Avg || vd.type_==VelocityDesc::Interval )
+	return true;
+
     if ( velintime )
- 	return vd.type_==VelocityDesc::Interval || vd.type_==VelocityDesc::RMS;
- 
-    return vd.type_==VelocityDesc::Interval;
-}
- 
+    {
+	if ( vd.type_==VelocityDesc::RMS )
+	    return true;
+
+	if ( errmsg )
+	    *errmsg = "Only RMS, Avg and Interval allowed for time based "
+		      "models";
+	return false;
+    }
+
+    if ( errmsg )
+	*errmsg = "Only Avg and Interval allowed for depth based "
+		  "models";
+
+    return false;
+} 
+
  
 bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 				      int sz, const SamplingData<double>& sd,
@@ -126,6 +142,60 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 	    firstvel_ = vel.value(0);
 	    lastvel_ = vel.value(sz-1);
 
+	    sz_ = sz;
+	    sd_ = sd;
+	    break;
+	}
+	case VelocityDesc::Avg :
+	{
+	    mAllocVarLenArr( float, vavg, sz );
+	    int previdx = -1;
+	    float prevvel;
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		const float curvel = vel.value(idx);
+		if ( mIsUdf(curvel) )
+		    continue;
+
+		vavg[idx] = curvel;
+		if ( previdx!=-1 )
+		{
+		    const float gradient = (curvel-prevvel)/(idx-previdx);
+		    for ( int idy=previdx+1; idy<idx; idy++ )
+			vavg[idy] = prevvel + (idx-idy)*gradient;
+		}
+
+		previdx = idx;
+		prevvel = curvel;
+	    }
+
+	    if ( previdx==-1 )
+		break;
+
+	    for ( int idx=previdx+1; idx<sz; idx++ )
+		vavg[idx] = prevvel;
+
+	    if ( istime )
+	    {
+		mTryAlloc( depths_, float[sz] );
+		if ( !depths_ )
+		    break;
+
+		for ( int idx=0; idx<sz; idx++ )
+		    depths_[idx] = sd.atIndex(idx) * vavg[idx]/2;
+	    }
+	    else
+	    {
+		mTryAlloc( times_, float[sz] );
+		if ( !times_ )
+		    break;
+		 
+		for ( int idx=0; idx<sz; idx++ )
+		    times_[idx] = sd.atIndex(idx) * 2 / vavg[idx];
+	    }
+
+	    firstvel_ = vavg[0];
+	    lastvel_ = vavg[sz-1];
 	    sz_ = sz;
 	    sd_ = sd;
 	    break;

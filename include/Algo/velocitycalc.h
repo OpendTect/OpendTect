@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.18 2010-07-21 05:57:54 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.19 2010-10-06 20:14:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,8 @@ public:
 
     bool		isOK() const;
     static bool		isVelocityDescUseable(const VelocityDesc&,
-	    				      bool velintime);
+	    				      bool velintime,
+					      FixedString* errmsg = 0);
 
     const char*		errMsg() const;
 
