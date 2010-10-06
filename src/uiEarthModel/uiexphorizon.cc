@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.72 2010-09-29 02:25:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.73 2010-10-06 11:27:39 cvsraman Exp $";
 
 #include "uiexphorizon.h"
 
@@ -310,7 +310,7 @@ bool uiExportHorizon::writeAscii()
 	    }
 
 	    if ( !mIsUdf(crd.z) && unit )
-		crd.z = unit->getUserValueFromSI( crd.z );
+		crd.z = unit->userValue( crd.z );
 
 	    if ( dogf )
 	    {
