@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: stratlayermodel.h,v 1.2 2010-10-04 08:14:43 cvsbert Exp $
+ RCS:		$Id: stratlayermodel.h,v 1.3 2010-10-06 15:40:52 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,8 @@ public:
 			{ return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}
     void		getLayersFor(const UnitRef*,
 	    			     ObjectSet<const Layer>&) const;
+
+    void		prepareUse();		//!< needed after changes
 
 protected:
 
