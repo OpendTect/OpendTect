@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.38 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.39 2010-10-06 02:35:53 cvsnanne Exp $";
 
 #include "emhorizon2d.h"
 
@@ -283,6 +283,8 @@ void Horizon2DGeometry::fillPar( IOPar& par ) const
 
 bool Horizon2DGeometry::usePar( const IOPar& par )
 {
+    lineids_.erase(); linenames_.erase(); linesets_.erase();
+
     if ( !par.get(sKeyLineIDs(),lineids_) )
 	return false;
     if ( !par.get(sKeyLineNames(),linenames_)  )
