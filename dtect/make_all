@@ -105,8 +105,8 @@ cd ../spec
 make
 
 cdw
-cat `find -L . -name ls$HDIR | sort` > $logdir/error.log
-cat `find -L . -name ls$HDIR.prog | sort` >> $logdir/error.log
+cat `find -follow . -name ls$HDIR | sort` > $logdir/error.log
+cat `find -follow . -name ls$HDIR.prog | sort` >> $logdir/error.log
 set nrerr=`grep "error:" $logdir/error.log | wc -l`
 set nrwar=`grep "warning:" $logdir/error.log | wc -l`
 echo
