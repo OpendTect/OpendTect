@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.109 2010-10-06 10:37:16 cvskarthika Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.110 2010-10-06 12:22:25 cvskarthika Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -47,7 +47,8 @@ static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.109 2010-10-06 10:37:16
 #include "vistexture2.h"
 
 #define mMaxImageSize 300000000	// 32767
-// Uncomment this to make use of Seis2DArray and less memory in setData
+// Comment this out to make use of Seis2DArray and consume less memory in 
+// setData (will slow down loading!)
 #define mUseTextureDataArrayFiller
 
 mCreateFactoryEntry( visSurvey::Seis2DDisplay );
