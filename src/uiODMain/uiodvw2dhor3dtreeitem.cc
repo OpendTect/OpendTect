@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.7 2010-09-15 05:56:59 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.8 2010-10-06 15:21:45 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,7 +280,8 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("&Save ... "), 0 );
     mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
 
-    if ( mnu.exec() == 0 )
+    const int mnuid = mnu.exec();
+    if ( mnuid == 0 )
     {
 	bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
 	if ( !savewithname )
@@ -295,7 +296,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	return true;
     }
-    else if ( mnu.exec() == 1 )
+    else if ( mnuid == 1 )
     {
 	parent_->removeChild( this );
     }
