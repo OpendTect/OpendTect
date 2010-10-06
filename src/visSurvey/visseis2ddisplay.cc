@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.107 2010-09-28 12:33:47 cvskarthika Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.108 2010-10-06 10:34:05 cvskarthika Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -47,6 +47,8 @@ static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.107 2010-09-28 12:33:47
 #include "vistexture2.h"
 
 #define mMaxImageSize 300000000	// 32767
+// Uncomment this to make use of Seis2DArray and less memory in setData
+//#define mUseTextureDataArrayFiller
 
 mCreateFactoryEntry( visSurvey::Seis2DDisplay );
 
@@ -163,39 +165,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 };
 
 
-// Array info for the Seis2DArray
-struct Seis2DArrayInfo: public Array2DInfo
-{
-
-//Seis2DArrayInfo();
-
-// TODO check if necessary
-ArrayNDInfo* clone() const
-{
-    return new Seis2DArrayInfo;
-}
-
-
-// TODO implement!
-int getSize( int dim ) const
-{
-    return 0;
-}
-
-// Mandatory functions
-/*bool setSize( int, int ) { return false; }
-// Are these really necessary?
-od_uint64 getMemPos( const int* ) const { return 0; }
-bool validPos( const int* ) const { return false; }
-od_uint64 getMemPos( int ) const { return 0; }
-bool validPos( int ) const { return false; }
-od_uint64 getMemPos( int, int ) const { return 0; }
-bool validPos( int, int ) const { return false; }
-*/
-};
-
-struct Seis2DArrayInfo inf;
-
 // Class to provide access to the data in the 2D data holder in array-format.
 class Seis2DArray : public Array2D<float>
 {
@@ -206,7 +175,8 @@ Seis2DArray( const Seis2DDisplay& s2d, const Attrib::Data2DHolder& d2dh,
     		    : s2d_( s2d )
 		    , data2dh_( d2dh )
 		    , arrayzrg_( arrayzrg )
-		    , info_( *new Seis2DArrayInfo )
+		    , info_( *new Array2DInfoImpl( data2dh_.size(),
+				data2dh_.dataset_[0]->nrsamples_ ) )
 {}
 
 // allocate memory and copy data
@@ -227,7 +197,11 @@ void set( int idx0, int idx1, float val )
 
 float get( int idx0, int idx1 ) const; 
 
-const Array2DInfo& info() const	{ return info_; }
+const Array2DInfo& info() const	
+{ 
+    // note: size given by info is the maximum; not all elements might be used.
+    return info_; 
+}
 
 bool isOK()	{ return true; }
 
@@ -237,7 +211,7 @@ protected:
     const Seis2DDisplay&		s2d_;
     const Attrib::Data2DHolder&		data2dh_;
     const StepInterval<float>&		arrayzrg_;
-    Seis2DArrayInfo&			info_;
+    Array2DInfoImpl&			info_;
 
 };
 
@@ -245,17 +219,15 @@ protected:
 float Seis2DArray::get( int idx0, int idx1 ) const
 {
     // TODO check
-    // a couple of checks first
-    // move this to caller
-    /* int trcnr = idx0 + s2d_.trcnrrg_.start;
-    if ( !s2d_.trcnrrg_.includes( trcnr ) )
-	return mUdf(float);*/
-    
+	
+	// a couple of checks first
     if ( s2d_.seriesidx_ < 0 )
 	return mUdf(float);
 
-    int trcnr = idx0;
-    
+    if ( idx0 < 0 || idx0 >= info().getSize(0) || idx1 < 0 ||
+		    idx1 >= info().getSize(1) )
+	    return mUdf(float);
+
     const SamplingData<float>& sd = data2dh_.trcinfoset_[0]->sampling;
     const float firstz = data2dh_.dataset_[0]->z0_ * sd.step;
     const float firstdhsamplef = sd.getIndex( firstz );
@@ -266,17 +238,18 @@ float Seis2DArray::get( int idx0, int idx1 ) const
     if ( !samplebased )
 	return mUdf(float);
 
-    // get hold of the dataholder
-    int dataidx = -1;
-    for ( int didx=0; didx<data2dh_.size(); didx++ )
-	if ( data2dh_.trcinfoset_[didx]->nr == trcnr 
-		&& data2dh_.dataset_[didx] )
-	    {
-		dataidx = didx;
-		break;
-	    }
+    // get trace number
+    const TypeSet<int>& allpos = s2d_.trcdisplayinfo_.alltrcnrs;
+    const int starttrcidx = allpos.indexOf( s2d_.trcdisplayinfo_.rg.start );
+    int trcnr = allpos[idx0 + starttrcidx];
 
-    if ( dataidx == -1 )
+    if ( !s2d_.trcdisplayinfo_.rg.includes( trcnr ) )
+	return mUdf(float);
+    
+    // get hold of the dataholder
+    int dataidx = data2dh_.getDataHolderIndex( trcnr );
+	
+    if ( dataidx == -1 || !data2dh_.dataset_[dataidx] )	    
 	return mUdf(float);
 
     const DataHolder* dh = data2dh_.dataset_[dataidx];
@@ -284,24 +257,20 @@ float Seis2DArray::get( int idx0, int idx1 ) const
     // get hold of the data series
     TypeSet<int> valididxs = data2dh_.dataset_[0]->validSeriesIdx();
     const ValueSeries<float>* dataseries = 
-	dh->series( valididxs[s2d_.seriesidx_] );
+	    dh->series( valididxs[s2d_.seriesidx_] );
 
-    const int nrsamp = data2dh_.dataset_[0]->nrsamples_;
-    for ( int idx=0; idx<nrsamp; idx++ )
-    {
-	const int sample = firstdhsample+idx;
-	const int arrzidx = arrayzrg_.getIndex( sample );
-	if ( arrzidx<0 ||  arrzidx>=arrayzrg_.nrSteps()+1 ) continue;
-	if ( arrzidx == idx1 )
-	{
-	    // retrieve the value, finally
-	    float val = dh->dataPresent(sample) ?
-		dataseries->value( sample-dh->z0_ ) : mUdf(float);
-	    return val;
-	}
-    }
-
-    return mUdf(float);
+    StepInterval<int> arraysrg( mNINT(arrayzrg_.start/sd.step),
+				mNINT(arrayzrg_.stop/sd.step),1 );
+    
+    const bool usez0 = s2d_.datatransform_ || arrayzrg_.start <= sd.start;
+    const int shift = usez0 ? dh->z0_ : mNINT(sd.start/sd.step);
+    const int samp = arraysrg.atIndex( idx1 );
+    const int sample = samp - shift;
+    const int validx = usez0 ? sample : samp-dh->z0_;
+    const float val = dh->dataPresent( samp ) ? dataseries->value( validx )
+	    			   		: mUdf(float);
+		
+    return val;
 }
 
 
@@ -587,10 +556,12 @@ void Seis2DDisplay::setData( int attrib,
     arrayzrg.step = sd.step;
     const int arrzsz = arrayzrg.nrSteps()+1;
 
+#ifdef mUseTextureDataArrayFiller
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, arr,
 	    Array2DImpl<float>( trcdisplayinfo_.size, arrzsz ) );
     if ( !arr->isOK() )
 	return;
+#endif
 
     const DataHolder* firstdh = data2dh.dataset_[0];
     TypeSet<int> valididxs = firstdh->validSeriesIdx();
@@ -603,25 +574,33 @@ void Seis2DDisplay::setData( int attrib,
     else
 	channels_->setNrVersions( attrib, nrseries );
 
-//    Seis2DArray arr( *this, data2dh, arrayzrg );
+#ifndef mUseTextureDataArrayFiller
+    Seis2DArray arr( *this, data2dh, arrayzrg );
+#endif
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     for ( seriesidx_=0; seriesidx_<nrseries; seriesidx_++ )
     {
+#ifdef mUseTextureDataArrayFiller
 	arr->setAll( mUdf(float) );
 
 	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, seriesidx_, 
 		*arr, attrib );
 	if ( !arrayfiller.execute() )
 	    continue;
+#endif
 
 	const char* zdomain = getSelSpec(attrib)->zDomainKey();
 	const bool alreadytransformed = zdomain && *zdomain;
-	PtrMan<Array2D<float> > tmparr = 0;  // TODO should this be Seis2DArray?
-	Array2D<float>* usedarr = 0;  // TODO should this be Seis2DArray?
+	PtrMan<Array2D<float> > tmparr = 0;
+	Array2D<float>* usedarr = 0;
 	if ( alreadytransformed || !datatransform_ )
-	    usedarr = arr;
+#ifdef mUseTextureDataArrayFiller
+            usedarr = arr;
+#else
+	    usedarr = &arr;
+#endif
 	else
 	{
 	    CubeSampling cs;
@@ -648,18 +627,28 @@ void Seis2DDisplay::setData( int attrib,
 	    const int z0idx = arrayzrg.nearestIndex( firstz );
 	    const int startidx = trcdisplayinfo_.alltrcnrs.indexOf( 
 		    trcdisplayinfo_.rg.start );
+
 	    for ( int crlidx=0; crlidx<trcdisplayinfo_.size; crlidx++ )
 	    {
+#ifdef 	mUseTextureDataArrayFiller
+	        Array1DSlice<float> slice( *arr );
+#else
+		Array1DSlice<float> slice( arr );
+#endif
+		slice.setDimMap( 0, 1 );
+		slice.setPos( 0, crlidx+startidx );
+		if ( !slice.init() )
+		{
+		    pErrMsg( "Error reading array for Z-axis transformation." );
+		    continue; 
+		}
+
 		outpsampler.setTrcNr( 
 			trcdisplayinfo_.alltrcnrs[crlidx+startidx] );
 		outpsampler.computeCache( Interval<int>(0,cs.nrZ()-1) );
 
-		const float* inputptr = arr->getData() +
-					arr->info().getOffset( crlidx, z0idx );
-		// TODO
-		SampledFunctionImpl<float,const float*>
-		    inputfunc( inputptr, arrzsz, firstz, sd.step );
-		    //inputfunc( arr, arrzsz, firstz, sd.step );
+		SampledFunctionImpl<float,ValueSeries<float> >
+		    inputfunc( slice, arrzsz, firstz, sd.step );
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( textureInterpolationEnabled() );
 
@@ -669,12 +658,11 @@ void Seis2DDisplay::setData( int attrib,
 	    }
 	}
 
-	// TODO
 	int sz0 = usedarr->info().getSize(0) * (resolution_+1);
 	int sz1 = usedarr->info().getSize(1) * (resolution_+1);
 	if ( texture_ )
 	{
-	    Array2DSlice<float> slice( *usedarr );  // TODO: write copy method
+	    Array2DSlice<float> slice( *usedarr );
 	    slice.setDimMap( 0, 1 );
 	    slice.setDimMap( 1, 0 );
 	    if ( !slice.init() )
