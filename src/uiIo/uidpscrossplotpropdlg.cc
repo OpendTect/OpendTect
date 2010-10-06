@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.19 2010-07-26 09:53:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.20 2010-10-06 07:09:26 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -290,9 +290,24 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 }
 
 
-void setLines( CallBacker* )
+void setLines( CallBacker* cb )
 {
     uiPoint pos( 0, 0 );
+    mDynamicCastGet(uiDialog*,dlg,cb);
+    if ( dlg && dlg->uiResult() == 1 )
+	return;
+    else if ( dlg->uiResult() == 0 )
+    {
+	shwy1userdefline_->setChecked( false );
+	if ( shwy2userdefline_ )
+	    shwy2userdefline_->setChecked( false );
+	plotter_.setUserDefDrawType( false, true );
+	plotter_.setUserDefLine( pos, pos );
+	plotter_.setUserDefDrawType( false, false );
+	plotter_.setUserDefLine( pos, pos );
+    }
+
+    drawlinefld_->setChecked( false );
     if ( !shwy1userdefline_->isChecked() ||
 	 (shwy2userdefline_ && !shwy2userdefline_->isChecked()) )
 	plotter_.setUserDefLine( pos, pos );
@@ -369,6 +384,8 @@ bool acceptOK()
 {
     plotter_.userdefy1lp_.a0 = y1a0fld_->getfValue();
     plotter_.userdefy1lp_.ax = y1a1fld_->getfValue();
+    drawlinefld_->setChecked( false );
+    
     if ( !hasy2_ )
 	plotter_.setup().showy2userdefline_ = false;
     else

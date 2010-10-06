@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.69 2010-06-29 06:07:25 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.70 2010-10-06 07:09:26 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.69 2010-06-29 06:07:25 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.70 2010-10-06 07:09:26 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -436,6 +436,7 @@ void uiDataPointSetCrossPlotter::setUserDefLine( const uiPoint& startpos,
     ls.width_ = 3;
     curlineitem->setPenStyle( ls );
     curlineitem->setZValue( 4 );
+    curlineitem->setVisible( drawuserdefline_ );
 }
 
 
