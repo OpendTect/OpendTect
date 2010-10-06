@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.36 2010-10-05 07:46:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.37 2010-10-06 16:03:58 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -74,6 +74,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	uiPushButton* sellithbut = new uiPushButton( this, "&Edit", cb, false );
 	sellithbut->attach( rightTo, unitlithfld_ );
 
+	lithids_.erase();
 	for ( int idx=0; idx<unit.nrRefs(); idx++ )
 	{
 	    const Strat::LeafUnitRef& l = (Strat::LeafUnitRef&)(unit.ref(idx));
@@ -103,7 +104,6 @@ void uiStratUnitEditDlg::putToScreen()
 }
 
 
-
 void uiStratUnitEditDlg::getFromScreen()
 {
     unit_.setCode( unitnmfld_->text() );
@@ -113,6 +113,7 @@ void uiStratUnitEditDlg::getFromScreen()
     Interval<float> rg( agestartfld_->getValue(), agestopfld_->getValue() );
     unit_.setTimeRange( rg );
 
+    lithids_.erase();
     if ( unit_.isLeaved() )
     {
 	if ( unitlithfld_->nrSelected() == 0 )
@@ -134,6 +135,10 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 	    { mErrRet( namemsg, return false ) }
     }
     getFromScreen();
+
+    if ( lithids_.size() > 1 && lithids_.isPresent(0) )
+	lithids_.remove( lithids_.indexOf(0) );
+
     return true;
 }
 
@@ -148,10 +153,11 @@ void uiStratUnitEditDlg::selLithCB( CallBacker* )
 
 uiStratLithoBox::uiStratLithoBox( uiParent* p )
     : uiListBox( p, "Lithologies",false )
-    , lithos_(Strat::eRT().lithologies())  
 {
     fillLiths( 0 );
-    lithos_.anyChange.notify( mCB( this, uiStratLithoBox, fillLiths ) );
+    Strat::LithologySet& lithos = Strat::eRT().lithologies();
+    lithos.anyChange.notify( mCB( this, uiStratLithoBox, fillLiths ) );
+    selectionChanged.notify( mCB( this, uiStratLithoBox, selChanged ) );
 }
 
 
@@ -159,19 +165,29 @@ void uiStratLithoBox::fillLiths( CallBacker* )
 {
     BufferStringSet nms;
     nms.add( sNoLithoTxt );
-    for ( int idx=0; idx<lithos_.size(); idx++ )
-	nms.add( lithos_.getLith( idx ).name() );
-    empty();
+    const Strat::LithologySet& lithos = Strat::RT().lithologies();
+    for ( int idx=0; idx<lithos.size(); idx++ )
+	nms.add( lithos.getLith( idx ).name() );
+    //empty makes it crash ...
+    for ( int idx=size()-1; idx>=0; idx-- )
+	removeItem( idx );
     addItems( nms );
 }
     
 
+void uiStratLithoBox::selChanged( CallBacker* )
+{
+    NotifyStopper ns( selectionChanged );
+    if ( nrSelected() == 0 && size() )
+	setSelected( 0, true );
+    else if ( nrSelected() > 1 && isSelected( 0 ) )
+	setSelected( 0, false );
+}
 
 
 
 uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Select Lithology",mNoDlgTitle,"110.0.4"))
-    , lithos_(Strat::eRT().lithologies())  
     , prevlith_(0)
     , nmfld_(0)
 {
@@ -209,26 +225,28 @@ void uiStratLithoDlg::newLith( CallBacker* )
     const BufferString nm( nmfld_->text() );
     if ( nm.isEmpty() ) return;
 
-    if ( selfld_->isPresent( nm ) || lithos_.isPresent( nm.buf() ) )
+    Strat::LithologySet& lithos = Strat::eRT().lithologies();
+    if ( selfld_->isPresent( nm ) || lithos.isPresent( nm.buf() ) )
 	{ mErrRet( "Please specify a new, unique name", return ) }
 
     const int lithid = selfld_->size();
     const bool isporous = isporbox_->isChecked();
     Strat::Lithology* newlith = new Strat::Lithology(lithid,nm.buf(),isporous);
 
-    const char* lithfailedmsg = lithos_.add( newlith );
+    const char* lithfailedmsg = lithos.add( newlith );
     if ( lithfailedmsg )
 	{ mErrRet( lithfailedmsg, return; ) } 
 
     prevlith_ = const_cast<Strat::Lithology*>( &Strat::Lithology::undef() );
 
-    lithos_.reportAnyChange();
+    lithos.reportAnyChange();
     selfld_->setCurrentItem( nm );
 }
 
 
 void uiStratLithoDlg::selChg( CallBacker* )
 {
+    Strat::LithologySet& lithos = Strat::eRT().lithologies();
     if ( !nmfld_ ) return;
 
     if ( prevlith_ )
@@ -237,11 +255,11 @@ void uiStratLithoDlg::selChg( CallBacker* )
 	if ( newpor != prevlith_->porous() && !prevlith_->isUdf() )
 	{
 	    prevlith_->porous() = isporbox_->isChecked();
-	    lithos_.reportAnyChange();
+	    lithos.reportAnyChange();
 	}
     }
     const BufferString nm( selfld_->getText() );
-    const Strat::Lithology* lith = lithos_.get( nm );
+    const Strat::Lithology* lith = lithos.get( nm );
     if ( !lith ) lith = &Strat::Lithology::undef();
     nmfld_->setText( lith->name() );
     isporbox_->setChecked( lith->porous() );
@@ -251,13 +269,14 @@ void uiStratLithoDlg::selChg( CallBacker* )
 
 void uiStratLithoDlg::renameCB( CallBacker* )
 {
+    Strat::LithologySet& lithos = Strat::eRT().lithologies();
     Strat::Lithology* lith = const_cast<Strat::Lithology*>(
-					 lithos_.get( selfld_->getText() ) );
+					 lithos.get( selfld_->getText() ) );
     if ( !lith || lith->isUdf() ) return;
 
     lith->setName( nmfld_->text() );
     selfld_->setItemText( selfld_->currentItem(), nmfld_->text() );
-    lithos_.reportAnyChange();
+    lithos.reportAnyChange();
     prevlith_ = lith;
 }
 
@@ -267,12 +286,14 @@ void uiStratLithoDlg::rmLast( CallBacker* )
     int selidx = selfld_->size()-1;
     if ( selidx < 0 ) return;
 
-    const Strat::Lithology* lith = lithos_.get( selfld_->textOfItem(selidx) );
+    Strat::LithologySet& lithos = Strat::eRT().lithologies();
+    const Strat::Lithology* lith = lithos.get( selfld_->textOfItem(selidx) );
+    lithos.get( selfld_->textOfItem(selidx) );
     if ( !lith || lith->isUdf() ) return;
 
     prevlith_ = 0;
-    delete lithos_.lithologies().remove( lithos_.indexOf( lith->id() ) );
-    lithos_.reportAnyChange();
+    delete lithos.lithologies().remove( lithos.indexOf( lith->id() ) );
+    lithos.reportAnyChange();
 
     selfld_->setCurrentItem( selidx-1 );
     selChg( 0 );
@@ -288,7 +309,8 @@ const char* uiStratLithoDlg::getLithName() const
 
 void uiStratLithoDlg::setSelectedLith( const char* lithnm )
 {
-    const Strat::Lithology* lith = lithos_.get( lithnm );
+    const Strat::LithologySet& lithos = Strat::RT().lithologies();
+    const Strat::Lithology* lith = lithos.get( lithnm );
     if ( !lith ) return;
     selfld_->setCurrentItem( lithnm );
 }
