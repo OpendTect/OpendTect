@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.31 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.32 2010-10-06 20:29:52 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -841,16 +841,15 @@ int VelocityModelScanner::nextStep()
 	    if ( !definedv0_ )
 	    {
 		definedv0_ = true;
-		startavgvel_.start = startavgvel_.stop = v0;;
+		startavgvel_.start = startavgvel_.stop = v0;
 	    }
 	    else
 		startavgvel_.include( v0 );
 	}
 
-	const float diff1 = resvs.value(last) - resvs.value(first);
 	const float v1 = zistime_
-	    ? 2 * diff1 / ((last-first)* sd.step)
-	    : 2 * (last-first) * sd.step / diff1;
+	    ? 2 * resvs.value(last) / sd.atIndex(last)
+	    : 2 * sd.atIndex(last) / resvs.value(last);
 
 	if ( !definedv1_ )
 	{
