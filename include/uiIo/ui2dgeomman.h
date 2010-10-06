@@ -6,14 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          September 2010
- RCS:           $Id: ui2dgeomman.h,v 1.3 2010-09-30 06:41:25 cvssatyaki Exp $
+ RCS:           $Id: ui2dgeomman.h,v 1.4 2010-10-06 08:51:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 class uiListBox;
-class uiPushButton;
 
 mClass ui2DGeomManageDlg : public uiDialog
 {
@@ -30,7 +29,6 @@ protected:
 
     uiListBox*		linesetfld_;
     uiListBox*		linenamefld_;
-    uiPushButton*	mangeombut_;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.4 2010-09-29 03:49:37 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.5 2010-10-06 08:51:52 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: surv2dgeom.cc,v 1.4 2010-09-29 03:49:37 cvssaty
 static PosInfo::Survey2D* theinst = 0;
 static const char* sIdxFilename = "idx.txt";
 static const char* sKeyStor = "Storage";
+static const char* sKeyMaxID = "Max ID";
 static bool cWriteAscii = Settings::common().isTrue("2DGeometry.Write Ascii");
 
 
@@ -99,7 +100,8 @@ void PosInfo::Survey2D::readIdxFiles()
     }
 
     lsfp_ = basefp_;
-    lsfp_.add( lsindex_.getValue(idxky) );
+    FileMultiString fms( lsindex_.getValue(idxky) );
+    lsfp_.add( fms[0] );
     FilePath fp( lsfp_ ); fp.add( sIdxFilename );
     readIdxFile( fp.fullPath(), lineindex_ );
 }
@@ -140,17 +142,61 @@ void PosInfo::Survey2D::writeIdxFile( bool lines ) const
 }
 
 
+void PosInfo::Survey2D::updateMaxID( int maxid, IOPar& par )
+{
+    par.remove( sKeyMaxID );
+    par.set( sKeyMaxID, maxid );
+}
+
+
 void PosInfo::Survey2D::getKeys( const IOPar& iop, BufferStringSet& nms ) const
 {
     nms.erase();
+    BufferString maxidkey( sKeyMaxID );
+    
     for ( int idx=0; idx<iop.size(); idx++ )
-	nms.add( iop.getKey(idx) );
+    {
+	if ( maxidkey != iop.getKey(idx) )
+	    nms.add( iop.getKey(idx) );
+    }
+}
+
+
+void PosInfo::Survey2D::getIDs( const IOPar& iop, TypeSet<int>& ids ) const
+{
+    ids.erase();
+    for ( int idx=0; idx<iop.size(); idx++ )
+    {
+	FileMultiString info( iop.getValue(idx) );
+	if ( info.size() == 1 )
+	    continue;
+	ids += info.getIValue( 1 );
+    }
+}
+
+
+int PosInfo::Survey2D::curLineSetID() const
+{
+    return lsindex_.indexOf( lsnm_.buf() );
 }
 
 
 bool PosInfo::Survey2D::hasLineSet( const char* lsnm ) const
 {
     return lsindex_.hasKey( lsnm );
+}
+
+
+bool PosInfo::Survey2D::hasLineSet( int lsid ) const
+{
+    for ( int idx=0; idx<lsindex_.size(); idx++ )
+    {
+	FileMultiString info( lsindex_.getValue(idx) );
+	if ( info.size()>0 && (lsid == info.getIValue(1)) )
+	    return true;
+    }
+
+    return false;
 }
 
 
@@ -161,6 +207,32 @@ bool PosInfo::Survey2D::hasLine( const char* lnm, const char* lsnm ) const
 
     BufferStringSet nms; getLines( nms, lsnm );
     return nms.isPresent( lnm );
+}
+
+
+
+bool PosInfo::Survey2D::hasLine( int lineid, int lsid ) const
+{
+    if ( lsid >=0 || !hasLineSet( lsid) )
+	return false; 
+
+    if ( lsid == -1 )
+	lsid = curLineSetID();
+    TypeSet<int> lineids; getLineIDs( lineids, lsid );
+    return lineids.isPresent( lineid );
+}
+
+
+int PosInfo::Survey2D::getLineSetIdx( int lsid ) const
+{
+    for ( int idx=0; idx<lsindex_.size(); idx++ )
+    {
+	FileMultiString info( lsindex_.getValue(idx) );
+	if ( info.size()>0 && info.getIValue(1) == lsid )
+	    return idx;
+    }
+
+    return -1;
 }
 
 
@@ -177,9 +249,64 @@ void PosInfo::Survey2D::getLines( BufferStringSet& nms, const char* lsnm ) const
 
     IOPar iop;
     FilePath fp( lsfp_ );
-    fp.setFileName( lsindex_.getValue(idxky) ); fp.add( sIdxFilename );
+    FileMultiString fms( lsindex_.getValue(idxky) );
+    fp.setFileName( fms[0] ); fp.add( sIdxFilename );
     readIdxFile( fp.fullPath(), iop );
     getKeys( iop, nms );
+}
+
+
+void PosInfo::Survey2D::getLineIDs( TypeSet<int>& ids, int lsid ) const
+{
+    if ( lsid >=0 && !hasLineSet(lsid) )
+	return;
+
+    if ( lsid == -1 )
+	lsid = curLineSetID();
+
+    const int lsidx = getLineSetIdx( lsid );
+    if ( lsidx < 0 ) return;
+
+    IOPar iop;
+    FilePath fp( lsfp_ );
+    FileMultiString fms( lsindex_.getValue(lsidx) );
+    fp.setFileName( fms[0] ); fp.add( sIdxFilename );
+    readIdxFile( fp.fullPath(), iop );
+    getIDs( iop, ids );
+}
+
+int PosInfo::Survey2D::getNewID( IOPar& iop ) 
+{
+    int savedmeaxid = -mUdf(int);
+    iop.get( sKeyMaxID, savedmeaxid );
+    int newlineidx = 0;
+    bool parisok = false;
+    
+    if ( !iop.size() )
+	return 0;
+
+    for ( int idx=0; idx<iop.size(); idx++ )
+    {
+	if ( !strcmp(iop.getKey(idx),sKeyMaxID) )
+	    continue;
+
+	FileMultiString fms( iop.getValue(idx) );
+	if ( fms.size() == 1 )
+	{
+	    if ( newlineidx )
+		newlineidx++;
+	    fms.add( newlineidx );
+	    iop.set( iop.getKey(idx), fms );
+	}
+	else if ( newlineidx < fms.getIValue(1) )
+	    newlineidx = fms.getIValue( 1 );
+    }
+
+    newlineidx++;
+    if ( savedmeaxid <= newlineidx )
+	savedmeaxid = newlineidx;
+
+    return savedmeaxid;
 }
 
 
@@ -198,9 +325,23 @@ BufferString PosInfo::Survey2D::getNewStorageName( const char* nm,
 	itry++;
 	clnnm = nm; clnnm += itry;
     }
+
     return clnnm;
 }
 
+
+
+void PosInfo::Survey2D::setCurLineSet( int lsid ) const
+{
+    if ( !hasLineSet(lsid) )
+	return;
+
+    int lsidx = getLineSetIdx( lsid );
+    
+    BufferString maxidkey( sKeyMaxID );
+    if ( lsindex_.getKey(lsidx) != maxidkey )
+	setCurLineSet( lsindex_.getKey(lsidx) );
+}
 
 
 void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
@@ -216,12 +357,31 @@ void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 
     // New line set specified
     self.lsnm_ = lsnm;
-    const BufferString dirnm( getNewStorageName(lsnm,basefp_,lsindex_) );
-    self.lsindex_.add( lsnm, dirnm );
+    FileMultiString driinfo( getNewStorageName(lsnm,basefp_,lsindex_) );
+    driinfo.add( self.getNewID(lsindex_) );
+    self.lsindex_.add( lsnm, driinfo );
     self.lineindex_.clear();
-    self.lsfp_ = basefp_; self.lsfp_.add( dirnm );
+    self.lsfp_ = basefp_; self.lsfp_.add( driinfo[0] );
     File::createDir( lsfp_.fullPath() );
+    self.updateMaxID( driinfo.getIValue(1), lsindex_ );
     writeIdxFile( false );
+}
+
+
+bool PosInfo::Survey2D::getGeometry( int lineid,
+				     PosInfo::Line2DData& l2dd ) const
+{
+    for ( int idx=0; idx<lineindex_.size(); idx++ )
+    {
+	FileMultiString info( lineindex_.getValue(idx) );
+	if ( info.size()>1 && info.getIValue(1) == lineid )
+	{
+	    l2dd.setLineName( info[0] );
+	    return getGeometry( l2dd );
+	}
+    }
+
+    return false;
 }
 
 
@@ -232,7 +392,8 @@ bool PosInfo::Survey2D::getGeometry( PosInfo::Line2DData& l2dd ) const
     if ( lidx < 0 )
 	return false;
 
-    FilePath fp( lsfp_ ); fp.add( lineindex_.getValue(lidx) );
+    FileMultiString fms( lineindex_.getValue(lidx) );
+    FilePath fp( lsfp_ ); fp.add( fms[0] );
     SafeFileIO sfio( fp.fullPath() );
     if ( !sfio.open(true) )
 	return false;
@@ -259,13 +420,20 @@ bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
 {
     const char* lnm = l2dd.lineName().buf();
     const int lidx = lineindex_.indexOf( lnm );
-    BufferString fnm;
+    FileMultiString fms;
     if ( lidx >= 0 )
-	fnm = lineindex_.getValue( lidx );
+    {
+	fms = lineindex_.getValue( lidx );
+	if ( fms.size() == 1 )
+	    fms.add( getNewID(lineindex_) );
+    }
     else
-	fnm = getNewStorageName( lnm, lsfp_, lineindex_ );
+    {
+	fms = getNewStorageName( lnm, lsfp_, lineindex_ );
+	fms.add( getNewID(lineindex_) );
+    }
 
-    FilePath fp( lsfp_ ); fp.add( fnm );
+    FilePath fp( lsfp_ ); fp.add( fms[0] );
     SafeFileIO sfio( fp.fullPath(), true );
     if ( !sfio.open(false) )
 	return false;
@@ -280,7 +448,8 @@ bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
 	if ( lidx < 0 )
 	{
 	    readIdxFiles(); // lower chance of concurrent update
-	    lineindex_.set( lnm, fnm );
+	    lineindex_.set( lnm, fms );
+	    updateMaxID( fms.getIValue(1), lineindex_ );
 	    writeIdxFile( true );
 	}
     }
@@ -294,15 +463,56 @@ bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
 }
 
 
+int PosInfo::Survey2D::getLineIdx( int lineid ) const
+{
+    for ( int idx=0; idx<lineindex_.size(); idx++ )
+    {
+	FileMultiString info( lineindex_.getValue(idx) );
+	if ( info.size()>1 && info.getIValue(1) == lineid )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
 void PosInfo::Survey2D::removeLine( const char* lnm )
 {
     const int lidx = lineindex_.indexOf( lnm );
     if ( lidx < 0 ) return;
 
-    FilePath fp( lsfp_ ); fp.add( lineindex_.getValue(lidx) );
+    FileMultiString fms( lineindex_.getValue(lidx) );
+    FilePath fp( lsfp_ ); fp.add( fms[0] );
     SafeFileIO sfio( fp.fullPath() );
     sfio.remove();
     lineindex_.remove( lidx );
+}
+
+
+void PosInfo::Survey2D::removeLine( int lineid )
+{
+    const int lidx = getLineIdx( lineid );
+    if ( lidx < 0 ) return;
+
+    FileMultiString fms( lineindex_.getValue(lidx) );
+    FilePath fp( lsfp_ ); fp.add( fms[0] );
+    SafeFileIO sfio( fp.fullPath() );
+    sfio.remove();
+    lineindex_.remove( lidx );
+}
+
+
+void PosInfo::Survey2D::removeLineSet( int lsid )
+{
+    const int lsidx = getLineSetIdx( lsid );
+    if ( lsidx<0 ) return;
+    
+    FileMultiString fms( lsindex_.getValue(lsidx) );
+    FilePath fp( basefp_ ); fp.add( fms[0] );
+    const BufferString dirnm( fp.fullPath() );
+    if ( File::exists(dirnm) )
+	File::removeDir(dirnm);
+    lsindex_.remove( lsidx );
 }
 
 
@@ -314,7 +524,8 @@ void PosInfo::Survey2D::removeLineSet( const char* lsnm )
     const int lsidx = lsindex_.indexOf( lsnm );
     if ( lsidx < 0 ) return;
 
-    FilePath fp( basefp_ ); fp.add( lsindex_.getValue(lsidx) );
+    FileMultiString fms( lsindex_.getValue(lsidx) );
+    FilePath fp( basefp_ ); fp.add( fms[0] );
     const BufferString dirnm( fp.fullPath() );
     if ( File::exists(dirnm) )
 	File::removeDir(dirnm);
@@ -323,4 +534,31 @@ void PosInfo::Survey2D::removeLineSet( const char* lsnm )
 
     lsnm = lsindex_.isEmpty() ? "" : lsindex_.getKey( 0 );
     setCurLineSet( lsnm );
+}
+
+
+void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
+{
+    if ( !oldlsnm || !*oldlsnm ) return;
+    const bool iscurls = lsnm_ == oldlsnm;
+    const int lsidx = lsindex_.indexOf( oldlsnm );
+    if ( lsidx < 0 ) return;
+
+    FileMultiString fms( lsindex_.getValue(lsidx) );
+    FilePath fp( basefp_ ); fp.add( fms[0] );
+    const BufferString dirnm( fp.fullPath() );
+    if ( File::exists(dirnm) )
+    {
+	lsindex_.setKey( lsidx, newlsnm );
+	BufferString cleannm( newlsnm );
+	cleanupString( cleannm.buf(), mC_False, mC_False, mC_False );
+	FilePath newfp( basefp_ );
+	newfp.add( cleannm.buf() );
+	File::rename( dirnm, newfp.fullPath() );
+	FileMultiString lspar( cleannm.buf() );
+	lspar.add( fms.getIValue(1) );
+	lsindex_.setValue( lsidx, lspar );
+	writeIdxFile( false );
+	setCurLineSet( cleannm.buf() );
+    }
 }

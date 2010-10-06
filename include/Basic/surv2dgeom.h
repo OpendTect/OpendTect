@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: surv2dgeom.h,v 1.3 2010-08-19 13:06:51 cvsbert Exp $
+ RCS:		$Id: surv2dgeom.h,v 1.4 2010-10-06 08:51:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
  
  
 #include "posinfo2d.h"
+#include "separstr.h"
 class IOPar;
 class FilePath;
 class BufferStringSet;
@@ -34,6 +35,7 @@ public:
 
     bool		isEmpty() const		{ return lsnm_.isEmpty(); }
 
+    //using names
     bool		hasLineSet(const char*) const;
     bool		hasLine(const char* lnm,const char* lsnm=0) const;
     void		getLineSets( BufferStringSet& nms ) const
@@ -48,7 +50,26 @@ public:
 
     void		removeLine(const char*);
     void		removeLineSet(const char*);
+    void		renameLineSet(const char*,const char*);
+    
+    // using ids
+    bool		hasLineSet(int lsidx) const;
+    bool		hasLine(int lid,int lsid) const;
+    void		getLineIDs(TypeSet<int>&,int lsidx) const;
 
+    int			curLineSetID() const;
+    void		setCurLineSet(int lsid) const;
+    int			getLineSetIdx(int lsid) const;
+    int			getLineIdx(int lineid) const;
+
+    bool		getGeometry(int lidx,Line2DData&) const;
+
+    void		removeLine(int lidx);
+    void		removeLineSet(int lsidx);
+
+protected:
+    int			getNewID(IOPar&);
+    void		updateMaxID(int,IOPar&);
 private:
 
     FilePath&		basefp_;
@@ -61,6 +82,7 @@ private:
     static void		readIdxFile(const char*,IOPar&);
     void		writeIdxFile(bool) const;
     void		getKeys(const IOPar&,BufferStringSet&) const;
+    void		getIDs(const IOPar&,TypeSet<int>&) const;
     BufferString	getNewStorageName(const char*,const FilePath&,
 	    				  const IOPar&) const;
 

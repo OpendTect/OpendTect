@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.3 2010-09-30 06:41:25 cvssatyaki Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.4 2010-10-06 08:51:52 cvssatyaki Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -53,10 +53,11 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     linenamefld_ = lnlb->box();
     linenamefld_->setPrefWidth( 200 );
     
-    mangeombut_ =
-	new uiPushButton( this, "Manage Line Geometry", 
-			  mCB(this,ui2DGeomManageDlg,manLineGeom), true );
-    mangeombut_->attach( rightAlignedBelow, lnlb );
+    uiToolButton* mangeombut =
+	new uiToolButton( this, "Manage Line Geometry",
+			  ioPixmap("browse2dgeom.png"),
+			  mCB(this,ui2DGeomManageDlg,manLineGeom) );
+    mangeombut->attach( centeredRightOf, lnlb );
 
 
     lineSetSelCB( 0 );
@@ -76,6 +77,10 @@ void ui2DGeomManageDlg::lineSetSelCB( CallBacker* )
     linenamefld_->empty();
     linenamefld_->addItems( linenames );
 }
+
+
+//-----------Manage Line Geometry-----------------
+
 
 mClass uiManageLineGeomDlg : public uiDialog
 {
@@ -97,19 +102,20 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
     const TypeSet<PosInfo::Line2DPos>& positions = geom.positions();
     table_ = new uiTable( this, uiTable::Setup(positions.size(),3), "2DGeom" );
     table_->attach( ensureBelow, titllbl );
-    table_->setPrefWidth( 300 );
+    table_->setPrefWidth( 400 );
     BufferStringSet collbls;
     collbls.add( "Trace Number" ); collbls.add( "X" ); collbls.add( "Y" );
     table_->setColumnLabels( collbls );
 
     readnewbut_ =
-	new uiPushButton( this, "Read New Geometry", 
+	new uiPushButton( this, "Read New Geometry ...", 
 		      	  mCB(this,uiManageLineGeomDlg,impLineGeom), true );
     readnewbut_->attach( centeredBelow, table_ );
     
     fillTable( geom );
 }
 
+//---------- Import New Geomtery ----------------
 mClass uiGeom2DImpDlg : public uiDialog
 {
 
@@ -137,6 +143,7 @@ bool acceptOK( CallBacker* )
     uiFileInput*	geom2dinfld_;
     uiTableImpDataSel*	dataselfld_;
 };
+
 
 void impLineGeom( CallBacker* )
 {
@@ -182,6 +189,7 @@ bool acceptOK( CallBacker* )
 {
     if ( !uiMSG().askGoOn("Do you really want to change the geometry?") )
 	return false;
+
     PosInfo::Line2DData geom( linenm_ );
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
@@ -199,6 +207,8 @@ bool acceptOK( CallBacker* )
     uiTable*		table_;
     uiPushButton*	readnewbut_;
 };
+
+//-----------------------------------------------------
 
 void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 {

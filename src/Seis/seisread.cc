@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.101 2010-10-05 11:14:07 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.102 2010-10-06 08:51:52 cvssatyaki Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -788,14 +788,16 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 
     for ( int iiter=0; iiter<2; iiter++ ) // iiter == 0 is initialisation
     {
+    
+    PosInfo::POS2DAdmin().setCurLineSet( lset->name() );
     for ( int iln=0; iln<lset->nrLines(); iln++ )
     {
 	if ( seldata && !seldata->lineKey().isEmpty()
 	  && seldata->lineKey() != lset->lineKey(iln) )
 	    continue;
 
-	PosInfo::POS2DAdmin().setCurLineSet( lset->name() );
-	PosInfo::Line2DData l2dd( seldata->lineKey().lineName() );
+	LineKey lk = seldata ? seldata->lineKey() :  lset->lineKey( iln );
+	PosInfo::Line2DData l2dd( lk.lineName() );
 	if ( !PosInfo::POS2DAdmin().getGeometry(l2dd) )
 	    continue;
 	const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
