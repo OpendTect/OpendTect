@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitoolbar.cc,v 1.57 2010-05-25 03:30:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitoolbar.cc,v 1.58 2010-10-06 10:16:56 cvsranojay Exp $";
 
 #include "uitoolbar.h"
 
@@ -162,6 +162,7 @@ void uiToolBarBody::clear()
     butindex_.erase();
     qactions_.erase();
     mnuids_.erase();
+    pmsrcs_.erase();
 }
 
 #define mToolBarBut(idx) dynamic_cast<uiToolButton*>(objects_[butindex_[idx]])
