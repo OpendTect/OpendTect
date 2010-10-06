@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.58 2010-09-26 11:11:56 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.59 2010-10-06 13:44:30 cvsjaap Exp $";
 
 #include "uimain.h"
 
@@ -29,6 +29,10 @@ static const char* rcsID = "$Id: uimain.cc,v 1.58 2010-09-26 11:11:56 cvsjaap Ex
 #include <QCleanlooksStyle>
 #include <QKeyEvent>
 #include <QIcon>
+
+#include "timefun.h"
+#include <QTreeWidget>
+#include <QMenu>
 
 #include "dtect.xpm"
 const char** uiMain::XpmIconData = dtect_xpm_data;
@@ -113,36 +117,78 @@ mClass QtTabletEventFilter : public QObject
 {
 public:
     			QtTabletEventFilter()
-			{};
+			    : longleftstamp_( mUdf(int) )
+			    , mousepressed_( false )
+			{}
 protected:
     bool		eventFilter(QObject*,QEvent*);
+
+    int			longleftstamp_;
+    bool		mousepressed_;
 };
 
 
 bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* event )
 {
     const QTabletEvent* qte = dynamic_cast<QTabletEvent*>( event );
-    if ( !qte )
+    if ( qte )
+    {
+	TabletInfo& ti = TabletInfo::latestState();
+
+	ti.eventtype_ = (TabletInfo::EventType) qte->type();
+	ti.pointertype_ = (TabletInfo::PointerType) qte->pointerType();
+	ti.device_ = (TabletInfo::TabletDevice) qte->device();
+	ti.globalpos_.x = qte->globalX();
+	ti.globalpos_.y = qte->globalY();
+	ti.pos_.x = qte->x();
+	ti.pos_.y = qte->y();
+	ti.pressure_ = qte->pressure();
+	ti.rotation_ = qte->rotation();
+	ti.tangentialpressure_ = qte->tangentialPressure();
+	ti.uniqueid_ = qte->uniqueId();
+	ti.xtilt_ = qte->xTilt();
+	ti.ytilt_ = qte->yTilt();
+	ti.z_ = qte->z();
+
+	return false;		// Qt will resent it as a QMouseEvent
+    }
+
+    const QMouseEvent* qme = dynamic_cast<QMouseEvent*>( event );
+    if ( !qme || !TabletInfo::currentState() )
 	return false;
 
-    TabletInfo& ti = TabletInfo::latestState();
+    if ( !TabletInfo::currentState()->pressure_ )
+    {
+	mousepressed_ = false;
+	longleftstamp_ = mUdf(int);
+    }
 
-    ti.eventtype_ = (TabletInfo::EventType) qte->type();
-    ti.pointertype_ = (TabletInfo::PointerType) qte->pointerType();
-    ti.device_ = (TabletInfo::TabletDevice) qte->device();
-    ti.globalpos_.x = qte->globalX();
-    ti.globalpos_.y = qte->globalY();
-    ti.pos_.x = qte->x();
-    ti.pos_.y = qte->y();
-    ti.pressure_ = qte->pressure();
-    ti.rotation_ = qte->rotation();
-    ti.tangentialpressure_ = qte->tangentialPressure();
-    ti.uniqueid_ = qte->uniqueId();
-    ti.xtilt_ = qte->xTilt();
-    ti.ytilt_ = qte->yTilt();
-    ti.z_ = qte->z();
+    if ( qme->type() == QEvent::MouseButtonPress )
+    {
+	mousepressed_ = true;
+	if ( qme->button() == Qt::LeftButton )
+	    longleftstamp_ = Time::getMilliSeconds();
+    }
 
-    return false;		// Qt will resent it as a QMouseEvent
+    if ( event->type()==QEvent::MouseMove && mousepressed_ )
+    {
+	if ( !mIsUdf(longleftstamp_) && Time::passedSince(longleftstamp_)>500 )
+	{
+	    longleftstamp_ = mUdf(int);
+	    QEvent* qev = new QEvent( mUsrEvLongTabletPress );
+	    QApplication::postEvent( QApplication::focusWidget(), qev );
+	}
+
+	QWidget* tlw = QApplication::topLevelAt( qme->globalPos() );
+	if ( dynamic_cast<QMenu*>(tlw) )
+	    return true;
+
+	QWidget* fw = QApplication::focusWidget();
+	if ( dynamic_cast<QTreeWidget*>(fw) )
+	    return true;
+    }
+
+    return false;
 }
 
 
