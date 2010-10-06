@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.13 2010-09-24 13:39:22 cvsbert Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.14 2010-10-06 11:26:19 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,34 +89,6 @@ protected:
 };
 
 
-template <class T> T UnitOfMeasure::internalValue( T inp ) const
-{
-    if ( SI().zInFeet() )
-    {
-	if ( strstr(symbol_.buf(),"Feet") )
-	    return inp;
-	else if ( strstr(symbol_.buf(),"Meter") )
-	    return getUserValueFromSI( inp );
-    }
-
-    return getSIValue( inp );
-}
-
-
-template <class T> T UnitOfMeasure::userValue( T inp ) const
-{
-    if ( SI().zInFeet() )
-    {
-	if ( strstr(symbol_.buf(),"Feet") )
-	    return inp;
-	else if ( strstr(symbol_.buf(),"Meter") )
-	    return getSIValue( inp );
-    }
-
-    return getUserValueFromSI( inp );
-}
-
-
 /*!\brief Repository of all Units of Measure in the system.
  
  At first usage of the singleton instance of this class (accessible through
@@ -156,6 +128,41 @@ private:
     friend UnitOfMeasureRepository& UoMR();
 
 };
+
+
+
+template <class T> T UnitOfMeasure::internalValue( T inp ) const
+{
+    if ( SI().zInFeet() )
+    {
+	if ( strstr(symbol_.buf(),"ft") )
+	    return inp;
+	else if ( strstr(symbol_.buf(),"m") )
+	{
+	    const UnitOfMeasure* feetunit = UoMR().get( "ft" );
+	    return feetunit ? feetunit->getUserValueFromSI( inp ) : inp;
+	}
+    }
+
+    return getSIValue( inp );
+}
+
+
+template <class T> T UnitOfMeasure::userValue( T inp ) const
+{
+    if ( SI().zInFeet() )
+    {
+	if ( strstr(symbol_.buf(),"ft") )
+	    return inp;
+	else if ( strstr(symbol_.buf(),"m") )
+	{
+	    const UnitOfMeasure* feetunit = UoMR().get( "ft" );
+	    return feetunit ? feetunit->getSIValue( inp ) : inp;
+	}
+    }
+
+    return getUserValueFromSI( inp );
+}
 
 
 #endif
