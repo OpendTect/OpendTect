@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.49 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.50 2010-10-06 20:26:47 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiveldesc.cc,v 1.49 2010-08-11 14:50:45 cvsbert
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "unitofmeasure.h"
+#include "velocitycalc.h"
 #include "zdomain.h"
 
 #include "uibutton.h"
@@ -427,20 +428,11 @@ bool uiTimeDepthBase::acceptOK()
     if ( zdomain.isEmpty() )
 	zdomain = ZDomain::SI().key();
 
-    if ( zdomain==ZDomain::sKeyTime() )
+    FixedString err;
+    if ( !TimeDepthConverter::isVelocityDescUseable( desc,
+	    zdomain==ZDomain::sKeyTime(), &err ) )
     {
-	if ( desc.type_ != VelocityDesc::Interval &&
-	     desc.type_ != VelocityDesc::RMS )
-	    mErrRet("Only RMS and Interval allowed for time based models");
-    }
-    else if ( zdomain==ZDomain::sKeyDepth() )
-    {
-	if ( desc.type_ != VelocityDesc::Interval )
-	    mErrRet("Only Interval velocity allowed for time based models");
-    }
-    else
-    {
-	mErrRet( "Velocity model must be in either time or depth");
+	mErrRet( err.str() )
     }
 
     if ( t2d_ )
