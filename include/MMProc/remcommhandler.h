@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          May 2010
- RCS:           $Id: remcommhandler.h,v 1.2 2010-09-13 09:21:25 cvsnanne Exp $
+ RCS:           $Id: remcommhandler.h,v 1.3 2010-10-06 09:15:16 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,9 @@ protected:
     void	  	dataReceivedCB(CallBacker*);
     bool		mkCommand(const IOPar&,BufferString&);
     void		uiErrorMsg(const char*);
+    std::ostream& 	createLogFile();
+    void		writeLog(const char* msg);
+    std::ostream&       logstrm_;
 
     const int	   	port_;  
     TcpServer&   	server_;

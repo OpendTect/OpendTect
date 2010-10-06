@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: remcommhandler.cc,v 1.5 2010-09-13 11:03:15 cvsranojay Exp $";
+static const char* rcsID = "$Id: remcommhandler.cc,v 1.6 2010-10-06 09:15:16 cvsranojay Exp $";
 
 #include "remcommhandler.h"
 
@@ -17,15 +17,15 @@ static const char* rcsID = "$Id: remcommhandler.cc,v 1.5 2010-09-13 11:03:15 cvs
 #include "strmprov.h"
 #include "systeminfo.h"
 #include "tcpserver.h"
+#include <fstream>
 
 
-#define mErrRet( s ) { uiErrorMsg( s ); return; }
-
-static const char* sRemProcFile() 	{ return "remproc.bat"; }
+#define mErrRet( s ) { uiErrorMsg( s ); writeLog( s ); return; }
 
 RemCommHandler::RemCommHandler( int port )
     : port_(port)
     , server_(*new TcpServer)
+    , logstrm_(createLogFile())
 {
     server_.readyRead.notify( mCB(this,RemCommHandler,dataReceivedCB) );
 }
@@ -76,17 +76,6 @@ bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
        .add( " -jobid " ).add( jobid )
        .add( " \" " ).add( parfile ).add( "\"" );
 
-#ifdef __win__
-    FilePath batfnm( GetBinPlfDir() );
-    batfnm.add( sRemProcFile() );
-    FILE* fp = fopen( batfnm.fullPath(), "w" );
-    if ( !fp ) return false;
-
-    fprintf( fp, "%s", cmd.buf() );
-    fclose( fp );
-    cmd = batfnm.fullPath();
-#endif
-
     return true;
 }
 
@@ -100,4 +89,23 @@ void RemCommHandler::uiErrorMsg( const char* msg )
     cmd += " --err ";
     cmd += msg;
     ExecOSCmd( cmd.buf() );
+}
+
+
+std::ostream& RemCommHandler::createLogFile()
+{
+    FilePath logfp( GetBaseDataDir() );
+    logfp.add( "LogFiles" );
+    BufferString lhname = GetLocalIP();
+    replaceCharacter( lhname.buf(), '.',  '_' );
+    logfp.add( lhname );
+    logfp.setExtension( ".log" );
+    std::ostream* strm = new std::ofstream( logfp.fullPath() );
+    return *strm;
+}
+
+
+void RemCommHandler::writeLog( const char* msg )
+{
+    logstrm_ << msg << std::endl;
 }
