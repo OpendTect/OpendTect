@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.32 2009-12-08 12:19:16 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.33 2010-10-06 15:04:59 cvsbruno Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -94,7 +94,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     menu_.handlenotifier.notify(mCB(this,uiFlatViewStdControl,handleMenuCB));
     vwr_.appearance().annot_.editable_ = false;
 
-    new uiFlatViewThumbnail( this, vwr );
+    if ( setup.withthumbnail_ )
+	new uiFlatViewThumbnail( this, vwr );
     //TODO attach keyboard events to panCB
 }
 
