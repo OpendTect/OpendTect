@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.11 2010-08-11 09:30:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.12 2010-10-06 13:48:35 cvsjaap Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -542,6 +542,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     }
 
     if ( OD::altKeyboardButton(eventinfo.buttonstate_) ||
+	 OD::ctrlKeyboardButton(eventinfo.buttonstate_) ||
 	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
 
