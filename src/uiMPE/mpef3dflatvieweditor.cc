@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.9 2010-09-02 08:59:05 cvsjaap Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.10 2010-10-06 14:29:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,13 +38,14 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
     , meh_(0)
     , activestickid_(mUdf(int))
     , seedhasmoved_(false)
-    , mousepid_(-1)
+    , mousepid_( EM::PosID::udf() )
 {
     f3dpainter_->abouttorepaint_.notify(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
     f3dpainter_->repaintdone_.notify( 
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintedCB) );
     editor_->sower().alternateSowingOrder();
+    editor_->sower().setIfDragInvertMask();
 }
 
 
@@ -248,7 +249,6 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
     EM::PosID pid( emid,0,knotrc.toInt64() );
 
     emf3d->setPos(pid,coord3,true);
-    seedhasmoved_ = true;
 }
 
 
@@ -326,11 +326,11 @@ Coord3 Fault3DFlatViewEditor::getScaleVector() const
 
 void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
 {
-    const MouseEvent& mouseevent = meh_->event();
-    if ( editor_ && editor_->sower().accept(mouseevent, false) )
+    if ( seedhasmoved_ )
 	return;
 
-    if ( seedhasmoved_ )
+    const MouseEvent& mouseevent = meh_->event();
+    if ( editor_ && editor_->sower().accept(mouseevent, false) )
 	return;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
@@ -374,11 +374,14 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
 
 void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 {
+    if ( editor_ && editor_->sower().accept(meh_->event(), false) )
+	return;
+
     if ( !editor_->viewer().appearance().annot_.editable_
 	 || editor_->isSelActive() )
 	return;
 
-    mousepid_.setObjectID( -1 );
+    mousepid_ = EM::PosID::udf();
     int edidauxdataid = editor_->getSelPtDataID();
     int displayedknotid = -1;
     if ( editor_->getSelPtIdx().size() > 0 )
@@ -502,10 +505,11 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 	if ( res )
 	    mSetUserInteractionEnd();
 
+	mousepid_ = EM::PosID::udf();
 	return;
     }
 
-    if ( !mousepid_.isUdf() || interactpid.isUdf() )
+    if ( !mousepid_.isUdf() || interactpid.isUdf() || mouseevent.ctrlStatus() )
 	return;
 
     if ( makenewstick )
