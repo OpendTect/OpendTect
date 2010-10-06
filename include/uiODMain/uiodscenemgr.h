@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.80 2010-09-22 08:04:23 cvsbruno Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.81 2010-10-06 11:55:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,14 +136,14 @@ public:
     MenuHandler&		getToolBarHandler();
 
     uiTreeFactorySet*		treeItemFactorySet()	{ return tifs_; }
-    uiDockWin*			viewer2DWin()		{ return 0; }
+    uiListView*			getTree(int sceneid);
 
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
     void			setViewSelectMode(int);
 
     float			getHeadOnLightIntensity(int) const;
-    void 			setHeadOnLightIntensity(int, float);
+    void 			setHeadOnLightIntensity(int,float);
 
 protected:
 

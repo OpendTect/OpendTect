@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.213 2010-09-22 08:04:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.214 2010-10-06 11:55:34 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -871,6 +871,13 @@ void uiODSceneMgr::rebuildTrees()
 }
 
 
+uiListView* uiODSceneMgr::getTree( int sceneid )
+{
+    Scene* scene = getScene( sceneid );
+    return scene ? scene->lv_ : 0;
+}
+
+
 void uiODSceneMgr::setItemInfo( int id )
 {
     mDoAllScenes(itemmanager_,updateColumnText,cColorColumn());
@@ -984,7 +991,12 @@ int uiODSceneMgr::addWellItem( const MultiID& mid, int sceneid )
 int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 {
     Scene* scene = getScene( sceneid );
-    if ( !scene ) return -1;
+    if ( !scene )
+    {
+	sceneid = askSelectScene();
+	scene = getScene( sceneid );
+	if ( !scene ) return -1;
+    }
 
     FixedString type = applMgr().EMServer()->getType( emid );
     uiODDisplayTreeItem* itm;
