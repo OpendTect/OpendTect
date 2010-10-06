@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.16 2010-09-02 08:59:05 cvsjaap Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.17 2010-10-06 13:47:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,13 +38,14 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
     , meh_(0)
     , activestickid_(-1)
     , seedhasmoved_(false)
-    , mousepid_(-1)
+    , mousepid_( EM::PosID::udf() )
 {
     fsspainter_->abouttorepaint_.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
     fsspainter_->repaintdone_.notify( 
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintedCB) );
     editor_->sower().alternateSowingOrder();
+    editor_->sower().setIfDragInvertMask();
 }
 
 
@@ -288,7 +289,6 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     EM::PosID pid( emid,0,knotrc.toInt64() );
 
     emfss->setPos(pid,coord3,true);
-    seedhasmoved_ = true;
 }
 
 
@@ -366,11 +366,11 @@ Coord3 FaultStickSetFlatViewEditor::getScaleVector() const
 
 void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 {
-    const MouseEvent& mouseevent = meh_->event();
-    if ( editor_ && editor_->sower().accept(mouseevent, false) )
+    if ( seedhasmoved_ )
 	return;
 
-    if ( seedhasmoved_ )
+    const MouseEvent& mouseevent = meh_->event();
+    if ( editor_ && editor_->sower().accept(mouseevent, false) )
 	return;
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
@@ -414,13 +414,16 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 
 void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 {
+    if ( editor_ && editor_->sower().accept(meh_->event(), false) )
+	return;
+
     bool active = editor_->viewer().appearance().annot_.editable_;
     bool sel = editor_->isSelActive();
     if ( !editor_->viewer().appearance().annot_.editable_
 	 || editor_->isSelActive() )
 	return;
 
-    mousepid_.setObjectID( -1 );
+    mousepid_ = EM::PosID::udf();
     int edidauxdataid = editor_->getSelPtDataID();
     int displayedknotid = -1;
     if ( editor_->getSelPtIdx().size() > 0 )
@@ -493,7 +496,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	seedhasmoved_ = false;
 	return;
     }
-    
+
     EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return; 
 
@@ -541,8 +544,12 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
 
 	mSetUserInteractionEnd();
+	mousepid_ = EM::PosID::udf();
 	return;
     }
+
+    if ( !mousepid_.isUdf() || mouseevent.ctrlStatus() )
+	return;
 
     if ( mouseevent.shiftStatus() || interactpid.isUdf() )
     {
