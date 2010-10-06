@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.18 2010-08-16 14:45:23 cvsjaap Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.19 2010-10-06 13:50:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,13 +25,17 @@ class Color;
 namespace FlatView
 {
 
+class AuxDataEditor;
+
+#define mCtrlLeftButton ( (OD::ButtonState) (OD::LeftButton+OD::ControlButton) )
+
 mClass Sower : public CallBacker
 {
     friend class	AuxDataEditor;
 
 public:
-    enum		SowingMode { Idle=0, Furrowing,
-				     FirstSowing, SequentSowing };
+    enum		SowingMode { Lasering=-2, Erasing=-1, Idle=0,
+				     Furrowing, FirstSowing, SequentSowing };
 
     SowingMode		mode()				{ return mode_; }
 
@@ -43,21 +47,37 @@ public:
 
     Geom::Point2D<int>	pivotPos() const;
 
-    bool		accept(const MouseEvent&,bool released=false,
-			       OD::ButtonState mask=OD::LeftButton);
+    bool		accept(const MouseEvent&,bool released=false);
     bool		activate(const Color&,const MouseEvent&);
 
+    void		setSequentSowMask(bool yn=true,
+				    OD::ButtonState mask=OD::LeftButton);
+    void		setIfDragInvertMask(bool yn=true,
+				    OD::ButtonState mask=OD::ShiftButton);
+    void		setLaserMask(bool yn=true,
+				    OD::ButtonState mask=OD::LeftButton);
+    void		setEraserMask(bool yn=true,
+				    OD::ButtonState mask=mCtrlLeftButton);
+
 protected:
-    			Sower(Viewer&,MouseEventHandler&);
+    			Sower(AuxDataEditor&,MouseEventHandler&);
 			~Sower();
 
     void		setView(const Rect& wv,
 	    			const Geom::Rectangle<int>& mouserect);
 
-    Viewer&			viewer_;
+    bool		acceptMouse(const MouseEvent&,bool released);
+    bool		acceptTablet(const MouseEvent&,bool released);
+    bool		acceptLaser(const MouseEvent&,bool released);
+    bool		acceptEraser(const MouseEvent&,bool released);
+
+    void		reset();
+
+    AuxDataEditor&		editor_;
     RCol2Coord			transformation_;
     Annotation::AuxData*	sowingline_;
     MouseEventHandler&		mouseeventhandler_;
+    Geom::PixRectangle<int>	mouserectangle_;
     SowingMode			mode_;
     ObjectSet<MouseEvent>	eventlist_;
     TypeSet<Coord>		mousecoords_;
@@ -65,6 +85,15 @@ protected:
 
     bool			reversesowingorder_;
     bool			alternatesowingorder_;
+
+    OD::ButtonState		sequentsowmask_;
+    OD::ButtonState		ifdraginvertmask_;
+    OD::ButtonState		lasermask_;
+    OD::ButtonState		erasermask_;
+
+    bool			singleseeded_;
+    int				curknotid_;
+    int				curknotstamp_;
 };
 
 
@@ -76,6 +105,8 @@ protected:
 
 mClass AuxDataEditor : public CallBacker
 {
+    friend class	Sower;
+
 public:
 			AuxDataEditor(Viewer&,MouseEventHandler&);
     virtual		~AuxDataEditor();
@@ -163,8 +194,13 @@ protected:
     void		mouseReleaseCB(CallBacker*);
     void		mouseMoveCB(CallBacker*);
 
+    void		findSelection(const Geom::Point2D<int>&,
+				      int& seldatasetidx,
+				      TypeSet<int>* selptidxlist) const;
     bool		updateSelection(const Geom::Point2D<int>&);
     			//!<\returns true if something is selected
+
+    int			dataSetIdxAt(const Geom::Point2D<int>&) const;
 
     Viewer&				viewer_;
     Sower*				sower_;

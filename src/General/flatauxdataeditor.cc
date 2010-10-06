@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.35 2010-08-26 12:10:34 cvsjaap Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.36 2010-10-06 13:50:08 cvsjaap Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.35 2010-08-26 12:10:34
 #include "mouseevent.h"
 #include "menuhandler.h"
 #include "polygon.h"
+#include "timefun.h"
 
 
 namespace FlatView
@@ -37,7 +38,7 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , isselactive_( true )
     , movementlimit_( 0 )
     , menuhandler_( 0 )
-    , sower_( new Sower(v,meh) )
+    , sower_( new Sower(*this,meh) )
 {
     meh.buttonPressed.notify( mCB(this,AuxDataEditor,mousePressCB) );
     meh.buttonReleased.notify( mCB(this,AuxDataEditor,mouseReleaseCB) );
@@ -592,10 +593,13 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 }
 
 
-bool AuxDataEditor::updateSelection( const Geom::Point2D<int>& pt )
+void AuxDataEditor::findSelection( const Geom::Point2D<int>& pt,
+				   int& seldatasetidx,
+				   TypeSet<int>* selptidxlist ) const
 {
-    seldatasetidx_ = -1;
-    selptidx_.erase();
+    seldatasetidx = -1;
+    if ( selptidxlist )
+	selptidxlist->erase();
 
     int minsqdist;
     for ( int idx=0; idx<auxdata_.size(); idx++ )
@@ -626,17 +630,30 @@ bool AuxDataEditor::updateSelection( const Geom::Point2D<int>& pt )
 		continue;
 
 	    const int sqdist = displaypos.sqDistTo( pt );
-	    if ( seldatasetidx_==-1 || sqdist<minsqdist )
+	    if ( seldatasetidx==-1 || sqdist<minsqdist )
 	    {
-		seldatasetidx_ = idx;
-		selptidx_ += idy;
+		seldatasetidx = idx;
+		if ( selptidxlist )
+		    *selptidxlist += idy;
 		minsqdist = sqdist;
 	    }
 	}
     }
+}
 
+
+bool AuxDataEditor::updateSelection( const Geom::Point2D<int>& pt )
+{
+    findSelection( pt, seldatasetidx_, &selptidx_ );
     return seldatasetidx_!=-1;
+}
 
+
+int AuxDataEditor::dataSetIdxAt( const Geom::Point2D<int>& pt ) const
+{
+    int datasetidx;
+    findSelection( pt, datasetidx, 0 );
+    return datasetidx;
 }
 
 
@@ -665,15 +682,23 @@ void AuxDataEditor::limitMovement( const Rect* r )
 }
 
 
-Sower::Sower( Viewer& vwr, MouseEventHandler& meh )
-    : viewer_( vwr )
+Sower::Sower( AuxDataEditor& ade, MouseEventHandler& meh )
+    : editor_( ade )
     , mouseeventhandler_( meh )
     , mode_( Idle )
     , reversesowingorder_( false )
     , alternatesowingorder_( false )
+    , singleseeded_( true )
+    , curknotid_( -1 )
+    , curknotstamp_( mUdf(int) )
 {
     sowingline_ = new Annotation::AuxData( 0 );
-    viewer_.appearance().annot_.auxdata_ += sowingline_;
+    editor_.viewer().appearance().annot_.auxdata_ += sowingline_;
+
+    setIfDragInvertMask( false );
+    setSequentSowMask();
+    setLaserMask();
+    setEraserMask();
 }
 
 
@@ -681,8 +706,9 @@ Sower::~Sower()
 {
     deepErase( eventlist_ );
 
-    const int idx = viewer_.appearance().annot_.auxdata_.indexOf( sowingline_ );
-    delete viewer_.appearance().annot_.auxdata_.remove( idx );
+    const int idx =
+	editor_.viewer().appearance().annot_.auxdata_.indexOf( sowingline_ );
+    delete editor_.viewer().appearance().annot_.auxdata_.remove( idx );
 }
 
 
@@ -698,20 +724,36 @@ void Sower::setView( const Rect& curview,const Geom::Rectangle<int>& mousearea )
 {
     mGetRCol2CoordTransform( trans, curview, mousearea );
     transformation_ = trans;
+    mouserectangle_ = mousearea;
+}
+
+
+#define mReturnHandled( yn ) \
+{ \
+    mouseeventhandler_.setHandled( yn ); \
+    return yn; \
 }
 
 
 bool Sower::activate( const Color& color, const MouseEvent& mouseevent )
 {
     if ( mode_ != Idle )
-	return false;
+	mReturnHandled( false );
+
+    if ( editor_.dataSetIdxAt(mouseevent.pos()) >= 0 )
+	mReturnHandled( false );
 
     mode_ = Furrowing;
-    if ( !accept(mouseevent, false, OD::ButtonState(~OD::NoButton)) )
-	return false;
+    if ( !accept(mouseevent, false) )
+    {
+	mode_ = Idle;
+	mReturnHandled( false );
+    }
 
     sowingline_->linestyle_ = LineStyle( LineStyle::Solid, 1, color );
-    return true;
+    sowingline_->enabled_ = true;
+
+    mReturnHandled( true );
 }
 
 
@@ -735,42 +777,88 @@ void Sower::stopSowing()
 { bendpoints_.erase(); }
 
 
-bool Sower::accept( const MouseEvent& mouseevent, bool released,
-		    OD::ButtonState mask )
+bool Sower::accept( const MouseEvent& mouseevent, bool released )
 {
+    if ( mouseevent.tabletInfo() )
+	return acceptTablet( mouseevent, released );
+
+    return acceptMouse( mouseevent, released );
+}
+
+
+#define mRehandle( mouseeventhandler, mouseevent, tityp, tbtyp ) \
+    if ( (mouseevent).tabletInfo() ) \
+	(mouseevent).tabletInfo()->eventtype_ = TabletInfo::tityp; \
+    mouseeventhandler.triggerButton##tbtyp( mouseevent ); 
+
+
+bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
+{
+    if ( mode_==Idle && released &&
+	 editor_.dataSetIdxAt(mouseevent.pos())<0 )
+	mReturnHandled( true );
+
     if ( mode_ != Furrowing )
-	return false;
+	mReturnHandled( false );
 
-    mouseeventhandler_.setHandled( true );
-
+    const int sz = eventlist_.size();
     if ( !released )
     {
+	if ( mouserectangle_.isOutside(mouseevent.pos()) )
+	    mReturnHandled( true );
+
 	const RowCol rc = RowCol( mouseevent.x(), mouseevent.y() );
 	const Point pt = transformation_.transform( rc );
 	sowingline_->poly_ += pt;
 	if ( sowingline_->poly_.size() == 1 )	    // Do not want the marker  
 	    sowingline_->poly_ += pt;		    // from one-point polyline
 
-	viewer_.handleChange( Viewer::Annot );
+	editor_.viewer().handleChange( Viewer::Annot );
 
-	unsigned int butstate = mouseevent.buttonState();
-	if ( eventlist_.size() )
+	const Coord mousepos( mouseevent.x(), mouseevent.y() );
+
+	if ( !sz )
+	    singleseeded_ = true;
+	else
 	{
-	    butstate = eventlist_[0]->buttonState();
-	    butstate &= mask;
+	    const Coord prevpos( eventlist_[0]->x(), eventlist_[0]->y() );
+	    if ( mousepos.distTo(prevpos) > 5 )
+		singleseeded_ = false;
 	}
 
-	eventlist_ += new MouseEvent( (OD::ButtonState) butstate,
-				      mouseevent.x(), mouseevent.y(),
-				      mouseevent.angle() );
-	mousecoords_ += Coord( mouseevent.x(), mouseevent.y() );
-	return true;
+	eventlist_ += new MouseEvent( mouseevent );
+	mousecoords_ += mousepos;
+	mReturnHandled( true );
+    }
+
+    if ( !sz || !sowingline_->enabled_ )
+    {
+	reset();
+	mReturnHandled( true );
     }
 
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
+    int butstate = eventlist_[0]->buttonState();
+    if ( !singleseeded_ )
+	butstate ^= ifdraginvertmask_;
+
+    eventlist_[0]->setButtonState( (OD::ButtonState) butstate );
+    butstate &= sequentsowmask_;
+
+    for ( int idx=sz-1; idx>0; idx--)
+    {
+	if ( singleseeded_ )
+	{
+	    eventlist_.remove( idx );
+	    mousecoords_.remove( idx );
+	}
+	else
+	    eventlist_[idx]->setButtonState( (OD::ButtonState) butstate );
+    }
+
     BendPointFinder2D bpfinder ( mousecoords_, 2 );
-    bpfinder.execute(true);
+    bpfinder.execute( true );
     bendpoints_ = bpfinder.bendPoints();
     if ( reversesowingorder_ )
 	bendpoints_.reverse();
@@ -778,9 +866,10 @@ bool Sower::accept( const MouseEvent& mouseevent, bool released,
     mode_ = FirstSowing;
     while ( bendpoints_.size() )
     {
-	int eventidx = bendpoints_[0];
-	mouseeventhandler_.triggerButtonPressed( *eventlist_[eventidx] ); 
-	mouseeventhandler_.triggerButtonReleased( *eventlist_[eventidx] ); 
+	int idx = bendpoints_[0];
+
+	mRehandle( mouseeventhandler_, *eventlist_[idx], Press, Pressed );
+	mRehandle( mouseeventhandler_, *eventlist_[idx], Release, Released );
 
 	bendpoints_.remove( 0 );
 	if ( alternatesowingorder_ )
@@ -789,14 +878,116 @@ bool Sower::accept( const MouseEvent& mouseevent, bool released,
 	mode_ = SequentSowing;
     }
 
+    reset();
+    mReturnHandled( true );
+}
+
+
+void Sower::reset()
+{
+    sowingline_->enabled_ = false;
     sowingline_->poly_.erase();
-    viewer_.handleChange( Viewer::Annot );
+    editor_.viewer().handleChange( Viewer::Annot );
     deepErase( eventlist_ );
     mousecoords_.erase();
 
     mode_ = Idle;
-    return true;
 }
+
+
+bool Sower::acceptTablet( const MouseEvent& mouseevent, bool released )
+{
+    if ( !mouseevent.tabletInfo() )
+	mReturnHandled( false );
+
+    int knotid = editor_.dataSetIdxAt( mouseevent.pos() );
+
+    if ( knotid != curknotid_ )
+    {
+	curknotstamp_ = Time::getMilliSeconds();
+	curknotid_ = knotid;
+    }
+
+    if ( mouseevent.tabletInfo()->pointertype_ == TabletInfo::Eraser )
+    {
+	if ( knotid >= 0 )
+	    return acceptEraser( mouseevent, released );
+
+	mReturnHandled( true );
+    }
+
+    if ( mode_==Idle && !released && !editor_.isDragging() &&
+	 knotid>=0 && !mIsUdf(curknotstamp_) &&
+	 Time::passedSince(curknotstamp_) > 300 )
+    {
+	curknotstamp_ = mUdf(int);
+	return acceptLaser( mouseevent, released );
+    }
+
+    if ( knotid>=0 && mode_==Furrowing && singleseeded_ )
+	sowingline_->enabled_ = false;
+
+    return acceptMouse( mouseevent, released );
+}
+
+
+bool Sower::acceptLaser( const MouseEvent& mouseevent, bool released )
+{
+    if ( mode_ != Idle )
+	mReturnHandled( false );
+
+    mode_ = Lasering;
+
+    MouseEvent newevent( mouseevent );
+
+    int butstate = newevent.buttonState() | lasermask_;
+    newevent.setButtonState( (OD::ButtonState) butstate );
+
+    mRehandle( mouseeventhandler_, newevent, Press, Pressed );
+    mRehandle( mouseeventhandler_, newevent, Release, Released );
+
+    mode_ = Idle;
+    mReturnHandled( true );
+}
+
+
+bool Sower::acceptEraser( const MouseEvent& mouseevent, bool released )
+{
+    if ( mode_ != Idle )
+	mReturnHandled( false );
+
+    if ( !released && !mouseevent.tabletInfo()->pressure_ )
+	mReturnHandled( false );
+
+    mode_ = Erasing;
+
+    MouseEvent newevent( mouseevent );
+
+    int butstate = newevent.buttonState() | erasermask_;
+    newevent.setButtonState( (OD::ButtonState) butstate );
+
+    mRehandle( mouseeventhandler_, newevent, Press, Pressed );
+    mRehandle( mouseeventhandler_, newevent, Release, Released );
+
+    mode_ = Idle;
+    mReturnHandled( true );
+}
+
+
+void Sower::setSequentSowMask( bool yn, OD::ButtonState mask )
+{ sequentsowmask_ = yn ? mask : OD::ButtonState(~OD::NoButton); }
+
+
+void Sower::setIfDragInvertMask( bool yn, OD::ButtonState mask )
+{ ifdraginvertmask_ = yn ? mask : OD::NoButton; }
+
+
+void Sower::setLaserMask( bool yn, OD::ButtonState mask )
+{ lasermask_ = yn ? mask : OD::NoButton; }
+
+
+void Sower::setEraserMask( bool yn, OD::ButtonState mask )
+{ erasermask_ = yn ? mask : OD::NoButton; }
 
 
 };
