@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.9 2010-10-04 17:18:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.10 2010-10-06 10:16:26 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -341,8 +341,8 @@ bool uiWellDispEditMarkerDlg::rejectOK( CallBacker* )
     needsave_ = false;
     if ( hasedited_ )
     {
-	BufferString msg = "Some markers have been edited and will be lost. \n";
-	msg += "Do you want to abort anyway or continue editing markers ? ";
+	BufferString msg = "Some markers have been edited. \n";
+	msg += "Do you want to continue with marker editing ? ";
 	if ( !uiMSG().askContinue( msg ) )
 	{
 	    for ( int idx=0; idx<wds_.size(); idx++ )
