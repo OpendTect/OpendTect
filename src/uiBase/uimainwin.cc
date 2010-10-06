@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.207 2010-09-24 12:09:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.208 2010-10-06 13:44:57 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -58,10 +58,6 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.207 2010-09-24 12:09:01 cvsnan
 #include <QSettings>
 #include <QStatusBar>
 #include <QWidget>
-
-
-static const QEvent::Type sQEventGuiThread  = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventPopUpReady = (QEvent::Type) (QEvent::User+1);
 
 
 class uiMainWinBody : public uiParentBody
@@ -263,7 +259,7 @@ void uiMainWinBody::doShow( bool minimized )
     popped_up = false;
     poptimer.start( 100, true );
 
-    QEvent* ev = new QEvent( sQEventPopUpReady );
+    QEvent* ev = new QEvent( mUsrEvPopUpReady );
     QApplication::postEvent( this, ev );
 
     if ( modal_ )
@@ -557,7 +553,7 @@ void uiMainWinBody::activateInGUIThread( const CallBack& cb, bool busywait )
     CallBack* actcb = new CallBack( cb );
     mExecMutex( activatecbs_ += actcb );
 
-    QEvent* guithreadev = new QEvent( sQEventGuiThread );
+    QEvent* guithreadev = new QEvent( mUsrEvGuiThread );
     QApplication::postEvent( this, guithreadev );
 
     float sleeptime = 0.01;
@@ -585,7 +581,7 @@ void uiMainWinBody::keyPressEvent( QKeyEvent* event )
 
 bool uiMainWinBody::event( QEvent* ev )
 {
-    if ( ev->type() == sQEventGuiThread )
+    if ( ev->type() == mUsrEvGuiThread )
     {
 	mExecMutex( CallBack* actcb = activatecbs_[nractivated_++] );
 	actcb->doCall( this );
@@ -593,7 +589,7 @@ bool uiMainWinBody::event( QEvent* ev )
 	mExecMutex( activatecbs_ -= actcb; nractivated_-- );
 	delete actcb;
     }
-    else if ( ev->type() == sQEventPopUpReady )
+    else if ( ev->type() == mUsrEvPopUpReady )
     {
 	handle_.endCmdRecEvent( eventrefnr_, "WinPopUp" );
     }
