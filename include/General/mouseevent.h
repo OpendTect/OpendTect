@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.11 2010-09-26 11:10:31 cvsjaap Exp $
+ RCS:           $Id: mouseevent.h,v 1.12 2010-10-06 13:41:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,7 @@ public:
     bool			operator !=( const MouseEvent& ev ) const
 							{ return !(*this==ev); }
 
+    TabletInfo*			tabletInfo();
     const TabletInfo*		tabletInfo() const;
     void			setTabletInfo(const TabletInfo*);
 
@@ -172,7 +173,9 @@ protected:
     bool			ishandled_;
 
     				// To repair Qt-Linux tablet bug
+    bool			tabletispressed_;
     OD::ButtonState		curtabletbutstate_;
+    bool			tabletinsyncwithmouse_;
 };
 
 

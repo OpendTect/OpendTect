@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visevent.cc,v 1.31 2010-09-26 11:12:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.32 2010-10-06 13:43:59 cvsjaap Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -134,7 +134,7 @@ EventCatcher::EventCatcher()
     , type_( Any )
     , rehandling_( false )
     , rehandled_( true )
-    , curtabletbutstate_( OD::NoButton )
+    , tabletispressed_( false )
 {
     node_->ref();
     setCBs();
@@ -259,6 +259,15 @@ SoNode* EventCatcher::getInventorNode()
 { return node_; }
 
 
+// Macro used by hack to repair Qt-Linux tablet bug
+#define mTabletPressCheck( insync ) \
+    if ( eventinfo.tabletinfo->eventtype_ == TabletInfo::Press ) \
+    { \
+	eventcatcher->tabletispressed_ = true; \
+	eventcatcher->tabletinsyncwithmouse_ = insync; \
+    }
+
+
 void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 {
     EventCatcher* eventcatcher = (EventCatcher*) userdata;
@@ -371,27 +380,34 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     {
 	if ( eventinfo.type==MouseClick && eventinfo.pressed )
 	{
-	    eventcatcher->curtabletbutstate_ =
-			(OD::ButtonState) (buttonstate & OD::MouseButtonMask);
+	    mTabletPressCheck( true );
+	    eventcatcher->curtabletbutstate_ = (OD::ButtonState) buttonstate;
 	}
 	else if ( eventinfo.type==MouseClick && !eventinfo.pressed )
 	{
-	    if ( eventcatcher->curtabletbutstate_==OD::NoButton )
+	    mTabletPressCheck( false );
+	    if ( !eventcatcher->tabletispressed_ )
 	    {
 		eventinfo.type = MouseMovement;
 		buttonstate &= OD::MouseButtonMask;
 	    }
-	    else
-		eventcatcher->curtabletbutstate_ = OD::NoButton;
+	    eventcatcher->tabletispressed_ = false;
 	}
-	else if ( eventinfo.type==MouseMovement &&
-		  eventcatcher->curtabletbutstate_!=OD::NoButton &&
-		  !eventinfo.tabletinfo->pressure_ )
+	else if ( eventinfo.type == MouseMovement )
 	{
-	    eventinfo.type = MouseClick;
-	    buttonstate |= eventcatcher->curtabletbutstate_;
-	    eventinfo.pressed = false;
-	    eventcatcher->curtabletbutstate_ = OD::NoButton;
+	    mTabletPressCheck( false );
+	    if ( eventcatcher->tabletispressed_ )
+	    {
+		if ( eventinfo.tabletinfo->eventtype_==TabletInfo::Release
+		     || (!eventinfo.tabletinfo->pressure_ &&
+			 !eventcatcher->tabletinsyncwithmouse_) )
+		{
+		    eventinfo.type = MouseClick;
+		    eventinfo.pressed = false;
+		    buttonstate = eventcatcher->curtabletbutstate_;
+		    eventcatcher->tabletispressed_ = false;
+		} 
+	    }
 	}
     }
     // End of hack

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.25 2010-09-26 11:12:41 cvsjaap Exp $
+ RCS:		$Id: visevent.h,v 1.26 2010-10-06 13:43:59 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -121,7 +121,9 @@ protected:
     bool			rehandled_;
 
     				// To repair Qt-Linux tablet bug
+    bool			tabletispressed_;
     OD::ButtonState		curtabletbutstate_;
+    bool			tabletinsyncwithmouse_;
 };
 
 }; // Namespace
