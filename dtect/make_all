@@ -104,18 +104,6 @@ make
 cd ../spec
 make
 
-cdw
-cat `find -follow . -name ls$HDIR | sort` > $logdir/error.log
-cat `find -follow . -name ls$HDIR.prog | sort` >> $logdir/error.log
-set nrerr=`grep "error:" $logdir/error.log | wc -l`
-set nrwar=`grep "warning:" $logdir/error.log | wc -l`
-echo
-if ( $nrerr != 0 ) then
-    echo "Errors found: $nrerr"
-else if ( $nrwar != 0 ) then
-    echo "Warnings found"
-endif
-
 programmer_doc:
 
 if ( $dodoc == yes ) then
