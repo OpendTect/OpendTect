@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.32 2010-10-04 08:17:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.33 2010-10-07 15:59:52 cvsbruno Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -38,7 +38,7 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.32 2010-10-04 08:17:20 c
 
 
 static const char* mrkrcollbls[] = { "[Name]", "Depth (MD)", 
-				 "[Color]", "Stratigraphic marker", 0 };
+				 "[Color]", "Regional marker", 0 };
 static const int cNrEmptyRows = 5;
 
 static const int cNameCol  = 0;
