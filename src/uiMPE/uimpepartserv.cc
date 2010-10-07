@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.114 2010-09-23 04:47:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.115 2010-10-07 05:21:29 cvsnanne Exp $";
 
 #include "uimpepartserv.h"
 
@@ -385,7 +385,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
     
     if ( !seedhasbeenpicked_ )
     {
-	BufferString str( "No seed has been picked."
+	BufferString str( "No seeds have been picked. "
 			  "Do you want to continue with horizon tracking?" );
 	const bool res = uiMSG().askContinue( str );
 	if ( !res )
