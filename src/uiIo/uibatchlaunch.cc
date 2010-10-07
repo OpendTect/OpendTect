@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.90 2010-10-07 06:26:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.91 2010-10-07 07:15:37 cvsnanne Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -264,7 +264,7 @@ uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
 		 .modal(s.modal_).menubar(s.menubar_))
     , uppgrp_(new uiGroup(this,"Upper group"))
     , procprognm_(s.procprognm_.isEmpty() ? "od_process_attrib" : s.procprognm_)
-    , multiprognm_(s.multiprocprognm_.isEmpty() ? "SeisMMBatch"
+    , multiprognm_(s.multiprocprognm_.isEmpty() ? "od_SeisMMBatch"
 						: s.multiprocprognm_)
     , redo_(false)
     , parfnamefld_(0)

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.9 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.10 2010-10-07 07:15:37 cvsnanne Exp $";
 
 #include "uiclusterjobprov.h"
 
@@ -324,7 +324,7 @@ bool uiClusterJobProv::createMasterScript( const char* parfnm,
 
     *sd.ostrm << "#!/bin/csh -f " << std::endl;
     *sd.ostrm << GetExecScript(false) << " ";
-    *sd.ostrm << "ODClusterProc" << "\\" << std::endl;
+    *sd.ostrm << "od_ClusterProc" << "\\" << std::endl;
     *sd.ostrm << parfnm << " &" << std::endl;
     *sd.ostrm << "foreach file ( " << fp.fullPath() << " )" << std::endl;
     *sd.ostrm << "    " << cmscmd.buf() << " $file &" << std::endl;
