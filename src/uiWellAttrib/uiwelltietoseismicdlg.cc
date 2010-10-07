@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.75 2010-08-30 07:20:55 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.76 2010-10-07 15:59:13 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -460,7 +460,11 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 	    return false;
     }
     dataholder_.pickmgr()->clearAllPicks();
-    if ( !dataholder_.matchHorWithMarkers( msg ) )
+    uiDialog matchdlg( this, uiDialog::Setup("Settings","",mNoHelpID) );
+    uiGenInput* matchinpfld = new uiGenInput( &matchdlg, "Match same", 
+				BoolInpSpec(true,"Name","Regional marker") ); 
+    matchdlg.go();
+    if ( !dataholder_.matchHorWithMarkers( msg, matchinpfld->getBoolValue() ) )
 	mErrRet( msg ); 
     datadrawer_->drawUserPicks();
     return true;
