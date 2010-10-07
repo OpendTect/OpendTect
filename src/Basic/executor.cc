@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.32 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.33 2010-10-07 05:51:28 cvsnanne Exp $";
 
 #include "executor.h"
 
@@ -90,10 +90,10 @@ void ExecutorGroup::findNextSumStop()
     {
 	for ( int idx=currentexec_+1; idx<executors_.size(); idx++ )
 	{
-	    if ( strcmp(executors_[idx]->nrDoneText(),
-			executors_[idx-1]->nrDoneText())
-	      || strcmp(executors_[idx]->message(),
-			executors_[idx-1]->message()) )
+	    BufferString nrdonetxt = executors_[idx]->nrDoneText();
+	    BufferString msgtxt = executors_[idx]->message();
+	    if ( nrdonetxt != executors_[idx-1]->nrDoneText() ||
+		 msgtxt != executors_[idx-1]->message() )
 	    {
 		sumstop_ = idx-1;
 		return;
