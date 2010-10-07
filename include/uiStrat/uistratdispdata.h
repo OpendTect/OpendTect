@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.14 2010-10-05 15:17:12 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.15 2010-10-07 12:11:01 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,7 +192,8 @@ public:
     uiListViewItem*	getItemFromTree(const char*);
 
     void		handleUnitMenu(const char*);
-    void		handleUnitLvlMenu(const char*);
+    void		setUnitLvl(const char*);
+    void		addUnit(const char*);
 
 protected:
 

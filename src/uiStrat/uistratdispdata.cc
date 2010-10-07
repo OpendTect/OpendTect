@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.21 2010-10-05 15:17:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.22 2010-10-07 12:11:01 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
@@ -181,7 +181,20 @@ void uiStratDispToTreeTransl::handleUnitMenu( const char* txt )
 }
 
 
-void uiStratDispToTreeTransl::handleUnitLvlMenu( const char* code )
+void uiStratDispToTreeTransl::addUnit( const char* txt )
+{
+    if ( txt )
+    {
+	mGetLItem( txt )
+	uitree_.insertSubUnit( lit );
+    }
+    else
+	uitree_.insertSubUnit( 0 );
+}
+
+
+
+void uiStratDispToTreeTransl::setUnitLvl( const char* code )
 {
     uitree_.setUnitLvl( code );
 }

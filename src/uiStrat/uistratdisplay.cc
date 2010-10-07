@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.24 2010-10-04 17:15:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.25 2010-10-07 12:11:01 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -209,19 +209,32 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
     if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	    !ev.altStatus() )
     {
-	const StratDispData::Unit* unit = getUnitFromPos();
-	if ( unit )
-	    uidatawriter_.handleUnitMenu( unit->name() );
-
 	const StratDispData::Level* lvl = getLevelFromPos();
 	if ( lvl )
 	{
 	    uiMenuItem* assmnuitm = new uiMenuItem( "Assign marker boundary" );
 	    uiPopupMenu menu( parent(), "Action" );
+	    menu.insertItem( assmnuitm, 1 );
+	    const int mnuid = menu.exec();
+	    if ( mnuid<0 ) return false;
+	    else if ( mnuid == 1 );
+		uidatawriter_.setUnitLvl( lvl->unitcode_ );
+	}
+	else if ( getUnitFromPos() )
+	{
+	    uidatawriter_.handleUnitMenu( getUnitFromPos()->name() );
+	}
+	else if ( getParentUnitFromPos() || getColIdxFromPos() == 0 ) 
+	{
+	    const StratDispData::Unit* unit = getColIdxFromPos() > 0 ? 
+						getParentUnitFromPos() : 0;
+	    uiMenuItem* assmnuitm = new uiMenuItem( "Add Unit" );
+	    uiPopupMenu menu( parent(), "Action" );
 	    menu.insertItem( assmnuitm, 0 );
 	    const int mnuid = menu.exec();
-	    if ( mnuid>=0 );
-		uidatawriter_.handleUnitLvlMenu( lvl->unitcode_ );
+	    if ( mnuid<0 ) return false;
+	    else if ( mnuid == 0 );
+		uidatawriter_.addUnit( unit ? unit->name() : 0 );
 	}
 	return true;
     }
@@ -257,7 +270,18 @@ int uiStratDisplay::getColIdxFromPos() const
 
 const StratDispData::Unit* uiStratDisplay::getUnitFromPos() const
 {
-    const int cidx = getColIdxFromPos();
+    return getUnitFromPos( getColIdxFromPos() );
+}
+
+
+const StratDispData::Unit* uiStratDisplay::getParentUnitFromPos() const
+{
+    return getUnitFromPos( getColIdxFromPos()-1 );
+}
+
+
+const StratDispData::Unit* uiStratDisplay::getUnitFromPos( int cidx ) const
+{
     if ( cidx >=0 && cidx<data_.nrCols() )
     {
 	Geom::Point2D<float> pos = getPos(); 

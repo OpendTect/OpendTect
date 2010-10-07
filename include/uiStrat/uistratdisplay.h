@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.21 2010-09-29 16:16:56 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.22 2010-10-07 12:11:01 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,6 +135,8 @@ protected :
     int				getColIdxFromPos() const; 
     StratDispData::Column*	getColFromPos() const; 
     const StratDispData::Unit* 	getUnitFromPos() const;
+    const StratDispData::Unit* 	getParentUnitFromPos() const;
+    const StratDispData::Unit* 	getUnitFromPos(int colidx) const;
     const StratDispData::Level* getLevelFromPos() const;
     Geom::Point2D<float> 	getPos() const;
 

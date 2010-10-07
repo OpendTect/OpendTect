@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.53 2010-10-05 07:43:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.54 2010-10-07 12:11:01 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -156,9 +156,7 @@ void uiStratRefTree::rClickCB( CallBacker* )
 
 void uiStratRefTree::handleMenu( uiListViewItem* lvit )
 {
-    int col = lv_->columnNotified();
     uiPopupMenu mnu( lv_->parent(), "Action" );
-    mnu.insertSeparator();
     mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 0 );
     mnu.insertItem( new uiMenuItem("&Subdivide unit..."), 1 );
     mnu.insertItem( new uiMenuItem("&Properties..."), 2 );
@@ -167,24 +165,23 @@ void uiStratRefTree::handleMenu( uiListViewItem* lvit )
 
     const int mnuid = mnu.exec();
     if ( mnuid<0 ) return;
-    else if ( mnuid==0 )
+    else if ( mnuid == 0 )
 	insertSubUnit( lvit );
-    else if ( mnuid== 1 )
+    else if ( mnuid == 1 )
 	subdivideUnit( lvit );
-    else if ( mnuid==2 )
+    else if ( mnuid == 2 )
 	updateUnitProperties( lvit );
-    else if ( mnuid==3 )
+    else if ( mnuid == 3 )
 	removeUnit( lvit );
 }
 
 
 void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 {
-    BufferString parcode( getCodeFromLVIt( lvit ) );
-    const Strat::UnitRef* un = tree_->find( parcode );
-    if ( !un || un->isLeaf() ) return;
+    const Strat::UnitRef* un = lvit ? tree_->find( getCodeFromLVIt(lvit) ) : 0;
+    if ( lvit && ( !un || un->isLeaf() ) ) return;
 
-    NodeUnitRef* parun = (NodeUnitRef*)un;
+    NodeUnitRef* parun = lvit ? (NodeUnitRef*)un : tree_;
     LeavedUnitRef* tmpun = new LeavedUnitRef( parun, 0 );
 
     Interval<float> trg; getAvailableTime( *parun, trg );
@@ -471,7 +468,7 @@ void uiStratRefTree::setUnitLvl( const char* code )
     if ( !ldun ) 
 	return;
 
-    uiStratLinkLvlUnitDlg dlg( lv_->parent(), ldun );
+    uiStratLinkLvlUnitDlg dlg( lv_->parent(), *ldun );
     dlg.go();
 }
 
@@ -576,6 +573,7 @@ void uiStratRefTree::ensureUnitTimeOK( Strat::NodeUnitRef& unit )
 	    else 
 		timerg.start= mytimerg.stop;
 	    ref.setTimeRange( timerg );
+	    setNodesDefaultTimes( ref );
 	}
     }
     unit.setTimeRange( mytimerg );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.37 2010-10-06 16:03:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.38 2010-10-07 12:11:01 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -512,16 +512,18 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 
 
 uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, 
-						Strat::LeavedUnitRef* ur ) 
-    : uiDialog(p,uiDialog::Setup("Link markers and stratigraphic unit boundary",
+						Strat::LeavedUnitRef& ur ) 
+    : uiDialog(p,uiDialog::Setup("",
 		mNoDlgTitle,"110.0.3"))
     , lvlid_(-1)		
     , unit_(ur)	 			
 {
+    BufferString msg("Link Marker to "); msg += ur.code(); 
+    setCaption( msg );
     BufferStringSet lvlnms;
     lvlnms.add( sNoLevelTxt );
     TypeSet<Color> colors;
-    lvlid_ = ur->levelID();
+    lvlid_ = ur.levelID();
 
     const Strat::LevelSet& lvls = Strat::LVLS();
     for ( int idx=0; idx<lvls.size(); idx++ )
@@ -542,8 +544,7 @@ bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
 {
     const int lvlidx = lvllistfld_->getIntValue()-1;
     lvlid_ = lvlidx >=0 ? ids_[lvlidx] : -1;
-    if ( unit_ ) 
-	unit_->setLevelID( lvlid_ );
+    unit_.setLevelID( lvlid_ );
 
     Strat::eLVLS().levelChanged.trigger();
     return true;
