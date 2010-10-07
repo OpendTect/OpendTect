@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.24 2010-09-17 04:59:49 cvsranojay Exp $";
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.25 2010-10-07 21:01:32 cvskarthika Exp $";
 
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"
@@ -235,7 +235,7 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
     }
 
     const SbVec3s sz( origsz[0], origsz[1], origsz[2] );
-    const SbVec3s start( origstart[0], origstart[1], origstart[2] );
+    const SbVec3i32 start( origstart[0], origstart[1], origstart[2] );
 
     while ( texturedata_.getLength()<=unit )
 	texturedata_.append( 0 );
