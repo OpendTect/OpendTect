@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: remcommhandler.cc,v 1.7 2010-10-07 07:55:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: remcommhandler.cc,v 1.8 2010-10-07 07:58:49 cvsnanne Exp $";
 
 #include "remcommhandler.h"
 
@@ -96,7 +96,7 @@ std::ostream& RemCommHandler::createLogFile()
 {
     FilePath logfp( GetBaseDataDir() );
     logfp.add( "LogFiles" );
-    BufferString lhname = GetLocalIP();
+    BufferString lhname = System::localAddress();
     replaceCharacter( lhname.buf(), '.',  '_' );
     logfp.add( lhname );
     logfp.setExtension( ".log" );
