@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchprestackproc.cc,v 1.6 2009-08-21 12:41:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchprestackproc.cc,v 1.7 2010-10-07 06:32:40 cvsnanne Exp $";
 
 #include "uibatchprestackproc.h"
 
@@ -24,7 +24,7 @@ namespace PreStack
 uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
     : uiFullBatchDialog( p,
 	uiFullBatchDialog::Setup("Pre stack processing")
-	    .procprognm("process_prestack" ) )
+	    .procprognm("od_process_prestack" ) )
     , outputctxt_( *uiSeisSel::mkCtxtIOObj( is2d ? Seis::LinePS : Seis::VolPS,
 					    false ) )
     , inputctxt_( *uiSeisSel::mkCtxtIOObj( is2d ? Seis::LinePS : Seis::VolPS,

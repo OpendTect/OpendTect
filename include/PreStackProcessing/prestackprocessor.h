@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.25 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.26 2010-10-07 06:32:40 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -164,7 +164,7 @@ public:
 
     const char*			errMsg() const	{ return errmsg_.str(); }
 
-    //Keys for process_prestack
+    //Keys for od_process_prestack
     static const char*		sKeyLineKey()	{ return sKey::LineKey; }
     static const char*		sKeySetup(){ return "Processing Setup"; }
     static const char*		sKeyCDPRange(){ return "CDP Range"; }
