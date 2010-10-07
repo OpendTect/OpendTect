@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.18 2010-07-14 15:53:06 cvskris Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.19 2010-10-07 07:16:17 cvsnanne Exp $";
 
 #include "uisegyexamine.h"
 #include "uitextedit.h"
@@ -207,7 +207,7 @@ int uiSEGYExamine::getRev( const SeisTrcReader& rdr )
 
 bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 {
-    BufferString cmd( "SEGYExaminer --nrtrcs " );
+    BufferString cmd( "od_SEGYExaminer --nrtrcs " );
     cmd += su.nrtrcs_;
     if ( su.fp_.ns_ > 0 )
 	{ cmd += " --ns "; cmd += su.fp_.ns_; }
