@@ -1,24 +1,16 @@
-dTect V3.3
+dTect V4.2
 Batch Programs
-Fri Sep 26 15:37:38 2008
+Fri Sep 24 15:37:38 2010
 !
-cbvs_browse
+od_cbvs_browse
 	Arg: M`FileRead`Cube to browse
 	Comment:  Browse seismic cubes (in the default 'CBVS' format)
-!
-cbvs_dump
-	Arg: M`FileRead`Parameter file
-	Comment: Dump seismic cubes of the 'CBVS' format
-	Comment: Output can be Ascii or Binary
-	Comment: If 'Output.Mode' is set to 'Inquire', ranges are reported for the cube.
-	Comment: There is also a browser in the GUI, under Survey-Manage-Seismics
-	ExampleInput: cbvs_dump_example.par
 !
 lmhostid
 	Comment: Display the FlexLM hostid of this machine
 	Comment: May be required for commercial plugins.
 !
-glxinfo
+od_glxinfo
 	Comment: Display OpenGL information
 !
 ivfileviewer
