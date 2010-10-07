@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.31 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.32 2010-10-07 17:29:19 cvshelene Exp $";
 
 #include "energyattrib.h"
 
@@ -24,7 +24,7 @@ mAttrDefCreateInstance(Energy)
     
 void Energy::initClass()
 {
-    mAttrStartInitClass
+    mAttrStartInitClassWithDefaultsUpdate
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-1000,1000) );
@@ -53,6 +53,15 @@ Energy::Energy( Desc& ds )
     gate_.scale( 1/zFactor() );
     if ( dograd_ )
 	dessampgate_ = Interval<int>(-1,1);
+}
+
+
+void Energy::updateDefaults( Desc& desc )
+{
+    ValParam* paramgate = desc.getValParam(gateStr());
+    mDynamicCastGet( ZGateParam*, zgate, paramgate )
+    zgate->setDefaultValue( Interval<float>(-SI().zStep()*SI().zFactor()*7,
+					    SI().zStep()*SI().zFactor()*7) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.388 2010-09-07 04:36:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.389 2010-10-07 17:29:19 cvshelene Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -92,6 +92,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     visserv_ = new uiVisPartServer( applservice_ );
     visserv_->setMouseCursorExchange( &mousecursorexchange_ );
     attrserv_ = new uiAttribPartServer( applservice_ );
+
     seisserv_ = new uiSeisPartServer( applservice_ );
     emserv_ = new uiEMPartServer( applservice_ );
     emattrserv_ = new uiEMAttribPartServer( applservice_ );
@@ -207,8 +208,19 @@ void uiODApplMgr::surveyChanged( CallBacker* )
 
     attrserv_ = new uiAttribPartServer( applservice_ );
     attrserv_->setDPSDispMgr( visdpsdispmgr_ );
+    if ( survChgReqAttrUpdate() )
+	attrserv_->setAttrsNeedUpdt();
+
     mpeserv_ = new uiMPEPartServer( applservice_ );
     MPE::engine().init();
+}
+
+
+bool uiODApplMgr::survChgReqAttrUpdate()
+{
+    return !( SI().xyUnit() == tmpprevsurvinfo_.xyunit_ &&
+		SI().zUnit() == tmpprevsurvinfo_.zunit_ &&
+		SI().zStep() == tmpprevsurvinfo_.zstep_ );
 }
 
 

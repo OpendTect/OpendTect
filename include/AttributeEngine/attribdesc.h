@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.51 2010-07-13 19:26:32 cvskris Exp $
+ RCS:           $Id: attribdesc.h,v 1.52 2010-10-07 17:29:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ class DescSet;
 class ValParam;
 
 typedef void(*DescStatusUpdater)(Desc&);
+typedef void(*DescDefaultsUpdater)(Desc&);
 
 mClass InputSpec
 {
@@ -65,7 +66,8 @@ public:
 
 				Desc(const Desc&);
 				Desc(const char* attrname,
-				     DescStatusUpdater updater=0);
+				     DescStatusUpdater updater=0,
+				     DescDefaultsUpdater defupdater=0);
 
     const char*			attribName() const;
 
@@ -141,6 +143,7 @@ public:
     bool			isParamRequired(const char* key) const;
 
     void			updateParams();
+    void			updateDefaultParams();
     void			changeStoredID(const char*);
 
     void			addInput(const InputSpec&);
@@ -189,6 +192,7 @@ protected:
     DescSet*			descset_;
 
     DescStatusUpdater		statusupdater_;
+    DescDefaultsUpdater		defaultsupdater_;
     BufferString		errmsg_;
 };
 

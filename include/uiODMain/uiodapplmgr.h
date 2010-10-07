@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.108 2010-09-29 03:48:48 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.109 2010-10-07 17:29:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,6 +212,16 @@ protected:
     uiODApplMgrDispatcher&	dispatcher_;
     uiODApplMgrAttrVisHandler&	attrvishandler_;
     MouseCursorExchange&	mousecursorexchange_;
+
+    struct MiscSurvInfo
+    {
+	int			xyunit_;
+	int			zunit_;
+	float			zstep_;
+    };
+
+    MiscSurvInfo		tmpprevsurvinfo_;
+    bool			survChgReqAttrUpdate();
 
     bool			handleEvent(const uiApplPartServer*,int);
     void*			deliverObject(const uiApplPartServer*,int);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.101 2010-09-29 11:46:09 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.102 2010-10-07 17:29:19 cvshelene Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -74,7 +74,7 @@ static bool evaldlgpoppedup = false;
 using namespace Attrib;
 
 uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
-				      const char* prefgrp )
+				      const char* prefgrp, bool attrsneedupdt )
     : uiDialog(p,uiDialog::Setup( adsm && adsm->is2D() ? "Attribute Set 2D"
 					: "Attribute Set 3D","","101.1.0")
 	.savebutton(true).savetext("Save on OK  ")
@@ -90,6 +90,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , xplotcb(this)
     , adsman_(0)
     , updating_fields_(false)
+    , attrsneedupdt_(attrsneedupdt)
 {
     setctio_.ctxt.toselect.dontallow_.set( sKey::Type,
 	    				   adsm->is2D() ? "3D" : "2D" );
@@ -1160,4 +1161,10 @@ bool uiAttribDescSetEd::is2D() const
 	return attrset_->is2D();
     else 
 	return false;
+}
+
+
+void uiAttribDescSetEd::updtAllEntries()
+{
+    PF().updateAllDescsDefaults();
 }

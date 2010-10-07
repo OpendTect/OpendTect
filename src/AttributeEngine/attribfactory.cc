@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribfactory.cc,v 1.11 2010-09-09 17:20:45 cvskris Exp $";
+static const char* rcsID = "$Id: attribfactory.cc,v 1.12 2010-10-07 17:29:19 cvshelene Exp $";
 
 #include "attribfactory.h"
 
@@ -71,6 +71,13 @@ int ProviderFactory::indexOf( const char* nm ) const
     }
 
     return -1;
+}
+
+
+void ProviderFactory::updateAllDescsDefaults()
+{
+    for ( int idx=0; idx<descs_.size(); idx++ )
+	descs_[idx]->updateDefaultParams();
 }
 
 

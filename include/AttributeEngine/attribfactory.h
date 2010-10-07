@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribfactory.h,v 1.7 2010-04-20 22:03:25 cvskris Exp $
+ RCS:           $Id: attribfactory.h,v 1.8 2010-10-07 17:29:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
 
     Provider*		create( Desc& ) const;
     Desc*		createDescCopy( const char* nm ) const;
+    void		updateAllDescsDefaults();
 
 protected:
     int				indexOf( const char* ) const;

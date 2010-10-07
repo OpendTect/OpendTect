@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.165 2010-09-20 09:01:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.166 2010-10-07 17:29:19 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -247,10 +247,16 @@ bool uiAttribPartServer::editSet( bool is2d )
 
     delete attrsetdlg_;
     attrsetdlg_ = new uiAttribDescSetEd( parent(),
-	    				 const_cast<DescSetMan*>(adsman) );
+	    				 const_cast<DescSetMan*>(adsman),0,
+	   				 attrsneedupdt_ );
     attrsetdlg_->dirshowcb.notify( mCB(this,uiAttribPartServer,directShowAttr));
     attrsetdlg_->evalattrcb.notify( mCB(this,uiAttribPartServer,showEvalDlg) );
     attrsetdlg_->xplotcb.notify( mCB(this,uiAttribPartServer,showXPlot) );
+    if ( attrsneedupdt_ )
+    {
+	attrsetdlg_->updtAllEntries();
+	attrsneedupdt_ = false;
+    }
 
     attrsetdlg_->windowClosed.notify( 
 	    			mCB(this,uiAttribPartServer,attrsetDlgClosed) );

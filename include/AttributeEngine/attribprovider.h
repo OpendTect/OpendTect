@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.82 2010-07-13 21:10:30 cvskris Exp $
+ RCS:           $Id: attribprovider.h,v 1.83 2010-10-07 17:29:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -389,6 +389,15 @@ Attrib::Provider* clss::createInstance( Attrib::Desc& desc ) \
 
 #define mAttrStartInitClassWithUpdate \
     Attrib::Desc* desc = new Attrib::Desc( attribName(), updateDesc ); \
+    desc->ref();
+
+#define mAttrStartInitClassWithDescAndDefaultsUpdate \
+    Attrib::Desc* desc = new Attrib::Desc( attribName(), updateDesc,\
+	    				   updateDefaults ); \
+    desc->ref();
+
+#define mAttrStartInitClassWithDefaultsUpdate \
+    Attrib::Desc* desc = new Attrib::Desc( attribName(), 0,updateDefaults ); \
     desc->ref();
 
 #define mAttrEndInitClass \

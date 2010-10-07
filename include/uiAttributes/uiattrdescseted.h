@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.25 2010-07-01 09:26:09 cvsnageswara Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.26 2010-10-07 17:29:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,8 @@ mClass uiAttribDescSetEd : public uiDialog
 public:
 
 			uiAttribDescSetEd(uiParent*,Attrib::DescSetMan* adsm,
-					  const char* prefgrp =0);
+					  const char* prefgrp =0,
+					  bool attrsneedupdt =false);
 			~uiAttribDescSetEd();
 
     Attrib::DescSet*	getSet()		{ return attrset_; }
@@ -81,6 +82,7 @@ protected:
     CtxtIOObj&			setctio_;
     MultiID			cancelsetid_;
     bool			updating_fields_;
+    bool			attrsneedupdt_;
     static BufferString		nmprefgrp_;
 
     uiToolBar*			toolbar_;
@@ -149,6 +151,10 @@ protected:
     void			createToolBar();
     void			createGroups();
     void			init();
+
+public:
+
+    void			updtAllEntries();
 };
 
 

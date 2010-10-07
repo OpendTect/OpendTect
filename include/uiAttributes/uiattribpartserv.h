@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.69 2010-08-04 13:30:46 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.70 2010-10-07 17:29:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,7 @@ public:
     			//!< returns whether new AttribDescSet has been created
     bool		attrSetEditorActive() const	{ return attrsetdlg_; }
     void		updateSelSpec(Attrib::SelSpec&) const;
+    void		setAttrsNeedUpdt()		{ attrsneedupdt_ =true;}
 
     bool		selectAttrib(Attrib::SelSpec&,const ZDomain::Info*,
 	    			     bool is2d);
@@ -205,6 +206,7 @@ protected:
     uiAttribDescSetEd*	attrsetdlg_;
     Timer		attrsetclosetim_;
     bool                is2devsent_;
+    bool		attrsneedupdt_;
 
     Attrib::EngineMan*	createEngMan(const CubeSampling* cs=0,
 	    			     const char* lk=0);

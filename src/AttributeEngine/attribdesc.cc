@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.75 2010-07-13 19:26:32 cvskris Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.76 2010-10-07 17:29:19 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -44,10 +44,12 @@ const char* Desc::sKeyInlDipComp() { return "Inline dip"; }
 const char* Desc::sKeyCrlDipComp() { return "Crossline dip"; }
 
 
-Desc::Desc( const char* attribname, DescStatusUpdater updater )
+Desc::Desc( const char* attribname, DescStatusUpdater updater,
+       	    DescDefaultsUpdater defupdater )
     : descset_( 0 )
     , attribname_( attribname )
     , statusupdater_( updater )
+    , defaultsupdater_( defupdater )
     , issteering_( false )
     , seloutput_( 0 )
     , hidden_( false )
@@ -452,6 +454,12 @@ void Desc::updateParams()
 	if ( dsc && dsc->isHidden() )
 	    dsc->updateParams();
     }
+}
+
+
+void Desc::updateDefaultParams()
+{
+    if ( defaultsupdater_ ) defaultsupdater_(*this);
 }
 
 
