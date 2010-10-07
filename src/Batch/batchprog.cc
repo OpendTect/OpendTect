@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.110 2010-09-01 04:06:41 cvsranojay Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.111 2010-10-07 07:10:00 cvsnanne Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -343,11 +343,11 @@ bool BatchProgram::initOutput()
 
     if ( hasviewprogress && res && res=="window" )
     {
-	BufferString cmd( "@view_progress " );
+	BufferString cmd( "@od_ProgressViewer " );
 
 #ifdef __msvc__ 
 	cmd = "@";
-	cmd += FilePath(GetBinPlfDir()).add("view_progress").fullPath();
+	cmd += FilePath(GetBinPlfDir()).add("od_ProgressViewer").fullPath();
 	cmd += " ";
 #endif
 
