@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.10 2010-10-06 10:16:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.11 2010-10-07 09:03:17 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -202,9 +202,21 @@ void uiWellDispEditMarkerDlg::editDlgClosedCB( CallBacker* )
 
 void uiWellDispEditMarkerDlg::modeChg( CallBacker* )
 {
-    bool isaddmode = isAddRemMode();
+    bool isaddmode = isAddMode();
     mrkgrp_->setDefault();
     mrkgrp_->setFldsSensitive( isaddmode );
+
+    if ( isaddmode )
+    {
+	mrklist_->setMultiSelect( false );
+	if ( mrklist_->size() )
+	    mrklist_->setCurrentItem( 0 );
+    }
+    else
+    {
+	mrklist_->clearSelection();
+	mrklist_->setNotSelectable();
+    }
 }
 
 
@@ -215,7 +227,7 @@ void uiWellDispEditMarkerDlg::setMode( bool addmode )
 }
 
 
-bool uiWellDispEditMarkerDlg::isAddRemMode() const
+bool uiWellDispEditMarkerDlg::isAddMode() const
 {
     return modefld_->getBoolValue();
 }
@@ -282,7 +294,7 @@ void uiWellDispEditMarkerDlg::posChgCB( CallBacker* cb )
     MouseEventHandler* mevh = curctrl_->mouseEventHandler();
     if ( !mevh || !mevh->hasEvent()  ) return;
 
-    if ( curctrl_ && isAddRemMode()  )
+    if ( curctrl_ && isAddMode()  )
 	grp().setPos( curctrl_->time(), curctrl_->depth() );
 }
 
@@ -290,7 +302,7 @@ void uiWellDispEditMarkerDlg::posChgCB( CallBacker* cb )
 void uiWellDispEditMarkerDlg::handleUsrClickCB( CallBacker* )
 {
     if ( !curctrl_ || !curwd_ ) return;
-    bool isaddmode = isAddRemMode();
+    bool isaddmode = isAddMode();
     bool ishandled = true;
     MouseEventHandler* mevh = curctrl_->mouseEventHandler();
     if ( !mevh || !mevh->hasEvent() || mevh->isHandled() ) return;
@@ -403,7 +415,6 @@ void uiWellDispEditMarkerDlg::listRClickCB()
 	    delete mrk;
     }
     fillMarkerList(0);
-    mrklist_->setCurrentItem( 0 );
 }
 
 
@@ -443,6 +454,15 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 	mrklist_->addItem( mrknms.get( idx ), mrkcols[idx] );
 
     colors_ = mrkcols;
+
+    if ( mrklist_->isEmpty() )
+    {
+	Well::Marker* mrk = new Well::Marker( "Name", 0 ); 
+	mrk->setColor( getRandStdDrawColor() );
+	    tmplist_ += mrk;
+    }
+    if ( !mrklist_->nrSelected() &&  isAddMode() )
+	mrklist_->setCurrentItem( 0 );
 }
 
 

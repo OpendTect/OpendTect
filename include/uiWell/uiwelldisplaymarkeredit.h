@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.4 2010-10-01 17:12:18 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.5 2010-10-07 09:03:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,7 +87,7 @@ public:
     uiWellDispMarkerEditGrp&	grp() 			{ return *mrkgrp_; }
 
     void			setMode(bool);
-    bool 			isAddRemMode() const;
+    bool 			isAddMode() const;
 
     void 			addWellCtrl(uiWellDisplayControl&,Well::Data&);
     
