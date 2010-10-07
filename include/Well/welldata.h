@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.21 2009-08-19 08:17:17 cvsbert Exp $
+ RCS:		$Id: welldata.h,v 1.22 2010-10-07 15:37:55 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,8 @@ public:
     const DisplayProperties&	displayProperties() const { return disp_; }
 
     void			empty(); //!< removes everything
+
+    void			levelToBeRemoved(CallBacker*);
 
     bool			haveLogs() const;
     bool			haveMarkers() const;

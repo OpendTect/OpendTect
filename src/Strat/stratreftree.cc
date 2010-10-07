@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.7 2010-09-30 15:00:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.8 2010-10-07 15:37:55 cvsbruno Exp $";
 
 
 #include "stratreftree.h"
@@ -32,7 +32,16 @@ void Strat::RefTree::initTree()
 {
     src_ = Repos::Temp;
     addLeavedUnit( sKeyNoCode(), "-1`" );
+    Strat::LevelSet& lvlset = Strat::eLVLS();
+    lvlset.levelToBeRemoved.notify( mCB(this,Strat::RefTree,levelToBeRemoved) );
 }
+
+
+Strat::RefTree::~RefTree()
+{
+    Strat::LevelSet& lvlset = Strat::eLVLS();
+    lvlset.levelToBeRemoved.remove( mCB(this,Strat::RefTree,levelToBeRemoved) );
+} 
 
 
 void Strat::RefTree::reportChange( const Strat::UnitRef* un, bool isrem )
@@ -195,3 +204,21 @@ bool Strat::RefTree::write( std::ostream& strm ) const
 
     return strm.good();
 }
+
+
+void Strat::RefTree::levelToBeRemoved( CallBacker* cb )
+{
+    mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
+    if ( !lvlset ) pErrMsg( "Can't find levelSet" );
+    const int lvlidx = lvlset->notifLvlIdx();
+    if ( !lvlset->levels().validIdx( lvlidx ) ) return;
+    const Strat::Level& lvl = *lvlset->levels()[lvlidx];
+    Strat::UnitRefIter it( *this, Strat::UnitRefIter::LeavedNodes );
+    while ( it.next() )
+    {
+	Strat::LeavedUnitRef* lur = ( Strat::LeavedUnitRef*)it.unit();
+	if ( lur && lur->levelID() == lvl.id() )
+	    lur->setLevelID( -1 );
+    }
+}
+

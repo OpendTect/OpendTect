@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.17 2010-08-26 14:30:51 cvsbruno Exp $
+ RCS:		$Id: wellmarker.h,v 1.18 2010-10-07 15:37:55 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -69,7 +69,8 @@ public:
     const Marker* 	getByName(const char* nm) const { return gtByName(nm); }
     Marker* 		getByName(const char* nm) 	{ return gtByName(nm); }
 
-    const Marker* 	getByLvlID(int lvlid) const;
+    const Marker* 	getByLvlID(int id) const	{ return gtByLvlID(id);}
+    Marker* 		getByLvlID(int id) 		{ return gtByLvlID(id);}
 
     bool		isPresent(const char* n) const 	{ return getByName(n); }
     int			indexOf(const char*) const;		  
@@ -78,6 +79,7 @@ public:
 protected:
 
     Marker* 		gtByName(const char*) const;
+    Marker* 		gtByLvlID(int) const;
 };
 
 

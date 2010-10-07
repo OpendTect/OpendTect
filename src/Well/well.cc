@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.76 2010-08-26 14:30:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.77 2010-10-07 15:37:55 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: well.cc,v 1.76 2010-08-26 14:30:51 cvsbruno Exp
 #include "welldisp.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
-#include "stratunitrepos.h"
+#include "stratlevel.h"
 #include "idxable.h"
 #include "bendpointfinder.h"
 #include "iopar.h"
@@ -131,11 +131,16 @@ Well::Data::Data( const char* nm )
     , dispparschanged(this)
     , tobedeleted(this)
 {
+    Strat::LevelSet& lvlset = Strat::eLVLS();
+    lvlset.levelToBeRemoved.notify( mCB(this, Well::Data, levelToBeRemoved ) );
 }
 
 
 Well::Data::~Data()
 {
+    Strat::LevelSet& lvlset = Strat::eLVLS();
+    lvlset.levelToBeRemoved.remove( mCB(this, Well::Data, levelToBeRemoved ) );
+
     tobedeleted.trigger();
 
     delete &track_;
@@ -179,6 +184,22 @@ void Well::Data::empty()
     logs_.empty();
     deepErase( markers_ );
 }
+
+
+void Well::Data::levelToBeRemoved( CallBacker* cb )
+{
+    mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
+    if ( !lvlset ) pErrMsg( "Can't find levelSet" );
+    const int lvlidx = lvlset->notifLvlIdx();
+    if ( lvlset->levels().validIdx( lvlidx ) )
+    {
+	const Strat::Level& lvl = *lvlset->levels()[lvlidx];
+	Well::Marker* mrk = markers().getByLvlID( lvl.id() );
+	if ( mrk )
+	    mrk->setLevelID( -1 );
+    }
+}
+
 
 
 void Well::LogSet::add( Well::Log* l )
@@ -437,14 +458,14 @@ void Well::MarkerSet::insertNew( Well::Marker* newmrk )
 }
 
 
-const Well::Marker* Well::MarkerSet::getByLvlID(int lvlid) const
+Well::Marker* Well::MarkerSet::gtByLvlID(int lvlid) const
 {
     if ( lvlid<=0 ) return 0;
     for ( int idmrk=0; idmrk<size(); idmrk++ )
     {
-	const Well::Marker& mrk = *(*this)[idmrk];
- 	if ( mrk.levelID() == lvlid )
-	    return &mrk;
+	Well::Marker* mrk = const_cast<Well::Marker*>((*this)[idmrk]); 
+ 	if ( mrk && mrk->levelID() == lvlid )
+	    return mrk;
     }
     return 0;
 }

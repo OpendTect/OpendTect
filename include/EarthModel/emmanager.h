@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.51 2010-09-29 03:48:48 cvssatyaki Exp $
+ RCS:		$Id: emmanager.h,v 1.52 2010-10-07 15:37:55 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -118,6 +118,8 @@ public:
 
     bool		readPars(const MultiID&,IOPar&) const;
     bool		writePars(const MultiID&,const IOPar&) const;
+
+    void		levelToBeRemoved(CallBacker*);
 
 protected:
     Undo&			undo_;

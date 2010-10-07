@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.22 2010-09-30 08:42:00 cvsbert Exp $
+ RCS:		$Id: stratreftree.h,v 1.23 2010-10-07 15:37:55 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ mClass RefTree : public NodeOnlyUnitRef
 public:
 
 			RefTree();
+			~RefTree();
 
     Repos::Source	source() const			{ return src_; }
     
@@ -52,6 +53,8 @@ protected:
 
     LithologySet	liths_;
     const UnitRef*	notifun_;
+
+    void 		levelToBeRemoved(CallBacker*);
 
 public:
 

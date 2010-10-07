@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.95 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.96 2010-10-07 15:37:55 cvsbruno Exp $";
 
 #include "emmanager.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.95 2010-09-29 03:48:48 cvssaty
 #include "ptrman.h"
 #include "undo.h"
 #include "selector.h"
+#include "stratlevel.h"
 
 
 EM::EMManager& EM::EMM()
@@ -53,11 +54,17 @@ mImplFactory1Param( EMObject, EMManager&, EMOF );
 EMManager::EMManager()
     : undo_( *new Undo() )
     , addRemove( this )
-{}
+{
+    Strat::LevelSet& lvlset = Strat::eLVLS();
+    lvlset.levelToBeRemoved.notify( mCB(this, EMManager, levelToBeRemoved ) );
+}
 
 
 EMManager::~EMManager()
 {
+    Strat::LevelSet& lvlset = Strat::eLVLS();
+    lvlset.levelToBeRemoved.remove( mCB(this, EMManager, levelToBeRemoved ) );
+
     empty();
     delete &undo_;
 }
@@ -488,6 +495,22 @@ bool EMManager::writePars( const MultiID& mid, const IOPar& newpar ) const
     par.merge( newpar );
     const BufferString filenm = Surface::getParFileName( *ioobj );
     return par.write( filenm.buf(), "Surface parameters" );
+}
+
+
+void EMManager::levelToBeRemoved( CallBacker* cb )
+{
+    mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
+    if ( !lvlset ) pErrMsg( "Can't find levelSet" );
+    const int lvlidx = lvlset->notifLvlIdx();
+    if ( !lvlset->levels().validIdx( lvlidx ) ) return;
+    const Strat::Level& lvl = *lvlset->levels()[lvlidx];
+    for ( int idx=0; idx<objects_.size(); idx++ )
+    {
+	mDynamicCastGet( EM::Horizon*, hor, objects_[idx] )
+	if ( hor && hor->stratLevelID() == lvl.id() )
+	    hor->setStratLevelID( -1 );
+    }
 }
 
 } // namespace EM
