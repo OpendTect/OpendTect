@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.14 2010-06-10 08:26:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.15 2010-10-07 04:54:31 cvsraman Exp $";
 
 #include "cubesampling.h"
 #include "ioman.h"
@@ -44,6 +44,11 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 
     if ( rln.nrNodes() < 2 ) return;
 
+    SeisIOObjInfo inpsi( inobj );
+    CubeSampling inpcs;
+    inpsi.getRanges( inpcs );
+    const BinID inpstep = inpcs.hrg.step;
+
     int trcnr = trcinit;
     const Interval<float> zrg = rln.zRange();
     TypeSet<float> vals( 4, 0 );
@@ -61,7 +66,8 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 	const BinID& stopbid = rln.nodePosition( idx );
 	Coord stoppos = SI().transform( stopbid );
 	const double dist = startpos.distTo( stoppos );
-	const double unitdist = SI().inlDistance();
+	const double unitdist = mMAX( inpstep.inl * SI().inlDistance(),
+				      inpstep.crl * SI().crlDistance() );
 	const int nrsegs = mNINT( dist / unitdist );
 	const float unitx = ( stoppos.x - startpos.x ) / nrsegs;
 	const float unity = ( stoppos.y - startpos.y ) / nrsegs;
