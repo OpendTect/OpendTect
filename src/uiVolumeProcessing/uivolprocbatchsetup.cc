@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.12 2010-03-16 09:51:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.13 2010-10-07 06:37:10 cvsnanne Exp $";
 
 #include "uivolprocbatchsetup.h"
 #include "volproctrans.h"
@@ -28,7 +28,7 @@ static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.12 2010-03-16 09:51:
 VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
     : uiFullBatchDialog( p,
 	    uiFullBatchDialog::Setup("Volume Builder: Create output")
-	    .procprognm("process_volume" ) )
+	    .procprognm("od_process_volume" ) )
     , chain_( 0 )
 {
     setTitleText( 0 );
