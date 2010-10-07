@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: segybatchio.h,v 1.1 2010-07-15 18:45:32 cvskris Exp $
+ RCS:		$Id: segybatchio.h,v 1.2 2010-10-07 05:45:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 /*!\brief
 
-Keys that should be used with process_segyio.cc
+Keys that should be used with od_process_segyio.cc
 
 */
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: volproctrans.h,v 1.3 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: volproctrans.h,v 1.4 2010-10-07 05:45:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ public:
     const char*		defExtension() const	{ return "vpsetup"; }
     static const char*	sKeyIsVolProcSetup()	{ return "VolProcSetup"; }
 
-    			//For process_volume par-files
+    			//For od_process_volume par-files
     static const char*	sKeyChainID()		{ return "Chain ID"; }
     static const char*	sKeyOutputID()		{ return "Output ID"; }
 };
