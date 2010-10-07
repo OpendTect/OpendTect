@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlevel.cc,v 1.7 2010-10-01 15:02:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlevel.cc,v 1.8 2010-10-07 12:48:11 cvsbruno Exp $";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -314,7 +314,7 @@ void Strat::LevelSet::remove( Level::ID id )
     const int idx = indexOf( id );
     if ( idx >=0 )
     {
-	levelToBeRemoved.trigger();
+	lvls_[idx]->toBeRemoved.trigger();
 	delete lvls_.remove( idx );
     }
 }
