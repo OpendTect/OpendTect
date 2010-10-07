@@ -4,7 +4,7 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.10 2010-08-12 13:25:26 cvsdgb Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.11 2010-10-07 22:51:25 cvsyuancheng Exp $";
 
 #include <transform.h>
 #include <arraynd.h>
@@ -55,15 +55,28 @@ bool GenericTransformND::setDir( bool forward )
 }
 
 
+#define mSetInputData( inputdata ) \
+    if ( transforms_.size() ) \
+	transforms_[0]->setInputData( inputdata )
+
+
+#define mSetOutputData( outputdata ) \
+for ( int idx=0; idx<transforms_.size(); idx++ ) \
+{ \
+    if ( idx ) transforms_[idx]->setInputData( outputdata ); \
+    transforms_[idx]->setOutputData( outputdata ); \
+}
+
+
 void GenericTransformND::setInput( const float_complex* id )
 {
     if ( !id ) return;
     
     cinput_ = id;
     rinput_ = 0;
-    
-    for ( int idx=0; idx<transforms_.size(); idx++ )
-	transforms_[idx]->setInputData( id );
+
+    if ( transforms_.size() )
+	transforms_[0]->setInputData( id );
 }
 
 
@@ -74,8 +87,8 @@ void GenericTransformND::setInput( const float* id )
     rinput_ = id;
     cinput_ = 0;
 
-    for ( int idx=0; idx<transforms_.size(); idx++ )
-	transforms_[idx]->setInputData( id );
+    if ( transforms_.size() )
+	transforms_[0]->setInputData( id );
 }
 
 
@@ -87,8 +100,7 @@ void GenericTransformND::setOutput( float_complex* od )
     coutput_ = od;
     routput_ = 0;
 
-    for ( int idx=0; idx<transforms_.size(); idx++ )
-	transforms_[idx]->setOutputData( od );
+    mSetOutputData( od );
 }
 
 
@@ -98,9 +110,8 @@ void GenericTransformND::setOutput( float* od )
     
     routput_ = od;
     coutput_ = 0;
-    
-    for ( int idx=0; idx<transforms_.size(); idx++ )
-	transforms_[idx]->setOutputData( od );
+
+    mSetOutputData( od );
 }
 
 
@@ -255,13 +266,11 @@ bool GenericTransformND::setup()
 	}
     }
 
-    for ( int idx=0; idx<ndim; idx++ )
-    {
-	transforms_[idx]->setInputData( idx ? routput_ : rinput_ );
-	transforms_[idx]->setInputData( idx ? coutput_ : cinput_ );
-	transforms_[idx]->setOutputData( routput_ );
-	transforms_[idx]->setOutputData( coutput_ );
-    }
+    mSetInputData( rinput_ );
+    mSetInputData( cinput_ );
+
+    mSetOutputData( routput_ );
+    mSetOutputData( coutput_ );
 
     curdim_ = 0;
 
