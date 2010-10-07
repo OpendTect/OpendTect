@@ -92,12 +92,13 @@ public:
 				    , color_(col)
 				    {}
 
-	float			zval_;				
+	float			zval_;
 	const Color&		color_;
-	BufferString		name_;	
+	BufferString		name_;
+	int 			lvlid_;	
     };
     const ObjectSet<HorData>	horDatas() const { return hordatas_; }
-    bool			matchHorWithMarkers(BufferString&);
+    bool			matchHorWithMarkers(BufferString&,bool bynames);
     bool			setUpHorizons(const TypeSet<MultiID>&,
 						BufferString&,TaskRunner&);
 

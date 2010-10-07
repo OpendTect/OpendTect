@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.25 2010-10-05 15:18:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.26 2010-10-07 15:39:30 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -132,6 +132,7 @@ void uiWellStratDisplay::assignTimesToLeavedUnits()
 		unit.zrg_.set( posset_[idx], posset_[idy] );
 		unit.zrg_.sort();
 		unit.isdisplayed_ = true; 
+		data_.getCol( unit.colidx_ )->isdisplayed_ = true;
 	    }
 	}
     }

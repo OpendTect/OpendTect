@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.39 2010-08-30 06:56:25 cvssatyaki Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.40 2010-10-07 15:39:30 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "binidvalset.h"
@@ -215,13 +215,14 @@ bool DataHolder::setUpHorizons( const TypeSet<MultiID>& horids,
 	    zval *= 1000;
 	    hordatas_ += new HorData( zval, hor->preferredColor() );
 	    hordatas_[hordatas_.size()-1]->name_ = hor->name();
+	    hordatas_[hordatas_.size()-1]->lvlid_ = hor->stratLevelID();
 	}
     }
     return true;
 }
 
 
-bool DataHolder::matchHorWithMarkers( BufferString& errmsg ) 
+bool DataHolder::matchHorWithMarkers( BufferString& errmsg, bool bynames ) 
 {
     if ( !hordatas_.size() || !wd()->markers().size() )
     { errmsg = "No horizon or no marker found "; return false; }
@@ -238,11 +239,8 @@ bool DataHolder::matchHorWithMarkers( BufferString& errmsg )
 	    HorData& hd = *hordatas_[idhor];
 	    BufferString mrknm( mrk.name() );
 	    BufferString hdnm( hd.name_ );
-	    if ( mrknm.size() > 3  )
-		mrknm[3] = '\0';
-	    if ( hdnm.size() > 3  )
-		hdnm[3] = '\0';
-	    if ( !strcmp( mrknm, hdnm ) )
+	    if ( ( bynames && !strcmp( mrknm, hdnm ) ) 
+		|| ( !bynames && hd.lvlid_ >=0 && hd.lvlid_ == mrk.levelID() ))
 	    {
 		float zmrkpos = dtm->getTime(mrk.dah())*1000;
 		float zhorpos = hd.zval_;
@@ -253,7 +251,7 @@ bool DataHolder::matchHorWithMarkers( BufferString& errmsg )
 	}
     }
     if ( !success )
-    { errmsg = "No name matching between horizon and markers "; return false; }
+    { errmsg = "No match found between markers and horizons"; return false; }
     return true;
 }
 
