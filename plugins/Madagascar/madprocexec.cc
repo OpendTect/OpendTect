@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.13 2010-04-23 11:33:41 cvsraman Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.14 2010-10-07 06:12:42 cvsnanne Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -136,14 +136,14 @@ bool ODMad::ProcExec::init()
 	pars_.write( fname, sKey::Pars ); \
 	ret += FilePath(rsfroot).add("bin").add("sfdd").fullPath(); \
 	ret += " form=ascii_float | "; \
-	ret += FilePath(GetBinPlfDir()).add("odmadexec").fullPath(); \
+	ret += FilePath(GetBinPlfDir()).add("od_madexec").fullPath(); \
 	ret += " "; ret += fname
 #else
     #define mAddNewExec \
 	BufferString fname = FilePath::getTempName( "par" ); \
 	pars_.write( fname, sKey::Pars ); \
 	ret += GetExecScript( false ); ret += " "; \
-	ret += "odmadexec"; ret += " "; ret += fname
+	ret += "od_madexec"; ret += " "; ret += fname
 #endif
 
 const char* ODMad::ProcExec::getProcString()

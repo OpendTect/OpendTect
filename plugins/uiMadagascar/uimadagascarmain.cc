@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.35 2010-02-16 04:45:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.36 2010-10-07 06:12:42 cvsnanne Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -34,7 +34,7 @@ const char* sKeySeisOutIDKey = "Output Seismics Key";
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	: uiFullBatchDialog(p,Setup("Madagascar processing")
-				   .procprognm("odmadexec")
+				   .procprognm("od_madexec")
 				   .modal(false))
 	, ctio_(*mMkCtxtIOObj(ODMadProcFlow))
 	, bldfld_(0)
