@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.1 2010-09-17 12:26:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.2 2010-10-07 16:01:34 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -91,14 +91,13 @@ void uiWellDisplay::setInitialSize()
     int initwidth = setup_.preflogsz_.width();
     int initheight = setup_.preflogsz_.height();
 
-    int width = logdisps_.size()*initwidth;
-    setPrefWidth( width ); 
-    setPrefHeight( initheight );
+    int newwidth = logdisps_.size()*initwidth;
     if ( stratdisp_ && setup_.displaystrat_ && !setup_.isstratbelow_ )
     {
-	width += (int)(logdisps_.size()*0.5)*initwidth;
-	stratdisp_->setPrefWidth( (int)(initwidth/2) );
-	stratdisp_->setMinimumWidth( (int)(initwidth/2) );
+	const int stratwidth = (int)(initwidth/2);
+	newwidth += stratwidth;
+	stratdisp_->setPrefWidth( stratwidth );
+	stratdisp_->setMinimumWidth( stratwidth );
     }
     for ( int idx=0; idx<logdisps_.size(); idx++ )
     {
@@ -106,7 +105,10 @@ void uiWellDisplay::setInitialSize()
 	logdisps_[idx]->setMinimumWidth( initwidth );
     }
 
-    size_ = uiSize( width, setup_.preflogsz_.height() ); 
+    setPrefWidth( newwidth ); 
+    setPrefHeight( initheight );
+
+    size_ = uiSize( newwidth, setup_.preflogsz_.height() ); 
 }
 
 
@@ -210,12 +212,13 @@ uiWellDisplayWin::uiWellDisplayWin(uiParent* p ,Well::Data& wd)
 
     setPrefWidth( 60 );
     setPrefHeight( 600 );
+
     welldisp_ = new uiWellDisplay( this, wd, su );
-    su.preflogsz_ = 60;
     welldisp_->control()->posChanged.notify(
 				    mCB(this,uiWellDisplayWin,dispInfoMsg) );
     wd_.tobedeleted.notify( mCB(this,uiWellDisplayWin,closeWin) );
     wd_.dispparschanged.notify( mCB(this,uiWellDisplayWin,updateProperties) );
+
     finaliseDone.notify(mCB(this,uiWellDisplayWin,mkInfoPanel));
 }
 
@@ -224,18 +227,18 @@ void uiWellDisplayWin::closeWin( CallBacker* )
 { close(); }
 
 
+void uiWellDisplayWin::dispInfoMsg( CallBacker* cb )
+{
+    mCBCapsuleUnpack(BufferString,mesg,cb);
+    statusBar()->message( mesg.buf() );
+}
+
+
 void uiWellDisplayWin::mkInfoPanel( CallBacker* )
 {
     wellinfo_ = new uiWellDispInfoPanel( this, *welldisp_ );
     wellinfo_->setInitialSize( uiSize(50,100) );
     wellinfo_->attach( alignedAbove, welldisp_ );
-}
-
-
-void uiWellDisplayWin::dispInfoMsg( CallBacker* cb )
-{
-    mCBCapsuleUnpack(BufferString,mesg,cb);
-    statusBar()->message( mesg.buf() );
 }
 
 

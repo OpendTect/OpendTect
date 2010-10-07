@@ -103,8 +103,6 @@ public:
     };
     TypeSet<PickData>&          zPicks()        { return zpicks_; }
 
-    void                        dataChanged();
-
 protected:
 
     LogData                     ld1_;
@@ -127,8 +125,6 @@ protected:
     ObjectSet<MarkerDraw>       markerdraws_;
     MarkerDraw*                 getMarkerDraw(const Well::Marker&);
 
-    void                        init(CallBacker*);
-    void                        reSized(CallBacker*);
     void                        gatherInfo();
     void                        draw();
 

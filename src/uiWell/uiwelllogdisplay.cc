@@ -66,7 +66,6 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     , ld1_(scene(),true,su)
     , ld2_(scene(),false,su)
 {
-    setStretch( 2, 2 );
     reSize.notify( mCB(this,uiWellLogDisplay,reSized) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
@@ -77,24 +76,6 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
 
 uiWellLogDisplay::~uiWellLogDisplay()
 {
-}
-
-
-void uiWellLogDisplay::reSized( CallBacker* )
-{
-    draw();
-}
-
-
-void uiWellLogDisplay::init( CallBacker* )
-{
-    dataChanged();
-}
-
-
-void uiWellLogDisplay::dataChanged()
-{
-    gatherInfo(); draw();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.54 2010-10-07 12:11:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.55 2010-10-07 15:56:58 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -197,7 +197,8 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	{
 	    Strat::LeavedUnitRef* newun = 
 				new Strat::LeavedUnitRef( parun, tmpun->code());
-	    IOPar iop; tmpun->putPropsTo( iop ); newun->getPropsFrom( iop );
+	    newun->setColor( tmpun->color() ); 
+	    newun->setTimeRange( tmpun->timeRange() );
 	    parun->add( newun );
 	    ensureUnitTimeOK( *newun );
 	    insertUnitInLVIT( lvit, *newun );
@@ -256,6 +257,7 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 	ObjectSet<Strat::LeavedUnitRef> units;
 	dlg.gatherUnits( units );
 
+	TypeSet<int> liths; liths += -1;
 	for ( int idx=0; idx<units.size(); idx++ )
 	{
 	    LeavedUnitRef& ur = *units[idx];
@@ -268,7 +270,6 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 	    else
 	    {
 		parnode->add( &ur );
-		TypeSet<int> liths; liths += -1;
 		insertUnitInLVIT( lvit->parent(), ur );
 		addLithologies( ur, liths );
 	    }
