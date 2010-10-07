@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.110 2010-10-06 12:22:25 cvskarthika Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.111 2010-10-07 09:14:14 cvskarthika Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -70,12 +70,13 @@ public:
 
 Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d, 
 			      const Attrib::Data2DHolder& dh,  int seriesid,
-			      Array2DImpl<float>& array, int attrib )
+			      Array2DImpl<float>* array, int attrib )
     : data2dh_( dh )
     , arr_( array )	
     , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
     , s2d_( s2d )
     , attrib_( attrib )
+    , outputptr_( 0 )
 {
     const int trnrsz = s2d_.geometry_.positions().size();
     for ( int idx=0; idx<trnrsz; idx++ )
@@ -85,6 +86,25 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
 }
 
       	
+Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d, 
+				  const Attrib::Data2DHolder& dh,  int seriesid,
+			      float* outptr, int sx, int sy, int attrib )
+    : data2dh_( dh )
+    , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
+    , s2d_( s2d )
+    , attrib_( attrib )
+    , outputptr_( outptr )
+    , sx_( sx )
+    , sy_ (sy )
+{
+    const int trnrsz = s2d_.geometry_.positions().size();
+    for ( int idx=0; idx<trnrsz; idx++ )
+	trcnrs_ += s2d_.geometry_.positions()[idx].nr_;
+    
+    quickSort( trcnrs_.arr() , trnrsz );
+}
+
+
 od_int64 nrIterations() const { return data2dh_.size(); }
 
 private:
@@ -111,9 +131,14 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const TypeSet<int>& allpos = s2d_.trcdisplayinfo_.alltrcnrs;
     const int starttrcidx = allpos.indexOf( s2d_.trcdisplayinfo_.rg.start );
 
-    const bool usez0 = s2d_.datatransform_ || zrg.start <= sd.start; 
-    const int trcsz = arr_.info().getSize(0);
-    const int arrzsz = arr_.info().getSize(1);
+    const bool usez0 = s2d_.datatransform_ || zrg.start <= sd.start;
+
+    if ( !outputptr_ )
+    {
+	sx_ = arr_->info().getSize(0);
+	sy_ = arr_->info().getSize(1);
+    }
+
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const int trcnr = data2dh_.trcinfoset_[idx]->nr;
@@ -125,7 +150,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	const DataHolder* dh = data2dh_.dataset_[idx];
 	const int trcidx = allpos.indexOf( trcnr ) - starttrcidx;
-	if ( !dh ||  trcidx < 0 || trcidx >= trcsz )
+	if ( !dh ||  trcidx < 0 || trcidx >= sx_ )
 	{
 	    addToNrDone( 1 );
 	    continue;
@@ -137,7 +162,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	{
 	    const int smp = firstdhsample+idy;
 	    const int arrzidx = arraysrg.getIndex( smp+shift );
-	    if ( arrzidx<0 || arrzidx>=arrzsz ) 
+	    if ( arrzidx<0 || arrzidx>=sy_ ) 
 	    {
 		addToNrDone( 1 );
 		continue;
@@ -148,7 +173,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		? dataseries->value( validx )
 		: mUdf(float);
 	   
-	    arr_.set( trcidx, arrzidx, val );
+		if ( outputptr_ )
+			*( outputptr_ + (trcidx * sy_) + arrzidx ) = val ;
+		else
+			arr_->set( trcidx, arrzidx, val );
 	}
 
 	addToNrDone( 1 );
@@ -157,7 +185,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     return true;
 }
    
-    Array2DImpl<float>&			arr_;
+    Array2DImpl<float>*			arr_;
+    float*				outputptr_;
+    int					sx_, sy_;	// size of output array
     const Attrib::Data2DHolder&		data2dh_;
     const Seis2DDisplay&		s2d_;
     const int				valseridx_;
@@ -172,12 +202,13 @@ class Seis2DArray : public Array2D<float>
 public:
 
 Seis2DArray( const Seis2DDisplay& s2d, const Attrib::Data2DHolder& d2dh,
-	     const StepInterval<float>& arrayzrg )
+	     const StepInterval<float>& arrayzrg, int attrib )
     		    : s2d_( s2d )
 		    , data2dh_( d2dh )
 		    , arrayzrg_( arrayzrg )
 		    , info_( *new Array2DInfoImpl( data2dh_.size(),
 				data2dh_.dataset_[0]->nrsamples_ ) )
+		    , attrib_( attrib )
 {}
 
 // allocate memory and copy data
@@ -198,6 +229,11 @@ void set( int idx0, int idx1, float val )
 
 float get( int idx0, int idx1 ) const; 
 
+void getAll(float* ptr) const;
+
+void getAll(ValueSeries<float>& vs) const;
+
+
 const Array2DInfo& info() const	
 { 
     // note: size given by info is the maximum; not all elements might be used.
@@ -213,21 +249,40 @@ protected:
     const Attrib::Data2DHolder&		data2dh_;
     const StepInterval<float>&		arrayzrg_;
     Array2DInfoImpl&			info_;
+    int					attrib_;
 
 };
+
+
+// Fills ptr with values from array. ptr is assumed to be allocated with
+// info().getTotalSz() number of values.
+void Seis2DArray::getAll(float* ptr) const
+{
+    Seis2DTextureDataArrayFiller arrayfiller( s2d_, data2dh_, s2d_.seriesidx_, 
+	    ptr, info().getSize(0), info().getSize(1), attrib_ );
+    arrayfiller.execute();
+}
+
+
+// Fills vs with values from array.
+void Seis2DArray::getAll(ValueSeries<float>& vs) const
+{
+    // TODO
+    
+}
 
 
 float Seis2DArray::get( int idx0, int idx1 ) const
 {
     // TODO check
-	
-	// a couple of checks first
+
+    // a couple of checks first
     if ( s2d_.seriesidx_ < 0 )
 	return mUdf(float);
 
     if ( idx0 < 0 || idx0 >= info().getSize(0) || idx1 < 0 ||
 		    idx1 >= info().getSize(1) )
-	    return mUdf(float);
+	return mUdf(float);
 
     const SamplingData<float>& sd = data2dh_.trcinfoset_[0]->sampling;
     const float firstz = data2dh_.dataset_[0]->z0_ * sd.step;
@@ -576,7 +631,7 @@ void Seis2DDisplay::setData( int attrib,
 	channels_->setNrVersions( attrib, nrseries );
 
 #ifndef mUseTextureDataArrayFiller
-    Seis2DArray arr( *this, data2dh, arrayzrg );
+    Seis2DArray arr( *this, data2dh, arrayzrg, attrib );
 #endif
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
@@ -587,7 +642,7 @@ void Seis2DDisplay::setData( int attrib,
 	arr->setAll( mUdf(float) );
 
 	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, seriesidx_, 
-		*arr, attrib );
+		arr, attrib );
 	if ( !arrayfiller.execute() )
 	    continue;
 #endif
