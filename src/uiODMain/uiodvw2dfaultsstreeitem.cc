@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.6 2010-10-06 15:21:45 cvsjaap Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.7 2010-10-07 06:03:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,11 +45,9 @@ uiODVw2DFaultSSParentTreeItem::~uiODVw2DFaultSSParentTreeItem()
 bool uiODVw2DFaultSSParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&New ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&New"), 0 );
     mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
-    handleSubMenu( mnu.exec() );
-    
-    return true;
+    return handleSubMenu( mnu.exec() );
 }
 
 
@@ -86,7 +84,6 @@ bool uiODVw2DFaultSSParentTreeItem::init()
 {
     applMgr()->EMServer()->tempobjAdded.notify(
 	    mCB(this,uiODVw2DFaultSSParentTreeItem,tempObjAddedCB) );
-
     return true;
 }
 
@@ -96,8 +93,6 @@ void uiODVw2DFaultSSParentTreeItem::tempObjAddedCB( CallBacker* cb )
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
-    if ( !emobj ) return;
-
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
     if ( !fss ) return;
 
@@ -106,6 +101,7 @@ void uiODVw2DFaultSSParentTreeItem::tempObjAddedCB( CallBacker* cb )
 
     addChild( new uiODVw2DFaultSSTreeItem(emid),false,false);
 }
+
 
 
 uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( const EM::ObjectID& emid )
@@ -211,7 +207,7 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Save ..."), 0 );
-    mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 1 );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
@@ -222,16 +218,13 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
 	    savewithname = !ioobj;
 	}
+
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
 	name_ = applMgr()->EMServer()->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	return true;
     }
     else if ( mnuid == 1 )
-    {
 	parent_->removeChild( this );
-	return true;
-    }
 
     return true;
 }
@@ -259,14 +252,11 @@ void uiODVw2DFaultSSTreeItem::checkCB( CallBacker* )
 void uiODVw2DFaultSSTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
+    if ( emid != emid_ ) return;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
-    if ( !emobj ) return;
+    mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
+    if ( !fss ) return;
 
-     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
-     if ( !fss ) return;
-
-     if ( emid != emid_ ) return;
-
-     parent_->removeChild( this );
+    parent_->removeChild( this );
 }

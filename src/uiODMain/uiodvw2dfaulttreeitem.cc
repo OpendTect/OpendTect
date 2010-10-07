@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.6 2010-10-06 15:21:45 cvsjaap Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.7 2010-10-07 06:03:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,13 +17,13 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
-#include "pixmap.h"
 
 #include "emfault3d.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "pixmap.h"
 #include "randcolor.h"
 
 #include "visvw2dfault.h"
@@ -46,11 +46,9 @@ uiODVw2DFaultParentTreeItem::~uiODVw2DFaultParentTreeItem()
 bool uiODVw2DFaultParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&New ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&New"), 0 );
     mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
-    handleSubMenu( mnu.exec() );
-
-    return true;
+    return handleSubMenu( mnu.exec() );
 }
 
 
@@ -97,15 +95,13 @@ void uiODVw2DFaultParentTreeItem::tempObjAddedCB( CallBacker* cb )
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
-    if ( !emobj ) return;
-
     mDynamicCastGet(EM::Fault3D*,f3d,emobj);
     if ( !f3d ) return;
 
     if ( findChild(applMgr()->EMServer()->getName(emid)) )
 	return;
 
-    addChild( new uiODVw2DFaultTreeItem(emid),false,false);
+    addChild( new uiODVw2DFaultTreeItem(emid), false, false );
 }
 
 
@@ -171,7 +167,6 @@ void uiODVw2DFaultTreeItem::displayMiniCtab()
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( emobj->preferredColor() );
-
     uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
@@ -205,7 +200,6 @@ bool uiODVw2DFaultTreeItem::select()
 
     viewer2D()->dataMgr()->setSelected( faultview_ );
     faultview_->selected();
-
     return true;
 }
 
@@ -214,7 +208,7 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Save ..."), 0 );
-    mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 1 );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
@@ -225,16 +219,13 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
 	    savewithname = !ioobj;
 	}
+
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
 	name_ = applMgr()->EMServer()->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	return true;
     }
     else if ( mnuid == 1 )
-    {
 	parent_->removeChild( this );
-	return true;
-    }
 
     return true;
 }
@@ -244,7 +235,6 @@ void uiODVw2DFaultTreeItem::updateCS( const CubeSampling& cs, bool upd )
 {
     if ( upd )
 	faultview_->draw();
-
 }
 
 
@@ -263,14 +253,11 @@ void uiODVw2DFaultTreeItem::checkCB( CallBacker* )
 void uiODVw2DFaultTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
+    if ( emid != emid_ ) return;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
-    if ( !emobj ) return;
-
     mDynamicCastGet(EM::Fault3D*,f3d,emobj);
     if ( !f3d ) return;
-
-    if ( emid != emid_ ) return;
 
     parent_->removeChild( this );
 }

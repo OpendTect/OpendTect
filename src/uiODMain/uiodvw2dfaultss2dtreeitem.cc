@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.8 2010-10-06 15:21:45 cvsjaap Exp $
+ RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.9 2010-10-07 06:03:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,11 +47,9 @@ uiODVw2DFaultSS2DParentTreeItem::~uiODVw2DFaultSS2DParentTreeItem()
 bool uiODVw2DFaultSS2DParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&New ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&New"), 0 );
     mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
-    handleSubMenu( mnu.exec() );
-
-    return true;
+    return handleSubMenu( mnu.exec() );
 }
 
 
@@ -73,7 +71,6 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaultStickSets( objs );
-
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    addChild( new uiODVw2DFaultSS2DTreeItem(
 					objs[idx]->id()), false, false);
@@ -89,7 +86,6 @@ bool uiODVw2DFaultSS2DParentTreeItem::init()
 {
     applMgr()->EMServer()->tempobjAdded.notify(
 	    mCB(this,uiODVw2DFaultSS2DParentTreeItem,tempObjAddedCB) );
-    
     return true;
 }
 
@@ -99,14 +95,12 @@ void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
     
     EM::EMObject* emobj = EM::EMM().getObject( emid );
-    if ( !emobj ) return;
-    
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
     if ( !fss ) return;
 
     if ( findChild(applMgr()->EMServer()->getName(emid)) )
 	return;
-    
+
     addChild( new uiODVw2DFaultSS2DTreeItem(emid),false,false);
 }
 
@@ -179,7 +173,6 @@ void uiODVw2DFaultSS2DTreeItem::displayMiniCtab()
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( emobj->preferredColor() );
-
     uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
@@ -212,7 +205,6 @@ bool uiODVw2DFaultSS2DTreeItem::select()
 
     viewer2D()->dataMgr()->setSelected( fssview_ );
     fssview_->selected();
-
     return true;
 }
 
@@ -221,7 +213,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Save ..."), 0 );
-    mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 1 );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
@@ -232,15 +224,13 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
 	    savewithname = !ioobj;
 	}
+
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
 	name_ = applMgr()->EMServer()->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	return true;
     }
     else if ( mnuid == 1 )
-    {
 	parent_->removeChild( this );
-    }
 
     return true;
 }
@@ -261,13 +251,11 @@ void uiODVw2DFaultSS2DTreeItem::checkCB( CallBacker* )
 void uiODVw2DFaultSS2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
-    
+    if ( emid != emid_ ) return;
+
     EM::EMObject* emobj = EM::EMM().getObject( emid );
-    if ( !emobj ) return;
-    
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
     if ( !fss ) return;
-    
-    if ( emid != emid_ ) return;
+
     parent_->removeChild( this );
 }

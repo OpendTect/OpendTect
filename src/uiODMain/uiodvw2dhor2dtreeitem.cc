@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.10 2010-09-28 06:02:31 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.11 2010-10-07 06:03:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uivispartserv.h"
-#include "pixmap.h"
 
 #include "emhorizon2d.h"
 #include "emmanager.h"
@@ -32,6 +31,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "mouseevent.h"
+#include "pixmap.h"
 
 #include "visseis2ddisplay.h"
 #include "visvw2ddataman.h"
@@ -56,8 +56,7 @@ bool uiODVw2DHor2DParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&New ..."), 0 );
     mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
-    handleSubMenu( mnu.exec() );
-    return true;
+    return handleSubMenu( mnu.exec() );
 }
 
 
@@ -140,7 +139,7 @@ uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
 	meh->buttonPressed.remove(
 		mCB(this,uiODVw2DHor2DTreeItem,mousePressInVwrCB) );
 	meh->buttonReleased.remove(
-		mCB(this,uiODVw2DHor2DTreeItem,musReleaseInVwrCB) );
+		mCB(this,uiODVw2DHor2DTreeItem,mouseReleaseInVwrCB) );
     }
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -172,7 +171,7 @@ bool uiODVw2DHor2DTreeItem::init()
 	meh->buttonPressed.notify(
 		mCB(this,uiODVw2DHor2DTreeItem,mousePressInVwrCB) );
 	meh->buttonReleased.notify(
-		mCB(this,uiODVw2DHor2DTreeItem,musReleaseInVwrCB) );
+		mCB(this,uiODVw2DHor2DTreeItem,mouseReleaseInVwrCB) );
     }
 
     horview_ = new Vw2DHorizon2D( emid_, viewer2D()->viewwin(),
@@ -206,7 +205,6 @@ void uiODVw2DHor2DTreeItem::displayMiniCtab()
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( emobj->preferredColor() );
-
     uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
@@ -239,8 +237,8 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("&Save ... "), 0 );
     mnu.insertItem( new uiMenuItem("&Remove"), 1 );
 
-    const int res = mnu.exec();
-    if ( res == 0 )
+    const int mnuid = mnu.exec();
+    if ( mnuid == 0 )
     {
 	bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
 	if ( !savewithname )
@@ -255,10 +253,8 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	name_ = applMgr()->EMServer()->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
-    else if ( res == 1 )
-    {
+    else if ( mnuid == 1 )
 	parent_->removeChild( this );
-    }
 
     return true;
 }
@@ -321,6 +317,6 @@ void uiODVw2DHor2DTreeItem::mousePressInVwrCB( CallBacker* )
 }
 
 
-void uiODVw2DHor2DTreeItem::musReleaseInVwrCB( CallBacker* )
+void uiODVw2DHor2DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 {
 }

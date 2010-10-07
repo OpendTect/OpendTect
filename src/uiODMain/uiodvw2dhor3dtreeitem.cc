@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.8 2010-10-06 15:21:45 cvsjaap Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.9 2010-10-07 06:03:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uivispartserv.h"
-#include "pixmap.h"
 
 #include "attribdatapack.h"
 #include "emhorizon3d.h"
@@ -32,8 +31,9 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "mpeengine.h"
 #include "mouseevent.h"
+#include "mpeengine.h"
+#include "pixmap.h"
 
 #include "visvw2ddataman.h"
 #include "visvw2dhorizon3d.h"
@@ -55,7 +55,7 @@ uiODVw2DHor3DParentTreeItem::~uiODVw2DHor3DParentTreeItem()
 bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&New ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&New"), 0 );
     mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
     handleSubMenu( mnu.exec() );
     return true;
@@ -95,7 +95,6 @@ bool uiODVw2DHor3DParentTreeItem::init()
 {
     applMgr()->EMServer()->tempobjAdded.notify(
 	    mCB(this,uiODVw2DHor3DParentTreeItem,tempObjAddedCB) );
-
     return true;
 }
 
@@ -105,8 +104,6 @@ void uiODVw2DHor3DParentTreeItem::tempObjAddedCB( CallBacker* cb )
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
-    if ( !emobj ) return;
-
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return;
 
@@ -115,6 +112,7 @@ void uiODVw2DHor3DParentTreeItem::tempObjAddedCB( CallBacker* cb )
 
     addChild( new uiODVw2DHor3DTreeItem(emid), false, false);    
 }
+
 
 
 uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )
@@ -142,7 +140,7 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 	meh->buttonPressed.remove(
 		mCB(this,uiODVw2DHor3DTreeItem,mousePressInVwrCB) );
 	meh->buttonReleased.remove(
-		mCB(this,uiODVw2DHor3DTreeItem,musReleaseInVwrCB) );
+		mCB(this,uiODVw2DHor3DTreeItem,mouseReleaseInVwrCB) );
 	meh->buttonReleased.remove(
 		mCB(this,uiODVw2DHor3DTreeItem,msRelEvtCompletedInVwrCB) );
     }
@@ -176,7 +174,7 @@ bool uiODVw2DHor3DTreeItem::init()
 	meh->buttonPressed.notify(
 		mCB(this,uiODVw2DHor3DTreeItem,mousePressInVwrCB) );
 	meh->buttonReleased.notify(
-		mCB(this,uiODVw2DHor3DTreeItem,musReleaseInVwrCB) );
+		mCB(this,uiODVw2DHor3DTreeItem,mouseReleaseInVwrCB) );
     }
 
     horview_ = new Vw2DHorizon3D( emid_, viewer2D()->viewwin(),
@@ -216,7 +214,6 @@ void uiODVw2DHor3DTreeItem::displayMiniCtab()
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( emobj->preferredColor() );
-
     uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
@@ -278,7 +275,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Save ... "), 0 );
-    mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 1 );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
@@ -289,17 +286,15 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
 	    savewithname = !ioobj;
 	}
+
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
 	const MultiID mid = applMgr()->EMServer()->getStorageID(emid_);
 	applMgr()->mpeServer()->saveSetup( mid );
 	name_ = applMgr()->EMServer()->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	return true;
     }
     else if ( mnuid == 1 )
-    {
 	parent_->removeChild( this );
-    }
 
     return true;
 }
@@ -334,14 +329,11 @@ void uiODVw2DHor3DTreeItem::updateCS( const CubeSampling& cs, bool upd )
 void uiODVw2DHor3DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
+    if ( emid != emid_ ) return;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
-    if ( !emobj ) return;
-
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return;
-
-    if ( emid != emid_ ) return;
 
     parent_->removeChild( this );
 }
@@ -361,7 +353,7 @@ void uiODVw2DHor3DTreeItem::mousePressInVwrCB( CallBacker* )
 }
 
 
-void uiODVw2DHor3DTreeItem::musReleaseInVwrCB( CallBacker* )
+void uiODVw2DHor3DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 {
     if ( !uilistviewitem_->isSelected() || !horview_ )
 	return;
@@ -393,10 +385,8 @@ void uiODVw2DHor3DTreeItem::musReleaseInVwrCB( CallBacker* )
 
 void uiODVw2DHor3DTreeItem::msRelEvtCompletedInVwrCB( CallBacker* )
 {
-    if ( !uilistviewitem_->isSelected() || !horview_ )
-	return;
-
-    if ( !viewer2D()->viewwin()->nrViewers() )
+    if ( !uilistviewitem_->isSelected() || !horview_ ||
+	 !viewer2D()->viewwin()->nrViewers() )
 	return;
 
     if ( oldactivevolupdated_ )
