@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.54 2010-10-04 17:11:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.55 2010-10-07 14:04:49 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -249,7 +249,7 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
 {
     const char* dlgtit = "Save the stratigraphy at:";
     const char* helpid = 0;
-    uiDialog savedlg( parent_, uiDialog::Setup( "Save Stratigraphy",
+    uiDialog savedlg( this, uiDialog::Setup( "Save Stratigraphy",
 		    dlgtit, helpid ) );
     BufferStringSet bfset( infolvltrs );
     uiListBox saveloclist( &savedlg, bfset );
