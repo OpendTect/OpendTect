@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: remjobexec.cc,v 1.3 2010-09-13 08:24:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: remjobexec.cc,v 1.4 2010-10-07 07:55:26 cvsnanne Exp $";
 
 
 #include "remjobexec.h"
@@ -73,7 +73,7 @@ void RemoteJobExec::ckeckConnection()
 void RemoteJobExec::uiErrorMsg( const char* msg )
 {
     FilePath fp( GetBinPlfDir() );
-    fp.add( "DispMsg" );
+    fp.add( "od_DispMsg" );
 
     BufferString cmd = fp.fullPath();
     cmd += " --err ";
