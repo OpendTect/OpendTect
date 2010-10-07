@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.40 2010-10-06 08:51:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.41 2010-10-07 04:14:57 cvsumesh Exp $";
 
 #include "emhorizon2d.h"
 
@@ -92,12 +92,12 @@ const MultiID& Horizon2DGeometry::lineSet( int lid ) const
 int Horizon2DGeometry::addLine( const MultiID& linesetid, const char* line,
        				int step )
 {
-    linenames_.add( line );
-    linesets_ += linesetid;
-
     PtrMan<IOObj> ioobj = IOM().get( linesetid );
     if ( !ioobj )
 	return -1;
+
+    linenames_.add( line );
+    linesets_ += linesetid;
 
     PosInfo::POS2DAdmin().setCurLineSet( ioobj->name() );
     PosInfo::Line2DData linegeom( line );

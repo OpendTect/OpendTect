@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor3d.cc,v 1.5 2010-09-15 05:56:03 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor3d.cc,v 1.6 2010-10-07 04:14:57 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -374,7 +374,7 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
     const Attrib::SelSpec* as = 0;
     as = picinvd ? vdselspec_ : wvaselspec_;
 
-    if ( !seedpicker.startSeedPick() )
+    if ( !seedpicker.canAddSeed() )
 	return false;
 
     NotifyStopper notifystopper( MPE::engine().activevolumechange );

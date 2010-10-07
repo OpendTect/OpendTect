@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon2d.cc,v 1.5 2010-09-16 10:08:33 cvsumesh Exp $
+ RCS:		$Id: visvw2dhorizon2d.cc,v 1.6 2010-10-07 04:14:57 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,12 +171,7 @@ void Vw2DHorizon2D::selected( bool enabled )
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
 
     if ( !tracker ) return;
-
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-    seedpicker->startSeedPick();
-
 }
-
 
 void Vw2DHorizon2D::setSeedPicking( bool ison )
 {

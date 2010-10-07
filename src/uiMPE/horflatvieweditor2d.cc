@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.cc,v 1.6 2010-09-29 03:48:48 cvssatyaki Exp $
+ RCS:		$Id: horflatvieweditor2d.cc,v 1.7 2010-10-07 04:14:57 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -409,7 +409,7 @@ bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
     const Attrib::SelSpec* as = 0;
     as = picinvd ? vdselspec_ : wvaselspec_;
 
-    if ( !seedpicker.startSeedPick() )
+    if ( !seedpicker.canAddSeed() )
 	return false;
 
     MPE::engine().setActive2DLine( lsetid_, linenm_ );
@@ -557,6 +557,9 @@ bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
     }
 
     PosInfo::Line2DPos pos;
+    if ( !linesetgeom.getLineData( linenm_ ) )
+	return false;
+
     linesetgeom.getLineData( linenm_ )->getPos( crd, pos, mDefEps );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj);
 
