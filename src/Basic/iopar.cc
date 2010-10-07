@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.82 2010-03-17 19:03:26 cvskris Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.83 2010-10-07 05:52:05 cvsnanne Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -553,6 +553,7 @@ static bool iopget_typeset( const IOPar& iop, const char* s, TypeSet<T>& res )
     const char* ptr = iop.find(s); \
     if ( !ptr || !*ptr ) return false;
 
+    res.erase();
     int keyidx = 0;
     while ( ptr && *ptr )
     {
