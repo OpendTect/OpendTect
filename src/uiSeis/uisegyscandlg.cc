@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.29 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.30 2010-10-07 06:35:33 cvsnanne Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -172,7 +172,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
 	pars_.set( sKey::Output, ctio_.ioobj->key() );
 	pars_.set( sKey::LineName, lnm );
-	uiBatchLaunch launcher( this, pars_, 0, "process_segyio", false );
+	uiBatchLaunch launcher( this, pars_, 0, "od_process_segyio", false );
 	launcher.setParFileName( parfilefld_->text() );
 
 	return launcher.go();

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.14 2010-09-15 09:01:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.15 2010-10-07 06:35:33 cvsnanne Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.14 2010-09-15 09:
 uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     : uiFullBatchDialog( p,
 	uiFullBatchDialog::Setup("Time to depth volume conversion")
-	    .procprognm("process_time2depth" ) )
+	    .procprognm("od_process_time2depth" ) )
 {
     setTitleText( "Time/Depth conversion" );
     setHelpID( "103.2.12" );
