@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.111 2010-10-07 09:14:14 cvskarthika Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.112 2010-10-07 21:05:59 cvskarthika Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -47,9 +47,10 @@ static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.111 2010-10-07 09:14:14
 #include "vistexture2.h"
 
 #define mMaxImageSize 300000000	// 32767
-// Comment this out to make use of Seis2DArray and consume less memory in 
-// setData (will slow down loading!)
-#define mUseTextureDataArrayFiller
+
+// Define mUseSeis2DArray to make use of Seis2DArray and consume less memory in 
+// setData. Undefine it to makes use of Seis2DTextureDataArrayFiller alone.
+#define mUseSeis2DArray
 
 mCreateFactoryEntry( visSurvey::Seis2DDisplay );
 
@@ -78,16 +79,11 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
     , attrib_( attrib )
     , outputptr_( 0 )
 {
-    const int trnrsz = s2d_.geometry_.positions().size();
-    for ( int idx=0; idx<trnrsz; idx++ )
-	trcnrs_ += s2d_.geometry_.positions()[idx].nr_;
-    
-    quickSort( trcnrs_.arr() , trnrsz );
 }
 
       	
 Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d, 
-				  const Attrib::Data2DHolder& dh,  int seriesid,
+			      const Attrib::Data2DHolder& dh, int seriesid,
 			      float* outptr, int sx, int sy, int attrib )
     : data2dh_( dh )
     , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
@@ -97,11 +93,6 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
     , sx_( sx )
     , sy_ (sy )
 {
-    const int trnrsz = s2d_.geometry_.positions().size();
-    for ( int idx=0; idx<trnrsz; idx++ )
-	trcnrs_ += s2d_.geometry_.positions()[idx].nr_;
-    
-    quickSort( trcnrs_.arr() , trnrsz );
 }
 
 
@@ -169,9 +160,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	    
 	    const int validx = usez0 ? smp : smp+shift-dh->z0_;
-	    const float val = dh->dataPresent(smp+shift)
-		? dataseries->value( validx )
-		: mUdf(float);
+		const float val = ( dh->dataPresent(smp+shift) ) ?
+			dataseries->value( validx ) : mUdf(float);
 	   
 		if ( outputptr_ )
 			*( outputptr_ + (trcidx * sy_) + arrzidx ) = val ;
@@ -191,7 +181,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const Attrib::Data2DHolder&		data2dh_;
     const Seis2DDisplay&		s2d_;
     const int				valseridx_;
-    TypeSet<int>			trcnrs_;
     int					attrib_;
 };
 
@@ -206,16 +195,11 @@ Seis2DArray( const Seis2DDisplay& s2d, const Attrib::Data2DHolder& d2dh,
     		    : s2d_( s2d )
 		    , data2dh_( d2dh )
 		    , arrayzrg_( arrayzrg )
-		    , info_( *new Array2DInfoImpl( data2dh_.size(),
-				data2dh_.dataset_[0]->nrsamples_ ) )
+		    , info_( *new Array2DInfoImpl( s2d_.trcdisplayinfo_.size,
+				arrayzrg.nrSteps()+1 ) )
 		    , attrib_( attrib )
 {}
 
-// allocate memory and copy data
-bool copyElements( Array2D<float> *arr )
-{
-    return false;    
-}
 
 ~Seis2DArray()
 {
@@ -237,6 +221,7 @@ void getAll(ValueSeries<float>& vs) const;
 const Array2DInfo& info() const	
 { 
     // note: size given by info is the maximum; not all elements might be used.
+    // (getAll takes care of filling with undef. value).
     return info_; 
 }
 
@@ -258,6 +243,15 @@ protected:
 // info().getTotalSz() number of values.
 void Seis2DArray::getAll(float* ptr) const
 {
+    // set the entire memory block to undef value first, since the filler 
+    // might not fill in all elements
+    MemSetter<float> memsetter;
+    memsetter.setSize( info().getSize(0) * info().getSize(1) );
+    memsetter.setValue( mUdf(float) );
+    memsetter.setTarget( ptr );
+    memsetter.execute();
+
+    // make use of the filler to fill up elements quickly
     Seis2DTextureDataArrayFiller arrayfiller( s2d_, data2dh_, s2d_.seriesidx_, 
 	    ptr, info().getSize(0), info().getSize(1), attrib_ );
     arrayfiller.execute();
@@ -268,14 +262,11 @@ void Seis2DArray::getAll(float* ptr) const
 void Seis2DArray::getAll(ValueSeries<float>& vs) const
 {
     // TODO
-    
 }
 
 
 float Seis2DArray::get( int idx0, int idx1 ) const
 {
-    // TODO check
-
     // a couple of checks first
     if ( s2d_.seriesidx_ < 0 )
 	return mUdf(float);
@@ -612,7 +603,7 @@ void Seis2DDisplay::setData( int attrib,
     arrayzrg.step = sd.step;
     const int arrzsz = arrayzrg.nrSteps()+1;
 
-#ifdef mUseTextureDataArrayFiller
+#ifndef mUseSeis2DArray
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, arr,
 	    Array2DImpl<float>( trcdisplayinfo_.size, arrzsz ) );
     if ( !arr->isOK() )
@@ -630,7 +621,7 @@ void Seis2DDisplay::setData( int attrib,
     else
 	channels_->setNrVersions( attrib, nrseries );
 
-#ifndef mUseTextureDataArrayFiller
+#ifdef mUseSeis2DArray
     Seis2DArray arr( *this, data2dh, arrayzrg, attrib );
 #endif
 
@@ -638,7 +629,7 @@ void Seis2DDisplay::setData( int attrib,
 
     for ( seriesidx_=0; seriesidx_<nrseries; seriesidx_++ )
     {
-#ifdef mUseTextureDataArrayFiller
+#ifndef mUseSeis2DArray
 	arr->setAll( mUdf(float) );
 
 	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, seriesidx_, 
@@ -652,10 +643,10 @@ void Seis2DDisplay::setData( int attrib,
 	PtrMan<Array2D<float> > tmparr = 0;
 	Array2D<float>* usedarr = 0;
 	if ( alreadytransformed || !datatransform_ )
-#ifdef mUseTextureDataArrayFiller
-            usedarr = arr;
-#else
+#ifdef mUseSeis2DArray
 	    usedarr = &arr;
+#else
+            usedarr = arr;
 #endif
 	else
 	{
@@ -686,10 +677,10 @@ void Seis2DDisplay::setData( int attrib,
 
 	    for ( int crlidx=0; crlidx<trcdisplayinfo_.size; crlidx++ )
 	    {
-#ifdef 	mUseTextureDataArrayFiller
-	        Array1DSlice<float> slice( *arr );
+#ifdef 	mUseSeis2DArray
+	        Array1DSlice<float> slice( arr );    
 #else
-		Array1DSlice<float> slice( arr );
+	        Array1DSlice<float> slice( *arr );		
 #endif
 		slice.setDimMap( 0, 1 );
 		slice.setPos( 0, crlidx+startidx );
