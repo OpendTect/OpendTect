@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.cc,v 1.4 2010-09-07 05:40:28 cvsnanne Exp $
+ RCS:		$Id: uicreate2dgrid.cc,v 1.5 2010-10-07 06:18:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -418,7 +418,7 @@ bool ui2DGridLinesFromRandLine::fillPar( IOPar& par ) const
 
 uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
     : uiFullBatchDialog(p,uiFullBatchDialog::Setup("Create 2D Seismic grid")
-			  .procprognm("process_2dgrid"))
+			  .procprognm("od_process_2dgrid"))
     , sourceselfld_(0),inlcrlgridgrp_(0)
     , cs_(*new CubeSampling(true))
 {

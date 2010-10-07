@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.11 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.12 2010-10-07 06:18:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ namespace EM
 
 /*! \brief
 Group of utilities for horizons : here are all functions required in 
-process_attrib_em for computing data on, along or between 2 horizons.
+od_process_attrib_em for computing data on, along or between 2 horizons.
 */
 
 class Surface;

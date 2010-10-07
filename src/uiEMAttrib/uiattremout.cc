@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattremout.cc,v 1.12 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattremout.cc,v 1.13 2010-10-07 06:18:39 cvsnanne Exp $";
 
 
 #include "uiattremout.h"
@@ -29,7 +29,7 @@ using namespace Attrib;
 uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
 			  const NLAModel* n, const MultiID& mid,
 			  const char* dlgnm )
-    : uiFullBatchDialog(p,Setup(dlgnm).procprognm("process_attrib_em"))
+    : uiFullBatchDialog(p,Setup(dlgnm).procprognm("od_process_attrib_em"))
     , ads_(const_cast<DescSet&>(ad))
     , nlamodel_(n)
     , nlaid_(mid)
