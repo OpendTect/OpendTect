@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.43 2010-10-06 13:47:58 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.44 2010-10-07 15:13:42 cvsjaap Exp $";
 
 #include "vismpeeditor.h"
 
@@ -585,6 +585,9 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo )
 	mReturnHandled( false );
 
     if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
+	mReturnHandled( false );
+
+    if ( eventinfo.buttonstate_ & OD::RightButton )
 	mReturnHandled( false );
 
     mode_ = Furrowing;

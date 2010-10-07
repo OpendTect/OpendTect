@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.36 2010-10-06 13:50:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.37 2010-10-07 15:13:42 cvsjaap Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -738,6 +738,9 @@ void Sower::setView( const Rect& curview,const Geom::Rectangle<int>& mousearea )
 bool Sower::activate( const Color& color, const MouseEvent& mouseevent )
 {
     if ( mode_ != Idle )
+	mReturnHandled( false );
+
+    if ( mouseevent.rightButton() )
 	mReturnHandled( false );
 
     if ( editor_.dataSetIdxAt(mouseevent.pos()) >= 0 )
