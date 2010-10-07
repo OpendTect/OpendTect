@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.49 2010-09-30 15:14:44 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.50 2010-10-07 19:44:28 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -335,7 +335,11 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
 		if ( dobrowsedip_ )
 		{
-		    float dist = pair || desc_.is2D() ? distcrl_ : distinl_;
+		    float di = abs(trcpos_[idx1].inl - trcpos_[idx0].inl)
+				* inldist();
+		    float dc = abs(trcpos_[idx1].crl - trcpos_[idx0].crl)
+				* crldist();
+		    float dist = Math::Sqrt( di*di + dc*dc );
 		    s1 += (curdip * dist)/refstep_;
 		}
 
