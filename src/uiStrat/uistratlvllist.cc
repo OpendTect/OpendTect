@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvllist.cc,v 1.6 2010-10-01 15:04:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvllist.cc,v 1.7 2010-10-07 15:51:39 cvsbruno Exp $";
 
 #include "uistratlvllist.h"
 
@@ -22,14 +22,14 @@ static const char* sNoLevelTxt      = "--- Empty ---";
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
     : uiLabeledListBox(p,"Regional markers",false,uiLabeledListBox::AboveMid)
-    , levelset_(Strat::eLVLS())
 {
+    Strat::LevelSet& levelset = Strat::eLVLS();
     box()->setStretch( 2, 2 );
     box()->setFieldWidth( 10 );
     box()->rightButtonClicked.notify( mCB(this,uiStratLvlList,rClickLvlCB));
-    levelset_.levelChanged.notify( mCB(this,uiStratLvlList,fill) );
-    levelset_.levelAdded.notify( mCB(this,uiStratLvlList,fill) );
-    levelset_.levelToBeRemoved.notify( mCB(this,uiStratLvlList,fill) );
+    levelset.levelChanged.notify( mCB(this,uiStratLvlList,fill) );
+    levelset.levelAdded.notify( mCB(this,uiStratLvlList,fill) );
+    levelset.levelToBeRemoved.notify( mCB(this,uiStratLvlList,removeLvl) );
 
     fill(0);
 }
@@ -37,15 +37,17 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
 
 uiStratLvlList::~uiStratLvlList()
 {
-    levelset_.levelChanged.remove( mCB(this,uiStratLvlList,fill) );
-    levelset_.levelAdded.remove( mCB(this,uiStratLvlList,fill) );
-    levelset_.levelToBeRemoved.remove( mCB(this,uiStratLvlList,fill) );
+    Strat::LevelSet& levelset = Strat::eLVLS();
+    levelset.levelChanged.remove( mCB(this,uiStratLvlList,fill) );
+    levelset.levelAdded.remove( mCB(this,uiStratLvlList,fill) );
+    levelset.levelToBeRemoved.remove( mCB(this,uiStratLvlList,removeLvl) );
 }
 
 
 void uiStratLvlList::rClickLvlCB( CallBacker* )
 {
     int curit = box()->currentItem();
+    Strat::LevelSet& levelset = Strat::eLVLS();
     uiPopupMenu mnu( this, "Action" );
     mnu.insertItem( new uiMenuItem("Create &New ..."), 0 );
     if ( curit>-1 && !box()->isPresent( sNoLevelTxt ) )
@@ -61,9 +63,9 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
     else if ( mnuid == 2 )
     {
 	const char* lvlnm = box()->getText();
-	if ( !levelset_.isPresent( lvlnm ) ) return;
-	const Strat::Level& lvl = *levelset_.get( lvlnm );
-	levelset_.remove( lvl.id() );
+	if ( !levelset.isPresent( lvlnm ) ) return;
+	const Strat::Level& lvl = *levelset.get( lvlnm );
+	levelset.remove( lvl.id() );
     }
     else if ( mnuid == 3 )
     {
@@ -71,8 +73,31 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
 	msg += "present in the list";
 	msg += ", do you want to continue ?";
 	if ( uiMSG().askGoOn(msg) )
-	    levelset_.setEmpty();
+	{
+	    for ( int idx=0; idx<levelset.size(); idx++ )
+	    {
+		const Strat::Level* lvl = levelset.levels()[idx];
+		if ( lvl->id() >= 0 )
+		    levelset.remove( lvl->id() );
+	    }
+	}
     }
+}
+
+
+void uiStratLvlList::removeLvl( CallBacker* cb )
+{
+    mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
+    if ( !lvlset ) pErrMsg( "Can't find levelSet" );
+    const int lvlidx = lvlset->notifLvlIdx();
+    if ( lvlset->levels().validIdx( lvlidx ) )
+    {
+	const Strat::Level* lvl = lvlset->levels()[lvlidx];
+	if ( box()->isPresent( lvl->name() ) )
+	    box()->removeItem( box()->indexOf( lvl->name() ) );
+    }
+    if ( box()->isEmpty() )
+	box()->addItem( sNoLevelTxt );
 }
 
 
@@ -92,7 +117,7 @@ void uiStratLvlList::fill( CallBacker* )
     for ( int idx=0; idx<lvlnms.size(); idx++ )
 	box()->addItem( lvlnms[idx]->buf(), lvlcolors[idx] );
 
-    if ( !lvlnms.size() )
+    if ( box()->isEmpty() )
 	box()->addItem( sNoLevelTxt );
 }
 

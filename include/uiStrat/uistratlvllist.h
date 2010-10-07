@@ -7,14 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck / Bruno
  Date:          July 2007 /Sept 2010
- RCS:           $Id: uistratlvllist.h,v 1.4 2010-10-01 09:35:18 cvsbruno Exp $
+ RCS:           $Id: uistratlvllist.h,v 1.5 2010-10-07 15:51:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uilistbox.h"
-
-namespace Strat{ class Level; class LevelSet; }
 
 mClass uiStratLvlList : public uiLabeledListBox
 {
@@ -24,11 +22,10 @@ public:
 				~uiStratLvlList();
 protected:
 
-    Strat::LevelSet& 		levelset_;
-
     void                        editLevel(bool);
 
     void                        fill(CallBacker*);
+    void			removeLvl(CallBacker*);
     void                        selLvlChgCB(CallBacker*);
     void                        rClickLvlCB(CallBacker*);
 };
