@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifileinput.cc,v 1.55 2010-06-15 14:36:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uifileinput.cc,v 1.56 2010-10-07 07:08:39 cvsnanne Exp $";
 
 #include "uifileinput.h"
 #include "uifiledlg.h"
@@ -233,7 +233,7 @@ void uiFileInput::examineFile( CallBacker* )
 	excb_.doCall( this );
     else
     {
-	BufferString cmd( "FileBrowser" );
+	BufferString cmd( "od_FileBrowser" );
 	if ( examstyle_ == Setup::Table )
 	    cmd += " --table --maxlines 250";
 	else
