@@ -1,0 +1,84 @@
+dTect V4.2.0
+OpendTect commands
+Fri 01 Oct 2010, 10:09:23
+!
+# $Id: GMT.odcmd,v 1.1 2010-10-08 08:54:02 cvsnageswara Exp $
+
+Comment "Please load GMT plugin before running this script"
+
+[OpendTect Main Window]
+Button "GMT Mapping Tool"
+
+[GMT Mapping Tool]
+Tab "Contour"
+Button "Select Select Horizon"
+
+[Select Horizon]
+Button "Ok (Select)"
+
+[GMT Mapping Tool]
+Button "Add to current flow"
+Tab "Fault"
+Button "Select Fault"
+
+[Fault]
+ListClick "Objects list" "TestFault" Left
+Button "Ok (Select)"
+
+[GMT Mapping Tool]
+Button "Add to current flow"
+Tab "Wells"
+ListClick "Select Wells" "F02-1" Left
+ListClick "Select Wells" "F02-1" Left
+Combo "Symbol shape" "#2"
+Combo "Symbol shape" "#2"
+Button "Add to current flow"
+ListClick "Select Wells" "F03-2" Left
+Combo "Symbol shape" "#4"
+Button "Fill Color" On
+Button "Color"
+
+[Select color]
+ColorOk 85 85 0
+
+[GMT Mapping Tool]
+Button "Add to current flow"
+Tab "Locations"
+Button "Select Select Pickset"
+
+[Select Pickset]
+Button "Ok (Select)"
+
+[GMT Mapping Tool]
+Combo "Symbol shape" "#6"
+Button "Add to current flow"
+Tab "Polyline"
+Button "Select Select Polygon"
+
+[Select Polygon]
+ListClick "Objects list" "poly" Left
+Button "Ok (Select)"
+
+[GMT Mapping Tool]
+Button "Fill Color" On
+Button "Color#2"
+
+[Select color]
+ColorOk 85 255 255
+
+[GMT Mapping Tool]
+Tab "Random Lines"
+Button "Select Select Line(set)"
+
+[Select Line(set)]
+Button "Ok (Select)"
+
+[GMT Mapping Tool]
+Button "Add to current flow"
+Input "Select output file" "Test-GMT" Hold
+Button "Create Map"
+Sleep 25
+Button "View Map"
+Button "Dismiss"
+
+[OpendTect Main Window]
