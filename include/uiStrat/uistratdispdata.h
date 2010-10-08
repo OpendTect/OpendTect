@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.15 2010-10-07 12:11:01 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.16 2010-10-08 07:33:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,6 +157,8 @@ public:
 			~uiStratTreeToDispTransl();
 
     Notifier<uiStratTreeToDispTransl> newtreeRead;
+    
+    int			levelColIdx() const 	{ return levelcolidx_; }
 
 protected:
 

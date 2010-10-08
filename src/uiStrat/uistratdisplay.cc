@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.25 2010-10-07 12:11:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.26 2010-10-08 07:33:16 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -209,9 +209,10 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
     if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	    !ev.altStatus() )
     {
-	const StratDispData::Level* lvl = getLevelFromPos();
-	if ( lvl )
+	if ( getColIdxFromPos() == uidatagather_->levelColIdx() )
 	{
+	    const StratDispData::Level* lvl = getLevelFromPos();
+	    if ( !lvl ) return false; 
 	    uiMenuItem* assmnuitm = new uiMenuItem( "Assign marker boundary" );
 	    uiPopupMenu menu( parent(), "Action" );
 	    menu.insertItem( assmnuitm, 1 );
