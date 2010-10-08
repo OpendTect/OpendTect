@@ -1,0 +1,72 @@
+dTect V4.2.0
+OpendTect commands
+Tue 28 Sep 2010, 15:04:26
+!
+# $Id: WellCorrelation.odcmd,v 1.1 2010-10-08 08:59:38 cvsnageswara Exp $
+
+Comment "Please load Well Correlation plugin before running this script"
+
+[OpendTect Main Window]
+TreeMenu "Inline" Left "Add"
+TreeMenu "Inline`425`<right-click>" "Select Attribute`Stored Cubes`Median Dip Filtered Seismics" On
+Button "Well Correlation Panel"
+
+[Well Correlation panel]
+Combo "Select data type" "Crossline"
+Button "Select Input Data"
+
+[Select]
+ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+
+[Well Correlation panel]
+Button "Go"
+
+[2D Well To Seismic Correlation Window]
+Button "Well properties"
+
+[Well display properties]
+Tab "Log 2"
+Tab "Shape"
+Slider "Transparency slider" 10.101
+Button "Stratigraphy" On
+Button "Display below" On
+Button "Display below" Off
+Button "Apply to all wells"
+Button "Dismiss"
+
+[2D Well To Seismic Correlation Window]
+Button "Edit stratigraphy"
+
+[Stratigraphy Control]
+Button "Edit Stratigraphy"
+
+[Manage Stratigraphy]
+Button "Switch View" On
+Close
+
+[Stratigraphy Control]
+Button "Dismiss"
+
+[2D Well To Seismic Correlation Window]
+Button "Well properties"
+
+[Well display properties]
+Button "Dismiss"
+
+[2D Well To Seismic Correlation Window]
+Button "Save image"
+
+[Create snapshot]
+Input "Select filename" "WellCorrelation"
+
+[Create snapshot]
+Button "Ok"
+
+[2D Well To Seismic Correlation Window]
+Close
+
+[Well Correlation panel]
+Button "Dismiss"
+
+[OpendTect Main Window]
+TreeMenu "Inline`425" "Remove"
