@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.55 2010-10-07 14:04:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.56 2010-10-08 07:39:08 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -226,6 +226,7 @@ void uiStratTreeWin::resetCB( CallBacker* )
 
 void uiStratTreeWin::saveCB( CallBacker* )
 {
+    Strat::eLVLS().store( Repos::Survey );
     if ( uitree_->tree() )
     {
 	repos_.writeTree( *uitree_->tree() );
