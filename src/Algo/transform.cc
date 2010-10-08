@@ -4,7 +4,7 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.11 2010-10-07 22:51:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.12 2010-10-08 14:38:58 cvsyuancheng Exp $";
 
 #include <transform.h>
 #include <arraynd.h>
@@ -75,8 +75,7 @@ void GenericTransformND::setInput( const float_complex* id )
     cinput_ = id;
     rinput_ = 0;
 
-    if ( transforms_.size() )
-	transforms_[0]->setInputData( id );
+    mSetInputData( id );
 }
 
 
@@ -87,8 +86,7 @@ void GenericTransformND::setInput( const float* id )
     rinput_ = id;
     cinput_ = 0;
 
-    if ( transforms_.size() )
-	transforms_[0]->setInputData( id );
+    mSetInputData( id );
 }
 
 
