@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.55 2010-10-07 15:56:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.56 2010-10-08 16:09:03 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -192,7 +192,9 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
     if ( newurdlg.go() )
     {
 	if ( parun->isLeaved() )
-	     parun = replaceUnit( *parun, false); 
+	{
+	    parun = replaceUnit( *parun, false); 
+	}
 	if ( parun )
 	{
 	    Strat::LeavedUnitRef* newun = 
@@ -311,7 +313,12 @@ void uiStratRefTree::removeUnit( uiListViewItem* lvit )
     if ( !upnode ) return;
     upnode->remove( un );
     if ( !upnode->isLeaved() && !upnode->hasChildren() )
-	replaceUnit( *upnode, true );
+    {
+	upnode = replaceUnit( *upnode, true );
+	//TODO give me the lithologies of my children ...
+	TypeSet<int> lithids; lithids += -1;
+	addLithologies( (LeavedUnitRef&)(*upnode), lithids ); 
+    }
     if ( lvit->parent() )
 	lvit->parent()->removeItem( lvit );
     else
