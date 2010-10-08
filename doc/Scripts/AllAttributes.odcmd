@@ -9,6 +9,7 @@ Button "Edit attributes"
 [Attribute Set 3D]
 Button "New attribute set"
 Combo "Attribute group" "<All>"
+Button "Save on OK" Off
 Combo "Attribute type" "Convolve"
 Button "Select Input Data"
 
@@ -102,55 +103,17 @@ ListClick "Select Data" "Median Dip Filtered Seismics" Left
 Button "Ok"
 
 [Attribute Set 3D]
-TableExec "Right-click to add, insert or remove an attribute" "2" "Reference attributes" Button "Select Input Data Attribute 1"
-
-[Select]
-Button "Cancel"
-
-[Attribute Set 3D]
-Button "Pickset" On
-Button "Reference position" On
 Button "Pickset" On
 Button "Select Pickset file"
 
 [Pickset file]
-Button "Cancel"
-
-[Attribute Set 3D]
-Button "Manual" On
-TableExec "Right-click to add, insert or remove an attribute" "1" "Reference attributes" Button "Select Input Data Attribute 0"
-
-[Select]
-Button "Ok"
+ListClick "Objects list" "1000 between FS6 and FS7" Left
+Button "Ok (Select)"
 
 [Attribute Set 3D]
 Button "Calculate parameters"
 Input "Attribute name" "FingerPrintAttrib" Hold
 Button "Add as new"
-
-[Error]
-Button "OK"
-
-[Attribute Set 3D]
-TableExec "Right-click to add, insert or remove an attribute" "2" "Reference attributes" Button "Select Input Data Attribute 1"
-
-[Select]
-ListClick "Select Data" "ConvolveAttrib" Left
-Button "Ok"
-
-[Attribute Set 3D]
-Button "Calculate parameters"
-Button "Advanced"
-
-[FingerPrint attribute advanced options]
-Button "Calculate parameters"
-Button "Ok"
-
-[Attribute Set 3D]
-Button "Add as new"
-
-[Error]
-Button "OK"
 
 [Attribute Set 3D]
 Combo "Attribute type" "Frequency"
@@ -192,28 +155,17 @@ Button "Select Input Data"
 [Select]
 Button "Stored" On
 ListClick "Select Data" "Median Dip Filtered Seismics" Left
-ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
+Button "Ok"
 
 [Attribute Set 3D]
 Input "Correlation window (ms) start" 200 Hold
 Input "Correlation window (ms) stop" 500 Hold
-Button "Examine"
-
-[Gap Decon viewer position]
-Button "Next >>"
-
-[Positioning]
-Button "Ok"
-
-[Auto-correlation viewer (examine)]
-Close
-
-[Attribute Set 3D]
 Input "Lag size (ms)" 10 Hold
 Input "Gap size (ms)" 10 Hold
 Input "Attribute name" "" Hold
 Input "Attribute name" "GapdeconAttrib" Hold
 Button "Add as new"
+
 Combo "Attribute type" "Horizon"
 Button "Select Input Data"
 
@@ -272,26 +224,12 @@ Combo "Attribute type" "Matching Pursuit"
 Button "Select Input Data"
 
 [Select]
+Button "Stored" On
 ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
 
 [Attribute Set 3D]
 Button "Fast" On
 Combo "Output type" "Time-frequency power spectrum"
-Button "Display Time/Frequency panel"
-
-[Matching Pursuit trace position]
-Button "Ok"
-
-[Time Frequency Spectrum]
-Close
-
-[Attribute Set 3D]
-Button "Advanced"
-
-[Advanced parameters dialog]
-Button "Ok"
-
-[Attribute Set 3D]
 Input "Attribute name" "MatchingPursuitAttrib" Hold
 Button "Add as new"
 Combo "Attribute type" "Mathematics"
@@ -412,62 +350,9 @@ ListClick "Select Data" "Median Dip Filtered Seismics" DoubleLeft
 [Attribute Set 3D]
 Button "CWT" On
 Combo "Wavelet" "Morlet"
-Button "Display Time/Frequency panel"
-
-[Attribute trace position]
-Button "Ok"
-
-[Time Frequency spectrum]
-Button "Flip left/right"
-Button "Switch view mode"
-Button "Set display parameters"
-
-[Display properties]
-Button "Yes`Display blocky (no interpolation)" On
-Button "Yes`Use mid value" On
-Button "Cancel"
-
-[Time Frequency spectrum]
-Close
-
-[Attribute Set 3D]
 Input "Attribute name" "" Hold
 Input "Attribute name" "SpectralDecompAttrib-CWT" Hold
 Button "Add as new"
-Button "FFT" On
-Input "Z start" -25 Hold
-Input "Z start" 50 Hold
-Input "Z stop" 50 Hold
-Input "Z start" -50 Hold
-Button "Display Time/Frequency panel"
-
-[Attribute trace position]
-Button "Ok"
-
-[Time Frequency spectrum]
-Button "Flip left/right"
-Button "Flip left/right"
-Button "Set display parameters"
-
-[Display properties]
-Tab "Annotation"
-Tab "Wiggle Variable Area"
-Button "Cancel"
-
-[Time Frequency spectrum]
-Close
-
-[Attribute Set 3D]
-Input "Output frequency (Hz)" 125 Enter
-Input "step" 10 Enter
-Input "Output frequency (Hz)" 120 Enter
-Input "Attribute name" "SpectralDecompAttrib-FFT" Hold
-Button "Add as new"
-Combo "Attribute type" "Systems Tract"
-Button "Select Select HorizonCube"
-
-[Select HorizonCube]
-Button "Cancel"
 
 [Attribute Set 3D]
 Combo "Attribute type" "Tutorial"
