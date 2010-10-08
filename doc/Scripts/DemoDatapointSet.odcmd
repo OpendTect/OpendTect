@@ -1,0 +1,78 @@
+dTect V4.2.0
+OpendTect commands
+Tue 28 Sep 2010, 14:59:21
+!
+# $Id: DemoDatapointSet.odcmd,v 1.1 2010-10-08 08:56:55 cvsnageswara Exp $
+
+Comment "Please load DPSDemo plugin before running this script"
+
+[OpendTect Main Window]
+Button "DataPointSet demo"
+
+[DataPointSet demo]
+Button "Select Horizon"
+
+[Horizon]
+Button "Ok (Select)"
+
+[DataPointSet demo]
+Button "Select Input Cube"
+
+[Load Seismic Data]
+ListClick "Objects list" "Median Dip Filtered Seismics" Left
+Button "Ok (Select)"
+
+[DataPointSet demo]
+Input "Number of points to extract" 400 Hold
+Button "Ok"
+
+[Demo 0 --> FS4 / Median Dip Filtered Seismics]
+TableClick "Data Table" ColHead "X-Coord" 
+Button "Set data for X"
+TableClick "Data Table" ColHead "Frequency" 
+Button "Select as Y data"
+Button "Show crossplot"
+
+[<?> Cross-plot]
+Close
+
+[Demo 0 --> FS4 / Median Dip Filtered Seismics]
+Button "Show histogram and stats for column"
+
+[Data statistics]
+Close
+
+[Demo 0 --> FS4 / Median Dip Filtered Seismics]
+Button "UnSelect as Y data"
+TableClick "Data Table" ColHead "PeakSkew" 
+Button "Select as Y data"
+Button "Show histogram and stats for column"
+
+[Data statistics]
+Close
+
+[Demo 0 --> FS4 / Median Dip Filtered Seismics]
+Button "Show crossplot"
+
+[<?> Cross-plot]
+Close
+
+[Demo 0 --> FS4 / Median Dip Filtered Seismics]
+Button "UnSelect as Y data"
+TableClick "Data Table" ColHead "@*Amplitude" 
+Button "Show histogram and stats for column"
+
+[Data statistics]
+Close
+
+[Demo 0 --> FS4 / Median Dip Filtered Seismics]
+Button "Select as Y data"
+Button "Show crossplot"
+
+[<?> Cross-plot]
+Close
+
+[Demo 0 --> FS4 / Median Dip Filtered Seismics]
+Button "Dismiss"
+
+[OpendTect Main Window]
