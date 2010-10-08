@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.11 2010-10-07 09:03:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.12 2010-10-08 15:34:30 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -432,7 +432,7 @@ void uiWellDispEditMarkerDlg::listLClickCB()
 
 void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 {
-    mrklist_->empty();
+    const int selidx = mrklist_->nrSelected() ? mrklist_->currentItem() : 0;
     BufferStringSet mrknms; TypeSet<Color> mrkcols;
     for ( int idwd=0; idwd<wds_.size(); idwd++ )
     {
@@ -461,8 +461,8 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 	mrk->setColor( getRandStdDrawColor() );
 	    tmplist_ += mrk;
     }
-    if ( !mrklist_->nrSelected() &&  isAddMode() )
-	mrklist_->setCurrentItem( 0 );
+    if ( isAddMode() )
+	mrklist_->setCurrentItem( selidx < mrklist_->size() ? selidx : 0 );
 }
 
 
