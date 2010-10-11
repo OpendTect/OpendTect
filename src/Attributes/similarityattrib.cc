@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.50 2010-10-07 19:44:28 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.51 2010-10-11 14:32:05 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -166,8 +166,10 @@ Similarity::Similarity( Desc& desc )
     }
     getTrcPos();
 
-    const float maxdist = dosteer_ || dobrowsedip_ ? 
-	mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) : 0;
+    float maxdist = dosteer_ || dobrowsedip_ ? 
+		mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) : 0;
+    if ( dobrowsedip_ )		//approx: dip from trc to trc, not central ref
+	maxdist *= 2;
     
     const float secdip = dosteer_ ? maxSecureDip() : maxdip_;
     desgate_ = Interval<float>( gate_.start-maxdist*secdip, 
@@ -308,12 +310,22 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    const int idx0 = iscubeext ? pos0s_[pair] : pair*2;
 	    const int idx1 = iscubeext ? pos1s_[pair] : pair*2 +1;
 
-	    float s0 = firstsample + idx + samplegate.start;
-	    float s1 = s0;
+	    float bases0 = firstsample + idx + samplegate.start;
+	    float bases1 = bases0;
 
 	    if ( !inputdata_[idx0] || !inputdata_[idx1] )
 		continue;
-	    
+
+	    float dist = 0;
+	    if ( dobrowsedip_ )
+	    {
+		float di = abs(trcpos_[idx1].inl - trcpos_[idx0].inl)*inldist();
+		float dc = abs(trcpos_[idx1].crl - trcpos_[idx0].crl)*crldist();
+		dist = Math::Sqrt( di*di + dc*dc );
+	    }
+
+	    float s0 = bases0;
+	    float s1 = bases1;
 	    bool docontinue = true;
 	    float maxsimi = 0;
 	    dipatmax = 0;
@@ -325,23 +337,16 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		    ValueSeries<float>* serie0 = 
 			    steeringdata_->series( steerindexes_[idx0] );
 		    if ( serie0 )
-			s0 += serie0->value( z0+idx-steeringdata_->z0_ );
+			s0 = bases0 + serie0->value( z0+idx-steeringdata_->z0_);
 
 		    ValueSeries<float>* serie1 = 
 			    steeringdata_->series( steerindexes_[idx1] );
 		    if ( serie1 )
-			s1 += serie1->value( z0+idx-steeringdata_->z0_ );
+			s1 = bases1 + serie1->value( z0+idx-steeringdata_->z0_);
 		}
 
 		if ( dobrowsedip_ )
-		{
-		    float di = abs(trcpos_[idx1].inl - trcpos_[idx0].inl)
-				* inldist();
-		    float dc = abs(trcpos_[idx1].crl - trcpos_[idx0].crl)
-				* crldist();
-		    float dist = Math::Sqrt( di*di + dc*dc );
-		    s1 += (curdip * dist)/refstep_;
-		}
+		    s1 = bases1 + (curdip * dist)/refstep_;
 
 
 		//make sure data extracted from input DataHolders is at exact z
