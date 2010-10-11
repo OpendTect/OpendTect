@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.76 2010-10-07 15:59:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.77 2010-10-11 15:36:40 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -88,6 +88,7 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts )
     dataholder_.closeall.notify( mCB(this,uiTieWin,rejectOK) );
     infodlg_->redrawNeeded.notify( mCB(datadrawer_,uiTieView,redrawViewer) );
     dataholder_.pickmgr()->pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
+    dataholder_.pickmgr()->setEventType( 0 );
     stretcher_->timeChanged.notify(mCB(this,uiTieWin,timeChanged));
     datadrawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
     
@@ -446,6 +447,7 @@ bool uiTieWin::undoPushed( CallBacker* cb )
 
 bool uiTieWin::matchHorMrks( CallBacker* )
 {
+    dataholder_.pickmgr()->setEventType( 0 );
     Well::Data* wd = dataholder_.wd();
     if ( !wd ) 
 	mErrRet( "No Well data found" )
