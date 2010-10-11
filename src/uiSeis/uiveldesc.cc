@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.50 2010-10-06 20:26:47 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.51 2010-10-11 21:39:07 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -253,8 +253,7 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
     else
 	setInput( "" );
 
-    trg_ = Time2DepthStretcher::getDefaultVAvg();
-    brg_ = Time2DepthStretcher::getDefaultVAvg();
+    selectionDoneCB( 0 ); //sets the ranges
 }
 
 
