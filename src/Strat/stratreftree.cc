@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.8 2010-10-07 15:37:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.9 2010-10-11 09:15:40 cvsbert Exp $";
 
 
 #include "stratreftree.h"
@@ -39,8 +39,9 @@ void Strat::RefTree::initTree()
 
 Strat::RefTree::~RefTree()
 {
-    Strat::LevelSet& lvlset = Strat::eLVLS();
-    lvlset.levelToBeRemoved.remove( mCB(this,Strat::RefTree,levelToBeRemoved) );
+    UnitRefIter it( *this );
+    while ( it.next() )
+	it.unit()->toBeDeleted.disable();
 } 
 
 
