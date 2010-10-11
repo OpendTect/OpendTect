@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlevel.cc,v 1.9 2010-10-11 08:56:16 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlevel.cc,v 1.10 2010-10-11 09:19:50 cvsbert Exp $";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -220,6 +220,8 @@ Strat::LevelSet::LevelSet( const Strat::LevelSet& oth )
 
 Strat::LevelSet::~LevelSet()
 {
+    for ( int idx=0; idx<size(); idx++ )
+	lvls_[idx]->toBeRemoved.disable();
     deepErase( lvls_ );
 }
 
