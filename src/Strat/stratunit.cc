@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.32 2010-10-11 09:39:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.33 2010-10-11 11:31:36 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratreftree.h"
@@ -32,7 +32,8 @@ Strat::UnitRef::UnitRef( NodeUnitRef* up, const char* d )
 
 Strat::UnitRef::~UnitRef()
 {
-    notifChange( true );
+    if ( toBeDeleted.isEnabled() )
+	notifChange( true );
 }
 
 
@@ -173,9 +174,8 @@ Strat::NodeUnitRef::NodeUnitRef( NodeUnitRef* up, const char* uc, const char* d 
 
 Strat::NodeUnitRef::~NodeUnitRef()
 {
-    UnitRefIter it( *this );
-    while ( it.next() )
-	it.unit()->toBeDeleted.disable();
+    for( int idx=0; idx<nrRefs(); idx++ )
+	ref( idx ).toBeDeleted.disable();
 
     deepErase( refs_ );
 }
