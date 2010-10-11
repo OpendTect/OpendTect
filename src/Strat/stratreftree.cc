@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.9 2010-10-11 09:15:40 cvsbert Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.10 2010-10-11 09:39:18 cvsbruno Exp $";
 
 
 #include "stratreftree.h"
@@ -39,9 +39,6 @@ void Strat::RefTree::initTree()
 
 Strat::RefTree::~RefTree()
 {
-    UnitRefIter it( *this );
-    while ( it.next() )
-	it.unit()->toBeDeleted.disable();
 } 
 
 
