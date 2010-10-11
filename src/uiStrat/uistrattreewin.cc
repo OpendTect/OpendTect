@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.56 2010-10-08 07:39:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.57 2010-10-11 09:37:43 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -216,10 +216,11 @@ void uiStratTreeWin::editCB( CallBacker* )
 
 void uiStratTreeWin::resetCB( CallBacker* )
 {
-    Strat::RefTree* bcktree = new Strat::RefTree(); //for the time beeing...
-    if ( !bcktree ) return;
+    Strat::RefTree& bcktree = Strat::eRT(); 
+    //for the time beeing, get back the global tree, but we may want to have 
+    //a snapshot copy of the actual tree we are working on...
     bool iseditmode = !strcmp( editmnuitem_->text(), mEditTxt(true) );
-    uitree_->setTree( *bcktree, true );
+    uitree_->setTree( bcktree, true );
     uitree_->expand( true );
 }
 
@@ -309,7 +310,6 @@ bool uiStratTreeWin::closeOK()
 	else if ( res == 0 )
 	{
 	    resetCB( 0 );
-	    //repos_.createTmpTree( true );
 	    return true;
 	}
 	else if ( res == -1 )
