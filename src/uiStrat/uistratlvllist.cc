@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvllist.cc,v 1.7 2010-10-07 15:51:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvllist.cc,v 1.8 2010-10-11 11:36:30 cvsbruno Exp $";
 
 #include "uistratlvllist.h"
 
@@ -74,7 +74,7 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
 	msg += ", do you want to continue ?";
 	if ( uiMSG().askGoOn(msg) )
 	{
-	    for ( int idx=0; idx<levelset.size(); idx++ )
+	    for ( int idx=levelset.size()-1; idx>=0; idx-- )
 	    {
 		const Strat::Level* lvl = levelset.levels()[idx];
 		if ( lvl->id() >= 0 )
