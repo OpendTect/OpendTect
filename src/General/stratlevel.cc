@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlevel.cc,v 1.8 2010-10-07 12:48:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlevel.cc,v 1.9 2010-10-11 08:56:16 cvsbert Exp $";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -314,8 +314,8 @@ void Strat::LevelSet::remove( Level::ID id )
     const int idx = indexOf( id );
     if ( idx >=0 )
     {
-	lvls_[idx]->toBeRemoved.trigger();
-	delete lvls_.remove( idx );
+	delete lvls_[idx];
+	lvls_.remove( idx );
     }
 }
 
@@ -403,7 +403,10 @@ void Strat::LevelSet::readPars( ascistream& astrm, bool isold )
 	if ( iop.isEmpty() ) break;
 	if ( isold && iop.name() != "Level" ) continue;
 
+	const int llid = lastlevelid_;
 	Level* lvl = getNew();
+	lastlevelid_ = llid; lvl->id_ = -1;
+
 	lvl->usePar( iop );
 	if ( lvl->id() < 0 )
 	    delete lvl;
@@ -416,6 +419,8 @@ void Strat::LevelSet::readPars( ascistream& astrm, bool isold )
 		lvl->pars_.removeWithKey( "Time" );
 	    }
 	    addLvl( lvl );
+	    if ( lvl->id() > lastlevelid_ )
+		lastlevelid_ = lvl->id();
 	}
     }
 }
