@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.96 2010-10-07 15:37:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.97 2010-10-11 09:23:59 cvsbruno Exp $";
 
 #include "emmanager.h"
 
@@ -62,9 +62,6 @@ EMManager::EMManager()
 
 EMManager::~EMManager()
 {
-    Strat::LevelSet& lvlset = Strat::eLVLS();
-    lvlset.levelToBeRemoved.remove( mCB(this, EMManager, levelToBeRemoved ) );
-
     empty();
     delete &undo_;
 }
