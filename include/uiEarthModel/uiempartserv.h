@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.101 2010-09-29 03:48:48 cvssatyaki Exp $
+ RCS:           $Id: uiempartserv.h,v 1.102 2010-10-11 07:14:00 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,7 +134,6 @@ public:
 
     static const int	evDisplayHorizon();
     static const int	evRemoveTreeObject();
-    static const int	evSyncGeometry();
 
 			// Interaction stuff
     const EM::ObjectID&	selEMID() const			{ return selemid_; }

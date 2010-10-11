@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.389 2010-10-07 17:29:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.390 2010-10-11 07:14:00 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -975,21 +975,6 @@ bool uiODApplMgr::handleEMServEv( int evid )
 
 	sceneMgr().updateTrees();
 	return true;
-    }
-    else if ( evid == uiEMPartServer::evSyncGeometry() )
-    {
-	mDynamicCastGet( EM::Horizon2D*, h2d, emserv_->selEMObject() );
-	for ( int lidx=0; h2d && lidx<h2d->geometry().nrLines(); lidx++ )
-	{
-	    const int lineid = h2d->geometry().lineID( lidx );
-	    if ( h2d->geometry().syncBlocked(lineid) )
-		continue;
-	    const MultiID& lset = h2d->geometry().lineSet( lineid );
-	    const char* lnm = h2d->geometry().lineName( lineid );
-	    PosInfo::Line2DData ldat;
-	    seisserv_->get2DLineGeometry( lset, lnm, ldat );
-	    h2d->geometry().syncLine( lset, lnm, ldat );
-	}
     }
     else
 	pErrMsg("Unknown event from emserv");

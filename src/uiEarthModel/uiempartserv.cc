@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.210 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.211 2010-10-11 07:14:00 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -77,7 +77,6 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.210 2010-09-29 03:48:48 cvs
 
 const int uiEMPartServer::evDisplayHorizon()	    { return 0; }
 const int uiEMPartServer::evRemoveTreeObject()	    { return 1; }
-const int uiEMPartServer::evSyncGeometry()	    { return 2; }
 
 #define mErrRet(s) { BufferString msg( "Cannot load '" ); msg += s; msg += "'";\
     			uiMSG().error( msg ); return false; }
