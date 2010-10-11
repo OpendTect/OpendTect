@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscene.cc,v 1.41 2009-10-16 07:58:23 cvskarthika Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.42 2010-10-11 17:23:39 cvskris Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -20,6 +20,8 @@ static const char* rcsID = "$Id: visscene.cc,v 1.41 2009-10-16 07:58:23 cvskarth
 
 #include <Inventor/nodes/SoEnvironment.h>
 #include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoTextureMatrixTransform.h>
+
 
 mCreateFactoryEntry( visBase::Scene );
 
@@ -43,6 +45,10 @@ Scene::Scene()
     polygonoffset_->setFactor( 1 );
     polygonoffset_->setUnits( 2 );
     selroot_->addChild( polygonoffset_->getInventorNode() );
+
+    //Needed as some ATI-cards dont' have it set.
+    SoTextureMatrixTransform* texturetrans = new SoTextureMatrixTransform;
+    selroot_->addChild( texturetrans );
 
     selroot_->addChild( environment_ );
     events_.ref();

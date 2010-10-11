@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.68 2010-09-15 06:35:39 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.69 2010-10-11 17:23:39 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -850,7 +850,7 @@ const char* MultiTexture2::sVertexShaderProgram()
 "	specular.rgb * gl_FrontMaterial.specular.rgb;\n"
 "    gl_Position = ftransform();\n"
 "    gl_FrontColor.rgb = lightning;\n"
-"    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
+"    gl_TexCoord[0] = gl_MultiTexCoord0;\n"
 "}\n";
 }
 
