@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.26 2010-10-08 07:33:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.27 2010-10-11 15:41:18 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -73,6 +73,7 @@ void uiStratDisplay::addControl( uiToolBar* tb )
     uiStratViewControl::Setup su( maxrg_ ); su.tb_ = tb;
     uicontrol_ = new uiStratViewControl( *v, su ); 
     uicontrol_->rangeChanged.notify( mCB(this,uiStratDisplay,controlRange) );
+    controlRange( 0 );
 }
 
 
@@ -473,7 +474,8 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
     {
 	const StratDispData::Unit& unit = *data_.getCol(colidx)->units_[idx];
 	Interval<float> unitrg = unit.zrg_;
-	if ( ( !rg.includes(unitrg.start) && !rg.includes(unitrg.stop) )
+	if ( ( ( !rg.includes(unitrg.start) && !rg.includes(unitrg.stop) )
+	    && ( !unitrg.includes(rg.start) && !unitrg.includes(rg.stop) ) )
 		|| !unit.isdisplayed_ ) continue;
 	unitrg.limitTo( rg );
 
