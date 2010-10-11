@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.38 2010-10-07 12:11:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.39 2010-10-11 14:36:02 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.38 2010-10-07 12:11:01 c
 #include "randcolor.h"
 #include "stratlith.h"
 #include "stratlevel.h"
+#include "stratunitrefiter.h"
 #include "stratreftree.h"
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -122,19 +123,37 @@ void uiStratUnitEditDlg::getFromScreen()
     }
 }
 
+#define mPreventEmptySpace(buf)\
+    char* ptr = buf;\
+    while ( *ptr )\
+    {\
+	if ( isspace(*ptr) )\
+	    *ptr = '_';\
+	ptr++;\
+    }\
 
 bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 {
-    if ( !strcmp( unitnmfld_->text(), "" ) )
+    getFromScreen();
+    BufferString name( unitnmfld_->text() );
+    if ( name.isEmpty() )
 	{ mErrRet( "Please specify the unit name", return false ) }
+    else
+    {
+	mPreventEmptySpace( name.buf() );
+    }
 
     BufferString namemsg( "Unit name already used. Please specify a new name" );
-    if ( strcmp(unitnmfld_->text(),entrancename_.buf()) )
+    if ( strcmp(name.buf(),entrancename_.buf()) )
     {
-	if ( Strat::eRT().find(unitnmfld_->text()) )
-	    { mErrRet( namemsg, return false ) }
+	Strat::UnitRefIter it( Strat::RT() );
+	while ( it.next() )
+	{
+	    if ( !strcmp(name.buf(),it.unit()->code()))
+		{ mErrRet( namemsg, return false ) }
+	}
     }
-    getFromScreen();
+    unit_.setCode( name.buf() );
 
     if ( lithids_.size() > 1 && lithids_.isPresent(0) )
 	lithids_.remove( lithids_.indexOf(0) );
@@ -161,16 +180,22 @@ uiStratLithoBox::uiStratLithoBox( uiParent* p )
 }
 
 
+uiStratLithoBox::~uiStratLithoBox()
+{
+    Strat::LithologySet& lithos = Strat::eRT().lithologies();
+    lithos.anyChange.remove( mCB( this, uiStratLithoBox, fillLiths ) );
+}
+
+
 void uiStratLithoBox::fillLiths( CallBacker* )
 {
+    empty();
+
     BufferStringSet nms;
     nms.add( sNoLithoTxt );
     const Strat::LithologySet& lithos = Strat::RT().lithologies();
     for ( int idx=0; idx<lithos.size(); idx++ )
 	nms.add( lithos.getLith( idx ).name() );
-    //empty makes it crash ...
-    for ( int idx=size()-1; idx>=0; idx-- )
-	removeItem( idx );
     addItems( nms );
 }
     
@@ -222,8 +247,10 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
 
 void uiStratLithoDlg::newLith( CallBacker* )
 {
-    const BufferString nm( nmfld_->text() );
+    BufferString nm( nmfld_->text() );
     if ( nm.isEmpty() ) return;
+
+    mPreventEmptySpace( nm.buf() );
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
     if ( selfld_->isPresent( nm ) || lithos.isPresent( nm.buf() ) )
@@ -485,10 +512,19 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	{
 	    errmsg += "Empty unit name. ";
 	}
+	else
+	{
+	    mPreventEmptySpace( code.buf() );
+	    units[idx]->setCode( code.buf() );
+	}
 	if ( errmsg.isEmpty() && strcmp( code.buf(), rootunit_.code() ) )
 	{
-	    if ( Strat::eRT().find( code ) )
-		errmsg += "Unit name already used. ";
+	    Strat::UnitRefIter it( Strat::RT() );
+	    while ( it.next() )
+	    {
+		if ( !strcmp(code.buf(),it.unit()->code()))
+		    errmsg += "Unit name already used. ";
+	    }
 	}
 	bfs.addIfNew( code );
 	if ( errmsg.isEmpty() && bfs.size() < idx+1 )
