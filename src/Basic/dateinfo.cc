@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.13 2010-03-03 04:05:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.14 2010-10-12 11:53:28 cvsbert Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"
@@ -59,6 +59,13 @@ DateInfo::DateInfo()
     static const od_int64 days1900_to_1970 = 25568;
     const int days1970 = (int)(time(0) / 86400L);
     days1900_ = days1970 + days1900_to_1970;
+    calcDMY();
+}
+
+
+DateInfo::DateInfo( int ky )
+	: days1900_(ky)
+{
     calcDMY();
 }
 
@@ -403,9 +410,8 @@ void DateInfo::addDay( BufferString& bs ) const
 void DateInfo::toString( BufferString& str ) const
 {
     if ( isUdf() )
-	{ str = sKey::Undef; return; }
+	{ str += sKey::Undef; return; }
 
-    str.setEmpty();
     str += day(); str += "-";
     str += eString(DateInfo::Month,month()); str += "-";
     str += year();
