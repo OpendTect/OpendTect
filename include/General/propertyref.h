@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.4 2010-10-05 10:33:00 cvsbert Exp $
+ RCS:		$Id: propertyref.h,v 1.5 2010-10-12 12:03:57 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -101,33 +101,36 @@ public:
     			PropertyRefSet()		{}
 			~PropertyRefSet()		{ deepErase(*this); }
 
-     inline bool	isPresent( const char* nm ) const
+    inline bool		isPresent( const char* nm ) const
      			{ return indexOf(nm) >= 0; }
-     int		indexOf(const char*) const;
-     inline PropertyRef* find( const char* nm )		{ return fnd(nm); }
-     inline const PropertyRef* find( const char* nm ) const { return fnd(nm); }
+    int			indexOf(const char*) const;
+    inline PropertyRef*	find( const char* nm )		{ return fnd(nm); }
+    inline const PropertyRef* find( const char* nm ) const { return fnd(nm); }
 
-     int		add(PropertyRef*);
+    int			add(PropertyRef*);
 			//!< refuses if another one isKnownAs. If not added,
      			//!< clean up the mess yourself (i.e. delete it)
-     virtual PropertyRefSet& operator +=( PropertyRef* pr )
+    virtual PropertyRefSet& operator +=( PropertyRef* pr )
      			{ add(pr); return *this; }
 
-     bool		save(Repos::Source) const;
+    bool		save(Repos::Source) const;
 
 protected:
 
-     PropertyRef*	fnd(const char*) const;
+    PropertyRef*	fnd(const char*) const;
 
 public:
 
-     void		readFrom(ascistream&);
-     bool		writeTo(ascostream&) const;
+    void		readFrom(ascistream&);
+    bool		writeTo(ascostream&) const;
 
 };
 
 mGlobal const PropertyRefSet& PROPS();
 inline PropertyRefSet& ePROPS() { return const_cast<PropertyRefSet&>(PROPS()); }
+
+
+typedef ObjectSet<const PropertyRef> PropertyRefSelection;
 
 
 #endif
