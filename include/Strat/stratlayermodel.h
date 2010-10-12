@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: stratlayermodel.h,v 1.3 2010-10-06 15:40:52 cvsbert Exp $
+ RCS:		$Id: stratlayermodel.h,v 1.4 2010-10-12 12:07:17 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "stratlayer.h"
+#include "stratlayersequence.h"
 
 namespace Strat
 {
@@ -21,40 +21,40 @@ class Layer;
 class UnitRef;
 class RefTree;
 
-/*!\brief A model consisting of layers */
+/*!\brief A model consisting of layer sequences.
+
+  The sequences will use the PropertyRefSelection managed by this object.
+ 
+ */
 
 mClass LayerModel
 {
 public:
 
-			LayerModel()
-			    : z0_(0)		{}
-    virtual		~LayerModel()		{ deepErase(layers_); }
-    bool		isEmpty() const		{ return layers_.isEmpty(); }
+				LayerModel();
+				LayerModel( const LayerModel& lm )
+							{ *this = lm; }
+    virtual			~LayerModel();
+    LayerModel&			operator =(const LayerModel&);
 
-    int			size() const		{ return layers_.size(); }
-    ObjectSet<Layer>&	layers()		{ return layers_; }
-    const ObjectSet<Layer>& layers() const	{ return layers_; }
+    bool			isEmpty() const	{ return seqs_.isEmpty(); }
+    int				size() const	{ return seqs_.size(); }
+    LayerSequence&		sequence( int idx )	  { return *seqs_[idx];}
+    const LayerSequence& 	sequence( int idx ) const { return *seqs_[idx];}
 
-    float		startZ() const		{ return z0_; }
-    void		setStartZ( float z )	{ z0_ = z; }
+    LayerSequence&		addSequence();
+    void			setEmpty();
 
-    RefTree*		refTree()		{ return gtTree(); }
-    const RefTree*	refTree() const		{ return gtTree(); }
+    PropertyRefSelection&	propertyRefs()		{ return props_; }
+    const PropertyRefSelection&	propertyRefs() const	{ return props_; }
 
-    void		getLayersFor( const UnitRef* ur, ObjectSet<Layer>& lys )
-			{ return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}
-    void		getLayersFor(const UnitRef*,
-	    			     ObjectSet<const Layer>&) const;
+    const RefTree*		refTree() const;
 
-    void		prepareUse();		//!< needed after changes
 
 protected:
 
-    ObjectSet<Layer>	layers_;
-    float		z0_;
-
-    RefTree*		gtTree() const;
+    ObjectSet<LayerSequence>	seqs_;
+    PropertyRefSelection	props_;
 
 };
 

@@ -4,13 +4,31 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.4 2010-10-06 15:40:52 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.5 2010-10-12 12:07:17 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratreftree.h"
 #include "propertyimpl.h"
 #include "propertyref.h"
+
+
+const PropertyRef& Strat::Layer::topDepthRef()
+{
+    PropertyRef* ref = 0;
+    if ( !ref )
+    {
+	ref = new PropertyRef( "Top depth", PropertyRef::Dist );
+	const PropertyRef* dpthref = PROPS().find( "depth" );
+	if ( dpthref )
+	    ref->disp_ = dpthref->disp_;
+	else
+	    ref->disp_.range_ = Interval<float>( 0, 5000 );
+    }
+
+    return *ref;
+}
+
 
 const PropertyRef& Strat::Layer::thicknessRef()
 {
@@ -19,18 +37,21 @@ const PropertyRef& Strat::Layer::thicknessRef()
     {
 	ref = new PropertyRef( "Thickness", PropertyRef::Dist );
 	ref->aliases().add( "thick" );
-	ref->disp_.range_ = Interval<float>( 0, mUdf(float) );
+	const PropertyRef* thref = PROPS().find( "thickness" );
+	if ( thref )
+	    ref->disp_ = thref->disp_;
+	else
+	    ref->disp_.range_ = Interval<float>( 0, 100 );
     }
 
     return *ref;
 }
 
 
-Strat::Layer::Layer( const LeafUnitRef& r, float th )
+Strat::Layer::Layer( const LeafUnitRef& r )
     : ref_(&r)
-    , ztop_(0)
 {
-    props_.add( new ValueProperty(thicknessRef(),th) );
+    setValue( 0, 0 ); setValue( 1, 0 );
 }
 
 
@@ -46,25 +67,54 @@ Strat::Layer::ID Strat::Layer::id() const
 }
 
 
-float Strat::Layer::depth() const
+float Strat::Layer::value( int ival ) const
 {
-    const float th = thickness().value();
-    float ret = ztop_;
-    if ( !mIsUdf(th) )
-	ret += 0.5 * th;
-    return ret;
+    return ival < vals_.size() ? vals_[ival] : mUdf(float);
 }
 
 
-Strat::RefTree* Strat::LayerModel::gtTree() const
+void Strat::Layer::setValue( int ival, float val )
 {
-    return const_cast<Strat::RefTree*>( isEmpty() ? 0
-	    			        : &layers_[0]->unitRef().refTree() );
+    while ( vals_.size() <= ival )
+	vals_ += mUdf(float);
+    vals_[ival] = val;
 }
 
 
-void Strat::LayerModel::getLayersFor( const UnitRef* ur,
-				      ObjectSet<const Layer>& lys ) const
+Strat::LayerSequence::LayerSequence( const PropertyRefSelection* prs )
+    : props_(prs)
+    , z0_(0)
+{
+}
+
+
+Strat::LayerSequence::~LayerSequence()
+{
+    deepErase( layers_ );
+}
+
+
+Strat::LayerSequence& Strat::LayerSequence::operator =(
+					const Strat::LayerSequence& oth )
+{
+    if ( this != &oth )
+    {
+	deepCopy( layers_, oth.layers_ );
+	z0_ = oth.z0_;
+	props_ = oth.props_;
+    }
+    return *this;
+}
+
+
+const Strat::RefTree* Strat::LayerSequence::refTree() const
+{
+    return isEmpty() ? 0 : &layers_[0]->unitRef().refTree();
+}
+
+
+void Strat::LayerSequence::getLayersFor( const UnitRef* ur,
+					 ObjectSet<const Layer>& lys ) const
 {
     const int sz = size();
     if ( sz < 1 ) return;
@@ -79,13 +129,62 @@ void Strat::LayerModel::getLayersFor( const UnitRef* ur,
 }
 
 
-void Strat::LayerModel::prepareUse()
+void Strat::LayerSequence::prepareUse()
 {
     float z = z0_;
     for ( int idx=0; idx<size(); idx++ )
     {
 	Layer& ly = *layers_[idx];
-	ly.ztop_ = z;
-	z += ly.thickness().value();
+	ly.setZTop( z );
+	z += ly.thickness();
     }
+}
+
+
+Strat::LayerModel::LayerModel()
+{
+    props_ += &Layer::topDepthRef();
+    props_ += &Layer::thicknessRef();
+}
+
+
+Strat::LayerModel::~LayerModel()
+{
+    deepErase( seqs_ );
+}
+
+
+Strat::LayerModel& Strat::LayerModel::operator =( const Strat::LayerModel& oth )
+{
+    if ( this != &oth )
+    {
+	for ( int iseq=0; iseq<oth.seqs_.size(); iseq++ )
+	{
+	    LayerSequence* newseq = new LayerSequence( *oth.seqs_[iseq] );
+	    newseq->setPropertyRefs( &props_ );
+	    seqs_ += newseq;
+	}
+	props_ = oth.props_;
+    }
+    return *this;
+}
+
+
+Strat::LayerSequence& Strat::LayerModel::addSequence()
+{
+    LayerSequence* newseq = new LayerSequence( &props_ );
+    seqs_ += newseq;
+    return *newseq;
+}
+
+
+void Strat::LayerModel::setEmpty()
+{
+    deepErase( seqs_ );
+}
+
+
+const Strat::RefTree* Strat::LayerModel::refTree() const
+{
+    return isEmpty() ? 0 : seqs_[0]->refTree();
 }
