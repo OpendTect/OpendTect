@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltattr.h,v 1.14 2009-12-15 16:49:24 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltattr.h,v 1.15 2010-10-12 07:09:03 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,9 @@ public:
     Notifier<uiSeisWvltSliderDlg> acting;
     const Wavelet*              getWavelet() const  { return wvlt_; }
 
+protected:
+				uiSeisWvltSliderDlg(uiParent*,Wavelet&);
+
     WaveletAttrib*		wvltattr_;
     uiSliderExtra*		sliderfld_;
     Wavelet* 			wvlt_;
@@ -42,8 +45,6 @@ public:
     virtual void		act(CallBacker*) {}
     void			constructSlider(uiSliderExtra::Setup&,
 	    					const Interval<float>&);
-protected:
-				uiSeisWvltSliderDlg(uiParent*,Wavelet&);
 };
 
 
