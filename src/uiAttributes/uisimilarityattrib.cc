@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.30 2010-10-04 18:03:42 cvshelene Exp $";
+static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.31 2010-10-12 12:06:36 cvshelene Exp $";
 
 
 #include "uisimilarityattrib.h"
@@ -114,7 +114,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     deltadipfld_->attach( alignedBelow, maxdipfld_ );
 
     dooutpstatsfld_ = new uiGenInput( this, "Output",
-			BoolInpSpec(true,"Satistics","Dip at max similarity") );
+			BoolInpSpec(true,"Statistics","Dip at max similarity"));
     dooutpstatsfld_->valuechanged.notify( mCB(this,uiSimilarityAttrib,outSel) );
     dooutpstatsfld_->attach( alignedBelow, deltadipfld_ );
 
