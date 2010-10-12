@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.16 2010-09-02 13:04:04 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.17 2010-10-12 10:30:19 cvshelene Exp $
 ________________________________________________________________________
 -*/
 
@@ -63,6 +63,7 @@ protected:
     			~SpecDecomp();
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
+    static void		updateDefaults(Desc&);
 
     bool		allowParallelComputation() const
     			{ return false; }

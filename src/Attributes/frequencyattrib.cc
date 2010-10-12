@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.28 2010-08-11 16:55:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.29 2010-10-12 10:30:19 cvshelene Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -34,9 +34,10 @@ mAttrDefCreateInstance(Frequency)
     
 void Frequency::initClass()
 {
-    mAttrStartInitClassWithUpdate
+    mAttrStartInitClassWithDescAndDefaultsUpdate
 
-    ZGateParam* gate = new ZGateParam( gateStr(), Interval<float>(-28, 28) );
+    ZGateParam* gate = new ZGateParam( gateStr() );
+    gate->setDefaultValue( Interval<float>(-28, 28) );
     gate->setLimits( -mLargestZGate, mLargestZGate);
     desc->addParam( gate );
 
@@ -76,6 +77,17 @@ void Frequency::updateDesc( Desc& desc )
     const bool hasvar = winfunc && winfunc->hasVariable();
     desc.setParamEnabled( paramvalStr(), hasvar );
     delete winfunc;
+}
+
+
+void Frequency::updateDefaults( Desc& desc )
+{
+    ValParam* paramgate = desc.getValParam(gateStr());
+    mDynamicCastGet( ZGateParam*, zgate, paramgate )
+    float roundedzstep = SI().zStep()*SI().zFactor();
+    if ( roundedzstep > 0 )
+	roundedzstep = (int)( roundedzstep );
+    zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.32 2010-10-07 17:29:19 cvshelene Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.33 2010-10-12 10:30:19 cvshelene Exp $";
 
 #include "energyattrib.h"
 
@@ -60,8 +60,10 @@ void Energy::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
-    zgate->setDefaultValue( Interval<float>(-SI().zStep()*SI().zFactor()*7,
-					    SI().zStep()*SI().zFactor()*7) );
+    float roundedzstep = SI().zStep()*SI().zFactor();
+    if ( roundedzstep > 0 )
+	roundedzstep = (int)( roundedzstep );
+    zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 
 

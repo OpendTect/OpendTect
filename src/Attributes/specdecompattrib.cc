@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.32 2010-09-02 13:04:04 cvshelene Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.33 2010-10-12 10:30:19 cvshelene Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -37,7 +37,7 @@ mAttrDefCreateInstance(SpecDecomp)
     
 void SpecDecomp::initClass()
 {
-    mAttrStartInitClassWithUpdate
+    mAttrStartInitClassWithDescAndDefaultsUpdate
 
     EnumParam* ttype = new EnumParam( transformTypeStr() );
     //Note: Ordering must be the same as numbering!
@@ -101,6 +101,17 @@ void SpecDecomp::updateDesc( Desc& desc )
     const float nyqfreq = 0.5 / SI().zStep();
     const int nrattribs = mNINT( nyqfreq / dfreq );
     desc.setNrOutputs( Seis::UnknowData, nrattribs );
+}
+
+
+void SpecDecomp::updateDefaults( Desc& desc )
+{
+    ValParam* paramgate = desc.getValParam(gateStr());
+    mDynamicCastGet( ZGateParam*, zgate, paramgate )
+    float roundedzstep = SI().zStep()*SI().zFactor();
+    if ( roundedzstep > 0 )
+	roundedzstep = (int)( roundedzstep );
+    zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 
 

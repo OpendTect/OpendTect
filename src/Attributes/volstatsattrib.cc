@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.51 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.52 2010-10-12 10:30:19 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: volstatsattrib.cc,v 1.51 2010-04-20 22:03:25 cv
 #include "attribparam.h"
 #include "attribsteering.h"
 #include "statruncalc.h"
+#include "survinfo.h"
 #include "valseriesinterpol.h"
 
 #define mShapeRectangle		0
@@ -47,7 +48,7 @@ mAttrDefCreateInstance(VolStats)
 
 void VolStats::initClass()
 {
-    mAttrStartInitClassWithUpdate
+    mAttrStartInitClassWithDescAndDefaultsUpdate
 
     const BinID defstepout( 1, 1 );
     BinIDParam* stepout = new BinIDParam( stepoutStr() );
@@ -59,7 +60,7 @@ void VolStats::initClass()
     shape->addEnum( shapeTypeStr(mShapeRectangle) );
     shape->addEnum( shapeTypeStr(mShapeEllipse) );
     shape->addEnum( shapeTypeStr(mShapeOpticalStack) );
-    shape->setDefaultValue( mShapeRectangle );
+    shape->setDefaultValue( mShapeEllipse );
     desc->addParam( shape );
 
     ZGateParam* gate = new ZGateParam( gateStr() );
@@ -111,6 +112,17 @@ void VolStats::updateDesc( Desc& desc )
     desc.setParamEnabled( stepoutStr(), !isoptstack );
     desc.setParamEnabled( optstackstepStr(), isoptstack );
     desc.setParamEnabled( optstackdirStr(), isoptstack );
+}
+
+
+void VolStats::updateDefaults( Desc& desc )
+{
+    ValParam* paramgate = desc.getValParam(gateStr());
+    mDynamicCastGet( ZGateParam*, zgate, paramgate )
+    float roundedzstep = SI().zStep()*SI().zFactor();
+    if ( roundedzstep > 0 )
+	roundedzstep = (int)( roundedzstep );
+    zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 
 

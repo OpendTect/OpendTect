@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.29 2010-09-10 14:06:36 cvskris Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.30 2010-10-12 10:30:19 cvshelene Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.29 2010-09-10 14:06:36 c
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "math2.h"
+#include "survinfo.h"
 
 #include <math.h>
 
@@ -28,7 +29,7 @@ mAttrDefCreateInstance(DipFilter)
     
 void DipFilter::initClass()
 {
-    mAttrStartInitClassWithUpdate
+    mAttrStartInitClassWithDescAndDefaultsUpdate
 
     IntParam* size = new IntParam( sizeStr() );
     size->setLimits( StepInterval<int>(3,49,2) );
@@ -103,6 +104,14 @@ void DipFilter::updateDesc( Desc& desc )
 	desc.setParamEnabled( minvelStr(), true );
 	desc.setParamEnabled( maxvelStr(), true );
     }
+}
+
+
+void DipFilter::updateDefaults( Desc& desc )
+{
+    ValParam* paramvel = desc.getValParam(maxvelStr());
+    mDynamicCastGet( FloatParam*, maxvel, paramvel )
+    maxvel->setDefaultValue( SI().zIsTime() ? 1000 : 90 );
 }
 
 

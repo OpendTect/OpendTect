@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: dipfilterattrib.h,v 1.13 2010-08-26 14:47:55 cvskris Exp $
+ RCS:           $Id: dipfilterattrib.h,v 1.14 2010-10-12 10:30:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ protected:
 			~DipFilter() {}
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
-
+    static void         updateDefaults(Desc&);
 
     bool		allowParallelComputation() const	{ return true; }
 

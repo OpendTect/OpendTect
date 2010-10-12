@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.21 2010-02-08 15:33:22 cvsbert Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.22 2010-10-12 10:30:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ protected:
 				~VolStats();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
+    static void			updateDefaults(Desc&);
 
     bool			allowParallelComputation() const
 				{ return true; }

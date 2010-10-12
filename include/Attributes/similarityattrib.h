@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.29 2010-09-30 15:14:44 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.30 2010-10-12 10:30:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ protected:
     				~Similarity() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
+    static void                 updateDefaults(Desc&);
 
     bool			allowParallelComputation() const
 				{ return true; }

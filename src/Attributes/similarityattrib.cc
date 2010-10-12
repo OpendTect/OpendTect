@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.51 2010-10-11 14:32:05 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.52 2010-10-12 10:30:19 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: similarityattrib.cc,v 1.51 2010-10-11 14:32:05 
 #include "attribsteering.h"
 #include "genericnumer.h"
 #include "statruncalc.h"
+#include "survinfo.h"
 
 #define mExtensionNone		0
 #define mExtensionRot90		1
@@ -32,7 +33,7 @@ mAttrDefCreateInstance(Similarity)
     
 void Similarity::initClass()
 {
-    mAttrStartInitClassWithUpdate
+    mAttrStartInitClassWithDescAndDefaultsUpdate
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-1000,1000) );
@@ -107,6 +108,17 @@ void Similarity::updateDesc( Desc& desc )
     
     if ( dobrowsedip )
 	desc.setNrOutputs( Seis::UnknowData, desc.is2D()? 6 : 7 );
+}
+
+
+void Similarity::updateDefaults( Desc& desc )
+{
+    ValParam* paramgate = desc.getValParam(gateStr());
+    mDynamicCastGet( ZGateParam*, zgate, paramgate )
+    float roundedzstep = SI().zStep()*SI().zFactor();
+    if ( roundedzstep > 0 )
+	roundedzstep = (int)( roundedzstep );
+    zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 
 
