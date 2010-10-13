@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.13 2010-05-10 16:10:10 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.14 2010-10-13 20:35:12 cvskris Exp $";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -69,8 +69,10 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
     BufferString gradientlabel = "Gradient [/";
     gradientlabel += SI().getZUnitString( false );
     gradientlabel += "]";
-    gradientfld_ = new uiGenInput( this, gradientlabel.buf(),
-			   FloatInpSpec( hf->getGradient()/SI().zFactor() ) );
+    gradientfld_ = new uiGenInput( this, gradientlabel.buf(), FloatInpSpec() );
+    const float gradient = hf->getGradient();
+    if ( !mIsUdf(gradient) )
+	gradientfld_->setValue( gradient/SI().zFactor() );
     gradientfld_->attach( alignedBelow, usegradientfld_ );
 
     bottomvalfld_ = new uiGenInput( this, "Bottom Value",
