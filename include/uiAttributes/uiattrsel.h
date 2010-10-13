@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.26 2010-08-04 13:30:46 cvsbert Exp $
+ RCS:           $Id: uiattrsel.h,v 1.27 2010-10-13 15:11:56 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,6 +172,7 @@ public:
     const char*		getAttrName() const;
 
     void		setObjectName(const char*);
+    const Attrib::DescSet& getAttrSet() const	{ return attrdata_.attrSet(); }
     
 protected:
 
