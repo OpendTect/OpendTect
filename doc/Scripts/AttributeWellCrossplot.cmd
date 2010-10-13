@@ -1,79 +1,114 @@
-dTect V3.2
+dTect V4.2.0
 OpendTect commands
-Mon Jan 28 11:36:39 2008
 !
 
-Comment "----------Script for Attribute/Well Crossplot---------------"
+# $Id: AttributeWellCrossplot.cmd,v 1.6 2010-10-13 09:06:08 cvsnageswara Exp $
 
-Include "$SCRIPTSDIR$/AttributeSet3DWindowPrepare.cmd"
-Include "$SCRIPTSDIR$/coherency.cmd"
-Include "$SCRIPTSDIR$/convolve.cmd"
-Include "$SCRIPTSDIR$/energy.cmd"
-Include "$SCRIPTSDIR$/frequency.cmd"
-Ok
+[OpendTect Main Window]
+Menu "Analysis`Attributes"
 
-Menu "Analysis`Cross-plot`Well logs*"
-Window "Attribute/Well cross-plotting"
-ListSelect "Attributes" 1 4 On
-ListSelect "Wells" 1 On
-ListSelect "Logs" "Sonic" On
-Input "Radius around wells" 25
-Button "Select Filter position*"
-ListButton "Filter selection" 2 Off
-ListButton "Filter selection" 2 On
-Input "Pass one every" 2
-Ok
-Ok
+[Attribute Set 3D]
+Combo "Attribute group" "<All>"
+Button "Save on OK" Off
+Combo "Attribute type" "Convolve"
+Button "Select Input Data"
 
-Window "Well attribute data"
-TableClick "Data Table" ColHead "*DAH"
+[Select]
+ListClick "Select Data" "Median Dip Filtered Seismics" Left
+Button "Ok"
+
+[Attribute Set 3D]
+Input "Attribute name" "ConvolveAttrib" Hold
+Button "Add as new"
+Combo "Attribute type" "Energy"
+Button "Select Input Data"
+
+[Select]
+Button "Stored" On
+ListClick "Select Data" "Median Dip Filtered Seismics" Left
+Button "Ok"
+
+[Attribute Set 3D]
+Input "Attribute name" "EnergyAttrib" Hold
+Button "Add as new"
+Button "Ok"
+
+[OpendTect Main Window]
+Menu "Analysis`Cross-plot`Well logs <--> Attributes"
+
+[Attribute/Well cross-plotting]
+ListSelect "Attributes" "ConvolveAttrib" "EnergyAttrib"
+ListClick "Wells" "F02-1" Left
+ListClick "Logs" "Caliper" Left
+Button "Select Filter positions"
+
+[Filters]
+ListButton "Filter selection" "Subsample" On
+Button "Ok"
+
+[Attribute/Well cross-plotting]
+Button "Ok"
+
+[Well attribute data]
+TableClick "Data Table" ColHead "X-Coord" 
 Button "Set data for X"
-TableClick "Data Table" ColHead "CoherencyAtt*"
+TableClick "Data Table" ColHead "Caliper" 
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/$IDX$_CoherencyAttrWellCrossplot.png" 
-Sleep 3
-Window "Well data*"
+
+[Well data / Attributes Cross-plot]
 Close
 
-Window "Well attribute data"
-TableClick "Data Table" ColHead "[Y]CoherencyAttr*" 
+[Well attribute data]
+TableClick "Data Table" ColHead "ConvolveAttrib" 
+TableClick "Data Table" ColHead "[Y]Caliper" 
 Button "UnSelect as Y data"
-TableClick "Data Table" ColHead "ConvolveAttr*"
-Button "Select as Y Data"
+Button "Set Y one column right"
+Button "Set Y one column right"
+Button "Set Y one column right"
+Button "Set Y one column right"
+Button "Set Y one column right"
+Button "Set Y one column right"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/$IDX$_ConvolAttrWellCrossplot.png"
-Window "Well data*"
+
+[Well data / Attributes Cross-plot]
 Close
-Window "Well attribute data"
-TableClick "Data Table" ColHead "[Y]ConvolveAtt*"
+
+[Well attribute data]
+TableClick "Data Table" ColHead "[Y]ConvolveAttrib" 
 Button "UnSelect as Y data"
+TableClick "Data Table" ColHead "EnergyAttrib" 
+Button "Show histogram and stats for column"
 
-TableClick "Data Table" ColHead "EnergyAtt*"
-Button "Select as Y Data"
-Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/$IDX$_EnergyAttrWellCrossPlot.png"
-Window "Well data*"
-Close
-Window "Well attribute data"
-TableClick "Data Table" ColHead "[Y]EnergyAtt*"
-Button "UnSelect as Y data"
-
-TableClick "Data Table" ColHead "FrequencyAttr*"
-Button "Select as Y Data"
-Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/$IDX$_FrequencyAttrWellCrossplot.png"
-Window "Well data*"
+[Data statistics]
 Close
 
-Window "Well attribute data"
+[Well attribute data]
+Button "Select as Y data"
+Button "Show crossplot"
+
+[Well data / Attributes Cross-plot]
+Close
+
+[Well attribute data]
 Button "Dismiss"
 
-Window "Attribute/Well cross-plotting"
+[Attribute/Well cross-plotting]
 Button "Cancel"
 
+[OpendTect Main Window]
 Menu "Survey`Select/Setup"
-Ok
-Button "No"
 
-End
+[Survey selection]
+Button "Edit"
+
+[Survey setup]
+Button "Ok"
+
+[Survey selection]
+Button "Ok (Select)"
+
+[Data not saved]
+Button "Don't save"
+
+[OpendTect Main Window]
