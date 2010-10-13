@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.11 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.12 2010-10-13 22:09:38 cvskris Exp $";
 
 #include "volprochorinterfiller.h"
 
@@ -237,7 +237,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 	else if ( !mIsUdf(topsample) )
 	    dobg = idx<topsample;
 	else 
-	    dobg = idx>bottomsample;
+	    dobg = true;
 
     	float value;
 	if ( dobg )
