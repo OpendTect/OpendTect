@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.5 2010-10-07 09:03:17 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.6 2010-10-13 15:14:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,8 +142,8 @@ protected:
     void			handleCtrlChangeCB(CallBacker*);
     void			posChgCB(CallBacker*);
 
-    void			listLClickCB();
-    void			listRClickCB();
+    void			listLClickCB(CallBacker*);
+    void			listRClickCB(CallBacker*);
     void			fillMarkerList(CallBacker*);
 };
 

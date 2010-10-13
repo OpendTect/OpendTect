@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.12 2010-10-08 15:34:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.13 2010-10-13 15:14:51 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -400,7 +400,7 @@ protected:
 };
 
 
-void uiWellDispEditMarkerDlg::listRClickCB()
+void uiWellDispEditMarkerDlg::listRClickCB( CallBacker* )
 {
     uiPopupMenu mnu( this, "Action" );
     mnu.insertItem( new uiMenuItem("Add &New ..."), 0 );
@@ -418,7 +418,7 @@ void uiWellDispEditMarkerDlg::listRClickCB()
 }
 
 
-void uiWellDispEditMarkerDlg::listLClickCB()
+void uiWellDispEditMarkerDlg::listLClickCB( CallBacker* )
 {
     int curit = mrklist_->currentItem();
     if ( curit < 0 || curit >= colors_.size() ) 
