@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.39 2010-10-11 14:36:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.40 2010-10-13 14:52:37 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -123,11 +123,11 @@ void uiStratUnitEditDlg::getFromScreen()
     }
 }
 
-#define mPreventEmptySpace(buf)\
+#define mPreventWrongChar(buf)\
     char* ptr = buf;\
     while ( *ptr )\
     {\
-	if ( isspace(*ptr) )\
+	if ( isspace(*ptr) || (*ptr) == '.' )\
 	    *ptr = '_';\
 	ptr++;\
     }\
@@ -140,16 +140,16 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 	{ mErrRet( "Please specify the unit name", return false ) }
     else
     {
-	mPreventEmptySpace( name.buf() );
+	mPreventWrongChar( name.buf() );
     }
 
-    BufferString namemsg( "Unit name already used. Please specify a new name" );
+    BufferString namemsg( "Unit name already used. Please specify a new name");
     if ( strcmp(name.buf(),entrancename_.buf()) )
     {
 	Strat::UnitRefIter it( Strat::RT() );
 	while ( it.next() )
 	{
-	    if ( !strcmp(name.buf(),it.unit()->code()))
+	    if ( !strcmp(name.buf(),it.unit()->code()) && it.unit() != &unit_ )
 		{ mErrRet( namemsg, return false ) }
 	}
     }
@@ -250,7 +250,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
     BufferString nm( nmfld_->text() );
     if ( nm.isEmpty() ) return;
 
-    mPreventEmptySpace( nm.buf() );
+    mPreventWrongChar( nm.buf() );
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
     if ( selfld_->isPresent( nm ) || lithos.isPresent( nm.buf() ) )
@@ -514,7 +514,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	}
 	else
 	{
-	    mPreventEmptySpace( code.buf() );
+	    mPreventWrongChar( code.buf() );
 	    units[idx]->setCode( code.buf() );
 	}
 	if ( errmsg.isEmpty() && strcmp( code.buf(), rootunit_.code() ) )
@@ -522,7 +522,8 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	    Strat::UnitRefIter it( Strat::RT() );
 	    while ( it.next() )
 	    {
-		if ( !strcmp(code.buf(),it.unit()->code()))
+		if ( !strcmp(code.buf(),it.unit()->code()) 
+						&& it.unit() != &rootunit_ )
 		    errmsg += "Unit name already used. ";
 	    }
 	}
