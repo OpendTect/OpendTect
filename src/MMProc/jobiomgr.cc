@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.37 2010-09-22 08:39:37 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.38 2010-10-13 05:27:03 cvsranojay Exp $";
 
 #include "jobiomgr.h"
 
@@ -507,7 +507,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 
 #ifdef __msvc__
 
-    cmd.add( "odremexec" );
+    cmd.add( "od_remexec" );
     cmd.add( machine.name() );
     cmd.add( progname );
     cmd.addFlag( "-masterhost", GetLocalIP() ); 
