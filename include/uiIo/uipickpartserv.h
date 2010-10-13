@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.44 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.45 2010-10-13 09:54:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "ranges.h"
 #include "multiid.h"
-#include "binidvalset.h"
+#include "datapointset.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
 
@@ -49,7 +49,7 @@ public:
     bool			createEmptySet(bool aspolygon);
     bool			create3DGenSet();
     bool			createRandom2DSet();
-    void			setMisclassSet(const BinIDValueSet&);
+    void			setMisclassSet(const DataPointSet&);
     void			setPickSet(const Pick::Set&);
     void			fillZValsFrmHor(Pick::Set*,int);
 

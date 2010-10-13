@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.390 2010-10-11 07:14:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.391 2010-10-13 09:54:58 cvshelene Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1334,12 +1334,13 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     else if ( evid == uiNLAPartServer::evSaveMisclass() )
     {
 	const DataPointSet& dps = nlaserv_->dps();
-	BinIDValueSet mcpicks( 1, true );
+	DataPointSet mcpicks( dps.is2D() );
 	for ( int irow=0; irow<dps.size(); irow++ )
 	{
 	    if ( dps.group(irow) == 3 )
-		mcpicks.add( dps.binID(irow), dps.z(irow) );
+		mcpicks.addRow( dps.dataRow(irow) );
 	}
+	mcpicks.dataChanged();
 	pickserv_->setMisclassSet( mcpicks );
     }
     else if ( evid == uiNLAPartServer::evCreateAttrSet() )

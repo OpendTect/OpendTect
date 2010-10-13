@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.66 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.67 2010-10-13 09:54:58 cvshelene Exp $";
 
 #include "uipickpartserv.h"
 
@@ -241,7 +241,7 @@ void uiPickPartServer::setPickSet( const Pick::Set& pickset )
 }
 
 
-void uiPickPartServer::setMisclassSet( const BinIDValueSet& bivs )
+void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
 {
     static const char* sKeyMisClass = "Misclassified [NN]";
     int setidx = setmgr_.indexOf( sKeyMisClass );
@@ -255,12 +255,10 @@ void uiPickPartServer::setMisclassSet( const BinIDValueSet& bivs )
 	ps->disp_.color_.set( 240, 0, 0 );
     }
 
-    BinIDValueSet::Pos pos; BinIDValue biv;
-    while ( bivs.next(pos,false) )
+    for ( int idx=0; idx<dps.size(); idx++ )
     {
-	bivs.get( pos, biv );
-	Coord crd = SI().transform( biv.binid );
-	*ps += Pick::Location( crd.x, crd.y, biv.value );
+	Coord crd = dps.coord( idx );
+	*ps += Pick::Location( crd.x, crd.y, dps.z(idx) );
     }
 
     if ( isnew )
