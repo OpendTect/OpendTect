@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.24 2010-08-30 13:00:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.25 2010-10-13 15:13:43 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -211,8 +211,10 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
 	timedrawer_->setWindows( 1-var/100 );
 
 	if ( !timedrawer_->getFuncValues() ) return;
-	memcpy( wvlt_->samples(), timedrawer_->getFuncValues(), wvltsz_ );
-	if ( mutefld_->isChecked() ) wvltattr_->muteZeroFrequency( *wvltvals_ );
+	memcpy( wvlt_->samples(), timedrawer_->getFuncValues(), 
+						    sizeof(float)*wvltsz_ );
+	if ( mutefld_->isChecked() ) 
+	    wvltattr_->muteZeroFrequency( *wvltvals_ );
 	setFreqData();
     }
 
