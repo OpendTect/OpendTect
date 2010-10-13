@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.391 2010-10-13 09:54:58 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.392 2010-10-13 12:29:56 cvshelene Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -105,6 +105,12 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     wellattrserv_->setDPSDispMgr( visdpsdispmgr_ );
     attrserv_->setDPSDispMgr( visdpsdispmgr_ );
 
+    if ( survChgReqAttrUpdate() )
+    {
+	attrserv_->setAttrsNeedUpdt();
+	tmpprevsurvinfo_.refresh();
+    }
+	
     IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
     IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
 }
@@ -209,7 +215,10 @@ void uiODApplMgr::surveyChanged( CallBacker* )
     attrserv_ = new uiAttribPartServer( applservice_ );
     attrserv_->setDPSDispMgr( visdpsdispmgr_ );
     if ( survChgReqAttrUpdate() )
+    {
 	attrserv_->setAttrsNeedUpdt();
+	tmpprevsurvinfo_.refresh();
+    }
 
     mpeserv_ = new uiMPEPartServer( applservice_ );
     MPE::engine().init();
@@ -220,7 +229,7 @@ bool uiODApplMgr::survChgReqAttrUpdate()
 {
     return !( SI().xyUnit() == tmpprevsurvinfo_.xyunit_ &&
 		SI().zUnit() == tmpprevsurvinfo_.zunit_ &&
-		SI().zStep() == tmpprevsurvinfo_.zstep_ );
+		mIsEqual( SI().zStep(),tmpprevsurvinfo_.zstep_, 1e-6 ) );
 }
 
 
@@ -1629,3 +1638,9 @@ int uiODApplMgr::createMapDataPack( const DataPointSet& data, int colnr )
 { return dispatcher_.createMapDataPack( data, colnr ); }
 
 
+void uiODApplMgr::MiscSurvInfo::refresh()
+{
+    xyunit_ = SI().xyUnit();
+    zunit_ = SI().zUnit();
+    zstep_ = SI().zStep();
+}

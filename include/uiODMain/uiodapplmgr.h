@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.109 2010-10-07 17:29:19 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.110 2010-10-13 12:29:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -215,6 +215,13 @@ protected:
 
     struct MiscSurvInfo
     {
+				MiscSurvInfo()
+				: xyunit_(1)
+			        , zunit_(0)
+				, zstep_(0.004) {};
+
+	void                    refresh();
+
 	int			xyunit_;
 	int			zunit_;
 	float			zstep_;
