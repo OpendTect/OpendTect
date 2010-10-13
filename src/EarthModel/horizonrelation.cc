@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonrelation.cc,v 1.5 2010-09-21 05:20:46 cvsraman Exp $";
+static const char* rcsID = "$Id: horizonrelation.cc,v 1.6 2010-10-13 06:09:14 cvsraman Exp $";
 
 #include "horizonrelation.h"
 #include "ctxtioobj.h"
@@ -157,7 +157,8 @@ void RelationTree::removeNode( const MultiID& id, bool dowrite )
     getParents( index, parents );
     for ( int idx=0; idx<parents.size(); idx++ )
     {
-	RelationTree::Node* parentnode = nodes_[idx];
+	RelationTree::Node* parentnode = nodes_[parents[idx]];
+	parentnode->children_.remove( parentnode->children_.indexOf(node) );
 	for ( int cdx=0; cdx<node->children_.size(); cdx++ )
 	{
 	    const RelationTree::Node* childnode = node->children_[cdx];
