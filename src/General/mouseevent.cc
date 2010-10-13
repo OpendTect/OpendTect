@@ -4,7 +4,7 @@
  * DATE     : September 2006
 -*/
 
-static const char* rcsID = "$Id: mouseevent.cc,v 1.10 2010-10-06 13:41:25 cvsjaap Exp $";
+static const char* rcsID = "$Id: mouseevent.cc,v 1.11 2010-10-13 13:36:32 cvsjaap Exp $";
 
 #include "mouseevent.h"
 
@@ -141,9 +141,10 @@ void MouseEventHandler::setEvent( const MouseEvent* ev )
 void MouseEventHandler::trigger##fn( const MouseEvent& ev ) \
 { \
     ishandled_ = false; \
+    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
     setEvent( &ev ); \
     trig.trigger(); \
-    setEvent( 0 ); \
+    setEvent( parentevent ); \
 }
 
 mImplMouseEventHandlerFn(Movement,movement)
@@ -164,6 +165,7 @@ mImplMouseEventHandlerFn(Wheel,wheelMove)
 void MouseEventHandler::triggerMovement( const MouseEvent& ev )
 {
     ishandled_ = false;
+    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
     setEvent( &ev );
 
     // Hack to repair missing mouse release events from tablet pen on Linux
@@ -178,7 +180,7 @@ void MouseEventHandler::triggerMovement( const MouseEvent& ev )
 		event_->setButtonState( curtabletbutstate_ );
 		tabletispressed_ = false;
 		buttonReleased.trigger();
-		setEvent( 0 );
+		setEvent( parentevent );
 		return;
 	    }
 	}
@@ -186,13 +188,14 @@ void MouseEventHandler::triggerMovement( const MouseEvent& ev )
     // End of hack
 
     movement.trigger();
-    setEvent( 0 );
+    setEvent( parentevent );
 }
 
 
 void MouseEventHandler::triggerButtonPressed( const MouseEvent& ev )
 {
     ishandled_ = false;
+    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
     setEvent( &ev );
 
     // Hack to repair missing mouse release events from tablet pen on Linux
@@ -204,13 +207,14 @@ void MouseEventHandler::triggerButtonPressed( const MouseEvent& ev )
     // End of hack
 
     buttonPressed.trigger();
-    setEvent( 0 );
+    setEvent( parentevent );
 }
 
 
 void MouseEventHandler::triggerButtonReleased( const MouseEvent& ev )
 {
     ishandled_ = false;
+    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
     setEvent( &ev );
 
     // Hack to repair missing mouse release events from tablet pen on Linux
@@ -220,7 +224,7 @@ void MouseEventHandler::triggerButtonReleased( const MouseEvent& ev )
 	if ( !tabletispressed_ )
 	{
 	    movement.trigger();
-	    setEvent( 0 );
+	    setEvent( parentevent );
 	    return;
 	}
 	tabletispressed_ = false;
@@ -228,13 +232,14 @@ void MouseEventHandler::triggerButtonReleased( const MouseEvent& ev )
     // End of hack
 
     buttonReleased.trigger();
-    setEvent( 0 );
+    setEvent( parentevent );
 }
 
 
 void MouseEventHandler::triggerDoubleClick( const MouseEvent& ev )
 {
     ishandled_ = false;
+    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
     setEvent( &ev );
 
     // Hack to repair missing mouse release events from tablet pen on Linux
@@ -246,16 +251,17 @@ void MouseEventHandler::triggerDoubleClick( const MouseEvent& ev )
     // End of hack
 
     doubleClick.trigger();
-    setEvent( 0 );
+    setEvent( parentevent );
 }
 
 
 void MouseEventHandler::triggerWheel( const MouseEvent& ev )
 {
     ishandled_ = false;
+    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0;
     setEvent( &ev );
     wheelMove.trigger();
-    setEvent( 0 );
+    setEvent( parentevent );
 }
 
 
