@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.37 2010-10-07 15:13:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.38 2010-10-13 13:37:12 cvsjaap Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -374,7 +374,8 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 	const Rect wr = getWorldRect( ids_[seldatasetidx_] );
 	mGetRCol2CoordTransform( trans, wr, mousearea_ );
 
-	selptcoord_ = selptidx_.size()
+	selptcoord_ = selptidx_.size() && seldatasetidx_<auxdata_.size() &&
+		      selptidx_[0]<auxdata_[seldatasetidx_]->poly_.size()
 	    ? (FlatView::Point) auxdata_[seldatasetidx_]->poly_[selptidx_[0]]
 	    : (FlatView::Point) trans.transform(RowCol(ev.pos().x,ev.pos().y) );
     }
@@ -438,7 +439,7 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
     {
 	removeSelected.trigger( true, this );
 
-	if ( doedit_[seldatasetidx_] )
+	if ( seldatasetidx_<doedit_.size() && doedit_[seldatasetidx_] )
 	{
 	    auxdata_[seldatasetidx_]->poly_.remove( selptidx_[0] );
 	    viewer_.handleChange( Viewer::Annot );
@@ -746,6 +747,9 @@ bool Sower::activate( const Color& color, const MouseEvent& mouseevent )
     if ( editor_.dataSetIdxAt(mouseevent.pos()) >= 0 )
 	mReturnHandled( false );
 
+    if ( editor_.isSelActive() )
+	mReturnHandled( false );
+
     mode_ = Furrowing;
     if ( !accept(mouseevent, false) )
     {
@@ -797,7 +801,7 @@ bool Sower::accept( const MouseEvent& mouseevent, bool released )
 
 bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 {
-    if ( mode_==Idle && released &&
+    if ( mode_==Idle && released && !editor_.isDragging() &&
 	 editor_.dataSetIdxAt(mouseevent.pos())<0 )
 	mReturnHandled( true );
 
@@ -871,6 +875,7 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
     {
 	int idx = bendpoints_[0];
 
+	editor_.mousedown_ = false;	// Dirty but effective.
 	mRehandle( mouseeventhandler_, *eventlist_[idx], Press, Pressed );
 	mRehandle( mouseeventhandler_, *eventlist_[idx], Release, Released );
 
@@ -946,6 +951,7 @@ bool Sower::acceptLaser( const MouseEvent& mouseevent, bool released )
     int butstate = newevent.buttonState() | lasermask_;
     newevent.setButtonState( (OD::ButtonState) butstate );
 
+    editor_.mousedown_ = false;		// Dirty but effective.
     mRehandle( mouseeventhandler_, newevent, Press, Pressed );
     mRehandle( mouseeventhandler_, newevent, Release, Released );
 
@@ -969,6 +975,7 @@ bool Sower::acceptEraser( const MouseEvent& mouseevent, bool released )
     int butstate = newevent.buttonState() | erasermask_;
     newevent.setButtonState( (OD::ButtonState) butstate );
 
+    editor_.mousedown_ = false;		// Dirty but effective.
     mRehandle( mouseeventhandler_, newevent, Press, Pressed );
     mRehandle( mouseeventhandler_, newevent, Release, Released );
 

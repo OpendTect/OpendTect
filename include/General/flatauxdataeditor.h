@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.19 2010-10-06 13:50:08 cvsjaap Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.20 2010-10-13 13:37:12 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -180,6 +180,8 @@ public:
     			//!<If dataid ==-1, all pts inside polygon is removed
     void		setMenuHandler(MenuHandler*);
     MenuHandler*	getMenuHandler();
+
+    MouseEventHandler&	mouseEventHandler()	    { return mousehandler_; }
 
 protected:
     void		getPointSelections(
