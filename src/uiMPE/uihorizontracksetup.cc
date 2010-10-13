@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.37 2010-09-27 04:58:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.38 2010-10-13 02:46:12 cvsnanne Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.37 2010-09-27 04:58:
 #include "draw.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
-//#include "emsurfacetr.h"
 #include "horizonadjuster.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
@@ -438,6 +437,12 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
     mDynamicCastGet(HorizonAdjuster*,horadj,sectiontracker_->adjuster())
     horadj_ = horadj;
     if ( !horadj_ ) return;
+
+    if ( is2d_ )
+    {
+	TypeSet<float> allowedvars; allowedvars += 0.75;
+	horadj_->setAllowedVariances( allowedvars );
+    }
 
     initModeGroup();
     initEventGroup();
