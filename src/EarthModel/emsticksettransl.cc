@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsticksettransl.cc,v 1.11 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emsticksettransl.cc,v 1.12 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "emsticksettransl.h"
 
@@ -261,11 +261,11 @@ int lmkEMStickSetReader::nextStep()
     {
 	BufferString str(&buffer[lineidinterval.start-1]);
 	str[lineidinterval.width()+1] = 0;
-	int inl = atoi( str );
+	int inl = toInt( str );
 	
 	str = &buffer[traceinterval.start-1];
 	str[traceinterval.width()+1] = 0;
-	int crl = atoi( str );
+	int crl = toInt( str );
 
 	Coord coord = SI().transform( BinID(inl, crl ));
 
@@ -276,20 +276,20 @@ int lmkEMStickSetReader::nextStep()
     {
 	BufferString str(&buffer[xinterval.start-1]);
 	str[xinterval.width()+1] = 0;
-	pos.x = atof( str );
+	pos.x = toDouble( str );
 
 	str = &buffer[yinterval.start-1];
 	str[yinterval.width()+1] = 0;
-	pos.y = atof( str );
+	pos.y = toDouble( str );
     }
 
     BufferString str = &buffer[zinterval.start-1];
     str[zinterval.width()+1] = 0;
-    pos.z = atof( str );
+    pos.z = toDouble( str );
 
     str = &buffer[pointtypeinterval.start-1];
     str[pointtypeinterval.width()+1] = 0;
-    int pt = atoi( str );
+    int pt = toInt( str );
 
     if ( domainunitinterval.start!=-1 )
     {

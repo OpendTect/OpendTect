@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.112 2010-09-15 12:14:44 cvsnageswara Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.113 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -145,7 +145,7 @@ const char* getFullDateString( void )
 #ifdef __win__
     return 0; // TODO
 #else
-	const time_t timer = time(NULL);
+    const time_t timer = time(NULL);
     chp = ctime( &timer );
 
     lastch = strlen( chp ) - 1 ;

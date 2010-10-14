@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.90 2010-07-19 15:17:26 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.91 2010-10-14 09:58:07 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -195,19 +195,19 @@ void uiWellTrackDlg::updNow( CallBacker* )
     {
 	const char* sval = tbl_->text( RowCol(idx,0) );
 	if ( !*sval ) continue;
-	const float xval = atof(sval);
+	const float xval = toFloat(sval);
 	sval = tbl_->text( RowCol(idx,1) );
 	if ( !*sval ) continue;
-	const float yval = atof(sval);
+	const float yval = toFloat(sval);
 	sval = tbl_->text( RowCol(idx,2) );
 	if ( !*sval ) continue;
-	float zval = atof(sval); if ( zinft ) zval *= mFromFeetFactor;
+	float zval = toFloat(sval); if ( zinft ) zval *= mFromFeetFactor;
 
 	const Coord3 newc( xval, yval, zval );
 	sval = tbl_->text( RowCol(idx,3) );
 	float dahval = 0;
 	if ( *sval )
-	    { dahval = atof(sval); if ( zinft ) dahval *= mFromFeetFactor; }
+	    { dahval = toFloat(sval); if ( zinft ) dahval *= mFromFeetFactor; }
 	else if ( idx > 0 )
 	{
 	    dahval = track_.dah(idx-1) + track_.pos(idx-1).distTo( newc );
@@ -432,10 +432,10 @@ void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
     {
 	const char* sval = tbl_->text( RowCol(idx,0) );
 	if ( !sval || !*sval ) continue;
-	float dah = atof(sval) * zfac;
+	float dah = toFloat(sval) * zfac;
 	sval = tbl_->text( RowCol(idx,1) );
 	if ( !sval || !*sval ) continue;
-	float tm = atof(sval) * 0.001;
+	float tm = toFloat(sval) * 0.001;
 	d2t.add( dah, tm );
     }
 }

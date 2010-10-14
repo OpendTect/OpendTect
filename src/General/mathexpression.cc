@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.51 2009-12-17 14:24:47 cvsbert Exp $";
+static const char* rcsID = "$Id: mathexpression.cc,v 1.52 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -562,7 +562,7 @@ BufferString MathExpressionParser::varNameOf( const char* str, int* shift )
 	const char* shftstr = ptr;
 	while ( *ptr && *ptr != ']' ) ptr++;
 	if ( *ptr ) *ptr = '\0';
-	*shift = atoi( shftstr );
+	*shift = toInt( shftstr );
     }
     return varnm;
 }
@@ -592,7 +592,7 @@ int MathExpressionParser::constIdxOf( const char* varstr )
     while ( *ptr && !isdigit(*ptr) )
 	ptr++;
 
-    return atoi( ptr );
+    return toInt( ptr );
 }
 
 

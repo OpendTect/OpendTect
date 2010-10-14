@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: fontdata.cc,v 1.3 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: fontdata.cc,v 1.4 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "fontdata.h"
 #include "separstr.h"
@@ -65,7 +65,7 @@ void FontData::getFrom( const char* s )
     if ( nr < 1 ) return;
 
     family_ = fms[0];
-    if ( nr > 1 ) pointsize_ = atoi( fms[1] );
+    if ( nr > 1 ) pointsize_ = toInt( fms[1] );
     if ( nr > 2 ) weight_ = eEnum(FontData::Weight,fms[2]);
     if ( nr > 3 ) italic_ = yesNoFromString(fms[3]);
 }

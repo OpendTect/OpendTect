@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.30 2010-04-23 05:27:20 cvsnanne Exp $
+ * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.31 2010-10-14 09:58:06 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.30 2010-04-23 05:27:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.31 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -64,14 +64,14 @@ static int doWork( int argc, char** argv )
 
     SeparString fms( argv[1], ',' );
     CubeSampling cs;
-    cs.hrg.start.inl = atoi(fms[0]); cs.hrg.stop.inl = atoi(fms[1]);
-    cs.hrg.step.inl = atoi(fms[2]);
+    cs.hrg.start.inl = toInt(fms[0]); cs.hrg.stop.inl = toInt(fms[1]);
+    cs.hrg.step.inl = toInt(fms[2]);
     if ( cs.hrg.step.inl < 0 ) cs.hrg.step.inl = -cs.hrg.step.inl;
-    cs.hrg.start.crl = atoi(fms[3]); cs.hrg.stop.crl = atoi(fms[4]);
-    cs.hrg.step.crl = atoi(fms[5]);
+    cs.hrg.start.crl = toInt(fms[3]); cs.hrg.stop.crl = toInt(fms[4]);
+    cs.hrg.step.crl = toInt(fms[5]);
     if ( cs.hrg.step.crl < 0 ) cs.hrg.step.crl = -cs.hrg.step.crl;
-    cs.zrg.start = atof(fms[6]); cs.zrg.stop = atof(fms[7]);
-    cs.zrg.step = atof(fms[8]);
+    cs.zrg.start = toFloat(fms[6]); cs.zrg.stop = toFloat(fms[7]);
+    cs.zrg.step = toFloat(fms[8]);
     if ( cs.zrg.step < 0 ) cs.zrg.step = -cs.zrg.step;
     cs.normalise();
 
@@ -87,8 +87,8 @@ static int doWork( int argc, char** argv )
 	if ( fms.size() > 1 )
 	{
 	    userg = &rg;
-	    rg.start = atof( fms[0] );
-	    rg.stop = atof( fms[1] );
+	    rg.start = toFloat( fms[0] );
+	    rg.stop = toFloat( fms[1] );
 	}
     }
 

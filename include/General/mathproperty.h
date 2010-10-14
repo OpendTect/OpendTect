@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.13 2010-10-06 15:40:31 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.14 2010-10-14 09:58:06 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -29,11 +29,27 @@ public:
 			: Property(pr)
 			, val_(v)			{}
 
-    virtual float	value( bool a=true ) const	{ return val_; }
-    virtual bool	canSet() const			{ return true; }
-    virtual void	setValue( float v )		{ val_ = v; }
-
     float		val_;
+
+    mDefPropFns(ValueProperty,"Value");
+
+};
+
+/*!\brief Range of values.  pos_ is usually in [0,1]. */
+
+mClass RangeProperty : public Property
+{
+public:
+
+    			RangeProperty( const PropertyRef& pr )
+			: Property(pr)
+			, pos_(0.5)
+			, rg_(mUdf(float),0)	{}
+
+    Interval<float>	rg_;
+    float		pos_;
+
+    mDefPropFns(RangeProperty,"Range");
 
 };
 
@@ -43,24 +59,20 @@ public:
 mClass MathProperty : public Property
 {
 public:
-    			MathProperty( const PropertyRef& pr, const char* ds=0 )
-			: Property(pr), expr_(0)
-			{ inps_.allowNull(true); setDef(ds); }
+    			MathProperty( const PropertyRef& pr )
+			: Property(pr), expr_(0)      { inps_.allowNull(true); }
 			~MathProperty();
-
-    const char*		def() const			{ return def_.buf(); }
-    void		setDef(const char*);
 
     int			nrInputs() const;
     const char*		inputName(int) const;
-    bool		haveInput( int idx ) const	{ return inps_[idx]; }
+    bool		haveInput( int idx ) const    { return inps_[idx]; }
     void		setInput(int,const Property*);
     			//!< Must be done for all inputs after each setDef()
 
-    virtual float	value(bool a=true) const;
-    virtual bool	canSet() const		{ return false; }
     virtual void	reset();
     virtual bool	dependsOn(const Property&) const;
+
+    mDefPropFns(MathProperty,"Math");
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.453 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.454 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uivispartserv.h"
 
@@ -1275,9 +1275,9 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	FileMultiString fms(res);
 	CubeSampling cs;
 	HorSampling& hs = cs.hrg; StepInterval<float>& zrg = cs.zrg;
-	hs.start.inl = atoi(fms[0]); hs.stop.inl = atoi(fms[1]);
-	hs.start.crl = atoi(fms[2]); hs.stop.crl = atoi(fms[3]);
-	zrg.start = atof(fms[4]); zrg.stop = atof(fms[5]);
+	hs.start.inl = toInt(fms[0]); hs.stop.inl = toInt(fms[1]);
+	hs.start.crl = toInt(fms[2]); hs.stop.crl = toInt(fms[3]);
+	zrg.start = toFloat(fms[4]); zrg.stop = toFloat(fms[5]);
 	const_cast<SurveyInfo&>(SI()).setRange( cs, true );
     }
 

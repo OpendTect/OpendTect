@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.392 2010-10-13 12:29:56 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.393 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1337,7 +1337,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    uiMSG().warning( res );
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
 	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D(),
-		   		   atof( GetProjectVersionName() ) );
+		   		   toFloat( GetProjectVersionName() ) );
 	deepErase(dpss);
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass() )

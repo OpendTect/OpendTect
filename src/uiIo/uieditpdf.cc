@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.17 2010-07-26 12:29:52 cvshelene Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.18 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -210,7 +210,7 @@ bool uiEditProbDenFunc::getValsFromScreen( bool* chgd )
 		mErrRet("Please fill all cells - or use 'Cancel'")
 
 	    idxs[0] = nrdims_ == 1 ? rowidx : icol;
-	    const float tblval = atof( tbltxt );
+	    const float tblval = toFloat( tbltxt );
 	    data.setND( idxs, tblval );
 	    if ( chgd )
 	    {

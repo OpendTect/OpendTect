@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.15 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.16 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uiattrgetfile.h"
 #include "uiattrsrchprocfiles.h"
@@ -87,7 +87,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
     {
 	const char* ptr = version.buf();
 	ptr +=1;
-	versionnr = atof( ptr );
+	versionnr = toFloat( ptr );
     }
 
     if ( !isattrset_ )

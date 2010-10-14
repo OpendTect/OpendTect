@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: multiid.h,v 1.12 2010-03-17 19:03:26 cvskris Exp $
+ RCS:		$Id: multiid.h,v 1.13 2010-10-14 09:58:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ public:
 			{ return id_ == s; }
 
     inline int		ID( int idx ) const
-			{ return atoi(key(idx).buf()); }
+			{ return toInt(key(idx).buf()); }
     inline void		setID( int idx, int i )
 			{ setKey( idx, toString(i) ); }
     int			leafID() const;

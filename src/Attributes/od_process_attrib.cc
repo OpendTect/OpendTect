@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.35 2010-09-27 12:12:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.36 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "batchprog.h"
 
@@ -87,7 +87,7 @@ bool BatchProgram::go( std::ostream& strm )
     float vsn = 0;
     if ( !parversion_.isEmpty() )
     {
-	vsn = atof( parversion_.buf() );
+	vsn = toFloat( parversion_.buf() );
 	if ( vsn < 3.2 )
 	    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
     }
@@ -116,8 +116,8 @@ bool BatchProgram::go( std::ostream& strm )
     if ( selspec && *selspec )
     {
 	FileMultiString fms( selspec );
-	int lnr = atoi( fms[0] );
-	if ( lnr == atoi( fms[1] ) )
+	int lnr = toInt( fms[0] );
+	if ( lnr == toInt( fms[1] ) )
 	    strm << "Calculating for in-line " << lnr << '.' << std::endl;
     }
     strm << std::endl;

@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.111 2010-10-07 07:10:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.112 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -104,13 +104,13 @@ void BatchProgram::init( int* pac, char** av )
 	{
 	    argshift++;
 	    fn = argv_[ argshift - 1 ];
-	    masterport = atoi(fn);
+	    masterport = toInt(fn);
 	}
 	else if ( !strncmp(fn,"-jobid",6) )
 	{
 	    argshift++;
 	    fn = argv_[ argshift - 1 ];
-	    jobid = atoi(fn);
+	    jobid = toInt(fn);
 	}
 	else if ( *(fn+1) )
 	    opts += new BufferString( fn+1 );

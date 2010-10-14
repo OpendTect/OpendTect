@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.75 2009-12-01 10:02:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.76 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uinlapartserv.h"
 
@@ -405,7 +405,7 @@ void uiNLAPartServer::LithCodeData::useUserSels( const BufferStringSet& usels )
 	if ( *det == 'R' )
 	    ptrtbl += -1;
 	else if ( *det == 'M' )
-	    ptrtbl += codes.indexOf( atoi(det+1) );
+	    ptrtbl += codes.indexOf( toInt(det+1) );
 	else
 	{
 	    ptrtbl += icode;

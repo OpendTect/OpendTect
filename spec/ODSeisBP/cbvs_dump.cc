@@ -145,15 +145,15 @@ bool BatchProgram::go( std::ostream& logstrm )
 	    {
 		fms = inlselstr;
 		const int sz = fms.size();
-		if ( sz > 0 ) cs.hrg.start.inl = atoi( fms[0] );
-		if ( sz > 1 ) cs.hrg.stop.inl = atoi( fms[1] );
+		if ( sz > 0 ) cs.hrg.start.inl = toInt( fms[0] );
+		if ( sz > 1 ) cs.hrg.stop.inl = toInt( fms[1] );
 	    }
 	    if ( crlselstr )
 	    {
 		fms = crlselstr;
 		const int sz = fms.size();
-		if ( sz > 0 ) cs.hrg.start.crl = atoi( fms[0] );
-		if ( sz > 1 ) cs.hrg.stop.crl = atoi( fms[1] );
+		if ( sz > 0 ) cs.hrg.start.crl = toInt( fms[0] );
+		if ( sz > 1 ) cs.hrg.stop.crl = toInt( fms[1] );
 	    }
 	}
 	if ( zselstr )
@@ -162,8 +162,8 @@ bool BatchProgram::go( std::ostream& logstrm )
 	    const int sz = fms.size();
 	    if ( SI().zIsTime() )
 		{ cs.zrg.start *= 1000; cs.zrg.stop *= 1000; }
-	    if ( sz > 0 ) cs.zrg.start = atof( fms[0] );
-	    if ( sz > 1 ) cs.zrg.stop = atof( fms[1] );
+	    if ( sz > 0 ) cs.zrg.start = toFloat( fms[0] );
+	    if ( sz > 1 ) cs.zrg.stop = toFloat( fms[1] );
 	    if ( SI().zIsTime() )
 		{ cs.zrg.start *= 0.001; cs.zrg.stop *= 0.001; }
 	}

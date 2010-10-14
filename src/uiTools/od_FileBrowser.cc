@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.19 2010-04-15 15:43:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.20 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uitextfile.h"
 #include "uimain.h"
@@ -32,7 +32,7 @@ int main( int argc, char ** argv )
 	else if ( !strcmp(argv[argidx],"--table") )
 	    table = true;
 	else if ( !strcmp(argv[argidx],"--maxlines") )
-	    { argidx++; maxlines = atoi(argv[argidx]); }
+	    { argidx++; maxlines = toInt(argv[argidx]); }
 	else if ( !strcmp(argv[argidx],"--nofork") )
 	    dofork = false;
 	else if ( !strcmp(argv[argidx],"--log") )

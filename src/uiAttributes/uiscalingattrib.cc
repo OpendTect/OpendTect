@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.30 2010-08-30 12:50:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.31 2010-10-14 09:58:06 cvsbert Exp $";
 
 
 #include "uiscalingattrib.h"
@@ -230,8 +230,8 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 
 	if ( statsfld->getIntValue() == 3 )
 	{
-	    const char* fact = table->text( RowCol(idx,factcol) );
-	    factors += fact && *fact ? atof(fact) : 1;
+	    const char* factstr = table->text( RowCol(idx,factcol) );
+	    factors += factstr && *factstr ? toFloat(factstr) : 1;
 	}
     }
 

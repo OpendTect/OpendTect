@@ -1,4 +1,4 @@
-static const char* rcsID = "$Id: progress.cc,v 1.10 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: progress.cc,v 1.11 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include <iostream>
 #include <stdlib.h>
@@ -15,11 +15,11 @@ int main( int argc, char** argv )
     if ( argc > curarg )
     {
 	if ( !strcmp(argv[curarg],"--delay") )
-	    { curarg++; delayms = atoi( argv[curarg] ); curarg++; }
+	    { curarg++; delayms = toInt( argv[curarg] ); curarg++; }
 	if ( !strcmp(argv[curarg],"--blocksz") )
-	    { curarg++; chunksz = atoi( argv[curarg] ); curarg++; }
+	    { curarg++; chunksz = toInt( argv[curarg] ); curarg++; }
     }
-    int totnr = argc > curarg ? atoi(argv[curarg]) : 0;
+    int totnr = argc > curarg ? toInt(argv[curarg]) : 0;
     if ( totnr < 0 ) totnr = 0;
 
     if ( delayms ) std::cerr << "Delay in ms: " << delayms << std::endl;

@@ -5,7 +5,7 @@
  * FUNCTION : Unit IDs
 -*/
  
-static const char* rcsID = "$Id: compoundkey.cc,v 1.7 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: compoundkey.cc,v 1.8 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "multiid.h"
 #include "globexpr.h"
@@ -107,7 +107,7 @@ bool CompoundKey::matchGE( const char* cre ) const
 int MultiID::leafID() const
 {
     const char* ptr = strrchr( id_, '.' );
-    return atoi( ptr ? ptr+1 : (const char*)id_ );
+    return toInt( ptr ? ptr+1 : (const char*)id_ );
 }
 
 

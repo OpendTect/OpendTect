@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_select_component.cc,v 1.19 2010-04-23 05:27:20 cvsnanne Exp $
+ * RCS      : $Id: od_cbvs_select_component.cc,v 1.20 2010-10-14 09:58:06 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_select_component.cc,v 1.19 2010-04-23 05:27:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_cbvs_select_component.cc,v 1.20 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -48,7 +48,7 @@ static int doWork( int argc, char** argv )
 
     BufferString fname=fp.fullPath();
 
-    const int selcomp = atoi( argv[1] );
+    const int selcomp = toInt( argv[1] );
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )

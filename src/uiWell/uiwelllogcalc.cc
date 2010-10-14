@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.10 2009-08-27 15:55:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.11 2010-10-14 09:58:07 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -392,7 +392,7 @@ bool uiWellLogCalc::getRecInfo()
     const int nrvals = usrinp.size();
     for ( int idx=0; idx<nrvals; idx++ )
     {
-	float val = atof( usrinp[idx] );
+	float val = toFloat( usrinp[idx] );
 	if ( mIsUdf(val) )
 	    break;
 	startvals_ += val;

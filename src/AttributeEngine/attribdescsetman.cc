@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdescsetman.cc,v 1.8 2010-04-23 15:33:29 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescsetman.cc,v 1.9 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "attribdescsetman.h"
 #include "attribdescset.h"
@@ -61,7 +61,7 @@ void DescSetMan::cleanHist( IOPar& selhist, const DescSet& newads )
 {
     for ( int ikey=0; ikey<selhist.size(); ikey++ )
     {
-	const int id = atoi( selhist.getValue(ikey) );
+	const int id = toInt( selhist.getValue(ikey) );
 	if ( id < 0 ) continue;
 
 	const Desc* desc = ads_->getDesc( DescID(id,false) );

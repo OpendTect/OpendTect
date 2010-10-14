@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: export_hor2d.cc,v 1.5 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: export_hor2d.cc,v 1.6 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "prog.h"
 
@@ -73,7 +73,7 @@ static int doWork( int argc, char** argv )
     PtrMan<IOObj> ioobj = IOM().get( argv[1] );
     if ( !ioobj ) return prError( "No lineset found" );
 
-    const float udfval = argc==4 ? atof(argv[3] ) : mUdf(float);
+    const float udfval = argc==4 ? toFloat(argv[3] ) : mUdf(float);
 
     Seis2DLineSet s2dls( *ioobj );
     PosInfo::LineSet2DData lsdata;

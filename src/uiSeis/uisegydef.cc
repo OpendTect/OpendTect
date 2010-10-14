@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.35 2010-08-19 07:31:44 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.36 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -923,9 +923,9 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 	(xcoordbytefld_->isChecked() ? 0 \
 				: (readcoordsfld_->getBoolValue() ? 1 : 2))
 	const char* res = iop.find( SEGY::FileReadOpts::sKeyCoordOpt() );
-	int coordopt = res && *res ? atoi(res) : mCoordOptVal;
+	int coordopt = res && *res ? toInt(res) : mCoordOptVal;
 	if ( res && *res )
-	    coordopt = atoi( res );
+	    coordopt = toInt( res );
 	xcoordbytefld_->setChecked( coordopt < 1 || coordopt > 2 );
 	readcoordsfld_->setValue( coordopt == 1 );
 

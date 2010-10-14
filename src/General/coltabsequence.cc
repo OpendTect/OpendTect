@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.33 2010-09-27 05:15:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.34 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -351,7 +351,7 @@ static float getfromPar( const IOPar& iopar, Color& col, const char* key,
     {
 	const FileMultiString fms( res );
 	if ( fms.size() > 1 && col.use( fms.from(1) ) )
-	    *px = atof(fms[0]);
+	    *px = toFloat(fms[0]);
     }
 
     return true;

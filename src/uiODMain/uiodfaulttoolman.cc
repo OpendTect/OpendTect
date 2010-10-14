@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.15 2010-08-17 11:33:49 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.16 2010-10-14 09:58:06 cvsbert Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -945,7 +945,7 @@ static int removeSeqNumber( BufferString& objname )
 	return -1;
 
     *ptr = '\0';
-    return ptr==lastptr ? -1 : atoi(ptr+1);
+    return ptr==lastptr ? -1 : toInt(ptr+1);
 }
 
 

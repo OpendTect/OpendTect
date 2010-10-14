@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.35 2010-08-27 17:58:21 cvskris Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.36 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -199,10 +199,10 @@ bool BinIDValueSet::getFrom( std::istream& strm )
 	    continue;
 
 	const char* nextword = getNextWord( firstchar, valbuf );
-	crd.x = atof( valbuf );
+	crd.x = toDouble( valbuf );
 	mSkipBlanks( nextword ); if ( !*nextword ) continue;
 	nextword = getNextWord( nextword, valbuf );
-	crd.y = atof( valbuf );
+	crd.y = toDouble( valbuf );
 
 	bid = SI().transform( crd );
 	if ( !SI().isReasonable(bid) )
@@ -234,7 +234,7 @@ bool BinIDValueSet::getFrom( std::istream& strm )
 	    mSkipBlanks( nextword ); if ( !*nextword ) break;
 	    nextword = getNextWord( nextword, valbuf );
 	    if ( !valbuf[0] ) break;
-	    vals[idx] = (float)atof(valbuf);
+	    vals[idx] = toFloat(valbuf);
 	}
     }
 
@@ -1153,7 +1153,7 @@ void BinIDValueSet::usePar( const IOPar& iop, const char* ky )
     {
 	empty();
 	fms = res;
-	setNrVals( atoi(fms[0]), false );
+	setNrVals( toInt(fms[0]), false );
 	allowdup_ = *fms[1] == 'D';
     }
 
@@ -1169,15 +1169,15 @@ void BinIDValueSet::usePar( const IOPar& iop, const char* ky )
 	if ( !*res ) continue;
 
 	fms = res;
-	bivs.binid.inl = atoi( fms[0] );
+	bivs.binid.inl = toInt( fms[0] );
 	int nrpos = (fms.size() - 1) / (nrvals_ + 1);
 	for ( int icrl=0; icrl<nrpos; icrl++ )
 	{
 	    int fmsidx = 1 + icrl * (nrvals_ + 1);
-	    bivs.binid.crl = atoi( fms[fmsidx] );
+	    bivs.binid.crl = toInt( fms[fmsidx] );
 	    fmsidx++;
 	    for ( int ival=0; ival<nrvals_; ival++ )
-		bivs.value(ival) = atof( fms[fmsidx+ival] );
+		bivs.value(ival) = toFloat( fms[fmsidx+ival] );
 	    add( bivs );
 	}
     }

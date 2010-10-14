@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.8 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.9 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "batchprog.h"
 
@@ -89,7 +89,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     if ( !parversion_.isEmpty() )
     {
-	const float vsn = atof( parversion_.buf() );
+	const float vsn = toFloat( parversion_.buf() );
 	if ( vsn < 3.2 )
 	    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
     }

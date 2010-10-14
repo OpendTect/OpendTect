@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.24 2010-08-25 12:00:45 cvsraman Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.25 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uiselsurvranges.h"
 #include "survinfo.h"
@@ -254,7 +254,7 @@ int uiSelNrRange::getStopVal() const
 	return icstopfld_->getValue();
 
     const char* txt = nrstopfld_->text();
-    return txt && *txt ? atoi(txt) : mUdf(int);
+    return txt && *txt ? toInt(txt) : mUdf(int);
 }
 
 

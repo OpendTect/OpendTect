@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : July 2007
 -*/
-static const char* rcsID = "$Id: imp_bpsif.cc,v 1.6 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: imp_bpsif.cc,v 1.7 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "seisimpbpsif.h"
 #include "multiid.h"
@@ -20,10 +20,10 @@ static int doWork( int argc, char** argv )
     }
 
     SeisImpBPSIF imp( argv[1], MultiID(argv[2]) );
-    const int maxinloffs = argc < 4 ? -1 : atoi(argv[3]);
+    const int maxinloffs = argc < 4 ? -1 : toInt(argv[3]);
     if ( maxinloffs > 0 )
 	std::cerr << "Max inl offset: " << maxinloffs << std::endl;
-    imp.setMaxInlOffset( argc < 4 ? -1 : atoi(argv[3]) );
+    imp.setMaxInlOffset( argc < 4 ? -1 : toInt(argv[3]) );
 
     return imp.execute( &std::cout ) ? 0 : 1;
 }

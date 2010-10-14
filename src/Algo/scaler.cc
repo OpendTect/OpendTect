@@ -5,7 +5,7 @@
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID = "$Id: scaler.cc,v 1.11 2009-10-01 07:33:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.12 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "scaler.h"
 #include "separstr.h"
@@ -100,8 +100,8 @@ void LinScaler::fromString( const char* str )
     if ( !str || ! *str ) return;
     FileMultiString fms = str;
     const int sz = fms.size();
-    if ( sz > 0 ) constant = atof( fms[0] );
-    if ( sz > 1 ) factor = atof( fms[1] );
+    if ( sz > 0 ) constant = toDouble( fms[0] );
+    if ( sz > 1 ) factor = toDouble( fms[1] );
 }
 
 
@@ -204,9 +204,9 @@ void AsymptScaler::fromString( const char* str )
     if ( !str || ! *str ) return;
     FileMultiString fms = str;
     const int sz = fms.size();
-    if ( sz > 0 ) center_ = atof( fms[0] );
-    if ( sz > 1 ) width_ = atof( fms[1] );
-    if ( sz > 2 ) linedge_ = atof( fms[2] );
+    if ( sz > 0 ) center_ = toDouble( fms[0] );
+    if ( sz > 1 ) width_ = toDouble( fms[1] );
+    if ( sz > 2 ) linedge_ = toDouble( fms[2] );
 
     set( center_, width_, linedge_ );
 }

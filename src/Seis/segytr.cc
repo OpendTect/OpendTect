@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.100 2010-09-23 13:07:34 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.101 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -185,7 +185,7 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
     {
 	msg = "SEG-Y format '"; msg += detail;
 	msg += "' found.\n\tReplaced with '1' (4-byte floating point)";
-	if ( atoi(detail) > 254 )
+	if ( toInt(detail) > 254 )
 	    msg += "\n-> The file may not be SEG-Y, or byte-swapped";
     }
     else if ( nr == cSEGYWarnPos )

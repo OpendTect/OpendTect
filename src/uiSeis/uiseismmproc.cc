@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.138 2010-09-22 08:39:37 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.139 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -410,11 +410,11 @@ static int getSecs( const char* txt )
 	char* tail = strchr( mid, ':' );
 	if ( tail ) *tail++ = '\0';
 
-	secs = atoi( head ) * 3600;
-	secs += atoi( mid ) * 60;
+	secs = toInt( head ) * 3600;
+	secs += toInt( mid ) * 60;
 
 	if( tail )
-	    secs += atoi( tail );
+	    secs += toInt( tail );
     }   
     return secs;
 }

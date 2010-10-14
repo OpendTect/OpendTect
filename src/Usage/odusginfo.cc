@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusginfo.cc,v 1.7 2009-11-25 16:09:21 cvsbert Exp $";
+static const char* rcsID = "$Id: odusginfo.cc,v 1.8 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "odusginfo.h"
 #include "hostdata.h"
@@ -76,7 +76,7 @@ bool Usage::Info::ID::getFrom( const char* str )
     hostname_ = startptr;
     startptr = ptr + 1;
 
-    pid_ = atoi( startptr );
+    pid_ = toInt( startptr );
     return true;
 }
 

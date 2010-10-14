@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.24 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.25 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
@@ -214,7 +214,7 @@ void uiProgressViewer::saveFn( CallBacker* )
 int main( int argc, char** argv )
 {
     uiMain app( argc, argv );
-    int ppid = argc > 1 ? atoi(argv[1]) : 0;
+    int ppid = argc > 1 ? toInt(argv[1]) : 0;
     uiProgressViewer* pv = new uiProgressViewer( 0, std::cin, ppid );
 
     app.setTopLevel( pv );

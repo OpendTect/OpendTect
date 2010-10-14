@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: attribdescsettr.cc,v 1.9 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescsettr.cc,v 1.10 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "attribdescsettr.h"
 #include "ascstream.h"
@@ -64,7 +64,7 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
 	return "Internal error: bad connection";
 
     ascistream astream( ((StreamConn&)conn).iStream() );
-    const float versionnr = atof( astream.version() );
+    const float versionnr = toFloat( astream.version() );
     if ( strcmp(astream.fileType(),mTranslGroupName(AttribDescSet)) )
 	return "File has wrong file type";
 

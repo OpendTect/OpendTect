@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.7 2010-08-19 05:28:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.8 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "lmkemfaulttransl.h"
 
@@ -179,11 +179,11 @@ int lmkEMFault3DReader::nextStep()
     {
 	BufferString str(&buffer[lineidinterval.start-1]);
 	str[lineidinterval.width()+1] = 0;
-	int inl = atoi( str.buf() );
+	int inl = toInt( str.buf() );
 	
 	str = &buffer[traceinterval.start-1];
 	str[traceinterval.width()+1] = 0;
-	int crl = atoi( str.buf() );
+	int crl = toInt( str.buf() );
 
 	Coord coord = SI().transform( BinID(inl, crl ));
 
@@ -194,20 +194,20 @@ int lmkEMFault3DReader::nextStep()
     {
 	BufferString str(&buffer[xinterval.start-1]);
 	str[xinterval.width()+1] = 0;
-	pos.x = atof( str.buf() );
+	pos.x = toDouble( str.buf() );
 
 	str = &buffer[yinterval.start-1];
 	str[yinterval.width()+1] = 0;
-	pos.y = atof( str.buf() );
+	pos.y = toDouble( str.buf() );
     }
 
     BufferString str = &buffer[zinterval.start-1];
     str[zinterval.width()+1] = 0;
-    pos.z = atof( str.buf() );
+    pos.z = toDouble( str.buf() );
 
     str = &buffer[pointtypeinterval.start-1];
     str[pointtypeinterval.width()+1] = 0;
-    int pt = atoi( str.buf() );
+    int pt = toInt( str.buf() );
 
     float zfac = 0.001;
     if ( domainunitinterval.start != -1 )

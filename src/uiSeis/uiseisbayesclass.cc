@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.21 2010-07-26 12:29:52 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.22 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -281,7 +281,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 
 	float scl = 1;
 	const char* res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
-	if ( res && *res ) scl = atof( res );
+	if ( res && *res ) scl = toFloat( res );
 	uiGenInput* fld = new uiGenInput( this, fldtxt, FloatInpSpec(scl) );
 	fld->attach( alignedBelow, alobj );
 	sclflds_ += fld;

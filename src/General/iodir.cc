@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.34 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.35 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -107,7 +107,7 @@ IOObj* IODir::readOmf( std::istream& strm, const char* dirnm,
     if ( dirptr )
     {
 	dirptr->key_ = dirky;
-	dirptr->curid_ = atoi(fms[1]);
+	dirptr->curid_ = toInt(fms[1]);
 	if ( dirptr->curid_ == IOObj::tmpID() )
 	    dirptr->curid_ = 1;
     }

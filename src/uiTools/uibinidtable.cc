@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibinidtable.cc,v 1.19 2009-09-16 06:50:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibinidtable.cc,v 1.20 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uibinidtable.h"
 #include "uigeninput.h"
@@ -71,11 +71,11 @@ void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids ) const
 	if ( !(*inlstr) || !(*crlstr) )
 	    continue;
 
-	bid.inl = atoi(inlstr);
-	bid.crl = atoi(crlstr);
+	bid.inl = toInt(inlstr);
+	bid.crl = toInt(crlstr);
 	if ( !SI().isReasonable(bid) )
 	{
-	    Coord c( atof(inlstr), atof(crlstr) );
+	    Coord c( toDouble(inlstr), toDouble(crlstr) );
 	    if ( SI().isReasonable(c) )
 		bid = SI().transform(c);
 	    else

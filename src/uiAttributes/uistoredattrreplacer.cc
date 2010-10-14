@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.16 2010-04-23 15:33:30 cvshelene Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.17 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -187,8 +187,7 @@ int uiStoredAttribReplacer::getOutPut( int descid )
     char* spaceptr = strchr( outputstr.buf(), ' ' );
     if ( spaceptr )
 	*spaceptr ='\0';
-    int output = atoi( outputstr );
-    return output;
+    return toInt( outputstr );
 }
 
 void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,

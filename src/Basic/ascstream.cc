@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.30 2010-03-03 04:05:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.31 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -312,7 +312,7 @@ int ascistream::majorVersion() const
     BufferString v( version() );
     char* ptr = strchr( v.buf(), '.' );
     if ( ptr ) *ptr = '\0';
-    return atoi( v.buf() );
+    return toInt( v.buf() );
 }
 
 
@@ -320,7 +320,7 @@ int ascistream::minorVersion() const
 {
     BufferString v( version() );
     char* ptr = strrchr( v.buf(), '.' );
-    return atoi( ptr ? ptr+1 : v.buf() );
+    return toInt( ptr ? ptr+1 : v.buf() );
 }
 
 

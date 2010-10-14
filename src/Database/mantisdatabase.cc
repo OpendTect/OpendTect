@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.1 2010-09-14 10:32:32 cvsbert Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.2 2010-10-14 09:58:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,7 +225,7 @@ bool SqlDB::MantisDBMgr::fillUserNamesIDs()
     while ( query().next() )
     {
 	usernames_.add( query().data(0) );
-	userids_.add( atoi(query().data(1).buf()) );
+	userids_.add( toInt(query().data(1).buf()) );
     }
 
     return true;
@@ -634,7 +634,7 @@ int SqlDB::MantisDBMgr::getMaxBugIDFromBugTable() const
     while ( query().next() )
 	querystr = query().data(0);
 
-    return atoi( querystr );
+    return toInt( querystr );
 }
 
 
@@ -649,7 +649,7 @@ int SqlDB::MantisDBMgr::getMaxNoteIDFromBugNoteTable() const
     while ( query().next() )
 	querystr = query().data(0);
 
-    return atoi( querystr );
+    return toInt( querystr );
 }
 
 

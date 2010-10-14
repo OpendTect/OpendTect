@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.86 2010-09-30 07:43:51 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.87 2010-10-14 09:58:06 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -847,7 +847,7 @@ Coord SEGY::TrcHeader::getCoord( bool rcv, float extcoordsc )
 
 #define mGtFromPar(str,memb) \
     res = iopar.find( str ); \
-    if ( res && *res ) memb = atoi( res )
+    if ( res && *res ) memb = toInt( res )
 
 void SEGY::TrcHeaderDef::usePar( const IOPar& iopar )
 {

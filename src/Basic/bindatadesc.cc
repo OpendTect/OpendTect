@@ -5,9 +5,10 @@
  * FUNCTION : Binary data descritpion
 -*/
 
-static const char* rcsID = "$Id: bindatadesc.cc,v 1.7 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: bindatadesc.cc,v 1.8 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "bindatadesc.h"
+#include "string2.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -75,7 +76,7 @@ void BinDataDesc::set( const char* s )
     ptr = strchr( s, '`' );
     issigned = *s == 'S' || *s == 's';
     if ( ptr )
-	nrbytes = nearestByteCount( isint, atoi( ptr+1 ) );
+	nrbytes = nearestByteCount( isint, toInt( ptr+1 ) );
 }
 
 

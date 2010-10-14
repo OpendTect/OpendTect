@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_SEGYExaminer.cc,v 1.22 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_SEGYExaminer.cc,v 1.23 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 
@@ -29,15 +29,15 @@ int main( int argc, char ** argv )
 	 && *argv[argidx] == '-' && *(argv[argidx]+1) == '-' )
     {
 	if ( !strcmp(argv[argidx],"--ns") )
-	    { argidx++; su.fp_.ns_ = atoi( argv[argidx] ); }
+	    { argidx++; su.fp_.ns_ = toInt( argv[argidx] ); }
 	else if ( !strcmp(argv[argidx],"--fmt") )
-	    { argidx++; su.fp_.fmt_ = atoi( argv[argidx] ); }
+	    { argidx++; su.fp_.fmt_ = toInt( argv[argidx] ); }
 	else if ( !strcmp(argv[argidx],"--nrtrcs") )
-	    { argidx++; su.nrtrcs_ = atoi( argv[argidx] ); }
+	    { argidx++; su.nrtrcs_ = toInt( argv[argidx] ); }
 	else if ( !strcmp(argv[argidx],"--filenrs") )
 	    { argidx++; su.fs_.getMultiFromString( argv[argidx] ); }
 	else if ( !strcmp(argv[argidx],"--swapbytes") )
-	    { argidx++; su.fp_.byteswap_ = atoi( argv[argidx] ); }
+	    { argidx++; su.fp_.byteswap_ = toInt( argv[argidx] ); }
 	else if ( !strcmp(argv[argidx],"--fg") )
 	    dofork = false;
 	else

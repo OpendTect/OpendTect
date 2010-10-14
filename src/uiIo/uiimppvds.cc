@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiimppvds.cc,v 1.4 2010-06-28 13:13:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimppvds.cc,v 1.5 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uiimppvds.h"
 
@@ -173,7 +173,7 @@ bool getLine()
 	    datavals_ += mUdf(float);
 	else
 	{
-	    float val = atof( fullline_.get( datacols_[icol] ).buf() );
+	    float val = toFloat( fullline_.get( datacols_[icol] ).buf() );
 	    datavals_ += val;
 	}
     }

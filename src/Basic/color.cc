@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.7 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.8 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "color.h"
 
@@ -139,10 +139,10 @@ bool Color::use( const char* str )
     const int sz = fms.size();
     if ( sz < 3 ) return false;
 
-    unsigned char r_ = (unsigned char)atoi( fms[0] );
-    unsigned char g_ = (unsigned char)atoi( fms[1] );
-    unsigned char b_ = (unsigned char)atoi( fms[2] );
-    unsigned char t_ = sz > 3 ? (unsigned char)atoi( fms[3] ) : 0;
+    unsigned char r_ = (unsigned char)toInt( fms[0] );
+    unsigned char g_ = (unsigned char)toInt( fms[1] );
+    unsigned char b_ = (unsigned char)toInt( fms[2] );
+    unsigned char t_ = sz > 3 ? (unsigned char)toInt( fms[3] ) : 0;
     set( r_, g_, b_, t_ );
 
     return true;

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.94 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.95 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -381,7 +381,7 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 	while ( *ptr && !isdigit(*ptr) )
 	    ptr++;
 
-	int varxidx = atoi( ptr );
+	int varxidx = toInt( ptr );
 	if ( varxidx >= oldinputs.size() )
 	{
 	    const_cast<DescSet*>(this)->errmsg_ +=
@@ -713,14 +713,14 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     const char* inldipstr = steeringpar.find("InlDipID");
     if ( inldipstr )
     {
-	DescID inldipid( atoi(inldipstr), false );
+	DescID inldipid( toInt(inldipstr), false );
 	stdesc->setInput( 0, getDesc(inldipid) );
     }
 
     const char* crldipstr = steeringpar.find("CrlDipID");
     if ( crldipstr )
     {
-	DescID crldipid( atoi(crldipstr), false );
+	DescID crldipid( toInt(crldipstr), false );
 	stdesc->setInput( 1, getDesc(crldipid) );
     }	
 

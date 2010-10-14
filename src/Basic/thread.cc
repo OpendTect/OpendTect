@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.52 2010-02-24 10:40:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.53 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -510,9 +510,9 @@ int Threads::getNrProcessors()
 	    BufferString str( envval );
 	    char* ptr = strrchr(str.buf(),'%');
 	    if ( ptr )
-		{ *ptr = '\0'; needauto = true; perc = atof(str.buf()); }
+		{ *ptr = '\0'; needauto = true; perc = toFloat(str.buf()); }
 	    else
-		{ needauto = false; nrproc = atoi(envval); }
+		{ needauto = false; nrproc = toInt(envval); }
 	    haveenv = true;
 	}
 

@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.69 2010-06-21 14:40:00 cvsbert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.70 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "position.h"
 
@@ -105,8 +105,8 @@ bool Coord::use( const char* s )
     char* ptrend = strchr( ptry, ')' );
     if ( ptrend ) *ptrend = '\0';
 
-    x = atof( ptrx );
-    y = atof( ptry );
+    x = toDouble( ptrx );
+    y = toDouble( ptry );
     return true;
 }
 

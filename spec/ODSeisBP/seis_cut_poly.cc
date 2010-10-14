@@ -4,7 +4,7 @@
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.11 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.12 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "prog.h"
 #include "batchprog.h"
@@ -32,7 +32,7 @@ static void addCoord( const char* str, ODPolygon<double>& poly )
     FileMultiString fms( str );
     if ( fms.size() < 2 ) return;
 
-    BinID bid( atoi(fms[0]), atoi(fms[1]) );
+    BinID bid( toInt(fms[0]), toInt(fms[1]) );
     poly.add( SI().transform( bid ) );
 }
 

@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.33 2010-03-25 05:22:12 cvsranojay Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.34 2010-10-14 09:58:06 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.33 2010-03-25 05:22:12 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.34 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -41,7 +41,7 @@ static void getInt( int& i )
     char* endptr = ptr + 1;
     while ( *endptr && !isspace(*endptr) ) endptr++;
     *endptr = '\0';
-    i = atoi( ptr );
+    i = toInt( ptr );
 }
 
 

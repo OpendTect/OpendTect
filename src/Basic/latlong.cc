@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: latlong.cc,v 1.12 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: latlong.cc,v 1.13 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "latlong.h"
 #include "survinfo.h"
@@ -53,8 +53,8 @@ bool LatLong::use( const char* s )
     char* ptrend = strchr( ptrlng, ']' );
     if ( ptrend ) *ptrend = '\0';
 
-    lat_ = atof( ptrlat );
-    lng_ = atof( ptrlng );
+    lat_ = toDouble( ptrlat );
+    lng_ = toDouble( ptrlng );
     return true;
 }
 

@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.33 2010-05-21 15:07:20 cvsbert Exp $
+ RCS:           $Id: debug.cc,v 1.34 2010-10-14 09:58:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.33 2010-05-21 15:07:20 cvsbert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.34 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -59,7 +59,7 @@ static int getMask()
 
     BufferString envmask = GetEnvVar( "DTECT_DEBUG" );
     const char* buf = envmask.buf();
-    themask = atoi( buf );
+    themask = toInt( buf );
     if ( buf[0] == 'y' || buf[0] == 'Y' ) themask = 0xffff;
 
     const char* dbglogfnm = GetEnvVar( "DTECT_DEBUG_LOGFILE" );

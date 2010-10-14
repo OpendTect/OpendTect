@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.19 2010-07-15 18:44:46 cvskris Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.20 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -138,13 +138,13 @@ void SEGY::FileSpec::getMultiFromString( const char* str )
 {
     FileMultiString fms( str );
     const int len = fms.size();
-    nrs_.start = len > 0 ? atoi( fms[0] ) : mUdf(int);
+    nrs_.start = len > 0 ? toInt( fms[0] ) : mUdf(int);
     if ( len > 1 )
-	nrs_.stop = atoi( fms[1] );
+	nrs_.stop = toInt( fms[1] );
     if ( len > 2 )
-	nrs_.step = atoi( fms[2] );
+	nrs_.step = toInt( fms[2] );
     if ( len > 3 )
-	zeropad_ = atoi( fms[3] );
+	zeropad_ = toInt( fms[3] );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.91 2010-10-07 07:15:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.92 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -414,7 +414,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 		uiMSG().error(BufferString(fnm," is not a parameter file"));
 		return false;
 	    }
-	    const float ver = atof( aistrm.version() );
+	    const float ver = toFloat( aistrm.version() );
 	    if ( ver < 3.1999 )
 	    {
 		sd.close();

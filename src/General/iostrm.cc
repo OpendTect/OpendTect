@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.32 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.33 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -282,13 +282,13 @@ bool IOStream::getFrom( ascistream& stream )
     if ( !strcmp(kw,"Multi") )
     {
 	FileMultiString fms( stream.value() );
-	fnrs.start = atoi(fms[0]);
-	fnrs.stop = atoi(fms[1]);
-	fnrs.step = atoi(fms[2]); if ( fnrs.step == 0 ) fnrs.step = 1;
+	fnrs.start = toInt(fms[0]);
+	fnrs.stop = toInt(fms[1]);
+	fnrs.step = toInt(fms[2]); if ( fnrs.step == 0 ) fnrs.step = 1;
 	if ( ( fnrs.start < fnrs.stop && fnrs.step < 0 )
 	  || ( fnrs.stop < fnrs.start && fnrs.step > 0 ) )
 	    Swap( fnrs.start, fnrs.stop );
-	padzeros = atoi(fms[3]);
+	padzeros = toInt(fms[3]);
 	curfnr = fnrs.start;
 	stream.next();
     }
@@ -321,9 +321,9 @@ void IOStream::getDev( ascistream& stream )
     {
 	if ( *stream.keyWord() == '#' ) break;
 	if ( !strcmp(kw,"Blocksize") )
-	    blocksize = atoi(stream.value());
+	    blocksize = toInt(stream.value());
 	else if ( !strcmp(kw,"Fileskips") )
-	    skipfiles = atoi(stream.value());
+	    skipfiles = toInt(stream.value());
 	else if ( !strcmp(kw,"Rewind") )
 	    rew = yesNoFromString(stream.value());
     }

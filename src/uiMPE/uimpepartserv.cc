@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.115 2010-10-07 05:21:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.116 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uimpepartserv.h"
 
@@ -1039,7 +1039,7 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     {
 	const char* ptr = version.buf();
 	ptr += 1;
-	versionnr = atof( ptr );
+	versionnr = toFloat( ptr );
     }
 
     Attrib::DescSet newads( tracker->is2D() );

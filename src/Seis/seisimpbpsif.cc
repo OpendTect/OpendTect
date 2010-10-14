@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.12 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.13 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "seisimpbpsif.h"
 #include "seisimpps.h"
@@ -106,7 +106,7 @@ bool SeisImpBPSIF::readFileHeader()
 	if ( !StrmOper::readLine(*cursd_.istrm,lineread) )
 	    return false;
 	else if ( matchString("#BINARY",lineread->buf()) )
-	    { binary_ = true; nrrcvpershot_ = atoi(lineread->buf()+9); }
+	    { binary_ = true; nrrcvpershot_ = toInt(lineread->buf()+9); }
 	else if ( matchString("#----",lineread->buf()) )
 	    { delete lineread; break; }
 
@@ -247,7 +247,7 @@ static double getVal( char* data, char*& ptr )
     mSkipNonBlanks(ptr);
     if ( *ptr ) *ptr++ = '\0';
 
-    return atof( startptr );
+    return toDouble( startptr );
 }
 
 

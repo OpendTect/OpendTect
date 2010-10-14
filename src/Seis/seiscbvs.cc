@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.83 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.84 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seistrc.h"
@@ -518,12 +518,12 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 	{
 	    FileMultiString fms( res + 2 );
 	    const int sz = fms.size();
-	    int tmp = atoi( fms[0] );
+	    int tmp = toInt( fms[0] );
 	    if ( tmp > 0 )
 		brickspec.nrsamplesperslab = tmp < 100000 ? tmp : 100000;
 	    if ( sz > 1 )
 	    {
-		tmp = atoi( fms[1] );
+		tmp = toInt( fms[1] );
 		if ( tmp > 0 )
 		    brickspec.maxnrslabs = tmp;
 	    }

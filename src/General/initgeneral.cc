@@ -7,13 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initgeneral.cc,v 1.6 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: initgeneral.cc,v 1.7 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "initgeneral.h"
 #include "rangeposprovider.h"
+#include "propertyimpl.h"
 
 void General::initStdClasses()
 {
     Pos::RangeProvider3D::initClass();
     Pos::RangeProvider2D::initClass();
+    ValueProperty::initClass();
+    RangeProperty::initClass();
+    MathProperty::initClass();
 }

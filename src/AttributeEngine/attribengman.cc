@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.104 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.105 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "attribengman.h"
 
@@ -826,7 +826,7 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 	FileMultiString fms( datapointset.colDef(idx).ref_ );
 	if ( fms.size() < 2 )
 	    continue;
-	const DescID did( atoi(fms[1]), descset.containsStoredDescOnly() );
+	const DescID did( toInt(fms[1]), descset.containsStoredDescOnly() );
 	if ( did == DescID::undef() )
 	    continue;
 	SelSpec ss( 0, did );
@@ -1076,7 +1076,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 		for ( int idref=0; idref< attrrefs.size(); idref++ )
 		{
 		    FileMultiString fms( attrrefs.get(idref) );
-		    const DescID candidatid( atoi(fms[1]), false );
+		    const DescID candidatid( toInt(fms[1]), false );
 		    if ( did == candidatid )
 			{ refidx = idref; break; }
 		}

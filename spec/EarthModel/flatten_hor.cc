@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatten_hor.cc,v 1.3 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: flatten_hor.cc,v 1.4 2010-10-14 09:58:06 cvsbert Exp $";
 
 
 
@@ -70,8 +70,8 @@ static int doWork( int argc, char** argv )
     EM::Horizon* horizon2 = loadHorizon( argv[2], errmsg );
     if ( errmsg != "" ) return prError( errmsg );
 
-    const float refz = atof( argv[3] );
-    const bool forward = argc == 5 ? atoi(argv[4])>0 : true;
+    const float refz = toFloat( argv[3] );
+    const bool forward = argc == 5 ? toInt(argv[4])>0 : true;
 
     BufferString hornm = horizon2->name();
     hornm += forward ? 	"_flattened" : "_unflattened";

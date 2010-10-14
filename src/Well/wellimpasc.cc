@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.75 2010-07-28 13:25:26 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.76 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -170,11 +170,11 @@ const char* Well::LASImporter::getLogInfo( std::istream& strm,
 	break;
 	case 'W':
 	    if ( mIsKey("STRT") )
-		lfi.zrg.start = atof(val2);
+		lfi.zrg.start = toFloat(val2);
 	    if ( mIsKey("STOP") )
-		lfi.zrg.stop = atof(val2);
+		lfi.zrg.stop = toFloat(val2);
 	    if ( mIsKey("NULL") )
-		lfi.undefval = atof( val1 );
+		lfi.undefval = toFloat( val1 );
 	    if ( mIsKey("WELL") )
 	    {
 		lfi.wellnm = val1;

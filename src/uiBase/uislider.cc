@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.45 2009-11-02 12:02:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.46 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -138,12 +138,11 @@ float uiSlider::userValue( int ival ) const
 
 void uiSlider::setText( const char* txt )
 {
-    float res = atof( txt );
-    setValue( res );
+    setValue( toFloat(txt) );
 }
 
 
-void uiSlider::setValue( float fval  )
+void uiSlider::setValue( float fval )
 {
     int val = sliderValue( fval );
     body_->setValue( val );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackmutedeftransl.cc,v 1.6 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackmutedeftransl.cc,v 1.7 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "prestackmutedeftransl.h"
 #include "prestackmutedef.h"
@@ -126,7 +126,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	    if ( !*ptrz )
 		{ astrm.next(); continue; }
 
-	    float x = atof( ptrx ); float z = atof( ptrz );
+	    float x = toFloat( ptrx ); float z = toFloat( ptrz );
 	    if ( !mIsUdf(x) && !mIsUdf(z) )
 		fn->add( x, z );
 

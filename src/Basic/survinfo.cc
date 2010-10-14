@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.146 2010-08-27 18:09:16 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.147 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -195,23 +195,23 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	else if ( keyw == sKeyInlRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->cs_.hrg.start.inl = atoi(fms[0]);
-	    si->cs_.hrg.stop.inl = atoi(fms[1]);
-	    si->cs_.hrg.step.inl = atoi(fms[2]);
+	    si->cs_.hrg.start.inl = toInt(fms[0]);
+	    si->cs_.hrg.stop.inl = toInt(fms[1]);
+	    si->cs_.hrg.step.inl = toInt(fms[2]);
 	}
 	else if ( keyw == sKeyCrlRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->cs_.hrg.start.crl = atoi(fms[0]);
-	    si->cs_.hrg.stop.crl = atoi(fms[1]);
-	    si->cs_.hrg.step.crl = atoi(fms[2]);
+	    si->cs_.hrg.start.crl = toInt(fms[0]);
+	    si->cs_.hrg.stop.crl = toInt(fms[1]);
+	    si->cs_.hrg.step.crl = toInt(fms[2]);
 	}
 	else if ( keyw == sKeyZRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->cs_.zrg.start = atof(fms[0]);
-	    si->cs_.zrg.stop = atof(fms[1]);
-	    si->cs_.zrg.step = atof(fms[2]);
+	    si->cs_.zrg.start = toFloat(fms[0]);
+	    si->cs_.zrg.stop = toFloat(fms[1]);
+	    si->cs_.zrg.step = toFloat(fms[2]);
 	    if ( Values::isUdf(si->cs_.zrg.step)
 	      || mIsZero(si->cs_.zrg.step,mDefEps) )
 		si->cs_.zrg.step = 0.004;
@@ -276,7 +276,7 @@ void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
     {
 	const char* ptr = strchr( (const char*)keyw, '.' );
 	if ( !ptr ) return;
-	int ptidx = atoi( ptr + 1 ) - 1;
+	int ptidx = toInt( ptr + 1 ) - 1;
 	if ( ptidx < 0 ) ptidx = 0;
 	if ( ptidx > 3 ) ptidx = 2;
 	FileMultiString fms( val );
@@ -734,7 +734,7 @@ void SurveyInfo::snapZ( float& z, int dir ) const
 void SurveyInfo::setTr( RCol2Coord::RCTransform& tr, const char* str )
 {
     FileMultiString fms( str );
-    tr.a = atof(fms[0]); tr.b = atof(fms[1]); tr.c = atof(fms[2]);
+    tr.a = toDouble(fms[0]); tr.b = toDouble(fms[1]); tr.c = toDouble(fms[2]);
 }
 
 

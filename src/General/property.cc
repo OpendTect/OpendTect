@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.25 2010-10-05 10:33:00 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.26 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -22,6 +22,8 @@ static const char* rcsID = "$Id: property.cc,v 1.25 2010-10-05 10:33:00 cvsbert 
 static const char* filenamebase = "Properties";
 static const char* sKeyAliases = "Aliases";
 static const char* sKeyIsLog = "Logarithmic";
+
+mImplFactory1Param(Property,const PropertyRef&,Property::factory)
 
 DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 {
@@ -99,8 +101,8 @@ void PropertyRef::usePar( const IOPar& iop )
     sz = fms.size();
     if ( sz > 1 )
     {
-	disp_.range_.start = atof( fms[0] );
-	disp_.range_.stop = atof( fms[1] );
+	disp_.range_.start = toFloat( fms[0] );
+	disp_.range_.stop = toFloat( fms[1] );
 	if ( sz > 2 )
 	    disp_.unit_ = fms[2];
     }
@@ -297,22 +299,71 @@ const char* Property::name() const
 }
 
 
-MathProperty::~MathProperty()
+const char* ValueProperty::def() const
 {
-    delete expr_;
+    return toString( val_ );
 }
 
 
-void MathProperty::setDef( const char* s )
+void ValueProperty::setDef( const char* defstr )
 {
-    inps_.erase();
-    def_ = s;
-    MathExpressionParser mep( def_ );
-    delete expr_; expr_ = mep.parse();
-    if ( !expr_ ) return;
-    const int sz = expr_->nrVariables();
-    while ( sz > inps_.size() )
-	inps_ += 0;
+    if ( defstr && *defstr )
+	val_ = toFloat( defstr );
+}
+
+
+bool ValueProperty::isUdf() const
+{
+    return mIsUdf(val_);
+}
+
+
+float ValueProperty::value( bool ) const
+{
+    return val_;
+}
+
+
+const char* RangeProperty::def() const
+{
+    if ( isUdf() )
+	return "1e30`0";
+
+    static FileMultiString fms;
+    fms = toString(rg_.start);
+    fms += toString(rg_.stop);
+    return fms.buf();
+}
+
+
+void RangeProperty::setDef( const char* defstr )
+{
+    if ( !defstr || !*defstr )
+	rg_.start = mUdf(float);
+    else
+    {
+	FileMultiString fms( defstr );
+	rg_.start = toFloat( fms[0] );
+	rg_.stop = toFloat( fms[1] );
+    }
+}
+
+
+bool RangeProperty::isUdf() const
+{
+    return mIsUdf(rg_.start);
+}
+
+
+float RangeProperty::value( bool ) const
+{
+    return isUdf() ? mUdf(float) : rg_.start + pos_ * rg_.stop;
+}
+
+
+MathProperty::~MathProperty()
+{
+    delete expr_;
 }
 
 
@@ -365,6 +416,36 @@ void MathProperty::reset()
 }
 
 
+const char* MathProperty::def() const
+{
+    return def_.buf();
+}
+
+
+void MathProperty::setDef( const char* s )
+{
+    inps_.erase();
+    def_ = s;
+    MathExpressionParser mep( def_ );
+    delete expr_; expr_ = mep.parse();
+    if ( !expr_ ) return;
+    const int sz = expr_->nrVariables();
+    while ( sz > inps_.size() )
+	inps_ += 0;
+}
+
+
+bool MathProperty::isUdf() const
+{
+    if ( !expr_ )
+	return true;
+    for ( int idx=0; idx<inps_.size(); idx++ )
+	if ( !inps_[idx] )
+	    return true;
+    return false;
+}
+
+
 float MathProperty::value( bool avg ) const
 {
     if ( !expr_ )
@@ -386,6 +467,19 @@ float MathProperty::value( bool avg ) const
     return expr_->getValue();
 }
 
+
+PropertySet::PropertySet( const PropertyRefSelection& prs )
+{
+    for ( int idx=0; idx<prs.size(); idx++ )
+	props_ += new ValueProperty( *prs[idx] );
+}
+
+
+void PropertySet::replace( int idx, Property* p )
+{
+    if ( p )
+	delete props_.replace( idx, p );
+}
 
 int PropertySet::indexOf( const char* nm, bool matchaliases ) const
 {
@@ -463,6 +557,7 @@ bool PropertySet::prepareEval()
     {
 	Property* p = props_[idx];
 	p->reset();
+
 	mDynamicCastGet(MathProperty*,mp,p)
 	if ( !mp ) continue;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: create_randpicks_2d.cc,v 1.8 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: create_randpicks_2d.cc,v 1.9 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "prog.h"
 
@@ -42,7 +42,7 @@ static int doWork( int argc, char** argv )
 
     Stats::RandGen::init();
 
-    const int nrpicks = atoi( argv[3] );
+    const int nrpicks = toInt( argv[3] );
     BufferString fname( argv[4] );
     StreamData outsd = StreamProvider( fname ).makeOStream();
     if ( !outsd.usable() )

@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.100 2010-04-06 17:33:59 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.101 2010-10-14 09:58:07 cvsbert Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -260,10 +260,11 @@ int PickSetDisplay::usePar( const IOPar& par )
 		return -1;
 
 	    FileMultiString fms( str );
-	    Coord3 pos( atof(fms[0]), atof(fms[1]), atof(fms[2]) );
+	    Coord3 pos( toDouble(fms[0]), toDouble(fms[1]), toDouble(fms[2]) );
 	    Sphere dir;
 	    if ( fms.size() > 3 )
-		dir = Sphere( atof(fms[3]), atof(fms[4]), atof(fms[5]) );
+		dir = Sphere( toDouble(fms[3]), toDouble(fms[4]),
+				toDouble(fms[5]) );
 
 	    *newps += Pick::Location( pos, dir );
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.71 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.72 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -77,7 +77,7 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
 						  tmpattribstr.buf() ) );
     if ( !res )
 	mErrRet( "No target attribute found" )
-    DescID outid( atoi( res ), false ); 
+    DescID outid( toInt( res ), false ); 
     if ( initialset.getDesc(outid) < 0 )
 	mErrRet( "Target attribute not present in attribute set" )
 
@@ -290,7 +290,7 @@ bool BatchProgram::go( std::ostream& strm )
     EarthModel::initStdClasses();
     PreStackProcessing::initStdClasses();
 
-    const float vnr = parversion_.isEmpty() ? 0 : atof( parversion_.buf() );
+    const float vnr = parversion_.isEmpty() ? 0 : toFloat( parversion_.buf() );
     if ( cmdLineOpts().size() )
     {
 	BufferString opt = *cmdLineOpts()[0];

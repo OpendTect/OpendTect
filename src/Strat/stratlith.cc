@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlith.cc,v 1.1 2010-09-27 11:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlith.cc,v 1.2 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "stratlith.h"
 #include "separstr.h"
@@ -30,7 +30,7 @@ Strat::Lithology::Lithology( const char* fstr )
 {
     FileMultiString fms( fstr );
     setName( fms[0] );
-    const_cast<ID&>(id_) = atoi(fms[1]);
+    const_cast<ID&>(id_) = toInt(fms[1]);
     porous_ = *fms[2] == 'P';
 }
 

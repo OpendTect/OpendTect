@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.32 2010-08-27 02:50:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.33 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -535,7 +535,7 @@ const char* PositionInpSpec::text( int idx ) const
 
 bool PositionInpSpec::setText( const char* s, int idx ) 
 {
-    setVal( setup_, idx, atof(s) );
+    setVal( setup_, idx, toFloat(s) );
     return true;
 }
 

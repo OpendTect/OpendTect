@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.13 2010-05-04 10:51:04 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.14 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -119,7 +119,7 @@ bool SeisBayesClass::getPDFs()
 
 	const char* res = pars_.find( mGetSeisBayesPreScaleKey(ipdf) );
 	float scl = 1;
-	if ( res && *res ) scl = atof( res );
+	if ( res && *res ) scl = toFloat( res );
 	if ( scl < 0 ) scl = -scl;
 	if ( scl == 0 ) scl = 1;
 	prescales_ += scl;

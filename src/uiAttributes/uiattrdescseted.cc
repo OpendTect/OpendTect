@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.102 2010-10-07 17:29:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.103 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -993,7 +993,7 @@ void uiAttribDescSetEd::importFromFile( const char* filenm )
     ascistream ascstrm( *sp.makeIStream(false).istrm );
     IOPar iopar( ascstrm );
     replaceStoredAttr( iopar );
-    attrset_->usePar( iopar, atof(ascstrm.version()) );
+    attrset_->usePar( iopar, toFloat(ascstrm.version()) );
     newList( -1 );
     attrsetfld_->setText( "" );
     setctio_.ioobj = 0;

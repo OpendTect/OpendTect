@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.40 2010-08-02 07:19:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.41 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -443,7 +443,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 	key = IOPar::compKey( basekey, Well::Marker::sKeyDah() );
 	if ( !iopar.get(key,bs) )
 	    { delete wm; continue; }
-	wm->setDah( atof( bs.buf() ) );
+	wm->setDah( toFloat( bs.buf() ) );
 
 	key = IOPar::compKey( basekey, sKey::StratRef );
 	int lvlid = -1; iopar.get( key, lvlid );

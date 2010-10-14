@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: import_hor2d.cc,v 1.9 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: import_hor2d.cc,v 1.10 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "prog.h"
 
@@ -149,7 +149,7 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 	}
 	
 	ptr = getNextWord( ptr, valbuf );
-	const int trcnr = atoi( valbuf );
+	const int trcnr = toInt( valbuf );
 	Coord xypos;
 	if( !getPos(line2d,trcnr,xypos) )
 	{
@@ -166,7 +166,7 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 	{
 	    float val = 0;
 	    if ( valbuf )
-		val = atof( valbuf );
+		val = toFloat( valbuf );
 	    if ( !mIsUdf(val) )
 		vals += SI().zIsTime() ? val/1000 : val;
 	    else

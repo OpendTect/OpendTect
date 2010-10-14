@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.34 2010-09-27 07:34:31 cvsnageswara Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.35 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -250,7 +250,7 @@ void TargetInfo::usePar( const IOPar& iopar )
 	{
 	    curfmsidx++;
 	    elem.keyword_ = res;
-	    elem.pos_.col = atoi( fms[curfmsidx] );
+	    elem.pos_.col = toInt( fms[curfmsidx] );
 	}
 
 	selection_.elems_ += elem;
@@ -330,7 +330,7 @@ void FormatDesc::usePar( const IOPar& iopar )
     if ( res && *res )
     {
 	FileMultiString fms( res );
-	eohtokencol_ = atoi( fms[0] ); eohtoken_ = fms[1];
+	eohtokencol_ = toInt( fms[0] ); eohtoken_ = fms[1];
     }
 
     res = iopar.find( sKeyBodyEndToken );
@@ -770,7 +770,7 @@ int Table::AscIO::getIntValue( int ifld, int udf ) const
     const char* sval = trimmedNumbStr( vals_.get(ifld), true );
     if ( !sval || !*sval )
 	return mUdf(int);
-    int val = atoi( sval );
+    int val = toInt( sval );
     return val == udf ? mUdf(int) : val;
 }
 
@@ -782,7 +782,7 @@ float Table::AscIO::getfValue( int ifld, float udf ) const
 
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
     if ( !sval ) return mUdf(float);
-    float val = atof( sval );
+    float val = toFloat( sval );
     if ( mIsEqual(val,udf,mDefEps) )
 	return mUdf(float);
 
@@ -798,7 +798,7 @@ double Table::AscIO::getdValue( int ifld, double udf ) const
 
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
     if ( !sval ) return mUdf(double);
-    double val = atof( sval );
+    double val = toDouble( sval );
     if ( mIsEqual(val,udf,mDefEps) )
 	return mUdf(double);
 

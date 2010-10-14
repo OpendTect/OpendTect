@@ -4,7 +4,7 @@
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: import_vel.cc,v 1.2 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: import_vel.cc,v 1.3 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "prog.h"
 #include "batchprog.h"
@@ -55,9 +55,9 @@ bool BatchProgram::go( std::ostream& strm )
     const char* filenm = pars().find( "Filename" );
 
     FileMultiString fms = pars().find( "File CDP Range" );
-    const StepInterval<int> cdprg( atoi(fms[0]), atoi(fms[1]), atoi(fms[2]) );
+    const StepInterval<int> cdprg(toInt(fms[0]),toInt(fms[1]),toInt(fms[2]));
     fms = pars().find( "File Time Range" );
-    const StepInterval<int> timerg( atoi(fms[0]), atoi(fms[1]), atoi(fms[2]) );
+    const StepInterval<int> timerg(toInt(fms[0]),toInt(fms[1]),toInt(fms[2]));
 
     Array2DImpl<float> velarr( cdprg.nrSteps()+1, timerg.nrSteps()+1 );
 
@@ -89,10 +89,10 @@ bool BatchProgram::go( std::ostream& strm )
     StreamData sdo = StreamProvider(outfilenm).makeOStream();
     if ( !sdo.ostrm ) mErrRet( "Cannot create output file" );
     fms = pars().find( "Ouput CDP Range" );
-    const StepInterval<int> cdprgo( atoi(fms[0]), atoi(fms[1]), atoi(fms[2]) );
+    const StepInterval<int> cdprgo(toInt(fms[0]),toInt(fms[1]),toInt(fms[2]));
 
     fms = pars().find( "Ouput Time Range" );
-    const StepInterval<int> timergo( atoi(fms[0]), atoi(fms[1]), atoi(fms[2]) );
+    const StepInterval<int> timergo(toInt(fms[0]),toInt(fms[1]),toInt(fms[2]));
 
     strm << "\nTotal number of traces to process: " << cdprgo.nrSteps()+1
 	 << std::endl << std::endl;

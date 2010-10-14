@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uithumbwheel.cc,v 1.13 2010-08-27 18:41:03 cvskris Exp $";
+static const char* rcsID = "$Id: uithumbwheel.cc,v 1.14 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "uithumbwheel.h"
 #include "i_qthumbwhl.h"
@@ -101,7 +101,7 @@ float uiThumbWheel::getValue() const
 
 void uiThumbWheel::setText( const char* t )
 {
-    setValue( (float)atof(t) );
+    setValue( toFloat(t) );
 }
 
 

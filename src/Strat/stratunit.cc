@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.33 2010-10-11 11:31:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.34 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratreftree.h"
@@ -61,7 +61,7 @@ void Strat::UnitRef::doUse( const char* str, int* id )
     if ( sz > 1 )
     {
 	if ( id )
-	    *id = atoi( fms[nr] );
+	    *id = toInt( fms[nr] );
 	nr++;
     }
     desc_ = fms[nr];

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.21 2010-06-30 07:34:21 cvsnanne Exp $
+ RCS:		$Id: rcol.h,v 1.22 2010-10-14 09:58:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ bool	clss::use(const char* str) \
     char* ptr = strchr( buf.buf(), '/' ); \
     if ( !ptr ) return false; \
     *ptr++ = '\0'; \
-    row = atoi( buf.buf() ); col = atoi( ptr ); \
+    row = toInt( buf.buf() ); col = toInt( ptr ); \
     return true; \
 } \
  \

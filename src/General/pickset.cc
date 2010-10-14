@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.67 2010-06-25 13:43:34 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.68 2010-10-14 09:58:06 cvsbert Exp $";
 
 #include "pickset.h"
 
@@ -86,7 +86,7 @@ static double getNextVal( char*& str )
     if ( !*str ) return mUdf(double);
     char* endptr = str; mSkipNonBlanks( endptr );
     if ( *endptr ) *endptr++ = '\0';
-    double v = atof( str );
+    double v = toDouble( str );
     str = endptr; mSkipBlanks(str);
     return v;
 }
