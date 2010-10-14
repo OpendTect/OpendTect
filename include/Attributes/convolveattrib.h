@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.16 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: convolveattrib.h,v 1.17 2010-10-14 13:39:37 cvshelene Exp $
 ________________________________________________________________________
 
     
@@ -85,12 +85,14 @@ protected:
 
     const BinID*		reqStepout(int input,int output) const;
     const Interval<int>*	reqZSampMargin(int input,int output) const;
+    const Interval<int>*	desZSampMargin(int input,int output) const;
 
     int				kerneltype_;
     int				shape_;
     int				size_;
     BinID			stepout_;
     Wavelet*			wavelet_;
+    Interval<int>		dessampgate_;
 
     int				dataidx_;
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.23 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.24 2010-10-14 13:39:37 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -296,6 +296,8 @@ Convolve::Convolve( Desc& ds )
 	mGetString( wavidstr, waveletStr() );
 	IOObj* ioobj = IOM().get( MultiID(wavidstr) );
 	wavelet_ = Wavelet::get( ioobj );
+	int wvletmididx = wavelet_->centerSample();
+	dessampgate_ = Interval<int>( -wvletmididx, wvletmididx );
 	return;
     }
 
@@ -353,6 +355,13 @@ const Interval<int>* Convolve::reqZSampMargin( int inp, int ) const
 {
     if ( !kernel_ ) return 0;
     return &kernel_->getSG();
+}
+
+
+const Interval<int>* Convolve::desZSampMargin( int inp, int ) const
+{
+    if ( kernel_ ) return 0;
+    return &dessampgate_;
 }
 
 
@@ -435,7 +444,7 @@ bool Convolve::computeDataWavelet( const DataHolder& output, int z0,
     int inpshift = z0-inputdata_[0]->z0_;
     float* outp = output.series(0)->arr();
     GenericConvolve( waveletsz, wavfirstidx, wavarr, inputdata_[0]->nrsamples_,
-		     inpshift, *inputdata_[0]->series(dataidx_),
+		     -inpshift, *inputdata_[0]->series(dataidx_),
 		     nrsamples, 0, outp );
     
     return true;
