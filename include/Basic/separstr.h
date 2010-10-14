@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.24 2009-11-18 19:52:28 cvskris Exp $
+ RCS:		$Id: separstr.h,v 1.25 2010-10-14 08:39:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,7 +127,7 @@ public:
     // class needs an exact match! Passing a derived object would make the
     // template function convert it to (const char*).
     FileMultiString&	add(const FileMultiString& fms)
-			{ return add( (SeparString) fms ); }
+			{ return add( (SeparString&)fms ); }
     template <class T>
     FileMultiString&	add( T t )
 			{ SeparString::add( t ); return *this; }
