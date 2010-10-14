@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.114 2010-10-14 05:30:57 cvsranojay Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.115 2010-10-14 15:17:52 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -147,7 +147,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	const ValueSeries<float>* dataseries = dh->series( valseridx_ );
 	const int shift = usez0 ? dh->z0_ : mNINT(sd.start/sd.step);
-	const int shift_scene = usez0 ? sd_scene.start 
+	const int shift_scene = usez0 ? mNINT( sd_scene.start )
 				      : mNINT(sd_scene.start/sd_scene.step);
 
 	for ( int idy=0; idy<nrsamp; idy++ )
