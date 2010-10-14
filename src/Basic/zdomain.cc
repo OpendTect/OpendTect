@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: zdomain.cc,v 1.2 2010-09-07 12:52:37 cvsbert Exp $";
+static const char* rcsID = "$Id: zdomain.cc,v 1.3 2010-10-14 04:18:05 cvsnanne Exp $";
 
 #include "zdomain.h"
 #include "survinfo.h"
@@ -236,9 +236,9 @@ bool ZDomain::Info::isCompatibleWith( const IOPar& iop ) const
 	return false;
 
     BufferString myid( getID() );
-    if ( myid.isEmpty() )
+    const char* iopid = inf.getID();
+    if ( myid.isEmpty() || !iopid )
 	return true;
 
-    const BufferString iopid( inf.getID() );
     return myid == iopid;
 }
