@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.34 2010-10-14 08:39:18 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.35 2010-10-14 09:05:52 cvsbert Exp $
 ________________________________________________________________________
 -*/
 
@@ -158,12 +158,12 @@ inline float toFloat( const char* s )
     float ret = 0; getFromString( ret, s, mUdf(float) ); return ret;
 }
 
-inline float toDouble( const char* s )
+inline double toDouble( const char* s )
 {
     double ret = 0; getFromString( ret, s, mUdf(double) ); return ret;
 }
 
-inline float toInt( const char* s )
+inline int toInt( const char* s )
 {
     int ret = 0; getFromString( ret, s, mUdf(int) ); return ret;
 }
