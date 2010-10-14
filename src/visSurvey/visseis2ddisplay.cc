@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.112 2010-10-07 21:05:59 cvskarthika Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.113 2010-10-14 03:15:08 cvskarthika Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -79,6 +79,8 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
     , attrib_( attrib )
     , outputptr_( 0 )
 {
+    sx_ = arr_->info().getSize(0);
+    sy_ = arr_->info().getSize(1);    
 }
 
       	
@@ -98,37 +100,33 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
 
 od_int64 nrIterations() const { return data2dh_.size(); }
 
+
 private:
+
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
     const int nrsamp = data2dh_.dataset_[0]->nrsamples_;
-   
     const SamplingData<float>& sd = data2dh_.trcinfoset_[0]->sampling; 
     StepInterval<float> zrg = s2d_.getZRange(!s2d_.datatransform_,attrib_);
     StepInterval<int> arraysrg( mNINT(zrg.start/sd.step),
 				mNINT(zrg.stop/sd.step),1 );
     const float firstz = data2dh_.dataset_[0]->z0_*sd.step;
     const int firstdhsample = sd.nearestIndex( firstz );
-    const bool samplebased = 
+
+    const bool samplebased = 	
 	mIsEqual( sd.getIndex(firstz),firstdhsample,1e-3 ) && 
 	mIsEqual( sd.step, s2d_.getScene()->getCubeSampling().zrg.step, 1e-3 );
-
-    if ( !samplebased )
-    {
-	pErrMsg("Not impl");
-	return false;
-    }
 
     const TypeSet<int>& allpos = s2d_.trcdisplayinfo_.alltrcnrs;
     const int starttrcidx = allpos.indexOf( s2d_.trcdisplayinfo_.rg.start );
 
     const bool usez0 = s2d_.datatransform_ || zrg.start <= sd.start;
 
-    if ( !outputptr_ )
-    {
-	sx_ = arr_->info().getSize(0);
-	sy_ = arr_->info().getSize(1);
-    }
+    // get the details of the destination - the array to be filled up
+    const SamplingData<float>& sd_scene = 
+	    s2d_.getScene()->getCubeSampling().zrg;
+    const float firstz_scene = sd_scene.start*sd_scene.step;		 
+    const int firstsample_scene = sd_scene.nearestIndex( firstz_scene );
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
@@ -149,24 +147,50 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	const ValueSeries<float>* dataseries = dh->series( valseridx_ );
 	const int shift = usez0 ? dh->z0_ : mNINT(sd.start/sd.step);
+	const int shift_scene = usez0 ? sd_scene.start 
+				      : mNINT(sd_scene.start/sd_scene.step);
+
 	for ( int idy=0; idy<nrsamp; idy++ )
 	{
-	    const int smp = firstdhsample+idy;
-	    const int arrzidx = arraysrg.getIndex( smp+shift );
-	    if ( arrzidx<0 || arrzidx>=sy_ ) 
+	    float val;
+	    int arrzidx;
+
+	    if ( samplebased )
 	    {
-		addToNrDone( 1 );
-		continue;
+		const int smp = firstdhsample+idy;    
+		const int validx = usez0 ? smp : smp+shift-dh->z0_;
+		
+		arrzidx = arraysrg.getIndex( smp+shift );
+		//arrzidx = arraysrg.getIndex( firstz+idy+shift ); ??
+		if ( arrzidx<0 || arrzidx>=sy_ )
+		{
+		    addToNrDone( 1 );
+		    continue;
+                }
+
+		val = ( dh->dataPresent(smp+shift) ) ?
+			dataseries->value( validx ) : mUdf(float);
+	    }
+	    else
+	    {
+		// interpolate!		
+		arrzidx = arraysrg.getIndex( firstsample_scene + idy + 
+				shift_scene );
+		if ( arrzidx<0 || arrzidx>=sy_ ) 
+	        {
+		    addToNrDone( 1 );
+		    continue;
+	        }
+
+		val = mUdf(float);
+		IdxAble::interpolateRegWithUdf( *dataseries, 
+		    nrsamp, firstsample_scene + idy + shift_scene, val );
 	    }
 	    
-	    const int validx = usez0 ? smp : smp+shift-dh->z0_;
-		const float val = ( dh->dataPresent(smp+shift) ) ?
-			dataseries->value( validx ) : mUdf(float);
-	   
-		if ( outputptr_ )
-			*( outputptr_ + (trcidx * sy_) + arrzidx ) = val ;
-		else
-			arr_->set( trcidx, arrzidx, val );
+	    if ( outputptr_ )
+		*( outputptr_ + (trcidx * sy_) + arrzidx ) = val ;
+	    else
+		arr_->set( trcidx, arrzidx, val );
 	}
 
 	addToNrDone( 1 );
@@ -174,7 +198,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
     return true;
 }
-   
+
     Array2DImpl<float>*			arr_;
     float*				outputptr_;
     int					sx_, sy_;	// size of output array
@@ -182,6 +206,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const Seis2DDisplay&		s2d_;
     const int				valseridx_;
     int					attrib_;
+
 };
 
 
