@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.113 2010-10-14 03:15:08 cvskarthika Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.114 2010-10-14 05:30:57 cvsranojay Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -510,7 +510,7 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
     const Interval<int> rg( maxtrcnrrg_.limitValue(trcrg.start),
 			    maxtrcnrrg_.limitValue(trcrg.stop) );
 
-    if ( !rg.width() || trcdisplayinfo_.rg==rg )
+    if ( !rg.width() )
 	return;
 
     trcdisplayinfo_.rg = rg;
