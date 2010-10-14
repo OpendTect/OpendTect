@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.15 2010-10-07 06:35:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.16 2010-10-14 04:17:11 cvsnanne Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -113,7 +113,6 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 	    return false;
 
 	velioobj = IOM().get( t2dfld_->selID() );
-
 	outioobj = outputdepthsel_->ioobj();
 	if ( !inputtimesel_->ioobj() || !outioobj )
 	    return false;
@@ -129,6 +128,13 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 	if ( !inputdepthsel_->ioobj() || !outioobj )
 	    return false;
 	ZDomain::Time().set( outioobj->pars() );
+    }
+
+    if ( velioobj )
+    {
+	ZDomain::Info zdinf( outioobj->pars() );
+	zdinf.setID( velioobj->key() );
+	outioobj->pars().mergeComp( zdinf.pars_, ZDomain::sKey() );
     }
 
     IOM().commitChanges( *outioobj );
