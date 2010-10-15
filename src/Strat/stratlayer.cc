@@ -4,30 +4,13 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.5 2010-10-12 12:07:17 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.6 2010-10-15 13:38:41 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratreftree.h"
 #include "propertyimpl.h"
 #include "propertyref.h"
-
-
-const PropertyRef& Strat::Layer::topDepthRef()
-{
-    PropertyRef* ref = 0;
-    if ( !ref )
-    {
-	ref = new PropertyRef( "Top depth", PropertyRef::Dist );
-	const PropertyRef* dpthref = PROPS().find( "depth" );
-	if ( dpthref )
-	    ref->disp_ = dpthref->disp_;
-	else
-	    ref->disp_.range_ = Interval<float>( 0, 5000 );
-    }
-
-    return *ref;
-}
 
 
 const PropertyRef& Strat::Layer::thicknessRef()
@@ -82,9 +65,9 @@ void Strat::Layer::setValue( int ival, float val )
 
 
 Strat::LayerSequence::LayerSequence( const PropertyRefSelection* prs )
-    : props_(prs)
-    , z0_(0)
+    : z0_(0)
 {
+    if ( prs ) props_ = *prs;
 }
 
 
@@ -143,7 +126,6 @@ void Strat::LayerSequence::prepareUse()
 
 Strat::LayerModel::LayerModel()
 {
-    props_ += &Layer::topDepthRef();
     props_ += &Layer::thicknessRef();
 }
 
@@ -161,7 +143,7 @@ Strat::LayerModel& Strat::LayerModel::operator =( const Strat::LayerModel& oth )
 	for ( int iseq=0; iseq<oth.seqs_.size(); iseq++ )
 	{
 	    LayerSequence* newseq = new LayerSequence( *oth.seqs_[iseq] );
-	    newseq->setPropertyRefs( &props_ );
+	    newseq->setPropertyRefs( props_ );
 	    seqs_ += newseq;
 	}
 	props_ = oth.props_;
