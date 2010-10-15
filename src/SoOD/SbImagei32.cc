@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SbImagei32.cc,v 1.8 2010-10-15 08:28:42 cvskarthika Exp $";
+static const char* rcsID = "$Id: SbImagei32.cc,v 1.9 2010-10-15 08:31:40 cvskarthika Exp $";
 
 #include "SbImagei32.h"
 
@@ -128,7 +128,7 @@ bool SbImagei32::setValue( const SbVec3i32& sz, const int bytesperpixel,
 	if ( data && ( sz == size ) && 
 	     ( bytesperpixel == bpp ) )
 	{
-	    memcpy( bytes, data, buffersize * bytesperpixel );
+	    memcpy( bytes, data, buffersize );
 	    writeUnlock();
 	    return ret;
 	}
