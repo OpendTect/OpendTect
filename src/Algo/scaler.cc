@@ -5,7 +5,7 @@
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID = "$Id: scaler.cc,v 1.12 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.13 2010-10-15 11:38:42 cvsbert Exp $";
 
 #include "scaler.h"
 #include "separstr.h"
@@ -126,7 +126,7 @@ const char* LogScaler::toString() const
 
 void LogScaler::fromString( const char* str )
 {
-    ten_ = yesNoFromString( str );
+    ten_ = toBool( str, false );
 }
 
 
@@ -151,7 +151,7 @@ const char* ExpScaler::toString() const
 
 void ExpScaler::fromString( const char* str )
 {
-    ten_ = yesNoFromString( str );
+    ten_ = toBool( str, false );
 }
 
 

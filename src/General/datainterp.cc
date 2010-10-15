@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.26 2010-06-30 14:02:42 cvskris Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.27 2010-10-15 11:38:42 cvsbert Exp $";
 
 #include "datainterp.h"
 
@@ -80,7 +80,7 @@ void DataCharacteristics::set( const char* s )
 	fmt = matchStringCI( "ibm", fms[1] ) ? DataCharacteristics::Ibm
 					     : DataCharacteristics::Ieee;
     if ( sz > 4 )
-	littleendian = yesNoFromString( fms[4] );
+	littleendian = toBool( fms[4], true );
 }
 
 

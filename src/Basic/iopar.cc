@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.84 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.85 2010-10-15 11:38:42 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -720,9 +720,11 @@ bool IOPar::get( const char* s, int& i1, int& i2, float& f ) const
 bool IOPar::getYN( const char* s, bool& i ) const
 {
     const char* ptr = find( s );
-    if ( !ptr || !*ptr ) return false;
+    if ( !ptr ) return false;
+    mSkipBlanks(ptr);
+    if ( !*ptr ) return false;
 
-    i = yesNoFromString(ptr);
+    i = toBool(ptr,true);
     return true;
 }
 
@@ -733,8 +735,8 @@ bool IOPar::getYN( const char* s, bool& i1, bool& i2 ) const
     if ( !ptr || !*ptr ) return false;
 
     FileMultiString fms( ptr );
-    i1 = yesNoFromString(fms[0]);
-    i2 = yesNoFromString(fms[1]);
+    i1 = toBool(fms[0],false);
+    i2 = toBool(fms[1],false);
     return true;
 }
 
@@ -745,9 +747,9 @@ bool IOPar::getYN( const char* s, bool& i1, bool& i2, bool& i3 ) const
     if ( !ptr || !*ptr ) return false;
 
     FileMultiString fms( ptr );
-    i1 = yesNoFromString(fms[0]);
-    i2 = yesNoFromString(fms[1]);
-    i3 = yesNoFromString(fms[2]);
+    i1 = toBool(fms[0],false);
+    i2 = toBool(fms[1],false);
+    i3 = toBool(fms[2],false);
     return true;
 }
 
@@ -758,10 +760,10 @@ bool IOPar::getYN( const char* s, bool& i1, bool& i2, bool& i3, bool& i4 ) const
     if ( !ptr || !*ptr ) return false;
 
     FileMultiString fms( ptr );
-    i1 = yesNoFromString(fms[0]);
-    i2 = yesNoFromString(fms[1]);
-    i3 = yesNoFromString(fms[2]);
-    i4 = yesNoFromString(fms[3]);
+    i1 = toBool(fms[0],false);
+    i2 = toBool(fms[1],false);
+    i3 = toBool(fms[2],false);
+    i4 = toBool(fms[3],false);
     return true;
 }
 

@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.33 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.34 2010-10-15 11:38:42 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -325,7 +325,7 @@ void IOStream::getDev( ascistream& stream )
 	else if ( !strcmp(kw,"Fileskips") )
 	    skipfiles = toInt(stream.value());
 	else if ( !strcmp(kw,"Rewind") )
-	    rew = yesNoFromString(stream.value());
+	    rew = toBool(stream.value(),false);
     }
 }
 
