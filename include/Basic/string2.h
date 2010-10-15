@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.35 2010-10-14 09:05:52 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.36 2010-10-15 09:45:12 cvsbert Exp $
 ________________________________________________________________________
 -*/
 
@@ -115,7 +115,7 @@ inline const char* toString( unsigned short i )
 #define mImplGetFromStrFunc( type, func, udfv ) \
 inline bool getFromString( type& i, const char* s, type undef=udfv ) \
 { \
-    if ( s ) \
+    if ( s && *s ) \
     { \
 	char* e; \
 	i = (type)func; \
@@ -153,19 +153,24 @@ inline bool getFromString( bool& b, const char* s )
     return false;
 }
 
-inline float toFloat( const char* s )
+inline bool toBool( const char* s, bool defval=true )
 {
-    float ret = 0; getFromString( ret, s, mUdf(float) ); return ret;
+    return s && *s ? yesNoFromString(s) : defval;
 }
 
-inline double toDouble( const char* s )
+inline float toFloat( const char* s, float defval=0 )
 {
-    double ret = 0; getFromString( ret, s, mUdf(double) ); return ret;
+    float ret = defval; getFromString( ret, s, ret ); return ret;
 }
 
-inline int toInt( const char* s )
+inline double toDouble( const char* s, double defval=0 )
 {
-    int ret = 0; getFromString( ret, s, mUdf(int) ); return ret;
+    double ret = defval; getFromString( ret, s, ret ); return ret;
+}
+
+inline int toInt( const char* s, int defval=0 )
+{
+    int ret = defval; getFromString( ret, s, ret ); return ret;
 }
 
 
