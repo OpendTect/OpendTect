@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.59 2010-07-15 18:44:00 cvskris Exp $
+ RCS:		$Id: keystrs.h,v 1.60 2010-10-15 09:45:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,7 @@ namespace sKey
     mExt FixedString	Pars		mImpl("Parameters");
     mExt FixedString	Polygon		mImpl("Polygon");
     mExt FixedString	Position	mImpl("Position");
+    mExt FixedString	Property	mImpl("Property");
     mExt FixedString	Random		mImpl("Random");
     mExt FixedString	Range		mImpl("Range");
     mExt FixedString	Sampling	mImpl("Sampling");
@@ -97,6 +98,7 @@ namespace sKey
     mExt FixedString    TraceNr		mImpl("Trace number");
     mExt FixedString	Type		mImpl("Type");
     mExt FixedString	Undef		mImpl("Undefined");
+    mExt FixedString	Unit		mImpl("Unit");
     mExt FixedString	Value		mImpl("Value");
     mExt FixedString	Version		mImpl("Version");
     mExt FixedString	XCoord		mImpl("X-Coord");
