@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.52 2010-09-20 13:48:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.53 2010-10-15 11:08:37 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -94,14 +94,13 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t )
 {
     const int sz = d2t.size();
     TypeSet<float> dahs, times;
+    mAllocVarLenArr( int, zidxs, sz );
     for ( int idx=0; idx<sz; idx++ )
     {
 	dahs += d2t.dah( idx ); 
 	times += d2t.value( idx ); 
-    }
-    mAllocVarLenArr( int, zidxs, sz );
-    for ( int idx=0; idx<sz; idx++ )
 	zidxs[idx] = idx;
+    }
     sort_coupled( times.arr(), mVarLenArr(zidxs), sz );
     d2t.erase();
     d2t.add( dahs[zidxs[0]], times[zidxs[0]] );
