@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.18 2010-10-14 09:58:06 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.19 2010-10-15 11:39:33 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ ________________________________________________________________________
 
   Its purpose is to provide a value when asked. Some Property's have a 'memory'.
   These can be cleared using reset(). Some Properties do not return constant
-  values. Therefore, you can ask a 'real' and an average value.
+  values. The parameters can be set in EvalOpts.
 
  */
 
@@ -37,7 +37,6 @@ public:
     const char*		name() const;
 
     virtual bool	isUdf() const			= 0;
-    virtual float	value(bool avg=false) const	= 0;
     virtual void	reset() const			{}
 
     virtual bool	dependsOn(const Property&) const { return false; }
@@ -47,11 +46,33 @@ public:
     virtual void	setDef(const char*)		= 0;
     mDefineFactory1ParamInClass(Property,const PropertyRef&,factory);
 
+    mClass EvalOpts
+    {
+    public:
+			EvalOpts( bool avg=false, float relpos=0 )
+			    : average_(avg)
+			    , relpos_(relpos)		{}
+	bool		average_;
+	float		relpos_;
+    };
+    virtual float	value(EvalOpts eo=EvalOpts()) const = 0;
+
 protected:
 
     const PropertyRef&	ref_;
 
 };
+
+// For impl of Property subclasses. The last four must be provided.
+#define mDefPropFns(clss,typstr) \
+    static const char*	typeStr()		{ return typstr; } \
+    virtual const char* type() const		{ return typeStr(); } \
+    static Property*	create( const PropertyRef& r ) { return new clss(r); } \
+    static void		initClass() { factory().addCreator(create,typeStr());} \
+    virtual const char*	def() const; \
+    virtual void	setDef(const char*); \
+    virtual bool	isUdf() const; \
+    virtual float	value(EvalOpts eo=EvalOpts()) const
 
 
 mClass PropertySet
@@ -94,18 +115,6 @@ protected:
     ObjectSet<Property>	props_;
 
 };
-
-
-// For impl of Property subclasses. The last four must be provided.
-#define mDefPropFns(clss,typstr) \
-    static const char*	typeStr()		{ return typstr; } \
-    virtual const char* type() const		{ return typeStr(); } \
-    static Property*	create( const PropertyRef& r ) { return new clss(r); } \
-    static void		initClass() { factory().addCreator(create,typeStr());} \
-    virtual const char*	def() const; \
-    virtual void	setDef(const char*); \
-    virtual bool	isUdf() const; \
-    virtual float	value(bool avg=false) const
 
 
 #endif
