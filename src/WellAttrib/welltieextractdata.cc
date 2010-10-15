@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.29 2010-08-17 14:21:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.30 2010-10-15 10:32:42 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -136,6 +136,7 @@ void SeismicExtractor::collectTracesAroundPath()
     }
     cs_->hrg.setCrlRange( crlrg );
     cs_->hrg.setInlRange( inlrg );
+    cs_->hrg.snapToSurvey();
     cs_->zrg = timeintv_;
     Seis::RangeSelData* sd = new Seis::RangeSelData( *cs_ );
     sd->lineKey() = *linekey_;
