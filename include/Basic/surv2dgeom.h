@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: surv2dgeom.h,v 1.4 2010-10-06 08:51:52 cvssatyaki Exp $
+ RCS:		$Id: surv2dgeom.h,v 1.5 2010-10-18 04:45:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,18 @@ class BufferStringSet;
 
 namespace PosInfo
 {
+
+mClass GeomID
+{
+public:
+    		GeomID( int lsid, int lineid )
+		    : lsid_(lsid) ,lineid_(lineid)	{}
+    int		lsid_;
+    int		lineid_;
+    bool	isOK() const;
+    bool	operator ==( const GeomID& a ) const
+    		{ return a.lsid_ == lsid_ && a.lineid_ == lineid_; }
+};
 
 /*!\brief Repository for 2D line geometries
 
@@ -53,19 +65,25 @@ public:
     void		renameLineSet(const char*,const char*);
     
     // using ids
-    bool		hasLineSet(int lsidx) const;
+    const char*		getLineSet(int lsid) const;
+    const char*		getLineName(int lid) const;
+    int			getLineSetID( const char*) const;
+    int			getLineNameID( const char*) const;
+    bool		hasLineSet(int lsid) const;
     bool		hasLine(int lid,int lsid) const;
-    void		getLineIDs(TypeSet<int>&,int lsidx) const;
+    void		getLineIDs(TypeSet<int>&,int lsid) const;
 
     int			curLineSetID() const;
     void		setCurLineSet(int lsid) const;
     int			getLineSetIdx(int lsid) const;
     int			getLineIdx(int lineid) const;
 
-    bool		getGeometry(int lidx,Line2DData&) const;
+    bool		getGeometry(int lid,Line2DData&) const;
 
-    void		removeLine(int lidx);
-    void		removeLineSet(int lsidx);
+    void		removeLine(int lid);
+    void		removeLineSet(int lsid);
+
+    GeomID		getGeomID(const char* lsnm,const char* linenm);
 
 protected:
     int			getNewID(IOPar&);

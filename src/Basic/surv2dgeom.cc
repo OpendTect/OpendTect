@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.5 2010-10-06 08:51:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.6 2010-10-18 04:45:07 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -31,6 +31,14 @@ struct Survey2DDeleter : public NamedObject {
 void doDel( CallBacker* ) { delete theinst; theinst = 0; }
 };
 }
+
+bool PosInfo::GeomID::isOK() const
+{
+    const bool ret = lsid_ >= 0 && lineid_ >= 0 && !mIsUdf(lsid_) &&
+		     !mIsUdf(lineid_);
+    return ret;
+}
+
 
 PosInfo::Survey2D& PosInfo::POS2DAdmin()
 {
@@ -181,6 +189,45 @@ int PosInfo::Survey2D::curLineSetID() const
 }
 
 
+int PosInfo::Survey2D::getLineSetID( const char* lsnm ) const
+{
+    for ( int idx=0; idx<lsindex_.size(); idx++ )
+    {
+	FileMultiString info( lsindex_.getValue(idx) );
+	if ( info.size()>0 && !strcmp(lsnm,lsindex_.getKey(idx)) )
+	    return info.getIValue( 1 );
+    }
+
+    return -1;
+}
+
+
+int PosInfo::Survey2D::getLineNameID( const char* linenm ) const
+{
+    for ( int idx=0; idx<lineindex_.size(); idx++ )
+    {
+	FileMultiString info( lineindex_.getValue(idx) );
+	if ( info.size()>0 && !strcmp(linenm,lineindex_.getKey(idx)) )
+	    return info.getIValue( 1 );
+    }
+
+    return -1;
+}
+
+
+const char* PosInfo::Survey2D::getLineSet( int lsid ) const
+{
+    for ( int idx=0; idx<lsindex_.size(); idx++ )
+    {
+	FileMultiString info( lsindex_.getValue(idx) );
+	if ( info.size()>0 && (lsid == info.getIValue(1)) )
+	    return lsindex_.getKey( idx );
+    }
+
+    return 0;
+}
+
+
 bool PosInfo::Survey2D::hasLineSet( const char* lsnm ) const
 {
     return lsindex_.hasKey( lsnm );
@@ -200,6 +247,22 @@ bool PosInfo::Survey2D::hasLineSet( int lsid ) const
 }
 
 
+const char* PosInfo::Survey2D::getLineName( int lineid ) const
+{
+    if ( lineid < 0 )
+	return false;
+    
+    for ( int idx=0; idx<lineindex_.size(); idx++ )
+    {
+	FileMultiString info( lineindex_.getValue(idx) );
+	if ( info.size()>0 && (lineid == info.getIValue(1)) )
+	    return lineindex_.getKey( idx );
+    }
+
+    return 0;
+}
+
+
 bool PosInfo::Survey2D::hasLine( const char* lnm, const char* lsnm ) const
 {
     if ( !lsnm || !strcmp(lsnm_.buf(),lsnm) )
@@ -213,7 +276,7 @@ bool PosInfo::Survey2D::hasLine( const char* lnm, const char* lsnm ) const
 
 bool PosInfo::Survey2D::hasLine( int lineid, int lsid ) const
 {
-    if ( lsid >=0 || !hasLineSet( lsid) )
+    if ( lsid < 0 || !hasLineSet( lsid) )
 	return false; 
 
     if ( lsid == -1 )
@@ -337,9 +400,11 @@ void PosInfo::Survey2D::setCurLineSet( int lsid ) const
 	return;
 
     int lsidx = getLineSetIdx( lsid );
+    if ( lsid < 0 || mIsUdf(lsidx) )
+	return;
     
     BufferString maxidkey( sKeyMaxID );
-    if ( lsindex_.getKey(lsidx) != maxidkey )
+    if ( maxidkey != lsindex_.getKey(lsidx) )
 	setCurLineSet( lsindex_.getKey(lsidx) );
 }
 
@@ -561,4 +626,13 @@ void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
 	writeIdxFile( false );
 	setCurLineSet( cleannm.buf() );
     }
+}
+
+PosInfo::GeomID PosInfo::Survey2D::getGeomID( const char* linesetnm,
+					      const char* linenm )
+{
+    if ( lsnm_ != linesetnm )
+	setCurLineSet( linesetnm );
+    PosInfo::GeomID geomid( getLineSetID(linesetnm), getLineNameID(linenm) );
+    return geomid;
 }
