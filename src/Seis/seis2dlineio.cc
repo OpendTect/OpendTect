@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID = "$Id: seis2dlineio.cc,v 1.9 2010-10-06 08:51:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seis2dlineio.cc,v 1.10 2010-10-18 04:52:26 cvssatyaki Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -65,13 +65,13 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
     if ( !oldioobj ) return false;
 
     BufferString oldname( oldioobj->name() );
-    bool res = Translator::implRename( ioobj, newnm, cb );
-    if ( !res ) 
+    Seis2DLineSet ls( *ioobj );
+    if ( ls.rename(ioobj->name()) && !ls.renameFiles(ioobj->name()) )
 	return false;
 
     PosInfo::POS2DAdmin().renameLineSet( oldname, ioobj->name() );
-    Seis2DLineSet ls( *ioobj );
-    return ls.rename( ioobj->name() );
+    
+    return Translator::implRename( ioobj, newnm, cb );
 }
 
 

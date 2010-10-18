@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.83 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.84 2010-10-18 04:52:26 cvssatyaki Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.83 2010-09-29 03:48:48 cvssat
 #include "bufstringset.h"
 #include "binidvalset.h"
 #include "survinfo.h"
+#include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
 #include "zdomain.h"
@@ -544,6 +545,55 @@ bool Seis2DLineSet::rename( const char* lk, const char* newlk )
     }
 
     LineKey(newlk).fillPar( *pars_[ipar], true );
+    writeFile();
+    return true;
+}
+
+
+bool Seis2DLineSet::renameFiles( const char* newlsnm )
+{
+    BufferString cleannm( newlsnm );
+    cleanupString( cleannm.buf(), mC_False, mC_False, mC_False );
+    if ( fname_.isEmpty() )
+	return false;
+
+    BufferString oldlsnm;
+    if ( !pars_.size() )
+	return false;
+
+    pars_[0]->get( sKey::FileName, oldlsnm );
+    int index = 0;
+    while ( true )
+    {
+	if ( oldlsnm[index] == '^' || oldlsnm[index] == '.' )
+	    break;
+	index++;
+    }
+
+    oldlsnm[index] = '\0';
+
+    FilePath fp( fname_ );
+    for ( int idx=0; idx<nrLines(); idx++ )
+    {
+	BufferString filenm, oldfilenm;
+	pars_[idx]->get( sKey::FileName, filenm );
+	oldfilenm = filenm;
+	replaceString( filenm.buf(), oldlsnm.buf(), newlsnm );
+	BufferString newfp, oldfp;
+	newfp += fp.pathOnly();
+	newfp += "/";
+	oldfp = newfp;
+	newfp += filenm.buf();
+	oldfp += oldfilenm.buf();
+	if ( !File::rename(oldfp.buf(),newfp.buf()) )
+	{
+	    renameFiles( oldlsnm );
+	    return false;
+	}
+
+	pars_[idx]->set( sKey::FileName, filenm );
+    }
+
     writeFile();
     return true;
 }

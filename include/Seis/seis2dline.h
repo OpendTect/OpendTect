@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.50 2010-09-29 03:48:48 cvssatyaki Exp $
+ RCS:		$Id: seis2dline.h,v 1.51 2010-10-18 04:52:26 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,7 @@ public:
     bool		remove(const char* lk);
     				//!< Also removes from disk
     				//!< Fails if LineSet is currently being written
+    bool		renameFiles(const char*);
 
     bool		getTxtInfo(int,BufferString& uinfo,
 	    			   BufferString& stdinfo) const;
