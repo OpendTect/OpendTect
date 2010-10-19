@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.57 2010-10-11 09:37:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.58 2010-10-19 15:14:32 cvsbert Exp $";
 
 #include "uistrattreewin.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.57 2010-10-11 09:37:43 cv
 #include "uigroup.h"
 #include "uilistview.h"
 #include "uimenu.h"
+#include "uiselsimple.h"
 #include "uimsg.h"
 #include "stratreftree.h"
 #include "uiparent.h"
@@ -30,6 +31,8 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.57 2010-10-11 09:37:43 cv
 #include "uistratlvllist.h"
 #include "uistratutildlgs.h"
 #include "uistratdisplay.h"
+#include "uistratlayermodel.h"
+#include "uistratlayseqgendesc.h"
 #include "uitoolbar.h"
 
 #define	mExpandTxt(domenu)	domenu ? "&Expand all" : "Expand all"
@@ -148,8 +151,12 @@ void uiStratTreeWin::createToolBar()
     tb_->addObject( helpbut );
     tb_->addSeparator();
     mDefBut(switchviewbut_,"stratframeworkgraph.png",
-	    				switchViewCB,"Switch View..." );
+	    				switchViewCB,"Switch View" );
     switchviewbut_->setToggleButton( true );
+    tb_->addSeparator();
+    uiToolButton* laymodbut;
+    mDefBut(laymodbut,"stratlayermodeling.png", layModCB,
+	    	"Start Layer Modeling" );
 }
 
 
@@ -281,6 +288,28 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
     uitree_->listView()->display( istreedisp_ );
     switchviewbut_->setPixmap( istreedisp_ ? "strat_tree.png" 
 	    				   : "stratframeworkgraph.png" ); 
+}
+
+
+void uiStratTreeWin::layModCB( CallBacker* )
+{
+    const BufferStringSet& nms =
+			uiLayerSequenceGenDesc::factory().getNames( true );
+    if ( nms.isEmpty() ) return;
+
+    const char* nm = nms.get(0).buf();
+    if ( nms.size() > 1 )
+    {
+	uiSelectFromList ls( this,
+		uiSelectFromList::Setup("Select modeling type",nms) );
+	ls.go();
+	const int sel = ls.selection();
+	if ( sel < 0 ) return;
+	nm = nms.get(sel).buf();
+    }
+
+    uiStratLayerModel dlg( this, nm );
+    dlg.show();
 }
 
 
