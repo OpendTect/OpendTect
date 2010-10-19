@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.14 2010-10-14 09:58:06 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.15 2010-10-19 08:49:41 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ public:
 
     float		val_;
 
-    mDefPropFns(ValueProperty,"Value");
+    mDefPropertyFns(ValueProperty,"Value");
 
 };
 
@@ -49,7 +49,7 @@ public:
     Interval<float>	rg_;
     float		pos_;
 
-    mDefPropFns(RangeProperty,"Range");
+    mDefPropertyFns(RangeProperty,"Range");
 
 };
 
@@ -72,7 +72,7 @@ public:
     virtual void	reset();
     virtual bool	dependsOn(const Property&) const;
 
-    mDefPropFns(MathProperty,"Math");
+    mDefPropertyFns(MathProperty,"Math");
 
 protected:
 

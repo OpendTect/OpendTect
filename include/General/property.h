@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.19 2010-10-15 11:39:33 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.20 2010-10-19 08:49:41 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,7 @@ protected:
 };
 
 // For impl of Property subclasses. The last four must be provided.
-#define mDefPropFns(clss,typstr) \
+#define mDefPropertyFns(clss,typstr) \
     static const char*	typeStr()		{ return typstr; } \
     virtual const char* type() const		{ return typeStr(); } \
     static Property*	create( const PropertyRef& r ) { return new clss(r); } \
