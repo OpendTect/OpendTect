@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.102 2010-10-11 07:14:00 cvssatyaki Exp $
+ RCS:           $Id: uiempartserv.h,v 1.103 2010-10-19 05:50:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class DataPointSet;
 class BufferStringSet;
 class MultiID;
 class SurfaceInfo;
+class uiImportHorizon;
 class uiPopupMenu;
 
 namespace Pick { class Set; }
@@ -143,13 +144,8 @@ public:
     void		removeUnsavedEMObjectFromTree();
     void		removeTreeObject(const EM::ObjectID&);
 
-    CNotifier<uiEMPartServer,const EM::ObjectID&>	tempobjAdded;
-    void		signalTenpObjAdd(const EM::ObjectID&);
-
-    CNotifier<uiEMPartServer,const EM::ObjectID&>	tempobjAbtToDel;
-    void		signalTempObjAbtToDel(const EM::ObjectID&);  
-
     void		managePreLoad();
+
 protected:
 
     void		selectSurfaces(ObjectSet<EM::EMObject>&,
@@ -158,9 +154,11 @@ protected:
 				    bool removeold=true);
     bool		changeAuxData(const EM::ObjectID&,const char* nm,
 	    			      bool interp,DataPointSet& res);
+    void		importReadyCB(CallBacker*);
 
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;
+    uiImportHorizon*	imphordlg_;
 
     HorSampling		selectedrg_;    
     bool		disponcreation_;

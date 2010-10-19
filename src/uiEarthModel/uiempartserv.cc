@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.211 2010-10-11 07:14:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.212 2010-10-19 05:50:13 cvsnanne Exp $";
 
 #include "uiempartserv.h"
 
@@ -98,8 +98,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , em_(EM::EMM())
     , disponcreation_(false)
     , selectedrg_(false)
-    , tempobjAdded(this)
-    , tempobjAbtToDel(this)			
+    , imphordlg_(0)
 {
 }
 
@@ -131,16 +130,22 @@ void uiEMPartServer::manageSurfaces( const char* typ )
 
 bool uiEMPartServer::import3DHorizon( bool isgeom )
 {
-    uiImportHorizon dlg( parent(), isgeom );
-    const bool res = dlg.go();
-    if ( res && dlg.doDisplay() )
-    {
-	const MultiID mid = dlg.getSelID();	
-	selemid_ = em_.getObjectID(mid);
-	sendEvent( evDisplayHorizon() );
-    }
+    if ( imphordlg_ ) imphordlg_->close();
+    delete imphordlg_;
+    imphordlg_ = new uiImportHorizon( parent(), isgeom );
+    imphordlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB) );
+    imphordlg_->go();
+    return true;
+}
 
-    return res;
+
+void uiEMPartServer::importReadyCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiImportHorizon*,dlg,cb)
+    if ( !dlg || !dlg->doDisplay() ) return;
+
+    selemid_ = em_.getObjectID( dlg->getSelID() );
+    sendEvent( evDisplayHorizon() );
 }
 
 
@@ -1235,18 +1240,6 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
     }
 
     hor->unRef();
-}
-
-
-void uiEMPartServer::signalTenpObjAdd( const EM::ObjectID& id )
-{
-    tempobjAdded.trigger( id );
-}
-
-
-void uiEMPartServer::signalTempObjAbtToDel( const EM::ObjectID& id )
-{
-    tempobjAbtToDel.trigger( id );
 }
 
 

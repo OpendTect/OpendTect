@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.133 2010-09-29 02:25:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.134 2010-10-19 05:50:13 cvsnanne Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -54,9 +54,8 @@ static const char* sZVals = "Z values";
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
-    : uiDialog(p,uiDialog::Setup("Import Horizon",
-					   "Specify parameters",
-					   "104.0.2"))
+    : uiDialog(p,uiDialog::Setup("Import Horizon","Specify parameters",
+				 "104.0.2").modal(false))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , isgeom_(isgeom)
     , filludffld_(0)
@@ -66,6 +65,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , displayfld_(0)
     , fd_(*EM::Horizon3DAscIO::getDesc())
     , scanner_(0)
+    , importReady(this)
 {
     setCtrlStyle( DoAndStay );
 
@@ -414,7 +414,12 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 
     const bool res = doImport();
     if ( res )
+    {
 	uiMSG().message( "Horizon successfully imported" );
+	if ( doDisplay() )
+	    importReady.trigger();
+    }
+
     return false;
 }
 

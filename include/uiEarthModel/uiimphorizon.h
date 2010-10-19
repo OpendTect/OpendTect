@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.h,v 1.28 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.29 2010-10-19 05:50:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ public:
 
     bool                doDisplay() const;
     MultiID             getSelID() const;
+
+    Notifier<uiImportHorizon>	importReady;
 
 protected:
 
