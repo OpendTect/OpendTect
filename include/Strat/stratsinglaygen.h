@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratsinglaygen.h,v 1.1 2010-10-19 08:51:35 cvsbert Exp $
+ RCS:		$Id: stratsinglaygen.h,v 1.2 2010-10-19 15:13:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,12 +26,7 @@ mClass SingleLayerGenerator : public LayerGenerator
 {
 public:
 
-    			SingleLayerGenerator()
-			    : unit_(0)		{}
-    			SingleLayerGenerator( const LeafUnitRef& ur,
-					    const PropertyRefSelection& prs )
-			    : unit_(&ur)
-			    , props_(prs)	{}
+    			SingleLayerGenerator(const LeafUnitRef* ur=0);
     			~SingleLayerGenerator()	{}
 
     const LeafUnitRef&	unit() const;
