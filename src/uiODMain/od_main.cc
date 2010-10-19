@@ -7,9 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_main.cc,v 1.22 2009-08-20 08:47:08 cvsbert Exp $";
-
-
+static const char* rcsID = "$Id: od_main.cc,v 1.23 2010-10-19 05:53:22 cvsnanne Exp $";
 
 #include "prog.h"
 #include "genc.h"
@@ -17,14 +15,6 @@ static const char* rcsID = "$Id: od_main.cc,v 1.22 2009-08-20 08:47:08 cvsbert E
 #include "errh.h"
 #include "odver.h"
 #include <iostream>
-
-
-// TODO : Is there a better way to force linking with attribute factory?
-#ifdef __mac__
-# include "attribfactory.h"
-#endif
-
-
 
 
 extern int ODMain(int,char**);
@@ -44,9 +34,9 @@ int main( int argc, char** argv )
 
 #if !defined(__win__) || defined(__msvc__)
     gLogFilesRedirectCode = 1;
-	// Only odmain should make log files, not process_attrib and so forth
-	// Didn't fancy putting anything about this in header files
-	// Hence the global 'hidden' variable
+    // Only od_main should make log files, not od_process_attrib and so forth
+    // Didn't fancy putting anything about this in header files
+    // Hence the global 'hidden' variable
 #endif
 
     int ret = 0;
