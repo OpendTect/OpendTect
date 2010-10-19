@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.43 2010-05-12 10:22:35 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.44 2010-10-19 11:54:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,9 @@ public:
     							{ return gtDesc(id); }
     DescID			getID(const Desc&) const;
     DescID			getID(int) const;
-    DescID			getID(const char* ref,bool isusrref) const;
+    DescID			getID(const char* ref,bool isusrref,
+	    			      bool isdescstored =false,
+				      bool usestorinfo =false) const;
     void			getIds(TypeSet<DescID>&) const;
     void			getStoredIds(TypeSet<DescID>&) const;
     DescID			getStoredID(const char* lk,int selout=-1,

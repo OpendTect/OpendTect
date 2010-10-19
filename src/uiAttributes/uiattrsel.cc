@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.58 2010-10-15 11:38:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.59 2010-10-19 11:54:50 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -652,6 +652,7 @@ void uiAttrSel::doSel( CallBacker* )
 	    attrdata_.setAttrSet( &dlg.getAttrSet() );
 	updateInput();
 	selok_ = true;
+	seltype_ = dlg.selType();
     }
 }
 
@@ -661,7 +662,7 @@ void uiAttrSel::processInput()
     BufferString inp = getInput();
     const DescSet& descset = usedasinput_ ? attrdata_.attrSet()
 				: *eDSHolder().getDescSet( is2D(), true );
-    attrdata_.attribid_ = descset.getID( inp, true );
+    attrdata_.attribid_ = descset.getID( inp, true, !seltype_, true );
     if ( !attrdata_.attribid_.isValid() && !usedasinput_ )
 	attrdata_.attribid_ = attrdata_.attrSet().getID( inp, true );
     attrdata_.outputnr_ = -1;

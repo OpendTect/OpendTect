@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.27 2010-10-13 15:11:56 cvsbruno Exp $
+ RCS:           $Id: uiattrsel.h,v 1.28 2010-10-19 11:54:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,7 @@ public:
 
     bool		is2D() const		{ return attrdata_.is2D(); }
     const Attrib::DescSet& getAttrSet() const	{ return attrdata_.attrSet(); }
+    int			selType() const;
     
 protected:
 
@@ -120,7 +121,6 @@ protected:
     void		filtChg(CallBacker*);
     void		cubeSel(CallBacker*);
     virtual bool	acceptOK(CallBacker*);
-    int			selType() const;
 };
 
 
@@ -182,6 +182,7 @@ protected:
     bool		usedasinput_;	//input for another attribute
     BufferString	errmsg_;
     mutable BufferString usrnm_;
+    int			seltype_;
 
     void		updateInput();
     void		update2D();
