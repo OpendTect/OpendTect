@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.cc,v 1.9 2010-08-11 16:55:33 cvsyuancheng Exp $
+ RCS:           $Id: waveletattrib.cc,v 1.10 2010-10-19 12:56:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
 {\
     fft_->setInputInfo( Array1DInfoImpl(sz) );\
     fft_->setDir( isforward );\
+    fft_->setNormalization(!isforward);\
     fft_->setInput( inp.getData() );\
     fft_->setOutput( outp.getData() );\
     fft_->run( true ); \
