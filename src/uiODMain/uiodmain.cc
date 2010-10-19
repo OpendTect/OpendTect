@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.134 2010-10-19 08:52:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.135 2010-10-19 08:59:54 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -108,6 +108,7 @@ static void initNonUiStdClasses()
     Geometry::initStdClasses();
     EarthModel::initStdClasses();
     Seis::initStdClasses();
+    Strat::initStdClasses();
     AttributeEngine::initStdClasses();
     PreStackProcessing::initStdClasses();
     VolumeProcessing::initStdClasses();
@@ -123,13 +124,14 @@ static void initUiStdClasses()
     uiBase::initStdClasses();
     uiTools::initStdClasses();
     uiIo::initStdClasses();
-    uiAttributes::initStdClasses();
+    uiStrat::initStdClasses();
     uiEarthModel::initStdClasses();
+    uiSeis::initStdClasses();
     uiWell::initStdClasses();
+    uiAttributes::initStdClasses();
     uiVolumeProcessing::initStdClasses();
     uiPreStackProcessing::initStdClasses();
     uiMPE::initStdClasses();
-    uiSeis::initStdClasses();
     uiVelocity::initStdClasses();
 
     SoOD::initStdClasses();
