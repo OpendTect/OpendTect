@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.133 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.134 2010-10-19 08:52:21 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -61,23 +61,25 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.133 2010-09-29 03:48:48 cvssaty
 #include "initmpeengine.h"
 #include "initprestackprocessing.h"
 #include "initseis.h"
-#include "initsood.h"
+#include "initstrat.h"
+#include "initvelocity.h"
+#include "initvolumeprocessing.h"
+#include "initwell.h"
 #include "inituibase.h"
-#include "inituiseis.h"
-#include "inituiwell.h"
 #include "inituitools.h"
 #include "inituiio.h"
-#include "inituiattributes.h"
+#include "inituiseis.h"
+#include "inituistrat.h"
+#include "inituiwell.h"
 #include "inituiearthmodel.h"
+#include "inituiattributes.h"
 #include "inituimpe.h"
 #include "inituivolumeprocessing.h"
+#include "inituivelocity.h"
 #include "inituiprestackprocessing.h"
+#include "initsood.h"
 #include "initvisbase.h"
 #include "initvissurvey.h"
-#include "initvolumeprocessing.h"
-#include "initvelocity.h"
-#include "inituivelocity.h"
-#include "initwell.h"
 
 
 extern "C" const char* GetSettingsDataDir();
