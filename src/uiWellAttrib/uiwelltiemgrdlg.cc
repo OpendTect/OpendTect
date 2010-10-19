@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.34 2010-08-17 14:04:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.35 2010-10-19 12:57:31 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -58,7 +58,8 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	, seis3dfld_(0)						      
 	, seislinefld_(0)						      
 	, seisextractfld_(0)				   
-	, typefld_(0)						      
+	, typefld_(0)
+	, extractwvltdlg_(0)		     
 {
     setCtrlStyle( DoAndStay );
 
@@ -152,6 +153,14 @@ uiTieWinMGRDlg::~uiTieWinMGRDlg()
     delete seisctio3d_.ioobj; delete &seisctio3d_;
     delete seisctio2d_.ioobj; delete &seisctio2d_;
     delWins();
+    if ( extractwvltdlg_ )
+    {
+	extractwvltdlg_->close();
+	extractwvltdlg_->extractionDone.remove(
+				mCB(this,uiTieWinMGRDlg,extractWvltDone ) );
+    }
+    delete extractwvltdlg_;
+
 }
 
 
@@ -220,21 +229,29 @@ void uiTieWinMGRDlg::selChg( CallBacker* )
 
 void uiTieWinMGRDlg::extrWvlt( CallBacker* )
 {
-    uiWaveletExtraction dlg( this, is2d_ );
-    if ( dlg.go() )
-	wvltfld_->setInput( dlg.storeKey() );
+    if ( !extractwvltdlg_ )
+	extractwvltdlg_ = new uiWaveletExtraction( 0, is2d_ );
+    extractwvltdlg_->extractionDone.notify(
+				mCB(this,uiTieWinMGRDlg,extractWvltDone) );
+    extractwvltdlg_->show();
+}
+
+
+void uiTieWinMGRDlg::extractWvltDone( CallBacker* )
+{
+    wvltfld_->setInput( extractwvltdlg_->storeKey() );
 }
 
 
 bool uiTieWinMGRDlg::getDefaults()
 {
-    PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
-    mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
-    StreamProvider sp( iostrm->fileName() );
-    sp.addPathIfNecessary( iostrm->dirName() );
-    BufferString fname( sp.fileName() );
-    WellTie::Reader wtr( fname, wtsetup_ );
-    wtr.getWellTieSetup();
+PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
+mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
+StreamProvider sp( iostrm->fileName() );
+sp.addPathIfNecessary( iostrm->dirName() );
+BufferString fname( sp.fileName() );
+WellTie::Reader wtr( fname, wtsetup_ );
+wtr.getWellTieSetup();
 
     const bool was2d = wtsetup_.is2d_;
     if ( typefld_ ) typefld_->setValue( !was2d );
