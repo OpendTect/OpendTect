@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.63 2010-09-06 05:03:37 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.64 2010-10-19 05:54:37 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -110,8 +110,6 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 				applMgr()->attrServer()->curDescSet(false) );
 
 	mps->addTracker( EM::Horizon3D::typeStr(), sceneID() );
-	applMgr()->EMServer()->signalTenpObjAdd(
-				mps->getEMObjectID(mps->activeTrackerID()) );
 	return true;
     }
     else if ( mnuid == mSectIdx || mnuid == mFullIdx || mnuid == mSectFullIdx )
@@ -582,8 +580,6 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 			applMgr()->attrServer()->curDescSet(true) );
 	
 	mps->addTracker( EM::Horizon2D::typeStr(), sceneID() );
-	applMgr()->EMServer()->signalTenpObjAdd(
-				mps->getEMObjectID(mps->activeTrackerID()) );
 	return true;
     }
     else if ( mnuid == 2 )

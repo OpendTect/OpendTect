@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.7 2010-10-07 06:03:34 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.8 2010-10-19 05:54:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,6 @@ uiODVw2DFaultParentTreeItem::uiODVw2DFaultParentTreeItem()
 
 uiODVw2DFaultParentTreeItem::~uiODVw2DFaultParentTreeItem()
 {
-    applMgr()->EMServer()->tempobjAdded.remove(
-	    mCB(this,uiODVw2DFaultParentTreeItem,tempObjAddedCB) );
 }
 
 
@@ -83,9 +81,6 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 
 bool uiODVw2DFaultParentTreeItem::init()
 {
-    applMgr()->EMServer()->tempobjAdded.notify(
-	    mCB(this,uiODVw2DFaultParentTreeItem,tempObjAddedCB) );
-
     return true;
 }
 
@@ -118,9 +113,6 @@ uiODVw2DFaultTreeItem::~uiODVw2DFaultTreeItem()
     if ( deselnotify )
 	deselnotify->remove( mCB(this,uiODVw2DFaultTreeItem,deSelCB) );
 
-    applMgr()->EMServer()->tempobjAbtToDel.remove(
-	    mCB(this,uiODVw2DFaultTreeItem,emobjAbtToDelCB) );
-
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
 	emobj->change.remove( mCB(this,uiODVw2DFaultTreeItem,emobjChangeCB) );
@@ -150,9 +142,6 @@ bool uiODVw2DFaultTreeItem::init()
     NotifierAccess* deselnotify = faultview_->deSelection();
     if ( deselnotify )
 	deselnotify->notify( mCB(this,uiODVw2DFaultTreeItem,deSelCB) );
-
-    applMgr()->EMServer()->tempobjAbtToDel.notify(
-	    mCB(this,uiODVw2DFaultTreeItem,emobjAbtToDelCB) );
 
     return true;
 }

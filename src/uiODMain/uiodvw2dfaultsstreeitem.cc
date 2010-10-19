@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.7 2010-10-07 06:03:34 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.8 2010-10-19 05:54:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,6 @@ uiODVw2DFaultSSParentTreeItem::uiODVw2DFaultSSParentTreeItem()
 
 uiODVw2DFaultSSParentTreeItem::~uiODVw2DFaultSSParentTreeItem()
 {
-    applMgr()->EMServer()->tempobjAdded.remove(
-	    mCB(this,uiODVw2DFaultSSParentTreeItem,tempObjAddedCB) );
 }
 
 
@@ -82,8 +80,6 @@ bool uiODVw2DFaultSSParentTreeItem::handleSubMenu( int mnuid )
 
 bool uiODVw2DFaultSSParentTreeItem::init()
 {
-    applMgr()->EMServer()->tempobjAdded.notify(
-	    mCB(this,uiODVw2DFaultSSParentTreeItem,tempObjAddedCB) );
     return true;
 }
 
@@ -117,9 +113,6 @@ uiODVw2DFaultSSTreeItem::~uiODVw2DFaultSSTreeItem()
     if ( deselnotify )
 	deselnotify->remove( mCB(this,uiODVw2DFaultSSTreeItem,deSelCB) );
 
-    applMgr()->EMServer()->tempobjAbtToDel.remove(
-	    mCB(this,uiODVw2DFaultSSTreeItem,emobjAbtToDelCB) );
-
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
 	emobj->change.remove( mCB(this,uiODVw2DFaultSSTreeItem,emobjChangeCB) );
@@ -148,9 +141,6 @@ bool uiODVw2DFaultSSTreeItem::init()
     NotifierAccess* deselnotify =  fssview_->deSelection();
     if ( deselnotify )
 	deselnotify->notify( mCB(this,uiODVw2DFaultSSTreeItem,deSelCB) );
-
-    applMgr()->EMServer()->tempobjAbtToDel.notify(
-	    mCB(this,uiODVw2DFaultSSTreeItem,emobjAbtToDelCB) );
 
     return true;
 }

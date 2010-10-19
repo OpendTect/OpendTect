@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.73 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.74 2010-10-19 05:54:37 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -174,10 +174,6 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 {
     uiTreeItem::prepareForShutdown();
-    
-    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
-    if ( !ioobj )
-	applMgr()->EMServer()->signalTempObjAbtToDel( emid_ );
 }
 
 
@@ -315,8 +311,9 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 		    	   "\nPlease save attribute first" );
 	    return;
 	}
-	
+
 	DataPointSet vals( false, true );
+	visserv->getRandomPosCache( visid, attribnr, vals );
 	bool res = false;
 	if ( mnuid==fillholesmnuitem_.id )
 	    res = applMgr()->EMServer()->interpolateAuxData(emid_,name_,vals);

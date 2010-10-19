@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.9 2010-10-07 06:03:34 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.10 2010-10-19 05:54:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,6 @@ uiODVw2DFaultSS2DParentTreeItem::uiODVw2DFaultSS2DParentTreeItem()
 
 uiODVw2DFaultSS2DParentTreeItem::~uiODVw2DFaultSS2DParentTreeItem()
 {
-    applMgr()->EMServer()->tempobjAdded.remove(
-	    mCB(this,uiODVw2DFaultSS2DParentTreeItem,tempObjAddedCB) );
 }
 
 
@@ -84,8 +82,6 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 
 bool uiODVw2DFaultSS2DParentTreeItem::init()
 {
-    applMgr()->EMServer()->tempobjAdded.notify(
-	    mCB(this,uiODVw2DFaultSS2DParentTreeItem,tempObjAddedCB) );
     return true;
 }
 
@@ -119,13 +115,13 @@ uiODVw2DFaultSS2DTreeItem::~uiODVw2DFaultSS2DTreeItem()
     if ( deselnotify )
 	deselnotify->remove( mCB(this,uiODVw2DFaultSS2DTreeItem,deSelCB) );
 
-    applMgr()->EMServer()->tempobjAbtToDel.remove(
-	    mCB(this,uiODVw2DFaultSS2DTreeItem,emobjAbtToDelCB) );
-
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
+    {
 	emobj->change.remove(
 		mCB(this,uiODVw2DFaultSS2DTreeItem,emobjChangeCB) );
+	emobj->unRef();
+    }
 
     viewer2D()->dataMgr()->removeObject( fssview_ );
 }
@@ -136,6 +132,7 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( !emobj ) return false;
 
+    emobj->ref();
     emobj->change.notify( mCB(this,uiODVw2DFaultSS2DTreeItem,emobjChangeCB) );
     displayMiniCtab();
 
@@ -156,9 +153,6 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     NotifierAccess* deselnotify =  fssview_->deSelection();
     if ( deselnotify )
 	deselnotify->notify( mCB(this,uiODVw2DFaultSS2DTreeItem,deSelCB) );
-
-    applMgr()->EMServer()->tempobjAbtToDel.notify(
-	    mCB(this,uiODVw2DFaultSS2DTreeItem,emobjAbtToDelCB) );
 
     return true;
 }

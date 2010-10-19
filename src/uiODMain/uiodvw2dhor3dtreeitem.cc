@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.9 2010-10-07 06:03:34 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.10 2010-10-19 05:54:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,8 +47,6 @@ uiODVw2DHor3DParentTreeItem::uiODVw2DHor3DParentTreeItem()
 
 uiODVw2DHor3DParentTreeItem::~uiODVw2DHor3DParentTreeItem()
 {
-    applMgr()->EMServer()->tempobjAdded.remove(
-	    mCB(this,uiODVw2DHor3DParentTreeItem,tempObjAddedCB) );
 }
 
 
@@ -93,8 +91,6 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 
 bool uiODVw2DHor3DParentTreeItem::init()
 {
-    applMgr()->EMServer()->tempobjAdded.notify(
-	    mCB(this,uiODVw2DHor3DParentTreeItem,tempObjAddedCB) );
     return true;
 }
 
@@ -128,9 +124,6 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
     NotifierAccess* deselnotify = horview_->deSelection();
     if ( deselnotify )
 	deselnotify->remove( mCB(this,uiODVw2DHor3DTreeItem,deSelCB) );
-
-    applMgr()->EMServer()->tempobjAbtToDel.remove(
-	    mCB(this,uiODVw2DHor3DTreeItem,emobjAbtToDelCB) );
 
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
@@ -188,9 +181,6 @@ bool uiODVw2DHor3DTreeItem::init()
     NotifierAccess* deselnotify = horview_->deSelection();
     if ( deselnotify )
 	deselnotify->notify( mCB(this,uiODVw2DHor3DTreeItem,deSelCB) );
-
-    applMgr()->EMServer()->tempobjAbtToDel.notify(
-	    mCB(this,uiODVw2DHor3DTreeItem,emobjAbtToDelCB) );
 
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
