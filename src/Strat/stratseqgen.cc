@@ -4,9 +4,9 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.2 2010-10-15 13:38:41 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.3 2010-10-19 08:51:35 cvsbert Exp $";
 
-#include "stratsinglayseqgendesc.h"
+#include "stratsinglaygen.h"
 #include "stratreftree.h"
 #include "stratlaymodgen.h"
 #include "stratlayermodel.h"
@@ -17,7 +17,8 @@ static const char* rcsID = "$Id: stratseqgen.cc,v 1.2 2010-10-15 13:38:41 cvsber
 #include "iopar.h"
 
 static const char* sKeyFileType = "Layer Sequence Generator Description";
-mImplFactory(Strat::LayerGenDesc,Strat::LayerGenDesc::factory)
+static const char* sKeyIDNew = "[New]";
+mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
 
 
 Strat::LayerModelGenerator::LayerModelGenerator(
@@ -49,10 +50,10 @@ int Strat::LayerModelGenerator::nextStep()
 }
 
 
-Strat::LayerGenDesc* Strat::LayerGenDesc::get( const IOPar& iop,
+Strat::LayerGenerator* Strat::LayerGenerator::get( const IOPar& iop,
 						const Strat::RefTree& rt )
 {
-    Strat::LayerGenDesc* ret = factory().create( iop.find(sKey::Type) );
+    Strat::LayerGenerator* ret = factory().create( iop.find(sKey::Type) );
     if ( !ret ) return 0;
     ret->usePar( iop, rt );
     return ret;
@@ -69,7 +70,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
     {
 	IOPar iop; iop.getFrom(astrm);
 	if ( iop.isEmpty() ) continue;
-	*this += LayerGenDesc::get( iop, rt_ );
+	*this += LayerGenerator::get( iop, rt_ );
     }
 
     return true;
@@ -99,45 +100,103 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 
     for ( int idx=0; idx<size(); idx++ )
     {
-	const LayerGenDesc& lgd = *((*this)[idx]);
-	if ( !lgd.genMaterial(ls,modpos) )
+	const LayerGenerator& lgen = *((*this)[idx]);
+	if ( !lgen.genMaterial(ls,modpos) )
 	{
-	    errmsg_ = lgd.errMsg();
+	    errmsg_ = lgen.errMsg();
 	    if ( errmsg_.isEmpty() )
 		errmsg_.add( "Error generating " )
-		       .add( lgd.name() );
+		       .add( lgen.name() );
 	    return false;
 	}
-	else if ( lgd.warnMsg() )
-	    warnmsgs_.addIfNew( lgd.warnMsg() );
+	else if ( lgen.warnMsg() )
+	    warnmsgs_.addIfNew( lgen.warnMsg() );
     }
 
     return true;
 }
 
 
-const char* Strat::SingleLayerGenDesc::name() const
+const char* Strat::LayerSequenceGenDesc::userIdentification( int unnr ) const
+{
+    if ( unnr >= size() )
+	return sKeyIDNew;
+
+    const BufferString unnm( (*this)[unnr]->name() );
+    int dupls = 0;
+    for ( int idx=0; idx<unnr; idx++ )
+    {
+	const BufferString nm( (*this)[idx]->name() );
+	if ( nm == unnm )
+	    dupls++;
+    }
+
+    static BufferString ret; ret = unnm;
+    if ( dupls > 0 )
+	ret.add( " [" ).add( dupls+1 ).add( "]" );
+    return ret.buf();
+}
+
+
+static int fetchSeqNr( char* inpnm )
+{
+    int seqnr = 1;
+    char* ptr = strchr( inpnm, '[' );
+    if ( ptr )
+    {
+	*ptr++ = '\0';
+	char* endptr = strchr( ptr+1, ']' );
+	if ( endptr ) *endptr = '\0';
+	seqnr = toInt( ptr );
+    }
+    return seqnr > 1 ? seqnr : 1;
+}
+
+
+int Strat::LayerSequenceGenDesc::indexFromUserIdentification(
+					const char* unm ) const
+{
+    BufferString unnm( unm );
+    if ( unnm == sKeyIDNew )
+	return size();
+
+    const int seqnr = fetchSeqNr( unnm.buf() );
+    int nrfound = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( unnm == (*this)[idx]->name() )
+	{
+	    nrfound++;
+	    if ( seqnr == nrfound )
+		return idx;
+	}
+    }
+
+    return -1;
+}
+
+
+const char* Strat::SingleLayerGenerator::name() const
 {
     BufferString ret; ret = unit().fullCode();
     return ret.buf();
 }
 
 
-const Strat::LeafUnitRef& Strat::SingleLayerGenDesc::unit() const
+const Strat::LeafUnitRef& Strat::SingleLayerGenerator::unit() const
 {
     return unit_ ? *unit_ : LeafUnitRef::undef();
 }
 
 
-void Strat::SingleLayerGenDesc::getPropertySelection(
-					PropertyRefSelection& prs ) const
+void Strat::SingleLayerGenerator::getPropertySelection( PropertyRefSelection& pr ) const
 {
     for ( int idx=0; idx<props_.size(); idx++ )
-	prs += &props_.get( idx ).ref();
+	pr += &props_.get( idx ).ref();
 }
 
 
-void Strat::SingleLayerGenDesc::usePar( const IOPar& iop, const RefTree& rt )
+void Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 {
     unit_ = 0;
     const char* res = iop.find( sKey::Unit );
@@ -180,7 +239,7 @@ void Strat::SingleLayerGenDesc::usePar( const IOPar& iop, const RefTree& rt )
 }
 
 
-void Strat::SingleLayerGenDesc::fillPar( IOPar& iop ) const
+void Strat::SingleLayerGenerator::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Unit, unit().fullCode() );
     for ( int pidx=0; pidx<props_.size(); pidx++ )
@@ -194,8 +253,8 @@ void Strat::SingleLayerGenDesc::fillPar( IOPar& iop ) const
 }
 
 
-bool Strat::SingleLayerGenDesc::genMaterial( LayerSequence& seq,
-					     Property::EvalOpts eo ) const
+bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
+						Property::EvalOpts eo ) const
 {
     const PropertyRefSelection& prs = seq.propertyRefs();
     if ( prs.isEmpty() ) 

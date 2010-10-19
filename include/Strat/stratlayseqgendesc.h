@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratlayseqgendesc.h,v 1.2 2010-10-15 13:38:41 cvsbert Exp $
+ RCS:		$Id: stratlayseqgendesc.h,v 1.3 2010-10-19 08:51:35 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ class LayerSequence;
 
  */
 
-mClass LayerGenDesc
+mClass LayerGenerator
 {
 public:	
 
@@ -40,8 +40,8 @@ public:
     virtual void	usePar(const IOPar&,const RefTree&)	= 0;
     virtual void	fillPar(IOPar&) const			= 0;
 
-    static LayerGenDesc* get(const IOPar&,const RefTree&);
-    mDefineFactoryInClass(LayerGenDesc,factory);
+    static LayerGenerator* get(const IOPar&,const RefTree&);
+    mDefineFactoryInClass(LayerGenerator,factory);
 
     virtual bool	genMaterial(LayerSequence&,Property::EvalOpts eo
 				=Property::EvalOpts()) const	= 0;
@@ -49,9 +49,21 @@ public:
 };
 
 
-/*!\brief Collection of LayerGenDesc's that can form a full LayerSequence.  */
+#define mDefLayerGeneratorFns(clss,typstr) \
+    static const char*	typeStr()		{ return typstr; } \
+    virtual const char* type() const		{ return typeStr(); } \
+    static LayerGenerator* create()		{ return new clss; } \
+    static void		initClass() { factory().addCreator(create,typeStr());} \
+    virtual const char*	 name() const; \
+    virtual void	usePar(const IOPar&,const RefTree&); \
+    virtual void	fillPar(IOPar&) const; \
+    virtual bool	genMaterial(LayerSequence&,Property::EvalOpts eo \
+				=Property::EvalOpts()) const
 
-mClass LayerSequenceGenDesc : public ObjectSet<LayerGenDesc>
+
+/*!\brief Collection of LayerGenerator's that can form a full LayerSequence.  */
+
+mClass LayerSequenceGenDesc : public ObjectSet<LayerGenerator>
 {
 public:
 
@@ -66,7 +78,8 @@ public:
     const char*		errMsg() const			{ return errmsg_; }
     const BufferStringSet& warnMsgs() const		{ return warnmsgs_; }
 
-    const char*		getUserIdentification(int) const;
+    const char*		userIdentification(int) const;
+    int			indexFromUserIdentification(const char*) const;
 
 protected:
 
