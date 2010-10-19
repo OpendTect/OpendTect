@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayseqgendesc.h,v 1.1 2010-10-19 08:52:03 cvsbert Exp $
+ RCS:           $Id: uistratlayseqgendesc.h,v 1.2 2010-10-19 15:14:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,8 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "factory.h"
 class uiRectItem;
-namespace Strat { class LayerGenerator; class LayerSequenceGenDesc; }
+class uiTextItem;
+namespace Strat { class LayerSequenceGenDesc; }
 
 
 mClass uiLayerSequenceGenDesc : public uiGraphicsView
@@ -31,15 +32,17 @@ protected:
 
     Strat::LayerSequenceGenDesc& desc_;
     uiRectItem*		outeritm_;
+    uiTextItem*		emptyitm_;
     uiBorder		border_;	//!< can be set
     const uiRect	workrect_;	//!< will be filled
 
     void		reDraw(CallBacker*);
+    void		usrClickCB(CallBacker*);
 
     virtual void	doDraw()			= 0;
 
-    Strat::LayerGenerator* curgen_;
-    virtual bool	newDescReq()			= 0;
+    uiPoint		clickpos_;
+    virtual bool	newDescReq(bool above)		= 0;
     virtual bool	descEditReq()			= 0;
     virtual bool	descRemoveReq()			= 0;
 
@@ -55,7 +58,7 @@ protected:
     static void		initClass() { factory().addCreator(create,typeStr());} \
 protected: \
     virtual void	doDraw(); \
-    virtual bool	newDescReq(); \
+    virtual bool	newDescReq(bool); \
     virtual bool	descEditReq(); \
     virtual bool	descRemoveReq()
     
