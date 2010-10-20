@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.3 2010-10-20 13:07:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.4 2010-10-20 13:12:37 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -61,7 +61,7 @@ void uiLayerSequenceGenDesc::usrClickCB( CallBacker* cb )
     if ( workrect_.isOutside(clickpos_) )
 	return;
 
-    int mnuid = -1;
+    int mnuid = nruns > 0 ? -1 : 1;
     if ( nruns > 0 )
     {
 	uiPopupMenu mnu( parent(), "Action" );
