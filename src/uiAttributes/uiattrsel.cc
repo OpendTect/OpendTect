@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.59 2010-10-19 11:54:50 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.60 2010-10-20 15:14:37 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -487,6 +487,7 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
     , attrdata_(ads)
     , ignoreid_(DescID::undef())
     , usedasinput_(isinp4otherattrib)
+    , seltype_(-1)
 {
     attrdata_.attribid_ = curid;
     updateInput();
@@ -500,6 +501,7 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
     , attrdata_(ad)
     , ignoreid_(DescID::undef())
     , usedasinput_(isinp4otherattrib)
+    , seltype_(-1)
 {
     updateInput();
 }
@@ -662,7 +664,18 @@ void uiAttrSel::processInput()
     BufferString inp = getInput();
     const DescSet& descset = usedasinput_ ? attrdata_.attrSet()
 				: *eDSHolder().getDescSet( is2D(), true );
-    attrdata_.attribid_ = descset.getID( inp, true, !seltype_, true );
+    bool useseltyp = seltype_ >= 0;
+    if ( !useseltyp )
+    {
+	const Desc* adesc = descset.getDesc( attrdata_.attribid_ );
+	if ( adesc )
+	{
+	    useseltyp = true;
+	    seltype_ = adesc->isStored() ? 0 : 1;
+	}
+    }
+
+    attrdata_.attribid_ = descset.getID( inp, true, !seltype_, useseltyp );
     if ( !attrdata_.attribid_.isValid() && !usedasinput_ )
 	attrdata_.attribid_ = attrdata_.attrSet().getID( inp, true );
     attrdata_.outputnr_ = -1;
