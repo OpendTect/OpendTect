@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.15 2010-10-19 08:49:41 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.16 2010-10-20 13:06:44 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -43,11 +43,13 @@ public:
 
     			RangeProperty( const PropertyRef& pr )
 			: Property(pr)
-			, pos_(0.5)
 			, rg_(mUdf(float),0)	{}
+    			RangeProperty( const PropertyRef& pr,
+				       Interval<float> rg )
+			: Property(pr)
+			, rg_(rg)		{}
 
     Interval<float>	rg_;
-    float		pos_;
 
     mDefPropertyFns(RangeProperty,"Range");
 
