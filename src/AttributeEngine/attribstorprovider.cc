@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.97 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.98 2010-10-20 04:43:03 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -183,9 +183,9 @@ bool StorageProvider::checkInpAndParsAtStart()
 	    storedvolume_.hrg.step.crl = 1; // what else?
 	    BufferStringSet candidatelines;
 	    lset->getLineNamesWithAttrib( candidatelines, lk.attrName() );
+	    bool foundone = false;
 	    for ( int idx=0; idx<candidatelines.size(); idx++ )
 	    {
-		bool foundone = false;
 		LineKey tmplk( candidatelines.get(idx).buf(), lk.attrName() );
 		lineidx = lset->indexOf( tmplk );
 		if ( lineidx> -1 )
@@ -330,14 +330,17 @@ bool StorageProvider::getPossibleVolume( int, CubeSampling& globpv )
     *possiblevolume_ = storedvolume_;
     globpv.limitToWithUdf( *possiblevolume_ );
 
-    const bool havecrls = globpv.hrg.crlRange().width(false) >= 0;
     if ( mscprov_->is2D() )
     {
 	globpv.hrg.stop.inl = globpv.hrg.start.inl = 0;
-	return havecrls;
+	globpv.hrg.setCrlRange( storedvolume_.hrg.crlRange() );
+	return globpv.nrCrl() > 0;
     }
+    else
+	globpv.limitToWithUdf( *possiblevolume_ );
 
     const bool haveinls = globpv.hrg.inlRange().width(false) >= 0;
+    const bool havecrls = globpv.hrg.crlRange().width(false) >= 0;
     return haveinls && havecrls;
 }
 
