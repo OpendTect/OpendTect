@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.20 2010-10-19 08:49:41 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.21 2010-10-20 13:06:16 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -95,6 +95,9 @@ public:
     						{ return fnd(nm,ma); }
     inline Property*	find( const char* nm, bool ma=false )
     						{ return fnd(nm,ma); }
+    int			indexOf( const PropertyRef& pr ) const
+						{ return indexOf(pr.name()); }
+    int			indexOf(PropertyRef::StdType,int occ=0) const;
 
     bool		add(Property*); //!< refuses to add with identical name
     int			set(Property*); //!< add or change into. returns index.
