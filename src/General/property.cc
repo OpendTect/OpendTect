@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.27 2010-10-15 11:39:33 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.28 2010-10-20 13:07:31 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -46,6 +46,18 @@ DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 	"Compressibility",
 	0
 };
+
+
+float PropertyRef::DispDefs::possibleValue() const
+{
+    const bool udf0 = mIsUdf(range_.start);
+    const bool udf1 = mIsUdf(range_.stop);
+    if ( udf0 && udf1 )
+	return 0;
+    if ( udf0 || udf1 )
+	return udf0 ? range_.stop : range_.start;
+    return range_.center();
+}
 
 
 const PropertyRef& PropertyRef::undef()
@@ -215,6 +227,23 @@ int PropertyRefSet::indexOf( const char* nm ) const
 }
 
 
+int PropertyRefSet::indexOf( PropertyRef::StdType st, int occ ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const PropertyRef& pr = *(*this)[idx];
+	if ( pr.hasType(st) )
+	{
+	    occ--;
+	    if ( occ < 0 )
+		return idx;
+	}
+    }
+
+    return -1;
+}
+
+
 PropertyRef* PropertyRefSet::fnd( const char* nm ) const
 {
     const int idx = indexOf( nm );
@@ -231,6 +260,32 @@ int PropertyRefSet::add( PropertyRef* pr )
 	{ ObjectSet<PropertyRef>::operator+=( pr ); return size()-1; }
 
     return -1;
+}
+
+
+int PropertyRefSet::ensurePresent( PropertyRef::StdType st, const char* nm1,
+				   const char* nm2, const char* nm3 )
+{
+    int idx = indexOf( nm1 );
+    if ( idx < 0 && nm2 )
+	idx = indexOf( nm2 );
+    if ( idx < 0 && nm3 )
+	idx = indexOf( nm3 );
+    if ( idx < 0 )
+    {
+	idx = indexOf( st );
+	if ( idx >= 0 )
+	    return idx;
+    }
+    if ( idx < 0 )
+    {
+	PropertyRef* pr = new PropertyRef( nm1, st );
+	if ( nm2 && *nm2 ) pr->aliases().add( nm2 );
+	if ( nm3 && *nm3 ) pr->aliases().add( nm3 );
+	pr->disp_.color_ = Color::stdDrawColor( (int)st );
+	idx = add( pr );
+    }
+    return idx;
 }
 
 
@@ -510,6 +565,23 @@ Property* PropertySet::fnd( const char* nm, bool ma ) const
 {
     const int idx = indexOf(nm,ma);
     return idx < 0 ? 0 : const_cast<Property*>( props_[idx] );
+}
+
+
+int PropertySet::indexOf( PropertyRef::StdType st, int occ ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Property& pr = *props_[idx];
+	if ( pr.ref().hasType(st) )
+	{
+	    occ--;
+	    if ( occ < 0 )
+		return idx;
+	}
+    }
+
+    return -1;
 }
 
 

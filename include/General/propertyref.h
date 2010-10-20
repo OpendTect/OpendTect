@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.5 2010-10-12 12:03:57 cvsbert Exp $
+ RCS:		$Id: propertyref.h,v 1.6 2010-10-20 13:07:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -80,6 +80,8 @@ public:
 	Interval<float>	range_;		//!< Internal units
 	BufferString	unit_;
 	bool		logarithmic_;
+
+	float		possibleValue() const;
     };
 
     DispDefs		disp_;
@@ -104,6 +106,7 @@ public:
     inline bool		isPresent( const char* nm ) const
      			{ return indexOf(nm) >= 0; }
     int			indexOf(const char*) const;
+    inline int		indexOf(PropertyRef::StdType,int occ=0) const;
     inline PropertyRef*	find( const char* nm )		{ return fnd(nm); }
     inline const PropertyRef* find( const char* nm ) const { return fnd(nm); }
 
@@ -112,6 +115,8 @@ public:
      			//!< clean up the mess yourself (i.e. delete it)
     virtual PropertyRefSet& operator +=( PropertyRef* pr )
      			{ add(pr); return *this; }
+    int			ensurePresent(PropertyRef::StdType,const char* nm1,
+	    			      const char* nm2=0,const char* nm3=0);
 
     bool		save(Repos::Source) const;
 
