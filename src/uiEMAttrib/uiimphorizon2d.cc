@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.30 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.31 2010-10-20 06:19:59 cvsnanne Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.30 2010-09-29 03:48:48 cv
 #include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "tabledef.h"
 #include "file.h"
 #include "emhorizon2d.h"
@@ -102,7 +103,15 @@ int nextStep()
 		hors_[hdx]->geometry().removeLine( lineid );
 	    }
 	    
-	    lineidset_[hdx] = hors_[hdx]->geometry().addLine( setid_, linenm );
+	    PtrMan<IOObj> ioobj = IOM().get( setid_ );
+	    if ( !ioobj ) continue;
+
+	    PosInfo::GeomID geomid =
+		PosInfo::POS2DAdmin().getGeomID( ioobj->name(), linenm );
+	    if ( !geomid.isOK() )
+		continue;
+
+	    lineidset_[hdx] = hors_[hdx]->geometry().addLine( geomid );
 	}
     }
 

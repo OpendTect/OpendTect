@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          April 2010
-RCS:           $Id: hor2dfrom3dcreator.h,v 1.2 2010-07-12 14:24:33 cvsbert Exp $
+RCS:           $Id: hor2dfrom3dcreator.h,v 1.3 2010-10-20 06:19:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ public:
     				Hor2DFrom3DCreatorGrp(const EM::Horizon3D&,
 						      EM::Horizon2D&);
 				~Hor2DFrom3DCreatorGrp();
-   void				init(const BufferStringSet&,const MultiID&);
+   void				init(const BufferStringSet&,const char* lsnm);
 
 protected:
     const EM::Horizon3D&	hor3d_;
@@ -39,7 +39,7 @@ public:
     				Hor2DFrom3DCreator(const EM::Horizon3D&,
 						   EM::Horizon2D&);
 
-    bool			setCreator(const BufferString&,const MultiID&);
+    bool			setCreator(const char* linenm,const char* lsnm);
     virtual int			nextStep();
     virtual od_int64		nrDone() const		{ return nrdone_; }
     virtual od_int64		totalNr() const		{ return totalnr_; }

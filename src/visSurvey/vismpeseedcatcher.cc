@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.41 2010-08-11 09:30:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.42 2010-10-20 06:19:59 cvsnanne Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -312,7 +312,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     const int lineidx = RowCol( nodepid.subID() ).row;
     const int lineid = hor2d->geometry().lineID( lineidx );
     const BufferString linenm = hor2d->geometry().lineName( lineid );
-    const MultiID& lineset = hor2d->geometry().lineSet( lineid );
+    const char* lineset = hor2d->geometry().lineSet( lineid );
 
     Seis2DDisplay* seis2dclosest = 0;
     bool legalclickclosest = false;
@@ -349,7 +349,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	    continue;
 	}
 
-	if ( lineset==seis2ddisp->lineSetID() && linenm==seis2ddisp->name() )
+	if ( /*lineset==seis2ddisp->lineSetID() &&*/ linenm==seis2ddisp->name() )
 	{
 	    mindisttoseis2d = 0;
 	    seis2dclosest = seis2ddisp;

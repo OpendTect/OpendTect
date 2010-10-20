@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.137 2010-06-30 14:02:42 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.138 2010-10-20 06:19:59 cvsnanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -32,8 +32,10 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.137 2010-06-30 14:02:42 cvsk
 #include "ioman.h"
 #include "iopar.h"
 #include "ptrman.h"
+#include "separstr.h"
 #include "streamconn.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "strmoper.h"
 
 #include <fstream>
@@ -226,7 +228,35 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 
     TypeSet<int> lineids;
     TypeSet< StepInterval<int> > trcranges;
-    if ( par_->get(Horizon2DGeometry::sKeyLineIDs(),lineids) )
+    if ( par_->find( Horizon2DGeometry::sKeyNrLines()) )
+    {
+	int nrlines = 0;
+	par_->get( Horizon2DGeometry::sKeyNrLines(), nrlines );
+	
+	for ( int idx=0; idx<nrlines; idx++ )
+	{
+	    SeparString linekey( "Line", '.' );
+	    linekey.add( idx );
+
+	    int linesetid =-1;
+	    int lineid = -1;
+	    SeparString lineidkey( linekey.buf(), '.' );
+	    lineidkey.add( Horizon2DGeometry::sKeyID() );
+	    if ( !par_->get(lineidkey.buf(),linesetid,lineid) ||
+		 linesetid < 0 || lineid < 0 )
+		continue;
+	    PosInfo::POS2DAdmin().setCurLineSet( linesetid );
+	    linesets_.add( PosInfo::POS2DAdmin().getLineSet(linesetid) );
+	    linenames_.add( PosInfo::POS2DAdmin().getLineName(lineid) );
+	    
+	    SeparString linetrcrgkey( linekey.buf(), '.' );
+	    linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
+	    StepInterval<int> trcrange( mUdf(int), mUdf(int), 1 );
+	    par_->get( linetrcrgkey, trcrange );
+	    trcranges += trcrange;
+	}
+    }
+    else if ( par_->get(Horizon2DGeometry::sKeyLineIDs(),lineids) )
     {
 	if ( linenames_.size() != lineids.size() )
 	{
@@ -237,17 +267,19 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 	for ( int idx=0; idx<lineids.size(); idx++ )
 	{
 	    BufferString linesetkey(Horizon2DGeometry::sKeyLineSets(),idx);
-	    BufferString trcrangekey(Horizon2DGeometry::sKeyTraceRange(),idx);
-
-	    StepInterval<int> trcrange( mUdf(int), mUdf(int), 1 );
-	    par_->get( trcrangekey, trcrange );
-	    trcranges += trcrange;
-
+	    if ( !par_->hasKey(linesetkey) )
+		continue;
 	    MultiID mid;
 	    par_->get( linesetkey, mid );
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
 	    linesets_.add( ioobj ? ioobj->name() : "" );
 	    if ( !ioobj ) lineids[idx] = mUdf(int);
+	    BufferString trcrangekey( 
+		    Horizon2DGeometry::sKeyTraceRange(), idx );
+
+	    StepInterval<int> trcrange( mUdf(int), mUdf(int), 1 );
+	    par_->get( trcrangekey, trcrange );
+	    trcranges += trcrange;
 	}
 
 	int idx = 0;

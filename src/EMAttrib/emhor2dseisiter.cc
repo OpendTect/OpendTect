@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emhor2dseisiter.cc,v 1.2 2009-10-09 12:03:00 cvsbert Exp $";
+static const char* rcsID = "$Id: emhor2dseisiter.cc,v 1.3 2010-10-20 06:19:59 cvsnanne Exp $";
 
 #include "emhor2dseisiter.h"
 
@@ -85,15 +85,16 @@ void EM::Hor2DSeisLineIterator::getLineSet()
 	{ delete lset_; lset_ = 0; return; }
 
     const int lineid = geom_->lineID( lineidx_ );
-    const MultiID& lsid = geom_->lineSet( geom_->lineID(lineid) );
-    if ( !lset_ || lsid != curlsid_ )
+    const char* lsnm = geom_->lineSet( lineid );
+    if ( !lset_ || lset_->name() != lsnm )
     {
 	delete lset_; lset_ = 0;
-	IOObj* ioobj = IOM().get( lsid );
+	IOM().to( MultiID("100010") );
+	IOObj* ioobj = IOM().getLocal( lsnm );
 	if ( ioobj )
 	{
 	    lset_ = new Seis2DLineSet( *ioobj );
-	    curlsid_ = lsid;
+	    curlsid_ = ioobj->key();
 	    delete ioobj;
 	}
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.16 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.17 2010-10-20 06:19:59 cvsnanne Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -136,7 +136,7 @@ void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
     EM::ObjectID objid = em.getObjectID( hor3dsel_->selIOObj()->key() );
     mDynamicCastGet(EM::Horizon3D*,horizon3d,em.getObject(objid));
     Hor2DFrom3DCreatorGrp creator( *horizon3d, horizon2d );
-    creator.init( sellinenames, linesetinpsel_->ioObj()->key() );
+    creator.init( sellinenames, linesetinpsel_->ioObj()->name() );
 
     uiTaskRunner tr( this );
     tr.execute( creator );

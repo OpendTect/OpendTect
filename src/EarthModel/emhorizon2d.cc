@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.41 2010-10-07 04:14:57 cvsumesh Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.42 2010-10-20 06:19:59 cvsnanne Exp $";
 
 #include "emhorizon2d.h"
 
@@ -30,7 +30,6 @@ namespace EM
 
 Horizon2DGeometry::Horizon2DGeometry( Surface& surface )
     : HorizonGeometry( surface )
-    , synclineid_(-1)
 {}
 
 
@@ -50,7 +49,7 @@ Horizon2DGeometry::sectionGeometry( const SectionID& sid ) const
 
 
 int Horizon2DGeometry::nrLines() const
-{ return linenames_.size(); }
+{ return geomids_.size(); }
 
 
 int Horizon2DGeometry::lineIndex( int lineid ) const
@@ -58,7 +57,16 @@ int Horizon2DGeometry::lineIndex( int lineid ) const
 
 
 int Horizon2DGeometry::lineIndex( const char* linenm ) const
-{ return linenames_.indexOf( linenm ); }
+{
+    const int lineid = PosInfo::POS2DAdmin().getLineNameID( linenm );
+    for ( int idx=0; idx<geomids_.size(); idx++ )
+    {
+	if ( geomids_[idx].lineid_ == lineid )
+	    return idx;
+    }
+
+    return -1;
+}
 
 
 int Horizon2DGeometry::lineID( int idx ) const
@@ -67,47 +75,50 @@ int Horizon2DGeometry::lineID( int idx ) const
 
 const char* Horizon2DGeometry::lineName( int lid ) const
 {
-    const int idx = lineids_.indexOf( lid );
-    if ( idx>=0 && idx<nrLines() )
-    {
-	const BufferString& str = linenames_.get(idx);
-	return str.size() ? str.buf() : 0;
-    }
-    
-    return 0;
+    const PosInfo::GeomID* geomid = lineGeomID( lid );
+    if ( !geomid ) return 0;
+
+    PosInfo::POS2DAdmin().setCurLineSet( geomid->lsid_ );
+    return PosInfo::POS2DAdmin().getLineName( geomid->lineid_ );
 }
 
 
-const MultiID& Horizon2DGeometry::lineSet( int lid ) const
+const char* Horizon2DGeometry::lineSet( int lid ) const
 {
-    const int idx = lineids_.indexOf( lid );
-    if ( idx>=0 && idx<nrLines() )
-	return linesets_[idx];
-
-    static MultiID dummy(-1);
-    return dummy;
+    const PosInfo::GeomID* geomid = lineGeomID( lid );
+    return geomid ? PosInfo::POS2DAdmin().getLineSet( geomid->lsid_ ) : 0;
 }
 
 
-int Horizon2DGeometry::addLine( const MultiID& linesetid, const char* line,
-       				int step )
+const PosInfo::GeomID* Horizon2DGeometry::lineGeomID( int lid ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( linesetid );
-    if ( !ioobj )
+    const int idx = lineids_.indexOf( lid );
+    return geomids_.validIdx(idx) ? &geomids_[idx] : 0;
+}
+
+
+int Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid, int step )
+{ return addLine( geomid, StepInterval<int>(0,0,step) ); }
+
+
+int Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
+				const StepInterval<int>& trcrg )
+{
+    if ( !geomid.isOK() ) return -1;
+
+    geomids_ += geomid;
+    PosInfo::POS2DAdmin().setCurLineSet( geomid.lsid_ );
+    PosInfo::Line2DData linegeom(
+	PosInfo::POS2DAdmin().getLineName(geomid.lineid_) );
+    if ( !PosInfo::POS2DAdmin().getGeometry(linegeom) )
 	return -1;
-
-    linenames_.add( line );
-    linesets_ += linesetid;
-
-    PosInfo::POS2DAdmin().setCurLineSet( ioobj->name() );
-    PosInfo::Line2DData linegeom( line );
-    PosInfo::POS2DAdmin().getGeometry( linegeom );
 
     for ( int idx=sections_.size()-1; idx>=0; idx-- )
     {
 	Geometry::Horizon2DLine* section =
 		reinterpret_cast<Geometry::Horizon2DLine*>( sections_[idx] );
-	const int lineid = section->addUdfRow( 0, 0, step );
+	const int lineid =
+	    section->addUdfRow( trcrg.start, trcrg.stop, trcrg.step );
 	if ( idx )
 	    continue;
 	section->syncRow( lineid, linegeom );
@@ -115,95 +126,18 @@ int Horizon2DGeometry::addLine( const MultiID& linesetid, const char* line,
 	lineids_ += lineid;
     }
 
-    synclineid_ = lineids_[lineids_.size()-1];
-    synclineid_ = -1;
-
     return lineids_[lineids_.size()-1];
-}
-	    
-
-int Horizon2DGeometry::addLine( const TypeSet<Coord>& path, int start, int step,
-				const MultiID& linesetid, const char* line )
-{
-    linenames_.add( line );
-    linesets_ += linesetid;
-    
-    PtrMan<IOObj> ioobj = IOM().get( linesetid );
-    if ( !ioobj ) return -1;
-
-    PosInfo::POS2DAdmin().setCurLineSet( ioobj->name() );
-    PosInfo::Line2DData linegeom( line );
-    PosInfo::POS2DAdmin().getGeometry( linegeom );
-
-    for ( int idx=sections_.size()-1; idx>=0; idx-- )
-    {
-	Geometry::Horizon2DLine* section =
-	    reinterpret_cast<Geometry::Horizon2DLine*>(sections_[idx]);
-	const int lineid = section->addRow( path, start, step );
-	if ( idx )
-	    continue;
-	
-	section->syncRow( lineid, linegeom );
-
-
-	lineids_ += lineid;
-    }
-
-    return lineids_[lineids_.size()-1];
-}
-
-
-bool Horizon2DGeometry::syncLine( const MultiID& linesetid, const char* linenm,
-				  const PosInfo::Line2DData& linegeom )
-{
-    for ( int lidx=0; lidx<linenames_.size(); lidx++ )
-    {
-	if ( linesets_[lidx]==linesetid && *linenames_[lidx]==linenm )
-	{
-	    for ( int idx=0; idx<sections_.size(); idx++ )
-	    {
-		Geometry::Horizon2DLine* section =
-		    reinterpret_cast<Geometry::Horizon2DLine*>(sections_[idx]);
-		section->syncRow( lineids_[lidx], linegeom );
-	    }
-	    return true;
-	}
-    }
-    return false;
-}
-
-
-bool Horizon2DGeometry::syncBlocked( int lineid ) const
-{ return synclineid_!=-1 && synclineid_!=lineid; } 
-
-
-void Horizon2DGeometry::setLineInfo( int lineid, const char* line,
-				     const MultiID& linesetid )
-{
-    const int lineidx = lineIndex( lineid );
-    if ( lineidx < 0 )
-    {
-	lineids_ += lineid;
-	linenames_.add( line );
-	linesets_ += linesetid;
-    }
-    else
-    {
-	linenames_.get( lineidx ) = line;
-	linesets_[lineidx] = linesetid;
-    }
 }
 
 
 void Horizon2DGeometry::removeLine( int lid )
 {
     const int lidx = lineids_.indexOf( lid );
-    if ( lidx<0 || lidx>=linenames_.size() )
+    if ( lidx<0 || lidx>=geomids_.size() )
 	return;
 
-    linenames_.remove( lidx );
-    linesets_.remove( lidx );
     lineids_.remove( lidx );
+    geomids_.remove( lidx );
     for ( int idx=sections_.size()-1; idx>=0; idx-- )
     {
 	Geometry::Horizon2DLine* section =
@@ -273,30 +207,75 @@ Geometry::Horizon2DLine* Horizon2DGeometry::createSectionGeometry() const
 
 void Horizon2DGeometry::fillPar( IOPar& par ) const
 {
-    par.set( sKeyLineIDs(), lineids_ );
-    par.set( sKeyLineNames(), linenames_ );
-
-    for ( int idx=0; idx<linesets_.size(); idx++ )
+    for ( int idx=0; idx<geomids_.size(); idx++ )
     {
-	BufferString linesetkey = sKeyLineSets();
+	SeparString linekey( "Line", '.' );
+	linekey.add( idx );
+	
+	SeparString lineidkey( linekey.buf(), '.' );
+	lineidkey.add( Horizon2DGeometry::sKeyID() );
+	par.set( lineidkey.buf(), geomids_[idx].lsid_, geomids_[idx].lineid_ );
+
+	SeparString linetrcrgkey( linekey.buf(), '.' );
+	linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
+	Geometry::Horizon2DLine geom = *sectionGeometry( sectionID(0) );
+	par.set( linetrcrgkey.buf(), geom.colRange(lineID(idx)) );
+
+	/*BufferString linesetkey = sKeyLineSets();
 	linesetkey += idx;
 	par.set( linesetkey.buf(), linesets_[idx] );
-	Geometry::Horizon2DLine geom = *sectionGeometry( sectionID(0) );
 	geom.trimUndefParts();
 	BufferString trcrangekey = sKeyTraceRange();
 	trcrangekey += idx;
-	par.set( trcrangekey, geom.colRange(lineID(idx)) );
+	par.set( trcrangekey, geom.colRange(lineID(idx)) );*/
     }
+
+    par.set( Horizon2DGeometry::sKeyNrLines(), geomids_.size() );
 }
 
 
 bool Horizon2DGeometry::usePar( const IOPar& par )
 {
-    lineids_.erase(); linenames_.erase(); linesets_.erase();
+    lineids_.erase(); geomids_.erase();
+    if ( par.find(Horizon2DGeometry::sKeyNrLines()) )
+    {
+	int nrlines = 0;
+	par.get( Horizon2DGeometry::sKeyNrLines(), nrlines );
+	for ( int idx=0; idx<nrlines; idx++ )
+	{
+	    SeparString geomstr( "Line", '.' );
+	    geomstr.add( idx );
+	    geomstr.add( Horizon2DGeometry::sKeyID() );
+	    int linesetid =-1;
+	    int lineid = -1;
+	    if ( !par.get(geomstr.buf(),linesetid,lineid) ||
+		 linesetid < 0 || lineid < 0 )
+		continue;
+	    
+	    PosInfo::GeomID geomid( linesetid, lineid );
+	    geomids_ += geomid;
+	    
+	    PosInfo::POS2DAdmin().setCurLineSet( geomid.lsid_ );
+	    PosInfo::Line2DData linegeom(
+		    PosInfo::POS2DAdmin().getLineName(geomid.lineid_) );
+	    if ( !PosInfo::POS2DAdmin().getGeometry(linegeom) )
+		continue;
+
+	    for ( int secidx=sections_.size()-1; secidx>=0; secidx-- )
+	    {
+		Geometry::Horizon2DLine* section =
+		reinterpret_cast<Geometry::Horizon2DLine*>( sections_[secidx] );
+		section->syncRow( lineids_[idx], linegeom );
+	    }
+	}
+
+	return true;
+    }
 
     if ( !par.get(sKeyLineIDs(),lineids_) )
 	return false;
-    if ( !par.get(sKeyLineNames(),linenames_)  )
+    BufferStringSet linenames;
+    if ( !par.get(sKeyLineNames(),linenames)  )
      	return false;	
 
     for ( int idx=0; idx<lineids_.size(); idx++ )
@@ -305,14 +284,20 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	linesetkey += idx;
 
 	MultiID mid;
-	linesets_ += par.get(linesetkey.buf(),mid) ? mid : MultiID(-1);
+	if ( !par.get(linesetkey.buf(),mid) ) continue;
 	
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj ) continue;
 
-	PosInfo::POS2DAdmin().setCurLineSet( ioobj->name() );
-	PosInfo::Line2DData linegeom( linenames_[idx]->buf() );
-	PosInfo::POS2DAdmin().getGeometry( linegeom );
+	PosInfo::GeomID geomid(
+		PosInfo::POS2DAdmin().getLineSetID(ioobj->name()),
+		PosInfo::POS2DAdmin().getLineNameID(linenames[idx]->buf()) );
+	if ( !geomid.isOK() ) continue;
+	geomids_ += geomid;
+
+	PosInfo::Line2DData linegeom( linenames[idx]->buf() );
+	if ( !PosInfo::POS2DAdmin().getGeometry(linegeom) )
+	    continue;
 
 	for ( int secidx=sections_.size()-1; secidx>=0; secidx-- )
 	{

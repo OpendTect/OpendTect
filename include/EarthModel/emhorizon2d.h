@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.25 2010-09-29 03:48:48 cvssatyaki Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.26 2010-10-20 06:19:59 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class ZAxisTransform;
 namespace Geometry { class Horizon2DLine; }
+namespace PosInfo { class GeomID; }
 namespace Table { class FormatDesc; }
 template <class T> class Array1D;
 
@@ -39,20 +40,15 @@ public:
     int				lineIndex(const char* linenm) const;
     int				lineID(int idx) const;
     const char*			lineName(int id) const;
-    const MultiID&		lineSet(int id) const;
-    int 			addLine(const MultiID& linesetid, 
-					const char* line,int step=1);
+    const char*			lineSet(int id) const;
+    const PosInfo::GeomID*	lineGeomID(int id) const;
 
-    int				addLine(const TypeSet<Coord>&,
-					int start,int step,
-					const MultiID& lineset,
-					const char* linename);
+    int 			addLine(const PosInfo::GeomID&,int step=1);
 				/*!<\returns id of new line. */
-    bool    			syncLine(const MultiID& lset,const char* lnm,
-					 const PosInfo::Line2DData&);
-    bool			syncBlocked(int id) const;
-    void			setLineInfo(int id,const char* linenm,
-	    				    const MultiID& linesetid);
+    int 			addLine(const PosInfo::GeomID&,
+					const StepInterval<int>& trcrg);
+				/*!<\returns id of new line. */
+
     void			removeLine(int id);
     bool			isAtEdge(const PosID&) const;
     PosID			getNeighbor(const PosID&,bool nextcol,
@@ -66,8 +62,11 @@ public:
     static const char*		sKeyLineIDs()	{ return "Line IDs"; }
     static const char*		sKeyLineNames()	{ return "Line names"; }
     static const char*		sKeyLineSets()	{ return "Set ID of line "; }
+    static const char*		sKeyID()	{ return "ID"; }
     static const char*		sKeyTraceRange()
     				{ return "Trace Range of line "; }
+    static const char*		sKeyTrcRg()	{ return "Trace range"; }
+    static const char*		sKeyNrLines()	{ return "Nr of Lines"; }
 
     int				getConnectedPos(const PosID& posid,
 						TypeSet<PosID>* res) const;
@@ -78,11 +77,8 @@ protected:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
     
-    BufferStringSet		linenames_;
-    TypeSet<MultiID>		linesets_;
     TypeSet<int>		lineids_;
-
-    int				synclineid_;
+    TypeSet<PosInfo::GeomID>	geomids_;
 };
 
 /*!

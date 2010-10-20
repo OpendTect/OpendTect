@@ -7,13 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.21 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.22 2010-10-20 06:19:59 cvsnanne Exp $";
 
 #include "horizon2dseedpicker.h"
 
 #include "attribdataholder.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "ptrman.h"
 #include "seisinfo.h"
 #include "sectionextender.h"
 #include "horizonadjuster.h"
@@ -21,6 +24,7 @@ static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.21 2010-06-18 12:23:
 #include "executor.h"
 #include "mpeengine.h"
 #include "sorting.h"
+#include "surv2dgeom.h"
 
 
 namespace MPE 
@@ -94,18 +98,28 @@ bool Horizon2DSeedPicker::startSeedPick()
     mGetHorizon(hor,false);
     didchecksupport_ = hor->enableGeometryChecks( false );
 
-    for ( int idx=0; idx<hor->geometry().nrLines(); idx++ )
+    PtrMan<IOObj> ioobj = IOM().get( lineset_ );
+    if ( !ioobj )
+	return false;
+
+    EM::Horizon2DGeometry& geom = hor->geometry();
+    for ( int idx=0; idx<geom.nrLines(); idx++ )
     {
-	const int lineid = hor->geometry().lineID( idx );
-	if ( hor->geometry().lineSet(lineid)==lineset_ &&
-	     !strcmp(hor->geometry().lineName(lineid),linename_) )
+	const int lineid = geom.lineID( idx );
+	if ( !strcmp(geom.lineSet(lineid),ioobj->name()) &&
+	     !strcmp(geom.lineName(lineid),linename_) )
 	{
 	    lineid_ = lineid;
 	    return true;
 	}
     }
 
-    lineid_ = hor->geometry().addLine( lineset_, linename_ );
+    PosInfo::GeomID geomid =
+	PosInfo::POS2DAdmin().getGeomID( ioobj->name(), linename_ );
+    if ( !geomid.isOK() )
+	return false;
+
+    lineid_ = geom.addLine( geomid );
     return true;
 }
 

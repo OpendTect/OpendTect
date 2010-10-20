@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurface.cc,v 1.93 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.94 2010-10-20 06:19:59 cvsnanne Exp $";
 
 #include "emsurface.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.93 2009-07-22 16:01:31 cvsbert
 #include "ioman.h"
 #include "iopar.h"
 #include "posfilter.h"
+#include "surv2dgeom.h"
 
 
 static const char* sDbInfo = "DB Info";
@@ -78,14 +79,15 @@ void SurfaceIOData::use( const Surface& surf )
     mDynamicCastGet(const Horizon2D*,horizon2d,&surf);
     if ( horizon2d )
     {
-	for ( int idx=0; idx<horizon2d->geometry().nrLines(); idx++ )
+	const Horizon2DGeometry& emgeom = horizon2d->geometry();
+	for ( int idx=0; idx<emgeom.nrLines(); idx++ )
 	{
-	    linenames.add( horizon2d->geometry().lineName(idx) );
-	    linesets.add( horizon2d->geometry().lineSet(idx) );
+	    const int lineid = emgeom.lineID( idx );
+	    linenames.add( emgeom.lineName(lineid) );
+	    linesets.add( emgeom.lineSet(lineid) );
 	    const Geometry::Horizon2DLine* geom =
-		horizon2d->geometry().sectionGeometry(
-			horizon2d->geometry().sectionID(0) );
-	    trcranges += geom->colRange( horizon2d->geometry().lineID(idx) );
+		emgeom.sectionGeometry( emgeom.sectionID(0) );
+	    trcranges += geom->colRange( lineid );
 	}
     }
 }
@@ -107,18 +109,24 @@ void SurfaceIOData::fillPar( IOPar& iopar ) const
     sections.fillPar( sectionpar );
     iopar.mergeComp( sectionpar, sSections );
     
-    IOPar linenamespar;
-    linenames.fillPar( linenamespar );
-    iopar.mergeComp( linenamespar, Horizon2DGeometry::sKeyLineNames() );
-
     for ( int idx=0; idx<linesets.size(); idx++ )
     {
-	BufferString linesetkey = Horizon2DGeometry::sKeyLineSets();
-	BufferString trcrangekey = Horizon2DGeometry::sKeyTraceRange();
-	linesetkey += idx;
-	trcrangekey += idx;
-	iopar.set( linesetkey, linesets.get(idx) );
-	iopar.set( trcrangekey, trcranges[idx] );
+	SeparString linekey( "Line", '.' );
+	linekey.add( idx );
+	
+	const int lsid = PosInfo::POS2DAdmin().getLineSetID( linesets.get(idx));
+	const int linenmid =
+	    PosInfo::POS2DAdmin().getLineNameID( linenames.get(idx) );
+	if ( lsid < 0 || linenmid < 0 )
+	    continue;
+	
+	SeparString lineidkey( linekey.buf(), '.' );
+	lineidkey.add( Horizon2DGeometry::sKeyID() );
+	iopar.set( lineidkey.buf(), lsid, linenmid );
+	
+	SeparString linetrcrgkey( linekey.buf(), '.' );
+	linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
+	iopar.set( linetrcrgkey.buf(), trcranges[idx] );
     }
 }
 
@@ -135,6 +143,36 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 
     IOPar* sectionpar = iopar.subselect(sSections);
     if ( sectionpar ) sections.usePar( *sectionpar );
+
+    if ( iopar.find(Horizon2DGeometry::sKeyNrLines()) )
+    {
+	int nrlines = 0;
+	iopar.get( Horizon2DGeometry::sKeyNrLines(), nrlines );
+	for ( int idx=0; idx<nrlines; idx++ )
+	{
+	    SeparString linekey( "Line", '.' );
+	    linekey.add( idx );
+	    SeparString lineidkey( linekey.buf(), '.' );
+	    lineidkey.add( Horizon2DGeometry::sKeyID() );
+	    
+	    int linesetid =-1;
+	    int lineid = -1;
+	    if ( !iopar.get(lineidkey.buf(),linesetid,lineid) ||
+		 linesetid < 0 || lineid < 0 )
+		continue;
+
+	    PosInfo::GeomID geomid( linesetid, lineid );
+	    linesets.add( PosInfo::POS2DAdmin().getLineSet(geomid.lsid_) );
+
+	    SeparString linetrcrgkey( linekey.buf(), '.' );
+	    linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
+	    StepInterval<int> trcrange;
+	    iopar.get( linetrcrgkey.buf(), trcrange );
+	    trcranges += trcrange;
+	}
+
+	return;
+    }
 
     IOPar* linenamespar = iopar.subselect( Horizon2DGeometry::sKeyLineNames() );
     if ( linenamespar ) linenames.usePar( *linenamespar );

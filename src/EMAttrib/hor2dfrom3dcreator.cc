@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hor2dfrom3dcreator.cc,v 1.5 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: hor2dfrom3dcreator.cc,v 1.6 2010-10-20 06:19:59 cvsnanne Exp $";
 
 #include "hor2dfrom3dcreator.h"
 
@@ -42,12 +42,12 @@ Hor2DFrom3DCreatorGrp::~Hor2DFrom3DCreatorGrp()
 
 
 void Hor2DFrom3DCreatorGrp::init( const BufferStringSet& linenames,
-				  const MultiID& key )
+				  const char* lsnm )
 {
     for ( int idx=0; idx<linenames.size(); idx++ )
     {
 	Hor2DFrom3DCreator* creator = new Hor2DFrom3DCreator( hor3d_, hor2d_ );
-	if ( !creator->setCreator(linenames.get(idx),key) )
+	if ( !creator->setCreator(linenames.get(idx),lsnm) )
 	    continue;
 	add( creator );
     }
@@ -64,22 +64,15 @@ Hor2DFrom3DCreator::Hor2DFrom3DCreator( const EM::Horizon3D& hor3d,
 }
 
 
-bool Hor2DFrom3DCreator::setCreator( const BufferString& linename,
-				     const MultiID& key )
+bool Hor2DFrom3DCreator::setCreator( const char* linename, const char* lsname )
 {
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj ) return false;
-
-    BufferString fnm = ioobj->fullUserExpr(true);
-    Seis2DLineSet lineset( fnm );
-    int lineidx = lineset.indexOf( linename );
-    if ( lineidx<0 ) return false;
-
     posdata_.setLineName( linename );
-    PosInfo::POS2DAdmin().setCurLineSet( lineset.name() );
+    PosInfo::GeomID geomid =
+	PosInfo::POS2DAdmin().getGeomID( lsname, linename );
+    if ( !geomid.isOK() ) return false;
+
     PosInfo::POS2DAdmin().getGeometry( posdata_ );
-    lineid_ = hor2d_.geometry().addLine( key, linename );
-    hor2d_.geometry().syncLine( key, linename, posdata_ );
+    lineid_ = hor2d_.geometry().addLine( geomid );
     totalnr_ = posdata_.positions().size();
     return true;
 }
