@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.16 2010-09-30 15:14:00 cvshelene Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.17 2010-10-20 06:01:04 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
     				/* inl=true: AttribSelSpec for inline comp
     				   inl=false: AttribSelSpec for crossline comp*/
 
-    static const IOObjContext&	ioContext();
+    static const IOObjContext&	ioContext(bool is2d);
     static CtxtIOObj*		mkCtxtIOObj(bool is2d,bool forread);
 
 protected:

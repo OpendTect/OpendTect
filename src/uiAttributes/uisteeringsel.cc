@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.49 2010-10-01 14:55:58 cvshelene Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.50 2010-10-20 06:01:04 cvsnageswara Exp $";
 
 
 #include "uisteeringsel.h"
@@ -292,14 +292,15 @@ void uiSteerCubeSel::doFinalise( CallBacker* c )
 }
 
 
-const IOObjContext& uiSteerCubeSel::ioContext()
+const IOObjContext& uiSteerCubeSel::ioContext( bool is2d )
 {
     static PtrMan<IOObjContext> ctxt = 0;
     if ( !ctxt )
     {
 	ctxt = new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
 	ctxt->deftransl = "CBVS";
-	ctxt->toselect.require_.set( sKey::Type, sKey::Steering );
+	if ( !is2d )
+	    ctxt->toselect.require_.set( sKey::Type, sKey::Steering );
     }
 
     return *ctxt;
@@ -309,11 +310,12 @@ const IOObjContext& uiSteerCubeSel::ioContext()
 CtxtIOObj* uiSteerCubeSel::mkCtxtIOObj( bool is2d, bool forread )
 {
     CtxtIOObj* ret = mMkCtxtIOObj(SeisTrc);
-    ret->ctxt = ioContext();
+    ret->ctxt = ioContext( is2d );
     ret->ctxt.forread = forread;
-    ret->ctxt.toselect.require_.set( sKey::Type, sKey::Steering );
     if ( is2d )
 	ret->ctxt.deftransl = "2D";
+    else
+	ret->ctxt.toselect.require_.set( sKey::Type, sKey::Steering );
 
     if ( forread && !is2d )
     {
