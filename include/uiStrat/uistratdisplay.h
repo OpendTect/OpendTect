@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.22 2010-10-07 12:11:01 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.23 2010-10-20 14:04:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,6 +197,7 @@ protected:
     void 			handDragStarted(CallBacker*);
     void			handDragging(CallBacker*);
     void			keyPressed(CallBacker*);
+    void			rubBandCB(CallBacker*);
     void			stateCB(CallBacker*);
     void			wheelMoveCB(CallBacker*);
 };

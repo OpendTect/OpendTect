@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.27 2010-10-11 15:41:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.28 2010-10-20 14:04:16 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uistratdisplay.cc,v 1.27 2010-10-11 15:41:18 cv
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uimenu.h"
+#include "uifont.h"
 #include "uispinbox.h"
 #include "uistratutildlgs.h"
 #include "uistratreftree.h"
@@ -28,6 +29,7 @@ static const char* rcsID = "$Id: uistratdisplay.cc,v 1.27 2010-10-11 15:41:18 cv
 #include "draw.h"
 #include "pixmap.h"
 #include "randcolor.h"
+#include "scaler.h"
 #include "survinfo.h"
 
 uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
@@ -543,6 +545,11 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
     meh.buttonPressed.notify(mCB(this,uiStratViewControl,handDragStarted));
     meh.buttonReleased.notify(mCB(this,uiStratViewControl,handDragged));
     meh.movement.notify( mCB(this,uiStratViewControl,handDragging));
+    viewer_.rubberBandUsed.notify( mCB(this,uiStratViewControl,rubBandCB) );
+
+    viewer_.setDragMode( uiGraphicsViewBase::RubberBandDrag );
+    viewer_.scene().setMouseEventActive( true );
+
 }
 
 
@@ -559,17 +566,28 @@ void uiStratViewControl::zoomCB( CallBacker* but )
     const bool zoomin = but == zoominbut_;
     const Interval<float> rg( range_ );
     const float margin = rg.width()/4;
-    if ( zoomin && rg.width() > 2)
+    const MouseEventHandler& meh = mouseEventHandler();
+    if ( zoomin && rg.width() > 2 ) 
     {
-	range_.set( rg.start + margin, rg.stop - margin );
+	if ( meh.hasEvent() )
+	{
+	    const Geom::Point2D<int> pos = meh.event().pos();
+	    const uiRect& allarea = viewer_.getSceneRect();
+	    Interval<float> allrg( allarea.topLeft().y, 
+				   allarea.bottomRight().y );
+	    LinScaler scaler( allrg.start, range_.start, 
+			      allrg.stop, range_.stop );
+	    const float rgpos = scaler.scale( pos.y );
+	    range_.set( rgpos -margin, rgpos + margin );
+	}
+	else
+	    range_.set( rg.start + margin, rg.stop - margin );
     }
     else 
     {
 	range_.set( rg.start - margin, rg.stop + margin );
     }
-    if ( range_.start < boundingrange_.start 
-	    			|| range_.stop > boundingrange_.stop)
-	range_ = boundingrange_;
+    range_.limitTo( boundingrange_ );
 
     rangeChanged.trigger();
 }
@@ -627,11 +645,11 @@ void uiStratViewControl::handDragging( CallBacker* )
 	|| !mousepressed_ || !manip_ ) return;
     viewdragged_ = true;
     stopdragpos_ = mouseEventHandler().event().pos().y;
-    bool goingup = ( startdragpos_ > stopdragpos_ );
-    float fac = goingup? -1 : 1;
+    const float fac = ( startdragpos_ > stopdragpos_ )? -1 : 1;
     Interval<float> rg( range_ );
-    float width = rg.width();
-    float center = rg.start + width/2 - fac*mHandDragFac;
+    const float width = rg.width();
+    const float shift = mHandDragFac < 1 ? 1 : mHandDragFac;
+    const float center = rg.start + width/2 - fac*shift;
     rg.set( center - width/2, center + width/2 );
     if ( rg.start < boundingrange_.start )
 	rg.set( boundingrange_.start, range_.stop ); 
@@ -650,3 +668,33 @@ void uiStratViewControl::handDragged( CallBacker* )
 	return;
     viewdragged_ = false;
 }
+
+
+void uiStratViewControl::rubBandCB( CallBacker* )
+{
+    //Why is the navigationMouseEventHandler not used for rubberbanding ?
+    if ( viewer_.getMouseEventHandler().hasEvent()
+	    && viewer_.getMouseEventHandler().event().rightButton() )
+	return;
+
+    const uiRect* selarea = viewer_.getSelectedArea();
+    if ( !selarea || (selarea->topLeft() == selarea->bottomRight()) 
+	    || (selarea->width()<5 && selarea->height()<5) )
+	return;
+    const uiRect& allarea = viewer_.getSceneRect();
+
+    Interval<float> selrg( selarea->topLeft().y, selarea->bottomRight().y );
+    selrg.sort();
+    const uiFont& font = FontList().get();
+    const int border = 2*font.height();
+
+    Interval<float> allrg( allarea.topLeft().y + border,
+			    allarea.bottomRight().y - border );
+    allrg.sort();
+
+    LinScaler scaler( allrg.start, range_.start, allrg.stop, range_.stop );
+    range_.set( scaler.scale( selrg.start ), scaler.scale( selrg.stop ) );
+    range_.limitTo( boundingrange_ );
+    rangeChanged.trigger();
+}
+
