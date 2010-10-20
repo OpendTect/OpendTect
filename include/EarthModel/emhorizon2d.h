@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.26 2010-10-20 06:19:59 cvsnanne Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.27 2010-10-20 13:00:33 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emhorizon.h"
 #include "bufstringset.h"
 #include "horizon2dline.h"
+#include "surv2dgeom.h"
 #include "tableascio.h"
 
 class ZAxisTransform;
