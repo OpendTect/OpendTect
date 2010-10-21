@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.200 2010-06-24 11:27:21 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.201 2010-10-21 10:09:28 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -236,6 +236,7 @@ void uiMPEMan::deleteVisObjects()
 	    visserv->removeObject( clickcatcher->id(), clickablesceneid );
 
 	clickcatcher->click.remove( mCB(this,uiMPEMan,seedClick) );
+	clickcatcher->setEditor( 0 );
 	clickcatcher->unRef();
 	clickcatcher = 0;
     }
@@ -668,7 +669,11 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	if ( seedpicker )
 	    seedpicker->stopSeedPick();
 
-	if ( clickcatcher ) clickcatcher->turnOn( false );
+	if ( clickcatcher )
+	{
+	    clickcatcher->setEditor( 0 );
+	    clickcatcher->turnOn( false );
+	}
 
 	restoreActiveVol();
     }
