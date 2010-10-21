@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.h,v 1.4 2010-10-07 06:03:34 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.h,v 1.5 2010-10-21 06:15:23 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ public:
 
     bool		select();
     bool		showSubMenu();
+    void		createNewOne();
 
 protected:
 
@@ -79,6 +80,7 @@ protected:
     EM::ObjectID        emid_;
     Vw2DHorizon3D*	horview_;
     bool		oldactivevolupdated_;
+    bool		creatednewone_;
     void                emobjAbtToDelCB(CallBacker*);
 };
 
