@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.8 2010-10-19 05:54:37 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.9 2010-10-21 09:42:25 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -196,7 +196,9 @@ bool uiODVw2DFaultSSTreeItem::select()
 bool uiODVw2DFaultSSTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Save ..."), 0 );
+    uiMenuItem* savemnu = new uiMenuItem("&Save ... ");
+    mnu.insertItem( savemnu, 0 );
+    savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) );
     mnu.insertItem( new uiMenuItem("&Remove"), 1 );
 
     const int mnuid = mnu.exec();

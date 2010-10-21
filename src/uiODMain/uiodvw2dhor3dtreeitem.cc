@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.11 2010-10-21 06:21:22 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.12 2010-10-21 09:42:25 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -284,7 +284,9 @@ bool uiODVw2DHor3DTreeItem::select()
 bool uiODVw2DHor3DTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Save ... "), 0 );
+    uiMenuItem* savemnu = new uiMenuItem("&Save ... ");
+    mnu.insertItem( savemnu, 0 );
+    savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) );
     mnu.insertItem( new uiMenuItem("&Remove"), 1 );
 
     const int mnuid = mnu.exec();
