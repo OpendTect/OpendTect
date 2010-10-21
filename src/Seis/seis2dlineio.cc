@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID = "$Id: seis2dlineio.cc,v 1.10 2010-10-18 04:52:26 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seis2dlineio.cc,v 1.11 2010-10-21 06:37:31 cvsnanne Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -208,8 +208,8 @@ bool Seis2DLineMerger::nextFetcher()
     SeisTrcBuf& tbuf = currentlyreading_==1 ? tbuf1_ : tbuf2_;
     tbuf.deepErase();
 
-    PosInfo::POS2DAdmin().setCurLineSet( ls_->name() );
-    if ( !PosInfo::POS2DAdmin().getGeometry(l2dd) )
+    S2DPOS().setCurLineSet( ls_->name() );
+    if ( !S2DPOS().getGeometry(l2dd) )
 	mErrRet("Cannot open")
     nrdone_ = 0;
     totnr_ = l2dd.positions().size();

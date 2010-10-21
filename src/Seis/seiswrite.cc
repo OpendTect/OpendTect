@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.56 2010-09-29 08:25:21 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.57 2010-10-21 06:37:31 cvsnanne Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -80,11 +80,11 @@ bool SeisTrcWriter::close()
 	if ( lineidx>=0 )
 	{
 	    const bool hasgeom = 
-		PosInfo::POS2DAdmin().hasLineSet( lset->name() ) &&
-		PosInfo::POS2DAdmin().hasLine(linekey.lineName(),lset->name());
+		S2DPOS().hasLineSet( lset->name() ) &&
+		S2DPOS().hasLine(linekey.lineName(),lset->name());
 	    if ( !hasgeom )
 	    {
-		PosInfo::POS2DAdmin().setCurLineSet( lset->name() );
+		S2DPOS().setCurLineSet( lset->name() );
 		PosInfo::Line2DData l2dd( linekey.lineName() );
 		if ( lset->getGeometry( lineidx, l2dd ) )
 		    PosInfo::POS2DAdmin().setGeometry( l2dd );
