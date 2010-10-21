@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2009
- RCS:		$Id: uiwaveletextraction.h,v 1.14 2010-01-22 11:32:47 cvsnanne Exp $
+ RCS:		$Id: uiwaveletextraction.h,v 1.15 2010-10-21 12:35:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ protected:
     uiSelZRange*		zrangefld_;
     Seis::SelData*		sd_;
 
+    float			datastep_;
     int				wvltsize_;
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.22 2010-09-24 06:36:28 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.23 2010-10-21 12:35:29 cvsnageswara Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -52,6 +52,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     , sd_(0)
     , seissel3dfld_(0)
     , linesel2dfld_(0)
+    , datastep_(SI().zStep())
 {
     setCtrlStyle( DoAndStay );
     if ( !is2d )
@@ -94,8 +95,7 @@ void uiWaveletExtraction::createCommonUIFlds()
     linesel2dfld_ ? zextraction_->attach( alignedBelow, linesel2dfld_ )
 		  : zextraction_->attach( alignedBelow, subselfld3d_ );
 
-    BufferString rangelbl( "Z Range ", SI().getZUnitString() );
-    zrangefld_ = new uiSelZRange( this, false, false, rangelbl );
+    zrangefld_ = new uiSelZRange( this, false, false, "Z Range " );
     zrangefld_->attach( alignedBelow, zextraction_ );
 
     surfacesel_ = uiPosProvGroup::factory().create( sKey::Surface, this,
@@ -148,6 +148,7 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
     {
 	si = new SeisIOObjInfo( seissel3dfld_->ioobj() );
 	si->getRanges( cs );
+	datastep_ = cs.zrg.step;
     }
     else
     {
@@ -164,15 +165,28 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 		return;
 
 	    if ( !idx )
+	    {
 		commonzrg = zrg;
+		datastep_ = zrg.step;
+	    }
 	    else
+	    {
+		if ( datastep_ != zrg.step )
+		{
+		    uiMSG().message( "Selected lines having different sample",
+			    	     " intervals\n Please change selection" );
+		    return;
+		}
+
 		commonzrg.limitTo( zrg );
+	    }
 	}
 
 	if ( commonzrg.nrSteps() == 0 )
 	{
 	    uiMSG().message( "No common Z Range in selected lines.\n"
 		    	     "Please change selection" );
+	    return;
 	}
 
 	cs.zrg = commonzrg;
@@ -248,24 +262,24 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 bool uiWaveletExtraction::checkWaveletSize()
 {
     wvltsize_ = mNINT( wtlengthfld_->getfValue() /
-	    		      (SI().zStep() * SI().zFactor()) ) + 1;
+	    		      (datastep_ * SI().zFactor()) ) + 1;
+    if ( wvltsize_ < 3 )
+    {
+	uiMSG().error( "Minimum 3 samples are required to create Wavelet" );
+	wtlengthfld_->setValue( 120 );
+	return false;
+    }
+
     if ( zextraction_->getBoolValue() )
     {
 	StepInterval<float> zrg = zrangefld_->getRange();
-	const int range = 1 + mNINT( (zrg.stop - zrg.start) / SI().zStep() );
+	const int range = 1 + mNINT( (zrg.stop - zrg.start) / datastep_ );
 	if ( range < wvltsize_ )
 	{
 	    uiMSG().message( "Selection window size should be more",
 		   	     " than Wavelet Size" );
 	    return false;
 	}
-    }
-
-    if ( wvltsize_ < 3 )
-    {
-	uiMSG().error( "Minimum 3 samples are required to create Wavelet" );
-	wtlengthfld_->setValue( 120 );
-	return false;
     }
 
     return true;
@@ -341,7 +355,7 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 	extractor->setSelData( sdset );
     }
 
-    extractor->setCosTaperParamVal( taperlength );
+    extractor->setCosTaperParamVal( taperlength, datastep_ );
     extractor->setPhase( phase );
 
     uiTaskRunner taskrunner( this );
@@ -379,7 +393,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 
     if ( !betweenhors )
     {
-	const int size = int ( 1+(extz.stop-extz.start)/SI().zStep() );
+	const int size = int ( 1+(extz.stop-extz.start)/datastep_ );
 	if ( size < wvltsize_ )
 	{
 	    uiMSG().error( "Selection window size should be"

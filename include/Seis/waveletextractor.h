@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          July 2009
- RCS:           $Id: waveletextractor.h,v 1.5 2010-08-11 16:55:33 cvsyuancheng Exp $ 
+ RCS:           $Id: waveletextractor.h,v 1.6 2010-10-21 12:35:29 cvsnageswara Exp $ 
  ________________________________________________________________________
                  
 -*/   
@@ -28,9 +28,9 @@ public:
 				~WaveletExtractor();
 
     void			setSelData(const Seis::SelData&); // 3D
-    void			setSelData(ObjectSet<Seis::SelData>&); // 2D
+    void			setSelData(const ObjectSet<Seis::SelData>&);//2D
     void			setPhase(int phase);
-    void			setCosTaperParamVal(float paramval);
+    void			setCosTaperParamVal(float paramval,float step);
     Wavelet			getWavelet();
 
 protected:

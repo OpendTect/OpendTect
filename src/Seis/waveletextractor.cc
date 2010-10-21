@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.8 2010-08-11 16:55:33 cvsyuancheng Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.9 2010-10-21 12:35:29 cvsnageswara Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -103,7 +103,7 @@ void WaveletExtractor::setSelData( const Seis::SelData& sd )
 }
 
 
-void WaveletExtractor::setSelData( ObjectSet<Seis::SelData>& sdset )
+void WaveletExtractor::setSelData( const ObjectSet<Seis::SelData>& sdset )
 {
     sdset_ = sdset;
     init2D();
@@ -311,9 +311,10 @@ bool WaveletExtractor::finish( int nrusedtrcs )
 }
 
 
-void WaveletExtractor::setCosTaperParamVal( float paramval )
+void WaveletExtractor::setCosTaperParamVal( float paramval, float step )
 {
-    float val = 1-(2*paramval/( (wvltsize_-1)*SI().zStep()*SI().zFactor()) );
+    wvlt_.set( mNINT(wvltsize_/2), step );
+    float val = 1-(2*paramval/( (wvltsize_-1)*step*SI().zFactor()) );
     paramval_ = val == 1 ? 1.0 - 1e-6 : val;
 }
 
