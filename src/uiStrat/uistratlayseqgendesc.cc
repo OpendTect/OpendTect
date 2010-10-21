@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.4 2010-10-20 13:12:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.5 2010-10-21 14:04:14 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -140,15 +140,20 @@ uiSingleLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
 	gen_ = newgen; genmine_ = true;
 	Property& pr = newgen->properties().get(0);
 	mDynamicCastGet(ValueProperty*,vpr,&pr)
-	vpr->val_ = lg.avgThickness();
+	vpr->val_ = lg.dispThickness();
     }
 
     nm_ = new uiTextItem( gen_->name(), mAlignment(HCenter,VCenter) );
     scene_.addItem( nm_ );
     nm_->setPenColor( Color::Black() );
+
     top_ = new uiLineItem;
-    top_->setPenStyle( LineStyle(LineStyle::Dot) );
+    top_->setPenStyle( LineStyle(LineStyle::Solid) );
     scene_.addItem( top_ );
+    poly_ = new uiPolygonItem;
+    poly_->setPenStyle( LineStyle(LineStyle::Solid,1,
+			gen_->unit().upNode()->color()) );
+    scene_.addItem( poly_ );
 }
 
 
@@ -157,7 +162,7 @@ uiSingleLayerSequenceGenDesc::DispUnit::~DispUnit()
     if ( genmine_ )
 	delete const_cast<Strat::SingleLayerGenerator*>(gen_);
     delete nm_;
-    delete top_;
+    delete poly_;
 }
 
 
@@ -186,7 +191,7 @@ void uiSingleLayerSequenceGenDesc::doDraw()
     if ( disps_.isEmpty() ) return;
     float totth = 0;
     for ( int idx=0; idx<disps_.size(); idx++ )
-	totth += disps_[idx]->gen_->avgThickness();
+	totth += disps_[idx]->gen_->dispThickness();
     if ( mIsZero(totth,mDefEps) ) return;
 
     float curz = 0;
@@ -197,18 +202,49 @@ void uiSingleLayerSequenceGenDesc::doDraw()
     for ( int idx=0; idx<disps_.size(); idx++ )
     {
 	DispUnit& disp = *disps_[idx];
-	const float th = disp.gen_->avgThickness();
+	const Property& prop = disp.gen_->properties().get(0);
+	const float th0 = prop.value( Property::EvalOpts(false,0) );
+	const float th1 = prop.value( Property::EvalOpts(false,1) );
+	const float maxth = th0 > th1 ? th0 : th1;
 	disp.topy_ = (int)(workrect_.top() + curz * pixperm);
-	disp.boty_ = (int)(workrect_.top() + (curz+th) * pixperm);
+	disp.boty_ = (int)(workrect_.top() + (curz+maxth) * pixperm);
 
-	const float midz = curz + .5 * th;
 	midpt.y = (disp.topy_ + disp.boty_) / 2;
-	leftpt.y = rightpt.y = disp.topy_;
-
 	disp.nm_->setPos( midpt );
+	disp.nm_->setText( disp.gen_->name() );
+
+	leftpt.y = rightpt.y = disp.topy_;
 	disp.top_->setLine( leftpt, rightpt );
 
-	curz += th;
+	uiRect polyrect( leftpt.x+1, disp.topy_+1, rightpt.x-1, disp.boty_-1 );
+	TypeSet<uiPoint> pts;
+	pts += polyrect.bottomLeft();
+	pts += polyrect.topLeft();
+	mDynamicCastGet(const RangeProperty*,rgprop,&prop)
+	if ( !rgprop )
+	{
+	    pts += polyrect.topRight();
+	    pts += polyrect.bottomRight();
+	}
+	else
+	{
+	    if ( th1 > th0 )
+	    {
+		pts += polyrect.topRight();
+		pts += uiPoint( polyrect.right(),
+				(int)(workrect_.top() + (curz+th0)*pixperm) );;
+	    }
+	    else
+	    {
+		pts += uiPoint( polyrect.right(),
+			    (int)(workrect_.top() + (curz+th0-th1)*pixperm) );
+		pts += polyrect.bottomRight();
+	    }
+	    pts += polyrect.bottomLeft();
+	}
+
+	disp.poly_->setPolygon( pts );
+	curz += maxth;
     }
 }
 
@@ -228,7 +264,7 @@ int uiSingleLayerSequenceGenDesc::curUnitIdx()
     for ( int idx=0; idx<disps_.size(); idx++ )
     {
 	DispUnit* disp = disps_[idx];
-	if ( clickpos_.y < disps_[idx]->topy_ )
+	if ( clickpos_.y < disps_[idx]->boty_ )
 	    return idx;
     }
     return disps_.size() - 1;;
@@ -251,6 +287,7 @@ uiSimpPropertyEd( uiParent* p, const PropertyRef& pr )
 
     typfld_ = new uiComboBox( this, opts, BufferString(pr.name()," type") );
     typfld_->selectionChanged.notify( mCB(this,uiSimpPropertyEd,updDisp) );
+    typfld_->setPrefWidthInChar( 14 );
     prelbl_ = new uiLabel( this, pr.name(), typfld_ );
     valfld_ = new uiGenInput( this, "", FloatInpSpec() );
     rgfld_ = new uiGenInput( this, "", FloatInpSpec(), FloatInpSpec() );
@@ -261,6 +298,7 @@ uiSimpPropertyEd( uiParent* p, const PropertyRef& pr )
     postlbl_->attach( rightOf, rgfld_ );
 
     finaliseDone.notify( mCB(this,uiSimpPropertyEd,updDisp) );
+    setHAlignObj( valfld_ );
 }
 
 bool isRg() const
@@ -276,23 +314,29 @@ void updDisp( CallBacker* )
 }
 
 
-void setFrom( const Property& prop )
+void setFrom( const Property& prop, bool alwaysconst )
 {
     mDynamicCastGet(const RangeProperty*,rgprop,&prop)
-    if ( rgprop )
+    if ( rgprop && !alwaysconst )
     {
 	typfld_->setCurrentItem( 1 );
 	Interval<float> rg( rgprop->rg_ );
-	if ( !mIsUdf(rg.start) ) rg.start /= fac_;
-	if ( !mIsUdf(rg.stop) ) rg.stop /= fac_;
+	const bool startudf = mIsUdf(rg.start);
+	const bool stopudf = mIsUdf(rg.stop);
+	if ( !startudf ) rg.start /= fac_;
+	if ( !stopudf ) rg.stop /= fac_;
 	rgfld_->setValue( rg );
+	if ( startudf || stopudf )
+	valfld_->setValue( startudf || stopudf ? mUdf(float) : rg.center() );
     }
     else
     {
 	typfld_->setCurrentItem( 0 );
 	float val = prop.value(Property::EvalOpts(true));
+	const bool isudf = mIsUdf(val);
 	if ( !mIsUdf(val) ) val /= fac_;
 	valfld_->setValue( val );
+	rgfld_->setValue( Interval<float>(val,val) );
     }
 }
 
@@ -342,7 +386,8 @@ class uiSingleLayerGeneratorEd : public uiDialog
 public:
 
 uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
-       			  const Strat::RefTree& rt )
+       			  const Strat::RefTree& rt,
+			  const Strat::SingleLayerGenerator* nearun=0 )
     : uiDialog(p,uiDialog::Setup(inpun?"Edit layer":"Create layer",
 				"Define layer generation",mTODOHelpID))
     , inpun_(inpun)
@@ -383,10 +428,13 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
     velfld_->attach( alignedBelow, thfld_ );
     denfld_->attach( alignedBelow, velfld_ );
 
-    unfld_->setText( edun_->unit().fullCode() );
-    thfld_->setFrom( props.get( 0 ) );
-    velfld_->setFrom( props.get( props.indexOf(*velref_) ) );
-    denfld_->setFrom( props.get( props.indexOf(*denref_) ) );
+    const Strat::SingleLayerGenerator* useun
+				= inpun_ || !nearun ? edun_ : nearun;
+    unfld_->setText( useun->unit().fullCode() );
+    const PropertySet& useprops = useun->properties();
+    thfld_->setFrom( useprops.get( 0 ), useun != edun_ );
+    velfld_->setFrom( useprops.get( props.indexOf(*velref_) ), useun != edun_ );
+    denfld_->setFrom( useprops.get( props.indexOf(*denref_) ), useun != edun_ );
 }
 
 bool rejectOK( CallBacker* )
@@ -430,7 +478,9 @@ bool acceptOK( CallBacker* )
 
 bool uiSingleLayerSequenceGenDesc::newDescReq( bool above )
 {
-    uiSingleLayerGeneratorEd dlg( parent(), 0, desc_.refTree() );
+    const int curunidx = curUnitIdx();
+    uiSingleLayerGeneratorEd dlg( parent(), 0, desc_.refTree(),
+	    		curunidx < 0 ? 0 : disps_[curunidx]->gen_ );
     if ( !dlg.go() )
 	return false;
 

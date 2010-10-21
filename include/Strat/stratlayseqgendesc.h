@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratlayseqgendesc.h,v 1.4 2010-10-19 15:13:30 cvsbert Exp $
+ RCS:		$Id: stratlayseqgendesc.h,v 1.5 2010-10-21 14:04:14 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ mClass LayerGenerator
 public:	
 
     virtual const char*	 name() const				= 0;
-    virtual float	avgThickness() const			= 0;
+    virtual float	dispThickness(bool max=true) const	= 0;
 
     virtual const char*	errMsg() const				{ return 0; }
     virtual const char*	warnMsg() const				{ return 0; }
@@ -56,7 +56,7 @@ public:
     static LayerGenerator* create()		{ return new clss; } \
     static void		initClass() { factory().addCreator(create,typeStr());} \
     virtual const char*	name() const; \
-    virtual float	avgThickness() const; \
+    virtual float	dispThickness(bool max=true) const; \
     virtual void	usePar(const IOPar&,const RefTree&); \
     virtual void	fillPar(IOPar&) const; \
     virtual bool	genMaterial(LayerSequence&,Property::EvalOpts eo \

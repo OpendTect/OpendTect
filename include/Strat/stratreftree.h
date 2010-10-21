@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.23 2010-10-07 15:37:55 cvsbruno Exp $
+ RCS:		$Id: stratreftree.h,v 1.24 2010-10-21 14:04:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ namespace Strat
 {
 
 class Lithology;
+class LeafUnitRef;
 
 
 /*!\brief Tree of UnitRef's  */
@@ -41,9 +42,10 @@ public:
     Notifier<RefTree>	unitAdded;
     Notifier<RefTree>	unitChanged;
     Notifier<RefTree>	unitToBeDeleted;
-
     const UnitRef*	notifUnit() const		{ return notifun_; }
     			//!< if null, assume everything has changed
+
+    const LeafUnitRef&	undefLeaf() const		{ return udfleaf_; }
 
 protected:
 
@@ -53,6 +55,7 @@ protected:
 
     LithologySet	liths_;
     const UnitRef*	notifun_;
+    LeafUnitRef&	udfleaf_;
 
     void 		levelToBeRemoved(CallBacker*);
 

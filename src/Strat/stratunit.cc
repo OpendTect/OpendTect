@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.34 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.35 2010-10-21 14:04:14 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratreftree.h"
@@ -321,19 +321,11 @@ void Strat::LeavedUnitRef::setLevelID( Strat::Level::ID lid )
 
 //class LeafUnitRef
 
-Strat::LeafUnitRef::LeafUnitRef( Strat::NodeUnitRef* up, int lithidx, const char* d )
+Strat::LeafUnitRef::LeafUnitRef( Strat::NodeUnitRef* up, int lithidx,
+				 const char* d )
     : UnitRef(up,d)
     , lith_(lithidx)
 {
-}
-
-
-const Strat::LeafUnitRef& Strat::LeafUnitRef::undef()
-{
-    static Strat::LeafUnitRef* udf = 0;
-    if ( !udf )
-	udf = new Strat::LeafUnitRef( 0, Strat::Lithology::undef().id() );
-    return *udf;
 }
 
 

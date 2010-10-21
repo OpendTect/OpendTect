@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID = "$Id: stratreftree.cc,v 1.10 2010-10-11 09:39:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratreftree.cc,v 1.11 2010-10-21 14:04:14 cvsbert Exp $";
 
 
 #include "stratreftree.h"
@@ -23,6 +23,7 @@ Strat::RefTree::RefTree()
     , unitChanged(this)
     , unitToBeDeleted(this)
     , notifun_(0)
+    , udfleaf_(*new LeafUnitRef(this,-1,"Undef unit"))
 {
     initTree();
 }
@@ -39,6 +40,7 @@ void Strat::RefTree::initTree()
 
 Strat::RefTree::~RefTree()
 {
+    delete &udfleaf_;
 } 
 
 
@@ -103,7 +105,8 @@ void Strat::RefTree::setToActualTypes()
 	NodeUnitRef* par = un->upNode();
 	if ( un->hasChildren() )
 	    { norefs += un; continue; }
-	LeafUnitRef* newun = new LeafUnitRef( par, un->levelID(), un->description() );
+	LeafUnitRef* newun = new LeafUnitRef( par, un->levelID(),
+						un->description() );
 	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
 	delete par->replace( par->indexOf(un), newun );
     }

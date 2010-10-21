@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.4 2010-10-19 15:13:30 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.5 2010-10-21 14:04:14 cvsbert Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
@@ -190,17 +190,20 @@ const char* Strat::SingleLayerGenerator::name() const
 }
 
 
-float Strat::SingleLayerGenerator::avgThickness() const
+float Strat::SingleLayerGenerator::dispThickness( bool max ) const
 {
     if ( props_.isEmpty() )
 	return 1;
-    return props_.get(0).value( Property::EvalOpts(true) );
+
+    const float th0 = props_.get(0).value( Property::EvalOpts(false,0) );
+    const float th1 = props_.get(0).value( Property::EvalOpts(false,1) );
+    return th0 < th1 ? (max ? th1 : th0) : (max ? th0 : th1);
 }
 
 
 const Strat::LeafUnitRef& Strat::SingleLayerGenerator::unit() const
 {
-    return unit_ ? *unit_ : LeafUnitRef::undef();
+    return unit_ ? *unit_ : RT().undefLeaf();
 }
 
 
