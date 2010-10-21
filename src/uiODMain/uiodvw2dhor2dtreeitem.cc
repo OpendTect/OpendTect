@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.12 2010-10-19 05:54:37 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.13 2010-10-21 06:21:22 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "mouseevent.h"
+#include "mpeengine.h"
 #include "pixmap.h"
 
 #include "visseis2ddisplay.h"
@@ -69,8 +70,11 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	mps->addTracker( EM::Horizon2D::typeStr(), -1 );
 
 	const int trackid = mps->activeTrackerID();
-	addChild( new uiODVw2DHor2DTreeItem(mps->getEMObjectID(trackid)),
-		  false, false);
+	uiODVw2DHor2DTreeItem* hortreeitem = 
+	    new uiODVw2DHor2DTreeItem( mps->getEMObjectID(trackid) );
+	hortreeitem->createNewOne();
+	addChild( hortreeitem, false, false );
+
     }
     else if ( mnuid == 1 )
     {
@@ -114,6 +118,7 @@ uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( const EM::ObjectID& emid )
     : uiODVw2DTreeItem(0)
     , horview_(0)
     , emid_( emid )
+    , creatednewone_(false)
 {}
 
 
@@ -136,7 +141,18 @@ uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
+    {
 	emobj->change.remove( mCB(this,uiODVw2DHor2DTreeItem,emobjChangeCB) );
+
+	if ( creatednewone_ )
+	{
+	    const int trackeridx =
+		MPE::engine().getTrackerByObject( emobj->id() );
+	    if ( trackeridx >= 0 )
+		MPE::engine().removeTracker( trackeridx );
+	    MPE::engine().removeEditor( emobj->id() );
+	}
+    }
 
     viewer2D()->dataMgr()->removeObject( horview_ );
 }
@@ -182,6 +198,12 @@ bool uiODVw2DHor2DTreeItem::init()
 	deselnotify->notify( mCB(this,uiODVw2DHor2DTreeItem,deSelCB) );
 
     return true;
+}
+
+
+void uiODVw2DHor2DTreeItem::createNewOne()
+{
+    creatednewone_ = true;
 }
 
 

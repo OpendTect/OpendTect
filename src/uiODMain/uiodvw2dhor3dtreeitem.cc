@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.10 2010-10-19 05:54:37 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.11 2010-10-21 06:21:22 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,8 +71,10 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	mps->addTracker( EM::Horizon3D::typeStr(), -1 );
 
 	const int trackid = mps->activeTrackerID();
-	addChild( new uiODVw2DHor3DTreeItem(mps->getEMObjectID(trackid)),
-		  false, false );
+	uiODVw2DHor3DTreeItem* hortreeitem = 
+	    new uiODVw2DHor3DTreeItem( mps->getEMObjectID(trackid) );
+	hortreeitem->createNewOne();
+	addChild( hortreeitem,false, false );
     }
     else if ( mnuid == 1 )
     {
@@ -116,6 +118,7 @@ uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )
     , emid_(emid)
     , horview_(0)
     , oldactivevolupdated_(false)
+    , creatednewone_(false)
 {}
 
 
@@ -140,7 +143,18 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
+    {
 	emobj->change.remove( mCB(this,uiODVw2DHor3DTreeItem,emobjChangeCB) );
+
+	if ( creatednewone_ )
+	{
+	    const int trackeridx =
+				MPE::engine().getTrackerByObject( emobj->id() );
+	    if ( trackeridx >= 0 )
+		MPE::engine().removeTracker( trackeridx );
+	    MPE::engine().removeEditor( emobj->id() );
+	}
+    }
 
     viewer2D()->dataMgr()->removeObject( horview_ );
 }
@@ -192,6 +206,12 @@ bool uiODVw2DHor3DTreeItem::init()
     }
 
     return true;
+}
+
+
+void uiODVw2DHor3DTreeItem::createNewOne()
+{
+    creatednewone_ = true;
 }
 
 
