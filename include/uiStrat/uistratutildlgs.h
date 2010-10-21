@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.27 2010-10-11 14:36:02 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.28 2010-10-21 15:46:42 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,6 @@ public:
     			~uiStratLithoBox();
 protected:
 
-    void		selChanged(CallBacker*);
     void		fillLiths(CallBacker*);
 };
 

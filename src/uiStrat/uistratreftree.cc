@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.57 2010-10-13 15:12:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.58 2010-10-21 15:46:42 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -193,7 +193,10 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
     {
 	if ( parun->isLeaved() )
 	{
-	    parun = replaceUnit( *parun, false); 
+	    const Strat::LeavedUnitRef& lvdun = (Strat::LeavedUnitRef&)(*parun);
+	    for ( int iref=0; iref<lvdun.nrRefs(); iref++ )
+		removeUnit( lvit->getChild( iref ) );
+	    parun = replaceUnit( *parun, false ); 
 	}
 	if ( parun )
 	{
@@ -311,12 +314,18 @@ void uiStratRefTree::removeUnit( uiListViewItem* lvit )
     if ( !un ) return;
     Strat::NodeUnitRef* upnode = un->upNode();
     if ( !upnode ) return;
+
+    TypeSet<int> lithids;  
+    if ( un->isLeaved() )
+    {
+	const Strat::LeavedUnitRef& lvedun = (Strat::LeavedUnitRef&)(*un);
+	for ( int idx=0; idx<lvedun.nrRefs(); idx++ )
+	    lithids += ((Strat::LeafUnitRef&)(lvedun.ref(idx))).lithology();
+    }
     upnode->remove( un );
     if ( !upnode->isLeaved() && !upnode->hasChildren() )
     {
 	upnode = replaceUnit( *upnode, true );
-	//TODO give me the lithologies of my children ...
-	TypeSet<int> lithids; lithids += -1;
 	addLithologies( (LeavedUnitRef&)(*upnode), lithids ); 
     }
     if ( lvit->parent() )

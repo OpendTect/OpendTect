@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.40 2010-10-13 14:52:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.41 2010-10-21 15:46:42 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -29,7 +29,6 @@ static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.40 2010-10-13 14:52:37 c
 #include "uiseparator.h"
 #include "uitable.h"
 
-static const char* sNoLithoTxt      = "--Undefined--";
 static const char* sNoLevelTxt      = "--Undefined--";
 
 #define mErrRet(msg,act) uiMSG().error(msg); act;
@@ -71,6 +70,9 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	unitlithfld_->attach( alignedBelow, lblbox1 );
 	unitlithfld_->attach( ensureBelow, sep );
 
+	uiLabel* lbl = new uiLabel( this, "Lithologies" );
+	lbl->attach( leftOf, unitlithfld_ );
+
 	CallBack cb = mCB(this,uiStratUnitEditDlg,selLithCB);
 	uiPushButton* sellithbut = new uiPushButton( this, "&Edit", cb, false );
 	sellithbut->attach( rightTo, unitlithfld_ );
@@ -79,13 +81,11 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	for ( int idx=0; idx<unit.nrRefs(); idx++ )
 	{
 	    const Strat::LeafUnitRef& l = (Strat::LeafUnitRef&)(unit.ref(idx));
-	    if ( l.lithology() > 0 )
+	    if ( l.lithology() >= 0 )
 		lithids_ += l.lithology();
 	}
 	if ( lithids_.size() )
 	    unitlithfld_->setSelectedItems( lithids_ );
-	else
-	    unitlithfld_->setCurrentItem( 0 );
     }
 
     putToScreen();
@@ -116,11 +116,7 @@ void uiStratUnitEditDlg::getFromScreen()
 
     lithids_.erase();
     if ( unit_.isLeaved() )
-    {
-	if ( unitlithfld_->nrSelected() == 0 )
-	    unitlithfld_->setCurrentItem( 0 );
 	unitlithfld_->getSelectedItems( lithids_ );
-    }
 }
 
 #define mPreventWrongChar(buf)\
@@ -155,8 +151,13 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
     }
     unit_.setCode( name.buf() );
 
-    if ( lithids_.size() > 1 && lithids_.isPresent(0) )
-	lithids_.remove( lithids_.indexOf(0) );
+    if ( lithids_.size() <= 0 )
+    { 
+	mErrRet( "Please specify at least one lithology", 
+	    if ( !unitlithfld_->size() )
+		selLithCB( 0 );
+	    return false; );
+    }
 
     return true;
 }
@@ -176,7 +177,6 @@ uiStratLithoBox::uiStratLithoBox( uiParent* p )
     fillLiths( 0 );
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
     lithos.anyChange.notify( mCB( this, uiStratLithoBox, fillLiths ) );
-    selectionChanged.notify( mCB( this, uiStratLithoBox, selChanged ) );
 }
 
 
@@ -190,24 +190,13 @@ uiStratLithoBox::~uiStratLithoBox()
 void uiStratLithoBox::fillLiths( CallBacker* )
 {
     empty();
-
     BufferStringSet nms;
-    nms.add( sNoLithoTxt );
     const Strat::LithologySet& lithos = Strat::RT().lithologies();
     for ( int idx=0; idx<lithos.size(); idx++ )
 	nms.add( lithos.getLith( idx ).name() );
     addItems( nms );
 }
     
-
-void uiStratLithoBox::selChanged( CallBacker* )
-{
-    NotifyStopper ns( selectionChanged );
-    if ( nrSelected() == 0 && size() )
-	setSelected( 0, true );
-    else if ( nrSelected() > 1 && isSelected( 0 ) )
-	setSelected( 0, false );
-}
 
 
 
@@ -329,8 +318,7 @@ void uiStratLithoDlg::rmLast( CallBacker* )
 
 const char* uiStratLithoDlg::getLithName() const
 {
-    const char* txt = selfld_->getText();
-    return !strcmp( txt, sNoLithoTxt ) ? 0 : txt;
+    return selfld_->getText();
 }
 
 
