@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odftp.cc,v 1.9 2010-09-10 07:09:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: odftp.cc,v 1.10 2010-10-21 06:16:23 cvsumesh Exp $";
 
 #include "odftp.h"
 #include "qftpconn.h"
@@ -37,6 +37,7 @@ ODFtp::ODFtp()
     totalnr_ = 0;
     commandid_ = 0;
     connectionstate_ = -1;
+    qfiles_.allowNull();
 
     transferDone.notify( mCB(this,ODFtp,transferDoneCB) );
 }
@@ -68,11 +69,11 @@ int ODFtp::get( const char* file, const char* dest )
     {
 	qfile = new QFile( dest );
 	qfile->open( QIODevice::WriteOnly );
-	qfiles_ += qfile;
 	qftp_->rawCommand( "TYPE I" );
 	qftp_->rawCommand( BufferString("SIZE ",file).buf() );
     }
 
+    qfiles_ += qfile;
     const int cmdid = qftp_->get( file, qfile, QFtp::Binary );
     getids_ += cmdid;
     return cmdid;
@@ -81,11 +82,12 @@ int ODFtp::get( const char* file, const char* dest )
 
 void ODFtp::transferDoneCB( CallBacker* )
 {
-    int cmdidx = getids_.indexOf( commandid_ );
+    const int cmdidx = getids_.indexOf( commandid_ );
     if ( qfiles_.validIdx(cmdidx) )
     {
 	QFile* qfile = qfiles_[cmdidx];
-	qfile->close();
+	if ( qfile )
+	    qfile->close();
 	delete qfiles_.remove( cmdidx );
 	getids_.remove( cmdidx );
     }
