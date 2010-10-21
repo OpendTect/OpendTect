@@ -4,11 +4,12 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.28 2010-10-20 13:07:31 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.29 2010-10-21 14:03:39 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
 #include "mathexpression.h"
+#include "unitofmeasure.h"
 #include "survinfo.h"
 #include "ascstream.h"
 #include "safefileio.h"
@@ -116,7 +117,17 @@ void PropertyRef::usePar( const IOPar& iop )
 	disp_.range_.start = toFloat( fms[0] );
 	disp_.range_.stop = toFloat( fms[1] );
 	if ( sz > 2 )
+	{
 	    disp_.unit_ = fms[2];
+	    const UnitOfMeasure* uom = UoMR().get( disp_.unit_ );
+	    if ( uom )
+	    {
+		if ( !mIsUdf(disp_.range_.start) )
+		    disp_.range_.start = uom->getSIValue(disp_.range_.start);
+		if ( !mIsUdf(disp_.range_.stop) )
+		    disp_.range_.stop = uom->getSIValue(disp_.range_.stop);
+	    }
+	}
     }
 
     iop.get( sKey::Color, disp_.color_ );
@@ -412,8 +423,11 @@ bool RangeProperty::isUdf() const
 
 float RangeProperty::value( Property::EvalOpts eo ) const
 {
-    return isUdf() ? mUdf(float)
-		   : rg_.start + (eo.average_ ? 0.5 : eo.relpos_) * rg_.stop;
+    if ( isUdf() )
+	return mUdf(float);
+    else if ( eo.average_ )
+	return 0.5 * (rg_.start + rg_.stop);
+    return rg_.start + eo.relpos_ * (rg_.stop - rg_.start);
 }
 
 
