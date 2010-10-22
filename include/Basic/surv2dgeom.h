@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: surv2dgeom.h,v 1.5 2010-10-18 04:45:07 cvssatyaki Exp $
+ RCS:		$Id: surv2dgeom.h,v 1.6 2010-10-22 09:32:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,13 +26,17 @@ namespace PosInfo
 mClass GeomID
 {
 public:
-    		GeomID( int lsid, int lineid )
+    		GeomID( int lsid=-1, int lineid=-1 )
 		    : lsid_(lsid) ,lineid_(lineid)	{}
+
     int		lsid_;
     int		lineid_;
+
     bool	isOK() const;
     bool	operator ==( const GeomID& a ) const
     		{ return a.lsid_ == lsid_ && a.lineid_ == lineid_; }
+    BufferString toString() const;
+    bool	fromString(const char*);
 };
 
 /*!\brief Repository for 2D line geometries
@@ -66,28 +70,27 @@ public:
     
     // using ids
     const char*		getLineSet(int lsid) const;
-    const char*		getLineName(int lid) const;
-    int			getLineSetID( const char*) const;
-    int			getLineNameID( const char*) const;
+    const char*		getLineName(int lineid) const;
+    int			getLineSetID(const char*) const;
+    int			getLineID(const char*) const;
     bool		hasLineSet(int lsid) const;
-    bool		hasLine(int lid,int lsid) const;
+    bool		hasLine(int lineid,int lsid=-1) const;
     void		getLineIDs(TypeSet<int>&,int lsid) const;
 
     int			curLineSetID() const;
     void		setCurLineSet(int lsid) const;
-    int			getLineSetIdx(int lsid) const;
-    int			getLineIdx(int lineid) const;
 
     bool		getGeometry(int lid,Line2DData&) const;
 
     void		removeLine(int lid);
     void		removeLineSet(int lsid);
 
-    GeomID		getGeomID(const char* lsnm,const char* linenm);
+    GeomID		getGeomID(const char* lsnm,const char* linenm) const;
 
 protected:
     int			getNewID(IOPar&);
     void		updateMaxID(int,IOPar&);
+
 private:
 
     FilePath&		basefp_;
@@ -103,6 +106,8 @@ private:
     void		getIDs(const IOPar&,TypeSet<int>&) const;
     BufferString	getNewStorageName(const char*,const FilePath&,
 	    				  const IOPar&) const;
+    int			getLineSetIdx(int lsid) const;
+    int			getLineIdx(int lineid) const;
 
     mGlobal friend Survey2D&	POS2DAdmin();
 

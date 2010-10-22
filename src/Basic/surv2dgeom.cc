@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.6 2010-10-18 04:45:07 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.7 2010-10-22 09:32:17 cvsnanne Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -33,10 +33,27 @@ void doDel( CallBacker* ) { delete theinst; theinst = 0; }
 }
 
 bool PosInfo::GeomID::isOK() const
+{ return S2DPOS().hasLine( lineid_, lsid_ ); }
+
+BufferString PosInfo::GeomID::toString() const
 {
-    const bool ret = lsid_ >= 0 && lineid_ >= 0 && !mIsUdf(lsid_) &&
-		     !mIsUdf(lineid_);
-    return ret;
+    BufferString str; str.add(lsid_).add(".").add(lineid_);
+    return str;
+}
+
+bool PosInfo::GeomID::fromString( const char* str )
+{
+    BufferString idstr = str;
+    char* ptr = strchr( idstr.buf(), '.' );
+    if ( !ptr ) return false;
+
+    ptr++;
+    lineid_ = toInt( ptr );
+
+    ptr--;
+    if ( ptr ) *ptr = '\0';
+    lsid_ = toInt( idstr.buf() );
+    return isOK();
 }
 
 
@@ -202,7 +219,7 @@ int PosInfo::Survey2D::getLineSetID( const char* lsnm ) const
 }
 
 
-int PosInfo::Survey2D::getLineNameID( const char* linenm ) const
+int PosInfo::Survey2D::getLineID( const char* linenm ) const
 {
     for ( int idx=0; idx<lineindex_.size(); idx++ )
     {
@@ -276,11 +293,12 @@ bool PosInfo::Survey2D::hasLine( const char* lnm, const char* lsnm ) const
 
 bool PosInfo::Survey2D::hasLine( int lineid, int lsid ) const
 {
-    if ( lsid < 0 || !hasLineSet( lsid) )
+    if ( lsid < 0 )
+	lsid = curLineSetID();
+
+    if ( !hasLineSet(lsid) )
 	return false; 
 
-    if ( lsid == -1 )
-	lsid = curLineSetID();
     TypeSet<int> lineids; getLineIDs( lineids, lsid );
     return lineids.isPresent( lineid );
 }
@@ -628,11 +646,12 @@ void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
     }
 }
 
+
 PosInfo::GeomID PosInfo::Survey2D::getGeomID( const char* linesetnm,
-					      const char* linenm )
+					      const char* linenm ) const
 {
     if ( lsnm_ != linesetnm )
 	setCurLineSet( linesetnm );
-    PosInfo::GeomID geomid( getLineSetID(linesetnm), getLineNameID(linenm) );
+    PosInfo::GeomID geomid( getLineSetID(linesetnm), getLineID(linenm) );
     return geomid;
 }
