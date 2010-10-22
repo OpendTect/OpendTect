@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.33 2010-08-30 12:48:18 cvsbert Exp $
+ RCS:           $Id: uicombobox.h,v 1.34 2010-10-22 15:22:22 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,9 @@ public:
     virtual bool        isReadOnly() const;
 
     virtual bool	update_( const DataInpSpec& spec );
+
+    bool		handleLongTabletPress();
+    void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
 
 protected:
 

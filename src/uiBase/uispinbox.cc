@@ -7,14 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.41 2010-03-03 02:46:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.42 2010-10-22 15:22:22 cvsjaap Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
 
 #include "i_qspinbox.h"
+#include "mouseevent.h"
 #include "uiobjbody.h"
+#include "uivirtualkeyboard.h"
 
+#include <QContextMenuEvent>
 #include <QLineEdit>
 #include <QValidator>
 #include <math.h>
@@ -40,6 +43,10 @@ public:
 
     virtual double	valueFromText(const QString&) const;
     virtual QString	textFromValue(double value) const;
+
+protected:
+    virtual void	contextMenuEvent(QContextMenuEvent*);
+
 
 private:
 
@@ -127,6 +134,10 @@ QString uiSpinBoxBody::textFromValue( double val ) const
 
 void uiSpinBoxBody::setNrDecimals( int dec )
 { dval->setDecimals( dec ); }
+
+
+void uiSpinBoxBody::contextMenuEvent( QContextMenuEvent* ev )
+{ handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() ); }
 
 
 //------------------------------------------------------------------------------
@@ -337,6 +348,24 @@ void uiSpinBox::notifyHandler( bool editingfinished )
 	valueChanging.trigger( this );
 
     endCmdRecEvent( refnr, msg );
+}
+
+
+bool uiSpinBox::handleLongTabletPress()
+{
+    const Geom::Point2D<int> pos = TabletInfo::currentState()->globalpos_;
+    popupVirtualKeyboard( pos.x, pos.y );
+    return true;
+}
+
+
+void uiSpinBox::popupVirtualKeyboard( int globalx, int globaly )
+{
+    uiVirtualKeyboard virkeyboard( *this, globalx, globaly );
+    virkeyboard.show();
+
+    if ( virkeyboard.enterPressed() )
+	valueChanged.trigger();
 }
 
 

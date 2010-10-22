@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.63 2010-10-06 13:42:46 cvsjaap Exp $
+ RCS:           $Id: uitable.h,v 1.64 2010-10-22 15:22:22 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -297,6 +297,7 @@ public:
     int			maxSelectable() const;
 
     bool		handleLongTabletPress();
+    void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
 
 protected:
 

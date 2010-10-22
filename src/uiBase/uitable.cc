@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.95 2010-10-06 13:42:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.96 2010-10-22 15:22:22 cvsjaap Exp $";
 
 
 #include "uitable.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uitable.cc,v 1.95 2010-10-06 13:42:46 cvsjaap E
 #include "uilabel.h"
 #include "uiobjbody.h"
 #include "uicombobox.h"
+#include "uivirtualkeyboard.h"
 #include "convert.h"
 #include "bufstringset.h"
 #include "i_layoutitem.h"
@@ -122,7 +123,10 @@ void uiTableBody::mouseReleaseEvent( QMouseEvent* event )
     if ( !event ) return;
 
     if ( event->button() == Qt::RightButton )
+    {
 	handle_.buttonstate_ = OD::RightButton;
+	handle_.popupVirtualKeyboard( event->globalX(), event->globalY() );
+    }
     else if ( event->button() == Qt::LeftButton )
 	handle_.buttonstate_ = OD::LeftButton;
     else
@@ -246,6 +250,7 @@ int uiTableBody::maxSelectable() const
 
     return rowCount()*columnCount();
 }
+
 
 
 uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
@@ -1240,3 +1245,18 @@ bool uiTable::handleLongTabletPress()
     endCmdRecEvent( refnr, msg );
     return true;
 }
+
+
+void uiTable::popupVirtualKeyboard( int globalx, int globaly )
+{
+    if ( isTableReadOnly() || getCellObject(notifiedCell()) )
+	return;
+    if ( isRowReadOnly(notifiedCell().row) )
+	return;
+    if ( isColumnReadOnly(notifiedCell().col) )
+	return;
+
+    uiVirtualKeyboard virkeyboard( *this, globalx, globaly );
+    virkeyboard.show();
+}
+

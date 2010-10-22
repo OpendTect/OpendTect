@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.24 2010-03-03 02:46:57 cvsnanne Exp $
+ RCS:           $Id: uispinbox.h,v 1.25 2010-10-22 15:22:22 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,9 @@ public:
 
     void		setKeyboardTracking(bool);
     bool		keyboardTracking() const;
+
+    bool		handleLongTabletPress();
+    void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
 
     Notifier<uiSpinBox>	valueChanged;
     Notifier<uiSpinBox>	valueChanging;

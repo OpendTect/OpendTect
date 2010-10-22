@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: i_qtable.h,v 1.5 2009-08-31 13:04:00 cvsjaap Exp $
+ RCS:		$Id: i_qtable.h,v 1.6 2010-10-22 15:22:22 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,7 +137,10 @@ void itemSelectionChanged()
 
 
 void cellPressed( int row, int col )
-{ mNoTrigger( cellPressed, row, col ); }
+{
+    receiver_->notifcell_ = RowCol(row,col);
+    mNoTrigger( cellPressed, row, col );
+}
 
 
 void cellEntered( int row, int col )

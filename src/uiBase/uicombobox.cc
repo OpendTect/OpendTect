@@ -7,16 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.54 2010-01-27 13:48:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.55 2010-10-22 15:22:22 cvsjaap Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
 #include "uiobjbody.h"
+#include "uivirtualkeyboard.h"
 #include "pixmap.h"
 #include "datainpspec.h"
+#include "mouseevent.h"
 
 #include "i_qcombobox.h"
 
+#include <QContextMenuEvent>
 #include <QSize>
 
 
@@ -41,11 +44,19 @@ public:
 
     virtual int 	nrTxtLines() const		{ return 1; }
 
+protected:
+
+    virtual void	contextMenuEvent(QContextMenuEvent*);
+
 private:
 
     i_comboMessenger&    messenger_;
 
 };
+
+
+void uiComboBoxBody::contextMenuEvent( QContextMenuEvent* ev )
+{ handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() ); }
 
 
 //------------------------------------------------------------------------------
@@ -270,6 +281,37 @@ void uiComboBox::notifyHandler( bool selectionchanged )
 
     endCmdRecEvent( refnr, msg );
 }
+
+
+bool uiComboBox::handleLongTabletPress()
+{
+    const Geom::Point2D<int> pos = TabletInfo::currentState()->globalpos_;
+    popupVirtualKeyboard( pos.x, pos.y );
+    return true;
+}
+
+
+void uiComboBox::popupVirtualKeyboard( int globalx, int globaly )
+{
+    if ( isReadOnly() )
+	return;
+
+    uiVirtualKeyboard virkeyboard( *this, globalx, globaly );
+    virkeyboard.show();
+
+    if ( virkeyboard.enterPressed() )
+    {
+	const char* txt = text();
+	if ( !isPresent(txt) )
+	    addItem( txt );
+
+	setCurrentItem( txt );
+	selectionChanged.trigger();
+    }
+}
+
+
+//------------------------------------------------------------------------------
 
 
 uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char* txt,

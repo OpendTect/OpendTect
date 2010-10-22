@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.25 2010-06-29 13:36:17 cvsnanne Exp $
+ RCS:           $Id: uilineedit.h,v 1.26 2010-10-22 15:22:22 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,9 +78,24 @@ public:
 			//! Moves the text cursor to the end of the line. 
     void		end();
 
+    void		backspace();
+    void		del();
+    void		cursorBackward(bool mark,int steps=1);
+    void		cursorForward(bool mark,int steps=1);
+    int			cursorPosition() const;
+    void		insert( const char* );
+
+    int			selectionStart() const;
+    const char*		selectedText() const;
+    void		setSelection(int start,int length);
+
+    bool		handleLongTabletPress();
+    void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
+
     Notifier<uiLineEdit> editingFinished;	
     Notifier<uiLineEdit> returnPressed;	
     Notifier<uiLineEdit> textChanged;	
+    Notifier<uiLineEdit> selectionChanged;	
 
 
     virtual const char*	getvalue_() const;

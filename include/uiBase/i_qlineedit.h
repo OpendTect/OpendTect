@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qlineedit.h,v 1.7 2010-04-16 03:19:17 cvsnanne Exp $
+ RCS:           $Id: i_qlineedit.h,v 1.8 2010-10-22 15:22:22 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,8 @@ i_lineEditMessenger( QLineEdit* sender, uiLineEdit* receiver )
 	     this, SLOT(editingFinished()) );
     connect( sender, SIGNAL(textChanged(const QString&)),
 	     this, SLOT(textChanged(const QString&)) );
+    connect( sender, SIGNAL(selectionChanged()),
+	     this, SLOT(selectionChanged()) );
 }
 
 private:
@@ -64,6 +66,9 @@ private slots:
 			{ mTrigger( returnPressed ); }
     void 		textChanged(const QString&)
 			{ mTrigger( textChanged ); }
+
+    void		selectionChanged()
+    			{ receiver_->selectionChanged.trigger(*receiver_); }
 };
 
 #endif

@@ -7,17 +7,20 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilineedit.cc,v 1.37 2010-02-27 10:43:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uilineedit.cc,v 1.38 2010-10-22 15:22:22 cvsjaap Exp $";
 
 #include "uilineedit.h"
 #include "i_qlineedit.h"
 
+#include "datainpspec.h"
+#include "mouseevent.h"
 #include "uibody.h"
 #include "uiobjbody.h"
-#include "datainpspec.h"
+#include "uivirtualkeyboard.h"
 
 #include <QSize> 
 #include <QCompleter>
+#include <QContextMenuEvent>
 #include <QIntValidator>
 #include <QDoubleValidator>
 
@@ -31,6 +34,10 @@ public:
     virtual		~uiLineEditBody()		{ delete &messenger_; }
 
     virtual int 	nrTxtLines() const		{ return 1; }
+
+protected:
+
+    virtual void	contextMenuEvent(QContextMenuEvent*);
 
 private:
 
@@ -49,6 +56,10 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt,
 }
 
 
+void uiLineEditBody::contextMenuEvent( QContextMenuEvent* ev )
+{ handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() ); }
+
+
 //------------------------------------------------------------------------------
 
 
@@ -56,7 +67,7 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 			const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , editingFinished(this), returnPressed(this)
-    , textChanged(this) 
+    , selectionChanged(this), textChanged(this)
     , UserInputObjImpl<const char*>()
 {
     setText( spec.text() );
@@ -66,7 +77,7 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 uiLineEdit::uiLineEdit( uiParent* parnt, const char* nm ) 
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , editingFinished(this), returnPressed(this)
-    , textChanged(this)
+    , selectionChanged(this), textChanged(this)
     , UserInputObjImpl<const char*>()
 {
     setText( "" );
@@ -158,3 +169,59 @@ void uiLineEdit::home()
 
 void uiLineEdit::end()
 { body_->end( false ); }
+
+void uiLineEdit::backspace()
+{ body_->backspace(); }
+
+void uiLineEdit::del()
+{ body_->del(); }
+
+void uiLineEdit::cursorBackward( bool mark, int steps )
+{ body_->cursorBackward( mark, steps ); }
+
+void uiLineEdit::cursorForward( bool mark, int steps )
+{ body_->cursorForward( mark, steps ); }
+
+int uiLineEdit::cursorPosition() const
+{ return body_->cursorPosition(); }
+
+void uiLineEdit::insert( const char* text )
+{ body_->insert( text ); }
+
+int uiLineEdit::selectionStart() const
+{ return body_->selectionStart(); }
+
+void uiLineEdit::setSelection( int start, int length )
+{ body_->setSelection( start, length ); }
+
+
+const char* uiLineEdit::selectedText() const
+{
+    result_ = mQStringToConstChar( body_->selectedText() );
+    return result_.buf();
+}
+
+
+bool uiLineEdit::handleLongTabletPress()
+{
+    const Geom::Point2D<int> pos = TabletInfo::currentState()->globalpos_;
+    popupVirtualKeyboard( pos.x, pos.y );
+    return true;
+}
+
+
+void uiLineEdit::popupVirtualKeyboard( int globalx, int globaly )
+{
+    mDynamicCastGet( uiVirtualKeyboard*, virkeyboardparent, parent() );
+
+    if ( virkeyboardparent || isReadOnly() )
+	return;
+
+    uiVirtualKeyboard virkeyboard( *this, globalx, globaly );
+    virkeyboard.show();
+
+    if ( virkeyboard.enterPressed() )
+	returnPressed.trigger();
+
+    editingFinished.trigger();
+}
