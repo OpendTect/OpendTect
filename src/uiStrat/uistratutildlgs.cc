@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.41 2010-10-21 15:46:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.42 2010-10-22 13:34:20 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -86,6 +86,8 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	}
 	if ( lithids_.size() )
 	    unitlithfld_->setSelectedItems( lithids_ );
+	else if ( unitlithfld_->size() )
+	    unitlithfld_->setSelected( 0 );
     }
 
     putToScreen();
@@ -151,7 +153,7 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
     }
     unit_.setCode( name.buf() );
 
-    if ( lithids_.size() <= 0 )
+    if ( unit_.isLeaved() && lithids_.size() <= 0 )
     { 
 	mErrRet( "Please specify at least one lithology", 
 	    if ( !unitlithfld_->size() )
