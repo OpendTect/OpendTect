@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.57 2010-09-24 12:09:01 cvsnanne Exp $
+ RCS:           $Id: uimenu.h,v 1.58 2010-10-22 09:30:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,8 @@ public:
     void			removeItem(int id,bool withdelete=true);
     void			clear();
 
+    void			translate();
+
 protected:
 				uiMenuItemContainer(const char*,uiBody*,
 					    uiMenuItemContainerBody*);
@@ -96,6 +98,7 @@ public:
 				//!<pixmap must be alive in memory until
 				//!<item is added to parent
 				~uiMenuItem();
+    int				id() const		{ return id_; }
 
     const QAction*		qAction() const		{ return qaction_; }
 
@@ -121,10 +124,10 @@ public:
     				/*!<\note Should be set after object is given
 				          to it's parent, since parent will
 					  overwrite this setting. */
+
+    void			translate();
     
     Notifier<uiMenuItem>	activated;
-
-    int				id() const		{ return id_; }
 
 protected:
 
@@ -136,6 +139,9 @@ protected:
     i_MenuMessenger*		messenger()		{ return &messenger_; }
     uiMenuItemContainerBody*	menu_;
     QAction*			qaction_;
+
+    void			trlReady(CallBacker*);
+    int				translateid_;
 
 private:
 

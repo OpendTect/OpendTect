@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.65 2010-09-24 12:09:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.66 2010-10-22 09:30:14 cvsnanne Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uimenu.cc,v 1.65 2010-09-24 12:09:01 cvsnanne E
 #include "uiobjbody.h"
 #include "uibody.h"
 #include "pixmap.h"
+#include "texttranslator.h"
 #include <climits>
 
 #include <QCursor>
@@ -172,6 +173,7 @@ private:
     : NamedObject(nm) \
     , activated(this) \
     , messenger_( *new i_MenuMessenger(this) )  \
+    , translateid_(-1) \
     , id_(-1) \
     , menu_(0) \
     , qaction_(0) \
@@ -311,6 +313,34 @@ void uiMenuItem::setCmdRecorder( const CallBack& cb )
 }
 
 
+void uiMenuItem::translate()
+{
+    if ( !TrMgr().tr() ) return;
+
+    TrMgr().tr()->ready.notify( mCB(this,uiMenuItem,trlReady) );
+    BufferString txt = text();
+    replaceCharacter( txt.buf(), '&', ' ' );
+    translateid_ = TrMgr().tr()->translate( txt );
+}
+
+
+void uiMenuItem::trlReady( CallBacker* cb )
+{
+    if ( !qaction_ )
+	return;
+
+    mCBCapsuleUnpack(int,id,cb);
+    if ( id != translateid_ )
+	return;
+
+    const wchar_t* translation = TrMgr().tr()->get();
+    QString txt = QString::fromWCharArray( translation );
+    QString tt( text() ); tt += "\n\n"; tt += txt;
+    qaction_->setToolTip( tt );
+    TrMgr().tr()->ready.remove( mCB(this,uiMenuItem,trlReady) );
+}
+
+
 //-----------------------------------------------------------------------
 
 
@@ -443,6 +473,20 @@ void uiMenuItemContainer::removeItem( int id, bool withdelete )
 	if ( withdelete ) delete itm;
 	body_->actions_.remove( idx );
 	return;
+    }
+}
+
+
+void uiMenuItemContainer::translate()
+{
+    for ( int idx=0; idx<body_->itms_.size(); idx++ )
+    {
+	uiMenuItem* itm = body_->itms_[idx];
+	itm->translate();
+
+	mDynamicCastGet(uiPopupItem*,popupitm,itm)
+	if ( popupitm )
+	    popupitm->menu().translate();
     }
 }
 

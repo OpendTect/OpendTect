@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.42 2010-10-06 13:42:46 cvsjaap Exp $
+ RCS:           $Id: uitreeview.h,v 1.43 2010-10-22 09:30:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,7 @@ public:
     void		expandAll();
     void		collapseAll();
 
+    void		translate();
     bool		handleLongTabletPress();
 
 			//! re-draws at next X-loop
@@ -217,6 +218,7 @@ public:
     bool		isChecked() const;  //!< returns false if not checkable
 
     void		setToolTip(int column,const char*);
+    void		translate(int column);
 
     void		insertItem(int,uiListViewItem*);
     void		takeItem(uiListViewItem*);
@@ -303,6 +305,8 @@ protected:
     bool			isenabled_;
     void			updateFlags();
 
+    void			trlReady(CallBacker*);
+    int				translateid_;
 };
 
 #endif

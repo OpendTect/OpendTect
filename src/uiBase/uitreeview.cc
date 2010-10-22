@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.64 2010-10-06 13:42:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.65 2010-10-22 09:30:14 cvsnanne Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
 #include "uishortcutsmgr.h"
 
+#include "texttranslator.h"
 #include "odqtobjset.h"
 #include "pixmap.h"
 
@@ -518,9 +519,20 @@ void uiListView::setNotifiedItem( QTreeWidgetItem* itm)
 { lastitemnotified_ = mItemFor( itm ); }
 
 
+void uiListView::translate()
+{
+    for ( int idx=0; idx<nrItems(); idx++ )
+    {
+	uiListViewItem* itm = getItem( idx );
+	if ( itm ) itm->translate( 0 );
+    }
+}
+
+
 uiListViewItem::uiListViewItem( uiListView* parent, const Setup& setup )
     : stateChanged(this)
     , keyPressed(this)
+    , translateid_(-1)
 { 
     qtreeitem_ = new QTreeWidgetItem( parent ? parent->lvbody() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
@@ -531,6 +543,7 @@ uiListViewItem::uiListViewItem( uiListView* parent, const Setup& setup )
 uiListViewItem::uiListViewItem( uiListViewItem* parent, const Setup& setup )
     : stateChanged(this)
     , keyPressed(this)
+    , translateid_(-1)
 { 
     qtreeitem_ = new QTreeWidgetItem( parent ? parent->qItem() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
@@ -579,6 +592,30 @@ const char* uiListViewItem::text( int column ) const
 {
     rettxt = mQStringToConstChar( qItem()->text(column) );
     return rettxt;
+}
+
+
+void uiListViewItem::translate( int column )
+{
+    if ( !TrMgr().tr() ) return;
+
+    TrMgr().tr()->ready.notify( mCB(this,uiListViewItem,trlReady) );
+    BufferString txt = text( column );
+    translateid_ = TrMgr().tr()->translate( txt );
+}
+
+
+void uiListViewItem::trlReady( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,id,cb);
+    if ( id != translateid_ )
+	return;
+
+    const wchar_t* translation = TrMgr().tr()->get();
+    QString txt = QString::fromWCharArray( translation );
+    QString tt( text(0) ); tt += "\n\n"; tt += txt;
+    qtreeitem_->setToolTip( 0, tt );
+    TrMgr().tr()->ready.remove( mCB(this,uiListViewItem,trlReady) );
 }
 
 

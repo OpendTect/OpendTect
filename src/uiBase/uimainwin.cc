@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.208 2010-10-06 13:44:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.209 2010-10-22 09:30:14 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1148,6 +1148,9 @@ void uiMainWin::translate()
 	for ( int idy=0; idy<objs.size(); idy++ )
 	    doTranslate( objs[idy] );
     }
+
+    for ( int idx=0; idx<body_->dockwins_.size(); idx++ )
+	doTranslate( body_->dockwins_[idx] );
 }
 
 
