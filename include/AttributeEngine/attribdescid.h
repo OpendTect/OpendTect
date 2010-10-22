@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          July 2005
- RCS:           $Id: attribdescid.h,v 1.9 2010-08-09 13:48:59 cvshelene Exp $
+ RCS:           $Id: attribdescid.h,v 1.10 2010-10-22 09:16:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ public:
     inline DescID&	operator =( const DescID& id )
 			{ id_ = id.id_; isstored_ = id.isstored_; return *this;}
     inline bool		isValid() const		{ return id_ >= 0; }
-    inline bool		isUnselInvalid() const	{ return id_ < -1; }
+    inline bool		isUnselInvalid() const	{ return id_ < -2; }
 
     /*
     inline bool		operator <(int id) const
