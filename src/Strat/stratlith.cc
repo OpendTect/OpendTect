@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlith.cc,v 1.2 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlith.cc,v 1.3 2010-10-22 13:53:27 cvsbruno Exp $";
 
 #include "stratlith.h"
 #include "separstr.h"
@@ -64,7 +64,7 @@ const char* Strat::LithologySet::add( Lithology* lith )
     if ( isPresent(lith->name()) )
 	{ delete lith; return "Lithology name already present"; }
 
-    const_cast<Lithology::ID&>(lith->id_) = size() + 1;
+    const_cast<Lithology::ID&>(lith->id_) = size();
     lths_ += lith;
     return 0;
 }
