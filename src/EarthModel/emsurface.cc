@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurface.cc,v 1.94 2010-10-20 06:19:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.95 2010-10-22 09:33:37 cvsnanne Exp $";
 
 #include "emsurface.h"
 
@@ -111,22 +111,16 @@ void SurfaceIOData::fillPar( IOPar& iopar ) const
     
     for ( int idx=0; idx<linesets.size(); idx++ )
     {
-	SeparString linekey( "Line", '.' );
-	linekey.add( idx );
-	
-	const int lsid = PosInfo::POS2DAdmin().getLineSetID( linesets.get(idx));
-	const int linenmid =
-	    PosInfo::POS2DAdmin().getLineNameID( linenames.get(idx) );
-	if ( lsid < 0 || linenmid < 0 )
+	PosInfo::GeomID geomid = S2DPOS().getGeomID( linesets.get(idx),
+						     linenames.get(idx) );
+	if ( !geomid.isOK() )
 	    continue;
-	
-	SeparString lineidkey( linekey.buf(), '.' );
-	lineidkey.add( Horizon2DGeometry::sKeyID() );
-	iopar.set( lineidkey.buf(), lsid, linenmid );
-	
-	SeparString linetrcrgkey( linekey.buf(), '.' );
-	linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
-	iopar.set( linetrcrgkey.buf(), trcranges[idx] );
+
+	BufferString key = IOPar::compKey( "Line", idx );
+	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
+		   geomid.toString() );
+	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
+		   trcranges[idx] );
     }
 }
 
@@ -150,24 +144,16 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 	iopar.get( Horizon2DGeometry::sKeyNrLines(), nrlines );
 	for ( int idx=0; idx<nrlines; idx++ )
 	{
-	    SeparString linekey( "Line", '.' );
-	    linekey.add( idx );
-	    SeparString lineidkey( linekey.buf(), '.' );
-	    lineidkey.add( Horizon2DGeometry::sKeyID() );
-	    
-	    int linesetid =-1;
-	    int lineid = -1;
-	    if ( !iopar.get(lineidkey.buf(),linesetid,lineid) ||
-		 linesetid < 0 || lineid < 0 )
-		continue;
+	    BufferString key = IOPar::compKey( "Line", idx );
 
-	    PosInfo::GeomID geomid( linesetid, lineid );
-	    linesets.add( PosInfo::POS2DAdmin().getLineSet(geomid.lsid_) );
+	    BufferString idstr;
+	    iopar.get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
+	    PosInfo::GeomID geomid; geomid.fromString( idstr );
+	    linesets.add( S2DPOS().getLineSet(geomid.lsid_) );
 
-	    SeparString linetrcrgkey( linekey.buf(), '.' );
-	    linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
 	    StepInterval<int> trcrange;
-	    iopar.get( linetrcrgkey.buf(), trcrange );
+	    iopar.get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
+		       trcrange );
 	    trcranges += trcrange;
 	}
 
