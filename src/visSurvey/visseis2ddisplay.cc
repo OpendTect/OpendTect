@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.115 2010-10-14 15:17:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.116 2010-10-22 09:31:16 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -31,6 +31,8 @@ static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.115 2010-10-14 15:17:52
 #include "attribdatapack.h"
 #include "coltabmapper.h"
 #include "genericnumer.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "mousecursor.h"
@@ -411,6 +413,14 @@ void Seis2DDisplay::setLineName( const char* lnm )
 
 const char* Seis2DDisplay::getLineName() const
 { return name(); }
+
+
+PosInfo::GeomID Seis2DDisplay::getGeomID() const
+{
+    PtrMan<IOObj> lsobj = IOM().get( lineSetID() );
+    BufferString lsnm = lsobj ? lsobj->name() : "";
+    return S2DPOS().getGeomID( lsnm, getLineName() );
+}
 
 
 void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )

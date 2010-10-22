@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.49 2010-09-28 12:33:58 cvskarthika Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.50 2010-10-22 09:31:16 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "vismultiattribsurvobj.h"
 #include "multiid.h"
+#include "surv2dgeom.h"
 
 class SeisTrcInfo;
 class ZAxisTransform;
@@ -46,6 +47,9 @@ public:
 
     void			setLineName(const char*);
     const char*			getLineName() const;
+    void			setLineSetID(const MultiID& mid);
+    const MultiID&		lineSetID() const;
+    PosInfo::GeomID		getGeomID() const;
 
     void			setGeometry(const PosInfo::Line2DData&);
     const PosInfo::Line2DData&	getGeometry() const { return geometry_; }
@@ -105,9 +109,6 @@ public:
     float			getNearestSegment(const Coord3& pos,
 					    bool usemaxrange,int& trcnr1st,
 					    int& trcnr2nd,float& frac ) const;
-
-    void			setLineSetID(const MultiID& mid);
-    const MultiID&		lineSetID() const;
 
     Coord			getCoord(int trcnr) const;
     Coord			getNormal(int trcnr) const;
