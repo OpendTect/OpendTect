@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.58 2010-10-21 15:46:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.59 2010-10-22 13:54:36 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -204,9 +204,13 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 				new Strat::LeavedUnitRef( parun, tmpun->code());
 	    newun->setColor( tmpun->color() ); 
 	    newun->setTimeRange( tmpun->timeRange() );
-	    parun->add( newun );
+	    int posidx = getChildIdxFromTime( *parun, newun->timeRange().start);
+	    if ( posidx < parun->nrRefs() )
+		parun->insert( newun, posidx );
+	    else 
+		parun->add( newun );
 	    ensureUnitTimeOK( *newun );
-	    insertUnitInLVIT( lvit, *newun );
+	    insertUnitInLVIT( lvit, posidx, *newun );
 	    addLithologies( *newun, newurdlg.getLithologies() ); 
 	    tree_->unitAdded.trigger();
 	}
@@ -220,12 +224,13 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 void uiStratRefTree::addLithologies( Strat::LeavedUnitRef& un, 
 					const TypeSet<int>& ids )
 {
-    uiListViewItem* lvit = lv_->currentItem();
+    uiListViewItem* lvit = lv_->findItem( un.code().buf(), 0, false );
+    if ( !lvit ) return;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	LeafUnitRef* lur = new LeafUnitRef( &un, ids[idx] );
 	un.add( lur );
-	insertUnitInLVIT( lvit, *lur );
+	insertUnitInLVIT( lvit, idx, *lur );
     }
 }
 
@@ -252,31 +257,40 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
     Strat::UnitRef* startunit = tree_->find( getCodeFromLVIt( lvit ) );
     if ( !startunit || !startunit->isLeaved() ) 
 	{ uiMSG().error( "Only tail units can be subdivided" ); return; }
-
+    LeavedUnitRef& ldur = (LeavedUnitRef&)(*startunit);
+    
     Strat::NodeUnitRef* parnode = startunit->upNode();
     if ( !parnode ) return;
 
-    uiStratUnitDivideDlg dlg( lv_->parent(), (LeavedUnitRef&)(*startunit) );
+    int curidx = 0;
+    for ( int idx=0; idx<parnode->nrRefs(); idx++ )
+    {
+	if ( &parnode->ref(idx) == startunit )
+	{ curidx = idx; break; }
+    }
+    uiStratUnitDivideDlg dlg( lv_->parent(), ldur );
     if ( dlg.go() )
     {
 	ObjectSet<Strat::LeavedUnitRef> units;
 	dlg.gatherUnits( units );
 
-	TypeSet<int> liths; liths += -1;
+	TypeSet<int> lithids;  
+	for ( int idx=0; idx<ldur.nrRefs(); idx++ )
+	    lithids += ((Strat::LeafUnitRef&)(ldur.ref(idx))).lithology();
 	for ( int idx=0; idx<units.size(); idx++ )
 	{
 	    LeavedUnitRef& ur = *units[idx];
 	    if ( idx == 0)
 	    {
 		IOPar iop; ur.putPropsTo( iop ); 
-		startunit->getPropsFrom( iop );
+		ldur.getPropsFrom( iop );
 		delete &ur;
 	    }
 	    else
 	    {
-		parnode->add( &ur );
-		insertUnitInLVIT( lvit->parent(), ur );
-		addLithologies( ur, liths );
+		parnode->insert( &ur, curidx+idx );
+		insertUnitInLVIT( lvit->parent(), curidx+idx, ur );
+		addLithologies( ur, lithids );
 	    }
 	}
 	updateUnitsPixmaps();
@@ -285,20 +299,19 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 }
 
 
-void uiStratRefTree::insertUnitInLVIT( uiListViewItem* lvit, 
+void uiStratRefTree::insertUnitInLVIT( uiListViewItem* lvit, int posidx,  
 					const Strat::UnitRef& unit ) const
 {
-    uiListViewItem* newitem;
     uiListViewItem::Setup setup = uiListViewItem::Setup().label( unit.code() );
-    newitem = lvit ? new uiListViewItem( lvit, setup )
-		   : new uiListViewItem( lv_, setup );
+    uiListViewItem* newitem = new uiListViewItem( (uiListViewItem*)(0), setup );
     newitem->setRenameEnabled( cUnitsCol, false );	//TODO
     newitem->setRenameEnabled( cDescCol, false );	//TODO
     newitem->setRenameEnabled( cLithoCol, false );
     newitem->setDragEnabled( true );
     newitem->setDropEnabled( true );
     newitem->setText( unit.description(), cDescCol );
-   
+  
+    lvit->insertItem( posidx, newitem );
     lv_->setCurrentItem( newitem );
     uiListViewItem* parit = newitem->parent();
     if ( !parit ) return;
@@ -323,17 +336,17 @@ void uiStratRefTree::removeUnit( uiListViewItem* lvit )
 	    lithids += ((Strat::LeafUnitRef&)(lvedun.ref(idx))).lithology();
     }
     upnode->remove( un );
-    if ( !upnode->isLeaved() && !upnode->hasChildren() )
-    {
-	upnode = replaceUnit( *upnode, true );
-	addLithologies( (LeavedUnitRef&)(*upnode), lithids ); 
-    }
     if ( lvit->parent() )
 	lvit->parent()->removeItem( lvit );
     else
     {
 	lv_->takeItem( lvit );
 	delete lvit;
+    }
+    if ( !upnode->isLeaved() && !upnode->hasChildren() )
+    {
+	upnode = replaceUnit( *upnode, true );
+	addLithologies( (LeavedUnitRef&)(*upnode), lithids ); 
     }
 
     lv_->triggerUpdate();
@@ -349,27 +362,14 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 
     Strat::NodeUnitRef& nur = (Strat::NodeUnitRef&)(*unitref);
     uiStratUnitEditDlg urdlg( lv_->parent(), nur );
+    const Interval<float> oldtimerg = nur.timeRange();
     if ( urdlg.go() )
     {
 	ensureUnitTimeOK( nur ); 
-	if ( !nur.isLeaved() )
-	{
-	    for ( int iref=nur.nrRefs()-1; iref>=0; iref-- )
-	    {
-		const NodeUnitRef& ref = (NodeUnitRef&)nur.ref( iref );
-		Interval<float> trg = ref.timeRange();
-		const Interval<float> partrg = nur.timeRange();
-		if ( !partrg.includes(trg.start) && partrg.includes(trg.stop) )
-		    removeUnit( lvit->getChild( iref ) ) ;
-		else
-		    trg.limitTo( partrg );
-	    }
-	}
-	else
+	if ( nur.isLeaved() )
 	{
 	    for ( int iref=nur.nrRefs()-1; iref>=0; iref-- )
 		removeUnit( lvit->getChild( iref ) );
-
 	    addLithologies( (LeavedUnitRef&)nur, urdlg.getLithologies() ); 
 	}
 
@@ -597,3 +597,16 @@ void uiStratRefTree::ensureUnitTimeOK( Strat::NodeUnitRef& unit )
     unit.setTimeRange( mytimerg );
 }
 
+
+int uiStratRefTree::getChildIdxFromTime( const Strat::NodeUnitRef& nur,
+						float pos ) const
+{
+    if ( nur.isLeaved() ) return -1;
+    for ( int idx=0; idx<nur.nrRefs(); idx++ )
+    {
+	Strat::NodeUnitRef& cnur = (Strat::NodeUnitRef& )(nur.ref(idx));
+	if ( cnur.timeRange().start >= pos )
+	    return idx;
+    }
+    return nur.nrRefs();
+}
