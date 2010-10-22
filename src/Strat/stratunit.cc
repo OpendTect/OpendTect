@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.35 2010-10-21 14:04:14 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.36 2010-10-22 09:56:02 cvsbruno Exp $";
 
 #include "stratunitref.h"
 #include "stratreftree.h"
@@ -266,6 +266,19 @@ bool Strat::NodeUnitRef::add( UnitRef* un, bool rev )
 	refs_.insertAt( un, 0 );
     else
 	refs_ += un;
+
+    refTree().reportAdd( un );
+    return true;
+}
+
+
+bool Strat::NodeUnitRef::insert( UnitRef* un, int posidx )
+{
+    if ( !un || hasLeaves() != un->isLeaf() )
+	return false;
+
+    if ( refs_.validIdx( posidx ) )
+	refs_.insertAt( un, posidx );
 
     refTree().reportAdd( un );
     return true;
