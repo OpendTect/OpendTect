@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.26 2010-08-19 06:45:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.27 2010-10-25 19:20:43 cvskris Exp $";
 
 #include "segydirectdef.h"
 
@@ -83,6 +83,7 @@ Seis::PosKey key( od_int64 nr ) const
 
     return pk;
 }
+
 
 FileDataSet::TrcIdx find( const Seis::PosKey& pk,
 			  const Seis::PosIndexer& idxer,
