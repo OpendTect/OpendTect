@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.126 2010-09-02 11:20:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.127 2010-10-25 13:21:50 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -609,25 +609,23 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     mGetWD(return);
 
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-    const float mousez = pos.z * zfactor;
     const float zstep2 = zfactor * SI().zStep()/2;
+    const float mousez = pos.z*zfactor; 
 
     info = "Well: "; info += wd->name();
-    if ( wd->d2TModel() )
-    {
-	info += ", MD: ";
-	float dah = wd->d2TModel()->getDah( mousez*0.001 );
+    info += ", MD: ";
 
-	info += toString( mNINT(dah) );
-	setLogInfo( info, val, dah, true );
-	setLogInfo( info, val, dah, false );
-    }
+    const float dah = zistime_ ? wd->d2TModel()->getDah( mousez*0.001 ) 
+			       : wd->track().getDahForTVD( mousez );
+
+    info += toString( mNINT(dah) );
+    setLogInfo( info, val, dah, true );
+    setLogInfo( info, val, dah, false );
 
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];
-	Coord3 markerpos = wd->track().getPos( wellmarker->dah() );
-	if ( !mIsEqual(markerpos.z,mousez,zstep2) )
+	if ( !mIsEqual(wellmarker->dah(),dah,zstep2) )
 	    continue;
 
 	info += ", Marker: ";
