@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.13 2010-10-13 15:14:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.14 2010-10-25 14:58:11 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -404,7 +404,11 @@ void uiWellDispEditMarkerDlg::listRClickCB( CallBacker* )
 {
     uiPopupMenu mnu( this, "Action" );
     mnu.insertItem( new uiMenuItem("Add &New ..."), 0 );
-    if ( mnu.exec() == 0 )
+    mnu.insertItem( new uiMenuItem("Remove ..."), 1 );
+    const int mnuid = mnu.exec();
+    if ( mnuid < 0 ) 
+	return;
+    else if ( mnuid == 0 )
     {
 	Well::Marker* mrk = new Well::Marker( "Name", 0 ); 
 	mrk->setColor( getRandStdDrawColor() );
@@ -413,8 +417,29 @@ void uiWellDispEditMarkerDlg::listRClickCB( CallBacker* )
 	    tmplist_ += mrk;
 	else
 	    delete mrk;
+	fillMarkerList(0);
     }
-    fillMarkerList(0);
+    else if ( mnuid == 1 )
+    {
+	BufferString mrknm = mrklist_->getText();
+	BufferString msg = "This will remove "; 
+		     msg += mrknm; 
+		     msg += " for all wells \n ";
+		     msg += "Do you want to continue ? ";
+	if ( uiMSG().askContinue( msg ) )
+	{
+	    for ( int idx=0; idx<wds_.size(); idx++ )
+	    {
+		Well::MarkerSet& mrkset = wds_[idx]->markers();
+		if ( mrkset.isPresent( mrknm ) )
+		{
+		    delete mrkset.remove( mrkset.indexOf( mrknm ),true );
+		    wds_[idx]->markerschanged.trigger();
+		}
+	    }
+	    hasedited_ = true; 
+	}
+    }
 }
 
 
@@ -432,6 +457,7 @@ void uiWellDispEditMarkerDlg::listLClickCB( CallBacker* )
 
 void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 {
+    mrklist_->empty();
     const int selidx = mrklist_->nrSelected() ? mrklist_->currentItem() : 0;
     BufferStringSet mrknms; TypeSet<Color> mrkcols;
     for ( int idwd=0; idwd<wds_.size(); idwd++ )
