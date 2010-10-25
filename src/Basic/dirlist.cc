@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.18 2010-03-24 07:19:39 cvsranojay Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.19 2010-10-25 05:37:01 cvsnanne Exp $";
 
 #include "dirlist.h"
 
@@ -39,7 +39,9 @@ void DirList::update()
     if ( type_ == FilesOnly )
 	filters = QDir::Files;
     else if ( type_ == DirsOnly )
-	filters = QDir::Dirs;
+	filters = QDir::Dirs | QDir::NoDotAndDotDot;
+    else
+	filters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files;
 
     QStringList qlist = qdir.entryList( filters );
     
