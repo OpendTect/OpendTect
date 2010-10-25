@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.13 2010-10-25 04:47:56 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.14 2010-10-25 09:41:57 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -289,7 +289,10 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	    		 applMgr()->EMServer()->isFullyLoaded(emid_) );
     mnu.insertItem( new uiMenuItem("&Save As ..."), 1 );
-    mnu.insertItem( new uiMenuItem("&Remove"), 2 );
+    uiMenuItem* cngsetup = new uiMenuItem( "Change setup..." );
+    mnu.insertItem( cngsetup, 2 );
+    cngsetup->setEnabled( MPE::engine().getTrackerByObject(emid_) > -1 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 3 );
 
     applMgr()->mpeServer()->setCurrentAttribDescSet(
 	    			applMgr()->attrServer()->curDescSet(false) );
@@ -329,6 +332,15 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
     else if ( mnuid == 2 )
+    {
+	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+	if ( emobj )
+	{
+	    const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
+	    applMgr()->mpeServer()->showSetupDlg( emid_, sectionid );
+	}
+    }
+    else if ( mnuid == 3 )
 	parent_->removeChild( this );
 
     return true;

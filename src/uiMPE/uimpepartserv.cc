@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.118 2010-10-22 06:00:01 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.119 2010-10-25 09:41:57 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -358,6 +358,8 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
     cleanSetupDependents();
     seedswithoutattribsel_ = false;
 
+    setupgrp_ = 0;
+
     if ( trackercurrentobject_ == -1 ) return;
 
     const int trackerid = getTrackerID( trackercurrentobject_ );
@@ -431,8 +433,6 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
     initialundoid_ = mUdf(int);
     seedhasbeenpicked_ = false;
     setupbeingupdated_ = false;
-
-    setupgrp_ = 0;
 }
 
 
