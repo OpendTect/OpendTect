@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityvolumeconversion.h,v 1.6 2010-08-27 17:59:42 cvskris Exp $
+ RCS:		$Id: velocityvolumeconversion.h,v 1.7 2010-10-25 19:19:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -22,6 +22,7 @@ class IOObj;
 class SeisTrc;
 class SeisTrcReader;
 class SeisTrcWriter;
+class SeisSequentialWriter;
 
 namespace Vel
 {
@@ -50,22 +51,19 @@ protected:
     const char*		nrDoneText() const { return "Traces written"; }
 
     char		getNewTrace(SeisTrc&,int threadidx);
-    bool		writeTraces();
 
-    od_int64		totalnr_;
-    IOObj*		input_;
-    IOObj*		output_;
-    VelocityDesc	veldesc_;
-    HorSampling		hrg_;
-    FixedString		errmsg_;
+    od_int64			totalnr_;
+    IOObj*			input_;
+    IOObj*			output_;
+    VelocityDesc		veldesc_;
+    HorSampling			hrg_;
+    FixedString			errmsg_;
 
-    SeisTrcReader*	reader_;
-    SeisTrcWriter*	writer_;
-    ObjectSet<SeisTrc>	outputs_;
-    int			maxbuffersize_;
+    SeisTrcReader*		reader_;
+    SeisTrcWriter*		writer_;
+    SeisSequentialWriter*	sequentialwriter_;
 
     Threads::ConditionVar	lock_;
-    TypeSet<BinID>		activetraces_;
 };
 
 

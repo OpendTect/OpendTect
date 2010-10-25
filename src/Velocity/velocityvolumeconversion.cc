@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.5 2010-08-27 17:59:42 cvskris Exp $";
+static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.6 2010-10-25 19:19:59 cvskris Exp $";
 
 #include "velocityvolumeconversion.h"
 
@@ -76,17 +76,17 @@ VolumeConverter::~VolumeConverter()
     delete input_;
     delete output_;
     delete writer_;
+    delete sequentialwriter_;
     delete reader_;
-    deepErase( outputs_ );
 }
 
 bool VolumeConverter::doFinish( bool res )
 {
-    if ( res )
-	return writeTraces();
-
     delete reader_;
     reader_ = 0;
+
+    delete sequentialwriter_;
+    sequentialwriter_ = 0;
 
     delete writer_;
     writer_ = 0;
@@ -99,8 +99,6 @@ bool VolumeConverter::doPrepare( int nrthreads )
 {
     if ( errmsg_ )
 	return false;
-
-    maxbuffersize_ = 4*nrthreads;
 
     if ( !input_ || !output_ )
     {
@@ -154,6 +152,7 @@ bool VolumeConverter::doPrepare( int nrthreads )
     }
 
     writer_ = new SeisTrcWriter( output_ );
+    sequentialwriter_ = new SeisSequentialWriter( writer_ );
 
     return true;
 }
@@ -210,11 +209,10 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	}
 
 	//Process trace
+	sequentialwriter_->submitTrace( outputtrc, true );
+	addToNrDone( 1 );
 
 	Threads::MutexLocker lock( lock_ );	
-	if ( outputtrc )
-	    outputs_ += outputtrc;
-
 	res = getNewTrace( trc, threadidx );
     }
 
@@ -224,17 +222,6 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 
 char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 {
-    if ( !threadidx ) //Thread doing the writing
-    {
-	if ( !writeTraces() )
-	    return -1;
-    }
-    else
-    {
-	while ( activetraces_.size()>=maxbuffersize_ )
-	    lock_.wait();
-    }
-
     if ( !reader_ )
 	return 0;
 
@@ -247,7 +234,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 	if ( !reader_->get( trc ) )
 	    return -1;
 
-	activetraces_ += trc.info().binid;
+	sequentialwriter_->announceTrace( trc.info().binid );
 	return 1;
     }
 
@@ -260,66 +247,5 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
     return res;
 }
 
-
-bool VolumeConverter::writeTraces()
-{
-    bool res = true;
-
-    while ( true )
-    {
-	ObjectSet<SeisTrc> trctowrite;
-	int idx = 0;
-	while ( idx<activetraces_.size() )
-	{
-	    const BinID& bid = activetraces_[idx];
-
-	    SeisTrc* trc = 0;
-	    for ( int idy=0; idy<outputs_.size(); idy++ )
-	    {
-		if ( outputs_[idy]->info().binid==bid )
-		{
-		    trc = outputs_.remove( idy );
-		    break;
-		}
-	    }
-
-	    if ( !trc )
-	    {
-		idx--;
-		break;
-	    }
-
-	    trctowrite += trc;
-	    idx++;
-	}
-
-	if ( idx>=0 )
-	    activetraces_.remove( 0, idx );
-
-	if ( !trctowrite.size() )
-	    return true;
-
-	lock_.signal(true);
-	lock_.unLock();
-
-	for ( int idy=0; res && idy<trctowrite.size(); idy++ )
-	{
-	    if ( !writer_->put( *trctowrite[idy] ) )
-	    {
-		errmsg_ = "Cannot write output.";
-		res = false;
-	    }
-	}
-
-	addToNrDone( trctowrite.size() );
-	deepErase( trctowrite );
-
-	lock_.lock();
-	if ( !res )
-	    return res;
-    }
-
-    return res;
-}
 
 }; //namespace
