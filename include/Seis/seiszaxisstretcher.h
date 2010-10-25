@@ -7,64 +7,71 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		January 2008
- RCS:		$Id: seiszaxisstretcher.h,v 1.6 2010-03-19 15:42:49 cvsyuancheng Exp $
+ RCS:		$Id: seiszaxisstretcher.h,v 1.7 2010-10-25 18:51:31 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 
 #include "cubesampling.h"
-#include "executor.h"
+#include "task.h"
 
 class IOObj;
 class ZAxisTransform;
 class SeisTrcReader;
 class SeisTrcWriter;
-class ZAxisTransformSampler;
+class SeisSequentialWriter;
 class ZAxisTransform;
 class SeisTrc;
 
 
 /*!Stretches the zaxis from the input cube with a ZAxisTransform and writes it
-   out into another volume. */
+   out into another volume. If stretchinverse is true, the stretching will
+   be done on the inveres of the values. */
 
-mClass SeisZAxisStretcher : public Executor
+mClass SeisZAxisStretcher : public ParallelTask
 {
 public:
     			SeisZAxisStretcher( const IOObj& in,
 					     const IOObj& out,
 					     const CubeSampling& outcs,
 					     ZAxisTransform&,
-					     bool forward);
+					     bool forward,
+					     bool stretchinverse);
 			~SeisZAxisStretcher();
 
     bool		isOK() const;
 
-    int			nextStep();
-    od_int64		nrDone() const			{ return nrdone_; }
-    od_int64		totalNr() const			{ return totalnr_; }
-
     void		setLineKey(const char*);
+    const char*		message() const { return "Stretching data"; }
 
 protected:
 
-    bool				newChunk(int startinl);
+    bool		doPrepare(int);
+    bool		doWork(od_int64,od_int64,int);
+    od_int64		nrIterations() const		{ return totalnr_; }
+
+    bool				getTrace(SeisTrc&,BinID&);
+    bool				loadTransformChunk(int firstinl);
 
     SeisTrcReader*			seisreader_;
+    Threads::ConditionVar		readerlock_;
+
     SeisTrcWriter*			seiswriter_;
+    SeisSequentialWriter*		sequentialwriter_;
+    int					nrwaiting_;
+    int					nrthreads_;
+
     CubeSampling			outcs_;
     HorSampling				curhrg_;
     ZAxisTransform&			ztransform_;
     int 				voiid_;
-    ZAxisTransformSampler*		sampler_;
     bool				forward_;
     bool				is2d_;
+    bool				stretchinverse_;
 
-    SeisTrc*				outtrc_;
-    float*				outputptr_;
-
-    int					nrdone_;
     int					totalnr_;
+
 };
 
 #endif

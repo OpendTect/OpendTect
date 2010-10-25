@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.9 2010-07-08 18:38:27 cvskris Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.10 2010-10-25 18:51:31 cvskris Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -17,25 +17,26 @@ static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.9 2010-07-08 18:38:27
 #include "seistrctr.h"
 #include "seiswrite.h"
 #include "survinfo.h"
+#include "valseriesinterpol.h"
 #include "zaxistransform.h"
 
 
 SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
 					const CubeSampling& outcs,
 					ZAxisTransform& ztf,
-       					bool forward )
-    : Executor( "Z Axis Stretcher" )
-    , seisreader_( 0 )
+       					bool forward,
+					bool inverse )
+    : seisreader_( 0 )
     , seiswriter_( 0 )
+    , sequentialwriter_( 0 )
+    , nrwaiting_( 0 )
+    , nrthreads_( 0 )
     , curhrg_( false )
     , outcs_( outcs )
     , ztransform_( ztf )
-    , nrdone_( 0 )
-    , sampler_( 0 )
-    , outtrc_( 0 )
-    , outputptr_( 0 )
     , voiid_( -1 )
     , forward_( forward )
+    , stretchinverse_( inverse )
 {
     SeisIOObjInfo info( in );
     is2d_ = info.is2D();
@@ -43,7 +44,8 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
     ztransform_.ref();
 
     seisreader_ = new SeisTrcReader( &in );
-    if ( !seisreader_->prepareWork(Seis::Scan) || !seisreader_->seisTranslator())
+    if ( !seisreader_->prepareWork(Seis::Scan) ||
+	 !seisreader_->seisTranslator())
     {
 	delete seisreader_;
 	seisreader_ = 0;
@@ -64,15 +66,7 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
     totalnr_ = cs.hrg.totalNr();
 
     seiswriter_ = new SeisTrcWriter( &out );
-
-    StepInterval<float> trcrg = outcs_.zrg;
-
-    SamplingData<double> sd( trcrg );
-    sampler_ =  new ZAxisTransformSampler(ztransform_,forward_,sd);
-
-    outtrc_ = new SeisTrc( trcrg.nrSteps()+1 );
-    outtrc_->info().sampling = sd;
-    outputptr_ = new float[trcrg.nrSteps()+1];
+    sequentialwriter_ = new SeisSequentialWriter( seiswriter_ );
 }
 
 
@@ -80,10 +74,7 @@ SeisZAxisStretcher::~SeisZAxisStretcher()
 {
     delete seisreader_;
     delete seiswriter_;
-    delete sampler_;
-    delete outtrc_;
-    delete [] outputptr_;
-
+    delete sequentialwriter_;
 
     if ( voiid_>=0 )
 	ztransform_.removeVolumeOfInterest( voiid_ );
@@ -116,55 +107,138 @@ void SeisZAxisStretcher::setLineKey( const char* lk )
     seiswriter_->setSelData( sd.clone() );
 }
 
-
-int SeisZAxisStretcher::nextStep()
+class InverseSeisTrcFunction : public FloatMathFunction
 {
+public:
+    InverseSeisTrcFunction(const SeisTrc& trc)
+	: trc_(trc) {} 
+    float       getValue(float z) const
+    		{
+		    const float val = trc_.getValue(z,0);
+		    if ( !mIsUdf(val) )
+			return 1.0 / val;
+		    return val;
+		}
+protected:
+
+    const SeisTrc&	trc_;
+};
+
+
+bool SeisZAxisStretcher::doWork( od_int64, od_int64, int ) 
+{
+    StepInterval<float> trcrg = outcs_.zrg;
+    SamplingData<double> sd( trcrg );
+    ZAxisTransformSampler sampler( ztransform_, forward_, sd );
+
+    ArrPtrMan<float> outputptr = new float[trcrg.nrSteps()+1];
+
     SeisTrc intrc;
-    if ( !seisreader_->get(intrc) )
-	return Finished();
+    PtrMan<FloatMathFunction> trcfunc = 0;
+    if ( stretchinverse_ )
+	trcfunc = new InverseSeisTrcFunction( intrc );
+    else
+	trcfunc = new SeisTrcFunction( intrc, 0 );
 
-    BinID curbid = intrc.info().binid;
-    if ( is2d_ )
+    if ( !trcfunc )
+	return false;
+
+    BinID curbid;
+    while ( shouldContinue() && getTrace( intrc, curbid ) )
     {
-	curbid.inl = ztransform_.lineIndex(
-				seisreader_->selData()->lineKey().lineName() );
-	curbid.crl = intrc.info().nr;
+	SeisTrc* outtrc = new SeisTrc( trcrg.nrSteps()+1 );
+	outtrc->info().sampling = sd;
+
+	sampler.setBinID( curbid );
+	sampler.computeCache( Interval<int>( 0, outtrc->size()-1) );
+
+	ValueSeriesInterpolator<float>* interpol =
+	    new ValueSeriesInterpolator<float>( intrc.interpolator() );
+	interpol->udfval_ = mUdf(float);
+	intrc.setInterpolator( interpol );
+
+	reSample( *trcfunc, sampler, outputptr, outtrc->size() );
+
+	for ( int idx=outtrc->size()-1; idx>=0; idx-- )
+	{
+	    float val = outputptr[idx];
+	    if ( stretchinverse_ && !mIsUdf(val) )
+		val = 1.0 / val;
+	    outtrc->set( idx, val, 0 );
+	}
+
+	outtrc->info().nr = intrc.info().nr;
+	outtrc->info().binid = intrc.info().binid;
+	outtrc->info().coord = intrc.info().coord;
+	if ( !sequentialwriter_->submitTrace( outtrc, true ) )
+	    return false;
+
+	reportNrDone( 1 );
     }
 
-    if ( !outcs_.hrg.includes( curbid ) )
-	return MoreToDo();
-
-    sampler_->setBinID( curbid );
-
-    if ( curhrg_.isEmpty() || !curhrg_.includes(curbid) )
-    {
-	if ( !newChunk( curbid.inl ) )
-	    return MoreToDo();
-    }
-
-    sampler_->computeCache( Interval<int>( 0, outtrc_->size()-1) );
-
-    const SeisTrcFunction trcfunc( intrc, 0 );
-
-    reSample( trcfunc, *sampler_, outputptr_, outtrc_->size() );
-
-    for ( int idx=outtrc_->size()-1; idx>=0; idx-- )
-	outtrc_->set( idx, outputptr_[idx], 0 );
-
-    outtrc_->info().nr = intrc.info().nr;
-    outtrc_->info().binid = intrc.info().binid;
-    outtrc_->info().coord = intrc.info().coord;
-    if ( !seiswriter_->put( *outtrc_ ) )
-	return ErrorOccurred();
-
-    nrdone_++;
-    return MoreToDo();
+    return true;
 }
 
 
+bool SeisZAxisStretcher::getTrace( SeisTrc& trc, BinID& curbid )
+{
+    Threads::MutexLocker lock( readerlock_ );
+    while ( shouldContinue() && nrwaiting_>=1 )
+    {
+	nrwaiting_++;
+	if ( nrwaiting_==nrthreads_ )
+	    readerlock_.signal(true);
+
+	readerlock_.wait();
+	nrwaiting_--;
+    }
+
+    while ( shouldContinue() ) 
+    {
+	if ( !seisreader_->get(trc) )
+	    return false;
+
+	curbid = trc.info().binid;
+	if ( is2d_ )
+	{
+	    curbid.inl = ztransform_.lineIndex(
+				seisreader_->selData()->lineKey().lineName() );
+	    curbid.crl = trc.info().nr;
+	}
+
+	if ( !outcs_.hrg.includes( curbid ) )
+	    continue;
+
+	if ( curhrg_.isEmpty() || !curhrg_.includes(curbid) )
+	{
+	    nrwaiting_ = 1;
+	    while ( nrwaiting_!=nrthreads_ )
+		readerlock_.wait();
+
+	    nrwaiting_ = 0;
+	    readerlock_.signal( true );
+
+	    if ( !loadTransformChunk( curbid.inl ) )
+		continue;
+	}
+
+	sequentialwriter_->announceTrace( trc.info().binid );
+
+	return true;
+    }
+
+    return false;
+}
+
+bool SeisZAxisStretcher::doPrepare( int nrthreads )
+{
+    nrthreads_ = nrthreads;
+    return true;
+}
+
 #define mMaxNrTrc	5000
 
-bool SeisZAxisStretcher::newChunk( int inl )
+bool SeisZAxisStretcher::loadTransformChunk( int inl )
 {
     int chunksize = is2d_ ? 1 : mMaxNrTrc/outcs_.hrg.nrCrl();
     if ( chunksize<1 ) chunksize = 1;

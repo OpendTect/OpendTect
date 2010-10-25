@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.5 2010-07-08 18:38:27 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.6 2010-10-25 18:51:31 cvskris Exp $";
 
 #include "batchprog.h"
 #include "process_time2depth.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.5 2010-07-08 18:38
 #include "iopar.h"
 #include "ioobj.h"
 #include "multiid.h"
+#include "progressmeter.h"
 #include "seiszaxisstretcher.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
@@ -85,14 +86,25 @@ bool BatchProgram::go( std::ostream& strm )
 	return false;
     }
 
+    VelocityDesc veldesc;
+    const bool isvel = veldesc.usePar( inputioobj->pars() ) &&
+	veldesc.type_!=VelocityDesc::Unknown;
+
+    if ( isvel )
+	strm << "\nDetected that the stretching will be done on velocities.\n"
+	        "Will stretch in slowness-domain.\n";
+
     SeisZAxisStretcher exec( *inputioobj, *outputioobj, outputcs, *ztransform,
-	   		     true );
+	   		     true, isvel );
     exec.setName( "Time to depth conversion");
     if ( !exec.isOK() )
     {
 	strm << "Cannot initialize readers/writers";
 	return false;
     }
+
+    TextStreamProgressMeter progressmeter( strm );
+    exec.setProgressMeter( &progressmeter );
 
     return exec.execute( &strm );
 }
