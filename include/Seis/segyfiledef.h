@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.17 2010-07-15 18:44:46 cvskris Exp $
+ RCS:		$Id: segyfiledef.h,v 1.18 2010-10-25 19:24:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,12 +32,6 @@ namespace SEGY
 mClass FileDef
 {
 public:
-    			FileDef()		{}
-
-    virtual void	fillPar(IOPar&) const				= 0;
-    virtual bool	usePar(const IOPar&)				= 0;
-    virtual void	getReport(IOPar&,bool isrev1=true) const	= 0;
-
     static const char*	sKeySEGYRev();
     static const char*	sKeyForceRev0();
 
