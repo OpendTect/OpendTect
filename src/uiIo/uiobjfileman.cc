@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.31 2010-04-23 05:41:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.32 2010-10-25 07:07:00 cvsnanne Exp $";
 
 
 #include "uiobjfileman.h"
@@ -116,10 +116,14 @@ double uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 
     double ret = (double)File::getKbSize( filenm );
     if ( ret < 0 ) ret = -ret;
-    if ( !File::isDirectory(filenm) )
+
+    FilePath fp( filenm );
+    fp.setExtension( "" );
+    const BufferString dirnm = fp.fullPath();
+    if ( !File::isDirectory(dirnm) )
 	return ret;
 
-    DirList dl( filenm );
+    DirList dl( dirnm );
     nrfiles = 0;
     for ( int idx=0; idx<dl.size(); idx++ )
     {
