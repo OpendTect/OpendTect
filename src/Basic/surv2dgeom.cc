@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.7 2010-10-22 09:32:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.8 2010-10-25 06:24:57 cvsranojay Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -78,9 +78,11 @@ PosInfo::Survey2D::Survey2D()
     , lsindex_(*new IOPar("Line Sets"))
     , lineindex_(*new IOPar("Lines"))
 {
+    if ( !File::exists(basefp_.fullPath()) )
+	return;
+
     basefp_.add( "2DGeom" );
     const BufferString dirnm = basefp_.fullPath();
-
     if ( File::exists(dirnm) )
     {
 	if ( !File::isDirectory(dirnm) )
@@ -92,7 +94,7 @@ PosInfo::Survey2D::Survey2D()
     if ( !File::exists(dirnm) )
     {
 	if ( !File::createDir(dirnm) )
-		mErrRet("Cannot create",dirnm," for 2D geometries")
+		mErrRet("Cannot create",dirnm,"for 2D geometries")
     }
 
     readIdxFiles();
