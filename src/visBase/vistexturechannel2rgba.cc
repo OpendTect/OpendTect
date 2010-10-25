@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.55 2010-09-15 06:35:39 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.56 2010-10-25 22:18:00 cvskarthika Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -193,7 +193,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	result_ = localresult;  // cases a, b, c
     else if ( result_==SoTextureComposerInfo::cHasNoTransparency() )
 	result_ = localresult;  // cases f, i
-	// cases g, h, i - no change to result_
+	// cases d, e, g, h (& i) - no change to result_
 
     return true;
 }
@@ -605,7 +605,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	layeropacity_->value.deleteValues( nrchannels, -1 );
 
     int firstlayer = 0;
-    char firstlayertrans = SoTextureComposerInfo::cHasNoTransparency();
+    char layertrans = SoTextureComposerInfo::cHasNoIntermediateTransparency();
     numlayers_->value.setValue( nrchannels );
 
     for ( int idx=nrchannels-1; idx>=0; idx-- )
@@ -615,9 +615,15 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	const SbImagei32& channel = channels_->getChannels()[idx];
 	SbVec3i32 size; int dummy2;
 	const unsigned char* vals = channel.getValue( size, dummy2 );
+	
 	// Starting from the front layer, find the (foremost) layer which is 
 	// fully opaque (if any). That will be the first layer to be rendered 
 	// (rendering starts at this layer and proceeds forward).
+	// If there is no opaque layer, all layers will be rendered.
+	// layertrans will be cHasNoTransparency if an opaque layer is found.
+	// Otherwise, cHasTransparency if a partially transparent layer is 
+	// found. Or else, it is cHasNoIntermediateTransparency.	
+
 	if ( !vals )
 	    continue;
 
@@ -625,9 +631,14 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	    continue;
 
 	firstlayer = idx;
-	firstlayertrans = getTextureTransparency( idx );
-	if ( firstlayertrans==SoTextureComposerInfo::cHasNoTransparency() )
+	char thislayertrans = getTextureTransparency( idx );
+	if ( thislayertrans == SoTextureComposerInfo::cHasNoTransparency() )
+	{
+	    layertrans = thislayertrans;
 	    break;
+	}
+	else if ( thislayertrans == SoTextureComposerInfo::cHasTransparency() )
+	    layertrans = thislayertrans;
     }
 
     for ( int idx=0; idx<nrchannels; idx++ )
@@ -640,7 +651,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	    ? (float) opacity_[idx]/255 : 0.0 );
     }
 
-    tci_->transparencyInfo = firstlayertrans;
+    tci_->transparencyInfo = layertrans;
     startlayer_->value.setValue( firstlayer );
 }
 
@@ -819,7 +830,7 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
     // Layer: 0 - transparent. 1-254 - translucent. 255 - opaque.
     // CASE	LAYER		SEQUENCE		COMBINED
     //	a	  0		   X			cHasNoInter.
-    //  b	  X		cHasTransparency	cHasTransparency
+    //  b	1-254		cHasTransparency	cHasTransparency
     //  c	1-254		cHasNoInter.		cHasTransparency
     //  d	1-254		Opaque			cHasTransparency
     //  e	 255		cHasTransparency	cHasTransparency
@@ -840,14 +851,10 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
 	    hastrans = true;  // layer opacity indicates translucency (b/c/d)
     }
 
-    const ColTab::Sequence& seq = *coltabs_[channelidx];
-    if ( !seq.hasTransparency() )
-    {
-	return hastrans
-	    ? SoTextureComposerInfo::cHasTransparency()  // case d
-	    : SoTextureComposerInfo::cHasNoTransparency();  // opaque - case g
-    }
+    if ( hastrans )
+	return SoTextureComposerInfo::cHasTransparency();  // cases b, c, d
 
+    // check the per-pixel transparency
     channels_->ref();
     const SbImagei32& channel = channels_->getChannels()[channelidx];
     
@@ -866,10 +873,7 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
     ColTabSequenceTransparencyCheck trspcheck( cols.arr(), vals, nrpixels,true);
     trspcheck.execute();
 
-    if ( !hastrans )
-	return trspcheck.getTransparency();  // cases e, f, g
-	
-    return SoTextureComposerInfo::cHasTransparency();  // cases b, c, d
+    return trspcheck.getTransparency();  // cases e, f, g
 }
 
 
