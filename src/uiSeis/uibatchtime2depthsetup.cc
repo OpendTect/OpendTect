@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.16 2010-10-14 04:17:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.17 2010-10-25 19:21:22 cvskris Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -84,6 +84,8 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     outputdepthsel_->attach( alignedBelow, possubsel_ );
 
     uppgrp_->setHAlignObj( possubsel_ );
+
+    setParFileNmDef( "time2depth" );
 
     addStdFields( false, true );
     dirChangeCB( 0 );
