@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.29 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seiswrite.h,v 1.30 2010-10-25 18:13:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,9 @@ is done.
 */
 
 #include "seisstor.h"
+#include "fixedstring.h"
 #include "linekey.h"
+#include "thread.h"
 class SeisTrc;
 class SeisPSWriter;
 class Seis2DLinePutter;
@@ -104,5 +106,41 @@ protected:
 
 };
 
+
+/*!Writes traces that are submitted in random order in the correct sequence. */
+
+
+
+mClass SeisSequentialWriter
+{
+public:
+    			SeisSequentialWriter( SeisTrcWriter*, int buffsize=-1 );
+			/*!<Writer is owned by caller, not mine. Default bufsize
+			    is 2xnrprocessors. */
+			~SeisSequentialWriter();
+    bool		announceTrace(const BinID&);
+    			/*!<Tell the writer that this binid will be submitted
+			    later. */
+
+    bool		submitTrace( SeisTrc*, bool waitforbuffer=true );
+    			/*!<Trc becomes mine. If waitforbuffer is true and
+			    buffer is full, wait until buffer gets smaller. */
+
+    const char*		errMsg() const { return errmsg_; }
+
+protected:
+
+    SeisTrcWriter*		writer_;
+
+    TypeSet<BinID>		announcedtraces_;
+    Threads::ConditionVar	lock_;
+    ObjectSet<SeisTrc>		outputs_;
+    const int			maxbuffersize_;
+
+    BinID			latestbid_;
+
+    FixedString			errmsg_;
+};
+    			
 
 #endif

@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.57 2010-10-21 06:37:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.58 2010-10-25 18:13:38 cvskris Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -331,4 +331,107 @@ bool SeisTrcWriter::isMultiConn() const
 {
     mDynamicCastGet(IOStream*,iostrm,ioobj)
     return iostrm && iostrm->isMulti();
+}
+
+
+SeisSequentialWriter::SeisSequentialWriter( SeisTrcWriter* writer,
+					    int buffsize )
+    : writer_( writer )
+    , maxbuffersize_( buffsize<1 ? Threads::getNrProcessors()*2 : buffsize )
+    , latestbid_( -1, -1 )
+{}
+
+
+SeisSequentialWriter::~SeisSequentialWriter()
+{
+    if ( outputs_.size() )
+    {
+	pErrMsg( "Buffer is not empty" );
+	deepErase( outputs_ );
+    }
+}
+
+
+bool SeisSequentialWriter::announceTrace( const BinID& bid )
+{
+    Threads::MutexLocker lock( lock_ );
+    if ( bid.inl<latestbid_.inl ||
+	    (bid.inl==latestbid_.inl && bid.crl<latestbid_.crl ) )
+    {
+	errmsg_ = "Announced trace is out of sequence";
+	return false;
+    }
+
+    announcedtraces_ += bid;
+    return true;
+}
+
+
+bool SeisSequentialWriter::submitTrace( SeisTrc* trc, bool waitforbuffer )
+{
+    Threads::MutexLocker lock( lock_ );
+    outputs_ += trc;
+
+    bool res = true;
+    while ( true )
+    {
+	ObjectSet<SeisTrc> trctowrite;
+	int idx = 0;
+	while ( idx<announcedtraces_.size() )
+	{
+	    const BinID& bid = announcedtraces_[idx];
+
+	    SeisTrc* trc = 0;
+	    for ( int idy=0; idy<outputs_.size(); idy++ )
+	    {
+		if ( outputs_[idy]->info().binid==bid )
+		{
+		    trc = outputs_.remove( idy );
+		    break;
+		}
+	    }
+
+	    if ( !trc )
+	    {
+		idx--;
+		break;
+	    }
+
+	    trctowrite += trc;
+	    idx++;
+	}
+
+	if ( idx>=0 )
+	    announcedtraces_.remove( 0, idx );
+
+	if ( !trctowrite.size() )
+	    return true;
+
+	for ( int idy=0; res && idy<trctowrite.size(); idy++ )
+	{
+	    if ( !writer_->put( *trctowrite[idy] ) )
+	    {
+		errmsg_ = "Cannot write output.";
+		res = false;
+	    }
+	}
+
+	lock_.signal(true);
+	lock.unLock();
+
+	deepErase( trctowrite );
+
+	if ( !res )
+	    return res;
+
+	lock.lock();
+    }
+
+    if ( waitforbuffer )
+    {
+	while ( outputs_.size()>=maxbuffersize_ )
+	    lock_.wait();
+    }
+
+    return res;
 }
