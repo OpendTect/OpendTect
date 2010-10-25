@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.12 2010-10-21 09:42:25 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.13 2010-10-25 04:47:56 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -286,8 +286,15 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     uiMenuItem* savemnu = new uiMenuItem("&Save ... ");
     mnu.insertItem( savemnu, 0 );
-    savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) );
-    mnu.insertItem( new uiMenuItem("&Remove"), 1 );
+    savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
+	    		 applMgr()->EMServer()->isFullyLoaded(emid_) );
+    mnu.insertItem( new uiMenuItem("&Save As ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 2 );
+
+    applMgr()->mpeServer()->setCurrentAttribDescSet(
+	    			applMgr()->attrServer()->curDescSet(false) );
+    applMgr()->mpeServer()->setCurrentAttribDescSet(
+	    			applMgr()->attrServer()->curDescSet(true) );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
@@ -306,6 +313,22 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
     else if ( mnuid == 1 )
+    {
+	const MultiID oldmid = applMgr()->EMServer()->getStorageID(emid_);
+	applMgr()->mpeServer()->prepareSaveSetupAs( oldmid );
+
+	MultiID storedmid;
+	applMgr()->EMServer()->storeObject( emid_, true, storedmid );
+	name_ = applMgr()->EMServer()->getName( emid_ );
+
+	const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
+	EM::EMM().getObject(emid_)->setMultiID( storedmid);
+	applMgr()->mpeServer()->saveSetupAs( storedmid );
+	EM::EMM().getObject(emid_)->setMultiID( midintree );
+
+	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+    }
+    else if ( mnuid == 2 )
 	parent_->removeChild( this );
 
     return true;

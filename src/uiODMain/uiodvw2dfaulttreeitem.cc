@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.9 2010-10-21 09:42:25 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.10 2010-10-25 04:47:56 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,12 +199,14 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
     uiMenuItem* savemnu = new uiMenuItem("&Save ... ");
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) );
-    mnu.insertItem( new uiMenuItem("&Remove"), 1 );
+    mnu.insertItem( new uiMenuItem("&Save As ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 2 );
 
     const int mnuid = mnu.exec();
-    if ( mnuid == 0 )
+    if ( mnuid == 0 || mnuid == 1 )
     {
-	bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+	bool savewithname = (mnuid == 1) ||
+	    		    (EM::EMM().getMultiID( emid_ ).isEmpty());
 	if ( !savewithname )
 	{
 	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );

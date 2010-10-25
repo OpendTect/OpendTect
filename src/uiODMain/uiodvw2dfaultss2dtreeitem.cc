@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.11 2010-10-21 09:42:25 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.12 2010-10-25 04:47:56 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -208,13 +208,16 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     uiMenuItem* savemnu = new uiMenuItem("&Save ... ");
     mnu.insertItem( savemnu, 0 );
-    savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) );
-    mnu.insertItem( new uiMenuItem("&Remove"), 1 );
+    savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
+	   		 applMgr()->EMServer()->isFullyLoaded(emid_) );
+    mnu.insertItem( new uiMenuItem("&Save As ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 2 );
 
     const int mnuid = mnu.exec();
-    if ( mnuid == 0 )
+    if ( mnuid == 0 || mnuid == 1 )
     {
-	bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+	bool savewithname = (mnuid == 1) ||
+	    		    (EM::EMM().getMultiID( emid_ ).isEmpty());
 	if ( !savewithname )
 	{
 	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
@@ -225,7 +228,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 	name_ = applMgr()->EMServer()->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
-    else if ( mnuid == 1 )
+    else if ( mnuid == 2 )
 	parent_->removeChild( this );
 
     return true;
