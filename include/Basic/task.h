@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.26 2010-08-16 20:01:51 cvskris Exp $
+ RCS:		$Id: task.h,v 1.27 2010-10-25 18:49:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,7 @@ protected:
 /*! A collection of tasks, that behave as a single task. */
 mClass TaskGroup : public Task
 {
+public:
     			~TaskGroup() { deepErase( tasks_ ); }
     void		addTask( Task* );
     			//Becomes mine
