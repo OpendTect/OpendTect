@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.40 2010-08-26 11:39:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.41 2010-10-25 03:45:22 cvsnanne Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -322,7 +322,16 @@ void HorSampling::snapToSurvey()
 }
 
 
+void HorSampling::toString( BufferString& str ) const
+{
+    str.add( "Inline range: " ).add( start.inl ).add( " - " ).add( stop.inl )
+       .add( " [" ).add( step.inl ).add( "]\n" );
+    str.add( "Crossline range: " ).add( start.crl ).add( " - " ).add( stop.crl )
+       .add( " [" ).add( step.crl ).add( "]" );
+}
 
+
+// CubeSampling
 void CubeSampling::set2DDef()
 {
     hrg.set2DDef();

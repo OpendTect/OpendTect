@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.8 2010-08-09 14:29:52 cvskris Exp $
+ RCS:           $Id: horsampling.h,v 1.9 2010-10-25 03:45:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,7 @@ public:
     bool		usePar(const IOPar&);	//!< Keys as in keystrs.h
     void		fillPar(IOPar&) const;	//!< Keys as in keystrs.h
     static void		removeInfo(IOPar&);
+    void		toString(BufferString&) const; //!< Nice text for info
 
     BinID		start;
     BinID		stop;
