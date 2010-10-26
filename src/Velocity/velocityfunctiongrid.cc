@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.14 2010-08-27 18:00:27 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.15 2010-10-26 17:01:43 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -134,13 +134,13 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
 }
 
 
-const Function*
+RefMan<const Function>
 GriddedFunction::getInputFunction( const BinID& bid, int& funcsource ) 
 { 
     mDynamicCastGet( GriddedSource&, gvs, source_ );
     ObjectSet<FunctionSource>& velfuncsources = gvs.datasources_;
 
-    const Function* velfunc = 0;
+    RefMan<const Function> velfunc = 0;
     for ( funcsource=0; funcsource<velfuncsources.size();
 	  funcsource++ )
     {
@@ -155,8 +155,7 @@ GriddedFunction::getInputFunction( const BinID& bid, int& funcsource )
 	}
 
 	if ( !velfunc )
-	    velfunc = velfuncsources[funcsource]->createFunction( bid );
-	    //velfunc = velfuncsources[funcsource]->getFunction( bid );
+	    velfunc = velfuncsources[funcsource]->getFunction( bid );
 
 	if ( velfunc ) break;
     }
@@ -464,6 +463,10 @@ void GriddedSource::setSource( ObjectSet<FunctionSource>& nvfs )
     }
 
     if ( datasources_.size() ) mid_ = datasources_[0]->multiID();
+
+    gridderinited_ = false;
+    initGridder();
+
 }
 
 
@@ -542,7 +545,11 @@ void GriddedSource::sourceChangeCB( CallBacker* cb )
 	func->removeCache();
 	func->fetchSources();
     }
+
     functionslock_.readUnLock();
+
+    gridderinited_ = false;
+    initGridder();
 
     changebid_ = BinID(-1,-1);
     notifier_.trigger();

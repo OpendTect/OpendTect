@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunction.h,v 1.7 2010-08-20 03:41:47 cvskris Exp $
+ RCS:		$Id: velocityfunction.h,v 1.8 2010-10-26 17:01:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,8 +38,12 @@ class FunctionSource;
    or velocity volumes. */
 
 mClass Function
-{ mRefCountImpl(Function)
+{
 public:
+    void			ref() const;
+    void			unRef() const;
+    void			unRefNoDelete() const;
+    
 				Function(FunctionSource&);
     const FunctionSource&	getSource() const 	{ return source_; }
 
@@ -56,6 +60,7 @@ public:
     const StepInterval<float>&	getDesiredZ() const;
     
 protected:
+				~Function();
 
     virtual bool		computeVelocity(float z0, float dz, int nr,
 						float* res ) const	= 0;
@@ -104,8 +109,8 @@ public:
 protected:
 
     friend			class Function;
-    void			removeFunction(Function* v);
-    				/*!<Called by function when they are deleted. */
+    void			refFunction(const Function* v);
+    bool			unRefFunction(const Function* v);
 
     int				findFunction(const BinID&) const;
     				//!<Caller must readlock before calling
@@ -114,7 +119,10 @@ protected:
     mutable Threads::ReadWriteLock	functionslock_;
     MultiID				mid_;
     BufferString			errmsg_;
+
     ObjectSet<Function>			functions_;
+    TypeSet<int>			refcounts_;
+    Threads::Mutex			refcountlock_;
 };
 
 }; //namespace

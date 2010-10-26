@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctiongrid.h,v 1.6 2010-08-20 03:41:47 cvskris Exp $
+ RCS:		$Id: velocityfunctiongrid.h,v 1.7 2010-10-26 17:01:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,7 +49,7 @@ protected:
 
     bool		computeVelocity(float z0, float dz, int nr,
 					float* res ) const;
-    const Function*	getInputFunction(const BinID& bid,int& source);
+    RefMan<const Function> getInputFunction(const BinID& bid,int& source);
 
     ObjectSet<const Function>		velocityfunctions_;
     TypeSet<int>			sources_;
