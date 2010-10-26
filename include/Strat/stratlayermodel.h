@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: stratlayermodel.h,v 1.4 2010-10-12 12:07:17 cvsbert Exp $
+ RCS:		$Id: stratlayermodel.h,v 1.5 2010-10-26 15:12:19 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,7 @@ public:
 
     PropertyRefSelection&	propertyRefs()		{ return props_; }
     const PropertyRefSelection&	propertyRefs() const	{ return props_; }
+    void			prepareUse() const;
 
     const RefTree*		refTree() const;
 

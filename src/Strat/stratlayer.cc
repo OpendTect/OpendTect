@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.7 2010-10-21 14:04:14 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.8 2010-10-26 15:12:19 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -112,12 +112,12 @@ void Strat::LayerSequence::getLayersFor( const UnitRef* ur,
 }
 
 
-void Strat::LayerSequence::prepareUse()
+void Strat::LayerSequence::prepareUse() const
 {
     float z = z0_;
     for ( int idx=0; idx<size(); idx++ )
     {
-	Layer& ly = *layers_[idx];
+	Layer& ly = *const_cast<Layer*>( layers_[idx] );
 	ly.setZTop( z );
 	z += ly.thickness();
     }
@@ -163,6 +163,13 @@ Strat::LayerSequence& Strat::LayerModel::addSequence()
 void Strat::LayerModel::setEmpty()
 {
     deepErase( seqs_ );
+}
+
+
+void Strat::LayerModel::prepareUse() const
+{
+    for ( int idx=0; idx<seqs_.size(); idx++ )
+	seqs_[idx]->prepareUse();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2010
- RCS:		$Id: stratlayersequence.h,v 1.2 2010-10-15 13:38:41 cvsbert Exp $
+ RCS:		$Id: stratlayersequence.h,v 1.3 2010-10-26 15:12:19 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -56,7 +56,7 @@ public:
 	    			     ObjectSet<const Layer>&) const;
     const RefTree*	refTree() const;
 
-    void		prepareUse();		//!< needed after changes
+    void		prepareUse() const ;	//!< needed after changes
 
 protected:
 
