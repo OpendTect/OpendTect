@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.16 2010-10-20 13:06:44 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.17 2010-10-26 15:11:46 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -61,8 +61,7 @@ public:
 mClass MathProperty : public Property
 {
 public:
-    			MathProperty( const PropertyRef& pr )
-			: Property(pr), expr_(0)      { inps_.allowNull(true); }
+    			MathProperty(const PropertyRef&,const char* def=0);
 			~MathProperty();
 
     int			nrInputs() const;

@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.29 2010-10-21 14:03:39 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.30 2010-10-26 15:11:46 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -428,6 +428,16 @@ float RangeProperty::value( Property::EvalOpts eo ) const
     else if ( eo.average_ )
 	return 0.5 * (rg_.start + rg_.stop);
     return rg_.start + eo.relpos_ * (rg_.stop - rg_.start);
+}
+
+
+MathProperty::MathProperty( const PropertyRef& pr, const char* df )
+    : Property(pr)
+    , expr_(0)
+{
+    inps_.allowNull( true );
+    if ( df && *df )
+	setDef( df );
 }
 
 
