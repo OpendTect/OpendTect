@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		August 2010
- RCS:		$Id: googletranslator.h,v 1.3 2010-09-27 06:51:23 cvsnanne Exp $
+ RCS:		$Id: googletranslator.h,v 1.4 2010-10-26 06:41:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,8 @@ public:
 
     int			translate(const char*);
     const wchar_t*	get() const;
+
+    ODHttp&		http()		{ return odhttp_; }
 
 protected:
 
