@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoMFImage.cc,v 1.8 2010-10-26 16:40:43 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoMFImage.cc,v 1.9 2010-10-26 21:23:11 cvskarthika Exp $";
 
 
 #include "SoMFImage.h"
@@ -176,7 +176,7 @@ SbBool SoMFImagei32::read1Value( SoInput* in, int index )
 
     const double buffersize = size[0] * size[1] * size[2] * nc;
 
-    const int maxint = (int) (pow( 2, (sizeof(int)*8)-1 ) - 1);
+    const int maxint = (int) (pow( 2.0, (int) ((sizeof(int)*8)-1) ) - 1);
     if ( buffersize >= maxint )
     {
 	SoReadError::post( in, "Image too large to be handled: %dx%dx%dx%d",
