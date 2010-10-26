@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.5 2010-10-21 14:04:14 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.6 2010-10-26 15:13:00 cvsbert Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
@@ -15,10 +15,16 @@ static const char* rcsID = "$Id: stratseqgen.cc,v 1.5 2010-10-21 14:04:14 cvsber
 #include "keystrs.h"
 #include "ptrman.h"
 #include "iopar.h"
+#include "stratlaygentr.h"
+
 
 static const char* sKeyFileType = "Layer Sequence Generator Description";
 static const char* sKeyIDNew = "[New]";
 mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
+
+mDefSimpleTranslators(StratLayerSequenceGenDesc,
+		    "Layer Sequence Generation Description",od,Mdl);
+mDefSimpleTranslators(StratLayerModel,"Layer Model",od,Mdl);
 
 
 Strat::LayerModelGenerator::LayerModelGenerator(
@@ -287,9 +293,9 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     for ( int ipr=0; ipr<prs.size(); ipr++ )
     {
 	const PropertyRef* pr = prs[ipr];
-	for ( int iprop=0; ipr<props_.size(); iprop++ )
+	for ( int iprop=0; iprop<props_.size(); iprop++ )
 	{
-	    const Property& prop = props_.get( ipr );
+	    const Property& prop = props_.get( iprop );
 	    if ( pr == &prop.ref() )
 		{ newlay->setValue( ipr, prop.value(eo) ); break; }
 	}
