@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.25 2010-10-07 21:01:32 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.26 2010-10-26 21:05:38 cvskarthika Exp $";
 
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"
@@ -144,14 +144,23 @@ void SoTextureComposer::GLRender( SoGLRenderAction* action )
     }
 
     SoTextureUnitElement::set( state, this, prevunit );
-    const char ti = SoTextureComposerElement::getTransparencyInfo( state );
+    char ti = SoTextureComposerElement::getTransparencyInfo( state );
+
+    float materialtransparency = SoLazyElement::getTransparency( state, 0 );
+    if ( materialtransparency==1.0 )
+	ti = SoTextureComposerInfo::cHasNoIntermediateTransparency();
+    else if ( materialtransparency>0 && materialtransparency<1 )
+	ti = SoTextureComposerInfo::cHasTransparency();
 
     GLenum alphafunc = 0;
     bool transparency = false;
     if ( ti==SoTextureComposerInfo::cHasTransparency() )
 	transparency = true;
     else if ( ti==SoTextureComposerInfo::cHasNoIntermediateTransparency() )
+    {
 	alphafunc = GL_GREATER;
+	//transparency = true;
+    }
 #if COIN_MAJOR_VERSION>3
     SoLazyElement::setAlphaTest( state, alphafunc, 0.5 );
 #else
@@ -164,7 +173,7 @@ void SoTextureComposer::GLRender( SoGLRenderAction* action )
 					     SoTransparencyType::NONE );
 	SoLazyElement::setTransparencyType( state, SoTransparencyType::NONE );
     }
-
+	
     needregenration_ = false;
 }
 
