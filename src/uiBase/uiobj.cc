@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.97 2010-10-06 13:42:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.98 2010-10-26 06:31:55 cvsnanne Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -222,7 +222,6 @@ bool uiObjEventFilter::eventFilter( QObject* obj, QEvent* event )
 }
 
 
-bool translateactive_ = false;
 bool uiObject::nametooltipactive_ = false;
 Color uiObject::normaltooltipcolor_;
 
@@ -261,6 +260,7 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     , closed(this)
     , parent_( p )				
     , normaltooltiptxt_("")
+    , translateid_(-1)
 { 
     if ( p ) p->manageChld( *this, b );  
     uiobjectlist_ += this;
@@ -277,6 +277,9 @@ uiObject::~uiObject()
     delete uiobjeventfilter_;
     closed.trigger();
     uiobjectlist_ -= this;
+
+    if ( translateid_ >= 0 )
+	TrMgr().tr()->ready.remove( mCB(this,uiObject,trlReady) );
 }
 
 
@@ -347,6 +350,7 @@ void uiObject::trlReady( CallBacker* cb )
     QString tt( name().buf() ); tt += "\n\n"; tt += txt;
     qwidget()->setToolTip( tt );
 
+    translateid_ = -1;
     TrMgr().tr()->ready.remove( mCB(this,uiObject,trlReady) );
 }
 
