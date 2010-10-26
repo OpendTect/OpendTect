@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: qhttpconn.h,v 1.2 2010-08-30 11:32:36 cvsnanne Exp $
+ RCS:           $Id: qhttpconn.h,v 1.3 2010-10-26 06:32:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,11 +46,15 @@ private slots:
 
 void stateChanged( int state )
 {
-    receiver_->connectionstate_ = state;
     if ( state == QHttp::Unconnected )
     {
 	receiver_->disconnected.trigger( *receiver_ );
 	receiver_->setMessage( "Connection closed" );
+    }
+    else if ( state == QHttp::Connected )
+    {
+	receiver_->connected.trigger( *receiver_ );
+	receiver_->setMessage( "Connected");
     }
 }
 

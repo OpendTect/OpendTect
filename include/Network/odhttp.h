@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odhttp.h,v 1.6 2010-09-27 09:24:45 cvsranojay Exp $
+ RCS:           $Id: odhttp.h,v 1.7 2010-10-26 06:32:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,9 +28,14 @@ public:
     			ODHttp();
 			~ODHttp();
 
+    enum State		{ Unconnected, HostLookup, Connecting, Sending,
+			  Reading, Connected, Closing };
+
     int			setHost(const char* host,int port=80);
     int			close();
     void		abort();
+    State		state() const;
+
     bool		hasPendingRequests() const;
 
     int			currentRequestID() const	{ return requestid_; }
@@ -51,6 +56,7 @@ public:
     Notifier<ODHttp>	messageReady;
     Notifier<ODHttp>	readyRead;
     Notifier<ODHttp>	done;
+    Notifier<ODHttp>	connected;
     Notifier<ODHttp>	disconnected;
 
 protected:
@@ -64,7 +70,6 @@ protected:
     bool		error_;
     BufferString	message_;
     int			requestid_;
-    int			connectionstate_;
 
     void		reqFinishedCB(CallBacker*);
 };
