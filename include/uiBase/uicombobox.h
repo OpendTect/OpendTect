@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.34 2010-10-22 15:22:22 cvsjaap Exp $
+ RCS:           $Id: uicombobox.h,v 1.35 2010-10-26 06:41:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
     int			size() const;
     inline bool		isEmpty() const		{ return size() == 0; }
 
+    void		addItem(const wchar_t*);
     virtual void	addItem(const char*);
     void		addItems(const BufferStringSet&);
     void		insertItem(const char*,int index=-1);
