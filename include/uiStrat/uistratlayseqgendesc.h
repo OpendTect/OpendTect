@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayseqgendesc.h,v 1.2 2010-10-19 15:14:08 cvsbert Exp $
+ RCS:           $Id: uistratlayseqgendesc.h,v 1.3 2010-10-26 15:13:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigraphicsview.h"
-#include "factory.h"
+#include "property.h"
 class uiRectItem;
 class uiTextItem;
 namespace Strat { class LayerSequenceGenDesc; }
@@ -27,6 +27,8 @@ public:
 					    Strat::LayerSequenceGenDesc&);
     mDefineFactory2ParamInClass(uiLayerSequenceGenDesc,uiParent*,
 	    			Strat::LayerSequenceGenDesc&,factory);
+
+    virtual void	getPropertyRefs(PropertyRefSelection&) const	= 0;
 
 protected:
 

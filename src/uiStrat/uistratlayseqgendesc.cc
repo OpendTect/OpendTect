@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.5 2010-10-21 14:04:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.6 2010-10-26 15:13:22 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -170,6 +170,14 @@ uiSingleLayerSequenceGenDesc::uiSingleLayerSequenceGenDesc( uiParent* p,
 	Strat::LayerSequenceGenDesc& d )
     : uiLayerSequenceGenDesc(p,d)
 {
+    props_ += &Strat::Layer::thicknessRef();
+    int idx = ePROPS().ensurePresent( PropertyRef::Vel, "Velocity", "vel" );
+    props_ += PROPS()[idx];
+    idx = ePROPS().ensurePresent( PropertyRef::Den, "Density", "den", "RohB" );
+    props_ += PROPS()[idx];
+    idx = ePROPS().ensurePresent( PropertyRef::AI, "Acoustic Impedance", "AI" );
+    props_ += PROPS()[idx];
+
     for ( int idx=0; idx<desc_.size(); idx++ )
 	insertDispUnit( *desc_[idx], idx );
 }
@@ -387,13 +395,15 @@ public:
 
 uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
        			  const Strat::RefTree& rt,
+			  const PropertyRefSelection& proprefs,
 			  const Strat::SingleLayerGenerator* nearun=0 )
     : uiDialog(p,uiDialog::Setup(inpun?"Edit layer":"Create layer",
 				"Define layer generation",mTODOHelpID))
     , inpun_(inpun)
-    , thref_(&Strat::Layer::thicknessRef())
-    , velref_(0)
-    , denref_(0)
+    , thref_(proprefs[0])
+    , velref_(proprefs[1])
+    , denref_(proprefs[2])
+    , airef_(proprefs[3])
     , rt_(rt)
 {
     mDynamicCastGet(Strat::SingleLayerGenerator*,slg,inpun)
@@ -401,18 +411,29 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 	edun_ = slg;
     else
 	edun_ = new Strat::SingleLayerGenerator;
-    int idx = ePROPS().ensurePresent( PropertyRef::Vel, "Velocity", "vel" );
-    velref_ = PROPS()[idx];
-    idx = ePROPS().ensurePresent( PropertyRef::Den, "Density", "den", "RohB" );
-    denref_ = PROPS()[idx];
 
     PropertySet& props = edun_->properties();
-    idx = props.indexOf( *velref_ );
-    if ( idx < 0 )
+    int velidx = props.indexOf( *velref_ );
+    if ( velidx < 0 )
+    {
+	velidx = props.size();
 	props.add( new ValueProperty(*velref_,velref_->disp_.possibleValue()) );
-    idx = props.indexOf( *denref_ );
-    if ( idx < 0 )
+    }
+    int denidx = props.indexOf( *denref_ );
+    if ( denidx < 0 )
+    {
+	denidx = props.size();
 	props.add( new ValueProperty(*denref_,denref_->disp_.possibleValue()) );
+    }
+    int aiidx = props.indexOf( *airef_ );
+    if ( aiidx < 0 )
+    {
+	aiidx = props.size();
+	BufferString str( velref_->name() );
+	str.add( " * " ).add( denref_->name() );
+	MathProperty* mp = new MathProperty( *airef_, str );
+	props.add( mp );
+    }
 
     BufferStringSet unnms;
     Strat::UnitRefIter it( rt_, Strat::UnitRefIter::Leaves );
@@ -471,6 +492,7 @@ bool acceptOK( CallBacker* )
     const PropertyRef*		thref_;
     const PropertyRef*		velref_;
     const PropertyRef*		denref_;
+    const PropertyRef*		airef_;
     const Strat::RefTree&	rt_;
 
 };
@@ -479,7 +501,7 @@ bool acceptOK( CallBacker* )
 bool uiSingleLayerSequenceGenDesc::newDescReq( bool above )
 {
     const int curunidx = curUnitIdx();
-    uiSingleLayerGeneratorEd dlg( parent(), 0, desc_.refTree(),
+    uiSingleLayerGeneratorEd dlg( parent(), 0, desc_.refTree(), props_,
 	    		curunidx < 0 ? 0 : disps_[curunidx]->gen_ );
     if ( !dlg.go() )
 	return false;
@@ -501,7 +523,8 @@ bool uiSingleLayerSequenceGenDesc::descEditReq()
     const int curidx = curUnitIdx();
     if ( curidx < 0 ) return false;
 
-    uiSingleLayerGeneratorEd dlg( parent(), desc_[curidx], desc_.refTree() );
+    uiSingleLayerGeneratorEd dlg( parent(), desc_[curidx], desc_.refTree(),
+				  props_ );
     return dlg.go();
 }
 
