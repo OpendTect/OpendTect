@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.209 2010-10-22 09:30:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.210 2010-10-27 10:38:46 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -387,6 +387,9 @@ void uiMainWinBody::closeEvent( QCloseEvent* ce )
     {
 	handle_.windowClosed.trigger( handle_ );
 	ce->accept();
+
+	if ( modal_ )
+	    eventloop_.exit();
     }
     else
 	ce->ignore();
