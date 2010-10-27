@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.44 2010-09-27 06:25:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.45 2010-10-27 05:52:55 cvsraman Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -205,6 +205,7 @@ bool HorizonScanner::analyzeData()
 {
     if ( !reInitAscIO( filenames_.get(0).buf() ) ) return false;
 
+    const bool zistime = SI().zIsTime();
     const float fac = mGetZFac;
     Interval<float> validrg( SI().zRange(false) );
     const float zwidth = validrg.width();
@@ -245,7 +246,8 @@ bool HorizonScanner::analyzeData()
 	if ( !mIsUdf(val) ) 
 	{
 	    if ( validrg.includes(val) ) { nrnoscale++; validvert=true; }
-	    else if ( validrg.includes(val*fac) ) { nrscale++; validvert=true; }
+	    if ( zistime && validrg.includes(val*fac) )
+	    { nrscale++; validvert=true; }
 	}
 
 	if ( validplacement && validvert )
@@ -263,9 +265,15 @@ bool HorizonScanner::analyzeData()
 
 static bool isInsideSurvey( const BinID& bid, float zval )
 {
-    const CubeSampling& cs = SI().sampling( false );
-    return SI().isReasonable(bid) && cs.zrg.includes( zval );
-    return cs.hrg.includes( bid ) && cs.zrg.includes( zval );
+    if ( !SI().isReasonable(bid) )
+	return false;
+    
+    Interval<float> zrg( SI().zRange(false) );
+    const float zwidth = zrg.width();
+    zrg.sort();
+    zrg.start -= zwidth;
+    zrg.stop += zwidth;
+    return zrg.includes( zval );
 }
 
 
