@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.23 2010-07-13 09:11:39 cvsraman Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.24 2010-10-27 11:23:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class QGraphicsItemGroup;
 mClass uiGraphicsItem : public CallBacker
 {
 public:
-			~uiGraphicsItem()			{}
+			~uiGraphicsItem();
 
     QGraphicsItem*	qGraphicsItem()		{ return qgraphicsitem_; }
     const QGraphicsItem* qGraphicsItem() const	{ return qgraphicsitem_; }
@@ -60,6 +60,7 @@ public:
 
     void		setCursor(const MouseCursor&);
 
+    void		setScene(uiGraphicsScene&);
     void		setParent(uiGraphicsItem*);
     uiGraphicsItem*	addToScene(uiGraphicsScene*);
 
@@ -68,6 +69,7 @@ public:
 protected:
     			uiGraphicsItem( QGraphicsItem* itm )
 			    : qgraphicsitem_(itm)
+			    , scene_(0)
 			    , id_(getNewID())
 			    , selected_(false)			{}
 
@@ -75,6 +77,7 @@ protected:
 
     virtual QGraphicsItem* mkQtObj()			{ return 0; }
     bool		selected_; // Remove when things in Qt works
+    uiGraphicsScene*	scene_;
 
 private:
     static int		getNewID();
