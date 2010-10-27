@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.58 2010-10-19 15:14:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.59 2010-10-27 15:18:18 cvsbert Exp $";
 
 #include "uistrattreewin.h"
 
@@ -293,6 +293,9 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
 
 void uiStratTreeWin::layModCB( CallBacker* )
 {
+    if ( !RT().hasChildren() )
+	return;
+
     const BufferStringSet& nms =
 			uiLayerSequenceGenDesc::factory().getNames( true );
     if ( nms.isEmpty() ) return;
@@ -309,7 +312,7 @@ void uiStratTreeWin::layModCB( CallBacker* )
     }
 
     uiStratLayerModel dlg( this, nm );
-    dlg.show();
+    dlg.go();
 }
 
 

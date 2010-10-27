@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.2 2010-10-26 15:13:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.3 2010-10-27 15:18:18 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -25,6 +25,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     , dispprop_(1)
     , zrg_(0,1)
     , vrg_(0,1)
+    , logblckitms_(*new uiGraphicsItemSet)
 {
     setPrefWidth( 500 );
     setPrefHeight( 250 );
@@ -51,6 +52,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
 uiStratLayerModelDisp::~uiStratLayerModelDisp()
 {
     eraseAll();
+    delete &logblckitms_;
 }
 
 
@@ -63,6 +65,7 @@ void uiStratLayerModelDisp::getDispProperties( BufferStringSet& nms ) const
 
 void uiStratLayerModelDisp::eraseAll()
 {
+    logblckitms_.erase();
     delete emptyitm_; emptyitm_ = 0;
 }
 
@@ -78,14 +81,10 @@ void uiStratLayerModelDisp::reDraw( CallBacker* )
 
     if ( lm_.isEmpty() )
     {
-	if ( !emptyitm_ )
-	{
-	    emptyitm_ = new uiTextItem( "<---empty--->",
-		    			mAlignment(HCenter,VCenter) );
-	    emptyitm_->setPenColor( Color::Black() );
-	    emptyitm_->setPos( uiPoint( width()/2, height() / 2 ) );
-	    scene().addItem( emptyitm_ );
-	}
+	emptyitm_ = scene().addItem( new uiTextItem( "<---empty--->",
+				     mAlignment(HCenter,VCenter) ) );
+	emptyitm_->setPenColor( Color::Black() );
+	emptyitm_->setPos( uiPoint( width()/2, height() / 2 ) );
     }
     else
     {
@@ -164,11 +163,11 @@ void uiStratLayerModelDisp::doDraw()
 	    const int prevxpix = xax_->getPix( imod + relx );
 	    uiLineItem* it = new uiLineItem( prevxpix, ypix0, xpix, ypix0 );
 	    it->setPenColor( vcol );
-	    scene().addItem( it );
+	    logblckitms_ += scene().addItem( it );
 	}
 	uiLineItem* it = new uiLineItem( xpix, ypix0, xpix, ypix1 );
 	it->setPenColor( vcol );
-	scene().addItem( it );
+	logblckitms_ += scene().addItem( it );
 
     mEndLayLoop(;)
 }

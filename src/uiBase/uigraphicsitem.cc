@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.24 2010-10-27 11:22:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.25 2010-10-27 15:18:18 cvsbert Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -23,6 +23,15 @@ static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.24 2010-10-27 11:22:26 cv
 #include <QGraphicsScene>
 #include <QPen>
 #include <QTransform>
+
+
+uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
+    : qgraphicsitem_(itm)
+    , scene_(0)
+    , id_(getNewID())
+    , selected_(false)
+{
+}
 
 
 uiGraphicsItem::~uiGraphicsItem()

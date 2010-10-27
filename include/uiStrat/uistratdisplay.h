@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.23 2010-10-20 14:04:16 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.24 2010-10-27 15:18:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,8 @@ public:
     {
 				ColumnItem(const char* nm)
 				    : name_(nm)
-				    {}
+				    , borderitm_(0)
+				    , bordertxtitm_(0)		{}
 
 	BufferString		name_;
 	int			size_;
@@ -68,7 +69,8 @@ public:
 	ObjectSet<uiLineItem>	lvlitms_;
     };
     
-    const ColumnItem&		colItem(int idx) const { return *colitms_[idx];}
+    const ColumnItem&		colItem( int idx ) const
+    				{ return *colitms_[idx]; }
 
 protected:
 
@@ -151,17 +153,16 @@ public:
 
     struct Setup
     {
-				Setup(Interval<float>& rg)
+				Setup( const Interval<float>& rg )
 				    : maxrg_(rg)
-				    {}
+				    , tb_(0)		{}
 
 	mDefSetupMemb(uiToolBar*,tb)
 	mDefSetupMemb(Interval<float>,maxrg)
     };
 
 				uiStratViewControl(uiGraphicsView&,Setup&);
-				~uiStratViewControl()
-				{};
+				~uiStratViewControl()	{}
 
     void			setRange( Interval<float> rg )
     				{ range_ = rg; }	
@@ -201,5 +202,6 @@ protected:
     void			stateCB(CallBacker*);
     void			wheelMoveCB(CallBacker*);
 };
+
 
 #endif

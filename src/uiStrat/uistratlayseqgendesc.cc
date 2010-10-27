@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.6 2010-10-26 15:13:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.7 2010-10-27 15:18:18 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -119,7 +119,7 @@ void uiLayerSequenceGenDesc::reDraw( CallBacker* )
     }
     else
     {
-	delete emptyitm_; emptyitm_ = 0;
+	delete scene().removeItem(emptyitm_); emptyitm_ = 0;
 	doDraw();
     }
 }
@@ -161,8 +161,6 @@ uiSingleLayerSequenceGenDesc::DispUnit::~DispUnit()
 {
     if ( genmine_ )
 	delete const_cast<Strat::SingleLayerGenerator*>(gen_);
-    delete nm_;
-    delete poly_;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.28 2010-10-20 14:04:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.29 2010-10-27 15:18:18 cvsbert Exp $";
 
 #include "uistratdisplay.h"
 
@@ -387,21 +387,17 @@ void uiStratDrawer::drawColumns()
 }
 
 
-#define mRemoveSet( itms ) \
-    for ( int idx=0; idx<itms.size(); idx++ ) \
-    scene_.removeItem( itms[idx] ); \
-    deepErase( itms );
 void uiStratDrawer::eraseAll()
 {
     for ( int idx = colitms_.size()-1; idx>=0; idx-- )
     {
 	ColumnItem* colitm = colitms_[idx];
 
-	delete scene_.removeItem( colitm->borderitm_ ); 
-	delete scene_.removeItem( colitm->bordertxtitm_ ); 
-	mRemoveSet( colitm->txtitms_ )
-	mRemoveSet( colitm->lvlitms_ )
-	mRemoveSet( colitm->unititms_ )
+	delete colitm->borderitm_; colitm->borderitm_ = 0;
+	delete colitm->bordertxtitm_; colitm->bordertxtitm_ = 0;
+	colitm->txtitms_.erase();
+	colitm->lvlitms_.erase();
+	colitm->unititms_.erase();
     }
     deepErase( colitms_ );
 }
@@ -434,11 +430,8 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
 
 void uiStratDrawer::drawLevels( ColumnItem& colitm )
 {
-    if ( colitm.lvlitms_.size() )
-    {
-	mRemoveSet( colitm.lvlitms_ );
-	mRemoveSet( colitm.txtitms_ );
-    }
+    if ( !colitm.lvlitms_.isEmpty() )
+	{ colitm.lvlitms_.erase(); colitm.txtitms_.erase(); }
     const int colidx = colitms_.indexOf( &colitm );
     if ( colidx < 0 ) return;
     for ( int idx=0; idx<data_.getCol(colidx)->levels_.size(); idx++ )
@@ -466,8 +459,7 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 
 void uiStratDrawer::drawUnits( ColumnItem& colitm ) 
 {
-    mRemoveSet( colitm.txtitms_ );
-    mRemoveSet( colitm.unititms_ );
+    colitm.txtitms_.erase(); colitm.unititms_.erase();
     const int colidx = colitms_.indexOf( &colitm );
     if ( colidx < 0 ) return;
 

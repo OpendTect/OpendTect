@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.2 2010-10-26 15:13:22 cvsbert Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.3 2010-10-27 15:18:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class uiTextItem;
 class uiAxisHandler;
 class BufferStringSet;
+class uiGraphicsItemSet;
 namespace Strat { class LayerModel; }
 
 
@@ -37,6 +38,7 @@ protected:
     const Strat::LayerModel& lm_;
     int			dispprop_;
     uiTextItem*		emptyitm_;
+    uiGraphicsItemSet&	logblckitms_;
 
     void		eraseAll();
     void		reDraw(CallBacker*);
