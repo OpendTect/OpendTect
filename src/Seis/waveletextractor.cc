@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.9 2010-10-21 12:35:29 cvsnageswara Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.10 2010-10-27 12:07:22 cvsnageswara Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "fourier.h"
 #include "genericnumer.h"
+#include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
@@ -42,7 +43,7 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     fft_->setInputInfo( Array1DInfoImpl(wvltsize_) );
     fft_->setDir( true );
     
-    initWavelet();
+    initWavelet( ioobj );
     seisrdr_ = new SeisTrcReader( &ioobj );
 }
 
@@ -55,8 +56,12 @@ WaveletExtractor::~WaveletExtractor()
 }
 
 
-void WaveletExtractor::initWavelet()
+void WaveletExtractor::initWavelet( const IOObj& ioobj )
 {
+    CubeSampling cs;
+    PtrMan<SeisIOObjInfo> si = new SeisIOObjInfo( ioobj );
+    si->getRanges( cs );
+    wvlt_.set( mNINT(wvltsize_/2), cs.zrg.step );
     wvlt_.reSize( wvltsize_ );
     for ( int samp=0; samp<wvltsize_; samp++ )
 	wvlt_.samples()[samp] = 0;
@@ -67,16 +72,16 @@ void WaveletExtractor::init3D()
 {
     seisrdr_->setSelData( sd_->clone() );
     seisrdr_->prepareWork();
-    isdouble_ = false;
+    isbetweenhor_ = false;
 
     mDynamicCastGet(const Seis::RangeSelData*,rsd,sd_)
     mDynamicCastGet(const Seis::TableSelData*,tsd,sd_)
     if ( tsd )
-	isdouble_ = tsd->binidValueSet().hasDuplicateBinIDs();
+	isbetweenhor_ = tsd->binidValueSet().hasDuplicateBinIDs();
 
     if ( rsd )
 	totalnr_ = rsd->cubeSampling().hrg.totalNr();
-    else if ( tsd && isdouble_ )
+    else if ( tsd && isbetweenhor_ )
 	totalnr_ = tsd->binidValueSet().nrDuplicateBinIDs();
     else if ( tsd )
 	totalnr_ = tsd->binidValueSet().totalSize();
@@ -194,7 +199,7 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     BinIDValueSet::Pos pos = bvis.findFirst( bid );
     bvis.get( pos, bid, z1 );
 
-    if ( !isdouble_ )
+    if ( !isbetweenhor_ )
       	z2 = z1;
     else
     {
@@ -311,18 +316,12 @@ bool WaveletExtractor::finish( int nrusedtrcs )
 }
 
 
-void WaveletExtractor::setCosTaperParamVal( float paramval, float step )
-{
-    wvlt_.set( mNINT(wvltsize_/2), step );
-    float val = 1-(2*paramval/( (wvltsize_-1)*step*SI().zFactor()) );
-    paramval_ = val == 1 ? 1.0 - 1e-6 : val;
-}
+void WaveletExtractor::setTaperParamVal( float paramval )
+{ paramval_ = paramval; }
 
 
 void WaveletExtractor::setPhase( int phase )
-{
-    phase_ = phase;
-}
+{ phase_ = phase; }
 
 
 bool WaveletExtractor::doWaveletIFFT()
@@ -372,14 +371,13 @@ bool WaveletExtractor::rotateWavelet()
 
 bool WaveletExtractor::taperWavelet()
 { 
-    WaveletAttrib wvltattr( wvlt_ );
     Array1DImpl<float> taperwvlt( wvltsize_ );
     for ( int idx=0; idx<wvltsize_; idx++ )
 	taperwvlt.set( idx, wvlt_.samples()[idx] );
 
     ArrayNDWindow window( taperwvlt.info(), true, "CosTaper", paramval_ );
     window.apply( &taperwvlt );
-    wvltattr.muteZeroFrequency( taperwvlt );
+    WaveletAttrib::muteZeroFrequency( taperwvlt );
     for ( int samp=0; samp<wvltsize_; samp++ )
     	wvlt_.samples()[samp] = taperwvlt.arr()[samp];
 
@@ -387,7 +385,5 @@ bool WaveletExtractor::taperWavelet()
 }
 
 
-Wavelet WaveletExtractor::getWavelet()
-{
-    return wvlt_;
-}
+const Wavelet& WaveletExtractor::getWavelet() const
+{ return wvlt_; }

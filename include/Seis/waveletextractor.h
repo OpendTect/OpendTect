@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          July 2009
- RCS:           $Id: waveletextractor.h,v 1.6 2010-10-21 12:35:29 cvsnageswara Exp $ 
+ RCS:           $Id: waveletextractor.h,v 1.7 2010-10-27 12:07:22 cvsnageswara Exp $ 
  ________________________________________________________________________
                  
 -*/   
@@ -30,12 +30,12 @@ public:
     void			setSelData(const Seis::SelData&); // 3D
     void			setSelData(const ObjectSet<Seis::SelData>&);//2D
     void			setPhase(int phase);
-    void			setCosTaperParamVal(float paramval,float step);
-    Wavelet			getWavelet();
+    void			setTaperParamVal(float paramval);
+    const Wavelet&		getWavelet() const;
 
 protected:
 
-    void			initWavelet();
+    void			initWavelet(const IOObj&);
     void			init2D();
     void			init3D();
     bool			getSignalInfo(const SeisTrc&,
@@ -67,7 +67,7 @@ protected:
     int				phase_;
     int				nrusedtrcs_;
     int				nrdone_;
-    bool			isdouble_;
+    bool			isbetweenhor_;
     od_int64			totalnr_;
     BufferString		msg_;
 };

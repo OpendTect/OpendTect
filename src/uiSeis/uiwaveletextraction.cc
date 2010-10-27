@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.23 2010-10-21 12:35:29 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.24 2010-10-27 12:07:22 cvsnageswara Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -234,8 +234,8 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
     if ( !zextraction_->getBoolValue() && !surfacesel_->fillPar(surfacepars) )
 	    return false;
 
-    int taperlen = mNINT( taperfld_->getfValue() );
-    int wvltlen = mNINT( wtlengthfld_->getfValue() );
+    const int taperlen = taperfld_->getIntValue();
+    const int wvltlen = wtlengthfld_->getIntValue();
     if ( (2*taperlen > wvltlen) || taperlen < 0 )
     {
 	uiMSG().error( "TaperLength should be in between\n",
@@ -244,7 +244,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 	return false;
     }	
 
-    if ( wvltphasefld_->getfValue()<-180 || wvltphasefld_->getfValue()>180 )
+    if ( wvltphasefld_->getIntValue()<-180 || wvltphasefld_->getIntValue()>180 )
     {
 	uiMSG().error( "Please enter Phase between -180 and 180" );
 	wvltphasefld_->setValue( 0 );
@@ -261,7 +261,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 
 bool uiWaveletExtraction::checkWaveletSize()
 {
-    wvltsize_ = mNINT( wtlengthfld_->getfValue() /
+    wvltsize_ = mNINT( wtlengthfld_->getIntValue() /
 	    		      (datastep_ * SI().zFactor()) ) + 1;
     if ( wvltsize_ < 3 )
     {
@@ -317,8 +317,7 @@ bool uiWaveletExtraction::check2DFlds()
 bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 				     const IOPar& surfacepar )
 {
-    const int phase = mNINT(wvltphasefld_->getfValue());
-    const int taperlength = mNINT(taperfld_->getfValue());
+    const int phase = wvltphasefld_->getIntValue();
     PtrMan<WaveletExtractor> extractor=0;
     if ( !linesel2dfld_ )
     {
@@ -355,7 +354,11 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 	extractor->setSelData( sdset );
     }
 
-    extractor->setCosTaperParamVal( taperlength, datastep_ );
+    const int taperlength = taperfld_->getIntValue();
+    const float val =
+		  1-(2*taperlength/( (wvltsize_-1)*datastep_*SI().zFactor()) );
+    const float paramval = val == 1 ? 1.0 - 1e-6 : val;
+    extractor->setTaperParamVal( paramval );
     extractor->setPhase( phase );
 
     uiTaskRunner taskrunner( this );
