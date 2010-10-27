@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.32 2010-10-25 07:07:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.33 2010-10-27 08:24:31 cvsnanne Exp $";
 
 
 #include "uiobjfileman.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiobjfileman.cc,v 1.32 2010-10-25 07:07:00 cvsn
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
+#include "uisplitter.h"
 #include "uitextedit.h"
 
 #include "ctxtioobj.h"
@@ -54,19 +55,24 @@ uiObjFileMan::~uiObjFileMan()
 
 void uiObjFileMan::createDefaultUI( bool needreloc )
 {
+    uiGroup* listgrp = new uiGroup( this, "List Group" );
     IOM().to( 0 ); IOM().to( ctxt_.getSelKey() );
-    selgrp = new uiIOObjSelGrp( this, CtxtIOObj(ctxt_), 0, false, needreloc );
+    selgrp = new uiIOObjSelGrp( listgrp, CtxtIOObj(ctxt_), 0, false, needreloc);
     selgrp->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp->getListField()->setHSzPol( uiObject::Medium );
 
     mkdefbut = selgrp->getManipGroup()->addButton( "makedefault.png",
 	    mCB(this,uiObjFileMan,makeDefault), "Set as default" );
 
-    infofld = new uiTextEdit( this, "Object Info", true );
-    infofld->attach( ensureBelow, selgrp );
+    uiGroup* infogrp = new uiGroup( this, "Info Group" );
+    infofld = new uiTextEdit( infogrp, "Object Info", true );
     infofld->setPrefHeightInChar( cPrefHeight );
-    infofld->setStretch( 2, 0 );
+    infofld->setStretch( 2, 2 );
     selgrp->setPrefWidthInChar( cPrefWidth );
+
+    uiSplitter* sep = new uiSplitter( this, "List-Info splitter", false );
+    sep->addGroup( listgrp );
+    sep->addGroup( infogrp );
 }
 
 
