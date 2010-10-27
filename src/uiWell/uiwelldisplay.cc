@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.2 2010-10-07 16:01:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.3 2010-10-27 08:45:23 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -94,21 +94,38 @@ void uiWellDisplay::setInitialSize()
     int newwidth = logdisps_.size()*initwidth;
     if ( stratdisp_ && setup_.displaystrat_ && !setup_.isstratbelow_ )
     {
-	const int stratwidth = (int)(initwidth/2);
-	newwidth += stratwidth;
-	stratdisp_->setPrefWidth( stratwidth );
-	stratdisp_->setMinimumWidth( stratwidth );
+	stratdisp_->setPrefWidth( initwidth );
+	stratdisp_->setPrefHeight( initheight );
+	newwidth += initwidth;
     }
     for ( int idx=0; idx<logdisps_.size(); idx++ )
     {
 	logdisps_[idx]->setPrefWidth( initwidth );
-	logdisps_[idx]->setMinimumWidth( initwidth );
+	logdisps_[idx]->setPrefHeight( initheight );
     }
-
     setPrefWidth( newwidth ); 
     setPrefHeight( initheight );
 
-    size_ = uiSize( newwidth, setup_.preflogsz_.height() ); 
+    size_ = uiSize( newwidth, initheight ); 
+}
+
+
+void uiWellDisplay::setNewWidth( int width )
+{
+    int nrelems  = logdisps_.size();
+    if ( stratdisp_ && !setup_.isstratbelow_ ) nrelems += 1;
+    if ( !nrelems ) return;
+    const int singlewidth = (int)(width/(float)nrelems );
+    for ( int idx=0; idx<logdisps_.size(); idx++ )
+    {
+	logdisps_[idx]->setMinimumWidth( singlewidth );
+	logdisps_[idx]->setStretch( 2, 2 );
+    }
+    if ( stratdisp_ )
+    {
+	stratdisp_->setMinimumWidth( singlewidth );
+	stratdisp_->setStretch( 2, 2 );
+    }
 }
 
 
