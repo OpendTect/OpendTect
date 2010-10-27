@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.47 2010-08-04 14:04:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.48 2010-10-27 11:22:26 cvsnanne Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -162,6 +162,8 @@ int uiGraphicsScene::nrItems() const
 uiGraphicsItem* uiGraphicsScene::doAddItem( uiGraphicsItem* itm )
 {
     if ( !itm ) return 0;
+
+    itm->setScene( *this );
     odgraphicsscene_->addItem( itm->qGraphicsItem() );
     items_ += itm;
     return itm;
@@ -171,6 +173,8 @@ uiGraphicsItem* uiGraphicsScene::doAddItem( uiGraphicsItem* itm )
 uiGraphicsItemGroup* uiGraphicsScene::addItemGrp( uiGraphicsItemGroup* itmgrp )
 {
     if ( !itmgrp ) return 0;
+
+    itmgrp->setScene( *this );
     odgraphicsscene_->addItem( itmgrp->qGraphicsItemGroup() );
     items_ += itmgrp;
     return itmgrp;
