@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.19 2010-09-29 11:50:57 cvsbert Exp $
+ RCS:		$Id: oddirs.h,v 1.20 2010-10-27 08:25:05 cvsnanne Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -118,6 +118,9 @@ mGlobal const char* GetSoftwareUser(void);
  set DTECT_USER. The output of GetSoftwareUser() will therefore most often
  be null!
 */
+
+mGlobal const char* GetUserName(void);
+/*!< user's name */
 
 
     /* Functions delivering files/directies in the 'user-specific' scope */
