@@ -6,17 +6,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.h,v 1.10 2010-08-11 16:55:33 cvsyuancheng Exp $
+ RCS:           $Id: waveletattrib.h,v 1.11 2010-10-27 06:56:31 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "commondefs.h"
 
-namespace Fourier { class CC; }
-class HilbertTransform;
-class Wavelet;
 class ArrayNDWindow;
+class Wavelet;
 template <class T> class Array1DImpl;
 
 mClass WaveletAttrib
@@ -25,24 +23,21 @@ public:
     			WaveletAttrib(const Wavelet&);
 			~WaveletAttrib();
 
-    void		getHilbert(Array1DImpl<float>&);
-    void		getPhase(Array1DImpl<float>&,bool degree=false);
-    void 		unwrapPhase(int,float,float* phase);
-
-
+    void		setNewWavelet(const Wavelet&);
+    void		getHilbert(Array1DImpl<float>&) const;
+    void		getPhase(Array1DImpl<float>&,bool degree=false) const;
     void		getFrequency(Array1DImpl<float>&,int padfac=1);
     			//frequency array will be resized to padfac*array size )
-    void 		applyFreqWindow(const ArrayNDWindow&, int,
+    void		applyFreqWindow(const ArrayNDWindow&, int padfac,
 					Array1DImpl<float>&);
-    void		muteZeroFrequency(Array1DImpl<float>&);
-    void		setNewWavelet(const Wavelet&); 
+
+    static void		unwrapPhase(int nrsamples,float wrapparam,float* phase);
+    static void		muteZeroFrequency(Array1DImpl<float>&);
 
 protected:
 
-    HilbertTransform*	hilbert_;
-    Fourier::CC*	fft_;
-    int			wvltsz_;
     Array1DImpl<float>* wvltarr_;
+    int			wvltsz_;
 };
 
 #endif

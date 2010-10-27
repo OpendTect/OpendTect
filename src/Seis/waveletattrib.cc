@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.cc,v 1.10 2010-10-19 12:56:39 cvsbruno Exp $
+ RCS:           $Id: waveletattrib.cc,v 1.11 2010-10-27 06:56:31 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,19 +21,13 @@ ________________________________________________________________________
 WaveletAttrib::WaveletAttrib( const Wavelet& wvlt )
 	: wvltarr_(0)
 	, wvltsz_(0)  
-	, fft_(new Fourier::CC())
-	, hilbert_(new HilbertTransform())
 {
     setNewWavelet( wvlt );
 }
 
 
 WaveletAttrib::~WaveletAttrib()
-{
-    delete wvltarr_;
-    delete fft_;
-    delete hilbert_;
-}
+{ delete wvltarr_; }
 
 
 void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
@@ -46,43 +40,43 @@ void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
 
 #define mDoFFT( isforward, inp, outp, sz )\
 {\
-    fft_->setInputInfo( Array1DInfoImpl(sz) );\
-    fft_->setDir( isforward );\
-    fft_->setNormalization(!isforward);\
-    fft_->setInput( inp.getData() );\
-    fft_->setOutput( outp.getData() );\
-    fft_->run( true ); \
+    Fourier::CC fft; \
+    fft.setInputInfo( Array1DInfoImpl(sz) ); \
+    fft.setDir( isforward ); \
+    fft.setNormalization(!isforward); \
+    fft.setInput( inp.getData() ); \
+    fft.setOutput( outp.getData() ); \
+    fft.run( true ); \
 }
 
 
-void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb )
+void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb ) const
 {
-    hilbert_->setCalcRange( 0, wvltsz_, 0 );
-    hilbert_->setInputInfo( Array1DInfoImpl(wvltsz_) );
-    hilbert_->setDir( true );
-    hilbert_->init();
-    hilbert_->transform( *wvltarr_, hilb );
+    HilbertTransform hilbert;
+    hilbert.setCalcRange( 0, wvltsz_, 0 );
+    hilbert.setInputInfo( Array1DInfoImpl(wvltsz_) );
+    hilbert.setDir( true );
+    hilbert.init();
+    hilbert.transform( *wvltarr_, hilb );
 } 
 
 
-void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool degree )
+void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool degree ) const
 {
     Array1DImpl<float_complex> cindata( wvltsz_ );
-    Array1DImpl<float_complex> coutdata( wvltsz_ );
-
     for ( int sampidx=0; sampidx<wvltsz_; sampidx++ )
 	cindata.set( sampidx, wvltarr_->get( sampidx ) );
 
+    Array1DImpl<float_complex> coutdata( wvltsz_ );
     mDoFFT( true, cindata, coutdata, wvltsz_ );
-
     for ( int idx=0; idx<wvltsz_; idx++ )
     {
 	float re = coutdata.get(idx).real();
 	float im = coutdata.get(idx).imag();
 	float ph = (re*re+im*im) ? atan2( im, re )  : 0;
-	
 	phase.set( idx, degree ? 180*ph/M_PI : ph );
     }
+
     unwrapPhase( wvltsz_, 1, phase.arr() );
 }
 
@@ -90,7 +84,7 @@ void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool degree )
 //TODO put this in algo :
 void WaveletAttrib::unwrapPhase( int nrsamples, float w, float* phase )
 {
-    if ( w==0 )
+    if ( w == 0 )
     {
 	fprintf( stderr, "wrapping parameter is zero" );
 	return;
@@ -103,7 +97,6 @@ void WaveletAttrib::unwrapPhase( int nrsamples, float w, float* phase )
 
     temp[0] = phase[0];
     dphase[0] = 0;
-
     for ( int idx=1; idx<nrsamples; idx++ )
     {
 	dphase[idx] = fabs( phase[idx] - phase[idx-1] );
@@ -112,10 +105,10 @@ void WaveletAttrib::unwrapPhase( int nrsamples, float w, float* phase )
 
 	temp[idx] = temp[idx-1] + dphase[idx];
     }
+
     for ( int idx=1; idx<nrsamples; idx++ )
 	phase[idx] = temp[idx];
 }
-
 
 
 void WaveletAttrib::muteZeroFrequency( Array1DImpl<float>& vals )
@@ -180,6 +173,7 @@ void WaveletAttrib::applyFreqWindow( const ArrayNDWindow& window, int padfac,
 	cfreqarr.set( idx, window.getValues()[idx]*val );
 	cfreqarr.set( padsz-idx-1, window.getValues()[idx]*revval );
     }
+
     if ( isoddpadsz ) cfreqarr.set( (int)(padsz/2)+1, 0 );
 
     mDoFFT( false, cfreqarr, ctimearr, padsz );
