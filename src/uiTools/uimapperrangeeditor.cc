@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.17 2010-04-09 08:21:34 cvsbert Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.18 2010-10-28 07:28:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,15 +51,12 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id )
 }
 
 
-#define mRmItm( itm ) delete histogramdisp_->scene().removeItem( itm )
-
 uiMapperRangeEditor::~uiMapperRangeEditor()
 {
-    mRmItm( minline_ ); mRmItm( maxline_ );
-    mRmItm( leftcoltab_ ); mRmItm( centercoltab_ ); mRmItm( rightcoltab_ );
-    mRmItm( minvaltext_ ); mRmItm( maxvaltext_ );
-    delete ctseq_;
-    delete ctmapper_;
+    delete minline_; delete maxline_;
+    delete leftcoltab_; delete centercoltab_; delete rightcoltab_;
+    delete minvaltext_; delete maxvaltext_;
+    delete ctseq_; delete ctmapper_;
 }
 
 

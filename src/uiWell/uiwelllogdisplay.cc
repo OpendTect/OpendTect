@@ -210,16 +210,10 @@ void uiWellLogDisplay::draw()
 }
 
 
-#define mRemoveSet( itms ) \
-    for ( int idx=0; idx<itms.size(); idx++ ) \
-	scene().removeItem( itms[idx] ); \
-    deepErase( itms );
-
 void uiWellLogDisplay::drawCurve( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
-    mRemoveSet( ld.curveitms_ );
-    scene().removeItem( ld.curvenmitm_ );
+    deepErase( ld.curveitms_ );
     delete ld.curvenmitm_; ld.curvenmitm_ = 0;
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 ) return;
@@ -296,7 +290,7 @@ static const int cMaxNrLogSamples = 2000;
 void uiWellLogDisplay::drawFilledCurve( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
-    mRemoveSet( ld.curvepolyitms_ );
+    deepErase( ld.curvepolyitms_ );
 
     if ( !ld.disp_.islogfill_ ) return;
 
@@ -391,11 +385,6 @@ const int y = ld1_.yax_.getPix( zpos )
 
 void uiWellLogDisplay::drawMarkers()
 {
-    for ( int idx=0; idx<markerdraws_.size(); idx++ ) \
-    {
-	delete scene().removeItem( markerdraws_[idx]->lineitm_ );
-	delete scene().removeItem( markerdraws_[idx]->txtitm_ );
-    }
     deepErase( markerdraws_ );
 
     if ( !zdata_.markers_ ) return;
@@ -445,7 +434,7 @@ uiWellLogDisplay::MarkerDraw* uiWellLogDisplay::getMarkerDraw(
 
 void uiWellLogDisplay::drawZPicks()
 {
-    mRemoveSet( zpickitms_ );
+    deepErase( zpickitms_ );
 
     for ( int idx=0; idx<zpicks_.size(); idx++ )
     {

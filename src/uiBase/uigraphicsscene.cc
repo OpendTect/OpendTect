@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.48 2010-10-27 11:22:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.49 2010-10-28 07:28:36 cvsbert Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -253,7 +253,7 @@ const Color uiGraphicsScene::backGroundColor() const
 void uiGraphicsScene::removeAllItems()
 {
     for ( int idx=items_.size()-1; idx>=0; idx-- )
-	delete removeItem( items_[idx] );
+	delete items_[idx];
 
     QList<QGraphicsItem *> items = odgraphicsscene_->items();
     for ( int idx=0; idx<items.size(); idx++ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipolardiagram.cc,v 1.6 2009-12-15 10:38:29 cvskarthika Exp $";
+static const char* rcsID = "$Id: uipolardiagram.cc,v 1.7 2010-10-28 07:28:36 cvsbert Exp $";
 
 #include "uipolardiagram.h"
 #include "uigraphicsscene.h"
@@ -45,21 +45,12 @@ uiPolarDiagram::~uiPolarDiagram()
     getMouseEventHandler().movement.remove(
 	    mCB(this,uiPolarDiagram,mouseEventCB) );
     reSize.remove( mCB(this,uiPolarDiagram,reSizedCB) );
-    if ( pointeritm_ )
-	delete scene().removeItem( pointeritm_ );
     
-#define mRemoveItems( os )	\
-    if ( os.size() )	\
-    {	\
-        for ( int idx = 0; idx < os.size(); idx++ )	\
-            scene().removeItem( os[idx] );	\
-	deepErase( os );	\
-    }	
-
-    mRemoveItems( circleitms_ );
-    mRemoveItems( segmentitms_ );
-    mRemoveItems( azimuthtextitms_ );
-    mRemoveItems( diptextitms_ );
+    delete pointeritm_;
+    deepErase( circleitms_ );
+    deepErase( segmentitms_ );
+    deepErase( azimuthtextitms_ );
+    deepErase( diptextitms_ );
 }
 
 

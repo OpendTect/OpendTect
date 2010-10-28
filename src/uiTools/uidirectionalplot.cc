@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.35 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.36 2010-10-28 07:28:36 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -65,17 +65,17 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
 
 uiDirectionalPlot::~uiDirectionalPlot()
 {
-    delete scene().removeItem( outercircleitm_ );
-    delete scene().removeItem( selsectoritem_ );
-    delete scene().removeItem( &sectorlines_ );
-    delete scene().removeItem( &curveitems_ );
-    delete scene().removeItem( &markeritems_ );
-    delete scene().removeItem( hdrannotitm1_ );
-    delete scene().removeItem( hdrannotitm2_ );
-    delete scene().removeItem( scalelineitm_ );
-    delete scene().removeItem( scalearcitm_ );
-    delete scene().removeItem( scaleannotitm_ );
-    delete scene().removeItem( coltabitm_ );
+    delete outercircleitm_;
+    delete selsectoritem_;
+    delete &sectorlines_;
+    delete &curveitems_;
+    delete &markeritems_;
+    delete hdrannotitm1_;
+    delete hdrannotitm2_;
+    delete scalelineitm_;
+    delete scalearcitm_;
+    delete scaleannotitm_;
+    delete coltabitm_;
 }
 
 
@@ -225,8 +225,7 @@ void uiDirectionalPlot::drawScale()
 	scalestartptitem_->setPos( startpt );
     }
 
-    delete scene().removeItem( scalearcitm_ );
-    scalearcitm_ = 0;
+    delete scalearcitm_; scalearcitm_ = 0;
     const Interval<float> angs( Angle::usrdeg2rad(120.F),
 	    			Angle::usrdeg2rad(150.F) );
     const float r = (float)startpt.distTo( endpt );
@@ -483,10 +482,7 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 void uiDirectionalPlot::drawSelection()
 {
     if ( selsectoritem_ )
-    {
-	delete scene().removeItem( selsectoritem_ );
-	selsectoritem_ = 0;
-    }
+	{ delete selsectoritem_; selsectoritem_ = 0; }
     if ( selsector_ < 0 ) return;
 
     selsectoritem_ = drawSectorPart( selsector_, Interval<float>(1.01,1.05),

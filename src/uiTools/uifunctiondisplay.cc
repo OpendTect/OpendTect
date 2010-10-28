@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.57 2010-05-10 03:12:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.58 2010-10-28 07:28:36 cvsbert Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -89,13 +89,9 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 
 uiFunctionDisplay::~uiFunctionDisplay()
 {
-    delete xax_;
-    delete yax_;
-    delete y2ax_;
-    delete scene().removeItem( ypolyitem_ );
-    delete scene().removeItem( y2polyitem_ );
-    delete scene().removeItem( ymarkeritems_ );
-    delete scene().removeItem( y2markeritems_ );
+    delete xax_; delete yax_; delete y2ax_;
+    delete ypolyitem_; delete y2polyitem_;
+    delete ymarkeritems_; delete y2markeritems_;
 }
 
 

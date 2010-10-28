@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.25 2010-02-03 16:35:47 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.26 2010-10-28 07:28:36 cvsbert Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -241,10 +241,8 @@ uiDirLightDlg::~uiDirLightDlg()
     if ( mShowLightIcons )
     finaliseDone.remove( mCB(this, uiDirLightDlg, dlgDoneCB) );
 
-    if ( pm1_ )
-	delete cameralightview_->scene().removeItem( pm1_ );
-    if ( pm2_ )
-	delete scenelightview_->scene().removeItem( pm2_ );
+    delete pm1_;
+    delete pm2_;
 
     if ( pd_ )
     {

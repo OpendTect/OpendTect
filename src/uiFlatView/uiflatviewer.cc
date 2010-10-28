@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.119 2010-08-16 11:52:09 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.120 2010-10-28 07:28:36 cvsbert Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -82,10 +82,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
 }
 
 
-#define mRemoveAnnotItem( item ) \
-    { delete canvas_.scene().removeItem( item ); item = 0; }
-
-
+#define mRemoveAnnotItem( item ) { delete item; item = 0; }
 
 uiFlatViewer::~uiFlatViewer()
 {
@@ -521,7 +518,9 @@ bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
     for ( int idx=0; idx<annot.auxdata_.size(); idx++ )
 	drawAux( *annot.auxdata_[idx], drawarea, wr );
 
-    if ( !annot.title_.isEmpty() )
+    if ( annot.title_.isEmpty() )
+	mRemoveAnnotItem( titletxtitem_ )
+    else
     {
 	mDeclAlignment( al, HCenter, Top );
 	if ( !titletxtitem_ )
@@ -535,8 +534,6 @@ bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
 	    titletxtitem_->setText( annot.title_ );
 	titletxtitem_->setPos( uiPoint(drawarea.centre().x,drawarea.top()-35) );
     }
-    else
-    { mRemoveAnnotItem( titletxtitem_ ); }
     return true;
 }
 
@@ -608,11 +605,11 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
    
     if ( (!showanyx1annot && !showanyx2annot) )
     {
-	mRemoveAnnotItem( rectitem_ );
-	mRemoveAnnotItem( arrowitem1_ );
-	mRemoveAnnotItem( axis1nm_ );
-	mRemoveAnnotItem( arrowitem2_ );
-	mRemoveAnnotItem( axis2nm_ );
+	mRemoveAnnotItem( rectitem_ )
+	mRemoveAnnotItem( arrowitem1_ )
+	mRemoveAnnotItem( axis1nm_ )
+	mRemoveAnnotItem( arrowitem2_ )
+	mRemoveAnnotItem( axis2nm_ )
 	return;
     }
 

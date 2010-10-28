@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.18 2009-07-28 08:15:20 cvsnanne Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.19 2010-10-28 07:28:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,9 +45,7 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
 
 uiHistogramDisplay::~uiHistogramDisplay()
 { 
-    delete &rc_; 
-    delete scene().removeItem( header_ );
-    delete scene().removeItem( nitm_ );
+    delete &rc_; delete header_; delete nitm_;
 }
 
 
