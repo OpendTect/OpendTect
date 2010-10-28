@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.59 2010-10-22 13:54:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.60 2010-10-28 08:56:53 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -194,7 +194,7 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	if ( parun->isLeaved() )
 	{
 	    const Strat::LeavedUnitRef& lvdun = (Strat::LeavedUnitRef&)(*parun);
-	    for ( int iref=0; iref<lvdun.nrRefs(); iref++ )
+	    for ( int iref=lvdun.nrRefs()-1; iref>=0; iref-- )
 		removeUnit( lvit->getChild( iref ) );
 	    parun = replaceUnit( *parun, false ); 
 	}
@@ -283,12 +283,12 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 	    if ( idx == 0)
 	    {
 		IOPar iop; ur.putPropsTo( iop ); 
-		ldur.getPropsFrom( iop );
+		startunit->getPropsFrom( iop );
 		delete &ur;
 	    }
 	    else
 	    {
-		parnode->insert( &ur, curidx+idx );
+		parnode->add( &ur );
 		insertUnitInLVIT( lvit->parent(), curidx+idx, ur );
 		addLithologies( ur, lithids );
 	    }
@@ -303,15 +303,20 @@ void uiStratRefTree::insertUnitInLVIT( uiListViewItem* lvit, int posidx,
 					const Strat::UnitRef& unit ) const
 {
     uiListViewItem::Setup setup = uiListViewItem::Setup().label( unit.code() );
-    uiListViewItem* newitem = new uiListViewItem( (uiListViewItem*)(0), setup );
+    uiListViewItem* newitem = lvit ? new uiListViewItem( lvit , setup )
+    				   : new uiListViewItem( lv_, setup );
     newitem->setRenameEnabled( cUnitsCol, false );	//TODO
     newitem->setRenameEnabled( cDescCol, false );	//TODO
     newitem->setRenameEnabled( cLithoCol, false );
     newitem->setDragEnabled( true );
     newitem->setDropEnabled( true );
     newitem->setText( unit.description(), cDescCol );
-  
-    lvit->insertItem( posidx, newitem );
+ 
+    if ( lvit )
+    {
+	lvit->takeItem( newitem );
+	lvit->insertItem( posidx, newitem );
+    }
     lv_->setCurrentItem( newitem );
     uiListViewItem* parit = newitem->parent();
     if ( !parit ) return;
@@ -362,7 +367,6 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 
     Strat::NodeUnitRef& nur = (Strat::NodeUnitRef&)(*unitref);
     uiStratUnitEditDlg urdlg( lv_->parent(), nur );
-    const Interval<float> oldtimerg = nur.timeRange();
     if ( urdlg.go() )
     {
 	ensureUnitTimeOK( nur ); 
@@ -575,21 +579,29 @@ void uiStratRefTree::ensureUnitTimeOK( Strat::NodeUnitRef& unit )
     const Interval<float> partrg( par->timeRange() );
     mytimerg.limitTo( partrg );
 
+    const int posidx = getChildIdxFromTime( *par, mytimerg.start )-1;
     for ( int idx=0; idx<par->nrRefs(); idx++ )
     {
 	Strat::NodeUnitRef& ref = (Strat::NodeUnitRef&)par->ref(idx);
+	Interval<float> timerg = ref.timeRange();
 	if ( &ref == &unit ) 
 	    continue;
+	if ( posidx-1 == idx && mytimerg.start < timerg.start )
+	    mytimerg.start = timerg.start;
+	else if ( posidx+1 == idx && mytimerg.stop > timerg.stop )
+	    mytimerg.stop = timerg.stop;
+    }
+
+    for ( int idx=0; idx<par->nrRefs(); idx++ )
+    {
+	Strat::NodeUnitRef& ref = (Strat::NodeUnitRef&)par->ref(idx);
 	Interval<float> timerg = ref.timeRange();
-	if ( mytimerg.includes( timerg.start ) 
-		&& mytimerg.includes( timerg.stop ) )
-	    getAvailableTime( unit, mytimerg );
-	else if ( timerg.overlaps( mytimerg ) )
+	if ( timerg.overlaps( mytimerg ) )
 	{
-	    if ( timerg.start < mytimerg.start )
+	    if ( timerg.start <= mytimerg.start )
 		timerg.stop = mytimerg.start;
 	    else 
-		timerg.start= mytimerg.stop;
+		timerg.start = mytimerg.stop;
 	    ref.setTimeRange( timerg );
 	    setNodesDefaultTimes( ref );
 	}
@@ -605,7 +617,7 @@ int uiStratRefTree::getChildIdxFromTime( const Strat::NodeUnitRef& nur,
     for ( int idx=0; idx<nur.nrRefs(); idx++ )
     {
 	Strat::NodeUnitRef& cnur = (Strat::NodeUnitRef& )(nur.ref(idx));
-	if ( cnur.timeRange().start >= pos )
+	if ( cnur.timeRange().start > pos )
 	    return idx;
     }
     return nur.nrRefs();
