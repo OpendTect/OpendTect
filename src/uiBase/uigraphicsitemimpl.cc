@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.43 2010-10-25 10:34:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.44 2010-10-28 06:01:34 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -49,7 +49,6 @@ uiObjectItem::uiObjectItem( uiGroup* grp )
 
 uiObjectItem::~uiObjectItem()
 {
-    delete qwidgetitem_;
 }
 
 
@@ -122,7 +121,6 @@ uiEllipseItem::uiEllipseItem( const uiSize& size )
 
 uiEllipseItem::~uiEllipseItem()
 {
-    delete qellipseitem_;
 }
 
 
@@ -200,7 +198,6 @@ uiLineItem::uiLineItem( const uiPoint& pt, double angle, double len,
 
 uiLineItem::~uiLineItem()
 {
-    delete qlineitem_;
 }
 
 
@@ -292,7 +289,6 @@ uiPixmapItem::uiPixmapItem( const uiPoint& pos, const ioPixmap& pm )
 
 uiPixmapItem::~uiPixmapItem()
 {
-    delete qpixmapitem_;
 }
 
 
@@ -346,7 +342,6 @@ uiPolygonItem::uiPolygonItem( const TypeSet<uiPoint>& polygon, bool dofill )
 
 uiPolygonItem::~uiPolygonItem()
 {
-    delete qpolygonitem_;
 }
 
 
@@ -396,7 +391,6 @@ uiPolyLineItem::uiPolyLineItem( const TypeSet<uiPoint>& ptlist )
 
 uiPolyLineItem::~uiPolyLineItem()
 {
-    delete qpolylineitem_;
 }
 
 
@@ -436,7 +430,6 @@ uiRectItem::uiRectItem( int x, int y, int width, int height )
 
 uiRectItem::~uiRectItem()
 {
-    delete qrectitem_;
 }
 
 
@@ -485,7 +478,6 @@ uiTextItem::uiTextItem( const uiPoint& pos, const char* txt,
 
 uiTextItem::~uiTextItem()
 {
-    delete qtextitem_;
 }
 
 
@@ -628,7 +620,6 @@ QGraphicsItem* uiMarkerItem::mkQtObj()
 
 uiMarkerItem::~uiMarkerItem()
 {
-    delete qmarkeritem_;
 }
 
 
@@ -666,7 +657,6 @@ uiPointItem::uiPointItem()
 
 uiPointItem::~uiPointItem()
 {
-    delete qpointitem_;
 }
 
 
@@ -695,7 +685,6 @@ uiArrowItem::uiArrowItem( const uiPoint& tail, const uiPoint& head,
 
 uiArrowItem::~uiArrowItem()
 {
-    delete qarrowitem_;
 }
 
 
@@ -773,7 +762,6 @@ uiCurvedItem::uiCurvedItem( const Geom::Point2D<float>& pt )
 
 uiCurvedItem::~uiCurvedItem()
 {
-    delete qpathitem_;
     delete qppath_;
 }
 
@@ -782,6 +770,8 @@ void uiCurvedItem::drawTo( const uiPoint& pt )
 {
     drawTo( Geom::Point2D<float>(pt.x,pt.y) );
 }
+
+
 void uiCurvedItem::drawTo( const Geom::Point2D<float>& pt )
 {
     qppath_->lineTo( QPointF(pt.x,pt.y) );

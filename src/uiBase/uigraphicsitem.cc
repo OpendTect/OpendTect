@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.25 2010-10-27 15:18:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.26 2010-10-28 06:01:34 cvsnanne Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -38,6 +38,7 @@ uiGraphicsItem::~uiGraphicsItem()
 {
     if ( scene_ )
 	scene_->removeItem( this );
+    delete qgraphicsitem_;
 }
 
 
