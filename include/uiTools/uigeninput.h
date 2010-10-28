@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.40 2010-06-29 13:36:17 cvsnanne Exp $
+ RCS:           $Id: uigeninput.h,v 1.41 2010-10-28 11:09:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -196,10 +196,10 @@ Returns true, if changes are accepted.
 
 			//! returns 0 if not finalised.
     UserInputObj*	element(int idx); 
-    int			nElements() const; 
+    int			nrElements() const; 
     void		setElemSzPol( uiObject::SzPolicy p )	{ elemszpol=p; }
     uiObject::SzPolicy	elemSzPol() const		{ return elemszpol; }
-
+    void		setToolTip(const char*,int ielem=0);
 
     virtual const char*	titleText();
     virtual void	setTitleText(const char*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.35 2010-10-26 06:41:10 cvsnanne Exp $
+ RCS:           $Id: uicombobox.h,v 1.36 2010-10-28 11:09:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,9 @@ public:
 
     bool		handleLongTabletPress();
     void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
+
+    void		setToolTip( const char* tt )
+    			{ uiObject::setToolTip(tt); }
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.26 2010-10-22 15:22:22 cvsjaap Exp $
+ RCS:           $Id: uilineedit.h,v 1.27 2010-10-28 11:09:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,9 @@ public:
 
     virtual const char*	getvalue_() const;
     virtual void	setvalue_( const char* );
+
+    void		setToolTip( const char* tt )
+    			{ uiObject::setToolTip(tt); }
 
 protected:
     

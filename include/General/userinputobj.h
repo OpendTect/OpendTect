@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.17 2010-08-30 12:47:56 cvsbert Exp $
+ RCS:           $Id: userinputobj.h,v 1.18 2010-10-28 11:09:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,8 @@ public:
 			//! return false if not updated for whatever reason.
     bool		update( const DataInpSpec& s )		
 			    { return update_(s); }
+
+    virtual void        setToolTip(const char*)			= 0;
 
 protected:
 			//! return false if not available

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninputdlg.cc,v 1.12 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uigeninputdlg.cc,v 1.13 2010-10-28 11:09:08 cvsbert Exp $";
 
 #include "uigeninputdlg.h"
 #include "uigeninput.h"
@@ -60,13 +60,11 @@ void uiGenInputGrp::build()
 
 NotifierAccess* uiGenInputGrp::enterClose()
 {
-    if ( flds.size()==1 && flds[0]->nElements()==1 )
+    if ( flds.size()==1 && flds[0]->nrElements()==1 )
     {
 	mDynamicCastGet( uiLineEdit*, ule, flds[0]->element( 0 ) );
 	if ( ule )
-	{
 	    return &ule->returnPressed;
-	}
     }
 
     return 0;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninput.cc,v 1.92 2010-06-29 13:36:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigeninput.cc,v 1.93 2010-10-28 11:09:08 cvsbert Exp $";
 
 #include "uigeninput.h"
 #include "uilineedit.h"
@@ -215,7 +215,7 @@ protected:
 
 				if ( hpol == uiObject::Undef )
 				{
-				    int nel = p_ ? p_->nElements() : nElems();
+				    int nel = p_ ? p_->nrElements() : nElems();
 
 				    switch( spec_.type().rep() )
 				    {
@@ -901,7 +901,8 @@ void uiGenInput::clear( int nr )
 	flds[idx]->clear();
 }
 
-int uiGenInput::nElements() const
+
+int uiGenInput::nrElements() const
 {
     int nel=0;
     if ( finalised ) 
@@ -916,6 +917,14 @@ int uiGenInput::nElements() const
     }
 
     return nel;
+}
+
+
+void uiGenInput::setToolTip( const char* tt, int ielem )
+{
+    UserInputObj* elem = element( ielem );
+    if ( elem )
+	elem->setToolTip( tt );
 }
 
 
