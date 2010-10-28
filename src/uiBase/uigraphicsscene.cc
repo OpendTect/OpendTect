@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.49 2010-10-28 07:28:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.50 2010-10-28 10:17:02 cvsnanne Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -163,7 +163,7 @@ uiGraphicsItem* uiGraphicsScene::doAddItem( uiGraphicsItem* itm )
 {
     if ( !itm ) return 0;
 
-    itm->setScene( *this );
+    itm->setScene( this );
     odgraphicsscene_->addItem( itm->qGraphicsItem() );
     items_ += itm;
     return itm;
@@ -174,7 +174,7 @@ uiGraphicsItemGroup* uiGraphicsScene::addItemGrp( uiGraphicsItemGroup* itmgrp )
 {
     if ( !itmgrp ) return 0;
 
-    itmgrp->setScene( *this );
+    itmgrp->setScene( this );
     odgraphicsscene_->addItem( itmgrp->qGraphicsItemGroup() );
     items_ += itmgrp;
     return itmgrp;
@@ -200,15 +200,18 @@ void uiGraphicsScene::removeItems( uiGraphicsItemSet& itms )
 }
 
 
+// TODO: remove
 uiRectItem* uiGraphicsScene::addRect( float x, float y, float w, float h )
 { 
     uiRectItem* uirectitem =
 	new uiRectItem( odgraphicsscene_->addRect(x,y,w,h) );
+    uirectitem->setScene( this );
     items_ += uirectitem;
     return uirectitem;
 }
 
 
+// TODO: remove
 uiPolygonItem* uiGraphicsScene::addPolygon( const TypeSet<uiPoint>& pts,
 					    bool fill )
 {
@@ -223,10 +226,13 @@ uiPolygonItem* uiGraphicsScene::addPolygon( const TypeSet<uiPoint>& pts,
 	odgraphicsscene_->addPolygon(QPolygonF(qpts)) );
     if ( fill )
 	uipolyitem->fill();
+    uipolyitem->setScene( this );
     items_ += uipolyitem;
     return uipolyitem;
 }
 
+
+// TODO: remove
 uiPolyLineItem* uiGraphicsScene::addPolyLine( const TypeSet<uiPoint>& ptlist )
 {
     uiPolyLineItem* polylineitem = new uiPolyLineItem();
@@ -252,12 +258,18 @@ const Color uiGraphicsScene::backGroundColor() const
 
 void uiGraphicsScene::removeAllItems()
 {
-    for ( int idx=items_.size()-1; idx>=0; idx-- )
-	delete items_[idx];
+    for ( int idx=0; idx<items_.size(); idx++ )
+    {
+	uiGraphicsItem* itm = items_[idx];
+	odgraphicsscene_->removeItem( itm->qGraphicsItem() );
+	itm->setScene( 0 );
+    }
 
-    QList<QGraphicsItem *> items = odgraphicsscene_->items();
-    for ( int idx=0; idx<items.size(); idx++ )
-	odgraphicsscene_->removeItem( items[idx] );
+    deepErase( items_ );
+
+    QList<QGraphicsItem *> qitems = odgraphicsscene_->items();
+    for ( int idx=0; idx<qitems.size(); idx++ )
+	odgraphicsscene_->removeItem( qitems[idx] );
 }
 
 
@@ -442,28 +454,39 @@ void uiGraphicsObjectScene::resizeLayoutToContent()
 	width += item->objectSize().width();
 	height = item->objectSize().height();
     }
+
     layoutitem_->resize( width, height );
 }
 
 
+#define mAddItm \
+    item->setScene( this ); \
+    items_ += item; \
+    resizeLayoutToContent();
+
+
 void uiGraphicsObjectScene::addObjectItem( uiObjectItem* item  )
 {
+    if ( !item ) return;
+
     layout_->addItem( item->qWidgetItem() );
-    items_ += item;
-    resizeLayoutToContent();
+    mAddItm
 }
 
 
 void uiGraphicsObjectScene::insertObjectItem( int idx, uiObjectItem* item )
 {
+    if ( !item ) return;
+
     layout_->insertItem( idx, item->qWidgetItem() );
-    items_ += item;
-    resizeLayoutToContent();
+    mAddItm
 }
 
 
 void uiGraphicsObjectScene::removeObjectItem( uiObjectItem* item )
 {
+    if ( !item ) return;
+
     layout_->removeItem( item->qWidgetItem() );
     removeItem( item );
     items_ -= item;
@@ -473,6 +496,8 @@ void uiGraphicsObjectScene::removeObjectItem( uiObjectItem* item )
 
 void uiGraphicsObjectScene::setItemStretch( uiObjectItem* item, int stretch )
 {
+    if ( !item ) return;
+
     layout_->setStretchFactor( item->qWidgetItem(), stretch );
     resizeLayoutToContent();
 }
@@ -480,7 +505,7 @@ void uiGraphicsObjectScene::setItemStretch( uiObjectItem* item, int stretch )
 
 int uiGraphicsObjectScene::stretchFactor( uiObjectItem* item ) const
 {
-    return layout_->stretchFactor( item->qWidgetItem() );
+    return item ? layout_->stretchFactor( item->qWidgetItem() ) : -1;
 }
 
 

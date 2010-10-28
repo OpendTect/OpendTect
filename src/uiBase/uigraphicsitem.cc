@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.27 2010-10-28 07:32:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.28 2010-10-28 10:17:02 cvsnanne Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -37,13 +37,15 @@ uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
 uiGraphicsItem::~uiGraphicsItem()
 {
     if ( scene_ )
+    {
 	scene_->removeItem( this );
-    delete qgraphicsitem_;
+	delete qgraphicsitem_;
+    }
 }
 
 
-void uiGraphicsItem::setScene( uiGraphicsScene& scene )
-{ scene_ = &scene; }
+void uiGraphicsItem::setScene( uiGraphicsScene* scene )
+{ scene_ = scene; }
 
 
 int uiGraphicsItem::getNewID()
