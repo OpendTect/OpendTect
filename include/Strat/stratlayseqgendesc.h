@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratlayseqgendesc.h,v 1.5 2010-10-21 14:04:14 cvsbert Exp $
+ RCS:		$Id: stratlayseqgendesc.h,v 1.6 2010-10-28 11:09:50 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "property.h"
+#include "manobjectset.h"
 class IOPar;
 
 namespace Strat
@@ -65,12 +66,11 @@ public:
 
 /*!\brief Collection of LayerGenerator's that can form a full LayerSequence.  */
 
-mClass LayerSequenceGenDesc : public ObjectSet<LayerGenerator>
+mClass LayerSequenceGenDesc : public ManagedObjectSet<LayerGenerator>
 {
 public:
 
-			LayerSequenceGenDesc( const RefTree& rt )
-			    : rt_(rt)			{}
+			LayerSequenceGenDesc(const RefTree&);
 
     bool		getFrom(std::istream&);
     bool		putTo(std::ostream&) const;

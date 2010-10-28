@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayseqgendesc.h,v 1.3 2010-10-26 15:13:22 cvsbert Exp $
+ RCS:           $Id: uistratlayseqgendesc.h,v 1.4 2010-10-28 11:09:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ public:
     mDefineFactory2ParamInClass(uiLayerSequenceGenDesc,uiParent*,
 	    			Strat::LayerSequenceGenDesc&,factory);
 
+    Strat::LayerSequenceGenDesc& desc()		{ return desc_; }
     virtual void	getPropertyRefs(PropertyRefSelection&) const	= 0;
 
 protected:
