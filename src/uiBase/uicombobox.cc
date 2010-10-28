@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.56 2010-10-26 06:41:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.57 2010-10-28 11:49:38 cvsnanne Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -242,7 +242,18 @@ bool uiComboBox::isReadOnly() const
 
 
 void uiComboBox::addItem( const wchar_t* text )
-{ body_->addItem( QString::fromWCharArray(text) ); }
+{
+#ifdef __win__
+    const int wsz = wcslen(text) + 1;
+    char* buf = new char [wsz];
+    int rsz = wcstombs(buf,text,wsz);
+    buf[wsz-1] = '\0';
+    QString itmtxt = QString::fromUtf8( buf );
+#else
+    QString itmtxt = QString::fromWCharArray( text );
+#endif
+    body_->addItem( itmtxt );
+}
 
 
 void uiComboBox::addItem( const char* text ) 
