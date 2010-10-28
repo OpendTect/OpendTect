@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.24 2010-10-27 15:18:18 cvsbert Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.25 2010-10-28 06:02:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,9 +64,9 @@ public:
 	
 	uiPolyLineItem*		borderitm_;
 	uiTextItem*		bordertxtitm_;
-	ObjectSet<uiTextItem>	txtitms_;
-	ObjectSet<uiPolygonItem> unititms_;
-	ObjectSet<uiLineItem>	lvlitms_;
+	uiGraphicsItemSet	txtitms_;
+	uiGraphicsItemSet	unititms_;
+	uiGraphicsItemSet	lvlitms_;
     };
     
     const ColumnItem&		colItem( int idx ) const
