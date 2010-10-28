@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.30 2010-10-26 15:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.31 2010-10-28 15:11:56 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -487,12 +487,70 @@ bool MathProperty::dependsOn( const Property& p ) const
 }
 
 
-void MathProperty::reset()
+void MathProperty::ensureGoodVariableName( char* nm )
 {
-    const int sz = expr_->nrVariables();
+    if ( !nm || !*nm )
+        { pFreeFnErrMsg("Knurft","ensureGoodVariableName"); return; }
+    cleanupString( nm, mC_False, mC_False, mC_False );
+}
+
+
+static bool isMathMatch( const BufferString& reqnm, const char* str )
+{
+    BufferString depnm( str );
+    MathProperty::ensureGoodVariableName( depnm.buf() );
+    return depnm == reqnm;
+}
+
+
+const Property* MathProperty::findInput( const PropertySet& ps, const char* nm,
+					 bool mainname ) const
+{
+    BufferString reqnm( nm ); ensureGoodVariableName( reqnm.buf() );
+    for ( int idx=0; idx<ps.size(); idx++ )
+    {
+	const Property& depp = ps.get( idx );
+	if ( this == &depp ) continue;
+	if ( mainname )
+	{
+	    if ( isMathMatch(reqnm,depp.name()) );
+		return &depp;
+	}
+	else
+	{
+	    for ( int ial=0; ial<depp.ref().aliases().size(); ial++ )
+	    {
+		if ( isMathMatch(reqnm,depp.ref().aliases().get(ial).buf()) );
+		    return &depp;
+	    }
+	}
+    }
+
+    return 0;
+}
+
+
+bool MathProperty::init( const PropertySet& ps ) const
+{
+    const int nrinps = expr_->nrVariables();
     inps_.erase();
-    while ( sz > inps_.size() )
-	inps_ += 0;
+    while ( nrinps > inps_.size() )
+	inps_ += findInput( ps, inputName(inps_.size()), true );
+
+    for ( int idep=0; idep<nrinps; idep++ )
+    {
+	if ( inps_[idep] ) continue;
+	const char* nm = inputName( idep );
+	inps_.replace( idep, findInput( ps, nm, false ) );
+	if ( !inps_[idep] )
+	{
+	    errmsg_ = "Missing input for '";
+	    errmsg_.add(name()).add("': '").add(nm).add("'");
+	    return false;
+	}
+    }
+
+    return true;
 }
 
 
@@ -641,44 +699,12 @@ void PropertySet::remove( int idx )
 }
 
 
-void PropertySet::reset()
-{
-    for ( int idx=0; idx<size(); idx++ )
-	props_[idx]->reset();
-}
-
-
-bool PropertySet::prepareEval()
+bool PropertySet::prepareUsage() const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	Property* p = props_[idx];
-	p->reset();
-
-	mDynamicCastGet(MathProperty*,mp,p)
-	if ( !mp ) continue;
-
-	const int nrinps = mp->nrInputs();
-	for ( int imatch=0; imatch<2; imatch++ )
-	{
-	    const bool matchalias = imatch;
-	    for ( int idep=0; idep<nrinps; idep++ )
-	    {
-		if ( mp->haveInput(idep) ) continue;
-
-		const char* nm = mp->inputName( idep );
-		const Property*	depp = find( nm, matchalias );
-		if ( depp )
-		    mp->setInput( idep, depp );
-		else if ( matchalias )
-		{
-		    errmsg_ = "Missing input for '";
-		    errmsg_.add(mp->name()).add("': '").add(nm).add("'");
-		    return false;
-		}
-	    }
-	}
+	if ( !props_[idx]->init(*this) )
+	    { errmsg_ = props_[idx]->errMsg(); return false; }
     }
-
     return true;
 }

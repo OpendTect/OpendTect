@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.21 2010-10-20 13:06:16 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.22 2010-10-28 15:11:56 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,8 @@ ________________________________________________________________________
 
 #include "propertyref.h"
 #include "factory.h"
+
+class PropertySet;
 
 
 /*!\brief A (usually petrophysical) property of some object.
@@ -36,9 +38,11 @@ public:
     inline const PropertyRef& ref() const		{ return ref_; }
     const char*		name() const;
 
-    virtual bool	isUdf() const			= 0;
-    virtual void	reset() const			{}
+    virtual bool	init(const PropertySet&) const	{ return true; }
+			    //!< clears 'memory' and makes property usable
+    virtual const char*	errMsg() const			{ return 0; }
 
+    virtual bool	isUdf() const			= 0;
     virtual bool	dependsOn(const Property&) const { return false; }
 
     virtual const char*	type() const			= 0;
@@ -105,17 +109,16 @@ public:
     void		replace(int,Property*);
     void		erase()			{ deepErase(props_); }
 
-    void		reset();	//!< clears 'memory'
-    bool		prepareEval();	//!< gets properties in usable state
+    bool		prepareUsage() const;	//!< init()'s all Properties
     inline const char*	errMsg() const		{ return errmsg_; }
 
 
 protected:
 
-    BufferString	errmsg_;
-    Property*		fnd(const char*,bool) const;
-
     ObjectSet<Property>	props_;
+    mutable BufferString errmsg_;
+
+    Property*		fnd(const char*,bool) const;
 
 };
 

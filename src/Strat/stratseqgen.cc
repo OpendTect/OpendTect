@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.7 2010-10-28 11:09:50 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.8 2010-10-28 15:11:56 cvsbert Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
@@ -43,12 +43,18 @@ void Strat::LayerModelGenerator::reset()
 {
     lm_.setEmpty();
     seqnr_ = 0;
-    msg_ = "Generating layer sequences";
+    if ( desc_.prepareGenerate() )
+	msg_ = "Generating layer sequences";
+    else
+	msg_ = desc_.errMsg();
 }
 
 
 int Strat::LayerModelGenerator::nextStep()
 {
+    if ( seqnr_ == -1 )
+	return ErrorOccurred();
+
     const float modpos = nrseqs_ < 2 ? 0.5 : ((float)seqnr_)/(nrseqs_-1);
     desc_.generate( lm_.addSequence(), modpos );
     seqnr_++;
@@ -63,6 +69,17 @@ Strat::LayerGenerator* Strat::LayerGenerator::get( const IOPar& iop,
     if ( !ret ) return 0;
     ret->usePar( iop, rt );
     return ret;
+}
+
+
+void Strat::LayerGenerator::usePar( const IOPar&, const Strat::RefTree& )
+{
+}
+
+
+void Strat::LayerGenerator::fillPar( IOPar& iop ) const
+{
+    iop.set( sKey::Type, type() );
 }
 
 
@@ -102,6 +119,18 @@ bool Strat::LayerSequenceGenDesc::putTo( std::ostream& strm ) const
 	iop.putTo( astrm );
     }
 
+    return true;
+}
+
+
+bool Strat::LayerSequenceGenDesc::prepareGenerate() const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const LayerGenerator& lgen = *((*this)[idx]);
+	if ( !lgen.reset() )
+	    { errmsg_ = lgen.errMsg(); return false; }
+    }
     return true;
 }
 
@@ -220,7 +249,8 @@ const Strat::LeafUnitRef& Strat::SingleLayerGenerator::unit() const
 }
 
 
-void Strat::SingleLayerGenerator::getPropertySelection( PropertyRefSelection& pr ) const
+void Strat::SingleLayerGenerator::getPropertySelection(
+				PropertyRefSelection& pr ) const
 {
     for ( int idx=0; idx<props_.size(); idx++ )
 	pr += &props_.get( idx ).ref();
@@ -250,7 +280,7 @@ void Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 	if ( !propnm || !*propnm )
 	    continue;
 	const PropertyRef* pref = PROPS().find( res );
-	if ( !pref && Layer::thicknessRef().name() == res )
+	if ( !pref && (pidx == 0 || Layer::thicknessRef().name() == propnm) )
 	    pref = &Layer::thicknessRef();
 	if ( !pref )
 	    continue;
@@ -266,12 +296,21 @@ void Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 	props_.set( prop );
     }
 
-    props_.prepareEval();
+    reset();
+}
+
+
+bool Strat::SingleLayerGenerator::reset() const
+{
+    if ( !props_.prepareUsage() )
+	{ errmsg_ = props_.errMsg(); return false; }
+    return true;
 }
 
 
 void Strat::SingleLayerGenerator::fillPar( IOPar& iop ) const
 {
+    LayerGenerator::fillPar( iop );
     iop.set( sKey::Unit, unit().fullCode() );
     for ( int pidx=0; pidx<props_.size(); pidx++ )
     {

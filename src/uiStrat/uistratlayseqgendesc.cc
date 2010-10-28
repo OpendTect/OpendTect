@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.7 2010-10-27 15:18:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.8 2010-10-28 15:11:56 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -427,9 +427,12 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
     if ( aiidx < 0 )
     {
 	aiidx = props.size();
-	BufferString str( velref_->name() );
-	str.add( " * " ).add( denref_->name() );
-	MathProperty* mp = new MathProperty( *airef_, str );
+	BufferString velvarnm( velref_->name() );
+	BufferString denvarnm( denref_->name() );
+	MathProperty::ensureGoodVariableName( velvarnm.buf() );
+	MathProperty::ensureGoodVariableName( denvarnm.buf() );
+	const BufferString exprstr( velvarnm, " * ", denvarnm );
+	MathProperty* mp = new MathProperty( *airef_, exprstr );
 	props.add( mp );
     }
 

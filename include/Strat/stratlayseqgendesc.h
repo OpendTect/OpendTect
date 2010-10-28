@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratlayseqgendesc.h,v 1.6 2010-10-28 11:09:50 cvsbert Exp $
+ RCS:		$Id: stratlayseqgendesc.h,v 1.7 2010-10-28 15:11:56 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -33,20 +33,21 @@ mClass LayerGenerator
 {
 public:	
 
-    virtual const char*	 name() const				= 0;
+    virtual const char*	type() const				= 0;
+    virtual const char*	name() const				= 0;
     virtual float	dispThickness(bool max=true) const	= 0;
 
-    virtual const char*	errMsg() const				{ return 0; }
-    virtual const char*	warnMsg() const				{ return 0; }
-
-    virtual void	usePar(const IOPar&,const RefTree&)	= 0;
-    virtual void	fillPar(IOPar&) const			= 0;
+    virtual void	usePar(const IOPar&,const RefTree&);
+    virtual void	fillPar(IOPar&) const;
 
     static LayerGenerator* get(const IOPar&,const RefTree&);
     mDefineFactoryInClass(LayerGenerator,factory);
 
     virtual bool	genMaterial(LayerSequence&,Property::EvalOpts eo
 				=Property::EvalOpts()) const	= 0;
+    virtual bool	reset()	const				{ return true; }
+    virtual const char*	errMsg() const				{ return 0; }
+    virtual const char*	warnMsg() const				{ return 0; }
 
 };
 
@@ -75,6 +76,7 @@ public:
     bool		getFrom(std::istream&);
     bool		putTo(std::ostream&) const;
 
+    bool		prepareGenerate() const;
     bool		generate(LayerSequence&,float modpos) const;
 
     const char*		errMsg() const			{ return errmsg_; }
