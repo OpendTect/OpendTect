@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.53 2010-10-15 11:08:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.54 2010-10-28 07:59:37 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -78,8 +78,11 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
 
     const Well::Info& info = wd().info();
     const Well::Track& track = wd().track();
-    const float rdelev = track.dah( 0 ) - track.value( 0 );
-    const float surfelev = -info.surfaceelev;
+    float rdelev = track.dah( 0 ) - track.value( 0 );
+    float surfelev = -info.surfaceelev;
+
+    if ( mIsUdf( surfelev ) ) surfelev = 0;
+    if ( mIsUdf( rdelev ) ) rdelev = 0;
 
     Well::D2TModel* d2tnew = new Well::D2TModel;
     d2tnew->add( rdelev - surfelev, 0 ); //set KB Depth
