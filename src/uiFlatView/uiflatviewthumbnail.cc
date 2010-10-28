@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.15 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.16 2010-10-28 10:10:28 cvsnanne Exp $";
 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
@@ -48,6 +48,9 @@ uiFlatViewThumbnail::~uiFlatViewThumbnail()
 	    		mCB(this,uiFlatViewThumbnail,mousePressCB) );
     mousehandler_.movement.remove(
 	    		mCB(this,uiFlatViewThumbnail,mouseMoveCB) );
+
+    delete bgrectitem_;
+    delete fgrectitem_;
 }
 
 

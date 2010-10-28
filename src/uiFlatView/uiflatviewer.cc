@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.120 2010-10-28 07:28:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.121 2010-10-28 10:10:28 cvsnanne Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -98,6 +98,12 @@ uiFlatViewer::~uiFlatViewer()
     delete vdbmpmgr_;
     delete &axesdrawer_;
     delete &canvas_.rgbArray();
+
+    mRemoveAnnotItem( rectitem_ )
+    mRemoveAnnotItem( arrowitem1_ )
+    mRemoveAnnotItem( axis1nm_ )
+    mRemoveAnnotItem( arrowitem2_ )
+    mRemoveAnnotItem( axis2nm_ )
 }
 
 
