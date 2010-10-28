@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: manobjectset.h,v 1.2 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: manobjectset.h,v 1.3 2010-10-28 11:07:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,6 @@ public:
     virtual bool		isManaged() const	{ return true; }
 
     inline virtual ManagedObjectSet<T>& operator -=( T* ptr );
-    inline virtual void		append(const ObjectSet<T>&);
 
     inline virtual void		erase();
     inline virtual void		remove(int,int);
@@ -84,13 +83,6 @@ ManagedObjectSet<T>& ManagedObjectSet<T>::operator -=( T* ptr )
     if ( isarr_ )	delete [] ptr;
     else		delete ptr;
     return *this;
-}
-
-
-template <class T> inline
-void ManagedObjectSet<T>::append( const ObjectSet<T>& os )
-{
-    deepAppend( *this, os );
 }
 
 
