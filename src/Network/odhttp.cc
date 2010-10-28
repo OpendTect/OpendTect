@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.9 2010-10-26 06:32:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.10 2010-10-28 05:59:50 cvsranojay Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -77,9 +77,9 @@ int ODHttp::get( const char* path, const char* dest )
 wchar_t* ODHttp::readWCharBuffer() const
 {
     QByteArray qbytearr = qhttp_->readAll();
-    const char* buffer = qbytearr.constData();
+    QString trl = QString::fromUtf8( qbytearr );
     wchar_t* warr = new wchar_t [qbytearr.size()+1];
-    size_t res = mbstowcs( warr, buffer, qbytearr.size()+1 );
+    const int res = trl.toWCharArray( warr );
     return res == 0 ? 0 : warr;
 }
 
