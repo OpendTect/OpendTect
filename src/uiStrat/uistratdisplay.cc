@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.29 2010-10-27 15:18:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.30 2010-10-29 10:35:26 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -322,11 +322,24 @@ const StratDispData::Level* uiStratDisplay::getLevelFromPos() const
 uiStratDrawer::uiStratDrawer( uiGraphicsScene& sc, const StratDispData& ad )
     : data_(ad) 
     , scene_(sc)  
-    , xax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Top)))
-    , yax_(new uiAxisHandler(&scene_,uiAxisHandler::Setup(uiRect::Left)
-							    .nogridline(true)))
+    , xax_(0)
+    , yax_(0)
 {
-    xax_->setBounds( Interval<float>( 0, 100 ) );
+    initAxis();
+}
+
+
+void uiStratDrawer::initAxis()
+{
+    uiAxisHandler::Setup xsu( uiRect::Top );
+    uiAxisHandler* xaxis = new uiAxisHandler( &scene_, xsu );
+    xaxis->setBounds( Interval<float>( 0, 100 ) );
+    setNewAxis( xaxis, true );
+    uiBorder border = uiBorder( 20 );
+    uiAxisHandler::Setup ysu( uiRect::Left );
+    ysu.border( border ).nogridline( true );
+    uiAxisHandler* yaxis = new uiAxisHandler( &scene_, ysu );
+    setNewAxis( yaxis, false );
 }
 
 
@@ -339,18 +352,22 @@ uiStratDrawer::~uiStratDrawer()
 void uiStratDrawer::setNewAxis( uiAxisHandler* axis, bool isxaxis )
 {
     if ( isxaxis ) 
-	xax_ = axis; 
+	{ delete xax_; xax_ = axis; } 
     else
-	yax_ = axis;
+	{ delete yax_; yax_ = axis; }
+
+    if ( xax_ && yax_ )
+    {
+	xax_->setBegin( yax_ );
+	yax_->setBegin( xax_ );
+    }
 }
 
 
 void uiStratDrawer::updateAxis()
 {
-    xax_->setNewDevSize( (int)scene_.width()+10, (int)scene_.height()+10 );
-    yax_->setNewDevSize( (int)scene_.height()+10, (int)scene_.width()+10 );
-    xax_->setBegin( yax_ );     yax_->setBegin( xax_ );
-    xax_->setEnd( yax_ );       yax_->setEnd( xax_ );
+    xax_->setNewDevSize( (int)scene_.width(), (int)scene_.height() );
+    yax_->setNewDevSize( (int)scene_.height(), (int)scene_.width() );
     yax_->plotAxis();
 }
 
