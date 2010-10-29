@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.8 2010-10-28 15:11:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.9 2010-10-29 09:08:20 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -176,6 +176,12 @@ uiSingleLayerSequenceGenDesc::uiSingleLayerSequenceGenDesc( uiParent* p,
     idx = ePROPS().ensurePresent( PropertyRef::AI, "Acoustic Impedance", "AI" );
     props_ += PROPS()[idx];
 
+    rebuildDispUnits();
+}
+
+
+void uiSingleLayerSequenceGenDesc::rebuildDispUnits()
+{
     for ( int idx=0; idx<desc_.size(); idx++ )
 	insertDispUnit( *desc_[idx], idx );
 }
@@ -252,6 +258,14 @@ void uiSingleLayerSequenceGenDesc::doDraw()
 	disp.poly_->setPolygon( pts );
 	curz += maxth;
     }
+}
+
+
+void uiSingleLayerSequenceGenDesc::descHasChanged()
+{
+    deepErase( disps_ );
+    rebuildDispUnits();
+    reDraw(0);
 }
 
 
