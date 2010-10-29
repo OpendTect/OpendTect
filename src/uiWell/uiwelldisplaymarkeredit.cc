@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.14 2010-10-25 14:58:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.15 2010-10-29 08:37:13 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -330,6 +330,12 @@ void uiWellDispEditMarkerDlg::addNewMarker()
     if ( !mrk ) return;
     par_.putToMarker( *mrk );
     curwd_->markers().insertNew( mrk );
+
+    for ( int idx=0; idx<tmplist_.size(); idx++ )
+    {
+	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
+	    delete tmplist_.remove( idx );
+    }
 }
 
 
@@ -414,17 +420,19 @@ void uiWellDispEditMarkerDlg::listRClickCB( CallBacker* )
 	mrk->setColor( getRandStdDrawColor() );
 	addNewMrkDlg dlg( this, *mrk );
 	if ( dlg.go() )
+	{
 	    tmplist_ += mrk;
+	    fillMarkerList(0);
+	}
 	else
 	    delete mrk;
-	fillMarkerList(0);
     }
     else if ( mnuid == 1 )
     {
 	BufferString mrknm = mrklist_->getText();
 	BufferString msg = "This will remove "; 
 		     msg += mrknm; 
-		     msg += " for all wells \n ";
+		     msg += " from all the wells \n ";
 		     msg += "Do you want to continue ? ";
 	if ( uiMSG().askContinue( msg ) )
 	{
@@ -457,8 +465,9 @@ void uiWellDispEditMarkerDlg::listLClickCB( CallBacker* )
 
 void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 {
-    mrklist_->empty();
-    const int selidx = mrklist_->nrSelected() ? mrklist_->currentItem() : 0;
+    const char* selnm = mrklist_->nrSelected() ? mrklist_->getText() : 0;
+
+    if ( mrklist_->size() ) mrklist_->empty();
     BufferStringSet mrknms; TypeSet<Color> mrkcols;
     for ( int idwd=0; idwd<wds_.size(); idwd++ )
     {
@@ -488,16 +497,21 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 	    tmplist_ += mrk;
     }
     if ( isAddMode() )
-	mrklist_->setCurrentItem( selidx < mrklist_->size() ? selidx : 0 );
+    {
+	const int selidx = mrklist_->indexOf( selnm );
+	if ( selidx < mrklist_->size() && selidx >= 0 )
+	    mrklist_->setCurrentItem( selidx );
+    }
 }
 
 
 void uiWellDispEditMarkerDlg::editMarkerCB( CallBacker* )
 {
+    BufferString mrknm = mrklist_->getText();
     for ( int idwd=0; idwd<wds_.size(); idwd++ )
     {
 	Well::MarkerSet& mrkset = wds_[idwd]->markers();
-	Well::Marker* mrk = mrkset.getByName( mrklist_->getText() );
+	Well::Marker* mrk = mrkset.getByName( mrknm );
 	if ( mrk )
 	{
 	    mrk->setName( par_.name_ );
