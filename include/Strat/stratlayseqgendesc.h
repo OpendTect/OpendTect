@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratlayseqgendesc.h,v 1.7 2010-10-28 15:11:56 cvsbert Exp $
+ RCS:		$Id: stratlayseqgendesc.h,v 1.8 2010-10-29 05:53:05 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -67,11 +67,12 @@ public:
 
 /*!\brief Collection of LayerGenerator's that can form a full LayerSequence.  */
 
-mClass LayerSequenceGenDesc : public ManagedObjectSet<LayerGenerator>
+mClass LayerSequenceGenDesc : public ObjectSet<LayerGenerator>
 {
 public:
 
 			LayerSequenceGenDesc(const RefTree&);
+			~LayerSequenceGenDesc();
 
     bool		getFrom(std::istream&);
     bool		putTo(std::ostream&) const;
