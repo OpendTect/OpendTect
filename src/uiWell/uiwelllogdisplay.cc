@@ -453,3 +453,8 @@ void uiWellLogDisplay::drawZPicks()
     }
 }
 
+
+uiWellLogDisplay::MarkerDraw::~MarkerDraw()
+{
+    delete txtitm_; delete lineitm_; 
+}

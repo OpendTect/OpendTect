@@ -117,6 +117,7 @@ protected:
 				MarkerDraw( const Well::Marker& mrk )
 				: mrk_(mrk)
 				{}
+			        ~MarkerDraw();
 
 	const Well::Marker& 	mrk_;
 	uiTextItem*     	txtitm_;
