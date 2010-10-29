@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: i_layout.cc,v 1.83 2009-08-20 08:32:55 cvsbert Exp $";
+static const char* rcsID = "$Id: i_layout.cc,v 1.84 2010-10-29 08:23:01 cvsbruno Exp $";
 
 #include "i_layout.h"
 #include "i_layoutitem.h"
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: i_layout.cc,v 1.83 2009-08-20 08:32:55 cvsbert 
 #define MAX_ITER	2000
 static bool lyoutdbg = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
 #else
-#define MAX_ITER	10000
+#define MAX_ITER	20000
 #endif
 
 
