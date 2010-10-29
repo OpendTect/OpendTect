@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.3 2010-10-27 08:45:23 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.4 2010-10-29 12:43:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,11 +39,15 @@ public:
 				    , displaystrat_(false)
 				    , isstratbelow_(false)
 				    , nologborder_(false)
+				    , noxgridline_(false)
+				    , noygridline_(false)
 				    , withcontrol_(true)
-				    , preflogsz_(uiSize(200,600))
+				    , preflogsz_(uiSize(100,400))
 				    {}
 
 	mDefSetupMemb(bool,nobackground)
+	mDefSetupMemb(bool,noxgridline)
+	mDefSetupMemb(bool,noygridline)
 	mDefSetupMemb(int,nrlogdisplay)
 	mDefSetupMemb(int,nologborder)
 	mDefSetupMemb(bool,withcontrol) //will add a control 

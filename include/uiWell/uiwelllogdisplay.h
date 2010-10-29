@@ -40,6 +40,8 @@ public:
 			    , pickls_(LineStyle::Solid,1,Color(0,200,0))
 			    , border_(5)
 			    , noborder_(false)
+			    , noxgridline_(false)
+			    , noygridline_(false)      		     
 			    , axisticsz_(2)
 			    {}
 
@@ -49,6 +51,8 @@ public:
 	mDefSetupMemb(LineStyle,pickls)   //!< color used if no PickData color
 	mDefSetupMemb(bool,noborder)
 	mDefSetupMemb(int,axisticsz)
+	mDefSetupMemb(bool,noxgridline)
+	mDefSetupMemb(bool,noygridline)
     };  
 
 			    uiWellLogDisplay(uiParent*,const Setup&);
