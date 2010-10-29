@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: uiseisrandto2dline.h,v 1.5 2010-06-10 08:26:51 cvsnanne Exp $
+ RCS:		$Id: uiseisrandto2dline.h,v 1.6 2010-10-29 03:24:10 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,42 +70,6 @@ protected:
     const Geometry::RandomLine*	rdlgeom_;
 
     bool		acceptOK(CallBacker*);
-};
-
-
-mClass uiSeisRandTo2DGridDlg : public uiFullBatchDialog
-{
-public:
-    			uiSeisRandTo2DGridDlg(uiParent*,
-					      const Geometry::RandomLine*);
-
-    bool		fillPar(IOPar&);
-    bool		prepareProcessing()		{ return true; }
-
-protected:
-
-    uiSeisRandTo2DBase*	basegrp_;
-    uiGroup*		inpgrp_;
-    uiGenInput*		parlineprefixfld_;
-    uiGenInput*		perplineprefixfld_;
-    uiGenInput*		distfld_;
-    uiLabel*		nrparlinesfld_;
-    uiLabel*		nrperplinesfld_;
-    uiGraphicsView*	preview_;
-
-    const Geometry::RandomLine*	rdlgeom_;
-    Geometry::RandomLineSet*	parallelset_;
-    Geometry::RandomLineSet*	perpset_;
-
-    void		distChgCB(CallBacker*);
-
-    bool		checkInputs();
-    bool		createLines();
-    void		createPreview();
-    void		updatePreview();
-    void		drawLines(const uiWorld2Ui&,bool);
-
-    bool		getNodePositions(BinID&,BinID&) const;
 };
 
 #endif
