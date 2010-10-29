@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.8 2010-10-26 15:12:19 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.9 2010-10-29 11:55:19 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: stratlayer.cc,v 1.8 2010-10-26 15:12:19 cvsbert
 
 const PropertyRef& Strat::Layer::thicknessRef()
 {
-    PropertyRef* ref = 0;
+    static PropertyRef* ref = 0;
     if ( !ref )
     {
 	ref = new PropertyRef( "Thickness", PropertyRef::Dist );
