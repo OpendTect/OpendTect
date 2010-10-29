@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		August 2010
- RCS:		$Id: googletranslator.h,v 1.4 2010-10-26 06:41:37 cvsnanne Exp $
+ RCS:		$Id: googletranslator.h,v 1.5 2010-10-29 02:30:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "texttranslator.h"
 
 #include "bufstring.h"
-#include <string>
-
 
 class ODHttp;
 
@@ -51,15 +49,22 @@ protected:
     void		messageCB(CallBacker*);
 
     ODHttp&		odhttp_;
-    mutable std::wstring translation_;
+    mutable wchar_t*	translation_;
 
 	mStruct LanguageInfo
 	{
 				LanguageInfo( const wchar_t* unm,
 					      const char* nm, const char* code )
-				    : username_(unm), name_(nm), code_(code) {}
+				    : name_(nm), code_(code)
+				{
+				    username_ = new wchar_t [ wcslen(unm)+1 ];
+				    wcscpy(username_,unm);
+				    username_[ wcslen(unm) ] = L'\0';
+				}
 
-	    std::wstring	username_;
+				~LanguageInfo()	    { delete [] username_; }
+
+	    wchar_t*		username_;
 	    BufferString	name_;
 	    BufferString	code_;
 	};

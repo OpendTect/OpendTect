@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: googletranslator.cc,v 1.3 2010-10-26 06:41:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: googletranslator.cc,v 1.4 2010-10-29 02:30:05 cvsnanne Exp $";
 
 #include "googletranslator.h"
 #include "odhttp.h"
@@ -28,6 +28,7 @@ void setStatusMessage( const char* msg )
 GoogleTranslator::GoogleTranslator()
     : odhttp_(*new ODHttp())
     , tolanguage_(0)
+    , translation_(new wchar_t [256])
 {
     odhttp_.readyRead.notify( mCB(this,GoogleTranslator,readyCB) );
     odhttp_.disconnected.notify( mCB(this,GoogleTranslator,disConnCB) );
@@ -38,6 +39,7 @@ GoogleTranslator::GoogleTranslator()
 
 GoogleTranslator::~GoogleTranslator()
 {
+    delete [] translation_;
     delete &odhttp_;
 }
 
@@ -55,7 +57,7 @@ int GoogleTranslator::nrSupportedLanguages() const
 { return infos_.size(); }
 
 const wchar_t* GoogleTranslator::getLanguageUserName( int idx ) const
-{ return infos_.validIdx(idx) ? infos_[idx]->username_.c_str() : 0; }
+{ return infos_.validIdx(idx) ? infos_[idx]->username_ : 0; }
 
 const char* GoogleTranslator::getLanguageName( int idx ) const
 { return infos_.validIdx(idx) ? infos_[idx]->name_.buf() : 0; }
@@ -121,22 +123,25 @@ void GoogleTranslator::readyCB( CallBacker* )
 	int idx1 = qresult.indexOf( "translatedText" );
 	idx1 += 17;
 	int idx2 = qresult.indexOf( '"', idx1 );
-	translation_ = qresult.mid( idx1, idx2-idx1 ).toStdWString();
+	QString qtrl = qresult.mid( idx1, idx2-idx1 );
+	qtrl.toWCharArray( translation_ );
+	translation_[idx2-idx1] = L'\0';
     }
     else
-	translation_ = L"";
+	wcscpy(translation_,L"?");
 
     ready.trigger( odhttp_.currentRequestID() );
 }
 
 
 const wchar_t* GoogleTranslator::get() const
-{ return translation_.c_str(); }
+{ return translation_; }
 
 
 void GoogleTranslator::init()
 {
-    infos_ += new LanguageInfo( L"中国", "Chinese", "zh-CN" );
+#ifndef __win__
+    infos_ += new LanguageInfo( L"中国\0", "Chinese", "zh-CN" );
     infos_ += new LanguageInfo( L"Nederlands", "Dutch", "nl" );
     infos_ += new LanguageInfo( L"Deutch", "German", "de" );
     infos_ += new LanguageInfo( L"Español", "Spanish", "es" );
@@ -146,6 +151,18 @@ void GoogleTranslator::init()
     infos_ += new LanguageInfo( L"日本", "Japanese", "ja" );
     infos_ += new LanguageInfo( L"Português", "Portuguese", "pt" );
     infos_ += new LanguageInfo( L"Русский", "Russian", "ru" );
+#else
+    infos_ += new LanguageInfo( L"Chinese", "Chinese", "zh-CN" );
+    infos_ += new LanguageInfo( L"Nederlands", "Dutch", "nl" );
+    infos_ += new LanguageInfo( L"Deutch", "German", "de" );
+    infos_ += new LanguageInfo( L"Español", "Spanish", "es" );
+    infos_ += new LanguageInfo( L"Français", "French", "fr" );
+    infos_ += new LanguageInfo( L"Hindi", "Hindi", "hi" );
+    infos_ += new LanguageInfo( L"Italiano", "Italian", "it" );
+    infos_ += new LanguageInfo( L"Japanese", "Japanese", "ja" );
+    infos_ += new LanguageInfo( L"Português", "Portuguese", "pt" );
+    infos_ += new LanguageInfo( L"Russian", "Russian", "ru" );
+#endif
 
     tolanguage_ = infos_[1];
 }
