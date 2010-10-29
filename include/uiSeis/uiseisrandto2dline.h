@@ -7,25 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: uiseisrandto2dline.h,v 1.6 2010-10-29 03:24:10 cvsraman Exp $
+ RCS:		$Id: uiseisrandto2dline.h,v 1.7 2010-10-29 03:33:16 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibatchlaunch.h"
+#include "uidialog.h"
 #include "uigroup.h"
-#include "uilabel.h"
-#include "position.h"
 
-class CtxtIOObj;
 class IOObj;
-class LineKey;
 class uiGenInput;
-class uiGraphicsView;
 class uiIOObjSel;
-class uiPushButton;
 class uiSeisSel;
-class uiWorld2Ui;
 
 namespace Geometry { class RandomLine; class RandomLineSet; }
 
