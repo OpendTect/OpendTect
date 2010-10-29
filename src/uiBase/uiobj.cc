@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.98 2010-10-26 06:31:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.99 2010-10-29 05:57:08 cvsranojay Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -278,7 +278,7 @@ uiObject::~uiObject()
     closed.trigger();
     uiobjectlist_ -= this;
 
-    if ( translateid_ >= 0 )
+    if ( translateid_ >= 0 && TrMgr().tr() )
 	TrMgr().tr()->ready.remove( mCB(this,uiObject,trlReady) );
 }
 
