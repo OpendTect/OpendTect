@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.26 2010-10-28 07:28:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.27 2010-11-01 09:12:43 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -155,7 +155,6 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 	    "Azimuth slider" );
     azimuthfld_->attach( centeredBelow, intensityfld_ );
     azimuthfld_->dial()->setWrapping( true );
-//    azimuthfld_->dial()->setOrientation( uiDial::Vertical );
     azimuthfld_->dial()->setMinValue( 0 );
     azimuthfld_->dial()->setMaxValue( 360 );
     azimuthfld_->dial()->setInterval( StepInterval<int>( 0, 360, 5 ) );
@@ -217,41 +216,22 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 
 uiDirLightDlg::~uiDirLightDlg()
 {
+    // Remove only those callbacks that will survive this dialog.
+    
     removeSceneNotifiers();
 
-    const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
-    azimuthfld_->dial()->valueChanged.remove( chgCB );
-    dipfld_->sldr()->valueChanged.remove( chgCB ); 
-    intensityfld_->sldr()->valueChanged.remove( chgCB ); 
-    headonintensityfld_->sldr()->valueChanged.remove( 
-	    mCB(this,uiDirLightDlg,headOnChangedCB) ); 
-    ambintensityfld_->sldr()->valueChanged.remove( 
-	    mCB(this,uiDirLightDlg,ambientChangedCB) ); 
-    scenefld_->box()->selectionChanged.remove( 
-	    mCB(this,uiDirLightDlg,sceneSelChangedCB) );
-    showpdfld_->activated.remove(
-	    mCB(this,uiDirLightDlg,showPolarDiagramCB) );
     visserv_->nrScenesChange().remove(
 	    mCB(this,uiDirLightDlg,nrScenesChangedCB) );
-    cameralightfld_->activated.remove( 
-	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
-    scenelightfld_->activated.remove( 
-	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
-
-    if ( mShowLightIcons )
-    finaliseDone.remove( mCB(this, uiDirLightDlg, dlgDoneCB) );
 
     delete pm1_;
     delete pm2_;
 
     if ( pd_ )
     {
-	pd_->valueChanged.remove( mCB(this, uiDirLightDlg, polarDiagramCB) );
         delete pd_;
 	pd_ = 0;
     }
     
-    pddlg_->finaliseDone.remove( mCB(this, uiDirLightDlg, pdDlgDoneCB) );
     pddlg_->close();
     delete pddlg_;
 }
