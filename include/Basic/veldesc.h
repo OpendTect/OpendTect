@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.13 2010-03-12 13:42:03 cvskris Exp $
+ RCS:		$Id: veldesc.h,v 1.14 2010-11-01 17:30:30 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -23,7 +23,7 @@ ________________________________________________________________________
 mClass VelocityDesc
 {
 public:
-    enum Type		{ Unknown, Interval, RMS, Avg };
+    enum Type		{ Unknown, Interval, RMS, Avg, Delta, Epsilon, Eta };
     			DeclareEnumUtils(Type);
     
 			VelocityDesc();
@@ -34,6 +34,15 @@ public:
 
     bool		operator==(const VelocityDesc&) const;
     bool		operator!=(const VelocityDesc&) const;
+
+    static bool		isVelocity(Type);
+			//!<\returns true if not unknown or a Thomsen parameter
+    bool		isVelocity() const;
+			//!<\returns true if not unknown or a Thomsen parameter
+    static bool		isThomsen(Type);
+			//!<\returns true if not unknown or a Velocity
+    bool		isThomsen() const;
+			//!<\returns true if not unknown or a Velocity
 
     static void		removePars(IOPar&);
     void		fillPar(IOPar&) const;

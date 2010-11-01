@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: veldesc.cc,v 1.14 2010-03-12 13:42:03 cvskris Exp $";
+static const char* rcsID = "$Id: veldesc.cc,v 1.15 2010-11-01 17:30:30 cvskris Exp $";
 
 
 #include "veldesc.h"
@@ -22,7 +22,7 @@ const char* VelocityDesc::sKeyVelocityType()	{ return "Velocity Type"; }
 const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
 
 DefineEnumNames(VelocityDesc,Type,0,"Velocity Types")
-{ "Unknown", "Vint", "Vrms", "Vavg", 0 };
+{ "Unknown", "Vint", "Vrms", "Vavg", "Delta", "Epsilon", "Eta", 0 };
 
 VelocityDesc::VelocityDesc()
     : type_( Unknown )
@@ -44,6 +44,26 @@ bool VelocityDesc::operator!=( const VelocityDesc& b ) const
 {
     return !(*this==b);
 }
+
+
+bool VelocityDesc::isVelocity( VelocityDesc::Type type )
+{ return type==Interval || type==RMS || type==Avg; }
+
+
+
+bool VelocityDesc::isVelocity() const
+{ return isVelocity(type_); }
+
+
+
+bool VelocityDesc::isThomsen( VelocityDesc::Type type )
+{ return type==Delta || type==Epsilon || type==Eta; }
+
+
+
+bool VelocityDesc::isThomsen() const
+{ return isThomsen(type_); }
+
 
 
 void VelocityDesc::fillPar( IOPar& par ) const
