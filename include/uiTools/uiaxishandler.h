@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.24 2010-02-10 09:02:56 cvsbruno Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.25 2010-11-01 14:36:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
 			    , noaxisline_(false)
 			    , noaxisannot_(false)
 			    , nogridline_(false)
-			    , noborderspace_(false)
+			    , annotinside_(false)
 			    , ticsz_(2)	
 			    , width_(w)
 			    , height_(h)
@@ -65,13 +65,13 @@ public:
 			    {}
 
 	mDefSetupMemb(uiRect::Side,side)
-	mDefSetupMemb(int, width)
-	mDefSetupMemb(int, height)
+	mDefSetupMemb(int,width)
+	mDefSetupMemb(int,height)
 	mDefSetupMemb(bool,islog)
 	mDefSetupMemb(bool,noaxisline)
 	mDefSetupMemb(bool,noaxisannot)
 	mDefSetupMemb(bool,nogridline)
-	mDefSetupMemb(bool,noborderspace)
+	mDefSetupMemb(bool,annotinside)
 	mDefSetupMemb(int,ticsz)
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(LineStyle,style)
@@ -80,7 +80,7 @@ public:
 	mDefSetupMemb(float,epsaroundzero)
 
 	Setup&		noannot( bool yn )
-			{ noaxisline_ = noaxisannot_ = nogridline_ = !yn;
+			{ noaxisline_ = noaxisannot_ = nogridline_ = yn;
 			  return *this; }
     };
 
@@ -109,7 +109,7 @@ public:
     Setup&		setup() 	{ return setup_; }
     StepInterval<float>	range() const	{ return rg_; }
     bool		isHor() const	{ return uiRect::isHor(setup_.side_); }
-    int			pixToEdge() const;
+    int			pixToEdge(bool withborder=true) const;
     int			pixBefore() const;
     int			pixAfter() const;
     Interval<int>	pixRange() const;

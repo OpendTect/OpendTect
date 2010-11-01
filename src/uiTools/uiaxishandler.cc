@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.43 2010-10-28 07:28:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.44 2010-11-01 14:36:13 cvsbruno Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -180,10 +180,10 @@ int uiAxisHandler::getPix( float pos ) const
 }
 
 
-int uiAxisHandler::pixToEdge() const
+int uiAxisHandler::pixToEdge( bool withborder ) const
 {
-    int ret = setup_.border_.get(setup_.side_);
-    if ( setup_.noaxisannot_ || setup_.noborderspace_ ) return ret;
+    int ret = withborder ? setup_.border_.get(setup_.side_) : 0;
+    if ( setup_.noaxisannot_ || setup_.annotinside_ ) return ret;
 
     ret += ticsz_ + (isHor() ? wdthy_ : wdthx_);
     return ret;
@@ -243,7 +243,7 @@ void uiAxisHandler::createAnnotItems()
 
 void uiAxisHandler::createGridLines()
 {
-    if ( gridlineitmgrp_ && !setup_.nogridline_ && !setup_.noaxisannot_ )
+    if ( gridlineitmgrp_ && !setup_.nogridline_ )
     {
 	for ( int idx=0; idx<gridlineitmgrp_->size(); idx++ )
 	{
@@ -255,7 +255,7 @@ void uiAxisHandler::createGridLines()
 
     if ( setup_.style_.isVisible() )
     {
-	if ( !gridlineitmgrp_ && !setup_.nogridline_ && !setup_.noaxisannot_ )
+	if ( !gridlineitmgrp_ && !setup_.nogridline_ )
 	{
 	    gridlineitmgrp_ = new uiGraphicsItemGroup();
 	    scene_->addItemGrp( gridlineitmgrp_ );
@@ -455,11 +455,14 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 {
     if ( setup_.noaxisannot_ ) return;
     const int edgepix = pixToEdge();
+    const bool inside = setup_.annotinside_;
     if ( isHor() )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
-	const int y0 = istop ? edgepix : height_ - edgepix;
-	const int y1 = istop ? y0 - ticsz_ : y0 + ticsz_;
+	const int y0 = istop ? ( inside ? height_ - edgepix : edgepix ) 
+			     : ( inside ? edgepix : height_ - edgepix ); 
+	const int y1 = istop ? ( inside ? y0 + ticsz_ : y0 - ticsz_ ) 
+			     : ( inside ? y0 - ticsz_ : y0 + ticsz_ ); 
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( pix, y0, pix, y1 );
 	annotposlineitm->setZValue( 3 );
@@ -476,8 +479,10 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	const int x0 = isleft ? edgepix : width_ - edgepix;
-	const int x1 = isleft ? x0 - ticsz_ : x0 + ticsz_;
+	const int x0 = isleft ? ( inside ? width_ - edgepix : edgepix )
+	    		      : ( inside ? edgepix : width_ - edgepix );
+	const int x1 = isleft ? ( inside ? x0 + ticsz_ : x0 - ticsz_ )
+	    		      : ( inside ? x0 - ticsz_ : x0 + ticsz_ );
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( x0, pix, x1, pix );
 	annotposlineitm->setZValue( 3 );
