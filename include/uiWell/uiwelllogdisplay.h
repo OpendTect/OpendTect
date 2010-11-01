@@ -39,20 +39,19 @@ public:
 			    , markerls_(LineStyle::Dot,1)
 			    , pickls_(LineStyle::Solid,1,Color(0,200,0))
 			    , border_(5)
-			    , noborder_(false)
-			    , noxgridline_(false)
-			    , noygridline_(false)      		     
-			    , axisticsz_(2)
+			    , noxannot_(false)
+			    , noyannot_(false)      		     
+			    , annotinside_(false)
 			    {}
 
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(int,nrmarkerchars)  //!< Will display up to this nr chars
 	mDefSetupMemb(LineStyle,markerls) //!< will not use color
 	mDefSetupMemb(LineStyle,pickls)   //!< color used if no PickData color
-	mDefSetupMemb(bool,noborder)
 	mDefSetupMemb(int,axisticsz)
-	mDefSetupMemb(bool,noxgridline)
-	mDefSetupMemb(bool,noygridline)
+	mDefSetupMemb(bool,noxannot)
+	mDefSetupMemb(bool,noyannot)
+	mDefSetupMemb(bool,annotinside)
     };  
 
 			    uiWellLogDisplay(uiParent*,const Setup&);
