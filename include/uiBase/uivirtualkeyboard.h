@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Jaap Glas
  Date:          October 2010
- RCS:           $Id: uivirtualkeyboard.h,v 1.1 2010-10-22 15:22:22 cvsjaap Exp $
+ RCS:           $Id: uivirtualkeyboard.h,v 1.2 2010-11-01 14:14:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ protected:
     uiGraphicsViewBase*		viewbase_;
     uiLineEdit*			textline_;
 
-    void			addLed(const uiPoint&,const Color&);
+    void			addLed(float x,float y,const Color&);
     void			updateLeds();
     uiGraphicsItemSet*		leds_;
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.2 2010-10-25 05:17:30 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.3 2010-11-01 14:14:05 cvsjaap Exp $";
 
 #include "uivirtualkeyboard.h"
 
@@ -73,20 +73,13 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     viewbase_->setPrefWidth( mNINT(keyboardwidth) );
     viewbase_->setPrefHeight( mNINT(keyboardheight) );
 
-    addLed( uiPoint(mNINT(keyboardscale_)* 46,mNINT(keyboardscale_)* 86),
-	    Color(255,0,0) );
-    addLed( uiPoint(mNINT(keyboardscale_)* 62,mNINT(keyboardscale_)*118),
-	    Color(255,0,0) );
-    addLed( uiPoint(mNINT(keyboardscale_)* 38,mNINT(keyboardscale_)*150),
-	    Color(255,0,0) );
-    addLed( uiPoint(mNINT(keyboardscale_)*118,mNINT(keyboardscale_)*150),
-	    Color(255,0,0) );
-    addLed( uiPoint(mNINT(keyboardscale_)*470,mNINT(keyboardscale_)*118),
-	    Color(0,255,0) );
-    addLed( uiPoint(mNINT(keyboardscale_)*358,mNINT(keyboardscale_)*150),
-	    Color(0,255,0) );
-    addLed( uiPoint(mNINT(keyboardscale_)*470,mNINT(keyboardscale_)*150),
-	    Color(0,255,0) );
+    addLed(  46,  86, Color(255,0,0) );
+    addLed(  62, 118, Color(255,0,0) );
+    addLed(  38, 150, Color(255,0,0) );
+    addLed( 118, 150, Color(255,0,0) );
+    addLed( 470, 118, Color(0,255,0) );
+    addLed( 358, 150, Color(0,255,0) );
+    addLed( 470, 150, Color(0,255,0) );
     updateLeds();
 
     windowClosed.notify( mCB(this,uiVirtualKeyboard,exitCB) );
@@ -96,16 +89,11 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
 
 uiVirtualKeyboard::~uiVirtualKeyboard()
 {
-    windowClosed.remove( mCB(this,uiVirtualKeyboard,exitCB) );
-
     viewbase_->scene().removeItems( *leds_ );
     delete leds_;
 
     viewbase_->scene().getMouseEventHandler().buttonReleased.remove(
 					mCB(this,uiVirtualKeyboard,clickCB) );
-
-    textline_->returnPressed.remove( mCB(this,uiVirtualKeyboard,enterCB) );
-    textline_->selectionChanged.remove( mCB(this,uiVirtualKeyboard,selChg) );
 }
 
 
@@ -113,9 +101,10 @@ bool uiVirtualKeyboard::enterPressed() const
 { return enterpressed_; }
 
 
-void uiVirtualKeyboard::addLed( const uiPoint& point, const Color& color )
+void uiVirtualKeyboard::addLed( float x, float y, const Color& color )
 {
-    MarkerStyle2D markerstyle( MarkerStyle2D::Circle, mNINT(keyboardscale_)*4 );
+    MarkerStyle2D markerstyle( MarkerStyle2D::Circle, mNINT(4*keyboardscale_) );
+    uiPoint point( mNINT(x*keyboardscale_), mNINT(y*keyboardscale_) );
     uiMarkerItem* led = new uiMarkerItem( point, markerstyle );
     led->setFillColor( color );
     led->setZValue( 1 );
@@ -231,9 +220,9 @@ void uiVirtualKeyboard::clickCB( CallBacker* )
     const bool shiftstatus = (shiftlock_!=shift_) != ev.rightButton();
 
     char str[2]; str[1] = '\0';
-    str[0] = mousePress2Key( ev.x()/mNINT(keyboardscale_), 
-	    		     ev.y()/mNINT(keyboardscale_), capslock_,
-			     shiftstatus ); 
+    str[0] = mousePress2Key( mNINT( ev.x()/keyboardscale_ ), 
+	    		     mNINT( ev.y()/keyboardscale_ ),
+			     capslock_, shiftstatus ); 
     restoreSelection();
 
     if ( str[0] == CapsLock )
