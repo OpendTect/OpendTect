@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.127 2010-08-11 09:30:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.128 2010-11-01 09:08:27 cvsranojay Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -158,6 +158,19 @@ RandomTrackDisplay::~RandomTrackDisplay()
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
+}
+
+
+CubeSampling RandomTrackDisplay::getCubeSampling( int attrib ) const
+{
+    CubeSampling cs( false );
+    TypeSet<BinID> knots;
+    getAllKnotPos( knots );
+    for ( int idx=0; idx<knots.size(); idx++ )
+	cs.hrg.include( knots[idx] );
+
+    cs.zrg.setFrom( getDepthInterval() );
+    return cs;
 }
 
 

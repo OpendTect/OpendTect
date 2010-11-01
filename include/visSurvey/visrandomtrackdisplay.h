@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.82 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.83 2010-11-01 09:08:27 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -113,6 +113,7 @@ public:
     void			lockGeometry(bool);
     bool			isGeometryLocked() const;
 
+    CubeSampling		getCubeSampling(int attrib) const;
     void			setDepthInterval(const Interval<float>&);
     const Interval<float>&	getDepthInterval() const;
 
