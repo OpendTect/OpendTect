@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.15 2010-10-26 17:01:43 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.16 2010-11-01 16:14:41 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -466,7 +466,6 @@ void GriddedSource::setSource( ObjectSet<FunctionSource>& nvfs )
 
     gridderinited_ = false;
     initGridder();
-
 }
 
 
@@ -532,6 +531,9 @@ GriddedFunction* GriddedSource::createFunction( const BinID& binid )
 
 void GriddedSource::sourceChangeCB( CallBacker* cb )
 {
+    gridderinited_ = false;
+    initGridder();
+
     mDynamicCastGet( FunctionSource*, src, cb );
     const BinID bid = src->changeBinID();
 
@@ -547,9 +549,6 @@ void GriddedSource::sourceChangeCB( CallBacker* cb )
     }
 
     functionslock_.readUnLock();
-
-    gridderinited_ = false;
-    initGridder();
 
     changebid_ = BinID(-1,-1);
     notifier_.trigger();
