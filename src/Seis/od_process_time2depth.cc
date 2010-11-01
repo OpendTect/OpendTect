@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.7 2010-11-01 16:22:03 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.8 2010-11-01 17:32:34 cvskris Exp $";
 
 #include "batchprog.h"
 #include "process_time2depth.h"
@@ -88,9 +88,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     VelocityDesc veldesc;
     const bool isvel = veldesc.usePar( inputioobj->pars() ) &&
-	(veldesc.type_==VelocityDesc::RMS ||
-	 veldesc.type_==VelocityDesc::Interval ||
-	 veldesc.type_==VelocityDesc::Avg );
+			veldesc.isVelocity();
 
     if ( isvel )
 	strm << "\nDetected that the stretching will be done on velocities.\n"
