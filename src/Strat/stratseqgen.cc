@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.9 2010-10-29 05:53:05 cvsranojay Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.10 2010-11-02 16:10:17 cvsbert Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
@@ -284,7 +284,7 @@ void Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 	const char* propnm = proppar->find( sKey::Name );
 	if ( !propnm || !*propnm )
 	    continue;
-	const PropertyRef* pref = PROPS().find( res );
+	const PropertyRef* pref = PROPS().find( propnm );
 	if ( !pref && (pidx == 0 || Layer::thicknessRef().name() == propnm) )
 	    pref = &Layer::thicknessRef();
 	if ( !pref )
