@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.32 2010-10-06 20:29:52 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.33 2010-11-02 18:48:29 cvsyuancheng Exp $";
 
 #include "timedepthconv.h"
 
@@ -292,7 +292,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
 {
     if ( !velreader_ )
 	return true;
-
+    
     mDynamicCastGet( SeisTrcTranslator*, veltranslator,
 		     velreader_->translator() );
 
@@ -337,8 +337,6 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
 
     TimeDepthDataLoader loader( *arr, *velreader_, readcs, veldesc_,
 	    SamplingData<double>(voi.zrg), velintime_, voiintime_[idx] );
-
-
     if ( (tr && !tr->execute( loader ) ) || !loader.execute() )
 	return false;
 
@@ -400,7 +398,7 @@ void Time2DepthStretcher::transform(const BinID& bid,
 	if ( !voidata_[idx] )
 	    continue;
 
-	if ( !voivols_[idx].hrg.includes( bid ) )
+	if ( !voivols_[idx].hrg.includes( bid ) ) 
 	    continue;
 
 	const Interval<float> voirg = getTimeInterval( bid, idx );
@@ -408,7 +406,7 @@ void Time2DepthStretcher::transform(const BinID& bid,
 	    continue;
 
 	Interval<float> tmp( resrg );
-	if ( !voirg.overlaps( resrg ), false )
+	if ( !voirg.overlaps( resrg, false ) )
 	    continue;
 
 	tmp.limitTo( voirg );
