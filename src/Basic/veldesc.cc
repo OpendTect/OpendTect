@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: veldesc.cc,v 1.15 2010-11-01 17:30:30 cvskris Exp $";
+static const char* rcsID = "$Id: veldesc.cc,v 1.16 2010-11-02 15:00:29 cvskris Exp $";
 
 
 #include "veldesc.h"
@@ -103,11 +103,8 @@ bool VelocityDesc::usePar( const IOPar& par )
 	if ( sepstr.size()<1 )
 	    return false;
 
-	const int idx = TypeDef().convert( sepstr[0] );
-	if ( idx<0 )
+	if ( !TypeParse( sepstr[0], type_ ) )
 	    return false;
-
-	type_ = (Type) idx;
 
 	statics_.velattrib_.setEmpty();
 	statics_.vel_ = mUdf(float);
@@ -115,10 +112,8 @@ bool VelocityDesc::usePar( const IOPar& par )
 	return true;
     }
 
-    const int type = TypeDef().convert( typestr );
-    if ( type==-1 ) return false;
-
-    type_ = (Type) type;
+    if ( !TypeParse( typestr, type_ ) )
+	return false;
 
     if ( type_==RMS && !statics_.usePar( par ) )
 	return false;
