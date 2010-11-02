@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.20 2010-11-02 14:59:29 cvskris Exp $
+ RCS:		$Id: enums.h,v 1.21 2010-11-02 19:48:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ public:
     enum			State { Good, Bad, Ugly };
     static const EnumDef&	StateDef();
     static const char**		StateNames();
+    static bool 		parseEnumState(const char*, State& );
 
 protected:
 
@@ -91,6 +92,7 @@ public:
     void			setType(Type _e_) { type_ = _e_; }
     static const EnumDef&	TypeDef();
     static const char**		TypeNames();
+    static bool 		parseEnumType(const char*, Type& );
 
 protected:
 
@@ -108,6 +110,16 @@ and, in myclass.cc:
 \code
 
 const EnumDef& MyClass::StateDef()    { return StateDefinition_; }
+bool MyClass::parseEnumState(const char* str, State& res )
+{ \
+    const int idx = StateDef().convert( txt ); \
+    if ( idx<0 ) \
+	return false; \
+ \
+    res = (enm) idx; \
+    return true; \
+} \
+
 const EnumDef MyClass::StateDefinition_("My class state",MyClass::Statenames,1);
 
 const char* MyClass::Statenames_[] =
@@ -116,6 +128,15 @@ const char* MyClass::Statenames_[] =
 
 const EnumDef& MyClass::TypeDef()   { return TypeDefinition_; }
 const EnumDef MyClass::TypeDefinition_( "My class type", MyClass::Typenames, 0 );
+bool MyClass::parseEnumType(const char* str, Type& res )
+{ \
+    const int idx = TypeDef().convert( txt ); \
+    if ( idx<0 ) \
+	return false; \
+ \
+    res = (enm) idx; \
+    return true; \
+} \
 
 const char* MyClass::Typenames_[] =
         { "Yes", "No", "Not sure", 0 };
@@ -162,7 +183,7 @@ protected:
 public: \
     static const EnumDef& enm##Def(); \
     static const char** enm##Names();\
-    static bool enm##Parse(const char*,enm&); \
+    static bool parseEnum##enm(const char*,enm&); \
 protected: \
     static const char* enm##Names_[];\
     static const EnumDef enm##Definition_; \
@@ -191,7 +212,7 @@ const EnumDef& clss::enm##Def() \
     { return enm##Definition_; } \
 const char** clss::enm##Names() \
     { return enm##Names_; }  \
-bool clss::enm##Parse(const char* txt, enm& res ) \
+bool clss::parseEnum##enm(const char* txt, enm& res ) \
 { \
     const int idx = enm##Def().convert( txt ); \
     if ( idx<0 ) \
