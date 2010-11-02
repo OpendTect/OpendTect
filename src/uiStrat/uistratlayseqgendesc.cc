@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.9 2010-10-29 09:08:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.10 2010-11-02 16:11:39 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -99,9 +99,8 @@ void uiLayerSequenceGenDesc::reDraw( CallBacker* )
 
     if ( !outeritm_ )
     {
-	outeritm_ = new uiRectItem;
+	outeritm_ = scene().addItem( new uiRectItem );
 	outeritm_->setPenColor( Color::Black() );
-	scene().addItem( outeritm_ );
     }
     outeritm_->setRect( workrect_.left(), workrect_.top(),
 	    		workrect_.width(), workrect_.height() );
@@ -110,16 +109,15 @@ void uiLayerSequenceGenDesc::reDraw( CallBacker* )
     {
 	if ( !emptyitm_ )
 	{
-	    emptyitm_ = new uiTextItem( "<Click to add>",
-		    			mAlignment(HCenter,VCenter) );
+	    emptyitm_ = scene().addItem( new uiTextItem( "<Click to add>",
+					mAlignment(HCenter,VCenter) ) );
 	    emptyitm_->setPenColor( Color::Black() );
 	    emptyitm_->setPos( workrect_.centre() );
-	    scene().addItem( emptyitm_ );
 	}
     }
     else
     {
-	delete scene().removeItem(emptyitm_); emptyitm_ = 0;
+	delete emptyitm_; emptyitm_ = 0;
 	doDraw();
     }
 }
@@ -143,17 +141,14 @@ uiSingleLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
 	vpr->val_ = lg.dispThickness();
     }
 
-    nm_ = new uiTextItem( gen_->name(), mAlignment(HCenter,VCenter) );
-    scene_.addItem( nm_ );
+    nm_ = scene_.addItem( new uiTextItem( gen_->name(),
+			  mAlignment(HCenter,VCenter) ) );
     nm_->setPenColor( Color::Black() );
-
-    top_ = new uiLineItem;
+    top_ = scene_.addItem( new uiLineItem );
     top_->setPenStyle( LineStyle(LineStyle::Solid) );
-    scene_.addItem( top_ );
-    poly_ = new uiPolygonItem;
+    poly_ = scene_.addItem( new uiPolygonItem );
     poly_->setPenStyle( LineStyle(LineStyle::Solid,1,
 			gen_->unit().upNode()->color()) );
-    scene_.addItem( poly_ );
 }
 
 
@@ -161,6 +156,7 @@ uiSingleLayerSequenceGenDesc::DispUnit::~DispUnit()
 {
     if ( genmine_ )
 	delete const_cast<Strat::SingleLayerGenerator*>(gen_);
+    delete nm_; delete top_; delete poly_;
 }
 
 
