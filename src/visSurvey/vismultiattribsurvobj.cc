@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.59 2010-07-01 22:55:22 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.60 2010-11-02 08:16:11 cvskarthika Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.59 2010-07-01 22:5
 #include "keystrs.h"
 #include "math2.h"
 #include "zaxistransform.h"
+#include "envvars.h"
 
 
 namespace visSurvey {
@@ -39,6 +40,10 @@ MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
     , resolution_( 0 )
     , enabletextureinterp_( true )
 {
+    const char* envvar = GetEnvVar( "OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
+    if ( envvar && isdigit(*envvar) )
+	resolution_ = toInt( envvar );
+
     if ( texture_ )
     {
 	texture_->ref();
