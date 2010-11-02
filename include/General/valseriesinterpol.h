@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseriesinterpol.h,v 1.6 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: valseriesinterpol.h,v 1.7 2010-11-02 16:11:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,9 @@ public:
 			, extrapol_(false)
 			, udfval_(mUdf(T))
 			, isperiodic_(false)
-			, hasudfs_(true)
-			, period_(1)		{}
+			, period_(1)
+			, linear_(false)
+			, hasudfs_(true)	{}
 
     inline T		value(const ValueSeries<T>&,T pos) const;
 
@@ -45,6 +46,7 @@ public:
     bool		isperiodic_;
     bool		hasudfs_;
     T			period_;
+    bool		linear_;
 
 };
 
@@ -76,9 +78,19 @@ inline T ValueSeriesInterpolator<T>::value( const ValueSeries<T>& vda,
     pos -= lopos; // now 0 < pos < 1
     T rv;
     if ( !isperiodic_ )
-	rv = hasudfs_
-	   ? Interpolate::polyReg1DWithUdf( v[0], v[1], v[2], v[3], pos )
-	   : Interpolate::polyReg1D( v[0], v[1], v[2], v[3], pos );
+    {
+	if ( linear_ )
+	{
+	    if ( hasudfs_ && (mIsUdf(v[1]) || mIsUdf(v[2])) )
+		rv = pos < 0.5 ? v[1] : v[2];
+	    else
+		rv = pos*v[2] + (1-pos)*v[1];
+	}
+	else
+	    rv = hasudfs_
+	       ? Interpolate::polyReg1DWithUdf( v[0], v[1], v[2], v[3], pos )
+	       : Interpolate::polyReg1D( v[0], v[1], v[2], v[3], pos );
+    }
     else
     {
 	if ( hasudfs_ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.3 2010-10-27 15:18:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.4 2010-11-02 16:11:10 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -32,20 +32,19 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     reSize.notify( mCB(this,uiStratLayerModelDisp,reDraw) );
     reDrawNeeded.notify( mCB(this,uiStratLayerModelDisp,reDraw) );
 
-    uiBorder border( 5 );
-    uiAxisHandler::Setup xahsu( uiRect::Top );
+    getMouseEventHandler().buttonReleased.notify(
+	    			mCB(this,uiStratLayerModelDisp,usrClickCB) );
+
+    const uiBorder border( 10 );
+    uiAxisHandler::Setup xahsu( uiRect::Bottom );
     xahsu.border( border ).name( "Model number" ).nogridline( true )
 			    .maxnumberdigitsprecision( 0 );
     xax_ = new uiAxisHandler( &scene(), xahsu );
-
     uiAxisHandler::Setup yahsu( uiRect::Left );
     yahsu.border( border ).name( "Depth" );
     yax_ = new uiAxisHandler( &scene(), yahsu );
     yax_->setBegin( xax_ );
     xax_->setBegin( yax_ );
-
-    getMouseEventHandler().buttonReleased.notify(
-	    			mCB(this,uiStratLayerModelDisp,usrClickCB) );
 }
 
 
@@ -78,19 +77,16 @@ void uiStratLayerModelDisp::usrClickCB( CallBacker* cb )
 void uiStratLayerModelDisp::reDraw( CallBacker* )
 {
     eraseAll(); lm_.prepareUse();
-
     if ( lm_.isEmpty() )
     {
 	emptyitm_ = scene().addItem( new uiTextItem( "<---empty--->",
 				     mAlignment(HCenter,VCenter) ) );
 	emptyitm_->setPenColor( Color::Black() );
 	emptyitm_->setPos( uiPoint( width()/2, height() / 2 ) );
+	return;
     }
-    else
-    {
-	delete emptyitm_; emptyitm_ = 0;
-	doDraw();
-    }
+
+    doDraw();
 }
 
 #define mStartLayLoop \
@@ -149,6 +145,7 @@ void uiStratLayerModelDisp::doDraw()
     const Color vcol( lm_.propertyRefs()[dispprop_]->disp_.color_ );
     const float vwdth = vrg_.width();
 
+    return;
 	    // z0 z1 val imod ilay
     mStartLayLoop
 
@@ -161,13 +158,15 @@ void uiStratLayerModelDisp::doDraw()
 	{
 	    const float prevrelx = (prevval-vrg_.start) / vwdth;
 	    const int prevxpix = xax_->getPix( imod + relx );
-	    uiLineItem* it = new uiLineItem( prevxpix, ypix0, xpix, ypix0 );
+	    uiLineItem* it = scene().addItem(
+		    new uiLineItem( prevxpix, ypix0, xpix, ypix0 ) );
 	    it->setPenColor( vcol );
-	    logblckitms_ += scene().addItem( it );
+	    logblckitms_ += it;
 	}
-	uiLineItem* it = new uiLineItem( xpix, ypix0, xpix, ypix1 );
+	uiLineItem* it = scene().addItem(
+			 new uiLineItem( xpix, ypix0, xpix, ypix1 ) );
 	it->setPenColor( vcol );
-	logblckitms_ += scene().addItem( it );
+	logblckitms_ += it;
 
     mEndLayLoop(;)
 }
