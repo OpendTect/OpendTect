@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.25 2010-11-02 15:02:00 cvskris Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.26 2010-11-02 19:53:28 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -176,7 +176,7 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
 bool ColTab::MapperSetup::usePar( const IOPar& par )
 {
     const char* typestr = par.find( sKey::Type );
-    if ( !TypeParse( typestr, type_ ) )
+    if ( !parseEnumType( typestr, type_ ) )
 	return false;
 
     return par.get( sKeyClipRate(), cliprate_ ) &&
