@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.19 2010-05-21 14:57:57 cvsbert Exp $
+ RCS:		$Id: enums.h,v 1.20 2010-11-02 14:59:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,6 +162,7 @@ protected:
 public: \
     static const EnumDef& enm##Def(); \
     static const char** enm##Names();\
+    static bool enm##Parse(const char*,enm&); \
 protected: \
     static const char* enm##Names_[];\
     static const EnumDef enm##Definition_; \
@@ -190,6 +191,15 @@ const EnumDef& clss::enm##Def() \
     { return enm##Definition_; } \
 const char** clss::enm##Names() \
     { return enm##Names_; }  \
+bool clss::enm##Parse(const char* txt, enm& res ) \
+{ \
+    const int idx = enm##Def().convert( txt ); \
+    if ( idx<0 ) \
+	return false; \
+ \
+    res = (enm) idx; \
+    return true; \
+} \
 const char* clss::enm##Names_[] =
 
 #define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
