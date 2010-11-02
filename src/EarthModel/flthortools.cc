@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.26 2010-09-29 03:56:25 satyaki Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.27 2010-11-02 10:48:02 raman Exp $";
 
 #include "flthortools.h"
 
@@ -148,7 +148,7 @@ bool FaultTrace::isCrossing( const BinID& bid1, float z1,
 	return false;
 
     const bool is2d = trcnrs_.size();
-    if ( trcnrs_.size() != getSize() )
+    if ( is2d && trcnrs_.size() != getSize() )
 	return false;
 
     z1 *= SI().zFactor();
