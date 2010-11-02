@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.219 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.220 2010-11-02 16:10:46 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.219 2010-09-29 03:48:48 cvss
 #include "uitextfile.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
+#include "visemobjdisplay.h"
 #include "uimsg.h"
 
 #include "dirlist.h"
@@ -41,7 +42,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.219 2010-09-29 03:48:48 cvss
 #include "survinfo.h"
 #include "thread.h"
 
-#include "visemobjdisplay.h"
+static const char* sKeyIconSetNm = "Icon set name";
 
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
@@ -1059,9 +1060,10 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
 	if ( id >= mViewIconsMnuItm && id < mViewIconsMnuItm+100 )
 	{
-	    Settings::common().set( "Icon set name", itm->name().buf() + 1 );
+	    Settings::common().set( sKeyIconSetNm, itm->name().buf() + 1 );
 	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )
 		uiToolBar::toolBars()[idx]->reLoadPixMaps();
+	    Settings::common().write();
 	}
 	if ( id > mHelpMnu )
 	    helpmgr_->handle( id, itm->name() );
