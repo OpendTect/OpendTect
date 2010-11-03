@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.13 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.14 2010-11-03 15:17:07 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -32,7 +32,7 @@ namespace Vel
 {
 
 DefineEnumNames( Picks, PickType, 3, "Pick types" )
-{ "RMO", "RMS", 0 };
+{ "RMO", "RMS", "Delta", "Epsilon", "Eta", 0 };
 
 
 Pick::Pick( float depth, float vel, float offset,
@@ -66,6 +66,7 @@ const char* Picks::sKeyRefOffset()	{ return "Reference offset"; }
 const char* Picks::sKeyGatherID()	{ return "Gather"; }
 const char* Picks::sKeyNrHorizons()	{ return "Nr Horizons"; }
 const char* Picks::sKeyHorizonPrefix()	{ return "Horizon "; }
+const char* Picks::sKeyPickType()	{ return "Pick Type"; }
 
 
 const char* Picks::sKeyIsTime()	{ return "Z is time"; }
@@ -78,6 +79,7 @@ Picks::Picks()
     , snapper_( SI().zRange(true) )
     , changed_( false )
     , zit_( SI().zIsTime() )
+    , picktype_( SI().zIsTime() ? RMS : RMO )
     , smoother_( 0 )
     , undo_( 0 )
     , refoffset_(0)
@@ -96,6 +98,7 @@ Picks::Picks( bool zit )
     , snapper_( SI().zRange(true) )
     , changed_( false )
     , zit_( zit )
+    , picktype_( zit ? RMS : RMO )
     , smoother_( 0 )
     , undo_( 0 )
 {
@@ -132,7 +135,11 @@ const char* Picks::zDomain() const
 
 
 Picks::PickType Picks::pickType() const
-{ return zit_ ? RMS : RMO; }
+{ return picktype_; }
+
+
+void Picks::setPickType( Picks::PickType t )
+{ picktype_ = t; }
 
 
 Undo& Picks::undo()
@@ -412,6 +419,7 @@ void Picks::fillPar( IOPar& par ) const
     }
 
     par.setYN(sKeyIsTime(),zit_);
+    par.set( sKeyPickType(), PickTypeNames()[(int)picktype_] );
     if ( smoother_ ) smoother_->fillPar( par );
     par.set(sKeyRefOffset(),refoffset_);
 }
@@ -423,6 +431,17 @@ bool Picks::usePar( const IOPar& par )
     if ( !par.getYN( sKeyIsTime(), zit_ ) )
 	return false;
 
+    const FixedString typestr = par.find( sKeyPickType() );
+    if ( typestr )
+    {
+	if ( !parseEnumPickType(typestr,picktype_) )
+	    return false;
+    }
+    else
+    {
+	picktype_ = zit_ ? RMS : RMO;
+    }
+
     if ( !par.get( sKeyRefOffset(), refoffset_ ) )
 	return false;
 
@@ -432,7 +451,6 @@ bool Picks::usePar( const IOPar& par )
 	delete smoother_;
 	smoother_ = 0;
     }
-
 
     removeHorizons();
 

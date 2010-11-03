@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.9 2010-08-11 14:50:45 cvsbert Exp $
+ RCS:		$Id: velocitypicks.h,v 1.10 2010-11-03 15:17:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -59,9 +59,10 @@ public:
     			Picks();
     			Picks(bool zit);
 
-    enum PickType	{ RMO, RMS };
+    enum PickType	{ RMO, RMS, Delta, Epsilon, Eta };
      			DeclareEnumUtils(PickType);
     PickType		pickType() const;
+    void		setPickType( PickType );
     const char*		zDomain() const;
 
     Undo&		undo();
@@ -146,6 +147,7 @@ public:
     static const char*		sKeyGatherID();
     static const char*		sKeyNrHorizons();
     static const char*		sKeyHorizonPrefix();
+    static const char*		sKeyPickType();
 
 protected:
     void			removeHorizons();
@@ -172,11 +174,14 @@ protected:
     Undo*			undo_;
 
     BufferString		errmsg_;
+    Smoother1D<float>*		smoother_;
+    ObjectSet<EM::Horizon3D>	horizons_;
+
+    PickType			picktype_;
+
     bool			changed_;
     bool			zit_;
-    Smoother1D<float>*		smoother_;
 
-    ObjectSet<EM::Horizon3D>	horizons_;
 };
 
 
