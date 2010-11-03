@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.11 2010-06-17 07:36:37 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.12 2010-11-03 14:58:02 cvsyuancheng Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -176,6 +176,11 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
 uiContourTreeItem::~uiContourTreeItem()
 {
     delete arr_;
+    
+    mDynamicCastGet( visSurvey::HorizonDisplay*, hd,
+	    applMgr()->visServer()->getObject(displayID()))
+    if ( hd )
+	hd->getMovementNotifier()->remove(mCB(this,uiContourTreeItem,checkCB));
 
     applMgr()->visServer()->removeAllNotifier().remove(
 	    mCB(this,uiContourTreeItem,visClosingCB) );
@@ -222,8 +227,12 @@ void uiContourTreeItem::checkCB(CallBacker*)
     if ( newstatus && parent_ )
 	newstatus = parent_->isChecked();
 
-    if ( lines_ ) lines_->turnOn( newstatus );
-    if ( labelgrp_ ) labelgrp_->turnOn( newstatus );
+    mDynamicCastGet( visSurvey::HorizonDisplay*, hd,
+	    applMgr()->visServer()->getObject( displayID() ) );
+    const bool display = newstatus && hd && !hd->getOnlyAtSectionsDisplay();
+    
+    if ( lines_ ) lines_->turnOn( display );
+    if ( labelgrp_ ) labelgrp_->turnOn( display );
 }
 
 
@@ -335,6 +344,8 @@ void uiContourTreeItem::computeContours()
 	    	    visserv->getObject(displayID()))
     if ( !hd )
 	return;
+
+    hd->getMovementNotifier()->notify( mCB(this,uiContourTreeItem,checkCB) );
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     StepInterval<int> rowrg = hd->geometryRowRange();
@@ -496,8 +507,8 @@ void uiContourTreeItem::updateColumnText( int col )
     if ( !hd || !lines_ || !labelgrp_ ) return;
 
     const bool solomode = visserv->isSoloMode();
-    const bool turnon = ( solomode && hd->isOn() ) || 
-			( !solomode && hd->isOn() && isChecked() );
+    const bool turnon = !hd->getOnlyAtSectionsDisplay() &&
+	( solomode && hd->isOn() || (!solomode && hd->isOn() && isChecked()) );
     lines_->turnOn( turnon );
     labelgrp_->turnOn( turnon );
 }
