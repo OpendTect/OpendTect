@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackevents.cc,v 1.12 2010-11-02 15:01:14 cvskris Exp $";
+static const char* rcsID = "$Id: prestackevents.cc,v 1.13 2010-11-03 04:43:36 cvsraman Exp $";
 
 #include "prestackevents.h"
 
@@ -804,7 +804,7 @@ bool EventManager::DipSource::use( const char* str )
 	return false;
 
     Type typeenum;
-    if ( !TypeParse( type, typeenum ) )
+    if ( !parseEnumType( type, typeenum ) )
 	return false;
 
     if ( typeenum==SteeringVolume )
