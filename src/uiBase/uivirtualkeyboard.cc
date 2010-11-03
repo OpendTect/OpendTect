@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.3 2010-11-01 14:14:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.4 2010-11-03 10:58:56 cvsjaap Exp $";
 
 #include "uivirtualkeyboard.h"
 
@@ -20,6 +20,12 @@ static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.3 2010-11-01 14:14:05 
 #include "uilineedit.h"
 #include "uispinbox.h"
 #include "uitable.h"
+
+
+static int nractivevirtualkeyboards_ = 0;
+
+bool uiVirtualKeyboard::isVirtualKeyboardActive()
+{ return nractivevirtualkeyboards_; }
 
 
 uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
@@ -40,6 +46,8 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     , selectionlength_( 0 )
     , leds_( new uiGraphicsItemSet() )
 {
+    nractivevirtualkeyboards_++;
+
     if ( x>=0 && y>=0 && !mIsUdf(x) && !mIsUdf(y) )
 	setCornerPos( x, y );
 
@@ -94,6 +102,7 @@ uiVirtualKeyboard::~uiVirtualKeyboard()
 
     viewbase_->scene().getMouseEventHandler().buttonReleased.remove(
 					mCB(this,uiVirtualKeyboard,clickCB) );
+    nractivevirtualkeyboards_--;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Jaap Glas
  Date:          October 2010
- RCS:           $Id: uivirtualkeyboard.h,v 1.2 2010-11-01 14:14:05 cvsjaap Exp $
+ RCS:           $Id: uivirtualkeyboard.h,v 1.3 2010-11-03 10:58:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ public:
 				~uiVirtualKeyboard();
 
     bool			enterPressed() const;
+
+    static bool			isVirtualKeyboardActive();
 
 protected:
 
