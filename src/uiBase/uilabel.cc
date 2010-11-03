@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilabel.cc,v 1.20 2010-09-24 12:00:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilabel.cc,v 1.21 2010-11-03 10:56:37 cvsjaap Exp $";
 
 
 #include "uilabel.h"
@@ -24,10 +24,7 @@ public:
                         uiLabelBody( uiLabel& handle, uiParent* parnt,
 				     const char* txt )
 			    : uiObjBodyImpl<uiLabel,QLabel>(handle,parnt,txt)
-			    {
-				setTextInteractionFlags(
-					Qt::TextSelectableByMouse );
-			    }
+			{}
 
     virtual int 	nrTxtLines() const		
 			{ 
@@ -67,6 +64,7 @@ uiLabel::uiLabel( uiParent* p, const char* txt, uiObject* buddy )
 void uiLabel::init( const char* txt, uiObject* buddy )
 {
     setText( txt );
+    setTextSelectable( true );
 
     if ( buddy ) 
     {
@@ -96,6 +94,13 @@ const char* uiLabel::text() const
     static BufferString txt;
     txt = mQStringToConstChar( body_->text() );
     return txt.buf();
+}
+
+
+void uiLabel::setTextSelectable( bool yn ) 
+{
+    body_->setTextInteractionFlags( yn ? Qt::TextSelectableByMouse :
+					 Qt::NoTextInteraction );
 }
 
 

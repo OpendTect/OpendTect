@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.64 2010-06-01 09:25:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.65 2010-11-03 10:56:37 cvsjaap Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -384,6 +384,13 @@ void uiIOSelect::setLabelText( const char* s )
     }
     else if ( optbox_ )
 	optbox_->setText( s );
+}
+
+
+void uiIOSelect::setLabelSelectable( bool yn )
+{
+    if ( lbl_ )
+	lbl_->setTextSelectable( yn );
 }
 
 

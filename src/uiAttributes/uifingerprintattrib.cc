@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.67 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.68 2010-11-03 10:56:37 cvsjaap Exp $";
 
 -*/
 
@@ -212,6 +212,8 @@ void uiFingerPrintAttrib::initTable( int nrrows )
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );
+	attrbox->setLabelSelectable( false );	// reveals table right-click
+						// menu underneath the label
 	attrbox->setBorder( 0 );
 	attribflds_ += attrbox;
 	table_->setCellGroup( RowCol(idx,0), attrbox );
@@ -226,6 +228,8 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
     const int newrow = table_->newCell().row;
     const uiAttrSelData asd( is2d_, false );
     uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );
+    attrbox->setLabelSelectable( false );	// reveals table right-click
+    						// menu underneath the label
     attrbox->setDescSet( ads_ );
     attribflds_.insertAt( attrbox, newrow );
     table_->setCellGroup( RowCol(newrow,0), attrbox );

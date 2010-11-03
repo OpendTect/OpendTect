@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.43 2010-03-15 16:14:21 cvsbert Exp $
+ RCS:           $Id: uiiosel.h,v 1.44 2010-11-03 10:56:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,7 @@ public:
 
     const char*		labelText() const;
     void		setLabelText(const char*);
+    void		setLabelSelectable(bool yn=true);
 
     void		stretchHor(bool);
 
