@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.116 2010-10-22 09:31:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.117 2010-11-03 22:31:49 cvskarthika Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -769,19 +769,49 @@ void Seis2DDisplay::setData( int attrib,
 		sz1 = usedarr->info().getSize(1);
 			
 	    mDeclareAndTryAlloc( float*, tarr, float[sz0*sz1] );
+	    if ( !tarr )
+	    {
+	        if ( texture_ )
+		    texture_->turnOn( false );
+		else
+		    channels_->turnOn( false );
+		pErrMsg(
+			"Insufficient memory; cannot display the 2D seismics.");
+		return;
+	    }
 	    
 	    if ( resolution_==0 )
 		usedarr->getAll( tarr );
 	    else
 	    {
+		// Copy all the data from usedarr to an Array2DImpl and pass 
+		// this object to Array2DReSampler. This copy is done because 
+		// Array2DReSampler will access the input using the "get" 
+		// method. The get method of Array2DImpl is much faster than 
+		// that of Seis2DArray.
+		Array2DImpl<float> sourcearr2d( usedarr->info() );
+		if ( !sourcearr2d.isOK() )
+		{
+		    if ( texture_ )
+			texture_->turnOn( false );
+		    else
+			channels_->turnOn( false );
+		    pErrMsg(
+			"Insufficient memory; cannot display the 2D seismics.");
+	            return;
+		}
+	    
+		sourcearr2d.copyFrom( *usedarr );
+
 		Array2DReSampler<float,float> 
-		    resampler( *usedarr, tarr, sz0, sz1, true );
+			resampler( sourcearr2d, tarr, sz0, sz1, true );
 		resampler.setInterpolate( true );
 		resampler.execute();
 	    }
 
 	    channels_->setSize( 1, sz0, sz1 );
-	    channels_->setUnMappedData(attrib, seriesidx_, tarr, OD::TakeOverPtr, tr);
+	    channels_->setUnMappedData(attrib, seriesidx_, tarr, 
+			    OD::TakeOverPtr, tr);
 	}
 	    
 	triangles_->setTextureZPixelsAndPathScale( sz1, resolution_+1 );
