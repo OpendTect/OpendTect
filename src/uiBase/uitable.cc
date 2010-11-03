@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.96 2010-10-22 15:22:22 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.97 2010-11-03 10:57:23 cvsjaap Exp $";
 
 
 #include "uitable.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uitable.cc,v 1.96 2010-10-22 15:22:22 cvsjaap E
 
 #include <QHeaderView>
 #include <QMouseEvent>
+#include <QCursor>
 
 
 class CellObject
@@ -123,10 +124,7 @@ void uiTableBody::mouseReleaseEvent( QMouseEvent* event )
     if ( !event ) return;
 
     if ( event->button() == Qt::RightButton )
-    {
 	handle_.buttonstate_ = OD::RightButton;
-	handle_.popupVirtualKeyboard( event->globalX(), event->globalY() );
-    }
     else if ( event->button() == Qt::LeftButton )
 	handle_.buttonstate_ = OD::LeftButton;
     else
@@ -268,6 +266,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , selectionChanged(this)
     , rowClicked(this)
     , columnClicked(this)
+    , istablereadonly_(false)
 {
     setFont( FontList().get(FontData::key(FontData::Fixed)) );
     rightClicked.notify( mCB(this,uiTable,popupMenu) );
@@ -536,13 +535,12 @@ static QAbstractItemView::EditTriggers triggers =
 void uiTable::setTableReadOnly( bool yn )
 {
     body_->setEditTriggers( yn ? triggers_ro : triggers );
+    istablereadonly_ = yn;
 }
 
 
 bool uiTable::isTableReadOnly() const
-{
-    return false;
-}
+{ return istablereadonly_; }
 
 
 static Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEditable |
@@ -918,8 +916,17 @@ void uiTable::editCell( const RowCol& rc, bool replace )
 
 void uiTable::popupMenu( CallBacker* )
 {
-    if ( (!setup_.rowgrow_ && !setup_.colgrow_) || setup_.rightclickdisabled_ )
+    const int xcursorpos = QCursor::pos().x();
+    const int ycursorpos = QCursor::pos().y();
+
+    if ( uiVirtualKeyboard::isVirtualKeyboardActive() )
 	return;
+
+    if ( (!setup_.rowgrow_ && !setup_.colgrow_) || setup_.rightclickdisabled_ )
+    {
+	popupVirtualKeyboard( xcursorpos, ycursorpos );
+	return;
+    }
 
     uiPopupMenu* mnu = new uiPopupMenu( parent(), "Action" );
     BufferString itmtxt;
@@ -964,6 +971,14 @@ void uiTable::popupMenu( CallBacker* )
 	}
     }
 
+    int virkeyboardid = mUdf(int);
+    if ( needOfVirtualKeyboard() )
+    {
+	mnu->insertSeparator();
+	itmtxt = "Virtual Keyboard";
+	virkeyboardid = mnu->insertItem( new uiMenuItem(itmtxt), 100 );
+    }
+
     int ret = mnu->exec();
     if ( ret<0 ) return;
 
@@ -999,6 +1014,11 @@ void uiTable::popupMenu( CallBacker* )
     {
 	removeRow( cur.row );
 	rowDeleted.trigger();
+    }
+    else if ( ret == virkeyboardid )
+    {
+	popupVirtualKeyboard( xcursorpos, ycursorpos );
+	return;
     }
 
     setCurrentCell( newcell_ );
@@ -1247,16 +1267,25 @@ bool uiTable::handleLongTabletPress()
 }
 
 
+bool uiTable::needOfVirtualKeyboard() const
+{
+    if ( isCellReadOnly(notifiedCell()) || getCellObject(notifiedCell()) )
+	return false;
+    if ( isRowReadOnly(notifiedCell().row) )
+	return false;
+    if ( isColumnReadOnly(notifiedCell().col) )
+	return false;
+
+    return !isTableReadOnly();
+}
+
+
 void uiTable::popupVirtualKeyboard( int globalx, int globaly )
 {
-    if ( isTableReadOnly() || getCellObject(notifiedCell()) )
-	return;
-    if ( isRowReadOnly(notifiedCell().row) )
-	return;
-    if ( isColumnReadOnly(notifiedCell().col) )
-	return;
-
-    uiVirtualKeyboard virkeyboard( *this, globalx, globaly );
-    virkeyboard.show();
+    if ( needOfVirtualKeyboard() )
+    {
+	uiVirtualKeyboard virkeyboard( *this, globalx, globaly );
+	virkeyboard.show();
+    }
 }
 
