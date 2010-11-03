@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.73 2010-03-15 21:53:48 cvsyuancheng Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.74 2010-11-03 17:21:05 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -223,18 +223,22 @@ bool clss<T>::setStorageNoResize( ValueSeries<T>* s ) \
     return true; \
 }
 
-#define mArrNDImplDoNormalCopy(inf) \
-    const int totsz = (inf).getTotalSz(); \
-    if ( templ.getData() ) \
+#define mArrNDImplDoNormalCopy \
+    if ( this->getData() ) \
     { \
-	MemCopier<T> cpier(this->getData(),templ.getData(),(inf).getTotalSz());\
-	cpier.execute(); \
+	templ.getAll( this->getData() ); \
+	return; \
+    } \
+    else if ( this->getStorage() ) \
+    { \
+	templ.getAll( *this->getStorage() ); \
 	return; \
     }
 #define mArrNDImplHandleNormalCopy(inf) \
     if ( inf != templ.info() ) \
 	setInfo( templ.info() ); \
-    mArrNDImplDoNormalCopy(inf);
+    mArrNDImplDoNormalCopy; \
+    const int totsz = (inf).getTotalSz();
 
 
 template <class T> inline
@@ -481,7 +485,7 @@ void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
 	in_ = templ.info().clone();
     }
 
-    mArrNDImplDoNormalCopy(*in_)
+    mArrNDImplDoNormalCopy;
 
     if ( in_->getTotalSz() > 0 )
     {
