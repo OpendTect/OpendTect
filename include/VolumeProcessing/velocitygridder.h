@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: velocitygridder.h,v 1.9 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: velocitygridder.h,v 1.10 2010-11-04 18:47:05 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -21,8 +21,6 @@ namespace Vel
 {
     class Function;
     class FunctionSource;
-    class GriddedFunction;
-    class GriddedSource;
 }
 
 
