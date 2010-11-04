@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.31 2010-10-28 15:11:56 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.32 2010-11-04 11:58:22 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -492,6 +492,8 @@ void MathProperty::ensureGoodVariableName( char* nm )
     if ( !nm || !*nm )
         { pFreeFnErrMsg("Knurft","ensureGoodVariableName"); return; }
     cleanupString( nm, mC_False, mC_False, mC_False );
+    replaceCharacter( nm, '+', '_' );
+    replaceCharacter( nm, '-', '_' );
 }
 
 
@@ -513,14 +515,14 @@ const Property* MathProperty::findInput( const PropertySet& ps, const char* nm,
 	if ( this == &depp ) continue;
 	if ( mainname )
 	{
-	    if ( isMathMatch(reqnm,depp.name()) );
+	    if ( isMathMatch(reqnm,depp.name()) )
 		return &depp;
 	}
 	else
 	{
 	    for ( int ial=0; ial<depp.ref().aliases().size(); ial++ )
 	    {
-		if ( isMathMatch(reqnm,depp.ref().aliases().get(ial).buf()) );
+		if ( isMathMatch(reqnm,depp.ref().aliases().get(ial).buf()) )
 		    return &depp;
 	    }
 	}
@@ -595,7 +597,7 @@ float MathProperty::value( Property::EvalOpts eo ) const
 	if ( !p )
 	    return mUdf(float);
 
-	const float v = inps_[idx]->value(eo);
+	const float v = p->value(eo);
 	if ( mIsUdf(v) )
 	    return mUdf(float);
 
