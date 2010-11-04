@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.10 2010-11-02 16:10:17 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.11 2010-11-04 11:59:51 cvsbert Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
@@ -28,11 +28,12 @@ mDefSimpleTranslators(StratLayerModel,"Layer Model",od,Mdl);
 
 
 Strat::LayerModelGenerator::LayerModelGenerator(
-		const Strat::LayerSequenceGenDesc& desc, Strat::LayerModel& lm )
+		const Strat::LayerSequenceGenDesc& desc, Strat::LayerModel& lm,
+		int nrseqs )
     : Executor("Layer Sequence Generator")
     , desc_(desc)
     , lm_(lm)
-    , nrseqs_(1)
+    , nrseqs_(nrseqs)
     , seqnr_(0)
 {
     reset();
@@ -56,7 +57,14 @@ int Strat::LayerModelGenerator::nextStep()
 	return ErrorOccurred();
 
     const float modpos = nrseqs_ < 2 ? 0.5 : ((float)seqnr_)/(nrseqs_-1);
-    desc_.generate( lm_.addSequence(), modpos );
+    if ( !desc_.generate(lm_.addSequence(),modpos) )
+    {
+	msg_ = desc_.errMsg();
+	return ErrorOccurred();
+    }
+
+    for ( int idx=0; idx<desc_.warnMsgs().size(); idx++ )
+	ErrMsg( desc_.warnMsgs().get(idx) );
     seqnr_++;
     return seqnr_ >= nrseqs_ ? Finished() : MoreToDo();
 }
@@ -145,10 +153,11 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 {
     errmsg_.setEmpty(); warnmsgs_.erase();
 
+    const Property::EvalOpts eo( false, modpos );
     for ( int idx=0; idx<size(); idx++ )
     {
 	const LayerGenerator& lgen = *((*this)[idx]);
-	if ( !lgen.genMaterial(ls,modpos) )
+	if ( !lgen.genMaterial(ls,eo) )
 	{
 	    errmsg_ = lgen.errMsg();
 	    if ( errmsg_.isEmpty() )
