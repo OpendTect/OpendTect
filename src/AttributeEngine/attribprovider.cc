@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.124 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.125 2010-11-04 13:47:15 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -457,7 +457,16 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	return 1;
 
     if ( inputs_.size() < 1 )
+    {
 	startpos = BinID(-1,-1);
+	if ( seldata_ && seldata_->type() == Seis::Table )
+	{
+	    Seis::SelData* nonconstsd = const_cast<Seis::SelData*>(seldata_);
+	    mDynamicCastGet( Seis::TableSelData*, tabsel, nonconstsd )
+	    if ( tabsel )
+		startpos = tabsel->binidValueSet().firstPos();
+	}
+    }
     
     bool docheck = startpos == BinID(-1,-1);
     
