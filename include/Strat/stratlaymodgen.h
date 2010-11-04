@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratlaymodgen.h,v 1.1 2010-10-13 11:27:57 cvsbert Exp $
+ RCS:		$Id: stratlaymodgen.h,v 1.2 2010-11-04 11:59:10 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ mClass LayerModelGenerator : public Executor
 public:
 
 			LayerModelGenerator(const LayerSequenceGenDesc&,
-					    LayerModel&);
+					    LayerModel&,int nrseqs=100);
 
      void		setNrSeq( int nr )	{ nrseqs_ = nr; }
      void		reset();
