@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.12 2010-11-03 14:58:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.13 2010-11-04 13:53:41 cvshelene Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -508,7 +508,7 @@ void uiContourTreeItem::updateColumnText( int col )
 
     const bool solomode = visserv->isSoloMode();
     const bool turnon = !hd->getOnlyAtSectionsDisplay() &&
-	( solomode && hd->isOn() || (!solomode && hd->isOn() && isChecked()) );
+       ( (solomode && hd->isOn()) || (!solomode && hd->isOn() && isChecked()) );
     lines_->turnOn( turnon );
     labelgrp_->turnOn( turnon );
 }
