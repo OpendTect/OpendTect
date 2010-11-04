@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.4 2010-11-02 16:11:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.5 2010-11-04 15:06:10 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -43,7 +43,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     uiAxisHandler::Setup yahsu( uiRect::Left );
     yahsu.border( border ).name( "Depth" );
     yax_ = new uiAxisHandler( &scene(), yahsu );
-    yax_->setBegin( xax_ );
+    yax_->setEnd( xax_ );
     xax_->setBegin( yax_ );
 }
 
@@ -91,9 +91,9 @@ void uiStratLayerModelDisp::reDraw( CallBacker* )
 
 #define mStartLayLoop \
     const int nrmods = lm_.size(); \
-    float prevval = mUdf(float); \
     for ( int imod=0; imod<nrmods; imod++ ) \
     { \
+	float prevval = mUdf(float); \
 	const Strat::LayerSequence& seq = lm_.sequence( imod ); \
 	const int nrlays = seq.size(); \
 	for ( int ilay=0; ilay<nrlays; ilay++ ) \
@@ -141,11 +141,10 @@ void uiStratLayerModelDisp::doDraw()
     yax_->setNewDevSize( width(), height() );
     xax_->setBounds(Interval<float>(0,lm_.size()));
     yax_->setBounds(Interval<float>(zrg_.stop,zrg_.start));
-    xax_->plotAxis(); yax_->plotAxis();
+    yax_->plotAxis();
     const Color vcol( lm_.propertyRefs()[dispprop_]->disp_.color_ );
     const float vwdth = vrg_.width();
 
-    return;
 	    // z0 z1 val imod ilay
     mStartLayLoop
 
@@ -157,7 +156,7 @@ void uiStratLayerModelDisp::doDraw()
 	if ( !mIsUdf(prevval) )
 	{
 	    const float prevrelx = (prevval-vrg_.start) / vwdth;
-	    const int prevxpix = xax_->getPix( imod + relx );
+	    const int prevxpix = xax_->getPix( imod + prevrelx );
 	    uiLineItem* it = scene().addItem(
 		    new uiLineItem( prevxpix, ypix0, xpix, ypix0 ) );
 	    it->setPenColor( vcol );
