@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.43 2010-03-09 13:18:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.44 2010-11-05 12:46:28 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -48,6 +48,8 @@ SoPlaneWellLog::SoPlaneWellLog()
     , timesensor( new SoTimerSensor() )
     , revscale1(false)
     , revscale2(false)
+    , fillrevscale1(false)
+    , fillrevscale2(false)
     , seisstyle1(false)
     , seisstyle2(false)
     , isfilled1(true)
@@ -342,7 +344,7 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res)
     SoMFFloat& log    = lognr==1 ? log1    : log2;
     SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
     
-    bool& revscale = lognr==1 ? revscale1 : revscale2;
+    bool revscale = lognr==1 ? revscale1 : revscale2;
     const int pathsz = path.getNum();
     int nrsamp = pathsz;
     float step = 1;
@@ -506,7 +508,8 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
     float colstep = ( fillmaxvalF - fillminvalF ) / 255;
     int   colindex = 0;
 
-    bool& revscale = lognr==1 ? revscale1 : revscale2;
+    bool fillrevscale = lognr==1 ? fillrevscale1 : fillrevscale2;
+    bool revscale = lognr==1 ? revscale1 : revscale2;
     const int pathsz = path.getNum();
     int nrsamp = pathsz;
     float step = 1;
@@ -539,7 +542,7 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	    triset->materialIndex.set1Value( 2*idx+1, 0 );
 	}
 	SbVec3f pathcrd = path[index];
-	SbVec3f newcrd = revscale ? pathcrd + getProjCoords( path, index, 
+	SbVec3f newcrd = fillrevscale ? pathcrd + getProjCoords( path, index, 
 					    projdir, maxval, maxvalF, lognr )
 				  : pathcrd;
 	SbVec3f normal = getProjCoords( path, index, projdir, 

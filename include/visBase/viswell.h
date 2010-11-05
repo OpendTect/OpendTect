@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.36 2009-12-04 15:28:07 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.37 2010-11-05 12:46:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,13 +112,16 @@ public:
 	bool                	islogarithmic_;
 	bool  			issinglcol_;
 	bool  			iswelllog_;
-	bool 			isfilled_;
+	bool 			isleftfilled_;
+	bool 			isrightfilled_;
+	bool			isblock_;
 	int                 	logwidth_;
 	int                 	logidx_;
 	int                 	lognr_;
 	Interval<float> 	range_;
 	Interval<float> 	valrange_;
 	bool 			sclog_; 
+	bool			iscoltabflipped_;
 
 	int                 	filllogidx_;
 	const char*        	fillname_;
@@ -159,6 +162,7 @@ public:
     bool			logNameShown() const; 
     void			setLogStyle(bool,int);
     void			setLogFill(bool,int);
+    void			setLogBlock(bool,int);
     void			setOverlapp(float,int);
     void			setRepeat(int);
     void			removeLogs();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.73 2010-09-17 12:26:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.74 2010-11-05 12:46:28 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -195,7 +195,8 @@ void uiTieView::drawVelLog()
     wldld1.wl_ = dataholder_.logset()->getLog( params_->dispcurrvellognm_ );
     wldld1.xrev_ = !wtsetup_.issonic_;
     wldld1.disp_.color_ = Color::stdDrawColor(0);
-    wldld1.disp_.islogfill_ =false;
+    wldld1.disp_.isleftfill_ =false;
+    wldld1.disp_.isrightfill_ =false;
 }
 
 
@@ -205,7 +206,8 @@ void uiTieView::drawDenLog()
     wldld2.wl_ = dataholder_.logset()->getLog( params_->denlognm_ );
     wldld2.xrev_ = false;
     wldld2.disp_.color_ = Color::stdDrawColor(1);
-    wldld2.disp_.islogfill_ =false;
+    wldld2.disp_.isleftfill_ =false;
+    wldld2.disp_.isrightfill_ =false;
 }
 
 
@@ -215,7 +217,8 @@ void uiTieView::drawAILog()
     wldld1.wl_ = dataholder_.logset()->getLog( params_->ainm_ );
     wldld1.xrev_ = true;
     wldld1.disp_.color_ = Color::stdDrawColor(0);
-    wldld1.disp_.islogfill_ =false;
+    wldld1.disp_.isleftfill_ =false;
+    wldld1.disp_.isrightfill_ =false;
 }
 
 
@@ -224,7 +227,8 @@ void uiTieView::drawRefLog()
     uiWellLogDisplay::LogData& wldld2 = logsdisp_[1]->logData(false);
     wldld2.wl_ = dataholder_.logset()->getLog( params_->refnm_ );
     wldld2.disp_.color_ = Color::stdDrawColor(1);
-    wldld2.disp_.islogfill_ =false;
+    wldld2.disp_.isleftfill_ =false;
+    wldld2.disp_.isrightfill_ =false;
 }
 
 

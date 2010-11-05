@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.28 2010-09-17 12:26:07 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.29 2010-11-05 12:46:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ mClass DisplayProperties
 {
 public:
 
-			DisplayProperties();		
+			DisplayProperties();
 
     mStruct BasicProps
     {
@@ -112,8 +112,9 @@ public:
 			    : cliprate_(0)
 			    , fillname_("none")
 			    , fillrange_(mUdf(float),mUdf(float))
+			    , isleftfill_(false) 
+			    , isrightfill_(false)
 		            , isdatarange_(true)
-			    , islogfill_(true)
 			    , islogarithmic_(false) 
 			    , islogreverted_(false) 
 			    , issinglecol_(false)
@@ -126,6 +127,7 @@ public:
 			    , linecolor_(Color(0,0,255))
 		            , seiscolor_(Color::White())
 			    , seqname_("Rainbow")
+			    , iscoltabflipped_(false)			 
 			    {}		 
 
 	virtual const char* subjectName() const	{ return "Log"; }
@@ -136,19 +138,20 @@ public:
 	float               cliprate_;      
 	Interval<float>     range_;        
 	Interval<float>     fillrange_;       
+	bool 		    isleftfill_;				 
+	bool 		    isrightfill_;				 
 	bool                logarithmic_;
-	bool                islogfill_;
 	bool                islogarithmic_;
 	bool 		    islogreverted_; 
 	bool                issinglecol_;
 	bool                isdatarange_;
+	bool 		    iscoltabflipped_;
 	int                 repeat_;
 	float               repeatovlap_;
 	Color               linecolor_;
 	Color               seiscolor_;
 	BufferString        seqname_;
 	int 		    logwidth_;
-
 
     protected:
 

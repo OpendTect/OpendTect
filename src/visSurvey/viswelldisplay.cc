@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.128 2010-10-26 14:11:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.129 2010-11-05 12:46:28 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -240,7 +240,8 @@ void WellDisplay::fillLogParams( visBase::Well::LogParams& lp, int lognr )
     lp.fillname_ 	= dppl( lognr, fillname_ );
     lp.fillrange_ 	= dppl( lognr, fillrange_ );
     lp.isdatarange_ 	= dppl( lognr, isdatarange_ );
-    lp.isfilled_ 	= dppl( lognr, islogfill_ );
+    lp.isleftfilled_ 	= dppl( lognr, isleftfill_ );
+    lp.isrightfilled_ 	= dppl( lognr, isrightfill_ );
     lp.issinglcol_	= dppl( lognr, issinglecol_);
     lp.iswelllog_	= dppl( lognr, iswelllog_ );
     lp.islogarithmic_ 	= dppl( lognr, islogarithmic_ );
@@ -252,6 +253,7 @@ void WellDisplay::fillLogParams( visBase::Well::LogParams& lp, int lognr )
     lp.seqname_	 	= dppl( lognr, seqname_ );
     lp.size_	 	= dppl( lognr, size_ );
     lp.seiscolor_	= dppl( lognr, seiscolor_ );
+    lp.iscoltabflipped_	= dppl( lognr, iscoltabflipped_ );
 }
 
 
@@ -451,7 +453,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	else if ( zinfeet_ )
 	    mMeter2Feet(pos.z)
 
-	Coord3Value cv( pos, wl.value(idx) );
+	Coord3Value cv( pos, val );
 	crdvals += cv;
     }
     if ( crdvals.isEmpty() )
@@ -492,7 +494,7 @@ void WellDisplay::setLogDisplay( int lognr )
 
     setLogData( lp, false );
 
-    if ( lp.isfilled_ )
+    if ( lp.isleftfilled_ || lp.isrightfilled_ )
     {
 	lp.filllogidx_ = wd->logs().indexOf( lp.fillname_ );
 	if ( lp.filllogidx_ >= 0 ) setLogData( lp, true );
@@ -530,7 +532,7 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 
     well_->setOverlapp( lp.ovlap_, lognr );
     well_->setLogStyle( lp.iswelllog_, lognr );
-    well_->setLogFill( lp.isfilled_, lognr );
+    well_->setLogFill( ( lp.isleftfilled_ || lp.isrightfilled_ ), lognr );
     well_->setLogFillColorTab( lp, lognr );
     well_->setLogLineDisplayed( lp.size_ > 0, lognr );
 

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.78 2010-10-11 09:23:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.79 2010-11-05 12:46:28 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -145,6 +145,9 @@ Well::Data::~Data()
     delete &disp_;
     delete d2tmodel_;
     delete csmodel_;
+
+    Strat::eLVLS().levelToBeRemoved.remove( 
+	    			mCB(this, Well::Data, levelToBeRemoved ) );
 }
 
 

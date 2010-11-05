@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.60 2010-02-22 16:47:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.61 2010-11-05 12:46:28 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -165,7 +165,7 @@ const LineStyle& Well::lineStyle() const
     return ls;
 }
 
-#define msetWellName( nm, pos, post, sz ) \
+#define mSetWellName( nm, pos, post, sz ) \
     well##post##txt_->setDisplayTransformation( transformation_ ); \
     well##post##txt_->setText( nm ); \
     well##post##txt_->setSize( sz ); \
@@ -176,8 +176,8 @@ const LineStyle& Well::lineStyle() const
 
 void Well::setWellName( const TrackParams& tp )
 {
-    msetWellName( tp.isdispabove_ ? tp.name_ : "", tp.toppos_, top, tp.namesz_);
-    msetWellName( tp.isdispbelow_ ? tp.name_ : "", tp.botpos_, bot, tp.namesz_);
+    mSetWellName( tp.isdispabove_ ? tp.name_ : "", tp.toppos_, top, tp.namesz_);
+    mSetWellName( tp.isdispbelow_ ? tp.name_ : "", tp.botpos_, bot, tp.namesz_);
 }
 
 
@@ -325,8 +325,18 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals,
 {
     Interval<float> rg = lp.range_; 
     const bool rev = rg.start > rg.stop;
+    const bool isfullfilled = lp.isleftfilled_ && lp.isrightfilled_; 
+    const bool fillrev = !isfullfilled &&  
+		      ( ( lp.lognr_ == 1 && lp.isleftfilled_ && !rev )
+		     || ( lp.lognr_ == 1 && lp.isrightfilled_ && rev )
+		     || ( lp.lognr_ == 2 && lp.isrightfilled_ && !rev )
+		     || ( lp.lognr_ == 2 && lp.isleftfilled_ && rev ) );
+
     for ( int idx=0; idx<log_.size(); idx++ )
+    {
 	log_[idx]->setRevScale( rev, lp.lognr_ );
+	log_[idx]->setFillRevScale( fillrev, lp.lognr_ );
+    }
     rg.sort();
     LinScaler scaler( rg.start, 0, rg.stop, 100 );
     
@@ -336,7 +346,8 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals,
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	const int index = mNINT(idx*step);
-	const float val = getValue( crdvals, index, lp.islogarithmic_, scaler );
+	const float val = isfullfilled ? 100 : 
+	    		getValue( crdvals, index, lp.islogarithmic_, scaler );
 	const Coord3& pos = getPos( crdvals, index );
 	if ( mIsUdf( pos.z ) || mIsUdf( val ) )
 	    continue;   
@@ -516,7 +527,7 @@ const Color& Well::logColor( int lognr ) const
 
 
 #define scolors2f(rgb) float(lp.seiscolor_.rgb())/255
-#define colors2f(rgb) float(Col.rgb())/255
+#define colors2f(rgb) float(col.rgb())/255
 void Well::setLogFillColorTab( const LogParams& lp, int lognr )
 {
     int idx = ColTab::SM().indexOf( lp.seqname_ );
@@ -528,7 +539,8 @@ void Well::setLogFillColorTab( const LogParams& lp, int lognr )
     {
 	const bool issinglecol = ( !lp.iswelllog_ || 
 	    		(lp.iswelllog_ && lp.issinglcol_ ) );
-	Color Col = seq->color( (float)idx/255 );
+	float colstep = lp.iscoltabflipped_ ? 1-(float)idx/255 : (float)idx/255;
+	Color col = seq->color( colstep );
 	colors[idx][0] = issinglecol ? scolors2f(r) : colors2f(r);
 	colors[idx][1] = issinglecol ? scolors2f(g) : colors2f(g);
 	colors[idx][2] = issinglecol ? scolors2f(b) : colors2f(b);

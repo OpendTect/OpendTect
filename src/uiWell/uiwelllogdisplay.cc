@@ -217,7 +217,7 @@ void uiWellLogDisplay::drawCurve( bool first )
     deepErase( ld.curveitms_ );
     delete ld.curvenmitm_; ld.curvenmitm_ = 0;
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
-    if ( sz < 2 ) return;
+    if ( sz < 2 || ld.disp_.size_ <=0 ) return;
 
     ObjectSet< TypeSet<uiPoint> > pts;
     TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
@@ -293,9 +293,13 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
     deepErase( ld.curvepolyitms_ );
 
-    if ( !ld.disp_.islogfill_ ) return;
+    if ( !ld.disp_.isleftfill_ && !ld.disp_.isrightfill_ ) return;
 
-    float colstep = ( ld.xax_.range().stop - ld.xax_.range().start ) / 255;
+    const float rgstop = ld.xax_.range().stop; 
+    const float rgstart = ld.xax_.range().start;
+    const bool isrev = rgstop < rgstart;
+
+    float colstep = ( rgstop -rgstart ) / 255;
     int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 ) return;
     float step = 1;
@@ -305,10 +309,19 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     TypeSet<int> colorintset;
     uiPoint closept;
 
+    const bool fullpanelfill = ld.disp_.isleftfill_ && ld.disp_.isrightfill_;
+    const bool isfillrev = !fullpanelfill &&  
+		 ( ( first && ld.disp_.isleftfill_ && isrev )
+		|| ( first && ld.disp_.isrightfill_ && !isrev )
+		|| ( !first && ld.disp_.isrightfill_ && !isrev )
+		|| ( !first && ld.disp_.isleftfill_ && isrev ) );
+
     float zfirst = ld.wl_->dah(0);
     mDefZPos( zfirst )
-    closept.x = ( first || ld.xrev_ ) ? ld.xax_.getPix(ld.xax_.range().stop)
-				      : ld.xax_.getPix(ld.xax_.range().start);
+    const int pixstart = ld.xax_.getPix( rgstart );
+    const int pixstop = ld.xax_.getPix( rgstop );
+    closept.x = ( first ) ? isfillrev ? pixstart : pixstop 
+			  : isfillrev ? pixstop  : pixstart;
     closept.y = ld.yax_.getPix( zfirst );
     int prevcolidx = 0;
     TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
@@ -325,7 +338,15 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	    continue;
 	}
 	mDefZPosInLoop( dah )
+
 	float val = ld.wl_->value( index );
+	bool iscoltabrev = isrev; 
+	if ( ld.disp_.iscoltabflipped_ )
+	    iscoltabrev = !iscoltabrev;
+	float valdiff = iscoltabrev ? rgstop-val : val-rgstart;
+	int colindex = (int)( valdiff/colstep );
+	if ( fullpanelfill ) 
+	    val = ld.xrev_ ? rgstart : rgstop;
 
 	if ( mIsUdf(val) )
 	{
@@ -338,23 +359,19 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	    continue;
 	}
 
-    pt.x = ld.xax_.getPix(val);
-    pt.y = ld.yax_.getPix(zpos);
+	pt.x = ld.xax_.getPix(val);
+	pt.y = ld.yax_.getPix(zpos);
+	*curpts += pt;
 
-    *curpts += pt;
-
-    float valdiff = ld.xrev_ ? ld.xax_.range().stop-val
-    : val-ld.xax_.range().start;
-    int colindex = (int)( valdiff/colstep );
-    if ( colindex != prevcolidx )
-    {
-	*curpts += uiPoint( closept.x, pt.y );
-	colorintset += colindex;
-	prevcolidx = colindex;
-	pts += curpts;
-	curpts = new TypeSet<uiPoint>;
-	*curpts += uiPoint( closept.x, pt.y );
-    }
+	if ( colindex != prevcolidx )
+	{
+	    *curpts += uiPoint( closept.x, pt.y );
+	    colorintset += colindex;
+	    prevcolidx = colindex;
+	    pts += curpts;
+	    curpts = new TypeSet<uiPoint>;
+	    *curpts += uiPoint( closept.x, pt.y );
+	}
     }
     if ( pts.isEmpty() ) return;
     *pts[pts.size()-1] += uiPoint( closept.x, pt.y );

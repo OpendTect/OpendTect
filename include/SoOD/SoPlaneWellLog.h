@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.27 2009-12-09 13:41:22 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.28 2010-11-05 12:46:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,11 @@ public:
     void 			setFillLogValue(int,float,int);
     void 			setFillExtrValue(float,float,int);
     void			setRevScale( bool yn, int lognr ) 
-    				{ (lognr == 1 ? revscale1 : revscale2) = yn; }
+    				{ (lognr == 1 ? revscale1 
+					      : revscale2) = yn; }
+    void			setFillRevScale( bool yn, int lognr ) 
+    				{ (lognr == 1 ? fillrevscale1 
+					      : fillrevscale2) = yn; }
     void 			setLogConstantSize(bool);
     bool 			logConstantSize() const;
     
@@ -133,6 +137,7 @@ protected:
     int				currentres;
     float			worldwidth;
     bool			revscale1, revscale2;
+    bool			fillrevscale1, fillrevscale2;
     bool  			seisstyle1, seisstyle2;
     bool  			isfilled1, isfilled2;
     bool  			islinedisp1, islinedisp2;
@@ -148,7 +153,7 @@ protected:
     void			buildLog(int,const SbVec3f&,int);
     void			buildSimpleLog(int,const SbVec3f&,int);
     void			buildSeismicLog(int,const SbVec3f&,int);
-    void			buildFilledLog(int,const SbVec3f&,int);\
+    void			buildFilledLog(int,const SbVec3f&,int);
     void			fillLogTriangles(const int,SoCoordinate3*,
 	    						SbVec3f&,SbVec3f&);
     SbVec3f 			getProjCoords(const SoMFVec3f&,const int, 
