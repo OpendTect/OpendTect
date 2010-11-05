@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.21 2010-11-02 19:48:45 cvskris Exp $
+ RCS:		$Id: enums.h,v 1.22 2010-11-05 12:38:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ public:
     static const EnumDef&	StateDef();
     static const char**		StateNames();
     static bool 		parseEnumState(const char*, State& );
+    static const char* 		getStateString(State);
 
 protected:
 
@@ -93,6 +94,7 @@ public:
     static const EnumDef&	TypeDef();
     static const char**		TypeNames();
     static bool 		parseEnumType(const char*, Type& );
+    static const char* 		getTypeString(State);
 
 protected:
 
@@ -155,16 +157,16 @@ const char* MyClass::Typenames_[] =
 mClass EnumDef : public NamedObject
 {
 public:
-			EnumDef( const char* nm, const char* s[], int nrs=0 )
+			EnumDef( const char* nm, const char* s[], short nrs=0 )
 				: NamedObject(nm)
 				, names_(s)
-				, nrsign(nrs)	{}
+				, nrsign_(nrs)	{}
 
     inline bool		isValidName( const char* s ) const
-			{ return getIndexInStringArrCI(s,names_,0,nrsign,-1)
+			{ return getIndexInStringArrCI(s,names_,0,nrsign_,-1)
 			    	< 0; }
     inline int		convert( const char* s ) const
-			{ return getIndexInStringArrCI(s,names_,0,nrsign,0); }
+			{ return getIndexInStringArrCI(s,names_,0,nrsign_,0); }
     inline const char*	convert( int i ) const
 			{ return names_[i]; }
 
@@ -174,7 +176,7 @@ public:
 protected:
 
     const char**	names_;
-    int			nrsign;
+    short		nrsign_;
 
 };
 
@@ -184,6 +186,7 @@ public: \
     static const EnumDef& enm##Def(); \
     static const char** enm##Names();\
     static bool parseEnum##enm(const char*,enm&); \
+    static const char* get##enm##String(enm); \
 protected: \
     static const char* enm##Names_[];\
     static const EnumDef enm##Definition_; \
@@ -220,6 +223,14 @@ bool clss::parseEnum##enm(const char* txt, enm& res ) \
  \
     res = (enm) idx; \
     return true; \
+} \
+const char* clss::get##enm##String( enm theenum ) \
+{ \
+    const int idx = (int) theenum; \
+    if ( idx<0 || idx>=enm##Def().size() ) \
+        return 0; \
+ \
+    return enm##Names_[idx]; \
 } \
 const char* clss::enm##Names_[] =
 
