@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayseqgendesc.h,v 1.6 2010-10-29 09:08:20 cvsbert Exp $
+ RCS:           $Id: uistratlayseqgendesc.h,v 1.7 2010-11-05 14:55:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,9 @@ protected:
     const uiRect	workrect_;	//!< will be filled
 
     void		reDraw(CallBacker*);
-    void		usrClickCB(CallBacker*);
+    void		singClckCB( CallBacker* cb )	{ hndlClick(cb,false); }
+    void		dblClckCB( CallBacker* cb )	{ hndlClick(cb,true); }
+    void		hndlClick(CallBacker*,bool);
 
     virtual void	doDraw()			= 0;
 

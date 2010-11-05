@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.10 2010-11-02 16:11:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.11 2010-11-05 14:55:13 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -45,11 +45,13 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( uiParent* p,
     reDrawNeeded.notify( mCB(this,uiLayerSequenceGenDesc,reDraw) );
 
     getMouseEventHandler().buttonReleased.notify(
-	    			mCB(this,uiLayerSequenceGenDesc,usrClickCB) );
+	    			mCB(this,uiLayerSequenceGenDesc,singClckCB) );
+    getMouseEventHandler().doubleClick.notify(
+	    			mCB(this,uiLayerSequenceGenDesc,dblClckCB) );
 }
 
 
-void uiLayerSequenceGenDesc::usrClickCB( CallBacker* cb )
+void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 {
     MouseEventHandler& mevh = getMouseEventHandler();
     const int nruns = desc_.size();
@@ -61,8 +63,8 @@ void uiLayerSequenceGenDesc::usrClickCB( CallBacker* cb )
     if ( workrect_.isOutside(clickpos_) )
 	return;
 
-    int mnuid = nruns > 0 ? -1 : 1;
-    if ( nruns > 0 )
+    int mnuid = nruns > 0 ? -1 : (dbl?0:1);
+    if ( nruns > 0 && !dbl )
     {
 	uiPopupMenu mnu( parent(), "Action" );
 	mnu.insertItem( new uiMenuItem("&Edit ..."), 0 );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.5 2010-11-04 15:06:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.6 2010-11-05 14:55:13 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -145,27 +145,28 @@ void uiStratLayerModelDisp::doDraw()
     const Color vcol( lm_.propertyRefs()[dispprop_]->disp_.color_ );
     const float vwdth = vrg_.width();
 
-	    // z0 z1 val imod ilay
     mStartLayLoop
 
-	if ( mIsUdf(val) ) continue;
 	const int ypix0 = yax_->getPix( z0 );
 	const int ypix1 = yax_->getPix( z1 );
-	const float relx = (val-vrg_.start) / vwdth;
-	const int xpix = xax_->getPix( imod + relx );
-	if ( !mIsUdf(prevval) )
+	if ( ypix0 != ypix1 && !mIsUdf(val) )
 	{
-	    const float prevrelx = (prevval-vrg_.start) / vwdth;
-	    const int prevxpix = xax_->getPix( imod + prevrelx );
+	    const float relx = (val-vrg_.start) / vwdth;
+	    const int xpix = xax_->getPix( imod + relx );
+	    if ( !mIsUdf(prevval) )
+	    {
+		const float prevrelx = (prevval-vrg_.start) / vwdth;
+		const int prevxpix = xax_->getPix( imod + prevrelx );
+		uiLineItem* it = scene().addItem(
+			new uiLineItem( prevxpix, ypix0, xpix, ypix0, true ) );
+		it->setPenColor( vcol );
+		logblckitms_ += it;
+	    }
 	    uiLineItem* it = scene().addItem(
-		    new uiLineItem( prevxpix, ypix0, xpix, ypix0 ) );
+			     new uiLineItem( xpix, ypix0, xpix, ypix1, true ) );
 	    it->setPenColor( vcol );
 	    logblckitms_ += it;
 	}
-	uiLineItem* it = scene().addItem(
-			 new uiLineItem( xpix, ypix0, xpix, ypix1 ) );
-	it->setPenColor( vcol );
-	logblckitms_ += it;
 
     mEndLayLoop(;)
 }

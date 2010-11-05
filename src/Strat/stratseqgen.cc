@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.11 2010-11-04 11:59:51 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.12 2010-11-05 14:55:13 cvsbert Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
@@ -361,6 +361,10 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 	}
     }
 
-    seq.layers() += newlay;
+    const float th = newlay->thickness();
+    if ( mIsZero(th,1e-8) )
+	delete newlay;
+    else
+	seq.layers() += newlay;
     return true;
 }
