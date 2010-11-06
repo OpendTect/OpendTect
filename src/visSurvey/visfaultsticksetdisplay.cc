@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.31 2010-09-26 11:15:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.32 2010-11-06 16:21:12 cvsumesh Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -95,10 +95,10 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
 
     if ( viseditor_ )
 	viseditor_->unRef();
-    if ( emfss_ )
-	MPE::engine().removeEditor( emfss_->id() );
     if ( fsseditor_ )
 	fsseditor_->unRef();
+    if ( emfss_ )
+	MPE::engine().removeEditor( emfss_->id() );
     fsseditor_ = 0;
 
     if ( emfss_ )

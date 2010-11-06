@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.17 2010-10-06 13:47:29 cvsjaap Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.18 2010-11-06 16:21:12 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -229,7 +229,7 @@ void FaultStickSetFlatViewEditor::seedMovementStartedCB( CallBacker* cb )
     if ( !emfss )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     if ( !fsseditor )
 	return;
@@ -279,7 +279,7 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     StepInterval<int> colrg = fss->colRange( fsspainter_->getActiveStickId() );
     const int knotid = colrg.start + displayedknotid*colrg.step;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     if ( !fsseditor )
 	return;
@@ -384,7 +384,7 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     if ( emfss->isEmpty() )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     if ( !fsseditor )
 	return;
@@ -467,7 +467,7 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     StepInterval<int> colrg = fss->colRange( rc.row );
     knotid = colrg.start + displayedknotid*colrg.step;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     if ( !fsseditor )
 	return;
@@ -505,7 +505,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( !emfss )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     if ( !fsseditor )
 	return;

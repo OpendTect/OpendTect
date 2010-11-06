@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.29 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: emtracker.h,v 1.30 2010-11-06 16:21:05 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "emposid.h"
 #include "cubesampling.h"
+#include "refcount.h"
 
 class Executor;
 
@@ -32,9 +33,9 @@ class EMSeedPicker;
 
 mClass EMTracker
 {
+mRefCountImplWithDestructor(EMTracker,virtual ~EMTracker(),delete this;);
 public:
     				EMTracker( EM::EMObject* );
-    virtual			~EMTracker();
 
     BufferString		objectName() const;
     EM::ObjectID		objectID() const;

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.63 2010-09-26 11:15:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.64 2010-11-06 16:21:12 cvsumesh Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -117,8 +117,8 @@ FaultDisplay::~FaultDisplay()
     setSceneEventCatcher( 0 );
     if ( viseditor_ ) viseditor_->unRef();
 
-    if ( emfault_ ) MPE::engine().removeEditor( emfault_->id() );
     if ( faulteditor_ ) faulteditor_->unRef();
+    if ( emfault_ ) MPE::engine().removeEditor( emfault_->id() );
     faulteditor_ = 0;
 
     if ( paneldisplay_ )

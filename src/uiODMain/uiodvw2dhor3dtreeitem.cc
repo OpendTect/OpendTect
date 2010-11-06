@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.14 2010-10-25 09:41:57 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.15 2010-11-06 16:21:12 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,6 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	const int trackid = mps->activeTrackerID();
 	uiODVw2DHor3DTreeItem* hortreeitem = 
 	    new uiODVw2DHor3DTreeItem( mps->getEMObjectID(trackid) );
-	hortreeitem->createNewOne();
 	addChild( hortreeitem,false, false );
     }
     else if ( mnuid == 1 )
@@ -82,7 +81,11 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	applMgr()->EMServer()->selectHorizons( objs, false );
 
 	for ( int idx=0; idx<objs.size(); idx++ )
+	{
+	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
+		MPE::engine().addTracker( objs[idx] );
 	    addChild( new uiODVw2DHor3DTreeItem(objs[idx]->id()), false, false);
+	}
 
 	deepUnRef( objs );
     }
@@ -118,8 +121,14 @@ uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )
     , emid_(emid)
     , horview_(0)
     , oldactivevolupdated_(false)
-    , creatednewone_(false)
-{}
+    , trackerefed_(false)
+{
+    if ( MPE::engine().getTrackerByObject(emid_) != -1 )
+    {
+	MPE::engine().getEditor( emid_, true );
+	trackerefed_ = true;
+    }
+}
 
 
 uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
@@ -146,13 +155,15 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
     {
 	emobj->change.remove( mCB(this,uiODVw2DHor3DTreeItem,emobjChangeCB) );
 
-	if ( creatednewone_ )
+	if ( trackerefed_ )
 	{
 	    const int trackeridx =
 				MPE::engine().getTrackerByObject( emobj->id() );
 	    if ( trackeridx >= 0 )
+	    {
+		MPE::engine().removeEditor( emobj->id() );
 		MPE::engine().removeTracker( trackeridx );
-	    MPE::engine().removeEditor( emobj->id() );
+	    }
 	}
     }
 
@@ -209,12 +220,6 @@ bool uiODVw2DHor3DTreeItem::init()
 }
 
 
-void uiODVw2DHor3DTreeItem::createNewOne()
-{
-    creatednewone_ = true;
-}
-
-
 void uiODVw2DHor3DTreeItem::displayMiniCtab()
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -253,6 +258,16 @@ bool uiODVw2DHor3DTreeItem::select()
 {
     if ( !uilistviewitem_->isSelected() )
 	return false;
+
+    if ( !trackerefed_ )
+    {
+	if (  MPE::engine().getTrackerByObject(emid_) != -1 )
+	{
+	    MPE::engine().addTracker( EM::EMM().getObject(emid_) );
+	    MPE::engine().getEditor( emid_, true );
+	    trackerefed_ = true;
+	}
+    }
 
     viewer2D()->dataMgr()->setSelected( horview_ );
     horview_->selected( isChecked() );

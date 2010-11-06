@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.10 2010-10-06 14:29:40 cvsjaap Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.11 2010-11-06 16:21:12 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,7 +190,7 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
     if ( !emf3d )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
     if ( !f3deditor )
 	return;
@@ -239,7 +239,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
     StepInterval<int> colrg = emfss->colRange( f3dpainter_->getActiveStickId());
     const int knotid = colrg.start + displayedknotid*colrg.step;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
     if ( !f3deditor )
 	return;
@@ -344,7 +344,7 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
     if ( emf3d->isEmpty() )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
     if ( !f3deditor )
 	return;
@@ -426,7 +426,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     StepInterval<int> colrg = fss->colRange( rc.row );
     knotid = colrg.start + displayedknotid*colrg.step;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
     if ( !f3deditor )
 	return;
@@ -464,7 +464,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
     if ( !emf3d )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
     if ( !f3deditor )
 	return;

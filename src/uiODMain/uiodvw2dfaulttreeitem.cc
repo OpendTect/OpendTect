@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.10 2010-10-25 04:47:56 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.11 2010-11-06 16:21:12 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -217,7 +217,7 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 	name_ = applMgr()->EMServer()->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
-    else if ( mnuid == 1 )
+    else if ( mnuid == 2 )
 	parent_->removeChild( this );
 
     return true;

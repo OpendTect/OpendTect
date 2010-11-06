@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: faulttracker.h,v 1.4 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: faulttracker.h,v 1.5 2010-11-06 16:21:05 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,6 @@ mClass FaultTracker : public EMTracker
 {
 public:
 			FaultTracker(EM::Fault3D* =0);
-			~FaultTracker();
 
     static EMTracker*	create(EM::EMObject* =0);
     static void		initClass();
@@ -36,6 +35,8 @@ public:
     EMSeedPicker*	getSeedPicker(bool createifnotpresent);
 
 protected:
+
+    			~FaultTracker();
     EM::Fault3D*	getFault();
     const EM::Fault3D*	getFault() const;
     FaultSeedPicker*	seedpicker;

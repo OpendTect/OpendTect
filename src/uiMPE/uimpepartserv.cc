@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.119 2010-10-25 09:41:57 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.120 2010-11-06 16:21:12 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -202,8 +202,8 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 
     if ( trackerid == -1 ) return false;
 
-    if ( !MPE::engine().getEditor(objid,false) )
-	MPE::engine().getEditor(objid,true);
+    //if ( !MPE::engine().getEditor(objid,false) )
+//	MPE::engine().getEditor(objid,true);
 
     MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);
     if ( !tracker ) return false;

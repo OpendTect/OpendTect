@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: horizon3dtracker.h,v 1.7 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: horizon3dtracker.h,v 1.8 2010-11-06 16:21:05 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,6 @@ mClass Horizon3DTracker : public EMTracker
 {
 public:
     				Horizon3DTracker(EM::Horizon3D* =0);
-				~Horizon3DTracker();
      
     static EMTracker*		create(EM::EMObject* =0);
     static void			initClass();
@@ -41,6 +40,7 @@ public:
 
 protected:
 
+    				~Horizon3DTracker();
     EM::Horizon3D*		getHorizon();
     const EM::Horizon3D*	getHorizon() const;
 

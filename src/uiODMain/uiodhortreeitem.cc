@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.64 2010-10-19 05:54:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.65 2010-11-06 16:21:12 cvsumesh Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -91,6 +91,8 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	applMgr()->EMServer()->selectHorizons( objs, false ); 
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
+	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
+		 MPE::engine().addTracker( objs[idx] );
 	    uiODHorizonTreeItem* itm =
 		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mLoadCBIdx );
 	    addChild( itm, false, false );
@@ -564,7 +566,11 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, true ); 
 	for ( int idx=0; idx<objs.size(); idx++ )
+	{
+	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
+		MPE::engine().addTracker( objs[idx] );
 	    addChild( new uiODHorizon2DTreeItem(objs[idx]->id()), false, false);
+	}
 
 	deepUnRef( objs );
     }

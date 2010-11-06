@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.101 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.102 2010-11-06 16:21:11 cvsumesh Exp $";
 
 #include "mpeengine.h"
 
@@ -70,7 +70,7 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-    deepErase( trackers_ );
+    deepUnRef( trackers_ );
     deepUnRef( editors_ );
     deepUnRef( attribcache_ );
     deepErase( attribcachespecs_ );
@@ -274,13 +274,20 @@ int Engine::addTracker( EM::EMObject* obj )
     if ( !obj )
 	mRetErr( "No valid object", -1 );
 
-    if ( getTrackerByObject(obj->id()) != -1 )
-	mRetErr( "Object is already tracked", -1 );
+    const int idx = getTrackerByObject( obj->id() );
+
+    if ( idx != -1 )
+    {
+	trackers_[idx]->ref();
+	return idx;
+    }
+	//mRetErr( "Object is already tracked", -1 );
 
     EMTracker* tracker = TrackerFactory().create( obj->getTypeStr(), obj );
     if ( !tracker )
 	mRetErr( "Cannot find this trackertype", -1 );
 
+    tracker->ref();
     trackers_ += tracker;
     ObjectSet<FlatCubeInfo>* flatcubes = new ObjectSet<FlatCubeInfo>;
     flatcubescontainer_ += flatcubes;
@@ -295,7 +302,12 @@ void Engine::removeTracker( int idx )
     if ( idx<0 || idx>=trackers_.size() || !trackers_[idx] )
 	return;
 
-    delete trackers_[idx];
+    const int noofref = trackers_[idx]->nrRefs();
+    trackers_[idx]->unRef();
+
+    if ( noofref != 1 )
+	return;
+
     trackers_.replace( idx, 0 );
 
     deepErase( *flatcubescontainer_[idx] );
@@ -682,7 +694,11 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
     for ( int idx=0; idx<editors_.size(); idx++ )
     {
 	if ( editors_[idx]->emObject().id()==id )
+	{
+	    if ( create )
+		editors_[idx]->ref();
 	    return editors_[idx];
+	}
     }
 
     if ( !create ) return 0;
@@ -705,7 +721,8 @@ void Engine::removeEditor( const EM::ObjectID& objid )
     ObjectEditor* editor = getEditor( objid, false );
     if ( editor )
     {
-	editors_ -= editor;
+	if ( editor->nrRefs() == 1 )
+	    editors_ -= editor;
 	editor->unRef();
     }
 }
@@ -846,7 +863,7 @@ bool Engine::usePar( const IOPar& iopar )
 
 void Engine::init()
 {
-    deepErase( trackers_ );
+    deepUnRef( trackers_ );
     deepUnRef( editors_ );
     deepUnRef( attribcache_ );
     deepErase( attribcachespecs_ );

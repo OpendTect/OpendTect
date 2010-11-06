@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: visvw2dfault.cc,v 1.1 2010-06-24 08:41:01 cvsumesh Exp $
+ RCS:		$Id: visvw2dfault.cc,v 1.2 2010-11-06 16:21:12 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,9 @@ ________________________________________________________________________
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
+#include "faulteditor.h"
 #include "flatauxdataeditor.h"
+#include "mpeengine.h"
 #include "mpef3dflatvieweditor.h"
 
 #include "uiflatviewwin.h"
@@ -30,7 +32,14 @@ VW2DFaut::VW2DFaut( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
     , viewerwin_(mainwin)
     , auxdataeditors_(auxdataeds)
     , deselted_( this )
+    , f3deditor_(0)
 {
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid_, true );
+    mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
+    f3deditor_ = f3deditor;
+    if ( f3deditor_ )
+	f3deditor_->ref();
+
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const FlatDataPack* fdp = viewerwin_->viewer( ivwr ).pack( true );
@@ -60,6 +69,11 @@ VW2DFaut::VW2DFaut( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
 VW2DFaut::~VW2DFaut()
 {
     deepErase(faulteds_);
+    if ( f3deditor_ )
+    {
+	f3deditor_->unRef();
+	MPE::engine().removeEditor( emid_ );
+    }
 }
 
 
