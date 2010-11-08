@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.15 2010-11-08 21:47:30 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.16 2010-11-08 22:17:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -216,6 +216,39 @@ protected:
 
     TypeSet<Creator>		creators_;
 };
+
+
+
+#define mDefaultFactoryInstanciationBase( factory, keywrd, usernm ) \
+    static const char*	sKeyword() { return keywrd; } \
+    static const char*  sUserName() { return usernm; } \
+    static void		initClass()  \
+    			{ factory().addCreator(createInstance, sKeyword(),\
+					       sUserName()); }
+
+#define mDefaultFactoryInstantiation( baseclss, factory, clss, keywrd,usernm) \
+    static baseclss*	createInstance() { return new clss; } \
+    mDefaultFactoryInstanciationBase( factory, keywrd, usernm )
+
+#define mDefaultFactoryInstantiation1Param( baseclss, factory, clss, keywrd,\
+				usernm, P0 ) \
+    static baseclss*	createInstance(P0 __p0) { return new clss(__p0); } \
+    mDefaultFactoryInstanciationBase( factory, keywrd, usernm )
+
+#define mDefaultFactoryInstantiation2Param( baseclss, factory, clss, keywrd,\
+				usernm, P0, P1 ) \
+    static baseclss*	createInstance(P0 __p0, P1 __p1) \
+    { return new clss(__p0,__p1); } \
+    mDefaultFactoryInstanciationBase( factory, keywrd, usernm )
+
+
+
+#define mDefaultFactoryInstantiation3Param( baseclss, factory, clss, keywrd,\
+				usernm, P0, P1, P2 ) \
+    static baseclss*	createInstance(P0 __p0, P1 __p1, P2 __p2 ) \
+    { return new clss(__p0,__p1,__p2); } \
+    mDefaultFactoryInstanciationBase( factory, keywrd, usernm )
+
 #define mCreateImpl( donames, createfunc ) \
     if ( donames ) \
     { \
