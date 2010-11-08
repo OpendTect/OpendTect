@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.28 2010-08-10 21:53:45 cvskris Exp $
+ RCS:           $Id: genericnumer.h,v 1.29 2010-11-08 21:32:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -125,6 +125,12 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
 mGlobal float similarity(const FloatMathFunction&,const FloatMathFunction&, 
 		 float x1, float x2, float dist, int sz, bool normalize );
 
+
+mGlobal float semblance( const ObjectSet<float>& signals,const Interval<int>& );
+
+mGlobal float semblance( const ObjectSet<float>& signals,int signalsize,
+			 const TypeSet<float>& signalstarts,
+			 const Interval<int>& gate );
 
 mGlobal double LanczosKernel( int size, double x );
 

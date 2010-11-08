@@ -3,10 +3,11 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID = "$Id: genericnumer.cc,v 1.20 2010-08-10 21:53:45 cvskris Exp $";
+static const char* rcsID = "$Id: genericnumer.cc,v 1.21 2010-11-08 21:32:50 cvskris Exp $";
 
 #include "genericnumer.h"
 #include "undefval.h"
+#include "idxable.h"
     
 #define ITMAX 100
 #define EPS 3.0e-8
@@ -163,6 +164,64 @@ float similarity( const FloatMathFunction& a, const FloatMathFunction& b,
     sampb.sd.step = dist;
 
     return similarity( sampa, sampb, sz, normalize, 0, 0 );
+}
+
+
+float semblance( const ObjectSet<float>& signals, const Interval<int>& samplegate )
+{
+    const int nrsignals = signals.size()-1;
+
+    float numerator = 0;
+    float denominator = 0;
+    for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
+    {
+	float sum = 0;
+	for ( int signalidx=nrsignals-1; signalidx>=0; signalidx-- )
+	{
+	    const float val = signals[signalidx][zidx];
+	    if ( mIsUdf(val) )
+		continue;
+
+	    sum += val;
+	    denominator += val*val;
+	}
+
+	numerator += sum*sum;
+    }
+
+    return denominator
+	? numerator / (nrsignals*denominator)
+	: mUdf(float);
+}
+
+
+float semblance( const ObjectSet<float>& signals, int signalsize,
+		 const TypeSet<float>& signalstarts,
+		 const Interval<int>& samplegate )
+{
+    const int nrsignals = signals.size();
+    const int nrsamples = samplegate.width()+1;
+
+    mAllocVarLenArr( float, cache, nrsignals*nrsamples );
+    int offset = 0;
+    ObjectSet<float> semblanceinput;
+
+    for ( int signalidx=0; signalidx<nrsignals; signalidx++ )
+    {
+	const float* signal = signals[signalidx];
+	semblanceinput += cache+offset;
+	for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
+	{
+	    const float zpos = signalstarts[signalidx]+zidx;
+
+	    cache[offset] =
+		IdxAble::interpolateRegWithUdf( signal, signalsize, zpos, false );
+
+	    offset++;
+	}
+    }
+    
+    return semblance( semblanceinput, Interval<int>( 0,  nrsamples-1 ) );
 }
 
 
