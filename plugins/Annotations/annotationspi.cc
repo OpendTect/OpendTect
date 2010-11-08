@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: annotationspi.cc,v 1.11 2009-09-24 10:42:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: annotationspi.cc,v 1.12 2010-11-08 11:48:22 cvsbert Exp $";
 
 #include "measuretoolman.h"
 #include "plugins.h"
@@ -32,7 +32,8 @@ mExternC PluginInfo* GetAnnotationsPluginInfo()
 	"Annotations",
 	"dGB (Nanne Hemstra)",
 	"=od",
-	"Annotation display utilities" };
+	"Annotation display utilities."
+	    "\nThis delivers the 'Annotations' item in the tree." };
     return &retpii;
 }
 

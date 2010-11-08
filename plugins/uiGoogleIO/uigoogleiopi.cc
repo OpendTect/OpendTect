@@ -42,10 +42,12 @@ mExternC int GetuiGoogleIOPluginType()
 mExternC PluginInfo* GetuiGoogleIOPluginInfo()
 {
     static PluginInfo retpi = {
-	"Google I/O",
+	"Google KML generation",
 	"dGB",
 	"=od",
-	"IO with Google programs (Maps,Earth)." };
+	"Export to Google programs (Maps,Earth)."
+    	    "\nThis plugin adds functionality to generate KML files "
+	    "from Opendtect." };
     return &retpi;
 }
 

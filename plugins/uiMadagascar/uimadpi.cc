@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.20 2010-05-21 11:54:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.21 2010-11-08 11:48:22 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimenu.h"
@@ -34,9 +34,11 @@ mExternC PluginInfo* GetuiMadagascarPluginInfo()
 {
     static PluginInfo retpi = {
 	"Madagascar link",
-	"dGB (Bert)",
-	"3.0",
-    	"Enables the Madagascar link." };
+	"dGB (Bert, Raman)",
+	"3.2",
+    	"A link to the Madagascar system."
+	    "\nSee http://opendtect.org/links/madagascar.html"
+	    " for info on Madagascar." };
     return &retpi;
 }
 

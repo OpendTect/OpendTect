@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.30 2010-09-15 12:06:09 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.31 2010-11-08 11:48:22 cvsbert Exp $";
 
 #include "envvars.h"
 #include "file.h"
@@ -46,7 +46,9 @@ mExternC PluginInfo* GetuiGMTPluginInfo()
 	"GMT link",
 	"dGB (Raman)",
 	"3.2",
-    	"Plots Surface data using GMT mapping tool" };
+    	"A link to the GMT mapping tool."
+	    "\nThis is the User interface of the link."
+	    "\nSee http://opendtect.org/links/gmt.html for info on GMT" };
     return &retpi;
 }
 

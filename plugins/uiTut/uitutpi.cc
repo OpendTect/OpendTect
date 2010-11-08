@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.19 2010-02-09 05:15:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.20 2010-11-08 11:48:22 cvsbert Exp $";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
@@ -38,10 +38,11 @@ mExternC int GetuiTutPluginType()
 mExternC PluginInfo* GetuiTutPluginInfo()
 {
     static PluginInfo retpi = {
-	"Tutorial plugin development",
+	"Tutorial plugin",
 	"dGB (Raman/Bert)",
-	"3.0",
-    	"Shows some simple plugin basics." };
+	"3.2",
+    	"Shows some simple plugin development basics."
+	    "\nCan be loaded into od_main only." };
     return &retpi;
 }
 
