@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.12 2010-11-08 11:48:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.13 2010-11-08 12:18:02 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -54,13 +54,13 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( uiParent* p,
 void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 {
     MouseEventHandler& mevh = getMouseEventHandler();
-    const int nruns = desc_.size();
     if ( !mevh.hasEvent() || mevh.isHandled() )
 	return;
 
     const MouseEvent& mev = mevh.event();
     const bool isright = OD::rightMouseButton( mev.buttonState() );
-    const bool needhandle = (dbl && !isright) || (!dbl && isright);
+    const bool isempty = desc_.isEmpty();
+    const bool needhandle = isempty || (dbl && !isright) || (!dbl && isright);
     if ( !needhandle )
 	return;
 
@@ -68,14 +68,14 @@ void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
     if ( workrect_.isOutside(clickpos_) )
 	return;
 
-    int mnuid = dbl ? 0 : (nruns > 0 ? -1 : 1);
-    if ( nruns > 0 && !dbl )
+    int mnuid = dbl ? 0 : (isempty ? 1 : -1);
+    if ( !isempty && !dbl )
     {
 	uiPopupMenu mnu( parent(), "Action" );
 	mnu.insertItem( new uiMenuItem("&Edit ..."), 0 );
 	mnu.insertItem( new uiMenuItem("Add &Above ..."), 1 );
 	mnu.insertItem( new uiMenuItem("Add &Below ..."), 2 );
-	if ( nruns > 1 )
+	if ( desc_.size() > 1 )
 	{
 	    mnu.insertSeparator();
 	    mnu.insertItem( new uiMenuItem("&Remove"), 3 );
@@ -93,6 +93,8 @@ void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 
     if ( ischgd )
 	reDraw(0);
+
+    mevh.setHandled( true );
 }
 
 
