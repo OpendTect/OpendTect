@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.35 2010-08-12 08:30:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.36 2010-11-08 10:14:19 cvshelene Exp $";
 
 
 #include "uimathattrib.h"
@@ -157,23 +157,19 @@ void uiMathAttrib::getVarsNrAndNms( MathExpression* expr )
 
 void uiMathAttrib::updateDisplay( bool userecfld )
 {
+    const uiAttrSelData asd( is2d_, false );
     if ( attribflds_.size() != nrvars_ )
     {
 	attribflds_.erase();
 
 	xtable_->setNrRows( nrvars_ );
-	const uiAttrSelData asd( is2d_, false );
 	for ( int idx=0; idx<nrvars_; idx++ )
-	{
-	    uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
-	    attrbox->setDescSet( ads_ );
-	    attribflds_ += attrbox;
-	    xtable_->setCellGroup( RowCol(idx,0), attrbox );
-	    xtable_->setRowLabel( idx, varnms.get(idx) );
-	}
+	    setupOneRow( asd, idx, true );
     }
     else
-	xtable_->setRowLabels( varnms );
+	for ( int idx=0; idx<nrvars_; idx++ )
+	    if ( strcmp( xtable_->rowLabel(idx), varnms.get(idx) ) )
+		setupOneRow( asd, idx, false );
 
     xtable_->display( nrvars_ );
 
@@ -183,6 +179,21 @@ void uiMathAttrib::updateDisplay( bool userecfld )
 
     recstartfld_->display( userecfld );
     recstartposfld_->display( userecfld );
+}
+
+
+void uiMathAttrib::setupOneRow( const uiAttrSelData& asd, int rowidx,
+				bool doadd )
+{
+    uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
+    attrbox->setDescSet( ads_ );
+    if ( doadd )
+	attribflds_ += attrbox;
+    else
+	attribflds_.replace( rowidx, attrbox );
+
+    xtable_->setCellGroup( RowCol(rowidx,0), attrbox );
+    xtable_->setRowLabel( rowidx, varnms.get(rowidx) );
 }
 
 
