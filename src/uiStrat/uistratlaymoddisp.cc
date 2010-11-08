@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.6 2010-11-05 14:55:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.7 2010-11-08 11:48:46 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -36,7 +36,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
 	    			mCB(this,uiStratLayerModelDisp,usrClickCB) );
 
     const uiBorder border( 10 );
-    uiAxisHandler::Setup xahsu( uiRect::Bottom );
+    uiAxisHandler::Setup xahsu( uiRect::Top );
     xahsu.border( border ).name( "Model number" ).nogridline( true )
 			    .maxnumberdigitsprecision( 0 );
     xax_ = new uiAxisHandler( &scene(), xahsu );
@@ -141,7 +141,7 @@ void uiStratLayerModelDisp::doDraw()
     yax_->setNewDevSize( width(), height() );
     xax_->setBounds(Interval<float>(0,lm_.size()));
     yax_->setBounds(Interval<float>(zrg_.stop,zrg_.start));
-    yax_->plotAxis();
+    yax_->plotAxis(); xax_->plotAxis();
     const Color vcol( lm_.propertyRefs()[dispprop_]->disp_.color_ );
     const float vwdth = vrg_.width();
 

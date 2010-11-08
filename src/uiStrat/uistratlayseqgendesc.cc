@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.11 2010-11-05 14:55:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.12 2010-11-08 11:48:46 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -55,15 +55,20 @@ void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 {
     MouseEventHandler& mevh = getMouseEventHandler();
     const int nruns = desc_.size();
-    if ( !mevh.hasEvent() || mevh.isHandled()
-	    || (nruns>0 && !rightMouseButton(mevh.event().buttonState())) )
+    if ( !mevh.hasEvent() || mevh.isHandled() )
 	return;
 
-    clickpos_ = mevh.event().pos();
+    const MouseEvent& mev = mevh.event();
+    const bool isright = OD::rightMouseButton( mev.buttonState() );
+    const bool needhandle = (dbl && !isright) || (!dbl && isright);
+    if ( !needhandle )
+	return;
+
+    clickpos_ = mev.pos();
     if ( workrect_.isOutside(clickpos_) )
 	return;
 
-    int mnuid = nruns > 0 ? -1 : (dbl?0:1);
+    int mnuid = dbl ? 0 : (nruns > 0 ? -1 : 1);
     if ( nruns > 0 && !dbl )
     {
 	uiPopupMenu mnu( parent(), "Action" );
@@ -81,7 +86,7 @@ void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
     bool ischgd = false;
     if ( mnuid == 0 )
 	ischgd = descEditReq();
-    else if ( mnuid ==1 || mnuid == 2 )
+    else if ( mnuid == 1 || mnuid == 2 )
 	ischgd = newDescReq( mnuid == 1 );
     else if ( mnuid == 3 )
 	ischgd = descRemoveReq();
