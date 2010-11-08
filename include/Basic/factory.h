@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.14 2010-04-21 14:51:51 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.15 2010-11-08 21:47:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstringset.h"
+#include "ptrman.h"
 #include "errh.h"
 
 //!Helper class for Factories, Factories are defined later in this file
