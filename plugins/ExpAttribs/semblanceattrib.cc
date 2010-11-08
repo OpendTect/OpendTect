@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: semblanceattrib.cc,v 1.5 2010-08-11 10:01:48 cvshelene Exp $";
+static const char* rcsID = "$Id: semblanceattrib.cc,v 1.6 2010-11-08 21:33:45 cvskris Exp $";
 
 #include "semblanceattrib.h"
 
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: semblanceattrib.cc,v 1.5 2010-08-11 10:01:48 cv
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsteering.h"
+#include "genericnumer.h"
+#include "varlenarray.h"
 
 #define mExtensionNone		0
 #define mExtensionRot90		1
@@ -234,43 +236,47 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
     if ( needinterp_ )
 	extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
 
+    const int nrtraces = inputdata_.size();
+
+    mAllocVarLenArr( float, cache, nrtraces*gatesz );
+    ObjectSet<float> semblanceinput;
+
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	float numerator = 0;
-	float denominator = 0;
-	for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
-	{
-	    float sum = 0;
-	    float sampleidx = idx + zidx;
-	    for ( int trcidx=0; trcidx<inputdata_.size(); trcidx++ )
-	    {
-		const DataHolder* data = inputdata_[trcidx];
-		if ( !data )
-		    continue;
+	int offset = 0;
+	semblanceinput.erase();
 
-		if ( dosteer_ )
+	for ( int trcidx=0; trcidx<nrtraces; trcidx++ )
+	{
+	    semblanceinput += cache+offset;
+
+	    ValueSeries<float>* serie = dosteer_ 
+		? steeringdata_->series( steerindexes_[trcidx] )
+		: 0;
+
+	    const DataHolder* data = inputdata_[trcidx];
+	    for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
+	    {
+		float sampleidx = idx + zidx;
+		if ( serie )
+		    sampleidx += serie->value(z0+idx-steeringdata_->z0_);
+
+		float traceval = mUdf(float);
+		if ( data )
 		{
-		    ValueSeries<float>* serie = 
-			    steeringdata_->series( steerindexes_[trcidx] );
-		    if ( serie )
-			sampleidx += serie->value( z0+idx-steeringdata_->z0_ );
+		    traceval = dosteer_
+			? getInterpolInputValue( *data, dataidx_, sampleidx, z0 )
+			: getInputValue( *data, dataidx_, (int)sampleidx, z0 );
 		}
 
-		const float traceval = dosteer_
-		    ? getInterpolInputValue( *data, dataidx_, sampleidx, z0 )
-		    : getInputValue( *data, dataidx_, (int)sampleidx, z0 );
-
-		if ( mIsUdf(traceval) ) continue;
-		sum += traceval;
-		denominator += traceval*traceval;
+		cache[offset] = traceval;
+		offset++;
 	    }
-
-	    numerator += sum*sum;
 	}
 
-	float semblance = denominator ?numerator/(inputdata_.size()*denominator)
-	    			      : mUdf(float);
-	setOutputValue( output, 0, idx, z0, semblance );
+	const float semb = semblance( semblanceinput, Interval<int>(0,gatesz-1) );
+
+	setOutputValue( output, 0, idx, z0, semb );
     }
 
     return true;
