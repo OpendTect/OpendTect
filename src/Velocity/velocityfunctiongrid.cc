@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.16 2010-11-01 16:14:41 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.17 2010-11-09 22:05:14 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -562,7 +562,7 @@ void GriddedSource::fillPar( IOPar& par ) const
 
     IOPar gridpar;
     gridder_->fillPar( gridpar );
-    gridpar.set( sKey::Name, gridder_->name() );
+    gridpar.set( sKey::Name, gridder_->factoryKeyword() );
     par.mergeComp( gridpar, sKeyGridder() );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Umesh Sinha
 Date:          Sep 2008
-RCS:           $Id: velocityfunctionstored.h,v 1.3 2009-07-22 16:01:19 cvsbert Exp $
+RCS:           $Id: velocityfunctionstored.h,v 1.4 2010-11-09 22:05:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -51,10 +51,9 @@ protected:
 mClass StoredFunctionSource : public FunctionSource
 {
 public:
-    static void                 initClass();
+    mDefaultFactoryInstanciationBase( "StoredVelFunc", sFactoryKeyword());
+
     				StoredFunctionSource();
-    static const char*          sType() { return "StoredVelFunc"; }
-    const char*                 type() const            { return sType(); }
     static IOObjContext&	ioContext();
 
     const VelocityDesc&         getDesc() const         { return desc_; }

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.12 2010-08-27 17:58:59 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.13 2010-11-09 22:05:14 cvskris Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -24,7 +24,7 @@ namespace Vel
 
 
 void VolumeFunctionSource::initClass()
-{ FunctionSource::factory().addCreator( create, sType() ); }
+{ FunctionSource::factory().addCreator( create, sFactoryKeyword() ); }
 
 
 

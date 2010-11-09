@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunction.cc,v 1.7 2010-10-26 17:01:43 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunction.cc,v 1.8 2010-11-09 22:05:14 cvskris Exp $";
 
 #include "velocityfunction.h"
 
@@ -136,7 +136,7 @@ BufferString FunctionSource::userName() const
     if ( ioobj )
 	return ioobj->name();
     
-    return BufferString( type() );
+    return BufferString( factoryKeyword() );
 }
 
 

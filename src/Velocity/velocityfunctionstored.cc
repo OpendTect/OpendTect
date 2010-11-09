@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.9 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.10 2010-11-09 22:05:14 cvskris Exp $";
 
 #include "velocityfunctionstored.h"
 
@@ -119,7 +119,7 @@ bool StoredFunctionSource::zIsTime() const
 
 
 void StoredFunctionSource::initClass()
-{ FunctionSource::factory().addCreator( create, sType() ); }    
+{ FunctionSource::factory().addCreator( create, sFactoryKeyword() ); }    
 
 
 void StoredFunctionSource::setData( const BinIDValueSet& bvs,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctionvolume.h,v 1.7 2010-08-20 03:41:22 cvskris Exp $
+ RCS:		$Id: velocityfunctionvolume.h,v 1.8 2010-11-09 22:05:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -61,11 +61,8 @@ protected:
 mClass VolumeFunctionSource : public FunctionSource
 {
 public:
-    static void			initClass();
+    mDefaultFactoryInstanciationBase( "Velocity volume", sFactoryKeyword() );
     				VolumeFunctionSource();
-    static const char*		sType() { return "Velocity volume"; }
-    const char*			type() const		{ return sType(); }
-
     const VelocityDesc&		getDesc() const 	{ return desc_; }
 
     bool			zIsTime() const;
