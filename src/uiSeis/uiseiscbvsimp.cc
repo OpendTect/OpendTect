@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.72 2010-08-12 10:39:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.73 2010-11-09 09:16:28 cvsnanne Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -140,6 +140,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     transffld->attach( alignedBelow, attobj );
 
     uiSeisSel::Setup sssu( Seis::Vol );
+    sssu.steerpol( uiSeisSel::Setup::InclSteer );
     outctio_.ctxt.forread = false;
     outctio_.ctxt.toselect.allowtransls_ = "CBVS";
     IOM().to( outctio_.ctxt.getSelKey() );
