@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.11 2010-09-02 06:55:47 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.12 2010-11-09 20:30:59 cvskris Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -86,7 +86,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 	methodsel_->valuechanged.notify(
 		mCB( this, uiArray2DInterpolSel, selChangeCB ) );
 
-	methodidx = oldvals ? methods.indexOf( oldvals->type() ) : 0;
+	methodidx = oldvals ? methods.indexOf( oldvals->factoryKeyword() ) : 0;
 	if ( oldvals )
 	    methodsel_->setValue( methodidx );
 
@@ -272,7 +272,7 @@ Array2DInterpol* uiArray2DInterpol::getResult()
 void uiInverseDistanceArray2DInterpol::initClass()
 {
     uiArray2DInterpolSel::factory().addCreator( create,
-	    InverseDistanceArray2DInterpol::sType() );
+	    InverseDistanceArray2DInterpol::sFactoryKeyword() );
 }
 
 
@@ -344,7 +344,7 @@ void uiInverseDistanceArray2DInterpol::setDistanceUnit( const char* d )
 void uiTriangulationArray2DInterpol::initClass()
 {
     uiArray2DInterpolSel::factory().addCreator( create,
-	    TriangulationArray2DInterpol::sType() );
+	    TriangulationArray2DInterpol::sFactoryKeyword() );
 }
 
 
@@ -412,7 +412,7 @@ bool uiTriangulationArray2DInterpol::acceptOK()
 void uiArray2DInterpolExtension::initClass()
 {
     uiArray2DInterpolSel::factory().addCreator( create,
-	    Array2DInterpolExtension::sType() );
+	    Array2DInterpolExtension::sFactoryKeyword() );
 }
 
 

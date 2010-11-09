@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigridder2d.cc,v 1.7 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uigridder2d.cc,v 1.8 2010-11-09 20:30:59 cvskris Exp $";
 
 #include "uigridder2d.h"
 
@@ -28,7 +28,7 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
 
     for ( int idx=0; idx<griddernames.size(); idx++ )
     {
-	Gridder2D* gridder = g && (*griddernames[idx])==g->name()
+	Gridder2D* gridder = g && (*griddernames[idx])==g->factoryKeyword()
 	    ? g->clone()
 	    : Gridder2D::factory().create(griddernames[idx]->buf());
 
@@ -60,7 +60,10 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
 	}
     }
 
-    int selidx = original_ ? griddernames.indexOf( original_->name() ) : -1;
+    int selidx = original_
+	? griddernames.indexOf( original_->factoryKeyword() )
+	: -1;
+
     if ( selidx<0 ) selidx=0;
 
     griddingsel_->setValue( selidx );
