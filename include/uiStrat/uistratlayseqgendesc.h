@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayseqgendesc.h,v 1.7 2010-11-05 14:55:13 cvsbert Exp $
+ RCS:           $Id: uistratlayseqgendesc.h,v 1.8 2010-11-09 20:51:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ protected: \
     virtual bool	descRemoveReq(); \
 public: \
     static const char*	typeStr()			{ return typstr; } \
-    virtual const char*	type() const			{ return typeStr(); } \
+    virtual const char*	factoryKeyword() const		{ return typeStr(); } \
     static uiLayerSequenceGenDesc* create( uiParent* p, \
 					   Strat::LayerSequenceGenDesc& gd ) \
 						    { return new clss(p,gd); } \

@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.12 2010-11-05 14:55:13 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.13 2010-11-09 20:51:49 cvskris Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
@@ -87,7 +87,7 @@ void Strat::LayerGenerator::usePar( const IOPar&, const Strat::RefTree& )
 
 void Strat::LayerGenerator::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type, type() );
+    iop.set( sKey::Type, factoryKeyword() );
 }
 
 
