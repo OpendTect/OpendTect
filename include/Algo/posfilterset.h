@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterset.h,v 1.8 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: posfilterset.h,v 1.9 2010-11-09 20:22:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -67,6 +67,7 @@ protected:
 					{ copyFrom(fs); return *this; } \
     virtual Filter*	clone() const	{ return new FilterSet##dim(*this); } \
     virtual const char* type() const	{ return typeStr(); } \
+    virtual const char* factoryKeyword() const	{ return type(); } \
     virtual bool	includes( const Coord& c, float z=1e30 ) const \
 			{ return FilterSet::includes(c,z); } \
 

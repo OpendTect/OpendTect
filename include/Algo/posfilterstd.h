@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterstd.h,v 1.6 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: posfilterstd.h,v 1.7 2010-11-09 20:22:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,7 @@ protected:
 
 
 #define mSimpPosFilterDefFnsBase \
+const char* factoryKeyword() const { return type(); } \
 virtual const char* type() const { return typeStr(); } \
 virtual bool includes(const Coord&,float z=1e30) const { return drawRes(); } \
 static void initClass()
