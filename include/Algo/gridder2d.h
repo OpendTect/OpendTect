@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.17 2010-11-09 19:59:35 cvskris Exp $
+ RCS:		$Id: gridder2d.h,v 1.18 2010-11-09 22:09:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,6 @@ mClass InverseDistanceGridder2D : public Gridder2D
 {
 public:
     mDefaultFactoryInstantiation( Gridder2D,
-				Gridder2D::factory,
 				InverseDistanceGridder2D,
 				"InverseDistance", "Inverse distance" );
 
@@ -139,7 +138,6 @@ mClass TriangulatedGridder2D: public Gridder2D
 {
 public:
     mDefaultFactoryInstantiation( Gridder2D,
-				Gridder2D::factory,
 				TriangulatedGridder2D,
 				"Triangulated", "Triangulation" );
     			TriangulatedGridder2D();
