@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.45 2010-11-09 09:25:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.46 2010-11-09 10:33:54 cvsbruno Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -551,7 +551,8 @@ void uiAxisHandler::drawName()
     {
 	const bool istop = setup_.side_ == uiRect::Top;
 	const int x = pixBefore() + axsz_ / 2;
-	const int y = istop ? 2 : height_- pixToEdge()+ticsz_+wdthy_/2;
+	const int yshift = pixToEdge() - ticsz_ - wdthy_/2;
+	const int y = istop ? yshift : height_ - yshift;
 	const Alignment al( Alignment::HCenter,
 			    istop ? Alignment::Bottom : Alignment::Top );
 	nameitm_->setPos( uiPoint(x,y) );
@@ -560,7 +561,8 @@ void uiAxisHandler::drawName()
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	const int x = isleft ? pixBefore() - wdthx_+ 5 : width_-3;
+	const int xshift = pixBefore() - ticsz_ - wdthx_/2;
+	const int x = isleft ? xshift : width_ - xshift;
 	const int y = height_ / 2;
 	const Alignment al( isleft ? Alignment::HCenter : Alignment::Left,
 			    Alignment::VCenter );
