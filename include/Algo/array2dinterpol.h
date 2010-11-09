@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          April 2009
- RCS:           $Id: array2dinterpol.h,v 1.5 2009-11-10 20:10:10 cvsyuancheng Exp $
+ RCS:           $Id: array2dinterpol.h,v 1.6 2010-11-09 19:49:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,6 @@ mClass Array2DInterpol : public ParallelTask
 public:
     virtual			~Array2DInterpol();
 				mDefineFactoryInClass(Array2DInterpol,factory);
-    virtual const char*		type() const				= 0;
 
     enum FillType		{ HolesOnly, ConvexHull, Full };
     				DeclareEnumUtils(FillType);

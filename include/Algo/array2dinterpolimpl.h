@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.12 2010-01-27 23:00:43 cvsyuancheng Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.13 2010-11-09 19:49:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,10 +49,10 @@ cornersfirst	if true, algorithm will only interpolate nodes that has the
 mClass InverseDistanceArray2DInterpol : public Array2DInterpol
 {
 public:
-    static void			initClass();
-    static const char*		sType()		{ return "Inverse distance"; }
-    const char*			type() const 	{ return sType(); }
-    static Array2DInterpol*	create();
+    				mDefaultFactoryInstantiation( Array2DInterpol, 
+					Array2DInterpol::factory,
+					InverseDistanceArray2DInterpol,
+					"Inverse distance", sFactoryKeyword() );
 
 		InverseDistanceArray2DInterpol();
 		~InverseDistanceArray2DInterpol();
@@ -123,11 +123,10 @@ protected:
 mClass TriangulationArray2DInterpol : public Array2DInterpol
 {
 public:
-
-    static const char*		sType()		{ return "Triangulation"; }
-    const char*			type() const	{ return sType(); }
-    static void			initClass();
-    static Array2DInterpol*	create();
+		mDefaultFactoryInstantiation( Array2DInterpol, 
+			Array2DInterpol::factory,
+			TriangulationArray2DInterpol,
+			"Triangulation", sFactoryKeyword() );
 
     		TriangulationArray2DInterpol();
     		~TriangulationArray2DInterpol();
@@ -174,14 +173,14 @@ protected:
 mClass Array2DInterpolExtension : public Array2DInterpol
 {
 public:
+		mDefaultFactoryInstantiation( Array2DInterpol, 
+			Array2DInterpol::factory,
+			Array2DInterpolExtension,
+			"Extension", sFactoryKeyword() );
+
     			Array2DInterpolExtension();
     			~Array2DInterpolExtension();
 
-    static const char*	sType()		{ return "Extension"; }
-    const char*		type() const	{ return sType(); }
-    static void		initClass();
-    static Array2DInterpol* create();
-    
     bool		canUseArrayAccess() const	{ return true; }
     
     void		setNrSteps(int n)		{ nrsteps_ = n; }
