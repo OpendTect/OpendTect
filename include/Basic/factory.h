@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.19 2010-11-09 21:44:57 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.20 2010-11-09 22:44:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -328,7 +328,7 @@ mGlobal ::Factory<T>& funcname()
 
 #define mDefineFactoryInClass( T, funcname ) \
 static ::Factory<T>& funcname(); \
-virtual const char* factoryKeyword() const {}
+virtual const char* factoryKeyword() const { return 0; }
 
 
 #define mImplFactory( T, funcname ) \
@@ -345,7 +345,8 @@ mGlobal ::Factory1Param<T,P>& funcname()
 
 #define mDefineFactory1ParamInClass( T, P, funcname ) \
 static ::Factory1Param<T,P>& funcname(); \
-virtual const char* factoryKeyword() const = 0
+virtual const char* factoryKeyword() const { return 0; }
+
 
 
 #define mImplFactory1Param( T, P, funcname ) \
@@ -362,7 +363,7 @@ mGlobal ::Factory2Param<T,P0,P1>& funcname()
 
 #define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
 static ::Factory2Param<T,P0,P1>& funcname(); \
-virtual const char* factoryKeyword() const = 0
+virtual const char* factoryKeyword() const { return 0; }
 
 
 #define mImplFactory2Param( T, P0, P1, funcname ) \
@@ -380,7 +381,7 @@ mGlobal ::Factory3Param<T,P0,P1,P2>& funcname()
 
 #define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \
 static ::Factory3Param<T,P0,P1,P2>& funcname(); \
-virtual const char* factoryKeyword() const = 0
+virtual const char* factoryKeyword() const { return 0; }
 
 
 #define mImplFactory3Param( T, P0, P1, P2,funcname ) \
