@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.62 2010-10-28 15:05:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.63 2010-11-09 04:41:37 cvsnanne Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -59,22 +59,22 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     , curid_(DataPack::cNoID())
     , wvltext_(0)
     , wvltpropdlg_(0)			 
-    , lastexternal_(0)
 {
     createDefaultUI();
 
-    selgrp->getManipGroup()->addButton( "wvltfromothsurv.png",
+    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
+    manipgrp->addButton( "wvltfromothsurv.png",
 	mCB(this,uiSeisWvltMan,getFromOtherSurvey), "Get from other survey" );
-    selgrp->getManipGroup()->addButton( "info.png",
+    manipgrp->addButton( "info.png",
 	mCB(this,uiSeisWvltMan,dispProperties), "Display properties" );
-    selgrp->getManipGroup()->addButton( "revpol.png",
+    manipgrp->addButton( "revpol.png",
 	mCB(this,uiSeisWvltMan,reversePolarity), "Reverse polarity" );
-    selgrp->getManipGroup()->addButton( "phase.png",
+    manipgrp->addButton( "phase.png",
 	mCB(this,uiSeisWvltMan,rotatePhase), "Rotate phase" );
-    selgrp->getManipGroup()->addButton( "wavelet_taper.png",
+    manipgrp->addButton( "wavelet_taper.png",
 	mCB(this,uiSeisWvltMan,taper), "Taper" );
 
-    butgrp_ = new uiGroup( this, "Imp/Create buttons" );
+    butgrp_ = new uiGroup( listgrp_, "Imp/Create buttons" );
     uiPushButton* impbut = new uiPushButton( butgrp_, "&Import", false );
     impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
     impbut->setPrefWidthInChar( 12 );
@@ -90,10 +90,10 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
     extractbut->attach( rightOf, mergebut );
     extractbut->setPrefWidthInChar( 12 );
-    butgrp_->attach( centeredBelow, selgrp );
+    butgrp_->attach( centeredBelow, selgrp_ );
 
-    wvltfld = new uiFlatViewer( this );
-    FlatView::Appearance& app = wvltfld->appearance();
+    wvltfld_ = new uiFlatViewer( listgrp_ );
+    FlatView::Appearance& app = wvltfld_->appearance();
     app.annot_.x1_.name_ = "Amplitude";
     app.annot_.x2_.name_ = SI().zIsTime() ? "Time" : "Depth";
     app.annot_.setAxesAnnot( false );
@@ -107,15 +107,10 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     app.ddpars_.wva_.symmidvalue_ = mUdf(float);
     app.setDarkBG( false );
 
-    wvltfld->setPrefWidth( 60 );
-    wvltfld->attach( ensureRightOf, selgrp );
-    wvltfld->setStretch( 1, 2 );
-    wvltfld->setExtraBorders( uiRect(2,5,2,5) );
-
-    infofld->attach( ensureBelow, butgrp_ );
-    infofld->attach( ensureBelow, wvltfld );
-    selgrp->setPrefWidthInChar( 50 );
-    infofld->setPrefWidthInChar( 60 );
+    wvltfld_->setPrefWidth( 60 );
+    wvltfld_->attach( ensureRightOf, selgrp_ );
+    wvltfld_->setStretch( 1, 2 );
+    wvltfld_->setExtraBorders( uiRect(2,5,2,5) );
 
     fieldsCreated()->trigger( this );
     windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
@@ -137,25 +132,11 @@ uiSeisWvltMan::~uiSeisWvltMan()
 }
 
 
-void uiSeisWvltMan::addTool( uiButton* but )
-{
-    if ( lastexternal_ )
-	but->attach( rightOf, lastexternal_ );
-    else
-    {
-	but->attach( leftAlignedBelow, butgrp_ );
-	infofld->attach( ensureBelow, but );
-    }
-
-    lastexternal_ = but;
-}
-
-
 void uiSeisWvltMan::impPush( CallBacker* )
 {
     uiSeisWvltImp dlg( this );
     if ( dlg.go() )
-	selgrp->fullUpdate( dlg.selKey() );
+	selgrp_->fullUpdate( dlg.selKey() );
 }
 
 
@@ -163,18 +144,18 @@ void uiSeisWvltMan::crPush( CallBacker* )
 {
     uiSeisWvltGen dlg( this );
     if ( dlg.go() )
-	selgrp->fullUpdate( dlg.storeKey() );
+	selgrp_->fullUpdate( dlg.storeKey() );
 }
 
 
 void uiSeisWvltMan::mrgPush( CallBacker* )
 {
-    if ( selgrp->getListField()->size()<2 )
+    if ( selgrp_->getListField()->size()<2 )
 	mErrRet( "At least two wavelets are needed to merge wavelets" );
 
     uiSeisWvltMerge dlg( this, curioobj_ ? curioobj_->name() : 0 );
     if ( dlg.go() )
-	selgrp->fullUpdate( dlg.storeKey() );
+	selgrp_->fullUpdate( dlg.storeKey() );
 }
 
 
@@ -203,7 +184,7 @@ void uiSeisWvltMan::extractPush( CallBacker* cb )
 
 void uiSeisWvltMan::updateCB( CallBacker* )
 {
-    selgrp->fullUpdate( wvltext_->storeKey() );
+    selgrp_->fullUpdate( wvltext_->storeKey() );
 }
 
 
@@ -219,7 +200,7 @@ void uiSeisWvltMan::mkFileInfo()
     BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
 
-    wvltfld->removePack( curid_ );
+    wvltfld_->removePack( curid_ );
     curid_ = DataPack::cNoID();
     if ( wvlt )
     {
@@ -240,11 +221,11 @@ void uiSeisWvltMan::mkFileInfo()
 	delete wvlt;
     }
 
-    wvltfld->setPack( true, curid_, false );
-    wvltfld->handleChange( uiFlatViewer::All );
+    wvltfld_->setPack( true, curid_, false );
+    wvltfld_->handleChange( uiFlatViewer::All );
 
     txt += getFileInfo();
-    infofld->setText( txt );
+    setInfo( txt );
 }
 
 
@@ -330,7 +311,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
     else if ( !wvlt->put(ctio.ioobj) )
 	mRet("Cannot write wavelet to disk")
 
-    selgrp->fullUpdate( ctio.ioobj->key() );
+    selgrp_->fullUpdate( ctio.ioobj->key() );
     mRet( 0 )
 }
 
@@ -347,7 +328,7 @@ void uiSeisWvltMan::reversePolarity( CallBacker* )
     if ( !wvlt->put(curioobj_) )
 	uiMSG().error("Cannot write new polarity reversed wavelet to disk");
     else
-	selgrp->fullUpdate( curioobj_->key() );
+	selgrp_->fullUpdate( curioobj_->key() );
 
     delete wvlt;
 }
@@ -365,7 +346,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
 	if ( !wvlt->put(curioobj_) )
 	    uiMSG().error("Cannot write rotated phase wavelet to disk");
 	else
-	    selgrp->fullUpdate( curioobj_->key() );
+	    selgrp_->fullUpdate( curioobj_->key() );
     }
 
     dlg.acting.remove( mCB(this,uiSeisWvltMan,updateViewer) );
@@ -386,7 +367,7 @@ void uiSeisWvltMan::taper( CallBacker* )
 	if ( !wvlt->put(curioobj_) )
 	    uiMSG().error("Cannot write tapered wavelet to disk");
 	else
-	    selgrp->fullUpdate( curioobj_->key() );
+	    selgrp_->fullUpdate( curioobj_->key() );
     }
 }
 
@@ -401,7 +382,7 @@ void uiSeisWvltMan::updateViewer( CallBacker* cb )
     if ( !wvlt ) mErr();
 
     setViewerData( wvlt );
-    wvltfld->setPack( true, curid_, false );
-    wvltfld->handleChange( uiFlatViewer::All );
+    wvltfld_->setPack( true, curid_, false );
+    wvltfld_->handleChange( uiFlatViewer::All );
 }
 

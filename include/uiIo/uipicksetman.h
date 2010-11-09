@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uipicksetman.h,v 1.5 2010-09-30 10:03:34 cvsnageswara Exp $
+ RCS:           $Id: uipicksetman.h,v 1.6 2010-11-09 04:41:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,11 +27,8 @@ public:
 				~uiPickSetMan();
 
     static Notifier<uiPickSetMan>* fieldsCreated();
-    void			addTool(uiButton*);
 
 protected:
-
-    uiButton*			lastexternal_;
 
     void			mkFileInfo();
     void			mergeSets(CallBacker*);

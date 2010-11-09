@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.33 2010-10-27 08:24:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.34 2010-11-09 04:41:37 cvsnanne Exp $";
 
 
 #include "uiobjfileman.h"
@@ -33,7 +33,7 @@ static const char* rcsID = "$Id: uiobjfileman.cc,v 1.33 2010-10-27 08:24:31 cvsn
 
 
 static const int cPrefHeight = 10;
-static const int cPrefWidth = 30;
+static const int cPrefWidth = 75;
 
 
 uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
@@ -41,6 +41,7 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
     : uiDialog(p,s)
     , curioobj_(0)
     , ctxt_(*new IOObjContext(ctxt))
+    , lastexternal_(0)
 {
     setCtrlStyle( LeaveOnly );
 }
@@ -55,39 +56,54 @@ uiObjFileMan::~uiObjFileMan()
 
 void uiObjFileMan::createDefaultUI( bool needreloc )
 {
-    uiGroup* listgrp = new uiGroup( this, "List Group" );
+    listgrp_ = new uiGroup( this, "List Group" );
     IOM().to( 0 ); IOM().to( ctxt_.getSelKey() );
-    selgrp = new uiIOObjSelGrp( listgrp, CtxtIOObj(ctxt_), 0, false, needreloc);
-    selgrp->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
-    selgrp->getListField()->setHSzPol( uiObject::Medium );
+    selgrp_ = new uiIOObjSelGrp( listgrp_, CtxtIOObj(ctxt_), 0, false,
+				 needreloc);
+    selgrp_->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
+    selgrp_->getListField()->setHSzPol( uiObject::Medium );
 
-    mkdefbut = selgrp->getManipGroup()->addButton( "makedefault.png",
+    mkdefbut_ = selgrp_->getManipGroup()->addButton( "makedefault.png",
 	    mCB(this,uiObjFileMan,makeDefault), "Set as default" );
 
-    uiGroup* infogrp = new uiGroup( this, "Info Group" );
-    infofld = new uiTextEdit( infogrp, "Object Info", true );
-    infofld->setPrefHeightInChar( cPrefHeight );
-    infofld->setStretch( 2, 2 );
-    selgrp->setPrefWidthInChar( cPrefWidth );
+    infogrp_ = new uiGroup( this, "Info Group" );
+    infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
+    infofld_->setPrefHeightInChar( cPrefHeight );
+    infofld_->setStretch( 2, 2 );
+    setPrefWidth( cPrefWidth );
 
     uiSplitter* sep = new uiSplitter( this, "List-Info splitter", false );
-    sep->addGroup( listgrp );
-    sep->addGroup( infogrp );
+    sep->addGroup( listgrp_ );
+    sep->addGroup( infogrp_ );
+}
+
+
+void uiObjFileMan::addTool( uiButton* but )
+{
+    if ( lastexternal_ )
+	but->attach( rightOf, lastexternal_ );
+    else
+    {
+	but->attach( ensureBelow, selgrp_ );
+	infofld_->attach( ensureBelow, but );
+    }
+
+    lastexternal_ = but;
 }
 
 
 void uiObjFileMan::selChg( CallBacker* cb )
 {
     delete curioobj_;
-    curioobj_ = selgrp->nrSel() > 0 ? IOM().get(selgrp->selected(0)) : 0;
+    curioobj_ = selgrp_->nrSel() > 0 ? IOM().get(selgrp_->selected(0)) : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
-    mkdefbut->setSensitive( curimplexists_ );
+    mkdefbut_->setSensitive( curimplexists_ );
 
     ownSelChg();
     if ( curioobj_ )
 	mkFileInfo();
     else
-	infofld->setText( "" );
+	setInfo( "" );
 
     BufferString msg;
     if ( curioobj_ )
@@ -101,7 +117,7 @@ void uiObjFileMan::makeDefault( CallBacker* )
     if ( !curioobj_ ) return;
     SI().getPars().set( getDefKey(), curioobj_->key() );
     SI().savePars();
-    selgrp->fullUpdate( curioobj_->key() );
+    selgrp_->fullUpdate( curioobj_->key() );
 }
 
 
@@ -175,7 +191,7 @@ BufferString uiObjFileMan::getFileInfo()
 
     mDynamicCastGet(StreamConn*,conn,curioobj_->getConn(Conn::Read))
     if ( !conn )
-	{ txt = "-"; infofld->setText( txt ); return txt; }
+	{ txt = "-"; setInfo( txt ); return txt; }
 
     BufferString fname( conn->fileName() );
     FilePath fp( fname );
@@ -197,4 +213,15 @@ BufferString uiObjFileMan::getFileInfo()
     conn->close();
     delete conn;
     return txt;
+}
+
+
+void uiObjFileMan::setInfo( const char* txt )
+{ infofld_->setText( txt ); }
+
+
+void uiObjFileMan::setPrefWidth( int width )
+{
+    selgrp_->setPrefWidthInChar( width );
+    infofld_->setPrefWidthInChar( width );
 }

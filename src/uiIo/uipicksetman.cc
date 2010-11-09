@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetman.cc,v 1.12 2010-09-30 10:03:34 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uipicksetman.cc,v 1.13 2010-11-09 04:41:37 cvsnanne Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -22,8 +22,6 @@ static const char* rcsID = "$Id: uipicksetman.cc,v 1.12 2010-09-30 10:03:34 cvsn
 #include "picksettr.h"
 #include "pickset.h"
 
-static const int cPrefWidth = 75;
-
 Notifier<uiPickSetMan>* uiPickSetMan::fieldsCreated()
 {
     static Notifier<uiPickSetMan> FieldsCreated(0);
@@ -36,13 +34,10 @@ uiPickSetMan::uiPickSetMan( uiParent* p )
 				     "Manage picksets",
 				     "105.0.6").nrstatusflds(1),
 	           PickSetTranslatorGroup::ioContext())
-    , lastexternal_(0)
 {
     createDefaultUI();
-    selgrp->getManipGroup()->addButton( "mergepicksets.png",
+    selgrp_->getManipGroup()->addButton( "mergepicksets.png",
 	    		mCB(this,uiPickSetMan,mergeSets), "Merge pick sets" );
-    selgrp->setPrefWidthInChar( cPrefWidth );
-    infofld->setPrefWidthInChar( cPrefWidth );
     fieldsCreated()->trigger( this );
     selChg( this );
 }
@@ -53,23 +48,9 @@ uiPickSetMan::~uiPickSetMan()
 }
 
 
-void uiPickSetMan::addTool( uiButton* but )
-{
-    if ( lastexternal_ )
-	but->attach( rightOf, lastexternal_ );
-    else
-    {
-	but->attach( ensureBelow, selgrp );
-	infofld->attach( ensureBelow, but );
-    }
-
-    lastexternal_ = but;
-}
-
-
 void uiPickSetMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { infofld->setText( "" ); return; }
+    if ( !curioobj_ ) { setInfo( "" ); return; }
 
     BufferString txt;
     Pick::Set ps;
@@ -103,7 +84,7 @@ void uiPickSetMan::mkFileInfo()
 
     txt += "\n";
     txt += getFileInfo();
-    infofld->setText( txt );
+    setInfo( txt );
 }
 
 
@@ -124,5 +105,5 @@ void uiPickSetMan::mergeSets( CallBacker* )
     mgr.mergeSets( curkey );
 
     if ( curkey != "" )
-	selgrp->fullUpdate( curkey );
+	selgrp_->fullUpdate( curkey );
 }

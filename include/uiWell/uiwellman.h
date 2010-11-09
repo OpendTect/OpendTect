@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.19 2009-11-11 15:27:51 cvsbert Exp $
+ RCS:           $Id: uiwellman.h,v 1.20 2010-11-09 04:41:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,6 @@ protected:
 
     uiListBox*			logsfld_;
     uiGroup*			logsgrp_;
-    uiButton*			lastexternal_;
 
     Well::Data*			curwd_;
     Well::Reader*		currdr_;

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.26 2010-09-30 10:03:34 cvsnageswara Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.27 2010-11-09 04:41:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,6 @@ public:
 
 protected:
 
-    uiButton*		lastexternal_;
     uiListBox*		attribfld_;
 
     bool		isCur2D() const;

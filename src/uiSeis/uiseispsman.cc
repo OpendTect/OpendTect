@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispsman.cc,v 1.19 2010-09-30 10:03:34 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.20 2010-11-09 04:41:37 cvsnanne Exp $";
 
 
 #include "uiseispsman.h"
@@ -39,12 +39,9 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 	    	   is2d ? SeisPS2DTranslatorGroup::ioContext()
 		        : SeisPS3DTranslatorGroup::ioContext())
     , is2d_(is2d)
-    , lastexternal_(0)
 {
     createDefaultUI( true );
-    selgrp->setPrefWidthInChar( 50 );
-    infofld->setPrefWidthInChar( 60 );
-    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
+    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     if ( !is2d )
     {
 	manipgrp->addButton( ioPixmap("copyobj.png"),
@@ -65,20 +62,6 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 
 uiSeisPreStackMan::~uiSeisPreStackMan()
 {
-}
-
-
-void uiSeisPreStackMan::addTool( uiButton* but )
-{
-    if ( lastexternal_ )
-	but->attach( rightOf, lastexternal_ );
-    else
-    {
-	but->attach( ensureBelow, selgrp );
-	infofld->attach( ensureBelow, but );
-    }
-
-    lastexternal_ = but;
 }
 
 
@@ -132,8 +115,9 @@ void uiSeisPreStackMan::mkFileInfo()
 	txt += "\n\n";
 	delete rdr;
     }
+
     txt += getFileInfo();
-    infofld->setText( txt );
+    setInfo( txt );
 }
 
 
@@ -144,7 +128,7 @@ void uiSeisPreStackMan::copyPush( CallBacker* )
     const MultiID key( curioobj_->key() );
     uiPreStackCopyDlg dlg( this, key );
     dlg.go();
-    selgrp->fullUpdate( key );
+    selgrp_->fullUpdate( key );
 }
 
 
@@ -155,7 +139,7 @@ void uiSeisPreStackMan::mergePush( CallBacker* )
     const MultiID key( curioobj_->key() );
     uiPreStackMergeDlg dlg( this );
     dlg.go();
-    selgrp->fullUpdate( key );
+    selgrp_->fullUpdate( key );
 }
 
 
@@ -164,5 +148,5 @@ void uiSeisPreStackMan::mkMultiPush( CallBacker* )
     const MultiID key( curioobj_ ? curioobj_->key() : MultiID("") );
     uiSeisMultiCubePS dlg( this );
     dlg.go();
-    selgrp->fullUpdate( key );
+    selgrp_->fullUpdate( key );
 }

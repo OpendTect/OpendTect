@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.13 2010-09-30 09:53:16 cvsnageswara Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.14 2010-11-09 04:41:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class IOObj;
 class IOObjContext;
 class uiButton;
+class uiGroup;
 class uiIOObjSelGrp;
 class uiToolButton;
 class uiTextEdit;
@@ -28,22 +29,31 @@ public:
 
     static BufferString		getFileSizeString(double);
 
-    uiIOObjSelGrp*		selGroup()		{ return selgrp; }
+    uiIOObjSelGrp*		selGroup()		{ return selgrp_; }
     const IOObj*		curIOObj() const	{ return curioobj_; }
     const IOObjContext&		ioobjContext() const	{ return ctxt_; }
+
+    virtual void		addTool(uiButton*);
+    uiGroup*			listGroup()		{ return listgrp_; }
+    uiGroup*			infoGroup()		{ return infogrp_; }
 
 protected:
 				uiObjFileMan(uiParent*,const uiDialog::Setup&,
 					     const IOObjContext&);
 
-    uiTextEdit*			infofld;
-    uiIOObjSelGrp*		selgrp;
-    uiToolButton*		mkdefbut;
+    uiTextEdit*			infofld_;
+    uiIOObjSelGrp*		selgrp_;
+    uiToolButton*		mkdefbut_;
+    uiGroup*			listgrp_;
+    uiGroup*			infogrp_;
+    uiButton*			lastexternal_;
 
     IOObj*			curioobj_;
     IOObjContext&		ctxt_;
     bool			curimplexists_;
 
+    void			setInfo(const char* txt);
+    void			setPrefWidth(int width); //!< width in char
     void			createDefaultUI(bool needreloc=false);
     BufferString		getFileInfo();
     virtual void		mkFileInfo()			= 0;

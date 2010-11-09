@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.8 2010-07-26 12:29:52 cvshelene Exp $";
+static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.9 2010-11-09 04:41:37 cvsnanne Exp $";
 
 #include "uiprobdenfuncman.h"
 
@@ -31,16 +31,16 @@ uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
 	           ProbDenFuncTranslatorGroup::ioContext())
 {
     createDefaultUI();
-    selgrp->getListField()->doubleClicked.notify(
+    selgrp_->getListField()->doubleClicked.notify(
 	    			mCB(this,uiProbDenFuncMan,browsePush) );
 
-    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
+    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     manipgrp->addButton( ioPixmap("browseprdf.png"),
 			 mCB(this,uiProbDenFuncMan,browsePush),
 			 "Browse/edit this Probability Density Function" );
 
-    selgrp->setPrefWidthInChar( cPrefWidth );
-    infofld->setPrefWidthInChar( cPrefWidth );
+    selgrp_->setPrefWidthInChar( cPrefWidth );
+    infofld_->setPrefWidthInChar( cPrefWidth );
     selChg( this );
 }
 
@@ -81,14 +81,14 @@ void uiProbDenFuncMan::browsePush( CallBacker* )
 	if ( !ProbDenFuncTranslator::write(*pdf,*saveioobj,&emsg) )
 	    uiMSG().error( emsg );
 	else
-	    selgrp->fullUpdate( saveioobj->key() );
+	    selgrp_->fullUpdate( saveioobj->key() );
     }
 }
 
 
 void uiProbDenFuncMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { infofld->setText( "" ); return; }
+    if ( !curioobj_ ) { setInfo( "" ); return; }
 
     BufferString txt;
     txt += getFileInfo();
@@ -106,5 +106,5 @@ void uiProbDenFuncMan::mkFileInfo()
 	}
     }
 
-    infofld->setText( txt );
+    setInfo( txt );
 }

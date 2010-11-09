@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsetman.cc,v 1.10 2010-09-30 10:03:34 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiattrsetman.cc,v 1.11 2010-11-09 04:41:37 cvsnanne Exp $";
 
 #include "uiattrsetman.h"
 
@@ -22,8 +22,6 @@ static const char* rcsID = "$Id: uiattrsetman.cc,v 1.10 2010-09-30 10:03:34 cvsn
 #include "survinfo.h"
 
 
-static const int cPrefWidth = 75;
-
 Notifier<uiAttrSetMan>* uiAttrSetMan::fieldsCreated()
 {
     static Notifier<uiAttrSetMan> FieldsCreated(0);
@@ -36,12 +34,8 @@ uiAttrSetMan::uiAttrSetMan( uiParent* p )
 				     "Manage attribute sets",
 				     "101.3.0").nrstatusflds(1),
 	           AttribDescSetTranslatorGroup::ioContext())
-    , lastexternal_(0)
 {
     createDefaultUI();
-    selgrp->setPrefWidthInChar( cPrefWidth );
-    infofld->setPrefWidthInChar( cPrefWidth );
-
     fieldsCreated()->trigger( this );
     selChg( this );
 }
@@ -49,20 +43,6 @@ uiAttrSetMan::uiAttrSetMan( uiParent* p )
 
 uiAttrSetMan::~uiAttrSetMan()
 {
-}
-
-
-void uiAttrSetMan::addTool( uiButton* but )
-{
-    if ( lastexternal_ )
-	but->attach( rightOf, lastexternal_ );
-    else
-    {
-	but->attach( ensureBelow, selgrp );
-	infofld->attach( ensureBelow, but );
-    }
-
-    lastexternal_ = but;
 }
 
 
@@ -91,7 +71,7 @@ static void addAttrNms( const Attrib::DescSet& attrset, BufferString& txt,
 
 void uiAttrSetMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { infofld->setText( "" ); return; }
+    if ( !curioobj_ ) { setInfo( "" ); return; }
 
     BufferString txt;
     Attrib::DescSet attrset( !SI().has3D() );
@@ -125,6 +105,5 @@ void uiAttrSetMan::mkFileInfo()
 
     txt += "\n";
     txt += getFileInfo();
-
-    infofld->setText( txt );
+    setInfo( txt );
 }

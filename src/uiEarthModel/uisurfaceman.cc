@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.78 2010-09-30 10:03:34 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.79 2010-11-09 04:41:37 cvsnanne Exp $";
 
 
 #include "uisurfaceman.h"
@@ -87,10 +87,9 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
                                      mGetHelpID(typ)).nrstatusflds(1),
 		   mGetIoContext(typ) )
     , attribfld_(0)
-    , lastexternal_(0)
 {
     createDefaultUI();
-    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
+    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
     manipgrp->addButton( ioPixmap("copyobj.png"), mCB(this,uiSurfaceMan,copyCB),
 			 mGetCopyStr(typ) );
@@ -100,13 +99,15 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 				     "Manage 2D Horizons" );
     man2dbut_->setSensitive( false );
 
-    if ( mGet(typ,true,true,true,false,false) )
+    if ( mGet(typ,false,true,true,false,false) )
     {
-	attribfld_ = new uiListBox( this, "Calculated attributes", true );
-	attribfld_->attach( rightOf, selgrp );
+	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
+		"Calculated attributes", true, uiLabeledListBox::AboveLeft );
+	llb->attach( rightOf, selgrp_ );
+	attribfld_ = llb->box();
 	attribfld_->setToolTip( "Calculated attributes" );
 
-	uiManipButGrp* butgrp = new uiManipButGrp( this );
+	uiManipButGrp* butgrp = new uiManipButGrp( llb );
 	butgrp->addButton( uiManipButGrp::Remove,
 			   mCB(this,uiSurfaceMan,removeAttribCB),
 			   "Remove selected attribute(s)" );
@@ -116,15 +117,14 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 	butgrp->attach( rightTo, attribfld_ );
 
 	uiPushButton* stratbut =
-	    new uiPushButton( this, "&Stratigraphy", false );
+	    new uiPushButton( listgrp_, "&Stratigraphy", false );
 	stratbut->activated.notify( mCB(this,uiSurfaceMan,stratSel) );
-	stratbut->attach( alignedBelow, selgrp );
+	stratbut->attach( alignedBelow, selgrp_ );
 
-	uiPushButton* relbut = new uiPushButton( this, "&Relations", false );
+	uiPushButton* relbut = new uiPushButton( listgrp_, "&Relations", false);
 	relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
 	relbut->attach( rightTo, stratbut );
-	relbut->attach( ensureBelow, attribfld_ );
-	infofld->attach( ensureBelow, relbut );
+	relbut->attach( ensureBelow, llb );
     }
 
     fieldsCreated()->trigger( this );
@@ -138,17 +138,9 @@ uiSurfaceMan::~uiSurfaceMan()
 
 void uiSurfaceMan::addTool( uiButton* but )
 {
-    if ( lastexternal_ )
-	but->attach( rightOf, lastexternal_ );
-    else if ( attribfld_ )
+    uiObjFileMan::addTool( but );
+    if ( !lastexternal_ && attribfld_ )
 	but->attach( alignedBelow, attribfld_ );
-    else
-    {
-	but->attach( ensureBelow, selgrp );
-	infofld->attach( ensureBelow, but );
-    }
-
-    lastexternal_ = but;
 }
 
 
@@ -185,7 +177,7 @@ void uiSurfaceMan::copyCB( CallBacker* )
     su.withattribfld(true).withsubsel(!isCurFault()).multisubsel(true);
     uiCopySurface dlg( this, *ioobj, su );
     if ( dlg.go() )
-	selgrp->fullUpdate( ioobj->key() );
+	selgrp_->fullUpdate( ioobj->key() );
 }
 
 
@@ -323,7 +315,7 @@ void uiSurfaceMan::mkFileInfo()
     if ( !eminfo.isOK() )
     {
 	txt += "Fault file not present.";
-	infofld->setText( txt );
+	setInfo( txt );
 	return;
     }
 
@@ -379,7 +371,7 @@ void uiSurfaceMan::mkFileInfo()
 	}
     }
 
-    infofld->setText( txt );
+    setInfo( txt );
 }
 
 
@@ -491,7 +483,7 @@ bool acceptOK( CallBacker* )
 
 void uiSurfaceMan::stratSel( CallBacker* )
 {
-    const ObjectSet<MultiID>& ids = selgrp->getIOObjIds();
+    const ObjectSet<MultiID>& ids = selgrp_->getIOObjIds();
     uiSurfaceStratDlg dlg( this, ids );
     dlg.go();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.115 2010-09-30 10:03:34 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.116 2010-11-09 04:41:37 cvsnanne Exp $";
 
 
 #include "uiseisfileman.h"
@@ -40,7 +40,6 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.115 2010-09-30 10:03:34 cv
 #include "uisplitter.h"
 #include "uitaskrunner.h"
 
-static const int cPrefWidth = 50;
 
 Notifier<uiSeisFileMan>* uiSeisFileMan::fieldsCreated()
 {
@@ -55,15 +54,14 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				 is2d ? "103.1.11" : "103.1.0").nrstatusflds(1),
 	    	   SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
-    , lastexternal_(0)
 {
     ctxt_.toselect.allowtransls_ = is2d_ ? "2D" : "CBVS";
     createDefaultUI( true );
-    selgrp->getListField()->doubleClicked.notify(
+    selgrp_->getListField()->doubleClicked.notify(
 	    			is2d_ ? mCB(this,uiSeisFileMan,man2DPush)
 				      : mCB(this,uiSeisFileMan,browsePush) );
 
-    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
+    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
     manipgrp->addButton( ioPixmap("copyobj.png"),
 	    		 mCB(this,uiSeisFileMan,copyPush),
@@ -89,9 +87,6 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     manipgrp->addButton( ioPixmap("man_ps.png"), mCB(this,uiSeisFileMan,manPS),
 	    		 "Manage Pre-Stack data" );
 
-    selgrp->setPrefWidthInChar( cPrefWidth );
-    infofld->setPrefWidthInChar( cPrefWidth );
-
     selChg(0);
     fieldsCreated()->trigger( this );
 }
@@ -99,20 +94,6 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 
 uiSeisFileMan::~uiSeisFileMan()
 {
-}
-
-
-void uiSeisFileMan::addTool( uiButton* but )
-{
-    if ( lastexternal_ )
-	but->attach( rightOf, lastexternal_ );
-    else
-    {
-	but->attach( ensureBelow, selgrp );
-	infofld->attach( ensureBelow, but );
-    }
-
-    lastexternal_ = but;
 }
 
 
@@ -218,7 +199,7 @@ void uiSeisFileMan::mkFileInfo()
     if ( txt.isEmpty() ) txt += "<Empty>";
     txt.add( "\n" ).add( getFileInfo() );
 
-    infofld->setText( txt );
+    setInfo( txt );
 }
 
 
@@ -248,7 +229,7 @@ void uiSeisFileMan::mergePush( CallBacker* )
     const MultiID key( curioobj_->key() );
     uiMergeSeis dlg( this );
     dlg.go();
-    selgrp->fullUpdate( key );
+    selgrp_->fullUpdate( key );
 }
 
 
@@ -276,7 +257,7 @@ void uiSeisFileMan::man2DPush( CallBacker* )
     uiSeis2DFileMan dlg( this, *curioobj_ );
     dlg.go();
 
-    selgrp->fullUpdate( key );
+    selgrp_->fullUpdate( key );
 }
 
 
@@ -299,7 +280,7 @@ void uiSeisFileMan::copyPush( CallBacker* )
 	dlg.go();
     }
 
-    selgrp->fullUpdate( key );
+    selgrp_->fullUpdate( key );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.65 2010-09-30 09:56:50 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.66 2010-11-09 04:41:37 cvsnanne Exp $";
 
 #include "uiwellman.h"
 
@@ -61,11 +61,10 @@ uiWellMan::uiWellMan( uiParent* p )
     , curwd_(0)
     , currdr_(0)
     , curfnm_("")
-    , lastexternal_(0)
 {
     createDefaultUI();
 
-    logsgrp_ = new uiGroup( this, "Logs group" );
+    logsgrp_ = new uiGroup( listgrp_, "Logs group" );
     uiLabel* lbl = new uiLabel( logsgrp_, "Logs" );
     logsfld_ = new uiListBox( logsgrp_, "Available logs", true );
     logsfld_->attach( alignedBelow, lbl );
@@ -87,36 +86,34 @@ uiWellMan::uiWellMan( uiParent* p )
     butgrp->addButton( "export.png", mCB(this,uiWellMan,exportLogs),
 	    	       "Export log" );
     butgrp->attach( rightOf, logsfld_ );
-    logsgrp_->attach( rightOf, selgrp );
+    logsgrp_->attach( rightOf, selgrp_ );
 
-    uiToolButton* welltrackbut = new uiToolButton( this, "Well Track",
+    uiToolButton* welltrackbut = new uiToolButton( listgrp_, "Well Track",
 	   	 "edwelltrack.png", mCB(this,uiWellMan, edWellTrack) );
     welltrackbut->setToolTip( "Well Track" );
-    welltrackbut->attach( alignedBelow, selgrp );
-    welltrackbut->attach( ensureBelow, selgrp );
+    welltrackbut->attach( alignedBelow, selgrp_ );
+    welltrackbut->attach( ensureBelow, selgrp_ );
     welltrackbut->attach( ensureBelow, logsgrp_ );
     
     uiToolButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
-	uiToolButton* csbut = new uiToolButton( this, "Checkshot Data",
+	uiToolButton* csbut = new uiToolButton( listgrp_, "Checkshot Data",
 			     "checkshot.png", mCB(this,uiWellMan, edChckSh));
 	csbut->setToolTip( "Checkshot Data" );
 	csbut->attach( rightOf, welltrackbut );
-	d2tbut = new uiToolButton( this, "Depth/Time Model",
+	d2tbut = new uiToolButton( listgrp_, "Depth/Time Model",
 				   "z2t.png", mCB(this,uiWellMan, edD2T));
 	d2tbut->setToolTip( "Depth/Time Model" );
 	d2tbut->attach( rightOf, csbut );
     }
 
-    uiToolButton* markerbut = new uiToolButton( this, "Markers",
+    uiToolButton* markerbut = new uiToolButton( listgrp_, "Markers",
 	   	 "edmarkers.png", mCB(this,uiWellMan, edMarkers) );
     markerbut->setToolTip( "Markers" );
     markerbut->attach( rightOf, d2tbut ? d2tbut : welltrackbut );
-    
-    infofld->attach( ensureBelow, markerbut );
-    selChg( this );
 
+    selChg( this );
     fieldsCreated()->trigger( this );
 }
 
@@ -423,7 +420,7 @@ void uiWellMan::mkFileInfo()
 {
     if ( !curwd_ || !currdr_ || !curioobj_ )
     {
-	infofld->setText( "" );
+	setInfo( "" );
 	return;
     }
 
@@ -464,7 +461,7 @@ void uiWellMan::mkFileInfo()
     mAddWellInfo(Well::Info::sKeycounty(),info.county)
 
     txt += getFileInfo();
-    infofld->setText( txt );
+    setInfo( txt );
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseiswvltman.h,v 1.19 2010-09-30 10:03:34 cvsnageswara Exp $
+ RCS:           $Id: uiseiswvltman.h,v 1.20 2010-11-09 04:41:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uiobjfileman.h"
 #include "datapack.h"
 
-class uiButton;
 class uiFlatViewer;
 class uiWaveletExtraction;
 class uiWaveletDispPropDlg;
@@ -29,13 +28,11 @@ public:
 			~uiSeisWvltMan();
 
     static Notifier<uiSeisWvltMan>* fieldsCreated();
-    void		addTool(uiButton*);
 
 protected:
 
-    uiButton*			lastexternal_;
     uiGroup*			butgrp_;
-    uiFlatViewer*		wvltfld;
+    uiFlatViewer*		wvltfld_;
     DataPack::ID		curid_;
     uiWaveletExtraction*  	wvltext_;
     uiWaveletDispPropDlg*	wvltpropdlg_;
