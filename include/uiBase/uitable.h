@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.65 2010-11-03 10:57:23 cvsjaap Exp $
+ RCS:           $Id: uitable.h,v 1.66 2010-11-09 09:14:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -308,7 +308,7 @@ protected:
 
     mutable Setup	setup_;
 
-    void		popupMenu(CallBacker*);
+    virtual void	popupMenu(CallBacker*);
     OD::ButtonState	buttonstate_;
 
     void		geometrySet_(CallBacker*);
