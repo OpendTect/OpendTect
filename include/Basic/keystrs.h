@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.60 2010-10-15 09:45:34 cvsbert Exp $
+ RCS:		$Id: keystrs.h,v 1.61 2010-11-09 15:36:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ namespace sKey
     mExt FixedString	Color		mImpl("Color");
     mExt FixedString	Cube		mImpl("Cube");
     mExt FixedString	DataType	mImpl("DataType");
+    mExt FixedString	Date		mImpl("Date");
     mExt FixedString	Depth		mImpl("Depth");
     mExt FixedString	Desc		mImpl("Description");
     mExt FixedString	EmptyString	mImpl("");
