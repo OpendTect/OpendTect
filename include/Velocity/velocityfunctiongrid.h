@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctiongrid.h,v 1.7 2010-10-26 17:01:43 cvskris Exp $
+ RCS:		$Id: velocityfunctiongrid.h,v 1.8 2010-11-09 22:35:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -65,7 +65,7 @@ mClass GriddedSource : public FunctionSource
 public:
     			GriddedSource();
     const VelocityDesc&	getDesc() const;
-    const char*		type() const { return sType(); }
+    const char*		factoryKeyword() const { return sType(); }
     static const char*	sType() { return "GridVelocity"; }
 
     const Gridder2D*	getGridder() const;
