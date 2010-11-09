@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.74 2010-10-19 05:54:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.75 2010-11-09 11:51:33 cvsranojay Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -30,6 +30,7 @@ static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.74 2010-10-19 05:54:3
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uiviscoltabed.h"
 #include "uivisemobj.h"
 #include "uivispartserv.h"
 #include "visemobjdisplay.h"
@@ -78,8 +79,9 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
 	emd->deSelection()->remove(
 		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
+	ODMainWin()->colTabEd().setColTab( 0, 0, 0 );
     }
-
+    
     delete uivisemobj_;
 }
 
@@ -132,6 +134,7 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
 	emd->deSelection()->notify(
 		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
     }
+    
     return true;
 }
 
