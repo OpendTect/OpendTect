@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.55 2010-09-17 12:26:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.56 2010-11-09 05:33:28 cvsnanne Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -38,7 +38,8 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.55 2010-09-17 12:26:07 cv
 
 
 const int uiWellPartServer::evPreviewRdmLine()	    { return 0; }
-const int uiWellPartServer::evCleanPreview()	    { return 2; }
+const int uiWellPartServer::evCleanPreview()	    { return 1; }
+const int uiWellPartServer::evDisplayWell()	    { return 2; }
 
 
 uiWellPartServer::uiWellPartServer( uiApplService& a )

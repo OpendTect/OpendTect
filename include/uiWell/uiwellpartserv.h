@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.37 2009-12-11 13:44:51 cvsbruno Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.38 2010-11-09 05:33:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ public:
 
     static const int            evPreviewRdmLine();
     static const int		evCleanPreview();
+    static const int		evDisplayWell();
     
 protected:
 
