@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.58 2010-10-28 07:28:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.59 2010-11-09 09:25:59 cvsbruno Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -17,8 +17,6 @@ static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.58 2010-10-28 07:28:36
 #include "mouseevent.h"
 #include "axislayout.h"
 #include <iostream>
-
-static const int cBoundarySz = 10;
 
 uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				      const uiFunctionDisplay::Setup& su )
@@ -224,9 +222,9 @@ void uiFunctionDisplay::getRanges(
 
 void uiFunctionDisplay::setUpAxis( bool havey2 )
 {
-    xax_->setNewDevSize( width(), height() );
-    yax_->setNewDevSize( height(), width() );
-    if ( havey2 ) y2ax_->setNewDevSize( height(), width() );
+    xax_->updateDevSize();
+    yax_->updateDevSize();
+    if ( havey2 ) y2ax_->updateDevSize();
 
     xax_->plotAxis();
     yax_->plotAxis();
@@ -412,20 +410,22 @@ void uiFunctionDisplay::drawBorder()
 {
     if ( setup_.drawborder_ )
     {
+	const int scwidth = (int)scene().width();
+	const int scheight = (int)scene().height();
 	if ( !borderrectitem_ )
 	{
 	    borderrectitem_ = scene().addRect( xAxis()->pixBefore(),
 		    yAxis(false)->pixAfter(),
-		    width()-yAxis(false)->pixAfter()-yAxis(false)->pixBefore(),
-		    height()-xAxis()->pixAfter()-xAxis()->pixBefore() );
+		    scwidth-yAxis(false)->pixAfter()-yAxis(false)->pixBefore(),
+		    scheight-xAxis()->pixAfter()-xAxis()->pixBefore() );
 	}
 	else
 	    borderrectitem_->setRect( xAxis()->pixBefore(),
 		    		      yAxis(false)->pixAfter(),
-		    		      width()-xAxis()->pixAfter() -
-				      xAxis()->pixBefore() ,
-		    		      height()-yAxis(false)->pixAfter() -
-				      yAxis(false)->pixBefore() );
+		    		      scwidth -xAxis()->pixAfter()
+					      -xAxis()->pixBefore(),
+		    		      scheight -yAxis(false)->pixAfter()
+					       -yAxis(false)->pixBefore() );
 	borderrectitem_->setPos(xAxis()->pixBefore(),yAxis(false)->pixAfter());
 	borderrectitem_->setPenStyle( setup_.borderstyle_ );
     }

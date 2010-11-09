@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.7 2010-11-08 11:48:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.8 2010-11-09 09:25:59 cvsbruno Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -137,8 +137,8 @@ void uiStratLayerModelDisp::getBounds()
 void uiStratLayerModelDisp::doDraw()
 {
     getBounds();
-    xax_->setNewDevSize( width(), height() );
-    yax_->setNewDevSize( width(), height() );
+    xax_->updateDevSize();
+    yax_->updateDevSize();
     xax_->setBounds(Interval<float>(0,lm_.size()));
     yax_->setBounds(Interval<float>(zrg_.stop,zrg_.start));
     yax_->plotAxis(); xax_->plotAxis();

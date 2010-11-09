@@ -125,10 +125,10 @@ void uiWellLogDisplay::setAxisRelations()
     ld2_.xax_.setEnd( &ld2_.yax_ );
     ld2_.yax_.setEnd( &ld1_.xax_ );
 
-    ld1_.xax_.setNewDevSize( width(), height() );
-    ld1_.yax_.setNewDevSize( height(), width() );
-    ld2_.xax_.setNewDevSize( width(), height() );
-    ld2_.yax_.setNewDevSize( height(), width() );
+    ld1_.xax_.updateDevSize();
+    ld1_.yax_.updateDevSize();
+    ld2_.xax_.updateDevSize();
+    ld2_.yax_.updateDevSize();
 }
 
 

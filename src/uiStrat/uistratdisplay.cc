@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.30 2010-10-29 10:35:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.31 2010-11-09 09:25:59 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -75,7 +75,7 @@ void uiStratDisplay::addControl( uiToolBar* tb )
     uiStratViewControl::Setup su( maxrg_ ); su.tb_ = tb;
     uicontrol_ = new uiStratViewControl( *v, su ); 
     uicontrol_->rangeChanged.notify( mCB(this,uiStratDisplay,controlRange) );
-    controlRange( 0 );
+    uicontrol_->setRange( rangefld_->getFInterval() );
 }
 
 
@@ -98,7 +98,17 @@ void uiStratDisplay::createDispParamGrp()
 		    .setName(BufferString("range start"),0)
 		    .setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
-    setZRange( maxrg_ );
+
+    if ( data_.nrCols() && data_.nrUnits(0) )
+    {
+	const StratDispData::Unit& unstart = *data_.getUnit( 0, 0 );
+	const StratDispData::Unit& unstop =*data_.getUnit(0,data_.nrUnits(0)-1);
+	Interval<float> viewrg( unstart.zrg_.start, unstop.zrg_.stop );
+	float width = viewrg.width(); width /= (float)10;
+	if ( width <= 0 ) width = 10;
+	viewrg.stop += width;
+	setZRange( viewrg );
+    }
    
     const CallBack cbv = mCB( this, uiStratDisplay, selCols );
     viewcolbutton_ = new uiPushButton( dispparamgrp_,"&View ",cbv,true ); 
@@ -169,6 +179,9 @@ void uiStratDisplay::dataChanged( CallBacker* cb )
 
 void uiStratDisplay::setZRange( Interval<float> zrg )
 {
+    rangefld_->setValue( zrg );
+    if ( uicontrol_ ) 
+	uicontrol_->setRange( zrg );
     zrg.sort(false);
     drawer_.setZRange( zrg );
 }
@@ -184,14 +197,10 @@ void uiStratDisplay::display( bool yn, bool shrk, bool maximize )
 void uiStratDisplay::dispParamChgd( CallBacker* cb )
 {
     Interval<float> rg = rangefld_->getFInterval();
-    rg.start = (int)rg.start; rg.stop = (int)rg.stop;
     if ( rg.start < maxrg_.start || rg.stop > maxrg_.stop 
 	    || rg.stop <= rg.start || rg.stop <= 0 ) 
 	rg = maxrg_;
 
-    rangefld_->setValue( rg );
-    if ( uicontrol_ ) 
-	uicontrol_->setRange( rg );
     setZRange( rg );
 }
 
@@ -366,8 +375,8 @@ void uiStratDrawer::setNewAxis( uiAxisHandler* axis, bool isxaxis )
 
 void uiStratDrawer::updateAxis()
 {
-    xax_->setNewDevSize( (int)scene_.width(), (int)scene_.height() );
-    yax_->setNewDevSize( (int)scene_.height(), (int)scene_.width() );
+    xax_->updateDevSize();
+    yax_->updateDevSize();
     yax_->plotAxis();
 }
 
@@ -558,7 +567,6 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
 
     viewer_.setDragMode( uiGraphicsViewBase::RubberBandDrag );
     viewer_.scene().setMouseEventActive( true );
-
 }
 
 
@@ -576,7 +584,7 @@ void uiStratViewControl::zoomCB( CallBacker* but )
     const Interval<float> rg( range_ );
     const float margin = rg.width()/4;
     const MouseEventHandler& meh = mouseEventHandler();
-    if ( zoomin && rg.width() > 2 ) 
+    if ( zoomin && rg.width() > 0.001 ) 
     {
 	if ( meh.hasEvent() )
 	{

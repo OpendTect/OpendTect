@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.41 2009-11-27 15:34:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.42 2010-11-09 09:25:59 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -70,8 +70,8 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
 
 void uiFunctionDrawer::setUpAxis()
 {
-    xax_->setNewDevSize( width(), height() );
-    yax_->setNewDevSize( height(), width() );
+    xax_->updateDevSize();
+    yax_->updateDevSize();
     xax_->plotAxis();
     yax_->plotAxis();
 }

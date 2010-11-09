@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.44 2010-11-01 14:36:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.45 2010-11-09 09:25:59 cvsbruno Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -131,12 +131,19 @@ void uiAxisHandler::newDevSize()
 }
 
 
-void uiAxisHandler::setNewDevSize( int devsz, int anotherdim )
+void uiAxisHandler::updateDevSize()
+{
+    setNewDevSize( (int)(isHor() ? scene_->width() : scene_->height()),
+	    	   (int)(isHor() ? scene_->height() : scene_->width() ));
+}
+
+
+void uiAxisHandler::setNewDevSize( int devsz, int otherdim )
 {
     devsz_ = devsz;
     axsz_ = devsz_ - pixBefore() - pixAfter();
-    isHor() ? width_ = devsz_ : height_ = devsz_;
-    isHor() ? height_ = anotherdim : width_ = anotherdim ;
+    ( isHor() ? width_ : height_ ) = devsz_;
+    ( isHor() ? height_ : width_ ) = otherdim ;
 }
 
 

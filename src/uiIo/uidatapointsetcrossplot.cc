@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.70 2010-10-06 07:09:26 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.71 2010-11-09 09:25:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.70 2010-10-06 07:09:26 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.71 2010-11-09 09:25:59 cvsbruno Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -995,11 +995,11 @@ void uiDataPointSetCrossPlotter::initDraw()
 void uiDataPointSetCrossPlotter::setDraw()
 {
     if ( x_.axis_ )
-	x_.axis_->setNewDevSize( width(), height() );
+	x_.axis_->updateDevSize();
     if ( y_.axis_ )
-	y_.axis_->setNewDevSize( height(), width() );
+	y_.axis_->updateDevSize();
     if ( doy2_ && y2_.axis_ )
-	y2_.axis_->setNewDevSize( height(), width() );
+	y2_.axis_->updateDevSize();
 }
 
 
