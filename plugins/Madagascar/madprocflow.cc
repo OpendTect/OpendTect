@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocflow.cc,v 1.6 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: madprocflow.cc,v 1.7 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "madprocflow.h"
 #include "madprocflowtr.h"
@@ -112,14 +112,14 @@ void ODMad::ProcFlow::usePar( const IOPar& iop )
     if ( subpar && subpar->size() )
 	inpiop_ = *subpar;
     else
-	inpiop_.clear();
+	inpiop_.setEmpty();
     delete subpar;
 
     subpar = iop.subselect( sKeyOutp() );
     if ( subpar && subpar->size() )
 	outiop_ = *subpar;
     else
-	outiop_.clear();
+	outiop_.setEmpty();
     delete subpar;
 
     subpar = iop.subselect( sKeyProc() );

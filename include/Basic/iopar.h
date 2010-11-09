@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.62 2010-10-05 07:14:55 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.63 2010-11-09 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,8 +75,8 @@ public:
 				//!< removes all entries with key matching
 				//!< this glob expression
 
-    void		clear();
-			//!< remove all entries
+    void		setEmpty();
+			//!< remove all entries (doesn't clear name)
     void		merge(const IOPar&);
 			//!< merge entries using the set() command
     static const char*	compKey(const char*,const char*);

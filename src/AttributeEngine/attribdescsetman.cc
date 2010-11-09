@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdescsetman.cc,v 1.9 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescsetman.cc,v 1.10 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "attribdescsetman.h"
 #include "attribdescset.h"
@@ -44,9 +44,12 @@ DescSetMan::~DescSetMan()
 
 void DescSetMan::setDescSet( DescSet* newads )
 {
-    if ( newads == ads_ )	return;
-    if ( !ads_ )		{ ads_ = newads; return; }
-    if ( !newads )		{ inpselhist_.clear(); ads_ = newads; return; }
+    if ( newads == ads_ )
+	return;
+    if ( !ads_ )
+	{ ads_ = newads; return; }
+    if ( !newads )
+    	{ inpselhist_.setEmpty(); ads_ = newads; return; }
 
     // Remove invalid entries
     fillHist();
@@ -83,7 +86,7 @@ void DescSetMan::cleanHist( IOPar& selhist, const DescSet& newads )
 
 void DescSetMan::fillHist()
 {
-    inpselhist_.clear();
+    inpselhist_.setEmpty();
 
     // First add one empty
     inpselhist_.set( IOPar::compKey(sKey::IOSelection,1), -1 );

@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.31 2010-03-25 03:58:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.32 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -283,7 +283,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
 
 bool uiMadIOSelDlg::fillPar( IOPar& iop )
 {
-    iop.clear();
+    iop.setEmpty();
     ODMad::ProcFlow::setIOType( iop, ioType() );
     if ( isMad() )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobrunner.cc,v 1.42 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobrunner.cc,v 1.43 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "jobrunner.h"
 #include "jobinfo.h"
@@ -324,7 +324,7 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 
 bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
 {
-    curjobiop_.clear(); descprov_->getJob( ji.descnr_, curjobiop_ );
+    curjobiop_.setEmpty(); descprov_->getJob( ji.descnr_, curjobiop_ );
     curjobfp_ = getBaseFilePath(ji,hd);
     curjobinfo_ = &ji;
     ji.hostdata_ = &hd;

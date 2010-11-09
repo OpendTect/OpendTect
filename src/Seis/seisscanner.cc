@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.44 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.45 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -107,7 +107,7 @@ void SeisScanner::report( IOPar& iopar ) const
 {
     if ( !rdr_.ioObj() )
     {
-	iopar.clear();
+	iopar.setEmpty();
 	iopar.setName( "No scan executed" );
 	return;
     }

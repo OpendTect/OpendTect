@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.394 2010-11-09 05:33:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.395 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1278,7 +1278,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	const Attrib::DescSet* ads = attrserv_->curDescSet(nlaserv_->is2DEvent());
 	if ( !ads ) return false;
 	IOPar& iopar = nlaserv_->modelPars();
-	iopar.clear();
+	iopar.setEmpty();
 	BufferStringSet inputs = nlaserv_->modelInputs();
 	const Attrib::DescSet* cleanads = ads->optimizeClone( inputs );
 	(cleanads ? cleanads : ads)->fillPar( iopar );

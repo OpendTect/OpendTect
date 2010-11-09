@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.45 2010-10-27 05:52:55 cvsraman Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.46 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -103,7 +103,7 @@ od_int64 HorizonScanner::totalNr() const
 
 void HorizonScanner::report( IOPar& iopar ) const
 {
-    iopar.clear();
+    iopar.setEmpty();
 
     const int firstattribidx = isgeom_ ? 1 : 0;
     BufferString str = "Report for horizon file";

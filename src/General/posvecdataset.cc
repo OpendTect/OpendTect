@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.22 2009-10-01 07:33:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.23 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "posvecdataset.h"
 
@@ -344,7 +344,7 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
     if ( !sd.usable() )
 	return false;
 
-    setEmpty(); pars_.clear(); setName( "" );
+    setEmpty(); pars_.setEmpty(); setName( "" );
     if ( tabstyle )
     {
 	char buf[65536]; sd.istrm->getline( buf, 65536 );

@@ -16,7 +16,7 @@
 #include "preloads.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.28 2010-08-25 08:33:39 cvsnageswara Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.29 2010-11-09 16:01:18 cvsbert Exp $";
 
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
@@ -243,7 +243,7 @@ IOPar& TranslatorGroup::selHist()
 
 void TranslatorGroup::clearSelHist()
 {
-    if ( selhist_ ) selhist_->clear();
+    if ( selhist_ ) selhist_->setEmpty();
 }
 
 

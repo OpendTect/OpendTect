@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitutodmad.cc,v 1.4 2010-04-23 05:29:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitutodmad.cc,v 1.5 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "uitutodmad.h"
 
@@ -42,7 +42,7 @@ uiTutODMad::uiTutODMad( uiParent* p )
 
 bool uiTutODMad::acceptOK( CallBacker* )
 {
-    iop_.clear();
+    iop_.setEmpty();
     iop_.set( IOPar::compKey("Input",sKey::Type), ODMad::sKeyMadagascar() );
     const BufferString fnm = maddatafld_->fileName();
     if ( fnm.isEmpty() || !File::exists(fnm) )

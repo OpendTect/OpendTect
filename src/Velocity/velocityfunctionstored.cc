@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.8 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.9 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "velocityfunctionstored.h"
 
@@ -177,7 +177,7 @@ bool StoredFunctionSource::store( const MultiID& velid )
 
 void StoredFunctionSource::fillIOObjPar( IOPar& par ) const
 {
-    par.clear();
+    par.setEmpty();
     par.set( sKey::Type, sKeyVelocityFunction() );
     par.set( sKeyVelocityType(), VelocityDesc::TypeNames()[(int)desc_.type_] );
 }

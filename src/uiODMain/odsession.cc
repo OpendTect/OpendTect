@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.26 2010-08-19 07:09:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.27 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "odsession.h"
 #include "ascstream.h"
@@ -40,16 +40,16 @@ ODSession::ODSession()
 
 void ODSession::clear()
 {
-    vispars_.clear();
-    scenepars_.clear();
-    attrpars_.clear();				//backward comp 2.4
-    attrpars2d_.clear();
-    attrpars3d_.clear();
-    attrpars2dstored_.clear();
-    attrpars3dstored_.clear();
-    nlapars_.clear();
-    mpepars_.clear();
-    pluginpars_.clear();
+    vispars_.setEmpty();
+    scenepars_.setEmpty();
+    attrpars_.setEmpty();				//backward comp 2.4
+    attrpars2d_.setEmpty();
+    attrpars3d_.setEmpty();
+    attrpars2dstored_.setEmpty();
+    attrpars3dstored_.setEmpty();
+    nlapars_.setEmpty();
+    mpepars_.setEmpty();
+    pluginpars_.setEmpty();
 }
 
 

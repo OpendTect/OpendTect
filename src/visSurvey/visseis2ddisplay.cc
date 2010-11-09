@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.117 2010-11-03 22:31:49 cvskarthika Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.118 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -1002,7 +1002,7 @@ void Seis2DDisplay::updateDataFromCache( TaskRunner* tr )
 void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
 				     IOPar& par ) const
 {
-    par.clear();
+    par.setEmpty();
     par.set( sKey::XCoord, evinfo.worldpickedpos.x );
     par.set( sKey::YCoord, evinfo.worldpickedpos.y );
     par.set( sKey::LineKey, name() );

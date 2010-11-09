@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.8 2010-10-25 06:24:57 cvsranojay Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.9 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -122,7 +122,7 @@ void PosInfo::Survey2D::readIdxFiles()
     const int idxky = lsindex_.indexOf( lsnm_.buf() );
     if ( idxky < 0 )
     {	// selected lsnm_ doesn't exist (anymore): reset to default
-	lsindex_.clear(); lineindex_.clear(); lsnm_.setEmpty();
+	lsindex_.setEmpty(); lineindex_.setEmpty(); lsnm_.setEmpty();
 	readIdxFiles();  return;
     }
 
@@ -136,7 +136,7 @@ void PosInfo::Survey2D::readIdxFiles()
 
 void PosInfo::Survey2D::readIdxFile( const char* fnm, IOPar& iop )
 {
-    iop.clear();
+    iop.setEmpty();
     SafeFileIO sfio( fnm, true );
     if ( !sfio.open(true) ) return;
     ascistream astrm( sfio.istrm() );
@@ -445,7 +445,7 @@ void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
     FileMultiString driinfo( getNewStorageName(lsnm,basefp_,lsindex_) );
     driinfo.add( self.getNewID(lsindex_) );
     self.lsindex_.add( lsnm, driinfo );
-    self.lineindex_.clear();
+    self.lineindex_.setEmpty();
     self.lsfp_ = basefp_; self.lsfp_.add( driinfo[0] );
     File::createDir( lsfp_.fullPath() );
     self.updateMaxID( driinfo.getIValue(1), lsindex_ );

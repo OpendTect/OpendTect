@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.50 2010-09-07 12:53:31 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.51 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -98,8 +98,8 @@ IOObjSelConstraints& IOObjSelConstraints::operator =(
 
 void IOObjSelConstraints::clear()
 {
-    require_.clear();
-    dontallow_.clear();
+    require_.setEmpty();
+    dontallow_.setEmpty();
     allowtransls_.setEmpty();
     allownonreaddefault_ = false;
 }

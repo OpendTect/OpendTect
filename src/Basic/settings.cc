@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.43 2010-07-14 16:54:12 cvskris Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.44 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "settings.h"
 
@@ -144,7 +144,7 @@ bool Settings::doRead( bool ext )
 	return false;
     }
 
-    clear();
+    setEmpty();
     getFrom( stream );
     sfio.closeSuccess();
 

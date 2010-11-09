@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.16 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.17 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "uiattrgetfile.h"
 #include "uiattrsrchprocfiles.h"
@@ -93,7 +93,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
     if ( !isattrset_ )
     {
 	PtrMan<IOPar> subpar = iop.subselect( "Attributes" );
-	iop.clear();
+	iop.setEmpty();
 	if ( subpar ) iop = *subpar;
     }
 

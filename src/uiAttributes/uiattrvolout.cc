@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.78 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.79 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -216,7 +216,7 @@ bool uiAttrVolOut::prepareProcessing()
 
     uiSeisIOObjInfo ioobjinfo( *ctio.ioobj, true );
     SeisIOObjInfo::SpaceInfo spi( transffld->spaceInfo() );
-    subselpar.clear();
+    subselpar.setEmpty();
     transffld->selfld->fillPar( subselpar );
     subselpar.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );
     return ioobjinfo.checkSpaceLeft(spi);
@@ -297,7 +297,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     
     CubeSampling::removeInfo( tmpiop );
     iop.mergeComp( tmpiop, keybase );
-    tmpiop.clear();
+    tmpiop.setEmpty();
     if ( strcmp( typestr.buf(), "" ) )
 	tmpiop.set( sKey::Type, typestr );
     

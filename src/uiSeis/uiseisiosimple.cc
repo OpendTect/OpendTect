@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.34 2010-08-23 08:57:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.35 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -435,7 +435,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	mErrRet( isimp_ ? "Please choose a name for the imported data"
 		       : "Please select the input seismics")
 
-    data().subselpars_.clear();
+    data().subselpars_.setEmpty();
     if ( is2D() )
     {
 	BufferString linenm;

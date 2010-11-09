@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.cc,v 1.6 2010-10-29 02:49:25 cvsnanne Exp $
+ RCS:		$Id: uicreate2dgrid.cc,v 1.7 2010-11-09 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -646,7 +646,7 @@ bool uiCreate2DGrid::fillPar( IOPar& batchpar )
 
     if ( horcheckfld_->isChecked() )
     {
-	par.clear();
+	par.setEmpty();
 	fillHorPar( par );
 	batchpar.mergeComp( par, "Horizon" );
     }

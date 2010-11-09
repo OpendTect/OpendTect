@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.80 2010-11-09 07:43:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.81 2010-11-09 16:01:18 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -422,7 +422,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     IOPar par;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	par.clear();
+	par.setEmpty();
 	EM::EMM().readPars( *ids[idx], par );
 	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(*ids[idx]) );
 	Color col( Color::White() );

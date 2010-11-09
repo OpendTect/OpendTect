@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.36 2010-10-07 06:12:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.37 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -254,8 +254,8 @@ void uiMadagascarMain::newFlow( CallBacker* )
 
     deepErase( procflow_ );
     procflow_.setName( 0 );
-    procflow_.input().clear();
-    procflow_.output().clear();
+    procflow_.input().setEmpty();
+    procflow_.output().setEmpty();
     updateCaption();
 }
 

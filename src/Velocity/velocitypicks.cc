@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.14 2010-11-03 15:17:07 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.15 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "velocitypicks.h"
 
@@ -385,7 +385,7 @@ bool Picks::store( const IOObj* ioobjarg )
 
 void Picks::fillIOObjPar( IOPar& par ) const
 {
-    par.clear();
+    par.setEmpty();
 
     par.set( sKey::Type, sKeyVelocityPicks() );
     par.set( sKeyGatherID(), gatherid_ );

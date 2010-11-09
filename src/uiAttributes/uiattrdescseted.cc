@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.103 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.104 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -861,7 +861,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 void uiAttribDescSetEd::newSet( CallBacker* )
 {
     if ( !offerSetSave() ) return;
-    adsman_->inputHistory().clear();
+    adsman_->inputHistory().setEmpty();
     updateFields();
 
     attrset_->removeAll( true );

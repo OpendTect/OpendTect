@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.23 2010-09-29 10:15:28 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.24 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -120,7 +120,7 @@ void SeisIOSimple::Data::clear( bool survchg )
     if ( !survchg )
 	return;
 
-    subselpars_.clear();
+    subselpars_.setEmpty();
     fname_ = GetDataDir(); seiskey_ = ""; linekey_ = "";
     sd_.start = (float)SI().zRange(false).start;
     sd_.step = (float)SI().zRange(false).step;

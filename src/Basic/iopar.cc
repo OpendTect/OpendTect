@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.85 2010-10-15 11:38:42 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.86 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -55,7 +55,7 @@ IOPar& IOPar::operator =( const IOPar& iop )
 {
     if ( this != &iop )
     {
-	clear();
+	setEmpty();
 	setName( iop.name() );
 	for ( int idx=0; idx<iop.size(); idx++ )
 	    add( iop.keys_.get(idx), iop.vals_.get(idx) );
@@ -92,7 +92,7 @@ bool IOPar::isEqual( const IOPar& iop, bool worder ) const
 
 IOPar::~IOPar()
 {
-    clear();
+    setEmpty();
     delete &keys_;
     delete &vals_;
 }
@@ -141,7 +141,7 @@ void IOPar::setValue( int nr, const char* s )
 }
 
 
-void IOPar::clear()
+void IOPar::setEmpty()
 {
     deepErase( keys_ ); deepErase( vals_ );
 }
@@ -1003,7 +1003,7 @@ void IOPar::putParsTo( BufferString& str ) const
 
 void IOPar::getFrom( const char* str )
 {
-    clear();
+    setEmpty();
 
     BufferString buf = str;
     char* ptrstart = buf.buf();
@@ -1029,7 +1029,7 @@ void IOPar::getFrom( const char* str )
 
 void IOPar::getParsFrom( const char* str )
 {
-    clear();
+    setEmpty();
 
     BufferString buf = str;
     char* ptrstart = buf.buf();

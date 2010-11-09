@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.34 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.35 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -620,7 +620,7 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
     if ( !sys )
     {
 	Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
-	setts.clear();
+	setts.setEmpty();
 	int newidx = 1;
 	for ( int idx=0; idx<seqs_.size(); idx++ )
 	{

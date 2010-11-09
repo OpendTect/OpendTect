@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.51 2010-06-25 11:16:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.52 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -547,7 +547,7 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 	    uiMSG().error( "Cannot write format" );
 	else
 	{
-	    ds_.storediop_.clear(); fd_.fillPar( ds_.storediop_ );
+	    ds_.storediop_.setEmpty(); fd_.fillPar( ds_.storediop_ );
 	    ds_.fmtname_ = fmtnm;
 	}
     }
@@ -695,7 +695,7 @@ void uiTableImpDataSel::openFmt( CallBacker* )
     hdrlinesfld_->setValue( mIsUdf(nrlns) || nrlns < 1 ? 1 : nrlns );
 
     typChg( 0 );
-    storediop_.clear(); fd_.fillPar( storediop_ );
+    storediop_.setEmpty(); fd_.fillPar( storediop_ );
     fmtname_ = fmtnm;
     fmtdeffld_->updateSummary();
 }

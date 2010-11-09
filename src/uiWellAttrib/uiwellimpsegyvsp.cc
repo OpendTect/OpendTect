@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.15 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.16 2010-11-09 16:01:18 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -110,8 +110,8 @@ void readParsReq( CallBacker* cb )
     if ( !dd ) return;
 
     PtrMan<CtxtIOObj> ctio = uiSEGYRead::getCtio( true, Seis::Line );
-    ctio->ctxt.toselect.require_.clear();
-    ctio->ctxt.toselect.dontallow_.clear();
+    ctio->ctxt.toselect.require_.setEmpty();
+    ctio->ctxt.toselect.dontallow_.setEmpty();
     uiIOObjSelDlg dlg( dd, *ctio, "Select SEG-Y setup" );
     PtrMan<IOObj> ioobj = dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
     if ( !ioobj ) return;
