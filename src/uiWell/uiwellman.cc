@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.66 2010-11-09 04:41:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.67 2010-11-09 07:43:19 cvsnanne Exp $";
 
 #include "uiwellman.h"
 
@@ -63,20 +63,21 @@ uiWellMan::uiWellMan( uiParent* p )
     , curfnm_("")
 {
     createDefaultUI();
+    setPrefWidth( 50 );
 
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
     uiLabel* lbl = new uiLabel( logsgrp_, "Logs" );
     logsfld_ = new uiListBox( logsgrp_, "Available logs", true );
     logsfld_->attach( alignedBelow, lbl );
 
-    uiButtonGroup* logsbgrp = new uiButtonGroup( logsgrp_, "Logs buttons",
+    uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
 	    					 false );
     uiPushButton* addlogsbut = new uiPushButton( logsbgrp, "&Import", false );
     addlogsbut->activated.notify( mCB(this,uiWellMan,importLogs) );
     uiPushButton* calclogsbut = new uiPushButton( logsbgrp, "&Create", false );
     calclogsbut->activated.notify( mCB(this,uiWellMan,calcLogs) );
     calclogsbut->attach( rightOf, addlogsbut );
-    logsbgrp->attach( centeredBelow, logsfld_ );
+    logsbgrp->attach( centeredBelow, logsgrp_ );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsgrp_ );
     butgrp->addButton( uiManipButGrp::Rename, mCB(this,uiWellMan,renameLogPush),
@@ -112,6 +113,7 @@ uiWellMan::uiWellMan( uiParent* p )
 	   	 "edmarkers.png", mCB(this,uiWellMan, edMarkers) );
     markerbut->setToolTip( "Markers" );
     markerbut->attach( rightOf, d2tbut ? d2tbut : welltrackbut );
+    lastexternal_ = markerbut;
 
     selChg( this );
     fieldsCreated()->trigger( this );

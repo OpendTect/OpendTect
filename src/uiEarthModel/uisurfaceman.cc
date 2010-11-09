@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.79 2010-11-09 04:41:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.80 2010-11-09 07:43:19 cvsnanne Exp $";
 
 
 #include "uisurfaceman.h"
@@ -125,6 +125,8 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 	relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
 	relbut->attach( rightTo, stratbut );
 	relbut->attach( ensureBelow, llb );
+
+	setPrefWidth( 50 );
     }
 
     fieldsCreated()->trigger( this );
