@@ -1,13 +1,13 @@
-#ifndef semblancecalculator_h
-#define semblancecalculator_h
+#ifndef semblancealgo_h
+#define semblancealgo_h
 
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
- Date:		Nov 2006
- RCS:		$Id: semblancealgo.h,v 1.1 2010-11-08 22:06:03 cvskris Exp $
+ Author:	K. Tingdahl
+ Date:		Nov 2010
+ RCS:		$Id: semblancealgo.h,v 1.2 2010-11-09 22:22:06 cvskris Exp $
 ________________________________________________________________________
 
 
