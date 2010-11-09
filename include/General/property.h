@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.22 2010-10-28 15:11:56 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.23 2010-11-09 20:37:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,7 @@ protected:
 #define mDefPropertyFns(clss,typstr) \
     static const char*	typeStr()		{ return typstr; } \
     virtual const char* type() const		{ return typeStr(); } \
+    virtual const char* factoryKeyword() const	{ return type(); } \
     static Property*	create( const PropertyRef& r ) { return new clss(r); } \
     static void		initClass() { factory().addCreator(create,typeStr());} \
     virtual const char*	def() const; \

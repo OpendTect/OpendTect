@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: tableposprovider.h,v 1.6 2009-09-28 13:27:32 cvsbert Exp $
+ RCS:           $Id: tableposprovider.h,v 1.7 2010-11-09 20:37:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,6 +35,7 @@ public:
 			: bvs_(1,true)	{ *this = tp; }
     TableProvider3D&	operator =(const TableProvider3D&);
     const char*		type() const;	//!< sKey::Table
+    const char*		factoryKeyword() const { return type(); }
     TableProvider3D*	clone() const	{ return new TableProvider3D(*this); }
 
     virtual void	reset()		{ pos_.reset(); }
