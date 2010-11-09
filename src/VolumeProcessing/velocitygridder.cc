@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.16 2010-08-13 15:24:42 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.17 2010-11-09 22:36:18 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -520,7 +520,7 @@ void VelGriddingStep::fillPar( IOPar& par ) const
     for ( int idx=0; idx<sources_.size(); idx++ )
     {
 	IOPar sourcepar;
-	sourcepar.set( sKeyType(), sources_[idx]->type() );
+	sourcepar.set( sKeyType(), sources_[idx]->factoryKeyword() );
 	sourcepar.set( sKeyID(), sources_[idx]->multiID() );
 	sources_[idx]->fillPar(sourcepar);
 
@@ -532,7 +532,7 @@ void VelGriddingStep::fillPar( IOPar& par ) const
     {
 	IOPar gridpar;
 	gridder_->fillPar( gridpar );
-	gridpar.set( sKey::Name, gridder_->name() );
+	gridpar.set( sKey::Name, gridder_->factoryKeyword() );
 	par.mergeComp( gridpar, sKeyGridder() );
     }
 }
