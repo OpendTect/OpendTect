@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.18 2010-11-09 19:43:52 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.19 2010-11-09 21:44:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,41 +219,15 @@ protected:
 
 
 
-#define mDefaultFactoryInstanciationBase( factory, keywrd, usernm ) \
+#define mDefaultFactoryInstanciationBase( keywrd, usernm ) \
     const char*		factoryKeyword() const { return sFactoryKeyword(); } \
     static const char*	sFactoryKeyword() { return keywrd; } \
     static const char*  sUserName() { return usernm; } \
-    static void		initClass()  \
-    			{ factory().addCreator(createInstance, \
-				sFactoryKeyword(), sUserName()); }
+    static void		initClass();
 
-#define mDefaultFactoryInstantiation( baseclss, factory, clss, keywrd,usernm) \
+#define mDefaultFactoryInstantiation( baseclss, clss, keywrd, usernm ) \
     static baseclss*	createInstance() { return new clss; } \
-    mDefaultFactoryInstanciationBase( factory, keywrd, usernm )
-
-#define mDefaultFactoryInstantiation1Param( baseclss, factory, clss, keywrd,\
-				usernm, P0 ) \
-    static baseclss*	createInstance(P0 __p0) { return new clss(__p0); } \
-    			clss(P0); \
-    mDefaultFactoryInstanciationBase( factory, keywrd, usernm )
-
-
-
-#define mDefaultFactoryInstantiation2Param( baseclss, factory, clss, keywrd,\
-				usernm, P0, P1 ) \
-    			clss(P0,P1); \
-    static baseclss*	createInstance(P0 __p0, P1 __p1) \
-    { return new clss(__p0,__p1); } \
-    mDefaultFactoryInstanciationBase( factory, keywrd, usernm )
-
-
-
-#define mDefaultFactoryInstantiation3Param( baseclss, factory, clss, keywrd,\
-				usernm, P0, P1, P2 ) \
-    			clss(P0,P1,P2); \
-    static baseclss*	createInstance(P0 __p0, P1 __p1, P2 __p2 ) \
-    { return new clss(__p0,__p1,__p2); } \
-    mDefaultFactoryInstanciationBase( factory, keywrd, usernm )
+    mDefaultFactoryInstanciationBase( keywrd, usernm )
 
 #define mCreateImpl( donames, createfunc ) \
     if ( donames ) \
@@ -353,7 +327,8 @@ mGlobal ::Factory<T>& funcname()
 
 
 #define mDefineFactoryInClass( T, funcname ) \
-static ::Factory<T>& funcname()
+static ::Factory<T>& funcname(); \
+virtual const char* factoryKeyword() const {}
 
 
 #define mImplFactory( T, funcname ) \
@@ -369,7 +344,8 @@ mGlobal ::Factory1Param<T,P>& funcname()
 
 
 #define mDefineFactory1ParamInClass( T, P, funcname ) \
-static ::Factory1Param<T,P>& funcname()
+static ::Factory1Param<T,P>& funcname(); \
+virtual const char* factoryKeyword() const = 0
 
 
 #define mImplFactory1Param( T, P, funcname ) \
@@ -385,7 +361,8 @@ mGlobal ::Factory2Param<T,P0,P1>& funcname()
 
 
 #define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
-static ::Factory2Param<T,P0,P1>& funcname()
+static ::Factory2Param<T,P0,P1>& funcname(); \
+virtual const char* factoryKeyword() const = 0
 
 
 #define mImplFactory2Param( T, P0, P1, funcname ) \
@@ -402,7 +379,8 @@ mGlobal ::Factory3Param<T,P0,P1,P2>& funcname()
 
 
 #define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \
-static ::Factory3Param<T,P0,P1,P2>& funcname()
+static ::Factory3Param<T,P0,P1,P2>& funcname(); \
+virtual const char* factoryKeyword() const = 0
 
 
 #define mImplFactory3Param( T, P0, P1, P2,funcname ) \
