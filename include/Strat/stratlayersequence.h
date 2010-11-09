@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2010
- RCS:		$Id: stratlayersequence.h,v 1.3 2010-10-26 15:12:19 cvsbert Exp $
+ RCS:		$Id: stratlayersequence.h,v 1.4 2010-11-09 16:01:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 namespace Strat
 {
 class Layer;
+class Level;
 class UnitRef;
 class RefTree;
 
@@ -54,9 +55,11 @@ public:
 			{ return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}
     void		getLayersFor(const UnitRef*,
 	    			     ObjectSet<const Layer>&) const;
-    const RefTree*	refTree() const;
+    const RefTree&	refTree() const;
 
     void		prepareUse() const ;	//!< needed after changes
+
+    int			indexOf(const Level&,int startsearchat=0) const;
 
 protected:
 

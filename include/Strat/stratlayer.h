@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2010
- RCS:		$Id: stratlayer.h,v 1.10 2010-10-15 13:38:41 cvsbert Exp $
+ RCS:		$Id: stratlayer.h,v 1.11 2010-11-09 16:01:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ class PropertyRef;
 namespace Strat
 {
 class LeafUnitRef;
+class RefTree;
 
 /*!\brief data for a layer.
 
@@ -39,6 +40,7 @@ public:
 
     const LeafUnitRef&	unitRef() const;
     inline void		setRef( const LeafUnitRef& r )	{ ref_ = &r; }
+    const RefTree&	refTree() const;
 
     inline float	zTop() const		{ return ztop_; }
     inline float	thickness() const	{ return vals_[0]; }
