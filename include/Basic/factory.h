@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.16 2010-11-08 22:17:01 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.17 2010-11-09 16:56:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,6 +220,7 @@ protected:
 
 
 #define mDefaultFactoryInstanciationBase( factory, keywrd, usernm ) \
+    const char*		factoryKeyword() const { return sKeyword(); } \
     static const char*	sKeyword() { return keywrd; } \
     static const char*  sUserName() { return usernm; } \
     static void		initClass()  \
