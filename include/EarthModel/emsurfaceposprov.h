@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.11 2009-10-12 14:07:15 cvsbert Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.12 2010-11-09 20:45:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -127,6 +127,7 @@ public:
 			{}
 			EMSurfaceProvider3D( const EMSurfaceProvider3D& p )
 			{ *this = p; }
+    const char*		factoryKeyword() const { return type(); }
     EMSurfaceProvider3D& operator =( const EMSurfaceProvider3D& p )
 			{ copyFrom(p); return *this; }
     Provider*		clone() const
@@ -158,6 +159,7 @@ public:
 			{ *this = p; }
     EMSurfaceProvider2D& operator =( const EMSurfaceProvider2D& p )
 			{ copyFrom(p); return *this; }
+    const char*		factoryKeyword() const { return type(); }
     Provider*		clone() const
     			{ return new EMSurfaceProvider2D(*this); }
 
@@ -187,6 +189,7 @@ public:
 					const EMSurface2DProvider3D& p );
 				//{ *this = p; }
 				~EMSurface2DProvider3D();
+    const char*			factoryKeyword() const { return type(); }
     EMSurface2DProvider3D&	operator =( const EMSurface2DProvider3D& p );
 				//{ copyFrom(p); return *this; }
     virtual bool		initialize(TaskRunner* tr=0);
