@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.16 2010-08-20 01:37:38 cvskris Exp $
+ RCS:		$Id: gridder2d.h,v 1.17 2010-11-09 19:59:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,6 @@ public:
 
 
     virtual		~Gridder2D()				{}
-    virtual const char*	name() const				= 0;
     virtual Gridder2D*	clone() const				= 0;
     virtual bool	operator==(const Gridder2D&) const;
 			/*!Only checks the name. Should be
@@ -103,16 +102,16 @@ protected:
 mClass InverseDistanceGridder2D : public Gridder2D 
 {
 public:
+    mDefaultFactoryInstantiation( Gridder2D,
+				Gridder2D::factory,
+				InverseDistanceGridder2D,
+				"InverseDistance", "Inverse distance" );
+
 		InverseDistanceGridder2D();
 		InverseDistanceGridder2D(const InverseDistanceGridder2D&);
 
-    static Gridder2D*	create();
-    static void		initClass(); 
     Gridder2D*		clone() const;
     
-    const char* 	name() const		{ return sName(); }
-    static const char* 	sName() 		{ return "InverseDistance"; }
-    static const char* 	sUserName() 		{ return "Inverse distance"; }
     static const char*	sKeySearchRadius()	{ return "SearchRadius"; }
 
     bool		operator==(const Gridder2D&) const;
@@ -139,24 +138,21 @@ protected:
 mClass TriangulatedGridder2D: public Gridder2D
 {
 public:
+    mDefaultFactoryInstantiation( Gridder2D,
+				Gridder2D::factory,
+				TriangulatedGridder2D,
+				"Triangulated", "Triangulation" );
     			TriangulatedGridder2D();
 			TriangulatedGridder2D(
 				const TriangulatedGridder2D&);
 			~TriangulatedGridder2D();
-
-    static const char* 	sName() 		{ return "Triangulated"; }
-    static const char* 	sUserName() 		{ return "Triangulation"; }
+    Gridder2D*		clone() const;
+    
 
     bool		setPoints(const TypeSet<Coord>&);
-
     void		setGridArea(const Interval<float>&,
 	    			    const Interval<float>&);
 
-    static Gridder2D*	create(); 
-    static void		initClass();
-    const char*		name() const	{ return sName(); }
-    Gridder2D*		clone() const;
-    
     bool		init();
 
 protected:

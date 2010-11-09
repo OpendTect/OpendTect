@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.24 2010-08-25 18:22:03 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.25 2010-11-09 19:59:35 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -36,7 +36,7 @@ Gridder2D::Gridder2D( const Gridder2D& g )
 
 bool Gridder2D::operator==( const Gridder2D& b ) const
 {
-    return name()==b.name();
+    return factoryKeyword()==b.factoryKeyword();
 }
 
 
@@ -125,18 +125,6 @@ InverseDistanceGridder2D::InverseDistanceGridder2D(
 	const InverseDistanceGridder2D& g )
     : radius_( g.radius_ )
 {}
-
-
-Gridder2D* InverseDistanceGridder2D::create()
-{
-    return new InverseDistanceGridder2D;
-}
-
-
-void InverseDistanceGridder2D::initClass()
-{
-    Gridder2D::factory().addCreator( create, sName(), sUserName() );
-}
 
 
 Gridder2D* InverseDistanceGridder2D::clone() const
@@ -276,23 +264,11 @@ TriangulatedGridder2D::~TriangulatedGridder2D()
 }
 
 
-Gridder2D* TriangulatedGridder2D::create()
-{
-    return new TriangulatedGridder2D;
-}
-
-
 void TriangulatedGridder2D::setGridArea( const Interval<float>& xrg,
 					 const Interval<float>& yrg )
 {
     xrg_ = xrg;
     yrg_ = yrg;
-}
-
-
-void TriangulatedGridder2D::initClass()
-{
-    Gridder2D::factory().addCreator( create, sName(), sUserName() );
 }
 
 
