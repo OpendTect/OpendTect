@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.5 2010-11-01 14:45:30 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.6 2010-11-10 14:38:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,8 @@ public:
 	    nologborder_  = su.nologborder_;
 	    withcontrol_  = su.withcontrol_;
 	    preflogsz_ 	  = su.preflogsz_;
+	    noxannot_	  = su.noxannot_;
+	    noyannot_	  = su.noyannot_;
 	}
     };
 
