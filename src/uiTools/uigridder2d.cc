@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigridder2d.cc,v 1.8 2010-11-09 20:30:59 cvskris Exp $";
+static const char* rcsID = "$Id: uigridder2d.cc,v 1.9 2010-11-10 19:39:18 cvskris Exp $";
 
 #include "uigridder2d.h"
 
@@ -119,7 +119,7 @@ uiDlgGroup* uiInverseDistanceGridder2D::create( uiParent* p, Gridder2D* g )
 
 uiInverseDistanceGridder2D::uiInverseDistanceGridder2D ( uiParent* p,
 						InverseDistanceGridder2D& idg )
-    : uiDlgGroup( p, InverseDistanceGridder2D::sUserName() )
+    : uiDlgGroup( p, InverseDistanceGridder2D::sFactoryDisplayName() )
     , idg_( idg )
     , initialsearchradius_( idg.getSearchRadius() )
 {
