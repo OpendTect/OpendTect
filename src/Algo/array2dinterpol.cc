@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.28 2010-11-09 22:15:14 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.29 2010-11-10 19:33:15 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -581,7 +581,7 @@ void Array2DInterpol::excludeBigHoles( const bool* def,
 void InverseDistanceArray2DInterpol::initClass()
 {
     Array2DInterpol::factory().addCreator( createInstance, sFactoryKeyword(),
-	    sUserName() );
+	    sFactoryDisplayName() );
 }
 
 
@@ -1129,7 +1129,7 @@ void InverseDistanceArray2DInterpol::reportDone( od_int64 idx )
 void TriangulationArray2DInterpol::initClass()
 {
     Array2DInterpol::factory().addCreator( createInstance, sFactoryKeyword(),
-	    sUserName() );
+	    sFactoryDisplayName() );
 }
 
 
@@ -1395,7 +1395,7 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 void Array2DInterpolExtension::initClass()
 {
     Array2DInterpol::factory().addCreator( createInstance, sFactoryKeyword(),
-	    sUserName() );
+	    sFactoryDisplayName() );
 }
 
 

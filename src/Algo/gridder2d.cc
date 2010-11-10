@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.26 2010-11-09 22:15:14 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.27 2010-11-10 19:33:15 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -119,7 +119,7 @@ bool Gridder2D::isPointUsed( int idx ) const
 void InverseDistanceGridder2D::initClass()
 {
     Gridder2D::factory().addCreator( createInstance, sFactoryKeyword(),
-	    sUserName() );
+	    sFactoryDisplayName() );
 }
 
 
@@ -241,7 +241,7 @@ void InverseDistanceGridder2D::fillPar( IOPar& par ) const
 void TriangulatedGridder2D::initClass()
 {
     Gridder2D::factory().addCreator( createInstance, sFactoryKeyword(),
-	    sUserName() );
+	    sFactoryDisplayName() );
 }
 
 
