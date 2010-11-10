@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.28 2010-11-05 18:53:56 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.29 2010-11-10 20:34:13 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -223,14 +223,11 @@ int Threads::WorkThread::getRetVal()
 Threads::ThreadWorkManager::ThreadWorkManager( int nrthreads )
     : workloadcond_( *new ConditionVar )
     , isidle( this )
-    , freeid_( cDefaultQueueID() + 1)
-    , closingqueueid_( -1 )
+    , freeid_( cDefaultQueueID() )
 {
     callbacks_.allowNull(true);
 
-    queueids_ += cDefaultQueueID();
-    queueisparallel_ += true;
-    queueworkload_ += 0;
+    addQueue( true );
 
     if ( nrthreads == -1 )
 	nrthreads = Threads::getNrProcessors();
@@ -247,7 +244,7 @@ Threads::ThreadWorkManager::ThreadWorkManager( int nrthreads )
 Threads::ThreadWorkManager::~ThreadWorkManager()
 {
     while ( queueids_.size() )
-	removeQueue( queueids_[0] );
+	removeQueue( queueids_[0], false );
 
     deepErase( threads_ );
     deepErase( workload_ );
@@ -264,36 +261,61 @@ int Threads::ThreadWorkManager::addQueue( bool parallel )
     queueids_ += id;
     queueisparallel_ += parallel;
     queueworkload_ += 0;
+    queueisclosing_ += false;
 
     return id;
 }
 
 
-void Threads::ThreadWorkManager::removeQueue( int queueid )
+void Threads::ThreadWorkManager::removeQueue( int queueid, bool finishall )
 {
     Threads::MutexLocker lock(workloadcond_);
     const int queueidx = queueids_.indexOf( queueid );
 
-    for ( int idx=workqueueid_.size()-1; idx>=0; idx-- )
+    if ( !finishall )
     {
-	if ( workqueueid_[idx]==queueid )
+	for ( int idx=workqueueid_.size()-1; idx>=0; idx-- )
 	{
-	    workqueueid_.remove( idx );
-	    workload_.remove( idx );
-	    callbacks_.remove( idx );
+	    if ( workqueueid_[idx]==queueid )
+	    {
+		workqueueid_.remove( idx );
+		workload_.remove( idx );
+		callbacks_.remove( idx );
+	    }
 	}
     }
 
     //Wait for all threads to exit
-    closingqueueid_ = queueid;
-    while ( queueworkload_[queueidx] )
+    queueisclosing_[queueidx] = true;
+    while ( queueworkload_[queueidx] && queueSizeNoLock( queueid ) )
 	workloadcond_.wait();
-    closingqueueid_ = -1;
 
     queueworkload_.remove( queueidx );
     queueisparallel_.remove( queueidx );
     queueids_.remove( queueidx );
+    queueisclosing_.remove( queueidx );
 }
+
+
+int Threads::ThreadWorkManager::queueSize( int queueid ) const
+{
+    Threads::MutexLocker lock(workloadcond_);
+    return queueSizeNoLock( queueid );
+}
+
+
+int Threads::ThreadWorkManager::queueSizeNoLock( int queueid ) const
+{
+    int res = 0;
+    for ( int idx=workqueueid_.size()-1; idx>=0; idx-- )
+    {
+	if ( workqueueid_[idx]==queueid )
+	    res++;
+    }
+
+    return res;
+}
+
 
 void Threads::ThreadWorkManager::addWork( SequentialTask* newtask, CallBack* cb,
 					  int queueid, bool firstinline )
@@ -313,6 +335,11 @@ void Threads::ThreadWorkManager::addWork( SequentialTask* newtask, CallBack* cb,
 
     Threads::MutexLocker lock(workloadcond_);
     int const queueidx = queueids_.indexOf( queueid );
+    if ( queueidx==-1 || queueisclosing_[queueidx] )
+    {
+	pErrMsg("Queue does not exist or is closing. Task rejected." );
+	return;
+    }
 
     const int nrfreethreads = freethreads_.size();
     if ( nrfreethreads )
@@ -463,7 +490,7 @@ int Threads::ThreadWorkManager::reportFinishedAndAskForMore(WorkThread* caller,
 {
     const int oldqueueidx = queueids_.indexOf(oldqueueid);
     queueworkload_[oldqueueidx]--;
-    if ( oldqueueid==closingqueueid_ && !queueworkload_[oldqueueidx] )
+    if ( queueisclosing_[oldqueueidx] && !queueworkload_[oldqueueidx] )
 	workloadcond_.signal( true );
 
     int sz = workload_.size();

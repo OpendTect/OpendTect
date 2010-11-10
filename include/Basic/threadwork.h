@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.23 2010-11-05 18:53:56 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.24 2010-11-10 20:34:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -43,8 +43,10 @@ public:
 
     int				addQueue(bool parallel);
     				//!<\returns queid
-    void			removeQueue(int queueid);
-    				//!<Removes all work in a queue and destroys it.
+    int				queueSize(int queueid) const;
+    void			removeQueue(int queueid,bool finishall);
+    				/*!<Removes queue. If finishall is true,
+				    all work in the queue will be finished. */
     static int			cDefaultQueueID() { return 0; }
 
     void			addWork(SequentialTask*,CallBack* finished,
@@ -74,6 +76,7 @@ public:
     
 protected:
 
+    int				queueSizeNoLock(int queueid) const;
     int				reportFinishedAndAskForMore(WorkThread*,
 							    int oldqueueid );
 
@@ -92,10 +95,11 @@ protected:
     TypeSet<int>		queueids_;
     TypeSet<int>		queueworkload_; //Nr threads working on it
     BoolTypeSet			queueisparallel_;
-    int				freeid_;
-    int				closingqueueid_;
+    BoolTypeSet			queueisclosing_;
 
     ConditionVar&		workloadcond_;
+
+    int				freeid_;
 };
 
 }; // Namespace
