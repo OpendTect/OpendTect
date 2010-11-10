@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID = "$Id: genericnumer.cc,v 1.21 2010-11-08 21:32:50 cvskris Exp $";
+static const char* rcsID = "$Id: genericnumer.cc,v 1.22 2010-11-10 19:32:50 cvskris Exp $";
 
 #include "genericnumer.h"
 #include "undefval.h"
@@ -215,7 +215,7 @@ float semblance( const ObjectSet<float>& signals, int signalsize,
 	    const float zpos = signalstarts[signalidx]+zidx;
 
 	    cache[offset] =
-		IdxAble::interpolateRegWithUdf( signal, signalsize, zpos, false );
+		IdxAble::interpolateRegWithUdf(signal,signalsize,zpos,false);
 
 	    offset++;
 	}
