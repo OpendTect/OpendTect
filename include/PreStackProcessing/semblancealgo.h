@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Nov 2010
- RCS:		$Id: semblancealgo.h,v 1.2 2010-11-09 22:22:06 cvskris Exp $
+ RCS:		$Id: semblancealgo.h,v 1.3 2010-11-10 19:17:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,8 @@ ________________________________________________________________________
 
 #include "factory.h"
 #include "objectset.h"
+
+class IOPar;
 
 
 namespace PreStack
@@ -40,6 +42,8 @@ public:
 					     order as the gather. If provided,
 					     only traces with 'true' will be
 					     included in computation. */
+    virtual void	fillPar(IOPar&) const 	{}
+    virtual bool	usePar(const IOPar&) 	{ return true; }
 };
 
 }; //namespace
