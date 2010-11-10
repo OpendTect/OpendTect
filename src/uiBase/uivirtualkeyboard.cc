@@ -8,11 +8,12 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.4 2010-11-03 10:58:56 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.5 2010-11-10 14:08:40 cvsjaap Exp $";
 
 #include "uivirtualkeyboard.h"
 
 #include "pixmap.h"
+#include "oddirs.h"
 #include "uicombobox.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsviewbase.h"
@@ -55,7 +56,7 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     wintitle += inputobj_.name(); wintitle += "]";
     setCaption( wintitle );
 
-    ioPixmap pixmap( "virtualkeyboard.png" );
+    ioPixmap pixmap( mGetSetupFileName("virtualkeyboard.png") );
     const float keyboardwidth = keyboardscale_ * pixmap.width();
     const float keyboardheight = keyboardscale_ * pixmap.height();
 
