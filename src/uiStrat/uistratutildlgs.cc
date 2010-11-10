@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.42 2010-10-22 13:34:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.43 2010-11-10 14:35:08 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -27,7 +27,6 @@ static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.42 2010-10-22 13:34:20 c
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
-#include "uitable.h"
 
 static const char* sNoLevelTxt      = "--Undefined--";
 
@@ -52,11 +51,13 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     Interval<float> limitrg = upnode ? upnode->timeRange() : unit.timeRange(); 
     uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this, "Time range (My)" );
     agestartfld_ = lblbox1->box();
+    agestartfld_->setNrDecimals( 3 ); 
     agestartfld_->setInterval( limitrg );
     lblbox1->attach( alignedBelow, colfld_ );
     
     uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox( this, "" );
     agestopfld_ = lblbox2->box();
+    agestopfld_->setNrDecimals( 3 ); 
     agestopfld_->setInterval( limitrg );
     lblbox2->attach( rightOf, lblbox1 );
 
@@ -113,7 +114,7 @@ void uiStratUnitEditDlg::getFromScreen()
     unit_.setDescription( unitdescfld_->text() );
     unit_.setColor( colfld_->color() );
 
-    Interval<float> rg( agestartfld_->getValue(), agestopfld_->getValue() );
+    Interval<float> rg( agestartfld_->getFValue(), agestopfld_->getFValue() );
     unit_.setTimeRange( rg );
 
     lithids_.erase();
@@ -375,6 +376,13 @@ static const int cColorCol = 1;
 static const int cStartCol = 2;
 static const int cStopCol = 3;
 
+void uiStratUnitDivideDlg::uiDivideTable::popupMenu( CallBacker* cb )
+{
+    if ( currentRow() > 0 ) 
+	uiTable::popupMenu( cb );
+}
+
+
 uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p, 
 					    const Strat::LeavedUnitRef& unit ) 
     : uiDialog(p,uiDialog::Setup("Subdivide Stratigraphic Unit",
@@ -382,10 +390,9 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
 			     mNoHelpID))
     , rootunit_(unit)
 {
-    table_ = new uiTable( this, uiTable::Setup().rowdesc("Unit")
+    table_ = new uiDivideTable( this, uiTable::Setup().rowdesc("Unit")
 						.rowgrow(true)
-						.defrowlbl("")
-						,"Subdivide Unit Table" );
+						.defrowlbl(""));
     table_->setColumnLabels( unitcollbls );
     table_->setColumnReadOnly( cColorCol, true );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
@@ -434,7 +441,7 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 	        timerg.start + (float)(idx+1)*timerg.width()/(nrrows) );
 	table_->setRowReadOnly( idx, false );
 	unit.setTimeRange( rg ); 
-	unit.setColor( getRandStdDrawColor() ); 
+	unit.setColor( unit.color() ); 
 	addUnitToTable( idx, unit );
     }
     deepErase( units );
@@ -485,7 +492,6 @@ bool uiStratUnitDivideDlg::areTimesOK(
 	    return false;
     }
     return ( units[0]->timeRange().width() >= 0 );
-    return false;
 }
 
 
@@ -494,6 +500,9 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
     BufferStringSet bfs;
     ObjectSet<Strat::LeavedUnitRef> units;
     gatherUnits( units );
+    if ( !units.size() )
+	{ mErrRet( "No valid unit present in the table ", false ); }
+
     for ( int idx=0; idx<units.size(); idx++ )
     {
 	BufferString code( units[idx]->code() );

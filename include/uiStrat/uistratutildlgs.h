@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.28 2010-10-21 15:46:42 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.29 2010-11-10 14:35:08 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "uitable.h"
 #include "ranges.h"
 #include "stratunitref.h"
 #include "uilistbox.h"
@@ -24,7 +25,6 @@ class uiListBox;
 class uiCheckBox;
 class uiStratMgr;
 class uiSpinBox;
-class uiTable;
 namespace Strat { class Lithology; }
 
 /*!\brief Displays a dialog to create/edit a new stratigraphic unit */
@@ -107,6 +107,18 @@ public:
     void			gatherUnits(ObjectSet<Strat::LeavedUnitRef>&); 
 
 protected :
+
+    mClass uiDivideTable : public uiTable
+    {
+	public: 	
+				uiDivideTable(uiParent* p,
+						const uiTable::Setup& s)
+				    : uiTable(p,s,"Subdivide unit table")
+				{}
+	protected:
+	virtual void 		popupMenu(CallBacker*);
+    };
+
 
     uiTable*                    table_;
     const Strat::LeavedUnitRef& rootunit_;

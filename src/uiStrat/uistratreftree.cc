@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.60 2010-10-28 08:56:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.61 2010-11-10 14:35:08 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -182,13 +182,13 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
     if ( lvit && ( !un || un->isLeaf() ) ) return;
 
     NodeUnitRef* parun = lvit ? (NodeUnitRef*)un : tree_;
-    LeavedUnitRef* tmpun = new LeavedUnitRef( parun, 0 );
+    LeavedUnitRef tmpun( parun, 0 );
 
     Interval<float> trg; getAvailableTime( *parun, trg );
-    tmpun->setTimeRange( trg );
-    tmpun->setColor( getRandStdDrawColor() );
+    tmpun.setTimeRange( trg );
+    tmpun.setColor( getRandStdDrawColor() );
 
-    uiStratUnitEditDlg newurdlg( lv_->parent(), *tmpun );
+    uiStratUnitEditDlg newurdlg( lv_->parent(), tmpun );
     if ( newurdlg.go() )
     {
 	if ( parun->isLeaved() )
@@ -201,9 +201,9 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	if ( parun )
 	{
 	    Strat::LeavedUnitRef* newun = 
-				new Strat::LeavedUnitRef( parun, tmpun->code());
-	    newun->setColor( tmpun->color() ); 
-	    newun->setTimeRange( tmpun->timeRange() );
+				new Strat::LeavedUnitRef( parun, tmpun.code());
+	    newun->setColor( tmpun.color() ); 
+	    newun->setTimeRange( tmpun.timeRange() );
 	    int posidx = getChildIdxFromTime( *parun, newun->timeRange().start);
 	    if ( posidx < parun->nrRefs() )
 		parun->insert( newun, posidx );
@@ -217,7 +217,6 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	else
 	    uiMSG().error( "Cannot add unit" );
     }
-    delete tmpun;
 }
 
 
@@ -584,8 +583,7 @@ void uiStratRefTree::ensureUnitTimeOK( Strat::NodeUnitRef& unit )
     {
 	Strat::NodeUnitRef& ref = (Strat::NodeUnitRef&)par->ref(idx);
 	Interval<float> timerg = ref.timeRange();
-	if ( &ref == &unit ) 
-	    continue;
+	if ( &ref == &unit ) continue;
 	if ( posidx-1 == idx && mytimerg.start < timerg.start )
 	    mytimerg.start = timerg.start;
 	else if ( posidx+1 == idx && mytimerg.stop > timerg.stop )
@@ -595,10 +593,13 @@ void uiStratRefTree::ensureUnitTimeOK( Strat::NodeUnitRef& unit )
     for ( int idx=0; idx<par->nrRefs(); idx++ )
     {
 	Strat::NodeUnitRef& ref = (Strat::NodeUnitRef&)par->ref(idx);
+	if ( &ref == &unit ) continue;
 	Interval<float> timerg = ref.timeRange();
 	if ( timerg.overlaps( mytimerg ) )
 	{
-	    if ( timerg.start <= mytimerg.start )
+	    if ( timerg.stop==mytimerg.start || timerg.start==mytimerg.stop )
+		continue;
+	    if ( timerg.start < mytimerg.start )
 		timerg.stop = mytimerg.start;
 	    else 
 		timerg.start = mytimerg.stop;
