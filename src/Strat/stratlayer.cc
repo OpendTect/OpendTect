@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.10 2010-11-09 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.11 2010-11-10 15:28:14 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -113,13 +113,13 @@ int Strat::LayerSequence::indexOf( const Strat::Level& lvl, int startat ) const
     bool unseen = false;
     const RefTree& rt = refTree();
     Strat::UnitRefIter it( rt, Strat::UnitRefIter::LeavedNodes );
-    const Strat::LeavedUnitRef* lvlunit;
+    const Strat::LeavedUnitRef* lvlunit = 0;
     ObjectSet<const Strat::LeavedUnitRef> hits;
     while ( it.next() )
     {
 	const Strat::LeavedUnitRef* un
 	    	= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
-	if ( un->levelID() == lvl.id() )
+	if ( !lvlunit && un->levelID() == lvl.id() )
 	    lvlunit = un;
 	if ( lvlunit )
 	    hits += un;
