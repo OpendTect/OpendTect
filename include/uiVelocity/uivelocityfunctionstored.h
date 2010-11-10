@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivelocityfunctionstored.h,v 1.4 2010-11-09 22:19:50 cvskris Exp $
+ RCS:		$Id: uivelocityfunctionstored.h,v 1.5 2010-11-10 19:53:12 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ mClass uiStoredFunction : public uiFunctionSettings
 public:
     mDefaultFactoryInstanciationBase(
 	    StoredFunctionSource::sFactoryKeyword(),
-	    StoredFunctionSource::sUserName() );
+	    StoredFunctionSource::sFactoryDisplayName() );
 
 
     			uiStoredFunction(uiParent*,StoredFunctionSource*);

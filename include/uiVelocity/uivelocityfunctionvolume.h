@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivelocityfunctionvolume.h,v 1.5 2010-11-09 22:19:50 cvskris Exp $
+ RCS:		$Id: uivelocityfunctionvolume.h,v 1.6 2010-11-10 19:53:12 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ mClass uiVolumeFunction : public uiFunctionSettings
 public:
     mDefaultFactoryInstanciationBase(
 	    VolumeFunctionSource::sFactoryKeyword(),
-	    VolumeFunctionSource::sUserName() );
+	    VolumeFunctionSource::sFactoryDisplayName() );
 
     			uiVolumeFunction(uiParent*,VolumeFunctionSource*);
     			~uiVolumeFunction();
