@@ -7,20 +7,25 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.3 2010-10-27 15:18:18 cvsbert Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.4 2010-11-10 15:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uigraphicsview.h"
+#include "uigroup.h"
 class uiTextItem;
+class uiSpinBox;
+class uiGenInput;
+class uiComboBox;
 class uiAxisHandler;
+class uiGraphicsView;
+class uiGraphicsScene;
 class BufferStringSet;
 class uiGraphicsItemSet;
 namespace Strat { class LayerModel; }
 
 
-mClass uiStratLayerModelDisp : public uiGraphicsView
+mClass uiStratLayerModelDisp : public uiGroup
 {
 public:
 
@@ -28,28 +33,39 @@ public:
 					    const Strat::LayerModel&);
     			~uiStratLayerModelDisp();
 
-    void		modelChanged()		{ reDraw(0); }
+    void		modelChanged();
     void		getDispProperties(BufferStringSet&) const;
-    int			dispProp() const 	{ return dispprop_; }
-    void		setDispProp( int dp )	{ dispprop_ = dp; }
 
 protected:
 
     const Strat::LayerModel& lm_;
-    int			dispprop_;
-    uiTextItem*		emptyitm_;
-    uiGraphicsItemSet&	logblckitms_;
 
+    uiGraphicsView*	gv_;
+    uiAxisHandler*	xax_;
+    uiAxisHandler*	yax_;
+    uiTextItem*		emptyitm_;
+    uiGenInput*		qtyfld_;
+    uiSpinBox*		eachfld_;
+    uiComboBox*		lvlfld_;
+    uiGraphicsItemSet&	logblckitms_;
+    uiGraphicsItemSet&	lvlitms_;
+
+    uiGraphicsScene&	scene();
     void		eraseAll();
     void		reDraw(CallBacker*);
     void		usrClickCB(CallBacker*);
+    void		setDispPars(CallBacker*);
+    void		saveMdl(CallBacker*);
 
     void		doDraw();
+    int			dispprop_;
+    int			dispeach_;
+    bool		fillmdls_;
     Interval<float>	zrg_;
     Interval<float>	vrg_;
     void		getBounds();
-    uiAxisHandler*	xax_;
-    uiAxisHandler*	yax_;
+    void		drawModel(TypeSet<uiPoint>&,int);
+    void		drawLevels();
 
 };
 
