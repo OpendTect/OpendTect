@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.59 2010-10-27 15:18:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.60 2010-11-10 13:58:19 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -150,9 +150,7 @@ void uiStratTreeWin::createToolBar()
     helpbut->setToolTip( "Help" );
     tb_->addObject( helpbut );
     tb_->addSeparator();
-    mDefBut(switchviewbut_,"stratframeworkgraph.png",
-	    				switchViewCB,"Switch View" );
-    switchviewbut_->setToggleButton( true );
+    mDefBut( switchviewbut_, "strat_tree.png", switchViewCB, "Switch View" );
     tb_->addSeparator();
     uiToolButton* laymodbut;
     mDefBut(laymodbut,"stratlayermodeling.png", layModCB,
@@ -286,8 +284,8 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
     if ( uistratdisp_->control() )
 	uistratdisp_->control()->setSensitive( !istreedisp_ );
     uitree_->listView()->display( istreedisp_ );
-    switchviewbut_->setPixmap( istreedisp_ ? "strat_tree.png" 
-	    				   : "stratframeworkgraph.png" ); 
+    switchviewbut_->setPixmap( istreedisp_ ? "stratframeworkgraph.png"
+					   : "strat_tree.png" );
 }
 
 
