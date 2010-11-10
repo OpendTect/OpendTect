@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldahdisplay.cc,v 1.1 2010-09-17 12:26:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldahdisplay.cc,v 1.2 2010-11-10 14:36:00 cvsbruno Exp $";
 
 #include "uiwelldahdisplay.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiwelldahdisplay.cc,v 1.1 2010-09-17 12:26:07 c
 uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const char* nm )
     : uiGraphicsView(p,nm)
 {
+    disableScrollZoom();
     setStretch( 2, 2 );
 
     reSize.notify( mCB(this,uiWellDahDisplay,reSized) );
