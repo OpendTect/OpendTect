@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.5 2010-11-01 14:45:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplay.cc,v 1.6 2010-11-10 14:37:15 cvsbruno Exp $";
 
 #include "uiwelldisplay.h"
 
@@ -254,9 +254,10 @@ void uiWellDisplayWin::dispInfoMsg( CallBacker* cb )
 
 void uiWellDisplayWin::mkInfoPanel( CallBacker* )
 {
-    wellinfo_ = new uiWellDispInfoPanel( this, *welldisp_ );
+    wellinfo_ = new uiWellDispInfoPanel( this, *welldisp_, false );
     wellinfo_->setInitialSize( uiSize(50,100) );
     wellinfo_->attach( alignedAbove, welldisp_ );
+    wellinfo_->setStretch( 2, 0 );
 }
 
 
