@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.28 2010-11-01 14:45:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.29 2010-11-10 14:34:07 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -118,30 +118,19 @@ const Well::Marker* uiWellStratDisplay::getMarkerFromLvlID( int lvlid ) const
 
 void uiWellStratDisplay::assignTimesToLeavedUnits()
 {
-    for ( int idx=0; idx<leavedunits_.size(); idx++ )
+    for ( int idx=0; idx<leavedunits_.size()-1; idx++ )
     {
 	const Strat::LeavedUnitRef& lur1 = *leavedunits_[idx];
-	for ( int idy=0; idy<leavedunits_.size(); idy++ )
-	{
-	    const Strat::LeavedUnitRef& lur2 = *leavedunits_[idy];
-	    if ( areLeavedTied( lur1, lur2 ) )
-	    {
-		StratDispData::Unit& unit = *leaveddispunits_[idx];
-		unit.zrg_.set( posset_[idx], posset_[idy] );
-		unit.zrg_.sort();
-		unit.isdisplayed_ = true; 
-		data_.getCol( unit.colidx_ )->isdisplayed_ = true;
-	    }
-	}
+	const Strat::LeavedUnitRef& lur2 = *leavedunits_[idx+1];
+	StratDispData::Unit& unit = *leaveddispunits_[idx];
+	unit.zrg_.set( posset_[idx], posset_[idx+1] );
+	unit.zrg_.sort();
+	unit.isdisplayed_ = true; 
+	data_.getCol( unit.colidx_ )->isdisplayed_ = true;
     }
 }
 
 
-bool uiWellStratDisplay::areLeavedTied( const Strat::LeavedUnitRef& ur1,
-					const Strat::LeavedUnitRef& ur2 ) const
-{
-    return ( ur1.timeRange().stop == ur2.timeRange().start );
-}
 
 
 void uiWellStratDisplay::assignTimesToAllUnits()
