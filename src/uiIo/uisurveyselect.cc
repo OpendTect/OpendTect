@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurveyselect.cc,v 1.9 2010-06-10 06:19:09 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisurveyselect.cc,v 1.10 2010-11-10 15:26:43 cvsbert Exp $";
 
 
 #include "uisurveyselect.h"
@@ -98,7 +98,7 @@ void uiSurveySelectDlg::fillSurveyList()
     
     BufferStringSet surveylist;
     uiSurvey::getSurveyList( surveylist, getDataRoot() );  
-    surveylistfld_->empty();
+    surveylistfld_->setEmpty();
     surveylistfld_->addItems( surveylist );
 }
 

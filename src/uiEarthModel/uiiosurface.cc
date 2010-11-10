@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.80 2010-08-05 15:35:47 cvshelene Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.81 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiiosurface.h"
 
@@ -150,7 +150,7 @@ void uiIOSurface::fillAttribFld( const BufferStringSet& valnames )
 {
     if ( !attribfld_ ) return;
 
-    attribfld_->box()->empty();
+    attribfld_->box()->setEmpty();
     for ( int idx=0; idx<valnames.size(); idx++)
 	attribfld_->box()->addItem( valnames[idx]->buf() );
 }
@@ -187,7 +187,7 @@ void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
 {
     if ( !sectionfld_ ) return;
 
-    sectionfld_->box()->empty();
+    sectionfld_->box()->setEmpty();
     for ( int idx=0; idx<sections.size(); idx++ )
 	sectionfld_->box()->addItem( sections[idx]->buf() );
     sectionfld_->box()->selectAll( true );

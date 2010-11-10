@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.65 2010-11-03 10:56:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.66 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -106,7 +106,7 @@ void uiIOSelect::updateFromEntries()
     if ( keepmytxt_ )
 	curusrnm = inp_->text();
 
-    inp_->empty();
+    inp_->setEmpty();
 
     for ( int idx=0; idx<specialitems.size(); idx++ )
 	inp_->addItem( specialitems.getValue(idx) );
@@ -352,9 +352,9 @@ void uiIOSelect::selDone( CallBacker* )
 }
 
 
-void uiIOSelect::empty( bool withclear )
+void uiIOSelect::setEmpty( bool withclear )
 {
-    inp_->empty();
+    inp_->setEmpty();
 
     if ( entries_.size() ) 
 	entries_.erase();

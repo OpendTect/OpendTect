@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.27 2010-11-01 09:12:43 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.28 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -295,7 +295,7 @@ void uiDirLightDlg::removeSceneNotifiers()
 int uiDirLightDlg::updateSceneSelector()
 {
     updateInitInfo();
-    scenefld_->box()->empty();
+    scenefld_->box()->setEmpty();
 
     if ( initinfo_.size() == 0 )
     {

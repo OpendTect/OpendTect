@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.73 2010-11-09 09:16:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.74 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -211,7 +211,7 @@ void uiSeisImpCBVS::oinpSel( CallBacker* cb )
 	if ( ismc_ )
 	{
 	    BufferStringSet cnms; oinf.getComponentNames( cnms );
-	    compfld_->box()->empty();
+	    compfld_->box()->setEmpty();
 	    compfld_->box()->addItem( "<All>" );
 	    compfld_->box()->addItems( cnms );
 	}

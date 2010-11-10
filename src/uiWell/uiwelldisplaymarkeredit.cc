@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.15 2010-10-29 08:37:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.16 2010-11-10 15:26:43 cvsbert Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -467,7 +467,7 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 {
     const char* selnm = mrklist_->nrSelected() ? mrklist_->getText() : 0;
 
-    if ( mrklist_->size() ) mrklist_->empty();
+    if ( mrklist_->size() ) mrklist_->setEmpty();
     BufferStringSet mrknms; TypeSet<Color> mrkcols;
     for ( int idwd=0; idwd<wds_.size(); idwd++ )
     {

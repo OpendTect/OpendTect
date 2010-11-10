@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodsysadm.cc,v 1.3 2010-06-09 08:40:42 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodsysadm.cc,v 1.4 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiodsysadm.h"
 #include "uiodsysadmcoltabs.h"
@@ -173,7 +173,7 @@ uiODSysAdm::TaskEntry* uiODSysAdm::getCurTaskEntry()
 
 void uiODSysAdm::grpChg( CallBacker* )
 {
-    taskfld->empty();
+    taskfld->setEmpty();
     const GroupEntry* ge = getGroupEntry( grpfld->getText() );
     if ( !ge ) return;
 

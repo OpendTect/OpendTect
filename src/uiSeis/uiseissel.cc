@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.99 2010-09-29 03:51:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.100 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -202,7 +202,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     else
     {
 	const BufferString attrnm( attrfld_->text() );
-        attrlistfld_->empty();
+        attrlistfld_->setEmpty();
 	attrlistfld_->addItems( nms ); 
 	attrfld_->setText( attrnm );
     }

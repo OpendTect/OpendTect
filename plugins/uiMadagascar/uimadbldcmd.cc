@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.20 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.21 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uibutton.h"
@@ -356,7 +356,7 @@ void uiMadagascarBldCmd::setProgName( const char* pnm )
 
 void uiMadagascarBldCmd::setGroupProgs( const BufferString* curgrp )
 {
-    progfld_->empty();
+    progfld_->setEmpty();
     const ObjectSet<ODMad::ProgDef>& defs = ODMad::PI().defs();
     for ( int idx=0; idx<defs.size(); idx++ )
     {
@@ -382,7 +382,7 @@ void uiMadagascarBldCmd::doSearch( CallBacker* )
 
     ObjectSet<const ODMad::ProgDef> defs;
     ODMad::PI().search( srchkey, defs );
-    progfld_->empty();
+    progfld_->setEmpty();
     if ( defs.size() < 1 ) return;
 
     for ( int idx=0; idx<defs.size(); idx++ )

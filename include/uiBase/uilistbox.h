@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.56 2010-10-06 13:42:46 cvsjaap Exp $
+ RCS:           $Id: uilistbox.h,v 1.57 2010-11-10 15:26:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ public:
     void		clearSelection();
     void		sort(bool asc=true);
 
-    void		empty();
+    void		setEmpty();
     void		removeItem(int);
     void		addItem(const char*,bool embedded=false); 
     			//!< embedded = put [...] around text

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.44 2010-11-05 12:46:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.45 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -515,10 +515,10 @@ void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
     for ( int idx=0; idx< wl_->size(); idx++ )
 	lognames.addIfNew( wl_->getLog(idx).name() );
     lognames.sort();
-    logsfld_->box()->empty();
+    logsfld_->box()->setEmpty();
     logsfld_->box()->addItem("None");
     logsfld_->box()->addItems( lognames );
-    filllogsfld_->box()->empty();
+    filllogsfld_->box()->setEmpty();
     filllogsfld_->box()->addItems( lognames );
 }
 

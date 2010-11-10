@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.81 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.82 2010-11-10 15:26:43 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -293,7 +293,7 @@ void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
 {
     if ( !attribfld_ ) return;
 
-    attribfld_->empty();
+    attribfld_->setEmpty();
     for ( int idx=0; idx<strs.size(); idx++)
 	attribfld_->addItem( strs[idx]->buf() );
     attribfld_->selectAll( false );

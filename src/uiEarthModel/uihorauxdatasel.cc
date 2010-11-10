@@ -4,7 +4,7 @@
  *  DATE     : April 2010
 -*/
 
-static const char* rcsID = "$Id: uihorauxdatasel.cc,v 1.3 2010-04-28 03:44:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihorauxdatasel.cc,v 1.4 2010-11-10 15:26:43 cvsbert Exp $";
 
 
 #include "uihorauxdatasel.h"
@@ -96,7 +96,7 @@ void		selChg( CallBacker* )
 		    int oldidx =  auxinfo_->mids_[hidx]!=selmid_ ? 0 : auxidx_;
 		    selmid_ = auxinfo_->mids_[hidx];
 
-		    datalistfld_->empty();
+		    datalistfld_->setEmpty();
 		    datalistfld_->addItems( auxinfo_->auxdatanms_[hidx] ); 
 		    if ( oldidx>=0 )
 			datalistfld_->setCurrentItem( oldidx );

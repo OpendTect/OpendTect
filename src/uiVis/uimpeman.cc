@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.201 2010-10-21 10:09:28 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.202 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uimpeman.h"
 
@@ -991,7 +991,7 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
 #define mAddSeedConModeItems( seedconmodefld, typ ) \
     if ( emobj && emobj->getTypeStr() == EM##typ##TranslatorGroup::keyword() ) \
     { \
-	seedconmodefld->empty(); \
+	seedconmodefld->setEmpty(); \
 	for ( int idx=0; idx<typ##SeedPicker::nrSeedConnectModes(); idx++ ) \
 	{ \
 	    seedconmodefld-> \
@@ -1009,7 +1009,7 @@ void uiMPEMan::updateSeedPickState()
     
     toolbar->setSensitive( seedidx, seedpicker );
     seedconmodefld->setSensitive( seedpicker );
-    seedconmodefld->empty();
+    seedconmodefld->setEmpty();
 
     if ( !seedpicker )
     {
@@ -1342,7 +1342,7 @@ void uiPropertiesDialog::colMapperChange( CallBacker* )
 void uiPropertiesDialog::updateAttribNames()
 {
     BufferString oldsel = attribfld_->text();
-    attribfld_->empty();
+    attribfld_->setEmpty();
     attribfld_->addItem( mpeman_->sKeyNoAttrib() );
 
     ObjectSet<const Attrib::SelSpec> attribspecs;

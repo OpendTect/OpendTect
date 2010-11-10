@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.35 2010-07-26 09:53:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.36 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -112,8 +112,8 @@ uiWellAttribCrossPlot::~uiWellAttribCrossPlot()
 
 void uiWellAttribCrossPlot::initWin( CallBacker* )
 {
-    wellsfld_->empty(); logsfld_->empty();
-    topmarkfld_->empty(); botmarkfld_->empty();
+    wellsfld_->setEmpty(); logsfld_->setEmpty();
+    topmarkfld_->setEmpty(); botmarkfld_->setEmpty();
     deepErase( wellobjs_ );
 
     Well::InfoCollector wic;
@@ -160,7 +160,7 @@ void uiWellAttribCrossPlot::setDescSet( const Attrib::DescSet& newads )
 
 void uiWellAttribCrossPlot::adsChg()
 {
-    attrsfld_->empty();
+    attrsfld_->setEmpty();
 
     Attrib::SelInfo attrinf( &ads_, 0, ads_.is2D() );
     for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )

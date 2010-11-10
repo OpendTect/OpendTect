@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.19 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.20 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uigmtcontour.h"
 
@@ -175,7 +175,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
     emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
     cs.hrg = emhs;
     subselfld_->setInput( cs );
-    attribfld_->empty();
+    attribfld_->setEmpty();
     attribfld_->addItem( ODGMT::sKeyZVals );
 
     BufferStringSet attrnms;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.149 2010-08-27 18:03:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.150 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -321,7 +321,7 @@ void uiIOObjSelGrp::setCur( int curidx )
 
 void uiIOObjSelGrp::fillListBox()
 {
-    listfld_->empty();
+    listfld_->setEmpty();
     listfld_->addItems( dispnms_ );
 }
 

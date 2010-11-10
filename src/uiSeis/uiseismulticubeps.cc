@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.10 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.11 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiseismulticubeps.h"
 #include "uilistbox.h"
@@ -175,7 +175,7 @@ void uiSeisMultiCubePS::fillBox( uiListBox* lb )
 {
     const ObjectSet<uiSeisMultiCubePSEntry>& es
 		= lb == cubefld_ ? entries_ : selentries_;
-    lb->empty();
+    lb->setEmpty();
     for ( int idx=0; idx<es.size(); idx++ )
 	lb->addItem( es[idx]->ioobj_->name() );
 }

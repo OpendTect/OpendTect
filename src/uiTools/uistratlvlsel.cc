@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.22 2010-09-27 11:05:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.23 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uistratlvlsel.h"
 
@@ -116,7 +116,7 @@ void uiStratLevelSel::selCB( CallBacker* )
 void uiStratLevelSel::chgCB( CallBacker* )
 {
     const Strat::Level* cursel = selected();
-    selfld_->empty();
+    selfld_->setEmpty();
     BufferStringSet bss; getLvlNms( bss );
 
     selfld_->addItems( bss );

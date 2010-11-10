@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.139 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.140 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -485,7 +485,7 @@ void uiSeisMMProc::updateCurMachs()
     const int newsz = machs.size();
 
     int curit = oldsz ? usedmachfld->box()->currentItem() : -1;
-    usedmachfld->box()->empty();
+    usedmachfld->box()->setEmpty();
     if ( newsz )
     {
 	usedmachfld->box()->addItems( machs );

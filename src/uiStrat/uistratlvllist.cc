@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvllist.cc,v 1.8 2010-10-11 11:36:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvllist.cc,v 1.9 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uistratlvllist.h"
 
@@ -103,7 +103,7 @@ void uiStratLvlList::removeLvl( CallBacker* cb )
 
 void uiStratLvlList::fill( CallBacker* )
 {
-    box()->empty();
+    box()->setEmpty();
     BufferStringSet lvlnms;
     TypeSet<Color> lvlcolors;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.50 2010-06-04 10:50:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.51 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -203,7 +203,7 @@ void uiFlatViewDataDispPropTab::setDataNames()
     if ( !showdisplayfield_ )
 	return;
 
-    dispfld_->empty();
+    dispfld_->setEmpty();
     dispfld_->addItem( "No" );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsimple.cc,v 1.17 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselsimple.cc,v 1.18 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiselsimple.h"
 #include "uilabel.h"
@@ -53,7 +53,7 @@ void uiSelectFromList::filtChg( CallBacker* )
     if ( !filt || !*filt ) filt = "*";
 
     BufferString cursel( selfld_->getText() );
-    selfld_->empty();
+    selfld_->setEmpty();
     GlobExpr ge( filt );
     for ( int idx=0; idx<setup_.items_.size(); idx++ )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.57 2010-10-28 11:49:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.58 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -131,7 +131,7 @@ void uiComboBox::setPixmap( const ioPixmap& pixmap, int index )
 }
 
 
-void uiComboBox::empty()
+void uiComboBox::setEmpty()
 { body_->QComboBox::clear(); }
 
 
@@ -221,7 +221,7 @@ bool uiComboBox::update_( const DataInpSpec& spec )
     mDynamicCastGet(const StringListInpSpec*,spc,&spec)
     if ( !spc ) { return false; }
 
-    empty();
+    setEmpty();
     int cursel = spc->getIntValue();
     if ( cursel >= 0 && cursel < spc->strings().size() )
     {

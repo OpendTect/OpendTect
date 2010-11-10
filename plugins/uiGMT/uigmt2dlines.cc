@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.11 2010-03-17 21:20:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.12 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uigmt2dlines.h"
 
@@ -94,7 +94,7 @@ void uiGMT2DLinesGrp::reset()
 {
     inpfld_->clear();
     namefld_->clear();
-    linelistfld_->empty();
+    linelistfld_->setEmpty();
     lsfld_->setStyle( LineStyle() );
     labelfld_->setChecked( false );
     labelfontfld_->setValue( 10 );
@@ -113,7 +113,7 @@ void uiGMT2DLinesGrp::objSel( CallBacker* )
     SeisIOObjInfo info( *ctio_.ioobj );
     BufferStringSet linenms;
     info.getLineNames( linenms );
-    linelistfld_->empty();
+    linelistfld_->setEmpty();
     linelistfld_->addItems( linenms );
 }
 

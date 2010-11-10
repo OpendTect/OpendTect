@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistaticsdesc.cc,v 1.4 2010-04-28 03:44:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uistaticsdesc.cc,v 1.5 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uistaticsdesc.h"
 
@@ -78,7 +78,7 @@ void uiStaticsDesc::updateFlds( CallBacker* )
 	constantvelfld_->display( false );
 	horattribfld_->display( true );
 
-	horattribfld_->box()->empty();
+	horattribfld_->box()->setEmpty();
 	horattribfld_->box()->addItems( attrnms );
     }
 }

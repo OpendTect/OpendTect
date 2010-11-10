@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.3 2010-09-16 12:36:14 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.4 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiempreloaddlg.h"
 
@@ -116,7 +116,7 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
     uiTaskRunner tr( this );
     hpl.load( selmids, &tr );
     uiMSG().message( hpl.errorMsg() );
-    listfld_->empty();
+    listfld_->setEmpty();
     listfld_->addItems( hpl.getPreloadedNames() );
     listfld_->setCurrentItem( 0 );
 
@@ -139,7 +139,7 @@ void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
 
     EM::HorizonPreLoader& hpl = EM::HPreL();
     hpl.unload( selhornms );
-    listfld_->empty();
+    listfld_->setEmpty();
     const BufferStringSet& names = hpl.getPreloadedNames();
     if ( !names.isEmpty() )
 	listfld_->addItems( names );
@@ -228,7 +228,7 @@ void uiHorizonPreLoadDlg::loadSavedHorizon( const TypeSet<MultiID>& savedmids )
     EM::HorizonPreLoader& hpl = EM::HPreL();
     hpl.load( savedmids, &tr );
     uiMSG().message( hpl.errorMsg() );
-    listfld_->empty();
+    listfld_->setEmpty();
     BufferStringSet hornms = hpl.getPreloadedNames();
     if ( !hornms.isEmpty() )
 	listfld_->addItems( hornms );

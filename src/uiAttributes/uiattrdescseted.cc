@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.104 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.105 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -580,7 +580,7 @@ void uiAttribDescSetEd::newList( int newcur )
     updateUserRefs();
     // Fix for continuous call during re-build of list
     updating_fields_ = true;
-    attrlistfld_->empty();
+    attrlistfld_->setEmpty();
     attrlistfld_->addItems( userattrnames_ );
     updating_fields_ = false;	
     if ( newcur < 0 ) newcur = 0;
@@ -1125,7 +1125,7 @@ bool uiAttribDescSetEd::offerSetSave()
 
 void uiAttribDescSetEd::changeInput( CallBacker* )
 {
-    attrlistfld_->empty();
+    attrlistfld_->setEmpty();
     updateFields();
     replaceStoredAttr();
     newList(-1);

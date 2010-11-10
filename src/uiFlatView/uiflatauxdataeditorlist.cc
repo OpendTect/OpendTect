@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatauxdataeditorlist.cc,v 1.13 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatauxdataeditorlist.cc,v 1.14 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiflatauxdataeditorlist.h"
 
@@ -71,7 +71,7 @@ void uiFlatViewAuxDataEditorList::updateList( CallBacker* )
 
     NotifyStopper block( listbox_->selectionChanged );
 
-    listbox_->empty();
+    listbox_->setEmpty();
     listboxeditors_.erase();
     listboxids_.erase();
 

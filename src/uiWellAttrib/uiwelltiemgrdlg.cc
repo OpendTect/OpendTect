@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.35 2010-10-19 12:57:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.36 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -172,7 +172,7 @@ void uiTieWinMGRDlg::delWins()
 
 static void fillLogNms( uiComboBox* fld, const BufferStringSet& nms )
 {
-    fld->empty();
+    fld->setEmpty();
     fld->addItem( sKeyPlsSel );
     fld->addItems( nms );
 }
@@ -207,10 +207,10 @@ void uiTieWinMGRDlg::selChg( CallBacker* )
     if ( typefld_ )
 	is2d_ = !typefld_->getIntValue();
     if ( is2d_ && seis3dfld_ )
-	seis3dfld_->empty();
+	seis3dfld_->setEmpty();
     else if( !is2d_ && seis2dfld_ ) 
     {
-	if ( seis2dfld_ ) seis2dfld_->empty();
+	if ( seis2dfld_ ) seis2dfld_->setEmpty();
 	if ( seislinefld_ ) seislinefld_->setInput("");
     }
 

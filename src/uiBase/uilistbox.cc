@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.111 2010-10-06 13:42:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.112 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uilistbox.h"
 
@@ -438,7 +438,7 @@ Color uiListBox::getColor( int index ) const
 }
 
 
-void uiListBox::empty()
+void uiListBox::setEmpty()
 { body_->QListWidget::clear(); }
 
 void uiListBox::clearSelection()

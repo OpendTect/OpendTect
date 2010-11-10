@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.91 2010-10-14 09:58:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.92 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -513,7 +513,7 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     const char* res = wdai.getLogInfo( lasfnm, lfi );
     if ( res ) { uiMSG().error( res ); return; }
 
-    logsfld->box()->empty();
+    logsfld->box()->setEmpty();
     logsfld->box()->addItems( lfi.lognms );
     logsfld->box()->selectAll( true );
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiunitsel.cc,v 1.1 2010-02-23 10:16:02 cvsraman Exp $";
+static const char* rcsID = "$Id: uiunitsel.cc,v 1.2 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiunitsel.h"
 
@@ -58,7 +58,7 @@ void uiUnitSel::setPropType( PropertyRef::StdType typ )
 
 void uiUnitSel::update()
 {
-    inpfld_->empty();
+    inpfld_->setEmpty();
     units_.erase();
     UoMR().getRelevant( proptype_, units_ );
     for ( int idx=0; idx<units_.size(); idx++ )

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.20 2010-06-21 14:40:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.21 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uicreatepicks.h"
 
@@ -253,7 +253,7 @@ void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
     BufferString* bs = 0;
     if ( idx >= 0 ) bs = hornms.remove( idx );
 
-    tosel->empty();
+    tosel->setEmpty();
     tosel->addItem( "Select" );
     tosel->addItems( hornms );
     tosel->setCurrentItem( curnm );
@@ -276,7 +276,7 @@ void uiGenRandPicks2D::geomSel( CallBacker* cb )
 void uiGenRandPicks2D::lineSetSel( CallBacker* cb )
 {
     const int setidx = linesetfld_->getIntValue();
-    linenmfld_->box()->empty();
+    linenmfld_->box()->setEmpty();
     if ( setidx<0 || setidx>=linenms_.size() ) return;
 
     linenmfld_->box()->addItems( linenms_[setidx] );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.19 2010-09-29 02:22:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.20 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uihorizonrelations.h"
 
@@ -87,7 +87,7 @@ void uiHorizonRelationsDlg::readHorizonCB( CallBacker* )
 
 void uiHorizonRelationsDlg::fillRelationField( const BufferStringSet& strs )
 {
-    relationfld_->box()->empty();
+    relationfld_->box()->setEmpty();
     relationfld_->box()->addItems( strs );
     crossbut_->setSensitive( strs.size() > 1 );
     waterbut_->setSensitive( strs.size() > 1 );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.50 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.51 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -92,7 +92,7 @@ void uiAttribCrossPlot::setDescSet( const Attrib::DescSet& newads )
 
 void uiAttribCrossPlot::adsChg()
 {
-    attrsfld_->empty();
+    attrsfld_->setEmpty();
 
     Attrib::SelInfo attrinf( &ads_, 0, ads_.is2D() );
     for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )

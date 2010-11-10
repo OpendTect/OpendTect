@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.11 2010-09-29 02:25:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.12 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -227,7 +227,7 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
 
 void uiExport2DHorizon::horChg( CallBacker* cb )
 {
-    linenmfld_->empty();
+    linenmfld_->setEmpty();
     const int horidx = horselfld_->currentItem();
     if ( horidx < 0 || horidx > hinfos_.size() )
 	return;

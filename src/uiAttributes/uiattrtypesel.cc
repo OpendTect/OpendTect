@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.6 2010-08-30 12:49:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.7 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiattrtypesel.h"
 #include "uiattrdesced.h"
@@ -53,17 +53,17 @@ void uiAttrTypeSel::clear()
 }
 
 
-void uiAttrTypeSel::empty()
+void uiAttrTypeSel::setEmpty()
 {
     clear();
-    grpfld->empty();
-    attrfld->empty();
+    grpfld->setEmpty();
+    attrfld->setEmpty();
 }
 
 
 void uiAttrTypeSel::fill( BufferStringSet* selgrps )
 {
-    empty();
+    setEmpty();
     const int forbiddendomtyp = (int)(SI().zIsTime() ? uiAttrDescEd::Depth
 	    					     : uiAttrDescEd::Time);
 
@@ -140,7 +140,7 @@ void uiAttrTypeSel::add( const char* grpnm, const char* attrnm )
 
 void uiAttrTypeSel::update()
 {
-    grpfld->empty(); attrfld->empty();
+    grpfld->setEmpty(); attrfld->setEmpty();
     const int nrgrps = grpnms_.size();
 
     delete [] idxs_;
@@ -169,7 +169,7 @@ void uiAttrTypeSel::updAttrNms( const char* selattrnm )
     if ( !selattrnm || !*selattrnm )
 	curattrnm = attrfld->text();
 
-    attrfld->empty();
+    attrfld->setEmpty();
     const int grpidx = curGrpIdx();
     if ( grpidx < 0 )
 	return;

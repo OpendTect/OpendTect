@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.60 2010-10-20 15:14:37 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.61 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -313,7 +313,7 @@ void uiAttrSelDlg::filtChg( CallBacker* c )
     if ( !storoutfld_ || !filtfld_ ) return;
 
     attrinf_->fillStored( filtfld_->text() );
-    storoutfld_->empty();
+    storoutfld_->setEmpty();
     storoutfld_->addItems( attrinf_->ioobjnms_ );
     if ( attrinf_->ioobjnms_.size() )
 	storoutfld_->setCurrentItem( 0 );
@@ -378,7 +378,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     if ( !transl ) return;
     BufferStringSet compnms;
     transl->getComponentNames( compnms );
-    compfld_->box()->empty();
+    compfld_->box()->setEmpty();
     compfld_->box()->addItems( compnms );
     compfld_->display( transl->componentInfo().size()>1 );
 }

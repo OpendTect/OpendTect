@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.37 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.38 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -271,7 +271,7 @@ void uiMadagascarMain::openFlow( CallBacker* )
 	ctio_.setObj( dlg.ioObj()->clone() );
 	BufferString emsg;
 	deepErase( procflow_ );
-	procsfld_->empty();
+	procsfld_->setEmpty();
 	if ( !ODMadProcFlowTranslator::retrieve(procflow_,ctio_.ioobj,emsg) )
 	    uiMSG().error( emsg );
 	else

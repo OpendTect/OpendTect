@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginman.cc,v 1.28 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipluginman.cc,v 1.29 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uipluginman.h"
 #include "uipluginsel.h"
@@ -56,7 +56,7 @@ uiPluginMan::uiPluginMan( uiParent* p )
 
 void uiPluginMan::fillList()
 {
-    listfld->empty();
+    listfld->setEmpty();
     const ObjectSet<PluginManager::Data>& lst = PIM().getData();
     BufferStringSet loaded, notloaded;
 

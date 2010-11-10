@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultcomputils.cc,v 1.9 2010-05-18 12:52:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uimultcomputils.cc,v 1.10 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uimultcomputils.h"
 #include "bufstringset.h"
@@ -79,7 +79,7 @@ void uiMultCompSel::prepareDlg()
 {
     if ( dlg_ )
     {
-	dlg_->outlistfld_->box()->empty();
+	dlg_->outlistfld_->box()->setEmpty();
 	dlg_->outlistfld_->box()->addItems( compnms_ );
     }
     else

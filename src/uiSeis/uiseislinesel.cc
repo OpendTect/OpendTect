@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.40 2010-08-12 10:39:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.41 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiseislinesel.h"
 
@@ -203,7 +203,7 @@ void uiSeis2DLineNameSel::setInput( const char* nm )
 void uiSeis2DLineNameSel::setLineSet( const MultiID& ky )
 {
     lsid_ = ky;
-    fld_->empty();
+    fld_->setEmpty();
     if ( !forread_ ) fld_->addItem( "" );
     addLineNames( ky );
 }
@@ -312,7 +312,7 @@ void uiSeis2DMultiLineSelDlg::lineSetSel( CallBacker* )
     SeisIOObjInfo oinf( lsetobj );
     BufferStringSet lnms;
     oinf.getLineNames( lnms );   
-    lnmsfld_->empty();
+    lnmsfld_->setEmpty();
     maxtrcrgs_.erase();
     trcrgs_.erase();
     CubeSampling cs;

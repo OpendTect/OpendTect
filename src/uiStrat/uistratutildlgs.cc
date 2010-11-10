@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.43 2010-11-10 14:35:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.44 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -192,7 +192,7 @@ uiStratLithoBox::~uiStratLithoBox()
 
 void uiStratLithoBox::fillLiths( CallBacker* )
 {
-    empty();
+    setEmpty();
     BufferStringSet nms;
     const Strat::LithologySet& lithos = Strat::RT().lithologies();
     for ( int idx=0; idx<lithos.size(); idx++ )

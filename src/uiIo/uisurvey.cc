@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.125 2010-10-05 11:03:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.126 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -473,7 +473,7 @@ void uiSurvey::updateSvyList()
 {
     mkDirList();
     if ( dirlist_.isEmpty() ) updateInfo(0);
-    listbox_->empty();
+    listbox_->setEmpty();
     listbox_->addItems( dirlist_ );
 }
 

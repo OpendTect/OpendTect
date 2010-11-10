@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabimport.cc,v 1.8 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicoltabimport.cc,v 1.9 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uicoltabimport.h"
 
@@ -59,7 +59,7 @@ const char* uiColTabImport::getCurrentSelColTab() const
 
 void uiColTabImport::usrSel( CallBacker* )
 {
-    listfld_->box()->empty();
+    listfld_->box()->setEmpty();
 
     FilePath fp( homedirfld_->fileName() );
     if ( !File::exists(fp.fullPath()) )

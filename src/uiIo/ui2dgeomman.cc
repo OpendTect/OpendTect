@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.4 2010-10-06 08:51:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.5 2010-11-10 15:26:43 cvsbert Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -74,7 +74,7 @@ void ui2DGeomManageDlg::lineSetSelCB( CallBacker* )
     BufferStringSet linenames;
     PosInfo::POS2DAdmin().setCurLineSet( linesetfld_->getText() );
     PosInfo::POS2DAdmin().getLines( linenames );
-    linenamefld_->empty();
+    linenamefld_->setEmpty();
     linenamefld_->addItems( linenames );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.36 2010-10-28 11:09:08 cvsbert Exp $
+ RCS:           $Id: uicombobox.h,v 1.37 2010-11-10 15:26:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
 
     bool		isPresent(const char*) const;
 
-    void		empty();
+    void		setEmpty();
     int			size() const;
     inline bool		isEmpty() const		{ return size() == 0; }
 
@@ -82,7 +82,7 @@ protected:
 
     virtual void        setvalue_( int i )	{ setCurrentItem(i); }
     virtual int		getvalue_() const	{ return currentItem(); }
-    virtual bool	clear_()		{ empty(); return true; }
+    virtual bool	clear_()		{ setEmpty(); return true; }
 
     virtual bool	notifyUpdateRequested_(const CallBack&) {return false;}
     virtual bool	notifyValueChanging_(const CallBack&)	{return false;}

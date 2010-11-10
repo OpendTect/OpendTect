@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.16 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.17 2010-11-10 15:26:43 cvsbert Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -52,7 +52,7 @@ static void comboCopy( const uiComboBox& from, uiComboBox& to )
 	return;
 
     to.editTextChanged.disable();
-    to.empty();
+    to.setEmpty();
     for ( int idx=0; idx<from.size(); idx++ )
 	to.addItem( from.textOfItem(idx) );
 
@@ -986,8 +986,8 @@ void uiODFaultToolMan::settingsClosedCB( CallBacker* )
 
 void uiODFaultToolMan::surveyChg( CallBacker* )
 {
-    manfaultoutput_->getObjSel()->inpBox()->empty();
-    manfssoutput_->getObjSel()->inpBox()->empty();
+    manfaultoutput_->getObjSel()->inpBox()->setEmpty();
+    manfssoutput_->getObjSel()->inpBox()->setEmpty();
 
     if ( settingsdlg_ )
     {
@@ -995,7 +995,7 @@ void uiODFaultToolMan::surveyChg( CallBacker* )
 				       *manfssoutput_->getObjSel()->inpBox() );
     }
 
-    tboutputcombo_->empty();
+    tboutputcombo_->setEmpty();
     outputComboChg( 0 );
 }
 

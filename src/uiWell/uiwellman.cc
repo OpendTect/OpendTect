@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.67 2010-11-09 07:43:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.68 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -164,7 +164,7 @@ void uiWellMan::getCurrentWell()
 
 void uiWellMan::fillLogsFld()
 {
-    logsfld_->empty();
+    logsfld_->setEmpty();
     if ( !currdr_ ) return;
 
     BufferStringSet lognms;

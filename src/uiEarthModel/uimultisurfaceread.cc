@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.27 2010-04-28 03:44:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.28 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uimultisurfaceread.h"
 
@@ -119,7 +119,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 	}
 
 	fillRangeFld( hs );
-	sectionfld_->box()->empty();
+	sectionfld_->box()->setEmpty();
 	return;
     }
 

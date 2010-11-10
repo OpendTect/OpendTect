@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.22 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.23 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -102,7 +102,7 @@ void uiSeisPreLoadMgr::fullUpd( CallBacker* )
 
 void uiSeisPreLoadMgr::fillList()
 {
-    listfld_->empty();
+    listfld_->setEmpty();
     StreamProvider::getPreLoadedIDs( ids_ );
     if ( ids_.isEmpty() ) return;
 
@@ -310,7 +310,7 @@ void lsSel( CallBacker* )
 	attrnms_.addIfNew( ls.attribute(idx) );
     }
 
-    linesel_->empty(); attrsel_->empty();
+    linesel_->setEmpty(); attrsel_->setEmpty();
     linesel_->addItems( lnms_ ); attrsel_->addItems( attrnms_ );
     linesel_->selectAll(); attrsel_->selectAll();
 }
@@ -406,7 +406,7 @@ uiSeisPreLoadMgrPS2DSel( uiParent* p, CtxtIOObj& ctio )
 
 void dsSel( CallBacker* )
 {
-    lnmsfld_->empty();
+    lnmsfld_->setEmpty();
     selGrp()->processInput();
     if ( !ioObj() ) return;
 

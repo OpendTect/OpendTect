@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodsysadmcoltabs.cc,v 1.2 2010-04-23 05:12:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodsysadmcoltabs.cc,v 1.3 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uiodsysadmcoltabs.h"
 
@@ -49,7 +49,7 @@ uiODSysAdmColorTabs::~uiODSysAdmColorTabs()
 
 void uiODSysAdmColorTabs::fillList( bool setcur )
 {
-    listfld->empty();
+    listfld->setEmpty();
     BufferStringSet seqnames;
     ColTab::SM().getSequenceNames( seqnames );
     seqnames.sort();

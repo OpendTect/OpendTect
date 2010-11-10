@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.38 2010-06-04 05:50:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.39 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uicolortable.h"
 
@@ -47,7 +47,7 @@ uiColorTableSel::uiColorTableSel( uiParent* p, const char* nm )
 
 void uiColorTableSel::update()
 {
-    empty();
+    setEmpty();
     BufferStringSet seqnames;
     ColTab::SM().getSequenceNames( seqnames );
     seqnames.sort();

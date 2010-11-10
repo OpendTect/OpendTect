@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.23 2010-10-05 11:30:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.24 2010-11-10 15:26:43 cvsbert Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -172,7 +172,7 @@ void uiGMTMainWin::newFlow( CallBacker* )
 
     filefld_->clear();
     pars_.erase();
-    flowfld_->empty();
+    flowfld_->setEmpty();
     basemapgrp_->reset();
     for ( int idx=0; idx<overlaygrps_.size(); idx++ )
 	overlaygrps_[idx]->reset();
@@ -487,7 +487,7 @@ bool uiGMTMainWin::usePar( const IOPar& par )
     if ( basemappar )
 	basemapgrp_->usePar( *basemappar );
 
-    flowfld_->empty();
+    flowfld_->setEmpty();
     pars_.erase();
     while ( true )
     {
