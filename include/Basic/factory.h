@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.20 2010-11-09 22:44:50 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.21 2010-11-10 19:28:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,8 +221,10 @@ protected:
 
 #define mDefaultFactoryInstanciationBase( keywrd, usernm ) \
     const char*		factoryKeyword() const { return sFactoryKeyword(); } \
+    const char*		factoryDisplayName() const \
+					{ return sFactoryDisplayName(); } \
     static const char*	sFactoryKeyword() { return keywrd; } \
-    static const char*  sUserName() { return usernm; } \
+    static const char*  sFactoryDisplayName() { return usernm; } \
     static void		initClass();
 
 #define mDefaultFactoryInstantiation( baseclss, clss, keywrd, usernm ) \
@@ -328,6 +330,7 @@ mGlobal ::Factory<T>& funcname()
 
 #define mDefineFactoryInClass( T, funcname ) \
 static ::Factory<T>& funcname(); \
+virtual const char* factoryDisplayName() const { return factoryKeyword(); } \
 virtual const char* factoryKeyword() const { return 0; }
 
 
@@ -345,6 +348,7 @@ mGlobal ::Factory1Param<T,P>& funcname()
 
 #define mDefineFactory1ParamInClass( T, P, funcname ) \
 static ::Factory1Param<T,P>& funcname(); \
+virtual const char* factoryDisplayName() const { return factoryKeyword(); } \
 virtual const char* factoryKeyword() const { return 0; }
 
 
@@ -363,6 +367,7 @@ mGlobal ::Factory2Param<T,P0,P1>& funcname()
 
 #define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
 static ::Factory2Param<T,P0,P1>& funcname(); \
+virtual const char* factoryDisplayName() const { return factoryKeyword(); } \
 virtual const char* factoryKeyword() const { return 0; }
 
 
@@ -381,6 +386,7 @@ mGlobal ::Factory3Param<T,P0,P1,P2>& funcname()
 
 #define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \
 static ::Factory3Param<T,P0,P1,P2>& funcname(); \
+virtual const char* factoryDisplayName() const { return factoryKeyword(); } \
 virtual const char* factoryKeyword() const { return 0; }
 
 
