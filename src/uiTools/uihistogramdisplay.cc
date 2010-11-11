@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.19 2010-10-28 07:28:36 cvsbert Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.20 2010-11-11 05:50:01 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ static int getNrIntervals( int nrpts )
     else if ( res < 20 ) res = 20;
     else if ( res < 50 ) res = 50;
     else res = 100;
+
     return res;
 }
 
@@ -71,13 +72,19 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 	mDynamicCastGet(const ::CubeDataPack*,cdp,datapack);
 	const Array3D<float>* arr3d = cdp ? &cdp->data() : 0;
 	if ( !arr3d ) return false;
+
 	setData( arr3d->getData(), arr3d->info().getTotalSz() );
     }
     else if ( dmid == DataPackMgr::FlatID() )
     {
 	mDynamicCastGet(const FlatDataPack*,fdp,datapack);
-	if ( !fdp ) return false;
-	setData( &fdp->data() );
+	mDynamicCastGet(const MapDataPack*,mdp,datapack);
+	if ( mdp )
+	    setData( &mdp->rawData() );
+	else if( fdp )
+	    setData( &fdp->data() );
+	else
+	    return false;
     }
     else 
 	return false;
@@ -118,7 +125,8 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 	for ( int idx1=0; idx1<sz2d1; idx1++ )
 	{
 	    const float val = array->get( idx0, idx1 );
-	    if ( mIsUdf(val) ) continue ;
+	    if ( mIsUdf(val) ) continue;
+
 	    rc_.addValue( array->get( idx0, idx1 ) );
 	}
     }
@@ -159,14 +167,18 @@ void uiHistogramDisplay::updateHistogram()
     float step = (max - min) / nrclasses_;
     if ( mIsZero(step,1e-6) )
 	step = 1;
+
     nrinpvals_ = 0;
     for ( int idx=0; idx<nrpts; idx++ )
     {
 	int seg = (int)((rc_.vals_[idx] - min) / step);
 	if ( seg < -1 || seg > nrclasses_ )
 	   { pErrMsg("Huh"); continue; }
+
 	if ( seg < 0 )			seg = 0;
+
 	if ( seg == nrclasses_ )	seg = nrclasses_ - 1;
+
 	histdata[seg] += 1; nrinpvals_++;
     }
 

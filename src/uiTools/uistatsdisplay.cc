@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.27 2009-10-08 04:54:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.28 2010-11-11 05:50:01 cvsnageswara Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -121,21 +121,46 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    if ( !arr3d ) return false;
 
 	    const float* array = arr3d->getData();
+	    if ( !array )
+		return false;
+
 	    for ( int idx=0; idx<arr3d->info().getTotalSz(); idx++ )
 	    {
 		const float val = array[idx];
 		if ( mIsUdf(val) ) continue ;
+
 		rc.addValue( array[idx] );
 	    }
 	}
 	else if ( dmid == DataPackMgr::FlatID() )
 	{
+	    const Array2D<float>* array = 0;
 	    mDynamicCastGet(const FlatDataPack*,fdp,datapack);
-	    if ( !fdp ) return false;
+	    mDynamicCastGet(const MapDataPack*,mdp,datapack);
+	    if ( mdp )
+		array = &mdp->rawData();
+	    else if ( fdp )
+		array = &fdp->data();
 
-	    const Array2D<float>* array = &fdp->data();
+	    if ( !array ) return false;
+
 	    if ( array->getData() )
 		 rc.addValues( array->info().getTotalSz(), array->getData() );
+	    else
+	    {
+		const int sz2d0 = array->info().getSize( 0 );
+		const int sz2d1 = array->info().getSize( 1 );
+		for ( int idx0=0; idx0<sz2d0; idx0++ )
+		{
+		    for ( int idx1=0; idx1<sz2d1; idx1++ )
+		    {
+			const float val = array->get( idx0, idx1 );
+			if ( mIsUdf(val) ) continue;
+
+			rc.addValue( array->get( idx0, idx1 ) );
+		    }
+		}
+	    }
 	}
 	    
 	setData( rc );
@@ -143,7 +168,6 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
     }
     
     setData( histgramdisp_->getRunCalc() );
-
     return true;
 }
 
@@ -172,10 +196,12 @@ void uiStatsDisplay::setData( const Stats::RunCalc<float>& rc )
 {
     if ( mPutCountInPlot() )
 	putN();
+
     if ( !minmaxfld_ ) return;
 
     if ( countfld_ )
 	countfld_->setValue( rc.count() );
+
     minmaxfld_->setValue( rc.min(), 0 );
     minmaxfld_->setValue( rc.max(), 1 );
     avgstdfld_->setValue( rc.average(), 0 );
@@ -216,6 +242,7 @@ uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
 	uiStatsDisplay* disp = new uiStatsDisplay( this, su );
 	if ( statnmcb_ )
 	    disp->attach( rightAlignedBelow, lblcb );
+
 	disps_ += disp;
 	disp->display( false );
     }
@@ -238,8 +265,10 @@ void uiStatsDisplayWin::dataChanged( CallBacker* )
 {
     if ( !statnmcb_ )
 	return;
+
     for ( int idx=0; idx<disps_.size(); idx++ )
 	disps_[idx]->display( false );
+
     showStat( statnmcb_->currentItem() );
 }
 

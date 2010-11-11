@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.18 2010-03-01 18:09:55 cvsyuancheng Exp $
+ RCS:		$Id: datapackbase.h,v 1.19 2010-11-11 05:50:01 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,6 +117,7 @@ public:
 				~MapDataPack();
 
     Array2D<float>&		data();
+    const Array2D<float>&	rawData() const	{ return *arr2d_; }
     FlatPosData&		posData();
     void			setDimNames(const char*,const char*,bool forxy);
     const char*			dimName( bool dim0 ) const;
