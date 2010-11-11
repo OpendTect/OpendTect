@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.454 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.455 2010-11-11 05:12:43 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -17,15 +17,17 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.454 2010-10-14 09:58:06 cv
 #include "coltabmapper.h"
 #include "flatview.h"
 #include "iopar.h"
-#include "oddirs.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
+#include "oddirs.h"
+#include "pixmap.h"
 #include "seisbuf.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
 #include "uiattribtransdlg.h"
+#include "uibutton.h"
 #include "uifiledlg.h"
 #include "uimaterialdlg.h"
 #include "uimenuhandler.h"
@@ -1243,14 +1245,41 @@ void uiVisPartServer::toHome( CallBacker* )
 { eventmutex_.lock(); sendEvent( evToHomePos() ); }
 
 
+class uiWorkAreaDlg : public uiDialog
+{
+public:
+uiWorkAreaDlg( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("Set work volume","","0.3.4"))
+{
+    selfld_ = new uiSelSubvol( this, false );
+    fullbut_ = new uiToolButton( this, "Extend to full survey",
+				 ioPixmap("exttofullsurv.png"),
+				 mCB(this,uiWorkAreaDlg,fullPush) );
+    fullbut_->setToolTip( "Set ranges to full survey" );
+    fullbut_->attach( rightOf, selfld_ );
+}
+
+void fullPush( CallBacker* )
+{
+    selfld_->setSampling( SI().sampling(false) );
+}
+
+bool acceptOK( CallBacker* )
+{
+    CubeSampling cs = selfld_->getSampling();
+    const_cast<SurveyInfo&>(SI()).setWorkRange( cs );
+    return true;
+}
+
+    uiSelSubvol*	selfld_;
+    uiToolButton*	fullbut_;
+};
+
+
 bool uiVisPartServer::setWorkingArea()
 {
-    uiDialog dlg( appserv().parent(), uiDialog::Setup("Set work volume",
-			"Specify work boundaries","0.3.4") );
-    uiSelSubvol* sel = new uiSelSubvol( &dlg, false );
+    uiWorkAreaDlg dlg( appserv().parent() );
     if ( !dlg.go() ) return false;
-    CubeSampling cs = sel->getSampling();
-    const_cast<SurveyInfo&>(SI()).setWorkRange( cs );
 
     TypeSet<int> sceneids;
     getChildIds( -1, sceneids );
