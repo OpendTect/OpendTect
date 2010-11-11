@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.26 2010-10-28 10:17:02 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.27 2010-11-11 07:03:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,8 @@ public:
     void		rotate(float angle);
     void		scale(float sx,float sy);
     void		scaleAroundXY(float sx,float sy,int x,int y);
-    void		setZValue(int);
+    void		setZValue(int); //<! z value decides the stacking order
+
     uiPoint		transformToScenePos(const uiPoint& itmpos) const;
     void		setItemIgnoresTransformations(bool);
     virtual uiRect	boundingRect() const;
@@ -95,6 +96,8 @@ public:
     void		add( uiGraphicsItem* itm )	{ (*this) += itm; }
     uiGraphicsItem*	get( int idx )			{ return (*this)[idx]; }
     const uiGraphicsItem* get( int idx ) const		{ return (*this)[idx]; }
+
+    void		setZValue(int); //<! z value decides the stacking order
 };
 
 

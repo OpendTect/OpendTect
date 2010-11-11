@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.28 2010-10-28 10:17:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.29 2010-11-11 07:03:52 cvsnanne Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -103,8 +103,8 @@ void uiGraphicsItem::scaleAroundXY( float sx, float sy, int x, int y )
 	   			  .scale(sx,sy).translate(-x,-y) );
 }
 
-void uiGraphicsItem::setZValue( int x )
-{ qgraphicsitem_->setZValue( x ); }
+void uiGraphicsItem::setZValue( int zval )
+{ qgraphicsitem_->setZValue( zval ); }
 
 
 uiPoint uiGraphicsItem::transformToScenePos( const uiPoint& pt ) const
@@ -187,6 +187,17 @@ void uiGraphicsItem::setCursor( const MouseCursor& cursor )
     uiCursorManager::fillQCursor( cursor, qcursor );
     qgraphicsitem_->setCursor( qcursor );
 }
+
+
+void uiGraphicsItemSet::setZValue( int zval )
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( (*this)[idx] )
+	    (*this)[idx]->setZValue( zval );
+    }
+}
+
 
 
 // +++++ uiGraphicsItemGroup +++++
