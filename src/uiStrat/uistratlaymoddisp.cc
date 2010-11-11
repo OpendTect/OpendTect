@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.9 2010-11-10 15:28:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.10 2010-11-11 16:17:13 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -283,9 +283,11 @@ void uiStratLayerModelDisp::drawLevels()
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {
+	if ( iseq % dispeach_ ) continue;
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
 	const int idxof = seq.indexOf( *lvl );
 	if ( idxof < 0 ) continue;
+
 	const Strat::Layer& lay = *seq.layers()[idxof];
 	const int ypix = yax_->getPix( lay.zTop() );
 	const int xpix1 = xax_->getPix( iseq + dispeach_ * getRelX(0) );
@@ -293,6 +295,7 @@ void uiStratLayerModelDisp::drawLevels()
 	uiLineItem* it = scene().addItem(
 			new uiLineItem( xpix1, ypix, xpix2, ypix, true ) );
 	it->setPenStyle( LineStyle(LineStyle::Solid,2,lvl->color()) );
+	it->setZValue( 1 );
 	lvlitms_ += it;
     }
 }
