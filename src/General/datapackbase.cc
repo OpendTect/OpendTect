@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapackbase.cc,v 1.9 2010-04-09 08:09:24 cvsbert Exp $";
+static const char* rcsID = "$Id: datapackbase.cc,v 1.10 2010-11-11 06:08:00 cvsraman Exp $";
 
 #include "datapackbase.h"
 #include "arrayndimpl.h"
@@ -25,7 +25,10 @@ public:
     MapDataPackXYRotater( MapDataPack& mdp )
 	: mdp_( mdp )
     {
-	const float anglenorth = SI().computeAngleXInl();
+	float anglenorth = fabs( SI().computeAngleXInl() );
+	if ( anglenorth > M_PI_2 )
+	    anglenorth = M_PI - anglenorth;
+
 	const int inlsz = mdp_.arr2d_->info().getSize(0);
 	const int crlsz = mdp_.arr2d_->info().getSize(1);
 	const float truelength = inlsz*cos(anglenorth) + crlsz*sin(anglenorth);
