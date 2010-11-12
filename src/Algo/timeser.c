@@ -9,7 +9,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: timeser.c,v 1.1 2010-11-12 10:17:54 cvsbert Exp $";
+static const char* rcsID = "$Id: timeser.c,v 1.2 2010-11-12 14:44:51 cvsbert Exp $";
 
 
 #include "timeser.h"
@@ -148,9 +148,9 @@ void BFlowpass( int npoles, float f3db,
 }
 
 
-void AntiAlias( float frac, int n, const float* arrin, float* arrout )
+void AntiAlias( float frac, int sz, const float* arrin, float* arrout )
 {
-    int iwt, ival, width, hwidth, inpidx;
+    int iwt, ival, istart, width, hwidth, inpidx;
     float h;
     float* wts;
 
@@ -158,7 +158,7 @@ void AntiAlias( float frac, int n, const float* arrin, float* arrout )
     width = 2 * (1 / frac + .5);
     if ( width < 2 || frac >= 1 )
     {
-	memcpy( arrout, arrin, n * sizeof(float) );
+	memcpy( arrout, arrin, sz * sizeof(float) );
 	return;
     }
     if ( (width % 2) == 0 )
@@ -167,18 +167,18 @@ void AntiAlias( float frac, int n, const float* arrin, float* arrout )
 
     wts = mMALLOC(width,float);
     for ( iwt=0; iwt<width; iwt++ )
-	wts[iwt] = 2 * frac * (1 + cos( M_PI * iwt / hwidth - M_PI ));
+	wts[iwt] = 0.5 * frac * (1 + cos( M_PI * iwt / hwidth - M_PI ));
 
-    for ( ival=0; ival<n; ival++ )
+    for ( ival=0; ival<sz; ival++ )
     {
 	arrout[ival] = 0;
+	istart = ival - hwidth;
 	for ( iwt=0; iwt<width; iwt++ )
 	{
-	    inpidx = ival - hwidth + iwt;
-	    arrout[ival] +=
-		wts[iwt] *
-		(inpidx >= 0 ? (inpidx < n ? arrin[inpidx] : arrin[n-1])
-			     : arrin[0]);
+	    inpidx = istart + iwt;
+	    if ( inpidx < 0 ) inpidx = 0;
+	    if ( inpidx >= sz ) inpidx = sz - 1;
+	    arrout[ival] += wts[iwt] * arrin[inpidx];
 	}
     }
 
