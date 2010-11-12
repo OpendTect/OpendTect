@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2007
- RCS:           $Id: visvolrenscalarfield.h,v 1.12 2010-10-01 08:10:00 cvskarthika Exp $
+ RCS:           $Id: visvolrenscalarfield.h,v 1.13 2010-11-12 21:29:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 class TaskRunner;
 class SoGroup;
 class SoTransferFunction;
+class So2DTransferFunction;
 class SoVolumeData;
 class IOPar;
 template <class T> class Array3D;
@@ -79,6 +80,7 @@ protected:
 
     SoGroup*			root_;
     SoTransferFunction*		transferfunc_;
+    So2DTransferFunction*	transferfunc2d_;
     SoVolumeData*		voldata_;
     unsigned char		dummytexture_;
 
