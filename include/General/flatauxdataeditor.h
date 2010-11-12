@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.20 2010-10-13 13:37:12 cvsjaap Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.21 2010-11-12 21:10:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,8 +122,9 @@ public:
     void		setAddAuxData(int id);
     			//!<Added points will be added to this set.
     int			getAddAuxData() const;
-    			//!<\returns the id of the set that new points will
-			//!< 	     be added to
+    			/*!<\returns the id of the set that new points will
+			     be added to */
+    Notifier<AuxDataEditor>	addAuxDataChange;
     
     void		setView(const Rect& wv,
 	    			const Geom::Rectangle<int>& mouserect);

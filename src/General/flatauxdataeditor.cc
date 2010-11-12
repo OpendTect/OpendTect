@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.38 2010-10-13 13:37:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.39 2010-11-12 21:10:08 cvskris Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -32,6 +32,7 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , removeSelected( this )
     , movementStarted( this )
     , movementFinished( this )
+    , addAuxDataChange( this )
     , seldatasetidx_( -1 )
     , polygonsellst_( LineStyle::Solid, 1, Color( 255, 0, 0 ) )
     , polygonselrect_( true )
@@ -144,8 +145,13 @@ void AuxDataEditor::enablePolySel( int id, bool allowsel )
 
 void AuxDataEditor::setAddAuxData( int id )
 {
+    bool change = addauxdataid_!=id;
+    
     addauxdataid_ = id;
     if ( removeSelectionPolygon() ) viewer_.handleChange( Viewer::Annot );
+
+    if ( change )
+	addAuxDataChange.trigger();
 }
 
 
