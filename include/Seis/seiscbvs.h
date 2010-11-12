@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.43 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.44 2010-11-12 15:02:24 cvsbert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -76,9 +76,7 @@ protected:
 
     // Following variables are inited by commitSelections_
     bool*		compsel;
-    bool*		userawdata;
     unsigned char**	blockbufs;
-    unsigned char**	targetptrs;
     TraceDataInterpreter** storinterps;
     int			preseldatatype;
     VBrickSpec&		brickspec;

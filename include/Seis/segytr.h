@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.41 2010-09-23 13:07:34 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.42 2010-11-12 15:02:24 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -77,7 +77,6 @@ protected:
     bool		headerbufread_;
 
     // Following variables are inited by commitSelections
-    bool		userawdata_;
     unsigned char*	blockbuf_;
     ComponentData*	inpcd_;
     TargetComponentData* outcd_;
@@ -91,7 +90,7 @@ protected:
     virtual bool	writeTrc_(const SeisTrc&);
 
     bool		readTraceHeadBuffer();
-    bool		readDataToBuf(unsigned char*);
+    bool		readDataToBuf();
     bool		readData(SeisTrc&);
     bool		writeData(const SeisTrc&);
     virtual bool	readTapeHeader();

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.101 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.102 2010-11-12 15:02:24 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -60,7 +60,6 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, blockbuf_(0)
 	, headerbufread_(false)
 	, headerdone_(false)
-	, userawdata_(false)
 	, useinpsd_(false)
 	, inpcd_(0)
 	, outcd_(0)
@@ -493,7 +492,6 @@ bool SEGYSeisTrcTranslator::commitSelections_()
     if ( mIsEqual(outsd.start,insd.start,mDefEps)
       && mIsEqual(outsd.step,insd.step,mDefEps) )
 	useinpsd_ = true;
-    userawdata_ = inpcd_->datachar == outcd_->datachar;
 
     if ( blockbuf_ )
 	{ delete [] blockbuf_; blockbuf_ = 0; }
@@ -773,15 +771,14 @@ bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 }
 
 
-bool SEGYSeisTrcTranslator::readDataToBuf( unsigned char* tdptr )
+bool SEGYSeisTrcTranslator::readDataToBuf()
 {
     std::istream& strm = sConn().iStream();
     if ( samps.start > 0 )
 	StrmOper::seek( strm, samps.start * mBPS(inpcd_), std::ios::cur );
 
-    unsigned char* ptr = userawdata_ ? tdptr : blockbuf_;
     int rdsz = (samps.width()+1) *  mBPS(inpcd_);
-    if ( !sConn().doIO(ptr,rdsz) )
+    if ( !sConn().doIO(blockbuf_,rdsz) )
     {
 	if ( strm.gcount() != rdsz )
 	    addWarn( cSEGYWarnDataReadIncomplete, strm.gcount()
@@ -804,16 +801,9 @@ bool SEGYSeisTrcTranslator::readData( SeisTrc& trc )
     prepareComponents( trc, outnrsamples );
     headerbufread_ = headerdone_ = false;
 
-    unsigned char* tdptr = trc.data().getComponent(curcomp)->data();
-    if ( !readDataToBuf(tdptr) ) return false;
-
-    if ( !userawdata_ )
-    {
-	const unsigned char* ptr = blockbuf_;
-	// Convert data into other format
-	for ( int isamp=0; isamp<outnrsamples; isamp++ )
-	    trc.set( isamp, storinterp_->get(ptr,isamp), curcomp );
-    }
+    if ( !readDataToBuf() ) return false;
+    for ( int isamp=0; isamp<outnrsamples; isamp++ )
+	trc.set( isamp, storinterp_->get(blockbuf_,isamp), curcomp );
 
     if ( curtrcscale_ )
     {

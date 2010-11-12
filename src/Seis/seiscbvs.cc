@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.84 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.85 2010-11-12 15:02:24 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seistrc.h"
@@ -29,9 +29,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	, donext(false)
 	, forread(true)
 	, storinterps(0)
-	, userawdata(0)
 	, blockbufs(0)
-	, targetptrs(0)
 	, preseldatatype(0)
 	, rdmgr(0)
 	, wrmgr(0)
@@ -98,8 +96,6 @@ void CBVSSeisTrcTranslator::destroyVars( int nrcomps )
     delete [] blockbufs; blockbufs = 0;
     delete [] storinterps; storinterps = 0;
     delete [] compsel; compsel = 0;
-    delete [] userawdata; userawdata = 0;
-    delete [] targetptrs; targetptrs = 0;
 }
 
 
@@ -228,15 +224,10 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     }
 
     const int nrcomps = nrSelComps();
-    userawdata = new bool [nrcomps];
     storinterps = new TraceDataInterpreter* [nrcomps];
-    targetptrs = new unsigned char* [nrcomps];
     for ( int idx=0; idx<nrcomps; idx++ )
-    {
-	userawdata[idx] = inpcds[idx]->datachar == outcds[idx]->datachar;
 	storinterps[idx] = new TraceDataInterpreter(
                   forread ? inpcds[idx]->datachar : outcds[idx]->datachar );
-    }
 
     blockbufs = new unsigned char* [nrcomps];
     int bufsz = innrsamples + 1;
@@ -390,31 +381,18 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 	return false;
 
     prepareComponents( trc, outnrsamples );
-    const CBVSInfo& info = rdmgr->info();
-    const int nselc = nrSelComps();
-    for ( int iselc=0; iselc<nselc; iselc++ )
-    {
-	const BasicComponentInfo& ci = *info.compinfo[ selComp(iselc) ];
-	unsigned char* trcdata = trc.data().getComponent( iselc )->data();
-	targetptrs[iselc] = userawdata[iselc] ? trcdata : blockbufs[iselc];
-    }
-
-    if ( !rdmgr->fetch( (void**)targetptrs, compsel, &samps ) )
+    if ( !rdmgr->fetch( (void**)blockbufs, compsel, &samps ) )
     {
 	errmsg = rdmgr->errMsg();
 	return false;
     }
 
-    for ( int iselc=0; iselc<nselc; iselc++ )
+    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
-	if ( !userawdata[iselc] )
-	{
-	    // Convert data into other format
-	    for ( int isamp=0; isamp<outnrsamples; isamp++ )
-		trc.set( isamp,
-			 storinterps[iselc]->get( targetptrs[iselc], isamp ),
-			 iselc );
-	}
+	for ( int isamp=0; isamp<outnrsamples; isamp++ )
+	    trc.set( isamp,
+		     storinterps[iselc]->get( blockbufs[iselc], isamp ),
+		     iselc );
     }
 
     headerdone = false;
@@ -467,28 +445,21 @@ bool CBVSSeisTrcTranslator::startWrite()
 bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 {
     if ( !wrmgr )
-    { pErrMsg("initWrite not done or failed"); return false; }
+	{ pErrMsg("initWrite not done or failed"); return false; }
 
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
 	const unsigned char* trcdata
 	    		= trc.data().getComponent( selComp(iselc) )->data();
 	unsigned char* blockbuf = blockbufs[iselc];
-	targetptrs[iselc] = userawdata[iselc]
-	    		  ? const_cast<unsigned char*>( trcdata )
-			  : blockbuf;
-	if ( !userawdata[iselc] )
-	{
-	    // Convert data into other format
-	    int icomp = selComp(iselc);
-	    for ( int isamp=samps.start; isamp<=samps.stop; isamp++ )
-		storinterps[iselc]->put( blockbuf, isamp-samps.start,
-					 trc.get(isamp,icomp) );
-	}
+	int icomp = selComp(iselc);
+	for ( int isamp=samps.start; isamp<=samps.stop; isamp++ )
+	    storinterps[iselc]->put( blockbuf, isamp-samps.start,
+				     trc.get(isamp,icomp) );
     }
 
     trc.info().putTo( auxinf );
-    if ( !wrmgr->put( (void**)targetptrs ) )
+    if ( !wrmgr->put( (void**)blockbufs ) )
 	{ errmsg = wrmgr->errMsg(); return false; }
 
     return true;
