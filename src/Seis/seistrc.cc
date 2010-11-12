@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.49 2010-03-29 07:11:07 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.50 2010-11-12 11:35:36 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -78,13 +78,21 @@ void SeisTrc::setInterpolator( ValueSeriesInterpolator<float>* intpol )
 
 bool SeisTrc::isNull( int icomp ) const
 {
-    if ( icomp >= 0 )
-	return data_.isZero(icomp);
+    if ( icomp >= nrComponents() )
+	return true;
 
-    for ( icomp=0; icomp<nrComponents(); icomp++ )
+    Interval<int> comps( icomp, icomp );
+    if ( icomp < 0 )
+	{ comps.start = 0; comps.stop = nrComponents()-1; }
+
+    const int sz = size();
+    for ( icomp=comps.start; icomp<=comps.stop; icomp++ )
     {
-	if ( !data_.isZero(icomp) )
-	    return false;
+	for ( int isamp=0; isamp<sz; isamp++ )
+	{
+	    if ( get(isamp,icomp) )
+		return false;
+	}
     }
     return true;
 }
