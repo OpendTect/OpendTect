@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2010
- RCS:		$Id: stratlayersequence.h,v 1.4 2010-11-09 16:01:31 cvsbert Exp $
+ RCS:		$Id: stratlayersequence.h,v 1.5 2010-11-12 15:04:15 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "stratlayer.h"
 #include "propertyref.h"
+class AIModel;
 
 namespace Strat
 {
@@ -60,6 +61,7 @@ public:
     void		prepareUse() const ;	//!< needed after changes
 
     int			indexOf(const Level&,int startsearchat=0) const;
+    AIModel*		getAIModel(int velidx,int denidx) const;
 
 protected:
 
