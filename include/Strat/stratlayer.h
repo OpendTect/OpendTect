@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2010
- RCS:		$Id: stratlayer.h,v 1.11 2010-11-09 16:01:31 cvsbert Exp $
+ RCS:		$Id: stratlayer.h,v 1.12 2010-11-12 15:03:41 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -50,12 +50,12 @@ public:
     inline void		setThickness( float v )	{ vals_[0] = v; }
     void		setValue(int,float);	//!< automatically adds space
 
-    inline float	zBot() const		{ return zTop() + thickness(); }
-    inline float	depth() const		{ return zTop() + 0.5*thickness(); }
+    inline float	zBot() const	{ return zTop() + thickness(); }
+    inline float	depth() const	{ return zTop() + 0.5*thickness(); }
 
-    ID			id() const;		//!< unitRef().fullCode()
+    ID			id() const;	//!< unitRef().fullCode()
 
-    const float*	values() const		{ return vals_.arr(); }
+    const float*	values() const	{ return vals_.arr(); }
 
     static const PropertyRef& thicknessRef();
 
