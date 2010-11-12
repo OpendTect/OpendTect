@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seismerge.cc,v 1.9 2010-09-28 21:30:09 cvskris Exp $";
+static const char* rcsID = "$Id: seismerge.cc,v 1.10 2010-11-12 15:02:57 cvsbert Exp $";
 
 #include "seismerge.h"
 #include "seisread.h"
@@ -231,19 +231,38 @@ void SeisMerger::get3DTraces()
 
 SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
 {
-    if ( buf.isEmpty() )
+    int nrtrcs = buf.size();
+    if ( nrtrcs < 1 )
 	return 0;
+    else if ( nrtrcs == 1 )
+	return buf.remove( 0 );
+
+    SeisTrcBuf nulltrcs( false );
+    for ( int idx=nrtrcs-1; idx>-1; idx-- )
+    {
+	if ( buf.get(idx)->isNull() )
+	    nulltrcs.add( buf.remove(idx) );
+    }
+
+    nrtrcs = buf.size();
+    SeisTrc* ret = 0;
+    if ( nrtrcs < 1 )
+	ret = nulltrcs.remove(0);
+    if ( nrtrcs == 1 )
+	ret = buf.remove( 0 );
+    nulltrcs.deepErase();
+    if ( ret )
+	return ret;
 
     SeisTrc& trc( *buf.get(0) );
-    const int sz = buf.size();
-    if ( sz > 1 && stacktrcs_ )
+    if ( stacktrcs_ )
     {
 	SeisTrcPropChg stckr( trc );
-	for ( int idx=1; idx<sz; idx++ )
+	for ( int idx=1; idx<nrtrcs; idx++ )
 	    stckr.stack( *buf.get(idx), false, idx );
     }
 
-    SeisTrc* ret = new SeisTrc( trc );
+    ret = buf.remove( 0 );
     buf.deepErase();
     return ret;
 }
