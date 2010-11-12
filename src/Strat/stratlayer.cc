@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.11 2010-11-10 15:28:14 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.12 2010-11-12 15:04:02 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: stratlayer.cc,v 1.11 2010-11-10 15:28:14 cvsber
 #include "stratunitrefiter.h"
 #include "propertyimpl.h"
 #include "propertyref.h"
+#include "aimodel.h"
 #include "separstr.h"
 #include "ascstream.h"
 #include "keystrs.h"
@@ -171,6 +172,19 @@ void Strat::LayerSequence::prepareUse() const
 	ly.setZTop( z );
 	z += ly.thickness();
     }
+}
+
+
+AIModel* Strat::LayerSequence::getAIModel( int velidx, int denidx ) const
+{
+    TypeSet<AIModel::DataPoint> pts;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Layer& lay( *layers_[idx] );
+	pts += AIModel::DataPoint( lay.zTop(), lay.value(velidx),
+				   lay.value(denidx) );
+    }
+    return new AIModel( pts );
 }
 
 
