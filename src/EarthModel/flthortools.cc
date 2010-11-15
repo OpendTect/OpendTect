@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.28 2010-11-15 03:32:31 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.29 2010-11-15 05:30:58 raman Exp $";
 
 #include "flthortools.h"
 
@@ -281,19 +281,6 @@ bool FaultTraceExtractor::execute()
     flttrc_->setIndices( idxgeom->coordindices_ );
     flttrc_->setIsInl( isinl_ );
     flttrc_->setLineNr( nr_ );	
-    if ( !isinl_ && nr_ == 3040 )
-	{
-std::cout << "FaultTrace Coords:" << std::endl;
-for ( int idx=0; idx<flttrc_->getSize(); idx++ )
-{
-    Coord3 pos = flttrc_->get(idx);
-std::cout << idx << "\t" <<pos.x << "\t" << pos.y << "\t" << pos.z << std::endl;
-}
-const TypeSet<int>& indices = flttrc_->getIndices();
-for ( int idx=0; idx<indices.size(); idx++ )
-std::cout << indices[idx] << std::endl;
-	}
-
     if ( bvset_ )
 	useHorizons();
 
