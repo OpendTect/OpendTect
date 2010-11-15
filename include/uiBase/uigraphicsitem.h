@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.27 2010-11-11 07:03:52 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.28 2010-11-15 14:03:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,8 @@ public:
     void		setItemIgnoresTransformations(bool);
     virtual uiRect	boundingRect() const;
 
-    virtual void	setPenStyle(const LineStyle&);
-    virtual void	setPenColor(const Color&);
+    virtual void	setPenStyle(const LineStyle&,bool colwithalpha=false);
+    virtual void	setPenColor(const Color&,bool withalpha=false);
     virtual void	setFillColor(const Color&,bool withalpha=false);
 
     void		setCursor(const MouseCursor&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.29 2010-11-11 07:03:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.30 2010-11-15 14:03:39 cvsbruno Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -117,12 +117,15 @@ uiPoint uiGraphicsItem::transformToScenePos( const uiPoint& pt ) const
 void uiGraphicsItem::setItemIgnoresTransformations( bool yn )
 { qgraphicsitem_->setFlag( QGraphicsItem::ItemIgnoresTransformations, yn ); }
 
-void uiGraphicsItem::setPenColor( const Color& col )
+void uiGraphicsItem::setPenColor( const Color& col, bool withalpha )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
-    QPen qpen( QColor(QRgb(col.rgb())) );
+    QColor color = QColor(QRgb(col.rgb()));
+    if ( withalpha ) color.setAlpha( col.t() );
+
+    QPen qpen( color );
     agsitm->setPen( qpen );
 }
 
@@ -158,12 +161,14 @@ uiGraphicsItem* uiGraphicsItem::addToScene( uiGraphicsScene* sc )
 }
 
 
-void uiGraphicsItem::setPenStyle( const LineStyle& ls )
+void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool colorwithalpha )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
-    QBrush qbrush( QColor(QRgb(ls.color_.rgb())) );
+    QColor color = QColor( QRgb(ls.color_.rgb()) );
+    if ( colorwithalpha ) color.setAlpha( ls.color_.t() );
+    QBrush qbrush( color );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
     agsitm->setPen( qpen );
 }
