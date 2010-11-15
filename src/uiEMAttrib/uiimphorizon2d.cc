@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.31 2010-10-20 06:19:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.32 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -55,7 +55,9 @@ Horizon2DImporter( const BufferStringSet& lnms,
     , prevlineidx_(-1)
     , nrdone_(0)
 {
-    lineidset_.setSize( hors_.size(), -1 );
+    const char* lsnm = IOM().get( setid )->name();
+    for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
+	geomidset_ += S2DPOS().getGeomID( lsnm, lnms.get(lineidx).buf() );
 }
 
 
@@ -85,33 +87,31 @@ int nextStep()
     bvalset_->get( pos_, bid, vals );
     if ( bid.inl < 0 ) return Executor::ErrorOccurred();
 
-    BufferString linenm = linenames_.get( bid.inl );
+    const PosInfo::GeomID& geomid = geomidset_[bid.inl];
+
     if ( bid.inl != prevlineidx_ )
     {
 	prevlineidx_ = bid.inl;
 	prevtrcnr_ = -1;
 	linegeom_.setEmpty();
-	if ( !uiSeisPartServer::get2DLineGeometry(setid_,linenm,linegeom_) )
+	PtrMan<IOObj> lsobj = IOM().get( setid_ );
+	if ( !lsobj ) return Executor::ErrorOccurred();
+
+	S2DPOS().setCurLineSet( lsobj->name() );
+	BufferString linenm = S2DPOS().getLineName( geomid.lineid_ );
+	linegeom_.setLineName( linenm );
+	if ( !S2DPOS().getGeometry(linegeom_) )
 	    return Executor::ErrorOccurred();
 
 	for ( int hdx=0; hdx<hors_.size(); hdx++ )
 	{
-	    const int lidx = hors_[hdx]->geometry().lineIndex( linenm );
-	    if ( lidx >= 0 )
-	    {
-		const int lineid = hors_[hdx]->geometry().lineID( lidx );
-		hors_[hdx]->geometry().removeLine( lineid );
-	    }
-	    
-	    PtrMan<IOObj> ioobj = IOM().get( setid_ );
-	    if ( !ioobj ) continue;
-
-	    PosInfo::GeomID geomid =
-		PosInfo::POS2DAdmin().getGeomID( ioobj->name(), linenm );
 	    if ( !geomid.isOK() )
+	    {
+		hors_[hdx]->geometry().removeLine( geomid );
 		continue;
+	    }
 
-	    lineidset_[hdx] = hors_[hdx]->geometry().addLine( geomid );
+	    hors_[hdx]->geometry().addLine( geomid );
 	}
     }
 
@@ -137,16 +137,13 @@ int nextStep()
 	    break;
 
 	const float val = vals[validx];
-	if ( mIsUdf(val) || lineidset_[validx] < 0 )
+	if ( mIsUdf(val) || !geomid.isOK() )
 	    continue;
 
 	EM::SectionID sid = hors_[validx]->sectionID(0);
-	EM::SubID subid = RowCol( lineidset_[validx], curtrcnr_ ).toInt64();
-	Coord3 posval = hors_[validx]->getPos( sid, subid );
-	posval.z = val;
-	hors_[validx]->setPos( sid, subid, posval, false );
+	hors_[validx]->setPos( sid, geomid, curtrcnr_,val, false );
 	if ( dointerpol && !mIsUdf(prevvals[validx]) )
-	    interpolateAndSetVals( validx, lineidset_[validx], curtrcnr_,
+	    interpolateAndSetVals( validx, geomid, curtrcnr_,
 		    		   prevtrcnr_, val, prevvals[validx] );
     }
 
@@ -156,7 +153,8 @@ int nextStep()
 }
 
 
-void interpolateAndSetVals( int hidx, int lineid, int curtrcnr, int prevtrcnr,
+void interpolateAndSetVals( int hidx, const PosInfo::GeomID& geomid,
+			    int curtrcnr, int prevtrcnr,
 			    float curval, float prevval )
 {
     if ( linegeom_.isEmpty() ) return;
@@ -181,9 +179,7 @@ void interpolateAndSetVals( int hidx, int lineid, int curtrcnr, int prevtrcnr,
 	const float prod = vec.dot(newvec);
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
-	const Coord3 posval( 0, 0, val );
-	EM::SubID subid = RowCol( lineid, trcnr ).toInt64();
-	hors_[hidx]->setPos( hors_[hidx]->sectionID(0), subid, posval, false );
+	hors_[hidx]->setPos( hors_[hidx]->sectionID(0), geomid,trcnr,val,false);
     }
 }
 
@@ -193,7 +189,7 @@ protected:
     ObjectSet<EM::Horizon2D>&	hors_;
     const MultiID&		setid_;
     const BinIDValueSet*	bvalset_;
-    TypeSet<int>		lineidset_;
+    TypeSet<PosInfo::GeomID>	geomidset_;
     PosInfo::Line2DData		linegeom_;
     int				nrdone_;
     int				prevtrcnr_;

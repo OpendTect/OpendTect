@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.20 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.21 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -367,10 +367,11 @@ const char* Pos::EMSurfaceProvider2D::curLine() const
 	if ( !hor2d )
 	    return 0;
 
-	int lineid = hor2d->geometry().lineID( bid.inl );
-	return hor2d->geometry().lineName( lineid );
+	const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( bid.inl );
+	S2DPOS().setCurLineSet( geomid.lsid_ );
+	return S2DPOS().getLineName( geomid.lineid_ );
     }
-    else
+
     return 0;
 }
 

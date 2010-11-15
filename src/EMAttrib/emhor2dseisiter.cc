@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emhor2dseisiter.cc,v 1.3 2010-10-20 06:19:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: emhor2dseisiter.cc,v 1.4 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "emhor2dseisiter.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: emhor2dseisiter.cc,v 1.3 2010-10-20 06:19:59 cv
 #include "emhorizon2d.h"
 #include "seis2dline.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "ioman.h"
 #include "ioobj.h"
 
@@ -84,8 +85,7 @@ void EM::Hor2DSeisLineIterator::getLineSet()
     if ( !isValid() )
 	{ delete lset_; lset_ = 0; return; }
 
-    const int lineid = geom_->lineID( lineidx_ );
-    const char* lsnm = geom_->lineSet( lineid );
+    const char* lsnm = S2DPOS().getLineSet( geom_->lineGeomID(lineidx_).lsid_ );
     if ( !lset_ || lset_->name() != lsnm )
     {
 	delete lset_; lset_ = 0;
@@ -101,14 +101,11 @@ void EM::Hor2DSeisLineIterator::getLineSet()
 }
 
 
-int EM::Hor2DSeisLineIterator::lineID() const
-{
-    return lineidx_ >= 0 ? geom_->lineID(lineidx_) : -1;
-}
-
 const char* EM::Hor2DSeisLineIterator::lineName() const
 {
-    return isValid() ? geom_->lineName( lineID() ) : 0;
+    const PosInfo::GeomID& geomid = geom_->lineGeomID( lineidx_ );
+    S2DPOS().setCurLineSet( geomid.lsid_ );
+    return isValid() ? S2DPOS().getLineName( geomid.lineid_ ) : 0;
 }
 
 

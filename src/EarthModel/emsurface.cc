@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurface.cc,v 1.95 2010-10-22 09:33:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.96 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "emsurface.h"
 
@@ -82,12 +82,13 @@ void SurfaceIOData::use( const Surface& surf )
 	const Horizon2DGeometry& emgeom = horizon2d->geometry();
 	for ( int idx=0; idx<emgeom.nrLines(); idx++ )
 	{
-	    const int lineid = emgeom.lineID( idx );
-	    linenames.add( emgeom.lineName(lineid) );
-	    linesets.add( emgeom.lineSet(lineid) );
+	    const PosInfo::GeomID geomid = emgeom.lineGeomID( idx );
+	    linesets.add( S2DPOS().getLineSet(geomid.lsid_) );
+	    S2DPOS().setCurLineSet( geomid.lsid_ );
+	    linenames.add( S2DPOS().getLineName(geomid.lineid_) );
 	    const Geometry::Horizon2DLine* geom =
 		emgeom.sectionGeometry( emgeom.sectionID(0) );
-	    trcranges += geom->colRange( lineid );
+	    trcranges += geom->colRange( geom->getRowIndex(geomid) );
 	}
     }
 }

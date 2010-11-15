@@ -6,13 +6,14 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          March 2006
-RCS:           $Id: horizon2dline.h,v 1.9 2010-06-17 19:00:58 cvskris Exp $
+RCS:           $Id: horizon2dline.h,v 1.10 2010-11-15 09:35:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "rowcolsurface.h"
 #include "samplingdata.h"
+#include "surv2dgeom.h"
 
 class Plane3;
 class RowCol;
@@ -29,29 +30,38 @@ mClass Horizon2DLine : public RowColSurface
 {
 public:
     			Horizon2DLine();
-    			Horizon2DLine(const TypeSet<Coord>&,int start,int step);
+    			Horizon2DLine(int lineid,const TypeSet<Coord>&,
+				      int start,int step);
     			Horizon2DLine(const Horizon2DLine&);
     			~Horizon2DLine();
 
     Horizon2DLine*	clone() const;
     bool		isEmpty() const { return rows_.isEmpty(); }
 
-    int			addRow(const TypeSet<Coord>&,int start,int step);
+    bool		addRow(const PosInfo::GeomID&,const TypeSet<Coord>&,
+	    		       int start,int step);
     			/*!<\returns id of new path. */
-    int			addUdfRow(int start,int stop,int step);
+    bool		addUdfRow(const PosInfo::GeomID&,int start,int stop,
+	    			  int step);
     			/*!<\returns id of new path. */
-    void		setRow(int,const TypeSet<Coord>&,int start,int step);
-    void		syncRow(int,const PosInfo::Line2DData&);
-    void		removeRow(int);
-    void		removeCols(int rowid,int start,int stop);
+    void		setRow(const PosInfo::GeomID&,const TypeSet<Coord>&,
+	    		       int start,int step);
+    void		syncRow(const PosInfo::GeomID&,
+	    			const PosInfo::Line2DData&);
+    void		removeRow(const PosInfo::GeomID&);
+    void		removeCols(const PosInfo::GeomID&,int start,int stop);
+
+    int 		getRowIndex(const PosInfo::GeomID&) const;
 
     StepInterval<int>	rowRange() const;
-    StepInterval<int>	colRange(int) const;
-    Interval<float>	zRange(int) const;
+    StepInterval<int>	colRange(int rowindex) const;
+    StepInterval<int>	colRange(const PosInfo::GeomID&) const;
+    Interval<float>	zRange(const PosInfo::GeomID&) const;
 
-    void		geometry(int rowid,PosInfo::Line2DData&) const;
+    void		geometry(const PosInfo::GeomID&,
+	    			 PosInfo::Line2DData&) const;
 
-    Coord3		getKnot(const RowCol&) const;
+    Coord3		getKnot(const RowCol& rc) const; // rc.row = rowindex
     bool		setKnot(const RowCol&,const Coord3&);
     bool		isKnotDefined(const RowCol&) const;
 
@@ -68,6 +78,7 @@ protected:
 
     ObjectSet<TypeSet<Coord3> >	rows_;
     TypeSet<SamplingData<int> >	colsampling_;
+    TypeSet<PosInfo::GeomID>	geomids_;
 };
 
 } // namespace Geometry

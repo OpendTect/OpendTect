@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.138 2010-10-20 06:19:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.139 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "emsurfaceio.h"
 
@@ -238,16 +238,16 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 	    SeparString linekey( "Line", '.' );
 	    linekey.add( idx );
 
-	    int linesetid =-1;
-	    int lineid = -1;
+	    PosInfo::GeomID geomid;
 	    SeparString lineidkey( linekey.buf(), '.' );
 	    lineidkey.add( Horizon2DGeometry::sKeyID() );
-	    if ( !par_->get(lineidkey.buf(),linesetid,lineid) ||
-		 linesetid < 0 || lineid < 0 )
+	    BufferString geomidstr;
+	    if ( !par_->get(lineidkey.buf(),geomidstr) ||
+		 !geomid.fromString(geomidstr) )
 		continue;
-	    PosInfo::POS2DAdmin().setCurLineSet( linesetid );
-	    linesets_.add( PosInfo::POS2DAdmin().getLineSet(linesetid) );
-	    linenames_.add( PosInfo::POS2DAdmin().getLineName(lineid) );
+	    PosInfo::POS2DAdmin().setCurLineSet( geomid.lsid_ );
+	    linesets_.add( PosInfo::POS2DAdmin().getLineSet(geomid.lsid_) );
+	    linenames_.add( PosInfo::POS2DAdmin().getLineName(geomid.lineid_) );
 	    
 	    SeparString linetrcrgkey( linekey.buf(), '.' );
 	    linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
@@ -714,10 +714,23 @@ int dgbSurfaceReader::nextStep()
     int noofcoltoskip = 0;
     
     BufferStringSet lines;
-    if ( readlinenames_ && linestrcrgs_ &&
-	 par_->hasKey(Horizon2DGeometry::sKeyLineNames()) &&
-	 par_->get( Horizon2DGeometry::sKeyLineNames(),lines ) &&
-	 !lines.isEmpty() )
+    if ( par_->hasKey(Horizon2DGeometry::sKeyLineNames()) )
+	par_->get( Horizon2DGeometry::sKeyLineNames(),lines );
+    else if ( par_->find(Horizon2DGeometry::sKeyNrLines()) )
+    {
+	int nrlines = 0;
+	par_->get( Horizon2DGeometry::sKeyNrLines(), nrlines );
+	for ( int idx=0; idx<nrlines; idx++ )
+	{
+	    BufferString key = IOPar::compKey( "Line", idx );
+	    BufferString idstr;
+	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
+	    PosInfo::GeomID geomid; geomid.fromString( idstr );
+	    lines.add( S2DPOS().getLineName(geomid.lineid_) );
+	}
+    }
+
+    if ( readlinenames_ && linestrcrgs_ && !lines.isEmpty() )
     {
 	const int trcrgidx =
 	    readlinenames_->indexOf( lines.get(rowindex_).buf() );
@@ -747,12 +760,17 @@ int dgbSurfaceReader::nextStep()
     par_->get( sColStepKey( currentRow() ).buf(), colstep );
 
     mDynamicCastGet(Horizon2D*,hor2d,surface_);
+
     if ( hor2d )
     {
 	if ( !hor2d->sectionGeometry(sectionid) )
 	    createSection( sectionid );
+
+	PosInfo::GeomID geomid = S2DPOS().getGeomID(linesets_[rowindex_]->buf(),
+	    					 linenames_[rowindex_]->buf() );
 	hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
-	    firstcol+noofcoltoskip, firstcol+nrcols+noofcoltoskip-1, colstep );
+		geomid, firstcol+noofcoltoskip,
+		firstcol+nrcols+noofcoltoskip-1, colstep );
     }
 
     mDynamicCastGet(Fault3D*,flt3d,surface_);

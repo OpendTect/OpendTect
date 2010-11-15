@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.395 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.396 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1164,6 +1164,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	emserv_->getSurfaceDef2D( pickserv_->selHorIDs(),
 				  pickserv_->lineGeoms(),
 				  pickserv_->selectLines(),
+				  pickserv_->lineSetID(),
 				  pickserv_->getPos2D(),
 				  pickserv_->getHor2DZRgs() );
     else if ( evid == uiPickPartServer::evFillPickSet() )

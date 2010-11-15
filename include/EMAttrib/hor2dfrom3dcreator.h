@@ -6,13 +6,14 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          April 2010
-RCS:           $Id: hor2dfrom3dcreator.h,v 1.3 2010-10-20 06:19:59 cvsnanne Exp $
+RCS:           $Id: hor2dfrom3dcreator.h,v 1.4 2010-11-15 09:35:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
 #include "posinfo2d.h"
+#include "surv2dgeom.h"
 
 namespace EM { class Horizon3D; class Horizon2D; }
 class BufferString;
@@ -49,7 +50,7 @@ protected:
     EM::Horizon2D&		hor2d_;
     int				nrdone_;
     int				totalnr_;
-    int				lineid_;
+    PosInfo::GeomID		geomid_;
     
     PosInfo::Line2DData		posdata_;
 };

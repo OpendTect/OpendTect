@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.212 2010-10-19 05:50:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.213 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -1136,6 +1136,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 				  const ObjectSet<PosInfo::Line2DData>& geoms,
 				  BufferStringSet& selectlines,
+				  const MultiID& linesetid,
 				  TypeSet<Coord>& coords,
 				  TypeSet< Interval<float> >& zrgs )
 {
@@ -1161,33 +1162,24 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	const PosInfo::Line2DData* ld = geoms[lidx];
 	if ( !ld ) continue;
 
-	BufferString lnm = *selectlines[lidx];
-	int lineidx = hor2d1->geometry().lineIndex( lnm );
-	const int lineid1 = hor2d1->geometry().lineID( lineidx );
+	PtrMan<IOObj> ioobj = IOM().get( linesetid );
+	if ( !ioobj ) return;
 
-	int lineid2 = -1;
-	if ( issecondhor )
-	{
-	    lineidx = hor2d2->geometry().lineIndex( lnm );
-	    lineid2 = hor2d2->geometry().lineID( lineidx );
-	}
-
-	if ( lineid1<0 || ( issecondhor && lineid2<0 ) ) continue;
+	PosInfo::GeomID geomid =
+	    S2DPOS().getGeomID( ioobj->name(), selectlines.get(lidx).buf() );
+	
+	int lineidx = hor2d1->geometry().lineIndex( geomid );
+	if ( lineidx<0 ) continue;
 
 	const TypeSet<PosInfo::Line2DPos>& posns = ld->positions();
 	for ( int trcidx=0; trcidx<posns.size(); trcidx++ )
 	{
 	    const PosInfo::Line2DPos& l2dp = posns[trcidx];
-	    const EM::SubID subid1 = 
-		RowCol( lineid1, l2dp.nr_ ).toInt64();
-	    const float z1 = hor2d1->getPos(0,subid1).z;
+	    const float z1 = hor2d1->getPos( 0, geomid, l2dp.nr_ ).z;
 	    float z2 = mUdf(float);
+	 
 	    if ( issecondhor )
-	    {
-		const EM::SubID subid2 =
-		    RowCol( lineid2, l2dp.nr_ ).toInt64();
-		z2 = hor2d2->getPos(0,subid2).z;
-	    }
+		z2 = hor2d2->getPos( 0, geomid, l2dp.nr_ ).z;
 
 	    if ( !mIsUdf(z1) && ( !issecondhor || !mIsUdf(z2) ) )
 	    {

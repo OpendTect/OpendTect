@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.22 2010-10-20 06:19:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.23 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -33,7 +33,6 @@ namespace MPE
 Horizon2DSeedPicker::Horizon2DSeedPicker( MPE::EMTracker& t )
     : tracker_( t )
     , sectionid_( -1 )
-    , lineid_( -1 )
     , addrmseed_( this )
     , surfchange_( this )
     , seedconmode_( defaultSeedConMode() )
@@ -105,11 +104,11 @@ bool Horizon2DSeedPicker::startSeedPick()
     EM::Horizon2DGeometry& geom = hor->geometry();
     for ( int idx=0; idx<geom.nrLines(); idx++ )
     {
-	const int lineid = geom.lineID( idx );
-	if ( !strcmp(geom.lineSet(lineid),ioobj->name()) &&
-	     !strcmp(geom.lineName(lineid),linename_) )
+	const PosInfo::GeomID& geomid =
+	    S2DPOS().getGeomID( ioobj->name(), linename_ );
+	if ( geomid == geom.lineGeomID(idx) )
 	{
-	    lineid_ = lineid;
+	    geomid_ = geomid;
 	    return true;
 	}
     }
@@ -119,17 +118,18 @@ bool Horizon2DSeedPicker::startSeedPick()
     if ( !geomid.isOK() )
 	return false;
 
-    lineid_ = geom.addLine( geomid );
+    geom.addLine( geomid );
+    geomid_ = geomid;
     return true;
 }
 
 
 #define mGetHorAndColrg(hor,colrg,escval) \
     mGetHorizon(hor,escval); \
-    if ( sectionid_<0 || lineid_<0 ) \
+    if ( sectionid_<0 || !geomid_.isOK() ) \
     	return escval; \
     const StepInterval<int> colrg = \
-    	hor->geometry().colRange( sectionid_, lineid_ ); 
+    	hor->geometry().colRange( sectionid_, geomid_ ); 
 	
 bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
 {
@@ -145,22 +145,23 @@ bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
 
     float maxdist = mUdf(float);
     int   closestcol;
-    RowCol rc( lineid_, 0 );
-    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+    int col = 0;
+    for ( col=colrg.start; col<=colrg.stop; col+=colrg.step )
     {
-	const Coord coord = hor->getPos( sectionid_, rc.toInt64() );
+	const Coord coord = hor->getPos( sectionid_, geomid_, col );
 	if ( !coord.isDefined() )
 	    continue;
 
 	double sqdist = coord.sqDistTo( seedcrd );
 	if ( sqdist<maxdist )
 	{
-	    closestcol = rc.col;
+	    closestcol = col;
 	    maxdist = sqdist;
 	}
     }
 
-    rc.col = closestcol;
+    col = closestcol;
+    RowCol rc( hor->geometry().lineIndex(geomid_), col );
 	
     const EM::PosID pid( hor->id(), sectionid_, rc.toInt64() );
 
@@ -193,16 +194,16 @@ bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
 int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
 {
     mGetHorAndColrg(hor,colrg,-1);
-    RowCol rc( lineid_, 0 ); 
+    int col = 0; 
     int nrneighbors = 0;
 
     for ( int idx=-1; idx<=1; idx+=2 )
     {
-	rc.col = colnr;
-	while ( rc.col>colrg.start && rc.col<colrg.stop )
+	col = colnr;
+	while ( col>colrg.start && col<colrg.stop )
 	{
-	    rc.col += idx*colrg.step;
-	    const Coord3 pos = hor->getPos( sectionid_, rc.toInt64() );
+	    col += idx*colrg.step;
+	    const Coord3 pos = hor->getPos( sectionid_, geomid_, col );
 	    if ( Coord(pos).isDefined() )
 	    {	
 		if ( pos.isDefined() )
@@ -223,12 +224,12 @@ bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
     if ( blockpicking_ )
 	return true;
 
+    mGetHorizon(hor,false);
     RowCol rc;
     rc.fromInt64( pid.subID() );
-    if ( rc.row != lineid_ )
+    if ( rc.row != hor->geometry().lineIndex(geomid_) )
 	return false;
 
-    mGetHorizon(hor,false);
     hor->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
     if ( environment || !nrLineNeighbors(rc.col) )
 	hor->unSetPos( pid, true );
@@ -324,7 +325,7 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
     mGetHorAndColrg(hor,colrg, );
     eraselist_.erase();
 
-    RowCol currc( lineid_, startcol );
+    RowCol currc( hor->geometry().lineIndex(geomid_), startcol );
     EM::PosID curpid = EM::PosID( hor->id(), sectionid_, currc.toInt64());
 
     bool seedwasadded = hor->isDefined( curpid ) && !wholeline;
@@ -546,7 +547,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
     for ( int idx=0; idx<nrseeds; idx++ )
     {
 	rc.fromInt64( seedlist_[idx].subID() );
-	if ( rc.row != lineid_ )
+	if ( rc.row != hor->geometry().lineIndex(geomid_) )
 	    return false;
 
 	sortval[idx] = rc.col;

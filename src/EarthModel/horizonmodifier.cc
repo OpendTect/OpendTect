@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonmodifier.cc,v 1.8 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: horizonmodifier.cc,v 1.9 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 
 #include "horizonmodifier.h"
@@ -22,7 +22,6 @@ HorizonModifier::HorizonModifier( bool is2d )
     , bothor_(0)
     , topisstatic_(true)
     , is2d_(is2d)
-    , linenames_(0)
     , iter_(0)
 {
 }
@@ -96,14 +95,13 @@ bool HorizonModifier::getNextNode3D( BinID& bid )
 
 bool HorizonModifier::getNextNode2D( BinID& bid )
 {
-    if ( !linenames_ )
+    if ( geomids_.isEmpty() )
     {
-	linenames_ = new BufferStringSet;
 	getLines( tophor_ );
 	getLines( bothor_ );
     }
 
-    if ( !linenames_ || !linenames_->size() ) return false;
+    if ( geomids_.isEmpty() ) return false;
 
     if ( bid.crl < trcrgs_[bid.inl].start )
 	bid.crl = trcrgs_[bid.inl].start;
@@ -113,7 +111,7 @@ bool HorizonModifier::getNextNode2D( BinID& bid )
     if ( bid.crl > trcrgs_[bid.inl].stop )
     {
 	bid.inl++;
-	if ( bid.inl >= linenames_->size() )
+	if ( bid.inl >= geomids_.size() )
 	    return false;
 
 	bid.crl = trcrgs_[bid.inl].start;
@@ -125,28 +123,25 @@ bool HorizonModifier::getNextNode2D( BinID& bid )
 
 void HorizonModifier::getLines( const EM::Horizon* hor )
 {
-    if ( !linenames_ ) return;
-
     mDynamicCastGet(const EM::Horizon2D*,hor2d,hor)
     if ( !hor2d ) return;
 
     const int sid = hor2d->sectionID( 0 );
     for ( int ldx=0; ldx<hor2d->geometry().nrLines(); ldx++ )
     {
-	const int lid = hor2d->geometry().lineID( ldx );
-	const char* linenm = hor2d->geometry().lineName( lid );
+	const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( ldx );
 	const Geometry::Horizon2DLine* geom =
-	    				hor2d->geometry().sectionGeometry(sid);
+	    	hor2d->geometry().sectionGeometry(sid);
 	if ( !geom ) return;
 
-	const int lidx = linenames_->indexOf(linenm);
+	const int lidx = geomids_.indexOf( geomid );
 	if ( lidx < 0 )
 	{
-	    linenames_->add( linenm );
-	    trcrgs_ += geom->colRange( lid );
+	    geomids_ += geomid;
+	    trcrgs_ += geom->colRange( geomid );
 	}
 	else
-	    trcrgs_[lidx].include( geom->colRange(lid) );
+	    trcrgs_[lidx].include( geom->colRange(geomid) );
     }
 }
 
@@ -187,10 +182,7 @@ float HorizonModifier::getDepth2D( const EM::Horizon* hor, const BinID& bid )
     mDynamicCastGet(const EM::Horizon2D*,hor2d,hor)
     if ( !hor2d ) return mUdf(float);
 
-    const int lidx = hor2d->geometry().lineIndex( linenames_->get(bid.inl) );
-    const int lid = hor2d->geometry().lineID( lidx );
-    const EM::SubID subid = BinID( lid, bid.crl ).toInt64();
-    return hor2d->getPos( sid, subid ).z;
+    return hor2d->getPos( sid, geomids_[bid.inl], bid.crl ).z;
 }
 
 
@@ -202,31 +194,33 @@ void HorizonModifier::shiftNode( const BinID& bid )
     const float extrashift = topisstatic_ ? 0.001 : -0.001;
     EM::SubID staticsubid, dynamicsubid;
     if ( !is2d_ )
+    {
 	staticsubid = dynamicsubid = bid.toInt64();
+	float newz = statichor->getPos( statichor->sectionID(0), staticsubid).z;
+	if ( !mIsUdf(newz) )
+	    newz += extrashift;
+
+	Coord3 pos = dynamichor->getPos( dynamichor->sectionID(0),dynamicsubid);
+	pos.z = newz;
+	dynamichor->setPos( dynamichor->sectionID(0), dynamicsubid, pos, false);
+    }
     else
     { 
 	mDynamicCastGet(const EM::Horizon2D*,statichor2d,statichor)
-	if ( !statichor2d || !linenames_ ) return;
+	if ( !statichor2d ) return;
 
-	int lidx = statichor2d->geometry().lineIndex( linenames_->get(bid.inl));
-	int lid = statichor2d->geometry().lineID( lidx );
-	staticsubid = BinID( lid, bid.crl ).toInt64();
-     
 	mDynamicCastGet(EM::Horizon2D*,dynamichor2d,dynamichor)
 	if ( !dynamichor2d ) return;
 
-	lidx = dynamichor2d->geometry().lineIndex( linenames_->get(bid.inl) );
-	lid = dynamichor2d->geometry().lineID( lidx );
-	dynamicsubid = BinID( lid, bid.crl ).toInt64();
+	float newz = statichor2d->getPos( statichor->sectionID(0),
+					  geomids_[bid.inl], bid.crl ).z;
+	if ( !mIsUdf(newz) )
+	    newz += extrashift;
+
+	dynamichor2d->setPos( dynamichor->sectionID(0), geomids_[bid.inl],
+			      bid.crl, newz, false);
     }
 
-    float newz = statichor->getPos( statichor->sectionID(0), staticsubid ).z;
-    if ( !mIsUdf(newz) )
-	newz += extrashift;
-
-    Coord3 pos = dynamichor->getPos( dynamichor->sectionID(0), dynamicsubid );
-    pos.z = newz;
-    dynamichor->setPos( dynamichor->sectionID(0), dynamicsubid, pos, false );
 }
 
 
@@ -235,17 +229,17 @@ void HorizonModifier::removeNode( const BinID& bid )
     EM::Horizon* dynamichor = topisstatic_ ? bothor_ : tophor_;
     EM::SubID subid;
     if ( !is2d_ )
+    {
 	subid = bid.toInt64();
+	dynamichor->unSetPos( dynamichor->sectionID(0), subid, false );
+    }
     else
     { 
 	mDynamicCastGet(EM::Horizon2D*,dynamichor2d,dynamichor)
-	if ( !dynamichor2d || !linenames_ ) return;
+	if ( !dynamichor2d ) return;
 
-	const int lidx = dynamichor2d->geometry().lineIndex(
-						linenames_->get(bid.inl) );
-	const int lid = dynamichor2d->geometry().lineID( lidx );
-	subid = BinID( lid, bid.crl ).toInt64();
+	dynamichor2d->setPos( dynamichor->sectionID(0), geomids_[bid.inl],
+			      bid.crl, mUdf(float), false );
     }
 
-    dynamichor->unSetPos( dynamichor->sectionID(0), subid, false );
 }

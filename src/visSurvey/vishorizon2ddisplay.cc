@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.40 2010-06-30 17:38:43 cvskarthika Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.41 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -424,20 +424,18 @@ void Horizon2DDisplay::updateLinesOnSections(
     LineRanges linergs;
     for ( int lnidx=0; lnidx<h2d->geometry().nrLines(); lnidx++ )
     {
-	int lineid = h2d->geometry().lineID( lnidx );
+	const PosInfo::GeomID& geomid = h2d->geometry().lineGeomID( lnidx );
 	linergs.trcrgs += TypeSet<Interval<int> >();
 	linergs.zrgs += TypeSet<Interval<float> >();
 	for ( int idx=0; idx<seis2dlist.size(); idx++ )
 	{
 	    const Interval<int>& trcrg  = seis2dlist[idx]->getTraceNrRange();
-	    RowCol rc( lineid, trcrg.start );
-	    Coord pos = emobject_->getPos( 0, rc.toInt64() ); 
+	    Coord pos = h2d->getPos( 0, geomid, trcrg.start ); 
 	    if ( !xy0[idx].isDefined() || !mIsEqual(xy0[idx].x,pos.x,mDefEps) 
 				       || !mIsEqual(xy0[idx].y,pos.y,mDefEps) )
 		continue;
 
-	    rc.col = trcrg.stop;
-	    pos = emobject_->getPos( 0, rc.toInt64() ); 
+	    pos = h2d->getPos( 0, geomid, trcrg.stop );
 	    if ( !xy1[idx].isDefined() || !mIsEqual(xy1[idx].x,pos.x,mDefEps) 
 				       || !mIsEqual(xy1[idx].y,pos.y,mDefEps) )
 		continue;

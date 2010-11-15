@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon2dseedpicker.h,v 1.11 2010-06-07 16:00:41 cvsjaap Exp $
+ RCS:           $Id: horizon2dseedpicker.h,v 1.12 2010-11-15 09:35:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emseedpicker.h"
+#include "surv2dgeom.h"
 
 namespace Attrib { class Data2DHolder; class SelSpec; }
 
@@ -99,7 +100,7 @@ protected:
 
     EM::SectionID		sectionid_;
     bool			didchecksupport_;
-    int				lineid_;
+    PosInfo::GeomID		geomid_;
 
     BufferString		linename_;
     MultiID			lineset_;

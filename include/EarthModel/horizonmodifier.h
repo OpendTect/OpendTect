@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		April 2006
- RCS:		$Id: horizonmodifier.h,v 1.6 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: horizonmodifier.h,v 1.7 2010-11-15 09:35:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "multiid.h"
 #include "ranges.h"
+#include "surv2dgeom.h"
 
 namespace EM { class Horizon; }
 class BinID;
@@ -50,7 +51,7 @@ protected:
     EM::Horizon*		bothor_;
 
     bool			is2d_;
-    BufferStringSet*		linenames_;
+    TypeSet<PosInfo::GeomID>	geomids_;
     TypeSet<StepInterval<int> >	trcrgs_;
     HorSamplingIterator*	iter_;
 

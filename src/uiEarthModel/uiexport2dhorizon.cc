@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.12 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.13 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -148,11 +148,10 @@ bool uiExport2DHorizon::doExport()
     {
 	BufferString linename = linenms.get( idx );
 	const int lineidx = hor->geometry().lineIndex( linename );
-	const int lineid = hor->geometry().lineID( lineidx );
-	StepInterval<int> trcrg = geom->colRange( lineid );
+	StepInterval<int> trcrg = geom->colRange( lineidx );
 	for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
 	{
-	    Coord3 pos = geom->getKnot( RowCol(lineid,trcnr) );
+	    Coord3 pos = geom->getKnot( RowCol(lineidx,trcnr) );
 
 	    if ( mIsUdf(pos.x) || mIsUdf(pos.y) )
 		continue;
@@ -238,10 +237,13 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
     PtrMan<IOObj> ioobj = IOM().get( horid );
     if ( !ioobj ) return;
 
-    PtrMan<IOPar> pars = em.getSurfacePars( *ioobj );
+    EM::SurfaceIOData emdata;
+    BufferString errmsg = em.getSurfaceData( ioobj->key(), emdata );
+    if ( !errmsg.isEmpty() ) return;
+    /*PtrMan<IOPar> pars = em.getSurfacePars( *ioobj );
     if ( !pars ) return;
 
     BufferStringSet linenames;
-    pars->get( "Line names", linenames );
-    linenmfld_->addItems( linenames );
+    pars->get( "Line names", linenames );*/
+    linenmfld_->addItems( emdata.linenames );
 }

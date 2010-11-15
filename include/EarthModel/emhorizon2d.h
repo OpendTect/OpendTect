@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.27 2010-10-20 13:00:33 cvsranojay Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.28 2010-11-15 09:35:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "horizon2dline.h"
 #include "surv2dgeom.h"
 #include "tableascio.h"
+#include "surv2dgeom.h"
 
 class ZAxisTransform;
 namespace Geometry { class Horizon2DLine; }
@@ -37,20 +38,17 @@ public:
     const Geometry::Horizon2DLine* sectionGeometry(const SectionID&) const;
 
     int				nrLines() const;
-    int				lineIndex(int id) const;
+    int				lineIndex(const PosInfo::GeomID&) const;
     int				lineIndex(const char* linenm) const;
-    int				lineID(int idx) const;
     const char*			lineName(int id) const;
     const char*			lineSet(int id) const;
-    const PosInfo::GeomID*	lineGeomID(int id) const;
+    PosInfo::GeomID		lineGeomID(int idx) const;
 
-    int 			addLine(const PosInfo::GeomID&,int step=1);
+    bool 			addLine(const PosInfo::GeomID&,int step=1);
 				/*!<\returns id of new line. */
-    int 			addLine(const PosInfo::GeomID&,
+    bool 			addLine(const PosInfo::GeomID&,
 					const StepInterval<int>& trcrg);
-				/*!<\returns id of new line. */
-
-    void			removeLine(int id);
+    void			removeLine(const PosInfo::GeomID&);
     bool			isAtEdge(const PosID&) const;
     PosID			getNeighbor(const PosID&,bool nextcol,
 	    				    bool retundef=false) const;
@@ -71,6 +69,9 @@ public:
 
     int				getConnectedPos(const PosID& posid,
 						TypeSet<PosID>* res) const;
+    StepInterval<int>		colRange(const SectionID&,
+	    				 const PosInfo::GeomID&) const;
+    StepInterval<int>		colRange(const PosInfo::GeomID&) const;
 
 protected:
     Geometry::Horizon2DLine*	createSectionGeometry() const;
@@ -78,7 +79,6 @@ protected:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
     
-    TypeSet<int>		lineids_;
     TypeSet<PosInfo::GeomID>	geomids_;
 };
 
@@ -100,6 +100,14 @@ public:
     TypeSet<Coord3>		getPositions(int lineidx,int trcnr) const;
     Coord3			getPos(EM::SectionID,int lidx,int trcnr) const;
 
+    Coord3			getPos(EM::SectionID,const PosInfo::GeomID&,
+	    			       int trcnr) const;
+    bool			setPos(EM::SectionID,const PosInfo::GeomID&,
+	    			       int trcnr,float z,bool addtohistory);
+    bool			setPos(const EM::PosID&,const Coord3&,bool);
+    bool			setPos(const EM::SectionID&,const EM::SubID&,
+	    			       const Coord3&,bool addtohistory);
+
     Horizon2DGeometry&		geometry()		{ return geometry_; }
     const Horizon2DGeometry&	geometry() const	{ return geometry_; }
 
@@ -108,8 +116,10 @@ public:
 	    				       TaskRunner* tr );
 
     bool			setArray1D(const Array1D<float>&,SectionID sid,
-	    				   int lid,bool onlyfillundefs );
-    Array1D<float>*		createArray1D(SectionID,int rowid,
+	    				   const PosInfo::GeomID& geomid,
+					   bool onlyfillundefs );
+    Array1D<float>*		createArray1D(SectionID,
+	    				      const PosInfo::GeomID& geomid,
 	    				      const ZAxisTransform* =0) const;
 
 protected:

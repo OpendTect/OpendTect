@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonattrib.cc,v 1.20 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: horizonattrib.cc,v 1.21 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "horizonattrib.h"
 
@@ -22,6 +22,8 @@ static const char* rcsID = "$Id: horizonattrib.cc,v 1.20 2010-06-18 12:23:27 cvs
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "ptrman.h"
+#include "ioman.h"
+#include "ioobj.h"
 
 #define mOutTypeZ		0
 #define mOutTypeSurfData	1
@@ -182,9 +184,13 @@ void Horizon::prepareForComputeData()
 void Horizon::fillLineID()
 {
     mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_);
-    const int lineidx = hor2d->geometry().lineIndex( curlinekey_.lineName() );
-    horizon2dlineid_ = lineidx==-1 ? mUdf(int)
-				  : hor2d->geometry().lineID( lineidx );
+    MultiID lsid( desc_.getStoredID(true) );
+    PtrMan<IOObj> lsobj = IOM().get( lsid );
+    if ( !lsobj ) return;
+    PosInfo::GeomID geomid = S2DPOS().getGeomID( lsobj->name(),
+	    					  curlinekey_.lineName() );
+    const int lineidx = hor2d->geometry().lineIndex( geomid );
+    horizon2dlineid_ = lineidx==-1 ? mUdf(int) : lineidx;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.19 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.20 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -207,8 +207,14 @@ int Horizon2DScanner::nextStep()
 	if ( invalidnms_.indexOf(linenm) >= 0 )
 	    return Executor::MoreToDo();
 
+	PtrMan<IOObj> lsobj = IOM().get( setid_ );
+	if ( !lsobj ) return Executor::ErrorOccurred();
+
 	linegeom_.setEmpty();
-	if ( !uiSeisPartServer::get2DLineGeometry(setid_,linenm,linegeom_) )
+	linegeom_.setLineName( linenm );
+	S2DPOS().setCurLineSet( lsobj->name() );
+
+	if ( !S2DPOS().getGeometry(linegeom_) )
 	{
 	    invalidnms_.addIfNew( linenm );
 	    return Executor::MoreToDo();

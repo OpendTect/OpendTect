@@ -7,15 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          October 2009
- RCS:           $Id: seis2deventsnapper.h,v 1.2 2009-12-03 06:57:29 cvssatyaki Exp $
+ RCS:           $Id: seis2deventsnapper.h,v 1.3 2010-11-15 09:35:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "executor.h"
 #include "seiseventsnapper.h"
 #include "seistrc.h"
 #include "seisread.h"
-#include "executor.h"
+#include "surv2dgeom.h"
 
 namespace EM { class Hor2DSeisLineIterator; class Horizon2D; }
 namespace Seis { class Horizon2D; }
@@ -47,7 +48,7 @@ public:
 protected:
     virtual int			nextStep();
 
-    int				horlineidx_;
+    PosInfo::GeomID		horgeomid_;
     SeisTrc			trc_;
     SeisTrcReader*		seisrdr_;
     const EM::Horizon2D&	orghor_;

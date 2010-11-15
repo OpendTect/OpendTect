@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seis2deventsnapper.cc,v 1.4 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: seis2deventsnapper.cc,v 1.5 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "seis2deventsnapper.h"
 #include "seisselectionimpl.h"
@@ -25,7 +25,7 @@ Seis2DEventSnapper::Seis2DEventSnapper( const EM::Horizon2D& orghor,
     , orghor_(orghor)
     , newhor_(newhor)
 {
-    horlineidx_ = orghor.geometry().lineIndex( su.lk_.lineName() );
+    horgeomid_ = S2DPOS().getGeomID( su.ioobj_->name(), su.lk_.lineName() );
     Seis::RangeSelData* seldata = new Seis::RangeSelData( true );
     seldata->lineKey() = su.lk_;
     seisrdr_ = new SeisTrcReader( su.ioobj_ );
@@ -54,11 +54,9 @@ int Seis2DEventSnapper::nextStep()
 	return MoreToDo();
 
     EM::SectionID sid(0);
-    BinID bid( horlineidx_, trc_.info().nr );
-    EM::SubID subid = bid.toInt64();
-    Coord3 coord = orghor_.getPos( sid, subid );
-    coord.z = findNearestEvent( trc_, coord.z );
-    newhor_.setPos( sid, subid, coord, false );
+    Coord3 coord = orghor_.getPos( sid, horgeomid_, trc_.info().nr );
+    newhor_.setPos( sid, horgeomid_, trc_.info().nr,
+	    	    findNearestEvent(trc_,coord.z), false );
     nrdone_ ++;
 
     return MoreToDo();

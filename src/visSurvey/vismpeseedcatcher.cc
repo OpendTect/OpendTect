@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.42 2010-10-20 06:19:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.43 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.42 2010-10-20 06:19:59
 #include "ioobj.h"
 #include "linekey.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "visdataman.h"
 #include "visemobjdisplay.h"
 #include "visevent.h"
@@ -310,9 +311,9 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     if ( !hor2d ) return;
 
     const int lineidx = RowCol( nodepid.subID() ).row;
-    const int lineid = hor2d->geometry().lineID( lineidx );
-    const BufferString linenm = hor2d->geometry().lineName( lineid );
-    const char* lineset = hor2d->geometry().lineSet( lineid );
+    const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( lineidx );
+    S2DPOS().setCurLineSet( geomid.lsid_ );
+    const char* linenm = S2DPOS().getLineName( geomid.lineid_ );
 
     Seis2DDisplay* seis2dclosest = 0;
     bool legalclickclosest = false;
@@ -332,7 +333,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	if ( !seis2ddisp )
 	    continue;
 	
-	if ( lineid < 0 )
+	if ( !geomid.isOK() )
 	{
 	    Coord3 pos = eventinfo.worldpickedpos;
 	    if ( transformation_ )

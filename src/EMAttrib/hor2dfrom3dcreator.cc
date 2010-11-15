@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hor2dfrom3dcreator.cc,v 1.6 2010-10-20 06:19:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: hor2dfrom3dcreator.cc,v 1.7 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "hor2dfrom3dcreator.h"
 
@@ -67,12 +67,11 @@ Hor2DFrom3DCreator::Hor2DFrom3DCreator( const EM::Horizon3D& hor3d,
 bool Hor2DFrom3DCreator::setCreator( const char* linename, const char* lsname )
 {
     posdata_.setLineName( linename );
-    PosInfo::GeomID geomid =
-	PosInfo::POS2DAdmin().getGeomID( lsname, linename );
-    if ( !geomid.isOK() ) return false;
+    geomid_ = PosInfo::POS2DAdmin().getGeomID( lsname, linename );
+    if ( !geomid_.isOK() ) return false;
 
     PosInfo::POS2DAdmin().getGeometry( posdata_ );
-    lineid_ = hor2d_.geometry().addLine( geomid );
+    hor2d_.geometry().addLine( geomid_ );
     totalnr_ = posdata_.positions().size();
     return true;
 }
@@ -86,8 +85,7 @@ int Hor2DFrom3DCreator::nextStep()
 	BinID bid = SI().transform( posinfo.coord_ );
 	EM::SubID subid = bid.toInt64();
 	const Coord3 pos3d = hor3d_.getPos( hor3d_.sectionID(0), subid );
-	subid = RowCol( lineid_, posinfo.nr_ ).toInt64();
-	hor2d_.setPos(hor2d_.sectionID(0),subid,pos3d,false);
+	hor2d_.setPos( hor2d_.sectionID(0), geomid_, posinfo.nr_,pos3d.z,false);
 	nrdone_++;
 	return MoreToDo();
     }

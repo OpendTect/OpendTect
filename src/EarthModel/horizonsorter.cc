@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonsorter.cc,v 1.15 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: horizonsorter.cc,v 1.16 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "horizonsorter.h"
 
@@ -27,7 +27,6 @@ HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
     , iterator_(0)
     , result_(0)
     , is2d_(is2d)
-    , linenames_(*new BufferStringSet)
 {
 }
 
@@ -36,7 +35,6 @@ HorizonSorter::~HorizonSorter()
 {
     delete result_;
     delete iterator_;
-    delete &linenames_;
     deepUnRef( horizons_ );
 }
 
@@ -44,7 +42,7 @@ HorizonSorter::~HorizonSorter()
 void HorizonSorter::init()
 {
     calcBoundingBox();
-    totalnr_ = is2d_ ? linenames_.size() : hrg_.nrInl();
+    totalnr_ = is2d_ ? geomids_.size() : hrg_.nrInl();
 
     if ( !is2d_ )
     {
@@ -71,21 +69,21 @@ void HorizonSorter::calcBoundingBox()
 	    const int sid = hor2d->sectionID( 0 );
 	    for ( int ldx=0; ldx<hor2d->geometry().nrLines(); ldx++ )
 	    {
-		const int lid = hor2d->geometry().lineID( ldx );
-		const char* linenm = hor2d->geometry().lineName( lid );
-
 		const Geometry::Horizon2DLine* geom =
 		    			hor2d->geometry().sectionGeometry(sid);
 		if ( !geom ) continue;
 
-		const int lidx = linenames_.indexOf(linenm);
+		PosInfo::GeomID geomid = hor2d->geometry().lineGeomID( ldx );
+		const int lidx = geomids_.indexOf( geomid );
+		const int rowidx =
+		    geom->getRowIndex( hor2d->geometry().lineGeomID(ldx) );
 		if ( lidx < 0 )
 		{
-		    linenames_.add( linenm );
-		    trcrgs_ += geom->colRange( lid );
+		    geomids_ += geomid;
+		    trcrgs_ += geom->colRange( rowidx );
 		}
 		else
-		    trcrgs_[lidx].include( geom->colRange(lid) );
+		    trcrgs_[lidx].include( geom->colRange(rowidx) );
 	    }
 
 	    continue;
@@ -212,7 +210,7 @@ int HorizonSorter::nextStep()
 	}
 
 	if ( ( !is2d_ && !iterator_->next(binid_) )
-	       || ( is2d_ && binid_.inl >= linenames_.size() ) )
+	       || ( is2d_ && binid_.inl >= geomids_.size() ) )
 	{
 	    sort();
 	    return Finished();
@@ -232,13 +230,11 @@ int HorizonSorter::nextStep()
 		mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
 		if ( !hor2d ) continue;
 
-		const int lidx = hor2d->geometry().lineIndex(
-						linenames_.get(binid_.inl) );
-		const int lid = hor2d->geometry().lineID( lidx );
-		subid = BinID( lid, binid_.crl ).toInt64();
+		depths[idx] =
+		    hor2d->getPos( sid, geomids_[binid_.inl], binid_.crl ).z;
 	    }
-	    
-	    depths[idx] = horizons_[idx]->getPos( sid, subid ).z;
+	    else
+		depths[idx] = horizons_[idx]->getPos( sid, subid ).z;
 	}
 
 	for ( int idx=0; idx<nrhors; idx++ )

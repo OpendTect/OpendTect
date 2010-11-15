@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.12 2010-10-07 06:18:39 cvsnanne Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.13 2010-11-15 09:35:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class BinIDValueSet;
 class DataPointSet;
 class HorSampling;
 class BufferStringSet;
+namespace PosInfo { class GeomID; }
 
 namespace EM
 {
@@ -43,7 +44,8 @@ public:
     static void 	getPositions(std::ostream&,const MultiID&,
 				     ObjectSet<BinIDValueSet>&);
     static void 	getExactCoords(std::ostream&,const MultiID&,
-	    			       const BufferString&,const HorSampling&,
+	    			       const PosInfo::GeomID&,
+				       const HorSampling&,
 				       ObjectSet<DataPointSet>&);
     static void 	getWantedPositions(std::ostream&,ObjectSet<MultiID>&,
 					   BinIDValueSet&,const HorSampling&,
@@ -53,7 +55,7 @@ public:
     static void 	getWantedPos2D(std::ostream&,ObjectSet<MultiID>&,
 				       DataPointSet*,const HorSampling&,
 				       const Interval<float>& extraz,
-				       const BufferString&);
+				       const PosInfo::GeomID&);
     static bool		getZInterval(int idi,int idc,Surface*,Surface*,
 	    			     float& topz,float& botz,int nrinterpsamp,
 				     int mainhoridx,float& lastzinterval,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.103 2010-10-19 05:50:13 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.104 2010-11-15 09:35:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,8 @@ public:
 				        const HorSampling&) const;
     void		getSurfaceDef2D(const ObjectSet<MultiID>&,
 	    				const ObjectSet<PosInfo::Line2DData>&,
-	    				BufferStringSet&,TypeSet<Coord>&,
+	    				BufferStringSet&,const MultiID&,
+					TypeSet<Coord>&,
 					TypeSet< Interval<float> >&);
 
     bool		storeObject(const EM::ObjectID&,

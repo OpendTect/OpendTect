@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.17 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.18 2010-11-15 09:35:45 cvssatyaki Exp $";
 
 #include "horizon2dline.h"
 
@@ -23,10 +23,11 @@ Horizon2DLine::Horizon2DLine()
 {}
 
 
-Horizon2DLine::Horizon2DLine( const TypeSet<Coord>& path, int start, int step )
+Horizon2DLine::Horizon2DLine( int lineid, const TypeSet<Coord>& path, int start,
+			      int step )
     : firstrow_(0)
 {
-    addRow( path, start, step );
+    addRow( lineid, path, start, step );
 }
 
 
@@ -48,29 +49,41 @@ Horizon2DLine* Horizon2DLine::clone() const
 { return new Horizon2DLine(*this); }
 
 
-int Horizon2DLine::addRow( const TypeSet<Coord>& coords, int start, int step )
+bool Horizon2DLine::addRow( const PosInfo::GeomID& geomid,
+			   const TypeSet<Coord>& coords, int start, int step )
 {
-    const int res = rows_.size() + firstrow_;
-    rows_ += new TypeSet<Coord3>;
-    colsampling_ += SamplingData<int>( start, step );
-    setRow( res, coords, start, step );
-    return res;
+    const int index = geomids_.indexOf( geomid );
+    
+    if ( mIsUdf(index) )
+	return false;
+
+    if ( index< 0 )
+    {
+	geomids_ += geomid;
+	rows_ += new TypeSet<Coord3>;
+	colsampling_ += SamplingData<int>( start, step );
+    }
+
+    setRow( geomid, coords, start, step );
+    return true;
 }
 
 
-int Horizon2DLine::addUdfRow( int start, int stop, int step )
+bool Horizon2DLine::addUdfRow( const PosInfo::GeomID& geomid, int start,
+			      int stop, int step )
 {
     TypeSet<Coord> coords;
     for ( int idx=start; idx<=stop; idx+=step )
 	coords += Coord::udf();
 
-    return addRow( coords, start, step );
+    return addRow( geomid, coords, start, step );
 }
 
 
-void Horizon2DLine::syncRow( int rowid ,const PosInfo::Line2DData& geom )
+void Horizon2DLine::syncRow( const PosInfo::GeomID& geomid,
+			     const PosInfo::Line2DData& geom )
 {
-    const int rowidx = rowid - firstrow_;
+    const int rowidx = geomids_.indexOf( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
@@ -131,14 +144,15 @@ void Horizon2DLine::syncRow( int rowid ,const PosInfo::Line2DData& geom )
 }
 
 	
-void Horizon2DLine::removeRow( int id )
+void Horizon2DLine::removeRow( const PosInfo::GeomID& geomid )
 {
-    const int rowidx = id-firstrow_;
+    const int rowidx = geomids_.indexOf( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
     delete rows_[rowidx];
     rows_.remove( rowidx, false );
+    geomids_.remove( rowidx );
     colsampling_.remove( rowidx, false );
     if ( !rowidx )
     {
@@ -151,12 +165,13 @@ void Horizon2DLine::removeRow( int id )
 }
 
 
-void Horizon2DLine::removeCols( int rowid, int col1, int col2 )
+void Horizon2DLine::removeCols( const PosInfo::GeomID& geomid, int col1,
+				int col2 )
 {
-    const int rowidx = rowid - firstrow_;
+    const int rowidx = geomids_.indexOf( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() ) return;
 
-    const StepInterval<int> colrg = colRange( rowid );
+    const StepInterval<int> colrg = colRange( getRowIndex(geomid) );
     const int startidx = colrg.getIndex( col1 );
     const int stopidx = colrg.getIndex( col2 );
 
@@ -177,10 +192,10 @@ void Horizon2DLine::removeCols( int rowid, int col1, int col2 )
 }
 
 
-void Horizon2DLine::setRow( int rowid, const TypeSet<Coord>& path,
-			    int start, int step )
+void Horizon2DLine::setRow( const PosInfo::GeomID& geomid,
+			    const TypeSet<Coord>& path, int start, int step )
 {
-    const int rowidx = rowid - firstrow_;
+    const int rowidx = geomids_.indexOf( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
@@ -208,9 +223,8 @@ StepInterval<int> Horizon2DLine::rowRange() const
 { return StepInterval<int>( firstrow_, firstrow_+rows_.size()-1, 1 ); }
 
 
-StepInterval<int> Horizon2DLine::colRange( int rowid ) const
+StepInterval<int> Horizon2DLine::colRange( int rowidx ) const
 {
-    const int rowidx = rowid - firstrow_;
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return StepInterval<int>( INT_MAX, INT_MIN, 1 );
 
@@ -220,13 +234,20 @@ StepInterval<int> Horizon2DLine::colRange( int rowid ) const
 }
 
 
-Interval<float> Horizon2DLine::zRange( int rowid ) const
+StepInterval<int> Horizon2DLine::colRange( const PosInfo::GeomID& geomid ) const
+{
+    return colRange( getRowIndex(geomid) );
+}
+
+
+Interval<float> Horizon2DLine::zRange( const PosInfo::GeomID& geomid ) const
 {
     Interval<float> zrange( mUdf(float), -mUdf(float) );
-    StepInterval<int> colrg = colRange( rowid );
+    StepInterval<int> colrg = colRange( getRowIndex(geomid) );
     for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
     {
-	const float z = getKnot( RowCol(rowid,col) ).z;
+	const int rowidx = getRowIndex( geomid );
+	const float z = getKnot( RowCol(rowidx,col) ).z;
 	if ( !mIsUdf(z) )
 	    zrange.include( z, false );
     }
@@ -235,14 +256,15 @@ Interval<float> Horizon2DLine::zRange( int rowid ) const
 }
 
 
-void Horizon2DLine::geometry( int rowid, PosInfo::Line2DData& ld ) const
+void Horizon2DLine::geometry( const PosInfo::GeomID& geomid,
+			      PosInfo::Line2DData& ld ) const
 {
     ld.setEmpty();
-    const int rowidx = rowid - firstrow_;
+    const int rowidx = geomids_.indexOf( geomid );
     if ( !rows_.validIdx(rowidx) )
 	return;
 
-    const Interval<float> myzrg( zRange(rowid) );
+    const Interval<float> myzrg( zRange(geomid) );
     const StepInterval<float> zrg( myzrg.start, myzrg.stop, ld.zRange().step );
     ld.setZRange( zrg );
     for ( int idx=0; idx<rows_[rowidx]->size(); idx++ )
@@ -255,22 +277,29 @@ void Horizon2DLine::geometry( int rowid, PosInfo::Line2DData& ld ) const
 }
 
 
+int Horizon2DLine::getRowIndex( const PosInfo::GeomID& geomid ) const
+{
+    return geomids_.indexOf( geomid );
+}
+
+
 Coord3 Horizon2DLine::getKnot( const RowCol& rc ) const
 {
-    const int rowidx = rc.row - firstrow_;
-    const int colidx = colIndex( rowidx, rc.col );
-    return colidx>=0 ? (*rows_[rowidx])[colidx] : Coord3::udf();
+    if ( mIsUdf(rc.row) || rc.row < 0 )
+	return Coord3::udf();
+
+    const int colidx = colIndex( rc.row, rc.col );
+    return colidx>=0 ? (*rows_[rc.row])[colidx] : Coord3::udf();
 }
 
 
 bool Horizon2DLine::setKnot( const RowCol& rc, const Coord3& pos )
 {
-    const int rowidx = rc.row - firstrow_;
-    const int colidx = colIndex( rowidx, rc.col );
+    const int colidx = colIndex( rc.row, rc.col );
 
     if ( colidx<0 ) return false;
 
-    (*rows_[rowidx])[colidx] = pos;
+    (*rows_[rc.row])[colidx] = pos;
 
     return true;
 }
@@ -278,9 +307,8 @@ bool Horizon2DLine::setKnot( const RowCol& rc, const Coord3& pos )
 
 bool Horizon2DLine::isKnotDefined( const RowCol& rc ) const
 {
-    const int rowidx = rc.row - firstrow_;
-    const int colidx = colIndex( rowidx, rc.col );
-    return colidx>=0 ? (*rows_[rowidx])[colidx].isDefined() : false;
+    const int colidx = colIndex( rc.row, rc.col );
+    return colidx>=0 ? (*rows_[rc.row])[colidx].isDefined() : false;
 }
 
 
