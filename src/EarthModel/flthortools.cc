@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.27 2010-11-02 10:48:02 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.28 2010-11-15 03:32:31 raman Exp $";
 
 #include "flthortools.h"
 
@@ -39,19 +39,15 @@ const TypeSet<int>& FaultTrace::getIndices() const
 
 int FaultTrace::add( const Coord3& pos )
 {
-    lock_.lock();
     coords_ += pos;
-    lock_.unLock();
     return coords_.size() - 1;
 }
 
 
 int FaultTrace::add( const Coord3& pos, int trcnr )
 {
-    lock_.lock();
     coords_ += pos;
     trcnrs_ += trcnr;
-    lock_.unLock();
     return coords_.size() - 1;
 }
 
@@ -64,17 +60,14 @@ int FaultTrace::getTrcNr( int idx ) const
 
 void FaultTrace::set( int idx, const Coord3& pos )
 {
-    lock_.lock();
     if ( idx >= 0 && idx < coords_.size() )
 	coords_[idx] = pos;
 
-    lock_.unLock();
 }
 
 
 void FaultTrace::set( int idx, const Coord3& pos, int trcnr )
 {
-    lock_.lock();
     if ( idx >= 0 && idx < coords_.size() )
     {
 	coords_[idx] = pos;
@@ -82,15 +75,12 @@ void FaultTrace::set( int idx, const Coord3& pos, int trcnr )
 	    trcnrs_[idx] = trcnr;
     }
 
-    lock_.unLock();
 }
 
 
 void FaultTrace::remove( int idx )
 {
-    lock_.lock();
     coords_.remove( idx );
-    lock_.unLock();
 }
 
 
@@ -104,7 +94,6 @@ FaultTrace* FaultTrace::clone()
     newobj->trcnrs_ = trcnrs_;
     return newobj;
 }
-
 
 float FaultTrace::getZValFor( const BinID& bid ) const
 {
@@ -151,6 +140,8 @@ bool FaultTrace::isCrossing( const BinID& bid1, float z1,
     if ( is2d && trcnrs_.size() != getSize() )
 	return false;
 
+    Interval<float> zrg( z1, z2 );
+    zrg.sort();
     z1 *= SI().zFactor();
     z2 *= SI().zFactor();
     if ( ( isinl_ && (bid1.inl != nr_ || bid2.inl != nr_) )
@@ -166,13 +157,13 @@ bool FaultTrace::isCrossing( const BinID& bid1, float z1,
 	const int curidx = coordindices_[idx];
 	const int previdx = coordindices_[idx-1];
 	if ( curidx < 0 || previdx < 0 )
-	{
-	    idx += 2;
 	    continue;
-	}
 
 	const Coord3& pos1 = get( previdx );
 	const Coord3& pos2 = get( curidx );
+	if ( ( pos1.z < zrg.start && pos2.z < zrg.start )
+		|| ( pos1.z > zrg.stop && pos2.z > zrg.stop ) )
+	    continue;
 
 	Coord nodepos1, nodepos2;
 	if ( is2d )
@@ -289,7 +280,20 @@ bool FaultTraceExtractor::execute()
     flttrc_->ref();
     flttrc_->setIndices( idxgeom->coordindices_ );
     flttrc_->setIsInl( isinl_ );
-    flttrc_->setLineNr( nr_ );
+    flttrc_->setLineNr( nr_ );	
+    if ( !isinl_ && nr_ == 3040 )
+	{
+std::cout << "FaultTrace Coords:" << std::endl;
+for ( int idx=0; idx<flttrc_->getSize(); idx++ )
+{
+    Coord3 pos = flttrc_->get(idx);
+std::cout << idx << "\t" <<pos.x << "\t" << pos.y << "\t" << pos.z << std::endl;
+}
+const TypeSet<int>& indices = flttrc_->getIndices();
+for ( int idx=0; idx<indices.size(); idx++ )
+std::cout << indices[idx] << std::endl;
+	}
+
     if ( bvset_ )
 	useHorizons();
 
@@ -479,3 +483,55 @@ void FaultTraceExtractor::useHorizons()
 	}
     }
 }
+
+
+FaultTraceCalc::FaultTraceCalc( EM::Fault* flt, const HorSampling& hs,
+		ObjectSet<FaultTrace>& trcs )
+    : Executor("Extracting Fault Traces")
+    , hs_(*new HorSampling(hs))
+    , flt_(flt)
+    , flttrcs_(trcs)
+    , nrdone_(0)
+    , isinl_(true)
+{
+    curnr_ = hs_.start.inl;
+}
+
+FaultTraceCalc::~FaultTraceCalc()
+{ delete &hs_; }
+
+od_int64 FaultTraceCalc::nrDone() const
+{ return nrdone_; }
+
+od_int64 FaultTraceCalc::totalNr() const
+{ return hs_.nrInl() + hs_.nrCrl(); }
+
+const char* FaultTraceCalc::message() const
+{ return "Extracting Fault Traces"; }
+
+int FaultTraceCalc::nextStep()
+{
+    if ( !isinl_ && (hs_.nrInl() == 1 || curnr_ > hs_.stop.crl) )
+	return Finished();
+
+    if ( isinl_ && (hs_.nrCrl() == 1 || curnr_ > hs_.stop.inl) )
+    {
+	isinl_ = false;
+	curnr_ = hs_.start.crl;
+	return MoreToDo();
+    }
+
+    FaultTraceExtractor ext( flt_, curnr_, isinl_ );
+    if ( !ext.execute() )
+	return ErrorOccurred();
+
+    FaultTrace* flttrc = ext.getFaultTrace();
+    if ( flttrc )
+	flttrc->ref();
+
+    flttrcs_ += flttrc;
+    curnr_ += isinl_ ? hs_.step.inl : hs_.step.crl;
+    nrdone_++;
+    return MoreToDo();
+}
+

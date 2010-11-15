@@ -7,18 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.16 2010-08-24 11:01:02 nanne Exp $
+ RCS:		$Id: flthortools.h,v 1.17 2010-11-15 03:32:31 raman Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "executor.h"
 #include "positionlist.h"
 #include "sets.h"
-#include "thread.h"
 
 namespace EM { class Fault; }
 class IOObj;
 class BinIDValueSet;
+class HorSampling;
+
 
 mClass FaultTrace : public Coord3List
 {
@@ -53,7 +55,6 @@ protected:
     TypeSet<Coord3>	coords_;
     TypeSet<int>	coordindices_;
     TypeSet<int>	trcnrs_;	// For 2D only;
-    Threads::Mutex	lock_;
 };
 
 
@@ -83,6 +84,29 @@ protected:
 
     void		useHorizons();
     bool		get2DFaultTrace();
+};
+
+
+mClass FaultTraceCalc : public Executor
+{
+public:
+			FaultTraceCalc(EM::Fault*,const HorSampling&,
+				       ObjectSet<FaultTrace>&);
+			~FaultTraceCalc();
+
+    od_int64		nrDone() const;
+    od_int64		totalNr() const;
+    const char*		message() const;
+    int			nextStep();
+
+protected:
+
+    HorSampling&		hs_;
+    int				curnr_;
+    bool			isinl_;
+    EM::Fault*			flt_;
+    ObjectSet<FaultTrace>&	flttrcs_;
+    od_int64			nrdone_;
 };
 
 #endif
