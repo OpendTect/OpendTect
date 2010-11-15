@@ -4,7 +4,7 @@
  *  DATE     : April 2010
 -*/
 
-static const char* rcsID = "$Id: uihorauxdatasel.cc,v 1.4 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorauxdatasel.cc,v 1.5 2010-11-15 21:30:00 cvsyuancheng Exp $";
 
 
 #include "uihorauxdatasel.h"
@@ -32,11 +32,6 @@ public:
 		, selmid_( 0 )
 		, auxinfo_( new uiHorizonAuxDataSel::HorizonAuxDataInfo(info) )
 		{
-		    if ( !auxinfo_->mids_.size() )
-			uiMSG().warning("No data available for any horizon, \
-				please make sure the horizon you want to use \
-				has surface data on it.");
-
 		    uiGroup* grp = new uiGroup( this, "Group" );
 		    uiLabel* horlabel = new uiLabel( grp, "Horizons" );
 		    horlistfld_ = new uiListBox( grp );
