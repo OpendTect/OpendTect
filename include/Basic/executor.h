@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.28 2010-06-10 08:35:30 cvsnanne Exp $
+ RCS:		$Id: executor.h,v 1.29 2010-11-16 05:55:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,10 +67,11 @@ or in parallel (but still single-threaded).
 mClass ExecutorGroup : public Executor
 {
 public:
-    			ExecutorGroup( const char* nm, bool parallel=false );
+    			ExecutorGroup( const char* nm, bool parallel=false,
+				       bool ownsexecs=true );
     virtual		~ExecutorGroup();
     virtual void	add( Executor* );
-    			/*!< You will become mine!! */
+    			/*!< You will become mine if ownsexecs_ is true!! */
 
     virtual const char*	message() const;
     virtual od_int64	totalNr() const;
@@ -96,6 +97,7 @@ protected:
     BufferString	nrdonetext_;
     ObjectSet<Executor>& executors_;
     TypeSet<int>	executorres_;
+    bool		ownsexecs_;
 
 };
 

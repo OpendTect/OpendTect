@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.33 2010-10-07 05:51:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.34 2010-11-16 05:56:40 cvsraman Exp $";
 
 #include "executor.h"
 
@@ -67,19 +67,22 @@ int Executor::doStep()
 }
 
 
-ExecutorGroup::ExecutorGroup( const char* nm, bool p )
+ExecutorGroup::ExecutorGroup( const char* nm, bool p, bool ownsexecs )
 	: Executor( nm )
 	, executors_( *new ObjectSet<Executor> )
 	, currentexec_( 0 )
     	, parallel_( p )
     	, sumstart_( 0 )
+        , ownsexecs_(ownsexecs)
 {
 }
 
 
 ExecutorGroup::~ExecutorGroup()
 {
-    deepErase( executors_ );
+    if ( ownsexecs_ )
+	deepErase( executors_ );
+
     delete &executors_;
 }
 
