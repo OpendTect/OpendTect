@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.69 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.70 2010-11-16 11:30:12 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -80,12 +80,12 @@ uiWellMan::uiWellMan( uiParent* p )
     logsbgrp->attach( centeredBelow, logsgrp_ );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsgrp_ );
-    butgrp->addButton( uiManipButGrp::Rename, mCB(this,uiWellMan,renameLogPush),
-	    	       "Rename selected log" );
-    butgrp->addButton( uiManipButGrp::Remove, mCB(this,uiWellMan,removeLogPush),
-	    	       "Remove selected log" );
-    butgrp->addButton( "export.png", mCB(this,uiWellMan,exportLogs),
-	    	       "Export log" );
+    butgrp->addButton( uiManipButGrp::Rename, "Rename selected log",
+			mCB(this,uiWellMan,renameLogPush) );
+    butgrp->addButton( uiManipButGrp::Remove, "Remove selected log",
+			mCB(this,uiWellMan,removeLogPush) );
+    butgrp->addButton( "export.png", "Export log",
+	    		mCB(this,uiWellMan,exportLogs) );
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.83 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.84 2010-11-16 11:30:12 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -90,11 +90,11 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
-    manipgrp->addButton( "copyobj.png", mCB(this,uiSurfaceMan,copyCB),
-			 mGetCopyStr(typ) );
+    manipgrp->addButton( "copyobj.png", mGetCopyStr(typ),
+	    		 mCB(this,uiSurfaceMan,copyCB) );
 
-    man2dbut_ = manipgrp->addButton( "man2d.png", mCB(this,uiSurfaceMan,man2d),
-	    			     "Manage 2D Horizons" );
+    man2dbut_ = manipgrp->addButton( "man2d.png", "Manage 2D Horizons",
+				    mCB(this,uiSurfaceMan,man2d) );
     man2dbut_->setSensitive( false );
 
     if ( mGet(typ,false,true,true,false,false) )
@@ -106,12 +106,10 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 	attribfld_->setToolTip( "Calculated attributes" );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( llb );
-	butgrp->addButton( uiManipButGrp::Remove,
-			   mCB(this,uiSurfaceMan,removeAttribCB),
-			   "Remove selected attribute(s)" );
-	butgrp->addButton( uiManipButGrp::Rename,
-			   mCB(this,uiSurfaceMan,renameAttribCB),
-			   "Rename selected attribute" );
+	butgrp->addButton( uiManipButGrp::Remove,"Remove selected attribute(s)",
+			   mCB(this,uiSurfaceMan,removeAttribCB) );
+	butgrp->addButton( uiManipButGrp::Rename, "Rename selected attribute",
+			   mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
 
 	uiPushButton* stratbut =

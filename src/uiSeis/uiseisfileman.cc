@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.117 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.118 2010-11-16 11:30:12 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -62,26 +62,25 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
-    manipgrp->addButton( "copyobj.png", mCB(this,uiSeisFileMan,copyPush),
-			 is2d ? "Copy lineset" : "Copy cube" );
+    manipgrp->addButton( "copyobj.png", is2d ? "Copy lineset" : "Copy cube",
+			 mCB(this,uiSeisFileMan,copyPush) );
     if ( is2d )
     {
-	manipgrp->addButton( "man2d.png", mCB(this,uiSeisFileMan,man2DPush),
-			     "Manage lines");
-	manipgrp->addButton( "dumpgeom.png", mCB(this,uiSeisFileMan,dump2DPush),
-			     "Dump geometry" );
+	manipgrp->addButton( "man2d.png", "Manage lines",
+				mCB(this,uiSeisFileMan,man2DPush) );
+	manipgrp->addButton( "dumpgeom.png", "Dump geometry",
+				mCB(this,uiSeisFileMan,dump2DPush) );
     }
     else
     {
-	manipgrp->addButton( "mergeseis.png", mCB(this,uiSeisFileMan,mergePush),
-			     "Merge blocks of inlines into cube" );
-	manipgrp->addButton( "browseseis.png",
-			     mCB(this,uiSeisFileMan,browsePush),
-			     "Browse/edit this cube" );
+	manipgrp->addButton( "mergeseis.png", "Merge cube parts into one cube",
+				mCB(this,uiSeisFileMan,mergePush) );
+	manipgrp->addButton( "browseseis.png", "Browse/edit this cube",
+				mCB(this,uiSeisFileMan,browsePush) );
     }
 
-    manipgrp->addButton( "man_ps.png", mCB(this,uiSeisFileMan,manPS),
-	    		 "Manage Pre-Stack data" );
+    manipgrp->addButton( "man_ps.png", "Manage Pre-Stack data",
+			 mCB(this,uiSeisFileMan,manPS) );
 
     selChg(0);
     fieldsCreated()->trigger( this );

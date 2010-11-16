@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetman.cc,v 1.13 2010-11-09 04:41:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipicksetman.cc,v 1.14 2010-11-16 11:30:12 cvsbert Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -36,8 +36,8 @@ uiPickSetMan::uiPickSetMan( uiParent* p )
 	           PickSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
-    selgrp_->getManipGroup()->addButton( "mergepicksets.png",
-	    		mCB(this,uiPickSetMan,mergeSets), "Merge pick sets" );
+    selgrp_->getManipGroup()->addButton( "mergepicksets.png", "Merge pick sets",
+					 mCB(this,uiPickSetMan,mergeSets) );
     fieldsCreated()->trigger( this );
     selChg( this );
 }

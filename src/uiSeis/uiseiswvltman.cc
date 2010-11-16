@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.63 2010-11-09 04:41:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.64 2010-11-16 11:30:12 cvsbert Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -63,16 +63,16 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     createDefaultUI();
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "wvltfromothsurv.png",
-	mCB(this,uiSeisWvltMan,getFromOtherSurvey), "Get from other survey" );
-    manipgrp->addButton( "info.png",
-	mCB(this,uiSeisWvltMan,dispProperties), "Display properties" );
-    manipgrp->addButton( "revpol.png",
-	mCB(this,uiSeisWvltMan,reversePolarity), "Reverse polarity" );
-    manipgrp->addButton( "phase.png",
-	mCB(this,uiSeisWvltMan,rotatePhase), "Rotate phase" );
-    manipgrp->addButton( "wavelet_taper.png",
-	mCB(this,uiSeisWvltMan,taper), "Taper" );
+    manipgrp->addButton( "wvltfromothsurv.png", "Get from other survey",
+			mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
+    manipgrp->addButton( "info.png", "Display properties",
+			mCB(this,uiSeisWvltMan,dispProperties) );
+    manipgrp->addButton( "revpol.png", "Reverse polarity",
+			mCB(this,uiSeisWvltMan,reversePolarity) );
+    manipgrp->addButton( "phase.png", "Rotate phase",
+			mCB(this,uiSeisWvltMan,rotatePhase) );
+    manipgrp->addButton( "wavelet_taper.png", "Taper",
+			mCB(this,uiSeisWvltMan,taper) );
 
     butgrp_ = new uiGroup( listgrp_, "Imp/Create buttons" );
     uiPushButton* impbut = new uiPushButton( butgrp_, "&Import", false );

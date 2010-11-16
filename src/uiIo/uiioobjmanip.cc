@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.43 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.44 2010-11-16 11:30:12 cvsbert Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
@@ -38,8 +38,8 @@ uiManipButGrp::ButData::ButData( uiToolButton* b, const char* p, const char* t )
 }
 
 
-uiToolButton* uiManipButGrp::addButton( Type tp, const CallBack& cb,
-					const char* tooltip )
+uiToolButton* uiManipButGrp::addButton( Type tp, const char* tooltip,
+					const CallBack& cb )
 {
     const char* pm = 0;
     switch ( tp )
@@ -57,12 +57,12 @@ uiToolButton* uiManipButGrp::addButton( Type tp, const CallBack& cb,
 	    pm = "home.png";
     }
 
-    return addButton( pm, cb, tooltip );
+    return addButton( pm, tooltip, cb );
 }
 
 
-uiToolButton* uiManipButGrp::addButton( const char* pmnm, const CallBack& cb,
-					const char* tooltip )
+uiToolButton* uiManipButGrp::addButton( const char* pmnm, const char* tooltip,
+					const CallBack& cb )
 {
     uiToolButton* button = new uiToolButton( this, pmnm, tooltip, cb );
     butdata += new ButData( button, pmnm, tooltip );
@@ -116,11 +116,11 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool reloc )
 
     const CallBack cb( mCB(this,uiIOObjManipGroup,tbPush) );
     if ( reloc )
-	locbut = addButton( FileLocation, cb, "Change location on disk" );
-    renbut = addButton( Rename, cb, "Rename this object" );
-    robut = addButton( ReadOnly, cb, "Toggle Read only : locked" );
-    setAlternative( robut, "unlock.png", "Toggle Read only : editable");
-    rembut = addButton( Remove, cb, "Remove this object" );
+	locbut = addButton( FileLocation, "Change location on disk", cb );
+    renbut = addButton( Rename, "Rename this object", cb );
+    robut = addButton( ReadOnly, "Toggle Read only : locked", cb );
+    setAlternative( robut, "unlock.png", "Toggle Read only : editable" );
+    rembut = addButton( Remove, "Remove this object", cb );
     attach( rightOf, subj_.obj_ );
 }
 

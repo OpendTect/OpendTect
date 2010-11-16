@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.10 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.11 2010-11-16 11:30:12 cvsbert Exp $";
 
 #include "uiprobdenfuncman.h"
 
@@ -36,8 +36,8 @@ uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     manipgrp->addButton( "browseprdf.png",
-			 mCB(this,uiProbDenFuncMan,browsePush),
-			 "Browse/edit this Probability Density Function" );
+	    		 "Browse/edit this Probability Density Function",
+			 mCB(this,uiProbDenFuncMan,browsePush) );
 
     selgrp_->setPrefWidthInChar( cPrefWidth );
     infofld_->setPrefWidthInChar( cPrefWidth );

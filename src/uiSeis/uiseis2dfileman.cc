@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.13 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.14 2010-11-16 11:30:12 cvsbert Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -68,13 +68,13 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linefld_->setMultiSelect(true);
 
     linegrp_ = new uiManipButGrp( lllb );
-    linegrp_->addButton( uiManipButGrp::Rename, 
-		 mCB(this,uiSeis2DFileMan,renameLine), "Rename line");
-    linegrp_->addButton( "mergelines.png",
-		 mCB(this,uiSeis2DFileMan,mergeLines), "Merge lines");
+    linegrp_->addButton( uiManipButGrp::Rename, "Rename line",
+			mCB(this,uiSeis2DFileMan,renameLine) );
+    linegrp_->addButton( "mergelines.png", "Merge lines",
+			mCB(this,uiSeis2DFileMan,mergeLines) );
     if ( SI().has3D() )
-	linegrp_->addButton( "extr3dseisinto2d.png",
-		 mCB(this,uiSeis2DFileMan,extrFrom3D), "Extract from 3D cube");
+	linegrp_->addButton( "extr3dseisinto2d.png", "Extract from 3D cube",
+			mCB(this,uiSeis2DFileMan,extrFrom3D) );
     linegrp_->attach( rightOf, linefld_ );
 
     uiLabeledListBox* allb = new uiLabeledListBox( topgrp, "Attributes", true,
@@ -84,15 +84,12 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     allb->attach( rightOf, lllb );
 
     attrgrp_ = new uiManipButGrp( allb );
-    attrgrp_->addButton( uiManipButGrp::Rename,
-	    	       mCB(this,uiSeis2DFileMan,renameAttrib),
-		       "Rename attribute" );
-    attrgrp_->addButton( uiManipButGrp::Remove,
-	    		mCB(this,uiSeis2DFileMan,removeAttrib),
-			"Remove selected attribute(s)" );
-    browsebut_ = attrgrp_->addButton( "browseseis.png",
-	    	       mCB(this,uiSeis2DFileMan,browsePush),
-		       "Browse/edit this line" );
+    attrgrp_->addButton( uiManipButGrp::Rename, "Rename attribute",
+	    	       mCB(this,uiSeis2DFileMan,renameAttrib) );
+    attrgrp_->addButton( uiManipButGrp::Remove, "Remove selected attribute(s)",
+	    		mCB(this,uiSeis2DFileMan,removeAttrib) );
+    browsebut_ = attrgrp_->addButton( "browseseis.png", "Browse/edit this line",
+	    	       mCB(this,uiSeis2DFileMan,browsePush) );
     attrgrp_->attach( rightOf, attrfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom" );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.35 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.36 2010-11-16 11:30:12 cvsbert Exp $";
 
 
 #include "uiobjfileman.h"
@@ -64,7 +64,7 @@ void uiObjFileMan::createDefaultUI( bool needreloc )
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
 
     mkdefbut_ = selgrp_->getManipGroup()->addButton( "makedefault.png",
-	    mCB(this,uiObjFileMan,makeDefault), "Set as default" );
+	    "Set as default", mCB(this,uiObjFileMan,makeDefault) );
 
     infogrp_ = new uiGroup( this, "Info Group" );
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );

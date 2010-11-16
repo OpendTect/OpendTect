@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.18 2010-11-16 09:49:10 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.19 2010-11-16 11:30:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,9 +33,11 @@ public:
 
     enum Type		{ FileLocation, Rename, Remove, ReadOnly };
 
-    uiToolButton*	addButton(Type,const CallBack&,const char* tip);
-    uiToolButton*	addButton(const char*,const CallBack&,const char*);
-    void		setAlternative(uiToolButton*,const char*,const char*);
+    uiToolButton*	addButton(Type,const char* ttip,const CallBack&);
+    uiToolButton*	addButton(const char* iconfnm,const char* ttip,
+	    			  const CallBack&);
+    void		setAlternative(uiToolButton*,const char* icfnm,
+	    				const char* ttip);
     void		useAlternative(uiToolButton*,bool);
 
 protected:

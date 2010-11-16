@@ -134,8 +134,8 @@ void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
     if ( !cur2dfm_ ) return;
 
     fm->getButGroup(false)->addButton(	"google.png",
-	    				mCB(this,uiGoogleIOMgr,exportLines),
-	    				"Export selected lines to Google KML" );
+	    				"Export selected lines to Google KML",
+	    				mCB(this,uiGoogleIOMgr,exportLines) );
 }
 
 
