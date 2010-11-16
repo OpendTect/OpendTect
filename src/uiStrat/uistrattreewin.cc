@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.62 2010-11-16 11:29:35 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.63 2010-11-16 14:46:30 cvsbert Exp $";
 
 #include "uistrattreewin.h"
 
@@ -31,8 +31,6 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.62 2010-11-16 11:29:35 cv
 #include "uistratlvllist.h"
 #include "uistratutildlgs.h"
 #include "uistratdisplay.h"
-#include "uistratlayermodel.h"
-#include "uistratlayseqgendesc.h"
 #include "uitoolbar.h"
 
 #define	mExpandTxt(domenu)	domenu ? "&Expand all" : "Expand all"
@@ -44,6 +42,7 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.62 2010-11-16 11:29:35 cv
 
 using namespace Strat;
 
+ObjectSet<uiToolButtonSetup> uiStratTreeWin::tbsetups_;
 
 static uiStratTreeWin* stratwin = 0;
 const uiStratTreeWin& StratTWin()
@@ -82,6 +81,15 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
 uiStratTreeWin::~uiStratTreeWin()
 {
     delete &repos_;
+}
+
+
+void uiStratTreeWin::addTool( uiToolButtonSetup* su )
+{
+    if ( !su ) return;
+    tbsetups_ += su;
+    if ( stratwin )
+	stratwin->tb_->addButton( *su );
 }
 
 
@@ -147,9 +155,9 @@ void uiStratTreeWin::createToolBar()
     tb_->addButton( helpbut );
     tb_->addSeparator();
     mDefBut( switchviewbut_, "strat_tree.png", switchViewCB, "Switch View" );
-    tb_->addSeparator();
-    uiToolButton* mDefBut(laymodbut,"stratlayermodeling.png", layModCB,
-				"Start Layer Modeling" );
+
+    for ( int idx=0; idx<tbsetups_.size(); idx++ )
+	tb_->addButton( *tbsetups_[idx] );
 }
 
 
@@ -281,31 +289,6 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
     uitree_->listView()->display( istreedisp_ );
     switchviewbut_->setPixmap( istreedisp_ ? "stratframeworkgraph.png"
 					   : "strat_tree.png" );
-}
-
-
-void uiStratTreeWin::layModCB( CallBacker* )
-{
-    if ( !RT().hasChildren() )
-	return;
-
-    const BufferStringSet& nms =
-			uiLayerSequenceGenDesc::factory().getNames( true );
-    if ( nms.isEmpty() ) return;
-
-    const char* nm = nms.get(0).buf();
-    if ( nms.size() > 1 )
-    {
-	uiSelectFromList ls( this,
-		uiSelectFromList::Setup("Select modeling type",nms) );
-	ls.go();
-	const int sel = ls.selection();
-	if ( sel < 0 ) return;
-	nm = nms.get(sel).buf();
-    }
-
-    uiStratLayerModel dlg( this, nm );
-    dlg.go();
 }
 
 
