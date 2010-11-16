@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitoolbar.cc,v 1.59 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uitoolbar.cc,v 1.60 2010-11-16 11:26:58 cvsbert Exp $";
 
 #include "uitoolbar.h"
 
@@ -30,6 +30,7 @@ const char* uiIcon::saveAs()		{ return "saveas.png"; }
 const char* uiIcon::openObject()	{ return "openstorage.png"; }
 const char* uiIcon::newObject()		{ return "newstorage.png"; }
 const char* uiIcon::removeObject()	{ return "trashcan.png"; }
+const char* uiIcon::None()		{ return "-"; }
 
 
 class uiToolBarBody : public uiParentBody
