@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.30 2010-10-07 06:35:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.31 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -23,10 +23,9 @@ static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.30 2010-10-07 06:35:33 cvs
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uibatchlaunch.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
-#include "pixmap.h"
 
 #include "segyfiledef.h"
 #include "segyfiledata.h"
@@ -91,11 +90,10 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 
     if ( attobj )
     {
-	uiToolButton* tb = new uiToolButton( this, "Pre-scan",
-			   ioPixmap("prescan.png"),
-			   mCB(this,uiSEGYScanDlg,preScanCB) );
+	uiToolButton* tb = new uiToolButton( this, "prescan.png",
+					"Limited Pre-scan",
+				       mCB(this,uiSEGYScanDlg,preScanCB) );
 	tb->attach( rightTo, attobj ); tb->attach( rightBorder );
-	tb->setToolTip( "Limited Pre-scan" );
     }
 }
 

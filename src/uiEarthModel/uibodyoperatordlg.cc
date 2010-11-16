@@ -7,14 +7,14 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.3 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.4 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uibodyoperatordlg.h"
 
 #include "ctxtioobj.h"
 #include "embodyoperator.h"
 #include "embodytr.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -86,11 +86,12 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p, EM::BodyOperator& op )
     oprselfld_->box()->selectionChanged.notify(
 	    mCB(this,uiBodyOperatorDlg,oprSel) );
 
-    unionbut_ = new uiToolButton( this, "&Union", "set_union.png" );
+    unionbut_ = new uiToolButton( this, "set_union.png", "Union", CallBack() );
     unionbut_->attach( rightOf, oprselfld_ );
-    intersectbut_ = new uiToolButton( this, "&Intersect", "set_intersect.png" );
+    intersectbut_ = new uiToolButton( this, "set_intersect.png", "Intersect",
+	    				CallBack() );
     intersectbut_->attach( rightOf, oprselfld_ );
-    minusbut_ = new uiToolButton( this, "&Minus", "set_minus.png" );
+    minusbut_ = new uiToolButton( this, "set_minus.png", "Minus", CallBack() );
     minusbut_->attach( rightOf, oprselfld_ );
 
     typefld_->display( false );

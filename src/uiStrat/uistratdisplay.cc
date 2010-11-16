@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.31 2010-11-09 09:25:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.32 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uistratdisplay.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicolor.h"
 #include "uidialog.h"
 #include "uigeninput.h"
@@ -27,7 +27,6 @@ static const char* rcsID = "$Id: uistratdisplay.cc,v 1.31 2010-11-09 09:25:59 cv
 
 #include "genericnumer.h"
 #include "draw.h"
-#include "pixmap.h"
 #include "randcolor.h"
 #include "scaler.h"
 #include "survinfo.h"
@@ -529,10 +528,8 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 
 
 #define mDefBut(but,fnm,cbnm,tt) \
-        but = new uiToolButton( tb_, 0, ioPixmap(fnm), \
-		mCB(this,uiStratViewControl,cbnm) ); \
-    but->setToolTip( tt ); \
-    tb_->addObject( but );
+    but = new uiToolButton( tb_, fnm, tt, mCB(this,uiStratViewControl,cbnm) ); \
+    tb_->addButton( but );
 
 uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
     : viewer_(v)

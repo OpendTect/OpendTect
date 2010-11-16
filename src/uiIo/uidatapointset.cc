@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.67 2010-08-23 07:06:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.68 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -179,7 +179,7 @@ void uiDataPointSet::closeNotify( CallBacker* )
 void uiDataPointSet::mkToolBars()
 {
 #define mAddButton(fnm,func,tip) \
-    iotb_->addButton( fnm, mCB(this,uiDataPointSet,func), tip )
+    iotb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func) )
     if ( !setup_.isconst_ )
     {
 	iotb_ = new uiToolBar( this, "I/O Tool bar" );
@@ -191,7 +191,7 @@ void uiDataPointSet::mkToolBars()
 
     maniptb_ = new uiToolBar( this, "Manip Tool bar" );
 #define mAddButton(fnm,func,tip) \
-    maniptb_->addButton( fnm, mCB(this,uiDataPointSet,func), tip )
+    maniptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func) )
     mAddButton( "axis-x.png", selXCol, "Set data for X" );
     mAddButton( "axis-add-y.png", selYCol, "Select as Y data" );
     mAddButton( "axis-rm-y.png", unSelCol, "UnSelect as Y data" );
@@ -212,7 +212,7 @@ void uiDataPointSet::mkToolBars()
     disptb_->addObject( grp->attachObj() );
 
 #define mAddButton(fnm,func,tip,istogg) \
-    disptb_->addButton( fnm, mCB(this,uiDataPointSet,func), tip, istogg )
+    disptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func), istogg )
     dispxytbid_ = mAddButton( "toggxy.png", toggleXYZ,
 			      "Toggle show X and Y columns", true );
     dispztbid_ = mAddButton( "toggz.png", toggleXYZ,

@@ -7,20 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.19 2010-10-07 07:16:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.20 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uitextedit.h"
 #include "uitable.h"
 #include "uisplitter.h"
 #include "uilabel.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uigroup.h"
 #include "uiflatviewer.h"
 #include "uifiledlg.h"
 #include "uimsg.h"
 #include "uiseistrcbufviewer.h"
-#include "pixmap.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "ptrman.h"
@@ -67,10 +66,9 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     uiGroup* txtgrp = new uiGroup( this, "Txt fld group" );
     uiLabel* lbl = new uiLabel( txtgrp, "File header information" );
-    uiToolButton* tb = new uiToolButton( txtgrp, "Save text header to file",
-	    				 ioPixmap("saveset.png"),
+    uiToolButton* tb = new uiToolButton( txtgrp, "saveset.png",
+	    				 "Save text header to file",
 				         mCB(this,uiSEGYExamine,saveHdr) );
-    tb->setToolTip( "Save text header to file" );
     tb->attach( rightBorder );
     txtfld_ = new uiTextEdit( txtgrp, "", true );
     txtfld_->setPrefHeightInChar( 14 );
@@ -79,9 +77,8 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     uiGroup* tblgrp = new uiGroup( this, "Table group" );
     lbl = new uiLabel( tblgrp, "Trace header information" );
-    tb = new uiToolButton( tblgrp, "Preview data", ioPixmap("viewflat.png"),
-				         mCB(this,uiSEGYExamine,dispSeis) );
-    tb->setToolTip( "Display traces" );
+    tb = new uiToolButton( tblgrp, "viewflat.png", "Display traces",
+			     mCB(this,uiSEGYExamine,dispSeis) );
     tb->attach( rightBorder );
 
     uiTable::Setup tblsu( SEGY::TrcHeader::nrVals(), setup_.nrtrcs_ );

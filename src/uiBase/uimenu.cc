@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.66 2010-10-22 09:30:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.67 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -125,10 +125,12 @@ void init( uiMenuItem* it, QAction* action, int id, int idx )
 
     action->setIconVisibleInMenu( true );
     action->setToolTip( action->text() );
+    if ( it->pixmap_ )
+	action->setIcon( *it->pixmap_->qpixmap() );
+
     it->setId( id );
     it->setMenu( this );
     it->setAction( action );
-    if ( it->pixmap_ ) { it->setPixmap( *it->pixmap_ ); it->pixmap_ = 0; }
     if ( it->isChecked() )
 	action->setChecked( it->isChecked() );
     action->setEnabled( it->isEnabled() );
@@ -183,23 +185,28 @@ private:
     , checkable_(false) \
     , cmdrecrefnr_(0)
 
-uiMenuItem::uiMenuItem( const char* nm, const ioPixmap* p )
+uiMenuItem::uiMenuItem( const char* nm, const char* pmnm )
     mInitMembers
 {
-    pixmap_ = p;
+    if ( pmnm && *pmnm )
+	pixmap_ = new ioPixmap(pmnm);
 }
 
 
-uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb, const ioPixmap* p )
+uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb, const char* pmnm )
     mInitMembers
 { 
     activated.notify( cb ); 
-    pixmap_ = p;
+    if ( pmnm && *pmnm )
+	pixmap_ = new ioPixmap(pmnm);
 }
 
 
 uiMenuItem::~uiMenuItem()
-{ delete &messenger_; }
+{
+    delete pixmap_;
+    delete &messenger_;
+}
 
 bool uiMenuItem::isEnabled() const
 { return qaction_ ? qaction_->isEnabled() : enabled_; }
@@ -251,14 +258,20 @@ void uiMenuItem::setText( const char* txt )
 void uiMenuItem::setText( const wchar_t* txt )
 { if ( qaction_ ) qaction_->setText( QString::fromWCharArray(txt) ); }
 
-void uiMenuItem::setPixmap( const ioPixmap& pm )
+void uiMenuItem::setPixmap( const char* pmnm )
 {
     if ( qaction_ )
-    {
-	if ( pm.qpixmap() ) qaction_->setIcon( *pm.qpixmap() );
-    }
+	setPixmap( ioPixmap(pmnm) );
     else
-	pixmap_ = &pm;
+	pixmap_ = new ioPixmap( pmnm );
+}
+
+void uiMenuItem::setPixmap( const ioPixmap& pm )
+{
+    if ( !qaction_ )
+	pixmap_ = new ioPixmap( pm );
+    else if ( pm.qpixmap() )
+	qaction_->setIcon( *pm.qpixmap() );
 }
 
 
@@ -532,9 +545,9 @@ bool uiMenuBar::isSensitive() const
 CallBack* uiPopupMenu::interceptor_ = 0;
 
 uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm,
-			  const ioPixmap* pixmap )
+			  const char* pmnm )
     : uiMenuItemContainer( nm, 0, 0 )
-    , item_( *new uiPopupItem( *this, nm, pixmap ) )
+    , item_( *new uiPopupItem( *this, nm, pmnm ) )
 {
     uiMenuItemContainerBodyImpl<QMenu>* bd =
 		    new uiMenuItemContainerBodyImpl<QMenu>( *this, parnt, 

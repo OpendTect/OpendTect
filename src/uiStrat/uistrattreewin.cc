@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.60 2010-11-10 13:58:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.61 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uistrattreewin.h"
 
 #include "compoundkey.h"
 #include "ioman.h"
 #include "stratunitrepos.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicolor.h"
 #include "uidialog.h"
 #include "uifileinput.h"
@@ -126,10 +126,8 @@ void uiStratTreeWin::createMenu()
 }
 
 #define mDefBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton( tb_, 0, ioPixmap(fnm), \
-			    mCB(this,uiStratTreeWin,cbnm) ); \
-    but->setToolTip( tt ); \
-    tb_->addObject( but );
+    but = new uiToolButton( tb_, fnm, tt, mCB(this,uiStratTreeWin,cbnm) ); \
+    tb_->addButton( but );
 
 
 void uiStratTreeWin::createToolBar()
@@ -144,17 +142,14 @@ void uiStratTreeWin::createToolBar()
     lockbut_->setToggleButton( true );
 //    mDefBut(openbut_,"openset.png",openCB,"Open"); not implemented yet
     mDefBut(savebut_,"save.png",saveCB,"Save");
-    uiToolButton* helpbut = new uiToolButton( tb_, 0,
-					      ioPixmap("contexthelp.png"),
+    uiToolButton* helpbut = new uiToolButton( tb_, "contexthelp.png", "Help",
 					      mCB(this,uiStratTreeWin,helpCB) );
-    helpbut->setToolTip( "Help" );
-    tb_->addObject( helpbut );
+    tb_->addButton( helpbut );
     tb_->addSeparator();
     mDefBut( switchviewbut_, "strat_tree.png", switchViewCB, "Switch View" );
     tb_->addSeparator();
-    uiToolButton* laymodbut;
-    mDefBut(laymodbut,"stratlayermodeling.png", layModCB,
-	    	"Start Layer Modeling" );
+    uiToolButton* mDefBut(laymodbut,"stratlayermodeling.png", layModCB,
+				"Start Layer Modeling" );
 }
 
 

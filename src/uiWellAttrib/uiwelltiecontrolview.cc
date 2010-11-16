@@ -9,20 +9,19 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.28 2010-06-24 11:55:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.29 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uiwelltiecontrolview.h"
 
 #include "flatviewzoommgr.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
-#include "pixmap.h"
 #include "welltiepickset.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
 #include "emsurfacetr.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uiflatviewer.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -38,10 +37,8 @@ namespace WellTie
 #define mErrRet(msg,act) \
 { uiMSG().error(msg); act; }
 #define mDefBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton( toolbar_, 0, ioPixmap(fnm), \
-			    mCB(this,uiControlView,cbnm) ); \
-    but->setToolTip( tt ); \
-    toolbar_->addObject( but );
+    but = new uiToolButton( toolbar_, fnm, tt, mCB(this,uiControlView,cbnm) ); \
+    toolbar_->addButton( but );
 
 uiControlView::uiControlView( uiParent* p, uiToolBar* toolbar,uiFlatViewer* vwr)
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()

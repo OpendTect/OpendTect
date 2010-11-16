@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.54 2010-06-22 10:49:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.55 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -213,7 +213,7 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& setup )
 
 
 #define mAddButton(fnm,func,tip,toggle) \
-    uitb_->addButton( fnm, mCB(this,uiSeisBrowser,func), tip, toggle )
+    uitb_->addButton( fnm, tip, mCB(this,uiSeisBrowser,func), toggle )
 
 void uiSeisBrowser::createMenuAndToolBar()
 {

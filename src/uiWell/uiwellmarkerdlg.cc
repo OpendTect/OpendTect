@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.33 2010-10-07 15:59:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.34 2010-11-16 09:49:11 cvsbert Exp $";
 
 
 #include "uiwellmarkerdlg.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicolor.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.33 2010-10-07 15:59:52 c
 #include "ctxtioobj.h"
 #include "file.h"
 #include "iopar.h"
-#include "pixmap.h"
 #include "tabledef.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -72,10 +71,9 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	    				mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightTo, unitfld_ ); rfbut->attach( rightBorder );
     
-    uiToolButton* sb = new uiToolButton( this, "Create new Levels",
-					ioPixmap("man_strat.png"),
+    uiToolButton* sb = new uiToolButton( this, "man_strat.png",
+	    				"Edit Stratigraphy to define Levels",
 					mCB(this,uiMarkerDlg,doStrat) );
-    sb->setToolTip( "Edit Stratigraphy to define Levels" );
     sb->attach( leftOf, rfbut );
 
     stratmrkfld_ = new uiCheckBox( this, "Set as regional markers" );

@@ -7,20 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.22 2010-08-05 15:35:47 cvshelene Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.23 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiprestkmergedlg.h"
 
 #include "uipossubsel.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uitaskrunner.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uilabel.h"
 #include "cubesampling.h"
-#include "pixmap.h"
 #include "posinfo.h"
 #include "ptrman.h"
 #include "iodir.h"
@@ -85,15 +84,12 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 
 void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
 {
-    const ioPixmap pm0( "rightarrow.png" );
-    const ioPixmap pm1( "leftarrow.png" );
-
     uiLabel* sellbl = new uiLabel( selbuttons, "Select" );
     CallBack cb = mCB(this,uiPreStackMergeDlg,selButPush);
-    toselect_ = new uiToolButton( selbuttons, "", pm0, cb );
+    toselect_ = new uiToolButton( selbuttons, "rightarrow.png", "", cb );
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
-    fromselect_ = new uiToolButton( selbuttons, "", pm1, cb );
+    fromselect_ = new uiToolButton( selbuttons, "leftarrow.png", "", cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selbuttons->setHAlignObj( toselect_ );
@@ -102,15 +98,12 @@ void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
 
 void uiPreStackMergeDlg::createMoveButtons( uiGroup* movebuttons )
 {
-    const ioPixmap pm0( "uparrow.png" );
-    const ioPixmap pm1( "downarrow.png" );
-
     uiLabel* movelbl = new uiLabel( movebuttons, "Change \n Priority" );
     CallBack cb = mCB(this,uiPreStackMergeDlg,moveButPush);
-    moveupward_ = new uiToolButton( movebuttons, "", pm0, cb );
+    moveupward_ = new uiToolButton( movebuttons, "uparrow.png","", cb );
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
-    movedownward_ = new uiToolButton( movebuttons, "", pm1, cb );
+    movedownward_ = new uiToolButton( movebuttons, "downarrow.png", "", cb );
     movedownward_->attach( alignedBelow, moveupward_ );
     movedownward_->setHSzPol( uiObject::Undef );
     movebuttons->setHAlignObj( moveupward_ );

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.13 2010-10-07 06:37:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.14 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uivolprocbatchsetup.h"
 #include "volproctrans.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.13 2010-10-07 06:37:
 #include "uiveldesc.h"
 #include "uivolprocchain.h"
 #include "uimsg.h"
+#include "pixmap.h"
 
 
 
@@ -43,7 +44,7 @@ VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
     setupsel_->selectionDone.notify( mCB(this,uiBatchSetup,setupSelCB) );
 
     editsetup_ = new uiPushButton( uppgrp_, "Create",
-	    VolProc::uiChain::getPixmap(),
+	    ioPixmap(VolProc::uiChain::pixmapFileName()),
 	    mCB(this, uiBatchSetup, editPushCB), false );
     editsetup_->attach( rightOf, setupsel_ );
 

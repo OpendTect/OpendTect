@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.105 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.106 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -46,7 +46,7 @@ static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.105 2010-11-10 15:26:43 
 #include "uiattrinpdlg.h"
 #include "uiattrtypesel.h"
 #include "uiautoattrdescset.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
@@ -112,8 +112,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 
 #define mInsertItem( txt, func, fnm ) \
 { \
-    ioPixmap pm( fnm ); \
-    uiMenuItem* itm = new uiMenuItem(txt,mCB(this,uiAttribDescSetEd,func),&pm);\
+    uiMenuItem* itm = new uiMenuItem(txt,mCB(this,uiAttribDescSetEd,func),fnm);\
     filemnu->insertItem( itm ); \
 }
 
@@ -139,7 +138,7 @@ void uiAttribDescSetEd::createMenuBar()
 
 
 #define mAddButton(pm,func,tip) \
-    toolbar_->addButton( pm, mCB(this,uiAttribDescSetEd,func), tip )
+    toolbar_->addButton( pm, tip, mCB(this,uiAttribDescSetEd,func) )
 
 void uiAttribDescSetEd::createToolBar()
 {
@@ -175,20 +174,17 @@ void uiAttribDescSetEd::createGroups()
     rmbut_->attach( leftAlignedBelow, attrlistfld_ );
     rmbut_->activated.notify( mCB(this,uiAttribDescSetEd,rmPush) );
 
-    sortbut_ = new uiToolButton( leftgrp, "Sort", ioPixmap("sort.png"),
+    sortbut_ = new uiToolButton( leftgrp, "sort.png", "Sort attributes",
 	    			 mCB(this,uiAttribDescSetEd,sortPush) );
     sortbut_->attach( rightOf, rmbut_ );
     sortbut_->setPrefWidth( 30 );
 
-    moveupbut_ = new uiToolButton( leftgrp, "Move Up" );
-    moveupbut_->setArrowType( uiToolButton::UpArrow );
+    moveupbut_ = new uiToolButton( leftgrp, uiToolButton::UpArrow, "Up",
+				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     moveupbut_->attach( centeredRightOf, attrlistfld_ );
-    moveupbut_->activated.notify( mCB(this,uiAttribDescSetEd,moveUpDownCB) );
-
-    movedownbut_ = new uiToolButton( leftgrp, "Move Down" );
-    movedownbut_->setArrowType( uiToolButton::DownArrow );
+    movedownbut_ = new uiToolButton( leftgrp, uiToolButton::DownArrow, "Down",
+				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     movedownbut_->attach( alignedBelow, moveupbut_ );
-    movedownbut_->activated.notify( mCB(this,uiAttribDescSetEd,moveUpDownCB) );
 
 //  Right part
     uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
@@ -224,9 +220,8 @@ void uiAttribDescSetEd::createGroups()
     attrtypefld_->update();
     degrp->setHAlignObj( attrtypefld_ );
 
-    const ioPixmap pixmap( "contexthelp.png" );
-    helpbut_ = new uiToolButton( degrp, "&Help button", pixmap );
-    helpbut_->activated.notify( mCB(this,uiAttribDescSetEd,helpButPush) );
+    helpbut_ = new uiToolButton( degrp, "contexthelp.png", "Help",
+				mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
 
     attrnmfld_ = new uiGenInput( rightgrp, "Attribute name" );

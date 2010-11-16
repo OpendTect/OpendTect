@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.21 2010-11-08 11:48:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.22 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimenu.h"
@@ -19,7 +19,6 @@ static const char* rcsID = "$Id: uimadpi.cc,v 1.21 2010-11-08 11:48:22 cvsbert E
 #include "ioman.h"
 #include "maddefs.h"
 #include "madio.h"
-#include "pixmap.h"
 #include "plugins.h"
 #include "separstr.h"
 #include "odusgclient.h"
@@ -98,19 +97,17 @@ uiMadagascarLink::~uiMadagascarLink()
 
 void uiMadagascarLink::updateToolBar( CallBacker* )
 {
-    mnumgr.dtectTB()->addButton( "madagascar.png",
-	    			 mCB(this,uiMadagascarLink,doMain),
-				 "Madagascar link" );
+    mnumgr.dtectTB()->addButton( "madagascar.png", "Madagascar link",
+	    			 mCB(this,uiMadagascarLink,doMain) );
 }
 
 
 void uiMadagascarLink::updateMenu( CallBacker* )
 {
     delete madwin_; madwin_ = 0; ishidden_ = false;
-    const ioPixmap madpm( "madagascar.png" );
     uiMenuItem* newitem = new uiMenuItem( "&Madagascar ...",
 	    				  mCB(this,uiMadagascarLink,doMain),
-	   				  &madpm );
+	   				  "madagascar.png" );
     mnumgr.procMnu()->insertItem( newitem );
 }
 

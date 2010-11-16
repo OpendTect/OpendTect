@@ -8,12 +8,12 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.18 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.19 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
 #include "uiaxishandler.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uimsg.h"
 #include "uiflatviewmainwin.h"
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id: uieditpdf.cc,v 1.18 2010-10-14 09:58:06 cvsbert
 
 #include "arrayndsmoother.h"
 #include "flatposdata.h"
-#include "pixmap.h"
 #include "sampledprobdenfunc.h"
 
 #define mDeclArrNDPDF	mDynamicCastGet(ArrayNDProbDenFunc*,andpdf,&pdf_)
@@ -115,28 +114,20 @@ void uiEditProbDenFunc::mkTable( uiGroup* grp )
     }
 
     uiButtonGroup* bgrp = new uiButtonGroup( grp );
-    uiToolButton* but = new uiToolButton( bgrp, "View",
-		    ioPixmap(nrdims_ == 1 ? "viewprdf1d.png" : "viewprdf.png"),
-		    mCB(this,uiEditProbDenFunc,viewPDF) );
-    but->setToolTip( "View function" );
+    new uiToolButton( bgrp, nrdims_ == 1 ? "viewprdf1d.png" : "viewprdf.png",
+	    "View function", mCB(this,uiEditProbDenFunc,viewPDF) );
     if ( editable_ )
-    {
-	uiToolButton* but = new uiToolButton( bgrp, "Smooth",
-				ioPixmap("smoothcurve.png"),
+	new uiToolButton( bgrp, "smoothcurve.png", "Smooth values",
 				mCB(this,uiEditProbDenFunc,smoothReq) );
-	but->setToolTip( "Smooth values" );
-    }
     if ( nrdims_ > 2 )
     {
 	const char* dim2nm = pdf_.dimName( 2 );
-	uiToolButton* but = new uiToolButton( bgrp, "Next",
-				mCB(this,uiEditProbDenFunc,dimNext) );
-	but->setArrowType( uiToolButton::RightArrow );
-	but->setToolTip( BufferString("Next ",dim2nm) );
-	but = new uiToolButton( bgrp, "Prev",
-				mCB(this,uiEditProbDenFunc,dimPrev) );
-	but->setArrowType( uiToolButton::LeftArrow );
-	but->setToolTip( BufferString("Previous ",dim2nm) );
+	new uiToolButton( bgrp, uiToolButton::RightArrow,
+			    BufferString("Next ",dim2nm),
+			    mCB(this,uiEditProbDenFunc,dimNext) );
+	new uiToolButton( bgrp, uiToolButton::LeftArrow,
+			    BufferString("Previous ",dim2nm),
+			    mCB(this,uiEditProbDenFunc,dimPrev) );
     }
     bgrp->attach( rightOf, tbl_ );
 }

@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.11 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.12 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiseismulticubeps.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uiioobjsel.h"
 #include "uiseparator.h"
@@ -61,12 +61,10 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
     cubefld_->setPrefWidthInChar( 30 );
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "", true );
-    uiToolButton* rbut = new uiToolButton( bgrp, "Right button",
+    new uiToolButton( bgrp, uiToolButton::RightArrow,"Add",
 	    			mCB(this,uiSeisMultiCubePS,addCube) );
-    rbut->setArrowType( uiToolButton::RightArrow );
-    uiToolButton* lbut = new uiToolButton( bgrp, "Left button",
+    new uiToolButton( bgrp, uiToolButton::LeftArrow, "Don't use",
 	    			mCB(this,uiSeisMultiCubePS,rmCube) );
-    lbut->setArrowType( uiToolButton::LeftArrow );
     bgrp->attach( centeredRightOf, cubesllb );
 
     uiLabeledListBox* selllb = new uiLabeledListBox( this, "Used cubes",

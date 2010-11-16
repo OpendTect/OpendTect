@@ -7,9 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.67 2010-08-17 11:33:49 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.68 2010-11-16 09:49:10 cvsbert Exp $";
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "i_qbutton.h"
 
 #include "uibuttongroup.h"
@@ -285,6 +285,12 @@ void uiPushButton::setDefault( bool yn )
 }
 
 
+void uiPushButton::setPixmap( const char* pmnm )
+{
+    setPixmap( ioPixmap(pmnm) );
+}
+
+
 void uiPushButton::setPixmap( const ioPixmap& pm )
 {
     body_->setIconFrac( 0.7 );
@@ -367,40 +373,47 @@ static int preftbsz = -1;
     mDynamicCastGet(uiToolBar*,tb,parnt) \
     if ( !tb ) setPrefWidth( prefVNrPics() );
 
-#define mInit \
+#define mInitTBList \
     id_(-1), qmenu_(0), uimenu_(0)
 
-uiToolButton::uiToolButton( uiParent* parnt, const char* nm )
-    : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
-    , mInit
+uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
+    : uiButton( parnt, su.name_, &su.cb_,
+	        mkbody(parnt,ioPixmap(su.filename_),su.name_) )
+    , mInitTBList
+{
+    setToolTip( su.tooltip_ );
+    if ( su.istoggle_ )
+    {
+	setToggleButton( true );
+	setOn( su.ison_ );
+    }
+    if ( su.arrowtype_ != NoArrow )
+	setArrowType( su.arrowtype_ );
+    if ( !su.shortcut_.isEmpty() )
+	setShortcut( su.shortcut_ );
+
+    mSetDefPrefSzs();
+}
+
+
+uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
+			    const char* tt, const CallBack& cb )
+    : uiButton( parnt, tt, &cb,
+	        mkbody(parnt,ioPixmap(fnm),tt) )
+    , mInitTBList
 {
     mSetDefPrefSzs();
 }
 
 
-uiToolButton::uiToolButton( uiParent* parnt, const char* nm, const CallBack& cb)
-    : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
-    , mInit
+uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
+			    const char* tt, const CallBack& cb )
+    : uiButton( parnt, tt, &cb,
+	        mkbody(parnt,ioPixmap(""),tt) )
+    , mInitTBList
 {
     mSetDefPrefSzs();
-}
-
-
-uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
-			    const ioPixmap& pm )
-    : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
-    , mInit
-{
-    mSetDefPrefSzs();
-}
-
-
-uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
-			    const ioPixmap& pm, const CallBack& cb )
-    : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
-    , mInit
-{
-    mSetDefPrefSzs();
+    setArrowType( at );
 }
 
 
@@ -411,12 +424,12 @@ uiToolButton::~uiToolButton()
 }
 
 
-uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
+uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap& pm,
 					const char* txt)
 {
     body_ = new uiToolButtonBody(*this,parnt,txt); 
-    if ( pm && pm->qpixmap() )
-        body_->setIcon( *pm->qpixmap() );
+    if ( pm.qpixmap() )
+        body_->setIcon( *pm.qpixmap() );
 
     return *body_;
 }
@@ -437,6 +450,11 @@ void uiToolButton::click()
 }
 
 
+void uiToolButton::setPixmap( const char* pmnm )
+{
+    setPixmap( ioPixmap(pmnm) );
+}
+
 void uiToolButton::setPixmap( const ioPixmap& pm )
 {
     body_->setIcon( QIcon(*pm.qpixmap()) );
@@ -448,10 +466,10 @@ void uiToolButton::setArrowType( ArrowType type )
 #ifdef __win__
     switch ( type )
     {
-	case UpArrow: setPixmap( ioPixmap("uparrow.png") ); break;
-	case DownArrow: setPixmap( ioPixmap("downarrow.png") ); break;
-	case LeftArrow: setPixmap( ioPixmap("leftarrow.png") ); break;
-	case RightArrow: setPixmap( ioPixmap("rightarrow.png") ); break;
+	case UpArrow: setPixmap( "uparrow.png" ); break;
+	case DownArrow: setPixmap( "downarrow.png" ); break;
+	case LeftArrow: setPixmap( "leftarrow.png" ); break;
+	case RightArrow: setPixmap( "rightarrow.png" ); break;
     }
 #else
     body_->setArrowType( (Qt::ArrowType)(int)type );

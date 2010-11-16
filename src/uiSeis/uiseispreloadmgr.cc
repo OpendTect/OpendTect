@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.23 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.24 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.23 2010-11-10 15:26:43 
 
 #include "uimsg.h"
 #include "uilistbox.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uisplitter.h"
 #include "uitextedit.h"
@@ -35,7 +35,6 @@ static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.23 2010-11-10 15:26:43 
 #include "uigeninput.h"
 #include "uitaskrunner.h"
 #include "uiselsurvranges.h"
-#include "pixmap.h"
 
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
@@ -74,11 +73,11 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     }
     mAddBut("Unload Selected",unloadPush);
 
-    uiToolButton* opentb = new uiToolButton( topgrp, "Retrieve pre-loads",
-	     ioPixmap("openpreload.png"), mCB(this,uiSeisPreLoadMgr,openPush) );
+    uiToolButton* opentb = new uiToolButton( topgrp, "openpreload.png",
+	    "Retrieve pre-loads", mCB(this,uiSeisPreLoadMgr,openPush) );
     opentb->attach( leftAlignedBelow, listfld_ );
-    uiToolButton* savetb = new uiToolButton( topgrp, "Save pre-loads",
-	     ioPixmap("savepreload.png"), mCB(this,uiSeisPreLoadMgr,savePush) );
+    uiToolButton* savetb = new uiToolButton( topgrp, "savepreload.png",
+	    "Save pre-loads", mCB(this,uiSeisPreLoadMgr,savePush) );
     savetb->attach( rightAlignedBelow, listfld_ );
 
     infofld_ = new uiTextEdit( this, "Info" );

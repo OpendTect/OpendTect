@@ -5,12 +5,14 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.1 2010-11-11 16:16:45 cvsbert Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.2 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "synthseis.h"
 #include "wavelet.h"
 #include "aimodel.h"
 #include "seistrc.h"
+#include "survinfo.h"
+#include "genericnumer.h"
 
 
 Seis::SynthGenerator::SynthGenerator( const Wavelet& wvlt )
@@ -39,23 +41,54 @@ Seis::SynthGenerator::~SynthGenerator()
 
 void Seis::SynthGenerator::init()
 {
-    //TODO implement.
-    // Also resize the output trace and set sampling right.
-    // Then users of the class can then immediately look at the that if needed.
 }
 
 
-void Seis::SynthGenerator::generate( const Wavelet& wvlt ) const
-{
-    if ( !wvlt_ )
-	{ outtrc_.zero(); return; }
-    //TODO implement
-}
-
-
-void Seis::SynthGenerator::generate( const AIModel& mdl ) const
+void Seis::SynthGenerator::generate( const Wavelet& wvlt )
 {
     if ( !aimdl_ )
 	{ outtrc_.zero(); return; }
-    //TODO implement
+    wvlt_ = &wvlt;
+    generate();
+}
+
+
+void Seis::SynthGenerator::generate( const AIModel& mdl )
+{
+    if ( !wvlt_ )
+	{ outtrc_.zero(); return; }
+    aimdl_ = &mdl;
+    generate();
+}
+
+
+void Seis::SynthGenerator::generate()
+{
+    if ( !wvlt_ || !aimdl_ )
+	{ outtrc_.zero(); return; }
+
+    SamplingData<float>& sdout = outtrc_.info().sampling;
+    SamplingData<float> aisd = aimdl_->timeSampling();
+    sdout.start = aisd.start;
+    SI().snapZ( sdout.start );
+    sdout.step = wvlt_->sampleRate();
+    float zend = aisd.start + (aimdl_->modelData().size() - 1) * aisd.step;
+    SI().snapZ( zend );
+    const int ns = sdout.nearestIndex( zend ) + 1;
+    outtrc_.reSize( ns, false );
+
+    TypeSet<float> refl;
+    float ai0 = aimdl_->aiAt( AIModel::Time, sdout.atIndex(0) );
+    for ( int isamp=0; isamp<ns; isamp++ )
+    {
+	const float t = sdout.atIndex( isamp );
+	const float ai1 = aimdl_->aiAt( AIModel::Time, t );
+	refl += (ai1-ai0) / (ai1+ai0);
+	ai0 = ai1;
+    }
+
+    float* trcarr = (float*)outtrc_.data().getComponent(0)->data();
+    GenericConvolve( ns, 0, refl.arr(),
+	    	     wvlt_->size(), wvlt_->centerSample(), wvlt_->samples(),
+		     ns, 0, trcarr );
 }

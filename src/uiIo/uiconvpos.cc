@@ -7,14 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvpos.cc,v 1.33 2010-04-15 15:41:18 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiconvpos.cc,v 1.34 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiconvpos.h"
-#include "pixmap.h"
 #include "survinfo.h"
 #include "strmprov.h"
 #include "oddirs.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uidialog.h"
 #include "uifileinput.h"
 #include "uimsg.h"
@@ -54,14 +53,13 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     yfld->attach( alignedBelow, xfld );
 
     uiGroup* butgrp = new uiGroup( mangrp, "Buttons" );
-    const ioPixmap right( "forward.xpm" ); const ioPixmap left( "back.xpm" );
-    uiToolButton* dobinidbut = new uiToolButton( butgrp, "Left", left );
-    dobinidbut->activated.notify( mCB(this,uiConvertPos,getBinID) );
-    dobinidbut->setToolTip( "Convert (X,Y) to Inl/Crl" );
-    uiToolButton* docoordbut = new uiToolButton( butgrp, "Right", right );
-    docoordbut->activated.notify( mCB(this,uiConvertPos,getCoord) );
+    uiToolButton* dobinidbut = new uiToolButton( butgrp, "back.xpm",
+					"Convert (X,Y) to Inl/Crl",
+	   				mCB(this,uiConvertPos,getBinID) );
+    uiToolButton* docoordbut = new uiToolButton( butgrp, "forward.xpm",
+	    			"Convert Inl/Crl to (X,Y)",
+				mCB(this,uiConvertPos,getCoord) );
     docoordbut->attach( rightTo, dobinidbut );
-    docoordbut->setToolTip( "Convert Inl/Crl to (X,Y)" );
     butgrp->attach( centeredRightOf, inlcrlgrp );
     xygrp->attach( centeredRightOf, butgrp );
 

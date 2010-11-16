@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.17 2010-03-11 11:18:00 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.18 2010-11-16 09:49:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 class IOObj;
 class MultiID;
 class IOStream;
-class ioPixmap;
 class uiListBox;
 class Translator;
 class uiToolButton;
@@ -36,19 +35,16 @@ public:
 
     uiToolButton*	addButton(Type,const CallBack&,const char* tip);
     uiToolButton*	addButton(const char*,const CallBack&,const char*);
-    uiToolButton*	addButton(const ioPixmap&,const CallBack&,const char*);
-    void		setAlternative(uiToolButton*,const ioPixmap&,
-	    				const char*);
+    void		setAlternative(uiToolButton*,const char*,const char*);
     void		useAlternative(uiToolButton*,bool);
 
 protected:
 
     mStruct ButData
     {
-			ButData(uiToolButton*,const ioPixmap&,const char*);
-			~ButData();
+			ButData(uiToolButton*,const char*,const char*);
 	uiToolButton*	but;
-	ioPixmap*	pm;
+	BufferString	pmnm;
 	BufferString	tt;
     };
 

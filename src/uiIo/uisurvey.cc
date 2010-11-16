@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.126 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.127 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uisurvey.h"
 
 #include "survinfo.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicanvas.h"
 #include "uiconvpos.h"
 #include "uigroup.h"
@@ -44,7 +44,6 @@ static const char* rcsID = "$Id: uisurvey.cc,v 1.126 2010-11-10 15:26:43 cvsbert
 #include "envvars.h"
 #include "cubesampling.h"
 #include "odver.h"
-#include "pixmap.h"
 #include "iopar.h"
 
 #include <iostream>
@@ -197,8 +196,8 @@ uiSurvey::uiSurvey( uiParent* p )
     for ( int idx=0; idx<utils.size(); idx++ )
     {
 	const uiSurvey::Util& util = *utils[idx];
-	uiToolButton* but = new uiToolButton( utilbutgrp, util.tooltip_,
-						ioPixmap(util.pixmap_), cb );
+	uiToolButton* but = new uiToolButton( utilbutgrp, util.pixmap_,
+						util.tooltip_, cb );
 	but->setToolTip( util.tooltip_ );
 	utilbuts_ += but;
 	if ( idx > 0 )

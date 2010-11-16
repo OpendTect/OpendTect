@@ -8,11 +8,11 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.4 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.5 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiempreloaddlg.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
@@ -31,7 +31,6 @@ static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.4 2010-11-10 15:26
 #include "ioobj.h"
 #include "keystrs.h"
 #include "multiid.h"
-#include "pixmap.h"
 #include "preloads.h"
 #include "ptrman.h"
 #include "survinfo.h"
@@ -46,12 +45,12 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     listfld_ = new uiListBox( this, "Loaded entries", true );
     listfld_->selectionChanged.notify(mCB(this,uiHorizonPreLoadDlg,selCB) );
 
-    uiToolButton* opentb = new uiToolButton( this, "Retrieve pre-loads",
-	 ioPixmap("openpreload.png"),mCB(this,uiHorizonPreLoadDlg,openPushCB) );
+    uiToolButton* opentb = new uiToolButton( this, "openpreload.png",
+	    "Retrieve pre-loads", mCB(this,uiHorizonPreLoadDlg,openPushCB) );
     opentb->attach( leftAlignedBelow, listfld_ );
 
-    savebut_ = new uiToolButton( this, "Save pre-loads",
-	 ioPixmap("savepreload.png"),mCB(this,uiHorizonPreLoadDlg,savePushCB) );
+    savebut_ = new uiToolButton( this, "savepreload.png", "Save pre-loads",
+		     mCB(this,uiHorizonPreLoadDlg,savePushCB) );
     savebut_->attach( rightAlignedBelow, listfld_ );
 
     uiButtonGroup* butgrp = new uiButtonGroup( this, "Manip buttons" );

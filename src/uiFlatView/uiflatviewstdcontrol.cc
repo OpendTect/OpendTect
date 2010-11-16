@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.33 2010-10-06 15:04:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.34 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.33 2010-10-06 15:04
 #include "uiflatviewer.h"
 #include "uiflatviewthumbnail.h"
 #include "uigraphicsscene.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uimainwin.h"
 #include "uimenuhandler.h"
 #include "uirgbarraycanvas.h"
@@ -28,10 +28,8 @@ static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.33 2010-10-06 15:04
 #include "pixmap.h"
 
 #define mDefBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton( tb_, 0, ioPixmap(fnm), \
-			    mCB(this,uiFlatViewStdControl,cbnm) ); \
-    but->setToolTip( tt ); \
-    tb_->addObject( but );
+    but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
+    tb_->addButton( but );
 
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )

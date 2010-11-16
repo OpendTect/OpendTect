@@ -4,15 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.29 2010-07-28 10:40:30 cvshelene Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.30 2010-11-16 09:49:10 cvsbert Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.29 2010-07-28 10:40:30 cvshelene Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.30 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicreatedpspdf.h"
 #include "uidpscrossplotpropdlg.h"
 #include "uidpsoverlayattrdlg.h"
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.29 2010-07-28
 #include "uistatusbar.h"
 #include "uitable.h"
 #include "uitoolbar.h"
+#include "pixmap.h"
 
 #include "arraynd.h"
 #include "arrayndimpl.h"
@@ -43,7 +44,6 @@ static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.29 2010-07-28
 #include "dpsdispmgr.h"
 #include "envvars.h"
 #include "linear.h"
-#include "pixmap.h"
 #include "mathexpression.h"
 #include "mousecursor.h"
 #include "randcolor.h"
@@ -90,13 +90,11 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     uiLabel* eachlabel = new uiLabel( dispgrp, "% points displayed", eachfld_ );
     disptb_.addObject( dispgrp->attachObj() );
     
-    densityplottbid_ = disptb_.addButton( "densityplot.png",
-	    	  mCB(this,uiDataPointSetCrossPlotWin,setDensityPlot),
-		  "Show density plot", true );
+    densityplottbid_ = disptb_.addButton( "densityplot.png","Show density plot",
+	    	  mCB(this,uiDataPointSetCrossPlotWin,setDensityPlot), true );
 
-    showy2tbid_ = disptb_.addButton( "showy2.png",
-	    	  mCB(this,uiDataPointSetCrossPlotWin,showY2),
-		  "Toggle show Y2", true );
+    showy2tbid_ = disptb_.addButton( "showy2.png", "Toggle show Y2",
+	    	  mCB(this,uiDataPointSetCrossPlotWin,showY2), true );
     disptb_.turnOn( showy2tbid_, false );
 
     coltabfld_ = new uiColorTable( dispgrp, ColTab::Sequence("Rainbow"), false);
@@ -121,52 +119,46 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     selfld_->setSensitive( false );
     seltb_.addObject( selgrp->attachObj() );
 
-    setselecttbid_ = seltb_.addButton( "altview.png",
-	    	  mCB(this,uiDataPointSetCrossPlotWin,setSelectable),
-		  "Set selectable", true );
+    setselecttbid_ = seltb_.addButton( "altview.png", "Set selectable",
+	    	  mCB(this,uiDataPointSetCrossPlotWin,setSelectable), true );
     seltb_.turnOn( setselecttbid_, true );
 
     if ( uidps_.displayMgr() )
     {
 	BufferString fnm, tooltip;
 	uidps_.displayMgr()->getIconInfo( fnm, tooltip );
-	showselptswstbid_ = seltb_.addButton( fnm,
-		      mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace),
-		      tooltip, false );
+	showselptswstbid_ = seltb_.addButton( fnm, tooltip,
+		      mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace) );
     }
     
     seltb_.turnOn( setselecttbid_, false );
 
-    selmodechgtbid_ = seltb_.addButton( "rectangleselect.png",
-	   mCB(this,uiDataPointSetCrossPlotWin,setSelectionMode) ,
-	   "Selection mode" ); 
+    selmodechgtbid_ = seltb_.addButton( "rectangleselect.png", "Selection mode",
+	   mCB(this,uiDataPointSetCrossPlotWin,setSelectionMode) );
     seltb_.turnOn( selmodechgtbid_, plotter_.isRubberBandingOn() );
 
     clearseltbid_ = seltb_.addButton( "clearselection.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections), 
-	    "Remove all selections" );
+			"Remove all selections",
+			mCB(this,uiDataPointSetCrossPlotWin,removeSelections) );
     
-    seldeltbid_ = seltb_.addButton( "trashcan.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,deleteSelections), 
-	    "Delete all selections" );
+    seldeltbid_ = seltb_.addButton( "trashcan.png", "Delete all selected",
+	    mCB(this,uiDataPointSetCrossPlotWin,deleteSelections) );
 
     seltabletbid_ = seltb_.addButton( "seltable.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,showTableSel), 
-	    "Show selections in table" );
+	    "Show selections in table",
+	    mCB(this,uiDataPointSetCrossPlotWin,showTableSel) ); 
 
-    selsettingstbid_ = seltb_.addButton( "settings.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain), 
-	    "Selection settings" );
+    selsettingstbid_ = seltb_.addButton( "settings.png", "Selection settings",
+	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain) );
 
     maniptb_.addObject( plotter_.getSaveImageButton(&maniptb_) );
 
-    maniptb_.addButton( "xplotprop.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,editProps),"Properties",false );
-    maniptb_.addButton( "prdfs.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,exportPDF),"PDF",false );
-    maniptb_.addButton( "overlayattr.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,overlayAttrCB),
-	    "Overlay Attribute",false );
+    maniptb_.addButton( "xplotprop.png", "Properties",
+			mCB(this,uiDataPointSetCrossPlotWin,editProps) );
+    maniptb_.addButton( "prdfs.png", "Create Probabily Density Function",
+			mCB(this,uiDataPointSetCrossPlotWin,exportPDF) );
+    maniptb_.addButton( "overlayattr.png", "Select Overlay Attribute",
+			mCB(this,uiDataPointSetCrossPlotWin,overlayAttrCB) );
 
 
     const int nrgrps = uidps_.groupNames().size();
@@ -174,8 +166,8 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     {
 	uiPopupMenu* mnu = new uiPopupMenu( &maniptb_, "View Menu" );
 	multicolcodtbid_ = maniptb_.addButton( "colorbar.png",
-		mCB(this,uiDataPointSetCrossPlotWin,setMultiColorCB),
-		"Turn on multicolor coding",true );
+		"Turn on multicolor coding",
+		mCB(this,uiDataPointSetCrossPlotWin,setMultiColorCB), true );
 	uiMenuItem* itm = new uiMenuItem( "Change color",
 		mCB(this,uiDataPointSetCrossPlotWin,changeColCB) );
 	mnu->insertItem( itm, 0 );

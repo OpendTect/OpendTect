@@ -7,10 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.220 2010-11-02 16:10:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.221 2010-11-16 09:49:10 cvsbert Exp $";
 
-#include "uibutton.h"
 #include "uiodmenumgr.h"
+#include "uitoolbutton.h"
 
 #include "uicrdevenv.h"
 #include "uifiledlg.h"
@@ -36,7 +36,6 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.220 2010-11-02 16:10:46 cvsb
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
-#include "pixmap.h"
 #include "settings.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -162,9 +161,8 @@ void uiODMenuMgr::enableActButton( bool yn )
 	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick)), id )
 
 #define mInsertPixmapItem(menu,txt,id,pmfnm) { \
-    ioPixmap pm( pmfnm ); \
     menu->insertItem( \
-	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick),&pm), id ); }
+	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick),pmfnm), id ); }
 
 #define mCleanUpImpExpSets(set) \
 { \
@@ -345,8 +343,7 @@ void uiODMenuMgr::fillManMenu()
 			   "man_hor.png" )
     else
     {
-	ioPixmap pm( "man_hor.png" );
-	uiPopupMenu* mnu = new uiPopupMenu( &appl_, "&Horizons", &pm );
+	uiPopupMenu* mnu = new uiPopupMenu( &appl_, "&Horizons", "man_hor.png");
 	mInsertItem( mnu, "&2D ...", mManHor2DMnuItm );
 	mInsertItem( mnu, "&3D ...", mManHor3DMnuItm );
 	manmnu_->insertItem( mnu );
@@ -373,8 +370,7 @@ void uiODMenuMgr::create2D3DMnu( uiPopupMenu* itm, const char* title,
 {
     if ( SI().has2D() && SI().has3D() )
     {
-	ioPixmap pm( pmfnm );
-	uiPopupMenu* mnu = new uiPopupMenu( &appl_, title, &pm );
+	uiPopupMenu* mnu = new uiPopupMenu( &appl_, title, pmfnm );
 	mInsertItem( mnu, "&2D ...", id2d );
 	mInsertItem( mnu, "&3D ...", id3d );
 	itm->insertItem( mnu );
@@ -414,10 +410,9 @@ void uiODMenuMgr::fillProcMenu()
 	voitm->insertItem(
 	    new uiMenuItem("&Pre Stack processing ...",
 			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
-	ioPixmap pmbay( "bayes.png"  );
 	voitm->insertItem(
 	    new uiMenuItem("Bayesian &Classification ...",
-			mCB(&applMgr(),uiODApplMgr,bayesClass3D), &pmbay) );
+			mCB(&applMgr(),uiODApplMgr,bayesClass3D), "bayes.png"));
     }
     create2D3DMnu( voitm, "&Between horizons", mCompBetweenHor2DMnuItm,
 	    	   mCompBetweenHor3DMnuItm, "betweenhors.png" );
@@ -439,10 +434,10 @@ void uiODMenuMgr::fillAnalMenu()
 {
     analmnu_->clear();
     SurveyInfo::Pol2D survtype = SI().survDataType();
-    const ioPixmap attrpm( "attributes.png" );
+    const char* attrpm = "attributes.png";
     if ( survtype == SurveyInfo::Both2DAnd3D )
     {
-	uiPopupMenu* aitm = new uiPopupMenu( &appl_, "&Attributes", &attrpm );
+	uiPopupMenu* aitm = new uiPopupMenu( &appl_, "&Attributes", attrpm );
 	mInsertItem( aitm, "&2D ...", mEdit2DAttrMnuItm );
 	mInsertItem( aitm, "&3D ...", mEdit3DAttrMnuItm );
 
@@ -451,31 +446,26 @@ void uiODMenuMgr::fillAnalMenu()
     }
     else
     {
-       	mInsertPixmapItem( analmnu_, "&Attributes ...", mEditAttrMnuItm,
-			   "attributes.png" )
+       	mInsertPixmapItem( analmnu_, "&Attributes ...", mEditAttrMnuItm, attrpm)
 	analmnu_->insertSeparator();
     }
 
     if ( survtype!=SurveyInfo::Only2D )
     {
 	analmnu_->insertItem( new uiMenuItem( "Volume Builder ...",
-		    mCB(&applMgr(),uiODApplMgr,doVolProc),
-		    &VolProc::uiChain::getPixmap() ) );
+				mCB(&applMgr(),uiODApplMgr,doVolProc),
+				VolProc::uiChain::pixmapFileName() ) );
     }
 
-    const ioPixmap xplotpm( "xplot.png" );
-    uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "&Cross-plot", &xplotpm );
+    uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "&Cross-plot", "xplot.png");
     mInsertItem( crsplot, "&Well logs <--> Attributes ...", mXplotMnuItm );
     mInsertItem( crsplot, "&Attributes <--> Attributes ...", mAXplotMnuItm );
     mInsertItem( crsplot, "&Open Crossplot ...", mOpenXplotMnuItm );
     analmnu_->insertItem( crsplot );
 
     if (  SI().zIsTime() )
-    {
-	const ioPixmap wtiepixmap( "well_tie.png" );
 	analmnu_->insertItem( new uiMenuItem( "&Tie Well to Seismic ...",
-	    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), &wtiepixmap ) );
-    }
+	    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie.png" ) );
 }
 
 
@@ -644,7 +634,7 @@ void uiODMenuMgr::fillUtilMenu()
 
 
 #define mAddTB(tb,fnm,txt,togg,fn) \
-    tb->addButton( fnm, mCB(appman,uiODApplMgr,fn), txt, togg )
+    tb->addButton( fnm, txt, mCB(appman,uiODApplMgr,fn), togg )
 
 void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 {
@@ -662,7 +652,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	mAddTB( dtecttb_,"attributes.png","Edit attributes",false,editAttr3DCB);
 	mAddTB( dtecttb_,"out_vol.png","Create seismic output",false,
 		seisOut3DCB);
-	mAddTB( dtecttb_,VolProc::uiChain::getPixmap(),
+	mAddTB( dtecttb_,VolProc::uiChain::pixmapFileName(),
 		"Volume Builder",false,doVolProc);
     }
     else
@@ -675,7 +665,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	       seisOut2DCB);
 	mAddTB(dtecttb_,"out_vol.png","Create 3D seismic output",false,
 	       seisOut3DCB);
-	mAddTB( dtecttb_,VolProc::uiChain::getPixmap(),
+	mAddTB( dtecttb_,VolProc::uiChain::pixmapFileName(),
 		"Volume Builder",false,doVolProc);
     }
     mAddTB(dtecttb_,"xplot_wells.png","Crossplot Attribute vs Well data",
@@ -689,7 +679,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 
 #undef mAddTB
 #define mAddTB(tb,fnm,txt,togg,fn) \
-    tb->addButton( fnm , mCB(this,uiODMenuMgr,fn), txt, togg )
+    tb->addButton( fnm, txt, mCB(this,uiODMenuMgr,fn), togg )
 
 #define mAddPopUp( nm, txt1, txt2, itm1, itm2, mnuid ) { \
     uiPopupMenu* popmnu = new uiPopupMenu( &appl_, nm ); \
@@ -729,17 +719,16 @@ static bool sIsPolySelect = true;
 
 #undef mAddTB
 #define mAddTB(tb,fnm,txt,togg,fn) \
-    tb->addButton( fnm, mCB(scenemgr,uiODSceneMgr,fn), txt, togg )
+    tb->addButton( fnm, txt, mCB(scenemgr,uiODSceneMgr,fn), togg )
 
 #define mAddMnuItm(mnu,txt,fn,fnm,idx) {\
     uiMenuItem* itm = new uiMenuItem( txt, mCB(this,uiODMenuMgr,fn) ); \
-    mnu->insertItem( itm, idx ); itm->setPixmap( ioPixmap(fnm) ); }
+    mnu->insertItem( itm, idx ); itm->setPixmap( fnm ); }
 
 void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 {
-    actviewid_ = cointb_->addButton( "altpick.png",
-	    		mCB(this,uiODMenuMgr,toggViewMode),
-	    		"Switch view mode", false );
+    actviewid_ = cointb_->addButton( "altpick.png", "Switch view mode",
+	    		mCB(this,uiODMenuMgr,toggViewMode), false );
     mAddTB(cointb_,"home.png","To home position",false,toHomePos);
     mAddTB(cointb_,"set_home.png","Save home position",false,saveHomePos);
     mAddTB(cointb_,"view_all.png","View all",false,viewAll);
@@ -751,9 +740,8 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     Settings::common().getYN( "dTect.SeparateViewButtons", separateviewbuttons);
     if ( !separateviewbuttons )
     {
-	viewselectid_ = cointb_->addButton( "cube_inl.png",
-				mCB(this,uiODMenuMgr,handleViewClick),
-				"View Inline", false );
+	viewselectid_ = cointb_->addButton( "cube_inl.png","View Inline",
+				mCB(this,uiODMenuMgr,handleViewClick), false );
 
 	uiPopupMenu* vwmnu = new uiPopupMenu( &appl_, "View Menu" );
 	mAddMnuItm( vwmnu, "View Inline", handleViewClick, "cube_inl.png",0);
@@ -766,8 +754,8 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     }
     else
     {
-#define mAddVB(img,txt) cointb_->addButton( img, \
-	mCB(this,uiODMenuMgr,handleViewClick), txt, false );
+#define mAddVB(img,txt) cointb_->addButton( img, txt, \
+			mCB(this,uiODMenuMgr,handleViewClick), false );
 	viewinlid_ = mAddVB( "cube_inl.png", "View Inline" );
 	viewcrlid_ = mAddVB( "cube_crl.png", "View Crossline" );
 	viewzid_ = mAddVB( "cube_z.png", "View Z" );
@@ -781,18 +769,18 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     
     axisid_ = mAddTB(cointb_,"axis.png","Display orientation axis",
 	    	     true,showRotAxis);
-    coltabid_ = cointb_->addButton( "colorbar.png",
-	    mCB(this,uiODMenuMgr,dispColorBar), "Display color bar", true );
+    coltabid_ = cointb_->addButton( "colorbar.png", "Display color bar",
+			    mCB(this,uiODMenuMgr,dispColorBar), true );
     mAddTB(cointb_,"snapshot.png","Make snapshot",false,mkSnapshot);
     polyselectid_ = cointb_->addButton( "polygonselect.png",
-	mCB(this,uiODMenuMgr,selectionMode), "Polygon Selection mode", true );
+	"Polygon Selection mode", mCB(this,uiODMenuMgr,selectionMode), true );
     uiPopupMenu* mnu = new uiPopupMenu( &appl_, "Menu" );
     mAddMnuItm( mnu, "Polygon", handleToolClick, "polygonselect.png", 0 );
     mAddMnuItm( mnu, "Rectangle", handleToolClick, "rectangleselect.png", 1 );
     cointb_->setButtonMenu( polyselectid_, mnu );
 
-    removeselectionid_ = cointb_->addButton( "trashcan.png",
-	mCB(this,uiODMenuMgr,removeSelection), "Remove selection", false );
+    removeselectionid_ = cointb_->addButton( "trashcan.png", "Remove selection",
+		    mCB(this,uiODMenuMgr,removeSelection), false );
 
     soloid_ = mAddTB(cointb_,"solo.png","Display current element only",
 		     true,soloMode);
@@ -896,8 +884,8 @@ void uiODMenuMgr::setCameraPixmap( bool perspective )
 {
     cointb_->setToolTip(cameraid_,perspective ? "Switch to orthographic camera"
 					      : "Switch to perspective camera");
-    const char* fnm = perspective ? "perspective.png" : "orthographic.png";
-    cointb_->setPixmap( cameraid_, ioPixmap(fnm) );
+    cointb_->setPixmap( cameraid_, perspective ? "perspective.png"
+	    				       : "orthographic.png" );
 }
 
 

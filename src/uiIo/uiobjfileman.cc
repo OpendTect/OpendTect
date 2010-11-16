@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.34 2010-11-09 04:41:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.35 2010-11-16 09:49:10 cvsbert Exp $";
 
 
 #include "uiobjfileman.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"

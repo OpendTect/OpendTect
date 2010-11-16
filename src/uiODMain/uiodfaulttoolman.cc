@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.17 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.18 2010-11-16 09:49:10 cvsbert Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -19,7 +19,6 @@ static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.17 2010-11-10 15:26:43 
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "ioman.h"
-#include "pixmap.h"
 #include "randcolor.h"
 #include "timefun.h"
 #include "undo.h"
@@ -28,7 +27,7 @@ static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.17 2010-11-10 15:26:43 
 #include "visfaultdisplay.h"
 #include "visselman.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
@@ -44,6 +43,7 @@ static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.17 2010-11-10 15:26:43 
 #include "uiseparator.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
+#include "pixmap.h"
 
 
 static void comboCopy( const uiComboBox& from, uiComboBox& to )
@@ -297,25 +297,26 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , newcolor_( getRandStdDrawColor() )
 {
     toolbar_ = new uiToolBar( &appl_, "Fault stick control", uiToolBar::Bottom);
-    editbutidx_ = toolbar_->addButton( "editsticks.png",
+    editbutidx_ = toolbar_->addButton( "editsticks.png", "Edit sticks",
 	    			mCB(this,uiODFaultToolMan,editSelectToggleCB),
-				"Edit sticks", true );
-    selbutidx_ = toolbar_->addButton( "selectsticks.png",
+				true );
+    selbutidx_ = toolbar_->addButton( "selectsticks.png", "Select sticks",
 	    			mCB(this,uiODFaultToolMan,editSelectToggleCB),
-				"Select sticks", true );
+				true );
     toolbar_->addSeparator();
 
     removalbutidx_ = toolbar_->addButton( "removesticks.png",
+	    			"Remove selected sticks",
 	    			mCB(this,uiODFaultToolMan,stickRemovalCB),
-				"Remove selected sticks", false );
+				false );
 
     copybutidx_ = toolbar_->addButton( "copysticks.png",
-	    			mCB(this,uiODFaultToolMan,stickCopyCB),
-				"Copy selected sticks", false );
+	    			"Copy selected sticks",
+	    			mCB(this,uiODFaultToolMan,stickCopyCB), false );
 
     movebutidx_ = toolbar_->addButton( "movesticks.png",
-	    			mCB(this,uiODFaultToolMan,stickMoveCB),
-				"Move selected sticks", false );
+	    			"Move selected sticks",
+	    			mCB(this,uiODFaultToolMan,stickMoveCB), false );
     toolbar_->addSeparator();
 
     tboutputcombo_ = new uiComboBox( toolbar_, "Output name" );
@@ -338,24 +339,21 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     manoutputcolor_->colorChanged.notify(
 	    			mCB(this,uiODFaultToolMan,outputColorChg) );
 
-    tbcolorbutton_ = new uiToolButton( toolbar_, "",
+    tbcolorbutton_ = new uiToolButton( toolbar_, "", "Output color",
 			    mCB(this,uiODFaultToolMan,colorPressedCB) );
-    tbcolorbutton_->setName( "Output color" );
-    tbcolorbutton_->setToolTip( tbcolorbutton_->name() );
-    toolbar_->addObject( tbcolorbutton_ );
+    toolbar_->addButton( tbcolorbutton_ );
 
     settingsbutidx_ = toolbar_->addButton( "faulttoolsettings.png",
+	    			"Transfer settings",
 	    			mCB(this,uiODFaultToolMan,settingsToggleCB),
-				"Transfer settings", true );
+				true );
     toolbar_->addSeparator();
 
-    undobutidx_ = toolbar_->addButton( "undo.png",
-	    			mCB(this,uiODFaultToolMan,undoCB),
-				"Undo", false );
+    undobutidx_ = toolbar_->addButton( "undo.png", "Undo",
+	    			mCB(this,uiODFaultToolMan,undoCB), false );
 
-    redobutidx_ = toolbar_->addButton( "redo.png",
-	    			mCB(this,uiODFaultToolMan,redoCB),
-				"Redo", false );
+    redobutidx_ = toolbar_->addButton( "redo.png", "Redo",
+	    			mCB(this,uiODFaultToolMan,redoCB), false );
 
     toolbar_->addSeparator();
 

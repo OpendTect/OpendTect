@@ -7,15 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsview.cc,v 1.6 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsview.cc,v 1.7 2010-11-16 09:49:11 cvsbert Exp $";
 
 
 #include "uigraphicsview.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uigraphicssaveimagedlg.h"
 #include "uigraphicsscene.h"
-#include "pixmap.h"
 
 
 uiGraphicsView::uiGraphicsView( uiParent* p, const char* nm )
@@ -28,10 +27,10 @@ uiGraphicsView::uiGraphicsView( uiParent* p, const char* nm )
 
 uiToolButton* uiGraphicsView::getSaveImageButton( uiParent* p )
 {
-    return enableimagesave_ ? new uiToolButton( p, "Save image",
-					ioPixmap("snapshot.png"),
-					mCB(this,uiGraphicsView,saveImageCB) )
-			    : 0;
+    if ( !enableimagesave_ ) return 0;
+
+    return new uiToolButton( p, "snapshot.png", "Save image",
+			mCB(this,uiGraphicsView,saveImageCB) );
 }
 
 

@@ -15,7 +15,7 @@ static const char* rcsID = "$Id";
 #include "uiodapplmgr.h"
 #include "uisurvey.h"
 #include "uimsg.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uiwellman.h"
 #include "uiioobjmanip.h"
 #include "uilatlong2coord.h"
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id";
 #include "vispicksetdisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "pickset.h"
-#include "pixmap.h"
 #include "survinfo.h"
 #include "latlong.h"
 #include "plugins.h"
@@ -109,9 +108,9 @@ void uiGoogleIOMgr::mkExportWellsIcon( CallBacker* cb )
     mDynamicCastGet(uiWellMan*,wm,cb)
     if ( !wm ) return;
 
-    uiToolButton* tb = new uiToolButton( wm, "Google", ioPixmap("google.png"),
+    uiToolButton* tb = new uiToolButton( wm, "google.png",
+	    			"Export to Google KML",
 				mCB(this,uiGoogleIOMgr,exportWells) );
-    tb->setToolTip( "Export to Google KML" );
     wm->addTool( tb );
 }
 
@@ -134,9 +133,9 @@ void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
     cur2dfm_ = fm;
     if ( !cur2dfm_ ) return;
 
-    fm->getButGroup(false)->addButton(	ioPixmap("google.png"),
+    fm->getButGroup(false)->addButton(	"google.png",
 	    				mCB(this,uiGoogleIOMgr,exportLines),
-					"Export selected lines to Google KML" );
+	    				"Export selected lines to Google KML" );
 }
 
 

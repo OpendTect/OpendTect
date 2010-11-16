@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.14 2009-12-08 10:49:40 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.15 2010-11-16 09:49:10 cvsbert Exp $";
 
 
 #include "uidpsdemo.h"
@@ -60,17 +60,17 @@ public:
 			uiDPSDemoMgr(uiODMain&);
 
     uiODMain&		appl_;
-    const ioPixmap	pixmap_;
 
     void		insertMenuItem(CallBacker* cb=0);
     void		insertIcon(CallBacker* cb=0);
     void		doIt(CallBacker*);
 };
 
+static const char* pixmapfilename = "dpsdemo.png";
+
 
 uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )
 	: appl_(a)
-	, pixmap_("dpsdemo.png")
 {
     uiODMenuMgr& mnumgr = appl_.menuMgr();
     mnumgr.dTectMnuChanged.notify( mCB(this,uiDPSDemoMgr,insertMenuItem) );
@@ -86,15 +86,15 @@ void uiDPSDemoMgr::insertMenuItem( CallBacker* )
     if ( SI().has3D() )
 	appl_.menuMgr().analMnu()->insertItem(
 		new uiMenuItem("&DataPointSet demo ...",
-		mCB(this,uiDPSDemoMgr,doIt),&pixmap_) );
+		mCB(this,uiDPSDemoMgr,doIt),pixmapfilename) );
 }
 
 
 void uiDPSDemoMgr::insertIcon( CallBacker* )
 {
     if ( SI().has3D() )
-	appl_.menuMgr().dtectTB()->addButton( pixmap_,
-		mCB(this,uiDPSDemoMgr,doIt), "DataPointSet demo" );
+	appl_.menuMgr().dtectTB()->addButton( pixmapfilename,
+			"DataPointSet demo", mCB(this,uiDPSDemoMgr,doIt) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.42 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.43 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.42 2010-03-25 03:55:14 cvsr
 #include "uifiledlg.h"
 #include "uigeninputdlg.h"
 #include "uimsg.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "pixmap.h"
 #include "ptrman.h"
@@ -30,63 +30,48 @@ static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.42 2010-03-25 03:55:14 cvsr
 #include "oddirs.h"
 #include "errh.h"
 
-uiManipButGrp::ButData::ButData( uiToolButton* b, const ioPixmap& p,
-				 const char* t )
+uiManipButGrp::ButData::ButData( uiToolButton* b, const char* p, const char* t )
 	: but(b)
-    	, pm(new ioPixmap(p))
+    	, pmnm(p)
     	, tt(t)
 {
-}
-
-
-uiManipButGrp::ButData::~ButData()
-{
-    delete pm;
 }
 
 
 uiToolButton* uiManipButGrp::addButton( Type tp, const CallBack& cb,
 					const char* tooltip )
 {
-    PtrMan<ioPixmap> pm = 0;
+    const char* pm = 0;
     switch ( tp )
     {
 	case FileLocation:
-	    pm = new ioPixmap( "filelocation.png" ); break;
+	    pm = "filelocation.png"; break;
 	case Rename:
-	    pm = new ioPixmap( "renameobj.png" ); break;
+	    pm = "renameobj.png"; break;
 	case Remove:
-	    pm = new ioPixmap( "trashcan.png" ); break;
+	    pm = "trashcan.png"; break;
 	case ReadOnly:
-	    pm = new ioPixmap( "readonly.png" ); break;
+	    pm = "readonly.png"; break;
 	default:
 	    pErrMsg("Unknown toolbut typ");
-	    pm = new ioPixmap( "home.png" ); break;
+	    pm = "home.png";
     }
 
-    return addButton( *pm, cb, tooltip );
+    return addButton( pm, cb, tooltip );
 }
 
 
 uiToolButton* uiManipButGrp::addButton( const char* pmnm, const CallBack& cb,
 					const char* tooltip )
 {
-    return addButton( ioPixmap(pmnm), cb, tooltip );
-}
-
-
-uiToolButton* uiManipButGrp::addButton( const ioPixmap& pm, const CallBack& cb,
-					const char* tooltip )
-{
-    uiToolButton* button = new uiToolButton( this, tooltip, pm, cb );
-    button->setToolTip( tooltip );
-    butdata += new ButData( button, pm, tooltip );
+    uiToolButton* button = new uiToolButton( this, pmnm, tooltip, cb );
+    butdata += new ButData( button, pmnm, tooltip );
     altbutdata += 0;
     return button;
 }
 
 
-void uiManipButGrp::setAlternative( uiToolButton* button, const ioPixmap& pm,
+void uiManipButGrp::setAlternative( uiToolButton* button, const char* pm,
 				    const char* tt )
 {
     for ( int idx=0; idx<butdata.size(); idx++ )
@@ -98,11 +83,7 @@ void uiManipButGrp::setAlternative( uiToolButton* button, const ioPixmap& pm,
 		altbutdata.replace( idx,
 				    new uiManipButGrp::ButData(button,pm,tt) );
 	    else
-	    {
-		bd->but = button;
-		delete bd->pm; bd->pm = new ioPixmap(pm);
-		bd->tt = tt;
-	    }
+		{ bd->but = button; bd->pmnm = pm; bd->tt = tt; }
 	}
     }
 }
@@ -118,7 +99,7 @@ void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
 	    uiManipButGrp::ButData* altbd = altbutdata[idx];
 	    if ( yn && !altbd ) return;
 	    uiManipButGrp::ButData& bd = yn ? *altbd : *normbd;
-	    button->setPixmap( *bd.pm );
+	    button->setPixmap( ioPixmap(bd.pmnm) );
 	    button->setToolTip( bd.tt );
 	    break;
 	}
@@ -138,8 +119,7 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool reloc )
 	locbut = addButton( FileLocation, cb, "Change location on disk" );
     renbut = addButton( Rename, cb, "Rename this object" );
     robut = addButton( ReadOnly, cb, "Toggle Read only : locked" );
-    setAlternative( robut, ioPixmap("unlock.png"),
-		    "Toggle Read only : editable");
+    setAlternative( robut, "unlock.png", "Toggle Read only : editable");
     rembut = addButton( Remove, cb, "Remove this object" );
     attach( rightOf, subj_.obj_ );
 }

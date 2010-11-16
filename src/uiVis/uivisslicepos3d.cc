@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.15 2010-08-11 09:55:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.16 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uivisslicepos3d.h"
 
 #include "survinfo.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uispinbox.h"
 #include "visplanedatadisplay.h"
 #include "vissurvscene.h"

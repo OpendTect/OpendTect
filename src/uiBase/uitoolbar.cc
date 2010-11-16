@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitoolbar.cc,v 1.58 2010-10-06 10:16:56 cvsranojay Exp $";
+static const char* rcsID = "$Id: uitoolbar.cc,v 1.59 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uitoolbar.h"
 
 #include "uiaction.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uimainwin.h"
 #include "uiparentbody.h"
 
@@ -25,6 +25,12 @@ static const char* rcsID = "$Id: uitoolbar.cc,v 1.58 2010-10-06 10:16:56 cvsrano
 #include "i_qtoolbut.h"
 #include "i_qtoolbar.h"
 
+const char* uiIcon::save()		{ return "save.png"; }
+const char* uiIcon::saveAs()		{ return "saveas.png"; }
+const char* uiIcon::openObject()	{ return "openstorage.png"; }
+const char* uiIcon::newObject()		{ return "newstorage.png"; }
+const char* uiIcon::removeObject()	{ return "trashcan.png"; }
+
 
 class uiToolBarBody : public uiParentBody
 {
@@ -33,10 +39,8 @@ public:
 			uiToolBarBody(uiToolBar&,QToolBar&);
 			~uiToolBarBody();
 
-    int 		addButton(const ioPixmap&,const CallBack&, 
-				  const char*,bool);
-    int 		addButton(const char*,const CallBack&,const char*,bool);
-
+    int 		addButton(const uiToolButtonSetup&);
+    int 		addButton(const char*,const char*,const CallBack&,bool);
     int			addButton(const MenuItem&);
     int			getButtonID(QAction*); // QAction from MenuItem
 
@@ -103,20 +107,21 @@ uiToolBarBody::~uiToolBarBody()
 { clear(); }
 
 
-int uiToolBarBody::addButton( const char* fnm, const CallBack& cb,
-			      const char* nm, bool toggle )
-{ return addButton( ioPixmap(fnm), cb, nm, toggle ); }
-
-
-int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
-			      const char* nm, bool toggle )
+int uiToolBarBody::addButton( const char* fnm, const char* tt,
+			      const CallBack& cb, bool toggle )
 {
-    uiToolButton* toolbarbut = new uiToolButton( &tbar_, nm, pm, cb );
-    toolbarbut->setToggleButton(toggle);
-    toolbarbut->setToolTip( nm );
+    uiToolButtonSetup su( fnm, tt, cb );
+    su.istoggle( toggle );
+    return addButton( su );
+}
+
+
+int uiToolBarBody::addButton( const uiToolButtonSetup& su )
+{
+    uiToolButton* toolbarbut = new uiToolButton( &tbar_, su );
     butindex_ += objects_.size();
     addObject( toolbarbut );
-    pmsrcs_.add( pm.source() );
+    pmsrcs_.add( su.filename_ );
 
     const int butid = butindex_.size()-1;
     toolbarbut->setID( butid );
@@ -274,18 +279,21 @@ uiToolBarBody& uiToolBar::mkbody( const char* nm, QToolBar& qtb )
 }
 
 
-int uiToolBar::addButton( const char* fnm, const CallBack& cb,
-			  const char* nm, bool toggle )
-{ return body_->addButton( fnm, cb, nm, toggle ); }
+int uiToolBar::addButton( const char* fnm, const char* tt, const CallBack& cb,
+			  bool toggle )
+{ return body_->addButton( fnm, tt, cb, toggle ); }
 
 
-int uiToolBar::addButton( const ioPixmap& pm, const CallBack& cb,
-			  const char* nm, bool toggle )
-{ return body_->addButton( pm, cb, nm, toggle ); }
+int uiToolBar::addButton( const uiToolButtonSetup& su )
+{ return body_->addButton( su ); }
 
 
 int uiToolBar::addButton( const MenuItem& itm )
 { return body_->addButton( itm ); }
+
+
+void uiToolBar::addButton( uiToolButton* tb )
+{ body_->addObject( tb ); };
 
 
 void uiToolBar::addObject( uiObject* obj )

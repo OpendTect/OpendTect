@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.45 2010-10-04 05:06:32 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.46 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"
@@ -155,21 +155,20 @@ void uiSEGYRead::writeReq( CallBacker* cb )
     PtrMan<CtxtIOObj> ctio = getCtio( true );
     BufferString objnm( rddlg->saveObjName() );
     ctio->ctxt.setName( objnm );
-    if ( !ctio->fillObj(false) ) return;
-    else
+    if ( !ctio->fillObj(false) )
+	return;
+
+    BufferString translnm = ctio->ioobj->translator();
+    if ( translnm != "SEG-Y" )
     {
-	BufferString translnm = ctio->ioobj->translator();
+	ctio->setObj( 0 );
+	objnm += " SGY";
+	if ( !ctio->fillObj(false) ) return;
+	translnm = ctio->ioobj->translator();
 	if ( translnm != "SEG-Y" )
 	{
-	    ctio->setObj( 0 );
-	    objnm += " SGY";
-	    if ( !ctio->fillObj(false) ) return;
-	    translnm = ctio->ioobj->translator();
-	    if ( translnm != "SEG-Y" )
-	    {
-		uiMSG().error( "Cannot write setup under this name - sorry" );
-		return;
-	    }
+	    uiMSG().error( "Cannot write setup under this name - sorry" );
+	    return;
 	}
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.42 2010-09-29 07:04:42 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.43 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -265,9 +265,8 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 {
     if ( !tb ) return;
 
-    polyseltbid_ = tb->addButton( "polygonselect.png",
-	    			  mCB(this,uiODViewer2D,selectionMode),
-				  "Polygon Selection mode", true );
+    polyseltbid_ = tb->addButton( "polygonselect.png", "Polygon Selection mode",
+	    			  mCB(this,uiODViewer2D,selectionMode), true );
     uiPopupMenu* polymnu = new uiPopupMenu( tb, "PoluMenu" );
 
     uiMenuItem* polyitm = new uiMenuItem( "Polygon",
@@ -282,8 +281,8 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 
     tb->setButtonMenu( polyseltbid_, polymnu );
 
-    tb->addButton( "trashcan.png", mCB(this,uiODViewer2D,removeSelected),
-	    	   "Remove PolySelection", false );
+    tb->addButton( "trashcan.png", "Remove PolySelection",
+			mCB(this,uiODViewer2D,removeSelected), false );
 }
 
 

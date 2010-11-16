@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.77 2010-10-11 15:36:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.78 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.77 2010-10-11 15:3
 #include "uiwelltiewavelet.h"
 #include "uiwelltiesavedatadlg.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uiflatviewer.h"
 #include "uigeninput.h"
@@ -32,7 +32,6 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.77 2010-10-11 15:3
 #include "uiwelllogdisplay.h"
 
 #include "ctxtioobj.h"
-#include "pixmap.h"
 #include "survinfo.h"
 #include "wavelet.h"
 #include "welldata.h"
@@ -169,7 +168,7 @@ void uiTieWin::drawData()
 
 
 #define mAddButton(pm,func,tip) \
-    toolbar_->addButton( pm, mCB(this,uiTieWin,func), tip )
+    toolbar_->addButton( pm, tip, mCB(this,uiTieWin,func) )
 void uiTieWin::addToolBarTools()
 {
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
@@ -214,10 +213,8 @@ void uiTieWin::drawFields()
 	      		mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, horSepar );
-    const ioPixmap pixmap( "contexthelp.png" );
-    uiToolButton* helpbut = new uiToolButton( this, 0, pixmap,
+    uiToolButton* helpbut = new uiToolButton( this, "contexthelp.png", "Help",
 			mCB(this,uiTieWin,provideWinHelp) );
-    helpbut->setToolTip( helpid );
     helpbut->setPrefWidthInChar( 5 );
     helpbut->attach( rightOf, infobut );
     helpbut->attach( ensureBelow, horSepar );

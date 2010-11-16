@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.34 2009-10-07 13:26:33 cvsjaap Exp $
+ RCS:           $Id: uibutton.h,v 1.35 2010-11-16 09:49:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ class uiButtonBody;
 class uiCheckBoxBody;
 class uiPushButtonBody;
 class uiRadioButtonBody;
-class uiToolButtonBody;
 class QAbstractButton;
 
 class uiPopupMenu;
@@ -72,6 +71,7 @@ public:
 				~uiPushButton();
 
     void			setDefault(bool yn=true);
+    void			setPixmap(const char*);
     void			setPixmap(const ioPixmap&);
     				//! Size of pixmap is 1/2 the size of button
 
@@ -124,53 +124,6 @@ private:
 
     uiCheckBoxBody*		body_;
     uiCheckBoxBody&		mkbody(uiParent*,const char*);
-
-};
-
-
-mClass uiToolButton : public uiButton
-{
-public:
-				uiToolButton(uiParent*,const char*);
-				uiToolButton(uiParent*,const char*,
-					     const CallBack&);
-				uiToolButton(uiParent*,const char*,
-					     const ioPixmap&);
-				uiToolButton(uiParent*,const char*,
-					     const ioPixmap&,const CallBack&);
-				~uiToolButton();
-
-    enum ArrowType		{ NoArrow, UpArrow, DownArrow,
-				  LeftArrow, RightArrow };
-
-    bool			isOn() const;
-    void			setOn(bool yn=true);
-
-    void			setToggleButton(bool yn=true);
-    bool			isToggleButton() const;
-
-    void			setPixmap(const ioPixmap&);
-    void			setArrowType(ArrowType);
-
-    void			setShortcut(const char*);
-    void			setMenu(uiPopupMenu*); //!<Menu becomes mine
-
-    const uiPopupMenu*		menu() const		{ return uimenu_; }
-
-    void			setID( int i )		{ id_ = i; }
-    int				id() const		{ return id_; }
-    
-    void			click();
-
-private:
-
-    uiToolButtonBody*		body_;
-    uiToolButtonBody&		mkbody(uiParent*,const ioPixmap*, const char*); 
-
-    int				id_; // Used by toolbar
-
-    uiPopupMenu*		uimenu_;
-    QMenu*			qmenu_;
 
 };
 

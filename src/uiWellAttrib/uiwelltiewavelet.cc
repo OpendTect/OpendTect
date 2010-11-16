@@ -7,13 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.38 2010-06-03 10:32:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.39 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uiwelltiewavelet.h"
 
 #include "flatposdata.h"
 #include "ioman.h"
-#include "pixmap.h"
 #include "survinfo.h"
 #include "wavelet.h"
 #include "welltiedata.h"
@@ -22,7 +21,7 @@ static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.38 2010-06-03 10:32:55 
 
 #include "uiaxishandler.h"
 #include "uiseiswvltattr.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uigeninput.h"
 #include "uiflatviewer.h"
 #include "uifunctiondisplay.h"
@@ -110,19 +109,16 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
 {
     viewer_ = new uiFlatViewer( this );
     
-    wvltbuts_ += new uiToolButton( this, "Properties", "info.png",
+    wvltbuts_ += new uiToolButton( this, "info.png", "Properties",
 	    mCB(this,uiWavelet,dispProperties) );
-    wvltbuts_[0]->setToolTip( "Properties" );
     wvltbuts_[0]->attach( alignedBelow, viewer_ );
 
-    wvltbuts_ += new uiToolButton( this, "Rotate", "phase.png",
+    wvltbuts_ += new uiToolButton( this, "phase.png", "Rotate phase",
 	    mCB(this,uiWavelet,rotatePhase) );
-    wvltbuts_[1]->setToolTip( "Rotate Phase" );
     wvltbuts_[1]->attach( rightOf, wvltbuts_[0] );
 
-    wvltbuts_ += new uiToolButton( this, "Taper", "wavelet_taper.png",
+    wvltbuts_ += new uiToolButton( this, "wavelet_taper.png", "Taper Wavelet",
 	    mCB(this,uiWavelet,taper) );
-    wvltbuts_[2]->setToolTip( "Taper Wavelet" );
     wvltbuts_[2]->attach( rightOf, wvltbuts_[1] );
 
     initWaveletViewer();

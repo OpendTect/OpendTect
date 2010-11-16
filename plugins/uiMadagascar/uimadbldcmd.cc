@@ -4,10 +4,10 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.21 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.22 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uicompoundparsel.h"
 #include "uilabel.h"
@@ -232,10 +232,8 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     srchfld_->setToolTip( "Search expression" );
     srchfld_->setPrefWidthInChar( 15 );
     srchfld_->returnPressed.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
-    uiToolButton* srchbut = new uiToolButton( infogrp, "Search Button",
-	    				      ioPixmap("search.png") );
-    srchbut->setToolTip( "Search" );
-    srchbut->activated.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
+    uiToolButton* srchbut = new uiToolButton( infogrp, "search.png", "Search",
+				  mCB(this,uiMadagascarBldCmd,doSearch) );
     srchbut->attach( rightOf, srchfld_ );
 
     descfld_ = new uiLineEdit( infogrp, "Desc fld" );

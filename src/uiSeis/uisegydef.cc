@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.36 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.37 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -28,10 +28,9 @@ static const char* rcsID = "$Id: uisegydef.cc,v 1.36 2010-10-14 09:58:06 cvsbert
 #include "uilabel.h"
 #include "uiseparator.h"
 #include "uimainwin.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uitabstack.h"
 #include "uilineedit.h"
-#include "pixmap.h"
 #include "uimsg.h"
 
 const char* uiSEGYFileSpec::sKeyLineNmToken()  { return "#L"; }
@@ -246,9 +245,8 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
     sep->attach( rightOf, grp ); \
     sep->attach( heightSameAs, grp ); \
     uiToolButton* rtb = new uiToolButton( grp->attachObj()->parent(), \
-      "Retrieve setup", ioPixmap("openset.png"), mCB(this,clss,readParsPush) );\
-    rtb->attach( rightOf, sep ); \
-    rtb->setToolTip( "Retrieve saved setup" )
+      "openset.png", "Retrieve saved setup", mCB(this,clss,readParsPush) );\
+    rtb->attach( rightOf, sep )
 
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
     : uiSEGYDefGroup(p,"SEGY::FilePars group",forread)
@@ -484,9 +482,9 @@ static void setToggledFld( uiGenInput* inp, const IOPar& iop, const char* key,
     mDefRetrTB(uiSEGYFileOpts,grp); \
 \
     uiToolButton* stb = new uiToolButton( grp->attachObj()->parent(), \
-     "Pre-scan",ioPixmap("prescan.png"),mCB(this,uiSEGYFileOpts,preScanPush) );\
+			     "prescan.png","Pre-scan the file(s)", \
+				    mCB(this,uiSEGYFileOpts,preScanPush) );\
     stb->attach( alignedBelow, rtb ); \
-    stb->setToolTip( "Pre-scan the file(s)" ); \
 \
     setHAlignObj( grp ); \
 }

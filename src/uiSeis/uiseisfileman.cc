@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.116 2010-11-09 04:41:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.117 2010-11-16 09:49:10 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -18,14 +18,13 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.116 2010-11-09 04:41:37 cv
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
-#include "pixmap.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "zdomain.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uilistbox.h"
 #include "uitextedit.h"
 #include "uiioobjmanip.h"
@@ -63,28 +62,25 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
-    manipgrp->addButton( ioPixmap("copyobj.png"),
-	    		 mCB(this,uiSeisFileMan,copyPush),
+    manipgrp->addButton( "copyobj.png", mCB(this,uiSeisFileMan,copyPush),
 			 is2d ? "Copy lineset" : "Copy cube" );
     if ( is2d )
     {
-	manipgrp->addButton( ioPixmap("man2d.png"),
-			     mCB(this,uiSeisFileMan,man2DPush), "Manage lines");
-	manipgrp->addButton( ioPixmap("dumpgeom.png"),
-			     mCB(this,uiSeisFileMan,dump2DPush),
+	manipgrp->addButton( "man2d.png", mCB(this,uiSeisFileMan,man2DPush),
+			     "Manage lines");
+	manipgrp->addButton( "dumpgeom.png", mCB(this,uiSeisFileMan,dump2DPush),
 			     "Dump geometry" );
     }
     else
     {
-	manipgrp->addButton( ioPixmap("mergeseis.png"),
-			     mCB(this,uiSeisFileMan,mergePush),
+	manipgrp->addButton( "mergeseis.png", mCB(this,uiSeisFileMan,mergePush),
 			     "Merge blocks of inlines into cube" );
-	manipgrp->addButton( ioPixmap("browseseis.png"),
+	manipgrp->addButton( "browseseis.png",
 			     mCB(this,uiSeisFileMan,browsePush),
 			     "Browse/edit this cube" );
     }
 
-    manipgrp->addButton( ioPixmap("man_ps.png"), mCB(this,uiSeisFileMan,manPS),
+    manipgrp->addButton( "man_ps.png", mCB(this,uiSeisFileMan,manPS),
 	    		 "Manage Pre-Stack data" );
 
     selChg(0);

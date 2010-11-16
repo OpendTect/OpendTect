@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.10 2010-11-11 16:17:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.11 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -15,9 +15,8 @@ static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.10 2010-11-11 16:17:13
 #include "uigeninput.h"
 #include "uicombobox.h"
 #include "uispinbox.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uilabel.h"
-#include "pixmap.h"
 #include "uigraphicsview.h"
 #include "uiaxishandler.h"
 #include "stratlevel.h"
@@ -71,12 +70,11 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     lvlfld_->attach( rightOf, eachfld_ );
     lvlfld_->selectionChanged.notify( redrawcb );
     uiGroup* buts = new uiGroup( this, "LayMod buttons" );
-    uiToolButton* savetb = new uiToolButton( this, "SaveLayMod",
-	    ioPixmap("save.png"), mCB(this,uiStratLayerModelDisp,saveMdl) );
-    savetb->setToolTip( "Save layer model" );
-    savetb->attach( ensureBelow, gv_ );
-    savetb->attach( ensureRightOf, lvlfld_ );
-    savetb->attach( rightBorder );
+    uiToolButton* stb = new uiToolButton( this, "save.png", "Save layer model",
+				    mCB(this,uiStratLayerModelDisp,saveMdl) );
+    stb->attach( ensureBelow, gv_ );
+    stb->attach( ensureRightOf, lvlfld_ );
+    stb->attach( rightBorder );
 }
 
 

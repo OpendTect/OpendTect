@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.36 2010-08-23 08:57:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.37 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uisegyexp.cc,v 1.36 2010-08-23 08:57:28 cvsbert
 #include "seiswrite.h"
 #include "seissingtrcproc.h"
 #include "uimsg.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uitaskrunner.h"
@@ -36,7 +36,6 @@ static const char* rcsID = "$Id: uisegyexp.cc,v 1.36 2010-08-23 08:57:28 cvsbert
 #include "iostrm.h"
 #include "ioman.h"
 #include "oddirs.h"
-#include "pixmap.h"
 #include "filepath.h"
 #include "file.h"
 #include "zdomain.h"
@@ -60,11 +59,11 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
     autogenfld_ = new uiGenInput( this, "Automatically generate",
 	    			  BoolInpSpec(false) );
     autogenfld_->valuechanged.notify( cb );
-    uiToolButton* wtb = new uiToolButton( this, "Write to file",
-	    ioPixmap("saveset.png"), mCB(this,uiSEGYExpTxtHeaderDlg,writePush));
+    uiToolButton* wtb = new uiToolButton( this, "saveset.png", "Write to file",
+			    mCB(this,uiSEGYExpTxtHeaderDlg,writePush));
     wtb->attach( rightBorder );
-    uiToolButton* rtb = new uiToolButton( this, "Read file",
-	    ioPixmap("openset.png"), mCB(this,uiSEGYExpTxtHeaderDlg,readPush) );
+    uiToolButton* rtb = new uiToolButton( this, "openset.png", "Read file",
+			    mCB(this,uiSEGYExpTxtHeaderDlg,readPush) );
     rtb->attach( leftOf, wtb );
 
     edfld_ = new uiTextEdit( this, "Hdr edit" );

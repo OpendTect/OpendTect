@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.82 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.83 2010-11-16 09:49:10 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -18,7 +18,6 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.82 2010-11-10 15:26:43 cvsb
 #include "ioobj.h"
 #include "multiid.h"
 #include "oddirs.h"
-#include "pixmap.h"
 #include "strmprov.h"
 #include "survinfo.h"
 
@@ -28,7 +27,7 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.82 2010-11-10 15:26:43 cvsb
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uigeninputdlg.h"
 #include "uihorizonrelations.h"
 #include "uiioobjmanip.h"
@@ -91,12 +90,11 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
-    manipgrp->addButton( ioPixmap("copyobj.png"), mCB(this,uiSurfaceMan,copyCB),
+    manipgrp->addButton( "copyobj.png", mCB(this,uiSurfaceMan,copyCB),
 			 mGetCopyStr(typ) );
 
-    man2dbut_ = manipgrp->addButton( ioPixmap("man2d.png"),
-				     mCB(this,uiSurfaceMan,man2d),
-				     "Manage 2D Horizons" );
+    man2dbut_ = manipgrp->addButton( "man2d.png", mCB(this,uiSurfaceMan,man2d),
+	    			     "Manage 2D Horizons" );
     man2dbut_->setSensitive( false );
 
     if ( mGet(typ,false,true,true,false,false) )
@@ -413,10 +411,9 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     tbl_->setColumnStretchable( 2, true );
     tbl_->setPrefWidth( 400 );
 
-    uiToolButton* sb = new uiToolButton( this, "Create new Markers",
-				ioPixmap("man_strat.png"),
-				mCB(this,uiSurfaceStratDlg,doStrat) );
-    sb->setToolTip( "Edit Stratigraphy to define Markers" );
+    uiToolButton* sb = new uiToolButton( this, "man_strat.png",
+	    				"Edit Stratigraphy to define Markers",
+					mCB(this,uiSurfaceStratDlg,doStrat) );
     sb->attach( rightOf, tbl_ );
 
     IOPar par;

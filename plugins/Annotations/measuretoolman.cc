@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: measuretoolman.cc,v 1.13 2010-05-26 03:35:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: measuretoolman.cc,v 1.14 2010-11-16 09:49:10 cvsbert Exp $";
 
 
 #include "measuretoolman.h"
@@ -33,9 +33,8 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     , picksetmgr_(Pick::SetMgr::getMgr("MeasureTool"))
     , measuredlg_(0)
 {
-    butidx_ = appl.menuMgr().coinTB()->addButton(
-	    "measure.png", mCB(this,MeasureToolMan,buttonClicked),
-	    "Display Distance", true );
+    butidx_ = appl.menuMgr().coinTB()->addButton( "measure.png",
+	    "Display Distance", mCB(this,MeasureToolMan,buttonClicked), true );
 
     TypeSet<int> sceneids;
     appl.applMgr().visServer()->getChildIds( -1, sceneids );

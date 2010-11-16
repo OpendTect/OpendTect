@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.25 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.26 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
@@ -64,7 +64,7 @@ protected:
 
 
 #define mAddButton(fnm,txt,fn) \
-    tb_->addButton( fnm, mCB(this,uiProgressViewer,fn), txt, false );
+    tb_->addButton( fnm, txt, mCB(this,uiProgressViewer,fn), false );
 
 uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
 	: uiMainWin(p,"Progress",1)

@@ -8,15 +8,14 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiimpexppdf.cc,v 1.2 2010-07-26 12:29:52 cvshelene Exp $";
+static const char* rcsID = "$Id: uiimpexppdf.cc,v 1.3 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiimpexppdf.h"
 
 #include "uifileinput.h"
 #include "uiioobjsel.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uimsg.h"
-#include "pixmap.h"
 
 #include "ascstream.h"
 #include "ctxtioobj.h"
@@ -69,9 +68,8 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     ynrbinfld_->attach( rightOf, yrgfld_ );
     grp->setHAlignObj( xrgfld_ );
     grp->attach( alignedBelow, varnmsfld_ );
-    uiToolButton* extendbut = new uiToolButton( this, "Extend",
-	    	ioPixmap("extendpdf.png"), mCB(this,uiImpRokDocPDF,extPDF) );
-    extendbut->setToolTip( "Extend one row/col outward" );
+    uiToolButton* extendbut = new uiToolButton( this, "extendpdf.png",
+	    "Extend one row/col outward", mCB(this,uiImpRokDocPDF,extPDF) );
     extendbut->attach( centeredRightOf, grp );
 
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);

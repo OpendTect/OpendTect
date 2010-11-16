@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.52 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.53 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -15,9 +15,9 @@ static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.52 2010-11-09 16:01:1
 #include "uigeninput.h"
 #include "uilineedit.h"
 #include "uilabel.h"
-#include "uibutton.h"
 #include "uicombobox.h"
 #include "uiseparator.h"
+#include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uidialog.h"
 #include "uicompoundparsel.h"
@@ -619,10 +619,9 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
 	    			  StringListInpSpec(hdrtyps) );
     hdrtypefld_->valuechanged.notify( typchgcb );
 
-    uiToolButton* button = new uiToolButton( this, "Open button",
-	    			ioPixmap("openfmt.png"),
+    uiToolButton* button = new uiToolButton( this, "openfmt.png",
+	    			"Selecting existing format",
 				mCB(this,uiTableImpDataSel,openFmt) );
-    button->setToolTip( "Open existing format" );
     button->setPrefWidthInChar( 6 );
     button->attach( rightOf, hdrtypefld_ );
 

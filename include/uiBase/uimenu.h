@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.58 2010-10-22 09:30:14 cvsnanne Exp $
+ RCS:           $Id: uimenu.h,v 1.59 2010-11-16 09:49:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibaseobject.h"
+#include "uiicons.h"
 #include "separstr.h"
 
 
@@ -90,13 +91,9 @@ mClass uiMenuItem : public NamedObject
 template<class> friend class	uiMenuItemContainerBodyImpl;
 
 public:
-				uiMenuItem(const char* nm,const ioPixmap* = 0);
-				//!<pixmap must be alive in memory until
-				//!<item is added to parent
+				uiMenuItem(const char* nm,const char* pmnm=0);
 				uiMenuItem(const char* nm,const CallBack& cb,
-					   const ioPixmap* = 0);
-				//!<pixmap must be alive in memory until
-				//!<item is added to parent
+					   const char* pixmapnm=0);
 				~uiMenuItem();
     int				id() const		{ return id_; }
 
@@ -107,6 +104,7 @@ public:
     void			setText(const wchar_t*);
     const char*			text() const;
 
+    void			setPixmap(const char*);
     void			setPixmap(const ioPixmap&);
     void			setShortcut(const char*);
 
@@ -171,8 +169,8 @@ mClass uiPopupItem : public uiMenuItem
 friend class uiPopupMenu;
 protected:
                                 uiPopupItem( uiPopupMenu& pm, const char* nm,
-				       	     const ioPixmap* p = 0 )
-				    : uiMenuItem(nm,p)
+				       	     const char* pixmapfnm=0 )
+				    : uiMenuItem(nm,pixmapfnm)
 				    , popmenu_(&pm)	{}
 				//!<pixmap must be alive in memory until
 				//!<item is added to parent
@@ -218,7 +216,7 @@ mClass uiPopupMenu : public uiMenuItemContainer
 public:                        
 				uiPopupMenu(uiParent*,
 					    const char* nm="uiPopupMenu",
-					    const ioPixmap* = 0);
+					    const char* pixmapfilenm=0);
 				//!<pixmap must be alive in memory until
 				//!<item is added to parent
 

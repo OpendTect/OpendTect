@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.19 2010-08-09 20:04:14 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.20 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uivolprocchain.h"
 
@@ -15,10 +15,9 @@ static const char* rcsID = "$Id: uivolprocchain.cc,v 1.19 2010-08-09 20:04:14 cv
 #include "settings.h"
 #include "volprocchain.h"
 #include "volproctrans.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
-#include "uiicons.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -82,23 +81,14 @@ bool uiStepDialog::acceptOK( CallBacker* )
 }
 
 
-const ioPixmap& uiChain::getPixmap()
-{
-    static ioPixmap res("volproc.png");
-    return res;
-}
-
-
 uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     : uiDialog( p, uiDialog::Setup("Volume Builder: Setup",0,"103.6.0")
 	    .menubar(true) )
     , chain_(chn)
 {
     uiToolBar* tb = new uiToolBar( this, "Load/Save toolbar", uiToolBar::Right);
-    tb->addButton( Icons::openObject(), mCB(this,uiChain,readPush),
-	    	   "Read stored setup", false );
-    tb->addButton( Icons::saveAs(), mCB(this,uiChain,savePush),
-	    	   "Save setup now", false );
+    tb->addButton( "open.png", "Read stored setup", mCB(this,uiChain,readPush));
+    tb->addButton( "save.png", "Save setup now", mCB(this,uiChain,savePush) );
 
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
 
@@ -108,10 +98,8 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 	    mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
 
-    addstepbutton_ = new uiToolButton( flowgrp, "Add button",
-					mCB(this,uiChain,addStepPush) );
-    ((uiToolButton*)addstepbutton_)->setArrowType( uiToolButton::RightArrow );
-    addstepbutton_->setToolTip( "Add step" );
+    addstepbutton_ = new uiToolButton( flowgrp, uiToolButton::RightArrow,
+				    "Add step", mCB(this,uiChain,addStepPush) );
     addstepbutton_->attach( centeredRightOf, factorylist_ );
 
     steplist_ = new uiListBox( flowgrp );
@@ -126,26 +114,20 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     label->attach( alignedAbove, steplist_ );
     label->attach( rightTo, availablelabel );
 
-    moveupbutton_ = new uiToolButton( flowgrp, "Up button",
-					mCB(this,uiChain,moveUpCB) );
-    ((uiToolButton*)moveupbutton_)->setArrowType( uiToolButton::UpArrow );
-    moveupbutton_->setToolTip( "Move step up" );
+    moveupbutton_ = new uiToolButton( flowgrp, uiToolButton::UpArrow,
+				"Move step up", mCB(this,uiChain,moveUpCB) );
     moveupbutton_->attach( rightOf, steplist_ );
 
-    movedownbutton_ = new uiToolButton( flowgrp, "Up button",
-					mCB(this,uiChain,moveDownCB) );
-    ((uiToolButton*)movedownbutton_)->setArrowType( uiToolButton::DownArrow );
-    movedownbutton_->setToolTip( "Move step down" );
+    movedownbutton_ = new uiToolButton( flowgrp, uiToolButton::DownArrow,
+			    "Move step down", mCB(this,uiChain,moveDownCB) );
     movedownbutton_->attach( alignedBelow, moveupbutton_ );
 
     propertiesbutton_ = new uiPushButton( flowgrp, "S&ettings",
 			    mCB(this,uiChain,propertiesCB), false );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
-    removestepbutton_ = new uiToolButton( flowgrp, "Remove",
-	    				  Icons::removeObject(), 
-					  mCB(this,uiChain,removeStepPush) );
-    movedownbutton_->setToolTip( "Remove step from flow" );
+    removestepbutton_ = new uiToolButton( flowgrp, "trashcan.png",
+	    	"Remove step from flow", mCB(this,uiChain,removeStepPush) );
     removestepbutton_->attach( alignedBelow, propertiesbutton_ );
 
     flowgrp->setHAlignObj( steplist_ );

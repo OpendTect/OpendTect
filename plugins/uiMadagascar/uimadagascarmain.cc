@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.38 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.39 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.38 2010-11-10 15:26:43 
 #include "madprocexec.h"
 #include "madio.h"
 #include "uilistbox.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uigeninput.h"
 #include "uitoolbar.h"
@@ -23,7 +23,6 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.38 2010-11-10 15:26:43 
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "cubesampling.h"
-#include "pixmap.h"
 #include "keystrs.h"
 #include "ioman.h"
 #include "oddirs.h"
@@ -82,7 +81,7 @@ uiMadagascarMain::~uiMadagascarMain()
 
 
 #define mAddButton(pm,func,tip) \
-    toolbar->addButton( pm, mCB(this,uiMadagascarMain,func), tip )
+    toolbar->addButton( pm, tip, mCB(this,uiMadagascarMain,func) )
 
 void uiMadagascarMain::createToolBar()
 {
@@ -107,15 +106,12 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
 
     uiButtonGroup* bgrp = new uiButtonGroup( procgrp, "", false );
     bgrp->displayFrame( true );
-    upbut_ = new uiToolButton( bgrp, "Up button", butpushcb );
-    upbut_->setArrowType( uiToolButton::UpArrow );
-    upbut_->setToolTip( "Move current command up" );
-    downbut_ = new uiToolButton( bgrp, "Down button", butpushcb );
-    downbut_->setArrowType( uiToolButton::DownArrow );
-    downbut_->setToolTip( "Move current command down" );
-    rmbut_ = new uiToolButton( bgrp, "Remove button", ioPixmap("trashcan.png"),
-	    			butpushcb );
-    rmbut_->setToolTip( "Remove current command from flow" );
+    upbut_ = new uiToolButton( bgrp, uiToolButton::UpArrow,
+	    			"Move current command up", butpushcb );
+    downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
+	    			"Move current command down", butpushcb );
+    rmbut_ = new uiToolButton( bgrp, "trashcan.png",
+	    			"Remove current command from flow", butpushcb );
     bgrp->attach( centeredBelow, pfld );
 
     procgrp->setHAlignObj( pfld );

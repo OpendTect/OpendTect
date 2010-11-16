@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.24 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.25 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.24 2010-11-10 15:26:43 cvsb
 #include "strmprov.h"
 #include "timer.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uidesktopservices.h"
 #include "uifileinput.h"
@@ -94,15 +94,12 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     const CallBack butpushcb( mCB(this,uiGMTMainWin,butPush) );
     uiButtonGroup* bgrp = new uiButtonGroup( flowgrp_, "", false );
     bgrp->displayFrame( true );
-    upbut_ = new uiToolButton( bgrp, "Up button", butpushcb );
-    upbut_->setArrowType( uiToolButton::UpArrow );
-    upbut_->setToolTip( "Move current item up" );
-    downbut_ = new uiToolButton( bgrp, "Down button", butpushcb );
-    downbut_->setArrowType( uiToolButton::DownArrow );
-    downbut_->setToolTip( "Move current item down" );
-    rmbut_ = new uiToolButton( bgrp, "Remove button", ioPixmap("trashcan.png"),
-	    			butpushcb );
-    rmbut_->setToolTip( "Remove current item from flow" );
+    upbut_ = new uiToolButton( bgrp, uiToolButton::UpArrow,
+	    			"Move current item up", butpushcb );
+    downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
+	    			 "Move current item down", butpushcb );
+    rmbut_ = new uiToolButton( bgrp, "trashcan.png",
+	    			"Remove current item from flow", butpushcb );
     bgrp->attach( centeredBelow, llb );
 
 
@@ -128,12 +125,12 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     setParFileNmDef( "GMT_Proc" );
 
     uiToolBar* toolbar = new uiToolBar( this, "Flow Tools" );
-    toolbar->addButton( "newflow.png", mCB(this,uiGMTMainWin,newFlow),
-	    		"New Flow" );
-    toolbar->addButton( "openflow.png", mCB(this,uiGMTMainWin,openFlow),
-	    		"Open Flow" );
-    toolbar->addButton( "saveflow.png", mCB(this,uiGMTMainWin,saveFlow),
-	    		"Save Current Flow" );
+    toolbar->addButton( "newflow.png", "New flow",
+	    		mCB(this,uiGMTMainWin,newFlow) );
+    toolbar->addButton( "openflow.png", "Open Flow",
+	    		mCB(this,uiGMTMainWin,openFlow) );
+    toolbar->addButton( "saveflow.png", "Save Current Flow",
+			mCB(this,uiGMTMainWin,saveFlow) );
 
     tabSel(0);
 }

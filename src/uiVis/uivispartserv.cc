@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.455 2010-11-11 05:12:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.456 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uivispartserv.h"
 
@@ -20,14 +20,13 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.455 2010-11-11 05:12:43 cv
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "oddirs.h"
-#include "pixmap.h"
 #include "seisbuf.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
 #include "uiattribtransdlg.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uifiledlg.h"
 #include "uimaterialdlg.h"
 #include "uimenuhandler.h"
@@ -1252,10 +1251,9 @@ uiWorkAreaDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Set work volume","","0.3.4"))
 {
     selfld_ = new uiSelSubvol( this, false );
-    fullbut_ = new uiToolButton( this, "Extend to full survey",
-				 ioPixmap("exttofullsurv.png"),
+    fullbut_ = new uiToolButton( this, "exttofullsurv.png",
+	    			"Set ranges to full survey",
 				 mCB(this,uiWorkAreaDlg,fullPush) );
-    fullbut_->setToolTip( "Set ranges to full survey" );
     fullbut_->attach( rightOf, selfld_ );
 }
 

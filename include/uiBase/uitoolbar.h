@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.41 2010-05-25 03:30:44 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.42 2010-11-16 09:49:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
-
 class ioPixmap;
 class MenuItem;
 class uiObject;
@@ -21,7 +20,10 @@ class uiPopupMenu;
 class uiToolBarBody;
 class QAction;
 class QToolBar;
+class uiToolButton;
+class uiToolButtonSetup;
 class i_ToolBarMessenger;
+
 
 mClass uiToolBar : public uiParent
 {
@@ -45,11 +47,11 @@ public:
 				  ToolBarArea d=Top,bool newline=false);
 			~uiToolBar();
 
-    int 		addButton(const char*,const CallBack&,
-				  const char* tooltip,bool toggle=false);
-    int 		addButton(const ioPixmap&,const CallBack&,
-				  const char* tooltip,bool toggle=false);
+    int 		addButton(const uiToolButtonSetup&);
+    int 		addButton(const char* fnm,const char* tooltip,
+	    			  const CallBack&,bool toggle=false);
     int			addButton(const MenuItem&);
+    void		addButton(uiToolButton*);
     void		addObject(uiObject*);
 
     void		setLabel(const char*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.12 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.13 2010-11-16 09:49:10 cvsbert Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -17,7 +17,6 @@ static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.12 2010-11-10 15:26:43 c
 #include "filepath.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "pixmap.h"
 #include "seis2dline.h"
 #include "seis2dlinemerge.h"
 #include "seiscube2linedata.h"
@@ -26,7 +25,7 @@ static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.12 2010-11-10 15:26:43 c
 #include "zdomain.h"
 #include "linesetposinfo.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uigeninputdlg.h"
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
@@ -71,10 +70,10 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linegrp_ = new uiManipButGrp( lllb );
     linegrp_->addButton( uiManipButGrp::Rename, 
 		 mCB(this,uiSeis2DFileMan,renameLine), "Rename line");
-    linegrp_->addButton( ioPixmap("mergelines.png"),
+    linegrp_->addButton( "mergelines.png",
 		 mCB(this,uiSeis2DFileMan,mergeLines), "Merge lines");
     if ( SI().has3D() )
-	linegrp_->addButton( ioPixmap("extr3dseisinto2d.png"),
+	linegrp_->addButton( "extr3dseisinto2d.png",
 		 mCB(this,uiSeis2DFileMan,extrFrom3D), "Extract from 3D cube");
     linegrp_->attach( rightOf, linefld_ );
 
@@ -91,7 +90,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     attrgrp_->addButton( uiManipButGrp::Remove,
 	    		mCB(this,uiSeis2DFileMan,removeAttrib),
 			"Remove selected attribute(s)" );
-    browsebut_ = attrgrp_->addButton( ioPixmap("browseseis.png"),
+    browsebut_ = attrgrp_->addButton( "browseseis.png",
 	    	       mCB(this,uiSeis2DFileMan,browsePush),
 		       "Browse/edit this line" );
     attrgrp_->attach( rightOf, attrfld_ );

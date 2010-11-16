@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.cc,v 1.13 2009-10-08 04:57:20 cvsnanne Exp $
+ RCS:		$Id: uimapperrangeeditordlg.cc,v 1.14 2010-11-16 09:49:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,8 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
     uiSeparator* sephor = 0;
 
     uiToolBar* tb = new uiToolBar( this, "Stats" );
-    tb->addButton( "info.png", mCB(this,uiMultiMapperRangeEditWin,showStatDlg),
-	    	   "Statistics" );
+    tb->addButton( "info.png", "Statistics",
+	    	   mCB(this,uiMultiMapperRangeEditWin,showStatDlg) );
 
     for ( int idx=0; idx<nr; idx++ )
     {

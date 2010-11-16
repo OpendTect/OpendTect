@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.8 2010-08-11 09:55:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.9 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uislicepos.h"
 
-#include "uibutton.h"
 #include "uilabel.h"
 #include "uispinbox.h"
 #include "uitoolbar.h"
+#include "uitoolbutton.h"
 
 #include "cubesampling.h"
 #include "ioman.h"
@@ -39,10 +39,10 @@ uiSlicePos::uiSlicePos( uiParent* p )
 				mCB(this,uiSlicePos,sliceStepChg) );
     slicestepbox_->box()->disabFocus();
 
-    prevbut_ = new uiToolButton( toolbar_, "Previous position",
-	    ioPixmap("prevpos.png"), mCB(this,uiSlicePos,prevCB) );
-    nextbut_ = new uiToolButton( toolbar_, "Next position",
-	    ioPixmap("nextpos.png"), mCB(this,uiSlicePos,nextCB) );
+    prevbut_ = new uiToolButton( toolbar_, "prevpos.png", "Previous position",
+				mCB(this,uiSlicePos,prevCB) );
+    nextbut_ = new uiToolButton( toolbar_, "nextpos.png", "Next position",
+				mCB(this,uiSlicePos,nextCB) );
 
     toolbar_->addObject( sliceposbox_->label() );
     toolbar_->addObject( sliceposbox_->box() );

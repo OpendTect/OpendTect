@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.14 2009-11-18 22:08:46 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.15 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiprestackprocessor.h"
 
@@ -14,8 +14,8 @@ static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.14 2009-11-18 22:08:
 #include "prestackprocessor.h"
 #include "prestackprocessortransl.h"
 #include "uibutton.h"
-#include "uiioobjsel.h"
 #include "uiicons.h"
+#include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -73,16 +73,18 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 	    mCB(this,uiProcessorManager,propertiesCB), false );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
-    loadbutton_ = new uiPushButton( this, "Load", Icons::openObject(),
-	    mCB(this, uiProcessorManager,loadCB), false );
+    loadbutton_ = new uiPushButton( this, "Load",
+	    		ioPixmap(uiIcon::openObject()),
+			mCB(this, uiProcessorManager,loadCB), false );
     loadbutton_->attach( alignedBelow, factorylist_ );
     
-    savebutton_ = new uiPushButton( this, "Save", Icons::save(),
+    savebutton_ = new uiPushButton( this, "Save", ioPixmap(uiIcon::save()),
 	    mCB(this, uiProcessorManager,saveCB), true );
     savebutton_->attach( rightOf, loadbutton_ );
 
-    saveasbutton_ = new uiPushButton( this, "Save as", Icons::saveAs(),
-	    mCB(this, uiProcessorManager,saveAsCB), false );
+    saveasbutton_ = new uiPushButton( this, "Save as",
+			    ioPixmap(uiIcon::saveAs()),
+			    mCB(this, uiProcessorManager,saveAsCB), false );
     saveasbutton_->attach( rightOf, savebutton_ );
 
     updateList();

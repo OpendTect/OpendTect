@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.210 2010-10-27 10:38:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.211 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.210 2010-10-27 10:38:46 cvsnan
 #include "uiobjbody.h"
 #include "uifont.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uidesktopservices.h"
 #include "uidockwin.h"
 #include "uigroup.h"
@@ -1459,10 +1459,6 @@ void uiDialogBody::initChildren()
 	if ( !okbut )
 	    cnclbut->setDefault();
     }
-    if ( helpbut )
-	helpbut->activated.notify( mCB(this,uiDialogBody,provideHelp) );
-    if ( creditsbut )
-	creditsbut->activated.notify( mCB(this,uiDialogBody,showCredits) );
 
     childrenInited = true;
 }
@@ -1478,8 +1474,8 @@ uiObject* uiDialogBody::createChildren()
     if ( setup.savebutton_ && !setup.savetext_.isEmpty() )
     {
 	if ( setup.savebutispush_ )
-	    savebut_tb = new uiToolButton( centralWidget_, setup.savetext_,
-		    			   ioPixmap("savefmt.png") );
+	    savebut_tb = new uiToolButton( centralWidget_, "savefmt.png",
+			  setup.savetext_, CallBack() );
 	else
 	{
 	    savebut_cb = new uiCheckBox( centralWidget_, setup.savetext_ );
@@ -1490,21 +1486,20 @@ uiObject* uiDialogBody::createChildren()
     const BufferString hid( dlg.helpID() );
     if ( !hid.isEmpty() && hid != "-" )
     {
-	const ioPixmap pixmap( "contexthelp.png" );
-	helpbut = new uiToolButton( centralWidget_, "&Help button", pixmap );
-	helpbut->setPrefWidthInChar( 5 );
 	static bool shwhid = GetEnvVarYN( "DTECT_SHOW_HELP" );
 #ifdef __debug__
 	shwhid = true;
 #endif
-	helpbut->setToolTip( shwhid ? hid.buf() : "Help on this window" );
+	helpbut = new uiToolButton( centralWidget_, "contexthelp.png",
+			shwhid ? hid.buf() : "Help on this window",
+	       		mCB(this,uiDialogBody,provideHelp) );
+	helpbut->setPrefWidthInChar( 5 );
 	if ( dlg.haveCredits() )
 	{
 	    const ioPixmap pixmap( "credits.png" );
-	    creditsbut = new uiToolButton( centralWidget_, "&Credits button",
-					    pixmap );
+	    creditsbut = new uiToolButton( centralWidget_, "credits.png",
+		    "Show credits", mCB(this,uiDialogBody,showCredits) );
 	    creditsbut->setPrefWidthInChar( 5 );
-	    creditsbut->setToolTip( "Show credits" );
 	    creditsbut->attach( rightOf, helpbut );
 	}
     }

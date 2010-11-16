@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.5 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.6 2010-11-16 09:49:10 cvsbert Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.5 2010-11-10 15:26:43 cvsber
 #include "surv2dgeom.h"
 #include "strmprov.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -54,8 +54,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     linenamefld_->setPrefWidth( 200 );
     
     uiToolButton* mangeombut =
-	new uiToolButton( this, "Manage Line Geometry",
-			  ioPixmap("browse2dgeom.png"),
+	new uiToolButton( this, "browse2dgeom.png", "Manage Line Geometry",
 			  mCB(this,ui2DGeomManageDlg,manLineGeom) );
     mangeombut->attach( centeredRightOf, lnlb );
 

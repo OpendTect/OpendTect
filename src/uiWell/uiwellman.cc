@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.68 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.69 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -32,7 +32,7 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.68 2010-11-10 15:26:43 cvsbert
 #include "welltransl.h"
 #include "wellwriter.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uigeninputdlg.h"
 #include "uigroup.h"
 #include "uiioobjmanip.h"
@@ -89,9 +89,8 @@ uiWellMan::uiWellMan( uiParent* p )
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 
-    uiToolButton* welltrackbut = new uiToolButton( listgrp_, "Well Track",
-	   	 "edwelltrack.png", mCB(this,uiWellMan, edWellTrack) );
-    welltrackbut->setToolTip( "Well Track" );
+    uiToolButton* welltrackbut = new uiToolButton( listgrp_, "edwelltrack.png",
+	    	"Edit Well Track", mCB(this,uiWellMan, edWellTrack) );
     welltrackbut->attach( alignedBelow, selgrp_ );
     welltrackbut->attach( ensureBelow, selgrp_ );
     welltrackbut->attach( ensureBelow, logsgrp_ );
@@ -99,19 +98,16 @@ uiWellMan::uiWellMan( uiParent* p )
     uiToolButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
-	uiToolButton* csbut = new uiToolButton( listgrp_, "Checkshot Data",
-			     "checkshot.png", mCB(this,uiWellMan, edChckSh));
-	csbut->setToolTip( "Checkshot Data" );
+	uiToolButton* csbut = new uiToolButton( listgrp_, "checkshot.png",
+			"Edit Checkshot Data", mCB(this,uiWellMan,edChckSh));
 	csbut->attach( rightOf, welltrackbut );
-	d2tbut = new uiToolButton( listgrp_, "Depth/Time Model",
-				   "z2t.png", mCB(this,uiWellMan, edD2T));
-	d2tbut->setToolTip( "Depth/Time Model" );
+	d2tbut = new uiToolButton( listgrp_, "z2t.png", "Edit Depth/Time Model",
+				   mCB(this,uiWellMan, edD2T));
 	d2tbut->attach( rightOf, csbut );
     }
 
-    uiToolButton* markerbut = new uiToolButton( listgrp_, "Markers",
-	   	 "edmarkers.png", mCB(this,uiWellMan, edMarkers) );
-    markerbut->setToolTip( "Markers" );
+    uiToolButton* markerbut = new uiToolButton( listgrp_, "edmarkers.png",
+	    		"Edit Markers", mCB(this,uiWellMan, edMarkers) );
     markerbut->attach( rightOf, d2tbut ? d2tbut : welltrackbut );
     lastexternal_ = markerbut;
 

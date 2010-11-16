@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.202 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.203 2010-11-16 09:49:11 cvsbert Exp $";
 
 #include "uimpeman.h"
 
@@ -23,10 +23,10 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.202 2010-11-10 15:26:43 cvsbert
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
 #include "ioman.h"
+#include "pixmap.h"
 #include "keystrs.h"
 #include "mousecursor.h"
 #include "mpeengine.h"
-#include "pixmap.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
 #include "selector.h"
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.202 2010-11-10 15:26:43 cvsbert
 #include "undo.h"
 
 #include "uicombobox.h"
+#include "uitoolbutton.h"
 #include "uicolortable.h"
 #include "uigroup.h"
 #include "uimenu.h"
@@ -64,7 +65,7 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.202 2010-11-10 15:26:43 cvsbert
 using namespace MPE;
 
 #define mAddButton(pm,func,tip,toggle) \
-    toolbar->addButton( pm, mCB(this,uiMPEMan,func), tip, toggle )
+    toolbar->addButton( pm, tip, mCB(this,uiMPEMan,func), toggle )
 
 #define mAddMnuItm(mnu,txt,fn,fnm,idx) {\
     uiMenuItem* itm = new uiMenuItem( txt, mCB(this,uiMPEMan,fn) ); \

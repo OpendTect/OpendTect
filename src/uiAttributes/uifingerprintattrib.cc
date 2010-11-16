@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.68 2010-11-03 10:56:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.69 2010-11-16 09:49:10 cvsbert Exp $";
 
 -*/
 
@@ -28,7 +28,6 @@ static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.68 2010-11-03 10:56:
 #include "pickretriever.h"
 #include "pickset.h"
 #include "picksettr.h"
-#include "pixmap.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
 #include "seisselection.h"
@@ -40,7 +39,7 @@ static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.68 2010-11-03 10:56:
 
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -124,7 +123,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     refposzfld_->setElemSzPol( uiObject::Small );
     refposzfld_->attach( rightTo, refposfld_ );
     
-    getposbut_ = new uiToolButton( this, "Interact", ioPixmap("pick.png"),
+    getposbut_ = new uiToolButton( this, "pick.png",
+	    			   "Point in 3D scene",
 	    			   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
     pickretriever_ = PickRetriever::getInstance();

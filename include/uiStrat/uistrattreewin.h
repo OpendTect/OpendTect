@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.37 2010-10-19 15:14:32 cvsbert Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.38 2010-11-16 09:49:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiStratTreeWin;
 class uiStratDisplay;
 class uiToolBar;
 class uiToolButton;
+class uiToolButtonSetup;
 
 namespace Strat { class RepositoryAccess; }
 
@@ -40,6 +41,8 @@ public:
 
     void		popUp() const;
     virtual bool	closeOK();
+
+    static void		addTool(const uiToolButtonSetup&);
     
 protected:
 

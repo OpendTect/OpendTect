@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.27 2010-08-19 07:31:44 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.28 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.27 2010-08-19 07:31:44 cvsr
 #include "uiseparator.h"
 #include "uifileinput.h"
 #include "uilabel.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "segyhdr.h"
@@ -36,7 +36,6 @@ static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.27 2010-08-19 07:31:44 cvsr
 #include "ioman.h"
 #include "iostrm.h"
 #include "zdomain.h"
-#include "pixmap.h"
 
 
 
@@ -82,11 +81,10 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 
     if ( !optsgrp_ )
     {
-	uiToolButton* tb = new uiToolButton( this, "Pre-scan",
-		ioPixmap("prescan.png"),
-		mCB(this,uiSEGYImpDlg,preScanCB) );
+	uiToolButton* tb = new uiToolButton( this, "prescan.png",
+				"Pre-scan file(s)",
+				mCB(this,uiSEGYImpDlg,preScanCB) );
 	tb->attach( rightOf, outgrp->attachObj() );
-	tb->setToolTip( "Pre-scan file(s)" );
     }
 }
 

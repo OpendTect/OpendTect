@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.24 2010-08-09 10:46:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.25 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -17,8 +17,7 @@ static const char* rcsID = "$Id: uiposprovider.cc,v 1.24 2010-08-09 10:46:58 cvs
 #include "uimainwin.h"
 #include "uilabel.h"
 #include "uidialog.h"
-#include "uibutton.h"
-#include "pixmap.h"
+#include "uitoolbutton.h"
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "survinfo.h"
@@ -77,10 +76,9 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	selfld_->valuechanged.notify( selcb );
 	if ( !setup_.is2d_ )
 	{
-	    fullsurvbut_ = new uiToolButton( this, "Extend to full survey",
-					 ioPixmap("exttofullsurv.png"),
-					 mCB(this,uiPosProvider,fullSurvPush) );
-	    fullsurvbut_->setToolTip( "Set ranges to full survey" );
+	    fullsurvbut_ = new uiToolButton( this, "exttofullsurv.png",
+		    		"Set ranges to full survey",
+				 mCB(this,uiPosProvider,fullSurvPush) );
 	    fullsurvbut_->attach( rightOf, selfld_ );
 	}
     }

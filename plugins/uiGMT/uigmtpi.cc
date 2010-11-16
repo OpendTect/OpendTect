@@ -4,14 +4,13 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.31 2010-11-08 11:48:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.32 2010-11-16 09:49:10 cvsbert Exp $";
 
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "gmtdef.h"
 #include "ioman.h"
-#include "pixmap.h"
 #include "uibutton.h"
 #include "uidesktopservices.h"
 #include "uigmtadv.h"
@@ -129,19 +128,17 @@ uiGMTMgr::~uiGMTMgr()
 
 void uiGMTMgr::updateToolBar( CallBacker* )
 {
-    appl_->menuMgr().dtectTB()->addButton( "gmt_logo.png",
-	    				   mCB(this,uiGMTMgr,createMap),
-					   "GMT Mapping Tool" );
+    appl_->menuMgr().dtectTB()->addButton( "gmt_logo.png", "GMT Mapping Tool",
+	    				   mCB(this,uiGMTMgr,createMap) );
 }
 
 
 void uiGMTMgr::updateMenu( CallBacker* )
 {
     delete dlg_; dlg_ = 0;
-    const ioPixmap gmtpm( "gmt_logo.png" );
     uiMenuItem* newitem = new uiMenuItem( "GMT Mapping Tool ...",
 	    				  mCB(this,uiGMTMgr,createMap),
-	   				  &gmtpm );
+	   				  "gmt_logo.png" );
     appl_->menuMgr().procMnu()->insertItem( newitem );
 }
 
