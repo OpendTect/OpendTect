@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.44 2010-06-02 11:54:06 cvsbert Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.45 2010-11-16 11:28:25 cvsbert Exp $";
 
 #include "pixmap.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: pixmap.cc,v 1.44 2010-06-02 11:54:06 cvsbert Ex
 #include "separstr.h"
 #include "settings.h"
 #include "uirgbarray.h"
+#include "uiicons.h"
 
 #include <QPixmap>
 #include <QBitmap>
@@ -71,6 +72,14 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     : qpixmap_(0)
     , srcname_(fnm)
 {
+    bool isnone = true;
+    if ( srcname_.isEmpty() )
+	pErrMsg("Empty icon name specified. "
+		" (if this is intentional, use uiIcons::None())");
+    if ( srcname_ != uiIcon::None() )
+	isnone = false;
+    if ( isnone )
+	{ qpixmap_ = new QPixmap; return; }
 
     if ( fmt )
     {
@@ -80,31 +89,28 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     }
 
     BufferString fname( srcname_ );
-    if ( !fname.isEmpty() )
+    FilePath fp( fname );
+    if ( !fp.isAbsolute() )
     {
-	FilePath fp( fname );
-	if ( !fp.isAbsolute() )
+	BufferString icsetnm;
+	Settings::common().get( "Icon set name", icsetnm );
+	if ( icsetnm.isEmpty() )
+	    icsetnm = "Default";
+	const BufferString dirnm( "icons.", icsetnm );
+
+	fp.setPath( GetSettingsFileName(dirnm) );
+	fname = fp.fullPath();
+	if ( !File::exists(fname) )
 	{
-	    BufferString icsetnm;
-	    Settings::common().get( "Icon set name", icsetnm );
-	    if ( icsetnm.isEmpty() )
-		icsetnm = "Default";
-	    const BufferString dirnm( "icons.", icsetnm );
-
-	    fp.setPath( GetSettingsFileName(dirnm) );
+	    fp.setPath( mGetSetupFileName(dirnm) );
 	    fname = fp.fullPath();
-	    if ( !File::exists(fname) )
-	    {
-		fp.setPath( mGetSetupFileName(dirnm) );
-		fname = fp.fullPath();
-	    }
+	}
 
-	    // fallback to Default
-	    if ( !File::exists(fname) )
-	    {
-		fp.setPath( mGetSetupFileName("icons.Default") );
-		fname = fp.fullPath();
-	    }
+	// fallback to Default
+	if ( !File::exists(fname) )
+	{
+	    fp.setPath( mGetSetupFileName("icons.Default") );
+	    fname = fp.fullPath();
 	}
     }
 
