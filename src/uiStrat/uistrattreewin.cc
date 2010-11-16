@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.61 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.62 2010-11-16 11:29:35 cvsbert Exp $";
 
 #include "uistrattreewin.h"
 
@@ -96,7 +96,7 @@ void uiStratTreeWin::popUp() const
 void uiStratTreeWin::createMenu()
 {
     uiMenuBar* menubar = menuBar();
-    uiPopupMenu* mnu = new uiPopupMenu( this, "&Menu" );
+    uiPopupMenu* mnu = new uiPopupMenu( this, "&Actions" );
     expandmnuitem_ = new uiMenuItem( mExpandTxt(true),
 				     mCB(this,uiStratTreeWin,setExpCB) );
     mnu->insertItem( expandmnuitem_ );
