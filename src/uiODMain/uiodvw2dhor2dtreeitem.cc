@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.17 2010-11-06 16:21:12 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.18 2010-11-17 06:30:49 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,8 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 				applMgr()->attrServer()->curDescSet(true) );
-	mps->addTracker( EM::Horizon2D::typeStr(), -1 );
+	if ( !mps->addTracker(EM::Horizon2D::typeStr(), -1) )
+	    return true;
 
 	const int trackid = mps->activeTrackerID();
 	uiODVw2DHor2DTreeItem* hortreeitem = 
