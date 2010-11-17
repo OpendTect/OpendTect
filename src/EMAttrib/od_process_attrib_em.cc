@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.73 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.74 2010-11-17 09:29:54 cvshelene Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -474,15 +474,17 @@ bool BatchProgram::go( std::ostream& strm )
 	BufferStringSet valnms;
 	valnms.add("z2");
 	DataPointSet* dtps = new DataPointSet( startset, valnms, true );
-	MultiID linsetid;
-	pars().get( "Input Line Set", linsetid );
-	PtrMan<IOObj> lineset = IOM().get( linsetid );
-	if ( !lineset ) return false;
-	const PosInfo::GeomID& geomid =
-	    S2DPOS().getGeomID( lineset->name(), linename );
 	if ( is2d )
+	{
+	    MultiID linsetid;
+	    pars().get( "Input Line Set", linsetid );
+	    PtrMan<IOObj> lineset = IOM().get( linsetid );
+	    if ( !lineset ) return false;
+	    const PosInfo::GeomID& geomid =
+		S2DPOS().getGeomID( lineset->name(), linename );
 	    HorizonUtils::getWantedPos2D( strm, midset, dtps, hsamp, 
 		    			  extraz, geomid );
+	}
 	else
 	    HorizonUtils::getWantedPositions( strm, midset, bivs, hsamp,
 		    			      extraz, nrinterpsamp, mainhoridx,
