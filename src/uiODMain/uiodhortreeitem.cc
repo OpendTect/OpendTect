@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.65 2010-11-06 16:21:12 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.66 2010-11-17 11:20:06 cvsumesh Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -92,7 +92,10 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
+	    {
 		 MPE::engine().addTracker( objs[idx] );
+		 applMgr()->visServer()->turnSeedPickingOn( true );
+	    }
 	    uiODHorizonTreeItem* itm =
 		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mLoadCBIdx );
 	    addChild( itm, false, false );
@@ -568,7 +571,10 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
+	    {
 		MPE::engine().addTracker( objs[idx] );
+		applMgr()->visServer()->turnSeedPickingOn( true );
+	    }
 	    addChild( new uiODHorizon2DTreeItem(objs[idx]->id()), false, false);
 	}
 
