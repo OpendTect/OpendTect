@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Lammertink
  Date:		30-10-2003
- RCS:		$Id: _execbatch.h,v 1.11 2010-02-24 10:41:39 cvsnanne Exp $
+ RCS:		$Id: _execbatch.h,v 1.12 2010-11-17 20:00:51 cvsyuancheng Exp $
 ________________________________________________________________________
 
  The implementation fo Execute_batch should be in the executable on 
@@ -50,9 +50,15 @@ int Execute_batch( int* pargc, char** argv )
 #endif
     }
 
-
     BatchProgram& bp = BP();
-    bool allok = bp.initOutput() && bp.go( *bp.sdout.ostrm );
+    bool allok = bp.initOutput();
+    if ( allok )
+    {
+	*bp.sdout.ostrm << "Starting program " << argv[0] << " "
+	    << bp.name() << "\n";
+	allok = bp.go( *bp.sdout.ostrm );
+    }
+
     bp.stillok = allok;
     BatchProgram::deleteInstance();
 
