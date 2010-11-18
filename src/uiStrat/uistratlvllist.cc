@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvllist.cc,v 1.9 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlvllist.cc,v 1.10 2010-11-18 15:43:36 cvsbruno Exp $";
 
 #include "uistratlvllist.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: uistratlvllist.cc,v 1.9 2010-11-10 15:26:43 cvs
 #include "stratlevel.h"
 #include "uistratutildlgs.h"
 
-static const char* sNoLevelTxt      = "--- Empty ---";
+static const char* sNoLevelTxt      = "--- None ---";
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
     : uiLabeledListBox(p,"Regional markers",false,uiLabeledListBox::AboveMid)

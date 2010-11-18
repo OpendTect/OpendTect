@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.63 2010-11-16 14:46:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.64 2010-11-18 15:43:36 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -54,10 +54,7 @@ const uiStratTreeWin& StratTWin()
 }
 uiStratTreeWin& StratTreeWin()
 {
-    if ( !stratwin )
-	stratwin = new uiStratTreeWin(0);
-
-    return *stratwin;
+    return const_cast<uiStratTreeWin&>( StratTWin() );
 }
 
 

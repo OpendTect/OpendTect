@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.44 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.45 2010-11-18 15:43:36 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -122,24 +122,33 @@ void uiStratUnitEditDlg::getFromScreen()
 	unitlithfld_->getSelectedItems( lithids_ );
 }
 
-#define mPreventWrongChar(buf)\
+#define mPreventWrongChar(buf,act)\
+    BufferString strnm;\
     char* ptr = buf;\
     while ( *ptr )\
     {\
 	if ( isspace(*ptr) || (*ptr) == '.' )\
 	    *ptr = '_';\
+	if ( (*ptr) == '>' || (*ptr) == '<')\
+	    strnm = "Name contains strange characters !";\
 	ptr++;\
     }\
+    if ( !strnm.isEmpty() )\
+    {\
+	strnm += " \n Continue anyway ?";\
+	if ( !uiMSG().askContinue( strnm ) )\
+	    act;\
+    }
 
 bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 {
     getFromScreen();
     BufferString name( unitnmfld_->text() );
-    if ( name.isEmpty() )
-	{ mErrRet( "Please specify the unit name", return false ) }
+    if ( name.isEmpty() || !strcmp( name, Strat::RefTree::sKeyNoCode() ) )
+	{ mErrRet( "Please specify a valid unit name", return false ) }
     else
     {
-	mPreventWrongChar( name.buf() );
+	mPreventWrongChar( name.buf(), return false );
     }
 
     BufferString namemsg( "Unit name already used. Please specify a new name");
@@ -242,7 +251,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
     BufferString nm( nmfld_->text() );
     if ( nm.isEmpty() ) return;
 
-    mPreventWrongChar( nm.buf() );
+    mPreventWrongChar( nm.buf(), return );
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
     if ( selfld_->isPresent( nm ) || lithos.isPresent( nm.buf() ) )
@@ -513,7 +522,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	}
 	else
 	{
-	    mPreventWrongChar( code.buf() );
+	    mPreventWrongChar( code.buf(), return false );
 	    units[idx]->setCode( code.buf() );
 	}
 	if ( errmsg.isEmpty() && strcmp( code.buf(), rootunit_.code() ) )

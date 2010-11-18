@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.61 2010-11-10 14:35:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.62 2010-11-18 15:43:36 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -156,12 +156,23 @@ void uiStratRefTree::rClickCB( CallBacker* )
 
 void uiStratRefTree::handleMenu( uiListViewItem* lvit )
 {
+    if ( !strcmp( lvit->text(), Strat::RefTree::sKeyNoCode() ) )
+	{ updateUnitProperties( lvit ); return; }
+
     uiPopupMenu mnu( lv_->parent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 0 );
-    mnu.insertItem( new uiMenuItem("&Subdivide unit..."), 1 );
+    if ( isLeaved( lvit ) )
+	mnu.insertItem( new uiMenuItem("&Subdivide unit..."), 1 );
     mnu.insertItem( new uiMenuItem("&Properties..."), 2 );
     if ( lv_->currentItem() != lv_->firstItem() )
 	mnu.insertItem( new uiMenuItem("&Remove"), 3 );
+    if ( lv_->currentItem() == lv_->firstItem() ) 
+	 mnu.insertItem( new uiMenuItem("&Add Unit below"), 4 );
+    if ( isLeaved( lvit ) )
+    {
+	mnu.insertSeparator();
+	mnu.insertItem( new uiMenuItem("&Assign marker boundary"), 5 );
+    }
 
     const int mnuid = mnu.exec();
     if ( mnuid<0 ) return;
@@ -173,6 +184,10 @@ void uiStratRefTree::handleMenu( uiListViewItem* lvit )
 	updateUnitProperties( lvit );
     else if ( mnuid == 3 )
 	removeUnit( lvit );
+    else if ( mnuid == 4 )
+	insertSubUnit( 0 );
+    else if ( mnuid == 5 ) 
+	assignLevelBoundary( lvit );
 }
 
 
@@ -188,13 +203,24 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
     tmpun.setTimeRange( trg );
     tmpun.setColor( getRandStdDrawColor() );
 
+    if ( parun->isLeaved() )
+    {
+	TypeSet<int> lithids;
+	const Strat::LeavedUnitRef& lvdun = (Strat::LeavedUnitRef&)(*parun);
+	for ( int iref = 0; iref<lvdun.nrRefs(); iref++ )
+	{
+	    int id = ((Strat::LeafUnitRef&)(lvdun.ref(iref))).lithology();
+	    LeafUnitRef* lur = new LeafUnitRef( &tmpun, id );
+	    tmpun.add( lur );
+	} 
+    }
+
     uiStratUnitEditDlg newurdlg( lv_->parent(), tmpun );
     if ( newurdlg.go() )
     {
 	if ( parun->isLeaved() )
 	{
-	    const Strat::LeavedUnitRef& lvdun = (Strat::LeavedUnitRef&)(*parun);
-	    for ( int iref=lvdun.nrRefs()-1; iref>=0; iref-- )
+	    for ( int iref=parun->nrRefs()-1; iref>=0; iref-- )
 		removeUnit( lvit->getChild( iref ) );
 	    parun = replaceUnit( *parun, false ); 
 	}
@@ -255,7 +281,7 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 
     Strat::UnitRef* startunit = tree_->find( getCodeFromLVIt( lvit ) );
     if ( !startunit || !startunit->isLeaved() ) 
-	{ uiMSG().error( "Only tail units can be subdivided" ); return; }
+	return;
     LeavedUnitRef& ldur = (LeavedUnitRef&)(*startunit);
     
     Strat::NodeUnitRef* parnode = startunit->upNode();
@@ -481,6 +507,20 @@ bool uiStratRefTree::canMoveUnit( bool up )
 }
 
 
+bool uiStratRefTree::isLeaved( uiListViewItem* lvit ) const
+{
+    const Strat::UnitRef* un = lvit ? tree_->find( getCodeFromLVIt(lvit) ) : 0;
+    return ( un && un->isLeaved() ); 
+}
+
+
+void uiStratRefTree::assignLevelBoundary( uiListViewItem* lvit )
+{
+    if ( lvit )
+	setUnitLvl( getCodeFromLVIt(lvit) );
+}
+
+
 void uiStratRefTree::setUnitLvl( const char* code ) 
 {
     UnitRef* unitref = tree_->find( code );
@@ -608,6 +648,15 @@ void uiStratRefTree::ensureUnitTimeOK( Strat::NodeUnitRef& unit )
 	}
     }
     unit.setTimeRange( mytimerg );
+    if ( unit.isLeaved() ) return;
+
+    for ( int idx=0; idx<unit.nrRefs(); idx++ )
+    {
+	Strat::NodeUnitRef& ref = (Strat::NodeUnitRef&)unit.ref(idx);
+	Interval<float> timerg = ref.timeRange();
+	if ( timerg.start < mytimerg.start || timerg.stop > mytimerg.stop )
+	    { setNodesDefaultTimes( unit ); break; }
+    }
 }
 
 

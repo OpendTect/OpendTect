@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.29 2010-11-10 14:34:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.30 2010-11-18 15:43:36 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -26,10 +26,12 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p )
     drawer_.setNewAxis( new uiAxisHandler(scene_,
 				uiAxisHandler::Setup(uiRect::Left)
 			    	.noannot(true)
+				.annotinside(true)
 			    	.border(uiBorder(0))), false );
     drawer_.setNewAxis( new uiAxisHandler(scene_,
 				uiAxisHandler::Setup(uiRect::Top)
 				.noannot(true)
+				.annotinside(true)
 				.border(uiBorder(0))), true );
     drawer_.xAxis()->setBounds( StepInterval<float>( 0, 100, 10 ) );
 
@@ -55,8 +57,12 @@ void uiWellStratDisplay::gatherInfo()
 
 void uiWellStratDisplay::draw()
 {
+    drawer_.xAxis()->setNewDevSize( width(), height() );
+    drawer_.yAxis()->setNewDevSize( height(), width() );
+    drawer_.yAxis()->plotAxis();
     zdata_.zrg_.sort( false );
     drawer_.setZRange( zdata_.zrg_ );
+    drawer_.drawColumns();
 }
 
 

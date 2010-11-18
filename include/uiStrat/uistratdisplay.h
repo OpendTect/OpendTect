@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.26 2010-10-29 10:35:26 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.27 2010-11-18 15:43:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,9 +41,10 @@ public:
 				~uiStratDrawer();
 
     void			setZRange( StepInterval<float> rg ) 
-    				{ if ( yax_ ) yax_->setBounds(rg); draw(); }
+    				{ if ( yax_ ) yax_->setBounds(rg); }
     
     void			draw();
+    void			drawColumns();
     void			setNewAxis(uiAxisHandler*,bool isx);
     
     uiAxisHandler* 		xAxis() 	{ return xax_; }
@@ -85,7 +86,6 @@ protected:
     
     //graphics
     void			addUnit(float);
-    void			drawColumns();
     void			drawBorders(ColumnItem&);
     void			drawLevels(ColumnItem&);
     void			drawUnits(ColumnItem&);

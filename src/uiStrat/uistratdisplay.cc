@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.32 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.33 2010-11-18 15:43:36 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -137,6 +137,19 @@ public :
 	    colboxflds_ += box;
 	    if ( idx ) box->attach( alignedBelow, colboxflds_[idx-1] ); 
 	}
+	if ( colnms.size() )
+	{
+	    allboxfld_ = new uiCheckBox( this, "All" );
+	    allboxfld_->attach( alignedAbove, colboxflds_[0] );
+	    allboxfld_->activated.notify( mCB(this,uiColViewerDlg,selAll) );
+	}
+    }
+
+    void selAll( CallBacker* cb )
+    {
+	bool allsel = allboxfld_->isChecked();
+	for ( int idx=0; idx<colboxflds_.size(); idx++ )
+	    colboxflds_[idx]->setChecked( allsel );
     }
 
     void selChg( CallBacker* cb )
@@ -158,6 +171,7 @@ public :
 protected:
 
     ObjectSet<uiCheckBox> 	colboxflds_;
+    uiCheckBox* 		allboxfld_;
     uiStratDrawer&		drawer_;
     StratDispData&		data_;
 };
@@ -183,6 +197,7 @@ void uiStratDisplay::setZRange( Interval<float> zrg )
 	uicontrol_->setRange( zrg );
     zrg.sort(false);
     drawer_.setZRange( zrg );
+    drawer_.draw();
 }
 
 
@@ -216,7 +231,6 @@ void uiStratDisplay::usrClickCB( CallBacker* cb )
 
 bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 {
-
     if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	    !ev.altStatus() )
     {
@@ -662,7 +676,7 @@ void uiStratViewControl::handDragging( CallBacker* )
     const float fac = ( startdragpos_ > stopdragpos_ )? -1 : 1;
     Interval<float> rg( range_ );
     const float width = rg.width();
-    const float shift = mHandDragFac < 1 ? 1 : mHandDragFac;
+    const float shift = mHandDragFac < 0.0005 ? 0.0005 : mHandDragFac;
     const float center = rg.start + width/2 - fac*shift;
     rg.set( center - width/2, center + width/2 );
     if ( rg.start < boundingrange_.start )
