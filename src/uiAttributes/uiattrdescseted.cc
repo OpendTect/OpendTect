@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.106 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.107 2010-11-18 13:03:16 cvshelene Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -1144,7 +1144,7 @@ void uiAttribDescSetEd::replaceStoredAttr( IOPar& iopar )
 
 void uiAttribDescSetEd::removeNotUsedAttr()
 {
-     if ( attrset_ ) attrset_->removeUnused();
+     if ( attrset_ ) attrset_->removeUnused( true );
 }
 
 

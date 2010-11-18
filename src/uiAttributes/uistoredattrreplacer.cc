@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.17 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.18 2010-11-18 13:03:16 cvshelene Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -237,7 +237,7 @@ void uiStoredAttribReplacer::go()
 {
     const bool singleseissteer = noofseis_<=1 && noofsteer_<=1;
     singleseissteer ? handleSingleInput() : handleMultiInput();
-    if ( attrset_ ) attrset_->removeUnused( true );
+    if ( attrset_ ) attrset_->removeUnused( true, false );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.44 2010-10-19 11:54:50 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.45 2010-11-18 13:03:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,8 @@ public:
     void                        moveDescUpDown(const DescID&,bool);
     void                        sortDescSet();
     void			removeAll(bool kpdefault);
-    int                 	removeUnused(bool removestored=false);
+    int                 	removeUnused(bool removestored=false,
+	    				     bool kpdefault=true);
 				//!< Removes unused hidden attributes.
 				//!< Removed stored attribs if not available
 				//!< or if removestored flag is true;

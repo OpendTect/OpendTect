@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.96 2010-10-19 11:54:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.97 2010-11-18 13:03:16 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -922,7 +922,7 @@ bool DescSet::isAttribUsed( const DescID& id ) const
 }
 
 
-int DescSet::removeUnused( bool remstored )
+int DescSet::removeUnused( bool remstored, bool kpdefault )
 {
     TypeSet<DescID> torem;
 
@@ -931,6 +931,8 @@ int DescSet::removeUnused( bool remstored )
 	int count = 0;
 	for ( int descidx=0; descidx<nrDescs(); descidx++ )
 	{
+	    if ( kpdefault && !descidx ) continue; //default desc always first
+
 	    DescID descid = getID( descidx );
 	    if ( torem.indexOf(descid) >= 0 ) continue;
 
