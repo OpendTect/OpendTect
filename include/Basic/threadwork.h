@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.24 2010-11-10 20:34:13 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.25 2010-11-18 15:07:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -41,23 +41,31 @@ public:
     				ThreadWorkManager(int nrthreads=-1);
 				~ThreadWorkManager();
 
-    int				addQueue(bool parallel);
-    				//!<\returns queid
+    enum QueueType 		{ MultiThread, SingleThread, Manual };
+    int				addQueue(QueueType type);
+    				/*!<Manual queues will not be executed
+				    automaticall, only at executeQueue.
+				    \returns queid */
     int				queueSize(int queueid) const;
     void			removeQueue(int queueid,bool finishall);
     				/*!<Removes queue. If finishall is true,
 				    all work in the queue will be finished. */
     static int			cDefaultQueueID() { return 0; }
+    void			executeQueue(int queueid);
+    				/*!<Runs all jobs in a que. Only for manual
+				    queues */
 
     void			addWork(SequentialTask*,CallBack* finished,
-	    				int queueid, bool putfirstinline );
-    				/*!< Managed by caller */
+	    				int queueid, bool putfirstinline,
+	   				bool manage );
+    				//!< Managed by caller if manage flag is false
 
     bool			addWork(ObjectSet<SequentialTask>&,
 	    				bool firstinline = false);
     bool			removeWork(const SequentialTask*);	
     				/*!< Removes the task from queue
-				     and stop it if allready running
+				     and stop it if allready running. If
+				     task is managed, it will be deleted.
 				    \returns true if the task was removed
 				    before it had started.*/
 
@@ -86,6 +94,7 @@ protected:
     ObjectSet<SequentialTask>	workload_;
     TypeSet<int>		workqueueid_;
     ObjectSet<CallBack>		callbacks_;
+    BoolTypeSet			isowner_;
 
     ObjectSet<WorkThread>	threads_;
     ObjectSet<WorkThread>	freethreads_;
@@ -94,7 +103,7 @@ protected:
     //Linked (one entry per queue)
     TypeSet<int>		queueids_;
     TypeSet<int>		queueworkload_; //Nr threads working on it
-    BoolTypeSet			queueisparallel_;
+    TypeSet<QueueType>		queuetypes_;
     BoolTypeSet			queueisclosing_;
 
     ConditionVar&		workloadcond_;

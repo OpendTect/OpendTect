@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.109 2010-11-05 18:56:05 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.110 2010-11-18 15:07:11 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1930,7 +1930,8 @@ void HorizonSectionTile::updateAutoResolution( SoState* state )
 		     TileTesselator* tt = new TileTesselator( this, wantedres );
 		     tesselationqueue_ += tt;
 		     ParallelTask::twm().addWork( tt, &bgfinished_, 
-			Threads::ThreadWorkManager::cDefaultQueueID(), true );
+			Threads::ThreadWorkManager::cDefaultQueueID(), true,
+			false);
 		 }
 
 		 tesselationqueuelock_.unLock();

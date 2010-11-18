@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.29 2010-11-10 20:34:13 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.30 2010-11-18 15:07:11 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -30,7 +30,7 @@ public:
 
     			//Interface from manager
     void		assignTask(SequentialTask&, CallBack* finishedcb,
-	    			   int queueid );
+	    			   int queueid, bool manage );
 
     int			getRetVal();
     			/*!< Do only call when task is finished,
@@ -59,6 +59,7 @@ protected:
     SequentialTask*	task_;		
     CallBack*		finishedcb_;
     int			queueid_;
+    bool		manage_;
 
     Thread*		thread_;
 
@@ -74,6 +75,7 @@ Threads::WorkThread::WorkThread( ThreadWorkManager& man )
     , controlcond_( *new Threads::ConditionVar )
     , thread_( 0 )
     , queueid_( -1 )
+    , manage_( false )
     , exitflag_( false )
     , cancelflag_( false )
     , task_( 0 )
@@ -145,13 +147,17 @@ void Threads::WorkThread::doWork( CallBacker* )
 		manager_.workloadcond_.lock();
 		bool isidle = false;
 
+		if ( manage_ )
+		    delete task_;
+		task_ = 0;
+
 		const int idx =
 		    manager_.reportFinishedAndAskForMore( this, queueid_ );
 		if ( idx==-1 )
 		{
 		    queueid_ = -1;
-		    task_ = 0;
 		    finishedcb_ = 0;
+		    manage_ = false;
 		    isidle = true;
 		}
 		else
@@ -160,6 +166,8 @@ void Threads::WorkThread::doWork( CallBacker* )
 		    finishedcb_ = manager_.callbacks_.remove( idx );
 		    queueid_ = manager_.workqueueid_[idx];
 		    manager_.workqueueid_.remove( idx );
+		    manage_ = manager_.isowner_[idx];
+		    manager_.isowner_.remove( idx );
 		}
 
 		manager_.workloadcond_.unLock();
@@ -195,7 +203,7 @@ void Threads::WorkThread::exitWork(CallBacker*)
 
 
 void Threads::WorkThread::assignTask(SequentialTask& newtask, CallBack* cb,
-       				     int queueid )
+       				     int queueid, bool manage )
 {
     controlcond_.lock();
     if ( task_ )
@@ -208,6 +216,8 @@ void Threads::WorkThread::assignTask(SequentialTask& newtask, CallBack* cb,
     task_ = &newtask;
     finishedcb_ = cb;
     queueid_ = queueid;
+    manage_ = manage;
+
     controlcond_.signal(false);
     controlcond_.unLock();
     return;
@@ -227,7 +237,7 @@ Threads::ThreadWorkManager::ThreadWorkManager( int nrthreads )
 {
     callbacks_.allowNull(true);
 
-    addQueue( true );
+    addQueue( MultiThread );
 
     if ( nrthreads == -1 )
 	nrthreads = Threads::getNrProcessors();
@@ -252,18 +262,63 @@ Threads::ThreadWorkManager::~ThreadWorkManager()
 }
 
 
-int Threads::ThreadWorkManager::addQueue( bool parallel )
+int Threads::ThreadWorkManager::addQueue( QueueType type )
 {
     Threads::MutexLocker lock( workloadcond_ );
 
     const int id = freeid_;
     freeid_++;
     queueids_ += id;
-    queueisparallel_ += parallel;
+    queuetypes_ += type;
     queueworkload_ += 0;
     queueisclosing_ += false;
 
     return id;
+}
+
+
+void Threads::ThreadWorkManager::executeQueue( int queueid )
+{
+    Threads::MutexLocker lock( workloadcond_ );
+    const int queueidx = queueids_.indexOf( queueid );
+    if ( queueidx==-1 )
+	return;
+
+    if ( queuetypes_[queueidx]!=Manual )
+    {
+	pErrMsg("Only manual queues can be executed" );
+	return;
+    }
+
+    while ( true )
+    {
+	SequentialTask* task = 0;
+	CallBack* cb = 0;
+	bool manage = false;
+	for ( int idx=0; idx<workload_.size(); idx++ )
+	{
+	    if ( workqueueid_[idx]==queueid )
+	    {
+		task = workload_.remove( idx );
+		cb = callbacks_.remove( idx );
+		workqueueid_.remove( idx );
+
+		manage = isowner_[idx];
+		isowner_.remove( idx );
+		break;
+	    }
+	}
+
+	if ( !task )
+	    break;
+
+	workqueueid_[queueidx]++;
+	lock.unLock();
+	task->execute();
+	if ( cb ) cb->doCall( 0 );
+	if ( manage ) delete task;
+	lock.lock();
+    }
 }
 
 
@@ -278,8 +333,11 @@ void Threads::ThreadWorkManager::removeQueue( int queueid, bool finishall )
 	{
 	    if ( workqueueid_[idx]==queueid )
 	    {
+		SequentialTask* task = workload_.remove( idx );
+		if ( isowner_[idx] ) delete task;
+
+		isowner_.remove( idx );
 		workqueueid_.remove( idx );
-		workload_.remove( idx );
 		callbacks_.remove( idx );
 	    }
 	}
@@ -291,7 +349,7 @@ void Threads::ThreadWorkManager::removeQueue( int queueid, bool finishall )
 	workloadcond_.wait();
 
     queueworkload_.remove( queueidx );
-    queueisparallel_.remove( queueidx );
+    queuetypes_.remove( queueidx );
     queueids_.remove( queueidx );
     queueisclosing_.remove( queueidx );
 }
@@ -318,17 +376,17 @@ int Threads::ThreadWorkManager::queueSizeNoLock( int queueid ) const
 
 
 void Threads::ThreadWorkManager::addWork( SequentialTask* newtask, CallBack* cb,
-					  int queueid, bool firstinline )
+					  int queueid, bool firstinline,
+       					  bool manage )
 {
     const int nrthreads = threads_.size();
     if ( !nrthreads )
     {
 	while ( true )
 	{
-	    int retval = newtask->doStep();
-	    if ( retval>0 ) continue;
-
+	    newtask->execute();
 	    if ( cb ) cb->doCall( 0 );
+	    if ( manage ) delete newtask;
 	    return;
 	}
     }
@@ -338,18 +396,19 @@ void Threads::ThreadWorkManager::addWork( SequentialTask* newtask, CallBack* cb,
     if ( queueidx==-1 || queueisclosing_[queueidx] )
     {
 	pErrMsg("Queue does not exist or is closing. Task rejected." );
+	if ( manage ) delete newtask;
 	return;
     }
 
     const int nrfreethreads = freethreads_.size();
     if ( nrfreethreads )
     {
-	if ( queueisparallel_[queueidx] || !queueworkload_[queueidx] )
+	if ( queuetypes_[queueidx]==MultiThread || !queueworkload_[queueidx] )
 	{
 	    const int threadidx = nrfreethreads-1;
 	    WorkThread* thread = freethreads_.remove( nrfreethreads-1 );
 	    queueworkload_[queueidx]++;
-	    thread->assignTask( *newtask, cb, queueid );
+	    thread->assignTask( *newtask, cb, queueid, manage );
 	    return;
 	}
     }
@@ -359,12 +418,14 @@ void Threads::ThreadWorkManager::addWork( SequentialTask* newtask, CallBack* cb,
 	workqueueid_.insert( 0, queueid );
 	workload_.insertAt( newtask, 0 );
 	callbacks_.insertAt( cb, 0 );
+	isowner_.insert( 0, manage );
     }
     else
     {
 	workqueueid_ += queueid;
 	workload_ += newtask;
 	callbacks_ += cb;
+	isowner_ += manage;
     }
 }
 
@@ -382,9 +443,13 @@ bool Threads::ThreadWorkManager::removeWork( const SequentialTask* task )
 	return false;
     }
 
+    if ( isowner_[idx] )
+	delete workload_[idx];
+
     workqueueid_.remove( idx );
     workload_.remove( idx );
     callbacks_.remove( idx );
+    isowner_.remove( idx );
 
     workloadcond_.unLock();
     return true;
@@ -469,7 +534,7 @@ bool Threads::ThreadWorkManager::addWork( ObjectSet<SequentialTask>& work,
 	CallBack cb( mCB( &resultman, ThreadWorkResultManager, imFinished ));
 
 	for ( int idx=1; idx<nrwork; idx++ )
-	    addWork( work[idx], &cb, cDefaultQueueID(), firstinline );
+	    addWork( work[idx], &cb, cDefaultQueueID(), firstinline, false );
 
 	res = work[0]->execute();
 
@@ -498,7 +563,11 @@ int Threads::ThreadWorkManager::reportFinishedAndAskForMore(WorkThread* caller,
     {
 	const int newqueueid = workqueueid_[idx];
 	const int newqueueidx = queueids_.indexOf( newqueueid );
-	if ( !queueisparallel_[newqueueidx] && queueworkload_[newqueueidx] )
+	if ( queuetypes_[newqueueidx]==Manual )
+	    continue;
+
+	if ( queuetypes_[newqueueidx]==SingleThread &&
+	     queueworkload_[newqueueidx] )
 	    continue;
 
 	queueworkload_[newqueueidx]++;
