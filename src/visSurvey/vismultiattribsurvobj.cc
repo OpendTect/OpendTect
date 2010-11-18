@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.61 2010-11-18 09:50:41 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.62 2010-11-18 19:15:26 cvskarthika Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.61 2010-11-18 09:5
 #include "math2.h"
 #include "zaxistransform.h"
 #include "envvars.h"
+#include "settings.h"
 
 
 namespace visSurvey {
@@ -83,9 +84,29 @@ bool MultiTextureSurveyObject::_init()
     if ( !visBase::DataObject::_init() )
         return false;
 
-    const char* envvar = GetEnvVar( "OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
-    if ( envvar && isdigit(*envvar) )
-        resolution_ = toInt( envvar );
+    resolution_ = 0;
+    int resolutionfromsettings;
+
+    // try getting default resolution from settings
+    bool success = Settings::common().get( 
+        "dTect.Default texture resolution factor", resolutionfromsettings );
+
+    if ( success )
+    {
+	if ( resolutionfromsettings >= 0 && resolutionfromsettings <= 2 )
+	    resolution_ = resolutionfromsettings;
+	else if ( resolutionfromsettings == -1 )
+	    success = false;
+    }
+
+    if ( !success )
+    {
+	// get default resolution from environment variable
+	const char* envvar = GetEnvVar( 
+		"OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
+	if ( envvar && isdigit(*envvar) )
+	    resolution_ = toInt( envvar );
+    }
 
     if ( resolution_ >= nrResolutions() )
         resolution_ = nrResolutions()-1;
