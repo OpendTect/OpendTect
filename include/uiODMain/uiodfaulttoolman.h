@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Jaap Glas
  Date:		December 2009
- RCS:		$Id: uiodfaulttoolman.h,v 1.8 2010-08-17 11:33:49 cvsranojay Exp $
+ RCS:		$Id: uiodfaulttoolman.h,v 1.9 2010-11-18 18:30:18 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "bufstringset.h"
 #include "multiid.h"
 #include "timer.h"
 #include "uidialog.h"
@@ -23,8 +24,10 @@ class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
 class uiIOObjSel;
+class uiLabel;
 class uiLineEdit;
 class uiODMain;
+class uiPushButton;
 class uiSurfaceWrite;
 class uiToolBar;
 class uiToolButton;
@@ -35,66 +38,49 @@ namespace EM			{ class FaultStickSet; }
 namespace visSurvey		{ class FaultDisplay;
     				  class FaultStickSetDisplay; }
 
-class uiODFaultToolMan;
 
 mClass uiFaultStickTransferDlg : public uiDialog
 {
 public:
 
+    enum ColorMode		{ Inherit=0, Random, SerialUserDef,
+				  Current, ExistsUserDef,
+				  SingleUserDef };
     mClass Setup
     {
     public:			Setup()
-				    : outputfault_( true )
-				    , displayifnot_( false )
+				    : displayifnot_( false )
 				    , saveifdisplayed_( true )
-				    , sequelnaming_( true )
-				    , colorrandom_( false )
+				    , colormode_( Inherit )
 				{}
 
-	mDefSetupMemb(bool,outputfault)
 	mDefSetupMemb(bool,displayifnot)
 	mDefSetupMemb(bool,saveifdisplayed)
-	mDefSetupMemb(bool,sequelnaming)
-	mDefSetupMemb(bool,colorrandom)
+	mDefSetupMemb(ColorMode,colormode)
     };
 
-				uiFaultStickTransferDlg(uiODMain&, const Setup&,
-							uiODFaultToolMan*);
-				~uiFaultStickTransferDlg();
-
-    uiIOObjSel*			getObjSel();
-    uiColorInput*		getOutputColor(); 
+				uiFaultStickTransferDlg(uiODMain&,const Setup&);
 
     bool			displayAfterwards() const;
     bool			saveAfterwards() const;
-    bool			generateSequelName() const;
-    bool			randomSequelColor() const;
+    int				colorMode() const;
 
-    void			setOutputFields(const uiComboBox& f3dcombo,
-						const uiComboBox& fsscombo);
+    void			setOutputDisplayed(bool);
+    void			setColorMode(int);
+
+    Notifier<uiFaultStickTransferDlg> colormodechg;
 
 protected:
-    void			finaliseDoneCB( CallBacker* );
 
-    void			outputTypeChg(CallBacker*);
-    void			outputComboChg(CallBacker*);
-    void			outputColorChg(CallBacker*);
     void			displayCB(CallBacker*);
     void			saveCB(CallBacker*);
-    void			displayChg(CallBacker*);
-    void			sequelNameCB(CallBacker*);
+    void			colorModeChg(CallBacker*);
 
-    uiODMain&			appl_;
-    uiODFaultToolMan*		ftbman_;	
-
-    uiGenInput*			outtypefld_;
-    uiSurfaceWrite*		faultoutputfld_;
-    uiSurfaceWrite*		fssoutputfld_;
-    uiColorInput*		colorfld_;
     uiCheckBox*			displayfld_;
     uiCheckBox*			savefld_;
-    uiCheckBox*			sequelnamefld_;
-    uiGenInput*			sequelcolorfld_;
+    uiGenInput*			serialcolormodefld_;
+    uiGenInput*			existscolormodefld_;
+    uiGenInput*			singlecolormodefld_;
 
     bool			displayifnot_;
     bool			saveifdisplayed_;
@@ -108,9 +94,6 @@ public:
 				~uiODFaultToolMan();
 
     uiToolBar*			getToolBar();
-    uiComboBox*			getOutputCombo(); 
-    uiColorInput*		getOutputColor(); 
-    bool			isOutputDisplayed() const;
 
 protected:
     void			finaliseDoneCB( CallBacker* );
@@ -119,39 +102,69 @@ protected:
     void			treeItemSelCB(CallBacker*);
     void			treeItemDeselCB(CallBacker*);
     void			addRemoveEMObjCB(CallBacker*);
+    void			addRemoveVisObjCB(CallBacker*);
     void			deselTimerCB(CallBacker*);
-    void			clearCurDisplayObj();
+    void			surveyChg(CallBacker*);
+
     void			enableToolbar(bool yn);
-    void			showSettings(bool yn);
+    void			clearCurDisplayObj();
 
     void			updateToolbarCB(CallBacker*);
     void			editSelectToggleCB(CallBacker*);
-    void			outputComboChg(CallBacker*);
-    void			colorPressedCB(CallBacker*);
-    void			outputColorChg(CallBacker*);
-    void			surveyChg(CallBacker*);
+    void			outputTypeChg(CallBacker*);
+    void			outputActionChg(CallBacker*);
+    void			stickRemovalCB(CallBacker*);
     void			undoCB(CallBacker*);
     void			redoCB(CallBacker*);
 
-    void			stickCopyCB(CallBacker*);
-    void			stickMoveCB(CallBacker*);
-    void			stickRemovalCB(CallBacker*);
-    void			transferSticks(bool copy=false);
+    void			outputEditTextChg(CallBacker*);
+    void			outputComboSelChg(CallBacker*);
+    void			editReadyTimerCB(CallBacker*);
 
-    void			displayUpdate();
-    void			afterTransferUpdate();
+    void			processOutputName();
+    bool			isOutputNameUsed(uiSurfaceWrite* =0) const;
+    void			setOutputName(const char*);
+    void			setAuxSurfaceWrite(const char*);
+
+    void			selectOutputCB(CallBacker*);
+    void			outputSelectedCB(CallBacker*);
+
+    void			colorPressedCB(CallBacker*);
+    void			outputColorChg(CallBacker*);
+    void			colorModeChg(CallBacker*);
+    void			updateColorMode();
 
     void			settingsToggleCB(CallBacker*);
     void			settingsClosedCB(CallBacker*);
+    void			showSettings(bool yn);
 
-    uiIOObjSel*			getObjSel();
-    const uiIOObjSel*		getObjSel() const;
+    void			transferSticksCB(CallBacker*);
+    void			displayUpdate();
+    void			afterTransferUpdate();
+
+    bool			isOutputDisplayed(uiSurfaceWrite* =0) const;
+    bool			isInSerialMode() const;
+    bool			isInCreateMode() const;
 
     bool			displayAfterwards() const;
     bool			saveAfterwards() const;
+    bool			inheritColor() const;
+    bool			randomColor() const;
+    bool			currentColor() const;
+
+    BufferStringSet&		getOutputItems();
+    void			updateOutputItems();
+    void			publishOutputItems();
+
+    void			flashOutputName(bool error,
+	    					const char* newname=0);
+    void			flashOutputTimerCB(CallBacker*);
 
     bool			areSticksAccessible() const;
     void			enableStickAccess(bool yn);
+
+    uiIOObjSel*			getObjSel();
+    const uiIOObjSel*		getObjSel() const;
 
     uiODMain&			appl_;
     uiToolBar*			toolbar_;
@@ -159,33 +172,59 @@ protected:
 
     uiFaultStickTransferDlg::Setup settingssetup_;
 
+    bool			tracktbwashidden_;
+    bool			selectmode_;
+
     int				editbutidx_;
     int				selbutidx_;
-    int				removalbutidx_;
-    int				copybutidx_;
-    int				movebutidx_;
     int				settingsbutidx_;
+    int				gobutidx_;
+    int				removalbutidx_;
     int				undobutidx_;
     int				redobutidx_;
 
-    uiComboBox*			tboutputcombo_;
-    uiToolButton*		tbcolorbutton_;
-    
-    uiSurfaceWrite*		manfaultoutput_;
-    uiSurfaceWrite*		manfssoutput_;
-    uiColorInput*		manoutputcolor_;
+    uiComboBox*			transfercombo_;
+    uiComboBox*			outputtypecombo_;
+    uiComboBox*			outputactcombo_;
+
+    uiComboBox*			outputnamecombo_;
+    uiPushButton*		outputselbut_;
+    uiToolButton*		colorbut_;
+
+    uiSurfaceWrite*		auxfaultwrite_;
+    uiSurfaceWrite*		auxfsswrite_;
+    uiColorInput*		auxcolorinput_;
 
     visSurvey::FaultDisplay*	curfltd_;
     visSurvey::FaultStickSetDisplay* curfssd_;
     int				curemid_;
 
-    bool			tracktbwashidden_;
-    bool			selectmode_;
-
     Timer			deseltimer_;
+    Timer			editreadytimer_;
+    Timer			flashtimer_;
 
-    Color			newcolor_;
-    MultiID			newcolormid_;
+    BufferString		flashname_;
+    Color			flashcolor_;
+
+    Color			randomcolor_;
+    Color			usercolor_;
+    BufferString		usercolorlink_;
+
+    BufferStringSet		singlefaultitems_;
+    BufferStringSet		serialfaultitems_;
+    BufferStringSet		allfaultitems_;
+    BufferStringSet		singlefssitems_;
+    BufferStringSet		serialfssitems_;
+    BufferStringSet		allfssitems_;
+
+    static const char*		sKeyCopySelection();
+    static const char*		sKeyMoveSelection();
+    static const char*		sKeyToFault();
+    static const char*		sKeyToFaultStickSet();
+    static const char*		sKeyCreateSingleNew();
+    static const char*		sKeyCreateNewInSeries();
+    static const char*		sKeyMergeWithExisting();
+    static const char*		sKeyReplaceExisting();
 };
 
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.19 2010-11-16 11:27:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.20 2010-11-18 18:30:18 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.19 2010-11-16 11:27:27 
 #include "executor.h"
 #include "ioman.h"
 #include "randcolor.h"
+#include "thread.h"
 #include "timefun.h"
 #include "undo.h"
 #include "visdataman.h"
@@ -30,12 +31,14 @@ static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.19 2010-11-16 11:27:27 
 #include "uitoolbutton.h"
 #include "uicolor.h"
 #include "uicombobox.h"
+#include "uicursor.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiiosurface.h"
 #include "uiioobjsel.h"
 #include "uilineedit.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
@@ -46,152 +49,64 @@ static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.19 2010-11-16 11:27:27 
 #include "pixmap.h"
 
 
-static void comboCopy( const uiComboBox& from, uiComboBox& to )
-{
-    if ( !to.editTextChanged.isEnabled() )
-	return;
-
-    to.editTextChanged.disable();
-    to.setEmpty();
-    for ( int idx=0; idx<from.size(); idx++ )
-	to.addItem( from.textOfItem(idx) );
-
-    to.setText( from.text() );
-    to.editTextChanged.enable();
-    to.editTextChanged.trigger();
-}
-
-
 uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
-						  const Setup& su,
-						  uiODFaultToolMan* ftbman )
+						  const Setup& su )
     : uiDialog( &appl, uiDialog::Setup("Faultstick transfer",
-				 "Transfer settings","104.1.8").modal(false) )
-    , appl_( appl )
-    , ftbman_( ftbman )
+			"Transfer settings","104.1.8").modal(false) )
     , displayifnot_( su.displayifnot_ )
     , saveifdisplayed_( su.saveifdisplayed_ )
+    , colormodechg( this )
 {
     setCtrlStyle( LeaveOnly );
 
-    outtypefld_ = new uiGenInput( this, "Output type",
-		      BoolInpSpec(su.outputfault_,"Fault","FaultStickSet") );
-    outtypefld_->valuechanged.notify(
-			mCB(this,uiFaultStickTransferDlg,outputTypeChg) );
+    uiLabel* colormodelbl = new uiLabel( this, "Output color selection:" );
 
-    faultoutputfld_ = new uiSurfaceWrite( this,
-	    uiSurfaceWrite::Setup(EMFault3DTranslatorGroup::keyword()));
-    faultoutputfld_->attach( alignedBelow, outtypefld_ );
-    faultoutputfld_->getObjSel()->setConfirmOverwrite( false );
-    faultoutputfld_->getObjSel()->inpBox()->editTextChanged.notify(
-			mCB(this,uiFaultStickTransferDlg,outputComboChg) );
+    BufferStringSet serialbss; serialbss.add( "Inherited" );
+    serialbss.add( "Random" ); serialbss.add( "User-defined" );
+    serialcolormodefld_ = new uiGenInput(this,"",StringListInpSpec(serialbss));
+    serialcolormodefld_->valuechanged.notify(
+			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
+    serialcolormodefld_->attach( alignedBelow, colormodelbl );
 
-    fssoutputfld_ = new uiSurfaceWrite( this,
-	    uiSurfaceWrite::Setup(EMFaultStickSetTranslatorGroup::keyword()));
-    fssoutputfld_->attach( alignedBelow, outtypefld_ );
-    fssoutputfld_->getObjSel()->setConfirmOverwrite( false );
-    fssoutputfld_->getObjSel()->inpBox()->editTextChanged.notify(
-			mCB(this,uiFaultStickTransferDlg,outputComboChg) );
+    BufferStringSet existsbss;
+    existsbss.add( "Current" ); existsbss.add( "User-defined" );
+    existscolormodefld_ = new uiGenInput(this,"",StringListInpSpec(existsbss));
+    existscolormodefld_->valuechanged.notify(
+			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
+    existscolormodefld_->attach( alignedBelow, colormodelbl );
 
-    colorfld_ = new uiColorInput( this,
-		    uiColorInput::Setup(Color(0,0,0)).lbltxt("Current color"),
-				  "Output color" );
-    colorfld_->colorChanged.notify(
-			mCB(this,uiFaultStickTransferDlg,outputColorChg) );
-    colorfld_->attach( alignedBelow, faultoutputfld_ );
+    BufferStringSet singlebss; singlebss.add( "User-defined" );
+    singlecolormodefld_ = new uiGenInput(this,"",StringListInpSpec(singlebss));
+    singlecolormodefld_->valuechanged.notify(
+			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
+    singlecolormodefld_->attach( alignedBelow, colormodelbl );
 
-    uiLabel* aftertransferlbl = new uiLabel( this, "After transfer:" );
-    aftertransferlbl->attach( alignedBelow, colorfld_ );
+    setColorMode( su.colormode_ );
 
-    displayfld_ = new uiCheckBox( this, "display" );
+    uiSeparator* horsep = new uiSeparator( this );
+    horsep->attach( stretchedBelow, serialcolormodefld_ );
+
+    uiLabel* aftercopymovelbl = new uiLabel( this, "After copy / move:" );
+    aftercopymovelbl->setMinimumWidth( 250 );
+    aftercopymovelbl->attach( alignedBelow, horsep );
+
+    displayfld_ = new uiCheckBox( this, "Display" );
     displayfld_->setChecked( displayifnot_ );
-    displayfld_->attach( rightOf, aftertransferlbl );
+    displayfld_->attach( alignedBelow, aftercopymovelbl );
     displayfld_->activated.notify(mCB(this,uiFaultStickTransferDlg,displayCB));
 
-    savefld_ = new uiCheckBox( this, "save" );
+    savefld_ = new uiCheckBox( this, "Save" );
     savefld_->setChecked( saveifdisplayed_ );
     savefld_->attach( rightOf, displayfld_ );
     savefld_->activated.notify( mCB(this,uiFaultStickTransferDlg,saveCB) );
-
-    uiSeparator* horsep = new uiSeparator( this );
-    horsep->attach( stretchedBelow, aftertransferlbl );
-
-    sequelnamefld_ = new uiCheckBox( this,"Generate sequel name" );
-    sequelnamefld_->setChecked( su.sequelnaming_ );
-    sequelnamefld_->activated.notify(
-			mCB(this,uiFaultStickTransferDlg,sequelNameCB) );
-    sequelnamefld_->attach( ensureBelow, horsep );
-    sequelnamefld_->attach( alignedBelow, aftertransferlbl );
-
-    sequelcolorfld_ = new uiGenInput( this, "Sequel color",
-		      BoolInpSpec(!su.colorrandom_,"Unchanged","Random") );
-    sequelcolorfld_->attach( alignedBelow, sequelnamefld_ );
-
-    finaliseDone.notify( mCB(this,uiFaultStickTransferDlg,finaliseDoneCB) );
-    appl_.applMgr().visServer()->objectaddedremoved.notify(
-			mCB(this,uiFaultStickTransferDlg,displayChg) );
 }
 
-
-uiFaultStickTransferDlg::~uiFaultStickTransferDlg()
-{
-    outtypefld_->valuechanged.remove(
-			mCB(this,uiFaultStickTransferDlg,outputTypeChg) );
-    faultoutputfld_->getObjSel()->inpBox()->editTextChanged.remove(
-			mCB(this,uiFaultStickTransferDlg,outputComboChg) );
-    fssoutputfld_->getObjSel()->inpBox()->editTextChanged.remove(
-			mCB(this,uiFaultStickTransferDlg,outputComboChg) );
-    colorfld_->colorChanged.remove(
-			mCB(this,uiFaultStickTransferDlg,outputColorChg) );
-
-    displayfld_->activated.remove(mCB(this,uiFaultStickTransferDlg,displayCB));
-    savefld_->activated.remove( mCB(this,uiFaultStickTransferDlg,saveCB) );
-
-    sequelnamefld_->activated.remove(
-			mCB(this,uiFaultStickTransferDlg,sequelNameCB) );
-
-    finaliseDone.remove( mCB(this,uiFaultStickTransferDlg,finaliseDoneCB) );
-    appl_.applMgr().visServer()->objectaddedremoved.remove(
-			mCB(this,uiFaultStickTransferDlg,displayChg) );
-}
-
-
-void uiFaultStickTransferDlg::finaliseDoneCB( CallBacker* )
-{
-    outputTypeChg( 0 );
-    sequelNameCB( 0 ); 
-}
-
-
-void uiFaultStickTransferDlg::outputTypeChg( CallBacker* cb )
-{
-    faultoutputfld_->display( outtypefld_->getBoolValue() );
-    fssoutputfld_->display( !outtypefld_->getBoolValue() );
-    if ( cb )
-	outputComboChg( 0 );
-}
-
-
-void uiFaultStickTransferDlg::outputComboChg( CallBacker* cb )
-{
-    NotifyStopper ns( getObjSel()->inpBox()->editTextChanged );
-    comboCopy( *getObjSel()->inpBox(), *ftbman_->getOutputCombo() );
-    displayChg( 0 );
-}
-
-
-void uiFaultStickTransferDlg::outputColorChg( CallBacker* )
-{
-    NotifyStopper ns( colorfld_->colorChanged );
-    ftbman_->getOutputColor()->setColor( colorfld_->color() );
-    ftbman_->getOutputColor()->colorChanged.trigger();
-}
 
 
 void uiFaultStickTransferDlg::displayCB( CallBacker* )
 {
     displayifnot_ = displayfld_->isChecked();
-    displayChg( 0 );
+    setOutputDisplayed( !displayfld_->sensitive() );
 }
 
 
@@ -199,33 +114,40 @@ void uiFaultStickTransferDlg::saveCB( CallBacker* )
 { saveifdisplayed_ = savefld_->isChecked(); }
 
 
-void uiFaultStickTransferDlg::displayChg( CallBacker* )
+void uiFaultStickTransferDlg::setOutputDisplayed( bool yn )
 {
     NotifyStopper displaynotifystopper( displayfld_->activated );
     NotifyStopper savenotifystopper( savefld_->activated );
 
-    displayfld_->setSensitive( !ftbman_->isOutputDisplayed() );
-    displayfld_->setChecked( ftbman_->isOutputDisplayed() || displayifnot_ );
+    displayfld_->setSensitive( !yn );
+    displayfld_->setChecked( yn || displayifnot_ );
     savefld_->setSensitive( displayfld_->isChecked() );
     savefld_->setChecked( !displayfld_->isChecked() || saveifdisplayed_ );
 }
 
 
-void uiFaultStickTransferDlg::sequelNameCB( CallBacker* cb )
-{ sequelcolorfld_->setSensitive( sequelnamefld_->isChecked() ); }
-
-
-uiIOObjSel* uiFaultStickTransferDlg::getObjSel()
+void uiFaultStickTransferDlg::setColorMode( int mode )
 {
-    if ( outtypefld_->getBoolValue() )
-	return faultoutputfld_->getObjSel();
+    serialcolormodefld_->attachObj()->display( false );
+    existscolormodefld_->attachObj()->display( false );
+    singlecolormodefld_->attachObj()->display( false );
+
+    if ( mode <= SerialUserDef )
+    {
+	serialcolormodefld_->setValue( mode );
+	serialcolormodefld_->attachObj()->display( true );
+    }
+    else if ( mode <= ExistsUserDef )
+    {
+	existscolormodefld_->setValue( mode - SerialUserDef - 1 );
+	existscolormodefld_->attachObj()->display( true );
+    }
     else
-	return fssoutputfld_->getObjSel();
+    {
+	singlecolormodefld_->setValue( mode - ExistsUserDef - 1 );
+	singlecolormodefld_->attachObj()->display( true );
+    }
 }
-
-
-uiColorInput* uiFaultStickTransferDlg::getOutputColor()
-{ return colorfld_; }
 
 
 bool uiFaultStickTransferDlg::displayAfterwards() const
@@ -236,20 +158,20 @@ bool uiFaultStickTransferDlg::saveAfterwards() const
 { return savefld_->isChecked(); }
 
 
-bool uiFaultStickTransferDlg::generateSequelName() const
-{ return sequelnamefld_->isChecked(); }
-
-
-bool uiFaultStickTransferDlg::randomSequelColor() const
-{ return !sequelcolorfld_->getBoolValue(); }
-
-
-void uiFaultStickTransferDlg::setOutputFields( const uiComboBox& faultcombo,
-					       const uiComboBox& fsscombo )
+int uiFaultStickTransferDlg::colorMode() const
 {
-    comboCopy( faultcombo, *faultoutputfld_->getObjSel()->inpBox() );
-    comboCopy( fsscombo, *fssoutputfld_->getObjSel()->inpBox() );
+    if ( serialcolormodefld_->attachObj()->isDisplayed() )
+	return serialcolormodefld_->getIntValue();
+
+    if ( existscolormodefld_->attachObj()->isDisplayed() )
+	return existscolormodefld_->getIntValue() + SerialUserDef + 1;
+    
+    return singlecolormodefld_->getIntValue() + ExistsUserDef + 1;
 }
+
+
+void uiFaultStickTransferDlg::colorModeChg( CallBacker* )
+{ colormodechg.trigger(); }
 
 
 //============================================================================
@@ -284,9 +206,19 @@ protected:
 
 //============================================================================
 
+#define mDefineKey( key, str ) \
+const char* uiODFaultToolMan::key()	{ return str; }
 
-#define mGetSetting( settingsfunc, setupmember ) \
-( settingsdlg_ ? settingsdlg_->settingsfunc : settingssetup_.setupmember )
+mDefineKey( sKeyCopySelection,     "Copy selection to" );
+mDefineKey( sKeyMoveSelection,     "Move selection to" );
+mDefineKey( sKeyToFault,           "Fault" );
+mDefineKey( sKeyToFaultStickSet,   "FaultStickSet" );
+mDefineKey( sKeyCreateSingleNew,   "Create single new" );
+mDefineKey( sKeyCreateNewInSeries, "Create new in series" );
+mDefineKey( sKeyMergeWithExisting, "Merge with existing" );
+mDefineKey( sKeyReplaceExisting,   "Replace existing" );
+
+#define mCurItem( combo, key ) ( !strcmp(combo->text(), key()) )
 
 
 uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
@@ -294,8 +226,10 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , tracktbwashidden_( false )
     , selectmode_( false )
     , settingsdlg_( 0 )
-    , newcolor_( getRandStdDrawColor() )
+    , randomcolor_ ( getRandStdDrawColor() )
 {
+    usercolor_ = randomcolor_;
+
     toolbar_ = new uiToolBar( &appl_, "Fault stick control", uiToolBar::Bottom);
     editbutidx_ = toolbar_->addButton( "editsticks.png", "Edit sticks",
 	    			mCB(this,uiODFaultToolMan,editSelectToggleCB),
@@ -305,49 +239,86 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 				true );
     toolbar_->addSeparator();
 
+    transfercombo_ = new uiComboBox( toolbar_, "Stick transfer action" );
+    transfercombo_->setToolTip( transfercombo_->name() );
+    transfercombo_->addItem( sKeyCopySelection() );
+    transfercombo_->addItem( sKeyMoveSelection() );
+    toolbar_->addObject( transfercombo_ );
+
+    outputtypecombo_ = new uiComboBox( toolbar_, "Output type" );
+    outputtypecombo_->setToolTip( outputtypecombo_->name() );
+    outputtypecombo_->addItem( sKeyToFault() );
+    outputtypecombo_->addItem( sKeyToFaultStickSet() );
+    outputtypecombo_->selectionChanged.notify(
+				mCB(this,uiODFaultToolMan,outputTypeChg) );
+    toolbar_->addObject( outputtypecombo_ );
+
+    outputactcombo_ = new uiComboBox( toolbar_, "Output operation" );
+    outputactcombo_->setToolTip( outputactcombo_->name() );
+    outputactcombo_->addItem( sKeyCreateSingleNew() );
+    outputactcombo_->addItem( sKeyCreateNewInSeries() );
+    outputactcombo_->addSeparator();
+    outputactcombo_->addItem( sKeyMergeWithExisting() );
+    outputactcombo_->addItem( sKeyReplaceExisting() );
+    outputactcombo_->selectionChanged.notify(
+				mCB(this,uiODFaultToolMan,outputActionChg) );
+    toolbar_->addObject( outputactcombo_ );
+
+    outputnamecombo_ = new uiComboBox( toolbar_, "Output name" );
+    outputnamecombo_->setToolTip( outputnamecombo_->name() );
+    outputnamecombo_->setReadOnly( false );
+    outputnamecombo_->setMinimumWidth( 150 );
+    outputnamecombo_->editTextChanged.notify(
+				mCB(this,uiODFaultToolMan,outputEditTextChg) );
+    outputnamecombo_->selectionChanged.notify(
+				mCB(this,uiODFaultToolMan,outputComboSelChg) );
+    outputnamecombo_->addItem( "" );
+    toolbar_->addObject( outputnamecombo_ );
+
+    auxfaultwrite_ = new uiSurfaceWrite( &appl_, 
+	    uiSurfaceWrite::Setup(EMFault3DTranslatorGroup::keyword()));
+    auxfaultwrite_->getObjSel()->setConfirmOverwrite( false );
+    auxfaultwrite_->getObjSel()->selectionDone.notify(
+				mCB(this,uiODFaultToolMan,outputSelectedCB) );
+    auxfsswrite_ = new uiSurfaceWrite( &appl_, 
+	    uiSurfaceWrite::Setup(EMFaultStickSetTranslatorGroup::keyword()));
+    auxfsswrite_->getObjSel()->setConfirmOverwrite( false );
+    auxfsswrite_->getObjSel()->selectionDone.notify(
+				mCB(this,uiODFaultToolMan,outputSelectedCB) );
+
+    outputselbut_ = new uiPushButton( toolbar_, "Select",
+				mCB(this,uiODFaultToolMan,selectOutputCB),
+				false );
+    outputselbut_->setToolTip( "Select output" );
+    toolbar_->addObject( outputselbut_ );
+
+    auxcolorinput_ = new uiColorInput( 0, uiColorInput::Setup(Color(0,0,0)),
+				       "Output color" );
+    auxcolorinput_->colorChanged.notify(
+	    			mCB(this,uiODFaultToolMan,outputColorChg) );
+
+    colorbut_ = new uiToolButton( toolbar_, uiIcon::None(), "Output color",
+				mCB(this,uiODFaultToolMan,colorPressedCB) );
+    colorbut_->setToolTip( colorbut_->name() );
+    toolbar_->addObject( colorbut_ );
+
+    settingsbutidx_ = toolbar_->addButton( "faulttoolsettings.png",
+	    			"More transfer settings",
+	    			mCB(this,uiODFaultToolMan,settingsToggleCB),
+				true );
+
+    gobutidx_ = toolbar_->addButton( "gobutton.png", "Transfer selected sticks",
+	    			mCB(this,uiODFaultToolMan,transferSticksCB),
+				false );
+
+    toolbar_->addSeparator();
+
     removalbutidx_ = toolbar_->addButton( "removesticks.png",
 	    			"Remove selected sticks",
 	    			mCB(this,uiODFaultToolMan,stickRemovalCB),
 				false );
-
-    copybutidx_ = toolbar_->addButton( "copysticks.png",
-	    			"Copy selected sticks",
-	    			mCB(this,uiODFaultToolMan,stickCopyCB), false );
-
-    movebutidx_ = toolbar_->addButton( "movesticks.png",
-	    			"Move selected sticks",
-	    			mCB(this,uiODFaultToolMan,stickMoveCB), false );
     toolbar_->addSeparator();
 
-    tboutputcombo_ = new uiComboBox( toolbar_, "Output name" );
-    tboutputcombo_->setToolTip( tboutputcombo_->name() );
-    tboutputcombo_->setReadOnly( false );
-    tboutputcombo_->setMinimumWidth( 150 );
-    tboutputcombo_->editTextChanged.notify(
-				mCB(this,uiODFaultToolMan,outputComboChg) );
-    toolbar_->addObject( tboutputcombo_ );
-
-    manfaultoutput_ = new uiSurfaceWrite( 0, 
-	    uiSurfaceWrite::Setup(EMFault3DTranslatorGroup::keyword()));
-    manfaultoutput_->getObjSel()->setConfirmOverwrite( false );
-    manfssoutput_ = new uiSurfaceWrite( 0, 
-	    uiSurfaceWrite::Setup(EMFaultStickSetTranslatorGroup::keyword()));
-    manfssoutput_->getObjSel()->setConfirmOverwrite( false );
-
-    manoutputcolor_ = new uiColorInput( 0, uiColorInput::Setup(Color(0,0,0)),
-				       "Output color" );
-    manoutputcolor_->colorChanged.notify(
-	    			mCB(this,uiODFaultToolMan,outputColorChg) );
-
-    tbcolorbutton_ = new uiToolButton( toolbar_, uiIcon::None(),
-	    "Output color", mCB(this,uiODFaultToolMan,colorPressedCB) );
-    toolbar_->addButton( tbcolorbutton_ );
-
-    settingsbutidx_ = toolbar_->addButton( "faulttoolsettings.png",
-	    			"Transfer settings",
-	    			mCB(this,uiODFaultToolMan,settingsToggleCB),
-				true );
-    toolbar_->addSeparator();
 
     undobutidx_ = toolbar_->addButton( "undo.png", "Undo",
 	    			mCB(this,uiODFaultToolMan,undoCB), false );
@@ -363,9 +334,13 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 				mCB(this,uiODFaultToolMan,treeItemDeselCB) );
 
     EM::EMM().addRemove.notify( mCB(this,uiODFaultToolMan,addRemoveEMObjCB) );
+    appl_.applMgr().visServer()->objectaddedremoved.notify(
+				mCB(this,uiODFaultToolMan,addRemoveVisObjCB) );
 
     appl_.finaliseDone.notify( mCB(this,uiODFaultToolMan,finaliseDoneCB) );
     deseltimer_.tick.notify( mCB(this,uiODFaultToolMan,deselTimerCB) );
+    editreadytimer_.tick.notify( mCB(this,uiODFaultToolMan,editReadyTimerCB) );
+    flashtimer_.tick.notify( mCB(this,uiODFaultToolMan,flashOutputTimerCB) );
     EM::EMM().undo().changenotifier.notify(
 				mCB(this,uiODFaultToolMan,updateToolbarCB) );
 }
@@ -373,53 +348,41 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 
 uiODFaultToolMan::~uiODFaultToolMan()
 {
-    tboutputcombo_->editTextChanged.remove(
-				mCB(this,uiODFaultToolMan,outputComboChg) );
-    manoutputcolor_->colorChanged.remove(
-	    			mCB(this,uiODFaultToolMan,outputColorChg) );
-
     visBase::DM().selMan().selnotifier.remove(
 				mCB(this,uiODFaultToolMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.remove(
 				mCB(this,uiODFaultToolMan,treeItemDeselCB) );
 
     EM::EMM().addRemove.remove( mCB(this,uiODFaultToolMan,addRemoveEMObjCB) );
+    appl_.applMgr().visServer()->objectaddedremoved.remove(
+				mCB(this,uiODFaultToolMan,addRemoveVisObjCB) );
+
     appl_.finaliseDone.remove( mCB(this,uiODFaultToolMan,finaliseDoneCB) );
-    deseltimer_.tick.remove( mCB(this,uiODFaultToolMan,deselTimerCB) );
     IOM().surveyChanged.remove( mCB(this,uiODFaultToolMan,surveyChg) );
     EM::EMM().undo().changenotifier.remove(
 				mCB(this,uiODFaultToolMan,updateToolbarCB) );
 
     delete toolbar_;
-    delete manfaultoutput_;
-    delete manfssoutput_;
-    delete manoutputcolor_;
+    delete auxcolorinput_;
 
     if ( settingsdlg_ )
-    {
-	settingsdlg_->windowClosed.remove(
-				mCB(this,uiODFaultToolMan,settingsClosedCB) );
 	delete settingsdlg_;
-    }
 }
 
 
 void uiODFaultToolMan::finaliseDoneCB( CallBacker* )
 {
+    // Hide auxiliary uiSurfaceWrites, because they seem to need a parent
+    // to have their surface list dialog popped up modal.
+    auxfaultwrite_->display( false );
+    auxfsswrite_->display( false );
+
     clearCurDisplayObj();
 }
 
 
 uiToolBar* uiODFaultToolMan::getToolBar()
 { return toolbar_; }
-
-
-uiComboBox* uiODFaultToolMan::getOutputCombo()
-{ return tboutputcombo_; }
-
-
-uiColorInput* uiODFaultToolMan::getOutputColor()
-{ return manoutputcolor_; }
 
 
 void uiODFaultToolMan::displayModeChg( CallBacker* )
@@ -446,8 +409,8 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 	}
 
 	editSelectToggleCB( 0 );
+	outputColorChg( 0 );
 	enableToolbar( true );
-	comboCopy( *getObjSel()->inpBox(), *tboutputcombo_ );
 
 	IOM().surveyChanged.notifyIfNotNotified(
 				    mCB(this,uiODFaultToolMan,surveyChg) );
@@ -486,6 +449,13 @@ void uiODFaultToolMan::addRemoveEMObjCB( CallBacker* cb )
 {
     if ( !EM::EMM().getObject(curemid_) )
 	deseltimer_.start( 100, true );
+}
+
+
+void uiODFaultToolMan::addRemoveVisObjCB( CallBacker* cb )
+{
+    if ( settingsdlg_ )
+	settingsdlg_->setOutputDisplayed( isOutputDisplayed() );
 }
 
 
@@ -538,14 +508,13 @@ void uiODFaultToolMan::showSettings( bool yn )
 
 	if ( yn )
 	{
-	    settingsdlg_ = new uiFaultStickTransferDlg( appl_,
-							settingssetup_, this );
+	    settingsdlg_ = new uiFaultStickTransferDlg( appl_, settingssetup_ );
+	    settingsdlg_->colormodechg.notify(
+				mCB(this,uiODFaultToolMan,colorModeChg) );
 	    settingsdlg_->windowClosed.notify(
 				mCB(this,uiODFaultToolMan,settingsClosedCB) );
 	    settingsdlg_->go();
-	    settingsdlg_->setOutputFields(
-				*manfaultoutput_->getObjSel()->inpBox(),
-				*manfssoutput_->getObjSel()->inpBox() );
+	    settingsdlg_->setOutputDisplayed( isOutputDisplayed() );
 	}
 
 	return;
@@ -623,12 +592,21 @@ void uiODFaultToolMan::updateToolbarCB( CallBacker* )
 {
     const bool selecting = toolbar_->isOn( selbutidx_ );
 
-    toolbar_->setSensitive( removalbutidx_, selecting );
-    toolbar_->setSensitive( copybutidx_, selecting );
-    toolbar_->setSensitive( movebutidx_, selecting );
     toolbar_->setSensitive( settingsbutidx_, selecting );
-    tboutputcombo_->setSensitive( selecting );
-    tbcolorbutton_->setSensitive( selecting );
+    toolbar_->setSensitive( gobutidx_, selecting );
+    toolbar_->setSensitive( removalbutidx_, selecting );
+    transfercombo_->setSensitive( selecting );
+    outputtypecombo_->setSensitive( selecting );
+    outputactcombo_->setSensitive( selecting );
+    outputselbut_->setSensitive( selecting );
+    colorbut_->setSensitive( selecting );
+
+    if ( selecting )
+	processOutputName();
+    else
+	outputnamecombo_->setTextColor( Color(128,128,128) );
+
+    outputnamecombo_->setSensitive( selecting );
 
     toolbar_->setSensitive( undobutidx_, EM::EMM().undo().canUnDo() );
     BufferString undotooltip( "Undo" );
@@ -650,12 +628,10 @@ void uiODFaultToolMan::updateToolbarCB( CallBacker* )
 
 uiIOObjSel* uiODFaultToolMan::getObjSel()
 { 
-    if ( settingsdlg_ )
-	return settingsdlg_->getObjSel();
-    else if ( settingssetup_.outputfault_ )
-	return manfaultoutput_->getObjSel();
-    else 
-	return manfssoutput_->getObjSel();
+    if ( mCurItem(outputtypecombo_, sKeyToFaultStickSet) )
+	return auxfsswrite_->getObjSel();
+
+    return auxfaultwrite_->getObjSel();
 }
 
 
@@ -663,66 +639,228 @@ const uiIOObjSel* uiODFaultToolMan::getObjSel() const
 { return const_cast<uiODFaultToolMan*>(this)->getObjSel(); }
 
 
-void uiODFaultToolMan::outputComboChg( CallBacker* cb )
+void uiODFaultToolMan::outputEditTextChg( CallBacker* )
 {
-    NotifyStopper ns( tboutputcombo_->editTextChanged );
-    comboCopy( *tboutputcombo_, *getObjSel()->inpBox() );
-    outputColorChg( 0 );
+    setAuxSurfaceWrite( outputnamecombo_->text() );
+    outputnamecombo_->setTextColor( Color(0,0,0) );
+    outputnamecombo_->setToolTip( "Output name" );
+    editreadytimer_.start( 200, false );
+}
+
+
+void uiODFaultToolMan::editReadyTimerCB( CallBacker* )
+{
+    static uiPoint lastpos( uiPoint::udf() );
+
+    if ( outputnamecombo_->isCursorInside() ||
+	 !lastpos.isDefined() || lastpos==uiCursorManager::cursorPos() )
+    {
+	lastpos = uiCursorManager::cursorPos();
+	return;
+    }
+
+    lastpos = uiPoint::udf();
+    editreadytimer_.stop();
+    processOutputName();
+}
+
+
+BufferStringSet& uiODFaultToolMan::getOutputItems() 
+{ 
+    const bool tofault = mCurItem(outputtypecombo_, sKeyToFault);
+
+    if ( !isInCreateMode() )
+	return tofault ? allfaultitems_ : allfssitems_;
+
+    if ( isInSerialMode() )
+	return tofault ? serialfaultitems_ : serialfssitems_;
+
+    return tofault ? singlefaultitems_ : singlefssitems_;
+}
+
+
+static int removeSerialNumber( BufferString& objname )
+{
+    char* lastptr = objname.buf() + objname.size() - 1;
+    char* ptr = lastptr;
+
+    while ( ptr>=objname.buf() && isdigit(*ptr) )
+	ptr--;
+
+    if ( ptr<objname.buf() || *ptr!='_' )
+	return -1;				// Nothing removed
+
+    *ptr = '\0';
+    return ptr==lastptr ? mUdf(int) : toInt(ptr+1);
+}
+
+
+static void addOutputItem( const char* newitem, BufferStringSet& items )
+{
+    const int maxnritems = 10;
+
+    for ( int idx=items.size()-1; idx>=0; idx-- )
+    {
+	if ( items.get(idx) == newitem )
+	    items.remove( idx );
+    }
+    items.insertAt( new BufferString(newitem), 0 );
+
+    for ( int idx=items.size()-1; idx>=maxnritems; idx-- )
+	items.remove( idx );
+}
+
+
+void uiODFaultToolMan::updateOutputItems()
+{
+    const bool tofault = mCurItem(outputtypecombo_, sKeyToFault);
+
+    BufferString fullnm = outputnamecombo_->text();
+    if ( fullnm.isEmpty() )
+	return;
+
+    BufferString basenm = fullnm;
+    if ( removeSerialNumber(basenm) == -1 )
+	addOutputItem( fullnm, tofault ? singlefaultitems_ : singlefssitems_ );
+    else
+    {
+	basenm += "_";
+	addOutputItem( basenm, tofault ? serialfaultitems_ : serialfssitems_ );
+    }
+
+    addOutputItem( fullnm, tofault ? allfaultitems_ : allfssitems_ );
+    publishOutputItems();
+}
+
+
+void uiODFaultToolMan::outputComboSelChg( CallBacker* )
+{   publishOutputItems(); }
+
+
+void uiODFaultToolMan::outputActionChg( CallBacker* )
+{ publishOutputItems(); }
+
+
+void uiODFaultToolMan::outputTypeChg( CallBacker* )
+{ publishOutputItems(); }
+
+
+void uiODFaultToolMan::publishOutputItems()
+{
+    outputnamecombo_->editTextChanged.disable();
+    BufferString curtext = outputnamecombo_->text();
+    outputnamecombo_->setEmpty();
+    outputnamecombo_->addItem( "" );
+    outputnamecombo_->addItems( getOutputItems() );
+    outputnamecombo_->editTextChanged.enable();
+
+    setOutputName( curtext );
+    processOutputName();
 }
 
 
 void uiODFaultToolMan::colorPressedCB( CallBacker* cb )
-{ manoutputcolor_->getButton()->click(); }
+{ auxcolorinput_->getButton()->click(); }
 
 
 void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 {
-    const char* lbltxt = "    New color";
-
-    MultiID mid = getObjSel()->validKey();
+    colorbut_->setToolTip( "User-defined output color" );
 
     if ( cb )
     {
-	newcolor_ = manoutputcolor_->color();
-	newcolormid_ = mid;
+	usercolor_ = auxcolorinput_->color();
+	usercolorlink_ = getObjSel()->inpBox()->text();
+	updateColorMode();
+    }
+    else if ( randomColor() )
+    {
+	auxcolorinput_->setColor( randomcolor_ );
+	colorbut_->setToolTip( "Random output color" );
     }
     else
     {
-	manoutputcolor_->setColor( newcolor_ );
+	auxcolorinput_->setColor( usercolor_ );
 
-	if ( !mid.isEmpty() && mid!=newcolormid_ )
+	if ( currentColor() || inheritColor() )
 	{
 	    IOPar iopar;
 	    Color curcolor;
+	    MultiID mid = getObjSel()->validKey();
 	    EM::EMM().readPars( mid, iopar );
 	    if ( iopar.get(sKey::Color,curcolor) )
 	    {
-		manoutputcolor_->setColor( curcolor );
-		lbltxt = "Current color";
+		auxcolorinput_->setColor( curcolor );
+		colorbut_->setToolTip( currentColor() ?
+			"Current output color" : "Inherited output color" );
 	    }
 	}
     }
 
     ioPixmap colorpm( 20, 20 );
-    colorpm.fill( manoutputcolor_->color() );
-    tbcolorbutton_->setPixmap( colorpm );
+    colorpm.fill( auxcolorinput_->color() );
+    colorbut_->setPixmap( colorpm );
+}
+
+
+void uiODFaultToolMan::colorModeChg( CallBacker* cb )
+{
+    const bool userdef = !randomColor() && !inheritColor() && !currentColor();
+
+    usercolorlink_ = userdef ? getObjSel()->inpBox()->text() : "";
+
+    if ( randomColor() )
+	randomcolor_ = getRandStdDrawColor();
+
+    processOutputName();
+}
+
+
+#define mGetSetting( settingsfunc, setupmember ) \
+( settingsdlg_ ? settingsdlg_->settingsfunc : settingssetup_.setupmember )
+
+void uiODFaultToolMan::updateColorMode()
+{
+    const bool userdef = usercolorlink_ == getObjSel()->inpBox()->text();
+    const int curmode = mGetSetting( colorMode(), colormode_ );
+    const bool random = curmode == uiFaultStickTransferDlg::Random;
+
+    if ( isInSerialMode() )
+    {
+	if ( userdef )
+	    settingssetup_.colormode_ = uiFaultStickTransferDlg::SerialUserDef;
+	else if ( random )
+	    settingssetup_.colormode_ = uiFaultStickTransferDlg::Random;
+	else
+	    settingssetup_.colormode_ = uiFaultStickTransferDlg::Inherit;
+    }
+    else if ( isOutputNameUsed() )
+    {
+	if ( userdef )
+	    settingssetup_.colormode_ = uiFaultStickTransferDlg::ExistsUserDef;
+	else
+	    settingssetup_.colormode_ = uiFaultStickTransferDlg::Current;
+    }
+    else
+	settingssetup_.colormode_ = uiFaultStickTransferDlg::SingleUserDef;
 
     if ( settingsdlg_ )
     {
-	NotifyStopper ns( manoutputcolor_->colorChanged ); 
-	settingsdlg_->getOutputColor()->setColor( manoutputcolor_->color() );
-	settingsdlg_->getOutputColor()->setLblText( lbltxt );
-	settingsdlg_->getOutputColor()->colorChanged.trigger();
+        NotifyStopper ns( settingsdlg_->colormodechg );
+	settingsdlg_->setColorMode( settingssetup_.colormode_ );
     }
 }
 
 
-void uiODFaultToolMan::stickCopyCB( CallBacker* )
-{ transferSticks( true ); }
+void uiODFaultToolMan::selectOutputCB( CallBacker* )
+{ getObjSel()->doSel( 0 ); }
 
 
-void uiODFaultToolMan::stickMoveCB( CallBacker* )
-{ transferSticks( false ); }
+void uiODFaultToolMan::outputSelectedCB( CallBacker* )
+{
+    setOutputName( getObjSel()->inpBox()->text() );
+    processOutputName();
+}
 
 
 void uiODFaultToolMan::stickRemovalCB( CallBacker* )
@@ -747,7 +885,7 @@ void uiODFaultToolMan::stickRemovalCB( CallBacker* )
 }
 
 
-void uiODFaultToolMan::transferSticks( bool copy )
+void uiODFaultToolMan::transferSticksCB( CallBacker* )
 {
     if ( curemid_ < 0 )
 	return;
@@ -785,31 +923,25 @@ void uiODFaultToolMan::transferSticks( bool copy )
     RefMan<EM::EMObject> tmpemobj = EM::FaultStickSet::create(EM::EMM());
     mDynamicCastGet( EM::FaultStickSet*, tmpfss, tmpemobj.ptr() );
 
-    if ( !destfault->isEmpty() )
+    const bool merge = mCurItem( outputactcombo_, sKeyMergeWithExisting );
+
+    if ( !destfault->isEmpty() && (!merge || destf3d) )
     {
-	const int res = uiMSG().question(
-			    "Output object already contains fault stick(s)",
-			    "Replace", "Merge" , "Cancel", "Transfer message" );
+	destfault->geometry().selectAllSticks( true );
 
-	if ( res < 0 ) 			// Cancel
-	    return;
-
-	if ( res || destf3d )		// Replace or transfer to Fault3D
+	if ( merge )
 	{
-	    destfault->geometry().selectAllSticks( true );
-
-	    if ( !res )			// Merge
-	    {
-		destf3d->geometry().copySelectedSticksTo(
+	    destf3d->geometry().copySelectedSticksTo(
 			    tmpfss->geometry(), tmpfss->sectionID(0), false );
-	    }
-	    destfault->geometry().removeSelectedSticks( displayAfterwards() );
 	}
+	destfault->geometry().removeSelectedSticks( displayAfterwards() );
     }
 
     mDynamicCastGet( EM::FaultStickSet*, destfss, destfault );
     if ( !destfss )
     	destfss = tmpfss;
+
+    const bool copy =  mCurItem( transfercombo_, sKeyCopySelection );
 
     if ( copy )
 	srcfault->geometry().selectStickDoubles( false, &destfss->geometry() );
@@ -848,7 +980,7 @@ void uiODFaultToolMan::transferSticks( bool copy )
     if ( !copy && oldnrselected!=newnrselected )
 	srcfault->setChangedFlag();
 
-    destfault->setPreferredColor( manoutputcolor_->color(), true );
+    destfault->setPreferredColor( auxcolorinput_->color(), true );
     displayUpdate();
 
     bool saved = false;
@@ -873,9 +1005,17 @@ void uiODFaultToolMan::transferSticks( bool copy )
 }
 
 
-#define mGetDisplayVars( destmid, curid, sceneid ) \
+void uiODFaultToolMan::afterTransferUpdate()
+{
+    randomcolor_ = getRandStdDrawColor();
+    usercolorlink_.setEmpty();
+    updateOutputItems(); 
+}
+
+
+#define mGetDisplayVars( objsel, destmid, curid, sceneid ) \
 \
-    MultiID destmid = getObjSel()->validKey(); \
+    MultiID destmid = objsel->validKey(); \
 \
     const int curid = curfltd_ ? curfltd_->id() : \
 				 ( curfssd_ ? curfssd_->id() : -1 ); \
@@ -885,7 +1025,7 @@ void uiODFaultToolMan::transferSticks( bool copy )
 
 void uiODFaultToolMan::displayUpdate()
 {
-    mGetDisplayVars( destmid, curid, sceneid );
+    mGetDisplayVars( getObjSel(), destmid, curid, sceneid );
     if ( destmid.isEmpty() || isOutputDisplayed() )
 	return;
 
@@ -899,9 +1039,11 @@ void uiODFaultToolMan::displayUpdate()
 }
 
 
-bool uiODFaultToolMan::isOutputDisplayed() const
+bool uiODFaultToolMan::isOutputDisplayed( uiSurfaceWrite* uisw ) const
 {
-    mGetDisplayVars( destmid, curid, sceneid );
+    const uiIOObjSel* objsel = uisw ? uisw->getObjSel() : getObjSel();
+
+    mGetDisplayVars( objsel, destmid, curid, sceneid );
 
     if ( destmid.isEmpty() || curid<0 || sceneid<0 ) 
 	return false;
@@ -918,6 +1060,14 @@ bool uiODFaultToolMan::isOutputDisplayed() const
 }
 
 
+bool uiODFaultToolMan::isInSerialMode() const
+{ return mCurItem( outputactcombo_, sKeyCreateNewInSeries ); }
+
+
+bool uiODFaultToolMan::isInCreateMode() const
+{ return isInSerialMode() || mCurItem(outputactcombo_, sKeyCreateSingleNew); }
+
+
 bool uiODFaultToolMan::displayAfterwards() const
 {
     return isOutputDisplayed() ||
@@ -932,45 +1082,121 @@ bool uiODFaultToolMan::saveAfterwards() const
 }
 
 
-static int removeSeqNumber( BufferString& objname )
+bool uiODFaultToolMan::randomColor() const
 {
-    char* lastptr = objname.buf() + objname.size() - 1;
-    char* ptr = lastptr;
-    while ( ptr>objname.buf() && isdigit(*ptr) )
-	ptr--;
-
-    if ( *ptr != '_' )
-	return -1;
-
-    *ptr = '\0';
-    return ptr==lastptr ? -1 : toInt(ptr+1);
+    return mGetSetting( colorMode(), colormode_ )
+			== uiFaultStickTransferDlg::Random;
 }
 
 
-void uiODFaultToolMan::afterTransferUpdate()
+bool uiODFaultToolMan::inheritColor() const
 {
-    newcolormid_.setEmpty();
-    outputComboChg( 0 );
+    return mGetSetting( colorMode(), colormode_ )
+			== uiFaultStickTransferDlg::Inherit;
+}
 
-    if ( !mGetSetting(generateSequelName(),sequelnaming_) )
+
+bool uiODFaultToolMan::currentColor() const
+{
+    return mGetSetting( colorMode(), colormode_ )
+			== uiFaultStickTransferDlg::Current;
+}
+
+
+bool uiODFaultToolMan::isOutputNameUsed( uiSurfaceWrite* uisw ) const
+{
+    const uiIOObjSel* objsel = uisw ? uisw->getObjSel() : getObjSel();
+
+    if ( !objsel->existingTyped() )
+	return false;
+
+    if ( isOutputDisplayed(uisw) )
+	return true;
+
+    const IOObj* ioobj = objsel->ioobj( true );
+    return ioobj && ioobj->implExists(true);
+}
+
+
+void uiODFaultToolMan::processOutputName()
+{
+    updateColorMode();
+    outputColorChg( 0 );
+
+    BufferString objname = outputnamecombo_->text();
+    outputnamecombo_->setTextColor( Color(0,0,0) );
+    outputnamecombo_->setToolTip( "Output name" );
+    toolbar_->setSensitive( gobutidx_, false );
+
+    if ( objname.isEmpty() )
 	return;
 
-    const bool colorrandom = mGetSetting( randomSequelColor(), colorrandom_ );
-    newcolor_ = colorrandom ? getRandStdDrawColor() : manoutputcolor_->color(); 
-
-    BufferString objname = getObjSel()->getInput();
-    int seqnr = removeSeqNumber( objname );
-    if ( seqnr < 0 )
-	seqnr = 1;
-
-    BufferString sequelname;
-    while ( getObjSel()->existingTyped() )
+    if ( !isInCreateMode() )
     {
-	sequelname = objname;
-	sequelname += "_";
-	sequelname += ++seqnr;
-	tboutputcombo_->setText( sequelname );
+	if ( !isOutputNameUsed() )
+	{
+	    BufferString tooltiptext = "No Fault exists with this name!";
+	    if ( !mCurItem(outputtypecombo_, sKeyToFault) )
+		tooltiptext = "No FaultStickSet exists with this name!";
+	    outputnamecombo_->setToolTip( tooltiptext );
+	    flashOutputName( true );
+	    return;
+	}
     }
+    else if ( isInSerialMode() )
+    {
+	BufferString basenm = objname;
+	int serialnr = removeSerialNumber( basenm );
+	if ( serialnr<0 || mIsUdf(serialnr) )
+	    serialnr = 1;
+
+	BufferString serialname;
+	for ( int idx=0; true; idx++ )
+	{
+	    serialname = basenm;
+	    serialname += "_";
+	    serialname += idx;
+	    setAuxSurfaceWrite( serialname );
+
+	    if ( !isOutputNameUsed(auxfaultwrite_) &&
+		 !isOutputNameUsed(auxfsswrite_) )
+	    {
+		if ( idx >= serialnr )
+		    break;
+	    }
+	    else if ( inheritColor() )
+		outputColorChg( 0 );
+	}
+
+	if ( !inheritColor() )
+	    outputColorChg( 0 );
+
+	if ( serialname != objname )
+	    flashOutputName( false, serialname );
+    }
+    else
+    {
+	BufferString basenm = objname;
+	while ( removeSerialNumber(basenm) != -1 )
+	    setAuxSurfaceWrite( basenm );
+
+	const bool existingfault = isOutputNameUsed( auxfaultwrite_ );
+	const bool existingfss = isOutputNameUsed( auxfsswrite_ );
+
+	if (  existingfault || existingfss )
+	{
+	    BufferString tooltiptext = "Existing Fault with this name!";
+	    if ( existingfss )
+		tooltiptext = "Existing FaultStickSet with this name!";
+	    outputnamecombo_->setToolTip( tooltiptext );
+	    flashOutputName( true, basenm );
+	    return;
+	}
+	else if ( basenm != objname )
+	    flashOutputName( false, basenm );
+    }
+
+    toolbar_->setSensitive( gobutidx_, true );
 }
 
 
@@ -984,17 +1210,51 @@ void uiODFaultToolMan::settingsClosedCB( CallBacker* )
 
 void uiODFaultToolMan::surveyChg( CallBacker* )
 {
-    manfaultoutput_->getObjSel()->inpBox()->setEmpty();
-    manfssoutput_->getObjSel()->inpBox()->setEmpty();
+    auxfaultwrite_->getObjSel()->inpBox()->setEmpty();
+    auxfsswrite_->getObjSel()->inpBox()->setEmpty();
 
-    if ( settingsdlg_ )
-    {
-	settingsdlg_->setOutputFields( *manfaultoutput_->getObjSel()->inpBox(),
-				       *manfssoutput_->getObjSel()->inpBox() );
-    }
+    setOutputName( "" );
+    singlefaultitems_.erase();
+    serialfaultitems_.erase();
+    allfaultitems_.erase();
+    singlefssitems_.erase();
+    serialfssitems_.erase();
+    allfssitems_.erase();
 
-    tboutputcombo_->setEmpty();
-    outputComboChg( 0 );
+    publishOutputItems();
+}
+
+
+void uiODFaultToolMan::flashOutputName( bool error, const char* newname )
+{
+    flashname_ = newname ? newname : outputnamecombo_->text();
+    flashcolor_ = error ? Color(255,0,0) : Color(0,0,0);
+    flashtimer_.start( 500, true );
+    outputnamecombo_->setBackgroundColor( flashcolor_ );
+    outputnamecombo_->setTextColor( Color(255,255,255) );
+}
+
+
+void uiODFaultToolMan::flashOutputTimerCB( CallBacker* )
+{
+    outputnamecombo_->setTextColor( flashcolor_ );
+    outputnamecombo_->setBackgroundColor( Color(255,255,255) );
+    setOutputName( flashname_ );
+}
+
+
+void uiODFaultToolMan::setOutputName( const char* outputname )
+{
+    NotifyStopper ns( outputnamecombo_->editTextChanged );
+    outputnamecombo_->setText( outputname );
+    setAuxSurfaceWrite( outputname );
+}
+
+
+void uiODFaultToolMan::setAuxSurfaceWrite( const char* outputname )
+{
+    auxfaultwrite_->getObjSel()->inpBox()->setText( outputname );
+    auxfsswrite_->getObjSel()->inpBox()->setText( outputname );
 }
 
 
