@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2004
- RCS:		$Id: uisettings.h,v 1.17 2010-06-10 06:35:59 cvsnanne Exp $
+ RCS:		$Id: uisettings.h,v 1.18 2010-11-18 19:16:04 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class IOPar;
 class Settings;
 class uiGenInput;
+class uiLabeledComboBox;
 struct LooknFeelSettings;
 
 
@@ -65,6 +66,7 @@ protected:
     uiGenInput*		showwheelsfld_;
     uiGenInput*		showinlprogressfld_;
     uiGenInput*		showcrlprogressfld_;
+    uiLabeledComboBox*	textureresfactorfld_;
     uiGenInput*		useshadingfld_;
     uiGenInput*		volrenshadingfld_;
 

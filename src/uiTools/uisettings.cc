@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisettings.cc,v 1.39 2010-06-21 14:41:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uisettings.cc,v 1.40 2010-11-18 19:16:04 cvskarthika Exp $";
 
 #include "uisettings.h"
 
@@ -15,10 +15,12 @@ static const char* rcsID = "$Id: uisettings.cc,v 1.39 2010-06-21 14:41:08 cvsber
 #include "settings.h"
 #include "survinfo.h"
 #include "posimpexppars.h"
+#include "envvars.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
+#include "uicombobox.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
 
@@ -105,6 +107,7 @@ static int theiconsz = -1;
 #define mShowInlProgress	"dTect.Show inl progress"
 #define mShowCrlProgress	"dTect.Show crl progress"
 #define mShowWheels		"dTect.Show wheels"
+#define mTextureResFactor	"dTect.Default texture resolution factor"
 #define mNoShading		"dTect.No shading"
 #define mVolRenShading		"dTect.Use VolRen shading"
 
@@ -116,6 +119,7 @@ struct LooknFeelSettings
 		    , showwheels(true)
 		    , showinlprogress(true)
 		    , showcrlprogress(true)
+		    , textureresfactor(0)
 		    , noshading(false)
 		    , volrenshading(false)		{}
 
@@ -124,6 +128,8 @@ struct LooknFeelSettings
     bool	showwheels;
     bool	showinlprogress;
     bool	showcrlprogress;
+    int		textureresfactor;	
+    		  // -1: system default, 0 - standard, 1 - higher, 2 - highest
     bool	noshading;
     bool	volrenshading;
 };
@@ -161,10 +167,34 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 	    			    BoolInpSpec(lfsetts_.showwheels) );
     showwheelsfld_->attach( alignedBelow, showcrlprogressfld_ );
 
+    setts_.get( mTextureResFactor, lfsetts_.textureresfactor );
+    textureresfactorfld_ = new uiLabeledComboBox( this, 
+		"Default texture resolution factor" );
+    textureresfactorfld_->box()->addItem( "Standard" );
+    textureresfactorfld_->box()->addItem( "Higher" );
+    textureresfactorfld_->box()->addItem( "Highest" );
+
+    int selection = 0;
+
+    if ( lfsetts_.textureresfactor >= 0 && lfsetts_.textureresfactor <= 2 )
+	    selection = lfsetts_.textureresfactor;
+
+    // add the System default option if the environment variable is set
+    const char* envvar = GetEnvVar( "OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
+    if ( envvar && isdigit(*envvar) )
+    {
+	textureresfactorfld_->box()->addItem( "System default" );
+	if ( lfsetts_.textureresfactor == -1 )
+	    selection = 3;
+    }
+	
+    textureresfactorfld_->box()->setCurrentItem( selection );
+    textureresfactorfld_->attach( alignedBelow, showwheelsfld_ );
+	
     setts_.getYN( mNoShading, lfsetts_.noshading );
     useshadingfld_ = new uiGenInput( this, "Use OpenGL shading when available",
 				    BoolInpSpec(!lfsetts_.noshading) );
-    useshadingfld_->attach( alignedBelow, showwheelsfld_ );
+    useshadingfld_->attach( alignedBelow, textureresfactorfld_ );
     useshadingfld_->valuechanged.notify(
 	    		mCB(this,uiLooknFeelSettings,shadingChange) );
     setts_.getYN( mVolRenShading, lfsetts_.volrenshading );
@@ -238,7 +268,18 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 		    showcrlprogressfld_->getBoolValue(),
 	    	    mShowCrlProgress );
 
-    if ( changed_ && !setts_.write() )
+    bool textureresfacchanged = false;
+    // track this change separately as this will be applied with immediate
+    // effect, unlike other settings
+    int val = ( textureresfactorfld_->box()->currentItem() == 3 ) ? -1 :
+		textureresfactorfld_->box()->currentItem();
+    if ( lfsetts_.textureresfactor != val )
+    {
+	textureresfacchanged = true; 
+	setts_.set( mTextureResFactor, val );
+    }
+
+    if ( ( changed_ || textureresfacchanged ) && !setts_.write() )
     {
 	changed_ = false;
 	uiMSG().error( "Cannot write settings" );
@@ -247,3 +288,4 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 
     return true;
 }
+
