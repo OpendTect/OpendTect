@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.60 2010-11-02 08:16:11 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.61 2010-11-18 09:50:41 cvskarthika Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -40,10 +40,6 @@ MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
     , resolution_( 0 )
     , enabletextureinterp_( true )
 {
-    const char* envvar = GetEnvVar( "OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
-    if ( envvar && isdigit(*envvar) )
-	resolution_ = toInt( envvar );
-
     if ( texture_ )
     {
 	texture_->ref();
@@ -84,8 +80,18 @@ MultiTextureSurveyObject::~MultiTextureSurveyObject()
 
 bool MultiTextureSurveyObject::_init()
 {
-    return visBase::DataObject::_init() && addAttrib();
-}
+    if ( !visBase::DataObject::_init() )
+        return false;
+
+    const char* envvar = GetEnvVar( "OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
+    if ( envvar && isdigit(*envvar) )
+        resolution_ = toInt( envvar );
+
+    if ( resolution_ >= nrResolutions() )
+        resolution_ = nrResolutions()-1;
+
+    return addAttrib();
+} 
 
 
 void MultiTextureSurveyObject::allowShading( bool yn )
