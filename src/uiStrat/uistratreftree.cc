@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.62 2010-11-18 15:43:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.63 2010-11-18 16:27:45 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -207,12 +207,13 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
     {
 	TypeSet<int> lithids;
 	const Strat::LeavedUnitRef& lvdun = (Strat::LeavedUnitRef&)(*parun);
+	tmpun.setLevelID( lvdun.levelID() );	
 	for ( int iref = 0; iref<lvdun.nrRefs(); iref++ )
 	{
 	    int id = ((Strat::LeafUnitRef&)(lvdun.ref(iref))).lithology();
 	    LeafUnitRef* lur = new LeafUnitRef( &tmpun, id );
 	    tmpun.add( lur );
-	} 
+	}
     }
 
     uiStratUnitEditDlg newurdlg( lv_->parent(), tmpun );
@@ -230,6 +231,7 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 				new Strat::LeavedUnitRef( parun, tmpun.code());
 	    newun->setColor( tmpun.color() ); 
 	    newun->setTimeRange( tmpun.timeRange() );
+	    newun->setLevelID( tmpun.levelID() );
 	    int posidx = getChildIdxFromTime( *parun, newun->timeRange().start);
 	    if ( posidx < parun->nrRefs() )
 		parun->insert( newun, posidx );
@@ -358,12 +360,13 @@ void uiStratRefTree::removeUnit( uiListViewItem* lvit )
     Strat::NodeUnitRef* upnode = un->upNode();
     if ( !upnode ) return;
 
-    TypeSet<int> lithids;  
+    TypeSet<int> lithids; int lvlid = -1;
     if ( un->isLeaved() )
     {
 	const Strat::LeavedUnitRef& lvedun = (Strat::LeavedUnitRef&)(*un);
 	for ( int idx=0; idx<lvedun.nrRefs(); idx++ )
 	    lithids += ((Strat::LeafUnitRef&)(lvedun.ref(idx))).lithology();
+	lvlid = lvedun.levelID();
     }
     upnode->remove( un );
     if ( lvit->parent() )
@@ -376,7 +379,9 @@ void uiStratRefTree::removeUnit( uiListViewItem* lvit )
     if ( !upnode->isLeaved() && !upnode->hasChildren() )
     {
 	upnode = replaceUnit( *upnode, true );
-	addLithologies( (LeavedUnitRef&)(*upnode), lithids ); 
+	LeavedUnitRef& lur = (LeavedUnitRef&)(*upnode);
+	addLithologies( lur, lithids ); 
+	lur.setLevelID( lvlid );
     }
 
     lv_->triggerUpdate();
