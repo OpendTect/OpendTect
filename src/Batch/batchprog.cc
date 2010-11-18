@@ -5,9 +5,10 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.112 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.113 2010-11-18 07:11:12 cvsranojay Exp $";
 
 #include "batchprog.h"
+#include "envvars.h"
 #include "ioman.h"
 #include "iodir.h"
 #include "iopar.h"
@@ -183,8 +184,13 @@ void BatchProgram::init( int* pac, char** av )
     BufferString res = iopar->find( sKey::LogFile ).str();
     if ( !res )
 	iopar->set( sKey::LogFile, StreamProvider::sStdErr() );
+
+    res = iopar->find( sKey::DataRoot ).str();
+    if ( !res.isEmpty() && File::exists(res) )
+	SetEnvVar( "DTECT_DATA", res );
+
     res = iopar->find( sKey::Survey ).str();
-    if ( !res || !*res )
+    if ( res.isEmpty() )
 	IOMan::newSurvey();
     else
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.38 2010-10-13 05:27:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.39 2010-11-18 07:11:12 cvsranojay Exp $";
 
 #include "jobiomgr.h"
 
@@ -433,42 +433,110 @@ bool JobIOMgr::startProg( const char* progname,
     return true;
 }
 
+#ifdef __win__
+
+extern const BufferString& getTempBaseNm();
+extern "C" const char* GetSurveyName();
+extern int getTempFileNr();
+
+FilePath getConvFilePath( const HostData& hd, const FilePath& fp )
+{
+    FilePath newfp = hd.prefixFilePath( HostData::Data );
+    if ( !newfp.nrLevels() ) return fp;
+    
+    BufferString proc( getTempBaseNm() );
+    proc += "_";
+    proc += getTempFileNr()-1;
+    newfp.add(  GetSurveyName() ).add( "Proc" )
+	 .add( proc ).add( fp.fileName() );
+    return newfp;
+}
+
+
+bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
+			    const HostData& machine, const IOPar& iop )
+{
+    FilePath remotefp = getConvFilePath( machine, basefp );
+    iopfp = basefp; iopfp.setExtension( ".par", false );
+    const BufferString iopfnm( iopfp.fullPath() );
+
+    BufferString bs( remotefp.fullPath() );
+    replaceCharacter( bs.buf(), '.',  '_' );
+    FilePath logfp( bs ); 
+
+    remotefp.setExtension( ".par", false );
+    
+    logfp.setExtension( ".log", false );
+    const BufferString logfnm( logfp.fullPath(machine.pathStyle()) );
+
+    FilePath remotelogfnm( machine.convPath( HostData::Data, logfp ));
+
+    IOPar newiop( iop );
+    newiop.set( sKey::LogFile, remotelogfnm.fullPath(machine.pathStyle()) );
+
+    FilePath remdata = machine.prefixFilePath(HostData::Data);
+
+    const char* tmpstor = iop.find( sKey::TmpStor );
+    if ( tmpstor )
+    {
+	FilePath path = machine.convPath( HostData::Data, tmpstor );
+	FilePath remotetmpdir( remdata.nrLevels() ? remdata.fullPath() 
+						  : path.fullPath() );
+	if ( remdata.nrLevels() )
+	{
+	    remotetmpdir.add(  GetSurveyName() ).add( "Seismics" )
+			.add( path.fileName() );
+	}
+    
+	newiop.set( sKey::TmpStor, remotetmpdir.fullPath(machine.pathStyle()) );
+    }
+
+    newiop.set( sKey::DataRoot, remdata.fullPath(machine.pathStyle()) );
+    newiop.set( sKey::Survey, IOM().surveyName() );
+
+    if ( File::exists(iopfnm) ) File::remove( iopfnm );
+    if ( File::exists(logfnm) ) File::remove( logfnm );
+
+    StreamData iopsd = StreamProvider(iopfnm).makeOStream();
+    if ( !iopsd.usable() )
+    {
+	BufferString s( "Cannot open '" );
+	s += iopfnm; s += "' for write ...";
+	mErrRet(s)
+    }
+    bool res = newiop.write( *iopsd.ostrm, sKey::Pars );
+    iopsd.close();
+    if ( !res )
+    {
+	BufferString s( "Cannot write parameters into '" );
+	s += iopfnm; s += "'";
+	mErrRet(s)
+    }
+
+    iopfp.set( remotefp.fullPath(machine.pathStyle()) );
+    return true;
+}
+
+#else
 
 bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 			    const HostData& machine, const IOPar& iop )
 {
     iopfp = basefp; iopfp.setExtension( ".par", false );
     const BufferString iopfnm( iopfp.fullPath() );
-
-#ifndef __win32__
-    FilePath logfp(basefp); 
-#else
-    BufferString bs( basefp.fullPath() );
-    replaceCharacter( bs.buf(), '.',  '_' );
-    FilePath logfp( bs ); 
-#endif
-
-    logfp.setExtension( ".log", false );
+    FilePath logfp(basefp); logfp.setExtension( ".log", false );
     const BufferString logfnm( logfp.fullPath() );
 
     FilePath remotelogfnm( machine.convPath( HostData::Data, logfp ));
 
     IOPar newiop( iop );
-#ifndef __win__
     newiop.set( sKey::LogFile, remotelogfnm.fullPath(machine.pathStyle()) );
-#else
-    newiop.set( sKey::LogFile, remotelogfnm.fullPath() );
-#endif
 
     const char* tmpstor = iop.find( sKey::TmpStor );
     if ( tmpstor )
     {
 	FilePath remotetmpdir = machine.convPath( HostData::Data, tmpstor );
-#ifndef __win__ 
 	newiop.set( sKey::TmpStor, remotetmpdir.fullPath(machine.pathStyle()) );
-#else
-	newiop.set( sKey::TmpStor, remotetmpdir.fullPath() );
-#endif
     }
 
     newiop.set( sKey::Survey, IOM().surveyName() );
@@ -494,6 +562,8 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 
     return true;
 }
+
+#endif
 
 
 void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,

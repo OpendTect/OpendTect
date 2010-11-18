@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.92 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.93 2010-11-18 07:11:12 cvsranojay Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -51,6 +51,7 @@ static void getProcFilename( const char* basnm, const char* altbasnm,
 
 static bool writeProcFile( IOPar& iop, const char* tfname )
 {
+    const_cast<IOPar&>(iop).set( sKey::DataRoot, GetBaseDataDir() );
     const_cast<IOPar&>(iop).set( sKey::Survey, IOM().surveyName() );
     if ( !iop.write(tfname,sKey::Pars) )
     {

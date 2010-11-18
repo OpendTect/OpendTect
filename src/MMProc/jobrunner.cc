@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobrunner.cc,v 1.43 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: jobrunner.cc,v 1.44 2010-11-18 07:11:12 cvsranojay Exp $";
 
 #include "jobrunner.h"
 #include "jobinfo.h"
@@ -44,6 +44,12 @@ static const char* rcsID = "$Id: jobrunner.cc,v 1.43 2010-11-09 16:01:18 cvsbert
 
 static BufferString tmpfnm_base;
 
+const BufferString& getTempBaseNm()
+{
+    return tmpfnm_base;
+}
+
+
 static int mkTmpFileNr()
 {
     tmpfnm_base = HostData::localHostName();
@@ -51,9 +57,13 @@ static int mkTmpFileNr()
     tmpfnm_base += GetPID();
     return 1;
 }
-                                                                                
-static int tmpfile_nr = mkTmpFileNr();
+ 
 
+static int tmpfile_nr = mkTmpFileNr();
+mGlobal int getTempFileNr()
+{
+    return tmpfile_nr;
+}
 
 JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	: Executor("Running jobs")
