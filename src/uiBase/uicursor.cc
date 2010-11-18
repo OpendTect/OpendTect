@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicursor.cc,v 1.16 2010-04-22 14:49:26 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicursor.cc,v 1.17 2010-11-18 17:16:53 cvsjaap Exp $";
 
 #include "uicursor.h"
 #include "pixmap.h"
@@ -29,6 +29,10 @@ uiCursorManager::uiCursorManager()
 
 uiCursorManager::~uiCursorManager()
 {}
+
+
+uiPoint uiCursorManager::cursorPos()
+{ return uiPoint( QCursor::pos().x(), QCursor::pos().y() ); }
 
 
 void uiCursorManager::fillQCursor( const MouseCursor& mc, QCursor& qcursor )

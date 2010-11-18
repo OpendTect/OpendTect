@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.37 2010-11-10 15:26:43 cvsbert Exp $
+ RCS:           $Id: uicombobox.h,v 1.38 2010-11-18 17:16:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
     void		addItem(const wchar_t*);
     virtual void	addItem(const char*);
     void		addItems(const BufferStringSet&);
+    void		addSeparator();
     void		insertItem(const char*,int index=-1);
     void		insertItem(const ioPixmap&,const char*,int index=-1);
     void		setPixmap(const ioPixmap&,int index);

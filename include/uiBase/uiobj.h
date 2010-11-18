@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.69 2010-10-07 06:07:56 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.70 2010-11-18 17:16:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,10 +77,13 @@ public:
     void		disabFocus();
 
     void		setCursor(const MouseCursor&);
+    bool		isCursorInside() const;
+
 
     virtual Color	backgroundColor() const;
     virtual void	setBackgroundColor(const Color&);
     virtual void	setBackgroundPixmap(const ioPixmap&);
+    virtual void	setTextColor(const Color&);
     void		setSensitive(bool yn=true);
     bool		sensitive() const;
     bool		visible() const;

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.h,v 1.15 2010-04-20 12:44:28 cvsjaap Exp $
+ RCS:           $Id: uicursor.h,v 1.16 2010-11-18 17:16:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uigeom.h"
 #include "mousecursor.h"
 #include "thread.h"
 
@@ -22,6 +23,8 @@ mClass uiCursorManager : public MouseCursorManager
 {
 public:
     static void	initClass();
+
+    static uiPoint cursorPos();
 
     static void	fillQCursor(const MouseCursor&,QCursor&);
 

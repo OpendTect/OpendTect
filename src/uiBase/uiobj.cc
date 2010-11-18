@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.99 2010-10-29 05:57:08 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.100 2010-11-18 17:16:53 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -382,6 +382,16 @@ void uiObject::setCursor( const MouseCursor& cursor )
 }
 
 
+bool uiObject::isCursorInside() const
+{
+    const uiPoint cursorpos = uiCursorManager::cursorPos();
+    const QPoint objpos = mConstBody()->qwidget()->mapToGlobal( QPoint(0,0) );
+
+    return cursorpos.x>=objpos.x() && cursorpos.x<objpos.x()+width() &&
+	   cursorpos.y>=objpos.y() && cursorpos.y<objpos.y()+height();
+}
+
+
 Color uiObject::backgroundColor() const	
     { return mConstBody()->uibackgroundColor(); }
 
@@ -392,6 +402,10 @@ void uiObject::setBackgroundColor(const Color& col)
 
 void uiObject::setBackgroundPixmap( const ioPixmap& pm )
     { mBody()->uisetBackgroundPixmap( pm ); }
+
+
+void uiObject::setTextColor(const Color& col)
+    { mBody()->uisetTextColor(col); }
 
 
 void uiObject::setSensitive(bool yn)	

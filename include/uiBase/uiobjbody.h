@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.52 2010-04-08 12:59:25 cvsbruno Exp $
+ RCS:           $Id: uiobjbody.h,v 1.53 2010-11-18 17:16:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ public:
     Color		uibackgroundColor() const;
     void              	uisetBackgroundColor(const Color&);
     void		uisetBackgroundPixmap(const ioPixmap&);
+    void              	uisetTextColor(const Color&);
     void		uisetSensitive(bool yn=true);
     bool		uisensitive() const;
     bool		uivisible() const;
