@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.32 2010-07-14 10:03:00 cvsbruno Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.33 2010-11-18 11:44:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ protected:
     virtual void	usrClickCB(CallBacker*);
     virtual bool	handleUserClick()		{ return false; }
     
-    void		doPropertiesDialog(int vieweridx=0, bool dowva=true);
+    virtual void	doPropertiesDialog(int vieweridx=0, bool dowva=true);
     void		propDlgClosed(CallBacker*);
     virtual void	applyProperties(CallBacker* cb);
     void		saveProperties(FlatView::Viewer&);

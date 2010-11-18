@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.51 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.52 2010-11-18 11:44:28 cvsbruno Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -738,7 +738,8 @@ void uiFVAnnotPropTab::updateAuxFlds( int idx )
 uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      const CallBack& applcb,
 				      const BufferStringSet* annots,
-       				      int selannot, bool withwva )
+       				      int selannot, bool withwva, 
+				      bool withannots )
     : uiTabStackDlg(p,uiDialog::Setup("Display properties",
 				      "Specify display properties",
 				      "51.0.1"))
@@ -746,6 +747,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     , applycb_(applcb)
     , selannot_(selannot)
     , wvatab_(0)
+    , annottab_(0)	
 {
     vwr_.fillAppearancePar( initialpar_ );
 
@@ -757,8 +759,12 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 
     vdtab_ = new uiFVVDPropTab( tabParent(), vwr_ );
     addGroup( vdtab_ );
-    annottab_ = new uiFVAnnotPropTab( tabParent(), vwr_, annots );
-    addGroup( annottab_ );
+
+    if ( withannots )
+    {
+	annottab_ = new uiFVAnnotPropTab( tabParent(), vwr_, annots );
+	addGroup( annottab_ );
+    }
 
     titlefld_ = new uiGenInput( this, "Title" );
     titlefld_->attach( centeredAbove, tabObject() );
@@ -787,7 +793,8 @@ void uiFlatViewPropDlg::putAllToScreen()
     }
 
     titlefld_->setText( vwr_.appearance().annot_.title_ );
-    annottab_->setSelAnnot( selannot_ );
+    if ( annottab_ )
+	annottab_->setSelAnnot( selannot_ );
 }
 
 
@@ -818,7 +825,8 @@ bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
 	return false;
 
     vwr_.appearance().annot_.title_ = titlefld_->text();
-    selannot_ = annottab_->getSelAnnot();
+    if ( annottab_ )
+	selannot_ = annottab_->getSelAnnot();
 
     return true;
 }
