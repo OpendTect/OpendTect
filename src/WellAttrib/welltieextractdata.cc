@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.30 2010-10-15 10:32:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.31 2010-11-18 09:19:25 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -173,7 +173,7 @@ int SeismicExtractor::nextStep()
 
     const BinID curbid = bidset_[nrdone_];
     float val = 0; int nrtracesinradius = 0;
-    int prevradius = (int) 1e30;
+    int prevradius = mUdf(int);
 
     for ( int idx=0; idx<trcbuf_->size(); idx++ )
     {
@@ -184,7 +184,7 @@ int SeismicExtractor::nextStep()
 
 	if ( rdr_->is2D() )
 	{
-	    if ( ( xx0 + yy0  ) < prevradius )
+	    if ( ( xx0 + yy0  ) < prevradius || mIsUdf(prevradius) )
 	    {
 		prevradius = xx0 + yy0;
 		val = trc->get( nrdone_, 0 );
