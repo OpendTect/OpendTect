@@ -102,15 +102,8 @@ void uiWellLogDisplay::gatherInfo()
     ld2_.xax_.setup().maxnumberdigitsprecision_ = 3;
     ld2_.xax_.setup().epsaroundzero_ = 1e-5;
 
-    if ( ld1_.wl_ ) ld1_.xax_.setup().name( ld1_.wl_->name() );
-    if ( ld2_.wl_ ) ld2_.xax_.setup().name( ld2_.wl_->name() );
-
-    BufferString znm;
-    if ( zdata_.zistime_ )
-	znm += "TWT (ms)";
-    else
-	{ znm += "MD "; znm +=zdata_.dispzinft_ ? "(ft)" : "(m)"; }
-    ld1_.yax_.setup().name( znm ); ld2_.yax_.setup().name( znm );
+    if ( ld1_.wl_ ) ld1_.xax_.setName( ld1_.wl_->name() );
+    if ( ld2_.wl_ ) ld2_.xax_.setName( ld2_.wl_->name() );
 }
 
 
@@ -125,10 +118,10 @@ void uiWellLogDisplay::setAxisRelations()
     ld2_.xax_.setEnd( &ld2_.yax_ );
     ld2_.yax_.setEnd( &ld1_.xax_ );
 
-    ld1_.xax_.updateDevSize();
-    ld1_.yax_.updateDevSize();
-    ld2_.xax_.updateDevSize();
-    ld2_.yax_.updateDevSize();
+    ld1_.xax_.setNewDevSize( width(), height() );
+    ld1_.yax_.setNewDevSize( height(), width() );
+    ld2_.xax_.setNewDevSize( width(), height() );
+    ld2_.yax_.setNewDevSize( height(), width() );
 }
 
 
@@ -272,7 +265,8 @@ void uiWellLogDisplay::drawCurve( bool first )
 
     deepErase( pts );
     if ( first )
-	ld.yax_.annotAtEnd( zdata_.dispzinft_ ? "(ft)" : "(m)" );
+	ld.yax_.annotAtEnd( zdata_.zistime_ ? "(ms)" : 
+			    zdata_.dispzinft_ ? "(ft)" : "(m)" );
     if ( ld.unitmeas_ )
 	ld.xax_.annotAtEnd( BufferString("(",ld.unitmeas_->symbol(),")") );
 }
