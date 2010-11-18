@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.20 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.21 2010-11-18 17:27:53 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
@@ -93,7 +93,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
 
     uiLabel* availablelabel = new uiLabel( flowgrp, "Available steps" );
-    factorylist_ = new uiListBox( flowgrp, PS().getNames(true) );
+    factorylist_ = new uiListBox( flowgrp, factory().getNames(true) );
     factorylist_->selectionChanged.notify(
 	    mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
@@ -233,10 +233,10 @@ void uiChain::updateList()
     {
 	const char* key = chain_.getStep(idx)->type();
 	const char* username = chain_.getStep(idx)->userName();
-	const int keyidx = PS().getNames(false).indexOf( key );
+	const int keyidx = factory().getNames(false).indexOf( key );
 	const char* displayname = username
 	    ? username
-	    : PS().getNames(true)[keyidx]->buf();
+	    : factory().getNames(true)[keyidx]->buf();
 
 	if ( idx>=steplist_->size() )
 	    steplist_->addItem( displayname, false);
@@ -273,8 +273,8 @@ bool uiChain::showPropDialog( int idx )
     PtrMan<uiStepDialog> dlg = factory().create( step->type(), this, step );
     if ( !dlg )
     {
-	dlg = new uiStepDialog( this, "Name", step );
-	uiObject* uio = 0; dlg->addNameFld( uio );
+	uiMSG().error( "Internal error. Step cannot be created" );
+	return false;
     }
 
     bool ret = dlg->go();
@@ -348,7 +348,7 @@ void uiChain::addStepPush(CallBacker*)
     if ( sel == -1 )
 	return;
 
-    const char* steptype = PS().getNames(false)[sel]->buf();
+    const char* steptype = factory().getNames(false)[sel]->buf();
     Step* step = PS().create( steptype, chain_ );
     if ( !step ) return;
 
