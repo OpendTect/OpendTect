@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.13 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.14 2010-11-18 17:48:14 cvskris Exp $";
 
 
 #include "pca.h"
@@ -316,7 +316,7 @@ bool PCA::calculate()
 float PCA::getEigenValue(int idx) const { return -eigenvalues[idx]; }
 
 
-void PCA::setThreadWorker( Threads::ThreadWorkManager* nv )
+void PCA::setThreadWorker( Threads::WorkManager* nv )
 {
     threadworker = nv;
 }

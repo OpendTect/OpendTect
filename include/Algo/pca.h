@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: pca.h,v 1.10 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: pca.h,v 1.11 2010-11-18 17:48:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "trigonometry.h"
 
 template <class T> class Array2D;
-namespace Threads { class ThreadWorkManager; };
+namespace Threads { class WorkManager; };
 class SequentialTask;
 class PCACovarianceCalculator;
 
@@ -119,8 +119,7 @@ public:
 						       float* and TypeSet<T>.
 					*/
 
-    void				setThreadWorker(
-	    					Threads::ThreadWorkManager* );
+    void				setThreadWorker(Threads::WorkManager*);
     					/*!< Enables multi-threaded calculation,
 					     which is beneficial when the
 					     number of samples and/or number
@@ -141,7 +140,7 @@ protected:
     Array2DImpl<float>		covariancematrix;
     ObjectSet<TypeSet<float> >	samples;
     TypeSet<float>		samplesums;
-    Threads::ThreadWorkManager*	threadworker;
+    Threads::WorkManager*	threadworker;
     ObjectSet<SequentialTask>	tasks;
     float*			eigenvalues;
     				/*!<The negation of the eigenval,
