@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.25 2010-11-18 15:07:11 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.26 2010-11-18 17:24:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,12 +34,12 @@ The object can handle multiple queues. This is mostly intersting when you want
 to ensure that a shared resource is always accessed single threaded, but without using syncronization.
 */
 
-mClass ThreadWorkManager : public CallBacker
+mClass WorkManager : public CallBacker
 {
 public:
 				//Interface from outside world
-    				ThreadWorkManager(int nrthreads=-1);
-				~ThreadWorkManager();
+    				WorkManager(int nrthreads=-1);
+				~WorkManager();
 
     enum QueueType 		{ MultiThread, SingleThread, Manual };
     int				addQueue(QueueType type);
@@ -80,8 +80,9 @@ public:
 
     int				nrThreads() const { return threads_.size(); }
 
-    Notifier<ThreadWorkManager>	isidle;
+    Notifier<WorkManager>	isidle;
     
+    static Threads::WorkManager&	twm();
 protected:
 
     int				queueSizeNoLock(int queueid) const;

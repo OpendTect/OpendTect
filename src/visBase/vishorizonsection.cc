@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.110 2010-11-18 15:07:11 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.111 2010-11-18 17:24:50 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1197,7 +1197,7 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 	    work += tt;
 	}
 
-	ParallelTask::twm().addWork( work );
+	Threads::WorkManager::twm().addWork( work );
 	deepErase( work );
     }
   
@@ -1524,7 +1524,7 @@ void HorizonSection::setResolution( int res, TaskRunner* tr )
 	work += new TileTesselator( tileptrs[idx], res );
     }
     
-    ParallelTask::twm().addWork( work );
+    Threads::WorkManager::twm().addWork( work );
     deepErase( work );
 }
 
@@ -1657,7 +1657,7 @@ HorizonSectionTile::~HorizonSectionTile()
     tesselationqueuelock_.lock();
     for ( int idx=tesselationqueue_.size()-1; idx>=0; idx-- )
     {
-	if ( ParallelTask::twm().removeWork( tesselationqueue_[idx] ) )
+	if ( Threads::WorkManager::twm().removeWork( tesselationqueue_[idx] ) )
 	    delete tesselationqueue_.remove( idx );
     }
 
@@ -1929,8 +1929,8 @@ void HorizonSectionTile::updateAutoResolution( SoState* state )
 		 {
 		     TileTesselator* tt = new TileTesselator( this, wantedres );
 		     tesselationqueue_ += tt;
-		     ParallelTask::twm().addWork( tt, &bgfinished_, 
-			Threads::ThreadWorkManager::cDefaultQueueID(), true,
+		     Threads::WorkManager::twm().addWork( tt, &bgfinished_, 
+			Threads::WorkManager::cDefaultQueueID(), true,
 			false);
 		 }
 
@@ -1945,7 +1945,8 @@ void HorizonSectionTile::updateAutoResolution( SoState* state )
 
 void HorizonSectionTile::bgTesselationFinishCB( CallBacker* cb )
 {
-    mDynamicCastGet( const TileTesselator*, tt,ParallelTask::twm().getWork(cb));
+    mDynamicCastGet( const TileTesselator*, tt,
+	    	     Threads::WorkManager::twm().getWork(cb));
     if ( !tt )
 	return;
 

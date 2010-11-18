@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.27 2010-10-25 18:49:25 cvskris Exp $
+ RCS:		$Id: task.h,v 1.28 2010-11-18 17:24:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,7 +211,6 @@ public:
     
     od_int64		totalNr() const	{ return nrIterations(); }
 
-    static Threads::ThreadWorkManager&	twm();
 protected:
     virtual od_int64	nrIterations() const				= 0;
     			/*!<\returns the number of times the process should be

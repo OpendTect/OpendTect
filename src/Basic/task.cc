@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.24 2010-08-16 20:02:51 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.25 2010-11-18 17:24:50 cvskris Exp $";
 
 #include "task.h"
 
@@ -356,13 +356,6 @@ od_int64 ParallelTask::nrDone() const
 }
 
 
-Threads::ThreadWorkManager& ParallelTask::twm()
-{
-    static Threads::ThreadWorkManager twm_( Threads::getNrProcessors()*2 );
-    return twm_;
-}
-
-
 bool ParallelTask::execute( bool parallel )
 {
     totalnrcache_ = totalNr();
@@ -434,7 +427,7 @@ bool ParallelTask::execute( bool parallel )
 	if ( stopAllOnFailure() )
 	    enableWorkControl( true );
 
-	res = twm().addWork( tasks );
+	res = Threads::WorkManager::twm().addWork( tasks );
     }
 
     res = doFinish( res );
