@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initsood.cc,v 1.24 2010-09-10 16:18:01 cvskarthika Exp $";
+static const char* rcsID = "$Id: initsood.cc,v 1.25 2010-11-18 08:43:05 cvskarthika Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -66,7 +66,6 @@ void SoOD::initStdClasses()
     SoTextureChannelSetElement::initClass();
 
     //Then fields
-    SoMFImage::initClass();
     SoMFImagei32::initClass();
 
     //Then nodes
