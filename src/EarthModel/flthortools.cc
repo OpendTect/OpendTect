@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.29 2010-11-15 05:30:58 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.30 2010-11-18 07:18:55 raman Exp $";
 
 #include "flthortools.h"
 
@@ -481,11 +481,14 @@ FaultTraceCalc::FaultTraceCalc( EM::Fault* flt, const HorSampling& hs,
     , nrdone_(0)
     , isinl_(true)
 {
+    if ( flt )
+	flt->ref();
+
     curnr_ = hs_.start.inl;
 }
 
 FaultTraceCalc::~FaultTraceCalc()
-{ delete &hs_; }
+{ delete &hs_; if ( flt_ ) flt_->unRef(); }
 
 od_int64 FaultTraceCalc::nrDone() const
 { return nrdone_; }
