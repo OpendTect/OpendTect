@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.45 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.46 2010-11-18 09:12:58 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -391,6 +391,8 @@ void uiWellLogDispProperties::doPutToScreen()
     flipcoltabfld_->setChecked( logprops().iscoltabflipped_ );
     ovlapfld_->setValue( logprops().repeatovlap_ );
     repeatfld_->setValue( logprops().repeat_ );
+    if ( logprops().islogreverted_ ) 
+    { bool tmp; mSWAP( logprops().isleftfill_, logprops().isrightfill_, tmp ); }
     const int fidx = logprops().isleftfill_ ? logprops().isrightfill_ ? 3 : 1
 				            : logprops().isrightfill_ ? 2 : 0; 
     logfilltypefld_->box()->setCurrentItem( fidx );
@@ -434,6 +436,8 @@ void uiWellLogDispProperties::doGetFromScreen()
     const int fillidx = logfilltypefld_->box()->currentItem();
     logprops().isleftfill_ = ( fillidx == 1 || fillidx == 3 );
     logprops().isrightfill_ = ( fillidx == 2 || fillidx == 3 );
+    if ( logprops().islogreverted_ ) 
+    { bool tmp; mSWAP( logprops().isleftfill_, logprops().isrightfill_, tmp ); }
     logprops().seqname_ = coltablistfld_->text();
     logprops().iscoltabflipped_ = flipcoltabfld_->isChecked();
     logprops().repeat_ = stylefld_->getBoolValue() ? 1 : repeatfld_->getValue();
