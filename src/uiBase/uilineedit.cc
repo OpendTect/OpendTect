@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilineedit.cc,v 1.38 2010-10-22 15:22:22 cvsjaap Exp $";
+static const char* rcsID = "$Id: uilineedit.cc,v 1.39 2010-11-18 17:20:11 cvsjaap Exp $";
 
 #include "uilineedit.h"
 #include "i_qlineedit.h"
@@ -214,7 +214,7 @@ void uiLineEdit::popupVirtualKeyboard( int globalx, int globaly )
 {
     mDynamicCastGet( uiVirtualKeyboard*, virkeyboardparent, parent() );
 
-    if ( virkeyboardparent || isReadOnly() )
+    if ( virkeyboardparent || isReadOnly() || !hasFocus() )
 	return;
 
     uiVirtualKeyboard virkeyboard( *this, globalx, globaly );

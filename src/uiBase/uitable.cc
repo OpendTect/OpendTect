@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.97 2010-11-03 10:57:23 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.98 2010-11-18 17:20:11 cvsjaap Exp $";
 
 
 #include "uitable.h"
@@ -1276,7 +1276,7 @@ bool uiTable::needOfVirtualKeyboard() const
     if ( isColumnReadOnly(notifiedCell().col) )
 	return false;
 
-    return !isTableReadOnly();
+    return hasFocus() && !isTableReadOnly();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.42 2010-10-22 15:22:22 cvsjaap Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.43 2010-11-18 17:20:11 cvsjaap Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -361,6 +361,9 @@ bool uiSpinBox::handleLongTabletPress()
 
 void uiSpinBox::popupVirtualKeyboard( int globalx, int globaly )
 {
+    if ( !hasFocus() )
+	return; 
+
     uiVirtualKeyboard virkeyboard( *this, globalx, globaly );
     virkeyboard.show();
 
