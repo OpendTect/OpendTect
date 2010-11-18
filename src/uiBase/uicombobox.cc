@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.58 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.59 2010-11-18 17:18:20 cvsjaap Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -267,6 +267,10 @@ void uiComboBox::addItems( const BufferStringSet& bss )
 }
 
 
+void uiComboBox::addSeparator()
+{ body_->insertSeparator( size() ); }
+
+
 void uiComboBox::insertItem( const char* text, int index )
 {
     body_->insertItem( index, QString(text) );
@@ -308,7 +312,7 @@ bool uiComboBox::handleLongTabletPress()
 
 void uiComboBox::popupVirtualKeyboard( int globalx, int globaly )
 {
-    if ( isReadOnly() )
+    if ( isReadOnly() || !hasFocus() )
 	return;
 
     uiVirtualKeyboard virkeyboard( *this, globalx, globaly );
