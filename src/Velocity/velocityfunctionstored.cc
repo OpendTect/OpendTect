@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.10 2010-11-09 22:05:14 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.11 2010-11-19 16:56:06 cvskris Exp $";
 
 #include "velocityfunctionstored.h"
 
@@ -28,10 +28,6 @@ namespace Vel
 
 const char* StoredFunctionSource::sKeyVelocityFunction()
 { return "Velocity Function"; }
-
-
-const char* StoredFunctionSource::sKeyHasAnisotropy()
-{ return "Has Anisotropy"; }
 
 
 const char* StoredFunctionSource::sKeyZIsTime()
@@ -68,7 +64,7 @@ bool StoredFunction::moveTo( const BinID& bid )
 	return false;
 
     mDynamicCastGet( StoredFunctionSource&, source, source_ );
-    if ( !source.getVel( bid, zval_, vel_, anisotropy_ ) )
+    if ( !source.getVel( bid, zval_, vel_ ) )
 	return false;
 
     mAllocVarLenIdxArr( int, idxs, zval_.size() );
@@ -80,24 +76,11 @@ bool StoredFunction::moveTo( const BinID& bid )
     mTryAllocPtrMan( vels, float[vel_.size()] );
     if ( !vels ) return false;
 
-    ArrPtrMan<float> anisotropy;
-    mTryAllocPtrMan( anisotropy, float[anisotropy_.size()] );
-    const bool hasanisotropy = !anisotropy_.isEmpty();
-    if ( hasanisotropy && !anisotropy ) return false;
-
     for ( int idx=zval_.size()-1; idx>=0; idx-- )
-    {
 	vels[idx] = vel_[idxs[idx]];
-	if ( hasanisotropy )
-	    anisotropy[idx] = anisotropy_[idxs[idx]];
-    }
 
     for ( int idx=zval_.size()-1; idx>=0; idx-- )
-    {
 	vel_[idx] = vels[idx];
-	if ( hasanisotropy )
-	    anisotropy_[idx] = anisotropy[idx];
-    }
 
     return true;
 }
@@ -106,7 +89,6 @@ bool StoredFunction::moveTo( const BinID& bid )
 StoredFunctionSource::StoredFunctionSource()
     : zit_( SI().zIsTime() )
     , veldata_( 0, true )
-    , hasanisotropy_( false )
 {}
 
 
@@ -152,14 +134,12 @@ bool StoredFunctionSource::store( const MultiID& velid )
 	const BinID bid = veldata_.getBinID(arrpos);
 
 	const Coord3 pos( SI().transform(bid), vals[0] );
-	const Coord3 dir( vals[1],
-		hasanisotropy_ ? vals[2] : mUdf(float), mUdf(float) );
+	const Coord3 dir( vals[1], mUdf(float), mUdf(float) );
 	::Pick::Location pickloc( pos, dir );
 
 	ps += pickloc;
     }
     
-    ps.pars_.setYN( sKeyHasAnisotropy(), hasanisotropy_ );
     ps.pars_.setYN( sKeyZIsTime(), zit_ );
     desc_.fillPar( ps.pars_ );
 
@@ -193,14 +173,13 @@ bool StoredFunctionSource::load( const MultiID& velid )
     if ( !PickSetTranslator::retrieve( pickset, ioobj, false, errmsg_ ) )
 	return false;
 
-    if ( !pickset.pars_.getYN( sKeyHasAnisotropy(), hasanisotropy_ ) ||
-	 !pickset.pars_.getYN( sKeyZIsTime(), zit_ ) ||
+    if ( !pickset.pars_.getYN( sKeyZIsTime(), zit_ ) ||
 	 !desc_.usePar( pickset.pars_ ) )
 	return false;
 
     veldata_.empty();
-    veldata_.setNrVals( hasanisotropy_ ? 2 : 3, false );
-    float vals[3];
+    veldata_.setNrVals( 2, false );
+    float vals[2];
     
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
@@ -209,7 +188,6 @@ bool StoredFunctionSource::load( const MultiID& velid )
 
 	vals[0] = pspick.pos.z;
 	vals[1] = pspick.dir.radius;
-	vals[2] = pspick.dir.theta;
 
 	veldata_.add( bid, vals );
     }
@@ -256,12 +234,10 @@ FunctionSource* StoredFunctionSource::create(const MultiID& mid)
 
 
 bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<float>& zval,
-				  TypeSet<float>& vel,
-       				  TypeSet<float>& anisotropy )
+				   TypeSet<float>& vel )
 {
     zval.erase();
     vel.erase();
-    anisotropy.erase();
 
     if ( !veldata_.valid(binid) )
 	return false;
@@ -275,8 +251,6 @@ bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<float>& zval,
 	const float* vals = veldata_.getVals( pos );
 	zval += vals[0];
 	vel += vals[1];
-	if ( hasanisotropy_ )
-	    anisotropy += vals[2];
     } while ( veldata_.next(pos) );
 
     return true;

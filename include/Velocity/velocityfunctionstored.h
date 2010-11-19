@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Umesh Sinha
 Date:          Sep 2008
-RCS:           $Id: velocityfunctionstored.h,v 1.4 2010-11-09 22:05:14 cvskris Exp $
+RCS:           $Id: velocityfunctionstored.h,v 1.5 2010-11-19 16:56:06 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -43,8 +43,6 @@ protected:
     bool			zit_;
     TypeSet<float>         	zval_;
     TypeSet<float>              vel_;
-    TypeSet<float>              anisotropy_;
-
 };
 
 
@@ -66,15 +64,13 @@ public:
    
     void			getAvailablePositions(BinIDValueSet&) const;
     bool			getVel(const BinID&,TypeSet<float>& zvals,
-	                               TypeSet<float>& vel,
-				       TypeSet<float>& anisotropy);
+	                               TypeSet<float>& vel);
 
     void			setData(const BinIDValueSet&,
 	    				const VelocityDesc&,bool zit);
 
     static const char*          sKeyZIsTime();
     static const char*          sKeyVelocityFunction();
-    static const char*          sKeyHasAnisotropy();
     static const char*          sKeyVelocityType();
 
 protected:
@@ -87,7 +83,6 @@ protected:
     Threads::Mutex              readerlock_;
     bool                        zit_;
     VelocityDesc                desc_; 
-    bool			hasanisotropy_;
 };
 
 }; // namespace
