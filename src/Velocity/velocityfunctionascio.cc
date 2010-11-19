@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.7 2010-09-27 06:32:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.8 2010-11-19 16:52:43 cvskris Exp $";
 
 #include "velocityfunctionascio.h"
 
@@ -55,8 +55,6 @@ void FunctionAscIO::createDescBody( Table::FormatDesc& fd )
     fd.bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     fd.bodyinfos_ += new Table::TargetInfo( "Velocity", FloatInpSpec(),
 	   				    Table::Required );
-    fd.bodyinfos_ += new Table::TargetInfo( "Anisotropy", FloatInpSpec(),
-	   				    Table::Optional );
 }
 
 
