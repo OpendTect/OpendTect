@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: uivelocityfunctionimp.h,v 1.5 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:		$Id: uivelocityfunctionimp.h,v 1.6 2010-11-19 17:00:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ protected:
     Table::FormatDesc&	fd_;
     uiTableImpDataSel*	dataselfld_;
 
+    void		velTypeChangeCB(CallBacker*);
     void                formatSel(CallBacker*);
 
     virtual bool	acceptOK(CallBacker*);    

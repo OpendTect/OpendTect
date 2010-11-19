@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.14 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.15 2010-11-19 17:00:14 cvskris Exp $";
 
 #include "uivelocityfunctionimp.h"
 
@@ -50,6 +50,8 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     su.desc_.type_ = VelocityDesc::Interval;
     typefld_ = new uiVelocityDesc( this, &su );
     typefld_->attach( alignedBelow, inpfld_ );
+    typefld_->typeChangeNotifier().notify(
+	    mCB(this,uiImportVelFunc,velTypeChangeCB) );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, typefld_ );
@@ -67,6 +69,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     outfld_->attach( ensureBelow, sep );
 
     finaliseDone.notify( mCB(this,uiImportVelFunc,formatSel) );
+    velTypeChangeCB( 0 );
 }	
 
 
@@ -74,6 +77,16 @@ uiImportVelFunc::~uiImportVelFunc()
 {
     delete ctio_.ioobj; delete &ctio_;
     delete &fd_;
+}
+
+
+#define mVel 2
+
+void uiImportVelFunc::velTypeChangeCB( CallBacker* )
+{
+    VelocityDesc desc;
+    typefld_->get( desc, false );
+    fd_.bodyinfos_[mVel]->setName( VelocityDesc::getTypeString(desc.type_) );
 }
 
 
