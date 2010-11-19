@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.44 2010-10-28 06:01:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.45 2010-11-19 05:46:06 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -97,8 +97,7 @@ const uiSize uiObjectItem::objectSize() const
 }
 
 
-
-
+// uiEllipseItem
 uiEllipseItem::uiEllipseItem()
     : uiGraphicsItem(mkQtObj())
 {}
@@ -160,8 +159,7 @@ void uiCircleItem::setRadius( int r )
 }
 
 
-// ***** uiLineItem *****
-
+// uiLineItem
 uiLineItem::uiLineItem()
     : uiGraphicsItem(mkQtObj())
 {}
@@ -266,7 +264,7 @@ void uiLineItem::setPenStyle( const LineStyle& ls )
 }
 
 
-
+// uiPixmapItem
 uiPixmapItem::uiPixmapItem()
     : uiGraphicsItem(mkQtObj())
 {}
@@ -311,7 +309,7 @@ void uiPixmapItem::setPixmap( const ioPixmap& pixmap )
 }
 
 
-
+// uiPolygonItem
 uiPolygonItem::uiPolygonItem( QGraphicsPolygonItem* qtobj )
     : uiGraphicsItem(qtobj)
     , qpolygonitem_(qtobj)
@@ -377,6 +375,7 @@ void uiPolygonItem::setPolygon( const ODPolygon<int>& polygon )
 }
 
 
+// uiPolyLineItem
 uiPolyLineItem::uiPolyLineItem()
     : uiGraphicsItem(mkQtObj())
 {}
@@ -410,6 +409,7 @@ QGraphicsItem* uiPolyLineItem::mkQtObj()
 }
 
 
+// uiRectItem
 uiRectItem::uiRectItem()
     : uiGraphicsItem(mkQtObj())
 {}
@@ -447,6 +447,7 @@ void uiRectItem::setRect( int x, int y, int width, int height )
 }
 
 
+// uiTextItem
 uiTextItem::uiTextItem()
     : uiGraphicsItem(mkQtObj())
     , pos_(0,0)
@@ -462,7 +463,6 @@ uiTextItem::uiTextItem( const char* txt, const Alignment& al )
 {
     setText( txt );
 }
-
 
 
 uiTextItem::uiTextItem( const uiPoint& pos, const char* txt,
@@ -581,10 +581,22 @@ void uiTextItem::updatePos()
 
 
 void uiTextItem::setTextColor( const Color& col )
-{
-    qtextitem_->setDefaultTextColor( QColor(QRgb(col.rgb())) );
-}
+{ qtextitem_->setDefaultTextColor( QColor(QRgb(col.rgb())) ); }
 
+void uiTextItem::enableBackground( bool yn )
+{}
+
+bool uiTextItem::backgroundEnabled() const
+{ return false; }
+
+void uiTextItem::setBackgroundColor( const Color& col )
+{}
+
+Color uiTextItem::getBackgroundColor() const
+{ return Color(); }
+
+
+// uiMarkerItem
 uiMarkerItem::uiMarkerItem( bool fill )
     : uiGraphicsItem( mkQtObj() )
 {
@@ -643,6 +655,7 @@ void uiMarkerItem::setFillColor( const Color& col )
 }
 
 
+// uiPointItem
 uiPointItem::uiPointItem( const uiPoint& pos )
     : uiGraphicsItem(mkQtObj())
 {
@@ -667,6 +680,7 @@ QGraphicsItem* uiPointItem::mkQtObj()
 }
 
 
+// uiArrowItem
 uiArrowItem::uiArrowItem()
     : uiGraphicsItem(mkQtObj())
 {}
@@ -744,7 +758,7 @@ void uiArrowItem::update()
 }
 
 
-
+// uiCurvedItem
 uiCurvedItem::uiCurvedItem( const uiPoint& pt )
     : uiGraphicsItem(mkQtObj())
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.28 2010-04-09 10:33:50 cvsbruno Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.29 2010-11-19 05:46:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,6 +226,11 @@ public:
     void 		setText(const char*); 
     void		setHtmlText(const char*);
     void		setTextColor(const Color&);
+
+    void		enableBackground(bool);
+    bool		backgroundEnabled() const;
+    void		setBackgroundColor(const Color&);
+    Color		getBackgroundColor() const;
 
 protected:
 
