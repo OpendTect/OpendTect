@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.20 2010-09-02 11:10:10 cvsraman Exp $
+ RCS:		$Id: file.cc,v 1.21 2010-11-19 03:59:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,26 @@ bool isDirectory( const char* fnm )
     BufferString lnkfnm( fnm, ".lnk" );
     qfi.setFile( lnkfnm.buf() );
     return qfi.isDir();
+}
+
+
+const char* getCanonicalPath( const char* dir )
+{
+    static BufferString pathstr;
+    QDir qdir( dir );
+    pathstr = qdir.canonicalPath().toAscii().constData();
+    return pathstr;
+}
+
+
+const char* getRelativePath( const char* reltodir, const char* fnm )
+{
+    BufferString reltopath = getCanonicalPath( reltodir );
+    BufferString path = getCanonicalPath( fnm );
+    static BufferString relpathstr;
+    QDir qdir( reltopath.buf() );
+    relpathstr = qdir.relativeFilePath( path.buf() ).toAscii().constData();
+    return relpathstr;
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Nanne Hemstra
  Date:		January 2010
  Contents:	File utitlities
- RCS:		$Id: file.h,v 1.7 2010-09-02 11:07:21 cvsraman Exp $
+ RCS:		$Id: file.h,v 1.8 2010-11-19 03:59:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,9 @@ namespace File
     mGlobal bool	isEmpty(const char*);
     mGlobal bool	isFile(const char*);
     mGlobal bool	isDirectory(const char*);
+
+    mGlobal const char*	getCanonicalPath(const char*);
+    mGlobal const char*	getRelativePath(const char* reltodir,const char* fnm);
 
     mGlobal bool	createLink(const char* from,const char* to);
     mGlobal bool	isLink(const char*);
