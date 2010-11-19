@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.125 2010-11-04 13:47:15 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.126 2010-11-19 15:34:20 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -456,19 +456,36 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
     if ( alreadymoved_ )
 	return 1;
 
+    BinID pos = startpos;
+
     if ( inputs_.size() < 1 )
     {
-	startpos = BinID(-1,-1);
+	pos = BinID(-1,-1);
 	if ( seldata_ && seldata_->type() == Seis::Table )
 	{
 	    Seis::SelData* nonconstsd = const_cast<Seis::SelData*>(seldata_);
 	    mDynamicCastGet( Seis::TableSelData*, tabsel, nonconstsd )
 	    if ( tabsel )
-		startpos = tabsel->binidValueSet().firstPos();
+	    {
+		if ( currentbid_ == BinID(-1,-1) )
+		    pos = tabsel->binidValueSet().firstPos();
+		else
+		{
+		    BinIDValueSet::Pos oldpos =
+			tabsel->binidValueSet().findFirst( currentbid_ );
+		    if ( tabsel->binidValueSet().next( oldpos, true ) )
+			pos = tabsel->binidValueSet().getBinID( oldpos );
+		}
+
+		currentbid_ = pos;
+		alreadymoved_ = true;
+		return currentbid_ == BinID(-1,-1) ? 0 : 1;
+
+	    }
 	}
     }
     
-    bool docheck = startpos == BinID(-1,-1);
+    bool docheck = pos == BinID(-1,-1);
     
     if ( getDesc().descSet()->is2D() )
 	prevtrcnr_ = currentbid_.crl;
@@ -485,13 +502,12 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    
 	    currentbid_ = inputs_[idx]->getCurrentPosition();
 	    trcinfobid_ = inputs_[idx]->getTrcInfoBid();
-	    if ( !docheck && currentbid_ == startpos ) continue;
-	    if ( !docheck && trcinfobid_ != BinID(-1,-1) 
-		 && trcinfobid_ == startpos )
+	    if ( !docheck && currentbid_ == pos ) continue;
+	    if ( !docheck && trcinfobid_ != BinID(-1,-1) && trcinfobid_ == pos )
 		continue;
 	    
 	    needmove = true;
-	    const int res = inputs_[idx]->moveToNextTrace(startpos, firstcheck);
+	    const int res = inputs_[idx]->moveToNextTrace(pos, firstcheck);
 	    if ( res!=1 ) return res;
 
 	    if ( !inputs_[idx]->getMSCProvider() ) continue;
@@ -506,8 +522,9 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    bool allok = true;
 	    for ( int idi=0; idi<inputs_.size(); idi++)
 	    {
-		if ( inputs_[idi] && inputs_[idi]->getTrcInfoBid() != BinID(-1,-1)
-		     && inputs_[idi]->getTrcInfoBid() != startpos )
+		if ( inputs_[idi]
+		     && inputs_[idi]->getTrcInfoBid() != BinID(-1,-1)
+		     && inputs_[idi]->getTrcInfoBid() != pos )
 		{
 		    allok = false;
 		    break;
@@ -519,7 +536,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 		BinID newstart( BinID(-1,-1) );
 		computeNewStartPos( newstart );
 	
-		startpos = newstart;
+		pos = newstart;
 		firstcheck = false;
 		resetMoved();
 	    }
