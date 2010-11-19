@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.31 2010-11-18 17:24:50 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.32 2010-11-19 17:07:00 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -288,7 +288,7 @@ int Threads::WorkManager::addQueue( QueueType type )
 void Threads::WorkManager::executeQueue( int queueid )
 {
     Threads::MutexLocker lock( workloadcond_ );
-    const int queueidx = queueids_.indexOf( queueid );
+    int queueidx = queueids_.indexOf( queueid );
     if ( queueidx==-1 )
 	return;
 
@@ -320,12 +320,21 @@ void Threads::WorkManager::executeQueue( int queueid )
 	if ( !task )
 	    break;
 
-	workqueueid_[queueidx]++;
+	queueworkload_[queueidx]++;
 	lock.unLock();
+
 	task->execute();
 	if ( cb ) cb->doCall( 0 );
 	if ( manage ) delete task;
+
 	lock.lock();
+	queueidx = queueids_.indexOf( queueid );
+	if ( queueidx==-1 )
+	    break;
+
+	queueworkload_[queueidx]--;
+	if ( queueisclosing_[queueidx] && !queueworkload_[queueidx] )
+	    workloadcond_.signal( true );
     }
 }
 
