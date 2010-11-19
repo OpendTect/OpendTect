@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.26 2010-11-18 17:24:50 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.27 2010-11-19 17:14:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -88,6 +88,7 @@ protected:
     int				queueSizeNoLock(int queueid) const;
     int				reportFinishedAndAskForMore(WorkThread*,
 							    int oldqueueid );
+    inline void			reduceWorkload(int queueidx);
 
     friend class		WorkThread;
 
@@ -111,6 +112,7 @@ protected:
 
     int				freeid_;
 };
+
 
 }; // Namespace
 

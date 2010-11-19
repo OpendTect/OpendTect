@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.32 2010-11-19 17:07:00 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.33 2010-11-19 17:14:37 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -332,10 +332,16 @@ void Threads::WorkManager::executeQueue( int queueid )
 	if ( queueidx==-1 )
 	    break;
 
-	queueworkload_[queueidx]--;
-	if ( queueisclosing_[queueidx] && !queueworkload_[queueidx] )
-	    workloadcond_.signal( true );
+	reduceWorkload( queueidx );
     }
+}
+
+
+inline void Threads::WorkManager::reduceWorkload( int queueidx )
+{
+    queueworkload_[queueidx]--;
+    if ( queueisclosing_[queueidx] && !queueworkload_[queueidx] )
+	workloadcond_.signal( true );
 }
 
 
@@ -570,10 +576,7 @@ bool Threads::WorkManager::addWork( ObjectSet<SequentialTask>& work,
 int Threads::WorkManager::reportFinishedAndAskForMore(WorkThread* caller,
 							    int oldqueueid )
 {
-    const int oldqueueidx = queueids_.indexOf(oldqueueid);
-    queueworkload_[oldqueueidx]--;
-    if ( queueisclosing_[oldqueueidx] && !queueworkload_[oldqueueidx] )
-	workloadcond_.signal( true );
+    reduceWorkload( queueids_.indexOf(oldqueueid) );
 
     int sz = workload_.size();
     for ( int idx=0; idx<sz; idx++ )
