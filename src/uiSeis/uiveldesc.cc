@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.51 2010-10-11 21:39:07 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.52 2010-11-19 16:55:32 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -69,6 +69,10 @@ void uiVelocityDesc::updateFlds( CallBacker* )
     hasstaticsfld_->display( true );
     staticsfld_->display( hasstaticsfld_->getBoolValue() );
 }
+
+
+NotifierAccess& uiVelocityDesc::typeChangeNotifier() 
+{ return typefld_->valuechanged; }
 
 
 void uiVelocityDesc::set( const VelocityDesc& desc )

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.21 2010-07-08 18:41:30 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.22 2010-11-19 16:55:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,8 @@ public:
     bool			get(VelocityDesc&,bool displayerrors) const;
     void			set(const VelocityDesc&);
     bool			updateAndCommit(IOObj&,bool displayerrors);
+
+    NotifierAccess&		typeChangeNotifier();
 
 protected:
 
