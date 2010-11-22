@@ -22,5 +22,7 @@ proc3:	Proc 3 (2 x 2.2 GHz) Linux 32-bits
 proc4:	Proc 4 (2 x 2.2 GHz) Linux 32-bits
 proc5:	Proc 5 (2 x 2.2 GHz) Linux 32-bits
 -- Format (on Windows) is:
--- real_hostname: name_in_user_displays [: platform] [: appl pref] [:data pref]
-dgb102:	Windows development Machine : win : c;\dgb\work
+-- real_hostname: name_in_user_displays [: platform] [:data pref ] [:appl pref( not used)]
+192.168.4.102:	Windows 64 development Machine : win : S;\Surveys
+-- Format on Linux
+192.168.4.10: 32 bit Linux Machine: lux32 : /dsk/d2/MMsurveys
