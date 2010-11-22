@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.19 2010-10-06 20:14:03 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.20 2010-11-22 14:48:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "veldesc.h"
 #include "keystrs.h"
+#include "factory.h"
 
 template <class T> class ValueSeries;
 
@@ -130,9 +131,36 @@ public:
 	    		       int,const float*,float*);
 };
 
+/*!Converts a number of layers with Vrms to interval velocities.
+   Note that the times in t refers to the bottom of each layer, and t0
+   has the start time of the top layer. */
+
+mGlobal bool computeDix(const float* Vrms, float t0, float v0, const float* t,
+			int nrlayers, float* Vint);
+
+mClass Vrms2Vint
+{
+public:
+			mDefineFactoryInClass( Vrms2Vint, factory );
+
+    virtual bool	compute(const float* Vrms, float t0, float v0,
+	    			const float* t, int nrlayers, float* Vint) = 0;
+};
+
+mClass DixConversion : public Vrms2Vint
+{
+public:
+		mDefaultFactoryInstantiation( Vrms2Vint, DixConversion, "Dix",
+					      sFactoryKeyword() );
+    bool	compute(const float* Vrms, float t0, float v0,
+	    		const float* t, int nrlayers, float* Vint)
+		{ return computeDix( Vrms, t0, v0, t, nrlayers, Vint ); }
+};
+
+
 
 /*!Converts a series of Vrms to Vint. Vrms may contain undefined values, as
-   long as at least one is define. */
+   long as at least one is defined. */
 
 mGlobal bool computeDix(const float* Vrms,const SamplingData<double>& sd,
 			int nrvels,float* Vint);
@@ -173,11 +201,21 @@ mGlobal bool sampleVint(const float* Vint,const float* t_in, int nr_in,
 			const SamplingData<double>& sd_out, float* Vout,
 			int nr_out);
 /*!Given a residual moveout at a reference offset, comput the residual moveout
- *    at other offsets */
+   at other offsets */
 
 mGlobal void computeResidualMoveouts( float z0, float rmo, float refoffset,
 				      int nroffsets, bool outputdepth,
 				      const float* offsets, float* output );
+
+/*!Given a layered V_int model (in time or depth), compute the best fit for a
+   V_int = V_0 + gradient * (z-reference_z). The fit is such that the time/depth
+   pairs at the layer's boundary will be preserved. */
+
+mGlobal void fitLinearVelocity( const float* Vint, const float* z_in, int nr_in,
+			      const Interval<float>& zlayer, float reference_z,
+			      bool zisdepth, float& V_0, float& gradient,
+			      float& error);
+
 
 	        
 	        
