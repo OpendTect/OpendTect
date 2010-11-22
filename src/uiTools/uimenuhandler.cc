@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenuhandler.cc,v 1.18 2010-11-22 05:56:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.19 2010-11-22 08:57:14 cvsnanne Exp $";
 
 
 #include "uimenuhandler.h"
@@ -141,6 +141,16 @@ uiTreeItemTBHandler::uiTreeItemTBHandler( uiParent* uiparent )
 {
     tb_ = new uiToolBar( uiparent, "Item tools" );
     tb_->buttonClicked.notify( mCB(this,uiTreeItemTBHandler,butClickCB) );
+    handleEmpty();
+}
+
+
+void uiTreeItemTBHandler::handleEmpty()
+{
+    if ( nrItems() > 0 )
+	return;
+
+    tb_->addButton( "base_icon.png", "Treeitem Toolbar", CallBack() );
 }
 
 
@@ -152,8 +162,7 @@ void uiTreeItemTBHandler::addButtons()
     for ( int idx=0; idx<nrItems(); idx++ )
 	tb_->addButton( *getItem(idx) );
 
-    if ( nrItems() == 0 )
-	tb_->addButton( "contexthelp.png", "Dummy", CallBack() );
+    handleEmpty();
 }
 
 
