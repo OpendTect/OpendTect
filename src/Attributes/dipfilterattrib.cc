@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.30 2010-10-12 10:30:19 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.31 2010-11-22 18:30:55 cvshelene Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -301,9 +301,6 @@ bool DipFilter::initKernel()
 	}
     }
 
-    mPointerOperation( float, kernel_.getData(), /=kernelsum,
-	    kernel_.info().getTotalSz(), ++ );
-
     return true;
 }
 
@@ -371,7 +368,7 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 		    if ( dhinterval.includes(s+z0) && 
 			 s+z0-dh->z0_<dh->nrsamples_ )
 		    {
-			sum += getInputValue( *dh, dataidx_, s, z0 ) *
+			sum += getInputValue( *dh, dataidx_, idx, z0 ) *
 			       kernel_.get( idi, idc, idt );
 			nrvalues++;
 		    }
