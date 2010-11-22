@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.24 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.25 2010-11-22 05:52:14 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -181,6 +181,8 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.wellserv_->importMarkers();
 	    else if ( opt == 3 )
 		am_.wellattrserv_->importSEGYVSP();
+	    else if ( opt == 4 )
+		am_.wellserv_->createSimpleWells();
 
 	break;
 	mCase(Man):	am_.wellserv_->manageWells();	break;

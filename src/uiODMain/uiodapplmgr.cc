@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.396 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.397 2010-11-22 05:52:14 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -908,11 +908,9 @@ bool uiODApplMgr::handleWellServEv( int evid )
 	const int sceneid = sceneMgr().askSelectScene();
 	if ( sceneid<0 ) return false;
 
-/* Enable when createdWellIDs implemented in wellpartserver
 	const BufferStringSet& wellids = wellserv_->createdWellIDs();
 	for ( int idx=0; idx<wellids.size(); idx++ )
 	    sceneMgr().addWellItem( MultiID(wellids.get(idx)), sceneid );
-*/
     }
 
     return true;
