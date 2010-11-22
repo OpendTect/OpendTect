@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.215 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.216 2010-11-22 05:56:50 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -90,7 +90,6 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , lasthrot_(0), lastvrot_(0), lastdval_(0)
     , tifs_(new uiTreeFactorySet)
     , wingrabber_(new uiWindowGrabber(a))
-    , toolbarhandler_(*new uiTreeItemTBHandler(a))
     , activeSceneChanged(this)
     , sceneClosed(this)
     , treeToBeAdded(this)
@@ -157,7 +156,6 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     zoomslider_->setStretch( 0, 0 );
     zoomslider_->attach( rightAlignedBelow, mdiarea_ );
 
-    toolbarhandler_.ref();
     leftgrp->attach( leftOf, mdiarea_ );
     appl_.finaliseDone.notify( mCB(this,uiODSceneMgr,afterFinalise) );
 }
@@ -169,7 +167,6 @@ uiODSceneMgr::~uiODSceneMgr()
     delete tifs_;
     delete mdiarea_;
     delete wingrabber_;
-    toolbarhandler_.unRef();
 }
 
 
@@ -208,7 +205,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 {
     Scene& scn = mkNewScene();
     const int sceneid = visServ().addScene();
-    
+
     scn.sovwr_->setSceneID( sceneid );
     BufferString title( scenestr );
     title += vwridx_;
@@ -794,7 +791,6 @@ void uiODSceneMgr::setActiveScene( const char* scenenm )
 void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 {
     BufferString capt( "Tree scene " ); capt += vwridx;
-
     scn.dw_ = new uiDockWin( &appl_, capt );
     scn.dw_->setMinimumWidth( 200 );
     scn.lv_ = new uiListView( scn.dw_, capt );
@@ -890,14 +886,10 @@ void uiODSceneMgr::setItemInfo( int id )
 }
 
 
-MenuHandler& uiODSceneMgr::getToolBarHandler()
-{ return toolbarhandler_; }
-
-
 void uiODSceneMgr::updateItemToolbar( int id )
 {
-    toolbarhandler_.setMenuID( id );
-    toolbarhandler_.addButtons();
+    visServ().getToolBarHandler()->setMenuID( id );
+    visServ().getToolBarHandler()->executeMenu(); // addButtons
 }
 
 

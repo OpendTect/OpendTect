@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.456 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.457 2010-11-22 05:56:50 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -93,7 +93,8 @@ static const int cResolutionIdx = 500;
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , menu_( *new uiMenuHandler(appserv().parent(),-1) )
+    , menu_(*new uiMenuHandler(appserv().parent(),-1))
+    , toolbar_(*new uiTreeItemTBHandler(appserv().parent()))
     , resetmanipmnuitem_("R&eset Manipulation",cResetManipIdx)
     , changematerialmnuitem_("&Properties ...",cPropertiesIdx)
     , resmnuitem_("&Resolution",cResolutionIdx)
@@ -128,6 +129,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
     menu_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
 
+    toolbar_.ref();
+
     visBase::DM().selMan().selnotifier.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
     visBase::DM().selMan().deselnotifier.notify( 
@@ -156,6 +159,7 @@ uiVisPartServer::~uiVisPartServer()
     delete &eventmutex_;
     delete mpetools_;
     menu_.unRef();
+    toolbar_.unRef();
     pickretriever_->unRef();
     delete multirgeditwin_;
 
@@ -326,6 +330,9 @@ bool uiVisPartServer::showMenu( int id, int menutype, const TypeSet<int>* path,
 
 MenuHandler* uiVisPartServer::getMenuHandler()
 { return &menu_; }
+
+MenuHandler* uiVisPartServer::getToolBarHandler()
+{ return &toolbar_; }
 
 
 void uiVisPartServer::shareObject( int sceneid, int id )

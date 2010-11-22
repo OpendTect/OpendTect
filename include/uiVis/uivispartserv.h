@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.262 2010-08-04 13:30:46 cvsbert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.263 2010-11-22 05:56:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ class uiMultiMapperRangeEditWin;
 class uiPopupMenu;
 class uiSlicePos3DDisp;
 class uiToolBar;
+class uiTreeItemTBHandler;
 class uiVisModeMgr;
 class uiVisPickRetriever;
 class uiDirLightDlg;
@@ -187,6 +188,7 @@ public:
 			*/
 
     MenuHandler*	getMenuHandler();
+    MenuHandler*	getToolBarHandler();
 
     MultiID		getMultiID(int) const;
 	
@@ -406,6 +408,7 @@ protected:
     ObjectSet<visSurvey::Scene>	scenes_;
 
     uiMenuHandler&		menu_;
+    uiTreeItemTBHandler&	toolbar_;
 
     uiMPEMan*			mpetools_;
     uiSlicePos3DDisp*		slicepostools_;

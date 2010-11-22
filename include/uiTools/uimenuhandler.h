@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.h,v 1.8 2010-07-06 15:54:49 cvsnanne Exp $
+ RCS:           $Id: uimenuhandler.h,v 1.9 2010-11-22 05:56:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ public:
     				uiTreeItemTBHandler(uiParent*);
 
     void			addButtons();
-    bool			executeMenu()	{ return true; }
+    bool			executeMenu()	{ addButtons(); return true; }
 
 protected:
 

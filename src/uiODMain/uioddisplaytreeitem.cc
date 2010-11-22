@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.44 2010-11-17 11:20:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.45 2010-11-22 05:56:50 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -88,9 +88,12 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 	menu->handlenotifier.remove(mCB(this,uiODDisplayTreeItem,handleMenuCB));
     }
 
-    MenuHandler& tb = ODMainWin()->sceneMgr().getToolBarHandler();
-    tb.createnotifier.remove( mCB(this,uiODDisplayTreeItem,addToToolBarCB) );
-    tb.handlenotifier.remove( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
+    MenuHandler* tb = visserv_->getToolBarHandler();
+    if ( tb )
+    {
+	tb->createnotifier.remove(mCB(this,uiODDisplayTreeItem,addToToolBarCB));
+	tb->handlenotifier.remove( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
+    }
 
     ODMainWin()->viewer2DMgr().remove2DViewer( displayid_ );
 }
@@ -158,9 +161,9 @@ bool uiODDisplayTreeItem::init()
     menu->createnotifier.notify( mCB(this,uiODDisplayTreeItem,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
 
-    MenuHandler& tb = ODMainWin()->sceneMgr().getToolBarHandler();
-    tb.createnotifier.notify( mCB(this,uiODDisplayTreeItem,addToToolBarCB) );
-    tb.handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
+    MenuHandler* tb = visserv_->getToolBarHandler();
+    tb->createnotifier.notify( mCB(this,uiODDisplayTreeItem,addToToolBarCB) );
+    tb->handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
 
     return true;
 }

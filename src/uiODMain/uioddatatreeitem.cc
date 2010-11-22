@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.57 2010-09-15 04:19:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.58 2010-11-22 05:56:50 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -67,9 +67,10 @@ uiODDataTreeItem::~uiODDataTreeItem()
 	menu_->unRef();
     }
 
-    MenuHandler& tb = ODMainWin()->sceneMgr().getToolBarHandler();
-    tb.createnotifier.remove( mCB(this,uiODDataTreeItem,addToToolBarCB) );
-    tb.handlenotifier.remove( mCB(this,uiODDataTreeItem,handleMenuCB) );
+    uiVisPartServer* visserv = applMgr()->visServer();
+    MenuHandler* tb = visserv->getToolBarHandler();
+    tb->createnotifier.remove( mCB(this,uiODDataTreeItem,addToToolBarCB) );
+    tb->handlenotifier.remove( mCB(this,uiODDataTreeItem,handleMenuCB) );
 }
 
 /*
@@ -109,16 +110,16 @@ uiODApplMgr* uiODDataTreeItem::applMgr() const
 bool uiODDataTreeItem::init()
 {
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( visserv->canHaveMultipleAttribs( displayID() ) )
+    if ( visserv->canHaveMultipleAttribs(displayID()) )
     {
 	getItem()->stateChanged.notify( mCB(this,uiODDataTreeItem,checkCB) );
 	uilistviewitem_->setChecked( visserv->isAttribEnabled(displayID(),
 		    		     attribNr() ) );
     }
 
-    MenuHandler& tb = ODMainWin()->sceneMgr().getToolBarHandler();
-    tb.createnotifier.notify( mCB(this,uiODDataTreeItem,addToToolBarCB) );
-    tb.handlenotifier.notify( mCB(this,uiODDataTreeItem,handleMenuCB) );
+    MenuHandler* tb = visserv->getToolBarHandler();
+    tb->createnotifier.notify( mCB(this,uiODDataTreeItem,addToToolBarCB) );
+    tb->handlenotifier.notify( mCB(this,uiODDataTreeItem,handleMenuCB) );
 
     return uiTreeItem::init();
 }

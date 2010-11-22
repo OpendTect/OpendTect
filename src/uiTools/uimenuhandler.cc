@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenuhandler.cc,v 1.17 2010-07-06 15:54:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.18 2010-11-22 05:56:50 cvsnanne Exp $";
 
 
 #include "uimenuhandler.h"
@@ -151,7 +151,11 @@ void uiTreeItemTBHandler::addButtons()
     createnotifier.trigger();
     for ( int idx=0; idx<nrItems(); idx++ )
 	tb_->addButton( *getItem(idx) );
+
+    if ( nrItems() == 0 )
+	tb_->addButton( "contexthelp.png", "Dummy", CallBack() );
 }
+
 
 void uiTreeItemTBHandler::butClickCB( CallBacker* cb )
 {
