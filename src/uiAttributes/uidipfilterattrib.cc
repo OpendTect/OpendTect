@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidipfilterattrib.cc,v 1.23 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uidipfilterattrib.cc,v 1.24 2010-11-22 18:28:28 cvshelene Exp $";
 
 #include "uidipfilterattrib.h"
 #include "dipfilterattrib.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uidipfilterattrib.cc,v 1.23 2010-04-20 18:09:13
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribfactory.h"
+#include "survinfo.h"
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
@@ -160,4 +161,14 @@ bool uiDipFilterAttrib::getInput( Desc& desc )
 void uiDipFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( filterszstr(), DipFilter::sizeStr() );
+
+    int val = fltrtpfld->getIntValue();
+    bool mode0 = ( val==1 || val==2 );
+    bool mode1 = ( !val || val==2 );
+    if ( mode0 )
+	params += EvalParam( SI().zIsTime() ? "Minimum velocity" :"Minimum dip",
+			     DipFilter::minvelStr() );
+    if ( mode1 )
+	params += EvalParam( SI().zIsTime() ? "Maximum velocity" :"Maximum dip",
+			     DipFilter::maxvelStr() );
 }
