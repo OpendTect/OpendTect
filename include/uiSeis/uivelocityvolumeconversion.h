@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2008
- RCS:		$Id: uivelocityvolumeconversion.h,v 1.2 2009-12-14 05:24:10 cvsranojay Exp $
+ RCS:		$Id: uivelocityvolumeconversion.h,v 1.3 2010-11-22 17:07:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class CtxtIOObj;
 class uiVelSel;
 class uiSeisSel;
 class uiPosSubSel;
+class uiLabeledComboBox;
 
 namespace Vel
 {
@@ -28,7 +29,7 @@ namespace Vel
 mClass uiBatchVolumeConversion : public uiFullBatchDialog
 {
 public:
-    		uiBatchVolumeConversion(uiParent*);
+			uiBatchVolumeConversion(uiParent*);
 
 protected:
 
@@ -38,6 +39,7 @@ protected:
 
     uiVelSel*		input_;
     uiPosSubSel*	possubsel_;
+    uiLabeledComboBox*	outputveltype_;
     uiSeisSel*		outputsel_;
 };
 
