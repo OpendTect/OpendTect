@@ -7,23 +7,25 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.38 2010-11-09 05:33:28 cvsnanne Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.39 2010-11-22 05:41:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
+#include "bufstringset.h"
 
-class MultiID;
 class Coord3;
 class Coord;
 class Color;
 template <class T> class Interval;
+class MultiID;
+namespace Well { class Data; class LogDisplayParSet; }
+
 class uiWell2RandomLineDlg;
 class uiWellDispPropDlg;
 class uiD2TModelGen;
 class uiD2TMLogSelDlg;
-namespace Well { class Data; class LogDisplayParSet; }
 
 /*! \brief Part Server for Wells */
 
@@ -59,6 +61,9 @@ public:
     void			setPreviewIds( const TypeSet<int>& ids )
 				{ previewids_ = ids; }
     TypeSet<int>&		getPreviewIds() 	{ return previewids_; }
+
+    void			createSimpleWells();
+    const BufferStringSet&	createdWellIDs()	{ return crwellids_; }
     
     void			createWellFromPicks();
     const char*			askWellName();
@@ -82,6 +87,8 @@ protected:
     uiD2TMLogSelDlg*		uid2tmlogseldlg_;
     TypeSet<int>		previewids_;
 
+    BufferStringSet		crwellids_; // for uiSimpleMultiWellCreate
+
     int				cursceneid_;
     bool			disponcreation_;
     const char*			multiid_;
@@ -89,15 +96,15 @@ protected:
     bool			isdisppropopened_;
 
     void			saveWellDispProps(const Well::Data*);
-    void			saveWellDispProps(const Well::Data&,const MultiID&);
+    void			saveWellDispProps(const Well::Data&,
+						  const MultiID&);
     void			applyAll(CallBacker*);
+    void			simpImp(CallBacker*);
 };
 
 /*!\mainpage Well User Interface
 
-  Apart 
- 
-  rom nice visualisation import and management of well data must be
+  Apart from nice visualisation, import and management of well data must be
   done. The uiWellPartServer delivers the services needed.
 */
 

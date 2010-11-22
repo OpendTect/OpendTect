@@ -7,12 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.56 2010-11-09 05:33:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.57 2010-11-22 05:41:20 cvsnanne Exp $";
 
 
 #include "uiwellpartserv.h"
-#include "uiwellimpasc.h"
-#include "uiwellman.h"
+
 #include "welltransl.h"
 #include "wellman.h"
 #include "welldata.h"
@@ -22,18 +21,24 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.56 2010-11-09 05:33:28 cv
 #include "welldisp.h"
 #include "welllogset.h"
 #include "wellwriter.h"
+
+#include "uiioobjsel.h"
+#include "uimsg.h"
+#include "uisimplemultiwell.h"
+#include "uitoolbutton.h"
 #include "uiwellrdmlinedlg.h"
 #include "uiwelldisplay.h"
 #include "uiwelldisppropdlg.h"
-#include "multiid.h"
-#include "ioobj.h"
-#include "ctxtioobj.h"
-#include "uiioobjsel.h"
-#include "uimsg.h"
 #include "uiwelldlgs.h"
-#include "ptrman.h"
+#include "uiwellimpasc.h"
+#include "uiwellman.h"
+
 #include "color.h"
+#include "ctxtioobj.h"
 #include "errh.h"
+#include "ioobj.h"
+#include "multiid.h"
+#include "ptrman.h"
 #include "survinfo.h"
 
 
@@ -202,7 +207,27 @@ bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 void uiWellPartServer::manageWells()
 {
     uiWellMan dlg( parent() );
+    uiToolButton* tb = new uiToolButton( dlg.listGroup(), "multisimplewell.png",
+					 "Create multiple simple wells",
+					 mCB(this,uiWellPartServer,simpImp) );
+    dlg.addTool( tb );
     dlg.go();
+}
+
+
+void uiWellPartServer::simpImp( CallBacker* )
+{ createSimpleWells(); }
+
+
+void uiWellPartServer::createSimpleWells()
+{
+    uiSimpleMultiWellCreate dlg( parent() );
+    if ( !dlg.go() )
+	return;
+
+    crwellids_ = dlg.createdWellIDs();
+    if ( dlg.wantDisplay() )
+	sendEvent( evDisplayWell() );
 }
 
 
