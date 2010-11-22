@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.45 2010-11-22 05:56:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.46 2010-11-22 06:39:48 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -76,6 +76,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
 {
     removemnuitem_.iconfnm = "stop.png";
     displyhistgram_.iconfnm = "histogram.png";
+    lockmnuitem_.iconfnm = "lock_small.png";
 }
 
 
@@ -189,6 +190,9 @@ void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
 	pixmap = new ioPixmap();
 
     uilistviewitem_->setPixmap( 0, *pixmap );
+
+    lockmnuitem_.text = getLockMenuText(); 
+    lockmnuitem_.iconfnm = islocked ? "unlock.png" : "lock_small.png";
 }
 
 
@@ -273,6 +277,7 @@ void uiODDisplayTreeItem::addToToolBarCB( CallBacker* cb )
     else
 	mResetMenuItem( &displyhistgram_ );
 
+    mAddMenuItem( tb, &lockmnuitem_, true, false );
     mAddMenuItem( tb, &removemnuitem_, !visserv_->isLocked(displayid_),false);
 }
 
@@ -301,7 +306,6 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &displyhistgram_ );
     }
 
-    lockmnuitem_.text = getLockMenuText(); 
     mAddMenuItem( menu, &lockmnuitem_, true, false );
     if ( visserv_->canHaveMultipleAttribs(displayid_) )
     { mAddMenuItem( menu, &linkmnuitem_, true, false ); }
