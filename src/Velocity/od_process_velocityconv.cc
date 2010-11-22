@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_velocityconv.cc,v 1.3 2010-07-28 08:12:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_process_velocityconv.cc,v 1.4 2010-11-22 17:10:27 cvskris Exp $";
 
 #include "batchprog.h"
 #include "velocityvolumeconversion.h"
@@ -14,8 +14,6 @@ static const char* rcsID = "$Id: od_process_velocityconv.cc,v 1.3 2010-07-28 08:
 #include "ioobj.h"
 #include "multiid.h"
 #include "progressmeter.h"
-//#include "seiszaxisstretcher.h"
-//#include "timedepthconv.h"
 
 #include "prog.h"
 
