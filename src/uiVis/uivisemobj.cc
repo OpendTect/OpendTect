@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.89 2009-12-03 06:19:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.90 2010-11-22 09:10:26 cvsnanne Exp $";
 
 #include "uivisemobj.h"
 
@@ -194,6 +194,13 @@ uiVisEMObject::~uiVisEMObject()
 	menu->handlenotifier.remove( mCB(this,uiVisEMObject,handleMenuCB) );
     }
 
+    MenuHandler* tb = visserv_->getToolBarHandler();
+    if ( tb )
+    {
+	tb->createnotifier.remove( mCB(this,uiVisEMObject,addToToolBarCB) );
+	tb->handlenotifier.remove( mCB(this,uiVisEMObject,handleMenuCB) );
+    }
+
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( emod && emod->getEditor() )
     {
@@ -256,6 +263,11 @@ void uiVisEMObject::setUpConnections()
     MenuHandler* menu = visserv_->getMenuHandler();
     menu->createnotifier.notify( mCB(this,uiVisEMObject,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiVisEMObject,handleMenuCB) );
+
+    MenuHandler* tbmenu = visserv_->getToolBarHandler();
+    tbmenu->createnotifier.notify( mCB(this,uiVisEMObject,addToToolBarCB) );
+    tbmenu->handlenotifier.notify( mCB(this,uiVisEMObject,handleMenuCB) );
+
     nodemenu_.createnotifier.notify( mCB(this,uiVisEMObject,createNodeMenuCB) );
     nodemenu_.handlenotifier.notify( mCB(this,uiVisEMObject,handleNodeMenuCB) );
     interactionlinemenu_.createnotifier.notify(
@@ -447,6 +459,11 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 #else
     mResetMenuItem( &removesectionmnuitem_ );
 #endif
+}
+
+
+void uiVisEMObject::addToToolBarCB( CallBacker* cb )
+{
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.30 2009-12-03 06:19:57 cvsnanne Exp $
+ RCS:		$Id: uivisemobj.h,v 1.31 2010-11-22 09:10:26 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -59,6 +59,7 @@ public:
 protected:
     void		setUpConnections();
     void		connectEditor();
+    void		addToToolBarCB(CallBacker*);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
@@ -76,7 +77,6 @@ protected:
 
     visSurvey::EMObjectDisplay*		getDisplay();
     const visSurvey::EMObjectDisplay*	getDisplay() const;
-
 
 
     uiParent*		uiparent_;
