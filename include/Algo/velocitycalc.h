@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.20 2010-11-22 14:48:55 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.21 2010-11-23 19:15:00 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,9 +48,14 @@ public:
 	    			   const SamplingData<double>& depthsamp) const;
 
     static bool		calcDepths(const ValueSeries<float>& vels, int velsz,
-	    			   const SamplingData<double>&, float* depths );
+	    			   const SamplingData<double>&,float* depths);
+    static bool		calcDepths(const ValueSeries<float>& vels, int velsz,
+	    			   const ValueSeries<float>& times,
+				   float* depths); 
+    static bool		calcTimes(const ValueSeries<float>& vels,int velsz,
+	    			  const ValueSeries<float>& depth,float* times);
     static bool		calcTimes(const ValueSeries<float>& vels, int velsz,
-	    			   const SamplingData<double>&, float* depths );
+	    			   const SamplingData<double>&, float* times);
 protected:
 
     float			firstvel_;
@@ -210,13 +215,10 @@ mGlobal void computeResidualMoveouts( float z0, float rmo, float refoffset,
 /*!Given a layered V_int model (in time or depth), compute the best fit for a
    V_int = V_0 + gradient * (z-reference_z). The fit is such that the time/depth
    pairs at the layer's boundary will be preserved. */
-
-mGlobal void fitLinearVelocity( const float* Vint, const float* z_in, int nr_in,
+mGlobal bool fitLinearVelocity( const float* Vint, const float* z_in, int nr_in,
 			      const Interval<float>& zlayer, float reference_z,
 			      bool zisdepth, float& V_0, float& gradient,
 			      float& error);
-
-
 	        
 	        
 #endif

@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.27 2010-10-06 20:14:03 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.28 2010-11-23 19:15:00 cvsyuancheng Exp $";
 
 #include "velocitycalc.h"
 
@@ -354,8 +354,21 @@ Time(ms) Vel(m/s) Samplespan (ms)	Depth (m)
 \endcode
 */
 
+bool TimeDepthConverter::calcDepths( const ValueSeries<float>& vels, int velsz,
+				     const SamplingData<double>& sd,
+				     float* depths )
+{
+    ArrayValueSeries<float,float> times( velsz );
+    float* timesptr = times.arr();
+    for ( int idx=0; idx<velsz; idx++, timesptr++ )
+	*timesptr = sd.atIndex( idx );
+
+    return calcDepths( vels, velsz, times, depths );
+}
+
+
 bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
-				    const SamplingData<double>& sd,
+				    const ValueSeries<float>& times,
 				    float* depths )
 {
     if ( !velsz ) return true;
@@ -375,7 +388,7 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
     if ( startidx==-1 )
 	return false;
 
-    double depth = (sd.start+startidx*sd.step)*prevvel/2;
+    double depth = times.value(startidx) * prevvel / 2;
     depths[startidx] = depth;
 
     for ( int idx=startidx+1; idx<velsz; idx++ )
@@ -384,7 +397,7 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 	if ( mIsUdf(curvel) )
 	    curvel = prevvel;
 
-	depth += sd.step*curvel/2; //time is TWT
+	depth += (times.value(idx)-times.value(idx-1))*curvel/2; //time is TWT
 
 	depths[idx] = depth;
 	prevvel = curvel;
@@ -413,6 +426,19 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 				    const SamplingData<double>& sd,
 				    float* times )
 {
+    ArrayValueSeries<float,float> depths( velsz );
+    float* depthsptr = depths.arr();
+    for ( int idx=0; idx<velsz; idx++, depthsptr++ )
+	*depthsptr = sd.atIndex( idx );
+
+    return calcTimes( vels, velsz, depths, times );
+}
+
+
+bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
+				    const ValueSeries<float>& depths,
+				    float* times )
+{
     if ( !velsz ) return true;
 
     float prevvel;
@@ -430,21 +456,21 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
     if ( startidx==-1 )
 	return false;
 
-    double time = 
-	mIsZero(prevvel,1e-8) ? 0 : (sd.start + sd.step*startidx) / prevvel;
+    double time = mIsZero(prevvel,1e-8) ? 0 : depths.value(startidx) / prevvel;
     times[startidx] = time;
 
     for ( int idx=startidx+1; idx<velsz; idx++ )
     {
 	float curvel = vels.value( idx );
+	const double depth = depths.value(idx) - depths.value(idx-1);
 	if ( mIsUdf(curvel) )
 	{
 	    curvel = prevvel;
 	    if ( curvel>0 )
-		time += sd.step*2/curvel;
+		time += depth*2/curvel;
 	}
 	else
-    	    time += sd.step*2/curvel; //time is TWT
+    	    time += depth*2/curvel; //time is TWT
 
 	times[idx] = time;
 	prevvel = curvel;
@@ -818,4 +844,177 @@ void computeResidualMoveouts( float z0, float rmo, float refoffset,
 	if ( outputdepth )
 	    *output += z0;
     }
+}
+
+bool fitLinearVelocity( const float* vint, const float* zin, int nr, 
+	const Interval<float>& zlayer, float refz, bool zisdepth, 
+	float& v0, float& gradient,  float& error )
+{
+    if ( nr < 2 )
+	return false;
+
+    mAllocVarLenArr( float, tmp, nr );
+    if ( !tmp ) return false;
+
+    ArrayValueSeries<float,float> inputvels( (float*)vint, false, nr );
+    ArrayValueSeries<float,float> inputzs( (float*)zin, false, nr );
+    if ( zisdepth )
+    {
+	TimeDepthConverter::calcTimes( inputvels, nr, inputzs, tmp );
+    }
+    else
+    {
+    	TimeDepthConverter::calcDepths( inputvels, nr, inputzs, tmp );
+    }
+
+    const float* depths = zisdepth ? zin : tmp;
+    const float* times = zisdepth ? tmp : zin;
+
+    // Get boundary pairs
+    float d[2], t[2], vt[2];
+    for ( int idx=0; idx<2; idx++ )
+    {
+	if ( zisdepth )
+	{
+	    d[idx] = !idx ? zlayer.start : zlayer.stop;
+	    if ( d[idx] <= depths[0] )
+	    {
+		for ( int idy=0; idy<nr; idy++ )
+		{
+		    if ( mIsUdf(vint[idy]) ) continue;
+	    	    t[idx] = times[idy] - ( depths[idy] - d[idx] ) / vint[idy];
+		    vt[idx] = vint[idy];
+		    break;
+		}
+	    }
+	    else if ( d[idx] >= depths[nr-1] )
+	    {
+		for ( int idy=nr-1; idy>=0; idy-- )
+		{                   
+		    if ( mIsUdf(vint[idy]) ) continue;
+		    t[idx] = times[idy] + ( d[idx] - depths[idy] ) / vint[idy];
+		    vt[idx] = vint[idy];
+		    break;
+    		}
+	    }
+	    else
+	    {
+		for ( int idy=0; idy<nr-1; idy++ )
+		{
+		    if ( depths[idy] <= d[idx] && d[idx] <= depths[idy+1] )
+		    {
+			t[idx] = times[idy] + (times[idy+1] - times[idy]) /
+			    (depths[idy+1]-depths[idy]) * (d[idx]-depths[idy]);
+			vt[idx] = vint[idy];
+			break;
+		    }
+		}
+	    }
+	}
+	else
+	{
+	    t[idx] = !idx ? zlayer.start : zlayer.stop;
+	    if ( t[idx] <= times[0] )
+	    {
+		for ( int idy=0; idy<nr; idy++ )
+		{
+		    if ( mIsUdf(vint[idy]) ) continue;
+		    d[idx] = depths[idy] - ( times[idy] - t[idx] ) * vint[idy];
+		    break;
+		}
+	    }
+	    else if ( t[idx] >= times[nr-1] )
+	    {
+		for ( int idy=nr-1; idy>=0; idy-- )
+		{                   
+		    if ( mIsUdf(vint[idy]) ) continue;
+		    d[idx] = depths[idy] + ( t[idx] - times[idy] ) * vint[idy];
+		    break;
+    		}
+	    }
+	    else
+	    {
+		for ( int idy=0; idy<nr-1; idy++ )
+		{
+		    if ( times[idy] <= t[idx] && t[idx] <= times[idy+1] )
+		    {
+			d[idx] = depths[idy] + (depths[idy+1]-depths[idy]) /
+			    (times[idy+1] - times[idy]) * (t[idx] - times[idy]);
+			break;
+		    }
+		}
+	    }
+	}
+    }
+
+    if ( mIsUdf(d[0]) || mIsUdf(d[1]) || mIsUdf(t[0]) || mIsUdf(t[1]) )
+	return false;
+
+    const float v = (d[1] - d[0]) / (t[1] - t[0]);
+    const float halft = (t[1] - t[0]) / 2;
+
+    float sum_v0 = 0, sum_grad = 0, sum_vg = 0, sum_v0sqr = 0, sum_t = 0;
+    error = 0;
+    int nrsmps = 0;
+    for ( int idx=0; idx<nr; idx++ )
+    {
+	if ( !zlayer.includes(zin[idx]) )
+    	continue;
+
+	float grad, ve;
+	if ( !zisdepth )
+	{
+	    grad = (v-(depths[idx]-d[0])/(times[idx]-t[0]))*2/(t[1]-times[idx]);
+    	    ve = v - grad * halft;
+	    
+	    sum_v0 += ve;
+	    sum_v0sqr += ve * ve;
+	    sum_grad += grad;
+	    sum_vg = ve * grad;
+	    sum_t += times[idx];
+	
+	    const float epsilon = vint[idx] - (ve + grad * (times[idx]-t[0]));
+    	    error += epsilon * epsilon;
+	}
+	else
+	{
+	    const float c = (d[1]-d[0])/(depths[idx]-d[0]);
+	    const float ds = c*(times[idx]-t[0])*(times[idx]-t[0])/2;
+	    grad = (c*(times[idx]-t[0])+t[0]-t[1])/(2*halft*halft-ds);
+	    ve = grad*((d[1]-d[0])/(Math::Exp(grad*(t[1]-t[0]))-1)-d[1]+refz);
+
+	    float errsum = 0;
+	    for ( int idz=0; idz<nr; idz++ )
+	    {
+		if ( !zlayer.includes(zin[idz]) )
+		    continue;
+
+		float epsilon = vint[idz] - (ve + grad * (depths[idz] - refz));
+		errsum += epsilon * epsilon;
+	    }
+
+	    if ( !nrsmps || error > errsum )
+	    {
+		error = errsum;
+    		gradient = grad;
+    		v0 = ve;
+	    }
+	}
+
+	nrsmps++;
+    }
+
+    if ( !nrsmps )
+    {
+	gradient = (vt[1]-vt[0]) / (t[1]-t[0]);
+	v0 = vt[1] - gradient * (t[1]-refz);
+    }
+    else if ( !zisdepth )
+    {
+	gradient = nrsmps==1 ? sum_grad :
+	    (sum_vg-sum_v0*sum_grad) / (sum_v0sqr-sum_v0*sum_v0);
+	v0 = (sum_v0-gradient*sum_t)/nrsmps + gradient*(refz-t[0]);
+    }
+
+    return true;
 }
