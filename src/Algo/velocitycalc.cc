@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.28 2010-11-23 19:15:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.29 2010-11-23 22:43:43 cvsyuancheng Exp $";
 
 #include "velocitycalc.h"
 
@@ -920,6 +920,7 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
 		{
 		    if ( mIsUdf(vint[idy]) ) continue;
 		    d[idx] = depths[idy] - ( times[idy] - t[idx] ) * vint[idy];
+		    vt[idx] = vint[idy];
 		    break;
 		}
 	    }
@@ -929,6 +930,7 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
 		{                   
 		    if ( mIsUdf(vint[idy]) ) continue;
 		    d[idx] = depths[idy] + ( t[idx] - times[idy] ) * vint[idy];
+		    vt[idx] = vint[idy];
 		    break;
     		}
 	    }
@@ -940,6 +942,7 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
 		    {
 			d[idx] = depths[idy] + (depths[idy+1]-depths[idy]) /
 			    (times[idy+1] - times[idy]) * (t[idx] - times[idy]);
+			vt[idx] = vint[idy];
 			break;
 		    }
 		}
@@ -951,69 +954,74 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
 	return false;
 
     const float v = (d[1] - d[0]) / (t[1] - t[0]);
-    const float halft = (t[1] - t[0]) / 2;
+    const float diff = (t[1] + t[0] - 2 * refz) * 0.5;
 
-    float sum_v0 = 0, sum_grad = 0, sum_vg = 0, sum_v0sqr = 0, sum_t = 0;
-    error = 0;
-    int nrsmps = 0;
+    TypeSet<int> indices;
     for ( int idx=0; idx<nr; idx++ )
     {
-	if ( !zlayer.includes(zin[idx]) )
-    	continue;
+	if ( zlayer.includes(zin[idx]) )
+	    indices += idx;
+    }
+    const int nrsmps = indices.size();
+    if ( !nrsmps )
+    {
+	gradient = zisdepth ? (vt[1] - vt[0]) / (d[1] - d[0]) 
+	    		    : (vt[1] - vt[0]) / (t[1] - t[0]);
+	v0 = zisdepth ? vt[1] - gradient * (d[1] - refz) 
+	    	      : vt[1] - gradient * (t[1] - refz);
+	return true;
+    }
 
-	float grad, ve;
-	if ( !zisdepth )
+    error = 0;
+    if ( zisdepth )
+    {
+	const StepInterval<float> gradrg(-2, 2, 0.01);//Make your range
+	const int nrsteps = (int)(gradrg.width() / gradrg.step);
+
+	const float d10 = d[1] - d[0];
+	const float t10 = t[1] - t[0];
+	const float d1z = d[1] - refz;
+	for ( int idx=0; idx<nrsteps; idx++ )
 	{
-	    grad = (v-(depths[idx]-d[0])/(times[idx]-t[0]))*2/(t[1]-times[idx]);
-    	    ve = v - grad * halft;
-	    
-	    sum_v0 += ve;
-	    sum_v0sqr += ve * ve;
-	    sum_grad += grad;
-	    sum_vg = ve * grad;
-	    sum_t += times[idx];
-	
-	    const float epsilon = vint[idx] - (ve + grad * (times[idx]-t[0]));
-    	    error += epsilon * epsilon;
-	}
-	else
-	{
-	    const float c = (d[1]-d[0])/(depths[idx]-d[0]);
-	    const float ds = c*(times[idx]-t[0])*(times[idx]-t[0])/2;
-	    grad = (c*(times[idx]-t[0])+t[0]-t[1])/(2*halft*halft-ds);
-	    ve = grad*((d[1]-d[0])/(Math::Exp(grad*(t[1]-t[0]))-1)-d[1]+refz);
+	    const float grad = gradrg.atIndex( idx );
+	    const float v_est = grad * (d10 / (Math::Exp(grad*t10)-1) - d1z);
 
 	    float errsum = 0;
-	    for ( int idz=0; idz<nr; idz++ )
+	    for ( int idy=0; idy<nrsmps; idy++ )
 	    {
-		if ( !zlayer.includes(zin[idz]) )
-		    continue;
-
-		float epsilon = vint[idz] - (ve + grad * (depths[idz] - refz));
+    		const float epsilon = v_est - vint[indices[idy]];
 		errsum += epsilon * epsilon;
 	    }
 
-	    if ( !nrsmps || error > errsum )
+	    if ( !idx || error > errsum )
 	    {
 		error = errsum;
-    		gradient = grad;
-    		v0 = ve;
+		gradient = grad;
+		v0 = v_est;
 	    }
 	}
-
-	nrsmps++;
     }
+    else
+    {
+	float sum_v0 = 0, sum_grad = 0, sum_vg = 0, sum_v0sqr = 0;
+	for ( int idx=0; idx<nrsmps; idx++ )
+	{
+	    const float grad = (v-(depths[indices[idx]]-d[0]) /
+		    (times[indices[idx]]-t[0]))*2 / (t[1]-times[indices[idx]]);
+	    const float ve = v - grad * diff;
+	    const float epsilon = vint[indices[idx]] - 
+		(ve + grad * (times[indices[idx]] - t[0]));
+	
+	    sum_v0 += ve;
+	    sum_grad += grad;
+	    sum_vg = ve * grad;
+	    sum_v0sqr += ve * ve;
+	    error += epsilon * epsilon;
+	}
 
-    if ( !nrsmps )
-    {
-	gradient = (vt[1]-vt[0]) / (t[1]-t[0]);
-	v0 = vt[1] - gradient * (t[1]-refz);
-    }
-    else if ( !zisdepth )
-    {
 	gradient = nrsmps==1 ? sum_grad :
-	    (sum_vg-sum_v0*sum_grad) / (sum_v0sqr-sum_v0*sum_v0);
-	v0 = (sum_v0-gradient*sum_t)/nrsmps + gradient*(refz-t[0]);
+	    (sum_vg - sum_v0 * sum_grad) / (sum_v0sqr - sum_v0 * sum_v0);
+	v0 = v - gradient * diff;
     }
 
     return true;
