@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.33 2010-11-18 15:43:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.34 2010-11-23 13:21:59 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -529,7 +529,16 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 	pli->setPenColor( Color::Black() );
 	if ( unit.color_ != Color::White() )
 	    pli->setFillColor( unit.color_, true );
-	uiTextItem* ti = scene_.addItem( new uiTextItem( unit.name() ) );
+
+	BufferString unm( unit.name() );
+	for ( int idx=1; idx<unm.size(); idx++ )
+	{
+	    BufferString tmpnm = unm; tmpnm[idx] = '\0';
+	    if ( FontList().get().width( tmpnm ) > ( x2-x1 ) )
+		{ unm[idx-1] = '\0'; break; }
+	}
+
+	uiTextItem* ti = scene_.addItem( new uiTextItem( unm ) );
 	ti->setTextColor( Color::Black() );
 	ti->setPos( x1, y2 - abs((y2-y1)/2) -10 );
 	ti->setZValue( 2 );
