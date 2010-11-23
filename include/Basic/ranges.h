@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.60 2010-11-23 03:48:27 cvsnanne Exp $
+ RCS:		$Id: ranges.h,v 1.61 2010-11-23 04:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,7 +130,7 @@ public:
     inline int		nrSteps() const;
     virtual inline void	sort(bool asc=true);
     inline void		scale(const T&);
-    inline T		center() const;
+    inline T		snappedCenter() const;
 
     inline bool		isCompatible(const StepInterval<T>&,
 	    			     float eps=mDefEps) const;
