@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.136 2010-11-16 14:46:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.137 2010-11-23 16:07:01 cvskris Exp $";
 
 #include "uiodmain.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.136 2010-11-16 14:46:30 cvsbert
 #include "uinlapartserv.h"
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
+#include "uinotsaveddlg.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uipluginsel.h"
@@ -640,6 +641,9 @@ bool uiODMain::go()
 bool uiODMain::askStore( bool& askedanything )
 {
     if ( !applmgr_->attrServer() ) return false;
+
+    if ( !NotSavedPrompter::NSP().doTrigger( this, true ) )
+	return false;
 
     bool doask = false;
     Settings::common().getYN( "dTect.Ask store session", doask );
