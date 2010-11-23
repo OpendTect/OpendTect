@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.59 2010-08-27 02:48:19 cvsnanne Exp $
+ RCS:		$Id: ranges.h,v 1.60 2010-11-23 03:48:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -582,7 +582,7 @@ void StepInterval<T>::scale( const T& factor )
 }
 
 template <class T> inline
-T StepInterval<T>::center() const
+T StepInterval<T>::snappedCenter() const
 { return snap( Interval<T>::center() ); }
 
 template <class T> inline
