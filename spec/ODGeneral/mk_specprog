@@ -40,7 +40,7 @@ else if ( $HDIR == win ) then
 	set mylibs="-lmsvcrt -lmsvcrt -lshlwapi -lwsock32 -lole32 -luuid"
 	set gmdexec=$WORK/bin/$PLFSUBDIR/${debugdir}/$prog.exe
 else if ( $HDIR == mac ) then
-	set extraflgs="-framework CoreFoundation -framework ApplicationServices -headerpad_max_install_names"
+	set extraflgs="-framework CoreFoundation -framework ApplicationServices -headerpad_max_install_names -arch x86_64"
 endif
 
 set comp=g++
