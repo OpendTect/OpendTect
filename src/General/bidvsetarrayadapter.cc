@@ -4,31 +4,28 @@
  * DATE     : 14-3-2008
 -*/
 
-static const char* rcsID = "$Id: bidvsetarrayadapter.cc,v 1.3 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: bidvsetarrayadapter.cc,v 1.4 2010-11-23 06:13:43 cvsnageswara Exp $";
 
 #include "bidvsetarrayadapter.h"
 #include "survinfo.h"
 
 
-BIDValSetArrAdapter::BIDValSetArrAdapter( const BinIDValueSet& bidvs, int colnr)
+BIDValSetArrAdapter::BIDValSetArrAdapter( const BinIDValueSet& bidvs, int colnr,
+					  const BinID& step )
     : bidvs_( bidvs )
     , targetcolidx_( colnr )
 {
-    inlrg_ = bidvs.inlRange();
-    crlrg_ = bidvs.crlRange();
-    //TODO we use SI steps, if needed it can be replaced by a user-defined one
-    const int inlsz = inlrg_.width()/SI().inlStep()+1;
-    const int crlsz = crlrg_.width()/SI().crlStep()+1;
-    arrinfo_ = Array2DInfoImpl( inlsz, crlsz );
+    hrg_.setInlRange( bidvs.inlRange() );
+    hrg_.setCrlRange( bidvs.crlRange() );
+    hrg_.step = step;
+    arrinfo_ = Array2DInfoImpl( hrg_.nrInl(), hrg_.nrCrl() );
 }
 
 
 
 void BIDValSetArrAdapter::set( int inlidx, int crlidx, float value )
 {
-    BinID bid;
-    bid.inl = inlrg_.start + inlidx*SI().inlStep();
-    bid.crl = crlrg_.start + crlidx*SI().crlStep();
+    BinID bid = hrg_.atIndex( inlidx, crlidx );
     BinIDValueSet::Pos pos = bidvs_.findFirst( bid );
     if ( !pos.valid() || bidvs_.nrVals()<targetcolidx_ ) return;
 
@@ -40,13 +37,10 @@ void BIDValSetArrAdapter::set( int inlidx, int crlidx, float value )
 
 float BIDValSetArrAdapter::get( int inlidx, int crlidx ) const
 {
-    BinID bid;
-    bid.inl = inlrg_.start + inlidx*SI().inlStep();
-    bid.crl = crlrg_.start + crlidx*SI().crlStep();
+    BinID bid = hrg_.atIndex( inlidx, crlidx );
     BinIDValueSet::Pos pos = bidvs_.findFirst( bid );
     if ( !pos.valid() || bidvs_.nrVals()<targetcolidx_ )
 	return mUdf(float);
 
     return bidvs_.getVal( pos, targetcolidx_ );
 }
-

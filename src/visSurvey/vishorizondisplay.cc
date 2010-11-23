@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.141 2010-09-21 07:03:18 cvskarthika Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.142 2010-11-23 06:13:43 cvsnageswara Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -719,17 +719,20 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 
     const bool isz = attrnms->size()>=1 &&
 		     !strcmp(attrnms->get(0).buf(),"Depth");
-    mDeclareAndTryAlloc( BIDValSetArrAdapter*, bvsarr, 
-	    		 BIDValSetArrAdapter(positions->bivSet(),isz?0:2) );
+    BinID step( SI().inlStep(), SI().crlStep() );
+    mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr, 
+	    		BIDValSetArrAdapter(positions->bivSet(),isz?0:2,step));
     const char* catnm = isz ? "Geometry" : "Surface Data";
     const char* dpnm = isz ? "Depth"
 			   : (attrnms->size()>1 ? attrnms->get(1).buf() : "");
     mDeclareAndTryAlloc(MapDataPack*,newpack,MapDataPack(catnm,dpnm,bvsarr));
 
-    StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop,
-				SI().inlStep() );
-    StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
-				SI().crlStep() );
+    StepInterval<int> inlrgtemp = bvsarr->hrg_.inlRange();
+    StepInterval<int> crlrgtemp = bvsarr->hrg_.crlRange();
+    StepInterval<double> inlrg( (double)inlrgtemp.start, (double)inlrgtemp.stop,
+	    			(double)inlrgtemp.step );
+    StepInterval<double> crlrg( (double)crlrgtemp.start, (double)crlrgtemp.stop,
+	    			(double)crlrgtemp.step );
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
     newpack->setProps( inlrg, crlrg, true, &dimnames );

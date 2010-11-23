@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.25 2010-11-22 05:52:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.26 2010-11-23 06:13:43 cvsnageswara Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -330,12 +330,16 @@ void uiODApplMgrDispatcher::showBaseMap()
 int uiODApplMgrDispatcher::createMapDataPack( const DataPointSet& data,
 						int colnr )
 {
-    BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(data.bivSet(), colnr);
+    BinID step( SI().inlStep(), SI().crlStep() );
+    BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(data.bivSet(), colnr,
+	    						  step );
     MapDataPack* newpack = new MapDataPack( "Attribute", data.name(), bvsarr );
-    StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop, 
-	    			SI().inlStep() );
-    StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
-	    			SI().crlStep() );
+    StepInterval<int> inlrgtemp = bvsarr->hrg_.inlRange();
+    StepInterval<int> crlrgtemp = bvsarr->hrg_.crlRange();
+    StepInterval<double> inlrg( (double)inlrgtemp.start, (double)inlrgtemp.stop,
+	    			(double)inlrgtemp.step );
+    StepInterval<double> crlrg( (double)crlrgtemp.start, (double)crlrgtemp.stop,
+	    			(double)crlrgtemp.step );
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
     newpack->setProps( inlrg, crlrg, true, &dimnames );

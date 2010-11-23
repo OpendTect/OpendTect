@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	H.Huck
  Date:		March 2008
- RCS:		$Id: bidvsetarrayadapter.h,v 1.3 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: bidvsetarrayadapter.h,v 1.4 2010-11-23 06:13:43 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,22 +15,22 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "arrayndinfo.h"
 #include "binidvalset.h"
+#include "horsampling.h"
 
 
 //!\brief an adapter between Array2D and a BinIDValueSet
 
-mClass BIDValSetArrAdapter: 	public Array2D<float>
+mClass BIDValSetArrAdapter : public Array2D<float>
 {
 public:			
-    			BIDValSetArrAdapter(const BinIDValueSet&,int);
+    			BIDValSetArrAdapter(const BinIDValueSet&,int col,
+					    const BinID& step);
 
-    void		set(int,int,float);
-    float		get(int,int) const;
+    void		set(int inlidx,int crlidx,float val);
+    float		get(int inlidx,int crlidx) const;
 
     const Array2DInfo&	info() const			{ return arrinfo_; }
-    Interval<int>	inlrg_;
-    Interval<int>	crlrg_;
-    
+    HorSampling		hrg_;
 
 protected:
 
