@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.147 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.148 2010-11-23 20:13:15 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -93,8 +93,8 @@ SurveyInfo::SurveyInfo()
     , survdatatype_(Both2DAnd3D)
     , survdatatypeknown_(false)
 {
-    rdxtr.b = rdytr.c = 1;
-    set3binids[2].crl = 0;
+    rdxtr_.b = rdytr_.c = 1;
+    set3binids_[2].crl = 0;
 
     // To get a 'reasonable' transform even when no proper SI is yet defined
     // Then, DataPointSets need to work
@@ -132,8 +132,8 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 
     setName( si.name() );
     valid_ = si.valid_;
-    datadir = si.datadir;
-    dirname = si.dirname;
+    datadir_ = si.datadir_;
+    dirname_ = si.dirname_;
     wsprojnm_ = si.wsprojnm_;
     wspwd_ = si.wspwd_;
     zistime_ = si.zistime_;
@@ -144,8 +144,8 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     survdatatypeknown_ = si.survdatatypeknown_;
     for ( int idx=0; idx<3; idx++ )
     {
-	set3binids[idx] = si.set3binids[idx];
-	set3coords[idx] = si.set3coords[idx];
+	set3binids_[idx] = si.set3binids_[idx];
+	set3coords_[idx] = si.set3coords_[idx];
     }
     cs_ = si.cs_; wcs_ = si.wcs_; pars_ = si.pars_; ll2c_ = si.ll2c_;
 
@@ -181,9 +181,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     BufferString keyw = astream.keyWord();
     SurveyInfo* si = new SurveyInfo;
 
-    si->dirname = fpsurvdir.fileName();
-    si->datadir = fpsurvdir.pathOnly();
-    if ( !survdir || si->dirname.isEmpty() ) return si;
+    si->dirname_ = fpsurvdir.fileName();
+    si->datadir_ = fpsurvdir.pathOnly();
+    if ( !survdir || si->dirname_.isEmpty() ) return si;
 
     while ( !atEndOfSection(astream) )
     {
@@ -257,9 +257,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 
 bool SurveyInfo::wrapUpRead()
 {
-    if ( set3binids[2].crl == 0 )
-	get3Pts( set3coords, set3binids, set3binids[2].crl );
-    b2c_.setTransforms( rdxtr, rdytr );
+    if ( set3binids_[2].crl == 0 )
+	get3Pts( set3coords_, set3binids_, set3binids_[2].crl );
+    b2c_.setTransforms( rdxtr_, rdytr_ );
     return b2c_.isValid();
 }
 
@@ -267,9 +267,9 @@ bool SurveyInfo::wrapUpRead()
 void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
 {
     if ( keyw == sKeyXTransf )
-	setTr( rdxtr, val );
+	setTr( rdxtr_, val );
     else if ( keyw == sKeyYTransf )
-	setTr( rdytr, val );
+	setTr( rdytr_, val );
     else if ( keyw == sKeyLatLongAnchor )
 	ll2c_.use( val );
     else if ( matchString("Set Point",(const char*)keyw) )
@@ -281,8 +281,8 @@ void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
 	if ( ptidx > 3 ) ptidx = 2;
 	FileMultiString fms( val );
 	if ( fms.size() < 2 ) return;
-	set3binids[ptidx].use( fms[0] );
-	set3coords[ptidx].use( fms[1] );
+	set3binids_[ptidx].use( fms[0] );
+	set3coords_[ptidx].use( fms[1] );
     }
 }
 
@@ -610,11 +610,11 @@ BinID SurveyInfo::transform( const Coord& c ) const
 
 void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
 {
-    if ( set3binids[0].inl )
+    if ( set3binids_[0].inl )
     {
-	b[0] = set3binids[0]; c[0] = set3coords[0];
-	b[1] = set3binids[1]; c[1] = set3coords[1];
-	c[2] = set3coords[2]; xline = set3binids[2].crl;
+	b[0] = set3binids_[0]; c[0] = set3coords_[0];
+	b[1] = set3binids_[1]; c[1] = set3coords_[1];
+	c[2] = set3coords_[2]; xline = set3binids_[2].crl;
     }
     else
     {
@@ -638,24 +638,24 @@ const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
 	return "Cannot construct a valid transformation matrix from this input"
 	       "\nPlease check whether the data is on a single straight line.";
 
-    set3binids[0] = b[0];
-    set3binids[1] = b[1];
-    set3binids[2] = BinID( b[0].inl, xline );
-    set3coords[0] = c[0];
-    set3coords[1] = c[1];
-    set3coords[2] = c[2];
+    set3binids_[0] = b[0];
+    set3binids_[1] = b[1];
+    set3binids_[2] = BinID( b[0].inl, xline );
+    set3coords_[0] = c[0];
+    set3coords_[1] = c[1];
+    set3coords_[2] = c[2];
     return 0;
 }
 
 
 void SurveyInfo::gen3Pts()
 {
-    set3binids[0] = cs_.hrg.start;
-    set3binids[1] = cs_.hrg.stop;
-    set3binids[2] = BinID( cs_.hrg.start.inl, cs_.hrg.stop.crl );
-    set3coords[0] = transform( set3binids[0] );
-    set3coords[1] = transform( set3binids[1] );
-    set3coords[2] = transform( set3binids[2] );
+    set3binids_[0] = cs_.hrg.start;
+    set3binids_[1] = cs_.hrg.stop;
+    set3binids_[2] = BinID( cs_.hrg.start.inl, cs_.hrg.stop.crl );
+    set3coords_[0] = transform( set3binids_[0] );
+    set3coords_[1] = transform( set3binids_[1] );
+    set3coords_[2] = transform( set3binids_[2] );
 }
 
 
@@ -764,7 +764,7 @@ bool SurveyInfo::write( const char* basedir ) const
     if ( !valid_ ) return false;
     if ( !basedir ) basedir = GetBaseDataDir();
 
-    FilePath fp( basedir ); fp.add( dirname ).add( ".survey" );
+    FilePath fp( basedir ); fp.add( dirname_ ).add( ".survey" );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(false) )
     {
@@ -835,7 +835,7 @@ bool SurveyInfo::write( const char* basedir ) const
 	return false;
     }
 
-    fp.set( basedir ); fp.add( dirname );
+    fp.set( basedir ); fp.add( dirname_ );
     savePars( fp.fullPath() );
     return true;
 }
@@ -851,8 +851,8 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	SeparString ky( "Set Point", '.' );
 	ky += idx + 1;
 	char buf[80];
-	set3binids[idx].fill( buf ); fms = buf;
-	set3coords[idx].fill( buf ); fms += buf;
+	set3binids_[idx].fill( buf ); fms = buf;
+	set3coords_[idx].fill( buf ); fms += buf;
 	astream.put( (const char*)ky, (const char*)fms );
     }
 

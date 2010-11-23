@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.98 2010-08-26 11:39:30 cvsjaap Exp $
+ RCS:		$Id: survinfo.h,v 1.99 2010-11-23 20:13:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,8 +126,8 @@ protected:
 			SurveyInfo();
     bool		valid_;
 
-    BufferString	datadir;
-    BufferString	dirname;
+    BufferString	datadir_;
+    BufferString	dirname_;
 
     bool		zistime_;
     bool		zinfeet_; //!< only relevant if zistime_ equals false
@@ -141,8 +141,8 @@ protected:
 
     RCol2Coord		b2c_;
     LatLong2Coord&	ll2c_;
-    BinID		set3binids[3];
-    Coord		set3coords[3];
+    BinID		set3binids_[3];
+    Coord		set3coords_[3];
 
     Pol2D		survdatatype_;
     bool		survdatatypeknown_;
@@ -165,8 +165,8 @@ private:
     friend class		uiSurvey;
     friend class		uiSurveyInfoEditor;
 
-    RCol2Coord::RCTransform	rdxtr;
-    RCol2Coord::RCTransform	rdytr;
+    RCol2Coord::RCTransform	rdxtr_;
+    RCol2Coord::RCTransform	rdytr_;
 
 public:
 
@@ -203,7 +203,7 @@ public:
     static const char*	sKeyDpthInFt(); //!< Not used by SI, just a UI default
     static const char*	sKeySurvDataType();
 
-    BufferString	getDirName() const	{ return dirname; }
+    BufferString	getDirName() const	{ return dirname_; }
 
     			DeclareEnumUtils(Pol2D);
     Pol2D		survDataType() const	{ return survdatatype_; }
