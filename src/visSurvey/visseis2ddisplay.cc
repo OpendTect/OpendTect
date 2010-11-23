@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.118 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.119 2010-11-23 08:20:34 cvskarthika Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -113,22 +113,19 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     StepInterval<int> arraysrg( mNINT(zrg.start/sd.step),
 				mNINT(zrg.stop/sd.step),1 );
     const float firstz = data2dh_.dataset_[0]->z0_*sd.step;
-    const int firstdhsample = sd.nearestIndex( firstz );
+    const int firstdhsample = sd.nearestIndex( firstz );  // sample number
 
+    // find if this is going to be sampled-based, that is, if data can be just
+    // copied from the samples in the data holder
     const bool samplebased = 	
 	mIsEqual( sd.getIndex(firstz),firstdhsample,1e-3 ) && 
 	mIsEqual( sd.step, s2d_.getScene()->getCubeSampling().zrg.step, 1e-3 );
+    	// if samplebased is false, interpolation needs to be done...
 
     const TypeSet<int>& allpos = s2d_.trcdisplayinfo_.alltrcnrs;
     const int starttrcidx = allpos.indexOf( s2d_.trcdisplayinfo_.rg.start );
 
     const bool usez0 = s2d_.datatransform_ || zrg.start <= sd.start;
-
-    // get the details of the destination - the array to be filled up
-    const SamplingData<float>& sd_scene = 
-	    s2d_.getScene()->getCubeSampling().zrg;
-    const float firstz_scene = sd_scene.start*sd_scene.step;		 
-    const int firstsample_scene = sd_scene.nearestIndex( firstz_scene );
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
@@ -149,10 +146,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	const ValueSeries<float>* dataseries = dh->series( valseridx_ );
 	const int shift = usez0 ? dh->z0_ : mNINT(sd.start/sd.step);
-	const int shift_scene = usez0 ? mNINT( sd_scene.start )
-				      : mNINT(sd_scene.start/sd_scene.step);
 
-	for ( int idy=0; idy<nrsamp; idy++ )
+	for ( int idy=0; idy<sy_; idy++ )
 	{
 	    float val;
 	    int arrzidx;
@@ -163,7 +158,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		const int validx = usez0 ? smp : smp+shift-dh->z0_;
 		
 		arrzidx = arraysrg.getIndex( smp+shift );
-		//arrzidx = arraysrg.getIndex( firstz+idy+shift ); ??
 		if ( arrzidx<0 || arrzidx>=sy_ )
 		{
 		    addToNrDone( 1 );
@@ -175,18 +169,15 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	    else
 	    {
-		// interpolate!		
-		arrzidx = arraysrg.getIndex( firstsample_scene + idy + 
-				shift_scene );
-		if ( arrzidx<0 || arrzidx>=sy_ ) 
-	        {
-		    addToNrDone( 1 );
-		    continue;
-	        }
+		// interpolate!
+		arrzidx = idy;
+
+		// TODO: make use of z0
 
 		val = mUdf(float);
+		const float offset = idy * SI().zStep() / sd.step;
 		IdxAble::interpolateRegWithUdf( *dataseries, 
-		    nrsamp, firstsample_scene + idy + shift_scene, val );
+		    nrsamp, firstz + offset, val );
 	    }
 	    
 	    if ( outputptr_ )
@@ -635,8 +626,13 @@ void Seis2DDisplay::setData( int attrib,
     StepInterval<float> arrayzrg;
     arrayzrg.setFrom( getZRange(!datatransform_,attrib) );
 
-    arrayzrg.step = sd.step;
+//    arrayzrg.step = sd.step;
+
+    // get the details of the destination from the survey instead of the data 
+    // holder, since interpolation is now supported by the Filler
+    arrayzrg.step = SI().zStep();
     const int arrzsz = arrayzrg.nrSteps()+1;
+
 
 #ifndef mUseSeis2DArray
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, arr,
@@ -691,6 +687,7 @@ void Seis2DDisplay::setData( int attrib,
 	    cs.hrg.stop.crl = trcdisplayinfo_.rg.stop;
 	    cs.hrg.step.crl = 1;
 	    assign( cs.zrg, trcdisplayinfo_.zrg );
+	    // use survey step here?
 	    if ( voiidx_ < 0 )
 		voiidx_ = datatransform_->addVolumeOfInterest(
 						getLineName(), cs, true );
