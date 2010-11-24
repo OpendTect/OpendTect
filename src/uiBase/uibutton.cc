@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.68 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.69 2010-11-24 06:48:13 cvsnanne Exp $";
 
 #include "uitoolbutton.h"
 #include "i_qbutton.h"
 
 #include "uibuttongroup.h"
+#include "uiicons.h"
 #include "uimenu.h"
 #include "uiobjbody.h"
 #include "uitoolbar.h"
@@ -409,7 +410,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
 			    const char* tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
-	        mkbody(parnt,ioPixmap(""),tt) )
+	        mkbody(parnt,ioPixmap(uiIcon::None()),tt) )
     , mInitTBList
 {
     mSetDefPrefSzs();
