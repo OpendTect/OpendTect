@@ -5,9 +5,10 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.46 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.47 2010-11-24 16:35:41 cvskris Exp $";
 
 #include "seisseqio.h"
+#include "seiscbvs.h"
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seisbounds.h"
@@ -56,7 +57,7 @@ SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps, bool is_2d )
     iostrm.setGroup( !isps ? mTranslGroupName(SeisTrc)
 		   : (is2d ? mTranslGroupName(SeisPS2D)
 		   :	     mTranslGroupName(SeisPS3D)) );
-    iostrm.setTranslator( "CBVS" );
+    iostrm.setTranslator( CBVSSeisTrcTranslator::translKey() );
     iostrm.setFileName( fnm && *fnm ? fnm : StreamProvider::sStdIO() );
     setIOObj( &iostrm );
 }

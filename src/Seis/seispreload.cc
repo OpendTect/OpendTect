@@ -3,10 +3,10 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seispreload.cc,v 1.10 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: seispreload.cc,v 1.11 2010-11-24 16:35:41 cvskris Exp $";
 
 #include "seispreload.h"
-#include "seistrctr.h"
+#include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seiscbvs2d.h"
 #include "seiscbvsps.h"
@@ -79,7 +79,8 @@ void Seis::PreLoader::getLineKeys( BufferStringSet& lks ) const
     PtrMan<IOObj> ioobj = getIOObj(); \
     if ( !ioobj ) \
 	return false; \
-    if ( !is2dln && strcmp(ioobj->translator(),"CBVS") ) \
+    if ( !is2dln && strcmp(ioobj->translator(), \
+		CBVSSeisTrcTranslator::translKey()) ) \
 	{ errmsg_ = "Cannot pre-load other than CBVS data"; return false; } \
     TaskRunner& trunnr = getTr()
 

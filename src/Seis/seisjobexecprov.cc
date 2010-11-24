@@ -4,10 +4,10 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.43 2010-10-21 06:37:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.44 2010-11-24 16:35:41 cvskris Exp $";
 
 #include "seisjobexecprov.h"
-#include "seistrctr.h"
+#include "seiscbvs.h"
 #include "seis2dline.h"
 #include "seissingtrcproc.h"
 #include "posinfo2d.h"
@@ -54,7 +54,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
     	, is2d_(false)
     	, outls_(0)
 {
-    ctio_.ctxt.toselect.allowtransls_ = "CBVS";
+    ctio_.ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
     seisoutkey_ = outputKey( iopar_ );
 
     FixedString res = iopar_.find( seisoutkey_ );

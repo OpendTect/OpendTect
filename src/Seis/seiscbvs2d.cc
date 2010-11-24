@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.54 2010-07-12 22:39:42 cvskris Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.55 2010-11-24 16:35:41 cvskris Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -56,7 +56,7 @@ const char* SeisCBVS2DLineIOProvider::getFileName( const IOPar& iop )
 
 
 SeisCBVS2DLineIOProvider::SeisCBVS2DLineIOProvider()
-    	: Seis2DLineIOProvider("CBVS")
+    	: Seis2DLineIOProvider(CBVSSeisTrcTranslator::translKey() )
 {
 }
 

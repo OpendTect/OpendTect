@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.46 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.47 2010-11-24 16:35:41 cvskris Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -30,7 +30,8 @@ static const char* cPosDataFnm = "posdata.txt";
 class CBVSSeisPSIOProvider : public SeisPSIOProvider
 {
 public:
-			CBVSSeisPSIOProvider() : SeisPSIOProvider("CBVS") {}
+	    CBVSSeisPSIOProvider() : SeisPSIOProvider(
+		    CBVSSeisTrcTranslator::translKey() ) {}
     SeisPS3DReader*	make3DReader( const char* dirnm, int inl ) const
 			{ return new SeisCBVSPS3DReader(dirnm,inl); }
     SeisPSWriter*	make3DWriter( const char* dirnm ) const

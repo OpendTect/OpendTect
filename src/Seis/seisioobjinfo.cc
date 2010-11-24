@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.37 2010-08-12 14:58:12 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.38 2010-11-24 16:35:41 cvskris Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -398,7 +398,7 @@ void SeisIOObjInfo::initDefault( const char* typ )
 
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
     ctxt.toselect.require_.set( sKey::Type, typ );
-    ctxt.toselect.allowtransls_ = "CBVS";
+    ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
     int nrpresent = 0;
     PtrMan<IOObj> ioobj = IOM().getFirst( ctxt, &nrpresent );
     if ( !ioobj || nrpresent > 1 )
