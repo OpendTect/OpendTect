@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.61 2010-11-05 12:46:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.62 2010-11-24 13:58:22 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -323,8 +323,9 @@ bool Well::markerNameShown() const
 void Well::setLogData( const TypeSet<Coord3Value>& crdvals, 
 		       const LogParams& lp )
 {
-    Interval<float> rg = lp.range_; 
-    const bool rev = rg.start > rg.stop;
+    const bool rev = lp.range_.start > lp.range_.stop;
+
+    Interval<float> rg = lp.valrange_; 
     const bool isfullfilled = lp.isleftfilled_ && lp.isrightfilled_; 
     const bool fillrev = !isfullfilled &&  
 		      ( ( lp.lognr_ == 1 && lp.isleftfilled_ && !rev )
@@ -372,25 +373,11 @@ void Well::setFilledLogData( const TypeSet<Coord3Value>& crdvals,
     rg.sort();
     float minval = rg.start;
     float maxval = rg.stop;
-    float newminval = crdvals[0].value;
-    float newmaxval = newminval;
 
+    LinScaler scaler( minval, 0, maxval, 100 );
     int nrsamp = crdvals.size();
     float step = 1;
     mGetLoopSize( nrsamp, step );
-    for ( int idx=0; idx<nrsamp; idx++ )
-    {
-	const int index = mNINT(idx*step);
-	const Coord3Value& cv = crdvals[index];
-	const float val = cv.value;
-	if ( !mIsUdf(val) )
-	{
-	    if ( newminval>val ) newminval = val;
-	    if ( newmaxval<val ) newmaxval = val;
-	}
-    }
-
-    LinScaler scaler( newminval, 0, newmaxval, 100 );
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	const int index = mNINT(idx*step);
@@ -402,12 +389,10 @@ void Well::setFilledLogData( const TypeSet<Coord3Value>& crdvals,
 	    log_[lidx]->setFillLogValue( idx, val, lp.lognr_ );
     }
 
-    const float diffminval = minval - newminval;
-    const float diffmaxval = maxval - newmaxval;
     Interval<float> selrg = lp.fillrange_;
     selrg.sort();
-    float rgstop = scaler.scale(selrg.stop-diffmaxval);
-    float rgstart = scaler.scale(selrg.start-diffminval);
+    float rgstop = scaler.scale( selrg.stop );
+    float rgstart = scaler.scale( selrg.start );
     if ( lp.islogarithmic_ )
     {
 	mSclogval( rgstop ); 
