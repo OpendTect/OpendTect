@@ -3,18 +3,21 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.22 2010-07-15 20:11:31 cvskris Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.23 2010-11-24 17:08:50 cvskris Exp $";
 
 #include "segyfiledata.h"
 
 #include "ascstream.h"
 #include "datainterp.h"
 #include "envvars.h"
+#include "filepath.h"
 #include "iopar.h"
 #include "idxable.h"
+#include "file.h"
 #include "horsampling.h"
 #include "keystrs.h"
 #include "offsetazimuth.h"
+#include "oddirs.h"
 #include "segyhdr.h"
 #include "separstr.h"
 #include "seisposindexer.h"
@@ -187,6 +190,16 @@ bool SEGY::FileDataSet::usePar( const IOPar& par )
 	if ( !filepars->get( sKey::FileName, filenm ) )
 	    return false;
 
+	FilePath filepath( filenm );
+	if ( !filepath.isAbsolute() )
+	{
+	    FilePath absolutepath( GetBaseDataDir() );
+	    absolutepath.add( SI().getDirName() );
+	    absolutepath.add( filenm );
+	    if ( File::exists( absolutepath.fullPath().str() ) )
+		filenm = absolutepath.fullPath().str();
+	}
+
 	od_int64 filesz;
 	if ( !filepars->get( sKey::Size, filesz ) )
 	    return false;
@@ -220,10 +233,23 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
     par.set( sKeyNrUsable, nrusable_ );
     Seis::putInPar( geom_, par );
 
+    FilePath survdirname( GetBaseDataDir() );
+    survdirname.add( SI().getDirName() );
+    survdirname.makeCanonical();
+
     for ( int ifile=0; ifile<nrfiles; ifile++ )
     {
 	IOPar filepars;
-	filepars.set( sKey::FileName, fileName(ifile) );
+
+	FilePath filename( fileName( ifile ) );
+	filename.makeCanonical();
+
+	FilePath relpath;
+	if ( filename.isSubDirOf( survdirname, &relpath ) )
+	    filename = relpath;
+
+	filepars.set( sKey::FileName, filename.fullPath().str() );
+
 	const od_int64 nextsize = ifile<nrfiles-1
 	    ? cumsizes_[ifile+1]
 	    : totalsz_;
