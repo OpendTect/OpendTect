@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.397 2010-11-22 05:52:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.398 2010-11-24 06:50:27 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -641,8 +641,6 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 
 bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 {
-    /* Perhaps better to merge this with uiODApplMgr::getNewData(), 
-       for now it works */
     uiVisPartServer::AttribFormat format =
 				visserv_->getAttributeFormat( visid, attrib );
     if ( format == uiVisPartServer::Cube )
@@ -1397,6 +1395,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	}
 
 	visserv_->setSelSpec( visid, attrib, as );
+	visserv_->setColTabMapperSetup( visid, attrib, ColTab::MapperSetup() );
 	getNewData( visid, attrib );
 	sceneMgr().updateTrees();
     }
@@ -1524,6 +1523,7 @@ bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
     for ( int idx=0; idx<tmpset.size(); idx++ )
 	refs->add( tmpset[idx].userRef() );
     visserv_->setUserRefs( visid, attrib, refs );
+    visserv_->setColTabMapperSetup( visid, attrib, ColTab::MapperSetup() );
     return as.is2D() ? evaluate2DAttribute(visid,attrib)
 		     : evaluateAttribute(visid,attrib);
 }
