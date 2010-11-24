@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.74 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.75 2010-11-24 15:13:32 cvskris Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -295,12 +295,33 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     }
     else
     {
-	const char* fname = finpfld->text();
-	if ( !fname || !*fname )
+	BufferString fname = finpfld->text();
+	if ( !fname.str() )
 	{
 	    uiMSG().error( "Please select the input filename" );
 	    return false;
 	}
+
+	if ( dolink )
+	{
+	    //Check if it's under the survey dir
+	    FilePath inputfile( fname );
+	    inputfile.makeCanonical();
+
+	    FilePath survdir( GetBaseDataDir() );
+	    survdir.add( SI().getDirName() );
+	    survdir.makeCanonical();
+	    
+	    if ( inputfile.isSubDirOf( survdir ) )
+	    {
+		FilePath seismicsdir( outctio_.ioobj->dirName() );
+		seismicsdir.makeCanonical();
+
+		if ( inputfile.makeRelativeTo( seismicsdir ) )
+		    fname = inputfile.fullPath();
+	    }
+	}
+
 	const int seltyp = typefld->getIntValue();
 	if ( !seltyp )
 	    outctio_.ioobj->pars().removeWithKey( "Type" );
