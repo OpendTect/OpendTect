@@ -4,11 +4,12 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.29 2010-03-24 07:29:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.30 2010-11-24 13:12:01 cvskris Exp $";
 
 #include "filepath.h"
 
 #include "file.h"
+#include "fixedstring.h"
 #include "msgh.h"
 #include "winutils.h"
 
@@ -161,6 +162,50 @@ void FilePath::setExtension( const char* ext, bool replace )
 
 bool FilePath::isAbsolute() const
 { return isabs_; }
+
+
+bool FilePath::isSubDirOf( const FilePath& b, FilePath* relpath ) const
+{
+    if ( b.isAbsolute()!=isAbsolute() )
+	return false;
+
+    if ( FixedString(b.prefix())!=prefix() )
+	return false;
+
+    const int nrblevels = b.nrLevels();
+    if ( nrblevels>=nrLevels() )
+	return false;
+
+    for ( int idx=0; idx<nrblevels; idx++ )
+    {
+	if ( *lvls_[idx]!=*b.lvls_[idx] )
+	    return false;
+    }
+
+    if ( relpath )
+    {
+	BufferString rel;
+	for ( int idx=nrblevels; idx<nrLevels(); idx++ )
+	{
+	    if ( idx>nrblevels )
+		rel += dirSep( Local );
+	    rel += dir( idx );
+	}
+
+	relpath->set( rel.buf() );
+    }
+
+    return true;
+}
+
+
+bool FilePath::makeCanonical()
+{
+    BufferString fullpath = fullPath();
+    set( File::getCanonicalPath( fullpath.buf() ) );
+    return true;
+}
+
 
 
 BufferString FilePath::fullPath( Style f, bool cleanup ) const

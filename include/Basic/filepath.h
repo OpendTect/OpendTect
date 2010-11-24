@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.11 2010-03-24 07:19:39 cvsranojay Exp $
+ RCS:		$Id: filepath.h,v 1.12 2010-11-24 13:12:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,11 @@ public:
     						//!< !replace => add
 
     bool		isAbsolute() const;
+    bool		isSubDirOf(const FilePath&,FilePath* reldir = 0) const;
+			/*!<If reldir is set, it will be filled with the
+			    relative path. */
+    bool		makeCanonical();
+
 
     BufferString	fullPath(Style s=Local,bool cleanup=true) const;
     const char*		prefix() const;
