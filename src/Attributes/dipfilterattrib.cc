@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.31 2010-11-22 18:30:55 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.32 2010-11-24 09:07:09 cvshelene Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -126,9 +126,11 @@ const char* DipFilter::filterTypeNamesStr( int type )
 DipFilter::DipFilter( Desc& ds )
     : Provider( ds )
     , kernel_(0,0,0)
+    , minvel_(0)
 {
     if ( !isOK() ) return;
 
+    maxvel_ = SI().zIsTime() ? mUdf(float) : 90;
     inputdata_.allowNull(true);
     
     mGetEnum( type_, typeStr() );
