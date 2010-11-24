@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.20 2010-11-18 18:30:18 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.21 2010-11-24 09:13:09 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -61,7 +61,7 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 
     uiLabel* colormodelbl = new uiLabel( this, "Output color selection:" );
 
-    BufferStringSet serialbss; serialbss.add( "Inherited" );
+    BufferStringSet serialbss; serialbss.add( "Inherit" );
     serialbss.add( "Random" ); serialbss.add( "User-defined" );
     serialcolormodefld_ = new uiGenInput(this,"",StringListInpSpec(serialbss));
     serialcolormodefld_->valuechanged.notify(
@@ -226,10 +226,10 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , tracktbwashidden_( false )
     , selectmode_( false )
     , settingsdlg_( 0 )
+    , usercolor_( Color(0,0,255) )
     , randomcolor_ ( getRandStdDrawColor() )
+    , flashcolor_( Color(0,0,0) )
 {
-    usercolor_ = randomcolor_;
-
     toolbar_ = new uiToolBar( &appl_, "Fault stick control", uiToolBar::Bottom);
     editbutidx_ = toolbar_->addButton( "editsticks.png", "Edit sticks",
 	    			mCB(this,uiODFaultToolMan,editSelectToggleCB),
@@ -472,6 +472,10 @@ void uiODFaultToolMan::clearCurDisplayObj()
 }
 
 
+#define mOutputNameComboTextColorSensitivityHack() \
+    outputnamecombo_->setTextColor( toolbar_->isSensitive() && \
+	    toolbar_->isOn(selbutidx_) ? flashcolor_ : Color(128,128,128) );
+
 void uiODFaultToolMan::enableToolbar( bool yn )
 {
     if ( yn == toolbar_->isSensitive() )
@@ -490,13 +494,15 @@ void uiODFaultToolMan::enableToolbar( bool yn )
     toolbar_->display( yn );
     toolbar_->setSensitive( yn );
 
+    mOutputNameComboTextColorSensitivityHack();
+
     if ( !yn )
     {
 	showSettings( false );
 	appl_.applMgr().visServer()->turnSelectionModeOn( false );
 
 	if ( tracktb_->isHidden() )
-	    tracktb_->display( !tracktbwashidden_);
+	    tracktb_->display( !tracktbwashidden_ );
     }
 }
 
@@ -593,20 +599,15 @@ void uiODFaultToolMan::updateToolbarCB( CallBacker* )
     const bool selecting = toolbar_->isOn( selbutidx_ );
 
     toolbar_->setSensitive( settingsbutidx_, selecting );
-    toolbar_->setSensitive( gobutidx_, selecting );
     toolbar_->setSensitive( removalbutidx_, selecting );
     transfercombo_->setSensitive( selecting );
     outputtypecombo_->setSensitive( selecting );
     outputactcombo_->setSensitive( selecting );
+    outputnamecombo_->setSensitive( selecting );
     outputselbut_->setSensitive( selecting );
     colorbut_->setSensitive( selecting );
 
-    if ( selecting )
-	processOutputName();
-    else
-	outputnamecombo_->setTextColor( Color(128,128,128) );
-
-    outputnamecombo_->setSensitive( selecting );
+    mOutputNameComboTextColorSensitivityHack();
 
     toolbar_->setSensitive( undobutidx_, EM::EMM().undo().canUnDo() );
     BufferString undotooltip( "Undo" );
@@ -623,6 +624,9 @@ void uiODFaultToolMan::updateToolbarCB( CallBacker* )
 	redotooltip += " "; redotooltip += EM::EMM().undo().reDoDesc();
     }
     toolbar_->setToolTip( redobutidx_, redotooltip.buf() );
+
+    if ( selecting )
+	processOutputName();
 }
 
 
@@ -642,8 +646,7 @@ const uiIOObjSel* uiODFaultToolMan::getObjSel() const
 void uiODFaultToolMan::outputEditTextChg( CallBacker* )
 {
     setAuxSurfaceWrite( outputnamecombo_->text() );
-    outputnamecombo_->setTextColor( Color(0,0,0) );
-    outputnamecombo_->setToolTip( "Output name" );
+    flashReset();
     editreadytimer_.start( 200, false );
 }
 
@@ -711,7 +714,7 @@ static void addOutputItem( const char* newitem, BufferStringSet& items )
 }
 
 
-void uiODFaultToolMan::updateOutputItems()
+void uiODFaultToolMan::updateOutputItems( bool clearcuritem )
 {
     const bool tofault = mCurItem(outputtypecombo_, sKeyToFault);
 
@@ -729,12 +732,19 @@ void uiODFaultToolMan::updateOutputItems()
     }
 
     addOutputItem( fullnm, tofault ? allfaultitems_ : allfssitems_ );
+
+    if ( clearcuritem )
+	setOutputName( "" );
+
     publishOutputItems();
 }
 
 
 void uiODFaultToolMan::outputComboSelChg( CallBacker* )
-{   publishOutputItems(); }
+{   
+    editreadytimer_.stop();
+    publishOutputItems();
+}
 
 
 void uiODFaultToolMan::outputActionChg( CallBacker* )
@@ -765,7 +775,7 @@ void uiODFaultToolMan::colorPressedCB( CallBacker* cb )
 
 void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 {
-    colorbut_->setToolTip( "User-defined output color" );
+    colorbut_->setToolTip( "Output color [user-defined]" );
 
     if ( cb )
     {
@@ -776,7 +786,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
     else if ( randomColor() )
     {
 	auxcolorinput_->setColor( randomcolor_ );
-	colorbut_->setToolTip( "Random output color" );
+	colorbut_->setToolTip( "Output color [random]" );
     }
     else
     {
@@ -784,15 +794,25 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 
 	if ( currentColor() || inheritColor() )
 	{
+	    MultiID mid = auxfaultwrite_->getObjSel()->validKey();
+	    if ( !isOutputNameUsed(auxfaultwrite_) )
+		mid = auxfsswrite_->getObjSel()->validKey();
+
+	    const EM::ObjectID emid  = EM::EMM().getObjectID( mid );
+	    const EM::EMObject* emobj = EM::EMM().getObject( emid );
+
 	    IOPar iopar;
 	    Color curcolor;
-	    MultiID mid = getObjSel()->validKey();
-	    EM::EMM().readPars( mid, iopar );
-	    if ( iopar.get(sKey::Color,curcolor) )
+	    if ( emobj )
+		curcolor = emobj->preferredColor();
+	    else
+		EM::EMM().readPars( mid, iopar );
+
+	    if ( emobj || iopar.get(sKey::Color,curcolor) )
 	    {
 		auxcolorinput_->setColor( curcolor );
 		colorbut_->setToolTip( currentColor() ?
-			"Current output color" : "Inherited output color" );
+		    "Output color [current]" : "Output color [predecessor]" );
 	    }
 	}
     }
@@ -848,6 +868,7 @@ void uiODFaultToolMan::updateColorMode()
     {
         NotifyStopper ns( settingsdlg_->colormodechg );
 	settingsdlg_->setColorMode( settingssetup_.colormode_ );
+        settingsdlg_->setOutputDisplayed( isOutputDisplayed() );
     }
 }
 
@@ -992,10 +1013,10 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	    uiMSG().error( "Cannot save output object" );
     }
 
+    afterTransferUpdate();
+
     UndoEvent* undo = new FaultStickTransferUndoEvent( copy, saved );
     EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().addEvent(undo) );
-
-    afterTransferUpdate();
 
     if ( newnrselected )
     {
@@ -1009,7 +1030,8 @@ void uiODFaultToolMan::afterTransferUpdate()
 {
     randomcolor_ = getRandStdDrawColor();
     usercolorlink_.setEmpty();
-    updateOutputItems(); 
+    const bool clearname = mCurItem( outputactcombo_, sKeyCreateSingleNew );
+    updateOutputItems( clearname ); 
 }
 
 
@@ -1123,21 +1145,20 @@ void uiODFaultToolMan::processOutputName()
     updateColorMode();
     outputColorChg( 0 );
 
+    toolbar_->setSensitive( gobutidx_, true );
     BufferString objname = outputnamecombo_->text();
-    outputnamecombo_->setTextColor( Color(0,0,0) );
-    outputnamecombo_->setToolTip( "Output name" );
-    toolbar_->setSensitive( gobutidx_, false );
 
     if ( objname.isEmpty() )
-	return;
-
-    if ( !isInCreateMode() )
+    {
+	toolbar_->setSensitive( gobutidx_, false );
+    }
+    else if ( !isInCreateMode() )
     {
 	if ( !isOutputNameUsed() )
 	{
-	    BufferString tooltiptext = "No Fault exists with this name!";
+	    BufferString tooltiptext = "Output name [of no existing Fault!]";
 	    if ( !mCurItem(outputtypecombo_, sKeyToFault) )
-		tooltiptext = "No FaultStickSet exists with this name!";
+		tooltiptext = "Output name [of no existing FaultStickSet!]";
 	    outputnamecombo_->setToolTip( tooltiptext );
 	    flashOutputName( true );
 	    return;
@@ -1168,11 +1189,15 @@ void uiODFaultToolMan::processOutputName()
 		outputColorChg( 0 );
 	}
 
+	updateColorMode();
 	if ( !inheritColor() )
 	    outputColorChg( 0 );
 
 	if ( serialname != objname )
+	{
 	    flashOutputName( false, serialname );
+	    return;
+	}
     }
     else
     {
@@ -1185,18 +1210,21 @@ void uiODFaultToolMan::processOutputName()
 
 	if (  existingfault || existingfss )
 	{
-	    BufferString tooltiptext = "Existing Fault with this name!";
+	    BufferString tooltiptext = "Output name [of existing Fault!]";
 	    if ( existingfss )
-		tooltiptext = "Existing FaultStickSet with this name!";
+		tooltiptext = "Output name [of existing FaultStickSet!]";
 	    outputnamecombo_->setToolTip( tooltiptext );
 	    flashOutputName( true, basenm );
 	    return;
 	}
 	else if ( basenm != objname )
+	{
 	    flashOutputName( false, basenm );
+	    return;
+	}
     }
 
-    toolbar_->setSensitive( gobutidx_, true );
+    flashReset();
 }
 
 
@@ -1227,11 +1255,22 @@ void uiODFaultToolMan::surveyChg( CallBacker* )
 
 void uiODFaultToolMan::flashOutputName( bool error, const char* newname )
 {
-    flashname_ = newname ? newname : outputnamecombo_->text();
-    flashcolor_ = error ? Color(255,0,0) : Color(0,0,0);
-    flashtimer_.start( 500, true );
-    outputnamecombo_->setBackgroundColor( flashcolor_ );
-    outputnamecombo_->setTextColor( Color(255,255,255) );
+    toolbar_->setSensitive( gobutidx_, !error );
+
+    const BufferString name = newname ? newname : outputnamecombo_->text();
+    const Color color = error ? Color(255,0,0) : Color(0,0,0);
+
+    const bool doflash = name!=flashname_ || color!=flashcolor_;
+    flashname_ = name; flashcolor_ = color;
+
+    if ( doflash )
+    {
+	flashtimer_.start( 500, true );
+	outputnamecombo_->setBackgroundColor( flashcolor_ );
+	outputnamecombo_->setTextColor( Color(255,255,255) );
+    }
+    else
+	flashOutputTimerCB( 0 );
 }
 
 
@@ -1240,6 +1279,18 @@ void uiODFaultToolMan::flashOutputTimerCB( CallBacker* )
     outputnamecombo_->setTextColor( flashcolor_ );
     outputnamecombo_->setBackgroundColor( Color(255,255,255) );
     setOutputName( flashname_ );
+    updateColorMode();
+    if ( !inheritColor() )
+	outputColorChg( 0 );
+}
+
+
+void uiODFaultToolMan::flashReset()
+{
+    flashname_.setEmpty();
+    flashcolor_ = Color(0,0,0);
+    outputnamecombo_->setTextColor( flashcolor_ );
+    outputnamecombo_->setToolTip( "Output name" );
 }
 
 

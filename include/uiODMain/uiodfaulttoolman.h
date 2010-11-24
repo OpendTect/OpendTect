@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Jaap Glas
  Date:		December 2009
- RCS:		$Id: uiodfaulttoolman.h,v 1.9 2010-11-18 18:30:18 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttoolman.h,v 1.10 2010-11-24 09:13:09 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -153,12 +153,13 @@ protected:
     bool			currentColor() const;
 
     BufferStringSet&		getOutputItems();
-    void			updateOutputItems();
+    void			updateOutputItems(bool clearcuritem);
     void			publishOutputItems();
 
     void			flashOutputName(bool error,
 	    					const char* newname=0);
     void			flashOutputTimerCB(CallBacker*);
+    void			flashReset();
 
     bool			areSticksAccessible() const;
     void			enableStickAccess(bool yn);
