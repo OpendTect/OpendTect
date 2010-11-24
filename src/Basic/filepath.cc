@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.30 2010-11-24 13:12:01 cvskris Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.31 2010-11-24 15:01:35 cvskris Exp $";
 
 #include "filepath.h"
 
@@ -203,6 +203,15 @@ bool FilePath::makeCanonical()
 {
     BufferString fullpath = fullPath();
     set( File::getCanonicalPath( fullpath.buf() ) );
+    return true;
+}
+
+
+bool FilePath::makeRelativeTo( const FilePath&  b )
+{
+    const BufferString file = fullPath();
+    const BufferString path = b.fullPath();
+    set( File::getRelativePath( path.buf(), file.buf() ) );
     return true;
 }
 
