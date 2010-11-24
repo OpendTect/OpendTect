@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.127 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.128 2010-11-24 06:12:05 cvsraman Exp $";
 
 #include "uisurvey.h"
 
@@ -282,7 +282,7 @@ void uiSurvey::newButPushed( CallBacker* )
     fp.add( "data" ).add( "BasicSurvey" );
     delete survinfo_;
     survinfo_ = SurveyInfo::read( fp.fullPath() );
-    survinfo_->dirname = "";
+    survinfo_->dirname_ = "";
     mkInfo();
     if ( !survInfoDialog() )
 	updateInfo(0);

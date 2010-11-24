@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.124 2010-08-27 09:04:53 cvshelene Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.125 2010-11-24 06:12:05 cvsraman Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -108,7 +108,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 				     "Specify survey parameters","0.3.2")
 				     .nrstatusflds(1))
 	, rootdir_(GetBaseDataDir())
-	, orgdirname_(si_.dirname.buf())
+	, orgdirname_(si_.dirname_.buf())
 	, si_(si)
 	, survParChanged(this)
 	, x0fld_(0)
@@ -119,7 +119,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 {
     static int sipidx = addInfoProvider( new uiCopySurveySIP );
 
-    orgstorepath_ = si_.datadir.buf();
+    orgstorepath_ = si_.datadir_.buf();
     isnew_ = orgdirname_.isEmpty();
 
     BufferString fulldirpath;
@@ -665,10 +665,10 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	}
     }
 
-    si_.dirname = newdirnm;
+    si_.dirname_ = newdirnm;
     si_.setSurvDataType( (SurveyInfo::Pol2D)pol2dfld_->currentItem() );
     if ( mUseAdvanced() )
-	si_.get3Pts( si_.set3coords, si_.set3binids, si_.set3binids[2].crl );
+	si_.get3Pts( si_.set3coords_, si_.set3binids_, si_.set3binids_[2].crl );
 
     if ( !si_.write(rootdir_) )
     {
