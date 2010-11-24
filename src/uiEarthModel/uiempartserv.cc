@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.213 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.214 2010-11-24 04:40:41 cvsnageswara Exp $";
 
 #include "uiempartserv.h"
 
 #include "arrayndimpl.h"
 #include "array2dinterpol.h"
+#include "bidvsetarrayadapter.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "datainpspec.h"
@@ -690,6 +691,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 {
     mDynamicCastAll(id);
     if ( !hor3d ) { uiMSG().error( "Cannot find horizon" ); return -1; }
+
     if ( !data.size() ) { uiMSG().error( "No data calculated" ); return -1; }
 
     const BinIDValueSet& bivs = data.bivSet();
@@ -819,6 +821,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	    data.bivSet().add( bid, mVarLenArr(auxvals) );
 	}
     }
+
     data.dataChanged();
     hor3d->auxdata.removeAll();
     return true;
@@ -828,6 +831,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 bool uiEMPartServer::interpolateAuxData( const EM::ObjectID& oid,
 	const char* nm, DataPointSet& dpset )
 { return changeAuxData( oid, nm, true, dpset ); }
+
 
 bool uiEMPartServer::filterAuxData( const EM::ObjectID& oid,
 	const char* nm, DataPointSet& dpset )
@@ -840,19 +844,29 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     mDynamicCastAll(oid);
     if ( !hor3d ) return false;
 
-    const int auxidx = hor3d->auxdata.auxDataIndex( nm );
-    if ( auxidx < 0 )
-    {
-	uiMSG().error("Cannot find attribute data");
+    BinIDValueSet& bivs = dpset.bivSet();
+    if ( dpset.dataSet().nrCols() != bivs.nrVals() )
 	return false;
+
+    int cid = -1;
+    for ( int idx=0; idx<bivs.nrVals(); idx++ )
+    {
+	BufferString colnm = dpset.dataSet().colDef(idx).name_; 
+	if ( colnm.isEqual(nm) )
+	{
+	    cid = idx;
+	    break;
+	}
     }
+
+    if ( cid < 0 )
+	return false;
 
     const EM::SectionID sid = hor3d->sectionID( 0 );
     const StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
     const StepInterval<int> colrg = hor3d->geometry().colRange( sid );
-
-    PtrMan< Array2D<float> > arr2d =
-	hor3d->auxdata.createArray2D( auxidx, sid );
+    BinID step( rowrg.step, colrg.step );
+    BIDValSetArrAdapter adapter( bivs, cid, step );
 
     PtrMan<Task> changer;
     uiTaskRunner execdlg( parent() );
@@ -874,15 +888,11 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	    return false;
 
 	changer = interp;
-
 	interp->setFillType( Array2DInterpol::Full );
-
 	const float inldist = SI().inlDistance();
 	const float crldist = SI().crlDistance();
-
 	interp->setRowStep( rowrg.step*inldist );
 	interp->setColStep( colrg.step*crldist );
-
 
 	PtrMan< Array2D<float> > arr = hor3d->createArray2D( sid );
 	const float* arrptr = arr ? arr->getData() : 0;
@@ -903,7 +913,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	    interp->setMask( mask, OD::TakeOverPtr );
 	}
 
-	if ( !interp->setArray( *arr2d, &execdlg ) )
+	if ( !interp->setArray( adapter, &execdlg ) )
 	    return false;
     }
     else
@@ -912,36 +922,12 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	if ( !dlg.go() ) return false;
 
 	Array2DFilterer<float>* filter =
-	    new Array2DFilterer<float>( *arr2d, dlg.getInput() );
+	    new Array2DFilterer<float>( adapter, dlg.getInput() );
 	changer = filter;
     }
 
     if ( !execdlg.execute(*changer) )
 	return false;
-
-    hor3d->auxdata.setArray2D( auxidx, sid, *arr2d );
-
-    dpset.dataSet().add( new DataColDef(sKeySectionID()) );
-    dpset.dataSet().add( new DataColDef(nm) );
-
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
-    {
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-	{
-	    const BinID rc( row, col );
-	    
-	    float auxvals[3]; 
-	    auxvals[0] = hor3d->getPos( sid, rc.toInt64() ).z;
-	    if ( mIsUdf(auxvals[0]) )
-		continue;
-
-	    auxvals[1] = sid;
-	    auxvals[2] = arr2d->get(rowrg.getIndex(row), colrg.getIndex(col));
-	    dpset.bivSet().add( rc, auxvals );
-	}
-    }
-
-    dpset.dataChanged();
 
     mDynamicCastGet(const Array2DInterpol*,interp,changer.ptr())
     const char* infomsg = interp ? interp->infoMsg() : 0;
@@ -1018,6 +1004,7 @@ const char* uiEMPartServer::genRandLine( int opt )
 	    disponcreation_ = dlg.dispOnCreation();
 	}
     }
+
     return res;
 }
 
