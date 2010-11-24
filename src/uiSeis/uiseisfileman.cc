@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.118 2010-11-16 11:30:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.119 2010-11-24 17:05:32 cvskris Exp $";
 
 
 #include "uiseisfileman.h"
@@ -54,7 +54,9 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 	    	   SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
 {
-    ctxt_.toselect.allowtransls_ = is2d_ ? "2D" : "CBVS";
+    ctxt_.toselect.allowtransls_ = is2d_
+	? "2D"
+	: CBVSSeisTrcTranslator::translKey();
     createDefaultUI( true );
     selgrp_->getListField()->doubleClicked.notify(
 	    			is2d_ ? mCB(this,uiSeisFileMan,man2DPush)
@@ -170,7 +172,7 @@ void uiSeisFileMan::mkFileInfo()
 	}
     }
 
-    if ( !strcmp(curioobj_->translator(),"CBVS") )
+    if ( !strcmp(curioobj_->translator(),CBVSSeisTrcTranslator::translKey()) )
     {
 	CBVSSeisTrcTranslator* tri = CBVSSeisTrcTranslator::getInstance();
 	if ( tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),

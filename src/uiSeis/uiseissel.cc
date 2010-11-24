@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.100 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.101 2010-11-24 17:05:32 cvskris Exp $";
 
 #include "uiseissel.h"
 
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: uiseissel.cc,v 1.100 2010-11-10 15:26:43 cvsber
 #include "seistype.h"
 #include "separstr.h"
 #include "survinfo.h"
-#include "seistrctr.h"
+#include "seiscbvs.h"
 #include "seispsioprov.h"
 
 
@@ -60,8 +60,8 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
 {
     IOObjContext& ctxt = const_cast<IOObjContext&>( ct );
 
-    ctxt.toselect.allowtransls_ = uiSeisSelDlg::standardTranslSel( su.geom_,
-							   ctxt.forread );
+    ctxt.toselect.allowtransls_ =
+	uiSeisSelDlg::standardTranslSel( su.geom_, ctxt.forread );
 
     if ( su.geom_ != Seis::Line )
     {
@@ -72,7 +72,9 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
     }
 
     if ( ctxt.deftransl.isEmpty() )
-	ctxt.deftransl = su.geom_ == Seis::Line ? "2D" : "CBVS";
+	ctxt.deftransl = su.geom_ == Seis::Line
+	    ? "2D"
+	    : CBVSSeisTrcTranslator::translKey();
     else if ( !ctxt.forread )
 	ctxt.toselect.allowtransls_ = ctxt.deftransl;
     else
@@ -350,7 +352,9 @@ void uiSeisSel::fillContext( Seis::GeomType geom, bool forread,
     ctxt.forread = forread;
 
     if ( ctxt.deftransl.isEmpty() )
-	ctxt.deftransl = geom==Seis::Line ? "2D" : "CBVS";
+	ctxt.deftransl = geom==Seis::Line
+	    ? "2D"
+	    : CBVSSeisTrcTranslator::translKey();
     else if ( !forread )
 	ctxt.toselect.allowtransls_ = ctxt.deftransl;
     else

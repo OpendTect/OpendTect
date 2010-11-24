@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.50 2010-10-20 06:01:04 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.51 2010-11-24 17:05:32 cvskris Exp $";
 
 
 #include "uisteeringsel.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: uisteeringsel.cc,v 1.50 2010-10-20 06:01:04 cvs
 #include "survinfo.h"
 #include "keystrs.h"
 #include "seisselection.h"
-#include "seistrctr.h"
+#include "seiscbvs.h"
 #include "seisioobjinfo.h"
 #include "uiattribfactory.h"
 #include "uigeninput.h"
@@ -298,7 +298,7 @@ const IOObjContext& uiSteerCubeSel::ioContext( bool is2d )
     if ( !ctxt )
     {
 	ctxt = new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
-	ctxt->deftransl = "CBVS";
+	ctxt->deftransl = CBVSSeisTrcTranslator::translKey();
 	if ( !is2d )
 	    ctxt->toselect.require_.set( sKey::Type, sKey::Steering );
     }

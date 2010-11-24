@@ -7,14 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.52 2010-11-19 16:55:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.53 2010-11-24 17:05:32 cvskris Exp $";
 
 #include "uiveldesc.h"
 
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "seisselection.h"
-#include "seistrctr.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
@@ -266,8 +265,7 @@ const IOObjContext& uiVelSel::ioContext()
     static PtrMan<IOObjContext> velctxt = 0;
     if ( !velctxt )
     {
-	velctxt = new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
-	velctxt->deftransl = "CBVS";
+	velctxt = new IOObjContext( uiSeisSel::ioContext(Seis::Vol,true) );
 	velctxt->toselect.require_.setYN( VelocityDesc::sKeyIsVelocity(), true);
     }
 

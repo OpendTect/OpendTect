@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.75 2010-11-24 15:13:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.76 2010-11-24 17:05:32 cvskris Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
-#include "seistrctr.h"
+#include "seiscbvs.h"
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seisselection.h"
@@ -92,7 +92,8 @@ void uiSeisImpCBVS::init( bool fromioobj )
     if ( fromioobj )
     {
 	inctio_.ctxt.forread = true;
-	inctio_.ctxt.toselect.allowtransls_ = "CBVS";
+	inctio_.ctxt.toselect.allowtransls_ =
+	    CBVSSeisTrcTranslator::translKey();
 	uiSeisSel::Setup sssu( Seis::Vol );
 	sssu.steerpol( uiSeisSel::Setup::InclSteer );
 	oinpfld = new uiSeisSel( this, inctio_, sssu );
@@ -142,7 +143,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     uiSeisSel::Setup sssu( Seis::Vol );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
     outctio_.ctxt.forread = false;
-    outctio_.ctxt.toselect.allowtransls_ = "CBVS";
+    outctio_.ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
     IOM().to( outctio_.ctxt.getSelKey() );
     if ( !fromioobj )
 	sssu.enabotherdomain( true );
@@ -169,7 +170,7 @@ IOObj* uiSeisImpCBVS::getfInpIOObj( const char* inp ) const
 {
     IOStream* iostrm = new IOStream( "_tmp", tmpid_ );
     iostrm->setGroup( outctio_.ctxt.trgroup->userName() );
-    iostrm->setTranslator( "CBVS" );
+    iostrm->setTranslator( CBVSSeisTrcTranslator::translKey() );
     iostrm->setFileName( inp );
     return iostrm;
 }
@@ -329,7 +330,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	    outctio_.ioobj->pars().set( sKey::Type, seltyp == 1
 		    			? sKey::Attribute : sKey::Steering );
 
-	outctio_.ioobj->setTranslator( "CBVS" );
+	outctio_.ioobj->setTranslator( CBVSSeisTrcTranslator::translKey() );
 	if ( !dolink )
 	    inctio_.setObj( getfInpIOObj(fname) );
 	else
