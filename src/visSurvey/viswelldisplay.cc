@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.130 2010-11-22 11:29:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.131 2010-11-24 14:00:54 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -15,7 +15,6 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.130 2010-11-22 11:29:57 c
 #include "executor.h"
 #include "ptrman.h"
 #include "survinfo.h"
-#include "coltabsequence.h"
 #include "visdataman.h"
 #include "visevent.h"
 #include "vismarker.h"
@@ -425,28 +424,26 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     Well::Log& wl = wd->logs().getLog( logidx );
     if ( wl.isEmpty() ) return;
     const int logsz = wl.size();
-
     const Well::Track& track = wd->track();
-
-    const float minval = wl.valueRange().start;
-    const float maxval = wl.valueRange().stop;
-    float newmaxval = minval;
-    float newminval = maxval;
-
+    const Interval<float> range = lp.range_;
+    float minval, maxval; minval = maxval =  mUdf( float );
     TypeSet<Coord3Value> crdvals;
     for ( int idx=0; idx<logsz; idx++ )
     {
 	const float dah = wl.dah(idx);
 	const float val = wl.value(idx);
 
-	Coord3 pos = track.getPos( dah );
-	if ( !pos.x && !pos.y && !pos.z ) continue;
+	if ( mIsUdf( val ) || !range.includes( val ) )
+	    continue;
 
-	if ( !mIsUdf(val) )
-	{
-	    if ( newminval>val ) newminval = val;
-	    if ( newmaxval<val ) newmaxval = val;
-	}
+	Coord3 pos = track.getPos( dah );
+	if ( !pos.x && !pos.y && !pos.z ) 
+	    continue;
+
+	if ( mIsUdf( minval ) || val < minval )
+	    minval = val;
+	if ( mIsUdf( maxval ) || val > maxval )
+	    maxval = val;
 
 	if ( zistime_ )
 	    pos.z = wd->d2TModel()->getTime( dah );
@@ -459,13 +456,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     if ( crdvals.isEmpty() )
 	return;
 
-    Interval<float>& valrg = isfilled ? lp.valfillrange_ : lp.valrange_;
-    Interval<float>& range = isfilled ? lp.fillrange_ : lp.range_;
-    const float diffminval = minval - newminval;
-    const float diffmaxval = maxval - newmaxval;
-    valrg.set( newminval, newmaxval );
-    range.set( range.start-diffminval, range.stop-diffmaxval );
-
+    ( isfilled ? lp.valfillrange_ : lp.valrange_ ).set( minval, maxval );
     if ( isfilled )
 	well_->setFilledLogData( crdvals, lp );
     else
