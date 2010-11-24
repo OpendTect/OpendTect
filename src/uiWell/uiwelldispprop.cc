@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.46 2010-11-18 09:12:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.47 2010-11-24 14:00:12 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -371,6 +371,9 @@ void uiWellLogDispProperties::resetProps( Well::DisplayProperties::Log& pp )
 }
 
 
+#define mSetSwapFillIdx( fidx )\
+        if ( logprops().islogreverted_ )\
+	{ if ( fidx == 2 ) fidx = 1; else if ( fidx == 1 ) fidx =2; }
 void uiWellLogDispProperties::doPutToScreen()
 {
     NotifyStopper nssfc( singlfillcolfld_->activated );
@@ -391,10 +394,10 @@ void uiWellLogDispProperties::doPutToScreen()
     flipcoltabfld_->setChecked( logprops().iscoltabflipped_ );
     ovlapfld_->setValue( logprops().repeatovlap_ );
     repeatfld_->setValue( logprops().repeat_ );
-    if ( logprops().islogreverted_ ) 
-    { bool tmp; mSWAP( logprops().isleftfill_, logprops().isrightfill_, tmp ); }
-    const int fidx = logprops().isleftfill_ ? logprops().isrightfill_ ? 3 : 1
-				            : logprops().isrightfill_ ? 2 : 0; 
+    int fidx = logprops().isleftfill_ ? logprops().isrightfill_ ? 3 : 1
+				      : logprops().isrightfill_ ? 2 : 0; 
+    mSetSwapFillIdx( fidx )
+
     logfilltypefld_->box()->setCurrentItem( fidx );
     singlfillcolfld_->setChecked( logprops().issinglecol_ ); 
     clipratefld_->setValue( logprops().cliprate_ );
@@ -433,11 +436,10 @@ void uiWellLogDispProperties::doGetFromScreen()
     logprops().islogreverted_ = revertlogfld_->isChecked();
     logprops().islogarithmic_ = logarithmfld_->isChecked(); 
     logprops().issinglecol_ = singlfillcolfld_->isChecked();
-    const int fillidx = logfilltypefld_->box()->currentItem();
+    int fillidx = logfilltypefld_->box()->currentItem();
+    mSetSwapFillIdx( fillidx )
     logprops().isleftfill_ = ( fillidx == 1 || fillidx == 3 );
     logprops().isrightfill_ = ( fillidx == 2 || fillidx == 3 );
-    if ( logprops().islogreverted_ ) 
-    { bool tmp; mSWAP( logprops().isleftfill_, logprops().isrightfill_, tmp ); }
     logprops().seqname_ = coltablistfld_->text();
     logprops().iscoltabflipped_ = flipcoltabfld_->isChecked();
     logprops().repeat_ = stylefld_->getBoolValue() ? 1 : repeatfld_->getValue();
@@ -484,6 +486,7 @@ void uiWellLogDispProperties::isSeismicSel( CallBacker* )
     lblo_->display( !iswelllog );
     logfilltypefld_->display( iswelllog );
     flipcoltabfld_->display( iswelllog );
+    revertlogfld_->display( iswelllog );
     if (iswelllog)
 	repeatfld_->setValue(1);
     isFilledSel(0);
@@ -573,6 +576,7 @@ void uiWellLogDispProperties::setFldSensitive( bool yn )
     filllogsfld_->setSensitive(yn);
     logarithmfld_->setSensitive(yn);
     logwidthfld_->setSensitive(yn);
+    logfilltypefld_->setSensitive(yn);
 }
 
 
