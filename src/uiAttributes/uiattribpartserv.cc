@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.167 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.168 2010-11-25 15:39:26 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -381,9 +381,18 @@ void uiAttribPartServer::updateSelSpec( SelSpec& ss ) const
     else
     {
 	if ( is2d ) return;
-	const bool isstored = ss.isStored();
+	bool isstored = ss.isStored();
+	const bool isother = ss.id() == SelSpec::cOtherAttrib();
 	const DescSet* ads = DSHolder().getDescSet( false, isstored );
 	ss.setIDFromRef( *ads );
+
+	const bool notfound = ss.id() == DescID( -1, false );
+	if ( isother && notfound )	//Could be multi-components stored cube
+	{
+	    ss.setIDFromRef( *DSHolder().getDescSet( false, true ) );
+	    isstored = ss.isStored();
+	}
+	
 	if ( !isstored )
 	{
 	    IOObj* ioobj = IOM().get(
