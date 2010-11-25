@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.17 2009-12-16 11:24:27 cvsnanne Exp $
+# $Id: setup_cvstree,v 1.18 2010-11-25 09:33:48 cvsnanne Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -91,26 +91,14 @@ if ( $binsubdir == mac ) then
     ln -s ../glxinfo .
 endif
 
-set qtdir=
-set coindir=
-set fftwdir=
+set qtdir=$WORK/qt
+set coindir=$WORK/coin
 set dosimvollib=0
-set basedirsetscr="$od_wdir"/buildscripts/set_basedir.csh
-if ( ! -e $basedirsetscr ) set basedirsetscr=/users/appman/bin/set_basedir.csh
-if ( -e $basedirsetscr ) then
-    source $basedirsetscr
-    set qtdir=$BASE_DIR/qt/devel
-    set coindir=$BASE_DIR/coin/devel
-    set fftwdir=$BASE_DIR/fftw/devel
-endif
 if ( $?OD_QTDIR ) then
     set qtdir=$OD_QTDIR
 endif
 if ( $?OD_COINDIR ) then
     set coindir=$OD_COINDIR
-endif
-if ( $?OD_FFTWDIR ) then
-    set fftwdir=$OD_FFTWDIR
 endif
 
 set missingpkgnms=
@@ -119,9 +107,6 @@ if ( $qtdir == "" ) then
 endif
 if ( $coindir == "" ) then
     set missingpkgnms="$missingpkgnms Coin"
-endif
-if ( $fftwdir == "" ) then
-    set missingpkgnms="$missingpkgnms FFTW"
 endif
 
 if ( ${missingpkgnms} != "" ) then
@@ -150,10 +135,6 @@ if ( $binsubdir == mac ) then
 	ln -s libsimage.20.dylib libsimage.dylib
 	set dosimvollib=1
     endif
-    if ( $fftwdir != "" ) then
-	ln -s $fftwdir/lib/libfftw3f.3.dylib .
-	ln -s libfftw3f.3.dylib libfftw3f.dylib
-    endif
 else
     if ( $qtdir != "" ) then
 	ln -s $qtdir/lib/libQtCore.so.4 .
@@ -171,10 +152,6 @@ else
 	ln -s libsimage.so.20 libsimage.so
 	set dosimvollib=1
     endif
-    if ( $fftwdir != "" ) then
-	ln -s $fftwdir/lib/libfftw3f.so.3 .
-	ln -s libfftw3f.so.3 libfftw3f.so
-    endif
 endif
 
 if ( $dosimvollib == 1 ) then
@@ -190,5 +167,5 @@ cd $od_wdir
 foreach fil ( init.bash init.csh )
     sed -e "s%__WORK__%$od_wdir%" \
 	-e "s%__DTECTAPPL__DIR__%$od_wdir%" \
-	"$od_wdir/dtect/dtectspec/.$fil" > $fil
+	"$od_wdir/dtect/.$fil" > $fil
 end
