@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.457 2010-11-22 05:56:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.458 2010-11-25 05:17:41 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -162,9 +162,7 @@ uiVisPartServer::~uiVisPartServer()
     toolbar_.unRef();
     pickretriever_->unRef();
     delete multirgeditwin_;
-
-    if ( dirlightdlg_ )
-	delete dirlightdlg_;
+    delete dirlightdlg_;
 
     setMouseCursorExchange( 0 );
 }
@@ -658,7 +656,7 @@ bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     const bool res = so->setDataPackID( attrib, dpid, 0 );
 
-    if ( res && multirgeditwin_ && (id == mapperrgeditordisplayid_) )
+    if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
 	multirgeditwin_->setDataPackID( attrib, dpid );
 
     return res;
@@ -839,13 +837,10 @@ void uiVisPartServer::setColTabMapperSetup( int id, int attrib,
     if ( so->getScene() )
 	so->getScene()->getSceneColTab()->setColTabMapperSetup( ms );
 
-    if ( multirgeditwin_ && (id == mapperrgeditordisplayid_) )
+    if ( multirgeditwin_ && id==mapperrgeditordisplayid_ )
     {
 	if ( mapperrgeditinact_ )
-	{
 	    mapperrgeditinact_ = false; 
-	    return;
-	}
 	else
 	    multirgeditwin_->setColTabMapperSetup( attrib, ms );
     }
@@ -884,7 +879,7 @@ void uiVisPartServer::setColTabSequence( int id, int attrib,
     if ( so->getScene() )
 	so->getScene()->getSceneColTab()->setColTabSequence( seq );
 
-    if ( multirgeditwin_ && (id == mapperrgeditordisplayid_) )
+    if ( multirgeditwin_ && id == mapperrgeditordisplayid_ )
 	multirgeditwin_->setColTabSeq( attrib, seq );
 }
 
@@ -2078,25 +2073,34 @@ void uiVisPartServer::displayMapperRangeEditForAttrbs( int displayid )
     {
 	multirgeditwin_->close();
 	delete multirgeditwin_;
+	multirgeditwin_ = 0;
+    }
+
+    const DataPackMgr::ID dpmid = getDataPackMgrID( displayid );
+    if ( dpmid < 1 )
+    {
+	uiMSG().error( "Cannot display histograms for this type of data" );
+	return;
     }
 
     multirgeditwin_ = new uiMultiMapperRangeEditWin( 0, getNrAttribs(displayid),
-	   					 getDataPackMgrID(displayid) );
+						     dpmid );
     multirgeditwin_->setDeleteOnClose( false );
     multirgeditwin_->rangeChange.notify( 
 	    mCB(this,uiVisPartServer,mapperRangeEditChanged) );
 
     for ( int idx=0; idx<getNrAttribs(displayid); idx++ )
     {
-	multirgeditwin_->setDataPackID( idx, getDataPackID(displayid,idx) );
+	const DataPack::ID dpid = getDataPackID( displayid, idx );
+	if ( dpid < 1 )
+	    continue;
 
-	if ( getColTabMapperSetup(displayid,idx) )
-		multirgeditwin_->setColTabMapperSetup( idx,
-		    			*getColTabMapperSetup(displayid,idx) );
+	multirgeditwin_->setDataPackID( idx, dpid );
+	const ColTab::MapperSetup* ms = getColTabMapperSetup( displayid, idx );
+	if ( ms ) multirgeditwin_->setColTabMapperSetup( idx, *ms );
 
-	if ( getColTabSequence(displayid,idx) )
-	    multirgeditwin_->setColTabSeq( idx,
-		    			   *getColTabSequence(displayid,idx));
+	const ColTab::Sequence* ctseq = getColTabSequence( displayid, idx );
+	if ( ctseq ) multirgeditwin_->setColTabSeq( idx, *ctseq );
     }
 
     multirgeditwin_->go();
@@ -2182,19 +2186,19 @@ uiVisModeMgr::uiVisModeMgr( uiVisPartServer* p )
 
 bool uiVisModeMgr::allowTurnOn( int id, bool doclean )
 {
-    if ( !visserv.issolomode_ && !doclean ) return true;
-    if ( !visserv.issolomode_ ) return false;
+    if ( !visserv.issolomode_ )
+	return !doclean;
+
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
     for ( int idx=0; idx<selected.size(); idx++ )
     {
 	if ( selected[idx] == id )
 	{
-	    if ( doclean ) visserv.updateDisplay(doclean, -1, id);
+	    if ( doclean ) visserv.updateDisplay( doclean, -1, id );
 	    return true;
 	}
     }
 
     return false;
 }
-
 
