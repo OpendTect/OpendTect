@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.21 2010-11-24 09:13:09 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.22 2010-11-25 14:58:18 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -798,21 +798,25 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 	    if ( !isOutputNameUsed(auxfaultwrite_) )
 		mid = auxfsswrite_->getObjSel()->validKey();
 
-	    const EM::ObjectID emid  = EM::EMM().getObjectID( mid );
-	    const EM::EMObject* emobj = EM::EMM().getObject( emid );
-
-	    IOPar iopar;
-	    Color curcolor;
-	    if ( emobj )
-		curcolor = emobj->preferredColor();
-	    else
-		EM::EMM().readPars( mid, iopar );
-
-	    if ( emobj || iopar.get(sKey::Color,curcolor) )
+	    if ( !mid.isEmpty() )
 	    {
-		auxcolorinput_->setColor( curcolor );
-		colorbut_->setToolTip( currentColor() ?
-		    "Output color [current]" : "Output color [predecessor]" );
+		const EM::ObjectID emid  = EM::EMM().getObjectID( mid );
+		const EM::EMObject* emobj = EM::EMM().getObject( emid );
+
+		IOPar iopar;
+		Color curcolor;
+		if ( emobj )
+		    curcolor = emobj->preferredColor();
+		else
+		    EM::EMM().readPars( mid, iopar );
+
+		if ( emobj || iopar.get(sKey::Color,curcolor) )
+		{
+		    auxcolorinput_->setColor( curcolor );
+		    colorbut_->setToolTip( currentColor() ?
+					   "Output color [current]" :
+					   "Output color [predecessor]" );
+		}
 	    }
 	}
     }
