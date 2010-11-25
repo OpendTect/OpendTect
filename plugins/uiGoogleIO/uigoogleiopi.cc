@@ -4,7 +4,7 @@
  * DATE     : Jul 2007
 -*/
 
-static const char* rcsID = "$Id";
+static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.17 2010-11-25 09:20:08 cvsnanne Exp $";
 
 #include "uigoogleexpsurv.h"
 #include "uigoogleexpwells.h"
@@ -108,7 +108,7 @@ void uiGoogleIOMgr::mkExportWellsIcon( CallBacker* cb )
     mDynamicCastGet(uiWellMan*,wm,cb)
     if ( !wm ) return;
 
-    uiToolButton* tb = new uiToolButton( wm, "google.png",
+    uiToolButton* tb = new uiToolButton( wm->listGroup(), "google.png",
 	    			"Export to Google KML",
 				mCB(this,uiGoogleIOMgr,exportWells) );
     wm->addTool( tb );
