@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.26 2010-09-13 10:48:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.27 2010-11-25 14:45:17 cvsjaap Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -76,6 +76,17 @@ protected:
 
 void uiGraphicsViewBody::mouseMoveEvent( QMouseEvent* event )
 {
+
+#ifdef __win__
+    // Hack to solve mouse/tablet dragging refresh problem on Windows
+    static int mousemovecount = 0;
+    const TabletInfo* ti = TabletInfo::currentState();
+    if ( !ti || (ti->eventtype_==TabletInfo::Move && ti->pressure_) )
+    {
+	if ( (mousemovecount++)%2 ) return;
+    }
+#endif
+
     MouseEvent me( buttonstate_, event->x(), event->y() );
     mousehandler_.triggerMovement( me );
     QGraphicsView::mouseMoveEvent( event );
