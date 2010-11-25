@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.17 2010-11-15 03:32:31 raman Exp $
+ RCS:		$Id: flthortools.h,v 1.18 2010-11-25 04:28:02 raman Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,17 +44,29 @@ public:
     int			lineNr() const			{ return nr_; }
     void		setIsInl(bool yn)		{ isinl_ = yn; }
     void		setLineNr(int nr)		{ nr_ = nr; }
+
     bool		isCrossing(const BinID&,float,const BinID&,float) const;
+    bool		getHorCrossings(const BinIDValueSet&,Interval<float>&,
+					Interval<float>&) const;
+    bool		getImage(const BinID&,float,const Interval<float>&,
+				 const Interval<float>&,BinID&, float&,
+				 bool forward) const;
+
     float		getZValFor(const BinID&) const;
     void		addValue(int id,const Coord3&)	{}
+    void		computeRange();
 
 protected:
+
+    Coord		getIntersection(const BinID&,float,
+	    				const BinID&,float) const;
 
     bool		isinl_;
     int			nr_;
     TypeSet<Coord3>	coords_;
     TypeSet<int>	coordindices_;
     TypeSet<int>	trcnrs_;	// For 2D only;
+    Interval<float>	range_;
 };
 
 
@@ -108,5 +120,6 @@ protected:
     ObjectSet<FaultTrace>&	flttrcs_;
     od_int64			nrdone_;
 };
+
 
 #endif
