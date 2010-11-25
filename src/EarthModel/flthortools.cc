@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.31 2010-11-25 08:56:58 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.32 2010-11-25 10:02:57 raman Exp $";
 
 #include "flthortools.h"
 
@@ -118,7 +118,8 @@ bool FaultTrace::getImage( const BinID& bid, float z,
     if ( intsectn == Coord::udf() )
 	return false;
 
-    const int trcnr = posdir ? ceil(intsectn.x) : floor(intsectn.x);
+    const int trcnr = posdir ? mNINT( ceil(intsectn.x) )
+			     : mNINT( floor(intsectn.x) );
     bidimg.inl = isinl_ ? nr_ : trcnr;
     bidimg.crl = isinl_ ? trcnr : nr_;
     return true;
