@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.131 2010-11-24 14:00:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.132 2010-11-26 16:43:08 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -37,6 +37,7 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.131 2010-11-24 14:00:54 c
 
 #define mGetWD(act) Well::Data* wd = getWD(); if ( !wd ) act;
 #define mMeter2Feet(val) val *= mToFeetFactor;
+#define mFeet2Meter(val) val *= mFromFeetFactor;
 #define dpp(param) wd->displayProperties().param
 
 
@@ -601,24 +602,25 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     val.setEmpty(); info.setEmpty();
     mGetWD(return);
 
-    const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-    const float zstep2 = zfactor * SI().zStep()/2;
-    const float mousez = pos.z*zfactor; 
+    float mousez = pos.z;
+    if ( zinfeet_ )
+	mFeet2Meter( mousez )
 
     info = "Well: "; info += wd->name();
     info += ", MD ";
 
-    const float dah = zistime_ ? wd->d2TModel()->getDah( mousez*0.001 ) 
+    const float dah = zistime_ ? wd->d2TModel()->getDah( mousez ) 
 			       : wd->track().getDahForTVD( mousez );
 
-    const bool zdispinft = SI().depthsInFeetByDefault();
-    info += zdispinft ? "(ft): " : "(m): ";
-    const float zfac = SI().depthsInFeetByDefault() ? mToFeetFactor : 1;
+    info += zinfeet_ ? "(ft): " : "(m): ";
+    const float zfac = zinfeet_ ? mToFeetFactor : 1;
     info += toString( mNINT(dah*zfac) );
 
     setLogInfo( info, val, dah, true );
     setLogInfo( info, val, dah, false );
 
+    const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
+    const float zstep2 = zfactor * SI().zStep()/2;
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];
