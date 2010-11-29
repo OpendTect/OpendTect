@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.44 2010-11-05 12:46:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.45 2010-11-29 15:24:53 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -138,8 +138,6 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_FIELD( shift2, (0) );
     SO_KIT_ADD_FIELD( screenWidth1, (40) );
     SO_KIT_ADD_FIELD( screenWidth2, (40) );
-    screenWidth1.setValue( 40 );
-    screenWidth2.setValue( 40 );
 
     valuesensor->attach( &log1 );
     valuesensor->attach( &log2 );
