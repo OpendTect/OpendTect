@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.109 2010-09-23 04:46:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.110 2010-11-29 06:41:01 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -571,6 +571,7 @@ void EMObject::removeListOfSubIDs( const TypeSet<EM::SubID>& subids,
 
 void EMObject::removeAllUnSeedPos()
 {
+    setBurstAlert( true );
     PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
     while( true )
     {
@@ -581,6 +582,7 @@ void EMObject::removeAllUnSeedPos()
 	if ( !isPosAttrib(pid, EM::EMObject::sSeedNode()) )
 	    unSetPos( pid, true );
     }
+    setBurstAlert( false );
 }
 
 
