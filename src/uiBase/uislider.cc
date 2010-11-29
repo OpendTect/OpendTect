@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.46 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.47 2010-11-29 09:27:15 cvsnanne Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -228,8 +228,9 @@ float uiSlider::maxValue() const
 
 void uiSlider::setStep( float step )
 {
-    int istep = sliderValue( step );
+    int istep = scaler_ ? mNINT(step/scaler_->factor) : step;
     body_->setSingleStep( istep );
+    body_->setPageStep( istep );
 }
 
 
