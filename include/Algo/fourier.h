@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl/Y. Liu
  Date:		August 2001
- RCS:		$Id: fourier.h,v 1.2 2010-09-17 15:44:47 cvskris Exp $
+ RCS:		$Id: fourier.h,v 1.3 2010-11-29 17:24:22 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 #include "transform.h"
+
+#include "factory.h"
 
 
 namespace Fourier
@@ -26,6 +28,11 @@ class FFTCC1D;
 mClass CC : public GenericTransformND
 {
 public:
+    mDefaultFactoryInstantiation( CC, CC, "PFAFFT", "FFT" );
+    static ::Factory<CC>& factory();
+
+    static CC*		createDefault();
+
     			CC();
     void		setNormalization(bool yn); 
     static float	getNyqvist(float samplespacing);

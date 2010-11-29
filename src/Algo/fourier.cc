@@ -4,13 +4,22 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID = "$Id: fourier.cc,v 1.5 2010-09-22 18:22:29 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: fourier.cc,v 1.6 2010-11-29 17:24:22 cvskris Exp $";
 
 #include "fourier.h"
 #include "odmemory.h"
 
 namespace Fourier
 {
+
+
+mImplFactory( CC, CC::factory );
+
+CC* CC::createDefault()
+{
+    return factory().create( factory().getDefaultName() );
+}
+ 
 
 
 CC::CC()
