@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.20 2010-08-11 16:55:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.21 2010-11-29 21:37:17 cvskris Exp $";
 
 #include <iostream>
 
@@ -481,8 +481,8 @@ CWT::CWT()
     , wt_(WaveletType(0))
     , inited_(false)
     , freqrg_(0,0,0)
-    , fft_(new Fourier::CC())
-    , ifft_(new Fourier::CC())
+    , fft_(Fourier::CC::createDefault())
+    , ifft_(Fourier::CC::createDefault())
 {
     ifft_->setNormalization( true );
 }

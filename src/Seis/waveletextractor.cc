@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.10 2010-10-27 12:07:22 cvsnageswara Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.11 2010-11-29 21:37:17 cvskris Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -34,7 +34,7 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     , phase_(0)
     , nrusedtrcs_(0)
     , nrdone_(0)
-    , fft_( new Fourier::CC() )
+    , fft_( Fourier::CC::createDefault() )
     , totalnr_(0)
     , msg_("Extracting wavelet")
     , wvlt_(*new Wavelet("",-wvltsize/2))

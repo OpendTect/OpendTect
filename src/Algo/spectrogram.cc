@@ -4,14 +4,14 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: spectrogram.cc,v 1.1 2010-08-11 16:41:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: spectrogram.cc,v 1.2 2010-11-29 21:37:17 cvskris Exp $";
 
 #include "spectrogram.h"
 #include "arrayndimpl.h"
 
     
 Spectrogram::Spectrogram()
-    : fft_( new Fourier::CC() )
+    : fft_( Fourier::CC::createDefault() )
     , tempin_( 0 )
     , tempout_( 0 )
 {}    

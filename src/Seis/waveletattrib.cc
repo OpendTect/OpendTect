@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.cc,v 1.11 2010-10-27 06:56:31 cvsnageswara Exp $
+ RCS:           $Id: waveletattrib.cc,v 1.12 2010-11-29 21:37:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,13 +40,13 @@ void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
 
 #define mDoFFT( isforward, inp, outp, sz )\
 {\
-    Fourier::CC fft; \
-    fft.setInputInfo( Array1DInfoImpl(sz) ); \
-    fft.setDir( isforward ); \
-    fft.setNormalization(!isforward); \
-    fft.setInput( inp.getData() ); \
-    fft.setOutput( outp.getData() ); \
-    fft.run( true ); \
+    PtrMan<Fourier::CC> fft = Fourier::CC::createDefault(); \
+    fft->setInputInfo( Array1DInfoImpl(sz) ); \
+    fft->setDir( isforward ); \
+    fft->setNormalization(!isforward); \
+    fft->setInput( inp.getData() ); \
+    fft->setOutput( outp.getData() ); \
+    fft->run( true ); \
 }
 
 

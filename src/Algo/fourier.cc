@@ -4,7 +4,7 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID = "$Id: fourier.cc,v 1.6 2010-11-29 17:24:22 cvskris Exp $";
+static const char* rcsID = "$Id: fourier.cc,v 1.7 2010-11-29 21:37:17 cvskris Exp $";
 
 #include "fourier.h"
 #include "odmemory.h"
@@ -55,7 +55,13 @@ float CC::getDf( float samplespacing, int nrsamples )
 
 
 bool CC::isFast( int sz ) const 
-{ return sz==nextFastSize(sz); }
+{ return sz==getFastSize(sz); }
+
+
+int CC::getFastSize( int nmin ) const
+{
+    return  CC::CC1D::getFastSize( nmin );
+}
 
 
 CC::CC1D::CC1D()
@@ -74,7 +80,7 @@ CC::CC1D::~CC1D()
 
 bool CC::CC1D::init()
 {
-    dopfa_ = nextFastSize(sz_)==sz_;
+    dopfa_ = getFastSize(sz_)==sz_;
     direction_ = forward_ ? -1 : 1;
     return true;
 }
@@ -4195,7 +4201,7 @@ void CC::pfacr(int isign, int n, const float_complex* cz, float* rz )
 }
 
 
-int CC::nextFastSize( int nmin )
+int CC::CC1D::getFastSize( int nmin )
 {
     int i;
     for ( i=0; i<NTAB-1 && nctab[i].n<nmin; ++i );

@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.12 2010-10-04 19:56:14 cvskris Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.13 2010-11-29 21:37:17 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -147,10 +147,11 @@ else if ( inputpos##dim>lastinput##dim ) \
 }
 bool processKernel( int start, int stop, int thread )
 {
+    PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
     const int ksz0 =
-	Fourier::CC::nextFastSize( 2*pars_.stepout_.row+i0samples_.width()+1 );
+	fft->getFastSize( 2*pars_.stepout_.row+i0samples_.width()+1 );
     const int ksz1 =
-	Fourier::CC::nextFastSize( 2*pars_.stepout_.col+i1samples_.width()+1 );
+	fft->getFastSize( 2*pars_.stepout_.col+i1samples_.width()+1 );
 
     Smoother2D<float> smoother;
     smoother.setWindow( mIsUdf(pars_.rowdist_)

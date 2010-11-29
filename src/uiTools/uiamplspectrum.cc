@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.22 2010-08-11 16:55:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.23 2010-11-29 21:37:17 cvskris Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -123,7 +123,7 @@ void uiAmplSpectrum::setData( const Array3D<float>& array )
 
 void uiAmplSpectrum::initFFT( int nrsamples ) 
 {
-    fft_ = new Fourier::CC();
+    fft_ = Fourier::CC::createDefault():
     const int fftsz = fft_->nextFastSize( nrsamples );
     fft_->setInputInfo( Array1DInfoImpl(fftsz) );
     fft_->setDir( true );

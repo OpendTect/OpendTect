@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.54 2010-10-28 07:59:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.55 2010-11-29 21:37:17 cvskris Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -317,12 +317,12 @@ bool GeoCalculator::isValidLogData( const TypeSet<float>& logdata )
 
 #define mDoFourierTransform(tf,isstraight,inp,outp,sz) \
 {   \
-    tf.setInputInfo(Array1DInfoImpl(sz));\
-    tf.setDir(isstraight);\
-    tf.setNormalization(!isstraight); \
-    tf.setInput(inp->getData());\
-    tf.setOutput(outp->getData());\
-    tf.run(true); \
+    tf->setInputInfo(Array1DInfoImpl(sz));\
+    tf->setDir(isstraight);\
+    tf->setNormalization(!isstraight); \
+    tf->setInput(inp->getData());\
+    tf->setOutput(outp->getData());\
+    tf->run(true); \
 }
 
 
@@ -476,7 +476,7 @@ void GeoCalculator::deconvolve( const Array1DImpl<float>& tinputvals,
     mDoTransform( hil, true, filtervals, cfiltervals, filtersz );
     delete filtervals;
    
-    Fourier::CC fft;
+    PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
     Array1DImpl<float_complex>* cfreqinputvals = 
 				new Array1DImpl<float_complex>( filtersz );
     mDoFourierTransform( fft, true, cinputvals, cfreqinputvals, filtersz );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.33 2010-10-12 10:30:19 cvshelene Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.34 2010-11-29 21:37:17 cvskris Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -131,7 +131,7 @@ SpecDecomp::SpecDecomp( Desc& desc )
     , freqdomain_(0)
     , signal_(0)
     , scalelen_(0)
-    , fft_(new Fourier::CC())
+    , fft_(Fourier::CC::createDefault())
 { 
     if ( !isOK() ) return;
 

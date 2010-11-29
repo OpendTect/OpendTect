@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.12 2010-08-11 16:55:33 cvsyuancheng Exp $
+RCS:           $Id: fftfilter.cc,v 1.13 2010-11-29 21:37:17 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include <complex>
 
 FFTFilter::FFTFilter()
-    : fft_( new Fourier::CC() )	      
+    : fft_( Fourier::CC::createDefault() )	      
     , timewindow_(0)	      	      
     , hfreqwindow_(0)	      	      
     , lfreqwindow_(0)	      	      

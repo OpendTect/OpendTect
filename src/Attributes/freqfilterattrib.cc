@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.50 2010-08-11 16:55:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.51 2010-11-29 21:37:17 cvskris Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -147,8 +147,8 @@ const char* FreqFilter::filterTypeNamesStr( int type )
 FreqFilter::FreqFilter( Desc& ds )
     : Provider( ds )
     , fftsz_(-1)
-    , fft_(new Fourier::CC())
-    , fftinv_(new Fourier::CC())
+    , fft_(Fourier::CC::createDefault())
+    , fftinv_(Fourier::CC::createDefault())
     , minfreq_(0)		   
     , maxfreq_(0)		   
     , signal_(0)
@@ -311,7 +311,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
     
     if ( nrsamp>signal_.info().getSize(0) || !fft_->getInputInfo().getTotalSz())
     {
-	fftsz_ = Fourier::CC::nextFastSize(nrsamp*3);
+	fftsz_ = fft_->getFastSize(nrsamp*3);
 	fft_->setInputInfo( Array1DInfoImpl(fftsz_) );
 	fft_->setDir(true);
 

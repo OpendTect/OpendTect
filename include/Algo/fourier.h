@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl/Y. Liu
  Date:		August 2001
- RCS:		$Id: fourier.h,v 1.3 2010-11-29 17:24:22 cvskris Exp $
+ RCS:		$Id: fourier.h,v 1.4 2010-11-29 21:37:17 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -38,7 +38,8 @@ public:
     static float	getNyqvist(float samplespacing);
     static float	getDf(float samplespacing,int nrsamples);
     bool		isFast(int sz) const;
-    static int		nextFastSize(int sz); 
+    virtual int		getFastSize(int sz) const;
+			/*!<Returns a size that is equal or larger than sz */
     
     
     static void pfarc(int isign,int n,const float* rz,float_complex* cz);
@@ -76,6 +77,9 @@ protected:
 	bool            doPrepare(int);
 	bool            doWork(od_int64 start, od_int64 stop, int );
 	void		setNormalization(bool yn)	{ normalize_ = yn; }
+
+	static int	getFastSize(int sz);
+			/*!<Returns a size that is equal or larger than sz */
 
     protected:
 

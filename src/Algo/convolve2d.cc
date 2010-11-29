@@ -4,7 +4,7 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID = "$Id: convolve2d.cc,v 1.2 2010-09-09 21:47:55 cvskris Exp $";
+static const char* rcsID = "$Id: convolve2d.cc,v 1.3 2010-11-29 21:37:17 cvskris Exp $";
 
 #include "convolve2d.h"
 
@@ -33,7 +33,7 @@ bool Convolver2D<float>::doPrepare( int )
 
     if ( !fft_ )
     {
-	fft_ = new Fourier::CC;
+	fft_ = Fourier::CC::createDefault();
 	fft_->setInputInfo( x_->info() );
 	fft_->setNormalization( true );
     }

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.29 2010-10-12 10:30:19 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.30 2010-11-29 21:37:17 cvskris Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -93,7 +93,7 @@ void Frequency::updateDefaults( Desc& desc )
 
 Frequency::Frequency( Desc& ds )
     : Provider(ds)
-    , fft_(new Fourier::CC())
+    , fft_(Fourier::CC::createDefault())
     , fftisinit_(false)
     , fftsz_(-1)
     , window_(0)
@@ -202,7 +202,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
     Frequency* myself = const_cast<Frequency*>(this);
     if ( !fftisinit_ )
     {
-	myself->fftsz_ = Fourier::CC::nextFastSize((samplegate_.width()+1)*3);
+	myself->fftsz_ = myself->fft_->getFastSize((samplegate_.width()+1)*3);
 	myself->fft_->setInputInfo(Array1DInfoImpl(fftsz_));
     	myself->fft_->setDir(true);
 
