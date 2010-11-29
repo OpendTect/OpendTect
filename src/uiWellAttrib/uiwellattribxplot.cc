@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.36 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.37 2010-11-29 11:57:18 cvsnageswara Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -39,6 +39,8 @@ static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.36 2010-11-10 15:26:43
 #include "uicombobox.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+#include "unitofmeasure.h"
+
 
 using namespace Attrib;
 
@@ -251,7 +253,9 @@ bool uiWellAttribCrossPlot::extractAttribData( DataPointSet& dps, int c1 )
 bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 {
     ObjectSet<DataColDef> dcds;
-    dcds += new DataColDef( "MD" );
+    BufferString unit( "MD" );
+    SI().depthsInFeetByDefault() ? unit.add( "(ft)" ) : unit.add( "(m)" );
+    dcds += new DataColDef( unit );
     BufferStringSet lognms; addDCDs( logsfld_, dcds, lognms );
     BufferStringSet attrnms; addDCDs( attrsfld_, dcds,  attrnms );
     if ( lognms.isEmpty() )
@@ -286,12 +290,12 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	}
     }
 
-
     MouseCursorManager::setOverride( MouseCursor::Wait );
     DataPointSet* dps = new DataPointSet( TypeSet<DataPointSet::DataRow>(),
 	    				  dcds, false, false );
     mDPM.addAndObtain( dps );
 
+    const UnitOfMeasure* uom = UoMR().get( "Feet" );
     deepErase( dcds );
     const int nrattribs = attrnms.size();
     const int nrlogs = lognms.size() + 1;
@@ -312,9 +316,14 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	    for ( int iattr=0; iattr<nrattribs; iattr++ )
 		newdr.data_[nrlogs+iattr] = mUdf(float);
 	    newdr.setGroup( (unsigned short)(idps+1) );
+
+	    if ( uom && !SI().zInFeet() && SI().depthsInFeetByDefault() )
+		newdr.data_[0] = uom->getUserValueFromSI( newdr.data_[0] );
+
 	    dps->setRow( newdr );
 	}
     }
+
     deepErase( dpss );
     dps->dataChanged();
     MouseCursorManager::restoreOverride();
