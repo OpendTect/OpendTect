@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.70 2010-11-16 11:30:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.71 2010-11-30 09:02:13 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -125,10 +125,7 @@ uiWellMan::~uiWellMan()
 
 void uiWellMan::addTool( uiButton* but )
 {
-    if ( lastexternal_ )
-	but->attach( rightOf, lastexternal_ );
-    else
-	but->attach( alignedBelow, logsgrp_ );
+    but->attach( rightOf, lastexternal_ );
     lastexternal_ = but;
 }
 
