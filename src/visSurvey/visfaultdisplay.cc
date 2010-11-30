@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.64 2010-11-06 16:21:12 cvsumesh Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.65 2010-11-30 08:52:40 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1123,32 +1123,6 @@ bool FaultDisplay::canDisplayHorizonIntersections() const
 }
 
 
-#define mCreateNewHorIntersection() \
-    visBase::GeomIndexedShape* line = visBase::GeomIndexedShape::create();\
-    line->ref(); \
-    if ( !line->getMaterial() )	\
-	line->setMaterial(visBase::Material::create()); \
-    if ( idy!=-1 ) \
-	line->getMaterial()->setColor(  \
-		horintersections_[0]->getMaterial()->getColor() ); \
-    line->setDisplayTransformation( displaytransform_ ); \
-    line->setSelectable( false ); \
-    line->setRightHandSystem( righthandsystem_ ); \
-    insertChild( childIndex(texture_->getInventorNode() ), \
-		 line->getInventorNode() ); \
-    line->turnOn( false ); \
-    Geometry::ExplFaultStickSurface* shape = 0; \
-    mTryAlloc( shape, Geometry::ExplFaultStickSurface(0,mZScale()) ); \
-    shape->display( false, false ); \
-    line->setSurface( shape ); \
-    shape->setSurface( fss ); \
-    Geometry::FaultBinIDSurfaceIntersector it( 0, *surf,  \
-	    *emfault_->geometry().sectionGeometry( \
-		emfault_->sectionID(0)), *shape->coordList() ); \
-    it.setShape( *shape ); \
-    it.compute(); \
-
-
 void FaultDisplay::updateHorizonIntersections( int whichobj, 
 	const ObjectSet<const SurveyObject>& objs )
 {
@@ -1158,79 +1132,55 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
 		     emfault_->sectionGeometry( emfault_->sectionID(0)) );
     
-    ObjectSet<const SurveyObject> usedhors;
+    for ( int idx=horintersections_.size()-1; idx>=0; idx-- )
+    {
+	horintersections_[idx]->turnOn( false );
+	horintersections_[idx]->unRef();
+	horintersections_.remove( idx );
+	delete horshapes_.remove( idx );
+    }
+
     for ( int idx=0; idx<objs.size(); idx++ )
     {
 	mDynamicCastGet( const HorizonDisplay*, hor, objs[idx] );
-	if ( !hor || !hor->isOn() ) continue;
-	usedhors += objs[idx];
-    }
-
-    const bool removehor = horobjs_.size() && usedhors.size()<horobjs_.size();
-    
-    TypeSet<int> usedids;
-    for ( int idx=0; idx<usedhors.size(); idx++ )
-    {
-	mDynamicCastGet( const HorizonDisplay*, hor, usedhors[idx] );
+	if ( !hor || !hor->isOn() )
+	    continue;
 
 	visSurvey::HorizonDisplay* hd = 
 	    const_cast<visSurvey::HorizonDisplay*>( hor ); 
-	if ( !hd->getSectionIDs().size() ) continue;
+	if ( !hd->getSectionIDs().size() )
+	    continue;
+
 	EM::SectionID sid = hd->getSectionIDs()[0];
-	const Geometry::BinIDSurface* surf =
+	Geometry::BinIDSurface* surf =
 	    hd->getHorizonSection(sid)->getSurface();
 	
-	const int idy = horobjs_.indexOf( objs[idx] );
-	
-	if ( idy==-1 )
-	{
-	    mCreateNewHorIntersection();
-	    horintersections_ += line;
-	    horshapes_ += shape;
-	}
-	else 
-	{
-	    usedids += idy;
-	    if( horintersections_.isEmpty() ) continue;
-	    horintersections_[idy]->turnOn( false );
-	    if ( !removehor )
-	    {		
-    		mCreateNewHorIntersection();
-		horintersections_[idy]->unRef();
-    		horintersections_.replace( idy, line );
-    		delete horshapes_.replace( idy, shape );
-	    }
-	}
-    }
+	visBase::GeomIndexedShape* line = visBase::GeomIndexedShape::create();
+	line->ref();
+	if ( !line->getMaterial() )
+	    line->setMaterial(visBase::Material::create());
 
-    if ( removehor )
-    {
-	ObjectSet<visBase::GeomIndexedShape> usdhorintersections;
-	ObjectSet<Geometry::ExplFaultStickSurface> usedhorshapes;
-	for ( int idx=0; idx<usedids.size(); idx++ )
-	{
-	    usdhorintersections += horintersections_[usedids[idx]];
-	    usedhorshapes += horshapes_[usedids[idx]];
-	}
-	
-	for ( int idx=0; idx<horintersections_.size(); idx++ )
-	{
-	    if ( usedids.indexOf(idx)==-1 )
-	    {
-		horintersections_[idx]->turnOn( false );
-		horintersections_[idx]->unRef();
-		horintersections_.remove( idx );
-		delete horshapes_.remove( idx );
-	    }
-	}
+	line->getMaterial()->setColor( nontexturecol_ );
+	line->setDisplayTransformation( displaytransform_ );
+	line->setSelectable( false );
+	line->setRightHandSystem( righthandsystem_ );
+	insertChild( childIndex(texture_->getInventorNode() ),
+		     line->getInventorNode() );
+	line->turnOn( false );
+	Geometry::ExplFaultStickSurface* shape = 0;
+	mTryAlloc( shape, Geometry::ExplFaultStickSurface(0,mZScale()) );
+	shape->display( false, false );
+	line->setSurface( shape );
+	shape->setSurface( fss );
+	Geometry::FaultBinIDSurfaceIntersector it( 0, *surf,
+		*emfault_->geometry().sectionGeometry(emfault_->sectionID(0)),
+		*shape->coordList() );
+	it.setShape( *shape );
+	it.compute();
 
-	horintersections_ = usdhorintersections;
-	horshapes_ = usedhorshapes;
+	horintersections_ += line;
+	horshapes_ += shape;
     }
-	
-    for ( int idx=usedids.size()-1; idx>=0; idx-- )
-	horobjs_.remove( usedids[idx] );
-    horobjs_ = usedhors;
     
     updateHorizonIntersectionDisplay();
 }
@@ -1320,7 +1270,7 @@ void FaultDisplay::setStickSelectMode( bool yn )
 
     const CallBack cb = mCB( this, FaultDisplay, polygonFinishedCB );
     if ( yn )
-	scene_->getPolySelection()->polygonFinished()->notify( cb );
+	scene_->getPolySelection()->polygonFinished()->notifyIfNotNotified(cb);
     else
 	scene_->getPolySelection()->polygonFinished()->remove( cb );
 }
@@ -1328,7 +1278,8 @@ void FaultDisplay::setStickSelectMode( bool yn )
 
 void FaultDisplay::polygonFinishedCB( CallBacker* cb )
 {
-    if ( !stickselectmode_ || !emfault_ || !scene_ || !displaysticks_ )
+    if ( !stickselectmode_ || !emfault_ || !scene_ || !displaysticks_ ||
+	 !isOn() || !isSelected() )
 	return;
 
     PtrMan<EM::EMObjectIterator> iter = emfault_->geometry().createIterator(-1);

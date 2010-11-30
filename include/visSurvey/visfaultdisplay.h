@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.30 2010-07-27 09:00:43 cvsjaap Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.31 2010-11-30 08:52:40 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -183,7 +183,6 @@ protected:
 
     ObjectSet<visBase::GeomIndexedShape> horintersections_;
     ObjectSet<Geometry::ExplFaultStickSurface>	horshapes_;
-    ObjectSet<const SurveyObject>	horobjs_;
     bool				displayintersections_;
     bool				displayhorintersections_;
     
