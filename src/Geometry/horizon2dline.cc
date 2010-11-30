@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.18 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.19 2010-11-30 10:50:27 cvsraman Exp $";
 
 #include "horizon2dline.h"
 
+#include "interpol1d.h"
 #include "posinfo2d.h"
 #include "undefval.h"
 #include <limits.h>
@@ -309,6 +310,79 @@ bool Horizon2DLine::isKnotDefined( const RowCol& rc ) const
 {
     const int colidx = colIndex( rc.row, rc.col );
     return colidx>=0 ? (*rows_[rc.row])[colidx].isDefined() : false;
+}
+
+
+Coord3 Horizon2DLine::computePosition( const PosInfo::GeomID& geomid,
+				       int col ) const
+{
+    const int row = getRowIndex( geomid );
+    if ( row < 0 )
+	return Coord3::udf();
+
+    Coord3 position = getKnot( RowCol(row,col) );
+    if ( position.isDefined() )
+	return position;
+    else if ( !position.Geom::Point2D<double>::isDefined() )
+	return Coord3::udf();
+
+    StepInterval<int> colrg = colRange( row );
+    const int nrcols = colrg.nrSteps() + 1;
+    const int curcolidx = colrg.nearestIndex( col );
+    int col1_ = -1, col2_ = -1, col1 = -1, col2 = -1;
+    double z1_ = mUdf(double), z2_ = mUdf(double),
+	   z1 = mUdf(double), z2 = mUdf(double);
+    int colidx = curcolidx - 1;
+    while ( colidx >=0 )
+    {
+	const RowCol currowcol( row, colrg.atIndex(colidx--) );
+	const Coord3 pos = getKnot( currowcol );
+	if ( !pos.isDefined() )
+	    continue;
+
+	if ( col1_ < 0 )
+	{
+	    col1_ = colidx + 1;
+	    z1_ = pos.z;
+	}
+	else if ( col2_ < 0 )
+	{
+	    col2_ = colidx + 1;
+	    z2_ = pos.z;
+	}
+	else
+	    break;
+    }
+
+    colidx = curcolidx + 1;
+    while ( colidx < nrcols )
+    {
+	const RowCol currowcol( row, colrg.atIndex(colidx++) );
+	const Coord3 pos = getKnot( currowcol );
+	if ( !pos.isDefined() )
+	    continue;
+
+	if ( col1 < 0 )
+	{
+	    col1 = colidx - 1;
+	    z1 = pos.z;
+	}
+	else if ( col2 < 0 )
+	{
+	    col2 = colidx - 1;
+	    z2 = pos.z;
+	}
+	else
+	    break;
+    }
+
+    if ( col1_ < 0 || col2_ < 0 || col1 < 0 || col2 < 0 )
+	return Coord3::udf();
+
+    position.z = Interpolate::poly1D<double>( (float)col2_, z2_, (float)col1_,
+	    				      z1_, (float)col1, z1, (float)col2,
+					      z2, (float)curcolidx );
+    return position;
 }
 
 
