@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.13 2010-11-09 22:05:14 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.14 2010-11-30 18:00:11 cvsyuancheng Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -229,10 +229,19 @@ void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
     const SeisPacketInfo& packetinfo =
 	velreader->seisTranslator()->packetInfo();
 
-    if ( !packetinfo.cubedata )
-	return;
-
-    bids.add( *packetinfo.cubedata );
+    if ( packetinfo.cubedata )
+	bids.add( *packetinfo.cubedata );
+    else
+    {
+	const StepInterval<int>& inlrg = packetinfo.inlrg;
+	const StepInterval<int>& crlrg = packetinfo.crlrg;
+	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )                  {                               
+	    for ( int crl=crlrg.start; crl<=crlrg.stop; crl +=crlrg.step )
+	    {
+		bids.add( BinID(inl,crl) );
+	    }                                                
+	}
+    }
 }
 
 
