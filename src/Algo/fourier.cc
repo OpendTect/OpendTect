@@ -4,7 +4,7 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID = "$Id: fourier.cc,v 1.7 2010-11-29 21:37:17 cvskris Exp $";
+static const char* rcsID = "$Id: fourier.cc,v 1.8 2010-11-30 14:50:53 cvskris Exp $";
 
 #include "fourier.h"
 #include "odmemory.h"
@@ -17,7 +17,12 @@ mImplFactory( CC, CC::factory );
 
 CC* CC::createDefault()
 {
-    return factory().create( factory().getDefaultName() );
+    CC* res = factory().create( factory().getDefaultName() );
+
+    if ( !res )
+	res = new CC;
+
+    return res;
 }
  
 
