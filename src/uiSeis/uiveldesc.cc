@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.53 2010-11-24 17:05:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.54 2010-11-30 17:39:56 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -473,7 +473,7 @@ FixedString uiTimeDepthBase::getZDomain() const
 void uiTime2Depth::initClass()
 {
     uiZAxisTransform::factory().addCreator( create,
-		    Time2DepthStretcher::sName(), "Time to depth" );
+		Time2DepthStretcher::sFactoryKeyword(), "Time to depth" );
 }
 
 
@@ -498,7 +498,7 @@ uiTime2Depth::uiTime2Depth( uiParent* p )
 void uiDepth2Time::initClass()
 {
     uiZAxisTransform::factory().addCreator( create,
-		    Depth2TimeStretcher::sName(), "Depth to Time" );
+		Depth2TimeStretcher::sFactoryKeyword(), "Depth to Time" );
 }
 
 
