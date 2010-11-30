@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.69 2010-11-24 06:48:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.70 2010-11-30 07:49:28 cvsnanne Exp $";
 
 #include "uitoolbutton.h"
 #include "i_qbutton.h"
@@ -404,6 +404,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
     , mInitTBList
 {
     mSetDefPrefSzs();
+    setToolTip( tt );
 }
 
 
@@ -415,6 +416,7 @@ uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
 {
     mSetDefPrefSzs();
     setArrowType( at );
+    setToolTip( tt );
 }
 
 
