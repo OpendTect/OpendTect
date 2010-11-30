@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.43 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: callback.h,v 1.44 2010-11-30 20:39:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,10 +41,15 @@ typedef void (CallBacker::*CallBackFunction)(CallBacker*);
 /*!> Macro to simply define a callback from an instance pointer and a method */
 #define mCB(obj,clss,fn) CallBack( static_cast<clss*>(obj), mCBFn(clss,fn))
 
+typedef void (*StaticCallBackFunction)(CallBacker*);
+/*!> Macro casting a to StaticCallBacker::function */
+#define mSCBFn(clss,fn) ((StaticCallBackFunction)(&clss::fn))
+#define mSCB(clss,fn) CallBack( mSCBFn(clss,fn))
+
 /*!\brief CallBacks object-oriented.
 
-CallBack is simply a function pointer + object to call it on. It may be
-empty, in which case doCall() will simply do nothing. If you want to be
+CallBack is simply a function pointer + optionally an object to call it on. It
+may be empty, in which case doCall() will simply do nothing. If you want to be
 able to send a CallBack, you must provide a 'sender' CallBacker* (usually
 'this').
 
@@ -54,26 +59,38 @@ mClass CallBack
 {
 public:
 			CallBack( CallBacker* o=0, CallBackFunction f=0 )
-			{ obj_ = o; fn_ = f; }
+			    : obj_( o ), fn_( f ), sfn_( 0 )	{}
+			CallBack( StaticCallBackFunction f )
+			    : obj_( 0 ), fn_( 0 ), sfn_( f )	{}
     inline int		operator==( const CallBack& cb ) const
-			{ return obj_ == cb.obj_ && fn_ == cb.fn_; }
+			{
+			    return obj_ == cb.obj_ &&
+				   fn_ == cb.fn_ &&
+				   sfn_==cb.sfn_;
+			}
     inline int		operator!=( const CallBack& cb ) const
-			{ return obj_ != cb.obj_ || fn_ != cb.fn_; }
+			{ return !(*this==cb); }
 
     inline bool		willCall() const
-			{ return obj_ && fn_; }
+			{ return obj_ && fn_ || sfn_; }
     inline void		doCall( CallBacker* o )
-			{ if ( obj_ && fn_ ) (obj_->*fn_)( o ); }
+			{
+			    if ( obj_ && fn_ )
+				(obj_->*fn_)( o );
+			    else if ( sfn_ )
+				sfn_( o );
+			}
 
-    inline CallBacker*		cbObj()			{ return obj_; }
-    inline const CallBacker*	cbObj() const		{ return obj_; }
-    inline CallBackFunction	cbFn() const		{ return fn_; }
+    inline CallBacker*			cbObj()			{ return obj_; }
+    inline const CallBacker*		cbObj() const		{ return obj_; }
+    inline CallBackFunction		cbFn() const		{ return fn_; }
+    inline StaticCallBackFunction	scbFn() const		{ return sfn_; }
 
 protected:
 
-    CallBacker*		obj_;
-    CallBackFunction	fn_;
-
+    CallBacker*			obj_;
+    CallBackFunction		fn_;
+    StaticCallBackFunction	sfn_;
 };
 
 
