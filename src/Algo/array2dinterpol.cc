@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.29 2010-11-10 19:33:15 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.30 2010-11-30 16:31:33 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -578,13 +578,6 @@ void Array2DInterpol::excludeBigHoles( const bool* def,
 //InverseDistance
 //
 //
-void InverseDistanceArray2DInterpol::initClass()
-{
-    Array2DInterpol::factory().addCreator( createInstance, sFactoryKeyword(),
-	    sFactoryDisplayName() );
-}
-
-
 InverseDistanceArray2DInterpol::InverseDistanceArray2DInterpol()
     : searchradius_( 10 )
     , stepidx_( -1 )
@@ -1126,13 +1119,6 @@ void InverseDistanceArray2DInterpol::reportDone( od_int64 idx )
 
 // Triangulation
 
-void TriangulationArray2DInterpol::initClass()
-{
-    Array2DInterpol::factory().addCreator( createInstance, sFactoryKeyword(),
-	    sFactoryDisplayName() );
-}
-
-
 TriangulationArray2DInterpol::TriangulationArray2DInterpol()
     : triangulation_( 0 )
     , triangleinterpolator_( 0 )  
@@ -1390,13 +1376,6 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 #define cA2DStateDefined                0
 //!< States higher than 0 mean the node was interpolated
 //!< The higher the state, the further the node is away from 'defined space'
-
-
-void Array2DInterpolExtension::initClass()
-{
-    Array2DInterpol::factory().addCreator( createInstance, sFactoryKeyword(),
-	    sFactoryDisplayName() );
-}
 
 
 Array2DInterpolExtension::Array2DInterpolExtension()
