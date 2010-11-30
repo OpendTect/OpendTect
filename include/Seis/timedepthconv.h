@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.21 2010-10-25 18:56:16 cvskris Exp $
+ RCS:		$Id: timedepthconv.h,v 1.22 2010-11-30 16:48:16 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -54,10 +54,8 @@ protected:
 mClass Time2DepthStretcher : public VelocityStretcher
 {
 public:
-    static const char*		sName();
-    const char*			name() const	{ return sName(); }
-    static void			initClass();
-    static ZAxisTransform*	create();
+    mDefaultFactoryInstantiation( ZAxisTransform, Time2DepthStretcher,
+	    			  "VelocityT2D", sFactoryKeyword() );
 
 			Time2DepthStretcher();
     bool		setVelData(const MultiID&);
@@ -116,10 +114,8 @@ protected:
 mClass Depth2TimeStretcher : public VelocityStretcher
 {
 public:
-    static const char*		sName();
-    const char*			name() const	{ return sName(); }
-    static void			initClass();
-    static ZAxisTransform*	create();
+    mDefaultFactoryInstantiation( ZAxisTransform, Depth2TimeStretcher,
+	    			  "VelocityD2T", sFactoryKeyword() );
 
 			Depth2TimeStretcher();
     bool		setVelData(const MultiID&);
@@ -193,10 +189,8 @@ protected:
 mClass LinearT2DTransform : public ZAxisTransform
 {
 public:
-    static const char*		sName();
-    const char*			name() const	{ return sName(); }
-    static void			initClass();
-    static ZAxisTransform*	create();
+    mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
+	    			  "LinearT2D", sFactoryKeyword() );
 
     				LinearT2DTransform();
 
@@ -220,10 +214,8 @@ protected:
 mClass LinearD2TTransform : public ZAxisTransform
 {
 public:
-    static const char*		sName();
-    const char*			name() const	{ return sName(); }
-    static void			initClass();
-    static ZAxisTransform*	create();
+    mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
+	    			  "LinearD2T", sFactoryKeyword() );
 
     				LinearD2TTransform();
 

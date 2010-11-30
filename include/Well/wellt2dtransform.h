@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          July 2010
- RCS:           $Id: wellt2dtransform.h,v 1.3 2010-08-04 13:30:46 cvsbert Exp $
+ RCS:           $Id: wellt2dtransform.h,v 1.4 2010-11-30 16:48:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,8 @@ namespace Well { class Data; }
 mClass WellT2DTransform : public ZAxisTransform
 {
 public:
-
-    static const char*		sName();
-    const char*			name() const	{ return sName(); }
-    static void			initClass();
-    static ZAxisTransform*	create();
+    mDefaultFactoryInstantiation( ZAxisTransform, WellT2DTransform,
+				  "WellT2D", sFactoryKeyword() );
 
 				WellT2DTransform();
     void			transform(const BinID&,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.14 2010-08-04 13:30:46 cvsbert Exp $
+ RCS:		$Id: emhorizonztransform.h,v 1.15 2010-11-30 16:48:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,12 +27,12 @@ mClass HorizonZTransform : public ZAxisTransform
 			 , public CallBacker
 {
 public:
-    static void		initClass();
-    const char*		name() const		{ return sName(); }
-    static const char*	sName()			{ return "HorizonZTransform"; }
+    mDefaultFactoryInstantiation( ZAxisTransform, HorizonZTransform,
+				  "HorizonZTransform", sFactoryKeyword() );
+
     static const char*	sKeyHorizonID()		{ return "Horizon"; }
 
-    			HorizonZTransform(const Horizon* = 0);
+    			HorizonZTransform();
     void		setHorizon(const Horizon&);
     void		transform(const BinID&,const SamplingData<float>&,
 				  int sz,float* res) const;
@@ -52,9 +52,6 @@ public:
     bool		usePar(const IOPar&);
 
 protected:
-
-    static ZAxisTransform* create() { return new HorizonZTransform( 0 ); }
-
     			~HorizonZTransform();
     void		calculateHorizonRange();
     void		horChangeCB( CallBacker* );

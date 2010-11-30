@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.140 2010-08-27 03:16:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.141 2010-11-30 16:48:16 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -722,7 +722,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     if ( datatransform_ )
     {
 	IOPar transpar;
-	transpar.set( sKey::Name, datatransform_->name() );
+	transpar.set( sKey::Name, datatransform_->factoryKeyword() );
 	datatransform_->fillPar( transpar );
 	par.mergeComp( transpar, sKeyZAxisTransform() );
     }
@@ -786,7 +786,8 @@ int Scene::usePar( const IOPar& par )
     if ( transpar )
     {
 	const char* nm = transpar->find( sKey::Name );
-	RefMan<ZAxisTransform> transform = ZATF().create( nm );
+	RefMan<ZAxisTransform> transform =
+	    ZAxisTransform::factory().create( nm );
 	if ( transform && transform->usePar( *transpar ) )
 	    setZAxisTransform( transform,0 );
     }

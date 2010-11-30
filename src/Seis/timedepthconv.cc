@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.33 2010-11-02 18:48:29 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.34 2010-11-30 16:48:16 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -33,16 +33,6 @@ VelocityStretcher::VelocityStretcher( const ZDomain::Def& from,
     : ZAxisTransform(from,to)
     , errmsg_(0)
 {}
-
-
-const char* Time2DepthStretcher::sName() 	{ return "VelocityT2D"; }
-
-void Time2DepthStretcher::initClass()
-{ ZATF().addCreator( create, sName() ); }
-
-
-ZAxisTransform* Time2DepthStretcher::create()
-{ return new Time2DepthStretcher; }
 
 
 Time2DepthStretcher::Time2DepthStretcher()
@@ -614,16 +604,6 @@ void Time2DepthStretcher::releaseData()
 //Depth2Time
 
 
-const char* Depth2TimeStretcher::sName() 	{ return "VelocityD2T"; }
-
-void Depth2TimeStretcher::initClass()
-{ ZATF().addCreator( create, sName() ); }
-
-
-ZAxisTransform* Depth2TimeStretcher::create()
-{ return new Depth2TimeStretcher; }
-
-
 Depth2TimeStretcher::Depth2TimeStretcher()
     : VelocityStretcher(ZDomain::Depth(),ZDomain::Time())
     , stretcher_( new Time2DepthStretcher )
@@ -863,18 +843,6 @@ int VelocityModelScanner::nextStep()
 
 
 //LinearT2DTransform
-const char* LinearT2DTransform::sName()
-{ return "LinearT2D"; }
-
-
-void LinearT2DTransform::initClass()
-{ ZATF().addCreator( create, sName() ); }
-
-
-ZAxisTransform* LinearT2DTransform::create()
-{ return new LinearT2DTransform; }
-
-
 LinearT2DTransform::LinearT2DTransform()
     : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
 {
@@ -945,17 +913,6 @@ Interval<float> LinearT2DTransform::getZInterval( bool time ) const
 
 
 //LinearD2TTransform
-const char* LinearD2TTransform::sName()
-{ return "LinearD2T"; }
-
-
-void LinearD2TTransform::initClass()
-{ ZATF().addCreator( create, sName() ); }
-
-
-ZAxisTransform* LinearD2TTransform::create()
-{ return new LinearD2TTransform; }
-
 
 LinearD2TTransform::LinearD2TTransform()
     : ZAxisTransform(ZDomain::Depth(),ZDomain::Time())

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.15 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.16 2010-11-30 16:48:16 cvskris Exp $";
 
 #include "emhorizonztransform.h"
 
@@ -23,22 +23,12 @@ static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.15 2010-08-04 13:30:
 namespace EM
 {
 
-void HorizonZTransform::initClass()
-{
-    ::ZATF().addCreator( EM::HorizonZTransform::create,
-	    	       EM::HorizonZTransform::sName() );
-}
-
-
-HorizonZTransform::HorizonZTransform( const Horizon* hor )
+HorizonZTransform::HorizonZTransform()
     : ZAxisTransform(ZDomain::SI(),ZDomain::SI())
     , horizon_( 0 )
     , horchanged_( false )
     , change_( this )
-{
-    if ( hor )
-	setHorizon( *hor );
-}
+{}
 
 
 HorizonZTransform::~HorizonZTransform()

@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.22 2010-09-20 08:58:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.23 2010-11-30 16:48:16 cvskris Exp $";
 
 #include "zaxistransform.h"
 
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: zaxistransform.cc,v 1.22 2010-09-20 08:58:45 cv
 #include "zdomain.h"
 
 
-mImplFactory( ZAxisTransform, ZATF );
+mImplFactory( ZAxisTransform, ZAxisTransform::factory );
 
 
 ZAxisTransform* ZAxisTransform::create( const IOPar& par )
@@ -23,7 +23,7 @@ ZAxisTransform* ZAxisTransform::create( const IOPar& par )
     if ( !str )
 	return 0;
 
-    ZAxisTransform* res = ZATF().create( str );
+    ZAxisTransform* res = factory().create( str );
     if ( !res )
 	return 0;
 
@@ -159,7 +159,7 @@ const char* ZAxisTransform::toZDomainKey() const
 
 void ZAxisTransform::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Name, name() );
+    par.set( sKey::Name, factoryKeyword() );
 }
 
 

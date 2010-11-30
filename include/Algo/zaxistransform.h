@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.29 2010-09-20 08:58:45 cvssatyaki Exp $
+ RCS:           $Id: zaxistransform.h,v 1.30 2010-11-30 16:48:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,11 +33,12 @@ ZATF().
 mClass ZAxisTransform
 { mRefCountImpl(ZAxisTransform);
 public:
+				mDefineFactoryInClass(ZAxisTransform,factory);
 
     static ZAxisTransform*	create(const IOPar&);
     				/*!<\note Result will be reffed once. It is
 				          caller's responsibility to unref. */
-    virtual const char*		name() const 		= 0;
+
     virtual bool		isOK() const		{ return true; }
     virtual const char*		errMsg()		{ return errmsg_; }
 
@@ -113,9 +114,6 @@ protected:
     ZDomain::Info&		fromzdomaininfo_;
     mutable BufferString	errmsg_;
 };
-
-
-mDefineFactory( ZAxisTransform, ZATF );
 
 
 mClass ZAxisTransformSampler
