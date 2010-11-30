@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.18 2010-11-25 04:28:02 raman Exp $
+ RCS:		$Id: flthortools.h,v 1.19 2010-11-30 11:52:30 raman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "positionlist.h"
 #include "sets.h"
+#include "surv2dgeom.h"
 
 namespace EM { class Fault; }
 class IOObj;
@@ -42,6 +43,7 @@ public:
 
     bool		isInl() const			{ return isinl_; }
     int			lineNr() const			{ return nr_; }
+    const Interval<int>& range() const			{ return range_; }
     void		setIsInl(bool yn)		{ isinl_ = yn; }
     void		setLineNr(int nr)		{ nr_ = nr; }
 
@@ -66,17 +68,15 @@ protected:
     TypeSet<Coord3>	coords_;
     TypeSet<int>	coordindices_;
     TypeSet<int>	trcnrs_;	// For 2D only;
-    Interval<float>	range_;
+    Interval<int>	range_;
 };
 
 
 mClass FaultTraceExtractor
 {
 public:
-    			FaultTraceExtractor(EM::Fault*,int,bool,
-					    const BinIDValueSet* bvs=0);
-    			FaultTraceExtractor(EM::Fault*,const char*,int sticknr,
-					    const BinIDValueSet* bvs=0);
+    			FaultTraceExtractor(EM::Fault*,int,bool);
+    			FaultTraceExtractor(EM::Fault*,const PosInfo::GeomID&);
 			~FaultTraceExtractor();
 
     bool		execute();
@@ -86,15 +86,11 @@ protected:
 
     bool		isinl_;
     int			nr_;
-    int			sticknr_;	// For 2D
+    PosInfo::GeomID	geomid_;	// For 2D
     EM::Fault*		fault_;
     FaultTrace*		flttrc_;
     bool		is2d_;
-    BufferString	linenm_;
 
-    const BinIDValueSet*	bvset_;
-
-    void		useHorizons();
     bool		get2DFaultTrace();
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.32 2010-11-25 10:02:57 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.33 2010-11-30 11:52:30 raman Exp $";
 
 #include "flthortools.h"
 
@@ -110,10 +110,8 @@ bool FaultTrace::getImage( const BinID& bid, float z,
     z1 = posdir ? ztop.stop : ztop.start;
     z2 = posdir ? zbot.stop : zbot.start;
     zimg = z1 + frac * ( z2 - z1 );
-    BinID start( isinl_ ? nr_ : mNINT(range_.start),
-	    	 isinl_ ? mNINT(range_.start) : nr_ );
-    BinID stop( isinl_ ? nr_ : mNINT(range_.stop),
-	    	isinl_ ? mNINT(range_.stop) : nr_ );
+    BinID start( isinl_ ? nr_ : range_.start, isinl_ ? range_.start : nr_ );
+    BinID stop( isinl_ ? nr_ : range_.stop, isinl_ ? range_.stop : nr_ );
     Coord intsectn = getIntersection( start,zimg, stop, zimg );
     if ( intsectn == Coord::udf() )
 	return false;
@@ -130,8 +128,7 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 				  Interval<float>& ztop,
 				  Interval<float>& zbot ) const
 {
-    BinID start( isinl_ ? nr_ : mNINT(range_.start),
-	    	 isinl_ ? mNINT(range_.start) : nr_ );
+    BinID start( isinl_ ? nr_ : range_.start, isinl_ ? range_.start : nr_ );
     float starttopz, startbotz;
     int& startvar = isinl_ ? start.crl : start.inl;
     int step = isinl_ ? SI().crlStep() : SI().inlStep();
@@ -147,8 +144,8 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 	    break;
     }
 
-    BinID stop( isinl_ ? nr_ : mNINT(range_.stop),
-	    	isinl_ ? mNINT(range_.stop) : nr_ );
+    BinID stop( isinl_ ? nr_ : range_.stop,
+	    	isinl_ ? range_.stop : nr_ );
     int& stopvar = isinl_ ? stop.crl : stop.inl;
     step = -step;
     float stoptopz, stopbotz;
@@ -291,13 +288,13 @@ bool FaultTrace::isCrossing( const BinID& bid1, float z1,
 			     const BinID& bid2, float z2  ) const
 {
     const Coord intersection = getIntersection( bid1, z1, bid2, z2 );
-    return intersection != Coord::udf();
+    return intersection.isDefined();
 }
 
 
 void FaultTrace::computeRange()
 {
-    range_.set( mUdf(float), -mUdf(float) );
+    range_.set( mUdf(int), -mUdf(int) );
     if ( trcnrs_.size() )
     {
 	for ( int idx=0; idx<trcnrs_.size(); idx++ )
@@ -308,18 +305,16 @@ void FaultTrace::computeRange()
 
     for ( int idx=0; idx<coords_.size(); idx++ )
     {
-	const Coord pt = SI().binID2Coord().transformBackNoSnap( coords_[idx]);
-	range_.include( isinl_ ? pt.y : pt.x, false );
+	const BinID bid = SI().transform( coords_[idx] );
+	range_.include( isinl_ ? bid.crl : bid.inl, false );
     }
 }
 
 
 FaultTraceExtractor::FaultTraceExtractor( EM::Fault* flt,
-					  int nr, bool isinl,
-					  const BinIDValueSet* bvset )
+					  int nr, bool isinl )
   : fault_(flt)
   , nr_(nr), isinl_(isinl)
-  , bvset_(bvset)
   , flttrc_(0)
   , is2d_(false)
 {
@@ -328,13 +323,10 @@ FaultTraceExtractor::FaultTraceExtractor( EM::Fault* flt,
 
 
 FaultTraceExtractor::FaultTraceExtractor( EM::Fault* flt,
-					  const char* linenm, int sticknr,
-					  const BinIDValueSet* bvset )
+					  const PosInfo::GeomID& geomid )
   : fault_(flt)
-  , sticknr_(sticknr)
   , nr_(0),isinl_(true)
-  , linenm_(linenm)
-  , bvset_(bvset)
+  , geomid_(geomid)
   , flttrc_(0)
   , is2d_(true)
 {
@@ -404,9 +396,6 @@ bool FaultTraceExtractor::execute()
     flttrc_->setIsInl( isinl_ );
     flttrc_->setLineNr( nr_ );
     flttrc_->computeRange();
-    if ( bvset_ )
-	useHorizons();
-
     delete fltsurf;
     delete insectn;
     return true;
@@ -419,179 +408,58 @@ bool FaultTraceExtractor::get2DFaultTrace()
     mDynamicCastGet(const EM::FaultStickSet*,fss,fault_)
     if ( !fss ) return false;
 
-    const int nrknots = fss->geometry().nrKnots( fltsid, sticknr_ );
-    const Geometry::FaultStickSet* fltgeom =
-	fss->geometry().sectionGeometry( fltsid );
-    if ( !fltgeom || nrknots < 2 )
+    PosInfo::POS2DAdmin().setCurLineSet( geomid_.lsid_ );
+    PosInfo::Line2DData linegeom;
+    if ( !PosInfo::POS2DAdmin().getGeometry(geomid_.lineid_,linegeom) )
 	return false;
 
-    const MultiID* lsetid = fss->geometry().lineSet( fltsid, sticknr_ );
-    PtrMan<IOObj> ioobj = IOM().get( *lsetid );
-    if ( !ioobj )
-	return false;
-
-    Seis2DLineSet lset( *ioobj );
-    LineKey lk( linenm_.buf(), LineKey::sKeyDefAttrib() );
-    int lidx = lset.indexOf( lk );
-    if ( lidx < 0 ) lidx = lset.indexOfFirstOccurrence( linenm_.buf() );
-    if ( lidx < 0 ) return false;
-
-    PosInfo::POS2DAdmin().setCurLineSet( lset.name() );
-    PosInfo::Line2DData linegeom( lk.lineName() );
-    if ( !PosInfo::POS2DAdmin().getGeometry(linegeom) )
-	return false;
-
-    flttrc_ = new FaultTrace;
-    flttrc_->ref();
-    flttrc_->setIsInl( true );
-    flttrc_->setLineNr( 0 );
-    StepInterval<int> colrg = fltgeom->colRange( sticknr_ );
-    for ( int idx=colrg.start; idx<=colrg.stop; idx+=colrg.step )
+    const int nrsticks = fss->geometry().nrSticks( fltsid );
+    TypeSet<int> indices;
+    for ( int sticknr=0; sticknr<nrsticks; sticknr++ )
     {
-	const Coord3 knot = fltgeom->getKnot( RowCol(sticknr_,idx) );
-	PosInfo::Line2DPos pos;
-	if ( !linegeom.getPos(knot,pos,1.0) )
-	    break;
+	PtrMan<IOObj> lsobj =
+	    IOM().get( *fss->geometry().lineSet(fltsid,sticknr) );
+	if ( !lsobj ) continue;
 
-	flttrc_->add( knot, pos.nr_ );
+	const char* linenm = fss->geometry().lineName( fltsid, sticknr );
+	PosInfo::GeomID geomid = S2DPOS().getGeomID( lsobj->name(),linenm );
+	if ( !(geomid==geomid_) )
+	    continue;
+
+	const int nrknots = fss->geometry().nrKnots( fltsid, sticknr );
+	const Geometry::FaultStickSet* fltgeom =
+	    fss->geometry().sectionGeometry( fltsid );
+	if ( !fltgeom || nrknots < 2 )
+	    continue;
+
+	if ( !flttrc_ )
+	{
+	    flttrc_ = new FaultTrace;
+	    flttrc_->ref();
+	    flttrc_->setIsInl( true );
+	    flttrc_->setLineNr( 0 );
+	}
+
+	StepInterval<int> colrg = fltgeom->colRange( sticknr );
+	for ( int idx=colrg.start; idx<=colrg.stop; idx+=colrg.step )
+	{
+	    const Coord3 knot = fltgeom->getKnot( RowCol(sticknr,idx) );
+	    PosInfo::Line2DPos pos;
+	    if ( !linegeom.getPos(knot,pos,1000.0) )
+		break;
+
+	    indices += flttrc_->add( knot, pos.nr_ );
+	}
+
+	indices += -1;
     }
 
+    if ( !flttrc_ )
+	return false;
+
+    flttrc_->setIndices( indices );
+    flttrc_->computeRange();
     return flttrc_->getSize() > 1;
-}
-
-
-void FaultTraceExtractor::useHorizons()
-{
-    if ( flttrc_->getSize() < 2 )
-	return;
-
-    const Coord3 toppos = flttrc_->get( 0 );
-    const Coord3 botpos = flttrc_->get( flttrc_->getSize() - 1 );
-
-    const BinID topbid = SI().transform( toppos );
-    const BinID botbid = SI().transform( botpos );
-    const BinIDValueSet::Pos topbvspos = bvset_->findFirst( topbid );
-    const BinIDValueSet::Pos botbvspos = bvset_->findFirst( botbid );
-    float topz=mUdf(float), botz=mUdf(float), dummyz;
-    BinID dummy;
-    if ( topbvspos.valid() )
-	bvset_->get( topbvspos, dummy, topz, dummyz );
-    if ( botbvspos.valid() )
-	bvset_->get( botbvspos, dummy, dummyz, botz );
-
-    if ( !mIsUdf(topz) && toppos.z > topz )
-    {
-	const Coord posbid = SI().binID2Coord().transformBackNoSnap( toppos );
-	const Coord3 nextpos = flttrc_->get( 1 );
-	const Coord nextposbid =
-	    		SI().binID2Coord().transformBackNoSnap( nextpos );
-
-	Coord nodepos1( isinl_ ? posbid.y : posbid.x,
-			toppos.z * SI().zFactor() );
-	Coord nodepos2( isinl_ ? nextposbid.y : nextposbid.x,
-			nextpos.z * SI().zFactor() );
-	Line2 fltseg( nodepos1, nodepos2 );
-	fltseg.start_ = Coord::udf();
-	fltseg.stop_ = Coord::udf();
-
-	const bool isinc = isinl_ ? posbid.y > nextposbid.y
-	    			  : posbid.x > nextposbid.x;
-	const BinID incbid( isinl_ ? 0 : (isinc ? 1 : -1),
-			    isinl_ ? (isinc ? 1 : -1) : 0 );
-	BinID start = topbid - incbid;
-	for ( int idx=0; idx<1024; idx++ )
-	{
-	    const BinID stop = start + incbid;
-	    const BinIDValueSet::Pos startpos = bvset_->findFirst( start );
-	    const BinIDValueSet::Pos stoppos = bvset_->findFirst( stop );
-	    float starttopz=mUdf(float), stoptopz=mUdf(float);
-	    if ( startpos.valid() )
-		bvset_->get( startpos, dummy, starttopz, dummyz );
-	    if ( stoppos.valid() )
-		bvset_->get( stoppos, dummy, stoptopz, dummyz );
-
-	    if ( mIsUdf(stoptopz) )
-	    {
-		const Coord3 newstartpos( SI().transform(start), starttopz );
-		flttrc_->set( 0, newstartpos );
-		break;
-	    }
-
-	    const Coord starttop( isinl_ ? start.crl : start.inl,
-		    		  starttopz * SI().zFactor() );
-	    const Coord stoptop( isinl_ ? stop.crl : stop.inl,
-		    		 stoptopz * SI().zFactor() );
-	    start = stop;
-	    Line2 topseg( starttop, stoptop );
-	    Coord interpos = topseg.intersection( fltseg );
-	    if ( interpos != Coord::udf() )
-	    {
-		Coord interbid( isinl_ ? nr_ : interpos.x,
-				isinl_ ? interpos.x : nr_ );
-		Coord newpos = SI().binID2Coord().transform( interbid );
-		Coord3 newpos3( newpos, interpos.y / SI().zFactor() );
-		flttrc_->set( 0, newpos3 );
-		break;
-	    }
-	}
-    }
-
-    if ( !mIsUdf(botz) && botpos.z < botz )
-    {
-	const Coord posbid = SI().binID2Coord().transformBackNoSnap( botpos );
-	const Coord3 nextpos = flttrc_->get( flttrc_->getSize() - 2 );
-	const Coord nextposbid =
-	    		SI().binID2Coord().transformBackNoSnap( nextpos );
-
-	Coord nodepos1( isinl_ ? posbid.y : posbid.x,
-			botpos.z * SI().zFactor() );
-	Coord nodepos2( isinl_ ? nextposbid.y : nextposbid.x,
-			nextpos.z * SI().zFactor() );
-	Line2 fltseg( nodepos1, nodepos2 );
-	fltseg.start_ = Coord::udf();
-	fltseg.stop_ = Coord::udf();
-
-	const bool isinc = isinl_ ? posbid.y > nextposbid.y
-	    			  : posbid.x > nextposbid.x;
-	const BinID incbid( isinl_ ? 0 : (isinc ? 1 : -1),
-			    isinl_ ? (isinc ? 1 : -1) : 0 );
-	BinID start = botbid - incbid;
-	for ( int idx=0; idx<1024; idx++ )
-	{
-	    const BinID stop = start + incbid;
-	    const BinIDValueSet::Pos startpos = bvset_->findFirst( start );
-	    const BinIDValueSet::Pos stoppos = bvset_->findFirst( stop );
-	    float startbotz=mUdf(float), stopbotz=mUdf(float);
-	    if ( startpos.valid() )
-		bvset_->get( startpos, dummy, startbotz, dummyz );
-	    if ( stoppos.valid() )
-		bvset_->get( stoppos, dummy, stopbotz, dummyz );
-
-	    if ( mIsUdf(stopbotz) )
-	    {
-		const Coord3 newstoppos( SI().transform(start), stopbotz );
-		flttrc_->set( flttrc_->getSize() - 1, newstoppos );
-		break;
-	    }
-
-	    const Coord startbot( isinl_ ? start.crl : start.inl,
-		    		  startbotz * SI().zFactor() );
-	    const Coord stopbot( isinl_ ? stop.crl : stop.inl,
-		    		 stopbotz * SI().zFactor() );
-	    start = stop;
-	    Line2 botseg( startbot, stopbot );
-	    Coord interpos = botseg.intersection( fltseg );
-	    if ( interpos != Coord::udf() )
-	    {
-		Coord interbid( isinl_ ? nr_ : interpos.x,
-				isinl_ ? interpos.x : nr_ );
-		Coord newpos = SI().binID2Coord().transform( interbid );
-		Coord3 newpos3( newpos, interpos.y / SI().zFactor() );
-		flttrc_->set( flttrc_->getSize() - 1, newpos3 );
-		break;
-	    }
-	}
-    }
 }
 
 
