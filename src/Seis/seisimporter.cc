@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.25 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.26 2010-11-30 11:47:18 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -266,6 +266,15 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	{
 	    sorting_ = new BinIDSorting( sortanal_->getSorting() );
 	    delete sortanal_; sortanal_ = 0;
+	    if ( Seis::isPS(geomtype_) && !sorting_->inlSorted() )
+	    {
+		errmsg_ = "The input data is cross-line sorted.\n"
+		    "This is not supported for Pre-stack data.\n"
+		    "Did you switch the inline and crossline bytes?\n"
+		    "If not, there is a 'SEG-Y Pre-stack scanned'\n"
+		    "that will read cross-line sorted data.";
+		rv = false;
+	    }
 	}
 	else if ( sortanal_->errMsg() )
 	{
