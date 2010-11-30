@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.83 2010-11-01 09:08:27 cvsranojay Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.84 2010-11-30 12:22:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -78,6 +78,7 @@ public:
     void			getDataTraceBids(TypeSet<BinID>&) const;
     Interval<float>		getDataTraceRange() const;
     void			setTraceData(int,SeisTrcBuf&,TaskRunner*);
+    TypeSet<Coord>		getTrueCoords() const;
 
     bool                        setDataPackID(int attrib,DataPack::ID,
 	    				      TaskRunner*);

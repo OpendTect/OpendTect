@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.128 2010-11-01 09:08:27 cvsranojay Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.129 2010-11-30 12:22:11 cvsranojay Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -438,6 +438,33 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
 	else 
 	{ mGetBinIDs(crl,inl); }
     }
+}
+
+
+TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
+{
+    const int nrknots = nrKnots();
+    TypeSet<Coord> coords;
+    for ( int kidx=1; kidx<nrknots; kidx++ )
+    {
+	BinID start = getKnotPos(kidx-1);
+	BinID stop = getKnotPos(kidx);
+	const int nrinl = int(abs(stop.inl-start.inl) / SI().inlStep() + 1);
+	const int nrcrl = int(abs(stop.crl-start.crl) / SI().crlStep() + 1);
+	const int nrtraces = nrinl > nrcrl ? nrinl : nrcrl;
+	const Coord startcoord = SI().transform( start );
+	const Coord stopcoord = SI().transform( stop );
+	const float delx = ( stopcoord.x - startcoord.x ) / nrtraces;
+	const float dely = ( stopcoord.y - startcoord.y ) / nrtraces; 
+   
+	for ( int idx=0; idx<nrtraces; idx++ )
+	{
+	    const float x = startcoord.x + delx * idx;
+	    const float y = startcoord.y + dely * idx;
+	    coords += Coord( x, y );
+	}
+    }
+    return coords;
 }
 
 
