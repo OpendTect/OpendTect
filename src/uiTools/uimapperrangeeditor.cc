@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.18 2010-10-28 07:28:36 cvsbert Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.19 2010-12-01 11:25:26 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,8 +83,10 @@ void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
     *ctmapper_ = ms;
     ctmapper_->type_ = ColTab::MapperSetup::Fixed;
-    cliprg_.start = ctmapper_->start_;
-    cliprg_.stop = ctmapper_->start_ + ctmapper_->width_;
+    cliprg_.start = ctmapper_->start_ +
+		    (ctmapper_->width_>0 ? 0 : ctmapper_->width_);
+    cliprg_.stop = ctmapper_->start_ +
+		    (ctmapper_->width_>0 ? ctmapper_->width_ : 0);
     drawAgain();
 }
 
@@ -150,16 +152,20 @@ void uiMapperRangeEditor::drawPixmaps()
     const int datastoppix = xax_->getPix( datarg_.stop );
 
     ioPixmap leftpixmap( startpix_-datastartpix, pmh );
-    leftpixmap.fill( ctseq_->color(0) );
+    leftpixmap.fill( ctseq_->color(ctmapper_->width_>0 ? 0:1) );
     leftcoltab_->setPixmap( leftpixmap );
     leftcoltab_->setOffset( datastartpix, disph-pmh-1 );
 
-    ioPixmap centerpixmap( *ctseq_, stoppix_-startpix_, pmh, true );
+    ColTab::Sequence ctseq( *ctseq_ );
+    if ( ctmapper_->width_ < 0 )
+	ctseq.flipColor();
+
+    ioPixmap centerpixmap( ctseq, stoppix_-startpix_, pmh, true );
     centercoltab_->setPixmap( centerpixmap );
     centercoltab_->setOffset( startpix_, disph-pmh-1 );
 
     ioPixmap rightpixmap( datastoppix-stoppix_, pmh );
-    rightpixmap.fill( ctseq_->color(1) );
+    rightpixmap.fill( ctseq_->color(ctmapper_->width_>0 ? 1:0) );
     rightcoltab_->setPixmap( rightpixmap );
     rightcoltab_->setOffset( stoppix_, disph-pmh-1 );
 }
@@ -258,8 +264,16 @@ void uiMapperRangeEditor::mouseReleased( CallBacker* )
     if ( !mousedown_ ) return;
     
     mousedown_ = false;
-    ctmapper_->start_ = cliprg_.start;
-    ctmapper_->width_ = cliprg_.stop - cliprg_.start;
+    if ( ctmapper_->width_ > 0 )
+    {
+	ctmapper_->start_ = cliprg_.start;
+	ctmapper_->width_ = cliprg_.stop - cliprg_.start;
+    }
+    else
+    {
+	ctmapper_->start_ = cliprg_.stop;
+	ctmapper_->width_ = cliprg_.start - cliprg_.stop;
+    }
 
     drawAgain();
     rangeChanged.trigger();
