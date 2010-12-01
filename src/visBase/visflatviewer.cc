@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.32 2009-12-22 14:48:10 cvsbert Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.33 2010-12-01 07:57:00 cvskarthika Exp $";
 
 #include "visflatviewer.h"
 
@@ -26,6 +26,8 @@ static const char* rcsID = "$Id: visflatviewer.cc,v 1.32 2009-12-22 14:48:10 cvs
 #include "vistexturechannels.h"
 #include "vissplittexture2rectangle.h"
 #include "vistexturechannel2rgba.h"
+#include "envvars.h"
+#include "settings.h"
 
 #define mNrResolutions 3
 
@@ -44,6 +46,32 @@ FlatViewer::FlatViewer()
     , x2gridlines_( visBase::IndexedPolyLine::create() )
     , resolution_( 0 )							
 {
+    int resolutionfromsettings;
+
+    // try getting default resolution from settings
+    bool success = Settings::common().get(
+	    "dTect.Default texture resolution factor", resolutionfromsettings );
+
+    if ( success )
+    {
+	if ( resolutionfromsettings >= 0 && resolutionfromsettings <= 2 )
+	    resolution_ = resolutionfromsettings;
+	else if ( resolutionfromsettings == -1 )
+	    success = false;
+    }
+
+    if ( !success )
+    {
+	// get default resolution from environment variable
+	const char* envvar = GetEnvVar(
+		"OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
+	if ( envvar && isdigit(*envvar) )
+	    resolution_ = toInt( envvar );
+    }
+
+    if ( resolution_ >= nrResolutions() )
+	resolution_ = nrResolutions()-1;
+
     channel2rgba_->ref();
     channel2rgba_->allowShading( true );
 
@@ -340,9 +368,10 @@ void FlatViewer::setResolution( int res )
     
 BufferString FlatViewer::getResolutionName( int res ) const
 {
-    if ( res == 1 ) return "Moderate";
-    if ( res == 2 ) return "High";
-    else return "Default";
+    if ( res == 0 ) return "Standard";
+    else if ( res == 1 ) return "Higher";
+    else if ( res == 2 ) return "Highest";
+    else return "?";
 }
 
 
