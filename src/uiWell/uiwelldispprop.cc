@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.47 2010-11-24 14:00:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.48 2010-12-01 09:52:48 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -163,6 +163,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     samecolasmarkerfld_->attach( rightOf, nmcolfld_); 
     
     doPutToScreen();
+    markerFldsChged(0);
 
     cylinderheightfld_->box()->valueChanging.notify(
 		mCB(this,uiWellMarkersDispProperties,propChg) );
