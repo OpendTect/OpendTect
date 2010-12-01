@@ -1,0 +1,91 @@
+dTect V3.2
+OpendTect commands
+Mon Jan 28 11:36:39 2008
+!
+
+# Horizon shift test
+# Shifts horizon 20 and 40 ms up
+# Output: /tmp/20ms.jpg and /tmp/40ms.jpg
+#
+
+#* Switch off survey box
+TreeMenu "Tree scene 1" "Scene 1" "Properties"
+Button "Survey box" off
+Ok
+
+#* Select attribute set 'Demo attributes'
+Menu "Processing`Attributes"
+ # This window is non-modal. Therefore, we can work in this window or in OD Main
+ # Thus, we have to tell what window to use:
+Window "Attribute Set 3D"
+Button "Open attribute set"
+ # Here, we have just one list. So, we'll just select list #1 with a wildcard
+ListClick "*#1" "Demo attributes" Double
+Button "Save on OK" off
+	sleep 5
+Ok
+
+#* Load horizon 'Demo 3 --> Top Foresets' in area 300-450/600-800
+ # Because there's only one scene, we can leave out the scene name
+TreeMenu "Horizon" "Load"
+ListClick "Select Horizon(s)" "Demo 3 --> Top Foresets"
+Button "Select"
+Button "Sub-area" on
+Input "In-line range#1" 300
+Input "In-line range#2" 450
+Input "X-line range#1" 600
+Input "X-line range#2" 800
+	sleep 5
+Ok
+Ok
+
+#* View from top
+Button "View Z"
+
+#* Shift -20 ms
+TreeMenu "Horizon`Demo 3 --> Top Foresets*" "Shift"
+Input "Shift (ms)" -20 Hold
+	sleep 5
+Ok
+
+#* Set attribute Energy
+TreeMenu "Horizon`Demo 3 --> Top Foresets*`Z values" "Select Attribute`Attributes`Energy"
+
+#* Set color table 'Rainbow'
+	sleep 5
+TreeClick "Horizon`Demo 3 --> Top Foresets*`Energy"
+Combo "Color table" "Rainbow"
+	sleep 5
+
+# Set min=5e6 max=2e7
+Input "ColTab Min" 5e6 Hold
+	sleep 5
+Input "ColTab Max" 2e7 Enter
+	sleep 5
+
+# Make picture '/tmp/20ms.jpg'
+Button "Make snapshot"
+Input "Select filename" "/tmp/20ms.jpg"
+Ok
+# In case file /tmp/20ms.jpg exists. Overwrite?
+OnError Continue
+Button "Yes"
+OnError Stop
+
+# Shift -40 ms
+TreeMenu "Horizon`Demo 3 --> Top Foresets*" "Shift"
+Input "Shift (ms)" -40 Hold
+	sleep 5
+Ok
+
+# Make picture '/tmp/40ms.jpg'
+Button "Make snapshot"
+Input "Select filename" "/tmp/40ms.jpg"
+Ok
+# In case file /tmp/40ms.jpg exists. Overwrite?
+OnError Continue
+Button "Yes"
+OnError Stop
+
+# Ready!!
+End
