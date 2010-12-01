@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.70 2010-11-30 07:49:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.71 2010-12-01 12:06:00 cvsnanne Exp $";
 
 #include "uitoolbutton.h"
 #include "i_qbutton.h"
 
 #include "uibuttongroup.h"
 #include "uiicons.h"
+#include "uimain.h"
 #include "uimenu.h"
 #include "uiobjbody.h"
 #include "uitoolbar.h"
@@ -294,6 +295,9 @@ void uiPushButton::setPixmap( const char* pmnm )
 
 void uiPushButton::setPixmap( const ioPixmap& pm )
 {
+    if ( !isMainThreadCurrent() )
+	return;
+
     body_->setIconFrac( 0.7 );
     body_->setIcon( *pm.qpixmap() );
 }
@@ -460,6 +464,9 @@ void uiToolButton::setPixmap( const char* pmnm )
 
 void uiToolButton::setPixmap( const ioPixmap& pm )
 {
+    if ( !isMainThreadCurrent() )
+	return;
+
     body_->setIcon( QIcon(*pm.qpixmap()) );
 }
 

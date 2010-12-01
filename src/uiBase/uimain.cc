@@ -7,30 +7,31 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.59 2010-10-06 13:44:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.60 2010-12-01 12:06:00 cvsnanne Exp $";
 
 #include "uimain.h"
 
 #include "uifont.h"
 #include "uimainwin.h"
+#include "uimsg.h"
 #include "uiobjbody.h"
 
 #include "bufstringset.h"
 #include "debugmasks.h"
-#include "errh.h"
 #include "envvars.h"
+#include "errh.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "oddirs.h"
 #include "settings.h"
-#include "uimsg.h"
+#include "thread.h"
+#include "timefun.h"
 
 #include <QApplication>
 #include <QCleanlooksStyle>
 #include <QKeyEvent>
 #include <QIcon>
 
-#include "timefun.h"
 #include <QTreeWidget>
 #include <QMenu>
 
@@ -315,6 +316,10 @@ int uiMain::exec()
 }
 
 
+void* uiMain::thread()
+{ return qApp ? qApp->thread() : 0; }
+
+
 void uiMain::getCmdLineArgs( BufferStringSet& args ) const
 {
     QStringList qargs = app_->arguments();
@@ -420,3 +425,10 @@ void myMessageOutput( QtMsgType type, const char *msg )
 	    break;
     }
 }
+
+
+bool isMainThread( void* thread )
+{ return uiMain::theMain().thread() == thread; }
+
+bool isMainThreadCurrent()
+{ return isMainThread( Threads::Thread::currentThread() ); }
