@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.29 2010-11-23 22:43:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.30 2010-12-01 05:53:00 cvsnanne Exp $";
 
 #include "velocitycalc.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: velocitycalc.cc,v 1.29 2010-11-23 22:43:43 cvsy
 #include "veldesc.h"
 #include "math2.h"
 
+mImplFactory( Vrms2Vint, Vrms2Vint::factory );
 
 TimeDepthConverter::TimeDepthConverter()
     : times_( 0 )
