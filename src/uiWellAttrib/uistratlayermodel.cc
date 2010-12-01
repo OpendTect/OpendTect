@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.1 2010-11-16 14:46:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.2 2010-12-01 16:56:47 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
 #include "uistratlaymoddisp.h"
+#include "uistratsynthdisp.h"
 #include "uistrattreewin.h"
 #include "stratlayseqgendesc.h"
 #include "stratlayermodel.h"
@@ -90,7 +91,6 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 {
     uiGroup* gengrp = new uiGroup( this, "SeqGen disp" );
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
-    uiGroup* seisgrp = new uiGroup( rightgrp, "Seis disp" );
 
     if ( !edtyp || !*edtyp )
 	edtyp = uiSingleLayerSequenceGenDesc::typeStr();
@@ -113,14 +113,14 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     pb->activated.notify( mCB(this,uiStratLayerModel,genModels) );
     pb->attach( rightOf, nrmodlsfld_ );
 
-    uiLabel* lbl = new uiLabel( seisgrp, "Synth seismics display goes here" );
+    synthdisp_ = new uiStratSynthDisp( rightgrp, modl_ );
     moddisp_ = new uiStratLayerModelDisp( rightgrp, modl_ );
 
     uiSplitter* spl = new uiSplitter( this, "Vert splitter", true );
     spl->addGroup( gengrp ); spl->addGroup( rightgrp );
     spl = new uiSplitter( rightgrp );
     spl = new uiSplitter( rightgrp, "Hor splitter", false );
-    spl->addGroup( seisgrp ); spl->addGroup( moddisp_ );
+    spl->addGroup( synthdisp_ ); spl->addGroup( moddisp_ );
 }
 
 
@@ -188,4 +188,5 @@ void uiStratLayerModel::genModels( CallBacker* )
     Strat::LayerModelGenerator ex( desc_, modl_, nrmods );
     tr.execute( ex );
     moddisp_->modelChanged();
+    synthdisp_->modelChanged();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.1 2010-11-16 14:46:30 cvsbert Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.2 2010-12-01 16:56:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class CtxtIOObj;
 class uiGenInput;
 class uiSpinBox;
+class uiStratSynthDisp;
 class uiStratLayerModelDisp;
 class uiLayerSequenceGenDesc;
 namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
@@ -35,6 +36,7 @@ protected:
 
     uiLayerSequenceGenDesc*	seqdisp_;
     uiStratLayerModelDisp*	moddisp_;
+    uiStratSynthDisp*		synthdisp_;
     uiGenInput*			nrmodlsfld_;
 
     Strat::LayerSequenceGenDesc& desc_;
