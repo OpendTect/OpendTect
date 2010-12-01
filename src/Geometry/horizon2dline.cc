@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.19 2010-11-30 10:50:27 cvsraman Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.20 2010-12-01 05:14:45 cvsnanne Exp $";
 
 #include "horizon2dline.h"
 
@@ -323,7 +323,9 @@ Coord3 Horizon2DLine::computePosition( const PosInfo::GeomID& geomid,
     Coord3 position = getKnot( RowCol(row,col) );
     if ( position.isDefined() )
 	return position;
-    else if ( !position.Geom::Point2D<double>::isDefined() )
+
+    const Coord crd = position.coord();
+    if ( !crd.isDefined() )
 	return Coord3::udf();
 
     StepInterval<int> colrg = colRange( row );
