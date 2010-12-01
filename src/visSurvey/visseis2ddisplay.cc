@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.119 2010-11-23 08:20:34 cvskarthika Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.120 2010-12-01 06:36:51 cvskarthika Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -110,6 +110,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int nrsamp = data2dh_.dataset_[0]->nrsamples_;
     const SamplingData<float>& sd = data2dh_.trcinfoset_[0]->sampling; 
     StepInterval<float> zrg = s2d_.getZRange(!s2d_.datatransform_,attrib_);
+    zrg.step = s2d_.datatransform_	? s2d_.datatransform_->getGoodZStep()
+	 			 	: SI().zStep();
     StepInterval<int> arraysrg( mNINT(zrg.start/sd.step),
 				mNINT(zrg.stop/sd.step),1 );
     const float firstz = data2dh_.dataset_[0]->z0_*sd.step;
@@ -177,7 +179,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		val = mUdf(float);
 		const float offset = idy * SI().zStep() / sd.step;
 		IdxAble::interpolateRegWithUdf( *dataseries, 
-		    nrsamp, firstz + offset, val );
+		    nrsamp, firstz + offset + shift, val );
 	    }
 	    
 	    if ( outputptr_ )
@@ -628,11 +630,10 @@ void Seis2DDisplay::setData( int attrib,
 
 //    arrayzrg.step = sd.step;
 
-    // get the details of the destination from the survey instead of the data 
-    // holder, since interpolation is now supported by the Filler
-    arrayzrg.step = SI().zStep();
-    const int arrzsz = arrayzrg.nrSteps()+1;
+     arrayzrg.step = datatransform_	? datatransform_->getGoodZStep()
+	 			 	: SI().zStep();
 
+    const int arrzsz = arrayzrg.nrSteps()+1;
 
 #ifndef mUseSeis2DArray
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, arr,
