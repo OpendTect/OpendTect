@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.44 2010-11-30 20:39:16 cvskris Exp $
+ RCS:		$Id: callback.h,v 1.45 2010-12-01 03:26:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ public:
 			{ return !(*this==cb); }
 
     inline bool		willCall() const
-			{ return obj_ && fn_ || sfn_; }
+			{ return obj_ && (fn_ || sfn_); }
     inline void		doCall( CallBacker* o )
 			{
 			    if ( obj_ && fn_ )
