@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.35 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.36 2010-12-01 11:24:46 cvsumesh Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -334,6 +334,39 @@ void ColTab::Sequence::changeTransparency( int idx, Geom::Point2D<float> pt )
 
     tr_[idx] = pt;
     transparencyChanged.trigger();
+}
+
+
+void ColTab::Sequence::flipColor()
+{
+    if ( size() == 0 ) return;
+
+    int first = 0;
+    int last = size() - 1;
+    for ( ; first!=last && first<last; )
+    {
+	unsigned char rtmp = r_[first];
+	r_[first] = r_[last];
+	r_[last] = rtmp;
+
+	unsigned char gtmp = g_[first];
+	g_[first] = g_[last];
+	g_[last] = gtmp;
+
+	unsigned char btmp = b_[first];
+	b_[first] = b_[last];
+	b_[last] = btmp;
+
+	first++;
+	last--;
+    }
+}
+
+
+void ColTab::Sequence::flipTransparency()
+{
+    for ( int idx=0; idx<tr_.size()-1; idx++ )
+	tr_[idx].x = 1 - tr_[idx].x;
 }
 
 
