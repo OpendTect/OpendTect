@@ -7,30 +7,34 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.121 2010-10-28 10:10:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.122 2010-12-01 12:09:37 cvsnanne Exp $";
 
 #include "uiflatviewer.h"
+
 #include "uiflatviewcontrol.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uimain.h"
+#include "uimsg.h"
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
+#include "uiworld2ui.h"
+
+#include "bufstringset.h"
+#include "datapackbase.h"
+#include "debugmasks.h"
+#include "draw.h"
+#include "drawaxis2d.h"
+#include "geometry.h"
 #include "flatposdata.h"
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
 #include "flatviewaxesdrawer.h"
 #include "flatviewzoommgr.h"
+#include "linerectangleclipper.h"
 #include "mousecursor.h"
 #include "pixmap.h"
-#include "datapackbase.h"
-#include "bufstringset.h"
-#include "draw.h"
-#include "drawaxis2d.h"
-#include "geometry.h"
-#include "uiworld2ui.h"
-#include "uimsg.h"
-#include "linerectangleclipper.h"
-#include "debugmasks.h"
+
 
 #define mStdInitItem \
       titletxtitem_(0) \
@@ -337,6 +341,9 @@ void uiFlatViewer::reset()
 
 bool uiFlatViewer::drawBitMaps()
 {
+    if ( !isMainThreadCurrent() )
+	return false;
+
     if ( enabhaddrag_ )
     {
 	if ( initview_ || control()->zoomMgr().atStart() )
@@ -482,6 +489,9 @@ bool uiFlatViewer::drawAnnot()
 
 bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
 {
+    if ( !isMainThreadCurrent() )
+	return false;
+
     if ( (mainwin() && !mainwin()->finalised()) )
 	return false;
 
