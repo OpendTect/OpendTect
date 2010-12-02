@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.68 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.69 2010-12-02 09:59:46 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -1247,11 +1247,10 @@ void uiDataPointSet::showSelPts( CallBacker* )
     dpsdispmgr_->lock();
     
     dpsdispmgr_->removeAllGrps();
-    ObjectSet<uiDataPointSetCrossPlotter::SelectionGrp> selgrps(
-	    xplotwin_->plotter().selectionGrps() );
+    ObjectSet<SelectionGrp> selgrps( xplotwin_->plotter().selectionGrps() );
 
     for ( int idx=0; idx<selgrps.size(); idx++ )
-	dpsdispmgr_->addDispMgrGrp( selgrps[idx]->name_, selgrps[idx]->col_ );
+	dpsdispmgr_->addDispMgrGrp( selgrps[idx]->name(), selgrps[idx]->col_ );
 
     int dpsid = dpsdispmgr_->getDisplayID(dps_);
     if ( dpsid < 0 )

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.8 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.9 2010-12-02 09:59:46 cvssatyaki Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -148,6 +148,8 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
     {
 	if ( !surf2fld_->commitInput() )
 	    mErrRet("Please select the bottom surface")
+	 if (  ctio2_.ioobj->key() ==  ctio1_.ioobj->key() )
+	     mErrRet("Please select two different horizons")
 	iop.set( mGetSurfKey(id2), ctio2_.ioobj->key() );
     }
 
