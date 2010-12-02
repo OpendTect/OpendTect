@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.10 2010-07-27 06:42:33 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.11 2010-12-02 10:07:52 cvssatyaki Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -44,7 +44,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 
     uiLabeledComboBox* selcbx = 0;
     uiLabeledComboBox* sel1cbx = 0;
-    if ( plotter_.selectionAreas().size() )
+    if ( plotter_.selAreaSize() )
     {
 	BufferStringSet seltype;
         seltype.add( "Whole region" );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: densitycalc.h,v 1.6 2010-08-23 07:06:03 cvssatyaki Exp $
+ RCS:           $Id: densitycalc.h,v 1.7 2010-12-02 10:07:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,12 +28,12 @@ public:
 DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,
 	     uiDataPointSetCrossPlotter::AxisData& x,
 	     uiDataPointSetCrossPlotter::AxisData& y,
-	     const ObjectSet<uiDataPointSetCrossPlotter::SelectionArea>& areas,
+	     const ObjectSet<SelectionGrp>& grps,
 	     const char* header )
     : ParallelTask( header )
     , uidps_( uidps )
     , dps_( uidps.pointSet() )
-    , selareaset_( areas )
+    , selgrpset_( grps )
     , data_( data )
     , freqdata_( 0 )
     , x_( x )
@@ -126,33 +126,36 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	bool ptselected = false;
 	bool ptremoved = false;
-	if ( selareaset_.size() && (changedps_ || removesel_) )
+	if ( selgrpset_.size() && (changedps_ || removesel_) )
 	{
-	    for ( int idx=0; idx<selareaset_.size(); idx++ )
+	    for ( int idx=0; idx<selgrpset_.size(); idx++ )
 	    {
-		const uiDataPointSetCrossPlotter::SelectionArea* selarea =
-		    selareaset_.size() ? selareaset_[idx] : 0;
-		if ( !selarea )
-		    continue;
-
-		if ( selarea->isInside(pos) )
+		const SelectionGrp* selgrp = selgrpset_[idx];
+		for ( int selidx=0; selidx<selgrp->size(); selidx++ )
 		{
-		    Threads::MutexLocker lock( mutex_ );
-		    if ( !isSelectionValid(rid) )
-			continue;
-		    if ( removesel_ )
+		    if ( !selgrp->isValidIdx(selidx) ) continue;
+		    const SelectionArea& selarea =
+			    selgrp->getSelectionArea( selidx );
+
+		    if ( selarea.isInside(pos) )
 		    {
-			dps_.setInactive( rid, true );
-			ptremoved = true;
-		    }
-		    else
-		    {
-			ptselected = true;
-			dps_.setSelected( rid, uidps_.getSelectionGroupIdx(
-				    	  selarea->id_) );
-			RowCol rcol( uidps_.tRowID(rid),
-				     uidps_.tColID(y_.colid_) );
-			selrowcols_ += rcol;
+			Threads::MutexLocker lock( mutex_ );
+			if ( !isSelectionValid(rid) )
+			    continue;
+			if ( removesel_ )
+			{
+			    dps_.setInactive( rid, true );
+			    ptremoved = true;
+			}
+			else
+			{
+			    ptselected = true;
+			    dps_.setSelected( rid, uidps_.getSelectionGroupIdx(
+					      selarea.id_) );
+			    RowCol rcol( uidps_.tRowID(rid),
+					 uidps_.tColID(y_.colid_) );
+			    selrowcols_ += rcol;
+			}
 		    }
 		}
 	    }
@@ -239,7 +242,7 @@ protected:
     uiDataPointSet&			uidps_;
     DataPointSet&			dps_;
     MathExpression*			mathobj_;
-    const ObjectSet<uiDataPointSetCrossPlotter::SelectionArea>&	selareaset_;
+    const ObjectSet<SelectionGrp>&	selgrpset_;
     uiWorld2Ui				w2ui_;
     TypeSet<RowCol>			selrowcols_;
     TypeSet<uiDataPointSet::DColID>	modcolidxs_;

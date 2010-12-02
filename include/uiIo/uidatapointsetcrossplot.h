@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.34 2010-04-08 11:34:24 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.35 2010-12-02 10:07:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,69 @@ class uiRect;
 template <class T> class Array1D;
 
 /*!\brief Data Point Set Cross Plotter */
+
+
+mStruct SelectionArea
+{
+    enum SelAxisType	{ Y1, Y2, Both };
+
+			    SelectionArea(const uiRect&);
+			    SelectionArea(const ODPolygon<int>&);
+			    SelectionArea(bool isrect);
+			    SelectionArea() : axistype_(SelectionArea::Y1) {}
+			    ~SelectionArea();
+
+    bool			isrectangle_;
+    bool			isInside(const uiPoint&) const;
+    bool			isValid() const;
+    Interval<double>		getValueRange(bool forx,bool alt=false) const;
+    BufferStringSet		getAxisNames() const;
+
+
+    BufferString		xaxisnm_;
+    BufferString		yaxisnm_;
+    BufferString		altyaxisnm_;
+    int 			id_;
+    uiRect			rect_;
+    ODPolygon<int>		poly_;
+    SelAxisType		axistype_;
+    uiWorldRect		worldrect_;
+    ODPolygon<double>	worldpoly_;
+    uiWorldRect		altworldrect_;
+    ODPolygon<double>	altworldpoly_;
+    bool			operator==(const SelectionArea&) const;
+};
+
+
+mClass SelectionGrp : public NamedObject
+{
+public:
+				SelectionGrp(const char* nm, const Color& col)
+				    : NamedObject(nm), col_(col)	{}
+				SelectionGrp()
+				    : NamedObject()			{}
+				~SelectionGrp()				{}
+
+	Color			col_;
+	int			size() const;
+	bool			hasAltAxis() const;
+	bool			isValidIdx(int idx) const;
+	int			validIdx(int selareaid) const;
+	void			addSelection(const SelectionArea&);
+	void			removeSelection(int);
+	void			removeAll();
+
+	void			setSelectionArea(const SelectionArea&);
+	bool			getSelectionArea(SelectionArea&,int id) const;
+	SelectionArea&		getSelectionArea(int idx);
+	const SelectionArea&	getSelectionArea(int idx) const;
+	SelectionArea::SelAxisType getSelectionAxis(int selareaid) const;
+	void			usePar(const IOPar&);
+	void			fillPar(IOPar&) const;
+protected:
+	TypeSet<SelectionArea> selareas_;
+};
+
 
 mClass uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
 {
@@ -101,38 +164,7 @@ public:
 	DataPointSet::ColID	colid_;
     };
 
-    mStruct SelectionArea
-    {
-	enum SelectionType	{ Rectangle, Polygon };
 
-	    			SelectionArea(uiRect*);
-	    			SelectionArea(ODPolygon<int>*);
-				~SelectionArea();
-
-	SelectionType		type_;
-	bool			isInside(const uiPoint&) const;
-	bool			isValid() const;
-
-	int 			id_;
-	uiRect*			rect_;
-	ODPolygon<int>*		poly_;
-	uiWorldRect*		worldrect_;
-	ODPolygon<double>*	worldpoly_;
-	bool			operator==(const SelectionArea&) const;
-    };
-
-    mStruct SelectionGrp
-    {
-				SelectionGrp(const char* nm, const Color& col)
-				    : name_(nm), col_(col) {}
-				~SelectionGrp();
-
-	BufferString		name_;
-	Color			col_;
-	TypeSet<int>		selareaids_;
-	TypeSet<uiWorldRect>	worldrects_;
-	TypeSet< ODPolygon<double> > worldpolys_;
-    };
 
     AxisData			x_;
     AxisData			y_;
@@ -173,6 +205,7 @@ public:
     void			checkSelection(uiDataPointSet::DRowID,
 				   uiGraphicsItem*,bool,const AxisData&,
 				   bool rempt = false);
+    bool			checkSelArea(const SelectionArea&) const;
     AxisData::AutoScalePars&	autoScalePars( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).autoscalepars_; }
     uiAxisHandler*		axisHandler( int ax )	//!< 0=x 1=y 2=y2
@@ -217,6 +250,10 @@ public:
     void			showY2(bool);
     void 			drawContent( bool withaxis = true );
     bool			isY2Shown() const;
+    bool                        isY1Selectable() const
+    				{ return isy1selectable_; }
+    bool                        isY2Selectable() const
+    				{ return isy2selectable_; }
     bool			showY3() const		{ return showy3_; }
     bool			showY4() const		{ return showy4_; }
     void			setShowY3( bool yn ) 	{ showy3_ = yn ; }
@@ -227,17 +264,18 @@ public:
     				{ return rectangleselection_; }
     void			setRectSelection( bool yn )
 				{ rectangleselection_ = yn; }
-    const ObjectSet<SelectionArea>& selectionAreas() const
-    				{ return selareaset_; }
-    void			setSelectionAreas(
-				    const ObjectSet<SelectionArea>&);
+
+    SelectionArea&		getCurSelArea();
+    void			setSelArea(const SelectionArea&,int selgrpidx);
+    bool			getSelArea(SelectionArea&,int selareaid);
     ObjectSet<SelectionGrp>&	selectionGrps()		{ return selgrpset_; }
+    int 			selAreaSize() const;
     void			reDrawSelections();
     TypeSet<Color>		selGrpCols() const;
     void			setCurSelGrp(int grp)	{ curselgrp_ = grp; }
     int				curSelGrp() const	{ return curselgrp_; }
-    int 			getSelAreaID(int idx) const;
-    int				getSelAreaIdx(int id) const;
+
+    int 			getNewSelAreaID() const;
     bool			isSelAreaValid(int id) const;
     int				getSelGrpIdx(int selareaid) const;
     void			setTRMsg( const char* msg )
@@ -356,4 +394,5 @@ protected:
     void                        mouseReleased(CallBacker*);
     void                        removeSelections(CallBacker*);
 };
+
 #endif

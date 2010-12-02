@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.30 2010-11-16 09:49:10 cvsbert Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.31 2010-12-02 10:07:52 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.30 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.31 2010-12-02 10:07:52 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.30 2010-11-16
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uigraphicsscene.h"
+#include "uiimpexpselgrp.h"
 #include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -160,7 +161,6 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     maniptb_.addButton( "overlayattr.png", "Select Overlay Attribute",
 			mCB(this,uiDataPointSetCrossPlotWin,overlayAttrCB) );
 
-
     const int nrgrps = uidps_.groupNames().size();
     if ( nrgrps > 1 )
     {
@@ -263,7 +263,7 @@ void uiDataPointSetCrossPlotWin::colTabChanged( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::removeSelections( CallBacker* )
 {
-    if ( !plotter_.selectionAreas().size() ) return;
+    if ( !plotter_.selAreaSize() ) return;
 
     plotter_.removeSelections();
     plotter_.drawContent();
@@ -274,7 +274,7 @@ void uiDataPointSetCrossPlotWin::showTableSel( CallBacker* )
 {
     if ( plotter_.isADensityPlot() )
     {
-	if ( !plotter_.selectionAreas().size() ) return;
+	if ( !plotter_.selAreaSize() ) return;
 
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	Array2D<float>* data =
@@ -378,15 +378,15 @@ bool acceptOk( CallBacker* )
 class uiSetSelGrpTab : public uiDlgGroup
 {
 public:
-uiSetSelGrpTab( uiTabStackDlg* p,
-		ObjectSet<uiDataPointSetCrossPlotter::SelectionGrp>& grps )
+uiSetSelGrpTab( uiTabStackDlg* p, uiDataPointSetCrossPlotter& plotter )
     : uiDlgGroup( p->tabParent(), "Manage selection group" )
-    , selgrps_(grps)
+    , selgrps_(plotter.selectionGrps())
+    , plotter_(plotter)
     , curselgrp_(0)
     , selGrpChanged(this)
     , selGrpRemoved(this)
 {
-    uiTable::Setup su( grps.size(), 2 );
+    uiTable::Setup su( selgrps_.size(), 2 );
     su.rowdesc("Selection Group").selmode(uiTable::Single);
     tbl_ = new uiTable( this, su, "Selection Groups" );
     tbl_->leftClicked.notify( mCB(this,uiSetSelGrpTab,changeColCB) );
@@ -395,10 +395,10 @@ uiSetSelGrpTab( uiTabStackDlg* p,
     tbl_->selectionChanged.notify( mCB(this,uiSetSelGrpTab,setCurSelGrp) );
     tbl_->setColumnLabel( 0, "Name" );
     tbl_->setColumnLabel( 1, "Color" );
-    for ( int idx=0; idx<grps.size(); idx++ )
+    for ( int idx=0; idx<selgrps_.size(); idx++ )
     {
-	tbl_->setText( RowCol(idx,0), grps[idx]->name_ );
-	tbl_->setColor( RowCol(idx,1), grps[idx]->col_ );
+	tbl_->setText( RowCol(idx,0), selgrps_[idx]->name() );
+	tbl_->setColor( RowCol(idx,1), selgrps_[idx]->col_ );
     }
 
     curselgrp_ = tbl_->currentRow() < 0 ? 0 : tbl_->currentRow();
@@ -409,6 +409,14 @@ uiSetSelGrpTab( uiTabStackDlg* p,
     uiPushButton* remgrpbut = new uiPushButton( this, "Remove group", 
 	    mCB(this,uiSetSelGrpTab,remSelGrp), true );
     remgrpbut->attach( rightTo, addgrpbut );
+    
+    uiPushButton* expgrpbut = new uiPushButton( this, "Export groups", 
+	    mCB(this,uiSetSelGrpTab,exportSelectionGrps), true );
+    expgrpbut->attach( rightTo, remgrpbut );
+    
+    uiPushButton* impgrpbut = new uiPushButton( this, "Import groups", 
+	    mCB(this,uiSetSelGrpTab,importSelectionGrps), true );
+    impgrpbut->attach( rightTo, expgrpbut );
 }
 
 
@@ -428,8 +436,8 @@ void changeSelGrbNm( CallBacker* )
 
     for ( int idx=0; idx<tbl_->nrRows(); idx++ )
     {
-	uiDataPointSetCrossPlotter::SelectionGrp* selgrp = selgrps_[ idx ];
-	selgrp->name_ = tbl_->text( RowCol(idx,0) );
+	SelectionGrp* selgrp = selgrps_[ idx ];
+	selgrp->setName( tbl_->text(RowCol(idx,0)) );
 	selgrp->col_ = tbl_->getColor( RowCol(idx,1) );
     }
 
@@ -445,10 +453,42 @@ void addSelGrp( CallBacker* cb )
     BufferString selgrpnm( "No " );
     selgrpnm += tbl_->nrRows();
     tbl_->setText( RowCol(newcell.row,0), selgrpnm );
-    selgrps_ += new uiDataPointSetCrossPlotter::SelectionGrp( selgrpnm,
-	    tbl_->getColor(RowCol(newcell.row,1)) );
+    selgrps_ +=
+	new SelectionGrp( selgrpnm, tbl_->getColor(RowCol(newcell.row,1)) );
     curselgrp_ = tbl_->currentRow();
     selGrpChanged.trigger();
+}
+
+void importSelectionGrps( CallBacker* )
+{
+    uiReadSelGrp dlg( this, plotter_ );
+    NotifyStopper ns( tbl_->valueChanged );
+    if ( dlg.go() )
+    {
+	while ( tbl_->nrRows() )
+	    tbl_->removeRow(0);
+
+	tbl_->setNrRows( selgrps_.size() );
+	for ( int idx=0; idx<selgrps_.size(); idx++ )
+	{
+	    BufferString temp(selgrps_[idx]->name());
+	    tbl_->setText( RowCol(idx,0), temp.buf() );
+	    tbl_->setColor( RowCol(idx,1), selgrps_[idx]->col_ );
+	}
+    }
+}
+
+
+void exportSelectionGrps( CallBacker* )
+{
+    const bool showboth =
+	plotter_.isY2Selectable() && plotter_.isY1Selectable();
+    uiExpSelectionArea::Setup setup( plotter_.axisHandler(0)->name().buf(), 
+				     plotter_.axisHandler(1)->name().buf(),
+				     plotter_.axisHandler(2)
+				     ? plotter_.axisHandler(2)->name().buf():0);
+    uiExpSelectionArea dlg( this, plotter_.selectionGrps(), setup );
+    dlg.go();
 }
 
 
@@ -480,7 +520,8 @@ void changeColCB( CallBacker* )
 
     int							curselgrp_;
     uiTable*						tbl_;
-    ObjectSet<uiDataPointSetCrossPlotter::SelectionGrp>& selgrps_;
+    uiDataPointSetCrossPlotter&				plotter_;
+    ObjectSet<SelectionGrp>&				selgrps_;
 
     Notifier<uiSetSelGrpTab>				selGrpChanged;
     Notifier<uiSetSelGrpTab>				selGrpRemoved;
@@ -657,7 +698,7 @@ uiSelectionSettDlg( uiDataPointSetCrossPlotter& p,
 				        plotter_.isADensityPlot() );
     addGroup( refseltab_ );
 
-    selgrptab_ = new uiSetSelGrpTab( this, plotter_.selectionGrps() );
+    selgrptab_ = new uiSetSelGrpTab( this, plotter_ );
     addGroup( selgrptab_ );
     selgrptab_->selGrpChanged.notify(
 	    mCB(this,uiSelectionSettDlg,selGrpChangedCB) );
@@ -690,13 +731,13 @@ bool acceptOK( CallBacker* )
 	plotter_.setModifiedColIds( refseltab_->dcolids_ );
 	if ( !plotter_.isADensityPlot() && saveButtonChecked() )
 	{
-	    plotter_.removeSelections();
+	    plotter_.removeSelections( true );
 	    if ( !refseltab_->mathObject() )
 		return false;
-	    ObjectSet<uiDataPointSetCrossPlotter::SelectionArea> selareas;
-	    selareas += new uiDataPointSetCrossPlotter::SelectionArea(
-		    new uiRect(0,0,plotter_.width(),plotter_.height()) );
-	    plotter_.setSelectionAreas( selareas );
+
+	    SelectionArea sa( uiRect(0,0,plotter_.width(),plotter_.height()) );
+	    plotter_.selectionGrps()[ plotter_.curSelGrp() ]->addSelection( sa);
+	    plotter_.reDrawSelections();
 	}
     }
 
@@ -769,7 +810,7 @@ void uiDataPointSetCrossPlotWin::showPtsInWorkSpace( CallBacker* )
 {
     if ( plotter_.isADensityPlot() )
     {
-	if ( !plotter_.selectionAreas().size() )
+	if ( !plotter_.selAreaSize() )
 	{
 	    uidps_.selPtsToBeShown.trigger();
 	    return;

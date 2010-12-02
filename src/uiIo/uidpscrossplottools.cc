@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpscrossplottools.cc,v 1.2 2010-03-31 06:45:24 cvssatyaki Exp $
+ RCS:           $Id: uidpscrossplottools.cc,v 1.3 2010-12-02 10:07:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplottools.cc,v 1.2 2010-03-31 06:45:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplottools.cc,v 1.3 2010-12-02 10:07:52 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -67,60 +67,101 @@ void uiDataPointSetCrossPlotter::AxisData::newColID()
 }
 
 
-uiDataPointSetCrossPlotter::SelectionArea::SelectionArea( uiRect* rect )
-    : type_( uiDataPointSetCrossPlotter::SelectionArea::Rectangle )
+SelectionArea::SelectionArea( const uiRect& rect )
+    : isrectangle_( true )
     , rect_(rect)
-    , poly_(0)
+    , axistype_(SelectionArea::Y1)
 {
 }
 
 
-uiDataPointSetCrossPlotter::SelectionArea::SelectionArea( ODPolygon<int>* poly )
-    : type_( uiDataPointSetCrossPlotter::SelectionArea::Polygon )
-    , rect_(0)
+SelectionArea::SelectionArea( const ODPolygon<int>& poly )
+    : isrectangle_( false )
     , poly_(poly)
+    , axistype_(SelectionArea::Y1)
 {
 }
 
 
-uiDataPointSetCrossPlotter::SelectionArea::~SelectionArea()
+SelectionArea::SelectionArea( bool isrect )
+    : isrectangle_( isrect )
+    , axistype_(SelectionArea::Y1)
 {
-    delete rect_;
-    delete poly_;
 }
 
-bool uiDataPointSetCrossPlotter::SelectionArea::operator==(
-	const uiDataPointSetCrossPlotter::SelectionArea& selarea ) const
+
+SelectionArea::~SelectionArea()
 {
-    if ( type_ != selarea.type_ ) return false;
-    if ( type_ == uiDataPointSetCrossPlotter::SelectionArea::Rectangle
-	 && (*worldrect_ != *selarea.worldrect_) )
+}
+
+bool SelectionArea::operator==( const SelectionArea& selarea ) const
+{
+    if ( isrectangle_ != selarea.isrectangle_ ) return false;
+    if ( isrectangle_ && (worldrect_ != selarea.worldrect_) )
 	return false;
-    if ( type_ == uiDataPointSetCrossPlotter::SelectionArea::Polygon
-	 && !(worldpoly_->data() == selarea.worldpoly_->data()) )
+    else if ( !isrectangle_ && !(worldpoly_.data()==selarea.worldpoly_.data()) )
 	return false;
 
     return true;
 }
 
 
-bool uiDataPointSetCrossPlotter::SelectionArea::isInside(
-	const uiPoint& pos ) const
+bool SelectionArea::isInside( const uiPoint& pos ) const
 {
-    if ( type_ == SelectionArea::Polygon )
+    if ( !isrectangle_ )
     {
-	if ( !poly_->getRange(true).includes(pos.x) ||
-	     !poly_->getRange(false).includes(pos.y) )
+	if ( !poly_.getRange(true).includes(pos.x) ||
+	     !poly_.getRange(false).includes(pos.y) )
 	    return false;
     }
-    return type_ == Polygon ? poly_->isInside(pos,true,0)
-			    : rect_->contains( pos );
+
+    return !isrectangle_ ? poly_.isInside(pos,true,0) : rect_.contains( pos );
 }
 
 
-bool uiDataPointSetCrossPlotter::SelectionArea::isValid() const
+bool SelectionArea::isValid() const
 {
-    return type_ == Polygon ? true
-			    : (rect_->width()>1 && rect_->height()>1);
+    return !isrectangle_ ? true : (rect_.width()>1 && rect_.height()>1);
 }
 
+Interval<double> SelectionArea::getValueRange( bool forxaxis, bool alt ) const
+{
+    Interval<double> intv;
+    if ( isrectangle_ )
+    {
+	if ( forxaxis )
+	{
+	    intv.start = worldrect_.left();
+	    intv.stop = worldrect_.right();
+	}
+	else
+	{
+	    intv.start = worldrect_.bottom();
+	    intv.stop = worldrect_.top();
+	    
+	    if ( alt )
+	    {
+		intv.start = altworldrect_.bottom();
+		intv.stop = altworldrect_.top();
+	    }
+	}
+    }
+    else
+    {
+	intv = worldpoly_.getRange( forxaxis );
+	if ( alt )
+	    intv = altworldpoly_.getRange( forxaxis );
+    }
+
+    return intv;
+}
+
+BufferStringSet SelectionArea::getAxisNames() const
+{
+    BufferStringSet selaxisnm;
+    selaxisnm.add( xaxisnm_ );
+    selaxisnm.add( yaxisnm_ );
+    if ( !altyaxisnm_.isEmpty() )
+	selaxisnm.add( altyaxisnm_ );
+    return selaxisnm;
+}

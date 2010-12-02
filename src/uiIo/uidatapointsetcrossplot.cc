@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.72 2010-11-29 11:44:01 cvsnageswara Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.73 2010-12-02 10:07:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.72 2010-11-29 11:44:01 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.73 2010-12-02 10:07:52 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -27,6 +27,8 @@ static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.72 2010-11-29 11
 #include "densitycalc.h"
 #include "datapointset.h"
 #include "envvars.h"
+#include "geometry.h"
+#include "keystrs.h"
 #include "linear.h"
 #include "pixmap.h"
 #include "mathexpression.h"
@@ -42,6 +44,11 @@ static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.72 2010-11-29 11
 #include "thread.h"
 
 static const int cMaxPtsForMarkers = 20000;
+
+static const char* sKeyNrAreas = "Nr of Selection Areas";
+static const char* sKeyRect = "Rectangle";
+static const char* sKeyPoly = "Polygon";
+static const char* sKeyPos = "Position";
 
 uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 			    uiDataPointSet& uidps,
@@ -257,7 +264,6 @@ void uiDataPointSetCrossPlotter::removeSelectionItems()
 void uiDataPointSetCrossPlotter::deleteSelections()
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    if ( !selareaset_.size() ) return;
 
     uidps_.setUnsavedChg( true );
     if ( isdensityplot_ )
@@ -287,29 +293,33 @@ int uiDataPointSetCrossPlotter::getSelGrpIdx( int selareaid ) const
 {
     for ( int idx=0; idx<selgrpset_.size(); idx++ )
     {
-	if ( selgrpset_[idx]->selareaids_.isPresent(selareaid) )
-	    return idx;
+	const SelectionGrp* selgrp = selgrpset_[idx];
+	for ( int selidx=0; selidx < selgrp->size(); selidx++ )
+	{
+	    if ( selgrp->getSelectionArea(selidx).id_ == selareaid )
+		return idx;
+	}
     }
 
     return -1;
 }
 
 
-int uiDataPointSetCrossPlotter::getSelAreaID( int idx ) const
+int uiDataPointSetCrossPlotter::getNewSelAreaID() const
 {
-    return selareaset_.validIdx(idx) ? selareaset_[idx]->id_ : -1;
-}
-
-
-int uiDataPointSetCrossPlotter::getSelAreaIdx( int id ) const
-{
-    for ( int idx=0; idx<selareaset_.size(); idx++ )
+    int lastid = 0;
+    for ( int idx=0; idx<selgrpset_.size(); idx++ )
     {
-	if ( selareaset_[idx]->id_ == id )
-	    return idx;
+	const SelectionGrp* selgrp = selgrpset_[idx];
+	for ( int idy=0; idy<selgrp->size(); idy++ )
+	{
+	    if ( selgrp->getSelectionArea(idy).id_ > lastid )
+		lastid = selgrp->getSelectionArea(idy).id_;
+	}
     }
 
-    return -1;
+    return lastid+1;
+
 }
 
 
@@ -317,10 +327,10 @@ bool uiDataPointSetCrossPlotter::isSelAreaValid( int selareaid ) const
 {
     for ( int idx=0; idx<selgrpset_.size(); idx++ )
     {
-	TypeSet<int> selids = selgrpset_[idx]->selareaids_;
-	for ( int idy=0; idy<selids.size(); idy++ )
+	const SelectionGrp* selgrp = selgrpset_[idx];
+	for ( int idy=0; idy<selgrp->size(); idy++ )
 	{
-	    if ( selids[idy] == selareaid )
+	    if ( selgrp->getSelectionArea(idy).id_ == selareaid )
 		return true;
 	}
     }
@@ -338,51 +348,9 @@ TypeSet<Color> uiDataPointSetCrossPlotter::selGrpCols() const
 }
 
 
-void uiDataPointSetCrossPlotter::setSelectionAreas(
-	const ObjectSet<SelectionArea>& areaset )
-{
-    selareaset_ = areaset;
-    for ( int idx=0; idx<selareaset_.size(); idx++ )
-	setWorldSelArea( idx );
-
-    reDrawSelArea();
-    if ( !isdensityplot_ )
-	reDrawNeeded.trigger();
-}
-
-
 void uiDataPointSetCrossPlotter::reDrawSelections()
 {
     removeSelections( false );
-
-    int selareaid = 0;
-    for ( int idx=0; idx<selgrpset_.size(); idx++ )
-    {
-	SelectionGrp* selgrp = selgrpset_[idx];
-	if ( !selgrp ) return;
-
-	for ( int idy=0; idy<selgrp->worldrects_.size(); idy++ )
-	{
-	    SelectionArea* selarea = new SelectionArea( new uiRect(0,0,0,0) );
-	    selarea->id_ = selareaid;
-	    selgrp->selareaids_.addIfNew( selareaid );
-	    selarea->worldrect_ = &selgrp->worldrects_[idy];
-	    selareaset_ += selarea;
-	    selareaid++;
-	}
-
-	for ( int idy=0; idy<selgrp->worldpolys_.size(); idy++ )
-	{
-	    ODPolygon<int>* poly = new ODPolygon<int>;
-	    SelectionArea* selarea = new SelectionArea( poly );
-	    selarea->id_ = selareaid;
-	    selgrp->selareaids_.addIfNew( selareaid );
-	    selarea->worldpoly_ = &selgrp->worldpolys_[idy];
-	    selareaset_ += selarea;
-	    selareaid++;
-	}
-    }
-
     reDrawSelArea();
 
     for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
@@ -396,21 +364,15 @@ void uiDataPointSetCrossPlotter::reDrawSelections()
 
 void uiDataPointSetCrossPlotter::removeSelections( bool remfrmselgrp )
 {
-    if ( !selareaset_.size() ) return;
-
     removeSelectionItems();
     selrowcols_.erase();
-    deepErase( selareaset_ );
     selyitems_ = 0;
     sely2items_ = 0;
-    for ( int idx=0; idx<selgrpset_.size(); idx++ )
+    
+    if ( remfrmselgrp )
     {
-	selgrpset_[idx]->selareaids_.erase();
-	if ( remfrmselgrp )
-	{
-	    selgrpset_[idx]->worldrects_.erase();
-	    selgrpset_[idx]->worldpolys_.erase();
-	}
+	for ( int idx=0; idx<selgrpset_.size(); idx++ )
+	    selgrpset_[idx]->removeAll();
     }
     
     for ( int idx=0; idx<dps_.size(); idx++ )
@@ -474,10 +436,14 @@ void uiDataPointSetCrossPlotter::mouseClicked( CallBacker* )
 
     mousepressed_ = true;
 
+    SelectionGrp* selgrp = selgrpset_[curselgrp_];
+    const int newselareaid = getNewSelAreaID();
+
     if ( rectangleselection_ )
     {
-	selareaset_ += new SelectionArea(
-		new uiRect(getCursorPos(),uiSize(0,0)) );
+	SelectionArea selarea( uiRect(getCursorPos(),uiSize(0,0)) );
+	selarea.id_ = newselareaid;
+	selgrp->addSelection( selarea );
 	if ( !selectionrectitem_ )
 	    selectionrectitem_ = new uiRectItem( 0, 0, 1, 1 );
 	else
@@ -487,9 +453,12 @@ void uiDataPointSetCrossPlotter::mouseClicked( CallBacker* )
     }
     else
     {
-	ODPolygon<int>* poly = new ODPolygon<int>;
-	selareaset_ += new SelectionArea( poly );
-	poly->add( getCursorPos() );
+	ODPolygon<int> poly;
+	SelectionArea selarea( poly );
+	selarea.id_ = newselareaid;
+	poly.add( getCursorPos() );
+	selgrp->addSelection( selarea );
+
 	if ( !selectionpolygonitem_ )
 	{
 	    selectionpolygonitem_ = new uiPolygonItem();
@@ -505,20 +474,19 @@ void uiDataPointSetCrossPlotter::mouseClicked( CallBacker* )
 	selectionpolygonitem_->setPenColor( selgrpset_[curselgrp_]->col_ );
     }
 
-    curselarea_ = selareaset_.size() - 1;
-    int lastid = 0;
-    for ( int idx=0; idx<selgrpset_.size(); idx++ )
+    curselarea_ = selgrp->size() - 1;
+    SelectionArea& selarea = getCurSelArea();
+    selarea.xaxisnm_ = axisHandler(0)->name();
+    selarea.yaxisnm_ = axisHandler( isy1selectable_ ? 1 : 2 )->name();
+    if ( isy1selectable_ && isy2selectable_ )
     {
-	TypeSet<int> selareaids = selgrpset_[idx]->selareaids_;
-	for ( int idy=0; idy<selareaids.size(); idy++ )
-	{
-	    if ( selareaids[idy]>lastid )
-		lastid = selareaids[idy];
-	}
+	selarea.altyaxisnm_ = axisHandler(2)->name();
+	selarea.axistype_ = SelectionArea::Both;
     }
-
-    selareaset_[curselarea_]->id_ = lastid+1;
-    selgrpset_[curselgrp_]->selareaids_.addIfNew( lastid+1 );
+    else if ( isy2selectable_ )
+	selarea.axistype_ = SelectionArea::Y2;
+    else if ( isy1selectable_ )
+	selarea.axistype_ = SelectionArea::Y1;
 }
 
 
@@ -548,10 +516,8 @@ void uiDataPointSetCrossPlotter::mouseMove( CallBacker* )
 
     if ( !rectangleselection_ )
     {
-	ODPolygon<int>* poly = selareaset_.validIdx(curselarea_) ?
-	    selareaset_[curselarea_]->poly_ : 0;
-	if ( poly )
-	    poly->add( getCursorPos() );
+	SelectionArea& selarea = getCurSelArea();
+	selarea.poly_.add( getCursorPos() );
 	
 	if ( !selectionpolygonitem_ )
 	{
@@ -565,8 +531,7 @@ void uiDataPointSetCrossPlotter::mouseMove( CallBacker* )
 
 	    selpolyitems_->add( selectionpolygonitem_ );
 	}
-
-	selectionpolygonitem_->setPolygon( *poly );
+	selectionpolygonitem_->setPolygon( selarea.poly_ );
     }
 }
 
@@ -610,45 +575,106 @@ void uiDataPointSetCrossPlotter::setOverlayY2AttSeq(
 { y4ctab_ = y4ct; }
 
 
-void uiDataPointSetCrossPlotter::setWorldSelArea( int selareaidx  )
+int uiDataPointSetCrossPlotter::selAreaSize() const
 {
-    if ( !x_.axis_ || !y_.axis_ )
+    int size = 0;
+    for ( int idx=0; idx<selgrpset_.size(); idx++ )
     {
-	if ( selareaset_[selareaidx]->type_ == SelectionArea::Rectangle )
-	    selareaset_[selareaidx]->worldrect_ = 0;
-	else
-	    selareaset_[selareaidx]->worldpoly_ = 0;
-	return;
+	const SelectionGrp* selgrp = selgrpset_[idx];
+	size += selgrp->size();
     }
 
-    const uiAxisHandler& xah = *x_.axis_;
-    const uiAxisHandler& yah = *y_.axis_;
+    return size;
+}
 
-    if ( selareaset_[selareaidx]->type_ == SelectionArea::Rectangle )
+
+SelectionArea& uiDataPointSetCrossPlotter::getCurSelArea()
+{
+    return selgrpset_[curselgrp_]->getSelectionArea( curselarea_ );
+}
+
+
+void uiDataPointSetCrossPlotter::setSelArea( const SelectionArea& selarea,
+					     int selgrpidx )
+{
+    if ( selgrpidx < 0 || selgrpidx >= selgrpset_.size() )
+	return;
+    selgrpset_[selgrpidx]->setSelectionArea( selarea );
+}
+
+
+bool uiDataPointSetCrossPlotter::getSelArea( SelectionArea& selarea,
+					     int selareaid )
+{
+    for ( int idx=0; idx < selgrpset_.size(); idx++ )
     {
-	const uiRect* selarea = selareaset_[selareaidx]->rect_;
-	uiWorldRect* worldselarea =
-	    new uiWorldRect( xah.getVal(selarea->left()),
-		    	     yah.getVal(selarea->top()),
-			     xah.getVal(selarea->right()),
-			     yah.getVal(selarea->bottom()) );
-	selareaset_[selareaidx]->worldrect_ = worldselarea;
-	selgrpset_[curselgrp_]->worldrects_.addIfNew( *worldselarea );
+	const int valididx = selgrpset_[idx]->validIdx( selareaid );
+	if ( valididx >= 0 )
+	{
+	    selarea = selgrpset_[idx]->getSelectionArea( valididx );
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+void uiDataPointSetCrossPlotter::setWorldSelArea( int selareaid  )
+{
+    if ( !x_.axis_ || !y_.axis_ || !isSelAreaValid(selareaid) )
+	return;
+
+    const uiAxisHandler& xah = *x_.axis_;
+    SelectionArea selarea;
+    if ( !getSelArea(selarea,selareaid) )
+	return;
+
+    const uiAxisHandler& yah =
+	(selarea.axistype_ == SelectionArea::Y2) ? *y2_.axis_ : *y_.axis_;
+
+    if ( selarea.isrectangle_ )
+    {
+	uiRect selrect = selarea.rect_;
+	uiWorldRect worldselarea( xah.getVal(selrect.left()),
+				  yah.getVal(selrect.top()),
+				  xah.getVal(selrect.right()),
+				  yah.getVal(selrect.bottom()) );
+	selarea.worldrect_ = worldselarea;
+	
+	if ( selarea.axistype_ == SelectionArea::Both )
+	{
+	    const uiAxisHandler& y2ah = *y2_.axis_;
+	    uiWorldRect altrect( xah.getVal(selrect.left()),
+				 y2ah.getVal(selrect.top()),
+				 xah.getVal(selrect.right()),
+				 y2ah.getVal(selrect.bottom()) );
+	    selarea.altworldrect_ = altrect;
+	}
     }
     else
     {
-	ODPolygon<double>* worldpoly = new ODPolygon<double>;
-	const ODPolygon<int>* selpoly = selareaset_[selareaidx]->poly_;
-	TypeSet<uiPoint> polypts = selpoly->data();
+	ODPolygon<double> worldpoly;
+	ODPolygon<double> altworldpoly;
+	ODPolygon<int> selpoly = selarea.poly_;
+	TypeSet<uiPoint> polypts = selpoly.data();
 	for (  int idx=0; idx<polypts.size(); idx++ )
 	{
-	    worldpoly->add( uiWorldPoint(xah.getVal(polypts[idx].x),
-					 yah.getVal(polypts[idx].y)) );
+	    worldpoly.add( uiWorldPoint(xah.getVal(polypts[idx].x),
+					yah.getVal(polypts[idx].y)) );
+	    if ( selarea.axistype_ == SelectionArea::Both )
+	    {
+		altworldpoly.add( uiWorldPoint(xah.getVal(polypts[idx].x),
+				  y2_.axis_->getVal(polypts[idx].y)) );
+	    }
 	}
 
-	selareaset_[selareaidx]->worldpoly_= worldpoly;
-	selgrpset_[curselgrp_]->worldpolys_.addIfNew( *worldpoly );
+	selarea.worldpoly_= worldpoly;
+	
+	if ( selarea.axistype_ == SelectionArea::Both )
+	    selarea.altworldpoly_ = altworldpoly;
     }
+
+    setSelArea( selarea, curselgrp_ );
 }
 
 
@@ -657,33 +683,30 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
     if ( !x_.axis_ || !y_.axis_ ) return;
 
     const uiAxisHandler& xah = *x_.axis_;
-    const uiAxisHandler& yah = *y_.axis_;
     
     int nrrect = 0;
     int nrpoly = 0;
-    for ( int idx=0; idx<selareaset_.size(); idx++ )
+    for ( int idx=0; idx<selgrpset_.size(); idx++ )
     {
-	SelectionArea* selarea = selareaset_.size() ? selareaset_[idx] : 0;
-	if ( !selarea )
-	    continue;
+	SelectionGrp* selgrp = selgrpset_[idx];
 
-	const int grpidx = getSelGrpIdx( getSelAreaID(idx) );
-	if ( !selgrpset_.validIdx(grpidx) )
-	    continue;
-
-	const Color& col = selgrpset_[grpidx]->col_;
-	if ( selareaset_[idx]->type_ == SelectionArea::Rectangle )
+	for ( int selidx=0; selidx<selgrp->size(); selidx++ )
 	{
-	    const uiWorldRect* worldselarea = selareaset_[idx]->worldrect_;
-	    if ( !worldselarea ) continue;
-	    uiRect* selarea =
-		new uiRect( xah.getPix(worldselarea->left()),
-			    yah.getPix(worldselarea->top()),
-			    xah.getPix(worldselarea->right()),
-			    yah.getPix(worldselarea->bottom()) );
-	    selareaset_[idx]->rect_ = selarea;
-	    if ( !selrectitems_ || selrectitems_->size() <= nrrect )
+	    SelectionArea& selarea = selgrp->getSelectionArea( selidx );
+	    const uiAxisHandler& yah =
+		(selarea.axistype_ == SelectionArea::Y2) ? *y2_.axis_
+							 : *y_.axis_;
+	    const Color& col = selgrp->col_;
+	    if ( selarea.isrectangle_ )
 	    {
+		const uiWorldRect& worldselarea = selarea.worldrect_;
+		uiRect selrect( xah.getPix(worldselarea.left()),
+				yah.getPix(worldselarea.top()),
+				xah.getPix(worldselarea.right()),
+				yah.getPix(worldselarea.bottom()) );
+		selarea.rect_ = selrect;
+		uiRectItem* selrectitem = 0;
+		
 		if ( !selrectitems_ )
 		{
 		    selrectitems_ = new uiGraphicsItemGroup();
@@ -691,56 +714,54 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 		    selrectitems_->setZValue( 5 );
 		}
 
-		if ( !selectionrectitem_ )
-		    selectionrectitem_ =
-			new uiRectItem( selarea->left(), selarea->top(),
-					selarea->width(), selarea->height() );
-		else
-		    selectionrectitem_->setRect( selarea->left(),selarea->top(),
-						 selarea->width(),
-						 selarea->height() );
+		if ( nrrect >= selrectitems_->size() )
+		{
+		    selrectitem = new uiRectItem();
+		    selrectitems_->add( selrectitem );
+		}
+		    
+		uiGraphicsItem* itm = selrectitems_->getUiItem( nrrect );
+		if ( !itm ) continue;
+		mDynamicCast( uiRectItem*, selrectitem, itm );
+		if ( !selrectitem ) continue;
+		selrectitem->setRect( selrect.left(),selrect.top(),
+						 selrect.width(),
+						 selrect.height() );
 
-		selectionrectitem_->setPenColor( col );
-		selrectitems_->add( selectionrectitem_ );
-		selectionrectitem_ = 0;
+		selrectitem->setPenColor( col );
 		nrrect++;
 	    }
 	    else
 	    {
-		uiGraphicsItem* item = selrectitems_->getUiItem( nrrect );
-		mDynamicCastGet( uiRectItem*, rect, item );
-		if ( !rect )
-		    continue;
-		rect->setRect( selarea->left(), selarea->top(),
-			       selarea->width(), selarea->height() );
-		rect->setPenColor( col );
-		nrrect ++;
-	    }
-	}
-	else
-	{
-	    ODPolygon<int>* poly = new ODPolygon<int>;
-	    const ODPolygon<double>* worldpoly = selareaset_[idx]->worldpoly_;
-	    if ( !worldpoly ) continue;
-	    TypeSet<uiWorldPoint> polypts = worldpoly->data();
-	    for (  int nrpts=0; nrpts<polypts.size(); nrpts++ )
-		poly->add( uiPoint(xah.getPix(polypts[nrpts].x),
-				   yah.getPix(polypts[nrpts].y)) );
-	    selareaset_[idx]->poly_= poly;
-	    
-	    if ( selpolyitems_->size() <= nrpoly )
-	    {
-		selectionpolygonitem_ = new uiPolygonItem();
-		selpolyitems_->add( selectionpolygonitem_ );
-	    }
+		ODPolygon<int> poly;
+		const ODPolygon<double>& worldpoly = selarea.worldpoly_;
+		TypeSet<uiWorldPoint> polypts = worldpoly.data();
+		for (  int nrpts=0; nrpts<polypts.size(); nrpts++ )
+		    poly.add( uiPoint(xah.getPix(polypts[nrpts].x),
+				      yah.getPix(polypts[nrpts].y)) );
+		selarea.poly_= poly;
+		
+		if ( !selpolyitems_ || selpolyitems_->size() <= nrpoly )
+		{
+		    if ( !selpolyitems_ )
+		    {
+			selpolyitems_ = new uiGraphicsItemGroup();
+			scene().addItemGrp( selpolyitems_ );
+			selpolyitems_->setZValue( 5 );
+		    }
 
-	    uiGraphicsItem* item = selpolyitems_->getUiItem( nrpoly );
-	    mDynamicCastGet( uiPolygonItem*, polyitem, item );
-	    if ( !polyitem )
-		continue;
-	    polyitem->setPolygon( *poly );
-	    polyitem->setPenColor( col );
-	    nrpoly ++;
+		    selectionpolygonitem_ = new uiPolygonItem();
+		    selpolyitems_->add( selectionpolygonitem_ );
+		}
+
+		uiGraphicsItem* item = selpolyitems_->getUiItem( nrpoly );
+		mDynamicCastGet( uiPolygonItem*, polyitem, item );
+		if ( !polyitem )
+		    continue;
+		polyitem->setPolygon( poly );
+		polyitem->setPenColor( col );
+		nrpoly ++;
+	    }
 	}
     }
 }
@@ -757,27 +778,26 @@ void uiDataPointSetCrossPlotter::mouseReleased( CallBacker* )
 	selrow_ = -1;
     }
 
-    if ( !selectable_ || !selareaset_.validIdx(curselarea_) )
+    if ( !selectable_ || !selgrpset_[curselgrp_]->isValidIdx(curselarea_) )
 	return;
 
-    if ( !getMouseEventHandler().event().ctrlStatus() && selareaset_.size()>1 )
+    int selareas = 0;
+    for ( int idx=0; idx < selgrpset_.size(); idx++ )
+	selareas += selgrpset_[idx]->size();
+    
+    SelectionArea curselarea = getCurSelArea();
+    
+    if ( !getMouseEventHandler().event().ctrlStatus() && selareas>1 )
     {
-	SelectionArea* curselarea = selareaset_[curselarea_];
-	selareaset_ -= curselarea;
-	curselarea_ = 0;
+	curselarea.id_ = 0;
 	removeSelections();
-	curselarea->id_ = 0;
-
-	selareaset_ += curselarea;
-	selgrpset_[curselgrp_]->selareaids_.addIfNew( curselarea->id_ );
     }
     
     if ( rectangleselection_ )
     {
 	uiRect selrect = scene().getSelectedArea();
-	selareaset_[curselarea_]->rect_->setTopLeft( selrect.topLeft() );
-	selareaset_[curselarea_]->rect_->setBottomRight(
-		selrect.bottomRight() );
+	curselarea.rect_.setTopLeft( selrect.topLeft() );
+	curselarea.rect_.setBottomRight( selrect.bottomRight() );
 	if ( !selectionrectitem_ )
 	    selectionrectitem_ =
 		new uiRectItem( selrect.left(), selrect.top(),
@@ -802,8 +822,7 @@ void uiDataPointSetCrossPlotter::mouseReleased( CallBacker* )
 	if ( !selectionpolygonitem_ )
 	{
 	    selectionpolygonitem_ = new uiPolygonItem();
-	    selectionpolygonitem_->setPolygon(
-		    *selareaset_[curselarea_]->poly_ );
+	    selectionpolygonitem_->setPolygon( curselarea.poly_ );
 	    selectionpolygonitem_->setPenColor( selgrpset_[curselgrp_]->col_ );
 	    selpolyitems_->add( selectionpolygonitem_ );
 	}
@@ -811,10 +830,16 @@ void uiDataPointSetCrossPlotter::mouseReleased( CallBacker* )
 	selectionpolygonitem_ = 0;
     }
 	
-    setWorldSelArea( curselarea_ );
 
-    if ( !selareaset_[curselarea_]->isValid() )
-	selareaset_.remove( curselarea_ );
+    if ( curselarea.id_ == 0 )
+	selgrpset_[curselgrp_]->addSelection( curselarea );
+    else
+	selgrpset_[curselgrp_]->setSelectionArea( curselarea );
+
+    setWorldSelArea( curselarea.id_ );
+
+    if ( !curselarea.isValid() )
+	selgrpset_[curselgrp_]->removeSelection( curselarea_ );
 
     for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
     {
@@ -1168,6 +1193,29 @@ Color uiDataPointSetCrossPlotter::getOverlayColor( uiDataPointSet::DRowID rid,
 }
 
 
+bool uiDataPointSetCrossPlotter::checkSelArea( const SelectionArea& area ) const
+{
+    Interval<double> xrg = area.getValueRange( true );
+    Interval<double> rg = area.getValueRange( false );
+    Interval<double> altrg = area.getValueRange( false, true );
+    
+    if ( !x_.axis_->range().includes(xrg.start) ||
+	 !x_.axis_->range().includes(xrg.stop) )
+	return false;
+    if ( area.axistype_ == SelectionArea::Y1 )
+	return y_.axis_->range().includes(rg.start) &&
+	       y_.axis_->range().includes(rg.stop);
+    else if ( area.axistype_ == SelectionArea::Y2 )
+	return y2_.axis_->range().includes( rg.start ) &&
+	       y2_.axis_->range().includes( rg.stop );
+
+    return y_.axis_->range().includes(rg.start) &&
+	   y_.axis_->range().includes(rg.stop) &&
+           y2_.axis_->range().includes(altrg.start) &&
+	   y2_.axis_->range().includes(altrg.stop);
+}
+
+
 void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	     uiGraphicsItem* item, bool isy2,
 	     const uiDataPointSetCrossPlotter::AxisData& yad, bool removesel )
@@ -1217,64 +1265,64 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
     }
 
     bool ptselected = false;
-    for ( int idx=0; idx<selareaset_.size(); idx++ )
+    for ( int idx=0; idx<selgrpset_.size(); idx++ )
     {
-	SelectionArea* selarea = selareaset_.size() ? selareaset_[idx] : 0;
-	if ( !selarea )
-	    continue;
-
-	const bool itmselected = selarea->isInside( pt );
-	
-	if ( isy1selectable_ && !isy2 )
+	const SelectionGrp* selgrp = selgrpset_[idx];
+	for ( int selidx=0; selidx<selgrp->size(); selidx++ )
 	{
-	    if ( itmselected )
-	    {
-		if ( !isSelectionValid(rid) )
-		    continue;
-		if ( removesel )
-		{
-		    if ( item )
-			item->setVisible( false );
-		    BinIDValueSet::Pos pos = dps_.bvsPos(rid);
-		    float* vals = dps_.bivSet().getVals( pos );
-		    vals[ dps_.nrFixedCols()+y_.colid_ ] = mUdf(float);
-		    yrowidxs_->set( rid, '0' );
-		    return;
-		}
+	    const SelectionArea& selarea = selgrp->getSelectionArea( selidx );
 
-		dps_.setSelected( rid, getSelGrpIdx(selarea->id_) );
-		selrowcols_ += RowCol( uidps_.tRowID(rid),
-				       uidps_.tColID(yad.colid_) );
+	    const bool itmselected = selarea.isInside( pt );
 	    
-		selyitems_++;
-		ptselected = true;
-	    }
-	}
-
-	if ( isy2selectable_ && y2ptitems_ && isY2Shown() && isy2 )
-	{
-	    if ( itmselected )
+	    if ( isy1selectable_ && !isy2 )
 	    {
-		if ( !isSelectionValid(rid) )
-		    continue;
-
-		if ( removesel )
+		if ( itmselected )
 		{
-		    if ( item )
-			item->setVisible( false );
-		    BinIDValueSet::Pos pos = dps_.bvsPos(rid);
-		    float* vals = dps_.bivSet().getVals( pos );
-		    vals[ dps_.nrFixedCols()+y2_.colid_ ] = mUdf(float);
-		    y2rowidxs_->set( rid, '0' );
-		    return;
-		}
+		    if ( !isSelectionValid(rid) )
+			continue;
+		    if ( removesel )
+		    {
+			if ( item )
+			    item->setVisible( false );
+			BinIDValueSet::Pos pos = dps_.bvsPos(rid);
+			float* vals = dps_.bivSet().getVals( pos );
+			vals[ dps_.nrFixedCols()+y_.colid_ ] = mUdf(float);
+			yrowidxs_->set( rid, '0' );
+			return;
+		    }
 
-		dps_.setSelected( rid, getSelGrpIdx(selarea->id_) );
-		selrowcols_ += RowCol( uidps_.tRowID(rid),
-				       uidps_.tColID(yad.colid_) );
+		    dps_.setSelected( rid, getSelGrpIdx(selarea.id_) );
+		    selrowcols_ += RowCol( uidps_.tRowID(rid),
+					   uidps_.tColID(yad.colid_) );
 		
-		sely2items_++;
-		ptselected = true;
+		    selyitems_++;
+		    ptselected = true;
+		}
+	    }
+	    if ( isy2selectable_ && y2ptitems_ && isY2Shown() && isy2 )
+	    {
+		if ( itmselected )
+		{
+		    if ( !isSelectionValid(rid) )
+			continue;
+		    if ( removesel )
+		    {
+			if ( item )
+			    item->setVisible( false );
+			BinIDValueSet::Pos pos = dps_.bvsPos(rid);
+			float* vals = dps_.bivSet().getVals( pos );
+			vals[ dps_.nrFixedCols()+y2_.colid_ ] = mUdf(float);
+			y2rowidxs_->set( rid, '0' );
+			return;
+		    }
+
+		    dps_.setSelected( rid, getSelGrpIdx(selarea.id_) );
+		    selrowcols_ += RowCol( uidps_.tRowID(rid),
+					   uidps_.tColID(yad.colid_) );
+		    
+		    sely2items_++;
+		    ptselected = true;
+		}
 	    }
 	}
     }
@@ -1310,7 +1358,7 @@ int uiDataPointSetCrossPlotter::calcDensity( Array2D<float>* data, bool chgdps,
 	    	     uiWorldRect((double)arrarea_.left(),(double)arrarea_.top(),
 			 	 (double)arrarea_.right(),
 				 (double)arrarea_.bottom()) );
-    DensityCalc densitycalc( uidps_, data, x_, yad, selareaset_, trmsg_.buf() );
+    DensityCalc densitycalc( uidps_, data, x_, yad, selgrpset_, trmsg_.buf() );
     densitycalc.setWorld2Ui( w2ui );
     densitycalc.setMathObj( mathobj_ );
     densitycalc.setModifiedColIds( modcolidxs_ );
@@ -1590,3 +1638,248 @@ void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler& yah,
     drawLine( *regrlineitm_, ls.lp, xah, yah, &xvalrg );
 }
 
+
+void SelectionGrp::fillPar( IOPar& par ) const
+{
+    par.set( sKey::Name, name().buf() );
+    BufferString color;
+    col_.fill( color.buf() );
+    par.set( sKey::Color, color.buf() );
+    par.set( sKeyNrAreas, selareas_.size() );
+
+    for ( int selidx=0; selidx < selareas_.size(); selidx++ )
+    {
+	const SelectionArea& selarea = selareas_[selidx];
+	BufferString selkey;
+	BufferStringSet attributes;
+	selkey.add( selidx );
+	
+	attributes.add( selarea.xaxisnm_ );
+	attributes.add(  selarea.yaxisnm_ );
+	if ( selarea.axistype_ == SelectionArea::Both )
+	    attributes.add( selarea.altyaxisnm_ );
+	par.set( IOPar::compKey(selkey,sKey::Attributes), attributes );
+	
+	if ( selarea.isrectangle_ )
+	{
+	    uiWorldRect rect = selarea.worldrect_;
+	    BufferString key = IOPar::compKey( selkey, sKeyRect );
+	    BufferString posltstr( IOPar::compKey(sKeyPos,0) );
+	    BufferString posrbstr( IOPar::compKey(sKeyPos,1) );
+	    if ( selarea.axistype_ == SelectionArea::Both )
+	    {
+		uiWorldRect altrect = selarea.altworldrect_;
+		par.set( IOPar::compKey(key,posltstr), rect.left(),
+			 rect.top(), altrect.top() );
+		par.set( IOPar::compKey(key,posrbstr), rect.right(),
+			 rect.bottom(), altrect.bottom() );
+	    }
+	    else
+	    {
+		par.set( IOPar::compKey(key,posltstr), rect.left(), rect.top());
+		par.set( IOPar::compKey(key,posrbstr), rect.right(),
+			 rect.bottom() );
+	    }
+	}
+	else
+	{
+	    ODPolygon<double> poly = selarea.worldpoly_;
+	    ODPolygon<double> altpoly = selarea.altworldpoly_;
+	    const TypeSet< Geom::Point2D<double> > pts = poly.data();
+	    const TypeSet< Geom::Point2D<double> > altpts = altpoly.data();
+
+	    const bool hasaltaxis = selarea.axistype_ == SelectionArea::Both;
+	    for ( int posidx=0; posidx < poly.size(); posidx++ )
+	    {
+		BufferString polygonstr( IOPar::compKey(selkey,sKeyPoly) );
+		BufferString positionstr( IOPar::compKey(sKeyPos,posidx) );
+
+		if ( hasaltaxis )
+		    par.set( IOPar::compKey(polygonstr,positionstr),
+			     pts[posidx].x, pts[posidx].y, altpts[posidx].y );
+		else
+		    par.set( IOPar::compKey(polygonstr,positionstr),
+			     pts[posidx].x, pts[posidx].y);
+	    }
+
+	}
+    }
+}
+
+void SelectionGrp::usePar( const IOPar& par )
+{
+    if ( !par.get(sKey::Name,*name_) || !par.get(sKey::Color,col_) )
+	return;
+
+    int nrselareas = 0;
+    par.get( sKeyNrAreas, nrselareas );
+
+    for ( int selidx=0; selidx<nrselareas; selidx++ )
+    {
+	BufferString selkey;
+	selkey.add( selidx );
+	BufferStringSet nms;
+	par.get( IOPar::compKey(selkey,sKey::Attributes), nms );
+
+	BufferString rectstr = IOPar::compKey( selkey.str(), sKeyRect );
+	BufferString polygonstr = IOPar::compKey( selkey.str(), sKeyPoly );
+	    
+	int posidx = 0;
+	BufferString positionstr = IOPar::compKey( sKeyPos, posidx );
+
+	if ( par.find( IOPar::compKey(rectstr,positionstr)) )
+	{
+	    TypeSet<float> ptslt, ptsrb;
+
+	    par.get( IOPar::compKey(rectstr,positionstr), ptslt );
+	    posidx++;
+	    positionstr = IOPar::compKey( sKeyPos, posidx );
+
+	    par.get( IOPar::compKey(rectstr,positionstr), ptsrb );
+	    uiWorldRect rect( ptslt[0], ptslt[1], ptsrb[0], ptsrb[1] );
+	    
+	    SelectionArea selarea( true );
+	    selarea.id_ = selidx;
+	    selarea.worldrect_ = rect;
+	    selarea.xaxisnm_ = nms.get( 0 ); selarea.yaxisnm_ = nms.get( 1 );
+	    if ( (ptslt.size()==3) && (ptsrb.size()==3) )
+	    {
+		selarea.altyaxisnm_ = nms.get( 2 );
+		selarea.altworldrect_ =
+		    uiWorldRect( ptslt[0], ptslt[2], ptsrb[0], ptsrb[2] );
+	    }
+
+	    selareas_ += selarea;
+	}
+	else if ( par.find(IOPar::compKey(polygonstr,positionstr)) )
+	{
+	    ODPolygon<double> worldpoly, altworldpoly;
+	    
+	    bool hasalt = false;
+	    while ( par.find(IOPar::compKey(polygonstr.buf(),
+			    		    positionstr.buf())) )
+	    {
+		TypeSet<double> pt;
+		par.get( IOPar::compKey(polygonstr,positionstr), pt );
+		if ( pt.size() == 3 )
+		{
+		    hasalt = true;
+		    altworldpoly.add( Geom::Point2D<double>(pt[0],pt[2]) );
+		}
+		worldpoly.add( Geom::Point2D<double>(pt[0],pt[1]) );
+		posidx++;
+		positionstr = IOPar::compKey( sKeyPos, posidx );
+	    }
+
+	    SelectionArea selarea( false );
+	    selarea.id_ = selidx;
+	    selarea.worldpoly_ = worldpoly;
+	    selarea.xaxisnm_ = nms.get( 0 ); selarea.yaxisnm_ = nms.get( 1 );
+	    if ( hasalt )
+	    {
+		selarea.altyaxisnm_ = nms.get( 2 );
+		selarea.altworldpoly_ = altworldpoly;
+	    }
+	    selareas_ += selarea;
+	}
+    }
+}
+
+
+void SelectionGrp::addSelection( const SelectionArea& selarea )
+{
+    selareas_ += selarea;
+}
+
+
+void SelectionGrp::removeSelection( int idx )
+{
+    if ( selareas_.validIdx(idx) )
+	selareas_.remove( idx );
+}
+
+
+void SelectionGrp::removeAll()
+{
+    selareas_.erase();
+}
+
+
+SelectionArea::SelAxisType SelectionGrp::getSelectionAxis( int selareaid ) const
+{
+    SelectionArea selarea;
+    getSelectionArea( selarea, selareaid );
+    return selarea.axistype_;
+}
+
+
+bool SelectionGrp::isValidIdx( int idx ) const
+{
+    return selareas_.validIdx(idx) >= 0;
+}
+
+
+int SelectionGrp::validIdx( int selareaid ) const
+{
+    for ( int idx=0; idx < selareas_.size(); idx++ )
+    {
+	if ( selareas_[idx].id_ == selareaid )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+
+bool SelectionGrp::getSelectionArea( SelectionArea& selarea, int id ) const
+{
+    for ( int selidx=0; selidx<selareas_.size(); selidx++ )
+    {
+	if ( selareas_[selidx].id_ == id )
+	{
+	    selarea = selareas_[selidx];
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
+SelectionArea& SelectionGrp::getSelectionArea( int idx )
+{
+    return selareas_[idx];
+}
+
+
+const SelectionArea& SelectionGrp::getSelectionArea( int idx ) const
+{
+    return selareas_[idx];
+}
+
+
+void SelectionGrp::setSelectionArea( const SelectionArea& selarea )
+{
+    for ( int idx=0; idx < selareas_.size(); idx++ )
+    {
+	if ( selareas_[idx].id_ == selarea.id_ )
+	    selareas_[idx] = selarea;
+    }
+}
+
+
+bool SelectionGrp::hasAltAxis() const
+{
+    for ( int idx=0; idx < selareas_.size(); idx++ )
+    {
+	if ( selareas_[idx].axistype_ == SelectionArea::Both )
+	    return true;
+    }
+
+    return false;
+}
+
+
+int SelectionGrp::size() const
+{ return selareas_.size(); }
