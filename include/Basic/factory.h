@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.22 2010-11-30 16:31:33 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.23 2010-12-02 15:59:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,11 +218,23 @@ protected:
 };
 
 
-
-#define mDefaultFactoryInstanciationBase( keywrd, usernm ) \
+#define mDefaultFactoryStringImpl \
     const char*		factoryKeyword() const { return sFactoryKeyword(); } \
     const char*		factoryDisplayName() const \
-					{ return sFactoryDisplayName(); } \
+					{ return sFactoryDisplayName(); }
+
+#define mDefaultStaticFactoryStringDeclaration \
+    static const char*	sFactoryKeyword(); \
+    static const char*  sFactoryDisplayName() 
+
+#define mDefaultFactoryInitClassImpl( baseclss, createfunc ) \
+{ \
+    baseclss::factory().addCreator(createfunc,sFactoryKeyword(), \
+				   sFactoryDisplayName()); \
+}
+
+#define mDefaultFactoryInstanciationBase( keywrd, usernm ) \
+    mDefaultFactoryStringImpl \
     static const char*	sFactoryKeyword() { return keywrd; } \
     static const char*  sFactoryDisplayName() { return usernm; } \
     static void		initClass()
@@ -230,10 +242,7 @@ protected:
 #define mDefaultFactoryInstantiation( baseclss, clss, keywrd, usernm ) \
     static baseclss*	createInstance() { return new clss; } \
     mDefaultFactoryInstanciationBase( keywrd, usernm ) \
-    { \
-	baseclss::factory().addCreator(createInstance,sFactoryKeyword(), \
-				       sFactoryDisplayName()); \
-    }
+    mDefaultFactoryInitClassImpl( baseclss, createInstance )
 
 #define mCreateImpl( donames, createfunc ) \
     if ( donames ) \
