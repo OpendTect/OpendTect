@@ -4,7 +4,7 @@
  * DATE     : 14-3-2008
 -*/
 
-static const char* rcsID = "$Id: bidvsetarrayadapter.cc,v 1.4 2010-11-23 06:13:43 cvsnageswara Exp $";
+static const char* rcsID = "$Id: bidvsetarrayadapter.cc,v 1.5 2010-12-02 09:32:42 cvsnageswara Exp $";
 
 #include "bidvsetarrayadapter.h"
 #include "survinfo.h"
@@ -22,16 +22,16 @@ BIDValSetArrAdapter::BIDValSetArrAdapter( const BinIDValueSet& bidvs, int colnr,
 }
 
 
-
 void BIDValSetArrAdapter::set( int inlidx, int crlidx, float value )
 {
     BinID bid = hrg_.atIndex( inlidx, crlidx );
     BinIDValueSet::Pos pos = bidvs_.findFirst( bid );
     if ( !pos.valid() || bidvs_.nrVals()<targetcolidx_ ) return;
 
-    float* allvals = bidvs_.getVals( pos );
+    BinIDValueSet& ncset = const_cast<BinIDValueSet&>( bidvs_ );
+    float* allvals = ncset.getVals( pos );
     allvals[targetcolidx_] = value;
-    bidvs_.set( pos, allvals );
+    ncset.set( pos, allvals );
 }
 
 

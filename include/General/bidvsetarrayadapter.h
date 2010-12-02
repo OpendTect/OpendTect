@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	H.Huck
  Date:		March 2008
- RCS:		$Id: bidvsetarrayadapter.h,v 1.4 2010-11-23 06:13:43 cvsnageswara Exp $
+ RCS:		$Id: bidvsetarrayadapter.h,v 1.5 2010-12-02 09:32:42 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,20 +23,20 @@ ________________________________________________________________________
 mClass BIDValSetArrAdapter : public Array2D<float>
 {
 public:			
-    			BIDValSetArrAdapter(const BinIDValueSet&,int col,
-					    const BinID& step);
+    				BIDValSetArrAdapter(const BinIDValueSet&,
+						    int col,const BinID& step);
 
-    void		set(int inlidx,int crlidx,float val);
-    float		get(int inlidx,int crlidx) const;
+    void			set(int inlidx,int crlidx,float val);
+    float			get(int inlidx,int crlidx) const;
 
-    const Array2DInfo&	info() const			{ return arrinfo_; }
-    HorSampling		hrg_;
+    const Array2DInfo&		info() const		{ return arrinfo_; }
+    HorSampling			hrg_;
 
 protected:
 
-    Array2DInfoImpl	arrinfo_;
-    BinIDValueSet	bidvs_;
-    int			targetcolidx_;
+    Array2DInfoImpl		arrinfo_;
+    const BinIDValueSet&	bidvs_;
+    int				targetcolidx_;
 
 };
 
