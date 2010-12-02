@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.20 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.21 2010-12-02 10:54:26 cvsbert Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -165,7 +165,7 @@ void Horizon2DScanner::launchBrowser( const char* fnm ) const
     IOPar iopar; report( iopar );
     iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
-    ExecuteScriptCommand( "FileBrowser", fnm );
+    ExecuteScriptCommand( "od_FileBrowser", fnm );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.45 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.46 2010-12-02 10:54:26 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -207,7 +207,7 @@ void SeisScanner::launchBrowser( const IOPar& startpar, const char* fnm ) const
     IOPar iopar( startpar ); report( iopar );
     iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
-    ExecuteScriptCommand( "FileBrowser", fnm );
+    ExecuteScriptCommand( "od_FileBrowser", fnm );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegysip.cc,v 1.26 2010-10-05 11:03:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegysip.cc,v 1.27 2010-12-02 10:54:26 cvsbert Exp $";
 
 #include "uisegysip.h"
 #include "uisegyread.h"
@@ -91,7 +91,7 @@ static void showReport( const SEGY::Scanner& scanner )
 	mErrRet("Cannot write to temporary file in Proc directory")
 
     sd.close();
-    ExecuteScriptCommand( "FileBrowser", fnm );
+    ExecuteScriptCommand( "od_FileBrowser", fnm );
 }
 
 
