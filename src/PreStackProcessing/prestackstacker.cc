@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackstacker.cc,v 1.9 2010-07-13 21:10:30 cvskris Exp $";
+static const char* rcsID = "$Id: prestackstacker.cc,v 1.10 2010-12-02 16:00:42 cvskris Exp $";
 
 #include "prestackstacker.h"
 
@@ -15,18 +15,8 @@ static const char* rcsID = "$Id: prestackstacker.cc,v 1.9 2010-07-13 21:10:30 cv
 
 using namespace PreStack;
 
-void Stack::initClass()
-{
-    PF().addCreator( Stack::createFunc, Stack::sName() );
-}
-
-
-Processor* Stack::createFunc()
-{ return new Stack; }
-
-
 Stack::Stack()
-    : Processor( sName() )
+    : Processor( sFactoryKeyword() )
     , offsetrg_( 0 )
 { }
 

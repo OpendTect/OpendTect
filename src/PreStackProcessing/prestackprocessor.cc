@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.26 2010-07-12 22:20:14 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.27 2010-12-02 16:00:42 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -17,7 +17,7 @@ namespace PreStack
 {
 
 
-mImplFactory( Processor, PF );
+mImplFactory( Processor, Processor::factory );
 
 
 Processor::Processor( const char* nm )
@@ -391,7 +391,7 @@ bool ProcessManager::usePar( const IOPar& par )
 	    return false;
 	}
 
-	Processor* proc = PF().create( name.buf() );
+	Processor* proc = Processor::factory().create( name.buf() );
 	if ( !proc )
 	{
 	    errmsg_ = "Could not parse processing step ";

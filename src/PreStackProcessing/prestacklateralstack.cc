@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestacklateralstack.cc,v 1.1 2009-11-25 22:22:54 cvskris Exp $";
+static const char* rcsID = "$Id: prestacklateralstack.cc,v 1.2 2010-12-02 16:00:42 cvskris Exp $";
 
 #include "prestacklateralstack.h"
 
@@ -19,20 +19,21 @@ using namespace PreStack;
 
 void LateralStack::initClass()
 {
-    SeparString names( LateralStack::sName(), FactoryBase::cSeparator() );
+    SeparString names( sFactoryKeyword(), FactoryBase::cSeparator() );
     names += "VerticalStack";
-    PF().addCreator( LateralStack::createFunc, names.buf(), "Super Gather" );
+    factory().addCreator( LateralStack::createInstance, names.buf(),
+	             sFactoryDisplayName() );
 }
 
 
-Processor* LateralStack::createFunc()
+Processor* LateralStack::createInstance()
 {
     return new LateralStack;
 }
 
 
 LateralStack::LateralStack()
-    : Processor( sName() )
+    : Processor( sFactoryKeyword() )
     , patternstepout_( 1, 1 )
     , iscross_( true )
 { }

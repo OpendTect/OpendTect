@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestacklateralstack.cc,v 1.1 2009-11-25 22:22:54 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestacklateralstack.cc,v 1.2 2010-12-02 16:00:42 cvskris Exp $";
 
 #include "uiprestacklateralstack.h"
 
@@ -19,9 +19,11 @@ namespace PreStack
 
 void uiLateralStack::initClass()
 {
-    SeparString names( LateralStack::sName(), FactoryBase::cSeparator() );
+    SeparString names( LateralStack::sFactoryKeyword(),
+	    		FactoryBase::cSeparator() );
     names += "VerticalStack";
-    uiPSPD().addCreator( create, names.buf(), "Super Gather" );
+    uiPSPD().addCreator( create, names.buf(),
+	    		 LateralStack::sFactoryDisplayName() );
 }
 
 

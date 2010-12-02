@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.16 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.17 2010-12-02 16:00:42 cvskris Exp $";
 
 #include "prestackagc.h"
 
@@ -17,18 +17,8 @@ static const char* rcsID = "$Id: prestackagc.cc,v 1.16 2009-07-22 16:01:34 cvsbe
 #include "survinfo.h"
 
 
-void PreStack::AGC::initClass()
-{
-    PF().addCreator( PreStack::AGC::createFunc, PreStack::AGC::sName() );
-}
-
-
-PreStack::Processor* PreStack::AGC::createFunc()
-{ return new PreStack::AGC; }
-
-
 PreStack::AGC::AGC()
-    : Processor( sName() )
+    : Processor( sFactoryKeyword() )
     , window_( -100, 100 )
     , mutefraction_( 0 )
 {}

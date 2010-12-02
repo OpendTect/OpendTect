@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.15 2010-03-11 09:38:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.16 2010-12-02 16:00:42 cvskris Exp $";
 
 #include "prestackmute.h"
 
@@ -21,20 +21,8 @@ static const char* rcsID = "$Id: prestackmute.cc,v 1.15 2010-03-11 09:38:09 cvsn
 
 using namespace PreStack;
 
-void Mute::initClass()
-{
-    PF().addCreator( Mute::createFunc, Mute::sName() );
-}
-
-
-Processor* Mute::createFunc()
-{
-    return new Mute;
-}
-
-
 Mute::Mute()
-    : Processor( sName() )
+    : Processor( sFactoryKeyword() )
     , def_(*new MuteDef)
     , muter_(0)
     , tail_(false)

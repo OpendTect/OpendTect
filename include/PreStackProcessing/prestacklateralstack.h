@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestacklateralstack.h,v 1.2 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: prestacklateralstack.h,v 1.3 2010-12-02 16:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,10 +23,9 @@ namespace PreStack
 mClass LateralStack : public Processor
 {
 public:
-
-    static void		initClass();
-    static Processor*	createFunc();
-    static const char*	sName() 	{ return "LateralStack"; }
+    			mDefaultFactoryInstanciationBase(
+				"LateralStack", "Super Gather" );
+    static Processor*	createInstance();
 
  			LateralStack();
     			~LateralStack();

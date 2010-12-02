@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackagc.h,v 1.7 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:		$Id: prestackagc.h,v 1.8 2010-12-02 16:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,10 +23,10 @@ namespace PreStack
 mClass AGC : public Processor
 {
 public:
-    static void			initClass();
-    static Processor*		createFunc();
-				AGC();
+    				mDefaultFactoryInstantiation( Processor, AGC,
+					"AGC", sFactoryKeyword() );
 
+				AGC();
     bool			prepareWork();
 
     void			setWindow(const Interval<float>&);
@@ -40,7 +40,6 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    static const char*		sName()			{ return "AGC"; }
     static const char*		sKeyWindow()		{ return "Window"; }
     static const char*		sKeyMuteFraction()	{return "Mutefraction";}
 

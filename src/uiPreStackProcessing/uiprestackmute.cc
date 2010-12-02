@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackmute.cc,v 1.7 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackmute.cc,v 1.8 2010-12-02 16:00:42 cvskris Exp $";
 
 #include "uiprestackmute.h"
 
@@ -20,7 +20,7 @@ namespace PreStack
 
 void uiMute::initClass()
 {
-    uiPSPD().addCreator( create, Mute::sName() );
+    uiPSPD().addCreator( create, Mute::sFactoryKeyword() );
 }
 
 

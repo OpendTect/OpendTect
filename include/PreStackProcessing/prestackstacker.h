@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackstacker.h,v 1.7 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:		$Id: prestackstacker.h,v 1.8 2010-12-02 16:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,10 +26,8 @@ namespace PreStack
 mClass Stack : public Processor
 {
 public:
-
-    static void			initClass();
-    static Processor*		createFunc();
-    static const char*		sName()			{ return "Stack"; }
+				mDefaultFactoryInstantiation( Processor, Stack,
+					"Stack", sFactoryKeyword() );
 
  				Stack();
     				~Stack();

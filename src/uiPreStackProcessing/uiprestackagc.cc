@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackagc.cc,v 1.6 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackagc.cc,v 1.7 2010-12-02 16:00:42 cvskris Exp $";
 
 #include "uiprestackagc.h"
 
@@ -18,7 +18,7 @@ namespace PreStack
 
 void uiAGC::initClass()
 {
-    uiPSPD().addCreator( create, AGC::sName() );
+    uiPSPD().addCreator( create, AGC::sFactoryKeyword() );
 }
 
 

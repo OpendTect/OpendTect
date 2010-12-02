@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.26 2010-10-07 06:32:40 cvsnanne Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.27 2010-12-02 16:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -74,11 +74,9 @@ class Gather;
 mClass Processor : public ParallelTask
 {
 public:
-    virtual			~Processor();
+				mDefineFactoryInClass( Processor, factory );
 
     virtual bool		reset();
-
-    virtual const char*		userName() const { return name(); }
 
     virtual const BinID&	getInputStepout() const;
     virtual bool		wantsInput(const BinID& relbid) const;
@@ -109,6 +107,7 @@ public:
 				    number of samples in gather and run it
 				    parallel vertically.*/
 
+    virtual			~Processor();
 
 protected:
     				Processor( const char* nm );
@@ -128,6 +127,7 @@ protected:
 mDefineFactory( Processor, PF );
 /*!Orgainizes a number of PreStack::Processors into a chain which
    can be processed. */
+
 mClass ProcessManager : public CallBacker
 {
 public:

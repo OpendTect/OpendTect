@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.11 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: prestackmute.h,v 1.12 2010-12-02 16:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -25,9 +25,8 @@ class MuteDef;
 mClass Mute : public Processor
 {
 public:
-
-    static void		initClass();
-    static Processor*	createFunc();
+			mDefaultFactoryInstantiation( Processor, Mute,
+				"Mute", sFactoryKeyword() );
 
  			Mute();
     			~Mute();
@@ -38,7 +37,6 @@ public:
     bool		usePar(const IOPar&);
     const char*		errMsg() const		{ return errmsg_.str(); }
 
-    static const char*	sName()			{ return "Mute"; }
     static const char*	sTaperLength()		{ return "Taper Length";}
     static const char*	sTailMute()		{ return "Tail Mute";}
     static const char*	sMuteDef()		{ return "Mute Definition";}
