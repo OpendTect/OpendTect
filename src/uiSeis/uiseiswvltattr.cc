@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.26 2010-10-27 07:04:29 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.27 2010-12-02 16:31:58 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -245,7 +245,7 @@ void uiSeisWvltTaperDlg::setFreqData()
 
 //Wavelet display property dialog
 uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet& w )
-            : uiDialog(p,Setup(w.name(),"","107.4.3")
+            : uiDialog(p,Setup(w.name(),"","103.3.8")
 		    	 .modal(false))
 {
     setCtrlStyle( LeaveOnly );
