@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.51 2010-11-29 21:37:17 cvskris Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.52 2010-12-02 21:23:35 cvsyuancheng Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -349,12 +349,11 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	    real = idx>0 ? signal_.get(idx-1).real() : 0;
 	int immaxidx = imdata_->nrsamples_-1;
 	int checkiidx = csamp - imdata_->z0_;
-	const float imag = checkiidx<0 
-	    		? -getInputValue( *imdata_, imagidx_, 0, z0 )
-			: checkiidx>immaxidx
-			    ? -getInputValue( *imdata_, imagidx_, immaxidx, z0 )
-			    : -getInputValue( *imdata_, imagidx_, cidx, z0 );
-	signal_.set( idx, float_complex(real,imag) );
+	int useidx = checkiidx<0 ? 0 : (checkiidx>immaxidx ? immaxidx : cidx);
+	float imag = getInputValue( *imdata_, imagidx_, useidx, z0 );
+	if ( mIsUdf(imag) )
+	    imag = idx>0 ? signal_.get(idx-1).imag() : 0;
+	signal_.set( idx, float_complex(real,-imag) );
     }
 
     if ( window_ ) window_->apply( &signal_ );
