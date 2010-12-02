@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxisdata.cc,v 1.6 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiaxisdata.cc,v 1.7 2010-12-02 10:07:17 cvssatyaki Exp $";
 
 #include "uiaxisdata.h"
 #include "dataclipper.h"
@@ -53,6 +53,7 @@ void uiAxisData::renewAxis( const char* newname, uiGraphicsScene* scene,
     stop();
     defaxsu_.width_ = width;
     defaxsu_.height_ = height; 
+    delete axis_;
     axis_ = new uiAxisHandler( scene, defaxsu_ );
     axis_->setName( newname );
     needautoscale_ = true;

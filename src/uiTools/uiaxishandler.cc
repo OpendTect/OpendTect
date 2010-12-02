@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.46 2010-11-09 10:33:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.47 2010-12-02 10:07:17 cvssatyaki Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -49,9 +49,12 @@ uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
 
 uiAxisHandler::~uiAxisHandler()
 {
-    delete nameitm_; delete axislineitm_; delete endannottextitm_;
-    delete annottxtitmgrp_; delete annotlineitmgrp_;
-    delete gridlineitmgrp_;
+    if ( nameitm_ ) delete scene_->removeItem( nameitm_ );
+    if ( axislineitm_ ) delete scene_->removeItem( axislineitm_ );
+    if ( endannottextitm_ ) delete scene_->removeItem( endannottextitm_ );
+    if ( annottxtitmgrp_ ) delete scene_->removeItem( annottxtitmgrp_ );
+    if ( annotlineitmgrp_ ) delete scene_->removeItem( annotlineitmgrp_ );
+    if ( gridlineitmgrp_ ) delete scene_->removeItem( gridlineitmgrp_ );
 }
 
 
