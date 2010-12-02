@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.15 2010-08-04 13:30:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.16 2010-12-02 06:20:15 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -239,38 +239,6 @@ NotifierAccess* uiODApplMgrAttrVisHandler::colorTableSeqChange()
 }
 
 
-// TODO: Remove in v3.5
-static bool useOldDefColTab( const IOPar& par, ColTab::MapperSetup& ms,
-			     ColTab::Sequence& seq )
-{
-    BufferString seqnm;
-    bool autoscale = false;
-    float symmidval = mUdf(float);
-    float cliprate = mUdf(float);
-    Interval<float> coltabrange;
-    if ( !par.get("ColorSeq Name",seqnm) || seqnm.isEmpty() )
-	return false;
-    seq = ColTab::Sequence( seqnm.buf() );
-    par.getYN( "Auto scale", autoscale );
-    ms.type_ = autoscale ? ColTab::MapperSetup::Auto
-			 : ColTab::MapperSetup::Fixed;
-    if ( autoscale )
-    {
-	if ( par.get("Cliprate",cliprate) )
-	    ms.cliprate_ = cliprate;
-	if ( par.get("Symmetry Midvalue",symmidval) )
-	    ms.symmidval_ = symmidval;
-    }
-    else if ( par.get("Scale Factor",coltabrange) )
-    {
-	ms.start_ = coltabrange.start;
-	ms.width_ = coltabrange.width();
-    }
-
-    return true;
-}
-
-
 #define mGet2DDataFile { \
 	mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, \
 			 am_.visserv_->getObject( visid ) ); \
@@ -296,8 +264,12 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
     if ( !as || as->id().asInt()<0 ) return;
 
-    ColTab::MapperSetup mapper;
     ColTab::Sequence seq( 0 );
+    const ColTab::Sequence* ctseq =
+		am_.visserv_->getColTabSequence( visid, attrib );
+    if ( ctseq ) seq = *ctseq;
+
+    ColTab::MapperSetup mapper;
     PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
     if ( !ioobj )
 	return;
@@ -310,12 +282,9 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     IOPar iop;
     if ( iop.read( fp.fullPath(), sKey::Pars) && !iop.isEmpty() )
     {
-	if ( !useOldDefColTab(iop,mapper,seq) )
-	{
-	    const char* ctname = iop.find( sKey::Name );
-	    seq = ColTab::Sequence( ctname );
-	    mapper.usePar( iop );
-	}
+	const char* ctname = iop.find( sKey::Name );
+	seq = ColTab::Sequence( ctname );
+	mapper.usePar( iop );
     }
 
     am_.visserv_->setColTabMapperSetup( visid, attrib, mapper );
@@ -339,11 +308,13 @@ void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
 
     fp.setExtension( "par" );
 
-    const ColTab::Sequence& ctseq = *am_.visserv_->getColTabSequence(
-	    visid, attrib );
-    const ColTab::MapperSetup& mapper = *am_.visserv_->getColTabMapperSetup(
-	    visid, attrib );
-    iop.set( sKey::Name, ctseq.name() );
-    mapper.fillPar( iop );
+    const ColTab::Sequence* ctseq =
+		am_.visserv_->getColTabSequence( visid, attrib );
+    const ColTab::MapperSetup* mapper =
+		am_.visserv_->getColTabMapperSetup( visid, attrib );
+    if ( ctseq )
+	iop.set( sKey::Name, ctseq->name() );
+    if ( mapper )
+	mapper->fillPar( iop );
     iop.write( fp.fullPath(), sKey::Pars );
 }
