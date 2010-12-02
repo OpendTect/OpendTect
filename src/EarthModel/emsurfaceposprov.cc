@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.22 2010-12-01 07:24:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.23 2010-12-02 05:34:16 cvsnanne Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -184,7 +184,10 @@ bool Pos::EMSurfaceProvider::toNextPos()
 	SI().snapZ( curzrg_.start, 1 );
 	SI().snapZ( curzrg_.stop, -1 );
 	if ( !unsnappedzrg.includes(curzrg_.start) )
+	{
 	    curz_ = mUdf(float);
+	    return true;
+	}
     }
 
     curz_ = curzrg_.start;
