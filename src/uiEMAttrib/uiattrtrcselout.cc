@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.60 2010-09-29 03:50:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.61 2010-12-02 04:10:46 cvsranojay Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -355,9 +355,10 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	IOObj* lineobj = IOM().get( MultiID(desc->getStoredID()) );
 	Seis2DLineSet s2d( *lineobj );
 
-	BufferString msg = "The selected horizon is not the selected lineset. ";
-	msg += "Choose another attribute or horizon.";
-	if ( *data.linesets[0] != s2d.name() ) 
+	BufferString msg = "The selected horizon does not share the geometry ";
+			   " of the selected lineset. ";
+			   "Choose other input data or horizon.";
+	if ( data.linesets.isEmpty() || *data.linesets[0] != s2d.name() ) 
 	{
 	    uiMSG().error( msg );
 	    return false;
