@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.71 2010-12-01 12:06:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.72 2010-12-03 11:25:14 cvsnanne Exp $";
 
 #include "uitoolbutton.h"
 #include "i_qbutton.h"
@@ -22,7 +22,6 @@ static const char* rcsID = "$Id: uibutton.cc,v 1.71 2010-12-01 12:06:00 cvsnanne
 #include "settings.h"
 
 
-//#include <QApplication>
 #include <QCheckBox>
 #include <QMenu>
 #include <QPushButton>
