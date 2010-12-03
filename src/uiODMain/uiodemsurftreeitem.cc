@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.76 2010-11-30 19:28:33 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.77 2010-12-03 05:39:04 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -564,9 +564,9 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
 	RefMan<EM::HorizonZTransform> transform = new EM::HorizonZTransform;
 	transform->setHorizon( *horizon );
-	const int sceneid = ODMainWin()->sceneMgr().addScene( false, transform,
+	ODMainWin()->sceneMgr().tile();
+	const int sceneid = ODMainWin()->sceneMgr().addScene( true, transform,
 							      scenenm.buf() );
 	ODMainWin()->sceneMgr().viewAll( 0 );
-	ODMainWin()->sceneMgr().tile();
     }
 }
