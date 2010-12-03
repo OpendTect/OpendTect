@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.74 2010-11-17 09:29:54 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.75 2010-12-03 02:56:55 cvsnanne Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -142,6 +142,8 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
     {
 	outpid = objidstr.buf();
 	PtrMan<IOObj> ioobj = IOM().get( outpid ); //check already done
+	if ( !ioobj ) return false;
+
 	strm << "Calculating '" << ioobj->name() << "'." << std::endl;
 	strm.flush();
 	BufferString basehorstr(
@@ -188,6 +190,8 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc, 
 		    const MultiID& outid = 0 , SeisTrcBuf* tbuf = 0 )
 {
+    if ( !proc ) return false;
+
     bool cont = true;
     bool loading = true;
     int nriter = 0;
@@ -264,12 +268,12 @@ static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc,
 }
 
 
-static HorSampling getHorSamp( IOPar* geompar )
+static HorSampling getHorSamp( IOPar& geompar )
 {
     HorSampling hsamp;
-    if ( !geompar->get( SurveyInfo::sKeyInlRange(),
+    if ( !geompar.get( SurveyInfo::sKeyInlRange(),
 			hsamp.start.inl, hsamp.stop.inl )
-	 || !geompar->get( SurveyInfo::sKeyCrlRange(),
+	 || !geompar.get( SurveyInfo::sKeyCrlRange(),
 			   hsamp.start.crl, hsamp.stop.crl ) )
     {
 	hsamp.start.inl = 0;
@@ -323,7 +327,7 @@ bool BatchProgram::go( std::ostream& strm )
     if ( iscubeoutp && geompar )
     {
 	geompar->get( sKey::LineKey, linename );
-	hsamp = getHorSamp( geompar );
+	hsamp = getHorSamp( *geompar );
     }
 
     PtrMan<IOPar> mmprocrange =
@@ -441,7 +445,7 @@ bool BatchProgram::go( std::ostream& strm )
 	if ( !saver || !saver->execute(&strm) )
 	    mErrRet( "Cannot save data" );
     }
-    else
+    else if ( geompar )
     {
 	float outval;
 	geompar->get( "Outside Value", outval );
