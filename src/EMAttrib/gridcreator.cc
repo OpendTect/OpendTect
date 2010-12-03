@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: gridcreator.cc,v 1.3 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: gridcreator.cc,v 1.4 2010-12-03 12:10:44 cvssatyaki Exp $";
 
 
 #include "gridcreator.h"
@@ -344,7 +344,7 @@ bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* tr )
 	horizons_ += horizon2d;
 	Hor2DFrom3DCreatorGrp* creator =
 	    new Hor2DFrom3DCreatorGrp( *horizon3d, *horizon2d );
-	creator->init( linenames, lsioobj->key() );
+	creator->init( linenames, lsioobj->name() );
 	add( creator );
 	horizon3d->unRef();
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.9 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.10 2010-12-03 12:10:44 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -119,11 +119,14 @@ void PosInfo::Survey2D::readIdxFiles()
 	    return;
 	lsnm_ = lsindex_.getKey(0);
     }
-    const int idxky = lsindex_.indexOf( lsnm_.buf() );
+    int idxky = lsindex_.indexOf( lsnm_.buf() );
     if ( idxky < 0 )
     {	// selected lsnm_ doesn't exist (anymore): reset to default
+	BufferString lsnm = lsnm_;
 	lsindex_.setEmpty(); lineindex_.setEmpty(); lsnm_.setEmpty();
-	readIdxFiles();  return;
+	readIdxFiles();
+	idxky = lsindex_.indexOf( lsnm.buf() );
+	if ( idxky < 0 ) return;
     }
 
     lsfp_ = basefp_;
@@ -450,6 +453,7 @@ void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
     File::createDir( lsfp_.fullPath() );
     self.updateMaxID( driinfo.getIValue(1), lsindex_ );
     writeIdxFile( false );
+    self.readIdxFiles();
 }
 
 

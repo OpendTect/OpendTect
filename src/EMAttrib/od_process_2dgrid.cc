@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_2dgrid.cc,v 1.1 2010-08-26 03:55:44 cvsraman Exp $";
+static const char* rcsID = "$Id: od_process_2dgrid.cc,v 1.2 2010-12-03 12:10:44 cvssatyaki Exp $";
 
 #include "batchprog.h"
 
@@ -38,13 +38,15 @@ bool BatchProgram::go( std::ostream& strm )
     bool res = true;
     TextTaskRunner tr( strm );
     strm << "Creating 2D Grid ..." << std::endl;
-    Seis2DGridCreator seiscr( *seispar );
-    res = tr.execute( seiscr );
+    Seis2DGridCreator* seiscr = new Seis2DGridCreator( *seispar );
+    res = tr.execute( *seiscr );
     if ( !res )
     {
 	strm << "  failed.\nProcess stopped" << std::endl;
 	return false;
     }
+
+    delete seiscr;
 
     PtrMan<IOPar> horpar = pars().subselect( "Horizon" );
     if ( !horpar )
