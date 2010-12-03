@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.25 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.26 2010-12-03 20:41:27 cvskris Exp $";
 
 #include "posinfo.h"
 #include "survinfo.h"
@@ -216,6 +216,32 @@ int PosInfo::CubeData::totalSize() const
     int totalsize = 0;
     for ( int idx=0; idx<size(); idx++ )
 	totalsize += (*this)[idx]->size();
+
+    return totalsize;
+}
+
+
+int PosInfo::CubeData::totalSizeInside( const HorSampling& hrg ) const
+{
+    int totalsize = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const PosInfo::LineData* linedata = (*this)[idx];
+	if ( !hrg.inlOK( linedata->linenr_ ) )
+	    continue;
+
+	for ( int idy=0; idy<linedata->segments_.size(); idy++ )
+	{
+	    const PosInfo::LineData::Segment& segment =
+		linedata->segments_[idy];
+
+	    for ( int crl=segment.start; crl<=segment.stop; crl+=segment.step )
+	    {
+		if ( hrg.crlOK(crl) )
+		    totalsize ++;
+	    }
+	}
+    }
 
     return totalsize;
 }

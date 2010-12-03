@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.19 2010-07-12 14:24:33 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.20 2010-12-03 20:41:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,9 @@ public:
     CubeData&		operator =(const CubeData&);
 
     int			totalSize() const;
+    int			totalSizeInside(const HorSampling& hrg) const;
+    			/*!<Only take positions that are inside hrg. */
+
     int			indexOf(int inl) const;
     bool		includes(int inl,int crl) const;
     bool		getInlRange(StepInterval<int>&) const;
