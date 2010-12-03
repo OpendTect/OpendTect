@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.21 2010-11-12 21:10:08 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.22 2010-12-03 10:48:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,6 +183,8 @@ public:
     MenuHandler*	getMenuHandler();
 
     MouseEventHandler&	mouseEventHandler()	    { return mousehandler_; }
+
+    const Point*	markerPosAt(const Geom::Point2D<int>& mousepos) const;
 
 protected:
     void		getPointSelections(

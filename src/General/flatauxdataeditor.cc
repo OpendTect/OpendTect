@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.39 2010-11-12 21:10:08 cvskris Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.40 2010-12-03 10:48:02 cvsjaap Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -664,6 +664,25 @@ int AuxDataEditor::dataSetIdxAt( const Geom::Point2D<int>& pt ) const
 }
 
 
+const Point* AuxDataEditor::markerPosAt(
+				    const Geom::Point2D<int>& mousepos ) const
+{
+    int datasetidx;
+    TypeSet<int> selptidxlist;
+    findSelection( mousepos, datasetidx, &selptidxlist );
+
+    if ( !selptidxlist.size() || datasetidx<0 || datasetidx>=auxdata_.size() )
+	return 0;
+
+    const int selptidx = selptidxlist[selptidxlist.size()-1];
+
+    if ( selptidx<0 || selptidx>=auxdata_[datasetidx]->poly_.size() )
+	return 0;
+
+    return &auxdata_[datasetidx]->poly_[selptidx];
+}
+
+
 Rect AuxDataEditor::getWorldRect( int id ) const
 {
     Rect res( curview_ );
@@ -750,7 +769,7 @@ bool Sower::activate( const Color& color, const MouseEvent& mouseevent )
     if ( mouseevent.rightButton() )
 	mReturnHandled( false );
 
-    if ( editor_.dataSetIdxAt(mouseevent.pos()) >= 0 )
+    if ( editor_.markerPosAt(mouseevent.pos()) )
 	mReturnHandled( false );
 
     if ( editor_.isSelActive() )
@@ -808,7 +827,7 @@ bool Sower::accept( const MouseEvent& mouseevent, bool released )
 bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 {
     if ( mode_==Idle && released && !editor_.isDragging() &&
-	 editor_.dataSetIdxAt(mouseevent.pos())<0 )
+	 !editor_.markerPosAt(mouseevent.pos()) )
 	mReturnHandled( true );
 
     if ( mode_ != Furrowing )
@@ -935,7 +954,15 @@ bool Sower::acceptTablet( const MouseEvent& mouseevent, bool released )
 	 Time::passedSince(curknotstamp_) > 300 )
     {
 	curknotstamp_ = mUdf(int);
-	return acceptLaser( mouseevent, released );
+
+	// Dirty but effective
+	const bool enablelaser = knotid<editor_.allowmove_.size() &&
+				 editor_.allowmove_[knotid];
+
+	if ( enablelaser )
+	    return acceptLaser( mouseevent, released );
+
+	mReturnHandled(false);
     }
 
     if ( knotid>=0 && mode_==Furrowing && singleseeded_ )
