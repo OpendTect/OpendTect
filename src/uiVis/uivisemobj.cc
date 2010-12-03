@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.90 2010-11-22 09:10:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.91 2010-12-03 02:54:49 cvsnanne Exp $";
 
 #include "uivisemobj.h"
 
@@ -470,38 +470,42 @@ void uiVisEMObject::addToToolBarCB( CallBacker* cb )
 void uiVisEMObject::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    mDynamicCastGet(MenuHandler*,menu,caller);
+    mDynamicCastGet(uiMenuHandler*,uimenu,caller);
     visSurvey::EMObjectDisplay* emod = getDisplay();
-    if ( !emod || mnuid==-1 || menu->isHandled() || menu->menuID()!=displayid_ )
+    if ( !emod || mnuid==-1 || !menu || 
+	 menu->isHandled() || menu->menuID()!=displayid_ )
 	return;
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     const EM::ObjectID emid = emod->getObjectID();
     EM::EMObject* emobj = EM::EMM().getObject(emid);
-    const EM::SectionID sid = emod->getSectionID(menu->getPath());
+    EM::SectionID sid = -1;
+    if ( uimenu && uimenu->getPath() )
+	sid = emod->getSectionID( uimenu->getPath() );
 
     if ( mnuid==singlecolmnuitem_.id )
     {
 	if ( hordisp ) hordisp->useTexture( !hordisp->shouldUseTexture(),true );
 	visserv_->triggerTreeUpdate();
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
     }
     else if ( mnuid==showonlyatsectionsmnuitem_.id )
     {
 	setOnlyAtSectionsDisplay( true );
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
     }
     else if ( mnuid==showfullmnuitem_.id )
     {
 	setOnlyAtSectionsDisplay( false );
 	if ( hordisp ) hordisp->displayIntersectionLines( false );
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
     }
     else if ( mnuid==showbothmnuitem_.id )
     {
 	setOnlyAtSectionsDisplay( false );
 	if ( hordisp ) hordisp->displayIntersectionLines( true );
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
     }
     else if ( mnuid==changesectionnamemnuitem_.id )
     {
@@ -518,7 +522,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	    }
 	}
 
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
     }
     else if ( mnuid==wireframemnuitem_.id )
     {
@@ -527,7 +531,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==showseedsmnuitem_.id )
     {
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
 	emod->showPosAttrib( EM::EMObject::sSeedNode(),
 			     !emod->showsPosAttrib(EM::EMObject::sSeedNode()) );
     }
@@ -535,20 +539,20 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     {
 	uiSeedPropDlg dlg( uiparent_, emobj );
 	dlg.go();
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
     }
     else if ( mnuid==lockseedsmnuitem_.id )
     {
 	emobj->lockPosAttrib( EM::EMObject::sSeedNode(), 
 			!emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) );
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
     }
     else if ( mnuid==editmnuitem_.id )
     {
 	bool turnon = !emod->isEditingEnabled();
 	emod->enableEditing(turnon);
 	if ( turnon ) connectEditor();
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
     }
     else if ( mnuid==removesectionmnuitem_.id )
     {
