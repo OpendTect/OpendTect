@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.32 2010-11-06 16:21:12 cvsumesh Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.33 2010-12-03 10:51:03 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -935,7 +935,7 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
 
     const CallBack cb = mCB( this, FaultStickSetDisplay, polygonFinishedCB );
     if ( yn )
-	scene_->getPolySelection()->polygonFinished()->notify( cb );
+	scene_->getPolySelection()->polygonFinished()->notifyIfNotNotified(cb);
     else
 	scene_->getPolySelection()->polygonFinished()->remove( cb );
 }
@@ -943,7 +943,7 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
 
 void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 {
-    if ( !stickselectmode_ || !emfss_ || !scene_ )
+    if ( !stickselectmode_ || !emfss_ || !scene_ || !isOn() || !isSelected() )
 	return;
 
     PtrMan<EM::EMObjectIterator> iter = emfss_->geometry().createIterator(-1);
