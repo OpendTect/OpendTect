@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.65 2010-09-13 05:03:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.66 2010-12-03 11:14:04 cvsnanne Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -259,7 +259,8 @@ bool uiWellImportAsc::doWork()
 	    td = survzstop - kbelev;
 	}
 
-	Interval<float> zrg( -kbelev, td - kbelev );
+	const float srd = -wd_.info().surfaceelev;
+	Interval<float> zrg( -kbelev+srd, td-kbelev+srd );
 	const Coord c( coordfld_->getCoord() );
 	wd_.track().addPoint( c, zrg.start, 0 );
 	wd_.track().addPoint( c, zrg.stop, td );

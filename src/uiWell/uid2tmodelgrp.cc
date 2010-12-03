@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.20 2010-09-10 11:51:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.21 2010-12-03 11:14:04 cvsnanne Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -93,9 +93,11 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	const float twtvel = velfld_->getfValue() * .5;
 	const float dah0 = wd.track().dah( 0 );
 	const float dah1 = wd.track().dah( wd.track().size()-1 );
+	const float zstart = wd.track().value(0);
+	const float zstop = wd.track().value( wd.track().size()-1 );
 	d2t.erase();
-	d2t.add( dah0, dah0 / twtvel );
-	d2t.add( dah1, dah1 / twtvel );
+	d2t.add( dah0, zstart / twtvel );
+	d2t.add( dah1, zstop / twtvel );
     }
     else
     {

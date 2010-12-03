@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.2 2010-09-10 11:53:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.3 2010-12-03 11:14:04 cvsnanne Exp $";
 
 
 #include "uisimplemultiwell.h"
@@ -45,6 +45,7 @@ public:
     Coord		coord_;
     float		elev_;
     float		td_;
+    float		srd_;
     BufferString	uwi_;
 };
 
@@ -57,7 +58,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     , zinft_(SI().depthsInFeetByDefault())
     , overwritepol_(0)
 {
-    tbl_ = new uiTable( this, uiTable::Setup(20,6).rowgrow(true)
+    tbl_ = new uiTable( this, uiTable::Setup(20,7).rowgrow(true)
 	    		.colgrow(false).removecolallowed(false)
 			.manualresize( true ), "Data Table" );
     tbl_->setColumnLabel( 0, "Well name" );
@@ -66,7 +67,8 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     const char* zunstr = zinft_ ? " (ft" : " (m";
     tbl_->setColumnLabel( 3, BufferString("[KB Elevation",zunstr,")]") );
     tbl_->setColumnLabel( 4, BufferString("[TD",zunstr,")]") );
-    tbl_->setColumnLabel( 5, "[UWI]" );
+    tbl_->setColumnLabel( 5, BufferString("[SRD",zunstr,")]") );
+    tbl_->setColumnLabel( 6, "[UWI]" );
 
     uiPushButton* pb = new uiPushButton( this, "Read file",
 	    mCB(this,uiSimpleMultiWellCreate,rdFilePush), false );
@@ -116,7 +118,8 @@ bool getLine()
 
     wcd_.elev_ = getfValue( 3 );
     wcd_.td_ = getfValue( 4 );
-    wcd_.uwi_ = text( 5 );
+    wcd_.srd_ = getfValue( 5 );
+    wcd_.uwi_ = text( 6 );
     return true;
 }
 
@@ -147,6 +150,8 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     ti->setName( "KB Elevation" ); fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
     ti->setName( "TD" ); fd_.bodyinfos_ += ti;
+    ti = Table::TargetInfo::mkDepthPosition( false );
+    ti->setName( "SRD" ); fd_.bodyinfos_ += ti;
     fd_.bodyinfos_ += new Table::TargetInfo( "UWI", Table::Optional );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, mTODOHelpID );
@@ -204,16 +209,16 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     Well::Data wd( wcd.nm_ );
     wd.info().surfacecoord = wcd.coord_;
     wd.info().uwid = wcd.uwi_;
-    wd.info().surfaceelev = wcd.elev_;
-    Interval<float> zrg( -wcd.elev_, wcd.td_ - wcd.elev_ );
+    wd.info().surfaceelev = -wcd.srd_;
+    Interval<float> zrg( -wcd.elev_+wcd.srd_, wcd.td_-wcd.elev_+wcd.srd_ );
     wd.track().addPoint( wcd.coord_, zrg.start, 0 );
     wd.track().addPoint( wcd.coord_, zrg.stop, wcd.td_ );
     if ( velfld_ )
     {
 	Well::D2TModel* d2t = new Well::D2TModel("Simple");
-	Interval<float> trg( zrg ); trg.scale ( 1 / vel_ );
-	d2t->add( zrg.start, trg.start );
-	d2t->add( zrg.stop, trg.stop );
+	Interval<float> trg( zrg ); trg.scale( 1 / vel_ );
+	d2t->add( 0, trg.start );
+	d2t->add( wcd.td_, trg.stop );
 	wd.setD2TModel( d2t );
     }
 
@@ -287,7 +292,11 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 	wcd.td_ = survzstop - wcd.elev_;
     }
 
-    wcd.uwi_ = tbl_->text( RowCol(irow,5) );
+    wcd.srd_ = tbl_->getfValue( RowCol(irow,5) );
+    if ( mIsUdf(wcd.srd_) ) wcd.srd_ = 0;
+    if ( zinft_ ) wcd.srd_ *= mFromFeetFactor;
+
+    wcd.uwi_ = tbl_->text( RowCol(irow,6) );
     return true;
 }
 
@@ -350,6 +359,8 @@ void uiSimpleMultiWellCreate::addRow( const uiSMWCData& wcd, int& prevrow )
     float v = wcd.elev_; if ( zinft_ ) v *= mToFeetFactor;
     tbl_->setValue( rc, v ); rc.col++;
     v = wcd.td_; if ( zinft_ ) v *= mToFeetFactor;
+    tbl_->setValue( rc, v ); rc.col++;
+    v = wcd.srd_; if ( zinft_ ) v *= mToFeetFactor;
     tbl_->setValue( rc, v ); rc.col++;
     tbl_->setText( rc, wcd.uwi_ );
 }
