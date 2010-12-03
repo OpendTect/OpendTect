@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.59 2010-06-29 10:57:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.60 2010-12-03 03:01:45 cvsnanne Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -46,6 +46,7 @@ bool uiTreeItem::rightClick( uiListViewItem* item )
 {
     if ( item==uilistviewitem_ )
     {
+	select();
 	showSubMenu();
 	return true;
     }
