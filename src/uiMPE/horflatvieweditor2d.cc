@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.cc,v 1.7 2010-10-07 04:14:57 cvsumesh Exp $
+ RCS:		$Id: horflatvieweditor2d.cc,v 1.8 2010-12-03 10:49:17 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -201,6 +201,9 @@ void HorizonFlatViewEditor2D::mouseMoveCB( CallBacker* )
 
 void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 {
+    if ( editor_ && editor_->sower().accept(mehandler_->event(), false) )
+	return;
+
     if ( curcs_.isEmpty() || !editor_->viewer().appearance().annot_.editable_
 			  || editor_->isSelActive() )
 	return;
@@ -280,8 +283,12 @@ void HorizonFlatViewEditor2D::mouseReleaseCB( CallBacker* )
     const uiRect datarect( editor_->getMouseArea() );
     if ( !datarect.isInside(mouseevent.pos()) ) return;
 
+    const Geom::Point2D<int> mousepos = mouseevent.pos();
+    const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
+
     const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
-    const uiWorldPoint wp = w2u.transform( mouseevent.pos()-datarect.topLeft());
+    const uiWorldPoint wp = markerpos ? *markerpos :
+				w2u.transform( mousepos-datarect.topLeft());
 
     const FlatPosData& pd = dp->posData();
     const IndexInfo ix = pd.indexInfo( true, wp.x );
@@ -435,15 +442,14 @@ bool HorizonFlatViewEditor2D::doTheSeed(EMSeedPicker& spk, const Coord3& crd,
 					const MouseEvent& mev ) const
 {
     EM::PosID pid;
-    bool posidavlble = getPosID( crd, pid );
+    getPosID( crd, pid );
 
     const bool ctrlshiftclicked =  mev.ctrlStatus() && mev.shiftStatus();
-    bool addseed = !posidavlble || ( posidavlble && !mev.ctrlStatus() &&
-	    			     !mev.shiftStatus() );
+    const bool ismarker = editor_->markerPosAt( mev.pos() );
 
-    if ( addseed )
+    if ( !ismarker || (ismarker && !mev.ctrlStatus() && !mev.shiftStatus()) )
     {
-	if ( spk.addSeed(crd,posidavlble ? false : ctrlshiftclicked) )
+	if ( spk.addSeed(crd, ismarker ? false : ctrlshiftclicked) )
 	    return true;
     }
     else
@@ -451,13 +457,16 @@ bool HorizonFlatViewEditor2D::doTheSeed(EMSeedPicker& spk, const Coord3& crd,
 	bool env = false;
 	bool retrack = false;
 
-	if ( mev.ctrlStatus() )
+	if ( !ctrlshiftclicked )
 	{
-	    env = true;
-	    retrack = true;
+	    if ( mev.ctrlStatus() )
+	    {
+		env = true;
+		retrack = true;
+	    }
+	    else if ( mev.shiftStatus() )
+		env = true;
 	}
-	else if ( mev.shiftStatus() )
-	    env = true;
 
 	if ( spk.removeSeed(pid,env,retrack) )
 	    return false;
@@ -489,7 +498,7 @@ void HorizonFlatViewEditor2D::fillAuxInfoContainer()
 					disphormrkinfos[idx]->marker_, true );
 	markeridinfo->marker_ = disphormrkinfos[idx]->marker_;
 	markeridinfo->sectionid_ = disphormrkinfos[idx]->sectionid_;
-	editor_->enableEdit( markeridinfo->merkerid_, false, false, true );
+	editor_->enableEdit( markeridinfo->merkerid_, false, false, false );
 	editor_->enablePolySel( markeridinfo->merkerid_, mehandler_ );
 
 	markeridinfos_ += markeridinfo;
@@ -571,11 +580,11 @@ bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
 
     for ( int idx=0; idx<emobj->nrSections(); idx++ )
     {
-	if ( emobj->isDefined(emobj->sectionID(idx),bid.getSerialized()) )
+	if ( emobj->isDefined(emobj->sectionID(idx),bid.toInt64()) )
 	{
 	    pid.setObjectID( emobj->id() );
 	    pid.setSectionID( emobj->sectionID(idx) );
-	    pid.setSubID( bid.getSerialized() );
+	    pid.setSubID( bid.toInt64() );
 	    return true;
 	}
     }
@@ -614,8 +623,7 @@ void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
 		getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x );
 	bid.crl = horpainter_->getTrcNos()[posidx];
 
-	EM::PosID posid( emid_, getSectionID(selectedids[ids]),
-			 bid.getSerialized() );
+	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );
 	emobj->unSetPos( posid, false );
     }
 

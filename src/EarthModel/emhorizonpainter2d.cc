@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.cc,v 1.4 2010-08-03 09:03:35 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter2d.cc,v 1.5 2010-12-03 10:49:17 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,8 +113,8 @@ bool HorizonPainter2D::addPolyLine()
 	    else
 		bid.inl = hor2d->geometry().lineIndex( linenm_ );
 	    
-	    const Coord3 crd = hor2d->getPos( sid, bid.getSerialized() );
-	    EM::PosID posid( id_, sid, bid.getSerialized() );
+	    const Coord3 crd = hor2d->getPos( sid, bid.toInt64() );
+	    EM::PosID posid( id_, sid, bid.toInt64() );
 
 	    if ( !crd.isDefined() )
 	    {
@@ -186,7 +186,7 @@ void HorizonPainter2D::horChangeCB( CallBacker* cb )
 		    return;
 
 		BinID bid;
-		bid.setSerialized( cbdata.pid0.subID() );
+		bid.fromInt64( cbdata.pid0.subID() );
 
 		if ( cs_.hrg.includes(bid) )
 		{
@@ -215,9 +215,10 @@ void HorizonPainter2D::horChangeCB( CallBacker* cb )
 void HorizonPainter2D::getDisplayedHor( ObjectSet<Marker2D>& disphor )
 {
     for ( int secidx=0; secidx<markerline_.size(); secidx++ )
-    {
 	disphor.append( *markerline_[secidx] );
-    } 
+
+    if ( seedenabled_ )
+	disphor += markerseeds_;
 }
 
 
@@ -257,7 +258,7 @@ void HorizonPainter2D::changePolyLinePosition( const EM::PosID& pid )
     if ( id_ != pid.objectID() ) return;
 
     BinID binid;
-    binid.setSerialized( pid.subID() );
+    binid.fromInt64( pid.subID() );
 
     for ( int idx=0; idx<hor2d->nrSections(); idx++ )
     {

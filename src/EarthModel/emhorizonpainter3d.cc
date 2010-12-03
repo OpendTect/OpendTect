@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter3d.cc,v 1.4 2010-08-03 09:03:35 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter3d.cc,v 1.5 2010-12-03 10:49:17 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,8 +101,8 @@ bool HorizonPainter3D::addPolyLine()
 	while ( iter.next(bid) )
 	{
 	    int inlfromcs = bid.inl;
-	    const Coord3 crd = hor3d->getPos( sid, bid.getSerialized() );
-	    EM::PosID posid( id_, sid, bid.getSerialized() );
+	    const Coord3 crd = hor3d->getPos( sid, bid.toInt64() );
+	    EM::PosID posid( id_, sid, bid.toInt64() );
 	    
 	    if ( !crd.isDefined() )
 	    {
@@ -178,7 +178,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		    return;
 		
 		BinID bid;
-		bid.setSerialized( cbdata.pid0.subID() );
+		bid.fromInt64( cbdata.pid0.subID() );
 		if ( cs_.hrg.includes(bid) )
 		{
 		    changePolyLinePosition( cbdata.pid0 );
@@ -205,9 +205,10 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 void HorizonPainter3D::getDisplayedHor( ObjectSet<Marker3D>& disphor )
 {
     for ( int secidx=0; secidx<markerline_.size(); secidx++ )
-    {
 	disphor.append( *markerline_[secidx] );
-    }
+
+    if ( seedenabled_ )
+	disphor += markerseeds_;
 }
 
 
@@ -246,7 +247,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
     if ( id_ != pid.objectID() ) return;
 
     BinID binid;
-    binid.setSerialized( pid.subID() );
+    binid.fromInt64( pid.subID() );
 
     for ( int idx=0; idx<hor3d->nrSections(); idx++ )
     {
