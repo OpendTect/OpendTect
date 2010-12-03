@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.7 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.8 2010-12-03 15:41:28 cvshelene Exp $";
 
 #include "uiattrtypesel.h"
 #include "uiattrdesced.h"
@@ -184,7 +184,15 @@ void uiAttrTypeSel::updAttrNms( const char* selattrnm )
     int curitm = 0;
     nms.sort();
     for ( int idx=0; idx<nms.size(); idx++ )
-	attrfld->addItem( nms.get(idx) );
+    {
+	const char* attrnm = nms.get(idx);
+	attrfld->addItem( attrnm );
+	if ( (!selattrnm || !*selattrnm) && isPrefAttrib( grpidx, attrnm ) )
+	{
+	    curattrnm = attrnm;
+	    break;
+	}
+    }
 
     if ( curattrnm )
 	attrfld->setText( curattrnm );
@@ -201,4 +209,21 @@ void uiAttrTypeSel::grpSel( CallBacker* )
 void uiAttrTypeSel::attrSel( CallBacker* )
 {
     selChg.trigger();
+}
+
+
+bool uiAttrTypeSel::isPrefAttrib( int grpidx, const char* attrnm ) const
+{
+    const char* grpnm = grpnms_.get( grpidx );
+    if ( ( !strcmp(grpnm,"<All>") && !strcmp(attrnm,"Similarity") ) 
+      || ( !strcmp(grpnm,"Basic") && !strcmp(attrnm,"Scaling") ) 
+      || ( !strcmp(grpnm,"Filters") && !strcmp(attrnm,"Frequency Filter") )
+      || ( !strcmp(grpnm,"Frequency") && !strcmp(attrnm,"Spectral Decomp") )
+      || ( !strcmp(grpnm,"Patterns") && !strcmp(attrnm,"FingerPrint") )
+      || ( !strcmp(grpnm,"Positions") && !strcmp(attrnm,"Position") )
+      || ( !strcmp(grpnm,"Statistics") && !strcmp(attrnm,"Volume Statistics") )
+      || ( !strcmp(grpnm,"Trace match") && !strcmp(attrnm,"Match delta") ) )
+	return true;
+
+    return false;
 }

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Oct 2006
- RCS:           $Id: uiattrtypesel.h,v 1.4 2010-11-10 15:26:43 cvsbert Exp $
+ RCS:           $Id: uiattrtypesel.h,v 1.5 2010-12-03 15:41:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ protected:
     void			attrSel(CallBacker*);
     int				curGrpIdx() const;
     void			updAttrNms(const char* s=0);
+    bool			isPrefAttrib(int,const char*) const;
 
     void			clear();
 };
