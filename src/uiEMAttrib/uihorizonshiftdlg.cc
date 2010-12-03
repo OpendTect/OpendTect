@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.11 2010-03-17 20:37:23 cvskris Exp $";
+static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.12 2010-12-03 02:58:04 cvsnanne Exp $";
 
 #include "uihorizonshiftdlg.h"
 
@@ -50,12 +50,12 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     const float curshift = initialshift*SI().zFactor();
     shiftrg_ = StepInterval<float> (curshift-100,curshift+100,10);
 
-    rangeinpfld_ = new uiGenInput( this, "Shift Range",
-	    			   FloatInpIntervalSpec(shiftrg_) );
+    BufferString lbl( "Shift Range ", SI().getZUnitString() );
+    rangeinpfld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(shiftrg_) );
     rangeinpfld_->valuechanged.notify(
 	    mCB(this,uiHorizonShiftDialog,rangeChangeCB) );
 
-    BufferString lbl( "Shift ", SI().getZUnitString() );
+    lbl = BufferString( "Shift ", SI().getZUnitString() );
     slider_ = new uiSliderExtra(
 	    this, uiSliderExtra::Setup(lbl).withedit(true), "Horizon slider" );
     slider_->attach( alignedBelow, rangeinpfld_ );
