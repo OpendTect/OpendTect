@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.12 2010-12-03 02:58:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.13 2010-12-03 10:20:59 cvsumesh Exp $";
 
 #include "uihorizonshiftdlg.h"
 
@@ -212,7 +212,7 @@ void uiHorizonShiftDialog::shiftCB( CallBacker* )
 
 int uiHorizonShiftDialog::curShiftIdx() const
 {
-    const float curshift = getShift();
+    const float curshift = getShift() * SI().zFactor();
     const int curshiftidx = shiftrg_.getIndex( curshift );
     if ( curshiftidx<0 || curshiftidx>=nrSteps() )
 	return mUdf(int);
