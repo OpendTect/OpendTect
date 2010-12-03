@@ -4,11 +4,12 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.10 2010-10-25 18:51:31 cvskris Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.11 2010-12-03 20:53:48 cvskris Exp $";
 
 #include "seiszaxisstretcher.h"
 
 #include "genericnumer.h"
+#include "posinfo.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seispacketinfo.h"
@@ -63,7 +64,20 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
     cs.hrg = outcs_.hrg;
     seisreader_->setSelData( new Seis::RangeSelData(cs) );
 
-    totalnr_ = cs.hrg.totalNr();
+
+    if ( !is2d_ )
+    {
+	const SeisPacketInfo& packetinfo =
+			        seisreader_->seisTranslator()->packetInfo();
+	if ( packetinfo.cubedata )
+	    totalnr_ = packetinfo.cubedata->totalSizeInside( cs.hrg );
+	else
+	    totalnr_ = cs.hrg.totalNr();
+    }
+    else
+    {
+	totalnr_ = cs.hrg.totalNr();
+    }
 
     seiswriter_ = new SeisTrcWriter( &out );
     sequentialwriter_ = new SeisSequentialWriter( seiswriter_ );
@@ -193,10 +207,17 @@ bool SeisZAxisStretcher::getTrace( SeisTrc& trc, BinID& curbid )
 	nrwaiting_--;
     }
 
+    if ( !seisreader_ )
+    	return false;
+
     while ( shouldContinue() ) 
     {
 	if ( !seisreader_->get(trc) )
+	{
+	    delete seisreader_;
+	    seisreader_ = 0;
 	    return false;
+	}
 
 	curbid = trc.info().binid;
 	if ( is2d_ )
