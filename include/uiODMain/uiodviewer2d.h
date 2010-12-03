@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.21 2010-09-29 07:04:37 cvsumesh Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.22 2010-12-03 10:40:47 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,8 @@ public:
     const MultiID&		lineSetID() const
 				{ return linesetid_; }
     uiFlatViewWin*		viewwin_;
+    uiFlatViewStdControl*	viewControl() 
+    				{ return viewstdcontrol_; }
     uiODMain&			appl_;
 
     int				visid_;
