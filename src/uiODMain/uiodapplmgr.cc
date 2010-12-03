@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.398 2010-11-24 06:50:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.399 2010-12-03 02:59:14 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -458,6 +458,16 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		useDefColTab( visid, attrib );
 	    TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
 	    TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getKnots() : 0;
+	    if ( myas.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
+	    {
+		MouseCursorChanger cursorchgr( MouseCursor::Wait );
+		PtrMan<Attrib::ExtAttribCalc> calc = 
+			    Attrib::ExtAttrFact().create( 0, myas, false );
+
+		// TODO implement 
+		break;
+	    }
+
 	    const DataPack::ID newid =
 		attrserv_->createRdmTrcsOutput( zrg, trcspath, trueknotspos );
 
