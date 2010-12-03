@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: googletranslator.cc,v 1.4 2010-10-29 02:30:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: googletranslator.cc,v 1.5 2010-12-03 11:35:03 cvsnanne Exp $";
 
 #include "googletranslator.h"
 #include "odhttp.h"
@@ -124,8 +124,14 @@ void GoogleTranslator::readyCB( CallBacker* )
 	idx1 += 17;
 	int idx2 = qresult.indexOf( '"', idx1 );
 	QString qtrl = qresult.mid( idx1, idx2-idx1 );
+
+	QString before( "\\u0026#39;" );
+	QString after( "'" );
+	qtrl.replace( before, after );
+
+	const int sz = qtrl.size();
 	qtrl.toWCharArray( translation_ );
-	translation_[idx2-idx1] = L'\0';
+	translation_[sz] = L'\0';
     }
     else
 	wcscpy(translation_,L"?");
