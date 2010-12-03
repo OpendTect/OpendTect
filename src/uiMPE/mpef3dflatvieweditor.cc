@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.11 2010-11-06 16:21:12 cvsumesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.12 2010-12-03 10:49:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,8 +179,6 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
 
     if ( selstickid == f3dpainter_->getActiveStickId() )
 	return;
-
-    const Geom::Point2D<double> pos = editor_->getSelPtPos();
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
     if ( emid == -1 ) return; 
