@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.22 2010-11-25 14:58:18 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.23 2010-12-03 10:50:26 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -912,6 +912,8 @@ void uiODFaultToolMan::stickRemovalCB( CallBacker* )
 
 void uiODFaultToolMan::transferSticksCB( CallBacker* )
 {
+    MouseCursorChanger mcc( MouseCursor::Wait );
+
     if ( curemid_ < 0 )
 	return;
 
