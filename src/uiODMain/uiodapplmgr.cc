@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.399 2010-12-03 02:59:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.400 2010-12-03 11:28:07 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -320,7 +320,8 @@ void uiODApplMgr::addTimeDepthScene()
     snm += uitrans->selName();
     snm += "')";
 
-    const int sceneid = sceneMgr().addScene( false, ztrans, snm);
+    sceneMgr().tile();
+    const int sceneid = sceneMgr().addScene( true, ztrans, snm );
     if ( sceneid!=-1 )
     {
 	const float zscale = SI().zIsTime()
@@ -332,7 +333,7 @@ void uiODApplMgr::addTimeDepthScene()
 	cs.zrg = uitrans->getZRange();
 	scene->setCubeSampling( cs );
 	scene->setZScale( zscale );
-	sceneMgr().viewAll( 0 ); sceneMgr().tile();
+	sceneMgr().viewAll( 0 );
     }
 }
 
