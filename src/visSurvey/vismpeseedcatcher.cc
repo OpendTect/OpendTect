@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.43 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.44 2010-12-06 11:12:03 cvssatyaki Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -313,7 +313,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     const int lineidx = RowCol( nodepid.subID() ).row;
     const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( lineidx );
     S2DPOS().setCurLineSet( geomid.lsid_ );
-    const char* linenm = S2DPOS().getLineName( geomid.lineid_ );
+    BufferString linenm = S2DPOS().getLineName( geomid.lineid_ );
 
     Seis2DDisplay* seis2dclosest = 0;
     bool legalclickclosest = false;
