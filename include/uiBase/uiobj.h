@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.71 2010-12-01 10:41:01 cvsjaap Exp $
+ RCS:           $Id: uiobj.h,v 1.72 2010-12-06 08:42:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,10 +93,12 @@ public:
     virtual void	setPrefWidth(int);
     void                setPrefWidthInChar(float);
     void		setMinimumWidth(int);
+    void		setMaximumWidth(int);
     int			prefVNrPics() const;
     virtual void	setPrefHeight(int);
     void		setPrefHeightInChar(float);
     void		setMinimumHeight(int);
+    void		setMaximumHeight(int);
 
 /*! \brief Sets stretch factors for object
     If stretch factor is > 1, then object will already grow at pop-up.
