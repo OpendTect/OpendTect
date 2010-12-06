@@ -7,13 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.1 2010-12-01 16:56:38 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.2 2010-12-06 12:18:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
-class uiComboBox;
+class SeisTrcBuf;
+class uiSeisWaveletSel;
+class uiFlatViewer;
 namespace Strat { class LayerModel; }
 
 
@@ -24,17 +26,17 @@ public:
     			uiStratSynthDisp(uiParent*,const Strat::LayerModel&);
     			~uiStratSynthDisp();
 
+    void		setDispEach( int nr )		{ dispeach_ = nr; }
     void		modelChanged();
 
 protected:
 
     const Strat::LayerModel& lm_;
+    SeisTrcBuf&		tbuf_;
+    int			dispeach_;
 
-    uiComboBox*		wvltfld_;
-
-    void		reDraw(CallBacker* cb=0);
-    void		manWvlts(CallBacker*);
-    bool		fillWvltField();
+    uiSeisWaveletSel*	wvltfld_;
+    uiFlatViewer*	vwr_;
 
 };
 
