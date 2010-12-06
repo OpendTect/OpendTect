@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.128 2010-11-24 06:12:05 cvsraman Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.129 2010-12-06 21:46:11 cvskris Exp $";
 
 #include "uisurvey.h"
 
@@ -389,6 +389,9 @@ bool uiSurvey::survInfoDialog()
 {
     delete impiop_; impsip_ = 0;
     uiSurveyInfoEditor dlg( this, *survinfo_ );
+    if ( !dlg.isOK() )
+	return false;
+
     dlg.survParChanged.notify( mCB(this,uiSurvey,updateInfo) );
     if ( !dlg.go() )
 	return false;
