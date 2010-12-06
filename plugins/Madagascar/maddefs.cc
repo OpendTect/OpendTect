@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.18 2010-03-25 03:58:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.19 2010-12-06 07:15:01 cvsraman Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -57,6 +57,14 @@ void ODMad::ProgInfo::doPreScanCheck()
 
     FilePath fp( rsfroot_ ); fp.add( "doc" ).add( "txt" );
     defdir_ = fp.fullPath();
+
+    if ( !File::isDirectory(defdir_) )
+    {
+	fp.setFileName( 0 );
+	fp.setFileName( 0 );
+	fp.add( "share" ).add( "txt" );
+	defdir_ = fp.fullPath();
+    }
 
     if ( !File::isDirectory(defdir_) )
     {
