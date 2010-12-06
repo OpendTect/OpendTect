@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.5 2010-11-16 09:49:10 cvsbert Exp $
+ RCS:		$Id: synthseis.h,v 1.6 2010-12-06 16:15:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
     void		generate(const Wavelet&);
     void		generate(const AIModel&);
 
-    const SeisTrc&	result() const;
+    const SeisTrc&	result() const		{ return outtrc_; }
 
 protected:
 
