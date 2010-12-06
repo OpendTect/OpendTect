@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.2 2010-12-06 12:18:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.3 2010-12-06 16:16:23 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -15,15 +15,19 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.2 2010-12-06 12:18:39 c
 #include "uiflatviewer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
+#include "seisbufadapters.h"
+#include "seistrc.h"
 #include "wavelet.h"
-#include "seisbuf.h"
+#include "synthseis.h"
 #include "aimodel.h"
+#include "ptrman.h"
+#include "ioman.h"
+#include "survinfo.h"
 
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     : uiGroup(p,"LayerModel synthetics display")
     , lm_(lm)
-    , tbuf_(*new SeisTrcBuf(false))
     , dispeach_(1)
 {
     const CallBack redrawcb( mCB(this,uiStratSynthDisp,reDraw) );
@@ -46,20 +50,51 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
 uiStratSynthDisp::~uiStratSynthDisp()
 {
-    tbuf_.deepErase();
-    delete &tbuf_;
+    emptyPacks();
+    deepErase( aimdls_ );
 }
 
 
+void uiStratSynthDisp::emptyPacks()
+{
+    vwr_->setPack( true, DataPack::cNoID(), false );
+    vwr_->setPack( false, DataPack::cNoID(), false );
+}
+
+
+#define mErrRet { emptyPacks(); return; }
+
 void uiStratSynthDisp::modelChanged()
 {
+    IOObj* ioobj = IOM().get( wvltfld_->getID() );
+    if ( !ioobj ) mErrRet
+    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
+    delete ioobj;
+    if ( !wvlt ) mErrRet
+
+    const Coord crd0( SI().minCoord(false) );
+    const float dx = SI().crlDistance();
+    Seis::SynthGenerator synthgen( *wvlt );
     const int velidx = 0;
     const int denidx = 1;
+    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
     for ( int iseq=0; iseq<lm_.size(); iseq++ )
     {
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
 	AIModel* aimod = seq.getAIModel( velidx, denidx );
+	aimdls_ += aimod;
+	synthgen.generate( *aimod );
+	SeisTrc* newtrc = new SeisTrc( synthgen.result() );
+	const int trcnr = iseq + 1;
+	newtrc->info().nr = trcnr;
+	newtrc->info().coord = crd0;;
+	newtrc->info().coord.x -= trcnr * dx;
+	newtrc->info().binid = SI().transform( newtrc->info().coord );
+	tbuf->add( new SeisTrc(synthgen.result()) );
     }
-    // Generate synthetics
-    // Set datapack to flat viewer
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, Seis::Line,
+	    			SeisTrcInfo::TrcNr, "Seismic" );
+    dp->setName( "Model synthetics" );
+    DPM(DataPackMgr::FlatID()).add( dp );
+    vwr_->setPack( true, dp->id(), false );
 }
