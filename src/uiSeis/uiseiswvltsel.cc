@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.1 2010-12-06 12:16:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.2 2010-12-06 12:20:09 cvsbert Exp $";
 
 #include "uiseiswvltsel.h"
 #include "uiseiswvltman.h"
@@ -29,7 +29,9 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p )
 
     uiToolButton* tb = new uiToolButton( this, "man_wvlt.png",
 	    "Manage wavelets", mCB(this,uiSeisWaveletSel,startMan) );
+
     tb->attach( rightOf, lcb );
+    setHAlignObj( lcb );
 
     fillBox();
 }
