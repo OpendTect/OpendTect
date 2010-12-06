@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.35 2010-12-06 08:44:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.36 2010-12-06 09:01:51 cvsnanne Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -74,7 +74,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	uiToolBar* coltabtb = new uiToolBar( mainwin(), "Color Table" );
 	ctabed_ = new uiFlatViewColTabEd( coltabtb, vwr );
 	ctabed_->colTabChgd.notify( mCB(this,uiFlatViewStdControl,coltabChg) );
-	coltabtb->display( vwr.rgbCanvas().prefHNrPics()>400 );
+	coltabtb->display( vwr.rgbCanvas().prefHNrPics()>=400 );
     }
 
     if ( !setup.helpid_.isEmpty() )
