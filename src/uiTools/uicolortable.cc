@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.39 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.40 2010-12-06 08:44:31 cvsnanne Exp $";
 
 #include "uicolortable.h"
 
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: uicolortable.cc,v 1.39 2010-11-10 15:26:43 cvsb
 #include "uimenu.h"
 #include "uirgbarray.h"
 #include "uirgbarraycanvas.h"
+#include "uitoolbar.h"
 
 #include <math.h>
 
@@ -91,29 +92,45 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
 	    .cliprate(ColTab::defClipRate())) )
     , enabletrans_( true )
 {
-    minfld_ = new uiLineEdit( this, "Min" );
+    mDynamicCastGet(uiToolBar*,tb,p);
+    uiParent* parent = tb ? p : this;
+
+    minfld_ = new uiLineEdit( parent, "Min" );
     minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
     minfld_->setHSzPol( uiObject::Small );
     minfld_->setStretch( 0, 0 );
 
-    canvas_ = new uiColorTableCanvas( this, coltabseq_, true, vert );
+    canvas_ = new uiColorTableCanvas( parent, coltabseq_, true, vert );
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
-    canvas_->setPrefHeight( vert ? 160 : 25 );
+    canvas_->setPrefHeight( vert ? 160 : 5 );
     canvas_->setPrefWidth( vert ? 30 : 80 );
     canvas_->setStretch( 0, 0 );
     canvas_->reSize.notify( mCB(this,uiColorTable,canvasreDraw) );
     canvas_->setDrawArr( true );
 
-    maxfld_ = new uiLineEdit( this, "Max" );
+    maxfld_ = new uiLineEdit( parent, "Max" );
     maxfld_->setHSzPol( uiObject::Small );
     maxfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
     maxfld_->setStretch( 0, 0 );
 
-    selfld_ = new uiColorTableSel( this, "Table selection" );
+    selfld_ = new uiColorTableSel( parent, "Table selection" );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
     selfld_->setStretch( 0, 0 );
     selfld_->setCurrent( colseq );
+
+    if ( tb ) // No attachment inside toolbar
+    {
+#define mAddTBObj( fld, sz ) \
+    fld->setMaximumWidth( sz*uiObject::iconSize() ); \
+    tb->addObject( fld );
+
+	mAddTBObj( minfld_, 2 );
+	mAddTBObj( canvas_, 2 );
+	mAddTBObj( maxfld_, 2 );
+	mAddTBObj( selfld_, 4 );
+	return;
+    }
 
     if ( vert )
     {
@@ -122,7 +139,7 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
 	minfld_->attach( centeredBelow, canvas_, 2 );
 	selfld_->attach( centeredBelow, minfld_, 2 );
     }
-    else
+    else 
     {
 	canvas_->attach( rightOf, minfld_ );
 	maxfld_->attach( rightOf, canvas_ );
