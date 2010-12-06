@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.211 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.212 2010-12-06 07:58:33 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1103,6 +1103,15 @@ const char* uiMainWin::uniqueWinTitle( const char* txt, QWidget* forwindow )
 bool uiMainWin::grab( const char* filenm, int zoom,
 		      const char* format, int quality ) const
 {
+#ifdef __win__
+    QWidget* curwidget = body_;
+    if ( zoom <= 0 )
+	curwidget = QApplication::desktop();
+    else if ( zoom>=2 && qApp->activeModalWidget() )
+	curwidget = qApp->activeModalWidget();
+
+    QPixmap snapshot = QPixmap::grabWidget( curwidget );
+#else
     WId winid = body_->winId();
     if ( zoom <= 0 )
 	winid = QApplication::desktop()->winId();
@@ -1110,6 +1119,8 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 	winid = qApp->activeModalWidget()->winId();
 
     QPixmap snapshot = QPixmap::grabWindow( winid );
+#endif
+
     return snapshot.save( QString(filenm), format, quality );
 }
 
