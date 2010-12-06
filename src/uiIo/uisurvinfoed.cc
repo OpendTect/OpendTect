@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.125 2010-11-24 06:12:05 cvsraman Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.126 2010-12-06 21:43:02 cvskris Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -116,6 +116,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	, sipfld_(0)
 	, lastsip_(0)
 	, impiop_(0)
+	, topgrp_( 0 )
 {
     static int sipidx = addInfoProvider( new uiCopySurveySIP );
 
@@ -472,7 +473,7 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
     {
 	BufferString msg( "Copy " ); msg += fnmin;
 	msg += " to "; msg += fnmout; msg += " failed\n"
-	    "See starup window for details";
+	    "See startup window for details";
 	uiMSG().error( msg );
 	return false;
     }
@@ -499,7 +500,7 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
     {
 	BufferString msg( "Rename " ); msg += fnmin;
 	msg += " to "; msg += fnmout; msg += " failed\n"
-	    "See starup window for details";
+	    "See startup window for details";
 	uiMSG().error( msg );
 	return false;
     }

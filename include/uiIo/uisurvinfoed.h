@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.35 2010-05-17 06:56:22 cvsraman Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.36 2010-12-06 21:43:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ mClass uiSurveyInfoEditor : public uiDialog
 public:
 
 			uiSurveyInfoEditor(uiParent*,SurveyInfo&);
+    bool		isOK() const		{ return topgrp_; }
+    			//!<Must be checked before 'go'
 			~uiSurveyInfoEditor();
 
     bool		dirnmChanged() const	{ return dirnamechanged; }
