@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseiswvltsel.h,v 1.1 2010-12-06 12:16:24 cvsbert Exp $
+ RCS:           $Id: uiseiswvltsel.h,v 1.2 2010-12-06 12:29:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,15 @@ ________________________________________________________________________
 class MultiID;
 class uiComboBox;
 
+
+/*!\brief 'Immediate' Wavelet selector, with 'Manage' button */
+
 mClass uiSeisWaveletSel : public uiGroup
 {
 public:
 
-			uiSeisWaveletSel(uiParent*);
+			uiSeisWaveletSel(uiParent*,
+					 const char* seltxt="Wavelet");
 			~uiSeisWaveletSel();
 
     const char*		getName() const;

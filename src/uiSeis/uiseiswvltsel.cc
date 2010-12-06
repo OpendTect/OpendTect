@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.2 2010-12-06 12:20:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.3 2010-12-06 12:29:29 cvsbert Exp $";
 
 #include "uiseiswvltsel.h"
 #include "uiseiswvltman.h"
@@ -20,11 +20,12 @@ static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.2 2010-12-06 12:20:09 cvsb
 #include "ioman.h"
 
 
-uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p )
+uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt )
     : uiGroup(p,"Wavelet selector")
     , newSelection(this)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Wavelet" );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+	    					seltxt ? seltxt : "Wavelet" );
     nmfld_ = lcb->box();
 
     uiToolButton* tb = new uiToolButton( this, "man_wvlt.png",
