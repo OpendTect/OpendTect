@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.14 2010-12-07 20:01:14 cvskris Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.15 2010-12-07 20:45:50 cvskris Exp $";
 
 #include "valseriestracker.h"
 
@@ -416,8 +416,7 @@ bool EventTracker::usePar( const IOPar& iopar )
     if ( !ValSeriesTracker::usePar( iopar ) )
 	return false;
 
-    const char* res = iopar.find( sKeyTrackEvent() );
-    if ( res && *res ) evtype_ = eEnum(VSEvent::Type,res);
+    VSEvent::parseEnumType( iopar.find( sKeyTrackEvent() ), evtype_ );
     iopar.get( sKeyPermittedRange(), permrange_ );
     iopar.get( sKeyValueThreshold(), ampthreshold_ );
     TypeSet<float> storedampthresholds;
