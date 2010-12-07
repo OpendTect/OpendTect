@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.16 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.17 2010-12-07 12:51:19 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -152,7 +152,7 @@ void uiWellDispMarkerEditGrp::setFldsSensitive( bool yn )
 
 uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Edit Markers Dialog",
-			    "Select editing mode",mTODOHelpID)
+			    "Select editing mode","dgb:107.0.3")
 			    .modal(false))
     , curmrk_(0)
     , curctrl_(0)

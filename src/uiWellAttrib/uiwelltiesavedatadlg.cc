@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.14 2010-04-27 08:21:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.15 2010-12-07 12:47:49 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -34,7 +34,7 @@ namespace WellTie
 
 uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const WellTie::DataHolder& dh)
     : uiDialog( p, uiDialog::Setup("Save current data",
-		"Check the items to be saved",mTODOHelpID) )
+		"Check the items to be saved","107.4.3") )
     , dataholder_(dh)
     , datawriter_(new WellTie::DataWriter(dh))	     
 {
