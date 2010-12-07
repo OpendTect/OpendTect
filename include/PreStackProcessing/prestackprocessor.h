@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.27 2010-12-02 16:00:42 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.28 2010-12-07 17:21:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -124,7 +124,6 @@ protected:
 };
 
 
-mDefineFactory( Processor, PF );
 /*!Orgainizes a number of PreStack::Processors into a chain which
    can be processed. */
 
