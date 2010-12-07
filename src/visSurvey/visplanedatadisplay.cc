@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.239 2010-12-07 19:59:51 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.240 2010-12-07 20:31:47 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1212,9 +1212,9 @@ int PlaneDataDisplay::usePar( const IOPar& par )
     const int res =  MultiTextureSurveyObject::usePar( par );
     if ( res!=1 ) return res;
 
-    const char* orires = par.find( sKeyOrientation() );
-    if ( orires && *orires )
-	setOrientation( eEnum(Orientation,orires) );
+    Orientation orientation = Inline;
+    parseEnumOrientation( par.find( sKeyOrientation() ), orientation );
+    setOrientation( orientation );
 
     CubeSampling cs;
     if ( cs.usePar( par ) )
