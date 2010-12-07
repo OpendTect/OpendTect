@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.63 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.64 2010-12-07 20:20:20 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
@@ -399,9 +399,10 @@ bool HorizonAdjuster::usePar( const IOPar& iopar )
     {
 	//OD3 format (old)
 
-	const char* res = iopar.find( "Track event" );
-	if ( res && *res )
-	   tracker_->setTrackEvent( eEnum(VSEvent::Type,res) );
+	VSEvent::Type eventtype;
+	if ( VSEvent::parseEnumType( iopar.find( "Track event" ), eventtype ) )
+	   tracker_->setTrackEvent( eventtype );
+
 	float valthreshold;
 	if ( iopar.get( "Value threshhold", valthreshold ) )
 	    tracker_->setAmplitudeThreshold( valthreshold );

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: trackplane.cc,v 1.10 2010-12-07 19:53:54 cvskris Exp $";
+static const char* rcsID = "$Id: trackplane.cc,v 1.11 2010-12-07 20:20:20 cvskris Exp $";
    
 
 #include "trackplane.h"
@@ -123,9 +123,7 @@ bool TrackPlane::usePar( const IOPar& par )
     if ( !cubesampling.usePar(par) )
 	return false;
 
-    const char* res = par.find( sKeyTrackMode() );
-    if ( res && *res )
-	trackmode = eEnum(TrackMode,res);
+    parseEnumTrackMode( par.find( sKeyTrackMode()), trackmode  );
 
     return true;
 }
