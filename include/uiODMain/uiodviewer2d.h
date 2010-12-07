@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.23 2010-12-07 13:29:08 cvsbruno Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.24 2010-12-07 16:05:56 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,13 +56,13 @@ public:
     uiFlatViewWin*		viewwin_;
     uiFlatViewStdControl*	viewControl() 
     				{ return viewstdcontrol_; }
+    uiSlicePos2DView*		slicePos() 
+    				{ return slicepos_; }
     uiODMain&			appl_;
 
     int				visid_;
     BufferString		basetxt_;
 
-    NotifierAccess&		posChanged(); 
-    
 protected:
 
     uiSlicePos2DView*				slicepos_;
