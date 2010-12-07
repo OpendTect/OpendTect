@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.16 2010-12-07 19:41:41 cvskris Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.17 2010-12-07 20:11:34 cvskris Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"
@@ -427,7 +427,9 @@ bool DateInfo::fromString( const char* inp )
 
     days_ = toInt( dayptr );
     if ( days_ > 0 ) days_--;
-    months_ = (int)eEnum(DateInfo::Month,ss[1]);
+    Month monthvar;
+    parseEnumMonth( ss[1], monthvar );
+    months_ = (int) monthvar;
     days1900_ = 0; setYear( toInt(ss[2]) );
 
     return true;
@@ -445,7 +447,9 @@ bool DateInfo::fromStdDateString( const char* inp )
     if ( !ptr ) return false;
 
     buf[0] = tolower( buf[0] );
-    months_ = (int)eEnum(DateInfo::Month,buf);
+    Month monthvar;
+    parseEnumMonth( buf, monthvar );
+    months_ = (int) monthvar;
 
     ptr = getNextWord( ptr, buf );
     if ( !ptr ) return false;

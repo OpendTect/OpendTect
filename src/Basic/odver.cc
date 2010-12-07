@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.11 2010-06-29 08:22:57 cvsbert Exp $
+ RCS:           $Id: odver.cc,v 1.12 2010-12-07 20:11:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: odver.cc,v 1.11 2010-06-29 08:22:57 cvsbert Exp $";
+static const char* rcsID = "$Id: odver.cc,v 1.12 2010-12-07 20:11:34 cvskris Exp $";
 
 #include "odver.h"
 #include "oddirs.h"
@@ -107,7 +107,7 @@ const char* OD::Platform::shortName() const
 void OD::Platform::set( const char* s, bool isshort )
 {
     if ( !isshort )
-	type_ = eEnum(Type,s);
+	parseEnumType( s, type_ );
     else
     {
 	const bool islin = *s == 'l';

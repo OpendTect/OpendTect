@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.149 2010-12-07 19:43:54 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.150 2010-12-07 20:11:34 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -223,7 +223,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	}
 	else if ( keyw == sKeySurvDataType() )
 	{
-	    si->setSurvDataType( eEnum( Pol2D, astream.value()) );
+	    Pol2D var;
+	    parseEnumPol2D( astream.value(), var );
+	    si->setSurvDataType( var );
 	    si->survdatatypeknown_ = true;
 	}
 	else if ( keyw == sKeyXYInFt() )
