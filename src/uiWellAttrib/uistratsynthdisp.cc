@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.3 2010-12-06 16:16:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.4 2010-12-07 16:16:02 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
 #include "uicombobox.h"
 #include "uiflatviewer.h"
+#include "uimsg.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "seisbufadapters.h"
@@ -27,6 +28,7 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.3 2010-12-06 16:16:23 c
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     : uiGroup(p,"LayerModel synthetics display")
+    , wvlt_(0)
     , lm_(lm)
     , dispeach_(1)
 {
@@ -51,7 +53,15 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 uiStratSynthDisp::~uiStratSynthDisp()
 {
     emptyPacks();
+    delete wvlt_;
     deepErase( aimdls_ );
+}
+
+
+void uiStratSynthDisp::setDispEach( int nr )
+{
+    dispeach_ = nr;
+    modelChanged();
 }
 
 
@@ -62,36 +72,53 @@ void uiStratSynthDisp::emptyPacks()
 }
 
 
-#define mErrRet { emptyPacks(); return; }
+#define mErrRet(s) { if ( s ) uiMSG().error(s); emptyPacks(); return; }
 
 void uiStratSynthDisp::modelChanged()
 {
-    IOObj* ioobj = IOM().get( wvltfld_->getID() );
-    if ( !ioobj ) mErrRet
-    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
-    delete ioobj;
-    if ( !wvlt ) mErrRet
+    delete wvlt_;
+    wvlt_ = wvltfld_->getWavelet();
+    if ( !wvlt_ )
+    {
+	const char* nm = wvltfld_->getName();
+	if ( nm && *nm )
+	    mErrRet("Cannot read chosen wavelet")
+	else
+	    mErrRet(0)
+    }
 
-    const Coord crd0( SI().minCoord(false) );
-    const float dx = SI().crlDistance();
-    Seis::SynthGenerator synthgen( *wvlt );
-    const int velidx = 0;
-    const int denidx = 1;
-    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-    for ( int iseq=0; iseq<lm_.size(); iseq++ )
+    const int velidx = 1; const int denidx = 2; //TODO
+    int maxsz = 0; SamplingData<float> sd;
+    for ( int iseq=0; iseq<lm_.size(); iseq+=dispeach_ )
     {
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
 	AIModel* aimod = seq.getAIModel( velidx, denidx );
 	aimdls_ += aimod;
-	synthgen.generate( *aimod );
-	SeisTrc* newtrc = new SeisTrc( synthgen.result() );
-	const int trcnr = iseq + 1;
-	newtrc->info().nr = trcnr;
-	newtrc->info().coord = crd0;;
-	newtrc->info().coord.x -= trcnr * dx;
-	newtrc->info().binid = SI().transform( newtrc->info().coord );
-	tbuf->add( new SeisTrc(synthgen.result()) );
+	int sz;
+	sd = Seis::SynthGenerator::getDefOutSampling( *aimod, *wvlt_, sz );
+	if ( sz > maxsz ) maxsz = sz;
     }
+    if ( maxsz < 2 )
+	mErrRet(0)
+
+    Seis::SynthGenerator synthgen( *wvlt_ );
+    synthgen.setOutSampling( sd, maxsz );
+    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
+    const Coord crd0( SI().maxCoord(false) );
+    const float dx = SI().crlDistance();
+
+    for ( int imdl=0; imdl<aimdls_.size(); imdl++ )
+    {
+	synthgen.generate( *aimdls_[imdl] );
+	SeisTrc* newtrc = new SeisTrc( synthgen.result() );
+	const int trcnr = imdl*dispeach_ + 1;
+	newtrc->info().nr = trcnr;
+	newtrc->info().coord = crd0;
+	newtrc->info().coord.x += trcnr * dx;
+	newtrc->info().binid = SI().transform( newtrc->info().coord );
+	tbuf->add( newtrc );
+    }
+
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, Seis::Line,
 	    			SeisTrcInfo::TrcNr, "Seismic" );
     dp->setName( "Model synthetics" );

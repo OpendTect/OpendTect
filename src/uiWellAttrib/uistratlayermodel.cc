@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.2 2010-12-01 16:56:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.3 2010-12-07 16:16:02 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
@@ -115,6 +115,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 
     synthdisp_ = new uiStratSynthDisp( rightgrp, modl_ );
     moddisp_ = new uiStratLayerModelDisp( rightgrp, modl_ );
+    moddisp_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
 
     uiSplitter* spl = new uiSplitter( this, "Vert splitter", true );
     spl->addGroup( gengrp ); spl->addGroup( rightgrp );
@@ -130,6 +131,12 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &modl_;
     delete descctio_.ioobj; delete &descctio_;
     delete modlctio_.ioobj; delete &modlctio_;
+}
+
+
+void uiStratLayerModel::dispEachChg( CallBacker* )
+{
+    synthdisp_->setDispEach( moddisp_->getEachDisp() );
 }
 
 

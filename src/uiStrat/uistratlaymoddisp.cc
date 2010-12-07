@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.11 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.12 2010-12-07 16:16:02 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -37,6 +37,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     , vrg_(0,1)
     , logblckitms_(*new uiGraphicsItemSet)
     , lvlitms_(*new uiGraphicsItemSet)
+    , dispEachChg(this)
 {
     const CallBack redrawcb( mCB(this,uiStratLayerModelDisp,reDraw) );
     gv_ = new uiGraphicsView( this, "LayerModel display" );
@@ -65,7 +66,8 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     eachfld_ = new uiSpinBox( this, 0, "DispEach" );
     eachfld_->setInterval( 1, 1000 );
     eachfld_->attach( rightOf, eachlbl );
-    eachfld_->valueChanging.notify( redrawcb );
+    eachfld_->valueChanging.notify(
+	    		mCB(this,uiStratLayerModelDisp,dispEachChgd) );
     lvlfld_ = new uiComboBox( this, "Level" );
     lvlfld_->attach( rightOf, eachfld_ );
     lvlfld_->selectionChanged.notify( redrawcb );
@@ -86,6 +88,12 @@ uiStratLayerModelDisp::~uiStratLayerModelDisp()
 }
 
 
+int uiStratLayerModelDisp::getEachDisp() const
+{
+    return eachfld_->getValue();
+}
+
+
 void uiStratLayerModelDisp::getDispProperties( BufferStringSet& nms ) const
 {
     for ( int idx=0; idx<lm_.propertyRefs().size(); idx++ )
@@ -98,6 +106,14 @@ void uiStratLayerModelDisp::eraseAll()
     logblckitms_.erase();
     lvlitms_.erase();
     delete emptyitm_; emptyitm_ = 0;
+}
+
+
+void uiStratLayerModelDisp::dispEachChgd( CallBacker* cb )
+{
+    dispeach_ = getEachDisp();
+    reDraw( cb );
+    dispEachChg.trigger();
 }
 
 
@@ -223,7 +239,6 @@ static float getRelX( float inprelx )
 
 void uiStratLayerModelDisp::doDraw()
 {
-    dispeach_ = eachfld_->getValue();
     dispprop_ = qtyfld_->getIntValue() + 1;
     getBounds();
 
