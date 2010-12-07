@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.69 2010-12-07 19:47:50 cvskris Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.70 2010-12-07 20:17:13 cvskris Exp $";
 
 #include "pickset.h"
 
@@ -473,9 +473,8 @@ bool Pick::Set::usePar( const IOPar& par )
     if ( doconnect ) disp_.connect_ = Disp::Close;
     else
     {
-	const char* res = par.find( sKeyConnect );
-	disp_.connect_ = res && *res ? eEnum( Disp::Connection, res )
-	    			     : Disp::None;
+	if ( !Disp::parseEnumConnection(par.find(sKeyConnect), disp_.connect_) )
+	    disp_.connect_ = Disp::None;
     }
 
     pars_ = par;

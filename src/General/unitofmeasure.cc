@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.19 2010-12-07 19:48:56 cvskris Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.20 2010-12-07 20:17:13 cvskris Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -136,8 +136,9 @@ void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm,
 	BufferString ptypestr = fms[0];
 	BufferString symb = fms[1];
 	double fac = toDouble( fms[2] );
-	UnitOfMeasure un( stream.keyWord(), symb, fac,
-			  eEnum(PropertyRef::StdType,ptypestr) );
+	PropertyRef::StdType stdtype;
+	PropertyRef::parseEnumStdType( ptypestr, stdtype );
+	UnitOfMeasure un( stream.keyWord(), symb, fac, stdtype );
 	if ( sz > 3 )
 	{
 	    double shft = toDouble( fms[3] );

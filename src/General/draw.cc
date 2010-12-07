@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.78 2010-12-07 19:45:05 cvskris Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.79 2010-12-07 20:17:13 cvskris Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -87,7 +87,7 @@ void clss::toString( BufferString& bs ) const \
 void clss::fromString( const char* s ) \
 { \
     FileMultiString fms( s ); \
-    type_ = eEnum(Type,fms[0]); \
+    parseEnumType( fms[0], type_ ); \
     par = toInt(fms[1]); \
     FileMultiString colfms( fms.from(2) ); \
     color_.use( colfms ); \

@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.33 2010-12-07 19:47:50 cvskris Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.34 2010-12-07 20:17:13 cvskris Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -334,7 +334,8 @@ void PropertyRefSet::readFrom( ascistream& astrm )
 	    continue;
 
 	const BufferString stdtypstr( iop.getValue(0) );
-	PropertyRef::StdType st = eEnum(PropertyRef::StdType,stdtypstr);
+	PropertyRef::StdType st;
+        PropertyRef::parseEnumStdType(stdtypstr, st );
 	PropertyRef* pr = new PropertyRef( propnm, st );
 	pr->usePar( iop );
 
