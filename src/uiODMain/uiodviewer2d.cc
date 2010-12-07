@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.43 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.44 2010-12-07 13:29:08 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -402,3 +402,7 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
 	auxdataeditors_[edidx]->removePolygonSelected( -1 );
     }
 }
+
+
+NotifierAccess& uiODViewer2D::posChanged()
+{ return slicepos_->positionChg; }
