@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoMFImage.cc,v 1.10 2010-11-18 08:33:03 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoMFImage.cc,v 1.11 2010-12-07 13:22:48 cvskarthika Exp $";
 
 
 #include "SoMFImage.h"
@@ -199,11 +199,22 @@ void SoMFImagei32::write1Value( SoOutput* out, int index ) const
 
     const bool binary = out->isBinary();
 
+    if ( !pixblock )
+    {
+	// Make size 0 and put in stuff anyway. Otherwise, ivfileviewer will 
+	// complain when it cannot read the individual images of the texture 
+	// channels.
+	size = SbVec3i32( 0, 0, 0 );
+	nc = 0;
+    }
+
     out->write( size[0] ); mWriteSpace;
     out->write( size[1] ); mWriteSpace;
     out->write( size[2] ); mWriteSpace;
     out->write( nc );
 
+    if ( !pixblock )
+	return;
 
     if ( out->isBinary() )
     {
