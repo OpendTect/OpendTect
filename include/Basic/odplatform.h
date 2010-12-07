@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2010
- RCS:           $Id: odplatform.h,v 1.6 2010-06-08 10:17:13 cvsbert Exp $
+ RCS:           $Id: odplatform.h,v 1.7 2010-12-07 22:14:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,7 @@ public:
     bool        operator ==( const Platform::Type& t ) const
 					{ return type_ == t; }
 
-    const char*	longName() const
-    			{ return eString(Type,type_); }
+    const char*	longName() const { return getTypeString(type_); }
     const char*	shortName() const;	//!< mac, lux32, win64, etc.
 
     static bool	isValidName(const char*,bool isshortnm);
