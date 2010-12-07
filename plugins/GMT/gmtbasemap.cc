@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtbasemap.cc,v 1.19 2010-04-23 11:33:30 cvsnageswara Exp $";
+static const char* rcsID = "$Id: gmtbasemap.cc,v 1.20 2010-12-07 22:59:52 cvskris Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -186,8 +186,9 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	float size = 1;
 	BufferString symbstr, penstr;
 	const char* shapestr = par->find( ODGMT::sKeyShape );
-	const ODGMT::Shape shape = eEnum( ODGMT::Shape, shapestr );
-	if ( shape < 0 ) continue;
+	ODGMT::Shape shape;
+        if ( !ODGMT::parseEnumShape( par->find( ODGMT::sKeyShape ), shape ) )
+	    continue;
 
 	symbstr = ODGMT::sShapeKeys[(int)shape];
 	par->get( sKey::Size, size );

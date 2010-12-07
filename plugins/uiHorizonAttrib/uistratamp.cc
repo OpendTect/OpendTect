@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.15 2010-07-14 15:00:58 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.16 2010-12-07 22:59:52 cvskris Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -200,7 +200,7 @@ bool uiStratAmpCalc::acceptOK( CallBacker* )
 	return false;
     }
 
-    Stats::Type typ = eEnum( Stats::Type, ampoptionfld_->box()->text() );
+    Stats::Type typ = Stats::parseEnumType( ampoptionfld_->box()->text() );
     StratAmpCalc exec( tophor, usesingle_ ? 0 : bothor, typ, hs );
     exec.setOffsets( tophorshiftfld_->getfValue() / SI().zFactor(),
 	    	     bothorshiftfld_->getfValue() / SI().zFactor() );

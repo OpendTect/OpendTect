@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcoastline.cc,v 1.8 2010-02-09 06:30:37 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtcoastline.cc,v 1.9 2010-12-07 22:59:52 cvskris Exp $";
 
 #include "gmtcoastline.h"
 
@@ -84,7 +84,7 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
     *( rangestr.buf() + rangestr.size() - 1 ) = '\0';
     BufferString comm = "pscoast "; comm += rangestr;
     comm += " -JM"; comm += mapdim.start; comm += "c -D";
-    const int res = eEnum( ODGMT::Resolution, find(ODGMT::sKeyResolution) );
+    const int res = ODGMT::parseEnumResolution( find(ODGMT::sKeyResolution) );
     comm += sResKeys[res];
     LineStyle ls; ls.fromString( find(ODGMT::sKeyLineStyle) );
     drawcontour = ls.type_ != LineStyle::None;

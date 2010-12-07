@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.14 2010-10-07 06:12:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.15 2010-12-07 22:59:52 cvskris Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -38,9 +38,7 @@ ODMad::ProcExec::ProcExec( const IOPar& pars, std::ostream& reportstrm )
     , progmeter_(0)
     , trc_(0)      
 {
-    const char* str = pars_.find( sKeyFlowStage() );
-    if ( str && *str )
-	stage_ = eEnum(ODMad::ProcExec::FlowStage,str);
+    parseEnumFlowStage( pars_.find( sKeyFlowStage() ), stage_ );
 }
 
 
@@ -174,8 +172,7 @@ const char* ODMad::ProcExec::getProcString()
 	    return 0;
 	else
 	{
-	    pars_.set( sKeyFlowStage(), eString(ODMad::ProcExec::FlowStage,
-						Finish) );
+	    pars_.set( sKeyFlowStage(), getFlowStageString(Finish) );
 	    pars_.set( sKey::LogFile, StreamProvider::sStdErr() );
 	    mAddNewExec;
 	}
@@ -219,8 +216,7 @@ const char* ODMad::ProcExec::getProcString()
 		       "Madagascar" );
 	    pars_.remove( IOPar::compKey(ODMad::ProcFlow::sKeyInp(),
 					 sKey::FileName) );
-	    pars_.set( sKeyFlowStage(), eString(ODMad::ProcExec::FlowStage,
-						newstage) );
+	    pars_.set( sKeyFlowStage(), getFlowStageString(newstage) );
 	    ret += " | ";
 	    if ( endproc && nooutput )
 	    {
@@ -242,8 +238,7 @@ const char* ODMad::ProcExec::getProcString()
 	    }
 	    else
 	    {	    
-		pars_.set( sKeyFlowStage(), eString(ODMad::ProcExec::FlowStage,
-						    Finish) );
+		pars_.set( sKeyFlowStage(), getFlowStageString(Finish) );
 		pars_.set( sKey::LogFile, StreamProvider::sStdErr() );
 		ret += " | ";
 		mAddNewExec;

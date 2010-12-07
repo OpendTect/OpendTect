@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtwells.cc,v 1.10 2010-04-26 04:19:17 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigmtwells.cc,v 1.11 2010-12-07 22:59:52 cvskris Exp $";
 
 #include "uigmtwells.h"
 
@@ -83,7 +83,7 @@ void uiGMTWellsGrp::fillItems()
 {
     for ( int idx=0; idx<4; idx++ )
     {
-	BufferString alignkey = eString( ODGMT::Alignment, idx );
+	BufferString alignkey = ODGMT::AlignmentNames()[idx];
 	lebelalignfld_->addItem( alignkey );
     }
 }

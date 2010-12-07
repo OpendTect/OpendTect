@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtsymbolpars.cc,v 1.7 2010-04-23 11:32:25 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigmtsymbolpars.cc,v 1.8 2010-12-07 22:59:52 cvskris Exp $";
 
 #include "uigmtsymbolpars.h"
 
@@ -89,7 +89,7 @@ void uiGMTSymbolPars::fillShapes()
     {
 	for ( int idx=0; idx<6; idx++ )
 	{
-	    BufferString shapekey = eString( ODGMT::Shape, idx );
+	    BufferString shapekey = ODGMT::ShapeNames()[idx];
 	    if ( shapekey.isEmpty() ) break;
 
 	    shapekey.buf()[0] = tolower( shapekey.buf()[0] );
@@ -117,7 +117,7 @@ bool uiGMTSymbolPars::fillPar( IOPar& par ) const
     if ( !usewellsymbols_ )
     {
 	const int shp = shapefld_->currentItem();
-	BufferString shapestr = eString( ODGMT::Shape, shp );
+	BufferString shapestr = ODGMT::ShapeNames()[shp];
 	par.set( ODGMT::sKeyShape, shapestr );
 	par.setYN( ODGMT::sKeyFill, fillfld_->isChecked() );
 	par.set( ODGMT::sKeyFillColor, fillcolfld_->color() );
@@ -144,12 +144,9 @@ bool uiGMTSymbolPars::usePar( const IOPar& par )
     }
     else
     {
-	const char* shapestr = par.find( ODGMT::sKeyShape );
-	if ( shapestr && *shapestr )
-	{
-	    ODGMT::Shape shp = eEnum( ODGMT::Shape, shapestr );
+	ODGMT::Shape shp;
+	if ( ODGMT::parseEnumShape( par.find( ODGMT::sKeyShape ), shp ) )
 	    shapefld_->setCurrentItem( shp );
-	}
 
 	Color col;
 	bool dofill = false;

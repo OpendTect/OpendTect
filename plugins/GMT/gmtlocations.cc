@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtlocations.cc,v 1.13 2010-04-23 11:33:30 cvsnageswara Exp $";
+static const char* rcsID = "$Id: gmtlocations.cc,v 1.14 2010-12-07 22:59:52 cvskris Exp $";
 
 #include "gmtlocations.h"
 
@@ -191,7 +191,7 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
 
     float size;
     get( sKey::Size, size );
-    const int shape = eEnum( ODGMT::Shape, find(ODGMT::sKeyShape) );
+    const int shape = ODGMT::parseEnumShape( find(ODGMT::sKeyShape) );
 
     BufferString comm = "@psxy ";
     BufferString str; mGetRangeProjString( str, "X" );
@@ -417,7 +417,7 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     }
     else
     {
-	const int shape = eEnum( ODGMT::Shape, find(ODGMT::sKeyShape) );
+	const int shape = ODGMT::parseEnumShape( find(ODGMT::sKeyShape) );
 	comm += ODGMT::sShapeKeys[shape];
     }
 
@@ -465,8 +465,9 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
 	return true;
     }
 
-    const char* alignkey = find( ODGMT::sKeyLabelAlignment );
-    ODGMT::Alignment al = eEnum( ODGMT::Alignment, alignkey );
+    ODGMT::Alignment al =
+	ODGMT::parseEnumAlignment( find( ODGMT::sKeyLabelAlignment ) );
+
     BufferString alstr;
     float dx = 0, dy = 0;
     switch ( al )
