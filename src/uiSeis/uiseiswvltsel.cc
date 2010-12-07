@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.3 2010-12-06 12:29:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.4 2010-12-07 16:15:06 cvsbert Exp $";
 
 #include "uiseiswvltsel.h"
 #include "uiseiswvltman.h"
@@ -80,6 +80,18 @@ const MultiID& uiSeisWaveletSel::getID() const
     static const MultiID emptyid;
     const int selidx = nmfld_->currentItem();
     return selidx < 0 ? emptyid : *ids_[selidx];
+}
+
+
+Wavelet* uiSeisWaveletSel::getWavelet() const
+{
+    const MultiID& id = getID();
+    if ( id.isEmpty() ) return 0;
+    IOObj* ioobj = IOM().get( id );
+    if ( !ioobj ) return 0;
+    Wavelet* ret = Wavelet::get( ioobj );
+    delete ioobj;
+    return ret;
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseiswvltsel.h,v 1.2 2010-12-06 12:29:29 cvsbert Exp $
+ RCS:           $Id: uiseiswvltsel.h,v 1.3 2010-12-07 16:15:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "bufstringset.h"
 class MultiID;
+class Wavelet;
 class uiComboBox;
 
 
@@ -29,6 +30,7 @@ public:
 
     const char*		getName() const;
     const MultiID&	getID() const;
+    Wavelet*		getWavelet() const;
     void		setInput(const char*);
     void		setInput(const MultiID&);
 
