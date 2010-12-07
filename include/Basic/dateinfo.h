@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-3-1996
- RCS:		$Id: dateinfo.h,v 1.12 2009-09-29 10:34:03 cvsbert Exp $
+ RCS:		$Id: dateinfo.h,v 1.13 2010-12-07 21:57:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
 
     int		 	weekDay() const;	//!< Sunday => 1
     const char*		weekDayName() const;
-    const char*		monthName() const      { return eString(Month,month());}
+    const char*		monthName() const      {return getMonthString(month());}
     const char*		whenRelative(const DateInfo* di=0) const;
     static const char*	fullMonthName(int);
     static const char*	fullMonthName(Month);
