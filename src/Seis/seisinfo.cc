@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.62 2010-12-07 19:52:11 cvskris Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.63 2010-12-07 20:27:57 cvskris Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -121,20 +121,20 @@ const char* Seis::nameOf( Seis::WaveType wt )
 { return SeisEnum::getWaveTypeString(wt); }
 
 Seis::SelType Seis::selTypeOf( const char* s )
-{ return eEnum(SeisEnum::SelType,s); }
+{ SeisEnum::SelType res; SeisEnum::parseEnumSelType(s,res); return res; }
 
 Seis::GeomType Seis::geomTypeOf( const char* s )
-{ return eEnum(SeisEnum::GeomType,s); }
+{ SeisEnum::GeomType res; SeisEnum::parseEnumGeomType(s,res); return res; }
 
 Seis::DataType Seis::dataTypeOf( const char* s )
 {
     if ( s && !strcmp(s,sKey::Steering) )
 	return Seis::Dip;
-    return eEnum(SeisEnum::DataType,s);
+    SeisEnum::DataType res; SeisEnum::parseEnumDataType(s,res); return res;
 }
 
 Seis::WaveType Seis::waveTypeOf( const char* s )
-{ return eEnum(SeisEnum::WaveType,s); }
+{ SeisEnum::WaveType res; SeisEnum::parseEnumWaveType(s,res); return res; }
 
 const char** Seis::selTypeNames()
 { return SeisEnum::SelTypeNames(); }

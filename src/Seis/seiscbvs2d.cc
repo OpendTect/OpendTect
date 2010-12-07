@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.55 2010-11-24 16:35:41 cvskris Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.56 2010-12-07 20:27:57 cvskris Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -332,9 +332,8 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
 {
     tr->set2D( true );
     bid.inl = CBVSIOMgr::getFileNr( fnm );
-    FixedString fmt = iop.find( "Data storage" );
-    if ( fmt )
-	preseldt = eEnum(DataCharacteristics::UserType,fmt);
+    DataCharacteristics::parseEnumUserType( iop.find( "Data storage" ),
+	    				    preseldt );
 }
 
 

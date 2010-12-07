@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.56 2009-10-15 10:05:55 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.57 2010-12-07 20:29:43 cvskris Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -352,8 +352,7 @@ Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
 void Well::LogDataExtracter::usePar( const IOPar& pars )
 {
     pars.get( sKeyLogNm(), lognm_ );
-    const char* res = pars.find( sKeySamplePol() );
-    if ( res && *res ) samppol_ = eEnum(SamplePol,res);
+    parseEnumSamplePol( pars.find( sKeySamplePol() ), samppol_ );
 }
 
 
