@@ -97,7 +97,7 @@ protected:
     void        		drawTraces();
     void			drawUserPicks(const WellTie::PickSet*);
     void        		drawMarker(FlatView::Annotation::AuxData*,
-					    bool,float,Color,bool);
+					    bool,float,Color,bool,bool);
     void        		drawViewerWellMarkers();
     void        		drawLogDispWellMarkers();
     void        		drawCShot();
@@ -106,7 +106,6 @@ protected:
     void        		initWellControl();
     void			loadHorizons();
     void			drawHorizons();
-    void 			removePack();
     void 			setLogsRanges(float,float);
     bool 			setLogsParams();
     void 			setUpTrcBuf(SeisTrcBuf*,const char*,int);

@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.29 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.30 2010-12-07 12:49:52 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -94,7 +94,7 @@ bool uiControlView::handleUserClick()
     uiWorld2Ui w2u; vwr_.getWorld2Ui(w2u);
     const uiWorldPoint wp = w2u.transform( ev.pos() );
     if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() 
-	&& !ev.altStatus() && checkIfInside(wp.x,wp.y) && editbut_->isOn() )
+	&& !ev.altStatus() && editbut_->isOn() && checkIfInside(wp.x,wp.y) )
     {
 	vwr_.getAuxInfo( wp, infopars_ );
 	const uiWorldRect& bbox = vwr_.boundingBox();
@@ -224,12 +224,28 @@ public :
 	disphorfld_->setChecked( pms_.isvwrhordisp_ );
 	disphorfld_->activated.notify( mCB(this,uiMrkDispDlg,dispChged) );
 	disphorfld_->attach( alignedBelow, dispmrkfld_ );
+
+	dispmrkfullnamefld_ = new uiCheckBox( this, "display full name" );
+	dispmrkfullnamefld_->setChecked(
+	pms_.isvwrmarkerdisp_ && pms_.dispmrkfullnames_ );
+	dispmrkfullnamefld_->activated.notify(mCB(this,uiMrkDispDlg,dispChged));
+	dispmrkfullnamefld_->attach( rightOf, dispmrkfld_ );
+	disphorfullnamefld_ = new uiCheckBox( this, "display full name" );
+	disphorfullnamefld_->attach( rightOf, disphorfld_ );
+	disphorfullnamefld_->setChecked(
+	pms_.isvwrhordisp_ && pms_.disphorfullnames_ );
+	disphorfullnamefld_->activated.notify(mCB(this,uiMrkDispDlg,dispChged));
+	dispChged(0);
     }
 
     void dispChged( CallBacker* )
     {
 	pms_.isvwrmarkerdisp_ = dispmrkfld_->isChecked();
 	pms_.isvwrhordisp_ = disphorfld_->isChecked();
+	pms_.dispmrkfullnames_ = dispmrkfullnamefld_->isChecked();
+	pms_.disphorfullnames_ = disphorfullnamefld_->isChecked();
+	dispmrkfullnamefld_->setSensitive( pms_.isvwrmarkerdisp_ );
+	disphorfullnamefld_->setSensitive( pms_.isvwrhordisp_ );
 	dh_.redrawViewerNeeded.trigger();
     }
 
@@ -237,6 +253,8 @@ protected:
 
     uiCheckBox* 	dispmrkfld_;
     uiCheckBox* 	disphorfld_;
+    uiCheckBox*         dispmrkfullnamefld_;
+    uiCheckBox*         disphorfullnamefld_;
     Params::uiParams& 	pms_;
     DataHolder& 	dh_;
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.75 2010-11-24 13:58:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.76 2010-12-07 12:49:52 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -56,7 +56,6 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr,
 	, zrange_(params_->timeintvs_[1])
 	, trcbuf_(0)
 	, checkshotitm_(0)
-    	, seistrcdp_(0)
 	, infoMsgChanged(this)	       
 	, wellcontrol_(0)
 {
@@ -73,8 +72,6 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr,
 
 uiTieView::~uiTieView()
 {
-    if ( seistrcdp_ )
-	removePack();
     dataholder_.redrawViewerNeeded.remove(
 	    			mCB(this,uiTieView,redrawViewerMarkers));
     delete trcbuf_;
@@ -295,28 +292,23 @@ void uiTieView::setUpValTrc( SeisTrc& trc, const char* varname, int varsz )
 void uiTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname, 
 				 int vwrnr )
 { 
-    if ( seistrcdp_ )
-    { removePack(); seistrcdp_=0; }
-
-    seistrcdp_ = new SeisTrcBufDataPack( trcbuf, Seis::Vol, 
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( trcbuf, Seis::Vol, 
 				SeisTrcInfo::TrcNr, "Seismic" );
-    seistrcdp_->setName( varname );
-    seistrcdp_->trcBufArr2D().setBufMine( false );
+    dp->setName( varname );
+    dp->trcBufArr2D().setBufMine( false );
 
     StepInterval<double> xrange( 1, trcbuf->size(), 1 );
-    seistrcdp_->posData().setRange( true, xrange );
+    dp->posData().setRange( true, xrange );
     StepInterval<double> zrange( zrange_.start*1000, 
 	    			 zrange_.stop *1000, 
 	   			 zrange_.step *1000 );
-    seistrcdp_->posData().setRange( false, zrange );
-    seistrcdp_->setName( varname );
+    dp->posData().setRange( false, zrange );
+    dp->setName( varname );
     
-    DPM(DataPackMgr::FlatID()).add( seistrcdp_ );
+    DPM(DataPackMgr::FlatID()).add( dp );
     FlatView::Appearance& app = vwr_->appearance();
-    vwr_->setPack( true, seistrcdp_->id(), false, true );
+    vwr_->setPack( true, dp->id(), false, false );
 
-    const UnitOfMeasure* uom = 0;
-    const char* units =  ""; //uom ? uom->symbol() : "";
     app.annot_.x1_.name_ =  varname;
     app.annot_.x2_.name_ = "TWT (ms)";
 }
@@ -327,12 +319,6 @@ void uiTieView::setLogsRanges( float start, float stop )
     Interval<float> rg( start, stop ); 
     for (int idx=0; idx<logsdisp_.size(); idx++)
 	logsdisp_[idx]->setZRange( rg );
-}
-
-
-void uiTieView::removePack()
-{
-    if ( seistrcdp_ ) DPM( DataPackMgr::FlatID() ).release( seistrcdp_->id() );
 }
 
 
@@ -351,7 +337,7 @@ void uiTieView::zoomChg( CallBacker* )
 
 
 void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
-			    bool left, float zpos, Color col, bool ispick )
+		    bool left, float zpos, Color col, bool ispick, bool fullnm )
 {
     auxdata->linestyle_.color_ = col;
     auxdata->linestyle_.width_ = ispick ? 2 : 1;
@@ -367,7 +353,7 @@ void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
     if ( !ispick  )
     {
 	BufferString mtxt( auxdata->name_ );
-	if ( mtxt.size() > 3 )
+	if ( !fullnm && mtxt.size() > 3 )
 	    mtxt[3] = '\0';
 	auxdata->name_ = mtxt;
 	auxdata->namealignment_ = Alignment(Alignment::HCenter,Alignment::Top);
@@ -402,7 +388,8 @@ void uiTieView::drawViewerWellMarkers()
 
     FlatView::Appearance& app = vwr_->appearance();
     mRemoveSet( wellmarkerauxdatas_ );
-    bool ismarkerdisp = dataholder_.uipms()->isvwrmarkerdisp_;
+    const Params::uiParams& pms = *dataholder_.uipms();
+    bool ismarkerdisp = pms.isvwrmarkerdisp_;
     if ( !ismarkerdisp ) 
 	return;
     const Well::D2TModel* d2tm = wd->d2TModel();
@@ -423,7 +410,7 @@ void uiTieView::drawViewerWellMarkers()
 	wellmarkerauxdatas_ += auxdata;
 	app.annot_.auxdata_ +=  auxdata;
 	
-	drawMarker( auxdata, true, zpos*1000, col, false );
+	drawMarker(auxdata, true, zpos*1000, col, false, pms.disphorfullnames_);
     }
 }	
 
@@ -460,7 +447,7 @@ void uiTieView::drawUserPicks( const WellTie::PickSet* pickset )
 	float xpos = pick->xpos_;
 	
 	drawMarker( userpickauxdatas_[idx], pick->issynthetic_, 
-		    zpos, pick->color_, true );
+		    zpos, pick->color_, true, false );
     }
 }
 
@@ -470,7 +457,8 @@ void uiTieView::drawHorizons()
     mRemoveItms( hortxtnms_ )
     FlatView::Appearance& app = vwr_->appearance();
     mRemoveSet( horauxdatas_ );
-    bool ishordisp = dataholder_.uipms()->isvwrhordisp_;
+    const Params::uiParams& pms = *dataholder_.uipms();
+    bool ishordisp = pms.isvwrhordisp_;
     if ( !ishordisp ) return;
     const ObjectSet<DataHolder::HorData>& hordatas = dataholder_.horDatas();
     for ( int idx=0; idx<hordatas.size(); idx++ )
@@ -481,7 +469,8 @@ void uiTieView::drawHorizons()
 	app.annot_.auxdata_ += auxdata;
 	float zval = hordatas[idx]->zval_;
 	auxdata->name_ = hordatas[idx]->name_;
-	drawMarker( auxdata, false, zval, hordatas[idx]->color_, false );
+	drawMarker( auxdata, false, zval, hordatas[idx]->color_, 
+				false, pms.disphorfullnames_ );
     }
 }
 

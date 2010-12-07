@@ -74,6 +74,8 @@ public :
 				, isvwrhordisp_(false)
 				, iszinft_(false)
 				, iszintime_(true)
+				, dispmrkfullnames_(false)
+				, disphorfullnames_(false)
 				{}
 
 	bool                    iscsavailable_;
@@ -82,8 +84,11 @@ public :
 	bool                    ismarkerdisp_;
 	bool                    isvwrmarkerdisp_;
 	bool                    isvwrhordisp_;
+	bool                    dispmrkfullnames_;
+	bool                    disphorfullnames_;
 	bool                    iszinft_;
 	bool                    iszintime_;
+
 	void			resetWD(const Well::Data* wd)
 	    			{ wd_ = wd; }
 	const Well::Data*	wd_;

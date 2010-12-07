@@ -42,7 +42,6 @@ protected:
     bool                manip_;
     
     uiToolBar*		toolbar_;
-    uiToolButton*	manipdrawbut_;
     uiToolButton*	horbut_;
     uiToolButton*	hormrkdispbut_;
     uiIOObjSelDlg*	selhordlg_;
