@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.92 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.93 2010-12-07 05:51:22 cvsnageswara Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -58,12 +58,13 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	, fd_( *Well::TrackAscIO::getDesc() )
 
 {
-    setPrefWidth( 500 ); setPrefHeight( 400 );
     tbl_ = new uiTable( this, uiTable::Setup().rowdesc("Point")
 	    				       .rowgrow(true) 
 					       .defrowlbl(""), "Table" );
     tbl_->setColumnLabels( trackcollbls );
     tbl_->setNrRows( nremptyrows );
+    tbl_->setPrefWidth( 500 );
+    tbl_->setPrefHeight( 400 );
 
     zinftfld_ = new uiCheckBox( this, "Z in Feet" );
     zinftfld_->setChecked( SI().depthsInFeetByDefault() );
@@ -303,25 +304,25 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d, bool cksh )
 		      false );
     new uiPushButton( actbutgrp, "&Export", mCB(this,uiD2TModelDlg,expData),
 		      false );
-    actbutgrp->attach( centeredBelow, tbl_ );
+    actbutgrp->attach( leftAlignedBelow, tbl_ );
 
-    BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
-    unitfld_ = new uiGenInput( this, "Depth unit", mft );
-    unitfld_->attach( leftAlignedBelow, tbl_ );
-    unitfld_->attach( ensureBelow, actbutgrp );
+    unitfld_ = new uiCheckBox( this, " Display Z in feet" );
+    unitfld_->setChecked( SI().depthsInFeetByDefault() );
+    unitfld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
+    unitfld_->attach( rightTo, actbutgrp );
 
-    fillTable();
+    fillTable(0);
 }
 
 
-void uiD2TModelDlg::fillTable()
+void uiD2TModelDlg::fillTable( CallBacker* )
 {
     const Well::D2TModel* d2t = mD2TModel;
     const int sz = d2t ? d2t->size() : 0;
     if ( !sz ) return;
     tbl_->setNrRows( sz + nremptyrows );
 
-    const float zfac = unitfld_->getBoolValue() ? 1 : mToFeetFactor;
+    const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactor;
     for ( int idx=0; idx<sz; idx++ )
     {
 	tbl_->setValue( RowCol(idx,0), d2t->dah(idx) * zfac );
@@ -381,7 +382,7 @@ void uiD2TModelDlg::readNew( CallBacker* )
     else
     {
 	tbl_->clearTable();
-	fillTable();
+	fillTable(0);
 	wd_.d2tchanged.trigger();
     }
 }
@@ -403,7 +404,7 @@ void uiD2TModelDlg::expData( CallBacker* )
 	{ uiMSG().error( BufferString("Cannot open '", dlg.fileName(),
 		    			"' for write") ); return; }
 
-    const float zfac = unitfld_->getBoolValue() ? 1 : mToFeetFactor;
+    const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactor;
     for ( int idx=0; idx<d2t.size(); idx++ )
 	*sd.ostrm << d2t.dah(idx)*zfac << '\t' << d2t.t(idx)*1000 << '\n';
 
@@ -426,13 +427,20 @@ void uiD2TModelDlg::updNow( CallBacker* )
 void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 {
     d2t.erase();
-    const float zfac = unitfld_->getBoolValue() ? 1 : mFromFeetFactor;
+    const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactor;
     const int nrrows = tbl_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	const char* sval = tbl_->text( RowCol(idx,0) );
 	if ( !sval || !*sval ) continue;
-	float dah = toFloat(sval) * zfac;
+	float dah = mUdf(float);
+	if ( !SI().zInFeet() && unitfld_->isChecked() )
+	    dah = toFloat(sval) / zfac;
+	else
+	    dah = toFloat(sval) * zfac;
+
+	if ( mIsUdf(dah) ) continue;
+
 	sval = tbl_->text( RowCol(idx,1) );
 	if ( !sval || !*sval ) continue;
 	float tm = toFloat(sval) * 0.001;
@@ -560,14 +568,13 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     }
     if ( lognms.size() == 0 )
 	{ uiMSG().error("Please select at least one log"); return false; }
-    lfi.lognms = lognms;
 
+    lfi.lognms = lognms;
     const char* res = wdai.getLogs( lasfnm, lfi, istvdfld->getBoolValue() );
     if ( res ) { uiMSG().error( res ); return false; }
 
     return true;
 }
-
 
 
 // ==================================================================
