@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.22 2010-11-05 12:38:24 cvskris Exp $
+ RCS:		$Id: enums.h,v 1.23 2010-12-07 22:32:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ public:
     static const EnumDef&	StateDef();
     static const char**		StateNames();
     static bool 		parseEnumState(const char*, State& );
+    static int 			parseEnumState(const char*);
     static const char* 		getStateString(State);
 
 protected:
@@ -94,6 +95,7 @@ public:
     static const EnumDef&	TypeDef();
     static const char**		TypeNames();
     static bool 		parseEnumType(const char*, Type& );
+    static int 			parseEnumType(const char*);
     static const char* 		getTypeString(State);
 
 protected:
@@ -186,6 +188,7 @@ public: \
     static const EnumDef& enm##Def(); \
     static const char** enm##Names();\
     static bool parseEnum##enm(const char*,enm&); \
+    static enm parseEnum##enm(const char*); \
     static const char* get##enm##String(enm); \
 protected: \
     static const char* enm##Names_[];\
@@ -196,7 +199,10 @@ public:
     mExtern const EnumDef& enm##Def(); \
     mExtern const char** enm##Names();\
     extern const char* enm##Names_[];\
-    extern const EnumDef enm##Definition_;
+    extern const EnumDef enm##Definition_; \
+    mExtern bool parseEnum##enm(const char*,enm&); \
+    mExtern enm parseEnum##enm(const char*); \
+    mExtern const char* get##enm##String(enm);
 
 #define DeclareEnumUtilsWithVar(enm,varnm) \
 public: \
@@ -217,12 +223,16 @@ const char** clss::enm##Names() \
     { return enm##Names_; }  \
 bool clss::parseEnum##enm(const char* txt, enm& res ) \
 { \
-    const int idx = enm##Def().convert( txt ); \
+    const int idx = parseEnum##enm( txt ); \
     if ( idx<0 ) \
 	return false; \
  \
     res = (enm) idx; \
     return true; \
+} \
+clss::enm clss::parseEnum##enm(const char* txt) \
+{ \
+    return (clss::enm) enm##Def().convert( txt ); \
 } \
 const char* clss::get##enm##String( enm theenum ) \
 { \
@@ -241,13 +251,34 @@ const EnumDef& nmspc::enm##Def() \
     { return nmspc::enm##Definition_; } \
 const char** nmspc::enm##Names() \
     { return nmspc::enm##Names_; }  \
+bool nmspc::parseEnum##enm(const char* txt, enm& res ) \
+{ \
+    const int idx = nmspc::parseEnum##enm( txt ); \
+    if ( idx<0 ) \
+	return false; \
+ \
+    res = (enm) idx; \
+    return true; \
+} \
+nmspc::enm nmspc::parseEnum##enm(const char* txt) \
+{ \
+    return (nmspc::enm) enm##Def().convert( txt ); \
+} \
+const char* nmspc::get##enm##String( enm theenum ) \
+{ \
+    const int idx = (int) theenum; \
+    if ( idx<0 || idx>=enm##Def().size() ) \
+        return 0; \
+ \
+    return enm##Names_[idx]; \
+} \
 const char* nmspc::enm##Names_[] =
-
 
 #define eString(enm,vr)	(enm##Def().convert((int)vr))
 //!< this is the actual enum -> string
 #define eEnum(enm,str)	((enm)enm##Def().convert(str))
 //!< this is the actual string -> enum
+
 #define eKey(enm)	(enm##Def().name())
 //!< this is the 'pretty name' of the enum
 
