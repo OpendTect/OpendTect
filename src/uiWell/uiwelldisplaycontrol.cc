@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.18 2010-09-17 12:26:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.19 2010-12-07 12:50:55 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -133,7 +133,9 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
 	info += "  ";
     }
     info += "  MD: ";
-    info += toString( mNINT(depth_) );
+    bool zinft = seldisp_->zData().dispzinft_ && seldisp_->zData().zistime_;
+    float dispdepth = zinft ? mToFeetFactor*depth_ : depth_;
+    info += toString( mNINT(dispdepth) );
     info += "  Time: ";
     info += toString( mNINT(time_) );
 
