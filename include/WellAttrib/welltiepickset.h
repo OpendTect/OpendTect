@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "enums.h"
 #include "namedobj.h"
 #include "color.h"
-#include "ranges.h"
 #include "valseriesevent.h"
 #include "welltieunitfactors.h"
 
@@ -39,12 +38,13 @@ mClass UserPick
 };
 
 
-mClass PickSet : public CallBacker
+mClass PickSet 
 {
 public:
 
 			PickSet()
 			    : mousepos_(0)
+			    , nrpickstotal_(0)  
 			    {}
 			~PickSet();
 			    
