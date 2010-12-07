@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.68 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.69 2010-12-07 19:47:50 cvskris Exp $";
 
 #include "pickset.h"
 
@@ -453,7 +453,7 @@ void Pick::Set::fillPar( IOPar& par ) const
 
     par.set( sKey::Size, disp_.pixsize_ );
     par.set( sKeyMarkerType(), disp_.markertype_ );
-    par.set( sKeyConnect, eString(Disp::Connection,disp_.connect_) );
+    par.set( sKeyConnect, Disp::getConnectionString(disp_.connect_) );
     par.merge( pars_ );
 }
 

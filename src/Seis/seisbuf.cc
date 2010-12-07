@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.49 2009-12-17 14:25:57 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.50 2010-12-07 19:50:39 cvskris Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -461,7 +461,7 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 void SeisTrcBufDataPack::getAltDim0Keys( BufferStringSet& bss ) const
 {
     for ( int idx=0; idx<flds_.size(); idx++ )
-	bss.add( eString(SeisTrcInfo::Fld,flds_[idx]) );
+	bss.add( SeisTrcInfo::getFldString(flds_[idx]) );
 }
 
 
@@ -524,7 +524,7 @@ bool SeisTrcBufDataPack::getCubeSampling( CubeSampling& cs ) const
 
 const char* SeisTrcBufDataPack::dimName( bool dim0 ) const
 {
-    return dim0 ? eString(SeisTrcInfo::Fld,posfld_) : "Z";
+    return dim0 ? SeisTrcInfo::getFldString(posfld_) : "Z";
 }
 
 

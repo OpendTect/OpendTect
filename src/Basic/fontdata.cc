@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: fontdata.cc,v 1.5 2010-10-15 11:38:42 cvsbert Exp $";
+static const char* rcsID = "$Id: fontdata.cc,v 1.6 2010-12-07 19:42:36 cvskris Exp $";
 
 #include "fontdata.h"
 #include "separstr.h"
@@ -76,7 +76,7 @@ void FontData::putTo( BufferString& s )
     FileMultiString fms;
     fms += family_;
     fms += pointsize_;
-    fms += eString(FontData::Weight,weight_);
+    fms += FontData::getWeightString(weight_);
     fms += getYesNoString( italic_ );
     s = fms;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetman.cc,v 1.14 2010-11-16 11:30:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uipicksetman.cc,v 1.15 2010-12-07 19:56:50 cvskris Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -79,7 +79,8 @@ void uiPickSetMan::mkFileInfo()
 	txt += "Color (R-G-B): "; txt += buf;
 	txt += "\nMarker size (pixels): "; txt += ps.disp_.pixsize_;
 	txt += "\nMarker type: ";
-	txt += eString(MarkerStyle3D::Type,ps.disp_.markertype_);
+	txt += MarkerStyle3D::getTypeString((MarkerStyle3D::Type)
+					    ps.disp_.markertype_);
     }
 
     txt += "\n";

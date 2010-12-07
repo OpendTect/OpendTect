@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: trackplane.cc,v 1.9 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: trackplane.cc,v 1.10 2010-12-07 19:53:54 cvskris Exp $";
    
 
 #include "trackplane.h"
@@ -114,7 +114,7 @@ void TrackPlane::computePlane(Plane3& plane) const
 void TrackPlane::fillPar( IOPar& par ) const
 {
     cubesampling.fillPar( par );
-    par.set( sKeyTrackMode(), eString(TrackMode,trackmode) );
+    par.set( sKeyTrackMode(), getTrackModeString(trackmode) );
 }
     
 

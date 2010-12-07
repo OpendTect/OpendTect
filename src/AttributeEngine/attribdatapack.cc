@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.39 2010-09-16 10:08:33 cvsumesh Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.40 2010-12-07 19:38:16 cvskris Exp $";
 
 #include "attribdatapack.h"
 
@@ -208,10 +208,10 @@ Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 }
 
 
-#define mKeyInl eString(SeisTrcInfo::Fld,SeisTrcInfo::BinIDInl)
-#define mKeyCrl eString(SeisTrcInfo::Fld,SeisTrcInfo::BinIDCrl)
-#define mKeyX eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordX)
-#define mKeyY eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordY)
+#define mKeyInl SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl)
+#define mKeyCrl SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl)
+#define mKeyX SeisTrcInfo::getFldString(SeisTrcInfo::CoordX)
+#define mKeyY SeisTrcInfo::getFldString(SeisTrcInfo::CoordY)
 #define mKeyCube "Series"
 //TODO : find a way to get a better name than "Series"
 
@@ -287,7 +287,7 @@ void Flat2DDataPack::dumpInfo( IOPar& iop ) const
 void Flat2DDataPack::getAltDim0Keys( BufferStringSet& bss ) const
 {
     for ( int idx=0; idx<tiflds_.size(); idx++ )
-	bss.add( eString(SeisTrcInfo::Fld,tiflds_[idx]) );
+	bss.add( SeisTrcInfo::getFldString(tiflds_[idx]) );
 }
 
 

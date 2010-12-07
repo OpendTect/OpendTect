@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.119 2010-11-24 17:05:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.120 2010-12-07 20:01:52 cvskris Exp $";
 
 
 #include "uiseisfileman.h"
@@ -180,7 +180,7 @@ void uiSeisFileMan::mkFileInfo()
 	{
 	    const BasicComponentInfo& bci = *tri->readMgr()->info().compinfo[0];
 	    const DataCharacteristics::UserType ut = bci.datachar.userType();
-	    BufferString etxt = eString(DataCharacteristics::UserType,ut);
+	    BufferString etxt = DataCharacteristics::getUserTypeString(ut);
 	    txt += "\nStorage: "; txt += etxt.buf() + 4;
 	}
 	delete tri;

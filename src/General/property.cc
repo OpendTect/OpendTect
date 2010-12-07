@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.32 2010-11-04 11:58:22 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.33 2010-12-07 19:47:50 cvskris Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -351,7 +351,7 @@ bool PropertyRefSet::writeTo( ascostream& astrm ) const
     {
 	const PropertyRef& pr = *(*this)[idx];
 	IOPar iop;
-	iop.set( pr.name(), eString(PropertyRef::StdType,pr.stdType()) );
+	iop.set( pr.name(), PropertyRef::getStdTypeString(pr.stdType()) );
 	pr.fillPar( iop );
 	iop.putTo( astrm );
     }

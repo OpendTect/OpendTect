@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.18 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.19 2010-12-07 19:48:56 cvskris Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -180,7 +180,7 @@ bool UnitOfMeasureRepository::write( Repos::Source src ) const
 	const UnitOfMeasure& uom = *entries[idx];
 	if ( uom.source() != src ) continue;
 
-	FileMultiString fms( eString(PropertyRef::StdType,uom.propType()) );
+	FileMultiString fms( PropertyRef::getStdTypeString(uom.propType()) );
 	fms += uom.symbol();
 	fms += uom.scaler().toString();
 	strm.put( uom.name(), fms );

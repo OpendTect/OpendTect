@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.148 2010-11-23 20:13:15 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.149 2010-12-07 19:43:54 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -784,7 +784,7 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     astream.put( sKey::Name, name() );
-    astream.put( sKeySurvDataType(), eString ( Pol2D, survDataType()) );
+    astream.put( sKeySurvDataType(), getPol2DString( survDataType()) );
     FileMultiString fms;
     fms += cs_.hrg.start.inl; fms += cs_.hrg.stop.inl; fms += cs_.hrg.step.inl;
     astream.put( sKeyInlRange(), fms );

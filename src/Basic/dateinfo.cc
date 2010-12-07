@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.15 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.16 2010-12-07 19:41:41 cvskris Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"
@@ -197,7 +197,7 @@ int DateInfo::weekDay() const
 const char* DateInfo::weekDayName() const
 {
     const int nr = weekDay() - 1;
-    return eString(Day,nr);
+    return getDayString((Day) nr);
 }
 
 
@@ -413,7 +413,7 @@ void DateInfo::toString( BufferString& str ) const
 	{ str += sKey::Undef; return; }
 
     str += day(); str += "-";
-    str += eString(DateInfo::Month,month()); str += "-";
+    str += DateInfo::getMonthString(month()); str += "-";
     str += year();
 }
 

@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.13 2009-08-31 08:44:21 cvsumesh Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.14 2010-12-07 20:01:14 cvskris Exp $";
 
 #include "valseriestracker.h"
 
@@ -397,7 +397,7 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 void EventTracker::fillPar( IOPar& iopar ) const
 {
     ValSeriesTracker::fillPar( iopar );
-    iopar.set( sKeyTrackEvent(), eString(VSEvent::Type,evtype_) );
+    iopar.set( sKeyTrackEvent(), VSEvent::getTypeString(evtype_) );
     iopar.set( sKeyPermittedRange(), permrange_ );
     iopar.set( sKeyValueThreshold(), ampthreshold_ );
     iopar.set( sKeyValueThresholds(), ampthresholds_ ); 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.238 2010-09-02 11:20:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.239 2010-12-07 19:59:51 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -72,7 +72,7 @@ PlaneDataDisplayBaseMapObject::PlaneDataDisplayBaseMapObject(
 
 
 const char* PlaneDataDisplayBaseMapObject::getType() const
-{ return eString(PlaneDataDisplay::Orientation,pdd_->getOrientation()); }
+{ return PlaneDataDisplay::getOrientationString(pdd_->getOrientation()); }
 
 
 void PlaneDataDisplayBaseMapObject::updateGeometry()
@@ -1198,7 +1198,7 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     MultiTextureSurveyObject::fillPar( par, saveids );
 
-    par.set( sKeyOrientation(), eString(Orientation,orientation_) );
+    par.set( sKeyOrientation(), getOrientationString( orientation_) );
     getCubeSampling( false, true ).fillPar( par );
 
     const int gridlinesid = gridlines_->id();

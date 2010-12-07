@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.17 2010-03-15 08:59:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.18 2010-12-07 19:54:59 cvskris Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -84,7 +84,7 @@ ODGraphicsMarkerItem::~ODGraphicsMarkerItem()
 
 void ODGraphicsMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
 {
-    const char* typestr = eString( MarkerStyle2D::Type, mstyle.type_ );
+    const char* typestr = MarkerStyle2D::getTypeString( mstyle.type_ );
     if ( mstyle.isVisible() || mstyle.size_ != 0 || !typestr || !*typestr )
 	*mstyle_ = mstyle;
 }
