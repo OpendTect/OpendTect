@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.111 2010-11-18 17:24:50 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.112 2010-12-08 23:12:45 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -59,6 +59,15 @@ mCreateFactoryEntry( visBase::HorizonSection );
 #define mShouldRetesselate      1
 #define mMustRetesselate        2
 
+#define m00 0
+#define m01 1
+#define m02 2
+#define m10 3
+#define m11 4
+#define m12 5
+#define m20 6
+#define m21 7
+#define m22 8
 
 namespace visBase
 {
@@ -112,7 +121,8 @@ public:
     void			setAllNormalsInvalid(int res,bool yn);
     void			emptyInvalidNormalsList(int res);
 
-
+    bool			isDefined(int row,int col) const;
+    				//!<Row/Col is local to this tile
 protected:
 
     int				getNormalIdx(int crdidx,int res) const;
@@ -1368,20 +1378,20 @@ HorizonSectionTile* HorizonSection::createTile( int tilerowidx, int tilecolidx )
 
 	    char pos;
 	    if ( colidx==-1 ) 
-		pos = rowidx==-1 ? 0 : (!rowidx ? 3 : 6);
+		pos = rowidx==-1 ? m00 : (!rowidx ? m10 : m20);
 	    else if ( colidx==0 ) 
-		pos = rowidx==-1 ? 1 : (!rowidx ? 4 : 7);
+		pos = rowidx==-1 ? m01 : (!rowidx ? m11 : m21);
 	    else 
-		pos = rowidx==-1 ? 2 : (!rowidx ? 5 : 8);
+		pos = rowidx==-1 ? m02 : (!rowidx ? m12 : m22);
 
 	    tile->setNeighbor( pos, neighbor );
 
 	    if ( colidx==1 ) 
-		pos = rowidx==1 ? 0 : (!rowidx ? 3 : 6);
+		pos = rowidx==1 ? m00 : (!rowidx ? m10 : m20);
 	    else if ( colidx==0 ) 
-		pos = rowidx==1 ? 1 : (!rowidx ? 4 : 7);
+		pos = rowidx==1 ? m01 : (!rowidx ? m11 : m21);
 	    else 
-		pos = rowidx==1 ? 2 : (!rowidx ? 5 : 8);
+		pos = rowidx==1 ? m02 : (!rowidx ? m12 : m22);
 
 	    neighbor->setNeighbor( pos, tile );
 	}
@@ -1823,9 +1833,11 @@ int HorizonSectionTile::getNormalIdx( int crdidx, int res ) const
 	if ( useres==-1 )
 	    useres = res;
     }
+
+    const short spacing = section_.spacing_[useres];
    
-    if ( (!(row%section_.spacing_[useres]) || (row==section_.mTileLastIdx)) &&
-         (!(col%section_.spacing_[useres]) || (col==section_.mTileLastIdx)) )
+    if ( (!(row%spacing) || (row==section_.mTileLastIdx)) &&
+         (!(col%spacing) || (col==section_.mTileLastIdx)) )
     {
 	if ( row==section_.mTileLastIdx && col==section_.mTileLastIdx 
 					&& !neighbors_[8] )
@@ -1835,9 +1847,9 @@ int HorizonSectionTile::getNormalIdx( int crdidx, int res ) const
 	}
 	else
 	{
-    	    const int resrow = row/section_.spacing_[useres] + 
+    	    const int resrow = row/spacing + 
 		( useres>0 && row==section_.mTileLastIdx ? 1 : 0 );
-    	    const int rescol = col/section_.spacing_[useres] +
+    	    const int rescol = col/spacing +
     		( useres>0 && col==section_.mTileLastIdx ? 1 : 0 );
 
     	   return section_.normalstartidx_[useres] + 
@@ -2048,9 +2060,9 @@ void HorizonSectionTile::hideFromDisplay()
 #define mAddInitialTriangle( ci0, ci1, ci2 ) \
 { \
     isstripterminated =  false; \
-    mAddIndex( ci0, mStrip ); \
-    mAddIndex( ci1, mStrip ); \
-    mAddIndex( ci2, mStrip ); \
+    mAddIndex( ci0, strip ); \
+    mAddIndex( ci1, strip ); \
+    mAddIndex( ci2, strip ); \
 }
 
 
@@ -2058,43 +2070,20 @@ void HorizonSectionTile::hideFromDisplay()
 if ( !isstripterminated ) \
 { \
     isstripterminated = true; \
-    mAddIndex( -1, mStrip ); \
+    mAddIndex( -1, strip ); \
 }
 
 
-#define mAddIndex( ci, obj ) \
+#define mAddIndex( coordindex, obj ) \
 { \
-    if ( obj==mStrip ) \
-    { \
-	stripci += ci; \
-	stripni += getNormalIdx(ci,res); \
-    }\
-    else if ( obj==mLine ) \
-    { \
-	lineci += ci; \
-	lineni += getNormalIdx(ci,res); \
-    }\
-    else if ( obj==mPoint ) \
-    { \
-	pointci += ci; \
-	pointni += getNormalIdx(ci,res); \
-    }\
+    obj##ci += coordindex; \
+    obj##ni += getNormalIdx( coordindex, res );  \
 }
 
 
-#define m00 0
-#define m01 1
-#define m02 2
-#define m10 3
-#define m11 4
-#define m12 5
-#define m20 6
-#define m21 7
-#define m22 8
 
-#define mNrBlocks( res) \
-    section_.mTileSideSize / section_.spacing_[res] + \
-    (section_.mTileSideSize % section_.spacing_[res] ? 0 : -1)
+#define mNrBlocks(spacing) \
+    section_.mTileSideSize / spacing + (section_.mTileSideSize % spacing ? 0 : -1)
 
 
 void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
@@ -2104,56 +2093,95 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
 	return;
 
     TesselationData* td = new TesselationData;
+    const short spacing = section_.spacing_[res];
+    const short nrcoordspertile = section_.mNrCoordsPerTileSide;
 
     TypeSet<int>& pointci = td->pointci_, &lineci = td->lineci_,
 		    &stripci = td->stripci_, &wireframeci = td->wireframeci_;
     TypeSet<int>& pointni = td->pointni_, &lineni = td->lineni_,
 		    &stripni = td->stripni_, &wireframeni = td->wireframeni_;
 
-    const int nrmyblocks = mNrBlocks(res);
+    const short nrmyblocks = mNrBlocks(spacing);
     
     for ( int ridx=0; ridx<=nrmyblocks; ridx++ )
     {
-	int ci11 = section_.spacing_[res]*ridx*section_.mNrCoordsPerTileSide;
-	int ci21 = ci11 + section_.spacing_[res]*section_.mNrCoordsPerTileSide;
+	const bool islastrow = ridx==nrmyblocks;
+	const int currow = spacing*ridx;
+	int ci11 = currow*nrcoordspertile;
+	int ci21 = ci11 + spacing*nrcoordspertile;
+	if ( islastrow && res ) ci21 -= nrcoordspertile;
 
-	bool nbdef[] = { false, false, false,		// 00   01     02
-	    		 false, false, false,		// 10   11(me) 12
-			 false, false, false };		// 20   21     22
+	bool nbdef00 = false, nbdef01 = false, nbdef02= false;
+	bool nbdef10 = false, nbdef11 = false, nbdef12= false;
+	bool nbdef20 = false, nbdef21 = false, nbdef22= false;
 
-	nbdef[m11] = mIsDef(coords_[ci11]);
-	nbdef[m21] = ridx!=nrmyblocks ? mIsDef(coords_[ci21]) : false;
+	nbdef11 = mIsDef(coords_[ci11]);
+	nbdef21 = mIsDef(coords_[ci21]);
 	if ( ridx )
 	{
-	    int ci01 = 
-		ci11 - section_.spacing_[res] * section_.mNrCoordsPerTileSide;
-	    nbdef[m01] = mIsDef(coords_[ci01]);
+	    int ci01 = ci11 - spacing * nrcoordspertile;
+	    nbdef01 = mIsDef(coords_[ci01]);
+	}
+	else if ( neighbors_[m01] )
+	{
+	    nbdef01 =
+		neighbors_[m01]->isDefined( currow-spacing+nrcoordspertile,0);
+	}
+
+	if ( neighbors_[m10] )
+	{
+	    const int neighborcol = 0-spacing+nrcoordspertile;
+	    nbdef10 = neighbors_[m10]->isDefined( currow, neighborcol );
+	    int neighborrow = currow + spacing;
+	    if ( islastrow && res )
+		neighborrow--; 
+	    nbdef20 = neighbors_[m10]->isDefined( neighborrow, neighborcol );
 	}
 
 	bool isstripterminated = true;
 	for ( int cidx=0; cidx<=nrmyblocks; cidx++ )
 	{
-	    const int ci12 = ci11 + section_.spacing_[res];
-	    const int ci22 = ci21 + section_.spacing_[res];
+	    const int curcol = spacing*cidx;
+	    const bool islastcol = cidx==nrmyblocks;
+	    int ci12 = ci11 + spacing;
+	    int ci22 = ci21 + spacing;
+	    if ( islastcol && res )
+	    {
+		ci12--;
+		ci22--;
+	    }
 	    
-	    nbdef[m12] = cidx!=nrmyblocks ? mIsDef(coords_[ci12]) : false;
-	    nbdef[m22] = (cidx==nrmyblocks || ridx==nrmyblocks) ? 
-		false : mIsDef(coords_[ci22]);
-	    
-	    int ci02 = 
-		ci12 - section_.spacing_[res]*section_.mNrCoordsPerTileSide;
-	    nbdef[m02] = ridx ? mIsDef(coords_[ci02]) : false;
+	    nbdef12 = mIsDef(coords_[ci12]);
+	    nbdef22 = mIsDef(coords_[ci22]);
 
-	    const int defsum = nbdef[m11]+nbdef[m12]+nbdef[m21]+nbdef[m22];
+	    if ( ridx )	    
+	    {
+		const int ci02 = ci12 - spacing*nrcoordspertile;
+		nbdef02 = mIsDef(coords_[ci02]);
+	    }
+	    else if ( neighbors_[m01] )
+	    {
+		int neighborcol = curcol+spacing;
+		if ( islastcol && res )
+		    neighborcol--;
+
+		nbdef02 = neighbors_[m01]->isDefined(
+		    currow-spacing+nrcoordspertile,
+		    neighborcol );
+	    }
+
+	    const int defsum = nbdef11+nbdef12+nbdef21+nbdef22;
 	    if ( defsum<3 ) 
 	    {
 		mTerminateStrip;
-		if ( defsum==2 && nbdef[m11] )
+		if ( defsum==2 && nbdef11 )
 		{
-		    const bool con12 = nbdef[m12] &&
-			(!ridx || (!nbdef[m01] && !nbdef[m02]) );
-		    const bool con21 = nbdef[m21] &&
-			(!cidx || (!nbdef[m10] && !nbdef[m20]) );
+		    const bool con12 = nbdef12 &&
+			!nbdef01 && !nbdef02 &&
+			!nbdef21 && !nbdef22;
+		    const bool con21 = nbdef21 &&
+			!nbdef10 && !nbdef20 &&
+			!nbdef12 && !nbdef22;
 
 		    if ( con12 || con21 )
     		    {
@@ -2163,65 +2191,72 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
 			if ( lastci!=ci11 )
 			{
 			    if ( lastci!=-1 )
-				mAddIndex( -1, mLine );
+				mAddIndex( -1, line );
 
-			    mAddIndex( ci11, mLine );
+			    mAddIndex( ci11, line );
 			}
 
-			mAddIndex( con12 ? ci12 : ci21, mLine );
+			mAddIndex( con12 ? ci12 : ci21, line );
 
 		    }
 		}
-		else if ( defsum==1 && nbdef[m11] && !nbdef[m10] && 
-			 !nbdef[m12] && !nbdef[m01] && !nbdef[m21] )
+		else if ( defsum==1 && nbdef11 && !nbdef10 && 
+			 !nbdef12 && !nbdef01 && !nbdef21 )
 		{
-		    mAddIndex( ci11, mPoint );
+		    mAddIndex( ci11, point );
 		} 
 	    }
-	    else if ( defsum==3 )
+	    else if ( !islastrow && !islastcol )
 	    {
-		mTerminateStrip;
-		if ( !nbdef[m11] )
-		    mAddInitialTriangle( ci12, ci21, ci22 )
-		else if ( !nbdef[m21] )
-		    mAddInitialTriangle( ci11, ci22, ci12 )
-		else if ( !nbdef[m12] )
-		    mAddInitialTriangle( ci11, ci21, ci22 )
-		else
-		    mAddInitialTriangle( ci11, ci21, ci12 )
-		mTerminateStrip;
-	    }
-	    else
-	    {
-		const float diff0 = coords_[ci11][2]- coords_[ci22][2];
-		const float diff1 = coords_[ci12][2]- coords_[ci21][2];
-
-		const bool do11to22 = fabs(diff0) < fabs(diff1);
-		if ( do11to22 )
+		if ( defsum==3 )
 		{
 		    mTerminateStrip;
-		    mAddInitialTriangle( ci21, ci22, ci11 );
-		    mAddIndex( ci12, mStrip );
+		    if ( !nbdef11 )
+			mAddInitialTriangle( ci12, ci21, ci22 )
+		    else if ( !nbdef21 )
+			mAddInitialTriangle( ci11, ci22, ci12 )
+		    else if ( !nbdef12 )
+			mAddInitialTriangle( ci11, ci21, ci22 )
+		    else
+			mAddInitialTriangle( ci11, ci21, ci12 )
 		    mTerminateStrip;
 		}
 		else
 		{
-		    if ( isstripterminated )
+		    const float diff0 = coords_[ci11][2]- coords_[ci22][2];
+		    const float diff1 = coords_[ci12][2]- coords_[ci21][2];
+
+		    const bool do11to22 = fabs(diff0) < fabs(diff1);
+		    if ( do11to22 )
 		    {
-			mAddInitialTriangle( ci11, ci21, ci12 );
-			mAddIndex( ci22, mStrip );
+			mTerminateStrip;
+			mAddInitialTriangle( ci21, ci22, ci11 );
+			mAddIndex( ci12, strip );
+			mTerminateStrip;
 		    }
 		    else
 		    {
-			mAddIndex( ci12, mStrip );
-			mAddIndex( ci22, mStrip );
+			if ( isstripterminated )
+			{
+			    mAddInitialTriangle( ci11, ci21, ci12 );
+			    mAddIndex( ci22, strip );
+			}
+			else
+			{
+			    mAddIndex( ci12, strip );
+			    mAddIndex( ci22, strip );
+			}
 		    }
-		}
-	    } 
+		} 
+	    }
+	    else
+	    {
+		mTerminateStrip;
+	    }
 	
-	    nbdef[m00] = nbdef[m01]; nbdef[m01] = nbdef[m02];
-    	    nbdef[m10] = nbdef[m11]; nbdef[m11] = nbdef[m12];
-    	    nbdef[m20] = nbdef[m21]; nbdef[m21] = nbdef[m22];
+	    nbdef00 = nbdef01; nbdef01 = nbdef02;
+    	    nbdef10 = nbdef11; nbdef11 = nbdef12;
+    	    nbdef20 = nbdef21; nbdef21 = nbdef22;
     	    ci11 = ci12; ci21 = ci22;
 	}
 
@@ -2236,6 +2271,13 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
     
     needsretesselation_[res] = mNoTesselationNeeded;
 }
+
+
+bool HorizonSectionTile::isDefined( int row, int col ) const
+{
+    return mIsDef(coords_[row*section_.mNrCoordsPerTileSide+col]);
+}
+
 
 
 #define mSetTesselationDataImpl( nodes, field, var ) \
@@ -2291,18 +2333,20 @@ void HorizonSectionTile::useWireframe( bool yn )
 void HorizonSectionTile::tesselateWireframe( char res, TypeSet<int>& ci,
 	                                     TypeSet<int>& ni ) const
 {
-    const int tilesz = section_.mTileSideSize/section_.spacing_[res] + 
-	( section_.mTileSideSize%section_.spacing_[res] ? 1 : 0 );
+    const short sidesize = section_.mTileSideSize;
+    const short spacing = section_.spacing_[res];
+    const int tilesz = sidesize/spacing + 
+	( sidesize%spacing ? 1 : 0 );
     int lnidx = 0;
     for ( int idx=0; idx<=tilesz; idx++ )
     {
 	const int rowstartidx = idx<tilesz
-	    ? idx*section_.spacing_[res]*section_.mNrCoordsPerTileSide
-	    : section_.mNrCoordsPerTileSide*section_.mTileSideSize; 
+	    ? idx*spacing*section_.mNrCoordsPerTileSide
+	    : section_.mNrCoordsPerTileSide*sidesize; 
 	for ( int idy=0; idy<=tilesz; idy++ )
 	{
-	    const int colshift = idy<tilesz ? idy*section_.spacing_[res] 
-					    : section_.mTileSideSize;
+	    const int colshift = idy<tilesz ? idy*spacing 
+					    : sidesize;
 	    const int ci0 = rowstartidx + colshift;
 	    if ( !mIsDef(coords_[ci0]) ) 
 		continue;
@@ -2310,8 +2354,8 @@ void HorizonSectionTile::tesselateWireframe( char res, TypeSet<int>& ci,
 	    if ( idy<tilesz )
 	    {
 		const int nexthorci = idy==tilesz-1
-		    ? rowstartidx+section_.mTileSideSize 
-		    : ci0 + section_.spacing_[res];
+		    ? rowstartidx+sidesize 
+		    : ci0 + spacing;
 		if ( mIsDef(coords_[ nexthorci ]) )
 		    mAddWireframeIndex( ci0, nexthorci );
 	    }
@@ -2319,8 +2363,8 @@ void HorizonSectionTile::tesselateWireframe( char res, TypeSet<int>& ci,
 	    if ( idx<tilesz )
 	    {           
 		const int nextvertci = idx==tilesz-1 ? 
-  		  section_.mNrCoordsPerTileSide*section_.mTileSideSize+colshift 
-		: ci0 + section_.spacing_[res]*section_.mNrCoordsPerTileSide;
+  		  section_.mNrCoordsPerTileSide*sidesize+colshift 
+		: ci0 + spacing*section_.mNrCoordsPerTileSide;
 		if ( mIsDef(coords_[ nextvertci ]) )
 		{
 		    mAddWireframeIndex( ci0, nextvertci );
@@ -2503,20 +2547,6 @@ void HorizonSectionTile::updateGlue()
 
 
 //old code for glue tesselation.
-#define oldmAddGlueIndices( i0, i1, i2 ) \
-{ \
-    if ( nb==5 ) std::swap(i1, i2) \
-    const bool df0 = mIsDef(coords_[i0]); \
-    const bool df1 = mIsDef(coords_[i1]); \
-    const bool df2 = mIsDef(coords_[i2]); \
-    const int dfsum = df0 + df1 + df2; \
-    if ( df0 ) mAddIndex( i0, dfsum ) \
-    if ( df1 ) mAddIndex( i1, dfsum ) \
-    if ( df2 ) mAddIndex( i2, dfsum ) \
-    if ( dfsum>1 ) mAddIndex( -1, dfsum ) \
-}
-
-
 #define mAddGlueIndices( i0, i1, i2, cornpos, adjedgeidx, adjnbidx, inverse ) \
 { \
     const bool df0 =  mIsDef(coords_[i0]); \
@@ -2525,15 +2555,15 @@ void HorizonSectionTile::updateGlue()
     const int dfsum = df0 + df1 + df2; \
     if ( dfsum==mStrip ) \
     { \
-	mAddIndex( i0, mStrip ) \
-	mAddIndex( nb==7 ? i1 : i2, mStrip ) \
-	mAddIndex( nb==7 ? i2 : i1, mStrip ) \
-	mAddIndex( -1, mStrip ) \
+	mAddIndex( i0, strip ) \
+	mAddIndex( nb==7 ? i1 : i2, strip ) \
+	mAddIndex( nb==7 ? i2 : i1, strip ) \
+	mAddIndex( -1, strip ) \
     } \
     else if ( dfsum==mPoint ) \
     { \
 	const int ptidx= df0 ? i0 : (df1 ? i1 : i2); \
-	if ( pointci.indexOf(ptidx)==-1 ) mAddIndex( ptidx, mPoint ) \
+	if ( pointci.indexOf(ptidx)==-1 ) mAddIndex( ptidx, point ) \
     } \
     else if ( dfsum==mLine && (cornpos<0 || !mIsDef(coords_[cornpos])) ) \
     { \
@@ -2545,7 +2575,7 @@ void HorizonSectionTile::updateGlue()
 	{ \
 	    if ( (!inverse && !finer) || (inverse && !dfadjedge && !dfadjnb) )\
 	    { \
-		mAddIndex(i0,dfsum); mAddIndex(i2,dfsum); mAddIndex(-1,dfsum);\
+		mAddIndex(i0,line); mAddIndex(i2,line); mAddIndex(-1,line);\
 	    }\
 	} \
 	else if ( df1 && df2 ) \
@@ -2554,14 +2584,14 @@ void HorizonSectionTile::updateGlue()
 		    (inverse && ((!finer && !dfadjedge && !dfadjnb) || \
 				 (finer && !neighbors_[nb]))) ) \
 	    { \
-		mAddIndex(i1,dfsum); mAddIndex(i2,dfsum); mAddIndex(-1,dfsum);\
+		mAddIndex(i1,line); mAddIndex(i2,line); mAddIndex(-1,line);\
 	    } \
 	} \
 	else if ( df0 && df1 ) \
 	{ \
 	    if ( (!inverse && !dfadjedge && !dfadjnb) || inverse ) \
 	    { \
-		mAddIndex(i1,dfsum); mAddIndex(i2,dfsum); mAddIndex(-1,dfsum);\
+		mAddIndex(i1,line); mAddIndex(i2,line); mAddIndex(-1,line);\
 	    } \
 	} \
     } \
@@ -2573,10 +2603,13 @@ void HorizonSectionTile::tesselateGlue()
     const int res = getActualResolution();
     TypeSet<int> pointci, lineci, stripci;
     TypeSet<int> pointni, lineni, stripni;
+
+    const short nrcoordspertile = section_.mNrCoordsPerTileSide;
+    const short spacing = section_.spacing_[res];
     
     if ( res!=-1 )
     {
-	const int nrmyblocks = mNrBlocks( res );	
+	const short nrmyblocks = mNrBlocks( spacing );	
 
 	for ( int nb=5; nb<8; nb += 2 )
 	{	
@@ -2584,24 +2617,22 @@ void HorizonSectionTile::tesselateGlue()
 	    for ( int idx=0; idx<=nrmyblocks; idx++ )
 	    {
 		edgeindices += ( nb==5 
-			? section_.spacing_[res] * 
-			  (nrmyblocks+idx*section_.mNrCoordsPerTileSide) 
-			: section_.spacing_[res] *
-			  (section_.mNrCoordsPerTileSide*nrmyblocks+idx));
+		    ? spacing * (nrmyblocks+idx*nrcoordspertile) 
+		    : spacing * (nrcoordspertile*nrmyblocks+idx));
     	    }
 
 	    int nbres = neighbors_[nb] ? neighbors_[nb]->getActualResolution() 
 				       : res; 
 	    if ( nbres==-1 ) nbres = res; 
-	    const int nbblocks = mNrBlocks( nbres ); 
+	    const short nbspacing = section_.spacing_[nbres];
+	    const short nbblocks = mNrBlocks( nbspacing ); 
 	    TypeSet<int> nbindices; 
 	    for ( int idx=0; idx<=nbblocks; idx++ ) 
 	    {
 		nbindices += (nb==5 
-			? (1+idx*section_.spacing_[nbres]) * 
-			   section_.mNrCoordsPerTileSide-1 
-	 		: section_.mNrCoordsPerTileSide*section_.mTileSideSize+
-			  idx*section_.spacing_[nbres]);
+		    ? (1+idx*section_.spacing_[nbres]) * nrcoordspertile-1 
+		    : nrcoordspertile*section_.mTileSideSize+
+		      idx*section_.spacing_[nbres]);
 	    }
 
 	    bool  finer = nrmyblocks >= nbblocks;
