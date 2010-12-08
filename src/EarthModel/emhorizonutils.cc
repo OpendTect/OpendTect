@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonutils.cc,v 1.24 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emhorizonutils.cc,v 1.25 2010-12-08 11:52:33 cvsnageswara Exp $";
 
 #include "emhorizonutils.h"
 
@@ -21,11 +21,13 @@ static const char* rcsID = "$Id: emhorizonutils.cc,v 1.24 2010-11-15 09:35:45 cv
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "parametricsurface.h"
+#include "posprovider.h"
 #include "progressmeter.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
 
 #define mMaxSampInterpol	150;
+
 
 namespace EM
 {
@@ -227,7 +229,8 @@ void HorizonUtils::getWantedPositions( std::ostream& strm,
 				       const HorSampling& hs,
 				       const Interval<float>& extraz,
 				       int nrinterpsamp, int mainhoridx,
-				       float extrawidth )
+				       float extrawidth,
+				       Pos::Provider* provider )
 {
     Surface* surface1 = getSurface(*(midset[0]));
     if ( !surface1 ) return;
@@ -257,7 +260,14 @@ void HorizonUtils::getWantedPositions( std::ostream& strm,
 				extrawidth ) )
 		continue;
 	    
-	    BinIDValues bidval( BinID(idi,idc) );
+	    BinID bid( idi,idc );
+	    if ( provider )
+	    {
+		if ( !provider->includes( SI().transform(bid)) )
+		    continue;
+	    }
+
+	    BinIDValues bidval( bid );
 	    bidval.value(0) = ( surface2 && botz<topz ? botz : topz ) 
 			      + extraz.start;
 	    bidval.value(1) = ( surface2 && botz>topz ? botz : topz ) 

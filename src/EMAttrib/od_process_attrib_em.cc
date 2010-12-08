@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.75 2010-12-03 02:56:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.76 2010-12-08 11:52:33 cvsnageswara Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -33,10 +33,12 @@ static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.75 2010-12-03 02:56
 #include "initattributeengine.h"
 #include "initattributes.h"
 #include "initearthmodel.h"
+#include "initgeometry.h"
 #include "initprestackprocessing.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "linesetposinfo.h"
+#include "posprovider.h"
 #include "progressmeter.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
@@ -294,6 +296,8 @@ bool BatchProgram::go( std::ostream& strm )
     EarthModel::initStdClasses();
     PreStackProcessing::initStdClasses();
 
+    Geometry::initStdClasses();
+
     const float vnr = parversion_.isEmpty() ? 0 : toFloat( parversion_.buf() );
     if ( cmdLineOpts().size() )
     {
@@ -490,9 +494,13 @@ bool BatchProgram::go( std::ostream& strm )
 		    			  extraz, geomid );
 	}
 	else
+	{
+	    PtrMan<Pos::Provider> provider = Pos::Provider::make( *geompar,
+		    						  false );
 	    HorizonUtils::getWantedPositions( strm, midset, bivs, hsamp,
 		    			      extraz, nrinterpsamp, mainhoridx,
-					      extrawidth );
+					      extrawidth, provider );
+	}
 	if ( !zboundsset && mmprocrange )
 	{
 	    //fix needed to get homogeneity when using multi-machines processing

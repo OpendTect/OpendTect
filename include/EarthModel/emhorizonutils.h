@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.13 2010-11-15 09:35:45 cvssatyaki Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.14 2010-12-08 11:52:33 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class BinIDValueSet;
 class DataPointSet;
 class HorSampling;
 class BufferStringSet;
+namespace Pos { class Provider; }
 namespace PosInfo { class GeomID; }
 
 namespace EM
@@ -51,7 +52,8 @@ public:
 					   BinIDValueSet&,const HorSampling&,
 					   const Interval<float>& extraz,
 					   int nrinterpsamp,int mainhoridx,
-					   float extrawidth);
+					   float extrawidth,
+					   Pos::Provider* provider=0);
     static void 	getWantedPos2D(std::ostream&,ObjectSet<MultiID>&,
 				       DataPointSet*,const HorSampling&,
 				       const Interval<float>& extraz,
