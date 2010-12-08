@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispickretriever.cc,v 1.10 2010-02-19 13:47:36 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivispickretriever.cc,v 1.11 2010-12-08 09:57:21 cvsraman Exp $";
 
 #include "uivispickretriever.h"
 
@@ -33,7 +33,7 @@ uiVisPickRetriever::~uiVisPickRetriever()
 
 bool uiVisPickRetriever::enable(  const TypeSet<int>* scenes )
 {
-    if ( status_!=Idle ) return false;
+    if ( status_ == Waiting ) return false;
 
     status_ = Waiting;
     if ( scenes ) allowedscenes_ = *scenes;
@@ -102,12 +102,12 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	status_ = Success;
     }
 
-
-    finished_.trigger();
-
     MouseCursorManager::restoreOverride();
     visserv_->setWorkMode( uiVisPartServer::View );
-    status_ = Idle;
+    finished_.trigger();
+
+    if ( status_ != Waiting )
+	status_ = Idle;
 }
 
 
