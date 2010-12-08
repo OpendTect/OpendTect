@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.40 2010-12-06 08:44:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.41 2010-12-08 09:15:50 cvsnanne Exp $";
 
 #include "uicolortable.h"
 
@@ -103,7 +103,7 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
     canvas_ = new uiColorTableCanvas( parent, coltabseq_, true, vert );
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
-    canvas_->setPrefHeight( vert ? 160 : 5 );
+    canvas_->setPrefHeight( vert ? 160 : 25 );
     canvas_->setPrefWidth( vert ? 30 : 80 );
     canvas_->setStretch( 0, 0 );
     canvas_->reSize.notify( mCB(this,uiColorTable,canvasreDraw) );
