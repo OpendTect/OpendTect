@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.8 2010-08-03 09:03:35 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.9 2010-12-08 11:21:15 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -309,7 +309,24 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 	case EM::EMObjectCallbackData::Undef:
 	    break;
 	case EM::EMObjectCallbackData::PrefColorChange:
-	    break;
+	    {
+		for ( int oidx=0; oidx<sectionmarkerlines_.size(); oidx++ )
+		{
+		    if ( !sectionmarkerlines_[oidx] ) continue;
+		    ObjectSet<StkMarkerInfo>& stmkrinfos = 
+						*sectionmarkerlines_[oidx];
+		    
+		    for( int iidx=0; iidx<stmkrinfos.size(); iidx++ )
+		    {
+			if ( !stmkrinfos[iidx] ) continue;
+
+			stmkrinfos[iidx]->marker_->linestyle_.color_ =
+			    				emfss->preferredColor();
+			viewer_.updateProperties( *stmkrinfos[iidx]->marker_ );
+		    }
+		}
+		break;
+	    }
 	case EM::EMObjectCallbackData::PositionChange:
 	{
 	    if ( emfss->hasBurstAlert() )

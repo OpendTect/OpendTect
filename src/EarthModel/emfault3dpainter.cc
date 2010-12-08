@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.cc,v 1.9 2010-09-01 10:36:29 cvsumesh Exp $
+ RCS:		$Id: emfault3dpainter.cc,v 1.10 2010-12-08 11:21:15 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -449,7 +449,33 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 	case EM::EMObjectCallbackData::Undef:
 	    break;
 	case EM::EMObjectCallbackData::PrefColorChange:
-	    break;
+	    {
+		for ( int oidx=0; oidx<f3dmarkers_.size(); oidx++ )
+		{
+		    if ( !f3dmarkers_[oidx] ) continue;
+		    Fault3DMarker& mrks = *f3dmarkers_[oidx];
+
+		    for ( int stid=0; stid<mrks.stickmarker_.size(); stid++ )
+		    {
+			if ( !mrks.stickmarker_[stid] ) continue;
+
+			mrks.stickmarker_[stid]->marker_->linestyle_.color_ = 
+			    				emf3d->preferredColor();
+			viewer_.updateProperties(
+					*mrks.stickmarker_[stid]->marker_ );
+		    }
+		    
+		    for ( int itid=0; itid<mrks.intsecmarker_.size(); itid++ )
+		    {
+			if ( !mrks.intsecmarker_[itid] ) continue;
+
+			mrks.intsecmarker_[itid]->linestyle_.color_ =
+			    				emf3d->preferredColor();
+			viewer_.updateProperties( *mrks.intsecmarker_[itid] );
+		    }
+		}
+		break;
+	    }
 	case EM::EMObjectCallbackData::PositionChange:
 	{
 	    if ( emf3d->hasBurstAlert() )
