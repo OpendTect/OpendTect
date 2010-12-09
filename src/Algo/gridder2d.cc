@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.28 2010-11-30 16:31:33 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.29 2010-12-09 15:11:26 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -286,16 +286,35 @@ bool TriangulatedGridder2D::init()
     if ( !points_ || !points_->size() || !gridpoint_.isDefined() )
 	return true;
 
-    if ( points_->size()==1 )
-    {
-	usedvalues_ += 0;
-	weights_ += 1;
-	inited_ = true;
-	return true;
-    }
-
     if ( !triangles_ )
+    {
+	if ( points_->size()==1 )
+	{
+	    usedvalues_ += 0;
+	    weights_ += 1;
+	    inited_ = true;
+	    return true;
+	}
+	else if ( points_->size()==2 )
+	{
+	    //Do inverse distance, better than nothing.
+	    const double dist0 = gridpoint_.distTo( (*points_)[0] );
+	    const double dist1 = gridpoint_.distTo( (*points_)[1] );
+	    const double totaldist = dist0+dist1;
+
+	    if ( totaldist==0 )
+		return false;
+
+	    usedvalues_ += 0;
+	    weights_ += (totaldist-dist0)/totaldist;
+	    usedvalues_ += 1;
+	    weights_ += (totaldist-dist1)/totaldist;
+
+	    return true;
+	}
+
 	return false;
+    }
 
     if ( !interpolator_->computeWeights(gridpoint_-center_,usedvalues_,
 					weights_) )
@@ -308,9 +327,6 @@ bool TriangulatedGridder2D::init()
 
 bool TriangulatedGridder2D::setPoints( const TypeSet<Coord>& pts )
 {
-    if ( points_==&pts && triangles_ )
-	return true;
-
     if ( !Gridder2D::setPoints(pts) )
 	return false;
 
