@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.8 2010-12-03 15:41:28 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.9 2010-12-09 11:32:48 cvsnanne Exp $";
 
 #include "uiattrtypesel.h"
 #include "uiattrdesced.h"
@@ -187,11 +187,8 @@ void uiAttrTypeSel::updAttrNms( const char* selattrnm )
     {
 	const char* attrnm = nms.get(idx);
 	attrfld->addItem( attrnm );
-	if ( (!selattrnm || !*selattrnm) && isPrefAttrib( grpidx, attrnm ) )
-	{
+	if ( (!selattrnm || !*selattrnm) && isPrefAttrib(grpidx,attrnm) )
 	    curattrnm = attrnm;
-	    break;
-	}
     }
 
     if ( curattrnm )
