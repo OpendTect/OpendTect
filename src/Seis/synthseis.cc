@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.3 2010-12-07 16:15:43 cvsbert Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.4 2010-12-09 16:09:52 cvsbert Exp $";
 
 #include "synthseis.h"
 #include "wavelet.h"
@@ -126,18 +126,19 @@ void Seis::SynthGenerator::generate( const AIModel& mdl, const Wavelet& wvlt )
 void Seis::SynthGenerator::generate()
 {
     if ( !wvlt_ || !aimdl_ )
-	{ outtrc_.zero(); return; }
+	return;
 
     int ns = outtrc_.size();
     if ( ns < 1 )
     {
 	outtrc_.info().sampling = getDefOutSampling( *inpaimdl_, *inpwvlt_,
 						     ns );
-	if ( ns < 1 ) return;
+	if ( ns < 1 ) ns = 1;
 	outtrc_.reSize( ns, false );
-	if ( ns < 2 )
-	    { outtrc_.zero(); return; }
     }
+    outtrc_.zero();
+    if ( ns < 2 )
+	return;
 
     TypeSet<float> denserefl; aimdl_->getReflectivity( denserefl );
     TypeSet<float> refl;
