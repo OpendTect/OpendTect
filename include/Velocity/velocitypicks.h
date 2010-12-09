@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.10 2010-11-03 15:17:07 cvskris Exp $
+ RCS:		$Id: velocitypicks.h,v 1.11 2010-12-09 15:13:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -191,8 +191,8 @@ public:
     				PicksMgr();
 				~PicksMgr();
 
-    Picks*		get(const MultiID&,bool gathermid,
-	    			    bool create, bool forcefromstorage );
+    Picks*			get(const MultiID&,bool gathermid,
+				    bool create, bool forcefromstorage );
 
     const char*			errMsg() const;
 protected:
@@ -201,7 +201,7 @@ protected:
     void			surveyChange(CallBacker*);
 
     BufferString		errmsg_;
-    ObjectSet<Picks>	velpicks_;
+    ObjectSet<Picks>		velpicks_;
 };
 
 
