@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.9 2010-12-09 11:32:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.10 2010-12-09 12:51:07 cvsbert Exp $";
 
 #include "uiattrtypesel.h"
 #include "uiattrdesced.h"
@@ -212,15 +212,23 @@ void uiAttrTypeSel::attrSel( CallBacker* )
 bool uiAttrTypeSel::isPrefAttrib( int grpidx, const char* attrnm ) const
 {
     const char* grpnm = grpnms_.get( grpidx );
-    if ( ( !strcmp(grpnm,"<All>") && !strcmp(attrnm,"Similarity") ) 
-      || ( !strcmp(grpnm,"Basic") && !strcmp(attrnm,"Scaling") ) 
-      || ( !strcmp(grpnm,"Filters") && !strcmp(attrnm,"Frequency Filter") )
-      || ( !strcmp(grpnm,"Frequency") && !strcmp(attrnm,"Spectral Decomp") )
-      || ( !strcmp(grpnm,"Patterns") && !strcmp(attrnm,"FingerPrint") )
-      || ( !strcmp(grpnm,"Positions") && !strcmp(attrnm,"Position") )
-      || ( !strcmp(grpnm,"Statistics") && !strcmp(attrnm,"Volume Statistics") )
-      || ( !strcmp(grpnm,"Trace match") && !strcmp(attrnm,"Match delta") ) )
-	return true;
+
+    if ( *grpnm == '<' )
+	return !strcmp(attrnm,"Similarity");
+    else if ( !strcmp(grpnm,"Basic") )
+	return !strcmp(attrnm,"Scaling");
+    else if ( !strcmp(grpnm,"Filters") )
+	return !strcmp(attrnm,"Frequency Filter");
+    else if ( !strcmp(grpnm,"Frequency") )
+	return !strcmp(attrnm,"Spectral Decomp");
+    else if ( !strcmp(grpnm,"Patterns") )
+	return !strcmp(attrnm,"FingerPrint");
+    else if ( !strcmp(grpnm,"Positions") )
+	return !strcmp(attrnm,"Position");
+    else if ( !strcmp(grpnm,"Statistics") )
+	return !strcmp(attrnm,"Volume Statistics");
+    else if ( !strcmp(grpnm,"Trace match") )
+	return !strcmp(attrnm,"Match delta");
 
     return false;
 }
