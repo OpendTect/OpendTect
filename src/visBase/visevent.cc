@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visevent.cc,v 1.33 2010-11-25 14:45:17 cvsjaap Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.34 2010-12-09 16:25:41 cvsjaap Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -355,11 +355,25 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 
 #ifdef __win__
 	// Hack to solve mouse/tablet dragging refresh problem on Windows
-	static int mousemovecount = 0;
+
+	static ObjectSet<EventCatcher> blocklist;
+	static bool isblocking = false;
+
 	const TabletInfo* ti = TabletInfo::currentState();
 	if ( !ti || (ti->eventtype_==TabletInfo::Move && ti->pressure_) )
 	{
-	    if ( (mousemovecount++)%2 ) return;
+	    if ( blocklist.indexOf(eventcatcher) >= 0 )
+	    {
+		isblocking = true;
+		blocklist -= eventcatcher;
+		return;
+	    }
+
+	    if ( isblocking )
+		blocklist.erase();
+
+	    isblocking = false;
+	    blocklist += eventcatcher;
 	}
 #endif
 
