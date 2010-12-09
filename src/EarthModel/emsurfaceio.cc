@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.139 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.140 2010-12-09 11:35:31 cvsnanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -107,8 +107,7 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     sectionnames_.allowNull();
     linenames_.allowNull();
 
-    BufferString exnm = "Reading surface '"; exnm += ioobj.name().buf();
-    exnm += "'";
+    BufferString exnm( "Reading surface '", ioobj.name().buf(), "'" );
     setName( exnm.buf() );
     setNrDoneText( "Nr done" );
     auxdataexecs_.allowNull(true);
@@ -228,8 +227,10 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 
     TypeSet<int> lineids;
     TypeSet< StepInterval<int> > trcranges;
+    bool is2d = false;
     if ( par_->find( Horizon2DGeometry::sKeyNrLines()) )
     {
+	is2d = true;
 	int nrlines = 0;
 	par_->get( Horizon2DGeometry::sKeyNrLines(), nrlines );
 	
@@ -245,6 +246,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 	    if ( !par_->get(lineidkey.buf(),geomidstr) ||
 		 !geomid.fromString(geomidstr) )
 		continue;
+
 	    PosInfo::POS2DAdmin().setCurLineSet( geomid.lsid_ );
 	    linesets_.add( PosInfo::POS2DAdmin().getLineSet(geomid.lsid_) );
 	    linenames_.add( PosInfo::POS2DAdmin().getLineName(geomid.lineid_) );
@@ -258,6 +260,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     }
     else if ( par_->get(Horizon2DGeometry::sKeyLineIDs(),lineids) )
     {
+	is2d = true;
 	if ( linenames_.size() != lineids.size() )
 	{
 	    msg_ = "Inconsistency in file header";
@@ -307,6 +310,12 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 
     if ( version_==1 )
 	return parseVersion1( *par_ );
+
+    if ( is2d && linesets_.isEmpty() )
+    {
+	msg_ = "No geometry found for this horizon";
+	return false;
+    }
 
     return true;
 }
