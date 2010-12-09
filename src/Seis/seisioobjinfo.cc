@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.38 2010-11-24 16:35:41 cvskris Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.39 2010-12-09 16:09:13 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -457,6 +457,8 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 {
     int ret = 0;
     mChk(ret);
+    if ( isPS() )
+	return 0;
 
     if ( !is2D() )
     {
