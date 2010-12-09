@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.4 2010-12-07 16:16:02 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.5 2010-12-09 16:10:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,6 @@ protected:
     uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
 
-    void		emptyPacks();
 };
 
 

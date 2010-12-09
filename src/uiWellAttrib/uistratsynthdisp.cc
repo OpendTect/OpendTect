@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.4 2010-12-07 16:16:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.5 2010-12-09 16:10:04 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.4 2010-12-07 16:16:02 c
 #include "ptrman.h"
 #include "ioman.h"
 #include "survinfo.h"
+#include "flatposdata.h"
 
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
@@ -39,6 +40,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
     vwr_ = new uiFlatViewer( this );
     vwr_->setInitialSize( uiSize(500,250) ); //TODO get hor sz from laymod disp
+    vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, topgrp );
     FlatView::Appearance& app = vwr_->appearance();
     app.setGeoDefaults( true );
@@ -52,7 +54,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
 uiStratSynthDisp::~uiStratSynthDisp()
 {
-    emptyPacks();
     delete wvlt_;
     deepErase( aimdls_ );
 }
@@ -65,17 +66,11 @@ void uiStratSynthDisp::setDispEach( int nr )
 }
 
 
-void uiStratSynthDisp::emptyPacks()
-{
-    vwr_->setPack( true, DataPack::cNoID(), false );
-    vwr_->setPack( false, DataPack::cNoID(), false );
-}
-
-
-#define mErrRet(s) { if ( s ) uiMSG().error(s); emptyPacks(); return; }
+#define mErrRet(s) { if ( s ) uiMSG().error(s); return; }
 
 void uiStratSynthDisp::modelChanged()
 {
+    vwr_->clearAllPacks();
     delete wvlt_;
     wvlt_ = wvltfld_->getWavelet();
     if ( !wvlt_ )
@@ -98,7 +93,8 @@ void uiStratSynthDisp::modelChanged()
 	sd = Seis::SynthGenerator::getDefOutSampling( *aimod, *wvlt_, sz );
 	if ( sz > maxsz ) maxsz = sz;
     }
-    if ( maxsz < 2 )
+    const int nraimdls = aimdls_.size();
+    if ( nraimdls < 1 || maxsz < 2 )
 	mErrRet(0)
 
     Seis::SynthGenerator synthgen( *wvlt_ );
@@ -123,5 +119,11 @@ void uiStratSynthDisp::modelChanged()
 	    			SeisTrcInfo::TrcNr, "Seismic" );
     dp->setName( "Model synthetics" );
     DPM(DataPackMgr::FlatID()).add( dp );
+    dp->posData().setRange( true, StepInterval<double>(1,nraimdls,1) );
+    const SeisTrc& trc0 = *tbuf->get(0);
+    StepInterval<double> zrg( trc0.info().sampling.start,
+	    		      trc0.info().sampling.atIndex(trc0.size()-1),
+	    			trc0.info().sampling.step );
+    dp->posData().setRange( false, zrg );
     vwr_->setPack( true, dp->id(), false );
 }
