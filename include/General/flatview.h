@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.50 2010-08-19 06:36:50 cvsranojay Exp $
+ RCS:           $Id: flatview.h,v 1.51 2010-12-09 16:07:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -309,6 +309,7 @@ public:
     void		setPack( bool wva, ::DataPack::ID id, bool obs,
 				 bool usedefs=true )
 			{ addPack( id, obs ); usePack( wva, id, usedefs ); }
+    void		clearAllPacks();
 
     const FlatDataPack*	pack( bool wva ) const
 			{ return wva ? wvapack_ : vdpack_; }

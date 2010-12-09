@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.60 2010-08-19 06:36:48 cvsranojay Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.61 2010-12-09 16:07:44 cvsbert Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -482,6 +482,13 @@ void FlatView::Viewer::addPack( DataPack::ID id, bool obs )
     if ( obs )
 	dpm_.packToBeRemoved.notifyIfNotNotified(
 		mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
+}
+
+
+void FlatView::Viewer::clearAllPacks()
+{
+    while ( !ids_.isEmpty() )
+	removePack( ids_[0] );
 }
 
 
