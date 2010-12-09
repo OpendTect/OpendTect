@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.4 2010-07-26 12:29:52 cvshelene Exp $";
+static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.5 2010-12-09 11:41:33 cvsnanne Exp $";
 
 #include "uidpsoverlayattrdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -23,11 +23,10 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 				 "111.0.5"))
     , plotter_(plotter)
 {
-    BufferStringSet colnames;
     const DataPointSet& dps = plotter_.dps();
-
-    uiDataPointSet::DColID dcid=-dps.nrFixedCols()+1;
+    uiDataPointSet::DColID dcid = -dps.nrFixedCols()+1;
     colids_ += mUdf(int);
+    BufferStringSet colnames;
     colnames.add( "None" );
     for ( ; dcid<dps.nrCols(); dcid++ )
     {
@@ -39,7 +38,7 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
     y3coltabfld_->setEnabManage( false );
     y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
     uiLabeledComboBox* y3lblcbx =
-	new uiLabeledComboBox( this, colnames, "Overlay Y1 Attribute",  "" );
+	new uiLabeledComboBox( this, colnames, "Overlay Y1 Attribute", "" );
     y3lblcbx->attach( alignedBelow, y3coltabfld_ );
     y3propselfld_ = y3lblcbx->box();
     if ( !mIsUdf(plotter_.y3Colid()) )
@@ -56,7 +55,6 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
     uiLabeledComboBox* y4lblcbx = 0;
     if ( plotter_.isY2Shown() )
     {
-
 	y4coltabfld_ = new uiColorTable( this, plotter_.y4CtSeq(), false);
 	y4coltabfld_->setEnabManage( false );
 	y4coltabfld_->attach( alignedBelow, y3lblcbx );
