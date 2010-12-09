@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.9 2010-12-02 09:59:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.10 2010-12-09 11:38:30 cvsnanne Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -66,7 +66,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 
     if ( su.withz_ )
     {
-	txt = "Extra Z "; txt += SI().getZUnitString();
+	txt = "Extra Z";
 	extrazfld_ = new uiSelZRange( this, false, true, txt );
 	if ( zstepfld_ )
 	    extrazfld_->attach( alignedBelow, zstepfld_ );
