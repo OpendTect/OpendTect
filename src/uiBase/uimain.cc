@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.60 2010-12-01 12:06:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.61 2010-12-09 10:34:09 cvsnanne Exp $";
 
 #include "uimain.h"
 
@@ -376,6 +376,13 @@ const uiFont* uiMain::font()
     { font_ = &FontList().get( className(*this) );  }
 
     return font_;
+}
+
+
+Color uiMain::windowColor() const
+{
+    const QColor& qcol = QApplication::palette().color( QPalette::Window );
+    return Color( qcol.red(), qcol.green(), qcol.blue() );
 }
 
 
