@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.98 2010-11-18 17:20:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.99 2010-12-09 12:35:46 cvsraman Exp $";
 
 
 #include "uitable.h"
@@ -723,6 +723,29 @@ void uiTable::setColor( const RowCol& rc, const Color& col )
 Color uiTable::getColor( const RowCol& rc ) const
 {
     QTableWidgetItem* itm = body_->getItem( rc, false );
+    if ( !itm ) return Color(255,255,255);
+
+    const QColor qcol = itm->background().color();
+    return Color( qcol.red(), qcol.green(), qcol.blue() );
+}
+
+
+void uiTable::setHeaderBackground( int idx, const Color& col, bool isrow )
+{
+    QTableWidgetItem* itm = isrow ? body_->verticalHeaderItem( idx )
+				  : body_->horizontalHeaderItem( idx );
+    if ( !itm )
+	return;
+
+    QColor qcol( col.r(), col.g(), col.b() );
+    itm->setBackground( qcol );
+}
+
+
+Color uiTable::getHeaderBackground( int idx, bool isrow ) const
+{
+    QTableWidgetItem* itm = isrow ? body_->verticalHeaderItem( idx )
+				  : body_->horizontalHeaderItem( idx );
     if ( !itm ) return Color(255,255,255);
 
     const QColor qcol = itm->background().color();

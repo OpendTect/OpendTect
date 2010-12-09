@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.66 2010-11-09 09:14:27 cvsbruno Exp $
+ RCS:           $Id: uitable.h,v 1.67 2010-12-09 12:35:46 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,6 +261,8 @@ public:
     void		setPixmap(const RowCol&,const ioPixmap&);
     void		setColor(const RowCol&,const Color&);
     Color		getColor(const RowCol&) const;
+    void		setHeaderBackground(int,const Color&,bool isrow);
+    Color		getHeaderBackground(int,bool isrow) const;
 
     int			getIntValue(const RowCol&) const;
     double		getdValue(const RowCol&) const;
