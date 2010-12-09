@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.31 2010-12-02 10:07:52 cvssatyaki Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.32 2010-12-09 11:41:11 cvsnanne Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.31 2010-12-02 10:07:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.32 2010-12-09 11:41:11 cvsnanne Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -98,7 +98,8 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    	  mCB(this,uiDataPointSetCrossPlotWin,showY2), true );
     disptb_.turnOn( showy2tbid_, false );
 
-    coltabfld_ = new uiColorTable( dispgrp, ColTab::Sequence("Rainbow"), false);
+    coltabfld_ = new uiColorTable( &colortb_,
+	    			   ColTab::Sequence("Rainbow"), false);
     coltabfld_->setEnabManage( false );
     coltabfld_->seqChanged.notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
