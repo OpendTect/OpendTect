@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: googletranslator.cc,v 1.5 2010-12-03 11:35:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: googletranslator.cc,v 1.6 2010-12-09 11:43:45 cvsnanne Exp $";
 
 #include "googletranslator.h"
 #include "odhttp.h"
@@ -93,13 +93,16 @@ const char* GoogleTranslator::getToLanguage() const
 
 
 static const char* sBasicUrl()
-{ return "/ajax/services/language/translate?v=1.0&q="; }
+{ return "/ajax/services/language/translate?v=1.0"; }
+
+static const char* sAPIKey()
+{ return "&key=AIzaSyBDR4RWX27WpkutU0olXxAl1-9BkaIp-EI"; }
 
 static void createUrl( BufferString& url, const char* txt, const char* fromlang,
                        const char* tolang )
 {
-    url = sBasicUrl();
-    url.add( txt ).add( "&langpair=" )
+    url = sBasicUrl(); url.add( sAPIKey() );
+    url.add( "&q=" ).add( txt ).add( "&langpair=" )
        .add( fromlang ).add( "|" ).add( tolang );
 }
 
