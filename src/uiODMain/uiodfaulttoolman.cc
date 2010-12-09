@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.23 2010-12-03 10:50:26 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.24 2010-12-09 17:02:08 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -452,8 +452,20 @@ void uiODFaultToolMan::addRemoveEMObjCB( CallBacker* cb )
 }
 
 
+struct DisplayCacheObj
+{
+    MultiID mid_;
+    int sceneid_;
+    bool isdisplayed_;
+};
+
+static ObjectSet<DisplayCacheObj> displaycache_;
+
+
 void uiODFaultToolMan::addRemoveVisObjCB( CallBacker* cb )
 {
+    deepErase( displaycache_ );
+
     if ( settingsdlg_ )
 	settingsdlg_->setOutputDisplayed( isOutputDisplayed() );
 }
@@ -912,6 +924,7 @@ void uiODFaultToolMan::stickRemovalCB( CallBacker* )
 
 void uiODFaultToolMan::transferSticksCB( CallBacker* )
 {
+    NotifyStopper ns( EM::EMM().undo().changenotifier );
     MouseCursorChanger mcc( MouseCursor::Wait );
 
     if ( curemid_ < 0 )
@@ -968,7 +981,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     if ( !destfss )
     	destfss = tmpfss;
 
-    const bool copy =  mCurItem( transfercombo_, sKeyCopySelection );
+    const bool copy = mCurItem( transfercombo_, sKeyCopySelection );
 
     if ( copy )
 	srcfault->geometry().selectStickDoubles( false, &destfss->geometry() );
@@ -1007,6 +1020,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     if ( !copy && oldnrselected!=newnrselected )
 	srcfault->setChangedFlag();
 
+    destfault->setFullyLoaded( true );
     destfault->setPreferredColor( auxcolorinput_->color(), true );
     displayUpdate();
 
@@ -1038,6 +1052,7 @@ void uiODFaultToolMan::afterTransferUpdate()
     usercolorlink_.setEmpty();
     const bool clearname = mCurItem( outputactcombo_, sKeyCreateSingleNew );
     updateOutputItems( clearname ); 
+    updateToolbarCB( 0 );
 }
 
 
@@ -1076,13 +1091,29 @@ bool uiODFaultToolMan::isOutputDisplayed( uiSurfaceWrite* uisw ) const
     if ( destmid.isEmpty() || curid<0 || sceneid<0 ) 
 	return false;
 
+    for ( int idx=0; idx<displaycache_.size(); idx++ )
+    {
+	if ( displaycache_[idx]->mid_==destmid &&
+	     displaycache_[idx]->sceneid_==sceneid )
+	{
+	    return displaycache_[idx]->isdisplayed_;
+	}
+    }
+    displaycache_.insertAt( new DisplayCacheObj(), 0 );
+    displaycache_[0]->mid_ = destmid;
+    displaycache_[0]->sceneid_ = sceneid;
+    displaycache_[0]->isdisplayed_ = false;
+
     TypeSet<int> destids;
     appl_.applMgr().visServer()->findObject( destmid, destids );
 
     for ( int idx=0; idx<destids.size(); idx++ )
     {
 	if ( sceneid==appl_.applMgr().visServer()->getSceneID(destids[idx]) )
+	{
+	    displaycache_[0]->isdisplayed_ = true;
 	    return true;
+	}
     }
     return false;
 }
