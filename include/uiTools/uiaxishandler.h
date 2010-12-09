@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.26 2010-11-09 09:25:59 cvsbruno Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.27 2010-12-09 12:53:47 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,8 @@ public:
 
 			uiAxisHandler(uiGraphicsScene*,const Setup&);
 			~uiAxisHandler();
+
+    void		setName(const char*);	
     void		setIsLog( bool yn )	{ setup_.islog_ = yn; reCalc();}
     void		setBorder( const uiBorder& b )
 						{ setup_.border_ = b; reCalc();}

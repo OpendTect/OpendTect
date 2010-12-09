@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.47 2010-12-02 10:07:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.48 2010-12-09 12:53:47 cvsbruno Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -58,6 +58,13 @@ uiAxisHandler::~uiAxisHandler()
 }
 
 
+void uiAxisHandler::setName( const char* nm )
+{
+    NamedObject::setName( nm );
+    reCalc();
+}
+
+
 void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 {
     rg_ = rg;
@@ -98,7 +105,8 @@ void uiAxisHandler::reCalc()
     annotrg.start = annotstart_;
 
     const uiFont& font = FontList().get();
-    wdthy_ = 2*font.height();
+    bool nonamespace = name().isEmpty() ||  setup_.annotinside_;
+    wdthy_ = nonamespace ? font.height() : 2*font.height();
     BufferString str;
 
     const int nrsteps = annotrg.nrSteps();
@@ -434,11 +442,11 @@ void uiAxisHandler::annotAtEnd( const char* txt )
 {
     const int edgepix = pixToEdge();
     int xpix, ypix; Alignment al;
+    const bool isinside = setup_.annotinside_;
     if ( isHor() )
     {
 	xpix = devsz_ - pixAfter() - 2;
-	ypix = setup_.side_ == uiRect::Top ? edgepix  
-	    				   : height_ - edgepix - 2;
+	ypix = setup_.side_ == uiRect::Top ? edgepix  : height_ - edgepix - 2;
 	al.set( Alignment::Left,
 		setup_.side_==uiRect::Top ? Alignment::Bottom : Alignment::Top);
     }
@@ -469,10 +477,10 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
     if ( isHor() )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
-	const int y0 = istop ? ( inside ? height_ - edgepix : edgepix ) 
-			     : ( inside ? edgepix : height_ - edgepix ); 
-	const int y1 = istop ? ( inside ? y0 + ticsz_ : y0 - ticsz_ ) 
-			     : ( inside ? y0 - ticsz_ : y0 + ticsz_ ); 
+	const int y0 = istop ? edgepix : height_ - edgepix; 
+	const int y1 = istop ? ( inside ? y0 + ticsz_+ wdthy_ : y0 - ticsz_ ) 
+			     : ( inside ? y0 - ticsz_- wdthy_ : y0 + ticsz_ ); 
+
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( pix, y0, pix, y1 );
 	annotposlineitm->setZValue( 3 );
@@ -489,10 +497,9 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	const int x0 = isleft ? ( inside ? width_ - edgepix : edgepix )
-	    		      : ( inside ? edgepix : width_ - edgepix );
-	const int x1 = isleft ? ( inside ? x0 + ticsz_ : x0 - ticsz_ )
-	    		      : ( inside ? x0 - ticsz_ : x0 + ticsz_ );
+	const int x0 = isleft ? edgepix : width_ - edgepix;
+	const int x1 = isleft ? ( inside ? x0 + ticsz_ + wdthx_: x0 - ticsz_ )
+			      : ( inside ? x0 - ticsz_ - wdthx_: x0 + ticsz_ );
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( x0, pix, x1, pix );
 	annotposlineitm->setZValue( 3 );
@@ -550,11 +557,12 @@ void uiAxisHandler::drawName()
 	nameitm_->setText( name() );
     nameitm_->setZValue( 3 );
     nameitm_->setTextColor( setup_.style_.color_ );
+    const int fontheight = FontList().get().height();
     if ( isHor() )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
 	const int x = pixBefore() + axsz_ / 2;
-	const int yshift = pixToEdge() - ticsz_ - wdthy_/2;
+	const int yshift = pixToEdge() - ticsz_ - wdthy_ + fontheight;
 	const int y = istop ? yshift : height_ - yshift;
 	const Alignment al( Alignment::HCenter,
 			    istop ? Alignment::Bottom : Alignment::Top );
@@ -564,7 +572,7 @@ void uiAxisHandler::drawName()
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	const int xshift = pixBefore() - ticsz_ - wdthx_/2;
+	const int xshift = pixToEdge() - ticsz_ - wdthx_ -fontheight;
 	const int x = isleft ? xshift : width_ - xshift;
 	const int y = height_ / 2;
 	const Alignment al( isleft ? Alignment::HCenter : Alignment::Left,
