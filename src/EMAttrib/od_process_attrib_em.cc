@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.76 2010-12-08 11:52:33 cvsnageswara Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.77 2010-12-09 04:08:50 cvsnageswara Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -294,9 +294,8 @@ bool BatchProgram::go( std::ostream& strm )
     AttributeEngine::initStdClasses();
     Attributes::initStdClasses();
     EarthModel::initStdClasses();
-    PreStackProcessing::initStdClasses();
-
     Geometry::initStdClasses();
+    PreStackProcessing::initStdClasses();
 
     const float vnr = parversion_.isEmpty() ? 0 : toFloat( parversion_.buf() );
     if ( cmdLineOpts().size() )
@@ -501,6 +500,7 @@ bool BatchProgram::go( std::ostream& strm )
 		    			      extraz, nrinterpsamp, mainhoridx,
 					      extrawidth, provider );
 	}
+
 	if ( !zboundsset && mmprocrange )
 	{
 	    //fix needed to get homogeneity when using multi-machines processing
