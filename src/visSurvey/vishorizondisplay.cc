@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.142 2010-11-23 06:13:43 cvsnageswara Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.143 2010-12-09 11:42:44 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -205,6 +205,9 @@ visBase::TextureChannel2RGBA* HorizonDisplay::getChannels2RGBA()
 	? sections_[0]->getChannels2RGBA()
 	: EMObjectDisplay::getChannels2RGBA();
 }
+
+const visBase::TextureChannel2RGBA* HorizonDisplay::getChannels2RGBA() const
+{ return const_cast<HorizonDisplay*>(this)->getChannels2RGBA(); }
 
 
 void HorizonDisplay::setSceneEventCatcher(visBase::EventCatcher* ec)
@@ -1873,16 +1876,14 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyShift(), getTranslation().z );
     par.set( sKeyResolution(), getResolution() );
 
-    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-		     const_cast<HorizonDisplay*>(this)->getChannels2RGBA() );
-    if ( !cttc2rgba )
+    const visBase::TextureChannel2RGBA* tc2rgba = getChannels2RGBA();
+    mDynamicCastGet(const visBase::ColTabTextureChannel2RGBA*,cttc2rgba,tc2rgba)
+    if ( tc2rgba && !cttc2rgba )
     {
-	const int ctid =
-          const_cast<HorizonDisplay*>(this)->getChannels2RGBA()->id();
+	const int ctid = tc2rgba->id();
 	par.set( MultiTextureSurveyObject::sKeyTC2RGBA(), ctid );
 	saveids += ctid;
     }
-
 
     for ( int channel=as_.size()-1; channel>=0; channel-- )
     {
