@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.20 2010-12-01 05:14:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.21 2010-12-09 13:25:27 cvssatyaki Exp $";
 
 #include "horizon2dline.h"
 
@@ -35,6 +35,7 @@ Horizon2DLine::Horizon2DLine( int lineid, const TypeSet<Coord>& path, int start,
 Horizon2DLine::Horizon2DLine( const Horizon2DLine& ln )
     : firstrow_(ln.firstrow_)
     , colsampling_(ln.colsampling_)
+    , geomids_(ln.geomids_)
 {
     deepCopy( rows_, ln.rows_ );
 }

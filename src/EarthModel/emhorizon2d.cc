@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.44 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.45 2010-12-09 13:25:27 cvssatyaki Exp $";
 
 #include "emhorizon2d.h"
 
@@ -220,20 +220,24 @@ StepInterval<int> Horizon2DGeometry::colRange( const PosInfo::GeomID& gid) const
 
 void Horizon2DGeometry::fillPar( IOPar& iopar ) const
 {
-    Geometry::Horizon2DLine geom = *sectionGeometry( sectionID(0) );
-    geom.trimUndefParts();
+    const Geometry::Horizon2DLine* cgeom = sectionGeometry( sectionID(0) );
+    if ( !cgeom ) return;
+
+    Geometry::Horizon2DLine* geom = cgeom->clone();
+    geom->trimUndefParts();
 
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
 	BufferString key = IOPar::compKey( "Line", idx );
 	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
 		   geomids_[idx].toString() );
-	const int rowidx = geom.getRowIndex( geomids_[idx] );
+	const int rowidx = geom->getRowIndex( geomids_[idx] );
 	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
-		   geom.colRange(rowidx) );
+		   geom->colRange(rowidx) );
     }
 
     iopar.set( Horizon2DGeometry::sKeyNrLines(), geomids_.size() );
+    delete geom;
 }
 
 
