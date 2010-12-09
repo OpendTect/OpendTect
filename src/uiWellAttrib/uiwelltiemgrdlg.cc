@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.36 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.37 2010-12-09 13:56:24 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -245,13 +245,13 @@ void uiTieWinMGRDlg::extractWvltDone( CallBacker* )
 
 bool uiTieWinMGRDlg::getDefaults()
 {
-PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
-mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
-StreamProvider sp( iostrm->fileName() );
-sp.addPathIfNecessary( iostrm->dirName() );
-BufferString fname( sp.fileName() );
-WellTie::Reader wtr( fname, wtsetup_ );
-wtr.getWellTieSetup();
+    PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
+    mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
+    StreamProvider sp( iostrm->fileName() );
+    sp.addPathIfNecessary( iostrm->dirName() );
+    BufferString fname( sp.fileName() );
+    WellTie::Reader wtr( fname, wtsetup_ );
+    wtr.getWellTieSetup();
 
     const bool was2d = wtsetup_.is2d_;
     if ( typefld_ ) typefld_->setValue( !was2d );
@@ -338,22 +338,6 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 	wtsetup_.commitDefaults();
     }
 
-    /*
-    for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
-    {
-	if ( welltiedlgset_[idx]->Setup().wellid_ == wtsetup_.wellid_  )
-	{
-	    BufferString errmsg = "The Window is already opened for the Well\n";
-	    errmsg += wellfld_->ctxtIOObj().ioobj->name();
-	    mErrRet( errmsg )
-	}
-    }
-    for ( int idx = welltiedlgsetcpy_.size()-1; idx>=0; idx-- )
-    {
-	if ( welltiedlgsetcpy_[idx]->Setup().wellid_ == wtsetup_.wellid_ )
-	    delete welltiedlgsetcpy_.remove( idx );
-    }
-    */
     WellTie::uiTieWin* wtdlg = new WellTie::uiTieWin( this, wtsetup_ );
     welltiedlgset_ += wtdlg;
     //since the win does not delonclose, windows are stored in a an ObjectSet
