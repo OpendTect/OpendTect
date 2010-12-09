@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.23 2010-12-02 05:34:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.24 2010-12-09 11:35:53 cvsnanne Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -139,7 +139,7 @@ bool Pos::EMSurfaceProvider::initialize( TaskRunner* tr )
 	if ( !surf2 ) return false;
 	surf2_ = surf2; surf2_->ref();
 	HorSampling hs( hs_ );
-	od_int64 estnrpos2 = estnrpos_;
+	od_int64 estnrpos2 = -1;
 	getSurfRanges( *surf2_, hs, zrg2_, estnrpos2 );
 	if ( estnrpos2 < estnrpos_ )
 	    estnrpos_ = estnrpos2;
