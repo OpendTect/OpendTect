@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		April 2006
- RCS:		$Id: horizonsorter.h,v 1.8 2010-11-15 09:35:45 cvssatyaki Exp $
+ RCS:		$Id: horizonsorter.h,v 1.9 2010-12-09 11:37:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,8 @@ protected:
     Array3D<int>*		result_;
     TypeSet<MultiID>		unsortedids_;
     TypeSet<MultiID>		sortedids_;
+
+    BufferString		message_;
 };
 
 

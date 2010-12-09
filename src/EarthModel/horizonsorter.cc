@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonsorter.cc,v 1.16 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: horizonsorter.cc,v 1.17 2010-12-09 11:37:10 cvsnanne Exp $";
 
 #include "horizonsorter.h"
 
@@ -27,6 +27,7 @@ HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
     , iterator_(0)
     , result_(0)
     , is2d_(is2d)
+    , message_("Sorting")
 {
 }
 
@@ -164,13 +165,16 @@ int HorizonSorter::getNrCrossings( const MultiID& mid1,
 }
 
 
-const char* HorizonSorter::message() const	{ return "Sorting"; }
+const char* HorizonSorter::message() const	{ return message_; }
 
 const char* HorizonSorter::nrDoneText() const	{ return "Positions done"; }
 
 od_int64 HorizonSorter::nrDone() const		{ return nrdone_; }
 
 od_int64 HorizonSorter::totalNr() const		{ return totalnr_; }
+
+
+#define mErrRet(msg)	{ message_ = msg; return ErrorOccurred(); }
 
 int HorizonSorter::nextStep()
 {
@@ -183,13 +187,15 @@ int HorizonSorter::nextStep()
 	{
 	    EM::ObjectID objid = EM::EMM().getObjectID( unsortedids_[idx] );
 	    EM::EMObject* emobj = EM::EMM().getObject( objid );
-	    if ( !emobj ) return ErrorOccurred();
+	    if ( !emobj )
+		mErrRet( "Could not load all horizons" );
+
 	    emobj->ref();
 	    mDynamicCastGet(EM::Horizon*,horizon,emobj);
 	    if ( !horizon )
 	    {
 		emobj->unRef();
-		return ErrorOccurred();
+		mErrRet( "Loaded object is not a horizon" );
 	    }
 	    horizons_ += horizon;
 	}
@@ -198,6 +204,9 @@ int HorizonSorter::nextStep()
     }
 
     if ( !is2d_ && !iterator_ ) return Finished();
+
+    if ( is2d_ && geomids_.isEmpty() )
+	mErrRet( "Could not load 2D geometry." );
 
     const int previnl = binid_.inl;
     while ( binid_.inl==previnl )
