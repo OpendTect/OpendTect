@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.73 2010-12-02 10:07:52 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.74 2010-12-10 09:55:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.73 2010-12-02 10:07:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.74 2010-12-10 09:55:56 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -546,6 +546,9 @@ void uiDataPointSetCrossPlotter::setCTMapper( const ColTab::MapperSetup& setup )
 
 void uiDataPointSetCrossPlotter::updateOverlayMapper( bool isy1 )
 {
+    if ( mIsUdf(isy1 ? y3colid_ : y4colid_) )
+	return;
+
     TypeSet<float> ydata;
     for ( int idx=0; idx<dps_.size(); idx++ )
 	ydata += uidps_.getVal( isy1 ? y3colid_ : y4colid_ , idx, true );
@@ -784,6 +787,8 @@ void uiDataPointSetCrossPlotter::mouseReleased( CallBacker* )
     int selareas = 0;
     for ( int idx=0; idx < selgrpset_.size(); idx++ )
 	selareas += selgrpset_[idx]->size();
+    if ( selareas == 0 )
+	return;
     
     SelectionArea curselarea = getCurSelArea();
     

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.22 2010-04-08 11:34:24 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.23 2010-12-10 09:55:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ protected:
     int				selsettingstbid_;
     int				multicolcodtbid_;
     int				minptsfordensity_;
+    int				overlayproptbid_;
 
     static const char*		sKeyMinDPPts()
     				{ return "Minimum pts for Density Plot"; }

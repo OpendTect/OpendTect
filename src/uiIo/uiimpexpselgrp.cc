@@ -254,7 +254,8 @@ bool uiReadSelGrp::checkSelectionArea( SelectionArea& actselarea,
 
     if ( yaxis<0 && y2axis>=0 )
     {
-	if ( !selaxisnm.isPresent(axisnms.get(2)) )
+	if ( (axisnms.validIdx(2) && !selaxisnm.isPresent(axisnms.get(2))) ||
+   	     !selaxisnm.isPresent(axisnms.get(1))  )
 	    return false;
 
 	actselarea.axistype_ = SelectionArea::Y2;
@@ -290,10 +291,10 @@ void uiReadSelGrp::fillRectangle( const SelectionArea& selarea,
     if ( xaxis == 0 )
     {
 	actselarea.worldrect_ =
-	    (yaxis == 2) ? selarea.altworldrect_
+	    ((yaxis == 2) && hasalt) ? selarea.altworldrect_
 			 : selarea.worldrect_;
 	actselarea.altworldrect_ =
-	    (yaxis == 2) ? selarea.worldrect_
+	    ((yaxis == 2) && hasalt) ? selarea.worldrect_
 			 : selarea.altworldrect_;
     }
     else 
@@ -303,33 +304,28 @@ void uiReadSelGrp::fillRectangle( const SelectionArea& selarea,
        uiWorldRect rect = selarea.worldrect_;
        uiWorldRect altrect = hasalt ? selarea.altworldrect_
 				    : selarea.worldrect_;
+       TypeSet<double> ltptval;
+       ltptval += rect.topLeft().x;
+       ltptval += rect.topLeft().y;
+       ltptval += altrect.topLeft().y;
        
-       uiWorldPoint lt( xis1 ? rect.top() : altrect.top(),
-			xis1 ? (yis0 ? rect.left() : altrect.top())
-			     : (yis0 ? rect.left() : rect.top()) );
-       uiWorldPoint rb( xis1 ? rect.bottom() : altrect.bottom(),
-			xis1 ? ( yis0 ? rect.right()
-				      : altrect.bottom())
-			     : ( yis0 ? rect.right()
-				      : rect.bottom() ) );
-       actselarea.worldrect_ = uiWorldRect( lt, rb );
-       actselarea.worldrect_.checkCorners( true, false );
-       
-       if ( hasalt )
-       {
-	   uiWorldPoint altlt( xis1 ? rect.top() : altrect.top(),
-			       xis1 ? (yis0 ? altrect.top()
-					    : rect.left() )
-				    : (yis0 ? rect.top()
-					    : rect.left()) );
+       TypeSet<double> rbptval;
+       rbptval += rect.bottomRight().x;
+       rbptval += rect.bottomRight().y;
+       rbptval += altrect.bottomRight().y;
 
-	   uiWorldPoint altrb( xis1 ? rect.bottom()
-				    : altrect.bottom(),
-			       xis1 ?(yis0 ? altrect.bottom()
-					   : rect.right())
-				    :(yis0 ? rect.bottom()
-					   : rect.right()) );
-	   actselarea.altworldrect_ = uiWorldRect( altlt, altrb );
+       const bool onlyy2 = actselarea.axistype_ == SelectionArea::Y2;
+       const int yaxisnr = (yaxis<0 || onlyy2) ? y2axis : yaxis;
+
+       actselarea.worldrect_ =
+	   uiWorldRect( ltptval[xaxis], ltptval[yaxisnr],
+		        rbptval[xaxis], rbptval[yaxisnr] );
+       actselarea.worldrect_.checkCorners( true, false );
+       if (hasalt && actselarea.axistype_==SelectionArea::Both)
+       {
+	   actselarea.altworldrect_ =
+	       uiWorldRect( ltptval[xaxis], ltptval[y2axis],
+			    rbptval[xaxis], rbptval[y2axis] );
 	   actselarea.altworldrect_.checkCorners( true, false );
        }
     }
@@ -344,12 +340,10 @@ void uiReadSelGrp::fillPolygon( const SelectionArea& selarea,
  
     if ( xaxis == 0 )
     {
-	actselarea.worldpoly_ =
-	    (yaxis == 2) ? selarea.altworldpoly_
-			 : selarea.worldpoly_;
-	actselarea.altworldpoly_ =
-	    (yaxis == 2) ? selarea.worldpoly_
-			 : selarea.altworldpoly_;
+	actselarea.worldpoly_ = ((yaxis) == 2 && hasalt)
+	    ? selarea.altworldpoly_ : selarea.worldpoly_;
+	actselarea.altworldpoly_ = ((yaxis == 2) && hasalt)
+	    ? selarea.worldpoly_ : selarea.altworldpoly_;
     }
     else 
     {
@@ -365,8 +359,11 @@ void uiReadSelGrp::fillPolygon( const SelectionArea& selarea,
 	   TypeSet<double> ptval;
 	   ptval += pts[idx].x; ptval += pts[idx].y;
 	   ptval += altpts[idx].y;
-	   worldpoly.add( Geom::Point2D<double>(ptval[xaxis],
-			  ptval[yaxis<0 ? y2axis : yaxis]) );
+	   const bool onlyy2 = actselarea.axistype_ == SelectionArea::Y2;
+	   const int yaxisnr = (yaxis<0 || onlyy2) ? y2axis : yaxis;
+	   
+	   worldpoly.add( Geom::Point2D<double>(ptval[xaxis], ptval[yaxisnr]) );
+	   
 	   if (hasalt && actselarea.axistype_==SelectionArea::Both)
 	       altworldpoly.add( Geom::Point2D<double>(ptval[xaxis],
 				 ptval[y2axis]) );

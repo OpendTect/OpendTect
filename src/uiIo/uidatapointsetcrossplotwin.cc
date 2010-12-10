@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.32 2010-12-09 11:41:11 cvsnanne Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.33 2010-12-10 09:55:56 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.32 2010-12-09 11:41:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.33 2010-12-10 09:55:56 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -69,6 +69,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , grpfld_(0)
     , selsettdlg_(0)
     , propdlg_(0)
+    , multicolcodtbid_(-1)
     , wantnormalplot_(false)
 {
     windowClosed.notify( mCB(this,uiDataPointSetCrossPlotWin,closeNotif) );
@@ -159,8 +160,9 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 			mCB(this,uiDataPointSetCrossPlotWin,editProps) );
     maniptb_.addButton( "prdfs.png", "Create Probabily Density Function",
 			mCB(this,uiDataPointSetCrossPlotWin,exportPDF) );
-    maniptb_.addButton( "overlayattr.png", "Select Overlay Attribute",
-			mCB(this,uiDataPointSetCrossPlotWin,overlayAttrCB) );
+    overlayproptbid_ = maniptb_.addButton( "overlayattr.png",
+	    "Select Overlay Attribute", mCB(this,uiDataPointSetCrossPlotWin,
+					    overlayAttrCB) );
 
     const int nrgrps = uidps_.groupNames().size();
     if ( nrgrps > 1 )
@@ -222,6 +224,7 @@ void uiDataPointSetCrossPlotWin::setPercDisp( float perc )
 void uiDataPointSetCrossPlotWin::setDensityPlot( CallBacker* cb )
 {
     const bool ison = disptb_.isOn( densityplottbid_ );
+
     disptb_.setToolTip( densityplottbid_, ison ? "Show normal plot"
 	    				       : "Show density plot" );
     disptb_.setPixmap( densityplottbid_,ison ? "xplot.png" : "densityplot.png");
@@ -232,7 +235,12 @@ void uiDataPointSetCrossPlotWin::setDensityPlot( CallBacker* cb )
     ison ?  eachfld_->setValue( 100 ) : eachfld_->setValue( plotter_.plotperc_);
     eachfld_->setSensitive( !ison );
     plotter_.setDensityPlot( ison, disptb_.isOn(showy2tbid_) );
+   
     disptb_.setSensitive( showy2tbid_, !ison );
+    maniptb_.setSensitive( overlayproptbid_, !ison );
+    if ( multicolcodtbid_ >= 0 )
+	maniptb_.setSensitive( multicolcodtbid_, !ison );
+   
     setSelComboSensitive( !ison );
     plotter_.drawContent();
 }
@@ -556,6 +564,7 @@ uiSetSelDomainTab( uiTabStackDlg* p , DataColInfo* info,
     inpfld_ = new uiGenInput( this, "Enter Ranges" );
     inpfld_->setElemSzPol( uiObject::WideMax );
     inpfld_->updateRequested.notify( mCB(this,uiSetSelDomainTab,parsePush) );
+    inpfld_->valuechanging.notify( mCB(this,uiSetSelDomainTab,checkMathExpr) );
     label->attach( leftAlignedAbove, inpfld_ ); 
 
     setbut_ = new uiPushButton( this, "Set", true );
@@ -591,6 +600,15 @@ uiSetSelDomainTab( uiTabStackDlg* p , DataColInfo* info,
 }
 
 
+void checkMathExpr( CallBacker* )
+{
+    if ( mathexprstring_ != inpfld_->text() )
+	setbut_->setSensitive( true );
+    else
+	setbut_->setSensitive( false );
+}
+
+
 void parsePush( CallBacker* )
 {
     mathexprstring_ = inpfld_->text();
@@ -604,6 +622,7 @@ void parsePush( CallBacker* )
 	return;
     }
 
+    setbut_->setSensitive( false );
     updateDisplay();
 }
 
@@ -730,19 +749,7 @@ bool acceptOK( CallBacker* )
 	plotter_.setMathObj( refseltab_->mathObject() );
 	plotter_.setMathObjStr( refseltab_->mathexprstring_ );
 	plotter_.setModifiedColIds( refseltab_->dcolids_ );
-	if ( !plotter_.isADensityPlot() && saveButtonChecked() )
-	{
-	    plotter_.removeSelections( true );
-	    if ( !refseltab_->mathObject() )
-		return false;
-
-	    SelectionArea sa( uiRect(0,0,plotter_.width(),plotter_.height()) );
-	    plotter_.selectionGrps()[ plotter_.curSelGrp() ]->addSelection( sa);
-	    plotter_.reDrawSelections();
-	}
     }
-
-    plotter_.reDrawSelections();
 
     return true;
 }
@@ -923,14 +930,14 @@ void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::setSelComboSensitive( bool yn )
 {
-    if ( !yn )
+    bool status = plotter_.isSceneSelectable() && !plotter_.isADensityPlot() &&
+		  plotter_.isY2Shown() ? yn : false;
+    if ( !status )
     {
 	selfld_->setCurrentItem( 0 );
 	plotter_.setSelectable( true, false );
     }
 
-    bool status = plotter_.isSceneSelectable() &&
-		  !plotter_.isADensityPlot() ? yn : false;
     selfld_->setSensitive( status );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.5 2010-12-09 11:41:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.6 2010-12-10 09:55:56 cvssatyaki Exp $";
 
 #include "uidpsoverlayattrdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -48,6 +48,8 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
     }
     else
 	y3propselfld_->setCurrentItem( 0 );
+    y3coltabfld_->scaleChanged.notify(
+	    mCB(this,uiDPSOverlayPropDlg,attribChanged) );
     y3propselfld_->selectionChanged.notify(
 	    mCB(this,uiDPSOverlayPropDlg,attribChanged) );
     
@@ -71,10 +73,14 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 	}
 	else
 	    y4propselfld_->setCurrentItem( 0 );
+    
+	y4coltabfld_->scaleChanged.notify(
+	    mCB(this,uiDPSOverlayPropDlg,attribChanged) );
 	y4propselfld_->selectionChanged.notify(
 		mCB(this,uiDPSOverlayPropDlg,attribChanged) );
     }
 
+    attribChanged(0);
     uiPushButton* applybut = new uiPushButton( this, "&Apply",
 	    mCB(this,uiDPSOverlayPropDlg,doApply), true );
     applybut->attach( centeredBelow, plotter_.isY2Shown() ? y4lblcbx
@@ -101,7 +107,6 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
 {
     if ( y3propselfld_->currentItem() )
     {
-	y3coltabfld_->commitInput();
 	plotter_.setOverlayY1Cols( colids_[y3propselfld_->currentItem()] );
 	plotter_.setOverlayY1AttSeq( y3coltabfld_->colTabSeq() );
 	plotter_.setOverlayY1AttMapr( y3coltabfld_->colTabMapperSetup() );
@@ -118,7 +123,6 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
     
     if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
     {
-	y4coltabfld_->commitInput();
 	plotter_.setOverlayY2Cols( colids_[y4propselfld_->currentItem()] );
 	plotter_.setOverlayY2AttSeq( y4coltabfld_->colTabSeq() );
 	plotter_.setOverlayY2AttMapr( y4coltabfld_->colTabMapperSetup() );
@@ -146,11 +150,15 @@ void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
     ColTab::MapperSetup mappersetup; 
     if ( y3propselfld_->currentItem() )
     {
+	const int prevy3colid = plotter_.y3Colid();
 	plotter_.setOverlayY1Cols( colids_[y3propselfld_->currentItem()] );
-	plotter_.setOverlayY1AttMapr( mappersetup );
+	plotter_.setOverlayY1AttMapr( y3coltabfld_->colTabMapperSetup() );
 	plotter_.updateOverlayMapper( true );
-	y3coltabfld_->setMapperSetup( &mappersetup );
 	y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
+	
+	plotter_.setOverlayY1Cols( prevy3colid );
+	plotter_.setOverlayY1AttMapr( y3coltabfld_->colTabMapperSetup() );
+	plotter_.updateOverlayMapper( true );
     }
     else
     {
@@ -161,11 +169,15 @@ void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
    
     if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
     {
+	const int prevy4colid = plotter_.y4Colid();
 	plotter_.setOverlayY2Cols( colids_[y4propselfld_->currentItem()] );
-	plotter_.setOverlayY2AttMapr( mappersetup );
+	plotter_.setOverlayY2AttMapr( y4coltabfld_->colTabMapperSetup() );
 	plotter_.updateOverlayMapper( false );
-	y4coltabfld_->setMapperSetup( &mappersetup );
 	y4coltabfld_->setInterval( plotter_.y4Mapper().range() );
+	
+	plotter_.setOverlayY2Cols( prevy4colid );
+	plotter_.setOverlayY2AttMapr( y4coltabfld_->colTabMapperSetup() );
+	plotter_.updateOverlayMapper( false );
     }
     else
     {
