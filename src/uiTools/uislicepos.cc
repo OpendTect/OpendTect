@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.9 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.10 2010-12-10 12:14:53 cvsnanne Exp $";
 
 #include "uislicepos.h"
 
@@ -27,27 +27,28 @@ uiSlicePos::uiSlicePos( uiParent* p )
 {
     toolbar_ = new uiToolBar( p, "Slice position" );
 
-    sliceposbox_ = new uiLabeledSpinBox( toolbar_, "Crl", 0,
-	    				 "Slice position" );
-    sliceposbox_->box()->valueChanging.notify(
-				mCB(this,uiSlicePos,slicePosChg) );
+    label_ = new uiLabel( toolbar_, "Crl" );
+    sliceposbox_ = new uiSpinBox( toolbar_, 0, "Slice position" );
+    sliceposbox_->valueChanging.notify( mCB(this,uiSlicePos,slicePosChg) );
 
-    slicestepbox_ = new uiLabeledSpinBox( toolbar_, "Step", 0, "Slice step" );
-    slicestepbox_->box()->valueChanged.notify(
+    uiLabel* steplabel = new uiLabel( toolbar_, "Step" );
+
+    slicestepbox_ = new uiSpinBox( toolbar_, 0, "Slice step" );
+    slicestepbox_->valueChanged.notify(
 				mCB(this,uiSlicePos,sliceStepChg) );
-    slicestepbox_->box()->valueChanging.notify(
+    slicestepbox_->valueChanging.notify(
 				mCB(this,uiSlicePos,sliceStepChg) );
-    slicestepbox_->box()->disabFocus();
+    slicestepbox_->disabFocus();
 
     prevbut_ = new uiToolButton( toolbar_, "prevpos.png", "Previous position",
 				mCB(this,uiSlicePos,prevCB) );
     nextbut_ = new uiToolButton( toolbar_, "nextpos.png", "Next position",
 				mCB(this,uiSlicePos,nextCB) );
 
-    toolbar_->addObject( sliceposbox_->label() );
-    toolbar_->addObject( sliceposbox_->box() );
-    toolbar_->addObject( slicestepbox_->label() );
-    toolbar_->addObject( slicestepbox_->box() );
+    toolbar_->addObject( label_ );
+    toolbar_->addObject( sliceposbox_ );
+    toolbar_->addObject( steplabel );
+    toolbar_->addObject( slicestepbox_ );
     toolbar_->addObject( prevbut_ );
     toolbar_->addObject( nextbut_ );
 
@@ -74,11 +75,11 @@ void uiSlicePos::initSteps( CallBacker* )
 void uiSlicePos::setBoxLabel( Orientation orientation )
 {
     if ( orientation == uiSlicePos::Inline )
-	sliceposbox_->label()->setText( "Inl" );
+	label_->setText( "Inl" );
     else if ( orientation == uiSlicePos::Crossline )
-	sliceposbox_->label()->setText( "Crl" );
+	label_->setText( "Crl" );
     else
-	sliceposbox_->label()->setText( "Z" );
+	label_->setText( "Z" );
 }
 
 
@@ -91,7 +92,7 @@ void uiSlicePos::updatePos( CallBacker* )
 void uiSlicePos::slicePosChanged( Orientation orientation,
 				  const CubeSampling& oldcs )
 {
-    uiSpinBox* posbox = sliceposbox_->box();
+    uiSpinBox* posbox = sliceposbox_;
     curcs_ = oldcs;
     if ( orientation == uiSlicePos::Inline )
 	curcs_.hrg.start.inl = curcs_.hrg.stop.inl = posbox->getValue();
@@ -109,16 +110,16 @@ void uiSlicePos::slicePosChanged( Orientation orientation,
 
 void uiSlicePos::sliceStepChanged( Orientation orientation )
 {
-    laststeps_[(int)orientation] = slicestepbox_->box()->getValue();
+    laststeps_[(int)orientation] = slicestepbox_->getValue();
 
-    sliceposbox_->box()->setStep( laststeps_[(int)orientation] );
+    sliceposbox_->setStep( laststeps_[(int)orientation] );
 }
 
 
 void uiSlicePos::setBoxRg( Orientation orientation, const CubeSampling& survcs )
 {
-    uiSpinBox* posbox = sliceposbox_->box();
-    uiSpinBox* stepbox = slicestepbox_->box();
+    uiSpinBox* posbox = sliceposbox_;
+    uiSpinBox* stepbox = slicestepbox_;
     NotifyStopper posstop( posbox->valueChanging );
     NotifyStopper stepstop( stepbox->valueChanged );
 
@@ -149,7 +150,7 @@ void uiSlicePos::setBoxRg( Orientation orientation, const CubeSampling& survcs )
 
 void uiSlicePos::setPosBoxVal( Orientation orientation, const CubeSampling& cs )
 {
-    uiSpinBox* posbox = sliceposbox_->box();
+    uiSpinBox* posbox = sliceposbox_;
     NotifyStopper posstop( posbox->valueChanging );
 
     if ( orientation == uiSlicePos::Inline )
@@ -163,15 +164,15 @@ void uiSlicePos::setPosBoxVal( Orientation orientation, const CubeSampling& cs )
 
 void uiSlicePos::prevCB( CallBacker* )
 {
-    uiSpinBox* posbox = sliceposbox_->box();
-    uiSpinBox* stepbox = slicestepbox_->box();
+    uiSpinBox* posbox = sliceposbox_;
+    uiSpinBox* stepbox = slicestepbox_;
     posbox->setValue( posbox->getValue()-stepbox->getValue() );
 }
 
 
 void uiSlicePos::nextCB( CallBacker* )
 {
-    uiSpinBox* posbox = sliceposbox_->box();
-    uiSpinBox* stepbox = slicestepbox_->box();
+    uiSpinBox* posbox = sliceposbox_;
+    uiSpinBox* stepbox = slicestepbox_;
     posbox->setValue( posbox->getValue()+stepbox->getValue() );
 }

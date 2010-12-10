@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uislicepos.h,v 1.6 2010-09-02 10:12:00 cvsnanne Exp $
+ RCS:           $Id: uislicepos.h,v 1.7 2010-12-10 12:14:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,8 @@ ________________________________________________________________________
 #include "uiparent.h"
 #include "cubesampling.h"
 
-class uiLabeledSpinBox;
+class uiLabel;
+class uiSpinBox;
 class uiToolBar;
 class uiToolButton;
 
@@ -38,8 +39,9 @@ public:
 protected:
 
     uiToolBar*		toolbar_;
-    uiLabeledSpinBox*	sliceposbox_;
-    uiLabeledSpinBox*	slicestepbox_;
+    uiLabel*		label_;
+    uiSpinBox*		sliceposbox_;
+    uiSpinBox*		slicestepbox_;
     uiToolButton*	prevbut_;
     uiToolButton*	nextbut_;
     int			laststeps_[3];

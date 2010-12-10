@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.16 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.17 2010-12-10 12:14:53 cvsnanne Exp $";
 
 #include "uivisslicepos3d.h"
 
@@ -23,8 +23,8 @@ uiSlicePos3DDisp::uiSlicePos3DDisp( uiParent* p )
     : uiSlicePos( p )
     , curpdd_(0)
 {
-    sliceposbox_->setChildrenSensitive( curpdd_ );
-    slicestepbox_->setChildrenSensitive( curpdd_ );
+    sliceposbox_->setSensitive( curpdd_ );
+    slicestepbox_->setSensitive( curpdd_ );
     prevbut_->setSensitive( curpdd_ );
     nextbut_->setSensitive( curpdd_ );
 }
@@ -46,8 +46,8 @@ void uiSlicePos3DDisp::setDisplay( Display* pdd )
 					mCB(this,uiSlicePos3DDisp,updatePos) );
     }
 
-    sliceposbox_->setChildrenSensitive( curpdd_ );
-    slicestepbox_->setChildrenSensitive( curpdd_ );
+    sliceposbox_->setSensitive( curpdd_ );
+    slicestepbox_->setSensitive( curpdd_ );
     prevbut_->setSensitive( curpdd_ );
     nextbut_->setSensitive( curpdd_ );
 
@@ -94,7 +94,7 @@ void uiSlicePos3DDisp::setStepBoxValue()
     if ( !curpdd_ ) return;
 
     const Display::Orientation orientation = curpdd_->getOrientation();
-    slicestepbox_->box()->setValue( laststeps_[(int)orientation] );
+    slicestepbox_->setValue( laststeps_[(int)orientation] );
     sliceStepChg( 0 );
 }
 
