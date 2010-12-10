@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Aug 2009
- * ID       : $Id: uibouncymgr.h,v 1.3 2009-09-14 22:51:34 cvskarthika Exp $
+ * ID       : $Id: uibouncymgr.h,v 1.4 2010-12-10 09:32:11 cvskarthika Exp $
 -*/
 
 #include "callback.h"
@@ -54,6 +54,8 @@ protected:
     uiBouncyMain*		maindlg_;
     uiBouncySettingsDlg*        settingsdlg_;
     Bouncy::BouncyController*	gamecontroller_;
+    int				sceneid_;
+
 };
 
 }; // namespace

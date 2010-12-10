@@ -5,7 +5,7 @@
  * DATE     : Aug 2009
 -*/
 
-static const char* rcsID = "$Id: uibouncymgr.cc,v 1.5 2009-09-16 14:21:51 cvskarthika Exp $";
+static const char* rcsID = "$Id: uibouncymgr.cc,v 1.6 2010-12-10 09:32:11 cvskarthika Exp $";
 
 #include "uibouncymgr.h"
 #include "beachballdata.h"
@@ -69,10 +69,10 @@ void uiBouncyMgr::createBouncy()
     destroyBouncy();
     bouncydisp_ = uiBouncy::BouncyDisplay::create();
     bouncydisp_->ref();
-    bouncydisp_->setSceneID( ODMainWin()->sceneMgr().getActiveSceneID() );
+    bouncydisp_->setSceneID( sceneid_ );
     bouncydisp_->addBouncy( settingsdlg_->getBallProperties() );
     ODMainWin()->applMgr().visServer()->addObject( 
-	    bouncydisp_, bouncydisp_->sceneid(), true );
+	    bouncydisp_, sceneid_, true );
 }
 
 
@@ -82,7 +82,7 @@ void uiBouncyMgr::destroyBouncy()
     {
 	bouncydisp_->removeBouncy();
 	ODMainWin()->applMgr().visServer()->removeObject( 
-		bouncydisp_, bouncydisp_->sceneid() );
+		bouncydisp_, sceneid_ );
 	bouncydisp_->unRef();
 	bouncydisp_->newEvent.remove( mCB(this, uiBouncyMgr, neweventCB) );
 	bouncydisp_ = 0;
@@ -101,9 +101,9 @@ void uiBouncyMgr::doWork( CallBacker *cb )
 {
     bool firsttime = ( !bouncydisp_ );
 
-    int sceneid = ODMainWin()->sceneMgr().getActiveSceneID();
+    sceneid_ = ODMainWin()->sceneMgr().getActiveSceneID();
     mDynamicCastGet( visSurvey::Scene*, scene, 
-		ODMainWin()->applMgr().visServer()->getObject( sceneid ) );
+		ODMainWin()->applMgr().visServer()->getObject( sceneid_ ) );
 
     if ( !scene ) 
     {
