@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.203 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.204 2010-12-10 06:05:10 cvsnanne Exp $";
 
 #include "uimpeman.h"
 
@@ -158,8 +158,8 @@ void uiMPEMan::addButtons()
     displayatsectionidx = mAddButton( "sectiononly.png", displayAtSectionCB,
 	    			      "Display at section only", true );
 
-    nrstepsbox = new uiSpinBox( toolbar, 0, "Nr of track steps" );
-    nrstepsbox->setToolTip( "Nr of track steps" );
+    nrstepsbox = new uiSpinBox( toolbar, 0, "QC plane step" );
+    nrstepsbox->setToolTip( "QC plane step" );
     nrstepsbox->setMinValue( 1 );
     toolbar->addObject( nrstepsbox );
     trackforwardidx = mAddButton( "prevpos.png", moveBackward,
