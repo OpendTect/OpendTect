@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbouncydisplay.cc,v 1.3 2009-09-16 14:23:37 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbouncydisplay.cc,v 1.4 2010-12-10 09:31:58 cvskarthika Exp $";
 
 #include "visbouncydisplay.h"
 #include "beachballdata.h"
@@ -101,10 +101,12 @@ void BouncyDisplay::addBouncy( visBeachBall::BallProperties bp )
 	    ODMainWin()->applMgr().visServer()->getObject( sceneid_ ) );
 
     if ( scene )
+    {
 	scene->zstretchchange.notify( mCB(this, BouncyDisplay, zScaleCB ) );
-    
-    bb_->setDisplayTransformation( scene->getUTM2DisplayTransform() );
-    paddle_->setDisplayTransformation( scene->getUTM2DisplayTransform() );
+	bb_->setDisplayTransformation( scene->getUTM2DisplayTransform() );
+	paddle_->setDisplayTransformation( scene->getUTM2DisplayTransform() );
+    }
+
     bb_->setBallProperties( bp );
     paddle_->setWidth( mPaddleSize );
     setScale();
