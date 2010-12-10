@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.5 2010-12-09 16:10:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.6 2010-12-10 12:25:22 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -45,10 +45,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     FlatView::Appearance& app = vwr_->appearance();
     app.setGeoDefaults( true );
     app.setDarkBG( false );
-    app.annot_.x1_.showAll( false );
     app.annot_.title_.setEmpty();
+    app.annot_.x1_.showAll( true );
+    app.annot_.x2_.showAll( true );
     app.ddpars_.show( true, false );
-    // app.ddpars_.wva_.overlap_ = 1;
 }
 
 
@@ -70,7 +70,8 @@ void uiStratSynthDisp::setDispEach( int nr )
 
 void uiStratSynthDisp::modelChanged()
 {
-    vwr_->clearAllPacks();
+    vwr_->clearAllPacks(); vwr_->setNoViewDone();
+    deepErase( aimdls_ );
     delete wvlt_;
     wvlt_ = wvltfld_->getWavelet();
     if ( !wvlt_ )
@@ -103,7 +104,7 @@ void uiStratSynthDisp::modelChanged()
     const Coord crd0( SI().maxCoord(false) );
     const float dx = SI().crlDistance();
 
-    for ( int imdl=0; imdl<aimdls_.size(); imdl++ )
+    for ( int imdl=0; imdl<nraimdls; imdl++ )
     {
 	synthgen.generate( *aimdls_[imdl] );
 	SeisTrc* newtrc = new SeisTrc( synthgen.result() );
@@ -118,12 +119,12 @@ void uiStratSynthDisp::modelChanged()
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, Seis::Line,
 	    			SeisTrcInfo::TrcNr, "Seismic" );
     dp->setName( "Model synthetics" );
-    DPM(DataPackMgr::FlatID()).add( dp );
     dp->posData().setRange( true, StepInterval<double>(1,nraimdls,1) );
     const SeisTrc& trc0 = *tbuf->get(0);
     StepInterval<double> zrg( trc0.info().sampling.start,
-	    		      trc0.info().sampling.atIndex(trc0.size()-1),
-	    			trc0.info().sampling.step );
+			      trc0.info().sampling.atIndex(trc0.size()-1),
+			      trc0.info().sampling.step );
     dp->posData().setRange( false, zrg );
+    DPM(DataPackMgr::FlatID()).add( dp );
     vwr_->setPack( true, dp->id(), false );
 }

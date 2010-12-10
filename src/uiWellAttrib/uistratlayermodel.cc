@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.3 2010-12-07 16:16:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.4 2010-12-10 12:25:22 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
@@ -97,21 +97,31 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     seqdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_ );
     if ( !seqdisp_ )
 	seqdisp_ = new uiSingleLayerSequenceGenDesc( gengrp, desc_ );
-    uiToolButton* opentb = new uiToolButton( gengrp, "open.png",
+
+    uiGroup* leftgengrp = new uiGroup( gengrp, "Left buttons" );
+    uiToolButton* opentb = new uiToolButton( leftgengrp, "open.png",
 				"Open stored generation description",
 				mCB(this,uiStratLayerModel,openGenDesc) );
-    opentb->attach( ensureBelow, seqdisp_ );
-    uiToolButton* stb = new uiToolButton( gengrp, "save.png",
+    leftgengrp->attach( ensureBelow, seqdisp_ );
+    uiToolButton* stb = new uiToolButton( leftgengrp, "save.png",
 	    			"Save generation description",
 				mCB(this,uiStratLayerModel,saveGenDesc) );
     stb->attach( rightOf, opentb );
-    nrmodlsfld_ = new uiGenInput( gengrp, "", IntInpSpec(100) );
+
+    uiGroup* rightgengrp = new uiGroup( gengrp, "Right buttons" );
+    const CallBack gocb( mCB(this,uiStratLayerModel,genModels) );
+    nrmodlsfld_ = new uiGenInput( rightgengrp, "", IntInpSpec(100) );
     nrmodlsfld_->setElemSzPol( uiObject::Small );
-    nrmodlsfld_->setToolTip( "Number of models to generate" );
-    nrmodlsfld_->attach( rightOf, stb );
-    uiPushButton* pb = new uiPushButton( gengrp, "Go >>>", true );
-    pb->activated.notify( mCB(this,uiStratLayerModel,genModels) );
-    pb->attach( rightOf, nrmodlsfld_ );
+    nrmodlsfld_->setStretch( 0, 0 );
+    nrmodlsfld_->setToolTip( "Number of models to generate", 0 );
+    nrmodlsfld_->updateRequested.notify( gocb );
+    uiToolButton* gotb = new uiToolButton( rightgengrp, "go.png",
+	    			"Generate this amount of models", gocb );
+    nrmodlsfld_->attach( leftOf, gotb );
+    rightgengrp->attach( rightBorder );
+    rightgengrp->attach( ensureBelow, seqdisp_ );
+    rightgengrp->attach( ensureRightOf, stb );
+    rightgengrp->setFrame( true );
 
     synthdisp_ = new uiStratSynthDisp( rightgrp, modl_ );
     moddisp_ = new uiStratLayerModelDisp( rightgrp, modl_ );
