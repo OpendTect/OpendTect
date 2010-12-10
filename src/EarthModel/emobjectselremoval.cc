@@ -5,7 +5,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		May 2008
- RCS:		$Id: emobjectselremoval.cc,v 1.11 2010-06-18 12:23:27 cvskris Exp $
+ RCS:		$Id: emobjectselremoval.cc,v 1.12 2010-12-10 16:20:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,8 @@ bool EMObjectRowColSelRemoval::doPrepare( int nrthreads )
     stops_.erase();
 
     starts_ += RowCol(startrow_, startcol_);
-    stops_ += RowCol(startrow_+nrrows_-1, startcol_+nrcols_-1);
+    stops_ += RowCol( startrow_+(nrrows_-1)*surf->rowRange().step,
+		      startcol_+(nrcols_-1)*surf->colRange().step );
 
     finished_ = false;
     nrwaiting_ = 0;
@@ -114,6 +115,13 @@ bool EMObjectRowColSelRemoval::doWork( od_int64, od_int64, int threadid )
 void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
 					     const RowCol& stop )
 {
+    const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
+    mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
+    if ( !surf ) return;
+
+    const int rowstep = surf->rowRange().step;
+    const int colstep = surf->colRange().step;
+
     Coord3 up = Coord3::udf();
     Coord3 down = Coord3::udf();
 
@@ -124,56 +132,57 @@ void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
     if ( sel==0 || sel==3 )
 	return;           // all outside or all behind projection plane
 
-    int rowlength = stop.row - start.row;
-    int collength = stop.col - start.col;
+    int rowlen = (stop.row-start.row) / rowstep;
+    int collen = (stop.col-start.col) / colstep;
 
-    if ( rowlength < 32 && collength < 32 )
+    if ( rowlen < 32 && collen < 32 )
 	makeListGrow( start, stop, sel );
-    else if ( rowlength < 32 && collength >= 32 )
+    else if ( rowlen < 32 && collen >= 32 )
     {
 	lock_.lock();
 
 	starts_ += start;
-	stops_ += RowCol( stop.row, start.col+collength/2 );
+	stops_ += RowCol( stop.row, start.col+colstep*(collen/2) );
 
 	lock_.signal( starts_.size()>1 );
 
 	lock_.unLock();
 
-	processBlock( RowCol(start.row,start.col+1+collength/2), stop );
+	processBlock( RowCol(start.row,start.col+colstep*(1+collen/2)), stop );
     }
-    else if ( rowlength >=32 && collength < 32 )
+    else if ( rowlen >=32 && collen < 32 )
     {
 	lock_.lock();
 
 	starts_ += start;
-	stops_ += RowCol( start.row+rowlength/2, stop.col );
+	stops_ += RowCol( start.row+rowstep*(rowlen/2), stop.col );
 
 	lock_.signal( starts_.size()>1 );
 
 	lock_.unLock();
 
-	processBlock( RowCol(start.row+1+rowlength/2,start.col), stop );
+	processBlock( RowCol(start.row+rowstep*(1+rowlen/2),start.col), stop );
     }
     else
     {
 	lock_.lock();
 	
 	starts_ += start;
-	stops_ += RowCol( start.row+rowlength/2, start.col+collength/2 );
+	stops_ += RowCol( start.row+rowstep*(rowlen/2),
+	    		  start.col+colstep*(collen/2) );
 
-	starts_ += RowCol( start.row, start.col+collength/2+1 );
-	stops_ += RowCol( start.row+rowlength/2, stop.col );
+	starts_ += RowCol( start.row, start.col+colstep*(1+collen/2) );
+	stops_ += RowCol( start.row+rowstep*(rowlen/2), stop.col );
 
-	starts_ += RowCol( start.row+rowlength/2+1, start.col );
-	stops_ += RowCol( stop.row, start.col+collength/2 );
+	starts_ += RowCol( start.row+rowstep*(1+rowlen/2), start.col );
+	stops_ += RowCol( stop.row, start.col+colstep*(collen/2) );
 
 	lock_.signal( starts_.size()>1 );
 
 	lock_.unLock();
 
-	processBlock( RowCol(start.row+rowlength/2+1,start.col+collength/2+1),
-		      stop );
+	processBlock( RowCol(start.row+rowstep*(1+rowlen/2),
+			     start.col+colstep*(1+collen/2) ), stop );
     }
 }
 
@@ -182,6 +191,13 @@ void EMObjectRowColSelRemoval::getBoundingCoords( const RowCol& start,
 						  const RowCol& stop,
 						  Coord3& up, Coord3& down )
 {
+    const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
+    mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
+    if ( !surf ) return;
+
+    const int rowstep = surf->rowRange().step;
+    const int colstep = surf->colRange().step;
+
     Coord coord0 = SI().transform( BinID(start.row,start.col) );
     up.x = down.x = coord0.x;
     up.y = down.y = coord0.y;
@@ -204,17 +220,19 @@ void EMObjectRowColSelRemoval::getBoundingCoords( const RowCol& start,
     if ( coord3.x < down.x ) down.x = coord3.x;
     if ( coord3.y < down.y ) down.y = coord3.y;
 
-    up.z = down.z = zvals_[0];
+    up.z = down.z = mUdf(float);
 
-    for ( int row=start.row; row<=stop.row; row++ )
+    for ( int row=start.row; row<=stop.row; row+=rowstep )
     {
-	int idx = (row-startrow_)*nrcols_ + (start.col-startcol_);
-	for ( int col=start.col; col<=stop.col; col++, idx++ )
+	int idx = nrcols_*(row-startrow_)/rowstep+(start.col-startcol_)/colstep;
+	for ( int col=start.col; col<=stop.col; col+=colstep, idx++ )
 	{
 	    const float val = zvals_[idx];
-	    if ( val > up.z )
+	    if ( mIsUdf(val) )
+		continue;
+	    if ( mIsUdf(up.z) || val>up.z )
 		up.z = val;
-	    if ( val < down.z )
+	    if ( mIsUdf(down.z) || val<down.z )
 		down.z = val;
 	}
     }
@@ -224,17 +242,12 @@ void EMObjectRowColSelRemoval::getBoundingCoords( const RowCol& start,
 void EMObjectRowColSelRemoval::makeListGrow( const RowCol& start,
     					     const RowCol& stop, int selresult )
 {
-    Coord3 up = Coord3::udf();
-    Coord3 down = Coord3::udf();
-
     const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
     if ( !ge ) return;
 
      mDynamicCastGet(const Geometry::RowColSurface*,surf,ge);
      if ( !surf ) return;
 
-    getBoundingCoords( start,stop, up, down );
-    
     const StepInterval<int> rowrg( start.row, stop.row, surf->rowRange().step );
     const StepInterval<int> colrg( start.col, stop.col, surf->colRange().step );
 
