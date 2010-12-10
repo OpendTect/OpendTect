@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.64 2010-11-16 11:30:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.65 2010-12-10 11:28:26 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -63,7 +63,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     createDefaultUI();
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "wvltfromothsurv.png", "Get from other survey",
+    manipgrp->addButton( "impfromothsurv.png", "Get from other survey",
 			mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
     manipgrp->addButton( "info.png", "Display properties",
 			mCB(this,uiSeisWvltMan,dispProperties) );
