@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: googletranslator.cc,v 1.6 2010-12-09 11:43:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: googletranslator.cc,v 1.7 2010-12-10 06:03:58 cvsnanne Exp $";
 
 #include "googletranslator.h"
 #include "odhttp.h"
@@ -91,6 +91,8 @@ bool GoogleTranslator::setToLanguage( const char* lang )
 const char* GoogleTranslator::getToLanguage() const
 { return tolanguage_ ? tolanguage_->name_.buf() : 0; }
 
+void GoogleTranslator::setAPIKey( const char* key )
+{ apikey_ = key; }
 
 static const char* sBasicUrl()
 { return "/ajax/services/language/translate?v=1.0"; }
@@ -98,21 +100,21 @@ static const char* sBasicUrl()
 static const char* sAPIKey()
 { return "&key=AIzaSyBDR4RWX27WpkutU0olXxAl1-9BkaIp-EI"; }
 
-static void createUrl( BufferString& url, const char* txt, const char* fromlang,
-                       const char* tolang )
+void GoogleTranslator::createUrl( BufferString& url, const char* txt )
 {
-    url = sBasicUrl(); url.add( sAPIKey() );
-    url.add( "&q=" ).add( txt ).add( "&langpair=" )
-       .add( fromlang ).add( "|" ).add( tolang );
+    url = sBasicUrl();
+    if ( !apikey_.isEmpty() )
+	url.add( "&key=" ).add( apikey_ );
+
+    const char* tolang = tolanguage_ ? tolanguage_->code_.buf() : "nl";
+    url.add( "&q=" ).add( txt ).add( "&langpair=en|" ).add( tolang );
 }
 
 
 int GoogleTranslator::translate( const char* txt )
 {
     BufferString url;
-    const char* from = "en";
-    const char* to = tolanguage_ ? tolanguage_->code_.buf() : "nl";
-    createUrl( url, txt, from, to );
+    createUrl( url, txt );
     return odhttp_.get( url );
 }
 

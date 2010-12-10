@@ -51,7 +51,7 @@ GoogleTranslateMgr( uiODMain& a )
 void handleMenu( CallBacker* )
 {
     uiTranslateDlg dlg( &appl_ );
-    if ( dlg.go() )
+    if ( dlg.go() && dlg.enabled() )
 	appl_.translate();
 }
 

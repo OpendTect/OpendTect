@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		August 2010
- RCS:		$Id: googletranslator.h,v 1.5 2010-10-29 02:30:05 cvsnanne Exp $
+ RCS:		$Id: googletranslator.h,v 1.6 2010-12-10 06:03:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
     bool		setToLanguage(const char*);
     const char*		getToLanguage() const;
 
+    void		setAPIKey(const char* key);
+
     int			translate(const char*);
     const wchar_t*	get() const;
 
@@ -44,6 +46,7 @@ public:
 protected:
 
     void		init();
+    void		createUrl(BufferString&,const char*);
     void		readyCB(CallBacker*);
     void		disConnCB(CallBacker*);
     void		messageCB(CallBacker*);
@@ -71,6 +74,8 @@ protected:
 
     ObjectSet<LanguageInfo>	infos_;
     LanguageInfo*		tolanguage_;
+
+    BufferString		apikey_;
 };
 
 #endif

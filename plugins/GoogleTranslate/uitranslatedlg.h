@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: uitranslatedlg.h,v 1.1 2010-10-26 06:41:37 cvsnanne Exp $
+ RCS:		$Id: uitranslatedlg.h,v 1.2 2010-12-10 06:03:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiComboBox;
+class uiGenInput;
+class uiPushButton;
 
 mClass uiTranslateDlg : public uiDialog
 {
@@ -23,13 +25,18 @@ public:
 			uiTranslateDlg(uiParent*);
 			~uiTranslateDlg();
 
+    bool		enabled() const;
+
 protected:
 
     void		fillBox();
     bool		acceptOK(CallBacker*);
+    void		googleButPushCB(CallBacker*);
 
     uiComboBox*		languagefld_;
     uiCheckBox*		enabbut_;
+    uiGenInput*		keyfld_;
+    uiPushButton*	googlebut_;
 
 };
 
