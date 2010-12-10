@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.241 2010-12-09 21:23:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.242 2010-12-10 15:26:51 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -126,7 +126,6 @@ PlaneDataDisplay::PlaneDataDisplay()
     , dragger_( visBase::DepthTabPlaneDragger::create() )
     , gridlines_( visBase::GridLines::create() )
     , curicstep_(SI().inlStep(),SI().crlStep())
-    , curzstep_(SI().zStep())
     , datatransform_( 0 )
     , voiidx_(-1)
     , moving_(this)
@@ -738,7 +737,6 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     if ( gridlines_ ) gridlines_->setPlaneCubeSampling( cs );
 
     curicstep_ = hrg.step;
-    curzstep_ = cs.zrg.step;
 
     //channels_->clearAll();
     movefinished_.trigger();

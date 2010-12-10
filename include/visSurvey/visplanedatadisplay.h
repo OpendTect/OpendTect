@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.128 2010-09-02 11:20:58 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.129 2010-12-10 15:26:51 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -203,7 +203,6 @@ protected:
 
     CubeSampling			csfromsession_;
     BinID				curicstep_;
-    float				curzstep_;
     Notifier<PlaneDataDisplay>		moving_;
     Notifier<PlaneDataDisplay>		movefinished_;
 
