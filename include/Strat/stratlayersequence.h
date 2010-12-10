@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2010
- RCS:		$Id: stratlayersequence.h,v 1.5 2010-11-12 15:04:15 cvsbert Exp $
+ RCS:		$Id: stratlayersequence.h,v 1.6 2010-12-10 14:30:56 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -61,7 +61,10 @@ public:
     void		prepareUse() const ;	//!< needed after changes
 
     int			indexOf(const Level&,int startsearchat=0) const;
-    AIModel*		getAIModel(int velidx,int denidx) const;
+    AIModel*		getAIModel(int velidx,int denidx,
+	    			   bool isvel=true,bool isden=true) const;
+    			// if !isvel, then sonic (i.e. 1/vel)
+    			// if !isden, then AI
 
 protected:
 
