@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.52 2010-12-02 21:23:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.53 2010-12-10 10:42:19 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -345,22 +345,33 @@ void FreqFilter::fftFilter( const DataHolder& output,
 			 : checkridx>remaxidx 
 			    ? getInputValue( *redata_, realidx_, remaxidx, z0 )
 			    : getInputValue( *redata_, realidx_, cidx, z0 );
-	if ( mIsUdf(real) )
-	    real = idx>0 ? signal_.get(idx-1).real() : 0;
 	int immaxidx = imdata_->nrsamples_-1;
 	int checkiidx = csamp - imdata_->z0_;
 	int useidx = checkiidx<0 ? 0 : (checkiidx>immaxidx ? immaxidx : cidx);
 	float imag = getInputValue( *imdata_, imagidx_, useidx, z0 );
-	if ( mIsUdf(imag) )
-	    imag = idx>0 ? signal_.get(idx-1).imag() : 0;
 	signal_.set( idx, float_complex(real,-imag) );
+
     }
 
     if ( window_ ) window_->apply( &signal_ );
-    float avg = computeAvg( &signal_ ).real();
+    float avg = 0; TypeSet<int> undefvalidxs;
+    for ( int idx=0; idx<nrsamp; idx++ )
+    {
+	float real = signal_.get( idx ).real();
+	float imag = signal_.get( idx ).imag();
+	if ( !mIsUdf(real) && !mIsUdf(imag) )
+	    avg += real; 
+	else
+	    undefvalidxs += idx;
+    }
+    if ( undefvalidxs.size() != nrsamp )
+	avg /= ( nrsamp-undefvalidxs.size() );
+    for ( int idx=0; idx<undefvalidxs.size(); idx++ )
+	signal_.set( undefvalidxs[idx], avg );
     removeBias( &signal_ );
     for ( int idy=0; idy<nrsamp; idy++ )
 	timedomain_.set( sz+idy, signal_.get(idy) );
+
 
     fft_->setInput( timedomain_.getData() );
     fft_->setOutput( freqdomain_.getData() );
@@ -368,7 +379,6 @@ void FreqFilter::fftFilter( const DataHolder& output,
     
     FFTFilter filter;
 
-    //TODO symplify by using data from drawing
     const int datasz = (int)( fft_->getNyqvist( SI().zStep()) ); 
     int winsz1 = 2*( (int)minfreq_ );
     if ( mIsZero( minfreq_ - highfreqvariable_, 0.5 ) )
@@ -423,9 +433,11 @@ void FreqFilter::fftFilter( const DataHolder& output,
     bool needrestorebias = filtertype_==mFilterLowPass
 			   || ( filtertype_==mFilterBandPass && minfreq_==0 );
     float correctbias = needrestorebias ? avg : 0;
+    for ( int idx=0; idx<undefvalidxs.size(); idx++ )
+	timecplxoutp_.set( firstidx + undefvalidxs[idx], mUdf(float) );
     for ( int idx=0; idx<nrsamples; idx++ )
-	setOutputValue( output, 0, idx, z0,
-			timecplxoutp_.get(firstidx+idx).real()+correctbias );
+	setOutputValue( output, 0, idx, z0, 
+		    timecplxoutp_.get( firstidx + idx ).real() + correctbias);
 }
 
 
