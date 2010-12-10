@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.4 2010-12-09 16:09:52 cvsbert Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.5 2010-12-10 14:31:36 cvsbert Exp $";
 
 #include "synthseis.h"
 #include "wavelet.h"
@@ -86,7 +86,7 @@ SamplingData<float> Seis::SynthGenerator::getDefOutSampling(
     float zend = sd.start + (aimod.modelData().size() - 1) * sd.step;
     sd.step = wvlt.sampleRate();
     zend = sd.snap( zend );
-    ns = sd.nearestIndex( zend ) + 1 + wvlt.size();
+    ns = sd.nearestIndex( zend ) + 1 + 2*wvlt.size();
     return sd;
 }
 
