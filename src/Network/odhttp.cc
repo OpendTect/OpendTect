@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.10 2010-10-28 05:59:50 cvsranojay Exp $";
+static const char* rcsID = "$Id: odhttp.cc,v 1.11 2010-12-10 06:01:04 cvsnanne Exp $";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -101,6 +101,9 @@ BufferString ODHttp::readBuffer() const
 
 bool ODHttp::hasPendingRequests() const
 { return qhttp_->hasPendingRequests(); }
+
+void ODHttp::clearPendingRequests()
+{ return qhttp_->clearPendingRequests(); }
 
 od_int64 ODHttp::bytesAvailable() const
 { return qhttp_->bytesAvailable(); }

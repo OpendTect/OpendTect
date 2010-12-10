@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odhttp.h,v 1.7 2010-10-26 06:32:28 cvsnanne Exp $
+ RCS:           $Id: odhttp.h,v 1.8 2010-12-10 06:01:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ public:
     State		state() const;
 
     bool		hasPendingRequests() const;
+    void		clearPendingRequests();
 
     int			currentRequestID() const	{ return requestid_; }
     int			get(const char* cmd,const char* dest=0);
