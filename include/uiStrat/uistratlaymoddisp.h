@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.5 2010-12-07 16:16:02 cvsbert Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.6 2010-12-10 14:32:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,12 +36,18 @@ public:
     void		modelChanged();
     void		getDispProperties(BufferStringSet&) const;
     int			getEachDisp() const;
+    const char*		selectedLevel() const;		//!< null for none
+    const TypeSet<float>& levelDepths() const		{ return lvldpths_; }
+    Color		levelColor() const		{ return lvlcol_; }
 
     Notifier<uiStratLayerModelDisp>	dispEachChg;
+    Notifier<uiStratLayerModelDisp>	levelChg;
 
 protected:
 
     const Strat::LayerModel& lm_;
+    TypeSet<float>	lvldpths_;
+    Color		lvlcol_;
 
     uiGraphicsView*	gv_;
     uiAxisHandler*	xax_;
@@ -56,6 +62,7 @@ protected:
     uiGraphicsScene&	scene();
     void		eraseAll();
     void		dispEachChgd(CallBacker*);
+    void		lvlChgd(CallBacker*);
     void		reDraw(CallBacker*);
     void		usrClickCB(CallBacker*);
     void		setDispPars(CallBacker*);

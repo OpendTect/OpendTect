@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.4 2010-12-10 12:25:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.5 2010-12-10 14:32:33 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
@@ -120,12 +120,13 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     nrmodlsfld_->attach( leftOf, gotb );
     rightgengrp->attach( rightBorder );
     rightgengrp->attach( ensureBelow, seqdisp_ );
-    rightgengrp->attach( ensureRightOf, stb );
+    rightgengrp->attach( ensureRightOf, leftgengrp );
     rightgengrp->setFrame( true );
 
     synthdisp_ = new uiStratSynthDisp( rightgrp, modl_ );
     moddisp_ = new uiStratLayerModelDisp( rightgrp, modl_ );
     moddisp_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
+    moddisp_->levelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
 
     uiSplitter* spl = new uiSplitter( this, "Vert splitter", true );
     spl->addGroup( gengrp ); spl->addGroup( rightgrp );
@@ -147,6 +148,12 @@ uiStratLayerModel::~uiStratLayerModel()
 void uiStratLayerModel::dispEachChg( CallBacker* )
 {
     synthdisp_->setDispEach( moddisp_->getEachDisp() );
+}
+
+
+void uiStratLayerModel::levelChg( CallBacker* )
+{
+    synthdisp_->setDispMrkrs( moddisp_->levelDepths(), moddisp_->levelColor() );
 }
 
 

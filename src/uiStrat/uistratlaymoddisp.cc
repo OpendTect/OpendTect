@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.12 2010-12-07 16:16:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.13 2010-12-10 14:32:33 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -38,6 +38,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     , logblckitms_(*new uiGraphicsItemSet)
     , lvlitms_(*new uiGraphicsItemSet)
     , dispEachChg(this)
+    , levelChg(this)
 {
     const CallBack redrawcb( mCB(this,uiStratLayerModelDisp,reDraw) );
     gv_ = new uiGraphicsView( this, "LayerModel display" );
@@ -70,7 +71,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
 	    		mCB(this,uiStratLayerModelDisp,dispEachChgd) );
     lvlfld_ = new uiComboBox( this, "Level" );
     lvlfld_->attach( rightOf, eachfld_ );
-    lvlfld_->selectionChanged.notify( redrawcb );
+    lvlfld_->selectionChanged.notify( mCB(this,uiStratLayerModelDisp,lvlChgd) );
     uiGroup* buts = new uiGroup( this, "LayMod buttons" );
     uiToolButton* stb = new uiToolButton( this, "save.png", "Save layer model",
 				    mCB(this,uiStratLayerModelDisp,saveMdl) );
@@ -114,6 +115,13 @@ void uiStratLayerModelDisp::dispEachChgd( CallBacker* cb )
     dispeach_ = getEachDisp();
     reDraw( cb );
     dispEachChg.trigger();
+}
+
+
+void uiStratLayerModelDisp::lvlChgd( CallBacker* cb )
+{
+    reDraw( cb );
+    levelChg.trigger();
 }
 
 
@@ -287,27 +295,38 @@ void uiStratLayerModelDisp::drawModel( TypeSet<uiPoint>& polypts, int iseq )
 }
 
 
+const char* uiStratLayerModelDisp::selectedLevel() const
+{
+    return lvlfld_->currentItem() == 0 ? 0 : lvlfld_->text();
+}
+
+
 void uiStratLayerModelDisp::drawLevels()
 {
+    lvldpths_.erase(); lvlcol_ = Color::NoColor();
+    const Strat::Level* lvl = Strat::LVLS().get( selectedLevel() );
+    if ( !lvl ) return;
+    lvlcol_ = lvl->color();
     const int nrseqs = lm_.size();
     if ( nrseqs < 1 ) return;
-    const Strat::Level* lvl = Strat::LVLS().get( lvlfld_->text() );
-    if ( !lvl ) return;
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {
 	if ( iseq % dispeach_ ) continue;
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
 	const int idxof = seq.indexOf( *lvl );
-	if ( idxof < 0 ) continue;
+	if ( idxof < 0 )
+	    { lvldpths_ += mUdf(float); continue; }
 
 	const Strat::Layer& lay = *seq.layers()[idxof];
-	const int ypix = yax_->getPix( lay.zTop() );
+	const float zlvl = lay.zTop();
+	lvldpths_ += zlvl;
+	const int ypix = yax_->getPix( zlvl );
 	const int xpix1 = xax_->getPix( iseq + dispeach_ * getRelX(0) );
 	const int xpix2 = xax_->getPix( iseq + dispeach_ * getRelX(1) );
 	uiLineItem* it = scene().addItem(
 			new uiLineItem( xpix1, ypix, xpix2, ypix, true ) );
-	it->setPenStyle( LineStyle(LineStyle::Solid,2,lvl->color()) );
+	it->setPenStyle( LineStyle(LineStyle::Solid,2,lvlcol_) );
 	it->setZValue( 1 );
 	lvlitms_ += it;
     }

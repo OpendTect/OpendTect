@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.6 2010-12-10 12:25:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.7 2010-12-10 14:32:33 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -33,7 +33,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , lm_(lm)
     , dispeach_(1)
 {
-    const CallBack redrawcb( mCB(this,uiStratSynthDisp,reDraw) );
+    const CallBack redrawcb( mCB(this,uiStratSynthDisp,wvltChg) );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
     wvltfld_ = new uiSeisWaveletSel( topgrp );
     wvltfld_->newSelection.notify( redrawcb );
@@ -66,6 +66,46 @@ void uiStratSynthDisp::setDispEach( int nr )
 }
 
 
+void uiStratSynthDisp::setDispMrkrs( const TypeSet<float>& zvals, Color col )
+{
+    //TODO clear previous markers
+    if ( aimdls_.isEmpty() || zvals.isEmpty() ) return;
+
+    for ( int imdl=0; imdl<aimdls_.size(); imdl++ )
+    {
+	float tval = zvals[imdl];
+	if ( !mIsUdf(tval) )
+	    tval = aimdls_[imdl]->convertTo( tval, AIModel::TWT );
+	//TODO plot on flat viewer
+    }
+}
+
+
+void uiStratSynthDisp::wvltChg( CallBacker* )
+{
+    modelChanged();
+}
+
+
+int uiStratSynthDisp::getVelIdx( bool& isvel ) const
+{
+    //TODO this requires a lot of work. Can be auto-detected form property
+    // StdType but sometimes user has many velocity providers:
+    // - Many versions (different measurements, sources, etc)
+    // - Sonic vs velocity
+    isvel = true; return 1; // This is what the simple generator generates
+}
+
+
+int uiStratSynthDisp::getDenIdx( bool& isden ) const
+{
+    //TODO support:
+    // - density itself
+    // - den = ai / vel
+    isden = true; return 2; // This is what the simple generator generates
+}
+
+
 #define mErrRet(s) { if ( s ) uiMSG().error(s); return; }
 
 void uiStratSynthDisp::modelChanged()
@@ -83,12 +123,13 @@ void uiStratSynthDisp::modelChanged()
 	    mErrRet(0)
     }
 
-    const int velidx = 1; const int denidx = 2; //TODO
+    bool isvel; const int velidx = getVelIdx( isvel );
+    bool isden; const int denidx = getDenIdx( isden );
     int maxsz = 0; SamplingData<float> sd;
     for ( int iseq=0; iseq<lm_.size(); iseq+=dispeach_ )
     {
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
-	AIModel* aimod = seq.getAIModel( velidx, denidx );
+	AIModel* aimod = seq.getAIModel( velidx, denidx, isvel, isden );
 	aimdls_ += aimod;
 	int sz;
 	sd = Seis::SynthGenerator::getDefOutSampling( *aimod, *wvlt_, sz );
