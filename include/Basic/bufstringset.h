@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.19 2010-06-07 13:52:16 cvsbert Exp $
+ RCS:		$Id: bufstringset.h,v 1.20 2010-12-13 11:52:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,9 +49,10 @@ public:
     bool		addIfNew(const BufferString&);
 
     int			maxLength() const;
-    void		sort(BufferStringSet* slave=0);
-    int*		getSortIndexes() const; //!< returns new int [size()]
-    void		useIndexes(int*,BufferStringSet* slave=0);
+    void		sort(bool caseinsens=true,bool asc=true);
+    int*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
+    			//!< returns new int [size()] for you to 'delete []'
+    void		useIndexes(int*);
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
