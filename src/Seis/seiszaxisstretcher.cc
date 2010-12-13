@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.11 2010-12-03 20:53:48 cvskris Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.12 2010-12-13 22:12:04 cvskris Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -31,6 +31,7 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
     , seiswriter_( 0 )
     , sequentialwriter_( 0 )
     , nrwaiting_( 0 )
+    , waitforall_( false )
     , nrthreads_( 0 )
     , curhrg_( false )
     , outcs_( outcs )
@@ -197,13 +198,15 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 bool SeisZAxisStretcher::getTrace( SeisTrc& trc, BinID& curbid )
 {
     Threads::MutexLocker lock( readerlock_ );
-    while ( shouldContinue() && nrwaiting_>=1 )
+    if ( waitforall_ )
     {
 	nrwaiting_++;
-	if ( nrwaiting_==nrthreads_ )
+	if ( nrwaiting_==nrthreads_-1 )
 	    readerlock_.signal(true);
 
-	readerlock_.wait();
+	while ( shouldContinue() && waitforall_ )
+	    readerlock_.wait();
+
 	nrwaiting_--;
     }
 
@@ -232,12 +235,15 @@ bool SeisZAxisStretcher::getTrace( SeisTrc& trc, BinID& curbid )
 
 	if ( curhrg_.isEmpty() || !curhrg_.includes(curbid) )
 	{
-	    nrwaiting_ = 1;
-	    while ( nrwaiting_!=nrthreads_ )
+	    waitforall_ = true;
+	    while ( shouldContinue() && nrwaiting_!=nrthreads_-1 )
 		readerlock_.wait();
 
-	    nrwaiting_ = 0;
+	    waitforall_ = false;
 	    readerlock_.signal( true );
+
+	    if ( !shouldContinue() )
+		return false;
 
 	    if ( !loadTransformChunk( curbid.inl ) )
 		continue;
@@ -250,6 +256,7 @@ bool SeisZAxisStretcher::getTrace( SeisTrc& trc, BinID& curbid )
 
     return false;
 }
+
 
 bool SeisZAxisStretcher::doPrepare( int nrthreads )
 {
