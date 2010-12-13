@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.13 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: iodirentry.h,v 1.14 2010-12-13 12:34:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,11 +25,8 @@ class TranslatorGroup;
 mClass IODirEntry : public NamedObject
 {
 public:
-			IODirEntry(IOObj*,int,bool);
-    const UserIDString&	name() const;
-
+			IODirEntry(IOObj*);
     IOObj*		ioobj;
-    static bool		beingsorted;
 
 };
 
@@ -37,20 +34,18 @@ public:
 /*!\brief list of dir entries. */
 
 mClass IODirEntryList : public ObjectSet<IODirEntry>
-		     , public NamedObject
 {
 public:
 			IODirEntryList(IODir*,const IOObjContext&);
-			IODirEntryList(IODir*,const TranslatorGroup*,bool,
+			IODirEntryList(IODir*,const TranslatorGroup*,
+					bool maychgdir,
 					const char* translator_globexpr=0);
 			~IODirEntryList();
+    const char*		name() const	{ return name_; }
 
     void		fill(IODir*,const char* nmfiltglobexpr=0);
     void		setSelected(const MultiID&);
-    bool		mustChDir();
-    bool		canChDir();
     void		sort();
-    void		curRemoved();
     void		setCurrent( int idx )	{ cur_ = idx; }
     IODirEntry*		current() const	
     			{ return cur_ < 0 || cur_ >= size() ? 0
@@ -66,6 +61,8 @@ public:
 protected:
 
     int			cur_;
+    bool		maycd_;
+    BufferString	name_;
 
 };
 

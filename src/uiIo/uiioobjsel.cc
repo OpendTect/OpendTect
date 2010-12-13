@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.150 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.151 2010-12-13 12:34:11 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -15,7 +15,6 @@ static const char* rcsID = "$Id: uiioobjsel.cc,v 1.150 2010-11-10 15:26:43 cvsbe
 #include "errh.h"
 #include "iodir.h"
 #include "iodirentry.h"
-#include "iolink.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -389,10 +388,9 @@ bool uiIOObjSelGrp::processInput()
 	}
 
 	PtrMan<IOObj> ioobj = getIOObj( listfld_->currentItem() );
-	mDynamicCastGet(IOLink*,iol,ioobj.ptr())
-	if ( !ioobj || (iol && ctio_.ctxt.maychdir) )
+	if ( !ioobj )
 	{
-	    IOM().to( iol );
+	    IOM().to( "" );
 	    fullUpdate( -1 );
 	    return false;
 	}

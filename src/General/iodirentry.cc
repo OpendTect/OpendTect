@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.24 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.25 2010-12-13 12:34:11 cvsbert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -19,55 +19,30 @@ static const char* rcsID = "$Id: iodirentry.cc,v 1.24 2010-08-11 14:50:45 cvsber
 
 #include "errh.h"
 
-bool IODirEntry::beingsorted = false;
 
-
-IODirEntry::IODirEntry( IOObj* iob, int selres, bool maychgdir )
+IODirEntry::IODirEntry( IOObj* iob )
     : NamedObject("")
     , ioobj(iob)
 {
-    if ( !maychgdir )
-	*name_ = " ";
-    else
-    {
-	if ( !ioobj->isLink() )
-	    *name_ = "  ";
-	else if ( selres == 1 )
-	    *name_ = "->"; // Link, must go there to get usable
-	else
-	    *name_ = "> "; // Link but also directly usable
-    }
-    if ( ioobj )
-	*name_ += ioobj->name();
-    else
-	*name_ = "..";
-}
-
-
-const UserIDString& IODirEntry::name() const
-{
-    return beingsorted && ioobj ? ioobj->name() : *name_;
+    setName( ioobj ? ioobj->name() : ".." );
 }
 
 
 IODirEntryList::IODirEntryList( IODir* id, const TranslatorGroup* tr,
 				bool maycd, const char* f )
-    : NamedObject(id && id->main() ? (const char*)id->main()->name()
-	    			    : "Objects")
-    , ctxt(*new IOObjContext(tr))
+    : ctxt(*new IOObjContext(tr))
     , cur_(-1)
+    , maycd_(maycd)
 {
-    ctxt.maychdir = maycd;
     ctxt.toselect.allowtransls_ = f;
     fill( id );
 }
 
 
 IODirEntryList::IODirEntryList( IODir* id, const IOObjContext& ct )
-    : NamedObject(id && id->main()
-		? (const char*)id->main()->name():"Objects")
-    , ctxt(*new IOObjContext(ct))
+    : ctxt(*new IOObjContext(ct))
     , cur_(-1)
+    , maycd_(false)
 {
     fill( id );
 }
@@ -85,14 +60,13 @@ void IODirEntryList::fill( IODir* iodir, const char* nmfilt )
     if ( !iodir ) { pErrMsg("Can't fill IODirEntryList. No iodir"); return; }
 
     deepErase(*this);
-    setName( iodir->main() ? (const char*)iodir->main()->name() : "Objects" );
+    name_ = iodir->main() ? (const char*)iodir->main()->name() : "Objects";
     const ObjectSet<IOObj>& ioobjs = iodir->getObjs();
 
     int curset = 0;
-    if ( ctxt.maychdir
-	&& FilePath(iodir->dirName()) != FilePath(IOM().rootDir()) )
+    if ( maycd_ && FilePath(iodir->dirName()) != FilePath(IOM().rootDir()) )
     {
-        *this += new IODirEntry( 0, 0, false );
+        *this += new IODirEntry( 0 );
 	curset++;
     }
 
@@ -108,15 +82,13 @@ void IODirEntryList::fill( IODir* iodir, const char* nmfilt )
 	if ( ctxt.trgroup )
 	{
 	    selres = ctxt.trgroup->objSelector( ioobj->group() );
-	    if ( selres == mObjSelUnrelated
-	      || (selres == mObjSelRelated && !ioobj->isLink()) )
+	    if ( selres == mObjSelUnrelated )
 		continue;
 	}
-	if ( selres == mObjSelRelated || ctxt.validIOObj(*ioobj) )
+	if ( ctxt.validIOObj(*ioobj) )
 	{
 	    if ( !ge || ge->matches(ioobj->name()) )
-		*this += new IODirEntry( const_cast<IOObj*>(ioobj),
-					 selres, ctxt.maychdir );
+		*this += new IODirEntry( const_cast<IOObj*>(ioobj) );
 	}
     }
 
@@ -166,18 +138,6 @@ void IODirEntryList::setSelected( const MultiID& iniokey )
 }
 
 
-void IODirEntryList::curRemoved()
-{
-    IODirEntry* cur = current();
-    if ( !cur ) return;
-    *this -= cur;
-    delete cur;
-    if ( cur_ >= size() ) cur_ = size() - 1;
-    cur = current();
-    lastiokey = cur && cur->ioobj ? (const char*)cur->ioobj->key() : "";
-}
-
-
 void IODirEntryList::removeWithTranslator( const char* trnm )
 {
     BufferString nm = trnm;
@@ -197,33 +157,18 @@ void IODirEntryList::removeWithTranslator( const char* trnm )
 }
 
 
-bool IODirEntryList::mustChDir()
-{
-    if ( !current() ) return false;
-    char ch1 = *(const char*)current()->name();
-    return ch1 == '-' || ch1 == '.';
-}
-
-
-bool IODirEntryList::canChDir()
-{
-    if ( !current() ) return false;
-    char ch1 = *(const char*)current()->name();
-    return ch1 != ' ';
-}
-
-
 void IODirEntryList::sort()
 {
-    IODirEntry::beingsorted = true;
-    const int sz = size();
-    for ( int d=sz/2; d>0; d=d/2 )
-	for ( int i=d; i<sz; i++ )
-	    for ( int j=i-d;
-		  j>=0 && (*this)[j]->name() > (*this)[j+d]->name();
-		  j-=d )
-		swap( j+d, j );
-    IODirEntry::beingsorted = false;
+    BufferStringSet nms; const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+	nms.add( (*this)[idx]->name() );
+    int* idxs = nms.getSortIndexes();
+
+    ObjectSet<IODirEntry> tmp( *this );
+    erase();
+    for ( int idx=0; idx<sz; idx++ )
+	*this += tmp[ idxs[idx] ];
+    delete [] idxs;
 }
 
 
