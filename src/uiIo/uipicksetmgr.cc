@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.15 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.16 2010-12-13 12:33:50 cvsbert Exp $";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"
@@ -108,7 +108,6 @@ bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
     const BufferString oldname = ps.name();
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( PickSet );
     ctio->ctxt.forread = false;
-    ctio->ctxt.maychdir = false;
 
     if ( ispoly )
 	ctio->ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );

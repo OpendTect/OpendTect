@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.35 2010-08-11 14:50:45 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.36 2010-12-13 12:33:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,6 @@ public:
     const TranslatorGroup* trgroup;	//!< Mandatory, must never be 0
     int			newonlevel;	//!< level 0 is survey dir
     bool		multi;		//!< If true, multi allowed
-    bool		maychdir;	//!< If not, only select from curdir
 
     //! this selection only
     bool		forread;

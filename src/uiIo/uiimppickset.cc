@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.47 2010-05-10 03:13:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.48 2010-12-13 12:33:50 cvsbert Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -64,7 +64,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 					    .forread(import_) );
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
-    ctxt.forread = !import_; ctxt.maychdir = false;
+    ctxt.forread = !import_;
     label = import_ ? "Output " : "Input "; label += "PickSet";
     objfld_ = new uiIOObjSel( this, ctxt, label );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.50 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.51 2010-12-13 12:33:50 cvsbert Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -447,7 +447,7 @@ char SubItem::createIOEntry( const char* nm, bool overwrite, MultiID& mid,
 	return 0;
 
     CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = ctio.ctxt.maychdir = false;
+    ctio.ctxt.forread = false;
     ctio.ctxt.toselect.require_.set( sKey::Type, mannm );
     ctio.setName( nm );
     ctio.fillObj();
@@ -482,7 +482,7 @@ void SubItem::storeAs( bool trywitoutdlg ) const
     else
     {
 	CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
-	ctio.ctxt.forread = ctio.ctxt.maychdir = false;
+	ctio.ctxt.forread = false;
 	ctio.ctxt.toselect.require_.set( sKey::Type, managerName() );
 	ctio.setName( nm );
 	uiIOObjSelDlg dlg( getUiParent(), ctio );

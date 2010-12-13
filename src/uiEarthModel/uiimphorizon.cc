@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.135 2010-12-13 10:15:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.136 2010-12-13 12:33:50 cvsbert Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -68,6 +68,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , importReady(this)
 {
     setCtrlStyle( DoAndStay );
+    ctio_.ctxt.forread = !isgeom_;
 
     BufferString fltr( "Text (*.txt *.dat);;XY/IC (*.*xy* *.*ic* *.*ix*)" );
     inpfld_ = new uiFileInput( this, "Input ASCII File",
@@ -75,9 +76,6 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	    .withexamine(true).forread(true).filter(fltr) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,formatSel) );
-
-    ctio_.ctxt.forread = !isgeom_;
-    ctio_.ctxt.maychdir = false;
 
     attrlistfld_ = new uiLabeledListBox( this, "Select Attribute(s) to import",
 	   				 true );

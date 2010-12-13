@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.51 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.52 2010-12-13 12:33:50 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -200,7 +200,7 @@ IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
 	, newonlevel(1)
 	, stdseltype(None)
 {
-    multi = maychdir	= false;
+    multi = false;
     forread = maydooper = true;
 }
 
@@ -219,7 +219,7 @@ IOObjContext& IOObjContext::operator =( const IOObjContext& oth )
     if ( this != &oth )
     {
 	mCpMemb(stdseltype); mCpMemb(trgroup); mCpMemb(newonlevel);
-	mCpMemb(multi); mCpMemb(maychdir); mCpMemb(forread);
+	mCpMemb(multi); mCpMemb(forread);
 	mCpMemb(selkey); mCpMemb(maydooper); mCpMemb(deftransl);
 	mCpMemb(toselect);
     }
