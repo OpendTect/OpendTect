@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigroup.cc,v 1.66 2010-04-15 15:38:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: uigroup.cc,v 1.67 2010-12-13 11:54:32 cvsbert Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -432,7 +432,7 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     grpobj_ =  new uiGroupObj( this,p,nm,manage );
     uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
 
-    if( showgrps__ ) grpbdy->setFrameStyle( QFrame::Box | QFrame::Plain );
+    if ( showgrps__ ) grpbdy->setFrameStyle( QFrame::Box | QFrame::Plain );
 
 #ifdef __debug__
     if( !grpbdy ) { pErrMsg("Huh") ; return; }
@@ -447,6 +447,7 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
 	if( manage ) p->manageChld( *grpobj_, *grpobj_->body_ );
 	else	 p->addChild( *this );
     }
+    setFrameStyle( QFrame::NoFrame );
 }
 
 uiGroup::~uiGroup()
@@ -518,10 +519,14 @@ uiObject* uiGroup::hAlignObj()
 
 void uiGroup::setFrame( bool yn )
 {
-    if( yn )
-	setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
-    else
+    if( !yn )
 	setFrameStyle( QFrame::NoFrame );
+    else
+    {
+	setFrameStyle( QFrame::StyledPanel | QFrame::Raised ); 
+	grpobj_->body_->setLineWidth( 1 );
+	grpobj_->body_->setMidLineWidth( 0 );
+    }
 }
 
 void uiGroup::setFrameStyle( int fs )
