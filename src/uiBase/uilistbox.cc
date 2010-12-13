@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.113 2010-12-13 10:15:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.114 2010-12-13 11:53:53 cvsbert Exp $";
 
 #include "uilistbox.h"
 
@@ -456,12 +456,7 @@ void uiListBox::sortItems( bool asc )
 	mrkd += isMarked( idx );
 	nms.add( textOfItem(idx) );
     }
-    int* sortidxs = nms.getSortIndexes();
-    if ( !asc )
-    {
-	for ( int idx=0; idx<sz/2; idx++ )
-	    Swap( sortidxs[idx], sortidxs[sz-idx-1] );
-    }
+    int* sortidxs = nms.getSortIndexes(true,asc);
     nms.useIndexes( sortidxs );
     setEmpty(); addItems( nms );
 
