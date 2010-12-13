@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.34 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.35 2010-12-13 10:15:09 cvsbert Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -153,7 +153,7 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 	    box->setValue( 0 );
 	    wellsbox_->removeItem(idx);
 	    lastusedidx = idx;
-	    wellsbox_->sort();
+	    wellsbox_->sortItems();
 	    idx--;
 	}
 	wellsbox_->setSelected( lastusedidx<wellsbox_->size() ?
@@ -176,7 +176,7 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 	    lastusedidx = idx;
 	    wellsbox_->selectAll(false);
 	    wellsbox_->setSelected( wellsbox_->size()-1 );
-	    wellsbox_->sort();
+	    wellsbox_->sortItems();
 	    break;
 	}
 	while ( selwellsbox_->nrRows() < 5 )

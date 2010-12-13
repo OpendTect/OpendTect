@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.65 2010-10-22 09:30:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.66 2010-12-13 10:15:09 cvsbert Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -41,7 +41,7 @@ public:
 				       const char* nm,int nrl);
     virtual 		~uiListViewBody();
 
-    void 		setLines( int prefNrLines )
+    void 		setNrLines( int prefNrLines )
 			{ 
 			    if ( prefNrLines >= 0 )
 				prefnrlines_ = prefNrLines;
@@ -272,8 +272,8 @@ void uiListView::setVScrollBarMode( ScrollMode mode )
     If set to 1, then the list has a fixed height of 1 textline and 
     therefore can not grow/shrink vertically.
 */
-void uiListView::setLines( int prefNrLines )
-{ body_->setLines(prefNrLines); }
+void uiListView::setNrLines( int prefNrLines )
+{ body_->setNrLines(prefNrLines); }
 
 
 bool uiListView::rootDecorated() const

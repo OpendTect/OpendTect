@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.112 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.113 2010-12-13 10:15:09 cvsbert Exp $";
 
 #include "uilistbox.h"
 
@@ -28,6 +28,9 @@ static const char* rcsID = "$Id: uilistbox.cc,v 1.112 2010-11-10 15:26:43 cvsber
 #define mSingle QAbstractItemView::SingleSelection
 
 static const int cIconSz = 16;
+static const char* startmark = ":"; static const char* endmark = ":";
+#define mGetMarkededBufferString(nm,yn,inpstr) \
+    const BufferString nm( yn ? startmark : "", inpstr, yn ? endmark : "" )
 
 
 class uiListBoxItem : public QListWidgetItem
@@ -58,8 +61,8 @@ public:
 
     virtual 		~uiListBoxBody()		{ delete &messenger_; }
 
-    void		insertItem(int idx,const char* txt,bool embed);
-    void		addItem(const char* txt,bool embed);
+    void		insertItem(int idx,const char* txt,bool mark);
+    void		addItem(const char* txt,bool mark);
     void		removeItem(int idx)
 			{
 			    items_.remove( idx );
@@ -68,17 +71,14 @@ public:
 
     void		setItemAlignment(int idx,Alignment::HPos);
 
-    int			maxSelectable() const;
+    int			maxNrOfSelections() const;
 
-    void 		setLines( int prefNrLines, bool adaptVStretch )
+    void 		setNrLines( int prefNrLines )
 			{ 
-			    if( prefNrLines >= 0 ) prefnrlines_=prefNrLines;
-
-			    if( adaptVStretch )
-			    {
-				int hs = stretch(true,true);
-				setStretch( hs, (nrTxtLines()== 1) ? 0 : 2 );
-			    }
+			    if( prefNrLines >= 0 )
+				prefnrlines_=prefNrLines;
+			    int hs = stretch(true,true);
+			    setStretch( hs, (nrTxtLines()== 1) ? 0 : 2 );
 			}
 
     virtual uiSize	minimumsize() const; //!< \reimp
@@ -121,29 +121,28 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 }
 
 
-void createQString( QString& qs, const char* str, bool embed )
+void createQString( QString& qs, const char* str, bool mark )
 {
     if ( !str ) str = "";
-    BufferString bs( str );
-    if ( embed ) { bs = "["; bs += str; bs += "]"; }
+    mGetMarkededBufferString( bs, mark, str );
     qs = bs.buf();
 }
 
 
-void uiListBoxBody::addItem( const char* txt, bool embed )
+void uiListBoxBody::addItem( const char* txt, bool mark )
 {
     QString qs;
-    createQString( qs, txt, embed );
+    createQString( qs, txt, mark );
     uiListBoxItem* itm = new uiListBoxItem( qs );
     items_ += itm;
     QListWidget::addItem( itm );
 }
 
 
-void uiListBoxBody::insertItem( int idx, const char* txt, bool embed )
+void uiListBoxBody::insertItem( int idx, const char* txt, bool mark )
 {
     QString qs;
-    createQString( qs, txt, embed );
+    createQString( qs, txt, mark );
     uiListBoxItem* itm = new uiListBoxItem( qs );
     items_.insertAt( itm, idx );
     QListWidget::insertItem( idx, itm );
@@ -191,7 +190,7 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
 }
 
 
-int uiListBoxBody::maxSelectable() const
+int uiListBoxBody::maxNrOfSelections() const
 { 
     if ( selectionMode() == mNoSelection )	return 0;
     if ( selectionMode() == mSingle )		return 1;
@@ -215,16 +214,16 @@ int uiListBoxBody::maxSelectable() const
 
 
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
-    : uiObject( p, nm, mkbody(p,nm,ms,nl,pfw) )
+    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,ms,nl,pfw) )
     mStdInit
 {
     rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
 }
 
 
-uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
-		      const char* txt, bool ms, int nl, int pfw )
-    : uiObject( p, txt, mkbody(p,txt,ms,nl,pfw))
+uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm,
+		      bool ms, int nl, int pfw )
+    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,ms,nl,pfw))
     mStdInit
 {
     addItems( items );
@@ -261,8 +260,8 @@ void uiListBox::menuCB( CallBacker* )
 }
 
 
-void uiListBox::setLines( int prefnrlines, bool adaptvstretch )
-{ body_->setLines( prefnrlines, adaptvstretch ); }
+void uiListBox::setNrLines( int prefnrlines )
+{ body_->setNrLines( prefnrlines ); }
 
 void uiListBox::setNotSelectable()
 { body_->setSelectionMode( mNoSelection ); }
@@ -270,8 +269,8 @@ void uiListBox::setNotSelectable()
 void uiListBox::setMultiSelect( bool yn )
 { body_->setSelectionMode( yn ? mExtended : mSingle ); }
 
-int uiListBox::maxSelectable() const
-{ return body_->maxSelectable(); }
+int uiListBox::maxNrOfSelections() const
+{ return body_->maxNrOfSelections(); }
 
 int uiListBox::size() const
 { return body_->count(); }
@@ -316,9 +315,9 @@ void uiListBox::selectAll( bool yn )
 }
 
 
-void uiListBox::addItem( const char* text, bool embed ) 
+void uiListBox::addItem( const char* text, bool mark ) 
 {
-    body_->addItem( text, embed );
+    body_->addItem( text, mark );
     setItemCheckable( size()-1, false ); // Qt bug
     setItemCheckable( size()-1, itemscheckable_ );
     body_->setItemAlignment( size()-1, alignment_ );
@@ -358,13 +357,13 @@ void uiListBox::addItems( const BufferStringSet& strs )
 }
 
 
-void uiListBox::insertItem( const char* text, int index, bool embed )
+void uiListBox::insertItem( const char* text, int index, bool mark )
 {
     if ( index<0 )
-	addItem( text, embed );
+	addItem( text, mark );
     else
     {
-	body_->insertItem( index, text, embed );
+	body_->insertItem( index, text, mark );
 	setItemCheckable( index<0 ? 0 : index, itemscheckable_ );
 	body_->setItemAlignment( size()-1, alignment_ );
     }
@@ -445,11 +444,33 @@ void uiListBox::clearSelection()
 { body_->clearSelection(); }
 
 
-void uiListBox::sort( bool asc )
+void uiListBox::sortItems( bool asc )
 {
+    const int sz = size();
+    if ( sz < 2 ) return;
+
+    BoolTypeSet mrkd;
+    BufferStringSet nms;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	mrkd += isMarked( idx );
+	nms.add( textOfItem(idx) );
+    }
+    int* sortidxs = nms.getSortIndexes();
     if ( !asc )
-	pErrMsg("Descending sort not possible");
-    body_->setSortingEnabled( true );
+    {
+	for ( int idx=0; idx<sz/2; idx++ )
+	    Swap( sortidxs[idx], sortidxs[sz-idx-1] );
+    }
+    nms.useIndexes( sortidxs );
+    setEmpty(); addItems( nms );
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( mrkd[ sortidxs[idx] ] )
+	    setMarked( sortidxs[idx], true );
+    }
+    delete [] sortidxs;
 }
 
 
@@ -487,17 +508,17 @@ bool uiListBox::isPresent( const char* txt ) const
 }
 
 
-const char* uiListBox::textOfItem( int idx, bool disembed ) const
+const char* uiListBox::textOfItem( int idx ) const
 {
     if ( !validIndex(idx) )
 	return "";
 
     rettxt = (const char*)body_->item(idx)->text().toAscii();
-    if ( !disembed || rettxt[0] != '[' )
+    if ( rettxt[0] != *startmark )
 	return rettxt;
 
     const int sz = rettxt.size();
-    if ( rettxt[sz-1] != ']' )
+    if ( rettxt[sz-1] != *endmark )
 	return rettxt;
 
     rettxt[sz-1] = '\0';
@@ -505,10 +526,20 @@ const char* uiListBox::textOfItem( int idx, bool disembed ) const
 }
 
 
-bool uiListBox::isEmbedded( int idx ) const
+bool uiListBox::isMarked( int idx ) const
 {
     rettxt = (const char*)body_->item(idx)->text().toAscii();
-    return rettxt.buf()[0] == '[' && rettxt.buf()[rettxt.size()-1] == ']';
+    return rettxt.buf()[0] == *startmark
+	&& rettxt.buf()[rettxt.size()-1] == *endmark;
+}
+
+
+void uiListBox::setMarked( int idx, bool yn )
+{
+    if ( isMarked(idx) == yn ) return;
+    mGetMarkededBufferString( newitmtxt, yn, textOfItem(idx) );
+    setItemText( idx, newitmtxt );
+
 }
 
 
@@ -620,8 +651,10 @@ int uiListBox::nrChecked() const
 
 void uiListBox::setItemText( int idx, const char* txt )
 {
-    if ( validIndex(idx) )
-	body_->item(idx)->setText( QString(txt) );
+    if ( !validIndex(idx) ) return;
+
+    mGetMarkededBufferString( itmtxt, isMarked(idx), txt );
+    body_->item(idx)->setText( QString(itmtxt.buf()) );
 }
 
 

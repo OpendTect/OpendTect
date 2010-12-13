@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.38 2010-11-18 17:16:53 cvsjaap Exp $
+ RCS:           $Id: uicombobox.h,v 1.39 2010-12-13 10:15:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,15 @@ class BufferStringSet;
 class BufferString;
 template <class T> class ObjectSet;
 
+/*!\brief Combo box.
+
+  The user can select an item from a drop-down list. Sometimes, you can allow
+  the user entering a new string there, use setReadOnly(false). In that case
+  the result of text() can be different from textOfItem(currentItem()). Also,
+  setText will do something is if the given string is not in the list.
+
+  */
+
 mClass uiComboBox : public uiObject, public UserInputObjImpl<int>
 {
 public:
@@ -30,20 +39,20 @@ public:
 			uiComboBox(uiParent*,const char**,const char* nm);
     virtual 		~uiComboBox();
 
-			/*!  This is the text that is actually in the current
-			     item. This text may differ from
-			     textOfItem(currentItem()) when the box is editable.
-			*/
-    const char*		text() const;
-    void		setText(const char*);
+    virtual void        setReadOnly( bool = true );
+    virtual bool        isReadOnly() const;
 
-    void		setEditText(const char*);
-
-    bool		isPresent(const char*) const;
-
-    void		setEmpty();
     int			size() const;
     inline bool		isEmpty() const		{ return size() == 0; }
+    void		setEmpty();
+    bool		isPresent(const char*) const;
+    int			indexOf(const char*) const;
+
+    const char*		text() const;
+    void		setText(const char*);
+    int			currentItem() const;
+    void		setCurrentItem(int);
+    void		setCurrentItem(const char*); //!< First match
 
     void		addItem(const wchar_t*);
     virtual void	addItem(const char*);
@@ -51,33 +60,13 @@ public:
     void		addSeparator();
     void		insertItem(const char*,int index=-1);
     void		insertItem(const ioPixmap&,const char*,int index=-1);
-    void		setPixmap(const ioPixmap&,int index);
-    void		getItemSize(int,int& h,int& w) const;
 
-    int			currentItem() const;
-    void		setCurrentItem(int);
-    void		setCurrentItem(const char*); //!< First match
     const char*		textOfItem(int) const;
     void		setItemText(int,const char*);
-    int			indexOf(const char*) const;
+    void		setPixmap(const ioPixmap&,int index);
 
     Notifier<uiComboBox> editTextChanged;
-
-			//! Triggered when selection has changed.
     Notifier<uiComboBox> selectionChanged;
-
-    void		notifyHandler(bool selectionchanged);
-
-    virtual void        setReadOnly( bool = true );
-    virtual bool        isReadOnly() const;
-
-    virtual bool	update_( const DataInpSpec& spec );
-
-    bool		handleLongTabletPress();
-    void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
-
-    void		setToolTip( const char* tt )
-    			{ uiObject::setToolTip(tt); }
 
 protected:
 
@@ -99,6 +88,19 @@ private:
 
     uiComboBoxBody*	body_;
     uiComboBoxBody&	mkbody(uiParent*,const char*);
+
+public:
+
+    void		setToolTip( const char* tt )
+    			{ uiObject::setToolTip(tt); }
+
+    virtual bool	update_( const DataInpSpec& spec );
+    void		getItemSize(int,int& h,int& w) const;
+
+    void		notifyHandler(bool selectionchanged);
+
+    bool		handleLongTabletPress();
+    void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
 
 };
 

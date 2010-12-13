@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.99 2010-12-09 12:35:46 cvsraman Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.100 2010-12-13 10:15:09 cvsbert Exp $";
 
 
 #include "uitable.h"
@@ -62,7 +62,7 @@ public:
 			uiTableBody(uiTable&,uiParent*,const char*,int,int);
 			~uiTableBody();
 
-    void		setLines(int);
+    void		setNrLines(int);
     virtual int 	nrTxtLines() const;
 
     QTableWidgetItem*	getItem(const RowCol&,bool createnew=true);
@@ -72,7 +72,7 @@ public:
     void		setCellObject(const RowCol&,uiObject*);
     RowCol		getCell(uiObject*);
 
-    int			maxSelectable() const;
+    int			maxNrOfSelections() const;
     uiTable::SelectionBehavior getSelBehavior() const;
 
 protected:
@@ -95,7 +95,7 @@ uiTableBody::uiTableBody( uiTable& handle, uiParent* parnt, const char* nm,
     : uiObjBodyImpl<uiTable,QTableWidget>(handle,parnt,nm)
     , messenger_ (*new i_tableMessenger(this,&handle))
 {
-    if ( nrows >= 0 ) setLines( nrows );
+    if ( nrows >= 0 ) setNrLines( nrows );
     if ( ncols >= 0 ) setColumnCount( ncols );
 
     QHeaderView* vhdr = verticalHeader();
@@ -135,7 +135,7 @@ void uiTableBody::mouseReleaseEvent( QMouseEvent* event )
 }
 
 
-void uiTableBody::setLines( int prefnrlines )
+void uiTableBody::setNrLines( int prefnrlines )
 { 
     setRowCount( prefnrlines );
     if ( !finalised() && prefnrlines > 0 )
@@ -235,7 +235,7 @@ uiTable::SelectionBehavior uiTableBody::getSelBehavior() const
 }
 
 
-int uiTableBody::maxSelectable() const
+int uiTableBody::maxNrOfSelections() const
 {
     if ( selectionMode()==QAbstractItemView::NoSelection )
 	return 0;
@@ -461,7 +461,7 @@ void uiTable::removeColumns( const TypeSet<int>& idxs )
 { removeRCs( idxs, true ); }
 
 void uiTable::setNrRows( int nr )
-{ body_->setLines( nr ); updateRow(0); }
+{ body_->setNrLines( nr ); updateRow(0); }
 
 void uiTable::setNrCols( int nr )
 { body_->setColumnCount( nr );  updateCol(0); }
@@ -787,7 +787,7 @@ void uiTable::setRowLabels( const char** labels )
 
 void uiTable::setRowLabels( const BufferStringSet& labels )
 {
-    body_->setLines( labels.size() );
+    body_->setNrLines( labels.size() );
     for ( int i=0; i<labels.size(); i++ )
         setRowLabel( i, *labels[i] );
 }
@@ -1258,9 +1258,9 @@ uiTable::SelectionBehavior uiTable::getSelBehavior() const
 }
 
 
-int uiTable::maxSelectable() const
+int uiTable::maxNrOfSelections() const
 {
-    return body_->maxSelectable();
+    return body_->maxNrOfSelections();
 }
 
 

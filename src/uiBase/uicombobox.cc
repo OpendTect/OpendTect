@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.59 2010-11-18 17:18:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.60 2010-12-13 10:15:09 cvsbert Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -139,13 +139,6 @@ const char* uiComboBox::text() const
 {
     rettxt_ = mQStringToConstChar( body_->currentText() );
     return rettxt_.buf();
-}
-
-
-void uiComboBox::setEditText( const char* txt )
-{
-    if ( txt && body_->isEditable() )
-	body_->setEditText( txt );
 }
 
 

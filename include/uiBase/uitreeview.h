@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.43 2010-10-22 09:30:14 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.44 2010-12-13 10:15:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,10 +26,6 @@ class ioPixmap;
 
 mClass uiListView : public uiObject
 {
-    friend class		i_listVwMessenger;
-    friend class		uiListViewBody;
-    friend class		uiListViewItem;
-
 public:
 			uiListView(uiParent* parnt,
 				   const char* nm="uiListView",
@@ -40,7 +36,7 @@ public:
 
 			// 0: use nr itms in list
     uiListViewBody& 	mkbody(uiParent*,const char*,int);
-    void		setLines(int prefNrLines);
+    void		setNrLines(int);
 
     enum		ScrollMode { Auto, AlwaysOff, AlwaysOn };
     void		setHScrollBarMode(ScrollMode);
@@ -159,6 +155,10 @@ protected:
     const uiListViewBody*	lvbody() const	{ return body_; }
 
 private:
+
+    friend class		i_listVwMessenger;
+    friend class		uiListViewBody;
+    friend class		uiListViewItem;
 
     uiListViewBody*	body_;
 

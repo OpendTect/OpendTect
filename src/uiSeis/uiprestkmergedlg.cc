@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.23 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.24 2010-12-13 10:15:09 cvsbert Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -142,7 +142,7 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 	    selvolsbox_->addItem( volsbox_->textOfItem(idx));
 	    volsbox_->removeItem(idx);
 	    lastusedidx = idx;
-	    volsbox_->sort();
+	    volsbox_->sortItems();
 	    idx--;
 	}
 	volsbox_->setSelected( lastusedidx<volsbox_->size() ?

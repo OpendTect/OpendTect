@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.134 2010-10-19 05:50:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.135 2010-12-13 10:15:09 cvsbert Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -81,7 +81,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
     attrlistfld_ = new uiLabeledListBox( this, "Select Attribute(s) to import",
 	   				 true );
-    attrlistfld_->box()->setLines( 4, true );
+    attrlistfld_->box()->setNrLines( 4 );
     attrlistfld_->attach( alignedBelow, inpfld_ );
     attrlistfld_->box()->selectionChanged.notify(
 	    			mCB(this,uiImportHorizon,formatSel) );

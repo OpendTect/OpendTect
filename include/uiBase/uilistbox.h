@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.57 2010-11-10 15:26:43 cvsbert Exp $
+ RCS:           $Id: uilistbox.h,v 1.58 2010-12-13 10:15:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,59 +26,58 @@ class uiPopupMenu;
 class QListWidgetItem;
 
 
+/*!\brief List Box.
+
+  Can be single- or multi-selection. Items can also be 'checkable'. Then, a
+  check box appears in front of each of the items in the list.
+
+  The size of the box is determined automatically (prefNrLines=0) but can be
+  overruled by setNrLines().
+
+  You can have some of the items marked. This will be done by surrounding the
+  item with curly braces, like: '{the item}'.
+
+*/
+
 mClass uiListBox : public uiObject
 {
 friend class i_listMessenger;
 friend class uiListBoxBody;
 public:
 
-                        uiListBox(uiParent* parnt=0, 
-				  const char* nm="uiListBox",
-				  bool isMultiSelect=false,
-				  int preferredNrLines=0,
-				  int preferredFieldWidth=0);
+                        uiListBox(uiParent*,const char* nm=0,
+				  bool multiselect=false,
+				  int prefNrLines=0,int prefFieldWidth=0);
 
 			uiListBox(uiParent*,const BufferStringSet&,
-				  const char* txt="uiListBox",
-				  bool isMultiSelect=false,
-				  int preferredNrLines=0,
-				  int preferredFieldWidth=0);
+				  const char* nm=0,bool multiselect=false,
+				  int prefNrLines=0,int prefFieldWidth=0);
 
     virtual 		~uiListBox();
 
-/*! \brief set preferred number of lines. 
-    If set to 0, then it is determined by the number of items in list.
-    If set to 1, then the list has a fixed height of 1 textline and 
-    therefore should not be able to grow/shrink vertically.
-
-    adaptVStretch specifies wether or not the vertical stretch should be
-    set to 0 if nrlines == 1 or 2 otherwise.
-*/
-    void 		setLines(int,bool adaptvstretch);
-    void		setNotSelectable();
     void		setMultiSelect(bool yn=true);
-    int			maxSelectable() const;
+    void		setNotSelectable();	//!< display only, no iteraction
+    int			maxNrOfSelections() const;
 
     int			size() const;
     inline bool		isEmpty() const		{ return size() == 0; }
-    int			nextSelected(int prev=-1) const;
     bool		isPresent(const char*) const;
+
     bool		isSelected(int) const;
+    int			nextSelected(int prev=-1) const;
     int			nrSelected() const;
     void		setSelected(int,bool yn=true);
     void		selectAll(bool yn=true);
     void		clearSelection();
-    void		sort(bool asc=true);
 
     void		setEmpty();
     void		removeItem(int);
-    void		addItem(const char*,bool embedded=false); 
-    			//!< embedded = put [...] around text
+    void		addItem(const char*,bool marked=false); 
     void		addItem(const char*,const ioPixmap&);
     void		addItem(const char*,const Color&);
     void		addItems(const char**); 
     void		addItems(const BufferStringSet&);
-    void		insertItem(const char*,int idx=-1,bool embedded=false);
+    void		insertItem(const char*,int idx=-1,bool marked=false);
     void		insertItem(const char*,const ioPixmap&,int idx=-1);
     void		insertItem(const char*,const Color&,int);
     void		setPixmap(int,const Color&);
@@ -87,20 +86,23 @@ public:
     void		setColor(int,const Color&);
     Color		getColor(int) const;
 
-    void		setItemText(int,const char*);
+    void		sortItems(bool asc=true);
+
     int			currentItem() const;
     const char*		getText() const	 { return textOfItem(currentItem()); }
-    const char*		textOfItem(int,bool disembed=false) const;
-    			//!< disembed = remove [...] from text
-    bool		isEmbedded(int) const;
-    			//!< check for [...] around text
     void                setCurrentItem(int);
-    void                setCurrentItem(const char*); //!< First match
-    int			indexOf(const char*) const; //!< First match
+    void                setCurrentItem(const char*);	//!< First match
+    int			indexOf(const char*) const;	//!< First match
+    const char*		textOfItem(int) const;
+    void		setItemText(int,const char*);
+    void		getItems(BufferStringSet&) const;
 
-    void		setItemsCheckable(bool);	//!<Sets all items
+    bool		isMarked(int) const;
+    void		setMarked(int,bool);
+
+    void		setItemsCheckable(bool);	//!< Sets all items
     void		setItemCheckable(int,bool);
-    void		setItemsChecked(bool);		//!<Sets all items
+    void		setItemsChecked(bool);		//!< Sets all items
     void		setItemChecked(int,bool);
     bool		isItemCheckable(int) const;
     bool		isItemChecked(int) const;
@@ -115,23 +117,24 @@ public:
     void		getCheckedItems(BufferStringSet&) const;
     void		getCheckedItems(TypeSet<int>&) const;
 
-    void		setFieldWidth(int);
-    int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
     Alignment::HPos	alignment() const		{ return alignment_; }
     void		setAlignment(Alignment::HPos);
-
-    bool		handleLongTabletPress();
+    void 		setNrLines(int);
+    void		setFieldWidth(int);
+    int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
 
     Notifier<uiListBox> selectionChanged;
+    Notifier<uiListBox> itemChecked;		//!< or un-checked (of course)
     Notifier<uiListBox> doubleClicked;
     Notifier<uiListBox> rightButtonClicked;
     Notifier<uiListBox> leftButtonClicked;
     Notifier<uiListBox> deleteButtonPressed;
-    Notifier<uiListBox> itemChecked; //!< or un-checked
+
+    bool		handleLongTabletPress();
 
 protected:
 
-    mutable BufferString	rettxt;
+    mutable BufferString rettxt;
     OD::ButtonState	buttonstate_;
     Alignment::HPos	alignment_;
     bool		itemscheckable_;
@@ -158,10 +161,10 @@ public:
 			  AboveLeft, AboveMid, AboveRight,
 			  BelowLeft, BelowMid, BelowRight };
 
-			uiLabeledListBox(uiParent*,const char* txt,
+			uiLabeledListBox(uiParent*,const char* lbltxt,
 					 bool multisel=false,LblPos p=LeftTop);
 			uiLabeledListBox(uiParent*,const BufferStringSet&,
-					 const char* txt,
+					 const char* lbltxt,
 					 bool multisel=false,LblPos p=LeftTop);
 
     uiListBox*		box()				{ return lb; }
