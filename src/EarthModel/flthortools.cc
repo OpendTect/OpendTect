@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.33 2010-11-30 11:52:30 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.34 2010-12-13 07:08:50 satyaki Exp $";
 
 #include "flthortools.h"
 
@@ -408,9 +408,9 @@ bool FaultTraceExtractor::get2DFaultTrace()
     mDynamicCastGet(const EM::FaultStickSet*,fss,fault_)
     if ( !fss ) return false;
 
-    PosInfo::POS2DAdmin().setCurLineSet( geomid_.lsid_ );
+    S2DPOS().setCurLineSet( geomid_.lsid_ );
     PosInfo::Line2DData linegeom;
-    if ( !PosInfo::POS2DAdmin().getGeometry(geomid_.lineid_,linegeom) )
+    if ( !S2DPOS().getGeometry(geomid_.lineid_,linegeom) )
 	return false;
 
     const int nrsticks = fss->geometry().nrSticks( fltsid );
