@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.17 2010-12-02 16:00:42 cvskris Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.18 2010-12-13 13:32:15 cvsbruno Exp $";
 
 #include "prestackagc.h"
 
@@ -33,7 +33,8 @@ bool PreStack::AGC::prepareWork()
     {
 	if ( !inputs_[idx] ) continue;
 
-	const float zstep = inputs_[idx]->posData().range(false).step;
+	float zstep = inputs_[idx]->posData().range(false).step;
+	zstep *= SI().zIsTime() ? 1000 : 1;
 
 	samplewindow_.start = mNINT( window_.start/zstep );
 	samplewindow_.stop = mNINT( window_.stop/zstep );
