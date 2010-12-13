@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.125 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.126 2010-12-13 07:07:44 cvssatyaki Exp $";
 
 #include "uiseispartserv.h"
 
@@ -248,9 +248,9 @@ bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
 	setzrange = true;
     }
 
-    PosInfo::POS2DAdmin().setCurLineSet( lineset.name() );
+    S2DPOS().setCurLineSet( lineset.name() );
     geom.setLineName( BufferString(linenm) );
-    if ( !PosInfo::POS2DAdmin().getGeometry( geom ) )
+    if ( !S2DPOS().getGeometry( geom ) )
 	return false;
 
     if ( setzrange )

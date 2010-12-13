@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.84 2010-10-18 04:52:26 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.85 2010-12-13 07:07:43 cvssatyaki Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -898,9 +898,9 @@ int nextStep()
 	return Finished();
     }
 
-    PosInfo::POS2DAdmin().setCurLineSet( ls.name() );
+    S2DPOS().setCurLineSet( ls.name() );
     PosInfo::Line2DData geom( ls.lineKey(curidx).lineName() );
-    if ( !PosInfo::POS2DAdmin().getGeometry(geom) )
+    if ( !S2DPOS().getGeometry(geom) )
     {
 	curmsg = "Couldn't get geometry for '";
 	curmsg += ls.lineKey( curidx );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hor2dfrom3dcreator.cc,v 1.7 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: hor2dfrom3dcreator.cc,v 1.8 2010-12-13 07:07:43 cvssatyaki Exp $";
 
 #include "hor2dfrom3dcreator.h"
 
@@ -67,10 +67,10 @@ Hor2DFrom3DCreator::Hor2DFrom3DCreator( const EM::Horizon3D& hor3d,
 bool Hor2DFrom3DCreator::setCreator( const char* linename, const char* lsname )
 {
     posdata_.setLineName( linename );
-    geomid_ = PosInfo::POS2DAdmin().getGeomID( lsname, linename );
+    geomid_ = S2DPOS().getGeomID( lsname, linename );
     if ( !geomid_.isOK() ) return false;
 
-    PosInfo::POS2DAdmin().getGeometry( posdata_ );
+    S2DPOS().getGeometry( posdata_ );
     hor2d_.geometry().addLine( geomid_ );
     totalnr_ = posdata_.positions().size();
     return true;

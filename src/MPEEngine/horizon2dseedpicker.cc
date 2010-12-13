@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.23 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.24 2010-12-13 07:07:43 cvssatyaki Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -113,8 +113,7 @@ bool Horizon2DSeedPicker::startSeedPick()
 	}
     }
 
-    PosInfo::GeomID geomid =
-	PosInfo::POS2DAdmin().getGeomID( ioobj->name(), linename_ );
+    PosInfo::GeomID geomid = S2DPOS().getGeomID( ioobj->name(), linename_ );
     if ( !geomid.isOK() )
 	return false;
 

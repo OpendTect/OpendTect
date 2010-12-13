@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.cc,v 1.9 2010-12-06 11:12:03 cvssatyaki Exp $
+ RCS:		$Id: horflatvieweditor2d.cc,v 1.10 2010-12-13 07:07:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -552,13 +552,13 @@ bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
     if ( !ioobj ) return false;
 
     const Seis2DLineSet lset( ioobj->fullUserExpr(true) );
-    PosInfo::POS2DAdmin().setCurLineSet( lset.name() );
+    S2DPOS().setCurLineSet( lset.name() );
     PosInfo::LineSet2DData linesetgeom;
     for ( int idx=0; idx<lset.nrLines(); idx++ )
     {
 	PosInfo::Line2DData& linegeom = linesetgeom.addLine(lset.lineName(idx));
 	linegeom.setLineName( lset.lineName(idx) );
-	PosInfo::POS2DAdmin().getGeometry( linegeom );
+	S2DPOS().getGeometry( linegeom );
 	if ( linegeom.positions().isEmpty() )
 	{
 	    linesetgeom.removeLine( lset.lineName(idx) );

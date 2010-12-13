@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.98 2010-10-20 04:43:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.99 2010-12-13 07:07:43 cvssatyaki Exp $";
 
 #include "attribstorprovider.h"
 
@@ -788,12 +788,12 @@ float StorageProvider::getMaxDistBetwTrcs() const
     if ( !lset )
 	return mUdf(float);
 
-    PosInfo::POS2DAdmin().setCurLineSet( lset->name() );
+    S2DPOS().setCurLineSet( lset->name() );
     PosInfo::LineSet2DData ls2ddata;
     for ( int idx=0; idx<lset->nrLines(); idx++ )
     {
 	PosInfo::Line2DData& linegeom = ls2ddata.addLine(lset->lineName(idx));
-	PosInfo::POS2DAdmin().getGeometry( linegeom );
+	S2DPOS().getGeometry( linegeom );
 	if ( linegeom.positions().isEmpty() )
 	{
 	    ls2ddata.removeLine( lset->lineName(idx) );

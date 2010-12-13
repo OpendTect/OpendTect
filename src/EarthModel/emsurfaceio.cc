@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.140 2010-12-09 11:35:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.141 2010-12-13 07:07:43 cvssatyaki Exp $";
 
 #include "emsurfaceio.h"
 
@@ -247,9 +247,9 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 		 !geomid.fromString(geomidstr) )
 		continue;
 
-	    PosInfo::POS2DAdmin().setCurLineSet( geomid.lsid_ );
-	    linesets_.add( PosInfo::POS2DAdmin().getLineSet(geomid.lsid_) );
-	    linenames_.add( PosInfo::POS2DAdmin().getLineName(geomid.lineid_) );
+	    S2DPOS().setCurLineSet( geomid.lsid_ );
+	    linesets_.add( S2DPOS().getLineSet(geomid.lsid_) );
+	    linenames_.add( S2DPOS().getLineName(geomid.lineid_) );
 	    
 	    SeparString linetrcrgkey( linekey.buf(), '.' );
 	    linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
@@ -772,11 +772,17 @@ int dgbSurfaceReader::nextStep()
 
     if ( hor2d )
     {
+	if ( !linesets_.size() || !linenames_.size() )
+	    return ErrorOccurred();
+
 	if ( !hor2d->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
 	PosInfo::GeomID geomid = S2DPOS().getGeomID(linesets_[rowindex_]->buf(),
 	    					 linenames_[rowindex_]->buf() );
+	if ( !geomid.isOK() )
+	     return ErrorOccurred();
+
 	hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
 		geomid, firstcol+noofcoltoskip,
 		firstcol+nrcols+noofcoltoskip-1, colstep );

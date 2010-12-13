@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.36 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.37 2010-12-13 07:07:43 cvssatyaki Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -335,7 +335,7 @@ void MadStream::fillHeaderParsFromSeis()
 	if ( !ioobj ) mErrRet( "No nput object" );
 
 	Seis2DLineSet lset( *ioobj );
-	PosInfo::POS2DAdmin().setCurLineSet( lset.name() );
+	S2DPOS().setCurLineSet( lset.name() );
 	const Seis::SelData* seldata = seisrdr_->selData();
 	if ( !seldata ) mErrRet( "Invalid data subselection" );
 
@@ -343,7 +343,7 @@ void MadStream::fillHeaderParsFromSeis()
 	if ( lidx < 0 ) mErrRet( "2D Line not found" );
 
 	PosInfo::Line2DData geom( seldata->lineKey().lineName() );
-	if ( !PosInfo::POS2DAdmin().getGeometry(geom) )
+	if ( !S2DPOS().getGeometry(geom) )
 	    mErrRet( "Line geometry not available" );
 
 	if ( !seldata->isAll() )

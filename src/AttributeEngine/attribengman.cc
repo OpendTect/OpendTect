@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.105 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.106 2010-12-13 07:07:43 cvssatyaki Exp $";
 
 #include "attribengman.h"
 
@@ -754,12 +754,12 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     if ( !ioobj ) return;
     const Seis2DLineSet lset(ioobj->fullUserExpr(true));
 
-    PosInfo::POS2DAdmin().setCurLineSet( lset.name() );
+    S2DPOS().setCurLineSet( lset.name() );
     PosInfo::LineSet2DData linesetgeom;
     for ( int idx=0; idx<lset.nrLines(); idx++ )
     {
 	PosInfo::Line2DData& linegeom = linesetgeom.addLine(lset.lineName(idx));
-	PosInfo::POS2DAdmin().getGeometry( linegeom );
+	S2DPOS().getGeometry( linegeom );
 	if ( linegeom.positions().isEmpty() )
 	{
 	    linesetgeom.removeLine( lset.lineName(idx) );

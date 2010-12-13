@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.21 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.22 2010-12-13 07:07:44 cvssatyaki Exp $";
 
 #include "uiseis2dgeom.h"
 #include "bufstringset.h"
@@ -116,9 +116,9 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
     lk.setAttrName( seisfld->attrNm() );
     Seis2DLineSet ls( ctio.ioobj->fullUserExpr(true) );
 
-    PosInfo::POS2DAdmin().setCurLineSet( ls.name() );
+    S2DPOS().setCurLineSet( ls.name() );
     PosInfo::Line2DData l2dd( lk.lineName() );
-    PosInfo::POS2DAdmin().getGeometry( l2dd );
+    S2DPOS().getGeometry( l2dd );
     l2dd.write( *sd.ostrm, true );
 
     sd.close();

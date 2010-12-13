@@ -4,7 +4,7 @@
  * DATE     : Nov 2009
 -*/
 
-static const char* rcsID = "$Id: uigoogleexp2dlines.cc,v 1.13 2010-11-25 09:20:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigoogleexp2dlines.cc,v 1.14 2010-12-13 07:07:43 cvssatyaki Exp $";
 
 #include "uigoogleexp2dlines.h"
 #include "googlexmlwriter.h"
@@ -129,9 +129,9 @@ void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm,
     const Seis2DLineSet& lset( *s2dfm_->lineset_ );
     LineKey lk( lnm, lset.attribute(iattr) );
     const int iln = lset.indexOf( lk );
-    PosInfo::POS2DAdmin().setCurLineSet( lset.name() );
+    S2DPOS().setCurLineSet( lset.name() );
     PosInfo::Line2DData l2dd( lk.lineName() );
-    if ( iln < 0 || !PosInfo::POS2DAdmin().getGeometry(l2dd) )
+    if ( iln < 0 || !S2DPOS().getGeometry(l2dd) )
 	return;
     const int nrposns = l2dd.positions().size();
     if ( nrposns < 2 )

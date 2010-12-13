@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.16 2010-09-29 03:48:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.17 2010-12-13 07:07:44 cvssatyaki Exp $";
 
 #include "horflatvieweditor.h"
 
@@ -409,13 +409,13 @@ bool HorizonFlatViewEditor::getPosID( const EM::EMObject& emobj,
 	if ( !ioobj ) return false;
 
 	const Seis2DLineSet lset( ioobj->fullUserExpr(true) );
-	PosInfo::POS2DAdmin().setCurLineSet( lset.name() );
+	S2DPOS().setCurLineSet( lset.name() );
 	PosInfo::LineSet2DData linesetgeom;
 	for ( int idx=0; idx<lset.nrLines(); idx++ )
 	{
 	    PosInfo::Line2DData& linegeom =
 		linesetgeom.addLine(lset.lineName(idx));
-	    PosInfo::POS2DAdmin().getGeometry( linegeom );
+	    S2DPOS().getGeometry( linegeom );
 	    if ( linegeom.positions().isEmpty() )
 	    {
 		linesetgeom.removeLine( lset.lineName(idx) );

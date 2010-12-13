@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.6 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.7 2010-12-13 07:07:43 cvssatyaki Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -35,7 +35,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     setCtrlStyle( LeaveOnly );
 
     BufferStringSet linesets;
-    PosInfo::POS2DAdmin().getLineSets( linesets );
+    S2DPOS().getLineSets( linesets );
     uiLabeledListBox* lslb =
 	new uiLabeledListBox( this, linesets, "Linesets", false,
 			      uiLabeledListBox::AboveMid );
@@ -71,8 +71,8 @@ ui2DGeomManageDlg::~ui2DGeomManageDlg()
 void ui2DGeomManageDlg::lineSetSelCB( CallBacker* )
 {
     BufferStringSet linenames;
-    PosInfo::POS2DAdmin().setCurLineSet( linesetfld_->getText() );
-    PosInfo::POS2DAdmin().getLines( linenames );
+    S2DPOS().setCurLineSet( linesetfld_->getText() );
+    S2DPOS().getLines( linenames );
     linenamefld_->setEmpty();
     linenamefld_->addItems( linenames );
 }
@@ -89,7 +89,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
     , linenm_(linenm)
 {
     BufferString lbl( "Lineset : ");
-    lbl.add( PosInfo::POS2DAdmin().curLineSet() );
+    lbl.add( S2DPOS().curLineSet() );
     lbl.add( ", Linename : ");
     lbl.add( linenm );
     
@@ -97,7 +97,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
     titllbl->attach( hCentered );
     
     PosInfo::Line2DData geom( linenm );
-    PosInfo::POS2DAdmin().getGeometry( geom );
+    S2DPOS().getGeometry( geom );
     const TypeSet<PosInfo::Line2DPos>& positions = geom.positions();
     table_ = new uiTable( this, uiTable::Setup(positions.size(),3), "2DGeom" );
     table_->attach( ensureBelow, titllbl );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.11 2010-12-09 13:25:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.12 2010-12-13 07:07:43 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: surv2dgeom.cc,v 1.11 2010-12-09 13:25:27 cvssat
 #include "oddirs.h"
 #include "safefileio.h"
 #include "settings.h"
+#include "strmprov.h"
 #include <iostream>
 
 static PosInfo::Survey2D* theinst = 0;
@@ -70,7 +71,14 @@ PosInfo::Survey2D& PosInfo::POS2DAdmin()
 }
 
 
-#define mErrRet(s1,s2,s3) { ErrMsg(BufferString(s1 " '",s2, "' " s3)); return; }
+#define mErrRet(s1,s2,s3) \
+{\
+    BufferString cmd("od_DispMsg --err ",BufferString(s1 " '",s2, "' " s3)); \
+    StreamProvider prov( cmd ); \
+    prov.executeCommand( false ); \
+    return; \
+}
+
 
 PosInfo::Survey2D::Survey2D()
     : basefp_(*new FilePath(GetDataDir()))
@@ -88,13 +96,15 @@ PosInfo::Survey2D::Survey2D()
 	if ( !File::isDirectory(dirnm) )
 	{
 	    if ( !File::remove(dirnm) )
-		mErrRet("File",dirnm,"exists but is not a directory")
+		mErrRet("File",dirnm,"exists but is not a directory");
 	}
     }
+
     if ( !File::exists(dirnm) )
     {
 	if ( !File::createDir(dirnm) )
-		mErrRet("Cannot create",dirnm,"for 2D geometries")
+	    mErrRet("Cannot create",dirnm,
+		    "for 2D geometries. Check write premissions")
     }
 
     readIdxFiles();
@@ -153,11 +163,9 @@ void PosInfo::Survey2D::writeIdxFile( bool lines ) const
     FilePath fp( lines ? lsfp_ : basefp_ ); fp.add( sIdxFilename );
     SafeFileIO sfio( fp.fullPath(), true );
     if ( !sfio.open(false) )
-    {
-	ErrMsg("Cannot open 2D Geometry index file for write."
-		"\nCheck disk space and file permissions.");
-	return;
-    }
+	mErrRet( "Cannot open 2D Geometry index file", fp.fullPath(),
+		 "for write. Check disk space and file permissions." )
+
     ascostream astrm( sfio.ostrm() );
     astrm.putHeader("File Name Table");
     (lines ? lineindex_ : lsindex_).putTo( astrm );
@@ -166,7 +174,7 @@ void PosInfo::Survey2D::writeIdxFile( bool lines ) const
     else
     {
 	sfio.closeFail();
-	ErrMsg("Error during write to 2D Geometry index file."
+	mErrRet("Error during write to 2D Geometry index file.",fp.fullPath(),
 		"\nCheck disk space.");
     }
 }

@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.69 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.70 2010-12-13 07:07:43 cvssatyaki Exp $";
 
 -*/
 
@@ -589,7 +589,7 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 
     BufferString fnm = ioobj->fullUserExpr(true);
     Seis2DLineSet lineset( fnm );
-    PosInfo::POS2DAdmin().setCurLineSet( lineset.name() );
+    S2DPOS().setCurLineSet( lineset.name() );
     for ( int idx=0 ;idx<lineset.nrLines();idx++ )
     {
 	const int lineindex = lineset.indexOfFirstOccurrence(
@@ -598,7 +598,7 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 	{
 	    PosInfo::Line2DData* geometry =
 		new PosInfo::Line2DData( lineset.lineName(idx) );
-	    if ( !PosInfo::POS2DAdmin().getGeometry(*geometry) )
+	    if ( !S2DPOS().getGeometry(*geometry) )
 		{ delete geometry; return undef; }
 
 	    const int trcnr = refposfld_->getBinID().crl;
