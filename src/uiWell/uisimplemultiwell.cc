@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.4 2010-12-14 03:57:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.5 2010-12-14 11:13:38 cvsbert Exp $";
 
 
 #include "uisimplemultiwell.h"
@@ -242,7 +242,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 
 IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 {
-    IOObj* ioobj = IOM().getByName( wellnm );
+    IOObj* ioobj = IOM().getLocal( wellnm );
     if ( ioobj )
     {
 	if ( overwritepol_ == 0 )
