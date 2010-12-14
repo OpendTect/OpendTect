@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.24 2010-12-09 11:35:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.25 2010-12-14 05:20:56 cvsnanne Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -179,7 +179,7 @@ bool Pos::EMSurfaceProvider::toNextPos()
     curzrg_ += extraz_;
 
     Interval<float> unsnappedzrg = curzrg_;
-    if ( surf2_ || extraz_.width()>0 )
+    if ( surf2_ )
     {
 	SI().snapZ( curzrg_.start, 1 );
 	SI().snapZ( curzrg_.stop, -1 );
@@ -197,11 +197,11 @@ bool Pos::EMSurfaceProvider::toNextPos()
 
 bool Pos::EMSurfaceProvider::toNextZ()
 {
-    if ( mIsUdf(curz_) || !surf2_ )
+    if ( mIsUdf(curz_) || (!surf2_ && mIsZero(extraz_.width(),mDefEps) ) )
 	return toNextPos();
 
     curz_ += zstep_;
-    if ( curz_ > curzrg_.stop )
+    if ( curz_ > (curzrg_.stop+mDefEps) )
 	return toNextPos();
 
     return true;
