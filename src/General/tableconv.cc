@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.16 2009-12-01 22:48:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.17 2010-12-14 09:54:00 cvsnageswara Exp $";
 
 #include "tableconvimpl.h"
 #include "string2.h"
@@ -22,6 +22,7 @@ void Table::ImportHandler::addToCol( char c )
 	char buf[3]; buf[0] = c; buf[1] = ' '; buf[2] = '\0';
 	col_ += buf;
     }
+
     colpos_++;
 }
 
@@ -36,6 +37,7 @@ bool Table::ExportHandler::init()
 {
     if ( *prepend_.buf() )
 	strm_ << prepend_;
+
     return strm_.good();
 }
 
@@ -52,7 +54,7 @@ int Table::Converter::nextStep()
     if ( selcolnr_ == -1 && !exphndlr_.init() )
     {
 	msg_ = "Cannot write first output";
-	return -1;
+	return ErrorOccurred();
     }
 
     selcolnr_ = colnr_ = 0;
@@ -63,14 +65,15 @@ int Table::Converter::nextStep()
 	if ( imphndlr_.atEnd() )
 	{
 	    exphndlr_.finish();
-	    return 0;
+	    return Finished();
 	}
 
 	Table::ImportHandler::State impstate = imphndlr_.add( c );
 	if ( !handleImpState(impstate) )
-	    return msg_.isEmpty() ? 0 : -1;
+	    return msg_.isEmpty() ? Finished() : ErrorOccurred();
+
 	if ( impstate == Table::ImportHandler::EndRow )
-	    return 1;
+	    return MoreToDo();
     }
 }
 
@@ -93,6 +96,7 @@ bool Table::Converter::handleImpState( Table::ImportHandler::State impstate )
 	    row_.add( imphndlr_.getCol() );
 	    selcolnr_++;
 	}
+
 	colnr_++;
 	imphndlr_.newCol();
 
@@ -114,9 +118,11 @@ bool Table::Converter::handleImpState( Table::ImportHandler::State impstate )
 	if ( accepted )
 	{
 	    const char* msg = exphndlr_.putRow( row_ );
-	    if ( msg && *msg )
+	    if ( msg )
 	    {
-		msg_ = msg;
+		if ( *msg )
+		    msg_ = msg;
+
 		return false;
 	    }
 
@@ -158,6 +164,7 @@ Table::ImportHandler::State Table::WSImportHandler::add( char c )
 	    addToCol( '\0' );
 	    return EndCol;
 	}
+
 	return InCol;
     }
 
@@ -234,8 +241,8 @@ const char* Table::WSExportHandler::putRow( const BufferStringSet& row )
 {
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx, row.get(idx) );
-    strm_ << std::endl;
 
+    strm_ << std::endl;
     return getStrmMsg();
 }
 
@@ -244,6 +251,7 @@ void Table::CSVExportHandler::addVal( int col, const char* val )
 {
     if ( col )
 	strm_ << ',';
+
     const bool needsquotes = *val && !isNumber( val );
     if ( needsquotes )
 	strm_ << '"';
@@ -258,8 +266,8 @@ const char* Table::CSVExportHandler::putRow( const BufferStringSet& row )
 {
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx, row.get(idx) );
-    strm_ << std::endl;
 
+    strm_ << std::endl;
     return getStrmMsg();
 }
 
@@ -268,6 +276,7 @@ void Table::SQLInsertExportHandler::addVal( int col, const char* val )
 {
     if ( col )
 	strm_ << ',';
+
     const bool needsquotes = !*val || !isNumber( val );
     if ( needsquotes )
 	strm_ << "'";
@@ -284,6 +293,7 @@ const char* Table::SQLInsertExportHandler::putRow( const BufferStringSet& row )
     {
 	if ( tblname_.isEmpty() )
 	    return "No table name provided";
+
 	addindex_ = !indexcolnm_.isEmpty();
 	nrextracols_ = extracolnms_.size();
     }
@@ -301,6 +311,7 @@ const char* Table::SQLInsertExportHandler::putRow( const BufferStringSet& row )
 	int idx0 = addindex_ ? 0 : 1;
 	for ( int idx=idx0; idx<nrextracols_; idx++ )
 	    strm_ << ',' << extracolnms_.get(idx).buf();
+
 	idx0 = addindex_ || nrextracols_ > 0 ? 0 : 1;
 	for ( int idx=idx0; idx<colnms_.size(); idx++ )
 	    strm_ << ',' << colnms_.get(idx).buf();
@@ -315,6 +326,7 @@ const char* Table::SQLInsertExportHandler::putRow( const BufferStringSet& row )
     int idxoffs = addindex_ ? 1 : 0;
     for ( int idx=0; idx<nrextracols_; idx++ )
 	addVal( idx+idxoffs, extracolvals_.get(idx) );
+
     idxoffs += nrextracols_;
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx+idxoffs, row.get(idx) );
@@ -424,6 +436,7 @@ bool Table::StartStopManipulator::accept( BufferStringSet& cols ) const
 	updCount( start_, cols );
 	if ( count_ >= start_.count_ )
 	    { startdone_ = true; count_ = 0; }
+
 	return false;
     }
 
@@ -431,6 +444,7 @@ bool Table::StartStopManipulator::accept( BufferStringSet& cols ) const
     {
 	if ( count_ >= stop_.count_ ) // To avoid detection after end
 	    return false;
+
 	updCount( stop_, cols );
 	if ( count_ >= stop_.count_ ) // To stop at detection of end
 	    return false;

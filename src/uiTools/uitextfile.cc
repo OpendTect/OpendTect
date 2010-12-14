@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextfile.cc,v 1.10 2010-06-17 21:59:48 cvskris Exp $";
+static const char* rcsID = "$Id: uitextfile.cc,v 1.11 2010-12-14 09:54:00 cvsnageswara Exp $";
 
 #include "uitextfile.h"
 #include "uitextedit.h"
@@ -33,6 +33,7 @@ void uiTextFile::init( uiParent* p )
 	tbl_ = new uiTable( p, tsu, setup_.filename_ );
 	tbl_->setTableReadOnly( setup_.readonly_ );
 	tbl_->setStretch( 2, 2 );
+	tbl_->setPrefHeight( 200 );
     }
     else if ( !setup_.readonly_ )
 	txted_ = new uiTextEdit( p, setup_.filename_ );
