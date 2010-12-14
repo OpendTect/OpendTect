@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.22 2010-09-09 21:40:14 cvskris Exp $
+ RCS:		$Id: general.h,v 1.23 2010-12-14 11:14:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,6 @@ ________________________________________________________________________
 #ifdef __cpp__
 
 #include "bufstring.h"
-
-#define UserIDString	BufferString
 #define FileNameString	BufferString
 
 template <class T>

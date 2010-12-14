@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.36 2009-09-21 11:22:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.37 2010-12-14 11:14:37 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -238,8 +238,7 @@ bool dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
     if ( !conn.forWrite() || !conn.isStream() )	return false;
 
     ascostream astream( ((StreamConn&)conn).oStream() );
-    UserIDString head( mTranslGroupName(Wavelet) );
-    head += " file";
+    const BufferString head( mTranslGroupName(Wavelet), " file" );
     if ( !astream.putHeader( head ) ) return false;
 
     if ( *(const char*)wv->name() ) astream.put( sKey::Name, wv->name() );

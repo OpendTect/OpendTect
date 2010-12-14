@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.41 2010-09-10 11:52:47 cvsranojay Exp $
+ RCS:		$Id: genc.h,v 1.42 2010-12-14 11:14:37 cvsbert Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -67,7 +67,6 @@ mGlobal int InSysAdmMode();
 /* C only */
 
 typedef char	FileNameString[mMaxFilePathLength+1];
-typedef char	UserIDString[128];
 
 #endif
 
