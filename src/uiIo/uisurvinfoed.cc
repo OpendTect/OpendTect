@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.126 2010-12-06 21:43:02 cvskris Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.127 2010-12-14 04:41:20 cvsnanne Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -152,10 +152,18 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     else
     {
 	orgstorepath_ = rootdir_;
+	if ( !File::isWritable(orgstorepath_) )
+	{
+	    BufferString msg( "Cannot create new survey in\n",orgstorepath_,
+			      ".\nDirectory is write protected.");
+	    uiMSG().error( msg );
+	    return;
+	}
+
 	orgdirname_ = newSurvTempDirName();
 	BufferString dirnm = FilePath( orgstorepath_ )
 	    		    .add( orgdirname_ ).fullPath();
-	if ( File::exists(dirnm) )
+	if ( File::exists(dirnm) && !strncmp(orgdirname_,"_New_",5) )
 	    File::remove( dirnm );
 	if ( !copySurv(mGetSetupFileName("BasicSurvey"),0,
 		       orgstorepath_,orgdirname_) )
@@ -567,15 +575,17 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 
 bool uiSurveyInfoEditor::rejectOK( CallBacker* )
 {
-    if ( isnew_ )
+    if ( isnew_ && !strncmp(orgdirname_,"_New_",5) )
     {
 	const BufferString dirnm = FilePath(orgstorepath_)
 	    			   .add(orgdirname_).fullPath();
 	if ( File::exists(dirnm) )
 	    File::remove( dirnm );
     }
+
     return true;
 }
+
 
 bool uiSurveyInfoEditor::setSurvName()
 {
