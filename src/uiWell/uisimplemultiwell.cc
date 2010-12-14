@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.3 2010-12-03 11:14:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.4 2010-12-14 03:57:14 cvsnanne Exp $";
 
 
 #include "uisimplemultiwell.h"
@@ -210,12 +210,13 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     wd.info().surfacecoord = wcd.coord_;
     wd.info().uwid = wcd.uwi_;
     wd.info().surfaceelev = -wcd.srd_;
-    Interval<float> zrg( -wcd.elev_+wcd.srd_, wcd.td_-wcd.elev_+wcd.srd_ );
-    wd.track().addPoint( wcd.coord_, zrg.start, 0 );
-    wd.track().addPoint( wcd.coord_, zrg.stop, wcd.td_ );
+    Interval<float> drg( -wcd.elev_, wcd.td_-wcd.elev_ );
+    wd.track().addPoint( wcd.coord_, drg.start, 0 );
+    wd.track().addPoint( wcd.coord_, drg.stop, wcd.td_ );
     if ( velfld_ )
     {
 	Well::D2TModel* d2t = new Well::D2TModel("Simple");
+	Interval<float> zrg( -wcd.elev_+wcd.srd_, wcd.td_-wcd.elev_+wcd.srd_ );
 	Interval<float> trg( zrg ); trg.scale( 1 / vel_ );
 	d2t->add( 0, trg.start );
 	d2t->add( wcd.td_, trg.stop );

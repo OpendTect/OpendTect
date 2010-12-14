@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.72 2010-12-03 11:14:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.73 2010-12-14 03:57:14 cvsnanne Exp $";
 
 #include "uiwellman.h"
 
@@ -435,7 +435,7 @@ void uiWellMan::mkFileInfo()
 
     if ( !track.isEmpty() )
     {
-	const float rdelev = track.dah(0) - track.value(0) - info.surfaceelev;
+	const float rdelev = track.dah(0) - track.value(0);
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
