@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.19 2010-12-14 11:15:20 cvsbert Exp $
+ RCS:		$Id: iodir.h,v 1.20 2010-12-14 15:53:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,12 +77,13 @@ private:
 			IODir();
     static bool		create(const char* dirnm,const MultiID&,IOObj* mainobj);
     static IOObj*	doRead(const char*,IODir*,int id=-1);
+    static void		setDirName(IOObj&,const char*);
+    static IOObj*	readOmf(std::istream&,const char*,IODir*,int);
+
     bool		build();
     bool		wrOmf(std::ostream&) const;
 
     MultiID		newKey() const;
-
-    static IOObj*	readOmf(std::istream&,const char*,IODir*,int);
 
     friend class	IOMan;
     friend class	IOObj;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.32 2010-12-14 11:15:20 cvsbert Exp $
+ RCS:		$Id: ioobj.h,v 1.33 2010-12-14 15:53:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,9 +81,8 @@ public:
     virtual bool	removeQuery() const		{ return false; }
     virtual void	genDefaultImpl()		{}
 
-    const char*		dirName() const			{ return dirnm_; }
-    			//!< The full path to the position in the tree
-			//!<\note may not be the directory of an implementation
+    virtual const char*	 dirName() const		{ return dirnm_; }
+    			//!< The directory ame within the tree
     virtual IOPar&	pars() const			{ return pars_; }
     			//!< These are the extra parameters: #xxx: yyy in .omf
 
@@ -117,7 +116,6 @@ protected:
     virtual bool	putTo(ascostream&) const	= 0;
     void		setKey( const char* nm )	{ key_ = nm; }
     int			myKey() const;
-    void		setDirName( const char* s )	{ dirnm_ = s; }
 
 private:
 
@@ -131,6 +129,7 @@ private:
 
 public:
 
+    virtual void	setDirName( const char* s )	{ dirnm_ = s; }
     virtual bool	isSubdir() const		{ return false; }
     static int		addProducer(IOObjProducer*);
     			//!< Factory for IOObj types. Not for casual use.

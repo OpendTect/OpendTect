@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.14 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: streamconn.h,v 1.15 2010-12-14 15:53:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,10 +22,6 @@ ________________________________________________________________________
 mClass StreamConn : public Conn
 {
 public:
-
-    enum Type		{ File, Device, Command };
-			DeclareEnumUtils(Type)
-
 			StreamConn();
 			StreamConn(StreamData&);
 				//!< MY stream: Input StreamData will be zero-ed

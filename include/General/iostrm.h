@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.27 2010-12-14 11:15:20 cvsbert Exp $
+ RCS:		$Id: iostrm.h,v 1.28 2010-12-14 15:53:16 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -28,8 +28,7 @@ public:
 				 bool =false);
     virtual		~IOStream();
     bool		bad() const;
-    StreamConn::Type	type() const			{ return type_; }
-    void		setType( StreamConn::Type t )	{ type_ = t; }
+    bool		isCommand() const		{ return iscomm; }
 
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool) const;
@@ -75,15 +74,6 @@ public:
     void		setReader(const char*);
     void		setWriter(const char*);
 
-    const char*		devName() const;
-    void		setDevName(const char*);
-    int			blockSize() const		{ return blocksize; }
-    void		setBlockSize( int bs )		{ blocksize = bs; }
-    int			skipFiles() const		{ return skipfiles; }
-    void		setSkipFiles( int sf )		{ skipfiles = sf; }
-    void		setRewind( bool yn_ )		{ rew = yn_; }
-    bool		rewindTape() const		{ return rew; }
-
     int			zeroPadding() const		{ return padzeros; }
     void		setZeroPadding( int zp )	{ padzeros = zp; }
     StepInterval<int>&	fileNumbers()			{ return fnrs; }
@@ -105,16 +95,12 @@ protected:
     BufferString	extension;
     FileNameString*	readcmd;
     FileNameString*	writecmd;
-    int			blocksize;
-    int			skipfiles;
-    bool		rew;
+    bool		iscomm;
     int			padzeros;
     StepInterval<int>	fnrs;
     int			curfnr;
     int			nrretries;
     int			retrydelay;
-
-    StreamConn::Type	type_;
 
     void		getDev(ascistream&);
     bool		validNr() const

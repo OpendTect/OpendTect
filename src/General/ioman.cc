@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.104 2010-12-14 11:15:20 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.105 2010-12-14 15:53:16 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -146,15 +146,9 @@ void IOMan::init()
 
 	// So, we have copied the directory.
 	// Now create an entry in the root omf
-	MultiID ky( dd->id );
-	ky += "1";
-	IOObj* iostrm = new IOStream(dd->dirnm,ky);
-	iostrm->setGroup( dd->desc );
-	iostrm->setTranslator( "dGB" );
-	IOSubDir* iosd = new IOSubDir( iostrm->name() );
+	IOSubDir* iosd = new IOSubDir( dd->dirnm );
 	iosd->key_ = dd->id;
-	FilePath fp( rootdir ); fp.add( iostrm->name() );
-	iosd->dirnm_ = fp.fullPath();
+	iosd->dirnm_ = rootdir;
 	const IOObj* previoobj = prevdd ? (*dirPtr())[prevdd->id]
 					: dirPtr()->main();
 	int idxof = dirPtr()->objs_.indexOf( (IOObj*)previoobj );
@@ -558,6 +552,15 @@ bool IOMan::setDir( const char* dirname )
 }
 
 
+static const char* getTranslDirNm( const Translator* tr )
+{
+    const IOObjContext& ctxt = tr->group()->ioCtxt();
+    const IOObjContext::StdDirData* sdd
+		    = IOObjContext::getStdDirData( ctxt.stdseltype );
+    return sdd ? sdd->dirnm : 0;
+}
+
+
 void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 {
     ctio.setObj( 0 );
@@ -586,12 +589,15 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	if ( trnm.isEmpty() )
 	    trnm = ctio.ctxt.stdseltype == IOObjContext::Seis ? "CBVS" : "dGB";
 	iostrm->setTranslator( trnm );
+	const char* dirnm = getTranslDirNm( tr );
+	if ( dirnm )
+	    iostrm->setDirName( dirnm );
 
 	// Generate the right filename
 	Translator* tmptr = ctio.ctxt.trgroup->make( trnm );
 	BufferString fnm = generateFileName( tmptr, iostrm->name() );
 	int ifnm = 1;
-	while ( File::exists(fnm) )
+	while ( tmptr && File::exists(fnm) )
 	{
 	    BufferString altfnm( iostrm->name() );
 	    altfnm += ifnm; fnm = generateFileName( tmptr, altfnm );
@@ -613,16 +619,22 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
 {
     BufferString cleanname( fname );
     char* ptr = cleanname.buf();
-    cleanupString( ptr, mC_False, *ptr == *FilePath::dirSep(FilePath::Local),
-	    	   mC_True );
+    cleanupString( ptr, mC_False, mC_False, mC_True );
     static BufferString fnm;
     for ( int subnr=0; ; subnr++ )
     {
 	fnm = cleanname;
 	if ( subnr ) fnm += subnr;
-	if ( tr && tr->defExtension() )
+	if ( !tr ) break;
+
+	if ( tr->defExtension() )
 	    { fnm += "."; fnm += tr->defExtension(); }
-	if ( !File::exists(fnm) ) break;
+
+	const char* dirnm = getTranslDirNm( tr );
+	if ( !dirnm ) break;
+
+	FilePath fp( rootdir ); fp.add( dirnm ).add( fnm );
+	if ( !File::exists(fp.fullPath()) ) break;
     }
 
     return fnm;

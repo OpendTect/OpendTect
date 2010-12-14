@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: systeminfo.cc,v 1.5 2010-08-16 07:29:27 cvsranojay Exp $";
+static const char* rcsID = "$Id: systeminfo.cc,v 1.6 2010-12-14 15:53:16 cvsbert Exp $";
 
 
 #include "systeminfo.h"
@@ -131,7 +131,7 @@ int getFreeMBOnDisk( const IOObj& ioobj )
     mDynamicCastGet(const IOStream*,iostrm,&ioobj)
 
     BufferString dir;
-    if ( !iostrm || iostrm->type() != StreamConn::File )
+    if ( !iostrm || iostrm->isCommand() )
 	dir = GetDataDir();
     else
 	dir = FilePath( iostrm->getExpandedName(true) ).pathOnly();

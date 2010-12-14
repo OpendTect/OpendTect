@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.36 2010-12-14 11:15:20 cvsbert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.37 2010-12-14 15:53:16 cvsbert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -96,6 +96,18 @@ IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
 }
 
 
+void IODir::setDirName( IOObj& ioobj, const char* dirnm )
+{
+    if ( ioobj.isSubdir() )
+	ioobj.dirnm_ = dirnm;
+    else
+    {
+	FilePath fp( dirnm );
+	ioobj.dirnm_ = fp.fileName();
+    }
+}
+
+
 IOObj* IODir::readOmf( std::istream& strm, const char* dirnm,
 			IODir* dirptr, int needid )
 {
@@ -139,6 +151,8 @@ IOObj* IODir::readOmf( std::istream& strm, const char* dirnm,
 	}
     }
 
+    if ( retobj )
+	setDirName( *retobj, dirnm );
     return retobj;
 }
 
@@ -151,7 +165,9 @@ IOObj* IODir::getObj( const MultiID& ky )
     {
 	int id = ky.ID( idx );
 	IOObj* ioobj = doRead( dirnm, 0, id );
-	if ( !ioobj || idx == nrkeys-1 ) return ioobj;
+	if ( !ioobj || idx == nrkeys-1 || !ioobj->isSubdir() )
+	    return ioobj;
+
 	dirnm = ioobj->dirName();
 	delete ioobj;
     }
@@ -276,6 +292,7 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
 
     mkUniqueName( ioobj );
     objs_ += ioobj;
+    setDirName( *ioobj, dirName() );
     return persist ? doWrite() : true;
 }
 

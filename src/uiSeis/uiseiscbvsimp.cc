@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.76 2010-11-24 17:05:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.77 2010-12-14 15:53:16 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -171,6 +171,7 @@ IOObj* uiSeisImpCBVS::getfInpIOObj( const char* inp ) const
     IOStream* iostrm = new IOStream( "_tmp", tmpid_ );
     iostrm->setGroup( outctio_.ctxt.trgroup->userName() );
     iostrm->setTranslator( CBVSSeisTrcTranslator::translKey() );
+    iostrm->setDirName( "Seismics" );
     iostrm->setFileName( inp );
     return iostrm;
 }

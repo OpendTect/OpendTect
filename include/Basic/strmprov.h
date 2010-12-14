@@ -8,30 +8,29 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.35 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: strmprov.h,v 1.36 2010-12-14 15:53:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "streamconn.h"
+#include "strmdata.h"
+#include "bufstring.h"
 class CallBack;
 class TaskRunner;
 class BufferStringSet;
 
 
-/*!\brief provides I/O stream for disk or tape file or system command.
+/*!\brief provides I/O stream for file or system command.
 
 StreamProvider provides a stream with requested source attached:
  - starting with '@' --> OS command that produces the data on stdin/stdout
- - having a ':' --> remote machinename preceding (e.g. dgb1:/dev/exabyte)
- - tape devices are assumed to be on /dev
+ - Hostname may preceed before a ':' (UNIX variants) or '\\' (Windows).
+
 Thus:
- - dgb1:/dev/exabyte
-	tape device on remote host dgb1
  - dgb1:@handle_data
 	Executable handle_data on remote host dgb1 will get/put on stdin/stdout
- - dgb1:/foo/bar
-	File /foo/bar on remote host dgb1
+ - \\winserv\foo\bar
+	File \foo\bar on remote host winserv
  - foo.bar
 	file foo.bar in current directory
 
@@ -42,17 +41,11 @@ mClass StreamProvider
 {
 public:
 		StreamProvider(const char* nm=0);
-		StreamProvider(const char*,const char*,StreamConn::Type);
+		StreamProvider(const char* hostnm,const char* fnm,bool iscomm);
     void	set(const char*);
     bool	rename(const char*,const CallBack* cb=0);
     		//!< renames if file. if successful, does a set()
 
-    bool	skipFiles(int) const;
-		//!< Skips files if tape
-    bool	rewind() const;
-		//!< Rewinds if tape
-    bool	offline() const;
-		//!< Checks whether tape is offline
     bool	bad() const				{ return isbad_; }
 
     bool	exists(int forread) const;
@@ -82,10 +75,10 @@ public:
     void	setBlockSize( long bs )		{ blocksize_ = bs; }
     void	addPathIfNecessary(const char*);
 		//!< adds given path if stored filename is relative
-    void	setRemExec( const char* s )		{ rshcomm_ = s; }
+    void	setRemExec( const char* s )	{ rshcomm_ = s; }
 
-    StreamConn::Type	type()				{ return type_; }
-    bool		isNormalFile() const;
+    bool	isCommand() const		{ return iscomm_; }
+    bool	isNormalFile() const;
 
     static const char*	sStdIO();
     static const char*	sStdErr();
@@ -113,7 +106,7 @@ protected:
 
     long		blocksize_;
     bool		isbad_;
-    StreamConn::Type	type_;
+    bool		iscomm_;
 
     void		mkOSCmd(bool) const;
     static StreamData	makePLIStream(int);

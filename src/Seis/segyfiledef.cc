@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.20 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.21 2010-12-14 15:53:16 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -83,6 +83,7 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     iostrm->setFileName( fname_ );
     iostrm->setGroup( "Seismic Data" );
     iostrm->setTranslator( "SEG-Y" );
+    iostrm->setDirName( "Seismics" );
     const bool ismulti = !mIsUdf(nrs_.start);
     if ( ismulti )
     {   

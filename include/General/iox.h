@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.18 2010-12-14 11:15:20 cvsbert Exp $
+ RCS:		$Id: iox.h,v 1.19 2010-12-14 15:53:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ public:
 
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool) const;
+    const char*		dirName() const;
     void		genDefaultImpl()		{}
 
     bool		implExists(bool) const;

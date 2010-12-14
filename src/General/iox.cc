@@ -5,7 +5,7 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.18 2010-12-14 11:15:20 cvsbert Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.19 2010-12-14 15:53:16 cvsbert Exp $";
 
 #include "iox.h"
 #include "iostrm.h"
@@ -119,4 +119,14 @@ bool IOX::putTo( ascostream& stream ) const
     stream.stream() << '$';
     stream.put( "ID", ownkey_ );
     return true;
+}
+
+
+const char* IOX::dirName() const
+{
+    IOObj* ioobj = getIOObj();
+    if ( !ioobj ) return dirnm_;
+    const_cast<IOX*>(this)->dirnm_ = ioobj->dirName();
+    delete ioobj;
+    return dirnm_;
 }

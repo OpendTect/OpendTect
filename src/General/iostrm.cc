@@ -4,9 +4,10 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.35 2010-12-14 11:15:20 cvsbert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.36 2010-12-14 15:53:16 cvsbert Exp $";
 
 #include "iostrm.h"
+#include "ioman.h"
 #include "ascstream.h"
 #include "strmprov.h"
 #include "separstr.h"
@@ -29,12 +30,9 @@ IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 	: IOObj(nm,uid)
 	, readcmd(&fname)
 	, writecmd(0)
-	, blocksize(0)
-	, skipfiles(0)
-	, rew(false)
 	, padzeros(0)
 	, fnrs(0,0,1)
-	, type_(StreamConn::File)
+	, iscomm(false)
 	, curfnr(0)
 {
     if ( mkdef ) genFileName();
@@ -55,7 +53,7 @@ const char* IOStream::connType() const
 
 bool IOStream::bad() const
 {
-    return type_ != StreamConn::Command && fname.isEmpty();
+    return !iscomm && fname.isEmpty();
 }
 
 
@@ -71,10 +69,7 @@ void IOStream::copyFrom( const IOObj* obj )
 	padzeros = iosobj->padzeros;
 	fname = iosobj->fname;
 	writecmd = iosobj->writecmd ? new FileNameString(*iosobj->writecmd) : 0;
-	type_ = iosobj->type_;
-	blocksize = iosobj->blocksize;
-	skipfiles = iosobj->skipfiles;
-	rew = iosobj->rew;
+	iscomm = iosobj->iscomm;
 	fnrs = iosobj->fnrs;
 	curfnr = iosobj->curfnr;
     }
@@ -118,7 +113,7 @@ bool IOStream::implReadOnly() const
 
 bool IOStream::implShouldRemove() const
 {
-    return type_ == StreamConn::File;
+    return !iscomm;
 }
 
 
@@ -136,7 +131,7 @@ bool IOStream::implSetReadOnly( bool yn ) const
 
 bool IOStream::implDo( bool dorem, bool yn ) const
 {
-    if ( type_ != StreamConn::File ) return false;
+    if ( iscomm ) return false;
 
     int curnrfiles = isMulti() ? fnrs.nrSteps() + 1 : 1;
     int kpcurfnr = curfnr;
@@ -177,13 +172,7 @@ Conn* IOStream::getConn( Conn::State rw ) const
     StreamProvider* sp = streamProvider( fr );
     if ( !sp ) return 0;
 
-    if ( type_ == StreamConn::Device )
-    {
-	sp->setBlockSize( blocksize );
-	if ( rew ) sp->rewind();
-	if ( skipfiles ) sp->skipFiles( skipfiles );
-    }
-    else if ( type_ == StreamConn::File && fname == "?" )
+    if ( !iscomm && fname == "?" )
     {
 	((IOStream*)this)->genFileName();
 	delete sp;
@@ -205,7 +194,9 @@ Conn* IOStream::getConn( Conn::State rw ) const
 void IOStream::genFileName()
 {
     fname = name();
-    cleanupString( fname.buf(), mC_False, mC_True, mC_True );
+    FilePath fp( fname );
+    const bool isabs = fp.isAbsolute();
+    cleanupString( fname.buf(), mC_False, isabs ? mC_True : mC_False, mC_True );
     if ( !extension.isEmpty() )
     {
         fname += ".";
@@ -217,7 +208,7 @@ void IOStream::genFileName()
 void IOStream::setReader( const char* str )
 {
     if ( !str ) return;
-    type_ = StreamConn::Command;
+    iscomm = true;
     fname = str;
 }
 
@@ -225,7 +216,7 @@ void IOStream::setReader( const char* str )
 void IOStream::setWriter( const char* str )
 {
     if ( !str ) return;
-    type_ = StreamConn::Command;
+    iscomm = true;
     if ( !writecmd ) writecmd = new FileNameString( str );
     else if ( *writecmd == str ) return;
     *writecmd = str;
@@ -234,10 +225,9 @@ void IOStream::setWriter( const char* str )
 
 void IOStream::setFileName( const char* str )
 {
-    type_ = StreamConn::File;
+    iscomm = false;
     StreamProvider sp = StreamProvider( str );
-    type_ = sp.type();
-    if ( type_ != StreamConn::Command )
+    if ( !sp.isCommand() )
 	fname = sp.fullName();
     else
     {
@@ -246,22 +236,6 @@ void IOStream::setFileName( const char* str )
     }
 }
 
-
-const char* IOStream::devName() const
-{
-    const char* retptr = fname;
-    return matchString( "/dev/", retptr ) ? retptr + 5 : retptr;
-}
-
-
-void IOStream::setDevName( const char* str )
-{
-    if ( !str ) return;
-    type_ = StreamConn::Device;
-    fname = "/dev/";
-    if ( matchString("/dev/",str) ) fname = str;
-    else			    fname += str;
-}
 
 
 bool IOStream::getFrom( ascistream& stream )
@@ -293,38 +267,19 @@ bool IOStream::getFrom( ascistream& stream )
 
     fname = stream.value();
     if ( !strcmp(kw,"Name") )
-	type_ = StreamConn::File;
+	iscomm = false;
     else if ( !strcmp(kw,"Reader") )
     {
-	type_ = StreamConn::Command;
+	iscomm = true;
 	stream.next();
 	if ( !writecmd ) writecmd = new FileNameString( stream.value() );
 	else *writecmd = stream.value();
     }
-    else if ( !strcmp("Device", kw) )
-	{ getDev(stream); return true; }
     else
 	return false;
 
     stream.next();
     return true;
-}
-
-
-void IOStream::getDev( ascistream& stream )
-{
-    const char* kw = stream.keyWord() + 1;
-    type_ = StreamConn::Device;
-    while ( !atEndOfSection(stream.next()) )
-    {
-	if ( *stream.keyWord() == '#' ) break;
-	if ( !strcmp(kw,"Blocksize") )
-	    blocksize = toInt(stream.value());
-	else if ( !strcmp(kw,"Fileskips") )
-	    skipfiles = toInt(stream.value());
-	else if ( !strcmp(kw,"Rewind") )
-	    rew = toBool(stream.value(),false);
-    }
 }
 
 
@@ -344,36 +299,26 @@ bool IOStream::putTo( ascostream& stream ) const
 	stream.put( "$Multi", fms );
     }
 
-    switch( type_ )
+    if ( iscomm )
     {
-    case StreamConn::File:
+	stream.put( "$Reader", fname );
+	stream.put( "$Writer", writecmd ? *writecmd : fname );
+	return true;
+    }
+    else
     {
 	FilePath fp( fname );
 	BufferString cleanfnm( fp.fullPath() );
 	int offs = 0;
 	if ( fp.isAbsolute() )
 	{
-	    FilePath fpdir( dirName() );
+	    FilePath fpdir( IOM().rootDir() ); fpdir.add( dirName() );
 	    BufferString head( fp.dirUpTo( fpdir.nrLevels() - 1 ) );
 	    if ( head == fpdir.fullPath() )
 		offs = head.size()+1;
 	}
 
 	stream.put( "$Name", cleanfnm.buf() + offs );
-	return true;
-    }
-    case StreamConn::Command:
-	stream.put( "$Reader", fname );
-	stream.put( "$Writer", writecmd ? *writecmd : fname );
-	return true;
-    case StreamConn::Device:
-	stream.put( "$Device", fname );
-	if ( blocksize )
-	    stream.put( "$Blocksize", blocksize );
-	if ( skipfiles )
-	    stream.put( "$Fileskips", skipfiles );
-	if ( rew )
-	    stream.put( "$Rewind", getYesNoString(rew) );
 	return true;
     }
 
@@ -383,8 +328,7 @@ bool IOStream::putTo( ascostream& stream ) const
 
 StreamProvider* IOStream::streamProvider( bool fr, bool fillwc ) const
 {
-    FileNameString nm( type_ == StreamConn::Command && !fr
-			? writer() : (const char*)fname );
+    FileNameString nm( iscomm && !fr ? writer() : (const char*)fname );
 
     const bool hasast = strchr( nm, '*' );
     const bool doins = fillwc && isMulti() && (hasast || strchr(nm,'%'));
@@ -402,15 +346,16 @@ StreamProvider* IOStream::streamProvider( bool fr, bool fillwc ) const
 	replaceString( nm.buf(), hasast ? "*" : "%", numbstr );
     }
 
-    StreamProvider* sp = new StreamProvider( hostname, nm, type_ );
+    StreamProvider* sp = new StreamProvider( hostname, nm, iscomm );
     if ( sp->bad() )
 	{ delete sp; return 0; }
-    if ( hostname.isEmpty() && type_ == StreamConn::File )
-	sp->addPathIfNecessary( dirName() );
-    if ( blocksize ) sp->setBlockSize( blocksize );
+    if ( hostname.isEmpty() && !iscomm )
+    {
+	FilePath fp( IOM().rootDir() ); fp.add( dirName() );
+	sp->addPathIfNecessary( fp.fullPath() );
+    }
 
-    if ( fr && doins && padzeros && type_ == StreamConn::File
-      && !sp->exists(fr) )
+    if ( fr && doins && padzeros && !iscomm && !sp->exists(fr) )
     {
 	int kppz = padzeros;
 	const_cast<IOStream*>(this)->padzeros = 0;

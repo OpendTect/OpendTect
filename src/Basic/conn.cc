@@ -5,9 +5,9 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.36 2010-03-18 05:32:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.37 2010-12-14 15:53:16 cvsbert Exp $";
 
-#include "errh.h"
+#include "streamconn.h"
 #include "strmprov.h"
 #include "strmoper.h"
 #include "oddirs.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: conn.cc,v 1.36 2010-03-18 05:32:31 cvsnanne Exp
 #include "file.h"
 #include "filepath.h"
 #include "timefun.h"
+#include "errh.h"
 #include <iostream>
 #include <fstream>
 
@@ -142,11 +143,6 @@ const char* MsgClass::nameOf( MsgClass::Type typ )
     	{ "Information", "Message", "Warning", "Error", "PE", 0 };
     return strs[ (int)typ ];
 }
-
-
-DefineEnumNames(StreamConn,Type,0,"Type")
-	{ "File", "Device", "Command", 0 };
-
 
 
 StreamConn::StreamConn()

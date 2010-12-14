@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.35 2010-12-14 11:15:20 cvsbert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.36 2010-12-14 15:53:16 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "iosubdir.h"
@@ -23,10 +23,6 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.35 2010-12-14 11:15:20 cvsbert Exp
 #include "keystrs.h"
 
 #include <stdlib.h>
-
-
-
-
 
 static ObjectSet<const IOObjProducer>& getProducers()
 {
@@ -141,7 +137,6 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
     }
 
     while ( !atEndOfSection(astream) ) astream.next();
-    objptr->setDirName( dirnm );
     return objptr;
 }
 
@@ -169,6 +164,8 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 
 Translator* IOObj::getTranslator() const
 {
+    if ( isSubdir() ) return 0;
+
     TranslatorGroup& grp = TranslatorGroup::getGroup( group(), true );
     if ( grp.userName() != group() )
 	return 0;
@@ -250,7 +247,7 @@ int IOObj::myKey() const
 
 bool IOObj::isReadDefault() const
 {
-    if ( myKey() < 2 ) return false;
+    if ( myKey() < 2 || isSubdir() ) return false;
     Translator* tr = getTranslator();
     if ( !tr ) return false;
 
@@ -297,6 +294,7 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 
 bool fullImplRemove( const IOObj& ioobj )
 {
+    if ( ioobj.isSubdir() ) return false;
     PtrMan<Translator> tr = ioobj.getTranslator();
     return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
 }
@@ -320,10 +318,17 @@ IOSubDir* IOSubDir::get( ascistream& strm, const char* dirnm )
 {
     IOSubDir* ret = new IOSubDir( strm.value() );
     ret->key_ = strm.keyWord() + 1;
-    FilePath fp( dirnm ); fp.add( ret->name() );
-    ret->dirnm_ = fp.fullPath();
-    ret->isbad_ = !File::isDirectory( ret->dirnm_ );
+    ret->dirnm_ = dirnm;
+    ret->isbad_ = !File::isDirectory( ret->dirName() );
     strm.next(); return ret;
+}
+
+
+const char* IOSubDir::fullUserExpr( bool ) const
+{
+    FilePath fp( dirnm_ ); fp.add( name() );
+    static BufferString ret; ret = fp.fullPath();
+    return ret;
 }
 
 

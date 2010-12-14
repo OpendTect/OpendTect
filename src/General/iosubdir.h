@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2010
- RCS:		$Id: iosubdir.h,v 1.1 2010-12-14 11:15:20 cvsbert Exp $
+ RCS:		$Id: iosubdir.h,v 1.2 2010-12-14 15:53:16 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -26,7 +26,7 @@ public:
     void	copyFrom(const IOObj*)	{}
     static IOSubDir* get(ascistream&,const char* rootdirnm);
 
-    const char*	fullUserExpr(bool) const { return dirnm_.buf(); }
+    const char*	fullUserExpr(bool) const;
     bool	implExists(bool) const	{ return !isbad_; }
     bool	implReadOnly() const	{ return false; }
     bool	implRemove() const	{ return false; }
@@ -39,7 +39,8 @@ public:
     const char*	connType() const	{ return ""; }
     Conn*	getConn( Conn::State s ) const { return 0; }
 
-    void	genDefaultImpl()		{}
+    void	genDefaultImpl()	{}
+    const char*	dirName() const		{ return fullUserExpr(true); }
 
 protected:
 

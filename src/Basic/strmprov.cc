@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.108 2010-07-28 08:04:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.109 2010-12-14 15:53:16 cvsbert Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,7 +50,7 @@ static const char* rcsID = "$Id: strmprov.cc,v 1.108 2010-07-28 08:04:09 cvsnann
 #include "fixedstreambuf.h"
 
 
-static BufferString oscommand( 2048, false );
+static BufferString bsbuf( 2048, false );
 const char* StreamProvider::sStdIO()	{ return "Std-IO"; }
 const char* StreamProvider::sStdErr()	{ return "Std-Err"; }
 #define mPreLoadChunkSz 8388608
@@ -605,17 +605,18 @@ StreamData StreamProvider::makePLIStream( int plid )
 }
 
 
-StreamProvider::StreamProvider( const char* devname )
+StreamProvider::StreamProvider( const char* inp )
     	: rshcomm_("rsh")
+	, iscomm_(false)
 {
-    set( devname );
+    set( inp );
 }
 
 
 StreamProvider::StreamProvider( const char* hostnm, const char* fnm,
-				StreamConn::Type typ )
+				bool iscomm )
 	: isbad_(false)
-	, type_(typ)
+	, iscomm_(iscomm)
 	, hostname_(hostnm)
 	, fname_(fnm?fnm:sStdIO())
     	, rshcomm_("rsh")
@@ -624,142 +625,79 @@ StreamProvider::StreamProvider( const char* hostnm, const char* fnm,
 }
 
 
-void StreamProvider::set( const char* devname )
+void StreamProvider::set( const char* inp )
 {
-    type_ = StreamConn::File;
-    isbad_ = false;
-    blocksize_ = 0;
-    hostname_ = "";
+    iscomm_ = isbad_ = false;
+    hostname_.setEmpty(); fname_.setEmpty();
 
-    if ( !devname || !strcmp(devname,sStdIO()) || !strcmp(devname,sStdErr()) )
-    {
-	type_ = StreamConn::File;
-	fname_ = devname ? devname : sStdIO();
-	return;
-    }
-    else if ( !*devname )
-    {
-	isbad_ = true; fname_ = "";
-	return;
-    }
+    if ( !inp || !strcmp(inp,sStdIO()) || !strcmp(inp,sStdErr()) )
+	{ fname_ = inp ? inp : sStdIO(); return; }
+    else if ( !*inp )
+	{ isbad_ = true; return; }
 
-    char* ptr = (char*)devname;
-    if ( *ptr == '@' ) { type_ = StreamConn::Command; ptr++; }
+    char* ptr = (char*)inp;
+    mSkipBlanks( ptr );
+    if ( *ptr == '@' ) { iscomm_ = true; ptr++; }
+
     mSkipBlanks( ptr );
     fname_ = ptr;
 
+    ptr = fname_.buf();
     // separate hostname from filename
-    ptr = strchr( fname_.buf(), ':' );
-    if ( ptr ) 
-    {   // check for win32 drive letters.
-
-	bool isdrive = false;
-	// if only one char before the ':', it must be a drive letter.
-	if ( ptr == fname_.buf() + 1 
-		|| ( *fname_.buf()=='\"' && (ptr == fname_.buf()+2) ) 
-		|| ( *fname_.buf()=='\'' && (ptr == fname_.buf()+2) ) )
-	{
-	    isdrive = true;
-	}
-	else
-	{
-	    BufferString buf(fname_.buf());
-	    char* ptr2 = strchr( buf.buf(), ':' );
-	    *ptr2='\0';
-
-	    ptr2 = buf.buf();
-	    mSkipBlanks( ptr2 );
-
-	    // If spaces are found, it cannot come from a hostname.
-	    // So, further up in the string must be a drive letter
-	    isdrive = strchr( ptr2, ' ' );
-	}
-
-	if( isdrive )
-	    ptr = fname_.buf();
-	else
-	{
-	    *ptr++ = '\0';
-	    hostname_ = fname_;
-	}
+#ifdef __win__
+    if ( *ptr == '\\' && *(ptr+1) == '\\' )
+    {
+	char* endptr = strchr( ptr+2, '\\' );
+	if ( endptr ) *endptr++ == '\0';
+	hostname_ = ptr+2;
+	if ( !endptr )
+	    { fname_ = sStdIO(); return; }
     }
-    else
+#else
+    ptr = strchr( ptr, ':' );
+    if ( ptr && *(ptr+1) == '/' && *(ptr+2) == '/' )
+    {
+	pErrMsg(BufferString(ptr," looks like a URL. Not supported (yet)"));
+	ptr = 0;
+    }
+    if ( ptr ) 
+    {
+	*ptr++ = '\0';
+	hostname_ = fname_;
+    }
+    if ( !ptr )
 	ptr = fname_.buf();
+#endif
 
-    if ( *ptr == '@' ) { type_ = StreamConn::Command; ptr++; }
-
-    char* ptrname = fname_.buf();
-    while ( *ptr ) *ptrname++ = *ptr++;
-    *ptrname = '\0';
-
-    if ( type_ != StreamConn::Command && matchString( "/dev/", fname_ ) )
-	type_ = StreamConn::Device;
+    mSkipBlanks( ptr );
+    if ( *ptr == '@' ) { iscomm_ = true; ptr++; }
+    BufferString tmp( ptr );
+    fname_ = tmp;
 }
 
 
 bool StreamProvider::isNormalFile() const
 {
-    return type_ == StreamConn::File && hostname_.isEmpty();
-}
-
-
-bool StreamProvider::rewind() const
-{
-    if ( isbad_ ) return false;
-    else if ( type_ != StreamConn::Device ) return true;
-
-    if ( !hostname_.isEmpty() )
-	sprintf( oscommand.buf(), "%s %s \"mt -f %s rewind\"",
-		 rshcomm_.buf(), hostname_.buf(), fname_.buf() );
-    else
-	sprintf( oscommand.buf(), "mt -f %s rewind", fname_.buf() );
-    return ExecOSCmd(oscommand);
-}
-
-
-bool StreamProvider::offline() const
-{
-    if ( isbad_ ) return false;
-    else if ( type_ != StreamConn::Device ) return true;
-
-    if ( !hostname_.isEmpty() )
-	sprintf( oscommand.buf(), "%s %s \"mt -f %s offline\"",
-				  rshcomm_.buf(),
-				  hostname_.buf(), fname_.buf() );
-    else
-	sprintf( oscommand.buf(), "mt -f %s offline", fname_.buf() );
-    return ExecOSCmd(oscommand);
-}
-
-
-bool StreamProvider::skipFiles( int nr ) const
-{
-    if ( isbad_ ) return false;
-    if ( type_ != StreamConn::Device ) return false;
-
-    if ( !hostname_.isEmpty() )
-	sprintf( oscommand.buf(), "%s %s \"mt -f %s fsf %d\"",
-				rshcomm_.buf(),
-				hostname_.buf(), fname_.buf(), nr );
-    else
-	sprintf( oscommand.buf(), "mt -f %s fsf %d", fname_.buf(), nr );
-    return ExecOSCmd(oscommand);
+    return !iscomm_ && hostname_.isEmpty();
 }
 
 
 const char* StreamProvider::fullName() const
 {
-    oscommand = "";
-    if ( type_ == StreamConn::Command )
-	oscommand += "@";
+    bsbuf = "";
+    if ( iscomm_ )
+	bsbuf += "@";
     if ( !hostname_.isEmpty() ) 
     {
-	oscommand += hostname_;
-	oscommand += ":";
+#ifdef __win__
+	bsbuf += "\\\\"; bsbuf += hostname_;
+#else
+	bsbuf += hostname_; bsbuf += ":";
+#endif
     }
-    oscommand += fname_.buf();
+    bsbuf += fname_.buf();
 
-    return oscommand;
+    return bsbuf;
 }
 
 
@@ -767,8 +705,7 @@ void StreamProvider::addPathIfNecessary( const char* path )
 {
     if ( isbad_ ) return;
 
-    if ( type_ != StreamConn::File
-      || !path || ! *path
+    if ( iscomm_ || !path || ! *path
       || fname_ == sStdIO() || fname_ == sStdErr() )
 	return;
 
@@ -783,10 +720,9 @@ void StreamProvider::addPathIfNecessary( const char* path )
 
 StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 {
-    const bool isfile = type_ != StreamConn::Command;
     const bool islocal = hostname_.isEmpty();
     StreamData sd;
-    if ( isfile && islocal )
+    if ( !iscomm_ && islocal )
 	sd.setFileName( mkUnLinked(fname_) );
     else
 	sd.setFileName( fname_ );
@@ -806,7 +742,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	    return makePLIStream( plid );
     }
 
-    if ( isfile && islocal )
+    if ( !iscomm_ && islocal )
     {
 	bool doesexist = File::exists( sd.fileName() );
 	if ( !doesexist )
@@ -822,11 +758,11 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	}
 
 #ifdef __msvc__
-	sd.istrm = new std::winifstream(
+	sd.istrm = new std::winifstream
 #else
-	sd.istrm = new std::ifstream(
+	sd.istrm = new std::ifstream
 #endif
-	    sd.fileName(), binary ? std::ios_base::in | std::ios_base::binary
+	  ( sd.fileName(), binary ? std::ios_base::in | std::ios_base::binary
 				  : std::ios_base::in );
 
 	if ( !sd.istrm->good() )
@@ -836,7 +772,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 
     mkOSCmd( true );
 
-    sd.fp_ = popen( oscommand, "r" );
+    sd.fp_ = popen( bsbuf, "r" );
     sd.ispipe_ = true;
 
     if ( sd.fp_ )
@@ -877,7 +813,7 @@ StreamData StreamProvider::makeOStream( bool binary ) const
 	return sd;
     }
 
-    if ( type_ != StreamConn::Command && hostname_.isEmpty() )
+    if ( !iscomm_ && hostname_.isEmpty() )
     {
 #ifdef __msvc__
 	sd.ostrm = new std::winofstream(
@@ -893,7 +829,7 @@ StreamData StreamProvider::makeOStream( bool binary ) const
 
     mkOSCmd( false );
 
-    sd.fp_ = popen( oscommand, "w" );
+    sd.fp_ = popen( bsbuf, "w" );
     sd.ispipe_ = true;
 
     if ( sd.fp_ )
@@ -973,11 +909,11 @@ bool StreamProvider::executeCommand( bool inbg, bool inconsole ) const
 #ifdef __msvc__
     if ( inconsole )
     {
-	mkBatchCmd( oscommand );
-	return ExecWinCmd( oscommand, inbg, inconsole );
+	mkBatchCmd( bsbuf );
+	return ExecWinCmd( bsbuf, inbg, inconsole );
     }
 #endif
-    return ExecOSCmd( oscommand, inbg );
+    return ExecOSCmd( bsbuf, inbg );
 }
 
 
@@ -1119,46 +1055,22 @@ static const char* getCmd( const char* fnm )
 void StreamProvider::mkOSCmd( bool forread ) const
 {
     if ( hostname_.isEmpty() )
-	oscommand = mGetCmd(fname_);
+	bsbuf = mGetCmd(fname_);
     else
     {
-	switch ( type_ )
+	if ( iscomm_ )
 	{
-	case StreamConn::Device:
-	    if ( forread )
-	    {
-		if ( blocksize_ > 0 )
-		    sprintf( oscommand.buf(), "%s %s dd if=%s ibs=%ld",
-				rshcomm_.buf(), hostname_.buf(),
-				fname_.buf(), blocksize_ );
-		else
-		    sprintf( oscommand.buf(), "%s %s dd if=%s",
-				rshcomm_.buf(), hostname_.buf(), fname_.buf() );
-	    }
-	    else
-	    {
-		if ( blocksize_ > 0 )
-		    sprintf( oscommand.buf(), "%s %s dd of=%s obs=%ld",
-				  rshcomm_.buf(), hostname_.buf(),
-				  fname_.buf(), blocksize_ );
-		else
-		    sprintf( oscommand.buf(), "%s %s dd of=%s",
-				  rshcomm_.buf(),
-				  hostname_.buf(), fname_.buf() );
-	    }
-	break;
-	case StreamConn::Command:
-	    sprintf( oscommand.buf(), "%s %s %s", rshcomm_.buf(),
+	    sprintf( bsbuf.buf(), "%s %s %s", rshcomm_.buf(),
 		     hostname_.buf(), mGetCmd(fname_) );
-	break;
-	case StreamConn::File:
+	}
+	else
+	{
 	    if ( forread )
-		sprintf( oscommand.buf(), "%s %s cat %s",
+		sprintf( bsbuf.buf(), "%s %s cat %s",
 				rshcomm_.buf(), hostname_.buf(), fname_.buf() );
 	    else
-		sprintf( oscommand.buf(), "%s %s tee %s > /dev/null",
+		sprintf( bsbuf.buf(), "%s %s tee %s > /dev/null",
 				rshcomm_.buf(), hostname_.buf(), fname_.buf() );
-	break;
 	}
     }
 
@@ -1168,7 +1080,7 @@ void StreamProvider::mkOSCmd( bool forread ) const
     if ( DBG::isOn(DBG_IO) )
     {
 	BufferString msg( "About to execute: '" );
-	msg += oscommand;
+	msg += bsbuf;
 	msg += "'";
 	DBG::message( msg );
     }
@@ -1176,7 +1088,7 @@ void StreamProvider::mkOSCmd( bool forread ) const
 
 
 #define mRemoteTest(act) \
-    FILE* fp = popen( oscommand, "r" ); \
+    FILE* fp = popen( bsbuf, "r" ); \
     char c; fscanf( fp, "%c", &c ); \
     pclose( fp ); \
     act (c == '1')
@@ -1185,15 +1097,13 @@ void StreamProvider::mkOSCmd( bool forread ) const
 bool StreamProvider::exists( int fr ) const
 {
     if ( isbad_ ) return false;
-
-    if ( type_ == StreamConn::Command )
-	return fr;
+    if ( iscomm_ ) return fr;
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr() ? true
 	     : File::exists( fname_ );
 
-    sprintf( oscommand.buf(), "%s %s 'test -%c %s && echo 1'", rshcomm_.buf(),
+    sprintf( bsbuf.buf(), "%s %s 'test -%c %s && echo 1'", rshcomm_.buf(),
 	    			hostname_.buf(), fr ? 'r' : 'w', fname_.buf() );
     mRemoteTest(return);
 }
@@ -1201,13 +1111,13 @@ bool StreamProvider::exists( int fr ) const
 
 bool StreamProvider::remove( bool recursive ) const
 {
-    if ( isbad_ || type_ != StreamConn::File ) return false;
+    if ( isbad_ || iscomm_ ) return false;
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr()
 	    ? false : File::remove( fname_ );
 
-    sprintf( oscommand.buf(), "%s %s '/bin/rm -%s %s && echo 1'",
+    sprintf( bsbuf.buf(), "%s %s '/bin/rm -%s %s && echo 1'",
 	      rshcomm_.buf(), hostname_.buf(), recursive ? "r" : "",
 	      fname_.buf() );
 
@@ -1217,13 +1127,13 @@ bool StreamProvider::remove( bool recursive ) const
 
 bool StreamProvider::setReadOnly( bool yn ) const
 {
-    if ( isbad_ || type_ != StreamConn::File ) return false;
+    if ( isbad_ || iscomm_ ) return false;
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr() ? false :
 	       File::makeWritable( fname_, !yn, false );
 
-    sprintf( oscommand.buf(), "%s %s 'chmod %s %s && echo 1'",
+    sprintf( bsbuf.buf(), "%s %s 'chmod %s %s && echo 1'",
 	      rshcomm_.buf(), hostname_.buf(), yn ? "a-w" : "ug+w",
 	      fname_.buf() );
 
@@ -1233,13 +1143,13 @@ bool StreamProvider::setReadOnly( bool yn ) const
 
 bool StreamProvider::isReadOnly() const
 {
-    if ( isbad_ || type_ != StreamConn::File ) return true;
+    if ( isbad_ || iscomm_ ) return true;
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr() ? false :
 		!File::isWritable( fname_ );
 
-    sprintf( oscommand.buf(), "%s %s 'test -w %s && echo 1'",
+    sprintf( bsbuf.buf(), "%s %s 'test -w %s && echo 1'",
 	      rshcomm_.buf(), hostname_.buf(), fname_.buf() );
 
     mRemoteTest(return !);
@@ -1266,15 +1176,15 @@ void StreamProvider::sendCBMsg( const CallBack* cb, const char* msg )
 bool StreamProvider::rename( const char* newnm, const CallBack* cb )
 {
     bool rv = false;
-    const bool issane = newnm && *newnm && !isbad_ && type_ == StreamConn::File;
+    const bool issane = newnm && *newnm && !isbad_ && !iscomm_;
 
     if ( cb && cb->willCall() )
     {
 	BufferString msg;
 	if ( issane )
 	    mkRelocMsg( fname_, newnm, msg );
-	else if ( type_ != StreamConn::File )
-	    msg = "Cannot rename commands or devices";
+	else if ( iscomm_ )
+	    msg = "Cannot rename commands";
 	else
 	{
 	    if ( isbad_ )
@@ -1292,7 +1202,7 @@ bool StreamProvider::rename( const char* newnm, const CallBack* cb )
 		    File::rename( fname_, newnm );
 	else
 	{
-	    sprintf( oscommand.buf(), "%s %s '/bin/mv -f %s %s && echo 1'",
+	    sprintf( bsbuf.buf(), "%s %s '/bin/mv -f %s %s && echo 1'",
 		      rshcomm_.buf(), hostname_.buf(), fname_.buf(), newnm );
 	    mRemoteTest(rv =);
 	}
