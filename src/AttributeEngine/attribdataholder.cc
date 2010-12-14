@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.20 2010-07-27 13:36:14 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.21 2010-12-14 05:10:42 cvsnanne Exp $";
 
 #include "attribdataholder.h"
 
@@ -290,6 +290,14 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
 
 int Data2DHolder::getDataHolderIndex( int trcno ) const
 {
+    if ( trcinfoset_.isEmpty() )
+	return -1;
+
+    const int guessedidx = trcno-trcinfoset_[0]->nr;
+    if ( trcinfoset_.validIdx(guessedidx) &&
+		trcno == trcinfoset_[guessedidx]->nr )
+	return guessedidx;
+
     for ( int idx=0; idx<trcinfoset_.size(); idx++ )
     {
 	if ( trcno == trcinfoset_[idx]->nr )
@@ -300,4 +308,4 @@ int Data2DHolder::getDataHolderIndex( int trcno ) const
 }
 
 
-}; // namespace Attrib
+} // namespace Attrib
