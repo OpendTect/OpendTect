@@ -7,23 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.65 2010-12-10 11:28:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.66 2010-12-14 08:50:32 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
 
 #include "arrayndimpl.h"
 #include "color.h"
-#include "ctxtioobj.h"
-#include "dirlist.h"
-#include "file.h"
-#include "filepath.h"
 #include "flatposdata.h"
 #include "ioman.h"
-#include "ioobj.h"
 #include "iopar.h"
 #include "iostrm.h"
-#include "oddirs.h"
 #include "survinfo.h"
 #include "wavelet.h"
 
@@ -34,10 +28,10 @@ static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.65 2010-12-10 11:28:26 cvs
 #include "uiioobjmanip.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uiselsimple.h"
 #include "uiseiswvltattr.h"
 #include "uiseiswvltgen.h"
 #include "uiseiswvltimpexp.h"
+#include "uiselobjothersurv.h"
 #include "uitextedit.h"
 #include "uiwaveletextraction.h"
 
@@ -266,42 +260,16 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 {
     CtxtIOObj& ctio = *mMkCtxtIOObj(Wavelet);
-    const BufferString basedatadir( GetBaseDataDir() );
-
-    PtrMan<DirList> dirlist = new DirList( basedatadir, DirList::DirsOnly );
-    dirlist->sort();
-
-    uiSelectFromList::Setup setup( "Survey", *dirlist );
-    setup.dlgtitle( "Select survey" );
-    uiSelectFromList dlg( this, setup );
-    dlg.setHelpID("0.3.11");
-    if ( !dlg.go() ) return;
-
-    FilePath fp( basedatadir ); fp.add( dlg.selFld()->getText() );
-    const BufferString tmprootdir( fp.fullPath() );
-    if ( !File::exists(tmprootdir) ) mRet("Survey doesn't seem to exist")
-    const BufferString realrootdir( GetDataDir() );
-
-    // No returns from here ...
-    IOM().setRootDir( tmprootdir );
-
     ctio.ctxt.forread = true;
 
-    uiIOObjSelDlg objdlg( this, ctio );
+    uiSelObjFromOtherSurvey dlg( this, ctio );
+    dlg.setHelpID("0.3.11");
     Wavelet* wvlt = 0;
     bool didsel = true;
-    if ( !objdlg.go() || !objdlg.ioObj() )
-	didsel = false;
-    else
-    {
-	ctio.setObj( objdlg.ioObj()->clone() );
+    if ( dlg.go() ) 
 	wvlt = Wavelet::get( ctio.ioobj );
-	ctio.setName( ctio.ioobj->name() );
-	ctio.setObj( 0 );
-    }
-
-    IOM().setRootDir( realrootdir );
-    // ... to here
+    else
+	didsel = false;
 
     if ( !wvlt )
 	mRet((didsel?"Could not read wavelet":0))

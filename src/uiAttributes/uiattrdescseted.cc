@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.107 2010-11-18 13:03:16 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.108 2010-12-14 08:50:32 cvsbruno Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -26,9 +26,7 @@ static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.107 2010-11-18 13:03:16 
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "iodir.h"
 #include "ioman.h"
-#include "ioobj.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
@@ -54,7 +52,7 @@ static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.107 2010-11-18 13:03:16 
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uiselsimple.h"
+#include "uiselobjothersurv.h"
 #include "uiseparator.h"
 #include "uisplitter.h"
 #include "uistoredattrreplacer.h"
@@ -999,54 +997,22 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 {
     if ( !offerSetSave() ) return;
 
-     const char* basedir = GetBaseDataDir();
-    if ( !basedir ) return;
-
-    PtrMan<DirList> dirlist = new DirList( basedir, DirList::DirsOnly );
-    BufferStringSet survlist;
-    for ( int idx=0; idx<dirlist->size(); idx++ )
+    uiSelObjFromOtherSurvey objdlg( this, setctio_ );
+    IOObj* oldioobj = setctio_.ioobj; setctio_.ioobj = 0;
+    if ( objdlg.go() )
     {
-	const char* dirnm = dirlist->get( idx );
-	if ( matchString("_New_Survey_",dirnm) )
-	    continue;
-
-	FilePath fp( basedir );
-	fp.add( dirnm ).add( ".survey" );
-	BufferString survfnm = fp.fullPath();
-	if ( File::exists(survfnm) )
-	    survlist.add( dirnm );
-    }
-    survlist.sort();
-
-    uiSelectFromList::Setup setup( "Survey", survlist );
-    setup.dlgtitle( "Select survey" );
-    uiSelectFromList dlg( this, setup );
-    dlg.setHelpID("0.3.5");
-    if ( dlg.go() )
-    {
-	FilePath fp( basedir ); fp.add( dlg.selFld()->getText() );
-	IOM().setRootDir( fp.fullPath() );
-	setctio_.ctxt.forread = true;
-        uiIOObjSelDlg objdlg( this, setctio_ );
-	if ( objdlg.go() && objdlg.ioObj() )
+	if ( !doSetIO( true ) )
+	    setctio_.setObj( oldioobj );
+	else
 	{
-	    IOObj* oldioobj = setctio_.ioobj; setctio_.ioobj = 0;
-	    setctio_.setObj( objdlg.ioObj()->clone() );
-	    if ( !doSetIO( true ) )
-		setctio_.setObj( oldioobj );
-	    else
-	    {
-		delete oldioobj;
-		setid_ = setctio_.ioobj->key();
-		replaceStoredAttr();
-		newList( -1 );
-		attrsetfld_->setText( "" );
-		setctio_.ioobj = 0;
-	    }
+	    delete oldioobj;
+	    setid_ = setctio_.ioobj->key();
+	    replaceStoredAttr();
+	    newList( -1 );
+	    attrsetfld_->setText( "" );
+	    setctio_.ioobj = 0;
 	}
     }
-    
-    IOM().setRootDir( GetDataDir() );
 }
 
 
