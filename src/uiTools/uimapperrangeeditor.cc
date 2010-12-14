@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.19 2010-12-01 11:25:26 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.20 2010-12-14 11:35:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,36 @@ void uiMapperRangeEditor::setMarkValue( float val, bool forx )
 
 void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
+    uiAxisHandler* axhndler = histogramdisp_->xAxis();
+    if ( !axhndler ) return;
+
+    StepInterval<float> axrange = axhndler->range();
+    bool changed = false;
+
+    if ( ms.width_ > 0 )
+    {
+	if ( ms.start_ < axrange.start )
+	{ axrange.start = ms.start_; changed = true; }
+
+	if ( (ms.start_+ms.width_) > axrange.stop )
+	{ axrange.stop = ms.start_ + ms.width_; changed = true; }
+    }
+    else
+    {
+	if ( (ms.start_+ms.width_) < axrange.start )
+	{ axrange.start = ms.start_ + ms.width_; changed = true; }
+
+	if ( ms.start_ > axrange.stop )
+	{ axrange.stop = ms.start_; changed = true; }
+    }
+
+    if ( changed )
+    {
+	histogramdisp_->setup().xrg( axrange );
+	histogramdisp_->gatherInfo();
+	histogramdisp_->draw();
+    }
+
     *ctmapper_ = ms;
     ctmapper_->type_ = ColTab::MapperSetup::Fixed;
     cliprg_.start = ctmapper_->start_ +
@@ -214,7 +244,9 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
 
     const int mousepix = ev.pos().x;
     const float mouseposval = xax_->getVal( ev.pos().x );
-    if ( !datarg_.includes(mouseposval) )
+
+    if ( !(datarg_.includes(mouseposval) || 
+	   histogramdisp_->setup().xrg_.includes(mouseposval)) )
 	return false;
 
     if ( mouseposval < (cliprg_.start+cliprg_.stop)/2 )
@@ -223,7 +255,8 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
 	    return false;
 
 	cliprg_.start = mouseposval;
-	if ( !mIsUdf(ctmapper_->symmidval_) )
+	if ( (ctmapper_->type_==ColTab::MapperSetup::Fixed) &&
+	     !mIsUdf(ctmapper_->symmidval_) )
 	    cliprg_.stop = 2*ctmapper_->symmidval_ - cliprg_.start;
     }
     else
@@ -232,7 +265,8 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
 	    return false;
 
 	cliprg_.stop = mouseposval;
-	if ( !mIsUdf(ctmapper_->symmidval_) )
+	if ( (ctmapper_->type_==ColTab::MapperSetup::Fixed) &&
+	     !mIsUdf(ctmapper_->symmidval_) )
 	    cliprg_.start = 2*ctmapper_->symmidval_ - cliprg_.stop;
     }
 
