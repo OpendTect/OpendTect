@@ -4,10 +4,9 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.34 2010-10-15 11:38:42 cvsbert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.35 2010-12-14 11:15:20 cvsbert Exp $";
 
 #include "iostrm.h"
-#include "iolink.h"
 #include "ascstream.h"
 #include "strmprov.h"
 #include "separstr.h"
@@ -27,7 +26,7 @@ int IOStream::prodid = IOObj::addProducer( new IOStreamProducer );
 
 
 IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
-	: IOObject(nm,uid)
+	: IOObj(nm,uid)
 	, readcmd(&fname)
 	, writecmd(0)
 	, blocksize(0)
@@ -63,7 +62,6 @@ bool IOStream::bad() const
 void IOStream::copyFrom( const IOObj* obj )
 {
     if ( !obj ) return;
-    if ( obj->isLink() ) obj = ((IOLink*)obj)->link();
 
     IOObj::copyFrom(obj);
     mDynamicCastGet(const IOStream*,iosobj,obj)

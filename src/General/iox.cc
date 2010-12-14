@@ -5,11 +5,10 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.17 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.18 2010-12-14 11:15:20 cvsbert Exp $";
 
 #include "iox.h"
 #include "iostrm.h"
-#include "iolink.h"
 #include "ioman.h"
 #include "ascstream.h"
 #include "conn.h"
@@ -26,7 +25,7 @@ int IOX::prodid = IOObj::addProducer( new IOXProducer );
 
 
 IOX::IOX( const char* nm, const char* ky, bool )
-	: IOObject(nm,ky)
+	: IOObj(nm,ky)
 	, ownkey_("")
 {
 }
@@ -58,8 +57,6 @@ bool IOX::bad() const
 void IOX::copyFrom( const IOObj* obj )
 {
     if ( !obj ) return;
-    if ( obj->isLink() ) obj = ((IOLink*)obj)->link();
-    if ( !obj ) return;
 
     IOObj::copyFrom(obj);
     mDynamicCastGet(const IOX*,trobj,obj)
@@ -75,16 +72,6 @@ const char* IOX::fullUserExpr( bool i ) const
     const char* s = ioobj->fullUserExpr(i);
     delete ioobj;
     return s;
-}
-
-
-bool IOX::slowOpen() const
-{
-    IOObj* ioobj = IOM().get( ownkey_ );
-    if ( !ioobj ) return false;
-    bool ret = ioobj->slowOpen();
-    delete ioobj;
-    return ret;
 }
 
 

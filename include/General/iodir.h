@@ -7,14 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.18 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: iodir.h,v 1.19 2010-12-14 11:15:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include "ioobj.h"
+#include "multiid.h"
+#include "objectset.h"
+#include "namedobj.h"
 #include <iosfwd>
+class IOObj;
 
 
 /*\brief 'Directory' of IOObj objects.
@@ -31,11 +34,6 @@ the service access point.
 
 mClass IODir : public NamedObject
 {
-
-    friend class	IOMan;
-    friend class	IOObj;
-    friend class	IOLink;
-
 public:
 			IODir(const char*);
 			IODir(const MultiID&);
@@ -55,9 +53,9 @@ public:
     const IOObj*	operator[]( IOObj* o ) const	{ return objs_[o]; }
 
     bool		addObj(IOObj*,bool immediate_store=true);
-			// after call, IOObj is mine!
+			    //!< after call, IOObj is mine
     bool		commitChanges(const IOObj*);
-			// after call, pointer may dangle!
+			    //!< after call, assume pointer will be invalid
     bool		permRemove(const MultiID&);
     bool		mkUniqueName(IOObj*);
 
@@ -85,6 +83,10 @@ private:
     MultiID		newKey() const;
 
     static IOObj*	readOmf(std::istream&,const char*,IODir*,int);
+
+    friend class	IOMan;
+    friend class	IOObj;
+
 };
 
 

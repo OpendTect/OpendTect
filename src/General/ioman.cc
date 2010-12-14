@@ -4,13 +4,13 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.103 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.104 2010-12-14 11:15:20 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
+#include "iosubdir.h"
 #include "oddirs.h"
 #include "iopar.h"
-#include "iolink.h"
 #include "iostrm.h"
 #include "transl.h"
 #include "ctxtioobj.h"
@@ -151,13 +151,14 @@ void IOMan::init()
 	IOObj* iostrm = new IOStream(dd->dirnm,ky);
 	iostrm->setGroup( dd->desc );
 	iostrm->setTranslator( "dGB" );
-	IOLink* iol = new IOLink( iostrm );
-	iol->key_ = dd->id;
-	iol->dirname = iostrm->name();
+	IOSubDir* iosd = new IOSubDir( iostrm->name() );
+	iosd->key_ = dd->id;
+	FilePath fp( rootdir ); fp.add( iostrm->name() );
+	iosd->dirnm_ = fp.fullPath();
 	const IOObj* previoobj = prevdd ? (*dirPtr())[prevdd->id]
 					: dirPtr()->main();
 	int idxof = dirPtr()->objs_.indexOf( (IOObj*)previoobj );
-	dirPtr()->objs_.insertAfter( iol, idxof );
+	dirPtr()->objs_.insertAfter( iosd, idxof );
 
 	prevdd = dd;
 	needwrite = true;
@@ -351,22 +352,24 @@ bool IOMan::setRootDir( const char* dirnm )
 }
 
 
-bool IOMan::to( const IOLink* link )
+bool IOMan::to( const IOSubDir* sd )
 {
     if ( bad() )
-	return link ? to( link->link()->key() ) : to( prevkey );
-    else if ( !link && curlvl == 0 )
+    {
+	if ( !to("0") || bad() ) return false;
+	return to( sd );
+    }
+    else if ( !sd && curlvl == 0 )
 	return false;
-    else if ( dirptr && link && link->key() == dirptr->key() )
+    else if ( dirptr && sd && sd->key() == dirptr->key() )
 	return true;
 
-    FilePath fp( curDir() );
-    fp.add( link ? (const char*)link->dirname : ".." );
-    BufferString fulldir = fp.fullPath();
-    if ( !File::isDirectory(fulldir) ) return false;
+    const char* dirnm = sd ? sd->dirName() : rootdir.buf();
+    if ( !File::isDirectory(dirnm) )
+	return false;
 
     prevkey = dirptr->key();
-    return setDir( fulldir );
+    return setDir( dirnm );
 }
 
 
@@ -383,7 +386,7 @@ bool IOMan::to( const MultiID& ky )
 	refioobj = IODir::getObj( currentkey );
 	if ( !refioobj )		currentkey = "";
     }
-    else if ( !refioobj->isLink() )	currentkey = ky.upLevel();
+    else if ( !refioobj->isSubdir() )	currentkey = ky.upLevel();
     else				currentkey = ky;
     delete refioobj;
 
@@ -450,6 +453,17 @@ IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 
 IOObj* IOMan::getLocal( const char* objname ) const
 {
+    if ( !objname || !*objname )
+	return 0;
+
+    if ( matchString("ID=<",objname) )
+    {
+	BufferString oky( objname+4 );
+	char* ptr = strchr( oky.buf(), '>' );
+	if ( ptr ) *ptr = '\0';
+	return get( MultiID((const char*)oky) );
+    }
+
     if ( dirptr )
     {
 	const IOObj* ioobj = (*dirptr)[objname];
@@ -460,71 +474,6 @@ IOObj* IOMan::getLocal( const char* objname ) const
 	return get( MultiID(objname) );
 
     return 0;
-}
-
-
-IOObj* IOMan::getByName( const char* objname,
-			 const char* pardirname, const char* parname )
-{
-    if ( !objname || !*objname )
-	return 0;
-    if ( matchString("ID=<",objname) )
-    {
-	BufferString oky( objname+4 );
-	char* ptr = strchr( oky.buf(), '>' );
-	if ( ptr ) *ptr = '\0';
-	return get( MultiID((const char*)oky) );
-    }
-
-    MultiID startky = dirptr->key();
-    to( MultiID("") );
-
-    bool havepar = pardirname && *pardirname;
-    bool parprov = parname && *parname;
-    const ObjectSet<IOObj>& ioobjs = dirptr->getObjs();
-    ObjectSet<MultiID> kys;
-    const IOObj* ioobj;
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
-    {
-	ioobj = ioobjs[idx];
-	if ( !havepar )
-	{
-	    if ( !strcmp(ioobj->name(),objname) )
-		kys += new MultiID(ioobj->key());
-	}
-	else
-	{
-	    if ( !strncmp(ioobj->group(),pardirname,3) )
-	    {
-		if ( !parprov || ioobj->name() == parname )
-		{
-		    kys += new MultiID(ioobj->key());
-		    if ( parprov ) break;
-		}
-	    }
-	}
-    }
-
-    ioobj = 0;
-    for ( int idx=0; idx<kys.size(); idx++ )
-    {
-	if ( havepar && !to( *kys[idx] ) )
-	{
-	    BufferString msg( "Survey is corrupt. Cannot go to dir with ID: " );
-	    msg += (const char*)(*kys[idx]);
-	    ErrMsg( msg );
-	    deepErase( kys );
-	    return 0;
-	}
-
-	ioobj = (*dirptr)[objname];
-	if ( ioobj ) break;
-    }
-
-    if ( ioobj ) ioobj = ioobj->clone();
-    to( startky );
-    deepErase( kys );
-    return (IOObj*)ioobj;
 }
 
 
@@ -554,9 +503,9 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 }
 
 
-const char* IOMan::nameOf( const char* id, bool full ) const
+const char* IOMan::nameOf( const char* id ) const
 {
-    static FileNameString ret;
+    static BufferString ret;
     ret = "";
     if ( !id || !*id ) return ret;
 
@@ -566,23 +515,11 @@ const char* IOMan::nameOf( const char* id, bool full ) const
 	{ ret = "ID=<"; ret += id; ret += ">"; }
     else
     {
-	do { 
-	    ret += ioobj->name();
-	    if ( !full ) { delete ioobj; break; }
-	    IOObj* parioobj = ioobj->getParent();
-	    delete ioobj;
-	    ioobj = parioobj;
-	    if ( ioobj ) ret += " <- ";
-	} while ( ioobj );
+	ret = ioobj->name();
+	delete ioobj;
     }
 
-    return ret;
-}
-
-
-void IOMan::back()
-{
-    to( prevkey );
+    return ret.buf();
 }
 
 
@@ -595,12 +532,6 @@ const char* IOMan::curDir() const
 MultiID IOMan::key() const
 {
     return MultiID(dirptr ? dirptr->key() : "");
-}
-
-
-MultiID IOMan::newKey() const
-{
-    return dirptr ? dirptr->newKey() : MultiID( "" );
 }
 
 
@@ -641,7 +572,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 
     if ( !ioobj )
     {
-	MultiID newkey( mktmp ? ctio.ctxt.getSelKey() : newKey() );
+	MultiID newkey( mktmp ? ctio.ctxt.getSelKey() : dirptr->newKey() );
 	if ( mktmp )
 	    newkey.add( IOObj::tmpID() );
 	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newkey, false );
@@ -698,33 +629,6 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
 }
 
 
-bool IOMan::setFileName( MultiID newkey, const char* fname )
-{
-    IOObj* ioobj = get( newkey );
-    if ( !ioobj ) return false;
-    const FileNameString fulloldname = ioobj->fullUserExpr( true );
-    ioobj->setName( fname );
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
-    if ( !iostrm ) return false;
-
-    Translator* tr = ioobj->getTranslator();
-    BufferString fnm = generateFileName( tr, fname );
-    FilePath fp( fulloldname );
-    if ( fp.isAbsolute() )
-	fp.setFileName( fnm );
-    else
-	fp.set( fnm );
-    iostrm->setFileName( fp.fullPath() );
-  
-    const FileNameString fullnewname = iostrm->fullUserExpr(true); 
-    bool ret = File::rename( fulloldname, fullnewname );
-    if ( !ret || !commitChanges( *ioobj ) )
-	return false;
-
-    return true;
-}
-
-
 int IOMan::levelOf( const char* dirnm ) const
 {
     if ( !dirnm ) return 0;
@@ -741,26 +645,6 @@ int IOMan::levelOf( const char* dirnm ) const
 	ptr = strchr( ptr, *FilePath::dirSep(FilePath::Local) );
     }
     return lvl;
-}
-
-
-bool IOMan::haveEntries( const MultiID& id,
-			 const char* trgrpnm, const char* trnm ) const
-{
-    IODir iodir( id );
-    const bool chkgrp = trgrpnm && *trgrpnm;
-    const bool chktr = trnm && *trnm;
-    const int sz = iodir.size();
-    for ( int idx=1; idx<sz; idx++ )
-    {
-	const IOObj& ioobj = *iodir[idx];
-	if ( chkgrp && strcmp(ioobj.group(),trgrpnm) )
-	    continue;
-	if ( chktr && strcmp(ioobj.translator(),trnm) )
-	    continue;
-	return true;
-    }
-    return false;
 }
 
 
@@ -893,8 +777,8 @@ bool SurveyDataTreePreparer::createRootEntry()
     std::string parentrystr( parentry.buf() );
     std::istringstream parstrm( parentrystr );
     ascistream ascstrm( parstrm, false ); ascstrm.next();
-    IOLink* iol = IOLink::get( ascstrm, 0 );
-    if ( !IOM().dirPtr()->addObj(iol,true) )
+    IOSubDir* iosd = new IOSubDir( dirdata_.dirname_ );
+    if ( !IOM().dirPtr()->addObj(iosd,true) )
 	mErrRet( "Couldn't add ", dirdata_.dirname_, " directory to root .omf" )
     return true;
 }

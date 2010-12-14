@@ -4,11 +4,11 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.35 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.36 2010-12-14 11:15:20 cvsbert Exp $";
 
 #include "iodir.h"
-#include "iolink.h"
 #include "ioman.h"
+#include "iosubdir.h"
 #include "ascstream.h"
 #include "separstr.h"
 #include "safefileio.h"
@@ -135,11 +135,7 @@ IOObj* IODir::readOmf( std::istream& strm, const char* dirnm,
 	    if ( id != needid )
 		delete obj;
 	    else
-	    {
-		retobj = obj;
-		retobj->setStandAlone( dirnm );
-		break;
-	    }
+		{ retobj = obj; break; }
 	}
     }
 
@@ -149,7 +145,7 @@ IOObj* IODir::readOmf( std::istream& strm, const char* dirnm,
 
 IOObj* IODir::getObj( const MultiID& ky )
 {
-    FileNameString dirnm( IOM().rootDir() );
+    BufferString dirnm( IOM().rootDir() );
     int nrkeys = ky.nrKeys();
     for ( int idx=0; idx<nrkeys; idx++ )
     {
@@ -181,9 +177,8 @@ const IOObj* IODir::operator[]( const MultiID& ky ) const
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
-	if ( ioobj->key() == ky
-	  || ( ioobj->isLink() && ((IOLink*)ioobj)->link()->key() == ky ) )
-		return ioobj;
+	if ( ioobj->key() == ky )
+	    return ioobj;
 	
     }
 
@@ -239,7 +234,7 @@ bool IODir::permRemove( const MultiID& ky )
 
 bool IODir::commitChanges( const IOObj* ioobj )
 {
-    if ( ioobj->isLink() )
+    if ( ioobj->isSubdir() )
     {
 	IOObj* obj = (IOObj*)(*this)[ioobj->key()];
 	if ( obj != ioobj ) obj->copyFrom( ioobj );
@@ -290,7 +285,7 @@ bool IODir::mkUniqueName( IOObj* ioobj )
     if ( (*this)[ioobj->name()] )
     {
 	int nr = 1;
-	UserIDString nm;
+	BufferString nm;
 
 	do {
 	    nr++;
@@ -341,12 +336,12 @@ bool IODir::wrOmf( std::ostream& strm ) const
     if ( mymain && !mymain->put(astream) )
 	mErrRet()
 
-    // Then the links
+    // Then the subdirs
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* obj = objs_[idx];
 	if ( obj == mymain ) continue;
-	if ( obj->isLink() && !obj->put(astream) )
+	if ( obj->isSubdir() && !obj->put(astream) )
 	    mErrRet()
     }
     // Then the normal objs
@@ -354,7 +349,7 @@ bool IODir::wrOmf( std::ostream& strm ) const
     {
 	const IOObj* obj = objs_[idx];
 	if ( obj == mymain ) continue;
-	if ( !obj->isLink() && !obj->put(astream) )
+	if ( !obj->isSubdir() && !obj->put(astream) )
 	    mErrRet()
     }
 

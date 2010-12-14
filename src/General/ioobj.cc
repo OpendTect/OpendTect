@@ -4,16 +4,18 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.34 2010-12-01 16:53:30 cvsbert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.35 2010-12-14 11:15:20 cvsbert Exp $";
 
+#include "iostrm.h"
+#include "iosubdir.h"
+#include "ioman.h"
+#include "iodir.h"
 #include "ascstream.h"
+#include "filepath.h"
+#include "file.h"
 #include "conn.h"
 #include "errh.h"
-#include "iodir.h"
-#include "iolink.h"
-#include "ioman.h"
 #include "iopar.h"
-#include "iostrm.h"
 #include "ptrman.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -46,49 +48,40 @@ int IOObj::addProducer( IOObjProducer* prod )
 IOObj::IOObj( const char* nm, const char* ky )
 	: NamedObject(nm)
 	, key_(ky)
-	, dirname_(0)
+	, dirnm_("")
 	, pars_(*new IOPar)
 {
 }
 
 
-IOObj::IOObj( IOObj* l, const char* ky )
-	: NamedObject(l)
-	, key_(ky)
-	, dirname_(0)
+IOObj::IOObj( const IOObj& oth )
+	: key_(oth.key_)
 	, pars_(*new IOPar)
 {
+    copyStuffFrom( oth );
 }
 
 
 IOObj::~IOObj()
 {
-    delete dirname_;
     delete &pars_;
+}
+
+
+void IOObj::copyStuffFrom( const IOObj& obj )
+{
+    setGroup( obj.group() );
+    setTranslator( obj.translator() );
+    setName( obj.name() );
+    setDirName( obj.dirName() );
+    pars_ = obj.pars_;
 }
 
 
 void IOObj::copyFrom( const IOObj* obj )
 {
     if ( !obj ) return;
-    setParentKey( obj->parentKey() );
-    setGroup( obj->group() );
-    setTranslator( obj->translator() );
-    setName( obj->name() );
-    pars_ = obj->pars_;
-}
-
-
-IOObj* IOObj::getParent() const
-{
-    return IODir::getObj( parentKey() );
-}
-
-
-const char* IOObj::dirName() const
-{
-    if ( dirname_ ) return *dirname_;
-    return IOM().curDir();
+    copyStuffFrom( *obj );
 }
 
 
@@ -100,47 +93,39 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 	astream.next();
     if ( atEndOfSection(astream) )
 	return 0;
-    MultiID mykey( dirky );
     if ( *astream.keyWord() == '@' )
-    {
-	IOLink* ln = IOLink::get( astream, dirnm );
-	if ( !ln ) return 0;
-	mykey += ln->key();
-	ln->setKey( mykey );
-	return ln;
-    }
+	return IOSubDir::get( astream, dirnm );
 
-    UserIDString _name( astream.keyWord() );
+    BufferString nm( astream.keyWord() );
     fms = astream.value();
-    mykey += fms[0];
-    MultiID parkey( fms[1] );
+    MultiID objkey( dirky ); objkey += fms[0];
     astream.next();
-    UserIDString _group( astream.keyWord() );
+    BufferString groupnm( astream.keyWord() );
     fms = astream.value();
-    UserIDString _trl( fms[0] );
-    UserIDString _typ( fms[1] );
-    if ( ! *(const char*)_typ )
+    BufferString trlnm( fms[0] );
+    BufferString objtyp( fms[1] );
+    if ( objtyp.isEmpty() )
     {
-	TranslatorGroup& grp = TranslatorGroup::getGroup( _group, true );
-	if ( grp.userName() != _group )
+	TranslatorGroup& grp = TranslatorGroup::getGroup( groupnm, true );
+	if ( grp.userName() != groupnm )
+	    return 0;
+	Translator* tr = grp.make( trlnm );
+	if ( !tr )
 	    return 0;
 
-	Translator* tr = grp.make( _trl );
-	if ( !tr ) return 0;
-
-	_typ = tr->connType();
+	objtyp = tr->connType();
 	delete tr;
     }
 
-    IOObj* objptr = produce( _typ, _name, mykey, false );
+    IOObj* objptr = produce( objtyp, nm, objkey, false );
     if ( !objptr ) return 0;
 
-    objptr->setParentKey( parkey );
-    objptr->setGroup( _group );
-    objptr->setTranslator( _trl );
+    objptr->setGroup( groupnm );
+    objptr->setTranslator( trlnm );
 
     astream.next();
-    if ( *astream.keyWord() != '$' )	{ delete objptr; objptr = 0; }
+    if ( *astream.keyWord() != '$' )
+    	{ delete objptr; objptr = 0; }
     else
     {
 	if ( !objptr->getFrom(astream) || objptr->bad() )
@@ -156,6 +141,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
     }
 
     while ( !atEndOfSection(astream) ) astream.next();
+    objptr->setDirName( dirnm );
     return objptr;
 }
 
@@ -197,14 +183,14 @@ Translator* IOObj::getTranslator() const
 
 IOObj* IOObj::clone() const
 {
-    const IOObj* dataobj = isLink() ? ((IOLink*)this)->link() : this;
-    IOObj* newioobj = produce( dataobj->connType(), name(), dataobj->key(),
-	    			false);
-    if ( !newioobj )
-	{ pErrMsg("Cannot produce IOObj of my own type"); return 0; }
-    newioobj->copyFrom( dataobj );
-    newioobj->setStandAlone( dataobj->dirName() );
-    return newioobj;
+    if ( isSubdir() )
+	return new IOSubDir( *((IOSubDir*)this) );
+
+    IOObj* ret = produce( connType(), name(), key(), false );
+    if ( !ret )
+	{ pErrMsg("Cannot 'produce' IOObj of my own type"); return 0; }
+    ret->copyFrom( this );
+    return ret;
 }
 
 
@@ -234,32 +220,11 @@ bool IOObj::isKey( const char* ky )
 }
 
 
-void IOObj::setStandAlone( const char* dirname )
-{
-    if ( !dirname )
-    {
-	delete dirname_;
-	dirname_ = 0;
-	return;
-    }
-    if ( dirname_ )	*dirname_ = dirname;
-    else		dirname_ = new FileNameString( dirname );
-}
-
-
 bool IOObj::put( ascostream& astream ) const
 {
-    if ( !isLink() )
+    if ( !isSubdir() )
     {
-	if ( parentKey().isEmpty() )
-	    astream.put( name(), myKey() );
-	else
-	{
-	    fms = "";
-	    fms += myKey();
-	    fms += parentKey();
-	    astream.put( name(), fms );
-	}
+	astream.put( name(), myKey() );
 	fms = translator();
 	fms += connType();
 	astream.put( group(), fms );
@@ -334,4 +299,38 @@ bool fullImplRemove( const IOObj& ioobj )
 {
     PtrMan<Translator> tr = ioobj.getTranslator();
     return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
+}
+
+
+IOSubDir::IOSubDir( const char* subdirnm )
+    : IOObj(subdirnm)
+    , isbad_(false)
+{
+}
+
+
+IOSubDir::IOSubDir( const IOSubDir& oth )
+    : IOObj(oth)
+    , isbad_(oth.isbad_)
+{
+}
+
+
+IOSubDir* IOSubDir::get( ascistream& strm, const char* dirnm )
+{
+    IOSubDir* ret = new IOSubDir( strm.value() );
+    ret->key_ = strm.keyWord() + 1;
+    FilePath fp( dirnm ); fp.add( ret->name() );
+    ret->dirnm_ = fp.fullPath();
+    ret->isbad_ = !File::isDirectory( ret->dirnm_ );
+    strm.next(); return ret;
+}
+
+
+bool IOSubDir::putTo( ascostream& stream ) const
+{
+    if ( bad() ) return false;
+    const BufferString str( "@", myKey() );
+    stream.put( str, name() );
+    return true;
 }

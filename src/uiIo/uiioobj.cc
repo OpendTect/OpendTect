@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiioobj.cc,v 1.7 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobj.cc,v 1.8 2010-12-14 11:15:20 cvsbert Exp $";
 
 #include "uiioobj.h"
 #include "uimsg.h"
@@ -27,7 +27,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	BufferString mess = "Remove ";
 	if ( !rmentry ) mess += "existing ";
 	mess += "data file(s), at\n'";
-	if ( !ioobj_.isLink() )
+	if ( !ioobj_.isSubdir() )
 	{
 	    mess += ioobj_.fullUserExpr(true);
 	    mess += "'?";

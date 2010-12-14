@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.26 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: iostrm.h,v 1.27 2010-12-14 11:15:20 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
  
-#include "ioobject.h"
+#include "ioobj.h"
 #include "streamconn.h"
 #include "ranges.h"
 class StreamProvider;
@@ -21,7 +21,7 @@ class StreamProvider;
 /*\brief An IOStream is a file (default), device or command entry in the omf. */
 
 
-mClass IOStream : public IOObject
+mClass IOStream : public IOObj
 {
 public:
 			IOStream(const char* nm=0,const char* id=0,
@@ -38,8 +38,6 @@ public:
     void		genDefaultImpl()		{ genFileName(); }
 
     const char*		connType() const;
-    bool		slowOpen() const
-			{ return type_ == StreamConn::Device; }
     Conn*		getConn(Conn::State) const;
 
     bool		implExists(bool forread) const;

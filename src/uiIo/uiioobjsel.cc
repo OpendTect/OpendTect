@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.151 2010-12-13 12:34:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.152 2010-12-14 11:15:20 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -649,7 +649,7 @@ const char* uiIOObjSel::userNameFromKey( const char* ky ) const
     static BufferString nm;
     nm = "";
     if ( ky && *ky )
-	nm = IOM().nameOf( ky, false );
+	nm = IOM().nameOf( ky );
     return (const char*)nm;
 }
 

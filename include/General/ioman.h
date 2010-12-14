@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.43 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.44 2010-12-14 11:15:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,18 +18,16 @@ ________________________________________________________________________
 
 class IODir;
 class IOObj;
-class IOLink;
+class IOSubDir;
 class CtxtIOObj;
 class Translator;
 class IOObjContext;
-
-class IOMan;
 
 /*!\brief manages the 'Meta-'data store for the IOObj's. This info
 is read from the .omf files.
 
 There will be one IOMan available through the global function IOM(). Creating
-more instances is probably not a good idea, but it may work.
+more instances is probably not a good idea.
 
 */
 
@@ -47,30 +45,24 @@ public:
 	    			   bool onlyifsingle=false) const;
     IOObj*		getIfOnlyOne( const char* trgroupname )
 			{ return getOfGroup(trgroupname,true,true); }
-    IOObj*		getByName(const char* objname,
-			      const char* partrgname=0,const char* parname=0);
     IOObj*		getFirst(const IOObjContext&,int* nrpresent=0) const;
     			//!< if interested in nrpresent pass valid address
 
     IODir*		dirPtr()		{ return dirptr; }
-    const IODir*	dirPtr() const		{ return (IODir*)dirptr; }
+    const IODir*	dirPtr() const		{ return dirptr; }
     MultiID		key() const;		//!< of current IODir
     const char*		curDir() const;		//!< OS dir name
-    int			curLevel() const	{ return curlvl; }
     const char*		rootDir() const		{ return rootdir; }
-    int			levelOf(const char* dirnm) const;
-    const char*		nameOf(const char* keystr,bool inc_parents=false) const;
+    const char*		nameOf(const char* keystr) const;
 
-    bool		to(const IOLink*);	//!< NULL -> up-dir
+    bool		to(const IOSubDir* iosd=0);	//!< NULL -> root dir
     bool		to(const MultiID&);
-    void		back();
 
     void		getEntry(CtxtIOObj&,bool newistmp=false);
-			//!< will create a new entry if necessary
-    bool		haveEntries(const MultiID& dirid,const char* trgrpnm=0,
-				     const char* trnm=0) const;
+				//!< will create a new entry if necessary
     bool		commitChanges(const IOObj&);
     bool		permRemove(const MultiID&);
+				//!< Removes only entry in IODir
 
     const char*		surveyName() const;
 
@@ -98,12 +90,6 @@ public:
     			//!< Need to do this only once per OD run
     			//!< At survey change, dir will automatically be added
 
-    bool		setRootDir(const char*);
-    bool		setFileName(MultiID,const char*);
-    const char*		generateFileName(Translator*,const char*);
-    static bool		validSurveySetup(BufferString& errmsg);
-    MultiID		newKey() const;
-
     Notifier<IOMan>	newIODir;
     Notifier<IOMan>	entryRemoved;	   // CallBacker: CBCapsule<MultiID>
     Notifier<IOMan>	surveyToBeChanged; // Before the change
@@ -130,6 +116,9 @@ private:
     static void		setupCustomDataDirs(int);
 
     bool		setDir(const char*);
+    int			levelOf(const char* dirnm) const;
+    int			curLevel() const	{ return curlvl; }
+    const char*		generateFileName(Translator*,const char*);
 
     friend class	IOObj;
     friend class	IODir;
@@ -138,6 +127,9 @@ private:
 public:
 
     // Don't use these functions unless you really know what you're doing
+
+    bool		setRootDir(const char*);
+    static bool		validSurveySetup(BufferString& errmsg);
 
     void		allowSurveyChange()	{ canchangesurvey_ = true; }
     void		disallowSurveyChange()	{ canchangesurvey_ = false; }

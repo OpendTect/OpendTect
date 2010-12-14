@@ -8,18 +8,17 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.17 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: iox.h,v 1.18 2010-12-14 11:15:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <ioobject.h>
+#include "ioobj.h"
 
 
-/*\brief is a X-Group entry in the omf, e.g. Seismic data based upon a
-Feature Set. */
+/*\brief is a X-Group entry in the omf, e.g. PS data based on 3D cubes.  */
 
-mClass IOX : public IOObject
+mClass IOX : public IOObj
 {
 public:
 			IOX(const char* nm=0,const char* ky=0,bool =0);
@@ -35,7 +34,6 @@ public:
 
     const char*		connType() const;
     Conn*		getConn(Conn::State) const;
-    bool		slowOpen() const;
     IOObj*		getIOObj() const;
 
     const MultiID&	ownKey() const			{ return ownkey_; }
