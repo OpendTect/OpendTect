@@ -4,25 +4,28 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.26 2010-11-30 11:47:18 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.27 2010-12-14 04:44:09 cvsnanne Exp $";
 
 #include "seisimporter.h"
+
 #include "seisbuf.h"
-#include "seistrc.h"
 #include "seiscbvs.h"
 #include "seisread.h"
-#include "seiswrite.h"
 #include "seisresampler.h"
-#include "scaler.h"
-#include "cbvsreadmgr.h"
-#include "iostrm.h"
-#include "conn.h"
-#include "survinfo.h"
+#include "seisselection.h"
+#include "seistrc.h"
+#include "seiswrite.h"
+
 #include "binidsorting.h"
-#include "ptrman.h"
+#include "cbvsreadmgr.h"
+#include "conn.h"
+#include "errh.h"
 #include "file.h"
 #include "filepath.h"
-#include "errh.h"
+#include "iostrm.h"
+#include "ptrman.h"
+#include "scaler.h"
+#include "survinfo.h"
 
 
 SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
@@ -456,6 +459,12 @@ SeisStdImporterReader::~SeisStdImporterReader()
     delete resampler_;
     delete scaler_;
     delete &rdr_;
+}
+
+
+int SeisStdImporterReader::totalNr() const
+{
+    return rdr_.selData() ? rdr_.selData()->expectedNrTraces() : -1;
 }
 
 

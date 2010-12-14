@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: seisimporter.h,v 1.10 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seisimporter.h,v 1.11 2010-12-14 04:44:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,6 +113,8 @@ public:
     void		setResampler(SeisResampler*);	//!< becomes mine
     void		setScaler(Scaler*);		//!< becomes mine
     void		setSelData(Seis::SelData*);	//!< becomes mine
+
+    int			totalNr() const;
 
 protected:
 
