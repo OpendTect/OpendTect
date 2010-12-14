@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.222 2010-11-22 05:52:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.223 2010-12-14 08:52:02 cvsbruno Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -251,7 +251,11 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impseissimple, "&Pre-Stack 3D ...", mImpSeisSimplePS3DMnuItm );
     mInsertItem( impseissimple, "Pre-S&tack 2D ...", mImpSeisSimplePS2DMnuItm );
     impseis->insertItem( impseissimple );
-    mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
+    uiPopupMenu* impcbvsseis = new uiPopupMenu( &appl_, "&CBVS" );
+    mInsertItem( impcbvsseis, "&From file ...", mImpSeisCBVSMnuItm );
+    mInsertItem( impcbvsseis, "&From other survey ...", 
+					   mImpSeisCBVSOtherSurvMnuItm );
+    impseis->insertItem( impcbvsseis );
 
     uiPopupMenu* imphorasc = new uiPopupMenu( &appl_, "&Ascii" );
     mInsertItem( imphorasc, "&Geometry 3D ...", mImpHorAsciiMnuItm );
@@ -912,6 +916,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpSeisSimple2DMnuItm:	mDoOp(Imp,Seis,6); break;
     case mImpSeisSimplePS3DMnuItm:	mDoOp(Imp,Seis,7); break;
     case mImpSeisSimplePS2DMnuItm:	mDoOp(Imp,Seis,8); break;
+    case mImpSeisCBVSOtherSurvMnuItm:	mDoOp(Imp,Seis,9); break;
     case mExpSeisSEGY3DMnuItm:		mDoOp(Exp,Seis,1); break;
     case mExpSeisSEGY2DMnuItm:		mDoOp(Exp,Seis,2); break;
     case mExpSeisSEGYPS3DMnuItm:	mDoOp(Exp,Seis,3); break;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.69 2010-11-22 05:39:26 cvsnanne Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.70 2010-12-14 08:52:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ ________________________________________________________________________
 #define mImpSeisSimple2DMnuItm	(mFileImpMnu + 16)
 #define mImpSeisSimplePS3DMnuItm (mFileImpMnu + 17)
 #define mImpSeisSimplePS2DMnuItm (mFileImpMnu + 18)
+#define mImpSeisCBVSOtherSurvMnuItm (mFileImpMnu + 19)
 
 #define mImpHorAsciiMnuItm	(mFileImpMnu + 30)
 #define mImpHorAsciiAttribMnuItm (mFileImpMnu + 31)

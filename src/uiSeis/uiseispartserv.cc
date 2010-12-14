@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.126 2010-12-13 07:07:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.127 2010-12-14 08:52:02 cvsbruno Exp $";
 
 #include "uiseispartserv.h"
 
@@ -44,6 +44,8 @@ static const char* rcsID = "$Id: uiseispartserv.cc,v 1.126 2010-12-13 07:07:44 c
 #include "uiseisfileman.h"
 #include "uiseisioobjinfo.h"
 #include "uiseisrandto2dline.h"
+#include "uiseiscbvsimpfromothersurv.h"
+#include "uiselobjothersurv.h"
 #include "uisegyread.h"
 #include "uisegyexp.h"
 #include "uisegysip.h"
@@ -73,6 +75,15 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
     PtrMan<uiDialog> dlg = 0;
     if ( opt == 0 )
 	dlg = new uiSeisImpCBVS( appserv().parent() );
+    else if ( opt == 9 )
+    {
+	CtxtIOObj& ctio = *mMkCtxtIOObj( SeisTrc );
+	uiSelObjFromOtherSurvey objdlg( appserv().parent(), ctio );
+	if ( objdlg.go() )
+	    dlg = new uiSeisImpCBVSFromOtherSurveyDlg( 
+		    			appserv().parent(), *ctio.ioobj );
+	ctio.setObj(0); delete &ctio;
+    }
     else if ( opt < 5 )
     {
 	if ( !forread )
@@ -94,6 +105,7 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
 	dlg = new uiSeisIOSimple( appserv().parent(), gt, forread );
     }
+
 
     return dlg ? dlg->go() : true;
 }
