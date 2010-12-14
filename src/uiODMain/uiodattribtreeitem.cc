@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.40 2010-09-10 10:32:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.41 2010-12-14 11:12:49 cvsbert Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -222,7 +222,7 @@ BufferString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 	dispname = as->objectRef();
 	const char* nodenm = as->userRef();
 	if ( IOObj::isKey(as->userRef()) )
-	    nodenm = IOM().nameOf( as->userRef(), false );
+	    nodenm = IOM().nameOf( as->userRef() );
 	dispname += " ("; dispname += nodenm; dispname += ")";
     }
 

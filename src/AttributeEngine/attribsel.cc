@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.52 2010-09-21 09:16:34 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.53 2010-12-14 11:12:49 cvsbert Exp $";
 
 #include "attribsel.h"
 
@@ -252,7 +252,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	{
 	    BufferString nm( *nlamod->design().outputs[idx] );
 	    if ( IOObj::isKey(nm) )
-		nm = IOM().nameOf( nm, false );
+		nm = IOM().nameOf( nm );
 	    nlaoutnms_.add( nm );
 	}
     }

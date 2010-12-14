@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.106 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.107 2010-12-14 11:12:49 cvsbert Exp $";
 
 #include "attribengman.h"
 
@@ -196,7 +196,7 @@ void EngineMan::setExecutorName( Executor* ex )
 	nm += nlamodel_->nlaType(true);
 	nm += ": calculating";
 	if ( IOObj::isKey(usernm) )
-	    usernm = IOM().nameOf( usernm, false );
+	    usernm = IOM().nameOf( usernm );
     }
     else
     {

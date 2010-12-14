@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.98 2010-09-27 06:45:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.99 2010-12-14 11:12:49 cvsbert Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -265,7 +265,7 @@ void uiOD2DLineSetTreeItem::createAttrMenu( MenuHandler* menu )
 		attribname = ds->objectRef();
 		const char* nodenm = ds->userRef();
 		if ( IOObj::isKey(ds->userRef()) )
-		    nodenm = IOM().nameOf( ds->userRef(), false );
+		    nodenm = IOM().nameOf( ds->userRef() );
 		attribname += " ("; attribname += nodenm; attribname += ")";
 	    }
 
