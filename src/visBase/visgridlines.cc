@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgridlines.cc,v 1.14 2010-08-19 08:21:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: visgridlines.cc,v 1.15 2010-12-15 06:13:42 cvsnanne Exp $";
 
 #include "visgridlines.h"
 
@@ -89,6 +89,13 @@ void GridLines::setGridCubeSampling( const CubeSampling& cs )
 	cszchanged_ = true;
 
     gridcs_ = cs;
+
+    if ( gridcs_.hrg.step.inl == 0 )
+	gridcs_.hrg.step.inl = planecs_.hrg.step.inl;
+    if ( gridcs_.hrg.step.crl == 0 )
+	gridcs_.hrg.step.crl = planecs_.hrg.step.crl;
+    if ( mIsZero(gridcs_.zrg.step,mDefEps) )
+	gridcs_.zrg.step = planecs_.zrg.step;
 }
 
 
@@ -100,50 +107,65 @@ void GridLines::adjustGridCS()
     const HorSampling& phs = planecs_.hrg;
     HorSampling& ghs = gridcs_.hrg;
 
-    while ( phs.start.inl > ghs.start.inl ) 
-	ghs.start.inl += ghs.step.inl;
-    
-    while ( phs.start.inl < ghs.start.inl -
-			    ghs.step.inl )
-	ghs.start.inl -= ghs.step.inl;
+    if ( csinlchanged_ )
+    {
+	while ( phs.start.inl > ghs.start.inl ) 
+	    ghs.start.inl += ghs.step.inl;
+	
+	while ( phs.start.inl < ghs.start.inl - ghs.step.inl )
+	    ghs.start.inl -= ghs.step.inl;
 
-    while ( phs.stop.inl > ghs.stop.inl +
-			   ghs.step.inl )
-	ghs.stop.inl += ghs.step.inl;
+	while ( phs.stop.inl > ghs.stop.inl + ghs.step.inl )
+	    ghs.stop.inl += ghs.step.inl;
 
-    while ( phs.stop.inl < ghs.stop.inl )
-	ghs.stop.inl -= ghs.step.inl;
-    
-    while ( phs.start.crl > ghs.start.crl )
-	ghs.start.crl += ghs.step.crl;
+	while ( phs.stop.inl < ghs.stop.inl )
+	    ghs.stop.inl -= ghs.step.inl;
+	csinlchanged_ = false;
+    }
 
-    while ( phs.start.crl < ghs.start.crl -
-			    ghs.step.crl )
-	ghs.start.crl -= ghs.step.crl;
+    if ( cscrlchanged_ )
+    {
+	while ( phs.start.crl > ghs.start.crl )
+	    ghs.start.crl += ghs.step.crl;
 
-    while ( phs.stop.crl > ghs.stop.crl +
-				    ghs.step.crl )
-	ghs.stop.crl += ghs.step.crl;
+	while ( phs.start.crl < ghs.start.crl - ghs.step.crl )
+	    ghs.start.crl -= ghs.step.crl;
 
-    while ( phs.stop.crl < ghs.stop.crl )
-	ghs.stop.crl -= ghs.step.crl;
+	while ( phs.stop.crl > ghs.stop.crl + ghs.step.crl )
+	    ghs.stop.crl += ghs.step.crl;
 
-    while ( planecs_.zrg.start > gridcs_.zrg.start )
-	gridcs_.zrg.start += gridcs_.zrg.step;
+	while ( phs.stop.crl < ghs.stop.crl )
+	    ghs.stop.crl -= ghs.step.crl;
+	cscrlchanged_ = false;
+    }
 
-    while ( planecs_.zrg.start < gridcs_.zrg.start - gridcs_.zrg.step )
-	gridcs_.zrg.start -= gridcs_.zrg.step;
-    
-    while ( planecs_.zrg.stop > gridcs_.zrg.stop + gridcs_.zrg.step )
-	gridcs_.zrg.stop += gridcs_.zrg.step;
+    if ( cszchanged_ )
+    {
+	while ( planecs_.zrg.start > gridcs_.zrg.start )
+	    gridcs_.zrg.start += gridcs_.zrg.step;
 
-    while ( planecs_.zrg.stop < gridcs_.zrg.stop )
-	gridcs_.zrg.stop -= gridcs_.zrg.step;
+	while ( planecs_.zrg.start < gridcs_.zrg.start - gridcs_.zrg.step )
+	    gridcs_.zrg.start -= gridcs_.zrg.step;
+	
+	while ( planecs_.zrg.stop > gridcs_.zrg.stop + gridcs_.zrg.step )
+	    gridcs_.zrg.stop += gridcs_.zrg.step;
+
+	while ( planecs_.zrg.stop < gridcs_.zrg.stop )
+	    gridcs_.zrg.stop -= gridcs_.zrg.step;
+	cszchanged_ = false;
+    }
 }
-    
+
 
 void GridLines::setPlaneCubeSampling( const CubeSampling& cs )
 {
+    if ( cs.hrg.inlRange() != planecs_.hrg.inlRange() )
+	csinlchanged_ = true;
+    if ( cs.hrg.crlRange() != planecs_.hrg.crlRange() )
+	cscrlchanged_ = true;
+    if ( cs.zrg != planecs_.zrg )
+	cszchanged_ = true;
+
     planecs_ = cs;
     adjustGridCS();
     if ( inlines_ ) drawInlines();
@@ -242,7 +264,7 @@ void GridLines::showInlines( bool yn )
 {
     if ( yn && ( !inlines_ || csinlchanged_ ) )
 	drawInlines();
-    else if ( inlines_ )
+    if ( inlines_ )
 	inlines_->turnOn( yn );
 }
 
@@ -257,7 +279,7 @@ void GridLines::showCrosslines( bool yn )
 {
     if ( yn && ( !crosslines_ || cscrlchanged_ ) )
 	drawCrosslines();
-    else if ( crosslines_ )
+    if ( crosslines_ )
 	crosslines_->turnOn( yn );
 }
 
@@ -272,7 +294,7 @@ void GridLines::showZlines( bool yn )
 {
     if ( yn && ( !zlines_ || cszchanged_ ) )
 	drawZlines();
-    else if ( zlines_ )
+    if ( zlines_ )
 	zlines_->turnOn( yn );
 }
 
@@ -341,5 +363,5 @@ int GridLines::usePar( const IOPar& par )
     return 1;
 }
 
-}; // namespace visBase
+} // namespace visBase
 

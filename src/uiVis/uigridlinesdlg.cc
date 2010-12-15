@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.12 2010-04-09 08:46:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.13 2010-12-15 06:13:42 cvsnanne Exp $";
 
 #include "uigridlinesdlg.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.12 2010-04-09 08:46:13 cv
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uigeninput.h"
+#include "uimsg.h"
 #include "uisellinest.h"
 #include "visgridlines.h"
 #include "visplanedatadisplay.h"
@@ -180,6 +181,14 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
     {
 	cs.zrg.setFrom( zspacingfld_->getFStepInterval() );
 	cs.zrg.scale( 1/SI().zFactor() );
+    }
+
+    if ( (inlfld_ && inlfld_->isChecked() && cs.hrg.step.inl==0) ||
+	 (crlfld_ && crlfld_->isChecked() && cs.hrg.step.crl==0) ||
+	 (zfld_ && zfld_->isChecked() && mIsZero(cs.zrg.step,mDefEps)) )
+    {
+	uiMSG().error( "Please make sure all steps are non-zero" );
+	return false;
     }
 
     gl.setPlaneCubeSampling( pdd_->getCubeSampling(true,true) );
