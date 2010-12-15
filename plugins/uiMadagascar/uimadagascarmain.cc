@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.39 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.40 2010-12-15 15:40:12 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -335,7 +335,7 @@ void uiMadagascarMain::exportFlow( CallBacker* )
 {
     IOM().to( ODMad::sKeyMadSelKey() );
     uiFileDialog dlg( this, false );
-    dlg.setDirectory( IOM().curDir() );
+    dlg.setDirectory( IOM().curDirName() );
     if ( !dlg.go() ) return;
     uiMSG().error( "Export needs implementation" );
 }
