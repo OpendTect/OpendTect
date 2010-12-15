@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.36 2010-11-16 11:30:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.37 2010-12-15 15:40:38 cvsbert Exp $";
 
 
 #include "uiobjfileman.h"
@@ -57,7 +57,7 @@ uiObjFileMan::~uiObjFileMan()
 void uiObjFileMan::createDefaultUI( bool needreloc )
 {
     listgrp_ = new uiGroup( this, "List Group" );
-    IOM().to( 0 ); IOM().to( ctxt_.getSelKey() );
+    IOM().to( ctxt_.getSelKey(), true );
     selgrp_ = new uiIOObjSelGrp( listgrp_, CtxtIOObj(ctxt_), 0, false,
 				 needreloc);
     selgrp_->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
