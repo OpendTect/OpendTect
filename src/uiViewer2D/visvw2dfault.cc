@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: visvw2dfault.cc,v 1.2 2010-11-06 16:21:12 cvsumesh Exp $
+ RCS:		$Id: visvw2dfault.cc,v 1.3 2010-12-15 12:03:13 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ VW2DFaut::VW2DFaut( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
     , deselted_( this )
     , f3deditor_(0)
 {
+    faulteds_.allowNull();
+
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid_, true );
     mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
     f3deditor_ = f3deditor;
