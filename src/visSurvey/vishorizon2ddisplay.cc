@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.41 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.42 2010-12-15 07:16:17 cvsnanne Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -400,8 +400,6 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
 void Horizon2DDisplay::updateLinesOnSections(
 			const ObjectSet<const Seis2DDisplay>& seis2dlist )
 {
-    if ( !seis2dlist.size() ) return;
-
     if ( !displayonlyatsections_ )
     {
 	for ( int sidx=0; sidx<sids_.size(); sidx++ )
@@ -409,18 +407,9 @@ void Horizon2DDisplay::updateLinesOnSections(
 	return;
     }
 
-    mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
+    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
     if ( !h2d ) return;
     
-    TypeSet<Coord> xy0;
-    TypeSet<Coord> xy1;
-    for ( int idx=0; idx<seis2dlist.size(); idx++ )
-    {
-	const Interval<int>& trcrg  = seis2dlist[idx]->getTraceNrRange();
-	xy0 += seis2dlist[idx]->getCoord( trcrg.start );
-	xy1 += seis2dlist[idx]->getCoord( trcrg.stop );
-    }
-
     LineRanges linergs;
     for ( int lnidx=0; lnidx<h2d->geometry().nrLines(); lnidx++ )
     {
@@ -429,22 +418,15 @@ void Horizon2DDisplay::updateLinesOnSections(
 	linergs.zrgs += TypeSet<Interval<float> >();
 	for ( int idx=0; idx<seis2dlist.size(); idx++ )
 	{
-	    const Interval<int>& trcrg  = seis2dlist[idx]->getTraceNrRange();
-	    Coord pos = h2d->getPos( 0, geomid, trcrg.start ); 
-	    if ( !xy0[idx].isDefined() || !mIsEqual(xy0[idx].x,pos.x,mDefEps) 
-				       || !mIsEqual(xy0[idx].y,pos.y,mDefEps) )
-		continue;
-
-	    pos = h2d->getPos( 0, geomid, trcrg.stop );
-	    if ( !xy1[idx].isDefined() || !mIsEqual(xy1[idx].x,pos.x,mDefEps) 
-				       || !mIsEqual(xy1[idx].y,pos.y,mDefEps) )
-		continue;
-
-	    linergs.trcrgs[lnidx] += trcrg;
-	    linergs.zrgs[lnidx] += seis2dlist[idx]->getZRange( true );
+	    PosInfo::GeomID s2dgeomid = seis2dlist[idx]->getGeomID();
+	    if ( s2dgeomid == geomid )
+	    {
+		linergs.trcrgs[lnidx] += seis2dlist[idx]->getTraceNrRange();
+		linergs.zrgs[lnidx] += seis2dlist[idx]->getZRange( true );
+	    }
 	}
     }
-    
+
     for ( int sidx=0; sidx<sids_.size(); sidx++ )
 	updateSection( sidx, &linergs );
 }
