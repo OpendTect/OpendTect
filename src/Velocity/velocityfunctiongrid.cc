@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.18 2010-12-14 05:29:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.19 2010-12-15 20:12:00 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -69,6 +69,7 @@ bool GriddedFunction::fetchSources()
     {
 	const Coord workpos = SI().transform( bid_ );
 	if ( gridder_ && (!gridder_->setGridPoint( workpos ) || 
+	     !gridder_->setPoints( gvs.gridsourcecoords_ ) ||
 	     !gridder_->init()) )
 	    return false;
 
