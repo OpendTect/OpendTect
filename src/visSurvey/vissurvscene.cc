@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.141 2010-11-30 16:48:16 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.142 2010-12-15 22:54:14 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -685,6 +685,7 @@ const Color& Scene::cDefaultMarkerColor()
 void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::DataObject::fillPar( par, saveids );
+    visBase::Scene::fillOffsetPar( par );
 
     int kid = 0;
     while ( getObject(kid++) != zscaletransform_ )
@@ -759,7 +760,7 @@ int Scene::usePar( const IOPar& par )
 	par.getYN( "Allow shading", appallowshad_ ); //Old key
 
 
-    int res = visBase::DataObjectGroup::usePar( par );
+    int res = visBase::Scene::usePar( par );
     if ( res!=1 ) return res;
 
     bool txtshown = true;

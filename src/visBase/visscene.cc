@@ -7,9 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscene.cc,v 1.42 2010-10-11 17:23:39 cvskris Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.43 2010-12-15 22:54:14 cvskris Exp $";
 
 #include "visscene.h"
+
+#include "settings.h"
+#include "iopar.h"
 #include "visobject.h"
 #include "visdataman.h"
 #include "visselman.h"
@@ -21,6 +24,9 @@ static const char* rcsID = "$Id: visscene.cc,v 1.42 2010-10-11 17:23:39 cvskris 
 #include <Inventor/nodes/SoEnvironment.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTextureMatrixTransform.h>
+
+#define mDefaultFactor	1
+#define mDefaultUnits	200
 
 
 mCreateFactoryEntry( visBase::Scene );
@@ -42,8 +48,20 @@ Scene::Scene()
 
     polygonoffset_->ref();
     polygonoffset_->setStyle( PolygonOffset::Filled );
-    polygonoffset_->setFactor( 1 );
-    polygonoffset_->setUnits( 2 );
+
+    float units = mDefaultUnits;
+    float factor = mDefaultFactor;
+
+    PtrMan<IOPar> settings = Settings::common().subselect( sKeyOffset() );
+    if ( settings )
+    {
+	settings->get( sKeyFactor(), factor );
+	settings->get( sKeyUnits(), units );
+    }
+
+    polygonoffset_->setFactor( factor );
+    polygonoffset_->setUnits( units );
+
     selroot_->addChild( polygonoffset_->getInventorNode() );
 
     //Needed as some ATI-cards dont' have it set.
@@ -55,6 +73,13 @@ Scene::Scene()
     selroot_->addChild( events_.getInventorNode() );
     selroot_->addChild( DataObjectGroup::getInventorNode() );
     events_.nothandled.notify( mCB(this,Scene,mousePickCB) );
+}
+
+
+bool Scene::saveCurrentOffsetAsDefault() const
+{
+    fillOffsetPar( Settings::common() );
+    return Settings::common().write( true );
 }
 
 
@@ -235,5 +260,42 @@ void Scene::mousePickCB( CallBacker* cb )
     //Don't call setHandled, since that will block all other event-catchers
 }
 
+
+void Scene::fillPar( IOPar& par, TypeSet<int>& additionalsaves ) const
+{
+    DataObjectGroup::fillPar( par, additionalsaves );
+    fillOffsetPar( par );
+}
+
+
+void Scene::fillOffsetPar( IOPar& par ) const
+{
+    IOPar offsetpar;
+    offsetpar.set( sKeyFactor(), polygonoffset_->getFactor() );
+    offsetpar.set( sKeyUnits(), polygonoffset_->getUnits() );
+    par.mergeComp( offsetpar, sKeyOffset() );
+}
+
+
+int Scene::usePar( const IOPar& par )
+{
+    int res = DataObjectGroup::usePar( par );
+    if ( res!=1 )
+	return res;
+
+    PtrMan<IOPar> settings = par.subselect( sKeyOffset() );
+    if ( settings )
+    {
+	float units, factor;
+	if ( settings->get( sKeyFactor(), factor ) &&
+	     settings->get( sKeyUnits(), units ) )
+	{
+	    polygonoffset_->setFactor( factor );
+	    polygonoffset_->setUnits( units );
+	}
+    }
+
+    return 1;
+}
 
 }; // namespace visBase

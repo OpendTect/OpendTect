@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.21 2009-10-16 07:58:55 cvskarthika Exp $
+ RCS:		$Id: visscene.h,v 1.22 2010-12-15 22:54:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,9 @@ public:
     void		setDirectionalLight(const DirectionalLight&);
     DirectionalLight*	getDirectionalLight() const;
 
+    PolygonOffset*	getPolygonOffset()	{ return polygonoffset_; }
+    bool		saveCurrentOffsetAsDefault() const;
+
     bool		blockMouseSelection(bool yn);
     			/*!<\returns previous status. */
 
@@ -57,9 +60,19 @@ public:
 
     Notifier<Scene>	nameChanged;
 
+    static const char*	sKeyOffset()	{ return "Polygon offset"; }
+    static const char*	sKeyFactor()	{ return "Factor"; }
+    static const char*	sKeyUnits()	{ return "Units"; }
+
+
 protected:
     virtual		~Scene();
     EventCatcher&	events_;
+
+    void		fillPar(IOPar&,TypeSet<int>&) const;
+    int			usePar(const IOPar&);
+
+    void		fillOffsetPar( IOPar& ) const;
 
 private:
     int			mousedownid_;
