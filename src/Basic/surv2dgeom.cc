@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.12 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.13 2010-12-15 07:13:09 cvsnanne Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -72,7 +72,7 @@ PosInfo::Survey2D& PosInfo::POS2DAdmin()
 
 
 #define mErrRet(s1,s2,s3) \
-{\
+{ \
     BufferString cmd("od_DispMsg --err ",BufferString(s1 " '",s2, "' " s3)); \
     StreamProvider prov( cmd ); \
     prov.executeCommand( false ); \
@@ -104,7 +104,7 @@ PosInfo::Survey2D::Survey2D()
     {
 	if ( !File::createDir(dirnm) )
 	    mErrRet("Cannot create",dirnm,
-		    "for 2D geometries. Check write premissions")
+		    "for 2D geometries. Check write permissions")
     }
 
     readIdxFiles();
@@ -174,8 +174,8 @@ void PosInfo::Survey2D::writeIdxFile( bool lines ) const
     else
     {
 	sfio.closeFail();
-	mErrRet("Error during write to 2D Geometry index file.",fp.fullPath(),
-		"\nCheck disk space.");
+	mErrRet("Error during write to 2D Geometry index file",fp.fullPath(),
+		"Check disk space.");
     }
 }
 
@@ -221,6 +221,8 @@ int PosInfo::Survey2D::curLineSetID() const
 
 int PosInfo::Survey2D::getLineSetID( const char* lsnm ) const
 {
+    if ( !lsnm ) return -1;
+
     for ( int idx=0; idx<lsindex_.size(); idx++ )
     {
 	FileMultiString info( lsindex_.getValue(idx) );
@@ -234,6 +236,8 @@ int PosInfo::Survey2D::getLineSetID( const char* lsnm ) const
 
 int PosInfo::Survey2D::getLineID( const char* linenm ) const
 {
+    if ( !linenm ) return -1;
+
     for ( int idx=0; idx<lineindex_.size(); idx++ )
     {
 	FileMultiString info( lineindex_.getValue(idx) );
