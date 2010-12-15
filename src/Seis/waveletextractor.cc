@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.11 2010-11-29 21:37:17 cvskris Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.12 2010-12-15 12:12:16 cvsnageswara Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -245,7 +245,7 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
     if ( foundundef )
 	return false;
 
-    if ( count >= signalsz || count == 1 )
+    if ( count == signalsz || count == signalsz-1 )
 	return false;
 
     ArrayNDWindow window( signal.info(), true, "CosTaper", paramval_ );
@@ -264,7 +264,7 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
 
     removeBias( &temp );
     normalisation( temp );
-
+   
     Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
     Array1DImpl<float_complex> timedomsignal( wvltsize_ );
     for ( int idx=0; idx<wvltsize_; idx++ )
