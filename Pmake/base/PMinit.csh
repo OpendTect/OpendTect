@@ -2,7 +2,7 @@
 #---------------------------------------------------------
 # Author: de Groot - Bril Earth Sciences ( A.H.Bril )
 # Pmake Environment initialization C-shell script
-# $Id: PMinit.csh,v 1.12 2010-01-11 06:03:25 cvsbert Exp $
+# $Id: PMinit.csh,v 1.13 2010-12-15 15:49:32 cvsbert Exp $
 #---------------------------------------------------------
 
 if ( ! $?HDIR ) then
@@ -51,7 +51,7 @@ if ( ! $?GNUMAKE ) then
     endif
 endif
 
-setenv PMAKECOMMAND	'$GNUMAKE -I$WORK/Pmake -I$PMAKE'
+setenv PMAKECOMMAND	'$GNUMAKE --no-print-directory -I$WORK/Pmake -I$PMAKE'
 alias make		$PMAKECOMMAND
 
 alias wdir		'setenv WORK `pwd`'
