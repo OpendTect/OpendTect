@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.105 2010-12-14 15:53:16 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.106 2010-12-15 15:39:15 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -26,7 +26,6 @@ static const char* rcsID = "$Id: ioman.cc,v 1.105 2010-12-14 15:53:16 cvsbert Ex
 #include "settings.h"
 
 #include <stdlib.h>
-#include <sstream>
 
 IOMan*	IOMan::theinst_	= 0;
 extern "C" void SetSurveyName(const char*);
@@ -34,6 +33,7 @@ extern "C" const char* GetSurveyName();
 extern "C" void SetSurveyNameDirty();
 
 static bool survchg_triggers = false;
+static const MultiID emptykey( "" );
 
 
 IOMan& IOM()
@@ -64,7 +64,7 @@ IOMan::IOMan( const char* rd )
 void IOMan::init()
 {
     state_ = Bad;
-    if ( !to( prevkey ) ) return;
+    if ( !to( emptykey, true ) ) return;
 
     state_ = Good;
     curlvl = 0;
@@ -161,7 +161,7 @@ void IOMan::init()
     if ( needwrite )
     {
 	dirPtr()->doWrite();
-	to( prevkey );
+	to( emptykey, true );
     }
 }
 
@@ -346,56 +346,57 @@ bool IOMan::setRootDir( const char* dirnm )
 }
 
 
-bool IOMan::to( const IOSubDir* sd )
+bool IOMan::to( const IOSubDir* sd, bool forcereread )
 {
     if ( bad() )
     {
-	if ( !to("0") || bad() ) return false;
-	return to( sd );
+	if ( !to("0",true) || bad() ) return false;
+	return to( sd, true );
     }
-    else if ( !sd && curlvl == 0 )
-	return false;
-    else if ( dirptr && sd && sd->key() == dirptr->key() )
-	return true;
+    else if ( !forcereread )
+    {
+	if ( !sd && curlvl == 0 )
+	    return true;
+	else if ( dirptr && sd && sd->key() == dirptr->key() )
+	    return true;
+    }
 
     const char* dirnm = sd ? sd->dirName() : rootdir.buf();
     if ( !File::isDirectory(dirnm) )
 	return false;
 
-    prevkey = dirptr->key();
     return setDir( dirnm );
 }
 
 
-bool IOMan::to( const MultiID& ky )
+bool IOMan::to( const MultiID& ky, bool forcereread )
 {
-    if ( dirptr && ky == dirptr->key() )
+    const bool issamedir = dirptr && ky == dirptr->key();
+    if ( !forcereread && issamedir )
 	return true;
 
-    MultiID currentkey;
+    MultiID dirkey;
     IOObj* refioobj = IODir::getObj( ky );
-    if ( !refioobj )
+    if ( refioobj )
+	dirkey = refioobj->isSubdir() ? ky : MultiID(ky.upLevel());
+    else
     {
-	currentkey = ky.upLevel();
-	refioobj = IODir::getObj( currentkey );
-	if ( !refioobj )		currentkey = "";
+	dirkey = ky.upLevel();
+	refioobj = IODir::getObj( dirkey );
+	if ( !refioobj )
+	    dirkey = "";
     }
-    else if ( !refioobj->isSubdir() )	currentkey = ky.upLevel();
-    else				currentkey = ky;
     delete refioobj;
 
-    IODir* newdir = currentkey.isEmpty()
-	? new IODir( rootdir ) : new IODir( currentkey );
-    if ( !newdir || newdir->bad() ) return false;
+    IODir* newdir = dirkey.isEmpty() ? new IODir(rootdir) : new IODir(dirkey);
+    if ( !newdir || newdir->bad() )
+	return false;
 
     bool needtrigger = dirptr;
     if ( dirptr )
-    {
-	prevkey = dirptr->key();
 	delete dirptr;
-    }
     dirptr = newdir;
-    curlvl = levelOf( curDir() );
+    curlvl = levelOf( curDirName() );
     if ( needtrigger )
 	newIODir.trigger();
 
@@ -500,11 +501,12 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 const char* IOMan::nameOf( const char* id ) const
 {
     static BufferString ret;
-    ret = "";
-    if ( !id || !*id ) return ret;
+    if ( !id || !*id || !IOObj::isKey(id) )
+	return id;
 
     MultiID ky( id );
     IOObj* ioobj = get( ky );
+    ret.setEmpty();
     if ( !ioobj )
 	{ ret = "ID=<"; ret += id; ret += ">"; }
     else
@@ -517,15 +519,15 @@ const char* IOMan::nameOf( const char* id ) const
 }
 
 
-const char* IOMan::curDir() const
+const char* IOMan::curDirName() const
 {
     return dirptr ? dirptr->dirName() : (const char*)rootdir;
 }
 
 
-MultiID IOMan::key() const
+const MultiID& IOMan::key() const
 {
-    return MultiID(dirptr ? dirptr->key() : "");
+    return dirptr ? dirptr->key() : emptykey;
 }
 
 
@@ -541,11 +543,10 @@ bool IOMan::setDir( const char* dirname )
 	return false;
     }
 
-    prevkey = key();
     bool needtrigger = dirptr;
     delete dirptr;
     dirptr = newdirptr;
-    curlvl = levelOf( curDir() );
+    curlvl = levelOf( curDirName() );
     if ( needtrigger )
 	newIODir.trigger();
     return true;
@@ -688,7 +689,6 @@ public:
     bool		prepDirData();
     bool		prepSurv();
     bool		createDataTree();
-    bool		createRootEntry();
 
     const IOMan::CustomDirData&	dirdata_;
     BufferString	errmsg_;
@@ -725,7 +725,7 @@ bool SurveyDataTreePreparer::prepSurv()
     PtrMan<IOObj> ioobj = IOM().get( dirdata_.selkey_ );
     if ( ioobj ) return true;
 
-    IOM().to( 0 );
+    IOM().toRoot();
     if ( IOM().bad() ) { errmsg_ = "Can't go to root of survey"; return false; }
     if ( !createDataTree() )
 	return false;
@@ -734,7 +734,9 @@ bool SurveyDataTreePreparer::prepSurv()
     ioobj = IOM().get( dirdata_.selkey_ );
     if ( ioobj ) return true;
 
-    return createRootEntry();
+    if ( !IOM().dirPtr()->addObj(IOMan::getIOSubDir(dirdata_),true) )
+	mErrRet( "Couldn't add ", dirdata_.dirname_, " directory to root .omf" )
+    return true;
 }
 
 
@@ -777,21 +779,6 @@ bool SurveyDataTreePreparer::createDataTree()
 	     	"$Name: Main\n!"
 	      << std::endl;
     sd.close();
-    return true;
-}
-
-
-bool SurveyDataTreePreparer::createRootEntry()
-{
-    BufferString parentry( "@" ); parentry += dirdata_.selkey_;
-    parentry += ": "; parentry += dirdata_.dirname_;
-    parentry += "\n!\n";
-    std::string parentrystr( parentry.buf() );
-    std::istringstream parstrm( parentrystr );
-    ascistream ascstrm( parstrm, false ); ascstrm.next();
-    IOSubDir* iosd = new IOSubDir( dirdata_.dirname_ );
-    if ( !IOM().dirPtr()->addObj(iosd,true) )
-	mErrRet( "Couldn't add ", dirdata_.dirname_, " directory to root .omf" )
     return true;
 }
 
@@ -842,6 +829,16 @@ void IOMan::setupCustomDataDirs( int taridx )
 	if ( !sdtp.prepSurv() )
 	    ErrMsg( sdtp.errmsg_ );
     }
+}
+
+
+IOSubDir* IOMan::getIOSubDir( const IOMan::CustomDirData& cdd )
+{
+    IOSubDir* sd = new IOSubDir( cdd.dirname_ );
+    sd->setDirName( IOM().rootDir() );
+    sd->setKey( cdd.selkey_ );
+    sd->isbad_ = false;
+    return sd;
 }
 
 

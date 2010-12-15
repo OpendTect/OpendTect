@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.44 2010-12-14 11:15:20 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.45 2010-12-15 15:39:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,13 +50,15 @@ public:
 
     IODir*		dirPtr()		{ return dirptr; }
     const IODir*	dirPtr() const		{ return dirptr; }
-    MultiID		key() const;		//!< of current IODir
-    const char*		curDir() const;		//!< OS dir name
+    const MultiID&	key() const;		//!< of current IODir
+    const char*		curDirName() const;	//!< OS dir name
     const char*		rootDir() const		{ return rootdir; }
     const char*		nameOf(const char* keystr) const;
+    			//!< if keystr is not an IOObj key, will return keystr
 
-    bool		to(const IOSubDir* iosd=0);	//!< NULL -> root dir
-    bool		to(const MultiID&);
+    bool		to(const MultiID&,bool force_reread=false);
+    bool		toRoot(bool force_reread=false)
+    			{ return to(0,force_reread); }
 
     void		getEntry(CtxtIOObj&,bool newistmp=false);
 				//!< will create a new entry if necessary
@@ -91,12 +93,11 @@ public:
     			//!< At survey change, dir will automatically be added
 
     Notifier<IOMan>	newIODir;
-    Notifier<IOMan>	entryRemoved;	   // CallBacker: CBCapsule<MultiID>
-    Notifier<IOMan>	surveyToBeChanged; // Before the change
-    Notifier<IOMan>	surveyChanged;     // These restore OD to normal state
-    Notifier<IOMan>	afterSurveyChange; // These operate in normal state
-
-    Notifier<IOMan>	applicationClosing; // 'Final' call ...
+    Notifier<IOMan>	entryRemoved;	    //!< CallBacker: CBCapsule<MultiID>
+    Notifier<IOMan>	surveyToBeChanged;  //!< Before the change
+    Notifier<IOMan>	surveyChanged;      //!< To restore OD to normal state
+    Notifier<IOMan>	afterSurveyChange;  //!< When operating in normal state
+    Notifier<IOMan>	applicationClosing; //!< 'Final' call ...
 
 private:
 
@@ -104,7 +105,6 @@ private:
     State		state_;
     IODir*		dirptr;
     int			curlvl;
-    MultiID		prevkey;
     FileNameString	rootdir;
     bool		canchangesurvey_;
 
@@ -119,6 +119,7 @@ private:
     int			levelOf(const char* dirnm) const;
     int			curLevel() const	{ return curlvl; }
     const char*		generateFileName(Translator*,const char*);
+    bool		to(const IOSubDir*,bool);
 
     friend class	IOObj;
     friend class	IODir;
@@ -130,6 +131,7 @@ public:
 
     bool		setRootDir(const char*);
     static bool		validSurveySetup(BufferString& errmsg);
+    static IOSubDir*	getIOSubDir(const CustomDirData&);
 
     void		allowSurveyChange()	{ canchangesurvey_ = true; }
     void		disallowSurveyChange()	{ canchangesurvey_ = false; }

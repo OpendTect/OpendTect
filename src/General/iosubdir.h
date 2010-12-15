@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2010
- RCS:		$Id: iosubdir.h,v 1.2 2010-12-14 15:53:16 cvsbert Exp $
+ RCS:		$Id: iosubdir.h,v 1.3 2010-12-15 15:39:15 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -18,8 +18,7 @@ ________________________________________________________________________
 mClass IOSubDir : public IOObj
 {
 public:
-
-		IOSubDir( const char* subdirnm);
+		IOSubDir(const char* subdirnm);
 		IOSubDir(const IOSubDir&);
     bool	isSubdir() const	{ return true; }
     bool	bad() const		{ return isbad_; }

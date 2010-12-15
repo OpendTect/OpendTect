@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.33 2010-12-14 15:53:16 cvsbert Exp $
+ RCS:		$Id: ioobj.h,v 1.34 2010-12-15 15:39:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,10 +39,9 @@ public:
 
 The IOMan object manager manages IODir directories of IOObj objects. These
 objects contain the information needed to do the I/O needed for the storage
-that is accessed in OpendTect software. IOObj objects not in the root IODir will
-have a parent object, which may or may not be useful in relation to the IOObj.
+that is accessed in OpendTect software.
 
-In any case, every IOObj has a unique key in the form of a MultiID. This key
+Every IOObj has a unique key in the form of a MultiID. This key
 holds (a) the position of the IOObj in the IOMan/IODir tree (b) a unique
 integer as an index in the IOObj's own IODir.
 
@@ -114,7 +113,6 @@ protected:
     bool		put(ascostream&) const;
     virtual bool	getFrom(ascistream&)		= 0;
     virtual bool	putTo(ascostream&) const	= 0;
-    void		setKey( const char* nm )	{ key_ = nm; }
     int			myKey() const;
 
 private:
@@ -129,6 +127,7 @@ private:
 
 public:
 
+    void		setKey( const char* nm )	{ key_ = nm; }
     virtual void	setDirName( const char* s )	{ dirnm_ = s; }
     virtual bool	isSubdir() const		{ return false; }
     static int		addProducer(IOObjProducer*);
