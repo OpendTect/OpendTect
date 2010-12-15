@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.204 2010-12-10 06:05:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.205 2010-12-15 08:52:15 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -640,8 +640,12 @@ void uiMPEMan::updateOldActiveVol()
 
 void uiMPEMan::turnSeedPickingOn( bool yn )
 {
+    if ( !yn && clickcatcher )
+	clickcatcher->setEditor( 0 );
+
     if ( isSeedPickingOn() == yn )
 	return;
+
     toolbar->turnOn( seedidx, yn );
     MPE::EMTracker* tracker = getSelectedTracker();
 
@@ -671,10 +675,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	    seedpicker->stopSeedPick();
 
 	if ( clickcatcher )
-	{
-	    clickcatcher->setEditor( 0 );
 	    clickcatcher->turnOn( false );
-	}
 
 	restoreActiveVol();
     }
