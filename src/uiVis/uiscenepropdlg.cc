@@ -7,16 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.15 2010-05-14 13:47:40 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.16 2010-12-15 23:01:59 cvskris Exp $";
 
 #include "uiscenepropdlg.h"
 
+#include "datainpspec.h"
 #include "vissurvscene.h"
+#include "vispolygonoffset.h"
 #include "visscenecoltab.h"
 #include "uibutton.h"
+#include "uigeninputdlg.h"
+#include "uigeninput.h"
 #include "uicolor.h"
 #include "uislider.h"
 #include "uisoviewer.h"
+#include "uimsg.h"
 
 bool uiScenePropertyDlg::savestatus = true;
 
@@ -39,6 +44,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     , viewers_( viewers )
     , curvwridx_( curvwridx )
     , scene_( NULL )
+    , separationdlg_( 0 )
 {
     enableSaveButton( "Apply to all scenes");
     setSaveButtonChecked( savestatus );
@@ -57,6 +63,8 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 	    annotcolor_ = scene_->getAnnotColor();
 	    oldmarkersize_ = scene_->getMarkerSize();
 	    oldmarkercolor_ = scene_->getMarkerColor();
+	    oldfactor_ = scene_->getPolygonOffset()->getFactor();
+	    oldunits_ = scene_->getPolygonOffset()->getUnits();
     	}
     }
 
@@ -100,6 +108,16 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 	    uiColorInput::Setup(annotcolor_).lbltxt("Annotation color") );
     annotcolfld_->attach( alignedBelow, markercolfld_ );
     annotcolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
+
+    uiPushButton* ltbutton = new uiPushButton(this, "Line/Surface separation",
+	    		mCB(this,uiScenePropertyDlg,setOffsetCB ), false );
+    ltbutton->attach( alignedBelow, annotcolfld_ );
+}
+
+
+uiScenePropertyDlg::~uiScenePropertyDlg()
+{
+    delete separationdlg_;
 }
 
 
@@ -132,6 +150,11 @@ void uiScenePropertyDlg::updateScene( visSurvey::Scene* scene )
     scene->setMarkerColor( markercolfld_->color() );
     scene->setAnnotColor( annotcolfld_->color() );
     scene->getSceneColTab()->setLegendColor( annotcolfld_->color() );
+    if ( separationdlg_ )
+    {
+	scene_->getPolygonOffset()->setFactor( separationdlg_->getfValue(0) );
+	scene_->getPolygonOffset()->setUnits( separationdlg_->getfValue(1) );
+    }
 }
 
 
@@ -145,12 +168,51 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
 	scene_->setMarkerSize( oldmarkersize_ );
 	scene_->setMarkerColor( oldmarkercolor_ );
         scene_->setAnnotColor( annotcolor_ );
+	scene_->getPolygonOffset()->setUnits( oldunits_ );
+	scene_->getPolygonOffset()->setFactor( oldfactor_ );
     }
     
     if ( viewers_[curvwridx_] )
 	const_cast<uiSoViewer*>(viewers_[curvwridx_])->setBackgroundColor( 
 		    oldbgcolor_ );
     return true;
+}
+
+
+void uiScenePropertyDlg::setOffsetCB( CallBacker* )
+{
+    if ( !separationdlg_ )
+    {
+	ObjectSet<uiGenInputDlgEntry>* entries =
+	    new ObjectSet<uiGenInputDlgEntry>;
+	(*entries) += new uiGenInputDlgEntry( visBase::Scene::sKeyFactor(),
+		new FloatInpSpec( scene_->getPolygonOffset()->getFactor() ));
+	(*entries) += new uiGenInputDlgEntry( visBase::Scene::sKeyUnits(),
+		new FloatInpSpec( scene_->getPolygonOffset()->getUnits() ));
+
+	separationdlg_ =
+	    new uiGenInputDlg( this, "Line/Surface separation", entries );
+	separationdlg_->setHelpID( "od:50.0.19");
+    }
+
+    while ( true )
+    {
+	if ( !separationdlg_->go() )
+	{
+	    separationdlg_->getFld(0)->setValue( oldfactor_ );
+	    separationdlg_->getFld(1)->setValue( oldunits_ );
+	}
+
+	const float factor = separationdlg_->getfValue(0);
+	const float units = separationdlg_->getfValue(1);
+
+	if ( !mIsUdf(factor) && factor>=1 &&
+	     !mIsUdf(units) && units>=1 )
+	    break;
+
+	uiMSG().error("Both Factor and Units must be defined and "
+		      "more than 1." );
+    }
 }
 
 
