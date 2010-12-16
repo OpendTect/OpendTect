@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.63 2010-11-18 16:27:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.64 2010-12-16 13:51:41 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -232,6 +232,7 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	    newun->setColor( tmpun.color() ); 
 	    newun->setTimeRange( tmpun.timeRange() );
 	    newun->setLevelID( tmpun.levelID() );
+	    newun->setDescription( tmpun.description() );
 	    int posidx = getChildIdxFromTime( *parun, newun->timeRange().start);
 	    if ( posidx < parun->nrRefs() )
 		parun->insert( newun, posidx );
