@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.31 2010-06-21 05:59:34 cvsranojay Exp $
+ RCS:		$Id: cbvsreader.h,v 1.32 2010-12-16 13:08:58 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,8 @@ mClass CBVSReader : public CBVSIO
 {
 public:
 
-			CBVSReader(std::istream*,bool glob_info_only=false);
+			CBVSReader(std::istream*,bool glob_info_only=false,
+					bool forceusecbvsinfo=false);
 			~CBVSReader();
 
     const CBVSInfo&	info() const		{ return info_; }
@@ -80,7 +81,7 @@ protected:
 
     void		getAuxInfoSel(const char*);
     bool		readComps();
-    bool		readGeom();
+    bool		readGeom(bool);
     bool		readTrailer();
     void		getText(int,BufferString&);
     void		toOffs(od_int64);
@@ -108,7 +109,7 @@ private:
     Interval<int>	samprg;
     TypeSet<int>	posnrs;
 
-    bool		readInfo(bool);
+    bool		readInfo(bool,bool);
     int			nextPosIdx();
     			//!< 0 = no more traces
     			//!< 1 = next trace adjacent to current

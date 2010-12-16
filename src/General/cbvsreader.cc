@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.80 2010-06-21 05:59:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.81 2010-12-16 13:08:58 cvsbruno Exp $";
 
 /*!
 
@@ -35,7 +35,8 @@ The next 8 bytes are reserved for 2 integers:
 #include "strmoper.h"
 
 
-CBVSReader::CBVSReader( std::istream* s, bool glob_info_only )
+CBVSReader::CBVSReader( std::istream* s, bool glob_info_only, 
+				bool forceusecbvsinfo )
 	: strm_(*s)
 	, iinterp(DataCharacteristics())
 	, finterp(DataCharacteristics())
@@ -49,7 +50,7 @@ CBVSReader::CBVSReader( std::istream* s, bool glob_info_only )
     	, needaux(true)
 {
     hs.step.inl = hs.step.crl = 1;
-    if ( readInfo(!glob_info_only) )
+    if ( readInfo(!glob_info_only,forceusecbvsinfo) )
 	toStart();
 }
 
@@ -70,7 +71,7 @@ void CBVSReader::close()
 
 #define mErrRet(s) { errmsg_ = s; return 0; }
 
-bool CBVSReader::readInfo( bool wanttrailer )
+bool CBVSReader::readInfo( bool wanttrailer, bool forceusecbvsinfo )
 {
     info_.clean();
     errmsg_ = check( strm_ );
@@ -96,7 +97,7 @@ bool CBVSReader::readInfo( bool wanttrailer )
     strm_.read( ptr, integersize );
     getText( iinterp.get(ptr,0), info_.stdtext );
 
-    if ( !readComps() || !readGeom() )
+    if ( !readComps() || !readGeom(forceusecbvsinfo) )
 	return false;
 
     strm_.read( ptr, 2 * integersize );
@@ -264,7 +265,7 @@ bool CBVSReader::readComps()
 }
 
 
-bool CBVSReader::readGeom()
+bool CBVSReader::readGeom( bool forceusecbvsinfo )
 {
     char buf[8*sizeof(double)];
 
@@ -285,8 +286,9 @@ bool CBVSReader::readGeom()
     xtr.a = dinterp.get( buf, 0 ); xtr.b = dinterp.get( buf, 1 );
     xtr.c = dinterp.get( buf, 2 ); ytr.a = dinterp.get( buf, 3 );
     ytr.b = dinterp.get( buf, 4 ); ytr.c = dinterp.get( buf, 5 );
-    static const bool useinf = GetEnvVarYN( "DTECT_CBVS_USE_STORED_SURVINFO" );
-    if ( useinf && xtr.valid(ytr) )
+    static const bool useinfvar = GetEnvVarYN("DTECT_CBVS_USE_STORED_SURVINFO");
+    const bool useinfo = forceusecbvsinfo ? true : useinfvar;
+    if ( useinfo && xtr.valid(ytr) )
 	info_.geom.b2c.setTransforms( xtr, ytr );
     else
 	info_.geom.b2c = SI().binID2Coord();

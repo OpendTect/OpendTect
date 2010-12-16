@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.44 2010-11-12 15:02:24 cvsbert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.45 2010-12-16 13:08:58 cvsbruno Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -29,7 +29,8 @@ public:
 
 			CBVSSeisTrcTranslator(const char*,const char*);
     static CBVSSeisTrcTranslator* make(const char* fnm,bool forinfoonly,
-	    				bool is2d, BufferString* errmsg=0);
+					bool is2d, BufferString* errmsg=0,
+					bool forceusecbvsinfo=false);
 			~CBVSSeisTrcTranslator();
 
     bool		readInfo(SeisTrcInfo&);
@@ -60,6 +61,7 @@ public:
     void		set2D(bool yn=true);
     bool		singleFile() const		{ return single_file; }
     void		setSingleFile( bool yn=true )	{ single_file = yn; }
+    void		setForceUseCBVSInfo(bool yn) 	{ forceusecbvsinfo=yn; }
 
     void		setCoordPol(bool dowrite,bool intrailer);
     void		setPreselDataType( int dt )	{ preseldatatype = dt; }
@@ -87,6 +89,7 @@ protected:
     bool		is2d;
     bool		minimalhdrs;
     bool		single_file;
+    bool		forceusecbvsinfo;
 
     virtual void	cleanUp();
     virtual bool	initRead_();

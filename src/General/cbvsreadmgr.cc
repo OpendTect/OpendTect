@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.60 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.61 2010-12-16 13:08:58 cvsbruno Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -27,7 +27,7 @@ static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 
 
 CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
-			  bool single_file, bool glob_info_only )
+		  bool single_file, bool glob_info_only, bool forceusecbvsinfo )
 	: CBVSIOMgr(fnm)
 	, info_(*new CBVSInfo)
 	, vertical_(false)
@@ -45,7 +45,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 
     if ( !fnm || !strcmp(fnm,StreamProvider::sStdIO()) )
     {
-	addReader( &std::cin, cs, glob_info_only );
+	addReader( &std::cin, cs, glob_info_only, forceusecbvsinfo );
 	if ( readers_.isEmpty() )
 	    errmsg_ = "Standard input contains no relevant data";
 	else
@@ -61,7 +61,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 	    break;
 
 	foundone = true;
-	if ( !addReader(fname,cs,glob_info_only) )
+	if ( !addReader(fname,cs,glob_info_only,forceusecbvsinfo) )
 	{
 	    if ( *(const char*)errmsg_ )
 		return;
@@ -204,7 +204,7 @@ const char* CBVSReadMgr::errMsg_() const
 
 
 bool CBVSReadMgr::addReader( const char* fname, const CubeSampling* cs,
-				bool info_only )
+				bool info_only, bool forceusecbvsinfo )
 {
     StreamData sd = StreamProvider(fname).makeIStream();
     if ( !sd.usable() )
@@ -214,14 +214,14 @@ bool CBVSReadMgr::addReader( const char* fname, const CubeSampling* cs,
 	return false;
     }
 
-    return addReader( sd.istrm, cs, info_only );
+    return addReader( sd.istrm, cs, info_only, forceusecbvsinfo );
 }
 
 
 bool CBVSReadMgr::addReader( std::istream* strm, const CubeSampling* cs,
-				bool info_only )
+				bool info_only, bool usecbvsinfo )
 {
-    CBVSReader* newrdr = new CBVSReader( strm, info_only );
+    CBVSReader* newrdr = new CBVSReader( strm, info_only, usecbvsinfo );
     if ( newrdr->errMsg() )
     {
 	errmsg_ = newrdr->errMsg();

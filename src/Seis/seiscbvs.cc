@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.86 2010-12-16 13:04:29 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.87 2010-12-16 13:08:58 cvsbruno Exp $";
 
 #include "seiscbvs.h"
 #include "seistrc.h"
@@ -37,6 +37,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
     	, minimalhdrs(false)
     	, brickspec(*new VBrickSpec)
     	, single_file(false)
+    	, forceusecbvsinfo(false)
     	, is2d(false)
     	, coordpol((int)CBVSIO::NotStored)
 {
@@ -51,13 +52,14 @@ CBVSSeisTrcTranslator::~CBVSSeisTrcTranslator()
 
 
 CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
-			bool infoonly, bool is2d, BufferString* msg )
+	bool infoonly, bool is2d, BufferString* msg, bool forceusecbvsinf )
 {
     if ( !fnm || !*fnm )
 	{ if ( msg ) *msg = "Empty file name"; return 0; }
 
     CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
     tr->set2D( is2d );
+    tr->setForceUseCBVSInfo( forceusecbvsinf );
     if ( msg ) *msg = "";
     if ( !tr->initRead(new StreamConn(fnm,Conn::Read),
 			infoonly ? Seis::PreScan : Seis::Prod) )
@@ -155,7 +157,8 @@ bool CBVSSeisTrcTranslator::initRead_()
     forread = true;
     BufferString fnm; if ( !getFileName(fnm) ) return false;
 
-    rdmgr = new CBVSReadMgr( fnm, 0, single_file, read_mode == Seis::PreScan );
+    rdmgr = new CBVSReadMgr( fnm, 0, single_file, 
+	    		read_mode == Seis::PreScan, forceusecbvsinfo );
     if ( rdmgr->failed() )
 	{ errmsg = rdmgr->errMsg(); return false; }
 
