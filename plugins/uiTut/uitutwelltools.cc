@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: uitutwelltools.cc,v 1.4 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutwelltools.cc,v 1.5 2010-12-16 13:04:29 cvsbert Exp $";
 
 #include "uitutwelltools.h"
 #include "uigeninput.h"
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: uitutwelltools.cc,v 1.4 2009-07-22 16:01:29 cvs
 #include "ioman.h"
 #include "strmdata.h"
 #include "strmprov.h"
-#include "iostrm.h"
 #include "welldata.h"
 #include "wellio.h"
 #include "welllog.h"
@@ -75,15 +74,15 @@ bool uiTutWellTools::acceptOK( CallBacker* )
     Well::LogSet& logset = wd_->logs();
     const int inpidx = logset.indexOf( inplognm );
     if ( inpidx<0 || inpidx>=logset.size() )
-	mErrRet( "Please select a valid Input Log" );
+	mErrRet( "Please select a valid Input Log" )
 
     const char* lognm = outplogfld_->text();
     const int outpidx = logset.indexOf( lognm );
     if ( outpidx>=0 && outpidx<logset.size() )
-	mErrRet( "Output Log already exists\n Enter a new name" );
+	mErrRet( "Output Log already exists\n Enter a new name" )
 
     if ( !lognm || !*lognm )
-	mErrRet( "Please enter a valid name for Output log" );
+	mErrRet( "Please enter a valid name for Output log" )
 
     const int gate = gatefld_->box()->getValue();
     Well::Log* outputlog = new Well::Log( lognm );
@@ -92,16 +91,16 @@ bool uiTutWellTools::acceptOK( CallBacker* )
     {
 	logset.add( outputlog );
 	PtrMan<IOObj> ioobj = IOM().get( wellid_ );
-	mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
-	StreamProvider sp( iostrm->fileName() );
-	sp.addPathIfNecessary( iostrm->dirName() );
-	BufferString fname( sp.fileName() );
-	Well::Writer wtr( fname, *wd_ );
+	if ( !ioobj )
+	    mErrRet( "Cannot find object in I/O Manager" )
 
+	Well::Writer wtr( ioobj->fullUserExpr(), *wd_ );
 	const int lognr = logset.size();
-	BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(), lognr );
-	StreamProvider splog( logfnm );
-	StreamData sdo = splog.makeOStream();
+	const BufferString logfnm =
+	    		wtr.getFileName( Well::IO::sExtLog(), lognr );
+	StreamData sdo = StreamProvider(logfnm).makeOStream();
+	if ( !sdo.usable() )
+	    mErrRet( "Cannot write smoothed log" )
 	wtr.putLog( *sdo.ostrm, logset.getLog(lognr-1) );
 	sdo.close();
     }

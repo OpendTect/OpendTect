@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.28 2010-12-14 15:53:16 cvsbert Exp $
+ RCS:		$Id: iostrm.h,v 1.29 2010-12-16 13:04:29 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 class StreamProvider;
 
-/*\brief An IOStream is a file (default), device or command entry in the omf. */
+/*\brief An IOStream is a file (default) or command entry in the omf. */
 
 
 mClass IOStream : public IOObj
@@ -31,7 +31,7 @@ public:
     bool		isCommand() const		{ return iscomm; }
 
     void		copyFrom(const IOObj*);
-    const char*		fullUserExpr(bool) const;
+    const char*		fullUserExpr(bool forread=true) const;
     const char*		getExpandedName(bool forread,
 	    				bool fillwildcard=true) const;
     void		genDefaultImpl()		{ genFileName(); }
@@ -64,6 +64,8 @@ public:
     const char*		hostName() const		{ return hostname; }
     void		setHostName( const char* hn )	{ hostname = hn; }
     const char*		fileName() const		{ return fname; }
+    const char*		subDirName() const		{ return dirName(); }
+    const char*		fullDirName() const;
     void		setFileName(const char*);
     void		setExt( const char* ext )	{ extension = ext; }
     void		genFileName();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.28 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.29 2010-12-16 13:04:29 cvsbert Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -284,27 +284,23 @@ void SurfaceAuxData::removeSection( const SectionID& sectionid )
 BufferString SurfaceAuxData::getFileName( const IOObj& ioobj,
 					  const char* attrnm )
 {
-    mDynamicCastGet(const IOStream*,iostrm,&ioobj)
-    if ( !iostrm ) return "";
-    StreamProvider sp( iostrm->fileName() );
-    sp.addPathIfNecessary( iostrm->dirName() );
+    const BufferString basefnm( ioobj.fullUserExpr(true) );
 
-    BufferString filenm;
-    int gap = 0;
+    BufferString fnm; int gap = 0;
     for ( int idx=0; ; idx++ )
     {
 	if ( gap > 100 ) return "";
 
-	filenm = EM::dgbSurfDataWriter::createHovName(sp.fileName(),idx);
-	if ( File::isEmpty(filenm.buf()) )
-	{ gap++; continue; }
+	fnm = EM::dgbSurfDataWriter::createHovName(basefnm,idx);
+	if ( File::isEmpty(fnm.buf()) )
+	    { gap++; continue; }
 
-	EM::dgbSurfDataReader rdr( filenm.buf() );
+	EM::dgbSurfDataReader rdr( fnm.buf() );
 	if ( !strcmp(rdr.dataName(),attrnm) )
 	    break;
     }
 
-    return filenm;
+    return fnm;
 }
 
 

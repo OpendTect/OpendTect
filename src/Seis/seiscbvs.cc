@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.85 2010-11-12 15:02:24 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.86 2010-12-16 13:04:29 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seistrc.h"
@@ -510,7 +510,7 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
     if ( iostrm->isMulti() ) \
 	return const_cast<IOStream*>(iostrm)->fn; \
  \
-    BufferString pathnm = iostrm->dirName(); \
+    BufferString pathnm = iostrm->fullDirName(); \
     BufferString basenm = iostrm->fileName()
 
 #define mImplLoopStart \

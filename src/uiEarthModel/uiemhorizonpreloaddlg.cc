@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.5 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.6 2010-12-16 13:04:29 cvsbert Exp $";
 
 #include "uiempreloaddlg.h"
 
@@ -167,8 +167,8 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     BufferString type( EM::EMM().objectType(mid) );
     BufferString info;
     info.add( "Data Type: " ).add( type ).add( "\n" );
-    info.add( "Directory: " ).add( ioobj->dirName() ).add ( "\n" );
     FilePath fp( ioobj->fullUserExpr(true) );
+    info.add( "Directory: " ).add( fp.pathOnly() ).add ( "\n" );
     info.add( "File: " ).add( fp.fileName() ).add( "\n" );
     info.add( "File size in KB: " )
 	.add( File::getKbSize(ioobj->fullUserExpr(true)) );

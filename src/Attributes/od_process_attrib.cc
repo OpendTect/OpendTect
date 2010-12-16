@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.36 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.37 2010-12-16 13:04:29 cvsbert Exp $";
 
 #include "batchprog.h"
 
@@ -139,11 +139,6 @@ bool BatchProgram::go( std::ostream& strm )
 	}
 
 	FilePath fp( ioobj->fullUserExpr(false) );
-	if ( !fp.isAbsolute() )
-	{
-	    fp.set( ioobj->dirName() );
-	    fp.add( ioobj->fullUserExpr(false) );
-	}
 	BufferString dirnm = fp.pathOnly();
 	const bool isdir = File::isDirectory( dirnm );
 	if ( !isdir || !File::isWritable(dirnm) )

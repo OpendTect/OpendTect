@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.13 2010-12-10 14:32:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.14 2010-12-16 13:04:30 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -72,12 +72,6 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     lvlfld_ = new uiComboBox( this, "Level" );
     lvlfld_->attach( rightOf, eachfld_ );
     lvlfld_->selectionChanged.notify( mCB(this,uiStratLayerModelDisp,lvlChgd) );
-    uiGroup* buts = new uiGroup( this, "LayMod buttons" );
-    uiToolButton* stb = new uiToolButton( this, "save.png", "Save layer model",
-				    mCB(this,uiStratLayerModelDisp,saveMdl) );
-    stb->attach( ensureBelow, gv_ );
-    stb->attach( ensureRightOf, lvlfld_ );
-    stb->attach( rightBorder );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.40 2010-10-07 15:39:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.41 2010-12-16 13:04:29 cvsbert Exp $";
 
 #include "arrayndimpl.h"
 #include "binidvalset.h"
@@ -272,13 +272,12 @@ DataWriter::~DataWriter()
 
 void DataWriter::setWellWriter()
 {
-    const MultiID& wid = holder_.setup().wellid_;
-    mDynamicCastGet( const IOStream*, iostrm, IOM().get(wid) );
-    if ( !iostrm ) return;
-
-    StreamProvider sp( iostrm->fileName() );
-    sp.addPathIfNecessary( iostrm->dirName() );
-    wtr_ = new Well::Writer(sp.fileName(),*holder_.wd()); 
+    IOObj* ioobj = IOM().get( holder_.setup().wellid_ );
+    if ( ioobj )
+    {
+	wtr_ = new Well::Writer(ioobj->fullUserExpr(true),*holder_.wd()); 
+	delete ioobj;
+    }
 }
 
 

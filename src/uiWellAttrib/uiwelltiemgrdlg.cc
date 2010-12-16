@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.37 2010-12-09 13:56:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.38 2010-12-16 13:04:30 cvsbert Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
 #include "ioman.h"
-#include "iostrm.h"
+#include "ioobj.h"
 #include "seisioobjinfo.h"
 #include "multiid.h"
 #include "strmprov.h"
@@ -246,10 +246,8 @@ void uiTieWinMGRDlg::extractWvltDone( CallBacker* )
 bool uiTieWinMGRDlg::getDefaults()
 {
     PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
-    mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
-    StreamProvider sp( iostrm->fileName() );
-    sp.addPathIfNecessary( iostrm->dirName() );
-    BufferString fname( sp.fileName() );
+    if ( !ioobj ) return false;
+    const BufferString fname( ioobj->fullUserExpr(true) );
     WellTie::Reader wtr( fname, wtsetup_ );
     wtr.getWellTieSetup();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.27 2010-05-28 02:47:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.28 2010-12-16 13:04:30 cvsbert Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -26,7 +26,6 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.27 2010-05-28 02:47
 #include "randcolor.h"
 #include "strmdata.h"
 #include "strmprov.h"
-#include "iostrm.h"
 #include "wellwriter.h"
 #include "welldata.h"
 #include "welllogset.h"
@@ -114,19 +113,13 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
     PtrMan<IOObj> ioobj = IOM().get( wellid );
     if ( !ioobj ) mErrRet("Cannot find well in object manager")
 
-    mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
-    if ( !iostrm ) mErrRet("Cannot create stream for this well")
-
-    StreamProvider sp( iostrm->fileName() );
-    sp.addPathIfNecessary( iostrm->dirName() );
-    BufferString fname( sp.fileName() );
+    BufferString fname( ioobj->fullUserExpr(true) );
     Well::Writer wtr( fname, *wd );
  
     if ( lognr > wd->logs().size() - 1 )
 	lognr = wd->logs().size() - 1;
     BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(), lognr+1 );
-    StreamProvider splog( logfnm );
-    StreamData sdo = splog.makeOStream();
+    StreamData sdo = StreamProvider(logfnm).makeOStream();
     if ( !sdo.usable() )
     {
 	BufferStringSet errmsg; errmsg.add( "Cannot write log to disk" );

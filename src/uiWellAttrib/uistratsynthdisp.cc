@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.7 2010-12-10 14:32:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.8 2010-12-16 13:04:30 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -25,6 +25,8 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.7 2010-12-10 14:32:33 c
 #include "ioman.h"
 #include "survinfo.h"
 #include "flatposdata.h"
+
+static const int cMarkerSize = 6;
 
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
@@ -68,16 +70,33 @@ void uiStratSynthDisp::setDispEach( int nr )
 
 void uiStratSynthDisp::setDispMrkrs( const TypeSet<float>& zvals, Color col )
 {
-    //TODO clear previous markers
-    if ( aimdls_.isEmpty() || zvals.isEmpty() ) return;
+    FlatView::Annotation& ann = vwr_->appearance().annot_;
+    deepErase( ann.auxdata_ );
 
-    for ( int imdl=0; imdl<aimdls_.size(); imdl++ )
+    if ( !aimdls_.isEmpty() && !zvals.isEmpty() )
     {
-	float tval = zvals[imdl];
-	if ( !mIsUdf(tval) )
-	    tval = aimdls_[imdl]->convertTo( tval, AIModel::TWT );
-	//TODO plot on flat viewer
+	FlatView::Annotation::AuxData* auxd =
+			new FlatView::Annotation::AuxData("Level markers");
+	auxd->linestyle_.type_ = LineStyle::None;
+	for ( int imdl=0; imdl<aimdls_.size(); imdl++ )
+	{
+	    float tval = zvals[imdl];
+	    if ( !mIsUdf(tval) )
+	    {
+		tval = aimdls_[imdl]->convertTo( tval, AIModel::TWT );
+
+		auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
+						      cMarkerSize, col );
+		auxd->poly_ += FlatView::Point( imdl, tval );
+	    }
+	}
+	if ( auxd->isEmpty() )
+	    delete auxd;
+	else
+	    ann.auxdata_ += auxd;
     }
+
+    vwr_->handleChange( FlatView::Viewer::Annot, true );
 }
 
 
@@ -111,6 +130,8 @@ int uiStratSynthDisp::getDenIdx( bool& isden ) const
 void uiStratSynthDisp::modelChanged()
 {
     vwr_->clearAllPacks(); vwr_->setNoViewDone();
+    deepErase( vwr_->appearance().annot_.auxdata_ );
+
     deepErase( aimdls_ );
     delete wvlt_;
     wvlt_ = wvltfld_->getWavelet();

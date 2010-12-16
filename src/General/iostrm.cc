@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.36 2010-12-14 15:53:16 cvsbert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.37 2010-12-16 13:04:29 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "ioman.h"
@@ -84,6 +84,18 @@ const char* IOStream::getExpandedName( bool forread, bool fillwc ) const
     ret = sp->fullName();
     delete sp;
     return ret;
+}
+
+
+const char* IOStream::fullDirName() const
+{
+    FilePath fp( fname );
+    if ( fp.isAbsolute() )
+	fp.setFileName( 0 );
+    else
+	{ fp.set( IOM().rootDir() ); fp.add( dirName() ); }
+    static BufferString ret; ret = fp.fullPath();
+    return ret.buf();
 }
 
 
@@ -312,7 +324,7 @@ bool IOStream::putTo( ascostream& stream ) const
 	int offs = 0;
 	if ( fp.isAbsolute() )
 	{
-	    FilePath fpdir( IOM().rootDir() ); fpdir.add( dirName() );
+	    FilePath fpdir( fullDirName() );
 	    BufferString head( fp.dirUpTo( fpdir.nrLevels() - 1 ) );
 	    if ( head == fpdir.fullPath() )
 		offs = head.size()+1;
@@ -350,10 +362,7 @@ StreamProvider* IOStream::streamProvider( bool fr, bool fillwc ) const
     if ( sp->bad() )
 	{ delete sp; return 0; }
     if ( hostname.isEmpty() && !iscomm )
-    {
-	FilePath fp( IOM().rootDir() ); fp.add( dirName() );
-	sp->addPathIfNecessary( fp.fullPath() );
-    }
+	sp->addPathIfNecessary( fullDirName() );
 
     if ( fr && doins && padzeros && !iscomm && !sp->exists(fr) )
     {

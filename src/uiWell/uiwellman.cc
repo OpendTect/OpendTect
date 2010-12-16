@@ -7,13 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.73 2010-12-14 03:57:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.74 2010-12-16 13:04:30 cvsbert Exp $";
 
 #include "uiwellman.h"
 
 #include "bufstringset.h"
 #include "ioobj.h"
-#include "iostrm.h"
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
@@ -144,11 +143,7 @@ void uiWellMan::getCurrentWell()
     delete curwd_; curwd_ = 0;
     if ( !curioobj_ ) return;
     
-    mDynamicCastGet(const IOStream*,iostrm,curioobj_)
-    if ( !iostrm ) return;
-    StreamProvider sp( iostrm->fileName() );
-    sp.addPathIfNecessary( iostrm->dirName() );
-    curfnm_ = sp.fileName();
+    curfnm_ = curioobj_->fullUserExpr( true );
     curwd_ = new Well::Data;
     currdr_ = new Well::Reader( curfnm_, *curwd_ );
     currdr_->getInfo();

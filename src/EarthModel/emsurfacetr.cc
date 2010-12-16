@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacetr.cc,v 1.35 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfacetr.cc,v 1.36 2010-12-16 13:04:29 cvsbert Exp $";
 
 #include "emsurfacetr.h"
 
@@ -132,20 +132,15 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
 
 #define mImplStart(fn) \
     if ( !ioobj || strcmp(ioobj->translator(),"dGB") ) return false; \
-    mDynamicCastGet(const IOStream*,iostrm,ioobj) \
-    if ( !iostrm ) return false; \
- \
-    BufferString pathnm = iostrm->dirName(); \
-    BufferString basenm = iostrm->fileName(); \
- \
-    StreamProvider sp( basenm.buf() ); \
-    sp.addPathIfNecessary( pathnm.buf() ); \
+    const BufferString basefnm( ioobj->fullUserExpr(true) ); \
+    StreamProvider sp( basefnm.buf() ); \
+    FilePath basefp( basefnm ); \
+    const BufferString pathnm( basefp.pathOnly() ); \
     bool res = sp.fn;
 
 #define mImplLoopStart \
     if ( gap > 100 ) break; \
-    StreamProvider loopsp( EM::dgbSurfDataWriter::createHovName(basenm.buf(),nr).buf() ); \
-    loopsp.addPathIfNecessary( pathnm.buf() );
+    StreamProvider loopsp( EM::dgbSurfDataWriter::createHovName(basefnm.buf(),nr).buf() )
 
 
 bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const

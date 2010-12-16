@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.5 2010-12-10 14:32:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.6 2010-12-16 13:04:30 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
@@ -200,7 +200,7 @@ void uiStratLayerModel::saveGenDesc( CallBacker* )
 }
 
 
-void uiStratLayerModel::genModels( CallBacker* )
+void uiStratLayerModel::genModels( CallBacker* cb )
 {
     const int nrmods = nrmodlsfld_->getIntValue();
     if ( nrmods < 1 )
@@ -211,6 +211,8 @@ void uiStratLayerModel::genModels( CallBacker* )
     uiTaskRunner tr( this );
     Strat::LayerModelGenerator ex( desc_, modl_, nrmods );
     tr.execute( ex );
+
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
+    levelChg( cb );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.77 2010-12-14 15:53:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.78 2010-12-16 13:04:30 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -316,11 +316,15 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	    
 	    if ( inputfile.isSubDirOf( survdir ) )
 	    {
-		FilePath seismicsdir( outctio_.ioobj->dirName() );
-		seismicsdir.makeCanonical();
+		mDynamicCastGet(IOStream*,iostrm,outctio_.ioobj)
+		if ( iostrm )
+		{
+		    FilePath seismicsdir( iostrm->fullDirName() );
+		    seismicsdir.makeCanonical();
 
-		if ( inputfile.makeRelativeTo( seismicsdir ) )
-		    fname = inputfile.fullPath();
+		    if ( inputfile.makeRelativeTo( seismicsdir ) )
+			fname = inputfile.fullPath();
+		}
 	    }
 	}
 
