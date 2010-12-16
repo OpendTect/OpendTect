@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.30 2010-10-28 07:28:36 cvsbert Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.31 2010-12-16 09:33:15 cvssatyaki Exp $";
 
 #include "drawaxis2d.h"
 
@@ -180,6 +180,7 @@ void DrawAxis2D::drawXAxis( bool topside )
 	uiLineItem* lineitem = new uiLineItem();
 	lineitem->setLine( wx, drawarea.top(), wx, drawarea.top()+bias );
 	lineitem->setPenStyle( xls_ );
+	lineitem->setZValue( zValue_ );
 	xaxlineitmgrp_->add( lineitem );
 
 	mDeclAlignment( al, HCenter, Top );
@@ -187,11 +188,9 @@ void DrawAxis2D::drawXAxis( bool topside )
 	uiTextItem* textitem = new uiTextItem( text, al );
 	textitem->setTextColor( xls_.color_ );
 	textitem->setPos( uiPoint(wx,drawarea.top()+bias) );
+	textitem->setZValue( zValue_ );
 	xaxtxtitmgrp_->add( textitem );
     mLoopEnd
-	
-    xaxlineitmgrp_->setZValue( zValue_ );
-    xaxtxtitmgrp_->setZValue( zValue_ );
 }
 
 
@@ -258,6 +257,7 @@ void DrawAxis2D::drawYAxis( bool leftside )
 	uiLineItem* lineitem = new uiLineItem();
 	lineitem->setLine( drawarea.left(), wy, drawarea.left() + bias, wy );
 	lineitem->setPenStyle( yls_ );
+	lineitem->setZValue( zValue_ );
 	yaxlineitmgrp_->add( lineitem ); 
 
 	Alignment al( leftside ? Alignment::Right : Alignment::Left,
@@ -266,12 +266,9 @@ void DrawAxis2D::drawYAxis( bool leftside )
 	uiTextItem* txtitem =
 	    new uiTextItem( uiPoint(drawarea.left()+bias,wy), text, al );
 	txtitem->setTextColor( yls_.color_ );
+	txtitem->setZValue( zValue_ );
 	yaxtxtitmgrp_->add( txtitem );
     mLoopEnd
-	
-    yaxlineitmgrp_->setZValue( zValue_ );
-    yaxtxtitmgrp_->setZValue( zValue_ );
-    
 }
 
 
@@ -308,10 +305,9 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	    uiLineItem* xgridline = new uiLineItem();
 	    xgridline->setLine( wx, top, wx, bot );
 	    xgridline->setPenStyle( gridls_ );
+	    xgridline->setZValue( zValue_ );
 	    xaxgriditmgrp_->add( xgridline );
 	mLoopEnd
-
-	xaxgriditmgrp_->setZValue( zValue_ );
     }
     else
     { mRemoveGraphicsItem( xaxgriditmgrp_ ); }
@@ -333,10 +329,9 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	    uiLineItem* ygridline = new uiLineItem();
 	    ygridline->setLine( left, wy, right, wy );
 	    ygridline->setPenStyle( gridls_ );
+	    ygridline->setZValue( zValue_ );
 	    yaxgriditmgrp_->add( ygridline );
 	mLoopEnd
-	
-	yaxgriditmgrp_->setZValue( zValue_ );
     }
     else
     { mRemoveGraphicsItem( yaxgriditmgrp_ ); }
