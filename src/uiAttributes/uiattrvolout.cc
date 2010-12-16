@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.79 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.80 2010-12-16 08:37:47 cvssatyaki Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -76,8 +76,10 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 				mCB(this,uiAttrVolOut,singLineSel) );
 
     ctio.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
-    objfld = new uiSeisSel( uppgrp_, ctio,
-			    uiSeisSel::Setup(is2d,false).selattr(true));
+    uiSeisSel::Setup su( is2d, false );
+    su.selattr( true ).allowlinesetsel( false );
+    
+    objfld = new uiSeisSel( uppgrp_, ctio, su );
     objfld->attach( alignedBelow, transffld );
     objfld->setConfirmOverwrite( !is2d );
 
