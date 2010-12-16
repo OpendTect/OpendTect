@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.34 2010-12-15 15:39:15 cvsbert Exp $
+ RCS:		$Id: ioobj.h,v 1.35 2010-12-16 13:01:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,10 @@ Every IOObj has a unique key in the form of a MultiID. This key
 holds (a) the position of the IOObj in the IOMan/IODir tree (b) a unique
 integer as an index in the IOObj's own IODir.
 
+If you know an IOObj is actually pointing to a simple file (i.e. if it's an
+IOStream), then you can get the full filename (i.e. with path) using
+fullUserExpr().
+
 */
 
 
@@ -68,7 +72,7 @@ public:
     virtual void	setTranslator( const char* s )	{ transl_ = s; }
     virtual const char*	group() const			{ return group_; }
     virtual void	setGroup( const char* s )	{ group_ = s; }
-    virtual const char*	fullUserExpr(bool forread) const= 0;
+    virtual const char*	fullUserExpr(bool forread=true) const = 0;
 
     virtual bool	implExists(bool forread) const	= 0;
     virtual bool	implReadOnly() const		{ return true; }
