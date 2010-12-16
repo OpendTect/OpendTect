@@ -6,32 +6,35 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Oct 2010
- RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.1 2010-12-14 08:52:02 cvsbruno Exp $
+ RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.2 2010-12-16 13:09:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "position.h"
-#include "binidvalset.h"
 #include "executor.h"
 #include "uidialog.h"
+#include "horsampling.h"
 
 class BinIDValueSet;
 class CBVSSeisTrcTranslator;
 class CtxtIOObj;
-class HorSampling;
-class HorSamplingIterator;
 class IOObj;
 class RCol2Coord;
 class SeisTrc;
 class SeisTrcWriter;
 class SeisTrcInfo;
-class uiSeisSel;
 
+class uiGenInput;
+class uiLabeledSpinBox;
+class uiSeisSel;
+class uiSeisSubSel;
 
 mClass SeisImpCBVSFromOtherSurvey : public Executor
 {
 public:
+
+    enum Interpol	{ Sinc, Nearest };
 
 			SeisImpCBVSFromOtherSurvey(const IOObj&,IOObj&);
 			~SeisImpCBVSFromOtherSurvey();
@@ -39,8 +42,15 @@ public:
     const char*         message() const		{ return "Importing CBVS"; }
     od_int64            nrDone() const          { return nrdone_; }
     const char*         nrDoneText() const      { return "Traces handled"; }
+    od_int64		totalNr() const;
 
     int                 nextStep();
+    bool		prepareRead();
+
+    inline void 	setInterpol(Interpol i) { interpol_ = i; }
+    inline void		setCellSize( int sz )	{ cellsize_ = sz; }
+
+    HorSampling& 	horSampling() 		{ return hrg_; }
 
 protected:
 
@@ -54,28 +64,26 @@ protected:
     mutable int         totnr_;
     BufferString        errmsg_;
 
+    int			cellsize_;
+    Interpol		interpol_;
+
     BinID		curbid_;
+    BinID		curoldbid_;
+    HorSampling 	hrg_;
+    HorSampling 	oldhrg_;
     HorSamplingIterator* hsit_;
-    BinIDValueSet	bidset_;
-    TypeSet<BinID> 	oldbids_;
-    TypeSet<Coord> 	oldcoords_;
-    float		oldinldist_;
-    float		oldxlndist_;
     int			xzeropadfac_;
     int			yzeropadfac_;
-
-    void		prepareRead();
-    void		getCubeSamplingInNewSurvey(); 
-    void		getCubeInfo(TypeSet<Coord>&,TypeSet<BinID>&) const;
+    ObjectSet<SeisTrc>	trcsset_;
 
     bool                createTranslators();
     bool                createWriter();
 
-    bool		findSquareTracesAroundCurbid(int,
-					ObjectSet<SeisTrc>&) const;
-    void		sincInterpol(int,ObjectSet<SeisTrc>&,int) const;
-						
+    bool		findSquareTracesAroundCurbid(ObjectSet<SeisTrc>&) const;
+    void		getCubeInfo(TypeSet<Coord>&,TypeSet<BinID>&) const;
     float 		getInlXlnDist(const RCol2Coord&,bool) const;
+    SeisTrc*		readTrc(const BinID&) const;
+    void		sincInterpol(ObjectSet<SeisTrc>&) const;
 };
 
 
@@ -84,16 +92,23 @@ mClass uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
 {
 public:
 
-			uiSeisImpCBVSFromOtherSurveyDlg(uiParent*,const IOObj&);
+			uiSeisImpCBVSFromOtherSurveyDlg(uiParent*);
 			~uiSeisImpCBVSFromOtherSurveyDlg();
 protected:
 
     CtxtIOObj&		inctio_;
     CtxtIOObj&		outctio_;
+    SeisImpCBVSFromOtherSurvey* import_;
 
+    uiGenInput*		finpfld_;
     uiSeisSel*          outfld_;
+    uiGenInput*		interpfld_;
+    uiLabeledSpinBox*	cellsizefld_;
+    uiSeisSubSel*	subselfld_;
 
     bool		acceptOK(CallBacker*);
+    void		cubeSel(CallBacker*);
+    void		interpSelDone(CallBacker*);
 };
 
 

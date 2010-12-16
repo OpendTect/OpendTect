@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.1 2010-12-14 08:52:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.2 2010-12-16 13:09:43 cvsbruno Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -33,38 +33,72 @@ static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.1 2010-12-14 
 #include "strmprov.h"
 #include "survinfo.h"
 
-#include "uidialog.h"
+#include "uibutton.h"
 #include "uifileinput.h"
+#include "uigeninput.h"
 #include "uilistbox.h"
+#include "uispinbox.h"
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
+#include "uiseissubsel.h"
 #include "uiseissel.h"
 #include "uiseisioobjinfo.h"
 #include "uiseistransf.h"
 #include "uiselsimple.h"
+#include "uiselobjothersurv.h"
+#include "uiseparator.h"
 #include "uitaskrunner.h"
 
 #include <iostream>
 
 
-uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p, 
-							    const IOObj& ioobj )
+static const char* interpols[] = { "Sinc interpolation", "Nearest trace", 0 };
+
+uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     : uiDialog(p,Setup("Import CBVS cube from other survey",
-			"Specify import parameters",
-			mTODOHelpID))
+			"Specify import parameters", mTODOHelpID))
     , inctio_(*mMkCtxtIOObj(SeisTrc))
     , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
+    , import_(0)							
 {
     setCtrlStyle( DoAndStay );
 
-    inctio_.ioobj = ioobj.clone();
-    setCtrlStyle( DoAndStay );
+    finpfld_ = new uiGenInput( this, "CBVS file name" );
+    finpfld_->setReadOnly();
+    CallBack cb = mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,cubeSel);
+    uiPushButton* selbut = new uiPushButton( this, "&Select ...", cb, true );
+    selbut->attach( rightOf, finpfld_ );
+
+    subselfld_ = new uiSeis3DSubSel( this, Seis::SelSetup( false ) );
+    subselfld_->attach( alignedBelow, finpfld_ );
+
+    uiSeparator* sep1 = new uiSeparator( this, "sep" );
+    sep1->attach( stretchedBelow, subselfld_ );
+
+    interpfld_ = new uiGenInput( this, "Interpolation", 
+			    BoolInpSpec( true, interpols[0], interpols[1] ) );
+    interpfld_->valuechanged.notify( 
+	    	mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,interpSelDone) );
+    interpfld_->attach( ensureBelow, sep1 ); 
+    interpfld_->attach( alignedBelow, subselfld_ ); 
+
+    cellsizefld_ = new uiLabeledSpinBox( this, "Grid cell size" );
+    cellsizefld_->attach( alignedBelow, interpfld_ );
+    cellsizefld_->box()->setInterval( 2, 10, 2 );
+    cellsizefld_->box()->setValue( 4 );
+
+    uiSeparator* sep2 = new uiSeparator( this, "sep" );
+    sep2->attach( stretchedBelow, cellsizefld_ );
 
     outctio_.ctxt.forread = false;
     outctio_.ctxt.toselect.allowtransls_ = "CBVS";
     uiSeisSel::Setup sssu( Seis::Vol );
     outfld_ = new uiSeisSel( this, outctio_, sssu );
+    outfld_->attach( alignedBelow, cellsizefld_ );
+    outfld_->attach( ensureBelow, sep2 );
     IOM().to( outctio_.ctxt.getSelKey() );
+
+    interpSelDone(0);
 }
 
 
@@ -75,61 +109,106 @@ uiSeisImpCBVSFromOtherSurveyDlg::~uiSeisImpCBVSFromOtherSurveyDlg()
 }
 
 
-bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
+void uiSeisImpCBVSFromOtherSurveyDlg::interpSelDone( CallBacker* )
 {
-    if ( !outfld_->commitInput() )
-    {
-	if ( outfld_->isEmpty() )
-	uiMSG().error( "Please select a name for the output data" );
-	return false;
-    }
-    SeisImpCBVSFromOtherSurvey imp( *inctio_.ioobj, *outctio_.ioobj );
-
-    uiTaskRunner tr( this );
-    return tr.execute( imp );
+    const bool curitm = interpfld_->getBoolValue() ? 0 : 1; 
+    const SeisImpCBVSFromOtherSurvey::Interpol inter = 
+			(SeisImpCBVSFromOtherSurvey::Interpol)(curitm);
+    cellsizefld_->display( inter == SeisImpCBVSFromOtherSurvey::Sinc );
 }
 
 
+void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
+{
+    uiSelObjFromOtherSurvey objdlg( this, inctio_ );
+    if ( objdlg.go() && inctio_.ioobj )
+    {
+	if ( import_ ) delete import_;
+	import_ = new SeisImpCBVSFromOtherSurvey( *inctio_.ioobj, 
+						  *outctio_.ioobj); 
+	if ( import_->prepareRead() )
+	{
+	    finpfld_->setText( inctio_.ioobj->fullUserExpr(true) );
+	    subselfld_->setInput( import_->horSampling() ); 
+	}
+	else
+	    { delete import_; import_ = 0; }
+    }
+}
+
+
+#define mErrRet(msg ) { uiMSG().error( msg ); return false; }
+bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
+{
+    if ( !import_ )
+	mErrRet( "No valid imput, please select a new imput file" ) 
+
+    if ( !outfld_->commitInput() )
+    {
+	if ( outfld_->isEmpty() )
+	    mErrRet( "Please select a name for the output data" )
+	else
+	    mErrRet( "Can not process output" ) 
+    }
+
+    const bool curitm = interpfld_->getBoolValue() ? 0 : 1; 
+    import_->setInterpol( (SeisImpCBVSFromOtherSurvey::Interpol)( curitm ) );
+    import_->setCellSize( curitm ? cellsizefld_->box()->getValue() : 0 );
+
+    //TODO replace with batch
+    uiTaskRunner tr( this );
+    return tr.execute( *import_ );
+}
+
+
+
 SeisImpCBVSFromOtherSurvey::SeisImpCBVSFromOtherSurvey( const IOObj& inp,
-							IOObj& outp )
+							      IOObj& outp )
     : Executor("Importing CBVS")
     , inioobj_(inp)	
     , outioobj_(outp)
     , wrr_(0)
+    , hrg_(false)			    
     , hsit_(0) 
     , nrdone_(0)							    
-    , bidset_(2,false)
-    , tr_(0)						    
-{
-    prepareRead();
-}
+    , tr_(0)
+    , cellsize_(0)	    
+{}
 
 
 SeisImpCBVSFromOtherSurvey::~SeisImpCBVSFromOtherSurvey()
 {
+    deepErase( trcsset_ );
     delete tr_;
     delete wrr_;
     delete hsit_;
 }
 
 
-void SeisImpCBVSFromOtherSurvey::prepareRead()
+bool SeisImpCBVSFromOtherSurvey::prepareRead()
 {
-    createTranslators();
+    if ( !createTranslators() )
+	mErrRet( "Can not read cube" )
 
-    getCubeSamplingInNewSurvey();
-    const RCol2Coord& b2c = tr_->readMgr()->info().geom.b2c;
-    oldinldist_ = getInlXlnDist( b2c, true ); 
-    oldxlndist_ = getInlXlnDist( b2c, false ); 
-    xzeropadfac_ = mNINT( oldinldist_/SI().inlDistance() );
-    yzeropadfac_ = mNINT( oldxlndist_/SI().crlDistance() );
+    const RCol2Coord& b2c = tr_->getTransform();
+    const CBVSInfo::SurvGeom& geom = tr_->readMgr()->info().geom;
+    oldhrg_.start = BinID( geom.start.inl, geom.start.crl ); 
+    oldhrg_.stop  = BinID( geom.stop.inl, geom.stop.crl ); 
+    oldhrg_.step  = BinID( geom.step.inl, geom.step.crl ); 
+    hrg_.start = SI().transform( b2c.transform( oldhrg_.start ) );
+    hrg_.stop  = SI().transform( b2c.transform( oldhrg_.stop ) );
+    hrg_.step = BinID( SI().inlStep(), SI().crlStep() );
 
-    HorSampling* hrg = new HorSampling();
-    hrg->set( bidset_.inlRange(), bidset_.crlRange() );
-    hrg->step.inl = SI().inlStep();
-    hrg->step.crl = SI().crlStep();
-    totnr_ = hrg->totalNr();
-    hsit_ = new HorSamplingIterator( *hrg );
+    if ( !SI().isInside(hrg_.start,true) && !SI().isInside(hrg_.stop,true) )
+	mErrRet("The selected cube has no coordinate inside the current survey")
+
+    totnr_ = hrg_.totalNr();
+    hsit_ = new HorSamplingIterator( hrg_ );
+
+    xzeropadfac_ = mNINT( getInlXlnDist( b2c, true )/SI().inlDistance() );
+    yzeropadfac_ = mNINT( getInlXlnDist( b2c, true )/SI().crlDistance() );
+
+    return true;
 }
 
 
@@ -144,36 +223,10 @@ float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const RCol2Coord& b2c,
 }
 
 
-void SeisImpCBVSFromOtherSurvey::getCubeSamplingInNewSurvey() 
-{
-    getCubeInfo( oldcoords_, oldbids_ );
-    for ( int idx=0; idx<oldcoords_.size(); idx++ )
-    {
-	const BinID bid = SI().transform( oldcoords_[idx] );
-	if ( !SI().isInside( bid, true ) )
-	    continue;
-	bidset_.add( bid, oldbids_[idx].inl, oldbids_[idx].crl );
-    }
-}
-
-
-void SeisImpCBVSFromOtherSurvey::getCubeInfo( TypeSet<Coord>& coords,
-					    TypeSet<BinID>& bids ) const
-{
-    TypeSet<Coord> posns; TypeSet<BinID> posbids;
-    if ( !tr_ && !tr_->readMgr() ) return;
-    tr_->readMgr()->getPositions( posbids );
-    bids.append( posbids );
-    const RCol2Coord& b2c = tr_->readMgr()->info().geom.b2c;
-    for ( int idx=0; idx<bids.size(); idx++ )
-	coords += b2c.transform( bids[idx] ); 
-}
-
-
 bool SeisImpCBVSFromOtherSurvey::createTranslators()
 {
-    BufferString fname( inioobj_.name() );
-    tr_= CBVSSeisTrcTranslator::make( fname, false, false, 0 ); 
+    BufferString fname( inioobj_.fullUserExpr(true) );
+    tr_= CBVSSeisTrcTranslator::make( fname, false, false, 0, true ); 
     return tr_ ? true : false;
 }
 
@@ -193,29 +246,39 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
     if ( !tr_ || !tr_->readMgr() ) 
 	return Executor::ErrorOccurred();
 
-    int nrtrcs = 3;
-    int zpadfac = 12;
-
-    ObjectSet<SeisTrc> trcs; 
-    if ( !findSquareTracesAroundCurbid( nrtrcs, trcs ) )
-	return Executor::MoreToDo();
-
-    if ( zpadfac && nrtrcs > 0 )
-	sincInterpol( 2*nrtrcs, trcs, zpadfac );
-    const Coord coord = SI().transform( curbid_ );
-
-    float mindist = mUdf( float );
-    int coordidx = 0;
-    SeisTrc* outtrc = 0;
-    for ( int idx=0; idx<trcs.size(); idx++ )
+    SeisTrc* outtrc = 0; 
+    const Coord& curcoord = SI().transform( curbid_ );
+    const RCol2Coord& b2c = tr_->getTransform();
+    const StepInterval<int> rowrg( oldhrg_.inlRange() );
+    const StepInterval<int> colrg( oldhrg_.crlRange() );
+    const BinID& oldbid = b2c.transformBack( curcoord, &rowrg, &colrg );
+    if ( interpol_ == Nearest )
     {
-	const Coord trccoord = trcs[idx]->info().coord;
-	float dist = trccoord.sqDistTo( coord );
-	if ( dist < mindist || mIsUdf( mindist ) )
+	outtrc = readTrc( oldbid ); 
+	if ( !outtrc )
+	    { nrdone_++; return Executor::MoreToDo(); }
+    }
+    else
+    {
+	bool needgathertraces = curoldbid_ != oldbid; 
+	curoldbid_ = oldbid;
+	if ( needgathertraces || trcsset_.isEmpty() )
 	{
-	    mindist = dist;
-	    coordidx = idx;
-	    outtrc = trcs[idx];
+	    if ( !findSquareTracesAroundCurbid( trcsset_ ) )
+		{ nrdone_++; return Executor::MoreToDo(); }
+	    if ( cellsize_ > 1 && yzeropadfac_ > 1 && xzeropadfac_ > 1 )
+		sincInterpol( trcsset_ );
+	}
+	float mindist = mUdf( float );
+	for ( int idx=0; idx<trcsset_.size(); idx++ )
+	{
+	    const Coord trccoord = trcsset_[idx]->info().coord;
+	    float dist = trccoord.sqDistTo( curcoord );
+	    if ( dist < mindist || mIsUdf( mindist ) )
+	    {
+		mindist = dist;
+		outtrc = trcsset_[idx];
+	    }
 	}
     }
     outtrc->info().binid = curbid_; 
@@ -225,62 +288,52 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
     if ( !wrr_->put( *outtrc ) )
 	{ errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred(); }
 
-    deepErase( trcs );
     nrdone_ ++;
     return Executor::MoreToDo();
 }
 
 
+SeisTrc* SeisImpCBVSFromOtherSurvey::readTrc( const BinID& bid ) const
+{
+    SeisTrc* trc = 0;
+    if ( tr_->goTo( bid )  )
+    {
+	trc = new SeisTrc();
+	trc->info().binid = bid;
+	tr_->readInfo( trc->info() ); 
+	tr_->read( *trc );
+    }
+    return trc;
+}
+
+
 bool SeisImpCBVSFromOtherSurvey::findSquareTracesAroundCurbid(
-						int nrlateraltrcs,
 						ObjectSet<SeisTrc>& trcs) const
 {
-    const Coord curcoord = SI().transform( curbid_ );
-    if ( oldcoords_.isEmpty() ) 
-       return false;
-
-    double mindist = mUdf( double );
-    int coordidx = 0;
-    //TODO improve this by using the bidset_ 
-    for ( int idx=0; idx<oldcoords_.size(); idx++ )
+    deepErase( trcs );
+    const int inlstep = oldhrg_.step.inl;
+    const int crlstep = oldhrg_.step.crl;
+    const int nrinltrcs = cellsize_*inlstep/2;
+    const int nrcrltrcs = cellsize_*crlstep/2;
+    for ( int idinl=-nrinltrcs; idinl<nrinltrcs; idinl+=inlstep)
     {
-	const Coord oldcoord = oldcoords_[idx];
-	float dist = oldcoord.sqDistTo( curcoord );
-	if ( dist < mindist || mIsUdf( mindist ) )
+	for ( int idcrl=-nrcrltrcs; idcrl<nrcrltrcs; idcrl+=crlstep)
 	{
-	    mindist = dist;
-	    coordidx = idx;
-	}
-    }
-    const BinID bid = oldbids_[ coordidx ];
-    int inlstep = tr_->readMgr()->info().geom.step.inl;
-    int crlstep = tr_->readMgr()->info().geom.step.crl;
-    nrlateraltrcs *= inlstep; //TODO change because not square
-    for ( int idinl=-nrlateraltrcs; idinl<nrlateraltrcs; idinl+=inlstep)
-    {
-	for ( int idcrl=-nrlateraltrcs; idcrl<nrlateraltrcs; idcrl+=crlstep)
-	{
-	    BinID oldbid( bid.inl+idinl, bid.crl+idcrl );
-	    if ( tr_->goTo( oldbid )  )
-	    {
-		SeisTrc* trc = new SeisTrc();
-		trc->info().binid = oldbid;
-		tr_->readInfo( trc->info() ); 
-		tr_->read( *trc );
-		trcs += trc;
-	    }
-	    else
+	    BinID oldbid( curoldbid_.inl + idinl, curoldbid_.crl + idcrl );
+	    SeisTrc* trc = readTrc( oldbid );
+	    if ( !trc )
 		{ deepErase( trcs ); return false; }
+	    trcs += trc;
 	}
     }
     return !trcs.isEmpty();
 }
 
 
-#define mDoFFT(isforward,inp,outp,dim1,dim2)\
+#define mDoFFT(isforward,inp,outp,dim1,dim2,dim3)\
 {\
     PtrMan<Fourier::CC> fft = Fourier::CC::createDefault(); \
-    fft->setInputInfo(Array3DInfoImpl(dim1,dim1,dim2));\
+    fft->setInputInfo(Array3DInfoImpl(dim1,dim2,dim3));\
     fft->setDir(isforward);\
     fft->setNormalization(!isforward); \
     fft->setInput(inp.getData());\
@@ -288,20 +341,22 @@ bool SeisImpCBVSFromOtherSurvey::findSquareTracesAroundCurbid(
     fft->run(true); \
 }
 
-void SeisImpCBVSFromOtherSurvey::sincInterpol( int lateralsz,
-						ObjectSet<SeisTrc>& trcs,
-						int padfac ) const
+void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 {
+    if ( trcs.size() < 2 ) 
+	return;
+    int szx = cellsize_;
+    int szy = cellsize_;
+    int newszx = cellsize_*xzeropadfac_;
+    int newszy = cellsize_*yzeropadfac_;
     int szz = trcs[0]->size();
-    int newsz = lateralsz*padfac;
-    int sz = lateralsz;
     int newszz = szz;
 
-    Array3DImpl<float_complex> arr( sz, sz, szz );
+    Array3DImpl<float_complex> arr( szx, szy, szz );
     int cpt =0;
-    for ( int idx=0; idx<sz; idx ++ )
+    for ( int idx=0; idx<szx; idx ++ )
     {
-	for ( int idy=0; idy<sz; idy++ )
+	for ( int idy=0; idy<szy; idy++ )
 	{
 	    const SeisTrc& trc = *trcs[cpt];
 	    for ( int idz=0; idz<szz; idz++ )
@@ -309,53 +364,54 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( int lateralsz,
 	    cpt ++;
 	}
     }
-    Array3DImpl<float_complex> fftarr( sz, sz, szz );
-    mDoFFT( true, arr, fftarr, sz, szz )
+    Array3DImpl<float_complex> fftarr( szx, szy, szz );
+    mDoFFT( true, arr, fftarr, szx, szy, szz )
 
-    Array3DImpl<float_complex> padfftarr( newsz, newsz, newszz );
-    int padsz = (int)( lateralsz/2 );
+    Array3DImpl<float_complex> padfftarr( newszx, newszy, newszz );
+    int xpadsz = (int)( szx/2 );
+    int ypadsz = (int)( szy/2 );
     for ( int idz=0; idz<newszz; idz++ ) 
     {
-	for ( int idx=0; idx<padsz; idx++)
+	for ( int idx=0; idx<xpadsz; idx++)
 	{
-	    for ( int idy=0; idy<padsz; idy++)
+	    for ( int idy=0; idy<ypadsz; idy++)
 		padfftarr.set( idx, idy, idz, fftarr.get( idx, idy, idz ) );
 	}
-	for ( int idx=padsz; idx<sz; idx++)
+	for ( int idx=xpadsz; idx<szx; idx++)
 	{
-	    for ( int idy=padsz; idy<sz; idy++)
-		padfftarr.set( newsz-sz+idx, newsz-sz+idy, idz, 
+	    for ( int idy=ypadsz; idy<szy; idy++)
+		padfftarr.set( newszx-szx+idx, newszy-szy+idy, idz, 
 					      fftarr.get( idx, idy, idz ) );
 	}
-	for ( int idx=padsz; idx<sz; idx++)
+	for ( int idx=xpadsz; idx<szx; idx++)
 	{
-	    for ( int idy=0; idy<padsz; idy++ )
-		padfftarr.set( newsz-sz+idx, idy, idz, 
+	    for ( int idy=0; idy<ypadsz; idy++ )
+		padfftarr.set( newszx-szx+idx, idy, idz, 
 					      fftarr.get( idx, idy, idz ) );
 	}
-	for ( int idx=0; idx<padsz; idx++)
+	for ( int idx=0; idx<xpadsz; idx++)
 	{
-	    for ( int idy=padsz; idy<sz; idy++)
-		padfftarr.set( idx, newsz-sz+idy, idz, 
+	    for ( int idy=ypadsz; idy<szy; idy++)
+		padfftarr.set( idx, newszy-szy+idy, idz, 
 					      fftarr.get( idx, idy, idz ) );
 	}
     }
 
-    Array3DImpl<float_complex> padarr( newsz, newsz, newszz );
-    mDoFFT( false, padfftarr, padarr, newsz, newszz )
+    Array3DImpl<float_complex> padarr( newszx, newszy, newszz );
+    mDoFFT( false, padfftarr, padarr, newszx, newszy, newszz )
 
     const Coord startcrd = trcs[0]->info().coord;
     const Coord nextcrlcrd = trcs[1]->info().coord;
-    const Coord nextinlcrd = trcs[lateralsz]->info().coord;
-    float xcrldist = (nextcrlcrd.x-startcrd.x)/padfac;
-    float ycrldist = (nextcrlcrd.y-startcrd.y)/padfac;
-    float xinldist = (nextinlcrd.x-startcrd.x)/padfac;
-    float yinldist = (nextinlcrd.y-startcrd.y)/padfac;
+    const Coord nextinlcrd = trcs[cellsize_]->info().coord;
+    float xcrldist = (nextcrlcrd.x-startcrd.x)/xzeropadfac_;
+    float ycrldist = (nextcrlcrd.y-startcrd.y)/yzeropadfac_;
+    float xinldist = (nextinlcrd.x-startcrd.x)/xzeropadfac_;
+    float yinldist = (nextinlcrd.y-startcrd.y)/yzeropadfac_;
 
     deepErase( trcs );
-    for ( int idx=0; idx<newsz; idx ++ )
+    for ( int idx=0; idx<newszx; idx ++ )
     {
-	for ( int idy=0; idy<newsz; idy++ )
+	for ( int idy=0; idy<newszy; idy++ )
 	{
 	    SeisTrc* trc = new SeisTrc( szz );
 	    trc->info().coord.x = startcrd.x + idy*xcrldist + idx*xinldist;
@@ -366,4 +422,10 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( int lateralsz,
 	    trcs += trc;
 	}
     }
+}
+
+
+od_int64 SeisImpCBVSFromOtherSurvey::totalNr() const
+{
+    return totnr_;
 }
