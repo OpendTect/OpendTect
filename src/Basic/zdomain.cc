@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: zdomain.cc,v 1.3 2010-10-14 04:18:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: zdomain.cc,v 1.4 2010-12-16 14:30:27 cvsbert Exp $";
 
 #include "zdomain.h"
 #include "survinfo.h"
@@ -195,7 +195,8 @@ ZDomain::Info::Info( const IOPar& iop )
     : def_(ZDomain::Def::get(iop))
     , pars_(*new IOPar(iop))
 {
-    pars_.removeWithKey(ZDomain::sKey());
+    const BufferString torem( ZDomain::sKey(), "*" );
+    pars_.removeWithKey( torem.buf() );
 }
 
 
