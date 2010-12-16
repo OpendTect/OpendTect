@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon2d.cc,v 1.7 2010-12-15 12:03:13 cvsumesh Exp $
+ RCS:		$Id: visvw2dhorizon2d.cc,v 1.8 2010-12-16 04:32:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
     , linenm_(0)
     , auxdataeditors_( auxdataedtors )
     , deselted_( this )
+    , vdselspec_( 0 )
+    , wvaselspec_( 0 )
 {
     horeds_.allowNull();
 
