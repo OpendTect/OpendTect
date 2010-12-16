@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.30 2010-09-02 13:04:04 cvshelene Exp $";
+static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.31 2010-12-16 18:29:29 cvsyuancheng Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -132,14 +132,14 @@ void uiSpecDecompAttrib::stepChg( CallBacker* )
 int uiSpecDecompAttrib::getOutputIdx( float outval ) const
 {
     const float step = stepfld_->box()->getFValue();
-    return mNINT(outval/step) - 1;
+    return mNINT(outval/step);
 }
 
 
 float uiSpecDecompAttrib::getOutputValue( int idx ) const
 {
     const float step = stepfld_->box()->getFValue();
-    return float((idx+1)*step);
+    return float(idx*step);
 }
 
 
