@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.18 2010-12-07 19:54:59 cvskris Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.19 2010-12-16 13:02:27 cvsbert Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -122,31 +122,42 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
 {
     if ( fill_ )
 	painter.setBrush( QColor(QRgb(fillcolor_.rgb())) );
-    switch ( mstyle_->type_ )
+    drawMarker( painter, mstyle_->type_, mstyle_->size_ );
+}
+
+
+void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
+					MarkerStyle2D::Type typ, int sz )
+{
+    switch ( typ )
     {
 	case MarkerStyle2D::Square:
-	{
-	    QRectF rectf( -mstyle_->size_, -mstyle_->size_,
-		    	  2*mstyle_->size_, 2*mstyle_->size_ );
-	    painter.drawRect( rectf );
-	    break;
-	}
+	    painter.drawRect( QRectF(-sz, -sz, 2*sz, 2*sz) );
+	break;
 	
 	case MarkerStyle2D::Circle:
-	{
-	    painter.drawEllipse( -mstyle_->size_, -mstyle_->size_,
-				 2*mstyle_->size_, 2*mstyle_->size_ );
-	    break;
-	}
-	
+	    painter.drawEllipse( -sz, -sz, 2*sz, 2*sz );
+	break;
+
 	case MarkerStyle2D::Cross:
-	{
-	    painter.drawLine( -mstyle_->size_, -mstyle_->size_,
-			      +mstyle_->size_, +mstyle_->size_ );
-	    painter.drawLine( -mstyle_->size_, +mstyle_->size_,
-			      +mstyle_->size_, -mstyle_->size_ );
-	    break;
-	}
+	    painter.drawLine( -sz, -sz, +sz, +sz );
+	    painter.drawLine( -sz, +sz, +sz, -sz );
+	break;
+
+	case MarkerStyle2D::HLine:
+	    painter.drawLine( -sz, 0, +sz, 0 );
+	break;
+
+	case MarkerStyle2D::VLine:
+	    painter.drawLine( 0, -sz, 0, +sz );
+	break;
+
+	case MarkerStyle2D::Target:
+	    drawMarker( painter, MarkerStyle2D::Circle, sz/2 );
+	case MarkerStyle2D::Plus:
+	    drawMarker( painter, MarkerStyle2D::HLine, sz );
+	    drawMarker( painter, MarkerStyle2D::VLine, sz );
+	break;
     }
 }
 

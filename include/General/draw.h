@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.28 2010-07-21 05:56:13 cvskris Exp $
+ RCS:           $Id: draw.h,v 1.29 2010-12-16 13:02:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,8 @@ mClass MarkerStyle2D
 {
 public:
 
-    enum Type			{ None, Square, Circle, Cross };
+    enum Type			{ None, Square, Circle, Cross, Plus, Target,
+				  HLine, VLine };
 				DeclareEnumUtils(Type)
 
 				MarkerStyle2D( Type tp=Square, int sz=2,
