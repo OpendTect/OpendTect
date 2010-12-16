@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.34 2010-11-29 21:37:17 cvskris Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.35 2010-12-16 18:30:10 cvsyuancheng Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -99,7 +99,7 @@ void SpecDecomp::updateDesc( Desc& desc )
     float dfreq;
     mGetFloatFromDesc( desc, dfreq, deltafreqStr() );
     const float nyqfreq = 0.5 / SI().zStep();
-    const int nrattribs = mNINT( nyqfreq / dfreq );
+    const int nrattribs = (int)( nyqfreq / dfreq );
     desc.setNrOutputs( Seis::UnknowData, nrattribs );
 }
 
@@ -127,9 +127,6 @@ SpecDecomp::SpecDecomp( Desc& desc )
     : Provider( desc )
     , window_(0)
     , fftisinit_(false)
-    , timedomain_(0)
-    , freqdomain_(0)
-    , signal_(0)
     , scalelen_(0)
     , fft_(Fourier::CC::createDefault())
 { 
@@ -225,37 +222,23 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
     }
     
     if ( transformtype_ == mTransformTypeFourier )
-    {
-	const_cast<SpecDecomp*>(this)->
-	    		signal_ = new Array1DImpl<float_complex>( sz_ );
-
-	const_cast<SpecDecomp*>(this)->
-	    timedomain_ = new Array1DImpl<float_complex>( fftsz_ );
-	const int tsz = timedomain_->info().getTotalSz();
-	memset(timedomain_->getData(),0, tsz*sizeof(float_complex));
-
-	const_cast<SpecDecomp*>(this)->
-			freqdomain_ = new Array1DImpl<float_complex>( fftsz_ );
-    }
-    
-    bool res;
-    if ( transformtype_ == mTransformTypeFourier )
-	res = calcDFT(output, z0, nrsamples);
+	return calcDFT(output, z0, nrsamples);
     else if ( transformtype_ == mTransformTypeDiscrete )
-	res = calcDWT(output, z0, nrsamples);
+	return calcDWT(output, z0, nrsamples);
     else if ( transformtype_ == mTransformTypeContinuous )
-	res = calcCWT(output, z0, nrsamples);
+	return calcCWT(output, z0, nrsamples);
 
-    
-    delete signal_;
-    delete timedomain_;
-    delete freqdomain_;
-    return res;
+    return true;
 }
 
 
 bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 {
+    Array1DImpl<float_complex> signal( sz_ );
+    Array1DImpl<float_complex> timedomain( fftsz_ );
+    Array1DImpl<float_complex> freqdomain( fftsz_ );
+    memset( timedomain.getData(), 0, fftsz_*sizeof(float_complex) );
+    
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int samp = idx + samplegate_.start;
@@ -268,19 +251,19 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 
 	    if ( mIsUdf(real) ) real = 0;
 	    if ( mIsUdf(imag) ) imag = 0;
-	    signal_->set( ids, float_complex(real,imag) );
+	    signal.set( ids, float_complex(real,imag) );
 	    samp++;
 	}
 
-	removeBias( signal_ );
-	window_->apply( signal_ );
+	removeBias( &signal );
+	window_->apply( &signal );
 
 	const int diff = (int)(fftsz_ - sz_)/2;
 	for ( int idy=0; idy<sz_; idy++ )
-	    timedomain_->set( diff+idy, signal_->get(idy) );
+	    timedomain.set( diff+idy, signal.get(idy) );
 
-	fft_->setInput( timedomain_->getData() );
-	fft_->setOutput( freqdomain_->getData() );
+	fft_->setInput( timedomain.getData() );
+	fft_->setOutput( freqdomain.getData() );
 	if ( !fft_->run( true ) )
 	    return false;
 
@@ -288,9 +271,9 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 	{
 	    if ( !outputinterest_[idf] ) continue;
 
-	    float_complex val = freqdomain_->get( idf );
-	    float real = val.real();
-	    float imag = val.imag();
+	    const float_complex val = freqdomain.get( idf+1 );
+	    const float real = val.real();
+	    const float imag = val.imag();
 	    setOutputValue( output, idf, idx, z0,
 		    	    Math::Sqrt(real*real+imag*imag) );
 	}

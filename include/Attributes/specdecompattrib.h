@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.17 2010-10-12 10:30:19 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.18 2010-12-16 18:30:10 cvsyuancheng Exp $
 ________________________________________________________________________
 -*/
 
@@ -104,10 +104,6 @@ protected:
 
     int					realidx_;
     int					imagidx_;
-
-    Array1DImpl<float_complex>*     	timedomain_;
-    Array1DImpl<float_complex>*     	freqdomain_;
-    Array1DImpl<float_complex>*     	signal_;
 
     const DataHolder*		    	redata_;
     const DataHolder*               	imdata_;
