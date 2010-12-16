@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.cc,v 1.3 2010-09-28 06:02:31 cvsumesh Exp $
+ RCS:		$Id: uiodviewer2dmgr.cc,v 1.4 2010-12-16 16:34:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uitreeitemmanager.h"
 #include "uivispartserv.h"
 
+#include "attribsel.h"
 #include "survinfo.h"
 #include "visseis2ddisplay.h"
 
@@ -63,8 +64,26 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 	curvwr = &addViewer2D( visid );
 
     bool hasvwr = curvwr->viewwin_;
-    curvwr->setSelSpec( visServ().getSelSpec(visid,attribid), dowva );
-    curvwr->setUpView( visServ().getDataPackID(visid,attribid), dowva );
+    const Attrib::SelSpec* as = visServ().getSelSpec(visid,attribid);
+    curvwr->setSelSpec( as, dowva );
+
+    int dtpackid = visServ().getDataPackID(visid,attribid);
+    const char* dpname = DPM(DataPackMgr::FlatID()).nameOf(dtpackid);
+    if ( strcmp( dpname, as->userRef() ) )
+    {
+	for ( int idx=0; idx<DPM(DataPackMgr::FlatID()).packs().size(); idx++ )
+	{
+	    int tmpdtpackid = DPM(DataPackMgr::FlatID()).packs()[idx]->id();
+	    if ( !strcmp( DPM(DataPackMgr::FlatID()).nameOf(tmpdtpackid),
+			 as->userRef() ) )
+	    {
+		dtpackid = tmpdtpackid;
+		break;
+	    }
+	}
+    }
+    
+    curvwr->setUpView( dtpackid, dowva );
     visServ().fillDispPars( visid, attribid,
 	    	curvwr->viewwin_->viewer().appearance().ddpars_, dowva );
 

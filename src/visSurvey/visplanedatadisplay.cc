@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.242 2010-12-10 15:26:51 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.243 2010-12-16 16:34:04 cvshelene Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -836,6 +836,8 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	{ \
 	    mDeclareAndTryAlloc( Attrib::Flat3DDataPack*, ndp, \
 		    Attrib::Flat3DDataPack(f3dp->descID(),f3dp->cube(),cidx)); \
+	    if ( userrefs_[attrib]->size()>cidx ) \
+		ndp->setName( userrefs_[attrib]->get(cidx)) ; \
 	    dpman.addAndObtain( ndp ); \
 	    packs += ndp; \
 	    pids += ndp->id();\
