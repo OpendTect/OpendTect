@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.21 2010-08-02 07:19:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.22 2010-12-16 08:18:42 cvsbert Exp $";
 
 
 #include "welltransl.h"
@@ -116,11 +116,7 @@ Executor* WellTranslator::createDataPointSets(	const BufferStringSet& ids,
 static const char* getFileName( const IOObj& ioobj )
 {
     static BufferString ret;
-    mDynamicCastGet(const IOStream*,iostrm,&ioobj)
-    if ( !iostrm ) return 0;
-    StreamProvider sp( iostrm->fileName() );
-    sp.addPathIfNecessary( iostrm->dirName() );
-    ret = sp.fileName();
+    ret = ioobj.fullUserExpr( true );
     return ret.buf();
 }
 
