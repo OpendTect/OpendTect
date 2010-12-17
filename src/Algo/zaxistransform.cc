@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.23 2010-11-30 16:48:16 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.24 2010-12-17 11:00:29 cvsnanne Exp $";
 
 #include "zaxistransform.h"
 
@@ -230,7 +230,22 @@ void ZAxisTransformSampler::computeCache( const Interval<int>& range )
     const int sz = range.width()+1;
     cache_.setSize( sz );
     const SamplingData<float> cachesd( sd_.atIndex(range.start), sd_.step );
-    if ( back_ ) transform_.transformBack( bid_, cachesd, sz, cache_.arr() );
-    else transform_.transform( bid_, cachesd, sz, cache_.arr() );
+    if ( back_ )
+    {
+	if ( is2d_ )
+	    transform_.transformBack( curlinenm_, bid_.crl, cachesd,
+				      sz, cache_.arr() );
+	else
+	    transform_.transformBack( bid_, cachesd, sz, cache_.arr() );
+    }
+    else
+    {
+	if ( is2d_ )
+	    transform_.transform( curlinenm_, bid_.crl, cachesd,
+				  sz, cache_.arr() );
+	else
+	    transform_.transform( bid_, cachesd, sz, cache_.arr() );
+    }
+
     firstcachesample_ = range.start;
 }
