@@ -6,15 +6,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Oct 2010
- RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.2 2010-12-16 13:09:43 cvsbruno Exp $
+ RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.3 2010-12-17 10:15:31 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "position.h"
-#include "executor.h"
-#include "uidialog.h"
 #include "horsampling.h"
+#include "executor.h"
+#include "position.h"
+#include "uidialog.h"
 
 class BinIDValueSet;
 class CBVSSeisTrcTranslator;
@@ -36,33 +36,35 @@ public:
 
     enum Interpol	{ Sinc, Nearest };
 
-			SeisImpCBVSFromOtherSurvey(const IOObj&,IOObj&);
+			SeisImpCBVSFromOtherSurvey(const IOObj&);
 			~SeisImpCBVSFromOtherSurvey();
 
-    const char*         message() const		{ return "Importing CBVS"; }
-    od_int64            nrDone() const          { return nrdone_; }
-    const char*         nrDoneText() const      { return "Traces handled"; }
-    od_int64		totalNr() const;
+    const char* 	message() const		{ return "Importing CBVS"; }
+    od_int64 		nrDone() const          { return nrdone_; }
+    const char* 	nrDoneText() const      { return "Traces handled"; }
+    od_int64 		totalNr() const;
 
-    int                 nextStep();
-    bool		prepareRead();
+    int 		nextStep();
 
+    bool		prepareRead(const char*);
+    inline void		setOutput( IOObj& obj )	{ outioobj_ = &obj; }
     inline void 	setInterpol(Interpol i) { interpol_ = i; }
-    inline void		setCellSize( int sz )	{ cellsize_ = sz; }
+    inline void		setCellSize(int sz)	{ cellsize_ = sz; }
 
     HorSampling& 	horSampling() 		{ return hrg_; }
 
 protected:
 
     const IOObj& 	inioobj_;
-    IOObj&              outioobj_;
+    IOObj*		outioobj_;
 
-    SeisTrcWriter*      wrr_;
+    SeisTrcWriter* 	wrr_;
     CBVSSeisTrcTranslator* tr_;
 
     int                 nrdone_;
     mutable int         totnr_;
     BufferString        errmsg_;
+    const char*		fullusrexp_;
 
     int			cellsize_;
     Interpol		interpol_;
@@ -76,12 +78,12 @@ protected:
     int			yzeropadfac_;
     ObjectSet<SeisTrc>	trcsset_;
 
-    bool                createTranslators();
+    bool                createTranslators(const char*);
     bool                createWriter();
 
     bool		findSquareTracesAroundCurbid(ObjectSet<SeisTrc>&) const;
     void		getCubeInfo(TypeSet<Coord>&,TypeSet<BinID>&) const;
-    float 		getInlXlnDist(const RCol2Coord&,bool) const;
+    float 		getInlXlnDist(const RCol2Coord&,bool,int) const;
     SeisTrc*		readTrc(const BinID&) const;
     void		sincInterpol(ObjectSet<SeisTrc>&) const;
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.2 2010-12-16 13:09:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.3 2010-12-17 10:15:31 cvsbruno Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -114,7 +114,13 @@ void uiSeisImpCBVSFromOtherSurveyDlg::interpSelDone( CallBacker* )
     const bool curitm = interpfld_->getBoolValue() ? 0 : 1; 
     const SeisImpCBVSFromOtherSurvey::Interpol inter = 
 			(SeisImpCBVSFromOtherSurvey::Interpol)(curitm);
-    cellsizefld_->display( inter == SeisImpCBVSFromOtherSurvey::Sinc );
+    bool issinc = inter == SeisImpCBVSFromOtherSurvey::Sinc;
+    if ( import_ )
+    {
+	import_->setInterpol( inter );
+	import_->setCellSize( issinc ? cellsizefld_->box()->getValue() : 0 );
+    }
+    cellsizefld_->display( issinc );
 }
 
 
@@ -124,11 +130,11 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
     if ( objdlg.go() && inctio_.ioobj )
     {
 	if ( import_ ) delete import_;
-	import_ = new SeisImpCBVSFromOtherSurvey( *inctio_.ioobj, 
-						  *outctio_.ioobj); 
-	if ( import_->prepareRead() )
+	import_ = new SeisImpCBVSFromOtherSurvey( *inctio_.ioobj ); 
+	BufferString fusrexp; objdlg.getIOObjFullUserExpression( fusrexp );
+	if ( import_->prepareRead( fusrexp ) )
 	{
-	    finpfld_->setText( inctio_.ioobj->fullUserExpr(true) );
+	    finpfld_->setText( fusrexp );
 	    subselfld_->setInput( import_->horSampling() ); 
 	}
 	else
@@ -141,7 +147,7 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 {
     if ( !import_ )
-	mErrRet( "No valid imput, please select a new imput file" ) 
+	mErrRet( "No valid input, please select a new input file" ) 
 
     if ( !outfld_->commitInput() )
     {
@@ -150,11 +156,8 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 	else
 	    mErrRet( "Can not process output" ) 
     }
-
-    const bool curitm = interpfld_->getBoolValue() ? 0 : 1; 
-    import_->setInterpol( (SeisImpCBVSFromOtherSurvey::Interpol)( curitm ) );
-    import_->setCellSize( curitm ? cellsizefld_->box()->getValue() : 0 );
-
+    interpSelDone( 0 );
+    import_->setOutput( *outctio_.ioobj );
     //TODO replace with batch
     uiTaskRunner tr( this );
     return tr.execute( *import_ );
@@ -162,17 +165,17 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 
 
 
-SeisImpCBVSFromOtherSurvey::SeisImpCBVSFromOtherSurvey( const IOObj& inp,
-							      IOObj& outp )
+SeisImpCBVSFromOtherSurvey::SeisImpCBVSFromOtherSurvey( const IOObj& inp )
     : Executor("Importing CBVS")
     , inioobj_(inp)	
-    , outioobj_(outp)
+    , outioobj_(0)
     , wrr_(0)
-    , hrg_(false)			    
-    , hsit_(0) 
-    , nrdone_(0)							    
+    , hrg_(false) 
+    , hsit_(0)
+    , nrdone_(0)
     , tr_(0)
-    , cellsize_(0)	    
+    , cellsize_(0)
+    , fullusrexp_(0)
 {}
 
 
@@ -185,9 +188,9 @@ SeisImpCBVSFromOtherSurvey::~SeisImpCBVSFromOtherSurvey()
 }
 
 
-bool SeisImpCBVSFromOtherSurvey::prepareRead()
+bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 {
-    if ( !createTranslators() )
+    if ( !createTranslators( fulluserexp ) )
 	mErrRet( "Can not read cube" )
 
     const RCol2Coord& b2c = tr_->getTransform();
@@ -195,45 +198,49 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead()
     oldhrg_.start = BinID( geom.start.inl, geom.start.crl ); 
     oldhrg_.stop  = BinID( geom.stop.inl, geom.stop.crl ); 
     oldhrg_.step  = BinID( geom.step.inl, geom.step.crl ); 
-    hrg_.start = SI().transform( b2c.transform( oldhrg_.start ) );
-    hrg_.stop  = SI().transform( b2c.transform( oldhrg_.stop ) );
-    hrg_.step = BinID( SI().inlStep(), SI().crlStep() );
+    hsit_ = new HorSamplingIterator( oldhrg_ );
+
+    BinID bid;
+    while ( hsit_->next( bid ) )
+	hrg_.include( SI().transform( b2c.transform( bid ) ) );
 
     if ( !SI().isInside(hrg_.start,true) && !SI().isInside(hrg_.stop,true) )
 	mErrRet("The selected cube has no coordinate inside the current survey")
 
+    hsit_->setSampling( hrg_ ); 
     totnr_ = hrg_.totalNr();
-    hsit_ = new HorSamplingIterator( hrg_ );
 
-    xzeropadfac_ = mNINT( getInlXlnDist( b2c, true )/SI().inlDistance() );
-    yzeropadfac_ = mNINT( getInlXlnDist( b2c, true )/SI().crlDistance() );
+    int step = oldhrg_.step.inl;
+    xzeropadfac_ = mNINT( getInlXlnDist(b2c,true,step)/SI().inlDistance() );
+    step = oldhrg_.step.crl;
+    yzeropadfac_ = mNINT( getInlXlnDist(b2c,false,step)/SI().crlDistance() );
 
     return true;
 }
 
 
 float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const RCol2Coord& b2c, 
-						 bool inldir ) const
+						 bool inldir, int step ) const
 {
     BinID orgbid = BinID( 0, 0 );
-    BinID incrbid = BinID( inldir ? 1 : 0, inldir ? 0 : 1 );
+    BinID nextbid = BinID( inldir ? step : 0, inldir ? 0 : step );
     const Coord c00 = b2c.transform( orgbid );
-    const Coord c10 = b2c.transform( incrbid );
+    const Coord c10 = b2c.transform( nextbid );
     return c00.distTo(c10);
 }
 
 
-bool SeisImpCBVSFromOtherSurvey::createTranslators()
+bool SeisImpCBVSFromOtherSurvey::createTranslators( const char* fulluserexp )
 {
-    BufferString fname( inioobj_.fullUserExpr(true) );
-    tr_= CBVSSeisTrcTranslator::make( fname, false, false, 0, true ); 
+    BufferString fnm( fulluserexp ? fulluserexp : inioobj_.fullUserExpr(true) );
+    tr_= CBVSSeisTrcTranslator::make( fnm, false, false, 0, true ); 
     return tr_ ? true : false;
 }
 
 
 bool SeisImpCBVSFromOtherSurvey::createWriter()
 {
-    wrr_ = new SeisTrcWriter( &outioobj_ );
+    wrr_ = new SeisTrcWriter( outioobj_ );
     return true;
 }
 
@@ -345,11 +352,12 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 {
     if ( trcs.size() < 2 ) 
 	return;
+
     int szx = cellsize_;
     int szy = cellsize_;
-    int newszx = cellsize_*xzeropadfac_;
-    int newszy = cellsize_*yzeropadfac_;
     int szz = trcs[0]->size();
+    int newszx = szx*xzeropadfac_;
+    int newszy = szy*yzeropadfac_;
     int newszz = szz;
 
     Array3DImpl<float_complex> arr( szx, szy, szz );
@@ -370,30 +378,28 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     Array3DImpl<float_complex> padfftarr( newszx, newszy, newszz );
     int xpadsz = (int)( szx/2 );
     int ypadsz = (int)( szy/2 );
+#define mSetVal(ix,iy,iz) padfftarr.set( ix, iy, iz, fftarr.get(idx,idy,idz) );
     for ( int idz=0; idz<newszz; idz++ ) 
     {
 	for ( int idx=0; idx<xpadsz; idx++)
 	{
 	    for ( int idy=0; idy<ypadsz; idy++)
-		padfftarr.set( idx, idy, idz, fftarr.get( idx, idy, idz ) );
+		mSetVal( idx, idy, idz )
 	}
 	for ( int idx=xpadsz; idx<szx; idx++)
 	{
 	    for ( int idy=ypadsz; idy<szy; idy++)
-		padfftarr.set( newszx-szx+idx, newszy-szy+idy, idz, 
-					      fftarr.get( idx, idy, idz ) );
+		mSetVal( newszx-szx+idx, newszy-szy+idy, idz )
 	}
 	for ( int idx=xpadsz; idx<szx; idx++)
 	{
 	    for ( int idy=0; idy<ypadsz; idy++ )
-		padfftarr.set( newszx-szx+idx, idy, idz, 
-					      fftarr.get( idx, idy, idz ) );
+		mSetVal( newszx-szx+idx, idy, idz )
 	}
 	for ( int idx=0; idx<xpadsz; idx++)
 	{
 	    for ( int idy=ypadsz; idy<szy; idy++)
-		padfftarr.set( idx, newszy-szy+idy, idz, 
-					      fftarr.get( idx, idy, idz ) );
+		mSetVal( idx, newszy-szy+idy, idz ) 
 	}
     }
 
