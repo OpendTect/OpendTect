@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselobjothersurv.cc,v 1.1 2010-12-14 08:50:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiselobjothersurv.cc,v 1.2 2010-12-17 10:15:10 cvsbruno Exp $";
 
 #include "uiselobjothersurv.h"
 
@@ -81,6 +81,7 @@ bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
     {
 	ctio_.setObj( objdlg.ioObj()->clone() );
 	ctio_.setName( ctio_.ioobj->name() );
+	fulluserexpression_ = ctio_.ioobj->fullUserExpr();
 	success = true;
     }
     IOM().setRootDir( realrootdir );
