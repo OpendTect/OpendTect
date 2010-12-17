@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.168 2010-11-25 15:39:26 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.169 2010-12-17 06:52:34 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1042,6 +1042,32 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 						 : &stored3dmnuitem_;
 	mAddManagedMenuItem( storedmnuitem, submnu, true,submnu->checked);
     }
+}
+
+
+MenuItem* uiAttribPartServer::stored2DAttribMenuItem( const SelSpec& as,
+		const MultiID& mid, const char* linenm, bool issteer )
+{
+    MenuItem* storedmnuitem = issteer ? &steering2dmnuitem_
+	                              : &stored2dmnuitem_;
+    storedmnuitem->removeItems();
+
+    BufferStringSet attribnames;
+    uiSeisIOObjInfo objinfo( mid );
+    SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = issteer ? 1 : 0;
+    objinfo.ioObjInfo().getAttribNamesForLine( linenm, attribnames, o2d );
+
+    bool docheckparent = false;
+    for ( int idx=0; idx<attribnames.size(); idx++ )
+    {
+	const BufferString& nm = attribnames.get( idx );
+	MenuItem* item = new MenuItem( nm );
+	const bool docheck = nm == as.userRef();
+	if ( docheck ) docheckparent=true;
+	mAddManagedMenuItem( storedmnuitem, item, true, docheck );
+    }
+
+    return storedmnuitem;
 }
 
 

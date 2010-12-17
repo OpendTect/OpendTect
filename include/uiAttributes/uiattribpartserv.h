@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.70 2010-10-07 17:29:19 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.71 2010-12-17 06:52:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,6 +142,9 @@ public:
     void		resetMenuItems();
     MenuItem*         	storedAttribMenuItem(const Attrib::SelSpec&,bool is2d,
 	    				     bool);
+    MenuItem*		stored2DAttribMenuItem(const Attrib::SelSpec&,
+	    				       const MultiID& lsid,
+					       const char* linenm,bool issteer);
     MenuItem*         	calcAttribMenuItem(const Attrib::SelSpec&,bool is2d,
 	    				   bool);
     MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&,bool is2d,
