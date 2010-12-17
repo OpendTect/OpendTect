@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.35 2010-12-16 18:30:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.36 2010-12-17 21:11:52 cvsyuancheng Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -238,6 +238,9 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
     Array1DImpl<float_complex> timedomain( fftsz_ );
     Array1DImpl<float_complex> freqdomain( fftsz_ );
     memset( timedomain.getData(), 0, fftsz_*sizeof(float_complex) );
+
+    const int outputsz = outputinterest_.size();
+    const int maxidx = fftsz_ - 1;
     
     for ( int idx=0; idx<nrsamples; idx++ )
     {
@@ -267,15 +270,20 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 	if ( !fft_->run( true ) )
 	    return false;
 
-	for ( int idf=0; idf<outputinterest_.size(); idf++ )
+	for ( int idf=0; idf<outputsz; idf++ )
 	{
 	    if ( !outputinterest_[idf] ) continue;
 
-	    const float_complex val = freqdomain.get( idf+1 );
-	    const float real = val.real();
-	    const float imag = val.imag();
-	    setOutputValue( output, idf, idx, z0,
-		    	    Math::Sqrt(real*real+imag*imag) );
+	    float val = mUdf(float);
+	    if ( idf<maxidx )
+	    {
+    		const float_complex cval = freqdomain.get( idf+1 );
+    		const float real = cval.real();
+    		const float imag = cval.imag();
+		val = Math::Sqrt(real*real+imag*imag);
+	    }
+
+	    setOutputValue( output, idf, idx, z0, val );
 	}
     }
 
