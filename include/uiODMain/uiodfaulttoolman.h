@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Jaap Glas
  Date:		December 2009
- RCS:		$Id: uiodfaulttoolman.h,v 1.10 2010-11-24 09:13:09 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttoolman.h,v 1.11 2010-12-17 13:22:42 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -49,7 +49,7 @@ public:
     mClass Setup
     {
     public:			Setup()
-				    : displayifnot_( false )
+				    : displayifnot_( true )
 				    , saveifdisplayed_( true )
 				    , colormode_( Inherit )
 				{}
