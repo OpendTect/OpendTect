@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.15 2010-12-13 07:07:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.16 2010-12-17 10:56:55 cvsnanne Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -179,27 +179,52 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
     const int lineidx = lineset_->indexOf( linekey );
     if ( lineidx < 0 ) { pErrMsg("Huh"); return; }
 
+    StepInterval<int> trcrg;
+    StepInterval<float> zrg;
+    const bool hasrg = lineset_->getRanges( lineidx, trcrg, zrg );
+
     S2DPOS().setCurLineSet( lineset_->name() );
     PosInfo::Line2DData l2dd( linekey.lineName() );
     if ( !S2DPOS().getGeometry(l2dd) || l2dd.isEmpty() )
+    {
+	infofld_->setText( "Cannot find geometry for this line" );
 	return;
+    }
+
+    const int sz = trcrg.nrSteps() + 1;
+    const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
+    PosInfo::Line2DPos firstpos, lastpos;
+    l2dd.getPos( trcrg.start, firstpos );
+    l2dd.getPos( trcrg.stop, lastpos );
+
+    BufferString txt;
+    if ( hasrg )
+    {
+	txt += "Number of traces: "; txt += sz;
+	txt += "\nFirst trace: ";
+	if ( l2dd.getPos(trcrg.start,firstpos) )
+	{
+	    txt += firstpos.nr_;
+	    txt += " ("; txt += firstpos.coord_.x;
+	    txt += ","; txt += firstpos.coord_.y; txt += ")";
+	}
+	txt += "\nLast trace: ";
+	if ( l2dd.getPos(trcrg.stop,lastpos) )
+	{
+	    txt += lastpos.nr_;
+	    txt += " ("; txt += lastpos.coord_.x;
+	    txt += ","; txt += lastpos.coord_.y; txt += ")";
+	}
 
 #define mAddZRangeTxt(memb) txt += zistm ? mNINT(1000*memb) : memb
-
-    const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
-    const int sz = posns.size();
-    BufferString txt( "Number of traces: " ); txt += sz;
-    const PosInfo::Line2DPos& firstpos = posns[0];
-    txt += "\nFirst trace: "; txt += firstpos.nr_;
-    txt += " ("; txt += firstpos.coord_.x;
-    txt += ","; txt += firstpos.coord_.y; txt += ")";
-    const PosInfo::Line2DPos& lastpos = posns[sz-1];
-    txt += "\nLast trace: "; txt += lastpos.nr_;
-    txt += " ("; txt += lastpos.coord_.x;
-    txt += ","; txt += lastpos.coord_.y; txt += ")";
-    txt += "\nZ-range: "; mAddZRangeTxt(l2dd.zRange().start); txt += " - ";
-    mAddZRangeTxt(l2dd.zRange().stop);
-    txt += " ["; mAddZRangeTxt(l2dd.zRange().step); txt += "]";
+	txt += "\nZ-range: "; mAddZRangeTxt(zrg.start); txt += " - ";
+	mAddZRangeTxt(zrg.stop);
+	txt += " ["; mAddZRangeTxt(zrg.step); txt += "]";
+    }
+    else
+    {
+	txt += "Cannot read ranges. CBVS file might be corrupt or missing.\n";
+    }
 
     SeisIOObjInfo sobinf( objinfo_->ioObj() );
     const int nrcomp = sobinf.nrComponents( linekey );
