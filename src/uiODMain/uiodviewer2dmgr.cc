@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.cc,v 1.4 2010-12-16 16:34:04 cvshelene Exp $
+ RCS:		$Id: uiodviewer2dmgr.cc,v 1.5 2010-12-17 07:08:36 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,14 +68,15 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     curvwr->setSelSpec( as, dowva );
 
     int dtpackid = visServ().getDataPackID(visid,attribid);
-    const char* dpname = DPM(DataPackMgr::FlatID()).nameOf(dtpackid);
-    if ( strcmp( dpname, as->userRef() ) )
+    FixedString dpname = DPM(DataPackMgr::FlatID()).nameOf(dtpackid);
+    if ( dpname != as->userRef() )
     {
 	for ( int idx=0; idx<DPM(DataPackMgr::FlatID()).packs().size(); idx++ )
 	{
-	    int tmpdtpackid = DPM(DataPackMgr::FlatID()).packs()[idx]->id();
-	    if ( !strcmp( DPM(DataPackMgr::FlatID()).nameOf(tmpdtpackid),
-			 as->userRef() ) )
+	    const int tmpdtpackid = 
+			DPM(DataPackMgr::FlatID()).packs()[idx]->id();
+	    FixedString tmpnm = DPM(DataPackMgr::FlatID()).nameOf(tmpdtpackid);
+	    if ( tmpnm == as->userRef() )
 	    {
 		dtpackid = tmpdtpackid;
 		break;
