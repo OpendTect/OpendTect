@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.12 2010-12-13 22:12:04 cvskris Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.13 2010-12-17 11:02:57 cvsnanne Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -144,7 +144,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 {
     StepInterval<float> trcrg = outcs_.zrg;
     SamplingData<double> sd( trcrg );
-    ZAxisTransformSampler sampler( ztransform_, forward_, sd );
+    ZAxisTransformSampler sampler( ztransform_, forward_, sd, is2d_ );
 
     ArrPtrMan<float> outputptr = new float[trcrg.nrSteps()+1];
 
