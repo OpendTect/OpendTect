@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.24 2010-12-09 17:02:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.25 2010-12-17 13:36:09 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -636,9 +636,6 @@ void uiODFaultToolMan::updateToolbarCB( CallBacker* )
 	redotooltip += " "; redotooltip += EM::EMM().undo().reDoDesc();
     }
     toolbar_->setToolTip( redobutidx_, redotooltip.buf() );
-
-    if ( selecting )
-	processOutputName();
 }
 
 
@@ -1169,11 +1166,11 @@ bool uiODFaultToolMan::isOutputNameUsed( uiSurfaceWrite* uisw ) const
     if ( !objsel->existingTyped() )
 	return false;
 
-    if ( isOutputDisplayed(uisw) )
+    const IOObj* ioobj = objsel->ioobj( true );
+    if ( ioobj && ioobj->implExists(true) )
 	return true;
 
-    const IOObj* ioobj = objsel->ioobj( true );
-    return ioobj && ioobj->implExists(true);
+    return isOutputDisplayed( uisw );
 }
 
 
