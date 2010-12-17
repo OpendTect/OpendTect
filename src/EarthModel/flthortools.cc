@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.34 2010-12-13 07:08:50 satyaki Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.35 2010-12-17 06:39:33 raman Exp $";
 
 #include "flthortools.h"
 
@@ -22,9 +22,7 @@ static const char* rcsID = "$Id: flthortools.cc,v 1.34 2010-12-13 07:08:50 satya
 #include "ioman.h"
 #include "ioobj.h"
 #include "posinfo2d.h"
-#include "seis2dline.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
 #include "trigonometry.h"
 
 
@@ -99,6 +97,7 @@ FaultTrace* FaultTrace::clone()
 bool FaultTrace::getImage( const BinID& bid, float z,
 			   const Interval<float>& ztop,
 			   const Interval<float>& zbot,
+			   const StepInterval<int>& trcrg,
 			   BinID& bidimg, float& zimg, bool posdir ) const
 {
     float z1 = posdir ? ztop.start : ztop.stop;
@@ -116,10 +115,10 @@ bool FaultTrace::getImage( const BinID& bid, float z,
     if ( intsectn == Coord::udf() )
 	return false;
 
-    const int trcnr = posdir ? mNINT( ceil(intsectn.x) )
-			     : mNINT( floor(intsectn.x) );
-    bidimg.inl = isinl_ ? nr_ : trcnr;
-    bidimg.crl = isinl_ ? trcnr : nr_;
+    const float fidx = trcrg.getfIndex( intsectn.x );
+    const int index = posdir ? mNINT( ceil(fidx) ) : mNINT( floor(fidx) );
+    bidimg.inl = isinl_ ? nr_ : trcrg.atIndex( index );
+    bidimg.crl = isinl_ ? trcrg.atIndex( index ) : nr_;
     return true;
 }
 
@@ -150,6 +149,7 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     step = -step;
     float stoptopz, stopbotz;
     float prevstoptopz = mUdf(float), prevstopbotz = mUdf(float);
+    BinID stoptopbid, stopbotbid, prevstoptopbid, prevstopbotbid;
     bool foundtop = false, foundbot = false;
     for ( int idx=0; idx<1024; idx++,stopvar += step )
     {
@@ -161,9 +161,11 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 	    continue;
 
 	BinID dummy;
-	bvs.get( pos, dummy, stoptopz, stopbotz );
-	if ( !foundtop && !mIsUdf(stoptopz) )
+	float z1=mUdf(float), z2=mUdf(float);
+	bvs.get( pos, dummy, z1, z2 );
+	if ( !foundtop && !mIsUdf(z1) )
 	{
+	    stoptopz = z1;
 	    Coord intsectn = getIntersection( start, starttopz,
 		    			      stop, stoptopz );
 	    if ( intsectn == Coord::udf() )
@@ -171,8 +173,9 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 	    else
 		prevstoptopz = stoptopz;
 	}
-	if ( !foundbot && !mIsUdf(stopbotz) )
+	if ( !foundbot && !mIsUdf(z2) )
 	{
+	    stopbotz = z2;
 	    Coord intsectn = getIntersection( start, startbotz,
 		    			      stop, stopbotz );
 	    if ( intsectn == Coord::udf() )
