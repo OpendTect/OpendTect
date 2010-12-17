@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.212 2010-12-06 07:58:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.213 2010-12-17 11:04:01 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.212 2010-12-06 07:58:33 cvsnan
 #include "helpview.h"
 #include "msgh.h"
 #include "oddirs.h"
+#include "odver.h"
 #include "pixmap.h"
 #include "settings.h"
 #include "strmprov.h"
@@ -508,8 +509,9 @@ void uiMainWinBody::renewToolbarsMenu()
 
 BufferString getSettingsFileName()
 {
+    BufferString fnm( "qtsettings_", (int)mODVersion );
     FilePath fp( GetSettingsDir() );
-    fp.add( "qtsettings" );
+    fp.add( fnm );
     const char* swusr = GetSoftwareUser();
     if ( swusr )
 	fp.setExtension( swusr );
