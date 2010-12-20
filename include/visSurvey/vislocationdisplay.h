@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.31 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.32 2010-12-20 15:01:49 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ namespace visBase
 namespace visSurvey
 {
 
-class Scene;
+class Sower;
 
 /*!\brief Used for displaying picksets of varying types.
   The class is not intended for standalone usage, but is a common ground for
@@ -46,6 +46,8 @@ class Scene;
 mClass LocationDisplay : public visBase::VisualObjectImpl,
 			 public visSurvey::SurveyObject
 {
+    friend class Sower;
+
 public:
     virtual void		setSet(Pick::Set*); // once!
     void			setSetMgr(Pick::SetMgr*);
@@ -151,6 +153,8 @@ protected:
     static const char*		sKeyShowAll();
     static const char*		sKeyMarkerType();
     static const char*		sKeyMarkerSize();
+
+    Sower*			sower_;
 };
 
 };

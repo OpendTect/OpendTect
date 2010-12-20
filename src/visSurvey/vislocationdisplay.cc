@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.65 2010-05-26 03:38:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.66 2010-12-20 15:01:49 cvsjaap Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -23,8 +23,10 @@ static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.65 2010-05-26 03:38:1
 #include "vismaterial.h"
 #include "vispickstyle.h"
 #include "vispolyline.h"
+#include "vissower.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
+
 
 namespace visSurvey {
 
@@ -74,6 +76,9 @@ LocationDisplay::LocationDisplay()
     addChild( group_->getInventorNode() );
 
     setSetMgr( &Pick::Mgr() );
+
+    sower_ = new Sower( *this );
+    addChild( sower_->getInventorNode() );
 }
     
 
@@ -95,6 +100,9 @@ LocationDisplay::~LocationDisplay()
 		mCB( this, LocationDisplay, fullRedraw) );
 	datatransform_->unRef();
     }
+
+    removeChild( sower_->getInventorNode() );
+    delete sower_;
 }
 
 
@@ -245,6 +253,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
+    const bool sowerenabled = set_->disp_.connect_ != Pick::Set::Disp::None;
+
     if ( waitsfordirectionid_!=-1 )
     {
 	Coord3 newpos, normal;
@@ -280,6 +290,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 
 	eventcatcher_->setHandled();
     }
+    else if ( sowerenabled && sower_->accept(eventinfo) )
+	return;
 
     if ( eventinfo.type != visBase::MouseClick ||
 	 !OD::leftMouseButton( eventinfo.buttonstate_ ) )
@@ -335,9 +347,15 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    //we may interfere with draggers.
 	    if ( selfdirpickidx!=-1 || selfpickidx!=-1 )
 		eventcatcher_->setHandled();
+	    else
+	    {
+		const Color& color = set_->disp_.color_;
+		if ( sowerenabled && sower_->activate(color, eventinfo) )
+		    return;
+	    }
 	}
     }
-    else 
+    else
     {
 	if ( OD::ctrlKeyboardButton( eventinfo.buttonstate_ ) &&
 	     !OD::altKeyboardButton( eventinfo.buttonstate_ ) &&
@@ -582,17 +600,33 @@ bool LocationDisplay::isPicking() const
 bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 			       bool notif )
 {
+    static TypeSet<Coord3> sowinghistory;
+
     int locidx = -1;
     bool insertpick = false;
     if ( set_->disp_.connect_ == Pick::Set::Disp::Close )
-    {
+    { 
+	sower_->alternateSowingOrder( true );
+	Coord3 displaypos = world2Display( pos );
+	if ( sower_->mode() == Sower::FirstSowing )
+	{
+	    displaypos = sower_->pivotPos();
+	    sowinghistory.erase();
+	}
+
 	float mindist = mUdf(float);
 	for ( int idx=0; idx<set_->size(); idx++ )
 	{
 	    int pidx = idx>0 ? idx-1 : set_->size()-1;
+
+	    int nrmatches = sowinghistory.indexOf( (*set_)[idx].pos ) >= 0;
+	    nrmatches += sowinghistory.indexOf( (*set_)[pidx].pos ) >= 0;
+	    if ( nrmatches != sowinghistory.size() )
+		continue;
+
 	    const float dist = findDistance( world2Display((*set_)[pidx].pos),
 		    			     world2Display((*set_)[idx].pos),
-					     world2Display(pos) );
+					     displaypos );
 	    if ( mIsUdf(dist) ) continue;
 
 	    if ( mIsUdf(mindist) || dist<mindist )
@@ -601,9 +635,13 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 		locidx = idx;
 	    }
 	}
-
 	insertpick = locidx >= 0;
+
+	sowinghistory.insert( 0, pos );
+	sowinghistory.remove( 2 );
     }
+    else
+	sower_->alternateSowingOrder( false );
 
     if ( insertpick )
 	set_->insert( locidx, Pick::Location(pos,dir) );
@@ -755,6 +793,8 @@ void LocationDisplay::setDisplayTransformation( visBase::Transformation* newtr )
 
     for ( int idx=0; idx<group_->size(); idx++ )
 	group_->getObject(idx)->setDisplayTransformation( transformation_ );
+
+    sower_->setDisplayTransformation( newtr );
 }
 
 
@@ -779,6 +819,7 @@ void LocationDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
     }
 
     eventcatcher_ = nevc;
+    sower_->setEventCatcher( nevc );
 
     if ( eventcatcher_ )
     {
@@ -931,5 +972,7 @@ int LocationDisplay::usePar( const IOPar& par )
 
     return useSOPar( par );
 }
+
+
 
 }; // namespace visSurvey
