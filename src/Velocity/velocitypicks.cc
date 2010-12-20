@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.15 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.16 2010-12-20 02:59:10 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -389,6 +389,7 @@ void Picks::fillIOObjPar( IOPar& par ) const
 
     par.set( sKey::Type, sKeyVelocityPicks() );
     par.set( sKeyGatherID(), gatherid_ );
+    par.set( sKeyPickType(), getPickTypeString( picktype_ ) );
     par.set( ZDomain::sKey(), zDomain() );
 }
 
@@ -419,7 +420,7 @@ void Picks::fillPar( IOPar& par ) const
     }
 
     par.setYN(sKeyIsTime(),zit_);
-    par.set( sKeyPickType(), PickTypeNames()[(int)picktype_] );
+    par.set( sKeyPickType(), getPickTypeString( picktype_ ) );
     if ( smoother_ ) smoother_->fillPar( par );
     par.set(sKeyRefOffset(),refoffset_);
 }
@@ -434,7 +435,7 @@ bool Picks::usePar( const IOPar& par )
     const FixedString typestr = par.find( sKeyPickType() );
     if ( typestr )
     {
-	if ( !parseEnumPickType(typestr,picktype_) )
+	if ( !parseEnumPickType(typestr,picktype_ ) )
 	    return false;
     }
     else
@@ -958,6 +959,12 @@ const IOObjContext& Picks::getStorageContext()
 	ret->toselect.require_.set( sKey::Type, sKeyVelocityPicks() );
     }
     return *ret;
+}
+
+
+void Picks::setContextPickType( IOObjContext& ctxt, PickType type )
+{
+    ctxt.toselect.require_.set( sKeyPickType(), getPickTypeString( type ) );
 }
 
 

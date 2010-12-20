@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.11 2010-12-09 15:13:00 cvskris Exp $
+ RCS:		$Id: velocitypicks.h,v 1.12 2010-12-20 02:59:10 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -22,12 +22,12 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "rowcol.h"
 
-class IOObjContext;
 class Undo;
 class IOObj;
 class BinID;
 template <class T> class Smoother1D;
 class BinIDValueSet;
+class IOObjContext;
 
 namespace EM { class Horizon3D; }
 
@@ -119,6 +119,7 @@ public:
     void			setAll(float vel,bool undo=true);
 
     static const IOObjContext&	getStorageContext();
+    static void			setContextPickType(IOObjContext&,PickType);
 
     float			refOffset() const	{ return refoffset_; }
     void			setReferenceOffset(float n);
