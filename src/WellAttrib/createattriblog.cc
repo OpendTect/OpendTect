@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: createattriblog.cc,v 1.1 2010-05-26 09:26:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: createattriblog.cc,v 1.2 2010-12-20 08:00:55 cvssatyaki Exp $";
 
 #include "createattriblog.h"
 
@@ -111,7 +111,6 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	float md = dahintv.atIndex( idx );
-	if ( SI().depthsInFeetByDefault() ) md *= mFromFeetFactor;
 	Coord3 pos = wd_->track().getPos( md );
 	const BinID bid = SI().transform( pos );
 	if ( !bid.inl && !bid.crl ) continue;

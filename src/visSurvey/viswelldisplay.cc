@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.132 2010-11-26 16:43:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.133 2010-12-20 08:00:55 cvssatyaki Exp $";
 
 #include "viswelldisplay.h"
 
@@ -337,8 +337,6 @@ TypeSet<Coord3> WellDisplay::getTrackPos( const Well::Data* wd )
     for ( int idx=0; idx<track.size(); idx++ )
     {
 	pt = track.pos( idx );
-	if ( zinfeet_ )
-	    mMeter2Feet(pt.z);
 
 	if ( !mIsUdf(pt.z) )
 	    trackpos += pt;
@@ -364,8 +362,6 @@ void WellDisplay::updateMarkers( CallBacker* )
 
 	if ( zistime_ )
 	    pos.z = wd->d2TModel()->getTime( wellmarker->dah() );
-	else if ( zinfeet_ )
-	    mMeter2Feet(pos.z)
 	mp.pos_ = &pos;	mp.name_ = wellmarker->name();	
 
 	if ( !mp.issinglecol_ ) mp.col_  = wellmarker->color();
@@ -425,8 +421,10 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     Well::Log& wl = wd->logs().getLog( logidx );
     if ( wl.isEmpty() ) return;
     const int logsz = wl.size();
+
     const Well::Track& track = wd->track();
     const Interval<float> range = lp.range_;
+
     float minval, maxval; minval = maxval =  mUdf( float );
     TypeSet<Coord3Value> crdvals;
     for ( int idx=0; idx<logsz; idx++ )
@@ -448,8 +446,6 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 
 	if ( zistime_ )
 	    pos.z = wd->d2TModel()->getTime( dah );
-	else if ( zinfeet_ )
-	    mMeter2Feet(pos.z)
 
 	Coord3Value cv( pos, val );
 	crdvals += cv;
@@ -458,6 +454,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	return;
 
     ( isfilled ? lp.valfillrange_ : lp.valrange_ ).set( minval, maxval );
+
     if ( isfilled )
 	well_->setFilledLogData( crdvals, lp );
     else
@@ -602,12 +599,10 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     val.setEmpty(); info.setEmpty();
     mGetWD(return);
 
-    float mousez = pos.z;
-    if ( zinfeet_ )
-	mFeet2Meter( mousez )
+    float mousez = pos.z; 
 
     info = "Well: "; info += wd->name();
-    info += ", MD ";
+    info += ", MD "; 
 
     const float dah = zistime_ ? wd->d2TModel()->getDah( mousez ) 
 			       : wd->track().getDahForTVD( mousez );
@@ -620,7 +615,7 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     setLogInfo( info, val, dah, false );
 
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-    const float zstep2 = zfactor * SI().zStep()/2;
+    const float zstep2 = zfactor*SI().zStep()/2;
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];

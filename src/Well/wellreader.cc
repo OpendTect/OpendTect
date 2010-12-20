@@ -4,9 +4,23 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.41 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.42 2010-12-20 08:00:55 cvssatyaki Exp $";
 
 #include "wellreader.h"
+
+#include "ascstream.h"
+#include "bufstringset.h"
+#include "errh.h"
+#include "file.h"
+#include "filepath.h"
+#include "iopar.h"
+#include "ioobj.h"
+#include "ioman.h"
+#include "keystrs.h"
+#include "ptrman.h"
+#include "separstr.h"
+#include "strmprov.h"
+#include "survinfo.h"
 #include "welldata.h"
 #include "welltrack.h"
 #include "welllog.h"
@@ -14,18 +28,7 @@ static const char* rcsID = "$Id: wellreader.cc,v 1.41 2010-10-14 09:58:06 cvsber
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "welldisp.h"
-#include "ascstream.h"
-#include "file.h"
-#include "filepath.h"
-#include "errh.h"
-#include "strmprov.h"
-#include "keystrs.h"
-#include "separstr.h"
-#include "iopar.h"
-#include "ioobj.h"
-#include "ioman.h"
-#include "ptrman.h"
-#include "bufstringset.h"
+
 #include <iostream>
 
 const char* Well::IO::sKeyWell()	{ return "Well"; }
@@ -106,7 +109,8 @@ bool Well::IO::removeAll( const char* ext ) const
 }
 
 
-static const char* rdHdr( std::istream& strm, const char* fileky )
+static const char* rdHdr( std::istream& strm, const char* fileky,
+			  double& ver )
 {
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(fileky) )
@@ -118,6 +122,8 @@ static const char* rdHdr( std::istream& strm, const char* fileky )
 	return 0;
     }
 
+    ver = (double)astrm.majorVersion() +
+	  ((double)astrm.minorVersion() / (double)10);
     static BufferString hdrln; hdrln = astrm.headerStartLine();
     return hdrln.buf();
 }
@@ -163,7 +169,8 @@ bool Well::Reader::getInfo() const
 
 bool Well::Reader::getInfo( std::istream& strm ) const
 {
-    const char* hdrln = rdHdr( strm, sKeyWell() );
+    double version = 0.0;
+    const char* hdrln = rdHdr( strm, sKeyWell(), version );
     if ( !hdrln )
 	return false;
     bool badhdr = *hdrln != 'd';
@@ -194,7 +201,21 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	    wd.info().surfaceelev = astrm.getFValue();
     }
 
-    return getTrack( strm );
+    if ( !getTrack(strm) )
+	return false;
+
+    if ( SI().zInFeet() && version < 4.195 )
+    {
+	Well::Track& welltrack = wd.track();
+	for ( int idx=0; idx<welltrack.size(); idx++ )
+	{
+	    Coord3 pos = welltrack.pos( idx );
+	    pos.z *= mToFeetFactor;
+	    welltrack.setPoint( idx, pos, pos.z );
+	}
+    }
+
+    return true;
 }
 
 
@@ -257,7 +278,22 @@ bool Well::Reader::getTrack() const
     StreamData sd = mkSD( sExtTrack() );
     if ( !sd.usable() ) return false;
 
+    ascistream astrm( *sd.istrm );
+    const double version = (double)astrm.majorVersion() +
+			   ((double)astrm.minorVersion()/(double)10);
+
     const bool isok = getTrack( *sd.istrm );
+    if ( SI().zInFeet() && version < 4.195 )
+    {
+	Well::Track& welltrack = wd.track();
+	for ( int idx=0; idx<welltrack.size(); idx++ )
+	{
+	    Coord3 pos = welltrack.pos( idx );
+	    pos.z *= mToFeetFactor;
+	    welltrack.setPoint( idx, pos, pos.z );
+	}
+    }
+
     sd.close();
     return isok;
 }
@@ -270,7 +306,8 @@ void Well::Reader::getLogInfo( BufferStringSet& strs ) const
 	StreamData sd = mkSD( sExtLog(), idx );
 	if ( !sd.usable() ) break;
 
-	if ( rdHdr(*sd.istrm,sKeyLog()) )
+	double version = 0.0;
+	if ( rdHdr(*sd.istrm,sKeyLog(),version) )
 	{
 	    int bintyp = 0;
 	    PtrMan<Well::Log> log = rdLogHdr( *sd.istrm, bintyp, idx-1 );
@@ -292,7 +329,8 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 	if ( !sd.usable() ) break;
 	std::istream& strm = *sd.istrm;
 
-	if ( !rdHdr(strm,sKeyLog()) )
+	double version = 0.0;
+	if ( !rdHdr(strm,sKeyLog(),version) )
 	    { sd.close(); continue; }
 
 	int bintype = 0;
@@ -302,9 +340,12 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 
 	readLogData( *log, strm, bintype );
 	sd.close();
+	
+	const bool valinmtr = SI().zInFeet() && (version < 4.195);
 
-	ret.start = log->dah(0);
-	ret.stop = log->dah( log->size()-1 );
+	ret.start = valinmtr ? (log->dah(0) * mToFeetFactor) : log->dah(0);
+	ret.stop = valinmtr ? (log->dah(log->size()-1) * mToFeetFactor )
+	    		    : log->dah( log->size()-1 );
 	break;
     }
 
@@ -371,7 +412,8 @@ Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int& bintype, int idx )
 
 bool Well::Reader::addLog( std::istream& strm ) const
 {
-    if ( !rdHdr(strm,sKeyLog()) )
+    double version = 0.0;
+    if ( !rdHdr(strm,sKeyLog(),version) )
 	return false;
 
     int bintype = 0;
@@ -380,6 +422,12 @@ bool Well::Reader::addLog( std::istream& strm ) const
 	return false;
 
     readLogData( *newlog, strm, bintype );
+    
+    if ( SI().zInFeet() && version < 4.195 )
+    {
+	for ( int idx=0; idx<newlog->size(); idx++ )
+	    newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactor;
+    }
 
     wd.logs().add( newlog );
     return true;
@@ -424,10 +472,12 @@ bool Well::Reader::getMarkers() const
 
 bool Well::Reader::getMarkers( std::istream& strm ) const
 {
-    if ( !rdHdr(strm,sKeyMarkers()) )
+    double version = 0.0;
+    if ( !rdHdr(strm,sKeyMarkers(),version) )
 	return false;
 
-    ascistream astrm( strm, false );
+    ascistream astrm( strm, true );
+    
     IOPar iopar( astrm );
     if ( iopar.isEmpty() ) return false;
 
@@ -443,8 +493,9 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 	key = IOPar::compKey( basekey, Well::Marker::sKeyDah() );
 	if ( !iopar.get(key,bs) )
 	    { delete wm; continue; }
-	wm->setDah( toFloat( bs.buf() ) );
-
+	float val = toFloat( bs.buf() );
+	wm->setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactor)
+						      : val ); 
 	key = IOPar::compKey( basekey, sKey::StratRef );
 	int lvlid = -1; iopar.get( key, lvlid );
 	wm->setLevelID( lvlid );
@@ -483,7 +534,8 @@ bool Well::Reader::getCSMdl( std::istream& strm ) const
 { return doGetD2T(strm,true); }
 bool Well::Reader::doGetD2T( std::istream& strm, bool csmdl ) const
 {
-    if ( !rdHdr(strm,sKeyD2T()) )
+    double version = 0.0;
+    if ( !rdHdr(strm,sKeyD2T(),version) )
 	return false;
 
     ascistream astrm( strm, false );
@@ -529,7 +581,8 @@ bool Well::Reader::getDispProps() const
 
 bool Well::Reader::getDispProps( std::istream& strm ) const
 {
-    if ( !rdHdr(strm,sKeyDispProps()) )
+    double version = 0.0;
+    if ( !rdHdr(strm,sKeyDispProps(),version) )
 	return false;
 
     ascistream astrm( strm, false );
