@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.6 2010-12-20 14:04:05 cvsbert Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.7 2010-12-20 14:54:55 cvsbert Exp $";
 
 #include "synthseis.h"
 #include "wavelet.h"
@@ -144,7 +144,7 @@ void Seis::SynthGenerator::generate()
 
     const int wvltsz = wvlt_->size(); const int wvltcs = wvlt_->centerSample();
     float* trcarr = (float*)outtrc_.data().getComponent(0)->data();
-    GenericConvolve( wvltsz, -wvltcs, wvlt_->samples(),
+    GenericConvolve( wvltsz, -wvltcs-1, wvlt_->samples(),
 		     refl.size(), 0, refl.arr(),
 		     ns, 0, trcarr );
 }
