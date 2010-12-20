@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.27 2010-11-12 21:29:55 cvskris Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.28 2010-12-20 23:40:29 cvskarthika Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -257,7 +257,13 @@ void VolumeRenderScalarField::makeColorTables()
 
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
     int cti = 0;
-    for ( int idx=0; idx<mNrColors-1; idx++ )
+    
+    // Fill up positions 0 to 253 with the color of defined values and 
+    // positions 254 (and 255) with undef color (this is a workaround for a 
+    // bug in SIMVoleon - it does not take in color at position mNrColors-1 
+    // (that is, at 255)).
+
+    for ( int idx=0; idx<mNrColors-2; idx++ )
     {
 	const float relval = ((float) idx)/(mNrColors-2);
 	const ::Color col = sequence_.color( relval );
@@ -268,6 +274,11 @@ void VolumeRenderScalarField::makeColorTables()
     }
 
     const ::Color col = sequence_.undefColor();
+    transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
+    transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
+    transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
+    transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
+
     transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
     transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
     transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
