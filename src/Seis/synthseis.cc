@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.5 2010-12-10 14:31:36 cvsbert Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.6 2010-12-20 14:04:05 cvsbert Exp $";
 
 #include "synthseis.h"
 #include "wavelet.h"
@@ -82,11 +82,10 @@ void Seis::SynthGenerator::prepWavelet()
 SamplingData<float> Seis::SynthGenerator::getDefOutSampling(
 		const AIModel& aimod, const Wavelet& wvlt, int& ns )
 {
-    SamplingData<float> sd = aimod.timeSampling();
-    float zend = sd.start + (aimod.modelData().size() - 1) * sd.step;
-    sd.step = wvlt.sampleRate();
-    zend = sd.snap( zend );
-    ns = sd.nearestIndex( zend ) + 1 + 2*wvlt.size();
+    SamplingData<float> sd( 0, wvlt.sampleRate() );
+    float tend = aimod.endTime();
+    sd.snap( tend );
+    ns = sd.nearestIndex( tend );
     return sd;
 }
 
@@ -140,22 +139,12 @@ void Seis::SynthGenerator::generate()
     if ( ns < 2 )
 	return;
 
-    TypeSet<float> denserefl; aimdl_->getReflectivity( denserefl );
     TypeSet<float> refl;
-    const SamplingData<float> aimdlsd( aimdl_->timeSampling() );
-    const int aimdlns = denserefl.size();
-    const int startsamp = outtrc_.nearestSample( aimdlsd.start );
-    const int endsamp = outtrc_.nearestSample( aimdlsd.atIndex(aimdlns-1) );
-    for ( int isamp=startsamp; isamp<endsamp; isamp++ )
-    {
-	int nearsamp = aimdlsd.nearestIndex( outtrc_.samplePos(isamp) );
-	if ( nearsamp < 0 ) nearsamp = 0;
-	else if ( nearsamp >= aimdlns ) nearsamp = aimdlns-1;
-	refl += denserefl[nearsamp];
-    }
+    aimdl_->getReflectivity( outtrc_.info().sampling, refl );
 
+    const int wvltsz = wvlt_->size(); const int wvltcs = wvlt_->centerSample();
     float* trcarr = (float*)outtrc_.data().getComponent(0)->data();
-    GenericConvolve( refl.size(), -startsamp, refl.arr(),
-	    	     wvlt_->size(), wvlt_->centerSample(), wvlt_->samples(),
+    GenericConvolve( wvltsz, -wvltcs, wvlt_->samples(),
+		     refl.size(), 0, refl.arr(),
 		     ns, 0, trcarr );
 }
