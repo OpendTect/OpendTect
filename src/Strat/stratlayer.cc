@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.14 2010-12-20 14:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.15 2010-12-21 13:16:54 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -178,9 +178,13 @@ void Strat::LayerSequence::prepareUse() const
 AIModel* Strat::LayerSequence::getAIModel( int velidx, int denidx,
        					   bool isvel, bool isden ) const
 {
+    const int sz = size();
     TypeSet<AIModel::DataPoint> pts;
+    if ( sz < 1 )
+	return new AIModel( pts, 0 );
+
     float prevvval = mUdf(float); float prevdval = mUdf(float);
-    for ( int idx=0; idx<size(); idx++ )
+    for ( int idx=0; idx<sz; idx++ )
     {
 	const Layer& lay( *layers_[idx] );
 	float vval = lay.value( velidx );
@@ -191,7 +195,7 @@ AIModel* Strat::LayerSequence::getAIModel( int velidx, int denidx,
 	    break;
     }
 
-    for ( int idx=0; idx<size(); idx++ )
+    for ( int idx=0; idx<sz; idx++ )
     {
 	const Layer& lay( *layers_[idx] );
 	float vval = lay.value( velidx );
@@ -206,7 +210,7 @@ AIModel* Strat::LayerSequence::getAIModel( int velidx, int denidx,
 	pts += AIModel::DataPoint( lay.zTop(), vval, dval );
     }
 
-    return new AIModel( pts, layers_[layers_.size()-1]->zBot() );
+    return new AIModel( pts, layers_[sz-1]->zBot() );
 }
 
 
