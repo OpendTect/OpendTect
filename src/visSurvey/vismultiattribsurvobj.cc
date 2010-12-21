@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.62 2010-11-18 19:15:26 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.63 2010-12-21 18:35:29 cvsyuancheng Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -152,15 +152,12 @@ MultiTextureSurveyObject::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
     if ( !channels_ ) return true;
 
     const bool res = channels_->setChannels2RGBA( t );
-    if ( getChannels2RGBA() )
-	getChannels2RGBA()->enableInterpolation( enabletextureinterp_ );
+    if ( channels_ && channels_->getChannels2RGBA() )	
+	channels_->getChannels2RGBA()->enableInterpolation( 
+		enabletextureinterp_ );
 
     return res;
 }
-
-
-visBase::TextureChannel2RGBA* MultiTextureSurveyObject::getChannels2RGBA()
-{ return channels_ ? channels_->getChannels2RGBA() : 0; }
 
 
 void MultiTextureSurveyObject::updateMainSwitch()
