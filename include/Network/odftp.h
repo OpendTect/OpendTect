@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odftp.h,v 1.9 2010-11-01 05:34:06 cvsumesh Exp $
+ RCS:           $Id: odftp.h,v 1.10 2010-12-21 06:34:31 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class QFile;
 class QFtp;
 class QFtpConnector;
 
-class ODFtp : public CallBacker
+mClass ODFtp : public CallBacker
 {
 friend class QFtpConnector;
 
