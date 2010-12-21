@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.36 2010-12-06 09:01:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.37 2010-12-21 13:19:03 cvsbert Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -44,8 +44,11 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , manipdrawbut_(0)
     , editbut_(0)
 {
-    tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools",
-	    setup.withcoltabed_ ? uiToolBar::Left : uiToolBar::Top );
+    uiToolBar::ToolBarArea tba( setup.withcoltabed_ ? uiToolBar::Left
+	    					    : uiToolBar::Top );
+    if ( setup.tba_ > 0 )
+	tba = (uiToolBar::ToolBarArea)setup.tba_;
+    tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools", tba );
     if ( setup.withstates_ )
     {
 	mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode");
