@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.51 2010-08-19 07:48:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.52 2010-12-21 13:16:17 cvsbert Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -27,10 +27,11 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
     , zoommgr_(*new FlatView::ZoomMgr)
     , haverubber_(wrubb)
+    , withwva_(withwva)
     , propdlg_(0)
     , infoChanged(this)
     , viewerAdded(this)
-    , withwva_(withwva)
+    , zoomChanged(this)
 {
     setBorder( 0 );
     addViewer( vwr );
@@ -158,10 +159,12 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 {
     uiWorldRect br = getBoundingBox();
     br.checkCorners();
-    const uiWorldRect& wr = getNewWorldRect( centre, sz,vwrs_[0]->curView(),br);
+    const uiWorldRect wr = getNewWorldRect( centre,sz, vwrs_[0]->curView(),br );
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	vwrs_[idx]->setView( wr );
+
+    zoomChanged.trigger();
 }
 
 

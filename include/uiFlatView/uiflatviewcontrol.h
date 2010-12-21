@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.33 2010-11-18 11:44:28 cvsbruno Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.34 2010-12-21 13:16:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ public:
 
     Notifier<uiFlatViewControl>  infoChanged;	// CallBacker: CBCapsule<IOPar>
     Notifier<uiFlatViewControl>  viewerAdded;
+    Notifier<uiFlatViewControl>  zoomChanged;
 
     uiRect			getViewRect(uiFlatViewer*);
     static uiWorldRect		getZoomAndPanRect(Geom::Point2D<double>,
