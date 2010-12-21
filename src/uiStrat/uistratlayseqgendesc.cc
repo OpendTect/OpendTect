@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.14 2010-11-22 10:31:51 cvsranojay Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.15 2010-12-21 15:01:25 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -38,6 +38,7 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( uiParent* p,
     , border_(10)
     , outeritm_(0)
     , emptyitm_(0)
+    , needsave_(false)
 {
     setPrefWidth( 200 );
     setPrefHeight( 500 );
@@ -92,7 +93,7 @@ void uiLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 	ischgd = descRemoveReq();
 
     if ( ischgd )
-	reDraw(0);
+	{ needsave_ = true; reDraw(0); }
 
     mevh.setHandled( true );
 }

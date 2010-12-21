@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayseqgendesc.h,v 1.8 2010-11-09 20:51:49 cvskris Exp $
+ RCS:           $Id: uistratlayseqgendesc.h,v 1.9 2010-12-21 15:01:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,13 @@ class uiRectItem;
 class uiTextItem;
 namespace Strat { class LayerSequenceGenDesc; }
 
+
+/*!\brief Base class for LayerSequenceGenDesc editors - with factory.
+ 
+  The subclasses have to keep track whether anything has changed. If so,
+  needSave() will return true. You can force the flag with setNeedSave().
+ 
+ */
 
 mClass uiLayerSequenceGenDesc : public uiGraphicsView
 {
@@ -30,6 +37,8 @@ public:
 
     Strat::LayerSequenceGenDesc& desc()		{ return desc_; }
     virtual void	getPropertyRefs(PropertyRefSelection&) const	= 0;
+    bool		needSave() const	{ return needsave_; }
+    void		setNeedSave( bool yn )	{ needsave_ = yn; }
 
     virtual void	descHasChanged()	= 0;
 
@@ -40,6 +49,7 @@ protected:
     uiTextItem*		emptyitm_;
     uiBorder		border_;	//!< can be set
     const uiRect	workrect_;	//!< will be filled
+    bool		needsave_;
 
     void		reDraw(CallBacker*);
     void		singClckCB( CallBacker* cb )	{ hndlClick(cb,false); }

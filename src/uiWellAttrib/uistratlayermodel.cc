@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.7 2010-12-21 13:19:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.8 2010-12-21 15:01:25 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
@@ -87,7 +87,6 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , modl_(*new Strat::LayerModel)
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
-    , modlctio_(*mMkCtxtIOObj(StratLayerModel))
 {
     uiGroup* gengrp = new uiGroup( this, "SeqGen disp" );
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
@@ -101,11 +100,11 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     uiGroup* leftgengrp = new uiGroup( gengrp, "Left buttons" );
     uiToolButton* opentb = new uiToolButton( leftgengrp, "open.png",
 				"Open stored generation description",
-				mCB(this,uiStratLayerModel,openGenDesc) );
+				mCB(this,uiStratLayerModel,openGenDescCB) );
     leftgengrp->attach( ensureBelow, seqdisp_ );
     uiToolButton* stb = new uiToolButton( leftgengrp, "save.png",
 	    			"Save generation description",
-				mCB(this,uiStratLayerModel,saveGenDesc) );
+				mCB(this,uiStratLayerModel,saveGenDescCB) );
     stb->attach( rightOf, opentb );
 
     uiGroup* rightgengrp = new uiGroup( gengrp, "Right buttons" );
@@ -144,7 +143,6 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &desc_;
     delete &modl_;
     delete descctio_.ioobj; delete &descctio_;
-    delete modlctio_.ioobj; delete &modlctio_;
 }
 
 
@@ -167,47 +165,71 @@ void uiStratLayerModel::zoomChg( CallBacker* )
 }
 
 
-void uiStratLayerModel::openGenDesc( CallBacker* )
+bool uiStratLayerModel::saveGenDescIfNecessary() const
 {
+    if ( !seqdisp_->needSave() )
+	return true;
+
+    const int res = uiMSG().askSave( "Generation description not saved.\n"
+	    			     "Save now?" );
+    if ( res < 1 ) return res == 0;
+    return saveGenDesc();
+}
+
+
+bool uiStratLayerModel::saveGenDesc() const
+{
+    descctio_.ctxt.forread = false;
+    uiIOObjSelDlg dlg( const_cast<uiStratLayerModel*>(this), descctio_ );
+    if ( !dlg.go() || !dlg.ioObj() )
+	return false;
+    descctio_.setObj( dlg.ioObj()->clone() );
+
+    const BufferString fnm( descctio_.ioobj->fullUserExpr(false) );
+    StreamData sd( StreamProvider(fnm).makeOStream() );
+    bool rv = false;
+    if ( !sd.usable() )
+	uiMSG().error( "Cannot open output file" );
+    else if ( !desc_.putTo(*sd.ostrm) )
+	uiMSG().error(desc_.errMsg());
+    else
+	rv = true;
+
+    sd.close();
+    return rv;
+}
+
+
+bool uiStratLayerModel::openGenDesc()
+{
+    if ( !saveGenDescIfNecessary() )
+	return false;
+
     descctio_.ctxt.forread = true;
     uiIOObjSelDlg dlg( this, descctio_ );
     if ( !dlg.go() || !dlg.ioObj() )
-	return;
+	return false;
     descctio_.setObj( dlg.ioObj()->clone() );
 
     const BufferString fnm( descctio_.ioobj->fullUserExpr(true) );
     StreamData sd( StreamProvider(fnm).makeIStream() );
     if ( !sd.usable() )
-	{ uiMSG().error( "Cannot open input file" ); return; }
+	{ uiMSG().error( "Cannot open input file" ); return false; }
 
     desc_.erase();
-    if ( !desc_.getFrom(*sd.istrm) )
+    bool rv = desc_.getFrom( *sd.istrm );
+    if ( !rv )
 	uiMSG().error(desc_.errMsg());
     sd.close();
+    if ( !rv )
+	return false;
 
+    seqdisp_->setNeedSave( false );
     seqdisp_->descHasChanged();
     modl_.setEmpty();
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
-}
-
-
-void uiStratLayerModel::saveGenDesc( CallBacker* )
-{
-    descctio_.ctxt.forread = false;
-    uiIOObjSelDlg dlg( this, descctio_ );
-    if ( !dlg.go() || !dlg.ioObj() )
-	return;
-    descctio_.setObj( dlg.ioObj()->clone() );
-
-    const BufferString fnm( descctio_.ioobj->fullUserExpr(false) );
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() )
-	uiMSG().error( "Cannot open output file" );
-    else if ( !desc_.putTo(*sd.ostrm) )
-	uiMSG().error(desc_.errMsg());
-
-    sd.close();
+    return true;
 }
 
 
@@ -226,4 +248,10 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
     levelChg( cb );
+}
+
+
+bool uiStratLayerModel::closeOK()
+{
+    return saveGenDescIfNecessary();
 }
