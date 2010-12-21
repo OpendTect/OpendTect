@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.13 2010-11-09 20:51:49 cvskris Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.14 2010-12-21 15:00:50 cvsbert Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
@@ -24,7 +24,6 @@ mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
 
 mDefSimpleTranslators(StratLayerSequenceGenDesc,
 		    "Layer Sequence Generation Description",od,Mdl);
-mDefSimpleTranslators(StratLayerModel,"Layer Model",od,Mdl);
 
 
 Strat::LayerModelGenerator::LayerModelGenerator(
