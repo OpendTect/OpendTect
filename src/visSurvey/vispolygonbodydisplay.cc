@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.12 2010-10-06 13:48:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.13 2010-12-21 08:19:10 cvsjaap Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -546,6 +546,9 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
 
+    if ( mouseplanecs.isEmpty() )
+	return;
+
     const Color& prefcol = empolygonsurf_->preferredColor();
     if ( viseditor_->sower().activate(prefcol, eventinfo) )
 	return;
@@ -556,8 +559,6 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     if ( nearestpid0.isUdf() )
     {
 	Coord3 editnormal(0,0,1);
-	if ( mouseplanecs.isEmpty() )
-	    return;
 
 	if ( mouseplanecs.defaultDir()==CubeSampling::Inl )
 	    editnormal = Coord3( SI().transform(BinID(1,0))-
