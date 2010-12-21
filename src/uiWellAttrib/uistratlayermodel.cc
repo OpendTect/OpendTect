@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.6 2010-12-16 13:04:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.7 2010-12-21 13:19:26 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
@@ -123,10 +123,13 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     rightgengrp->attach( ensureRightOf, leftgengrp );
     rightgengrp->setFrame( true );
 
+    const CallBack lvlchgcb( mCB(this,uiStratLayerModel,levelChg) );
     synthdisp_ = new uiStratSynthDisp( rightgrp, modl_ );
+    synthdisp_->wvltChanged.notify( lvlchgcb );
+    synthdisp_->zoomChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
     moddisp_ = new uiStratLayerModelDisp( rightgrp, modl_ );
     moddisp_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
-    moddisp_->levelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
+    moddisp_->levelChg.notify( lvlchgcb );
 
     uiSplitter* spl = new uiSplitter( this, "Vert splitter", true );
     spl->addGroup( gengrp ); spl->addGroup( rightgrp );
@@ -145,15 +148,22 @@ uiStratLayerModel::~uiStratLayerModel()
 }
 
 
-void uiStratLayerModel::dispEachChg( CallBacker* )
+void uiStratLayerModel::dispEachChg( CallBacker* cb )
 {
     synthdisp_->setDispEach( moddisp_->getEachDisp() );
+    levelChg( cb );
 }
 
 
 void uiStratLayerModel::levelChg( CallBacker* )
 {
     synthdisp_->setDispMrkrs( moddisp_->levelDepths(), moddisp_->levelColor() );
+}
+
+
+void uiStratLayerModel::zoomChg( CallBacker* )
+{
+    moddisp_->setZoomBox( synthdisp_->curView(true) );
 }
 
 
@@ -178,6 +188,7 @@ void uiStratLayerModel::openGenDesc( CallBacker* )
     seqdisp_->descHasChanged();
     modl_.setEmpty();
     moddisp_->modelChanged();
+    synthdisp_->modelChanged();
 }
 
 

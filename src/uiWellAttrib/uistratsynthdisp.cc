@@ -7,12 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.8 2010-12-16 13:04:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.9 2010-12-21 13:19:26 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
 #include "uicombobox.h"
 #include "uiflatviewer.h"
+#include "uiflatviewstdcontrol.h"
+#include "uitoolbar.h"
 #include "uimsg.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
@@ -34,11 +36,13 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , wvlt_(0)
     , lm_(lm)
     , dispeach_(1)
+    , wvltChanged(this)
+    , zoomChanged(this)
+    , longestaimdl_(0)
 {
-    const CallBack redrawcb( mCB(this,uiStratSynthDisp,wvltChg) );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
     wvltfld_ = new uiSeisWaveletSel( topgrp );
-    wvltfld_->newSelection.notify( redrawcb );
+    wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
 
     vwr_ = new uiFlatViewer( this );
     vwr_->setInitialSize( uiSize(500,250) ); //TODO get hor sz from laymod disp
@@ -50,7 +54,14 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     app.annot_.title_.setEmpty();
     app.annot_.x1_.showAll( true );
     app.annot_.x2_.showAll( true );
+    app.annot_.x2_.name_ = "TWT (s)";
     app.ddpars_.show( true, false );
+
+    uiFlatViewStdControl::Setup fvsu( this );
+    fvsu.withwva( true ).withthumbnail( false ).withcoltabed( false )
+	.tba( (int)uiToolBar::Right );
+    uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( *vwr_, fvsu );
+    ctrl->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
 }
 
 
@@ -103,6 +114,30 @@ void uiStratSynthDisp::setDispMrkrs( const TypeSet<float>& zvals, Color col )
 void uiStratSynthDisp::wvltChg( CallBacker* )
 {
     modelChanged();
+    wvltChanged.trigger();
+}
+
+
+void uiStratSynthDisp::zoomChg( CallBacker* )
+{
+    zoomChanged.trigger();
+}
+
+
+const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
+{
+    static uiWorldRect wr; wr = vwr_->curView();
+    if ( indpth && !aimdls_.isEmpty() )
+    {
+	int mdlidx = longestaimdl_;
+	if ( mdlidx >= aimdls_.size() )
+	    mdlidx = aimdls_.size()-1;
+
+	const AIModel& aimdl = *aimdls_[mdlidx];
+	wr.setTop( aimdl.convertTo(wr.top(),AIModel::Depth) );
+	wr.setBottom( aimdl.convertTo(wr.bottom(),AIModel::Depth) );
+    }
+    return wr;
 }
 
 
@@ -147,11 +182,14 @@ void uiStratSynthDisp::modelChanged()
     bool isvel; const int velidx = getVelIdx( isvel );
     bool isden; const int denidx = getDenIdx( isden );
     int maxsz = 0; SamplingData<float> sd;
+    longestaimdl_ = 0; int maxaimdlsz = 0;
     for ( int iseq=0; iseq<lm_.size(); iseq+=dispeach_ )
     {
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
 	AIModel* aimod = seq.getAIModel( velidx, denidx, isvel, isden );
 	aimdls_ += aimod;
+	if ( aimod->nrTimes() > maxaimdlsz )
+	    { maxaimdlsz = aimod->nrTimes(); longestaimdl_ = iseq; }
 	int sz;
 	sd = Seis::SynthGenerator::getDefOutSampling( *aimod, *wvlt_, sz );
 	if ( sz > maxsz ) maxsz = sz;

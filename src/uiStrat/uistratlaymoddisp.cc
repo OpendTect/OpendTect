@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.14 2010-12-16 13:04:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.15 2010-12-21 13:19:26 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -30,6 +30,8 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     : uiGroup(p,"LayerModel display")
     , lm_(lm)
     , emptyitm_(0)
+    , zoomboxitm_(0)
+    , zoomwr_(0,0,0,0)
     , dispprop_(1)
     , dispeach_(1)
     , fillmdls_(true)
@@ -100,6 +102,7 @@ void uiStratLayerModelDisp::eraseAll()
 {
     logblckitms_.erase();
     lvlitms_.erase();
+    lvldpths_.erase();
     delete emptyitm_; emptyitm_ = 0;
 }
 
@@ -109,6 +112,8 @@ void uiStratLayerModelDisp::dispEachChgd( CallBacker* cb )
     dispeach_ = getEachDisp();
     reDraw( cb );
     dispEachChg.trigger();
+    if ( zoomboxitm_ )
+	zoomboxitm_->setVisible( false );
 }
 
 
@@ -146,30 +151,48 @@ void uiStratLayerModelDisp::reDraw( CallBacker* )
 }
 
 
-void uiStratLayerModelDisp::setDispPars( CallBacker* )
+void uiStratLayerModelDisp::setZoomBox( const uiWorldRect& wr )
 {
+    if ( !zoomboxitm_ )
+    {
+	zoomboxitm_ = scene().addItem( new uiRectItem );
+	zoomboxitm_->setPenStyle( LineStyle(LineStyle::Dot,3,Color::Black()) );
+	zoomboxitm_->setZValue( 100 );
+    }
+
+    zoomwr_ = wr; // provided rect is always in system [0.5,N+0.5]
+    zoomwr_.setLeft( (wr.left()-0.5) * dispeach_ + 1 );
+    zoomwr_.setRight( (wr.right()-0.5) * dispeach_ + 1 );
+    updZoomBox();
 }
 
 
-void uiStratLayerModelDisp::saveMdl( CallBacker* )
+void uiStratLayerModelDisp::updZoomBox()
 {
+    if ( zoomwr_.width() < 0.001 || !xax_ )
+	{ if ( zoomboxitm_ ) zoomboxitm_->setVisible( false ); return; }
+
+    const int xpix = xax_->getPix( zoomwr_.left() );
+    const int ypix = yax_->getPix( zoomwr_.top() );
+    const int wdth = xax_->getPix( zoomwr_.right() ) - xpix;
+    const int hght = yax_->getPix( zoomwr_.bottom() ) - ypix;
+    zoomboxitm_->setRect( xpix, ypix, wdth, hght );
+    zoomboxitm_->setVisible( true );
 }
 
 
 void uiStratLayerModelDisp::modelChanged()
 {
-    const BufferString selnm( qtyfld_->text() );
+    BufferString selnm( qtyfld_->text() );
     BufferStringSet nms;
     for ( int idx=1; idx<lm_.propertyRefs().size(); idx++ )
 	nms.add( lm_.propertyRefs()[idx]->name() );
-    StringListInpSpec spec( nms );
-    if ( !nms.isEmpty() && !selnm.isEmpty() )
-    {
-	const int idxof = nms.indexOf( selnm );
-	spec.setDefaultValue( idxof > 0 ? idxof : 0 );
-    }
-    qtyfld_->newSpec( spec, 0 );
+    qtyfld_->newSpec( StringListInpSpec(nms), 0 );
+    int idxof = nms.isEmpty() || selnm.isEmpty() ? -1 : nms.indexOf( selnm );
+    if ( idxof >= 0 )
+	qtyfld_->setValue( idxof );
 
+    selnm = lvlfld_->text();
     lvlfld_->setEmpty();
     if ( !lm_.isEmpty() )
     {
@@ -178,9 +201,14 @@ void uiStratLayerModelDisp::modelChanged()
 	for ( int idx=0; idx<lvls.size(); idx++ )
 	    lvlfld_->addItem( lvls.levels()[idx]->name() );
 	if ( lvlfld_->size() > 1 )
-	    lvlfld_->setCurrentItem( 1 );
+	{
+	    idxof = selnm.isEmpty() ? -1 : lvlfld_->indexOf( selnm );
+	    if ( idxof < 0 ) idxof = 1;
+	    lvlfld_->setCurrentItem( idxof );
+	}
     }
 
+    zoomwr_ = uiWorldRect(0,0,0,0);
     reDraw( 0 );
 }
 
@@ -232,10 +260,12 @@ void uiStratLayerModelDisp::getBounds()
 }
 
 
-static float getRelX( float inprelx )
+int uiStratLayerModelDisp::getXPix( int iseq, float relx ) const
 {
     static const float margin = 0.05;
-    return (1-margin) * inprelx + margin * .5;
+    relx = (1-margin) * relx + margin * .5; // get relx between 0.025 and 0.975
+    relx *= dispeach_;
+    return xax_->getPix( iseq + 1 + relx );
 }
 
 
@@ -245,8 +275,8 @@ void uiStratLayerModelDisp::doDraw()
     getBounds();
 
     xax_->updateDevSize(); yax_->updateDevSize();
-    xax_->setBounds(Interval<float>(0,lm_.size()));
-    yax_->setBounds(Interval<float>(zrg_.stop,zrg_.start));
+    xax_->setBounds( Interval<float>(1,lm_.size()+1) );
+    yax_->setBounds( Interval<float>(zrg_.stop,zrg_.start) );
     yax_->plotAxis(); xax_->plotAxis();
     const float vwdth = vrg_.width();
     TypeSet<uiPoint> polypts;
@@ -257,8 +287,8 @@ void uiStratLayerModelDisp::doDraw()
 	const int ypix1 = yax_->getPix( z1 );
 	if ( ypix0 != ypix1 && !mIsUdf(val) )
 	{
-	    const float relx = getRelX( (val-vrg_.start) / vwdth );
-	    const int xpix = xax_->getPix( iseq + dispeach_ * relx );
+	    const float relx = (val-vrg_.start) / vwdth;
+	    const int xpix = getXPix( iseq, relx );
 	    polypts += uiPoint( xpix, ypix0 );
 	    polypts += uiPoint( xpix, ypix1 );
 	}
@@ -266,6 +296,7 @@ void uiStratLayerModelDisp::doDraw()
     mEndLayLoop(drawModel(polypts,iseq))
 
     drawLevels();
+    updZoomBox();
 }
 
 
@@ -276,7 +307,7 @@ void uiStratLayerModelDisp::drawModel( TypeSet<uiPoint>& polypts, int iseq )
 
     if ( fillmdls_ )
     {
-	const int xpix = xax_->getPix( iseq + dispeach_ * getRelX(0) );
+	const int xpix = getXPix( iseq, 0 );
 	polypts += uiPoint( xpix, polypts[polypts.size()-1].y );
 	polypts += uiPoint( xpix, polypts[0].y );
 	polypts += uiPoint( polypts[0] );
@@ -316,8 +347,8 @@ void uiStratLayerModelDisp::drawLevels()
 	const float zlvl = lay.zTop();
 	lvldpths_ += zlvl;
 	const int ypix = yax_->getPix( zlvl );
-	const int xpix1 = xax_->getPix( iseq + dispeach_ * getRelX(0) );
-	const int xpix2 = xax_->getPix( iseq + dispeach_ * getRelX(1) );
+	const int xpix1 = getXPix( iseq, 0 );
+	const int xpix2 = getXPix( iseq, 1 );
 	uiLineItem* it = scene().addItem(
 			new uiLineItem( xpix1, ypix, xpix2, ypix, true ) );
 	it->setPenStyle( LineStyle(LineStyle::Solid,2,lvlcol_) );

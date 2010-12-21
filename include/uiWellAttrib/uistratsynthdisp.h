@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.6 2010-12-10 14:32:33 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.7 2010-12-21 13:19:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,10 @@ public:
     void		setDispEach(int);
     void		setDispMrkrs(const TypeSet<float>&,Color);
     void		modelChanged();
+    const uiWorldRect&	curView(bool indepth) const;
+
+    Notifier<uiStratSynthDisp>	wvltChanged;
+    Notifier<uiStratSynthDisp>	zoomChanged;
 
 protected:
 
@@ -38,11 +42,13 @@ protected:
     ObjectSet<AIModel>	aimdls_;
     Wavelet*		wvlt_;
     int			dispeach_;
+    int			longestaimdl_;
 
     uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
 
     void		wvltChg(CallBacker*);
+    void		zoomChg(CallBacker*);
     int			getVelIdx(bool&) const;
     int			getDenIdx(bool&) const;
 
