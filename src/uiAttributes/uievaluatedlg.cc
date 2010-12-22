@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.28 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.29 2010-12-22 17:55:19 cvskris Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -282,7 +282,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
 
     pargrp->setHAlignObj( grps_[0] );
 
-    nrstepsfld = new uiLabeledSpinBox( this, "Nr of slices" );
+    nrstepsfld = new uiLabeledSpinBox( this, "Nr of steps" );
     nrstepsfld->box()->setInterval( cSliceIntv );
     nrstepsfld->attach( alignedBelow, pargrp );
 
