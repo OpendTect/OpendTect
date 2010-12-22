@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.29 2010-11-10 14:35:08 cvsbruno Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.30 2010-12-22 16:12:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,7 @@ protected:
     uiStratLithoBox*	selfld_;
     uiGenInput*		nmfld_;
     uiCheckBox*		isporbox_;
+    uiColorInput*	colfld_;
 
     Strat::Lithology*	prevlith_;
 

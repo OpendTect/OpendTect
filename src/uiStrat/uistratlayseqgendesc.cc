@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.16 2010-12-22 11:19:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.17 2010-12-22 16:12:33 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -158,9 +158,7 @@ uiSingleLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
     top_->setPenStyle( LineStyle(LineStyle::Solid) );
     poly_ = scene_.addItem( new uiPolygonItem );
 
-    LineStyle ls;
-    if ( gen_->unit().upNode() )
-	ls.color_ = gen_->unit().upNode()->color();
+    const LineStyle ls( LineStyle::Solid, 2, gen_->unit().dispColor(false) );;
     poly_->setPenStyle( ls );
 }
 

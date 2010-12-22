@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.7 2010-12-21 13:19:26 cvsbert Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.8 2010-12-22 16:12:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,9 @@ public:
     Color		levelColor() const		{ return lvlcol_; }
     void		setZoomBox(const uiWorldRect&);
 
+    bool&		fillLayerBoxes()		{ return fillmdls_; }
+    bool&		useLithColors()			{ return collith_; }
+
     Notifier<uiStratLayerModelDisp>	dispEachChg;
     Notifier<uiStratLayerModelDisp>	levelChg;
 
@@ -68,12 +71,14 @@ protected:
     void		dispEachChgd(CallBacker*);
     void		lvlChgd(CallBacker*);
     void		reDraw(CallBacker*);
-    void		usrClickCB(CallBacker*);
+    void		usrClicked(CallBacker*);
+    void		colsToggled(CallBacker*);
 
     void		doDraw();
     int			dispprop_;
     int			dispeach_;
     bool		fillmdls_;
+    bool		collith_;
     Interval<float>	zrg_;
     Interval<float>	vrg_;
     void		getBounds();

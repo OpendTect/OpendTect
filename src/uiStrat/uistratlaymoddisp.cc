@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.15 2010-12-21 13:19:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.16 2010-12-22 16:12:33 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -35,6 +35,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     , dispprop_(1)
     , dispeach_(1)
     , fillmdls_(true)
+    , collith_(true)
     , zrg_(0,1)
     , vrg_(0,1)
     , logblckitms_(*new uiGraphicsItemSet)
@@ -47,9 +48,8 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     gv_->setPrefWidth( 500 ); gv_->setPrefHeight( 250 );
     gv_->reSize.notify( redrawcb );
     gv_->reDrawNeeded.notify( redrawcb );
-
     gv_->getMouseEventHandler().buttonReleased.notify(
-	    			mCB(this,uiStratLayerModelDisp,usrClickCB) );
+	    			mCB(this,uiStratLayerModelDisp,usrClicked) );
 
     const uiBorder border( 10 );
     uiAxisHandler::Setup xahsu( uiRect::Top );
@@ -74,6 +74,13 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     lvlfld_ = new uiComboBox( this, "Level" );
     lvlfld_->attach( rightOf, eachfld_ );
     lvlfld_->selectionChanged.notify( mCB(this,uiStratLayerModelDisp,lvlChgd) );
+    uiToolButton* tb = new uiToolButton( this, "togglithcols.png",
+			"Show lithology colors when on",
+			mCB(this,uiStratLayerModelDisp,colsToggled) );
+    tb->setToggleButton( true );
+    tb->setOn( collith_ );
+    tb->attach( rightTo, lvlfld_ );
+    tb->attach( rightBorder );
 }
 
 
@@ -124,8 +131,16 @@ void uiStratLayerModelDisp::lvlChgd( CallBacker* cb )
 }
 
 
-void uiStratLayerModelDisp::usrClickCB( CallBacker* cb )
+void uiStratLayerModelDisp::usrClicked( CallBacker* cb )
 {
+}
+
+
+void uiStratLayerModelDisp::colsToggled( CallBacker* cb )
+{
+    mDynamicCastGet(uiToolButton*,tb,cb)
+    collith_ = tb->isOn();
+    reDraw( cb );
 }
 
 
@@ -213,12 +228,11 @@ void uiStratLayerModelDisp::modelChanged()
 }
 
 
-#define mStartLayLoop(op) \
+#define mStartLayLoop() \
     const int nrseqs = lm_.size(); \
     for ( int iseq=0; iseq<nrseqs; iseq++ ) \
     { \
 	if ( iseq % dispeach_ ) continue; \
-	op; \
 	float prevval = mUdf(float); \
 	const Strat::LayerSequence& seq = lm_.sequence( iseq ); \
 	const int nrlays = seq.size(); \
@@ -229,17 +243,16 @@ void uiStratLayerModelDisp::modelChanged()
 	    const float z1 = lay.zBot(); \
 	    const float val = lay.value( dispprop_ );
 
-#define mEndLayLoop(op) \
+#define mEndLayLoop() \
 	    prevval = val; \
 	} \
-	op; \
     }
 
 
 void uiStratLayerModelDisp::getBounds()
 {
     Interval<float> zrg(mUdf(float),mUdf(float)), vrg(mUdf(float),mUdf(float));
-    mStartLayLoop(;)
+    mStartLayLoop()
 #	define mChckBnds(var,op,bnd) \
 	if ( (mIsUdf(var) || var op bnd) && !mIsUdf(bnd) ) \
 	    var = bnd
@@ -247,7 +260,7 @@ void uiStratLayerModelDisp::getBounds()
 	mChckBnds(zrg.stop,<,z1);
 	mChckBnds(vrg.start,>,val);
 	mChckBnds(vrg.stop,<,val);
-    mEndLayLoop(;)
+    mEndLayLoop()
 
     if ( mIsUdf(zrg.start) )
 	zrg_ = Interval<float>(0,1);
@@ -279,44 +292,29 @@ void uiStratLayerModelDisp::doDraw()
     yax_->setBounds( Interval<float>(zrg_.stop,zrg_.start) );
     yax_->plotAxis(); xax_->plotAxis();
     const float vwdth = vrg_.width();
-    TypeSet<uiPoint> polypts;
 
-    mStartLayLoop(polypts.erase())
+    mStartLayLoop()
 
 	const int ypix0 = yax_->getPix( z0 );
 	const int ypix1 = yax_->getPix( z1 );
 	if ( ypix0 != ypix1 && !mIsUdf(val) )
 	{
 	    const float relx = (val-vrg_.start) / vwdth;
-	    const int xpix = getXPix( iseq, relx );
-	    polypts += uiPoint( xpix, ypix0 );
-	    polypts += uiPoint( xpix, ypix1 );
+	    const int xpix0 = getXPix( iseq, 0 );
+	    const int xpix1 = getXPix( iseq, relx );
+	    uiRectItem* it = scene().addRect( xpix0, ypix0,
+		    			xpix1-xpix0+1, ypix1-ypix0+1 );
+	    const Color col = lay.dispColor( collith_ );
+	    it->setPenColor( col );
+	    if ( fillmdls_ )
+		it->setFillColor( col );
+	    logblckitms_ += it;
 	}
 
-    mEndLayLoop(drawModel(polypts,iseq))
+    mEndLayLoop()
 
     drawLevels();
     updZoomBox();
-}
-
-
-void uiStratLayerModelDisp::drawModel( TypeSet<uiPoint>& polypts, int iseq )
-{
-    if ( polypts.isEmpty() )
-	return;
-
-    if ( fillmdls_ )
-    {
-	const int xpix = getXPix( iseq, 0 );
-	polypts += uiPoint( xpix, polypts[polypts.size()-1].y );
-	polypts += uiPoint( xpix, polypts[0].y );
-	polypts += uiPoint( polypts[0] );
-    }
-
-    uiPolygonItem* it = scene().addPolygon( polypts, fillmdls_ );
-    const Color vcol( lm_.propertyRefs()[dispprop_]->disp_.color_ );
-    it->setPenColor( vcol ); it->setFillColor( vcol );
-    logblckitms_ += it;
 }
 
 
