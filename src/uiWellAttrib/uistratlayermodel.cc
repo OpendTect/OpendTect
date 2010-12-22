@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.8 2010-12-21 15:01:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.9 2010-12-22 11:20:13 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
@@ -193,7 +193,10 @@ bool uiStratLayerModel::saveGenDesc() const
     else if ( !desc_.putTo(*sd.ostrm) )
 	uiMSG().error(desc_.errMsg());
     else
+    {
 	rv = true;
+	seqdisp_->setNeedSave( false );
+    }
 
     sd.close();
     return rv;
