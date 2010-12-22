@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.36 2010-10-22 09:56:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.37 2010-12-22 16:12:21 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratreftree.h"
@@ -349,10 +349,22 @@ void Strat::LeafUnitRef::getPropsFrom( const IOPar& iop )
 }
 
 
+Color Strat::LeafUnitRef::dispColor( bool lith ) const
+{
+    return lith ? getLithology().color() : upNode()->color();
+}
+
+
+const Strat::Lithology& Strat::LeafUnitRef::getLithology() const
+{
+    const Lithology* lith = refTree().lithologies().get( lith_ );
+    return lith ? *lith : Lithology::undef();
+}
+
+
 const BufferString& Strat::LeafUnitRef::code() const
 {
-    const Lithology* lith =  refTree().lithologies().get(lith_);
-    return lith ? lith->name() : Lithology::undef().name();
+    return getLithology().name();
 }
 
 

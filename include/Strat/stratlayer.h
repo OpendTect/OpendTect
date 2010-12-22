@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2010
- RCS:		$Id: stratlayer.h,v 1.12 2010-11-12 15:03:41 cvsbert Exp $
+ RCS:		$Id: stratlayer.h,v 1.13 2010-12-22 16:12:21 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "compoundkey.h"
 #include "typeset.h"
+class Color;
 class PropertyRef;
 
 namespace Strat
@@ -54,6 +55,7 @@ public:
     inline float	depth() const	{ return zTop() + 0.5*thickness(); }
 
     ID			id() const;	//!< unitRef().fullCode()
+    Color		dispColor(bool lith_else_upnode) const;
 
     const float*	values() const	{ return vals_.arr(); }
 

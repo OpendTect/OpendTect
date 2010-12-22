@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlith.h,v 1.9 2010-09-27 11:05:19 cvsbruno Exp $
+ RCS:		$Id: stratlith.h,v 1.10 2010-12-22 16:12:21 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "manobjectset.h"
 #include "repos.h"
+#include "color.h"
 class BufferStringSet;
 
 
@@ -48,6 +49,8 @@ public:
     ID			id() const		{ return id_; }
     bool&		porous()		{ return porous_; }
     bool		porous() const		{ return porous_; }
+    Color&		color()			{ return color_; }
+    const Color&	color() const		{ return color_; }
 
     static const Lithology& undef();
 
@@ -55,6 +58,7 @@ protected:
 
     const ID		id_;
     bool		porous_;
+    Color		color_;
 
     friend class	LithologySet;
 

@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlith.cc,v 1.3 2010-10-22 13:53:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: stratlith.cc,v 1.4 2010-12-22 16:12:21 cvsbert Exp $";
 
 #include "stratlith.h"
 #include "separstr.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: stratlith.cc,v 1.3 2010-10-22 13:53:27 cvsbruno
 const Strat::Lithology& Strat::Lithology::undef()
 {
     static Strat::Lithology udf( -1, "<Undef>" );
+    udf.color() = Color::LightGrey();
     return udf;
 }
 
@@ -22,6 +23,7 @@ Strat::Lithology::Lithology( Strat::Lithology::ID id, const char* nm, bool por )
     , id_(id)
     , porous_(por)
 {
+    if ( id >= 0 ) color_ = Color::stdDrawColor( id );
 }
 
 
@@ -29,9 +31,14 @@ Strat::Lithology::Lithology( const char* fstr )
     : id_(0)
 {
     FileMultiString fms( fstr );
+    const int sz = fms.size();
     setName( fms[0] );
     const_cast<ID&>(id_) = toInt(fms[1]);
     porous_ = *fms[2] == 'P';
+    if ( sz > 3 )
+	color_.setStdStr( fms[3] );
+    else
+	color_ = Color::stdDrawColor( id_ );
 }
 
 
@@ -41,6 +48,7 @@ void Strat::Lithology::fill( BufferString& str ) const
     fms += name();
     fms += id();
     fms += porous_ ? "P" : "N";
+    fms += color_.getStdStr();
     str = fms.buf();
 }
 
@@ -52,6 +60,7 @@ Strat::Lithology& Strat::Lithology::operator =( const Strat::Lithology& oth )
     {
 	setName( oth.name() );
 	porous_ = oth.porous_;
+	color_ = oth.color_;
     }
     return *this;
 }

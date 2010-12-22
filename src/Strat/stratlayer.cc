@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.15 2010-12-21 13:16:54 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.16 2010-12-22 16:12:21 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -48,6 +48,12 @@ Strat::Layer::Layer( const LeafUnitRef& r )
 const Strat::LeafUnitRef& Strat::Layer::unitRef() const
 {
     return ref_ ? *ref_ : RT().undefLeaf();
+}
+
+
+Color Strat::Layer::dispColor( bool lith ) const
+{
+    return unitRef().dispColor( lith );
 }
 
 
