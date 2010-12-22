@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.15 2010-12-21 15:01:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.16 2010-12-22 11:19:41 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -226,7 +226,9 @@ void uiSingleLayerSequenceGenDesc::doDraw()
 	const Property& prop = disp.gen_->properties().get(0);
 	const float th0 = prop.value( Property::EvalOpts(false,0) );
 	const float th1 = prop.value( Property::EvalOpts(false,1) );
-	const float maxth = th0 > th1 ? th0 : th1;
+	const bool growing = th1 > th0;
+	const float& maxth = growing ? th1 : th0;
+	const float& minth = growing ? th0 : th1;
 	disp.topy_ = (int)(workrect_.top() + curz * pixperm);
 	disp.boty_ = (int)(workrect_.top() + (curz+maxth) * pixperm);
 
@@ -239,29 +241,45 @@ void uiSingleLayerSequenceGenDesc::doDraw()
 
 	uiRect polyrect( leftpt.x+1, disp.topy_+1, rightpt.x-1, disp.boty_-1 );
 	TypeSet<uiPoint> pts;
-	pts += polyrect.bottomLeft();
-	pts += polyrect.topLeft();
 	mDynamicCastGet(const RangeProperty*,rgprop,&prop)
-	if ( !rgprop )
+	if ( !rgprop || mIsEqual(th0,th1,1e-5) )
 	{
+	    pts += polyrect.bottomLeft();
+	    pts += polyrect.topLeft();
 	    pts += polyrect.topRight();
 	    pts += polyrect.bottomRight();
+	    pts += polyrect.bottomLeft();
 	}
 	else
 	{
-	    if ( th1 > th0 )
+	    const int nypix = (int)(minth * pixperm + .5);
+	    const int nxpix = (maxth/(maxth-minth)) * polyrect.width();
+	    if ( growing )
 	    {
 		pts += polyrect.topRight();
-		pts += uiPoint( polyrect.right(),
-				(int)(workrect_.top() + (curz+th0)*pixperm) );;
+		pts += polyrect.bottomRight();
+		if ( nypix < 0 )
+		    pts += uiPoint( polyrect.right() - nxpix, polyrect.top() );
+		else
+		{
+		    pts += uiPoint( polyrect.left(), polyrect.top() + nypix );
+		    pts += polyrect.topLeft();
+		}
+		pts += polyrect.topRight();
 	    }
 	    else
 	    {
-		pts += uiPoint( polyrect.right(),
-			    (int)(workrect_.top() + (curz+th0-th1)*pixperm) );
-		pts += polyrect.bottomRight();
+		pts += polyrect.bottomLeft();
+		pts += polyrect.topLeft();
+		if ( nypix < 0 )
+		    pts += uiPoint( polyrect.left() + nxpix, polyrect.top() );
+		else
+		{
+		    pts += polyrect.topRight();
+		    pts += uiPoint( polyrect.right(), polyrect.top() + nypix );
+		}
+		pts += polyrect.bottomLeft();
 	    }
-	    pts += polyrect.bottomLeft();
 	}
 
 	disp.poly_->setPolygon( pts );
@@ -374,14 +392,19 @@ bool getRange()
     if ( !isRg() )
     {
 	const float val = valfld_->getfValue();
-	if ( mIsUdf(val) ) return false;
+	if ( mIsUdf(val) || val <= 0 ) return false;
 	rg_.start = val * fac_;
+	if ( rg_.start <= 0 )
+	    return false;
     }
     else
     {
 	Interval<float> rg( rgfld_->getfValue(0), rgfld_->getfValue(1) );
-	if ( mIsUdf(rg.start) || mIsUdf(rg.stop) ) return false;
+	if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
+	    return false;
 	rg_.start = rg.start * fac_; rg_.stop = rg.stop * fac_;
+	if ( rg_.start <= 0 && rg_.stop <= 0 )
+	    return false;
     }
     return true;
 }
