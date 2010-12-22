@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.8 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.9 2010-12-22 13:32:19 cvsbert Exp $";
 
 #include "color.h"
 
@@ -133,7 +133,10 @@ void Color::fill( char* str ) const
 
 bool Color::use( const char* str )
 {
-    if ( !str || !*str ) return false;
+    if ( !str ) return false;
+    if ( *str == '#' )
+	{ setStdStr(str); return true; }
+    if ( !*str ) return false;
 
     const FileMultiString fms( str );
     const int sz = fms.size();
@@ -246,7 +249,7 @@ void Color::setHSV( unsigned char h_, unsigned char s_, unsigned char v_ )
 
 unsigned char fromHexVal( char c )
 {
-    return c >= 'a' || c <= 'f' ? 10 + (c - 'a') : c - '0';
+    return c >= 'a' && c <= 'f' ? 10 + (c - 'a') : c - '0';
 }
 
 
