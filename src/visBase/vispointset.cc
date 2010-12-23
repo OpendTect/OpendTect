@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispointset.cc,v 1.7 2009-11-18 10:53:21 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vispointset.cc,v 1.8 2010-12-23 16:09:56 cvskarthika Exp $";
 
 #include "datapointset.h"
 #include "viscoord.h"
@@ -17,7 +17,6 @@ static const char* rcsID = "$Id: vispointset.cc,v 1.7 2009-11-18 10:53:21 cvssat
 #include "SoDGBIndexedPointSet.h"
 
 #include <Inventor/nodes/SoPointSet.h>
-#include <Inventor/nodes/SoIndexedLineSet.h>
 
 mCreateFactoryEntry( visBase::PointSet );
 mCreateFactoryEntry( visBase::IndexedPointSet );
