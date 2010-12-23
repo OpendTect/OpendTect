@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: measuretoolman.cc,v 1.14 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: measuretoolman.cc,v 1.15 2010-12-23 05:50:28 cvsnageswara Exp $";
 
 
 #include "measuretoolman.h"
@@ -63,6 +63,13 @@ void MeasureToolMan::objSelected( CallBacker* cb )
 	    isownsel = true;
 
     appl_.menuMgr().coinTB()->turnOn( butidx_, isownsel );
+    if ( measuredlg_ && !isownsel )
+    {
+	measuredlg_->windowClosed.remove( mCB(this,MeasureToolMan,dlgClosed) );
+	appl_.sceneMgr().setToViewMode( true );
+	measuredlg_->close();
+	measuredlg_ = 0;
+    }
 }
 
 
@@ -174,6 +181,7 @@ static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
     TypeSet<Coord3> crds;
     for ( int idx=0; idx<set.size(); idx++ )
 	crds += set[idx].pos;
+
     dlg.fill( crds );
 }
 
@@ -259,6 +267,7 @@ void MeasureToolMan::surveyChanged( CallBacker* )
 {
     if ( measuredlg_ )
 	measuredlg_->close();
+
     picksetmgr_.locationChanged.notify( mCB(this,MeasureToolMan,changeCB) );
 }
 
