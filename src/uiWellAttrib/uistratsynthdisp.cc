@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.10 2010-12-22 11:27:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.11 2010-12-23 16:44:58 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -91,14 +91,14 @@ void uiStratSynthDisp::setDispMrkrs( const TypeSet<float>& zvals, Color col )
 	auxd->linestyle_.type_ = LineStyle::None;
 	for ( int imdl=0; imdl<aimdls_.size(); imdl++ )
 	{
-	    float tval = zvals[imdl];
+	    float tval = zvals[ imdl>=zvals.size() ? zvals.size()-1 :imdl ];
 	    if ( !mIsUdf(tval) )
 	    {
 		tval = aimdls_[imdl]->convertTo( tval, AIModel::TWT );
 
 		auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
 						      cMarkerSize, col );
-		auxd->poly_ += FlatView::Point( imdl, tval );
+		auxd->poly_ += FlatView::Point( imdl+1, tval );
 	    }
 	}
 	if ( auxd->isEmpty() )

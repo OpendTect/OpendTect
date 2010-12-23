@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.16 2010-12-22 16:12:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.17 2010-12-23 16:44:58 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -31,11 +31,12 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     , lm_(lm)
     , emptyitm_(0)
     , zoomboxitm_(0)
-    , zoomwr_(0,0,0,0)
+    , zoomwr_(mUdf(double),0,0,0)
     , dispprop_(1)
     , dispeach_(1)
     , fillmdls_(true)
-    , collith_(true)
+    , uselithcols_(true)
+    , showunzoomed_(true)
     , zrg_(0,1)
     , vrg_(0,1)
     , logblckitms_(*new uiGraphicsItemSet)
@@ -74,13 +75,21 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiParent* p,
     lvlfld_ = new uiComboBox( this, "Level" );
     lvlfld_->attach( rightOf, eachfld_ );
     lvlfld_->selectionChanged.notify( mCB(this,uiStratLayerModelDisp,lvlChgd) );
-    uiToolButton* tb = new uiToolButton( this, "togglithcols.png",
+
+    uiToolButton* lctb = new uiToolButton( this, "togglithcols.png",
 			"Show lithology colors when on",
 			mCB(this,uiStratLayerModelDisp,colsToggled) );
-    tb->setToggleButton( true );
-    tb->setOn( collith_ );
-    tb->attach( rightTo, lvlfld_ );
-    tb->attach( rightBorder );
+    lctb->setToggleButton( true );
+    lctb->setOn( uselithcols_ );
+    lctb->attach( rightTo, lvlfld_ );
+    lctb->attach( rightBorder );
+    uiToolButton* sztb = new uiToolButton( this, "toggzooming.png",
+			"Do not zoom into models when on",
+			mCB(this,uiStratLayerModelDisp,showZoomedToggled) );
+    sztb->setToggleButton( true );
+    sztb->setOn( showunzoomed_ );
+    sztb->attach( leftOf, lctb );
+    sztb->attach( ensureRightOf, lvlfld_ );
 }
 
 
@@ -139,7 +148,15 @@ void uiStratLayerModelDisp::usrClicked( CallBacker* cb )
 void uiStratLayerModelDisp::colsToggled( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,tb,cb)
-    collith_ = tb->isOn();
+    uselithcols_ = tb->isOn();
+    reDraw( cb );
+}
+
+
+void uiStratLayerModelDisp::showZoomedToggled( CallBacker* cb )
+{
+    mDynamicCastGet(uiToolButton*,tb,cb)
+    showunzoomed_ = tb->isOn();
     reDraw( cb );
 }
 
@@ -175,16 +192,28 @@ void uiStratLayerModelDisp::setZoomBox( const uiWorldRect& wr )
 	zoomboxitm_->setZValue( 100 );
     }
 
-    zoomwr_ = wr; // provided rect is always in system [0.5,N+0.5]
+    // provided rect is always in system [0.5,Ndisplayed+0.5]
     zoomwr_.setLeft( (wr.left()-0.5) * dispeach_ + 1 );
     zoomwr_.setRight( (wr.right()-0.5) * dispeach_ + 1 );
+    zoomwr_.setTop( wr.bottom() );
+    zoomwr_.setBottom( wr.top() );
     updZoomBox();
+    if ( !showunzoomed_ )
+	reDraw( 0 );
+}
+
+
+bool uiStratLayerModelDisp::haveAnyZoom() const
+{
+    const int nrseqs = lm_.size();
+    uiWorldRect wr( 1, zrg_.start, nrseqs + 1, zrg_.stop );
+    return zoomwr_.isInside( wr, 1e-5 );
 }
 
 
 void uiStratLayerModelDisp::updZoomBox()
 {
-    if ( zoomwr_.width() < 0.001 || !xax_ )
+    if ( zoomwr_.width() < 0.001 || !zoomboxitm_ || !xax_ )
 	{ if ( zoomboxitm_ ) zoomboxitm_->setVisible( false ); return; }
 
     const int xpix = xax_->getPix( zoomwr_.left() );
@@ -192,7 +221,7 @@ void uiStratLayerModelDisp::updZoomBox()
     const int wdth = xax_->getPix( zoomwr_.right() ) - xpix;
     const int hght = yax_->getPix( zoomwr_.bottom() ) - ypix;
     zoomboxitm_->setRect( xpix, ypix, wdth, hght );
-    zoomboxitm_->setVisible( true );
+    zoomboxitm_->setVisible( haveAnyZoom() && showunzoomed_ );
 }
 
 
@@ -223,16 +252,16 @@ void uiStratLayerModelDisp::modelChanged()
 	}
     }
 
-    zoomwr_ = uiWorldRect(0,0,0,0);
+    zoomwr_ = uiWorldRect(mUdf(double),0,0,0);
     reDraw( 0 );
 }
 
 
-#define mStartLayLoop() \
+#define mStartLayLoop(chckdisp) \
     const int nrseqs = lm_.size(); \
     for ( int iseq=0; iseq<nrseqs; iseq++ ) \
     { \
-	if ( iseq % dispeach_ ) continue; \
+	if ( chckdisp && !isDisplayedModel(iseq) ) continue; \
 	float prevval = mUdf(float); \
 	const Strat::LayerSequence& seq = lm_.sequence( iseq ); \
 	const int nrlays = seq.size(); \
@@ -252,7 +281,7 @@ void uiStratLayerModelDisp::modelChanged()
 void uiStratLayerModelDisp::getBounds()
 {
     Interval<float> zrg(mUdf(float),mUdf(float)), vrg(mUdf(float),mUdf(float));
-    mStartLayLoop()
+    mStartLayLoop( false )
 #	define mChckBnds(var,op,bnd) \
 	if ( (mIsUdf(var) || var op bnd) && !mIsUdf(bnd) ) \
 	    var = bnd
@@ -270,6 +299,14 @@ void uiStratLayerModelDisp::getBounds()
 	vrg_ = Interval<float>(0,1);
     else
 	vrg_ = vrg;
+
+    if ( mIsUdf(zoomwr_.left()) )
+    {
+	zoomwr_.setLeft( 1 );
+	zoomwr_.setRight( nrseqs+1 );
+	zoomwr_.setTop( zrg_.stop );
+	zoomwr_.setBottom( zrg_.start );
+    }
 }
 
 
@@ -282,18 +319,53 @@ int uiStratLayerModelDisp::getXPix( int iseq, float relx ) const
 }
 
 
+bool uiStratLayerModelDisp::isDisplayedModel( int iseq ) const
+{
+    if ( iseq % dispeach_ )
+	return false;
+
+    if ( !showunzoomed_ )
+    {
+	const int xpix0 = getXPix( iseq, 0 );
+	const int xpix1 = getXPix( iseq, 1 );
+	if ( xax_->getVal(xpix1) > zoomwr_.right()
+	  || xax_->getVal(xpix0) < zoomwr_.left() )
+	    return false;
+    }
+    return true;
+}
+
+
 void uiStratLayerModelDisp::doDraw()
 {
     dispprop_ = qtyfld_->getIntValue() + 1;
     getBounds();
 
     xax_->updateDevSize(); yax_->updateDevSize();
-    xax_->setBounds( Interval<float>(1,lm_.size()+1) );
-    yax_->setBounds( Interval<float>(zrg_.stop,zrg_.start) );
+    if ( showunzoomed_ )
+    {
+	xax_->setBounds( Interval<float>(1,lm_.size()+1) );
+	yax_->setBounds( Interval<float>(zrg_.stop,zrg_.start) );
+    }
+    else
+    {
+	xax_->setBounds( Interval<float>(zoomwr_.left(),zoomwr_.right()) );
+	yax_->setBounds( Interval<float>(zoomwr_.top(),zoomwr_.bottom()) );
+    }
     yax_->plotAxis(); xax_->plotAxis();
     const float vwdth = vrg_.width();
 
-    mStartLayLoop()
+    mStartLayLoop( true )
+
+	if ( !showunzoomed_ )
+	{
+	    if (  z0 > zoomwr_.top() || z1 < zoomwr_.bottom() )
+		continue;
+	    if ( z1 > zoomwr_.top() )
+		const_cast<float&>(z1) = zoomwr_.top();
+	    if ( z0 < zoomwr_.bottom() )
+		const_cast<float&>(z0) = zoomwr_.bottom();
+	}
 
 	const int ypix0 = yax_->getPix( z0 );
 	const int ypix1 = yax_->getPix( z1 );
@@ -304,7 +376,7 @@ void uiStratLayerModelDisp::doDraw()
 	    const int xpix1 = getXPix( iseq, relx );
 	    uiRectItem* it = scene().addRect( xpix0, ypix0,
 		    			xpix1-xpix0+1, ypix1-ypix0+1 );
-	    const Color col = lay.dispColor( collith_ );
+	    const Color col = lay.dispColor( uselithcols_ );
 	    it->setPenColor( col );
 	    if ( fillmdls_ )
 		it->setFillColor( col );
@@ -335,7 +407,9 @@ void uiStratLayerModelDisp::drawLevels()
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {
-	if ( iseq % dispeach_ ) continue;
+	if ( !isDisplayedModel(iseq) )
+	    continue;
+
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
 	const int idxof = seq.indexOf( *lvl );
 	if ( idxof < 0 )

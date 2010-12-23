@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.8 2010-12-22 16:12:33 cvsbert Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.9 2010-12-23 16:44:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ public:
     void		setZoomBox(const uiWorldRect&);
 
     bool&		fillLayerBoxes()		{ return fillmdls_; }
-    bool&		useLithColors()			{ return collith_; }
+    bool&		useLithColors()			{ return uselithcols_; }
 
     Notifier<uiStratLayerModelDisp>	dispEachChg;
     Notifier<uiStratLayerModelDisp>	levelChg;
@@ -73,12 +73,14 @@ protected:
     void		reDraw(CallBacker*);
     void		usrClicked(CallBacker*);
     void		colsToggled(CallBacker*);
+    void		showZoomedToggled(CallBacker*);
 
     void		doDraw();
     int			dispprop_;
     int			dispeach_;
     bool		fillmdls_;
-    bool		collith_;
+    bool		uselithcols_;
+    bool		showunzoomed_;
     Interval<float>	zrg_;
     Interval<float>	vrg_;
     void		getBounds();
@@ -86,6 +88,8 @@ protected:
     void		drawLevels();
     void		updZoomBox();
     int			getXPix(int,float) const;
+    bool		haveAnyZoom() const;
+    bool		isDisplayedModel(int) const;
 
 };
 
