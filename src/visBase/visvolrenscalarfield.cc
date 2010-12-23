@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.28 2010-12-20 23:40:29 cvskarthika Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.29 2010-12-23 14:51:49 cvskarthika Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -274,16 +274,15 @@ void VolumeRenderScalarField::makeColorTables()
     }
 
     const ::Color col = sequence_.undefColor();
-    transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
-    transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
-    transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
-    transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
 
-    transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
-    transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
-    transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
-    transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
-    
+    for ( char count=0; count<2; count++ )
+    {
+        transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
+	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
+	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
+	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
+    }
+
     transferfunc_->predefColorMap = SoTransferFunction::NONE;
 
     transferfunc_->colorMap.enableNotify(didnotify);
