@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.34 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.35 2010-12-23 11:34:02 cvssatyaki Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -66,6 +66,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
     unitfld_ = new uiGenInput( this, "Depth unit", mft );
     unitfld_->attach( leftAlignedBelow, table_ );
+    unitfld_->valuechanged.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
 
     uiButton* rfbut = new uiPushButton( this, "&Read file",
 	    				mCB(this,uiMarkerDlg,rdFile), false );
@@ -93,6 +94,20 @@ int uiMarkerDlg::getNrRows() const
 	if ( txt && *txt ) return idx+1;
     }
     return 0;
+}
+
+
+void uiMarkerDlg::unitChangedCB( CallBacker* )
+{
+    for ( int rowidx=0; rowidx<table_->nrRows(); rowidx++ )
+    {
+	if ( !markers_.validIdx(rowidx) )
+	    continue;
+
+	const float zfac = unitfld_->getBoolValue() ? 1 : mToFeetFactor;
+	float val = markers_[rowidx]->dah() * zfac;
+	table_->setValue( RowCol(rowidx,1), val );
+    }
 }
 
 

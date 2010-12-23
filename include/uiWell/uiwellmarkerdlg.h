@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: uiwellmarkerdlg.h,v 1.11 2010-08-05 11:50:33 cvsbruno Exp $
+ RCS:		$Id: uiwellmarkerdlg.h,v 1.12 2010-12-23 11:34:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ protected:
     void			rdFile(CallBacker*);
     bool			acceptOK(CallBacker*);
     void			stratLvlChg(CallBacker*);
+    void			unitChangedCB(CallBacker*);
     void			updateFromLevel(int,uiStratLevelSel*);
 };
 
