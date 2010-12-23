@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.21 2010-09-23 04:46:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.22 2010-12-23 18:30:20 cvsjaap Exp $";
 
 #include "emfault3d.h"
 
@@ -286,10 +286,13 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 	StepInterval<int> stickrg = fss->rowRange();
 	for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
 	{
+	    fss->setSticksVertical( false );
 	    mDefEditNormalStr( editnormstr, sid, sticknr );
 	    Coord3 editnormal( Coord3::udf() ); 
 	    par.get( editnormstr.buf(), editnormal ); 
 	    fss->addEditPlaneNormal( editnormal );
+	    if ( editnormal.isDefined() && fabs(editnormal.z)<0.5 )
+		fss->setSticksVertical( true );
 	}
     }
     return true;
@@ -421,7 +424,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	else
 	{
 	    const BinID curbid = SI().transform( crd );
-	    
+
 	    oninl = oninl && curbid.inl==firstbid.inl;
 	    oncrl = oncrl && curbid.crl==firstbid.crl;
 	    ontms = ontms && fabs(crd.z-firstz) < fabs(0.5*SI().zStep());
