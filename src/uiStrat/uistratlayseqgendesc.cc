@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.17 2010-12-22 16:12:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.18 2010-12-23 10:33:49 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -154,10 +154,13 @@ uiSingleLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
     nm_ = scene_.addItem( new uiTextItem( gen_->name(),
 			  mAlignment(HCenter,VCenter) ) );
     nm_->setPenColor( Color::Black() );
+    lithcol_ = scene_.addItem( new uiCircleItem );
+    const Color lithcolor( gen_->unit().dispColor( true ) );
+    lithcol_->setPenStyle( LineStyle(LineStyle::Solid,3,lithcolor) );
+    lithcol_->setFillColor( lithcolor );
     top_ = scene_.addItem( new uiLineItem );
     top_->setPenStyle( LineStyle(LineStyle::Solid) );
     poly_ = scene_.addItem( new uiPolygonItem );
-
     const LineStyle ls( LineStyle::Solid, 2, gen_->unit().dispColor(false) );;
     poly_->setPenStyle( ls );
 }
@@ -167,7 +170,7 @@ uiSingleLayerSequenceGenDesc::DispUnit::~DispUnit()
 {
     if ( genmine_ )
 	delete const_cast<Strat::SingleLayerGenerator*>(gen_);
-    delete nm_; delete top_; delete poly_;
+    delete nm_; delete lithcol_; delete top_; delete poly_;
 }
 
 
@@ -230,9 +233,16 @@ void uiSingleLayerSequenceGenDesc::doDraw()
 	disp.topy_ = (int)(workrect_.top() + curz * pixperm);
 	disp.boty_ = (int)(workrect_.top() + (curz+maxth) * pixperm);
 
-	midpt.y = (disp.topy_ + disp.boty_) / 2;
-	disp.nm_->setPos( midpt );
 	disp.nm_->setText( disp.gen_->name() );
+	midpt.y = (disp.topy_ + disp.boty_) / 2;
+	disp.nm_->setPos( midpt.x, midpt.y-2 );
+		// the 'y-2' makes the text more nicely centered in the box
+
+	const uiSize txtsz( disp.nm_->getTextSize() );
+	const int xbefore = midpt.x - txtsz.width()/2;
+	const int radius = txtsz.height()/5;
+	disp.lithcol_->setRadius( radius );
+	disp.lithcol_->setPos( midpt.x - txtsz.width()/2 - radius, midpt.y );
 
 	leftpt.y = rightpt.y = disp.topy_;
 	disp.top_->setLine( leftpt, rightpt );
