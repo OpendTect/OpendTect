@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.45 2010-11-19 05:46:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.46 2010-12-23 10:10:01 cvsbert Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -488,18 +488,16 @@ QGraphicsItem* uiTextItem::mkQtObj()
 }
 
 
-uiRect uiTextItem::getTextRect() const
+uiSize uiTextItem::getTextSize() const
 {
-    QRect rect( qtextitem_->boundingRect().toRect().topLeft(),
-	    	qtextitem_->boundingRect().toRect().bottomRight() );
-    return uiRect( rect.topLeft().x(), rect.topLeft().y(),
-	    	   rect.bottomRight().x(), rect.bottomRight().y() );
+    const QRectF rect( qtextitem_->boundingRect() );
+    return uiSize( (int)(rect.width()+.5), (int)(rect.height()+.5) );
 }
 
 
 void uiTextItem::setText( const char* txt )
 {
-    QString curtxt = qtextitem_->toPlainText();
+    const QString curtxt = qtextitem_->toPlainText();
     if ( curtxt == txt ) return;
 
     qtextitem_->setPlainText( QString(txt) );
@@ -519,23 +517,15 @@ void uiTextItem::setFont( const uiFont& font )
 }
 
 
-int uiTextItem::getTextWidth() const
-{
-    return (int)qtextitem_->textWidth();
-}
-
-
 void uiTextItem::setAlignment( const Alignment& al )
 {
-    al_ = al;
-    updatePos();
+    al_ = al; updatePos();
 }
 
 
 void uiTextItem::setPos( const uiPoint& pos )
 {
-    pos_ = pos;
-    updatePos();
+    pos_ = pos; updatePos();
 }
 
 
