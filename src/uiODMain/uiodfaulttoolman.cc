@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.25 2010-12-17 13:36:09 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.26 2010-12-24 13:09:38 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -956,6 +956,9 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	return;
     }
 
+    if ( flashcolor_==Color(255,0,0) &&
+	 !uiMSG().question("Ignore output name warning?") ) return;
+
     mDynamicCastGet( EM::Fault3D*, destf3d, destfault );
     RefMan<EM::EMObject> tmpemobj = EM::FaultStickSet::create(EM::EMM());
     mDynamicCastGet( EM::FaultStickSet*, tmpfss, tmpemobj.ptr() );
@@ -1289,7 +1292,7 @@ void uiODFaultToolMan::surveyChg( CallBacker* )
 
 void uiODFaultToolMan::flashOutputName( bool error, const char* newname )
 {
-    toolbar_->setSensitive( gobutidx_, !error );
+    //toolbar_->setSensitive( gobutidx_, !error );
 
     const BufferString name = newname ? newname : outputnamecombo_->text();
     const Color color = error ? Color(255,0,0) : Color(0,0,0);
