@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.7 2010-12-21 13:19:26 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.8 2010-12-27 11:24:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,9 @@ public:
     void		setDispEach(int);
     void		setDispMrkrs(const TypeSet<float>&,Color);
     void		modelChanged();
+
     const uiWorldRect&	curView(bool indepth) const;
+    const SeisTrcBuf&	curTraces() const;
 
     Notifier<uiStratSynthDisp>	wvltChanged;
     Notifier<uiStratSynthDisp>	zoomChanged;
