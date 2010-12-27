@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.9 2010-12-22 11:20:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.10 2010-12-27 11:23:46 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
@@ -109,7 +109,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 
     uiGroup* rightgengrp = new uiGroup( gengrp, "Right buttons" );
     const CallBack gocb( mCB(this,uiStratLayerModel,genModels) );
-    nrmodlsfld_ = new uiGenInput( rightgengrp, "", IntInpSpec(100) );
+    nrmodlsfld_ = new uiGenInput( rightgengrp, "", IntInpSpec(25) );
     nrmodlsfld_->setElemSzPol( uiObject::Small );
     nrmodlsfld_->setStretch( 0, 0 );
     nrmodlsfld_->setToolTip( "Number of models to generate", 0 );
@@ -122,13 +122,12 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     rightgengrp->attach( ensureRightOf, leftgengrp );
     rightgengrp->setFrame( true );
 
-    const CallBack lvlchgcb( mCB(this,uiStratLayerModel,levelChg) );
     synthdisp_ = new uiStratSynthDisp( rightgrp, modl_ );
-    synthdisp_->wvltChanged.notify( lvlchgcb );
+    synthdisp_->wvltChanged.notify( mCB(this,uiStratLayerModel,wvltChg) );
     synthdisp_->zoomChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
     moddisp_ = new uiStratLayerModelDisp( rightgrp, modl_ );
     moddisp_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
-    moddisp_->levelChg.notify( lvlchgcb );
+    moddisp_->levelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
 
     uiSplitter* spl = new uiSplitter( this, "Vert splitter", true );
     spl->addGroup( gengrp ); spl->addGroup( rightgrp );
@@ -162,6 +161,12 @@ void uiStratLayerModel::levelChg( CallBacker* )
 void uiStratLayerModel::zoomChg( CallBacker* )
 {
     moddisp_->setZoomBox( synthdisp_->curView(true) );
+}
+
+
+void uiStratLayerModel::wvltChg( CallBacker* cb )
+{
+    zoomChg( cb );
 }
 
 
