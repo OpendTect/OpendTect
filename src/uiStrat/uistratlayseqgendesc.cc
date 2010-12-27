@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.19 2010-12-27 11:26:57 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.20 2010-12-27 15:09:21 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -192,6 +192,7 @@ uiSingleLayerSequenceGenDesc::uiSingleLayerSequenceGenDesc( uiParent* p,
 
 void uiSingleLayerSequenceGenDesc::rebuildDispUnits()
 {
+    deepErase( disps_ );
     for ( int idx=0; idx<desc_.size(); idx++ )
 	insertDispUnit( *desc_[idx], idx );
 }
@@ -217,88 +218,93 @@ void uiSingleLayerSequenceGenDesc::doDraw()
     if ( mIsZero(totth,mDefEps) ) return;
 
     float curz = 0;
+    for ( int idx=0; idx<disps_.size(); idx++ )
+	fillDispUnit( idx, totth, curz );
+}
+
+
+void uiSingleLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
+						 float& curz )
+{
     const float pixperm = workrect_.height() / totth;
     uiPoint midpt( workrect_.centre().x, 0 );
     uiPoint leftpt( workrect_.left(), 0 );
     uiPoint rightpt( workrect_.right(), 0 );
-    for ( int idx=0; idx<disps_.size(); idx++ )
+
+    DispUnit& disp = *disps_[idx];
+    const Property& prop = disp.gen_->properties().get(0);
+    const float th0 = prop.value( Property::EvalOpts(false,0) );
+    const float th1 = prop.value( Property::EvalOpts(false,1) );
+    const bool growing = th1 > th0;
+    const float& maxth = growing ? th1 : th0;
+    const float& minth = growing ? th0 : th1;
+    disp.topy_ = (int)(workrect_.top() + curz * pixperm);
+    disp.boty_ = (int)(workrect_.top() + (curz+maxth) * pixperm);
+
+    disp.nm_->setText( disp.gen_->name() );
+    midpt.y = (disp.topy_ + disp.boty_) / 2;
+    disp.nm_->setPos( midpt.x, midpt.y-2 );
+	    // the 'y-2' makes the text more nicely centered in the box
+
+    const uiSize txtsz( disp.nm_->getTextSize() );
+    const int xbefore = midpt.x - txtsz.width()/2;
+    const int radius = txtsz.height()/7;
+    disp.lithcol_->setRadius( radius );
+    disp.lithcol_->setPos( midpt.x - txtsz.width()/2 - radius, midpt.y );
+
+    leftpt.y = rightpt.y = disp.topy_;
+    disp.top_->setLine( leftpt, rightpt );
+
+    uiRect polyrect( leftpt.x+1, disp.topy_+1, rightpt.x-1, disp.boty_-1 );
+    TypeSet<uiPoint> pts;
+    mDynamicCastGet(const RangeProperty*,rgprop,&prop)
+    if ( !rgprop || mIsEqual(th0,th1,1e-5) )
     {
-	DispUnit& disp = *disps_[idx];
-	const Property& prop = disp.gen_->properties().get(0);
-	const float th0 = prop.value( Property::EvalOpts(false,0) );
-	const float th1 = prop.value( Property::EvalOpts(false,1) );
-	const bool growing = th1 > th0;
-	const float& maxth = growing ? th1 : th0;
-	const float& minth = growing ? th0 : th1;
-	disp.topy_ = (int)(workrect_.top() + curz * pixperm);
-	disp.boty_ = (int)(workrect_.top() + (curz+maxth) * pixperm);
-
-	disp.nm_->setText( disp.gen_->name() );
-	midpt.y = (disp.topy_ + disp.boty_) / 2;
-	disp.nm_->setPos( midpt.x, midpt.y-2 );
-		// the 'y-2' makes the text more nicely centered in the box
-
-	const uiSize txtsz( disp.nm_->getTextSize() );
-	const int xbefore = midpt.x - txtsz.width()/2;
-	const int radius = txtsz.height()/7;
-	disp.lithcol_->setRadius( radius );
-	disp.lithcol_->setPos( midpt.x - txtsz.width()/2 - radius, midpt.y );
-
-	leftpt.y = rightpt.y = disp.topy_;
-	disp.top_->setLine( leftpt, rightpt );
-
-	uiRect polyrect( leftpt.x+1, disp.topy_+1, rightpt.x-1, disp.boty_-1 );
-	TypeSet<uiPoint> pts;
-	mDynamicCastGet(const RangeProperty*,rgprop,&prop)
-	if ( !rgprop || mIsEqual(th0,th1,1e-5) )
+	pts += polyrect.bottomLeft();
+	pts += polyrect.topLeft();
+	pts += polyrect.topRight();
+	pts += polyrect.bottomRight();
+	pts += polyrect.bottomLeft();
+    }
+    else
+    {
+	const int nypix = (int)(minth * pixperm + .5);
+	const int nxpix = (maxth/(maxth-minth)) * polyrect.width();
+	if ( growing )
 	{
-	    pts += polyrect.bottomLeft();
-	    pts += polyrect.topLeft();
 	    pts += polyrect.topRight();
 	    pts += polyrect.bottomRight();
-	    pts += polyrect.bottomLeft();
+	    if ( nypix < 0 )
+		pts += uiPoint( polyrect.right() - nxpix, polyrect.top() );
+	    else
+	    {
+		pts += uiPoint( polyrect.left(), polyrect.top() + nypix );
+		pts += polyrect.topLeft();
+	    }
+	    pts += polyrect.topRight();
 	}
 	else
 	{
-	    const int nypix = (int)(minth * pixperm + .5);
-	    const int nxpix = (maxth/(maxth-minth)) * polyrect.width();
-	    if ( growing )
-	    {
-		pts += polyrect.topRight();
-		pts += polyrect.bottomRight();
-		if ( nypix < 0 )
-		    pts += uiPoint( polyrect.right() - nxpix, polyrect.top() );
-		else
-		{
-		    pts += uiPoint( polyrect.left(), polyrect.top() + nypix );
-		    pts += polyrect.topLeft();
-		}
-		pts += polyrect.topRight();
-	    }
+	    pts += polyrect.bottomLeft();
+	    pts += polyrect.topLeft();
+	    if ( nypix < 0 )
+		pts += uiPoint( polyrect.left() + nxpix, polyrect.top() );
 	    else
 	    {
-		pts += polyrect.bottomLeft();
-		pts += polyrect.topLeft();
-		if ( nypix < 0 )
-		    pts += uiPoint( polyrect.left() + nxpix, polyrect.top() );
-		else
-		{
-		    pts += polyrect.topRight();
-		    pts += uiPoint( polyrect.right(), polyrect.top() + nypix );
-		}
-		pts += polyrect.bottomLeft();
+		pts += polyrect.topRight();
+		pts += uiPoint( polyrect.right(), polyrect.top() + nypix );
 	    }
+	    pts += polyrect.bottomLeft();
 	}
-
-	disp.poly_->setPolygon( pts );
-	curz += maxth;
     }
+
+    disp.poly_->setPolygon( pts );
+    curz += maxth;
 }
 
 
 void uiSingleLayerSequenceGenDesc::descHasChanged()
 {
-    deepErase( disps_ );
     rebuildDispUnits();
     reDraw(0);
 }
@@ -457,6 +463,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
     , denref_(proprefs[2])
     , airef_(proprefs[3])
     , rt_(rt)
+    , anychg_(true) //TODO really keep track of changes
 {
     mDynamicCastGet(Strat::SingleLayerGenerator*,slg,inpun)
     if ( slg )
@@ -517,6 +524,7 @@ bool rejectOK( CallBacker* )
 {
     if ( inpun_ != edun_ )
 	delete edun_;
+    anychg_ = false;
     return true;
 }
 
@@ -550,6 +558,8 @@ bool acceptOK( CallBacker* )
     const PropertyRef*		airef_;
     const Strat::RefTree&	rt_;
 
+    bool			anychg_;
+
 };
 
 
@@ -580,7 +590,10 @@ bool uiSingleLayerSequenceGenDesc::descEditReq()
 
     uiSingleLayerGeneratorEd dlg( parent(), desc_[curidx], desc_.refTree(),
 				  props_ );
-    return dlg.go();
+    const bool chgd = dlg.go() ? dlg.anychg_ : false;
+    if ( chgd )
+	rebuildDispUnits();
+    return chgd;
 }
 
 
