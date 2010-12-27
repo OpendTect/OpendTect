@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenuhandler.cc,v 1.19 2010-11-22 08:57:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.20 2010-12-27 15:10:02 cvsbert Exp $";
 
 
 #include "uimenuhandler.h"
@@ -150,7 +150,7 @@ void uiTreeItemTBHandler::handleEmpty()
     if ( nrItems() > 0 )
 	return;
 
-    tb_->addButton( "base_icon.png", "Treeitem Toolbar", CallBack() );
+    tb_->addButton( "base_icon.png", "No tools available", CallBack() );
 }
 
 
