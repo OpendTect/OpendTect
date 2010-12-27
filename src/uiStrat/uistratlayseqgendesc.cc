@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.18 2010-12-23 10:33:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.19 2010-12-27 11:26:57 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -156,7 +156,7 @@ uiSingleLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
     nm_->setPenColor( Color::Black() );
     lithcol_ = scene_.addItem( new uiCircleItem );
     const Color lithcolor( gen_->unit().dispColor( true ) );
-    lithcol_->setPenStyle( LineStyle(LineStyle::Solid,3,lithcolor) );
+    lithcol_->setPenColor( lithcolor );
     lithcol_->setFillColor( lithcolor );
     top_ = scene_.addItem( new uiLineItem );
     top_->setPenStyle( LineStyle(LineStyle::Solid) );
@@ -240,7 +240,7 @@ void uiSingleLayerSequenceGenDesc::doDraw()
 
 	const uiSize txtsz( disp.nm_->getTextSize() );
 	const int xbefore = midpt.x - txtsz.width()/2;
-	const int radius = txtsz.height()/5;
+	const int radius = txtsz.height()/7;
 	disp.lithcol_->setRadius( radius );
 	disp.lithcol_->setPos( midpt.x - txtsz.width()/2 - radius, midpt.y );
 
