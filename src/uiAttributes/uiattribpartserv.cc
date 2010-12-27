@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.169 2010-12-17 06:52:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.170 2010-12-27 05:43:29 cvsumesh Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1289,6 +1289,27 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     as.set2DFlag( is2d );
 
     return true;
+}
+
+
+void uiAttribPartServer::info2DAttribSubMenu( int mnuid, BufferString& attbnm,
+					      bool& steering, bool& stored )
+{
+    steering = steering2dmnuitem_.findItem(mnuid);
+    stored = false;
+
+    if ( stored2dmnuitem_.findItem(mnuid) || steering2dmnuitem_.findItem(mnuid))
+    {
+	stored = true;
+	const MenuItem* item = stored2dmnuitem_.findItem( mnuid );
+	if ( !item ) item = steering2dmnuitem_.findItem( mnuid );
+	attbnm = item->text;
+    }
+    else if ( calc2dmnuitem_.findItem(mnuid) )
+    {
+	const MenuItem* item = calc2dmnuitem_.findItem( mnuid );
+	attbnm = item->text;
+    }
 }
 
 

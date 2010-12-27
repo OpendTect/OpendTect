@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.71 2010-12-17 06:52:34 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.72 2010-12-27 05:42:55 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,6 +160,8 @@ public:
     bool		handleMultiComp(const LineKey&,bool,bool,
 	    				BufferStringSet&,Attrib::DescID&,
 					TypeSet<int>&);
+    void		info2DAttribSubMenu(int mnuid,BufferString& attbnm,
+	    				    bool& steering,bool& stored);
     bool		prepMultCompSpecs(TypeSet<int>,const LineKey&,
 	    				  bool,bool);
 
