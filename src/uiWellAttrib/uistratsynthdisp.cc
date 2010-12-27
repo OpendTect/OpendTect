@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.11 2010-12-23 16:44:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.12 2010-12-27 11:24:46 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.11 2010-12-23 16:44:58 
 #include "ioman.h"
 #include "survinfo.h"
 #include "flatposdata.h"
+#include "flatviewzoommgr.h"
 
 static const int cMarkerSize = 6;
 
@@ -141,6 +142,19 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 }
 
 
+const SeisTrcBuf& uiStratSynthDisp::curTraces() const
+{
+    static SeisTrcBuf emptytb( true );
+    const FlatDataPack* dp = vwr_->pack( true );
+    if ( !dp ) dp = vwr_->pack( false );
+    if ( !dp ) return emptytb;
+
+    mDynamicCastGet(const SeisTrcBufDataPack*,tbdp,dp)
+    if ( !tbdp ) { pErrMsg("Huh"); return emptytb; }
+    return tbdp->trcBuf();
+}
+
+
 int uiStratSynthDisp::getVelIdx( bool& isvel ) const
 {
     //TODO this requires a lot of work. Can be auto-detected form property
@@ -165,6 +179,7 @@ int uiStratSynthDisp::getDenIdx( bool& isden ) const
 void uiStratSynthDisp::modelChanged()
 {
     vwr_->clearAllPacks(); vwr_->setNoViewDone();
+    vwr_->control()->zoomMgr().toStart();
     deepErase( vwr_->appearance().annot_.auxdata_ );
 
     deepErase( aimdls_ );
