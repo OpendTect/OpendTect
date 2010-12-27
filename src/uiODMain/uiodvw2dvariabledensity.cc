@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.7 2010-09-29 07:04:42 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.8 2010-12-27 05:44:16 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,15 +21,21 @@ ________________________________________________________________________
 #include "uimenuhandler.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uitaskrunner.h"
 
 #include "attribdatacubes.h"
+#include "attribdataholder.h"
 #include "attribdatapack.h"
+#include "attribdesc.h"
+#include "attribdescset.h"
+#include "attribdescsetsholder.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "linekey.h"
 #include "pixmap.h"
 #include "visvw2dseismic.h"
 #include "visvw2ddataman.h"
@@ -229,11 +235,27 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     const Attrib::SelSpec& as = viewer2D()->selSpec( false );
     MenuItem* subitem;
     applMgr()->attrServer()->resetMenuItems();
-    subitem = applMgr()->attrServer()->storedAttribMenuItem(as, dp2ddh, false);
+    if ( dp3d )
+	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
+    else if ( dp2ddh )
+    {
+	BufferString ln;
+	dp2ddh->getLineName( ln );
+	subitem = applMgr()->attrServer()->stored2DAttribMenuItem( as,
+					viewer2D()->lineSetID(), ln, false );
+    }
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
     subitem = applMgr()->attrServer()->calcAttribMenuItem( as, dp2ddh, true );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
-    subitem = applMgr()->attrServer()->storedAttribMenuItem( as, dp2ddh, true );
+    if( dp3d )
+	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,true );
+    else if ( dp2ddh )
+    {
+	BufferString ln;
+	dp2ddh->getLineName( ln );
+	subitem = applMgr()->attrServer()->stored2DAttribMenuItem( as,
+					viewer2D()->lineSetID(), ln, true );
+    }
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
 }
 
@@ -244,50 +266,103 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     Attrib::SelSpec selas( as );
     
     uiAttribPartServer* attrserv = applMgr()->attrServer();
+
+    uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    const DataPack* dp = vwr.pack( true );
+    if ( !dp )
+	dp = vwr.pack( false );
+    if ( !dp ) return false;
+
+    DataPack::ID newid = DataPack::cNoID();
+
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp);
+    mDynamicCastGet(const Attrib::Flat2DDataPack*,dp2d,dp);
+    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp);
+
     bool dousemulticomp = false;
-    if ( attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
+    if ( dp3d )
     {
-	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-	const DataPack* dp = vwr.pack( true );
-	if ( !dp )
-	    dp = vwr.pack( false );
-	if ( !dp ) return false;
-
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp);
-	mDynamicCastGet(const Attrib::Flat2DDataPack*,dp2d,dp);
-	mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp);
-
-	if ( dp3d )
+	if ( attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
 	{
 	    attrserv->setTargetSelSpec( selas );
-	    const DataPack::ID newid = attrserv->createOutput(
-		    	dp3d->cube().cubeSampling(), DataPack::cNoID() );
-
-	    if ( newid == DataPack::cNoID() ) return true;
-	    
-	    viewer2D()->setSelSpec( &selas, false );
-
-	    ColTab::MapperSetup mapper;
-	    ColTab::Sequence seq( 0 );
-	    PtrMan<IOObj> ioobj = attrserv->getIOObj( selas );
-	    if ( ioobj )
-	    {
-		FilePath fp( ioobj->fullUserExpr(true) );
-		fp.setExtension( "par" );
-		IOPar iop;
-		if ( iop.read( fp.fullPath(), sKey::Pars) && !iop.isEmpty() )
-		{
-		    const char* ctname = iop.find( sKey::Name );
-		    vwr.appearance().ddpars_.vd_.ctab_ = ctname;
-		    seq = ColTab::Sequence( ctname );
-		    displayMiniCtab( &seq );
-		}
-	    }
-	    viewer2D()->setUpView( newid, false );
+	    newid = attrserv->createOutput( dp3d->cube().cubeSampling(),
+		    			    DataPack::cNoID() );
 	}
+    }
+    else if ( dp2ddh )
+    {
+	BufferString attrbnm; bool stored = false; 
+	bool steering = false;
+	attrserv->info2DAttribSubMenu( mnuid, attrbnm, steering, stored );
+	if ( attrbnm.isEmpty() )
+	    attrbnm = "Seis";
 
-	return true;
+	BufferString ln;
+	dp2ddh->getLineName( ln );
+
+	uiTaskRunner uitr( &viewer2D()->viewwin()->viewer() );
+	const CubeSampling cs = dp2ddh->dataholder().getCubeSampling();
+	const LineKey lk( ln.buf(), attrbnm );
+	
+	if ( !stored )
+	{
+	    if ( !attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
+		return false;
+
+	    attrserv->setTargetSelSpec( selas );
+	    newid = attrserv->create2DOutput( cs, lk, uitr );
+	}
+	else 
+	{
+	    LineKey lky( viewer2D()->lineSetID(), attrbnm );
+
+	    Attrib::DescID attribid = attrserv->getStoredID( lky, true, 
+		    					     steering ? 1 : 0 );
+
+	    selas.set( attrbnm, attribid, false, 0 );
+	    selas.set2DFlag();
+
+	    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true,
+		    						       true );
+	    if ( !ds ) return false;
+	    selas.setRefFromID( *ds );
+	    selas.setUserRef( attrbnm );
+
+	    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
+	    if ( !targetdesc ) return false;
+
+	    BufferString defstring;
+	    targetdesc->getDefStr( defstring );
+	    selas.setDefString( defstring );
+	    attrserv->setTargetSelSpec( selas );
+
+	    newid = attrserv->create2DOutput( cs, lk,uitr );
+	}
     }
 
-    return false;
+    if ( newid == DataPack::cNoID() ) return true;
+
+    viewer2D()->setSelSpec( &selas, false );
+
+    ColTab::MapperSetup mapper;
+    ColTab::Sequence seq( 0 );
+
+    PtrMan<IOObj> ioobj = attrserv->getIOObj( selas );
+    if ( ioobj )
+    {
+	FilePath fp( ioobj->fullUserExpr(true) );
+	fp.setExtension( "par" );
+	IOPar iop;
+	if ( iop.read( fp.fullPath(), sKey::Pars) && !iop.isEmpty() )
+	{
+	    const char* ctname = iop.find( sKey::Name );
+	    vwr.appearance().ddpars_.vd_.ctab_ = ctname;
+	    seq = ColTab::Sequence( ctname );
+	    displayMiniCtab( &seq );
+	}
+    }
+
+    viewer2D()->setUpView( newid, false );
+
+    return true;
 }
