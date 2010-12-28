@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.29 2010-12-23 14:51:49 cvskarthika Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.30 2010-12-28 18:05:52 cvskarthika Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -48,6 +48,7 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     , sz2_( 1 )
     , blendcolor_( Color::White() )
     , useshading_( true )
+    , sequence_( ColTab::Sequence( ColTab::defSeqName() ) )
 {
     root_->ref();
 
@@ -70,7 +71,7 @@ bool VolumeRenderScalarField::turnOn( bool yn )
     if ( !voldata_ ) return false;
     const bool wason = isOn();
      if ( !yn )
-	voldata_->setVolumeData( SbVec3s(1,1,1),
+	 voldata_->setVolumeData( SbVec3s(1,1,1),
 	    		    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
      else if ( indexcache_ )
 	 voldata_->setVolumeData( SbVec3s(sz2_,sz1_,sz0_),
@@ -142,7 +143,8 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc,
 
     //TODO: if 8-bit data & some flags, use data itself
     if ( mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
-	mapper_.setData( datacache_, totalsz, tr );
+	//mapper_.setData( datacache_, totalsz, tr );
+	clipData( tr );
     
     makeIndices( doset, tr );
 }
@@ -170,8 +172,18 @@ void VolumeRenderScalarField::setColTabMapperSetup( const ColTab::MapperSetup&
     if ( mapper_.setup_ == ms )
 	return;
     
+//    const bool autoscalechange = mapper_.setup_.type_ != ms.type_;
+    
     mapper_.setup_ = ms;
-    mapper_.setData( datacache_, sz0_*sz1_*sz2_, tr );
+    
+    /*if ( autoscalechange )
+	mapper_.setup_.triggerAutoscaleChange();
+    else
+	mapper_.setup_.triggerRangeChange();*/
+
+    if ( mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+	clipData( tr );
+    
     makeIndices( false, tr );
 }
 
