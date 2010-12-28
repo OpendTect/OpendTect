@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.53 2009-08-14 19:31:53 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.54 2010-12-28 22:20:54 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -490,90 +490,21 @@ double Line3::closestPoint( const Coord3& point ) const
 }
 
 
-bool Line3::closestPoint( const Line3& line, double& t_this,
-			  double& t_line ) const
+void Line3::closestPoint( const Line3& line, double& t_this,
+       			  double& t_line ) const
 {
     const Coord3 dir0 = direction( false );
     const Coord3 dir1 = line.direction( false );
-    double cosalpha = dir0.normalize().dot( dir1.normalize() );
-    cosalpha = fabs(cosalpha);
-    if ( mIsZero(cosalpha-1,1e-3) )
-	return false;
+    const Coord3 diff(x0_-line.x0_,y0_-line.y0_,z0_-line.z0_);
+    const double d0 = dir0.dot(dir0);
+    const double d1 = dir1.dot(dir1);
+    const double d01 = dir0.dot(dir1);
+    const double di0 = diff.dot(dir0);
+    const double di1 = diff.dot(dir1);
+    const double det = d01/d0 - d1/d01;
 
-    const Coord3 diff(line.x0_-x0_,line.y0_-y0_,line.z0_-z0_);
-    double deter = dir1.x*dir0.y-dir1.y*dir0.x;
-    if ( !mIsZero(deter, 1e-4) )
-    {
-    	t_line = -(diff.x*dir0.y-diff.y*dir0.x)/deter;
-    	t_this = (dir1.x*diff.y-dir1.y*diff.x)/deter;
-    
-	if ( mIsEqual(t_this*dir0.z-t_line*dir1.z, diff.z, mDefEps) )
-    	    return true;
-    }
-    else
-    {
-	deter = dir1.x*dir0.z-dir1.z*dir0.x;
-	if ( !mIsZero(deter, 1e-4) )
-	{    
-    	    t_line = -(diff.x*dir0.z-diff.z*dir0.x)/deter;    
-    	    t_this = (dir1.x*diff.z-dir1.z*diff.x)/deter;
-    	    
-    	    if ( mIsEqual(t_this*dir0.y-t_line*dir1.y, diff.y, mDefEps) )   
-    		return true;
-	}
-	else
-	{
-	    deter = dir1.y*dir0.z-dir1.z*dir0.y;
-	    if ( mIsZero(deter, 1e-4) ) //Cross product 0, then parallel
-	    {
-		t_line = 1;
-		t_this = 1;
-		return true;
-	    }
-	    
-	    t_line = -(diff.y*dir0.z-diff.z*dir0.y)/deter;      
-	    t_this = (dir1.y*diff.z-dir1.z*diff.y)/deter;
-	    
-	    if ( mIsEqual(t_this*dir0.x-t_line*dir1.x, diff.x, mDefEps) )                       return true;
-	}
-    }
-    
-    const Coord3 crs = dir0.cross( dir1 );
-    const Coord3 v2 = -diff.cross(crs);
-    const Coord3 v0 = dir0.cross(crs);
-    const Coord3 v1 = dir1.cross(crs);
-    
-    deter = v1.x*v0.y-v0.x*v1.y;
-    if ( !mIsZero(deter, 1e-3) )
-    {
-    	t_this = (v2.x*v1.y-v1.x*v2.y)/deter;
-    	t_line = (v2.x*v0.y-v0.x*v2.y)/deter;
-    }
-    else 
-    {
-	deter = v1.x*v0.z-v0.x*v1.z;
-	if ( !mIsZero(deter, 1e-3) )
-	{    
-	    t_this = (v2.x*v1.z-v1.x*v2.z)/deter;    
-	    t_line = (v2.x*v0.z-v0.x*v2.z)/deter;
-	}
-	else
-	{
-	    deter = v1.y*v0.z-v0.y*v1.z;
-	    if ( !mIsZero(deter, 1e-3) )
-	    {
-		t_this = (v2.y*v1.z-v1.y*v2.z)/deter;
-		t_line = (v2.y*v0.z-v0.y*v2.z)/deter;
-	    }
-	    else
-	    {
-		pErrMsg("How could be?");
-		return false;
-	    }
-	}
-    }
-
-    return true;
+    t_line = mIsZero(det,1e-8) ? 0.5 : (di0/d0-di1/d01)/det;
+    t_this = (t_line*d01-di0)/d0;
 }
 
 
