@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.16 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.17 2010-12-28 22:23:52 cvsyuancheng Exp $";
 
 #include "polygonsurface.h"
 
@@ -443,11 +443,8 @@ bool PolygonSurface::linesegmentsIntersecting( const Coord3& v0,
     Line3 segment0( v0, v1 );
     Line3 segment1( p0, p1 );
     double t0, t1;
-    if ( segment0.closestPoint( segment1, t0, t1 ) && (t0>0 && t0<1) && 
-	 (t1>0 && t1<1) )
-	return true;
-
-    return false;
+    segment0.closestPoint( segment1, t0, t1 );
+    return (t0>0 && t0<1) && (t1>0 && t1<1);
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.13 2010-12-21 08:19:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.14 2010-12-28 22:23:52 cvsyuancheng Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -828,8 +828,8 @@ void PolygonBodyDisplay::setNewIntersectingPolygon( const Coord3& normal,
 	    const Coord3 p1 = knots[knot<nrknots-1 ? knot+1 : 0].scaleBy(scale);
 	    const Line3 segment(p0, p1-p0);
 	    double t, segt;
-	    if ( intersectionline.closestPoint(segment,t,segt) && segt<=1+1e-3 
-		    					       && segt+1e-3>=0 )
+	    intersectionline.closestPoint(segment,t,segt);
+	    if ( segt<=1+1e-3 && segt+1e-3>=0 )
 		intersections += segment.getPoint(segt).scaleBy(invscale);
 	}
     }
