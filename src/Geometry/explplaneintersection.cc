@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.14 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.15 2010-12-28 22:23:05 cvsyuancheng Exp $";
 
 
 #include "explplaneintersection.h"
@@ -47,16 +47,17 @@ struct ExplPlaneIntersectionExtractorPlane
     }
 
     void cutLine( const Line3& line, double& t0, double& t1,
-	          bool& t0change, bool& t1change )
+	          bool& t0change, bool& t1change, const Coord3 center )
     {
 	LineRectangleClipper<double> clipper( bbox_ );
-	clipper.setLine( planecoordsys_.transform( line.getPoint( t0 ), false ),
-		         planecoordsys_.transform( line.getPoint( t1 ), false));
+	clipper.setLine( 
+		planecoordsys_.transform( line.getPoint(t0)+center, false ),
+		planecoordsys_.transform( line.getPoint(t1)+center, false) );
 
 	if ( clipper.isStartChanged() )
 	{
 	    t0 = line.closestPoint(
-		    planecoordsys_.transform(clipper.getStart()) );
+		    planecoordsys_.transform(clipper.getStart())-center );
 	    t0change = true;
 	}
 	else
@@ -65,7 +66,7 @@ struct ExplPlaneIntersectionExtractorPlane
 	if ( clipper.isStopChanged() )
 	{
 	    t1 = line.closestPoint(
-		    planecoordsys_.transform(clipper.getStop()) );
+		    planecoordsys_.transform(clipper.getStop())-center );
 	    t1change = true;
 	}
 	else
@@ -73,10 +74,10 @@ struct ExplPlaneIntersectionExtractorPlane
     }
 
 
-    bool isInside( const Line3& line, double t ) const
+    bool isInside( const Line3& line, double t, const Coord3 center ) const
     {
 	return polygon_.isInside(
-		planecoordsys_.transform( line.getPoint(t), false ), true, 0 );
+		planecoordsys_.transform(line.getPoint(t)+center,false),true,0);
     }
 
     ODPolygon<double>		polygon_;
@@ -201,6 +202,10 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
     Coord3 c0 = coordlist->get( lci0 ); c0.z *= zscale;
     Coord3 c1 = coordlist->get( lci1 ); c1.z *= zscale;
     Coord3 c2 = coordlist->get( lci2 ); c2.z *= zscale;
+    const Coord3 centerpt = (c0+c1+c2)/3;
+    c0 -= centerpt;
+    c1 -= centerpt;
+    c2 -= centerpt;
 
     const Coord3 trianglenormal = ((c1-c0).cross(c2-c0)).normalize();
     const Plane3 triangleplane( trianglenormal, c0, false );
@@ -208,12 +213,12 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
     for ( int planeidx=explsurf_.nrPlanes()-1; planeidx>=0; planeidx-- )
     {
 	const int planeid = explsurf_.planeID( planeidx );
-	const Coord3 ptonplane = explsurf_.planePolygon( planeid )[0];
 	const Coord3 planenormal = explsurf_.planeNormal( planeid );
-	const Plane3 plane( planenormal, ptonplane, false);
-
 	if ( mIsEqual( fabs(planenormal.dot(trianglenormal)), 1, 1e-3 ) )
 	    continue;
+	
+	const Coord3 ptonplane = explsurf_.planePolygon( planeid )[0]-centerpt;
+	const Plane3 plane( planenormal, ptonplane, false);
 
 	Line3 intersectionline;
 	if ( !triangleplane.intersectWith( plane, intersectionline ) )
@@ -223,12 +228,12 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	int startidx=-1, stopidx=-1;
 
 	double testt;
-	const bool t0ok = getNearestT(c0,c1,intersectionline,t[0],testt) &&
-			  testt<=1+1e-3 && testt+1e-3>=0;
-	const bool t1ok = getNearestT(c1,c2,intersectionline,t[1],testt) &&
-			  testt<=1+1e-3 && testt+1e-3>=0;
-	const bool t2ok = getNearestT(c2,c0,intersectionline,t[2],testt) &&
-			  testt<=1+1e-3 && testt+1e-3>=0;
+	getNearestT(c0,c1,intersectionline,t[0],testt);
+	const bool t0ok = testt<=1+1e-3 && testt>=-1e-3;
+	getNearestT(c1,c2,intersectionline,t[1],testt);
+	const bool t1ok = testt<=1+1e-3 && testt>=-1e-3;
+	getNearestT(c2,c0,intersectionline,t[2],testt);
+	const bool t2ok = testt<=1+1e-3 && testt>=-1e-3;
 	const int nrintersections = t0ok + t1ok + t2ok;
 	if ( nrintersections<2 )
 	    continue;
@@ -274,14 +279,15 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	bool startcut = false, stopcut = false;
 	if ( planes_[planeidx] )
 	{
-	    char sum = planes_[planeidx]->isInside(intersectionline,t[startidx])
-		     + planes_[planeidx]->isInside(intersectionline,t[stopidx]);
+	    char sum = planes_[planeidx]->isInside(intersectionline,t[startidx],
+		    centerpt) + planes_[planeidx]->isInside(
+			intersectionline,t[stopidx],centerpt);
 	    if ( sum==0 )
 		continue;
 	    if ( sum!=2 )
 	    {
 		planes_[planeidx]->cutLine( intersectionline, t[startidx],
-			t[stopidx], startcut, stopcut );
+			t[stopidx], startcut, stopcut, centerpt );
 	    }
 	}
 
@@ -299,11 +305,11 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	{
 	    mSetArrPos( startidx )
 	    ci0 = getCoordIndex( arraypos, intersectionline, t[startidx],
-		    		 *explsurf_.coordList() );
+		    		 *explsurf_.coordList(), centerpt );
 	}
 	else
 	{
-	    Coord3 point = intersectionline.getPoint( t[startidx] );
+	    Coord3 point = intersectionline.getPoint( t[startidx] ) + centerpt;
 	    point.z /= zscale;
 	    ci0 = explsurf_.coordList()->add( point );
 	}
@@ -313,11 +319,11 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	{
 	    mSetArrPos( stopidx )
 	    ci1 = getCoordIndex( arraypos, intersectionline, t[stopidx],
-		    		 *explsurf_.coordList() );
+		    		 *explsurf_.coordList(), centerpt );
 	}
 	else
 	{
-	    Coord3 point = intersectionline.getPoint( t[stopidx] );
+	    Coord3 point = intersectionline.getPoint( t[stopidx] ) + centerpt;
 	    point.z /= zscale;
 	    ci1 = explsurf_.coordList()->add( point );
 	}
@@ -368,16 +374,16 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 }
 
 
-bool getNearestT( const Coord3& c0, const Coord3& c1,
+void getNearestT( const Coord3& c0, const Coord3& c1,
 		  const Line3& intersectionline, double& t0, double& t1 ) const
 {
     const Line3 line( c0, c1-c0 );
-    return intersectionline.closestPoint(line,t0,t1);
+    intersectionline.closestPoint(line,t0,t1);
 }
 
 
 int getCoordIndex( const int* arraypos, const Line3& intersectionline,
-		   double t, Coord3List& coordlist )
+		   double t, Coord3List& coordlist, const Coord3 centerpt )
 {
     tablelock_.readLock();
     
@@ -399,7 +405,7 @@ int getCoordIndex( const int* arraypos, const Line3& intersectionline,
 	}
     }
 
-    Coord3 point = intersectionline.getPoint(t);
+    Coord3 point = intersectionline.getPoint(t) + centerpt;
     point.z /= explsurf_.getZScale();
 
     const int res = coordlist.add( point );
