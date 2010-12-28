@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.36 2010-02-04 16:18:47 cvsjaap Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.37 2010-12-28 22:22:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -137,7 +137,7 @@ public:
 protected:
     bool			isBinary() const;
 
-    double			readFloat(std::istream&) const;
+    double			readDouble(std::istream&) const;
     int				readInt16(std::istream&) const;
     int				readInt32(std::istream&) const;
     od_int64			readInt64(std::istream&) const;
@@ -185,7 +185,7 @@ protected:
     int				rowindex_;
 
     DataInterpreter<int>*	int32interpreter_;
-    DataInterpreter<float>*	floatinterpreter_;
+    DataInterpreter<double>*	floatinterpreter_;
     EM::Surface*		surface_;
     Array3D<float>*		cube_;
 
@@ -296,7 +296,7 @@ protected:
     bool			writeNewSection(std::ostream&);
     bool			writeRow(std::ostream&);
 
-    bool			writeFloat(std::ostream&,float,
+    bool			writeDouble(std::ostream&,double,
 	    				   const char*) const;
     bool                 	writeInt16(std::ostream&,unsigned short,
 	    				   const char*) const;

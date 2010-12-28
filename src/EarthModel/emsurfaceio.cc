@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.141 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.142 2010-12-28 22:22:21 cvsyuancheng Exp $";
 
 #include "emsurfaceio.h"
 
@@ -161,7 +161,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     mGetDataChar( int, sKeyInt16DataChar(), int16interpreter_ );
     mGetDataChar( int, sKeyInt32DataChar(), int32interpreter_ );
     mGetDataChar( od_int64, sKeyInt64DataChar(), int64interpreter_ );
-    mGetDataChar( float, sKeyFloatDataChar(), floatinterpreter_ );
+    mGetDataChar( double, sKeyFloatDataChar(), floatinterpreter_ );
 
     if ( version_==3 )
     {
@@ -910,11 +910,11 @@ bool dgbSurfaceReader::readVersion1Row( std::istream& strm, int firstcol,
 	Coord3 pos;
 	if ( !readonlyz_ )
 	{
-	    pos.x = readFloat( strm );
-	    pos.y = readFloat( strm );
+	    pos.x = readDouble( strm );
+	    pos.y = readDouble( strm );
 	}
 
-	pos.z = readFloat( strm );
+	pos.z = readDouble( strm );
 
 	//Read filltype
 	if ( rowindex_!=nrrows_-1 && colindex!=nrcols-1 )
@@ -969,11 +969,11 @@ bool dgbSurfaceReader::readVersion2Row( std::istream& strm,
 	Coord3 pos;
 	if ( !readonlyz_ )
 	{
-	    pos.x = readFloat( strm );
-	    pos.y = readFloat( strm );
+	    pos.x = readDouble( strm );
+	    pos.y = readDouble( strm );
 	}
 
-	pos.z = readFloat( strm );
+	pos.z = readDouble( strm );
 	if ( !strm )
 	{
 	    msg_ = sMsgReadError();
@@ -1072,11 +1072,11 @@ void dgbSurfaceReader::goToNextRow()
 bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol, 
 					int nrcols, int colstep, int colstoskip)
 {
-    SamplingData<float> zsd;
+    SamplingData<double> zsd;
     if ( readonlyz_ )
     {
-	zsd.start = readFloat( strm );
-	zsd.step = readFloat( strm );
+	zsd.start = readDouble( strm );
+	zsd.step = readDouble( strm );
     }
 
     int colindex = 0;
@@ -1118,9 +1118,9 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol,
 	Coord3 pos;
 	if ( !readonlyz_ )
 	{
-	    double x = readFloat( strm );
-	    double y = readFloat( strm );
-	    double z = readFloat( strm );
+	    double x = readDouble( strm );
+	    double y = readDouble( strm );
+	    double z = readDouble( strm );
 
 	    if ( colindex < (colstoskip-1) )
 		continue;
@@ -1279,7 +1279,7 @@ bool dgbSurfaceReader::isBinary() const
 
 
 
-double dgbSurfaceReader::readFloat(std::istream& strm) const
+double dgbSurfaceReader::readDouble(std::istream& strm) const
 {
     if ( floatinterpreter_ )
     {
@@ -1569,7 +1569,7 @@ int dgbSurfaceWriter::nextStep()
 	    mSetDc( od_int32, dgbSurfaceReader::sKeyInt32DataChar() );
 	    mSetDc( unsigned short, dgbSurfaceReader::sKeyInt16DataChar() );
 	    mSetDc( od_int64, dgbSurfaceReader::sKeyInt64DataChar() );
-	    mSetDc( float, dgbSurfaceReader::sKeyFloatDataChar() );
+	    mSetDc( double, dgbSurfaceReader::sKeyFloatDataChar() );
 	}
 
 
@@ -1872,10 +1872,10 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	    return false;
 	}
 
-	SamplingData<float> sd;
+	SamplingData<double> sd;
 	if ( writeonlyz_ )
 	{
-	    Interval<float> rg;
+	    Interval<double> rg;
 	    bool isset = false;
 	    for ( int idx=0; idx<colcoords.size(); idx++ )
 	    {
@@ -1895,8 +1895,8 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	    sd.start = rg.start;
 	    sd.step = rg.width()/65534;
 
-	    if ( !writeFloat( strm, sd.start, sTab()) ||
-		 !writeFloat( strm, sd.step, sEOLTab()) )
+	    if ( !writeDouble( strm, sd.start, sTab()) ||
+		 !writeDouble( strm, sd.step, sEOLTab()) )
 	    {
 		msg_ = sMsgWriteError();
 		return false;
@@ -1920,9 +1920,9 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	    }
 	    else
 	    {
-		if ( !writeFloat( strm, pos.x, sTab()) ||
-		     !writeFloat( strm, pos.y, sTab()) ||
-		     !writeFloat( strm, pos.z,
+		if ( !writeDouble( strm, pos.x, sTab()) ||
+		     !writeDouble( strm, pos.y, sTab()) ||
+		     !writeDouble( strm, pos.z,
 			          idx!=colcoords.size()-1 ? sEOLTab() : sEOL()))
 		{
 		    msg_ = sMsgWriteError();
@@ -1943,13 +1943,13 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 }
 
 
-bool dgbSurfaceWriter::writeFloat( std::ostream& strm, float val,
+bool dgbSurfaceWriter::writeDouble( std::ostream& strm, double val,
 				       const char* post) const
 {
     if ( binary_ )
 	strm.write((const char*) &val,sizeof(val));
     else
-	strm << val << post;;
+	strm << getStringFromDouble("%.17g", val) << post;
 
     return strm;
 }
