@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.16 2010-12-17 10:56:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.17 2010-12-29 04:21:27 cvssatyaki Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -183,9 +183,10 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
     StepInterval<float> zrg;
     const bool hasrg = lineset_->getRanges( lineidx, trcrg, zrg );
 
-    S2DPOS().setCurLineSet( lineset_->name() );
-    PosInfo::Line2DData l2dd( linekey.lineName() );
-    if ( !S2DPOS().getGeometry(l2dd) || l2dd.isEmpty() )
+    const PosInfo::GeomID geomid =
+	S2DPOS().getGeomID( lineset_->name(), linekey.lineName() );
+    PosInfo::Line2DData l2dd;
+    if ( !S2DPOS().getGeometry(geomid,l2dd) || l2dd.isEmpty() )
     {
 	infofld_->setText( "Cannot find geometry for this line" );
 	return;

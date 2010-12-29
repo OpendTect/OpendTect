@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.13 2010-12-15 07:13:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.14 2010-12-29 04:21:27 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -483,6 +483,32 @@ bool PosInfo::Survey2D::getGeometry( int lineid,
     }
 
     return false;
+}
+
+
+bool PosInfo::Survey2D::getGeometry( const GeomID& geomid,
+				     PosInfo::Line2DData& l2dd ) const
+{
+    if ( !geomid.isOK() ) return false;
+
+    Threads::MutexLocker* locker = 0;
+    if ( geomid.lsid_ != S2DPOS().curLineSetID() )
+    {
+	locker = new Threads::MutexLocker( mutex_ );
+	S2DPOS().setCurLineSet( geomid.lsid_ );
+    }
+
+    const char* linenm = S2DPOS().getLineName( geomid.lineid_ );
+    if ( !linenm )
+    {
+	delete locker;
+	return false;
+    }
+    
+    const bool ret = S2DPOS().getGeometry( geomid.lineid_, l2dd );
+    delete locker;
+    
+    return ret;
 }
 
 

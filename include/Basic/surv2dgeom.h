@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: surv2dgeom.h,v 1.6 2010-10-22 09:32:17 cvsnanne Exp $
+ RCS:		$Id: surv2dgeom.h,v 1.7 2010-12-29 04:21:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
  
 #include "posinfo2d.h"
 #include "separstr.h"
+#include "thread.h"
 class IOPar;
 class FilePath;
 class BufferStringSet;
@@ -81,6 +82,8 @@ public:
     void		setCurLineSet(int lsid) const;
 
     bool		getGeometry(int lid,Line2DData&) const;
+    bool		getGeometry(const GeomID&,Line2DData&) const;
+    			//!< thread safe
 
     void		removeLine(int lid);
     void		removeLineSet(int lsid);
@@ -98,6 +101,7 @@ private:
     BufferString	lsnm_;
     IOPar&		lsindex_;
     IOPar&		lineindex_;
+    mutable Threads::Mutex mutex_;
 
     void		readIdxFiles();
     static void		readIdxFile(const char*,IOPar&);
