@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.38 2010-10-13 02:46:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.39 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -488,8 +488,11 @@ void uiHorizonSetupGroup::initEventGroup()
 	    horadj_->permittedZRange().start * SI().zFactor(),
 	    horadj_->permittedZRange().stop * SI().zFactor() );
 
-    srchgatefld_->setText( getStringFromFloat("%.5f",srchintv.start), 0 );
-    srchgatefld_->setText( getStringFromFloat("%.5f",srchintv.stop), 1 );
+    char str[255];
+    getStringFromFloat("%.5f",srchintv.start, str);
+    srchgatefld_->setText( str, 0 );
+    getStringFromFloat("%.5f",srchintv.stop, str);
+    srchgatefld_->setText( str, 1 );
 
     thresholdtypefld_->setValue( horadj_->useAbsThreshold() );
     extriffailfld_->setValue( !horadj_->removesOnFailure() );
@@ -504,8 +507,11 @@ void uiHorizonSetupGroup::initSimiGroup()
 	    horadj_->similarityWindow().start * SI().zFactor(),
 	    horadj_->similarityWindow().stop * SI().zFactor() );
 
-    compwinfld_->setText( getStringFromFloat("%.5f",simiintv.start), 0 );
-    compwinfld_->setText( getStringFromFloat("%.5f",simiintv.stop), 1 );
+    char str[255];
+    getStringFromFloat("%.5f",simiintv.start, str );
+    compwinfld_->setText( str, 0 );
+    getStringFromFloat("%.5f",simiintv.stop, str );
+    compwinfld_->setText( str, 1 );
 
     simithresholdfld_->setValue( horadj_->similarityThreshold() );
 }

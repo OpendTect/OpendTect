@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.37 2010-12-14 15:53:16 cvsbert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.38 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -206,7 +206,7 @@ bool IODir::create( const char* dirnm, const MultiID& ky, IOObj* mainobj )
 {
     if ( !dirnm || !*dirnm || !mainobj ) return false;
     mainobj->key_ = ky;
-    mainobj->key_ += getStringFromInt( 1 );
+    mainobj->key_ += "1";
     IODir dir;
     dir.dirname_ = dirnm;
     dir.key_ = ky;
@@ -409,6 +409,9 @@ MultiID IODir::newKey() const
 {
     MultiID id = key_;
     ((IODir*)this)->curid_++;
-    id += getStringFromInt( curid_ );
+    char str[255];
+    getStringFromInt( curid_, str );
+    id += str;
+
     return id;
 }

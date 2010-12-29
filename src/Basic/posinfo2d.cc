@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo2d.cc,v 1.2 2010-08-19 11:28:24 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo2d.cc,v 1.3 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "posinfo2d.h"
 #include "math2.h"
@@ -239,9 +239,12 @@ bool PosInfo::Line2DData::write( std::ostream& strm, bool asc,
 	const PosInfo::Line2DPos& pos = posns_[idx];
 	if ( asc )
 	{
+	    char str[255];
+	    getStringFromDouble(0,pos.coord_.x,str);
 	    strm << '\t' << pos.nr_
-		 << '\t' << getStringFromDouble(0,pos.coord_.x);
-	    strm << '\t' << getStringFromDouble(0,pos.coord_.y);
+		 << '\t' << str;
+	    getStringFromDouble(0,pos.coord_.y,str);
+	    strm << '\t' << str;
 	    if ( withnls && idx < linesz-1 ) strm << '\n';
 	}
 	else

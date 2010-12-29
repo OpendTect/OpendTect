@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.70 2010-12-07 20:17:13 cvskris Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.71 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "pickset.h"
 
@@ -184,15 +184,16 @@ void Pick::Location::toString( BufferString& str, bool forexport ) const
 	}
     }
 
-    str += getStringFromDouble( 0, usepos.x );
-    str += "\t"; str += getStringFromDouble( 0, usepos.y );
-    str += "\t"; str += getStringFromDouble( 0, usepos.z );
+    str.setMinBufSize( str.size()+1024 );
+    getStringFromDouble( 0, usepos.x, str.bufEnd() );
+    str += "\t"; getStringFromDouble( 0, usepos.y, str.bufEnd() );
+    str += "\t"; getStringFromDouble( 0, usepos.z, str.bufEnd() );
 
     if ( hasDir() )
     {
-	str += "\t"; str += getStringFromDouble( 0, dir.radius );
-	str += "\t"; str += getStringFromDouble( 0, dir.theta );
-	str += "\t"; str += getStringFromDouble( 0, dir.phi );
+	str += "\t"; getStringFromDouble( 0, dir.radius, str.bufEnd() );
+	str += "\t"; getStringFromDouble( 0, dir.theta, str.bufEnd() );
+	str += "\t"; getStringFromDouble( 0, dir.phi, str.bufEnd() );
     }
 }
 

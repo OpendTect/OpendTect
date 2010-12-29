@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.33 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.34 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -528,8 +528,10 @@ float PositionInpSpec::getOffset( float udfval ) const
 
 const char* PositionInpSpec::text( int idx ) const
 {
+    static char ret[255];
     const float v = getVal( setup_, idx );
-    return getStringFromFloat( 0, v );
+    getStringFromFloat( 0, v, ret );
+    return ret;
 }
 
 

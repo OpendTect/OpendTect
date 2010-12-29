@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.401 2010-12-21 18:36:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.402 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1084,8 +1084,9 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	{
 	    float shift =
 		emattrserv_->shiftRange().atIndex(idx) * SI().zFactor();
-	    BufferString shiftstr = getStringFromFloat(
-		    SI().zIsTime() ? "%g" : "%f", shift );
+	    BufferString shiftstr;
+	    getStringFromFloat( SI().zIsTime() ? "%g" : "%f", shift,
+		    		shiftstr.buf() );
 	    if ( mIsZero(shift,1e-3) ) shiftstr = "0";
 	    BufferString auxdatanm( emattrserv_->getAttribBaseNm() );
 	    auxdatanm += " ["; auxdatanm += shiftstr; auxdatanm += "]";

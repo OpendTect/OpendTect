@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: latlong.cc,v 1.13 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: latlong.cc,v 1.14 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "latlong.h"
 #include "survinfo.h"
@@ -33,8 +33,10 @@ LatLong LatLong::transform( const Coord& c )
 void LatLong::fill( char* str ) const
 {
     if ( !str ) return;
-    strcpy( str, "[" ); strcat( str, getStringFromDouble(0,lat_) );
-    strcat( str, "," ); strcat( str, getStringFromDouble(0,lng_) );
+    strcpy( str, "[" );
+    getStringFromDouble(0,lat_,str+1);
+    strcat( str, "," );
+    getStringFromDouble( 0, lng_, str+strlen(str) );
     strcat( str, "]" );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.142 2010-12-28 22:22:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.143 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "emsurfaceio.h"
 
@@ -1703,7 +1703,8 @@ bool dgbSurfaceWriter::writeInt64( std::ostream& strm, od_int64 val,
 	strm.write((const char*)&val,sizeof(val));
     else
     {
-	BufferString valstr( getStringFromInt64(val) );
+	BufferString valstr;
+	getStringFromInt64(val,valstr.buf());
 	int len = valstr.size();
 	for ( int idx=20; idx>len; idx-- )
 	    strm << '0';

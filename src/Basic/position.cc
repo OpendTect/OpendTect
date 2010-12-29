@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.70 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.71 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "position.h"
 
@@ -85,8 +85,10 @@ double Coord::angle( const Coord& from, const Coord& to ) const
 void Coord::fill( char* str ) const
 {
     if ( !str ) return;
-    strcpy( str, "(" ); strcat( str, getStringFromDouble(0,x) );
-    strcat( str, "," ); strcat( str, getStringFromDouble(0,y) );
+    strcpy( str, "(" ); 
+    getStringFromDouble(0,x,str+1);
+    strcat( str, "," );
+    getStringFromDouble( 0, y, str+strlen(str) );
     strcat( str, ")" );
 }
 
@@ -148,9 +150,9 @@ void Coord3::fill(char* str, const char* start,
 		     const char* space, const char* end) const
 {
     strcpy( str, start );
-    strcat( str, getStringFromDouble(0,x) ); strcat(str,space);
-    strcat( str, getStringFromDouble(0,y) ); strcat(str,space);
-    strcat( str, getStringFromDouble(0,z) ); strcat(str,space);
+    toString( x, str+strlen(str) ); strcat(str,space);
+    toString( y, str+strlen(str) ); strcat(str,space);
+    toString( z, str+strlen(str) ); strcat(str,space);
     strcat( str, end );
 }
 

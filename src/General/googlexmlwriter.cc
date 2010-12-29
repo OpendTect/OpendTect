@@ -142,11 +142,11 @@ void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm,
 	   << "\t\t<name>" << nm << "</name>\n";
     if ( desc && *desc )
 	strm() << "\t\t<description>" << desc << "</description>\n";
+    char lngstr[255]; getStringFromDouble(0,ll.lng_, lngstr );
     strm() << "\t\t<LookAt>\n"
-	      "\t\t\t<longitude>" << getStringFromDouble(0,ll.lng_)
-				      << "</longitude>\n";
-    strm() << "\t\t\t<latitude>" << getStringFromDouble(0,ll.lat_)
-				      << "</latitude>\n";
+	      "\t\t\t<longitude>" << lngstr << "</longitude>\n";
+    char latstr[255]; getStringFromDouble(0,ll.lat_, latstr );
+    strm() << "\t\t\t<latitude>" << latstr << "</latitude>\n";
     strm() << "\t\t\t<altitude>0</altitude>\n"
 	"\t\t\t<range>500</range>\n"
 	"\t\t\t<tilt>20</tilt>\n"
@@ -155,8 +155,8 @@ void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm,
 	"\t\t</LookAt>\n"
 	"\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
 	"\t\t<Point>\n"
-	"\t\t\t<coordinates>" << getStringFromDouble(0,ll.lng_);
-    strm() << ',' << getStringFromDouble(0,ll.lat_) << ",0</coordinates>\n"
+	"\t\t\t<coordinates>" << lngstr;
+    strm() << ',' << latstr << ",0</coordinates>\n"
 	"\t\t</Point>\n"
 	"\t</Placemark>\n" << std::endl;
 }
@@ -175,12 +175,15 @@ void ODGoogle::XMLWriter::writeLine( const char* iconnm,
 	      "\t\t\t<tessellate>1</tessellate>\n"
 	      "\t\t\t<coordinates>\n";
 
+    char str[255];
     for ( int idx=0; idx<crds.size(); idx++ )
     {
 	const LatLong ll( SI().latlong2Coord().transform(crds[idx]) );
 
-	strm() << getStringFromDouble(0,ll.lng_) << ',';
-	strm() << getStringFromDouble(0,ll.lat_) << ",0 ";
+	getStringFromDouble( 0, ll.lng_, str );
+	strm() << str << ',';
+	getStringFromDouble( 0, ll.lat_, str );
+	strm() << str << ",0 ";
     }
 
     strm() << "\t\t\t</coordinates>\n"
@@ -225,12 +228,14 @@ void ODGoogle::XMLWriter::writePoly( const char* stylnm, const char* nm,
 		"\t\t\t\t<LinearRing>\n"
 		"\t\t\t\t\t<coordinates>\n";
 
+    char str[255];
     for ( int idx=0; idx<coords.size(); idx++ )
     {
 	const LatLong ll( si->latlong2Coord().transform(coords[idx]) );
-	strm() << "\t\t\t\t\t\t" << getStringFromDouble(0,ll.lng_);
-	strm() << ',' << getStringFromDouble(0,ll.lat_)
-	       << ',' << hght << '\n';
+	getStringFromDouble( 0, ll.lng_, str );
+	strm() << "\t\t\t\t\t\t" << str;
+	getStringFromDouble( 0, ll.lat_, str );
+	strm() << ',' << str << ',' << hght << '\n';
     }
     strm() <<	"\t\t\t\t\t</coordinates>\n"
 		"\t\t\t\t</LinearRing>\n"

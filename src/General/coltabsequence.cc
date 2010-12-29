@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.36 2010-12-01 11:24:46 cvsumesh Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.37 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -661,7 +661,9 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 	    if ( !seq.isSys() )
 	    {
 		IOPar iop; seq.fillPar( iop );
-		setts.mergeComp( iop, getStringFromInt(newidx) );
+		char str[255];
+		getStringFromInt(newidx,str);
+		setts.mergeComp( iop, str );
 		newidx++;
 	    }
 	}
@@ -695,7 +697,9 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 	if ( seq.isSys() )
 	{
 	    IOPar iop; seq.fillPar( iop );
-	    iopar.mergeComp( iop, getStringFromInt(newidx) );
+	    char str[255];
+	    getStringFromInt(newidx,str);
+	    iopar.mergeComp( iop, str );
 	    newidx++;
 	}
     }

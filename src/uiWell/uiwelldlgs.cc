@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.93 2010-12-07 05:51:22 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.94 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -743,8 +743,11 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 	    }
 	    else
 	    {
-		*sdo.ostrm << getStringFromDouble(0,pos.x) << '\t';
-		*sdo.ostrm << getStringFromDouble(0,pos.y);
+		char str[255];
+		getStringFromDouble( 0, pos.x, str );
+		*sdo.ostrm << str << '\t';
+		getStringFromDouble( 0, pos.y, str );
+		*sdo.ostrm << str;
 	    }
 
 	    float z = pos.z;

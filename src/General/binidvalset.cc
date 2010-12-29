@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.36 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.37 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -250,8 +250,12 @@ bool BinIDValueSet::putTo( std::ostream& strm ) const
 	const BinID bid( getInl(pos), getCrl(pos) );
 	const float* vals = getVals(pos);
 	strm << bid.inl << '\t' << bid.crl;
+	char str[255];
 	for ( int idx=0; idx<nrvals_; idx++ )
-	    strm << '\t' << getStringFromFloat(0,vals[idx]);
+	{
+	    getStringFromFloat( 0, vals[idx], str );
+	    strm << '\t' << str;
+	}
 	strm << '\n';
     }
     strm.flush();
@@ -1129,8 +1133,12 @@ void BinIDValueSet::fillPar( IOPar& iop, const char* ky ) const
 	    if ( nrvals_ )
 	    {
 		const float* v = vals.arr() + icrl*nrvals_;
+		char str[255];
 		for ( int idx=0; idx<nrvals_; idx++ )
-		    fms += getStringFromFloat(0,v[idx]);
+		{
+		    getStringFromFloat( 0, v[idx], str );
+		    fms += str;
+		}
 	    }
 	}
 	if ( ky && *ky )

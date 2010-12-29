@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.16 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.17 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "prestackeventio.h"
 
@@ -946,7 +946,8 @@ bool EventPatchFileHeader::fromStream( std::istream& strm )
 #define mWriteFixedCharVal( val, post ) \
 { \
     unsigned int uval = abs(val); \
-    const BufferString valstr ( getStringFromInt64(uval) ); \
+    BufferString valstr; \
+    getStringFromInt64(uval,valstr.buf() ); \
     const int len = valstr.size(); \
     int totlen = 11; \
     if ( val<0 ) \

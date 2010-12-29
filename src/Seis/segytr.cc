@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.103 2010-12-29 15:43:46 cvskris Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.104 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -157,7 +157,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	else if ( filepars_.fmt_<1 || filepars_.fmt_>8
 		|| filepars_.fmt_==6 || filepars_.fmt_==7 )
 	{
-	    addWarn( cSEGYWarnBadFmt, getStringFromInt(filepars_.fmt_) );
+	    char str[255]; getStringFromInt(filepars_.fmt_, str );
+	    addWarn( cSEGYWarnBadFmt, str );
 	    filepars_.fmt_ = 1;
 	}
     }

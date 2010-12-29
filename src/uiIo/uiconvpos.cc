@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvpos.cc,v 1.34 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiconvpos.cc,v 1.35 2010-12-29 15:49:20 cvskris Exp $";
 
 #include "uiconvpos.h"
 #include "survinfo.h"
@@ -138,6 +138,7 @@ void uiConvertPos::getBinID( CallBacker* )
 
 void uiConvertPos::convFile( CallBacker* )
 {
+    char buf[255];
     const BufferString inpfnm = inpfilefld->fileName();
     StreamData sdin = StreamProvider(inpfnm).makeIStream();
     if ( !sdin.usable() )
@@ -169,15 +170,17 @@ void uiConvertPos::convFile( CallBacker* )
 	{
 	    BinID bid( mNINT(c.x), mNINT(c.y) );
 	    c = SI().transform( bid );
-	    *sdout.ostrm << getStringFromDouble(0,c.x) << ' ';
-	    *sdout.ostrm << getStringFromDouble(0,c.y) << linebuf << '\n';
+	    getStringFromDouble( 0, c.x, buf );
+	    *sdout.ostrm << buf << ' ';
+	    getStringFromDouble( 0, c.y, buf );
+	    *sdout.ostrm << buf << linebuf << '\n';
 	}
 	nrln++;
     }
 
     sdin.close(); sdout.close();
-    uiMSG().message( "Total number of converted lines: ",
-	    	     getStringFromInt(nrln) );
+    getStringFromInt(nrln,buf);
+    uiMSG().message( "Total number of converted lines: ", buf );
 }
 
 
