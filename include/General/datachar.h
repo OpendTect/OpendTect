@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.14 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: datachar.h,v 1.15 2010-12-29 15:24:40 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -30,9 +30,9 @@ data handling. SGI is a future option.
 
 #define mDeclConstr(T,ii,is) \
 DataCharacteristics( const T* ) \
-: BinDataDesc(ii,is,sizeof(T)), fmt(Ieee), littleendian(__islittle__) {} \
+: BinDataDesc(ii,is,sizeof(T)), fmt_(Ieee), littleendian_(__islittle__) {} \
 DataCharacteristics( const T& ) \
-: BinDataDesc(ii,is,sizeof(T)), fmt(Ieee), littleendian(__islittle__) {}
+: BinDataDesc(ii,is,sizeof(T)), fmt_(Ieee), littleendian_(__islittle__) {}
 
 
 mClass DataCharacteristics : public BinDataDesc
@@ -41,19 +41,19 @@ public:
 
     enum Format		{ Ieee, Ibm };
 
-    Format		fmt;
-    bool		littleendian;
+    Format		fmt_;
+    bool		littleendian_;
 
 			DataCharacteristics( bool ii=false, bool is=true,
 					     ByteCount n=N4, Format f=Ieee,
 					     bool l=__islittle__ )
 			: BinDataDesc(ii,is,n)
-			, fmt(f), littleendian(l)		{}
+			, fmt_(f), littleendian_(l)		{}
 			DataCharacteristics( const BinDataDesc& bd )
 			: BinDataDesc(bd)
-			, fmt(Ieee), littleendian(__islittle__)	{}
+			, fmt_(Ieee), littleendian_(__islittle__)	{}
 
-    inline bool		isIeee() const		{ return fmt == Ieee; }
+    inline bool		isIeee() const		{ return fmt_ == Ieee; }
 
 			DataCharacteristics( unsigned char c1,unsigned char c2 )
 						{ set(c1,c2); }
@@ -83,8 +83,8 @@ public:
 			{ BinDataDesc::operator=(bd); return *this; }
 
     bool		needSwap() const
-			{ return (int)nrbytes > 1
-			      && littleendian != __islittle__; }
+			{ return (int)nrbytes_ > 1
+			      && littleendian_ != __islittle__; }
 
     enum UserType	{ Auto=0, SI8, UI8, SI16, UI16, SI32, UI32, F32,
 			  F64, SI64 };

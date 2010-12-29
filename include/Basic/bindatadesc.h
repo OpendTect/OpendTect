@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Feb 2001
  Contents:	Binary data interpretation
- RCS:		$Id: bindatadesc.h,v 1.13 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: bindatadesc.h,v 1.14 2010-12-29 15:24:40 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -48,28 +48,28 @@ public:
 
 			BinDataDesc( bool ii=false, bool is=true,
 				     ByteCount b=N4 )
-			: isint(ii), issigned(is), nrbytes(b)	{}
+			: isint_(ii), issigned_(is), nrbytes_(b)	{}
 			BinDataDesc( bool ii, bool is, int b )
-			: isint(ii), issigned(is),
-			  nrbytes(nearestByteCount(ii,b))	{}
+			: isint_(ii), issigned_(is),
+			  nrbytes_(nearestByteCount(ii,b))	{}
 			BinDataDesc( unsigned char c1, unsigned char c2 )
 			    					{ set(c1,c2); }
 			BinDataDesc( const char* s )		{ set(s); }
     virtual		~BinDataDesc()				{}
 
-    inline bool		isInteger() const		{ return isint; }
-    inline bool		isSigned() const		{ return issigned; }
-    inline ByteCount	nrBytes() const			{ return nrbytes; }
+    inline bool		isInteger() const		{ return isint_; }
+    inline bool		isSigned() const		{ return issigned_; }
+    inline ByteCount	nrBytes() const			{ return nrbytes_; }
     inline void		set( bool ii, bool is, ByteCount b )
-			{ isint = ii; issigned = is; nrbytes = b; }
+			{ isint_ = ii; issigned_ = is; nrbytes_ = b; }
     inline void		set( bool ii, bool is, int b )
-			{ isint = ii; issigned = is;
-			  nrbytes = nearestByteCount(ii,b); }
-    void		setInteger( bool yn )		{ isint = yn; }
-    void		setSigned( bool yn )		{ issigned = yn; }
-    void		setNrBytes( ByteCount n )	{ nrbytes = n; }
+			{ isint_ = ii; issigned_ = is;
+			  nrbytes_ = nearestByteCount(ii,b); }
+    void		setInteger( bool yn )		{ isint_ = yn; }
+    void		setSigned( bool yn )		{ issigned_ = yn; }
+    void		setNrBytes( ByteCount n )	{ nrbytes_ = n; }
     void		setNrBytes( int n )
-			{ nrbytes = nearestByteCount(isint,n); }
+			{ nrbytes_ = nearestByteCount(isint_,n); }
 
 			// dump/restore
     virtual int		maxStringifiedSize() const	{ return 18; }
@@ -99,7 +99,7 @@ public:
 			    return c11 == c21 && c12 == c22;
 			}
 
-    int			sizeFor( int n ) const		{ return nrbytes * n; }
+    int			sizeFor( int n ) const		{ return nrbytes_ * n; }
     virtual bool	convertsWellTo(const BinDataDesc&) const;
 
     static ByteCount	nearestByteCount( bool is_int, int s )
@@ -121,9 +121,9 @@ public:
 
 protected:
 
-    bool		isint;
-    bool		issigned;
-    ByteCount		nrbytes;
+    bool		isint_;
+    bool		issigned_;
+    ByteCount		nrbytes_;
 
     void		setFrom(unsigned char,bool);
 

@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.27 2010-10-15 11:38:42 cvsbert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.28 2010-12-29 15:24:40 cvskris Exp $";
 
 #include "datainterp.h"
 
@@ -54,8 +54,8 @@ const TU4 cMU4 = 4294967295UL;
 void DataCharacteristics::set( unsigned char c1, unsigned char c2 )
 {
     // remember that the 'zero' member is always zero.
-    littleendian = (c2 & 0x80) || (c2 & 0x01);
-    setFrom( c1, littleendian );
+    littleendian_ = (c2 & 0x80) || (c2 & 0x01);
+    setFrom( c1, littleendian_ );
 
     unsigned char f = (c2 & 0x0e) >> 1;
     if ( !f )
@@ -67,7 +67,7 @@ void DataCharacteristics::set( unsigned char c1, unsigned char c2 )
 	if ( f&0x01 ) g |= 0x04;
 	f = g;
     }
-    fmt = (DataCharacteristics::Format)f;
+    fmt_ = (DataCharacteristics::Format)f;
 };
 
 
@@ -77,22 +77,22 @@ void DataCharacteristics::set( const char* s )
     FileMultiString fms( s );
     const int sz = fms.size();
     if ( sz > 3 )
-	fmt = matchStringCI( "ibm", fms[1] ) ? DataCharacteristics::Ibm
+	fmt_ = matchStringCI( "ibm", fms[1] ) ? DataCharacteristics::Ibm
 					     : DataCharacteristics::Ieee;
     if ( sz > 4 )
-	littleendian = toBool( fms[4], true );
+	littleendian_ = toBool( fms[4], true );
 }
 
 
 DataCharacteristics::DataCharacteristics( DataCharacteristics::UserType ut )
 	: BinDataDesc( ut!=F32 && ut!=F64, ut>UI32 || (int)ut % 2)
-	, fmt(Ieee)
-	, littleendian(__islittle__)
+	, fmt_(Ieee)
+	, littleendian_(__islittle__)
 {
     if ( ut == Auto )
 	*this = DataCharacteristics();
     else
-	nrbytes = (BinDataDesc::ByteCount)
+	nrbytes_ = (BinDataDesc::ByteCount)
 		  (ut < SI16 ? 1 : (ut < SI32 ? 2 : (ut > F32 ? 8 : 4) ) );
 }
 
@@ -106,7 +106,7 @@ void DataCharacteristics::dump( unsigned char& c1, unsigned char& c2 ) const
 
     BinDataDesc::dump( c1, c2 );
     dc.b.fmt = isIeee() ? 0 : 1;
-    dc.b.islittle = littleendian;
+    dc.b.islittle = littleendian_;
     c2 = dc.c;
 }
 
@@ -119,7 +119,7 @@ void DataCharacteristics::toString( char* buf ) const
 
     FileMultiString fms( buf );
     fms += isIeee() ? "IEEE" : "IBMmf";
-    fms += getYesNoString( littleendian );
+    fms += getYesNoString( littleendian_ );
 
     strcpy( buf, (const char*)fms );
 }

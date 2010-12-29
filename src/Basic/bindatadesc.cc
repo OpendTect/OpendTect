@@ -5,7 +5,7 @@
  * FUNCTION : Binary data descritpion
 -*/
 
-static const char* rcsID = "$Id: bindatadesc.cc,v 1.8 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: bindatadesc.cc,v 1.9 2010-12-29 15:24:40 cvskris Exp $";
 
 #include "bindatadesc.h"
 #include "string2.h"
@@ -49,18 +49,18 @@ void BinDataDesc::setFrom( unsigned char c, bool wronlittle )
 	   } b;
 	};
 	_BDD_union_swp bdd; bdd.c = c;
-	isint = bdd.b.isint;
-	issigned = bdd.b.issigned;
+	isint_ = bdd.b.isint;
+	issigned_ = bdd.b.issigned;
 	while( bdd.b.bytepow ) { bdd.b.bytepow--; nb *= 2; }
     }
     else
     {
 	_BDD_union bdd; bdd.c = c;
-	isint = bdd.b.isint;
-	issigned = bdd.b.issigned;
+	isint_ = bdd.b.isint;
+	issigned_ = bdd.b.issigned;
 	while( bdd.b.bytepow ) { bdd.b.bytepow--; nb *= 2; }
     }
-    nrbytes = (BinDataDesc::ByteCount)nb;
+    nrbytes_ = (BinDataDesc::ByteCount)nb;
 };
 
 
@@ -69,14 +69,14 @@ void BinDataDesc::set( const char* s )
     if ( !s || !*s ) return;
 
     const char* ptr = strchr( s, '`' );
-    isint = *s != 'F' && *s != 'f';
+    isint_ = *s != 'F' && *s != 'f';
     if ( !ptr ) return;
 
     s = ptr + 1;
     ptr = strchr( s, '`' );
-    issigned = *s == 'S' || *s == 's';
+    issigned_ = *s == 'S' || *s == 's';
     if ( ptr )
-	nrbytes = nearestByteCount( isint, toInt( ptr+1 ) );
+	nrbytes_ = nearestByteCount( isint_, toInt( ptr+1 ) );
 }
 
 
@@ -84,9 +84,9 @@ void BinDataDesc::dump( unsigned char& c, unsigned char&  b ) const
 {
     _BDD_union bdd;
     bdd.c = 0;
-    bdd.b.isint = isint ? 1 : 0;
-    bdd.b.issigned = issigned ? 1 : 0;
-    bdd.b.bytepow = 0; int nb = nrbytes;
+    bdd.b.isint = isint_ ? 1 : 0;
+    bdd.b.issigned = issigned_ ? 1 : 0;
+    bdd.b.bytepow = 0; int nb = nrbytes_;
     while ( nb > 1 ) { bdd.b.bytepow++; nb /= 2; }
 
     c = bdd.c;
@@ -99,17 +99,17 @@ void BinDataDesc::toString( char* buf ) const
     if ( !buf ) return;
 
     sprintf( buf, "%s`%s`%d",
-		  isint ? "Integer" : "Float",
-		  issigned ? "Signed" : "Unsigned",
-		  (int)nrbytes );
+		  isint_ ? "Integer" : "Float",
+		  issigned_ ? "Signed" : "Unsigned",
+		  (int)nrbytes_ );
 }
 
 
 bool BinDataDesc::convertsWellTo( const BinDataDesc& dd ) const
 {
-    if ( (int)nrbytes > (int)dd.nrbytes ) return true;
-    if ( (int)nrbytes < (int)dd.nrbytes ) return false;
-    if ( !dd.isint ) return true;
-    if ( !isint ) return false;
-    return dd.issigned == issigned;
+    if ( (int)nrbytes_ > (int)dd.nrbytes_ ) return true;
+    if ( (int)nrbytes_ < (int)dd.nrbytes_ ) return false;
+    if ( !dd.isint_ ) return true;
+    if ( !isint_ ) return false;
+    return dd.issigned_ == issigned_;
 }
