@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.143 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.144 2010-12-29 18:04:50 cvskris Exp $";
 
 #include "emsurfaceio.h"
 
@@ -1950,7 +1950,11 @@ bool dgbSurfaceWriter::writeDouble( std::ostream& strm, double val,
     if ( binary_ )
 	strm.write((const char*) &val,sizeof(val));
     else
-	strm << getStringFromDouble("%.17g", val) << post;
+    {
+	char str[255];
+	getStringFromDouble("%.17g", val, str );
+	strm << str << post;
+    }
 
     return strm;
 }
