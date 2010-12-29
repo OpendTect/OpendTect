@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.21 2010-11-19 03:59:09 cvsnanne Exp $
+ RCS:		$Id: file.cc,v 1.22 2010-12-29 15:28:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,36 +13,77 @@ ________________________________________________________________________
 #include "file.h"
 #include "bufstring.h"
 #include "winutils.h"
+#include "errh.h"
 
+#ifndef OD_NO_QT
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#else
+#include <sys/stat.h>
+#include <fstream>
+#endif
 
+const char* not_implemented_str = "Not implemented";
 
 namespace File
 {
 
 bool exists( const char* fnm )
-{ return QFile::exists( fnm ); }
+{
+#ifndef OD_NO_QT
+    return QFile::exists( fnm );
+#else
+    std::ifstream strm;
+    strm.open( fnm );
+    return strm.is_open();
+#endif
+}
+
+
+od_int64 getFileSize( const char* fnm )
+{
+#ifndef OD_NO_QT
+    QFileInfo qfi( fnm );
+    return qfi.size();
+#else 
+    struct stat st_buf;
+    int status = stat(fnm, &st_buf);
+    if (status != 0)
+	return 0;
+
+    return st_buf.st_size;
+#endif
+}
+
 
 
 bool isEmpty( const char* fnm )
 {
-    QFileInfo qfi( fnm );
-    return qfi.size() < 1;
+    return getFileSize( fnm ) < 1;
 }
 
 
 bool isFile( const char* fnm )
 {
+#ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     return qfi.isFile();
+#else 
+    struct stat st_buf;
+    int status = stat(fnm, &st_buf);
+    if (status != 0)
+	return false;
+
+    return S_ISREG (st_buf.st_mode);
+#endif
 }
 
 
 bool isDirectory( const char* fnm )
 {
+#ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     if ( qfi.isDir() )
 	return true;
@@ -50,53 +91,109 @@ bool isDirectory( const char* fnm )
     BufferString lnkfnm( fnm, ".lnk" );
     qfi.setFile( lnkfnm.buf() );
     return qfi.isDir();
+#else
+    struct stat st_buf;
+    int status = stat(fnm, &st_buf);
+    if (status != 0)
+	return false;
+
+    if ( S_ISDIR (st_buf.st_mode) )
+	return true;
+
+    BufferString lnkfnm( fnm, ".lnk" );
+    status = stat ( lnkfnm.buf(), &st_buf);
+    if (status != 0)
+	return false;
+
+    return S_ISDIR (st_buf.st_mode);
+#endif
 }
 
 
 const char* getCanonicalPath( const char* dir )
 {
+#ifndef OD_NO_QT
     static BufferString pathstr;
     QDir qdir( dir );
     pathstr = qdir.canonicalPath().toAscii().constData();
     return pathstr;
+#else
+    pFreeFnErrMsg(not_implemented_str,"getCanonicalPath");
+    return 0;
+#endif
 }
 
 
 const char* getRelativePath( const char* reltodir, const char* fnm )
 {
+#ifndef OD_NO_QT
     BufferString reltopath = getCanonicalPath( reltodir );
     BufferString path = getCanonicalPath( fnm );
     static BufferString relpathstr;
     QDir qdir( reltopath.buf() );
     relpathstr = qdir.relativeFilePath( path.buf() ).toAscii().constData();
     return relpathstr;
+#else
+    pFreeFnErrMsg(not_implemented_str,"getRelativePath");
+    return 0;
+#endif
 }
 
 
 bool isLink( const char* fnm )
 {
+#ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     return qfi.isSymLink();
+#else
+    pFreeFnErrMsg(not_implemented_str,"isLink");
+    return 0;
+#endif
 }
 
 
 bool isWritable( const char* fnm )
 {
+#ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     return qfi.isWritable();
+#else
+    struct stat st_buf;
+    int status = stat(fnm, &st_buf);
+    if (status != 0)
+	return false;
+
+    return st_buf.st_mode & S_IWUSR;
+#endif
 }
 
 
 bool createDir( const char* fnm )
-{ QDir qdir; return qdir.mkpath( fnm ); }
+{
+#ifndef OD_NO_QT
+    QDir qdir; return qdir.mkpath( fnm );
+#else
+    pFreeFnErrMsg(not_implemented_str,"createDir");
+    return false;
+#endif
+}
 
 
 bool rename( const char* oldname, const char* newname )
-{ return QFile::rename( oldname, newname ); }
+{
+#ifndef OD_NO_QT
+    return QFile::rename( oldname, newname );
+#else
+    pFreeFnErrMsg(not_implemented_str,"rename");
+    return false;
+#endif
+
+}
 
 
 bool createLink( const char* fnm, const char* linknm )
 { 
+#ifndef OD_NO_QT
 #ifdef __win__
     BufferString winlinknm( linknm );
     if ( !strstr(linknm,".lnk")  )
@@ -104,8 +201,12 @@ bool createLink( const char* fnm, const char* linknm )
     return QFile::link( fnm, winlinknm.buf() );
 #else
     return QFile::link( fnm, linknm );
-#endif
+#endif // __win__
 
+#else
+    pFreeFnErrMsg(not_implemented_str,"createLink");
+    return false;
+#endif
 }
 
 
@@ -113,13 +214,13 @@ bool saveCopy( const char* from, const char* to )
 {
     if ( isDirectory(from) ) return false;
     if ( !exists(to) )
-	return QFile::copy( from, to );
+	return File::copy( from, to );
     
     const BufferString tmpfnm( to, ".tmp" );
     if ( !File::rename(to,tmpfnm) )
 	return false;
 
-    const bool res = QFile::copy( from, to );
+    const bool res = File::copy( from, to );
     res ? File::remove( tmpfnm ) : File::rename( tmpfnm, to );
     return res;
 }
@@ -127,6 +228,7 @@ bool saveCopy( const char* from, const char* to )
 
 bool copy( const char* from, const char* to )
 {
+#ifndef OD_NO_QT
 #ifdef __win__
     if ( isDirectory(from) || getKbSize(from) > 1024 )
 	return winCopy( from, to, isFile(from) );
@@ -140,6 +242,11 @@ bool copy( const char* from, const char* to )
 
     File::remove( to );
     return QFile::copy( from, to );
+
+#else
+    pFreeFnErrMsg(not_implemented_str,"copy");
+    return false;
+#endif
 }
 
 
@@ -164,7 +271,14 @@ bool copyDir( const char* from, const char* to )
 
 
 bool remove( const char* fnm )
-{ return isFile(fnm) ? QFile::remove( fnm ) : removeDir( fnm ); }
+{ 
+#ifndef OD_NO_QT
+    return isFile(fnm) ? QFile::remove( fnm ) : removeDir( fnm );
+#else
+    pFreeFnErrMsg(not_implemented_str,"remove");
+    return false;
+#endif
+}
 
 
 bool removeDir( const char* dirnm )
@@ -227,8 +341,7 @@ bool setPermissions( const char* fnm, const char* perms, bool recursive )
 
 int getKbSize( const char* fnm )
 {
-    QFileInfo qfi( fnm );
-    od_int64 kbsz = qfi.size() / 1024;
+    od_int64 kbsz = getFileSize( fnm ) / 1024;
     return kbsz;
 }
 
@@ -236,9 +349,13 @@ int getKbSize( const char* fnm )
 const char* timeCreated( const char* fnm, const char* fmt )
 {
     static BufferString timestr;
+#ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     QString qstr = qfi.created().toString( fmt );
     timestr = qstr.toAscii().constData();
+#else
+    pFreeFnErrMsg(not_implemented_str,"timeCreated");
+#endif
     return timestr.buf();
 }
 
@@ -246,34 +363,56 @@ const char* timeCreated( const char* fnm, const char* fmt )
 const char* timeLastModified( const char* fnm, const char* fmt )
 {
     static BufferString timestr;
+#ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     QString qstr = qfi.lastModified().toString( fmt );
     timestr = qstr.toAscii().constData();
+#else
+    pFreeFnErrMsg(not_implemented_str,"timeLastModified");
+#endif
     return timestr.buf();
 }
 
 
 od_int64 getTimeInSeconds( const char* fnm )
 {
+#ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     return qfi.lastModified().toTime_t();
+#else
+    struct stat st_buf;
+    int status = stat(fnm, &st_buf);
+    if (status != 0)
+	return 0;
+
+    return st_buf.st_mtime;
+#endif
 }
 
 
 const char* linkTarget( const char* linknm )
 {
+#ifndef OD_NO_QT
     static BufferString linkstr;
     QFileInfo qfi( linknm );
     linkstr = qfi.isSymLink() ? qfi.symLinkTarget().toAscii().constData()
 			      : linknm;
     return linkstr.buf();
+#else
+    pFreeFnErrMsg(not_implemented_str,"linkTarget");
+    return 0;
+#endif
 }
 
 
 const char* getCurrentPath()
 {
     static BufferString pathstr;
+#ifndef OD_NO_QT
     pathstr = QDir::currentPath().toAscii().constData();
+#else
+    pFreeFnErrMsg(not_implemented_str,"getCurrentPath");
+#endif
     return pathstr.buf();
 }
 
@@ -281,7 +420,11 @@ const char* getCurrentPath()
 const char* getHomePath()
 {
     static BufferString pathstr;
+#ifndef OD_NO_QT
     pathstr = QDir::homePath().toAscii().constData();
+#else
+    pFreeFnErrMsg(not_implemented_str,"getHomePath");
+#endif
     return pathstr.buf();
 }
 
@@ -289,7 +432,11 @@ const char* getHomePath()
 const char* getTempPath()
 {
     static BufferString pathstr;
+#ifndef OD_NO_QT
     pathstr = QDir::tempPath().toAscii().constData();
+#else
+    pFreeFnErrMsg(not_implemented_str,"getTmpPath");
+#endif
     return pathstr.buf();
 }
 
