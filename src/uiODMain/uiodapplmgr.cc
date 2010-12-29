@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.402 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.403 2010-12-29 19:20:53 cvsyuancheng Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -453,10 +453,15 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		mDynamicCastGet(const Attrib::Flat3DDataPack*,f3ddp,dp );
 		if ( f3ddp )
 		{
-		    const int newsz0 = f3ddp->posData().range(1).nrSteps()+1;
-		    const int newsz1 = f3ddp->posData().range(0).nrSteps()+1;
-		    const int oldsz0 = pdd->getChannels()->getSize( 1 );
-		    const int oldsz1 = pdd->getChannels()->getSize( 2 );
+		    StepInterval<double> rg0 = f3ddp->posData().range(true);
+		    StepInterval<double> rg1 = f3ddp->posData().range(false);
+		    int newsz0 = rg0.nrSteps()+1;
+		    int newsz1 = rg1.nrSteps()+1;
+		    if ( rg0.start+(newsz0-1)*rg0.step < rg0.stop ) newsz0++;
+		    if ( rg1.start+(newsz1-1)*rg1.step < rg1.stop ) newsz1++;
+		    const int reso = pdd->getResolution()+1;
+		    const int oldsz0 = pdd->getChannels()->getSize(1) / reso;
+		    const int oldsz1 = pdd->getChannels()->getSize(2) / reso;
 		    if ( oldsz0 && oldsz1 && (newsz0!=oldsz0 || newsz1!=oldsz1))
 		    { 
 			BufferString msg = "The current data has different ";
