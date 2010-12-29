@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.23 2010-12-07 22:32:05 cvskris Exp $
+ RCS:		$Id: enums.h,v 1.24 2010-12-29 15:31:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -273,14 +273,5 @@ const char* nmspc::get##enm##String( enm theenum ) \
     return enm##Names_[idx]; \
 } \
 const char* nmspc::enm##Names_[] =
-
-#define eString(enm,vr)	(enm##Def().convert((int)vr))
-//!< this is the actual enum -> string
-#define eEnum(enm,str)	((enm)enm##Def().convert(str))
-//!< this is the actual string -> enum
-
-#define eKey(enm)	(enm##Def().name())
-//!< this is the 'pretty name' of the enum
-
 
 #endif
