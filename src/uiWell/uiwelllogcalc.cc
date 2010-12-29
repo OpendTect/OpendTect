@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.11 2010-10-14 09:58:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.12 2010-12-29 10:09:49 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -417,7 +417,6 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
     const int endrgidx = dahrg_.nrSteps();
     for ( ; rgidx<=endrgidx; rgidx++ )
     {
-	float outval; bool haveoutval = false;
 	const float dah = dahrg_.atIndex( rgidx );
 	for ( int iinp=0; iinp<inpdata.size(); iinp++ )
 	{
@@ -426,30 +425,25 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 	    if ( inpd.wl_ )
 	    {
 		const float val = inpd.wl_->getValue( curdah, inpd.noudf_ );
-		if ( mIsUdf(val) )
-		    { outval = val; haveoutval = true; break; }
-		else
-		    expr_->setVariableValue( iinp, val );
+		expr_->setVariableValue( iinp, val );
 	    }
 	    else if ( inpd.specidx_ < 0 )
 	    {
 		const int valsidx = rgidx + nrstart + inpd.shift_;
-		if ( valsidx < 0 || valsidx >= vals.size() )
-		    { outval = mUdf(float); haveoutval = true; break; }
-		expr_->setVariableValue( iinp, vals[valsidx] );
+		float varval = valsidx < 0 || valsidx >= vals.size()
+		    	     ? mUdf(float) : vals[valsidx];
+		expr_->setVariableValue( iinp, varval );
 	    }
 	    else
 	    {
-		float val;
+		float val = mUdf(float);
 		if ( inpd.specidx_ == 0 )	val = curdah;
 		else if ( inpd.specidx_ == 1 )	val = dahrg_.step;
 		expr_->setVariableValue( iinp, val );
 	    }
 	}
 
-	if ( !haveoutval )
-	    outval = expr_->getValue();
-	vals += outval;
+	vals += expr_->getValue();
     }
 
     for ( int idx=nrstart; idx<vals.size(); idx++ )
