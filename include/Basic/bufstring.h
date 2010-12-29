@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.41 2010-03-29 20:09:10 cvskris Exp $
+ RCS:		$Id: bufstring.h,v 1.42 2010-12-29 15:18:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,9 @@ public:
     char*		buf();		//!< Allocation of min length guaranteed
     inline const char*	buf() const	{ return buf_ ? buf_ : empty().buf_; }
     inline const char*	str() const;	//!<\returns null pointer if empty
+    char*		bufEnd()	{ return buf()+size(); }
+    			/*!<Use with care, allocation beyond min length is not
+			    guaranteed. */
     inline		operator const char*() const	{ return buf(); }
     inline char&	operator []( int idx )		{ return buf()[idx]; }
     inline const char&	operator []( int idx ) const	{ return buf()[idx]; }
