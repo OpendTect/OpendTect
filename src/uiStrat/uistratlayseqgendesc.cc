@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.20 2010-12-27 15:09:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.21 2010-12-29 05:35:09 cvsumesh Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -269,7 +269,7 @@ void uiSingleLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     else
     {
 	const int nypix = (int)(minth * pixperm + .5);
-	const int nxpix = (maxth/(maxth-minth)) * polyrect.width();
+	const int nxpix = mNINT((maxth/(maxth-minth)) * polyrect.width());
 	if ( growing )
 	{
 	    pts += polyrect.topRight();
