@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.61 2010-12-16 13:08:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.62 2010-12-29 15:30:27 cvskris Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -109,7 +109,7 @@ void CBVSReadMgr::handleAuxFile()
     auxstrm_->seekg( 3, std::ios::beg );
     char plf; auxstrm_->read( &plf, 1 );
     DataCharacteristics dc;
-    dc.littleendian = plf != 0;
+    dc.littleendian_ = plf != 0;
     finterp.set( dc );
     dc.setNrBytes( BinDataDesc::N8 );
     dinterp.set( dc );

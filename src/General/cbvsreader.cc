@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.81 2010-12-16 13:08:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.82 2010-12-29 15:30:03 cvskris Exp $";
 
 /*!
 
@@ -82,7 +82,7 @@ bool CBVSReader::readInfo( bool wanttrailer, bool forceusecbvsinfo )
     strm_.read( ptr, headstartbytes );
 
     DataCharacteristics dc;
-    dc.littleendian = ptr[3] != 0;
+    dc.littleendian_ = ptr[3] != 0;
     finterp.set( dc );
     dc.setNrBytes( BinDataDesc::N8 );
     dinterp.set( dc );
@@ -237,7 +237,7 @@ bool CBVSReader::readComps()
 	strm_.read( ucbuf, 4 );
 	    newinf->datachar.set( ucbuf[0], ucbuf[1] );
 	    // extra 2 bytes reserved for compression type
-	    newinf->datachar.fmt = DataCharacteristics::Ieee;
+	    newinf->datachar.fmt_ = DataCharacteristics::Ieee;
 	strm_.read( ucbuf, sizeof(float) );
 	    info_.sd.start = finterp.get( ucbuf, 0 );
 	strm_.read( ucbuf, sizeof(float) );
