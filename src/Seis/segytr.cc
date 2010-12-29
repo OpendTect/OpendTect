@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.102 2010-11-12 15:02:24 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.103 2010-12-29 15:43:46 cvskris Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -257,7 +257,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 
     addComp( getDataChar(filepars_.fmt_)  );
     DataCharacteristics& dc = tarcds[0]->datachar;
-    dc.fmt = DataCharacteristics::Ieee;
+    dc.fmt_ = DataCharacteristics::Ieee;
     const float scfac = trchead_.postScale(filepars_.fmt_ ? filepars_.fmt_ : 1);
     if ( !mIsEqual(scfac,1,mDefEps)
       || (dc.isInteger() && dc.nrBytes() == BinDataDesc::N4) )
@@ -466,10 +466,10 @@ DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
         dc.setNrBytes( 1 );
     break;
     case 5:
-	dc.fmt = DataCharacteristics::Ieee;
+	dc.fmt_ = DataCharacteristics::Ieee;
 	dc.setInteger( false );
 	if ( isRev1() )
-	    dc.littleendian = false;
+	    dc.littleendian_ = false;
     break;
     default:
 	dc.setInteger( false );
