@@ -7,25 +7,25 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.19 2009-11-19 04:04:12 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.20 2010-12-29 11:06:38 cvsnageswara Exp $";
 
 
 #include "uiemattribpartserv.h"
 
-#include "posvecdataset.h"
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 #include "uihorizonshiftdlg.h"
 #include "uihorsavefieldgrp.h"
-#include "uiimphorizon2d.h"
 #include "uiimpfaultstickset2d.h"
+#include "uiimphorizon2d.h"
 #include "uiseiseventsnapper.h"
 
 #include "datapointset.h"
-#include "emmanager.h"
 #include "emhorizon3d.h"
+#include "emmanager.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "posvecdataset.h"
 #include "typeset.h"
 
 static const DataColDef	siddef_( "Section ID" );
@@ -65,6 +65,9 @@ bool uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid, MultiID& mid,
        					bool& displaynew, bool is2d )
 {
     IOObj* ioobj = IOM().get( EM::EMM().getMultiID(emid) );
+    if ( !ioobj )
+	return false;
+
     uiSeisEventSnapper dlg( parent(), ioobj, is2d );
     dlg.go();
     delete ioobj;
@@ -111,9 +114,8 @@ void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
     initialshift_ = initialshift;
     initialattribstatus_ = attrenabled;
     setAttribIdx( mUdf(int) );
-    horshiftdlg_ = new uiHorizonShiftDialog( appserv().parent(),
-	    id, *descset_, initialshift, canaddattrib );
-
+    horshiftdlg_ = new uiHorizonShiftDialog( appserv().parent(), id, *descset_,
+	    				     initialshift, canaddattrib );
     horshiftdlg_->calcAttribPushed.notify(
 	    mCB(this,uiEMAttribPartServer,calcDPS) );
     horshiftdlg_->horShifted.notify(
