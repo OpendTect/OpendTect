@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.34 2010-12-07 20:17:13 cvskris Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.35 2010-12-30 16:18:28 cvskris Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -149,8 +149,9 @@ void PropertyRef::fillPar( IOPar& iop ) const
 
     iop.set( sKey::Color, disp_.color_ );
     FileMultiString fms;
-    fms += toString( disp_.range_.start );
-    fms += toString( disp_.range_.stop );
+    char str[255];
+    fms += toString( disp_.range_.start, str );
+    fms += toString( disp_.range_.stop, str );
     if ( !disp_.unit_.isEmpty() )
 	fms += disp_.unit_;
     iop.set( sKey::Range, fms );
@@ -368,7 +369,8 @@ const char* Property::name() const
 
 const char* ValueProperty::def() const
 {
-    return toString( val_ );
+    static char buf[255];
+    return toString( val_, buf );
 }
 
 
@@ -397,8 +399,9 @@ const char* RangeProperty::def() const
 	return "1e30`0";
 
     static FileMultiString fms;
-    fms = toString(rg_.start);
-    fms += toString(rg_.stop);
+    char str[255];
+    fms = toString(rg_.start, str);
+    fms += toString(rg_.stop, str);
     return fms.buf();
 }
 
