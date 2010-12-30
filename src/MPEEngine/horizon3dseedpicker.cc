@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.38 2010-09-15 05:53:18 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.39 2010-12-30 11:59:40 cvsumesh Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -149,8 +149,8 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 	    if ( !emobj->isDefined( pid ) )
 		emobj->setPos( pid, oldpos, true );
 
-	    if  ( attribwasdef )
-		emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
+//	    if  ( attribwasdef )
+//		emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
 	}
     }
 
