@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.43 2010-11-18 17:20:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.44 2010-12-30 17:27:21 cvskris Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -337,7 +337,8 @@ bool uiSpinBox::keyboardTracking() const
 
 void uiSpinBox::notifyHandler( bool editingfinished )
 {
-    BufferString msg = toString( oldvalue_ );
+    BufferString msg;
+    toString( oldvalue_, msg.buf() );
     oldvalue_ = getFValue();
     msg += editingfinished ? " valueChanged" : " valueChanging";
     const int refnr = beginCmdRecEvent( msg );
