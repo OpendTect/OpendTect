@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.77 2010-12-09 04:08:50 cvsnageswara Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.78 2010-12-30 19:34:22 cvskris Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -400,10 +400,11 @@ bool BatchProgram::go( std::ostream& strm )
     TypeSet<DescID> attribids;
     int nrattribs = 1;
     attribsiopar->get( "MaxNrKeys", nrattribs );
+    char buf[10];
     for ( int idx=0; idx<nrattribs; idx++ )
     {
 	int id;
-	if ( attribsiopar->get(toString(idx),id) )
+	if ( attribsiopar->get(toString(idx,buf),id) )
 	    attribids += DescID(id,false);
     }
 

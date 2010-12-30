@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_segyio.cc,v 1.1 2010-07-15 18:45:32 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_segyio.cc,v 1.2 2010-12-30 19:31:47 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -63,10 +63,11 @@ bool BatchProgram::go( std::ostream& strm )
 	    report.add( "Warning", indexer.scanner()->warnings().get(0) );
 	else
 	{
+	    char buf[10];
 	    for ( int idx=0; idx<indexer.scanner()->warnings().size(); idx++ )
 	    {
 		if ( !idx ) report.add( IOPar::sKeyHdr(), "Warnings" );
-		report.add( toString(idx+1),
+		report.add( toString(idx+1, buf ),
 			    indexer.scanner()->warnings().get(idx) );
 	    }
 	}
