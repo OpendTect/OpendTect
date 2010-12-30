@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.97 2010-11-18 13:03:16 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.98 2010-12-30 18:33:00 cvskris Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -513,9 +513,11 @@ void DescSet::handleReferenceInput( Desc* dsc )
 bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar, 
 				BufferStringSet* errmsgs )
 {
+    char buf[30];
     for ( int idx=0; idx<nrdescsnosteer; idx++ )
     {
-	PtrMan<IOPar> descpar=copypar.subselect( toString(ids_[idx].asInt()) );
+	PtrMan<IOPar> descpar =
+	    copypar.subselect( toString(ids_[idx].asInt(),buf) );
 	if ( !descpar )
 	    { pErrMsg("Huh?"); continue; }
 
@@ -562,9 +564,10 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
     IOPar copypar(par);
     bool res = true;
 
+    char buf[30];
     for ( int id=0; id<=maxid; id++ )
     {
-	PtrMan<IOPar> descpar = par.subselect( toString(id) );
+	PtrMan<IOPar> descpar = par.subselect( toString(id, buf) );
 	if ( !descpar ) continue;
 
 	handleStorageOldFormat( *descpar );
@@ -599,7 +602,7 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 	
 	dsc->updateParams();
 	addDesc( dsc, DescID(id,storedattronly_) );
-	copypar.mergeComp( *descpar, toString(id) );
+	copypar.mergeComp( *descpar, toString(id,buf) );
     }
     
     ObjectSet<Desc> newsteeringdescs;
@@ -619,6 +622,7 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 				 BufferStringSet* errmsgs )
 {
+    char buf[30];
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
     for ( int id=0; id<=maxid; id++ )
@@ -643,7 +647,8 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 		BufferString inputstr = IOPar::compKey( "Input", idx );
 		if ( !strcmp(descpar->find(inputstr),"-1") )
 		{
-		    const char* newkey = IOPar::compKey(toString(id),inputstr);
+		    const char* newkey =
+			IOPar::compKey(toString(id,buf),inputstr);
 		    par.set( newkey, maxid + steeringdescid +1 );
 		}
 	    }
