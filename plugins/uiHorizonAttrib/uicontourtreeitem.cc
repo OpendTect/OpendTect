@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.13 2010-11-04 13:53:41 cvshelene Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.14 2010-12-30 17:32:22 cvskris Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -419,6 +419,7 @@ void uiContourTreeItem::computeContours()
 	for ( int cidx=0; cidx<isocontours.size(); cidx++ )
 	{
 	    const ODPolygon<float>& ic = *isocontours[cidx];
+	    char buf[255];
 	    for ( int vidx=0; vidx<ic.size(); vidx++ )
 	    {
 		const Geom::Point2D<float> vertex = ic.getVertex( vidx );
@@ -428,7 +429,7 @@ void uiContourTreeItem::computeContours()
 		const int posidx = lines_->getCoordinates()->addPos( pos );
 		lines_->setCoordIndex( cii++, posidx );
 		if ( ic.size() > cMinNrNodesForLbl  && vidx == ic.size()/2 )
-		    addText( pos, getStringFromFloat(fmt,contourval*fac) );
+		    addText( pos, getStringFromFloat(fmt,contourval*fac, buf) );
 	    }
 	    
 	    if ( ic.isClosed() )
