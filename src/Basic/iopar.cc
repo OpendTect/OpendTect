@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.86 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.87 2010-12-30 15:53:15 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -349,60 +349,68 @@ mDefYNFns(add)
 #define mDefSet1Val( type ) \
 void IOPar::set( const char* keyw, type val ) \
 {\
-    set( keyw, Conv::to<const char*>(val) );\
+    char str[255]; \
+    set( keyw, toString( val, str ) );\
 }
 #define mDefSet2Val( type ) \
 void IOPar::set( const char* s, type v1, type v2 ) \
 { \
-    FileMultiString fms = Conv::to<const char*>(v1); \
-    fms.add( Conv::to<const char*>(v2) ); \
+    char str[255]; \
+    FileMultiString fms = toString(v1,str); \
+    fms.add( toString(v2,str) ); \
     set( s, fms ); \
 }
 #define mDefSet3Val( type ) \
 void IOPar::set( const char* s, type v1, type v2, type v3 ) \
 { \
-    FileMultiString fms = Conv::to<const char*>(v1); \
-    fms.add( Conv::to<const char*>(v2) ); \
-    fms.add( Conv::to<const char*>(v3) ); \
+    char str[255]; \
+    FileMultiString fms = toString(v1,str); \
+    fms.add( toString(v2,str) ); \
+    fms.add( toString(v3,str) ); \
     set( s, fms ); \
 }
 #define mDefSet4Val( type ) \
 void IOPar::set( const char* s, type v1, type v2, type v3, type v4 ) \
 { \
-    FileMultiString fms = Conv::to<const char*>(v1); \
-    fms.add( Conv::to<const char*>(v2) ); \
-    fms.add( Conv::to<const char*>(v3) ); \
-    fms.add( Conv::to<const char*>(v4) ); \
+    char str[255]; \
+    FileMultiString fms = toString(v1,str); \
+    fms.add( toString(v2,str) ); \
+    fms.add( toString(v3,str) ); \
+    fms.add( toString(v4,str) ); \
     set( s, fms ); \
 }
 
 #define mDefAdd1Val(type) \
 void IOPar::add( const char* keyw, type val ) \
 {\
-    add( keyw, Conv::to<const char*>(val) );\
+    char str[255]; \
+    add( keyw, toString( val, str ) ); \
 }
 #define mDefAdd2Val( type ) \
 void IOPar::add( const char* s, type v1, type v2 ) \
 { \
-    FileMultiString fms = Conv::to<const char*>(v1); \
-    fms.add( Conv::to<const char*>(v2) ); \
+    char str[255]; \
+    FileMultiString fms = toString(v1,str); \
+    fms.add( toString(v2,str) ); \
     add( s, fms ); \
 }
 #define mDefAdd3Val( type ) \
 void IOPar::add( const char* s, type v1, type v2, type v3 ) \
 { \
-    FileMultiString fms = Conv::to<const char*>(v1); \
-    fms.add( Conv::to<const char*>(v2) ); \
-    fms.add( Conv::to<const char*>(v3) ); \
+    char str[255]; \
+    FileMultiString fms = toString(v1,str); \
+    fms.add( toString(v2,str) ); \
+    fms.add( toString(v3,str) ); \
     add( s, fms ); \
 }
 #define mDefAdd4Val( type ) \
 void IOPar::add( const char* s, type v1, type v2, type v3, type v4 ) \
 { \
-    FileMultiString fms = Conv::to<const char*>(v1); \
-    fms.add( Conv::to<const char*>(v2) ); \
-    fms.add( Conv::to<const char*>(v3) ); \
-    fms.add( Conv::to<const char*>(v4) ); \
+    char str[255]; \
+    FileMultiString fms = toString(v1,str); \
+    fms.add( toString(v2,str) ); \
+    fms.add( toString(v3,str) ); \
+    fms.add( toString(v4,str) ); \
     add( s, fms ); \
 }
 
@@ -582,18 +590,20 @@ static void iopset_typeset( IOPar& iop, const char* keyw,
 
     int validx = 0; 
     int keyidx = 0;
+
+    char str[255];
    
     while ( validx != nrvals )
     {
 	T val = vals[ validx++ ];
-	FileMultiString fms( Conv::to<const char*>(val) );
+	FileMultiString fms( toString(val,str) );
 
 	for ( int cnt=1; cnt<cMaxTypeSetItemsPerLine; cnt++ )
 	{
 	    if ( validx == nrvals ) break;
 	    
 	    val = vals[ validx++ ];
-	    fms += Conv::to<const char*>( val );
+	    fms += toString( val,str );
 	}
 	
 	FixedString newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
@@ -800,9 +810,10 @@ void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
 
 void IOPar::set( const char* s, int i1, int i2, float f )
 {
-    FileMultiString fms = Conv::to<const char*>( i1 );
-    fms.add( Conv::to<const char*>(i2) );
-    fms.add( Conv::to<const char*>(f) );
+    char str[255];
+    FileMultiString fms = toString( i1, str );
+    fms.add( toString(i2, str) );
+    fms.add( toString(f, str) );
     set( s, fms );
 }
 
