@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_gmtexec.cc,v 1.10 2010-04-23 11:33:30 cvsnageswara Exp $";
+static const char* rcsID = "$Id: od_gmtexec.cc,v 1.11 2010-12-30 20:05:35 cvskris Exp $";
 
 #include "batchprog.h"
 #include "filepath.h"
@@ -71,7 +71,10 @@ bool BatchProgram::go( std::ostream& strm )
 
 	IOPar legpar;
 	if ( par->fillLegendPar( legpar ) )
-	    legendspar.mergeComp( legpar, toString(legendidx++) );
+	{
+	    char buf[10];
+	    legendspar.mergeComp( legpar, toString(legendidx++, buf ) );
+	}
 
 	if ( idx == 0 )
 	{
