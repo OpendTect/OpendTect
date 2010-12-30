@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.37 2010-12-29 15:49:20 cvskris Exp $
+ RCS:		$Id: string2.h,v 1.38 2010-12-30 15:52:22 cvskris Exp $
 ________________________________________________________________________
 -*/
 
@@ -66,16 +66,16 @@ mGlobal void cleanupString(char*,int,int,int);
 mGlobal int isNumberString(const char*,int int_only);
 
 /*!> Fills string with string for an int */
-mGlobal void getStringFromInt(od_int32,char*);
-mGlobal void getStringFromUInt(od_uint32,char*);
-mGlobal void getStringFromInt64(od_int64,char*);
-mGlobal void getStringFromUInt64(od_uint64,char*);
+mGlobal const char* getStringFromInt(od_int32, char*);
+mGlobal const char* getStringFromUInt(od_uint32,char*);
+mGlobal const char* getStringFromInt64(od_int64,char*);
+mGlobal const char* getStringFromUInt64(od_uint64,char*);
 
 /*!> Normally, pass null for fmt. Then it will do removal of
      trailing zeros and use %lf in more cases than std. */
-mGlobal void getStringFromDouble(const char* fmt,double,char*);
+mGlobal const char* getStringFromDouble(const char* fmt,double,char*);
 /*!> is like getStringFromDouble, with special %f treatment. */
-mGlobal void getStringFromFloat(const char* fmt,float,char*);
+mGlobal const char* getStringFromFloat(const char* fmt,float,char*);
 /*!> removes unwanted zeros and dots from a floating point in string. */
 mGlobal void prettyNumber(char*,int is_float);
 
@@ -101,16 +101,23 @@ mGlobal int getIndexInStringArrCI(const char*,const char* const* arr,
 #include <stdlib.h>
 #include "undefval.h"
 
-inline void toString(od_int32 i,char* r)	{ getStringFromInt( i, r ); }
-inline void toString(od_uint32 i,char* r)	{ getStringFromUInt( i, r ); }
-inline void toString(od_int64 i,char* r)	{ getStringFromInt64( i, r ); }
-inline void toString(od_uint64 i,char* r)	{ getStringFromUInt64(i,r); }
-inline void toString( float f,char* r )		{ getStringFromFloat(0,f,r); }
-inline void toString( double d,char* r )	{ getStringFromDouble(0,d,r); }
-inline void toString( short i,char* r)		{ getStringFromInt((int)i,r); }
-inline void toString( unsigned short i,char* r )
-				{ getStringFromUInt( (unsigned int)i, r ); }
-inline const char* toString(bool b,char*r=0)	
+inline const char* toString(od_int32 i, char* r)
+	{ return getStringFromInt( i, r ); }
+inline const char* toString(od_uint32 i,char* r)
+	{ return getStringFromUInt( i, r ); }
+inline const char* toString(od_int64 i,char* r)
+	{ return getStringFromInt64( i, r ); }
+inline const char* toString(od_uint64 i,char* r)
+	{ return getStringFromUInt64(i,r); }
+inline const char* toString( float f,char* r )	
+	{ return getStringFromFloat(0,f,r); }
+inline const char* toString( double d,char* r )
+	{ return getStringFromDouble(0,d,r); }
+inline const char* toString( short i,char* r)
+	{ return getStringFromInt((int)i,r); }
+inline const char* toString( unsigned short i,char* r )
+	{ return getStringFromUInt( (unsigned int)i, r ); }
+inline const char* toString(bool b,char*r)	
 {
     const char* res = getYesNoString(b);
     if ( r ) strcpy( r, res );
