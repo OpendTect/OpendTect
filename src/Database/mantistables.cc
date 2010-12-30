@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.cc,v 1.1 2010-09-14 10:32:32 cvsbert Exp $
+ RCS:           $Id: mantistables.cc,v 1.2 2010-12-30 15:58:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,13 +112,14 @@ void SqlDB::BugTableEntry::init()
 void SqlDB::BugTableEntry::getQueryInfo( BufferStringSet& colnms,
 				  BufferStringSet& values, bool isedit )
 {
+    char str[255];
     if ( !isedit )
     {
 	colnms.add( "project_id" ).add( "reporter_id" ).add( "date_submitted" )
 	      .add( "summary" ).add( "category" );
 
-	values.add( Conv::to<const char*>(projectid_) );
-	values.add( Conv::to<const char*>(reporterid_) );
+	values.add( toString(projectid_, str) );
+	values.add( toString(reporterid_, str) );
 	values.add( date_ ).add( summary_ ).add( category_ );
     }
 
@@ -126,10 +127,10 @@ void SqlDB::BugTableEntry::getQueryInfo( BufferStringSet& colnms,
 	  .add( "resolution" ).add( "last_updated" )
 	  .add( "platform" ).add( "version" );
 
-    values.add( Conv::to<const char*>(handlerid_) );
-    values.add( Conv::to<const char*>(severity_) );
-    values.add( Conv::to<const char*>(status_) );
-    values.add( Conv::to<const char*>(resolution_) );
+    values.add( toString(handlerid_, str) );
+    values.add( toString(severity_, str) );
+    values.add( toString(status_, str) );
+    values.add( toString(resolution_, str) );
     values.add( date_ ).add( platform_ ).add( version_ );
 }
 
@@ -171,8 +172,9 @@ void SqlDB::BugTableEntry::setSeverity( int val )
 {
     if ( val == severity_ ) return;
 
-    BufferString oldvalue( toString(severity_) );
-    addToHistory( "severity", oldvalue, toString(val) );
+    char str[255];
+    BufferString oldvalue( toString(severity_,str) );
+    addToHistory( "severity", oldvalue, toString(val,str) );
     severity_ = val;
 }
 
@@ -182,8 +184,9 @@ void SqlDB::BugTableEntry::setHandlerID( int hid )
     if ( hid == handlerid_ )
 	return;
 
-    BufferString oldhid( toString(handlerid_) );
-    addToHistory( "handler_id", oldhid, toString(hid) );
+    char str[255];
+    BufferString oldhid( toString(handlerid_,str) );
+    addToHistory( "handler_id", oldhid, toString(hid,str) );
     handlerid_ = hid;
 }
 
@@ -193,8 +196,9 @@ void SqlDB::BugTableEntry::setStatus( int status )
     if ( status_ == status )
 	return;
 
-    BufferString oldstatus( toString(status_) );
-    addToHistory( "status", oldstatus, toString(status) );
+    char str[255];
+    BufferString oldstatus( toString(status_,str) );
+    addToHistory( "status", oldstatus, toString(status,str) );
     status_ = status;
 }
 
@@ -204,8 +208,9 @@ void SqlDB::BugTableEntry::setResolution( int resolution )
     if ( resolution_ == resolution )
 	return;
 
-    BufferString oldres( toString(resolution_) );
-    addToHistory( "resolution", oldres, toString(resolution) );
+    char str[255];
+    BufferString oldres( toString(resolution_,str) );
+    addToHistory( "resolution", oldres, toString(resolution,str) );
     resolution_ = resolution;
 }
 
@@ -260,8 +265,9 @@ void SqlDB::BugHistoryTableEntry::getQueryInfo( BufferStringSet& colnms,
 	  .add( "field_name" ).add( "old_value" ).add( "new_value" )
 	  .add( "type" );
 
-    values.add( Conv::to<const char*>(userid_) );
-    values.add( Conv::to<const char*>(bugid_) );
+    char str[255];
+    values.add( toString(userid_, str) );
+    values.add( toString(bugid_, str) );
     values.add( date_ ).add( fieldnm_ ).add( oldvalue_ ).add( newvalue_ );
-    values.add( Conv::to<const char*>(type_) );
+    values.add( toString(type_, str) );
 }

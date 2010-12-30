@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.2 2010-10-14 09:58:06 cvsbert Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.3 2010-12-30 15:58:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -527,8 +527,9 @@ bool SqlDB::MantisDBMgr::addToBugNoteTable( const char* note, int bugid )
     BufferStringSet colnms,values;
     colnms.add( "id" ).add( "bug_id" ).add( "reporter_id" )
 	  .add( "date_submitted" ).add( "last_modified" );
-    values.add( "" ).add( Conv::to<const char*>(bugid) );
-    values.add( Conv::to<const char*>(reporterid) ).add( datetime )
+    char str[255];
+    values.add( "" ).add( toString(bugid, str ) );
+    values.add( toString(reporterid, str ) ).add( datetime )
 	  .add( datetime );
     if ( !query().insert( colnms, values, sKeyBugNoteTable() ) )
 	return false;
