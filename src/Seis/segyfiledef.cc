@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.21 2010-12-14 15:53:16 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.22 2010-12-30 15:20:56 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -221,13 +221,17 @@ void SEGY::FilePars::fillPar( IOPar& iop ) const
 
 bool SEGY::FilePars::usePar( const IOPar& iop )
 {
-    if ( !iop.get( sKeyNrSamples(), ns_ ) ||
-	 !iop.get( sKeyByteSwap(), byteswap_ ) )
-	return false;
+    bool ret = iop.get( sKeyNrSamples(), ns_ );
+    ret = ret || iop.get( sKeyByteSwap(), byteswap_ );
 
-    fmt_ = fmtOf( iop.find(sKeyNumberFormat()), forread_ );
+    const char* fmtstr = iop.find( sKeyNumberFormat() );
+    if ( fmtstr && *fmtstr )
+    {
+	fmt_ = fmtOf( fmtstr, forread_ );
+	ret = true;
+    }
 
-    return true;
+    return ret;
 }
 
 
