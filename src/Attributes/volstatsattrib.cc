@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.52 2010-10-12 10:30:19 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.53 2010-12-30 17:35:06 cvsnanne Exp $";
 
 #include "volstatsattrib.h"
 
@@ -472,10 +472,10 @@ void VolStats::getIdealStackPos(
 				    (cpos.inl-optstackstep_)*coeffa + coeffb );
     const Geom::Point2D<float> inter2( cpos.inl + optstackstep_,
 				    (cpos.inl+optstackstep_)*coeffa + coeffb );
-    const float interx3 = mIsZero(coeffa,1e-6) ? 0
+    const float interx3 = mIsZero(coeffa,1e-6) ? cpos.inl
 				: (cpos.crl-optstackstep_-coeffb)/coeffa;
     const Geom::Point2D<float> inter3( interx3, cpos.crl - optstackstep_);
-    const float interx4 = mIsZero(coeffa,1e-6) ? 0
+    const float interx4 = mIsZero(coeffa,1e-6) ? cpos.inl
 				: (cpos.crl+optstackstep_-coeffb)/coeffa;
     const Geom::Point2D<float> inter4( interx4, cpos.crl + optstackstep_);
 
