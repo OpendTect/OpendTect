@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.33 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribparam.h,v 1.34 2010-12-30 17:08:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,8 +205,9 @@ const StepInterval<T>* NumParam<T>::limits() const
 template <class T>
 BufferString NumParam<T>::getDefaultValue() const
 {
-    return BufferString(
-	    toString(reinterpret_cast<NumInpSpec<T>*>(spec_)->defaultValue()) );
+    BufferString res;
+    toString(reinterpret_cast<NumInpSpec<T>*>(spec_)->defaultValue(),res.buf());
+    return res;
 }
 
 
