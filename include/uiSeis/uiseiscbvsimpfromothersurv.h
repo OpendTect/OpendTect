@@ -6,15 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Oct 2010
- RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.3 2010-12-17 10:15:31 cvsbruno Exp $
+ RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.4 2011-01-03 15:59:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "horsampling.h"
-#include "executor.h"
-#include "position.h"
+#include "arrayndimpl.h"
+#include "cubesampling.h"
 #include "uidialog.h"
+#include "executor.h"
+#include "fourier.h"
+#include "position.h"
+
 
 class BinIDValueSet;
 class CBVSSeisTrcTranslator;
@@ -49,15 +52,14 @@ public:
     bool		prepareRead(const char*);
     inline void		setOutput( IOObj& obj )	{ outioobj_ = &obj; }
     inline void 	setInterpol(Interpol i) { interpol_ = i; }
-    inline void		setCellSize(int sz)	{ cellsize_ = sz; }
+    void		setCellSize(int sz);
 
-    HorSampling& 	horSampling() 		{ return hrg_; }
+    CubeSampling& 	cubeSampling() 		{ return data_.cs_; }
 
 protected:
 
     const IOObj& 	inioobj_;
     IOObj*		outioobj_;
-
     SeisTrcWriter* 	wrr_;
     CBVSSeisTrcTranslator* tr_;
 
@@ -66,17 +68,27 @@ protected:
     BufferString        errmsg_;
     const char*		fullusrexp_;
 
-    int			cellsize_;
     Interpol		interpol_;
 
-    BinID		curbid_;
-    BinID		curoldbid_;
-    HorSampling 	hrg_;
-    HorSampling 	oldhrg_;
-    HorSamplingIterator* hsit_;
-    int			xzeropadfac_;
-    int			yzeropadfac_;
+    mStruct 		PosData
+    {
+			PosData()
+			    : hsit_(0)
+			    , cs_(false) {} 
+
+	BinID		curbid_;
+	CubeSampling 	cs_;
+	HorSamplingIterator* hsit_;
+    };
+    PosData		data_, olddata_;
+
+    mStruct Dim3	{ int x_, y_, z_; };
+    Dim3		sz_, newsz_, padsz_;
+
+    Fourier::CC*	fft_;
     ObjectSet<SeisTrc>	trcsset_;
+    Array3DImpl<float_complex>* arr_;
+    Array3DImpl<float_complex>* fftarr_;
 
     bool                createTranslators(const char*);
     bool                createWriter();
