@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.31 2010-12-13 11:52:33 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.32 2011-01-03 14:42:51 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -107,7 +107,7 @@ bool BufferString::matches( const char* s, bool caseinsens ) const
 }
 
 
-BufferString& BufferString::operator=( const char* s )
+BufferString& BufferString::assignTo( const char* s )
 {
     if ( buf_ == s ) return *this;
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.43 2010-12-30 15:53:15 cvskris Exp $
+ RCS:		$Id: bufstring.h,v 1.44 2011-01-03 14:42:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,22 +40,23 @@ public:
 			BufferString(int minlen,bool setnull);
 			BufferString(const BufferString& bs);
     template <class T>
-    inline		BufferString(const char*,T,const char* s=0);
+    inline		BufferString(const char*,const T&,const char* s=0);
     virtual		~BufferString();
+    inline BufferString& operator=( const BufferString& b )
+						{ return assignTo(b.buf_); }
 
-    BufferString&	operator=(const char*);
-    inline BufferString& operator=(const BufferString& bs);
+    inline BufferString& operator=( const char* s ) { return assignTo(s); }
     template <class T>
-    inline BufferString& operator=(T);
+    inline BufferString& operator=(const T&);
 
     inline bool		operator==(const BufferString&) const;
     inline bool		operator!=(const BufferString&) const;
     bool		operator==(const char*) const;
     inline bool		operator!=(const char*) const;
     template <class T>
-    inline bool		operator==(T) const;
+    inline bool		operator==(const T&) const;
     template <class T>
-    inline bool		operator!=( T t ) const		{ return !(*this==t); }
+    inline bool		operator!=( const T& t ) const	{ return !(*this==t); }
 
     char*		buf();		//!< Allocation of min length guaranteed
     inline const char*	buf() const	{ return buf_ ? buf_ : empty().buf_; }
@@ -73,11 +74,12 @@ public:
     bool		matches(const char*,bool caseinsens=false) const;
 
     BufferString&	add(const char*);
+    BufferString&	add( const BufferString& b )	{ return add(b.buf()); }
+    inline BufferString& operator+=( const char* s )	{ return add( s ); }
     template <class T>
-    BufferString&	add(T);
-    BufferString&	operator+=( const char* s )	{ return add( s ); }
+    BufferString&	add(const T&);
     template <class T>
-    inline BufferString& operator+=( T t )		{ return add( t ); }
+    inline BufferString& operator+=( const T& t )	{ return add( t ); }
 
     unsigned int	size() const;
     inline unsigned int	bufSize() const		{ return len_; }
@@ -93,9 +95,9 @@ public:
     bool		operator >(const char*) const;
     bool		operator <(const char*) const;
     template <class T>
-    inline bool		operator >(T) const;
+    inline bool		operator >(const T&) const;
     template <class T>
-    inline bool		operator <(T) const;
+    inline bool		operator <(const T&) const;
 
     static const BufferString& empty();
 
@@ -104,6 +106,8 @@ protected:
     char*		buf_;
     unsigned int	len_;
     const unsigned int	minlen_;
+
+    BufferString&	assignTo(const char*);
 
 private:
 
@@ -122,10 +126,10 @@ mGlobal std::istream& operator >>(std::istream&,BufferString&);
 inline BufferString::BufferString()
     : mBufferStringSimpConstrInitList	{}
 inline BufferString::BufferString( const char* s )
-    : mBufferStringSimpConstrInitList	{ *this = s; }
+    : mBufferStringSimpConstrInitList	{ assignTo(s); }
 
 template <class T> inline
-BufferString::BufferString( const char* s1, T t, const char* s2 )
+BufferString::BufferString( const char* s1, const T& t, const char* s2 )
     : mBufferStringSimpConstrInitList
 { *this += s1; *this += t; *this += s2; }
 
@@ -138,7 +142,7 @@ const char* BufferString::str() const
 inline bool BufferString::operator==( const BufferString& s ) const
 { return operator ==( s.buf() ); }
 
-template <class T> inline bool BufferString::operator==( T t ) const
+template <class T> inline bool BufferString::operator==( const T& t ) const
 { return *this == Conv::to<const char*>( t ); }
 
 inline bool BufferString::operator!=( const BufferString& s ) const
@@ -147,22 +151,19 @@ inline bool BufferString::operator!=( const BufferString& s ) const
 inline  bool BufferString::operator!=( const char* s ) const
 { return ! (*this == s); }
 
-inline BufferString& BufferString::operator=( const BufferString& bs )
-{ if ( &bs != this ) *this = bs.buf_; return *this; }
+template <class T> inline BufferString& BufferString::operator=( const T& t )
+{ char* s = buf(); toString( t, s ); return *this; }
 
-template <class T> inline BufferString& BufferString::operator=( T t )
-{ toString( t, buf() ); return *this; }
-
-template <class T> inline BufferString& BufferString::add( T t )
+template <class T> inline BufferString& BufferString::add( const T& t )
 {
     char addstr[255];
     return add( toString( t, addstr ) );
 }
 
-template <class T> inline bool BufferString::operator >( T t ) const
+template <class T> inline bool BufferString::operator >( const T& t ) const
 { return *this > ( Conv::to<const char*>( t ) ); }
 
-template <class T> inline bool BufferString::operator <( T t ) const
+template <class T> inline bool BufferString::operator <( const T& t ) const
 { return *this < ( Conv::to<const char*>( t ) ); }
 
 
