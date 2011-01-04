@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Oct 2010
- RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.4 2011-01-03 15:59:33 cvsbruno Exp $
+ RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.5 2011-01-04 13:49:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "position.h"
 
 
+class ArrayNDWindow;
 class BinIDValueSet;
 class CBVSSeisTrcTranslator;
 class CtxtIOObj;
@@ -45,16 +46,14 @@ public:
     const char* 	message() const		{ return "Importing CBVS"; }
     od_int64 		nrDone() const          { return nrdone_; }
     const char* 	nrDoneText() const      { return "Traces handled"; }
-    od_int64 		totalNr() const;
-
+    od_int64 		totalNr() const		{ return totnr_; }
     int 		nextStep();
 
     bool		prepareRead(const char*);
+    void		setPars(Interpol&,int,const CubeSampling&);
     inline void		setOutput( IOObj& obj )	{ outioobj_ = &obj; }
-    inline void 	setInterpol(Interpol i) { interpol_ = i; }
-    void		setCellSize(int sz);
 
-    CubeSampling& 	cubeSampling() 		{ return data_.cs_; }
+    const CubeSampling& cubeSampling() const 	{ return data_.cs_; }
 
 protected:
 
@@ -89,6 +88,7 @@ protected:
     ObjectSet<SeisTrc>	trcsset_;
     Array3DImpl<float_complex>* arr_;
     Array3DImpl<float_complex>* fftarr_;
+    ArrayNDWindow*	taper_;
 
     bool                createTranslators(const char*);
     bool                createWriter();
@@ -113,6 +113,8 @@ protected:
     CtxtIOObj&		inctio_;
     CtxtIOObj&		outctio_;
     SeisImpCBVSFromOtherSurvey* import_;
+    bool		issinc_;
+    SeisImpCBVSFromOtherSurvey::Interpol interpol_;
 
     uiGenInput*		finpfld_;
     uiSeisSel*          outfld_;
