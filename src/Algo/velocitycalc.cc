@@ -4,17 +4,17 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.30 2010-12-01 05:53:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.31 2011-01-04 13:15:23 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
 #include "genericnumer.h"
 #include "idxable.h"
+#include "interpol1d.h"
 #include "math2.h"
 #include "valseries.h"
 #include "varlenarray.h"
 #include "veldesc.h"
-#include "math2.h"
 
 mImplFactory( Vrms2Vint, Vrms2Vint::factory );
 
@@ -676,7 +676,7 @@ bool computeDix( const float* Vrms, const SamplingData<double>& sd, int nrvels,
 bool computeDix( const float* Vrms, float t0, float v0, const float* t,
 		 int nrvels, float* Vint )
 {
-    mComputeDixImpl( t0, v0, Vrms[idx] );
+    mComputeDixImpl( t0, v0, t[idx] );
 }
 
 
@@ -755,18 +755,66 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
     if ( nr_in<=0 )
 	return false;
 
-    TypeSet<float> Vint( nr_in, mUdf(float) );
+    ArrayValueSeries<float,float> Vint ( nr_in );
     if ( !computeDix( Vin, t0_in, v0_in, t_in, nr_in, Vint.arr() ) )
 	return false;
 
+    ArrayValueSeries<float,float> tinser ( const_cast<float*>(t_in), false );
+    mAllocVarLenArr( float, deptharr, nr_in );
+    mAllocVarLenArr( float, depthsampled, nr_out );
     mAllocVarLenArr( float, Vint_sampled, nr_out );
-    if ( !Vint_sampled )
+    if ( !tinser.isOK() || !deptharr || !depthsampled || !Vint_sampled )
 	return false;
 
-    if ( !sampleVint( Vint.arr(), t_in, nr_in, sd_out, Vint_sampled, nr_out ) )
+    TimeDepthConverter::calcDepths( Vint, nr_in, tinser, deptharr );
+    if ( nr_in<2 )
 	return false;
+    else
+	resampleDepth( deptharr, t_in, nr_in, sd_out, nr_out, depthsampled );
+
+    //compute Vint_sampled from depthsampled
+    Vint_sampled[0] = 0;
+    for ( int idx=1; idx<nr_out; idx++ )
+	Vint_sampled[idx] = (depthsampled[idx] - depthsampled[idx-1]) /
+	    		    (sd_out.step / 2);		//time is TWT
 
     return computeVrms( (const float*)Vint_sampled, sd_out, nr_out, Vout );
+}
+
+
+void resampleDepth( const float* deptharr, const float* t_in, int nr_in,
+		    const SamplingData<double>& sd_out, int nr_out,
+		    float* depthsampled )
+{
+    int intv = 0;
+    const float eps = sd_out.step/1e3;
+    for ( int idx=0; idx<nr_out; idx++ )
+    {
+	bool match = false;
+	const float z = sd_out.atIndex( idx );
+	for ( ; intv<nr_in; intv++ )
+	{
+	    if ( mIsEqual( z, t_in[intv], eps ) )
+		match = true;
+	    else if ( t_in[intv]<=z )
+		continue;
+
+	    break;
+	}
+
+	//intv is always after pos
+	if ( match )
+	    depthsampled[idx] = deptharr[intv];
+	else
+	{
+	    const float v0 = !intv? 0 : deptharr[intv-1];
+	    const float v1 = deptharr[intv];
+	    const float t0 = !intv? 0 : t_in[intv-1];
+	    const float t1 = t_in[intv];
+	    depthsampled[idx] = mIsEqual( v0, v1, 1e-6 ) ? v0 :
+				Interpolate::linear1D( t0, v0, t1, v1, z );
+	}
+    }
 }
 
 

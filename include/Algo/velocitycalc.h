@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.21 2010-11-23 19:15:00 cvsyuancheng Exp $
+ RCS:		$Id: velocitycalc.h,v 1.22 2011-01-04 13:15:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,4 +221,12 @@ mGlobal bool fitLinearVelocity( const float* Vint, const float* z_in, int nr_in,
 			      float& error);
 	        
 	        
+/*!Given an irregularly sampled deptharr, create a regularly sampled one. The
+   function assumes initial depth and time are 0.*/
+
+mGlobal void resampleDepth(const float* deptharr,const float* t_in, int nr_in,
+			const SamplingData<double>& sd_out, int nr_out,
+			float* depthsampled);
+
+
 #endif
