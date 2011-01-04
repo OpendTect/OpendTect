@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPolygonSelect.h,v 1.6 2010-09-26 11:11:21 cvsjaap Exp $
+ RCS:		$Id: SoPolygonSelect.h,v 1.7 2011-01-04 09:12:07 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -25,6 +25,7 @@ ________________________________________________________________________
 class SoGLRenderAction;
 class SoHandleEventAction;
 class SoCache;
+class SoSceneManager;
 
 /*!Paints a polygon or a rectangle just in front of near-clipping plane driven
    by mouse- movement. Once drawn, the polygon can be retrieved in 2D, and any
@@ -38,6 +39,7 @@ class SoCache;
 mClass SoPolygonSelect : public SoNode
 {
     friend class		SoTabletEventFilter;
+    friend class		uiSoViewerBody;
 
     SO_NODE_HEADER(SoPolygonSelect);
 
@@ -56,6 +58,9 @@ public:
     SoCallbackList		polygonChange;
     void			clear();
     bool			isPainting() const 	{ return mousedown_; }
+
+    const SoPath*		rayPickThrough(const SbVec3f& displaypos,
+					       int depthidx=0) const;
 
 protected:
 			~SoPolygonSelect();
@@ -79,6 +84,7 @@ protected:
 
 			// Not for casual use
     static void		setTabletPressure(float);
+    static void		setActiveSceneManager(SoSceneManager*);
 };
 
 #endif

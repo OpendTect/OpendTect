@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.6 2010-09-26 11:11:21 cvsjaap Exp $";
+static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.7 2011-01-04 09:12:07 cvsjaap Exp $";
 
 
 #include "SoPolygonSelect.h"
@@ -20,6 +20,8 @@ static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.6 2010-09-26 11:11:21 cv
 #include <Inventor/events/SoLocation2Event.h>
 #include <Inventor/elements/SoViewportRegionElement.h>
 #include <Inventor/system/gl.h>
+#include <Inventor/SoPickedPoint.h>
+#include <Inventor/SoSceneManager.h>
 
 
 SO_NODE_SOURCE(SoPolygonSelect);
@@ -48,9 +50,12 @@ SoPolygonSelect::SoPolygonSelect(void)
 }
 
 
+static SoRayPickAction* raypickaction_ = 0;
+
 SoPolygonSelect::~SoPolygonSelect()
 {
     if ( dependencychecker_ ) dependencychecker_->unref();
+    if ( raypickaction_ ) delete raypickaction_;
 }
 
 
@@ -436,4 +441,34 @@ void SoPolygonSelect::rub( const SbVec2f& pt )
     }
 
     transform( polygon_, rubradius, cosphi, sinphi );
+}
+
+
+static SoSceneManager* activescenemgr_ = 0;
+
+void SoPolygonSelect::setActiveSceneManager( SoSceneManager* scenemgr )
+{ activescenemgr_ = scenemgr; }
+
+
+const SoPath* SoPolygonSelect::rayPickThrough( const SbVec3f& displaypos,
+					       int depthidx ) const
+{
+    if ( !activescenemgr_ )
+	return 0;
+
+    const SbViewportRegion& svpr( activescenemgr_->getViewportRegion() );
+
+    if ( raypickaction_ )
+	raypickaction_->setViewportRegion( svpr );
+    else
+	raypickaction_ = new SoRayPickAction( svpr );
+
+    SbVec2f screenpos = projectPoint( displaypos );
+    raypickaction_->setNormalizedPoint( screenpos );
+    raypickaction_->setRadius( 1 );
+    raypickaction_->setPickAll( depthidx>0 );
+
+    raypickaction_->apply( activescenemgr_->getSceneGraph() );
+    SoPickedPoint* pickedpoint = raypickaction_->getPickedPoint( depthidx );
+    return pickedpoint ? pickedpoint->getPath() : 0;
 }

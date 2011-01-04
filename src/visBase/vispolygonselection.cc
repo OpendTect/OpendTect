@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolygonselection.cc,v 1.13 2010-09-26 11:13:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: vispolygonselection.cc,v 1.14 2011-01-04 09:12:07 cvsjaap Exp $";
 
 #include "vispolygonselection.h"
 
@@ -234,6 +234,24 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
     polygonlock_.readUnLock();
 
     return res; 
+}
+
+
+bool PolygonSelection::rayPickThrough( const Coord3& worldpos,
+				       TypeSet<int>& pickedobjids,
+				       int depthidx ) const
+{
+    pickedobjids.erase();
+    const Coord3 pos = !transformation_ ? worldpos :
+		       transformation_->transform( worldpos );
+
+    const SbVec3f displaypos( pos.x, pos.y, pos.z );
+    const SoPath* path = selector_->rayPickThrough( displaypos, depthidx );
+    if ( !path )
+	return false;
+
+    DM().getIds( path, pickedobjids );
+    return true;
 }
 
 

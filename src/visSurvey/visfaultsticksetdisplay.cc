@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.33 2010-12-03 10:51:03 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.34 2011-01-04 09:12:07 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -481,6 +481,8 @@ Coord3 FaultStickSetDisplay::disp2world( const Coord3& displaypos ) const
 }
 
 
+
+
 #define mZScale() \
     ( scene_ ? scene_->getZScale()*scene_->getZStretch() : SI().zScale() )
 
@@ -941,6 +943,41 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
 }
 
 
+bool FaultStickSetDisplay::isSelectableMarkerInPolySel(
+					const Coord3& markerworldpos ) const 
+{
+    visBase::PolygonSelection* polysel = scene_->getPolySelection();
+    if ( !polysel->isInside(markerworldpos) )
+	return false;
+
+    TypeSet<int> pickedobjids;
+    for ( int depthidx=0; true; depthidx++ )
+    {
+	if ( !polysel->rayPickThrough(markerworldpos, pickedobjids, depthidx) )
+	    break;
+
+	for ( int idx=0; true; idx++ )
+	{
+	    if ( idx == pickedobjids.size() )
+		return false;
+
+	    const int visid = pickedobjids[idx];
+	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
+	    mDynamicCastGet( visBase::Marker*, marker, dataobj );
+	    if ( marker )
+	    {
+		const Coord3 diff = markerworldpos - marker->centerPos();
+		if ( diff.abs() < 1e-4 )
+		    return true;
+
+		break;
+	    }
+	}
+    }
+    return false;
+}
+
+
 void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 {
     if ( !stickselectmode_ || !emfss_ || !scene_ || !isOn() || !isSelected() )
@@ -953,7 +990,7 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 	if ( pid.objectID() == -1 )
 	    break;
 
-	if ( !scene_->getPolySelection()->isInside(emfss_->getPos(pid) ) )
+	if ( !isSelectableMarkerInPolySel(emfss_->getPos(pid)) )
 	    continue;
 
 	const int sticknr = RowCol( pid.subID() ).row;

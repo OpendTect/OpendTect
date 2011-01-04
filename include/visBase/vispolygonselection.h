@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		June 2008
- RCS:		$Id: vispolygonselection.h,v 1.10 2010-09-26 11:13:20 cvsjaap Exp $
+ RCS:		$Id: vispolygonselection.h,v 1.11 2011-01-04 09:12:07 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,10 @@ public:
     Transformation*		getDisplayTransformation();
 
     static Notifier<PolygonSelection>* polygonFinished();
+
+    bool			rayPickThrough(const Coord3& worldpos,
+					       TypeSet<int>& pickedobjids,
+					       int depthidx=0) const;
 
 protected:
 

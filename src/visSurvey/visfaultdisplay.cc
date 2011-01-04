@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.65 2010-11-30 08:52:40 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.66 2011-01-04 09:12:07 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1276,6 +1276,41 @@ void FaultDisplay::setStickSelectMode( bool yn )
 }
 
 
+bool FaultDisplay::isSelectableMarkerInPolySel(
+					const Coord3& markerworldpos ) const
+{
+    visBase::PolygonSelection* polysel = scene_->getPolySelection();
+    if ( !polysel->isInside(markerworldpos) )
+	return false;
+
+    TypeSet<int> pickedobjids;
+    for ( int depthidx=0; true; depthidx++ )
+    {
+	if ( !polysel->rayPickThrough(markerworldpos, pickedobjids, depthidx) )
+	    break;
+
+	for ( int idx=0; true; idx++ )
+	{
+	    if ( idx == pickedobjids.size() )
+		return false;
+
+	    const int visid = pickedobjids[idx];
+	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
+	    mDynamicCastGet( visBase::Marker*, marker, dataobj );
+	    if ( marker )
+	    {
+		const Coord3 diff = markerworldpos - marker->centerPos();
+		if ( diff.abs() < 1e-4 )
+		    return true;
+
+		break;
+	    }
+	}
+    }
+    return false;
+}
+
+
 void FaultDisplay::polygonFinishedCB( CallBacker* cb )
 {
     if ( !stickselectmode_ || !emfault_ || !scene_ || !displaysticks_ ||
@@ -1289,7 +1324,7 @@ void FaultDisplay::polygonFinishedCB( CallBacker* cb )
 	if ( pid.objectID() == -1 )
 	    break;
 
-	if ( !scene_->getPolySelection()->isInside(emfault_->getPos(pid) ) )
+	if ( !isSelectableMarkerInPolySel(emfault_->getPos(pid)) )
 	    continue;
 
 	const int sticknr = RowCol( pid.subID() ).row;
