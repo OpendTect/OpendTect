@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.70 2010-08-09 10:46:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.71 2011-01-04 13:49:11 cvsbruno Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -57,6 +57,12 @@ uiSeisSubSel::uiSeisSubSel( uiParent* p, const Seis::SelSetup& ss )
 bool uiSeisSubSel::isAll() const
 {
     return selfld_->isAll();
+}
+
+
+void uiSeisSubSel::getSampling( CubeSampling& cs ) const
+{
+    cs = selfld_->envelope();
 }
 
 

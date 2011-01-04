@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.31 2010-02-11 11:13:00 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.32 2011-01-04 13:49:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
     virtual		~uiSeisSubSel()					{}
 
     bool		isAll() const;
+    void		getSampling(CubeSampling&) const;
     void		getSampling(HorSampling&) const;
     void		getZRange(StepInterval<float>&) const;
 
