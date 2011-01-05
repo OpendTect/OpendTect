@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.5 2011-01-04 13:49:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.6 2011-01-05 09:45:37 cvsbruno Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -212,7 +212,8 @@ void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
     fft_ = Fourier::CC::createDefault(); 
     totnr_ = data_.cs_.hrg.totalNr();
     sz_.x_ = sz_.y_ = fft_->getFastSize( cellsz );
-    sz_.z_ = fft_->getFastSize( cs.zrg.nrSteps() );
+    StepInterval<float> zsi( cs.zrg ); zsi.step = olddata_.cs_.zrg.step;
+    sz_.z_ = fft_->getFastSize( zsi.nrSteps() );
     arr_ = new Array3DImpl<float_complex>( sz_.x_, sz_.y_, sz_.z_ );
     fftarr_ = new Array3DImpl<float_complex>( sz_.x_, sz_.y_, sz_.z_ );
     newsz_.x_ = fft_->getFastSize( sz_.x_*padsz_.x_ );
@@ -312,16 +313,14 @@ SeisTrc* SeisImpCBVSFromOtherSurvey::readTrc( const BinID& bid ) const
 	trc->info().binid = bid;
 	tr_->readInfo( trc->info() ); 
 	tr_->read( *trc );
-	ZGate zgt = data_.cs_.zrg;
-	zgt.stop += (sz_.z_-zgt.width())*data_.cs_.zrg.step;
-	trc = trc->getExtendedTo( zgt );
+	trc = trc->getExtendedTo( data_.cs_.zrg );
     }
     return trc;
 }
 
 
 bool SeisImpCBVSFromOtherSurvey::findSquareTracesAroundCurbid(
-						ObjectSet<SeisTrc>& trcs) const
+					    ObjectSet<SeisTrc>& trcs ) const
 {
     deepErase( trcs );
     const int inlstep = olddata_.cs_.hrg.step.inl;
@@ -344,6 +343,15 @@ bool SeisImpCBVSFromOtherSurvey::findSquareTracesAroundCurbid(
 }
 
 
+/*!Sinc interpol( x ): 
+    x -> FFT(x) -> Zero Padd FFT -> iFFT -> y
+
+Zero Padding in FFT domain ( 2D example )
+			xx00xx
+	xxxx    -> 	000000
+	xxxx    	000000
+			xx00xx
+!*/
 #define mDoFFT(isforward,inp,outp,dim1,dim2,dim3)\
 {\
     fft_->setInputInfo(Array3DInfoImpl(dim1,dim2,dim3));\
@@ -377,17 +385,11 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     mDoFFT( true, (*arr_), (*fftarr_), szx, szy, szz )
     Array3DImpl<float_complex> padfftarr( newszx, newszy, newszz );
 
-/*!Zero Padding in FFT domain ( 2D example )
-			xx00xx
-	xxxx    -> 	000000
-	xxxx    	000000
-			xx00xx
-!*/
 #define mSetArrVal(xstart,ystart,xstop,ystop,xshift,yshift,z)\
     for ( int idx=xstart; idx<xstop; idx++)\
     {\
 	for ( int idy=ystart; idy<ystop; idy++)\
-	    padfftarr.set( idx+xshift, idy+yshift, z, fftarr_->get(idx,idy,z));\
+	    padfftarr.set(idx+xshift,idy+yshift,z,fftarr_->get(idx,idy,idz));\
     }
 #define mSetVals(zstart,zstop,zshift)\
     for ( int idz=zstart; idz<zstop; idz++ )\
@@ -413,21 +415,20 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     const float yinldist = (nextinlcrd.y-startcrd.y)/padsz_.y_;
 
     deepErase( trcs );
-    LinScaler scaler( 0, 0, szz, newszz );
     for ( int idx=0; idx<newszx; idx ++ )
     {
 	for ( int idy=0; idy<newszy; idy++ )
 	{
-	    SeisTrc* trc = new SeisTrc( szz );
+	    SeisTrc* trc = new SeisTrc( newszz );
 	    trc->info().sampling = data_.cs_.zrg;
 	    trc->info().coord.x = startcrd.x + idy*xcrldist + idx*xinldist;
 	    trc->info().coord.y = startcrd.y + idy*ycrldist + idx*yinldist;
+	    trcs += trc;
 	    for ( int idz=0; idz<newszz; idz++ )
 	    {
-		int newidz = (int)scaler.scale( idz );
-		trc->set( idz, padarr.get( idx, idy, newidz ).real(), 0 );
+		float amplfac = padsz_.x_*padsz_.y_*padsz_.z_;
+		trc->set( idz, padarr.get(idx,idy,idz).real()*amplfac, 0 );
 	    }
-	    trcs += trc;
 	}
     }
 }
