@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.7 2011-01-04 09:12:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.8 2011-01-05 11:41:12 cvsjaap Exp $";
 
 
 #include "SoPolygonSelect.h"
@@ -55,7 +55,12 @@ static SoRayPickAction* raypickaction_ = 0;
 SoPolygonSelect::~SoPolygonSelect()
 {
     if ( dependencychecker_ ) dependencychecker_->unref();
-    if ( raypickaction_ ) delete raypickaction_;
+
+    if ( raypickaction_ )
+    {
+	delete raypickaction_;
+	raypickaction_ = 0;
+    }
 }
 
 
