@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.39 2011-01-03 14:42:51 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.40 2011-01-06 15:06:54 cvsbert Exp $
 ________________________________________________________________________
 -*/
 
@@ -65,17 +65,19 @@ mGlobal void cleanupString(char*,int,int,int);
 /*!> tells whether a string holds a parseable number */
 mGlobal int isNumberString(const char*,int int_only);
 
-/*!> Fills string with string for an int */
-mGlobal const char* getStringFromInt(od_int32, char*);
-mGlobal const char* getStringFromUInt(od_uint32,char*);
-mGlobal const char* getStringFromInt64(od_int64,char*);
-mGlobal const char* getStringFromUInt64(od_uint64,char*);
+/*!> Fills string with string for an int.
+     If you pass 0 for retbuf, then a static buffer is used (not MT safe). */
+mGlobal const char* getStringFromInt(od_int32,char* retbuf);
+mGlobal const char* getStringFromUInt(od_uint32,char* retbuf);
+mGlobal const char* getStringFromInt64(od_int64,char* retbuf);
+mGlobal const char* getStringFromUInt64(od_uint64,char* retbuf);
 
 /*!> Normally, pass null for fmt. Then it will do removal of
-     trailing zeros and use %lf in more cases than std. */
-mGlobal const char* getStringFromDouble(const char* fmt,double,char*);
+     trailing zeros and use %lf in more cases than std.
+     If you pass 0 for retbuf, then a static buffer is used (not MT safe). */
+mGlobal const char* getStringFromDouble(const char* fmt,double,char* retbuf);
 /*!> is like getStringFromDouble, with special %f treatment. */
-mGlobal const char* getStringFromFloat(const char* fmt,float,char*);
+mGlobal const char* getStringFromFloat(const char* fmt,float,char* retbuf);
 /*!> removes unwanted zeros and dots from a floating point in string. */
 mGlobal void prettyNumber(char*,int is_float);
 
@@ -101,13 +103,15 @@ mGlobal int getIndexInStringArrCI(const char*,const char* const* arr,
 #include <stdlib.h>
 #include "undefval.h"
 
-inline const char* toString( od_int32 i, char* r)
+// toString functions. Can be used MT, provided you do not pass null for result
+// buffer. If you are sure you don't need MT, then passing null is OK.
+inline const char* toString( od_int32 i, char* r )
 	{ return getStringFromInt( i, r ); }
-inline const char* toString( od_uint32 i, char* r)
+inline const char* toString( od_uint32 i, char* r )
 	{ return getStringFromUInt( i, r ); }
-inline const char* toString( od_int64 i, char* r)
+inline const char* toString( od_int64 i, char* r )
 	{ return getStringFromInt64( i, r ); }
-inline const char* toString( od_uint64 i, char* r)
+inline const char* toString( od_uint64 i, char* r )
 	{ return getStringFromUInt64(i,r); }
 inline const char* toString( float f, char* r )	
 	{ return getStringFromFloat(0,f,r); }
