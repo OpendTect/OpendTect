@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiattribfactory.h,v 1.10 2010-09-29 11:46:09 cvshelene Exp $
+ RCS:           $Id: uiattribfactory.h,v 1.11 2011-01-06 15:07:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ public:
 	    		       bool dispnm=true) const;
 
     int			size() const	{ return entries_.size(); }
+    const char*		getAttribName( int idx ) const
+					{ return entries_[idx]->attrnm_; }
     const char*		getDisplayName( int idx ) const
 					{ return entries_[idx]->dispnm_; }
     const char*		getGroupName( int idx ) const
