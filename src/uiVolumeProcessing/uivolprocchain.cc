@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.21 2010-11-18 17:27:53 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.22 2011-01-06 15:14:24 cvsbert Exp $";
 
 #include "uivolprocchain.h"
 
@@ -92,14 +92,16 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
 
+    const CallBack addcb( mCB(this,uiChain,addStepPush) );
     uiLabel* availablelabel = new uiLabel( flowgrp, "Available steps" );
     factorylist_ = new uiListBox( flowgrp, factory().getNames(true) );
     factorylist_->selectionChanged.notify(
 	    mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
+    factorylist_->doubleClicked.notify( addcb );
 
     addstepbutton_ = new uiToolButton( flowgrp, uiToolButton::RightArrow,
-				    "Add step", mCB(this,uiChain,addStepPush) );
+					"Add step", addcb );
     addstepbutton_->attach( centeredRightOf, factorylist_ );
 
     steplist_ = new uiListBox( flowgrp );
@@ -122,8 +124,10 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 			    "Move step down", mCB(this,uiChain,moveDownCB) );
     movedownbutton_->attach( alignedBelow, moveupbutton_ );
 
-    propertiesbutton_ = new uiPushButton( flowgrp, "S&ettings",
-			    mCB(this,uiChain,propertiesCB), false );
+    propertiesbutton_ = new uiToolButton( flowgrp, "settings.png",
+	    				  "Edit this step",
+					  mCB(this,uiChain,propertiesCB) );
+    propertiesbutton_->setName( "Settings" );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
     removestepbutton_ = new uiToolButton( flowgrp, "trashcan.png",
