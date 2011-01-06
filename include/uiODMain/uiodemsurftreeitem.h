@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.12 2009-11-12 10:54:44 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.h,v 1.13 2011-01-06 22:39:02 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -39,6 +39,9 @@ protected:
 
     void		finishedEditingCB(CallBacker*);
     void		prepareForShutdown();
+
+    void		askSaveCB(CallBacker*);
+    void		saveCB(CallBacker*);
 
     EM::ObjectID	emid_;
     uiVisEMObject*	uivisemobj_;

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.77 2010-12-03 05:39:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.78 2011-01-06 22:39:02 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.77 2010-12-03 05:39:0
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
+#include "uinotsaveddlg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiviscoltabed.h"
@@ -66,11 +67,15 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , prevtrackstatus_(true)
 {
     enabletrackingmnuitem_.checkable = true;
+    NotSavedPrompter::NSP().promptSaving.notify(
+	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
 }
 
 
 uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 { 
+    NotSavedPrompter::NSP().promptSaving.remove(
+	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
     mDynamicCastGet(visSurvey::EMObjectDisplay*,
 		    emd,visserv_->getObject(displayid_));
     if ( emd )
@@ -454,28 +459,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==savemnuitem_.id )
     {
 	menu->setIsHandled( true );
-	if ( ems->isGeometryChanged(emid_) && ems->nrAttributes(emid_)>0 )
-	{
-	    const bool res = uiMSG().askSave(
-		    "Geometry has been changed. Saved 'Surface Data' is\n"
-		    "not valid anymore and will be removed now.\n"
-		    "Continue saving?" );
-	    if ( !res )
-		return;
-	}
-
-	bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
-	if ( !savewithname )
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
-	    savewithname = !ioobj;
-	}
-	applMgr()->EMServer()->storeObject( emid_, savewithname );
-	applMgr()->visServer()->setObjectName( displayid_,
-		(const char*) ems->getName(emid_) );
-	const MultiID mid = ems->getStorageID(emid_);
-	mps->saveSetup( mid );
-	updateColumnText( uiODSceneMgr::cNameColumn() );
+	saveCB( 0 );
     }
     else if ( mnuid==saveasmnuitem_.id )
     {
@@ -569,4 +553,60 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 							      scenenm.buf() );
 	ODMainWin()->sceneMgr().viewAll( 0 );
     }
+}
+
+
+void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
+{
+    uiEMPartServer* ems = applMgr()->EMServer();
+    if ( !ems->isChanged( emid_ ) )
+	return;
+
+    bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+    if ( !savewithname )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
+	savewithname = !ioobj;
+    }
+
+    BufferString str = ems->getType( emid_ );
+    str += " \""; str += ems->getName(emid_).str(); str += "\"";
+    NotSavedPrompter::NSP().addObject( str.str(),
+		mCB( this, uiODEarthModelSurfaceTreeItem, saveCB ),
+	        savewithname, 0 );
+}
+
+
+void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
+{
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+    uiEMPartServer* ems = applMgr()->EMServer();
+    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
+    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
+
+    if ( ems->isGeometryChanged(emid_) && ems->nrAttributes(emid_)>0 )
+    {
+	const bool res = uiMSG().askSave(
+		"Geometry has been changed. Saved 'Surface Data' is\n"
+		"not valid anymore and will be removed now.\n"
+		"Continue saving?" );
+	if ( !res )
+	    return;
+    }
+
+    bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+    if ( !savewithname )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
+	savewithname = !ioobj;
+    }
+
+    if ( applMgr()->EMServer()->storeObject( emid_, savewithname ) && cb )
+	NotSavedPrompter::NSP().reportSuccessfullSave();
+
+    applMgr()->visServer()->setObjectName( displayid_,
+	    (const char*) ems->getName(emid_) );
+    const MultiID mid = ems->getStorageID(emid_);
+    mps->saveSetup( mid );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
 }
