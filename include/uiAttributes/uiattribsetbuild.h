@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsetbuild.h,v 1.1 2011-01-06 15:24:38 cvsbert Exp $
+ RCS:           $Id: uiattribsetbuild.h,v 1.2 2011-01-06 16:19:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,11 +47,13 @@ protected:
 
     Attrib::DescSet&		descset_;
     BufferStringSet		availattrnms_;
+    const Setup			setup_;
 
     uiListBox*			availattrfld_;
     uiListBox*			defattrfld_;
 
-    void			mkAvailAttrFld(const Setup&);
+    void			fillAvailAttrFld();
+    void			fillDefAttribFld();
 
     void			addReq(CallBacker*);
     void			edReq(CallBacker*);

@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.1 2011-01-06 15:24:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.2 2011-01-06 16:19:09 cvsbert Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uilistbox.h"
 #include "uitoolbutton.h"
 #include "uiattrdesced.h"
+#include "uiattribsingleedit.h"
 #include "uiattribfactory.h"
 #include "uimsg.h"
 
@@ -39,8 +40,10 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 			const uiAttribDescSetBuild::Setup& su )
     : uiGroup(p,"DescSet build group")
     , descset_(*new Attrib::DescSet(su.is2d_))
+    , setup_(su)
 {
-    mkAvailAttrFld( su );
+    availattrfld_ = new uiListBox( this, "Available attributes" );
+    fillAvailAttrFld();
 
     uiToolButton* addbut = new uiToolButton( this, uiToolButton::RightArrow,
 		    "Add attribute", mCB(this,uiAttribDescSetBuild,addReq) );
@@ -59,39 +62,38 @@ uiAttribDescSetBuild::~uiAttribDescSetBuild()
 }
 
 
-void uiAttribDescSetBuild::mkAvailAttrFld(
-				const uiAttribDescSetBuild::Setup& su )
+void uiAttribDescSetBuild::fillAvailAttrFld()
 {
-    availattrfld_ = new uiListBox( this, "Available attributes" );
     BufferStringSet dispnms;
     for ( int idx=0; idx<uiAF().size(); idx++ )
     {
 	const uiAttrDescEd::DomainType domtyp
 	    	= (uiAttrDescEd::DomainType)uiAF().domainType(idx);
-	if ( !su.showdepthonlyattrs_ && domtyp == uiAttrDescEd::Depth )
+	if ( !setup_.showdepthonlyattrs_ && domtyp == uiAttrDescEd::Depth )
 	    continue;
-	if ( !su.showtimeonlyattrs_ && domtyp == uiAttrDescEd::Time )
+	if ( !setup_.showtimeonlyattrs_ && domtyp == uiAttrDescEd::Time )
 	    continue;
 	const uiAttrDescEd::DimensionType dimtyp
 	    	= (uiAttrDescEd::DimensionType)uiAF().dimensionType(idx);
-	if ( su.is2d_ && dimtyp == uiAttrDescEd::Only3D )
+	if ( setup_.is2d_ && dimtyp == uiAttrDescEd::Only3D )
 	    continue;
-	if ( !su.is2d_ && dimtyp == uiAttrDescEd::Only2D )
+	if ( !setup_.is2d_ && dimtyp == uiAttrDescEd::Only2D )
 	    continue;
 
 	const char* attrnm = uiAF().getAttribName( idx );
 	const Attrib::Desc* desc = Attrib::PF().getDesc( attrnm );
 	if ( !desc )
 	    { pErrMsg("attrib in uiAF() but not in PF()"); continue; }
-	if ( su.singletraceonly_ && desc->locality()==Attrib::Desc::MultiTrace )
+	if ( setup_.singletraceonly_
+			&& desc->locality()==Attrib::Desc::MultiTrace )
 	    continue;
-	if ( !su.showps_ && desc->isPS() )
+	if ( !setup_.showps_ && desc->isPS() )
 	    continue;
-	if ( !su.showusingtrcpos_ && desc->usesTracePosition() )
+	if ( !setup_.showusingtrcpos_ && desc->usesTracePosition() )
 	    continue;
-	if ( !su.showhidden_ && desc->isHidden() )
+	if ( !setup_.showhidden_ && desc->isHidden() )
 	    continue;
-	if ( !su.showsteering_ && desc->isSteering() )
+	if ( !setup_.showsteering_ && desc->isSteering() )
 	    continue;
 
 	availattrnms_.add( attrnm );
@@ -125,6 +127,19 @@ void uiAttribDescSetBuild::edReq( CallBacker* )
     const Attrib::DescID id = descset_.getID( attrnm, true );
     Attrib::Desc& desc = *descset_.getDesc( id );
     uiMSG().error( attrnm, ": TODO edit for type ", desc.attribName() );
+
+    uiSingleAttribEd dlg( this, desc, false );
+    if ( dlg.go() )
+    {
+	if ( dlg.anyChange() )
+	    fillDefAttribFld();
+    }
+}
+
+
+void uiAttribDescSetBuild::fillDefAttribFld()
+{
+    //TODO
 }
 
 
