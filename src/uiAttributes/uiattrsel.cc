@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.61 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.62 2011-01-06 15:09:17 cvsbert Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: uiattrsel.cc,v 1.61 2010-11-10 15:26:43 cvsbert
 #include "separstr.h"
 #include "survinfo.h"
 #include "zdomain.h"
+#include "datapack.h"
 
 #include "nlamodel.h"
 #include "nladesign.h"
@@ -525,9 +526,16 @@ void uiAttrSel::setDesc( const Desc* ad )
     if ( !ad || !ad->descSet() ) return;
     attrdata_.setAttrSet( ad->descSet() );
 
+    const bool isstor = ad->isStored();
     const char* inp = ad->userRef();
-    if ( inp[0] == '_' || (ad->isStored() && ad->dataType() == Seis::Dip) )
+    if ( inp[0] == '_' || (isstor && ad->dataType() == Seis::Dip) )
 	return;
+
+    if ( isstor )
+    {
+	BufferString defstr; ad->getDefStr( defstr );
+	selbut_->display( *defstr.buf() != '#' );
+    }
 
     attrdata_.attribid_ = ad->id();
     updateInput();
@@ -565,6 +573,13 @@ void uiAttrSel::updateInput()
 const char* uiAttrSel::userNameFromKey( const char* txt ) const
 {
     if ( !txt || !*txt ) return "";
+
+    if ( *txt == '#' )
+    {
+	const MultiID mid( txt + 1 );
+	DataPackMgr& dpm( DPM(mid.ID(0)) );
+	return dpm.nameOf( mid.ID(1) );
+    }
 
     SeparString bs( txt, ':' );
     if ( bs.size() < 3 ) return "";
