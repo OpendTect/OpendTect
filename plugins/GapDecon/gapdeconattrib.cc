@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.21 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.22 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "gapdeconattrib.h"
 
@@ -132,6 +132,7 @@ void GapDecon::initClass()
     desc->addInput( InputSpec("Mixed Input data",false) );
     desc->setNrOutputs( Seis::UnknowData, 5 );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

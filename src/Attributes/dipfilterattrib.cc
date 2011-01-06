@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.32 2010-11-24 09:07:09 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.33 2011-01-06 15:25:01 cvsbert Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -74,8 +74,9 @@ void DipFilter::initClass()
     desc->addParam( taperlen );
 
     desc->addOutputDataType( Seis::UnknowData );
-
     desc->addInput( InputSpec("Input data",true) );
+
+    desc->setLocality( Desc::MultiTrace );
     mAttrEndInitClass
 }
 

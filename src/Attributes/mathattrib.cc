@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.45 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.46 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "mathattrib.h"
 
@@ -49,6 +49,7 @@ void Math::initClass()
     desc->addInput( InputSpec("Data",true) );
     desc->addOutputDataType( Seis::UnknowData );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

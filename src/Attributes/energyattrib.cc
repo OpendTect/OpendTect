@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.33 2010-10-12 10:30:19 cvshelene Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.34 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "energyattrib.h"
 
@@ -38,6 +38,7 @@ void Energy::initClass()
     desc->addInput( InputSpec("Input Data",true) );
     desc->setNrOutputs( Seis::UnknowData, 3 );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

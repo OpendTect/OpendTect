@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.16 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: shiftattrib.h,v 1.17 2011-01-06 15:25:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,9 @@ public:
     void			prepPriorToBoundsCalc();
 
     void			set(const BinID&,float,bool dosteer);
+
+    virtual bool		isSingleTrace() const
+				{ return !stepout_.inl && !stepout_.crl; }
 
 protected:
     				~Shift() {}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.22 2010-10-12 10:30:19 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.23 2011-01-06 15:25:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,8 @@ public:
 	    				     TypeSet<BinID>* snappedpos )
     						  { linetruepos_ = truepos;
 						    linepath_ = snappedpos; }
+    virtual bool		isSingleTrace() const
+				{ return !stepout_.inl && !stepout_.crl; }
 
 protected:
 				~VolStats();

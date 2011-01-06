@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: instantattrib.cc,v 1.21 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: instantattrib.cc,v 1.22 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "instantattrib.h"
 
@@ -34,6 +34,7 @@ void Instantaneous::initClass()
     desc->addInput( InputSpec("Imag Data",true) );
     desc->setNrOutputs( Seis::UnknowData, 13 );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

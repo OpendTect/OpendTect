@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.77 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.78 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "attribdesc.h"
 
@@ -54,7 +54,10 @@ Desc::Desc( const char* attribname, DescStatusUpdater updater,
     , seloutput_( 0 )
     , hidden_( false )
     , is2d_( false )
+    , isps_( false )
     , needprovinit_( false )
+    , locality_( PossiblyMultiTrace )
+    , usestrcpos_( false )
 {
     if ( strchr( attribname, ' ' ) )
 	pErrMsg("Space character is not permitted in attribute names");
@@ -73,6 +76,9 @@ Desc::Desc( const Desc& a )
     , userref_( a.userref_ )
     , needprovinit_( a.needprovinit_ )
     , is2d_(a.is2d_)
+    , isps_(a.isps_)
+    , locality_(a.locality_)
+    , usestrcpos_(a.usestrcpos_)
 {
     inputs_.allowNull(true);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.83 2010-10-07 17:29:19 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.84 2011-01-06 15:25:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ public:
     void			enableAllOutputs(bool yn=true);
     virtual void		getCompNames(BufferStringSet&) const;
 
+    virtual bool		isSingleTrace() const;
+    virtual bool		usesTracePosition() const;
     virtual void		setReqBufStepout(const BinID&,bool wait=false);
     virtual void		setDesBufStepout(const BinID&,bool wait=false);
     const BinID&		getReqBufStepout() const

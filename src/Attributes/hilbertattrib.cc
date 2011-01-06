@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.28 2010-04-20 22:03:25 cvskris Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.29 2011-01-06 15:25:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ void Hilbert::initClass()
     desc->addInput( InputSpec("Input data",true) );
     desc->addOutputDataType( Seis::UnknowData );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

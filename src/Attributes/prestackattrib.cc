@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.20 2010-07-14 16:54:12 cvskris Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.21 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "prestackattrib.h"
 
@@ -62,6 +62,9 @@ void PSAttrib::initClass()
 
     desc->addOutputDataType( Seis::UnknowData );
 
+    desc->setLocality( Desc::SingleTrace );
+    desc->setUsesTrcPos( true );
+    desc->setPS( true );
     mAttrEndInitClass
 }
 

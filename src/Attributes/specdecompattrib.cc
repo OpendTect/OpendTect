@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.36 2010-12-17 21:11:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.37 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -78,6 +78,7 @@ void SpecDecomp::initClass()
     desc->addInput( InputSpec("Imag data",true) );
     desc->addOutputDataType( Seis::UnknowData );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

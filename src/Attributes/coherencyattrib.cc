@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.31 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.32 2011-01-06 15:25:01 cvsbert Exp $";
 
 
 #include "coherencyattrib.h"
@@ -56,6 +56,7 @@ void Coherency::initClass()
     desc->addInput( InputSpec("Imag data for Coherency",true) );
     desc->setNrOutputs( Seis::UnknowData, 3 );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

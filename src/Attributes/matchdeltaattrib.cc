@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: matchdeltaattrib.cc,v 1.2 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: matchdeltaattrib.cc,v 1.3 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "matchdeltaattrib.h"
 #include "attribdataholder.h"
@@ -35,6 +35,7 @@ void MatchDelta::initClass()
     
     desc->setNrOutputs( Seis::UnknowData, 2 );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

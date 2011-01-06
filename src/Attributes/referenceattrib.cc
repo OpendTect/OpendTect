@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.25 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.26 2011-01-06 15:25:01 cvsbert Exp $";
 
 
 #include "referenceattrib.h"
@@ -29,6 +29,8 @@ void Reference::initClass()
 
     desc->addInput( InputSpec("Input Data",true) );
 
+    desc->setLocality( Desc::SingleTrace );
+    desc->setUsesTrcPos( true );
     mAttrEndInitClass
 }
 

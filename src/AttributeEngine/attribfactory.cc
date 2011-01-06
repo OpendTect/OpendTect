@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribfactory.cc,v 1.12 2010-10-07 17:29:19 cvshelene Exp $";
+static const char* rcsID = "$Id: attribfactory.cc,v 1.13 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "attribfactory.h"
 
@@ -53,12 +53,17 @@ Provider* ProviderFactory::create( Desc& desc ) const
 }
 
 
+const Desc* ProviderFactory::getDesc( const char* nm ) const
+{
+    const int idx = indexOf( nm );
+    return idx < 0 ? 0 : descs_[idx];
+}
+
+
 Desc* ProviderFactory::createDescCopy( const char* nm ) const
 {
-    const int idx = indexOf(nm);
-    if ( idx==-1 ) return 0;
-
-    return new Desc( *descs_[idx] );
+    const int idx = indexOf( nm );
+    return idx < 0 ? 0 : new Desc( *descs_[idx] );
 }
 
 

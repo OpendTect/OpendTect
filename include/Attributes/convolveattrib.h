@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.17 2010-10-14 13:39:37 cvshelene Exp $
+ RCS:           $Id: convolveattrib.h,v 1.18 2011-01-06 15:25:01 cvsbert Exp $
 ________________________________________________________________________
 
     
@@ -64,6 +64,8 @@ public:
 
     static const float  	prewitt[];
     static const float  	prewitt2D[];
+
+    virtual bool		isSingleTrace() const;
 
 protected:
     				~Convolve();

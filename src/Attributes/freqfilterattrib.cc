@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.53 2010-12-10 10:42:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.54 2011-01-06 15:25:01 cvsbert Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -105,6 +105,7 @@ void FreqFilter::initClass()
     desc->addInput( InputSpec("Real data",true) );
     desc->addInput( InputSpec("Imag data",true) );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

@@ -7,17 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.8 2010-12-27 11:24:07 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.9 2011-01-06 15:24:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
-class SeisTrcBuf;
-class uiSeisWaveletSel;
-class uiFlatViewer;
 class AIModel;
 class Wavelet;
+class uiGroup;
+class SeisTrcBuf;
+class uiFlatViewer;
+class uiToolButton;
+class uiSeisWaveletSel;
+class uiToolButtonSetup;
 namespace Strat { class LayerModel; }
 
 
@@ -38,6 +41,9 @@ public:
     Notifier<uiStratSynthDisp>	wvltChanged;
     Notifier<uiStratSynthDisp>	zoomChanged;
 
+    static Notifier<uiStratSynthDisp>&	fieldsCreated();
+    void		addTool(const uiToolButtonSetup&);
+
 protected:
 
     const Strat::LayerModel& lm_;
@@ -46,8 +52,10 @@ protected:
     int			dispeach_;
     int			longestaimdl_;
 
+    uiGroup*		topgrp_;
     uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
+    uiToolButton*	lasttool_;
 
     void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);

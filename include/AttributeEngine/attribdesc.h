@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.52 2010-10-07 17:29:19 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.53 2011-01-06 15:25:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,8 @@ mClass Desc
 { mRefCountImpl(Desc);
 public:
 
+    enum Locality		{ SingleTrace, PossiblyMultiTrace, MultiTrace };
+
 				Desc(const Desc&);
 				Desc(const char* attrname,
 				     DescStatusUpdater updater=0,
@@ -88,13 +90,15 @@ public:
     Seis::DataType		dataType(int output=-1) const;
 				/*!<\param output specifies which output is 
 				     required, or -1 for the selected output.*/
-
-    void			setSteering( bool yn )	{ issteering_=yn; }
-    bool			isSteering() const	{ return issteering_; }
-
-    void			setHidden( bool yn )	{ hidden_ = yn; }
-    				/*!<If hidden, it won't show up in UI. */
+    Locality			locality() const	  { return locality_; }
+    void			setLocality( Locality l ) { locality_ = l; }
+    bool			usesTracePosition() const { return usestrcpos_;}
+    void			setUsesTrcPos( bool yn )  { usestrcpos_ = yn; }
+    bool			isSteering() const        { return issteering_;}
+    void			setSteering( bool yn )    { issteering_ = yn; }
     bool			isHidden() const	{ return hidden_; }
+    				/*!<If hidden, it won't show up in UI. */
+    void			setHidden( bool yn )	{ hidden_ = yn; }
     				/*!<If hidden, it won't show up in UI. */
 
     bool			isStored() const;
@@ -117,6 +121,8 @@ public:
 
     bool			is2D() const		{ return is2d_; }
     void			set2D( bool yn )	{ is2d_ = yn; }
+    bool			isPS() const		{ return isps_; }
+    void			setPS( bool yn )	{ isps_ = yn; }
 
     enum SatisfyLevel		{ AllOk, Warning, Error };
     SatisfyLevel		isSatisfied() const;
@@ -180,6 +186,9 @@ protected:
     bool			hidden_;
     bool			needprovinit_;
     bool 			is2d_;
+    bool 			isps_;
+    Locality			locality_;
+    bool			usestrcpos_;
 
     TypeSet<InputSpec>		inputspecs_;
     ObjectSet<Desc>		inputs_;

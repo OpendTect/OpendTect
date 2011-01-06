@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.52 2010-10-12 10:30:19 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.53 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "similarityattrib.h"
 
@@ -85,6 +85,7 @@ void Similarity::initClass()
 
     desc->setNrOutputs( Seis::UnknowData, 5 );
 
+    desc->setLocality( Desc::MultiTrace );
     mAttrEndInitClass
 }
 

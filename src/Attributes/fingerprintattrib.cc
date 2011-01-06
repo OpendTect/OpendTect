@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: fingerprintattrib.cc,v 1.18 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: fingerprintattrib.cc,v 1.19 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "fingerprintattrib.h"
 
@@ -94,6 +94,8 @@ void FingerPrint::initClass()
     desc->addInput( InputSpec("Input data",true) );
     desc->addOutputDataType( Seis::UnknowData );
 
+    desc->setLocality( Desc::SingleTrace );
+    desc->setUsesTrcPos( true );
     mAttrEndInitClass
 }
 
@@ -113,7 +115,7 @@ void FingerPrint::updateDesc( Desc& desc )
 	    desc.addInput( InputSpec(bfs, true) );
 	}
     }
-    int type = desc.getValParam(valreftypeStr())->getIntValue();
+    const int type = desc.getValParam(valreftypeStr())->getIntValue();
     desc.setParamEnabled( refposStr(), type == 1 );
     desc.setParamEnabled( refposzStr(), type == 1 );
     desc.setParamEnabled( valpicksetStr(), type == 2 );
@@ -200,6 +202,13 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
     }
     
     return true;
+}
+
+
+bool FingerPrint::usesTracePosition() const
+{
+    const int type = desc_.getValParam(valreftypeStr())->getIntValue();
+    return type == 1;
 }
 
 

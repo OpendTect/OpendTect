@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: eventattrib.cc,v 1.34 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: eventattrib.cc,v 1.35 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "eventattrib.h"
 #include "survinfo.h"
@@ -48,6 +48,7 @@ void Event::initClass()
     InputSpec inputspec( "Input Data", true );
     desc->addInput( inputspec );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

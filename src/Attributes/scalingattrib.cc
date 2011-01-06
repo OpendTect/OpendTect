@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.38 2010-09-07 14:23:56 cvshelene Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.39 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "scalingattrib.h"
 
@@ -113,6 +113,7 @@ void Scaling::initClass()
     desc->addOutputDataType( Seis::UnknowData );
     desc->addInput( InputSpec("Input data",true) );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.10 2010-12-27 11:23:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.11 2011-01-06 15:24:39 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
 #include "uistratlaymoddisp.h"
 #include "uistratsynthdisp.h"
+#include "uistratsynthcrossplot.h"
 #include "uistrattreewin.h"
 #include "stratlayseqgendesc.h"
 #include "stratlayermodel.h"
@@ -125,6 +126,9 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     synthdisp_ = new uiStratSynthDisp( rightgrp, modl_ );
     synthdisp_->wvltChanged.notify( mCB(this,uiStratLayerModel,wvltChg) );
     synthdisp_->zoomChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
+    uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
+	   		    mCB(this,uiStratLayerModel,xPlotReq) );
+    synthdisp_->addTool( tbsu );
     moddisp_ = new uiStratLayerModelDisp( rightgrp, modl_ );
     moddisp_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
     moddisp_->levelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
@@ -161,6 +165,13 @@ void uiStratLayerModel::levelChg( CallBacker* )
 void uiStratLayerModel::zoomChg( CallBacker* )
 {
     moddisp_->setZoomBox( synthdisp_->curView(true) );
+}
+
+
+void uiStratLayerModel::xPlotReq( CallBacker* )
+{
+    uiStratSynthCrossplot dlg( this, synthdisp_->curTraces(), modl_ );
+    dlg.go();
 }
 
 

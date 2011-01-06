@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.24 2010-10-14 13:39:37 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.25 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -462,7 +462,13 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 
 bool Convolve::allowParallelComputation() const
 {
-    return kerneltype_==mKernelFunctionWavelet ? false : true;
+    return kerneltype_ != mKernelFunctionWavelet;
+}
+
+
+bool Convolve::isSingleTrace() const
+{
+    return kerneltype_ != mKernelFunctionPrewitt;
 }
 
 } // namespace Attrib

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.30 2010-11-29 21:37:17 cvskris Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.31 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -54,6 +54,7 @@ void Frequency::initClass()
     desc->addInput( InputSpec("Imag data",true) );
     desc->setNrOutputs( Seis::UnknowData, 8 );
 
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 

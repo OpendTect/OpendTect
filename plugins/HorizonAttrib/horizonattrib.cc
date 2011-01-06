@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonattrib.cc,v 1.21 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: horizonattrib.cc,v 1.22 2011-01-06 15:25:01 cvsbert Exp $";
 
 #include "horizonattrib.h"
 
@@ -55,6 +55,8 @@ void Horizon::initClass()
     desc->addInput( InputSpec("Input data for Horizon",true) );//positioning
     desc->addOutputDataType( Seis::UnknowData );
 
+    desc->setLocality( Desc::SingleTrace );
+    desc->setUsesTrcPos( true );
     mAttrEndInitClass
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.13 2010-12-27 15:11:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.14 2011-01-06 15:24:39 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.13 2010-12-27 15:11:54 
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uitoolbar.h"
+#include "uitoolbutton.h"
 #include "uimsg.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
@@ -32,6 +33,13 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.13 2010-12-27 15:11:54 
 static const int cMarkerSize = 6;
 
 
+Notifier<uiStratSynthDisp>& uiStratSynthDisp::fieldsCreated()
+{
+    static Notifier<uiStratSynthDisp> FieldsCreated(0);
+    return FieldsCreated;
+}
+
+
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     : uiGroup(p,"LayerModel synthetics display")
     , wvlt_(0)
@@ -40,15 +48,19 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , wvltChanged(this)
     , zoomChanged(this)
     , longestaimdl_(0)
+    , lasttool_(0)
 {
-    uiGroup* topgrp = new uiGroup( this, "Top group" );
-    wvltfld_ = new uiSeisWaveletSel( topgrp );
+    topgrp_ = new uiGroup( this, "Top group" );
+    topgrp_->setFrame( true );
+    topgrp_->setStretch( 2, 0 );
+    wvltfld_ = new uiSeisWaveletSel( topgrp_ );
     wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
+    wvltfld_->setFrame( false );
 
     vwr_ = new uiFlatViewer( this );
     vwr_->setInitialSize( uiSize(500,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
-    vwr_->attach( ensureBelow, topgrp );
+    vwr_->attach( ensureBelow, topgrp_ );
     FlatView::Appearance& app = vwr_->appearance();
     app.setGeoDefaults( true );
     app.setDarkBG( false );
@@ -71,6 +83,19 @@ uiStratSynthDisp::~uiStratSynthDisp()
 {
     delete wvlt_;
     deepErase( aimdls_ );
+}
+
+
+void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
+{
+    uiToolButton* tb = new uiToolButton( topgrp_, bsu );
+    if ( lasttool_ )
+	tb->attach( leftOf, lasttool_ );
+    else
+	tb->attach( rightBorder );
+
+    tb->attach( ensureRightOf, wvltfld_ );
+    lasttool_ = tb;
 }
 
 
