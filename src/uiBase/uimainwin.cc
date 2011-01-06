@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.213 2010-12-17 11:04:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.214 2011-01-06 15:13:47 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1487,7 +1487,7 @@ uiObject* uiDialogBody::createChildren()
     if ( setup.savebutton_ && !setup.savetext_.isEmpty() )
     {
 	if ( setup.savebutispush_ )
-	    savebut_tb = new uiToolButton( centralWidget_, "savefmt.png",
+	    savebut_tb = new uiToolButton( centralWidget_, "save.png",
 			  setup.savetext_, CallBack() );
 	else
 	{
