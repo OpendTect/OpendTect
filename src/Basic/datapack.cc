@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapack.cc,v 1.7 2011-01-07 14:42:07 cvsbert Exp $";
+static const char* rcsID = "$Id: datapack.cc,v 1.8 2011-01-07 14:47:43 cvsbert Exp $";
 
 #include "datapack.h"
 #include "ascstream.h"
@@ -87,13 +87,13 @@ DataPackMgr& DPM( const DataPack::FullID& fid )
 
 const char* DataPackMgr::nameOf( const DataPack::FullID& fid )
 {
-    return ::DPM(fid).nameOf( fid.ID(1) );
+    return ::DPM(fid).nameOf( DataPack::getID(fid) );
 }
 
 
 const char* DataPackMgr::categoryOf( const DataPack::FullID& fid )
 {
-    return ::DPM(fid).categoryOf( fid.ID(1) );
+    return ::DPM(fid).categoryOf( DataPack::getID(fid) );
 }
 
 
