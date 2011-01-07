@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapack.cc,v 1.6 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: datapack.cc,v 1.7 2011-01-07 14:42:07 cvsbert Exp $";
 
 #include "datapack.h"
 #include "ascstream.h"
@@ -20,6 +20,13 @@ const DataPackMgr::ID DataPackMgr::SurfID()	{ return 5; }
 const char* DataPack::sKeyCategory()		{ return "Category"; }
 const float DataPack::sKb2MbFac()		{ return 0.0009765625; }
 
+DataPack::FullID DataPack::fullID( int mgrid ) const
+{
+    MultiID ret( mgrid ); ret.add( id() );
+    return ret;
+}
+
+
 DataPack::ID DataPack::getNewID()
 {
     static Threads::Mutex mutex;
@@ -30,27 +37,63 @@ DataPack::ID DataPack::getNewID()
 }
 
 
-DataPackMgr& DPM( DataPackMgr::ID dpid )
-{ return DataPackMgr::DPM( dpid ); }
-
-
 ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_( false );
 Threads::Mutex DataPackMgr::mgrlistlock_;
 
-DataPackMgr& DataPackMgr::DPM( DataPackMgr::ID dpid )
+DataPackMgr* DataPackMgr::gtDPM( DataPackMgr::ID dpid, bool crnew )
 {
     Threads::MutexLocker lock( mgrlistlock_ );
 
     for ( int idx=0; idx<mgrs_.size(); idx++ )
     {
-	DataPackMgr& mgr = *mgrs_[idx];
-	if ( mgr.id() == dpid )
+	DataPackMgr* mgr = mgrs_[idx];
+	if ( mgr->id() == dpid )
 	    return mgr;
     }
+    if ( !crnew )
+	return 0;
 
     DataPackMgr* newmgr = new DataPackMgr( dpid );
     mgrs_ += newmgr;
-    return *newmgr;
+    return newmgr;
+}
+
+
+DataPackMgr& DataPackMgr::DPM( DataPackMgr::ID dpid )
+{
+    return *gtDPM( dpid, true );
+}
+
+
+DataPackMgr& DPM( DataPackMgr::ID dpid )
+{
+    return DataPackMgr::DPM( dpid );
+}
+
+
+DataPackMgr& DPM( const DataPack::FullID& fid )
+{
+    const DataPackMgr::ID manid = fid.ID(0);
+    DataPackMgr* dpm = DataPackMgr::gtDPM( manid, false );
+    if ( dpm ) return *dpm;
+
+    static DataPackMgr* emptymgr = 0;
+    if ( emptymgr ) delete emptymgr;
+    emptymgr = new DataPackMgr( manid );
+    return *emptymgr;
+}
+
+
+
+const char* DataPackMgr::nameOf( const DataPack::FullID& fid )
+{
+    return ::DPM(fid).nameOf( fid.ID(1) );
+}
+
+
+const char* DataPackMgr::categoryOf( const DataPack::FullID& fid )
+{
+    return ::DPM(fid).categoryOf( fid.ID(1) );
 }
 
 

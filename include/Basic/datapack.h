@@ -7,18 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.7 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: datapack.h,v 1.8 2011-01-07 14:42:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
 #include "manobjectset.h"
+#include "multiid.h"
 #include "thread.h"
 #include <iosfwd>
 
 class DataPackMgr;
 class IOPar;
+
 
 /*!\brief A data packet: data+positioning and more that needs to be shared.
 
@@ -35,6 +37,8 @@ mClass DataPack : public NamedObject
 public:
 
     typedef int		ID;
+    typedef MultiID	FullID;
+    inline static ID	getID( const FullID& fid )	{ return fid.ID(1); }
 
     			DataPack( const char* categry )
 			    : NamedObject("<?>")
@@ -49,6 +53,7 @@ public:
     virtual		~DataPack()		{}
 
     ID			id() const		{ return id_; }
+    FullID		fullID(int mgrid) const;
     virtual const char*	category() const	{ return category_.buf(); }
 
     virtual float	nrKBytes() const	= 0;
@@ -128,6 +133,8 @@ public:
     typedef int		ID;		//!< Each Mgr has its own ID
 
     bool		haveID(DataPack::ID) const;
+    inline bool		haveID( const DataPack::FullID& fid ) const
+			{ return id() == fid.ID(0) && haveID( fid.ID(1) ); }
 
     void		add(DataPack*);
     			//!< The pack becomes mine
@@ -135,9 +142,9 @@ public:
     			/*!< The pack becomes mines. Pack is obtained
 			     during the lock, i.e. threadsafe. */
 
-    DataPack*		obtain( DataPack::ID dpid, bool observing_only=false )
+    inline DataPack*	obtain( DataPack::ID dpid, bool observing_only=false )
 			{ return doObtain(dpid,observing_only); }
-    const DataPack*	obtain( DataPack::ID dpid, bool obsrv=false ) const
+    inline const DataPack* obtain( DataPack::ID dpid, bool obsrv=false ) const
 			{ return doObtain(dpid,obsrv); }
 
     void		release(DataPack::ID);
@@ -157,7 +164,9 @@ public:
 
     			// Convenience to get info without any obtain()
     const char*		nameOf(DataPack::ID) const;
+    static const char*	nameOf(const DataPack::FullID&);
     const char*		categoryOf(DataPack::ID) const;
+    static const char*	categoryOf(const DataPack::FullID&);
     virtual float	nrKBytesOf(DataPack::ID) const;
     virtual void	dumpInfoFor(DataPack::ID,IOPar&) const;
 
@@ -167,6 +176,21 @@ public:
 
     const ObjectSet<const DataPack>&	packs() const	{ return packs_; }
 
+protected:
+
+    ID				id_;
+    ObjectSet<const DataPack>	packs_;
+
+    DataPack*			doObtain(ID,bool) const;
+    int				indexOf(ID) const;
+    					//!<Object should be readlocked
+    mutable Threads::ReadWriteLock lock_;
+
+    static Threads::Mutex		mgrlistlock_;
+    static ManagedObjectSet<DataPackMgr> mgrs_;
+
+public:
+
     			DataPackMgr(ID);
 			//!< You can, but normally should not, construct
 			//!< a manager. In general, leave it to DPM().
@@ -175,24 +199,16 @@ public:
 			//!< created it with the constructor.
 
     static DataPackMgr&	DPM(ID);
+    static DataPackMgr*	gtDPM(ID,bool);
     static void		dumpDPMs(std::ostream&);
 
-protected:
-
-    ID				id_;
-    ObjectSet<const DataPack>	packs_;
-
-    DataPack*				doObtain(ID,bool) const;
-    int					indexOf(ID) const;
-    					//!<Object should be readlocked
-    mutable Threads::ReadWriteLock	lock_;
-
-    static Threads::Mutex			mgrlistlock_;
-    static ManagedObjectSet<DataPackMgr> 	mgrs_;
 };
 
 
 mGlobal DataPackMgr& DPM(DataPackMgr::ID);
+		//!< will create a new mgr if needed
+mGlobal DataPackMgr& DPM(const DataPack::FullID&);
+		//!< will return empty dummy mgr if mgr ID not found
 
 
 #define mObtainDataPack( var, type, mgrid, newid ) \
