@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vismarchingcubessurface.cc,v 1.17 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurface.cc,v 1.18 2011-01-07 21:21:36 cvskris Exp $";
 
 #include "vismarchingcubessurface.h"
 
@@ -35,9 +35,9 @@ MarchingCubesSurface::MarchingCubesSurface()
     , yrg_( mUdf(float), mUdf(float), 0 )
     , zrg_( mUdf(float), mUdf(float), 0 )
 {
-    SoMaterialBinding* mb = new SoMaterialBinding;
-    addChild( mb );
-    mb->value = SoMaterialBinding::PER_VERTEX_INDEXED;
+    SoMaterialBinding* materialbinding = new SoMaterialBinding;
+    addChild( materialbinding );
+    materialbinding->value = SoMaterialBinding::OVERALL;
 
     shape_->ref();
     shape_->removeSwitch();
@@ -67,10 +67,11 @@ void MarchingCubesSurface::renderOneSide( int side )
 }
 
 
-void MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns )
+void MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns,
+       TaskRunner* tr	)
 {
     surface_->setSurface( &ns );
-    touch( true );
+    touch( true, tr );
 }
 
 
