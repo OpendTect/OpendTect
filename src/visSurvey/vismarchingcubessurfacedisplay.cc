@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.29 2010-02-22 22:40:42 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.30 2011-01-07 21:23:16 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -72,7 +72,9 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 void MarchingCubesDisplay::useTexture( bool yn )
 {
     if ( displaysurface_ )
+    {
     	displaysurface_->getShape()->enableColTab( yn );
+    }
 }
 
 
@@ -295,7 +297,8 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid )
+bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid,
+       TaskRunner* tr )
 {
     if ( emsurface_ )
 	emsurface_->unRef();
@@ -313,12 +316,12 @@ bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid )
     emsurface_ = emmcsurf;
     emsurface_->ref();
 
-    updateVisFromEM( false );
+    updateVisFromEM( false, tr );
     return true;
 }
 
 
-void MarchingCubesDisplay::updateVisFromEM( bool onlyshape )
+void MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
 {
     if ( !onlyshape || !displaysurface_ )
     {
@@ -344,11 +347,11 @@ void MarchingCubesDisplay::updateVisFromEM( bool onlyshape )
 		SamplingData<float>(emsurface_->crlSampling()),
 				    emsurface_->zSampling() );
 
-	displaysurface_->setSurface( emsurface_->surface() );
+	displaysurface_->setSurface( emsurface_->surface(), tr );
 	displaysurface_->turnOn( true );
     }
 
-    displaysurface_->touch( !onlyshape );
+    displaysurface_->touch( !onlyshape, tr );
 }
 
 
@@ -422,7 +425,7 @@ int MarchingCubesDisplay::usePar( const IOPar& par )
 	    emobject = EM::EMM().getObject( emid );
 	}
 
-	if ( emobject ) setEMID( emobject->id() );
+	if ( emobject ) setEMID( emobject->id(), 0 );
     }
 
     const IOPar* attribpar = par.subselect( sKeyAttribSelSpec() );

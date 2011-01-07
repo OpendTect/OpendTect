@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.27 2010-09-23 04:46:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.28 2011-01-07 21:23:16 cvskris Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -241,7 +241,8 @@ bool uiODBodyDisplayTreeItem::init()
 	    displayid_ = mcd->id();
 	    mcd_ = mcd;
 	    mcd_->ref();
-	    mcd_->setEMID( emid_ );
+	    uiTaskRunner taskrunner( getUiParent() );
+	    mcd_->setEMID( emid_, &taskrunner );
 	    visserv_->addObject( mcd, sceneID(), true );
 	}
 	else if ( rpb0 )

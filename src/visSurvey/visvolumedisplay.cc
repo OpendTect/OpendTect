@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.122 2010-09-30 21:41:20 cvskris Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.123 2011-01-07 21:23:16 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -399,7 +399,7 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
     isosurface->setRightHandSystem( righthandsystem_ );
     mDeclareAndTryAlloc( RefMan<MarchingCubesSurface>, surface,
 	    		 MarchingCubesSurface() );
-    isosurface->setSurface( *surface );
+    isosurface->setSurface( *surface, tr );
     isosurface->setName( "Iso surface" );
 
     isosurfaces_ += isosurface;
