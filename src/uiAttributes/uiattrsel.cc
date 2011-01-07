@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.62 2011-01-06 15:09:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.63 2011-01-07 14:44:49 cvsbert Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -531,12 +531,6 @@ void uiAttrSel::setDesc( const Desc* ad )
     if ( inp[0] == '_' || (isstor && ad->dataType() == Seis::Dip) )
 	return;
 
-    if ( isstor )
-    {
-	BufferString defstr; ad->getDefStr( defstr );
-	selbut_->display( *defstr.buf() != '#' );
-    }
-
     attrdata_.attribid_ = ad->id();
     updateInput();
 }
@@ -575,11 +569,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     if ( !txt || !*txt ) return "";
 
     if ( *txt == '#' )
-    {
-	const MultiID mid( txt + 1 );
-	DataPackMgr& dpm( DPM(mid.ID(0)) );
-	return dpm.nameOf( mid.ID(1) );
-    }
+	return DataPackMgr::nameOf( DataPack::FullID(txt+1) );
 
     SeparString bs( txt, ':' );
     if ( bs.size() < 3 ) return "";
