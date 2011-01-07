@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.54 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.55 2011-01-07 12:54:47 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -351,19 +351,17 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	int useidx = checkiidx<0 ? 0 : (checkiidx>immaxidx ? immaxidx : cidx);
 	float imag = getInputValue( *imdata_, imagidx_, useidx, z0 );
 	signal_.set( idx, float_complex(real,-imag) );
-
     }
 
     if ( window_ ) window_->apply( &signal_ );
     float avg = 0; TypeSet<int> undefvalidxs;
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	float real = signal_.get( idx ).real();
-	float imag = signal_.get( idx ).imag();
-	if ( !mIsUdf(real) && !mIsUdf(imag) )
-	    avg += real; 
-	else
+	float_complex val = signal_.get( idx );
+	if ( mIsUdf( val ) )
 	    undefvalidxs += idx;
+	else
+	    avg += val.real(); 
     }
     if ( undefvalidxs.size() != nrsamp )
 	avg /= ( nrsamp-undefvalidxs.size() );
@@ -373,13 +371,10 @@ void FreqFilter::fftFilter( const DataHolder& output,
     for ( int idy=0; idy<nrsamp; idy++ )
 	timedomain_.set( sz+idy, signal_.get(idy) );
 
-
     fft_->setInput( timedomain_.getData() );
     fft_->setOutput( freqdomain_.getData() );
     fft_->run( true );
     
-    FFTFilter filter;
-
     const int datasz = (int)( fft_->getNyqvist( SI().zStep()) ); 
     int winsz1 = 2*( (int)minfreq_ );
     if ( mIsZero( minfreq_ - highfreqvariable_, 0.5 ) )
@@ -389,35 +384,28 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	    mIsZero( maxfreq_ - lowfreqvariable_, 0.5 ) )
 	winsz2 = 0;
 
-    Array1DImpl<float> lwin( winsz2/2 ), hwin( winsz1/2 );
-    if ( winsz2 > 0 )
-    {
-	const float var2 = 1-(lowfreqvariable_-maxfreq_) / (datasz - maxfreq_);
-	if ( var2 >=0 && var2<=1 )
-	{
-	    ArrayNDWindow lowwindow_( Array1DInfoImpl(winsz2), 
-		    			false, "CosTaper",var2);
-	    float* winvals = lowwindow_.getValues();
-	    for ( int idx=0; idx<winsz2/2 && winvals; idx++ )
-		lwin.set( idx, 1-winvals[idx] );
-	    filter.setLowFreqBorderWindow( lwin.getData(), winsz2/2 );
-	}
+    FFTFilter filter;
+#define mApplyFreqWin( winsz, islow )\
+    if ( winsz2 > 0 )\
+    {\
+	Array1DImpl<float> win( winsz/2 );\
+	float var = islow ? 1-(lowfreqvariable_-maxfreq_) / (datasz - maxfreq_)\
+			  : highfreqvariable_ / minfreq_;\
+	if ( var >=0 && var <= 1 )\
+	{\
+	    ArrayNDWindow window(Array1DInfoImpl(winsz), false,"CosTaper",var);\
+	    float* winvals = window.getValues();\
+	    for ( int idx=0; idx<winsz/2 && winvals; idx++ )\
+		win.set(idx, islow ? 1-winvals[idx] : 1-winvals[winsz/2+idx]);\
+	    if ( islow )\
+		filter.setLowFreqBorderWindow( win.getData(), winsz/2 );\
+	    else\
+		filter.setHighFreqBorderWindow( win.getData(), winsz/2 );\
+	}\
     }
 
-    if ( winsz1 > 0 )
-    {
-	const float var1 = highfreqvariable_ / minfreq_;
-	if ( var1>=0 && var1<=1 )
-	{
-	    ArrayNDWindow highwindow_( Array1DInfoImpl(winsz1), 
-		    			false, "CosTaper",var1);
-	    float* winvals = highwindow_.getValues();
-	    for ( int idx=0; idx<winsz1/2 && winvals; idx++ )
-		hwin.set( idx, 1 - winvals[winsz1/2+idx] );
-	    filter.setHighFreqBorderWindow( hwin.getData(), winsz1/2 );
-	}
-    }
-
+    mApplyFreqWin( winsz2, true )
+    mApplyFreqWin( winsz1, false )
     if ( filtertype_ == mFilterLowPass )
 	filter.FFTFreqFilter( df, maxfreq_, true, freqdomain_, tmpfreqdomain_ );
     else if ( filtertype_ == mFilterHighPass)
