@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.25 2010-09-10 14:05:21 cvskris Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.26 2011-01-07 21:22:38 cvskris Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.25 2010-09-10 14:05:
 #include <Inventor/nodes/SoShapeHints.h>
 #include <SoIndexedTriangleFanSet.h>
 #include <Inventor/nodes/SoNormalBinding.h>
+#include <Inventor/nodes/SoMaterialBinding.h>
 #include <Inventor/SoDB.h>
 
 #include "SoIndexedLineSet3D.h"
@@ -84,7 +85,11 @@ GeomIndexedShape::~GeomIndexedShape()
 GeomIndexedShape::ColTabMaterial::ColTabMaterial()
     : coltab_( visBase::Material::create() )
     , cache_( 0 )
+    , materialbinding_( new SoMaterialBinding )
 {
+    materialbinding_->ref();
+    materialbinding_->value = SoMaterialBinding::PER_VERTEX_INDEXED;
+
     coltab_->ref();
 }
 
@@ -92,6 +97,7 @@ GeomIndexedShape::ColTabMaterial::ColTabMaterial()
 GeomIndexedShape::ColTabMaterial::~ColTabMaterial()
 {
     coltab_->unRef();
+    materialbinding_->unref();
 }
 
 
@@ -172,10 +178,17 @@ void GeomIndexedShape::enableColTab( bool yn )
 	createColTab();
 
     if ( yn )
+    {
 	insertChild( childIndex(coords_->getInventorNode()),
 		ctab_->coltab_->getInventorNode() );
+	insertChild( childIndex(coords_->getInventorNode()),
+		ctab_->materialbinding_ );
+    }
     else if ( ctab_ )
+    {
 	removeChild( ctab_->coltab_->getInventorNode() );
+	removeChild( ctab_->materialbinding_ );
+    }
 }
 
 
