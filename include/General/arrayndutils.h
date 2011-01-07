@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.38 2010-04-22 14:03:03 cvshelene Exp $
+ RCS:           $Id: arrayndutils.h,v 1.39 2011-01-07 12:56:43 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "arrayndslice.h"
 #include "mathfunc.h"
 #include "periodicvalue.h"
+#include "odcomplex.h"
 
 #include <iostrm.h>
 #include <math.h>
@@ -200,7 +201,10 @@ public:
 	if ( indata && outdata )
 	{
 	    for ( unsigned long idx = 0; idx<totalsz; idx++ )
-		outdata[idx] = indata[idx] * window_[idx];
+	    {
+		Type inval = indata[idx];
+		outdata[idx] = mIsUdf( inval ) ? inval : inval * window_[idx];
+	    }
 	}
 	else
 	{
@@ -210,8 +214,11 @@ public:
 	    if ( instorage && outstorage )
 	    {
 		for ( unsigned long idx = 0; idx < totalsz; idx++ )
-		    outstorage->setValue(idx,
-			    instorage->value(idx) * window_[idx] );
+		{
+		    Type inval = instorage->value(idx);
+		    outstorage->setValue(idx, 
+			    mIsUdf( inval ) ? inval : inval * window_[idx] );
+		}
 	    }
 	    else
 	    {
@@ -219,8 +226,9 @@ public:
 		int idx = 0;
 		do
 		{
+		    Type inval = in->getND(iter.getPos());
 		    out->setND( iter.getPos(),
-			      in->getND(iter.getPos()) * window_[idx] );
+			     mIsUdf( inval ) ? inval : inval * window_[idx] );
 		    idx++;
 
 		} while ( iter.next() );
