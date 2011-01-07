@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.53 2010-12-14 11:12:49 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.54 2011-01-07 14:43:44 cvsbert Exp $";
 
 #include "attribsel.h"
 
@@ -235,13 +235,14 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	{
 	    const DescID descid = attrset->getID( idx );
 	    const Desc* desc = attrset->getDesc( descid );
-	    if ( !desc || 
-		 !strcmp(desc->attribName(),StorageProvider::attribName()) || 
-		 attrset->getID(*desc) == ignoreid || desc->isHidden() )
+	    const BufferString usrref( desc->userRef() );
+	    if ( !desc || usrref.isEmpty()
+	      || !strcmp(desc->attribName(),StorageProvider::attribName())
+	      || attrset->getID(*desc) == ignoreid || desc->isHidden() )
 		continue;
 
 	    attrids_ += descid;
-	    attrnms_.add( desc->userRef() );
+	    attrnms_.add( usrref );
 	}
     }
 
