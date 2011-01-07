@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.143 2010-12-09 11:42:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.144 2011-01-07 10:52:37 cvsnageswara Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -720,29 +720,31 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 	attrnms->add( positions->colDef(idx).name_ );
     userrefs_.replace( channel, attrnms );
 
+    setRandomPosData( channel, positions, tr );
+    const BinIDValueSet* cache =
+	sections_.isEmpty() ? 0 : sections_[0]->getCache( channel );
     const bool isz = attrnms->size()>=1 &&
 		     !strcmp(attrnms->get(0).buf(),"Depth");
     BinID step( SI().inlStep(), SI().crlStep() );
     mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr, 
-	    		BIDValSetArrAdapter(positions->bivSet(),isz?0:2,step));
+	    		BIDValSetArrAdapter(*cache,isz?0:2,step));
     const char* catnm = isz ? "Geometry" : "Surface Data";
     const char* dpnm = isz ? "Depth"
 			   : (attrnms->size()>1 ? attrnms->get(1).buf() : "");
     mDeclareAndTryAlloc(MapDataPack*,newpack,MapDataPack(catnm,dpnm,bvsarr));
 
-    StepInterval<int> inlrgtemp = bvsarr->hrg_.inlRange();
-    StepInterval<int> crlrgtemp = bvsarr->hrg_.crlRange();
-    StepInterval<double> inlrg( (double)inlrgtemp.start, (double)inlrgtemp.stop,
-	    			(double)inlrgtemp.step );
-    StepInterval<double> crlrg( (double)crlrgtemp.start, (double)crlrgtemp.stop,
-	    			(double)crlrgtemp.step );
+    StepInterval<int> tempinlrg = bvsarr->hrg_.inlRange();
+    StepInterval<int> tempcrlrg = bvsarr->hrg_.crlRange();
+    StepInterval<double> inlrg( (double)tempinlrg.start, (double)tempinlrg.stop,
+	    			(double)tempinlrg.step );
+    StepInterval<double> crlrg( (double)tempcrlrg.start, (double)tempcrlrg.stop,
+	    			(double)tempcrlrg.step );
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
     newpack->setProps( inlrg, crlrg, true, &dimnames );
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     dpman.add( newpack );
     setDataPackID( channel, newpack->id(), tr );
-    setRandomPosData( channel, positions, tr );
 }
 
 
