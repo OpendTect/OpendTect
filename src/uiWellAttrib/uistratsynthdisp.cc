@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.14 2011-01-06 15:24:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.15 2011-01-10 13:30:13 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -168,16 +168,12 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 }
 
 
-const SeisTrcBuf& uiStratSynthDisp::curTraces() const
+DataPack::ID uiStratSynthDisp::packID() const
 {
-    static SeisTrcBuf emptytb( true );
     const FlatDataPack* dp = vwr_->pack( true );
     if ( !dp ) dp = vwr_->pack( false );
-    if ( !dp ) return emptytb;
-
-    mDynamicCastGet(const SeisTrcBufDataPack*,tbdp,dp)
-    if ( !tbdp ) { pErrMsg("Huh"); return emptytb; }
-    return tbdp->trcBuf();
+    if ( !dp ) return DataPack::cNoID();
+    return dp->id();
 }
 
 

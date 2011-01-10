@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsingleedit.cc,v 1.1 2011-01-06 16:19:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsingleedit.cc,v 1.2 2011-01-10 13:30:13 cvsbert Exp $";
 
 #include "uiattribsingleedit.h"
 #include "uiattrdesced.h"
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribdescsetman.h"
 #include "uigeninput.h"
 #include "uimsg.h"
@@ -42,9 +43,25 @@ uiSingleAttribEd::~uiSingleAttribEd()
 bool uiSingleAttribEd::acceptOK( CallBacker* )
 {
     const BufferString oldnm( desc_.userRef() );
-    const BufferString newnm(  namefld_->text() );
+    const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() )
 	{ uiMSG().error( "Please enter a valid name" ); return false; }
+
+    if ( oldnm != newnm )
+    {
+	const Attrib::DescSet& descset = *desc_.descSet();
+	const int sz = descset.nrDescs();
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    const Attrib::Desc& desc = *descset.desc( idx );
+	    if ( &desc_ == &desc ) continue;
+	    if ( newnm == descset.desc(idx)->userRef() )
+	    {
+		uiMSG().error("This name is already used for other attribute");
+		return false;
+	    }
+	}
+    }
 
     const char* msg = desced_->commit();
     if ( msg && *msg )
