@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.30 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.31 2011-01-10 10:20:57 cvssatyaki Exp $";
 
 
 #include "uiattrsurfout.h"
 
+#include "array2dinterpol.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribengman.h"
@@ -19,6 +20,7 @@ static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.30 2010-03-15 16:15:01 cvs
 #include "attribfactory.h"
 #include "emsurfacetr.h"
 #include "uiattrsel.h"
+#include "uiarray2dinterpol.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
 #include "ctxtioobj.h"
@@ -45,9 +47,12 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     attrnmfld_ = new uiGenInput( uppgrp_, "Attribute name", StringInpSpec() );
     attrnmfld_->attach( alignedBelow, attrfld_ );
 
+    interpolfld_ = new uiArray2DInterpolSel( uppgrp_, true, true, false, 0 );
+    interpolfld_->attach( alignedBelow, attrnmfld_ );
     ctio_.ctxt.forread = true;
+
     objfld_ = new uiIOObjSel( uppgrp_, ctio_, "Calculate on surface" );
-    objfld_->attach( alignedBelow, attrnmfld_ );
+    objfld_->attach( alignedBelow, interpolfld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSel) );
 
     uppgrp_->setHAlignObj( attrfld_ );
@@ -86,6 +91,9 @@ bool uiAttrSurfaceOut::prepareProcessing()
 	return false;
     }
 
+    if ( !interpolfld_->acceptOK() )
+	return false;
+
     return uiAttrEMOut::prepareProcessing();
 }
 
@@ -95,11 +103,21 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
     uiAttrEMOut::fillPar( iopar );
     BufferString outid;
     outid += ctio_.ioobj->key();
+	fillGridPar( iopar );
     fillOutPar( iopar, Output::surfkey(), LocationOutput::surfidkey(), outid );
 
     BufferString attrnm = attrnmfld_->text();
     if ( attrnm.isEmpty() ) attrnm = attrfld_->getInput();
     iopar.set( sKey::Target, attrnm );
     return true;
+}
+
+
+void uiAttrSurfaceOut::fillGridPar( IOPar& par ) const
+{
+    IOPar gridpar, iopar;
+    interpolfld_->fillPar( gridpar );
+    iopar.mergeComp( gridpar, "Grid" );
+    par.merge( iopar );
 }
 

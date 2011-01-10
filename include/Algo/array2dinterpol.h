@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          April 2009
- RCS:           $Id: array2dinterpol.h,v 1.6 2010-11-09 19:49:51 cvskris Exp $
+ RCS:           $Id: array2dinterpol.h,v 1.7 2011-01-10 10:20:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -73,6 +73,9 @@ public:
     virtual bool		canUseArrayAccess() const { return false; }
     virtual bool		setArray(ArrayAccess&,TaskRunner* =0);
     				//!<Set AFTER all settings 
+
+    virtual bool		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
 protected:
 		Array2DInterpol();

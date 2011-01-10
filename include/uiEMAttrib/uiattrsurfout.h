@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.h,v 1.8 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiattrsurfout.h,v 1.9 2011-01-10 10:20:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class CtxtIOObj;
 class IOPar;
 class MultiID;
 class NLAModel;
+class uiArray2DInterpolSel;
 class uiGenInput;
 class uiIOObjSel;
 
@@ -36,6 +37,7 @@ public:
 					 const NLAModel*,const MultiID&);
 			~uiAttrSurfaceOut();
 
+   void			fillGridPar(IOPar&) const;
 protected:
 
     bool		prepareProcessing();
@@ -47,6 +49,7 @@ protected:
     
     uiGenInput*		attrnmfld_;
     uiIOObjSel*		objfld_;
+    uiArray2DInterpolSel* interpolfld_;
 };
 
 #endif

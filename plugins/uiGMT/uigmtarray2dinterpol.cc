@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uigmtarray2dinterpol.cc,v 1.3 2010-09-15 12:06:09 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigmtarray2dinterpol.cc,v 1.4 2011-01-10 10:20:57 cvssatyaki Exp $";
 
 #include "uigmtarray2dinterpol.h"
 
@@ -90,17 +90,19 @@ bool uiGMTSurfaceGrid::acceptOK()
 	return false;
     }
 
-    if ( tensionfld_->getfValue()<0 || tensionfld_->getfValue()>1 )
+    if ( tensionfld_->getfValue()<=0 || tensionfld_->getfValue()>=1 )
     {
 	uiMSG().message( "Tension value should be in between 0 and 1" );
 	tensionfld_->setValue( 0.25 );
 	return false;
     }
 
-    IOPar iop;
-    fillPar( iop );
-    GMTSurfaceGrid* res = new GMTSurfaceGrid;
-    res->setPar( iop );
+    Array2DInterpol* intrp = Array2DInterpol::factory().create( sName() );
+    mDynamicCastGet( GMTSurfaceGrid*, res, intrp );
+    if ( !res )
+	return false;
+
+    res->setTension( tensionfld_->getfValue() );
     result_ = res;
 
     return true;
@@ -133,16 +135,16 @@ uiArray2DInterpol* uiGMTNearNeighborGrid::create( uiParent* p )
 
 uiGMTNearNeighborGrid::uiGMTNearNeighborGrid( uiParent* p )
     : uiArray2DInterpol( p, "GMT grid" )
-    , rediusfld_(0) 
+    , radiusfld_(0) 
 {
     if ( hasGMTInst() )
     {
 	BufferString lbl( "Search radius " );
 	lbl.add( SI().getXYUnitString() );
-	rediusfld_ = new uiGenInput( this, lbl, FloatInpSpec(1) );
+	radiusfld_ = new uiGenInput( this, lbl, FloatInpSpec(1) );
 	const int maxval = (int)mMAX(SI().inlDistance(), SI().crlDistance());
-	rediusfld_->setValue( maxval );
-	setHAlignObj( rediusfld_ );
+	radiusfld_->setValue( maxval );
+	setHAlignObj( radiusfld_ );
     }
     else
 	mCreateUI(uiGMTNearNeighborGrid,gmtPushCB);
@@ -158,30 +160,32 @@ void uiGMTNearNeighborGrid::gmtPushCB( CallBacker* )
 
 void uiGMTNearNeighborGrid::fillPar( IOPar& iop ) const
 {
-    if ( rediusfld_ )
-	iop.set( "Radius", rediusfld_->getfValue() );
+    if ( radiusfld_ )
+	iop.set( "Radius", radiusfld_->getfValue() );
 }
 
 
 bool uiGMTNearNeighborGrid::acceptOK()
 {
-    if ( !rediusfld_ )
+    if ( !radiusfld_ )
     {
 	uiMSG().message( "No GMT instllation found" );
 	return false;
     }
 
-    if ( rediusfld_->getfValue() <= 0 )
+    if ( radiusfld_->getfValue() <= 0 )
     {
 	uiMSG().message( "Search radius should be greater than 0" );
-	rediusfld_->setValue(mMAX(SI().inlDistance(), SI().crlDistance()) );
+	radiusfld_->setValue(mMAX(SI().inlDistance(), SI().crlDistance()) );
 	return false;
     }
 
-    IOPar iop;
-    fillPar( iop );
-    GMTNearNeighborGrid* res = new GMTNearNeighborGrid;
-    res->setPar( iop );
+    Array2DInterpol* intrp = Array2DInterpol::factory().create( sName() );
+    mDynamicCastGet( GMTNearNeighborGrid*, res, intrp );
+    if ( ! res )
+	return false;
+
+    res->setRadius( radiusfld_->getfValue() );
     result_ = res;
 
     return true;

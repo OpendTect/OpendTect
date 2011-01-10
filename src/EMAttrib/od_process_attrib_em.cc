@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.78 2010-12-30 19:34:22 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.79 2011-01-10 10:20:57 cvssatyaki Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.78 2010-12-30 19:34
 #include "attribsel.h"
 #include "attribstorprovider.h"
 
+#include "array2dinterpol.h"
 #include "batchprog.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
@@ -288,6 +289,38 @@ static HorSampling getHorSamp( IOPar& geompar )
 }
 
 
+void interpolate( EM::Horizon3D* horizon, const BufferStringSet& attribrefs,
+		  IOPar& par, std::ostream& strm )
+{
+    PtrMan<IOPar> gridpar = par.subselect( "Grid" );
+    if ( !gridpar )
+	return;
+
+    BufferString gridmethodnm;
+    gridpar->get( sKey::Name, gridmethodnm );
+    Array2DInterpol* arr2dint =
+	Array2DInterpol::factory().create( gridmethodnm );
+    arr2dint->usePar( *gridpar );
+    for ( int idx=0; idx<attribrefs.size(); idx++ )
+    {
+	const int dataid =
+	    horizon->auxdata.auxDataIndex( attribrefs.get(idx).buf() );
+	Array2D<float>* attrarr =
+	    horizon->auxdata.createArray2D( dataid,
+					    horizon->sectionID(0) );
+	strm << "Gridding " << attribrefs.get(idx).buf() << "\n";
+
+	TextStreamProgressMeter runner( strm );
+	arr2dint->setProgressMeter( &runner );
+	arr2dint->setArray( *attrarr );
+	arr2dint->execute();
+	runner.setFinished();
+	horizon->auxdata.setArray2D( dataid, horizon->sectionID(0),
+				     *attrarr );
+    }
+}
+
+
 bool BatchProgram::go( std::ostream& strm )
 {
     Algo::initStdClasses();
@@ -442,6 +475,8 @@ bool BatchProgram::go( std::ostream& strm )
 	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
 	if ( !horizon ) mErrRet( "Huh" );
+	
+	interpolate( horizon, attribrefs, pars(), strm );
 
 	SurfaceIOData sd; sd.use( *horizon );
 	SurfaceIODataSelection sels( sd );
@@ -529,3 +564,4 @@ bool BatchProgram::go( std::ostream& strm )
 
     return true;
 }
+

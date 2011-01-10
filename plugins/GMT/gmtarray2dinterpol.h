@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: gmtarray2dinterpol.h,v 1.3 2010-09-02 07:01:53 cvsnageswara Exp $
+ RCS:           $Id: gmtarray2dinterpol.h,v 1.4 2011-01-10 10:20:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "array2dinterpol.h"
 
 #include "bufstring.h"
-#include "iopar.h"
 #include "strmdata.h"
 
 
@@ -25,7 +24,6 @@ public:
     				GMTArray2DInterpol();
     				~GMTArray2DInterpol();
 
-    virtual void		setPar(const IOPar&)		=0;
     virtual bool		mkCommand(BufferString&)	=0;
 
 protected:
@@ -40,7 +38,6 @@ protected:
 
     int				nrdone_;
     BufferString		msg_;
-    IOPar			iopar_;
     StreamData			sd_;
     StreamData			sdmask_;
     BufferString		path_;
@@ -59,9 +56,15 @@ public:
     static void			initClass();
     static Array2DInterpol*	create();
 
-    void			setPar(const IOPar&);
     bool			mkCommand(BufferString&);
     const char*			infoMsg() const;
+
+    void			setTension(float);
+    bool			usePar(const IOPar&);
+    bool			fillPar(IOPar&) const;
+
+protected:
+    float			tension_;
 };
 
 
@@ -75,9 +78,15 @@ public:
     static void			initClass();
     static Array2DInterpol*	create();
 
-    void			setPar(const IOPar&);
+    void			setRadius(float);
     bool			mkCommand(BufferString&);
     const char*			infoMsg() const;
+    
+    bool			usePar(const IOPar&);
+    bool			fillPar(IOPar&) const;
+
+protected:
+    float			radius_;
 };
 
 #endif

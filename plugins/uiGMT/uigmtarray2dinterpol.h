@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: uigmtarray2dinterpol.h,v 1.3 2010-09-15 12:06:09 cvsnageswara Exp $
+ RCS:           $Id: uigmtarray2dinterpol.h,v 1.4 2011-01-10 10:20:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ public:
 protected:
     void			gmtPushCB(CallBacker*);
 
-    uiGenInput*			rediusfld_;
+    uiGenInput*			radiusfld_;
 };
 
 #endif

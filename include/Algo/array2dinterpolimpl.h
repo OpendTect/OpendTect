@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.14 2010-11-09 22:09:28 cvskris Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.15 2011-01-10 10:20:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,9 @@ public:
     void	setCornersFirst(bool n)		{ cornersfirst_ = n; }
     bool	getCornersFirst() const		{ return cornersfirst_; }
     bool	nothingToFill() const		{ return nrIterations()<1; }  
+
+    bool	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&);
 
 protected:
     bool	doWork(od_int64,od_int64,int);
@@ -138,6 +141,9 @@ public:
     void	doInterpolation(bool yn)	{ dointerpolation_ = yn; }
     float	getMaxDistance() const		{ return maxdistance_; }
     void	setMaxDistance(float r)		{ maxdistance_ = r; }
+    
+    bool	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&);
 
 protected:
     int		minThreadSize() const		{ return 10000; }
@@ -182,6 +188,9 @@ public:
     
     void		setNrSteps(int n)		{ nrsteps_ = n; }
     int			getNrSteps() const		{ return nrsteps_; }
+
+    bool	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&);
 
 protected:
 

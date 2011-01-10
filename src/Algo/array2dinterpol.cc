@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.30 2010-11-30 16:31:33 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.31 2011-01-10 10:20:57 cvssatyaki Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -19,6 +19,20 @@ static const char* rcsID = "$Id: array2dinterpol.cc,v 1.30 2010-11-30 16:31:33 c
 
 
 #define mPolygonType int
+ 
+static const char* sKeyFillType()		{ return "Fill Type"; }
+static const char* sKeyRowStep() 		{ return "Row Step"; }
+static const char* sKeyColStep() 		{ return "Col Step"; }
+static const char* sKeyNrRows() 		{ return "Nr of Rows"; }
+static const char* sKeyNrCols() 		{ return "Nr of Cols"; }
+static const char* sKeyNrCells() 		{ return "Nr of Cells"; }
+static const char* sKeyMaxHoleSz() 		{ return "Max Hole Size"; }
+static const char* sKeySearchRadius() 		{ return "Search Radius"; }
+static const char* sKeyStepSize() 		{ return "Step Size"; }
+static const char* sKeyNrSteps() 		{ return "Nr of Steps"; }
+static const char* sKeyCornersFirst() 		{ return "Corners First"; }
+static const char* sKeyDoInterpol() 		{ return "Do Interpolation"; }
+static const char* sKeyMaxDistance() 		{ return "Maximum Distance"; }
 
 DefineEnumNames( Array2DInterpol, FillType, 1, "Filltypes" )
 { "Only Holes", "Convex Hull", "Full", 0 };
@@ -574,6 +588,34 @@ void Array2DInterpol::excludeBigHoles( const bool* def,
 }
 
 
+bool Array2DInterpol::fillPar( IOPar& par ) const
+{
+    par.set( sKeyFillType(), filltype_ );
+    par.set( sKeyRowStep(), rowstep_ );
+    par.set( sKeyColStep(), colstep_ );
+    par.set( sKeyNrRows(), nrrows_ );
+    par.set( sKeyNrCols(), nrcols_ );
+    par.set( sKeyNrCells(), nrcells_ );
+    par.set( sKeyMaxHoleSz(), mIsUdf(maxholesize_) ? -1 : maxholesize_ );
+    return true;
+}
+
+
+bool Array2DInterpol::usePar( const IOPar& par )
+{
+    int filltype;
+    par.get( sKeyFillType(), filltype );
+    filltype_ = (Array2DInterpol::FillType)filltype;
+
+    par.get( sKeyRowStep(), rowstep_ );
+    par.get( sKeyColStep(), colstep_ );
+    par.get( sKeyNrRows(), nrrows_ );
+    par.get( sKeyNrCols(), nrcols_ );
+    par.get( sKeyNrCells(), nrcells_ );
+    par.get( sKeyMaxHoleSz(), maxholesize_ );
+    return true;
+}
+
 
 //InverseDistance
 //
@@ -832,6 +874,27 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	    return false;
     }
 
+    return true;
+}
+
+
+bool InverseDistanceArray2DInterpol::fillPar( IOPar& par ) const
+{
+    Array2DInterpol::fillPar( par );
+    par.set( sKeySearchRadius(), searchradius_ );
+    par.set( sKeyStepSize(), stepsize_ );
+    par.set( sKeyNrSteps(), nrsteps_ );
+    par.setYN( sKeyCornersFirst(), cornersfirst_ );
+    return true;
+}
+
+bool InverseDistanceArray2DInterpol::usePar( const IOPar& par ) 
+{
+    Array2DInterpol::usePar( par );
+    par.get( sKeySearchRadius(), searchradius_ );
+    par.get( sKeyStepSize(), stepsize_ );
+    par.get( sKeyNrSteps(), nrsteps_ );
+    par.getYN( sKeyCornersFirst(), cornersfirst_ );
     return true;
 }
 
@@ -1369,6 +1432,22 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 }
 
 
+bool TriangulationArray2DInterpol::fillPar( IOPar& par ) const
+{
+    Array2DInterpol::fillPar( par );
+    par.setYN( sKeyDoInterpol(), dointerpolation_ );
+    par.set( sKeyMaxDistance(), maxdistance_ );
+    return true;
+}
+
+bool TriangulationArray2DInterpol::usePar( const IOPar& par )
+{
+    Array2DInterpol::usePar( par );
+    par.getYN( sKeyDoInterpol(), dointerpolation_ );
+    par.get( sKeyMaxDistance(), maxdistance_ );
+    return true;
+}
+
 // Extension
 #define cA2DStateMarkedForKeepUdf       -3
 #define cA2DStateKeepUdf                -2
@@ -1396,6 +1475,22 @@ bool Array2DInterpolExtension::doWork( od_int64, od_int64, int thread )
 	executor_ = new A2DIntExtenExecutor( *this );
 
     return executor_->execute();
+}
+
+
+bool Array2DInterpolExtension::fillPar( IOPar& par ) const
+{
+    Array2DInterpol::fillPar( par );
+    par.set( sKeyNrSteps(), nrsteps_ );
+    return true;
+}
+
+
+bool Array2DInterpolExtension::usePar( const IOPar& par )
+{
+    Array2DInterpol::usePar( par );
+    par.get( sKeyNrSteps(), nrsteps_ );
+    return true;
 }
 
 

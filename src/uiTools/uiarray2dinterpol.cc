@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.12 2010-11-09 20:30:59 cvskris Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.13 2011-01-10 10:20:57 cvssatyaki Exp $";
 
 #include "uiarray2dinterpol.h"
 
 #include "array2dinterpolimpl.h"
+#include "iopar.h"
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uimsg.h"
@@ -183,6 +184,16 @@ void uiArray2DInterpolSel::selChangeCB( CallBacker* )
 
 	params_[idx]->display( idx==sel );
     }
+}
+
+
+void uiArray2DInterpolSel::fillPar( IOPar& iopar ) const
+{
+    if ( !result_ )
+	return;
+
+    iopar.set( sKey::Name, methodsel_->text() );
+    result_->fillPar( iopar );
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: gmtarray2dinterpol.cc,v 1.3 2010-09-02 07:01:53 cvsnageswara Exp $";
+static const char* rcsID = "$Id: gmtarray2dinterpol.cc,v 1.4 2011-01-10 10:20:57 cvssatyaki Exp $";
 
 #include "gmtarray2dinterpol.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: gmtarray2dinterpol.cc,v 1.3 2010-09-02 07:01:53
 #include "file.h"
 #include "filepath.h"
 #include "math2.h"
+#include "iopar.h"
 #include "oddirs.h"
 #include "string2.h"
 #include "strmdata.h"
@@ -24,6 +25,9 @@ static const char* rcsID = "$Id: gmtarray2dinterpol.cc,v 1.3 2010-09-02 07:01:53
 #include <iostream>
 
 static const char* sKeyGMTUdf = "NaN";
+
+static const char* sKeyTension()			{ return "Tension"; }
+static const char* sKeyRadius()				{ return "Radius"; }
 
 GMTArray2DInterpol::GMTArray2DInterpol()
     : nrdone_(0)
@@ -97,6 +101,7 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 	    if ( mIsUdf(arr_->get(ridx, cidx)) )
 		continue;
 
+	    addToNrDone( 1 );
 	    *sd_.ostrm << ridx << " " << cidx << " " << arr_->get(ridx, cidx)
 						     << std::endl;
 	}
@@ -179,6 +184,7 @@ bool GMTArray2DInterpol::doFinish( bool success )
 
 //GMTSurfaceGrid
 GMTSurfaceGrid::GMTSurfaceGrid()
+    : tension_( -1 )
 {
     msg_ = "Continuous curvature";
 }
@@ -200,31 +206,45 @@ Array2DInterpol* GMTSurfaceGrid::create()
 }
 
 
+void GMTSurfaceGrid::setTension( float tension )
+{
+    tension_ = tension;
+}
+
+
 const char* GMTSurfaceGrid::infoMsg() const
 {
     return "The selected algorithm will work only after loading GMT plugin";
 }
 
 
-void GMTSurfaceGrid::setPar( const IOPar& iop )
+bool GMTSurfaceGrid::fillPar( IOPar& iop ) const
 {
-    iopar_  = iop;
+    Array2DInterpol::fillPar( iop );
+    iop.set( sKeyTension(), tension_ );
+    return true;
+}
+
+
+bool GMTSurfaceGrid::usePar( const IOPar& par )
+{
+    Array2DInterpol::usePar( par );
+    par.get( sKeyTension(), tension_ );
+    return true;
 }
 
 
 bool GMTSurfaceGrid::mkCommand( BufferString& cmd )
 {
-    if ( iopar_.isEmpty() )
+    if ( tension_ < 0 )
     {
 	msg_ = "Tension parameter missing";
 	return false;
     }
 
-    float tension;
-    iopar_.get( "Tension", tension );
     path_ = FilePath( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
     cmd = "@surface -I1 ";
-    cmd.add( "-T" ).add( tension )
+    cmd.add( "-T" ).add( tension_ )
        .add( " -G" ).add( path_ )
        .add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 );
 
@@ -234,6 +254,7 @@ bool GMTSurfaceGrid::mkCommand( BufferString& cmd )
 
 //GMTNearNeighborGrid
 GMTNearNeighborGrid::GMTNearNeighborGrid()
+    : radius_( -1 )
 {
     msg_ = "Nearest neighbor";
 }
@@ -255,33 +276,46 @@ Array2DInterpol* GMTNearNeighborGrid::create()
 }
 
 
+void GMTNearNeighborGrid::setRadius( float radius )
+{
+    radius_ = radius;
+}
+
+
 const char* GMTNearNeighborGrid::infoMsg() const
 {
     return "The selected algorithm will work only after loading GMT plugin";
 }
 
 
-void GMTNearNeighborGrid::setPar( const IOPar& iop )
+bool GMTNearNeighborGrid::fillPar( IOPar& iop ) const
 {
-    iopar_  = iop;
+    Array2DInterpol::fillPar( iop );
+    iop.set( sKeyRadius(), radius_ );
+    return true;
+}
+
+
+bool GMTNearNeighborGrid::usePar( const IOPar& par )
+{
+    Array2DInterpol::usePar( par );
+    par.get( sKeyRadius(), radius_ );
+    return true;
 }
 
 
 bool GMTNearNeighborGrid::mkCommand( BufferString& cmd )
 {
-    if ( iopar_.isEmpty() )
+    if ( radius_ < 0 )
     {
 	msg_ = "Search radius parameter missing";
 	return false;
     }
 
-    float radius;
-    iopar_.get( "Radius", radius );
-
     path_ = FilePath( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
     cmd = "@nearneighbor -I1 ";
     cmd.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 )
-       .add( " -S" ).add( radius )
+       .add( " -S" ).add( radius_ )
        .add( " -N4/2" )
        .add( " -G" ).add( path_ );
 

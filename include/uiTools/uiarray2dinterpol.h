@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          April 2009
- RCS:           $Id: uiarray2dinterpol.h,v 1.9 2010-01-12 12:20:49 cvsyuancheng Exp $
+ RCS:           $Id: uiarray2dinterpol.h,v 1.10 2011-01-10 10:20:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
 				//!<unit is for going from one cell to another
     
     const char*			helpID() const;
+    void			fillPar(IOPar&) const;
 
 protected:
 					~uiArray2DInterpolSel();
