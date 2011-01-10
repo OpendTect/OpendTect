@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.20 2010-12-17 06:39:33 raman Exp $
+ RCS:		$Id: flthortools.h,v 1.21 2011-01-10 08:48:52 raman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "surv2dgeom.h"
 
-namespace EM { class Fault; }
+namespace EM { class Fault; class Horizon; }
 class IOObj;
 class BinIDValueSet;
 class HorSampling;
@@ -48,9 +48,13 @@ public:
     void		setLineNr(int nr)		{ nr_ = nr; }
 
     bool		isCrossing(const BinID&,float,const BinID&,float) const;
+    bool		getIntersection(const BinID&,float,const BinID&,float,
+	    				BinID&,float&,
+					const StepInterval<int>* trcrg=0) const;
     bool		getHorCrossings(const BinIDValueSet&,
 	    				Interval<float>& topzvals,
 					Interval<float>& botzvals) const;
+    bool		getHorIntersection(const EM::Horizon&,BinID&) const;
     bool		getImage(const BinID& srcbid,float srcz,
 	    			 const Interval<float>& tophorzvals,
 				 const Interval<float>& bothorzvals,

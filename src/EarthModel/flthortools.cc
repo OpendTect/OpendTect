@@ -7,13 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.35 2010-12-17 06:39:33 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.36 2011-01-10 08:48:52 raman Exp $";
 
 #include "flthortools.h"
 
 #include "binidvalset.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
+#include "emhorizon.h"
+#include "emsurfacegeometry.h"
 #include "emmanager.h"
 #include "executor.h"
 #include "explfaultsticksurface.h"
@@ -120,6 +122,40 @@ bool FaultTrace::getImage( const BinID& bid, float z,
     bidimg.inl = isinl_ ? nr_ : trcrg.atIndex( index );
     bidimg.crl = isinl_ ? trcrg.atIndex( index ) : nr_;
     return true;
+}
+
+
+bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
+{
+    BinID prevbid;
+    float prevz = mUdf(float);
+    const EM::SectionID sid = hor.sectionID( 0 );
+    StepInterval<int> trcrg = isinl_ ? hor.geometry().colRange()
+				     : hor.geometry().rowRange( sid );
+    trcrg.limitTo( range_ );
+    for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
+    {
+	BinID curbid( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
+	const float curz = hor.getPos( sid, curbid.toInt64() ).z;
+	if ( mIsUdf(curz) )
+	    continue;
+
+	if ( !mIsUdf(prevz) )
+	{
+	    Coord intsectn = getIntersection( curbid, curz, prevbid, prevz );
+	    if ( intsectn.isDefined() )
+	    {
+		bid.inl = isinl_ ? nr_ : trcrg.snap( mNINT(intsectn.x) );
+		bid.crl = isinl_ ? trcrg.snap( mNINT(intsectn.x) ) : nr_;
+		return true;
+	    }
+	}
+
+	prevbid = curbid;
+	prevz = curz;
+    }
+
+    return false;
 }
 
 
@@ -286,6 +322,27 @@ Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
     return Coord::udf();
 
 }
+
+
+bool FaultTrace::getIntersection( const BinID& bid1, float z1,
+				  const BinID& bid2, float z2,
+				  BinID& bid, float& z,
+				  const StepInterval<int>* intv ) const
+{
+    const Coord intersection = getIntersection( bid1, z1, bid2, z2 );
+    if ( !intersection.isDefined() )
+	return false;
+
+    int trcnr = mNINT( intersection.x );
+    if ( intv )
+	trcnr = intv->snap( trcnr );
+
+    bid.inl = isinl_ ? nr_ : trcnr;
+    bid.crl = isinl_ ? trcnr : nr_;
+    z = intersection.y;
+    return !intv || intv->includes( trcnr );
+}
+
 
 bool FaultTrace::isCrossing( const BinID& bid1, float z1,
 			     const BinID& bid2, float z2  ) const
