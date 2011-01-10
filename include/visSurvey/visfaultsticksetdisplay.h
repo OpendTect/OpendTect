@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.14 2011-01-04 09:12:07 cvsjaap Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.15 2011-01-10 10:59:21 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -105,18 +105,19 @@ protected:
     void			emChangeCB(CallBacker*);
     void			polygonFinishedCB(CallBacker*);
     bool			isSelectableMarkerInPolySel(
-					    const Coord3& markerworldpos) const;
+					const Coord3& markerworldpos) const;
 
     Coord3			disp2world(const Coord3& displaypos) const;
 
     void			displayOnlyAtSectionsUpdate();
     bool			coincidesWith2DLine(
-					    const Geometry::FaultStickSet&,
-					    int sticknr,const MultiID& lineset,
-					    const char* linenm) const;
+					const Geometry::FaultStickSet&,
+					int sticknr,const MultiID& lineset,
+					const char* linenm) const;
     bool			coincidesWithPlane(
-					    const Geometry::FaultStickSet&,
-					    int sticknr) const;
+					const Geometry::FaultStickSet&,
+					int sticknr,
+					TypeSet<Coord3>& intersectpoints) const;
 
     visBase::EventCatcher*	eventcatcher_;
     visBase::Transformation*	displaytransform_;
@@ -143,7 +144,16 @@ protected:
 
     bool			ctrldown_;
 
-    ObjectSet<visBase::DataObjectGroup> knotmarkers_;
+    ObjectSet<visBase::DataObjectGroup>	knotmarkers_;
+
+    struct StickIntersectPoint
+    {
+	Coord3			pos_;
+	int 			sid_;
+	int			sticknr_;
+    };
+
+    ObjectSet<StickIntersectPoint> stickintersectpoints_;
 };
 
 } // namespace VisSurvey

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.34 2011-01-04 09:12:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.35 2011-01-10 10:59:21 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -73,7 +73,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     sticks_->insertNode( stickspickstyle_->getInventorNode() );
     activestick_->insertNode( activestickpickstyle_->getInventorNode() );
 
-    for ( int idx=0; idx<2; idx++ )
+    for ( int idx=0; idx<3; idx++ )
     {
 	visBase::DataObjectGroup* group=visBase::DataObjectGroup::create();
 	group->ref();
@@ -81,10 +81,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
 	knotmarkers_ += group;
 	visBase::Material* knotmat = visBase::Material::create();
 	group->addObject( knotmat );
-	if ( idx )
-	    knotmat->setColor( Color(0,255,0) );
-	else
-	    knotmat->setColor( Color(255,255,255) );
+	knotmat->setColor( idx ? Color(0,255,0) : Color(255,255,255) );
     }
 }
 
@@ -121,6 +118,8 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
 	knotmarkers_[idx]->unRef();
 	knotmarkers_.remove( idx );
     }
+
+    deepErase( stickintersectpoints_ );
 }
 
 
@@ -150,6 +149,9 @@ void FaultStickSetDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 EM::ObjectID FaultStickSetDisplay::getEMID() const
 { return emfss_ ? emfss_->id() : -1; }
 
+
+#define mSetStickIntersectPointColor( color ) \
+    ((visBase::Material*) knotmarkers_[2]->getObject(0))->setColor(color);
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
@@ -207,6 +209,7 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
     viseditor_->setEditor( fsseditor_ );
 
     getMaterial()->setColor( emfss_->preferredColor() );
+    mSetStickIntersectPointColor( emfss_->preferredColor() );
     viseditor_->setMarkerSize(3);
 
     updateSticks();
@@ -645,6 +648,20 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 }
 
 
+#define mMatchMarker( sid, sticknr, posdif ) \
+    if ( posdif.abs() < 1e-4 ) \
+    { \
+	Geometry::FaultStickSet* fss = \
+				emfss_->geometry().sectionGeometry( sid ); \
+	if ( fss ) \
+	{ \
+	    fss->selectStick( sticknr, !ctrldown_ ); \
+	    updateKnotMarkers(); \
+	    eventcatcher_->setHandled(); \
+	    return; \
+	} \
+    } 
+
 void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 {
     if ( !emfss_ || !isOn() || eventcatcher_->isHandled() || !isSelected() )
@@ -665,8 +682,6 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
     if ( eventinfo.type!=visBase::MouseClick || !leftmousebutton )
 	return;
 
-    EM::PosID pid = EM::PosID::udf();
-
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
 	const int visid = eventinfo.pickedobjids[idx];
@@ -674,32 +689,27 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 	mDynamicCastGet( visBase::Marker*, marker, dataobj );
 	if ( marker )
 	{
+	    for ( int sipidx=0; sipidx<stickintersectpoints_.size(); sipidx++ )
+	    {
+		const StickIntersectPoint* sip = stickintersectpoints_[sipidx];
+		const Coord3 diff = sip->pos_ - marker->centerPos();
+		mMatchMarker( sip->sid_, sip->sticknr_, diff );
+	    }
+
 	    PtrMan<EM::EMObjectIterator> iter =
 					 emfss_->geometry().createIterator(-1);
 	    while ( true )
 	    {
-		pid = iter->next();
+		const EM::PosID pid = iter->next();
 		if ( pid.objectID() == -1 )
 		    return;
 
 		const Coord3 diff = emfss_->getPos(pid) - marker->centerPos();
-		if ( diff.abs() < 1e-4 )
-		    break;
+		const int sticknr = RowCol( pid.subID() ).row;
+		mMatchMarker( pid.sectionID(), sticknr, diff );
 	    }
 	}
     }
-
-    if ( pid.isUdf() )
-    	return;
-
-    const int sticknr = RowCol( pid.subID() ).row;
-
-    const int sid = emfss_->sectionID(0);
-    Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry( sid );
-
-    fss->selectStick( sticknr, !ctrldown_ ); 
-    updateKnotMarkers();
-    eventcatcher_->setHandled();
 }
 
 
@@ -718,7 +728,10 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 {
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cber);
     if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    {
 	getMaterial()->setColor( emfss_->preferredColor() );
+	mSetStickIntersectPointColor( emfss_->preferredColor() );
+    }
 
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange && emfss_ )
     {
@@ -819,12 +832,14 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 
 
 bool FaultStickSetDisplay::coincidesWithPlane(
-			const Geometry::FaultStickSet& fss, int sticknr ) const
+			const Geometry::FaultStickSet& fss, int sticknr,
+			TypeSet<Coord3>& intersectpoints ) const
 {
+    bool res = false;
     RowCol rc( sticknr, 0 );
     const StepInterval<int> rowrg = fss.rowRange();
     if ( !scene_ || !rowrg.includes(sticknr) || rowrg.snap(sticknr)!=sticknr )
-	return false;
+	return res;
 
     for ( int idx=0; idx<scene_->size(); idx++ )
     {
@@ -835,8 +850,8 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 
 	const Coord3 vec1 = fss.getEditPlaneNormal(sticknr).normalize();
 	const Coord3 vec2 = plane->getNormal(Coord3()).normalize();
-	if ( fabs(vec1.dot(vec2)) < 0.5 )
-	    continue;
+
+	const bool coincidemode = fabs(vec1.dot(vec2)) > 0.5;
 
 	const float onestepdist = Coord3(1,1,mZScale()).dot(
 		    SI().oneStepTranslation(plane->getNormal(Coord3::udf())) );
@@ -853,29 +868,40 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 
 	    const float curdist = plane->calcDist( curpos );
 	    if ( curdist <= 0.5*onestepdist )
-		return true;
-
-	    if ( rc.col != colrg.start )
+	    {
+		res = coincidemode;
+		intersectpoints += curpos;
+	    }
+	    else if ( rc.col != colrg.start )
 	    {
 		const float frac = prevdist / (prevdist+curdist);
 		Coord3 interpos = (1-frac)*prevpos + frac*curpos;
 
 		if ( plane->calcDist(interpos) <= 0.5*onestepdist )
-		    return true;
+		{
+		    if ( prevdist <= 0.5*onestepdist )
+			intersectpoints.remove( intersectpoints.size()-1 );
+
+		    res = coincidemode;
+		    intersectpoints += interpos;
+		}
 	    }
 
 	    prevdist = curdist;
 	    prevpos = curpos;
 	}
     }
-    return false;
+    return res;
 }
 
 
 void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 {
-    if ( !emfss_ )
+    if ( !emfss_ || !fsseditor_ )
 	return;
+
+    NotifyStopper ns( fsseditor_->editpositionchange );
+    deepErase( stickintersectpoints_ );
 
     for ( int sidx=0; sidx<emfss_->nrSections(); sidx++ )
     {
@@ -889,7 +915,8 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 	const StepInterval<int> rowrg = fss->rowRange();
 	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
 	{
-	    fss->hideStick( rc.row, false );
+	    TypeSet<Coord3> intersectpoints;
+	    fss->hideStick( rc.row, displayonlyatsections_ );
 	    if ( !displayonlyatsections_ )
 		continue;
 
@@ -897,20 +924,35 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 	    { 
 		const MultiID* lset = emfss_->geometry().lineSet( sid, rc.row );
 		const char* lnm = emfss_->geometry().lineName( sid, rc.row );
-		if ( !coincidesWith2DLine(*fss, rc.row, *lset, lnm) )
-		    fss->hideStick( rc.row, true );
+		if ( coincidesWith2DLine(*fss, rc.row, *lset, lnm) )
+		{
+		    fss->hideStick( rc.row, false );
+		    continue;
+		}
 	    }
-	    else if ( emfss_->geometry().pickedOnPlane(sid,rc.row) )
+
+	    if ( coincidesWithPlane(*fss, rc.row, intersectpoints) )
 	    {
-		if ( !coincidesWithPlane(*fss, rc.row) )
-		    fss->hideStick( rc.row, true );
+		if ( emfss_->geometry().pickedOnPlane(sid,rc.row) )
+		{
+		    fss->hideStick( rc.row, false );
+		    continue;
+		}
+	    }
+
+	    for (  int idx=0; idx<intersectpoints.size(); idx++ )
+	    {
+		StickIntersectPoint* sip = new StickIntersectPoint();
+		sip->sid_ = sid;
+		sip->sticknr_ = rc.row;
+		sip->pos_ = intersectpoints[idx];
+		if ( displaytransform_ )
+		    sip->pos_ = displaytransform_->transformBack( sip->pos_ ); 
+
+		stickintersectpoints_ += sip;
 	    }
 	}
     }
-
-    updateSticks();
-    updateEditPids();
-    updateKnotMarkers();
 }
 
 
@@ -940,6 +982,7 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
 	scene_->getPolySelection()->polygonFinished()->notifyIfNotNotified(cb);
     else
 	scene_->getPolySelection()->polygonFinished()->remove( cb );
+
 }
 
 
@@ -983,6 +1026,23 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
     if ( !stickselectmode_ || !emfss_ || !scene_ || !isOn() || !isSelected() )
 	return;
 
+    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+
+    for ( int idx=0; idx<stickintersectpoints_.size(); idx++ )
+    {
+	const StickIntersectPoint* sip = stickintersectpoints_[idx];
+	Geometry::FaultStickSet* fss =
+			    emfss_->geometry().sectionGeometry( sip->sid_ );
+
+	if ( !fss || fss->isStickSelected(sip->sticknr_)!=ctrldown_ )
+	    continue;
+
+	if ( !isSelectableMarkerInPolySel(sip->pos_) )
+	    continue;
+
+	fss->selectStick( sip->sticknr_, !ctrldown_ ); 
+    }
+
     PtrMan<EM::EMObjectIterator> iter = emfss_->geometry().createIterator(-1);
     while ( true )
     {
@@ -990,12 +1050,16 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 	if ( pid.objectID() == -1 )
 	    break;
 
-	if ( !isSelectableMarkerInPolySel(emfss_->getPos(pid)) )
-	    continue;
-
 	const int sticknr = RowCol( pid.subID() ).row;
 	const EM::SectionID sid = pid.sectionID();
 	Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry(sid);
+
+	if ( fss->isStickSelected(sticknr) != ctrldown_ )
+	    continue;
+
+	if ( !isSelectableMarkerInPolySel(emfss_->getPos(pid)) )
+	    continue;
+
 	fss->selectStick( sticknr, !ctrldown_ ); 
     }
 
@@ -1008,6 +1072,17 @@ bool FaultStickSetDisplay::isInStickSelectMode() const
 { return stickselectmode_; }
 
 
+#define mAddKnotMarker( groupidx, style, pos ) \
+{ \
+    visBase::Marker* marker = visBase::Marker::create(); \
+    marker->setMarkerStyle( style ); \
+    marker->setMaterial(0); \
+    marker->setDisplayTransformation( displaytransform_ ); \
+    marker->setCenterPos( pos ); \
+    marker->setScreenSize(3); \
+    knotmarkers_[groupidx]->addObject( marker ); \
+}
+
 void FaultStickSetDisplay::updateKnotMarkers()
 {
     if ( !emfss_ || (viseditor_ && viseditor_->sower().moreToSow()) )
@@ -1017,6 +1092,22 @@ void FaultStickSetDisplay::updateKnotMarkers()
     {
 	while ( knotmarkers_[idx]->size() > 1 )
 	    knotmarkers_[idx]->removeObject( 1 );
+    }
+
+    for ( int idx=0; idx<stickintersectpoints_.size(); idx++ )
+    {
+	const StickIntersectPoint* sip = stickintersectpoints_[idx];
+	Geometry::FaultStickSet* fss =
+			    emfss_->geometry().sectionGeometry( sip->sid_ );
+	if ( !fss ) continue;
+
+	int groupidx = 0;
+	if ( !showmanipulator_ || !stickselectmode_ )
+	    groupidx = 2;
+	else if ( fss->isStickSelected(sip->sticknr_) )
+	    groupidx = 1;
+
+	mAddKnotMarker( groupidx, MarkerStyle3D::Sphere, sip->pos_ );
     }
 
     if ( !showmanipulator_ || !stickselectmode_ )
@@ -1035,17 +1126,9 @@ void FaultStickSetDisplay::updateKnotMarkers()
 	if ( !fss || fss->isStickHidden(sticknr) )
 	    continue;
 
-	const Coord3 pos = emfss_->getPos( pid );
-
-	visBase::Marker* marker = visBase::Marker::create();
-	marker->setMarkerStyle( emfss_->getPosAttrMarkerStyle(0) );
-	marker->setMaterial(0);
-	marker->setDisplayTransformation( displaytransform_ );
-	marker->setCenterPos(pos);
-	marker->setScreenSize(3);
-
 	const int groupidx = fss->isStickSelected(sticknr) ? 1 : 0;
-	knotmarkers_[groupidx]->addObject( marker );
+	const MarkerStyle3D& style = emfss_->getPosAttrMarkerStyle(0);
+	mAddKnotMarker( groupidx, style, emfss_->getPos(pid) );
     }
 }
 
