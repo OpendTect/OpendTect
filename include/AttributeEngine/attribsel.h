@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.28 2010-08-04 13:30:46 cvsbert Exp $
+ RCS:           $Id: attribsel.h,v 1.29 2011-01-10 12:43:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,14 +155,15 @@ public:
     TypeSet<DescID>	attrids_;
     BufferStringSet	nlaoutnms_;
 
+    void		fillStored(const char* filter=0);
     static bool		is2D(const char* defstr_or_ioobjid);
+    static void		getZDomainItems(const ZDomain::Info&,
+					BufferStringSet& objnms);
+
+    			//!< 2D only
     static void		getAttrNames(const char* defstr_or_ioobjid,
 	    			     BufferStringSet&,bool issteer=false,
 				     bool onlymulticomp=false);
-    			//!< 2D only
-    void		fillStored(const char* filter=0);
-    static void		getZDomainItems(const ZDomain::Info&,
-					BufferStringSet& objnms);
 
 protected:
 
