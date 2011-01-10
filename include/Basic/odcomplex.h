@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: odcomplex.h,v 1.6 2011-01-10 14:57:33 cvsbert Exp $
+ RCS:		$Id: odcomplex.h,v 1.7 2011-01-10 15:01:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,8 +40,7 @@ public:
 				}
     static void			setUdf( float_complex& f )
 				{
-				    f.real( (float)__mUndefValue );
-				    f.imag( (float)__mUndefValue );
+				    f.real() = f.imag() = (float)__mUndefValue;
 				}
 
 };
