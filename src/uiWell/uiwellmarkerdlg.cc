@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.36 2010-12-29 04:38:21 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.37 2011-01-10 10:01:01 cvssatyaki Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -132,13 +132,18 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 	markers_.replace( row, new Well::Marker() );
 
     Well::Marker* marker = markers_[row];
-    marker->setName( table_->text(RowCol(row,0)) );
-    markers_[table_->currentRow()]->setDah( table_->getfValue(RowCol(row,1))
-	   				    * zFactor() );
-    marker->setColor( table_->getColor(RowCol(row,2)) );
+    marker->setName( table_->text(RowCol(row,cNameCol)) );
+    markers_[table_->currentRow()]->setDah(
+	    table_->getfValue(RowCol(row,cDepthCol)) * zFactor() );
+    marker->setColor( table_->getColor(RowCol(row,cColorCol)) );
     if ( marker->name().isEmpty() && (marker->dah()==0.0) &&
 	 (marker->color()==Color::White()) )
+    {
 	delete markers_.replace( row, 0 );
+	return;
+    }
+
+    table_->getCellObject( RowCol(row,cLevelCol) )->setSensitive( true );
 }
 
 
