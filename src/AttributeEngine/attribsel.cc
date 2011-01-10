@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.54 2011-01-07 14:43:44 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.55 2011-01-10 12:45:13 cvshelene Exp $";
 
 #include "attribsel.h"
 
@@ -263,6 +263,8 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 void SelInfo::fillStored( const char* filter )
 {
     ioobjnms_.erase(); ioobjids_.erase();
+    BufferStringSet ioobjnmscopy;
+    BufferStringSet ioobjidscopy;
 
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
@@ -308,18 +310,17 @@ void SelInfo::fillStored( const char* filter )
 	    }
 	}
 
-	ioobjnms_.add( ioobjnm );
-	ioobjids_.add( (const char*)ioobj.key() );
-	if ( ioobjnms_.size() > 1 )
+	ioobjnmscopy.add( ioobjnm );
+	ioobjidscopy.add( (const char*)ioobj.key() );
+    }
+	
+    if ( ioobjnmscopy.size() > 1 )
+    {
+	int* sortindexes = ioobjnmscopy.getSortIndexes();
+	for ( int idx=0; idx<ioobjnmscopy.size(); idx++ )
 	{
-	    for ( int icmp=ioobjnms_.size()-2; icmp>=0; icmp-- )
-	    {
-		if ( ioobjnms_.get(icmp) > ioobjnms_.get(icmp+1) )
-		{
-		    ioobjnms_.swap( icmp, icmp+1 );
-		    ioobjids_.swap( icmp, icmp+1 );
-		}
-	    }
+	    ioobjnms_.add( ioobjnmscopy.get(sortindexes[idx]) );
+	    ioobjids_.add( ioobjidscopy.get(sortindexes[idx]) );
 	}
     }
 }
