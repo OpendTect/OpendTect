@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimarkerstyle.cc,v 1.3 2010-09-03 14:21:53 cvskris Exp $";
+static const char* rcsID = "$Id: uimarkerstyle.cc,v 1.4 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "uimarkerstyle.h"
 
@@ -28,7 +28,7 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
     for ( int idx=0; MarkerStyle3D::TypeNames()[idx]; idx++ )
     {
 	int typenr = getIndexInStringArrCI(MarkerStyle3D::TypeNames()[idx],
-		    MarkerStyle3D::TypeNames(), 0, 0, -1 ) -1;
+					    MarkerStyle3D::TypeNames() ) - 1;
 	MarkerStyle3D::Type type = (MarkerStyle3D::Type) typenr;
 
 	bool exclude = false;

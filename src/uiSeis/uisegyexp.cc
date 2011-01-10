@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.37 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.38 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -265,7 +265,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
     {
 	setupnm += " ("; setupnm += attrnm_; setupnm += ")";
 	BufferString clnattrnm( attrnm_ );
-	cleanupString( clnattrnm.buf(), mC_False, mC_False, mC_True );
+	cleanupString( clnattrnm.buf(), false, false, true );
 	newfnm += "_"; newfnm += clnattrnm;
     }
     newfnm += "."; newfnm += ext;

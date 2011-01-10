@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.152 2010-12-14 11:15:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.153 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -357,7 +357,7 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 	if ( cb && nmfld_ )
 	    nmfld_->setText( ioobj ? ioobj->name() : "" );
 	info = getLimitedDisplayString( !ioobj ? "" :
-			 ioobj->fullUserExpr(ctio_.ctxt.forread), 40, 0 );
+			 ioobj->fullUserExpr(ctio_.ctxt.forread), 40, false );
     }
 
     toStatusBar( info );

@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2007
- * ID       : $Id: uigoogleexpdlg.h,v 1.3 2010-01-04 09:18:41 cvsbert Exp $
+ * ID       : $Id: uigoogleexpdlg.h,v 1.4 2011-01-10 13:29:58 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
@@ -17,7 +17,7 @@ class uiFileInput;
 
 #define mImplFileNameFld(nm) \
     BufferString deffnm( nm ); \
-    cleanupString( deffnm.buf(), mC_False, mC_False, mC_True ); \
+    cleanupString( deffnm.buf(), false, false, true ); \
     FilePath deffp( GetDataDir() ); deffp.add( deffnm ).setExtension( "kml" ); \
     uiFileInput::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() ); \
     fiinpsu.forread( false ).filter( "*.kml" ); \

@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.35 2010-12-30 16:18:28 cvskris Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.36 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "propertyref.h"
@@ -495,7 +495,7 @@ void MathProperty::ensureGoodVariableName( char* nm )
 {
     if ( !nm || !*nm )
         { pFreeFnErrMsg("Knurft","ensureGoodVariableName"); return; }
-    cleanupString( nm, mC_False, mC_False, mC_False );
+    cleanupString( nm, false, false, false );
     replaceCharacter( nm, '+', '_' );
     replaceCharacter( nm, '-', '_' );
 }

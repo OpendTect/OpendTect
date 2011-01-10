@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.42 2010-12-14 11:14:37 cvsbert Exp $
+ RCS:		$Id: genc.h,v 1.43 2011-01-10 13:29:58 cvsbert Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -18,10 +18,12 @@ Some general utilities, that need to be accessible in many places:
 #include "gendefs.h"
 #endif
 
-#include "string2.h"
 
 #ifdef __cpp__
+# include "string2.h"
 extern "C" {
+#else
+# include "string2_c.h"
 #endif
 
 mGlobal const char* GetProjectVersionName(void);

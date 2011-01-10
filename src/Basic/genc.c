@@ -5,10 +5,10 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.113 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.114 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "genc.h"
-#include "string2.h"
+#include "string2_c.h"
 #include "envvars.h"
 #include "mallocdefs.h"
 #include "debugmasks.h"
@@ -26,7 +26,6 @@ static const char* rcsID = "$Id: genc.c,v 1.113 2010-10-14 09:58:06 cvsbert Exp 
 # include <sys/timeb.h>
 # include <shlobj.h>
 #endif
-
 
 static int insysadmmode_ = 0;
 mGlobal int InSysAdmMode() { return insysadmmode_; }

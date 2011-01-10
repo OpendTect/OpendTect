@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.17 2010-12-14 09:54:00 cvsnageswara Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.18 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "tableconvimpl.h"
 #include "string2.h"
@@ -29,7 +29,7 @@ void Table::ImportHandler::addToCol( char c )
 
 bool Table::ExportHandler::isNumber( const char* str )
 {
-    return isNumberString( str, mC_False );
+    return isNumberString( str );
 }
 
 

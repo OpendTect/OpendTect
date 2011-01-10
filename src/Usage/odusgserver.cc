@@ -4,8 +4,8 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgserver.cc,v 1.10 2010-03-03 07:28:10 cvsranojay Exp $";
-static const char* rcsPrStr = "$Revision: 1.10 $ $Date: 2010-03-03 07:28:10 $";
+static const char* rcsID = "$Id: odusgserver.cc,v 1.11 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsPrStr = "$Revision: 1.11 $ $Date: 2011-01-10 13:29:58 $";
 
 #include "odusgserver.h"
 #include "odusgbaseadmin.h"
@@ -75,7 +75,7 @@ const char* Usage::Server::setupFileName( const char* admnm )
     if ( admnm && *admnm )
     {
 	BufferString clnadmnm( admnm );
-	cleanupString( clnadmnm.buf(), mC_False, mC_False, mC_False );
+	cleanupString( clnadmnm.buf(), false, false, false );
 	ret += "_"; ret += clnadmnm;
     }
     return ret.buf();

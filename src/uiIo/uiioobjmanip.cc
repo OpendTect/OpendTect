@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.44 2010-11-16 11:30:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.45 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
@@ -253,7 +253,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 		chiostrm.setExt( tr->defExtension() );
 
 	    BufferString cleannm( chiostrm.name() );
-	    cleanupString( cleannm.buf(), mC_True, mC_False, mC_True );
+	    cleanupString( cleannm.buf(), true, false, true );
 	    chiostrm.setName( cleannm );
 	    chiostrm.genDefaultImpl();
 	    chiostrm.setName( newnm );
@@ -267,7 +267,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 	    {
 		if ( strchr(newnm.buf(),'/') || strchr(newnm.buf(),'\\') )
 		{
-		    cleanupString(newnm.buf(),mC_False,mC_False,mC_True);
+		    cleanupString(newnm.buf(),false,false,true);
 		    chiostrm.setName( newnm );
 		    chiostrm.genDefaultImpl();
 		    deffp.set( chiostrm.fileName() );

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.106 2010-12-15 15:39:15 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.107 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -620,7 +620,7 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
 {
     BufferString cleanname( fname );
     char* ptr = cleanname.buf();
-    cleanupString( ptr, mC_False, mC_False, mC_True );
+    cleanupString( ptr, false, false, true );
     static BufferString fnm;
     for ( int subnr=0; ; subnr++ )
     {
@@ -705,7 +705,7 @@ bool SurveyDataTreePreparer::prepDirData()
     IOMan::CustomDirData* dd = const_cast<IOMan::CustomDirData*>( &dirdata_ );
 
     replaceCharacter( dd->desc_.buf(), ':', ';' );
-    cleanupString( dd->dirname_.buf(), mC_False, mC_False, mC_False );
+    cleanupString( dd->dirname_.buf(), false, false, false );
 
     int nr = dd->selkey_.ID( 0 );
     if ( nr <= 200000 )

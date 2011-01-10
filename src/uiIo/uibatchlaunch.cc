@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.93 2010-11-18 07:11:12 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.94 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -43,7 +43,7 @@ static void getProcFilename( const char* basnm, const char* altbasnm,
 {
     if ( !basnm || !*basnm ) basnm = altbasnm;
     tfname = basnm;
-    cleanupString( tfname.buf(), mC_False, mC_False, mC_True );
+    cleanupString( tfname.buf(), false, false, true );
     tfname += ".par";
     tfname = GetProcFileName( tfname );
 }

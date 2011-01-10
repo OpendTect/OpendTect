@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.24 2010-12-29 15:31:17 cvskris Exp $
+ RCS:		$Id: enums.h,v 1.25 2011-01-10 13:29:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,11 @@ ________________________________________________________________________
 
 /*!\brief Some utilities surrounding the often needed enum <-> string table.
 
-The C func getIndexInStringArrCI returns the enum (integer) value from a text
+The function EnumDef::convert returns the enum (integer) value from a text
 string. The first arg is string you wish to convert to the enum, the second
 is the array with enum names. Then, the integer value of the first enum value
 (also returned when no match is found) and the number of characters to be
-matched (0=all). Make absolutely sure the char** namearr has a closing
+matched (0=all). Make absolutely sure the char** definition has a closing
 ' ... ,0 };'.
 
 Normally, you'll have a class with an enum member. In that case, you'll want to

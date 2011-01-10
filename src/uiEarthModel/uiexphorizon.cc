@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.73 2010-10-06 11:27:39 cvsraman Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.74 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "uiexphorizon.h"
 
@@ -112,7 +112,7 @@ static void initGF( std::ostream& strm, const char* hornm,
     char gfbuf[mHdr1GFLineLen+2];
     gfbuf[mHdr1GFLineLen] = '\0';
     BufferString hnm( hornm );
-    cleanupString( hnm.buf(), mC_False, mC_False, mC_False );
+    cleanupString( hnm.buf(), false, false, false );
     sprintf( gfbuf, "PROFILE %17sTYPE 1  4 %45s3d_ci7m.ifdf     %s ms\n",
 		    "", "", SI().xyInFeet() ? "ft" : "m " );
     int sz = hnm.size(); if ( sz > 17 ) sz = 17;

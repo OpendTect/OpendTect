@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.85 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.86 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -553,7 +553,7 @@ bool Seis2DLineSet::rename( const char* lk, const char* newlk )
 bool Seis2DLineSet::renameFiles( const char* newlsnm )
 {
     BufferString cleannm( newlsnm );
-    cleanupString( cleannm.buf(), mC_False, mC_False, mC_False );
+    cleanupString( cleannm.buf(), false, false, false );
     if ( fname_.isEmpty() )
 	return false;
 

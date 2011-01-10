@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurveyselect.cc,v 1.10 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurveyselect.cc,v 1.11 2011-01-10 13:29:58 cvsbert Exp $";
 
 
 #include "uisurveyselect.h"
@@ -151,7 +151,7 @@ BufferString makeFullSurveyPath( const char* survnm, const char* dataroot )
 {
     FilePath fp( dataroot );
     BufferString surveyname( survnm );
-    cleanupString( surveyname.buf(), mC_False, mC_False, mC_True );
+    cleanupString( surveyname.buf(), false, false, true );
     fp.add( surveyname );
     return fp.fullPath();
 }

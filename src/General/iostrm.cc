@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.37 2010-12-16 13:04:29 cvsbert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.38 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "ioman.h"
@@ -208,7 +208,7 @@ void IOStream::genFileName()
     fname = name();
     FilePath fp( fname );
     const bool isabs = fp.isAbsolute();
-    cleanupString( fname.buf(), mC_False, isabs ? mC_True : mC_False, mC_True );
+    cleanupString( fname.buf(), false, isabs, true );
     if ( !extension.isEmpty() )
     {
         fname += ".";

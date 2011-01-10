@@ -5,11 +5,11 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.24 2010-10-28 06:01:48 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.25 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
-#include "string2.h"
+#include "string2_c.h"
 #include "envvars.h"
 #include "filegen.h"
 #include "winutils.h"
@@ -112,7 +112,7 @@ mGlobal void SetSurveyName( const char* newnm )
 {
     mSkipBlanks( newnm );
     strcpy( surveyname, newnm );
-    removeTrailingBlanks( surveyname );
+    C_removeTrailingBlanks( surveyname );
     surveynamedirty = 0;
 }
 

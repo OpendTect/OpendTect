@@ -8,24 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.40 2011-01-06 15:06:54 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.41 2011-01-10 13:29:58 cvsbert Exp $
 ________________________________________________________________________
 -*/
 
+#include "plfdefs.h"
 
 
-#include "gendefs.h"
-#include "plftypes.h"
-#include <string.h>
-#include <ctype.h>
-
-#ifdef __cpp__
-extern "C" {
-#endif
-
-
-/*!> bluntly puts a '\0' on trailing white space. */
-mGlobal void removeTrailingBlanks(char*);
 /*!> advances given pointer to first non-whitespace. */
 #define mSkipBlanks(ptr) \
     { if ( ptr ) { while ( *(ptr) && isspace(*(ptr)) ) (ptr)++; } }
@@ -36,20 +25,26 @@ mGlobal void removeTrailingBlanks(char*);
 #define mTrimBlanks(ptr) \
     { mSkipBlanks(ptr); removeTrailingBlanks(ptr); }
 
+#ifndef __cpp__
+# include "string2_c.h"
+#else
 
-/*!> stricmp with option to compare part */
-mGlobal int caseInsensitiveEqual(const char*,const char*,
-				     int nr_chars_to_match_0_is_all);
+#include "undefval.h"
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+/*!> bluntly puts a '\0' on trailing white space. */
+mGlobal void removeTrailingBlanks(char*);
+
+/*!> stricmp with option to compare part, default is all */
+mGlobal bool caseInsensitiveEqual(const char*,const char*,int match_nrchars=-1);
 /*!> checks whether a string is the start of another string. */
-mGlobal int matchString(const char* startstring,const char* maybebigger);
+mGlobal bool matchString(const char* startstring,const char* maybebigger);
 /*!> is a case insensitive version of matchString */
-mGlobal int matchStringCI(const char*,const char*);
-mGlobal int stringEndsWith(const char* endstring,const char* maybebigger);
-mGlobal int stringEndsWithCI(const char*,const char*);
-
-/*!> fills a buffer with the next word (delimited by whitespace) in string.
-     It returns a ptr just after the word. */
-mGlobal const char* getNextWord(const char*,char*);
+mGlobal bool matchStringCI(const char*,const char*);
+mGlobal bool stringEndsWith(const char* endstring,const char* maybebigger);
+mGlobal bool stringEndsWithCI(const char*,const char*);
 
 /*!> counts occurrences of a char in string */
 mGlobal int countCharacter(const char*,char);
@@ -61,9 +56,13 @@ mGlobal void replaceString(char*,const char* from,const char* to);
 mGlobal void removeCharacter(char*,char);
 /*!> cleans a string from non-alpha numeric by replacing with underscores.
      params: allow whitespace, allow slashes, allow dots */
-mGlobal void cleanupString(char*,int,int,int);
+mGlobal void cleanupString(char*,bool,bool,bool);
 /*!> tells whether a string holds a parseable number */
-mGlobal int isNumberString(const char*,int int_only);
+mGlobal bool isNumberString(const char*,bool int_only=false);
+
+/*!> fills a buffer with the next word (delimited by whitespace) in string.
+     It returns a ptr just after the word. */
+mGlobal const char* getNextWord(const char*,char*);
 
 /*!> Fills string with string for an int.
      If you pass 0 for retbuf, then a static buffer is used (not MT safe). */
@@ -79,10 +78,10 @@ mGlobal const char* getStringFromDouble(const char* fmt,double,char* retbuf);
 /*!> is like getStringFromDouble, with special %f treatment. */
 mGlobal const char* getStringFromFloat(const char* fmt,float,char* retbuf);
 /*!> removes unwanted zeros and dots from a floating point in string. */
-mGlobal void prettyNumber(char*,int is_float);
+mGlobal void prettyNumber(char*,bool is_float);
 
 /*!> returns ptr to static buffer with "yes" or "No". */
-mGlobal const char* getYesNoString(int);
+mGlobal const char* getYesNoString(bool);
 /*!> returns 1 or 0 by inspecting string */
 mGlobal int yesNoFromString(const char*);
 /*!> returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */
@@ -91,17 +90,12 @@ mGlobal const char* getRankPostFix(int);
 mGlobal const char* getBytesString(od_uint64);
 /*!> returns a string for display, never larger than specified nr of chars */
 mGlobal const char* getLimitedDisplayString(const char*,int nrchars,
-					    int trimright);
+					    bool trimright);
 
+/*!> Finds a string in string array, case insensitive */
 mGlobal int getIndexInStringArrCI(const char*,const char* const* arr,
-				  int startnr,int nr_chars_to_match,
-				  int notfoundidx);
-
-
-#ifdef __cpp__
-}
-#include <stdlib.h>
-#include "undefval.h"
+				  int startnr=0,int nr_chars_to_match=0,
+				  int notfoundidx=-1);
 
 // toString functions. Can be used MT, provided you do not pass null for result
 // buffer. If you are sure you don't need MT, then passing null is OK.
@@ -127,14 +121,9 @@ inline const char* toString( unsigned char c, char* r )
 	{ return toString( ((unsigned short)c), r ); }
 inline const char* toString( signed char c, char* r )	
 {
-    if ( r )
-	{ r[0] = (char)c; r[1] = '\0'; return r; }
-    else
-    {
-	static char buf[2];
-	buf[0] = (char)c; buf[1] = '\0';
-	return buf;
-    }
+    static char buf[2]; if ( !r ) r = buf;
+    r[0] = (char)c; r[1] = '\0';
+    return r;
 }
 inline const char* toString( bool b, char* r )	
 {

@@ -5,12 +5,11 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.1 2011-01-07 17:16:33 cvskris Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.2 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
 #include "undefval.h"
-#include "mallocdefs.h"
 #include <stdio.h>
 
 #ifdef __win__
@@ -20,14 +19,19 @@ static const char* rcsID = "$Id: string2.cc,v 1.1 2011-01-07 17:16:33 cvskris Ex
 #endif
 
 
+extern "C" void C_removeTrailingBlanks( char* str )
+{ removeTrailingBlanks( str ); }
+extern "C" int C_caseInsensitiveEqual( const char* s1, const char* s2, int n )
+{ return caseInsensitiveEqual( s1, s2, n ); }
+extern "C" void C_replaceCharacter( char* s, char from, char to )
+{ replaceCharacter( s, from, to ); }
+
+
 void removeTrailingBlanks( char* str )
 {
-    char* endptr;
-
-    /* NULL or empty string */
     if ( !str || ! *str ) return;
 
-    endptr = str + strlen(str) - 1;
+    char* endptr = str + strlen(str) - 1;
     while( isspace(*endptr) )
     {
 	*endptr = '\0';
@@ -58,15 +62,11 @@ const char* getStringFromUInt( od_uint32 val, char* str )
 
 static void mkUIntStr( char* buf, od_uint64 val, int isneg )
 {
-    int restval;
-    char* pbuf = buf;
-    char* pbuf2 = buf;
-    char tmp;
-
     /* Fill the string with least significant first, i.e. reversed: */
+    char* pbuf = buf;
     while ( val )
     {
-	restval = val % 10;
+	int restval = val % 10;
 	val /= 10;
 	*pbuf++ = '0' + restval;
     }
@@ -75,9 +75,10 @@ static void mkUIntStr( char* buf, od_uint64 val, int isneg )
 
     /* Reverse to normal: */
     pbuf--;
+    char* pbuf2 = buf;
     while ( pbuf > pbuf2 )
     {
-	tmp = *pbuf; *pbuf = *pbuf2; *pbuf2 = tmp;
+	char tmp = *pbuf; *pbuf = *pbuf2; *pbuf2 = tmp;
 	pbuf--; pbuf2++;
     }
 }
@@ -86,7 +87,7 @@ static void mkUIntStr( char* buf, od_uint64 val, int isneg )
 const char* getStringFromInt64( od_int64 val, char* str )
 {
     char* ret = str ? str : StaticStringManager::STM().getString();
-    int isneg = val < 0 ? 1 : 0;
+    const bool isneg = val < 0 ? 1 : 0;
     if ( isneg ) val = -val;
     mkUIntStr( ret, (od_uint64)val, isneg );
     return ret;
@@ -104,8 +105,8 @@ const char* getStringFromUInt64( od_uint64 val, char* str )
 const char* getStringFromDouble( const char* fmt, double actualval, char* str )
 {
     char* ret = str ? str : StaticStringManager::STM().getString();
-    int isneg = actualval < 0 ? mC_True : mC_False;
-    double val = isneg ? -actualval : actualval;
+    const bool isneg = actualval < 0;
+    const double val = isneg ? -actualval : actualval;
     char* bufptr;
 
     if ( mIsUdf(val) )
@@ -125,13 +126,10 @@ const char* getStringFromDouble( const char* fmt, double actualval, char* str )
 const char* getBytesString( od_uint64 sz )
 {
     const char* postfix[] = { " bytes", " KB", " MB", " GB", " TB", "PB" };
-    char nrshifts = 0;
 
-    while ( nrshifts<4 && sz>=1024 )
-    {
-	nrshifts++;
+    char nrshifts;
+    for ( nrshifts=0; nrshifts<4 && sz>=1024; nrshifts++ )
 	sz >>= 10;
-    }
 
     char* res = StaticStringManager::STM().getString();
     getStringFromUInt64( sz, res );
@@ -143,13 +141,12 @@ const char* getBytesString( od_uint64 sz )
 
 static void truncFloatStr( float val, char* str )
 {
-    int len = strlen( str );
+    const int len = strlen( str );
     int pos = val < 0 ? 10 : 9;
-    char c;
 
     if ( len > pos )
     {
-	c = str[pos];
+	char c = str[pos];
 	str[pos--] = '\0';
 	while ( 1 )
 	{
@@ -175,15 +172,14 @@ const char* getStringFromFloat( const char* fmt, float actualval, char* str )
 {
     char* ret = str ? str : StaticStringManager::STM().getString();
     static const char* normalfmt = "%f";
-    int isneg = actualval < 0 ? mC_True : mC_False;
-    float val = isneg ? -actualval : actualval;
-    char* bufptr;
+    const bool isneg = actualval < 0;
+    const float val = isneg ? -actualval : actualval;
 
     if ( mIsUdf(val) )
 	strcpy( ret, "1e30" ); /* Also for -1e30 therefore */
     else
     {
-	bufptr = ret;
+	char* bufptr = ret;
 	if ( isneg ) *bufptr++ = '-';
 	if ( !fmt ) fmt = val > 1e-3 && val < 1e8 ? normalfmt : "%g";
 	sprintf( bufptr, fmt, val );
@@ -195,19 +191,18 @@ const char* getStringFromFloat( const char* fmt, float actualval, char* str )
 }
 
 
-const char* getYesNoString( int yn )
+const char* getYesNoString( bool yn )
 {
-    static const char* yes = "Yes"; static const char* no = "No";
-    return yn ? yes : no;
+    static const char* strs[] = { "Yes", "No" };
+    return yn ? strs[0] : strs[1];
 }
 
 
-int yesNoFromString( const char* yn )
+int yesNoFromString( const char* str )
 {
-    if ( !yn ) return mC_False;
-    mSkipBlanks( yn );
-    return *yn == 'Y' || *yn == 'y' || *yn == 'T' || *yn == 't'
-	 ? mC_True : mC_False;
+    if ( !str ) return false;
+    mSkipBlanks( str );
+    return *str == 'Y' || *str == 'y' || *str == 'T' || *str == 't';
 }
 
 
@@ -228,32 +223,29 @@ int countCharacter( const char* str, char ch )
 
 void replaceCharacter( char* str, char chorg, char chnew )
 {
-    char* ptr;
-    if ( !str || ! *str ) return;
+    if ( !str )
+	return;
 
-    ptr = str;
-    while ( *ptr )
+    while ( *str )
     {
-	if ( *ptr == chorg ) *ptr = chnew;
-	ptr++;
+	if ( *str == chorg ) *str = chnew;
+	str++;
     }
 }
 
 
 void replaceString( char* str, const char* tok, const char* repl )
 {
-    char* tokptr; char* restbuf;
     const int toksz = tok ? strlen( tok ) : 0;
     const int replsz = repl ? strlen( repl ) : 0;
 
     if ( !str || !*str || toksz == 0 ) return;
     if ( !repl ) repl = "";
 
-    tokptr = strstr( str, tok );
+    char* tokptr = strstr( str, tok );
     if ( !tokptr ) return;
 
-    restbuf = mMALLOC( strlen(str), char );
-
+    char* restbuf = new char [ strlen(str) ];
     while ( tokptr )
     {
 	strcpy( restbuf, tokptr + toksz );
@@ -262,8 +254,7 @@ void replaceString( char* str, const char* tok, const char* repl )
 	strcpy( tokptr, restbuf );
 	tokptr = strstr( tokptr, tok );
     }
-
-    mFREE( restbuf );
+    delete [] restbuf;
 }
 
 
@@ -286,37 +277,37 @@ void removeCharacter( char* str, char torem )
 }
 
 
-int isNumberString( const char* str, int int_only )
+bool isNumberString( const char* str, bool int_only )
 {
-    int curdigit, prevdigit;
-    int eseen = mC_False, dotseen = mC_False;
-
-    if ( !str || !*str ) return mC_False;
-
-    curdigit = isdigit(*str);
+    if ( !str || !*str )
+	return false;
+    bool curisdigit = isdigit(*str);
     if ( !*(str+1) )
-	return curdigit;
-    if ( !curdigit )
+	return curisdigit;
+
+    bool dotseen = false;
+    if ( !curisdigit )
     {
 	dotseen = *str == '.';
 	if ( *str != '+' && *str != '-' && (int_only || !dotseen) )
-	    return mC_False;
+	    return false;
     }
 
     str++;
-    prevdigit = curdigit;
-    curdigit = isdigit(*str);
-    if ( !curdigit )
+    bool eseen = false;
+    bool previsdigit = curisdigit;
+    curisdigit = isdigit(*str);
+    if ( !curisdigit )
     {
 	dotseen = *str == '.';
-	if ( !prevdigit )
+	if ( !previsdigit )
 	{
 	    if ( !dotseen || (*(str-1) != '+' && *(str-1) != '-') )
-		return mC_False;
+		return false;
 	}
 	eseen = *str == 'e' || *str == 'E';
 	if ( int_only || (!dotseen && !eseen) )
-	    return mC_False;
+	    return false;
 	if ( eseen && *(str+1) && (*(str+1) == '+' || *(str+1) == '-') )
 	    str++;
     }
@@ -324,64 +315,59 @@ int isNumberString( const char* str, int int_only )
     str++;
     while ( *str )
     {
-	curdigit = isdigit(*str);
-
-	if ( !curdigit )
+	if ( !isdigit(*str) )
 	{
 	    if ( (*str == 'e' || *str == 'E') )
 	    {
 		if ( eseen )
-		    return mC_False;
+		    return false;
 
-		eseen = mC_True;
+		eseen = true;
 		if ( *(str+1) && (*(str+1) == '+' || *(str+1) == '-') )
 		    str++;
 	    }
 	    else if ( *str == '.' )
 	    {
 		if ( dotseen || eseen )
-		    return mC_False;
-		dotseen = mC_True;
+		    return false;
+		dotseen = true;
 	    }
 	    else
-		return mC_False;
+		return false;
 	}
 
 	str++;
     }
 
-    return mC_True;
+    return true;
 }
 
 
-void cleanupString( char* str, int spaceallow, int slashallow, int dotallow )
+void cleanupString( char* str, bool spaceallow, bool slashallow, bool dotallow )
 {
-    static int plusallow = mC_True;
-    static int minusallow = mC_True;
-    int dorepl;
 
-    if ( !str ) return;
+    if ( !str )
+	return;
+
     while ( *str )
     {
 	if ( !isalnum(*str) )
 	{
-	    dorepl = mC_True;
+	    bool dorepl = true;
 	    switch ( *str )
 	    {
 	    case ' ': case '\n' : case '\t':
-		    	if ( spaceallow )	dorepl = mC_False;	break;
-	    case '.':	if ( dotallow )		dorepl = mC_False;	break;
-	    case '+':	if ( plusallow )	dorepl = mC_False;	break;
-	    case '-':	if ( minusallow )	dorepl = mC_False;	break;
-	    default:					break;
+		    	if ( spaceallow )	dorepl = false;	break;
+	    case '.':	if ( dotallow )		dorepl = false;	break;
+	    default:						break;
 	    }
 	    if ( slashallow )
 	    {
 		if ( *str == *sDirSep )
-		    dorepl = mC_False;
+		    dorepl = false;
 #ifdef __win__
 		if ( *str == ':' )
-		    dorepl = mC_False;
+		    dorepl = false;
 #endif
 	    }
 
@@ -393,111 +379,106 @@ void cleanupString( char* str, int spaceallow, int slashallow, int dotallow )
 }
 
 
-int caseInsensitiveEqual( const char* str1, const char* str2, int nrchar )
+bool caseInsensitiveEqual( const char* str1, const char* str2, int nrchar )
 {
+    if ( !str1 && !str2 ) return true;
+    if ( !str1 || !str2 ) return false;
+
     int chcount = 1;
-
-    if ( !str1 && !str2 ) return mC_True;
-    if ( !str1 || !str2 ) return mC_False;
-
     while ( *str1 && *str2 )
     {
 	if ( tolower(*str1) != tolower(*str2) )
-	    return mC_False;
+	    return false;
 	str1++ ; str2++; chcount++;
-	if ( nrchar && chcount > nrchar )
-	    return mC_True;
+	if ( nrchar>0 && chcount>nrchar )
+	    return true;
     }
 
-    return *str1 || *str2 ? mC_False : mC_True;
+    return !*str1 && !*str2;
 }
 
 
 static int getStringMatch( const char* str1, const char* str2, int ci )
 {
-    if ( !str1 && !str2 ) return mC_True;
-    if ( !str1 || !str2 ) return mC_False;
-    if ( ! *str1 )	  return mC_True;
-    if ( ! *str2 )	  return mC_False;
+    if ( !str1 && !str2 ) return true;
+    if ( !str1 || !str2 ) return false;
+    if ( ! *str1 )	  return true;
+    if ( ! *str2 )	  return false;
 
     while ( *str1 )
     {
 	if ( ci )
-	    { if ( tolower(*str1) != tolower(*str2) ) return mC_False; }
+	    { if ( tolower(*str1) != tolower(*str2) ) return false; }
 	else
-	    { if ( *str1 != *str2 ) return mC_False; }
+	    { if ( *str1 != *str2 ) return false; }
 	str1++ ; str2++;
     }
-    return mC_True;
+    return true;
 }
 
 
-int matchString( const char* str1, const char* str2 )
-{ return getStringMatch( str1, str2, mC_False ); }
-int matchStringCI( const char* str1, const char* str2 )
-{ return getStringMatch( str1, str2, mC_True ); }
+bool matchString( const char* str1, const char* str2 )
+{ return getStringMatch( str1, str2, false ); }
+bool matchStringCI( const char* str1, const char* str2 )
+{ return getStringMatch( str1, str2, true ); }
 
 
-static int getStringEndsWith( const char* str1, const char* str2, int ci )
+static bool getStringEndsWith( const char* str1, const char* str2, int ci )
 {
+    if ( !str1 && !str2 )	return true;
+    if ( !str1 || !str2 )	return false;
+    if ( !*str1 )		return true;
+    if ( !*str2 )		return false;
     const char* start1 = str1; const char* start2 = str2;
-    if ( !str1 && !str2 )	return mC_True;
-    if ( !str1 || !str2 )	return mC_False;
-    if ( !*str1 )		return mC_True;
-    if ( !*str2 )		return mC_False;
     while ( *str1 ) str1++; while ( *str2 ) str2++;
 
-    while ( mC_True )
+    while ( true )
     {
 	if ( ci )
-	    { if ( tolower(*str1) != tolower(*str2) ) return mC_False; }
+	    { if ( tolower(*str1) != tolower(*str2) ) return false; }
 	else
-	    { if ( *str1 != *str2 ) return mC_False; }
+	    { if ( *str1 != *str2 ) return false; }
 	str1-- ; str2--;
-	if ( str1 == start1 ) return mC_True;
-	if ( str2 == start2 ) return mC_False;
+	if ( str1 == start1 )
+	    break;
+	if ( str2 == start2 )
+	    return false;
     }
-    return mC_True;
+    return true;
 }
 
-int stringEndsWith( const char* str1, const char* str2 )
-{ return getStringEndsWith( str1, str2, mC_False ); }
-int stringEndsWithCI( const char* str1, const char* str2 ) \
-{ return getStringEndsWith( str1, str2, mC_True ); }
+bool stringEndsWith( const char* str1, const char* str2 )
+{ return getStringEndsWith( str1, str2, false ); }
+bool stringEndsWithCI( const char* str1, const char* str2 ) \
+{ return getStringEndsWith( str1, str2, true ); }
 
 
 const char* getNextWord( const char* strptr, char* wordbuf )
 {
-    char* ptrwordbuf = wordbuf;
     if ( !wordbuf ) return 0;
     *wordbuf = '\0';
     if ( !strptr || !*strptr ) return strptr;
 
     mSkipBlanks( strptr );
     while ( *strptr && !isspace(*strptr) )
-	*ptrwordbuf++ = *strptr++;
-    *ptrwordbuf = '\0';
+	*wordbuf++ = *strptr++;
+    *wordbuf = '\0';
 
     return strptr;
 }
 
 
-void prettyNumber( char* str, int is_double )
+void prettyNumber( char* str, bool is_double )
 {
-    char ret[255];
-    char* ptrret = ret;
-    char* ptr;
-    char* ptre;
-    char* ptrb;
-
     if ( !str ) return;
     if ( !*str ) { *str = '0'; *(str+1) = '\0'; return; }
 
+    char ret[255]; char* ptrret = ret;
+
     /* find '.' and copy to end or 'E' */ 
-    ptr = strrchr( str, '.' );
+    char* ptr = strrchr( str, '.' );
     if ( !ptr ) return;
-    ptre = ptr;
-    ptrb = ptrret;
+    char* ptre = ptr; char* ptrb = ptrret;
     while ( *ptre && *ptre != 'e' && *ptre != 'E' ) *ptrb++ = *ptre++;
     *ptrb-- = '\0';
 
@@ -528,7 +509,6 @@ void prettyNumber( char* str, int is_double )
 
 const char* getRankPostFix( int nr )
 {
-    static const char* rets[] = { "th", "st", "nd", "rd" };
     if ( nr < 0 ) nr = -nr;
 
     if ( nr > 3 && nr < 21 )
@@ -538,6 +518,8 @@ const char* getRankPostFix( int nr )
 	nr = nr % 10;
 	if ( nr > 3 ) nr = 0;
     }
+
+    static const char* rets[] = { "th", "st", "nd", "rd" };
     return rets[ nr ];
 }
 
@@ -545,18 +527,15 @@ const char* getRankPostFix( int nr )
 int getIndexInStringArrCI( const char* text, const char* const * namearr,
 			   int startnr, int nrchar, int notfoundidx )
 {
-    int idx = startnr;
-
     /* some sanity */
     if ( !text || !namearr || !*namearr ) return notfoundidx;
     mSkipBlanks(text);
 
     /* Look for match */
-    while ( namearr[idx] )
+    for( int idx=startnr; namearr[idx]; idx++ )
     {
         if ( caseInsensitiveEqual( text, namearr[idx], nrchar ) )
             return idx;
-        idx++;
     }
 
     /* No match found */
@@ -565,20 +544,18 @@ int getIndexInStringArrCI( const char* text, const char* const * namearr,
 
 
 const char* getLimitedDisplayString( const char* inp, int nrchars,
-				     int trimright )
+				     bool trimright )
 {
-    int inplen; char* ptr;
-    static char* ret = 0;
-    static const char* dots = "...";
-    int i=0;
-
     if ( nrchars < 1 || !inp || !*inp ) return "";
-    inplen = strlen( inp );
+    const int inplen = strlen( inp );
     if ( inplen < nrchars )
 	return inp;
 
-    mFREE(ret); ret = mMALLOC(nrchars+1,char); *ret = '\0';
-    ptr = ret;
+    static char* ret = 0;
+    delete [] ret; ret = new char [nrchars+1];
+    char* ptr = ret;
+
+    static const char* dots = "...";
     if ( !trimright )
     {
 	inp += inplen - nrchars + 3;
@@ -586,7 +563,7 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
 	ptr = ret + 3;
     }
 
-    for( i=0; i<nrchars-3; i++ )
+    for( int idx=0; idx<nrchars-3; idx++ )
 	*ptr++ = *inp++;
     *ptr = '\0';
 
@@ -594,6 +571,4 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
 	strcat( ret,  dots );
     
     return ret;
-
-    
 }

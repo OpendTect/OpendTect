@@ -5,10 +5,10 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.85 2010-04-08 07:24:32 cvsranojay Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.86 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "filegen.h"
-#include "string2.h"
+#include "string2_c.h"
 #include "genc.h"
 #include "mallocdefs.h"
 

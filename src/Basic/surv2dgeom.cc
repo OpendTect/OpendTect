@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.14 2010-12-29 04:21:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.15 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -415,7 +415,7 @@ BufferString PosInfo::Survey2D::getNewStorageName( const char* nm,
     int itry = 1;
     while ( true )
     {
-	cleanupString( clnnm.buf(), mC_False, mC_False, mC_False );
+	cleanupString( clnnm.buf(), false, false, false );
 	FilePath fp( inpfp ); fp.add( clnnm );
 	if ( !File::exists(clnnm) )
 	    break;
@@ -678,7 +678,7 @@ void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
     {
 	lsindex_.setKey( lsidx, newlsnm );
 	BufferString cleannm( newlsnm );
-	cleanupString( cleannm.buf(), mC_False, mC_False, mC_False );
+	cleanupString( cleannm.buf(), false, false, false );
 	FilePath newfp( basefp_ );
 	newfp.add( cleannm.buf() );
 	File::rename( dirnm, newfp.fullPath() );

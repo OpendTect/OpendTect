@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.35 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.36 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -742,7 +742,7 @@ const char* Table::AscIO::text( int ifld ) const
 static const char* trimmedNumbStr( const char* sval, bool isint )
 {
     if ( !*sval ) return 0;
-    const int flg = isint ? mC_True : mC_False;
+    const int flg = isint ? true : false;
     if ( isNumberString(sval,flg) )
 	return sval;
 

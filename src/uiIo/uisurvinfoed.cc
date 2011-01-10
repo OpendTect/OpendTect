@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.127 2010-12-14 04:41:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.128 2011-01-10 13:29:58 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -694,7 +694,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 const char* uiSurveyInfoEditor::dirName() const
 {
     static BufferString ret; ret = survnmfld_->text();
-    cleanupString( ret.buf(), mC_False, mC_False, mC_True );
+    cleanupString( ret.buf(), false, false, true );
     return ret.buf();
 }
 
