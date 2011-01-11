@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapack.cc,v 1.8 2011-01-07 14:47:43 cvsbert Exp $";
+static const char* rcsID = "$Id: datapack.cc,v 1.9 2011-01-11 11:47:27 cvsbert Exp $";
 
 #include "datapack.h"
 #include "ascstream.h"
@@ -19,12 +19,6 @@ const DataPackMgr::ID DataPackMgr::FlatID()	{ return 4; }
 const DataPackMgr::ID DataPackMgr::SurfID()	{ return 5; }
 const char* DataPack::sKeyCategory()		{ return "Category"; }
 const float DataPack::sKb2MbFac()		{ return 0.0009765625; }
-
-DataPack::FullID DataPack::fullID( int mgrid ) const
-{
-    MultiID ret( mgrid ); ret.add( id() );
-    return ret;
-}
 
 
 DataPack::ID DataPack::getNewID()
