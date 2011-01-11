@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.32 2010-09-29 11:46:09 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.33 2011-01-11 12:45:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uiattribfactory.h"
 #include "changetracker.h"
 #include "paramsetget.h"
-#include "bufstring.h"
+#include "datapack.h"
 
 namespace Attrib { class Desc; class DescSet; class DescSetMan; };
 
@@ -84,6 +84,7 @@ public:
     void		setDescSet( DescSet* ds )	{ ads_ = ds; }
     Desc*		curDesc()			{ return desc_; }
     const Desc*		curDesc() const			{ return desc_; }
+
     virtual const char*	commit(Desc* desc=0);
 			//!< returns null on success, error message otherwise
     			//!< If attribdesc is non-zero, that desc will be
@@ -108,6 +109,8 @@ public:
     void		setDimensionType( DimensionType t ) { dimtyp_ = t; }
 
     bool		is2D() const			{ return is2d_; }
+
+    void		setDataPackInp(const TypeSet<DataPack::FullID>&);
 
     static const char*	getInputAttribName(uiAttrSel*,const Desc&);
 
@@ -174,6 +177,7 @@ private:
     BufferString	dispname_;
     Desc*		desc_;
     DescSetMan*		adsman_;
+
 };
 
 

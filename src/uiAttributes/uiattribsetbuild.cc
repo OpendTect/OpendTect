@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.3 2011-01-10 13:30:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.4 2011-01-11 12:45:53 cvsbert Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uilistbox.h"
@@ -16,11 +16,14 @@ static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.3 2011-01-10 13:30:13 c
 #include "uiattribsingleedit.h"
 #include "uiattribfactory.h"
 #include "uimsg.h"
+#include "uiioobjsel.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribdescsettr.h"
 #include "attribfactory.h"
 #include "survinfo.h"
+#include "ioobj.h"
 
 
 uiAttribDescSetBuild::Setup::Setup( bool for2d )
@@ -42,6 +45,7 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
     , descset_(*new Attrib::DescSet(su.is2d_))
     , setup_(su)
     , usrchg_(false)
+    , ctio_(*mMkCtxtIOObj(AttribDescSet))
 {
     availattrfld_ = new uiListBox( this, "Available attributes" );
     fillAvailAttrFld();
@@ -78,7 +82,9 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 
 uiAttribDescSetBuild::~uiAttribDescSetBuild()
 {
+    delete ctio_.ioobj;
     delete &descset_;
+    delete &ctio_;
 }
 
 
@@ -168,15 +174,10 @@ void uiAttribDescSetBuild::fillDefAttribFld()
 }
 
 
-void uiAttribDescSetBuild::setDataPackInp( const DataPack::FullID& fdpid )
-{
-    //TODO
-}
-
-
 bool uiAttribDescSetBuild::doAttrEd( Attrib::Desc& desc, bool isnew )
 {
     uiSingleAttribEd dlg( this, desc, false );
+    dlg.setDataPackSelection( dpfids_ );
     if ( !dlg.go() )
 	return false;
 
@@ -239,13 +240,38 @@ void uiAttribDescSetBuild::openReq( CallBacker* )
     if ( usrchg_ && !uiMSG().askGoOn("Current work not saved. Continue?") )
 	return;
 
-    uiMSG().error( "TODO: open attr set" );
-    // usrchg_ = false;
+    if ( doAttrSetIO(true) )
+	fillDefAttribFld();
 }
 
 
 void uiAttribDescSetBuild::saveReq( CallBacker* )
 {
-    uiMSG().error( "TODO: save attr set" );
-    // usrchg_ = false;
+    doAttrSetIO( false );
+}
+
+
+void uiAttribDescSetBuild::setDataPackInp( const TypeSet<DataPack::FullID>& ids)
+{
+    dpfids_ = ids;
+}
+
+
+bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
+{
+    ctio_.ctxt.forread = forread;
+    uiIOObjSelDlg dlg( this, ctio_ );
+    if ( !dlg.go() || !dlg.ioObj() )
+	return false;
+
+    BufferString emsg;
+    const bool res = forread
+	? AttribDescSetTranslator::retrieve(descset_,dlg.ioObj(),emsg)
+	: AttribDescSetTranslator::store(descset_,dlg.ioObj(),emsg);
+    if ( res )
+	usrchg_ = false;
+    else
+	uiMSG().error( emsg );
+
+    return res;
 }

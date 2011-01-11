@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsetbuild.h,v 1.3 2011-01-10 13:30:13 cvsbert Exp $
+ RCS:           $Id: uiattribsetbuild.h,v 1.4 2011-01-11 12:45:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "bufstringset.h"
 
-namespace Attrib { class Desc; class DescSet; }
-
+class CtxtIOObj;
 class uiListBox;
 class uiToolButton;
+namespace Attrib { class Desc; class DescSet; }
 
 
 mClass uiAttribDescSetBuild : public uiGroup
@@ -30,7 +30,7 @@ public:
     mClass Setup
     {
     public:
-				Setup(bool for2d);
+			Setup(bool for2d);
 	mDefSetupMemb(bool,is2d);
 	mDefSetupMemb(bool,showps);
 	mDefSetupMemb(bool,singletraceonly);
@@ -40,37 +40,40 @@ public:
 	mDefSetupMemb(bool,showhidden);
 	mDefSetupMemb(bool,showsteering);
     };
-				uiAttribDescSetBuild(uiParent*,const Setup&);
-				~uiAttribDescSetBuild();
+			uiAttribDescSetBuild(uiParent*,const Setup&);
+			~uiAttribDescSetBuild();
 
-    const Attrib::DescSet&	descSet() const		{ return descset_; }
-    bool			haveUserChange() const	{ return usrchg_; }
+    const Attrib::DescSet& descSet() const	{ return descset_; }
+    bool		haveUserChange() const	{ return usrchg_; }
 
-    void			setDataPackInp(const DataPack::FullID&);
+    void		setDataPackInp(const TypeSet<DataPack::FullID>&);
 
 protected:
 
-    Attrib::DescSet&		descset_;
-    BufferStringSet		availattrnms_;
-    const Setup			setup_;
-    bool			usrchg_;
+    Attrib::DescSet&	descset_;
+    BufferStringSet	availattrnms_;
+    const Setup		setup_;
+    bool		usrchg_;
+    CtxtIOObj&		ctio_;
+    TypeSet<DataPack::FullID> dpfids_;
 
-    uiListBox*			availattrfld_;
-    uiListBox*			defattrfld_;
-    uiToolButton*		edbut_;
-    uiToolButton*		rmbut_;
-    uiToolButton*		savebut_;
+    uiListBox*		availattrfld_;
+    uiListBox*		defattrfld_;
+    uiToolButton*	edbut_;
+    uiToolButton*	rmbut_;
+    uiToolButton*	savebut_;
 
-    void			fillAvailAttrFld();
-    void			fillDefAttribFld();
-    bool			doAttrEd(Attrib::Desc& desc,bool);
+    void		fillAvailAttrFld();
+    void		fillDefAttribFld();
+    bool		doAttrEd(Attrib::Desc& desc,bool);
+    bool		doAttrSetIO(bool);
 
-    void			updButStates(CallBacker* cb=0);
-    void			addReq(CallBacker*);
-    void			edReq(CallBacker*);
-    void			rmReq(CallBacker*);
-    void			openReq(CallBacker*);
-    void			saveReq(CallBacker*);
+    void		updButStates(CallBacker* cb=0);
+    void		addReq(CallBacker*);
+    void		edReq(CallBacker*);
+    void		rmReq(CallBacker*);
+    void		openReq(CallBacker*);
+    void		saveReq(CallBacker*);
 
 };
 

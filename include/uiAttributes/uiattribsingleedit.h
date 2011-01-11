@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsingleedit.h,v 1.1 2011-01-06 16:19:09 cvsbert Exp $
+ RCS:           $Id: uiattribsingleedit.h,v 1.2 2011-01-11 12:45:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "datapack.h"
 
 namespace Attrib { class Desc; class DescSetMan; };
 class uiAttrDescEd;
@@ -27,6 +28,8 @@ public:
 
 			uiSingleAttribEd(uiParent*,Attrib::Desc&,bool isnew);
 			~uiSingleAttribEd();
+
+    void		setDataPackSelection(const TypeSet<DataPack::FullID>&);
 
     bool		anyChange() const	{ return anychg_; }
     bool		nameChanged() const	{ return nmchgd_; }

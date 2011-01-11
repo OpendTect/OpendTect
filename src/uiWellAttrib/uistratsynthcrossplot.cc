@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.2 2011-01-10 13:30:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.3 2011-01-11 12:45:53 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uiattribsetbuild.h"
@@ -30,9 +30,9 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p, DataPack::ID dpid,
     uiAttribDescSetBuild::Setup bsu( true );
     bsu.showdepthonlyattrs(false).showusingtrcpos(false).showps(false);
     seisattrfld_ = new uiAttribDescSetBuild( this, bsu );
-    DataPack::FullID fid( DataPackMgr::FlatID() );
-    fid.add( packid_ );
-    seisattrfld_->setDataPackInp( fid );
+    TypeSet<DataPack::FullID> fids;
+    fids += DataPack::FullID( DataPackMgr::FlatID(), packid_ );
+    seisattrfld_->setDataPackInp( fids );
 
     uiGroup* botgrp = new uiGroup( this, "Layer seq attr group" );
     new uiLabel( botgrp, "TODO: make Layer sequence attributes" );

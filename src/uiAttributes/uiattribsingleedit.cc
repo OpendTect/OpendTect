@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsingleedit.cc,v 1.3 2011-01-11 10:33:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsingleedit.cc,v 1.4 2011-01-11 12:45:53 cvsbert Exp $";
 
 #include "uiattribsingleedit.h"
 #include "uiattrdesced.h"
@@ -37,6 +37,13 @@ uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
 uiSingleAttribEd::~uiSingleAttribEd()
 {
     delete setman_;
+}
+
+
+void uiSingleAttribEd::setDataPackSelection(
+			const TypeSet<DataPack::FullID>& ids )
+{
+    desced_->setDataPackInp( ids );
 }
 
 
