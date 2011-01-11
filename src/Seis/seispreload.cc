@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seispreload.cc,v 1.11 2010-11-24 16:35:41 cvskris Exp $";
+static const char* rcsID = "$Id: seispreload.cc,v 1.12 2011-01-11 16:20:59 cvskris Exp $";
 
 #include "seispreload.h"
 #include "seiscbvs.h"
@@ -101,7 +101,8 @@ bool Seis::PreLoader::loadVol() const
 	    break;
     }
 
-    return StreamProvider::preLoad( fnms, trunnr, id_.buf() );
+    return fnms.isEmpty() ? true
+	: StreamProvider::preLoad( fnms, trunnr, id_.buf() );
 }
 
 
@@ -197,7 +198,8 @@ bool Seis::PreLoader::loadPS2D( const BufferStringSet& lnms ) const
     for ( int idx=0; idx<lnms.size(); idx++ )
 	fnms.add( psio.get2DFileName(lnms.get(idx)) );
 
-    return StreamProvider::preLoad( fnms, trunnr, id_.buf() );
+    return fnms.isEmpty() ? true
+	: StreamProvider::preLoad( fnms, trunnr, id_.buf() );
 }
 
 
