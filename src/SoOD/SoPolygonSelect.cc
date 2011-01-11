@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.8 2011-01-05 11:41:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.9 2011-01-11 14:26:18 cvsjaap Exp $";
 
 
 #include "SoPolygonSelect.h"
@@ -85,8 +85,9 @@ void SoPolygonSelect::GLRender( SoGLRenderAction* action )
 
     if ( dependencychecker_ && !dependencychecker_->isValid(state) )
     {
-	polygon_.truncate( 0 );
-	mousedown_ = false;
+	if ( !mousedown_ )
+	    polygon_.truncate( 0 );
+
 	dependencychecker_->unref();
 	dependencychecker_ = 0;
 	polygonChange.invokeCallbacks( this );
