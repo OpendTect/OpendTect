@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.55 2011-01-10 12:45:13 cvshelene Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.56 2011-01-11 14:14:11 cvshelene Exp $";
 
 #include "attribsel.h"
 
@@ -322,6 +322,8 @@ void SelInfo::fillStored( const char* filter )
 	    ioobjnms_.add( ioobjnmscopy.get(sortindexes[idx]) );
 	    ioobjids_.add( ioobjidscopy.get(sortindexes[idx]) );
 	}
+
+	delete [] sortindexes;
     }
 }
 
