@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.38 2010-12-16 13:04:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.39 2011-01-11 11:12:25 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.38 2010-12-16 13:04:30 c
 #include "uimsg.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
+#include "uiseiswvltsel.h"
 #include "uiseparator.h"
 #include "uiwaveletextraction.h"
 #include "uiwelltietoseismicdlg.h"
@@ -135,7 +136,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     sep = new uiSeparator( this, "Logs2Wavelt Sep" );
     sep->attach( stretchedBelow, logsgrp );
 
-    wvltfld_ = new uiIOObjSel( this, wvltctio_, "Reference wavelet" );
+    wvltfld_ = new uiSeisWaveletSel( this, "Reference wavelet" );
     wvltfld_->attach( alignedBelow, wellfld_ );
     wvltfld_->attach( ensureBelow, sep );
     uiPushButton* crwvltbut = new uiPushButton( this, "Extract",
@@ -305,9 +306,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     if ( !strcmp( wtsetup_.denlognm_, sKeyPlsSel ) )
 	mErrRet("Please select a Density log")
     
-    if ( !wvltfld_->commitInput() )
-	mErrRet("Please select an initial wavelet")
-    if ( !Wavelet::get(wvltfld_->ctxtIOObj().ioobj) )
+    if ( !wvltfld_->getWavelet() )
 	mErrRet("Please select a valid wavelet")
 
     WellTie::UnitFactors units( &wtsetup_ );
@@ -325,7 +324,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 
     wtsetup_.seisid_ = seisfld->ctxtIOObj().ioobj->key();
     wtsetup_.wellid_ = wellfld_->ctxtIOObj().ioobj->key();
-    wtsetup_.wvltid_ = wvltfld_->ctxtIOObj().ioobj->key();
+    wtsetup_.wvltid_ = wvltfld_->getID();
     wtsetup_.issonic_ = !isvelbox_->isChecked();
     wtsetup_.unitfactors_ = units;
     wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();

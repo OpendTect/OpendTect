@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.12 2010-10-19 12:57:31 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.13 2011-01-11 11:12:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class uiCheckBox;
 class uiGenInput;
 class uiSeisSel;
 class uiSeis2DLineNameSel;
+class uiSeisWaveletSel;
 class uiWaveletExtraction;
 
 namespace WellTie
@@ -53,7 +54,7 @@ protected:
     ObjectSet<WellTie::uiTieWin> welltiedlgsetcpy_;
 
     uiIOObjSel*         wellfld_;
-    uiIOObjSel*         wvltfld_;
+    uiSeisWaveletSel* 	wvltfld_;
     uiGenInput*		typefld_;
     uiGenInput*		seisextractfld_;
     uiSeisSel* 		seis2dfld_;
