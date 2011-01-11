@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.67 2011-01-10 10:59:21 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.68 2011-01-11 14:28:01 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -513,10 +513,10 @@ void FaultDisplay::updateHorizonIntersectionDisplay()
 
 void FaultDisplay::updateDisplay()
 {
-    updatePanelDisplay();
-    updateStickDisplay();
     updateIntersectionDisplay();
     updateHorizonIntersectionDisplay();
+    updatePanelDisplay();
+    updateStickDisplay();
 }
 
 
@@ -1529,7 +1529,7 @@ bool FaultDisplay::coincidesWithPlane(
 	    const float curdist = plane->calcDist( curpos );
 	    if ( curdist <= 0.5*onestepdist )
 	    {
-		res = coincidemode;
+		res = res || coincidemode;
 		intersectpoints += curpos;
 	    }
 	    else if ( rc.col != colrg.start )
@@ -1541,7 +1541,7 @@ bool FaultDisplay::coincidesWithPlane(
 		    if ( prevdist <= 0.5*onestepdist )
 			intersectpoints.remove( intersectpoints.size()-1 );
 
-		    res = coincidemode;
+		    res = res || coincidemode;
 		    intersectpoints += interpos;
 		}
 	    }
