@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.46 2010-10-19 05:54:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.47 2011-01-11 14:27:07 cvsjaap Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -40,12 +40,64 @@ uiODFaultParentTreeItem::uiODFaultParentTreeItem()
 #define mLoadMnuID	0
 #define mNewMnuID	1
 
+#define mDispPlanes	2
+#define mDispSticks	3
+#define mDispAtSect	4
+#define mDispAtHors	5
+#define mUndispPlanes	6
+#define mUndispSticks	7
+#define mUndispAtSect	8
+#define mUndispAtHors	9
+
+
+#define mInsertItm( menu, name, id, enable ) \
+{ \
+    uiMenuItem* itm = new uiMenuItem( name ); \
+    menu->insertItem( itm, id ); \
+    itm->setEnabled( enable ); \
+}
 
 bool uiODFaultParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), mLoadMnuID );
     mnu.insertItem( new uiMenuItem("&New ..."), mNewMnuID );
+
+    if ( children_.size() )
+    {
+	bool candispatsect = false;
+	bool candispathors = false;
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet( uiODFaultTreeItem*, itm, children_[idx] );
+	    mDynamicCastGet( visSurvey::FaultDisplay*, fd,
+			applMgr()->visServer()->getObject(itm->displayID()) );
+
+	    if ( fd && fd->canDisplayIntersections() )
+		candispatsect = true;
+	    if ( fd && fd->canDisplayHorizonIntersections() )
+		candispathors = true;
+	}
+
+	mnu.insertSeparator();
+	uiPopupMenu* dispmnu = new uiPopupMenu( getUiParent(), "&Display all" );
+
+	mInsertItm( dispmnu, "Fault &planes", mDispPlanes, true );
+	mInsertItm( dispmnu, "Fault &sticks", mDispSticks, true );
+	mInsertItm( dispmnu, "&Only at sections", mDispAtSect, candispatsect );
+	mInsertItm( dispmnu, "&At horizons", mDispAtHors, candispathors );
+	mnu.insertItem( dispmnu );
+
+	uiPopupMenu* undispmnu =
+		     new uiPopupMenu( getUiParent(), "&Undisplay all" );
+
+	mInsertItm( undispmnu, "Fault &planes", mUndispPlanes, true );
+	mInsertItm( undispmnu, "Fault &sticks", mUndispSticks, true );
+	mInsertItm( undispmnu, "&Only at sections",mUndispAtSect,candispatsect);
+	mInsertItm( undispmnu, "&At horizons", mUndispAtHors, candispathors );
+	mnu.insertItem( undispmnu );
+    }
+
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -72,6 +124,29 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
 	return true;
     }
+    else if ( mnuid>=mDispPlanes && mnuid<=mUndispAtHors )
+    {
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet( uiODFaultTreeItem*, itm, children_[idx] );
+	    mDynamicCastGet( visSurvey::FaultDisplay*, fd,
+			applMgr()->visServer()->getObject(itm->displayID()) );
+	    if ( !fd ) continue;
+
+	    if ( mnuid == mDispPlanes )
+		fd->display( fd->areSticksDisplayed(), true );
+	    else if ( mnuid == mUndispPlanes )
+		fd->display( true, false );
+	    else if ( mnuid == mDispSticks )
+		fd->display( true, fd->arePanelsDisplayed() );
+	    else if ( mnuid == mUndispSticks )
+		fd->display( false, true );
+	    else if ( mnuid==mDispAtSect || mnuid==mUndispAtSect )
+		fd->displayIntersections( mnuid==mDispAtSect );
+	    else if ( mnuid==mDispAtHors || mnuid==mUndispAtHors )
+		fd->displayHorizonIntersections( mnuid==mDispAtHors );
+	}
+    }
     else
 	handleStandardItems( mnuid );
 
@@ -93,7 +168,7 @@ uiTreeItem* uiODFaultTreeItemFactory::create( int visid, uiTreeItem* ) const
     , displaymnuitem_( "&Display ..." ) \
     , displayplanemnuitem_ ( "Fault &planes" ) \
     , displaystickmnuitem_ ( "Fault &sticks" ) \
-    , displayintersectionmnuitem_( "&At sections only" ) \
+    , displayintersectionmnuitem_( "&Only at sections" ) \
     , displayintersecthorizonmnuitem_( "&At horizons" ) \
     , singlecolmnuitem_( "Use single &color" ) \
     , removeselectedmnuitem_( "Re&move selection" )
@@ -334,6 +409,16 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), mLoadMnuID );
     mnu.insertItem( new uiMenuItem("&New ..."), mNewMnuID );
+
+    if ( children_.size() )
+    {
+	mnu.insertSeparator();
+	uiPopupMenu* dispmnu = new uiPopupMenu( getUiParent(), "&Display all" );
+	dispmnu->insertItem( new uiMenuItem("&Only at sections"), mDispAtSect );
+	dispmnu->insertItem( new uiMenuItem("&In full"), mUndispAtSect );
+	mnu.insertItem( dispmnu );
+    }
+
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -359,6 +444,17 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultStickSetTreeItem( emo->id() ), false );
 	return true;
+    }
+    else if ( mnuid==mDispAtSect || mnuid==mUndispAtSect )
+    {
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet( uiODFaultStickSetTreeItem*, itm, children_[idx] );
+	    mDynamicCastGet( visSurvey::FaultStickSetDisplay*, fssd,
+			applMgr()->visServer()->getObject(itm->displayID()) );
+	    if ( fssd )
+		fssd->setDisplayOnlyAtSections( mnuid==mDispAtSect );
+	}
     }
     else
 	handleStandardItems( mnuid );
