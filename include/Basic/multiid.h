@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: multiid.h,v 1.14 2010-12-30 15:53:15 cvskris Exp $
+ RCS:		$Id: multiid.h,v 1.15 2011-01-11 11:37:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,10 @@ public:
 			: CompoundKey(mid)	{}
 			MultiID( int i )
 			{ add(i); }
+			MultiID( int i1, int i2 )
+			{ add(i1); add(i2); }
+			MultiID( int i1, int i2, int i3 )
+			{ add(i1); add(i2); add(i3); }
 
     MultiID&		operator =( const MultiID& mi )
 			{ id_ = mi.id_; return *this; }
