@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.25 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.26 2011-01-11 05:47:37 cvsranojay Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -537,7 +537,7 @@ static void getHomeDir( char* val )
 	/* This may be not be trustworthy */
 	strcpy( val, GetEnvVar("HOMEDRIVE") );
 	strcat( val, GetEnvVar("HOMEPATH") );
-	if ( *val && !caseInsensitiveEqual(val,"c:\\",0)
+	if ( *val && !C_caseInsensitiveEqual(val,"c:\\",0)
 	  && File_isDirectory(val) )
 	    dir = val;
     }
@@ -570,7 +570,7 @@ static void getHomeDir( char* val )
 #ifdef __win__
     if ( !GetEnvVar("DTECT_WINHOME") )
 	SetEnvVar( "DTECT_WINHOME", val );
-    replaceCharacter( val, '\r', '\0' );
+    C_replaceCharacter( val, '\r', '\0' );
 #endif
 }
 
