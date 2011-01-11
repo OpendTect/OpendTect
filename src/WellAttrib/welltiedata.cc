@@ -7,10 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.41 2010-12-16 13:04:29 cvsbert Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.42 2011-01-11 10:47:33 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
-#include "binidvalset.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "strmprov.h"
@@ -203,16 +202,13 @@ bool DataHolder::setUpHorizons( const TypeSet<MultiID>& horids,
 	}
 	mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
 	if ( !hor ) continue;
-	WellHorPos whpos( wd()->track() );
-	whpos.setHorizon( emid );
-	BinIDValueSet bivset(2,false);
-	whpos.intersectWellHor( bivset );
-	if ( bivset.nrVals() )
+	WellHorIntersectFinder whfinder( wd()->track(), wd()->d2TModel() );
+	whfinder.setHorizon( emid );
+	TypeSet<WellHorIntersectFinder::ZPoint> zpts;
+	whfinder.findIntersection( zpts );
+	if ( !zpts.isEmpty() )
 	{
-	    BinIDValueSet::Pos pos = bivset.getPos( 0 );
-	    float zval; BinID bid;
-	    bivset.get( pos, bid, zval );
-	    zval *= 1000;
+	    const float zval = zpts[0].zval_*= 1000;
 	    hordatas_ += new HorData( zval, hor->preferredColor() );
 	    hordatas_[hordatas_.size()-1]->name_ = hor->name();
 	    hordatas_[hordatas_.size()-1]->lvlid_ = hor->stratLevelID();

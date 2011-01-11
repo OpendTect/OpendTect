@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: wellhorpos.cc,v 1.5 2010-08-24 12:41:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellhorpos.cc,v 1.6 2011-01-11 10:47:33 cvsbruno Exp $";
 
 
 #include "wellhorpos.h"
@@ -18,55 +18,116 @@ static const char* rcsID = "$Id: wellhorpos.cc,v 1.5 2010-08-24 12:41:13 cvsbrun
 #include "emmanager.h"
 #include "position.h"
 #include "survinfo.h"
+#include "scaler.h"
+#include "welld2tmodel.h"
 #include "welltrack.h"
 
 
-WellHorPos::WellHorPos( const Well::Track& tr  )
+WellHorIntersectFinder::WellHorIntersectFinder( const Well::Track& tr, 
+						const Well::D2TModel* d2t )
     : horid_(-1)
-    , track_(tr)  
 {
-    transformWellCoordsToBinIDs();
+    Well::Track& track = *new Well::Track( tr );
+    if ( d2t && !tr.zIsTime() ) 
+	track.toTime( *d2t );
+    transformWellCoordsToBinIDs( track );
+    delete &track;
 }
 
 
 #define mDoTransInLoop(idx,bid)\
-    Coord3 pos = track_.pos( idx );\
+    Coord3 pos = track.pos( idx );\
     bid = SI().transform( pos );
-void WellHorPos::transformWellCoordsToBinIDs()
+void WellHorIntersectFinder::transformWellCoordsToBinIDs( 
+						const Well::Track& track )
 {
-    wellbids_.erase();
-    if ( track_.size() <=0 ) return;
+    wellpts_.erase();
+    if ( track.size() <=0 ) return;
     BinID prevbid; mDoTransInLoop( 0, prevbid )
-    wellbids_ += prevbid;	
-    for ( int idx=0; idx<track_.size(); idx++ )
+    wellpts_ += ZPoint( prevbid, pos.z );
+    for ( int idx=0; idx<track.size(); idx++ )
     {
 	BinID bid; mDoTransInLoop( idx, bid )
 	if ( prevbid != bid )
-	    wellbids_ += bid;
+	    wellpts_ += ZPoint( bid, pos.z );
 	prevbid = bid;
     }
 }
 
 
-void WellHorPos::intersectWellHor( BinIDValueSet& bidset ) const
+void WellHorIntersectFinder::findIntersection( TypeSet<ZPoint>& outzpts ) const
 {
-    bidset.empty();
-    for ( int idx=0; idx<wellbids_.size(); idx ++ )
+    outzpts.erase();
+    TypeSet<ZPoint> intersectpts;
+    findIntersect( wellpts_, intersectpts );
+    const int sz = intersectpts.size();
+    if ( sz < 2 ) 
+	{ if ( sz == 1 ) outzpts += intersectpts[0]; return; }
+
+    for ( int idx=0; idx<sz; idx +=2 )
     {
-	float zval; BinID bid = wellbids_[idx];
-	intersectBinIDHor( bid, zval );
-	if ( !mIsUdf( zval ))
-	    bidset.add( bid, zval );
+	const int wellidx1 = wellpts_.indexOf( intersectpts[idx] );
+	const int wellidx2 = wellpts_.indexOf( intersectpts[idx+1] );
+	if ( !wellpts_.validIdx( wellidx1 ) || !wellpts_.validIdx( wellidx2 ) )
+	    return;
+	const ZPoint pt1 = wellpts_[wellidx1];
+	const ZPoint pt2 = wellpts_[wellidx2];
+	HorSampling hs(false); 
+	hs.include( pt1.bid_ ); hs.include( pt2.bid_ );
+	HorSamplingIterator hsit( hs );
+	TypeSet<ZPoint> newintersectzpts;
+
+#define mGetBidDistToPrevBid(bid,dist)\
+	int inldist = pt1.bid_.inl-bid.inl; inldist*=inldist;\
+	int crldist = pt1.bid_.crl-bid.crl; crldist*=crldist;\
+	dist = sqrt( inldist + crldist );
+	float refdist; mGetBidDistToPrevBid( pt2.bid_, refdist )
+	LinScaler sc( 0, pt1.zval_, refdist, pt2.zval_ );
+	BinID bid;
+	while ( hsit.next( bid ) )
+	{
+	    float biddist; mGetBidDistToPrevBid( bid, biddist )
+	    float zval = sc.scale( biddist );
+	    newintersectzpts += ZPoint( bid, zval );
+	}
+	TypeSet<ZPoint> zpts;
+	findIntersect( newintersectzpts, zpts );
+	if ( !zpts.isEmpty() )
+	    outzpts += zpts[0];
     }
 }
 
 
-void WellHorPos::intersectBinIDHor( const BinID& bid, float& zpos ) const
+void WellHorIntersectFinder::findIntersect( const TypeSet<ZPoint>& inppts,
+						TypeSet<ZPoint>& outpts ) const
+{
+    bool previsabovehor = true; float prevhorzval = 0; 
+    for ( int idx=0; idx<inppts.size(); idx++ )
+    {
+	float wellzval = inppts[idx].zval_;
+	float horzval; BinID bid = inppts[idx].bid_;
+	intersectBinIDHor( bid, horzval );
+	if ( mIsUdf( horzval ) ) continue;
+	if ( inppts.size() == 1 )
+	    outpts += ZPoint( bid, horzval );
+	const bool isabovehor = wellzval < horzval;
+	if ( idx && isabovehor != previsabovehor )
+	{ 
+	    outpts += ZPoint( inppts[idx-1].bid_, prevhorzval ); 
+	    outpts += ZPoint( bid, horzval ); 
+	}
+	previsabovehor = isabovehor;
+	prevhorzval = horzval;
+    }
+}
+
+
+void WellHorIntersectFinder::intersectBinIDHor( const BinID& bid, 
+						float& zpos ) const
 {
     zpos = mUdf( float );
     EM::EMObject* emobj = EM::EMM().getObject( horid_ );
     if ( !emobj ) return;
-
     mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
 
@@ -79,10 +140,10 @@ void WellHorPos::intersectBinIDHor( const BinID& bid, float& zpos ) const
 	    zpos = pos.z;
 	return;
     }
-    else
+    else if ( hor2d )
     {
 	mDynamicCastGet( const Geometry::RowColSurface*, rcs, 
-			    emobj->sectionGeometry(0));
+			 emobj->sectionGeometry(0));
 	if ( !rcs ) return;
 
 	const StepInterval<int> rowrg = rcs->rowRange();
@@ -96,10 +157,7 @@ void WellHorPos::intersectBinIDHor( const BinID& bid, float& zpos ) const
 					emobj->sectionID(0), rc.toInt64() );
 		const BinID horbid = SI().transform( pos );
 		if ( bid == horbid )
-		{
-		    zpos = pos.z;
-		    return;
-		}
+		    { zpos = pos.z; return; }
 	    }
 	}
     }
