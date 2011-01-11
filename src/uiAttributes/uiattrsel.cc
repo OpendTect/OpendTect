@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.63 2011-01-07 14:44:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.64 2011-01-11 15:34:01 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -56,7 +56,6 @@ using namespace Attrib;
     , nlamodel_(0) \
     , outputnr_(-1) \
     , compnr_(-1) \
-    , shwcubes_(true) \
     , zdomaininfo_(0) \
 { \
     if ( fillwithdef ) \
@@ -191,11 +190,12 @@ void uiAttrSelDlg::createSelectionButtons()
 {
     const bool havenlaouts = attrinf_->nlaoutnms_.size();
     const bool haveattribs = attrinf_->attrnms_.size();
+    const bool havestored = attrinf_->ioobjnms_.size();
 
     selgrp_ = new uiButtonGroup( this, "Input selection" );
     storfld_ = new uiRadioButton( selgrp_, "Stored" );
     storfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
-    storfld_->setSensitive( attrdata_.shwcubes_ );
+    storfld_->setSensitive( havestored );
 
     attrfld_ = new uiRadioButton( selgrp_, "Attributes" );
     attrfld_->setSensitive( haveattribs );
@@ -222,8 +222,9 @@ void uiAttrSelDlg::createSelectionFields()
 {
     const bool havenlaouts = attrinf_->nlaoutnms_.size();
     const bool haveattribs = attrinf_->attrnms_.size();
+    const bool havestored = attrinf_->ioobjnms_.size();
 
-    if ( attrdata_.shwcubes_ )
+    if ( havestored )
     {
 	storoutfld_ = new uiListBox( this, attrinf_->ioobjnms_ );
 	storoutfld_->setHSzPol( uiObject::Wide );

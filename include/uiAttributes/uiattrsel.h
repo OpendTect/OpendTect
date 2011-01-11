@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.28 2010-10-19 11:54:50 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.29 2011-01-11 15:34:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,6 @@ public:
     const NLAModel*		nlamodel_;
     int				outputnr_;
     int				compnr_;
-    bool			shwcubes_;
     const ZDomain::Info*	zdomaininfo_;
 
     bool			is2D() const;
