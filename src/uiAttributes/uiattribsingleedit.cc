@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsingleedit.cc,v 1.2 2011-01-10 13:30:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsingleedit.cc,v 1.3 2011-01-11 10:33:44 cvsbert Exp $";
 
 #include "uiattribsingleedit.h"
 #include "uiattrdesced.h"
@@ -26,7 +26,7 @@ uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
     , nmchgd_(false)
     , anychg_(false)
 {
-    desced_ = uiAF().create( this, desc_.attribName(), desc_.is2D(), true );
+    desced_ = uiAF().create( this, desc_.attribName(), desc_.is2D(), false );
     desced_->setDesc( &desc_, setman_ );
 
     namefld_ = new uiGenInput( this, "Name", desc_.userRef() );
