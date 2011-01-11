@@ -1,12 +1,12 @@
-#ifndef uiseissel_h
-#define uiseissel_h
+#ifndef uiwvltseissel_h
+#define uiwvltseissel_h
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseiswvltsel.h,v 1.3 2010-12-07 16:15:06 cvsbert Exp $
+ RCS:           $Id: uiseiswvltsel.h,v 1.4 2011-01-11 11:10:37 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
