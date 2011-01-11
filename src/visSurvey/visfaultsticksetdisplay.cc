@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.35 2011-01-10 10:59:21 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.36 2011-01-11 14:28:41 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -869,7 +869,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	    const float curdist = plane->calcDist( curpos );
 	    if ( curdist <= 0.5*onestepdist )
 	    {
-		res = coincidemode;
+		res = res || coincidemode;
 		intersectpoints += curpos;
 	    }
 	    else if ( rc.col != colrg.start )
@@ -882,7 +882,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 		    if ( prevdist <= 0.5*onestepdist )
 			intersectpoints.remove( intersectpoints.size()-1 );
 
-		    res = coincidemode;
+		    res = res || coincidemode;
 		    intersectpoints += interpos;
 		}
 	    }
