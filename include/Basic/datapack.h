@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.8 2011-01-07 14:42:07 cvsbert Exp $
+ RCS:		$Id: datapack.h,v 1.9 2011-01-11 11:47:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ public:
     virtual		~DataPack()		{}
 
     ID			id() const		{ return id_; }
-    FullID		fullID(int mgrid) const;
+    FullID		fullID( int mgrid ) const { return FullID(mgrid,id()); }
     virtual const char*	category() const	{ return category_.buf(); }
 
     virtual float	nrKBytes() const	= 0;
