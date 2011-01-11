@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.25 2010-11-24 17:05:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.26 2011-01-11 16:36:42 cvskris Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.25 2010-11-24 17:05:32 
 #include "uitaskrunner.h"
 #include "uiselsurvranges.h"
 
+const char* cannotloadstr = "Cannot load ";
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     : uiDialog(p,Setup("Pre-load manager","Pre-loaded seismic data",
@@ -228,12 +229,26 @@ BufferString uiSeisPreLoadMgr::getFilesText( const BufferStringSet& fnms,
 }
 
 
+
+#define mCheckIOObjExistance( ioobj ) \
+if ( !ioobj->implExists( true ) ) \
+{ \
+    BufferString msg = cannotloadstr; \
+    msg += ioobj->name(); \
+    uiMSG().error( msg.buf() ); \
+    return; \
+}
+
+
+
 void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
     ctio->ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
     uiIOObjSelDlg dlg( this, *ctio );
     if ( !dlg.go() || !dlg.ioObj() ) return;
+
+    mCheckIOObjExistance( dlg.ioObj() );
 
     Seis::PreLoader spl( dlg.ioObj()->key() );
     const char* id = spl.id().buf();
@@ -349,6 +364,8 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     uiSeisPreLoadMgrSel2D dlg( this );
     if ( !dlg.go() ) return;
 
+    mCheckIOObjExistance( dlg.ctio_.ioobj );
+
     Seis::PreLoader spl( dlg.ctio_.ioobj->key() );
     uiTaskRunner tr( this ); spl.setRunner( tr );
     if ( !spl.loadLines(dlg.lnms_,dlg.attrnms_) )
@@ -372,6 +389,8 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 	    				uiSelNrRange::Inl, false );
     inlrgfld->attach( centeredBelow, dlg.selGrp()->getListField() );
     if ( !dlg.go() || !dlg.ioObj() ) return;
+
+    mCheckIOObjExistance( dlg.ioObj() );
 
     Seis::PreLoader spl( dlg.ioObj()->key() );
     const char* id = spl.id().buf();
@@ -447,6 +466,8 @@ void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
     ctio->ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
     uiSeisPreLoadMgrPS2DSel dlg( this, *ctio );
     if ( !dlg.go() || !dlg.ioObj() ) return;
+
+    mCheckIOObjExistance( dlg.ioObj() );
 
     Seis::PreLoader spl( dlg.ioObj()->key() );
     const char* id = spl.id().buf();
