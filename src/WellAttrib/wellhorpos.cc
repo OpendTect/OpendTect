@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: wellhorpos.cc,v 1.7 2011-01-12 06:08:06 cvsranojay Exp $";
+static const char* rcsID = "$Id: wellhorpos.cc,v 1.8 2011-01-12 09:44:30 cvsbruno Exp $";
 
 
 #include "wellhorpos.h"
@@ -27,11 +27,10 @@ WellHorIntersectFinder::WellHorIntersectFinder( const Well::Track& tr,
 						const Well::D2TModel* d2t )
     : horid_(-1)
 {
-    Well::Track& track = *new Well::Track( tr );
+    Well::Track track( tr );
     if ( d2t && !tr.zIsTime() ) 
 	track.toTime( *d2t );
     transformWellCoordsToBinIDs( track );
-    delete &track;
 }
 
 
