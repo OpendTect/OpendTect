@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: wellhorpos.cc,v 1.6 2011-01-11 10:47:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellhorpos.cc,v 1.7 2011-01-12 06:08:06 cvsranojay Exp $";
 
 
 #include "wellhorpos.h"
@@ -80,7 +80,7 @@ void WellHorIntersectFinder::findIntersection( TypeSet<ZPoint>& outzpts ) const
 #define mGetBidDistToPrevBid(bid,dist)\
 	int inldist = pt1.bid_.inl-bid.inl; inldist*=inldist;\
 	int crldist = pt1.bid_.crl-bid.crl; crldist*=crldist;\
-	dist = sqrt( inldist + crldist );
+	dist = sqrt( (float)(inldist + crldist) );
 	float refdist; mGetBidDistToPrevBid( pt2.bid_, refdist )
 	LinScaler sc( 0, pt1.zval_, refdist, pt2.zval_ );
 	BinID bid;
