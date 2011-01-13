@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.16 2010-12-20 02:59:10 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.17 2011-01-13 16:40:50 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: velocitypicks.cc,v 1.16 2010-12-20 02:59:10 cvs
 #include "picksettr.h"
 #include "pickset.h"
 #include "ptrman.h"
+#include "randcolor.h"
 #include "smoother1d.h"
 #include "survinfo.h"
 #include "velocitypicksundo.h"
@@ -83,6 +84,7 @@ Picks::Picks()
     , smoother_( 0 )
     , undo_( 0 )
     , refoffset_(0)
+    , color_( getRandomColor(false) )
 {
     picks_.allowDuplicates( true );
     VPM().velpicks_ += this;
@@ -101,6 +103,7 @@ Picks::Picks( bool zit )
     , picktype_( zit ? RMS : RMO )
     , smoother_( 0 )
     , undo_( 0 )
+    , color_( getRandomColor(false) )
 {
     picks_.allowDuplicates( true );
     VPM().velpicks_ += this;
@@ -140,6 +143,18 @@ Picks::PickType Picks::pickType() const
 
 void Picks::setPickType( Picks::PickType t )
 { picktype_ = t; }
+
+
+void Picks::setColor( const Color& col )
+{
+    if ( col==color_ )
+	return;
+
+    color_ = col;
+
+    change.trigger(BinID(-1,-1));
+    changelate.trigger(BinID(-1,-1));
+}
 
 
 Undo& Picks::undo()
@@ -342,6 +357,7 @@ bool Picks::store( const IOObj* ioobjarg )
     }
     
     ::Pick::Set ps( ioobj->name() );
+    ps.disp_.color_ = color_;
     RowCol arrpos( 0, 0 );
     if ( picks_.isValidPos( arrpos ) )
     {
@@ -723,6 +739,8 @@ bool Picks::load( const IOObj* ioobj )
 
 	picks_.add( &pick, bid );
     }
+
+    color_ = pickset.disp_.color_;
 
     changed_ = false;
     change.trigger( BinID(-1,-1) );

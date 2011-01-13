@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.12 2010-12-20 02:59:10 cvskris Exp $
+ RCS:		$Id: velocitypicks.h,v 1.13 2011-01-13 16:40:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "multidimstorage.h"
 #include "callback.h"
+#include "color.h"
 #include "emposid.h"
 #include "enums.h"
 #include "multiid.h"
@@ -64,6 +65,9 @@ public:
     PickType		pickType() const;
     void		setPickType( PickType );
     const char*		zDomain() const;
+
+    void		setColor(const Color&);
+    const Color&	getColor() const { return color_; }
 
     Undo&		undo();
 
@@ -179,6 +183,7 @@ protected:
     ObjectSet<EM::Horizon3D>	horizons_;
 
     PickType			picktype_;
+    Color			color_;
 
     bool			changed_;
     bool			zit_;
