@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.33 2011-01-11 12:45:53 cvsbert Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.34 2011-01-13 08:15:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,6 +160,8 @@ protected:
     BufferString	errmsg_;
     DescSet*		ads_;
     bool		is2d_;
+
+    TypeSet<DataPack::FullID> dpfids_;
 
     static const char*	sKeyOtherGrp();
     static const char*	sKeyBasicGrp();

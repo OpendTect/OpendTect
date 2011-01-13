@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.29 2011-01-11 15:34:01 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.30 2011-01-13 08:15:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uiiosel.h"
 #include "attribdescid.h"
-#include "bufstring.h"
+#include "datapack.h"
 
 namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; };
 namespace ZDomain { class Info; }
@@ -76,6 +76,12 @@ public:
 				     Attrib::DescID ignoreid=
 				     		Attrib::DescID(-1,true),
 				     bool isinp4otherattrib = true);
+			uiAttrSelDlg(uiParent*,const char* seltxt,
+				     const uiAttrSelData&,
+				     const TypeSet<DataPack::FullID>&,
+				     Attrib::DescID ignoreid=
+				     		Attrib::DescID(-1,true),
+				     bool isinp4otherattrib = true);
 			~uiAttrSelDlg();
 
 			// if ( go() ) ...
@@ -96,6 +102,8 @@ protected:
     bool		usedasinput_;	//input for another attribute
     bool		in_action_;
     BufferString	zdomainkey_;
+
+    TypeSet<DataPack::FullID> dpfids_;
 
     uiButtonGroup*	selgrp_;
     uiRadioButton*	storfld_;
@@ -158,6 +166,7 @@ public:
 
     void		setIgnoreDesc(const Attrib::Desc*);
     void		setIgnoreID( Attrib::DescID id ) { ignoreid_ = id; }
+    void		setPossibleDataPacks(const TypeSet<DataPack::FullID>&);
 
     virtual void	getHistory(const IOPar&);
     virtual void	processInput();
@@ -182,6 +191,8 @@ protected:
     BufferString	errmsg_;
     mutable BufferString usrnm_;
     int			seltype_;
+
+    TypeSet<DataPack::FullID> dpfids_;
 
     void		updateInput();
     void		update2D();

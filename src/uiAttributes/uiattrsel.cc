@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.64 2011-01-11 15:34:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.65 2011-01-13 08:15:08 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -77,27 +77,43 @@ bool uiAttrSelData::is2D() const
     return attrSet().is2D();
 }
 
+#define mImplInitVar \
+	: uiDialog(p,Setup("",0,atd.nlamodel_?"":"101.1.1")) \
+	, attrdata_(atd) \
+	, selgrp_(0) \
+	, storoutfld_(0) \
+	, attroutfld_(0) \
+	, attr2dfld_(0) \
+	, nlafld_(0) \
+	, nlaoutfld_(0) \
+    	, zdomainfld_(0) \
+	, zdomoutfld_(0) \
+	, in_action_(false) \
+	, usedasinput_( isinp4otherattrib )
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 			    const uiAttrSelData& atd, 
 			    DescID ignoreid,
        			    bool isinp4otherattrib )
-	: uiDialog(p,Setup("",0,atd.nlamodel_?"":"101.1.1"))
-	, attrdata_(atd)
-	, selgrp_(0)
-	, storoutfld_(0)
-	, attroutfld_(0)
-	, attr2dfld_(0)
-	, nlafld_(0)
-	, nlaoutfld_(0)
-    	, zdomainfld_(0)
-	, zdomoutfld_(0)
-	, in_action_(false)
-	, usedasinput_( isinp4otherattrib )
+mImplInitVar
+{
+    TypeSet<DataPack::FullID> dpfids;
+    uiAttrSelDlg( p, seltxt, atd, dpfids, ignoreid, isinp4otherattrib );
+}
+
+
+uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
+			    const uiAttrSelData& atd,
+			    const TypeSet<DataPack::FullID>& dpfids,
+			    DescID ignoreid,
+       			    bool isinp4otherattrib )
+mImplInitVar
 {
     attrinf_ = new SelInfo( &atd.attrSet(), atd.nlamodel_, is2D(), ignoreid );
+    //TODO continue with dpfids from here
     if ( attrinf_->ioobjnms_.isEmpty() )
     {
+	//TODO check if ok with DataPacks
 	new uiLabel( this, "No seismic data available.\n"
 			   "Please import data first" );
 	setCaption( "Error" );
@@ -651,7 +667,8 @@ bool uiAttrSel::getRanges( CubeSampling& cs ) const
 void uiAttrSel::doSel( CallBacker* )
 {
     uiAttrSelDlg dlg( this, lbl_ ? lbl_->text() : cDefLabel,
-		      attrdata_, ignoreid_, usedasinput_ );
+		      attrdata_, dpfids_, ignoreid_, usedasinput_ );
+
     if ( dlg.go() )
     {
 	attrdata_.attribid_ = dlg.attribID();
@@ -810,6 +827,24 @@ void uiAttrSel::setObjectName( const char* nm )
     inp_->setName( nm );
     const char* butnm = selbut_->name();
     selbut_->setName( BufferString(butnm," ",nm) );
+}
+
+
+void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
+{
+    dpfids_ = ids;
+
+    //make sure the default stored data is not used
+    const char* str = getStringFromInt( attribID().asInt(), 0 );
+    if ( *str == '#') return;
+
+    const Attrib::Desc* inpdesc = getAttrSet().getDesc( attribID() );
+    if ( !inpdesc || inpdesc->isStored() )
+    {
+	Attrib::SelSpec* tmpss = new Attrib::SelSpec(0,Attrib::DescID::undef());
+        setSelSpec( tmpss );	//only to reset attrdata_.attribid_=-1
+	delete tmpss;	
+    }
 }
 
 

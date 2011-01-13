@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdesced.cc,v 1.37 2011-01-11 12:45:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdesced.cc,v 1.38 2011-01-13 08:15:08 cvshelene Exp $";
 
 
 
@@ -86,7 +86,7 @@ void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
 
 void uiAttrDescEd::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
 {
-    //TODO
+    dpfids_ = ids;
 }
 
 
@@ -196,6 +196,9 @@ uiImagAttrSel* uiAttrDescEd::createImagInpFld( bool is2d )
 void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad, 
 			   int inpnr )
 {
+    if ( dpfids_.size() )
+	inpfld->setPossibleDataPacks( dpfids_ );
+
     const Attrib::Desc* inpdesc = ad.getInput( inpnr );
     if ( !inpdesc )
 	inpfld->setDescSet( ad.descSet() );
