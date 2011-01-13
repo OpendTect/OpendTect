@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.17 2011-01-13 16:40:50 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.18 2011-01-13 21:10:58 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: velocitypicks.cc,v 1.17 2011-01-13 16:40:50 cvs
 #include "ptrman.h"
 #include "randcolor.h"
 #include "smoother1d.h"
+#include "settings.h"
 #include "survinfo.h"
 #include "velocitypicksundo.h"
 #include "zdomain.h"
@@ -86,6 +87,7 @@ Picks::Picks()
     , refoffset_(0)
     , color_( getRandomColor(false) )
 {
+    getDefaultColor( color_ );
     picks_.allowDuplicates( true );
     VPM().velpicks_ += this;
     horizons_.allowNull( true );
@@ -105,6 +107,8 @@ Picks::Picks( bool zit )
     , undo_( 0 )
     , color_( getRandomColor(false) )
 {
+    getDefaultColor( color_ );
+
     picks_.allowDuplicates( true );
     VPM().velpicks_ += this;
     horizons_.allowNull( true );
@@ -141,19 +145,53 @@ Picks::PickType Picks::pickType() const
 { return picktype_; }
 
 
-void Picks::setPickType( Picks::PickType t )
-{ picktype_ = t; }
-
-
-void Picks::setColor( const Color& col )
+void Picks::setPickType( Picks::PickType t, bool resetcolor )
 {
-    if ( col==color_ )
+    picktype_ = t;
+    if ( !resetcolor )
 	return;
 
-    color_ = col;
+    getDefaultColor( color_ );
+}
 
-    change.trigger(BinID(-1,-1));
-    changelate.trigger(BinID(-1,-1));
+
+bool Picks::setColor( const Color& col, bool dosave )
+{
+    if ( col!=color_ )
+    {
+	color_ = col;
+	changed_ = true;
+
+	change.trigger(BinID(-1,-1));
+	changelate.trigger(BinID(-1,-1));
+    }
+
+    if ( !dosave )
+	return true;
+
+    BufferString key;
+    getColorKey( key );
+
+    Settings& settings = Settings::fetch();
+    settings.set( key.buf(), col );
+    return settings.write();
+}
+
+
+void Picks::getColorKey( BufferString& key ) const
+{
+    key = "dTect.VelPick.";
+    key += getPickTypeString(picktype_);
+    key += ".";
+    key += sKey::Color;
+}
+
+
+bool Picks::getDefaultColor( Color& col ) const
+{
+    BufferString key;
+    getColorKey( key );
+    return Settings::fetch().get( key.buf(), col );
 }
 
 

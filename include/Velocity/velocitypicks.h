@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.13 2011-01-13 16:40:50 cvskris Exp $
+ RCS:		$Id: velocitypicks.h,v 1.14 2011-01-13 21:10:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -63,11 +63,14 @@ public:
     enum PickType	{ RMO, RMS, Delta, Epsilon, Eta };
      			DeclareEnumUtils(PickType);
     PickType		pickType() const;
-    void		setPickType( PickType );
+    void		setPickType( PickType, bool resetcolor );
     const char*		zDomain() const;
 
-    void		setColor(const Color&);
+    bool		setColor(const Color&,bool savedefault);
+    			//!<\returns false if savedefault failed.
     const Color&	getColor() const { return color_; }
+    bool		getDefaultColor(Color&) const;
+
 
     Undo&		undo();
 
@@ -155,6 +158,7 @@ public:
     static const char*		sKeyPickType();
 
 protected:
+    void			getColorKey(BufferString&) const;
     void			removeHorizons();
     friend			class PicksMgr;
     void			fillIOObjPar(IOPar&) const;
