@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.99 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.100 2011-01-13 15:02:27 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.99 2010-12-13 07:07:4
 #include "attribdataholder.h"
 #include "attribdatacubes.h"
 #include "datainpspec.h"
+#include "datapack.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -26,6 +27,7 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.99 2010-12-13 07:07:4
 #include "ptrman.h"
 #include "seis2dline.h"
 #include "seisbounds.h"
+#include "seisbufadapters.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seismscprov.h"
@@ -138,6 +140,7 @@ StorageProvider::StorageProvider( Desc& desc )
     , mscprov_(0)
     , status_( Nada )
     , stepoutstep_(-1,0)
+    , isondisc_(true)			//TODO check this
 {
 }
 
@@ -598,8 +601,24 @@ bool StorageProvider::computeData( const DataHolder& output,
 				   int z0, int nrsamples, int threadid ) const
 {
     const BinID bidstep = getStepoutStep();
-    const SeisTrc* trc = mscprov_->get( relpos.inl/bidstep.inl, 
-	    				relpos.crl/bidstep.crl );
+    const SeisTrc* trc = 0;
+    
+    if ( isondisc_)
+	trc = mscprov_->get( relpos.inl/bidstep.inl, relpos.crl/bidstep.crl );
+    else
+    {
+    //TODO retrieve trc from SeisTrcBufDataPack
+	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
+	DataPack::FullID fid( lk.lineName() );
+	DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid), false );
+	mDynamicCastGet(SeisTrcBufDataPack*,stbdtp, dtp)
+	if ( !stbdtp )
+	{} //error msg not supported
+
+	int trcidx = stbdtp->trcBuf().find(currentbid_+relpos, desc_.is2D());
+	trc = stbdtp->trcBuf().get( trcidx );
+    }
+
     if ( !trc || !trc->size() )
 	return false;
 
