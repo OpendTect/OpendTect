@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.30 2011-01-13 08:15:08 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.31 2011-01-13 13:52:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,6 +123,7 @@ protected:
     void		createSelectionFields();
 
     bool		getAttrData(bool);
+    void		replaceStoredByInMem();
     void		doFinalise( CallBacker* );
     void		selDone(CallBacker*);
     void		filtChg(CallBacker*);

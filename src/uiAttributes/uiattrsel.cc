@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.65 2011-01-13 08:15:08 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.66 2011-01-13 13:52:30 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -109,11 +109,14 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
        			    bool isinp4otherattrib )
 mImplInitVar
 {
+    dpfids_ = dpfids;
+
     attrinf_ = new SelInfo( &atd.attrSet(), atd.nlamodel_, is2D(), ignoreid );
-    //TODO continue with dpfids from here
+    if ( dpfids.size() )
+	replaceStoredByInMem();
+
     if ( attrinf_->ioobjnms_.isEmpty() )
     {
-	//TODO check if ok with DataPacks
 	new uiLabel( this, "No seismic data available.\n"
 			   "Please import data first" );
 	setCaption( "Error" );
@@ -143,7 +146,7 @@ mImplInitVar
     else
     {
 	const Desc* desc = attrdata_.attribid_.isValid()
-	    		? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) : 0;
+	    		? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) :0;
 	if ( desc )
 	{
 	    seltyp = desc->isStored() ? 0 : 1;
@@ -368,7 +371,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 
 	int attridx = 0;
 	const Desc* desc = attrdata_.attribid_.isValid()
-	    		? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) : 0;
+	    		? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) :0;
 	const Attrib::ValParam* param = desc
 	    ? desc->getValParam( Attrib::StorageProvider::keyStr() )
 	    : 0;
@@ -493,6 +496,30 @@ const char* uiAttrSelDlg::zDomainKey() const
 bool uiAttrSelDlg::acceptOK( CallBacker* )
 {
     return getAttrData(true);
+}
+
+
+void uiAttrSelDlg::replaceStoredByInMem()
+{
+    attrinf_->ioobjnms_.erase();
+    attrinf_->ioobjids_.erase();
+
+    BufferStringSet ioobjnmscopy;
+    BufferStringSet ioobjidscopy;
+    for ( int idx=0; idx<dpfids_.size(); idx++ )
+    {
+	ioobjnmscopy.add( DataPackMgr::nameOf( dpfids_[idx] ) );
+	ioobjidscopy.add( dpfids_[idx] );
+    }
+
+    int* sortindexes = ioobjnmscopy.getSortIndexes();
+    for ( int idx=0; idx<ioobjnmscopy.size(); idx++ )                       
+    {                                                                       
+	attrinf_->ioobjnms_.add( ioobjnmscopy.get(sortindexes[idx]) );
+	attrinf_->ioobjids_.add( ioobjidscopy.get(sortindexes[idx]) );
+    }                                                                       
+									    
+    delete [] sortindexes;
 }
 
 
