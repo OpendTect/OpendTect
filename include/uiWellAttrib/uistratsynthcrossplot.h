@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.2 2011-01-10 13:30:13 cvsbert Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.3 2011-01-13 14:52:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class SeisTrcBuf;
 namespace Strat { class LayerModel; }
 class uiAttribDescSetBuild;
+class uiStratLaySeqAttribSetBuild;
 
 
 /*!\brief Dialog specifying what to crossplot */
@@ -35,6 +36,7 @@ protected:
     DataPack::ID		packid_;
 
     uiAttribDescSetBuild*	seisattrfld_;
+    uiStratLaySeqAttribSetBuild* layseqattrfld_;
 
     bool			acceptOK(CallBacker*);
 

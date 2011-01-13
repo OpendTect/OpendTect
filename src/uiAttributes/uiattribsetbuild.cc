@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.4 2011-01-11 12:45:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.5 2011-01-13 14:52:13 cvsbert Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uilistbox.h"
@@ -176,7 +176,7 @@ void uiAttribDescSetBuild::fillDefAttribFld()
 
 bool uiAttribDescSetBuild::doAttrEd( Attrib::Desc& desc, bool isnew )
 {
-    uiSingleAttribEd dlg( this, desc, false );
+    uiSingleAttribEd dlg( this, desc, isnew );
     dlg.setDataPackSelection( dpfids_ );
     if ( !dlg.go() )
 	return false;
@@ -201,7 +201,7 @@ void uiAttribDescSetBuild::addReq( CallBacker* )
     desc->setUserRef( "" );
     descset_.addDesc( desc );
 
-    if ( !doAttrEd(*desc,false) )
+    if ( !doAttrEd(*desc,true) )
 	descset_.removeDesc( desc->id() );
 }
 

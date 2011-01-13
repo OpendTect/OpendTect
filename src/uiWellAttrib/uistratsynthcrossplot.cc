@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.3 2011-01-11 12:45:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.4 2011-01-13 14:52:13 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
+#include "uistratlayseqattrsetbuild.h"
 #include "uiattribsetbuild.h"
 #include "uisplitter.h"
 #include "stratlayermodel.h"
@@ -34,12 +35,11 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p, DataPack::ID dpid,
     fids += DataPack::FullID( DataPackMgr::FlatID(), packid_ );
     seisattrfld_->setDataPackInp( fids );
 
-    uiGroup* botgrp = new uiGroup( this, "Layer seq attr group" );
-    new uiLabel( botgrp, "TODO: make Layer sequence attributes" );
+    layseqattrfld_ = new uiStratLaySeqAttribSetBuild( this, lm_ );
 
     uiSplitter* spl = new uiSplitter( this, "Splitter", false );
     spl->addGroup( seisattrfld_ );
-    spl->addGroup( botgrp );
+    spl->addGroup( layseqattrfld_ );
 }
 
 

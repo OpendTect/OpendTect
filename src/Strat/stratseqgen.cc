@@ -4,18 +4,18 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.15 2010-12-22 11:19:05 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqgen.cc,v 1.16 2011-01-13 14:52:13 cvsbert Exp $";
 
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
 #include "stratlaymodgen.h"
 #include "stratlayermodel.h"
+#include "strattransl.h"
 #include "propertyimpl.h"
 #include "ascstream.h"
 #include "keystrs.h"
 #include "ptrman.h"
 #include "iopar.h"
-#include "stratlaygentr.h"
 
 
 static const char* sKeyFileType = "Layer Sequence Generator Description";

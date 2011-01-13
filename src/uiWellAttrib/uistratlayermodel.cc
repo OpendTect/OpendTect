@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.12 2011-01-10 13:30:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.13 2011-01-13 14:52:13 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.12 2011-01-10 13:30:13
 #include "uistrattreewin.h"
 #include "stratlayseqgendesc.h"
 #include "stratlayermodel.h"
-#include "stratlaygentr.h"
+#include "strattransl.h"
 #include "stratlaymodgen.h"
 #include "stratreftree.h"
 #include "executor.h"
