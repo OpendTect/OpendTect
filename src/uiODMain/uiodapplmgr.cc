@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.404 2011-01-14 16:12:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.405 2011-01-14 21:59:38 cvsyuancheng Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -444,45 +444,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		return false;
 	    }
 
-	    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
-		    visserv_->getObject(visid) );
-	    if ( pdd && pdd->nrAttribs()>1 )
-	    {
-		DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-		const DataPack* dp = dpman.obtain( newid );
-		mDynamicCastGet(const Attrib::Flat3DDataPack*,f3ddp,dp );
-		if ( f3ddp )
-		{
-		    StepInterval<double> rg0 = f3ddp->posData().range(true);
-		    StepInterval<double> rg1 = f3ddp->posData().range(false);
-		    const int newsz0 = rg0.nrSteps()+1;
-		    const int newsz1 = rg1.nrSteps()+1;
-		    const int reso = pdd->getResolution()+1;
-		    const int oldsz0 = pdd->getChannels()->getSize(1) / reso;
-		    const int oldsz1 = pdd->getChannels()->getSize(2) / reso;
-		    const int diff0 = abs(newsz0-oldsz0);
-		    const int diff1 = abs(newsz1-oldsz1);
-		    if ( oldsz0 && oldsz1 && (diff0>1 || diff1>1) )
-		    { 
-			BufferString msg = "The current data has different ";
-			msg += "step from the loaded attribute(s), if ";
-			msg += "continue, the minimum step will be used and ";
-			msg += "all attributes will be resampled to the lower";
-		        msg += " step.";
-			if ( !uiMSG().askGoOn( msg.buf(),"Continue anyway",
-				    "Cancel" ) )
-			{
-			    dpman.release( newid );
-			    return false;
-			}
-		    }
-		}
-
-		visserv_->setDataPackID( visid, attrib, newid );
-		dpman.release( newid );
-	    }
-	    else
-		visserv_->setDataPackID( visid, attrib, newid );
+	    visserv_->setDataPackID( visid, attrib, newid );
 
 	    res = true;
 	    break;
