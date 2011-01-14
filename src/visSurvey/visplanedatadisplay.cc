@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.244 2010-12-29 19:20:53 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.245 2011-01-14 16:19:04 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -886,10 +886,8 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 		    displaypacks[idx]->posData().range(true);
 		const StepInterval<double> rg1 = 
 		    displaypacks[idx]->posData().range(false);
-		int sz0 = rg0.nrSteps()+1;
-		int sz1 = rg1.nrSteps()+1;
-		if ( rg0.start+(sz0-1)*rg0.step < rg0.stop ) sz0++;
-		if ( rg1.start+(sz1-1)*rg1.step < rg1.stop ) sz1++;
+		const int sz0 = rg0.nrSteps()+1;
+		const int sz1 = rg1.nrSteps()+1;
 		if ( idx && (sz0!=newsz0 || sz1!=newsz1) )
 		    hassamesz = false;
 		
@@ -898,9 +896,11 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	    }
 	}
 	
+	const int diff0 = abs(newsz0-oldchannelsz0);
+	const int diff1 = abs(newsz1-oldchannelsz1);
 	const bool onlycurrent = newsz0<=oldchannelsz0 && newsz1<=oldchannelsz1;
-	const int attribsz = (newsz0<2 || newsz1<2) || (newsz0==oldchannelsz0
-		&& newsz1==oldchannelsz1 && hassamesz) ? 0 : nrAttribs();
+	const int attribsz = (newsz0<2 || newsz1<2) || 
+	    (diff0<2 && diff1<2 && hassamesz) ? 0 : nrAttribs();
 	if ( newsz0<oldchannelsz0 ) newsz0 = oldchannelsz0;
 	if ( newsz1<oldchannelsz1 ) newsz1 = oldchannelsz1;
 	for ( int idx=0; idx<attribsz; idx++ )
