@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.34 2011-01-14 13:37:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.35 2011-01-14 16:03:46 cvsjaap Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -110,6 +110,8 @@ void uiSelLineStyle::setLineWidthBounds( int min, int max )
 {
     widthbox->box()->setMinValue( min );
     widthbox->box()->setMaxValue( max );
+    if ( min == -1 )
+	widthbox->box()->setSpecialValueText( "pixel" );
 }
 
 
