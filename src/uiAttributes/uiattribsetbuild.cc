@@ -7,21 +7,26 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.5 2011-01-13 14:52:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.6 2011-01-14 15:47:46 cvshelene Exp $";
 
 #include "uiattribsetbuild.h"
-#include "uilistbox.h"
-#include "uitoolbutton.h"
 #include "uiattrdesced.h"
-#include "uiattribsingleedit.h"
 #include "uiattribfactory.h"
-#include "uimsg.h"
+#include "uiattribsingleedit.h"
 #include "uiioobjsel.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uitaskrunner.h"
+#include "uitoolbutton.h"
 
+#include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsettr.h"
+#include "attribengman.h"
 #include "attribfactory.h"
+#include "attribprocessor.h"
+#include "linekey.h"
 #include "survinfo.h"
 #include "ioobj.h"
 
@@ -203,6 +208,24 @@ void uiAttribDescSetBuild::addReq( CallBacker* )
 
     if ( !doAttrEd(*desc,true) )
 	descset_.removeDesc( desc->id() );
+
+//test
+    BufferString errmsg;
+    RefMan<Attrib::Data2DHolder> d2dh = new Attrib::Data2DHolder();
+    PtrMan<EngineMan> aem = createEngineMan();
+
+    PtrMan<Processor> proc = descset_.is2D() ?
+			    aem->createScreenOutput2D( errmsg, *d2dh )
+			    : aem->createDataCubesOutput( errmsg, 0  );
+    if ( !proc )
+    {
+	uiMSG().error( errmsg );
+	return;
+    }
+
+    proc->setName( "computing attributes on DataPacks" );
+    uiTaskRunner dlg( this );
+    dlg.execute(*proc);
 }
 
 
@@ -274,4 +297,24 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 	uiMSG().error( emsg );
 
     return res;
+}
+
+
+//for testing purpose
+
+Attrib::EngineMan* uiAttribDescSetBuild::createEngineMan()
+{
+    Attrib::EngineMan* aem = new Attrib::EngineMan;
+
+    TypeSet<Attrib::SelSpec> attribspecs;
+    Attrib::SelSpec sp( 0, descset_.getID(descset_.nrDescs()) );
+    attribspecs += sp;
+
+    CubeSampling cs;
+    LineKey lk;
+    aem->setAttribSet( &descset_ );
+    aem->setAttribSpecs( attribspecs );
+    aem->setLineKey( lk );
+    aem->setCubeSampling( cs );
+    return aem;
 }
