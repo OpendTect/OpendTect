@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.6 2011-01-05 09:45:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.7 2011-01-14 09:45:33 cvsbruno Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -64,8 +64,8 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 
     cellsizefld_ = new uiLabeledSpinBox( this, "Grid cell size" );
     cellsizefld_->attach( alignedBelow, interpfld_ );
-    cellsizefld_->box()->setInterval( 2, 10, 2 );
-    cellsizefld_->box()->setValue( 4 );
+    cellsizefld_->box()->setInterval( 2, 12, 2 );
+    cellsizefld_->box()->setValue( 8 );
 
     uiSeparator* sep2 = new uiSeparator( this, "sep" );
     sep2->attach( stretchedBelow, cellsizefld_ );
@@ -142,9 +142,9 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 
 SeisImpCBVSFromOtherSurvey::SeisImpCBVSFromOtherSurvey( const IOObj& inp )
     : Executor("Importing CBVS")
+    , wrr_(new SeisTrcWriter(outioobj_))
     , inioobj_(inp)	
     , outioobj_(0)
-    , wrr_(0)
     , nrdone_(0)
     , tr_(0)
     , fullusrexp_(0)
@@ -206,11 +206,11 @@ void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
 					const CubeSampling& cs )
 {
     interpol_ = interp; 
-    if ( !cellsz ) return; 
     data_.cs_ = cs;
     data_.hsit_->setSampling( cs.hrg ); 
-    fft_ = Fourier::CC::createDefault(); 
     totnr_ = data_.cs_.hrg.totalNr();
+    if ( !cellsz ) return; 
+    fft_ = Fourier::CC::createDefault(); 
     sz_.x_ = sz_.y_ = fft_->getFastSize( cellsz );
     StepInterval<float> zsi( cs.zrg ); zsi.step = olddata_.cs_.zrg.step;
     sz_.z_ = fft_->getFastSize( zsi.nrSteps() );
@@ -242,12 +242,6 @@ bool SeisImpCBVSFromOtherSurvey::createTranslators( const char* fulluserexp )
 }
 
 
-bool SeisImpCBVSFromOtherSurvey::createWriter()
-{
-    wrr_ = new SeisTrcWriter( outioobj_ );
-    return true;
-}
-
 
 int SeisImpCBVSFromOtherSurvey::nextStep()
 {
@@ -267,13 +261,14 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
     {
 	outtrc = readTrc( oldbid ); 
 	if ( !outtrc )
-	    { nrdone_++; return Executor::MoreToDo(); }
+	    outtrc = new SeisTrc( data_.cs_.zrg.nrSteps() );
+	outtrc->info().sampling = data_.cs_.zrg;
     }
     else
     {
-	const bool needgathertraces = olddata_.curbid_ != oldbid; 
+	bool needgathertrcs = olddata_.curbid_ != oldbid || trcsset_.isEmpty(); 
 	olddata_.curbid_ = oldbid;
-	if ( needgathertraces || trcsset_.isEmpty() )
+	if ( needgathertrcs )
 	{
 	    if ( !findSquareTracesAroundCurbid( trcsset_ ) )
 		{ nrdone_++; return Executor::MoreToDo(); }
@@ -288,16 +283,20 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 	    if ( dist < mindist || mIsUdf( mindist ) )
 	    {
 		mindist = dist;
-		outtrc = trcsset_[idx];
+		outtrc = new SeisTrc( *trcsset_[idx] );
 	    }
 	}
     }
     outtrc->info().binid = data_.curbid_; 
 
-    if ( !wrr_ && !createWriter() )
-	return Executor::ErrorOccurred();
     if ( !wrr_->put( *outtrc ) )
-	{ errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred(); }
+    { 
+	errmsg_ = wrr_->errMsg(); 
+	delete outtrc;
+	return Executor::ErrorOccurred(); 
+    }
+
+    delete outtrc;
 
     nrdone_ ++;
     return Executor::MoreToDo();
