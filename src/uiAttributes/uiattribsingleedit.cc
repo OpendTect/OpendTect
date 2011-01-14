@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsingleedit.cc,v 1.4 2011-01-11 12:45:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsingleedit.cc,v 1.5 2011-01-14 14:43:58 cvsbert Exp $";
 
 #include "uiattribsingleedit.h"
 #include "uiattrdesced.h"
@@ -61,10 +61,9 @@ bool uiSingleAttribEd::acceptOK( CallBacker* )
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const Attrib::Desc& desc = *descset.desc( idx );
-	    if ( &desc_ == &desc ) continue;
-	    if ( newnm == descset.desc(idx)->userRef() )
+	    if ( &desc != &desc_ && newnm == desc.userRef() )
 	    {
-		uiMSG().error("This name is already used for other attribute");
+		uiMSG().error("The name is already used for another attribute");
 		return false;
 	    }
 	}
