@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.26 2011-01-07 21:22:38 cvskris Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.27 2011-01-14 13:37:04 cvsjaap Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -284,7 +284,7 @@ void GeomIndexedShape::setSurface( Geometry::IndexedShape* ns, TaskRunner* tr )
 if ( geom->type_==Geometry::IndexedGeometry::type ) \
 { \
     const int idy = list##geoms_.indexOf( geom ); \
-    if ( idy==-1 ) \
+    if ( idy==-1 || !dynamic_cast<SoObj*>(list##s_[idy]) ) \
     { \
 	shape = new SoObj; \
 	addChild( shape ); \
@@ -355,8 +355,7 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 	SoIndexedShape* shape = 0;
 	mHandleType( TriangleStrip, SoIndexedTriangleStripSet, strip )
 	else mHandleType( TriangleFan, SoIndexedTriangleFanSet, fan )
-	else mHandleType( Lines, SoIndexedLineSet, line )
-	else if ( lineradius_>0 )
+	else if ( lineradius_ >= 0 )
 	{
 	    mHandleType( Lines, SoIndexedLineSet3D, line );
 	    mDynamicCastGet( SoIndexedLineSet3D*, line3d, shape );
@@ -558,6 +557,21 @@ void GeomIndexedShape::reClip()
 {
     createColTab();
     ctab_->mapper_.setData( &ctab_->cache_, ctab_->cache_.size() );
+}
+
+
+void GeomIndexedShape::set3DLineRadius( float radius, bool constantonscreen,
+					float maxworldsize )
+{
+    if ( lineradius_ != radius ||
+	 lineconstantonscreen_ != constantonscreen ||
+	 linemaxsize_ != maxworldsize )
+    {
+	lineradius_ = radius;
+	lineconstantonscreen_ = constantonscreen;
+	linemaxsize_ = maxworldsize;
+	touch( true );
+    }
 }
 
 

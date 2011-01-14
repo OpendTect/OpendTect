@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.57 2010-11-25 09:16:51 cvskarthika Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.58 2011-01-14 13:37:04 cvsjaap Exp $";
 
 #include "vissurvobj.h"
 
@@ -104,6 +104,10 @@ bool SurveyObject::alreadyTransformed( int attrib ) const
     const char* zdomain = as->zDomainKey();
     return zdomain && *zdomain;
 }
+
+
+void SurveyObject::getLineWidthBounds( int& min, int& max )
+{ min = mUdf(int); max= mUdf(int); }
 
 
 void SurveyObject::fillSOPar( IOPar& par, TypeSet<int>& saveids ) const

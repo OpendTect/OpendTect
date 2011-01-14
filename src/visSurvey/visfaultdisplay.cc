@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.68 2011-01-11 14:28:01 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.69 2011-01-14 13:37:04 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.68 2011-01-11 14:28:01 c
 #include "undo.h"
 #include "viscoord.h"
 #include "visdragger.h"
+#include "visdrawstyle.h"
 #include "visevent.h"
 #include "viscolortab.h"
 #include "visgeomindexedshape.h"
@@ -78,6 +79,7 @@ FaultDisplay::FaultDisplay()
     , stickselectmode_( false )
     , displayintersections_( false )
     , displayhorintersections_( false )
+    , drawstyle_( visBase::DrawStyle::create() )
 {
     activestickmarkerpickstyle_->ref();
     activestickmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
@@ -106,6 +108,10 @@ FaultDisplay::FaultDisplay()
 	group->addObject( knotmat );
 	knotmat->setColor( idx ? Color(0,255,0) : Color(255,255,255) );
     }
+
+    drawstyle_->ref();
+    addChild( drawstyle_->getInventorNode() );
+    drawstyle_->setLineStyle( LineStyle(LineStyle::Solid,3) );
 }
 
 
@@ -159,6 +165,9 @@ FaultDisplay::~FaultDisplay()
     }
 
     deepErase( stickintersectpoints_ );
+
+    removeChild( drawstyle_->getInventorNode() );
+    drawstyle_->unRef(); drawstyle_ = 0;
 }
 
 
@@ -485,6 +494,8 @@ void FaultDisplay::updateIntersectionDisplay()
 {
     if ( intersectiondisplay_ )
     {
+	setLineRadius( intersectiondisplay_ );
+
 	const bool dodisplay = areIntersectionsDisplayed() &&
 			       arePanelsDisplayed();
 	if ( dodisplay )
@@ -501,6 +512,8 @@ void FaultDisplay::updateHorizonIntersectionDisplay()
 {
     for ( int idx=0; idx<horintersections_.size(); idx++ )
     {
+	setLineRadius( horintersections_[idx] );
+
 	const bool dodisplay = areHorizonIntersectionsDisplayed() &&
 			       arePanelsDisplayed(); 
 	if ( dodisplay )
@@ -1598,6 +1611,36 @@ void FaultDisplay::updateStickHiding()
 	    }
 	}
     }
+}
+
+
+const LineStyle* FaultDisplay::lineStyle() const
+{ return &drawstyle_->lineStyle(); }
+
+
+void FaultDisplay::setLineStyle( const LineStyle& lst )
+{
+    drawstyle_->setLineStyle( lst );
+    updateDisplay();
+}
+
+
+void FaultDisplay::getLineWidthBounds( int& min, int& max )
+{
+    drawstyle_->getLineWidthBounds( min, max );
+    min = -1;
+}
+
+
+void FaultDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
+{
+    const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
+    const int linewidth = islinesolid ? lineStyle()->width_ : -1;
+    const float inllen = SI().inlDistance() * SI().inlRange(true).width();
+    const float crllen = SI().crlDistance() * SI().crlRange(true).width();
+    const float maxlinethickness = 0.02 * mMAX( inllen, crllen );
+    if ( shape )
+	shape->set3DLineRadius( 0.5*linewidth, true, maxlinethickness );
 }
 
 

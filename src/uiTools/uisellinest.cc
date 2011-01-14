@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.33 2010-06-30 17:33:51 cvskarthika Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.34 2011-01-14 13:37:04 cvsjaap Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -54,15 +54,16 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
     {
 	widthbox = new uiLabeledSpinBox( this, wcol || wdraw ? "Width" 
 							     : "Line width" );
-	widthbox->box()->valueChanging.notify( 
-					mCB(this,uiSelLineStyle,changeCB) );
+	widthbox->box()->setMinValue( mMIN(cMinWidth,linestyle.width_) );
+  	widthbox->box()->setMaxValue( mMAX(cMaxWidth,linestyle.width_) );
 	widthbox->box()->setValue( linestyle.width_ );
-	widthbox->box()->setMinValue( cMinWidth );
-  	widthbox->box()->setMaxValue( cMaxWidth );
 	if ( colinp )
 	    widthbox->attach( rightTo, colinp );
 	else if ( stylesel )
 	    widthbox->attach( rightTo, stylesel );
+
+	widthbox->box()->valueChanging.notify( 
+					mCB(this,uiSelLineStyle,changeCB) );
     }
 
     setHAlignObj( stylesel ? (uiObject*)stylesel 

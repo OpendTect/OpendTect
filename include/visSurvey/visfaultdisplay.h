@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.33 2011-01-10 10:59:21 cvsjaap Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.34 2011-01-14 13:37:04 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -28,6 +28,7 @@ namespace visBase
     class PickStyle;
     class ShapeHints;
     class IndexedPolyLine3D;
+    class DrawStyle;
 };
 
 namespace EM { class Fault3D; }
@@ -116,6 +117,10 @@ public:
     void			setStickSelectMode(bool yn);
     bool			isInStickSelectMode() const;
 
+    const LineStyle*		lineStyle() const;
+    void			setLineStyle(const LineStyle&);
+    void			getLineWidthBounds(int& min,int& max);
+
 protected:
 
     virtual			~FaultDisplay();
@@ -168,6 +173,7 @@ protected:
 					int sticknr,
 					TypeSet<Coord3>& intersectpoints) const;
     void			updateStickHiding();
+    void			setLineRadius(visBase::GeomIndexedShape*);
 
     visBase::EventCatcher*		eventcatcher_;
     visBase::Transformation*		displaytransform_;
@@ -221,6 +227,8 @@ protected:
     };
 
     ObjectSet<StickIntersectPoint> stickintersectpoints_;
+
+    visBase::DrawStyle*			drawstyle_;
 };
 
 };

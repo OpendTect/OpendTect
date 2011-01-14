@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.122 2010-09-30 21:41:20 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.123 2011-01-14 13:37:04 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -127,6 +127,7 @@ public:
     				/*!<If the linestyle can be set, a non-zero
 				    pointer should be return. */
     virtual void		setLineStyle(const LineStyle&) {}
+    virtual void		getLineWidthBounds(int& min,int& max);
     virtual bool		hasSpecificLineColor() const { return false; }
     				/*!<Specifies wether setLineStyle takes
 				    regard to the color of the linestyle. */

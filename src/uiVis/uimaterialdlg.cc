@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.25 2010-06-30 17:35:53 cvskarthika Exp $";
+static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.26 2011-01-14 13:37:04 cvsjaap Exp $";
 
 #include "uimaterialdlg.h"
 
@@ -41,13 +41,10 @@ uiLineStyleGrp::uiLineStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
     field_->changed.notify( mCB(this,uiLineStyleGrp,changedCB) );
 
     // set maximum limit for line width
-    mDynamicCastGet( visSurvey::EMObjectDisplay*, emobj, survobj_ );
-    if ( emobj )
-    {
-        int min, max;
-	emobj->getLineWidthBounds( min, max );
+    int min, max;
+    survobj_->getLineWidthBounds( min, max );
+    if ( !mIsUdf(min) && !mIsUdf(max) )
 	field_->setLineWidthBounds( min, max );
-    }
 }
 
 
