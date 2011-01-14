@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.7 2011-01-14 09:45:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.8 2011-01-14 09:57:29 cvsbruno Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -142,7 +142,7 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 
 SeisImpCBVSFromOtherSurvey::SeisImpCBVSFromOtherSurvey( const IOObj& inp )
     : Executor("Importing CBVS")
-    , wrr_(new SeisTrcWriter(outioobj_))
+    , wrr_(0)
     , inioobj_(inp)	
     , outioobj_(0)
     , nrdone_(0)
@@ -289,6 +289,8 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
     }
     outtrc->info().binid = data_.curbid_; 
 
+    if ( !wrr_ ) 
+	wrr_ = new SeisTrcWriter(outioobj_);
     if ( !wrr_->put( *outtrc ) )
     { 
 	errmsg_ = wrr_->errMsg(); 
