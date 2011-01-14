@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.3 2010-06-17 18:29:31 cvskris Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.4 2011-01-14 21:00:14 cvsyuancheng Exp $";
 
 #include "faulthorintersect.h"
 
@@ -64,8 +64,11 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    (*fhi_.ftbids_[idx]) += bid;
 
 	    const RowCol hbid(fhi_.rrg_.snap(bid.inl),fhi_.crg_.snap(bid.crl));
-	    (*fhi_.zprojs_[idx]) += 
-		fhi_.surf_.getKnot(hbid,false).z + fhi_.zshift_;
+	    Coord3 horpos = fhi_.surf_.getKnot(hbid,true);
+	    if ( mIsUdf(horpos.z) )
+		horpos = fhi_.surf_.computePosition( horpos );
+
+	    (*fhi_.zprojs_[idx]) += horpos.z + fhi_.zshift_;
 	}
 
 	const bool prevbelow = knots[0].z < (*fhi_.zprojs_[idx])[0];
@@ -82,9 +85,19 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		        fhi_.crg_.snap((*fhi_.ftbids_[idx])[idy].crl) );
 	    const RowCol bid1( fhi_.rrg_.snap((*fhi_.ftbids_[idx])[idy+1].inl), 
     			fhi_.crg_.snap((*fhi_.ftbids_[idx])[idy+1].crl) );
-	    Coord3 horpos0 = fhi_.surf_.getKnot(bid0,false); 
+	    Coord3 horpos0 = fhi_.surf_.getKnot(bid0,true); 
+	    if ( mIsUdf(horpos0.z) )
+		horpos0 = fhi_.surf_.computePosition( horpos0 );
+	    if ( mIsUdf(horpos0.z) )
+		continue;
+	    
+	    Coord3 horpos1 = fhi_.surf_.getKnot(bid1,true); 
+	    if ( mIsUdf(horpos1.z) )
+		horpos1 = fhi_.surf_.computePosition( horpos1 );
+	    if ( mIsUdf(horpos1.z) )
+		continue;
+	    
 	    horpos0.z += fhi_.zshift_;
-	    Coord3 horpos1 = fhi_.surf_.getKnot(bid1,false); 
 	    horpos1.z += fhi_.zshift_;
 	    
 	    double zd0 = horpos0.z - knots[idy].z; if ( zd0<0 ) zd0 = -zd0;    
