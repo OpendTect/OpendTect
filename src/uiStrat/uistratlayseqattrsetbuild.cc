@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.1 2011-01-13 14:52:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.2 2011-01-14 14:44:09 cvsbert Exp $";
 
 #include "uistratlayseqattrsetbuild.h"
+#include "uilayseqattribed.h"
 #include "uilistbox.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
@@ -19,6 +20,7 @@ static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.1 2011-01-13 1
 #include "stratlayersequence.h"
 #include "stratlayseqattrib.h"
 #include "strattransl.h"
+#include "strmprov.h"
 #include "ioobj.h"
 
 
@@ -124,11 +126,10 @@ void uiStratLaySeqAttribSetBuild::updButStates()
 }
 
 
-bool uiStratLaySeqAttribSetBuild::doAttrEd( Strat::LaySeqAttrib& desc,
+bool uiStratLaySeqAttribSetBuild::doAttrEd( Strat::LaySeqAttrib& lsa,
 					    bool isnew )
 {
-    /* TODO
-    uiLaySeqAttribEd dlg( this, desc, reftree_, isnew );
+    uiLaySeqAttribEd dlg( this, lsa, reftree_, isnew );
     if ( !dlg.go() )
 	return false;
 
@@ -138,7 +139,7 @@ bool uiStratLaySeqAttribSetBuild::doAttrEd( Strat::LaySeqAttrib& desc,
 	usrchg_ = true;
 	return true;
     }
-    */
+
     return false;
 }
 
@@ -149,7 +150,8 @@ void uiStratLaySeqAttribSetBuild::addReq( CallBacker* )
     if ( selidx < 0 ) return;
 
     const PropertyRef* prop = props_[selidx];
-    Strat::LaySeqAttrib* attr = new Strat::LaySeqAttrib( *props_[selidx] );
+    Strat::LaySeqAttrib* attr = new Strat::LaySeqAttrib( attrset_,
+	    						 *props_[selidx] );
     attrset_ += attr;
 
     if ( !doAttrEd(*attr,false) )
@@ -211,18 +213,23 @@ bool uiStratLaySeqAttribSetBuild::doSetIO( bool forread )
     uiIOObjSelDlg dlg( this, ctio_ );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
+    ctio_.setObj( dlg.ioObj()->clone() );
 
-    /* TODO
-    BufferString emsg;
-    const bool res = forread
-	? AttribDescSetTranslator::retrieve(attrset_,dlg.ioObj(),emsg)
-	: AttribDescSetTranslator::store(attrset_,dlg.ioObj(),emsg);
-    if ( res )
-	usrchg_ = false;
+    StreamProvider sp( ctio_.ioobj->fullUserExpr(false) );
+    StreamData sd( forread ? sp.makeIStream() : sp.makeOStream() );
+    bool rv = false;
+    if ( !sd.usable() )
+	uiMSG().error( "Cannot open ", forread ? "in" : "out", "put file" );
     else
-	uiMSG().error( emsg );
+    {
+	rv = forread ? attrset_.getFrom(*sd.istrm) : attrset_.putTo(*sd.ostrm);
+	if ( !rv )
+	    uiMSG().error( "Error during ",
+		    forread ? "read from input " : "write to output", " file" );
+    }
 
-    return res;
-    */
-    return false;
+    if ( rv )
+	usrchg_ = false;
+
+    return rv;
 }
