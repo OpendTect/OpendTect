@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.2 2011-01-14 14:44:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.3 2011-01-17 15:59:55 cvsbert Exp $";
 
 #include "uistratlayseqattrsetbuild.h"
 #include "uilayseqattribed.h"
@@ -42,6 +42,8 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
     attrfld_ = new uiListBox( this, "Defined attributes" );
     attrfld_->attach( rightTo, propfld_ );
     attrfld_->attach( ensureRightOf, addbut );
+    attrfld_->selectionChanged.notify(
+	    		mCB(this,uiStratLaySeqAttribSetBuild,attrSelChg) );
     attrfld_->doubleClicked.notify(
 	    		mCB(this,uiStratLaySeqAttribSetBuild,edReq) );
 
@@ -141,6 +143,15 @@ bool uiStratLaySeqAttribSetBuild::doAttrEd( Strat::LaySeqAttrib& lsa,
     }
 
     return false;
+}
+
+
+void uiStratLaySeqAttribSetBuild::attrSelChg( CallBacker* )
+{
+    const int selidx = attrfld_->currentItem();
+    if ( selidx < 0 ) return;
+    const Strat::LaySeqAttrib& attr = attrset_.attr( selidx );
+    propfld_->setCurrentItem( attr.prop_.name() );
 }
 
 

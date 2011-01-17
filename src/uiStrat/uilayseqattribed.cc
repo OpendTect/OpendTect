@@ -7,11 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.1 2011-01-14 14:44:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.2 2011-01-17 15:59:55 cvsbert Exp $";
 
 #include "uilayseqattribed.h"
 #include "stratlayseqattrib.h"
+#include "stratreftree.h"
+#include "stratunitrefiter.h"
 #include "propertyref.h"
+#include "stattype.h"
 #include "uilistbox.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -26,33 +29,44 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     , nmchgd_(false)
     , anychg_(false)
 {
-    uiLabeledListBox* lunfld = new uiLabeledListBox( this, "Selected Units",
-				     true, uiLabeledListBox::AboveMid );
-    unfld_ = lunfld->box();
     uiLabeledListBox* llithfld = new uiLabeledListBox( this, "Lithologies",
 				     true, uiLabeledListBox::AboveMid );
     lithofld_ = llithfld->box();
-    llithfld->attach( rightOf, lunfld );
+    uiLabeledListBox* lunfld = new uiLabeledListBox( this, "Selected Units",
+				     true, uiLabeledListBox::AboveMid );
+    unfld_ = lunfld->box();
+    lunfld->attach( rightOf, llithfld );
 
     uiLabeledComboBox* lstatsfld = new uiLabeledComboBox( this,
 						"Statistics on results" );
     statsfld_ = lstatsfld->box();
-    lstatsfld->attach( alignedBelow, llithfld );
+#   define mAddStatItm(enm) \
+    statsfld_-> addItem( Stats::TypeNames()[Stats::enm] );
+    if ( attr_.prop_.hasType(PropertyRef::Dist) )
+	mAddStatItm(Sum);
+    mAddStatItm(Average); mAddStatItm(Median); mAddStatItm(StdDev);
+    mAddStatItm(Min); mAddStatItm(Max);
+    lstatsfld->attach( alignedBelow, lunfld );
+    lstatsfld->attach( ensureBelow, llithfld );
 
     const CallBack transfcb( mCB(this,uiLaySeqAttribEd,transfSel) );
     uiLabeledComboBox* ltransffld = new uiLabeledComboBox( this,
-						"Statistics on results" );
+						"Transform values" );
     transformfld_ = ltransffld->box();
     static const char* transfs[] = { "No", "Power", "Log", "Exp", 0 };
     transformfld_->addItems( BufferStringSet(transfs) );
+    transformfld_->setHSzPol( uiObject::Small );
     transformfld_->selectionChanged.notify( transfcb );
     ltransffld->attach( alignedBelow, lstatsfld );
     valfld_ = new uiGenInput( this, "Value", FloatInpSpec(2) );
+    valfld_->setElemSzPol( uiObject::Small );
     valfld_->attach( rightOf, ltransffld );
 
     namefld_ = new uiGenInput( this, "Name", attr_.name() );
     namefld_->attach( alignedBelow, ltransffld );
 
+    fillFlds( rt );
+    putToScreen();
     finaliseDone.notify( transfcb );
 }
 
@@ -71,10 +85,21 @@ const char* uiLaySeqAttribEd::gtDlgTitle( const Strat::LaySeqAttrib& lsa,
 }
 
 
+void uiLaySeqAttribEd::fillFlds( const Strat::RefTree& reftree )
+{
+    for ( int idx=0; idx<reftree.lithologies().size(); idx++ )
+	lithofld_->addItem( reftree.lithologies().getLith(idx).name() );
+
+    Strat::UnitRefIter it( reftree, Strat::UnitRefIter::LeavedNodes );
+    while ( it.next() )
+	unfld_->addItem( it.unit()->fullCode() );
+}
+
+
 void uiLaySeqAttribEd::transfSel( CallBacker* )
 {
     const int sel = transformfld_->currentItem();
-    if ( sel == 2 )
+    if ( sel == 1 )
 	valfld_->setTitleText( "Value" );
     else if ( sel )
 	valfld_->setTitleText( "Base" );
@@ -84,13 +109,52 @@ void uiLaySeqAttribEd::transfSel( CallBacker* )
 
 void uiLaySeqAttribEd::putToScreen()
 {
+    namefld_->setText( attr_.name() );
+    statsfld_->setText( attr_.stat_ );
+
+    if ( mIsUdf(attr_.transformval_) )
+	transformfld_->setCurrentItem( 0 );
+    else
+    {
+	transformfld_->setCurrentItem( ((int)attr_.transform_) + 1 );
+	valfld_->setValue( attr_.transformval_ );
+    }
+
+    for ( int idx=0; idx<unfld_->size(); idx++ )
+	unfld_->setSelected( attr_.units_.isPresent(unfld_->textOfItem(idx)) );
+    for ( int idx=0; idx<lithofld_->size(); idx++ )
+	lithofld_->setSelected( attr_.lithos_.isPresent(
+		    			lithofld_->textOfItem(idx)) );
 }
 
 
 bool uiLaySeqAttribEd::getFromScreen()
 {
-    //TODO get stuff
+    BufferStringSet uns, liths;
+    unfld_->getSelectedItems( uns ); lithofld_->getSelectedItems( liths );
+    if ( uns.isEmpty() || liths.isEmpty() )
+    {
+	uiMSG().error( "Please select at least one unit and one lithology" );
+	return false;
+    }
+    const int trfldidx = transformfld_->currentItem();
+    const bool havetr = trfldidx > 0;
+    const int tridx = havetr ? trfldidx - 1 : 0;
+    const float trval = havetr ? valfld_->getfValue() : mUdf(float);
+    if ( havetr
+      && (trval == 0 || (tridx == (int)(Strat::LaySeqAttrib::Log) && trval<0)) )
+    {
+	uiMSG().error( "Please enter a correct ", valfld_->titleText() );
+	return false;
+    }
+
     attr_.setName( namefld_->text() );
+    attr_.units_ = uns;
+    attr_.lithos_ = liths;
+    attr_.stat_ = statsfld_->text();
+    attr_.transformval_ = trval;
+    attr_.transform_ = (Strat::LaySeqAttrib::Transform)tridx;
+
     return true;
 }
 

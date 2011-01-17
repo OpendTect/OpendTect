@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uilayseqattribed.h,v 1.1 2011-01-14 14:44:09 cvsbert Exp $
+ RCS:           $Id: uilayseqattribed.h,v 1.2 2011-01-17 15:59:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ protected:
     uiComboBox*		statsfld_;
     uiComboBox*		transformfld_;
 
+    void		fillFlds(const Strat::RefTree&);
     const char*		gtDlgTitle(const Strat::LaySeqAttrib&,bool) const;
     void		putToScreen();
     bool		getFromScreen();

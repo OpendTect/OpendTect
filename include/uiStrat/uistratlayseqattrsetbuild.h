@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratlayseqattrsetbuild.h,v 1.1 2011-01-13 14:52:13 cvsbert Exp $
+ RCS:           $Id: uistratlayseqattrsetbuild.h,v 1.2 2011-01-17 15:59:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ protected:
     bool		doSetIO(bool);
     void		updButStates();
 
+    void		attrSelChg(CallBacker*);
     void		addReq(CallBacker*);
     void		edReq(CallBacker*);
     void		rmReq(CallBacker*);
