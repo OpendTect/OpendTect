@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsetbuild.h,v 1.5 2011-01-14 15:47:46 cvshelene Exp $
+ RCS:           $Id: uiattribsetbuild.h,v 1.6 2011-01-17 15:57:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ protected:
     bool		doAttrEd(Attrib::Desc& desc,bool);
     bool		doAttrSetIO(bool);
 
-    void		updButStates(CallBacker* cb=0);
+    void		defSelChg(CallBacker* cb=0);
     void		addReq(CallBacker*);
     void		edReq(CallBacker*);
     void		rmReq(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.6 2011-01-14 15:47:46 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.7 2011-01-17 15:57:00 cvsbert Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -63,7 +63,7 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
     defattrfld_->attach( rightTo, availattrfld_ );
     defattrfld_->attach( ensureRightOf, addbut );
     defattrfld_->selectionChanged.notify(
-	    		mCB(this,uiAttribDescSetBuild,updButStates) );
+	    		mCB(this,uiAttribDescSetBuild,defSelChg) );
     defattrfld_->doubleClicked.notify( mCB(this,uiAttribDescSetBuild,edReq) );
 
     edbut_ = new uiToolButton( this, "edit.png",
@@ -81,7 +81,7 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 		    mCB(this,uiAttribDescSetBuild,saveReq) );
     savebut_->attach( alignedBelow, openbut );
 
-    updButStates();
+    defSelChg();
 }
 
 
@@ -93,21 +93,23 @@ uiAttribDescSetBuild::~uiAttribDescSetBuild()
 }
 
 
-void uiAttribDescSetBuild::updButStates( CallBacker* )
+void uiAttribDescSetBuild::defSelChg( CallBacker* )
 {
     const int selidx = defattrfld_->currentItem();
     const bool havesel = selidx >= 0;
+    const char* attrnm = havesel ? defattrfld_->textOfItem(selidx) : "";
+    const Attrib::DescID descid = descset_.getID( attrnm, true );
+
     edbut_->setSensitive( havesel );
     savebut_->setSensitive( havesel );
-    bool rmsens = havesel;
-    if ( rmsens )
+    rmbut_->setSensitive( havesel && !descset_.isAttribUsed(descid) );
+
+    if ( havesel )
     {
-	const char* attrnm = defattrfld_->textOfItem( selidx );
-	const Attrib::DescID id = descset_.getID( attrnm, true );
-	if ( descset_.isAttribUsed(id) )
-	    rmsens = false;
+	const Attrib::Desc& desc = *descset_.getDesc( descid );
+	const int fldidx = availattrnms_.indexOf( desc.attribName() );
+	availattrfld_->setCurrentItem( fldidx );
     }
-    rmbut_->setSensitive( rmsens );
 }
 
 
@@ -174,8 +176,6 @@ void uiAttribDescSetBuild::fillDefAttribFld()
 	defattrfld_->setCurrentItem( prevsel );
     else if ( !defattrfld_->isEmpty() )
 	defattrfld_->setCurrentItem( 0 );
-
-    updButStates();
 }
 
 
