@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.66 2011-01-13 13:52:30 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.67 2011-01-17 10:23:02 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -97,8 +97,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
        			    bool isinp4otherattrib )
 mImplInitVar
 {
-    TypeSet<DataPack::FullID> dpfids;
-    uiAttrSelDlg( p, seltxt, atd, dpfids, ignoreid, isinp4otherattrib );
+    initAndBuild( seltxt, ignoreid, isinp4otherattrib );
 }
 
 
@@ -111,8 +110,16 @@ mImplInitVar
 {
     dpfids_ = dpfids;
 
-    attrinf_ = new SelInfo( &atd.attrSet(), atd.nlamodel_, is2D(), ignoreid );
-    if ( dpfids.size() )
+    initAndBuild( seltxt, ignoreid, isinp4otherattrib );
+}
+
+
+void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
+				 bool isinp4otherattrib )
+{
+    attrinf_ = new SelInfo( &attrdata_.attrSet(), attrdata_.nlamodel_,
+	    		    is2D(), ignoreid );
+    if ( dpfids_.size() )
 	replaceStoredByInMem();
 
     if ( attrinf_->ioobjnms_.isEmpty() )

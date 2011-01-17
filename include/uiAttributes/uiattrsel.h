@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.31 2011-01-13 13:52:30 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.32 2011-01-17 10:23:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,7 @@ protected:
     uiGenInput*		attr2dfld_;
     uiLabeledComboBox*	compfld_;
 
+    void		initAndBuild(const char*,Attrib::DescID,bool);
     void		createSelectionButtons();
     void		createSelectionFields();
 
