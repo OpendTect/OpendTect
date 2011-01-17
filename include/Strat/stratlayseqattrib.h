@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2011
- RCS:		$Id: stratlayseqattrib.h,v 1.3 2011-01-17 15:58:17 cvsbert Exp $
+ RCS:		$Id: stratlayseqattrib.h,v 1.4 2011-01-17 16:16:56 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "namedobj.h"
+#include "enums.h"
 #include "bufstringset.h"
 class PropertyRef;
 class IOPar;
@@ -36,6 +37,7 @@ mClass LaySeqAttrib : public NamedObject
 public:
 
     enum Transform	{ Pow, Log, Exp };
+    			DeclareEnumUtils(Transform)
 
     			LaySeqAttrib( LaySeqAttribSet& s,const PropertyRef& p,
 				      const char* nm=0 )

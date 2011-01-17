@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqattrib.cc,v 1.3 2011-01-17 15:58:48 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqattrib.cc,v 1.4 2011-01-17 16:16:56 cvsbert Exp $";
 
 #include "stratlayseqattrib.h"
 #include "stratlayseqattribcalc.h"
@@ -12,13 +12,16 @@ static const char* rcsID = "$Id: stratseqattrib.cc,v 1.3 2011-01-17 15:58:48 cvs
 #include "stratlayer.h"
 #include "propertyref.h"
 #include "ascstream.h"
+#include "separstr.h"
 #include "keystrs.h"
 #include "iopar.h"
 
 
 #define mFileType "Layer Sequence Attribute Set"
 static const char* sKeyFileType = mFileType;
-mDefSimpleTranslators(StratLayerSequenceAttribSet,mFileType,od,Mdl);
+mDefSimpleTranslators(StratLayerSequenceAttribSet,mFileType,od,Attr);
+DefineEnumNames(Strat::LaySeqAttrib,Transform,1,"Value Transformation")
+{ "Power", "Log", "Exp", 0 };
 
 
 Strat::LaySeqAttrib* Strat::LaySeqAttribSet::gtAttr( const char* nm ) const
@@ -46,6 +49,12 @@ void Strat::LaySeqAttribSet::putTo( IOPar& iop ) const
 	mDoIOPar( set, LaySeqAttrib::sKeyStats(), lsa.stat_ );
 	mDoIOPar( set, LaySeqAttrib::sKeyUnits(), lsa.units_ );
 	mDoIOPar( set, LaySeqAttrib::sKeyLithos(), lsa.lithos_ );
+	FileMultiString fms( LaySeqAttrib::TransformNames()[lsa.transform_] );
+	if ( mIsUdf(lsa.transformval_) )
+	    fms += sKey::FloatUdf;
+	else
+	    fms += lsa.transformval_;
+	mDoIOPar( set, LaySeqAttrib::sKeyTransform(), fms );
     }
 }
 
@@ -69,6 +78,17 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 	mDoIOPar( get, LaySeqAttrib::sKeyStats(), lsa->stat_ );
 	mDoIOPar( get, LaySeqAttrib::sKeyUnits(), lsa->units_ );
 	mDoIOPar( get, LaySeqAttrib::sKeyLithos(), lsa->lithos_ );
+	const char* ky = IOPar::compKey( LaySeqAttrib::sKeyTransform(), idx );
+	const FileMultiString fms( iop.find(ky) );
+	const int sz = fms.size();
+	mSetUdf( lsa->transformval_ );
+	if ( sz > 1 )
+	{
+	    lsa->transform_ = LaySeqAttrib::parseEnumTransform( fms[0] );
+	    lsa->transformval_ = toFloat( fms[1] );
+	    if ( lsa->transform_==LaySeqAttrib::Log && lsa->transformval_<0 )
+		mSetUdf( lsa->transformval_ );
+	}
 	*this += lsa;
     }
 }
