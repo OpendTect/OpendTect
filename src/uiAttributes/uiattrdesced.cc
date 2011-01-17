@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdesced.cc,v 1.38 2011-01-13 08:15:08 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrdesced.cc,v 1.39 2011-01-17 16:09:40 cvshelene Exp $";
 
 
 
@@ -87,6 +87,9 @@ void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
 void uiAttrDescEd::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
 {
     dpfids_ = ids;
+
+    if ( desc_ )
+	setInput( *desc_ );
 }
 
 
