@@ -4,11 +4,12 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqattrib.cc,v 1.2 2011-01-14 14:44:09 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqattrib.cc,v 1.3 2011-01-17 15:58:48 cvsbert Exp $";
 
 #include "stratlayseqattrib.h"
 #include "stratlayseqattribcalc.h"
 #include "strattransl.h"
+#include "stratlayer.h"
 #include "propertyref.h"
 #include "ascstream.h"
 #include "keystrs.h"
@@ -57,7 +58,10 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 	if ( !res || !*res ) break;
 
 	const PropertyRef* pr = PROPS().find( res );
-	if ( !pr ) continue;
+	if ( !pr && Strat::Layer::thicknessRef().name() == res )
+	    pr = &Strat::Layer::thicknessRef();
+	if ( !pr )
+	    continue;
 	BufferString nm; mDoIOPar( get, sKey::Name, nm );
 	if ( nm.isEmpty() || attr(nm) ) continue;
 
@@ -65,6 +69,7 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 	mDoIOPar( get, LaySeqAttrib::sKeyStats(), lsa->stat_ );
 	mDoIOPar( get, LaySeqAttrib::sKeyUnits(), lsa->units_ );
 	mDoIOPar( get, LaySeqAttrib::sKeyLithos(), lsa->lithos_ );
+	*this += lsa;
     }
 }
 
