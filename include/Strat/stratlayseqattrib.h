@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2011
- RCS:		$Id: stratlayseqattrib.h,v 1.2 2011-01-14 14:44:09 cvsbert Exp $
+ RCS:		$Id: stratlayseqattrib.h,v 1.3 2011-01-17 15:58:17 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -35,18 +35,28 @@ mClass LaySeqAttrib : public NamedObject
 {
 public:
 
+    enum Transform	{ Pow, Log, Exp };
+
     			LaySeqAttrib( LaySeqAttribSet& s,const PropertyRef& p,
 				      const char* nm=0 )
-			    : set_(&s), prop_(p), NamedObject(nm)	{}
+			    : NamedObject(nm)
+			    , set_(&s), prop_(p)
+			    , transform_(Pow)
+			    , transformval_(mUdf(float))	{}
 
     const PropertyRef&	prop_;
     BufferString	stat_;
     BufferStringSet	units_;
     BufferStringSet	lithos_;
+    Transform		transform_;
+    float		transformval_;
+    inline bool		hasTransform() const
+    			{ return !mIsUdf(transformval_); }
 
     static const char*	sKeyStats()		{ return "Statistics"; }
     static const char*	sKeyUnits()		{ return "Units"; }
     static const char*	sKeyLithos()		{ return "Lithologies"; }
+    static const char*	sKeyTransform()		{ return "Transform"; }
 
     LaySeqAttribSet&	attrSet()		{ return *set_; }
     const LaySeqAttribSet& attrSet() const	{ return *set_; }
