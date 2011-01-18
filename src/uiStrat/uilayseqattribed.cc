@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.2 2011-01-17 15:59:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.3 2011-01-18 11:14:22 cvsbert Exp $";
 
 #include "uilayseqattribed.h"
 #include "stratlayseqattrib.h"
@@ -121,9 +121,10 @@ void uiLaySeqAttribEd::putToScreen()
     }
 
     for ( int idx=0; idx<unfld_->size(); idx++ )
-	unfld_->setSelected( attr_.units_.isPresent(unfld_->textOfItem(idx)) );
+	unfld_->setSelected( idx, attr_.units_.isPresent(
+		    			unfld_->textOfItem(idx)) );
     for ( int idx=0; idx<lithofld_->size(); idx++ )
-	lithofld_->setSelected( attr_.lithos_.isPresent(
+	lithofld_->setSelected( idx, attr_.lithos_.isPresent(
 		    			lithofld_->textOfItem(idx)) );
 }
 
