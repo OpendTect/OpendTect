@@ -3,9 +3,11 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.30 2010-07-01 20:11:47 cvskris Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.31 2011-01-18 10:05:16 cvsranojay Exp $";
 
 #include "segyscanner.h"
+
+#include "oddirs.h"
 #include "segyfiledata.h"
 #include "segyhdr.h"
 #include "seistrc.h"
@@ -211,7 +213,16 @@ int SEGY::Scanner::openNext()
 	return finish( true );
     }
 
-    StreamData sd = StreamProvider(fnms_.get(curfidx_)).makeIStream();
+    BufferString path = fnms_.get(curfidx_);
+#ifdef __win__
+    replaceCharacter( path.buf(), '/', '\\' );  
+#endif
+    FilePath fp( path );
+    if ( !fp.isAbsolute() )
+	fp.insert( GetDataDir() );
+    BufferString abspath = fp.fullPath();
+    StreamData sd = StreamProvider( abspath ).makeIStream();
+    
     if ( !sd.usable() )
     {
 	sd.close();

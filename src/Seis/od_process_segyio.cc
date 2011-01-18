@@ -4,12 +4,15 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_segyio.cc,v 1.2 2010-12-30 19:31:47 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_segyio.cc,v 1.3 2011-01-18 10:05:16 cvsranojay Exp $";
 
 #include "batchprog.h"
 
+#include "file.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "multiid.h"
+#include "oddirs.h"
 #include "segybatchio.h"
 #include "segydirectdef.h"
 #include "segyscanner.h"
@@ -48,6 +51,20 @@ bool BatchProgram::go( std::ostream& strm )
 	    return false;
 	}
 
+	FilePath fp ( filespec.fname_ );
+	BufferString relpath = File::getRelativePath( GetDataDir(),
+						      fp.pathOnly() );
+	relpath += "/";
+	relpath += fp.fileName();
+#ifdef __win__
+	replaceCharacter( relpath.buf(), '/', '\\' );  
+#endif
+	if ( relpath != filespec.fname_ )
+	{
+	    replaceCharacter( relpath.buf(), '\\', '/' );  
+	    filespec.fname_ = relpath;
+	}
+	pars().set( sKey::FileName, filespec.fname_ );
 	SEGY::PreStackIndexer indexer( mid, linename, filespec, is2d, pars() );
 	if ( !indexer.execute( &strm ) )
 	{

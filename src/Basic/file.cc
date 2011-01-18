@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.22 2010-12-29 15:28:12 cvskris Exp $
+ RCS:		$Id: file.cc,v 1.23 2011-01-18 10:05:16 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,10 +128,9 @@ const char* getRelativePath( const char* reltodir, const char* fnm )
 {
 #ifndef OD_NO_QT
     BufferString reltopath = getCanonicalPath( reltodir );
-    BufferString path = getCanonicalPath( fnm );
     static BufferString relpathstr;
     QDir qdir( reltopath.buf() );
-    relpathstr = qdir.relativeFilePath( path.buf() ).toAscii().constData();
+    relpathstr = qdir.relativeFilePath( fnm ).toAscii().constData();
     return relpathstr;
 #else
     pFreeFnErrMsg(not_implemented_str,"getRelativePath");
