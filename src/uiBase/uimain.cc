@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.61 2010-12-09 10:34:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.62 2011-01-18 13:12:45 cvsbert Exp $";
 
 #include "uimain.h"
 
@@ -28,9 +28,12 @@ static const char* rcsID = "$Id: uimain.cc,v 1.61 2010-12-09 10:34:09 cvsnanne E
 #include "timefun.h"
 
 #include <QApplication>
-#include <QCleanlooksStyle>
 #include <QKeyEvent>
 #include <QIcon>
+#include <QCDEStyle>
+#include <QWindowsStyle>
+#include <QPlastiqueStyle>
+#include <QGtkStyle>
 
 #include <QTreeWidget>
 #include <QMenu>
@@ -43,14 +46,11 @@ void uiMain::setXpmIconData( const char** xpmdata )
 }
 
 #ifdef __win__
-# include <QWindowsXPStyle>
-# include <QWindowsVistaStyle>
+#include <QWindowsVistaStyle>
 #endif
-
-
 #ifdef __mac__
 # define __machack__
-# include <QMacStyle>
+#include <QMacStyle>
 #endif
 
 #ifdef __machack__
@@ -284,15 +284,38 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     qInstallMsgHandler( myMessageOutput );
 
-    QApplication::setStyle( new QCleanlooksStyle );
+    const char* lookpref = Settings::common().find( "dTect.LookStyle" );
+    if ( !lookpref || !*lookpref )
+	lookpref = GetEnvVar( "OD_LOOK_STYLE" );
+    QStyle* styl = 0;
+    if ( lookpref && *lookpref )
+    {
+	if ( !strcmp(lookpref,"CDE") )
+	    styl = new QCDEStyle;
+	else if ( !strcmp(lookpref,"Motif") )
+	    styl = new QMotifStyle;
+	else if ( !strcmp(lookpref,"Windows") )
+	    styl = new QWindowsStyle;
+	else if ( !strcmp(lookpref,"Plastique") )
+	    styl = new QPlastiqueStyle;
+	else if ( !strcmp(lookpref,"Cleanlooks") )
+	    styl = new QCleanlooksStyle;
+    }
 #ifdef __win__
-    QApplication::setStyle( QSysInfo::WindowsVersion == QSysInfo::WV_VISTA ?
-	    new QWindowsVistaStyle : new QWindowsXPStyle );
-#endif
-#ifdef __mac__
-    QApplication::setStyle( new QMacStyle );
+    if ( !styl )
+	styl = QSysInfo::WindowsVersion == QSysInfo::WV_VISTA
+	    	? new QWindowsVistaStyle : new QWindowsXPStyle;
+#else
+# ifdef __mac__
+    if ( !styl )
+	styl = new QMacStyle;
+# else
+    if ( !styl )
+	styl = new QCleanlooksStyle;
+# endif
 #endif
 
+    QApplication::setStyle( styl );
     font_ = 0;
     setFont( *font() , true );
 }
