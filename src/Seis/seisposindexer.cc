@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.13 2010-07-01 20:13:53 cvskris Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.14 2011-01-18 04:55:44 cvsranojay Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -141,7 +141,7 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_int64 offset,
     if ( strm_ )
 	delete strm_;
 
-    strm_ = new std::ifstream( fnm );
+    strm_ = new std::ifstream( fnm, std::ios_base::binary | std::ios_base::in ); 
     if ( !strm_->good() )
     {
 	delete strm_;
