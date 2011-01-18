@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.263 2010-11-22 05:56:50 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.264 2011-01-18 10:26:31 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,8 @@ public:
     void		shareObject(int sceneid,int id);
     void		findObject(const std::type_info&,TypeSet<int>&);
     void		findObject(const MultiID&, TypeSet<int>& );
+    void		findObject(const std::type_info&,const MultiID&,
+				   TypeSet<int>&);
     void		removeObject(visBase::DataObject*,int sceneid);
     void		removeObject(int id,int sceneid);
     void		setObjectName(int,const char*);
