@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.24 2011-01-18 10:05:16 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.25 2011-01-18 10:40:34 cvsranojay Exp $";
 
 #include "segyfiledata.h"
 
@@ -240,16 +240,7 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
     for ( int ifile=0; ifile<nrfiles; ifile++ )
     {
 	IOPar filepars;
-
-	FilePath filename( fileName( ifile ) );
-	BufferString relpath = File::getRelativePath( survdirname.fullPath(),
-						      filename.fullPath() );
-#ifdef __win__
-	replaceCharacter( relpath.buf(), '/', '\\' );  
-	if ( relpath != filename.fullPath() )
-	    replaceCharacter( relpath.buf(), '\\', '/' );  
-#endif
-	filepars.set( sKey::FileName, relpath.buf() );
+	filepars.set( sKey::FileName, fileName( ifile ) );
 	const od_int64 nextsize = ifile<nrfiles-1
 	    ? cumsizes_[ifile+1]
 	    : totalsz_;
