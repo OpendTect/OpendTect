@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.3 2011-01-17 15:59:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.4 2011-01-18 13:26:36 cvsbert Exp $";
 
 #include "uistratlayseqattrsetbuild.h"
 #include "uilayseqattribed.h"
@@ -62,6 +62,7 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
 	    mCB(this,uiStratLaySeqAttribSetBuild,saveReq) );
     savebut_->attach( alignedBelow, openbut );
 
+    setHAlignObj( attrfld_ );
     updButStates();
 }
 

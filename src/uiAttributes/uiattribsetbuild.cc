@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.7 2011-01-17 15:57:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.8 2011-01-18 13:26:36 cvsbert Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -81,6 +81,7 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 		    mCB(this,uiAttribDescSetBuild,saveReq) );
     savebut_->attach( alignedBelow, openbut );
 
+    setHAlignObj( defattrfld_ );
     defSelChg();
 }
 
