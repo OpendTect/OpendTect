@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.47 2011-01-11 14:27:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.48 2011-01-18 15:49:35 cvsjaap Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -40,14 +40,13 @@ uiODFaultParentTreeItem::uiODFaultParentTreeItem()
 #define mLoadMnuID	0
 #define mNewMnuID	1
 
-#define mDispPlanes	2
-#define mDispSticks	3
-#define mDispAtSect	4
-#define mDispAtHors	5
-#define mUndispPlanes	6
-#define mUndispSticks	7
-#define mUndispAtSect	8
-#define mUndispAtHors	9
+#define mDispInFull	2
+#define mDispAtSect	3
+#define mDispAtHors	4
+#define mDispAtBoth	5
+#define mDispPlanes	6
+#define mDispSticks	7
+#define mDispPSBoth	8
 
 
 #define mInsertItm( menu, name, id, enable ) \
@@ -82,20 +81,16 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	mnu.insertSeparator();
 	uiPopupMenu* dispmnu = new uiPopupMenu( getUiParent(), "&Display all" );
 
+	mInsertItm( dispmnu, "&In full", mDispInFull, true );
+	mInsertItm( dispmnu, "&Only at sections", mDispAtSect, candispatsect );
+	mInsertItm( dispmnu, "Only at &horizons", mDispAtHors, candispathors );
+	mInsertItm( dispmnu, "&At sections && horizons", mDispAtBoth,
+					    candispatsect && candispathors );
+	dispmnu->insertSeparator();
 	mInsertItm( dispmnu, "Fault &planes", mDispPlanes, true );
 	mInsertItm( dispmnu, "Fault &sticks", mDispSticks, true );
-	mInsertItm( dispmnu, "&Only at sections", mDispAtSect, candispatsect );
-	mInsertItm( dispmnu, "&At horizons", mDispAtHors, candispathors );
+	mInsertItm( dispmnu, "&Fault planes && sticks", mDispPSBoth, true );
 	mnu.insertItem( dispmnu );
-
-	uiPopupMenu* undispmnu =
-		     new uiPopupMenu( getUiParent(), "&Undisplay all" );
-
-	mInsertItm( undispmnu, "Fault &planes", mUndispPlanes, true );
-	mInsertItm( undispmnu, "Fault &sticks", mUndispSticks, true );
-	mInsertItm( undispmnu, "&Only at sections",mUndispAtSect,candispatsect);
-	mInsertItm( undispmnu, "&At horizons", mUndispAtHors, candispathors );
-	mnu.insertItem( undispmnu );
     }
 
     addStandardItems( mnu );
@@ -124,7 +119,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
 	return true;
     }
-    else if ( mnuid>=mDispPlanes && mnuid<=mUndispAtHors )
+    else if ( mnuid>=mDispInFull && mnuid<=mDispPSBoth )
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
@@ -133,18 +128,15 @@ bool uiODFaultParentTreeItem::showSubMenu()
 			applMgr()->visServer()->getObject(itm->displayID()) );
 	    if ( !fd ) continue;
 
-	    if ( mnuid == mDispPlanes )
-		fd->display( fd->areSticksDisplayed(), true );
-	    else if ( mnuid == mUndispPlanes )
-		fd->display( true, false );
-	    else if ( mnuid == mDispSticks )
-		fd->display( true, fd->arePanelsDisplayed() );
-	    else if ( mnuid == mUndispSticks )
-		fd->display( false, true );
-	    else if ( mnuid==mDispAtSect || mnuid==mUndispAtSect )
-		fd->displayIntersections( mnuid==mDispAtSect );
-	    else if ( mnuid==mDispAtHors || mnuid==mUndispAtHors )
-		fd->displayHorizonIntersections( mnuid==mDispAtHors );
+	    if ( mnuid>=mDispPlanes && mnuid<=mDispPSBoth )
+		fd->display( mnuid!=mDispPlanes, mnuid!=mDispSticks );
+
+	    if ( mnuid>=mDispInFull && mnuid<=mDispAtBoth )
+	    {
+		const bool atboth = mnuid==mDispAtBoth;
+		fd->displayIntersections( mnuid==mDispAtSect || atboth );
+		fd->displayHorizonIntersections( mnuid==mDispAtHors || atboth );
+	    }
 	}
     }
     else
@@ -169,7 +161,7 @@ uiTreeItem* uiODFaultTreeItemFactory::create( int visid, uiTreeItem* ) const
     , displayplanemnuitem_ ( "Fault &planes" ) \
     , displaystickmnuitem_ ( "Fault &sticks" ) \
     , displayintersectionmnuitem_( "&Only at sections" ) \
-    , displayintersecthorizonmnuitem_( "&At horizons" ) \
+    , displayintersecthorizonmnuitem_( "Only at &horizons" ) \
     , singlecolmnuitem_( "Use single &color" ) \
     , removeselectedmnuitem_( "Re&move selection" )
 
@@ -301,16 +293,16 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &singlecolmnuitem_,
 		  faultdisplay_->arePanelsDisplayedInFull(),
 		  !faultdisplay_->showingTexture() );
-    mAddMenuItem( &displaymnuitem_, &displayplanemnuitem_, true,
-		  faultdisplay_->arePanelsDisplayed() );
-    mAddMenuItem( &displaymnuitem_, &displaystickmnuitem_, true,
-		  faultdisplay_->areSticksDisplayed() );
     mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, 
 		  faultdisplay_->canDisplayIntersections(),
 		  faultdisplay_->areIntersectionsDisplayed() );
     mAddMenuItem( &displaymnuitem_, &displayintersecthorizonmnuitem_,
 		  faultdisplay_->canDisplayHorizonIntersections(),
 		  faultdisplay_->areHorizonIntersectionsDisplayed() );
+    mAddMenuItem( &displaymnuitem_, &displayplanemnuitem_, true,
+		  faultdisplay_->arePanelsDisplayed() );
+    mAddMenuItem( &displaymnuitem_, &displaystickmnuitem_, true,
+		  faultdisplay_->areSticksDisplayed() );
     mAddMenuItem( menu, &displaymnuitem_, true, true );
 
     const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
@@ -414,8 +406,8 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     {
 	mnu.insertSeparator();
 	uiPopupMenu* dispmnu = new uiPopupMenu( getUiParent(), "&Display all" );
+	dispmnu->insertItem( new uiMenuItem("&In full"), mDispInFull );
 	dispmnu->insertItem( new uiMenuItem("&Only at sections"), mDispAtSect );
-	dispmnu->insertItem( new uiMenuItem("&In full"), mUndispAtSect );
 	mnu.insertItem( dispmnu );
     }
 
@@ -445,7 +437,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	addChild( new uiODFaultStickSetTreeItem( emo->id() ), false );
 	return true;
     }
-    else if ( mnuid==mDispAtSect || mnuid==mUndispAtSect )
+    else if ( mnuid==mDispInFull || mnuid==mDispAtSect )
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
