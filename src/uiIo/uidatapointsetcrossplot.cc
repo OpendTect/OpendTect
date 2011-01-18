@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.74 2010-12-10 09:55:56 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.75 2011-01-18 10:16:04 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.74 2010-12-10 09:55:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.75 2011-01-18 10:16:04 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -431,7 +431,7 @@ void uiDataPointSetCrossPlotter::mouseClicked( CallBacker* )
     if ( isnorm && selNearest(ev) )
 	selectionChanged.trigger();
 
-    if ( !selectable_ )
+    if ( !selectable_ || !selgrpset_.size() )
 	return;
 
     mousepressed_ = true;
@@ -1888,3 +1888,43 @@ bool SelectionGrp::hasAltAxis() const
 
 int SelectionGrp::size() const
 { return selareas_.size(); }
+
+
+void SelectionGrp::getInfo( BufferString& info ) const
+{
+    info += "Selection Group Name :";
+    info += name();
+    info += "\n";
+
+    Interval<double> range( mUdf(double), -mUdf(double) );
+
+    for ( int idx=0; idx<selareas_.size(); idx++ )
+    {
+	const SelectionArea& selarea = getSelectionArea( idx );
+	BufferStringSet axisnms = selarea.getAxisNames();
+
+	info += "Area Nr "; info.add( idx+1 ); info += "\n";
+	info += "Area Type : ";
+	info += selarea.isrectangle_ ? "Rectangle \n" : "Polygon \n";
+
+	info += selarea.xaxisnm_; info += " (range) :";
+	range = selarea.getValueRange( true );
+	info .add( range.start ); info += ", "; info.add( range.stop );
+	info += "\n";
+
+	info += selarea.yaxisnm_; info += " (range) :";
+	range = selarea.getValueRange(false);
+	info .add( range.start ); info += ", "; info.add( range.stop );
+	info += "\n";
+
+	if ( !selarea.altyaxisnm_.isEmpty() )
+	{
+	    info += selarea.altyaxisnm_; info += " (range) :";
+	    range = selarea.getValueRange( false, true );
+	    info .add( range.start ); info += ", "; info.add( range.stop);
+	    info += "\n";
+	}
+
+	info += "\n";
+    }
+}

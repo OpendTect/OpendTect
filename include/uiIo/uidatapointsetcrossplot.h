@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.35 2010-12-02 10:07:52 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.36 2011-01-18 10:16:04 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,6 +99,7 @@ public:
 	SelectionArea::SelAxisType getSelectionAxis(int selareaid) const;
 	void			usePar(const IOPar&);
 	void			fillPar(IOPar&) const;
+	void			getInfo(BufferString&) const;
 protected:
 	TypeSet<SelectionArea> selareas_;
 };

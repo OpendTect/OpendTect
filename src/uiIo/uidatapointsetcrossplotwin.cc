@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.33 2010-12-10 09:55:56 cvssatyaki Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.34 2011-01-18 10:16:04 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.33 2010-12-10 09:55:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.34 2011-01-18 10:16:04 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -419,11 +419,11 @@ uiSetSelGrpTab( uiTabStackDlg* p, uiDataPointSetCrossPlotter& plotter )
 	    mCB(this,uiSetSelGrpTab,remSelGrp), true );
     remgrpbut->attach( rightTo, addgrpbut );
     
-    uiPushButton* expgrpbut = new uiPushButton( this, "Export groups", 
+    uiPushButton* expgrpbut = new uiPushButton( this, "Save groups", 
 	    mCB(this,uiSetSelGrpTab,exportSelectionGrps), true );
     expgrpbut->attach( rightTo, remgrpbut );
     
-    uiPushButton* impgrpbut = new uiPushButton( this, "Import groups", 
+    uiPushButton* impgrpbut = new uiPushButton( this, "Open groups", 
 	    mCB(this,uiSetSelGrpTab,importSelectionGrps), true );
     impgrpbut->attach( rightTo, expgrpbut );
 }

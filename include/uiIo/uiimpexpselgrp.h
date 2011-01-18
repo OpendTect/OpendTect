@@ -7,19 +7,143 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          Dec 2010
- RCS:           $Id: uiimpexpselgrp.h,v 1.1 2010-12-02 10:04:34 cvssatyaki Exp $
+ RCS:           $Id: uiimpexpselgrp.h,v 1.2 2011-01-18 10:16:04 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "uidatapointsetcrossplot.h"
-class uiCheckBox;
-class uiFileInput;
-class uiGenInput;
+#include "uigroup.h"
+#include "filepath.h"
+#include "strmdata.h"
+
+class BufferStringSet;
+
 class uiAxisHandler;
+class uiCheckBox;
 class uiComboBox;
+class uiGenInput;
+class uiListBox;
+class uiGenInput;
+class uiPushButton;
+class uiToolButton;
 class uiDataPointSetCrossPlotter;
+
+
+mClass uiSGSel : public uiGroup
+{
+public:
+    					uiSGSel(uiParent*,bool forread);
+
+    bool				isOK() const;
+    const char*				selGrpFileNm() const;
+    const char*				selGrpSetNm() const;
+    const ObjectSet<SelectionGrp>&	selGrpSet() const
+    					{ return selgrpset_; }
+
+    const BufferString&			xName()		{ return xname_; }
+    const BufferString&			yName()		{ return yname_; }
+    const BufferString&			y2Name()	{ return y2name_; }
+    
+    Notifier<uiSGSel>			selGrpSelected;
+
+protected:
+
+    uiGenInput*			inpfld_;
+    uiPushButton*		selbut_;
+
+    BufferString		selgrpfilenm_;
+    BufferString		xname_;
+    BufferString		yname_;
+    BufferString		y2name_;
+    
+    ObjectSet<SelectionGrp>	selgrpset_;
+    bool			forread_;
+    void			selectSGCB(CallBacker*);
+};
+
+
+mClass uiSGSelGrp : public uiGroup
+{
+public:
+    				uiSGSelGrp(uiParent*,bool forread);
+
+    bool			addSelGrpSet();
+    BufferString		getCurFileNm() const;
+    const char*			selGrpSetNm() const;
+    bool			getCurSelGrpSet(ObjectSet<SelectionGrp>&);
+    
+    const BufferString&		xName()			{ return xname_; }
+    const BufferString&		yName()			{ return yname_; }
+    const BufferString&		y2Name()		{ return y2name_; }
+protected:
+
+    uiListBox*			listfld_;
+    uiGenInput*			nmfld_;
+    uiToolButton*		infobut_;
+    uiToolButton*		delbut_;
+    uiToolButton*		renamebut_;
+
+    BufferString		xname_;
+    BufferString		yname_;
+    BufferString		y2name_;
+    bool			forread_;
+
+    FilePath			basefp_;
+
+    bool			createBaseDir();
+    bool			hasIdxFile();
+    bool			fillListBox();
+    bool			getSelGrpSetNames(BufferStringSet&) const;
+    bool			setSelGrpSetNames(const BufferStringSet&) const;
+
+    void			showInfo(CallBacker*);
+    void			delSelGrps(CallBacker*);
+    void			renameSelGrps(CallBacker*);
+    void			selChangedCB(CallBacker*);
+};
+
+
+mClass SelGrpImporter
+{
+public:
+    				SelGrpImporter(const char*);
+				~SelGrpImporter();
+
+    ObjectSet<SelectionGrp>	getSelections();
+    const BufferString&		errMsg()		{ return errmsg_; }
+    const BufferString&		xName()			{ return xname_; }
+    const BufferString&		yName()			{ return yname_; }
+    const BufferString&		y2Name()		{ return y2name_; }
+
+protected:
+
+    BufferString		errmsg_;
+    BufferString		xname_;
+    BufferString		yname_;
+    BufferString		y2name_;
+
+    StreamData			sd_;
+};
+
+
+mClass SelGrpExporter
+{
+public:
+    				SelGrpExporter(const char* fnm);
+				~SelGrpExporter();
+    bool			putSelections(const ObjectSet<SelectionGrp>&,
+	    				      const char* xnm,
+					      const char* ynm,
+					      const char* y2nm);
+    const BufferString&		errMsg() const		{ return errmsg_; }
+protected:
+    BufferString		errmsg_;
+    StreamData			sd_;
+    				
+};
+
 
 mClass uiReadSelGrp : public uiDialog
 {
@@ -28,7 +152,7 @@ public:
 
 protected:
 
-    uiFileInput*	inpfld_;
+    uiSGSel*		inpfld_;
     uiComboBox*		xselfld_;
     uiComboBox*		yselfld_;
     uiComboBox*		y2selfld_;
@@ -56,6 +180,7 @@ protected:
     void		getInfo(const ObjectSet<SelectionGrp>&,BufferString&);
     void		fldCheckedCB(CallBacker*);
     void		examineCB(CallBacker*);
+    void		selectedCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 };
 
@@ -84,7 +209,7 @@ protected:
 
     Setup				setup_;
     uiGenInput*				axisfld_;
-    uiFileInput*			outfld_;
+    uiSGSel*				outfld_;
     const ObjectSet<SelectionGrp>&	selgrps_;
 
     bool				acceptOK(CallBacker*);
