@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.79 2010-11-05 12:46:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.80 2011-01-19 14:55:05 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -270,7 +270,8 @@ Well::Log& Well::Log::operator =( const Well::Log& l )
 {
     if ( &l != this )
     {
-	setName( l.name() );
+	setName( l.name() ); 
+	setUnitMeasLabel( l.unitMeasLabel() );
 	dah_ = l.dah_; val_ = l.val_; range_ = l.range_;
     }
     return *this;
