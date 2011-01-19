@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.28 2011-01-18 10:26:31 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.29 2011-01-19 17:18:58 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -465,7 +465,6 @@ static ObjectSet<DisplayCacheObj> displaycache_;
 void uiODFaultToolMan::addRemoveVisObjCB( CallBacker* cb )
 {
     deepErase( displaycache_ );
-    processOutputName();
 
     if ( settingsdlg_ )
 	settingsdlg_->setOutputDisplayed( isOutputDisplayed() );
@@ -1106,11 +1105,8 @@ bool uiODFaultToolMan::isOutputDisplayed( uiSurfaceWrite* uisw ) const
     displaycache_[0]->sceneid_ = sceneid;
     displaycache_[0]->isdisplayed_ = false;
 
-    const std::type_info& typinfo = mCurItem(outputtypecombo_, sKeyToFault) ?
-				    typeid( visSurvey::FaultDisplay ) :
-				    typeid( visSurvey::FaultStickSetDisplay );
     TypeSet<int> destids;
-    appl_.applMgr().visServer()->findObject( typinfo, destmid, destids );
+    appl_.applMgr().visServer()->findObject( destmid, destids );
 
     for ( int idx=0; idx<destids.size(); idx++ )
     {

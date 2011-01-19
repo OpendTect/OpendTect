@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.459 2011-01-18 10:26:31 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.460 2011-01-19 17:18:58 cvsjaap Exp $";
 
 #include "uivispartserv.h"
 
@@ -364,27 +364,16 @@ void uiVisPartServer::findObject( const std::type_info& ti, TypeSet<int>& res )
 void uiVisPartServer::findObject( const MultiID& mid, TypeSet<int>& res )
 {
     res.erase();
-    const int highestid = highestID();
-    for ( int idx=0; idx<=highestid; idx++ )
+    if ( mid == MultiID(-1) )
+	return;
+
+    for ( int idx=visBase::DM().nrObjects()-1; idx>=0; idx-- )
     {
-	const MultiID vismid = getMultiID(idx);
-	if ( vismid==MultiID(-1) )
-	    continue;
+	const visBase::DataObject* datobj = visBase::DM().getIndexedObject(idx);
+	mDynamicCastGet( const visSurvey::SurveyObject*, survobj, datobj );
 
-	if ( vismid==mid )
-	    res += idx;
-    }
-}
-
-
-void uiVisPartServer::findObject( const std::type_info& ti,
-				  const MultiID& mid, TypeSet<int>& res )
-{
-    findObject( ti, res );
-    for ( int idx=res.size()-1; idx>=0; idx-- )
-    {
-	if ( mid != getMultiID(res[idx]) )
-	    res.remove( idx );
+	if ( survobj && mid==survobj->getMultiID() )
+	    res += datobj->id();
     }
 }
 

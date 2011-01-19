@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.50 2010-12-30 18:22:01 cvskris Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.51 2011-01-19 17:18:58 cvsjaap Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -343,8 +343,21 @@ void DataManager::getIds( const std::type_info& ti,
     }
 }
 
+
 void DataManager::removeObject( DataObject* dobj )
 { objects_ -= dobj; }
+
+
+int DataManager::nrObjects() const
+{ return objects_.size(); }
+
+
+DataObject* DataManager::getIndexedObject( int idx )
+{ return idx>=0 && idx<nrObjects() ? objects_[idx] : 0; }
+
+
+const DataObject* DataManager::getIndexedObject( int idx ) const
+{ return const_cast<DataManager*>(this)->getIndexedObject(idx); }
 
 
 }; //namespace

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.23 2010-02-24 14:17:25 cvskris Exp $
+ RCS:		$Id: visdataman.h,v 1.24 2011-01-19 17:18:58 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -67,6 +67,10 @@ public:
     const DataObject*	getObject(int id) const;
     DataObject*		getObject(const SoNode*);
     const DataObject*	getObject(const SoNode*) const;
+
+    int			nrObjects() const;
+    DataObject*		getIndexedObject(int idx);
+    const DataObject*	getIndexedObject(int idx) const;
 
     SelectionManager&	selMan() { return selman_; }
 
