@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.13 2010-06-30 17:17:28 cvskris Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.14 2011-01-19 06:06:40 cvsnanne Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -91,6 +91,7 @@ SEGYDirect3DPSReader::SEGYDirect3DPSReader( const char* fnm )
 SEGYDirect3DPSReader::~SEGYDirect3DPSReader()
 {
     delete &def_;
+    delete tr_;
 }
 
 
@@ -165,6 +166,7 @@ SEGYDirect2DPSReader::SEGYDirect2DPSReader( const char* dirnm, const char* lnm )
 SEGYDirect2DPSReader::~SEGYDirect2DPSReader()
 {
     delete &def_;
+    delete tr_;
 }
 
 
