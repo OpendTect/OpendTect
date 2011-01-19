@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsetbuild.h,v 1.6 2011-01-17 15:57:00 cvsbert Exp $
+ RCS:           $Id: uiattribsetbuild.h,v 1.7 2011-01-19 10:08:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 class CtxtIOObj;
 class uiListBox;
 class uiToolButton;
-namespace Attrib { class Desc; class DescSet; class EngineMan; }
+namespace Attrib { class Desc; class DescID; class DescSet; class EngineMan; }
 
 
 mClass uiAttribDescSetBuild : public uiGroup
@@ -75,7 +75,7 @@ protected:
     void		openReq(CallBacker*);
     void		saveReq(CallBacker*);
 
-    Attrib::EngineMan*	createEngineMan();	//test
+    Attrib::EngineMan*	createEngineMan(const Attrib::DescID&);	//test
 
 };
 

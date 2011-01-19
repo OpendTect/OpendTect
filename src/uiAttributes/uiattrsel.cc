@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.67 2011-01-17 10:23:02 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.68 2011-01-19 10:08:17 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -516,7 +516,8 @@ void uiAttrSelDlg::replaceStoredByInMem()
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {
 	ioobjnmscopy.add( DataPackMgr::nameOf( dpfids_[idx] ) );
-	ioobjidscopy.add( dpfids_[idx] );
+	BufferString tmpstr = "#"; tmpstr += dpfids_[idx];
+	ioobjidscopy.add( tmpstr );
     }
 
     int* sortindexes = ioobjnmscopy.getSortIndexes();

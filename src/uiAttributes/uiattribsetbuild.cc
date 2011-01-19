@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.8 2011-01-18 13:26:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.9 2011-01-19 10:08:17 cvshelene Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -205,15 +205,17 @@ void uiAttribDescSetBuild::addReq( CallBacker* )
     const char* attrnm = availattrnms_.get( selidx );
     Attrib::Desc* desc = PF().createDescCopy( attrnm );
     desc->setUserRef( "" );
+    desc->setDescSet( &descset_ );
     descset_.addDesc( desc );
+    const Attrib::DescID did = desc->id();
 
     if ( !doAttrEd(*desc,true) )
-	descset_.removeDesc( desc->id() );
+	descset_.removeDesc( did );
 
 //test
     BufferString errmsg;
     RefMan<Attrib::Data2DHolder> d2dh = new Attrib::Data2DHolder();
-    PtrMan<EngineMan> aem = createEngineMan();
+    PtrMan<EngineMan> aem = createEngineMan( did );
 
     PtrMan<Processor> proc = descset_.is2D() ?
 			    aem->createScreenOutput2D( errmsg, *d2dh )
@@ -303,12 +305,13 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 
 //for testing purpose
 
-Attrib::EngineMan* uiAttribDescSetBuild::createEngineMan()
+Attrib::EngineMan* uiAttribDescSetBuild::createEngineMan(
+						const Attrib::DescID& did )
 {
     Attrib::EngineMan* aem = new Attrib::EngineMan;
 
     TypeSet<Attrib::SelSpec> attribspecs;
-    Attrib::SelSpec sp( 0, descset_.getID(descset_.nrDescs()) );
+    Attrib::SelSpec sp( 0, did );
     attribspecs += sp;
 
     CubeSampling cs;
