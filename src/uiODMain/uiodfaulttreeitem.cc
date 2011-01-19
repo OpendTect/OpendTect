@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.48 2011-01-18 15:49:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.49 2011-01-19 08:02:22 cvsnanne Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -157,7 +157,7 @@ uiTreeItem* uiODFaultTreeItemFactory::create( int visid, uiTreeItem* ) const
 #define mCommonInit \
     , savemnuitem_("&Save") \
     , saveasmnuitem_("Save as ...") \
-    , displaymnuitem_( "&Display ..." ) \
+    , displaymnuitem_( "&Display" ) \
     , displayplanemnuitem_ ( "Fault &planes" ) \
     , displaystickmnuitem_ ( "Fault &sticks" ) \
     , displayintersectionmnuitem_( "&Only at sections" ) \
