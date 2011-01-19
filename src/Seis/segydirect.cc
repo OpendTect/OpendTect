@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.27 2010-10-25 19:20:43 cvskris Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.28 2011-01-19 05:23:30 cvsnanne Exp $";
 
 #include "segydirectdef.h"
 
@@ -164,7 +164,7 @@ SEGY::FileDataSet::TrcIdx SEGY::DirectDef::find( const Seis::PosKey& pk,
 }
 
 
-#define mErrRet(s) { errmsg_ = s; return false; }
+#define mErrRet(s) { errmsg_ = s; sd.close(); return false; }
 #define mGetInterp( str, type, interp ) \
     PtrMan<DataInterpreter<type> > interp = 0; \
     if ( iop1.get(str,dc ) ) \
@@ -273,9 +273,12 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	    mErrRet( readerror );
     }
 
+    sd.close();
     return true;
 }
 
+#undef mErrRet
+#define mErrRet(s) { errmsg_ = s; return false; }
 
 FixedString SEGY::DirectDef::fileName( int idx ) const
 {
