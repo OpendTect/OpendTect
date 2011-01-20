@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.27 2010-05-26 09:26:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.28 2011-01-20 10:23:22 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -34,7 +34,6 @@ static int getWellIndex( const char* wellnm )
 	if ( !strcmp(Well::MGR().wells()[idx]->name(),wellnm) )
 	    return idx;
     }
-
     return -1;
 }
 
@@ -60,18 +59,16 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 	int wdidx = getWellIndex( wellnames_.get(idx) );
 	Well::Data* wdtmp = Well::MGR().wells()[wdidx];
 	if ( wdtmp->markers().size() > nrmarkers )
-	{ nrmarkers = wdtmp->markers().size(); wellidx = wdidx; }
+	    { nrmarkers = wdtmp->markers().size(); wellidx = wdidx; }
     }
 
     Well::Data* wd = wellidx<0 ? 0 : Well::MGR().wells()[wellidx];
     if ( !wd )
-    {
-	uiLabel* lbl = new uiLabel( this, "First well not valid" );
-	return;
-    }
+	{ uiMSG().error( "First well not valid" ); return; }
 
-    attribfld_ = datasetup_.attrib_ ? new uiAttrSel( this, *datasetup_.attrib_ )
-			: new uiAttrSel( this, 0, uiAttrSelData(false) );
+    attribfld_ = datasetup_.attrib_ ? 
+			      new uiAttrSel( this, *datasetup_.attrib_ )
+			    : new uiAttrSel( this, 0, uiAttrSelData(false) );
     attribfld_->setNLAModel( datasetup_.nlamodel_ );
     attribfld_->selectionDone.notify( mCB(this,uiCreateAttribLogDlg,selDone) );
 
@@ -126,7 +123,6 @@ void uiCreateAttribLogDlg::selDone( CallBacker* )
 
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
-
 bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 {
     if ( !attribfld_ ) return true;
@@ -142,10 +138,8 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	selwells.add( wellnames_.get(0) );
 
     if ( !strcmp(topmrkfld_->text(),botmrkfld_->text()) )
-    {
-	uiMSG().error( "Please select different markers" );
-	return false;
-    }
+	mErrRet( "Please select different markers" )
+
     datasetup_.topmrknm_ = topmrkfld_->text();
     datasetup_.botmrknm_ = botmrkfld_->text();
     datasetup_.lognm_ = lognmfld_->text();
@@ -169,7 +163,7 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	if ( !wd ) 
 	    continue;
 	if ( !attriblog.doWork( *wd, errmsg ) )
-	{ delete tr; mErrRet( errmsg ) }
+	    { delete tr; mErrRet( errmsg ) }
 	delete tr;
     }
     return true;
@@ -202,6 +196,5 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
 	msg += "' is already present.\nDo you wish to overwrite this log?";
 	if ( !uiMSG().askOverwrite(msg) ) return false;
     }
-
     return true;
 }
