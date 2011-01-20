@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.460 2011-01-19 17:18:58 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.461 2011-01-20 11:26:06 cvsjaap Exp $";
 
 #include "uivispartserv.h"
 
@@ -1395,14 +1395,17 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 
 void uiVisPartServer::turnOn( int id, bool yn, bool doclean )
 {
-    if ( !yn || !vismgr_->allowTurnOn(id,doclean) )
+    if ( !vismgr_->allowTurnOn(id,doclean) )
 	yn = false;
 
     visBase::DataObject* dobj = visBase::DM().getObject( id );
     if ( !dobj ) return;
 
     mDynamicCastGet(visBase::VisualObject*,vo,dobj)
-    if ( vo ) vo->turnOn( yn );
+    if ( !vo || vo->isOn()==yn )
+	return;
+
+    vo->turnOn( yn );
 
     TypeSet<int> sceneids;
     getChildIds( -1, sceneids );
