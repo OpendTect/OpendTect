@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllogset.h,v 1.13 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: welllogset.h,v 1.14 2011-01-20 12:59:24 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,8 @@ public:
 
     void		add(Log*);		//!< becomes mine
     Log*		remove(int);		//!< becomes yours
+    void		swap(int idx0,int idx1)	{ logs.swap( idx0, idx1 ); }
+    bool		validIdx(int idx) const	{ return logs.validIdx(idx); }
 
     bool		isEmpty() const		{ return size() == 0; }
     void		empty();
