@@ -14,11 +14,11 @@ ________________________________________________________________________
 
 #include "callback.h"
 #include "color.h"
+#include "multiid.h"
 #include "welltied2tmodelmanager.h"
 
 class BinID;
 class CtxtIOObj;
-class MultiID;
 class SeisTrc;
 class TaskRunner;
 class Wavelet;
@@ -130,7 +130,7 @@ protected:
     Well::Data*          	wellData() const;
 
     Well::Data*          	wd_;
-    const MultiID&		wellid_;
+    const MultiID		wellid_;
     void			wellDataDelNotify(CallBacker*);
 };
 

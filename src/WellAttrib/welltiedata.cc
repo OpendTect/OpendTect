@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.43 2011-01-20 10:21:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.44 2011-01-20 11:14:51 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -184,7 +184,7 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 
 
 WellDataMgr::WellDataMgr( const MultiID& wellid )
-    : wellid_(wellid_)
+    : wellid_(wellid)
     , wd_(0)
     , datadeleted_(this)    
 {}
@@ -337,7 +337,9 @@ Server::Server( const WellTie::Setup& wts )
     wdmgr_ = new WellDataMgr( wts.wellid_  );
     wdmgr_->datadeleted_.notify( mCB(this,Server,wellDataDel) );
     Well::Data* w = wdmgr_->wd();
-    if ( w && w->haveCheckShotModel() && !wts.useexistingd2tm_ )
+    data_.wd_ = w;
+    if ( !w ) return; //close
+    if ( w->haveCheckShotModel() && !wts.useexistingd2tm_ )
     {
 	Well::Log* wl = w->logs().getLog( data_.sonic() );
 	if ( !wl ) return;
@@ -348,15 +350,15 @@ Server::Server( const WellTie::Setup& wts )
 	cslog->setName( data_.checkshotlog() );
 	w->logs().add( cslog );
     }
-    dataplayer_ = new DataPlayer( data_, wts.seisid_, &wts.linekey_ );
-    pickmgr_ = new PickSetMgr( data_.pickdata_ );
-    hormgr_ = new HorizonMgr( data_.horizons_ );
-    hormgr_->resetWD( w );
-
     D2TModelMgr::Setup d2ts; 
     d2ts.useexisting_ = wts.useexistingd2tm_; 
     d2ts.currvellog_ = data_.currvellog();
     d2tmgr_ = new D2TModelMgr( *w, d2ts );
+
+    dataplayer_ = new DataPlayer( data_, wts.seisid_, &wts.linekey_ );
+    pickmgr_ = new PickSetMgr( data_.pickdata_ );
+    hormgr_ = new HorizonMgr( data_.horizons_ );
+    hormgr_->resetWD( w );
 }
 
 

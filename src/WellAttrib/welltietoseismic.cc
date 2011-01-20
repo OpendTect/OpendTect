@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.49 2011-01-20 10:21:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.50 2011-01-20 11:14:51 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.49 2011-01-20 10:21:39 
 
 namespace WellTie
 {
-
+#define mGetWD() Well::Data* wd = data_.wd_; if ( !wd ) return;
 DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk ) 
     : data_(data)		    
     , aimodel_(0)
@@ -59,9 +59,7 @@ void DataPlayer::computeAll()
 
 void DataPlayer::extractSeismics()
 {
-    const Well::Data* wd = data_.wd_;
-    if ( !wd ) return;
-
+    mGetWD()
     MouseCursorManager::setOverride( MouseCursor::Wait );
 
     TaskRunner taskrunner;
@@ -86,26 +84,30 @@ void DataPlayer::extractSeismics()
 static const int cDefaultZResamplingFactor = 20;
 void DataPlayer::resetAIModel()
 {
-    delete aimodel_; aimodel_ = 0; 
+    mGetWD()
+    delete aimodel_; aimodel_ = 0;
+    if ( !wd->d2TModel() || wd->d2TModel()->size() <= 2 ) 
+	return; 
     TypeSet<AIModel::DataPoint> pts;
     StepInterval<float> workintv = data_.timeintv_; 
     workintv.step /= cDefaultZResamplingFactor;
     const int worksz = workintv.nrSteps();
 
-    const Well::Log* sonlog = data_.wd_->logs().getLog( data_.currvellog() );
-    const Well::Log* denlog = data_.wd_->logs().getLog( data_.density() );
+    const Well::Log* sonlog = wd->logs().getLog( data_.currvellog() );
+    const Well::Log* denlog = wd->logs().getLog( data_.density() );
     if ( !sonlog || !denlog ) return;
     Well::Log vellog( *sonlog );
     if ( data_.isSonic() )
 	{ GeoCalculator gc; gc.velLogConv( vellog, GeoCalculator::Son2Vel ); }
+    float lastdah = 0;
     for ( int idx=0; idx<worksz; idx++ )
     {
-	float dah = data_.wd_->d2TModel()->getDah( workintv.atIndex(idx) );
+	float dah = wd->d2TModel()->getDah( workintv.atIndex(idx) );
 	float vel = vellog.getValue( dah, true ); 
 	float den = denlog->getValue( dah, true ); 
 	pts += AIModel::DataPoint( dah, vel, den );
+	lastdah = dah;
     }
-    float lastdah = data_.wd_->d2TModel()->getDah( workintv.atIndex(worksz-1) );
     aimodel_ = new AIModel( pts, lastdah );
     aimodel_->antiAlias();
 }
@@ -125,11 +127,12 @@ void DataPlayer::generateSynthetics()
 
 void DataPlayer::copyDataToLogSet()
 {
-    if ( !aimodel_ || !data_.wd_ ) return;
+    mGetWD()
+    if ( !aimodel_ ) return;
     TypeSet<float> dah, son, den, refs, ai, synth;
     for ( int idx=0; idx<refsz_; idx++ )
     {
-	dah += data_.wd_->d2TModel()->getDah( data_.timeintv_.atIndex(idx) );
+	dah += wd->d2TModel()->getDah( data_.timeintv_.atIndex(idx) );
 	AIModel::Domain dom = AIModel::TWT;
 	float time = aimodel_->convertTo( dah[idx], AIModel::TWT );
 	son += aimodel_->velocityAt( dom, time );
