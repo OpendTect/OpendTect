@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.3 2011-01-13 14:52:13 cvsbert Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.4 2011-01-20 15:09:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,10 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "datapack.h"
 
+class uiLabel;
 class SeisTrcBuf;
+class uiGenInput;
+class uiComboBox;
 namespace Strat { class LayerModel; }
 class uiAttribDescSetBuild;
 class uiStratLaySeqAttribSetBuild;
@@ -37,6 +40,10 @@ protected:
 
     uiAttribDescSetBuild*	seisattrfld_;
     uiStratLaySeqAttribSetBuild* layseqattrfld_;
+    uiLabel*			emptylbl_;
+    uiComboBox*			reflvlfld_;
+    uiGenInput*			snapfld_;
+    uiGenInput*			extrwinfld_;
 
     bool			acceptOK(CallBacker*);
 
