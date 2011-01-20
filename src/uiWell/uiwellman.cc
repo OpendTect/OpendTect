@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.74 2010-12-16 13:04:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.75 2011-01-20 12:59:45 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -85,6 +85,11 @@ uiWellMan::uiWellMan( uiParent* p )
 			mCB(this,uiWellMan,removeLogPush) );
     butgrp->addButton( "export.png", "Export log",
 	    		mCB(this,uiWellMan,exportLogs) );
+    logupbut_ = butgrp->addButton( "uparrow.png", "Move up",
+	    		mCB(this,uiWellMan,moveLogsPush) );
+    logdownbut_ = butgrp->addButton( "downarrow.png", "Move down",
+	    		mCB(this,uiWellMan,moveLogsPush) );
+    logsfld_->selectionChanged.notify( mCB(this,uiWellMan,checkMoveLogs) );
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 
@@ -160,6 +165,19 @@ void uiWellMan::fillLogsFld()
     for ( int idx=0; idx<lognms.size(); idx++)
 	logsfld_->addItem( lognms.get(idx) );
     logsfld_->selectAll( false );
+    checkMoveLogs(0);
+}
+
+
+void uiWellMan::checkMoveLogs( CallBacker* )
+{
+    const int curidx = logsfld_->currentItem();
+    const int nrlogs = logsfld_->size();
+    bool nomove = logsfld_->nrSelected() != 1 || curidx < 0 || curidx >= nrlogs;
+    bool canmoveup = curidx > 0 && !nomove;
+    bool canmovedown = curidx < nrlogs-1 && !nomove;
+    logupbut_->setSensitive( canmoveup );
+    logdownbut_->setSensitive( canmovedown );
 }
 
 
@@ -285,6 +303,27 @@ void uiWellMan::calcLogs( CallBacker* )
 }
 
 
+void uiWellMan::moveLogsPush( CallBacker* cb )
+{
+    if ( !curwd_ || !currdr_ ) return;
+
+    mDynamicCastGet(uiToolButton*,toolbut,cb);
+    if ( toolbut != logupbut_ && toolbut != logdownbut_ )
+	return;
+    bool isup = toolbut == logupbut_;
+    const int curlogidx = logsfld_->currentItem();
+    const int newlogidx = curlogidx + ( isup ? -1 : 1 );
+    Well::LogSet& wls = curwd_->logs();
+    currdr_->getLogs();
+    if ( !wls.validIdx( curlogidx ) || !wls.validIdx( newlogidx ) )
+	return;
+    wls.swap( curlogidx, newlogidx );
+
+    writeLogs();
+    logsfld_->setCurrentItem( newlogidx );
+}
+
+
 void uiWellMan::writeLogs()
 {
     Well::Writer wtr( curfnm_, *curwd_ );
@@ -300,7 +339,7 @@ void uiWellMan::writeLogs()
 
 void uiWellMan::exportLogs( CallBacker* )
 {
-    if ( !logsfld_->size() || !logsfld_->nrSelected() ) return;
+    if ( !logsfld_->size() || logsfld_->nrSelected() != 1 ) return;
 
     BoolTypeSet issel;
     for ( int idx=0; idx<logsfld_->size(); idx++ )
