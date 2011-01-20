@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.150 2010-12-07 20:11:34 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.151 2011-01-20 09:03:06 cvsranojay Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: survinfo.cc,v 1.150 2010-12-07 20:11:34 cvskris
 #include "undefval.h"
 #include "safefileio.h"
 #include "separstr.h"
+#include "strmprov.h"
 #include "oddirs.h"
 #include "iopar.h"
 #include "errh.h"
@@ -868,6 +869,16 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 }
 
 
+#define uiErrMsg(s) \
+{   FilePath msgfp( GetBinPlfDir() ); \
+    msgfp.add( "od_DispMsg" ); \
+    BufferString cmd = msgfp.fullPath(); \
+    cmd += " --err "; \
+    cmd += " Could not writ to "; \
+    cmd += s; \
+    cmd += " Please check the file permission"; \
+    ExecOSCmd( cmd.buf() ); } \
+
 void SurveyInfo::savePars( const char* basedir ) const
 {
     if ( pars_.isEmpty() ) return;
@@ -876,7 +887,8 @@ void SurveyInfo::savePars( const char* basedir ) const
 	basedir = GetDataDir();
 
     FilePath fp( basedir ); fp.add( sKeyDefsFile );
-    pars_.write( fp.fullPath(), sKeySurvDefs );
+    if ( !pars_.write( fp.fullPath(), sKeySurvDefs ) )
+	uiErrMsg( fp.fullPath() );
 }
 
 
