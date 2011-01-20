@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.99 2011-01-20 12:56:05 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.100 2011-01-20 14:03:36 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -831,7 +831,7 @@ DescID DescSet::createStoredDesc( const char* lk, int selout,
     LineKey newlk( lk );
     BufferString bstring = newlk.lineName();
     const char* linenm = bstring.buf();
-    const char* objnm = 0;
+    BufferString objnm;
     if ( linenm && *linenm == '#' )
     {
 	DataPack::FullID fid( linenm+1 );
