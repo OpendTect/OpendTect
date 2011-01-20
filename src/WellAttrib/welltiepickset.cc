@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.31 2011-01-20 10:21:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.32 2011-01-20 13:25:57 cvshelene Exp $";
 
 #include "arrayndimpl.h"
 #include "sorting.h"
@@ -49,8 +49,8 @@ void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
     {
 	TypeSet<Marker>& pickset = issynth ? synthpickset_ : seispickset_;
 	const int sz = pickset.size();
-	if ( ( issynth && abs(sz+1-seissz) > 1 || lastpicksynth_) 
-		|| ( !issynth && abs(sz+1-seissz) > 1 || !lastpicksynth_ ) )
+	if ( ( (issynth && abs(sz+1-seissz) > 1) || lastpicksynth_) 
+		|| ( (!issynth && abs(sz+1-seissz) > 1) || !lastpicksynth_ ) )
 	    pickset.remove( sz -1 );
 	Marker m( trc ? findEvent( *trc, zpos ) : zpos );
 	m.color_ = Color::DgbColor();
