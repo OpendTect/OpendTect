@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class CtxtIOObj;
-class FFT;
 class Wavelet;
 
 class uiFlatViewer;
@@ -40,8 +39,8 @@ mClass uiWaveletView : public uiGroup
 {
 public:
 
-	    uiWaveletView(uiParent*,DataHolder*); 
-	    ~uiWaveletView();
+	    			uiWaveletView(uiParent*,ObjectSet<Wavelet>&); 
+	    			~uiWaveletView();
 
     void 			redrawWavelets();
 
@@ -50,11 +49,11 @@ public:
 
 protected:
 
-    WellTie::DataHolder*	dataholder_;
+    ObjectSet<Wavelet>& 	wvltset_;
     CtxtIOObj&          	wvltctio_;
 
     uiGenInput*			activewvltfld_;
-    ObjectSet<WellTie::uiWavelet> uiwvlts_;
+    ObjectSet<uiWavelet> 	uiwvlts_;
 
     void 			createWaveletFields(uiGroup*);	   
 };

@@ -14,43 +14,41 @@ ________________________________________________________________________
 -*/
 
 #include "callback.h"
-#include "arrayndimpl.h"
-#include "welltiedata.h"
+#include "welltiegeocalculator.h"
 
 namespace Well { class D2TModel; }
+
+template <class T> class Array1DImpl;
 
 namespace WellTie
 {
 
-class DataHolder;
-class D2TModelMGR;
-class PickSetMGR;
-class PickSet;
-class Setup;
-class Param;
+class Marker;
 class GeoCalculator;
+class PickSetMgr;
+class PickData;
 
 mClass EventStretch : public CallBacker
 {
 public:
-					EventStretch(WellTie::DataHolder&);
-					~EventStretch(){};
+					EventStretch(PickSetMgr&);
+					~EventStretch();
 
     void 				doWork(CallBacker*); 
-    void				setD2TModel(const Well::D2TModel*);
+    void				setD2TModel(const Well::D2TModel* d2t)
+					{ d2t_ = d2t; }
 
     Notifier<EventStretch>		timeChanged;
+    const Array1DImpl<float>*		timeArr() const { return timearr_; }
     
 protected:
 
+    PickSetMgr&				pmgr_;
+    GeoCalculator       		geocalc_;
     const Well::D2TModel*		d2t_;
-    WellTie::D2TModelMGR*		d2tmgr_;
-    WellTie::PickSet& 			seispickset_;
-    WellTie::PickSet& 			synthpickset_;
-    WellTie::PickSetMGR& 		pmgr_;
-    const WellTie::GeoCalculator*       geocalc_;
-    const Setup&                        wtsetup_;
-    const Params&                       params_;
+    const TypeSet<Marker>&      	synthpickset_;
+    const TypeSet<Marker>&      	seispickset_;
+    Array1DImpl<float>*			timearr_;
 
     float                               supborderpos_;
     float                               infborderpos_;
@@ -67,7 +65,7 @@ protected:
     void				updatePicksPos(
 	    					const Array1DImpl<float>&,
 						const Array1DImpl<float>&,
-						WellTie::PickSet&,int);
+						bool,int);
 };
 
 }; //namespace WellTie

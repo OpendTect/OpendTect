@@ -13,10 +13,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmainwin.h"
 #include "uidialog.h"
-#include "welltiesetup.h"
-#include "welltieunitfactors.h"
+#include "uiflatviewmainwin.h"
 #include "bufstringset.h"
 
 class uiGroup;
@@ -32,15 +30,15 @@ namespace Well	 { class Data; }
 
 namespace WellTie
 {
-
-class DataHolder;
-class DataPlayer;
-class EventStretch;
-class uiTieView;
-class uiControlView;
-class uiCorrView;
-class uiInfoDlg;
-class uiWaveletView;
+    class DispParams;
+    class Setup;
+    class Server;
+    class EventStretch;
+    class uiControlView;
+    class uiCrossCorrView;
+    class uiInfoDlg;
+    class uiTieView;
+    class uiWaveletView;
 
 mClass uiTieWin : public uiFlatViewMainWin
 {
@@ -49,15 +47,14 @@ public:
 				uiTieWin(uiParent*,const WellTie::Setup&);
 				~uiTieWin();
 
-
-    const WellTie::Setup&		Setup()		{ return setup_; }
+    const WellTie::Setup&	Setup()		{ return setup_; }
 	
 protected:
 
-    WellTie::Setup		setup_;
-    WellTie::DataHolder&	dataholder_;
-    WellTie::Params*		params_;
-    WellTie::DataPlayer*   	dataplayer_;
+    const WellTie::Setup& 	setup_;
+    Server&			server_;
+    EventStretch&		stretcher_;
+    DispParams&			params_;
     
     uiCheckBox* 		cscorrfld_;
     uiCheckBox* 		csdispfld_;
@@ -73,12 +70,10 @@ protected:
     uiPushButton*		clearlastpicksbut_;
     uiPushButton*		matchhormrksbut_;
     uiToolBar*          	toolbar_;
-    ObjectSet<uiWellLogDisplay> logsdisp_;
 
     uiControlView* 		controlview_;
     uiInfoDlg* 			infodlg_; 
-    uiTieView*			datadrawer_;
-    EventStretch* 		stretcher_;
+    uiTieView*			drawer_;
     
     void			addControl();
     void 			addToolBarTools();
@@ -87,11 +82,10 @@ protected:
     void 			drawData();
     void 			drawFields();
     void 			getDispParams();
-    bool 			initAll();
+    void 			initAll();
     void 			putDispParams();
     void			resetInfoDlg();
 
-    //CallBackers
     bool			acceptOK(CallBacker*);
     void 			applyPushed(CallBacker*);
     void 			applyShiftPushed(CallBacker*);
@@ -106,7 +100,7 @@ protected:
     void 			dispPropChg(CallBacker*);
     void			dispInfoMsg(CallBacker*);
     void 			displayUserMsg(CallBacker*);
-    bool 			doWork(CallBacker*);
+    void 			doWork(CallBacker*);
     void			drawUserPick(CallBacker*);
     void 			editD2TPushed(CallBacker*);
     void			eventTypeChg(CallBacker*);
@@ -127,10 +121,10 @@ mClass uiInfoDlg : public uiDialog
 {
 public:		
     		
-    		uiInfoDlg(uiParent*,WellTie::DataHolder&,WellTie::DataPlayer&);
-    		~uiInfoDlg();
+				uiInfoDlg(uiParent*,Server&);
+				~uiInfoDlg();
 
-    Notifier<uiInfoDlg>  redrawNeeded;
+    Notifier<uiInfoDlg>  	redrawNeeded;
 
     void 			drawData();
     bool 			getMarkerDepths(Interval<float>& zrg );
@@ -139,18 +133,20 @@ public:
 protected:
    
     BufferStringSet             markernames_;
-    WellTie::DataHolder&	dataholder_;
-    WellTie::Params::DataParams* params_;
 
+    Server&			server_;
     ObjectSet<uiGenInput>	zrangeflds_;
     ObjectSet<uiLabel>		zlabelflds_;
     uiGenInput*                 choicefld_;
     uiGenInput*                 estwvltlengthfld_;
     uiPushButton*               savewvltestbut_;
-    WellTie::uiCorrView*      	crosscorr_;
-    WellTie::uiWaveletView*     wvltdraw_;
-    WellTie::DataPlayer&   	dataplayer_;
-    
+    uiCrossCorrView*      	crosscorr_;
+    uiWaveletView*     		wvltdraw_;
+
+    Interval<float>		zrg_;
+    int				estwvltsz_;
+
+    void    			computeData();
     void 			applyMarkerPushed(CallBacker*);
     void 			wvltChanged(CallBacker*);
 };

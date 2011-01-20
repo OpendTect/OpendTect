@@ -37,7 +37,7 @@ namespace Well
 
 namespace WellTie
 {
-    class DataHolder;
+    class Data;
     class DataWriter;
 
 mClass uiSaveDataGroup : public uiGroup
@@ -46,17 +46,17 @@ public:
 
       mClass Setup
       {
-	      public:
+	  public:
 				Setup()
 				    : labelcolnm_("Log")   
 				    , saveasioobj_(true)
 				    {}	  
 			
-        mDefSetupMemb(BufferString,labelcolnm)
-        mDefSetupMemb(BufferStringSet,itemnames)
-        mDefSetupMemb(bool,saveasioobj)
-        mDefSetupMemb(BufferString,wellname)
-    	mDefSetupMemb(ObjectSet<CtxtIOObj>,ctio);
+	    mDefSetupMemb(BufferString,labelcolnm)
+	    mDefSetupMemb(BufferStringSet,itemnames)
+	    mDefSetupMemb(bool,saveasioobj)
+	    mDefSetupMemb(BufferString,wellname)
+	    mDefSetupMemb(ObjectSet<CtxtIOObj>,ctio);
       };
 
     				uiSaveDataGroup(uiParent*,const Setup&);
@@ -89,8 +89,7 @@ protected:
 mClass uiSaveDataDlg : public uiDialog
 {
 public: 
-				uiSaveDataDlg(uiParent*,
-					      const WellTie::DataHolder&);
+				uiSaveDataDlg(uiParent*,const Data&);
 				~uiSaveDataDlg();
 
 protected :
@@ -102,8 +101,8 @@ protected :
     uiSaveDataGroup* 		savewvltsfld_;
     uiGenInput* 		saveasfld_;
     uiLabeledSpinBox*		repeatfld_;
-    const WellTie::DataHolder& 	dataholder_;
-    WellTie::DataWriter*	datawriter_;
+    const Data& 		data_;
+    DataWriter*			datawriter_;
 
     bool 			acceptOK(CallBacker*);
     void 			changeLogUIOutput(CallBacker*);

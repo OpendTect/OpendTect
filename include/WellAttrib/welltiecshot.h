@@ -14,37 +14,25 @@ ________________________________________________________________________
 -*/
 
 #include "commondefs.h"
-#include "typeset.h"
 
-class DataPointSet;
-namespace Well
-{
-    class Data;
-    class Log;
-    class D2TModel;
-}
-
+namespace Well { class Log; class D2TModel; }
 namespace WellTie
 {
-    class DataHolder;
-    class GeoCalculator;
 
 mClass CheckShotCorr  
 {
 public:
-		    CheckShotCorr(WellTie::DataHolder&);
-		    ~CheckShotCorr() {};			
+			CheckShotCorr( Well::Log&,const Well::D2TModel&,
+					bool isvelocitylog = false );
+			~CheckShotCorr();
 
-    const Well::Log& 		corrLog()              { return *log_; }
-
+    Well::Log&		csLog()		{ return cslog_; }
 
 protected:
 
-    Well::Log* 			log_;
-    Well::D2TModel* 		cs_;
-
-    void 			calibrateLog2CheckShot(const TypeSet<float>&,
-						    WellTie::GeoCalculator&);
+    Well::Log& 		log_;
+    Well::Log& 		cslog_;
+    void 		calibrateLog2CheckShot(const Well::Log&);
 };
 
 }; //namespace WellTie

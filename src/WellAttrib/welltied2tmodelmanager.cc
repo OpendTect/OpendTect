@@ -7,83 +7,65 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.26 2010-12-07 12:47:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.27 2011-01-20 10:21:38 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
-#include "file.h"
+#include "arrayndimpl.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
-#include "welllog.h"
-#include "wellman.h"
 #include "welllogset.h"
-#include "welltrack.h"
-
-#include "welltiegeocalculator.h"
+#include "welllog.h"
 #include "welltiecshot.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
 
+#include <math.h>
+
 namespace WellTie
 {
 
-D2TModelMGR::D2TModelMGR( WellTie::DataHolder& dh )
-	: dholder_(dh)
-	, geocalc_(*dh.geoCalc())
-	, params_(*dh.params())
-	, orgd2t_(0)					    
+D2TModelMgr::D2TModelMgr( Well::Data& wd, const Setup& su )
+	: orgd2t_(0)					    
 	, prvd2t_(0)
-	, emptyoninit_(false)
-	, datawriter_(new WellTie::DataWriter(dh))
+	, issonic_(su.issonic_)
+	, wd_(&wd)			 
 {
-    if ( !wd() ) return;
+    if ( mIsUnvalidD2TM( wd ) )
+	{ emptyoninit_ = true; wd.setD2TModel( new Well::D2TModel ); }
 
-    if ( mIsUnvalidD2TM((*wd())) )
-    {
-	emptyoninit_ = true;
-	wd()->setD2TModel( new Well::D2TModel );
-    }
-    orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd()->d2TModel() );
-    
-    //apply check shot correction on sonic log
-    if ( wd()->haveCheckShotModel() && !dh.setup().useexistingd2tm_ )
-	WellTie::CheckShotCorr cscorr( dh );
+    if ( emptyoninit_ || !su.useexisting_ )
+	setFromVelLog( su.currvellog_ );
 
-    if ( (emptyoninit_ || wd()->haveCheckShotModel()) 
-	    			&& !dh.setup().useexistingd2tm_ )
-	setFromVelLog( dh.params()->dpms_.currvellognm_, true );
-
-    ensureValid( d2T() );
+    orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd.d2TModel() );
+    ensureValid( *d2T() );
 } 
 
 
-D2TModelMGR::~D2TModelMGR()
+D2TModelMgr::~D2TModelMgr()
 {
-    delete datawriter_;
     if ( prvd2t_ ) delete prvd2t_;
 }
 
 
-Well::Data* D2TModelMGR::wd()
+Well::D2TModel* D2TModelMgr::d2T()
 {
-    return dholder_.wd();
+    return wd_ ? wd_->d2TModel() : 0;
 }
 
 
-Well::D2TModel& D2TModelMGR::d2T()
+void D2TModelMgr::setFromVelLog( const char* lognm )
 {
-    return *wd()->d2TModel();
-}
+    Well::Log* log = wd_ ? wd_->logs().getLog( lognm ) : 0;
+    if ( !log ) return;
 
-#define mRemoveSameTimeValues(d2tm)\
-    for ( int idx=1; idx<d2tm->size(); idx++ )\
-    {\
-	if ( mIsZero(d2tm->value(idx)-d2tm->value(idx-1),1e-8) )\
-	    d2tm->remove( idx-1 );\
-    }
-void D2TModelMGR::setFromVelLog( const char* lognm,  bool docln )
-{
-    Well::D2TModel* d2tm = geocalc_.getModelFromVelLog(lognm,docln);
+    Well::Log tmplog( *log );
+    if ( issonic_ ) calc_.velLogConv( tmplog, GeoCalculator::Son2Vel );
+    const Well::Info& info = wd_->info();
+    float surf = -info.surfaceelev;
+    if ( mIsUdf( fabs(surf) ) ) surf = 0;
+
+    Well::D2TModel* d2tm = calc_.getModelFromVelLog( tmplog, &wd_->track(), surf);
     if ( !d2tm ) return;
 
     setAsCurrent( d2tm );
@@ -91,13 +73,12 @@ void D2TModelMGR::setFromVelLog( const char* lognm,  bool docln )
 }
 
 
-void D2TModelMGR::applyCheckShotShiftToModel()
+void D2TModelMgr::applyCheckShotShiftToModel()
 {
-    if ( !params_.uipms_.iscscorr_ ) return;
-    
-    Well::D2TModel* d2tm = &d2T();
+    Well::D2TModel* d2tm = d2T();
+    if ( !d2tm ) return;
 
-    const Well::D2TModel* cs = wd()->checkShotModel();
+    const Well::D2TModel* cs = wd_ ? wd_->checkShotModel() : 0; 
     if ( !cs ) return;
 
     float csshift = 0;
@@ -113,9 +94,16 @@ void D2TModelMGR::applyCheckShotShiftToModel()
 }
 
 
-void D2TModelMGR::shiftModel( float shift)
+#define mRemoveSameTimeValues(d2tm)\
+    for ( int idx=1; idx<d2tm->size(); idx++ )\
+    {\
+	if ( mIsZero(d2tm->value(idx)-d2tm->value(idx-1),1e-8) )\
+	    d2tm->remove( idx-1 );\
+    }
+void D2TModelMgr::shiftModel( float shift)
 {
-    Well::D2TModel* d2t = new Well::D2TModel( d2T() );
+    if ( !d2T() ) return;
+    Well::D2TModel* d2t = new Well::D2TModel( *d2T() );
 
     for ( int dahidx=1; dahidx<d2t->size(); dahidx++ )
 	d2t->valArr()[dahidx] += shift;
@@ -125,9 +113,10 @@ void D2TModelMGR::shiftModel( float shift)
 }
 
 
-void D2TModelMGR::replaceTime( const Array1DImpl<float>& timevals )
+void D2TModelMgr::replaceTime( const Array1DImpl<float>& timevals )
 {
-    Well::D2TModel* d2t = new Well::D2TModel( d2T() );
+    if ( !d2T() ) return;
+    Well::D2TModel* d2t = new Well::D2TModel( *d2T() );
     for ( int dahidx=1; dahidx<d2t->size(); dahidx++ )
 	d2t->valArr()[dahidx] = timevals[dahidx];
 
@@ -136,20 +125,22 @@ void D2TModelMGR::replaceTime( const Array1DImpl<float>& timevals )
 }
 
 
-void D2TModelMGR::setAsCurrent( Well::D2TModel* d2t )
+void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
 {
     ensureValid( *d2t );
-    if ( !d2t || d2t->size() < 1 || d2t->value(1)<0 )
+    if ( !d2t || d2t->size() < 2 || d2t->value(1)<0 )
     { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
 
     if ( prvd2t_ )
 	delete prvd2t_; 
-    prvd2t_ =  new Well::D2TModel( d2T() );
-    wd()->setD2TModel( d2t );
+    if ( !d2T() ) 
+	prvd2t_ =  new Well::D2TModel( *d2T() );
+    if ( wd_ )
+	wd_->setD2TModel( d2t );
 }
 
 
-bool D2TModelMGR::undo()
+bool D2TModelMgr::undo()
 {
     if ( !prvd2t_ ) return false; 
     Well::D2TModel* tmpd2t =  new Well::D2TModel( *prvd2t_ );
@@ -158,32 +149,36 @@ bool D2TModelMGR::undo()
 }
 
 
-bool D2TModelMGR::cancel()
+bool D2TModelMgr::cancel()
 {
-    if ( emptyoninit_ )
-	wd()->d2TModel()->erase();	
+    if ( !wd_ ) return false;
+    if ( emptyoninit_ && d2T() )
+	d2T() ->erase();	
     else
 	setAsCurrent( orgd2t_ );
-    wd()->d2tchanged.trigger();
+    wd_->d2tchanged.trigger();
     return true;
 }
 
 
-bool D2TModelMGR::updateFromWD()
+bool D2TModelMgr::updateFromWD()
 {
-    if ( mIsUnvalidD2TM( (*wd())) )
+    if ( !wd_ || mIsUnvalidD2TM( (*wd_) ) || !d2T() )
        return false;	
-    setAsCurrent( wd()->d2TModel() );
+    setAsCurrent( d2T() );
     return true;
 }
 
 
-bool D2TModelMGR::commitToWD()
+bool D2TModelMgr::commitToWD()
 {
-    if ( !datawriter_->writeD2TM() ) 
+    //TODO 
+    /*
+    if ( !datawriter_.writeD2TM() ) 
 	return false;
+    */
 
-    wd()->d2tchanged.trigger();
+    if ( wd_ ) wd_->d2tchanged.trigger();
     if ( orgd2t_ && !emptyoninit_ )
 	delete orgd2t_;
 
@@ -191,9 +186,9 @@ bool D2TModelMGR::commitToWD()
 }
 
 
-void D2TModelMGR::ensureValid( Well::D2TModel& d2t )
+void D2TModelMgr::ensureValid( Well::D2TModel& d2t )
 {
-    geocalc_.ensureValidD2TModel( d2t );
+    calc_.ensureValidD2TModel( d2t );
 }
 
 

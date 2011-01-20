@@ -7,17 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.16 2010-08-02 07:19:23 cvsnanne Exp $
+ RCS:           $Id: welltiesetup.h,v 1.17 2011-01-20 10:21:38 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
 
-#include "multiid.h"
 #include "linekey.h"
-#include "welltieunitfactors.h"
-
+#include "multiid.h"
 #include "wellio.h"
 #include <iosfwd>
 
@@ -31,37 +29,33 @@ mClass Setup
 {
 public:
 			Setup()
-			    : wellid_(*new MultiID())
-			    , seisid_(*new MultiID())
-			    , wvltid_(*new MultiID())
+			    : wellid_(-1)
+			    , seisid_(-1)
+			    , wvltid_(-1)
 			    , issonic_(true)
 			    , isinitdlg_(true)
 			    , corrvellognm_("CS Corrected ")
-			    , seisinlcrlrg_(0,0)			     
-			    , unitfactors_(0)
 			    , linekey_(0)	 
-			    , useexistingd2tm_(0)	     	 
+			    , useexistingd2tm_(true)  	 
 			    , is2d_(false)				 
 			    {}
 
 
-			Setup( const Setup& setup ) 
-			    : wellid_(setup.wellid_)
-			    , seisid_(setup.seisid_)
-			    , wvltid_(setup.wvltid_)
-			    , issonic_(setup.issonic_)
-			    , isinitdlg_(setup.isinitdlg_)
-			    , seisnm_(setup.seisnm_)
-			    , vellognm_(setup.vellognm_)
-			    , denlognm_(setup.denlognm_)
-			    , corrvellognm_(setup.corrvellognm_)
-			    , unitfactors_(setup.unitfactors_)
-			    , seisinlcrlrg_(setup.seisinlcrlrg_)	 
-			    , linekey_(setup.linekey_)
-			    , useexistingd2tm_(setup.useexistingd2tm_)	      
-			    , is2d_(setup.is2d_)			 
-			    {}	
-	
+				Setup( const Setup& setup ) 
+				    : wellid_(setup.wellid_)
+				    , seisid_(setup.seisid_)
+				    , wvltid_(setup.wvltid_)
+				    , issonic_(setup.issonic_)
+				    , isinitdlg_(setup.isinitdlg_)
+				    , seisnm_(setup.seisnm_)
+				    , vellognm_(setup.vellognm_)
+				    , denlognm_(setup.denlognm_)
+				    , corrvellognm_(setup.corrvellognm_)
+				    , linekey_(setup.linekey_)
+				    , useexistingd2tm_(setup.useexistingd2tm_) 
+				    , is2d_(setup.is2d_)
+				    {}	
+		
     MultiID			wellid_;
     MultiID        		seisid_;
     MultiID               	wvltid_;
@@ -74,18 +68,12 @@ public:
     bool                	is2d_;
     bool 			isinitdlg_;
     bool 			useexistingd2tm_;
-    Interval<int>		seisinlcrlrg_;
-    
-    WellTie::UnitFactors 	unitfactors_;
     
     void    	      		usePar(const IOPar&);
     void          	 	fillPar(IOPar&) const;
 
     static Setup&		defaults();
     static void                 commitDefaults();
-
-protected:
-    
 };
 
 
@@ -116,7 +104,6 @@ protected:
    
     const WellTie::Setup& 	wts_;
     bool                	wrHdr(std::ostream&,const char*) const;
-
 };
 
 

@@ -9,23 +9,23 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.30 2010-12-07 12:49:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.31 2011-01-20 10:21:39 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
 #include "flatviewzoommgr.h"
 #include "keyboardevent.h"
+#include "emsurfacetr.h"
 #include "mouseevent.h"
 #include "welltiepickset.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
-#include "emsurfacetr.h"
 
-#include "uitoolbutton.h"
 #include "uiflatviewer.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uirgbarraycanvas.h"
+#include "uitoolbutton.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uiworld2ui.h"
@@ -40,14 +40,16 @@ namespace WellTie
     but = new uiToolButton( toolbar_, fnm, tt, mCB(this,uiControlView,cbnm) ); \
     toolbar_->addButton( but );
 
-uiControlView::uiControlView( uiParent* p, uiToolBar* toolbar,uiFlatViewer* vwr)
+uiControlView::uiControlView( uiParent* p, uiToolBar* tb, 
+				uiFlatViewer* vwr, Server& server )
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
 						    .withcoltabed(false))
-    , toolbar_(toolbar)
-    , dataholder_(0)
+    , toolbar_(tb)
     , manip_(true)
-    , selhordlg_(0)		  
-    , curview_(uiWorldRect(0,0,0,0))				  
+    , selhordlg_(0)
+    , curview_(uiWorldRect(0,0,0,0))
+    , server_(server)
+    , redrawNeeded(this)
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
@@ -98,12 +100,11 @@ bool uiControlView::handleUserClick()
     {
 	vwr_.getAuxInfo( wp, infopars_ );
 	const uiWorldRect& bbox = vwr_.boundingBox();
-	if ( dataholder_ ) 
-	{ 
-	    bool synth = ( wp.x < (bbox.right()-bbox.left())/2 );
-	    dataholder_->pickmgr()->addPick( wp.y, synth );
-	    dataholder_->redrawViewerNeeded.trigger();
-	}
+	bool synth = ( wp.x < (bbox.right()-bbox.left())/2 );
+	const SeisTrc& trc = synth ? server_.data().seistrc_ 
+	    			   : server_.data().synthtrc_;
+	server_.pickMgr().addPick( wp.y, synth, &trc );
+	redrawNeeded.trigger();
 	return true;
     }
     return false;
@@ -116,7 +117,7 @@ bool uiControlView::checkIfInside( double xpos, double zpos )
     const Interval<double> xrg( bbox.left(), bbox.right() ),
 			   zrg( bbox.bottom(), bbox.top() );
     if ( !xrg.includes( xpos, false ) || !zrg.includes( zpos, false ) ) 
-    { mErrRet("Please select your pick inside the work area",return false); }
+	{ mErrRet("Please select your pick inside the work area",return false);}
     return true;
 }
 
@@ -136,7 +137,6 @@ void uiControlView::altZoomCB( CallBacker* but )
     wr.setLeftRight( xrg );
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> size = wr.size();
-    dataholder_->redrawViewerNeeded.trigger();
     setNewView( centre, size );
     curview_ = wr;
 }
@@ -162,10 +162,7 @@ void uiControlView::keyPressCB( CallBacker* )
     const KeyboardEvent& ev =
 	vwr_.rgbCanvas().getKeyboardEventHandler().event();
     if ( ev.key_ == OD::P )
-    {
-	editbut_->setOn( !editbut_->isOn() );
-	editCB( 0 );
-    }
+	setEditOn( !editbut_->isOn() ); 
 }
 
 
@@ -177,7 +174,7 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
 	const uiRect viewarea = *vwr_.rgbCanvas().getSelectedArea();
 	if ( viewarea.topLeft() == viewarea.bottomRight() || 
 		viewarea.width() < 10 || viewarea.height() < 10 )
-	return;
+	    return;
 	uiWorld2Ui w2u; vwr_.getWorld2Ui( w2u );
 	wr = w2u.transform( viewarea );
     }
@@ -191,7 +188,6 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
 
-    dataholder_->redrawViewerNeeded.trigger();
     curview_ = wr;
     setNewView( centre, newsz );
 }
@@ -211,10 +207,10 @@ void uiControlView::setEditOn( bool yn )
 class uiMrkDispDlg : public uiDialog
 {
 public :
-    uiMrkDispDlg( uiParent* p, DataHolder& dh )
+
+    uiMrkDispDlg( uiParent* p, DispParams& pms )
 	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons","",mNoHelpID))
-	, dh_(dh)  
-	, pms_(*dh.uipms())  
+	, pms_(pms) 
     {
 	setCtrlStyle( uiDialog::LeaveOnly );
 	dispmrkfld_ = new uiCheckBox( this, "display markers");
@@ -246,89 +242,47 @@ public :
 	pms_.disphorfullnames_ = disphorfullnamefld_->isChecked();
 	dispmrkfullnamefld_->setSensitive( pms_.isvwrmarkerdisp_ );
 	disphorfullnamefld_->setSensitive( pms_.isvwrhordisp_ );
-	dh_.redrawViewerNeeded.trigger();
     }
 
 protected:
 
+    DispParams&		pms_;
     uiCheckBox* 	dispmrkfld_;
     uiCheckBox* 	disphorfld_;
     uiCheckBox*         dispmrkfullnamefld_;
     uiCheckBox*         disphorfullnamefld_;
-    Params::uiParams& 	pms_;
-    DataHolder& 	dh_;
 };
 
 
 void uiControlView::dispHorMrks( CallBacker* )
 {
-    uiMrkDispDlg dlg( this, *dataholder_ );
+    uiMrkDispDlg dlg( this, server_.dispParams() );
     dlg.go();
 }
 
 
 void uiControlView::loadHorizons( CallBacker* )
 {
-    if ( !dataholder_ ) 
-	return;
-    bool is2d = dataholder_->setup().is2d_;
+    bool is2d = false; //TODO
     PtrMan<CtxtIOObj> ctxt = is2d ? mMkCtxtIOObj( EMHorizon2D ) 
 				  : mMkCtxtIOObj( EMHorizon3D );
     if ( !selhordlg_ )
-	selhordlg_ = new uiIOObjSelDlg(this,*ctxt,"Select horizon",true);
+	selhordlg_ = new uiIOObjSelDlg( this, *ctxt, "Select horizon", true );
     TypeSet<MultiID> horselids;
     if ( selhordlg_->go() )
     {
 	for ( int idx=0; idx<selhordlg_->nrSel(); idx++ )
 	    horselids += selhordlg_->selected( idx );
     }
-    else
-    {
-	delete ctxt->ioobj;
-	return;
-    }
+    delete ctxt->ioobj; 
     BufferString errmsg; uiTaskRunner tr( this );
-    if ( !dataholder_->setUpHorizons( horselids, errmsg, tr ) ) 
-    { mErrRet( errmsg, return; ) }
-    dataholder_->uipms()->isvwrhordisp_ = true;
-    dataholder_->redrawViewerNeeded.trigger();
+    server_.horizonMgr().setUpHorizons( horselids, errmsg, tr );
+    if ( !errmsg.isEmpty() )
+	{ mErrRet( errmsg, return ) }
+
+    server_.dispParams().isvwrhordisp_ = true;
+    redrawNeeded.trigger();
 }
 
-
-
-/*
-uiTieClipingDlg::uiTieClipingDlg( uiParent* p, SeisTrcBuffer& trcbuf )
-	: uiDialog(p,"Set trace clipping")
-	, trcbuf_(trcbuf)  
-{
-    tracetypechoicefld_ = new uiGenInput( this, "Traces : ",
-			BoolInpSpec(true,"Synthetics","Seismics") );
-    sliderfld_ = new uiSliderExtra( this, iSliderExtra::Setup()
-					.lbl("Clipping (%)")
-					.sldrsize(220)
-					.withedit(true)
-					.isvertical(false), "Clipping slider" );
-    sliderfld_->sldr()->setInterval( Interval<float>(0,100) );
-				    FloatInpIntervalSpec()
-				    .setName(BufferString(" range start"),0)
-				    .setName(BufferString(" range stop"),1) ); 
-}
-
-
-void uiTieClipingDlg::getFromScreen( Callbacker* )
-{
-    cd_.issynthetic_ = tracetypechoicefld_->getBoolValue()
-    cd_.timerange_ = timerangefld_->getValues();
-    cd_.cliprate_ = sliderfld_->sldr()->value(); 
-}
-
-
-void uiTieClipingDlg::putToScreen( Callbacker* )
-{
-    tracetypechoicefld_->setValue( cd_.issynthetic_ );
-    timerange_ = timerangefld_->setValues( cd_.timerange_ );
-    sliderfld_->sldr()->value() = cd_.cliprate_; 
-}
-*/
 
 }; //namespace 

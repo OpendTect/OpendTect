@@ -13,124 +13,51 @@ ________________________________________________________________________
 
 -*/
 
-#include "enums.h"
-#include "namedobj.h"
 #include "color.h"
 #include "valseriesevent.h"
-#include "welltieunitfactors.h"
 
-namespace Well{ class Data; class LogSet; }
+class SeisTrc;
+
 namespace WellTie
 {
-    class UserPick;
-    class DataHolder;
+    class PickData;
+    class Marker;
 
-mClass UserPick
-{
-    public:
-			UserPick()
-			{}
-
-    Color           	color_;
-    bool		issynthetic_;
-    float           	zpos_;
-    float           	xpos_;
-};
-
-
-mClass PickSet 
+mClass PickSetMgr : public CallBacker
 {
 public:
-
-			PickSet()
-			    : mousepos_(0)
-			    , nrpickstotal_(0)  
-			    {}
-			~PickSet();
-			    
-			PickSet( const PickSet& wps )
-			    : mousepos_(wps.mousepos_)
-			    , nrpickstotal_(wps.nrpickstotal_)
-			    { 
-				deepCopy(pickset_,wps.pickset_);
-			    }
-
-
-    void                add(UserPick* pick) { pickset_ += pick; };
-    void                add(bool,float);
-    void 		clear(int idx);
-    void 		clearAll();
-    const float         getMousePos() const    { return mousepos_; }
-    WellTie::UserPick*  get(int idx)  	       { return pickset_[idx]; }
-    const WellTie::UserPick* get(int idx) const { return pickset_[idx]; }
-    WellTie::UserPick*  getLast()  	       { return pickset_[getSize()-1]; }
-    const int           getTotalNr() const     { return nrpickstotal_; }
-    const int           getSize() const        { return pickset_.size(); }
-    float 		getPos( int idx )     
-    			{ return get(idx)->zpos_; }
-    const float 	getPos( int idx ) const 
-    			{ return get(idx)->zpos_; }
-    const float 	getLastPos() 		 
-    			{ return getLast()->zpos_; }
-   
-    WellTie::UserPick*	remove(int idx) { return pickset_.remove(idx); }
-
-    void         	setMousePos( float mp ) { mousepos_ = mp; }
-    void		setPos( int idx, float pos ) 
-    			{ get(idx)->zpos_= pos; }
+    				PickSetMgr( PickData& pd );
     
-    void                updateShift(int,float);
-
-protected:
-
-    float               mousepos_;
-    int                 nrpickstotal_;
-    ObjectSet<WellTie::UserPick> pickset_;
-};
-
-
-mClass PickSetMGR : public CallBacker
-{
-public:
-
-			PickSetMGR(const DataHolder& dh)
-			    : dholder_(dh)
-			    , evtype_ (VSEvent::Extr)
-			    , pickadded(this)
-			    {}
+    Notifier<PickSetMgr> 	pickadded;
     
-    Notifier<PickSetMGR> pickadded;
-    
-    enum TrackType      { Maxima, Minima, ZeroCrossings };
-			DeclareEnumUtils(TrackType)
+    enum TrackType      	{ Maxima, Minima, ZeroCrossings };
+				DeclareEnumUtils(TrackType)
 
-    WellTie::PickSet* 	getSynthPickSet() { return &synthpickset_; }
-    const WellTie::PickSet* getSynthPickSet() const { return &synthpickset_; } 
-    WellTie::PickSet* 	getSeisPickSet()  { return &seispickset_; }
-    const WellTie::PickSet* getSeisPickSet() const { return &seispickset_; }
+    bool			lastpicksynth_;
+    VSEvent::Type		evtype_;
 
-    bool		lastpicksynth_;
-    VSEvent::Type	evtype_;
+    void           		addPick(float,bool,const SeisTrc* trc =0);
+    void			addPick(float,float);
+    void           		clearAllPicks();
+    void 	   		clearLastPicks();
+    bool 	   		isPick();
+    bool 	   		isSameSize();
+    float 	   		findEvent(const SeisTrc&,float) const;
+    void			setPickSetPos(bool issynth, int idx, float z);
+    void 	   		sortByPos()
+    				{ 
+				    sortByPos( synthpickset_ ); 
+				    sortByPos( seispickset_ );
+				}
+    void 	   		setEventType(int);
+    const TypeSet<Marker>& 	synthPickSet() const 	{ return synthpickset_;}
+    const TypeSet<Marker>& 	seisPickSet() const 	{ return seispickset_; }
 
-    void           	addPick(float,bool);
-    void           	clearAllPicks();
-    void 	   	clearLastPicks();
-    bool 	   	isPick();
-    bool 	   	isSameSize();
-    float 	   	findEvent(float,bool);
-    void 	   	setData(WellTie::DataHolder*);
-    void 	   	setEventType(int);
-    void 	   	sortByPos(WellTie::PickSet&);
-    void           	updateShift(int,float);
+protected :
+    void 	   		sortByPos(TypeSet<Marker>&);
 
-
-protected:
-
-    const DataHolder& 	dholder_;
-    const WellTie::Params::DataParams* datapms_;
-
-    WellTie::PickSet 	synthpickset_;
-    WellTie::PickSet 	seispickset_;
+    TypeSet<Marker>& 		synthpickset_;
+    TypeSet<Marker>& 		seispickset_;
 };
 
 }; //namespace WellTie

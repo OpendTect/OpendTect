@@ -15,14 +15,9 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 #include "uiflatviewer.h"
-#include "welltieunitfactors.h"
-#include "welltiedata.h"
 
 class SeisTrc;
 class SeisTrcBuf;
-class SeisTrcBufDataPack;
-
-class uiFlatViewer;
 class uiFunctionDisplay;
 class uiPolyLineItem;
 class uiWellLogDisplay;
@@ -32,56 +27,46 @@ class uiWellDisplayControl;
 
 namespace Well
 {
-    class Marker;
     class Data;
+    class Marker;
 };
-
-namespace EM
-{
-    class Horizon2D;
-    class Horizon3D;
-}
 
 namespace WellTie
 {
+    class Marker;
+    class Server;
     class Setup; 
-    class DataHolder; 
-    class PickSet; 
+    class Data; 
+    class DispParams;
 
 mClass uiTieView : public CallBacker
 {
 public:
-			    	uiTieView(uiParent*,uiFlatViewer*,
-					  WellTie::DataHolder&,
-					  ObjectSet<uiWellLogDisplay>*);
-				~uiTieView();
+			    	uiTieView(uiParent*,uiFlatViewer*,const Data&);
+			    	~uiTieView();
 
     void        		fullRedraw();
+    void        		drawUserPicks();
     void 			redrawViewer(CallBacker*);
     void 			redrawViewerMarkers(CallBacker*);
-    void        		drawUserPicks();
-    bool        		isEmpty(); 
+
+    ObjectSet<uiWellLogDisplay>& logDisps() { return logsdisp_; }
 
     Notifier<uiTieView> 	infoMsgChanged;
 
 protected:
 
-    ObjectSet<uiWellLogDisplay>& logsdisp_;
-    DataHolder&  		dataholder_;
-    const Setup& 		wtsetup_;
-    const Params::DataParams* 	params_;
+    uiFlatViewer*		vwr_;
+    uiParent*			parent_;
+    ObjectSet<uiWellLogDisplay> logsdisp_;
     uiWellDisplayControl*       wellcontrol_;
 
-    PickSet*			seispickset_;
-    PickSet*			synthpickset_;
-
-    uiFlatViewer*		vwr_;
-    SeisTrcBuf*			trcbuf_;
-    SeisTrcBufDataPack*		seistrcdp_;
-    ObjectSet<SeisTrc>		trcs_;
+    const DispParams&		params_;
+    const Data&			data_;
     const StepInterval<float>	zrange_;
-    float			maxtraceval_;
-    float			mintraceval_;
+    const TypeSet<Marker>&	seispickset_;
+    const TypeSet<Marker>&	synthpickset_;
+    SeisTrcBuf&			trcbuf_;
 
     ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
     ObjectSet<FlatView::Annotation::AuxData> wellmarkerauxdatas_;
@@ -90,12 +75,9 @@ protected:
     ObjectSet<uiTextItem> 	mrktxtnms_;
     uiPolyLineItem*		checkshotitm_;
 
-    void        		drawAILog();
-    void        		drawVelLog();
-    void        		drawDenLog();
-    void        		drawRefLog();
+    void        		drawLog(const char*,int,int,bool);
     void        		drawTraces();
-    void			drawUserPicks(const WellTie::PickSet*);
+    void			drawUserPicks(const TypeSet<Marker>&,bool);
     void        		drawMarker(FlatView::Annotation::AuxData*,
 					    bool,float,Color,bool,bool);
     void        		drawViewerWellMarkers();
@@ -106,32 +88,33 @@ protected:
     void        		initWellControl();
     void			loadHorizons();
     void			drawHorizons();
-    void 			setLogsRanges(float,float);
-    bool 			setLogsParams();
-    void 			setUpTrcBuf(SeisTrcBuf*,const char*,int);
-    void			setUpUdfTrc(SeisTrc&,const char*,int);
-    void			setUpValTrc(SeisTrc&,const char*,int);
-    void        		setDataPack(SeisTrcBuf*,const char*,int);
+    void 			setLogsRanges(Interval<float>);
+    void 			setLogsParams();
+    void			setUdfTrc(SeisTrc&) const;
+    void        		setDataPack();
     void 			setInfoMsg(CallBacker*);
     void			zoomChg(CallBacker*);
 };
 
 
 
-mClass uiCorrView : uiGroup
+mClass uiCrossCorrView : uiGroup
 {
 public:
 
-				uiCorrView(uiParent*,WellTie::DataHolder&);
-				~uiCorrView();
+				uiCrossCorrView(uiParent*,const Data&);
 
-    void                	setCrossCorrelation();
+    void                	set(float*,int,float,float);
+    void                	draw();
 
 protected:
 
-    uiLabel* 			corrlbl_;
-    WellTie::DataHolder& 	dataholder_;
-    ObjectSet<uiFunctionDisplay>  corrdisps_;
+    uiLabel* 			lbl_;
+    uiFunctionDisplay* 		disp_;
+    TypeSet<float>		vals_;
+    float			lag_;
+    float			coeff_;
+    const Data& 		data_;
 };
 
 }; //namespace WellTie

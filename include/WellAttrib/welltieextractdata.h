@@ -15,49 +15,44 @@ ________________________________________________________________________
 
 #include "executor.h"
 #include "position.h"
-#include "arrayndimpl.h"
-#include "geometry.h"
 
 class CubeSampling;
 class LineKey;
-class SeisTrcReader;
-class SeisTrcBuf;
 class MultiID;
 class IOObj;
-namespace Well 
-{
-    class Data;
-    class Log;
-    class Track;
-    class D2TModel;
-};
+class SeisTrcReader;
+class SeisTrcBuf;
+class SeisTrc;
+
+namespace Well  { class Track; class D2TModel; }
 
 namespace WellTie
 {
 
-class DataHolder;
-
 mClass TrackExtractor : public Executor
 {
 public:
-			TrackExtractor(const Well::Data*);
+			TrackExtractor(const Well::Track&,
+					const Well::D2TModel*);
 
-    StepInterval<float> timeintv_;
+    void		setInterval( const StepInterval<float>& intv )
+			{ extrintv_ = intv; }
 
     int                 nextStep();
-    od_int64            totalNr() const		{ return timeintv_.nrSteps(); }
+    od_int64            totalNr() const		{ return extrintv_.nrSteps(); }
     od_int64            nrDone() const          { return nrdone_; }
     const char*         message() const         { return "Computing..."; }
     const char*         nrDoneText() const      { return "Points done"; }
-    const BinID*	getBIDs() const		{ return bidset_.arr(); }
+    const TypeSet<BinID>& getBIDs() const	{ return bidset_; }
 
 protected:
 
-    BinID		prevbid_;
+    StepInterval<float> extrintv_;
+
     TypeSet<BinID>	bidset_;
-    const Well::Data& 	wd_;	 
-    const Well::Track& track_;
-    const Well::D2TModel& d2t_;
+    Interval<float> 	tracklimits_;
+    const Well::Track& 	track_;
+    const Well::D2TModel* d2t_;
     int                 nrdone_;
 };
 
@@ -69,77 +64,33 @@ public:
 			SeismicExtractor(const IOObj&);
 			~SeismicExtractor();
 
-    StepInterval<float> timeintv_;
-
     int                 nextStep();
-    od_int64            totalNr() const		{ return timeintv_.nrSteps(); }
+    od_int64            totalNr() const		{ return extrintv_.nrSteps(); }
     od_int64            nrDone() const          { return nrdone_; }
     const char*         message() const         { return "Computing..."; }
     const char*         nrDoneText() const      { return "Points done"; }
     void		setBIDValues(const TypeSet<BinID>&); 
-    void		setTimeIntv(const StepInterval<float>&);
+    void		setInterval(const StepInterval<float>&);
     //Only 2D
     void		setLineKey(const LineKey* lk) { linekey_ = lk; }
     void		setAttrNm(const char* nm) { attrnm_ = nm; }
+
+    const SeisTrc&	result() const		{ return *outtrc_; }
     
-    Array1DImpl<float>* vals_;
-    Array1DImpl<float>* dahs_;
-
-
 protected:
 
-    CubeSampling* 	cs_;
-    TypeSet<BinID>	bidset_;
-    SeisTrcBuf*		trcbuf_;
-    SeisTrcReader* 	rdr_;
-    const LineKey*	linekey_;
     const char*		attrnm_;
     int                 nrdone_;
     int			radius_;
+    CubeSampling* 	cs_;
+    TypeSet<BinID>	bidset_;
+    SeisTrc*		outtrc_;
+    SeisTrcBuf*		trcbuf_;
+    SeisTrcReader* 	rdr_;
+    StepInterval<float> extrintv_;
+    const LineKey*	linekey_;
   
     void		collectTracesAroundPath();
-};
-
-
-
-mClass LogResampler : public Executor
-{
-public:
-			LogResampler(Well::Log*, const Well::Log&,
-				const Well::Data*, WellTie::DataHolder* d=0);
-			~LogResampler();
-
-
-
-    int                 nextStep();
-    int           	colnr_;
-    od_int64            totalNr() const		{ return timeintv_.nrSteps(); }
-    od_int64            nrDone() const          { return nrdone_; }
-    const char*         message() const         { return "Computing..."; }
-    const char*         nrDoneText() const      { return "Points done"; }
-
-    bool 		isavg_;
-    Array1DImpl<float>* vals_;
-    Array1DImpl<float>* dahs_;
-
-    void		setTimeIntv(const StepInterval<float>&);
-
-protected:
-
-    Well::Log*   	newlog_;		
-    const Well::Log& 	orglog_;
-    const Well::Data& 	wd_;
-
-
-    TypeSet<float> 	val_;
-    TypeSet<float> 	dah_;
-
-    int                 nrdone_;
-    int                 curidx_;
-    float 		prevval_;
-
-    void        	fillProcLog(const Well::Log&);
-    StepInterval<float> timeintv_;
 };
 
 };//namespace WellTie

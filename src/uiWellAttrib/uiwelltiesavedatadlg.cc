@@ -8,14 +8,16 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.15 2010-12-07 12:47:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.16 2011-01-20 10:21:39 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
+#include "seistrctr.h"
 #include "wavelet.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
 #include "welllog.h"
+#include "welldata.h"
 #include "welllogset.h"
 
 #include "uibutton.h"
@@ -32,29 +34,26 @@ static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.15 2010-12-07 12:47
 namespace WellTie
 {
 
-uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const WellTie::DataHolder& dh)
+uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& data )
     : uiDialog( p, uiDialog::Setup("Save current data",
 		"Check the items to be saved","107.4.3") )
-    , dataholder_(dh)
-    , datawriter_(new WellTie::DataWriter(dh))	     
+    , data_(data)							  
 {
     setCtrlStyle( DoAndStay );
-
     BufferStringSet lognms; 	BufferStringSet wvltnms;
-    for ( int idx=0; idx<dh.wvltset().size(); idx++)
+    wvltctioset_ += mMkCtxtIOObj(Wavelet);
+    wvltctioset_ += mMkCtxtIOObj(Wavelet);
+    wvltnms.add( data_.initwvlt_.name() );
+    wvltnms.add( data_.estimatedwvlt_.name() );
+
+    for ( int idx=2; idx<data_.logset_.size(); idx++)
     {
-	wvltctioset_ += new CtxtIOObj( *dh.wvltCtxt() );
-	wvltnms.add( dh.wvltset()[idx]->name() );
-    }
-    //TODO change with ref numbers instead of 3 and size()-2!! 
-    for ( int idx=3; idx<dh.logset()->size()-2; idx++)
-    {
-	seisctioset_ += new CtxtIOObj( *dh.seisCtxt() );
-	lognms.add( dh.logset()->getLog(idx).name() );
+	seisctioset_ += mMkCtxtIOObj(SeisTrc);
+	lognms.add( data_.logset_.getLog(idx).name() );
     }
 
     uiSaveDataGroup::Setup su; su.itemnames_=lognms;
-    su.wellname(dataholder_.wd()->name()); su.ctio_ = seisctioset_;
+    su.wellname( data_.wd_->name() ); su.ctio_ = seisctioset_;
     savelogsfld_ = new uiSaveDataGroup( this, su );
 
     saveasfld_ = new uiGenInput( this, "Save as", 
@@ -114,22 +113,24 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
     if ( lognms.isEmpty() && wvltnms.isEmpty() )
 	mErrRet( "Please check at least one item to be saved" );
 
+    BufferString errmsg( "Can not write " ); 
     for ( int idx=0; idx<wvltnms.size(); idx++ )
     {
 	const char* orgwvltnm = savewvltsfld_->name( wvltidces[idx] );
 	const int wvltidx = savewvltsfld_->indexOf( orgwvltnm );
 	if ( wvltidx < 0 || !wvltctioset_[wvltidx]->ioobj ) 
 	{ 
-	    BufferString wmsg( "Can not write " ); 
-	    wmsg += wvltnms.get( idx );
-	    uiMSG().error( wmsg ); 
+	    errmsg += wvltnms.get( idx ); 
+	    errmsg += " ";
+	    uiMSG().error( errmsg );
 	    success = false; 
 	    continue;
 	}
-	if ( !dataholder_.wvltset()[wvltidx]->put(wvltctioset_[wvltidx]->ioobj))
+	Wavelet* wvlt = idx ? &data_.initwvlt_ : &data_.estimatedwvlt_;
+	if ( wvlt->put( wvltctioset_[wvltidx]->ioobj ) )
 	{
-	    BufferString errmsg( "cannot save " ); 
 	    errmsg += wvltnms.get(idx);
+	    errmsg += " ";
 	    mErrRet( errmsg );
 	}
     }
@@ -138,12 +139,11 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
 	const char* orglognm = savelogsfld_->name( logidces[idx] );
-	const Well::Log* l = dataholder_.logset()->getLog( orglognm );
+	const Well::Log* l = data_.logset_.getLog( orglognm );
 	if ( !l )
 	{ 
-	    BufferString logmsg( "Can not write " ); 
-	    logmsg += lognms.get(idx);
-	    uiMSG().error(logmsg); 
+	    errmsg += lognms.get(idx);
+	    uiMSG().error(errmsg); 
 	    success = false; 
 	    continue;
 	}

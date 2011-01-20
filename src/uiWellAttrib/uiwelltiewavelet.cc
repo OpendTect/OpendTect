@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.39 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.40 2011-01-20 10:21:39 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
+#include "arrayndimpl.h"
 #include "flatposdata.h"
 #include "ioman.h"
 #include "survinfo.h"
@@ -35,17 +36,16 @@ namespace WellTie
 
 #define mErrRet(msg,act) \
 { uiMSG().error(msg); act; }
-uiWaveletView::uiWaveletView( uiParent* p, WellTie::DataHolder* dh )
+uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
 	: uiGroup(p)
-	, dataholder_(dh)  
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
-	, activeWvltChged(this)		
+	, activeWvltChged(this)
+	, wvltset_(wvs)	       	       
 {
     createWaveletFields( this );
-
-    for ( int idx=0; idx<dataholder_->wvltset().size(); idx++ )
+    for ( int idx=0; idx<wvs.size(); idx++ )
     {
-	uiwvlts_ += new uiWavelet( this, dataholder_->wvltset()[idx], idx==0 );
+	uiwvlts_ += new uiWavelet( this, wvs[idx], idx==0 );
 	uiwvlts_[idx]->attach( ensureBelow, activewvltfld_ );
 	if ( idx ) uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
 	uiwvlts_[idx]->wvltChged.notify( mCB( 
@@ -68,7 +68,7 @@ void uiWaveletView::createWaveletFields( uiGroup* grp )
 {
     grp->setHSpacing( 40 );
    
-    const Wavelet* initw = dataholder_->wvltset()[0];
+    const Wavelet* initw = wvltset_[0];
     BufferString initwnm( "Initial " ); 
     BufferString estwnm( "Estimated" ); 
     mSetNm( initwnm, initw ) 
@@ -92,10 +92,10 @@ void uiWaveletView::redrawWavelets()
 void uiWaveletView::activeWvltChanged( CallBacker* )
 {
     const bool isinitactive = activewvltfld_->getBoolValue();
-    dataholder_->dpms()->isinitwvltactive_ = activewvltfld_->getBoolValue();
     uiwvlts_[0]->setAsActive( isinitactive );
     uiwvlts_[1]->setAsActive( !isinitactive );
-    activeWvltChged.trigger();
+    CBCapsule<bool> caps( isinitactive, this );
+    activeWvltChged.trigger( &caps ); 
 }
 
 

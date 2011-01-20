@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.39 2011-01-11 11:12:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.40 2011-01-20 10:21:39 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -19,9 +19,11 @@ static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.39 2011-01-11 11:12:25 c
 #include "survinfo.h"
 #include "wavelet.h"
 #include "welldata.h"
+#include "welllogset.h"
 #include "wellman.h"
 #include "welltransl.h"
 #include "welltiesetup.h"
+#include "welltieunitfactors.h"
 #include "wellreader.h"
 #include "welld2tmodel.h"
 
@@ -60,7 +62,8 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	, seislinefld_(0)						      
 	, seisextractfld_(0)				   
 	, typefld_(0)
-	, extractwvltdlg_(0)		     
+	, extractwvltdlg_(0)
+	, wd_(0)			    
 {
     setCtrlStyle( DoAndStay );
 
@@ -151,6 +154,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
     delete &wtsetup_;
+    delete wd_;
     delete seisctio3d_.ioobj; delete &seisctio3d_;
     delete seisctio2d_.ioobj; delete &seisctio2d_;
     delWins();
@@ -187,17 +191,18 @@ void uiTieWinMGRDlg::wellSel( CallBacker* )
     const char* nm = Well::IO::getMainFileName( *wllctio_.ioobj );
     if ( !nm || !*nm ) return;
 
-    Well::Data wd; Well::Reader wr( nm, wd );
-    BufferStringSet lognms; wr.getLogInfo( lognms );
-    lognms.sort();
-    fillLogNms( vellogfld_, lognms ); fillLogNms( denlogfld_, lognms );
+    delete wd_; wd_ = new Well::Data; 
+    Well::Reader wr( nm, *wd_ );
+    wr.getLogs();
+    BufferStringSet lognms; wr.getLogInfo( lognms ); lognms.sort();
+    fillLogNms( vellogfld_, lognms ); 
+    fillLogNms( denlogfld_, lognms );
 
     wtsetup_.wellid_ = wllctio_.ioobj->key();
-
     vellogfld_->setCurrentItem( lognms.nearestMatch( "Son" )+1 );
     denlogfld_->setCurrentItem( lognms.nearestMatch( "Den" )+1 );
-    used2tmbox_->display( wr.getD2T() && !mIsUnvalidD2TM(wd) );
-    used2tmbox_->setChecked( wr.getD2T() && !mIsUnvalidD2TM(wd) );
+    used2tmbox_->display( wr.getD2T() && !mIsUnvalidD2TM((*wd_)) );
+    used2tmbox_->setChecked( wr.getD2T() && !mIsUnvalidD2TM((*wd_)) );
 
     getDefaults();
 }
@@ -290,8 +295,8 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     if ( !seisfld )
 	mErrRet( "Please select a seismic type" );
 
-    if ( !wellfld_->commitInput() )
-	 mErrRet("Please select a well")
+    if ( !wellfld_->commitInput() || !wd_ )
+	 mErrRet("Please select a valid well")
     if ( !seisfld->commitInput() )
 	mErrRet("Please select the input seimic data")
     wtsetup_.seisnm_ = seisfld->getInput();
@@ -309,8 +314,13 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     if ( !wvltfld_->getWavelet() )
 	mErrRet("Please select a valid wavelet")
 
-    WellTie::UnitFactors units( &wtsetup_ );
-    if ( !units.denFactor() || !units.velFactor()  )
+    wtsetup_.issonic_ = !isvelbox_->isChecked();
+
+    WellTie::UnitFactors units;
+    const Well::Log* s = wd_->logs().getLog( wtsetup_.vellognm_ ); 
+    const Well::Log* d = wd_->logs().getLog( wtsetup_.denlognm_ );
+    if ( !s || !d ) mErrRet( "No valid log selected" )
+    if ( !units.getDenFactor(*d) || !units.getVelFactor(*s,wtsetup_.issonic_) )
 	mErrRet( "invalid log units, please check your input logs" );
 
     if ( is2d_ )
@@ -325,8 +335,6 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     wtsetup_.seisid_ = seisfld->ctxtIOObj().ioobj->key();
     wtsetup_.wellid_ = wellfld_->ctxtIOObj().ioobj->key();
     wtsetup_.wvltid_ = wvltfld_->getID();
-    wtsetup_.issonic_ = !isvelbox_->isChecked();
-    wtsetup_.unitfactors_ = units;
     wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
 
     if ( saveButtonChecked() )

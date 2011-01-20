@@ -7,172 +7,108 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.42 2011-01-11 10:47:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.43 2011-01-20 10:21:38 cvsbruno Exp $";
 
-#include "arrayndimpl.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "strmprov.h"
-#include "survinfo.h"
-#include "seistrctr.h"
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "survinfo.h"
-#include "wavelet.h"
+#include "seisioobjinfo.h"
 
 #include "emhorizon2d.h"
 #include "emmanager.h"
-#include "emsurfacetr.h"
 
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellhorpos.h"
-#include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
 #include "wellmarker.h"
 #include "wellwriter.h"
+#include "wavelet.h"
 
 #include "welltiecshot.h"
 #include "welltiedata.h"
 #include "welltieextractdata.h"
 #include "welltiesetup.h"
+#include "welltietoseismic.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
-#include "welltieunitfactors.h"
 
 namespace WellTie
 {
 
-
-DataHolder::DataHolder( const WellTie::Setup& s )
-	: wellid_(s.wellid_)				  
-	, setup_(s)
-	, factors_(s.unitfactors_) 	  
-	, wvltctio_(*mMkCtxtIOObj(Wavelet))
-	, seisctio_(*mMkCtxtIOObj(SeisTrc))
-	, wd_(0)			
-	, params_(0)		     	
-	, redrawViewerNeeded(this)				
-	, closeall(this)				   
+Data::Data( const Setup& wts )
+    : logset_(*new Well::LogSet)  
+    , setup_(wts)  
+    , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
+    , estimatedwvlt_(*new Wavelet(initwvlt_))
+    , timeintv_(SI().zRange(true))
+    , synthtrc_(*new SeisTrc)  
+    , seistrc_(*new SeisTrc)  
 {
-    wd_ = wd();
-    params_ = new WellTie::Params( s, wd_ );
-    seisctio_.ctxt.forread = false;
-    wvltctio_.ctxt.forread = false;
-
-    for ( int idx =0; idx<2; idx++ )
-	wvltset_ += Wavelet::get( IOM().get(s.wvltid_) ); 
-
-    uipms_   = &params_->uipms_;
-    dpms_    = &params_->dpms_;
-    pickmgr_ = new WellTie::PickSetMGR( *this );
-    geocalc_ = new WellTie::GeoCalculator( *this );
-    d2tmgr_  = new WellTie::D2TModelMGR( *this );
-    logset_  = new Well::LogSet();
+    currvellog_ = sonic(); //TODO chge init this 
+    estimatedwvlt_.setName( "Estimated wavelet" );
 }
 
 
-DataHolder::~DataHolder()
+Data::~Data()
 {
-    deepErase( arr_ );
-    logset_->empty();
-    delete params_;
-    delete logset_;
-    delete pickmgr_;
-    delete d2tmgr_;
-    delete seisctio_.ioobj; delete &seisctio_;
-    delete wvltctio_.ioobj; delete &wvltctio_;
-
-    if ( wd_ )
-	wd_->tobedeleted.remove( mCB(this,DataHolder,welldataDelNotify) );
-    wd_ = 0;
-    Well::MGR().release( wellid_ );
+    delete &logset_;
+    delete &initwvlt_;
+    delete &estimatedwvlt_;
+    delete &synthtrc_;
+    delete &seistrc_;
 }
 
 
-void DataHolder::welldataDelNotify( CallBacker* )
-{ wd_ = 0;  if ( params_ ) params_->resetWD(0); }
+const char* Data::sonic() const
+{ return setup_.vellognm_; }
+
+const char* Data::corrsonic() const
+{ return setup_.corrvellognm_; }
+
+const char* Data::currvellog() const
+{ return currvellog_; }
+
+const char* Data::density() const
+{ return setup_.denlognm_; }
+
+const char* Data::ai() const
+{ return "AI"; }
+
+const char* Data::reflectivity() const
+{ return "Reflectivity"; }
+
+const char* Data::synthetic() const
+{ return "Synthetic"; }
+
+const char* Data::seismic() const
+{ return "Seismic"; }
+
+const char* Data::checkshotlog() const
+{ return "CheckShot log"; }
+
+bool Data::isSonic() const
+{ return setup_.issonic_; }
 
 
-Well::Data* DataHolder::wd() const
+void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids, 
+				BufferString& errms, TaskRunner& tr )
 {
-    if ( !wd_ )
-    {
-	DataHolder* self = const_cast<DataHolder*>( this );
-	Well::Data* wd = Well::MGR().get( wellid_, false );
-	self->wd_ = wd;
-	if ( wd )
-	{
-	    if ( params_ )
-		params_->resetWD( wd );
-	    wd->tobedeleted.notify( mCB(self,DataHolder,welldataDelNotify) );
-	}
-	//else
-	  //  self->triggerClose();
-    }
-    return wd_;
-}
-
-
-const BinID DataHolder::binID() const
-{
-    Coord3 pos = wd()->track().pos( 0 );
-    return SI().transform( pos );
-}
-
-
-void DataHolder::resetLogData()
-{
-    logset_->empty();
-    for ( int idx=0; idx<dpms_->colnms_.size(); idx++ )
-    {
-	Well::Log* log = new Well::Log( dpms_->colnms_.get(idx) );
-	logset_->add( log );
-	arr_ += new Array1DImpl<float>( log->size() );
-    }
-}
-
-
-Array1DImpl<float>* DataHolder::getLogVal( const char* nm, bool isdah ) const 
-{
-    DataHolder* self = const_cast<DataHolder*>( this );
-    const int logidx = logset_->indexOf( nm );
-    if ( logidx<0 ) return 0;
-    const Well::Log& log = logset_->getLog( logidx );
-    const float* val = isdah ? log.dahArr() : log.valArr();
-    delete self->arr_[logidx];
-    self->arr_.replace( logidx, new Array1DImpl<float> (log.size()) );
-    memcpy( self->arr_[logidx]->getData(), val, log.size()*sizeof(float) );
-    return self->arr_[logidx];
-}
-
-
-void DataHolder::setLogVal( const char* nm , 
-			    const Array1DImpl<float>* vals,
-			    const Array1DImpl<float>* dahs )
-{
-    if ( !vals || ! dahs ) return;
-    Well::Log& log = *logset_->getLog( nm ); 
-    log.erase();
-    for ( int idx=0; idx<dahs->info().getSize(0); idx++ )
-	log.addValue( dahs->get(idx), vals->get(idx) );
-}
-
-
-bool DataHolder::setUpHorizons( const TypeSet<MultiID>& horids, 
-				BufferString& errms, TaskRunner& tr)
-{
-    deepErase( hordatas_ );
+    horizons_.erase();
+    if ( !wd_ ) return;
     EM::EMManager& em = EM::EMM();
     for ( int idx=0; idx<horids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( horids[idx] );
 	if ( !ioobj )
 	{
-	    errms += "Cannot get database entry for selected horizon";
-	    return false;
+	    errms += "Cannot get database entry for selected horizon"; 
+	    return; 
 	}
 
 	EM::ObjectID emid = EM::EMM().getObjectID( horids[idx] );
@@ -197,64 +133,95 @@ bool DataHolder::setUpHorizons( const TypeSet<MultiID>& horids,
 		errms += "Cannot load ";
 		errms += ioobj->name();
 		errms += ".";
-		return false;
+		return;
 	    }
 	}
 	mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
 	if ( !hor ) continue;
-	WellHorIntersectFinder whfinder( wd()->track(), wd()->d2TModel() );
+	WellHorIntersectFinder whfinder( wd_->track(), wd_->d2TModel() );
 	whfinder.setHorizon( emid );
 	TypeSet<WellHorIntersectFinder::ZPoint> zpts;
 	whfinder.findIntersection( zpts );
 	if ( !zpts.isEmpty() )
 	{
 	    const float zval = zpts[0].zval_*= 1000;
-	    hordatas_ += new HorData( zval, hor->preferredColor() );
-	    hordatas_[hordatas_.size()-1]->name_ = hor->name();
-	    hordatas_[hordatas_.size()-1]->lvlid_ = hor->stratLevelID();
+	    Marker hd( zval );
+	    hd.name_ = hor->name();
+	    hd.color_ = hor->preferredColor();
+	    horizons_ += hd;
+	    hd.id_ = hor->stratLevelID();
 	}
     }
-    return true;
 }
 
 
-bool DataHolder::matchHorWithMarkers( BufferString& errmsg, bool bynames ) 
-{
-    if ( !hordatas_.size() || !wd()->markers().size() )
-    { errmsg = "No horizon or no marker found "; return false; }
-    Well::D2TModel* dtm = wd()->d2TModel();
-    if ( !dtm || dtm->size()<= 0 )
-    { errmsg = "No valid depth/time model found "; return false; }
 
-    bool success = false;
-    for ( int idmrk=0; idmrk<wd()->markers().size(); idmrk++ )
+void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs, 
+					bool bynames ) const
+{
+    const Well::D2TModel* dtm = wd_ ? wd_->d2TModel() : 0;
+    if ( !dtm ) return;
+    for ( int idmrk=0; idmrk<wd_->markers().size(); idmrk++ )
     {
-	const Well::Marker& mrk = *wd()->markers()[idmrk];
-	for ( int idhor=0; idhor<hordatas_.size(); idhor++ )
+	const Well::Marker& mrk = *wd_->markers()[idmrk];
+	for ( int idhor=0; idhor<horizons_.size(); idhor++ )
 	{
-	    HorData& hd = *hordatas_[idhor];
+	    Marker& hd = horizons_[idhor];
 	    BufferString mrknm( mrk.name() );
 	    BufferString hdnm( hd.name_ );
 	    if ( ( bynames && !strcmp( mrknm, hdnm ) ) 
-		|| ( !bynames && hd.lvlid_ >=0 && hd.lvlid_ == mrk.levelID() ))
+		|| ( !bynames && hd.id_ >=0 && hd.id_ == mrk.levelID() ))
 	    {
-		float zmrkpos = dtm->getTime(mrk.dah())*1000;
-		float zhorpos = hd.zval_;
-		pickmgr_->addPick( zmrkpos, true );
-		pickmgr_->addPick( zhorpos, false );
-		success =true;
+		PosCouple pc; pcs += pc;
+		pc.z1_ = dtm->getTime(mrk.dah())*1000; 
+		pc.z2_ = hd.zpos_;
 	    }
 	}
     }
-    if ( !success )
-    { errmsg = "No match found between markers and horizons"; return false; }
-    return true;
 }
 
 
-DataWriter::DataWriter( const WellTie::DataHolder& dh )
-    : holder_(dh)
-    , wtr_(0)  
+
+
+WellDataMgr::WellDataMgr( const MultiID& wellid )
+    : wellid_(wellid_)
+    , wd_(0)
+    , datadeleted_(this)    
+{}
+
+
+WellDataMgr::~WellDataMgr()
+{
+    if ( wd_ )
+	wd_->tobedeleted.remove( mCB(this,WellDataMgr,wellDataDelNotify));
+    wd_ = 0;
+    Well::MGR().release( wellid_ );
+}
+
+
+void WellDataMgr::wellDataDelNotify( CallBacker* )
+{ wd_ = 0; datadeleted_.trigger(); }
+
+
+Well::Data* WellDataMgr::wellData() const
+{
+    if ( !wd_ )
+    {
+	WellDataMgr* self = const_cast<WellDataMgr*>( this );
+	Well::Data* wd = Well::MGR().get( wellid_, false );
+	self->wd_ = wd;
+	if ( wd )
+	    wd->tobedeleted.notify( mCB(self,WellDataMgr,wellDataDelNotify) );
+    }
+    return wd_;
+}
+
+
+
+DataWriter::DataWriter( Well::Data* wd, const MultiID& wellid )
+    : wtr_(0)
+    , wd_(wd)
+    , wellid_(wellid)  
 {
     setWellWriter();
 }
@@ -268,10 +235,10 @@ DataWriter::~DataWriter()
 
 void DataWriter::setWellWriter()
 {
-    IOObj* ioobj = IOM().get( holder_.setup().wellid_ );
-    if ( ioobj )
+    IOObj* ioobj = IOM().get( wellid_ );
+    if ( ioobj && wd_ )
     {
-	wtr_ = new Well::Writer(ioobj->fullUserExpr(true),*holder_.wd()); 
+	wtr_ = new Well::Writer(ioobj->fullUserExpr(true),*wd_ ); 
 	delete ioobj;
     }
 }
@@ -285,33 +252,28 @@ bool DataWriter::writeD2TM() const
 
 bool DataWriter::writeLogs( const Well::LogSet& logset ) const
 {
-    Well::LogSet& wdlogset = const_cast<Well::LogSet&>( holder_.wd()->logs() );
+    if ( !wd_ ) return false;
+    Well::LogSet& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
     for ( int idx=0; idx<logset.size(); idx++ )
-    {
-	Well::Log* log = new Well::Log( logset.getLog(idx) );
-	wdlogset.add( log );
-    }
+	wdlogset.add( new Well::Log( logset.getLog(idx) ) );
     return ( wtr_ && wtr_->putLogs() );
 }
 
 
 bool DataWriter::writeLogs2Cube( LogData& ld ) const
 {
-    bool allsucceeded = true;
+    if ( !wd_ || !wd_->haveD2TModel() ) return false;
+    bool allsucceeded = true; 
     for ( int idx=0; idx<ld.logset_.size(); idx++ )
     {
-	WellTie::TrackExtractor wtextr( holder_.wd() );
-	wtextr.timeintv_ = holder_.dpms()->timeintvs_[1];
+	WellTie::TrackExtractor wtextr( wd_->track(), wd_->d2TModel() );
 	if ( !wtextr.execute() )
 	    pErrMsg( "unable to extract position" );
 
 	ld.curlog_ = &ld.logset_.getLog( idx );
 	ld.curidx_ = idx;
 	const int datasz = ld.curlog_->size();
-
-	ld.bids_.erase();
-	for ( int idbids=0; idbids<datasz; idbids++ )
-	    ld.bids_ += wtextr.getBIDs()[idbids];
+	ld.bids_ = wtextr.getBIDs();
 
 	if ( !writeLog2Cube( ld ) )
 	    allsucceeded = false;
@@ -366,6 +328,74 @@ bool DataWriter::writeLog2Cube( LogData& ld) const
     deepErase( trcset );
 
     return succeeded;
+}
+
+
+Server::Server( const WellTie::Setup& wts )
+    : data_(wts)
+{
+    wdmgr_ = new WellDataMgr( wts.wellid_  );
+    wdmgr_->datadeleted_.notify( mCB(this,Server,wellDataDel) );
+    Well::Data* w = wdmgr_->wd();
+    if ( w && w->haveCheckShotModel() && !wts.useexistingd2tm_ )
+    {
+	Well::Log* wl = w->logs().getLog( data_.sonic() );
+	if ( !wl ) return;
+	Well::Log* corrlog = new Well::Log( *wl );
+	CheckShotCorr cscorr( *corrlog, *w->checkShotModel(), wts.issonic_ );
+	w->logs().add( corrlog );
+	Well::Log* cslog = new Well::Log( cscorr.csLog() );
+	cslog->setName( data_.checkshotlog() );
+	w->logs().add( cslog );
+    }
+    dataplayer_ = new DataPlayer( data_, wts.seisid_, &wts.linekey_ );
+    pickmgr_ = new PickSetMgr( data_.pickdata_ );
+    hormgr_ = new HorizonMgr( data_.horizons_ );
+    hormgr_->resetWD( w );
+
+    D2TModelMgr::Setup d2ts; 
+    d2ts.useexisting_ = wts.useexistingd2tm_; 
+    d2ts.currvellog_ = data_.currvellog();
+    d2tmgr_ = new D2TModelMgr( *w, d2ts );
+}
+
+
+Server::~Server()
+{
+    delete d2tmgr_;
+    delete dataplayer_;
+    delete pickmgr_;
+    wdmgr_->datadeleted_.remove( mCB(this,Server,wellDataDel) );
+    delete wdmgr_;
+}
+
+
+void Server::wellDataDel( CallBacker* )
+{
+    data_.wd_ = wdmgr_->wd();
+    d2tmgr_->resetWD( data_.wd_ );
+    hormgr_->resetWD( data_.wd_ );
+}
+
+
+void Server::computeAll()
+{
+    dataplayer_->computeAll();
+}
+
+
+void Server::computeSynthetics()
+{
+    dataplayer_->generateSynthetics();
+}
+
+
+void Server::setEstimatedWvlt( float* vals, int sz )
+{
+    Wavelet& wvlt = data_.estimatedwvlt_;
+    sz += sz%2 ? 0 : 1;
+    wvlt.reSize( sz );
+    memcpy( wvlt.samples(), vals, sz*sizeof(float) );
 }
 
 }; //namespace WellTie

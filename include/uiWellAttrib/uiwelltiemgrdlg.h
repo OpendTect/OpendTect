@@ -7,13 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.13 2011-01-11 11:12:25 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.14 2011-01-20 10:21:38 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uidialog.h"
+
+namespace Well { class Data; }
 
 class MultiID;
 class CtxtIOObj;
@@ -36,7 +38,7 @@ mClass uiTieWinMGRDlg : public uiDialog
 {
 
 public:    
-			uiTieWinMGRDlg(uiParent*, WellTie::Setup&);
+			uiTieWinMGRDlg(uiParent*,WellTie::Setup&);
 			~uiTieWinMGRDlg();
 
     void		delWins(); 
@@ -50,8 +52,10 @@ protected:
     CtxtIOObj&          seisctio3d_;
     bool		savedefaut_;
     bool		is2d_;
-    ObjectSet<WellTie::uiTieWin> welltiedlgset_;
-    ObjectSet<WellTie::uiTieWin> welltiedlgsetcpy_;
+    ObjectSet<uiTieWin> welltiedlgset_;
+    ObjectSet<uiTieWin> welltiedlgsetcpy_;
+
+    Well::Data*		wd_;
 
     uiIOObjSel*         wellfld_;
     uiSeisWaveletSel* 	wvltfld_;

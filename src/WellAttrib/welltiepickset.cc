@@ -7,18 +7,26 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.30 2010-06-01 13:31:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.31 2011-01-20 10:21:39 cvsbruno Exp $";
 
-#include "welltiepickset.h"
-
-#include "welltiedata.h"
+#include "arrayndimpl.h"
 #include "sorting.h"
-#include "valseriesevent.h"
+#include "seistrc.h"
+#include "welltiepickset.h"
+#include "welltiedata.h"
 
 namespace WellTie
 {
 
-void PickSetMGR::setEventType( int seltype )
+PickSetMgr::PickSetMgr( PickData& pd )
+    : evtype_ (VSEvent::Extr)
+    , pickadded(this)
+    , synthpickset_(pd.synthpicks_)
+    , seispickset_(pd.seispicks_)
+{}
+
+
+void PickSetMgr::setEventType( int seltype )
 {
     if ( seltype==1 )
 	evtype_ = VSEvent::Extr;
@@ -33,44 +41,41 @@ void PickSetMGR::setEventType( int seltype )
 }
 
 
-void PickSetMGR::addPick( float zpos, bool issynth )
+void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
 {
-    const int seissz = seispickset_.getSize();
-    const int synthsz = synthpickset_.getSize();
+    const int seissz = seispickset_.size();
+    const int synthsz = synthpickset_.size();
     if ( abs(seissz-synthsz)<2 )
     {
-	if ( issynth )
-	{
-	    if ( abs(synthsz+1-seissz) > 1 || lastpicksynth_ == true )
-		synthpickset_.clear( synthpickset_.getSize()-1 );
-	    synthpickset_.add( true, findEvent(zpos,true) );
-	    lastpicksynth_ = true;
-	}
-	else
-	{
-	    if ( abs(seissz+1-synthsz) > 1 || lastpicksynth_ == false )
-		seispickset_.clear( seispickset_.getSize()-1 );
-	    seispickset_.add( false, findEvent(zpos,false) );
-	    lastpicksynth_ = false;
-	}
+	TypeSet<Marker>& pickset = issynth ? synthpickset_ : seispickset_;
+	const int sz = pickset.size();
+	if ( ( issynth && abs(sz+1-seissz) > 1 || lastpicksynth_) 
+		|| ( !issynth && abs(sz+1-seissz) > 1 || !lastpicksynth_ ) )
+	    pickset.remove( sz -1 );
+	Marker m( trc ? findEvent( *trc, zpos ) : zpos );
+	m.color_ = Color::DgbColor();
+	pickset += m;
+	lastpicksynth_ = issynth;
     }
     pickadded.trigger();
 }
 
 
+
 #define mTimeGate 0.02
-float PickSetMGR::findEvent( float zpos, bool issynth )
+float PickSetMgr::findEvent( const SeisTrc& trc, float zpos ) const
 {
     zpos *= 0.001;
     if ( evtype_ == VSEvent::None ) return zpos;
 
-    const WellTie::Params::DataParams& dpms = *dholder_.dpms();
-    const char* colnm = issynth ? dpms.synthnm_ : dpms.seisnm_; 
-    const int maxidx = dpms.timeintvs_[1].nrSteps()-1;
+    const int maxidx = trc.size();
     Interval<float> intvup ( zpos, zpos - mTimeGate );
     Interval<float> intvdown ( zpos, zpos + mTimeGate );
-    SamplingData<float> sd( dpms.timeintvs_[1].start, dpms.timeintvs_[1].step );
-    const Array1DImpl<float>& vals = *dholder_.getLogVal( colnm );
+    SamplingData<float> sd = trc.info().sampling;
+    Array1DImpl<float> vals( trc.size() );
+    for ( int idx=0; idx<trc.size(); idx++ )
+	vals.set( idx, trc.get( idx, 0 ) );
+
     ValueSeriesEvFinder<float,float> evf( vals, maxidx, sd );
     const float evposup =  evf.find( evtype_, intvup ).pos;
     const float evposdown =  evf.find( evtype_, intvdown ).pos;
@@ -82,60 +87,58 @@ float PickSetMGR::findEvent( float zpos, bool issynth )
     else if ( fabs(zpos-evposup)<fabs(zpos-evposdown) )
 	evpos = evposup;
 
-    return evpos + dpms.timeintvs_[1].step/2;
+    return evpos + sd.step/2;
 }
 
 
-void PickSetMGR::updateShift( int vwridx, float curpos )
+void PickSetMgr::clearAllPicks()
 {
-    //TODO ???
-    /*used only for log stretch and squueze...
-    logpickset_.setMousePos( curpos );
-    mousemoving.trigger();*/
+    seispickset_.erase();
+    synthpickset_.erase();
 }
 
 
-void PickSetMGR::clearAllPicks()
+void PickSetMgr::clearLastPicks()
 {
-    seispickset_.clearAll();
-    synthpickset_.clearAll();
-}
-
-
-void PickSetMGR::clearLastPicks()
-{
-    if ( seispickset_.getSize() == synthpickset_.getSize() )
+    if ( isSameSize() )
     {
 	if ( lastpicksynth_ )
-	    synthpickset_.clear( synthpickset_.getSize()-1 );
+	    synthpickset_.remove( synthpickset_.size()-1 );
 	else
-	    seispickset_.clear( seispickset_.getSize()-1 );
+	    seispickset_.remove( seispickset_.size()-1 );
     }
-    else if ( seispickset_.getSize() > synthpickset_.getSize() )
-	seispickset_.clear( seispickset_.getSize()-1 );
-    else if ( seispickset_.getSize() < synthpickset_.getSize() )
-	synthpickset_.clear( synthpickset_.getSize()-1 );
+    else if ( seispickset_.size() > synthpickset_.size() )
+	seispickset_.remove( seispickset_.size()-1 );
+    else if ( seispickset_.size() < synthpickset_.size() )
+	synthpickset_.remove( synthpickset_.size()-1 );
 }
 
 
-bool PickSetMGR::isPick()
+bool PickSetMgr::isPick()
 {
-    return ( seispickset_.getSize() || synthpickset_.getSize() );
+    return ( !seispickset_.isEmpty() || !synthpickset_.isEmpty() );
 }
 
 
-bool PickSetMGR::isSameSize()
+bool PickSetMgr::isSameSize()
 {
-    return ( seispickset_.getSize() == synthpickset_.getSize() );
+    return ( seispickset_.size() == synthpickset_.size() );
 }
 
 
-void PickSetMGR::sortByPos( PickSet& pickset )
+void PickSetMgr::setPickSetPos( bool issynth, int idx, float z )
 {
-    const int sz = pickset.getSize();
+    TypeSet<Marker>& pickset = issynth ? synthpickset_ : seispickset_;
+    pickset[idx].zpos_ = z;
+}
+
+
+void PickSetMgr::sortByPos( TypeSet<Marker>& pickset )
+{
+    const int sz = pickset.size();
     TypeSet<float> zvals;
     for ( int idx=0; idx<sz; idx++ )
-	zvals += pickset.getPos(idx);
+	zvals += pickset[idx].zpos_; 
 
     mAllocVarLenArr( int, zidxs, sz );
     for ( int idx=0; idx<sz; idx++ )
@@ -144,40 +147,10 @@ void PickSetMGR::sortByPos( PickSet& pickset )
     sort_coupled( zvals.arr(), mVarLenArr(zidxs), sz );
 
     for ( int idx=0; idx<sz; idx++ )
-	pickset.setPos( idx, zvals[idx]  );
+	pickset[idx].zpos_ = zvals[idx];
 }
 
 
 
-PickSet::~PickSet()
-{
-    for ( int idx=pickset_.size()-1; idx>=0; idx-- )
-	delete ( pickset_.remove(idx) );
-}
-
-
-void PickSet::add( bool issynth, float zpos )
-{
-    UserPick* pick = new UserPick();
-    pick->color_ = Color::DgbColor();
-    pick->issynthetic_ = issynth;
-    pick->zpos_ = zpos;
-    pickset_ += pick;
-    nrpickstotal_++;
-}
-
-
-void PickSet::clear( int idx )
-{
-    if ( pickset_.size() )
-	delete ( pickset_.remove(idx) );
-}
-
-
-void PickSet::clearAll()
-{
-    for ( int idx=pickset_.size()-1; idx>=0; idx-- )
-	delete ( pickset_.remove(idx) );
-}
 
 }; //namespace WellTie

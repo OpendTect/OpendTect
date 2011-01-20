@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.78 2010-11-16 09:49:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.79 2011-01-20 10:21:39 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -19,33 +19,26 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.78 2010-11-16 09:4
 
 #include "uitoolbutton.h"
 #include "uicombobox.h"
-#include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uitaskrunner.h"
 #include "uiseparator.h"
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 #include "uiwelldlgs.h"
 #include "uiwelllogdisplay.h"
 
-#include "ctxtioobj.h"
-#include "survinfo.h"
+#include "seistrc.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "welltrack.h"
 #include "wellextractdata.h"
-#include "wellman.h"
 #include "wellmarker.h"
-
 #include "welltiedata.h"
 #include "welltiepickset.h"
 #include "welltiesetup.h"
-#include "welltietoseismic.h"
-#include "welltieunitfactors.h"
 
 namespace WellTie
 {
@@ -54,75 +47,56 @@ static const char*  errdmsg = "unable to handle data, please check your input ";
 static const char*  helpid = "107.4.1";
 static const char*  eventtypes[] = { "None","Extrema","Maxima",
 				     "Minima","Zero-crossings",0 };
-#define mErrRet(msg) \
-{ uiMSG().error(msg); return false; }
-#define mGetWD(act) const Well::Data* wd = dataholder_.wd(); if ( !wd ) act;
+
+#define mErrRet(msg) { uiMSG().error(msg); return false; }
+#define mGetWD(act) const Well::Data* wd = server_.wd(); if ( !wd ) act;
+
 uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts ) 
 	: uiFlatViewMainWin(p,uiFlatViewMainWin::Setup("")
 			    .withhanddrag(true)
 			    .deleteonclose(false))
-    	, setup_(WellTie::Setup(wts))
-	, dataholder_(*new WellTie::DataHolder(setup_))
+    	, setup_(wts)
+	, server_(*new Server(setup_))
+	, stretcher_(*new EventStretch(server_.pickMgr())) 
     	, controlview_(0)
-	, datadrawer_(0)
-	, dataplayer_(0)
-	, stretcher_(0)					
-    	, infodlg_(0)
-	, params_(0)       		 
+	, params_(server_.dispParams())
 {
-    for ( int idx=0; idx<2; idx++ )
-    { 
-	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
-	wldsu.border_.setLeft(0); wldsu.border_.setRight(0);
-	logsdisp_ += new uiWellLogDisplay( this, wldsu );
-    }
-
-    uiTaskRunner* tr = new uiTaskRunner( p );
-    params_	= dataholder_.params();
-    dataplayer_ = new DataPlayer( dataholder_, tr );
-    infodlg_    = new uiInfoDlg( this, dataholder_, *dataplayer_ );
-    datadrawer_ = new uiTieView( this, &viewer(), dataholder_, &logsdisp_ );
-    stretcher_  = new EventStretch( dataholder_ );
-
-    dataholder_.closeall.notify( mCB(this,uiTieWin,rejectOK) );
-    infodlg_->redrawNeeded.notify( mCB(datadrawer_,uiTieView,redrawViewer) );
-    dataholder_.pickmgr()->pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
-    dataholder_.pickmgr()->setEventType( 0 );
-    stretcher_->timeChanged.notify(mCB(this,uiTieWin,timeChanged));
-    datadrawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
+    stretcher_.timeChanged.notify(mCB(this,uiTieWin,timeChanged));
+    drawer_ = new uiTieView( this, &viewer(), server_.data() );
+    infodlg_ = new uiInfoDlg( this, server_ );
+    drawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
+    infodlg_->redrawNeeded.notify( mCB(drawer_,uiTieView,redrawViewer) );
     
-    BufferString title( "Tie "); 
-    title += dataholder_.wd()->name(); title += " to "; title += wts.seisnm_;
+    mGetWD(return) 
+    BufferString title( "Tie ");
+    title += wd->name(); title += " to "; title += wts.seisnm_;
     setCaption( title );
-    
+
     initAll();
 }
 
 
 uiTieWin::~uiTieWin()
 {
-    stretcher_->timeChanged.remove( mCB(this,uiTieWin,timeChanged) );
-    infodlg_->redrawNeeded.remove( mCB(datadrawer_,uiTieView,redrawViewer) );
-    dataholder_.pickmgr()->pickadded.remove( mCB(this,uiTieWin,checkIfPick) );
-    dataholder_.closeall.remove( mCB( this,uiTieWin,rejectOK ) );
-    
-    delete stretcher_;
+    CallBack cb( mCB(drawer_,uiTieView,redrawViewer) );
+    infodlg_->redrawNeeded.remove( cb );
+    if ( controlview_ ) controlview_->redrawNeeded.remove( cb );
+    stretcher_.timeChanged.remove(mCB(this,uiTieWin,timeChanged));
+    delete &stretcher_;
+    delete &setup_;
     delete infodlg_;
-    delete datadrawer_;
-    delete dataplayer_;
-    delete &dataholder_;
+    delete drawer_;
+    delete &server_;
 }
 
 
-bool uiTieWin::initAll()
+void uiTieWin::initAll()
 {
     drawFields();
     addControl();
-    dataholder_.resetLogData();
-    if ( !doWork( 0 ) ) return false;
+    doWork( 0 );
     show();
     dispPropChg( 0 );
-    return true;
 }
 
 void uiTieWin::displayUserMsg( CallBacker* )
@@ -144,25 +118,17 @@ void uiTieWin::displayUserMsg( CallBacker* )
 }
 
 
-bool uiTieWin::doWork( CallBacker* cb )
+void uiTieWin::doWork( CallBacker* cb )
 {
+    server_.computeAll();
     getDispParams();
-    BufferString errlogs( errdmsg ), errseis( errdmsg );
-    errlogs += "logs"; errseis += "data";
-
-    if ( !params_->resetParams() )
-	 mErrRet( errlogs );
-    if ( !dataplayer_->computeAll() )
-	mErrRet( errseis ); 
-
     drawData();
-    return true;
 }
 
 
 void uiTieWin::drawData()
 {
-    datadrawer_->fullRedraw();
+    drawer_->fullRedraw();
     infodlg_->drawData();
 }
 
@@ -180,8 +146,8 @@ void uiTieWin::addToolBarTools()
 void uiTieWin::addControl()
 {
     addToolBarTools();
-    controlview_ = new WellTie::uiControlView( this, toolbar_, &viewer() );
-    controlview_->setDataHolder( &dataholder_ );
+    controlview_ = new WellTie::uiControlView(this,toolbar_,&viewer(),server_);
+    controlview_->redrawNeeded.notify( mCB(drawer_,uiTieView,redrawViewer) );
 }
 
 
@@ -195,8 +161,8 @@ void uiTieWin::drawFields()
     uiGroup* disppropgrp = new uiGroup( this, "Display Properties group" );
     disppropgrp->attach( ensureLeftOf, vwrtaskgrp );
     disppropgrp->attach( ensureBelow, viewer() );
-    disppropgrp->attach( ensureBelow, logsdisp_[0] );
-    disppropgrp->attach( ensureBelow, logsdisp_[1] );
+    disppropgrp->attach( ensureBelow, drawer_->logDisps()[0] );
+    disppropgrp->attach( ensureBelow, drawer_->logDisps()[1] );
     disppropgrp->attach( leftBorder );
     createDispPropFields( disppropgrp );
 
@@ -306,38 +272,40 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
 
 void uiTieWin::getDispParams()
 {
-    WellTie::Params::uiParams* pms = dataholder_.uipms();
-    pms->iscscorr_ = cscorrfld_->isChecked();
-    pms->iscsdisp_ = csdispfld_->isChecked();
-    pms->iszinft_ = zinftfld_->isChecked();
-    pms->iszintime_ = zintimefld_->isChecked();
-    pms->ismarkerdisp_ = markerfld_->isChecked();
+    params_.iscscorr_ = cscorrfld_->isChecked();
+    params_.iscsdisp_ = csdispfld_->isChecked();
+    params_.iszinft_ = zinftfld_->isChecked();
+    params_.iszintime_ = zintimefld_->isChecked();
+    params_.ismarkerdisp_ = markerfld_->isChecked();
 }
 
 
 void uiTieWin::putDispParams()
 {
-    WellTie::Params::uiParams* pms = dataholder_.uipms();
-    csdispfld_->setChecked( pms->iscsdisp_ );
-    cscorrfld_->setChecked( pms->iscscorr_ );
-    markerfld_->setChecked( pms->ismarkerdisp_ );
-    zinftfld_->setChecked( pms->iszinft_ );
-    zintimefld_->setChecked( pms->iszintime_ );
+    csdispfld_->setChecked( params_.iscsdisp_ );
+    cscorrfld_->setChecked( params_.iscscorr_ );
+    markerfld_->setChecked( params_.ismarkerdisp_ );
+    zinftfld_->setChecked( params_.iszinft_ );
+    zintimefld_->setChecked( params_.iszintime_ );
 }
 
 
 void uiTieWin::dispPropChg( CallBacker* )
 {
     getDispParams();
-    zinftfld_->display( !dataholder_.uipms()->iszintime_ );
-    if ( !datadrawer_->isEmpty() )
-	drawData();
+    zinftfld_->display( !params_.iszintime_ );
+    drawData();
 }
 
 
 void uiTieWin::timeChanged( CallBacker* )
 {
-    applybut_->setSensitive( true );
+    const Array1DImpl<float>* timearr = stretcher_.timeArr();
+    if ( timearr )
+    {
+	server_.replaceTime( *timearr );
+	applybut_->setSensitive( true );
+    }
 }
 
 
@@ -345,14 +313,14 @@ void uiTieWin::csCorrChanged( CallBacker* cb )
 {
     mGetWD(return);
     getDispParams();
-    WellTie::Params::uiParams* pms = dataholder_.uipms();
-    params_->resetVelLogNm();
-    if ( pms->iscscorr_ )
-	dataplayer_->computeD2TModel();
+    const bool iscscorr = params_.iscscorr_;
+    server_.setVelLogName( iscscorr );
+    if ( iscscorr )
+	server_.computeD2TModel();
     else  
-	dataplayer_->undoD2TModel();
+	server_.undoD2TModel();
     if ( mIsUnvalidD2TM( (*wd) ) )
-	dataplayer_->computeD2TModel();
+	server_.computeD2TModel();
 
     doWork( cb );
 }
@@ -366,24 +334,27 @@ void uiTieWin::infoPushed( CallBacker* )
 
 void uiTieWin::editD2TPushed( CallBacker* cb )
 {
-    Well::Data* wd = dataholder_.wd();
-    if ( !wd ) return;
-    uiD2TModelDlg d2tmdlg( this, *wd, false );
+    mGetWD(return);
+    Well::Data newwd( *wd );
+    uiD2TModelDlg d2tmdlg( this, newwd, false );
     if ( d2tmdlg.go() )
+    {
+	server_.resetD2TModel( newwd.d2TModel() );
 	doWork( cb );
+    }
 }
 
 
 bool uiTieWin::saveDataPushed( CallBacker* cb )
 {
-    uiSaveDataDlg dlg( this, dataholder_ );
-    return ( dlg.go() );
+    uiSaveDataDlg dlg( this, server_.data() );
+    return dlg.go();
 }
 
 
 void uiTieWin::eventTypeChg( CallBacker* )
 {
-    dataholder_.pickmgr()->setEventType(eventtypefld_->box()->currentItem());
+    server_.pickMgr().setEventType(eventtypefld_->box()->currentItem());
     controlview_->setEditOn( true );
 }
 
@@ -391,8 +362,8 @@ void uiTieWin::eventTypeChg( CallBacker* )
 void uiTieWin::applyPushed( CallBacker* cb )
 {
     mGetWD();
-    stretcher_->setD2TModel( wd->d2TModel() );
-    stretcher_->doWork( cb );
+    stretcher_.setD2TModel( wd->d2TModel() );
+    stretcher_.doWork( cb );
     doWork( cb );
     clearPicks( cb );
     infodlg_->propChanged(0);
@@ -403,24 +374,24 @@ void uiTieWin::applyPushed( CallBacker* cb )
 
 void uiTieWin::clearPicks( CallBacker* cb )
 {
-    dataholder_.pickmgr()->clearAllPicks();
-    datadrawer_->drawUserPicks();
+    server_.pickMgr().clearAllPicks();
+    drawer_->drawUserPicks();
     checkIfPick( cb );
 }
 
 
 void uiTieWin::clearLastPick( CallBacker* cb )
 {
-    dataholder_.pickmgr()->clearLastPicks();
-    datadrawer_->drawUserPicks();
+    server_.pickMgr().clearLastPicks();
+    drawer_->drawUserPicks();
     checkIfPick( cb );
 }
 
 
 void uiTieWin::checkIfPick( CallBacker* )
 {
-    const bool ispick = dataholder_.pickmgr()->isPick();
-    const bool issamesz = dataholder_.pickmgr()->isSameSize();
+    const bool ispick = server_.pickMgr().isPick();
+    const bool issamesz = server_.pickMgr().isSameSize();
     clearpicksbut_->setSensitive( ispick );
     clearlastpicksbut_->setSensitive( ispick );
     applybut_->setSensitive( ispick && issamesz );
@@ -429,7 +400,7 @@ void uiTieWin::checkIfPick( CallBacker* )
 
 bool uiTieWin::undoPushed( CallBacker* cb )
 {
-    if ( !dataplayer_->undoD2TModel() )
+    if ( !server_.undoD2TModel() )
     	mErrRet( "Cannot go back to previous model" );
     clearPicks( cb );
     doWork( cb );
@@ -437,42 +408,47 @@ bool uiTieWin::undoPushed( CallBacker* cb )
     
     undobut_->setSensitive( false );
     applybut_->setSensitive( false );
-    
     return true;	    
 }
 
 
 bool uiTieWin::matchHorMrks( CallBacker* )
 {
-    dataholder_.pickmgr()->setEventType( 0 );
-    Well::Data* wd = dataholder_.wd();
-    if ( !wd ) 
-	mErrRet( "No Well data found" )
-    if ( !wd->markers().size() )
+    PickSetMgr& pmgr = server_.pickMgr();
+    mGetWD(return false)
+    if ( !wd || !wd->markers().size() ) 
 	mErrRet( "No Well marker found" )
+
     BufferString msg("No horizon loaded, do you want to load some ?");
-    if ( !dataholder_.horDatas().size() )
+    const Data& data = server_.data();
+    if ( !data.horizons_.size() )
     {
-	if ( uiMSG().askGoOn( msg ) )
-	    controlview_->loadHorizons(0);
-	else 
+	if ( !uiMSG().askGoOn( msg ) )
 	    return false;
+	controlview_->loadHorizons(0);
     }
-    dataholder_.pickmgr()->clearAllPicks();
+    pmgr.clearAllPicks();
     uiDialog matchdlg( this, uiDialog::Setup("Settings","",mNoHelpID) );
     uiGenInput* matchinpfld = new uiGenInput( &matchdlg, "Match same", 
 				BoolInpSpec(true,"Name","Regional marker") ); 
     matchdlg.go();
-    if ( !dataholder_.matchHorWithMarkers( msg, matchinpfld->getBoolValue() ) )
-	mErrRet( msg ); 
-    datadrawer_->drawUserPicks();
+    TypeSet<HorizonMgr::PosCouple> pcs;
+    server_.horizonMgr().matchHorWithMarkers( pcs, matchinpfld->getBoolValue());
+    if ( pcs.isEmpty() )
+	mErrRet( "No match between markers and horizons" )
+    for ( int idx=0; idx<pcs.size(); idx ++ )
+    {
+	pmgr.addPick( pcs[idx].z1_, true );
+	pmgr.addPick( pcs[idx].z2_, false );
+    }
+    drawer_->drawUserPicks();
     return true;
 }
 
 
 bool uiTieWin::rejectOK( CallBacker* )
 {
-    dataplayer_->cancelD2TModel();
+    server_.cancelD2TModel();
     close();
     return true;
 }
@@ -483,7 +459,7 @@ bool uiTieWin::acceptOK( CallBacker* )
     BufferString msg("This will overwrite your depth/time model, do you want to continue?");
     if ( uiMSG().askOverwrite(msg) )
     {
-       if ( !dataplayer_->commitD2TModel() )
+       if ( !server_.commitD2TModel() )
 	    mErrRet("Cannot write new depth/time model")
 	close();
     }
@@ -499,13 +475,11 @@ void uiTieWin::dispInfoMsg( CallBacker* cb )
 
 
 
-uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder& dh, 
-		      WellTie::DataPlayer& dp )
+
+uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", "",
 				     "107.4.2").modal(false))
-	, dataholder_(dh)
-	, dataplayer_(dp)		 
-	, params_(dataholder_.dpms()) 
+	, server_(server)
       	, crosscorr_(0)	       
 	, wvltdraw_(0)
 	, redrawNeeded(this)
@@ -516,19 +490,22 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder& dh,
     uiGroup* wvltgrp = new uiGroup( viewersgrp, "wavelet group" );
     uiGroup* corrgrp = new uiGroup( viewersgrp, "CrossCorrelation group" );
 
-    wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, &dataholder_ );
+    const Data& data = server_.data();
+    ObjectSet<Wavelet> wvlts; 
+    wvlts += &data.initwvlt_; 
+    wvlts += &data.estimatedwvlt_;
+    wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, wvlts );
     wvltdraw_->activeWvltChged.notify(mCB(this,WellTie::uiInfoDlg,wvltChanged));
     estwvltlengthfld_ = new uiGenInput(wvltgrp,"Estimated wavelet length (ms)");
     estwvltlengthfld_ ->attach( centeredBelow, wvltdraw_ );
     estwvltlengthfld_->valuechanged.notify( mCB(this,uiInfoDlg,propChanged) );
-    estwvltlengthfld_->setValue( 
-		    dataholder_.wvltset()[0]->samplePositions().width()*1000 );
+    estwvltlengthfld_->setValue( wvlts[0]->samplePositions().width()*1000 );
 
     uiSeparator* verSepar = new uiSeparator( viewersgrp,"Verical", false );
     verSepar->attach( rightTo, wvltgrp );
 
     corrgrp->attach( rightOf, verSepar );
-    crosscorr_ = new WellTie::uiCorrView( corrgrp, dataholder_ );
+    crosscorr_ = new uiCrossCorrView( corrgrp, server.data() );
 
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedAbove, viewersgrp );
@@ -576,10 +553,10 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder& dh,
 
 uiInfoDlg::~uiInfoDlg()
 {
-    delete crosscorr_;
     wvltdraw_->activeWvltChged.remove(mCB(this,WellTie::uiInfoDlg,wvltChanged));
     wvltdraw_->activeWvltChged.remove(mCB(this,WellTie::uiInfoDlg,propChanged));
     delete wvltdraw_;
+    delete crosscorr_;
 }
 
 
@@ -596,68 +573,89 @@ bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
     const Well::Marker* botmarkr = 
 			wd->markers().getByName( zrangeflds_[0]->text(1) );
 
-    if ( mintv.start == mintv.stop )
-    { topmarkr = 0; botmarkr = 0; }
-
-    if ( topmarkr )
-	zrg.start = topmarkr->dah();
-
-    if ( botmarkr )
-	zrg.stop = botmarkr->dah();
+    if ( mintv.start == mintv.stop ) { topmarkr = 0; botmarkr = 0; }
+    if ( topmarkr ) zrg.start = topmarkr->dah();
+    if ( botmarkr ) zrg.stop = botmarkr->dah();
 
     zrg.sort();
-	
     return true;
 }
 
-
+#define d2T( zval, time ) time ? d2t->getTime( zval ) : d2t->getDah( zval ); 
+#define d2TI( zrg, time )\
+    { zrg.start = d2T( zrg.start, time ); zrg.stop = d2T( zrg.stop, time ) }
 void uiInfoDlg::propChanged( CallBacker* )
 {
+    mGetWD(return)
     const int selidx = choicefld_->getIntValue();
-    Interval<float> zrg = zrangeflds_[selidx]->getFInterval();
-    if ( !selidx ) getMarkerDepths( zrg );
+    zrg_ = zrangeflds_[selidx]->getFInterval();
+    if ( !selidx ) getMarkerDepths( zrg_ );
 
     for ( int idx=0; idx<zrangeflds_.size(); idx++ )
     {
 	zrangeflds_[idx]->display( idx == selidx );
 	zlabelflds_[idx]->display( idx == selidx );
     }
-
+    const Well::D2TModel* d2t = wd->d2TModel();
     if ( !selidx )
-	zrangeflds_[2]->setValue( zrg );
+	zrangeflds_[2]->setValue( zrg_ );
     else if ( selidx == 1 )
-	zrangeflds_[2]->setValue( params_->d2T( zrg, false ) );
+    	{ d2TI( zrg_, false ); zrangeflds_[2]->setValue( zrg_ ); }
     if ( !selidx || selidx == 2 )
-	zrangeflds_[1]->setValue( params_->d2T( zrg ) );
+    	{ d2TI( zrg_, true ); zrangeflds_[1]->setValue( zrg_ );  }
 
-    const Interval<float> timerg = selidx==1 ? zrg : params_->d2T( zrg );
     const double wvltlgth = (double)estwvltlengthfld_->getIntValue()/1000;
-    if ( wvltlgth >= timerg.width() )
-    { 
-	uiMSG().error("the wavelet must be shorter than the computation time"); 
-	return; 
+    if ( wvltlgth >= zrg_.width() )
+    {
+	uiMSG().error("the wavelet must be shorter than the computation time");
+	return;
     }
-    
-    params_->estwvltlength_ = mNINT( wvltlgth/SI().zStep() );
-    params_->timeintvs_[2]= timerg;
-    params_->resetTimeParams();
-
+    estwvltsz_ =  mNINT( wvltlgth/SI().zStep() ); 
     wvltChanged(0);
+}
+
+
+#define mLag 0.4
+void uiInfoDlg::computeData()
+{
+    const Data& data = server_.data();
+    const int sz = data.seistrc_.size();
+    const int nrsamps = (int) ( mLag / data.timeintv_.step );
+    float* seisarr = new float( nrsamps );
+    float* syntharr = new float( nrsamps );
+    float* corrarr = new float( nrsamps );
+    float* wvltarr = new float( estwvltsz_ );
+    for ( int idx=0; idx<nrsamps; idx++ )
+    {
+	syntharr[idx] = data.seistrc_.get( idx + ( sz-nrsamps )/2, 0 );
+	seisarr[idx] = data.synthtrc_.get( idx + ( sz-nrsamps )/2, 0 );
+    }
+    GeoCalculator gc;
+    double coeff = gc.crossCorr( seisarr, syntharr, corrarr, nrsamps );
+    const float normalfactor = coeff / corrarr[nrsamps/2];
+
+    gc.deconvolve( seisarr, syntharr, wvltarr, estwvltsz_ );
+    crosscorr_->set( corrarr, nrsamps, mLag, coeff );
+    server_.setEstimatedWvlt( wvltarr, estwvltsz_ );
 }
 
 
 void uiInfoDlg::drawData()
 {
     wvltdraw_->redrawWavelets();
-    crosscorr_->setCrossCorrelation();
+    crosscorr_->draw();
 }
 
 
 void uiInfoDlg::wvltChanged( CallBacker* cb )
 {
-    if ( !dataplayer_.computeWvltPack() ) 
-	return;
-
+    if ( cb )
+    {
+	mCBCapsuleUnpack(bool,isinitwvlatactive,cb);
+	server_.setInitWvltActive( isinitwvlatactive );
+    }
+    computeData();
+    server_.computeSynthetics(); 
     drawData();
     redrawNeeded.trigger();
 }

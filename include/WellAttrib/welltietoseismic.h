@@ -13,67 +13,45 @@ ________________________________________________________________________
 
 -*/
 
-#include "namedobj.h"
-#include "ranges.h"
+#include "welltiegeocalculator.h"
 
-#include "welltied2tmodelmanager.h"
-#include "welltiedata.h"
-#include "welltieunitfactors.h"
-
+class AIModel;
+class LineKey;
+class MultiID;
 class TaskRunner;
+
+template <class T> class TypeSet;
 
 namespace WellTie
 {
-    class TrackExtractor;
+    class Data;
+    class Setup;
 
 mClass DataPlayer
 {
 public:
-			DataPlayer(WellTie::DataHolder&,TaskRunner*);
+			DataPlayer(Data&,const MultiID&,const LineKey* lk=0);
 			~DataPlayer();
 
-    bool 		computeAll();
-    bool 		computeWvltPack();
+    void 		computeAll();
+    void		generateSynthetics();
    
-    //D2TModelmanager operations
-    void 		computeD2TModel()
-			{ d2tmgr_->setFromVelLog(params_.currvellognm_); }
-    bool 		undoD2TModel()
-			{ return d2tmgr_->undo(); }
-    bool 		cancelD2TModel()
-			{ return d2tmgr_->cancel(); }
-    bool		updateD2TModel()
-			{ return d2tmgr_->updateFromWD(); }
-    bool		commitD2TModel()
-			{ return d2tmgr_->commitToWD(); }
-    
 protected:
 
-    TaskRunner*		tr_;      //becomes mine  
+    void		extractSeismics();
+    void		resetAIModel();
+    void		copyDataToLogSet();
 
-    Well::LogSet& 	logset_;
+    void		createLog(const char*,const TypeSet<float>&,
+				    const TypeSet<float>&);
 
-    const WellTie::Params::DataParams& params_;	
-    const WellTie::Setup& wtsetup_;	
-    WellTie::TrackExtractor *wtextr_;
+    AIModel*		aimodel_;
+    Data&		data_;
+    const MultiID&	seisid_;
+    const LineKey*	linekey_;
+    int			refsz_;
 
-    WellTie::DataHolder& dholder_;
-    WellTie::D2TModelMGR* d2tmgr_;
-    WellTie::GeoCalculator* geocalc_;
-    ObjectSet<Wavelet>* wvltset_;
-
-    Well::Data* 	wd();
-    bool		computeCrossCorrel();
-    bool  		convolveWavelet();
-    bool		extractSeismics();
-    bool		extractWellTrack();
-    bool  		estimateWavelet();
-    void		checkShotCorr();
-    bool		computeReflectivity();
-    void 		getDPSZData(const DataPointSet&,Array1DImpl<float>&);
-    bool 	      	resLogExecutor(const BufferStringSet&,bool,
-				     const StepInterval<float>&);
-    bool 	      	resampleLogs();
+    GeoCalculator 	geocalc_;
 };
 
 };//namespace WellTie

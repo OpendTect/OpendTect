@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.31 2010-11-18 09:19:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.32 2011-01-20 10:21:38 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -35,47 +35,35 @@ static const char* rcsID = "$Id: welltieextractdata.cc,v 1.31 2010-11-18 09:19:2
 namespace WellTie
 {
 
-TrackExtractor::TrackExtractor(const Well::Data* d)
+TrackExtractor::TrackExtractor( const Well::Track& t, const Well::D2TModel* d2t)
     : Executor("Extracting Well track positions")
-    , wd_(*d)
-    , track_(wd_.track())
-    , d2t_(*wd_.d2TModel())		
+    , track_(t)
+    , extrintv_(SI().zRange(false))	       
+    , d2t_(d2t)		
     , nrdone_(0)
-    , timeintv_(0,0,0)
 {
-    prevbid_ = SI().transform( track_.pos(0) );     
+    if ( !track_.isEmpty() ) return;  
+    tracklimits_.stop = track_.dah( track_.size()-1 );
+    tracklimits_.start = track_.dah( 0 );
+    if ( d2t_ )
+    {
+	tracklimits_.start = d2t_->getTime( tracklimits_.start );
+	tracklimits_.stop = d2t_->getTime( tracklimits_.stop );
+    }
 }
-
 
 int TrackExtractor::nextStep()
 {
-    if ( prevbid_.inl<0 || prevbid_.crl<0 )
-	return ErrorOccurred();
-    double time = timeintv_.atIndex( nrdone_ );
-    if ( time > timeintv_.stop )
+    float zval = extrintv_.atIndex( nrdone_ );
+    float dah = d2t_ ? d2t_->getDah(zval) : zval; 
+    if ( zval > extrintv_.stop )
 	return Executor::Finished();
 
-    Coord3 pos = track_.getPos( d2t_.getDah(time) );
-    pos.z = time;
-
+    Coord3 pos = track_.getPos( dah );
+    pos.z = zval;
     BinID bid = SI().transform( pos );
-
-    if ( time > d2t_.getTime( track_.dah( track_.size()-1 ) ) )
-	bid = prevbid_;
-    if ( time < d2t_.getTime( track_.dah( 0 ) ) )
-	bid = prevbid_;
-
-    if ( !SI().inlRange(true).includes(bid.inl) 
-	    || !SI().crlRange(true).includes(bid.crl)  )
-    {
-	bid = prevbid_;
+    if ( tracklimits_.includes(zval) || SI().isInside( bid, true ) )
 	bidset_ += bid;
-	nrdone_++;
-       	return Executor::MoreToDo();
-    }
-    
-    bidset_ += bid;
-    prevbid_ = bid;
 
     nrdone_ ++;
     return Executor::MoreToDo();
@@ -88,8 +76,8 @@ SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 	, rdr_(new SeisTrcReader( &ioobj ))
 	, trcbuf_(new SeisTrcBuf(false))				   
 	, nrdone_(0)
-	, cs_(new CubeSampling())	    
-	, timeintv_(0,0,0)
+	, cs_(new CubeSampling(false))	    
+	, extrintv_(SI().zRange(false))
 	, linekey_(0)		  
 	, radius_(1)		  
 {
@@ -98,46 +86,40 @@ SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 
 SeismicExtractor::~SeismicExtractor() 
 {
-    delete vals_; delete dahs_;
     delete cs_;
     delete rdr_;
     delete trcbuf_;
+    delete outtrc_;
 }
 
 
-void SeismicExtractor::setTimeIntv( const StepInterval<float>& itv )
+void SeismicExtractor::setInterval( const StepInterval<float>& itv )
 {
-    timeintv_ = itv;
-    vals_ = new Array1DImpl<float>( itv.nrSteps() );
-    dahs_ = new Array1DImpl<float>( itv.nrSteps() );
+    extrintv_ = itv;
+    outtrc_ = new SeisTrc( itv.nrSteps() );
 }
 
 
 void SeismicExtractor::collectTracesAroundPath() 
 {
     if ( !bidset_.size() ) return;
-    Interval<int> inlrg( bidset_[0].inl, bidset_[0].inl );
-    Interval<int> crlrg( bidset_[0].crl, bidset_[0].crl );
 
     if ( rdr_->is2D() )
-	crlrg.set( 0, SI().crlRange(true).stop ); 
+    {
+	cs_->hrg.setInlRange( Interval<int>(bidset_[0].inl,bidset_[0].inl) );
+	cs_->hrg.setCrlRange( Interval<int>(0,SI().crlRange(true).stop) );
+    }
     else
     {
 	for ( int idx=0; idx<bidset_.size(); idx++ )
 	{
-	    const BinID bid = bidset_[idx];
-	    if ( bid.inl < inlrg.start ) inlrg.start = bid.inl;
-	    if ( bid.inl > inlrg.stop ) inlrg.stop = bid.inl;
-	    if ( bid.crl < crlrg.start ) crlrg.start = bid.crl;
-	    if ( bid.crl > crlrg.stop ) crlrg.stop = bid.crl;
+	    BinID bid = bidset_[idx];
+	    cs_->hrg.include( BinID( bid.inl + radius_, bid.crl + radius_ ) );
+	    cs_->hrg.include( BinID( bid.inl - radius_, bid.crl - radius_ ) );
 	}
-	inlrg.start -= radius_; inlrg.stop += radius_;
-	crlrg.start -= radius_; crlrg.stop += radius_;
     }
-    cs_->hrg.setCrlRange( crlrg );
-    cs_->hrg.setInlRange( inlrg );
     cs_->hrg.snapToSurvey();
-    cs_->zrg = timeintv_;
+    cs_->zrg = extrintv_;
     Seis::RangeSelData* sd = new Seis::RangeSelData( *cs_ );
     sd->lineKey() = *linekey_;
 
@@ -164,12 +146,12 @@ void SeismicExtractor::setBIDValues( const TypeSet<BinID>& bids )
 
 int SeismicExtractor::nextStep()
 {
-    double time = timeintv_.atIndex( nrdone_ );
+    double zval = extrintv_.atIndex( nrdone_ );
 
-    if ( time>timeintv_.stop || nrdone_ >= timeintv_.nrSteps() )
+    if ( zval>extrintv_.stop || nrdone_ >= extrintv_.nrSteps() )
 	return Executor::Finished();
 
-    const int datasz = timeintv_.nrSteps();
+    const int datasz = extrintv_.nrSteps();
 
     const BinID curbid = bidset_[nrdone_];
     float val = 0; int nrtracesinradius = 0;
@@ -201,109 +183,10 @@ int SeismicExtractor::nextStep()
 	}
     }
     if ( mIsUdf(val) ) val =0;
-    vals_->set( nrdone_, val/nrtracesinradius );
-    dahs_->set( nrdone_, time );
+    outtrc_->set( nrdone_, val/nrtracesinradius, 0 );
 
     nrdone_ ++;
     return Executor::MoreToDo();
-}
-
-
-
-#define mErrRet(s) { errmsg = s; return; }
-LogResampler::LogResampler( Well::Log* newl, const Well::Log& orgl, 
-			    const Well::Data* d, WellTie::DataHolder* dh )
-    	: Executor("Processing log data") 
-	, newlog_(newl)
-	, orglog_(orgl)	     
-	, wd_(*d)	   
-	, nrdone_(0)
-	, curidx_(0)
-	, isavg_(true) 
-	, vals_(0)	       
-	, dahs_(0)	       
-	, prevval_(0)  
-{
-    if ( newlog_ ) newlog_->erase();
-
-    BufferString exnm = "Processing "; exnm += orgl.name(); exnm += " Data"; 
-    setName( exnm );
-
-    fillProcLog( orgl );
-
-    BufferString errmsg;
-    errmsg += "no valid "; errmsg += orgl.name();  errmsg += " log selected";
-
-    if ( dh )
-    {
-	if ( !dh->geoCalc()->isValidLogData( val_ ) ) mErrRet(errmsg);
-	dh->geoCalc()->interpolateLogData( dah_, orgl.dahStep(true), true );
-	dh->geoCalc()->interpolateLogData( val_, orgl.dahStep(true), false );
-	dh->geoCalc()->removeSpikes( val_ );
-    }
-}
-
-
-LogResampler::~LogResampler() 
-{
-    delete vals_; delete dahs_;
-}
-
-
-void LogResampler::fillProcLog( const Well::Log& log )
-{
-    for ( int idx=0; idx<log.size(); idx++ )
-    {
-	val_ += log.valArr()[idx];
-	dah_ += log.dah(idx);
-    }
-}
-
-
-int LogResampler::nextStep()
-{
-    float curtime = timeintv_.atIndex( nrdone_ );
-    if ( curtime >= timeintv_.stop || nrdone_ >= 
-	    			timeintv_.nrSteps() || !orglog_.size() ) 
-	return Executor::Finished();
-   
-    float curdah = wd_.d2TModel()->getDah( curtime );
-    curidx_ = orglog_.indexOf( curdah );
-    if ( curidx_ < 0 ) 
-	curidx_ = 0;
-    
-    float curval = 0;
-    if ( curdah < dah_[0] )
-	curval = val_[0];
-    else if ( curdah > dah_[dah_.size()-1] )
-	curval = val_[dah_.size()-1];
-    else if ( curidx_>1 && curidx_<dah_.size()-2 && isavg_ )
-	curval += ( val_[curidx_+1] + val_[curidx_-1] + val_[curidx_] )/3;
-    else
-	curval = orglog_.getValue( curdah, true );
-    if ( mIsUdf(curval) )
-	curval = prevval_;
-    
-    prevval_ = curval;
-
-    if ( newlog_ )
-	newlog_->addValue( curdah, curval );
-    if ( nrdone_ < dahs_->info().getSize(0) )
-    {
-	dahs_->set( nrdone_, curdah );
-	vals_->set( nrdone_, curval );
-    }
-
-    nrdone_++;
-    return Executor::MoreToDo();
-}
-
-
-void LogResampler::setTimeIntv( const StepInterval<float>& itv )
-{
-    timeintv_ = itv;
-    vals_ = new Array1DImpl<float>( itv.nrSteps() );
-    dahs_ = new Array1DImpl<float>( itv.nrSteps() );
 }
 
 }; //namespace WellTie

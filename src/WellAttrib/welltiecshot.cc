@@ -7,86 +7,58 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.14 2009-12-03 16:25:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.15 2011-01-20 10:21:38 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
 #include "idxable.h"
-#include "welldata.h"
-#include "welllogset.h"
 #include "welllog.h"
-#include "welltiedata.h"
 #include "welld2tmodel.h"
-#include "welltiesetup.h"
-#include "welltieunitfactors.h"
 #include "welltiegeocalculator.h"
 
 namespace WellTie
 {
 
-CheckShotCorr::CheckShotCorr( WellTie::DataHolder& dh )
-	: log_(new Well::Log(*dh.wd()->logs().getLog(dh.setup().vellognm_)))
-	, cs_(dh.wd()->checkShotModel())
+CheckShotCorr::CheckShotCorr( Well::Log& l, const Well::D2TModel& c, bool isvel)
+    : log_(l)
+    , cslog_(*new Well::Log)
 {
-    if ( !cs_ || !cs_->size() )
-	return;
+    for ( int idx=0; idx<c.size(); idx++ )
+       cslog_.addValue( c.dah(idx), c.value( idx ) );
 
-    for ( int idx=1; idx<cs_->size(); idx++ )
-    {
-	if ( cs_->dah(idx) == cs_->dah(idx-1) )
-	    cs_->remove( idx );
-    }
-    
-    TypeSet<float> newcsvals; 
-
-    WellTie::GeoCalculator geocalc( dh );
-    geocalc.checkShot2Log( cs_, dh.setup().issonic_, newcsvals );
-    calibrateLog2CheckShot( newcsvals, geocalc );
-
-    log_->setName( dh.setup().corrvellognm_ );
-    dh.wd()->logs().add( log_ );
+    GeoCalculator geocalc;
+    geocalc.velLogConv( cslog_, GeoCalculator::TWT2Vel );
+    if ( !isvel )
+	geocalc.velLogConv( cslog_, GeoCalculator::Vel2Son );
+    calibrateLog2CheckShot( cslog_ );
 }
 
 
-void CheckShotCorr::calibrateLog2CheckShot( const TypeSet<float>& csvals, 
-				       WellTie::GeoCalculator& geocalc )
+CheckShotCorr::~CheckShotCorr()
 {
-    const int logsz = log_->size();
+    delete &cslog_;
+}
+
+
+void CheckShotCorr::calibrateLog2CheckShot( const Well::Log& cs ) 
+{
     TypeSet<float> ctrlvals, calibratedpts, logvals, logdahs;      
-    calibratedpts.setSize( logsz );
     TypeSet<int> ctrlsamples;          
-    
-    for ( int idx=0; idx<logsz; idx++ )
+    for ( int idx=0; idx<cs.size(); idx++ )
     {
-	logvals += log_->value(idx);
-	logdahs += log_->dah(idx);
+	int dahidx = log_.indexOf( cs.dah(idx) );
+	if ( dahidx >= 0 )
+	    { ctrlvals += cs.value( idx ); ctrlsamples += dahidx; }
     }
 
-    geocalc.interpolateLogData( logdahs, log_->dahStep(true), true );
-    geocalc.interpolateLogData( logvals, log_->dahStep(true), false );
-
-    for ( int idx=0; idx<csvals.size(); idx++ )
-    {
-	int dahidx = log_->indexOf( cs_->dah(idx) );
-	if ( dahidx >0 )
-	{
-	    ctrlvals += csvals[idx];
-	    ctrlsamples += dahidx;
-	}
-    }
-
+    const int logsz = log_.size();
+    calibratedpts.setSize( logsz );
     IdxAble::callibrateArray( logvals.arr(), logsz,
 	                      ctrlvals.arr(), ctrlsamples.arr(), 
 			      ctrlvals.size(), false, calibratedpts.arr() );
-    
+    log_.erase(); 
     for ( int idx=0; idx<logsz; idx++ )
-    {
-	float calibratedval = calibratedpts[idx];
-	if ( mIsUdf( calibratedval ) )
-	    calibratedval = idx ? calibratedpts[idx-1] : log_->valArr()[0]; 
-	log_->valArr()[idx] = calibratedval; 
-	log_->dahArr()[idx] = logdahs[idx];
-    }
+	log_.addValue( logdahs[idx], calibratedpts[idx] );
 }
 
 }; //namespace WellTie

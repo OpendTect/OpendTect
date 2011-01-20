@@ -7,15 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.55 2010-11-29 21:37:17 cvskris Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.56 2011-01-20 10:21:38 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
 
+#include "arrayndimpl.h"
 #include "arrayndutils.h"
 #include "fourier.h"
 #include "fftfilter.h"
 #include "hilberttransform.h"
+#include "linear.h"
 #include "genericnumer.h"
 #include "spectrogram.h"
 #include "survinfo.h"
@@ -23,8 +25,7 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.55 2010-11-29 21:37
 #include "welllog.h"
 #include "welllogset.h"
 #include "welltrack.h"
-#include "welltiedata.h"
-#include "welltiesetup.h"
+#include "welltieunitfactors.h"
 #include "welld2tmodel.h"
 
 #include <complex>
@@ -32,68 +33,39 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.55 2010-11-29 21:37
 namespace WellTie
 {
 
-GeoCalculator::GeoCalculator( const WellTie::DataHolder& dh )
-		: params_(*dh.params())
-		, setup_(dh.setup())
-		, dholder_(dh)	    	    
-		, denfactor_(0)	   
-		, velfactor_(0)	   
+Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Log& log, 
+					        const Well::Track* track, 
+					        float surfelev ) const
 {
-    denfactor_ = dh.getUnits().denFactor();
-    velfactor_ = dh.getUnits().velFactor();
-}    
-
-
-const Well::Data& GeoCalculator::wd()
-{
-    return *dholder_.wd();
-}
-
-//each sample is converted to a time using the travel time log
-//the correspondance between samples and depth values provides a first
-//TWT approx.
-Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
-							  bool doclean )
-{
-    const Well::Log* log = wd().logs().getLog( vellog );
-    if ( !log ) return 0;
-    TypeSet<float> vals, dpt, time;
-
-    dpt += -wd().track().value(0);
-    vals += 0;
-    for ( int idx=0; idx<log->size(); idx++ )
+    float rdelev = 0;
+    if ( track && !track->isEmpty() )
     {
-	vals += log->valArr()[idx];
-	dpt  += log->dah( idx );
+	rdelev = track->dah( 0 ) - track->value( 0 );
+	if ( mIsUdf( rdelev ) ) rdelev = 0;
     }
 
-    if ( doclean )
+    Well::Log proclog = Well::Log( log );
+    removeSpikes( proclog.valArr(), proclog.size(), 10 );
+    velLogConv( proclog, Vel2TWT );
+
+    TypeSet<float> dpt, vals;
+    for ( int idx=0; idx<proclog.size(); idx++ )
     {
-	interpolateLogData( dpt, log->dahStep(true), true );
-	interpolateLogData( vals, log->dahStep(true), false );
-	removeSpikes( vals );
+	float dah = proclog.dah( idx );
+	if ( mIsUdf( dah ) ) continue;
+	dpt += dah;
+	vals += proclog.getValue( dah, true );
     }
-
-    TWT2Vel( vals, dpt, time, false );
-
-    const Well::Info& info = wd().info();
-    const Well::Track& track = wd().track();
-    float rdelev = track.dah( 0 ) - track.value( 0 );
-    float surfelev = -info.surfaceelev;
-
-    if ( mIsUdf( surfelev ) ) surfelev = 0;
-    if ( mIsUdf( rdelev ) ) rdelev = 0;
-
     Well::D2TModel* d2tnew = new Well::D2TModel;
     d2tnew->add( rdelev - surfelev, 0 ); //set KB Depth
-    for ( int idx=1; idx<time.size(); idx++ )
-	d2tnew->add( dpt[idx]-surfelev, time[idx] );
+    for ( int idx=0; idx<dpt.size(); idx++ )
+	d2tnew->add( dpt[idx]-surfelev, vals[idx] );
 
     return d2tnew;
 }
 
 
-void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t )
+void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t ) const
 {
     const int sz = d2t.size();
     TypeSet<float> dahs, times;
@@ -117,52 +89,40 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t )
 }
 
 
-//Small TWT/Interval Velocity converter
-#define mFactor 10e6
-void GeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
-			     const TypeSet<float>& dpt,	
-			     TypeSet<float>& outp, bool t2vel  )
+void GeoCalculator::velLogConv( Well::Log& log, Conv conv ) const
 {
-    if ( t2vel && ( timevel.size()>= 2 ) )
+    const bool issonic = conv == Son2Vel || conv == Son2TWT;
+    UnitFactors uf; double velfac = uf.getVelFactor( log, issonic );
+    const int sz = log.size(); 
+    if ( sz < 2 || !velfac ) return;
+    TypeSet<float> dpts, vals;
+    for ( int idx=0; idx<log.size(); idx++ )
+	{ dpts += log.dah( idx ); vals += log.value( idx ); }
+    log.erase();
+    float prevval, newval; newval = prevval = 0;
+    for ( int idx=1; idx<sz; idx++ )
     {
-	for ( int idx=0; idx<timevel.size()-1; idx++ )
-	    outp +=  ( timevel[idx+1]-timevel[idx] )
-		    /( (dpt[idx+1]-dpt[idx])/velfactor_*2 );
-	    outp += outp[timevel.size()-2];
-    }
-    else 
-    {
-	outp += 0;
-	const bool issonic = setup_.issonic_;
-	for ( int idx=1; idx<timevel.size(); idx++ )
+	if ( conv == Vel2TWT )
 	{
-	    const float velval = issonic ? timevel[idx] : 1/timevel[idx];
-	    outp += 2*( dpt[idx] - dpt[idx-1] )*velval/velfactor_;
+	    float v = issonic ? vals[idx] : 1/vals[idx]; 
+	    v /= ( vals[idx]-vals[idx-1] );
+	    newval = 2*( dpts[idx] - dpts[idx-1] )*v/velfac;
+	    newval += prevval;
+	    prevval = newval;
 	}
-	for ( int idx=1; idx<timevel.size(); idx++ )
-	    outp[idx] += outp[idx-1];
-    }
-}
-
-
-void GeoCalculator::checkShot2Log( const Well::D2TModel* cs, bool wantsonic,
-				      TypeSet<float>& newvals )
-{
-    if ( !cs ) return;
-
-    TypeSet<float> dpt, csvals;
-    for ( int idx=0; idx<cs->size(); idx++ )
-    {
-	dpt += cs->dah(idx);
-	csvals += cs->value(idx);
-    }
-
-    if ( wantsonic )
-	TWT2Vel( csvals, dpt, newvals, true );
-    else
-    {
-	for ( int idx=0; idx<cs->size(); idx++ )
-	    newvals += csvals[idx]*1000;
+	else if ( conv == TWT2Vel )
+	{
+	    newval = ( dpts[idx] - dpts[idx-1] )/( 2*( vals[idx]-vals[idx-1] ));
+	}
+	else if ( conv == Son2Vel )
+	{
+	    newval = velfac/vals[idx];
+	}
+	else if ( conv == Vel2Son )
+	{
+	    newval = vals[idx]/velfac;
+	}
+	log.addValue( dpts[idx], newval );
     }
 }
 
@@ -198,122 +158,34 @@ void GeoCalculator::stretch( const WellTie::GeoCalculator::StretchData& sd,
     }
 }
 
-//only for ascending arrays
-const int GeoCalculator::getIdx( const Array1DImpl<float>& inp, 
-					float pos ) const
+
+
+
+void GeoCalculator::removeSpikes( float* inpvals, int sz, int gatesz ) const
 {
-    int idx = 0;
-    while ( inp.get(idx)<pos )
-    {
-	if( idx == inp.info().getSize(0)-1 )
-	    break;
-	idx++;
-    }
-    return idx;
-}
+    if ( sz < 2*gatesz ) return;
 
+    Array1DImpl<float> vals( sz );
+    for ( int idx=0; idx<sz; idx++ )
+	vals.set( idx, inpvals[idx] );
 
-//Small Data Interpolator, specially designed for log (dah) data
-//assumes no possible negative values in dens or vel log
-//will replace them by interpolated values if so. 
-void GeoCalculator::interpolateLogData( TypeSet<float>& data,
-					       float dahstep, bool isdah )
-{
-    int startidx = getFirstDefIdx( data );
-    int lastidx = getLastDefIdx( data );
-    if ( startidx<0 || lastidx< 0 )
-	return;
-
-    for ( int idx=startidx; idx<lastidx; idx++)
-    {
-	//no negative values in dens or vel log assumed
-	if ( !isdah && ( mIsUdf(data[idx]) || data[idx]<0 ) )
-	{
-	    if ( idx ) 
-		data[idx] = data[idx-1];
-	    else
-		data[idx] = computeAvg( data );
-	}
-	if ( idx && isdah && (mIsUdf(data[idx]) || data[idx]<data[idx-1]
-	     || data[idx] >= data[lastidx])  )
-		data[idx] = data[idx-1] + dahstep;
-    }
-    for ( int idx=0; idx<startidx; idx++ )
-	data[idx] = data[startidx];
-    for ( int idx=lastidx; idx<data.size(); idx++ )
-	data[idx] = data[lastidx];
-}
-
-
-float GeoCalculator::computeAvg( const TypeSet<float>& logdata ) const
-{
-    float avg = 0;
-    for ( int idx=0; idx<logdata.size(); idx++ ) 
-	avg += logdata[idx]; 
-    return avg/logdata.size();
-}
-
-
-void GeoCalculator::removeSpikes( TypeSet<float>& logdata )
-{
-    const int winsize = 10;
-    if ( logdata.size() < 2*winsize ) 
-	return;
-    float prevval = logdata[0];
-    for ( int idx = winsize/2; idx<logdata.size()-winsize; idx = idx+winsize  ) 
+    float prevval = inpvals[0]; float avg = computeAvg( &vals );
+    for ( int idx = gatesz/2; idx<sz-gatesz; idx = idx+gatesz  ) 
     {
 	float avg = 0;
-	for ( int winidx = idx-winsize/2; winidx<idx+winsize/2; winidx++ )
-	    avg += logdata[winidx]/winsize; 
-	for ( int winidx = idx-winsize/2; winidx<idx+winsize/2; winidx++ )
+	for ( int winidx = idx-gatesz/2; winidx<idx+gatesz/2; winidx++ )
+	    avg += inpvals[winidx]/gatesz; 
+	for ( int winidx = idx-gatesz/2; winidx<idx+gatesz/2; winidx++ )
 	{
-	    if ( logdata[winidx] > 3*avg )
-		logdata[winidx] = idx ? prevval : computeAvg( logdata );
-	    prevval = logdata[winidx];
+	    if ( inpvals[winidx] > 3*avg )
+		inpvals[winidx] = idx ? prevval : avg;
+	    prevval = inpvals[winidx];
 	}
     }
+   inpvals = vals.arr();
 }
 
 
-int GeoCalculator::getFirstDefIdx( const TypeSet<float>& logdata )
-{
-    int idx = 0;
-    for ( int idx=0; idx<logdata.size(); idx++ )
-    {
-	if ( !mIsUdf(logdata[idx]) )
-	    return idx;
-    }
-    return -1;
-}
-
-
-int GeoCalculator::getLastDefIdx( const TypeSet<float>& logdata )
-{
-    for ( int idx=logdata.size()-1; idx>=0; idx-- )
-    {
-	if ( !mIsUdf(logdata[idx]) )
-	    return idx;
-    }
-    return -1;
-}
-
-
-bool GeoCalculator::isValidLogData( const TypeSet<float>& logdata )
-{
-    if ( !logdata.size() || getFirstDefIdx(logdata) >=logdata.size() )
-	return false;
-    return true;
-}
-
-
-
-#define mDoTransform(tf,isstraight,inp,outp,sz) \
-{   \
-    tf.setInputInfo(Array1DInfoImpl(sz));\
-    tf.setDir(isstraight);\
-    tf.init();\
-    tf.transform(*inp,*outp);\
-}
 
 #define mDoFourierTransform(tf,isstraight,inp,outp,sz) \
 {   \
@@ -325,181 +197,56 @@ bool GeoCalculator::isValidLogData( const TypeSet<float>& logdata )
     tf->run(true); \
 }
 
-
-void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
-{
-    const int filtersz = vals.info().getSize(0);
-    if ( filtersz<100 ) return;
-    
-    Array1DImpl<float> orgvals ( vals );
-    const int winsz = (int)(SI().zStep()/0.5);
-    
-    FFTFilter filter;
-
-    Array1DImpl<float> lwin( winsz );
-    if ( winsz )
-    {
-	ArrayNDWindow lowwindow(Array1DInfoImpl(2*winsz),false, "CosTaper",0.5);
-	for ( int idx=0; idx<winsz; idx++ )
-	    lwin.set( idx, 1-lowwindow.getValues()[idx] );
-	filter.setLowFreqBorderWindow( lwin.getData(), winsz );
-    }
-
-    float df = Fourier::CC::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
-    filter.FFTFreqFilter( df, cutf, true, orgvals, vals );
-    const int bordersz = (int)(filtersz/20);
-    for ( int idx=0; idx<(int)(filtersz/20); idx++ )
-    {
-	if ( idx<bordersz || idx>filtersz-bordersz ) 
-	    vals.set( idx, orgvals.get(idx) );
-    }
-}
-
-
-//resample data. If higher step, linear interpolation
-//else nearest sample
-void GeoCalculator::resampleData( const Array1DImpl<float>& invals,
-				 Array1DImpl<float>& outvals, float step )
-{
-    int datasz = invals.info().getSize(0);
-    if ( step >1  )
-    {
-	for ( int idx=0; idx<datasz-1; idx++ )
-	{
-	    float stepval = ( invals.get(idx+1) - invals.get(idx) ) / step;
-	    for ( int stepidx=0; stepidx<step; stepidx++ )
-		outvals.setValue( idx, invals.get(idx) + stepidx*stepval ); 
-	}
-	outvals.setValue( datasz-1, invals.get(datasz-1) );
-    }
-    else 
-    {
-	for ( int idx=0; idx<datasz*step; idx+=(int)(1/step) ) 
-	    outvals.setValue( idx, invals.get(idx) );
-    }
-}
-
-
-void GeoCalculator::computeAI( const Array1DImpl<float>& velvals,
-			       const Array1DImpl<float>& denvals,
-			       Array1DImpl<float>& aivals )
-{
-    const int datasz = velvals.info().getSize(0);
-    if ( !datasz && !denvals.info().getSize(0) != datasz )
-	return;
-    const bool issonic = setup_.issonic_;
-    float prevval = 0;
-    for ( int idx=0; idx<datasz; idx++ )
-    {
-	float velval = issonic ? velvals.get(idx) : 1/velvals.get(idx);
-	float denval = denvals.get( idx );
-	float aival = denval/velval*mFactor*denfactor_*velfactor_;
-	if ( mIsUdf(denval) || mIsUdf(velval) || mIsUdf(aival) )
-	    aival = prevval;
-	aivals.setValue( idx, aival );
-	prevval = aival;
-    }
-}
-
-
-//Compute reflectivity values at display sample step (Survey step)
-void GeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
-				   Array1DImpl<float>& reflvals,int shiftstep )
-{
-    float prevval=0, ai1, ai2, rval = 0; 
-    const int sz = reflvals.info().getSize(0);
-    if ( sz<2 ) return;
-
-    for ( int idx=0; idx<sz-1; idx++ )
-    {
-	ai2 = aivals.get( shiftstep*(idx+1));
-	ai1 = aivals.get( shiftstep*(idx)  );	   
-
-	if ( mIsZero( ai1+ai2, 1e-8 ) )
-	    rval = prevval;
-	else if ( !mIsUdf( ai1 ) || !mIsUdf( ai2 ) )
-	    rval =  ( ai2 - ai1 ) / ( ai2 + ai1 );     
-	
-	reflvals.setValue( idx, rval ); 
-	prevval = rval;
-    }
-    reflvals.setValue( 0, reflvals.get(1) ); 
-    reflvals.setValue( sz-1, reflvals.get(sz-2) ); 
-}
-
-
-void GeoCalculator::convolveWavelet( const Array1DImpl<float>& wvltvals,
-				     const Array1DImpl<float>& reflvals,
-				     Array1DImpl<float>& synvals, int widx )
-{
-    int reflsz = reflvals.info().getSize(0);
-    int wvltsz = wvltvals.info().getSize(0);
-    float* outp = new float[reflsz];
-
-    GenericConvolve( wvltsz, -widx, wvltvals.getData(),
-		     reflsz, 0    , reflvals.getData(),
-		     reflsz, 0 	  , outp );
-
-    memcpy( synvals.getData(), outp, reflsz*sizeof(float));
-    delete outp;
-}
-
-
 #define mNoise 0.05
-void GeoCalculator::deconvolve( const Array1DImpl<float>& tinputvals,
-			        const Array1DImpl<float>& tfiltervals,
-			        Array1DImpl<float>& deconvals, 
-			        int wvltsz )
+void GeoCalculator::deconvolve( const float* inp, const float* filter,
+			        float* deconvals, int inpsz ) const
 {
-    const int filtersz = tfiltervals.info().getSize(0);
-    if ( !filtersz || filtersz<wvltsz ) return;
-
-    ArrayNDWindow window( Array1DInfoImpl(filtersz), false, "CosTaper", 0.1 );
-    Array1DImpl<float>* inputvals = new Array1DImpl<float>( filtersz );
-    Array1DImpl<float>* filtervals = new Array1DImpl<float>( filtersz );
-
-    memcpy(inputvals->getData(),tinputvals.getData(),filtersz*sizeof(float));
-    memcpy(filtervals->getData(),tfiltervals.getData(),filtersz*sizeof(float));
-
+    ArrayNDWindow window( Array1DInfoImpl(inpsz), false, "CosTaper", 0.1 );
+    Array1DImpl<float>* inputvals = new Array1DImpl<float>( inpsz );
+    Array1DImpl<float>* filtervals = new Array1DImpl<float>( inpsz );
+    memcpy(inputvals->getData(),inp,inpsz*sizeof(float));
+    memcpy(filtervals->getData(),filter,inpsz*sizeof(float));
     window.apply( inputvals );		removeBias( inputvals );
     window.apply( filtervals );		removeBias( filtervals );
 
     HilbertTransform hil;
-    hil.setCalcRange(0, filtersz, 0);
+    hil.setCalcRange(0, inpsz, 0);
     Array1DImpl<float_complex>* cinputvals = 
-				new Array1DImpl<float_complex>( filtersz );
-    mDoTransform( hil, true, inputvals, cinputvals, filtersz );
+				new Array1DImpl<float_complex>( inpsz );
+    for ( int idx=0; idx<inpsz; idx++ )
+	cinputvals->set( idx, inputvals->get( idx ) );
     delete inputvals;
     Array1DImpl<float_complex>* cfiltervals = 
-				new Array1DImpl<float_complex>( filtersz );
-    hil.setCalcRange(0, filtersz, 0);
-    mDoTransform( hil, true, filtervals, cfiltervals, filtersz );
+				new Array1DImpl<float_complex>( inpsz );
+    for ( int idx=0; idx<inpsz; idx++ )
+	cfiltervals->set( idx, filtervals->get( idx ) );
     delete filtervals;
    
     PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
     Array1DImpl<float_complex>* cfreqinputvals = 
-				new Array1DImpl<float_complex>( filtersz );
-    mDoFourierTransform( fft, true, cinputvals, cfreqinputvals, filtersz );
+				new Array1DImpl<float_complex>( inpsz );
+    mDoFourierTransform( fft, true, cinputvals, cfreqinputvals, inpsz );
     delete cinputvals;
     Array1DImpl<float_complex>* cfreqfiltervals = 
-				new Array1DImpl<float_complex>( filtersz );
-    mDoFourierTransform( fft, true, cfiltervals, cfreqfiltervals, filtersz );
+				new Array1DImpl<float_complex>( inpsz );
+    mDoFourierTransform( fft, true, cfiltervals, cfreqfiltervals, inpsz );
 
     Spectrogram spec;
     Array1DImpl<float_complex>* cspecfiltervals = 
-				new Array1DImpl<float_complex>( filtersz );
-    mDoTransform( spec, true, cfiltervals, cspecfiltervals, filtersz );
+				new Array1DImpl<float_complex>( inpsz );
+    for ( int idx=0; idx<inpsz; idx++ )
+	cspecfiltervals->set( idx, cfiltervals->get( idx ) );
     delete cfiltervals;
 
     float_complex wholespec = 0;
-    float_complex noise = mNoise/filtersz;
-    for ( int idx=0; idx<filtersz; idx++ )
+    float_complex noise = mNoise/inpsz;
+    for ( int idx=0; idx<inpsz; idx++ )
 	wholespec += cspecfiltervals->get( idx );  
     float_complex cnoiseshift = noise*wholespec;
    
     Array1DImpl<float_complex>* cdeconvvals = 
-				new  Array1DImpl<float_complex>( filtersz ); 
-    for ( int idx=0; idx<filtersz; idx++ )
+				new  Array1DImpl<float_complex>( inpsz ); 
+    for ( int idx=0; idx<inpsz; idx++ )
     {
 	float_complex inputval = cfreqinputvals->get(idx);
 	float_complex filterval = cfreqfiltervals->get(idx);
@@ -517,39 +264,47 @@ void GeoCalculator::deconvolve( const Array1DImpl<float>& tinputvals,
     delete cfreqinputvals; delete  cfreqfiltervals;
 
     float avg = 0;
-    for ( int idx=0; idx<filtersz; idx++ )
-	avg += abs( cdeconvvals->get( idx ) )/filtersz;
-    for ( int idx=0; idx<filtersz; idx++ )
+    for ( int idx=0; idx<inpsz; idx++ )
+	avg += abs( cdeconvvals->get( idx ) )/inpsz;
+    for ( int idx=0; idx<inpsz; idx++ )
     {
 	if ( abs( cdeconvvals->get( idx ) ) < avg/4 )
 	    cdeconvvals->set( idx, 0 );
     }
 
     Array1DImpl<float_complex>* ctimedeconvvals = 
-				new Array1DImpl<float_complex>( filtersz );
-    mDoFourierTransform( fft, false, cdeconvvals, ctimedeconvvals, filtersz );
+				new Array1DImpl<float_complex>( inpsz );
+    mDoFourierTransform( fft, false, cdeconvvals, ctimedeconvvals, inpsz );
     delete cdeconvvals;
 
-    int mid = (int)(filtersz)/2;
+    int mid = (int)(inpsz)/2;
     for ( int idx=0; idx<=mid; idx++ )
-	deconvals.set( idx, ctimedeconvvals->get( mid-idx ).real() );
-    for ( int idx=mid+1; idx<filtersz; idx++ )
-	deconvals.set( idx, ctimedeconvvals->get( filtersz-idx+mid ).real() );
+	deconvals[idx] = ctimedeconvvals->get( mid-idx ).real();;
+    for ( int idx=mid+1; idx<inpsz; idx++ )
+	deconvals[idx] = ctimedeconvvals->get( inpsz-idx+mid ).real();
     delete ctimedeconvvals;
 }
 
 
-void GeoCalculator::crosscorr( const Array1DImpl<float>& seisvals, 
-				     const Array1DImpl<float>& synthvals,
-       				     Array1DImpl<float>& outpvals	)
+double GeoCalculator::crossCorr( const float* seis, const float* synth, 
+				float* outp, int sz ) const
 {
-    const int datasz = seisvals.info().getSize(0);
-    float* outp = new float[datasz];
-    genericCrossCorrelation( datasz, 0, seisvals,
-			     datasz, 0, synthvals,
-			     datasz, -datasz/2, outp);
-    memcpy( outpvals.getData(), outp, datasz*sizeof(float));
-    delete outp;
+    genericCrossCorrelation( sz, 0, seis, sz, 0, synth, sz, -sz/2, outp );
+    LinStats2D ls2d; ls2d.use( seis, synth, sz );
+    return ls2d.corrcoeff;
+}
+
+
+int GeoCalculator::getIdx( const Array1DImpl<float>& inp, float pos) const 
+{
+    int idx = 0;
+    while ( inp.get(idx)<pos )
+    {
+	if( idx == inp.info().getSize(0)-1 )
+	    break;
+	idx++;
+    }
+    return idx;
 }
 
 }; //namespace WellTie

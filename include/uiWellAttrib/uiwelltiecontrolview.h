@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uiflatviewstdcontrol.h"
 
-
 class uiFlatViewer;
 class uiButton;
 class uiToolBar;
@@ -22,20 +21,22 @@ class uiRect;
 
 namespace WellTie
 {
-    class DataHolder;
+    class DispParams;
     class uiMrkDispDlg;
+    class Server;
 
 mClass uiControlView : public uiFlatViewStdControl
 {
 public:
-			uiControlView(uiParent*,uiToolBar*,uiFlatViewer*);
+			uiControlView(uiParent*,uiToolBar*,
+					uiFlatViewer*,Server&);
 			~uiControlView(){};
    
     const bool 		isZoomAtStart() const;
     void 		setEditOn(bool);
-    void		setDataHolder(WellTie::DataHolder* dh)
-    			{ dataholder_ = dh; }
     void		setSelView(bool isnewsel = true, bool viewall=false );
+
+    Notifier<uiControlView> redrawNeeded;
     
 protected:
     
@@ -46,10 +47,10 @@ protected:
     uiToolButton*	hormrkdispbut_;
     uiIOObjSelDlg*	selhordlg_;
     uiWorldRect		curview_;
-    
-    WellTie::DataHolder* dataholder_;
+   
     uiMrkDispDlg*	hormrkdispdlg_;
-    
+    Server&		server_;
+
     bool 		checkIfInside(double,double);
     void 		finalPrepare();
     bool 		handleUserClick();
