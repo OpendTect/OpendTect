@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultoutsel.cc,v 1.4 2009-08-27 15:55:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uimultoutsel.cc,v 1.5 2011-01-20 10:32:17 cvshelene Exp $";
 
 #include "uimultoutsel.h"
 
 #include "attribdesc.h"
 #include "attribprovider.h"
+#include "uibutton.h"
 #include "uilistbox.h"
 
 using namespace Attrib;
@@ -21,6 +22,7 @@ uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 	: uiDialog(p,Setup("Multiple components selection",
 		    	   "Select the outputs to compute", "101.2.3"))
 	, outlistfld_(0)
+	, outallfld_(0)
 {
     BufferStringSet outnames;
     Desc* tmpdesc = new Desc( desc );
@@ -56,6 +58,10 @@ void uiMultOutSel::createMultOutDlg( const BufferStringSet& outnames )
     outlistfld_ = new uiListBox( this );
     outlistfld_->setMultiSelect();
     outlistfld_->addItems( outnames );
+
+    outallfld_ = new uiCheckBox( this, "Output all");
+    outallfld_->activated.notify( mCB(this,uiMultOutSel,allSel) );
+    outallfld_->attach( alignedBelow, outlistfld_ );
 }
 
 
@@ -76,4 +82,10 @@ void uiMultOutSel::getSelectedOutNames( BufferStringSet& seloutnms ) const
 bool uiMultOutSel::doDisp() const
 {
     return outlistfld_;
+}
+
+
+void uiMultOutSel::allSel( CallBacker* c )
+{
+    outlistfld_->selectAll( outallfld_->isChecked() );
 }

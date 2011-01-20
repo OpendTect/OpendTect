@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          Jan 2009
- RCS:           $Id: uimultoutsel.h,v 1.2 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uimultoutsel.h,v 1.3 2011-01-20 10:32:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class BufferStringSet;
+class uiCheckBox;
 class uiListBox;
 namespace Attrib { class Desc; };
 
@@ -35,8 +36,10 @@ protected:
 	                                    BufferStringSet&) const;
 
     void		createMultOutDlg(const BufferStringSet&);
+    void		allSel(CallBacker*);
 
     uiListBox*		outlistfld_;
+    uiCheckBox*		outallfld_;
 
 };
 
