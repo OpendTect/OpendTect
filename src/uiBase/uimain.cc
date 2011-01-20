@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.62 2011-01-18 13:12:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.63 2011-01-20 09:58:05 cvsbert Exp $";
 
 #include "uimain.h"
 
@@ -33,7 +33,7 @@ static const char* rcsID = "$Id: uimain.cc,v 1.62 2011-01-18 13:12:45 cvsbert Ex
 #include <QCDEStyle>
 #include <QWindowsStyle>
 #include <QPlastiqueStyle>
-#include <QGtkStyle>
+#include <QCleanlooksStyle>
 
 #include <QTreeWidget>
 #include <QMenu>
