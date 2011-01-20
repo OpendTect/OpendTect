@@ -4,11 +4,12 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.31 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.32 2011-01-20 12:56:05 cvshelene Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
 
+#include "datapack.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "linekey.h"
@@ -305,7 +306,15 @@ bool SeisStorageRefParam::isOK() const
     const char* val = spec_->text(0);
     const LineKey lk( val );
 
-    const MultiID mid( lk.lineName() );
+    BufferString bstring = lk.lineName();
+    const char* linenm = bstring.buf();
+    if ( linenm && *linenm == '#' )
+    {
+	DataPack::FullID fid( linenm+1 );
+	return DPM(fid).haveID( fid );
+    }
+
+    const MultiID mid( bstring );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     return ioobj;
 }

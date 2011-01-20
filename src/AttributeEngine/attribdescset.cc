@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.98 2010-12-30 18:33:00 cvskris Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.99 2011-01-20 12:56:05 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: attribdescset.cc,v 1.98 2010-12-30 18:33:00 cvs
 #include "attribfactory.h"
 #include "attribsel.h"
 #include "bufstringset.h"
+#include "datapack.h"
 #include "gendefs.h"
 #include "keystrs.h"
 #include "iopar.h"
@@ -828,16 +829,32 @@ DescID DescSet::createStoredDesc( const char* lk, int selout,
 				  const BufferString& compnm )
 {
     LineKey newlk( lk );
-    MultiID mid = newlk.lineName().buf();
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) return DescID::undef();
+    BufferString bstring = newlk.lineName();
+    const char* linenm = bstring.buf();
+    const char* objnm = 0;
+    if ( linenm && *linenm == '#' )
+    {
+	DataPack::FullID fid( linenm+1 );
+	if ( !DPM(fid).haveID( fid ) )
+	    return DescID::undef();
+
+	objnm = DataPackMgr::nameOf( fid );
+    }
+    else
+    {
+	MultiID mid = linenm;
+	PtrMan<IOObj> ioobj = IOM().get( mid );
+	if ( !ioobj ) return DescID::undef();
+
+	objnm = ioobj->name();
+    }
 
     Desc* newdesc = PF().createDescCopy( StorageProvider::attribName() );
     if ( !newdesc ) return DescID::undef(); // "Cannot create desc"
     if ( compnm.isEmpty() && selout>0 )
 	return DescID::undef(); 	// "Missing component name"
 
-    BufferString userref = LineKey( ioobj->name(), newlk.attrName() );
+    BufferString userref = LineKey( objnm, newlk.attrName() );
     if ( !compnm.isEmpty() )
     {
 	if ( is2d_ ) userref = newlk.attrName();

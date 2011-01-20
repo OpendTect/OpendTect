@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.34 2011-01-13 15:02:27 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.35 2011-01-20 12:56:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,9 +52,13 @@ protected:
     bool		checkInpAndParsAtStart();
     bool		allowParallelComputation() const { return false; }
 
+    //From disc
     SeisMSCProvider*	getMSCProvider() const	{ return mscprov_; }
     bool		initMSCProvider();
     bool		setMSCProvSelData();
+
+    //From memory (in Attrib::DataPacks)
+    SeisTrc*		getTrcFromPack(const BinID&,int) const;
 
     void		setReqBufStepout(const BinID&,bool wait=false);
     void		setDesBufStepout(const BinID&,bool wait=false);
@@ -75,6 +79,8 @@ protected:
     void		checkClassType(const SeisTrc*,BoolTypeSet&) const;
     bool		setTableSelData();
     bool		set2DRangeSelData();
+
+    void		registerNewPosInfo(SeisTrc*,const BinID&,bool,bool&);
 
     TypeSet<BinDataDesc> datachar_;
     SeisMSCProvider*	mscprov_;

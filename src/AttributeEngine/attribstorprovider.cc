@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.100 2011-01-13 15:02:27 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.101 2011-01-20 12:56:05 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -61,6 +61,17 @@ void StorageProvider::initClass()
 void StorageProvider::updateDesc( Desc& desc )
 {
     const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
+
+    BufferString bstring = lk.lineName();
+    const char* linenm = bstring.buf();
+    if ( linenm && *linenm == '#' )
+    {
+	DataPack::FullID fid( linenm+1 );
+	if ( !DPM(fid).haveID( fid ) )
+	    desc.setErrMsg( "Cannot find data in memory" );
+
+	return;
+    }
 
     const MultiID key( lk.lineName() );
     const BufferString attrnm = lk.attrName();
@@ -140,14 +151,22 @@ StorageProvider::StorageProvider( Desc& desc )
     , mscprov_(0)
     , status_( Nada )
     , stepoutstep_(-1,0)
-    , isondisc_(true)			//TODO check this
+    , isondisc_(false)
 {
+    const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
+    BufferString bstring = lk.lineName();
+    const char* linenm = bstring.buf();
+    if ( linenm && *linenm == '#' )
+    {
+	DataPack::FullID fid( linenm+1 );
+	isondisc_ =  DPM(fid).haveID( fid );
+    }
 }
 
 
 StorageProvider::~StorageProvider()
 {
-    delete mscprov_;
+    if ( mscprov_ ) delete mscprov_;
 }
 
 
@@ -157,6 +176,8 @@ StorageProvider::~StorageProvider()
 bool StorageProvider::checkInpAndParsAtStart()
 {
     if ( status_!=Nada ) return false;
+
+    if ( isondisc_ ) return true;
 
     const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
     const MultiID mid( lk.lineName() );
@@ -261,55 +282,72 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    return 1;
 	}
     }
-    
+
     bool advancefurther = true;
     while ( advancefurther )
     {
-	SeisMSCProvider::AdvanceState res = mscprov_->advance();
-	switch ( res )
+	if ( isondisc_ )
 	{
-	    case SeisMSCProvider::Error:	{ errmsg_ = mscprov_->errMsg();
-						  return -1; }
-	    case SeisMSCProvider::EndReached:	return 0;
-	    case SeisMSCProvider::Buffering:	continue;
+	    SeisMSCProvider::AdvanceState res = mscprov_->advance();
+	    switch ( res )
+	    {
+		case SeisMSCProvider::Error:	{ errmsg_ = mscprov_->errMsg();
+						      return -1; }
+		case SeisMSCProvider::EndReached:	return 0;
+		case SeisMSCProvider::Buffering:	continue;
 						//TODO return 'no new position'
 
-	    case SeisMSCProvider::NewPosition:
-	    {
-		if ( useshortcuts_ )
-		    { advancefurther = false; continue; }
-
-		SeisTrc* trc = mscprov_->get( 0, 0 );
-		if ( !trc ) continue; // should not happen
-
-		for ( int idx=0; idx<trc->nrComponents(); idx++ )
+		case SeisMSCProvider::NewPosition:
 		{
-		    if ( datachar_.size()<=idx )
-			datachar_ +=
-			    trc->data().getInterpreter()->dataChar();
-		    else
-			datachar_[idx] =
-			    trc->data().getInterpreter()->dataChar();
-		}
+		    if ( useshortcuts_ )
+			{ advancefurther = false; continue; }
 
-		curtrcinfo_ = 0;
-		const SeisTrcInfo& newti = trc->info();
-		currentbid_ = desc_.is2D()? BinID( 0, newti.nr ) 
-					: newti.binid;
-		trcinfobid_ = newti.binid;
-		if ( firstcheck || startpos == BinID(-1,-1)
-		  || currentbid_ == startpos || newti.binid == startpos )
-		{
-		    advancefurther = false;
-		    curtrcinfo_ = &trc->info();
+		    SeisTrc* trc = mscprov_->get( 0, 0 );
+		    if ( !trc ) continue; // should not happen
+
+		    registerNewPosInfo( trc, startpos, firstcheck,
+			    		advancefurther );
 		}
 	    }
+	}
+	else
+	{
+	    SeisTrc* trc = getTrcFromPack( BinID(0,0), 1 );
+	    if ( !trc ) return 0;
+
+	    registerNewPosInfo( trc, startpos, firstcheck, advancefurther );
 	}
     }
 
     setCurrentPosition( currentbid_ );
     alreadymoved_ = true;
     return 1;
+}
+
+
+void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
+					  bool firstcheck, bool& advancefurther)
+{
+    for ( int idx=0; idx<trc->nrComponents(); idx++ )
+    {
+	if ( datachar_.size()<=idx )
+	    datachar_ +=
+		trc->data().getInterpreter()->dataChar();
+	else
+	    datachar_[idx] =
+		trc->data().getInterpreter()->dataChar();
+    }
+
+    curtrcinfo_ = 0;
+    const SeisTrcInfo& newti = trc->info();
+    currentbid_ = desc_.is2D()? BinID( 0, newti.nr ) : newti.binid;
+    trcinfobid_ = newti.binid;
+    if ( firstcheck || startpos == BinID(-1,-1) || currentbid_ == startpos
+	    || newti.binid == startpos )
+    {
+	advancefurther = false;
+	curtrcinfo_ = &trc->info();
+    }
 }
 
 
@@ -333,7 +371,7 @@ bool StorageProvider::getPossibleVolume( int, CubeSampling& globpv )
     *possiblevolume_ = storedvolume_;
     globpv.limitToWithUdf( *possiblevolume_ );
 
-    if ( mscprov_->is2D() )
+    if ( mscprov_ && mscprov_->is2D() )
     {
 	globpv.hrg.stop.inl = globpv.hrg.start.inl = 0;
 	globpv.hrg.setCrlRange( storedvolume_.hrg.crlRange() );
@@ -398,6 +436,8 @@ void StorageProvider::updateStorageReqs( bool )
 
 bool StorageProvider::setMSCProvSelData()
 {
+    if ( !mscprov_ ) return false;
+
     SeisTrcReader& reader = mscprov_->reader();
     if ( reader.psIOProv() ) return false;
 
@@ -463,6 +503,8 @@ bool StorageProvider::setMSCProvSelData()
 
 bool StorageProvider::setTableSelData()
 {
+    if ( !isondisc_ ) return false;	//in this case we might not use a table
+
     Seis::SelData* seldata = seldata_->clone();
     seldata->extendZ( extraz_ );
     SeisTrcReader& reader = mscprov_->reader();
@@ -485,6 +527,8 @@ bool StorageProvider::setTableSelData()
 
 bool StorageProvider::set2DRangeSelData()
 {
+    if ( !isondisc_ ) return false;
+
     mDynamicCastGet(const Seis::RangeSelData*,rsd,seldata_)
     Seis::RangeSelData* seldata = rsd ? (Seis::RangeSelData*)rsd->clone()
 				      : new Seis::RangeSelData( true );
@@ -606,18 +650,7 @@ bool StorageProvider::computeData( const DataHolder& output,
     if ( isondisc_)
 	trc = mscprov_->get( relpos.inl/bidstep.inl, relpos.crl/bidstep.crl );
     else
-    {
-    //TODO retrieve trc from SeisTrcBufDataPack
-	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-	DataPack::FullID fid( lk.lineName() );
-	DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid), false );
-	mDynamicCastGet(SeisTrcBufDataPack*,stbdtp, dtp)
-	if ( !stbdtp )
-	{} //error msg not supported
-
-	int trcidx = stbdtp->trcBuf().find(currentbid_+relpos, desc_.is2D());
-	trc = stbdtp->trcBuf().get( trcidx );
-    }
+	trc = getTrcFromPack( relpos, 0 );
 
     if ( !trc || !trc->size() )
 	return false;
@@ -638,6 +671,20 @@ bool StorageProvider::computeData( const DataHolder& output,
     }
 
     return fillDataHolderWithTrc( trc, output );
+}
+
+
+SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
+{
+    const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
+    DataPack::FullID fid( lk.lineName() );
+    DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid), false );
+    mDynamicCastGet(SeisTrcBufDataPack*,stbdtp, dtp)
+    if ( !stbdtp )
+	return 0;
+
+    int trcidx = stbdtp->trcBuf().find(currentbid_+relpos, desc_.is2D());
+    return stbdtp->trcBuf().get( trcidx + relidx );
 }
 
 
@@ -714,6 +761,8 @@ BinID StorageProvider::getStepoutStep() const
 
 void StorageProvider::adjust2DLineStoredVolume()
 {
+    if ( !isondisc_ || !mscprov_ ) return;
+
     const SeisTrcReader& reader = mscprov_->reader();
     if ( !reader.is2D() ) return;
 
@@ -734,6 +783,7 @@ void StorageProvider::adjust2DLineStoredVolume()
 
 void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 {
+    if ( !mscprov_ ) return;
     const SeisTrc* trc = mscprov_->get(0,0);
     if ( !trc ) return;
 
@@ -800,6 +850,8 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
 
 float StorageProvider::getMaxDistBetwTrcs() const
 {
+    if ( !mscprov_ ) return mUdf(float);
+
     const SeisTrcReader& reader = mscprov_->reader();
     if ( !reader.is2D() ) return mUdf(float);
 
