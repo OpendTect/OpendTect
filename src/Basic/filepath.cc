@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.31 2010-11-24 15:01:35 cvskris Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.32 2011-01-20 09:00:58 cvsranojay Exp $";
 
 #include "filepath.h"
 
@@ -202,7 +202,13 @@ bool FilePath::isSubDirOf( const FilePath& b, FilePath* relpath ) const
 bool FilePath::makeCanonical()
 {
     BufferString fullpath = fullPath();
+#ifndef __win__
     set( File::getCanonicalPath( fullpath.buf() ) );
+#else
+    BufferString winpath = File::getCanonicalPath( fullpath.buf() );
+    replaceCharacter( winpath.buf(), '/', '\\' );
+    set( winpath );
+#endif
     return true;
 }
 
