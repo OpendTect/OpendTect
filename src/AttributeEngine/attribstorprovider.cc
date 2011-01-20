@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.101 2011-01-20 12:56:05 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.102 2011-01-20 14:16:40 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -151,7 +151,7 @@ StorageProvider::StorageProvider( Desc& desc )
     , mscprov_(0)
     , status_( Nada )
     , stepoutstep_(-1,0)
-    , isondisc_(false)
+    , isondisc_(true)
 {
     const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
     BufferString bstring = lk.lineName();
@@ -159,7 +159,7 @@ StorageProvider::StorageProvider( Desc& desc )
     if ( linenm && *linenm == '#' )
     {
 	DataPack::FullID fid( linenm+1 );
-	isondisc_ =  DPM(fid).haveID( fid );
+	isondisc_ =  !DPM(fid).haveID( fid );
     }
 }
 
@@ -177,7 +177,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 {
     if ( status_!=Nada ) return false;
 
-    if ( isondisc_ ) return true;
+    if ( !isondisc_ ) return true;
 
     const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
     const MultiID mid( lk.lineName() );
