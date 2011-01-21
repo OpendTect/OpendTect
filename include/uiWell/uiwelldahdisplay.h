@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.1 2010-09-17 12:26:07 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.2 2011-01-21 16:02:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,9 @@ public:
     void			setData(const Data& data)
 				{ zdata_.copyFrom(data); dataChanged();}
 
-    const Data&			zData() { return zdata_; }
+    const Data&			zData() 	{ return zdata_; }
+
+    void			reDraw()	{ draw(); }
 
 protected:
     				uiWellDahDisplay(uiParent*,const char*);
