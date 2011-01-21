@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.205 2010-12-15 08:52:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.206 2011-01-21 15:55:01 cvsbruno Exp $";
 
 #include "uimpeman.h"
 
@@ -119,7 +119,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
 void uiMPEMan::addButtons()
 {
-    mAddButton( "tracker-settings.png", showSettingsCB, "Settings", false );
+    mAddButton( "tools.png", showSettingsCB, "Settings", false );
 
     seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
     seedconmodefld->setToolTip( "Seed connect mode" );

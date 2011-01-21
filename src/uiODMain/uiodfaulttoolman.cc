@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.29 2011-01-19 17:18:58 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.30 2011-01-21 15:55:01 cvsbruno Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -302,7 +302,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     colorbut_->setToolTip( colorbut_->name() );
     toolbar_->addObject( colorbut_ );
 
-    settingsbutidx_ = toolbar_->addButton( "faulttoolsettings.png",
+    settingsbutidx_ = toolbar_->addButton( "tools.png",
 	    			"More transfer settings",
 	    			mCB(this,uiODFaultToolMan,settingsToggleCB),
 				true );
