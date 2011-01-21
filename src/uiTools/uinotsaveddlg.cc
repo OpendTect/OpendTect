@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinotsaveddlg.cc,v 1.1 2010-11-23 16:06:20 cvskris Exp $";
+static const char* rcsID = "$Id: uinotsaveddlg.cc,v 1.2 2011-01-21 21:40:12 cvskris Exp $";
 
 #include "uinotsaveddlg.h"
 
@@ -43,18 +43,17 @@ public:
     {
 	if ( !withcancel ) setCancelText( 0 );
 
-	uiLabel* lastlabel;
-
 	for ( int idx=0; idx<prompter_.objects_.size(); idx++ )
 	{
 	    uiLabel* label =
 		new uiLabel( this, prompter_.objects_[idx]->string_ );
-	    if ( idx ) label->attach( alignedBelow, lastlabel );
-	    lastlabel = label;
+
 	    uiPushButton* curbutton = new uiPushButton( this, "Save now",
 		    mCB(this,uiNotSavedDlg,buttonCB),
 		    prompter_.objects_[idx]->issaveas_ );
 	    curbutton->attach( rightOf, label );
+
+	    if ( idx ) curbutton->attach( alignedBelow, buttons_[idx-1] );
 	    buttons_ += curbutton;
 	}
     }
