@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          April 2009
- RCS:           $Id: uiarray2dinterpol.h,v 1.10 2011-01-10 10:20:57 cvssatyaki Exp $
+ RCS:           $Id: uiarray2dinterpol.h,v 1.11 2011-01-21 05:55:47 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidlggroup.h"
 #include "factory.h"
+#include "position.h"
 
 class Array2DInterpol;
 class InverseDistanceArray2DInterpol;
@@ -26,9 +27,11 @@ mClass uiArray2DInterpolSel : public uiDlgGroup
 {
 public:
     mDefineFactory1ParamInClass(uiArray2DInterpol,uiParent*,factory);
+
     				uiArray2DInterpolSel(uiParent*,bool filltype,
-				bool holesz, bool withclassification, 
-				const Array2DInterpol* oldvals);
+				bool holesz, bool withclassification,
+				const Array2DInterpol* oldvals,
+				bool withstep=false);
 
     bool			acceptOK();
     Array2DInterpol*		getResult();
@@ -40,6 +43,9 @@ public:
     
     const char*			helpID() const;
     void			fillPar(IOPar&) const;
+    
+    void			setStep(const BinID&);
+    BinID			getStep() const;
 
 protected:
 					~uiArray2DInterpolSel();
@@ -52,6 +58,7 @@ protected:
     uiGenInput*				maxholeszfld_;
     uiGenInput*				methodsel_;
     uiGenInput*				isclassificationfld_;
+    uiGenInput*				stepfld_;
 
     ObjectSet<uiArray2DInterpol>	params_;
 };
@@ -68,8 +75,6 @@ public:
 
     Array2DInterpol*	getResult();
 			//!<Becomes caller's
-
-
 protected:
     			uiArray2DInterpol(uiParent*,const char* nm);
     			~uiArray2DInterpol();

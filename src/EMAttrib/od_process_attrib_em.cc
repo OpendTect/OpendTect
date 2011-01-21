@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.79 2011-01-10 10:20:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.80 2011-01-21 05:55:47 cvssatyaki Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.79 2011-01-10 10:20
 #include "attribstorprovider.h"
 
 #include "array2dinterpol.h"
+#include "arraynd.h"
 #include "batchprog.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
@@ -298,16 +299,15 @@ void interpolate( EM::Horizon3D* horizon, const BufferStringSet& attribrefs,
 
     BufferString gridmethodnm;
     gridpar->get( sKey::Name, gridmethodnm );
-    Array2DInterpol* arr2dint =
+    PtrMan<Array2DInterpol> arr2dint =
 	Array2DInterpol::factory().create( gridmethodnm );
     arr2dint->usePar( *gridpar );
     for ( int idx=0; idx<attribrefs.size(); idx++ )
     {
 	const int dataid =
 	    horizon->auxdata.auxDataIndex( attribrefs.get(idx).buf() );
-	Array2D<float>* attrarr =
-	    horizon->auxdata.createArray2D( dataid,
-					    horizon->sectionID(0) );
+	PtrMan< Array2D<float> > attrarr =
+	    horizon->auxdata.createArray2D( dataid, horizon->sectionID(0) );
 	strm << "Gridding " << attribrefs.get(idx).buf() << "\n";
 
 	TextStreamProgressMeter runner( strm );

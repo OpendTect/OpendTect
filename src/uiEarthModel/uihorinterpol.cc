@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.18 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.19 2011-01-21 05:55:47 cvssatyaki Exp $";
 
 #include "uihorinterpol.h"
 
+#include "arrayndimpl.h"
 #include "array1dinterpol.h"
 #include "array2dinterpol.h"
 #include "arraynd.h"
@@ -63,9 +64,17 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 	geometrysel_->setText( geometries[2] );
 
 	if ( inputhorsel_ ) geometrysel_->attach( alignedBelow, inputhorsel_ );
-	interpol2dsel_ = new uiArray2DInterpolSel( this, false, true, false, 0);
+	interpol2dsel_ =
+	    new uiArray2DInterpolSel( this, false, true, false, 0, true);
 	interpol2dsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
 	interpol2dsel_->attach( alignedBelow, geometrysel_ );
+	mDynamicCastGet(EM::Horizon3D*,hor3d,hor);
+	if ( hor3d )
+	{
+	    RowCol rc = hor3d->geometry().step();
+	    BinID step( rc.row, rc.col );
+	    interpol2dsel_->setStep( step );
+	}
     }
     else
     {
@@ -135,9 +144,6 @@ bool uiHorizonInterpolDlg::interpolate3D()
     if ( !savefldgrp_->acceptOK(0) ) 
 	return false;
 
-    const float inldist = SI().inlDistance();
-    const float crldist = SI().crlDistance();
-
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
 	savefldgrp_->getNewHorizon() : horizon_;
 
@@ -155,29 +161,55 @@ bool uiHorizonInterpolDlg::interpolate3D()
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
     {
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
-	PtrMan<Array2D<float> > arr = hor3d->createArray2D( sid );
 
-	if ( !arr )
+	BinID steps = interpol2dsel_->getStep();
+	StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
+	rowrg.step = steps.inl;
+	StepInterval<int> colrg = hor3d->geometry().colRange( sid );
+	colrg.step = steps.crl;
+	
+	interpolator->setRowStep( SI().inlDistance()*steps.inl );
+	interpolator->setColStep( SI().crlDistance()*steps.crl );
+	
+	HorSampling hs( false );
+	hs.set( rowrg, colrg );
+
+	Array2DImpl<float>* arr =
+	    new Array2DImpl<float>( hs.nrInl(), hs.nrCrl() );
+	if ( !arr->isOK() )
 	{
 	    BufferString msg( "Not enough horizon data for section " );
 	    msg += sid;
 	    ErrMsg( msg ); continue;
 	}
 
-	const int inlstepoutstep = hor3d->geometry().rowRange( sid ).step;
-	const int crlstepoutstep = hor3d->geometry().colRange( sid ).step;
+        arr->setAll( mUdf(float) );	
 
-	interpolator->setRowStep( inlstepoutstep*inldist );
-	interpolator->setColStep( crlstepoutstep*crldist );
+	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
+	if ( !iterator )
+	    continue;
 
-	if ( !interpolator->setArray( *arr, &tr ) )
+	while( true )
+	{
+	    EM::PosID posid = iterator->next();
+	    if ( posid.objectID() == -1 )
+		break;
+	    BinID bid( posid.subID() );
+	    if ( hs.includes(bid) )
+	    {
+		Coord3 pos = hor3d->getPos( posid );
+		arr->set( hs.inlIdx(bid.inl), hs.crlIdx(bid.crl), pos.z );
+	    }
+	}
+
+	if ( !interpolator->setArray(*arr,&tr) )
 	{
 	    BufferString msg( "Cannot setup interpolation on section " );
 	    msg += sid;
 	    ErrMsg( msg ); continue;
 	}
 
-	if ( !tr.execute( *interpolator ) )
+	if ( !tr.execute(*interpolator) )
 	{
 	    BufferString msg( "Cannot interpolate section " );
 	    msg += sid;
@@ -185,13 +217,8 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	}
 
 	success = true;
-	EM::SectionID usedsid = usedhor3d->geometry().sectionID( idx );;
-	if ( !usedhor3d->setArray2D( *arr, usedsid, true, "Interpolation" ) )
-	{
-	    BufferString msg( "Cannot set new data to section " );
-	    msg += usedsid;
-	    ErrMsg( msg ); continue;
-	}
+	usedhor3d->geometry().sectionGeometry(sid)->setArray(
+					    hs.start, hs.step, arr, true );
     }
 
     return success;

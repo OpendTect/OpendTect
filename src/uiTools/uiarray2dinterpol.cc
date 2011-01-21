@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.13 2011-01-10 10:20:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.14 2011-01-21 05:55:47 cvssatyaki Exp $";
 
 #include "uiarray2dinterpol.h"
 
 #include "array2dinterpolimpl.h"
 #include "iopar.h"
+#include "survinfo.h"
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uimsg.h"
@@ -23,10 +24,12 @@ mImplFactory1Param(uiArray2DInterpol,uiParent*,uiArray2DInterpolSel::factory);
 uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 					    bool maxholesz,
 					    bool withclassification,
-       					    const Array2DInterpol* oldvals )
+       					    const Array2DInterpol* oldvals,
+					    bool withstep )
     : uiDlgGroup( p, "Array2D Interpolation" )
     , result_( 0 )
     , filltypefld_( 0 )
+    , stepfld_( 0 )
     , maxholeszfld_( 0 )
     , methodsel_( 0 )
     , isclassificationfld_( 0 )
@@ -40,6 +43,17 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 		StringListInpSpec( Array2DInterpol::FillTypeNames() ));
 	if ( oldvals ) filltypefld_->setValue( (int) oldvals->getFillType() );
 	prevfld = filltypefld_->attachObj();
+    }
+
+    if ( withstep )
+    {
+	PositionInpSpec::Setup setup;
+	PositionInpSpec spec( setup );
+	stepfld_ = new uiGenInput( this, "Inl/Crl Step", spec );
+	stepfld_->setValue( BinID(SI().inlStep(),SI().crlStep()) );
+	if ( filltype )
+	    stepfld_->attach( alignedBelow, prevfld );
+	prevfld = stepfld_->attachObj();
     }
 
     if ( maxholesz )
@@ -247,10 +261,22 @@ bool uiArray2DInterpolSel::acceptOK()
 	: Array2DInterpol::Full );
 
     result_->setMaxHoleSize( maxholeszfld_ && maxholeszfld_->isChecked() 
-	? maxholeszfld_->getIntValue()
-	: mUdf(int) );
+			     ? maxholeszfld_->getIntValue() : mUdf(int) );
 
     return true;
+}
+
+
+void uiArray2DInterpolSel::setStep( const BinID& steps )
+{
+    if ( stepfld_ )
+	stepfld_->setValue( steps );
+}
+
+
+BinID uiArray2DInterpolSel::getStep() const
+{
+    return stepfld_ ? stepfld_->getBinID() : BinID::udf();
 }
 
 
@@ -265,7 +291,8 @@ Array2DInterpol* uiArray2DInterpolSel::getResult()
 uiArray2DInterpol::uiArray2DInterpol( uiParent* p, const char* nm )
     : uiDlgGroup( p, nm )
     , result_( 0 )
-{}
+{
+}
 
 
 uiArray2DInterpol::~uiArray2DInterpol()
