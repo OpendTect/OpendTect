@@ -28,13 +28,11 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc";
 
 
 #define mDefZPos(zpos) \
-        if ( zdata_.zistime_ && zdata_.d2tm_ )\
-        zpos = zdata_.d2tm_->getTime( zpos )*1000;\
-    if ( zdata_.dispzinft_ && !zdata_.zistime_)\
-        zpos *= mToFeetFactor;
+    if ( zdata_.zistime_ && zdata_.d2tm_ )\
+	zpos = zdata_.d2tm_->getTime( zpos )*1000;\
 
 #define mDefZPosInLoop(val) \
-        float zpos = val;\
+    float zpos = val;\
     mDefZPos(zpos)\
     if ( !zdata_.zrg_.includes( zpos ) )\
         continue;
@@ -43,6 +41,7 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
 				    const uiWellLogDisplay::Setup& s )
     : wl_(0)
     , unitmeas_(0)
+    , zoverlayval_(2)		  
     , xax_(&scn,uiAxisHandler::Setup( isfirst? uiRect::Top : uiRect::Bottom )
 				.border(s.border_)
 				.annotinside(s.annotinside_)
@@ -67,7 +66,6 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     , ld1_(scene(),true,su)
     , ld2_(scene(),false,su)
 {
-    reSize.notify( mCB(this,uiWellLogDisplay,reSized) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 
@@ -159,6 +157,8 @@ void uiWellLogDisplay::gatherInfo( bool first )
     }
     ld.zrg_.start = startpos;
     ld.zrg_.stop = stoppos;
+    if ( zdata_.dispzinft_ && !zdata_.zistime_)
+	ld.zrg_.scale( mToFeetFactor );
 }
 
 
@@ -171,8 +171,6 @@ void uiWellLogDisplay::setAxisRanges( bool first )
 	ld.xax_.setBounds( dispvalrg );
 
     Interval<float> dispzrg( zdata_.zrg_.stop, zdata_.zrg_.start );
-    if ( zdata_.dispzinft_ )
-	dispzrg.scale( mToFeetFactor );
     ld.yax_.setBounds( dispzrg );
 
     if ( first )
@@ -245,7 +243,7 @@ void uiWellLogDisplay::drawCurve( bool first )
     {
 	uiPolyLineItem* pli = scene().addItem( new uiPolyLineItem(*pts[idx]) );
 	pli->setPenStyle( ls );
-	pli->setZValue( 2 );
+	pli->setZValue( ld.zoverlayval_ );
 	ld.curveitms_ += pli;
     }
 
@@ -329,7 +327,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	if ( index && index < sz-1 )
 	{
 	    if ( dah >= ld.wl_->dah(index+1) || dah <= ld.wl_->dah(index-1) )
-	    continue;
+		continue;
 	}
 	mDefZPosInLoop( dah )
 

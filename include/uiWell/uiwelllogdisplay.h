@@ -64,6 +64,7 @@ public:
 	const UnitOfMeasure*    unitmeas_;
 	bool                    xrev_;
 	Well::DisplayProperties::Log disp_;
+	int			zoverlayval_;
 
 	// Get these (will be filled)
 	Interval<float>         zrg_;
