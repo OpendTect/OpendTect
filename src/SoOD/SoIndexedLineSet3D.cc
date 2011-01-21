@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.16 2009-08-26 10:22:18 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.17 2011-01-21 16:48:40 cvsjaap Exp $";
 
 #include "SoIndexedLineSet3D.h"
 
@@ -160,14 +160,14 @@ void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
 	    mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
 	materialindexes = cis;
 
-    bool isreversed = rightHandSystem.getValue();
-
     glPushMatrix();
     SbMatrix m = SoViewingMatrixElement::get(state);
     glLoadMatrixf(m[0]);
 
     for ( int idx=0; idx<sectionstarts_.getLength(); idx++ )
     {
+	bool isreversed = !rightHandSystem.getValue();
+
 	const int start = sectionstarts_[idx];
 	const int stop = idx==sectionstarts_.getLength()-1
 	    ? corner1_.getLength()-1
@@ -449,7 +449,7 @@ void SoIndexedLineSet3D::generateCoordinates( SoState* state )
 	    c2c1.normalize();
 
 	    SbVec3f jointplanenormal;
-	    SbBool doreverse = false;;
+	    SbBool doreverse = false;
 	    SbVec3f c3;
 	    const int index3 = cindices>=stopptr ? -1 : *cindices++;
 	    if ( index3>=0 )
