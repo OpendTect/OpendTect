@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.18 2011-01-13 21:10:58 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.19 2011-01-21 21:42:37 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -151,7 +151,8 @@ void Picks::setPickType( Picks::PickType t, bool resetcolor )
     if ( !resetcolor )
 	return;
 
-    getDefaultColor( color_ );
+    if ( !getDefaultColor( color_ ) )
+	color_ = getRandomColor(false);
 }
 
 
