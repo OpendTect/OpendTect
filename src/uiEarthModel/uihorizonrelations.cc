@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.20 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.21 2011-01-21 06:33:18 cvssatyaki Exp $";
 
 #include "uihorizonrelations.h"
 
@@ -21,9 +21,12 @@ static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.20 2010-11-10 15:26:4
 #include "uilistbox.h"
 #include "uimsg.h"
 
+#include "arraynd.h"
 #include "bufstringset.h"
 #include "ctxtioobj.h"
 #include "emhorizon.h"
+#include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emsurfacetr.h"
@@ -163,33 +166,68 @@ void horSel( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
-    HorizonModifier modifier( is2d_ );
-    modifier.setHorizons( mid1_, mid2_ );
-    modifier.setMode( modefld_->getBoolValue() ? HorizonModifier::Shift
-					       : HorizonModifier::Remove );
-
+    const bool saveas = savefld_->getBoolValue();
     const bool topisstatic = horizonfld_->getIntValue() == 1;
-    modifier.setStaticHorizon( topisstatic );
-    modifier.doWork();
-
     const EM::ObjectID objid =
 		EM::EMM().getObjectID( topisstatic ? mid2_ : mid1_ );
     EM::EMObject* emobj = EM::EMM().getObject( objid );
-    PtrMan<Executor> exec = 0;
-    const bool saveas = savefld_->getBoolValue();
-    if ( !saveas )
-	exec = emobj->saver();
-    else
+    MultiID outmid;
+    EM::EMObject* outemobj;
+    
+    if ( saveas )
     {
 	if ( !objfld_->commitInput() )
 	    mErrRet(objfld_->isEmpty() ? "Please select output surface" : 0)
+	outmid = ctio_->ioobj->key();
+	EM::ObjectID outemobjid =
+	    EM::EMM().createObject( emobj->getTypeStr(), ctio_->ioobj->name());
+	outemobj = EM::EMM().getObject( outemobjid );
 
-	const MultiID& outmid = ctio_->ioobj->key();
-	emobj->setMultiID( outmid );
-	mDynamicCastGet(EM::Surface*,surface,emobj)
-	exec = surface->geometry().saver( 0, &outmid );
+	if ( !is2d_ )
+	{
+	    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
+	    mDynamicCastGet(EM::Horizon3D*,outhor3d,outemobj);
+	    if ( !hor3d || !outhor3d )
+		return false;
+
+	    Array2D<float>* arr2d;
+	    arr2d = hor3d->createArray2D( emobj->sectionID(0) );
+	    BinID start( hor3d->geometry().rowRange().start,
+		    	 hor3d->geometry().colRange().start );
+	    BinID step( hor3d->geometry().step().row,
+		    	hor3d->geometry().step().col );
+	    outhor3d->setMultiID( outmid );
+	    outhor3d->geometry().sectionGeometry(EM::SectionID(0))->setArray(
+		    start, step, arr2d, true );
+	}
+	else
+	{
+	    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj);
+	    mDynamicCastGet(EM::Horizon2D*,outhor2d,outemobj);
+	    if ( !hor2d || !outhor2d )
+		return false;
+	    for ( int idx=0; idx<hor2d->geometry().nrLines(); idx++ )
+	    {
+		const PosInfo::GeomID geomid =
+		    hor2d->geometry().lineGeomID( idx );
+		PtrMan< Array1D<float> > arr1d;
+		arr1d = hor2d->createArray1D( emobj->sectionID(0), geomid );
+		outhor2d->geometry().addLine( geomid );
+		outhor2d->setArray1D(*arr1d,emobj->sectionID(0),geomid,false);
+	    }
+	}
     }
 
+    HorizonModifier modifier( is2d_ );
+    modifier.setHorizons( topisstatic ? mid1_ : saveas ? outmid : mid1_,
+	    		  !topisstatic ? mid2_ : saveas ? outmid : mid2_ );
+    modifier.setMode( modefld_->getBoolValue() ? HorizonModifier::Shift
+					       : HorizonModifier::Remove );
+
+    modifier.setStaticHorizon( topisstatic );
+    modifier.doWork();
+
+    PtrMan<Executor> exec = !saveas ? emobj->saver() : outemobj->saver();
     if ( !exec ) mErrRet("Cannot save horizon")
 
     uiTaskRunner taskrunner( this );
