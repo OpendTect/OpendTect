@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.17 2011-01-21 16:48:40 cvsjaap Exp $";
+static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.18 2011-01-24 11:45:06 cvsjaap Exp $";
 
 #include "SoIndexedLineSet3D.h"
 
@@ -166,7 +166,7 @@ void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
 
     for ( int idx=0; idx<sectionstarts_.getLength(); idx++ )
     {
-	bool isreversed = !rightHandSystem.getValue();
+	bool isreversed = true;
 
 	const int start = sectionstarts_[idx];
 	const int stop = idx==sectionstarts_.getLength()-1
