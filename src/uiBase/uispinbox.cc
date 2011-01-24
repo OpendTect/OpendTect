@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.44 2010-12-30 17:27:21 cvskris Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.45 2011-01-24 10:19:42 cvsjaap Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -92,6 +92,9 @@ void uiSpinBoxBody::setAlpha( bool yn )
 
 double uiSpinBoxBody::valueFromText( const QString& text ) const
 {
+    if ( !specialValueText().isEmpty() && text==specialValueText() )
+	return handle_.minFValue();
+
     QString mytxt = text;
     if ( isalpha_ )
     {
@@ -110,6 +113,9 @@ double uiSpinBoxBody::valueFromText( const QString& text ) const
 
 QString uiSpinBoxBody::textFromValue( double val ) const
 {
+    if ( !specialValueText().isEmpty() && val==handle_.minFValue() )
+	return specialValueText();
+
     QString str;
     if ( isalpha_ )
     {
@@ -230,6 +236,15 @@ int uiSpinBox::getValue() const
 
 float uiSpinBox::getFValue() const	
 { return (float)body_->value(); }
+
+
+const char* uiSpinBox::text() const
+{
+    static BufferString res;
+    res = mQStringToConstChar( body_->textFromValue(getFValue()) );
+    return res;
+}
+
 
 void uiSpinBox::setValue( int val )
 {

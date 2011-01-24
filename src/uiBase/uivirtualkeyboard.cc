@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.6 2010-12-13 10:15:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.7 2011-01-24 10:19:42 cvsjaap Exp $";
 
 #include "uivirtualkeyboard.h"
 
@@ -290,11 +290,7 @@ void uiVirtualKeyboard::updateKeyboard()
 
     mDynamicCastGet( uiSpinBox*, uispin, &inputobj_ );
     if ( uispin )
-    {
-	BufferString text;
-       	text += uispin->getFValue();
-	textline_->setvalue_( text );
-    }
+	textline_->setvalue_( uispin->text() );
 
     mDynamicCastGet( uiComboBox*, uicombo, &inputobj_ );
     if ( uicombo )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.25 2010-10-22 15:22:22 cvsjaap Exp $
+ RCS:           $Id: uispinbox.h,v 1.26 2011-01-24 10:19:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
     void		setValue(const char*); 
     int			getValue() const;
     float		getFValue() const;
+    const char*		text() const;
 
     void		setInterval( int start, int stop, int mystep=1 )
 			{ setInterval( StepInterval<int>(start,stop,mystep) ); }
