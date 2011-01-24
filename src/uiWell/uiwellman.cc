@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.76 2011-01-24 08:50:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.77 2011-01-24 09:09:42 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -119,7 +119,6 @@ uiWellMan::uiWellMan( uiParent* p )
     uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools.png",
 	    		"Log tools", mCB(this,uiWellMan,logTools) );
     logtoolbut->attach( rightOf, markerbut );
-    markerbut->attach( rightOf, markerbut );
     lastexternal_ = logtoolbut;
 
 
