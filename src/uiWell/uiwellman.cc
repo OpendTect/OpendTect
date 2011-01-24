@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.75 2011-01-20 12:59:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.76 2011-01-24 08:50:18 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -43,6 +43,7 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.75 2011-01-20 12:59:45 cvsbrun
 #include "uitoolbar.h"
 #include "uiwelldlgs.h"
 #include "uiwelllogcalc.h"
+#include "uiwelllogtools.h"
 #include "uiwellmarkerdlg.h"
 
 
@@ -114,6 +115,13 @@ uiWellMan::uiWellMan( uiParent* p )
 	    		"Edit Markers", mCB(this,uiWellMan, edMarkers) );
     markerbut->attach( rightOf, d2tbut ? d2tbut : welltrackbut );
     lastexternal_ = markerbut;
+
+    uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools.png",
+	    		"Log tools", mCB(this,uiWellMan,logTools) );
+    logtoolbut->attach( rightOf, markerbut );
+    markerbut->attach( rightOf, markerbut );
+    lastexternal_ = logtoolbut;
+
 
     selChg( this );
     fieldsCreated()->trigger( this );
@@ -273,6 +281,13 @@ void uiWellMan::defD2T( bool chkshot )
     Well::Writer wtr( curfnm_, *wd );
     if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
 	uiMSG().error( "Cannot write new model to disk" );
+}
+
+
+void uiWellMan::logTools( CallBacker* )
+{
+    uiWellLogToolWinMgr tooldlg( this );
+    tooldlg.go();
 }
 
 
