@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.2 2010-12-10 06:03:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.3 2011-01-24 04:41:03 cvsnanne Exp $";
 
 
 #include "uitranslatedlg.h"
@@ -51,7 +51,7 @@ uiTranslateDlg::uiTranslateDlg( uiParent* p )
 	keyfld_->attach( alignedBelow, lcb );
     }
 
-    ioPixmap pm( "logo-powered-by-google.gif" );
+    ioPixmap pm( "logo-powered-by-google.png" );
     googlebut_ = new uiPushButton( this, "", pm,
 	    mCB(this,uiTranslateDlg,googleButPushCB), true );
     googlebut_->setMinimumHeight( 60 );
