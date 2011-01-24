@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.1 2011-01-21 14:44:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.2 2011-01-24 16:43:46 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -51,11 +51,17 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p )
 	    			FloatInpSpec(0).setName("Distance below") );
     belowfld_->attach( rightOf, abovefld_ );
 
-    init();
+    update();
 }
 
 
-void uiMultiWellLogSel::init()
+uiMultiWellLogSel::~uiMultiWellLogSel()
+{
+    deepErase( wellobjs_ );
+}
+
+
+void uiMultiWellLogSel::update()
 {
     wellsfld_->setEmpty(); logsfld_->setEmpty();
     topmarkfld_->setEmpty(); botmarkfld_->setEmpty();
@@ -94,12 +100,12 @@ void uiMultiWellLogSel::init()
 }
 
 
-void uiMultiWellLogSel::getSelWellIDs( TypeSet<MultiID>& wids ) const
+void uiMultiWellLogSel::getSelWellIDs( BufferStringSet& wids ) const
 {
     for ( int idx=0; idx<wellsfld_->size(); idx++ )
     {
 	if ( wellsfld_->isSelected(idx) )
-	    wids += wellids_[idx];
+	    wids.add( wellobjs_[idx]->key() );
     }
 } 
 
@@ -111,4 +117,11 @@ void uiMultiWellLogSel::getSelWellNames( BufferStringSet& wellnms ) const
 void uiMultiWellLogSel::getSelLogNames( BufferStringSet& lognms ) const
 { logsfld_->getSelectedItems( lognms ); }
 
+
+void uiMultiWellLogSel::getLimitMarkers( const char* top, const char* bot) const
+{ top = topmarkfld_->text(); bot = botmarkfld_->text(); }
+
+
+void uiMultiWellLogSel::getLimitDists( float& top, float& bot ) const
+{ top = abovefld_->getfValue(0,0); bot = belowfld_->getfValue(0,0); }
 
