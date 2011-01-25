@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestacklateralstack.cc,v 1.2 2010-12-02 16:00:42 cvskris Exp $";
+static const char* rcsID = "$Id: prestacklateralstack.cc,v 1.3 2011-01-25 20:34:00 cvskris Exp $";
 
 #include "prestacklateralstack.h"
 
@@ -143,7 +143,8 @@ bool LateralStack::prepareWork()
 	return false;
 
     offsetazi_.erase();
-    for ( int idx=0; idx<totalNr(); idx++ )
+    const int nroffsets = centergather->size(Gather::offsetDim()==0);
+    for ( int idx=0; idx<nroffsets; idx++ )
 	offsetazi_ += centergather->getOffsetAzimuth( idx );
     
     return true;

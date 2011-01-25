@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.12 2010-12-02 16:00:42 cvskris Exp $
+ RCS:		$Id: prestackmute.h,v 1.13 2011-01-25 20:34:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -58,10 +58,14 @@ protected:
     MultiID			id_;
     BufferString		errmsg_;
 
+    od_int64			nrIterations() const { return outidx_.size(); }
     bool			doWork(od_int64,od_int64,int);
 
     bool			tail_;
     float			taperlen_;
+
+    TypeSet<int>		outidx_;
+    TypeSet<int>		offsets_;
 };
 
 

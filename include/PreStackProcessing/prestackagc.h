@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackagc.h,v 1.8 2010-12-02 16:00:42 cvskris Exp $
+ RCS:		$Id: prestackagc.h,v 1.9 2011-01-25 20:34:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,10 +45,12 @@ public:
 
 protected:
     bool			doWork(od_int64,od_int64,int);
+    od_int64			totalNr() const { return totalnr_; }
 
     Interval<float>		window_;
     Interval<int>		samplewindow_;
     float			mutefraction_;
+    int				totalnr_;
 };
 
 

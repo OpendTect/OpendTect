@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.16 2010-12-02 16:00:42 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.17 2011-01-25 20:34:00 cvskris Exp $";
 
 #include "prestackmute.h"
 
@@ -45,9 +45,26 @@ bool Mute::prepareWork()
     if ( !Processor::prepareWork() )
 	return false;
 
+    outidx_.erase();
+    offsets_.erase();
+    for ( int idx=inputs_.size()-1; idx>=0; idx-- )
+    {
+	const Gather* input = inputs_[idx];
+	if ( !input || !outputs_[idx] )
+	    continue;
+
+	const int nroffsets = input->size( Gather::offsetDim()==0 );
+	for ( int ioff=nroffsets-1; ioff>=0; ioff-- )
+	{
+	    outidx_ += idx;
+	    offsets_ += ioff;
+	}
+    }
+
     if ( muter_ ) return true;
 
     muter_ = new Muter( taperlen_, tail_ );
+
     return true;
 }
 
@@ -127,31 +144,30 @@ bool Mute::doWork( od_int64 start, od_int64 stop, int )
     if ( !muter_ )
 	return false;
 
-    for ( int ioffs=start; ioffs<=stop; ioffs++, addToNrDone(1) )
+    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
-	for ( int idx=outputs_.size()-1; idx>=0; idx-- )
-	{
-	    Gather* output = outputs_[idx];
-	    const Gather* input = inputs_[idx];
-	    if ( !output || !input )
-		continue;
+	const int outidx = outidx_[idx];
+	const int ioffs = offsets_[idx];
 
-	    const int nrsamples = input->data().info().getSize(Gather::zDim());
-	    const float offs = input->getOffset(ioffs);
-	    const float mutez = def_.value( offs, input->getBinID() );
-	    if ( mIsUdf(mutez) )
-		continue;
+	Gather* output = outputs_[outidx];
+	const Gather* input = inputs_[outidx];
 
-	    const float mutepos =
-		Muter::mutePos( mutez, input->posData().range(false) );
 
-	    Array1DSlice<float> slice( output->data() );
-	    slice.setPos( 0, ioffs );
-	    if ( !slice.init() )
-		continue;
+	const int nrsamples = input->size(Gather::zDim()==0);
+	const float offs = input->getOffset(ioffs);
+	const float mutez = def_.value( offs, input->getBinID() );
+	if ( mIsUdf(mutez) )
+	    continue;
 
-	    muter_->mute( slice, nrsamples, mutepos );
-	}
+	const float mutepos =
+	    Muter::mutePos( mutez, input->posData().range(false) );
+
+	Array1DSlice<float> slice( output->data() );
+	slice.setPos( 0, ioffs );
+	if ( !slice.init() )
+	    continue;
+
+	muter_->mute( slice, nrsamples, mutepos );
     }
 
     return true;

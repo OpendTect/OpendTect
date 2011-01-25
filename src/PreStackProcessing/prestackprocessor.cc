@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.27 2010-12-02 16:00:42 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.28 2011-01-25 20:34:00 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -176,8 +176,7 @@ int Processor::nrOffsets() const
 	if ( !inputs_[idx] )
 	    continue;
 
-	const int nroffsets =
-	    inputs_[idx]->data().info().getSize( Gather::offsetDim() );
+	const int nroffsets = inputs_[idx]->size( Gather::offsetDim()==0 );
 
 	max = mMAX(max,nroffsets);
     }

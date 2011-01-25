@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.18 2010-12-13 13:32:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.19 2011-01-25 20:34:00 cvskris Exp $";
 
 #include "prestackagc.h"
 
@@ -21,11 +21,14 @@ PreStack::AGC::AGC()
     : Processor( sFactoryKeyword() )
     , window_( -100, 100 )
     , mutefraction_( 0 )
+    , totalnr_( -1 )
 {}
 
 
 bool PreStack::AGC::prepareWork()
 {
+    totalnr_ = inputs_.size()*nrIterations();
+
     if ( !Processor::prepareWork() )
 	return false;
 
@@ -88,22 +91,28 @@ bool PreStack::AGC::doWork( od_int64 start, od_int64 stop, int )
     agc.setMuteFraction( mutefraction_ );
     agc.setSampleGate( samplewindow_ );
 
-    for ( int offsetidx=start; offsetidx<=stop; offsetidx++, addToNrDone(1) )
+    const int incr = stop-start+1;
+    for ( int idx=outputs_.size()-1; idx>=0; idx--, addToNrDone(incr) )
     {
-	for ( int idx=outputs_.size()-1; idx>=0; idx-- )
+	Gather* output = outputs_[idx];
+	const Gather* input = inputs_[idx];
+	if ( !output || !input )
+	    continue;
+
+	Array1DSlice<float> inputtrace( input->data() );
+	inputtrace.setDimMap( 0, Gather::zDim() );
+
+	Array1DSlice<float> outputtrace( output->data() );
+	outputtrace.setDimMap( 0, Gather::zDim() );
+
+	const int lastoffset = input->size( Gather::offsetDim()==0 ) -1;
+
+	const int curstop = mMIN(lastoffset,stop);
+	for ( int offsetidx=start; offsetidx<=curstop; offsetidx++ )
 	{
-	    Gather* output = outputs_[idx];
-	    const Gather* input = inputs_[idx];
-	    if ( !output || !input )
-		continue;
-
-	    Array1DSlice<float> inputtrace( input->data() );
-	    inputtrace.setDimMap( 0, Gather::zDim() );
 	    inputtrace.setPos( Gather::offsetDim(), offsetidx );
-
-	    Array1DSlice<float> outputtrace( output->data() );
-	    outputtrace.setDimMap( 0, Gather::zDim() );
 	    outputtrace.setPos( Gather::offsetDim(), offsetidx );
+
 	    if ( !inputtrace.init() || !outputtrace.init() )
 		continue;
 

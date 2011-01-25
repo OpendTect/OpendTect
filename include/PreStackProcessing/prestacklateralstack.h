@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestacklateralstack.h,v 1.3 2010-12-02 16:00:42 cvskris Exp $
+ RCS:		$Id: prestacklateralstack.h,v 1.4 2011-01-25 20:34:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,12 +53,13 @@ protected:
     static const char*	sKeyStepout()		{ return "Stepout"; }
     static const char*	sKeyCross()		{ return "Is cross"; }
 
-    BufferString		errmsg_;
-    bool			doWork(od_int64,od_int64,int);
+    BufferString	errmsg_;
+    bool		doWork(od_int64,od_int64,int);
+    od_int64		nrIterations() const	{ return offsetazi_.size(); }
 
-    BinID			inputstepout_;
-    BinID			patternstepout_;
-    bool			iscross_;
+    BinID		inputstepout_;
+    BinID		patternstepout_;
+    bool		iscross_;
 
     TypeSet<OffsetAzimuth>	offsetazi_;
 };
