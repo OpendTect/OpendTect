@@ -165,6 +165,7 @@ void uiWellLogDisplay::gatherInfo( bool first )
 void uiWellLogDisplay::setAxisRanges( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
+    if ( !first && setup_.sameaxisrange_ ) return;
 
     Interval<float> dispvalrg( ld.valrg_ );
     if ( ld.xrev_ ) Swap( dispvalrg.start, dispvalrg.stop );

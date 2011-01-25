@@ -42,6 +42,7 @@ public:
 			    , noxannot_(false)
 			    , noyannot_(false)      		     
 			    , annotinside_(false)
+			    , sameaxisrange_(false)			 
 			    {}
 
 	mDefSetupMemb(uiBorder,border)
@@ -52,6 +53,7 @@ public:
 	mDefSetupMemb(bool,noxannot)
 	mDefSetupMemb(bool,noyannot)
 	mDefSetupMemb(bool,annotinside)
+	mDefSetupMemb(bool,sameaxisrange)
     };  
 
 			    uiWellLogDisplay(uiParent*,const Setup&);
