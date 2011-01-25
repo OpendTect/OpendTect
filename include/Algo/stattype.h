@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2006
- RCS:           $Id: stattype.h,v 1.5 2011-01-25 09:40:06 cvsbert Exp $
+ RCS:           $Id: stattype.h,v 1.6 2011-01-25 09:45:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 namespace Stats
 {
 
-    /* Average used to be 'Mean' but that does not sound positive enough */
+    /* One-dimensional statistical properties of value series */
 enum Type
 {
     	Count,
