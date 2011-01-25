@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.5 2011-01-20 15:09:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.6 2011-01-25 09:41:24 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.5 2011-01-20 15:09
 #include "stratlayersequence.h"
 #include "stratlayseqattrib.h"
 #include "attribdescset.h"
+#include "datapointset.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "survinfo.h"
@@ -67,14 +68,15 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p, DataPack::ID dpid,
     snapfld_->setWithCheck( true );
     snapfld_->attach( alignedBelow, llvlfld );
 
+    const float defstep = SI().zIsTime() ? SI().zStep() * 1000 : 4;
     extrwinfld_ = new uiGenInput( extrposgrp, "Extraction window",
-	  FloatInpIntervalSpec(StepInterval<float>(0,0,SI().zStep())) );
+	  FloatInpIntervalSpec(StepInterval<float>(0,0,defstep)) );
     extrwinfld_->attach( alignedBelow, snapfld_ );
 
     uiSplitter* spl = new uiSplitter( this, "Splitter", false );
     spl->addGroup( seisattrfld_ );
     spl->addGroup( layseqattrfld_ );
-    extrposgrp->attach( alignedBelow, spl );
+    spl->addGroup( extrposgrp );
 }
 
 
@@ -92,12 +94,41 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
 
     const Attrib::DescSet& seisattrs = seisattrfld_->descSet();
     if ( seisattrs.isEmpty() )
-	mErrRet("Please define an seismic attribute")
+	mErrRet("Please define a seismic attribute")
     const Strat::LaySeqAttribSet& seqattrs = layseqattrfld_->attribSet();
     if ( seqattrs.isEmpty() )
 	mErrRet("Please define a layer attribute")
 
-    //TODO
+    const Strat::Level* lvl = Strat::LVLS().get( reflvlfld_->text() );
+    if ( !lvl )
+	mErrRet("Cannot find selected stratigraphic level")
 
-    return true;
+    StepInterval<float> extrwin( extrwinfld_->getFStepInterval() );
+    if ( mIsUdf(extrwin.start) || mIsUdf(extrwin.stop) || mIsUdf(extrwin.step) )
+	mErrRet("Please enter all extraction window parameters")
+
+    extrwin.start *= 0.001; extrwin.stop *= 0.001; extrwin.step *= 0.001;
+    DataPointSet dps( true );
+    if ( !getData(dps,seisattrs,seqattrs,*lvl,extrwin) )
+	return false;
+
+    return launchCrossPlot( dps, *lvl, extrwin );
+}
+
+
+bool uiStratSynthCrossplot::getData( DataPointSet& dps,
+					const Attrib::DescSet& seisattrs,
+					const Strat::LaySeqAttribSet& seqattrs,
+					const Strat::Level& lvl,
+					const StepInterval<float>& extrwin )
+{
+    return false;
+}
+
+
+bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
+					const Strat::Level& lvl,
+					const StepInterval<float>& extrwin )
+{
+    return false;
 }

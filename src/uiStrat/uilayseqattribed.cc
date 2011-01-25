@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.3 2011-01-18 11:14:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uilayseqattribed.cc,v 1.4 2011-01-25 09:41:24 cvsbert Exp $";
 
 #include "uilayseqattribed.h"
 #include "stratlayseqattrib.h"
@@ -29,25 +29,41 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     , nmchgd_(false)
     , anychg_(false)
 {
-    uiLabeledListBox* llithfld = new uiLabeledListBox( this, "Lithologies",
+    isslidingfld_ = new uiGenInput( this, "Type",
+	    		BoolInpSpec( true,"Sliding", "Whole model") );
+    isslidingfld_->valuechanged.notify( mCB(this,uiLaySeqAttribEd,slSel) );
+
+    slidegrp_ = new uiGroup( this, "Slide group" );
+    uiLabeledComboBox* lupscfld = new uiLabeledComboBox( slidegrp_,
+						"From depth intervals" );
+    upscaletypfld_ = lupscfld->box();
+    upscaletypfld_-> addItems( Stats::UpscaleTypeNames() );
+    slidegrp_->setHAlignObj( lupscfld );
+
+    localgrp_ = new uiGroup( this, "Local group" );
+    uiLabeledListBox* llithfld = new uiLabeledListBox( localgrp_, "Lithologies",
 				     true, uiLabeledListBox::AboveMid );
     lithofld_ = llithfld->box();
-    uiLabeledListBox* lunfld = new uiLabeledListBox( this, "Selected Units",
+    uiLabeledListBox* lunfld = new uiLabeledListBox( localgrp_,"Selected Units",
 				     true, uiLabeledListBox::AboveMid );
     unfld_ = lunfld->box();
     lunfld->attach( rightOf, llithfld );
+    localgrp_->setHAlignObj( lunfld );
 
-    uiLabeledComboBox* lstatsfld = new uiLabeledComboBox( this,
+    uiLabeledComboBox* lstattypfld = new uiLabeledComboBox( localgrp_,
 						"Statistics on results" );
-    statsfld_ = lstatsfld->box();
+    stattypfld_ = lstattypfld->box();
 #   define mAddStatItm(enm) \
-    statsfld_-> addItem( Stats::TypeNames()[Stats::enm] );
+    stattypfld_-> addItem( Stats::TypeNames()[Stats::enm] );
     if ( attr_.prop_.hasType(PropertyRef::Dist) )
 	mAddStatItm(Sum);
     mAddStatItm(Average); mAddStatItm(Median); mAddStatItm(StdDev);
     mAddStatItm(Min); mAddStatItm(Max);
-    lstatsfld->attach( alignedBelow, lunfld );
-    lstatsfld->attach( ensureBelow, llithfld );
+    lstattypfld->attach( alignedBelow, lunfld );
+    lstattypfld->attach( ensureBelow, llithfld );
+
+    localgrp_->attach( alignedBelow, isslidingfld_ );
+    slidegrp_->attach( alignedBelow, isslidingfld_ );
 
     const CallBack transfcb( mCB(this,uiLaySeqAttribEd,transfSel) );
     uiLabeledComboBox* ltransffld = new uiLabeledComboBox( this,
@@ -57,7 +73,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     transformfld_->addItems( BufferStringSet(transfs) );
     transformfld_->setHSzPol( uiObject::Small );
     transformfld_->selectionChanged.notify( transfcb );
-    ltransffld->attach( alignedBelow, lstatsfld );
+    ltransffld->attach( alignedBelow, localgrp_ );
     valfld_ = new uiGenInput( this, "Value", FloatInpSpec(2) );
     valfld_->setElemSzPol( uiObject::Small );
     valfld_->attach( rightOf, ltransffld );
@@ -67,7 +83,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 
     fillFlds( rt );
     putToScreen();
-    finaliseDone.notify( transfcb );
+    finaliseDone.notify( mCB(this,uiLaySeqAttribEd,initWin) );
 }
 
 
@@ -96,6 +112,21 @@ void uiLaySeqAttribEd::fillFlds( const Strat::RefTree& reftree )
 }
 
 
+void uiLaySeqAttribEd::initWin( CallBacker* c )
+{
+    slSel( c );
+    transfSel( c );
+}
+
+
+void uiLaySeqAttribEd::slSel( CallBacker* )
+{
+    const bool isslide = isslidingfld_->getBoolValue();
+    localgrp_->display( !isslide );
+    slidegrp_->display( isslide );
+}
+
+
 void uiLaySeqAttribEd::transfSel( CallBacker* )
 {
     const int sel = transformfld_->currentItem();
@@ -110,7 +141,19 @@ void uiLaySeqAttribEd::transfSel( CallBacker* )
 void uiLaySeqAttribEd::putToScreen()
 {
     namefld_->setText( attr_.name() );
-    statsfld_->setText( attr_.stat_ );
+    isslidingfld_->setValue( attr_.islocal_ );
+    if ( attr_.islocal_ )
+	upscaletypfld_->setText( attr_.stat_ );
+    else
+    {
+	stattypfld_->setText( attr_.stat_ );
+	for ( int idx=0; idx<unfld_->size(); idx++ )
+	    unfld_->setSelected( idx, attr_.units_.isPresent(
+					    unfld_->textOfItem(idx)) );
+	for ( int idx=0; idx<lithofld_->size(); idx++ )
+	    lithofld_->setSelected( idx, attr_.liths_.isPresent(
+					    lithofld_->textOfItem(idx)) );
+    }
 
     if ( mIsUdf(attr_.transformval_) )
 	transformfld_->setCurrentItem( 0 );
@@ -120,23 +163,22 @@ void uiLaySeqAttribEd::putToScreen()
 	valfld_->setValue( attr_.transformval_ );
     }
 
-    for ( int idx=0; idx<unfld_->size(); idx++ )
-	unfld_->setSelected( idx, attr_.units_.isPresent(
-		    			unfld_->textOfItem(idx)) );
-    for ( int idx=0; idx<lithofld_->size(); idx++ )
-	lithofld_->setSelected( idx, attr_.lithos_.isPresent(
-		    			lithofld_->textOfItem(idx)) );
 }
 
 
 bool uiLaySeqAttribEd::getFromScreen()
 {
+    const bool islocal = isslidingfld_->getBoolValue();
     BufferStringSet uns, liths;
-    unfld_->getSelectedItems( uns ); lithofld_->getSelectedItems( liths );
-    if ( uns.isEmpty() || liths.isEmpty() )
+
+    if ( !islocal )
     {
-	uiMSG().error( "Please select at least one unit and one lithology" );
-	return false;
+	unfld_->getSelectedItems( uns ); lithofld_->getSelectedItems( liths );
+	if ( uns.isEmpty() || liths.isEmpty() )
+	{
+	    uiMSG().error("Please select at least one unit and one lithology");
+	    return false;
+	}
     }
     const int trfldidx = transformfld_->currentItem();
     const bool havetr = trfldidx > 0;
@@ -150,9 +192,15 @@ bool uiLaySeqAttribEd::getFromScreen()
     }
 
     attr_.setName( namefld_->text() );
-    attr_.units_ = uns;
-    attr_.lithos_ = liths;
-    attr_.stat_ = statsfld_->text();
+    attr_.islocal_ = islocal;
+    if ( islocal )
+	attr_.stat_ = upscaletypfld_->text();
+    else
+    {
+	attr_.units_ = uns;
+	attr_.liths_ = liths;
+	attr_.stat_ = stattypfld_->text();
+    }
     attr_.transformval_ = trval;
     attr_.transform_ = (Strat::LaySeqAttrib::Transform)tridx;
 

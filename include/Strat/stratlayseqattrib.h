@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2011
- RCS:		$Id: stratlayseqattrib.h,v 1.4 2011-01-17 16:16:56 cvsbert Exp $
+ RCS:		$Id: stratlayseqattrib.h,v 1.5 2011-01-25 09:41:24 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -43,18 +43,24 @@ public:
 				      const char* nm=0 )
 			    : NamedObject(nm)
 			    , set_(&s), prop_(p)
+			    , islocal_(true)
 			    , transform_(Pow)
 			    , transformval_(mUdf(float))	{}
 
     const PropertyRef&	prop_;
-    BufferString	stat_;
+    bool		islocal_;
+    BufferString	stat_; // either Stats::Type or Stats::UpscaleType
+
+    // non-local only
     BufferStringSet	units_;
-    BufferStringSet	lithos_;
+    BufferStringSet	liths_;
+
     Transform		transform_;
     float		transformval_;
     inline bool		hasTransform() const
     			{ return !mIsUdf(transformval_); }
 
+    static const char*	sKeyIsLocal()		{ return "Local"; }
     static const char*	sKeyStats()		{ return "Statistics"; }
     static const char*	sKeyUnits()		{ return "Units"; }
     static const char*	sKeyLithos()		{ return "Lithologies"; }

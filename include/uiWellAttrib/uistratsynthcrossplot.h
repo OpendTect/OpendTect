@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.4 2011-01-20 15:09:11 cvsbert Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.5 2011-01-25 09:41:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,11 @@ class uiLabel;
 class SeisTrcBuf;
 class uiGenInput;
 class uiComboBox;
-namespace Strat { class LayerModel; }
+class DataPointSet;
 class uiAttribDescSetBuild;
 class uiStratLaySeqAttribSetBuild;
+namespace Strat { class Level; class LayerModel; class LaySeqAttribSet; }
+namespace Attrib { class DescSet; }
 
 
 /*!\brief Dialog specifying what to crossplot */
@@ -44,6 +46,14 @@ protected:
     uiComboBox*			reflvlfld_;
     uiGenInput*			snapfld_;
     uiGenInput*			extrwinfld_;
+
+    bool			getData(DataPointSet&,const Attrib::DescSet&,
+	    				const Strat::LaySeqAttribSet&,
+					const Strat::Level&,
+					const StepInterval<float>&);
+    bool			launchCrossPlot(const DataPointSet&,
+					const Strat::Level&,
+					const StepInterval<float>&);
 
     bool			acceptOK(CallBacker*);
 
