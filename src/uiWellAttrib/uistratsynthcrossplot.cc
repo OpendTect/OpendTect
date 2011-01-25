@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.7 2011-01-25 12:56:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.8 2011-01-25 13:55:19 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -28,26 +28,34 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.7 2011-01-25 12:56
 #include "posvecdataset.h"
 #include "datacoldef.h"
 #include "seisbuf.h"
+#include "seisbufadapters.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "valseriesevent.h"
 
 
-uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p, DataPack::ID dpid,
-				    const Strat::LayerModel& lm )
+uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
+					const DataPack::FullID& dpid,
+					const Strat::LayerModel& lm )
     : uiDialog(p,Setup("Layer model/synthetics cross-plotting",
 			mNoDlgTitle,mTODOHelpID))
-    , packid_(dpid)
+    , packmgrid_(DataPackMgr::getID(dpid))
     , lm_(lm)
     , emptylbl_(0)
+    , tbpack_(0)
 {
     if ( lm.isEmpty() )
 	{ emptylbl_ = new uiLabel(this,"No input data"); return; }
+    DataPack* dp = DPM(packmgrid_).obtain( DataPack::getID(dpid) );
+    mDynamicCastGet(SeisTrcBufDataPack*,tbdp,dp)
+    if ( !tbdp )
+	{ emptylbl_ = new uiLabel(this,"Missing or invalid datapack"); return; }
+    tbpack_ = tbdp;
+
     uiAttribDescSetBuild::Setup bsu( true );
     bsu.showdepthonlyattrs(false).showusingtrcpos(false).showps(false);
     seisattrfld_ = new uiAttribDescSetBuild( this, bsu );
-    TypeSet<DataPack::FullID> fids;
-    fids += DataPack::FullID( DataPackMgr::FlatID(), packid_ );
+    TypeSet<DataPack::FullID> fids; fids += dpid;
     seisattrfld_->setDataPackInp( fids );
 
     layseqattrfld_ = new uiStratLaySeqAttribSetBuild( this, lm_ );
@@ -85,6 +93,8 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p, DataPack::ID dpid,
 
 uiStratSynthCrossplot::~uiStratSynthCrossplot()
 {
+    if( tbpack_ )
+	DPM(packmgrid_).release( tbpack_->id() );
 }
 
 
@@ -131,8 +141,26 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	dps->dataSet().add(
 		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr,0)) );
 
-    //TODO use attribute engine to fill dps cols
-    //TODO use LaySeqAttribCalc to fill other dps cols
+    const SeisTrcBuf& tbuf = tbpack_->trcBuf();
+    const int nrextr = extrwin.nrSteps() + 1;
+    const int tbsz = tbuf.size();
+    for ( int iextr=0; iextr<nrextr; iextr++ )
+    {
+	const float extrz = extrwin.atIndex( iextr );
+	for ( int itrc=0; itrc<tbsz; itrc++ )
+	{
+	    const SeisTrc& trc = *tbuf.get( itrc );
+	    DataPointSet::DataRow dr;
+	    dr.pos_.nr_ = trc.info().nr;
+	    dr.pos_.set( trc.info().coord );
+	    dr.pos_.z_ = extrz;
+	    dps->addRow( dr );
+	}
+    }
+    dps->dataChanged();
+
+    //TODO use attribute engine to fill relevant part
+    //TODO use LaySeqAttribCalc to fill other part
     return false;
 }
 

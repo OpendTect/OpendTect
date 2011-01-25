@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.15 2011-01-10 13:30:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.16 2011-01-25 13:55:19 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -168,12 +168,12 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 }
 
 
-DataPack::ID uiStratSynthDisp::packID() const
+DataPack::FullID uiStratSynthDisp::packID() const
 {
     const FlatDataPack* dp = vwr_->pack( true );
     if ( !dp ) dp = vwr_->pack( false );
     if ( !dp ) return DataPack::cNoID();
-    return dp->id();
+    return DataPack::FullID( DataPackMgr::FlatID(), dp->id() );
 }
 
 

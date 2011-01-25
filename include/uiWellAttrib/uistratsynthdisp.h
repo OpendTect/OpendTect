@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.10 2011-01-10 13:30:13 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.11 2011-01-25 13:55:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ public:
 
     const uiWorldRect&	curView(bool indepth) const;
     const SeisTrcBuf&	curTraces() const;
-    DataPack::ID	packID() const;
+    DataPack::FullID	packID() const;
 
     Notifier<uiStratSynthDisp>	wvltChanged;
     Notifier<uiStratSynthDisp>	zoomChanged;
