@@ -7,27 +7,30 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.6 2011-01-25 09:41:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.7 2011-01-25 12:56:24 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
 #include "uiattribsetbuild.h"
+#include "uidatapointset.h"
 #include "uiseparator.h"
 #include "uisplitter.h"
+#include "uilabel.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uimsg.h"
 #include "stratlevel.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlayseqattrib.h"
 #include "attribdescset.h"
 #include "datapointset.h"
+#include "posvecdataset.h"
+#include "datacoldef.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "valseriesevent.h"
-#include "uilabel.h"
-#include "uicombobox.h"
-#include "uigeninput.h"
-#include "uimsg.h"
 
 
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p, DataPack::ID dpid,
@@ -108,20 +111,28 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
 	mErrRet("Please enter all extraction window parameters")
 
     extrwin.start *= 0.001; extrwin.stop *= 0.001; extrwin.step *= 0.001;
-    DataPointSet dps( true );
-    if ( !getData(dps,seisattrs,seqattrs,*lvl,extrwin) )
-	return false;
-
-    return launchCrossPlot( dps, *lvl, extrwin );
+    DataPointSet* dps = getData( seisattrs, seqattrs, *lvl, extrwin );
+    if ( !dps ) return false;
+    bool rv = launchCrossPlot( *dps, *lvl, extrwin );
+    delete dps; return rv;
 }
 
 
-bool uiStratSynthCrossplot::getData( DataPointSet& dps,
-					const Attrib::DescSet& seisattrs,
+DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 					const Strat::LaySeqAttribSet& seqattrs,
 					const Strat::Level& lvl,
 					const StepInterval<float>& extrwin )
 {
+    // DataPointSet* dps = seisattrs.getDataPointSet();
+    DataPointSet* dps = 0;
+    if ( !dps )
+	{ uiMSG().error(seisattrs.errMsg()); return false; }
+    for ( int iattr=0; iattr<seqattrs.size(); iattr++ )
+	dps->dataSet().add(
+		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr,0)) );
+
+    //TODO use attribute engine to fill dps cols
+    //TODO use LaySeqAttribCalc to fill other dps cols
     return false;
 }
 
@@ -130,5 +141,12 @@ bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 					const Strat::Level& lvl,
 					const StepInterval<float>& extrwin )
 {
-    return false;
+    BufferString wintitl( "Attributes at ", lvl.name() );
+    wintitl.add( " [" ).add( extrwin.start )
+	   .add( "-" ).add( extrwin.stop ).add( "]" );
+    uiDataPointSet::Setup su( wintitl, false );
+    uiDataPointSet* uidps = new uiDataPointSet( this, dps, su, 0 );
+    uidps->setDeleteOnClose( true );
+    uidps->show();
+    return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.5 2011-01-25 09:41:24 cvsbert Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.6 2011-01-25 12:56:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ protected:
     uiGenInput*			snapfld_;
     uiGenInput*			extrwinfld_;
 
-    bool			getData(DataPointSet&,const Attrib::DescSet&,
+    DataPointSet*		getData(const Attrib::DescSet&,
 	    				const Strat::LaySeqAttribSet&,
 					const Strat::Level&,
 					const StepInterval<float>&);
