@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.19 2011-01-21 21:42:37 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.20 2011-01-25 17:19:07 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -1027,7 +1027,7 @@ void Picks::setContextPickType( IOObjContext& ctxt, PickType type )
 
 void Picks::setReferenceOffset( float n )
 {
-    if ( zIsTime() )
+    if ( picktype_!=RMO )
 	return;
 
     if ( mIsEqual(n,refoffset_,1e-3) )
