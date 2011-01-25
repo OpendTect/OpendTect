@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.9 2011-01-11 11:47:07 cvsbert Exp $
+ RCS:		$Id: datapack.h,v 1.10 2011-01-25 13:26:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,6 +131,8 @@ public:
 			// a manager. In general, leave it to DPM() - see below.
 
     typedef int		ID;		//!< Each Mgr has its own ID
+    inline static ID	getID( const DataPack::FullID& fid )
+    						{ return fid.ID(0); }
 
     bool		haveID(DataPack::ID) const;
     inline bool		haveID( const DataPack::FullID& fid ) const
