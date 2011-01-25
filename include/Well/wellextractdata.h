@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.24 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.25 2011-01-25 09:41:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 #include "enums.h"
+#include "stattype.h"
 
 class MultiID;
 class DataPointSet;
@@ -139,15 +140,12 @@ mClass LogDataExtracter : public ::Executor
 {
 public:
 
-    enum SamplePol	{ Avg, Med, MostFreq, Nearest };
-    			DeclareEnumUtils(SamplePol)
-
 			LogDataExtracter(const BufferStringSet& ioobjids,
 					 ObjectSet<DataPointSet>&,
 					 bool zvalsintime);
 
     BufferString	lognm_;
-    SamplePol		samppol_;
+    Stats::UpscaleType	samppol_;
     static const char*	sKeySamplePol();
     static const char*	sKeyLogNm(); //!< equals address of TrackSampler's
 

@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.57 2010-12-07 20:29:43 cvskris Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.58 2011-01-25 09:41:12 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -46,14 +46,11 @@ const char* TrackSampler::sKeyDataEnd()	    { return "<End of data>"; }
 const char* TrackSampler::sKeyLogNm()	    { return "Log name"; }
 const char* TrackSampler::sKeyFor2D()	    { return "For 2D"; }
 const char* TrackSampler::sKeyDahCol()	    { return "Create MD column"; }
-const char* LogDataExtracter::sKeyLogNm()   { return Well::TrackSampler::sKeyLogNm(); }
-static const char* sKeyDAHColName()	    { return "<MD>"; }
+const char* LogDataExtracter::sKeyLogNm()   { return
+    					      Well::TrackSampler::sKeyLogNm(); }
+const char* LogDataExtracter::sKeySamplePol() { return "Data sampling"; }
 }
-
-DefineEnumNames(Well::LogDataExtracter,SamplePol,2,
-		Well::LogDataExtracter::sKeySamplePol())
-	{ "Average", "Median", "Most frequent", "Nearest sample", 0 };
-const char* Well::LogDataExtracter::sKeySamplePol()	{ return "Data sampling"; }
+static const char* sKeyDAHColName()	    { return "<MD>"; }
 
 
 Well::InfoCollector::InfoCollector( bool dologs, bool domarkers )
@@ -342,7 +339,7 @@ Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
 	: Executor("Well log data extraction")
 	, ids_(i)
 	, dpss_(d)
-    	, samppol_(Med)
+    	, samppol_(Stats::UseMed)
 	, curid_(0)
 	, zistime_(ztm)
 {
@@ -352,7 +349,7 @@ Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
 void Well::LogDataExtracter::usePar( const IOPar& pars )
 {
     pars.get( sKeyLogNm(), lognm_ );
-    parseEnumSamplePol( pars.find( sKeySamplePol() ), samppol_ );
+    parseEnumUpscaleType( pars.find( sKeySamplePol() ), samppol_ );
 }
 
 
@@ -524,8 +521,8 @@ void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
 					  float winsz, DataPointSet& dps,
        					  int dpscolidx, int dpsrowidx ) const
 {
-    float val = samppol_ == Nearest ? wl.getValue( dah )
-				   : calcVal(wl,dah,winsz);
+    float val = samppol_ == Stats::TakeNearest	? wl.getValue( dah )
+						: calcVal(wl,dah,winsz);
     dps.getValues(dpsrowidx)[dpscolidx] = val;
 }
 
@@ -549,22 +546,29 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
     }
     if ( vals.size() < 1 ) return mUdf(float);
     if ( vals.size() == 1 ) return vals[0];
-    if ( vals.size() == 2 ) return samppol_ == Avg ? (vals[0]+vals[1])/2
-						  : vals[0];
+    if ( vals.size() == 2 ) return samppol_ == Stats::UseAvg
+				? (vals[0]+vals[1])/2 : vals[0];
     const int sz = vals.size();
-    if ( samppol_ == Med )
+    if ( samppol_ == Stats::UseMed )
     {
 	sort_array( vals.arr(), sz );
 	return vals[sz/2];
     }
-    else if ( samppol_ == Avg )
+    else if ( samppol_ == Stats::UseAvg )
     {
 	float val = 0;
 	for ( int idx=0; idx<sz; idx++ )
 	    val += vals[idx];
 	return val / sz;
     }
-    else if ( samppol_ == MostFreq )
+    else if ( samppol_ == Stats::UseRMS )
+    {
+	float val = 0;
+	for ( int idx=0; idx<sz; idx++ )
+	    val += vals[idx] * vals[idx];
+	return sqrt( val / sz );
+    }
+    else if ( samppol_ == Stats::UseMostFreq )
     {
 	TypeSet<float> valsseen;
 	TypeSet<int> valsseencount;
@@ -591,6 +595,6 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 	return valsseen[ maxvsidx ];
     }
 
-    pErrMsg( "SamplePol not supported" );
+    pErrMsg( "UpscaleType not supported" );
     return vals[0];
 }
