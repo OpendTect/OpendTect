@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		December 2008
- RCS:		$Id: velocityfunctioninterval.h,v 1.5 2010-08-20 03:41:47 cvskris Exp $
+ RCS:		$Id: velocityfunctioninterval.h,v 1.6 2011-01-25 23:06:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -54,7 +54,7 @@ mClass IntervalSource : public FunctionSource
 public:
     			IntervalSource();
     const VelocityDesc&	getDesc() const;
-    const char*		type() const { return sType(); }
+    const char*		factoryKeyword() const { return sType(); }
     static const char*	sType() { return "Interval"; }
 
     void		setInput(FunctionSource*);
