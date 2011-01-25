@@ -8,6 +8,9 @@
 #include "raytrace1d.h"
 
 #include "arrayndimpl.h"
+#include "genericnumer.h"
+#include "mathfunc.h"
+
 
 mImplFactory( RayTracer1D, RayTracer1D::factory );
 
@@ -58,19 +61,12 @@ RayTracer1D::RayTracer1D()
     , sourcedepth_( 0 )
     , relsourcedepth_( 0 )
     , receiverdepth_( 0 )
-    , relreceiverdepth_( 0 )			 
-    , sini_( 0 )
-    , reflectivity_( 0 )		
-    , geomspread_( GeomSpread::None )
-    , angleonly_( false )				    
-    , projectincwave_( false )							{}
+    , relreceiverdepth_( 0 )			
+{}					       	
 
 
 RayTracer1D::~RayTracer1D()
 {
-    delete reflectivity_;
-    delete sini_;
-
     if ( ownspmodel_ )
 	deepErase( pmodel_ );
 
@@ -89,7 +85,10 @@ void RayTracer1D::setModel( bool pwave, const ObjectSet<Layer>& lys,
 
 	ownspmodel_ = policy==OD::CopyPtr;
 	if ( ownspmodel_ )
-	    pmodel_.copy( lys );
+	{
+	    for ( int idx=0; idx<lys.size(); idx++ )
+		pmodel_ += new Layer( *lys[idx] );
+	}
 	else
 	    pmodel_ = lys;
     }
@@ -100,7 +99,10 @@ void RayTracer1D::setModel( bool pwave, const ObjectSet<Layer>& lys,
 
 	ownssmodel_ = policy==OD::CopyPtr;
 	if ( ownssmodel_ )
-	    smodel_.copy( lys );
+	{
+	    for ( int idx=0; idx<lys.size(); idx++ )
+		smodel_ += new Layer( *lys[idx] );
+	}
 	else
 	    smodel_ = lys;
     }
@@ -114,52 +116,16 @@ void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
 }
 
 
-float_complex RayTracer1D::getReflectivity( int layer, int offset ) const
-{
-    if ( layer<0 || layer>=reflectivity_->info().getSize(0) || 
-	 offset<0 || offset>=reflectivity_->info().getSize(1) )
-    return mUdf(float);
-
-    return reflectivity_->get( layer, offset );
-}
-
-
-float RayTracer1D::getSinAngle( int layer, int offset ) const
-{
-    if ( layer<0 || layer>=sini_->info().getSize(0) || 
-	 offset<0 || offset>=sini_->info().getSize(1) )
-    return mUdf(float);
-    
-    return sini_->get( layer, offset );
-}
-
-
 od_int64 RayTracer1D::nrIterations() const
 {
-    return downisp_ ? pmodel_.size() : smodel_.size();
+    const int psz = pmodel_.size();
+    return psz ? psz : smodel_.size();
 }
 
 
-bool RayTracer1D::doPrepare( int )
+bool RayTracer1D::doPrepare( int nrthreads )
 {
-    const int psz = pmodel_.size();
-    const int ssz = smodel_.size();
-    const int layersize = downisp_ ? psz : ssz;
-    const int offsetsz = offsets_.size();
-    if ( layersize<2 || !offsetsz )
-	return false;
-
-    if ( !angleonly_ && (!psz || !ssz) )
-	return false;
-
-    if ( sini_ ) delete sini_;
-    sini_ = new Array2DImpl<float>( layersize, offsetsz );
-    sini_->setAll( 0 );
-
-    if ( reflectivity_ ) delete reflectivity_;
-    reflectivity_ = new Array2DImpl<float_complex>( layersize, offsetsz );
-    reflectivity_->setAll( 0 );
-
+    const int layersize = downisp_ ? pmodel_.size() : smodel_.size();
     float maxvel = 0;
     velmax_.erase();
     for ( int layer=0; layer<layersize; layer++ )
@@ -181,59 +147,27 @@ bool RayTracer1D::doPrepare( int )
 	velmax_ += maxvel;
     }
 
-    float ztot = 0;
-    sourcelayer_ = 0;
-    ObjectSet<Layer>& dlayers = downisp_ ? pmodel_ : smodel_;
-    while ( ztot+dlayers[sourcelayer_]->d0_ < sourcedepth_ ||
-	    mIsEqual(sourcedepth_,ztot+dlayers[sourcelayer_]->d0_,mDefEps) )
-    {
-	ztot += dlayers[sourcelayer_]->d0_;
-	sourcelayer_++;
-	
-	if ( sourcelayer_ >= dlayers.size() )
-	    return false;
-    }
-    
-    relsourcedepth_ = sourcedepth_ - ztot;
-    
-    receiverlayer_ = 0;
-    ztot = 0;
-    ObjectSet<Layer>& ulayers = upisp_ ? pmodel_ : smodel_;
-    while ( ztot+ulayers[receiverlayer_]->d0_ < receiverdepth_ ||
-	    mIsEqual(receiverdepth_,ztot+ulayers[receiverlayer_]->d0_,mDefEps) )
-    {
-	ztot += ulayers[receiverlayer_]->d0_;
-	receiverlayer_++;
-	
-	if ( receiverlayer_>=ulayers.size() )
-	    return false;
-    }
-    
-    relreceiverdepth_ = receiverdepth_ - ztot;
-    
     return true;
 }
 
 
 bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
-    const ObjectSet<Layer>& dlayers = downisp_ ? pmodel_ : smodel_;
+    const int offsz = offsets_.size();
+    const int firstreflection = 1 +
+	(sourcelayer_ > receiverlayer_ ? sourcelayer_ : receiverlayer_);
     for ( int layer=start; layer<=stop; layer++ )
     {
+	const int usedlayer = firstreflection > layer ? firstreflection : layer;
 	float rayparam = 0;
-	for ( int osidx=0; osidx<offsets_.size(); osidx++ )
+	for ( int osidx=0; osidx<offsz; osidx++ )
 	{
-	    rayparam = findRayParam( layer, offsets_[osidx], rayparam );
-
+	    rayparam = findRayParam( usedlayer, offsets_[osidx], rayparam );
 	    if ( mIsUdf(rayparam) ) 
 		continue;
 
-	    const float sinival = layer ? dlayers[layer-1]->Vint_*rayparam : 0;
-	    sini_->set( layer, osidx, sinival );
-
-	    float_complex ref;
-	    if ( !angleonly_ && computeReflectivity( layer, rayparam, ref ) )
-    		reflectivity_->set( layer, osidx, ref );
+	    if ( !compute(layer, osidx, rayparam) )
+		return false;
 	}
     }
 
@@ -241,90 +175,29 @@ bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 }
 
 
+class OffsetFromRayParam : public FloatMathFunction
+{
+public:
+    			OffsetFromRayParam( const RayTracer1D& rt, int layer )
+			    : raytracer_( rt ), layer_( layer ) {}  
+    float 		getValue(float rayparam) const
+			{ return raytracer_.getOffset( layer_, rayparam ); }
+
+protected:
+
+    const RayTracer1D&	raytracer_;
+    int			layer_;
+};
+
+
 float RayTracer1D::findRayParam( int layer, float offset, float seed ) const
 {
-    float a=0, b=0.9999999/velmax_[layer], c = seed, d, e;
-    float fa = offset - getOffset( layer, a );
-    float fb = offset - getOffset( layer, b );
-    float fc = offset - getOffset( layer, c );
+    OffsetFromRayParam function( *this, layer );
 
-    if ( fa * fb > 0 )
+    if ( !findValue(function,0,0.9999999/velmax_[layer],seed,offset,1e-10) )
 	return mUdf(float);
 
-#define ITMAX 100
-    for ( int iter=1; iter<=ITMAX; iter++ )
-    {
-	if ( fb * fc > 0 )
-	{
-	    c = a;
-	    fc = fa;
-	    e = d = b-a;
-	}
-	
-	if ( fabs(fc) < fabs(fb) ) 
-	{
-	    a = b;
-	    b = c;
-	    c = a;
-	    fa = fb;
-	    fb = fc;
-	    fc = fa;
-	}
-
-	const float tol1 = 6.0e-10 * fabs(b) + 0.5e-10;
-	const float xm = 0.5 * (c-b);
-	if ( fabs(xm) <= tol1 || fb == 0.0 )
-	    return b;
-
-	if ( fabs(e) >= tol1 && fabs(fa) > fabs(fb) )  
-	{
-	    float s = fb / fa;
-	    float p,q;
-	    if ( a == c ) 
-	    {
-		p = 2.0 * xm * s;
-		q = 1.0 - s;
-	    } 
-	    else 
-	    {
-		q = fa / fc;
-		const float r = fb / fc;
-		p = s * (2.0 * xm * q * (q-r) - (b-a) * (r-1.0) );
-		q = (q-1.0) * (r-1.0) * (s-1.0);
-	    }
-
-	    if ( p > 0.0 ) q = -q;
-	    p = fabs(p);
-	    const float min1 = 3.0 * xm * q - fabs(tol1*q);
-	    const float min2 = fabs(e*q);
-	    if ( 2.0*p < (min1 < min2 ? min1 : min2) ) 
-	    {
-		e = d;
-		d = p / q;
-	    } 
-	    else 
-	    {
-		d = xm;	
-		e = d;
-	    }
-	} 
-	else 
-	{
-	    d = xm;
-	    e = d;
-	}
-		
-	a = b;
-	fa = fb;
-	if ( fabs(d) > tol1 )
-	    b += d;
-	else
-	    b += (xm > 0.0 ? fabs(tol1) : -fabs(tol1));
-
-	fb = offset - getOffset( layer, b );
-    }
-
-    return mUdf(float);
+    return seed;
 }
 
 
@@ -360,77 +233,6 @@ float RayTracer1D::getOffset( int layer, float rayparam) const
 }
 
 
-#define mRetFalseIfZero(vel) \
-    if ( mIsZero(vel,mDefEps) ) return false;
-
-
-#define mGetSpreadDenominator \
-    if ( geomspread_ == GeomSpread::Distance ) \
-	spreadingdenominator += dist; \
-    else if ( geomspread_ == GeomSpread::Vint ) \
-	spreadingdenominator += vel * dist
-
-bool RayTracer1D::computeReflectivity( int layer, float rayparam, 
-	float_complex& reflectivity ) const
-{
-    const ObjectSet<Layer>& dlayers = downisp_ ? pmodel_ : smodel_;
-    const ObjectSet<Layer>& ulayers = upisp_ ? pmodel_ : smodel_; 
-
-    mAllocVarLenArr( InterfaceCoeff, coefs, layer );
-    int toplayer = sourcelayer_<receiverlayer_ ? sourcelayer_ : receiverlayer_;
-    for ( int idx=toplayer; idx<layer; idx++ )
-	coefs[idx].setInterface( rayparam, idx, *pmodel_[idx], *pmodel_[idx+1],
-		*smodel_[idx], *smodel_[idx+1] ); 
-
-    int lidx = sourcelayer_;
-    float vel = dlayers[lidx]->Vint_;
-    mRetFalseIfZero(vel);
-
-    float sini = rayparam * vel;
-    float dist = ( dlayers[lidx]->d0_ - relsourcedepth_ ) / sqrt(1.0-sini*sini);
-    reflectivity = coefs[lidx].getCoeff( true, lidx!=layer-1, downisp_, 
-	    lidx==layer-1? upisp_ : downisp_ );
-
-    float spreadingdenominator = 0;
-    mGetSpreadDenominator;
-    lidx++;
-
-    while ( lidx < layer )
-    {
-	vel = dlayers[lidx]->Vint_;
-	mRetFalseIfZero(vel);
-	sini = rayparam * vel;
-	dist = dlayers[lidx]->d0_ / cos( asin(sini) );
-	reflectivity *= coefs[lidx].getCoeff( true, lidx!=layer-1,
-		downisp_, lidx==layer-1? upisp_ : downisp_ );
-	mGetSpreadDenominator;
-        lidx++;
-    }
-
-    for ( lidx=layer-1; lidx>=receiverlayer_; lidx--)
-    {
-	vel = ulayers[lidx]->Vint_;
-	mRetFalseIfZero(vel);
-	sini = rayparam * vel;
-	dist =  (ulayers[lidx]->d0_-(lidx==receiverlayer_ ? 
-		    relreceiverdepth_ : 0)) / cos( asin(sini) );	
-
-	if ( lidx>receiverlayer_ )
-	    reflectivity *= coefs[lidx-1].getCoeff(false,false,upisp_,upisp_);
-	
-	if ( projectincwave_ && lidx==receiverlayer_ ) 
-	    reflectivity *= cos( asin(sini) );
-	
-	mGetSpreadDenominator;
-    }
- 
-    if ( geomspread_ )
-    	reflectivity /= spreadingdenominator;
-
-    return true;
-}
-
-
 RayTracer1D::Layer::Layer()
 {
     d0_ = 0;
@@ -440,6 +242,18 @@ RayTracer1D::Layer::Layer()
     eta_ = 0;
     dip_ = 0;
     density_ = 0;
+}
+
+
+RayTracer1D::Layer::Layer(const RayTracer1D::Layer& l )
+{
+    d0_ = l.d0_;  
+    Vint_ = l.Vint_;
+    delta_ = l.delta_;  
+    epsilon_ = l.epsilon_;
+    eta_ = l.eta_;  
+    dip_ = l.dip_;
+    density_ = l.density_; 
 }
 
 
@@ -639,4 +453,202 @@ float_complex InterfaceCoeff::getCoeff( bool downin, bool downout,
 
     return sup_sup_;
 }
+
+
+AngleRayTracer::AngleRayTracer()
+    : sini_( 0 )
+{}
+
+
+float AngleRayTracer::getSinAngle( int layer, int offset ) const
+{
+    if ( !sini_ || layer<0 || layer>=sini_->info().getSize(0) || 
+	 offset<0 || offset>=sini_->info().getSize(1) )
+    return mUdf(float);
+    
+    return sini_->get( layer, offset );
+}
+
+
+bool AngleRayTracer::doPrepare( int nrthreads )
+{
+    const int layersize = downisp_ ? pmodel_.size() : smodel_.size();
+    const int offsetsz = offsets_.size();
+    if ( layersize<2 || !offsetsz || !RayTracer1D::doPrepare(nrthreads) )
+	return false;
+
+    sini_ = new Array2DImpl<float>( layersize, offsetsz );
+    sini_->setAll( 0 );
+
+    return true;
+}
+
+
+bool AngleRayTracer::compute( int layer, int offsetidx, float rayparam )
+{
+    if ( !sini_ )
+	return false;
+
+    const ObjectSet<Layer>& dlayers = downisp_ ? pmodel_ : smodel_;
+    const float sinival = layer ? dlayers[layer-1]->Vint_ * rayparam : 0;
+    sini_->set( layer, offsetidx, sinival );
+
+    return true;
+}
+
+
+
+IsotropicRayTracer::IsotropicRayTracer()
+    : reflectivity_( 0 )		
+    , geomspread_( GeomSpread::None )
+    , projectincwave_( false )
+{}
+
+
+float_complex IsotropicRayTracer::getReflectivity( int layer, int offset ) const
+{
+    if ( layer<0 || layer>=reflectivity_->info().getSize(0) || 
+	 offset<0 || offset>=reflectivity_->info().getSize(1) )
+    return mUdf(float);
+
+    return reflectivity_->get( layer, offset );
+}
+
+
+bool IsotropicRayTracer::doPrepare( int nrthreads )
+{
+    const int layersize = smodel_.size();
+    if ( !AngleRayTracer::doPrepare(nrthreads) || !layersize )
+	return false;
+
+    reflectivity_ = new Array2DImpl<float_complex>(layersize,offsets_.size());
+    reflectivity_->setAll( 0 );
+
+    float maxvel = 0;
+    velmax_.erase();
+    for ( int layer=0; layer<layersize; layer++ )
+    {
+	if ( !layer )
+	{
+	    velmax_ += 0;
+	    continue;
+	}
+
+	if ( downisp_ || upisp_ )
+	{
+	    if ( pmodel_[layer-1]->Vint_ > maxvel )
+		maxvel = pmodel_[layer-1]->Vint_;
+	}
+	else if ( smodel_[layer-1]->Vint_ > maxvel )
+	    maxvel = smodel_[layer-1]->Vint_;
+
+	velmax_ += maxvel;
+    }
+
+    float ztot = 0;
+    sourcelayer_ = 0;
+    ObjectSet<Layer>& dlayers = downisp_ ? pmodel_ : smodel_;
+    while ( ztot+dlayers[sourcelayer_]->d0_ < sourcedepth_ ||
+	    mIsEqual(sourcedepth_,ztot+dlayers[sourcelayer_]->d0_,mDefEps) )
+    {
+	ztot += dlayers[sourcelayer_]->d0_;
+	sourcelayer_++;
+	
+	if ( sourcelayer_ >= dlayers.size() )
+	    return false;
+    }
+    
+    relsourcedepth_ = sourcedepth_ - ztot;
+    
+    receiverlayer_ = 0;
+    ztot = 0;
+    ObjectSet<Layer>& ulayers = upisp_ ? pmodel_ : smodel_;
+    while ( ztot+ulayers[receiverlayer_]->d0_ < receiverdepth_ ||
+	    mIsEqual(receiverdepth_,ztot+ulayers[receiverlayer_]->d0_,mDefEps) )
+    {
+	ztot += ulayers[receiverlayer_]->d0_;
+	receiverlayer_++;
+	
+	if ( receiverlayer_>=ulayers.size() )
+	    return false;
+    }
+    
+    relreceiverdepth_ = receiverdepth_ - ztot;
+    return true;
+}
+
+
+#define mRetFalseIfZero(vel) \
+    if ( mIsZero(vel,mDefEps) ) return false;
+
+
+#define mGetSpreadDenominator \
+    if ( geomspread_ == GeomSpread::Distance ) \
+	spreadingdenominator += dist; \
+    else if ( geomspread_ == GeomSpread::Vint ) \
+	spreadingdenominator += vel * dist
+
+bool IsotropicRayTracer::compute( int layer, int offsetidx, float rayparam )
+{
+    if ( !AngleRayTracer::compute(layer,offsetidx,rayparam) || !reflectivity_ )
+	return false;
+    
+    const ObjectSet<Layer>& dlayers = downisp_ ? pmodel_ : smodel_;
+    const ObjectSet<Layer>& ulayers = upisp_ ? pmodel_ : smodel_; 
+
+    mAllocVarLenArr( InterfaceCoeff, coefs, layer );
+    int toplayer = sourcelayer_<receiverlayer_ ? sourcelayer_ : receiverlayer_;
+    for ( int idx=toplayer; idx<layer; idx++ )
+	coefs[idx].setInterface( rayparam, idx, *pmodel_[idx], *pmodel_[idx+1],
+		*smodel_[idx], *smodel_[idx+1] ); 
+
+    int lidx = sourcelayer_;
+    float vel = dlayers[lidx]->Vint_;
+    mRetFalseIfZero(vel);
+
+    float sini = rayparam * vel;
+    float dist = ( dlayers[lidx]->d0_ - relsourcedepth_ ) / sqrt(1.0-sini*sini);
+    float_complex reflectivity = coefs[lidx].getCoeff( true, lidx!=layer-1, 
+	    downisp_, lidx==layer-1? upisp_ : downisp_ );
+
+    float spreadingdenominator = 0;
+    mGetSpreadDenominator;
+    lidx++;
+
+    while ( lidx < layer )
+    {
+	vel = dlayers[lidx]->Vint_;
+	mRetFalseIfZero(vel);
+	sini = rayparam * vel;
+	dist = dlayers[lidx]->d0_ / cos( asin(sini) );
+	reflectivity *= coefs[lidx].getCoeff( true, lidx!=layer-1,
+		downisp_, lidx==layer-1? upisp_ : downisp_ );
+	mGetSpreadDenominator;
+        lidx++;
+    }
+
+    for ( lidx=layer-1; lidx>=receiverlayer_; lidx--)
+    {
+	vel = ulayers[lidx]->Vint_;
+	mRetFalseIfZero(vel);
+	sini = rayparam * vel;
+	dist =  (ulayers[lidx]->d0_-(lidx==receiverlayer_ ? 
+		    relreceiverdepth_ : 0)) / cos( asin(sini) );	
+
+	if ( lidx>receiverlayer_ )
+	    reflectivity *= coefs[lidx-1].getCoeff(false,false,upisp_,upisp_);
+	
+	if ( projectincwave_ && lidx==receiverlayer_ ) 
+	    reflectivity *= cos( asin(sini) );
+	
+	mGetSpreadDenominator;
+    }
+ 
+    if ( geomspread_ )
+	reflectivity /= spreadingdenominator;
+
+    reflectivity_->set( layer, offsetidx, reflectivity );
+    return true;
+}
+
 
