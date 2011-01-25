@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.34 2010-11-30 16:48:16 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.35 2011-01-25 23:08:16 cvsyuancheng Exp $";
 
 #include "timedepthconv.h"
 
@@ -351,7 +351,7 @@ Time2DepthStretcherProcessor( FloatMathFunction& func,
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    float depth = 0;
+    float depth = zrg_.center();
     for ( int idx=start; idx<=stop; idx++ )
     {
 	const float t = sd_.atIndex( idx );
