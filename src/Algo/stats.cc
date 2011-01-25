@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: stats.cc,v 1.11 2010-03-03 07:28:10 cvsranojay Exp $";
+static const char* rcsID = "$Id: stats.cc,v 1.12 2011-01-25 09:40:06 cvsbert Exp $";
 
 #include "statruncalc.h"
 #include "statrand.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: stats.cc,v 1.11 2010-03-03 07:28:10 cvsranojay 
 #include "envvars.h"
 #include "settings.h"
 
-DefineNameSpaceEnumNames(Stats,Type,0,"Statistics types")
+DefineNameSpaceEnumNames(Stats,Type,0,"Statistic type")
 {
 	"Count",
 	"Average", "Median", "RMS",
@@ -23,6 +23,14 @@ DefineNameSpaceEnumNames(Stats,Type,0,"Statistics types")
 	"MostFrequent",
 	0
 };
+
+DefineNameSpaceEnumNames(Stats,UpscaleType,0,"Upscale type")
+{
+	"Take Nearest Sample",
+	"Use Average", "Use Median", "Use RMS",
+	0
+};
+
 
 int Stats::RandGen::seed_ = 0;
 

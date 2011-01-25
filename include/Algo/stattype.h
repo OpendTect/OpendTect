@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2006
- RCS:           $Id: stattype.h,v 1.4 2010-02-08 15:33:22 cvsbert Exp $
+ RCS:           $Id: stattype.h,v 1.5 2011-01-25 09:40:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,14 @@ enum Type
 	MostFreq
 };
 DeclareNameSpaceEnumUtils(Type)
+
+    /* When resampling a denser sampling */
+enum UpscaleType
+{
+	TakeNearest,
+	UseAvg, UseMed, UseRMS, UseMostFreq
+};
+DeclareNameSpaceEnumUtils(UpscaleType)
 
 
 }; // namespace Stats
