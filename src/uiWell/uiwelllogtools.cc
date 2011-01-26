@@ -8,12 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.2 2011-01-24 16:43:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.3 2011-01-26 08:49:40 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
 #include "color.h"
-#include "statruncalc.h"
+#include "dataclipper.h"
+#include "smoother1d.h"
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -30,13 +31,13 @@ static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.2 2011-01-24 16:43:46 cvs
 #include "uimsg.h"
 #include "uimultiwelllogsel.h"
 #include "uiseparator.h"
+#include "uispinbox.h"
 #include "uitaskrunner.h"
 #include "uiwelllogdisplay.h"
 
 
 uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p )
-	: uiDialog( p, Setup( "Well log tool", 
-		    "Select logs to be processed", mTODOHelpID ) )
+	: uiDialog( p, Setup( "Well log tools", "Select logs", mTODOHelpID ) )
 {
     setCtrlStyle( DoAndStay );
     welllogselfld_ = new uiMultiWellLogSel( this );
@@ -47,6 +48,7 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p )
 bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 {
     BufferStringSet wellids; welllogselfld_->getSelWellIDs( wellids );
+    BufferStringSet wellnms; welllogselfld_->getSelWellNames( wellnms );
     if ( wellids.isEmpty() ) mErrRet( "Please select at least one well" )
 
     ObjectSet<uiWellLogToolWin::LogData> logdatas; 
@@ -56,23 +58,21 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	const char* nm = Well::IO::getMainFileName( wid );
 	if ( !nm || !*nm ) continue;
 
-	Well::Data wd; Well::Reader wr( nm, wd ); wr.getLogs(); wr.getMarkers();
-	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
+	Well::Data wd; Well::Reader wr( nm, wd ); wr.getLogs(); wr.getMarkers(); 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd.logs() );
 	uiWellLogToolWin::LogData* ldata = new uiWellLogToolWin::LogData(*wls);
 	if ( !ldata->setSelectedLogs( lognms ) ) 
 	    { delete ldata; continue; }
-	ldata->wellname_ = nm; 
-	Interval<float> dahrg; 
-	const char* topm; const char* botm; float topd, botd;
+	ldata->wellid_ = wid; 
+	BufferString topm; BufferString botm; float topd, botd;
 	welllogselfld_->getLimitMarkers( topm, botm );
 	welllogselfld_->getLimitDists( topd, botd );
 	const Well::Marker* topmrk = wd.markers().getByName( topm );
 	const Well::Marker* botmrk = wd.markers().getByName( botm );
 	ldata->dahrg_.start = topmrk ? topmrk->dah() : wls->dahInterval().start;
-	ldata->dahrg_.stop  = botmrk ? topmrk->dah() : wls->dahInterval().stop;
-	ldata->dahrg_.start -= topd; 	
-	ldata->dahrg_.stop += botd;
+	ldata->dahrg_.stop  = botmrk ? botmrk->dah() : wls->dahInterval().stop;
+	ldata->dahrg_.start -= topd; 	ldata->dahrg_.stop += botd;
+	ldata->wellname_ = wellnms[idx]->buf();
 
 	logdatas += ldata;
     }
@@ -96,8 +96,10 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 	ObjectSet<uiWellLogToolWin::LogData> lds; win->getLogDatas( lds );
 	for ( int idx=0; idx<lds.size(); idx++ )
 	{
+	    const char* nm = Well::IO::getMainFileName( lds[idx]->wellid_ );
+	    if ( !nm || !*nm ) continue;
 	    Well::Data wd; lds[idx]->getOutputLogs( wd.logs() );
-	    Well::Writer wrr( lds[idx]->wellname_, wd );
+	    Well::Writer wrr( nm, wd );
 	    wrr.putLogs();
 	}
 	welllogselfld_->update();
@@ -146,47 +148,66 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     , logdatas_(logs)
     , needsave_(false)
 {
-    uiGroup* loggrp = new uiGroup( this, "Logs group" );
-    zdisplayrg_ = logdatas_[0]->dahrg_; 
+    uiGroup* displaygrp = new uiGroup( this, "Well display group" );
+    displaygrp->setHSpacing( 0 );
+    zdisplayrg_ = logdatas_[0]->dahrg_;
+    uiGroup* wellgrp; uiGroup* prevgrp = 0; uiLabel* wellnm; 
     for ( int idx=0; idx<logdatas_.size(); idx++ )
     {
 	LogData& logdata = *logdatas_[idx];
+	wellgrp  = new uiGroup( displaygrp, "Well group" );
+	if ( prevgrp ) wellgrp->attach( rightOf, prevgrp );
+	wellgrp->setHSpacing( 0 );
+	wellnm = new uiLabel( wellgrp, logdata.wellname_ );
+	wellnm->setVSzPol( uiObject::Small );
 	for ( int idlog=0; idlog<logdata.inplogs_.size(); idlog++ )
 	{
-	    uiWellLogDisplay::Setup su;
-	    uiWellLogDisplay* ld = new uiWellLogDisplay( loggrp, su );
-	    ld->setPrefWidth( 200 ); ld->setPrefHeight( 500 ); 
-	    logdisps_ += ld;
+	    uiWellLogDisplay::Setup su; su.sameaxisrange_ = true;
+	    uiWellLogDisplay* ld = new uiWellLogDisplay( wellgrp, su );
+	    ld->setPrefWidth( 150 ); ld->setPrefHeight( 650 );
 	    zdisplayrg_.include( logdata.dahrg_ );
-	    if ( idlog ) ld->attach( rightOf, logdisps_[idlog-1] );
+	    if ( idlog ) ld->attach( rightOf, logdisps_[logdisps_.size()-1] );
+	    ld->attach( ensureBelow, wellnm );
+	    logdisps_ += ld;
 	}
+	prevgrp = wellgrp;
     }
+    zdisplayrg_.sort();
 
-    loggrp->setHSpacing( 0 );
-    uiLabeledComboBox* llc = new uiLabeledComboBox( this, "Action" );
+    uiGroup* actiongrp = new uiGroup( this, "Action" );
+    actiongrp->attach( hCentered );
+    actiongrp->attach( ensureBelow, displaygrp );
+    const char* acts[] = { "Smooth", "Remove Spikes", "Clip", 0 };
+    uiLabeledComboBox* llc = new uiLabeledComboBox( actiongrp, acts, "Action" );
     actionfld_ = llc->box();
-    BufferStringSet acts;
-    acts.add( "Median filter" );
-    acts.add( "Remove spikes" );
-    actionfld_->addItems( acts );
-    llc->attach( ensureBelow, loggrp );
-    llc->attach( hCentered );
+    actionfld_->selectionChanged.notify(mCB(this,uiWellLogToolWin,actionSelCB));
 
     CallBack cb( mCB( this, uiWellLogToolWin, applyPushedCB ) );
-    applybut_ = new uiPushButton( this, "Apply", cb, true );
+    applybut_ = new uiPushButton( actiongrp, "Apply", cb, true );
     applybut_->attach( rightOf, llc );
 
+    uiLabeledSpinBox* spbgt = new uiLabeledSpinBox( actiongrp, "Window size" );
+    spbgt->attach( alignedBelow, llc );
+    gatefld_ = spbgt->box();
+    gatelbl_ = spbgt->label();
+
+    const char* txt = " Threshold ( window width )"; 
+    thresholdfld_ = new uiLabeledSpinBox( actiongrp, txt );
+    thresholdfld_->attach( rightOf, spbgt );
+    thresholdfld_->box()->setInterval( 1, 20, 1 );
+    thresholdfld_->box()->setValue( 3 );
+
     uiSeparator* horSepar = new uiSeparator( this );
-    horSepar->attach( stretchedBelow, llc );
+    horSepar->attach( stretchedBelow, actiongrp );
 
     uiPushButton* okbut = new uiPushButton( this, "&Ok",
 				mCB(this,uiWellLogToolWin,acceptOK), true );
     okbut->attach( leftBorder, 20 );
     okbut->attach( ensureBelow, horSepar );
 
-    uiLabel* savelbl = new uiLabel( this, "On OK save logs: " );
+    uiLabel* savelbl = new uiLabel( this, "On OK save logs:" );
     savelbl->attach( rightOf, okbut );
-    savefld_ = new uiGenInput( this, "with extension " );
+    savefld_ = new uiGenInput( this, "with extension" );
     savefld_->setElemSzPol( uiObject::Small );
     savefld_->setText( "_edited" );
     savefld_->attach( rightOf, savelbl );
@@ -199,11 +220,11 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
 
     uiPushButton* cancelbut = new uiPushButton( this, "&Cancel",
 				mCB(this,uiWellLogToolWin,rejectOK), true );
-    cancelbut->attach( rightBorder );
-    cancelbut->attach( ensureBelow, horSepar );
     cancelbut->attach( rightBorder, 20 );
-    overwritefld_->attach( ensureLeftOf, cancelbut );
+    cancelbut->attach( ensureBelow, horSepar );
+    cancelbut->attach( ensureRightOf, overwritefld_ );
 
+    actionSelCB(0);
     displayLogs();
 }
 
@@ -218,6 +239,22 @@ void  uiWellLogToolWin::overWriteCB(CallBacker*)
 {
     savefld_->setSensitive( !overwritefld_->isChecked() );
 }
+
+
+void  uiWellLogToolWin::actionSelCB( CallBacker* )
+{
+    const int act = actionfld_->currentItem();
+    thresholdfld_->display( act == 1 );
+    gatelbl_->setText( act >1 ? "Clip rate (%)" : "Window size" );
+    if ( act > 1 )
+	gatefld_->setInterval( 0, 100, 10 );
+    else
+	gatefld_->setInterval( 1, 300, 5 );
+
+    gatefld_->setValue( act ? 10 : 35 );
+}
+
+
 
 
 bool uiWellLogToolWin::acceptOK( CallBacker* )
@@ -240,6 +277,11 @@ bool uiWellLogToolWin::acceptOK( CallBacker* )
 		BufferString newnm( outplog->name() );
 		newnm += savefld_->text();
 		outplog->setName( newnm );
+		if ( ls.getLog( outplog->name() ) )
+		{
+		    mErrRet( "One or more logs with this name already exists."
+		    "\nPlease select a different extension for the new logs");
+		}
 		ls.add( outplog );
 	    }
 	    needsave_ = true; 
@@ -253,10 +295,9 @@ bool uiWellLogToolWin::rejectOK( CallBacker* )
 { close(); return true; }
 
 
-//TODO change ( just took the one from the tutWellTools as an example .. 
 void uiWellLogToolWin::applyPushedCB( CallBacker* )
 {
-    const int inpgate = 20;
+    const int act = actionfld_->currentItem();
     for ( int idldata=0; idldata<logdatas_.size(); idldata++ )
     {
 	LogData& ld = *logdatas_[idldata]; deepErase( ld.outplogs_ );
@@ -264,30 +305,53 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	{
 	    const Well::Log& inplog = *ld.inplogs_[idlog];
 	    Well::Log* outplog = new Well::Log( inplog );
-	    outplog->erase();
-	    const int sz = inplog.size(); 
-	    const int gate = inpgate % 2 ? inpgate : inpgate + 1;
-	    const int rad = gate / 2;
-	    Stats::WindowedCalc<float> wcalc(
-	    Stats::RunCalcSetup().require(Stats::Median), gate );
-	    for ( int idx=0; idx<sz+rad; idx++ )
-	    {
-		const int cpos = idx - rad;
-		if ( idx < sz )
-		{
-		    const float inval = inplog.value(idx);
-		    if (!mIsUdf(inval) )
-			wcalc += inval;
-		    if ( cpos >= rad )
-			outplog->addValue( inplog.dah(cpos), wcalc.median() );
-		}
-		else
-		    outplog->addValue( inplog.dah(cpos), inplog.value(cpos) );
-
-		if ( cpos<rad && cpos>=0 )
-		    outplog->addValue( inplog.dah(cpos), inplog.value(cpos) );
-	    }
+	    const int sz = inplog.size();
+	    const int gate = gatefld_->getValue(); 
+	    if ( sz< 2 || sz < 2*gate ) continue;
 	    ld.outplogs_ += outplog;
+	    const float* inp = inplog.valArr();
+	    float* outp = outplog->valArr();
+	    if ( act == 0 )
+	    {
+		Smoother1D<float> sm;
+		sm.setInput( inp, sz );
+		sm.setOutput( outp );
+		const int winsz = gatefld_->getValue();
+		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
+		sm.execute();
+	    }
+	    else if ( act == 1 )
+	    {
+		const int fac = thresholdfld_->box()->getValue();
+		float prevval = outp[0];
+		for ( int idx=gate/2; idx<sz-gate; idx+=gate  )
+		{
+		    float avg = 0; 
+		    for ( int winidx = idx-gate/2; winidx<idx+gate/2; winidx++ )
+		    {
+			if ( !mIsUdf(outp[winidx]) ) avg += outp[winidx]/gate;
+		    }
+		    for ( int winidx = idx-gate/2; winidx<idx+gate/2; winidx++ )
+		    {
+			if ( !mIsUdf(outp[winidx]) && outp[winidx] > fac*avg )
+			    outp[winidx] = idx ? prevval : avg;
+			prevval = outp[winidx];
+		    }
+		}
+	    }
+	    else if ( act == 2 )
+	    {
+		Interval<float> rg;
+		float rate = gate/(float)100;
+		DataClipSampler dcs( sz );
+		dcs.add( outp, sz );
+		rg = dcs.getRange( rate );
+		for ( int idx=0; idx<sz; idx++ )
+		{
+		    if ( outp[idx] < rg.start ) outp[idx] = rg.start;
+		    if ( outp[idx] > rg.stop )  outp[idx] = rg.stop;
+		}
+	    }
 	}
     }
     displayLogs();
@@ -296,26 +360,28 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 
 void uiWellLogToolWin::displayLogs()
 {
+    int nrdisp = 0;
     for ( int idx=0; idx<logdatas_.size(); idx++ )
     {
 	ObjectSet<Well::Log>& inplogs = logdatas_[idx]->inplogs_;
 	ObjectSet<Well::Log>& outplogs = logdatas_[idx]->outplogs_;
 	for ( int idlog=0; idlog<inplogs.size(); idlog++ )
 	{
-	    uiWellLogDisplay* ld = logdisps_[idlog];
+	    uiWellLogDisplay* ld = logdisps_[nrdisp];
 	    uiWellLogDisplay::LogData* wld = &ld->logData( true );
 	    wld->wl_ = inplogs[idlog];
 	    wld->disp_.color_ = Color::stdDrawColor( 1 );
 	    wld->zoverlayval_ = 1;
 
 	    wld = &ld->logData( false );
-	    wld->wl_ = outplogs.validIdx( idlog ) ? outplogs[idx] : 0;
+	    wld->wl_ = outplogs.validIdx( idlog ) ? outplogs[idlog] : 0;
 	    wld->xrev_ = false;
 	    wld->zoverlayval_ = 2;
 	    wld->disp_.color_ = Color::stdDrawColor( 0 );
 
 	    ld->setZRange( zdisplayrg_ );
 	    ld->reDraw();
+	    nrdisp ++;
 	}
     }
 }

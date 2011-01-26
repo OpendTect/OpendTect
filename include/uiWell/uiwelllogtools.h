@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uiwelllogtools.h,v 1.2 2011-01-24 16:43:46 cvsbruno Exp $
+RCS:           $Id: uiwelllogtools.h,v 1.3 2011-01-26 08:49:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,13 +14,17 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 #include "bufstringset.h"
+#include "multiid.h"
 
 class uiListBox;
 class uiComboBox;
 class uiGenInput;
 class uiCheckBox;
+class uiLabel;
+class uiLabeledSpinBox;
 class uiMultiWellLogSel;
 class uiPushButton;
+class uiSpinBox;
 class uiWellLogDisplay;
 
 
@@ -36,6 +40,7 @@ public:
 				LogData(const Well::LogSet&);
 				~LogData();
 
+	MultiID			wellid_;
 	const char*		wellname_;
 	Interval<float>		dahrg_;
 
@@ -55,7 +60,6 @@ public:
 				uiWellLogToolWin(uiParent*,ObjectSet<LogData>&);
 				~uiWellLogToolWin();
 
-
     bool                	needSave() const        { return needsave_; }
 
     void			getLogDatas(ObjectSet<LogData>& lds) const
@@ -66,6 +70,9 @@ protected:
     uiComboBox*			actionfld_;
     uiCheckBox*			overwritefld_;
     uiGenInput*			savefld_;
+    uiSpinBox*			gatefld_;
+    uiLabel*			gatelbl_;
+    uiLabeledSpinBox*		thresholdfld_;
     uiPushButton*		applybut_;
     uiPushButton*               okbut_;
     uiPushButton*               cancelbut_;
@@ -77,6 +84,7 @@ protected:
 
     void			displayLogs();
 
+    void			actionSelCB(CallBacker*);
     void			overWriteCB(CallBacker*);
     void			applyPushedCB(CallBacker*);
     bool			acceptOK(CallBacker*);
