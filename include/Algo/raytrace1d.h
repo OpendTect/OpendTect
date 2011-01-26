@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.2 2011-01-25 22:48:10 cvsyuancheng Exp $
+ RCS:		$Id: raytrace1d.h,v 1.3 2011-01-26 08:25:01 cvshelene Exp $
 ________________________________________________________________________
 
 */
@@ -88,7 +88,7 @@ public:
 			mDefaultFactoryInstantiation(RayTracer1D,
 				AngleRayTracer,"AngleRaytracer","Angle");
     			AngleRayTracer();
-			~AngleRayTracer();			
+			~AngleRayTracer()		{};			
 
     float		getSinAngle(int layeridx,int offsetidx) const;
 
@@ -108,7 +108,7 @@ public:
 				IsotropicRayTracer,"IsotropicRaytracer",
 				"Isotropic");
     			IsotropicRayTracer();
-			~IsotropicRayTracer();			
+			~IsotropicRayTracer()			{};
 
     struct GeomSpread   { enum Type { None, Distance, Vint }; };
     void		setGeomSpread(GeomSpread::Type t) { geomspread_ = t; }
