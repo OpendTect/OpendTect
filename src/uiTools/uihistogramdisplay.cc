@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.20 2010-11-11 05:50:01 cvsnageswara Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.21 2011-01-26 09:23:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,7 +171,7 @@ void uiHistogramDisplay::updateHistogram()
     nrinpvals_ = 0;
     for ( int idx=0; idx<nrpts; idx++ )
     {
-	int seg = (int)((rc_.vals_[idx] - min) / step);
+	int seg = (int)((rc_.medvals_[idx] - min) / step);
 	if ( seg < -1 || seg > nrclasses_ )
 	   { pErrMsg("Huh"); continue; }
 

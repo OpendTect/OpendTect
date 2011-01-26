@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.28 2010-11-11 05:50:01 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.29 2011-01-26 09:23:59 cvsbert Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -276,7 +276,7 @@ void uiStatsDisplayWin::dataChanged( CallBacker* )
 void uiStatsDisplayWin::setData( const Stats::RunCalc<float>& rc, int idx )
 {
     if ( disps_.validIdx(idx) )
-	disps_[idx]->setData( rc.vals_.arr(), rc.vals_.size() );
+	disps_[idx]->setData( rc.medvals_.arr(), rc.medvals_.size() );
 }
 
 
