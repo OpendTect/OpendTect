@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.9 2011-01-19 10:08:17 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.10 2011-01-26 12:29:14 cvshelene Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -217,6 +217,8 @@ void uiAttribDescSetBuild::addReq( CallBacker* )
     RefMan<Attrib::Data2DHolder> d2dh = new Attrib::Data2DHolder();
     PtrMan<EngineMan> aem = createEngineMan( did );
 
+    DataPointSet* dps = descset_.createDataPointSet(
+					    Attrib::DescSetup().hidden(false) );
     PtrMan<Processor> proc = descset_.is2D() ?
 			    aem->createScreenOutput2D( errmsg, *d2dh )
 			    : aem->createDataCubesOutput( errmsg, 0  );

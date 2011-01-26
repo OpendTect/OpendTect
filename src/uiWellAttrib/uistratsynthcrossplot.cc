@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.8 2011-01-25 13:55:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.9 2011-01-26 12:29:14 cvshelene Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.8 2011-01-25 13:55
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlayseqattrib.h"
+#include "attribdesc.h"
 #include "attribdescset.h"
 #include "datapointset.h"
 #include "posvecdataset.h"
@@ -133,8 +134,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 					const Strat::Level& lvl,
 					const StepInterval<float>& extrwin )
 {
-    // DataPointSet* dps = seisattrs.getDataPointSet();
-    DataPointSet* dps = 0;
+    DataPointSet* dps = seisattrs.createDataPointSet(Attrib::DescSetup());
     if ( !dps )
 	{ uiMSG().error(seisattrs.errMsg()); return false; }
     for ( int iattr=0; iattr<seqattrs.size(); iattr++ )
