@@ -460,6 +460,10 @@ AngleRayTracer::AngleRayTracer()
 {}
 
 
+AngleRayTracer::~AngleRayTracer()
+{ delete sini_; }
+
+
 float AngleRayTracer::getSinAngle( int layer, int offset ) const
 {
     if ( !sini_ || layer<0 || layer>=sini_->info().getSize(0) || 
@@ -503,6 +507,10 @@ IsotropicRayTracer::IsotropicRayTracer()
     , geomspread_( GeomSpread::None )
     , projectincwave_( false )
 {}
+
+
+IsotropicRayTracer::~IsotropicRayTracer()
+{ delete reflectivity_; }
 
 
 float_complex IsotropicRayTracer::getReflectivity( int layer, int offset ) const
