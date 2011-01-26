@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.53 2011-01-06 15:25:01 cvsbert Exp $
+ RCS:           $Id: attribdesc.h,v 1.54 2011-01-26 12:27:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,22 @@ class ValParam;
 
 typedef void(*DescStatusUpdater)(Desc&);
 typedef void(*DescDefaultsUpdater)(Desc&);
+
+mClass DescSetup
+{
+    public:
+				    DescSetup();
+	mDefSetupClssMemb(DescSetup,bool,is2d);
+	mDefSetupClssMemb(DescSetup,bool,ps);
+	mDefSetupClssMemb(DescSetup,bool,singletraceonly);
+	mDefSetupClssMemb(DescSetup,bool,usingtrcpos);
+	mDefSetupClssMemb(DescSetup,bool,depthonly);
+	mDefSetupClssMemb(DescSetup,bool,timeonly);
+	mDefSetupClssMemb(DescSetup,bool,hidden);
+	mDefSetupClssMemb(DescSetup,bool,steering);
+	mDefSetupClssMemb(DescSetup,bool,stored);
+};
+
 
 mClass InputSpec
 {

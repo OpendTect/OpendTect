@@ -5,19 +5,34 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.78 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.79 2011-01-26 12:27:15 cvshelene Exp $";
 
 #include "attribdesc.h"
 
 #include "attribparam.h"
 #include "attribdescset.h"
 #include "attribstorprovider.h"
-#include "seistrctr.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "seistrctr.h"
+#include "survinfo.h"
 
 namespace Attrib
 {
+
+DescSetup::DescSetup()
+	: is2d_(false)
+	      , ps_(false)
+	      , singletraceonly_(true)
+	      , usingtrcpos_(true)
+	      , depthonly_(!SI().zIsTime())
+	      , timeonly_(SI().zIsTime())
+	      , hidden_(false)
+	      , steering_(false)
+	      , stored_(false)
+{
+}
+
 
 bool InputSpec::operator==(const InputSpec& b) const
 {
