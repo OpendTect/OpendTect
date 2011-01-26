@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.103 2011-01-24 15:31:24 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.104 2011-01-26 15:32:20 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -678,7 +678,12 @@ bool StorageProvider::computeData( const DataHolder& output,
 SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
 {
     const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-    DataPack::FullID fid( lk.lineName() );
+    BufferString bstring = lk.lineName();
+    const char* linenm = bstring.buf();
+    if ( !linenm || *linenm != '#' )
+	return 0;
+
+    DataPack::FullID fid( linenm+1 );
     DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid), false );
     mDynamicCastGet(SeisTrcBufDataPack*,stbdtp, dtp)
     if ( !stbdtp )
