@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.100 2011-01-20 14:03:36 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.101 2011-01-26 12:28:32 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -13,7 +13,9 @@ static const char* rcsID = "$Id: attribdescset.cc,v 1.100 2011-01-20 14:03:36 cv
 #include "attribfactory.h"
 #include "attribsel.h"
 #include "bufstringset.h"
+#include "datacoldef.h"
 #include "datapack.h"
+#include "datapointset.h"
 #include "gendefs.h"
 #include "keystrs.h"
 #include "iopar.h"
@@ -1075,6 +1077,25 @@ void DescSet::setContainStoredDescOnly( bool yn )
 
     if ( defattribid_.isValid() )
 	defattribid_.setStored( yn );
+}
+
+
+DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu ) const
+{
+    TypeSet<DataPointSet::DataRow> pts;
+    ObjectSet<DataColDef> dcds;
+    for ( int idx=0; idx<descs_.size(); idx++ )
+    {
+	const Attrib::Desc* tmpdsc = desc(idx);
+	if ( !tmpdsc || (tmpdsc->isHidden() && !dsu.hidden_) )
+	    continue;
+
+	BufferString defstr;
+	tmpdsc->getDefStr( defstr );
+	dcds += new DataColDef( tmpdsc->userRef(), defstr.buf() );
+    }
+
+    return new DataPointSet( pts, dcds, is2D() );
 }
 
 }; // namespace Attrib

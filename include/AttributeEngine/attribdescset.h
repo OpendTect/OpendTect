@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.45 2010-11-18 13:03:16 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.46 2011-01-26 12:28:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,11 +18,12 @@ ________________________________________________________________________
 #include "attribdescid.h"
 
 class BufferStringSet;
+class DataPointSet;
 class IOPar;
 
 namespace Attrib 
 {
-class Desc;
+class Desc; class DescSetup;
 
 mClass DescSet : public CallBacker
 {
@@ -115,6 +116,9 @@ public:
     				//!<will prepare strings for each desc, format :
     				//!<DescID`definition string
     void			fillInAttribColRefs(BufferStringSet&) const;
+
+    				//!<will create an empty DataPointSet
+    DataPointSet*		createDataPointSet(Attrib::DescSetup) const;
 
     void			setContainStoredDescOnly(bool yn);
     inline bool			containsStoredDescOnly() const
