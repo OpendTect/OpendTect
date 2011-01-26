@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.21 2011-01-26 08:54:54 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.22 2011-01-26 09:20:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -503,7 +503,7 @@ inline T RunCalc<T>::weightedMedian( int* idx_of_med ) const
     T* valarr = const_cast<T*>( medvals_.arr() );
     mGetIdxArr(int,idxs,sz)
     quickSort( valarr, idxs, sz );
-    TypeSet<float> wtcopy( medwts_ );
+    TypeSet<T> wtcopy( medwts_ );
     float wsum = 0;
     for ( int idx=0; idx<sz; idx++ )
     {
