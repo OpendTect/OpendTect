@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.20 2010-04-09 14:20:53 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.21 2011-01-26 08:54:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,7 +136,7 @@ public:
     inline T		clipVal(float ratio,bool upper) const;
     			//!< require median; 0 <= ratio <= 1
 
-    TypeSet<T>		vals_;
+    TypeSet<T>		medvals_;
 
 protected:
 
@@ -155,13 +155,10 @@ protected:
     T			sum_wxx;
     TypeSet<int>	clss_;
     TypeSet<T>		clsswt_;
+    TypeSet<T>		medwts_;
 
     inline bool		isZero( const T& t ) const	{ return !t; }
-
-    mutable int		curmedidx_;
-    inline bool		findMedIdx(T) const;
-    inline bool		addExceptMed(T,T);
-    inline bool		remExceptMed(T,T);
+    inline T		weightedMedian(int*) const;
 
 };
 
@@ -241,20 +238,27 @@ template <class T> inline
 void RunCalc<T>::clear()
 {
     sum_x = sum_w = sum_xx = sum_wx = sum_wxx = 0;
-    nradded_ = nrused_ = minidx_ = maxidx_ = curmedidx_ = 0;
+    nradded_ = nrused_ = minidx_ = maxidx_ = 0;
     minval_ = maxval_ = mUdf(T);
-    clss_.erase(); clsswt_.erase(); vals_.erase();
+    clss_.erase(); clsswt_.erase(); medvals_.erase(); medwts_.erase();
 }
 
 
 template <class T> inline
-bool RunCalc<T>::addExceptMed( T val, T wt )
+RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
 {
     nradded_++;
     if ( mIsUdf(val) )
-	return false;
+	return *this;
     if ( setup_.weighted_ && (mIsUdf(wt) || isZero(wt)) )
-	return false;
+	return *this;
+
+    if ( setup_.needmed_ )
+    {
+	medvals_ += val;
+	if ( setup_.weighted_ )
+	    medwts_ += wt;
+    }
 
     if ( setup_.needextreme_ )
     {
@@ -291,18 +295,34 @@ bool RunCalc<T>::addExceptMed( T val, T wt )
     }
 
     nrused_++;
-    return true;
+    return *this;
 }
 
 
 template <class T> inline
-bool RunCalc<T>::remExceptMed( T val, T wt )
+RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
 {
     nradded_--;
     if ( mIsUdf(val) )
-	return false;
+	return *this;
     if ( setup_.weighted_ && (mIsUdf(wt) || isZero(wt)) )
-	return false;
+	return *this;
+
+    if ( setup_.needmed_ )
+    {
+	int idx = medvals_.size();
+	while ( true )
+	{
+	    idx = medvals_.indexOf( val, false, idx-1 );
+	    if ( idx < 0 ) break;
+	    if ( medwts_[idx] == wt )
+	    {
+		medvals_.remove( idx );
+		medwts_.remove( idx );
+		break;
+	    }
+	}
+    }
 
     if ( setup_.needmostfreq_ )
     {
@@ -336,22 +356,6 @@ bool RunCalc<T>::remExceptMed( T val, T wt )
     }
 
     nrused_--;
-    return true;
-}
-
-
-template <class T> inline
-RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
-{
-    if ( !addExceptMed(val,wt) || !setup_.needmed_ )
-	return *this;
-
-    int iwt = 1;
-    if ( setup_.weighted_ )
-	Conv::set( iwt, wt );
-    for ( int idx=0; idx<iwt; idx++ )
-	vals_ += val;
-
     return *this;
 }
 
@@ -366,69 +370,10 @@ RunCalc<T>& RunCalc<T>::addValues( int sz, const T* data, const T* weights )
 
 
 template <class T> inline
-bool RunCalc<T>::findMedIdx( T val ) const
-{
-    if ( curmedidx_ >= vals_.size() )
-	curmedidx_ = 0;
-
-    if ( vals_[curmedidx_] != val ) // oh well, need to search anyway
-    {
-	curmedidx_ = vals_.indexOf( val );
-	if ( curmedidx_ < 0 )
-	    { curmedidx_ = 0; return false; }
-    }
-
-    return true;
-}
-
-
-template <class T> inline
 RunCalc<T>& RunCalc<T>::replaceValue( T oldval, T newval, T wt )
 {
-    remExceptMed( oldval, wt );
-    addExceptMed( newval, wt );
-    if ( !setup_.needmed_ || vals_.isEmpty() )
-	return *this;
-
-    int iwt = 1;
-    if ( setup_.weighted_ )
-	Conv::set( iwt, wt );
-
-    const bool newisudf = mIsUdf(newval);
-    for ( int idx=0; idx<iwt; idx++ )
-    {
-	if ( !findMedIdx(oldval) )
-	    break;
-
-	if ( newisudf )
-	    vals_.remove( curmedidx_ );
-	else
-	    vals_[curmedidx_] = newval;
-	curmedidx_++;
-    }
-
-    return *this;
-}
-
-
-template <class T> inline
-RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
-{
-    remExceptMed( val, wt );
-    if ( !setup_.needmed_ || vals_.isEmpty() )
-	return *this;
-
-    int iwt = 1;
-    if ( setup_.weighted_ )
-	Conv::set( iwt, wt );
-
-    for ( int idx=0; idx<iwt; idx++ )
-    {
-	if ( findMedIdx(val) )
-	    vals_.remove( curmedidx_ );
-    }
-
-    return *this;
+    removeValue( oldval, wt );
+    return addValue( newval, wt );
 }
 
 
@@ -519,12 +464,15 @@ template <class T>
 inline T RunCalc<T>::median( int* idx_of_med ) const
 {
     if ( idx_of_med ) *idx_of_med = 0;
-    const int sz = vals_.size();
+    const int sz = medvals_.size();
     if ( sz < 2 )
-	return sz < 1 ? mUdf(T) : vals_[0];
+	return sz < 1 ? mUdf(T) : medvals_[0];
+
+    if ( setup_.weighted_ )
+	return weightedMedian( idx_of_med );
 
     int mididx = sz / 2;
-    T* valarr = const_cast<T*>( vals_.arr() );
+    T* valarr = const_cast<T*>( medvals_.arr() );
     if ( !idx_of_med )
 	quickSort( valarr, sz );
     else
@@ -538,16 +486,43 @@ inline T RunCalc<T>::median( int* idx_of_med ) const
     if ( sz%2 == 0 )
     {
 	const int policy = setup_.medianEvenHandling();
-	if ( mididx == 0 )
-	    return policy ? (policy < 0 ? vals_[0] : vals_[1])
-					: (vals_[0] + vals_[1]) / 2;
 	if ( policy == 0 )
-	    return (vals_[mididx] + vals_[mididx-1]) / 2;
+	    return (medvals_[mididx] + medvals_[mididx-1]) / 2;
 	else if ( policy == 1 )
 	   mididx--;
     }
 
-    return vals_[ mididx ];
+    return medvals_[ mididx ];
+}
+
+
+template <class T>
+inline T RunCalc<T>::weightedMedian( int* idx_of_med ) const
+{
+    const int sz = medvals_.size();
+    T* valarr = const_cast<T*>( medvals_.arr() );
+    mGetIdxArr(int,idxs,sz)
+    quickSort( valarr, idxs, sz );
+    TypeSet<float> wtcopy( medwts_ );
+    float wsum = 0;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const_cast<T&>(medwts_[idx]) = wtcopy[ idxs[idx] ];
+	wsum += medwts_[idx];
+    }
+    delete [] idxs;
+
+    const float hwsum = wsum * 0.5;
+    wsum = 0;
+    int medidx = 0;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	wsum += medwts_[idx];
+	if ( wsum >= hwsum )
+	    { medidx = idx; break; }
+    }
+    if ( idx_of_med ) *idx_of_med = medidx;
+    return valarr[ medidx ];
 }
 
 
@@ -650,10 +625,10 @@ inline T RunCalc<T>::clipVal( float ratio, bool upper ) const
 {
     mRunCalc_ChkEmpty(T);
     (void)median();
-    const int lastidx = vals_.size();
+    const int lastidx = medvals_.size();
     const float fidx = ratio * lastidx;
     const int idx = fidx <= 0 ? 0 : (fidx > lastidx ? lastidx : (int)fidx);
-    return vals_[upper ? lastidx - idx : idx];
+    return medvals_[upper ? lastidx - idx : idx];
 }
 
 
@@ -740,7 +715,8 @@ T WindowedCalc<T>::extreme( int* index_of_extr ) const
 template <class T> inline
 T WindowedCalc<T>::median( int* index_of_med ) const
 {
-    RunCalc<T> calc( RunCalcSetup().require(Stats::Median) );
+    RunCalcSetup rcs( calc_.setup().weighted_ );
+    RunCalc<T> calc( rcs.require(Stats::Median) );
     fillCalc( calc );
     return calc.median( index_of_med );
 }
