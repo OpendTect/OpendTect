@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.2 2011-01-24 16:43:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimultiwelllogsel.cc,v 1.3 2011-01-26 08:49:21 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -118,7 +118,8 @@ void uiMultiWellLogSel::getSelLogNames( BufferStringSet& lognms ) const
 { logsfld_->getSelectedItems( lognms ); }
 
 
-void uiMultiWellLogSel::getLimitMarkers( const char* top, const char* bot) const
+void uiMultiWellLogSel::getLimitMarkers( BufferString& top, 
+					 BufferString& bot) const
 { top = topmarkfld_->text(); bot = botmarkfld_->text(); }
 
 

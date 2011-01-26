@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.2 2011-01-24 16:43:46 cvsbruno Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.3 2011-01-26 08:49:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
     void		getSelWellNames(BufferStringSet&) const;
     void		getSelWellIDs(BufferStringSet&) const;
 
-    void		getLimitMarkers(const char* top,const char* bot) const;
+    void		getLimitMarkers(BufferString& t,BufferString& b) const;
     void		getLimitDists(float& top,float& bot) const;
 
     void		update(); //call this when data changed

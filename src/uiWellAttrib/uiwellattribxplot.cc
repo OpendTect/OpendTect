@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.38 2011-01-25 09:41:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.39 2011-01-26 08:49:21 cvsbruno Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -38,6 +38,7 @@ static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.38 2011-01-25 09:41:12
 #include "uilistbox.h"
 #include "uicombobox.h"
 #include "uimsg.h"
+#include "uimultiwelllogsel.h"
 #include "uitaskrunner.h"
 #include "unitofmeasure.h"
 
@@ -56,19 +57,15 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 {
     uiLabeledListBox* llba = new uiLabeledListBox( this, "Attributes", true );
     attrsfld_ = llba->box();
-    uiLabeledListBox* llbw = new uiLabeledListBox( this, "Wells", true );
-    wellsfld_ = llbw->box();
-    llbw->attach( alignedBelow, llba );
-    uiLabeledListBox* llbl = new uiLabeledListBox( this, "Logs", true,
-						   uiLabeledListBox::RightTop );
-    logsfld_ = llbl->box();
-    llbl->attach( rightTo, llbw );
+
+    welllogselfld_ = new uiMultiWellLogSel( this );
+    welllogselfld_->attach( ensureBelow, llba );
 
     const float inldist = SI().inlDistance();
     radiusfld_ = new uiGenInput( this, "Radius around wells",
 	    			 FloatInpSpec((float)((int)(inldist+.5))) );
-    radiusfld_->attach( alignedBelow, llbw );
-    radiusfld_->attach( ensureBelow, llbl );
+    radiusfld_->attach( alignedBelow, llba );
+    radiusfld_->attach( ensureBelow, welllogselfld_ );
 
     uiGroup* attgrp = radiusfld_;
     if ( !ads_.is2D() )
@@ -80,27 +77,11 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 	attgrp = posfiltfld_;
     }
 
-    uiLabeledComboBox* llc0 = new uiLabeledComboBox( this, "Extract between" );
-    topmarkfld_ = llc0->box();
-    topmarkfld_->setName( "Top marker" );
-    llc0->attach( alignedBelow, attgrp );
-    botmarkfld_ = new uiComboBox( this, "Bottom marker" );
-    botmarkfld_->attach( rightOf, llc0 );
-    BufferString txt = "Distance above/below ";
-    txt += SI().depthsInFeetByDefault() ? "(ft)" : "(m)";
-    abovefld_ = new uiGenInput( this, txt,
-	    			FloatInpSpec(0).setName("Distance above") );
-    abovefld_->attach( alignedBelow, llc0 );
-    belowfld_ = new uiGenInput( this, "", 
-	    			FloatInpSpec(0).setName("Distance below") );
-    belowfld_->attach( rightOf, abovefld_ );
-
-    logresamplfld_ = new uiGenInput( this, "Log resampling method",
-		  StringListInpSpec(Stats::UpscaleTypeNames()) );
-    logresamplfld_->attach( alignedBelow, abovefld_ );
+    logresamplfld_ = new uiGenInput( this, "     Log resampling method",
+			      StringListInpSpec(Stats::UpscaleTypeNames()) );
+    logresamplfld_->attach( alignedBelow, attgrp );
 
     setDescSet( d );
-    finaliseDone.notify( mCB(this,uiWellAttribCrossPlot,initWin) );
 }
 
 #define mDPM DPM(DataPackMgr::PointID())
@@ -108,44 +89,6 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 uiWellAttribCrossPlot::~uiWellAttribCrossPlot()
 {
     delete const_cast<Attrib::DescSet*>(&ads_);
-    deepErase( wellobjs_ );
-}
-
-
-void uiWellAttribCrossPlot::initWin( CallBacker* )
-{
-    wellsfld_->setEmpty(); logsfld_->setEmpty();
-    topmarkfld_->setEmpty(); botmarkfld_->setEmpty();
-    deepErase( wellobjs_ );
-
-    Well::InfoCollector wic;
-    uiTaskRunner tr( this );
-    if ( !tr.execute(wic) ) return;
-
-    BufferStringSet markernms, lognms;
-    markernms.add( Well::TrackSampler::sKeyDataStart() );
-    for ( int iid=0; iid<wic.ids().size(); iid++ )
-    {
-	IOObj* ioobj = IOM().get( *wic.ids()[iid] );
-	if ( !ioobj ) continue;
-	wellobjs_ += ioobj;
-	wellsfld_->addItem( ioobj->name() );
-
-	const BufferStringSet& logs = *wic.logs()[iid];
-	for ( int ilog=0; ilog<logs.size(); ilog++ )
-	    lognms.addIfNew( logs.get(ilog) );
-	const Well::MarkerSet& mrkrs = *wic.markers()[iid];
-	for ( int imrk=0; imrk<mrkrs.size(); imrk++ )
-	    markernms.addIfNew( mrkrs[imrk]->name() );
-    }
-    markernms.add( Well::TrackSampler::sKeyDataEnd() );
-
-    for ( int idx=0; idx<lognms.size(); idx++ )
-	logsfld_->addItem( lognms.get(idx) );
-    topmarkfld_->addItems( markernms );
-    botmarkfld_->addItems( markernms );
-    topmarkfld_->setCurrentItem( 0 );
-    botmarkfld_->setCurrentItem( markernms.size() - 1 );
 }
 
 
@@ -197,6 +140,7 @@ static void addDCDs( uiListBox* lb, ObjectSet<DataColDef>& dcds,
 }
 
 
+
 #define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
 
 bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
@@ -206,9 +150,8 @@ bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
     Well::TrackSampler wts( ioobjids, dpss, SI().zIsTime() );
     wts.for2d = false; wts.lognms = lognms;
     wts.locradius = radiusfld_->getfValue();
-    wts.topmrkr = topmarkfld_->text(); wts.botmrkr = botmarkfld_->text();
-    wts.above = abovefld_->getfValue(0,0);
-    wts.below = belowfld_->getfValue(0,0);
+    welllogselfld_->getLimitMarkers( wts.topmrkr, wts.botmrkr );
+    welllogselfld_->getLimitDists( wts.above, wts.below );
     wts.mkdahcol = true;
     uiTaskRunner tr( this );
     if ( !tr.execute(wts) )
@@ -255,20 +198,16 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     BufferString unit( "MD" );
     SI().depthsInFeetByDefault() ? unit.add( "(ft)" ) : unit.add( "(m)" );
     dcds += new DataColDef( unit );
-    BufferStringSet lognms; addDCDs( logsfld_, dcds, lognms );
-    BufferStringSet attrnms; addDCDs( attrsfld_, dcds,  attrnms );
+    BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
+    for ( int idx=0; idx<lognms.size(); idx++ )
+	dcds += new DataColDef( lognms[idx]->buf() );
     if ( lognms.isEmpty() )
 	mErrRet("Please select at least one log")
+    BufferStringSet attrnms; addDCDs( attrsfld_, dcds,  attrnms );
 
     BufferStringSet ioobjids, wellnms;
-    for ( int idx=0; idx<wellsfld_->size(); idx++ )
-    {
-	if ( wellsfld_->isSelected(idx) )
-	{
-	    ioobjids.add( wellobjs_[idx]->key() );
-	    wellnms.add( wellobjs_[idx]->name() );
-	}
-    }
+    welllogselfld_->getSelWellNames( wellnms );
+    welllogselfld_->getSelWellIDs( ioobjids );
     if ( ioobjids.isEmpty() )
 	mErrRet("Please select at least one well")
 
