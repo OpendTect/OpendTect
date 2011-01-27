@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.104 2011-01-26 15:32:20 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.105 2011-01-27 13:02:06 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -432,6 +432,13 @@ void StorageProvider::updateStorageReqs( bool )
 
     mscprov_->setStepout( desbufferstepout_.inl, desbufferstepout_.crl, false );
     mscprov_->setStepout( reqbufferstepout_.inl, reqbufferstepout_.crl, true );
+}
+
+
+SeisMSCProvider* StorageProvider::getMSCProvider( bool& needmscprov) const
+{
+    needmscprov = isondisc_;
+    return mscprov_;
 }
 
 

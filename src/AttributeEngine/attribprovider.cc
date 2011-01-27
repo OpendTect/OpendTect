@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.127 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.128 2011-01-27 13:02:06 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -522,7 +522,10 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    const int res = inputs_[idx]->moveToNextTrace(pos, firstcheck);
 	    if ( res!=1 ) return res;
 
-	    if ( !inputs_[idx]->getMSCProvider() ) continue;
+	    bool needmscprov = true;
+	    if ( !inputs_[idx]->getMSCProvider( needmscprov ) && needmscprov )
+		continue;
+
 	    if ( movinginputs.indexOf( inputs_[idx] ) < 0 )
 		movinginputs += inputs_[idx];
 	}
@@ -571,7 +574,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 		BinID step = getStepoutStep();
 		if ( prevbid.crl +step.crl <= desiredvolume_->hrg.stop.crl )
 		    currentbid_.crl = prevbid.crl +step.crl;
-		else if ( prevbid.inl +step.inl <= desiredvolume_->hrg.stop.inl )
+		else if ( prevbid.inl +step.inl <= desiredvolume_->hrg.stop.inl)
 		{
 		    currentbid_.inl = prevbid.inl +step.inl;
 		    currentbid_.crl = desiredvolume_->hrg.start.crl;
@@ -700,8 +703,14 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
     bool inp2moved = false;
     while ( true )
     {
-	int compres = input1->getMSCProvider()->
-	    			comparePos( *input2->getMSCProvider() );
+	//TODO implement case !isondisc_ ?
+	bool needmscp1 = true;
+	bool needmscp2 = true;
+	SeisMSCProvider* seismscprov1 = input1->getMSCProvider( needmscp1 );
+	SeisMSCProvider* seismscprov2 = input1->getMSCProvider( needmscp1 );
+	int compres = seismscprov1 && seismscprov2 ? 
+	    		seismscprov1->comparePos( *seismscprov2 )
+			: -1;
 
 	if ( compres == 0 )
 	    break;
@@ -1007,12 +1016,12 @@ const DataHolder* Provider::getDataDontCompute( const BinID& relpos ) const
 }
 
 
-SeisMSCProvider* Provider::getMSCProvider() const
+SeisMSCProvider* Provider::getMSCProvider( bool& needmscprov ) const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
 	if ( !inputs_[idx] ) continue;
-	SeisMSCProvider* res = inputs_[idx]->getMSCProvider();
+	SeisMSCProvider* res = inputs_[idx]->getMSCProvider( needmscprov );
 	if ( res ) return res;
     }
 

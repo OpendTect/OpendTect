@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.35 2011-01-20 12:56:05 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.36 2011-01-27 13:02:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ protected:
     bool		allowParallelComputation() const { return false; }
 
     //From disc
-    SeisMSCProvider*	getMSCProvider() const	{ return mscprov_; }
+    SeisMSCProvider*	getMSCProvider(bool&) const;
     bool		initMSCProvider();
     bool		setMSCProvSelData();
 
