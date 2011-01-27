@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.1 2011-01-26 23:10:42 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.2 2011-01-27 15:25:38 cvsyuancheng Exp $";
 
 #include "prestackanglemute.h"
 #include "prestackmute.h"
@@ -151,6 +151,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int )
 	Array1DSlice<float> slice( output->data() );
 	slice.setDimMap( 0, Gather::zDim() );
 
+	const float cutoffsin = sin( mutecutoff_*M_PI/180);
 	for ( int ioffs=0; ioffs<nroffsets; ioffs++ )
 	{
 	    slice.setPos( Gather::offsetDim(), ioffs );
@@ -178,28 +179,10 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int )
 		continue;
 
 	    vrg.step = vrg.width() / nrlayers;
-	    SamplingData<float> vsd( vrg );
 
-	    const int siniidx = tail_ ? 0 : nrlayers-1;
-	    const float mutepos = Muter::mutePos( 
-		    rtracer_->getSinAngle(siniidx,ioffs), vsd );
+	    const float mutepos = 
+		Muter::mutePos( cutoffsin, SamplingData<float>(vrg) );
 	    muter_->mute( slice, nrlayers, mutepos );
-
-	    const int endidx = mutepos < 0 ? (int)mutepos - 1 : (int)mutepos;
-	    if ( tail_ )
-	    {
-		for ( int idy=endidx+1; idy<nrlayers; idy++ )
-		    slice.setValue( idy, mutecutoff_ );
-
-	    }
-	    else
-	    {
-		for ( int idy=0; idy<=endidx; idy++ )
-		    slice.setValue( idy, mutecutoff_ );
-	    }
-
-	    //for ( int il=0; il<nrlayers; il++ )
-		//output->data().set(ioffs,il,rtracer_->getSinAngle(il,ioffs));
 	}
     }
 
