@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.1 2011-01-26 23:10:42 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.2 2011-01-27 15:25:57 cvsyuancheng Exp $";
 
 #include "uiprestackanglemute.h"
 
@@ -57,7 +57,8 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
     topfld_ = new uiGenInput( this, "Mute type",
 	    BoolInpSpec(!processor_->isTailMute(),"Outer","Inner") );
     topfld_->attach( alignedBelow, srdepthfld_ );
-    cutofffld_ = new uiGenInput(this, "Mute Cutoff", FloatInpSpec(false));
+    cutofffld_ = new uiGenInput( this, "Mute cutoff angle (in degree)", 
+	    FloatInpSpec(false) );
     cutofffld_->attach( alignedBelow, topfld_ );
     cutofffld_->setValue( rt->muteCutoff() );
     taperlenfld_ = new uiGenInput( this, "Taper length (in samples)",
