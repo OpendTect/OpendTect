@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.51 2010-12-09 16:07:44 cvsbert Exp $
+ RCS:           $Id: flatview.h,v 1.52 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 class IOPar;
 class FlatView_CB_Rcvr;
 
-namespace ColTab { struct MapperSetup; };
+namespace ColTab { class MapperSetup; };
 
 
 namespace FlatView

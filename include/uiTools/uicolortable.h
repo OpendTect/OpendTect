@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.19 2010-06-04 05:50:15 cvssatyaki Exp $
+ RCS:           $Id: uicolortable.h,v 1.20 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiColorTableCanvas;
 class uiLineEdit;
 
 
-namespace ColTab { class Sequence; struct MapperSetup; }
+namespace ColTab { class Sequence; class MapperSetup; }
 
 mClass uiColorTableSel : public uiComboBox
 {

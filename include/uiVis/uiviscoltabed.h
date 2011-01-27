@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.27 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.28 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 namespace visSurvey { class SurveyObject; }
-namespace ColTab { class Sequence; struct MapperSetup; }
+namespace ColTab { class Sequence; class MapperSetup; }
 class uiColorTable;
 class uiGroup;
 class IOPar;

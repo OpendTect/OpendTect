@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.62 2010-12-09 11:43:45 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.63 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 
 class Executor;
-namespace ColTab{ class Sequence; struct MapperSetup; }
+namespace ColTab{ class Sequence; class MapperSetup; }
 namespace EM { class Horizon3D; }
 namespace visBase
 {

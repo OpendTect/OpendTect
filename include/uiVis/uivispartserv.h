@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.265 2011-01-19 17:18:58 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.h,v 1.266 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ namespace FlatView  { class DataDispPars; }
 namespace Threads   { class Mutex; }
 namespace visBase   { class DataObject; }
 namespace visSurvey { class Scene; }
-namespace ColTab    { class Sequence; struct MapperSetup; }
+namespace ColTab    { class Sequence; class MapperSetup; }
 namespace ZDomain   { class Info; }
 
 

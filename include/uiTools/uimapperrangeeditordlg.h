@@ -8,7 +8,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.h,v 1.7 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:		$Id: uimapperrangeeditordlg.h,v 1.8 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class uiPushButton;
 class uiMapperRangeEditor;
-namespace ColTab { struct MapperSetup; class Sequence; };
+namespace ColTab { class MapperSetup; class Sequence; };
 
 mClass uiMultiMapperRangeEditWin : public uiDialog
 {

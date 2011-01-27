@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.72 2010-12-27 05:42:55 cvsumesh Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.73 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ class SeisTrcInfo;
 class TaskRunner;
 class uiAttribDescSetEd;
 class uiAttribCrossPlot;
-namespace ColTab { struct MapperSetup; }
+namespace ColTab { class MapperSetup; }
 namespace Pick { class Set; }
 namespace VolProc { class Chain; }
 namespace ZDomain { class Info; }

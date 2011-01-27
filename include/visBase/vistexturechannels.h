@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.15 2010-09-15 06:37:10 cvskarthika Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.16 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ class TaskRunner;
 
 template <class T> class Array2D;
 
-namespace ColTab { class Mapper; struct MapperSetup; };
+namespace ColTab { class Mapper; class MapperSetup; };
 
 namespace visBase
 {

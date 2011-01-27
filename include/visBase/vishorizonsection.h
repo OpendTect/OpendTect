@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.48 2010-03-25 15:16:48 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.49 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ class ZAxisTransform;
 class TaskRunner;
 
 namespace Geometry { class BinIDSurface; }
-namespace ColTab { class Sequence; struct MapperSetup; }
+namespace ColTab { class Sequence; class MapperSetup; }
 
 namespace visBase
 {

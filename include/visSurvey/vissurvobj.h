@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.123 2011-01-14 13:37:04 cvsjaap Exp $
+ RCS:		$Id: vissurvobj.h,v 1.124 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ class SeisTrcBuf;
 class ZAxisTransform;
 class TaskRunner;
 
-namespace ColTab  { struct MapperSetup; class Sequence; }
+namespace ColTab  { class MapperSetup; class Sequence; }
 
 namespace visBase
 {

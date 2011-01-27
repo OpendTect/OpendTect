@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.22 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: coltabmapper.h,v 1.23 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,9 @@ namespace ColTab
   example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
  
  */
-mStruct MapperSetup : public CallBacker
+mClass MapperSetup : public CallBacker
 {
+public:
 			MapperSetup();
     enum Type		{ Fixed, Auto, HistEq };
     			DeclareEnumUtils(Type);

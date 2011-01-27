@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.65 2010-07-12 22:52:41 cvskris Exp $
+RCS:        $Id: vismpe.h,v 1.66 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ namespace visBase
     class Transformation;
 };
 
-namespace ColTab { struct MapperSetup; class Sequence; }
+namespace ColTab { class MapperSetup; class Sequence; }
 namespace MPE { class Engine; };
 class TaskRunner;
 

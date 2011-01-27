@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.15 2010-06-08 06:22:34 cvskarthika Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.16 2011-01-27 04:48:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class LegendKit;
 class Color;
-namespace ColTab { struct MapperSetup; }
+namespace ColTab { class MapperSetup; }
 
 namespace visBase
 {
