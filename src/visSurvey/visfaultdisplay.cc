@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.69 2011-01-14 13:37:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.70 2011-01-27 08:41:18 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1620,7 +1620,15 @@ const LineStyle* FaultDisplay::lineStyle() const
 
 void FaultDisplay::setLineStyle( const LineStyle& lst )
 {
-    drawstyle_->setLineStyle( lst );
+    if ( lineStyle()->width_<0 || lst.width_<0 )
+    {
+	drawstyle_->setLineStyle( lst );
+	// Refresh hack at transition SoIndexedLineSet3D<->SoIndexedLineSet
+	scene_->objectMoved( 0 );
+    }
+    else
+	drawstyle_->setLineStyle( lst );
+
     updateDisplay();
 }
 
