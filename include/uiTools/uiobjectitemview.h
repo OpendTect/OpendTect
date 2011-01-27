@@ -26,8 +26,8 @@ public:
 			    	uiObjectItemView(uiParent*);
 				~uiObjectItemView(){};
 
-    void 			addItem(uiObjectItem*,int stretch);
-    void 			insertItem(uiObjectItem*,int pos,int stretch);
+    void 			addItem(uiObjectItem*,int stretch=1);
+    void 			insertItem(uiObjectItem*,int pos,int stretch=1);
     void 			removeItem(uiObjectItem*);
 
     int				nrItems() const { return objectitems_.size(); }
