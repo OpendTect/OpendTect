@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.21 2011-01-10 08:48:52 raman Exp $
+ RCS:		$Id: flthortools.h,v 1.22 2011-01-27 06:59:11 raman Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,8 @@ public:
 
     bool		isInl() const			{ return isinl_; }
     int			lineNr() const			{ return nr_; }
-    const Interval<int>& range() const			{ return range_; }
+    const Interval<int>& trcRange() const		{ return trcrange_; }
+    const Interval<float>& zRange() const		{ return zrange_; }
     void		setIsInl(bool yn)		{ isinl_ = yn; }
     void		setLineNr(int nr)		{ nr_ = nr; }
 
@@ -62,8 +63,10 @@ public:
 				 float& imgz,bool forward) const;
 
     float		getZValFor(const BinID&) const;
+    bool                isOnPosSide(const BinID&,float) const;
     void		addValue(int id,const Coord3&)	{}
     void		computeRange();
+    bool                includes(const BinID&) const;
 
 protected:
 
@@ -75,7 +78,10 @@ protected:
     TypeSet<Coord3>	coords_;
     TypeSet<int>	coordindices_;
     TypeSet<int>	trcnrs_;	// For 2D only;
-    Interval<int>	range_;
+    Interval<int>	trcrange_;
+    Interval<float>	zrange_;
+
+    Threads::Mutex	mutex_;
 };
 
 
