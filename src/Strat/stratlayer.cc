@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.16 2010-12-22 16:12:21 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.17 2011-01-27 22:37:15 cvskris Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -185,9 +185,9 @@ AIModel* Strat::LayerSequence::getAIModel( int velidx, int denidx,
        					   bool isvel, bool isden ) const
 {
     const int sz = size();
-    TypeSet<AIModel::DataPoint> pts;
+    TypeSet<AILayer> layers;
     if ( sz < 1 )
-	return new AIModel( pts, 0 );
+	return new AIModel( layers, 0 );
 
     float prevvval = mUdf(float); float prevdval = mUdf(float);
     for ( int idx=0; idx<sz; idx++ )
@@ -213,10 +213,10 @@ AIModel* Strat::LayerSequence::getAIModel( int velidx, int denidx,
 
 	if ( !isvel ) vval = 1 / vval;
 	if ( !isden ) dval = dval / vval;
-	pts += AIModel::DataPoint( lay.zTop(), vval, dval );
+	layers += AILayer( lay.zTop(), vval, dval );
     }
 
-    return new AIModel( pts, layers_[sz-1]->zBot() );
+    return new AIModel( layers, layers_[sz-1]->zBot() );
 }
 
 
