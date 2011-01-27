@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.50 2011-01-20 11:14:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.51 2011-01-27 22:25:10 cvskris Exp $";
 
 #include "welltietoseismic.h"
 
@@ -88,7 +88,7 @@ void DataPlayer::resetAIModel()
     delete aimodel_; aimodel_ = 0;
     if ( !wd->d2TModel() || wd->d2TModel()->size() <= 2 ) 
 	return; 
-    TypeSet<AIModel::DataPoint> pts;
+    TypeSet<AILayer> pts;
     StepInterval<float> workintv = data_.timeintv_; 
     workintv.step /= cDefaultZResamplingFactor;
     const int worksz = workintv.nrSteps();
@@ -105,7 +105,7 @@ void DataPlayer::resetAIModel()
 	float dah = wd->d2TModel()->getDah( workintv.atIndex(idx) );
 	float vel = vellog.getValue( dah, true ); 
 	float den = denlog->getValue( dah, true ); 
-	pts += AIModel::DataPoint( dah, vel, den );
+	pts += AILayer( dah, vel, den );
 	lastdah = dah;
     }
     aimodel_ = new AIModel( pts, lastdah );
