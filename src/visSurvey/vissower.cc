@@ -4,7 +4,7 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID = "$Id: vissower.cc,v 1.1 2010-12-20 15:01:49 cvsjaap Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.2 2011-01-27 14:56:39 cvsjaap Exp $";
 
 
 #include "vissower.h"
@@ -100,6 +100,8 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo )
 	mReturnHandled( false );
 
     mode_ = Furrowing;
+    furrowstamp_ = Time::getMilliSeconds();
+
     if ( !accept(eventinfo) )
     {
 	mode_ = Idle;
@@ -191,6 +193,9 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
     }
 
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+
+    if ( Time::passedSince(furrowstamp_) < 200 )
+	singleseeded_ = true;
 
     int butstate = eventlist_[0]->buttonstate_;
     if ( !singleseeded_ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.40 2010-12-03 10:48:02 cvsjaap Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.41 2011-01-27 14:56:39 cvsjaap Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -776,6 +776,8 @@ bool Sower::activate( const Color& color, const MouseEvent& mouseevent )
 	mReturnHandled( false );
 
     mode_ = Furrowing;
+    furrowstamp_ = Time::getMilliSeconds();
+
     if ( !accept(mouseevent, false) )
     {
 	mode_ = Idle;
@@ -870,6 +872,9 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
     }
 
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+
+    if ( Time::passedSince(furrowstamp_) < 200 )
+	singleseeded_ = true;
 
     int butstate = eventlist_[0]->buttonState();
     if ( !singleseeded_ )

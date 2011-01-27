@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.22 2010-12-03 10:48:02 cvsjaap Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.23 2011-01-27 14:56:39 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,7 @@ protected:
     bool			singleseeded_;
     int				curknotid_;
     int				curknotstamp_;
+    int				furrowstamp_;
 };
 
 

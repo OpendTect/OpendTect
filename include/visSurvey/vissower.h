@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		December 2010
- RCS:		$Id: vissower.h,v 1.1 2010-12-20 15:01:49 cvsjaap Exp $
+ RCS:		$Id: vissower.h,v 1.2 2011-01-27 14:56:39 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -95,6 +95,8 @@ protected:
 
     EM::PosID				curpid_;
     int					curpidstamp_;
+
+    int					furrowstamp_;
 };
 
 
