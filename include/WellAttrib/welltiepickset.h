@@ -44,11 +44,7 @@ public:
     bool 	   		isSameSize();
     float 	   		findEvent(const SeisTrc&,float) const;
     void			setPickSetPos(bool issynth, int idx, float z);
-    void 	   		sortByPos()
-    				{ 
-				    sortByPos( synthpickset_ ); 
-				    sortByPos( seispickset_ );
-				}
+    void 	   		sortByPos();
     void 	   		setEventType(int);
     const TypeSet<Marker>& 	synthPickSet() const 	{ return synthpickset_;}
     const TypeSet<Marker>& 	seisPickSet() const 	{ return seispickset_; }

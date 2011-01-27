@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.32 2011-01-20 13:25:57 cvshelene Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.33 2011-01-27 11:26:07 cvsranojay Exp $";
 
 #include "arrayndimpl.h"
 #include "sorting.h"
@@ -130,6 +130,13 @@ void PickSetMgr::setPickSetPos( bool issynth, int idx, float z )
 {
     TypeSet<Marker>& pickset = issynth ? synthpickset_ : seispickset_;
     pickset[idx].zpos_ = z;
+}
+
+
+void PickSetMgr::sortByPos()
+{
+    sortByPos( synthpickset_ );
+    sortByPos( seispickset_ );
 }
 
 
