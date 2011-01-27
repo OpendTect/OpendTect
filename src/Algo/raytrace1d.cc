@@ -524,27 +524,6 @@ bool IsotropicRayTracer::doPrepare( int nrthreads )
     reflectivity_ = new Array2DImpl<float_complex>(layersize,offsets_.size());
     reflectivity_->setAll( 0 );
 
-    float maxvel = 0;
-    velmax_.erase();
-    for ( int layer=0; layer<layersize; layer++ )
-    {
-	if ( !layer )
-	{
-	    velmax_ += 0;
-	    continue;
-	}
-
-	if ( downisp_ || upisp_ )
-	{
-	    if ( pmodel_[layer-1]->Vint_ > maxvel )
-		maxvel = pmodel_[layer-1]->Vint_;
-	}
-	else if ( smodel_[layer-1]->Vint_ > maxvel )
-	    maxvel = smodel_[layer-1]->Vint_;
-
-	velmax_ += maxvel;
-    }
-
     float ztot = 0;
     sourcelayer_ = 0;
     ObjectSet<Layer>& dlayers = downisp_ ? pmodel_ : smodel_;
