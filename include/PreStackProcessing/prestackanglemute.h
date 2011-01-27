@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.1 2011-01-26 23:10:42 cvsyuancheng Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.2 2011-01-27 22:47:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class MultiID;
 class Muter;
-class AngleRayTracer;
+class RayTracer1D;
 namespace Vel { class VolumeFunctionSource; }
 
 namespace PreStack
@@ -36,7 +36,7 @@ public:
     bool		doPrepare(int nrthreads);
 
     			//Use this to set up parameters of the ray tracer
-    AngleRayTracer*	angleTracer()			{ return rtracer_; }
+    RayTracer1D*	angleTracer()			{ return rtracer_; }
     MultiID		velocityVolumeID() const	{ return velvolmid_; }
     bool		setVelocityMid(const MultiID& mid);
 
@@ -62,7 +62,7 @@ protected:
     bool		doWork(od_int64,od_int64,int);
 
     bool		raytraceparallel_;
-    AngleRayTracer*	rtracer_;
+    RayTracer1D*	rtracer_;
     MultiID		velvolmid_;   
     Muter*		muter_; 
     bool		tail_;
