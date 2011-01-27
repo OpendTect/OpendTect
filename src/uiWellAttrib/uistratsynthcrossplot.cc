@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.11 2011-01-27 14:32:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.12 2011-01-27 15:57:33 cvshelene Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
 #include "uiattribsetbuild.h"
 #include "uidatapointset.h"
 #include "uiseparator.h"
+#include "uitaskrunner.h"
 #include "uilabel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -24,6 +25,8 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.11 2011-01-27 14:3
 #include "stratlayseqattrib.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribengman.h"
+#include "attribprocessor.h"
 #include "datapointset.h"
 #include "posvecdataset.h"
 #include "datacoldef.h"
@@ -163,20 +166,36 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	uiMSG().error( "No positions for data extraction" );
 	delete dps; dps = 0;
     }
-    else if ( !extractSeisAttribs(*dps) || !extractLayerAttribs(*dps) )
+    else if ( !extractSeisAttribs(*dps,seisattrs)
+	    || !extractLayerAttribs(*dps,seqattrs) )
 	{ delete dps; dps = 0; }
 
     return dps;
 }
 
 
-bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps )
+bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
+						const Attrib::DescSet& attrs )
 {
+    BufferString errmsg;                                                        
+    PtrMan<Attrib::EngineMan> aem = createEngineMan( attrs );
+
+    PtrMan<Executor> exec = aem->getTableExtractor( dps, attrs, errmsg,0,false);
+    if ( !exec )                                                                
+    {                                                                           
+	uiMSG().error( errmsg );                                                
+	return false;
+    }
+
+    exec->setName( "computing attributes on DataPacks" );                       
+    uiTaskRunner dlg( this );                                                   
+    dlg.execute(*exec);
     return false;
 }
 
 
-bool uiStratSynthCrossplot::extractLayerAttribs( DataPointSet& dps )
+bool uiStratSynthCrossplot::extractLayerAttribs( DataPointSet& dps,
+				     const Strat::LaySeqAttribSet& seqattrs )
 {
     return true;
 }
@@ -194,4 +213,18 @@ bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
     uidps->setDeleteOnClose( true );
     uidps->show();
     return true;
+}
+
+
+Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
+					    const Attrib::DescSet& attrs ) const
+{                                                                               
+    Attrib::EngineMan* aem = new Attrib::EngineMan;                             
+
+    TypeSet<Attrib::SelSpec> attribspecs;
+    attrs.fillInSelSpecs( Attrib::DescSetup().hidden(false), attribspecs );
+
+    aem->setAttribSet( &attrs ); 
+    aem->setAttribSpecs( attribspecs );                                         
+    return aem;                                                                 
 }

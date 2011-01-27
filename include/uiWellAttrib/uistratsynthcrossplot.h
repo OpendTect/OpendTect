@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.8 2011-01-27 14:32:30 cvsbert Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.9 2011-01-27 15:57:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class SeisTrcBufDataPack;
 class uiAttribDescSetBuild;
 class uiStratLaySeqAttribSetBuild;
 namespace Strat { class Level; class LayerModel; class LaySeqAttribSet; }
-namespace Attrib { class DescSet; }
+namespace Attrib { class DescSet; class EngineMan; }
 
 
 /*!\brief Dialog specifying what to crossplot */
@@ -54,13 +54,17 @@ protected:
 	    				const Strat::LaySeqAttribSet&,
 					const Strat::Level&,
 					const StepInterval<float>&);
-    bool			extractSeisAttribs(DataPointSet&);
-    bool			extractLayerAttribs(DataPointSet&);
+    bool			extractSeisAttribs(DataPointSet&,
+	    					   const Attrib::DescSet&);
+    bool			extractLayerAttribs(DataPointSet&,
+						const Strat::LaySeqAttribSet&);
     bool			launchCrossPlot(const DataPointSet&,
 					const Strat::Level&,
 					const StepInterval<float>&);
 
     bool			acceptOK(CallBacker*);
+
+    Attrib::EngineMan*		createEngineMan(const Attrib::DescSet&) const;
 
 };
 
