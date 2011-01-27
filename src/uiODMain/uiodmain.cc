@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.138 2010-12-20 03:00:37 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.139 2011-01-27 04:24:44 cvsnanne Exp $";
 
 #include "uiodmain.h"
 
@@ -535,6 +535,7 @@ void uiODMain::restoreSession( const IOObj* ioobj )
     //ctabed_->updateColTabList();
     timer_.start( 200, true );
     sceneMgr().setToViewMode( true );
+    sceneMgr().updateTrees();
 }
 
 
