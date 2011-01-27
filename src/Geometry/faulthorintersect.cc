@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.4 2011-01-14 21:00:14 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.5 2011-01-27 20:34:06 cvsyuancheng Exp $";
 
 #include "faulthorintersect.h"
 
@@ -65,9 +65,6 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	    const RowCol hbid(fhi_.rrg_.snap(bid.inl),fhi_.crg_.snap(bid.crl));
 	    Coord3 horpos = fhi_.surf_.getKnot(hbid,true);
-	    if ( mIsUdf(horpos.z) )
-		horpos = fhi_.surf_.computePosition( horpos );
-
 	    (*fhi_.zprojs_[idx]) += horpos.z + fhi_.zshift_;
 	}
 
@@ -87,13 +84,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
     			fhi_.crg_.snap((*fhi_.ftbids_[idx])[idy+1].crl) );
 	    Coord3 horpos0 = fhi_.surf_.getKnot(bid0,true); 
 	    if ( mIsUdf(horpos0.z) )
-		horpos0 = fhi_.surf_.computePosition( horpos0 );
-	    if ( mIsUdf(horpos0.z) )
 		continue;
 	    
 	    Coord3 horpos1 = fhi_.surf_.getKnot(bid1,true); 
-	    if ( mIsUdf(horpos1.z) )
-		horpos1 = fhi_.surf_.computePosition( horpos1 );
 	    if ( mIsUdf(horpos1.z) )
 		continue;
 	    
