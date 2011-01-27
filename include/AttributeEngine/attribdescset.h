@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.46 2011-01-26 12:28:32 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.47 2011-01-27 13:58:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class IOPar;
 
 namespace Attrib 
 {
-class Desc; class DescSetup;
+class Desc; class DescSetup; class SelSpec;
 
 mClass DescSet : public CallBacker
 {
@@ -119,6 +119,8 @@ public:
 
     				//!<will create an empty DataPointSet
     DataPointSet*		createDataPointSet(Attrib::DescSetup) const;
+    void			fillInSelSpecs(Attrib::DescSetup,
+	    				       TypeSet<Attrib::SelSpec>) const;
 
     void			setContainStoredDescOnly(bool yn);
     inline bool			containsStoredDescOnly() const

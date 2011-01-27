@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.101 2011-01-26 12:28:32 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.102 2011-01-27 13:58:47 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -1097,5 +1097,22 @@ DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu ) const
 
     return new DataPointSet( pts, dcds, is2D() );
 }
+
+
+void DescSet::fillInSelSpecs( Attrib::DescSetup dsu,
+			      TypeSet<Attrib::SelSpec> specs ) const
+{
+    //TODO check all dsu cases
+    for ( int idx=0; idx<descs_.size(); idx++ )                                 
+    {                                                                           
+	const Attrib::Desc* tmpdsc = desc(idx);                                 
+	if ( !tmpdsc || (tmpdsc->isHidden() && !dsu.hidden_) )
+	    continue;
+
+	Attrib::SelSpec sp( 0, tmpdsc->id() );
+	specs += sp;
+    }
+}
+
 
 }; // namespace Attrib
