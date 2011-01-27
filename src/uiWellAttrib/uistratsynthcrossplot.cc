@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.10 2011-01-27 14:15:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.11 2011-01-27 14:32:30 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -158,9 +158,27 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     }
     dps->dataChanged();
 
-    //TODO use attribute engine to fill relevant part
-    //TODO use LaySeqAttribCalc to fill other part
+    if ( dps->isEmpty() )
+    {
+	uiMSG().error( "No positions for data extraction" );
+	delete dps; dps = 0;
+    }
+    else if ( !extractSeisAttribs(*dps) || !extractLayerAttribs(*dps) )
+	{ delete dps; dps = 0; }
+
+    return dps;
+}
+
+
+bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps )
+{
     return false;
+}
+
+
+bool uiStratSynthCrossplot::extractLayerAttribs( DataPointSet& dps )
+{
+    return true;
 }
 
 
