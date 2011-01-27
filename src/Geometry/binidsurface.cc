@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.22 2010-06-17 19:00:58 cvskris Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.23 2011-01-27 20:32:52 cvsyuancheng Exp $";
 
 #include "binidsurface.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: binidsurface.cc,v 1.22 2010-06-17 19:00:58 cvsk
 #include "errh.h"
 #include "rowcol.h"
 #include "survinfo.h"
+#include "trigonometry.h"
 
 
 namespace Geometry
@@ -317,9 +318,60 @@ bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
 Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
 {
     const int index = getKnotIndex( rc );
-    if ( index<0 ) return Coord3::udf();
+    float posz = index<0 ? mUdf(float) : depths_->getData()[index];
+    Coord3 res = Coord3( SI().transform(BinID(rc)), posz );
 
-    return Coord3(SI().transform(BinID(rc)), depths_->getData()[index]);
+    if ( !mIsUdf(posz) || !interpolifudf )
+	return res;
+    
+    //interpolate
+    const StepInterval<int> rrg = rowRange();
+    const StepInterval<int> crg = colRange();
+
+    const int rd0 = abs(rrg.stop - rc.row); 
+    const int rd1 = abs(rrg.start - rc.row);
+    const int maxr = rd0>rd1 ? rd0 : rd1;
+    const int cd0 = abs(crg.stop - rc.col); 
+    const int cd1 = abs(crg.start - rc.col);
+    const int maxc = cd0>cd1 ? cd0 : cd1;
+    const int maxiteration = maxr > maxc ? maxr : maxc;
+    
+    TypeSet<Coord3> nearknots;
+    for ( int step=1; step<=maxiteration; step++ )
+    {
+	for ( int rs = -step; rs<=step; rs++ )
+	{
+	    int currow = rc.row + rs;
+	    if ( !rrg.includes(currow) )
+		continue;
+
+	    for ( int cs = -step; cs<=step; cs++ )
+	    {
+		int curcol = rc.col +cs;
+		if ( !crg.includes(curcol) )
+		    continue;
+
+		RowCol currc( currow, curcol );
+		const int curindex = getKnotIndex( currc );
+		const double curz = depths_->getData()[curindex];
+		if ( mIsUdf(curz) )
+		    continue;
+
+		nearknots += Coord3( SI().transform(BinID(currc)), curz );
+		if ( nearknots.size()==3 )
+		{
+		    float w[3];
+		    interpolateOnTriangle2D( res, nearknots[0], nearknots[1],
+			    nearknots[2], w[0], w[1], w[2] );
+		    res.z = w[0]*nearknots[0].z + w[1]*nearknots[1].z + 
+			w[2]*nearknots[2].z;
+		    return res;
+		}
+	    }
+	}
+    }
+
+    return res;
 }
 
 
