@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.5 2011-01-27 15:35:21 cvsyuancheng Exp $
+ RCS:		$Id: raytrace1d.h,v 1.6 2011-01-27 22:46:19 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -51,6 +51,12 @@ public:
     void		setOffsets(const TypeSet<float>& offsets);
     void		setModel(bool pw,const ObjectSet<Layer>&,OD::PtrPolicy);
     			/*!<\note Model must be in depth. */
+
+    virtual float	getSinAngle(int lidx,int offsetidx) const 
+    			{ return mUdf(float); }
+    virtual float_complex getReflectivity(int lidx, int offsetidx) const 
+    			{ return mUdf(float); }
+
 protected:
 
     od_int64		nrIterations() const;
