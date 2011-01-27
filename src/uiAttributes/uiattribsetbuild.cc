@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.10 2011-01-26 12:29:14 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.11 2011-01-27 15:55:35 cvshelene Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -23,9 +23,7 @@ static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.10 2011-01-26 12:29:14 
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsettr.h"
-#include "attribengman.h"
 #include "attribfactory.h"
-#include "attribprocessor.h"
 #include "linekey.h"
 #include "survinfo.h"
 #include "ioobj.h"
@@ -211,26 +209,6 @@ void uiAttribDescSetBuild::addReq( CallBacker* )
 
     if ( !doAttrEd(*desc,true) )
 	descset_.removeDesc( did );
-
-//test
-    BufferString errmsg;
-    RefMan<Attrib::Data2DHolder> d2dh = new Attrib::Data2DHolder();
-    PtrMan<EngineMan> aem = createEngineMan( did );
-
-    DataPointSet* dps = descset_.createDataPointSet(
-					    Attrib::DescSetup().hidden(false) );
-    PtrMan<Processor> proc = descset_.is2D() ?
-			    aem->createScreenOutput2D( errmsg, *d2dh )
-			    : aem->createDataCubesOutput( errmsg, 0  );
-    if ( !proc )
-    {
-	uiMSG().error( errmsg );
-	return;
-    }
-
-    proc->setName( "computing attributes on DataPacks" );
-    uiTaskRunner dlg( this );
-    dlg.execute(*proc);
 }
 
 
@@ -305,22 +283,3 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 }
 
 
-//for testing purpose
-
-Attrib::EngineMan* uiAttribDescSetBuild::createEngineMan(
-						const Attrib::DescID& did )
-{
-    Attrib::EngineMan* aem = new Attrib::EngineMan;
-
-    TypeSet<Attrib::SelSpec> attribspecs;
-    Attrib::SelSpec sp( 0, did );
-    attribspecs += sp;
-
-    CubeSampling cs;
-    LineKey lk;
-    aem->setAttribSet( &descset_ );
-    aem->setAttribSpecs( attribspecs );
-    aem->setLineKey( lk );
-    aem->setCubeSampling( cs );
-    return aem;
-}

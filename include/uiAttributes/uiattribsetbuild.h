@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsetbuild.h,v 1.7 2011-01-19 10:08:17 cvshelene Exp $
+ RCS:           $Id: uiattribsetbuild.h,v 1.8 2011-01-27 15:55:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,8 +74,6 @@ protected:
     void		rmReq(CallBacker*);
     void		openReq(CallBacker*);
     void		saveReq(CallBacker*);
-
-    Attrib::EngineMan*	createEngineMan(const Attrib::DescID&);	//test
 
 };
 
