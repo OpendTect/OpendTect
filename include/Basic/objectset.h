@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: objectset.h,v 1.4 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: objectset.h,v 1.5 2011-01-27 13:21:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
     inline virtual int		nrItems() const		{ return size(); }
 
     inline virtual bool		validIdx(int) const;
+    inline virtual bool		isPresent(const T*) const;
     inline virtual int		indexOf(const T*) const;
     inline virtual T*		operator[](int);
     inline virtual const T*	operator[](int) const;
@@ -226,9 +227,17 @@ T* ObjectSet<T>::operator[]( const T* t ) const
 template <class T> inline
 int ObjectSet<T>::indexOf( const T* ptr ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
 	if ( (const T*)vec_[idx] == ptr ) return idx;
 	    return -1;
+}
+
+
+template <class T> inline
+bool ObjectSet<T>::isPresent( const T* ptr ) const
+{
+    return indexOf(ptr) >= 0;
 }
 
 
