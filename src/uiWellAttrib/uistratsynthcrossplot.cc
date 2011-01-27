@@ -7,14 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.9 2011-01-26 12:29:14 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.10 2011-01-27 14:15:36 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
 #include "uiattribsetbuild.h"
 #include "uidatapointset.h"
 #include "uiseparator.h"
-#include "uisplitter.h"
 #include "uilabel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -59,13 +58,18 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     TypeSet<DataPack::FullID> fids; fids += dpid;
     seisattrfld_->setDataPackInp( fids );
 
+    uiSeparator* sep = new uiSeparator( this, "sep1", true );
+    sep->attach( stretchedBelow, seisattrfld_ );
+
     layseqattrfld_ = new uiStratLaySeqAttribSetBuild( this, lm_ );
     layseqattrfld_->attach( alignedWith, seisattrfld_ );
+    layseqattrfld_->attach( ensureBelow, sep );
 
-    uiSeparator* sep = new uiSeparator( this, "Separ" );
+    sep = new uiSeparator( this, "sep2" );
     sep->attach( stretchedBelow, layseqattrfld_ );
 
     uiGroup* extrposgrp = new uiGroup( this, "Extraction pos group" );
+    extrposgrp->attach( ensureBelow, sep );
     uiLabeledComboBox* llvlfld = new uiLabeledComboBox( extrposgrp,
 	    						"Reference level" );
     reflvlfld_ = llvlfld->box();
@@ -84,11 +88,6 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     extrwinfld_ = new uiGenInput( extrposgrp, "Extraction window",
 	  FloatInpIntervalSpec(StepInterval<float>(0,0,defstep)) );
     extrwinfld_->attach( alignedBelow, snapfld_ );
-
-    uiSplitter* spl = new uiSplitter( this, "Splitter", false );
-    spl->addGroup( seisattrfld_ );
-    spl->addGroup( layseqattrfld_ );
-    spl->addGroup( extrposgrp );
 }
 
 
