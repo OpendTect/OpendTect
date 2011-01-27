@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.41 2011-01-10 13:29:58 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.42 2011-01-27 22:30:16 cvskris Exp $
 ________________________________________________________________________
 -*/
 
@@ -65,7 +65,7 @@ mGlobal bool isNumberString(const char*,bool int_only=false);
 mGlobal const char* getNextWord(const char*,char*);
 
 /*!> Fills string with string for an int.
-     If you pass 0 for retbuf, then a static buffer is used (not MT safe). */
+     If you pass 0 for retbuf, then a static buffer is used. */
 mGlobal const char* getStringFromInt(od_int32,char* retbuf);
 mGlobal const char* getStringFromUInt(od_uint32,char* retbuf);
 mGlobal const char* getStringFromInt64(od_int64,char* retbuf);
