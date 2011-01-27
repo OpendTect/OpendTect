@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.36 2010-05-25 03:33:20 cvsnanne Exp $
+ RCS:           $Id: attribengman.h,v 1.37 2011-01-27 15:56:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,8 @@ public:
     Processor*		getTableOutExecutor(DataPointSet& datapointset,
 	    				    BufferString& errmsg,int firstcol);
     Executor*		getTableExtractor(DataPointSet&,const Attrib::DescSet&,
-	    				  BufferString& errmsg,int firstcol =0);
+	    				  BufferString& errmsg,int firstcol =0,
+					  bool needprep=true);
     static bool		ensureDPSAndADSPrepared(DataPointSet&,
 	    					const Attrib::DescSet&,
 						BufferString&);

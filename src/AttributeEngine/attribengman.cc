@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.107 2010-12-14 11:12:49 cvsbert Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.108 2011-01-27 15:56:33 cvshelene Exp $";
 
 #include "attribengman.h"
 
@@ -124,6 +124,12 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
     for ( int idx=1; idx<ids.size(); idx++ )
 	proc->addOutputInterest(idx);
+    
+/*    bool ndestbord;
+    BufferString basekey = IOPar::compKey( "Output",0 );
+    if ( iopar.getYN( IOPar::compKey( basekey,SeisTrc::sKeyExtCubeToSI() ),
+		      ndestbord) )
+	proc->ensureNonDestructiveBorders( ndestbord );*/
     
     PtrMan<IOPar> outpar = iopar.subselect(
 	    			IOPar::compKey(sKey::Output,sKey::Subsel) );
@@ -872,9 +878,10 @@ int nextStep()
 
 Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
        					const Attrib::DescSet& descset,
-       					BufferString& errmsg, int firstcol )
+       					BufferString& errmsg, int firstcol,
+       					bool needprep )
 {
-    if ( !ensureDPSAndADSPrepared( datapointset, descset, errmsg ) )
+    if ( needprep && !ensureDPSAndADSPrepared( datapointset, descset, errmsg ) )
 	return 0;
     
     setAttribSet( &descset );
