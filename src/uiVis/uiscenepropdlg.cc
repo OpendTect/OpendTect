@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.16 2010-12-15 23:01:59 cvskris Exp $";
+static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.17 2011-01-27 04:46:04 cvsnanne Exp $";
 
 #include "uiscenepropdlg.h"
 
@@ -121,7 +121,7 @@ uiScenePropertyDlg::~uiScenePropertyDlg()
 }
 
 
-void uiScenePropertyDlg::updateCB( CallBacker* cb )
+void uiScenePropertyDlg::updateCB( CallBacker* )
 {
     if ( scene_ )
         updateScene( scene_ );
@@ -208,7 +208,10 @@ void uiScenePropertyDlg::setOffsetCB( CallBacker* )
 
 	if ( !mIsUdf(factor) && factor>=1 &&
 	     !mIsUdf(units) && units>=1 )
+	{
+	    updateCB(0);
 	    break;
+	}
 
 	uiMSG().error("Both Factor and Units must be defined and "
 		      "more than 1." );
