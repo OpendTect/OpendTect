@@ -4,19 +4,19 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.2 2011-01-27 15:25:38 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.3 2011-01-27 22:48:47 cvsyuancheng Exp $";
 
 #include "prestackanglemute.h"
-#include "prestackmute.h"
 
 #include "arrayndslice.h"
 #include "flatposdata.h"
-#include "prestackgather.h"
-#include "raytrace1d.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "muter.h"
+#include "prestackgather.h"
+#include "prestackmute.h"
+#include "raytrace1d.h"
 #include "velocityfunctionvolume.h"
 
 
