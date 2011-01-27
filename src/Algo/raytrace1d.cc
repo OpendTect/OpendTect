@@ -54,8 +54,8 @@ private:
 RayTracer1D::RayTracer1D()
     : ownspmodel_( false )
     , ownssmodel_( false )
-    , downisp_( false )
-    , upisp_( false )
+    , downisp_( true )
+    , upisp_( true )
     , receiverlayer_( 0 )
     , sourcelayer_( 0 )
     , sourcedepth_( 0 )
@@ -237,10 +237,6 @@ RayTracer1D::Layer::Layer()
 {
     d0_ = 0;
     Vint_ = 0; 
-    delta_ = 0;
-    epsilon_ = 0;
-    eta_ = 0;
-    dip_ = 0;
     density_ = 0;
 }
 
@@ -249,10 +245,6 @@ RayTracer1D::Layer::Layer(const RayTracer1D::Layer& l )
 {
     d0_ = l.d0_;  
     Vint_ = l.Vint_;
-    delta_ = l.delta_;  
-    epsilon_ = l.epsilon_;
-    eta_ = l.eta_;  
-    dip_ = l.dip_;
     density_ = l.density_; 
 }
 
@@ -261,10 +253,6 @@ RayTracer1D::Layer& RayTracer1D::Layer::operator=(const RayTracer1D::Layer& l )
 {
     d0_ = l.d0_;  
     Vint_ = l.Vint_;
-    delta_ = l.delta_;  
-    epsilon_ = l.epsilon_;
-    eta_ = l.eta_;  
-    dip_ = l.dip_;
     density_ = l.density_; 
     
     return *this;
@@ -472,6 +460,10 @@ float AngleRayTracer::getSinAngle( int layer, int offset ) const
     
     return sini_->get( layer, offset );
 }
+
+
+float* AngleRayTracer::getSinAngleData() const
+{ return sini_ ? sini_->getData() : 0; }
 
 
 bool AngleRayTracer::doPrepare( int nrthreads )

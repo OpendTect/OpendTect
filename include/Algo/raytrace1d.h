@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.4 2011-01-26 14:26:52 cvsyuancheng Exp $
+ RCS:		$Id: raytrace1d.h,v 1.5 2011-01-27 15:35:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -34,10 +34,6 @@ public:
 
 	float		d0_;
 	float		Vint_;
-	float		delta_;
-	float		epsilon_;
-	float		eta_;
-	float		dip_;
 	float		density_;
     };
 
@@ -91,6 +87,7 @@ public:
 			~AngleRayTracer();			
 
     float		getSinAngle(int layeridx,int offsetidx) const;
+    float*		getSinAngleData() const;	
 
 protected:
 
