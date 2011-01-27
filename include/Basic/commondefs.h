@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.30 2009-11-16 11:57:50 cvsbert Exp $
+ RCS:		$Id: commondefs.h,v 1.31 2011-01-27 22:27:16 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #define mIsEqual(x,y,eps)	( (x-y) < (eps) && (x-y) > (-eps) )
 #define mIsEqualRel(x,y,e)	( (y) ? ((x)/(y))-1<(e) && ((x)/(y)-1)>(-e) \
 				      : mIsZero(x,e) )
+#define mIsEqualWithUdf(x,y,e)	((mIsUdf(x) && mIsUdf(y)) || mIsEqual(x,y,e) )
 #define mDefEps			(1e-10)
 
 # define mC_True	1
