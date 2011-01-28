@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2006
- RCS:           $Id: stattype.h,v 1.6 2011-01-25 09:45:43 cvsbert Exp $
+ RCS:           $Id: stattype.h,v 1.7 2011-01-28 11:07:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,23 @@ enum UpscaleType
 	UseAvg, UseMed, UseRMS, UseMostFreq
 };
 DeclareNameSpaceEnumUtils(UpscaleType)
+
+inline Type typeFor( UpscaleType ut )
+{
+    return ut == UseAvg ?	Average
+	: (ut == UseRMS ?	RMS
+	: (ut == UseMostFreq ?	MostFreq
+	:			Median));
+}
+
+inline UpscaleType upscaleTypeFor( Type st )
+{
+    return st == Average ?	UseAvg
+	: (st == RMS ?		UseRMS
+	: (st == MostFreq ?	UseMostFreq
+	: (st == Median ?	UseMed
+	:			TakeNearest)));
+}
 
 
 }; // namespace Stats
