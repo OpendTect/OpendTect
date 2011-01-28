@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Jan 2011
- RCS:		$Id: reflectivitymodel.h,v 1.1 2011-01-27 21:58:56 cvskris Exp $
+ RCS:		$Id: reflectivitymodel.h,v 1.2 2011-01-28 22:39:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,9 +44,6 @@ public:
     			ReflectivityModel(float offset = 0)
 			    : offset_( offset ) {}
 
-    float		getOffset() const	{ return offset_; }
-
-protected:
     float		offset_;
 };
 
