@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.54 2011-01-26 12:27:15 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.55 2011-01-28 12:54:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,7 @@ public:
     				/*!<If hidden, it won't show up in UI. */
 
     bool			isStored() const;
+    bool			isStoredInMem() const;
     BufferString		getStoredID(bool recursive=false) const;
 
     void			setNeedProvInit( bool yn=true )
