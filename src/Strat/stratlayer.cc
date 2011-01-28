@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.17 2011-01-27 22:37:15 cvskris Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.18 2011-01-28 11:08:03 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -80,6 +80,12 @@ void Strat::Layer::setValue( int ival, float val )
     while ( vals_.size() <= ival )
 	vals_ += mUdf(float);
     vals_[ival] = val;
+}
+
+
+const Strat::Lithology& Strat::Layer::lithology() const
+{
+    return unitRef().getLithology();
 }
 
 
