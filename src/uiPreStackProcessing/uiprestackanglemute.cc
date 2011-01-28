@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.3 2011-01-27 22:48:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.4 2011-01-28 05:33:55 cvskris Exp $";
 
 #include "uiprestackanglemute.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.3 2011-01-27 22:48:4
 #include "survinfo.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
+#include "uiraytrace1d.h"
 #include "uiveldesc.h"
 
 
@@ -39,22 +40,19 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
     : uiDialog( p, uiDialog::Setup("AngleMute setup",0,"103.2.2") )
     , processor_( rt )		      
 {
-   IOObjContext ctxt = uiVelSel::ioContext(); 
-   velfuncsel_ = new uiVelSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
-   velfuncsel_->setLabelText( "Velocity input volume" );
-   if ( !rt->velocityVolumeID().isEmpty() )
+    IOObjContext ctxt = uiVelSel::ioContext(); 
+    velfuncsel_ = new uiVelSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
+    velfuncsel_->setLabelText( "Velocity input volume" );
+    if ( !rt->velocityVolumeID().isEmpty() )
        velfuncsel_->setInput( rt->velocityVolumeID() ); 
-    
-    BufferString lb = "Source/Receiver depths";
-    lb += SI().getZUnitString( true );
-    srdepthfld_ = new uiGenInput(this, lb.buf(), FloatInpIntervalSpec(false));
-    srdepthfld_->attach( alignedBelow, velfuncsel_ );
-    srdepthfld_->setValue( Interval<float>(rt->angleTracer()->sourceDepth(),
-		rt->angleTracer()->receiverDepth()) );
-    
+   
+    raytracerfld_ = new uiRayTracer1D( this, true, false,
+	    			       &rt->rayTracer()->setup() );
+    raytracerfld_->attach( alignedBelow, velfuncsel_ );
+
     topfld_ = new uiGenInput( this, "Mute type",
 	    BoolInpSpec(!processor_->isTailMute(),"Outer","Inner") );
-    topfld_->attach( alignedBelow, srdepthfld_ );
+    topfld_->attach( alignedBelow, raytracerfld_ );
     cutofffld_ = new uiGenInput( this, "Mute cutoff angle (in degree)", 
 	    FloatInpSpec(false) );
     cutofffld_->attach( alignedBelow, topfld_ );
@@ -68,8 +66,9 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
 
 bool uiAngleMute::acceptOK(CallBacker*)
 {
-    processor_->angleTracer()->setSourceDepth( srdepthfld_->getfValue(0) );
-    processor_->angleTracer()->setReceiverDepth( srdepthfld_->getfValue(1));
+    if ( !raytracerfld_->fill( processor_->rayTracer()->setup() ) )
+	return false;
+
     processor_->setTaperLength( taperlenfld_->getfValue() );
     processor_->setTailMute( !topfld_->getBoolValue() );
     processor_->setMuteCutoff( cutofffld_->getfValue() );

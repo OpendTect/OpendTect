@@ -7,16 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiprestackanglemute.h,v 1.1 2011-01-26 23:10:42 cvsyuancheng Exp $
+ RCS:		$Id: uiprestackanglemute.h,v 1.2 2011-01-28 05:33:55 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uidialog.h"
+
 class CtxtIOObj;
 class uiGenInput;
-class uiIOObjSel;
+class uiRayTracer1D;
 class uiVelSel;
 
 namespace PreStack
@@ -44,7 +45,7 @@ protected:
     AngleMute*		processor_;
     
     uiVelSel*		velfuncsel_;
-    uiGenInput*		srdepthfld_;
+    uiRayTracer1D*	raytracerfld_;
     uiGenInput*		cutofffld_;
     uiGenInput*		topfld_;
     uiGenInput*		taperlenfld_;

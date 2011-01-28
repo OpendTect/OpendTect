@@ -6,130 +6,86 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.7 2011-01-28 05:03:00 cvsranojay Exp $
+ RCS:		$Id: raytrace1d.h,v 1.8 2011-01-28 05:33:55 cvskris Exp $
 ________________________________________________________________________
 
 */
 
-#include "complex"
-#include "factory.h"
 #include "odmemory.h"
 #include "objectset.h"
 #include "task.h"
 
 template <class T> class Array2D;
-typedef std::complex<float> float_complex;
+class AILayer;
+class IOPar;
 
 mClass RayTracer1D : public ParallelTask
 {
 public:
-    			RayTracer1D();
-			mDefineFactoryInClass(RayTracer1D,factory);
-    virtual		~RayTracer1D();			
-    mStruct Layer
+    mClass Setup
     {
-			Layer();
-			Layer(const Layer&);
-        Layer&		operator=(const Layer&);
+    public:
+			Setup() 
+			    : pdown_( true )
+			    , pup_( true )
+			    , sourcedepth_( 0 )
+			    , recieverdepth_( 0 )
+			{}
 
-	float		d0_;
-	float		Vint_;
-	float		density_;
+				mDefSetupMemb(bool,pdown);
+				mDefSetupMemb(bool,pup);
+				mDefSetupMemb(float,sourcedepth);
+				mDefSetupMemb(float,recieverdepth);
+
+	virtual void		fillPar(IOPar&) const;
+	virtual bool		usePar(const IOPar&);
+
+	static const char*	sKeyPWave()	{ return "Wavetypes"; }
+	static const char*	sKeySRDepth()	{ return "SR Depths"; }
     };
 
-    void		setDownType(bool pwave)	{ downisp_ = pwave; }
-    void		setUpType(bool pwave)	{ upisp_ = pwave; }
-    bool		getDownTye() const	{ return downisp_; }
-    bool		getUpType() const	{ return upisp_; }
 
-    void		setSourceDepth(float d)	{ sourcedepth_ = d; }
-    void		setReceiverDepth(float d) { receiverdepth_ = d; }
-    float		sourceDepth() const	{ return sourcedepth_; }
-    float		receiverDepth() const	{ return receiverdepth_; }
+    			RayTracer1D(const Setup&);
+    virtual		~RayTracer1D();			
+    Setup&		setup()				{ return setup_; }
+    const Setup&	setup() const			{ return setup_; }
 
-    virtual float	getOffset(int layer,float rayparam) const;
+    void		setModel(bool pmodel,const TypeSet<AILayer>&);
+    			/*!<Note, if both p-model and s-model are set,
+			    they should be identical with regards to thers sizes
+			    and the layrer's depths. */
     void		setOffsets(const TypeSet<float>& offsets);
-    void		setModel(bool pw,const ObjectSet<Layer>&,OD::PtrPolicy);
-    			/*!<\note Model must be in depth. */
 
-    virtual float	getSinAngle(int lidx,int offsetidx) const 
-    			{ return mUdf(float); }
-    virtual float_complex getReflectivity(int lidx, int offsetidx) const 
-    			{ return mUdf(float); }
+    			//Available after execution
+    float		getSinAngle(int layeridx,int offsetidx) const;
+    float*		getSinAngleData() const;	
 
 protected:
+    friend class	OffsetFromRayParam;
 
     od_int64		nrIterations() const;
     virtual bool	doPrepare(int);
     bool		doWork(od_int64,od_int64,int);
     float		findRayParam(int layer,float offset,float seed) const;
-    virtual bool	compute(int layer,int offsetidx,float rayparam) = 0;
+    virtual bool	compute(int layer,int offsetidx,float rayparam);
+    virtual float	getOffset(int layer,float rayparam) const;
 
-    ObjectSet<Layer>	pmodel_;
-    ObjectSet<Layer>	smodel_;
-    TypeSet<float>	offsets_;
-    TypeSet<float>	velmax_; 
+    				//Model
+    const TypeSet<AILayer>*	pmodel_;
+    const TypeSet<AILayer>*	smodel_;
+    TypeSet<float>		offsets_;
+    Setup			setup_;
 
-    bool		ownspmodel_;
-    bool		ownssmodel_;
-    bool		downisp_;
-    bool		upisp_;
-    
-    int			sourcelayer_;
-    int			receiverlayer_;
-    float		sourcedepth_;
-    float		receiverdepth_;
-    float		relsourcedepth_;
-    float		relreceiverdepth_;
+    				//Runtime variables
+    TypeSet<float>		velmax_; 
+    int				sourcelayer_;
+    int				receiverlayer_;
+    float			relsourcedepth_;
+    float			relreceiverdepth_;
+
+				//Results
+    Array2D<float>*		sini_;
 };
 
-
-mClass AngleRayTracer : public RayTracer1D
-{
-public:
-			mDefaultFactoryInstantiation(RayTracer1D,
-				AngleRayTracer,"AngleRaytracer","Angle");
-    			AngleRayTracer();
-			~AngleRayTracer();			
-
-    float		getSinAngle(int layeridx,int offsetidx) const;
-    float*		getSinAngleData() const;	
-
-protected:
-
-    bool		doPrepare(int);
-    bool		compute(int,int,float);
-    
-    Array2D<float>*	sini_;
-};
-
-
-mClass IsotropicRayTracer : public AngleRayTracer
-{
-public:
-			mDefaultFactoryInstantiation(RayTracer1D,
-				IsotropicRayTracer,"IsotropicRaytracer",
-				"Isotropic");
-    			IsotropicRayTracer();
-			~IsotropicRayTracer();
-
-    struct GeomSpread   { enum Type { None, Distance, Vint }; };
-    void		setGeomSpread(GeomSpread::Type t) { geomspread_ = t; }
-    GeomSpread::Type	geomSpread() const	{ return geomspread_; }
-    
-    void		projectInCwave(bool yn)	{ projectincwave_ = yn; }
-    bool		projectInCwave() const	{ return projectincwave_; }
-
-    float_complex	getReflectivity(int layeridx, int offsetidx) const;
-
-protected:
-
-    bool		doPrepare(int);
-    bool		compute(int,int,float);
-
-    bool		projectincwave_;
-    GeomSpread::Type	geomspread_;
-    Array2D<float_complex>* reflectivity_;
-};
 
 #endif

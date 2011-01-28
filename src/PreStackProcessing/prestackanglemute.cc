@@ -4,10 +4,11 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.3 2011-01-27 22:48:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.4 2011-01-28 05:33:55 cvskris Exp $";
 
 #include "prestackanglemute.h"
 
+#include "ailayer.h"
 #include "arrayndslice.h"
 #include "flatposdata.h"
 #include "ioobj.h"
@@ -18,6 +19,7 @@ static const char* rcsID = "$Id: prestackanglemute.cc,v 1.3 2011-01-27 22:48:47 
 #include "prestackmute.h"
 #include "raytrace1d.h"
 #include "velocityfunctionvolume.h"
+#include "math.h"
 
 
 using namespace PreStack;
@@ -30,7 +32,7 @@ AngleMute::AngleMute()
     , taperlen_( 10 )
     , mutecutoff_( 0 )		    
 {
-    rtracer_ = new AngleRayTracer;
+    rtracer_ = new RayTracer1D( RayTracer1D::Setup() );
     velsource_ = new Vel::VolumeFunctionSource();
     velsource_->ref();
 }
@@ -79,26 +81,29 @@ bool AngleMute::setVelocityMid( const MultiID& mid )
 void AngleMute::fillPar( IOPar& par ) const
 {
     PtrMan <IOObj> ioobj = IOM().get( velvolmid_ );
-    if ( ioobj ) par.set( sVelVolumeID(), velvolmid_ );
+    if ( ioobj ) par.set( sKeyVelVolumeID(), velvolmid_ );
 
-    par.set( sSourceDepth(), rtracer_->sourceDepth() );
-    par.set( sReceiverDepth(), rtracer_->receiverDepth() );
+    IOPar rtracepar;
+    rtracer_->setup().fillPar( rtracepar );
+    par.mergeComp( rtracepar, sKeyRayTracer() );
+
     par.set( Mute::sTaperLength(), taperlen_ );
     par.setYN( Mute::sTailMute(), tail_ );
-    par.set( sMuteCutoff(), mutecutoff_ );
+    par.set( sKeyMuteCutoff(), mutecutoff_ );
 }
 
 
 bool AngleMute::usePar( const IOPar& par )
 {
-    float sourcedepth, receiverdepth;
-    par.get( sSourceDepth(), sourcedepth );
-    par.get( sReceiverDepth(), receiverdepth );
-    rtracer_->setSourceDepth( sourcedepth );
-    rtracer_->setReceiverDepth( receiverdepth );
+    PtrMan<IOPar> rtracepar = par.subselect( sKeyRayTracer() );
+    if ( !rtracepar )
+	return false;
 
-    par.get( sVelVolumeID(), velvolmid_ );
-    par.get( sMuteCutoff(), mutecutoff_ );
+    if ( !rtracer_->setup().usePar( *rtracepar ) )
+	return false;
+
+    par.get( sKeyVelVolumeID(), velvolmid_ );
+    par.get( sKeyMuteCutoff(), mutecutoff_ );
     par.get( Mute::sTaperLength(), taperlen_ );
     par.getYN( Mute::sTailMute(), tail_ );
 
@@ -135,16 +140,11 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int )
 		vels += velfun->getVelocity( sd.atIndex(idy) );
 	}
 
-	ObjectSet<RayTracer1D::Layer> layers;
+	TypeSet<AILayer> layers;
 	for ( int il=0; il<nrlayers; il++ )
-	{
-	    RayTracer1D::Layer layer; 
-	    layer.d0_ = sd.atIndex( il ); 
-	    layer.Vint_ = vels[il];
-	    layers += &layer;
-	}
+	    layers += AILayer( sd.atIndex( il ), vels[il], mUdf(float) );
 
-	rtracer_->setModel( true, layers, OD::CopyPtr );
+	rtracer_->setModel( true, layers );
 	if ( !rtracer_->execute(raytraceparallel_) )
 	    continue;
 

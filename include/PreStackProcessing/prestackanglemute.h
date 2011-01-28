@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.2 2011-01-27 22:47:04 cvsyuancheng Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.3 2011-01-28 05:33:55 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ public:
     bool		doPrepare(int nrthreads);
 
     			//Use this to set up parameters of the ray tracer
-    RayTracer1D*	angleTracer()			{ return rtracer_; }
+    RayTracer1D*	rayTracer()			{ return rtracer_; }
     MultiID		velocityVolumeID() const	{ return velvolmid_; }
     bool		setVelocityMid(const MultiID& mid);
 
@@ -50,11 +50,10 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    
-    static const char*	sVelVolumeID()		{ return "Velocity vol-mid"; }
-    static const char*  sMuteCutoff()		{ return "Mute cutoff"; }
-    static const char*	sSourceDepth()		{ return "Source depth"; }
-    static const char*	sReceiverDepth()	{ return "Receiver depth"; }
+
+    static const char*	sKeyRayTracer()		{ return "Raytracer"; }	
+    static const char*	sKeyVelVolumeID()	{ return "Velocity vol-mid"; }
+    static const char*  sKeyMuteCutoff()	{ return "Mute cutoff"; }
 
 protected:
 
