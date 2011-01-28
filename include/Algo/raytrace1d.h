@@ -6,16 +6,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.8 2011-01-28 05:33:55 cvskris Exp $
+ RCS:		$Id: raytrace1d.h,v 1.9 2011-01-28 23:07:40 cvskris Exp $
 ________________________________________________________________________
 
 */
 
-#include "odmemory.h"
-#include "objectset.h"
+#include "fixedstring.h"
 #include "task.h"
 
-template <class T> class Array2D;
+template <class T> class Array2DImpl;
 class AILayer;
 class IOPar;
 
@@ -29,13 +28,13 @@ public:
 			    : pdown_( true )
 			    , pup_( true )
 			    , sourcedepth_( 0 )
-			    , recieverdepth_( 0 )
+			    , receiverdepth_( 0 )
 			{}
 
 				mDefSetupMemb(bool,pdown);
 				mDefSetupMemb(bool,pup);
 				mDefSetupMemb(float,sourcedepth);
-				mDefSetupMemb(float,recieverdepth);
+				mDefSetupMemb(float,receiverdepth);
 
 	virtual void		fillPar(IOPar&) const;
 	virtual bool		usePar(const IOPar&);
@@ -45,16 +44,18 @@ public:
     };
 
 
-    			RayTracer1D(const Setup&);
-    virtual		~RayTracer1D();			
-    Setup&		setup()				{ return setup_; }
-    const Setup&	setup() const			{ return setup_; }
+				RayTracer1D(const Setup&);
+    virtual			~RayTracer1D();			
+    virtual const Setup&	setup() const		{ return setup_; }
+    virtual void		setSetup(const Setup&);
 
     void		setModel(bool pmodel,const TypeSet<AILayer>&);
     			/*!<Note, if both p-model and s-model are set,
 			    they should be identical with regards to thers sizes
 			    and the layrer's depths. */
     void		setOffsets(const TypeSet<float>& offsets);
+
+    const char*		errMsg() const { return errmsg_.str(); }
 
     			//Available after execution
     float		getSinAngle(int layeridx,int offsetidx) const;
@@ -69,22 +70,27 @@ protected:
     float		findRayParam(int layer,float offset,float seed) const;
     virtual bool	compute(int layer,int offsetidx,float rayparam);
     virtual float	getOffset(int layer,float rayparam) const;
+    static int		findLayer(const TypeSet<AILayer>& model,
+	    			  float targetdepth);
 
-    				//Model
-    const TypeSet<AILayer>*	pmodel_;
-    const TypeSet<AILayer>*	smodel_;
-    TypeSet<float>		offsets_;
-    Setup			setup_;
+    FixedString		errmsg_;
 
-    				//Runtime variables
-    TypeSet<float>		velmax_; 
-    int				sourcelayer_;
-    int				receiverlayer_;
-    float			relsourcedepth_;
-    float			relreceiverdepth_;
+    TypeSet<AILayer>	pmodel_;
+    TypeSet<AILayer>	smodel_;
 
-				//Results
-    Array2D<float>*		sini_;
+    TypeSet<float>	offsets_;
+    TypeSet<int>	offsetpermutation_;
+    Setup		setup_;
+
+    			//Runtime variables
+    TypeSet<float>	velmax_; 
+    int			sourcelayer_;
+    int			receiverlayer_;
+    float		relsourcedepth_;
+    float		relreceiverdepth_;
+
+			//Results
+    Array2DImpl<float>*	sini_;
 };
 
 

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.1 2011-01-28 04:49:58 cvskris Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.2 2011-01-28 23:07:40 cvskris Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -38,7 +38,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, bool dosourcereceiverdepth,
 	if ( setup )
 	{
 	    srcdepthfld_->setValue( Interval<float>(setup->sourcedepth_,
-			setup->recieverdepth_ ) );
+			setup->receiverdepth_ ) );
 	}
     }
 
@@ -73,7 +73,7 @@ bool uiRayTracer1D::fill( RayTracer1D::Setup& setup ) const
     if ( srcdepthfld_ )
     {
 	setup.sourcedepth_ = srcdepthfld_->getfValue(0);
-	setup.recieverdepth_ = srcdepthfld_->getfValue(1);
+	setup.receiverdepth_ = srcdepthfld_->getfValue(1);
     }
 
     if ( downwavefld_ )

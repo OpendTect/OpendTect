@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.4 2011-01-28 05:33:55 cvskris Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.5 2011-01-28 23:07:40 cvskris Exp $";
 
 #include "prestackanglemute.h"
 
@@ -99,8 +99,11 @@ bool AngleMute::usePar( const IOPar& par )
     if ( !rtracepar )
 	return false;
 
-    if ( !rtracer_->setup().usePar( *rtracepar ) )
+    RayTracer1D::Setup rsetup;
+    if ( !rsetup.usePar( *rtracepar ) )
 	return false;
+
+    rtracer_->setSetup( rsetup );
 
     par.get( sKeyVelVolumeID(), velvolmid_ );
     par.get( sKeyMuteCutoff(), mutecutoff_ );

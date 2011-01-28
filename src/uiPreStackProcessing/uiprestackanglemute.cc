@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.4 2011-01-28 05:33:55 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.5 2011-01-28 23:07:40 cvskris Exp $";
 
 #include "uiprestackanglemute.h"
 
@@ -66,8 +66,11 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
 
 bool uiAngleMute::acceptOK(CallBacker*)
 {
-    if ( !raytracerfld_->fill( processor_->rayTracer()->setup() ) )
+    RayTracer1D::Setup rsetup;
+    if ( !raytracerfld_->fill( rsetup ) )
 	return false;
+
+    processor_->rayTracer()->setSetup( rsetup );
 
     processor_->setTaperLength( taperlenfld_->getfValue() );
     processor_->setTailMute( !topfld_->getBoolValue() );
