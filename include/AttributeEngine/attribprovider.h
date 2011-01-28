@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.85 2011-01-27 13:02:06 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.86 2011-01-28 12:56:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,6 +179,14 @@ protected:
     virtual bool		getInputData(const BinID& relpos,int idx);
     				/*!<Gets all imput data, 
 				including data for which a stepout is required*/
+    virtual bool		preProcCommonToAllThreads(const DataHolder& out,
+	    						  const BinID& relpos)
+				{ return true; }
+				/*!<Computes things that are common to all
+				  threads; typically initialization of class
+				  variables which rely on input data
+				  (and thus cannot be inited before in other
+				  prep* functions)*/
     virtual bool		computeData(const DataHolder& output,
 					    const BinID& relpos,
 					    int t0,int nrsamples) const

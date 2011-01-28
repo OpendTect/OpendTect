@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.12 2011-01-27 15:57:33 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.13 2011-01-28 12:56:42 cvshelene Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -219,7 +219,19 @@ bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
 					    const Attrib::DescSet& attrs ) const
 {                                                                               
-    Attrib::EngineMan* aem = new Attrib::EngineMan;                             
+    Attrib::EngineMan* aem = new Attrib::EngineMan;
+
+    //If default Desc(s) present remove it
+    int idx=-1;
+    while( true )
+    {
+	idx++;
+	const Attrib::Desc* tmpdesc = attrs.desc(idx);
+	if ( tmpdesc && tmpdesc->isStoredInMem() )
+	    const_cast<Attrib::DescSet*>(&attrs)->removeDesc( tmpdesc->id() );
+	else
+	    break;
+    }
 
     TypeSet<Attrib::SelSpec> attribspecs;
     attrs.fillInSelSpecs( Attrib::DescSetup().hidden(false), attribspecs );
