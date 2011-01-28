@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqattrib.cc,v 1.5 2011-01-25 09:41:24 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqattrib.cc,v 1.6 2011-01-28 11:09:51 cvsbert Exp $";
 
 #include "stratlayseqattrib.h"
 #include "stratlayseqattribcalc.h"
@@ -12,11 +12,14 @@ static const char* rcsID = "$Id: stratseqattrib.cc,v 1.5 2011-01-25 09:41:24 cvs
 #include "stratlayer.h"
 #include "stratreftree.h"
 #include "stratlayermodel.h"
+#include "statruncalc.h"
 #include "propertyref.h"
 #include "ascstream.h"
+#include "datapointset.h"
 #include "separstr.h"
 #include "keystrs.h"
 #include "iopar.h"
+#include <math.h>
 
 
 #define mFileType "Layer Sequence Attribute Set"
@@ -131,10 +134,28 @@ bool Strat::LaySeqAttribSet::putTo( std::ostream& strm ) const
 Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 					   const Strat::LayerModel& lm )
     : attr_(desc)
-    , stattype_((Stats::Type)Stats::TypeDef().convert(desc.stat_))
-    , statupscl_((Stats::UpscaleType)Stats::UpscaleTypeDef()
-	    	 .convert(desc.stat_))
+    , validx_(-1)
 {
+    if ( attr_.islocal_ )
+    {
+	statupscl_ = (Stats::UpscaleType)Stats::UpscaleTypeDef()
+					.convert( desc.stat_ );
+	stattype_ = Stats::typeFor( statupscl_ );
+    }
+    else
+    {
+	stattype_ = (Stats::Type)Stats::TypeDef().convert( desc.stat_ );
+	statupscl_ = Stats::upscaleTypeFor( stattype_ );
+    }
+
+    for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )
+    {
+	if ( lm.propertyRefs()[idx] == &attr_.prop_ )
+	    { validx_ = idx; break; }
+    }
+    if ( validx_ < 0 )
+	return;
+
     if ( !attr_.islocal_ )
     {
 	for ( int idx=0; idx<attr_.units_.size(); idx++ )
@@ -154,40 +175,183 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 
 
 float Strat::LaySeqAttribCalc::getValue( const LayerSequence& seq,
-					 float zpos ) const
+					 const Interval<float>& zpos ) const
 {
     return attr_.islocal_ ? getLocalValue( seq, zpos ) : getGlobalValue(seq);
 }
 
 
 float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
-       					      float zpos ) const
+					  const Interval<float>& zrg ) const
 {
-    //TODO
-    return 0;
+    const ObjectSet<Layer>& lays = seq.layers();
+    const int nrlays = lays.size();
+    if ( validx_ < 0 || nrlays < 1 )
+	return mUdf(float);
+
+    int layidx = 0;
+    while ( layidx < nrlays && lays[layidx]->zBot() <= zrg.start )
+	layidx++;
+
+    TypeSet<float> vals; TypeSet<float> wts;
+    const float midz = zrg.center();
+    for ( ; layidx < nrlays && lays[layidx]->zTop() <= zrg.stop; layidx++ )
+    {
+	const Strat::Layer& lay = *lays[layidx];
+	Interval<float> insiderg( lay.zTop(), lay.zBot() );
+	if ( statupscl_ == Stats::TakeNearest )
+	{
+	   if ( insiderg.includes(midz) )
+		{ vals += lay.value(validx_); wts += 1; break; }
+	   continue;
+	}
+
+	if ( insiderg.start < zrg.start ) insiderg.start = zrg.start;
+	if ( insiderg.stop > zrg.stop ) insiderg.stop = zrg.stop;
+	const float wt = insiderg.width();
+	if ( wt < 1e-6 ) continue;
+	const float val = lay.value( validx_ );
+	if ( mIsUdf(val) ) continue;
+	vals += val; wts += wt;
+    }
+
+    const int nrvals = vals.size();
+    if ( nrvals < 1 )
+	return mUdf(float);
+    applyTransform( vals );
+    if ( nrvals == 1 || statupscl_ == Stats::TakeNearest )
+	return vals[0];
+
+    Stats::RunCalcSetup rcsu( true );
+    rcsu.require( stattype_ );
+    Stats::RunCalc<float> rc( rcsu );
+    for ( int idx=0; idx<vals.size(); idx++ )
+    {
+	if ( !mIsUdf(vals[idx]) )
+	    rc.addValue( vals[idx], wts[idx] );
+    }
+
+    return (float)rc.getValue( stattype_ );
 }
 
 
 float Strat::LaySeqAttribCalc::getGlobalValue( const LayerSequence& seq ) const
 {
+    if ( validx_ < 0 ) return mUdf(float);
+
     ObjectSet<const Strat::Layer> layers;
     for ( int ilay=0; ilay<seq.size(); ilay++ )
     {
 	const Strat::Layer* lay = seq.layers()[ilay];
 	for ( int iun=0; iun<units_.size(); iun++ )
 	{
-	    if ( units_[iun]->isParentOf( lay->unitRef() ) )
+	    if ( units_[iun]->isParentOf( lay->unitRef() )
+	      && liths_.isPresent(&lay->lithology()) )
 		layers += lay;
 	}
     }
     if ( layers.isEmpty() )
 	return stattype_ == Stats::Count ? 0 : mUdf(float);
 
-    //TODO
-    TypeSet<float> vals;
+    TypeSet<float> vals; TypeSet<float> wts;
+    const bool isthick = &attr_.prop_ == &Strat::Layer::thicknessRef();
     for ( int ilay=0; ilay<layers.size(); ilay++ )
     {
+	const Strat::Layer& lay = *layers[ilay];
+	const float val = lay.value( validx_ );
+	if ( !mIsUdf(val) )
+	{
+	    vals += val;
+	    if ( !isthick )
+		wts += lay.thickness();
+	}
     }
 
-    return 0;
+    if ( vals.isEmpty() )
+	return mUdf(float);
+    applyTransform( vals );
+
+    Stats::RunCalcSetup rcsu( !isthick );
+    rcsu.require( stattype_ );
+    Stats::RunCalc<float> rc( rcsu );
+    for ( int idx=0; idx<vals.size(); idx++ )
+    {
+	if ( !mIsUdf(vals[idx]) )
+	    rc.addValue( vals[idx], isthick ? 1 : wts[idx] );
+    }
+
+    return (float)rc.getValue( stattype_ );
+}
+
+
+void Strat::LaySeqAttribCalc::applyTransform( TypeSet<float>& vals ) const
+{
+    if ( !attr_.hasTransform() )
+	return;
+
+    float tval = attr_.transformval_;
+    if ( tval != LaySeqAttrib::Pow )
+	tval = Math::Log( tval );
+
+    for ( int idx=0; idx<vals.size(); idx++ )
+    {
+	float& val = vals[idx];
+	switch ( attr_.transform_ )
+	{
+	    case LaySeqAttrib::Pow:
+		val = Math::PowerOf( val, tval );
+	    break;
+	    case LaySeqAttrib::Log:
+		val = Math::Log( val );
+		if ( !mIsUdf(val) && !mIsUdf(tval) )
+		    val /= tval;
+	    break;
+	    case LaySeqAttrib::Exp:
+		val = mIsUdf(tval) ? mUdf(float) : Math::Exp( val*tval );
+	    break;
+	}
+    }
+}
+
+
+Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
+					   const Strat::LaySeqAttribSet& lsas,
+					   DataPointSet& res )
+    : Executor("Attribute extraction")
+    , lm_(lm)
+    , dps_(res)
+    , seqidx_(0)
+{
+    for ( int idx=0; idx<lsas.size(); idx++ )
+    {
+	const LaySeqAttrib& lsa = *lsas[idx];
+	const int dpsidx = dps_.indexOf( lsa.name() );
+	if ( dpsidx < 0 )
+	    continue;
+
+	LaySeqAttribCalc* calc = new LaySeqAttribCalc( lsa, lm );
+	calcs_ += calc;
+	dpsidxs_ += dpsidx;
+    }
+}
+
+
+Strat::LayModAttribCalc::~LayModAttribCalc()
+{
+    deepErase( calcs_ );
+}
+
+
+int Strat::LayModAttribCalc::nextStep()
+{
+    if ( seqidx_ >= lm_.size() ) return Finished();
+
+    const LayerSequence& seq = lm_.sequence( seqidx_ );
+    for ( int idx=0; idx<dpsidxs_.size(); idx++ )
+    {
+	// const float val = calcs_[idx]->getValue
+    }
+
+    seqidx_++;
+    return seqidx_ >= lm_.size() ? Finished() : MoreToDo();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.17 2010-12-23 16:44:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymoddisp.cc,v 1.18 2011-01-28 11:09:51 cvsbert Exp $";
 
 #include "uistratlaymoddisp.h"
 #include "uigraphicsitemimpl.h"
@@ -192,9 +192,9 @@ void uiStratLayerModelDisp::setZoomBox( const uiWorldRect& wr )
 	zoomboxitm_->setZValue( 100 );
     }
 
-    // provided rect is always in system [0.5,Ndisplayed+0.5]
-    zoomwr_.setLeft( (wr.left()-0.5) * dispeach_ + 1 );
-    zoomwr_.setRight( (wr.right()-0.5) * dispeach_ + 1 );
+    // provided rect is always in system [0.5,N+0.5]
+    zoomwr_.setLeft( wr.left() + .5 );
+    zoomwr_.setRight( wr.right() + .5 );
     zoomwr_.setTop( wr.bottom() );
     zoomwr_.setBottom( wr.top() );
     updZoomBox();
@@ -359,7 +359,7 @@ void uiStratLayerModelDisp::doDraw()
 
 	if ( !showunzoomed_ )
 	{
-	    if (  z0 > zoomwr_.top() || z1 < zoomwr_.bottom() )
+	    if ( z0 > zoomwr_.top() || z1 < zoomwr_.bottom() )
 		continue;
 	    if ( z1 > zoomwr_.top() )
 		const_cast<float&>(z1) = zoomwr_.top();
@@ -407,9 +407,6 @@ void uiStratLayerModelDisp::drawLevels()
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {
-	if ( !isDisplayedModel(iseq) )
-	    continue;
-
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
 	const int idxof = seq.indexOf( *lvl );
 	if ( idxof < 0 )

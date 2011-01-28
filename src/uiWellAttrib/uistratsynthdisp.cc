@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.16 2011-01-25 13:55:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.17 2011-01-28 11:09:51 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -44,7 +44,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     : uiGroup(p,"LayerModel synthetics display")
     , wvlt_(0)
     , lm_(lm)
-    , dispeach_(1)
     , wvltChanged(this)
     , zoomChanged(this)
     , longestaimdl_(0)
@@ -96,13 +95,6 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
 
     tb->attach( ensureRightOf, wvltfld_ );
     lasttool_ = tb;
-}
-
-
-void uiStratSynthDisp::setDispEach( int nr )
-{
-    dispeach_ = nr;
-    modelChanged();
 }
 
 
@@ -200,6 +192,7 @@ int uiStratSynthDisp::getDenIdx( bool& isden ) const
 
 void uiStratSynthDisp::modelChanged()
 {
+    MouseCursorChanger mcs( MouseCursor::Busy );
     vwr_->clearAllPacks(); vwr_->setNoViewDone();
     vwr_->control()->zoomMgr().toStart();
     deepErase( vwr_->appearance().annot_.auxdata_ );
@@ -220,7 +213,7 @@ void uiStratSynthDisp::modelChanged()
     bool isden; const int denidx = getDenIdx( isden );
     int maxsz = 0; SamplingData<float> sd;
     longestaimdl_ = 0; int maxaimdlsz = 0;
-    for ( int iseq=0; iseq<lm_.size(); iseq+=dispeach_ )
+    for ( int iseq=0; iseq<lm_.size(); iseq++ )
     {
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
 	AIModel* aimod = seq.getAIModel( velidx, denidx, isvel, isden );
@@ -238,18 +231,18 @@ void uiStratSynthDisp::modelChanged()
     Seis::SynthGenerator synthgen( *wvlt_ );
     synthgen.setOutSampling( sd, maxsz );
     SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-    const Coord crd0( SI().maxCoord(false) );
-    const float dx = SI().crlDistance();
+    const int crlstep = SI().crlStep();
+    const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
+	    	      SI().crlRange(false).stop + crlstep );
 
     for ( int imdl=0; imdl<nraimdls; imdl++ )
     {
 	synthgen.generate( *aimdls_[imdl] );
 	SeisTrc* newtrc = new SeisTrc( synthgen.result() );
-	const int trcnr = imdl*dispeach_ + 1;
+	const int trcnr = imdl + 1;
 	newtrc->info().nr = trcnr;
-	newtrc->info().coord = crd0;
-	newtrc->info().coord.x += trcnr * dx;
-	newtrc->info().binid = SI().transform( newtrc->info().coord );
+	newtrc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep );
+	newtrc->info().coord = SI().transform( newtrc->info().binid );
 	tbuf->add( newtrc );
     }
 
