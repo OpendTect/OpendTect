@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.6 2011-01-27 22:46:19 cvsyuancheng Exp $
+ RCS:		$Id: raytrace1d.h,v 1.7 2011-01-28 05:03:00 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -26,7 +26,7 @@ public:
     			RayTracer1D();
 			mDefineFactoryInClass(RayTracer1D,factory);
     virtual		~RayTracer1D();			
-    struct Layer
+    mStruct Layer
     {
 			Layer();
 			Layer(const Layer&);
