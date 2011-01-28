@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.102 2011-01-27 13:58:47 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.103 2011-01-28 12:55:31 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -1100,7 +1100,7 @@ DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu ) const
 
 
 void DescSet::fillInSelSpecs( Attrib::DescSetup dsu,
-			      TypeSet<Attrib::SelSpec> specs ) const
+			      TypeSet<Attrib::SelSpec>& specs ) const
 {
     //TODO check all dsu cases
     for ( int idx=0; idx<descs_.size(); idx++ )                                 

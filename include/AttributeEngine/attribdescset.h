@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.47 2011-01-27 13:58:47 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.48 2011-01-28 12:55:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,7 +120,7 @@ public:
     				//!<will create an empty DataPointSet
     DataPointSet*		createDataPointSet(Attrib::DescSetup) const;
     void			fillInSelSpecs(Attrib::DescSetup,
-	    				       TypeSet<Attrib::SelSpec>) const;
+	    				       TypeSet<Attrib::SelSpec>&) const;
 
     void			setContainStoredDescOnly(bool yn);
     inline bool			containsStoredDescOnly() const
