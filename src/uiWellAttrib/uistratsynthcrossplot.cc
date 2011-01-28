@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.13 2011-01-28 12:56:42 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.14 2011-01-28 13:41:18 cvshelene Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -227,7 +227,7 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
     {
 	idx++;
 	const Attrib::Desc* tmpdesc = attrs.desc(idx);
-	if ( tmpdesc && tmpdesc->isStoredInMem() )
+	if ( tmpdesc && !tmpdesc->isStoredInMem() )
 	    const_cast<Attrib::DescSet*>(&attrs)->removeDesc( tmpdesc->id() );
 	else
 	    break;
