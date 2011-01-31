@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.57 2010-09-16 12:57:57 cvskris Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.58 2011-01-31 13:03:50 cvsbruno Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -30,6 +30,7 @@ static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.57 2010-09-16 12:57:57
 #include "uipsviewershapetab.h"
 #include "uipsviewerposdlg.h"
 #include "uipsviewersettingdlg.h"
+#include "uiprestackviewer2dmainwin.h"
 #include "uiseispartserv.h"
 #include "uisoviewer.h"
 #include "uivispartserv.h"
@@ -244,7 +245,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	else
 	    getSeis2DTitle( psv->traceNr(), psv->lineName(), title );	
 
-	uiFlatViewMainWin* viewwin = create2DViewer(title,psv->getDataPackID());
+	uiFlatViewMainWin* viewwin = create2DViewer(title,psv->getMultiID());
 	if ( viewwin )
 	{
     	    viewers2d_ += viewwin;
@@ -424,42 +425,16 @@ uiViewer3DPositionDlg* uiViewer3DMgr::mkNewPosDialog( const uiMenuHandler* menu,
 #define mErrRes(msg) { uiMSG().error(msg); return 0; }
 
 uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title, 
-					      int dpid )
+					      const MultiID& dpid )
 {
-    uiFlatViewMainWin* viewwin = new uiFlatViewMainWin( 
-	    ODMainWin(), uiFlatViewMainWin::Setup(title) );
-    
+    PreStack::uiViewer2DMainWin* viewwin 
+			= new PreStack::uiViewer2DMainWin( ODMainWin() );
+    viewwin->setMultiID( dpid );
     viewwin->setWinTitle( title );
     viewwin->setDarkBG( false );
     
-    uiFlatViewer& vwr = viewwin->viewer();
-    vwr.appearance().annot_.setAxesAnnot( true );
-    vwr.appearance().setGeoDefaults( true );
-    vwr.appearance().ddpars_.show( false, true );
-    vwr.appearance().ddpars_.wva_.overlap_ = 1;
-
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( dpid );
-    if ( !dp )
-	return 0;
-
-    mDynamicCastGet( const FlatDataPack*, fdp, dp );
-    if ( !fdp )
-    {
-	DPM(DataPackMgr::FlatID()).release( dp );
-	return false;
-    }
-
-    vwr.setPack( false, dpid, false, true );
-    int pw = 100 + 5 * fdp->data().info().getSize( 0 );
-    if ( pw > 800 ) pw = 800;
-    
-    vwr.setInitialSize( uiSize(pw,500) );  
-    viewwin->addControl( new uiFlatViewStdControl( vwr,
-			 uiFlatViewStdControl::Setup().withstates(false) ) );
     viewwin->windowClosed.notify( mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
-    vwr.drawBitMaps();
-    vwr.drawAnnot();
-    DPM(DataPackMgr::FlatID()).release( dp );
+
     return viewwin;
 }
 
@@ -604,7 +579,6 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	else
 	    getSeis2DTitle( trcnr, name2d, title );
 	uiFlatViewMainWin* viewwin = create2DViewer( title, dpid );
-	DPM(DataPackMgr::FlatID()).release( gather );
 	if ( !viewwin )
 	    continue;
 
