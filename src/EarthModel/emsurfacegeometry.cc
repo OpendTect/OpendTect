@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.51 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.52 2011-01-31 05:39:11 cvsnanne Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -221,7 +221,7 @@ SectionID SurfaceGeometry::sectionID( int idx ) const
 SectionID SurfaceGeometry::sectionID( const char* nm ) const
 {
     for ( int idx=0; idx<sectionnames_.size(); idx++ )
-	if ( *sectionnames_[idx] == nm ) return sids_[idx];
+	if ( sectionnames_.get(idx) == nm ) return sids_[idx];
     return -1;
 }
 
@@ -1061,7 +1061,7 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
     else { name = "["; name += sid + 1; name += "]"; }
 
     sids_ += sid;
-    sectionnames_ += new BufferString(name);
+    sectionnames_.add( name );
     sections_ += surf;
 
     if ( addtoundo )
