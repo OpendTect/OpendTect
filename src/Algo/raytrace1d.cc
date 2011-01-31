@@ -74,7 +74,7 @@ int RayTracer1D::findLayer( const TypeSet<AILayer>& model, float targetdepth )
     int res;
     for ( res=0; res<model.size(); res++ )
     {
-	if ( targetdepth>model[res].depth_ )
+	if ( targetdepth<model[res].depth_ )
 	    break;
     }
 
@@ -136,7 +136,6 @@ bool RayTracer1D::doPrepare( int nrthreads )
     offsetpermutation_.erase();
     for ( int idx=0; idx<offsetsz; idx++ )
 	offsetpermutation_ += offsetidx.indexOf( idx );
-
 
     if ( !sini_ )
 	sini_ = new Array2DImpl<float>( layersize, offsetsz );
@@ -234,16 +233,14 @@ float RayTracer1D::getOffset( int layer, float rayparam ) const
 
 float RayTracer1D::getSinAngle( int layer, int offset ) const
 {
+    const int offsetidx = offsetpermutation_[offset];
+
     if ( !sini_ || layer<0 || layer>=sini_->info().getSize(0) || 
-	 offset<0 || offset>=sini_->info().getSize(1) )
-    return mUdf(float);
+	 offsetidx<0 || offsetidx>=sini_->info().getSize(1) )
+	return mUdf(float);
     
-    return sini_->get( layer, offset );
+    return sini_->get( layer, offsetidx );
 }
-
-
-//float* AngleRayTracer::getSinAngleData() const
-//{ return sini_ ? sini_->getData() : 0; }
 
 
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )

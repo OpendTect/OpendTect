@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.10 2011-01-31 06:21:44 cvsranojay Exp $
+ RCS:		$Id: raytrace1d.h,v 1.11 2011-01-31 22:45:28 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -51,8 +51,8 @@ public:
 
     void		setModel(bool pmodel,const TypeSet<AILayer>&);
     			/*!<Note, if both p-model and s-model are set,
-			    they should be identical with regards to thers sizes
-			    and the layrer's depths. */
+			    they should be identical with regards to their sizes
+			    and the layers' depths. */
     void		setOffsets(const TypeSet<float>& offsets);
 
     const char*		errMsg() const { return errmsg_.str(); }
@@ -73,13 +73,10 @@ protected:
     static int		findLayer(const TypeSet<AILayer>& model,
 	    			  float targetdepth);
 
-    FixedString		errmsg_;
-
+    			//Setup variables
     TypeSet<AILayer>	pmodel_;
     TypeSet<AILayer>	smodel_;
-
     TypeSet<float>	offsets_;
-    TypeSet<int>	offsetpermutation_;
     Setup		setup_;
 
     			//Runtime variables
@@ -88,6 +85,8 @@ protected:
     int			receiverlayer_;
     float		relsourcedepth_;
     float		relreceiverdepth_;
+    TypeSet<int>	offsetpermutation_;
+    FixedString		errmsg_;
 
 			//Results
     Array2DImpl<float>*	sini_;
