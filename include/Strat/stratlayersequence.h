@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2010
- RCS:		$Id: stratlayersequence.h,v 1.6 2010-12-10 14:30:56 cvsbert Exp $
+ RCS:		$Id: stratlayersequence.h,v 1.7 2011-01-31 12:19:45 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,9 @@ public:
     void		prepareUse() const ;	//!< needed after changes
 
     int			indexOf(const Level&,int startsearchat=0) const;
+    			//!< may return -1 for not found (level below layers)
+    float		depthOf(const Level&) const;
+    			//!< will return bot of seq if lvl not found
     AIModel*		getAIModel(int velidx,int denidx,
 	    			   bool isvel=true,bool isden=true) const;
     			// if !isvel, then sonic (i.e. 1/vel)

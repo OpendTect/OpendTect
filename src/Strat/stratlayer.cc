@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.18 2011-01-28 11:08:03 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.19 2011-01-31 12:19:45 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -156,6 +156,15 @@ int Strat::LayerSequence::indexOf( const Strat::Level& lvl, int startat ) const
 	}
     }
     return -1;
+}
+
+
+float Strat::LayerSequence::depthOf( const Strat::Level& lvl ) const
+{
+    const int sz = size();
+    if ( sz < 1 ) return 0;
+    const int idx = indexOf( lvl, 0 );
+    return idx < 0 ? layers_[sz-1]->zBot() : layers_[idx]->zTop();
 }
 
 
