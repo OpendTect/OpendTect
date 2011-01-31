@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.58 2011-01-31 13:03:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.59 2011-01-31 13:08:07 cvsbruno Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -30,7 +30,7 @@ static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.58 2011-01-31 13:03:50
 #include "uipsviewershapetab.h"
 #include "uipsviewerposdlg.h"
 #include "uipsviewersettingdlg.h"
-#include "uiprestackviewer2dmainwin.h"
+#include "uipsviewer2dmainwin.h"
 #include "uiseispartserv.h"
 #include "uisoviewer.h"
 #include "uivispartserv.h"
@@ -427,8 +427,7 @@ uiViewer3DPositionDlg* uiViewer3DMgr::mkNewPosDialog( const uiMenuHandler* menu,
 uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title, 
 					      const MultiID& dpid )
 {
-    PreStack::uiViewer2DMainWin* viewwin 
-			= new PreStack::uiViewer2DMainWin( ODMainWin() );
+    uiViewer2DMainWin* viewwin = new uiViewer2DMainWin( ODMainWin() );
     viewwin->setMultiID( dpid );
     viewwin->setWinTitle( title );
     viewwin->setDarkBG( false );
