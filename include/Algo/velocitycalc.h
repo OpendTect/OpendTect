@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.22 2011-01-04 13:15:23 cvshelene Exp $
+ RCS:		$Id: velocitycalc.h,v 1.23 2011-01-31 22:43:36 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,13 +49,20 @@ public:
 
     static bool		calcDepths(const ValueSeries<float>& vels, int velsz,
 	    			   const SamplingData<double>&,float* depths);
+    			/*!<\param vels Velocity as Vint in time */
+
     static bool		calcDepths(const ValueSeries<float>& vels, int velsz,
 	    			   const ValueSeries<float>& times,
 				   float* depths); 
+    			 /*!<\param vels Velocity as Vint in time */
+
     static bool		calcTimes(const ValueSeries<float>& vels,int velsz,
 	    			  const ValueSeries<float>& depth,float* times);
+    			 /*!<\param vels Velocity as Vint in depth*/
+
     static bool		calcTimes(const ValueSeries<float>& vels, int velsz,
 	    			   const SamplingData<double>&, float* times);
+    			 /*!<\param vels Velocity as Vint in depth*/
 protected:
 
     float			firstvel_;
