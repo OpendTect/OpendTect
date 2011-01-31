@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.cc,v 1.10 2010-12-08 11:21:15 cvsumesh Exp $
+ RCS:		$Id: emfault3dpainter.cc,v 1.11 2011-01-31 10:19:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,9 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 	 			new FlatView::Annotation::AuxData( 0 );
 	stickauxdata->poly_.erase();
 	stickauxdata->linestyle_ = markerlinestyle_;
+	if ( rc.row == activestickid_ )
+	    stickauxdata->linestyle_.width_ *= 2;
+
 	stickauxdata->linestyle_.color_ = f3d.preferredColor();
 	stickauxdata->markerstyles_ += markerstyle_;
 	if ( !knotenabled_ )
