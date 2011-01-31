@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.16 2010-12-02 06:20:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.17 2011-01-31 08:41:57 cvsnageswara Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -140,9 +140,10 @@ void uiODApplMgrAttrVisHandler::createAndSetMapDataPack( int visid, int attrib,
     DataPack::ID cacheid = am_.visserv_->getDataPackID( visid, attrib );
     if ( cacheid == -1 )
 	am_.useDefColTab( visid, attrib );
+
+    am_.visserv_->setRandomPosData( visid, attrib, &data );
     const int dpid = am_.createMapDataPack( data, colnr );
     am_.visserv_->setDataPackID( visid, attrib, dpid );
-    am_.visserv_->setRandomPosData( visid, attrib, &data );
 }
 
 

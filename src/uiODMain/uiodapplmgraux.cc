@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.26 2010-11-23 06:13:43 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.27 2011-01-31 08:41:57 cvsnageswara Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -25,6 +25,9 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.26 2010-11-23 06:13:43 cv
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "veldesc.h"
+#include "vishorizondisplay.h"
+#include "vishorizonsection.h"
+#include "vissurvscene.h"
 
 #include "ui2dgeomman.h"
 #include "uimsg.h"
@@ -47,7 +50,6 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.26 2010-11-23 06:13:43 cv
 #include "uiimppvds.h"
 #include "uiseisbayesclass.h"
 #include "uisurvmap.h"
-#include "vissurvscene.h"
 
 #include "uiattribpartserv.h"
 #include "uiemattribpartserv.h"
@@ -328,18 +330,34 @@ void uiODApplMgrDispatcher::showBaseMap()
 
 
 int uiODApplMgrDispatcher::createMapDataPack( const DataPointSet& data,
-						int colnr )
+					      int colnr )
 {
+    uiVisPartServer* uivispartserv = am_.visServer();
+    if ( !uivispartserv ) return -1;
+
+    const int selobjid = uivispartserv->getSelObjectId();
+    const visBase::DataObject* dataobj = uivispartserv->getObject( selobjid );
+    mDynamicCastGet(const visSurvey::EMObjectDisplay*,emobj,dataobj)
+    mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emobj)
+    if ( !hordisp ) return -1;
+
+    const visBase::HorizonSection* horsec = hordisp->getSection( 0 );
+    if ( !horsec ) return -1;
+
+    const int attrnr = uivispartserv->getSelAttribNr();
+    const BinIDValueSet* cache = horsec->getCache( attrnr );
+    if ( !cache ) return -1;
+
     BinID step( SI().inlStep(), SI().crlStep() );
-    BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(data.bivSet(), colnr,
-	    						  step );
+    BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(*cache, colnr, step);
+
     MapDataPack* newpack = new MapDataPack( "Attribute", data.name(), bvsarr );
-    StepInterval<int> inlrgtemp = bvsarr->hrg_.inlRange();
-    StepInterval<int> crlrgtemp = bvsarr->hrg_.crlRange();
-    StepInterval<double> inlrg( (double)inlrgtemp.start, (double)inlrgtemp.stop,
-	    			(double)inlrgtemp.step );
-    StepInterval<double> crlrg( (double)crlrgtemp.start, (double)crlrgtemp.stop,
-	    			(double)crlrgtemp.step );
+    StepInterval<int> tempinlrg = bvsarr->hrg_.inlRange();
+    StepInterval<int> tempcrlrg = bvsarr->hrg_.crlRange();
+    StepInterval<double> inlrg( (double)tempinlrg.start, (double)tempinlrg.stop,
+	    			(double)tempinlrg.step );
+    StepInterval<double> crlrg( (double)tempcrlrg.start, (double)tempcrlrg.stop,
+	    			(double)tempcrlrg.step );
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
     newpack->setProps( inlrg, crlrg, true, &dimnames );
