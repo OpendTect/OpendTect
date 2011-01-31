@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.9 2011-01-27 15:57:33 cvshelene Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.10 2011-01-31 12:21:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "datapack.h"
 
 class uiLabel;
+class AIModel;
 class SeisTrcBuf;
 class uiGenInput;
 class uiComboBox;
@@ -34,7 +35,8 @@ mClass uiStratSynthCrossplot : public uiDialog
 public:
 				uiStratSynthCrossplot(uiParent*,
 						const DataPack::FullID&,
-						const Strat::LayerModel&);
+						const Strat::LayerModel&,
+						const ObjectSet<AIModel>&);
 				~uiStratSynthCrossplot();
 
 protected:
@@ -42,6 +44,7 @@ protected:
     const Strat::LayerModel&	lm_;
     SeisTrcBufDataPack*		tbpack_;
     const DataPackMgr::ID	packmgrid_;
+    const ObjectSet<AIModel>&	aimodels_;
 
     uiAttribDescSetBuild*	seisattrfld_;
     uiStratLaySeqAttribSetBuild* layseqattrfld_;

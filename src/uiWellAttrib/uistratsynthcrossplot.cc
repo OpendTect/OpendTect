@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.14 2011-01-28 13:41:18 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.15 2011-01-31 12:21:26 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.14 2011-01-28 13:4
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlayseqattrib.h"
+#include "stratlayseqattribcalc.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribengman.h"
@@ -34,16 +35,19 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.14 2011-01-28 13:4
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "survinfo.h"
+#include "aimodel.h"
 #include "valseriesevent.h"
 
 
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 					const DataPack::FullID& dpid,
-					const Strat::LayerModel& lm )
+					const Strat::LayerModel& lm,
+       					const ObjectSet<AIModel>& aimdls )
     : uiDialog(p,Setup("Layer model/synthetics cross-plotting",
 			mNoDlgTitle,mTODOHelpID))
     , packmgrid_(DataPackMgr::getID(dpid))
     , lm_(lm)
+    , aimodels_(aimdls)
     , emptylbl_(0)
     , tbpack_(0)
 {
@@ -125,9 +129,7 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
 
     extrwin.start *= 0.001; extrwin.stop *= 0.001; extrwin.step *= 0.001;
     DataPointSet* dps = getData( seisattrs, seqattrs, *lvl, extrwin );
-    if ( !dps ) return false;
-    bool rv = launchCrossPlot( *dps, *lvl, extrwin );
-    delete dps; return rv;
+    return dps ? launchCrossPlot( *dps, *lvl, extrwin ) : false;
 }
 
 
@@ -139,23 +141,38 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     DataPointSet* dps = seisattrs.createDataPointSet(Attrib::DescSetup());
     if ( !dps )
 	{ uiMSG().error(seisattrs.errMsg()); return false; }
+    dps->dataSet().add( new DataColDef(sKey::Depth) );
+    const int depthcol = dps->nrCols() - 1;
     for ( int iattr=0; iattr<seqattrs.size(); iattr++ )
 	dps->dataSet().add(
 		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr,0)) );
 
+    const int nraimdls = aimodels_.size();
+    TypeSet<float> lvltms( nraimdls, 0 );
+    for ( int imod=0; imod<nraimdls; imod++ )
+    {
+	const float dpth = lm_.sequence(imod).depthOf( lvl );
+	lvltms[imod] = aimodels_[imod]->convertTo( dpth, AIModel::TWT );
+    }
+
     const SeisTrcBuf& tbuf = tbpack_->trcBuf();
+    if ( tbuf.size() != nraimdls )
+	{ pErrMsg("DataPack nr of traces != nr of aimodels"); return 0; }
+
     const int nrextr = extrwin.nrSteps() + 1;
-    const int tbsz = tbuf.size();
     for ( int iextr=0; iextr<nrextr; iextr++ )
     {
-	const float extrz = extrwin.atIndex( iextr );
-	for ( int itrc=0; itrc<tbsz; itrc++ )
+	const float relz = extrwin.atIndex( iextr );
+	for ( int itrc=0; itrc<nraimdls; itrc++ )
 	{
 	    const SeisTrc& trc = *tbuf.get( itrc );
 	    DataPointSet::DataRow dr;
 	    dr.pos_.nr_ = trc.info().nr;
 	    dr.pos_.set( trc.info().coord );
-	    dr.pos_.z_ = extrz;
+	    dr.pos_.z_ = lvltms[itrc] + relz;
+	    dr.data_.setSize( dps->nrCols(), mUdf(float) );
+	    dr.data_[depthcol] = aimodels_[itrc]->convertTo( dr.pos_.z_,
+							     AIModel::Depth );
 	    dps->addRow( dr );
 	}
     }
@@ -187,7 +204,7 @@ bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
 	return false;
     }
 
-    exec->setName( "computing attributes on DataPacks" );                       
+    exec->setName( "Attributes from Traces" );                       
     uiTaskRunner dlg( this );                                                   
     dlg.execute(*exec);
     return false;
@@ -197,7 +214,9 @@ bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
 bool uiStratSynthCrossplot::extractLayerAttribs( DataPointSet& dps,
 				     const Strat::LaySeqAttribSet& seqattrs )
 {
-    return true;
+    Strat::LayModAttribCalc lmac( lm_, seqattrs, dps );
+    uiTaskRunner tr( this );
+    return tr.execute( lmac );
 }
 
 
@@ -212,7 +231,7 @@ bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
     uiDataPointSet* uidps = new uiDataPointSet( this, dps, su, 0 );
     uidps->setDeleteOnClose( true );
     uidps->show();
-    return true;
+    return false;
 }
 
 
@@ -222,12 +241,12 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
     Attrib::EngineMan* aem = new Attrib::EngineMan;
 
     //If default Desc(s) present remove it
-    int idx=-1;
+    int idx = -1;
     while( true )
     {
 	idx++;
 	const Attrib::Desc* tmpdesc = attrs.desc(idx);
-	if ( tmpdesc && !tmpdesc->isStoredInMem() )
+	if ( tmpdesc && tmpdesc->isStoredInMem() )
 	    const_cast<Attrib::DescSet*>(&attrs)->removeDesc( tmpdesc->id() );
 	else
 	    break;
