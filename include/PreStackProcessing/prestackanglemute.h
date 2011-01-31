@@ -7,17 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.3 2011-01-28 05:33:55 cvskris Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.4 2011-01-31 22:46:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "prestackprocessor.h"
+#include "raytrace1d.h"
+
 
 class MultiID;
 class Muter;
-class RayTracer1D;
+class SeisTrcReader;
 namespace Vel { class VolumeFunctionSource; }
 
 namespace PreStack
@@ -32,19 +34,18 @@ public:
 
 			AngleMute();
 			~AngleMute();
-    bool		prepareWork();
     bool		doPrepare(int nrthreads);
 
-    			//Use this to set up parameters of the ray tracer
-    RayTracer1D*	rayTracer()			{ return rtracer_; }
+    void		setSetup(const RayTracer1D::Setup&);
+    const RayTracer1D::Setup& getSetup() const		{ return setup_; }
     MultiID		velocityVolumeID() const	{ return velvolmid_; }
     bool		setVelocityMid(const MultiID& mid);
 
     			//Muter setup
     bool		isTailMute() const		{ return tail_; }
-    void		setTailMute(bool yn=true)	{ tail_ = yn; }
+    void		setTailMute(bool yn=true);
     float		taperLength() const		{ return taperlen_; }
-    void		setTaperLength(float l)		{ taperlen_ = l; }
+    void		setTaperLength(float l);
     void		setMuteCutoff(float co)		{ mutecutoff_ = co; }
     float		muteCutoff() const		{ return mutecutoff_; }
 
@@ -60,14 +61,16 @@ protected:
     od_int64 		nrIterations() const	{ return outputs_.size(); }
     bool		doWork(od_int64,od_int64,int);
 
-    bool		raytraceparallel_;
-    RayTracer1D*	rtracer_;
-    MultiID		velvolmid_;   
-    Muter*		muter_; 
-    bool		tail_;
-    float		taperlen_;
-    float		mutecutoff_;
+    bool			raytraceparallel_;
+    MultiID			velvolmid_;   
+    Muter*			muter_; 
+    bool			tail_;
+    float			taperlen_;
+    float			mutecutoff_;
+    ObjectSet<RayTracer1D>	rtracers_;
+    ObjectSet<SeisTrcReader>	velreaders_;
     Vel::VolumeFunctionSource*	velsource_;
+    RayTracer1D::Setup		setup_;
 };
 
 
