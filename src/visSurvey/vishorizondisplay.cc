@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.144 2011-01-07 10:52:37 cvsnageswara Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.145 2011-01-31 08:39:09 cvsnageswara Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1986,6 +1986,12 @@ bool HorizonDisplay::setDataPackID( int channel, DataPack::ID dpid,
 DataPack::ID HorizonDisplay::getDataPackID( int channel ) const
 {
     return datapackids_[channel];
+}
+
+
+const visBase::HorizonSection* HorizonDisplay::getSection( int horsecid ) const
+{
+    return sections_.validIdx( horsecid ) ? sections_[horsecid] : 0;
 }
 
 }; // namespace visSurvey

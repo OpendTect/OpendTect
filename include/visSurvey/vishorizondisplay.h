@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.63 2011-01-27 04:48:17 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.64 2011-01-31 08:39:09 cvsnageswara Exp $
 ________________________________________________________________________
 
 
@@ -169,6 +169,7 @@ public:
 
     void			displayIntersectionLines(bool);
     bool			displaysIntersectionLines() const;
+    const visBase::HorizonSection*	getSection(int id) const;
         
 protected:
     				~HorizonDisplay();
