@@ -6,16 +6,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.9 2011-01-28 23:07:40 cvskris Exp $
+ RCS:		$Id: raytrace1d.h,v 1.10 2011-01-31 06:21:44 cvsranojay Exp $
 ________________________________________________________________________
 
 */
 
+#include "ailayer.h"
 #include "fixedstring.h"
 #include "task.h"
 
 template <class T> class Array2DImpl;
-class AILayer;
 class IOPar;
 
 mClass RayTracer1D : public ParallelTask

@@ -7,7 +7,6 @@
 
 #include "raytrace1d.h"
 
-#include "ailayer.h"
 #include "arrayndimpl.h"
 #include "iopar.h"
 #include "genericnumer.h"

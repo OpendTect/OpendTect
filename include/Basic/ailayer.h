@@ -1,5 +1,5 @@
 #ifndef ailayer_h
-#define aimodel_hlayer_h
+#define ailayer_h
 
 /*+
 ________________________________________________________________________
@@ -7,15 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.1 2011-01-27 22:24:26 cvskris Exp $
+ RCS:		$Id: ailayer.h,v 1.2 2011-01-31 06:21:44 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 /*!\brief Acoustic Impedance layer.  */
 
-mStruct AILayer
+#include "commondefs.h"
+
+mClass AILayer
 {
+public:
 		AILayer( float z, float vel, float den )
 		    : depth_(z), vel_(vel), den_(den)	{}
     bool	operator ==( const AILayer& p ) const
