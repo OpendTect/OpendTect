@@ -36,6 +36,7 @@ public:
     uiObjectItem*		getItemFromPos(const Geom::Point2D<int>&);
     void			getItemsFromRect(const uiRect&,
 					       ObjectSet<uiObjectItem>&);
+    void			reSizeItem(int idx,const uiSize&);
 
     int 			stretchFactor(uiObjectItem*);
     void 			setStretchFactor(uiObjectItem*,int sf);

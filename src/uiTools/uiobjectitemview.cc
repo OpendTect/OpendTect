@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.12 2010-06-24 11:55:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.13 2011-01-31 13:07:46 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -126,5 +126,8 @@ void uiObjectItemView::setStretchFactor(uiObjectItem* itm,int stretchfactor )
 
 
 
-
+void uiObjectItemView::reSizeItem( int idx, const uiSize& sz )
+{
+    getItem( idx )->setObjectSize( sz.width(), sz.height() );
+}
 
