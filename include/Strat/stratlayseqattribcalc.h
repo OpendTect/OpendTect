@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2011
- RCS:		$Id: stratlayseqattribcalc.h,v 1.3 2011-01-28 11:09:51 cvsbert Exp $
+ RCS:		$Id: stratlayseqattribcalc.h,v 1.4 2011-01-31 12:19:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "executor.h"
 class DataPointSet;
+class AIModel;
 
 namespace Strat
 {
@@ -61,13 +62,16 @@ mClass LayModAttribCalc : public Executor
 {
 public:
     			LayModAttribCalc(const LayerModel&,
-					 const LaySeqAttribSet&,DataPointSet&);
+					 const LaySeqAttribSet&,
+					 DataPointSet&);
 			~LayModAttribCalc();
 
-    const char*		message() const	{ return "Extracting layer attributes";}
-    const char*		nrDoneText() const { return "Models handled";}
-    od_int64		nrDone() const	{ return seqidx_; }
-    od_int64		totalNr() const	{ return calcs_.size(); }
+    void		setCalcZWidth( float w ) { calczwdth_ = w; }
+
+    const char*		message() const		{ return msg_.buf(); }
+    const char*		nrDoneText() const	{ return "Models handled";}
+    od_int64		nrDone() const		{ return seqidx_; }
+    od_int64		totalNr() const		{ return calcs_.size(); }
     int			nextStep();
 
 protected:
@@ -75,8 +79,11 @@ protected:
     const LayerModel&		lm_;
     ObjectSet<LaySeqAttribCalc>	calcs_;
     od_int64			seqidx_;
-    TypeSet<int>		dpsidxs_;
+    TypeSet<int>		dpscidxs_;
+    int				dpsdepthcidx_;
     DataPointSet&		dps_;
+    BufferString		msg_;
+    float			calczwdth_;
 
 };
 

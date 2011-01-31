@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqattrib.cc,v 1.6 2011-01-28 11:09:51 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseqattrib.cc,v 1.7 2011-01-31 12:19:26 cvsbert Exp $";
 
 #include "stratlayseqattrib.h"
 #include "stratlayseqattribcalc.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: stratseqattrib.cc,v 1.6 2011-01-28 11:09:51 cvs
 #include "separstr.h"
 #include "keystrs.h"
 #include "iopar.h"
+#include "survinfo.h"
 #include <math.h>
 
 
@@ -321,7 +322,16 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
     , lm_(lm)
     , dps_(res)
     , seqidx_(0)
+    , msg_("Extracting layer attributes")
+    , calczwdth_(SI().zRange(false).step / 2)
 {
+    if ( SI().zIsTime() )
+	calczwdth_ *= 2000;
+
+    dpsdepthcidx_ = dps_.indexOf( sKey::Depth );
+    if ( dpsdepthcidx_ < 0 )
+	return;
+
     for ( int idx=0; idx<lsas.size(); idx++ )
     {
 	const LaySeqAttrib& lsa = *lsas[idx];
@@ -331,7 +341,7 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
 
 	LaySeqAttribCalc* calc = new LaySeqAttribCalc( lsa, lm );
 	calcs_ += calc;
-	dpsidxs_ += dpsidx;
+	dpscidxs_ += dpsidx;
     }
 }
 
@@ -342,14 +352,36 @@ Strat::LayModAttribCalc::~LayModAttribCalc()
 }
 
 
+#define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
+
+
 int Strat::LayModAttribCalc::nextStep()
 {
-    if ( seqidx_ >= lm_.size() ) return Finished();
+    const int dpssz = dps_.size();
+    if ( dpsdepthcidx_ < 0 )
+	mErrRet("Internal: no depth information found in DPS")
+    else if ( dpssz < 1 )
+	mErrRet("No data points for extraction")
+    if ( seqidx_ >= lm_.size() )
+	return Finished();
 
     const LayerSequence& seq = lm_.sequence( seqidx_ );
-    for ( int idx=0; idx<dpsidxs_.size(); idx++ )
+    DataPointSet::RowID dpsrid = 0;
+    while ( dpsrid < dpssz && dps_.trcNr(dpsrid) != seqidx_ + 1 )
+	dpsrid++;
+
+    while ( dpsrid < dpssz && dps_.trcNr(dpsrid) == seqidx_ + 1 )
     {
-	// const float val = calcs_[idx]->getValue
+	DataPointSet::DataRow dr( dps_.dataRow(dpsrid) );
+	float* dpsvals = dps_.getValues( dpsrid );
+	const float z = dpsvals[ dpsdepthcidx_ ];
+	const Interval<float> zrg( z-calczwdth_, z+calczwdth_ );
+	for ( int idx=0; idx<dpscidxs_.size(); idx++ )
+	{
+	    const float val = calcs_[idx]->getValue( seq, zrg );
+	    dpsvals[ dpscidxs_[idx] ] = val;
+	}
+	dpsrid++;
     }
 
     seqidx_++;
