@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.105 2011-01-27 13:02:06 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.106 2011-01-31 14:26:05 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -697,6 +697,9 @@ SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
 	return 0;
 
     int trcidx = stbdtp->trcBuf().find(currentbid_+relpos, desc_.is2D());
+    if ( trcidx+relidx >= stbdtp->trcBuf().size() || trcidx+relidx<0 )
+	return 0;
+
     return stbdtp->trcBuf().get( trcidx + relidx );
 }
 
@@ -766,7 +769,7 @@ BinID StorageProvider::getStepoutStep() const
 	}
     }
     else
-	sos.inl = sos.crl = 0;
+	sos.inl = sos.crl = 1;
 
     return stepoutstep_;
 }
