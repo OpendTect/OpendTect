@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.15 2011-01-31 12:21:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.16 2011-01-31 14:24:51 cvshelene Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -207,7 +207,7 @@ bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
     exec->setName( "Attributes from Traces" );                       
     uiTaskRunner dlg( this );                                                   
     dlg.execute(*exec);
-    return false;
+    return true;
 }
 
 
@@ -246,7 +246,7 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
     {
 	idx++;
 	const Attrib::Desc* tmpdesc = attrs.desc(idx);
-	if ( tmpdesc && tmpdesc->isStoredInMem() )
+	if ( tmpdesc && tmpdesc->isStored() && !tmpdesc->isStoredInMem() )
 	    const_cast<Attrib::DescSet*>(&attrs)->removeDesc( tmpdesc->id() );
 	else
 	    break;
