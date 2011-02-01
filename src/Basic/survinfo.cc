@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.151 2011-01-20 09:03:06 cvsranojay Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.152 2011-02-01 23:07:07 cvsyuancheng Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -225,7 +225,12 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	else if ( keyw == sKeySurvDataType() )
 	{
 	    Pol2D var;
-	    parseEnumPol2D( astream.value(), var );
+	    if ( !parseEnumPol2D( astream.value(), var ) )
+	    {
+		UsrMsg("Cannot parse survey type!");
+		var = Both2DAnd3D;
+	    }
+
 	    si->setSurvDataType( var );
 	    si->survdatatypeknown_ = true;
 	}
