@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.42 2011-01-27 22:30:16 cvskris Exp $
+ RCS:		$Id: string2.h,v 1.43 2011-02-01 21:15:33 cvskris Exp $
 ________________________________________________________________________
 -*/
 
@@ -99,33 +99,33 @@ mGlobal int getIndexInStringArrCI(const char*,const char* const* arr,
 
 // toString functions. Can be used MT, provided you do not pass null for result
 // buffer. If you are sure you don't need MT, then passing null is OK.
-inline const char* toString( od_int32 i, char* r )
+inline const char* toString( od_int32 i, char* r=0 )
 	{ return getStringFromInt( i, r ); }
-inline const char* toString( od_uint32 i, char* r )
+inline const char* toString( od_uint32 i, char* r=0 )
 	{ return getStringFromUInt( i, r ); }
-inline const char* toString( od_int64 i, char* r )
+inline const char* toString( od_int64 i, char* r=0 )
 	{ return getStringFromInt64( i, r ); }
-inline const char* toString( od_uint64 i, char* r )
+inline const char* toString( od_uint64 i, char* r=0 )
 	{ return getStringFromUInt64(i,r); }
-inline const char* toString( float f, char* r )	
+inline const char* toString( float f, char* r=0 )	
 	{ return getStringFromFloat(0,f,r); }
-inline const char* toString( double d, char* r )
+inline const char* toString( double d, char* r=0 )
 	{ return getStringFromDouble(0,d,r); }
-inline const char* toString( short i, char* r )
+inline const char* toString( short i, char* r=0 )
 	{ return getStringFromInt((int)i,r); }
-inline const char* toString( unsigned short i, char* r )
-	{ return getStringFromUInt( (unsigned int)i, r ); }
-inline const char* toString( const char* str, char* r )	
+inline const char* toString( unsigned short i, char* r=0 )
+	{ return getStringFromUInt( (unsigned int)i, r=0 ); }
+inline const char* toString( const char* str, char* r=0 )	
 	{ return str && r ? strcpy(r,str) : str; } 
-inline const char* toString( unsigned char c, char* r )	
+inline const char* toString( unsigned char c, char* r=0 )	
 	{ return toString( ((unsigned short)c), r ); }
-inline const char* toString( signed char c, char* r )	
+inline const char* toString( signed char c, char* r=0 )	
 {
     static char buf[2]; if ( !r ) r = buf;
     r[0] = (char)c; r[1] = '\0';
     return r;
 }
-inline const char* toString( bool b, char* r )	
+inline const char* toString( bool b, char* r=0 )	
 {
     const char* res = getYesNoString(b);
     if ( r ) strcpy( r, res );
