@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.66 2011-02-01 14:59:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.67 2011-02-01 15:41:26 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -193,7 +193,8 @@ void uiStratRefTree::handleMenu( uiListViewItem* lvit )
 
 void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 {
-    const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) ) : 0;
+    const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) ) 
+				    : 0;
     if ( lvit && ( !un || un->isLeaf() ) ) return;
 
     NodeUnitRef* parun = lvit ? (NodeUnitRef*)un : tree_;
@@ -252,7 +253,7 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 void uiStratRefTree::addLithologies( Strat::LeavedUnitRef& un, 
 					const TypeSet<int>& ids )
 {
-    uiListViewItem* lvit = lv_->findItem( un.code().buf(), 0, false );
+    uiListViewItem* lvit = getLVItFromFullCode( un.fullCode() );
     if ( !lvit ) return;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
@@ -442,15 +443,12 @@ uiListViewItem* uiStratRefTree::getLVItFromFullCode( const char* code ) const
     {
 	uiListViewItem* item = lvit;
 	BufferString bs = item->text();
-	for ( int idx=0; idx<item->nrChildren(); idx++ )
+	while ( item->parent() )
 	{
-	    while ( item->parent() )
-	    {
-		item = item->parent();
-		CompoundKey kc( item->text() );
-		kc += bs.buf();
-		bs = kc.buf();
-	    }
+	    item = item->parent();
+	    CompoundKey kc( item->text() );
+	    kc += bs.buf();
+	    bs = kc.buf();
 	}
 	if ( !strcmp( code, bs.buf() ) )
 	    return lvit;
@@ -541,7 +539,8 @@ bool uiStratRefTree::canMoveUnit( bool up )
 
 bool uiStratRefTree::isLeaved( uiListViewItem* lvit ) const
 {
-    const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) ) : 0;
+    const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) ) 
+				    : 0;
     return ( un && un->isLeaved() ); 
 }
 
