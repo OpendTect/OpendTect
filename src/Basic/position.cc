@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.71 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.72 2011-02-01 19:46:50 cvskris Exp $";
 
 #include "position.h"
 
@@ -150,9 +150,9 @@ void Coord3::fill(char* str, const char* start,
 		     const char* space, const char* end) const
 {
     strcpy( str, start );
-    toString( x, str+strlen(str) ); strcat(str,space);
-    toString( y, str+strlen(str) ); strcat(str,space);
-    toString( z, str+strlen(str) ); strcat(str,space);
+    getStringFromDouble( 0, x, str+strlen(str) ); strcat(str,space);
+    getStringFromDouble( 0, y, str+strlen(str) ); strcat(str,space);
+    getStringFromDouble( 0, z, str+strlen(str) ); strcat(str,space);
     strcat( str, end );
 }
 
