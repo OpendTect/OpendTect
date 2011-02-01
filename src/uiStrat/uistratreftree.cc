@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.64 2010-12-16 13:51:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.65 2011-02-01 14:33:05 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -432,6 +432,32 @@ ioPixmap* uiStratRefTree::createUnitPixmap( const Color& col ) const
 	}
     }
     return new ioPixmap( rgbarr );
+}
+
+
+uiListViewItem* uiStratRefTree::getLVItFromFullCode( const char* code ) const
+{
+    uiListViewItem* lvit = lv_->firstItem();
+    while ( lvit )
+    {
+	uiListViewItem* item = lvit;
+	BufferString bs = item->text();
+	for ( int idx=0; idx<item->nrChildren(); idx++ )
+	{
+	    while ( item->parent() )
+	    {
+		item = item->parent();
+		CompoundKey kc( item->text() );
+		kc += bs.buf();
+		bs = kc.buf();
+	    }
+	}
+	if ( !strcmp( code, bs.buf() ) )
+	    return lvit;
+
+	lvit = lvit->itemBelow();
+    }
+    return 0;
 }
 
 

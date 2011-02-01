@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.34 2010-11-23 13:21:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.35 2011-02-01 14:33:05 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -248,7 +248,7 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	}
 	else if ( getUnitFromPos() )
 	{
-	    uidatawriter_.handleUnitMenu( getUnitFromPos()->name() );
+	    uidatawriter_.handleUnitMenu( getUnitFromPos()->fullCode() );
 	}
 	else if ( getParentUnitFromPos() || getColIdxFromPos() == 0 ) 
 	{

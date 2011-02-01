@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.46 2010-12-22 16:12:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.47 2011-02-01 14:33:05 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -151,17 +151,22 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 	mPreventWrongChar( name.buf(), return false );
     }
 
+    const char* oldcode = unit_.code();
+    unit_.setCode( name.buf() );
     BufferString namemsg( "Unit name already used. Please specify a new name");
     if ( strcmp(name.buf(),entrancename_.buf()) )
     {
 	Strat::UnitRefIter it( Strat::RT() );
 	while ( it.next() )
 	{
-	    if ( !strcmp(name.buf(),it.unit()->code()) && it.unit() != &unit_ )
-		{ mErrRet( namemsg, return false ) }
+	    if ( !strcmp( unit_.fullCode(), it.unit()->fullCode() ) 
+		    && it.unit() != &unit_ )
+	    { 
+		unit_.setCode( oldcode ); 
+		mErrRet( namemsg, return false ) 
+	    }
 	}
     }
-    unit_.setCode( name.buf() );
 
     if ( unit_.isLeaved() && lithids_.size() <= 0 )
     { 
@@ -554,6 +559,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
     for ( int idx=0; idx<units.size(); idx++ )
     {
 	BufferString code( units[idx]->code() );
+	const char* fullcode = units[idx]->code();
 	BufferString errmsg;
 	if ( code.isEmpty() )
 	{
@@ -569,8 +575,8 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	    Strat::UnitRefIter it( Strat::RT() );
 	    while ( it.next() )
 	    {
-		if ( !strcmp(code.buf(),it.unit()->code()) 
-						&& it.unit() != &rootunit_ )
+		if ( !strcmp(fullcode,it.unit()->fullCode()) 
+			&& it.unit() != &rootunit_ )
 		    errmsg += "Unit name already used. ";
 	    }
 	}

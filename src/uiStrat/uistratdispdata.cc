@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.22 2010-10-07 12:11:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.23 2011-02-01 14:33:05 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
@@ -169,7 +169,8 @@ uiStratDispToTreeTransl::uiStratDispToTreeTransl( uiStratRefTree& uitree )
     : uitree_(uitree)
 {}
 
-#define mGetLItem(t) uiListViewItem* lit = uitree_.listView()->findItem(t,0,false); if ( lit ) { uitree_.listView()->setCurrentItem(lit); } else return;
+#define mGetLItem(t) uiListViewItem* lit = uitree_.getLVItFromFullCode( txt);\
+if ( lit ) { uitree_.listView()->setCurrentItem(lit); } else return;
 
 void uiStratDispToTreeTransl::handleUnitMenu( const char* txt )
 {

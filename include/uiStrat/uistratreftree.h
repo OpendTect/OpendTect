@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.33 2010-11-18 15:43:36 cvsbruno Exp $
+ RCS:           $Id: uistratreftree.h,v 1.34 2011-02-01 14:33:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
 
     uiListView*		listView()		{ return lv_; }
     const uiListView*	listView() const	{ return lv_; }
+    uiListViewItem* 	getLVItFromFullCode(const char*) const;
     void                expand(bool) const;
     void                makeTreeEditable(bool) const;
     void		handleMenu(uiListViewItem*);
