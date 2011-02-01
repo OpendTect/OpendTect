@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.12 2011-02-01 11:34:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.13 2011-02-01 13:22:02 cvshelene Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -292,7 +292,11 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 		    		Attrib::StorageProvider::keyStr() );
 	    const MultiID descid( vp->getStringValue(0) + 1 );
 	    if ( dpfids_.indexOf(descid) < 0 )
-		vp->setValue( dpfids_[0].buf() );
+	    {
+		BufferString fidstr = "#";
+		fidstr += dpfids_[0];
+		vp->setValue( fidstr.buf() );
+	    }
 	}
     }
 
