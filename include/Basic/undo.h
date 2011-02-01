@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: undo.h,v 1.6 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: undo.h,v 1.7 2011-02-01 10:03:32 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -80,6 +80,7 @@ public:
     bool			reDo(int nrtimes=1,bool userinteraction=true);
 
     Notifier<Undo>		changenotifier; //Any change
+    Notifier<Undo>		undoredochange; //can**Do() or **DoDesc() change
 
 protected:
     int				indexOf(int eventid) const;

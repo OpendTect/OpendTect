@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.30 2011-01-21 15:55:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.31 2011-02-01 10:03:32 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -341,7 +341,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     deseltimer_.tick.notify( mCB(this,uiODFaultToolMan,deselTimerCB) );
     editreadytimer_.tick.notify( mCB(this,uiODFaultToolMan,editReadyTimerCB) );
     flashtimer_.tick.notify( mCB(this,uiODFaultToolMan,flashOutputTimerCB) );
-    EM::EMM().undo().changenotifier.notify(
+    EM::EMM().undo().undoredochange.notify(
 				mCB(this,uiODFaultToolMan,updateToolbarCB) );
 }
 
@@ -359,7 +359,7 @@ uiODFaultToolMan::~uiODFaultToolMan()
 
     appl_.finaliseDone.remove( mCB(this,uiODFaultToolMan,finaliseDoneCB) );
     IOM().surveyChanged.remove( mCB(this,uiODFaultToolMan,surveyChg) );
-    EM::EMM().undo().changenotifier.remove(
+    EM::EMM().undo().undoredochange.remove(
 				mCB(this,uiODFaultToolMan,updateToolbarCB) );
 
     delete toolbar_;

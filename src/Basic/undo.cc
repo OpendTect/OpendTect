@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: undo.cc,v 1.9 2010-06-24 13:07:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: undo.cc,v 1.10 2011-02-01 10:03:32 cvsjaap Exp $";
 
 #include "undo.h"
 
@@ -22,6 +22,7 @@ Undo::Undo()
     , maxsize_( 1000 )
     , userendscount_(0)
     , changenotifier(this)
+    , undoredochange(this)
 { }
 
 
@@ -31,8 +32,21 @@ Undo::~Undo()
 }
 
 
+#define mStoreUndoRedoState() \
+    const bool oldcanundostate = canUnDo(); \
+    const bool oldcanredostate = canReDo(); \
+    BufferString oldundodesc = unDoDesc(); \
+    BufferString oldredodesc = reDoDesc();
+
+#define mTriggerIfUndoRedoChange() \
+    if ( oldcanundostate!=canUnDo() || oldundodesc!=unDoDesc() || \
+	 oldcanredostate!=canReDo() || oldredodesc!=reDoDesc() ) \
+	undoredochange.trigger();
+
+
 void Undo::removeAll()
 {
+    mStoreUndoRedoState();
     deepErase( events_ );
     userendscount_ = 0;
 
@@ -40,6 +54,7 @@ void Undo::removeAll()
     firsteventid_ = 0;
 
     changenotifier.trigger();
+    mTriggerIfUndoRedoChange();
 }
 
 
@@ -154,6 +169,7 @@ void Undo::setDesc( int eventid, const char* d )
 
 int Undo::addEvent( UndoEvent* event, const char* description )
 {
+    mStoreUndoRedoState();
     if ( canReDo() )
     {
 	NotifyStopper stop( changenotifier );
@@ -166,6 +182,7 @@ int Undo::addEvent( UndoEvent* event, const char* description )
 
     removeOldEvents();
     changenotifier.trigger();
+    mTriggerIfUndoRedoChange();
     return currenteventid_;
 }
 
@@ -178,6 +195,7 @@ bool Undo::canUnDo() const
 
 bool Undo::unDo( int nrtimes, bool userinteraction )
 {
+    mStoreUndoRedoState();
     bool change = false;
     while ( nrtimes && canUnDo() )
     {
@@ -208,6 +226,7 @@ bool Undo::unDo( int nrtimes, bool userinteraction )
 	changenotifier.trigger();
     }
 
+    mTriggerIfUndoRedoChange();
     return true;
 }
 
@@ -220,6 +239,7 @@ bool Undo::canReDo() const
 
 bool Undo::reDo( int nrtimes, bool userinteraction )
 {
+    mStoreUndoRedoState();
     bool change = false;
     while ( nrtimes && canReDo() )
     {
@@ -245,6 +265,7 @@ bool Undo::reDo( int nrtimes, bool userinteraction )
 	changenotifier.trigger();
     }
 
+    mTriggerIfUndoRedoChange();
     return true;
 }
 
@@ -261,6 +282,7 @@ int Undo::indexOf( int eventid ) const
 
 void Undo::removeStartToAndIncluding( int eventid )
 {
+    mStoreUndoRedoState();
     while ( firsteventid_<=eventid )
     {
 	mUpdateUserEndsCount(0,false);
@@ -272,6 +294,7 @@ void Undo::removeStartToAndIncluding( int eventid )
 	currenteventid_ = firsteventid_-1;
 
     changenotifier.trigger();
+    mTriggerIfUndoRedoChange();
 }
 
 

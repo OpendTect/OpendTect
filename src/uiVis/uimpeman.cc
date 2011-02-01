@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.206 2011-01-21 15:55:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.207 2011-02-01 10:03:32 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -95,7 +95,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     toolbar = new uiToolBar( p, "Tracking controls", uiToolBar::Bottom );
     addButtons();
 
-    EM::EMM().undo().changenotifier.notify(
+    EM::EMM().undo().undoredochange.notify(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     engine().trackplanechange.notify(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
@@ -193,7 +193,7 @@ void uiMPEMan::addButtons()
 
 uiMPEMan::~uiMPEMan()
 {
-    EM::EMM().undo().changenotifier.remove(
+    EM::EMM().undo().undoredochange.remove(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     deleteVisObjects();
     engine().trackplanechange.remove(
