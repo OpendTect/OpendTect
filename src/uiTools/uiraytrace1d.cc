@@ -4,15 +4,12 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.2 2011-01-28 23:07:40 cvskris Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.3 2011-02-01 21:32:39 cvsyuancheng Exp $";
 
 #include "uiraytrace1d.h"
 
-//#include "raytrace1d.h"
 #include "survinfo.h"
-//#include "uiioobjsel.h"
 #include "uigeninput.h"
-//#include "uiveldesc.h"
 
 
 uiRayTracer1D::uiRayTracer1D( uiParent* p, bool dosourcereceiverdepth,
@@ -32,13 +29,12 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, bool dosourcereceiverdepth,
     if ( dosourcereceiverdepth )
     {
 	BufferString lb = "Source/Receiver depths";
-	lb += SI().getZUnitString( true );
-	srcdepthfld_ =
-	    new uiGenInput(this, lb.buf(), FloatInpIntervalSpec(false));
+	lb += SI().zIsTime() ? "(ft)" : SI().getZUnitString( true );
+	srcdepthfld_ =new uiGenInput(this,lb.buf(),FloatInpIntervalSpec(false));
 	if ( setup )
 	{
-	    srcdepthfld_->setValue( Interval<float>(setup->sourcedepth_,
-			setup->receiverdepth_ ) );
+	    Interval<float> depths(setup->sourcedepth_, setup->receiverdepth_);
+	    srcdepthfld_->setValue( depths );
 	}
     }
 
