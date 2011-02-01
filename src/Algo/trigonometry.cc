@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.54 2010-12-28 22:20:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.55 2011-02-01 04:25:37 cvsnanne Exp $";
 
 #include "trigonometry.h"
 
@@ -247,6 +247,16 @@ Line2::Line2( const Coord& start, const Coord& stop )
 	slope_ = ydiff / xdiff;
 	yintcpt_ = start_.y - slope_ * start_.x;
     }
+}
+
+
+bool Line2::operator==( const Line2& line ) const
+{
+    if ( isvertical_ )
+	return line.isvertical_ && mIsEqual(xintcpt_,line.xintcpt_,mDefEps);
+
+    return mIsEqual(slope_,line.slope_,mDefEps) &&
+	   mIsEqual(yintcpt_,line.yintcpt_,mDefEps);
 }
 
 

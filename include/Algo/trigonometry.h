@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.47 2010-12-28 22:20:54 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.48 2011-02-01 04:25:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -304,6 +304,8 @@ public:
     			Line2(double slope=0,double intcpt=0);
     			Line2(const Coord&,double slope);
 			Line2(const Coord&,const Coord&);
+
+    bool		operator==(const Line2&) const;
 
     Coord		direction() const;	/*!<Normalized */
 
