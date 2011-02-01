@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: randomlinetr.cc,v 1.11 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: randomlinetr.cc,v 1.12 2011-02-01 19:57:22 cvskris Exp $";
 
 #include "randomlinetr.h"
 #include "randomlinefact.h"
@@ -92,7 +92,7 @@ static void getZRgAndName( ascistream& astrm, Interval<float>& zrg,
 	return;
 
     FileMultiString fms = astrm.value();
-    zrg.start = atof( fms[0] ); zrg.stop = atof( fms[1] );
+    zrg.start = toFloat( fms[0] ); zrg.stop = toFloat( fms[1] );
     astrm.next();
 
     if ( astrm.hasKeyword(sKey::Name) )
@@ -107,8 +107,8 @@ static void putZRangeAndName( ascostream& astrm,
 			      const Geometry::RandomLine& rdl )
 {
     const Interval<float> zrg( rdl.zRange() );
-    FileMultiString fms = Conv::to<const char*>( zrg.start );
-    fms.add( Conv::to<const char*>(zrg.stop) );
+    FileMultiString fms = toString( zrg.start );
+    fms.add( toString(zrg.stop) );
     astrm.put( sKey::ZRange, fms );
     if ( !rdl.name().isEmpty() )
 	astrm.put( sKey::Name, rdl.name() );
@@ -158,7 +158,7 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 	    if ( *ptr )
 	    {
 		*ptr++ = '\0'; mSkipBlanks(ptr);
-		rl->addNode( BinID(atoi(loc.buf()),atoi(ptr)) );
+		rl->addNode( BinID(toInt(loc.buf()),toInt(ptr)) );
 	    }
 	    astrm.next();
 	}
