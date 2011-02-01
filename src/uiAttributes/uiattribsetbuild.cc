@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.11 2011-01-27 15:55:35 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.12 2011-02-01 11:34:16 cvsbert Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -23,6 +23,8 @@ static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.11 2011-01-27 15:55:35 
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsettr.h"
+#include "attribstorprovider.h"
+#include "attribparambase.h"
 #include "attribfactory.h"
 #include "linekey.h"
 #include "survinfo.h"
@@ -163,7 +165,7 @@ void uiAttribDescSetBuild::fillDefAttribFld()
     const BufferString prevsel( defattrfld_->getText() );
     defattrfld_->setEmpty();
 
-    const int sz = descset_.nrDescs();
+    const int sz = descset_.size();
     for ( int idx=0; idx<sz; idx++ )
     {
 	const Attrib::Desc& desc = *descset_.desc( idx );
@@ -279,7 +281,20 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
     else
 	uiMSG().error( emsg );
 
+    if ( forread && !dpfids_.isEmpty() )
+    {
+	for ( int iattr=0; iattr<descset_.size(); iattr++ )
+	{
+	    Attrib::Desc& desc = *descset_.desc( iattr );
+	    if ( !desc.isStoredInMem() ) continue;
+
+	    Attrib::ValParam* vp = desc.getValParam(
+		    		Attrib::StorageProvider::keyStr() );
+	    const MultiID descid( vp->getStringValue(0) + 1 );
+	    if ( dpfids_.indexOf(descid) < 0 )
+		vp->setValue( dpfids_[0].buf() );
+	}
+    }
+
     return res;
 }
-
-
