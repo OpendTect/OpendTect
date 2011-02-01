@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.65 2011-02-01 14:33:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.66 2011-02-01 14:59:29 cvsbruno Exp $";
 
 #include "uistratreftree.h"
 
@@ -193,7 +193,7 @@ void uiStratRefTree::handleMenu( uiListViewItem* lvit )
 
 void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 {
-    const Strat::UnitRef* un = lvit ? tree_->find( getCodeFromLVIt(lvit) ) : 0;
+    const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) ) : 0;
     if ( lvit && ( !un || un->isLeaf() ) ) return;
 
     NodeUnitRef* parun = lvit ? (NodeUnitRef*)un : tree_;
@@ -282,7 +282,7 @@ void uiStratRefTree::subdivideUnit( uiListViewItem* lvit )
 {
     if ( !lvit ) return;
 
-    Strat::UnitRef* startunit = tree_->find( getCodeFromLVIt( lvit ) );
+    Strat::UnitRef* startunit = tree_->find( getFullCodeFromLVIt( lvit ) );
     if ( !startunit || !startunit->isLeaved() ) 
 	return;
     LeavedUnitRef& ldur = (LeavedUnitRef&)(*startunit);
@@ -356,7 +356,7 @@ void uiStratRefTree::insertUnitInLVIT( uiListViewItem* lvit, int posidx,
 void uiStratRefTree::removeUnit( uiListViewItem* lvit )
 {
     if ( !lvit ) return;
-    Strat::UnitRef* un = tree_->find( getCodeFromLVIt( lvit ) );
+    Strat::UnitRef* un = tree_->find( getFullCodeFromLVIt( lvit ) );
     if ( !un ) return;
     Strat::NodeUnitRef* upnode = un->upNode();
     if ( !upnode ) return;
@@ -391,7 +391,7 @@ void uiStratRefTree::removeUnit( uiListViewItem* lvit )
 
 void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 {
-    UnitRef* unitref = tree_->find( getCodeFromLVIt(lvit) );
+    UnitRef* unitref = tree_->find( getFullCodeFromLVIt(lvit) );
     if ( !unitref || unitref->isLeaf() ) return;
     unitref->setCode( lvit->text(cUnitsCol) );
     unitref->setDescription( lvit->text(cDescCol) );
@@ -461,7 +461,7 @@ uiListViewItem* uiStratRefTree::getLVItFromFullCode( const char* code ) const
 }
 
 
-BufferString uiStratRefTree::getCodeFromLVIt( const uiListViewItem* item ) const
+BufferString uiStratRefTree::getFullCodeFromLVIt( const uiListViewItem* item ) const
 {
     if ( !item )
 	return BufferString();
@@ -518,7 +518,7 @@ void uiStratRefTree::moveUnit( bool up )
 
     curit->setOpen( isexpanded );
     lv_->setCurrentItem(curit);
-    //tree_->move( getCodeFromLVIt( curit ).buf(), up );
+    //tree_->move( getFullCodeFromLVIt( curit ).buf(), up );
 }
 
 
@@ -541,7 +541,7 @@ bool uiStratRefTree::canMoveUnit( bool up )
 
 bool uiStratRefTree::isLeaved( uiListViewItem* lvit ) const
 {
-    const Strat::UnitRef* un = lvit ? tree_->find( getCodeFromLVIt(lvit) ) : 0;
+    const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) ) : 0;
     return ( un && un->isLeaved() ); 
 }
 
@@ -549,7 +549,7 @@ bool uiStratRefTree::isLeaved( uiListViewItem* lvit ) const
 void uiStratRefTree::assignLevelBoundary( uiListViewItem* lvit )
 {
     if ( lvit )
-	setUnitLvl( getCodeFromLVIt(lvit) );
+	setUnitLvl( getFullCodeFromLVIt(lvit) );
 }
 
 
