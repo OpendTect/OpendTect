@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.36 2011-01-11 14:28:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.37 2011-02-01 11:48:15 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -572,9 +572,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	setActiveStick( insertpid );
 
     if ( locked_ || !pos.isDefined() ||
-	 eventinfo.type!=visBase::MouseClick || viseditor_->isDragging() ||
-	 OD::altKeyboardButton(eventinfo.buttonstate_) ||
-	 !OD::leftMouseButton(eventinfo.buttonstate_) )
+	 eventinfo.type!=visBase::MouseClick || viseditor_->isDragging() )
 	return;
 
     if ( !mousepid.isUdf() )
@@ -582,6 +580,10 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	fsseditor_->setLastClicked( mousepid );
 	setActiveStick( mousepid );
     }
+
+    if ( OD::altKeyboardButton(eventinfo.buttonstate_) || 
+	 !OD::leftMouseButton(eventinfo.buttonstate_) )
+	return;
 
 
     if ( !mousepid.isUdf() && OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
