@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.26 2011-02-01 15:57:57 cvskris Exp $
+ RCS:		$Id: enums.h,v 1.27 2011-02-01 23:18:19 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,7 +170,6 @@ const char* MyClass::Typenames_[] =
 -*/
 
 
-#include "string2.h"
 #include "namedobj.h"
 
 
@@ -179,27 +178,17 @@ const char* MyClass::Typenames_[] =
 mClass EnumDef : public NamedObject
 {
 public:
-			EnumDef( const char* nm, const char* s[], short nrs=0 )
-				: NamedObject(nm)
-				, names_(s)
-				, nrsign_(nrs)	{}
+		EnumDef( const char* nm, const char* s[], short nrs=0 );
+    bool	isValidName( const char* s ) const;
+    int		convert( const char* s ) const;
+    const char*	convert( int i ) const;
 
-    inline bool		isValidName( const char* s ) const
-			{ return getIndexInStringArrCI(s,names_,0,nrsign_,-1)
-			    	< 0; }
-    inline int		convert( const char* s ) const
-			{ return getIndexInStringArrCI(s,names_,0,nrsign_,0); }
-    inline const char*	convert( int i ) const
-			{ return names_[i]; }
-
-    inline int		size() const
-			{ int i=0; while ( names_[i] ) i++; return i; }
+    int		size() const;
 
 protected:
 
     const char**	names_;
     short		nrsign_;
-
 };
 
 #define DeclareEnumUtils(enm) \
