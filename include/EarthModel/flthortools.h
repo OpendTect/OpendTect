@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.22 2011-01-27 06:59:11 raman Exp $
+ RCS:		$Id: flthortools.h,v 1.23 2011-02-01 09:41:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
+#include "trigonometry.h"
 #include "positionlist.h"
-#include "sets.h"
 #include "surv2dgeom.h"
 
 namespace EM { class Fault; class Horizon; }
@@ -69,6 +69,9 @@ public:
     bool                includes(const BinID&) const;
 
 protected:
+
+    void		computeTraceSegments();
+    TypeSet<Line2>	tracesegs_;
 
     Coord		getIntersection(const BinID&,float,
 	    				const BinID&,float) const;

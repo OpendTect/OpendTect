@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.37 2011-01-27 06:59:11 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.38 2011-02-01 09:41:23 nanne Exp $";
 
 #include "flthortools.h"
 
@@ -292,6 +292,44 @@ bool FaultTrace::includes( const BinID& bid ) const
 }
 
 
+void FaultTrace::computeTraceSegments()
+{
+    tracesegs_.erase();
+    for ( int idx=1; idx<coordindices_.size(); idx++ )
+    {
+	const int curidx = coordindices_[idx];
+	const int previdx = coordindices_[idx-1];
+	if ( curidx < 0 || previdx < 0 )
+	    continue;
+
+	const Coord3& pos1 = get( previdx );
+	const Coord3& pos2 = get( curidx );
+//	if ( ( pos1.z < zrg.start && pos2.z < zrg.start )
+//		|| ( pos1.z > zrg.stop && pos2.z > zrg.stop ) )
+//	    continue;
+
+	Coord nodepos1, nodepos2;
+	const bool is2d = !trcnrs_.isEmpty();
+	if ( is2d )
+	{
+	    nodepos1.setXY( getTrcNr(previdx), pos1.z * SI().zFactor() );
+	    nodepos2.setXY( getTrcNr(curidx), pos2.z * SI().zFactor() );
+	}
+	else
+	{
+	    Coord posbid1 = SI().binID2Coord().transformBackNoSnap( pos1 );
+	    Coord posbid2 = SI().binID2Coord().transformBackNoSnap( pos2 );
+	    nodepos1.setXY( isinl_ ? posbid1.y : posbid1.x,
+		    	   pos1.z * SI().zFactor() );
+	    nodepos2.setXY( isinl_ ? posbid2.y : posbid2.x,
+		    	   pos2.z * SI().zFactor() );
+	}
+
+	tracesegs_ += Line2( nodepos1, nodepos2 );
+    }
+}
+
+
 Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
 				   const BinID& bid2, float z2  ) const
 {
@@ -314,36 +352,9 @@ Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
     Coord pt2( isinl_ ? bid2.crl : bid2.inl, z2 );
     Line2 line( pt1, pt2 );
 
-    for ( int idx=1; idx<coordindices_.size(); idx++ )
+    for ( int idx=0; idx<tracesegs_.size(); idx++ )
     {
-	const int curidx = coordindices_[idx];
-	const int previdx = coordindices_[idx-1];
-	if ( curidx < 0 || previdx < 0 )
-	    continue;
-
-	const Coord3& pos1 = get( previdx );
-	const Coord3& pos2 = get( curidx );
-	if ( ( pos1.z < zrg.start && pos2.z < zrg.start )
-		|| ( pos1.z > zrg.stop && pos2.z > zrg.stop ) )
-	    continue;
-
-	Coord nodepos1, nodepos2;
-	if ( is2d )
-	{
-	    nodepos1.setXY( getTrcNr(previdx), pos1.z * SI().zFactor() );
-	    nodepos2.setXY( getTrcNr(curidx), pos2.z * SI().zFactor() );
-	}
-	else
-	{
-	    Coord posbid1 = SI().binID2Coord().transformBackNoSnap( pos1 );
-	    Coord posbid2 = SI().binID2Coord().transformBackNoSnap( pos2 );
-	    nodepos1.setXY( isinl_ ? posbid1.y : posbid1.x,
-		    	   pos1.z * SI().zFactor() );
-	    nodepos2.setXY( isinl_ ? posbid2.y : posbid2.x,
-		    	   pos2.z * SI().zFactor() );
-	}
-
-	Line2 fltseg( nodepos1, nodepos2 );
+	const Line2& fltseg = tracesegs_[idx];
 	Coord interpos = line.intersection( fltseg );
 	if ( interpos != Coord::udf() )
 	{
@@ -353,7 +364,6 @@ Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
     }
 
     return Coord::udf();
-
 }
 
 
@@ -403,6 +413,8 @@ void FaultTrace::computeRange()
 	trcrange_.include( isinl_ ? bid.crl : bid.inl, false );
 	zrange_.include( coords_[idx].z, false );
     }
+
+    computeTraceSegments();
 }
 
 
@@ -448,13 +460,14 @@ bool FaultTraceExtractor::execute()
     if ( is2d_ )
 	return get2DFaultTrace();
 
-    EM::SectionID fltsid( 0 );
+    EM::SectionID fltsid = fault_->sectionID( 0 );
     mDynamicCastGet(EM::Fault3D*,fault3d,fault_)
-    Geometry::IndexedShape* fltsurf = new Geometry::ExplFaultStickSurface(
-	    	fault3d->geometry().sectionGeometry(fltsid), SI().zFactor() );
-    fltsurf->setCoordList( new FaultTrace, new FaultTrace, 0 );
-    if ( !fltsurf->update(true,0) )
-	return false;
+    Geometry::ExplFaultStickSurface* efss =
+	new Geometry::ExplFaultStickSurface( 0, SI().zScale() );
+//    efss->setCoordList( new FaultTrace, new FaultTrace, 0 );
+//    if ( !efss->update(true,0) )
+//	return false;
+    efss->setSurface( fault3d->geometry().sectionGeometry(fltsid) );
 
     CubeSampling cs;
     BinID start( isinl_ ? nr_ : cs.hrg.start.inl,
@@ -471,10 +484,10 @@ bool FaultTraceExtractor::execute()
 
     Geometry::ExplPlaneIntersection* insectn =
 					new Geometry::ExplPlaneIntersection;
-    insectn->setShape( *fltsurf );
+    insectn->setShape( *efss );
     insectn->addPlane( normal, pts );
     Geometry::IndexedShape* idxdshape = insectn;
-    idxdshape->setCoordList( new FaultTrace, new FaultTrace, 0 );
+    idxdshape->setCoordList( new FaultTrace, 0, 0 );
     if ( !idxdshape->update(true,0) )
 	return false;
 
@@ -491,7 +504,7 @@ bool FaultTraceExtractor::execute()
     flttrc_->setIsInl( isinl_ );
     flttrc_->setLineNr( nr_ );
     flttrc_->computeRange();
-    delete fltsurf;
+    delete efss;
     delete insectn;
     return true;
 }
