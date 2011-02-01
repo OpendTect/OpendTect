@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.25 2011-01-10 13:29:58 cvsbert Exp $
+ RCS:		$Id: enums.h,v 1.26 2011-02-01 15:57:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "iopar.h"
 
 /*!\brief Some utilities surrounding the often needed enum <-> string table.
 
@@ -78,9 +79,10 @@ public:
     enum			State { Good, Bad, Ugly };
     static const EnumDef&	StateDef();
     static const char**		StateNames();
-    static bool 		parseEnumState(const char*, State& );
+    static bool 		parseEnum(const char*, State& );
+    static bool 		parseEnum(const IOPar&,const char* key,State&);
     static int 			parseEnumState(const char*);
-    static const char* 		getStateString(State);
+    static const char*		toString(State);
 
 protected:
 
@@ -94,9 +96,10 @@ public:
     void			setType(Type _e_) { type_ = _e_; }
     static const EnumDef&	TypeDef();
     static const char**		TypeNames();
-    static bool 		parseEnumType(const char*, Type& );
+    static bool 		parseEnum(const char*, Type& );
+    static bool 		parseEnum(const IOPar&, const char* key,Type& );
     static int 			parseEnumType(const char*);
-    static const char* 		getTypeString(State);
+    static const char* 		toString(Type);
 
 protected:
 
@@ -114,32 +117,49 @@ and, in myclass.cc:
 \code
 
 const EnumDef& MyClass::StateDef()    { return StateDefinition_; }
-bool MyClass::parseEnumState(const char* str, State& res )
+
+const EnumDef MyClass::StateDefinition_("My class state",MyClass::Statenames,1);
+
+bool MyClass::parseEnum(const char* txt, State& res ) \
 { \
-    const int idx = StateDef().convert( txt ); \
+    const int idx = StateDef().isValidName( txt ) \
+        ?  StateDef().convert( txt ) \
+	: -1; \
     if ( idx<0 ) \
 	return false; \
  \
-    res = (enm) idx; \
+    res = (State) idx; \
     return true; \
 } \
-
-const EnumDef MyClass::StateDefinition_("My class state",MyClass::Statenames,1);
+bool MyClass::parseEnum( const IOPar& par, const char* key, State& res ) \
+{ return parseEnum( par.find( key ), res ); } \
+MyClass::State MyClass::parseEnumState(const char* txt) \
+{ \
+    return (MyClass::State) StateDef().convert( txt ); \
+} \
 
 const char* MyClass::Statenames_[] =
         { "Good", "Bad", "Not very handsome", 0 };
 
 
 const EnumDef& MyClass::TypeDef()   { return TypeDefinition_; }
-const EnumDef MyClass::TypeDefinition_( "My class type", MyClass::Typenames, 0 );
-bool MyClass::parseEnumType(const char* str, Type& res )
+const EnumDef MyClass::TypeDefinition_("My class type", MyClass::Typenames, 0 );
+bool MyClass::parseEnum(const char* txt, Type& res ) \
 { \
-    const int idx = TypeDef().convert( txt ); \
+    const int idx = TypeDef().isValidName( txt ) \
+        ?  TypeDef().convert( txt ) \
+	: -1; \
     if ( idx<0 ) \
 	return false; \
  \
-    res = (enm) idx; \
+    res = (Type) idx; \
     return true; \
+} \
+bool MyClass::parseEnum( const IOPar& par, const char* key, Type& res ) \
+{ return parseEnum( par.find( key ), res ); } \
+MyClass::Type MyClass::parseEnumType(const char* txt) \
+{ \
+    return (MyClass::Type) TypeDef().convert( txt ); \
 } \
 
 const char* MyClass::Typenames_[] =
@@ -182,14 +202,16 @@ protected:
 
 };
 
-
 #define DeclareEnumUtils(enm) \
 public: \
     static const EnumDef& enm##Def(); \
     static const char** enm##Names();\
-    static bool parseEnum##enm(const char*,enm&); \
-    static enm parseEnum##enm(const char*); \
-    static const char* get##enm##String(enm); \
+    static bool parseEnum##enm(const char*,enm&);  /*legacy */ \
+    static bool parseEnum(const char*,enm&); \
+    static bool parseEnum(const IOPar&,const char*,enm&); \
+    static enm parseEnum##enm(const char*);  \
+    static const char* toString(enm); \
+    static const char* get##enm##String(enm); /*legacy */ \
 protected: \
     static const char* enm##Names_[];\
     static const EnumDef enm##Definition_; \
@@ -200,9 +222,12 @@ public:
     mExtern const char** enm##Names();\
     extern const char* enm##Names_[];\
     extern const EnumDef enm##Definition_; \
-    mExtern bool parseEnum##enm(const char*,enm&); \
+    mExtern bool parseEnum(const IOPar&,const char*,enm&); \
+    mExtern bool parseEnum(const char*,enm&); \
+    mExtern bool parseEnum##enm(const char*,enm&); /*legacy */  \
     mExtern enm parseEnum##enm(const char*); \
-    mExtern const char* get##enm##String(enm);
+    mExtern const char* toString(enm); \
+    mExtern const char* get##enm##String(enm); /*legacy */ 
 
 #define DeclareEnumUtilsWithVar(enm,varnm) \
 public: \
@@ -222,19 +247,27 @@ const EnumDef& clss::enm##Def() \
 const char** clss::enm##Names() \
     { return enm##Names_; }  \
 bool clss::parseEnum##enm(const char* txt, enm& res ) \
+{ return clss::parseEnum( txt, res ); } \
+bool clss::parseEnum(const char* txt, enm& res ) \
 { \
-    const int idx = parseEnum##enm( txt ); \
+    const int idx = enm##Def().isValidName( txt ) \
+        ?  enm##Def().convert( txt ) \
+	: -1; \
     if ( idx<0 ) \
 	return false; \
  \
     res = (enm) idx; \
     return true; \
 } \
+bool clss::parseEnum( const IOPar& par, const char* key, enm& res ) \
+{ return parseEnum( par.find( key ), res ); } \
 clss::enm clss::parseEnum##enm(const char* txt) \
 { \
     return (clss::enm) enm##Def().convert( txt ); \
 } \
 const char* clss::get##enm##String( enm theenum ) \
+{ return clss::toString( theenum ); } \
+const char* clss::toString( enm theenum ) \
 { \
     const int idx = (int) theenum; \
     if ( idx<0 || idx>=enm##Def().size() ) \
@@ -252,19 +285,30 @@ const EnumDef& nmspc::enm##Def() \
 const char** nmspc::enm##Names() \
     { return nmspc::enm##Names_; }  \
 bool nmspc::parseEnum##enm(const char* txt, enm& res ) \
+{ return nmspc::parseEnum( txt, res ); } \
+bool nmspc::parseEnum(const char* txt, enm& res ) \
 { \
-    const int idx = nmspc::parseEnum##enm( txt ); \
+    const int idx = enm##Def().isValidName( txt ) \
+        ?  enm##Def().convert( txt ) \
+	: -1; \
     if ( idx<0 ) \
 	return false; \
  \
     res = (enm) idx; \
     return true; \
 } \
+bool nmspc::parseEnum( const IOPar& par, const char* key, enm& res ) \
+{ \
+    const char* val = par.find( key ); \
+    return nmspc::parseEnum( val, res ); \
+} \
 nmspc::enm nmspc::parseEnum##enm(const char* txt) \
 { \
     return (nmspc::enm) enm##Def().convert( txt ); \
 } \
 const char* nmspc::get##enm##String( enm theenum ) \
+{ return nmspc::toString( theenum ); } \
+const char* nmspc::toString( enm theenum ) \
 { \
     const int idx = (int) theenum; \
     if ( idx<0 || idx>=enm##Def().size() ) \
