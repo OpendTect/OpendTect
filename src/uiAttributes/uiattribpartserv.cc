@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.170 2010-12-27 05:43:29 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.171 2011-02-01 11:34:01 cvsbert Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -449,8 +449,8 @@ const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
     if ( !SI().has3D() ) return ds2d;
     if ( !SI().has2D() ) return ds3d;
 
-    const int nr3d = ds3d->nrDescs( false );
-    const int nr2d = ds2d->nrDescs( false );
+    const int nr3d = ds3d->nrDescs( false, true );
+    const int nr2d = ds2d->nrDescs( false, true );
     if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
     
     int res = uiMSG().askGoOnAfter( "Which attributes do you want to use?",
@@ -570,8 +570,8 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
     BufferString defstr;
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet( false, isstortarget );
-    const Desc* targetdesc = attrds && attrds->nrDescs() ?
-	attrds->getDesc( targetspecs_[0].id() ) : 0;
+    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
+			   : attrds->getDesc( targetspecs_[0].id() );
     if ( targetdesc )
     {
 	attrds->getDesc(targetspecs_[0].id())->getDefStr(defstr);
@@ -1522,7 +1522,7 @@ void uiAttribPartServer::resetMenuItems()
 void uiAttribPartServer::fillPar( IOPar& iopar, bool is2d, bool isstored ) const
 {
     const DescSet* ads = DSHolder().getDescSet( is2d, isstored );
-    if ( ads && ads->nrDescs() )
+    if ( ads && !ads->isEmpty() )
 	ads->fillPar( iopar );
 }
 

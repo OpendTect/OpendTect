@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.56 2011-01-11 14:14:11 cvshelene Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.57 2011-02-01 11:34:01 cvsbert Exp $";
 
 #include "attribsel.h"
 
@@ -231,7 +231,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 
     if ( attrset )
     {
-	for ( int idx=0; idx<attrset->nrDescs(); idx++ )
+	for ( int idx=0; idx<attrset->size(); idx++ )
 	{
 	    const DescID descid = attrset->getID( idx );
 	    const Desc* desc = attrset->getDesc( descid );

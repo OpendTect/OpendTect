@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.48 2011-01-28 12:55:31 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.49 2011-02-01 11:34:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
     				~DescSet() 		{ removeAll( false ); }
     DescSet&			operator =(const DescSet&);
     bool			isEmpty() const	{ return descs_.isEmpty(); }
+    inline int			size() const	{ return nrDescs(true,true); }
 
     DescSet*			optimizeClone(const DescID& targetid) const;
     DescSet*      		optimizeClone(const TypeSet<DescID>&) const;
@@ -57,8 +58,8 @@ public:
 				     attributes with multiple outputs
 				     are created and added */
 
-    int				nrDescs(bool inclstored=true,
-	    				bool inclhidden=true) const;
+    int				nrDescs(bool inclstored,bool inclhidden) const;
+    				// use size() if you want just all
     Desc*       		desc( int idx )		{ return descs_[idx]; }
     const Desc*       		desc( int idx ) const	{ return descs_[idx]; }
     Desc*       		getDesc( const DescID& id )

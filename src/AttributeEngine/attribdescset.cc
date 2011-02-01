@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.103 2011-01-28 12:55:31 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.104 2011-02-01 11:34:01 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -89,7 +89,7 @@ DescSet& DescSet::operator =( const DescSet& ds )
 	removeAll( false );
 	is2d_ = ds.is2d_;
 	storedattronly_ = ds.storedattronly_;
-	for ( int idx=0; idx<ds.nrDescs(); idx++ )
+	for ( int idx=0; idx<ds.size(); idx++ )
 	    addDesc( new Desc( *ds.descs_[idx] ), ds.ids_[idx] );
 	updateInputs();
     }
@@ -99,7 +99,7 @@ DescSet& DescSet::operator =( const DescSet& ds )
 
 void DescSet::updateInputs()
 {
-    for ( int idx=0; idx<nrDescs(); idx++ )
+    for ( int idx=0; idx<size(); idx++ )
     {
 	Desc& dsc = *descs_[idx];
 	for ( int inpidx=0; inpidx<dsc.nrInputs(); inpidx++ )
@@ -192,7 +192,7 @@ DescID DescSet::getID( const char* str, bool isusrref, bool isdescstored,
 {
     if ( !str || !*str ) return DescID::undef();
 
-    for ( int idx=0; idx<nrDescs(); idx++ )
+    for ( int idx=0; idx<size(); idx++ )
     {
 	const Desc& dsc = *descs_[idx];
 	if ( isusrref && dsc.isIdentifiedBy(str) )
@@ -234,10 +234,10 @@ void DescSet::removeDesc( const DescID& id )
 
 void DescSet::moveDescUpDown( const DescID& id, bool moveup )
 {
-    const int size = ids_.size();
+    const int sz = ids_.size();
     const int selidx = ids_.indexOf( id );
     int gotoidx = moveup ? selidx-1 : selidx+1;
-    while ( gotoidx>=0 && gotoidx<size
+    while ( gotoidx>=0 && gotoidx<sz
 	    && ( descs_[gotoidx]->isHidden() || descs_[gotoidx]->isStored() ) )
 	gotoidx += moveup ? -1 : 1;
 
@@ -908,7 +908,7 @@ DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
 	}
     }
 
-    if ( res->nrDescs() == 0 )
+    if ( res->isEmpty() )
 	{ delete res; res = new DescSet(*this); }
 
     res->updateInputs();
@@ -932,7 +932,7 @@ DescSet* DescSet::optimizeClone( const BufferStringSet& targetsstr ) const
 
 bool DescSet::isAttribUsed( const DescID& id ) const
 {
-    for ( int idx=0; idx<nrDescs(); idx++ )
+    for ( int idx=0; idx<size(); idx++ )
     {
 	const Desc& dsc = *descs_[idx];
 	for ( int inpnr=0; inpnr<dsc.nrInputs(); inpnr++ )
@@ -953,7 +953,7 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
     while ( true )
     {
 	int count = 0;
-	for ( int descidx=0; descidx<nrDescs(); descidx++ )
+	for ( int descidx=0; descidx<size(); descidx++ )
 	{
 	    if ( kpdefault && !descidx ) continue; //default desc always first
 
@@ -993,7 +993,7 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 
 Desc* DescSet::getFirstStored( bool usesteering ) const
 {
-    for ( int idx=0; idx<nrDescs(); idx++ )
+    for ( int idx=0; idx<size(); idx++ )
     {
 	const Desc& dsc = *descs_[idx];
 	if ( !dsc.isStored() ) continue;

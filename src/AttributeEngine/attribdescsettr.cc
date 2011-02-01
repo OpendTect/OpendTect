@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: attribdescsettr.cc,v 1.10 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescsettr.cc,v 1.11 2011-02-01 11:34:01 cvsbert Exp $";
 
 #include "attribdescsettr.h"
 #include "ascstream.h"
@@ -74,7 +74,7 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
     BufferStringSet parseerrmsgs;
     ads.usePar( iopar, versionnr, &parseerrmsgs );
 
-    if ( !ads.nrDescs() )
+    if ( ads.isEmpty() )
     {
 	ads.usePar( bupar, versionnr );
 	return "Could not find any attribute definitions in file";

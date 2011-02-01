@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.17 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.18 2011-02-01 11:34:01 cvsbert Exp $";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"
@@ -159,7 +159,7 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
 void calcFingParsObject::findLineSetID( MultiID& linesetid ) const
 {
     BufferString firstinp = reflist_->get(0);
-    for ( int idxdesc=0; idxdesc<attrset_->nrDescs(); idxdesc++ )
+    for ( int idxdesc=0; idxdesc<attrset_->size(); idxdesc++ )
     {
 	if ( !strcmp( firstinp, attrset_->desc(idxdesc)->userRef() ) )
 	{
@@ -262,7 +262,7 @@ EngineMan* calcFingParsObject::createEngineMan()
     TypeSet<SelSpec> attribspecs;
     for ( int idx=0; idx<reflist_->size(); idx++ )
     {
-	for ( int idxdesc=0; idxdesc<attrset_->nrDescs(); idxdesc++ )
+	for ( int idxdesc=0; idxdesc<attrset_->size(); idxdesc++ )
 	{
 	    if ( !strcmp( reflist_->get(idx),
 			  attrset_->desc(idxdesc)->userRef() ) )
@@ -307,7 +307,7 @@ void calcFingParsObject::saveValsAndRanges( const TypeSet<float>& vals,
     for ( int idx=0; idx<reflist_->size(); idx++ )
     {
 	BufferString inp = reflist_->get(idx);
-	for ( int idxdesc=0; idxdesc<attrset_->nrDescs(); idxdesc++ )
+	for ( int idxdesc=0; idxdesc<attrset_->size(); idxdesc++ )
 	{
 	    if ( !strcmp( inp, attrset_->desc(idxdesc)->userRef() ) )
 	    {

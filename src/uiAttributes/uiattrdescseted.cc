@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.108 2010-12-14 08:50:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.109 2011-02-01 11:34:01 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -706,7 +706,7 @@ void uiAttribDescSetEd::updateUserRefs()
     userattrnames_.erase();
     attrdescs_.erase();
 
-    for ( int iattr=0; iattr<attrset_->nrDescs(); iattr++ )
+    for ( int iattr=0; iattr<attrset_->size(); iattr++ )
     {
 	const DescID descid = attrset_->getID( iattr );
 	Desc* desc = attrset_->getDesc( descid );
@@ -893,7 +893,7 @@ void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
 	adsman_->setSaved( true );
 	TypeSet<DescID> ids;
 	attrset_->getIds( ids );
-	for ( int idx=0; idx<attrset_->nrDescs(); idx++ )
+	for ( int idx=0; idx<attrset_->size(); idx++ )
 	{
 	    Desc* ad = attrset_->getDesc( ids[idx] );
 	    if ( !ad ) continue;

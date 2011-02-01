@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsetcreator.cc,v 1.19 2010-11-24 17:05:32 cvskris Exp $";
+static const char* rcsID = "$Id: attribsetcreator.cc,v 1.20 2011-02-01 11:34:01 cvsbert Exp $";
 
 
 #include "attribsetcreator.h"
@@ -223,14 +223,14 @@ AttributeSetCreator::AttributeSetCreator( uiParent* p_,
 
 bool AttributeSetCreator::create()
 {
-    if ( !attrset || !attrset->nrDescs() )
+    const int nrdescs = attrset->size();
+    if ( !attrset || nrdescs < 1 )
     {
 	uiMSG().error( "The attributes cannot be converted" );
 	return false;
     }
 
     const Desc* stored = 0;
-    const int nrdescs = attrset->nrDescs();
     for ( int idx=0; idx<nrdescs; idx++ )
     {
 	const Desc& desc = *attrset->desc( idx );

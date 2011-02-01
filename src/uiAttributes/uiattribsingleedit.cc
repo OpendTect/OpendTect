@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsingleedit.cc,v 1.5 2011-01-14 14:43:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribsingleedit.cc,v 1.6 2011-02-01 11:34:01 cvsbert Exp $";
 
 #include "uiattribsingleedit.h"
 #include "uiattrdesced.h"
@@ -57,7 +57,7 @@ bool uiSingleAttribEd::acceptOK( CallBacker* )
     if ( oldnm != newnm )
     {
 	const Attrib::DescSet& descset = *desc_.descSet();
-	const int sz = descset.nrDescs();
+	const int sz = descset.size();
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const Attrib::Desc& desc = *descset.desc( idx );

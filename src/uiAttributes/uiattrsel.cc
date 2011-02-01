@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.68 2011-01-19 10:08:17 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.69 2011-02-01 11:34:01 cvsbert Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -169,7 +169,7 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 	else
 	{
 	    // Defaults are the last ones added to attrib set
-	    for ( int idx=attrdata_.attrSet().nrDescs()-1; idx!=-1; idx-- )
+	    for ( int idx=attrdata_.attrSet().size()-1; idx!=-1; idx-- )
 	    {
 		const DescID attrid = attrdata_.attrSet().getID( idx );
 		const Desc& ad = *attrdata_.attrSet().getDesc( attrid );

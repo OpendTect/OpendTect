@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.18 2010-11-18 13:03:16 cvshelene Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.19 2011-02-01 11:34:01 cvsbert Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -411,7 +411,7 @@ void uiStoredAttribReplacer::getUserRef( const DescID& storedid,
 {
     if ( attrset_ )
     {
-	for ( int idx=0; idx<attrset_->nrDescs(); idx++ )
+	for ( int idx=0; idx<attrset_->size(); idx++ )
 	{
 	    const DescID descid = attrset_->getID( idx );
 	    Desc* ad = attrset_->getDesc( descid );
@@ -436,7 +436,7 @@ void uiStoredAttribReplacer::getUserRef( const DescID& storedid,
 void uiStoredAttribReplacer::getStoredIds()
 {
     TypeSet<LineKey> linekeys;
-    for ( int idx=0; idx<attrset_->nrDescs(); idx++ )
+    for ( int idx=0; idx<attrset_->size(); idx++ )
     {
 	const DescID descid = attrset_->getID( idx );
 	Desc* ad = attrset_->getDesc( descid );

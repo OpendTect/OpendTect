@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.51 2010-11-24 17:05:32 cvskris Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.52 2011-02-01 11:34:01 cvsbert Exp $";
 
 
 #include "uisteeringsel.h"
@@ -183,7 +183,7 @@ DescID uiSteeringSel::descID()
     if ( type==3 )
     {
 	const char* attribnm = "ConstantSteering";
-	for ( int idx=0; idx<descset_->nrDescs(); idx++ )
+	for ( int idx=0; idx<descset_->size(); idx++ )
 	{
 	    const DescID descid = descset_->getID( idx );
 	    const Desc& desc = *descset_->getDesc( descid );
@@ -220,7 +220,7 @@ DescID uiSteeringSel::descID()
     }
 
     BufferString attribnm( type==1 ? "CentralSteering" : "FullSteering" );
-    for ( int idx=0; idx<descset_->nrDescs(); idx++ )
+    for ( int idx=0; idx<descset_->size(); idx++ )
     {
 	const DescID descid = descset_->getID( idx );
 	const Desc* desc = descset_->getDesc( descid );
@@ -337,7 +337,7 @@ DescID uiSteerCubeSel::getDipID( int dipnr ) const
     LineKey linekey( workctio_.ioobj->key() );
     if ( is2D() ) linekey.setAttrName( attrNm() );
 
-    for ( int idx=0; idx<ads.nrDescs(); idx++ )
+    for ( int idx=0; idx<ads.size(); idx++ )
     {
 	const DescID descid = ads.getID( idx );
 	const Desc* desc = ads.getDesc( descid );
