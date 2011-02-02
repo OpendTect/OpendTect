@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: systeminfo.cc,v 1.7 2011-02-02 09:26:05 cvsranojay Exp $";
+static const char* rcsID = "$Id: systeminfo.cc,v 1.8 2011-02-02 15:15:43 cvsbruno Exp $";
 
 
 #include "systeminfo.h"
@@ -156,6 +156,7 @@ void getFreeMBOnDiskMsg( int mb, BufferString& bs )
 }
 
 
+#ifdef __win__
 const char* getFileSystemName( const char* path )
 {
     FilePath fp( path );
@@ -168,6 +169,7 @@ const char* getFileSystemName( const char* path )
 			   ARRAYSIZE(filesystemname) );  
     return filesystemname;
 }
+#endif
 
 
 
