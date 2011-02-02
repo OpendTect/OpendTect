@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.24 2011-01-18 10:40:34 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.25 2011-02-02 09:26:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -437,6 +437,15 @@ const char* getTempPath()
 #else
     pFreeFnErrMsg(not_implemented_str,"getTmpPath");
 #endif
+    return pathstr.buf();
+}
+
+
+const char* getRootPath( const char* path )
+{
+    static BufferString pathstr;
+    QDir qdir( path );
+    pathstr = qdir.rootPath().toAscii().constData();
     return pathstr.buf();
 }
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: systeminfo.cc,v 1.6 2010-12-14 15:53:16 cvsbert Exp $";
+static const char* rcsID = "$Id: systeminfo.cc,v 1.7 2011-02-02 09:26:05 cvsranojay Exp $";
 
 
 #include "systeminfo.h"
@@ -154,5 +154,21 @@ void getFreeMBOnDiskMsg( int mb, BufferString& bs )
 	bs += tenthsofgb; bs += " GB";
     }
 }
+
+
+const char* getFileSystemName( const char* path )
+{
+    FilePath fp( path );
+    const char* drive = fp.winDrive();
+    static char filesystemname[MAX_PATH+1] = { 0 };
+    char volumename[MAX_PATH+1] = { 0 };
+
+    GetVolumeInformationA( path, volumename, ARRAYSIZE(volumename),
+			   0, 0, 0, filesystemname,
+			   ARRAYSIZE(filesystemname) );  
+    return filesystemname;
+}
+
+
 
 } // namespace System

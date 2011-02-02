@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.24 2010-04-23 05:41:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.25 2011-02-02 09:26:05 cvsranojay Exp $";
 
 #include "uiseisioobjinfo.h"
 
@@ -75,6 +75,20 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
 	return true;
 
     const int avszmb = System::getFreeMBOnDisk( *ioObj() );
+#ifdef __win__
+    const int szgb = szmb / 1024;
+    if ( szgb >= 4 )
+    {
+	BufferString fsysname = System::getFileSystemName( ioObj()->dirName() );
+	if ( fsysname == "FAT32" )
+	{ 
+	    uiMSG().error( "Target directory has a FAT32 File System.\n"
+			   "Files larger than 4GB are not supported" );
+	    return false;
+	}
+    }
+#endif
+	
     if ( avszmb == 0 )
     {
 	if ( !doerrs ) return false;

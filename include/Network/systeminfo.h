@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2010
- RCS:		$Id: systeminfo.h,v 1.1 2010-04-23 05:39:35 cvsnanne Exp $
+ RCS:		$Id: systeminfo.h,v 1.2 2011-02-02 09:26:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ namespace System
     mGlobal int			getFreeMBOnDisk(const char* path);
     mGlobal int			getFreeMBOnDisk(const IOObj&);
     mGlobal void		getFreeMBOnDiskMsg(int,BufferString&);
+    mGlobal const char*		getFileSystemName(const char* path);
 }
 
 #endif
