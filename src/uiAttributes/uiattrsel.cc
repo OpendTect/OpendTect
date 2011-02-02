@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.69 2011-02-01 11:34:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.70 2011-02-02 10:32:44 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -880,6 +880,12 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
         setSelSpec( tmpss );	//only to reset attrdata_.attribid_=-1
 	delete tmpss;	
     }
+
+    //use the first fid as default data
+    BufferString fidstr = "#"; fidstr += ids[0];
+    attrdata_.attribid_ = const_cast<Attrib::DescSet*>(&getAttrSet())
+					->getStoredID( fidstr.buf(), 0, true );
+    updateInput();
 }
 
 
