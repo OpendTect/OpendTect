@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.27 2011-02-01 23:18:19 cvsyuancheng Exp $
+ RCS:		$Id: enums.h,v 1.28 2011-02-02 02:08:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,7 +236,11 @@ const EnumDef& clss::enm##Def() \
 const char** clss::enm##Names() \
     { return enm##Names_; }  \
 bool clss::parseEnum##enm(const char* txt, enm& res ) \
-{ return clss::parseEnum( txt, res ); } \
+{ \
+    const bool isok = clss::parseEnum( txt, res ); \
+    if ( !isok ) res = (enm) 0; \
+    return isok; \
+} \
 bool clss::parseEnum(const char* txt, enm& res ) \
 { \
     const int idx = enm##Def().isValidName( txt ) \
@@ -274,7 +278,11 @@ const EnumDef& nmspc::enm##Def() \
 const char** nmspc::enm##Names() \
     { return nmspc::enm##Names_; }  \
 bool nmspc::parseEnum##enm(const char* txt, enm& res ) \
-{ return nmspc::parseEnum( txt, res ); } \
+{ \
+    const bool isok = nmspc::parseEnum( txt, res ); \
+    if ( !isok ) res = (nmspc::enm) 0; \
+    return isok; \
+} \
 bool nmspc::parseEnum(const char* txt, enm& res ) \
 { \
     const int idx = enm##Def().isValidName( txt ) \
