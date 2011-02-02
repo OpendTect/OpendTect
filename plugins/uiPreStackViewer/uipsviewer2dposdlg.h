@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2011
- RCS:           $Id: uipsviewer2dposdlg.h,v 1.1 2011-01-31 13:03:50 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2dposdlg.h,v 1.2 2011-02-02 09:54:23 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,12 +28,13 @@ public:
     int				nrViewers() const;
     int 			step() const;			
 
+    void			enableDynamicRange(bool);
+    void			enableZDisplay(bool);
+
+protected:
     uiLabeledSpinBox* 		stepfld_;
     uiLabeledSpinBox*		nrviewersfld_;
     uiCheckBox*			dynamicrgbox_;
-
-    void			enableDynamicRange(bool);
-    void			enableZDisplay(bool);
 
     void			dynamicRangeChged(CallBacker*);
     void			parsChged(CallBacker*);
@@ -47,8 +48,7 @@ public:
 
     void 			setCubeSampling( const CubeSampling& cs)
 					{ sliceselfld_->setCubeSampling(cs); }
-    void 			getCubeSampling( CubeSampling& cs)
-					{ cs =sliceselfld_->getCubeSampling(); }
+    void 			getCubeSampling( CubeSampling& cs);
     void                        setNrViewers(int nrv)
 				    { sliceselfld_->setNrViewers(nrv); }
     int				nrViewers() const
@@ -58,10 +58,12 @@ public:
     void                        enableZDisplay(bool yn)
 				    { sliceselfld_->enableZDisplay(yn); }
 
+    Notifier<uiViewer2DPosDlg> okpushed_;
 
 protected:
 
     uiGatherPosSliceSel*	sliceselfld_;
+    bool			acceptOK(CallBacker*);
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.59 2011-01-31 13:08:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.60 2011-02-02 09:54:23 cvsbruno Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -127,7 +127,7 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
  	BufferStringSet resolutions;
  	for ( int idx=0; idx<nrres; idx++ )
   	    resolutions.add( psv->flatViewer()->getResolutionName(idx) );
-       	
+       
     	resolutionmenuitem_.createItems( resolutions );
  	for ( int idx=0; idx<resolutionmenuitem_.nrItems(); idx++ )
   	    resolutionmenuitem_.getItem(idx)->checkable = true;
@@ -135,8 +135,16 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 	resolutionmenuitem_.getItem(
 	  	psv->flatViewer()->getResolution() )->checked = true;
     }
+    viewermenuitem_.removeItems();
 
     const int idxof = psv ? viewers3d_.indexOf(psv) : -1;
+    if ( idxof >=0 )
+    {
+	BufferStringSet vwrtypes;
+	vwrtypes.add( "Single &gather" );
+	vwrtypes.add( "Multiple &gathers" );
+	viewermenuitem_.createItems( vwrtypes );
+    }
     if ( idxof < 0  )
     {
 	mResetMenuItem( &proptymenuitem_ );
@@ -149,7 +157,7 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
     else
     {
 	mAddMenuItem( menu, &proptymenuitem_, true, false );
-	mAddMenuItem( menu, &resolutionmenuitem_, true, false );
+	mAddMenuItem( menu, &resolutionmenuitem_, true, false )
     	mAddMenuItem( menu, &viewermenuitem_, true, false ); 
     	mAddMenuItem( menu, &amplspectrumitem_, true, false ); 
 	if ( !posdialogs_[idxof] || posdialogs_[idxof]->isHidden() )
@@ -232,12 +240,17 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
    	    psv->flatViewer()->setResolution( 
 		    resolutionmenuitem_.itemIndex(mnuid) );
     }
-    else if ( mnuid==viewermenuitem_.id )
+    else if ( viewermenuitem_.itemIndex(mnuid)==1 )
+    {
+	menu->setIsHandled( true );
+	viewers2d_ += createMultiGather2DViewer( *psv );
+    }
+    else if ( viewermenuitem_.itemIndex(mnuid)==0 )
     {
 	menu->setIsHandled( true );
 	PtrMan<IOObj> ioobj = IOM().get( psv->getMultiID() );
 	if ( !ioobj )
-	   return;
+	    return;
 
 	BufferString title;
 	if ( psv->is3DSeis() )
@@ -245,11 +258,11 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	else
 	    getSeis2DTitle( psv->traceNr(), psv->lineName(), title );	
 
-	uiFlatViewMainWin* viewwin = create2DViewer(title,psv->getMultiID());
+	uiFlatViewMainWin* viewwin = create2DViewer(title,psv->getDataPackID());
 	if ( viewwin )
 	{
-    	    viewers2d_ += viewwin;
-    	    viewwin->start();
+	    viewers2d_ += viewwin;
+	    viewwin->start();
 	}
     }
     else if ( mnuid==amplspectrumitem_.id )
@@ -425,15 +438,69 @@ uiViewer3DPositionDlg* uiViewer3DMgr::mkNewPosDialog( const uiMenuHandler* menu,
 #define mErrRes(msg) { uiMSG().error(msg); return 0; }
 
 uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title, 
-					      const MultiID& dpid )
+						int dpid )
 {
-    uiViewer2DMainWin* viewwin = new uiViewer2DMainWin( ODMainWin() );
-    viewwin->setMultiID( dpid );
+    uiFlatViewMainWin* viewwin = new uiFlatViewMainWin( 
+	ODMainWin(), uiFlatViewMainWin::Setup(title) );
+
+    viewwin->setWinTitle( title );
+    viewwin->setDarkBG( false );
+
+    uiFlatViewer& vwr = viewwin->viewer();
+    vwr.appearance().annot_.setAxesAnnot( true );
+    vwr.appearance().setGeoDefaults( true );
+    vwr.appearance().ddpars_.show( false, true );
+    vwr.appearance().ddpars_.wva_.overlap_ = 1;
+
+    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( dpid );
+    if ( !dp )
+	return 0;
+
+    mDynamicCastGet( const FlatDataPack*, fdp, dp );
+    if ( !fdp )
+    {
+	DPM(DataPackMgr::FlatID()).release( dp );
+	return false;
+    }
+
+    vwr.setPack( false, dpid, false, true );
+    int pw = 100 + 5 * fdp->data().info().getSize( 0 );
+    if ( pw > 800 ) pw = 800;
+
+    vwr.setInitialSize( uiSize(pw,500) );  
+    viewwin->addControl( new uiFlatViewStdControl( vwr,
+    uiFlatViewStdControl::Setup().withstates(false) ) );
+    viewwin->windowClosed.notify( mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
+    vwr.drawBitMaps();
+    vwr.drawAnnot();
+    DPM(DataPackMgr::FlatID()).release( dp );
+    return viewwin;
+}
+
+
+uiFlatViewMainWin* uiViewer3DMgr::createMultiGather2DViewer( 
+						const Viewer3D& psv )
+{
+    const MultiID mid = const_cast<Viewer3D&>(psv).getMultiID();
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj )
+       return 0;
+
+    BufferString title;
+    if ( psv.is3DSeis() )
+	getSeis3DTitle( const_cast<Viewer3D&>(psv).getBinID(), 
+				ioobj->name(), title );
+    else
+	getSeis2DTitle( psv.traceNr(), 
+			const_cast<Viewer3D&>(psv).lineName(), title );	
+
+    uiViewer2DMainWin* viewwin = new uiViewer2DMainWin( ODMainWin() ); 
+    viewwin->start();
+    viewwin->init( mid, psv.getDataPackID(), psv.isOrientationInline() );
     viewwin->setWinTitle( title );
     viewwin->setDarkBG( false );
     
     viewwin->windowClosed.notify( mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
-
     return viewwin;
 }
 
@@ -552,10 +619,10 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 		 !viewerpar->getYN( "Seis3D display", is3d ) )
 		continue;
 	}
-    
+
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
-	   continue;
+	    continue;
 
 	PreStack::Gather* gather = new PreStack::Gather;
 	int dpid;
@@ -571,13 +638,14 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 
 	DPM(DataPackMgr::FlatID()).add( gather );
 	DPM(DataPackMgr::FlatID()).obtain( dpid );
-	
+
 	BufferString title;
 	if ( is3d )
 	    getSeis3DTitle( bid, ioobj->name(), title );
 	else
 	    getSeis2DTitle( trcnr, name2d, title );
 	uiFlatViewMainWin* viewwin = create2DViewer( title, dpid );
+	DPM(DataPackMgr::FlatID()).release( gather );
 	if ( !viewwin )
 	    continue;
 

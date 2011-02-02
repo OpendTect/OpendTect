@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dposdlg.cc,v 1.1 2011-01-31 13:03:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dposdlg.cc,v 1.2 2011-02-02 09:54:23 cvsbruno Exp $";
 
 #include "uipsviewer2dposdlg.h"
 
@@ -27,15 +27,35 @@ namespace PreStackView
 
 uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, const CubeSampling& cs )
     : uiDialog(p,uiDialog::Setup("Pre-stack Gather display positions",
-				0,mTODOHelpID))
+				0,mTODOHelpID).modal(false))
+    , okpushed_(this)					       
 {
-    setCtrlStyle( DoAndStay );
-    setOkText( "&Apply" );
     uiSliceSel::Type tp = cs.defaultDir() == CubeSampling::Inl ? 
 					uiSliceSel::Inl : uiSliceSel::Crl;
+    setCtrlStyle( DoAndStay );
+    
     sliceselfld_ = new uiGatherPosSliceSel( this, tp );
     sliceselfld_->enableScrollButton( false );
+    setCubeSampling( cs );
+    setOkText( "&Apply" );
 }
+
+
+bool uiViewer2DPosDlg::acceptOK( CallBacker* )
+{
+    okpushed_.trigger();
+    return false;
+}
+
+
+void uiViewer2DPosDlg::getCubeSampling( CubeSampling& cs ) 
+{
+    sliceselfld_->acceptOK();
+    cs = sliceselfld_->getCubeSampling();
+    const int step = sliceselfld_->step();
+    cs.hrg.step = BinID( step, step );
+}
+
 
 
 uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp )
@@ -43,15 +63,17 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp )
 {
     setStretch( 2, 2 );
     BufferString msg( "Dynamic " ); 
-    msg += isinl_ ? is2d_ ? "Trace" : "Xline" : "Inline"; 
+    const char* linetxt = isinl_ ? is2d_ ? "Trace" : "Xline" : "Inline";
+    msg += linetxt;
     msg += is2d_ ? " Number" : " Range";
 
     stepfld_ = new uiLabeledSpinBox( this, "step" );
     stepfld_->attach( rightTo, isinl_ || is2d_ ? crl1fld_ : inl1fld_ ); 
+    stepfld_->box()->setInterval( 1, cs_.hrg.totalNr() );
 
     uiSeparator* sep = new uiSeparator( this, "pos/nr viewer sep" );
     sep->attach( stretchedBelow, z0fld_ );
-    nrviewersfld_ = new uiLabeledSpinBox( this, "Number of viewers" );
+    nrviewersfld_ = new uiLabeledSpinBox( this, "Number of gathers per line" );
     nrviewersfld_->attach( ensureBelow, sep );
     nrviewersfld_->attach( alignedBelow, z0fld_ );
 
@@ -62,21 +84,14 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp )
     crl0fld_->box()->valueChanging.notify( cb );
     if ( inl1fld_ ) inl1fld_->valueChanging.notify( cb );
     if ( crl1fld_ ) crl1fld_->valueChanging.notify( cb );
+    nrviewersfld_->box()->setInterval( 1, 50 );
+    nrviewersfld_->box()->setValue( 16 );
 
     dynamicrgbox_ = new uiCheckBox( this, msg );
     dynamicrgbox_->attach( rightOf, nrviewersfld_ );
     dynamicrgbox_->activated.notify( 
 	    		mCB(this,uiGatherPosSliceSel,dynamicRangeChged) );
     enableDynamicRange( false );
-}
-
-
-const CubeSampling& uiGatherPosSliceSel::cubeSampling() 
-{
-    acceptOK();
-    cs_ = getCubeSampling();
-    cs_.hrg.step = BinID( step(), step() );
-    return cs_;
 }
 
 

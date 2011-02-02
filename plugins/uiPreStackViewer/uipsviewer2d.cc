@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.1 2011-01-31 13:03:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.2 2011-02-02 09:54:23 cvsbruno Exp $";
 
 #include "uipsviewer2d.h"
 
@@ -35,15 +35,13 @@ uiGatherDisplay::uiGatherDisplay( uiParent* p, bool havehandpan )
     viewer_->appearance().annot_.color_ = Color::Black();
     viewer_->appearance().annot_.x1_.showannot_ = true;
     viewer_->appearance().annot_.x1_.name_ = "Offset";
-    viewer_->appearance().annot_.x2_.showannot_ = true;
+    viewer_->appearance().annot_.x2_.showannot_ = false;
     viewer_->appearance().annot_.x2_.name_ = "Depth";
     viewer_->appearance().ddpars_.wva_.show_ = false;
     viewer_->appearance().ddpars_.vd_.show_ = true;
     viewer_->appearance().ddpars_.vd_.lininterp_ = true;
     viewer_->appearance().ddpars_.vd_.symmidvalue_ = 0;
-    viewer_->setInitialSize( uiSize( 37, 150 ) );
-    setStretch( 2, 2 );
-    viewer_->setStretch( 2, 2 );
+    setInitialSize( uiSize( 50, 150 ) );
 
     gatherpainter_ = new Viewer2DGatherPainter( *viewer_ );
 }
@@ -160,9 +158,26 @@ void uiGatherDisplay::updateViewRange( const uiWorldRect& cur )
 
 uiViewer2D::uiViewer2D( uiParent* p )
     : uiObjectItemView(p)
+    , resizedraw_(false)
 {
     disableScrollZoom();
-    reSize.notify( mCB(this,uiViewer2D,reSized) );
+}
+
+
+uiViewer2D::~uiViewer2D()
+{
+    enableReSizeDraw( false );
+}
+
+
+void uiViewer2D::enableReSizeDraw( bool yn )
+{
+    if ( yn && !resizedraw_ )
+	reSize.notify( mCB(this,uiViewer2D,reSized) );
+    else if ( !yn && resizedraw_ )
+	reSize.remove(  mCB(this,uiViewer2D,reSized) );
+
+    resizedraw_ = yn;
 }
 
 
@@ -177,9 +192,8 @@ void uiViewer2D::enableScrollBars( bool yn )
 uiGatherDisplay* uiViewer2D::addGatherDisplay( int id, const BinID& bid )
 {
     uiGatherDisplay* gatherdisp = new uiGatherDisplay( 0 );
-    uiObjectItem* obj = new uiObjectItem( gatherdisp );
     gatherdisp->setGather( id );
-    addItem( obj );
+    addGatherDisplay( gatherdisp );
 
     return gatherdisp;
 }
@@ -187,8 +201,7 @@ uiGatherDisplay* uiViewer2D::addGatherDisplay( int id, const BinID& bid )
 
 void uiViewer2D::addGatherDisplay( uiGatherDisplay* gatherview )
 {
-    uiObjectItem* obj = new uiObjectItem( gatherview );
-    addItem( obj );
+    addItem( new uiObjectItem( gatherview ) );
 }
 
 
@@ -196,8 +209,12 @@ void uiViewer2D::removeGatherDisplay( const uiGatherDisplay* disp )
 {
     for ( int idx=objectitems_.size()-1; idx>=0; idx-- )
     {
-	if ( objectitems_[idx]->getGroup() == disp )
-	    removeItem( objectitems_[idx] );
+	uiObjectItem* objitm = objectitems_[idx];
+	if ( objitm->getGroup() == disp )
+	{
+	    removeItem( objitm );
+	    delete objitm; 
+	}
     }
 }
 
@@ -205,7 +222,9 @@ void uiViewer2D::removeGatherDisplay( const uiGatherDisplay* disp )
 void uiViewer2D::removeAllGatherDisplays()
 {
     for ( int idx=objectitems_.size()-1; idx>=0; idx-- )
+    {
 	removeItem( objectitems_[idx] );
+    }
 }
 
 
@@ -227,13 +246,20 @@ uiGatherDisplay& uiViewer2D::getGatherDisplay( int idx )
 
 void uiViewer2D::reSized( CallBacker* )
 {
+    doReSize( uiSize( width(), height() ) );
+}
+
+
+void uiViewer2D::doReSize( const uiSize& sz )
+{
     if ( !objectitems_.size() ) return;
-    uiSize sz( width()/objectitems_.size(), height() );
+    uiSize objsz = uiSize( sz.width() / objectitems_.size() , sz.height() );
     for ( int idx=0; idx<objectitems_.size() ; idx++ )
     {
-	reSizeItem( idx, sz ); 
-	getGatherDisplay( idx ).setWidth( sz.width() );
+	reSizeItem( idx, objsz ); 
+	getGatherDisplay( idx ).setWidth( objsz.width() );
     }
+    resetViewArea(0);
 }
 
 }; //namepsace

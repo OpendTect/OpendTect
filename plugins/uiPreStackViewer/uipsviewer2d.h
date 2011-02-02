@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: uipsviewer2d.h,v 1.1 2011-01-31 13:03:50 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2d.h,v 1.2 2011-02-02 09:54:23 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class BinID;
 namespace PreStackView
 {
     class Viewer2DGatherPainter;
+    class uiViewer2DAxisPainter;
 
 mClass uiGatherDisplay : public uiGroup
 {
@@ -41,6 +42,7 @@ public:
 				    const Interval<float>&);
     bool                        getFixedOffsetRange() const;
     const Interval<float>&      getOffsetRange() const;
+    const Interval<double>*     getZRange() const	{ return zrg_; }
 
     uiFlatViewer*               getUiFlatViewer() 	{ return viewer_; }
     BinID			getBinID() const;
@@ -68,6 +70,7 @@ mClass uiViewer2D : public uiObjectItemView
 {
 public: 
 				uiViewer2D(uiParent*);
+				~uiViewer2D();
 
     uiGatherDisplay*		addGatherDisplay(int gatherid,const BinID&);
     void			addGatherDisplay(uiGatherDisplay*);
@@ -76,8 +79,13 @@ public:
     uiGatherDisplay* 		getGatherDisplay(const BinID&);
     void			removeAllGatherDisplays();
     void			enableScrollBars(bool);
+    void			enableReSizeDraw(bool);
+    void			doReSize(const uiSize&);
 
 protected:
+
+    bool			resizedraw_;
+
     void			reSized(CallBacker*);
 };
 

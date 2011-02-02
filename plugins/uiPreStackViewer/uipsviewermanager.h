@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.19 2011-01-31 13:03:50 cvsbruno Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.20 2011-02-02 09:54:23 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,9 @@ public:
 
 protected:
     
-    uiFlatViewMainWin*	create2DViewer(const BufferString&,const MultiID&);
+    uiFlatViewMainWin*	createMultiGather2DViewer(const Viewer3D&);
+    uiFlatViewMainWin*	create2DViewer(const BufferString&,int dpid);
+
     int			getSceneID(int mnid);
     static void		getSeis2DTitle(int trnr,const char*,BufferString&);
     static void		getSeis3DTitle(const BinID&,const char*,BufferString&);
@@ -74,6 +76,7 @@ protected:
     				//Saved 2DViewer for VD only.
 
     MenuItem		selectpsdatamenuitem_;
+    MenuItem		selectpsvwr2ddatamenuitem_;
     MenuItem		proptymenuitem_;
     MenuItem		resolutionmenuitem_;
     MenuItem		positionmenuitem_;
