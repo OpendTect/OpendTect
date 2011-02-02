@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.60 2011-02-02 09:54:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.61 2011-02-02 09:58:29 cvsbruno Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -486,18 +486,9 @@ uiFlatViewMainWin* uiViewer3DMgr::createMultiGather2DViewer(
     if ( !ioobj )
        return 0;
 
-    BufferString title;
-    if ( psv.is3DSeis() )
-	getSeis3DTitle( const_cast<Viewer3D&>(psv).getBinID(), 
-				ioobj->name(), title );
-    else
-	getSeis2DTitle( psv.traceNr(), 
-			const_cast<Viewer3D&>(psv).lineName(), title );	
-
     uiViewer2DMainWin* viewwin = new uiViewer2DMainWin( ODMainWin() ); 
     viewwin->start();
     viewwin->init( mid, psv.getDataPackID(), psv.isOrientationInline() );
-    viewwin->setWinTitle( title );
     viewwin->setDarkBG( false );
     
     viewwin->windowClosed.notify( mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
