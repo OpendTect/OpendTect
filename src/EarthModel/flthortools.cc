@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.38 2011-02-01 09:41:23 nanne Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.39 2011-02-02 05:05:22 nanne Exp $";
 
 #include "flthortools.h"
 
@@ -462,12 +462,11 @@ bool FaultTraceExtractor::execute()
 
     EM::SectionID fltsid = fault_->sectionID( 0 );
     mDynamicCastGet(EM::Fault3D*,fault3d,fault_)
-    Geometry::ExplFaultStickSurface* efss =
-	new Geometry::ExplFaultStickSurface( 0, SI().zScale() );
-//    efss->setCoordList( new FaultTrace, new FaultTrace, 0 );
-//    if ( !efss->update(true,0) )
-//	return false;
-    efss->setSurface( fault3d->geometry().sectionGeometry(fltsid) );
+    Geometry::IndexedShape* efss = new Geometry::ExplFaultStickSurface(
+		fault3d->geometry().sectionGeometry(fltsid), SI().zFactor() );
+    efss->setCoordList( new FaultTrace, new FaultTrace, 0 );
+    if ( !efss->update(true,0) )
+	return false;
 
     CubeSampling cs;
     BinID start( isinl_ ? nr_ : cs.hrg.start.inl,
