@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.33 2011-02-02 09:26:05 cvsranojay Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.34 2011-02-02 15:01:50 cvsbruno Exp $";
 
 #include "filepath.h"
 
@@ -440,3 +440,4 @@ BufferString FilePath::winDrive() const
     BufferString windrive = File::getRootPath( fullPath() );
     return windrive;
 }
+
