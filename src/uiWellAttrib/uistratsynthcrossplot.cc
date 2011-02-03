@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.18 2011-02-03 11:59:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.19 2011-02-03 21:38:59 cvskris Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -124,7 +124,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     const int depthcol = dps->nrCols() - 1;
     for ( int iattr=0; iattr<seqattrs.size(); iattr++ )
 	dps->dataSet().add(
-		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr,0)) );
+		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr)) );
 
     const int nraimdls = aimodels_.size();
     const SeisTrcBuf& tbuf = tbpack_->trcBuf();

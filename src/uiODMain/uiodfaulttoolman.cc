@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.31 2011-02-01 10:03:32 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.32 2011-02-03 21:38:59 cvskris Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -1040,9 +1040,8 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 
     if ( newnrselected )
     {
-	char buf[30];
 	uiMSG().message( "Output object could not incorporate ",
-		     toString(newnrselected, buf), " of the selected sticks!" );
+		     toString(newnrselected), " of the selected sticks!" );
     }
 }
 

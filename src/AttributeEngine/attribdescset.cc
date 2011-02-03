@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.105 2011-02-03 11:58:49 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.106 2011-02-03 21:38:58 cvskris Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -545,11 +545,10 @@ void DescSet::handleReferenceInput( Desc* dsc )
 bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar, 
 				BufferStringSet* errmsgs )
 {
-    char buf[30];
     for ( int idx=0; idx<nrdescsnosteer; idx++ )
     {
 	PtrMan<IOPar> descpar =
-	    copypar.subselect( toString(ids_[idx].asInt(),buf) );
+	    copypar.subselect( toString(ids_[idx].asInt()) );
 	if ( !descpar )
 	    { pErrMsg("Huh?"); continue; }
 
@@ -596,10 +595,9 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
     IOPar copypar(par);
     bool res = true;
 
-    char buf[30];
     for ( int id=0; id<=maxid; id++ )
     {
-	PtrMan<IOPar> descpar = par.subselect( toString(id, buf) );
+	PtrMan<IOPar> descpar = par.subselect( toString(id) );
 	if ( !descpar ) continue;
 
 	handleStorageOldFormat( *descpar );
@@ -634,7 +632,7 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 	
 	dsc->updateParams();
 	addDesc( dsc, DescID(id,storedattronly_) );
-	copypar.mergeComp( *descpar, toString(id,buf) );
+	copypar.mergeComp( *descpar, toString(id) );
     }
     
     ObjectSet<Desc> newsteeringdescs;
@@ -654,7 +652,6 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 				 BufferStringSet* errmsgs )
 {
-    char buf[30];
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
     for ( int id=0; id<=maxid; id++ )
@@ -680,7 +677,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 		if ( !strcmp(descpar->find(inputstr),"-1") )
 		{
 		    const char* newkey =
-			IOPar::compKey(toString(id,buf),inputstr);
+			IOPar::compKey(toString(id),inputstr);
 		    par.set( newkey, maxid + steeringdescid +1 );
 		}
 	    }
