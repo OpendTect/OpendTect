@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.108 2011-01-27 15:56:33 cvshelene Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.109 2011-02-03 14:40:51 cvshelene Exp $";
 
 #include "attribengman.h"
 
@@ -792,7 +792,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 Processor* EngineMan::createLocationOutput( BufferString& errmsg,
 					    ObjectSet<BinIDValueSet>& bidzvset )
 {
-    if ( bidzvset.size() == 0 ) mErrRet("No locations to extract data on")
+    if ( bidzvset.size() == 0 ) return 0;
 
     Processor* proc = getProcessor(errmsg);
     if ( !proc )
@@ -896,7 +896,7 @@ Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
 Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 					   BufferString& errmsg, int firstcol )
 {
-    if ( datapointset.size() == 0 ) mErrRet("No locations to extract data on");
+    if ( !datapointset.size() ) return 0;
 
     Processor* proc = getProcessor(errmsg);
     if ( !proc )
