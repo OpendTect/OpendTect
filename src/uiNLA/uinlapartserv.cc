@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.76 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.77 2011-02-03 11:59:32 cvsbert Exp $";
 
 #include "uinlapartserv.h"
 
@@ -491,7 +491,6 @@ bool uiNLAPartServer::doDPSDlg()
     uidps_ = new uiDataPointSet( appserv().parent(), dps(), su, dpsdispmgr_ );
     uidps_->setCtrlStyle( uiDialog::DoAndStay );
     uidps_->storePars() = storepars_;
-    uidps_->storePars().set( sKey::Type, "MVA Data" );
     BufferStringSet bss;
     bss.add( NLACreationDesc::DataTypeNames()[0] );
     bss.add( NLACreationDesc::DataTypeNames()[1] );
