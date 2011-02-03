@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.16 2011-02-01 19:23:02 cvskris Exp $
+ RCS:           $Id: convert.h,v 1.17 2011-02-03 21:25:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,39 +64,39 @@ inline T& udfto( const F& fr, const T& und = Values::Undef<T>::val() )
 
 template <>
 inline void set( const char*& _to, const od_int32& i )
-    { _to = toString(i,0); }
+    { _to = toString(i); }
 
 template <>
 inline void set( const char*& _to, const od_uint32& i )
-    { _to = toString(i,0); }
+    { _to = toString(i); }
 
 template <>
 inline void set( const char*& _to, const od_int64& i )
-    { _to = toString(i,0); }
+    { _to = toString(i); }
 
 template <>
 inline void set( const char*& _to, const od_uint64& i )
-    { _to = toString(i,0); }
+    { _to = toString(i); }
 
 template <>
 inline void set( const char*& _to, const bool& b )
-    { _to = toString(b,0); }
+    { _to = toString(b); }
 
 template <>
 inline void set( const char*& _to, const float& f )
-    { _to = toString(f,0); }
+    { _to = toString(f); }
 
 template <>
 inline void set( const char*& _to, const double& d )
-    { _to = toString(d,0); }
+    { _to = toString(d); }
 
 template <>
 inline void set( const char*& _to, const short& i )
-    { _to = toString(i,0); }
+    { _to = toString(i); }
 
 template <>
 inline void set( const char*& _to, const unsigned short& i )
-    { _to = toString(i,0); }
+    { _to = toString(i); }
 
 
 #define mConvDefFromStrToFn(type,function) \
