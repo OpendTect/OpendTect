@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.23 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.24 2011-02-03 11:58:14 cvsbert Exp $";
 
 #include "posvecdataset.h"
 
@@ -329,6 +329,26 @@ bool PosVecDataSet::getColNames( const char* fnm, BufferStringSet& bss,
 	}
     }
 
+    sd.close();
+    return true;
+}
+
+
+bool PosVecDataSet::getIOPar( const char* fnm, IOPar& iop, BufferString& emsg )
+{
+    bool tabstyle = false;
+    StreamData sd = getInpSD( fnm, emsg, tabstyle );
+    if ( !sd.usable() )
+	return false;
+    iop.setEmpty();
+    if ( tabstyle )
+	return true;
+
+    ascistream strm( *sd.istrm, false );
+    while ( !atEndOfSection(strm.next()) )
+	/* read away column defs */;
+
+    iop.getFrom( strm );
     sd.close();
     return true;
 }

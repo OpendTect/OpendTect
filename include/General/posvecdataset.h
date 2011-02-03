@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.12 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: posvecdataset.h,v 1.13 2011-02-03 11:58:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ public:
     			//!< !tabstyle: dTect style (preserves all)
     static bool		getColNames(const char*,BufferStringSet& bss,
 	    			    BufferString& errmsg,bool refs=false);
+    static bool		getIOPar(const char*,IOPar& iop,BufferString& errmsg);
 
 protected:
 
