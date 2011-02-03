@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.70 2011-01-27 08:41:18 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.71 2011-02-03 09:55:18 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -140,6 +140,7 @@ FaultDisplay::~FaultDisplay()
     }
 
     deepErase( horshapes_ );
+    horintersectids_.erase();
     delete explicitpanels_;
     delete explicitsticks_;
     delete explicitintersections_;
@@ -1152,32 +1153,47 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 {
     if ( !emfault_ )
 	return;
-   
-    mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-		     emfault_->sectionGeometry( emfault_->sectionID(0)) );
-    
+
+    ObjectSet<HorizonDisplay> activehordisps;
+    TypeSet<int> activehorids;
+    for ( int idx=0; idx<objs.size(); idx++ )
+    {
+	mDynamicCastGet( const HorizonDisplay*, hor, objs[idx] );
+	if ( !hor || !hor->isOn() || !hor->getSectionIDs().size() )
+	    continue;
+	if ( hor->getOnlyAtSectionsDisplay() )
+	    continue;
+	    
+	activehordisps += const_cast<HorizonDisplay*>( hor );
+	activehorids += hor->id();
+    }
+
     for ( int idx=horintersections_.size()-1; idx>=0; idx-- )
     {
+
+	if ( whichobj>=0 && horintersectids_[idx]!=whichobj )
+	    continue;
+	if ( whichobj<0 && activehorids.isPresent(horintersectids_[idx]) )
+	    continue;
+
 	horintersections_[idx]->turnOn( false );
 	horintersections_[idx]->unRef();
 	horintersections_.remove( idx );
 	delete horshapes_.remove( idx );
+	horintersectids_.remove( idx ); 
     }
 
-    for ( int idx=0; idx<objs.size(); idx++ )
+    mDynamicCastGet( Geometry::FaultStickSurface*, fss,
+		     emfault_->sectionGeometry( emfault_->sectionID(0)) );
+
+    for ( int idx=0; idx<activehordisps.size(); idx++ )
     {
-	mDynamicCastGet( const HorizonDisplay*, hor, objs[idx] );
-	if ( !hor || !hor->isOn() )
+	if ( horintersectids_.isPresent(activehorids[idx]) )
 	    continue;
 
-	visSurvey::HorizonDisplay* hd = 
-	    const_cast<visSurvey::HorizonDisplay*>( hor ); 
-	if ( !hd->getSectionIDs().size() )
-	    continue;
-
-	EM::SectionID sid = hd->getSectionIDs()[0];
+	EM::SectionID sid = activehordisps[idx]->getSectionIDs()[0];
 	Geometry::BinIDSurface* surf =
-	    hd->getHorizonSection(sid)->getSurface();
+	    activehordisps[idx]->getHorizonSection(sid)->getSurface();
 	
 	visBase::GeomIndexedShape* line = visBase::GeomIndexedShape::create();
 	line->ref();
@@ -1196,7 +1212,8 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	shape->display( false, false );
 	line->setSurface( shape );
 	shape->setSurface( fss );
-	Geometry::FaultBinIDSurfaceIntersector it( 0, *surf,
+	const float zshift = activehordisps[idx]->getTranslation().z;
+	Geometry::FaultBinIDSurfaceIntersector it( zshift, *surf,
 		*emfault_->geometry().sectionGeometry(emfault_->sectionID(0)),
 		*shape->coordList() );
 	it.setShape( *shape );
@@ -1204,6 +1221,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 
 	horintersections_ += line;
 	horshapes_ += shape;
+	horintersectids_ += activehorids[idx];
     }
     
     updateHorizonIntersectionDisplay();
