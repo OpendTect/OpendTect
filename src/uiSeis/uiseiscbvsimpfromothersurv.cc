@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.8 2011-01-14 09:57:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.9 2011-02-03 10:41:51 cvsbruno Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -307,16 +307,16 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 
 SeisTrc* SeisImpCBVSFromOtherSurvey::readTrc( const BinID& bid ) const
 {
-    SeisTrc* trc = 0;
+    SeisTrc* rettrc = 0;
     if ( tr_->goTo( bid )  )
     {
-	trc = new SeisTrc();
-	trc->info().binid = bid;
-	tr_->readInfo( trc->info() ); 
-	tr_->read( *trc );
-	trc = trc->getExtendedTo( data_.cs_.zrg );
+	SeisTrc trc;
+	trc.info().binid = bid;
+	tr_->readInfo( trc.info() ); 
+	tr_->read( trc );
+	rettrc = trc.getExtendedTo( data_.cs_.zrg );
     }
-    return trc;
+    return rettrc;
 }
 
 
@@ -371,6 +371,12 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     int szx = sz_.x_; 	int newszx = newsz_.x_;	 int xpadsz = (int)(szx/2);
     int szy = sz_.y_; 	int newszy = newsz_.y_;	 int ypadsz = (int)(szy/2);
     int szz = sz_.z_;	int newszz = newsz_.z_;  int zpadsz = (int)(szz/2);
+
+    for ( int idx=0; idx<trcs.size(); idx++ )
+    {
+	for ( int idz=trcs[idx]->size(); idz<szz; idz++ )
+	    trcs[idx]->set( idz, 0, 0 );
+    }
 
     int cpt =0;
     for ( int idx=0; idx<szx; idx ++ )
