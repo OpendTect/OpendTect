@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.104 2011-02-01 11:34:01 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.105 2011-02-03 11:58:49 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -44,6 +44,35 @@ DescSet::DescSet( const DescSet& ds )
     , descToBeRemoved(this)
 {
     *this = ds;
+}
+
+
+int DescSet::indexOf( const char* nm, bool isusrref ) const
+{
+    if ( !nm || !*nm ) return -1;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Desc& dsc = *descs_[idx];
+	if ( isusrref && dsc.isIdentifiedBy(nm) )
+	    return idx;
+	else if ( !isusrref )
+	{
+	    BufferString defstr; dsc.getDefStr( defstr );
+	    if ( defstr == nm )
+		return idx;
+	}
+    }
+    return -1;
+}
+
+
+bool DescSet::hasStoredInMem() const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	if ( descs_[idx]->isStoredInMem() )
+	    return true;
+    return false;
 }
 
 
