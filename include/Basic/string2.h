@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.43 2011-02-01 21:15:33 cvskris Exp $
+ RCS:		$Id: string2.h,v 1.44 2011-02-03 22:45:10 cvsyuancheng Exp $
 ________________________________________________________________________
 -*/
 
@@ -115,8 +115,7 @@ inline const char* toString( short i, char* r=0 )
 	{ return getStringFromInt((int)i,r); }
 inline const char* toString( unsigned short i, char* r=0 )
 	{ return getStringFromUInt( (unsigned int)i, r=0 ); }
-inline const char* toString( const char* str, char* r=0 )	
-	{ return str && r ? strcpy(r,str) : str; } 
+mGlobal const char* toString( const char* str, char* r=0 );
 inline const char* toString( unsigned char c, char* r=0 )	
 	{ return toString( ((unsigned short)c), r ); }
 inline const char* toString( signed char c, char* r=0 )	

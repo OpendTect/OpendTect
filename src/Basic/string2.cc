@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.2 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.3 2011-02-03 22:45:10 cvsyuancheng Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -572,3 +572,17 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
     
     return ret;
 }
+
+
+const char* toString( const char* str, char* r )
+{
+    char* ret = r ? r : StaticStringManager::STM().getString();
+    if ( str )
+	strcpy( ret, str );
+    else
+	ret[0] = 0;
+
+    return ret;
+}
+
+
