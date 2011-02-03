@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.16 2011-01-31 14:24:51 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.17 2011-02-03 08:53:16 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -89,7 +89,14 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     snapfld_ = new uiGenInput( extrposgrp, "Snap to event",
 	    			StringListInpSpec(eventnms) );
     snapfld_->setWithCheck( true );
+    snapfld_->checked.notify( mCB(this,uiStratSynthCrossplot,evSnapCheck) );
+    snapfld_->setValue( 1 );
     snapfld_->attach( alignedBelow, llvlfld );
+    snapfld_->setElemSzPol( uiObject::Small );
+    snapoffsfld_ = new uiGenInput( extrposgrp, "Offset (ms)", FloatInpSpec(0) );
+    snapoffsfld_->attach( rightOf, snapfld_ );
+    snapoffsfld_->setElemSzPol( uiObject::Small );
+    snapoffsfld_->setSensitive( false );
 
     const float defstep = SI().zIsTime() ? SI().zStep() * 1000 : 4;
     extrwinfld_ = new uiGenInput( extrposgrp, "Extraction window",
@@ -102,34 +109,6 @@ uiStratSynthCrossplot::~uiStratSynthCrossplot()
 {
     if( tbpack_ )
 	DPM(packmgrid_).release( tbpack_->id() );
-}
-
-
-#define mErrRet(s) { if ( s && *s ) uiMSG().error(s); return false; }
-
-bool uiStratSynthCrossplot::acceptOK( CallBacker* )
-{
-    if ( emptylbl_ )
-	return true;
-
-    const Attrib::DescSet& seisattrs = seisattrfld_->descSet();
-    if ( seisattrs.isEmpty() )
-	mErrRet("Please define a seismic attribute")
-    const Strat::LaySeqAttribSet& seqattrs = layseqattrfld_->attribSet();
-    if ( seqattrs.isEmpty() )
-	mErrRet("Please define a layer attribute")
-
-    const Strat::Level* lvl = Strat::LVLS().get( reflvlfld_->text() );
-    if ( !lvl )
-	mErrRet("Cannot find selected stratigraphic level")
-
-    StepInterval<float> extrwin( extrwinfld_->getFStepInterval() );
-    if ( mIsUdf(extrwin.start) || mIsUdf(extrwin.stop) || mIsUdf(extrwin.step) )
-	mErrRet("Please enter all extraction window parameters")
-
-    extrwin.start *= 0.001; extrwin.stop *= 0.001; extrwin.step *= 0.001;
-    DataPointSet* dps = getData( seisattrs, seqattrs, *lvl, extrwin );
-    return dps ? launchCrossPlot( *dps, *lvl, extrwin ) : false;
 }
 
 
@@ -148,16 +127,24 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr,0)) );
 
     const int nraimdls = aimodels_.size();
+    const SeisTrcBuf& tbuf = tbpack_->trcBuf();
+    if ( tbuf.size() != nraimdls )
+	{ pErrMsg("DataPack nr of traces != nr of aimodels"); return 0; }
+
     TypeSet<float> lvltms( nraimdls, 0 );
+    const bool dosnap = snapfld_->isChecked();
+    const int evtyp = snapfld_->getIntValue();
+    const float snapoffs = snapoffsfld_->getfValue() *.001;
     for ( int imod=0; imod<nraimdls; imod++ )
     {
 	const float dpth = lm_.sequence(imod).depthOf( lvl );
 	lvltms[imod] = aimodels_[imod]->convertTo( dpth, AIModel::TWT );
+	if ( dosnap )
+	{
+	    lvltms[imod] += snapoffs;
+	    snapLevelTime( *tbuf.get(imod), evtyp, lvltms[imod] );
+	}
     }
-
-    const SeisTrcBuf& tbuf = tbpack_->trcBuf();
-    if ( tbuf.size() != nraimdls )
-	{ pErrMsg("DataPack nr of traces != nr of aimodels"); return 0; }
 
     const int nrextr = extrwin.nrSteps() + 1;
     for ( int iextr=0; iextr<nrextr; iextr++ )
@@ -188,6 +175,29 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	{ delete dps; dps = 0; }
 
     return dps;
+}
+
+
+void uiStratSynthCrossplot::snapLevelTime( const SeisTrc& trc, int et,
+					   float& reftm ) const
+{
+    const VSEvent::Type evtyp = (VSEvent::Type)et;
+    const SeisTrcValueSeries tvs( trc, 0 );
+    const SamplingData<float> sd( trc.info().sampling );
+    const int trcsz = trc.size();
+
+    ValueSeriesEvFinder<float,float> evf( tvs, trcsz-1, sd );
+    const Interval<float> trcwin( trc.startPos(), trc.samplePos(trcsz-1) );
+    for ( int iwdth=1; iwdth<trcsz; iwdth++ )
+    {
+	Interval<float> findwin( reftm - iwdth*sd.step, reftm + iwdth*sd.step );
+	if ( findwin.start < trcwin.start ) findwin.start = trcwin.start;
+	if ( findwin.stop > trcwin.stop ) findwin.stop = trcwin.stop;
+
+	ValueSeriesEvent<float,float> ev = evf.find( evtyp, findwin );
+	if ( !mIsUdf(ev.pos) )
+	    { reftm = ev.pos; break; }
+    }
 }
 
 
@@ -258,4 +268,44 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
     aem->setAttribSet( &attrs ); 
     aem->setAttribSpecs( attribspecs );                                         
     return aem;                                                                 
+}
+
+
+void uiStratSynthCrossplot::setRefLevel( const char* lvlnm )
+{
+    reflvlfld_->setText( lvlnm );
+}
+
+
+void uiStratSynthCrossplot::evSnapCheck( CallBacker* )
+{
+    snapoffsfld_->setSensitive( snapfld_->isChecked() );
+}
+
+
+#define mErrRet(s) { if ( s && *s ) uiMSG().error(s); return false; }
+
+bool uiStratSynthCrossplot::acceptOK( CallBacker* )
+{
+    if ( emptylbl_ )
+	return true;
+
+    const Attrib::DescSet& seisattrs = seisattrfld_->descSet();
+    if ( seisattrs.isEmpty() )
+	mErrRet("Please define a seismic attribute")
+    const Strat::LaySeqAttribSet& seqattrs = layseqattrfld_->attribSet();
+    if ( seqattrs.isEmpty() )
+	mErrRet("Please define a layer attribute")
+
+    const Strat::Level* lvl = Strat::LVLS().get( reflvlfld_->text() );
+    if ( !lvl )
+	mErrRet("Cannot find selected stratigraphic level")
+
+    StepInterval<float> extrwin( extrwinfld_->getFStepInterval() );
+    if ( mIsUdf(extrwin.start) || mIsUdf(extrwin.stop) || mIsUdf(extrwin.step) )
+	mErrRet("Please enter all extraction window parameters")
+
+    extrwin.start *= 0.001; extrwin.stop *= 0.001; extrwin.step *= 0.001;
+    DataPointSet* dps = getData( seisattrs, seqattrs, *lvl, extrwin );
+    return dps ? launchCrossPlot( *dps, *lvl, extrwin ) : false;
 }

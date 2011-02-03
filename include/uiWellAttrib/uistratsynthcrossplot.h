@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.10 2011-01-31 12:21:26 cvsbert Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.11 2011-02-03 08:53:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiLabel;
 class AIModel;
+class SeisTrc;
 class SeisTrcBuf;
 class uiGenInput;
 class uiComboBox;
@@ -39,6 +40,8 @@ public:
 						const ObjectSet<AIModel>&);
 				~uiStratSynthCrossplot();
 
+    void			setRefLevel(const char*);
+
 protected:
 
     const Strat::LayerModel&	lm_;
@@ -51,6 +54,7 @@ protected:
     uiLabel*			emptylbl_;
     uiComboBox*			reflvlfld_;
     uiGenInput*			snapfld_;
+    uiGenInput*			snapoffsfld_;
     uiGenInput*			extrwinfld_;
 
     DataPointSet*		getData(const Attrib::DescSet&,
@@ -64,10 +68,11 @@ protected:
     bool			launchCrossPlot(const DataPointSet&,
 					const Strat::Level&,
 					const StepInterval<float>&);
-
-    bool			acceptOK(CallBacker*);
-
+    void			snapLevelTime(const SeisTrc&,int,float&) const;
     Attrib::EngineMan*		createEngineMan(const Attrib::DescSet&) const;
+
+    void			evSnapCheck(CallBacker*);
+    bool			acceptOK(CallBacker*);
 
 };
 
