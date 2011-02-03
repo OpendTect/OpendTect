@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.17 2011-01-28 11:09:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.18 2011-02-03 08:54:23 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -249,7 +249,7 @@ void uiStratSynthDisp::modelChanged()
     deepErase( vwr_->appearance().annot_.auxdata_ );
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, Seis::Line,
 	    			SeisTrcInfo::TrcNr, "Seismic" );
-    dp->setName( "Model synthetics" );
+    dp->setName( "Synthetics" );
     dp->posData().setRange( true, StepInterval<double>(1,nraimdls,1) );
     const SeisTrc& trc0 = *tbuf->get(0);
     StepInterval<double> zrg( trc0.info().sampling.start,
