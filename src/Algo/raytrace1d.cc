@@ -32,8 +32,6 @@ RayTracer1D::RayTracer1D( const RayTracer1D::Setup& s )
     : setup_( s )
     , receiverlayer_( 0 )
     , sourcelayer_( 0 )
-    , relsourcedepth_( 0 )
-    , relreceiverdepth_( 0 )			
     , sini_( 0 )
 {}					       	
 
@@ -43,9 +41,7 @@ RayTracer1D::~RayTracer1D()
 
 
 void RayTracer1D::setSetup( const RayTracer1D::Setup& s )
-{
-    setup_ = s;
-}
+{ setup_ = s; }
 
 
 void RayTracer1D::setModel( bool pwave, const TypeSet<AILayer>& lys )
@@ -58,15 +54,11 @@ void RayTracer1D::setModel( bool pwave, const TypeSet<AILayer>& lys )
 
 
 void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
-{
-    offsets_ = offsets;
-}
+{ offsets_ = offsets; }
 
 
 od_int64 RayTracer1D::nrIterations() const
-{
-    return (pmodel_.size() ? pmodel_.size() : smodel_.size() )-1;
-}
+{ return (pmodel_.size() ? pmodel_.size() : smodel_.size() )-1; }
 
 
 int RayTracer1D::findLayer( const TypeSet<AILayer>& model, float targetdepth )
@@ -84,13 +76,15 @@ int RayTracer1D::findLayer( const TypeSet<AILayer>& model, float targetdepth )
 
 bool RayTracer1D::doPrepare( int nrthreads )
 {
-    if ( pmodel_.size() && smodel_.size() && pmodel_.size()!=smodel_.size() )
+    const int psz = pmodel_.size();
+    const int ssz = smodel_.size();
+    if ( psz && ssz && psz!=ssz )
     {
 	pErrMsg("P and S model sizes must be identical" );
 	return false;
     }
 
-    const TypeSet<AILayer>& depthmodel = pmodel_.size() ? pmodel_ : smodel_;
+    const TypeSet<AILayer>& depthmodel = psz ? pmodel_ : smodel_;
 
     sourcelayer_ = findLayer( depthmodel, setup_.sourcedepth_ );
     receiverlayer_ = findLayer( depthmodel, setup_.receiverdepth_ );
@@ -101,10 +95,6 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	errmsg_ = "Sourece or receiver is below lowest layer";
 	return false;
     }
-
-    relsourcedepth_ = setup_.sourcedepth_ - depthmodel[sourcelayer_+1].depth_;
-    relreceiverdepth_ =
-	setup_.receiverdepth_ - depthmodel[receiverlayer_+1].depth_;
 
     float maxvel = 0;
     velmax_.erase();
@@ -147,32 +137,6 @@ bool RayTracer1D::doPrepare( int nrthreads )
     return true;
 }
 
-
-bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
-{
-    const int offsz = offsets_.size();
-    const int firstreflection = 1 +
-	(sourcelayer_ > receiverlayer_ ? sourcelayer_ : receiverlayer_);
-
-    for ( int layer=start; layer<=stop; layer++ )
-    {
-	const int usedlayer = firstreflection > layer ? firstreflection : layer;
-	float rayparam = 0;
-	for ( int osidx=0; osidx<offsz; osidx++ )
-	{
-	    rayparam = findRayParam( usedlayer, offsets_[osidx], rayparam );
-	    if ( mIsUdf(rayparam) ) 
-		continue;
-
-	    if ( !compute(layer, osidx, rayparam) )
-		return false;
-	}
-    }
-
-    return true;
-}
-
-
 class OffsetFromRayParam : public FloatMathFunction
 {
 public:
@@ -188,46 +152,114 @@ protected:
 };
 
 
-float RayTracer1D::findRayParam( int layer, float offset, float seed ) const
+
+bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
-    OffsetFromRayParam function( *this, layer );
+    const int offsz = offsets_.size();
+    const int firstreflection = 1 + mMAX(sourcelayer_,receiverlayer_);
 
-    if ( !findValue(function,0,0.9999999/velmax_[layer],seed,offset,1e-10) )
-	return mUdf(float);
+    int zerooffsetidx = -1;
+    for ( int osidx=offsz-1; osidx>=0; osidx-- )
+    {
+	if ( mIsZero(offsets_[osidx],1e-3) )
+	{
+	    zerooffsetidx = osidx;
+	    break;
+	}
+    }
 
-    return seed;
+    for ( int layer=start; layer<=stop; layer++ )
+    {
+	const int usedlayer = mMAX( firstreflection, layer );
+	OffsetFromRayParam function( *this, usedlayer );
+	float maxrayparam = 0.9999999/velmax_[usedlayer];
+	float prevoffset = offsets_[offsz-1];
+	for ( int osidx=offsz-1; osidx>=0; osidx-- )
+	{
+	    float rayparam = 0;
+	    const float offset = offsets_[osidx];
+	    if ( osidx!=zerooffsetidx )
+	    {
+		rayparam = maxrayparam * offset/prevoffset * 0.9;
+		if ( !findValue(function,0,maxrayparam,rayparam,offset,1e-10) )
+		    continue;
+	    }
+
+	    maxrayparam = rayparam;
+	    prevoffset = offset;
+
+	    if ( !compute(layer, osidx, rayparam) )
+		return false;
+	}
+    }
+
+    return true;
 }
+
+
+#define mCalOffSetFactor( layers, prevdepth, dotwolayers ) \
+	const AILayer& curlayer = layers[idx]; \
+	const float sini = rayparam * curlayer.vel_;\
+	const float depth = curlayer.depth_;  \
+	const float thickness = depth - prevdepth; \
+	prevdepth = depth; \
+	result += dotwolayers ? 2 * thickness * sini / sqrt(1.0-sini*sini) : \
+				thickness * sini / sqrt(1.0-sini*sini)
 
 
 float RayTracer1D::getOffset( int layer, float rayparam ) const
 {
     const TypeSet<AILayer>& dlayers = setup_.pdown_ ? pmodel_ : smodel_;
-    const TypeSet<AILayer>& ulayers = setup_.pup_ ? pmodel_ : smodel_; 
-    
-    float xtot = 0;
-    int idx = sourcelayer_ < receiverlayer_ ? sourcelayer_ : receiverlayer_;
-    while ( idx<layer )
+    const int firstlayer = mMIN( receiverlayer_, sourcelayer_ );
+    float result = 0;
+    int idx = firstlayer;
+    float prevsourcedepth = 0;
+    float prevreceiverdepth = 0;
+
+    if ( setup_.pdown_==setup_.pup_ )
     {
-	if ( idx >= sourcelayer_ )
+	const int firstcommonlayer = mMAX( receiverlayer_, sourcelayer_ ) + 1;
+	while ( idx<firstcommonlayer )
 	{
-	    const float sinidn = rayparam * dlayers[idx].vel_;
-	    const float factor = sinidn/sqrt(1.0-sinidn*sinidn);
-	    const float rd = idx==sourcelayer_ ? relsourcedepth_ : 0;
-	    xtot += ( dlayers[idx].depth_ - rd ) * factor;
+	    if ( idx >= sourcelayer_ )
+	    {
+		mCalOffSetFactor( dlayers, prevsourcedepth, false );
+	    }
+	    
+	    if ( idx >= receiverlayer_ )
+	    {
+		mCalOffSetFactor( dlayers, prevreceiverdepth, false );
+	    }
+	    idx++;
 	}
 	
-	if ( idx >= receiverlayer_ )
+	prevsourcedepth = dlayers[idx-1].depth_;
+	while ( idx<layer )
 	{
-	    const float siniup = rayparam * ulayers[idx].vel_;
-	    const float factor = siniup/sqrt(1-siniup*siniup);
-	    const float rd = idx==receiverlayer_ ? relreceiverdepth_ : 0;
-	    xtot += ( ulayers[idx].depth_ - rd ) * factor; 
+	    mCalOffSetFactor( dlayers, prevsourcedepth, true );
+	    idx++;
 	}
-
-	idx++;
     }
-    
-    return xtot;
+    else
+    {
+	const TypeSet<AILayer>& ulayers = setup_.pup_ ? pmodel_ : smodel_; 
+	while ( idx<layer )
+	{
+	    if ( idx >= sourcelayer_ )
+	    {
+		mCalOffSetFactor( dlayers, prevsourcedepth, false );
+	    }
+	    
+	    if ( idx >= receiverlayer_ )
+	    {
+		mCalOffSetFactor( ulayers, prevreceiverdepth, false );
+	    }
+
+	    idx++;
+	}
+    } 
+
+    return result;
 }
 
 

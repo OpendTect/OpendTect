@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.11 2011-01-31 22:45:28 cvsyuancheng Exp $
+ RCS:		$Id: raytrace1d.h,v 1.12 2011-02-03 23:05:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -67,7 +67,6 @@ protected:
     od_int64		nrIterations() const;
     virtual bool	doPrepare(int);
     bool		doWork(od_int64,od_int64,int);
-    float		findRayParam(int layer,float offset,float seed) const;
     virtual bool	compute(int layer,int offsetidx,float rayparam);
     virtual float	getOffset(int layer,float rayparam) const;
     static int		findLayer(const TypeSet<AILayer>& model,
@@ -83,8 +82,6 @@ protected:
     TypeSet<float>	velmax_; 
     int			sourcelayer_;
     int			receiverlayer_;
-    float		relsourcedepth_;
-    float		relreceiverdepth_;
     TypeSet<int>	offsetpermutation_;
     FixedString		errmsg_;
 
