@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.39 2011-01-26 08:49:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.40 2011-02-03 07:49:42 cvsbert Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -158,6 +158,21 @@ bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
 	return false;
     if ( dpss.isEmpty() )
 	mErrRet("No wells found")
+    bool founddata = false;
+    for ( int idx=0; idx<dpss.size(); idx++ )
+    {
+	if ( !dpss[idx]->isEmpty() )
+	    { founddata = true; break; }
+    }
+    if ( !founddata )
+    {
+	if ( dpss.size() == 1 )
+	    mErrRet("No valid data points found in the well\n"
+		    "(check ranges, undefined sections ....)")
+	else
+	    mErrRet("No valid data points found in any of the wells\n"
+		    "(check ranges, undefined sections ....)")
+    }
 
     for ( int idx=0; idx<lognms.size(); idx++ )
     {

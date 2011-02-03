@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.405 2011-01-14 21:59:38 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.406 2011-02-03 07:49:42 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1346,6 +1346,11 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	{
 	    nlaserv_->getDataPointSets( dpss );
 	    if ( dpss.isEmpty() )
+		{ uiMSG().error("No matching well data found"); return false;}
+	    bool allempty = true;
+	    for ( int idx=0; idx<dpss.size(); idx++ )
+		{ if ( !dpss[idx]->isEmpty() ) { allempty = false; break; } }
+	    if ( allempty )
 		{ uiMSG().error("No valid data locations found"); return false;}
 	    if ( !attrserv_->extractData(dpss) )
 		{ deepErase(dpss); return true; }
