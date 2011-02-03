@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.17 2011-02-03 08:53:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.18 2011-02-03 11:59:54 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -239,6 +239,7 @@ bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 	   .add( "-" ).add( extrwin.stop ).add( "]" );
     uiDataPointSet::Setup su( wintitl, false );
     uiDataPointSet* uidps = new uiDataPointSet( this, dps, su, 0 );
+    seisattrfld_->descSet().fillPar( uidps->storePars() );
     uidps->setDeleteOnClose( true );
     uidps->show();
     return false;
