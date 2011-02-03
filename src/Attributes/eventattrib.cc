@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: eventattrib.cc,v 1.35 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: eventattrib.cc,v 1.36 2011-02-03 11:33:25 cvshelene Exp $";
 
 #include "eventattrib.h"
 #include "survinfo.h"
@@ -43,6 +43,8 @@ void Event::initClass()
     gate->setLimits( Interval<float>(-1000,1000) );
     desc->addParam( gate );
 
+    desc->addParam( new BoolParam(outampStr(),false,false) );
+
     desc->addOutputDataType( Seis::UnknowData );
 
     InputSpec inputspec( "Input Data", true );
@@ -57,6 +59,7 @@ void Event::updateDesc( Desc& desc )
 {
     const bool issingle = desc.getValParam(issingleeventStr())->getBoolValue();
     desc.setParamEnabled( eventTypeStr(), !issingle );
+    desc.setParamEnabled( outampStr(), !issingle );
 
     VSEvent::Type evtype = VSEvent::None;
     if ( !issingle )
@@ -78,23 +81,25 @@ Event::Event( Desc& desc )
 {
     if ( !isOK() ) return;
 
-    mGetBool( issingleevent, issingleeventStr() );
-    mGetBool( tonext, tonextStr() );
+    mGetBool( issingleevent_, issingleeventStr() );
+    mGetBool( tonext_, tonextStr() );
 
-    gate.start = -SGWIDTH * SI().zStep();
-    gate.stop = SGWIDTH * SI().zStep();
+    gate_.start = -SGWIDTH * SI().zStep();
+    gate_.stop = SGWIDTH * SI().zStep();
 
-    eventtype = VSEvent::None;
-    if ( !issingleevent )
+    eventtype_ = VSEvent::None;
+    if ( !issingleevent_ )
     {
 	const int type = desc_.getValParam(eventTypeStr())->getIntValue(0);
-	eventtype = getEventType( type );
+	eventtype_ = getEventType( type );
 
-	if ( eventtype == VSEvent::GateMax || eventtype == VSEvent::GateMin )
+	if ( eventtype_ == VSEvent::GateMax || eventtype_ == VSEvent::GateMin )
 	{
-	    mGetFloatInterval( gate, gateStr() );
-	    gate.scale( 1/zFactor() );
+	    mGetFloatInterval( gate_, gateStr() );
+	    gate_.scale( 1/zFactor() );
 	}
+
+	mGetBool( outamp_, outampStr() );
     }
 }
 
@@ -107,23 +112,23 @@ bool Event::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Event::getInputData( const BinID& relpos, int zintv )
 {
-    inputdata = inputs_[0]->getData( relpos, zintv );
+    inputdata_ = inputs_[0]->getData( relpos, zintv );
     dataidx_ = getDataIndex( 0 );
-    return inputdata;
+    return inputdata_;
 }
 
 
 const Interval<float>* Event::reqZMargin( int input, int output ) const
 {
-    return eventtype == VSEvent::GateMax || eventtype == VSEvent::GateMin 
-	? &gate : 0;
+    return eventtype_ == VSEvent::GateMax || eventtype_ == VSEvent::GateMin 
+	? &gate_ : 0;
 }
 
 
 const Interval<float>* Event::desZMargin( int input, int output ) const
 {
-    return eventtype != VSEvent::GateMax && eventtype != VSEvent::GateMin
-	? &gate : 0;
+    return eventtype_ != VSEvent::GateMax && eventtype_ != VSEvent::GateMin
+	? &gate_ : 0;
 }
 
 
@@ -154,7 +159,7 @@ ValueSeriesEvent<float,float> Event::findNextEvent(
 {
     ValueSeriesEvent<float,float> ev = nextev;
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)),
+    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata_->series(dataidx_)),
 	    					 z0+nrsamples, sd );
     Interval<float> sg;
     sg.start = ev.pos + dir;
@@ -174,10 +179,10 @@ ValueSeriesEvent<float,float> Event::findNextEvent(
 
 void Event::singleEvent( const DataHolder& output, int nrsamples, int z0 ) const
 {
-    const int firstsample = z0 - inputdata->z0_;
+    const int firstsample = z0 - inputdata_->z0_;
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)),
-						 inputdata->nrsamples_, sd );
+    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata_->series(dataidx_)),
+						 inputdata_->nrsamples_, sd );
     VSEvent::Type zc = VSEvent::ZC;
     float extrasamp = output.extrazfromsamppos_/refstep_;
     Interval<float> sg( firstsample+extrasamp, firstsample+extrasamp-SGWIDTH );
@@ -208,7 +213,7 @@ void Event::singleEvent( const DataHolder& output, int nrsamples, int z0 ) const
 	else if ( cursample > nextev.pos )
 	{
 	    ev = nextev;
-	    nextev = findNextEvent( nextev, 1, zc, inputdata->nrsamples_,
+	    nextev = findNextEvent( nextev, 1, zc, inputdata_->nrsamples_,
 		    		    firstsample );
 	    if ( isOutputEnabled(0) || isOutputEnabled(2) )
 	    {
@@ -233,11 +238,11 @@ void Event::singleEvent( const DataHolder& output, int nrsamples, int z0 ) const
 		else
 		{
 		    ValueSeriesInterpolator<float>
-		    interp(inputdata->nrsamples_-1);
-		    float lastsampval =  inputdata->getValue(dataidx_,
-			    (inputdata->z0_+ev.pos-1)*refstep_, refstep_ );
-		    float nextsampval =  inputdata->getValue(dataidx_,
-			    (inputdata->z0_+ev.pos+1)*refstep_, refstep_ );
+		    interp(inputdata_->nrsamples_-1);
+		    float lastsampval =  inputdata_->getValue(dataidx_,
+			    (inputdata_->z0_+ev.pos-1)*refstep_, refstep_ );
+		    float nextsampval =  inputdata_->getValue(dataidx_,
+			    (inputdata_->z0_+ev.pos+1)*refstep_, refstep_ );
 		    const float val = fabs( (nextsampval - lastsampval) / 2 );
 		    setOutputValue( output, 1, idx, z0, val );
 		}
@@ -264,14 +269,14 @@ void Event::multipleEvents( const DataHolder& output,
 			    int nrsamples, int z0 ) const
 {
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)),
-	    				         inputdata->nrsamples_, sd );
-    const int firstsample = z0 - inputdata->z0_;
+    ValueSeriesEvFinder<float,float> vsevfinder(*(inputdata_->series(dataidx_)),
+	    				         inputdata_->nrsamples_, sd );
+    const int firstsample = z0 - inputdata_->z0_;
     const float extrasamp = output.extrazfromsamppos_/refstep_;
-    if ( eventtype == VSEvent::GateMax || eventtype == VSEvent::GateMin )
+    if ( eventtype_ == VSEvent::GateMax || eventtype_ == VSEvent::GateMin )
     {
-	Interval<int> samplegate( mNINT(gate.start/refstep_),
-		                          mNINT(gate.stop/refstep_) );
+	Interval<int> samplegate( mNINT(gate_.start/refstep_),
+		                          mNINT(gate_.stop/refstep_) );
 	int samplegatewidth = samplegate.width();
 	int csample = firstsample + samplegate.start;
 	Interval<float> sg(0,0);
@@ -281,12 +286,13 @@ void Event::multipleEvents( const DataHolder& output,
 	    sg.start = cursample + extrasamp;
 	    sg.stop = sg.start + samplegatewidth;
 	    ValueSeriesEvent<float,float> ev = 
-					vsevfinder.find( eventtype, sg, 1 );
+					vsevfinder.find( eventtype_, sg, 1 );
 	    if ( mIsUdf(ev.pos) )
 		setOutputValue( output, 0, idx, z0, ev.pos );
 	    else
 	    {
-		const float val = fabs( (firstsample + idx) - ev.pos) * refstep_;
+		const float val = outamp_? ev.val
+		    		: ( ev.pos - (firstsample + idx) ) * refstep_;
 		setOutputValue( output, 0, idx, z0, val );
 	    }
 	}
@@ -299,25 +305,26 @@ void Event::multipleEvents( const DataHolder& output,
 	sg.start = firstsample + extrasamp;
 	sg.stop = sg.start + SGWIDTH;
 	ValueSeriesEvent<float,float> nextev = 
-	    				vsevfinder.find( eventtype, sg, 1 );
+	    				vsevfinder.find( eventtype_, sg, 1 );
 	sg.stop = sg.start - SGWIDTH;
 	ValueSeriesEvent<float,float> prevev = 
-	    				vsevfinder.find( eventtype, sg, 1 );
+	    				vsevfinder.find( eventtype_, sg, 1 );
 	bool prevudf = mIsUdf(prevev.pos);
 	bool nextudf = mIsUdf(nextev.pos);
 	if ( prevudf && nextudf)
 	    setOutputValue( output, 0, 0, z0, nextev.pos );
 	else if ( prevudf || nextudf )
 	{
-	    const float val = fabs(firstsample - prevudf ? nextev.pos
-		    					 : prevev.pos) *refstep_;
+	    const float val = outamp_ ? nextudf ? mUdf(float) : nextev.val
+				      : fabs(firstsample - prevudf ? nextev.pos
+		    					 : prevev.pos)*refstep_;
 	    setOutputValue( output, 0, 0, z0, val );
 	}
 	else
 	{
 	    if ( (nextev.pos - prevev.pos) < 1 )
 	    {
-		if ( tonext )
+		if ( tonext_ )
 		{
 		    sg.start -= 1;
 		    sg.stop = sg.start - SGWIDTH;
@@ -328,50 +335,56 @@ void Event::multipleEvents( const DataHolder& output,
 		    sg.stop = sg.start + SGWIDTH;
 		}
 		ValueSeriesEvent<float,float> secondchance =
-					vsevfinder.find( eventtype, sg, 1 );
+					vsevfinder.find( eventtype_, sg, 1 );
 		float val;
 		if ( mIsUdf( secondchance.pos ) )
-		    val = ( nextev.pos - prevev.pos ) * refstep_;
-		else if ( tonext )
-		    val = ( nextev.pos - secondchance.pos ) * refstep_;
+		    val = outamp_ ? mUdf(float)
+				  : ( nextev.pos - prevev.pos ) * refstep_;
 		else
-		    val = ( secondchance.pos - prevev.pos ) * refstep_;
+		{
+		    if ( outamp_ )
+			val = secondchance.val;
+		    else if ( tonext_ )
+			val = ( nextev.pos - secondchance.pos ) * refstep_;
+		    else
+			val = ( secondchance.pos - prevev.pos ) * refstep_;
+		}
 
 		setOutputValue( output, 0, 0, z0, val );	
 	    }
 	    else
-		setOutputValue( output, 0, 0, z0, 
+		setOutputValue( output, 0, 0, z0, outamp_ ? nextev.val :
 				( nextev.pos - prevev.pos ) * refstep_ );
 	}
     }
     else
     {
-	sg.start = tonext ? firstsample + extrasamp
+	sg.start = tonext_ ? firstsample + extrasamp
 	    		  : firstsample + extrasamp + nrsamples;
-	int direction = tonext ? 1 : -1;
+	int direction = tonext_ ? 1 : -1;
 	sg.stop = sg.start -direction * SGWIDTH;
-	ValueSeriesEvent<float,float> ev = vsevfinder.find( eventtype, sg, 1 );
+	ValueSeriesEvent<float,float> ev = vsevfinder.find( eventtype_, sg, 1 );
 	if ( mIsUdf(ev.pos) )
 	{
 	    sg.stop = firstsample + extrasamp + direction * SGWIDTH;
-	    ev = vsevfinder.find( eventtype, sg, 1 );
+	    ev = vsevfinder.find( eventtype_, sg, 1 );
 	}
 	ValueSeriesEvent<float,float> nextev = 
-	    		findNextEvent( ev, direction, eventtype,
-			       	       inputdata->nrsamples_, firstsample );
+	    		findNextEvent( ev, direction, eventtype_,
+			       	       inputdata_->nrsamples_, firstsample );
 
-	if ( tonext )
+	if ( tonext_ )
 	{
 	    for ( int idx = 0; idx<nrsamples; idx++ )
 	    {
 		const int cursample = firstsample + idx;
 		if ( cursample+extrasamp < ev.pos )
-		    setOutputValue( output, 0, idx, z0, 0 );
+		    setOutputValue( output, 0, idx, z0, outamp_? mUdf(float):0);
 		else if ( cursample+extrasamp > nextev.pos )
 		{
 		    ev = nextev;
-		    nextev = findNextEvent( nextev, 1, eventtype,
-			    		    inputdata->nrsamples_,
+		    nextev = findNextEvent( nextev, 1, eventtype_,
+			    		    inputdata_->nrsamples_,
 					    mNINT(firstsample+extrasamp));
 		}
 		if ( cursample+extrasamp > ev.pos
@@ -381,7 +394,8 @@ void Event::multipleEvents( const DataHolder& output,
 			setOutputValue( output, 0, idx, z0, nextev.pos );
 		    else
 		    {
-			const float val = (nextev.pos - ev.pos) * refstep_;	
+			const float val = outamp_ ? nextev.val
+					    : (nextev.pos - ev.pos) * refstep_;	
 			setOutputValue( output, 0, idx, z0, val );
 		    }
 		}
@@ -393,12 +407,12 @@ void Event::multipleEvents( const DataHolder& output,
 	    {
 		const int cursample = firstsample + idx;
 		if ( cursample > ev.pos )
-		    setOutputValue( output, 0, idx, z0, 0 );
+		    setOutputValue( output, 0, idx, z0, outamp_?mUdf(float):0 );
 		else if ( cursample < nextev.pos )
 		{
 		    ev = nextev;
-		    nextev = findNextEvent( nextev, -1, eventtype,
-			    		    inputdata->nrsamples_,
+		    nextev = findNextEvent( nextev, -1, eventtype_,
+			    		    inputdata_->nrsamples_,
 					    mNINT(firstsample+extrasamp));
 		}
 
@@ -409,12 +423,13 @@ void Event::multipleEvents( const DataHolder& output,
 			setOutputValue( output, 0, idx, z0, nextev.pos );
 		    else
 		    {
-			const float val = (ev.pos - nextev.pos) * refstep_;
+			const float val = outamp_ ? nextev.val
+					    : (ev.pos - nextev.pos) * refstep_;
 			setOutputValue( output, 0, idx, z0, val );
 		    }
 		}
 		else
-		    setOutputValue( output, 0, idx, z0, 0 );
+		    setOutputValue( output, 0, idx, z0, outamp_?mUdf(float):0 );
 	    }
 	}
     }
@@ -424,9 +439,9 @@ void Event::multipleEvents( const DataHolder& output,
 bool Event::computeData( const DataHolder& output, const BinID& relpos,
 			 int z0, int nrsamples, int threadid ) const
 {
-    if ( !inputdata ) return false;
+    if ( !inputdata_ ) return false;
 
-    if ( issingleevent )
+    if ( issingleevent_ )
         singleEvent( output, nrsamples, z0 );
     else
         multipleEvents( output, nrsamples, z0 );

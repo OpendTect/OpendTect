@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.h,v 1.18 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: eventattrib.h,v 1.19 2011-02-03 11:33:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,12 +22,14 @@ namespace Attrib
 EventAttrib  singleevent = 
 	     eventtype = extremum, max, min, zerocrossing...
 	     tonext = 
-	     gate = 
+	     gate =
+	     outamp = 
 
 Calculates properties of events ( peakedness, steepness, asymmetry)
 Calculates the distance between the sample and the next or previous eventtype
 Calculates the distance between the sample and the sample of max or min 
 amplitude withing a time gate.
+Can optionally return the amplitude value at event exact position
 
 */
 
@@ -44,6 +46,8 @@ public:
     static const char*		gateStr() 		{ return "gate"; }
     static const char*		issingleeventStr()
 				{ return "issingleevent"; }
+    static const char*		outampStr() 		{ return "outamp"; }
+
 
 protected:
     				~Event() {}
@@ -73,13 +77,14 @@ protected:
     void			singleEvent(const DataHolder&,int,int) const;
     void			multipleEvents(const DataHolder&,int,int) const;
 
-    const DataHolder*		inputdata;
+    const DataHolder*		inputdata_;
 
-    bool			issingleevent;
-    bool			tonext;
-    VSEvent::Type		eventtype;
-    Interval<float>		gate;
+    bool			issingleevent_;
+    bool			tonext_;
+    VSEvent::Type		eventtype_;
+    Interval<float>		gate_;
     int				dataidx_;
+    bool			outamp_;
 };
 
 } // namespace Attrib

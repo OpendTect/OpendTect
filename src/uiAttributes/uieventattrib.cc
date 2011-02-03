@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: uieventattrib.cc,v 1.17 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uieventattrib.cc,v 1.18 2011-02-03 11:33:25 cvshelene Exp $";
 
 
 
@@ -70,6 +70,12 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
 	    		"Compute distance between 2 consecutive events" );
     tonextlblfld->attach( leftAlignedBelow, evtypefld );
 
+    outampfld = new uiGenInput( this, "",
+	       BoolInpSpec(true,"Compute distance between 2 consecutive events",
+		   		"Output Amplitude") );
+    outampfld->valuechanged.notify( mCB(this,uiEventAttrib,outAmpSel) );
+    outampfld->attach( leftAlignedBelow, evtypefld );
+
     tonextfld = new uiGenInput( this, "starting from",
 	    			BoolInpSpec(true,"Top","Bottom") );
     tonextfld->attach( centeredBelow, tonextlblfld );
@@ -92,12 +98,14 @@ void uiEventAttrib::isSingleSel( CallBacker* )
 {
     const bool issingle = issinglefld-> getBoolValue();
     const int val = evtypefld-> getIntValue();
+    const bool iszc = !issingle && ( val==3 || val==4 || val==5 );
+    const bool outamp = !outampfld-> getBoolValue();
     evtypefld->display( !issingle );
-    tonextlblfld->display( !issingle && val != 6 && val != 7 );
-    tonextfld->display( !issingle && val != 6 && val != 7 );
+    tonextlblfld->display( iszc );
+    tonextfld->display( !issingle && val != 6 && val != 7 && !outamp );
     gatefld->display( !issingle && ( val == 6 || val == 7 ) );
     outpfld->display( issingle );
-    
+    outampfld->display( !issingle && !iszc );
 }
 
 
@@ -106,9 +114,22 @@ void uiEventAttrib::isGateSel( CallBacker* )
     const int val = evtypefld-> getIntValue();
     const bool issingle = issinglefld-> getBoolValue();
     const bool tgdisplay =  (val == 6 || val == 7 ) ? true : false;
+    const bool iszc = !issingle && ( val==3 || val==4 || val==5 );
+    const bool outamp = !outampfld-> getBoolValue();
     gatefld->display( tgdisplay && !issingle );
-    tonextfld->display( !tgdisplay && !issingle );
-    tonextlblfld->display( !tgdisplay && !issingle );
+    tonextfld->display( !tgdisplay && !issingle && !outamp );
+    tonextlblfld->display( iszc );
+    outampfld->display( !issingle && !iszc );
+}
+
+
+void uiEventAttrib::outAmpSel( CallBacker* )
+{
+    const int val = evtypefld-> getIntValue();
+    const bool issingle = issinglefld-> getBoolValue();
+    const bool tgdisplay =  (val == 6 || val == 7 ) ? true : false;
+    const bool outamp = !outampfld-> getBoolValue();
+    tonextfld->display( !tgdisplay && !issingle && !outamp );
 }
 
 
@@ -121,6 +142,8 @@ bool uiEventAttrib::setParameters( const Attrib::Desc& desc )
 	        issinglefld->setValue(issingleevent) );
     mIfGetBool( Attrib::Event::tonextStr(), tonext,
 		tonextfld->setValue(tonext) );
+    mIfGetBool( Attrib::Event::outampStr(), outamp,
+		outampfld->setValue(!outamp) );
     mIfGetInt( Attrib::Event::eventTypeStr(), eventtype, 
 	        evtypefld->setValue(eventtype) );
     mIfGetFloatInterval( Attrib::Event::gateStr(), gate,
@@ -128,6 +151,7 @@ bool uiEventAttrib::setParameters( const Attrib::Desc& desc )
 
     isSingleSel(0);
     isGateSel(0);
+    outAmpSel(0);
 
     return true;
 }
@@ -154,6 +178,7 @@ bool uiEventAttrib::getParameters( Attrib::Desc& desc )
 
     mSetBool( Attrib::Event::issingleeventStr(), issinglefld->getBoolValue() );
     mSetBool( Attrib::Event::tonextStr(), tonextfld->getBoolValue() );
+    mSetBool( Attrib::Event::outampStr(), !outampfld->getBoolValue() );
     mSetInt( Attrib::Event::eventTypeStr(), evtypefld->getIntValue() );
     mSetFloatInterval( Attrib::Event::gateStr(), gatefld->getFInterval() );
 
