@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.45 2011-01-06 22:25:05 cvsyuancheng Exp $
+ RCS:		$Id: bufstring.h,v 1.46 2011-02-03 21:28:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,12 +153,11 @@ inline  bool BufferString::operator!=( const char* s ) const
 { return ! (*this == s); }
 
 template <class T> inline BufferString& BufferString::operator=( const T& t )
-{ char* s = buf(); toString( t, s ); return *this; }
+{ char* s = buf(); strcpy(s,toString( t )); return *this; }
 
 template <class T> inline BufferString& BufferString::add( const T& t )
 {
-    char addstr[255];
-    return add( toString( t, addstr ) );
+    return add( toString( t ) );
 }
 
 template <class T> inline bool BufferString::operator >( const T& t ) const

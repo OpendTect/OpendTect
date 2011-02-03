@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.75 2010-12-30 16:33:16 cvskris Exp $
+ RCS:           $Id: datainpspec.h,v 1.76 2011-02-03 21:31:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,9 +205,8 @@ public:
 
     virtual const char*	text( int idx=0 ) const
 			{
-			    static char buf[30];
 			    if ( isUndef() )	return "";
-			    else		return toString( value(), buf );
+			    else		return toString( value() );
 			}
 
     virtual bool	hasLimits() const		{ return limits_; }
@@ -379,9 +378,8 @@ public:
     
     virtual const char*	text( int idx=0 ) const
 			{
-			    static char buf[30];
 			    if ( isUndef(idx) ) return "";
-			    return toString( value(idx),buf);
+			    return toString( value(idx));
 			}
 
     virtual bool	hasLimits() const	

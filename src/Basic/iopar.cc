@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.87 2010-12-30 15:53:15 cvskris Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.88 2011-02-03 21:33:24 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -349,68 +349,60 @@ mDefYNFns(add)
 #define mDefSet1Val( type ) \
 void IOPar::set( const char* keyw, type val ) \
 {\
-    char str[255]; \
-    set( keyw, toString( val, str ) );\
+    set( keyw, toString( val ) );\
 }
 #define mDefSet2Val( type ) \
 void IOPar::set( const char* s, type v1, type v2 ) \
 { \
-    char str[255]; \
-    FileMultiString fms = toString(v1,str); \
-    fms.add( toString(v2,str) ); \
+    FileMultiString fms = toString(v1); \
+    fms.add( toString(v2) ); \
     set( s, fms ); \
 }
 #define mDefSet3Val( type ) \
 void IOPar::set( const char* s, type v1, type v2, type v3 ) \
 { \
-    char str[255]; \
-    FileMultiString fms = toString(v1,str); \
-    fms.add( toString(v2,str) ); \
-    fms.add( toString(v3,str) ); \
+    FileMultiString fms = toString(v1); \
+    fms.add( toString(v2) ); \
+    fms.add( toString(v3) ); \
     set( s, fms ); \
 }
 #define mDefSet4Val( type ) \
 void IOPar::set( const char* s, type v1, type v2, type v3, type v4 ) \
 { \
-    char str[255]; \
-    FileMultiString fms = toString(v1,str); \
-    fms.add( toString(v2,str) ); \
-    fms.add( toString(v3,str) ); \
-    fms.add( toString(v4,str) ); \
+    FileMultiString fms = toString(v1); \
+    fms.add( toString(v2) ); \
+    fms.add( toString(v3) ); \
+    fms.add( toString(v4) ); \
     set( s, fms ); \
 }
 
 #define mDefAdd1Val(type) \
 void IOPar::add( const char* keyw, type val ) \
 {\
-    char str[255]; \
-    add( keyw, toString( val, str ) ); \
+    add( keyw, toString( val ) ); \
 }
 #define mDefAdd2Val( type ) \
 void IOPar::add( const char* s, type v1, type v2 ) \
 { \
-    char str[255]; \
-    FileMultiString fms = toString(v1,str); \
-    fms.add( toString(v2,str) ); \
+    FileMultiString fms = toString(v1); \
+    fms.add( toString(v2) ); \
     add( s, fms ); \
 }
 #define mDefAdd3Val( type ) \
 void IOPar::add( const char* s, type v1, type v2, type v3 ) \
 { \
-    char str[255]; \
-    FileMultiString fms = toString(v1,str); \
-    fms.add( toString(v2,str) ); \
-    fms.add( toString(v3,str) ); \
+    FileMultiString fms = toString(v1); \
+    fms.add( toString(v2) ); \
+    fms.add( toString(v3) ); \
     add( s, fms ); \
 }
 #define mDefAdd4Val( type ) \
 void IOPar::add( const char* s, type v1, type v2, type v3, type v4 ) \
 { \
-    char str[255]; \
-    FileMultiString fms = toString(v1,str); \
-    fms.add( toString(v2,str) ); \
-    fms.add( toString(v3,str) ); \
-    fms.add( toString(v4,str) ); \
+    FileMultiString fms = toString(v1); \
+    fms.add( toString(v2) ); \
+    fms.add( toString(v3) ); \
+    fms.add( toString(v4) ); \
     add( s, fms ); \
 }
 
@@ -591,19 +583,17 @@ static void iopset_typeset( IOPar& iop, const char* keyw,
     int validx = 0; 
     int keyidx = 0;
 
-    char str[255];
-   
     while ( validx != nrvals )
     {
 	T val = vals[ validx++ ];
-	FileMultiString fms( toString(val,str) );
+	FileMultiString fms( toString(val) );
 
 	for ( int cnt=1; cnt<cMaxTypeSetItemsPerLine; cnt++ )
 	{
 	    if ( validx == nrvals ) break;
 	    
 	    val = vals[ validx++ ];
-	    fms += toString( val,str );
+	    fms += toString( val );
 	}
 	
 	FixedString newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
@@ -810,10 +800,9 @@ void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
 
 void IOPar::set( const char* s, int i1, int i2, float f )
 {
-    char str[255];
-    FileMultiString fms = toString( i1, str );
-    fms.add( toString(i2, str) );
-    fms.add( toString(f, str) );
+    FileMultiString fms = toString( i1 );
+    fms.add( toString(i2) );
+    fms.add( toString(f) );
     set( s, fms );
 }
 

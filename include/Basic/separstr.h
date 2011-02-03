@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.26 2010-12-30 15:53:15 cvskris Exp $
+ RCS:		$Id: separstr.h,v 1.27 2011-02-03 21:29:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ public:
     SeparString&	add(const char* unescapedstr);		
     template <class T>
     SeparString&	add( T t )
-			{ char str[255]; return add( toString(t, str ) ); }
+			{ return add( toString(t) ); }
 
     template <class T>
     SeparString&	operator +=( T t )	{ return add( t ); }
