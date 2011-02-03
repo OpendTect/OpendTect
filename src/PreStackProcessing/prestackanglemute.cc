@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.7 2011-02-01 20:55:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.8 2011-02-03 23:06:02 cvsyuancheng Exp $";
 
 #include "prestackanglemute.h"
 
@@ -139,22 +139,28 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !output || !input )
 	    continue;
 	
-	const int nrlayers = input->data().info().getSize( Gather::zDim() );
-	
 	const BinID bid = input->getBinID();
-	RefMan<Vel::VolumeFunction> velfun = velsource_->createFunction( bid );
-	if ( !velfun )
-	    continue;
-
 	SamplingData<float> sd;
 	TypeSet<float> vels;
-	velsource_->getVel( bid, sd, vels );
+	RefMan<Vel::VolumeFunction> velfun = velsource_->createFunction( bid );
+	if ( !velfun || !velsource_->getVel(bid,sd,vels) )
+	    continue;
+
+	int nrlayers = input->data().info().getSize( Gather::zDim() );
 	const int velsz = vels.size();
 	if ( nrlayers > velsz )
 	{
     	    for ( int idy=velsz; idy<nrlayers; idy++ )
-		vels += velfun->getVelocity( sd.atIndex(idy) );
+	    {
+		const float vel = velfun->getVelocity( sd.atIndex(idy) );
+		if ( mIsUdf(vel) )
+		    continue;
+
+		vels += vel;
+	    }
 	}
+
+	nrlayers = vels.size();
 	
 	const StepInterval<float> zrg = velfun->getAvailableZ();
 	TypeSet<float> depths;
@@ -193,41 +199,80 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !rtracers_[thread]->execute(raytraceparallel_) )
 	    continue;
 
-	Array1DSlice<float> slice( output->data() );
-	slice.setDimMap( 0, Gather::zDim() );
+	Array1DSlice<float> trace( output->data() );
+	trace.setDimMap( 0, Gather::zDim() );
 
-	const float cutoffsin = sin( mutecutoff_*M_PI/180);
+	const float cutoffsin = sin( mutecutoff_ * M_PI / 180 );
 	for ( int ioffs=0; ioffs<nroffsets; ioffs++ )
 	{
-	    slice.setPos( Gather::offsetDim(), ioffs );
-	    if ( !slice.init() )
+	    trace.setPos( Gather::offsetDim(), ioffs );
+	    if ( !trace.init() )
 		continue;
 
+	    float mutelayer;
 	    bool found = false;
-	    StepInterval<float> vrg;
-	    for ( int il=0; il<nrlayers; il++ )
-	    {
-		const float sini = rtracers_[thread]->getSinAngle( il, ioffs );
-		if ( mIsUdf(sini) )
-		    continue;
 
-		if ( !found )
+	    if ( tail_ )
+	    {
+		float prevsin = mUdf(float);
+		int previdx = -1;
+		for ( int il=0; il<nrlayers; il++ )
 		{
-		    found = true;
-		    vrg.start = vrg.stop = sini;
+		    const float sini = rtracers_[thread]->getSinAngle(il,ioffs);
+		    if ( mIsUdf(sini) )
+			continue;
+
+		    if ( sini<cutoffsin )
+		    {
+			if ( previdx!=-1 && !mIsZero(sini-prevsin,1e-5) )
+			{
+			    mutelayer = previdx + (il-previdx)*
+				(cutoffsin-prevsin)/(sini-prevsin);
+			}
+			else
+			    mutelayer = il;
+
+			found = true;
+			break;
+		    }
+
+		    prevsin = sini;
+		    previdx = il;
 		}
-		else
-		    vrg.include( sini );
+	    }
+	    else
+	    {
+		float prevsin = mUdf(float);
+		int previdx = -1;
+		for ( int il=nrlayers-1; il>=0; il-- )
+		{
+		    const float sini = rtracers_[thread]->getSinAngle(il,ioffs);
+		    if ( mIsUdf(sini) )
+			continue;
+
+		    if ( sini<cutoffsin ) //> or remove
+		    {
+			if ( previdx!=-1 && !mIsZero(sini-prevsin,1e-5) )
+			{
+			    mutelayer = previdx + (il-previdx) *
+				(cutoffsin-prevsin)/(sini-prevsin);
+			}
+			else
+			    mutelayer = il;
+
+			found = true;
+			break;
+		    }
+
+		    prevsin = sini;
+		    previdx = il;
+		}
 	    }
 
-	    if ( !found || vrg.width()<1e-8 )
+	    if ( !found ) 
 		continue;
-
-	    vrg.step = vrg.width() / nrlayers;
-
-	    const float mutepos = 
-		Muter::mutePos( cutoffsin, SamplingData<float>(vrg) );
-	    muter_->mute( slice, nrlayers, mutepos );
+		
+	    muter_->mute( trace, nrlayers, mutelayer );
 	}
     }
 
