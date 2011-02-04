@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.33 2011-01-27 11:26:07 cvsranojay Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.34 2011-02-04 14:00:54 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "sorting.h"
@@ -100,7 +100,7 @@ void PickSetMgr::clearAllPicks()
 
 void PickSetMgr::clearLastPicks()
 {
-    if ( isSameSize() )
+    if ( isSynthSeisSameSize() )
     {
 	if ( lastpicksynth_ )
 	    synthpickset_.remove( synthpickset_.size()-1 );
@@ -114,13 +114,13 @@ void PickSetMgr::clearLastPicks()
 }
 
 
-bool PickSetMgr::isPick()
+bool PickSetMgr::isPick() const
 {
     return ( !seispickset_.isEmpty() || !synthpickset_.isEmpty() );
 }
 
 
-bool PickSetMgr::isSameSize()
+bool PickSetMgr::isSynthSeisSameSize() const
 {
     return ( seispickset_.size() == synthpickset_.size() );
 }
@@ -156,8 +156,5 @@ void PickSetMgr::sortByPos( TypeSet<Marker>& pickset )
     for ( int idx=0; idx<sz; idx++ )
 	pickset[idx].zpos_ = zvals[idx];
 }
-
-
-
 
 }; //namespace WellTie

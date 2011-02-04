@@ -18,21 +18,15 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class Wavelet;
-
 class uiFlatViewer;
 class uiFunctionDisplay;
 class uiGenInput;
 class uiToolButton;
-class uiIOObjSel;
-class uiTextEdit;
 class uiWaveletDispPropDlg;
 
 namespace WellTie
 {
 
-class GeoCalculator;
-class DataHolder;
-class Setup;
 class uiWavelet;
 
 mClass uiWaveletView : public uiGroup

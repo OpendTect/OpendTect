@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.79 2011-01-20 10:21:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.80 2011-02-04 14:00:54 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -59,13 +59,13 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts )
 	, server_(*new Server(setup_))
 	, stretcher_(*new EventStretch(server_.pickMgr())) 
     	, controlview_(0)
+	, infodlg_(0)
 	, params_(server_.dispParams())
 {
     stretcher_.timeChanged.notify(mCB(this,uiTieWin,timeChanged));
     drawer_ = new uiTieView( this, &viewer(), server_.data() );
-    infodlg_ = new uiInfoDlg( this, server_ );
     drawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
-    infodlg_->redrawNeeded.notify( mCB(drawer_,uiTieView,redrawViewer) );
+    server_.pickMgr().pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
     
     mGetWD(return) 
     BufferString title( "Tie ");
@@ -78,13 +78,9 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts )
 
 uiTieWin::~uiTieWin()
 {
-    CallBack cb( mCB(drawer_,uiTieView,redrawViewer) );
-    infodlg_->redrawNeeded.remove( cb );
-    if ( controlview_ ) controlview_->redrawNeeded.remove( cb );
     stretcher_.timeChanged.remove(mCB(this,uiTieWin,timeChanged));
     delete &stretcher_;
     delete &setup_;
-    delete infodlg_;
     delete drawer_;
     delete &server_;
 }
@@ -126,10 +122,17 @@ void uiTieWin::doWork( CallBacker* cb )
 }
 
 
+void uiTieWin::reDrawSeisViewer( CallBacker* )
+{
+    drawer_->redrawViewer();
+}
+
+
 void uiTieWin::drawData()
 {
     drawer_->fullRedraw();
-    infodlg_->drawData();
+    if ( infodlg_ )
+	infodlg_->drawData();
 }
 
 
@@ -147,7 +150,7 @@ void uiTieWin::addControl()
 {
     addToolBarTools();
     controlview_ = new WellTie::uiControlView(this,toolbar_,&viewer(),server_);
-    controlview_->redrawNeeded.notify( mCB(drawer_,uiTieView,redrawViewer) );
+    controlview_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawSeisViewer) );
 }
 
 
@@ -328,7 +331,12 @@ void uiTieWin::csCorrChanged( CallBacker* cb )
 
 void uiTieWin::infoPushed( CallBacker* )
 {
-    infodlg_->go();
+    if ( !infodlg_ )
+    {
+	infodlg_ = new uiInfoDlg( this, server_ );
+	infodlg_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawSeisViewer) );
+    }
+    infodlg_->show();
 }
 
 
@@ -377,6 +385,7 @@ void uiTieWin::clearPicks( CallBacker* cb )
     server_.pickMgr().clearAllPicks();
     drawer_->drawUserPicks();
     checkIfPick( cb );
+    reDrawSeisViewer(0);
 }
 
 
@@ -385,13 +394,14 @@ void uiTieWin::clearLastPick( CallBacker* cb )
     server_.pickMgr().clearLastPicks();
     drawer_->drawUserPicks();
     checkIfPick( cb );
+    reDrawSeisViewer(0);
 }
 
 
 void uiTieWin::checkIfPick( CallBacker* )
 {
     const bool ispick = server_.pickMgr().isPick();
-    const bool issamesz = server_.pickMgr().isSameSize();
+    const bool issamesz = server_.pickMgr().isSynthSeisSameSize();
     clearpicksbut_->setSensitive( ispick );
     clearlastpicksbut_->setSensitive( ispick );
     applybut_->setSensitive( ispick && issamesz );
@@ -553,8 +563,6 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 
 uiInfoDlg::~uiInfoDlg()
 {
-    wvltdraw_->activeWvltChged.remove(mCB(this,WellTie::uiInfoDlg,wvltChanged));
-    wvltdraw_->activeWvltChged.remove(mCB(this,WellTie::uiInfoDlg,propChanged));
     delete wvltdraw_;
     delete crosscorr_;
 }
@@ -618,6 +626,7 @@ void uiInfoDlg::propChanged( CallBacker* )
 #define mLag 0.4
 void uiInfoDlg::computeData()
 {
+    return;
     const Data& data = server_.data();
     const int sz = data.seistrc_.size();
     const int nrsamps = (int) ( mLag / data.timeintv_.step );
@@ -625,6 +634,7 @@ void uiInfoDlg::computeData()
     float* syntharr = new float( nrsamps );
     float* corrarr = new float( nrsamps );
     float* wvltarr = new float( estwvltsz_ );
+    float* wvltshiftedarr = new float( estwvltsz_ );
     for ( int idx=0; idx<nrsamps; idx++ )
     {
 	syntharr[idx] = data.seistrc_.get( idx + ( sz-nrsamps )/2, 0 );
@@ -633,10 +643,12 @@ void uiInfoDlg::computeData()
     GeoCalculator gc;
     double coeff = gc.crossCorr( seisarr, syntharr, corrarr, nrsamps );
     const float normalfactor = coeff / corrarr[nrsamps/2];
+    crosscorr_->set( corrarr, nrsamps, mLag, coeff );
 
     gc.deconvolve( seisarr, syntharr, wvltarr, estwvltsz_ );
-    crosscorr_->set( corrarr, nrsamps, mLag, coeff );
-    server_.setEstimatedWvlt( wvltarr, estwvltsz_ );
+    for ( int idx=0; idx<estwvltsz_; idx++ )
+	wvltshiftedarr[idx] = wvltarr[nrsamps/2 + idx - estwvltsz_/2];
+    server_.setEstimatedWvlt( wvltshiftedarr, estwvltsz_ );
 }
 
 

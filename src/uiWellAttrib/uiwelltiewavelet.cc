@@ -7,35 +7,30 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.40 2011-01-20 10:21:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.41 2011-02-04 14:00:54 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
 #include "arrayndimpl.h"
 #include "flatposdata.h"
-#include "ioman.h"
 #include "survinfo.h"
 #include "wavelet.h"
-#include "welltiedata.h"
-#include "welltiesetup.h"
-#include "welltiegeocalculator.h"
 
 #include "uiaxishandler.h"
-#include "uiseiswvltattr.h"
-#include "uitoolbutton.h"
-#include "uigeninput.h"
 #include "uiflatviewer.h"
 #include "uifunctiondisplay.h"
+#include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uiseiswvltattr.h"
+#include "uitoolbutton.h"
 
 #include <complex>
 
 namespace WellTie
 {
 
-#define mErrRet(msg,act) \
-{ uiMSG().error(msg); act; }
+#define mErrRet(msg,act) { uiMSG().error(msg); act; }
 uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
 	: uiGroup(p)
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
@@ -163,10 +158,10 @@ void uiWavelet::rotatePhase( CallBacker* )
     dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
     if ( !dlg.go() )
     {
-	memcpy(wvlt_->samples(),orgwvlt->samples(),wvlt_->size()*sizeof(float));
+	*wvlt_ = *orgwvlt;
 	wvltChanged(0);
     }
-    dlg.acting.remove( mCB(this,uiWavelet,wvltChanged) );
+    delete orgwvlt;
 }
 
 
@@ -177,9 +172,10 @@ void uiWavelet::taper( CallBacker* )
     dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
     if ( !dlg.go() )
     {
-	memcpy(wvlt_->samples(),orgwvlt->samples(),wvlt_->size()*sizeof(float));
+	*wvlt_ = *orgwvlt;
 	wvltChanged(0);
     }
+    delete orgwvlt;
 }
 
 
@@ -206,21 +202,19 @@ void uiWavelet::setAsActive( bool isactive )
 
 void uiWavelet::drawWavelet()
 {
+    return;
     if ( !wvlt_ ) return;
 
     const int wvltsz = wvlt_->size();
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
     memcpy( fva2d->getData(), wvlt_->samples(), wvltsz * sizeof(float) );
-    
     FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
-    DPM( DataPackMgr::FlatID() ).addAndObtain( dp );
+    DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( wvlt_->name() );
-    viewer_->setPack( true, dp->id(), false );
-    
+    viewer_->setPack( true, dp->id(), false, false );
     StepInterval<double> posns; posns.setFrom( wvlt_->samplePositions() );
     if ( SI().zIsTime() ) posns.scale( SI().zFactor() );
     dp->posData().setRange( false, posns );
-    
     viewer_->handleChange( uiFlatViewer::All );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.56 2011-01-20 10:21:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.57 2011-02-04 14:00:54 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -45,7 +45,7 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Log& log,
     }
 
     Well::Log proclog = Well::Log( log );
-    removeSpikes( proclog.valArr(), proclog.size(), 10 );
+    removeSpikes( proclog.valArr(), proclog.size(), 10, 3 );
     velLogConv( proclog, Vel2TWT );
 
     TypeSet<float> dpt, vals;
@@ -91,10 +91,11 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t ) const
 
 void GeoCalculator::velLogConv( Well::Log& log, Conv conv ) const
 {
+    const int sz = log.size(); 
+    if ( sz < 2 ) return;
     const bool issonic = conv == Son2Vel || conv == Son2TWT;
     UnitFactors uf; double velfac = uf.getVelFactor( log, issonic );
-    const int sz = log.size(); 
-    if ( sz < 2 || !velfac ) return;
+    if ( !velfac ) velfac = 1;
     TypeSet<float> dpts, vals;
     for ( int idx=0; idx<log.size(); idx++ )
 	{ dpts += log.dah( idx ); vals += log.value( idx ); }
@@ -112,7 +113,7 @@ void GeoCalculator::velLogConv( Well::Log& log, Conv conv ) const
 	}
 	else if ( conv == TWT2Vel )
 	{
-	    newval = ( dpts[idx] - dpts[idx-1] )/( 2*( vals[idx]-vals[idx-1] ));
+	    newval = 2*( dpts[idx] - dpts[idx-1] )/( vals[idx]-vals[idx-1] );
 	}
 	else if ( conv == Son2Vel )
 	{
@@ -161,28 +162,22 @@ void GeoCalculator::stretch( const WellTie::GeoCalculator::StretchData& sd,
 
 
 
-void GeoCalculator::removeSpikes( float* inpvals, int sz, int gatesz ) const
+void GeoCalculator::removeSpikes( float* inp, int sz, int gate, int fac ) const
 {
-    if ( sz < 2*gatesz ) return;
-
-    Array1DImpl<float> vals( sz );
-    for ( int idx=0; idx<sz; idx++ )
-	vals.set( idx, inpvals[idx] );
-
-    float prevval = inpvals[0]; float avg = computeAvg( &vals );
-    for ( int idx = gatesz/2; idx<sz-gatesz; idx = idx+gatesz  ) 
+    if ( sz< 2 || sz < 2*gate ) return;
+    float prevval = inp[0]; 
+    for ( int idx=gate/2; idx<sz-gate; idx+=gate  ) 
     {
 	float avg = 0;
-	for ( int winidx = idx-gatesz/2; winidx<idx+gatesz/2; winidx++ )
-	    avg += inpvals[winidx]/gatesz; 
-	for ( int winidx = idx-gatesz/2; winidx<idx+gatesz/2; winidx++ )
+	for ( int winidx = idx-gate/2; winidx<idx+gate/2; winidx++ )
+	    avg += inp[winidx]/gate; 
+	for ( int winidx = idx-gate/2; winidx<idx+gate/2; winidx++ )
 	{
-	    if ( inpvals[winidx] > 3*avg )
-		inpvals[winidx] = idx ? prevval : avg;
-	    prevval = inpvals[winidx];
+	    if ( inp[winidx] > fac*avg )
+		inp[winidx] = idx ? prevval : avg;
+	    prevval = inp[winidx];
 	}
     }
-   inpvals = vals.arr();
 }
 
 
@@ -305,6 +300,15 @@ int GeoCalculator::getIdx( const Array1DImpl<float>& inp, float pos) const
 	idx++;
     }
     return idx;
+}
+
+
+void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t, 
+					Well::Log& log ) const
+{
+    log.erase();
+    for ( int idx=0; idx<d2t.size(); idx++ )
+	log.addValue( d2t.dah( idx ), d2t.value( idx ) );
 }
 
 }; //namespace WellTie

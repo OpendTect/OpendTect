@@ -107,6 +107,7 @@ protected:
     void 			infoPushed(CallBacker*);
     bool 			matchHorMrks(CallBacker*);
     void 			provideWinHelp(CallBacker*);
+    void			reDrawSeisViewer(CallBacker*);
     bool			rejectOK(CallBacker*);
     void 			setView(CallBacker*);
     bool 			saveDataPushed(CallBacker*);
@@ -139,7 +140,6 @@ protected:
     ObjectSet<uiLabel>		zlabelflds_;
     uiGenInput*                 choicefld_;
     uiGenInput*                 estwvltlengthfld_;
-    uiPushButton*               savewvltestbut_;
     uiCrossCorrView*      	crosscorr_;
     uiWaveletView*     		wvltdraw_;
 

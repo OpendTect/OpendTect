@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.77 2011-01-20 10:21:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.78 2011-02-04 14:00:54 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -19,7 +19,6 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.77 2011-01-20 10:21:39 cvs
 #include "uirgbarraycanvas.h"
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
-#include "uiwelltiecontrolview.h"
 #include "uiworld2ui.h"
 
 #include "flatposdata.h"
@@ -52,6 +51,7 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
 	, zrange_(data_.timeintv_)
 	, checkshotitm_(0)
 	, wellcontrol_(0)
+	, seisdp_(0)			 
 	, infoMsgChanged(this)
 {
     initFlatViewer();
@@ -62,6 +62,7 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
 
 uiTieView::~uiTieView()
 {
+    vwr_->clearAllPacks();
     delete &trcbuf_;
 }
 
@@ -84,26 +85,22 @@ void uiTieView::fullRedraw()
     drawLogDispWellMarkers();
     drawCShot();
     
-    redrawViewer(0);
+    redrawViewer();
 }
 
 
-void uiTieView::redrawViewer( CallBacker* cb )
+void uiTieView::redrawViewer()
 {
-    mDynamicCastGet(uiControlView*,ctrl,vwr_->control())
-    redrawViewerMarkers( cb );
     drawTraces();
-    if ( ctrl ) 
-	ctrl->setSelView( false, false );
+    redrawViewerAnnots();
 }
 
 
-void uiTieView::redrawViewerMarkers( CallBacker* )
+void uiTieView::redrawViewerAnnots()
 {
     drawUserPicks();
     drawViewerWellMarkers();
     drawHorizons();
-    vwr_->handleChange( FlatView::Viewer::Annot );    
 }
 
 
@@ -135,6 +132,7 @@ void uiTieView::initFlatViewer()
     app.annot_.x1_.showgridlines_ = false;
     app.annot_.x2_.showannot_ = true;
     app.annot_.x2_.sampling_ = 0.2;
+    app.annot_.x2_.showgridlines_ = true;
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.clipperc_.set(0,0);
     app.ddpars_.wva_.overlap_ = 1;
@@ -163,7 +161,8 @@ void uiTieView::setLogsParams()
 	data.zistime_ = params_.iszintime_;
 	logsdisp_[idx]->setData( data );
     }
-    setLogsRanges( Interval<float>( zrange_.start, zrange_.stop ) );
+    Interval<float> zrg( zrange_.start, zrange_.stop );
+    setLogsRanges( zrg );
 }
 
 
@@ -186,9 +185,9 @@ void uiTieView::drawTraces()
     {
 	const int midtrc = nrtrcs/2-1;
 	const bool issynth = idx < midtrc;
-	SeisTrc* trc = new SeisTrc( issynth ? data_.synthtrc_ : data_.seistrc_);
-	trc->info().sampling.start = zrange_.start *1000;
-	trc->info().sampling.step = zrange_.step *1000;
+	SeisTrc* trc = new SeisTrc;
+	trc->copyDataFrom( issynth ? data_.synthtrc_ : data_.seistrc_ );
+	trc->info().sampling.scale( 1000 );
 	trcbuf_.add( trc );
 	bool udf = idx == 0 || idx == midtrc || idx == midtrc+1 || idx>nrtrcs-2;
 	if ( udf ) 
@@ -207,19 +206,24 @@ void uiTieView::setUdfTrc( SeisTrc& trc ) const
 }
 
 
+
 void uiTieView::setDataPack() 
-{ 
-    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol, 
-				SeisTrcInfo::TrcNr, "Seismic" );
-    dp->trcBufArr2D().setBufMine( false );
-    StepInterval<double> xrange( 1, trcbuf_.size(), 1 );
-    dp->posData().setRange( true, xrange );
-    float fac = 1000;
-    StepInterval<double> z(zrange_.start*fac,zrange_.stop*fac,zrange_.step*fac);
-    dp->posData().setRange( false, z );
-    dp->setName( data_.seismic() );
-    DPM(DataPackMgr::FlatID()).add( dp );
-    vwr_->setPack( true, dp->id(), false, false );
+{
+    if ( !seisdp_ )
+    {
+	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol, 
+				    SeisTrcInfo::TrcNr, "Seismic" );
+	dp->trcBufArr2D().setBufMine( false );
+	StepInterval<double> xrange( 1, trcbuf_.size(), 1 );
+	dp->posData().setRange( true, xrange );
+	StepInterval<double> zrg(zrange_.start,zrange_.stop,zrange_.step);
+	zrg.scale( 1000 );
+	dp->posData().setRange( false, zrg );
+	dp->setName( data_.seismic() );
+	DPM(DataPackMgr::FlatID()).add( dp );
+	vwr_->setPack( true, dp->id(), false, false );
+	seisdp_ = dp;
+    }
 }
 
 
@@ -233,7 +237,8 @@ void uiTieView::setLogsRanges( Interval<float> rg )
 void uiTieView::zoomChg( CallBacker* )
 {
     const uiWorldRect& curwr = vwr_->curView();
-    setLogsRanges( Interval<float>( curwr.top(), curwr.bottom() ) );
+    Interval<float> zrg( curwr.top(), curwr.bottom() );
+    setLogsRanges( zrg );
     drawCShot();
 }
 
@@ -324,8 +329,6 @@ void uiTieView::drawUserPicks()
     }
     drawUserPicks( seispickset_, false );
     drawUserPicks( synthpickset_, true );
-
-    vwr_->handleChange( FlatView::Viewer::Annot );    
 }
 
 
@@ -368,10 +371,13 @@ void uiTieView::drawCShot()
     uiGraphicsScene& scene = logsdisp_[0]->scene();
     scene.removeItem( checkshotitm_ );
     delete checkshotitm_; checkshotitm_=0;
+    if ( !params_.iscsdisp_ )
+	return;
 
     mGetWD(return)
     const Well::Log* cslog = wd->logs().getLog( data_.checkshotlog() );
-    if ( !params_.iscsdisp_ || !cslog ) return;
+    if ( !cslog ) 
+	return;
 
     TypeSet<uiPoint> pts;
     uiWellLogDisplay::LogData& ld = logsdisp_[0]->logData(true);
@@ -440,6 +446,7 @@ void uiCrossCorrView::set( float* arr, int sz, float lag, float coeff )
 
 void uiCrossCorrView::draw()
 {
+    return;
     TypeSet<float> xvals;
     for ( int idx=0; idx<vals_.size(); idx++)
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.32 2011-01-20 10:21:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.33 2011-02-04 14:00:54 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -148,7 +148,8 @@ int SeismicExtractor::nextStep()
 {
     double zval = extrintv_.atIndex( nrdone_ );
 
-    if ( zval>extrintv_.stop || nrdone_ >= extrintv_.nrSteps() )
+    if ( zval>extrintv_.stop || nrdone_ >= extrintv_.nrSteps() 
+	    || nrdone_ >= bidset_.size() )
 	return Executor::Finished();
 
     const int datasz = extrintv_.nrSteps();

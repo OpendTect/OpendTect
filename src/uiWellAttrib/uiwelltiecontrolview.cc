@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.31 2011-01-20 10:21:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.32 2011-02-04 14:00:54 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -212,7 +212,6 @@ public :
 	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons","",mNoHelpID))
 	, pms_(pms) 
     {
-	setCtrlStyle( uiDialog::LeaveOnly );
 	dispmrkfld_ = new uiCheckBox( this, "display markers");
 	dispmrkfld_->setChecked( pms_.isvwrmarkerdisp_ );
 	dispmrkfld_->activated.notify( mCB(this,uiMrkDispDlg,dispChged) );
@@ -257,13 +256,14 @@ protected:
 void uiControlView::dispHorMrks( CallBacker* )
 {
     uiMrkDispDlg dlg( this, server_.dispParams() );
-    dlg.go();
+    if ( dlg.go() )
+	redrawNeeded.trigger();
 }
 
 
 void uiControlView::loadHorizons( CallBacker* )
 {
-    bool is2d = false; //TODO
+    bool is2d = server_.is2D();
     PtrMan<CtxtIOObj> ctxt = is2d ? mMkCtxtIOObj( EMHorizon2D ) 
 				  : mMkCtxtIOObj( EMHorizon3D );
     if ( !selhordlg_ )

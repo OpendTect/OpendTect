@@ -214,6 +214,8 @@ public :
     const Well::Data* 		wd() const	{ return data_.wd_; }
     const Data&			data() const 	{ return data_; }
 
+    bool			is2D() const	{ return is2d_; }
+
     void			setVelLogName( bool iscs )
 				{ data_.setVelLogName( iscs ); }
 
@@ -247,6 +249,8 @@ protected :
     HorizonMgr*			hormgr_;
     D2TModelMgr*		d2tmgr_;
     Data 			data_;
+
+    bool			is2d_;
 
     void			wellDataDel( CallBacker* );
 };

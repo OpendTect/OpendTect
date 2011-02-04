@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.22 2011-01-20 10:21:38 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.23 2011-02-04 14:00:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public :
 
     enum		Conv { Vel2TWT, Son2TWT, TWT2Vel, Son2Vel, Vel2Son };
     void 		velLogConv(Well::Log&,Conv) const;
+    void		d2TModel2Log(const Well::D2TModel&,Well::Log&) const;
 
 //stretch/squeeze
     mStruct StretchData
@@ -56,7 +57,7 @@ public :
     void 		stretch(const StretchData&,float) const;
 
 //others  
-    void		removeSpikes(float* vals,int sz, int gatesz) const;
+    void		removeSpikes(float* inp,int sz,int gate,int fac) const;
     int 		getIdx(const Array1DImpl<float>&,float) const; 
     double 		crossCorr(const float*,const float*,float*,int) const;
     void 		deconvolve(const float*,const float*,float*,int) const;

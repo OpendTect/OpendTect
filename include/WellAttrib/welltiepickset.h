@@ -38,10 +38,10 @@ public:
 
     void           		addPick(float,bool,const SeisTrc* trc =0);
     void			addPick(float,float);
+    bool 	   		isPick() const;
+    bool 	   		isSynthSeisSameSize() const;
     void           		clearAllPicks();
     void 	   		clearLastPicks();
-    bool 	   		isPick();
-    bool 	   		isSameSize();
     float 	   		findEvent(const SeisTrc&,float) const;
     void			setPickSetPos(bool issynth, int idx, float z);
     void 	   		sortByPos();
