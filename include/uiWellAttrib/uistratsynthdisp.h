@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.12 2011-01-31 12:20:26 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.13 2011-02-04 14:16:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ class Wavelet;
 class uiGroup;
 class SeisTrcBuf;
 class uiFlatViewer;
+class FlatDataPack;
+class uiPushButton;
 class uiToolButton;
 class uiSeisWaveletSel;
 class uiToolButtonSetup;
@@ -36,7 +38,8 @@ public:
     void		modelChanged();
 
     const uiWorldRect&	curView(bool indepth) const;
-    const SeisTrcBuf&	curTraces() const;
+    const SeisTrcBuf&	curTrcBuf() const;
+    const FlatDataPack*	dataPack() const;		//!< may return null
     DataPack::FullID	packID() const;
     const ObjectSet<AIModel>& aiModels() const		{ return aimdls_; }
 
@@ -56,9 +59,11 @@ protected:
     uiGroup*		topgrp_;
     uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
+    uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
 
     void		wvltChg(CallBacker*);
+    void		scalePush(CallBacker*);
     void		zoomChg(CallBacker*);
     int			getVelIdx(bool&) const;
     int			getDenIdx(bool&) const;

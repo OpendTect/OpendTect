@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.18 2011-02-03 08:54:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.19 2011-02-04 14:16:52 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
+#include "uisynthtorealscale.h"
 #include "uicombobox.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
@@ -56,6 +57,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
     wvltfld_->setFrame( false );
 
+    scalebut_ = new uiPushButton( topgrp_, "Scale", false );
+    scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
+    scalebut_->attach( rightOf, wvltfld_ );
+
     vwr_ = new uiFlatViewer( this );
     vwr_->setInitialSize( uiSize(500,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
@@ -93,7 +98,7 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
     else
 	tb->attach( rightBorder );
 
-    tb->attach( ensureRightOf, wvltfld_ );
+    tb->attach( ensureRightOf, scalebut_ );
     lasttool_ = tb;
 }
 
@@ -137,6 +142,17 @@ void uiStratSynthDisp::wvltChg( CallBacker* )
 }
 
 
+void uiStratSynthDisp::scalePush( CallBacker* )
+{
+    SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
+    if ( tbuf.isEmpty() ) return;
+
+    uiSynthToRealScale dlg( this, tbuf, wvltfld_->getID() );
+    if ( dlg.go() )
+	vwr_->handleChange( FlatView::Viewer::All );
+}
+
+
 void uiStratSynthDisp::zoomChg( CallBacker* )
 {
     zoomChanged.trigger();
@@ -160,10 +176,29 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 }
 
 
-DataPack::FullID uiStratSynthDisp::packID() const
+const FlatDataPack* uiStratSynthDisp::dataPack() const
 {
     const FlatDataPack* dp = vwr_->pack( true );
-    if ( !dp ) dp = vwr_->pack( false );
+    return dp ? dp : vwr_->pack( false );
+}
+
+
+const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
+{
+    const FlatDataPack* dp = dataPack();
+    mDynamicCastGet(const SeisTrcBufDataPack*,tbdp,dp)
+    if ( !tbdp )
+    {
+	static SeisTrcBuf emptybuf( false );
+	return emptybuf;
+    }
+    return tbdp->trcBuf();
+}
+
+
+DataPack::FullID uiStratSynthDisp::packID() const
+{
+    const FlatDataPack* dp = dataPack();
     if ( !dp ) return DataPack::cNoID();
     return DataPack::FullID( DataPackMgr::FlatID(), dp->id() );
 }
