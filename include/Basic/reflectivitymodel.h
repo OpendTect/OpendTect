@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Jan 2011
- RCS:		$Id: reflectivitymodel.h,v 1.2 2011-01-28 22:39:48 cvskris Exp $
+ RCS:		$Id: reflectivitymodel.h,v 1.3 2011-02-04 16:17:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,14 +38,7 @@ public:
 
 /*!\brief A table of reflectivies vs time and/or depth */
 
-mClass ReflectivityModel : public TypeSet<ReflectivitySpike>
-{
-public:
-    			ReflectivityModel(float offset = 0)
-			    : offset_( offset ) {}
-
-    float		offset_;
-};
+typedef TypeSet<ReflectivitySpike> ReflectivityModel;
 
 
 //Implementations
