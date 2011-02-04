@@ -8,13 +8,14 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: systeminfo.cc,v 1.8 2011-02-02 15:15:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: systeminfo.cc,v 1.9 2011-02-04 07:39:48 cvsranojay Exp $";
 
 
 #include "systeminfo.h"
 
 #include "bufstring.h"
 #include "bufstringset.h"
+#include "errh.h"
 #include "file.h"
 #include "filepath.h"
 #include "iostrm.h"
@@ -156,10 +157,11 @@ void getFreeMBOnDiskMsg( int mb, BufferString& bs )
 }
 
 
-#ifdef __win__
+
 const char* getFileSystemName( const char* path )
 {
     FilePath fp( path );
+#ifdef __win__
     const char* drive = fp.winDrive();
     static char filesystemname[MAX_PATH+1] = { 0 };
     char volumename[MAX_PATH+1] = { 0 };
@@ -168,9 +170,10 @@ const char* getFileSystemName( const char* path )
 			   0, 0, 0, filesystemname,
 			   ARRAYSIZE(filesystemname) );  
     return filesystemname;
-}
+#else
+    pErrMsg( "Not implemented yet" );
+    return 0;
 #endif
-
-
+}
 
 } // namespace System
