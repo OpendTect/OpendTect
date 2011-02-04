@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.3 2011-02-03 22:45:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.4 2011-02-04 18:59:34 cvskris Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -574,9 +574,46 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
 }
 
 
-const char* toString( const char* str, char* r )
+// toString functions. 
+const char* toString( od_int32 i )
+{ return getStringFromInt( i, 0 ); }
+
+
+const char* toString( od_uint32 i )
+{ return getStringFromUInt( i, 0 ); }
+
+
+const char* toString( od_int64 i )
+{ return getStringFromInt64( i, 0 ); }
+
+
+const char* toString( od_uint64 i )
+{ return getStringFromUInt64(i, 0); }
+
+
+const char* toString( float f )
+{ return getStringFromFloat(0,f, 0); }
+
+
+const char* toString( double d )
+{ return getStringFromDouble(0,d, 0); }
+
+
+const char* toString( short i )
+{ return getStringFromInt((int)i, 0); }
+
+
+const char* toString( unsigned short i )
+{ return getStringFromUInt( (unsigned int)i, 0 ); }
+
+
+const char* toString( unsigned char c )
+{ return toString( ((unsigned short)c) ); }
+
+
+const char* toString( const char* str )
 {
-    char* ret = r ? r : StaticStringManager::STM().getString();
+    char* ret = StaticStringManager::STM().getString();
     if ( str )
 	strcpy( ret, str );
     else
@@ -586,3 +623,13 @@ const char* toString( const char* str, char* r )
 }
 
 
+const char* toString( signed char c )
+{
+    char* buf = StaticStringManager::STM().getString();
+    buf[0] = (char)c; buf[1] = '\0';
+    return buf;
+}
+
+
+const char* toString( bool b )
+{ const char* res = getYesNoString(b); return res; }
