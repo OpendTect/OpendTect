@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.35 2011-02-03 13:54:37 cvsjaap Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.36 2011-02-04 05:37:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -120,6 +120,10 @@ public:
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
     void			getLineWidthBounds(int& min,int& max);
+
+    void			getMousePosInfo(const visBase::EventInfo&,
+					Coord3& xyzpos,BufferString& val,
+					BufferString& info) const;
 
 protected:
 

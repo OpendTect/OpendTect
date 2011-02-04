@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.15 2011-01-10 10:59:21 cvsjaap Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.16 2011-02-04 05:37:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -84,6 +84,10 @@ public:
 
     void			setStickSelectMode(bool yn);
     bool			isInStickSelectMode() const;
+
+    void			getMousePosInfo(const visBase::EventInfo&,
+					Coord3& xyzpos,BufferString& val,
+					BufferString& info) const;
 
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);

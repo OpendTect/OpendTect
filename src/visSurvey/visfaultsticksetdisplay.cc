@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.37 2011-02-01 11:48:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.38 2011-02-04 05:37:37 cvsnanne Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -1141,6 +1141,17 @@ void FaultStickSetDisplay::updateAll()
     updateSticks();
     updateEditPids();
     updateKnotMarkers();
+}
+
+
+void FaultStickSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
+					    Coord3& pos, BufferString& val,
+					    BufferString& info ) const
+{
+    info = ""; val = "";
+    if ( !emfss_ ) return;
+
+    info = "FaultStickSet: "; info.add( emfss_->name() );
 }
 
 

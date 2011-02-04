@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.71 2011-02-03 09:55:18 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.72 2011-02-04 05:37:37 cvsnanne Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1669,5 +1669,15 @@ void FaultDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 	shape->set3DLineRadius( 0.5*linewidth, true, maxlinethickness );
 }
 
+
+void FaultDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
+				    Coord3& pos, BufferString& val,
+				    BufferString& info ) const
+{
+    info = ""; val = "";
+    if ( !emfault_ ) return;
+
+    info = "Fault: "; info.add( emfault_->name() );
+}
 
 }; // namespace visSurvey
