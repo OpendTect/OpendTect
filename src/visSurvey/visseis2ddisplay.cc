@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.120 2010-12-01 06:36:51 cvskarthika Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.121 2011-02-04 05:46:09 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -697,8 +697,8 @@ void Seis2DDisplay::setData( int attrib,
 						     cs, true );
 	    datatransform_->loadDataIfMissing( voiidx_ );
 
-	    ZAxisTransformSampler outpsampler( *datatransform_,true,
-				SamplingData<double>(cs.zrg.start,cs.zrg.step));
+	    ZAxisTransformSampler outpsampler( *datatransform_, true,
+		SamplingData<double>(cs.zrg.start,cs.zrg.step), true );
 	    outpsampler.setLineName( getLineName() );
 	    mTryAlloc( tmparr, 
 		    Array2DImpl<float>( trcdisplayinfo_.size, cs.nrZ() ) );
