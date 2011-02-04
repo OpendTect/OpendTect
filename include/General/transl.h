@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
-RCS:		$Id: transl.h,v 1.37 2009-07-22 16:01:16 cvsbert Exp $
+RCS:		$Id: transl.h,v 1.38 2011-02-04 15:08:11 cvskris Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -154,6 +154,8 @@ protected:
 
   //! In the class definition of a TranslatorGroup class
 #define isTranslatorGroup(clss) \
+protected: \
+    ~clss##TranslatorGroup() {} \
 public: \
     static TranslatorGroup& theInst();  \
     static int selector(const char*); \
