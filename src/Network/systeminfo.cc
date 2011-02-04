@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: systeminfo.cc,v 1.9 2011-02-04 07:39:48 cvsranojay Exp $";
+static const char* rcsID = "$Id: systeminfo.cc,v 1.10 2011-02-04 09:29:00 cvsbert Exp $";
 
 
 #include "systeminfo.h"
@@ -171,7 +171,7 @@ const char* getFileSystemName( const char* path )
 			   ARRAYSIZE(filesystemname) );  
     return filesystemname;
 #else
-    pErrMsg( "Not implemented yet" );
+    pFreeFnErrMsg( "Not implemented yet", "System::getFileSystemName" );
     return 0;
 #endif
 }
