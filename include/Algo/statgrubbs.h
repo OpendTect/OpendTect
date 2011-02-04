@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert/Bruno
  Date:          Feb 2011
- RCS:           $Id: statgrubbs.h,v 1.1 2011-02-04 11:06:31 cvsbert Exp $
+ RCS:           $Id: statgrubbs.h,v 1.2 2011-02-04 15:28:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ inline T Stats::Grubbs::getMax( T* arr, SzTp sz, SzTp& idxof )
 
     const T diffmin = avg - minval;
     const T diffmax = maxval - avg;
+    idxof = diffmin > diffmax ? minidx : maxidx;
     return (diffmin > diffmax ? diffmin : diffmax) / stdev;
 }
 
