@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class SeisTrc;
 class SeisTrcBuf;
+class SeisTrcBufDataPack;
 class uiFunctionDisplay;
 class uiPolyLineItem;
 class uiWellLogDisplay;
@@ -47,8 +48,8 @@ public:
 
     void        		fullRedraw();
     void        		drawUserPicks();
-    void 			redrawViewer(CallBacker*);
-    void 			redrawViewerMarkers(CallBacker*);
+    void 			redrawViewer();
+    void 			redrawViewerAnnots();
 
     ObjectSet<uiWellLogDisplay>& logDisps() { return logsdisp_; }
 
@@ -63,10 +64,11 @@ protected:
 
     const DispParams&		params_;
     const Data&			data_;
-    const StepInterval<float>	zrange_;
+    const StepInterval<float>&	zrange_;
     const TypeSet<Marker>&	seispickset_;
     const TypeSet<Marker>&	synthpickset_;
     SeisTrcBuf&			trcbuf_;
+    SeisTrcBufDataPack*		seisdp_;
 
     ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
     ObjectSet<FlatView::Annotation::AuxData> wellmarkerauxdatas_;
