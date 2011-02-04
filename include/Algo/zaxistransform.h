@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.30 2010-11-30 16:48:16 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.31 2011-02-04 05:36:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,7 @@ mClass ZAxisTransformSampler
 public:
     				ZAxisTransformSampler(const ZAxisTransform&,
 				   bool back,const SamplingData<double>&,
-				   bool is2d = false);
+				   bool is2d);
     virtual			~ZAxisTransformSampler();
 
     void			setBinID( const BinID& bid )	{ bid_ = bid; }
