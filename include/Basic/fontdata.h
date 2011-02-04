@@ -7,7 +7,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          26/07/2000
 
- RCS:           $Id: fontdata.h,v 1.14 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:           $Id: fontdata.h,v 1.15 2011-02-04 17:49:38 cvskris Exp $
 
 ______________________________________________________________________
 
@@ -50,7 +50,7 @@ public:
 
 			//! Store/retrieve (in FileMultiString format).
     void		getFrom(const char*);
-    void		putTo(BufferString&);
+    void		putTo(BufferString&) const;
 
     const char*		family() const		{ return family_; }
     int			pointSize() const	{ return pointsize_; }

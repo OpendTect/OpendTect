@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: fontdata.cc,v 1.7 2010-12-07 20:11:34 cvskris Exp $";
+static const char* rcsID = "$Id: fontdata.cc,v 1.8 2011-02-04 17:49:38 cvskris Exp $";
 
 #include "fontdata.h"
 #include "separstr.h"
@@ -71,7 +71,7 @@ void FontData::getFrom( const char* s )
 }
 
 
-void FontData::putTo( BufferString& s )
+void FontData::putTo( BufferString& s ) const
 {
     FileMultiString fms;
     fms += family_;
