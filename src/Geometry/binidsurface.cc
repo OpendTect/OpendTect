@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.23 2011-01-27 20:32:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.24 2011-02-04 05:38:36 cvsnanne Exp $";
 
 #include "binidsurface.h"
 
@@ -42,6 +42,9 @@ BinIDSurface::~BinIDSurface()
 
 Coord3 BinIDSurface::computePosition( const Coord& param ) const
 {
+    if ( !depths_ )
+	return Coord3::udf();
+
     const StepInterval<int> rowrange = rowRange();
     const StepInterval<int> colrange = colRange();
 
@@ -318,10 +321,10 @@ bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
 Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
 {
     const int index = getKnotIndex( rc );
-    float posz = index<0 ? mUdf(float) : depths_->getData()[index];
+    float posz = index<0 || !depths_ ? mUdf(float) : depths_->getData()[index];
     Coord3 res = Coord3( SI().transform(BinID(rc)), posz );
 
-    if ( !mIsUdf(posz) || !interpolifudf )
+    if ( !depths_ || !mIsUdf(posz) || !interpolifudf )
 	return res;
     
     //interpolate
@@ -339,13 +342,13 @@ Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
     TypeSet<Coord3> nearknots;
     for ( int step=1; step<=maxiteration; step++ )
     {
-	for ( int rs = -step; rs<=step; rs++ )
+	for ( int rs=-step; rs<=step; rs++ )
 	{
 	    int currow = rc.row + rs;
 	    if ( !rrg.includes(currow) )
 		continue;
 
-	    for ( int cs = -step; cs<=step; cs++ )
+	    for ( int cs=-step; cs<=step; cs++ )
 	    {
 		int curcol = rc.col +cs;
 		if ( !crg.includes(curcol) )
