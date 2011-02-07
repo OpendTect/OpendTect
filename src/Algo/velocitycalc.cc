@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.32 2011-02-07 09:19:24 cvshelene Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.33 2011-02-07 13:58:42 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
@@ -828,7 +828,7 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
     ArrayValueSeries<float,float> Vinser ( const_cast<float*>(Vin), false );
     mAllocVarLenArr( float, deptharr, nr_in );
     mAllocVarLenArr( float, depthsampled, nr_out );
-    if ( !tinser.isOK() || Vinser.isOK() || !deptharr || !depthsampled )
+    if ( !tinser.isOK() || !Vinser.isOK() || !deptharr || !depthsampled )
 	return false;
 
     TimeDepthConverter::calcDepths( Vinser, nr_in, tinser, deptharr );
