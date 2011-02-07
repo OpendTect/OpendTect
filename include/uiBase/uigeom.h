@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.30 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uigeom.h,v 1.31 2011-02-07 15:37:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 typedef Geom::Point2D<int> uiPoint;
 typedef Geom::Point2D<double> uiWorldPoint;
 typedef Geom::PosRectangle<double> uiWorldRect;
+
 
 mClass uiSize : public Geom::Size2D<int>
 {
@@ -293,6 +294,21 @@ inline uiRect uiBorder::getRect( const uiRect& rect, int extr ) const
     return uiRect( rect.left()+lt_.width()+extr,rect.top()+lt_.height()+extr,
 	    	   rect.right()-rb_.width()-2*extr,
 		   rect.bottom()-rb_.height()-2*extr );
+}
+
+#define mGoldenRatio 1.618034
+
+inline int GetGoldenMajor( int inp )
+{
+    const float val = inp * mGoldenRatio;
+    return inp > 0 ? (int)(val+.5) : (int)(val - .5);
+}
+
+static const float cGoldenRatio = 1.618034;
+inline int GetGoldenMinor( int inp )
+{
+    const float val = inp / mGoldenRatio;
+    return inp > 0 ? (int)(val+.5) : (int)(val - .5);
 }
 
 
