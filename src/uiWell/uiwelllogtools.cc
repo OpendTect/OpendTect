@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.4 2011-02-07 10:23:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.5 2011-02-07 11:41:53 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -192,12 +192,22 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     gatefld_ = spbgt->box();
     gatelbl_ = spbgt->label();
 
-    const char* txt = " Threshold ( window width )"; 
+    const char* txt = " Threshold ( Grubbs number )"; 
     thresholdfld_ = new uiLabeledSpinBox( actiongrp, txt );
     thresholdfld_->attach( rightOf, spbgt );
     thresholdfld_->box()->setInterval( 1.0, 20.0, 0.1 );
     thresholdfld_->box()->setValue( 3 );
     thresholdfld_->box()->setNrDecimals( 2 );
+
+    const char* spk[] = {"Undefined values","Interpolated values","Specify",0};
+    replacespikefld_ = new uiLabeledComboBox(actiongrp,spk,"Replace spikes by");
+    replacespikefld_->box()->selectionChanged.notify( 
+	    			mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
+    replacespikefld_->attach( alignedBelow, spbgt );
+
+    replacespikevalfld_ = new uiGenInput( actiongrp, 0, FloatInpSpec() );
+    replacespikevalfld_->attach( rightOf, replacespikefld_ );
+    replacespikevalfld_->setValue( 0 );
 
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedBelow, actiongrp );
@@ -246,17 +256,26 @@ void  uiWellLogToolWin::overWriteCB(CallBacker*)
 void  uiWellLogToolWin::actionSelCB( CallBacker* )
 {
     const int act = actionfld_->currentItem();
-    thresholdfld_->display( act == 1 );
-    gatelbl_->setText( act >1 ? "Clip rate (%)" : "Window size" );
-    if ( act > 1 )
-	gatefld_->setInterval( 0, 100, 10 );
-    else
-	gatefld_->setInterval( 1, 1500, 5 );
 
+    thresholdfld_->display( act == 1 );
+    replacespikevalfld_->display( act == 1 );
+    replacespikefld_->display( act == 1 );
+
+    gatelbl_->setText( act >1 ? "Clip rate (%)" : "Window size" );
+    StepInterval<int> sp = act > 1 ? StepInterval<int>(0,100,10) 
+				   : StepInterval<int>(1,1500,5);
+    gatefld_->setInterval( sp );
     gatefld_->setValue( 300 );
+
+    handleSpikeSelCB(0);
 }
 
 
+void uiWellLogToolWin::handleSpikeSelCB( CallBacker* )
+{
+    const int act = replacespikefld_->box()->currentItem();
+    replacespikevalfld_->display( act == 2 );
+}
 
 
 bool uiWellLogToolWin::acceptOK( CallBacker* )
@@ -326,6 +345,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    { 
 		Stats::Grubbs sgb;
 		const float cutoff_grups = thresholdfld_->box()->getValue();
+		TypeSet<int> grubbsidxs;
 		mAllocVarLenArr( float, gatevals, gate )
 		for ( int idx=gate/2; idx<sz-gate; idx+=gate  )
 		{
@@ -338,7 +358,25 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 			int idxtofix;
 			cutoffval = sgb.getMax( gatevals, gate, idxtofix ) ;
 			if ( cutoffval > cutoff_grups  && idxtofix >= 0 )
+			{
 			    outp[idx+idxtofix-gate/2] = mUdf( float );
+			    grubbsidxs += idx+idxtofix-gate/2;
+			}
+		    }
+		}
+		const int spkact = replacespikefld_->box()->currentItem();
+		for ( int idx=0; idx<grubbsidxs.size(); idx++ )
+		{
+		    const int gridx = grubbsidxs[idx];
+		    float& grval = outp[gridx];
+		    if ( spkact == 2 )
+		    {
+			grval = replacespikevalfld_->getfValue();
+		    }
+		    else if ( spkact == 1 )
+		    {
+			float dah = outplog->dah( gridx );
+			grval = outplog->getValue( dah, true ); 
 		    }
 		}
 	    }

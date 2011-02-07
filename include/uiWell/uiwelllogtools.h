@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uiwelllogtools.h,v 1.3 2011-01-26 08:49:40 cvsbruno Exp $
+RCS:           $Id: uiwelllogtools.h,v 1.4 2011-02-07 11:41:53 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class uiComboBox;
 class uiGenInput;
 class uiCheckBox;
 class uiLabel;
+class uiLabeledComboBox;
 class uiLabeledSpinBox;
 class uiMultiWellLogSel;
 class uiPushButton;
@@ -73,6 +74,8 @@ protected:
     uiSpinBox*			gatefld_;
     uiLabel*			gatelbl_;
     uiLabeledSpinBox*		thresholdfld_;
+    uiLabeledComboBox*		replacespikefld_;
+    uiGenInput*			replacespikevalfld_;
     uiPushButton*		applybut_;
     uiPushButton*               okbut_;
     uiPushButton*               cancelbut_;
@@ -85,6 +88,7 @@ protected:
     void			displayLogs();
 
     void			actionSelCB(CallBacker*);
+    void			handleSpikeSelCB(CallBacker*);
     void			overWriteCB(CallBacker*);
     void			applyPushedCB(CallBacker*);
     bool			acceptOK(CallBacker*);
