@@ -7,41 +7,55 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Jan 2011
- RCS:           $Id: gpucalc.h,v 1.1 2011-02-04 20:23:42 cvskris Exp $
+ RCS:           $Id: gpucalc.h,v 1.2 2011-02-07 12:54:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-class uiMainWin;
 
+#include "sets.h"
+
+class BufferStringSet;
 
 namespace GPU
 {
 
-class PlatformData;
+class DeviceData;
+class ProgramData;
+class Context;
 
-
-mClass Platform
+mClass Device
 {
 public:
     bool		isGPU() const;
+    const char*		platformName();
     const char*		name() const;
 
-    void*		getContext(int platform);
-    			//internal
-protected:
-    PlatformData&	data_;
 
+protected:
+    			Device();
+    			~Device();
+    void*		getContext();
+    void*		getDevice();
+
+    friend class	GPUManager;
+    friend class	Program;
+
+    DeviceData&		data_;
 };
 
 
-class ProgramData;
 mClass Program
 {
 public:
-    			Program(Platform&);
+    			Program(Device&);
 			~Program();
+
+    bool		setSource(const BufferStringSet& s,
+	    			  const char* mainfunction);
+
 protected:
+
     ProgramData&	data_;
 };
 
@@ -57,13 +71,12 @@ public:
     			GPUManager();
 			~GPUManager();
 
-    int			nrPlatforms() const;
-    Platform*		getPlatform(int);
-    const char*		platformName(int) const;
-    bool		platformIsGPU(int) const;
+    int			nrDevices() const	{ return devices_.size(); }
+    Device*		getDevice(int idx)	{ return devices_[idx]; }
 
 protected:
-    GPUManagerData*	data_;
+    ObjectSet<Device>		devices_;
+    ObjectSet<Context>		contexts_;
 };
 
 //Access. 

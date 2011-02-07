@@ -4,10 +4,9 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: gpucalcpi.cc,v 1.3 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: gpucalcpi.cc,v 1.4 2011-02-07 12:54:26 cvskris Exp $";
 
-#include "cuda_runtime.h"
-#include "cudafft.h"
+#include "gpucalc.h"
 
 #include "plugins.h"
 #include "errh.h"
@@ -26,29 +25,11 @@ extern "C" PluginInfo* GetGPUCalcPluginInfo()
     return &retpii;
 }
 
-int cudadevice = -1;
 
 extern "C" const char* InitGPUCalcPlugin( int, char** )
 {
-    int nrdevices = 0;
-    if ( cudaGetDeviceCount(&nrdevices) )
-	nrdevices = 0;
-
-    cudaDeviceProp prop;
-    for ( int idx=0; idx<nrdevices; idx++ )
-    {
-	cudaGetDeviceProperties( &prop, idx );
-	if ( prop.major>=1 )
-	{
-	    cudadevice = idx;
-	    break;
-	}
-    }
-
-    //if ( cudadevice==-1 )
-	//return 0;
-
-    CudaFFT::initClass();
+    const char* nm = GPU::manager().getDevice(0)->name();
+    nm = GPU::manager().getDevice( 1 )->name();
 
     return 0;
 }
