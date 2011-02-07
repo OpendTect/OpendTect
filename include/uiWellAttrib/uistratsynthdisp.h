@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.13 2011-02-04 14:16:52 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.14 2011-02-07 10:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "datapack.h"
 class AIModel;
 class Wavelet;
-class uiGroup;
 class SeisTrcBuf;
 class uiFlatViewer;
 class FlatDataPack;
@@ -34,7 +33,8 @@ public:
     			uiStratSynthDisp(uiParent*,const Strat::LayerModel&);
     			~uiStratSynthDisp();
 
-    void		setDispMrkrs(const TypeSet<float>&,Color);
+    void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
+	    			     Color);
     void		modelChanged();
 
     const uiWorldRect&	curView(bool indepth) const;
@@ -54,6 +54,7 @@ protected:
     const Strat::LayerModel& lm_;
     ObjectSet<AIModel>	aimdls_;
     Wavelet*		wvlt_;
+    BufferString	levelname_;
     int			longestaimdl_;
 
     uiGroup*		topgrp_;

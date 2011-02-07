@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.19 2011-02-03 21:38:59 cvskris Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.20 2011-02-07 10:25:11 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
+#include "uistratseisevent.h"
 #include "uiattribsetbuild.h"
 #include "uidatapointset.h"
 #include "uiseparator.h"
@@ -75,33 +76,9 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     sep = new uiSeparator( this, "sep2" );
     sep->attach( stretchedBelow, layseqattrfld_ );
 
-    uiGroup* extrposgrp = new uiGroup( this, "Extraction pos group" );
-    extrposgrp->attach( ensureBelow, sep );
-    uiLabeledComboBox* llvlfld = new uiLabeledComboBox( extrposgrp,
-	    						"Reference level" );
-    reflvlfld_ = llvlfld->box();
-    extrposgrp->setHAlignObj( llvlfld );
-    const Strat::LevelSet& lvls = Strat::LVLS();
-    for ( int idx=0; idx<lvls.size(); idx++ )
-	reflvlfld_->addItem( lvls.levels()[idx]->name() );
-
-    BufferStringSet eventnms( VSEvent::TypeNames() ); eventnms.remove(0);
-    snapfld_ = new uiGenInput( extrposgrp, "Snap to event",
-	    			StringListInpSpec(eventnms) );
-    snapfld_->setWithCheck( true );
-    snapfld_->checked.notify( mCB(this,uiStratSynthCrossplot,evSnapCheck) );
-    snapfld_->setValue( 1 );
-    snapfld_->attach( alignedBelow, llvlfld );
-    snapfld_->setElemSzPol( uiObject::Small );
-    snapoffsfld_ = new uiGenInput( extrposgrp, "Offset (ms)", FloatInpSpec(0) );
-    snapoffsfld_->attach( rightOf, snapfld_ );
-    snapoffsfld_->setElemSzPol( uiObject::Small );
-    snapoffsfld_->setSensitive( false );
-
-    const float defstep = SI().zIsTime() ? SI().zStep() * 1000 : 4;
-    extrwinfld_ = new uiGenInput( extrposgrp, "Extraction window",
-	  FloatInpIntervalSpec(StepInterval<float>(0,0,defstep)) );
-    extrwinfld_->attach( alignedBelow, snapfld_ );
+    evfld_ = new uiStratSeisEvent( this, true );
+    evfld_->attach( alignedWith, layseqattrfld_ );
+    evfld_->attach( ensureBelow, sep );
 }
 
 
@@ -127,23 +104,18 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr)) );
 
     const int nraimdls = aimodels_.size();
-    const SeisTrcBuf& tbuf = tbpack_->trcBuf();
+    SeisTrcBuf& tbuf = tbpack_->trcBuf();
     if ( tbuf.size() != nraimdls )
 	{ pErrMsg("DataPack nr of traces != nr of aimodels"); return 0; }
 
     TypeSet<float> lvltms( nraimdls, 0 );
-    const bool dosnap = snapfld_->isChecked();
-    const int evtyp = snapfld_->getIntValue();
-    const float snapoffs = snapoffsfld_->getfValue() *.001;
+    const Strat::SeisEvent& ssev = evfld_->event();
     for ( int imod=0; imod<nraimdls; imod++ )
     {
+	SeisTrc& trc = *tbuf.get( imod );
 	const float dpth = lm_.sequence(imod).depthOf( lvl );
-	lvltms[imod] = aimodels_[imod]->convertTo( dpth, AIModel::TWT );
-	if ( dosnap )
-	{
-	    lvltms[imod] += snapoffs;
-	    snapLevelTime( *tbuf.get(imod), evtyp, lvltms[imod] );
-	}
+	trc.info().pick = aimodels_[imod]->convertTo( dpth, AIModel::TWT );
+	ssev.snapPick( trc );
     }
 
     const int nrextr = extrwin.nrSteps() + 1;
@@ -156,7 +128,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	    DataPointSet::DataRow dr;
 	    dr.pos_.nr_ = trc.info().nr;
 	    dr.pos_.set( trc.info().coord );
-	    dr.pos_.z_ = lvltms[itrc] + relz;
+	    dr.pos_.z_ = trc.info().pick + relz;
 	    dr.data_.setSize( dps->nrCols(), mUdf(float) );
 	    dr.data_[depthcol] = aimodels_[itrc]->convertTo( dr.pos_.z_,
 							     AIModel::Depth );
@@ -175,29 +147,6 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	{ delete dps; dps = 0; }
 
     return dps;
-}
-
-
-void uiStratSynthCrossplot::snapLevelTime( const SeisTrc& trc, int et,
-					   float& reftm ) const
-{
-    const VSEvent::Type evtyp = (VSEvent::Type)et;
-    const SeisTrcValueSeries tvs( trc, 0 );
-    const SamplingData<float> sd( trc.info().sampling );
-    const int trcsz = trc.size();
-
-    ValueSeriesEvFinder<float,float> evf( tvs, trcsz-1, sd );
-    const Interval<float> trcwin( trc.startPos(), trc.samplePos(trcsz-1) );
-    for ( int iwdth=1; iwdth<trcsz; iwdth++ )
-    {
-	Interval<float> findwin( reftm - iwdth*sd.step, reftm + iwdth*sd.step );
-	if ( findwin.start < trcwin.start ) findwin.start = trcwin.start;
-	if ( findwin.stop > trcwin.stop ) findwin.stop = trcwin.stop;
-
-	ValueSeriesEvent<float,float> ev = evf.find( evtyp, findwin );
-	if ( !mIsUdf(ev.pos) )
-	    { reftm = ev.pos; break; }
-    }
 }
 
 
@@ -274,17 +223,11 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
 
 void uiStratSynthCrossplot::setRefLevel( const char* lvlnm )
 {
-    reflvlfld_->setText( lvlnm );
+    evfld_->setLevel( lvlnm );
 }
 
 
-void uiStratSynthCrossplot::evSnapCheck( CallBacker* )
-{
-    snapoffsfld_->setSensitive( snapfld_->isChecked() );
-}
-
-
-#define mErrRet(s) { if ( s && *s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
 
 bool uiStratSynthCrossplot::acceptOK( CallBacker* )
 {
@@ -297,16 +240,11 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
     const Strat::LaySeqAttribSet& seqattrs = layseqattrfld_->attribSet();
     if ( seqattrs.isEmpty() )
 	mErrRet("Please define a layer attribute")
+    if ( !evfld_->getFromScreen() )
+	mErrRet(0)
 
-    const Strat::Level* lvl = Strat::LVLS().get( reflvlfld_->text() );
-    if ( !lvl )
-	mErrRet("Cannot find selected stratigraphic level")
-
-    StepInterval<float> extrwin( extrwinfld_->getFStepInterval() );
-    if ( mIsUdf(extrwin.start) || mIsUdf(extrwin.stop) || mIsUdf(extrwin.step) )
-	mErrRet("Please enter all extraction window parameters")
-
-    extrwin.start *= 0.001; extrwin.stop *= 0.001; extrwin.step *= 0.001;
-    DataPointSet* dps = getData( seisattrs, seqattrs, *lvl, extrwin );
-    return dps ? launchCrossPlot( *dps, *lvl, extrwin ) : false;
+    const StepInterval<float>& extrwin = evfld_->event().extrwin_;
+    const Strat::Level& lvl = *evfld_->event().level_;
+    DataPointSet* dps = getData( seisattrs, seqattrs, lvl, extrwin );
+    return dps ? launchCrossPlot( *dps, lvl, extrwin ) : false;
 }

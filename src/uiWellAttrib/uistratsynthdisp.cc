@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.19 2011-02-04 14:16:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.20 2011-02-07 10:25:11 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -103,13 +103,16 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
 }
 
 
-void uiStratSynthDisp::setDispMrkrs( const TypeSet<float>& zvals, Color col )
+void uiStratSynthDisp::setDispMrkrs( const char* lnm,
+				     const TypeSet<float>& zvals, Color col )
 {
+    levelname_ = lnm;
     FlatView::Annotation& ann = vwr_->appearance().annot_;
     deepErase( ann.auxdata_ );
 
     if ( !aimdls_.isEmpty() && !zvals.isEmpty() )
     {
+	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
 	FlatView::Annotation::AuxData* auxd =
 			new FlatView::Annotation::AuxData("Level markers");
 	auxd->linestyle_.type_ = LineStyle::None;
@@ -119,6 +122,8 @@ void uiStratSynthDisp::setDispMrkrs( const TypeSet<float>& zvals, Color col )
 	    if ( !mIsUdf(tval) )
 	    {
 		tval = aimdls_[imdl]->convertTo( tval, AIModel::TWT );
+		if ( imdl < tbuf.size() )
+		    tbuf.get(imdl)->info().pick = tval;
 
 		auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
 						      cMarkerSize, col );
@@ -147,7 +152,7 @@ void uiStratSynthDisp::scalePush( CallBacker* )
     SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
     if ( tbuf.isEmpty() ) return;
 
-    uiSynthToRealScale dlg( this, tbuf, wvltfld_->getID() );
+    uiSynthToRealScale dlg( this, tbuf, wvltfld_->getID(), levelname_ );
     if ( dlg.go() )
 	vwr_->handleChange( FlatView::Viewer::All );
 }

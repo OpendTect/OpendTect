@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.16 2011-02-03 08:54:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.17 2011-02-07 10:25:11 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 #include "uistratsinglayseqgendesc.h"
@@ -157,7 +157,8 @@ void uiStratLayerModel::dispEachChg( CallBacker* cb )
 
 void uiStratLayerModel::levelChg( CallBacker* )
 {
-    synthdisp_->setDispMrkrs( moddisp_->levelDepths(), moddisp_->levelColor() );
+    synthdisp_->setDispMrkrs( moddisp_->selectedLevel(),
+	    		      moddisp_->levelDepths(), moddisp_->levelColor() );
 }
 
 
