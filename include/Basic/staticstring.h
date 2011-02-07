@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: staticstring.h,v 1.1 2011-01-07 17:16:33 cvskris Exp $
+ RCS:		$Id: staticstring.h,v 1.2 2011-02-07 15:05:57 cvskris Exp $
 ________________________________________________________________________
 -*/
 
@@ -24,6 +24,7 @@ mClass StaticStringManager
 public:
     char*         		getString();
     static StaticStringManager&	STM();
+    static int			stringSize() { return 255; }
 
     				~StaticStringManager();
 protected:
