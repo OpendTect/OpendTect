@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.20 2011-02-07 10:25:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.21 2011-02-07 16:17:43 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -152,7 +152,16 @@ void uiStratSynthDisp::scalePush( CallBacker* )
     SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
     if ( tbuf.isEmpty() ) return;
 
-    uiSynthToRealScale dlg( this, tbuf, wvltfld_->getID(), levelname_ );
+    bool is2d = SI().has2D();
+    if ( is2d && SI().has3D() )
+    {
+	int res = uiMSG().question( "Type of seismic data to use", "2D", "3D",
+					"Cancel", "Specify geometry" );
+	if ( res < 0 ) return;
+	is2d = res == 1;
+    }
+
+    uiSynthToRealScale dlg( this, is2d, tbuf, wvltfld_->getID(), levelname_ );
     if ( dlg.go() )
 	vwr_->handleChange( FlatView::Viewer::All );
 }

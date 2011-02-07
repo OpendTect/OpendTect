@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.20 2011-02-07 10:25:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.21 2011-02-07 16:17:43 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -60,7 +60,7 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 	{ emptylbl_ = new uiLabel(this,"Missing or invalid datapack"); return; }
     tbpack_ = tbdp;
 
-    uiAttribDescSetBuild::Setup bsu( true );
+    uiAttribDescSetBuild::Setup bsu( !SI().has3D() );
     bsu.showdepthonlyattrs(false).showusingtrcpos(false).showps(false);
     seisattrfld_ = new uiAttribDescSetBuild( this, bsu );
     TypeSet<DataPack::FullID> fids; fids += dpid;
@@ -76,7 +76,7 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     sep = new uiSeparator( this, "sep2" );
     sep->attach( stretchedBelow, layseqattrfld_ );
 
-    evfld_ = new uiStratSeisEvent( this, true );
+    evfld_ = new uiStratSeisEvent( this, uiStratSeisEvent::Setup(true) );
     evfld_->attach( alignedWith, layseqattrfld_ );
     evfld_->attach( ensureBelow, sep );
 }
