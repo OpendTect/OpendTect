@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          March 2010
-RCS:           $Id: faulthorintersect.h,v 1.2 2010-03-30 20:30:20 cvsyuancheng Exp $
+RCS:           $Id: faulthorintersect.h,v 1.3 2011-02-07 22:58:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,6 @@ protected:
     };
     
     ObjectSet< TypeSet<BinID> >		ftbids_;
-    ObjectSet< TypeSet<double> >	zprojs_;
     ObjectSet< StickIntersectionInfo >	itsinfo_;   
 
     const BinIDSurface&			surf_;
