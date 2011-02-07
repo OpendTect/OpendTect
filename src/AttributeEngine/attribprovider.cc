@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.129 2011-01-28 16:06:46 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.130 2011-02-07 09:04:17 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -120,7 +120,12 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     {
 	if ( desc.errMsg() )
 	{
-	    errstr = desc.errMsg();
+	    if ( !strcmp( desc.errMsg(), "Parameter 'id' is not correct") &&
+		 desc.isStored() )
+		errstr = "Impossible to find stored data";
+	    else
+		errstr = desc.errMsg();
+
 	    errstr +=" for ";
 	}
 	else
