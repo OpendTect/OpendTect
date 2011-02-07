@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.31 2011-01-04 13:15:23 cvshelene Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.32 2011-02-07 09:19:24 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
@@ -824,42 +824,24 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
     if ( !nr_in )
 	return false;
 
-    int compartment = 0;
-    const float eps = sd_out.step/1e3;
+    ArrayValueSeries<float,float> tinser ( const_cast<float*>(t_in), false );
+    ArrayValueSeries<float,float> Vinser ( const_cast<float*>(Vin), false );
+    mAllocVarLenArr( float, deptharr, nr_in );
+    mAllocVarLenArr( float, depthsampled, nr_out );
+    if ( !tinser.isOK() || Vinser.isOK() || !deptharr || !depthsampled )
+	return false;
 
+    TimeDepthConverter::calcDepths( Vinser, nr_in, tinser, deptharr );
+    if ( nr_in<2 )
+	return false;
+    else
+	resampleDepth( deptharr, t_in, nr_in, sd_out, nr_out, depthsampled );
 
-    for ( int idx=0; idx<nr_out; idx++ )
-    {
-	const float z = sd_out.atIndex( idx );
-	if ( z<=t_in[0] )
-	    Vout[idx] = Vin[0];
-	else if ( z>=t_in[nr_in-1] )
-	    Vout[idx] = Vin[nr_in-1];
-	else
-	{
-	    bool match = false;
-	    for ( ; compartment<nr_in; compartment++ )
-	    {
-		if ( mIsEqual( z, t_in[compartment], eps ) )
-		    match = true;
-		else if ( t_in[compartment]<=z )
-		    continue;
-
-		break;
-	    }
-
-	    //compartment is always after pos
-	    if ( match )
-		Vout[idx] = Vin[compartment];
-	    else
-	    {
-		const float rel = (z-t_in[compartment-1]) /
-				  (t_in[compartment]-t_in[compartment-1] );
-		Vout[idx] = Interpolate::linearReg1D( Vin[compartment-1],
-						      Vin[compartment], rel );
-	    }
-	}
-    }
+    //compute Vout from depthsampled
+    Vout[0] = 0;
+    for ( int idx=1; idx<nr_out; idx++ )
+	Vout[idx] = (depthsampled[idx] - depthsampled[idx-1]) /(sd_out.step/2);
+    								//time is TWT
 
     return true;
 }
