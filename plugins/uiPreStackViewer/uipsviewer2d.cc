@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.2 2011-02-02 09:54:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.3 2011-02-07 16:57:20 cvsbruno Exp $";
 
 #include "uipsviewer2d.h"
 
@@ -189,7 +189,7 @@ void uiViewer2D::enableScrollBars( bool yn )
 }
 
 
-uiGatherDisplay* uiViewer2D::addGatherDisplay( int id, const BinID& bid )
+uiGatherDisplay* uiViewer2D::addGatherDisplay( int id  )
 {
     uiGatherDisplay* gatherdisp = new uiGatherDisplay( 0 );
     gatherdisp->setGather( id );

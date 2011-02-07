@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2011
- RCS:           $Id: uipsviewer2dposdlg.h,v 1.2 2011-02-02 09:54:23 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2dposdlg.h,v 1.3 2011-02-07 16:57:20 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,10 +26,12 @@ public:
     const CubeSampling&		cubeSampling(); 
     void			setNrViewers(int);
     int				nrViewers() const;
-    int 			step() const;			
+    void 			setStep(int);	
+    int 			step() const;	
 
     void			enableDynamicRange(bool);
     void			enableZDisplay(bool);
+    bool			isDynamicRange() const;
 
 protected:
     uiLabeledSpinBox* 		stepfld_;
@@ -37,7 +39,8 @@ protected:
     uiCheckBox*			dynamicrgbox_;
 
     void			dynamicRangeChged(CallBacker*);
-    void			parsChged(CallBacker*);
+    void			posChged(CallBacker*);
+    void			nrViewersChged(CallBacker*);
     void			applyPushed(CallBacker*);
 };
 
@@ -46,13 +49,16 @@ mClass uiViewer2DPosDlg : public uiDialog
 public:
 				uiViewer2DPosDlg(uiParent*,const CubeSampling&);
 
-    void 			setCubeSampling( const CubeSampling& cs)
-					{ sliceselfld_->setCubeSampling(cs); }
-    void 			getCubeSampling( CubeSampling& cs);
+    void 			setCubeSampling(const CubeSampling&);
+    void 			getCubeSampling(CubeSampling&);
+
     void                        setNrViewers(int nrv)
 				    { sliceselfld_->setNrViewers(nrv); }
     int				nrViewers() const
 				    { return sliceselfld_->nrViewers(); }
+    bool			isDynamicRange() const
+				    { return sliceselfld_->isDynamicRange(); }
+
     void                        enableDynamicRange(bool yn)
 				    { sliceselfld_->enableDynamicRange(yn); }
     void                        enableZDisplay(bool yn)

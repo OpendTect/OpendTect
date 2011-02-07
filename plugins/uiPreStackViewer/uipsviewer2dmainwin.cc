@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.2 2011-02-02 09:54:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.3 2011-02-07 16:57:20 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -56,11 +56,7 @@ void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl )
     info.getRanges( cs_ );
     is2d_ = info.is2D();
 
-    uiGatherDisplay* gv = new uiGatherDisplay( 0 );
-    gv->setGather( gatherid );
-    viewer2d_->addGatherDisplay( gv );
-    vwrs_ += gv->getUiFlatViewer();
-
+    vwrs_ += viewer2d_->addGatherDisplay( gatherid )->getUiFlatViewer();
     if ( !is2d_ )
     {
 	DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( gatherid );
@@ -72,14 +68,11 @@ void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl )
 		cs_.hrg.setInlRange( Interval<int>( bid.inl, bid.crl ) );
 	    else
 		cs_.hrg.setCrlRange( Interval<int>( bid.inl, bid.crl ) );
-
-	    gv->setPosition( bid, 
-		    new Interval<double>( cs_.zrg.start, cs_.zrg.stop ) );
 	}
 	DPM(DataPackMgr::FlatID()).release( gatherid );
     }
 
-    control_ = new uiViewer2DControl( this, *gv->getUiFlatViewer() );
+    control_ = new uiViewer2DControl( this, *vwrs_[0] );
     addControl( control_ );
     control_->posdlgcalled_.notify(mCB(this,uiViewer2DMainWin,posDlgPushed));
 
@@ -165,13 +158,12 @@ void uiViewer2DMainWin::posDlgPushed( CallBacker* )
     {
 	posdlg_ = new uiViewer2DPosDlg( this, cs_ );
 	posdlg_->okpushed_.notify( mCB(this,uiViewer2DMainWin,posDlgChgCB) );
-	posdlg_->show();
     }
     else
     {
 	posdlg_->setCubeSampling( cs_ );
-	posdlg_->show();
     }
+    posdlg_->show();
 }
 
 
@@ -200,47 +192,50 @@ void uiViewer2DMainWin::posDlgChgCB( CallBacker* )
 void uiViewer2DMainWin::setUpView()
 {
     HorSamplingIterator hsit( cs_.hrg );
+    const int nrvwrs = cs_.hrg.totalNr();
+    const int curnrvwrs = viewer2d_->nrItems();
+
     uiMainWin win( this );
     uiProgressBar pb( &win );
     pb.setPrefWidthInChar( 50 );
     pb.setStretch( 2, 2 );
-    pb.setTotalSteps( cs_.hrg.totalNr() );
+    pb.setTotalSteps( nrvwrs );
     win.show();
 
     viewer2d_->removeAllGatherDisplays();
+    vwrs_.erase(); 
     if ( control_ )
 	control_->removeAllGathers();
-    vwrs_.erase();
-    BinID bid; int progress =0;
+
+    BinID bid; int nrvwr = 0;
     while ( hsit.next( bid ) )
     {
-	addGather( bid );
-	pb.setProgress( progress++ );
+	setGather( nrvwr, bid );
+	pb.setProgress( nrvwr );
+	nrvwr++;
     }
-
-    reSizeSld(0); 
+    reSizeSld(0);
 }
 
 
-void uiViewer2DMainWin::addGather( const BinID& bid )
-{
+void uiViewer2DMainWin::setGather( int idx, const BinID& bid )
+{    
     PreStack::Gather* gather = new PreStack::Gather;
+    uiGatherDisplay* gatherdisp;
     if ( gather->readFrom( mid_, bid ) )
     {
 	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
-	uiGatherDisplay* gatherdisp = new uiGatherDisplay( 0 );
-	gatherdisp->setInitialSize( uiSize( 50, startheight_ ) );
-	gatherdisp->setGather( gather->id() );
-	gatherdisp->setPosition( bid,
-		    new Interval<double>( cs_.zrg.start, cs_.zrg.stop ) );
+	gatherdisp = viewer2d_->addGatherDisplay( gather->id() );
 	DPM(DataPackMgr::FlatID()).release( gather );
-	viewer2D()->addGatherDisplay( gatherdisp );
-	vwrs_ += gatherdisp->getUiFlatViewer();	
-	if ( control_ )
-	    control_->addGather( *gatherdisp->getUiFlatViewer() );
     }
     else
+    {
+	gatherdisp = viewer2d_->addGatherDisplay( -1 );
+	gatherdisp->setPosition( bid );
 	delete gather;
+    }
+    control_->addGather( *gatherdisp->getUiFlatViewer() );
+    vwrs_ += gatherdisp->getUiFlatViewer();
 }
 
 
