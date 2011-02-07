@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID = "$Id: prestackanglemute.cc,v 1.8 2011-02-03 23:06:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackanglemute.cc,v 1.9 2011-02-07 17:19:59 cvsyuancheng Exp $";
 
 #include "prestackanglemute.h"
 
@@ -219,8 +219,8 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		for ( int il=0; il<nrlayers; il++ )
 		{
 		    const float sini = rtracers_[thread]->getSinAngle(il,ioffs);
-		    if ( mIsUdf(sini) )
-			continue;
+		    if ( mIsUdf(sini) || (mIsZero(sini,1e-8) && il<nrlayers/2) )
+			continue; //Ordered down, get rid of edge 0.
 
 		    if ( sini<cutoffsin )
 		    {
@@ -250,7 +250,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		    if ( mIsUdf(sini) )
 			continue;
 
-		    if ( sini<cutoffsin ) //> or remove
+		    if ( sini>cutoffsin ) 
 		    {
 			if ( previdx!=-1 && !mIsZero(sini-prevsin,1e-5) )
 			{
