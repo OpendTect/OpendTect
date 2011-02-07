@@ -8,12 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.3 2011-01-26 08:49:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.4 2011-02-07 10:23:49 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
 #include "color.h"
 #include "dataclipper.h"
+#include "statgrubbs.h"
 #include "smoother1d.h"
 #include "welldata.h"
 #include "welllog.h"
@@ -194,8 +195,9 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     const char* txt = " Threshold ( window width )"; 
     thresholdfld_ = new uiLabeledSpinBox( actiongrp, txt );
     thresholdfld_->attach( rightOf, spbgt );
-    thresholdfld_->box()->setInterval( 1, 20, 1 );
+    thresholdfld_->box()->setInterval( 1.0, 20.0, 0.1 );
     thresholdfld_->box()->setValue( 3 );
+    thresholdfld_->box()->setNrDecimals( 2 );
 
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedBelow, actiongrp );
@@ -249,9 +251,9 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
     if ( act > 1 )
 	gatefld_->setInterval( 0, 100, 10 );
     else
-	gatefld_->setInterval( 1, 300, 5 );
+	gatefld_->setInterval( 1, 1500, 5 );
 
-    gatefld_->setValue( act ? 10 : 35 );
+    gatefld_->setValue( 300 );
 }
 
 
@@ -321,21 +323,22 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		sm.execute();
 	    }
 	    else if ( act == 1 )
-	    {
-		const int fac = thresholdfld_->box()->getValue();
-		float prevval = outp[0];
+	    { 
+		Stats::Grubbs sgb;
+		const float cutoff_grups = thresholdfld_->box()->getValue();
+		mAllocVarLenArr( float, gatevals, gate )
 		for ( int idx=gate/2; idx<sz-gate; idx+=gate  )
 		{
-		    float avg = 0; 
-		    for ( int winidx = idx-gate/2; winidx<idx+gate/2; winidx++ )
+		    float cutoffval = cutoff_grups + 1;
+		    while ( cutoffval > cutoff_grups )
 		    {
-			if ( !mIsUdf(outp[winidx]) ) avg += outp[winidx]/gate;
-		    }
-		    for ( int winidx = idx-gate/2; winidx<idx+gate/2; winidx++ )
-		    {
-			if ( !mIsUdf(outp[winidx]) && outp[winidx] > fac*avg )
-			    outp[winidx] = idx ? prevval : avg;
-			prevval = outp[winidx];
+			for (int winidx=0; winidx<gate; winidx++)
+			    gatevals[winidx]= outp[idx+winidx-gate/2];
+
+			int idxtofix;
+			cutoffval = sgb.getMax( gatevals, gate, idxtofix ) ;
+			if ( cutoffval > cutoff_grups  && idxtofix >= 0 )
+			    outp[idx+idxtofix-gate/2] = mUdf( float );
 		    }
 		}
 	    }
