@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.26 2010-11-18 09:12:58 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.27 2011-02-08 10:42:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 class MultiID;
 class uiCheckBox;
 class uiColorInput;
+class uiComboBox;
 class uiColorTableSel;
 class uiGenInput;
 class uiLabeledComboBox;
@@ -92,6 +93,7 @@ protected:
     uiCheckBox*		dispabovefld_;
     uiCheckBox*		dispbelowfld_;
     uiLabeledSpinBox*	nmsizefld_;
+    uiComboBox*		nmstylefld_;
 };
 
 
@@ -115,6 +117,7 @@ protected:
     uiLabeledComboBox*	shapefld_;
     uiCheckBox*		singlecolfld_;
     uiLabeledSpinBox*	nmsizefld_;
+    uiComboBox*		nmstylefld_;
     uiCheckBox*		samecolasmarkerfld_;
     uiColorInput*	nmcolfld_;
     uiLabeledSpinBox*	cylinderheightfld_;

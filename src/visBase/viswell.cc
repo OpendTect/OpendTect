@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.62 2010-11-24 13:58:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.63 2011-02-08 10:42:35 cvskris Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -165,10 +165,10 @@ const LineStyle& Well::lineStyle() const
     return ls;
 }
 
-#define mSetWellName( nm, pos, post, sz ) \
+#define mSetWellName( nm, pos, post, font ) \
     well##post##txt_->setDisplayTransformation( transformation_ ); \
     well##post##txt_->setText( nm ); \
-    well##post##txt_->setSize( sz ); \
+    well##post##txt_->setFontData( font ); \
     if ( !SI().zRange(true).includes(pos->z) ) \
 	pos->z = SI().zRange(true).limitValue( pos->z ); \
     well##post##txt_->setPosition( *pos ); \
@@ -176,8 +176,8 @@ const LineStyle& Well::lineStyle() const
 
 void Well::setWellName( const TrackParams& tp )
 {
-    mSetWellName( tp.isdispabove_ ? tp.name_ : "", tp.toppos_, top, tp.namesz_);
-    mSetWellName( tp.isdispbelow_ ? tp.name_ : "", tp.botpos_, bot, tp.namesz_);
+    mSetWellName( tp.isdispabove_ ? tp.name_ : "", tp.toppos_, top, tp.font_);
+    mSetWellName( tp.isdispbelow_ ? tp.name_ : "", tp.botpos_, bot, tp.font_);
 }
 
 
@@ -249,7 +249,7 @@ void Well::addMarker( const MarkerParams& mp )
     Text2* markernm = Text2::create();
     markernm->setDisplayTransformation( transformation_ );
     markernm->setText( mp.name_ );
-    markernm->setSize( mp.namesize_ );
+    markernm->setFontData( mp.font_ );
     markernm->setPosition( *mp.pos_ );
     markernm->setJustification( Text::Left );
     markernm->getMaterial()->setColor( mp.namecol_ );

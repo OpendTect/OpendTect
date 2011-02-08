@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistext.cc,v 1.20 2010-04-15 15:43:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.21 2011-02-08 10:42:35 cvskris Exp $";
 
 #include "vistext.h"
 
@@ -30,7 +30,7 @@ namespace visBase
 {
 
 const char* Text::sKeyString() 		{ return "Text"; }
-const char* Text::sKeyFontSize() 	{ return "Font size"; }
+const char* Text::sKeyFontData() 	{ return "Font data"; }
 const char* Text::sKeyJustification() 	{ return "Justification"; }
 const char* Text::sKeyPosition() 	{ return sKey::Position; }
 
@@ -48,6 +48,7 @@ Text::Text()
 
     addChild( textpos_ );
     addChild( font_ );
+    setFontData( fontdata_ ); //trigger update of font_
 }
 
 
@@ -76,15 +77,20 @@ Coord3 Text::position() const
 }
 
 
-void Text::setSize( float ns )
+void Text::setFontData( const FontData& fd )
 {
-    font_->size.setValue( ns );
-}
+    fontdata_ = fd;
+    BufferString fontname = fontdata_.family();
+    const bool isbold = ((int) fontdata_.weight())>=((int) FontData::Bold);
+    if ( isbold && fontdata_.isItalic() )
+	fontname += ":Bold Italic";
+    else if ( isbold )
+	fontname += ":Bold";
+    else if ( fontdata_.isItalic() )
+	fontname += ":Italic";
 
-
-float Text::size() const
-{
-    return font_->size.getValue();
+    font_->name.setValue( fontname.buf() );
+    font_->size.setValue( fontdata_.pointSize() );
 }
 
 
@@ -111,7 +117,11 @@ void Text::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     par.set( sKeyPosition(), position() );
     par.set( sKeyJustification(), (int)justification() );
-    par.set( sKeyFontSize(), size() );
+
+    BufferString fontdatastr;
+    fontdata_.putTo( fontdatastr );
+    par.set( sKeyFontData(), fontdatastr );
+
     par.set( sKeyString(), getText() );
 }
 
@@ -128,15 +138,24 @@ int Text::usePar( const IOPar& par )
     int just = 1;
     par.get( sKeyJustification(), just );
 
-    float fontsz = size();
-    par.get( sKeyFontSize(), fontsz );
+    FontData fontdata; //Has defaults
+    const FixedString fontdatastr = par.find( sKeyFontData() );
+    if ( !fontdatastr )
+	fontdata.getFrom( fontdatastr );
+    else //Old format
+    {
+	float fontsz;
+	if ( par.get( "Font size", fontsz ) ) //Old format
+	    fontdata.setPointSize( mNINT(fontsz) );
+    }
 
-    BufferString str( "" );
+
+    BufferString str;
     par.get( sKeyString(), str );
 
     setText( str );
     setPosition( pos );
-    setSize( fontsz );
+    setFontData( fontdata );
     setJustification( (Justification)just );
 
     return 1;

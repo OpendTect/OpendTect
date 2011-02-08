@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.48 2010-12-01 09:52:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.49 2011-02-08 10:42:35 cvskris Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -29,6 +29,10 @@ static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.48 2010-12-01 09:52:48 cv
 #include "welllogset.h"
 
 static int deflogwidth = 30;
+
+
+static const char* fontstyles[] =
+{ "Normal", "Bold", "Italic", "Bold Italic", 0 };
 
 
 uiWellDispProperties::uiWellDispProperties( uiParent* p,
@@ -97,6 +101,9 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     nmsizefld_->box()->setInterval(10,30,6);
     nmsizefld_->attach( alignedBelow, dispabovefld_  );
 
+    nmstylefld_ = new uiComboBox( this, fontstyles, "Fontstyle" );
+    nmstylefld_->attach( rightOf, nmsizefld_ );
+
     doPutToScreen();
 
     dispabovefld_->activated.notify(
@@ -105,6 +112,8 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 		mCB(this,uiWellTrackDispProperties,propChg) );
     nmsizefld_->box()->valueChanging.notify(
 		mCB(this,uiWellTrackDispProperties,propChg) );
+    nmstylefld_->selectionChanged.notify(
+	    mCB(this,uiWellTrackDispProperties,propChg) );
 }
 
 
@@ -118,7 +127,13 @@ void uiWellTrackDispProperties::doPutToScreen()
 {
     dispbelowfld_->setChecked( trackprops().dispbelow_ );
     dispabovefld_->setChecked( trackprops().dispabove_ );
-    nmsizefld_->box()->setValue( trackprops().nmsize_ );
+    nmsizefld_->box()->setValue( trackprops().font_.pointSize() );
+
+    int style = trackprops().font_.weight()>FontData::Normal ? 1 : 0;
+    if ( trackprops().font_.isItalic() )
+	style += 2;
+
+    nmstylefld_->setValue( style );
 }
 
 
@@ -126,7 +141,12 @@ void uiWellTrackDispProperties::doGetFromScreen()
 {
     trackprops().dispbelow_ = dispbelowfld_->isChecked();
     trackprops().dispabove_ = dispabovefld_->isChecked();
-    trackprops().nmsize_ =  nmsizefld_->box()->getValue();
+    trackprops().font_.setPointSize( nmsizefld_->box()->getValue() );
+
+    const int fontstyle = nmstylefld_->getIntValue();
+    const bool bold = fontstyle==1 || fontstyle==3;
+    trackprops().font_.setWeight( bold ? FontData::Bold : FontData::Normal );
+    trackprops().font_.setItalic( fontstyle==2 || fontstyle==3 );
 }
 
 
@@ -152,7 +172,11 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmsizefld_ = new uiLabeledSpinBox( this, "Names size" );
     nmsizefld_->box()->setInterval(10,30,6);
     nmsizefld_->attach( alignedBelow, shapefld_ );
-    
+
+    const char* styles[] = { "Normal", "Bold", "Italic", "Bold Italic", 0 };
+    nmstylefld_ = new uiComboBox( this, styles, "Fontstyle" );
+    nmstylefld_->attach( rightOf, nmsizefld_ );
+
     uiColorInput::Setup csu( mrkprops().color_ );
     BufferString dlgtxt( "Names color" );
     csu.lbltxt( dlgtxt ).withalpha( false );
@@ -171,6 +195,8 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 		mCB(this,uiWellMarkersDispProperties,propChg) );
     nmsizefld_->box()->valueChanging.notify(
 		mCB(this,uiWellMarkersDispProperties,propChg) );
+    nmstylefld_->selectionChanged.notify(
+	    mCB(this,uiWellMarkersDispProperties,propChg) );
     samecolasmarkerfld_->activated.notify(
 		mCB(this,uiWellMarkersDispProperties,propChg) );
     samecolasmarkerfld_->activated.notify(
@@ -207,7 +233,7 @@ void uiWellMarkersDispProperties::doPutToScreen()
     shapefld_->box()->setCurrentItem( mrkprops().shapeint_ );
     cylinderheightfld_->box()->setValue( mrkprops().cylinderheight_ );
     singlecolfld_->setChecked( mrkprops().issinglecol_ );
-    nmsizefld_->box()->setValue( mrkprops().nmsize_ );
+    nmsizefld_->box()->setValue( mrkprops().font_.pointSize() );
     samecolasmarkerfld_->setChecked( mrkprops().samenmcol_ );
     nmcolfld_->setColor( mrkprops().nmcol_ );
 }
@@ -218,7 +244,7 @@ void uiWellMarkersDispProperties::doGetFromScreen()
     mrkprops().shapeint_ = shapefld_->box()->currentItem();
     mrkprops().cylinderheight_ = cylinderheightfld_->box()->getValue();
     mrkprops().issinglecol_ = singlecolfld_->isChecked();
-    mrkprops().nmsize_ =  nmsizefld_->box()->getValue();
+    mrkprops().font_.setPointSize( nmsizefld_->box()->getValue() );
     mrkprops().samenmcol_ = samecolasmarkerfld_->isChecked();
     mrkprops().nmcol_ =  nmcolfld_->color();
 }

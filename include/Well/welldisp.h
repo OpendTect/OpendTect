@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.29 2010-11-05 12:46:28 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.30 2011-02-08 10:42:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "fontdata.h"
 #include "namedobj.h"
 #include "color.h"
 #include "ranges.h"
@@ -64,7 +65,7 @@ public:
 			    : BasicProps(1)
 			    , dispabove_(true)
 			    , dispbelow_(true)	
-			    , nmsize_(10)
+			    , font_(10)
 		       	    {}
 
 
@@ -72,7 +73,7 @@ public:
 
 	bool		dispabove_;
 	bool		dispbelow_;
-	int 		nmsize_;
+	FontData	font_;
 
     protected:
 
@@ -88,7 +89,7 @@ public:
 			    , shapeint_(0)	
 			    , cylinderheight_(1)			
 			    , issinglecol_(false)
-			    , nmsize_(10)
+			    , font_(10)
 			    , samenmcol_(false)		 
 			    {}
 
@@ -96,7 +97,7 @@ public:
 	int		shapeint_;
 	int		cylinderheight_;
 	bool 		issinglecol_;
-	int 		nmsize_;
+	FontData 	font_;
 	Color		nmcol_;
 	bool		samenmcol_;
 

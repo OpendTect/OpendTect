@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.16 2010-04-15 15:43:47 cvsjaap Exp $
+ RCS:		$Id: vistext.h,v 1.17 2011-02-08 10:42:35 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "fontdata.h"
 #include "visobject.h"
 #include "position.h"
 
@@ -30,11 +31,11 @@ mClass Text : public VisualObjectImpl
 public:
     enum			Justification { Left, Right, Center };
 
-    virtual Coord3		position() const;
-    virtual void		setPosition(const Coord3&);
+    Coord3			position() const;
+    void			setPosition(const Coord3&);
 
-    virtual float		size() const;
-    virtual void		setSize(float);
+    void			setFontData(const FontData&);
+    const FontData&		getFontData() const	{ return fontdata_; }
 
     virtual const char*		getText() const			=0;
     virtual void		setText(const char*)		=0;
@@ -42,7 +43,7 @@ public:
     virtual Justification	justification() const		=0;
     virtual void		setJustification(Justification)	=0;
 
-    virtual void		setDisplayTransformation(Transformation*);
+    void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
@@ -52,13 +53,14 @@ protected:
     				Text();
 				~Text();
 
+    FontData			fontdata_;
     SoTranslation*		textpos_;
     SoFont*			font_;
     Transformation*		transformation_;
     PickStyle*			pickstyle_;
 
     static const char*		sKeyString();
-    static const char*		sKeyFontSize();
+    static const char*		sKeyFontData();
     static const char*		sKeyJustification();
     static const char*		sKeyPosition();
 };

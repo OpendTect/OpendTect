@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.37 2010-11-05 12:46:28 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.38 2011-02-08 10:42:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "fontdata.h"
 #include "ranges.h"
 #include "visobject.h"
 #include "scaler.h"
@@ -64,7 +65,7 @@ public:
 	Coord3* 		botpos_;
 	bool 			isdispabove_;
 	bool 			isdispbelow_;
-	int 			namesz_;    
+	FontData		font_;
     };
 
     void			setTrack(const TypeSet<Coord3>&);
@@ -84,7 +85,7 @@ public:
 	int			cylinderheight_; 
 	bool 			issinglecol_; 
 	bool 			issamenmcol_; 
-	int			namesize_;			
+	FontData		font_;
 	Color			namecol_;			
 	Coord3* 		pos_;
     };
