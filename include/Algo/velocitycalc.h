@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.24 2011-02-08 09:28:58 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.25 2011-02-08 09:51:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,8 @@ protected:
     float			lastvel_;
     float*			depths_;
     float*			times_;
+
+    bool			regularinput_;
     int				sz_;
     SamplingData<double>	sd_;
 

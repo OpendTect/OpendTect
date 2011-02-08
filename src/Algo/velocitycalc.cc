@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.33 2011-02-07 13:58:42 cvshelene Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.34 2011-02-08 09:51:31 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -213,25 +213,39 @@ bool TimeDepthConverter::calcDepths(ValueSeries<float>& res, int outputsz,
     if ( !isOK() ) return false;
     if ( depths_ )
     {
-	const StepInterval<double> rg( sd_.interval( sz_ ) );
+	StepInterval<double> timerg;
+	if ( !regularinput_ )
+	{
+	    timerg.start = times_[0];
+	    timerg.stop = times_[sz_-1];
+	    timerg.step = mUdf(double);
+	}
+	else
+	{
+	    timerg = sd_.interval( sz_ );
+	}
+
 	for ( int idx=0; idx<outputsz; idx++ )
 	{
 	    const double time = timesamp.atIndex( idx );
 
 	    float depth;
-	    if ( time<=rg.start )
+	    if ( time<=timerg.start )
 	    {
-		const double dt = time-rg.start;
+		const double dt = time-timerg.start;
 		depth = depths_[0]+dt*firstvel_;
 	    }
-	    else if ( time>=rg.stop )
+	    else if ( time>=timerg.stop )
 	    {
-		const double dt = time-rg.stop;
+		const double dt = time-timerg.stop;
 		depth = depths_[sz_-1] + dt*lastvel_;
 	    }
 	    else
 	    {
-		depth = IdxAble::interpolateReg(depths_,sz_,rg.getfIndex(time));
+		const float timesample = regularinput_
+		    ? timerg.getfIndex(time) : mUdf(float); //IdxAble::findPos( times_, time );
+
+		depth = IdxAble::interpolateReg(depths_,sz_,timerg.getfIndex(time));
 	    }
 
 	    res.setValue( idx, depth );
