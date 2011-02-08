@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.49 2011-02-08 10:42:35 cvskris Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.50 2011-02-08 12:58:33 cvskris Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -234,6 +234,13 @@ void uiWellMarkersDispProperties::doPutToScreen()
     cylinderheightfld_->box()->setValue( mrkprops().cylinderheight_ );
     singlecolfld_->setChecked( mrkprops().issinglecol_ );
     nmsizefld_->box()->setValue( mrkprops().font_.pointSize() );
+
+    int style = mrkprops().font_.weight()>FontData::Normal ? 1 : 0;
+    if ( mrkprops().font_.isItalic() )
+	style += 2;
+
+    nmstylefld_->setValue( style );
+
     samecolasmarkerfld_->setChecked( mrkprops().samenmcol_ );
     nmcolfld_->setColor( mrkprops().nmcol_ );
 }
@@ -245,6 +252,10 @@ void uiWellMarkersDispProperties::doGetFromScreen()
     mrkprops().cylinderheight_ = cylinderheightfld_->box()->getValue();
     mrkprops().issinglecol_ = singlecolfld_->isChecked();
     mrkprops().font_.setPointSize( nmsizefld_->box()->getValue() );
+    const int fontstyle = nmstylefld_->getIntValue();
+    const bool bold = fontstyle==1 || fontstyle==3;
+    mrkprops().font_.setWeight( bold ? FontData::Bold : FontData::Normal );
+    mrkprops().font_.setItalic( fontstyle==2 || fontstyle==3 );
     mrkprops().samenmcol_ = samecolasmarkerfld_->isChecked();
     mrkprops().nmcol_ =  nmcolfld_->color();
 }
