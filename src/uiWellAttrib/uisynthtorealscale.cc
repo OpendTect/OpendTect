@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.2 2011-02-07 16:17:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.3 2011-02-08 10:10:45 cvsbert Exp $";
 
 #include "uisynthtorealscale.h"
 #include "uistratseisevent.h"
@@ -12,6 +12,8 @@ static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.2 2011-02-07 16:17:43
 #include "uiseparator.h"
 #include "uistatsdisplay.h"
 #include "uigeninput.h"
+#include "uibutton.h"
+#include "uilabel.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seisbuf.h"
@@ -32,7 +34,7 @@ class uiSynthToRealScaleStatsDisp : public uiGroup
 {
 public:
 
-uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm )
+uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     : uiGroup(p,nm)
     , usrval_(mUdf(float))
     , usrValChanged(this)
@@ -42,7 +44,10 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm )
     dispfld_->setPrefWidth( 250 );
     dispfld_->setPrefHeight( GetGoldenMinor(250) );
     avgfld_ = new uiGenInput( this, "", FloatInpSpec() );
-    avgfld_->attach( ensureBelow, dispfld_ );
+    if ( left )
+	avgfld_->attach( rightAlignedBelow, dispfld_ );
+    else
+	avgfld_->attach( ensureBelow, dispfld_ );
     avgfld_->valuechanged.notify(mCB(this,uiSynthToRealScaleStatsDisp,avgChg));
 }
 
@@ -75,8 +80,8 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(sssu.geom_,true),
 	    		      sssu );
 
-    const IOObjContext horctxt( is2d_ ? mIOObjContext(EMHorizon3D)
-	    			      : mIOObjContext(EMHorizon2D) );
+    const IOObjContext horctxt( is2d_ ? mIOObjContext(EMHorizon2D)
+	    			      : mIOObjContext(EMHorizon3D) );
     uiIOObjSel::Setup horsu( BufferString("Horizon for '",lvlnm,"'") );
     horfld_ = new uiIOObjSel( this, horctxt, horsu );
     horfld_->attach( alignedBelow, seisfld_ );
@@ -92,21 +97,35 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     evfld_ = new uiStratSeisEvent( this, ssesu );
     evfld_->attach( alignedBelow, polyfld_ );
 
+    uiPushButton* gobut = new uiPushButton( this, "Extract values",
+	    			mCB(this,uiSynthToRealScale,goPush), true );
+    gobut->attach( alignedBelow, evfld_ );
+
     uiSeparator* sep = new uiSeparator( this, "separator" );
-    sep->attach( stretchedBelow, evfld_ );
+    sep->attach( stretchedBelow, gobut );
 
     uiGroup* statsgrp = new uiGroup( this, "Stats displays" );
     statsgrp->attach( ensureBelow, sep );
 
-    synthstatsfld_ = new uiSynthToRealScaleStatsDisp( statsgrp, "Synthetics" );
-    realstatsfld_ = new uiSynthToRealScaleStatsDisp( statsgrp, "Real Seismics");
+    synthstatsfld_ = new uiSynthToRealScaleStatsDisp( statsgrp, "Synthetics",
+	    					      true );
+    realstatsfld_ = new uiSynthToRealScaleStatsDisp( statsgrp, "Real Seismics",
+	    					     false );
     realstatsfld_->attach( rightOf, synthstatsfld_ );
     const CallBack setsclcb( mCB(this,uiSynthToRealScale,setScaleFld) );
     synthstatsfld_->usrValChanged.notify( setsclcb );
     realstatsfld_->usrValChanged.notify( setsclcb );
 
-    finalscalefld_ = new uiGenInput( this, "Scale to apply", FloatInpSpec() );
+    finalscalefld_ = new uiGenInput( this, "", FloatInpSpec() );
     finalscalefld_->attach( centeredBelow, statsgrp );
+    new uiLabel( this, "Scaling factor", finalscalefld_ );
+
+    IOObjContext wvltctxt( mIOObjContext(Wavelet) );
+    wvltctxt.forread = false;
+    uiIOObjSel::Setup wvltsu( "Save scaled Wavelet" ); wvltsu.optional( true );
+    wvltfld_ = new uiIOObjSel( this, wvltctxt, wvltsu );
+    wvltfld_->attach( alignedWith, realstatsfld_ );
+    wvltfld_->attach( ensureBelow, finalscalefld_ );
 
     finaliseDone.notify( mCB(this,uiSynthToRealScale,initWin) );
 }
@@ -123,7 +142,7 @@ void uiSynthToRealScale::setScaleFld( CallBacker* )
     const float synthval = synthstatsfld_->usrval_;
     const float realval = realstatsfld_->usrval_;
     if ( mIsUdf(synthval) || mIsUdf(realval) || synthval == 0 )
-	finalscalefld_->setValue( synthval );
+	finalscalefld_->setValue( mUdf(float) );
     else
 	finalscalefld_->setValue( realval / synthval );
 }
