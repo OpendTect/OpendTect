@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.6 2011-02-07 22:58:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.7 2011-02-08 15:22:47 cvsyuancheng Exp $";
 
 #include "faulthorintersect.h"
 
@@ -92,8 +92,8 @@ bool doPrepare( int )
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    const StepInterval<int>& bidsurfrrg = fhi_.surf_.rowRange();
-    const StepInterval<int>& bidsurfcrg = fhi_.surf_.colRange();
+    const StepInterval<int>& surfrrg = fhi_.surf_.rowRange();
+    const StepInterval<int>& surfcrg = fhi_.surf_.colRange();
 
     for ( int idx=start; idx<=stop; idx++ )
     {
@@ -135,42 +135,43 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	for ( int idy=0; idy<lastknotidx; idy++ )
 	{
-	    const float prevz = knots[0].z;
+	    const float prevz = knots[idy].z;
 	    const float nextz = knots[idy+1].z;
 	    if ( (prevz > bidsurfzrg_.stop && nextz > bidsurfzrg_.stop) || 
 		 (prevz < bidsurfzrg_.start && nextz < bidsurfzrg_.start) ||
-		 (rcs[idy].row > bidsurfrrg.stop && 
-		  rcs[idy+1].row > bidsurfrrg.stop) ||
-		 (rcs[idy].row < bidsurfrrg.start && 
-		  rcs[idy+1].row < bidsurfrrg.start) ||
-		 (rcs[idy].col > bidsurfcrg.stop && 
-		  rcs[idy+1].col > bidsurfcrg.stop) ||
-		 (rcs[idy].col < bidsurfcrg.start && 
-		  rcs[idy+1].col < bidsurfcrg.start) )
+		 (rcs[idy].row>surfrrg.stop && rcs[idy+1].row>surfrrg.stop) ||
+		 (rcs[idy].row<surfrrg.start && rcs[idy+1].row<surfrrg.start) ||
+		 (rcs[idy].col>surfcrg.stop && rcs[idy+1].col>surfcrg.stop) ||
+		 (rcs[idy].col<surfcrg.start && rcs[idy+1].col<surfcrg.start) )
 		continue;
 
 	    if ( definedp[idy] || definedp[idy+1] )
 	    {
 		Coord3 horpos0 = horposes[idy];
 		Coord3 horpos1 = horposes[idy+1];
-		const float hz0 = horposes[idy].z;
-		const float hz1 = horposes[idy+1].z;
 		if ( definedp[idy] && definedp[idy+1] )
 		{
-		    if ( (hz0<prevz && hz1<nextz) || (hz0>prevz && hz1>nextz) )
+		    if ( (horpos0.z < prevz && horpos1.z < nextz) || 
+			 (horpos0.z > prevz && horpos1.z > nextz) )
     			continue;
 		}
 		else 
 		{
-		    const float projz = definedp[idy] ? hz0 : hz1;
+		    const float projz = definedp[idy] ? horpos0.z : horpos1.z;
     		    if ( (prevz > projz && nextz > projz) || 
        			 (prevz < projz && nextz < projz) )
     			continue;
 		    
 		    if ( definedp[idy] )
+		    {
 			horpos1 = fhi_.surf_.getKnot( rcs[idy+1], true );
+			horpos1.z += fhi_.zshift_;
+		    }
 		    else
+		    {
 			horpos0 = fhi_.surf_.getKnot( rcs[idy], true );
+			horpos0.z += fhi_.zshift_;
+		    }
 		}
 
 		double zd0 = horpos0.z - prevz; 
