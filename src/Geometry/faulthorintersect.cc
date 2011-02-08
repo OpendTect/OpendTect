@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.7 2011-02-08 15:22:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.8 2011-02-08 21:04:23 cvsyuancheng Exp $";
 
 #include "faulthorintersect.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: faulthorintersect.cc,v 1.7 2011-02-08 15:22:47 
 #include "trigonometry.h"
 
 #define mKnotBelowHor		-1
-#define mKnotAboveHor		2
+#define mKnotAboveHor		1
 #define mStickIntersectsHor	0
 
 namespace Geometry
@@ -29,7 +29,7 @@ class FaultStickHorizonIntersector : public ParallelTask
 public:    
 FaultStickHorizonIntersector( FaultBinIDSurfaceIntersector& fhi )
     : fhi_( fhi )
-    , bidsurfzrg_( -1, -1 ) 
+    , bidsurfzrg_( -1, -1 )
 {}
 
 
@@ -64,11 +64,44 @@ bool doPrepare( int )
 	return false;
 
     const StepInterval<int> rrg = fhi_.surf_.rowRange();
-    const StepInterval<int> crg = fhi_.surf_.colRange( rrg.start );
-    Coord3 corner0 = fhi_.surf_.getKnot( RowCol(rrg.start, crg.start), true );
-    Coord3 corner1 = fhi_.surf_.getKnot( RowCol(rrg.start, crg.stop), true );
-    Coord3 corner2 = fhi_.surf_.getKnot( RowCol(rrg.stop, crg.start), true );
-    plane_.set( corner0, corner1, corner2 );
+    TypeSet<RowCol> rcs;
+    TypeSet<Coord3> poses;
+    for ( int row=rrg.start; row<=rrg.stop; row += rrg.step )
+    {
+	if ( poses.size()==3 )
+	    break;
+
+	StepInterval<int> crg = fhi_.surf_.colRange( row );
+	for ( int col=crg.start; col<=crg.stop; col +=crg.step )
+	{
+	    RowCol rc(row,col);
+	    const Coord3 pos = fhi_.surf_.getKnot( rc, false );
+	    if ( mIsUdf(pos.z) )
+		continue;
+
+	    if ( poses.size()<2 )
+	    {
+		poses += pos;
+		rcs += rc;
+	    }
+	    else
+	    {
+		if ( rcs[0].row==rcs[1].row && rcs[1].row==row )
+    		    break;
+
+		if ( rcs[0].col==rcs[1].col && rcs[1].col==col )
+		    continue;
+
+		poses += pos;
+		break;
+	    }
+	}
+    }
+
+    if ( poses.size()<3 )
+	return false;
+
+    plane_.set( poses[0], poses[1], poses[2] );
 
     for ( int idx=0; idx<nrIterations(); idx++ )
     {
@@ -87,8 +120,14 @@ bool doPrepare( int )
     (*fhi_.itsinfo_[idx]).intsectpos = horpos; \
     (*fhi_.itsinfo_[idx]).lowknotidx = idy; \
     (*fhi_.itsinfo_[idx]).intersectstatus = mStickIntersectsHor; \
+    found = true; \
     break
 
+
+#define mContIfOnOneSide() \
+    if ( (horpos0.z < prevz && horpos1.z < nextz) || \
+	 (horpos0.z > prevz && horpos1.z > nextz) ) \
+	continue
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
@@ -110,7 +149,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    const BinID bid = SI().transform( knots[idy] );
 	    (*fhi_.ftbids_[idx]) += bid;
 
-	    rcs += RowCol(fhi_.rrg_.snap(bid.inl),fhi_.crg_.snap(bid.crl));
+	    rcs += RowCol( surfrrg.snap(bid.inl), surfcrg.snap(bid.crl) );
 
 	    Coord3 horpos = fhi_.surf_.getKnot( rcs[idy], false );
 	    if ( !mIsUdf(horpos.z) )
@@ -151,9 +190,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		Coord3 horpos1 = horposes[idy+1];
 		if ( definedp[idy] && definedp[idy+1] )
 		{
-		    if ( (horpos0.z < prevz && horpos1.z < nextz) || 
-			 (horpos0.z > prevz && horpos1.z > nextz) )
-    			continue;
+		    mContIfOnOneSide();
 		}
 		else 
 		{
@@ -172,12 +209,12 @@ bool doWork( od_int64 start, od_int64 stop, int )
 			horpos0 = fhi_.surf_.getKnot( rcs[idy], true );
 			horpos0.z += fhi_.zshift_;
 		    }
+
+		    mContIfOnOneSide();
 		}
 
-		double zd0 = horpos0.z - prevz; 
-	    	if ( zd0<0 ) zd0 = -zd0; 
-	    	double zd1 = horpos1.z - nextz; 
-	    	if ( zd1<0 ) zd1 = -zd1; 
+		const double zd0 = fabs(horpos0.z - prevz); 
+	    	const double zd1 = fabs(horpos1.z - nextz); 
 	    	Coord3 intsect = horpos0 + (horpos1-horpos0) * zd0 / (zd0+zd1);
 		mSetIntersectionInfo( intsect, idy );
 	    }
@@ -187,17 +224,19 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		Line3 segment( knots[idy], knots[idy+1]-knots[idy] );
 		if ( plane_.intersectWith(segment,intersectpos) )
 		{
+		    //check if the intersection is on the surface or not.
 		    const BinID bid = SI().transform( intersectpos );
-		    const RowCol hbid( fhi_.rrg_.snap(bid.inl),
-			    	       fhi_.crg_.snap(bid.crl) );
-		    const Coord3 horpos = fhi_.surf_.getKnot(hbid,false);
-		    if ( !mIsUdf( horpos.z ) )
+		    RowCol rc( surfrrg.snap(bid.inl), surfcrg.snap(bid.crl) );
+		    const Coord3 horpos = fhi_.surf_.getKnot(rc,false);
+		    if ( !mIsUdf( horpos.z ) ) 
 		    {
 			mSetIntersectionInfo( intersectpos, idy );
 		    }
 		}
 	    }
 	}
+
+	//if ( !found ) define intersectstatus, no used so far
     }
 
     return true;
