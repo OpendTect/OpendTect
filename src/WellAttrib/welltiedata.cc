@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.45 2011-02-04 14:00:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.46 2011-02-08 10:48:41 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -287,45 +287,41 @@ bool DataWriter::writeLog2Cube( LogData& ld) const
     if ( ld.ctioidxset_[ld.curidx_] < 0 ) return false;
     SeisTrcWriter writer( ld.seisctioset_[ld.ctioidxset_[ld.curidx_]]->ioobj );
     bool succeeded = true;
-    TypeSet<BinID> bids = ld.bids_;
-    ObjectSet<SeisTrc> trcset;
-    SeisTrc* curtrc = 0;
-    const int datasz = ld.curlog_->size();
-    BinID prevbid( bids[0] );
-    for ( int idx=0; idx<datasz; idx++ )
+
+    HorSampling hrg( false );
+    for ( int idbid=0; idbid<ld.bids_.size(); idbid++ )
     {
-	const BinID bid( bids[idx] );
-	if ( idx && bid == prevbid )
-	    curtrc->set( idx, ld.curlog_->value(idx), 0 );
-	else
-	{
-	    SeisTrc* newtrc = new SeisTrc( datasz );
-	    trcset += newtrc;
-	    for ( int sidx=0; sidx<datasz; sidx++ )
-		newtrc->set( sidx, idx ? mUdf(float):ld.curlog_->value(idx),0 );
-	    newtrc->info().sampling.step = SI().zStep();
-	    newtrc->info().binid = bid;
-	    curtrc = newtrc;
-	}
-	prevbid = bid;
-    }
-    for ( int idx=0; idx<trcset.size(); idx++ )
-    {
-	SeisTrc* trc = trcset[idx];
-	BinID curbid = trc->info().binid;
 	for ( int crlidx=0; crlidx<ld.nrtraces_; crlidx++ )
 	{
 	    for ( int inlidx=0; inlidx<ld.nrtraces_; inlidx++ )
 	    {
-		BinID bid = BinID( curbid.inl - ld.nrtraces_/2 + crlidx , 
-				   curbid.crl - ld.nrtraces_/2 + inlidx  );
-		trc->info().binid = bid;
-		if ( !writer.put(*trc) )
-		{ pErrMsg( "cannot write new trace" ); succeeded = false; } 
+		BinID bid = ld.bids_[idbid];
+		bid.inl += ld.nrtraces_/2 + crlidx,
+		bid.crl += ld.nrtraces_/2 + inlidx;
+		hrg.include( bid );
 	    }
 	}
     }
-    deepErase( trcset );
+
+    hrg.snapToSurvey();
+    HorSamplingIterator hsit( hrg );
+    BinID bid;
+    SeisTrc trc( SI().zRange(true).nrSteps() );
+    trc.info().sampling.step = SI().zStep();
+    const Well::D2TModel* d2t = wd_ ? wd_->d2TModel() : 0;
+    if ( !d2t )
+	return false;
+    for ( int idx=0; idx<trc.size(); idx++ )
+    {
+	const float dah = d2t->getDah( trc.info().sampling.atIndex( idx )  );
+	trc.set( idx, ld.curlog_->getValue( dah, true ),0 );
+    }
+    while ( hsit.next( bid ) )
+    {
+	trc.info().binid = bid;
+	if ( !writer.put(trc) )
+	    { pErrMsg( "cannot write new trace" ); succeeded = false; }
+    }
 
     return succeeded;
 }
