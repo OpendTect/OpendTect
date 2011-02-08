@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.23 2011-01-31 22:43:36 cvsyuancheng Exp $
+ RCS:		$Id: velocitycalc.h,v 1.24 2011-02-08 09:28:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,12 @@ public:
     bool		setVelocityModel(const ValueSeries<float>&, int sz,
 	    				 const SamplingData<double>&,
 					 const VelocityDesc&,bool istime);
+
+    bool		setVelocityModel(const float* z, const float* v,
+					 const VelocityDesc&,bool istime);
+
+    float		getDepth(float time) const;
+    float		getTime(float depth) const;
 
     bool		calcDepths(ValueSeries<float>&, int sz,
 	    			   const SamplingData<double>& timesamp) const;
