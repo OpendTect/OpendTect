@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.139 2011-01-27 04:24:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.140 2011-02-08 10:41:43 cvskris Exp $";
 
 #include "uiodmain.h"
 
@@ -719,7 +719,10 @@ bool uiODMain::closeOK()
 
     bool askedanything = false;
     if ( !askStore(askedanything) )
+    {
+	uiMSG().message("Shutdown cancelled");
 	return false;
+    }
 
     IOM().applClosing();
 
