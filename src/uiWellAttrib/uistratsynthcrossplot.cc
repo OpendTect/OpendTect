@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.21 2011-02-07 16:17:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.22 2011-02-09 12:28:48 cvsbert Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -108,14 +108,14 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     if ( tbuf.size() != nraimdls )
 	{ pErrMsg("DataPack nr of traces != nr of aimodels"); return 0; }
 
-    TypeSet<float> lvltms( nraimdls, 0 );
+    TypeSet<float> lvltms;
     const Strat::SeisEvent& ssev = evfld_->event();
     for ( int imod=0; imod<nraimdls; imod++ )
     {
 	SeisTrc& trc = *tbuf.get( imod );
 	const float dpth = lm_.sequence(imod).depthOf( lvl );
 	trc.info().pick = aimodels_[imod]->convertTo( dpth, AIModel::TWT );
-	ssev.snapPick( trc );
+	lvltms += ssev.snappedTime( trc );
     }
 
     const int nrextr = extrwin.nrSteps() + 1;
@@ -128,7 +128,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	    DataPointSet::DataRow dr;
 	    dr.pos_.nr_ = trc.info().nr;
 	    dr.pos_.set( trc.info().coord );
-	    dr.pos_.z_ = trc.info().pick + relz;
+	    dr.pos_.z_ = lvltms[itrc] + relz;
 	    dr.data_.setSize( dps->nrCols(), mUdf(float) );
 	    dr.data_[depthcol] = aimodels_[itrc]->convertTo( dr.pos_.z_,
 							     AIModel::Depth );
