@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifileinput.cc,v 1.56 2010-10-07 07:08:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifileinput.cc,v 1.57 2011-02-09 12:58:56 cvsbert Exp $";
 
 #include "uifileinput.h"
 #include "uifiledlg.h"
@@ -28,7 +28,7 @@ uiFileInput::Setup::Setup( const char* filenm )
     , directories_(false)
     , allowallextensions_(true)
     , confirmoverwrite_(true)
-    , filedlgtype_(uiFileDialog::Txt)
+    , filedlgtype_(uiFileDialog::Gen)
     , defseldir_(GetDataDir())
     , displaylocalpath_(false)
 {
