@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.17 2010-09-06 05:01:00 cvsraman Exp $
+ RCS:		$Id: valseriesevent.h,v 1.18 2011-02-09 14:03:44 cvshelene Exp $
 ________________________________________________________________________
 
 */
@@ -75,7 +75,7 @@ public:
     const ValueSeries<VT>&	valueSeries() const { return vs_; }
     const SamplingData<PT>&	samplingData() const { return sd_; }
 
-    ValueSeriesEvent<VT,PT>	find(VSEvent::Type,Interval<PT>,
+    ValueSeriesEvent<VT,PT>	find(VSEvent::Type,const Interval<PT>&,
 	    				int occ=1) const;
     bool			findEvents(TypeSet<PT>&,Interval<PT>,
 	    				   VSEvent::Type);
@@ -101,7 +101,7 @@ protected:
 	    				VSEvent::Type) const;
     ValueSeriesEvent<VT,PT>	getExtreme(const Interval<int>&,int,
 	    				VSEvent::Type) const;
-    ValueSeriesEvent<VT,PT>	getGateExtr(Interval<int>,bool) const;
+    ValueSeriesEvent<VT,PT>	getGateExtr(const Interval<int>&,bool) const;
 
 };
 
@@ -209,8 +209,9 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::exactExtreme(
 
 template <class VT,class PT>
 inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getGateExtr(
-			    Interval<int> sg, bool needmax ) const
+			    const Interval<int>& inpsg, bool needmax ) const
 {
+    Interval<int> sg( inpsg );
     sg.sort();
 
     // skip undefs at start
@@ -292,9 +293,10 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getExtreme(
 
 template <class VT,class PT>
 inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
-		VSEvent::Type evtype, Interval<PT> pg, int occ ) const
+		VSEvent::Type evtype, const Interval<PT>& pgin, int occ ) const
 {
     lastfound_ = evtype;
+    Interval<PT> pg( pgin );
 
     ValueSeriesEvent<VT,PT> ev;
     if ( occ < 1 )
