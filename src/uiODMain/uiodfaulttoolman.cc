@@ -7,11 +7,12 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.32 2011-02-03 21:38:59 cvskris Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.33 2011-02-09 16:50:08 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
 
+#include "emeditor.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emfsstofault3d.h"
@@ -19,6 +20,7 @@ static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.32 2011-02-03 21:38:59 
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "ioman.h"
+#include "keyboardevent.h"
 #include "randcolor.h"
 #include "thread.h"
 #include "timefun.h"
@@ -343,6 +345,10 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     flashtimer_.tick.notify( mCB(this,uiODFaultToolMan,flashOutputTimerCB) );
     EM::EMM().undo().undoredochange.notify(
 				mCB(this,uiODFaultToolMan,updateToolbarCB) );
+    uiMain::keyboardEventHandler().keyPressed.notify(
+				mCB(this,uiODFaultToolMan,keyPressedCB) );
+    uiMain::keyboardEventHandler().keyReleased.notify(
+				mCB(this,uiODFaultToolMan,keyReleasedCB) );
 }
 
 
@@ -367,6 +373,11 @@ uiODFaultToolMan::~uiODFaultToolMan()
 
     if ( settingsdlg_ )
 	delete settingsdlg_;
+
+    uiMain::keyboardEventHandler().keyPressed.remove(
+				mCB(this,uiODFaultToolMan,keyPressedCB) );
+    uiMain::keyboardEventHandler().keyReleased.remove(
+				mCB(this,uiODFaultToolMan,keyReleasedCB) );
 }
 
 
@@ -1366,3 +1377,18 @@ void uiODFaultToolMan::redoCB( CallBacker* )
     EM::EMM().burstAlertToAll( false );
     updateToolbarCB( 0 );
 }
+
+
+static void keyDown( bool yn )
+{
+    if ( uiMain::keyboardEventHandler().event().key_ == OD::Space )
+	MPE::ObjectEditor::enableNodeCloning( yn );
+}
+
+
+void uiODFaultToolMan::keyPressedCB( CallBacker* )
+{ keyDown( true ); }
+
+
+void uiODFaultToolMan::keyReleasedCB( CallBacker* )
+{ keyDown( false ); }

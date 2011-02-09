@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: faulteditor.h,v 1.12 2010-08-26 11:39:30 cvsjaap Exp $
+ RCS:           $Id: faulteditor.h,v 1.13 2011-02-09 16:50:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,8 @@ protected:
     Coord3			scalevector_;
 
     int				getLastClickedStick() const;
+
+    void			cloneMovingNode();
 
     Coord3			sowingpivot_;
     TypeSet<Coord3>		sowinghistory_;

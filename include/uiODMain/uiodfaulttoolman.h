@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Jaap Glas
  Date:		December 2009
- RCS:		$Id: uiodfaulttoolman.h,v 1.11 2010-12-17 13:22:42 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttoolman.h,v 1.12 2011-02-09 16:50:08 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -116,6 +116,8 @@ protected:
     void			stickRemovalCB(CallBacker*);
     void			undoCB(CallBacker*);
     void			redoCB(CallBacker*);
+    void			keyPressedCB(CallBacker*);
+    void			keyReleasedCB(CallBacker*);
 
     void			outputEditTextChg(CallBacker*);
     void			outputComboSelChg(CallBacker*);

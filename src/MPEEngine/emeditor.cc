@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.25 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.26 2011-02-09 16:50:08 cvsjaap Exp $";
 
 #include "emeditor.h"
 
@@ -49,6 +49,13 @@ ObjectEditor::~ObjectEditor()
 }
 
 
+static bool nodecloningenabled = false;
+static int nodeclonecountdown = -1;
+
+void ObjectEditor::enableNodeCloning( bool yn )
+{ nodecloningenabled = yn; } 
+
+
 void ObjectEditor::startEdit(const EM::PosID& pid)
 {
     changedpids.erase();
@@ -80,6 +87,8 @@ void ObjectEditor::startEdit(const EM::PosID& pid)
     alongmovingnodesstart.erase();
     for ( int idx=0; idx<alongmovingnodes.size(); idx++ )
 	alongmovingnodesstart += emobject.getPos(alongmovingnodes[idx]);
+
+    nodeclonecountdown = nodecloningenabled ? 3 : -1;
 }
 
 
@@ -108,6 +117,10 @@ bool ObjectEditor::setPosition(const Coord3& np)
 	if ( !setPosition( alongmovingnodes[idx], newpos ) )
 	    return false;
     }
+
+    nodeclonecountdown--;
+    if ( !nodeclonecountdown )
+	cloneMovingNode();
 
     return true;
 }

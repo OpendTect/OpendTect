@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.38 2011-02-04 05:37:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.39 2011-02-09 16:50:08 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -758,7 +758,9 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 	    }
 	}
     }
-    updateAll();
+
+    if ( emfss_ && !emfss_->hasBurstAlert() )
+	updateAll();
 }
 
 

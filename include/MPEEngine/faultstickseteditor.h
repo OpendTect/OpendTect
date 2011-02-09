@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2008
- RCS:           $Id: faultstickseteditor.h,v 1.10 2010-08-26 11:39:30 cvsjaap Exp $
+ RCS:           $Id: faultstickseteditor.h,v 1.11 2011-02-09 16:50:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,8 @@ protected:
     Coord			ytrans_;
 
     int				getLastClickedStick() const;
+
+    void			cloneMovingNode();
 
     const TypeSet<EM::PosID>*	editpids_;
 

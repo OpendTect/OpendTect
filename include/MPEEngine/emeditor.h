@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.20 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: emeditor.h,v 1.21 2011-02-09 16:50:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,6 +123,8 @@ public:
 				    
     const EM::EdgeLineSet*	getInteractionLine() const;
 
+    static void			enableNodeCloning(bool yn=true);
+
 protected:
 
     virtual bool			setPosition(const EM::PosID&,
@@ -140,6 +142,8 @@ protected:
     					/*!<Gets the positions that are moved
 					    along and their corresponding
 					    factors. */
+
+    virtual void			cloneMovingNode()		{};
 
     EM::EMObject&			emobject;
     EM::PosID				movingnode;

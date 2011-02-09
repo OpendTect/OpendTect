@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.72 2011-02-04 05:37:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.73 2011-02-09 16:50:08 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -912,7 +912,8 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	updateSingleColor();
     }
 
-    updateDisplay();
+    if ( emfault_ && !emfault_->hasBurstAlert() )
+	updateDisplay();
 }
 
 

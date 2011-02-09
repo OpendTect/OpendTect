@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.10 2010-08-26 11:39:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.11 2011-02-09 16:50:08 cvsjaap Exp $";
 
 #include "faultstickseteditor.h"
 
@@ -455,6 +455,54 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 	    insertpid.setSubID( RowCol(sticknr,insertcol).toInt64() );
 	}
     }
+}
+
+
+void FaultStickSetEditor::cloneMovingNode()
+{
+    setLastClicked( movingnode );
+    mDynamicCastGet( EM::FaultStickSet*, emfss, &emobject );
+    EM::FaultStickSetGeometry& fssg = emfss->geometry();
+    const EM::SectionID& sid = movingnode.sectionID();
+    const int sticknr = RowCol( movingnode.subID() ).row;
+    Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
+
+    const MultiID* lset = fssg.lineSet( sid, sticknr );
+    const char* linenm = fssg.lineName( sid, sticknr );
+    const Coord3& normal = fss->getEditPlaneNormal( sticknr );
+    EM::PosID insertpid;
+    getInteractionInfo( insertpid, lset, linenm, startpos, &normal );
+    if ( insertpid.isUdf() )
+	return;
+
+    if ( movingnode != insertpid )
+    {
+	fssg.insertKnot( sid, insertpid.subID(), startpos, true );
+	return;
+    }
+
+    // Performs knot insertion without changing PosID of moving node 
+    emfss->setBurstAlert( true );
+    const StepInterval<int> colrg = fss->colRange( sticknr );
+    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+    {
+	const RowCol currc( sticknr, col ); 
+	const RowCol prevrc( sticknr, col-colrg.step );
+	const EM::PosID prevpid( emfss->id(), sid, prevrc.toInt64() );
+
+	if ( currc.toInt64() == insertpid.subID() )
+	{
+	    ObjectEditor::setPosition( prevpid, startpos );
+	    break;
+	}
+
+	const Coord3 prevpos = fss->getKnot( currc );
+	if ( col == colrg.start )
+	    fssg.insertKnot( sid, prevrc.toInt64(), prevpos, true );
+	else
+	    ObjectEditor::setPosition( prevpid, prevpos );
+    }
+    emfss->setBurstAlert( false );
 }
 
 

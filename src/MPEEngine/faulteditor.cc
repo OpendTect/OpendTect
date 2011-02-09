@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.16 2010-08-26 11:39:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.17 2011-02-09 16:50:08 cvsjaap Exp $";
 
 #include "faulteditor.h"
 
@@ -611,6 +611,53 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 	    insertpid.setSubID( RowCol(stick,insertcol).toInt64() );
 	}
     }
+}
+
+
+void FaultEditor::cloneMovingNode()
+{
+    setLastClicked( movingnode );
+    mDynamicCastGet( EM::Fault3D*, emfault, &emobject );
+    EM::Fault3DGeometry& fg = emfault->geometry();
+    const EM::SectionID& sid = movingnode.sectionID();
+    const int sticknr = RowCol( movingnode.subID() ).row;
+    Geometry::FaultStickSurface* fss = fg.sectionGeometry( sid );
+
+    const Coord3& normal = fss->getEditPlaneNormal( sticknr );
+    EM::PosID insertpid;
+    bool makenewstick = false; 
+    getInteractionInfo( makenewstick, insertpid, startpos, &normal );
+    if ( makenewstick || insertpid.isUdf() )
+	return;
+
+    if ( movingnode != insertpid )
+    {
+	fg.insertKnot( sid, insertpid.subID(), startpos, true );
+	return;
+    }
+
+    // Performs knot insertion without changing PosID of moving node 
+    emfault->setBurstAlert( true );
+    const StepInterval<int> colrg = fss->colRange( sticknr );
+    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+    {
+	const RowCol currc( sticknr, col ); 
+	const RowCol prevrc( sticknr, col-colrg.step );
+	const EM::PosID prevpid( emfault->id(), sid, prevrc.toInt64() );
+
+	if ( currc.toInt64() == insertpid.subID() )
+	{
+	    ObjectEditor::setPosition( prevpid, startpos );
+	    break;
+	}
+
+	const Coord3 prevpos = fss->getKnot( currc );
+	if ( col == colrg.start )
+	    fg.insertKnot( sid, prevrc.toInt64(), prevpos, true );
+	else
+	    ObjectEditor::setPosition( prevpid, prevpos );
+    }
+    emfault->setBurstAlert( false );
 }
 
 
