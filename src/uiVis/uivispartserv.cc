@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.461 2011-01-20 11:26:06 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.462 2011-02-09 23:06:07 cvskarthika Exp $";
 
 #include "uivispartserv.h"
 
@@ -1041,7 +1041,7 @@ void uiVisPartServer::setSoloMode( bool yn, TypeSet< TypeSet<int> > dispids,
 {
     issolomode_ = yn;
     displayids_ = dispids;
-    issolomode_ ? updateDisplay( true, selid ) : updateDisplay( false, selid );
+    updateDisplay( issolomode_, selid );
 }
 
 
@@ -1123,9 +1123,11 @@ void uiVisPartServer::updateDisplay( bool doclean, int selid, int refid )
 	for ( int idx=0; idx<displayids_[typesetidx].size(); idx++ )
 	    if ( isOn( displayids_[typesetidx][idx] ) 
 		 && displayids_[typesetidx][idx] != selid )
+		   // later: include check if displayid is a sub-item of selid
 		turnOn(displayids_[typesetidx][idx], false);
 
 	if ( !isOn(selid) && selid >= 0 ) turnOn( selid, true);
+	else if ( !isOn(refid) && refid >= 0 ) turnOn( refid, true);
     }
     else
     {
