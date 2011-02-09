@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.29 2011-01-26 09:23:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.30 2011-02-09 12:27:35 cvsbert Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -91,10 +91,11 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 
 void uiStatsDisplay::setDataName( const char* nm )
 {
-    if ( !setup_.withname_ )
-	return;
-    namefld_->setText( nm );
-    namefld_->setAlignment( Alignment::HCenter );
+    if ( namefld_ )
+    {
+	namefld_->setText( nm );
+	namefld_->setAlignment( Alignment::HCenter );
+    }
 }
 
 
