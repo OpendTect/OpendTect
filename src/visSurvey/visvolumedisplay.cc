@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.123 2011-01-07 21:23:16 cvskris Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.124 2011-02-09 23:07:20 cvskarthika Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -83,6 +83,7 @@ VolumeDisplay::VolumeDisplay()
     , datatransformer_(0)
     , csfromsession_(true)
     , eventcatcher_( 0 )
+    , onoffstatus_( true )
 {
     boxdragger_->ref();
     boxdragger_->setBoxTransparency( 0.7 );
@@ -1092,6 +1093,24 @@ const ColTab::MapperSetup* VolumeDisplay::getColTabMapperSetup( int ) const
 {
     return &scalarfield_->getColTabMapper().setup_;
 }
+
+
+void VolumeDisplay::turnOn( bool yn )
+{
+    onoffstatus_ = yn;
+    
+    const int nrslices = slices_.size();
+    for ( int idx=0; idx<nrslices; idx++ )
+	slices_[idx]->turnOn( slices_[idx]->isOn() );
+	
+    showVolRen( isVolRenShown() );
+	
+    VisualObjectImpl::turnOn( isAttribEnabled( 0 ) );
+}
+
+
+bool VolumeDisplay::isOn() const
+{ return onoffstatus_; }
 
 
 void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.76 2010-10-03 21:22:18 cvskarthika Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.77 2011-02-09 23:07:39 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -98,6 +98,8 @@ public:
 	    			    const visBase::MarchingCubesSurface*) const;
     void			setSeedsID(const visBase::MarchingCubesSurface*,					   MultiID);
 
+    void                        turnOn(bool yn);
+    bool                        isOn() const;
     void			showManipulator(bool yn);
     bool			isManipulatorShown() const;
     bool			isManipulated() const;
@@ -227,6 +229,7 @@ protected:
     visBase::EventCatcher*	eventcatcher_;
 
     bool			isinited_;
+    bool                        onoffstatus_;
 
     static const char*		sKeyVolumeID();
     static const char*		sKeyInline();
