@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.48 2010-12-09 12:53:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.49 2011-02-09 12:27:06 cvsbert Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -105,9 +105,12 @@ void uiAxisHandler::reCalc()
     annotrg.start = annotstart_;
 
     const uiFont& font = FontList().get();
-    bool nonamespace = name().isEmpty() ||  setup_.annotinside_;
-    wdthy_ = nonamespace ? font.height() : 2*font.height();
-    BufferString str;
+    wdthperp_ = setup_.noaxisannot_ ? 0 : font.height();
+    const bool allocspaceforname = !setup_.noaxisannot_
+				&& !setup_.annotinside_
+				&& !name().isEmpty();
+    if ( allocspaceforname )
+	wdthperp_ += font.height();
 
     const int nrsteps = annotrg.nrSteps();
     for ( int idx=0; idx<=nrsteps; idx++ )
@@ -115,6 +118,7 @@ void uiAxisHandler::reCalc()
 	float pos = annotrg.start + idx * rg_.step;
 	if ( mIsZero( pos, setup_.epsaroundzero_ ) ) 
 	    pos = 0;
+	BufferString str;
 	if ( setup_.maxnumberdigitsprecision_ )
 	    sprintf( str.buf(), "%.*g", setup_.maxnumberdigitsprecision_, pos );
 	else
@@ -126,9 +130,9 @@ void uiAxisHandler::reCalc()
 	if ( setup_.islog_ )
 	    relpos = log( 1 + relpos );
 	pos_ += relpos;
-	const int wdth = font.width( str ) + font.height();
-	if ( idx == 0 )			wdthx_ = font.width( str );
-	else if ( wdthx_ < wdth )	wdthx_ = wdth;
+	const int wdth = font.width( str );
+	if ( idx == 0 )			wdthalong_ = font.width( str );
+	else if ( wdthalong_ < wdth )	wdthalong_ = wdth;
     }
     endpos_ = setup_.islog_ ? logof2 : 1;
     newDevSize();
@@ -203,7 +207,7 @@ int uiAxisHandler::pixToEdge( bool withborder ) const
     int ret = withborder ? setup_.border_.get(setup_.side_) : 0;
     if ( setup_.noaxisannot_ || setup_.annotinside_ ) return ret;
 
-    ret += ticsz_ + (isHor() ? wdthy_ : wdthx_);
+    ret += ticSz() + (isHor() ? wdthperp_ : wdthalong_);
     return ret;
 }
 
@@ -307,7 +311,7 @@ void uiAxisHandler::plotAxis()
     
     createAnnotItems();  
 
-    if ( !name().isEmpty() )
+    if ( !setup_.noaxisannot_ && !name().isEmpty() )
 	drawName();
 
     if ( setup_.noaxisannot_ ) return;
@@ -478,8 +482,8 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
 	const int y0 = istop ? edgepix : height_ - edgepix; 
-	const int y1 = istop ? ( inside ? y0 + ticsz_+ wdthy_ : y0 - ticsz_ ) 
-			     : ( inside ? y0 - ticsz_- wdthy_ : y0 + ticsz_ ); 
+	const int y1 = istop ? ( inside ? y0+ticSz()+wdthperp_ : y0-ticSz() ) 
+			     : ( inside ? y0-ticSz()-wdthperp_ : y0+ticSz() ); 
 
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( pix, y0, pix, y1 );
@@ -498,8 +502,8 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
 	const int x0 = isleft ? edgepix : width_ - edgepix;
-	const int x1 = isleft ? ( inside ? x0 + ticsz_ + wdthx_: x0 - ticsz_ )
-			      : ( inside ? x0 - ticsz_ - wdthx_: x0 + ticsz_ );
+	const int x1 = isleft ? ( inside ? x0+ticSz()+wdthalong_: x0-ticSz() )
+			      : ( inside ? x0-ticSz()-wdthalong_ : x0+ticSz() );
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( x0, pix, x1, pix );
 	annotposlineitm->setZValue( 3 );
@@ -562,7 +566,7 @@ void uiAxisHandler::drawName()
     {
 	const bool istop = setup_.side_ == uiRect::Top;
 	const int x = pixBefore() + axsz_ / 2;
-	const int yshift = pixToEdge() - ticsz_ - wdthy_ + fontheight;
+	const int yshift = pixToEdge() - ticSz() - wdthperp_ + fontheight;
 	const int y = istop ? yshift : height_ - yshift;
 	const Alignment al( Alignment::HCenter,
 			    istop ? Alignment::Bottom : Alignment::Top );
@@ -572,7 +576,7 @@ void uiAxisHandler::drawName()
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	const int xshift = pixToEdge() - ticsz_ - wdthx_ -fontheight;
+	const int xshift = pixToEdge() - ticSz() - wdthalong_ - fontheight;
 	const int x = isleft ? xshift : width_ - xshift;
 	const int y = height_ / 2;
 	const Alignment al( isleft ? Alignment::HCenter : Alignment::Left,
@@ -585,4 +589,9 @@ void uiAxisHandler::drawName()
 	    nameitm_->moveBy( -nameitm_->getPos().x, 0 );
 	ynmtxtvertical_ = true;
     }
+}
+
+int uiAxisHandler::ticSz() const
+{
+    return setup_.noaxisannot_ ? 0 : ticsz_;
 }
