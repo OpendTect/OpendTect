@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratseisevent.cc,v 1.1 2011-02-07 10:25:11 cvsbert Exp $";
+static const char* rcsID = "$Id: stratseisevent.cc,v 1.2 2011-02-09 12:26:29 cvsbert Exp $";
 
 
 #include "stratseisevent.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: stratseisevent.cc,v 1.1 2011-02-07 10:25:11 cvs
 Strat::SeisEvent::SeisEvent( const Strat::Level* lvl, VSEvent::Type evtyp )
     : level_(lvl)
     , evtype_(evtyp)
+    , offs_(0)
     , extrwin_(0,0,4)
 {
     if ( SI().zIsTime() )
@@ -27,10 +28,20 @@ Strat::SeisEvent::SeisEvent( const Strat::Level* lvl, VSEvent::Type evtyp )
 
 bool Strat::SeisEvent::snapPick( SeisTrc& trc ) const
 {
-    float& reftm = trc.info().pick;
+    float reftm = snappedTime( trc );
+    if ( mIsUdf(reftm) )
+	return false;
+    trc.info().pick = reftm;
+    return true;
+}
+
+
+float Strat::SeisEvent::snappedTime( const SeisTrc& trc ) const
+{
+    float reftm = trc.info().pick;
     reftm += offs_;
     if ( evtype_ == VSEvent::None )
-	return true;
+	return reftm;
 
     const SeisTrcValueSeries tvs( trc, 0 );
     const SamplingData<float> sd( trc.info().sampling );
@@ -46,8 +57,8 @@ bool Strat::SeisEvent::snapPick( SeisTrc& trc ) const
 
 	ValueSeriesEvent<float,float> ev = evf.find( evtype_, findwin );
 	if ( !mIsUdf(ev.pos) )
-	    { reftm = ev.pos; return true; }
+	    return ev.pos; 
     }
 
-    return false;
+    return mUdf(float);
 }

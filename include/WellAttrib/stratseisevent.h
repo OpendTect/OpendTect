@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2011
- RCS:           $Id: stratseisevent.h,v 1.1 2011-02-07 10:25:11 cvsbert Exp $
+ RCS:           $Id: stratseisevent.h,v 1.2 2011-02-09 12:26:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ public:
     			SeisEvent(const Level* l=0,
 				   VSEvent::Type t=VSEvent::None);
 
+    float		snappedTime(const SeisTrc&) const;
     bool		snapPick(SeisTrc&) const;
 
     const Strat::Level*	level_;
