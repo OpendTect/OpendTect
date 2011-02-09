@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.14 2010-12-30 17:32:22 cvskris Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.15 2011-02-09 16:01:42 cvskris Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -481,7 +481,7 @@ void uiContourTreeItem::addText( const Coord3& pos, const char* txt )
     visBase::Text2* label = visBase::Text2::create();
     label->setText( txt );
     label->setPosition( pos );
-    label->setSize( 12 );
+    label->setFontData( FontData(12) );
     label->setMaterial( material_ );
     label->ref();
     if ( !labelgrp_ )
