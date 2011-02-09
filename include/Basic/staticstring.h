@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: staticstring.h,v 1.2 2011-02-07 15:05:57 cvskris Exp $
+ RCS:		$Id: staticstring.h,v 1.3 2011-02-09 17:01:15 cvskarthika Exp $
 ________________________________________________________________________
 -*/
 
 
 #include "sets.h"
 #include "thread.h"
+#include "bufstringset.h"
 
 
 /*!Class that keeps one static string per thread. This enables temporary passing
@@ -22,14 +23,13 @@ ________________________________________________________________________
 mClass StaticStringManager
 {
 public:
-    char*         		getString();
+    BufferString&		getString();
     static StaticStringManager&	STM();
-    static int			stringSize() { return 255; }
 
     				~StaticStringManager();
 protected:
 
-    ObjectSet<char>     	strings_;
+    BufferStringSet     	strings_;
     ObjectSet<void>     	threadids_;
     Threads::Mutex		lock_;
 };

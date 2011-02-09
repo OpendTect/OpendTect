@@ -5,11 +5,13 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: staticstring.cc,v 1.2 2011-02-07 15:05:57 cvskris Exp $";
+static const char* rcsID = "$Id: staticstring.cc,v 1.3 2011-02-09 17:01:15 cvskarthika Exp $";
 
 #include "staticstring.h"
 
-char* StaticStringManager::getString()
+#include "keystrs.h"
+
+BufferString& StaticStringManager::getString()
 {
     void* threadid = Threads::Thread::currentThread();
     Threads::MutexLocker lock( lock_ );
@@ -18,17 +20,15 @@ char* StaticStringManager::getString()
     {
 	idx = threadids_.size();
 	threadids_ += threadid;
-	strings_ += new char[stringSize()];
+	strings_.add( sKey::EmptyString );
     }
 
-    return strings_[idx];
+    return *strings_[idx];
 }
 
 
 StaticStringManager::~StaticStringManager()
-{
-    deepEraseArr( strings_ );
-}
+{ }
 
 
 StaticStringManager& StaticStringManager::STM()
