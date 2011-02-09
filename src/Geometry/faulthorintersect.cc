@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.8 2011-02-08 21:04:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.9 2011-02-09 16:54:35 cvsyuancheng Exp $";
 
 #include "faulthorintersect.h"
 
@@ -18,8 +18,10 @@ static const char* rcsID = "$Id: faulthorintersect.cc,v 1.8 2011-02-08 21:04:23 
 #include "trigonometry.h"
 
 #define mKnotBelowHor		-1
+#define mStickAwayHor		2
 #define mKnotAboveHor		1
 #define mStickIntersectsHor	0
+
 
 namespace Geometry
 {
@@ -144,8 +146,14 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	BoolTypeSet definedp;
 	TypeSet<Coord3> horposes;
 	TypeSet<RowCol> rcs;
+	Interval<float> stickzrg;
 	for ( int idy=0; idy<=lastknotidx; idy++ )
 	{
+	    if ( !idy )
+		stickzrg.start = stickzrg.stop = knots[idy].z;
+	    else
+		stickzrg.include( knots[idy].z );
+
 	    const BinID bid = SI().transform( knots[idy] );
 	    (*fhi_.ftbids_[idx]) += bid;
 
@@ -171,6 +179,17 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	if ( found )
 	    continue;
+
+	if ( stickzrg.start > bidsurfzrg_.stop )
+	{
+	    (*fhi_.itsinfo_[idx]).intersectstatus = mKnotAboveHor;
+	    continue;
+	}
+	else if ( stickzrg.stop < bidsurfzrg_.start )
+	{
+	    (*fhi_.itsinfo_[idx]).intersectstatus = mKnotBelowHor;
+	    continue;
+	}
 
 	for ( int idy=0; idy<lastknotidx; idy++ )
 	{
@@ -236,7 +255,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    }
 	}
 
-	//if ( !found ) define intersectstatus, no used so far
+	if ( !found )
+	    (*fhi_.itsinfo_[idx]).intersectstatus = mStickAwayHor;
     }
 
     return true;
