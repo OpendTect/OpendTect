@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratseisevent.cc,v 1.2 2011-02-07 16:17:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratseisevent.cc,v 1.3 2011-02-09 12:28:16 cvsbert Exp $";
 
 #include "uistratseisevent.h"
 #include "uicombobox.h"
@@ -79,9 +79,11 @@ void uiStratSeisEvent::evSnapCheck( CallBacker* )
 bool uiStratSeisEvent::getFromScreen()
 {
     if ( levelfld_ )
+    {
 	ev_.level_ = Strat::LVLS().get( levelfld_->text() );
-    if ( !ev_.level_ )
-	mErrRet("Cannot find selected stratigraphic level")
+	if ( !ev_.level_ )
+	    mErrRet("Cannot find selected stratigraphic level")
+    }
 
     ev_.evtype_ = !evfld_->isChecked() ? VSEvent::None
 		: (VSEvent::Type)(evfld_->getIntValue()+1);
