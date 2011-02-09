@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.5 2011-02-07 11:41:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.6 2011-02-09 04:21:43 cvsranojay Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -356,7 +356,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 			    gatevals[winidx]= outp[idx+winidx-gate/2];
 
 			int idxtofix;
-			cutoffval = sgb.getMax( gatevals, gate, idxtofix ) ;
+			cutoffval = sgb.getMax( mVarLenArr(gatevals), 
+						gate, idxtofix ) ;
 			if ( cutoffval > cutoff_grups  && idxtofix >= 0 )
 			{
 			    outp[idx+idxtofix-gate/2] = mUdf( float );
