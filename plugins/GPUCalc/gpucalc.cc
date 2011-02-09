@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gpucalc.cc,v 1.2 2011-02-07 12:54:26 cvskris Exp $";
+static const char* rcsID = "$Id: gpucalc.cc,v 1.3 2011-02-09 16:54:53 cvskarthika Exp $";
 
 #include "gpucalc.h"
 
@@ -68,16 +68,15 @@ bool Device::isGPU() const
 
 const char* Device::name() const
 {
-    const int sz = StaticStringManager::STM().stringSize();
-    char* buf = StaticStringManager::STM().getString();
+    BufferString& buf = StaticStringManager::STM().getString();
     size_t actualsize;
 
     cl_int err = clGetDeviceInfo( data_.deviceid_, CL_DEVICE_NAME,
-				  sz, buf, &actualsize );
+				  buf.minBufSize(), buf.str(), &actualsize );
     if ( err!=CL_SUCCESS )
 	return 0;
 
-    if ( actualsize==sz )
+    if ( actualsize==buf.minBufSize() )
 	buf[actualsize-1] = 0;
 
     return buf;
