@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: eventattrib.cc,v 1.36 2011-02-03 11:33:25 cvshelene Exp $";
+static const char* rcsID = "$Id: eventattrib.cc,v 1.37 2011-02-09 14:00:07 cvshelene Exp $";
 
 #include "eventattrib.h"
 #include "survinfo.h"
@@ -85,7 +85,7 @@ Event::Event( Desc& desc )
     mGetBool( tonext_, tonextStr() );
 
     gate_.start = -SGWIDTH * SI().zStep();
-    gate_.stop = SGWIDTH * SI().zStep();
+    gate_.stop = ( SGWIDTH + 1 ) * SI().zStep();
 
     eventtype_ = VSEvent::None;
     if ( !issingleevent_ )
@@ -97,6 +97,7 @@ Event::Event( Desc& desc )
 	{
 	    mGetFloatInterval( gate_, gateStr() );
 	    gate_.scale( 1/zFactor() );
+	    gate_.stop += SI().zStep();
 	}
 
 	mGetBool( outamp_, outampStr() );
@@ -159,8 +160,8 @@ ValueSeriesEvent<float,float> Event::findNextEvent(
 {
     ValueSeriesEvent<float,float> ev = nextev;
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata_->series(dataidx_)),
-	    					 z0+nrsamples, sd );
+    ValueSeriesEvFinder<float,float> vsevfinder(*(inputdata_->series(dataidx_)),
+	    					 z0+nrsamples-1, sd );
     Interval<float> sg;
     sg.start = ev.pos + dir;
     sg.stop = sg.start + dir*SGWIDTH;
@@ -270,13 +271,13 @@ void Event::multipleEvents( const DataHolder& output,
 {
     SamplingData<float> sd;
     ValueSeriesEvFinder<float,float> vsevfinder(*(inputdata_->series(dataidx_)),
-	    				         inputdata_->nrsamples_, sd );
+	    				         inputdata_->nrsamples_-1, sd );
     const int firstsample = z0 - inputdata_->z0_;
     const float extrasamp = output.extrazfromsamppos_/refstep_;
     if ( eventtype_ == VSEvent::GateMax || eventtype_ == VSEvent::GateMin )
     {
 	Interval<int> samplegate( mNINT(gate_.start/refstep_),
-		                          mNINT(gate_.stop/refstep_) );
+				  mNINT((gate_.stop-SI().zStep())/refstep_) );
 	int samplegatewidth = samplegate.width();
 	int csample = firstsample + samplegate.start;
 	Interval<float> sg(0,0);
