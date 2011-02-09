@@ -4,13 +4,13 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.3 2011-02-08 10:10:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.4 2011-02-09 12:29:17 cvsbert Exp $";
 
 #include "uisynthtorealscale.h"
 #include "uistratseisevent.h"
 #include "uiseissel.h"
 #include "uiseparator.h"
-#include "uistatsdisplay.h"
+#include "uihistogramdisplay.h"
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uilabel.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.3 2011-02-08 10:10:45
 #include "seistrcprop.h"
 #include "seisbuf.h"
 #include "stratlevel.h"
+#include "statruncalc.h"
 #include "picksettr.h"
 #include "pickset.h"
 #include "polygon.h"
@@ -39,8 +40,9 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     , usrval_(mUdf(float))
     , usrValChanged(this)
 {
-    uiStatsDisplay::Setup su; su.withtext( false );
-    dispfld_ = new uiStatsDisplay( this, su );
+    uiFunctionDisplay::Setup su;
+    su.annot( false ).noyaxis( true ).noy2axis( true ).drawgridlines( false );
+    dispfld_ = new uiHistogramDisplay( this, su );
     dispfld_->setPrefWidth( 250 );
     dispfld_->setPrefHeight( GetGoldenMinor(250) );
     avgfld_ = new uiGenInput( this, "", FloatInpSpec() );
@@ -49,6 +51,7 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     else
 	avgfld_->attach( ensureBelow, dispfld_ );
     avgfld_->valuechanged.notify(mCB(this,uiSynthToRealScaleStatsDisp,avgChg));
+    setHAlignObj( dispfld_ );
 }
 
 void avgChg( CallBacker* )
@@ -60,7 +63,7 @@ void avgChg( CallBacker* )
 
     float		usrval_;
 
-    uiStatsDisplay*	dispfld_;
+    uiHistogramDisplay*	dispfld_;
     uiGenInput*		avgfld_;
 
     Notifier<uiSynthToRealScaleStatsDisp>	usrValChanged;
@@ -105,7 +108,6 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     sep->attach( stretchedBelow, gobut );
 
     uiGroup* statsgrp = new uiGroup( this, "Stats displays" );
-    statsgrp->attach( ensureBelow, sep );
 
     synthstatsfld_ = new uiSynthToRealScaleStatsDisp( statsgrp, "Synthetics",
 	    					      true );
@@ -115,6 +117,8 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     const CallBack setsclcb( mCB(this,uiSynthToRealScale,setScaleFld) );
     synthstatsfld_->usrValChanged.notify( setsclcb );
     realstatsfld_->usrValChanged.notify( setsclcb );
+    statsgrp->attach( ensureBelow, sep );
+    statsgrp->setHAlignObj( realstatsfld_ );
 
     finalscalefld_ = new uiGenInput( this, "", FloatInpSpec() );
     finalscalefld_->attach( centeredBelow, statsgrp );
@@ -124,8 +128,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     wvltctxt.forread = false;
     uiIOObjSel::Setup wvltsu( "Save scaled Wavelet" ); wvltsu.optional( true );
     wvltfld_ = new uiIOObjSel( this, wvltctxt, wvltsu );
-    wvltfld_->attach( alignedWith, realstatsfld_ );
-    wvltfld_->attach( ensureBelow, finalscalefld_ );
+    wvltfld_->attach( alignedBelow, finalscalefld_ );
 
     finaliseDone.notify( mCB(this,uiSynthToRealScale,initWin) );
 }
@@ -162,6 +165,22 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
 
 void uiSynthToRealScale::updSynthStats()
 {
+    TypeSet<float> vals;
+    if ( evfld_->getFromScreen() )
+    {
+	const Strat::SeisEvent& ssev = evfld_->event();
+	for ( int idx=0; idx<synth_.size(); idx++ )
+	{
+	    const SeisTrc& trc = *synth_.get( idx );
+	    const float reftm = ssev.snappedTime( trc );
+	    if ( !mIsUdf(reftm) )
+		vals += trc.getValue( reftm, 0 );
+	}
+    }
+    synthstatsfld_->dispfld_->putN();
+    synthstatsfld_->dispfld_->setData( vals.arr(), vals.size() );
+    synthstatsfld_->avgfld_->setValue(
+	    	synthstatsfld_->dispfld_->getRunCalc().average() );
 }
 
 
