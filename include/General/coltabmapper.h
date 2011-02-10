@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.24 2011-02-10 05:11:27 cvssatyaki Exp $
+ RCS:		$Id: coltabmapper.h,v 1.25 2011-02-10 11:29:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,8 @@ public:
     static const char*		sKeyAutoSym()	{ return "Auto Sym"; }
     static const char*		sKeySymMidVal()	{ return "Sym Mid Value"; }
     static const char*		sKeyMaxPts()	{ return "Max Pts"; }
-    static const char*		sKeyRange()	{ return "Start_Width"; }
+    static const char*		sKeyStarWidth()	{ return "Start_Width"; }
+    static const char*		sKeyRange()	{ return "Range"; }
 
     void			triggerRangeChange();
     void			triggerAutoscaleChange();
