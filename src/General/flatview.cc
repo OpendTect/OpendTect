@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.61 2010-12-09 16:07:44 cvsbert Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.62 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -138,16 +138,11 @@ float* FlatPosData::getPositions( bool isx1 ) const
 
 FlatView::DataDispPars::Common::Common()
     : show_(true)
-    , autoscale_(true)
-    , rg_(mUdf(float),mUdf(float))
-    , clipperc_(ColTab::defClipRate()*100,mUdf(float))
     , blocky_(false)
-    , symmidvalue_(mUdf(float))
-    , histeq_(false)
 {}
 
 
-void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
+/*void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
 {
     if ( autoscale_ )
     {
@@ -155,6 +150,8 @@ void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
 	else
 	{
 	    setup.type_ = ColTab::MapperSetup::Auto;
+	    setup.cliprate_ = Interval<float>( clipperc_.start*0.01,
+		    			       clipperc_.stop*0.01 );
 	    if ( mIsUdf(clipperc_.stop) )
 		setup.cliprate_ = clipperc_.start*0.01;
 	    else
@@ -170,7 +167,7 @@ void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
 	setup.start_ = rg_.start;
 	setup.width_ = rg_.width();
     }
-}
+}*/
 
 
 FlatView::Annotation::AxisData::AxisData()
@@ -321,25 +318,27 @@ void FlatView::Annotation::AuxData::empty()
 void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 {
     mIOPDoVD( setYN, sKeyShow(), vd_.show_ );
-    mIOPDoVD( set, sKeyDispRg(), vd_.rg_ );
+    mIOPDoVD( set, sKeyDispRg(), vd_.mappersetup_.range_ );
     mIOPDoVD( set, sKeyColTab(), vd_.ctab_ );
     mIOPDoVD( setYN, sKeyLinearInter(), vd_.lininterp_ );
     mIOPDoVD( setYN, sKeyBlocky(), vd_.blocky_ );
-    mIOPDoVD( setYN, sKeyAutoScale(), vd_.autoscale_ );
-    mIOPDoVD( set, sKeyClipPerc(), vd_.clipperc_ );
-    mIOPDoVD( set, sKeySymMidValue(), vd_.symmidvalue_ );
+    mIOPDoVD( setYN, sKeyAutoScale(),
+	      vd_.mappersetup_.type_ == ColTab::MapperSetup::Auto );
+    mIOPDoVD( set, sKeyClipPerc(), vd_.mappersetup_.cliprate_ );
+    mIOPDoVD( set, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
 
     mIOPDoWVA( setYN, sKeyShow(), wva_.show_ );
-    mIOPDoWVA( set, sKeyDispRg(), wva_.rg_ );
+    mIOPDoWVA( set, sKeyDispRg(), wva_.mappersetup_.range_ );
     mIOPDoWVA( setYN, sKeyBlocky(), wva_.blocky_ );
-    mIOPDoWVA( setYN, sKeyAutoScale(), wva_.autoscale_ );
-    mIOPDoWVA( set, sKeyClipPerc(), wva_.clipperc_ );
+    mIOPDoWVA( setYN, sKeyAutoScale(),
+	       wva_.mappersetup_.type_ == ColTab::MapperSetup::Auto );
+    mIOPDoWVA( set, sKeyClipPerc(), wva_.mappersetup_.cliprate_ );
     mIOPDoWVA( set, sKeyWiggCol(), wva_.wigg_ );
     mIOPDoWVA( set, sKeyMidCol(), wva_.mid_ );
     mIOPDoWVA( set, sKeyLeftCol(), wva_.left_ );
     mIOPDoWVA( set, sKeyRightCol(), wva_.right_ );
     mIOPDoWVA( set, sKeyOverlap(), wva_.overlap_ );
-    mIOPDoWVA( set, sKeySymMidValue(), wva_.symmidvalue_ );
+    mIOPDoWVA( set, sKeySymMidValue(), wva_.mappersetup_.symmidval_ );
     mIOPDoWVA( set, sKeyMidLineValue(), wva_.midlinevalue_ );
 }
 
@@ -347,25 +346,33 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 void FlatView::DataDispPars::usePar( const IOPar& iop )
 {
     mIOPDoVD( getYN, sKeyShow(), vd_.show_ );
-    mIOPDoVD( get, sKeyDispRg(), vd_.rg_ );
+    Interval<float> range;
+    mIOPDoVD( get, sKeyDispRg(), range );
+    vd_.mappersetup_.range_ = range;
     mIOPDoVD( get, sKeyColTab(), vd_.ctab_ );
     mIOPDoVD( getYN, sKeyLinearInter(), vd_.lininterp_ );
     mIOPDoVD( getYN, sKeyBlocky(), vd_.blocky_ );
-    mIOPDoVD( getYN, sKeyAutoScale(), vd_.autoscale_ );
-    mIOPDoVD( get, sKeyClipPerc(), vd_.clipperc_ );
-    mIOPDoVD( get, sKeySymMidValue(), vd_.symmidvalue_ );
+    bool autoscale;
+    mIOPDoVD( getYN, sKeyAutoScale(), autoscale );
+    vd_.mappersetup_.type_ = autoscale ? ColTab::MapperSetup::Auto
+				       : ColTab::MapperSetup::Fixed;
+    mIOPDoVD( get, sKeyClipPerc(), vd_.mappersetup_.cliprate_ );
+    mIOPDoVD( get, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
 
     mIOPDoWVA( getYN, sKeyShow(), wva_.show_ );
-    mIOPDoWVA( get, sKeyDispRg(), wva_.rg_ );
+    mIOPDoWVA( get, sKeyDispRg(), range );
+    wva_.mappersetup_.range_ = range;
     mIOPDoWVA( getYN, sKeyBlocky(), wva_.blocky_ );
-    mIOPDoWVA( getYN, sKeyAutoScale(), wva_.autoscale_ );
-    mIOPDoWVA( get, sKeyClipPerc(), wva_.clipperc_ );
+    mIOPDoWVA( getYN, sKeyAutoScale(), autoscale );
+    wva_.mappersetup_.type_ = autoscale ? ColTab::MapperSetup::Auto
+					: ColTab::MapperSetup::Fixed;
+    mIOPDoWVA( get, sKeyClipPerc(), wva_.mappersetup_.cliprate_ );
     mIOPDoWVA( get, sKeyWiggCol(), wva_.wigg_ );
     mIOPDoWVA( get, sKeyMidCol(), wva_.mid_ );
     mIOPDoWVA( get, sKeyLeftCol(), wva_.left_ );
     mIOPDoWVA( get, sKeyRightCol(), wva_.right_ );
     mIOPDoWVA( get, sKeyOverlap(), wva_.overlap_ );
-    mIOPDoWVA( get, sKeySymMidValue(), wva_.symmidvalue_ );
+    mIOPDoWVA( get, sKeySymMidValue(), wva_.mappersetup_.symmidval_ );
     mIOPDoWVA( get, sKeyMidLineValue(), wva_.midlinevalue_ );
 }
 

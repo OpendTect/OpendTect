@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.49 2010-08-19 08:21:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.50 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -147,10 +147,10 @@ const VisColorTab& TextureRect::getColorTab() const
 VisColorTab& TextureRect::getColorTab()
 { mTextureGet(getColorTab) }
 
-void TextureRect::setClipRate( float cr )
+void TextureRect::setClipRate( Interval<float> cr )
 { mTextureSet(setClipRate,cr) }
 
-float TextureRect::clipRate() const 
+Interval<float> TextureRect::clipRate() const 
 { mTextureGet(clipRate) } 
 
 void  TextureRect::setAutoScale( bool yn )

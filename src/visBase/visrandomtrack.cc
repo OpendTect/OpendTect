@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.39 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.40 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "visrandomtrack.h"
 
@@ -310,7 +310,7 @@ Coord3 RandomTrack::getDraggerSize() const
 }
 
 
-void RandomTrack::setClipRate( float nc )
+void RandomTrack::setClipRate( Interval<float> nc )
 {
     const int nrsections = sections.size();
     for ( int idx=0; idx<nrsections; idx++ )
@@ -321,7 +321,7 @@ void RandomTrack::setClipRate( float nc )
 }
 
 
-float RandomTrack::clipRate() const
+Interval<float> RandomTrack::clipRate() const
 { return sections[0]->getTexture2()->clipRate(); }
 
 

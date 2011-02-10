@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.75 2011-01-18 10:16:04 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.76 2011-02-10 05:11:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.75 2011-01-18 10:16:04 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.76 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -120,8 +120,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     y_.defaxsu_.border_ = setup_.minborder_;
     y2_.defaxsu_.border_ = setup_.minborder_;
  
-    y3mapper_.setup_.cliprate_ = 0.0;
-    y4mapper_.setup_.cliprate_ = 0.0;
+    y3mapper_.setup_.cliprate_ = Interval<float>(0.0,0.0);
+    y4mapper_.setup_.cliprate_ = Interval<float>(0.0,0.0);
 
     reSize.notify( mCB(this,uiDataPointSetCrossPlotter,reSizeDraw) );
     reDrawNeeded.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );

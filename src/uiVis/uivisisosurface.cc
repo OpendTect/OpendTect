@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisisosurface.cc,v 1.25 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivisisosurface.cc,v 1.26 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "uivisisosurface.h"
 
@@ -68,7 +68,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     TypeSet<float> histogram;
     if ( vd->getHistogram(0) ) histogram = *vd->getHistogram(0);
     const ColTab::MapperSetup* ms = vd->getColTabMapperSetup( 0 );
-    const Interval<float> rg( ms->start_, ms->start_+ms->width_ );
+    const Interval<float> rg = ms->range_;
 
     uiStatsDisplay::Setup su; su.withtext(false);
     statsdisplay_ = new uiStatsDisplay( this, su );

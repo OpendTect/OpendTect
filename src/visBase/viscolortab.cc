@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscolortab.cc,v 1.52 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.53 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "viscolortab.h"
 
@@ -89,13 +89,15 @@ float VisColorTab::symMidval() const
 { return ctmapper_->setup_.symmidval_; }
 
 
-float VisColorTab::clipRate() const
+Interval<float> VisColorTab::clipRate() const
 { return ctmapper_->setup_.cliprate_; }
 
 
-void VisColorTab::setClipRate( float ncr )
+void VisColorTab::setClipRate( Interval<float> ncr )
 {
-    if ( mIsEqual(ncr,ctmapper_->setup_.cliprate_,mDefEps) ) return;
+    if ( mIsEqual(ncr.start,ctmapper_->setup_.cliprate_.start,mDefEps) ||
+      	 mIsEqual(ncr.stop,ctmapper_->setup_.cliprate_.stop,mDefEps) )
+	return;
 
     ctmapper_->setup_.cliprate_ = ncr;
     ctmapper_->update( false );
@@ -229,7 +231,7 @@ int VisColorTab::usePar( const IOPar& par )
 
     setColorSeq( cs );
 
-    float cliprate = ColTab::defClipRate();
+    Interval<float> cliprate = ColTab::defClipRate();
     par.get( sKeyClipRate(), cliprate );
     setClipRate( cliprate );
 

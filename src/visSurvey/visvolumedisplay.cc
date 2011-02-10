@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.124 2011-02-09 23:07:20 cvskarthika Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.125 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -387,9 +387,7 @@ bool VolumeDisplay::isVolRenShown() const
 
 float VolumeDisplay::defaultIsoValue() const
 {
-    return  cache_
-	? getColTabMapperSetup(0)->start_+getColTabMapperSetup(0)->width_/2
-	: mUdf(float);
+    return  cache_ ? getColTabMapperSetup(0)->range_.center() : mUdf(float);
 }
 
 

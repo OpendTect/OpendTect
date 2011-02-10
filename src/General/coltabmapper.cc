@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.26 2010-11-02 19:53:28 cvskris Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.27 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: coltabmapper.cc,v 1.26 2010-11-02 19:53:28 cvsk
 
 namespace ColTab
 {
-static float defcliprate_ = mUdf(float);
+static Interval<float> defcliprate_ = Interval<float>(mUdf(float),mUdf(float));
 static const char* sKeyDefClipPerc = "dTect.Disp.Default clip perc";
 static float defsymmidval_ = mUdf(float);
 static bool defautosymm_ = false;
@@ -40,15 +40,17 @@ const char* ColTab::defSeqName()
 }
 
 
-float ColTab::defClipRate()
+Interval<float> ColTab::defClipRate()
 {
-    if ( mIsUdf(defcliprate_) )
+    if ( mIsUdf(defcliprate_.start) || mIsUdf(defcliprate_.stop))
     {
-	float perc = 2.5;
+	Interval<float> perc( 2.5, 2.5 );
 	Settings::common().get( sKeyDefClipPerc, perc );
 	float mv = mUdf(float);
 	Settings::common().get( sKeyDefSymmZero, mv );
-	defcliprate_ = perc * .01;
+	perc.start *= 0.01;
+	perc.stop *= 0.01;
+	defcliprate_ = perc;
 	defsymmidval_ = mv;
     }
     return defcliprate_;
@@ -70,18 +72,21 @@ bool ColTab::defHistEq()
 
 float ColTab::defSymMidval()
 {
-    if ( mIsUdf(defcliprate_) )
+    if ( mIsUdf(defcliprate_.start) || mIsUdf(defcliprate_.stop) )
 	(void)defClipRate();
     return defsymmidval_;
 }
 
 
-void ColTab::setMapperDefaults( float cr, float sm, bool asym, bool histeq )
+void ColTab::setMapperDefaults( Interval<float> cr, float sm, bool asym,
+				bool histeq )
 {
     defcliprate_ = cr;
+    cr.start *= 100;
+    cr.stop *= 100;
     defsymmidval_ = sm;
     defautosymm_ = asym;
-    Settings::common().set( sKeyDefClipPerc, cr*100 );
+    Settings::common().set( sKeyDefClipPerc, cr );
     Settings::common().set( sKeyDefSymmZero, sm );
     Settings::common().setYN( sKeyDefAutoSymm, asym );
     Settings::common().setYN( sKeyDefHistEq, histeq );
@@ -101,7 +106,7 @@ ColTab::MapperSetup::MapperSetup()
     , autosym0_(defAutoSymmetry())
     , maxpts_(2560)
     , nrsegs_(0)
-    , start_(0), width_(1)
+    , range_(Interval<float>(0,0))
     , rangeChange(this)
     , autoscaleChange(this)
 {}
@@ -117,8 +122,7 @@ ColTab::MapperSetup&
 
     maxpts_ = ms.maxpts_;
     nrsegs_ = ms.nrsegs_;
-    start_ = ms.start_;
-    width_ = ms.width_;
+    range_ = ms.range_;
     return *this;
 }
 
@@ -130,7 +134,7 @@ bool ColTab::MapperSetup::operator==( const ColTab::MapperSetup& b ) const
 
     if ( type_==Fixed )
     {
-	if ( start_!=b.start_ || width_!=b.width_ )
+	if ( range_!=b.range_ )
 	    return false;
     }
     else 
@@ -147,9 +151,11 @@ bool ColTab::MapperSetup::operator==( const ColTab::MapperSetup& b ) const
 
     if ( type_==Auto )
     {
-	if ( !mIsUdf(cliprate_) || !mIsUdf(b.cliprate_) )
+	if ( !mIsUdf(cliprate_.start) || !mIsUdf(cliprate_.stop) ||
+	     !mIsUdf(b.cliprate_.start)  || !mIsUdf(b.cliprate_.stop))
 	{
-	    if ( !mIsEqual(cliprate_,b.cliprate_, 1e-5 ) )
+	    if ( !mIsEqual(cliprate_.start,b.cliprate_.start,1e-5) ||
+	         !mIsEqual(cliprate_.stop,b.cliprate_.stop,1e-5) )
 		return false;
 	}
     }
@@ -169,7 +175,7 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
     par.set( sKeySymMidVal(), symmidval_ );
     par.setYN( sKeyAutoSym(), autosym0_ );
     par.set( sKeyMaxPts(), maxpts_ );
-    par.set( sKeyRange(), start_, width_ );
+    par.set( sKeyRange(), range_ );
 }
 
 
@@ -183,7 +189,7 @@ bool ColTab::MapperSetup::usePar( const IOPar& par )
 	   par.get( sKeySymMidVal(), symmidval_ ) &&
 	   par.getYN( sKeyAutoSym(), autosym0_ ) &&
 	   par.get( sKeyMaxPts(), maxpts_ ) &&
-	   par.get( sKeyRange(), start_, width_ );
+	   par.get( sKeyRange(), range_ );
 }
 
 
@@ -223,10 +229,10 @@ float ColTab::Mapper::position( float val ) const
 {
     mWarnHistEqNotImpl
 
-    if ( mIsZero(setup_.width_,mDefEps) )
+    if ( mIsZero(setup_.range_.width(),mDefEps) )
 	return 0;
 
-    float ret = (val-setup_.start_) / setup_.width_;
+    float ret = (val-setup_.range_.start) / setup_.range_.width(false);
     if ( setup_.nrsegs_ > 0 )
     {
 	ret *= setup_.nrsegs_;
@@ -254,14 +260,13 @@ int ColTab::Mapper::snappedPosition( const ColTab::Mapper* mapper,
 
 Interval<float> ColTab::Mapper::range() const
 {
-    return Interval<float>( setup_.start_, setup_.start_ + setup_.width_ );
+    return setup_.range_;
 }
 
 
 void ColTab::Mapper::setRange( const Interval<float>& rg )
 {
-    setup_.start_ = rg.start;
-    setup_.width_ = rg.width(false);
+    setup_.range_ = rg;
 }
 
 
@@ -317,7 +322,11 @@ void ColTab::Mapper::update( bool full, TaskRunner* tr )
     if ( setup_.type_ == MapperSetup::Fixed || !vs_ || vssz_ < 1 )
 	return;
     if ( vssz_ == 1 )
-	{ setup_.start_ = vs_->value(0) - 1; setup_.width_ = 2; return; }
+    {
+	setup_.range_.start = vs_->value(0) - 1;
+	setup_.range_.stop = setup_.range_.start + 2;
+	return;
+    }
 
     mWarnHistEqNotImpl
 
@@ -342,8 +351,9 @@ void ColTab::Mapper::update( bool full, TaskRunner* tr )
 
     Interval<float> intv( -1, 1 );
     bool res = mIsUdf(setup_.symmidval_) ?
-	       clipper_.getRange( setup_.cliprate_, intv )
-	     : clipper_.getSymmetricRange( setup_.cliprate_,
+	       clipper_.getRange( setup_.cliprate_.start, setup_.cliprate_.stop,
+		       		  intv )
+	     : clipper_.getSymmetricRange( setup_.cliprate_.start,
 		     			   setup_.symmidval_, intv );
     if ( mIsZero(intv.width(),mDefEps) )
 	intv += Interval<float>(-1,1);

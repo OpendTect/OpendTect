@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.20 2010-12-14 11:35:33 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.21 2011-02-10 05:11:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,27 +85,11 @@ void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
     if ( !axhndler ) return;
 
     StepInterval<float> axrange = axhndler->range();
-    bool changed = false;
 
-    if ( ms.width_ > 0 )
+    if ( !ms.range_.includes(axrange.start) ||
+	 !ms.range_.includes(axrange.stop) )
     {
-	if ( ms.start_ < axrange.start )
-	{ axrange.start = ms.start_; changed = true; }
-
-	if ( (ms.start_+ms.width_) > axrange.stop )
-	{ axrange.stop = ms.start_ + ms.width_; changed = true; }
-    }
-    else
-    {
-	if ( (ms.start_+ms.width_) < axrange.start )
-	{ axrange.start = ms.start_ + ms.width_; changed = true; }
-
-	if ( ms.start_ > axrange.stop )
-	{ axrange.stop = ms.start_; changed = true; }
-    }
-
-    if ( changed )
-    {
+	axrange.include( ms.range_ );
 	histogramdisp_->setup().xrg( axrange );
 	histogramdisp_->gatherInfo();
 	histogramdisp_->draw();
@@ -113,10 +97,9 @@ void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 
     *ctmapper_ = ms;
     ctmapper_->type_ = ColTab::MapperSetup::Fixed;
-    cliprg_.start = ctmapper_->start_ +
-		    (ctmapper_->width_>0 ? 0 : ctmapper_->width_);
-    cliprg_.stop = ctmapper_->start_ +
-		    (ctmapper_->width_>0 ? ctmapper_->width_ : 0);
+    const Interval<float> rg = ctmapper_->range_;
+    cliprg_.start = rg.isRev() ? rg.stop : rg.start;
+    cliprg_.stop = rg.isRev() ? rg.start : rg.stop;
     drawAgain();
 }
 
@@ -182,12 +165,12 @@ void uiMapperRangeEditor::drawPixmaps()
     const int datastoppix = xax_->getPix( datarg_.stop );
 
     ioPixmap leftpixmap( startpix_-datastartpix, pmh );
-    leftpixmap.fill( ctseq_->color(ctmapper_->width_>0 ? 0:1) );
+    leftpixmap.fill( ctseq_->color(ctmapper_->range_.width()>0 ? 0:1) );
     leftcoltab_->setPixmap( leftpixmap );
     leftcoltab_->setOffset( datastartpix, disph-pmh-1 );
 
     ColTab::Sequence ctseq( *ctseq_ );
-    if ( ctmapper_->width_ < 0 )
+    if ( ctmapper_->range_.width() < 0 )
 	ctseq.flipColor();
 
     ioPixmap centerpixmap( ctseq, stoppix_-startpix_, pmh, true );
@@ -195,7 +178,7 @@ void uiMapperRangeEditor::drawPixmaps()
     centercoltab_->setOffset( startpix_, disph-pmh-1 );
 
     ioPixmap rightpixmap( datastoppix-stoppix_, pmh );
-    rightpixmap.fill( ctseq_->color(ctmapper_->width_>0 ? 1:0) );
+    rightpixmap.fill( ctseq_->color(ctmapper_->range_.width()>0 ? 1:0) );
     rightcoltab_->setPixmap( rightpixmap );
     rightcoltab_->setOffset( stoppix_, disph-pmh-1 );
 }
@@ -298,17 +281,10 @@ void uiMapperRangeEditor::mouseReleased( CallBacker* )
     if ( !mousedown_ ) return;
     
     mousedown_ = false;
-    if ( ctmapper_->width_ > 0 )
-    {
-	ctmapper_->start_ = cliprg_.start;
-	ctmapper_->width_ = cliprg_.stop - cliprg_.start;
-    }
-    else
-    {
-	ctmapper_->start_ = cliprg_.stop;
-	ctmapper_->width_ = cliprg_.start - cliprg_.stop;
-    }
-
+    ctmapper_->range_.start = ctmapper_->range_.isRev() ? cliprg_.stop
+						       : cliprg_.start;
+    ctmapper_->range_.stop = ctmapper_->range_.isRev() ? cliprg_.start
+						      : cliprg_.stop;
     drawAgain();
     rangeChanged.trigger();
 }

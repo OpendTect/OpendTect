@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.52 2010-11-18 11:44:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.53 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -130,7 +130,7 @@ void uiFlatViewDataDispPropTab::useMidValSel( CallBacker* )
 {
     symmidvalfld_->display( useclipfld_->getIntValue()==1 && 
 			    usemidvalfld_->getBoolValue() );
-    commonPars().symmidvalue_ = mUdf( float );
+    commonPars().mappersetup_.symmidval_ = mUdf( float );
     symmidvalfld_->setValue( mUdf( float ) );
 }
 
@@ -142,26 +142,35 @@ void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
 	return;
   
     FlatView::DataDispPars::Common& pars = commonPars();
-    if ( clip==1 )
+    pars.mappersetup_.type_ = !clip ? ColTab::MapperSetup::Fixed
+				    : ColTab::MapperSetup::Auto;
+
+    if ( clip == 0 )
     {
-	pars.clipperc_.start = symclipratiofld_->getfValue();
-	pars.clipperc_.stop = mUdf(float);
-	pars.symmidvalue_ = usemidvalfld_->getBoolValue() ?
+	mDynamicCastGet(const uiFVWVAPropTab*,wvatab,this)
+	const bool wva = wvatab ? true : false;
+	rgfld_->setValue( vwr_.getDataRange(wva) );
+    }
+    else if ( clip == 1 )
+    {
+	Interval<float> cliprate( symclipratiofld_->getfValue(),
+				  symclipratiofld_->getfValue() );
+	cliprate.start *= 0.01;
+	cliprate.stop *= 0.01;
+	pars.mappersetup_.cliprate_ = cliprate;
+	pars.mappersetup_.symmidval_ = usemidvalfld_->getBoolValue() ?
 	    symmidvalfld_->getfValue() : mUdf(float);
     }
     else if ( clip == 2 )
     {
-	pars.clipperc_ = assymclipratiofld_->getFInterval();
-	pars.symmidvalue_ = mUdf(float);
+	Interval<float> cliprate = assymclipratiofld_->getFInterval();
+	cliprate.start *= 0.01;
+	cliprate.stop *= 0.01;
+	pars.mappersetup_.cliprate_ = cliprate;
+	pars.mappersetup_.symmidval_ = mUdf(float);
+	pars.mappersetup_.type_ = ColTab::MapperSetup::Auto;
     }
 
-    pars.rg_ = Interval<float>( mUdf(float), mUdf(float) );
-
-    mDynamicCastGet(const uiFVWVAPropTab*,wvatab,this)
-    const bool wva = wvatab ? true : false;
-    const Interval<float> nrg = vwr_.getDataRange(wva);
-    rgfld_->setValue( nrg );
-    pars.rg_ = nrg; 
 }
 
 
@@ -234,26 +243,29 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     if ( !havedata && showdisplayfield_ )
 	dispfld_->setCurrentItem( 0 );
 
-    if ( !pars.autoscale_ )
+    Interval<float> cliprate = pars.mappersetup_.cliprate_;
+    if ( pars.mappersetup_.type_ == ColTab::MapperSetup::Fixed )
 	useclipfld_->setValue( 0 );
-    else if ( mIsUdf(pars.clipperc_.stop) )
+    else if ( cliprate.width() == 0 )
 	useclipfld_->setValue( 1 );
     else
 	useclipfld_->setValue( 2 );
 
     mDynamicCastGet(const uiFVWVAPropTab*,wvatab,this)
     const bool wva = wvatab ? true : false;
-    rgfld_->setValue( vwr_.getDataRange(wva) );
+    if ( !useclipfld_->getIntValue() )
+	rgfld_->setValue( vwr_.getDataRange(wva) );
 
-    symclipratiofld_->setValue( pars.clipperc_.start );
-    assymclipratiofld_->setValue( pars.clipperc_ );
+    symclipratiofld_->setValue( cliprate.start * 100 );
+    Interval<float> assymclipperc( cliprate.start*100, cliprate.stop*100 );
+    assymclipratiofld_->setValue( assymclipperc );
 
     const bool show = doDisp() && useclipfld_->getIntValue()==1 && 
-		      !mIsUdf(pars.symmidvalue_);
+		      mIsUdf(pars.mappersetup_.symmidval_);
     symmidvalfld_->display( show ); 
-    symmidvalfld_->setValue( pars.symmidvalue_ );
-    usemidvalfld_->setValue( !mIsUdf(pars.symmidvalue_) );
-    usemidvalfld_->display( pars.symmidvalue_ );
+    symmidvalfld_->setValue( pars.mappersetup_.symmidval_ );
+    usemidvalfld_->setValue( !mIsUdf(pars.mappersetup_.symmidval_) );
+    usemidvalfld_->display( pars.mappersetup_.symmidval_ );
     if ( blockyfld_ )
 	blockyfld_->setValue( pars.blocky_ );
 
@@ -286,22 +298,28 @@ bool uiFlatViewDataDispPropTab::acceptOK()
 
     pars.show_ = doDisp();
     const int clip = useclipfld_->getIntValue();
-    pars.autoscale_ = clip != 0;
+    if ( clip != 0 )
+	pars.mappersetup_.type_ = ColTab::MapperSetup::Auto;
 
     if ( !clip )
     {
-	pars.rg_ = rgfld_->getFInterval();
+	Interval<float> range = rgfld_->getFInterval();
+	pars.mappersetup_.range_ = range;
     }
     else if ( clip==1 )
     {
-	pars.clipperc_.start = symclipratiofld_->getfValue();
-	pars.clipperc_.stop = mUdf(float);
-	pars.symmidvalue_ = usemidvalfld_->getBoolValue() ?
+	Interval<float> cliprate( symclipratiofld_->getfValue()*0.01,
+				  symclipratiofld_->getfValue()*0.01 );
+	pars.mappersetup_.cliprate_ = cliprate;
+	pars.mappersetup_.symmidval_ = usemidvalfld_->getBoolValue() ?
 				symmidvalfld_->getfValue() : mUdf(float);
     }
     else
     {
-	pars.clipperc_ = assymclipratiofld_->getFInterval();
+	Interval<float> cliprate = assymclipratiofld_->getFInterval();
+	cliprate.start *= 0.01;
+	cliprate.stop *= 0.01;
+	pars.mappersetup_.cliprate_ = cliprate;
     }
 
     pars.blocky_ = blockyfld_ ? blockyfld_->getBoolValue() : false;
@@ -457,8 +475,9 @@ void uiFVVDPropTab::putToScreen()
     uicoltab_->setSequence( &ctab_, true );
     putCommonToScreen();
     const FlatView::DataDispPars::Common& pars = commonPars();
-    const bool udfrg = mIsUdf( pars.rg_.start ) && mIsUdf( pars.rg_.stop );
-    rgfld_->setValue( udfrg ? vwr_.getDataRange(false) : pars.rg_ );
+    Interval<float> range = pars.mappersetup_.range_;
+    const bool udfrg = mIsUdf(range.start) && mIsUdf(range.stop);
+    rgfld_->setValue( udfrg ? vwr_.getDataRange(false) : range );
 }
 
 

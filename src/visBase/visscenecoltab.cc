@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscenecoltab.cc,v 1.20 2010-06-08 06:26:59 cvskarthika Exp $";
+static const char* rcsID = "$Id: visscenecoltab.cc,v 1.21 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "visscenecoltab.h"
 
@@ -147,7 +147,7 @@ void SceneColTab::updateVis()
 
 void SceneColTab::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
-    Interval<float> rg( ms.start_, ms.start_+ms.width_ );
+    Interval<float> rg = ms.range_;
     if ( rg==rg_ )
 	return;
     

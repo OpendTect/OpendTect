@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.29 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.30 2011-02-10 05:11:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -66,8 +66,8 @@ public:
     void			setDraggerSize( const Coord3& );
     Coord3			getDraggerSize() const;
 
-    void			setClipRate( float );
-    float			clipRate() const;
+    void			setClipRate( Interval<float> );
+    Interval<float>		clipRate() const;
 
     void			setAutoScale( bool yn );
     bool			autoScale() const;

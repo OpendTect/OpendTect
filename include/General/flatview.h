@@ -6,12 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.52 2011-01-27 04:48:17 cvsnanne Exp $
+ RCS:           $Id: flatview.h,v 1.53 2011-02-10 05:11:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
+#include "coltabmapper.h"
 #include "geometry.h"
 #include "position.h"
 #include "datapackbase.h"
@@ -20,8 +21,6 @@ ________________________________________________________________________
 
 class IOPar;
 class FlatView_CB_Rcvr;
-
-namespace ColTab { class MapperSetup; };
 
 
 namespace FlatView
@@ -160,15 +159,9 @@ public:
     public:
 			Common();
 
-	bool		show_;	   // default=true
-	bool		autoscale_;// default=true
-	Interval<float>	rg_;	   // default=mUdf(float)
-	Interval<float>	clipperc_; // default from ColorTable
-				   // stop=undef
-	bool		blocky_;   // default=false
-	float		symmidvalue_; //!< undef => auto data mid
-	bool		histeq_; //!< undef => auto data mid
-	void		fill(ColTab::MapperSetup&) const;
+	bool			show_;	   // default=true
+	bool			blocky_;   // default=false
+	ColTab::MapperSetup	mappersetup_;
     };
 
     //!\brief Variable Density (=color-bar driven) parameters

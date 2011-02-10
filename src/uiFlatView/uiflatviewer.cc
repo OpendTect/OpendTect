@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.122 2010-12-01 12:09:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.123 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 
@@ -320,8 +320,7 @@ void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
     uiBorder actborder = enabhaddrag_ ? viewborder_ : uiBorder(0,0,0,0);
     actborder += annotborder_;
     canvas_.setBorder( actborder );
-    if ( dofill )
-	canvas_.reDrawNeeded.trigger();
+    if ( dofill ) reDraw( 0 );
 }
 
 
@@ -417,12 +416,12 @@ bool uiFlatViewer::drawBitMaps()
 	}
 	if ( vdbmpmgr_->bitMapGen() )
 	{
-	    appearance().ddpars_.vd_.rg_ =
+	    appearance().ddpars_.vd_.mappersetup_.range_ =
 		vdbmpmgr_->bitMapGen()->getScaleRange();
 	    dispParsChanged.trigger();
 	}
 	if ( wvabmpmgr_->bitMapGen() )
-	    appearance().ddpars_.wva_.rg_ =
+	    appearance().ddpars_.wva_.mappersetup_.range_ =
 		wvabmpmgr_->bitMapGen()->getScaleRange();
     }
 
@@ -942,17 +941,14 @@ void uiFlatViewer::reGenerate( FlatView::Annotation::AuxData& ad )
 Interval<float> uiFlatViewer::getDataRange( bool iswva ) const
 {
     Interval<float> rg( mUdf(float), mUdf(float) );
-    if ( !mIsUdf(appearance().ddpars_.vd_.rg_.start) )
-	return appearance().ddpars_.vd_.rg_;
-    const float clipstop = mIsUdf(appearance().ddpars_.vd_.clipperc_.stop) ? 
-		           mUdf(float) :
-			   appearance().ddpars_.vd_.clipperc_.stop * 0.01;
-    Interval<float> cliprate( appearance().ddpars_.vd_.clipperc_.start * 0.01,
-	    		      clipstop );
+    const ColTab::MapperSetup mapper = appearance().ddpars_.vd_.mappersetup_;
+    Interval<float> mapperrange = mapper.range_;
+    if ( mapper.type_ == ColTab::MapperSetup::Fixed )
+	return mapperrange;
 
     FlatView::BitMapMgr* mgr = iswva ? wvabmpmgr_ : vdbmpmgr_;
     if ( mgr && mgr->bitMapGen() )
-	rg = mgr->bitMapGen()->data().scale( cliprate, mUdf(float));
+	rg = mgr->bitMapGen()->data().scale( mapper.cliprate_, mUdf(float));
 
     return rg;
 }

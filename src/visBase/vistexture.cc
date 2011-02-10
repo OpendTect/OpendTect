@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.42 2010-08-19 08:21:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.43 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "vistexture.h"
 
@@ -203,13 +203,13 @@ VisColorTab& Texture::getColorTab()
 { return *colortab; }
 
 
-void Texture::setClipRate( float nv )
+void Texture::setClipRate( Interval<float> nv )
 {
     colortab->setClipRate( nv );
 }
 
 
-float Texture::clipRate() const
+Interval<float> Texture::clipRate() const
 { return colortab->clipRate(); }
 
 

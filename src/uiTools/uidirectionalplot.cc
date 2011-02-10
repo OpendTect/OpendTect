@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.36 2010-10-28 07:28:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.37 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -287,8 +287,7 @@ void uiDirectionalPlot::drawColTab()
     }
     ColTab::MapperSetup ctms;
     ctms.type( ColTab::MapperSetup::Fixed );
-    ctms.start( valrg_.start );
-    ctms.width( valrg_.width() );
+    ctms.range( valrg_ );
     coltabitm_->setColTabMapperSetup( ctms );
 
     if ( colseq_ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.41 2011-02-04 14:00:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.42 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -140,11 +140,11 @@ void uiWavelet::initWaveletViewer()
     app.setGeoDefaults( true );
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.overlap_ = 0;
-    app.ddpars_.wva_.clipperc_.start = app.ddpars_.wva_.clipperc_.stop = 0;
+    app.ddpars_.wva_.mappersetup_.cliprate_.set(0,0);
     app.ddpars_.wva_.left_ = Color::NoColor();
     app.ddpars_.wva_.right_ = Color::Black();
     app.ddpars_.wva_.mid_ = Color::Black();
-    app.ddpars_.wva_.symmidvalue_ = mUdf(float);
+    app.ddpars_.wva_.mappersetup_.symmidval_ = mUdf(float);
     app.setDarkBG( false );
     viewer_->setInitialSize( uiSize(80,100) );
     viewer_->setStretch( 1, 2 );

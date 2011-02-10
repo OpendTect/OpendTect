@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.23 2011-01-27 04:48:17 cvsnanne Exp $
+ RCS:		$Id: coltabmapper.h,v 1.24 2011-02-10 05:11:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "enums.h"
 #include "coltab.h"
-#include "ranges.h"
 #include "thread.h"
 #include "valseries.h"
 #include "varlenarray.h"
@@ -42,14 +41,13 @@ public:
     			DeclareEnumUtils(Type);
 
     mDefSetupClssMemb(MapperSetup,Type,type);
-    mDefSetupClssMemb(MapperSetup,float,cliprate);	//!< Auto
+    mDefSetupClssMemb(MapperSetup,Interval<float>,cliprate);	//!< Auto
     mDefSetupClssMemb(MapperSetup,bool,autosym0);	//!< Auto and HistEq.
     mDefSetupClssMemb(MapperSetup,float,symmidval);	//!< Auto and HistEq.
     							//!< Usually mUdf(float)
     mDefSetupClssMemb(MapperSetup,int,maxpts);		//!< Auto and HistEq
     mDefSetupClssMemb(MapperSetup,int,nrsegs);		//!< All
-    mDefSetupClssMemb(MapperSetup,float,start);
-    mDefSetupClssMemb(MapperSetup,float,width);
+    mDefSetupClssMemb(MapperSetup,Interval<float>,range);
 
     bool 			operator==(const MapperSetup&) const;
     bool			operator!=(const MapperSetup&) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.41 2010-12-08 09:15:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.42 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "uicolortable.h"
 
@@ -182,33 +182,19 @@ uiColorTable::~uiColorTable()
 
 void uiColorTable::setDispPars( const FlatView::DataDispPars::VD& disppar )
 {
-    mapsetup_.type_ = disppar.autoscale_ ? ColTab::MapperSetup::Auto
-					 : ColTab::MapperSetup::Fixed;
-    mapsetup_.cliprate_ = disppar.clipperc_.start * 0.01;
-    mapsetup_.symmidval_ = disppar.symmidvalue_;
-    mapsetup_.start_ =  disppar.rg_.start;
-    mapsetup_.width_ =  disppar.rg_.width( false );
+    mapsetup_ = disppar.mappersetup_;
 }
 
 
 void uiColorTable::getDispPars( FlatView::DataDispPars::VD& disppar ) const
 {
-    disppar.autoscale_ = mapsetup_.type_!=ColTab::MapperSetup::Fixed;
-    disppar.clipperc_ = Interval<float>(mapsetup_.cliprate_* 100, mUdf(float) );
-    disppar.symmidvalue_ = mapsetup_.symmidval_;
-    if ( !disppar.autoscale_ )
-    {
-	disppar.rg_ =
-	    Interval<float>(mapsetup_.start_,mapsetup_.start_+mapsetup_.width_);
-    }
+    disppar.mappersetup_ = mapsetup_;
 }
 
 
 void uiColorTable::setInterval( const Interval<float>& range )
 {
-    mapsetup_.start_ =  range.start;
-    mapsetup_.width_ =  range.width( false );
-
+    mapsetup_.range_ =  range;
     updateRgFld();
 }
 
@@ -217,8 +203,8 @@ void uiColorTable::updateRgFld()
 {
     if ( !minfld_ ) return;
 
-    minfld_->setValue( mapsetup_.start_ );
-    maxfld_->setValue( mapsetup_.start_ + mapsetup_.width_ );
+    minfld_->setValue( mapsetup_.range_.start );
+    maxfld_->setValue( mapsetup_.range_.stop );
 }
 
 
@@ -322,8 +308,8 @@ void uiColorTable::canvasClick( CallBacker* )
 
 void uiColorTable::commitInput()
 {
-    mapsetup_.start_ = minfld_->getfValue();
-    mapsetup_.width_ = maxfld_->getfValue() - mapsetup_.start_;
+    mapsetup_.range_.start = minfld_->getfValue();
+    mapsetup_.range_.stop = maxfld_->getfValue();
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;
     scaleChanged.trigger();
 }
@@ -348,8 +334,9 @@ uiAutoRangeClipDlg( uiParent* p, const ColTab::MapperSetup& ms )
     doclipfld->setValue( ms.type_!=ColTab::MapperSetup::Fixed );
     doclipfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,clipPush) );
 
+    Interval<float> cliprate( ms.cliprate_.start*100, ms.cliprate_.stop*100 );
     clipfld = new uiGenInput( this, "Percentage clipped",
-			    FloatInpSpec(ms.cliprate_*100) );
+			      FloatInpIntervalSpec(cliprate) );
     clipfld->setElemSzPol( uiObject::Small );
     clipfld->attach( alignedBelow, doclipfld );
 
@@ -420,7 +407,10 @@ void uiColorTable::editScaling( CallBacker* )
     mapsetup_.type_ = dlg.doclipfld->getBoolValue()
 	? ColTab::MapperSetup::Auto : ColTab::MapperSetup::Fixed;
 
-    mapsetup_.cliprate_ = dlg.clipfld->getfValue() * 0.01;
+    Interval<float> cliprate = dlg.clipfld->getFInterval();
+    cliprate.start *= 0.01;
+    cliprate.stop *= 0.01;
+    mapsetup_.cliprate_ = cliprate;
     const bool autosym = dlg.autosymfld->getBoolValue();
     const bool symmetry = !autosym && dlg.symfld->getBoolValue();
     mapsetup_.autosym0_ = autosym;
@@ -436,8 +426,9 @@ void uiColorTable::editScaling( CallBacker* )
 
 void uiColorTable::doFlip( CallBacker* )
 { 
-    mapsetup_.start_ += mapsetup_.width_;
-    mapsetup_.width_ *= -1;
+    float start = mapsetup_.range_.start;
+    mapsetup_.range_.start = mapsetup_.range_.stop;
+    mapsetup_.range_.stop = start;
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;
 
     updateRgFld();
@@ -447,15 +438,14 @@ void uiColorTable::doFlip( CallBacker* )
 
 void uiColorTable::makeSymmetrical( CallBacker* )
 {
-    Interval<float> rg( mapsetup_.start_, mapsetup_.start_ + mapsetup_.width_ );
+    Interval<float> rg = mapsetup_.range_;
     const float maxval = fabs(rg.start) > fabs(rg.stop)
 		     ? fabs(rg.start) : fabs(rg.stop);
     bool flipped = rg.stop < rg.start;
     rg.start = flipped ? maxval : -maxval;
     rg.stop = flipped ? -maxval : maxval;
 
-    mapsetup_.start_ =  rg.start;
-    mapsetup_.width_ =  rg.width( false );
+    mapsetup_.range_ =  rg;
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;
 
     updateRgFld();

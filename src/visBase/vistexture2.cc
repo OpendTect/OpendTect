@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexture2.cc,v 1.41 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.42 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "vistexture2.h"
 #include "viscolortab.h"
@@ -370,7 +370,7 @@ void Texture2Set::colTabChanged( CallBacker* cb )
     ct->rangechange.remove( mColTabCB );
     int curidx = textureswitch->whichChild.getValue();
     bool autoscale = ct->autoScale();
-    float cliprate = ct->clipRate();
+    Interval<float> cliprate = ct->clipRate();
     for ( int idx=0; idx<textureset.size(); idx++ )
     {
 	if ( idx==curidx ) continue;

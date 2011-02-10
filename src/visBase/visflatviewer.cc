@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.33 2010-12-01 07:57:00 cvskarthika Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.34 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "visflatviewer.h"
 
@@ -189,7 +189,7 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 	    {
 	    	const FlatView::DataDispPars::VD& vd = appearance().ddpars_.vd_;
 	    	ColTab::MapperSetup mappersetup;
-		vd.fill( mappersetup );
+		mappersetup = vd.mappersetup_;
 		if ( channels_->getColTabMapperSetup( 0,0 )!=mappersetup )
 		{
 		    channels_->setColTabMapperSetup( 0, mappersetup );
@@ -323,28 +323,22 @@ void FlatViewer::replaceChannels( TextureChannels* nt )
 Interval<float> FlatViewer::getDataRange( bool wva ) const
 {
     const FlatView::DataDispPars::VD& vd = appearance().ddpars_.vd_;
-    if ( !vd.rg_.isUdf() )
-	return vd.rg_;
+    const ColTab::MapperSetup mapper = vd.mappersetup_;
+    Interval<float> range = mapper.range_;
+    if ( !range.isUdf() )
+	return range;
  
-    const float clipstop = mIsUdf(vd.clipperc_.stop) ? mUdf(float) 
-						     : vd.clipperc_.stop*0.01;
-    Interval<float> cliprate( vd.clipperc_.start*0.01, clipstop );
-   
     DataClipper clipper;
     if ( (wva && wvapack_) || (!wva && vdpack_) )
     	clipper.putData( wva ? wvapack_->data() : vdpack_->data() );
     clipper.fullSort();
 
     Interval<float> res;
-    if ( mIsUdf(vd.symmidvalue_) )
-    {
-	if ( mIsUdf(cliprate.stop) )
-	    clipper.getRange( cliprate.start, res );
-	else
-	    clipper.getRange( cliprate.start, cliprate.stop, res );
-    }
+    if ( mIsUdf(mapper.symmidval_) )
+	clipper.getRange( mapper.cliprate_.start, mapper.cliprate_.stop, res );
     else
-	clipper.getSymmetricRange( cliprate.start, vd.symmidvalue_, res );
+	clipper.getSymmetricRange( mapper.cliprate_.start, mapper.symmidval_,
+				   res );
 
     return res;
 }

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.73 2011-02-09 16:50:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.74 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -423,7 +423,7 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
     setSelSpec( attrib, as );
 
     texture_->getColorTab( attrib ).setAutoScale( true );
-    texture_->getColorTab( attrib ).setClipRate( 0 );
+    texture_->getColorTab( attrib ).setClipRate( Interval<float>(0,0) );
     texture_->getColorTab( attrib ).setSymMidval( mUdf(float) );
 
     TypeSet<DataPointSet::DataRow> pts; 

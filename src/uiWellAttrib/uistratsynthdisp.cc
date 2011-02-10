@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.21 2011-02-07 16:17:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.22 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -73,7 +73,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     app.annot_.x2_.showAll( true );
     app.annot_.x2_.name_ = "TWT (s)";
     app.ddpars_.show( true, false );
-    app.ddpars_.wva_.symmidvalue_ = app.ddpars_.vd_.symmidvalue_ = 0;
+    app.ddpars_.wva_.mappersetup_.symmidval_ =
+	app.ddpars_.vd_.mappersetup_.symmidval_ = 0;
 
     uiFlatViewStdControl::Setup fvsu( this );
     fvsu.withwva( true ).withthumbnail( false ).withcoltabed( false )

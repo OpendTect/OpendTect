@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.32 2010-06-14 18:57:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.33 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
@@ -77,19 +77,17 @@ void FlatView::BitMapMgr::setupChg()
     }
     const DataDispPars::Common* pars = &app.ddpars_.wva_;
     if ( !wva_ ) pars = &app.ddpars_.vd_;
-    gen_->pars().clipratio_.start = pars->clipperc_.start * 0.01;
-    gen_->pars().clipratio_.stop = mIsUdf(pars->clipperc_.stop * 0.01)
-	? mUdf(float)
-	: pars->clipperc_.stop;
-    gen_->pars().midvalue_ = pars->symmidvalue_;
+    gen_->pars().clipratio_ = pars->mappersetup_.cliprate_;
+    gen_->pars().midvalue_ = pars->mappersetup_.symmidval_;
 
     gen_->pars().nointerpol_ = pars->blocky_;
     gen_->pars().fliplr_ = app.annot_.x1_.reversed_;
     gen_->pars().fliptb_ = !app.annot_.x2_.reversed_;
     		// in UI pixels, Y is reversed
-    gen_->pars().autoscale_ = pars->autoscale_;
+    gen_->pars().autoscale_ =
+	pars->mappersetup_.type_ == ColTab::MapperSetup::Auto;
     if ( !gen_->pars().autoscale_ )
-	gen_->pars().scale_ = pars->rg_;
+	gen_->pars().scale_ = pars->mappersetup_.range_;
 }
 
 
@@ -201,7 +199,8 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
     const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill();
     ColTab::IndexedLookUpTable ctindex( ctab, maxfill-minfill+1 );
 
-    if ( pars.histeq_ && !clipperdata_.isEmpty() )
+    if ( (pars.mappersetup_.type_==ColTab::MapperSetup::HistEq) &&
+	 !clipperdata_.isEmpty() )
     {
 	TypeSet<float> datapts;
 	for ( int idx=0; idx<bmp.info().getSize(0); idx++ )

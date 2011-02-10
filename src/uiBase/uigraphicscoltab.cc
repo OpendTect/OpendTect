@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicscoltab.cc,v 1.6 2009-10-16 09:15:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicscoltab.cc,v 1.7 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 
 #include "uigraphicscoltab.h"
@@ -54,7 +54,7 @@ void uiColTabItem::setPixmap()
 
 void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
-    Interval<float> rg( ms.start_, ms.start_+ms.width_ );
+    Interval<float> rg = ms.range_;
     minvalitm_->setText( toString(rg.start) );
     maxvalitm_->setText( toString(rg.stop) );
 }

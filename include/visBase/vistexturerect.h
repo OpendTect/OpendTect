@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.34 2010-08-19 08:21:10 cvsranojay Exp $
+ RCS:		$Id: vistexturerect.h,v 1.35 2011-02-10 05:11:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -60,9 +60,9 @@ public:
     void			setAutoScale(bool);
     bool			autoScale() const;
 
-    void			setClipRate(float n);
+    void			setClipRate(Interval<float>);
     				/*!< Should be between 0 and 0.5 */
-    float			clipRate() const;
+    Interval<float>		clipRate() const;
 
     void			setData(const Array2D<float>*,int idx=0,
 	    				int colorsel=0);

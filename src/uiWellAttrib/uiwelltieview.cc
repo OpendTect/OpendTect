@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.78 2011-02-04 14:00:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.79 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "uiwelltieview.h"
 
@@ -134,7 +134,7 @@ void uiTieView::initFlatViewer()
     app.annot_.x2_.sampling_ = 0.2;
     app.annot_.x2_.showgridlines_ = true;
     app.ddpars_.show( true, false );
-    app.ddpars_.wva_.clipperc_.set(0,0);
+    app.ddpars_.wva_.mappersetup_.cliprate_.set(0.0,0.0);
     app.ddpars_.wva_.overlap_ = 1;
     app.ddpars_.wva_.right_= app.ddpars_.wva_.wigg_ = Color::Black();
     app.annot_.x1_.name_ = data_.seismic();

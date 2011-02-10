@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.26 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: viscolortab.h,v 1.27 2011-02-10 05:11:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -42,8 +42,8 @@ public:
 
     bool			autoScale() const;
     void			setAutoScale(bool yn);
-    float			clipRate() const;
-    void			setClipRate(float);
+    Interval<float>		clipRate() const;
+    void			setClipRate(Interval<float>);
     float			symMidval() const;
     void			setSymMidval(float);
     void			scaleTo(const Interval<float>& rg);

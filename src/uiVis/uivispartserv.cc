@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.462 2011-02-09 23:06:07 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.463 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "uivispartserv.h"
 
@@ -908,11 +908,7 @@ void uiVisPartServer::fillDispPars( int id, int attrib,
     else
 	common.wva_.show_ = true;
 
-    compars->clipperc_ = Interval<float>( mapper->cliprate_*100, mUdf(float) );
-    compars->autoscale_ = mapper->type_!=ColTab::MapperSetup::Fixed;
-    compars->rg_ =
-	Interval<float>( mapper->start_, mapper->start_+mapper->width_ );
-    compars->symmidvalue_ = mapper->symmidval_;
+    compars->mappersetup_ = *mapper;
 }
 
 

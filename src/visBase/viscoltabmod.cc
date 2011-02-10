@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscoltabmod.cc,v 1.14 2010-08-19 08:21:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: viscoltabmod.cc,v 1.15 2011-02-10 05:11:27 cvssatyaki Exp $";
 
 #include "viscoltabmod.h"
 
@@ -30,8 +30,8 @@ const char* VisColTabMod::useclipstr()	 { return  "Use clipping"; }
 
 VisColTabMod::VisColTabMod()
     : range(Interval<float>(0,0))
-    , cliprate0(ColTab::defClipRate())
-    , cliprate1(ColTab::defClipRate())
+    , cliprate0(ColTab::defClipRate().start)
+    , cliprate1(ColTab::defClipRate().stop)
     , useclip(true)
     , reverse(false)
     , datascale( *new LinScaler(0,1) )
