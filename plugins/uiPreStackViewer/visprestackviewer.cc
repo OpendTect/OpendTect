@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.64 2010-08-11 12:17:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.65 2011-02-10 06:29:54 cvssatyaki Exp $";
 
 #include "visprestackviewer.h"
 
@@ -111,7 +111,7 @@ Viewer3D::Viewer3D()
     flatviewer_->appearance().setGeoDefaults( true );
     flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
     flatviewer_->getMaterial()->setAmbience( 0.8 );
-    flatviewer_->appearance().ddpars_.vd_.symmidvalue_ = 0;
+    flatviewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
 
     flatviewer_->dataChange.notify( mCB( this, Viewer3D, dataChangedCB ) );
     addChild( flatviewer_->getInventorNode() );

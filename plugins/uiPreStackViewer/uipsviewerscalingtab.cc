@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerscalingtab.cc,v 1.2 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewerscalingtab.cc,v 1.3 2011-02-10 06:29:54 cvssatyaki Exp $";
 
 #include "uipsviewerscalingtab.h"
 
@@ -65,7 +65,7 @@ bool uiViewer3DScalingTab::acceptOK()
 	return false;
 
     if ( useclipfld_->getIntValue() && saveAsDefault() )
-	ddpars_.vd_.rg_ = vwr_.getDataRange(false);
+	ddpars_.vd_.mappersetup_.range_ = vwr_.getDataRange(false);
 
     IOPar flatviewpar;
     ddpars_.fillPar( flatviewpar );
