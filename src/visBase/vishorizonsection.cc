@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.113 2011-01-07 18:00:33 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.114 2011-02-10 22:33:49 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -2084,7 +2084,7 @@ if ( !isstripterminated ) \
 
 
 #define mNrBlocks(spacing) \
-    section_.mTileSideSize / spacing + (section_.mTileSideSize % spacing ? 0 : -1)
+    section_.mTileSideSize/spacing+(section_.mTileSideSize % spacing ? 0 : -1)
 
 
 void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
