@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.129 2010-12-10 15:26:51 cvsyuancheng Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.130 2011-02-10 22:32:19 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -135,6 +135,7 @@ public:
     virtual SurveyObject*	duplicate(TaskRunner*) const;
    
     const TypeSet<DataPack::ID>* getDisplayDataPackIDs(int attrib);
+    float			getDisplayMinDataStep(bool x0) const;
 
     static const char*		sKeyDepthKey()		{ return "DepthKey"; }
     static const char*		sKeyPlaneKey()		{ return "PlaneKey"; }
@@ -206,6 +207,8 @@ protected:
     Notifier<PlaneDataDisplay>		moving_;
     Notifier<PlaneDataDisplay>		movefinished_;
 
+    float				minx0step_;
+    float				minx1step_;
     ZAxisTransform*			datatransform_;
     mutable int				voiidx_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.406 2011-02-03 07:49:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.407 2011-02-10 22:32:19 cvsyuancheng Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -444,8 +444,46 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		return false;
 	    }
 
-	    visserv_->setDataPackID( visid, attrib, newid );
+	    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pd,
+		    visserv_->getObject(visid) );
+	    if ( pd && pd->nrAttribs() > 1 )
+	    {
+		const float step0 = pd->getDisplayMinDataStep(true);
+		const float step1 = pd->getDisplayMinDataStep(false);
+		if ( step0>0 && step1>0 )
+		{
+		    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
+		    const DataPack* dp = dpman.obtain( newid );
+		    mDynamicCastGet(const FlatDataPack*, fdp, dp);
+		    if ( fdp )
+		    {
+			const float newstep0 = fdp->posData().range(true).step;
+			const float newstep1 = fdp->posData().range(false).step;
+			if ( !(mIsEqual(step0,newstep0,(newstep0+step0)*5E-4) 
+			    && mIsEqual(step1,newstep1,(newstep1+step1)*5E-4)) )
+			{
+			    BufferString msg = fdp->name();
+			    msg += " has different stepout as the loaded ones.";
+			    msg += " Do you want to continue? If continue,";
+			    msg += " all the attributes will be resampled to";
+			    msg +=" the minimum stepout.";
+			    if ( !uiMSG().askGoOn( msg.buf(),
+					"Yes, load it","No, not now") )
+			    {
+				dpman.release( newid );
+				return false;
+			    }
+			}
+		    }
+							
+		    visserv_->setDataPackID( visid, attrib, newid );
+		    res = true;
+		    dpman.release( newid );
+		    break;
+		}
+	    }
 
+	    visserv_->setDataPackID( visid, attrib, newid );
 	    res = true;
 	    break;
 	}

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.247 2011-01-14 22:33:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.248 2011-02-10 22:32:19 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -133,6 +133,8 @@ PlaneDataDisplay::PlaneDataDisplay()
     , orientation_( Inline )
     , csfromsession_( false )			    
     , eventcatcher_( 0 )
+    , minx0step_( -1 )			
+    , minx1step_( -1 )			
 {
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
@@ -813,7 +815,13 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     volumecache_.replace( attrib, f3ddp );
     return true;
 }
- 
+
+
+float PlaneDataDisplay::getDisplayMinDataStep( bool x0 ) const
+{
+    return x0 ? minx0step_ : minx1step_; 
+}
+
 
 void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib, 
 			const Attrib::Flat3DDataPack* f3ddp )
@@ -844,6 +852,33 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	} \
     }
 
+    const float dstep0 = f3ddp->posData().range(true).step;
+    const float dstep1 = f3ddp->posData().range(false).step;
+    bool attshavesamestep = true;
+    if ( minx0step_<0 || minx1step_<0 )
+    {
+	minx0step_ = dstep0;
+	minx1step_ = dstep1;
+    }
+    else
+    {
+	if ( !mIsEqual(minx0step_,dstep0,(minx0step_+dstep0)*5e-4) )
+	{
+	    if ( minx0step_ > dstep0 )
+    		minx0step_ = dstep0;
+
+	    attshavesamestep = false;
+	}
+
+	if ( !mIsEqual(minx1step_,dstep1,(minx1step_+dstep1)*5e-4) )
+	{
+	    if ( minx1step_ > dstep1 )
+    		minx1step_ = dstep1;
+
+	    attshavesamestep = false;
+	}
+    }
+
     TypeSet<DataPack::ID> attridpids;
     ObjectSet<const FlatDataPack> displaypacks;
     mLoadFDPs( f3ddp, attridpids, displaypacks );
@@ -870,7 +905,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	    dpman.release( displaypacks[idx] );
 	}
     }
-    else if ( nrAttribs()>1 )
+    else if ( nrAttribs()>1 && !attshavesamestep )
     {
 	const int oldchannelsz0 = channels_->getSize(1)/(resolution_+1);
 	const int oldchannelsz1 = channels_->getSize(2)/(resolution_+1);
@@ -932,8 +967,8 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 		mDeclareAndTryAlloc( FlatDataPack*, fdp,
 				     FlatDataPack( dp->category(), arr ) );
 		
-		rg0.step = rg0.width()/(newsz0-1);
-		rg1.step = rg1.width()/(newsz1-1);
+		rg0.step = minx0step_;
+		rg1.step = minx1step_;
 		fdp->posData().setRange( true, rg0 );
 		fdp->posData().setRange( false, rg1 );
 		
