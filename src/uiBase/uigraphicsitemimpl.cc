@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.48 2011-02-10 10:15:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.49 2011-02-10 10:30:49 cvsbruno Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -403,8 +403,11 @@ void uiPolyLineItem::setPolyLine( const TypeSet<uiPoint>& ptlist )
     for ( int idx=0; idx<ptlist.size(); idx++ )
     {
 	if ( mIsUdf( ptlist[idx].x ) || mIsUdf( ptlist[idx].y ) )
-	    { setPolyLine( qpolygon ); qpolygon.empty(); }
-
+	{ 
+	    setPolyLine( qpolygon ); 
+	    qpolygon.clear(); 
+	    continue;
+	}
 	qpolygon.append( QPoint( ptlist[idx].x, ptlist[idx].y ) );
     }
     setPolyLine( qpolygon );
