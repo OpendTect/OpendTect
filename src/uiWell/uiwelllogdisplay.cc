@@ -54,6 +54,7 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
     , zrg_(mUdf(float),0)
     , valrg_(mUdf(float),0)
     , curvenmitm_(0)
+    , curveitm_(0)
 {
     if ( !isfirst )
 	yax_.setup().nogridline(true);
@@ -206,47 +207,27 @@ void uiWellLogDisplay::draw()
 void uiWellLogDisplay::drawCurve( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
-    deepErase( ld.curveitms_ );
     delete ld.curvenmitm_; ld.curvenmitm_ = 0;
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 || ld.disp_.size_ <=0 ) return;
 
-    ObjectSet< TypeSet<uiPoint> > pts;
-    TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
+    TypeSet<uiPoint> pts; 
     for ( int idx=0; idx<sz; idx++ )
     {
 	mDefZPosInLoop( ld.wl_->dah( idx ) );
-
 	float val = ld.wl_->value( idx );
-	if ( mIsUdf(val) )
-	{
-	    if ( !curpts->isEmpty() )
-	    {
-		pts += curpts;
-		curpts = new TypeSet<uiPoint>;
-	    }
-	    continue;
-	}
-
-	*curpts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(zpos) );
+	int xaxisval = mIsUdf(val) ? mUdf(int) : ld.xax_.getPix(val);
+	pts += uiPoint( xaxisval, ld.yax_.getPix(zpos) );
     }
-    if ( curpts->isEmpty() )
-	delete curpts;
-    else
-	pts += curpts;
-    if ( pts.isEmpty() ) return;
-
+    if ( !ld.curveitm_ ) 
+	ld.curveitm_ = scene().addItem( new uiPolyLineItem() );
+    uiPolyLineItem* pli = ld.curveitm_;
+    pli->setPolyLine( pts );
     LineStyle ls(LineStyle::Solid);
     ls.width_ = ld.disp_.size_;
     ls.color_ = ld.disp_.color_;
-
-    for ( int idx=0; idx<pts.size(); idx++ )
-    {
-	uiPolyLineItem* pli = scene().addItem( new uiPolyLineItem(*pts[idx]) );
-	pli->setPenStyle( ls );
-	pli->setZValue( ld.zoverlayval_ );
-	ld.curveitms_ += pli;
-    }
+    pli->setPenStyle( ls );
+    pli->setZValue( ld.zoverlayval_ );
 
     Alignment al( Alignment::HCenter,
     first ? Alignment::Top : Alignment::Bottom );
@@ -254,15 +235,12 @@ void uiWellLogDisplay::drawCurve( bool first )
     ld.curvenmitm_->setTextColor( ls.color_ );
     uiPoint txtpt;
     if ( first )
-	txtpt = uiPoint( (*pts[0])[0] );
+	txtpt = uiPoint( pts[0] );
     else
-    {
-	TypeSet<uiPoint>& lastpts( *pts[pts.size()-1] );
-	txtpt = lastpts[lastpts.size()-1];
-    }
+	txtpt = pts[pts.size()-1];
+
     ld.curvenmitm_->setPos( txtpt );
 
-    deepErase( pts );
     if ( first )
 	ld.yax_.annotAtEnd( zdata_.zistime_ ? "(ms)" : 
 			    zdata_.dispzinft_ ? "(ft)" : "(m)" );

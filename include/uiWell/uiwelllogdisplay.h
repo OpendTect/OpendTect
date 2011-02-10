@@ -73,7 +73,7 @@ public:
 	Interval<float>         valrg_;
 	uiAxisHandler           xax_;
 	uiAxisHandler           yax_;
-	ObjectSet<uiPolyLineItem> curveitms_;
+	uiPolyLineItem* 	curveitm_;
 	ObjectSet<uiPolygonItem> curvepolyitms_;
 	uiTextItem*             curvenmitm_;
 
