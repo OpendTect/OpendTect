@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.4 2011-02-09 12:29:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.5 2011-02-10 08:02:42 cvsbert Exp $";
 
 #include "uisynthtorealscale.h"
 #include "uistratseisevent.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.4 2011-02-09 12:29:17
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uilabel.h"
+#include "uimsg.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seisbuf.h"
@@ -27,8 +28,6 @@ static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.4 2011-02-09 12:29:17
 #include "emhorizon2d.h"
 #include "emsurfacetr.h"
 #include "emsurfaceposprov.h"
-
-#include "uimsg.h"
 
 
 class uiSynthToRealScaleStatsDisp : public uiGroup
@@ -169,12 +168,35 @@ void uiSynthToRealScale::updSynthStats()
     if ( evfld_->getFromScreen() )
     {
 	const Strat::SeisEvent& ssev = evfld_->event();
+	const int nrtms = ssev.extrwin_.nrSteps() + 1;
 	for ( int idx=0; idx<synth_.size(); idx++ )
 	{
 	    const SeisTrc& trc = *synth_.get( idx );
 	    const float reftm = ssev.snappedTime( trc );
-	    if ( !mIsUdf(reftm) )
-		vals += trc.getValue( reftm, 0 );
+	    if ( mIsUdf(reftm) ) continue;
+
+	    if ( nrtms < 2 )
+		vals += trc.getValue( reftm + ssev.extrwin_.center(), 0 );
+	    else
+	    {
+		const int lastsamp = trc.size() - 1;
+		const Interval<float> trg( trc.startPos(),
+					   trc.samplePos(lastsamp) );
+		float sumsq = 0;
+		for ( int itm=0; itm<nrtms; itm++ )
+		{
+		    float extrtm = reftm + ssev.extrwin_.atIndex(itm);
+		    float val;
+		    if ( extrtm <= trg.start )
+			val = trc.get( 0, 0 );
+		    if ( extrtm >= trg.stop )
+			val = trc.get( lastsamp, 0 );
+		    else
+			val = trc.getValue( extrtm, 0 );
+		    sumsq += val * val;
+		}
+		vals += sqrt( sumsq / nrtms ); // RMS of selected samples
+	    }
 	}
     }
     synthstatsfld_->dispfld_->putN();
