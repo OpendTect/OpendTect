@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.46 2010-12-23 10:10:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.47 2011-02-10 08:42:36 cvsbruno Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -393,19 +393,53 @@ uiPolyLineItem::~uiPolyLineItem()
 }
 
 
+int uiPolyLineItem::nrSegments() const
+{
+    return qgraphicsitemgrp_->childItems().size();
+}
+
+
+ODGraphicsPolyLineItem* uiPolyLineItem::getSegment( int idx ) const
+{
+    return idx<0 && idx>=nrSegments() ? 0
+	: (ODGraphicsPolyLineItem*)qgraphicsitemgrp_->childItems()[idx];
+}
+
+
 void uiPolyLineItem::setPolyLine( const TypeSet<uiPoint>& ptlist )
 {
-    QPolygon qpolygon( ptlist.size() );
+    while ( nrSegments() )
+    {
+	ODGraphicsPolyLineItem* politm = getSegment(0);
+	qgraphicsitemgrp_->removeFromGroup( politm );
+	delete politm;
+    }
+
+    QPolygon qpolygon; 
     for ( int idx=0; idx<ptlist.size(); idx++ )
-	qpolygon.setPoint( (unsigned int)idx, ptlist[idx].x, ptlist[idx].y );
-    qpolylineitem_->setPolyLine( qpolygon );
+    {
+	if ( mIsUdf( ptlist[idx].x ) || mIsUdf( ptlist[idx].y ) )
+	    { addPolyLine( qpolygon ); qpolygon.empty(); }
+
+	qpolygon.append( QPoint( ptlist[idx].x, ptlist[idx].y ) );
+    }
+    addPolyLine( qpolygon );
+}
+
+
+void uiPolyLineItem::addPolyLine( const QPolygon& qpolygon )
+{
+    if ( qpolygon.isEmpty() ) return;
+    ODGraphicsPolyLineItem* qpolylineitem = new ODGraphicsPolyLineItem();
+    qpolylineitem->setPolyLine( qpolygon );
+    qgraphicsitemgrp_->addToGroup( qpolylineitem );
 }
 
 
 QGraphicsItem* uiPolyLineItem::mkQtObj()
 {
-    qpolylineitem_ = new ODGraphicsPolyLineItem();
-    return qpolylineitem_;
+    qgraphicsitemgrp_ = new QGraphicsItemGroup();
+    return qgraphicsitemgrp_;
 }
 
 

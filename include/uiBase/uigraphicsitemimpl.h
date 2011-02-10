@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.30 2010-12-23 10:10:01 cvsbert Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.31 2011-02-10 08:42:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ class QGraphicsProxyWidget;
 class QGraphicsRectItem;
 class QGraphicsTextItem;
 class QPainterPath;
+class QPolygon;
 class QSize;
 
 class ODGraphicsArrowItem;
@@ -176,14 +177,19 @@ public:
     				uiPolyLineItem(const TypeSet<uiPoint>&);
 				~uiPolyLineItem();
 
-    ODGraphicsPolyLineItem* 	qPolyLineItem()
-    				{ return qpolylineitem_; }
+    int				nrSegments() const;
+    ODGraphicsPolyLineItem*	getSegment(int) const;
+
+    QGraphicsItemGroup* 	qPolyLineItemGroup()
+    				{ return qgraphicsitemgrp_; }
     void			setPolyLine(const TypeSet<uiPoint>&);
 
 protected:
 
+    void			addPolyLine(const QPolygon&);
+
     QGraphicsItem*		mkQtObj();
-    ODGraphicsPolyLineItem*	qpolylineitem_;
+    QGraphicsItemGroup*		qgraphicsitemgrp_;
 };
 
 
