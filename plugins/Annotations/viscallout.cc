@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscallout.cc,v 1.28 2009-07-22 16:01:26 cvsbert Exp $";
+static const char* rcsID = "$Id: viscallout.cc,v 1.29 2011-02-10 09:08:24 cvsnanne Exp $";
 
 #include "viscallout.h"
 
+#include "fontdata.h"
 #include "survinfo.h"
 #include "visanchor.h"
 #include "viscoord.h"
@@ -224,8 +225,9 @@ void Callout::setPick( const Pick::Location& loc )
 
 void Callout::setTextSize( float ns )
 {
-    fronttext_->setSize(ns);
-    backtext_->setSize(ns);
+    const FontData fd( ns );
+    fronttext_->setFontData(fd);
+    backtext_->setFontData(fd);
     updateCoords();
 
     rotfeedbackradius_ = ns/1.5;
@@ -419,9 +421,9 @@ void Callout::updateCoords()
 
 	rotfeedbackpos_ =  Coord3( dragcorner.x, dragcorner.z, dragcorner.y );
 	if ( dragcorner11 ) 
-	    rotfeedbackradius_ = fronttext_->size()/1.5;
+	    rotfeedbackradius_ = fronttext_->getFontData().pointSize()/1.5;
 	else
-	    rotfeedbackradius_ = -fronttext_->size()/1.5;
+	    rotfeedbackradius_ = -fronttext_->getFontData().pointSize()/1.5;
 
 	setupRotFeedback();
 	if ( !isdragging_ )
@@ -437,7 +439,8 @@ void Callout::updateCoords()
     }
 
     Coord3 backtextpos = fronttext_->position() +
-			 Coord3( maxpos.x-minpos.x-backtext_->size()/10, 0, 0 );
+	 Coord3( maxpos.x-minpos.x-backtext_->getFontData().pointSize()/10,
+		 0, 0 );
     backtextpos = backtextrotation_->transform( backtextpos );
     backtext_->setPosition( Coord3(backtextpos.x, backtextpos.y, mTextLift ) );
 
