@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.66 2010-12-14 08:50:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.67 2011-02-10 05:24:26 cvssatyaki Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -94,11 +94,11 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     app.setGeoDefaults( true );
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.overlap_ = 0;
-    app.ddpars_.wva_.clipperc_.start = app.ddpars_.wva_.clipperc_.stop = 0;
+    app.ddpars_.wva_.mappersetup_.cliprate_ = Interval<float>(0,0);
     app.ddpars_.wva_.left_ = Color::NoColor();
     app.ddpars_.wva_.right_ = Color::Black();
     app.ddpars_.wva_.mid_ = Color::Black();
-    app.ddpars_.wva_.symmidvalue_ = mUdf(float);
+    app.ddpars_.wva_.mappersetup_.symmidval_ = mUdf(float);
     app.setDarkBG( false );
 
     wvltfld_->setPrefWidth( 60 );
