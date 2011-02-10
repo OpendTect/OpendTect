@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.27 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.28 2011-02-10 11:27:00 cvssatyaki Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -46,6 +46,9 @@ Interval<float> ColTab::defClipRate()
     {
 	Interval<float> perc( 2.5, 2.5 );
 	Settings::common().get( sKeyDefClipPerc, perc );
+	if ( mIsUdf(perc.stop) )
+	    perc.stop = perc.start;
+
 	float mv = mUdf(float);
 	Settings::common().get( sKeyDefSymmZero, mv );
 	perc.start *= 0.01;
@@ -185,8 +188,27 @@ bool ColTab::MapperSetup::usePar( const IOPar& par )
     if ( !parseEnumType( typestr, type_ ) )
 	return false;
 
-    return par.get( sKeyClipRate(), cliprate_ ) &&
-	   par.get( sKeySymMidVal(), symmidval_ ) &&
+    if ( par.find(sKeyStarWidth()) )
+    {
+	float start, width;
+	par.get( sKeyStarWidth(), start, width );
+	range_.start = start;
+	range_.stop = start + width;
+    }
+    else if ( par.find(sKeyRange()) )
+	par.get( sKeyRange(), range_ );
+    else
+	return false;
+
+    cliprate_.start = mUdf(float);
+    cliprate_.stop = mUdf(float);
+    par.get( sKeyClipRate(), cliprate_ );
+    if ( mIsUdf(cliprate_.stop) )
+	cliprate_.stop = cliprate_.start;
+    else if ( mIsUdf(cliprate_.start) )
+	cliprate_ = defClipRate();
+
+    return par.get( sKeySymMidVal(), symmidval_ ) &&
 	   par.getYN( sKeyAutoSym(), autosym0_ ) &&
 	   par.get( sKeyMaxPts(), maxpts_ ) &&
 	   par.get( sKeyRange(), range_ );

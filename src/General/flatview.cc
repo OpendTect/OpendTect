@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.62 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.63 2011-02-10 11:27:00 cvssatyaki Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -239,7 +239,8 @@ void FlatView::Annotation::usePar( const IOPar& iop )
     mIOPDoAxes( get, sKeyX2Sampl(), x2_.sampling_ );
     mIOPDoAxes2( get, sKey::Name, x1_.name_, x2_.name_ );
     mIOPDoAxes2( getYN, sKeyShwAnnot(), x1_.showannot_, x2_.showannot_ );
-    mIOPDoAxes2( getYN, sKeyShwGridLines(),x1_.showgridlines_,x2_.showgridlines_);
+    mIOPDoAxes2( getYN, sKeyShwGridLines(),x1_.showgridlines_,
+	    	 x2_.showgridlines_);
     mIOPDoAxes2( getYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
     iop.getYN( sKeyShwAux(), showaux_ );
 }
@@ -324,7 +325,9 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     mIOPDoVD( setYN, sKeyBlocky(), vd_.blocky_ );
     mIOPDoVD( setYN, sKeyAutoScale(),
 	      vd_.mappersetup_.type_ == ColTab::MapperSetup::Auto );
-    mIOPDoVD( set, sKeyClipPerc(), vd_.mappersetup_.cliprate_ );
+    Interval<float> clipperc( vd_.mappersetup_.cliprate_.start*100,
+	    		      vd_.mappersetup_.cliprate_.stop*100 );
+    mIOPDoVD( set, sKeyClipPerc(), clipperc );
     mIOPDoVD( set, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
 
     mIOPDoWVA( setYN, sKeyShow(), wva_.show_ );
@@ -356,7 +359,14 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoVD( getYN, sKeyAutoScale(), autoscale );
     vd_.mappersetup_.type_ = autoscale ? ColTab::MapperSetup::Auto
 				       : ColTab::MapperSetup::Fixed;
+   
     mIOPDoVD( get, sKeyClipPerc(), vd_.mappersetup_.cliprate_ );
+    vd_.mappersetup_.cliprate_.start *= 0.01;
+    if ( mIsUdf(vd_.mappersetup_.cliprate_.stop) )
+	vd_.mappersetup_.cliprate_.stop = vd_.mappersetup_.cliprate_.start;
+    else
+	vd_.mappersetup_.cliprate_.stop *= 0.01;
+    
     mIOPDoVD( get, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
 
     mIOPDoWVA( getYN, sKeyShow(), wva_.show_ );
