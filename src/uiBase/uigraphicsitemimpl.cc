@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.47 2011-02-10 08:42:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.48 2011-02-10 10:15:32 cvsbruno Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -390,50 +390,81 @@ uiPolyLineItem::uiPolyLineItem( const TypeSet<uiPoint>& ptlist )
 
 uiPolyLineItem::~uiPolyLineItem()
 {
-}
-
-
-int uiPolyLineItem::nrSegments() const
-{
-    return qgraphicsitemgrp_->childItems().size();
-}
-
-
-ODGraphicsPolyLineItem* uiPolyLineItem::getSegment( int idx ) const
-{
-    return idx<0 && idx>=nrSegments() ? 0
-	: (ODGraphicsPolyLineItem*)qgraphicsitemgrp_->childItems()[idx];
+    polylines_.erase();
 }
 
 
 void uiPolyLineItem::setPolyLine( const TypeSet<uiPoint>& ptlist )
 {
-    while ( nrSegments() )
-    {
-	ODGraphicsPolyLineItem* politm = getSegment(0);
-	qgraphicsitemgrp_->removeFromGroup( politm );
-	delete politm;
-    }
+    for ( int idx=0; idx<polylines_.size(); idx++ )
+	polylines_[idx]->setEmpty();
 
     QPolygon qpolygon; 
     for ( int idx=0; idx<ptlist.size(); idx++ )
     {
 	if ( mIsUdf( ptlist[idx].x ) || mIsUdf( ptlist[idx].y ) )
-	    { addPolyLine( qpolygon ); qpolygon.empty(); }
+	    { setPolyLine( qpolygon ); qpolygon.empty(); }
 
 	qpolygon.append( QPoint( ptlist[idx].x, ptlist[idx].y ) );
     }
-    addPolyLine( qpolygon );
+    setPolyLine( qpolygon );
 }
 
 
-void uiPolyLineItem::addPolyLine( const QPolygon& qpolygon )
+void uiPolyLineItem::setPolyLine( const QPolygon& qpolygon )
 {
     if ( qpolygon.isEmpty() ) return;
-    ODGraphicsPolyLineItem* qpolylineitem = new ODGraphicsPolyLineItem();
-    qpolylineitem->setPolyLine( qpolygon );
-    qgraphicsitemgrp_->addToGroup( qpolylineitem );
+
+    ODGraphicsPolyLineItem* qpolyline = getEmptyPolyLine();
+    if ( qpolyline ) qpolyline->setPolyLine( qpolygon );
 }
+
+
+ODGraphicsPolyLineItem* uiPolyLineItem::getEmptyPolyLine() 
+{
+    ODGraphicsPolyLineItem* polyline = 0;
+    for ( int idx=0; idx<polylines_.size(); idx++ )
+    {
+	polyline = polylines_[idx];
+	if ( polyline->isEmpty() )
+	    return polyline;
+    }
+    polyline = new ODGraphicsPolyLineItem();
+    polylines_ += polyline;
+    qgraphicsitemgrp_->addToGroup( polyline );
+    return polyline;
+}
+
+
+void uiPolyLineItem::setPenStyle( const LineStyle& ls, bool alpha )
+{
+    QColor color = QColor( QRgb(ls.color_.rgb()) );
+    if ( alpha ) color.setAlpha( ls.color_.t() );
+    QBrush qbrush( color );
+    QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
+    for ( int idx=0; idx<polylines_.size(); idx++ )
+	polylines_[idx]->setPen( qpen );
+}
+
+
+void uiPolyLineItem::setPenColor( const Color& col, bool alpha )
+{
+    QColor qcol = QColor(QRgb(col.rgb()));
+    if ( alpha ) qcol.setAlpha( col.t() );
+    QPen qpen( qcol );
+    for ( int idx=0; idx<polylines_.size(); idx++ )
+	polylines_[idx]->setPen( qpen );
+}
+
+
+void uiPolyLineItem::setFillColor( const Color& col, bool alpha )
+{
+    QColor qcol = QColor(QRgb(col.rgb()));
+    if ( alpha ) qcol.setAlpha( col.t() );
+    QBrush qbrush( qcol );
+    for ( int idx=0; idx<polylines_.size(); idx++ )
+	polylines_[idx]->setBrush( qbrush );
+} 
 
 
 QGraphicsItem* uiPolyLineItem::mkQtObj()
