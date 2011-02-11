@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.74 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.75 2011-02-11 13:21:15 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -106,7 +106,7 @@ FaultDisplay::FaultDisplay()
 	knotmarkers_ += group;
 	visBase::Material* knotmat = visBase::Material::create();
 	group->addObject( knotmat );
-	knotmat->setColor( idx ? Color(0,255,0) : Color(255,255,255) );
+	knotmat->setColor( idx ? Color(0,255,0) : Color(255,0,255) );
     }
 
     drawstyle_->ref();

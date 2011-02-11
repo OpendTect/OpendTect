@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.39 2011-02-09 16:50:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.40 2011-02-11 13:21:15 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -81,7 +81,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
 	knotmarkers_ += group;
 	visBase::Material* knotmat = visBase::Material::create();
 	group->addObject( knotmat );
-	knotmat->setColor( idx ? Color(0,255,0) : Color(255,255,255) );
+	knotmat->setColor( idx ? Color(0,255,0) : Color(255,0,255) );
     }
 }
 
