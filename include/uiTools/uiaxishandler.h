@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.28 2011-02-09 12:27:06 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.29 2011-02-11 14:31:47 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,8 +147,7 @@ protected:
     uiTextItem*		endannottextitm_;
     uiTextItem*		nameitm_;
     void		reCalc();
-    int			wdthperp_;
-    int			wdthalong_;
+    int			calcwdth_;
     BufferStringSet	strs_;
     TypeSet<float>	pos_;
     float		endpos_;
