@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.47 2010-08-12 13:37:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.48 2011-02-11 08:55:57 cvshelene Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -261,7 +261,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     if ( positiondlg_->uiResult() == 1 ) 
 	positiondlg_->popUpPosDlg();
 
-    if ( positiondlg_->posdlg_->uiResult() == 1 )
+    if ( positiondlg_->posdlg_ && positiondlg_->posdlg_->uiResult() == 1 )
     {
 	DescSet* dset = new DescSet( *ads_ );
 	DescID inpid = inpfld_->attribID();
