@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.36 2010-11-08 10:14:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.37 2011-02-11 15:16:19 cvshelene Exp $";
 
 
 #include "uimathattrib.h"
@@ -187,6 +187,10 @@ void uiMathAttrib::setupOneRow( const uiAttrSelData& asd, int rowidx,
 {
     uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
     attrbox->setDescSet( ads_ );
+
+    if ( dpfids_.size() )
+	attrbox->setPossibleDataPacks( dpfids_ );
+
     if ( doadd )
 	attribflds_ += attrbox;
     else
