@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          May 2008
- RCS:           $Id: explplaneintersection.h,v 1.4 2010-06-17 19:00:58 cvskris Exp $
+ RCS:           $Id: explplaneintersection.h,v 1.5 2011-02-14 22:23:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ public:
     				
 
     bool			needsUpdate() const;
-    void			removeAll();
+    void			removeAll(bool);
 
     void			setZScale(float nz)	{ zscale_ = nz; }
     float			getZScale() const	{ return zscale_; }

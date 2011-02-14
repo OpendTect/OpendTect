@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.32 2011-02-14 21:04:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.33 2011-02-14 22:23:17 cvsyuancheng Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -151,6 +151,7 @@ ExplicitMarchingCubesSurface::ExplicitMarchingCubesSurface(
     , scale0_( 0 )
     , scale1_( 0 )
     , scale2_( 0 )
+    , lastversionupdate_( -1 )
 {
     changedbucketranges_[mX] = 0;
     changedbucketranges_[mY] = 0;
@@ -186,21 +187,22 @@ void ExplicitMarchingCubesSurface::setSurface( MarchingCubesSurface* ns )
     }
 
     surface_ = ns;
-    removeAll();
+    removeAll( true );
 
     if ( surface_ )
     {
 	surface_->ref();
 	surface_->change.notify(
 		mCB(this,ExplicitMarchingCubesSurface,surfaceChange));
+	addVersion();
     }
 }
 
 
-void ExplicitMarchingCubesSurface::removeAll()
+void ExplicitMarchingCubesSurface::removeAll( bool deep )
 {
     coordindiceslock_.writeLock();
-    if ( coordlist_ )
+    if ( coordlist_ && deep )
     {
 	int idxs[] = { 0, 0, 0 };
 	if ( !coordindices_.isValidPos( idxs ) )
@@ -252,7 +254,7 @@ bool ExplicitMarchingCubesSurface::allBucketsHaveChanged() const
 
 
 bool ExplicitMarchingCubesSurface::needsUpdate() const
-{ return surface_ && surface_->models_.size(); }
+{ return !getVersion() || getVersion()>lastversionupdate_; }
 
 
 bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )
@@ -264,11 +266,12 @@ bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )
 		     *changedbucketranges_[mZ], tr ) )
 	{
 	    mRemoveBucketRanges;
+	    lastversionupdate_ = getVersion();
 	    return true;
 	}
     }
 
-    removeAll();
+    removeAll( true );
 
     if ( !surface_ || surface_->models_.isEmpty() )
 	return true;
@@ -286,6 +289,7 @@ bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )
     if ( tr ? tr->execute( updater ) : updater.execute() )
     {
 	mRemoveBucketRanges;
+	lastversionupdate_ = getVersion();
 	return true;
     }
 

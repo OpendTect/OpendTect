@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.17 2011-02-14 21:04:25 cvsyuancheng Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.18 2011-02-14 22:23:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
     void			setSurface(MarchingCubesSurface*);
     MarchingCubesSurface*	getSurface() { return surface_; }
     const MarchingCubesSurface*	getSurface() const { return surface_; }
-    void			removeAll();
+    void			removeAll(bool deep);
 
     bool			update(bool forceall,TaskRunner* = 0);
     bool			needsUpdate() const;
@@ -75,6 +75,7 @@ protected:
     SamplingData<float>*	scale2_;
 
     Interval<int>*		changedbucketranges_[3];
+    int				lastversionupdate_;
 
     MultiDimStorage<int>	coordindices_;
     Threads::ReadWriteLock	coordindiceslock_;

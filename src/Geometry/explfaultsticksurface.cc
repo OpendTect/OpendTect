@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.43 2010-09-01 10:38:05 cvsumesh Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.44 2011-02-14 22:23:17 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -391,7 +391,7 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
 			mCB(this,ExplFaultStickSurface,surfaceMovement) );
     }
 
-    removeAll();
+    removeAll( true );
     surface_ = fss;
 
     if ( surface_ )
@@ -415,7 +415,7 @@ void ExplFaultStickSurface::setZScale( float zscale )
 }
 
 
-void ExplFaultStickSurface::removeAll()
+void ExplFaultStickSurface::removeAll( bool deep )
 {
     for ( int idx=sticks_.size()-1; idx>=0; idx-- )
     {
@@ -445,7 +445,7 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
 {
     if ( forceall )
     {
-	removeAll();
+	removeAll( true );
 	insertAll();
     }
 
@@ -1100,7 +1100,7 @@ void ExplFaultStickSurface::emptyStick( int stickidx )
     if ( !sticks_.validIdx(stickidx) )
 	return;
 
-    sticks_[stickidx]->removeAll();
+    sticks_[stickidx]->removeAll( true );
 
     needsupdate_ = true;
 }
@@ -1167,8 +1167,11 @@ void ExplFaultStickSurface::emptyPanel( int panelidx )
     if ( !paneltriangles_.validIdx(panelidx) )
 	return;
 
-    if ( paneltriangles_[panelidx] ) paneltriangles_[panelidx]->removeAll();
-    if ( panellines_[panelidx] ) panellines_[panelidx]->removeAll();
+    if ( paneltriangles_[panelidx] ) 
+	paneltriangles_[panelidx]->removeAll( true );
+
+    if ( panellines_[panelidx] ) 
+	panellines_[panelidx]->removeAll( true );
 
     needsupdate_ = true;
 }
@@ -1234,10 +1237,10 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
     IndexedGeometry* lines = panellines_[panelidx];
 
     if ( triangles && !triangles->isEmpty() )
-	triangles->removeAll();
+	triangles->removeAll( true );
 
     if ( lines && !lines->isEmpty() )
-	lines->removeAll();
+	lines->removeAll( true );
     
     const TypeSet<int>& lknots = sticks_[panelidx]->coordindices_;
     const TypeSet<int>& rknots = sticks_[panelidx+1]->coordindices_;

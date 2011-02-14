@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.16 2011-01-28 22:44:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.17 2011-02-14 22:23:17 cvsyuancheng Exp $";
 
 
 #include "explplaneintersection.h"
@@ -112,7 +112,7 @@ ExplPlaneIntersectionExtractor( ExplPlaneIntersection& efss )
 
     intersectioncoordids_.allowDuplicates( false );
     output_ = const_cast<IndexedGeometry*>( explsurf_.getGeometry()[0] );
-    output_->removeAll();
+    output_->removeAll( true );
 }
 
 
@@ -432,10 +432,10 @@ ExplPlaneIntersection::~ExplPlaneIntersection()
 }
 
 
-void ExplPlaneIntersection::removeAll()
+void ExplPlaneIntersection::removeAll( bool deep )
 {
     intersection_ = 0;
-    IndexedShape::removeAll();
+    IndexedShape::removeAll( deep );
 }
 
 

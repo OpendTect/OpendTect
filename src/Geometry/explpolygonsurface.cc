@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.14 2010-02-25 17:03:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.15 2011-02-14 22:23:17 cvsyuancheng Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -39,7 +39,7 @@ ExplPolygonSurface::~ExplPolygonSurface()
 
 void ExplPolygonSurface::setSurface( const PolygonSurface* psurf )
 {
-    removeAll();
+    removeAll( true );
     surface_ = psurf;
     needsupdate_ = true;
 }
@@ -51,28 +51,26 @@ void ExplPolygonSurface::setZScale( float zscale )
 }
 
 
-void ExplPolygonSurface::removeAll()
+void ExplPolygonSurface::removeAll( bool deep )
 {
-    if ( polygondisplay_ )
-    {
-    	removeFromGeometries( polygondisplay_ );
-    	delete polygondisplay_;
-    	polygondisplay_ = 0;
-    }
+    if ( polygondisplay_ && deep )
+	removeFromGeometries( polygondisplay_ );
+    
+    delete polygondisplay_;
+    polygondisplay_ = 0;
 
-    if ( bodytriangle_ )
-    {
-    	removeFromGeometries( bodytriangle_ );
-    	delete bodytriangle_;
-    	bodytriangle_ = 0;
-    }
+    if ( bodytriangle_ && deep )
+	removeFromGeometries( bodytriangle_ );
+
+    delete bodytriangle_;
+    bodytriangle_ = 0;
 }
 
 
 bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
 {
     if ( forceall )
-	removeAll();
+	removeAll( true );
 
     if ( !surface_ || !needsupdate_ )
 	return true;

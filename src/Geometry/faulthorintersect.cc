@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.9 2011-02-09 16:54:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.10 2011-02-14 22:23:17 cvsyuancheng Exp $";
 
 #include "faulthorintersect.h"
 
@@ -294,7 +294,7 @@ void FaultBinIDSurfaceIntersector::compute()
     const bool geoexit = output_ && output_->getGeometry()[0];
     IndexedGeometry* geo = geoexit ?
 	const_cast<IndexedGeometry*>( output_->getGeometry()[0] ) : 0;
-    if ( geo ) geo->removeAll();
+    if ( geo ) geo->removeAll( true );
 
     //Only add stick intersections.
     FaultStickHorizonIntersector its( *this );

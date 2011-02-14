@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: explpolygonsurface.h,v 1.7 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: explpolygonsurface.h,v 1.8 2011-02-14 22:23:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ protected:
 
     void		updateGeometries();
     bool		updateBodyDisplay();
-    void		removeAll();
+    void		removeAll(bool);
     void		addToGeometries(IndexedGeometry*);
     void		removeFromGeometries(const IndexedGeometry*);
 

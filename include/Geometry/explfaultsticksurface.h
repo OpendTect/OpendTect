@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.15 2010-07-27 08:56:57 cvsjaap Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.16 2011-02-14 22:23:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ protected:
     friend		class ExplFaultStickSurfaceUpdater;    
     friend		class ExplFaultStickTexturePositionExtracter;    
 
-    void		removeAll();
+    void		removeAll(bool);
     void		insertAll();
     bool		update(bool forceall,TaskRunner*);
     

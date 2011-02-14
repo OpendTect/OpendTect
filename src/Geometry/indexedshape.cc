@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: indexedshape.cc,v 1.10 2010-07-27 08:56:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: indexedshape.cc,v 1.11 2011-02-14 22:23:17 cvsyuancheng Exp $";
 
 #include "indexedshape.h"
 
@@ -33,18 +33,17 @@ IndexedGeometry::IndexedGeometry( Type type, NormalBinding nb,
 
 IndexedGeometry::~IndexedGeometry()
 {
-    removeAll();
-
+    removeAll( true );
     Threads::MutexLocker lock( lock_ );
     if ( coordlist_ ) coordlist_->unRef(); coordlist_ = 0;
     if ( normallist_ ) normallist_->unRef(); normallist_ = 0;
     if ( texturecoordlist_ ) texturecoordlist_->unRef(); texturecoordlist_=0;
 }
 
-void IndexedGeometry::removeAll()
+void IndexedGeometry::removeAll( bool deep )
 {
     Threads::MutexLocker lock( lock_ );
-    if ( coordlist_ )
+    if ( deep && coordlist_ )
     {
 	for ( int idx=coordindices_.size()-1; idx>=0; idx-- )
 	{
@@ -61,7 +60,7 @@ void IndexedGeometry::removeAll()
 	}
     }
 
-    if ( normallist_ )
+    if ( deep && normallist_ )
     {
 	for ( int idx=normalindices_.size()-1; idx>=0; idx-- )
 	{
@@ -78,7 +77,7 @@ void IndexedGeometry::removeAll()
 	}
     }
 
-    if ( texturecoordlist_ )
+    if ( deep && texturecoordlist_ )
     {
 	for ( int idx=texturecoordindices_.size()-1; idx>=0; idx-- )
 	{
@@ -127,7 +126,7 @@ IndexedShape::~IndexedShape()
 void IndexedShape::setCoordList( Coord3List* cl, Coord3List* nl,
        				 Coord3List* tcl )
 {
-    removeAll();
+    removeAll( true );
 
     if ( coordlist_ ) coordlist_->unRef();
     coordlist_ = cl;
@@ -147,9 +146,12 @@ void IndexedShape::setRightHandedNormals( bool yn )
 { righthandednormals_ = yn; }
 
 
-void IndexedShape::removeAll()
+void IndexedShape::removeAll( bool deep )
 {
     geometrieslock_.writeLock();
+    for ( int idx=geometries_.size()-1; idx>=0; idx-- )
+	geometries_[idx]->removeAll( deep );
+
     deepErase( geometries_ );
     geometrieslock_.writeUnLock();
 }

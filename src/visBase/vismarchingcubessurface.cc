@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vismarchingcubessurface.cc,v 1.18 2011-01-07 21:21:36 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurface.cc,v 1.19 2011-02-14 22:23:17 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurface.h"
 
@@ -53,6 +53,7 @@ MarchingCubesSurface::MarchingCubesSurface()
 MarchingCubesSurface::~MarchingCubesSurface()
 {
     shape_->unRef();
+    surface_->removeAll( false );
     delete surface_;
 }
 
