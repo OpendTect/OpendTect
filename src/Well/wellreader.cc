@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.44 2011-02-14 11:42:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.45 2011-02-14 12:04:28 cvsbruno Exp $";
 
 #include "wellreader.h"
 
@@ -311,7 +311,14 @@ void Well::Reader::getLogInfo( BufferStringSet& strs ) const
 	{
 	    int bintyp = 0;
 	    PtrMan<Well::Log> log = rdLogHdr( *sd.istrm, bintyp, idx-1 );
-	    strs.add( log->name() );
+	    if ( strs.isPresent( log->name() ) )
+	    {
+		BufferString msg(log->name());
+		msg += " already present in the list, won't be read";
+		pErrMsg( msg );
+	    }
+	    else
+		strs.add( log->name() );
 	}
 	sd.close();
     }
