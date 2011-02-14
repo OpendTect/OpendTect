@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.43 2010-12-23 11:34:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.44 2011-02-14 11:42:02 cvsbruno Exp $";
 
 #include "wellreader.h"
 
@@ -356,6 +356,7 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 bool Well::Reader::getLogs() const
 {
     bool rv = false;
+    wd.logs().empty();
     for ( int idx=1;  ; idx++ )
     {
 	StreamData sd = mkSD( sExtLog(), idx );
@@ -481,6 +482,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
     IOPar iopar( astrm );
     if ( iopar.isEmpty() ) return false;
 
+    deepErase( wd.markers() );
     BufferString bs;
     for ( int idx=1;  ; idx++ )
     {
