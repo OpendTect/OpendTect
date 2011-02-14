@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.26 2011-02-10 05:11:27 cvssatyaki Exp $
+ RCS:		$Id: vistexture.h,v 1.27 2011-02-14 22:32:04 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -70,9 +70,6 @@ public:
 
     void		setUseTransperancy(bool yn);
     bool		usesTransperancy() const;
-
-    void		setThreadWorker(ThreadWorker*);
-    ThreadWorker*	getThreadWorker();
 
     void		setTextureQuality(float);
     float		getTextureQuality() const;
@@ -141,7 +138,6 @@ protected:
     VisColorTab*	colortab;
     ObjectSet<visBaseTextureColorIndexMaker> colorindexers;
     ObjectSet<SequentialTask> texturemakers;
-    ThreadWorker*	threadworker;
 
     static const char*	colortabstr();
     static const char*	texturequalitystr();

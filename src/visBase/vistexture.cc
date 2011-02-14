@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.43 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.44 2011-02-14 22:32:04 cvskris Exp $";
 
 #include "vistexture.h"
 
@@ -75,7 +75,6 @@ Texture::Texture()
     : indexcache( 0 )
     , cachesize( 0 )
     , indexcachesize( 0 )
-    , threadworker( 0 )
     , colortab(0)
     , colortabcolors( new ::Color[NRCOLORS] )
     , usetrans( true )
@@ -117,7 +116,6 @@ Texture::~Texture()
     delete [] colordatacache;
     delete [] indexcache;
     delete [] colortabcolors;
-    setThreadWorker( 0 );
     if ( colortab )
     {
 	colortab->rangechange.remove(
@@ -230,22 +228,6 @@ void Texture::setUseTransperancy( bool yn )
 
 bool Texture::usesTransperancy() const
 { return usetrans; }
-
-
-void Texture::setThreadWorker( ThreadWorker* nw )
-{
-    if ( threadworker )
-	threadworker->unRef();
-
-    threadworker = nw;
-
-    if ( threadworker )
-	threadworker->ref();
-}
-
-
-ThreadWorker* Texture::getThreadWorker()
-{ return threadworker; }
 
 
 SoNode* Texture::getInventorNode()
@@ -363,16 +345,8 @@ void Texture::makeColorIndexes()
 	maker->colortab = colortab;
     }
 
-    if ( threadworker )
-    {
-	threadworker->addWork(
-		reinterpret_cast<ObjectSet<SequentialTask>&>(colorindexers ));
-    }
-    else
-    {
-	for ( int idx=0; idx<colorindexers.size(); idx++ )
-	    colorindexers[idx]->execute();
-    }
+    for ( int idx=0; idx<colorindexers.size(); idx++ )
+	colorindexers[idx]->execute();
 
     int max = 0;
     for ( int idx=0; idx<NRCOLORS; idx++ )
@@ -529,15 +503,8 @@ void Texture::makeTexture()
     }
 
 
-    if ( threadworker )
-    {
-	threadworker->addWork( texturemakers );
-    }
-    else
-    {
-	for ( int idx=0; idx<texturemakers.size(); idx++ )
-	    texturemakers[idx]->execute();
-    }
+    for ( int idx=0; idx<texturemakers.size(); idx++ )
+	texturemakers[idx]->execute();
 
     finishEditing();
 }
