@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.94 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.95 2011-02-14 14:43:17 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -560,14 +560,32 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     if ( !lasfnm || !*lasfnm ) 
 	{ uiMSG().error("Enter valid filename"); return false; }
 
-    BufferStringSet lognms;
+    BufferStringSet lognms; 	
     for ( int idx=0; idx<logsfld->box()->size(); idx++ )
     {
 	if ( logsfld->box()->isSelected(idx) )
 	    lognms += new BufferString( logsfld->box()->textOfItem(idx) );
     }
-    if ( lognms.size() == 0 )
+
+    BufferString existlogmsg; 
+    for ( int idx=lognms.size()-1; idx>=0; idx-- )
+    { 
+	if ( wd.logs().getLog( lognms.get( idx ) ) )
+	{
+	    if ( !existlogmsg.isEmpty() ) existlogmsg += ", "; 
+	    existlogmsg += lognms.get( idx ); 
+	    lognms.remove( idx );
+	}
+    }
+    if ( !existlogmsg.isEmpty() )
+    {
+	existlogmsg += " already exist(s) and will not be loaded.\n\n";
+	existlogmsg += "Please remove them from the existing logs before import.";
+	uiMSG().warning( existlogmsg );
+    }
+    else if ( lognms.isEmpty() )
 	{ uiMSG().error("Please select at least one log"); return false; }
+
 
     lfi.lognms = lognms;
     const char* res = wdai.getLogs( lasfnm, lfi, istvdfld->getBoolValue() );

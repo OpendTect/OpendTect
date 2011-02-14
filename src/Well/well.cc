@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.80 2011-01-19 14:55:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.81 2011-02-14 14:43:17 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -204,7 +204,8 @@ void Well::Data::levelToBeRemoved( CallBacker* cb )
 
 void Well::LogSet::add( Well::Log* l )
 {
-    if ( !l ) return;
+    if ( !l ) return; 
+    if ( getLog(l->name()) ) return;
 
     logs += l;
     updateDahIntv( *l );;

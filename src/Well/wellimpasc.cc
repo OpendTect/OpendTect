@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.76 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.77 2011-02-14 14:43:17 cvsbruno Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -274,6 +274,13 @@ const char* Well::LASImporter::getLogs( std::istream& strm,
 	const bool ispresent = indexOf( lfi.lognms, lognm ) >= 0;
 	if ( !ispresent )
 	    continue;
+	if ( wd.logs().getLog( lognm ) )
+	{
+	    BufferString msg( lognm );
+	    msg += " already exists, will be ignored.";
+	    pErrMsg( msg );
+	    continue;
+	}
 
 	issel[idx] = true;
 	Well::Log* newlog = new Well::Log( lognm );
