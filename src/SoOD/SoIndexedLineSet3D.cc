@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.18 2011-01-24 11:45:06 cvsjaap Exp $";
+static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.19 2011-02-14 23:24:03 cvskris Exp $";
 
 #include "SoIndexedLineSet3D.h"
 
@@ -426,6 +426,14 @@ void SoIndexedLineSet3D::generateCoordinates( SoState* state )
 	    break;
 
 	SbVec3f c1,c2;
+#ifdef __debug__
+	if ( index1>=nrcoords || index2>=nrcoords )
+	{
+	    SoDebugError::postWarning("SoIndexedLineSet3D::generateCoordinates",
+				       "Index is too large");
+	    return;
+	}
+#endif
 	mat.multVecMatrix( celem->get3(index1), c1 );
 	mat.multVecMatrix( celem->get3(index2), c2 );
 
@@ -454,6 +462,14 @@ void SoIndexedLineSet3D::generateCoordinates( SoState* state )
 	    const int index3 = cindices>=stopptr ? -1 : *cindices++;
 	    if ( index3>=0 )
 	    {
+#ifdef __debug__
+		if ( index3>=nrcoords )
+		{
+		    SoDebugError::postWarning("SoIndexedLineSet3D::generateCoordinates",
+					       "Index is too large");
+		    return;
+		}
+#endif
 		mat.multVecMatrix(celem->get3(index3), c3 );
 		SbVec3f c3c2 = c3-c2; c3c2.normalize();
 
