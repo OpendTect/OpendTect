@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.31 2010-06-02 10:22:09 cvsranojay Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.32 2011-02-14 21:04:25 cvsyuancheng Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -68,7 +68,12 @@ public:
 protected:
 
     od_int64	nrIterations() const { return totalnr_; }
-    const char* message() const { return "Triangulating"; }
+    const char* message() const 
+    { 
+	return updatecoords_ ? "Triangulation: updating coordinates" 
+	    		     : "Triangulation: updating indices"; 
+    }
+
     bool doWork( od_int64 start, od_int64 stop, int thread )
     {
 	const int* tableidxs = idxstocompute_.arr();
@@ -244,6 +249,10 @@ bool ExplicitMarchingCubesSurface::allBucketsHaveChanged() const
 
     return true;
 }
+
+
+bool ExplicitMarchingCubesSurface::needsUpdate() const
+{ return surface_ && surface_->models_.size(); }
 
 
 bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )

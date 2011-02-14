@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.16 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.17 2011-02-14 21:04:25 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ public:
     void			removeAll();
 
     bool			update(bool forceall,TaskRunner* = 0);
+    bool			needsUpdate() const;
 
     void			setAxisScales(const SamplingData<float>& xrg,
 					      const SamplingData<float>& yrg,
