@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.114 2011-02-10 22:33:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.115 2011-02-14 22:23:30 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -131,7 +131,6 @@ protected:
     friend class		HorizonSectionTilePosSetup;
     friend class		TileTesselator;		
     friend class		HorizonSection;    
-    void			bgTesselationFinishCB(CallBacker*);
     void			setActualResolution(int);
     int				getAutoResolution(SoState*);
     void			tesselateGlue();
@@ -182,8 +181,6 @@ protected:
     bool			allnormalsinvalid_[mMaxNrResolutions];
     char			needsretesselation_[mMaxNrResolutions];
     				//!<0 - updated, 1 - needs update, 2 - dont disp
-    ObjectSet<TileTesselator>	tesselationqueue_;
-    Threads::ConditionVar	tesselationqueuelock_;
 
     SoSeparator*		resolutions_[mMaxNrResolutions];
     SoIndexedTriangleStripSet*	triangles_[mMaxNrResolutions];
@@ -203,7 +200,7 @@ protected:
     char			glueneedsretesselation_;
     				//!<0 - updated, 1 - needs update, 2 - dont disp
 
-    CallBack			bgfinished_;
+    int				tesselationqueueid_;
 };
 
 
@@ -1199,16 +1196,15 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
     //Only for fixed resolutions, which won't be tesselated at render.
     if ( oldupdatetiles.size() )
     {
-	ObjectSet<SequentialTask> work;
+	TypeSet<Threads::Work> work;
 	for ( int idx=0; idx<oldupdatetiles.size(); idx++ )
 	{
 	    TileTesselator* tt =
 		new TileTesselator( oldupdatetiles[idx], desiredresolution_ );
-	    work += tt;
+	    work += Threads::Work( *tt, true );
 	}
 
 	Threads::WorkManager::twm().addWork( work );
-	deepErase( work );
     }
   
     tesselationlock_ = false;
@@ -1525,18 +1521,18 @@ void HorizonSection::setResolution( int res, TaskRunner* tr )
     if ( res==-1 )
 	return;
 
-    ObjectSet<SequentialTask> work;
+    TypeSet<Threads::Work> work;
     for ( int idx=0; idx<tilesz; idx++ )
     {
 	if ( !tileptrs[idx] )
 	    continue;
 	
 	tileptrs[idx]->setActualResolution( res );
-	work += new TileTesselator( tileptrs[idx], res );
+	work += Threads::Work(
+		*new TileTesselator( tileptrs[idx], res ), true );
     }
     
     Threads::WorkManager::twm().addWork( work );
-    deepErase( work );
 }
 
 
@@ -1576,9 +1572,10 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
     , needsupdatebbox_( false )
     , usewireframe_( false )
     , nrdefinedpos_( 0 )
-    , bgfinished_( mCB( this, HorizonSectionTile, bgTesselationFinishCB ) )
     , origin_( origin )
     , section_( section )
+    , tesselationqueueid_( Threads::WorkManager::twm().addQueue(
+		Threads::WorkManager::MultiThread ) )
 {
     coords_ = new SbVec3f[section_.mTotalNrCoordsPerTile];
     normals_ = new SbVec3f[section_.mTotalNormalSize];
@@ -1665,17 +1662,7 @@ HorizonSectionTile::~HorizonSectionTile()
     root_->removeChild( coordnode_ );
     root_->unref();
     
-    tesselationqueuelock_.lock();
-    for ( int idx=tesselationqueue_.size()-1; idx>=0; idx-- )
-    {
-	if ( Threads::WorkManager::twm().removeWork( tesselationqueue_[idx] ) )
-	    delete tesselationqueue_.remove( idx );
-    }
-
-    while ( tesselationqueue_.size() )
-	tesselationqueuelock_.wait();
-
-    tesselationqueuelock_.unLock();
+    Threads::WorkManager::twm().removeQueue( tesselationqueueid_, false );
 
     deepErase( tesselationdata_ );
 
@@ -1902,78 +1889,40 @@ int HorizonSectionTile::getActualResolution() const
 
 void HorizonSectionTile::updateAutoResolution( SoState* state )
 {
-     int newres = desiredresolution_;
-     if ( newres==-1 && state )
-     {
-	 updateBBox();
-	 const SbBox3f bbox = getBBox();
-	 if ( bbox.isEmpty() )
-	     newres = -1;
-	 else if ( !section_.ismoving_ &&
-		   SoCullElement::cullTest( state, bbox, true ) )
-	     newres = -1;
-	 else if ( desiredresolution_==-1 )
-	 {
-	     const int wantedres = getAutoResolution( state );
-	     newres = wantedres;
-	     datalock_.lock();
-	     for ( ; newres<section_.mHorSectNrRes-1; newres++ )
-	     {
-		 if ( needsretesselation_[newres]<mMustRetesselate )
-		     break;
-	     }
-	     datalock_.unLock();
+    int newres = desiredresolution_;
+    if ( newres==-1 && state )
+    {
+	updateBBox();
+	const SbBox3f bbox = getBBox();
+	if ( bbox.isEmpty() )
+	    newres = -1;
+	else if ( !section_.ismoving_ &&
+		SoCullElement::cullTest( state, bbox, true ) )
+	    newres = -1;
+	else if ( desiredresolution_==-1 )
+	{
+	    const int wantedres = getAutoResolution( state );
+	    newres = wantedres;
+	    datalock_.lock();
+	    for ( ; newres<section_.mHorSectNrRes-1; newres++ )
+	    {
+		if ( needsretesselation_[newres]<mMustRetesselate )
+		    break;
+	    }
+	    datalock_.unLock();
 
-	     if ( !section_.tesselationlock_ &&
-		  (wantedres!=newres || needsretesselation_[newres] ) )
-	     {
-		 tesselationqueuelock_.lock();
-		 bool found = false;
-		 for ( int idx=0; idx<tesselationqueue_.size(); idx++ )
-		 {
-		     if ( tesselationqueue_[idx]->res_==wantedres )
-		     {
-			 found = true;
-			 break;
-		     }
-		 }
+	    if ( !section_.tesselationlock_ &&
+		(wantedres!=newres || needsretesselation_[newres] ) )
+	    {
+		TileTesselator* tt = new TileTesselator( this, wantedres );
+		Threads::WorkManager::twm().addWork(
+		    Threads::Work( *tt, true ),
+		    0, tesselationqueueid_, true );
+	    }
+	}
+    }
 
-		 if ( !found )
-		 {
-		     TileTesselator* tt = new TileTesselator( this, wantedres );
-		     tesselationqueue_ += tt;
-		     Threads::WorkManager::twm().addWork( tt, &bgfinished_, 
-			Threads::WorkManager::cDefaultQueueID(), true,
-			false);
-		 }
-
-		 tesselationqueuelock_.unLock();
-	     }
-	 }
-     }
-
-     setActualResolution( newres );
-}
-
-
-void HorizonSectionTile::bgTesselationFinishCB( CallBacker* cb )
-{
-    mDynamicCastGet( const TileTesselator*, tt,
-	    	     Threads::WorkManager::twm().getWork(cb));
-    if ( !tt )
-	return;
-
-    tesselationqueuelock_.lock();
-
-    const int idx = tesselationqueue_.indexOf( tt );
-    delete tesselationqueue_.remove( idx );
-
-    if ( !tesselationqueue_.size() )
-	tesselationqueuelock_.signal( true );
-
-    tesselationqueuelock_.unLock();
-
-    resswitch_->touch();
+    setActualResolution( newres );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.28 2010-11-18 17:24:50 cvskris Exp $
+ RCS:		$Id: task.h,v 1.29 2011-02-14 22:23:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,9 +21,10 @@ namespace Threads { class ThreadWorkManager; }
 
 class ProgressMeter;
 
-/*!The generalization of something (e.g. a computation) that needs to be
-   done in multiple steps. */
 
+
+/* generalization of something (e.g. a computation) that needs to be
+   done in multiple steps. */
 
 mClass Task : public NamedObject
 {

@@ -7,36 +7,36 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.27 2010-11-19 17:14:37 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.28 2011-02-14 22:23:30 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "task.h"
 #include "objectset.h"
 #include "callback.h"
 
-class SequentialTask;
+typedef bool (*StaticTaskFunction)();
+typedef bool (CallBacker::*TaskFunction)();
 
 namespace Threads
 {
 class Thread;
 class ConditionVar;
-
 class WorkThread;
+class Work;
 
 /*!\brief
-is the top manager of everything. Give the tasks to it and it will be performed
-in time. Note that no notification is done when the task is done. It's up to
-the user of the class to implement such things in the ThreadTask.
-
-The object can handle multiple queues. This is mostly intersting when you want
-to ensure that a shared resource is always accessed single threaded, but without using syncronization.
+Takes work and puts it on a queue for execution either in parallel, singlethread
+or manual.
 */
+
 
 mClass WorkManager : public CallBacker
 {
 public:
+
 				//Interface from outside world
     				WorkManager(int nrthreads=-1);
 				~WorkManager();
@@ -55,21 +55,20 @@ public:
     				/*!<Runs all jobs in a que. Only for manual
 				    queues */
 
-    void			addWork(SequentialTask*,CallBack* finished,
-	    				int queueid, bool putfirstinline,
-	   				bool manage );
+    void			addWork(const Work&,CallBack* finished,
+	    				int queueid, bool putfirstinline);
     				//!< Managed by caller if manage flag is false
 
-    bool			addWork(ObjectSet<SequentialTask>&,
+    bool			addWork(TypeSet<Work>&,
 	    				bool firstinline = false);
-    bool			removeWork(const SequentialTask*);	
+    bool			removeWork(const Work&);	
     				/*!< Removes the task from queue
 				     and stop it if allready running. If
 				     task is managed, it will be deleted.
 				    \returns true if the task was removed
 				    before it had started.*/
 
-    const SequentialTask*	getWork(CallBacker*) const;
+    const Work*			getWork(CallBacker*) const;
     				/*!When a work is sumbmitted with a
 				   callback, the callback is called with a
 				   callbacker. If called from the callback and
@@ -93,10 +92,9 @@ protected:
     friend class		WorkThread;
 
     //Linked (one entry per que-entry)
-    ObjectSet<SequentialTask>	workload_;
+    TypeSet<Work>		workload_;
     TypeSet<int>		workqueueid_;
     ObjectSet<CallBack>		callbacks_;
-    BoolTypeSet			isowner_;
 
     ObjectSet<WorkThread>	threads_;
     ObjectSet<WorkThread>	freethreads_;
@@ -114,7 +112,109 @@ protected:
 };
 
 
+/*! The abstraction of something that can be done. It can be an ordinary
+    CallBack, a static function (must return bool) or a TaskFunction on
+    a CallBacker inheriting class, or a Task. The three examples are shown
+    below.
+
+\code
+    mClass MyClass : public CallBacker
+    {
+        void		normalCallBack(CallBacker*);
+	bool		taskFunction();
+	static bool	staticFunc();
+    };
+\endcode
+    Calls to normalCallBack and task functions can be invoked as:
+\code
+    Threads::WorkManager::twm().addWork( Work(mCB(this,MyClass,normalCallBack) ) );
+\endcode
+    or
+\code
+    Threads::WorkManager::twm().addWork( mWMT(this,MyClass,taskFunction));
+\endcode
+    or
+\code
+    Threads::WorkManager::twm().addWork( Work( &MyClass::staticFunc) );
+\endcode
+
+You can also add Tasks, with the option that they may be deleted when
+the work is done, or if there is an error.
+*/
+
+
+mClass Work
+{
+public:
+    inline		Work();
+    inline		Work(const CallBack&);
+    inline		Work(CallBacker* o,TaskFunction f);
+    inline		Work(StaticTaskFunction f);
+    inline		Work(Task& t,bool takeover);
+    bool		operator==(const Work&) const;
+
+    inline bool		isOK() const;
+    inline bool        	doRun();
+
+protected:
+
+    friend class	WorkThread;
+    friend class	WorkManager;
+    void		destroy();
+    CallBacker*		obj_;
+    CallBackFunction	cbf_;
+    TaskFunction	tf_;
+    StaticTaskFunction	stf_;
+    bool			takeover_;
+};
+
+#define mSTFN(clss,fn) ((::TaskFunction)(&clss::fn))
+#define mWMT(obj,clss,fn) ::Threads::Work( obj, mSTFN(clss,fn) )
+
+
 }; // Namespace
+
+inline Threads::Work::Work()
+    : obj_( 0 ), cbf_( 0 ), tf_( 0 ), stf_( 0 )				{}
+
+
+inline Threads::Work::Work( const CallBack& cb )
+    : obj_( const_cast<CallBacker*>(cb.cbObj()) )
+    , cbf_( cb.cbFn() ), tf_( 0 ), stf_( 0 )				{}
+
+
+inline Threads::Work::Work( CallBacker* o, TaskFunction f )
+    : obj_( o ), cbf_( 0 ), tf_( f ), stf_( 0 ), takeover_( false )	{}
+
+
+inline Threads::Work::Work( StaticTaskFunction f )
+    : obj_( 0 ), cbf_( 0 ), tf_( 0 ), stf_( f )				{}
+
+
+inline Threads::Work::Work( Task& t, bool takeover )
+    : obj_( &t ), cbf_( 0 ), tf_( mSTFN(Task,execute) ), stf_( 0 )
+    , takeover_( takeover )						{}
+
+
+inline bool Threads::Work::isOK() const
+{ return stf_ || (obj_ && (tf_ || cbf_ ) ); }
+
+
+inline bool Threads::Work::doRun()
+{
+    if ( stf_ )     return stf_();
+    if ( tf_ )
+    {
+	const bool res = (obj_->*tf_)();
+	if ( takeover_ ) delete obj_;
+	return res;
+    }
+
+    (obj_->*cbf_)( 0 );
+
+    return true;
+}
+
 
 
 #endif

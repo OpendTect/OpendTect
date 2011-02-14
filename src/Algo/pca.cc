@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.14 2010-11-18 17:48:14 cvskris Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.15 2011-02-14 22:23:30 cvskris Exp $";
 
 
 #include "pca.h"
@@ -25,64 +25,66 @@ static const char* rcsID = "$Id: pca.cc,v 1.14 2010-11-18 17:48:14 cvskris Exp $
 class PCACovarianceCalculator : public SequentialTask
 {
 public:
-    		PCACovarianceCalculator( Array2D<float>& covariancematrix_,
-					 int row_, int col_,
-					 ObjectSet<TypeSet<float> >& samples_,
-		       			 const TypeSet<float>& samplesums_ )
-		    : row( row_ )
-		    , col( col_ )
-		    , covariancematrix( covariancematrix_ )
-		    , samples( samples_ )
-		    , samplesums( samplesums_ )
+    		PCACovarianceCalculator( Array2D<float>& covariancematrix,
+					 int row, int col,
+					 ObjectSet<TypeSet<float> >& samples,
+		       			 const TypeSet<float>& samplesums )
+		    : row_( row )
+		    , col_( col )
+		    , covariancematrix_( covariancematrix )
+		    , samples_( samples )
+		    , samplesums_( samplesums )
 		{}
 
 protected:
     int					nextStep();
-    int					row;
-    int 				col;
-    Array2D<float>&			covariancematrix;
-    const ObjectSet<TypeSet<float> >&	samples;
-    const TypeSet<float>&		samplesums;
+    int					row_;
+    int 				col_;
+    Array2D<float>&			covariancematrix_;
+    const ObjectSet<TypeSet<float> >&	samples_;
+    const TypeSet<float>&		samplesums_;
 };
 
 
 int PCACovarianceCalculator::nextStep()
 {
-    const int nrsamples = samples.size();
+    const int nrsamples = samples_.size();
     float sum = 0;
-    const float rowavg = samplesums[row]/nrsamples;
-    const float colavg = samplesums[col]/nrsamples;
+    const float rowavg = samplesums_[row_]/nrsamples;
+    const float colavg = samplesums_[col_]/nrsamples;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const TypeSet<float>& sample = *(samples[idx]);
-	sum += (sample[row]-rowavg) *
-	       (sample[col]-colavg);
+	const TypeSet<float>& sample = *(samples_[idx]);
+	sum += (sample[row_]-rowavg) *
+	       (sample[col_]-colavg);
     }
 
     const float cov = sum/(nrsamples-1);
 
-    covariancematrix.set( row, col, cov );
-    if ( row!=col ) covariancematrix.set(col, row, cov );
+    covariancematrix_.set( row_, col_, cov );
+    if ( row_!=col_ ) covariancematrix_.set(col_, row_, cov );
 
     return 0;
 }
 
 
-PCA::PCA( int nrvars_ )
-    : nrvars( nrvars_ )
-    , covariancematrix( nrvars_, nrvars_ )
-    , samplesums( nrvars_, 0 )
-    , threadworker( 0 )
-    , eigenvecindexes( new int[nrvars_] )
-    , eigenvalues( new float[nrvars_] )
+PCA::PCA( int nrvars )
+    : nrvars_( nrvars )
+    , covariancematrix_( nrvars, nrvars )
+    , samplesums_( nrvars, 0 )
+    , eigenvecindexes_( new int[nrvars] )
+    , eigenvalues_( new float[nrvars] )
 {
-    for ( int row=0; row<nrvars; row++ )
+    for ( int row=0; row<nrvars_; row++ )
     {
-	for ( int col=row; col<nrvars; col++ )
+	for ( int col=row; col<nrvars_; col++ )
 	{
-	    tasks += new PCACovarianceCalculator( covariancematrix,
-				    row, col, samples, samplesums );
+	    PCACovarianceCalculator* task =
+		new PCACovarianceCalculator( covariancematrix_,
+					     row, col, samples_, samplesums_ );
+	    tasks_ += task;
+	    workload_ += Threads::Work( *task, false );
 	}
     }
 }
@@ -91,16 +93,16 @@ PCA::PCA( int nrvars_ )
 PCA::~PCA()
 {
     clearAllSamples();
-    deepErase( tasks );
-    delete [] eigenvecindexes;
-    delete [] eigenvalues;
+    deepErase( tasks_ );
+    delete [] eigenvecindexes_;
+    delete [] eigenvalues_;
 }
 
 
 void PCA::clearAllSamples()
 {
-    deepErase( samples );
-    samplesums = TypeSet<float>(nrvars, 0 );
+    deepErase( samples_ );
+    samplesums_ = TypeSet<float>( nrvars_, 0 );
 }
 
 
@@ -278,45 +280,33 @@ void PCA::tred2( ObjectSet<float>& a, int n, float d[], float e[])
 
 bool PCA::calculate()
 {
-    if ( threadworker ) threadworker->addWork( tasks );
-    else
-    {
-	const int nrtasks=tasks.size();
-	for ( int idx=0; idx<nrtasks; idx++ )
-	    tasks[idx]->execute();
-    }
+    Threads::WorkManager::twm().addWork( workload_ );
 
     // Now, get the eigenvalues
-    ArrPtrMan<float> d = new float [nrvars+1];
-    ArrPtrMan<float> e = new float [nrvars+1];
+    ArrPtrMan<float> d = new float [nrvars_+1];
+    ArrPtrMan<float> e = new float [nrvars_+1];
     ObjectSet<float> a;
 
-    float* ptr = covariancematrix.getData();
+    float* ptr = covariancematrix_.getData();
     a += ptr;	//Dummy to get counting right
-    for ( int idx=0; idx<nrvars; idx++ )
-	a += ptr+idx*nrvars-1;
+    for ( int idx=0; idx<nrvars_; idx++ )
+	a += ptr+idx*nrvars_-1;
 
-    tred2( a, nrvars, d, e );
-    if ( !tqli( d, e, nrvars, a ) )
+    tred2( a, nrvars_, d, e );
+    if ( !tqli( d, e, nrvars_, a ) )
 	return false;
 
-    for ( int idx=0; idx<nrvars; idx++ )
+    for ( int idx=0; idx<nrvars_; idx++ )
     {
 	//Store the negative number to get the sorting right
-	eigenvalues[idx] = -d[idx+1];		
-	eigenvecindexes[idx] = idx;
+	eigenvalues_[idx] = -d[idx+1];		
+	eigenvecindexes_[idx] = idx;
     }
 
-    sort_idxabl_coupled( eigenvalues, eigenvecindexes, nrvars );
+    sort_idxabl_coupled( eigenvalues_, eigenvecindexes_, nrvars_ );
 
     return true;
 }
 
 
-float PCA::getEigenValue(int idx) const { return -eigenvalues[idx]; }
-
-
-void PCA::setThreadWorker( Threads::WorkManager* nv )
-{
-    threadworker = nv;
-}
+float PCA::getEigenValue(int idx) const { return -eigenvalues_[idx]; }

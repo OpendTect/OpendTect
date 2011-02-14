@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.49 2011-01-27 04:48:17 cvsnanne Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.50 2011-02-14 22:23:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -183,6 +183,8 @@ protected:
     int*			nrcells_;
     int*			normalstartidx_;
     int*			normalsidesize_;
+
+    int				tesselationqueueid_;
     
     static const char*		sKeySectionID()	{ return "Section ID"; }
 };

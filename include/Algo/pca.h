@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: pca.h,v 1.11 2010-11-18 17:48:14 cvskris Exp $
+ RCS:		$Id: pca.h,v 1.12 2011-02-14 22:23:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "sets.h"
 #include "trigonometry.h"
+#include "threadwork.h"
 
 template <class T> class Array2D;
-namespace Threads { class WorkManager; };
 class SequentialTask;
 class PCACovarianceCalculator;
 
@@ -118,35 +118,21 @@ public:
 						       be used, for example
 						       float* and TypeSet<T>.
 					*/
-
-    void				setThreadWorker(Threads::WorkManager*);
-    					/*!< Enables multi-threaded calculation,
-					     which is beneficial when the
-					     number of samples and/or number
-					     of variables are large. The object
-					     does however work without setting
-					     the threadworkmanager.
-					     \note threadworkmanager is managed
-					     (i.e. deleted) by caller, and it
-					     can be shared with many other
-					     objects (such as other PCAs).
-					*/
-
 protected:
     bool			tqli( float[], float[], int, ObjectSet<float>&);
     void			tred2( ObjectSet<float>&, int, float[],float[]);
 
-    const int			nrvars;
-    Array2DImpl<float>		covariancematrix;
-    ObjectSet<TypeSet<float> >	samples;
-    TypeSet<float>		samplesums;
-    Threads::WorkManager*	threadworker;
-    ObjectSet<SequentialTask>	tasks;
-    float*			eigenvalues;
+    const int			nrvars_;
+    Array2DImpl<float>		covariancematrix_;
+    ObjectSet<TypeSet<float> >	samples_;
+    TypeSet<float>		samplesums_;
+    TypeSet<Threads::Work>	workload_;
+    ObjectSet<SequentialTask>	tasks_;
+    float*			eigenvalues_;
     				/*!<The negation of the eigenval,
     				    to get the sorting right.
 				*/
-    int*			eigenvecindexes;
+    int*			eigenvecindexes_;
 };
 
 
@@ -154,21 +140,21 @@ template <class IDXABL> inline
 void PCA::addSample( const IDXABL& sample )
 {
     TypeSet<float>& ownsample = *new TypeSet<float>;
-    for ( int idx=0; idx<nrvars; idx++ )
+    for ( int idx=0; idx<nrvars_; idx++ )
     {
 	const float val = sample[idx];
 	ownsample += val;
-	samplesums[idx] += val;
+	samplesums_[idx] += val;
     }
 
-    samples += &ownsample;
+    samples_ += &ownsample;
 }
 
 template <class IDXABL> inline
 void PCA::getEigenVector(int idy, IDXABL& vec ) const
 {
-    for ( int idx=0; idx<nrvars; idx++ )
-	vec[idx] = covariancematrix.get(idx, eigenvecindexes[idy] );
+    for ( int idx=0; idx<nrvars_; idx++ )
+	vec[idx] = covariancematrix_.get(idx, eigenvecindexes_[idy] );
 }
 
 #endif

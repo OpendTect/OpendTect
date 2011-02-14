@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.25 2010-11-18 17:24:50 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.26 2011-02-14 22:23:30 cvskris Exp $";
 
 #include "task.h"
 
@@ -233,7 +233,7 @@ bool SequentialTask::execute()
 }
 
 
-class ParallelTaskRunner : public SequentialTask
+class ParallelTaskRunner : public CallBacker
 {
 public:
     		ParallelTaskRunner()
@@ -248,15 +248,15 @@ public:
 		    threadidx_ = threadidx;
 		}
 
-    int		nextStep()
+    bool	doRun()
 		{
 		    if ( !task_->doWork(start_,stop_,threadidx_) )
 		    {
 			task_->controlWork( Task::Stop );
-			return SequentialTask::ErrorOccurred();
+			return false;
 		    }
 
-		    return SequentialTask::Finished();
+		    return true;
 		}
 
 protected:
@@ -400,7 +400,7 @@ bool ParallelTask::execute( bool parallel )
     mAllocVarLenArr( ParallelTaskRunner, runners, nrthreads );
 
     od_int64 start = 0;
-    ObjectSet<SequentialTask> tasks;
+    TypeSet<Threads::Work> tasks;
     for ( int idx=nrthreads-1; idx>=0; idx-- )
     {
 	if ( start>=size )
@@ -412,7 +412,7 @@ bool ParallelTask::execute( bool parallel )
 
 	const int stop = start + threadsize-1;
 	runners[idx].set( this, start, stop, idx );
-	tasks += &runners[idx];
+	tasks += mWMT(&runners[idx],ParallelTaskRunner,doRun);
 	start = stop+1;
     }
 
