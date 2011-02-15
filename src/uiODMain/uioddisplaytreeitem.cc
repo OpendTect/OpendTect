@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.46 2010-11-22 06:39:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.47 2011-02-15 14:45:07 cvsjaap Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -346,14 +346,11 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==removemnuitem_.id )
     {
-	if ( visserv_->isTrackingSetupActive() )
-	    visserv_->turnSeedPickingOn( false );
-
 	menu->setIsHandled(true);
 	if ( askContinueAndSaveIfNeeded( true ) )
 	{
 	    prepareForShutdown();
-
+	    visserv_->turnSeedPickingOn( false );
 	    visserv_->removeObject( displayid_, sceneID() );
 	    parent_->removeChild( this );
 	}
