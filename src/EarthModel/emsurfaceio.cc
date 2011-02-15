@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.144 2010-12-29 18:04:50 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.145 2011-02-15 22:16:37 cvsyuancheng Exp $";
 
 #include "emsurfaceio.h"
 
@@ -858,6 +858,14 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
 	if ( !strm )
 	{
 	    msg_ = sMsgReadError();
+	    return ErrorOccurred();
+	}
+
+	const int lastrow = firstrow_ + (nrrows_-1)*rowrange_.step;
+	if ( !rowrange_.includes( firstrow_ ) ||
+	     !rowrange_.includes( lastrow ) )
+	{
+	    msg_ = "Corrupted file encounered";
 	    return ErrorOccurred();
 	}
     }
@@ -1815,8 +1823,8 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	pErrMsg("Steps not set");
 
     rowoffsettable_ += strm.tellp();
-    const int row = firstrow_+rowindex_ *
-		    (writerowrange_?writerowrange_->step:rowrange_.step);
+    const int row = firstrow_ + rowindex_ *
+		    (writerowrange_ ? writerowrange_->step : rowrange_.step);
 
     const StepInterval<int> colrange = geometry_.colRange( row );
 
@@ -1825,7 +1833,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 
     int firstcol = -1;
     const int nrcols =
-	(writecolrange_?writecolrange_->nrSteps():colrange.nrSteps())+1;
+	(writecolrange_ ? writecolrange_->nrSteps() : colrange.nrSteps()) + 1;
 
     mDynamicCastGet(const Horizon3D*,hor3d,&surface_)
     for ( int colindex=0; colindex<nrcols; colindex++ )
