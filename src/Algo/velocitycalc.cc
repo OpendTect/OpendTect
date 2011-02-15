@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.34 2011-02-08 09:51:31 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.35 2011-02-15 07:44:09 cvsbruno Exp $";
 
 #include "velocitycalc.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: velocitycalc.cc,v 1.34 2011-02-08 09:51:31 cvsk
 
 mImplFactory( Vrms2Vint, Vrms2Vint::factory );
 
-TimeDepthConverter::TimeDepthConverter()
+TimeDepthModel::TimeDepthModel()
     : times_( 0 )
     , depths_( 0 )
     , sz_( 0 )
@@ -26,18 +26,18 @@ TimeDepthConverter::TimeDepthConverter()
 {}
 
 
-TimeDepthConverter::~TimeDepthConverter()
+TimeDepthModel::~TimeDepthModel()
 {
     delete [] times_;
     delete [] depths_;
 }
 
 
-bool TimeDepthConverter::isOK() const
+bool TimeDepthModel::isOK() const
 { return times_ || depths_; }
 
 
-bool TimeDepthConverter::isVelocityDescUseable(const VelocityDesc& vd,
+bool TimeDepthModel::isVelocityDescUseable(const VelocityDesc& vd,
  					       bool velintime,
 					       FixedString* errmsg )
 {
@@ -63,7 +63,7 @@ bool TimeDepthConverter::isVelocityDescUseable(const VelocityDesc& vd,
 } 
 
  
-bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
+bool TimeDepthModel::setVelocityModel( const ValueSeries<float>& vel,
 				      int sz, const SamplingData<double>& sd,
 				      const VelocityDesc& vd, bool istime )
 {
@@ -207,151 +207,111 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 }
 
 
-bool TimeDepthConverter::calcDepths(ValueSeries<float>& res, int outputsz,
-				    const SamplingData<double>& timesamp) const
+bool TimeDepthModel::calcDepths(ValueSeries<float>& res, int outputsz,
+				    const SamplingData<double>& depthsamp) const
 {
     if ( !isOK() ) return false;
-    if ( depths_ )
-    {
-	StepInterval<double> timerg;
-	if ( !regularinput_ )
-	{
-	    timerg.start = times_[0];
-	    timerg.stop = times_[sz_-1];
-	    timerg.step = mUdf(double);
-	}
-	else
-	{
-	    timerg = sd_.interval( sz_ );
-	}
-
-	for ( int idx=0; idx<outputsz; idx++ )
-	{
-	    const double time = timesamp.atIndex( idx );
-
-	    float depth;
-	    if ( time<=timerg.start )
-	    {
-		const double dt = time-timerg.start;
-		depth = depths_[0]+dt*firstvel_;
-	    }
-	    else if ( time>=timerg.stop )
-	    {
-		const double dt = time-timerg.stop;
-		depth = depths_[sz_-1] + dt*lastvel_;
-	    }
-	    else
-	    {
-		const float timesample = regularinput_
-		    ? timerg.getfIndex(time) : mUdf(float); //IdxAble::findPos( times_, time );
-
-		depth = IdxAble::interpolateReg(depths_,sz_,timerg.getfIndex(time));
-	    }
-
-	    res.setValue( idx, depth );
-	}
-    }
-    else
-    {
-	int timeidx = 0;
-	for ( int idx=0; idx<outputsz; idx++ )
-	{
-	    const double time = timesamp.atIndex( idx );
-	    float depth;
-	    if ( time<=times_[0] )
-	    {
-		const double dt = time-times_[0];
-		depth = sd_.start+dt*firstvel_;
-	    }
-	    else if ( time>times_[sz_-1] )
-	    {
-		const double dt = time-times_[sz_-1];
-		depth = sd_.atIndex(sz_-1)+dt*lastvel_;
-	    }
-	    else
-	    {
-		while ( time>times_[timeidx+1] )
-		    timeidx++;
-
-		const float relidx = timeidx +
-		    (time-times_[timeidx])/(times_[timeidx+1]-times_[timeidx]);
-
-		depth = sd_.atIndex( relidx );
-	    }
-
-	    res.setValue( idx, depth );
-	}
-    }
-
+    calcZ( depths_, sz_, res, outputsz, depthsamp, false );
     return true;
 }
 
 
-bool TimeDepthConverter::calcTimes( ValueSeries<float>& res, int outputsz,
-				    const SamplingData<double>& depthsamp) const
+bool TimeDepthModel::calcTimes(ValueSeries<float>& res, int outputsz,
+				const SamplingData<double>& timesamp ) const
 {
     if ( !isOK() ) return false;
-    if ( times_ )
+    calcZ( times_, sz_, res, outputsz, timesamp, true );
+    return true;
+}
+
+
+void TimeDepthModel::calcZ( const float* zvals, int inpsz, 
+			      ValueSeries<float>& res, int outputsz, 
+			      const SamplingData<double>& zsamp, bool time)const
+{
+    if ( zvals )
     {
-	const StepInterval<double> depthrg( sd_.interval( sz_ ) );
+	StepInterval<double> zrg;
+	if ( !regularinput_ )
+	{
+	    zrg.start = zvals[0];
+	    zrg.stop = zvals[sz_-1];
+	    zrg.step = mUdf(double);
+	}
+	else
+	{
+	    zrg = sd_.interval( sz_ );
+	}
+
 	for ( int idx=0; idx<outputsz; idx++ )
 	{
-	    const double depth = depthsamp.atIndex( idx );
+	    const double z = zsamp.atIndex( idx );
 
-	    float time;
-	    if ( depth<=depthrg.start )
+	    float zrev;
+	    if ( z<=zrg.start )
 	    {
-		const double ddepth = depth-depthrg.start;
-		time = firstvel_>0 ? times_[0]+ddepth/firstvel_ : times_[0];
+		const double dz = z-zrg.start;
+		zrev = time ? firstvel_ > 0 ? zvals[0]+dz/firstvel_ : zvals[0] 
+			    : zvals[0] + dz*firstvel_;
 	    }
-	    else if ( depth>=depthrg.stop )
+	    else if ( time >= zrg.stop )
 	    {
-		const double ddepth = depth-depthrg.stop;
-		time = times_[sz_-1] + ddepth/lastvel_; 
+		const double dz = z-zrg.stop;
+		zrev = time ? zvals[sz_-1] + dz/lastvel_ 
+			    : zvals[sz_-1] + dz*lastvel_;
 	    }
 	    else
 	    {
-		time = IdxAble::interpolateReg( times_, sz_,
-					       depthrg.getfIndex(depth) );
+		float zsample = mUdf(float);
+		if ( regularinput_ )
+		{
+		    zsample = zrg.getfIndex(time);
+		}
+		else
+		{
+		    int sampidx;
+		    IdxAble::findPos( zvals, sz_, z, -1, sampidx );
+		    zsample = zvals[sampidx];
+		}
+		zrev = IdxAble::interpolateReg( zvals, sz_, zrg.getfIndex(z) );
 	    }
 
-	    res.setValue( idx, time );
+	    res.setValue( idx, zrev );
 	}
     }
     else
     {
-	int depthidx = 0;
+	int zidx = 0;
 	for ( int idx=0; idx<outputsz; idx++ )
 	{
-	    const double depth = depthsamp.atIndex( idx );
-	    float time;
-	    if ( depth<=depths_[0] )
+	    const double z = zsamp.atIndex( idx );
+	    float zrev;
+	    if ( z<=zvals[0] )
 	    {
-		const double ddepth = depth-depths_[0];
-		time = firstvel_>0 ? sd_.start+ddepth/firstvel_ : sd_.start;
+		const double dz = z-zvals[0];
+		zrev = time ? firstvel_>0 ? sd_.start+dz/firstvel_ : sd_.start
+			    : sd_.start+dz*firstvel_;
 	    }
-	    else if ( depth>depths_[sz_-1] )
+	    else if ( time>times_[sz_-1] )
 	    {
-		const double ddepth = depth-depths_[sz_-1];
-		time = sd_.atIndex(sz_-1)+ddepth/lastvel_;
+		const double dz = z-zvals[sz_-1];
+		zrev = time ? sd_.atIndex(sz_-1)+dz/lastvel_
+			    : sd_.atIndex(sz_-1)+dz*lastvel_;
 	    }
 	    else
 	    {
-		while ( depth>depths_[depthidx+1] )
-		    depthidx++;
+		while ( z>zvals[zidx+1] )
+		    zidx++;
 
-		const float relidx = depthidx +
-		    (depth-depths_[depthidx])/
-		    (depths_[depthidx+1]-depths_[depthidx]);
+		const float relidx = zidx +
+		    (z-zvals[zidx])/(zvals[zidx+1]-zvals[zidx]);
 
-		time = sd_.atIndex( relidx );
+		zrev = sd_.atIndex( relidx );
 	    }
 
-	    res.setValue( idx, time );
+	    res.setValue( idx, zrev );
 	}
     }
-
-    return true;
 }
 
 
@@ -369,7 +329,7 @@ Time(ms) Vel(m/s) Samplespan (ms)	Depth (m)
 \endcode
 */
 
-bool TimeDepthConverter::calcDepths( const ValueSeries<float>& vels, int velsz,
+bool TimeDepthModel::calcDepths( const ValueSeries<float>& vels, int velsz,
 				     const SamplingData<double>& sd,
 				     float* depths )
 {
@@ -382,7 +342,7 @@ bool TimeDepthConverter::calcDepths( const ValueSeries<float>& vels, int velsz,
 }
 
 
-bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
+bool TimeDepthModel::calcDepths(const ValueSeries<float>& vels, int velsz,
 				    const ValueSeries<float>& times,
 				    float* depths )
 {
@@ -437,7 +397,7 @@ Depth(m) Vel(m/s) Samplespan (m)	Time (s)
 \endcode
 */
 
-bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
+bool TimeDepthModel::calcTimes( const ValueSeries<float>& vels, int velsz,
 				    const SamplingData<double>& sd,
 				    float* times )
 {
@@ -450,7 +410,7 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 }
 
 
-bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
+bool TimeDepthModel::calcTimes( const ValueSeries<float>& vels, int velsz,
 				    const ValueSeries<float>& depths,
 				    float* times )
 {
@@ -780,7 +740,7 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
     if ( !tinser.isOK() || !deptharr || !depthsampled || !Vint_sampled )
 	return false;
 
-    TimeDepthConverter::calcDepths( Vint, nr_in, tinser, deptharr );
+    TimeDepthModel::calcDepths( Vint, nr_in, tinser, deptharr );
     if ( nr_in<2 )
 	return false;
     else
@@ -845,7 +805,7 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
     if ( !tinser.isOK() || !Vinser.isOK() || !deptharr || !depthsampled )
 	return false;
 
-    TimeDepthConverter::calcDepths( Vinser, nr_in, tinser, deptharr );
+    TimeDepthModel::calcDepths( Vinser, nr_in, tinser, deptharr );
     if ( nr_in<2 )
 	return false;
     else
@@ -905,11 +865,11 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
     ArrayValueSeries<float,float> inputzs( (float*)zin, false, nr );
     if ( zisdepth )
     {
-	TimeDepthConverter::calcTimes( inputvels, nr, inputzs, tmp );
+	TimeDepthModel::calcTimes( inputvels, nr, inputzs, tmp );
     }
     else
     {
-    	TimeDepthConverter::calcDepths( inputvels, nr, inputzs, tmp );
+    	TimeDepthModel::calcDepths( inputvels, nr, inputzs, tmp );
     }
 
     const float* depths = zisdepth ? zin : tmp;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.25 2011-02-08 09:51:31 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.26 2011-02-15 07:44:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,11 +25,11 @@ template <class T> class ValueSeries;
    can be either RMO-velocities in time, or interval velocity in either depth or
    time. */
 
-mClass TimeDepthConverter
+mClass TimeDepthModel
 {
 public:
-    			TimeDepthConverter();
-			~TimeDepthConverter();
+    			TimeDepthModel();
+			~TimeDepthModel();
 
     bool		isOK() const;
     static bool		isVelocityDescUseable(const VelocityDesc&,
@@ -70,6 +70,10 @@ public:
 	    			   const SamplingData<double>&, float* times);
     			 /*!<\param vels Velocity as Vint in depth*/
 protected:
+
+    void		calcZ(const float*,int inpsz,
+				ValueSeries<float>&,int outpsz,
+				const SamplingData<double>&,bool istime) const; 
 
     float			firstvel_;
     float			lastvel_;
