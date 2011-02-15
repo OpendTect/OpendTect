@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.216 2010-11-22 05:56:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.217 2011-02-15 04:00:09 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -237,6 +237,8 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	const bool isperspective = scenes_[0]->sovwr_->isCameraPerspective();
 	menuMgr().setCameraPixmap( isperspective );
 	zoomslider_->setSensitive( isperspective );
+	scn.sovwr_->showRotAxis( true );
+	menuMgr().updateAxisMode( true );
     }
 
     if ( name ) setSceneName( sceneid, name );
