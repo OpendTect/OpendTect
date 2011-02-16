@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinotsaveddlg.cc,v 1.2 2011-01-21 21:40:12 cvskris Exp $";
+static const char* rcsID = "$Id: uinotsaveddlg.cc,v 1.3 2011-02-16 22:11:10 cvskris Exp $";
 
 #include "uinotsaveddlg.h"
 
@@ -36,12 +36,20 @@ public:
 class uiNotSavedDlg : public uiDialog
 {
 public:
-    uiNotSavedDlg(uiParent* p, NotSavedPrompter& prompter, bool withcancel )
+    uiNotSavedDlg(uiParent* p, NotSavedPrompter& prompter, bool withcancel,
+	          bool isshutdown )
 	: uiDialog( p, uiDialog::Setup( "Not Saved",
 		    "The following objects are not saved", mNoHelpID ) )
 	, prompter_( prompter )
     {
 	if ( !withcancel ) setCancelText( 0 );
+	else
+	{
+	    setCancelText(
+		    isshutdown ? "Cancel shutdown" : "Cancel survey change" );
+	}
+
+	setOkText( isshutdown ? "Shutdown now" : "Switch survey now" );
 
 	for ( int idx=0; idx<prompter_.objects_.size(); idx++ )
 	{
@@ -103,13 +111,14 @@ NotSavedPrompter::NotSavedPrompter()
 {}
 
 
-bool NotSavedPrompter::doTrigger( uiParent* parent, bool withcancel )
+bool NotSavedPrompter::doTrigger( uiParent* parent, bool withcancel,
+       				  bool isshutdown )
 {
     promptSaving.trigger();
     if ( !objects_.size() )
 	return true;
 
-    dlg_ = new uiNotSavedDlg( parent, *this, withcancel );
+    dlg_ = new uiNotSavedDlg( parent, *this, withcancel, isshutdown );
     bool retval = dlg_->go();
     delete dlg_;
     dlg_ = 0;

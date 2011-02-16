@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.407 2011-02-10 22:32:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.408 2011-02-16 22:11:10 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -193,7 +193,7 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
     dispatcher_.survChg(true); attrvishandler_.survChg(true);
 
     bool anythingasked = false;
-    if ( !appl_.askStore(anythingasked) )
+    if ( !appl_.askStore(anythingasked,false) )
     {
 	IOM().disallowSurveyChange();
 	return;

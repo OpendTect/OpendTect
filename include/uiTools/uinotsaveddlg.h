@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2010
- RCS:           $Id: uinotsaveddlg.h,v 1.1 2010-11-23 16:06:20 cvskris Exp $
+ RCS:           $Id: uinotsaveddlg.h,v 1.2 2011-02-16 22:11:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ public:
 			  addObject() */
     		
 		NotSavedPrompter();
-    bool	doTrigger(uiParent*,bool withcancel);
+    bool	doTrigger(uiParent*,bool withcancel,bool isshutdown);
     		//!<Invoke the system. Returns false if cancel has been pressed.
 
 protected:
