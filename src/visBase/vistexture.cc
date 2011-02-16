@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.44 2011-02-14 22:32:04 cvskris Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.45 2011-02-16 21:56:35 cvskris Exp $";
 
 #include "vistexture.h"
 
@@ -21,7 +21,6 @@ static const char* rcsID = "$Id: vistexture.cc,v 1.44 2011-02-14 22:32:04 cvskri
 #include "viscolortab.h"
 #include "viscoltabmod.h"
 #include "visdataman.h"
-#include "visthread.h"
 
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoGroup.h>
