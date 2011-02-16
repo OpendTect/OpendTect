@@ -7,12 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoOneSideRender.cc,v 1.1 2011-02-16 03:22:57 cvskris Exp $";
+static const char* rcsID = "$Id: SoOneSideRender.cc,v 1.2 2011-02-16 21:50:09 cvskris Exp $";
 
 #include "SoOneSideRender.h"
 
 #include <Inventor/SbLinear.h>
-//#include <Inventor/SoPrimitiveVertex.h>
 #include <Inventor/actions/SoAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -21,36 +20,18 @@ static const char* rcsID = "$Id: SoOneSideRender.cc,v 1.1 2011-02-16 03:22:57 cv
 #include <Inventor/actions/SoGetMatrixAction.h>
 #include <Inventor/actions/SoHandleEventAction.h>
 #include <Inventor/actions/SoGetPrimitiveCountAction.h>
-//#include <Inventor/bundles/SoTextureCoordinateBundle.h>
-//#include <Inventor/bundles/SoMaterialBundle.h>
-//#include <Inventor/details/SoFaceDetail.h>
-//#include <Inventor/details/SoPointDetail.h>
 
-//#include <Inventor/elements/SoCoordinateElement.h>
-//#include <Inventor/elements/SoMaterialBindingElement.h>
-//#include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
-//#include <Inventor/elements/SoTextureCoordinateBindingElement.h>
-//#include <Inventor/elements/SoViewingMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
-//#include <Inventor/elements/SoViewportRegionElement.h>
-//#include <Inventor/system/gl.h>
 
-//#include <Inventor/errors/SoDebugError.h>
-
-//#include "SoCameraInfo.h"
-//#include "SoCameraInfoElement.h"
 
 SO_NODE_SOURCE(SoOneSideRender);
 
 void SoOneSideRender::initClass()
 {
     SO_NODE_INIT_CLASS(SoOneSideRender, SoNode, "Node");
-    //SO_ENABLE( SoGLRenderAction, SoCameraInfoElement );
-    //SO_ENABLE( SoGLRenderAction, SoModelMatrixElement );
-    //SO_ENABLE( SoGLRenderAction, SoViewportRegionElement );
-    //SO_ENABLE( SoGLRenderAction, SoViewVolumeElement );
-    //SO_ENABLE( SoGLRenderAction, SoCacheElement );
+    SO_ENABLE( SoGLRenderAction, SoModelMatrixElement );
+    SO_ENABLE( SoGLRenderAction, SoViewVolumeElement );
 }
 
 
@@ -65,7 +46,8 @@ SoOneSideRender::SoOneSideRender()
 
 bool SoOneSideRender::shouldRender( int idx, SoState* state ) const
 {
-    if ( idx>=nodes.getNum() || idx>=positions.getNum() || idx>=normals.getNum() )
+    if ( idx>=nodes.getNum() || idx>=positions.getNum() ||
+	 idx>=normals.getNum() || !nodes[idx] )
 	return false;
 
     const SbVec3f position = positions[idx];
@@ -90,17 +72,51 @@ void SoOneSideRender::func( actiontype* action )	\
     for ( int idx=0; idx<nrnodes; idx++ )		\
     {							\
 	if ( shouldRender( idx, state ) )		\
-	    nodes[idx]->func( action );			\
+	    action->traverse( nodes[idx] );		\
     }							\
 }
     
 
 mImplementFunc( GLRender, SoGLRenderAction);
 mImplementFunc( callback, SoCallbackAction);
-mImplementFunc( getBoundingBox, SoGetBoundingBoxAction);
 mImplementFunc( getMatrix, SoGetMatrixAction);
 mImplementFunc( handleEvent , SoHandleEventAction);
 mImplementFunc( pick, SoPickAction);
 mImplementFunc( rayPick, SoRayPickAction);
 mImplementFunc( getPrimitiveCount, SoGetPrimitiveCountAction);
 
+
+
+void SoOneSideRender::getBoundingBox( SoGetBoundingBoxAction* action )
+{
+    int nrnodes = nodes.getNum();	
+
+    int numindices;
+    const int * indices;
+
+    if (action->getPathCode(numindices, indices) == SoAction::IN_PATH)
+	nrnodes = indices[numindices-1]+1;
+
+    SoState* state = action->getState();
+
+    // Initialize accumulation variables.
+    SbVec3f acccenter(0.0f, 0.0f, 0.0f);
+    int numcenters = 0;
+
+    for ( int idx=0; idx<nrnodes; idx++ )
+    {
+	if ( !shouldRender( idx, state ) )
+	    continue;
+
+	action->traverse( nodes[idx] );
+	if ( action->isCenterSet() )
+	{
+	    acccenter += action->getCenter();
+	    numcenters++;
+	    action->resetCenter();
+    	}
+    }
+
+    if ( numcenters != 0 )
+	action->setCenter(acccenter / float(numcenters), FALSE);
+}

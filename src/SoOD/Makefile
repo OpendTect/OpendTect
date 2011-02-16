@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.48 2010-09-08 07:49:51 cvskarthika Exp $
+#	RCS :		$Id: Makefile,v 1.49 2011-02-16 21:50:09 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -29,6 +29,7 @@ SRC.cc	:=	initsood.cc \
 		SoLODMeshSurface.cc \
 		SoManLevelOfDetail.cc \
 		SoMFImage.cc \
+		SoOneSideRender.cc \
 		SoPerspectiveSel.cc \
 		SoPlaneWellLog.cc \
 		SoPolygonSelect.cc \
