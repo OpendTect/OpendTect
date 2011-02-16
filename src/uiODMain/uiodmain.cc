@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.141 2011-02-16 22:11:10 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.142 2011-02-16 22:44:49 cvskris Exp $";
 
 #include "uiodmain.h"
 
@@ -643,7 +643,7 @@ bool uiODMain::askStore( bool& askedanything, bool isshutdown )
 {
     if ( !applmgr_->attrServer() ) return false;
 
-    if ( !NotSavedPrompter::NSP().doTrigger( this, true, isshutdown ) )
+    if ( !NotSavedPrompter::NSP().doTrigger( uiMainWin::activeWindow(), true, isshutdown ) )
 	return false;
 
     bool doask = false;
