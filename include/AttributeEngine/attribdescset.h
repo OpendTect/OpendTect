@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.50 2011-02-03 11:58:49 cvsbert Exp $
+ RCS:           $Id: attribdescset.h,v 1.51 2011-02-16 08:39:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,10 @@ public:
     void		setContainStoredDescOnly(bool yn);
     inline bool		containsStoredDescOnly() const
     			{ return storedattronly_; }
+    void		setCouldBeUsedInAnyDimension( bool yn )
+			{ couldbeanydim_ = yn; }
+    inline bool		couldBeUsedInAnyDimension() const
+    			{ return couldbeanydim_; }
     bool		hasStoredInMem() const;
 
     inline bool		is2D() const		{ return is2d_; }
@@ -146,6 +150,7 @@ protected:
     TypeSet<DescID>	ids_;
     bool		is2d_;
     bool		storedattronly_;
+    bool		couldbeanydim_;
     BufferString	errmsg_;
     mutable BufferString defidstr_;
     mutable DescID	defattribid_;
