@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.111 2011-02-16 04:40:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.112 2011-02-16 08:40:59 cvshelene Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -888,10 +888,8 @@ void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
     {
 	delete oldioobj;
 	setid_ = setctio_.ioobj->key();
-	/* TODO: Helene, uncomment when you've committed attribdescset
 	if ( attrset_->couldBeUsedInAnyDimension() )
 	    replaceStoredAttr();
-	*/
 
 	newList( -1 );
 	attrsetfld_->setText( setctio_.ioobj->name() );
