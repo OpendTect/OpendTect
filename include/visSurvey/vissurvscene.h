@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.71 2010-08-09 20:01:50 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.72 2011-02-16 21:57:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -95,6 +95,8 @@ public:
     bool			isAnnotTextShown() const;
     void			showAnnotScale(bool);
     bool			isAnnotScaleShown() const;
+    void			showAnnotGrid(bool);
+    bool			isAnnotGridShown() const;
     void			showAnnot(bool);
     bool			isAnnotShown() const;
     void			setAnnotText(int dim,const char*);
@@ -217,6 +219,7 @@ protected:
 
     static const char*		sKeyShowAnnot();
     static const char*		sKeyShowScale();
+    static const char*		sKeyShowGrid();
     static const char*		sKeyShowCube();
     static const char*		sKeyZStretch();
     static const char*		sKeyZAxisTransform();

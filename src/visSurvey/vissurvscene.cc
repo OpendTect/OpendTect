@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.142 2010-12-15 22:54:14 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.143 2011-02-16 21:57:59 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -40,6 +40,7 @@ namespace visSurvey {
 
 const char* Scene::sKeyShowAnnot()	{ return "Show text"; }
 const char* Scene::sKeyShowScale()	{ return "Show scale"; }
+const char* Scene::sKeyShowGrid()	{ return "Show grid"; }
 const char* Scene::sKeyShowCube()	{ return "Show cube"; }
 const char* Scene::sKeyZStretch()	{ return "ZStretch"; }
 const char* Scene::sKeyZAxisTransform()	{ return "ZTransform"; }
@@ -252,19 +253,7 @@ void Scene::setCubeSampling( const CubeSampling& cs )
     cs_ = cs;
     if ( !annot_ ) return;
 
-    BinID c0( cs.hrg.start.inl, cs.hrg.start.crl ); 
-    BinID c1( cs.hrg.stop.inl, cs.hrg.start.crl ); 
-    BinID c2( cs.hrg.stop.inl, cs.hrg.stop.crl ); 
-    BinID c3( cs.hrg.start.inl, cs.hrg.stop.crl );
-
-    annot_->setCorner( 0, c0.inl, c0.crl, cs.zrg.start );
-    annot_->setCorner( 1, c1.inl, c1.crl, cs.zrg.start );
-    annot_->setCorner( 2, c2.inl, c2.crl, cs.zrg.start );
-    annot_->setCorner( 3, c3.inl, c3.crl, cs.zrg.start );
-    annot_->setCorner( 4, c0.inl, c0.crl, cs.zrg.stop );
-    annot_->setCorner( 5, c1.inl, c1.crl, cs.zrg.stop );
-    annot_->setCorner( 6, c2.inl, c2.crl, cs.zrg.stop );
-    annot_->setCorner( 7, c3.inl, c3.crl, cs.zrg.stop );
+    annot_->setCubeSampling( cs );
 }
 
 
@@ -379,6 +368,14 @@ void Scene::showAnnotScale( bool yn )
 
 bool Scene::isAnnotScaleShown() const
 { return annot_->isScaleShown(); }
+
+
+void Scene::showAnnotGrid( bool yn )
+{ annot_->showGridLines( yn ); }
+
+
+bool Scene::isAnnotGridShown() const
+{ return annot_->isGridLinesShown(); }
 
 
 void Scene::showAnnot( bool yn )
@@ -716,6 +713,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     
     par.setYN( sKeyShowAnnot(), isAnnotTextShown() );
     par.setYN( sKeyShowScale(), isAnnotScaleShown() );
+    par.setYN( sKeyShowGrid(), isAnnotGridShown() );
     par.setYN( sKeyShowCube(), isAnnotShown() );
     par.set( sKeyZStretch(), curzstretch_ );
     par.setYN( sKeyAppAllowShading(), appallowshad_ );
@@ -770,6 +768,10 @@ int Scene::usePar( const IOPar& par )
     bool scaleshown = true;
     par.getYN( sKeyShowScale(), scaleshown );
     showAnnotScale( scaleshown );
+
+    bool gridshown = true;
+    par.getYN( sKeyShowGrid(), gridshown );
+    showAnnotGrid( gridshown );
 
     bool cubeshown = true;
     par.getYN( sKeyShowCube(), cubeshown );

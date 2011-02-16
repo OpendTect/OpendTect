@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.17 2011-01-27 04:46:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.18 2011-02-16 21:57:59 cvskris Exp $";
 
 #include "uiscenepropdlg.h"
 
@@ -32,6 +32,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     , hadsurveybox_( true )
     , hadannot_( true )
     , hadannotscale_( true )
+    , hadannotgrid_( true )
     , oldbgcolor_( Color::Black() )
     , annotcolor_( Color::White() )
     , oldmarkersize_( 5 )
@@ -60,6 +61,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 	    hadsurveybox_ = scene_->isAnnotShown();
 	    hadannot_ = scene_->isAnnotTextShown();
 	    hadannotscale_ = scene_->isAnnotScaleShown();
+	    hadannotgrid_ = scene_->isAnnotGridShown();
 	    annotcolor_ = scene_->getAnnotColor();
 	    oldmarkersize_ = scene_->getMarkerSize();
 	    oldmarkercolor_ = scene_->getMarkerColor();
@@ -84,9 +86,15 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     annotscalefld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     annotscalefld_->setSensitive( survboxfld_->isChecked() );
 
+    annotgridfld_ = new uiCheckBox( this, "Annotation grid" );
+    annotgridfld_->setChecked( hadannotgrid_ );
+    annotgridfld_->attach( alignedBelow, annotscalefld_ );
+    annotgridfld_->activated.notify(mCB(this,uiScenePropertyDlg,updateCB) );
+    annotgridfld_->setSensitive( survboxfld_->isChecked() );
+
     bgcolfld_ = new uiColorInput( this, uiColorInput::Setup( oldbgcolor_)
 					.lbltxt("Background color") );
-    bgcolfld_->attach( alignedBelow, annotscalefld_ );
+    bgcolfld_->attach( alignedBelow, annotgridfld_ );
     bgcolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 
     markersizefld_ = new uiSliderExtra( this,
@@ -135,6 +143,7 @@ void uiScenePropertyDlg::updateCB( CallBacker* )
 
     annotfld_->setSensitive( survboxfld_->isChecked() );
     annotscalefld_->setSensitive( survboxfld_->isChecked() );
+    annotgridfld_->setSensitive( survboxfld_->isChecked()  );
 }
 
 
@@ -145,7 +154,8 @@ void uiScenePropertyDlg::updateScene( visSurvey::Scene* scene )
 
     scene->showAnnot( survboxfld_->isChecked() );
     scene->showAnnotScale( annotscalefld_->isChecked() );
-    scene->showAnnotText( annotfld_->isChecked() );
+    scene->showAnnotGrid( annotgridfld_->isChecked() );
+
     scene->setMarkerSize( markersizefld_->sldr()->getValue() );
     scene->setMarkerColor( markercolfld_->color() );
     scene->setAnnotColor( annotcolfld_->color() );
@@ -165,6 +175,7 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
         scene_->showAnnot( hadsurveybox_ );
 	scene_->showAnnotScale( hadannot_ );
 	scene_->showAnnotText( hadannotscale_ );
+	scene_->showAnnotGrid( hadannotgrid_ );
 	scene_->setMarkerSize( oldmarkersize_ );
 	scene_->setMarkerColor( oldmarkercolor_ );
         scene_->setAnnotColor( annotcolor_ );

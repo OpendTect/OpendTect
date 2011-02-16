@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.32 2010-08-19 08:21:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.33 2011-02-16 21:57:59 cvskris Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -19,7 +19,13 @@ static const char* rcsID = "$Id: visannot.cc,v 1.32 2010-08-19 08:21:17 cvsranoj
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoIndexedLineSet.h"
 #include "Inventor/nodes/SoCoordinate3.h"
+#include "Inventor/nodes/SoNormal.h"
+#include "Inventor/nodes/SoNormalBinding.h"
 #include "Inventor/nodes/SoSwitch.h"
+
+#include "SoOD.h"
+#include "SoOneSideRender.h"
+
 
 mCreateFactoryEntry( visBase::Annotation );
 
@@ -33,18 +39,19 @@ const char* Annotation::showscalestr()	    { return "Show Scale"; }
 
 Annotation::Annotation()
     : VisualObjectImpl( false )
-    , coords(new SoCoordinate3)
-    , textswitch(new SoSwitch)
-    , scaleswitch(new SoSwitch)
-    , pickstyle(PickStyle::create())
-    , texts(0)
+    , coords_(new SoCoordinate3)
+    , textswitch_(new SoSwitch)
+    , scaleswitch_(new SoSwitch)
+    , gridlineswitch_(new SoSwitch)
+    , pickstyle_(PickStyle::create())
+    , texts_(0)
 {
     annotcolor_ = Color::White();
-    pickstyle->ref();
-    addChild( pickstyle->getInventorNode() );
-    pickstyle->setStyle( PickStyle::Unpickable );
+    pickstyle_->ref();
+    addChild( pickstyle_->getInventorNode() );
+    pickstyle_->setStyle( PickStyle::Unpickable );
 
-    addChild( coords );
+    addChild( coords_ );
 
     static float pos[8][3] =
     {
@@ -52,7 +59,7 @@ Annotation::Annotation()
 	{ 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }, { 1, 1, 1 }
     };
 
-    coords->point.setValues( 0, 8, pos );
+    coords_->point.setValues( 0, 8, pos );
 
     SoIndexedLineSet* line = new SoIndexedLineSet;
     addChild( line );
@@ -83,91 +90,223 @@ Annotation::Annotation()
     indexes[0] = 3; indexes[1] = 7;
     line->coordIndex.setValues( coordidx, 2, indexes );
 
-    addChild( textswitch );
-    texts = DataObjectGroup::create();
-    texts->setSeparate( false );
-    texts->ref();
-    textswitch->addChild( texts->getInventorNode() );
-    textswitch->whichChild = 0;
+    addChild( textswitch_ );
+    texts_ = DataObjectGroup::create();
+    texts_->setSeparate( false );
+    texts_->ref();
+    textswitch_->addChild( texts_->getInventorNode() );
+    textswitch_->whichChild = 0;
 
 #define mAddText \
     text = Text2::create(); text->setJustification( Text2::Right ); \
-    texts->addObject( text );
+    texts_->addObject( text );
 
     Text2* text = 0; mAddText mAddText mAddText
 
-    addChild( scaleswitch );
-    SoGroup* scalegroup = new SoGroup;
-    scaleswitch->addChild( scalegroup );
-    scaleswitch->whichChild = 0;
+    addChild( scaleswitch_ );
+    scaleswitch_->whichChild = SO_SWITCH_ALL;
 
     DataObjectGroup* scale = DataObjectGroup::create();
-    scale->setSeparate( false );
     scale->ref();
-    scalegroup->addChild( scale->getInventorNode() );
-    scales += scale;
+    scale->setSeparate( false );
+    scaleswitch_->addChild( scale->getInventorNode() );
+    scales_ += scale;
     
     scale = DataObjectGroup::create();
     scale->setSeparate( false );
     scale->ref();
-    scalegroup->addChild( scale->getInventorNode() );
-    scales += scale;
+    scaleswitch_->addChild( scale->getInventorNode() );
+    scales_ += scale;
     
     scale = DataObjectGroup::create();
     scale->setSeparate( false );
     scale->ref();
-    scalegroup->addChild( scale->getInventorNode() );
-    scales += scale;
-    
+    scaleswitch_->addChild( scale->getInventorNode() );
+    scales_ += scale;
+
+    addChild( gridlineswitch_ );
+    gridlineswitch_->whichChild = SO_SWITCH_ALL;
+
+    gridlinecoords_ = new SoCoordinate3;
+    gridlineswitch_->addChild( gridlinecoords_ );
+
+    onesiderender_ = new SoOneSideRender;
+    gridlineswitch_->addChild( onesiderender_ );
+    onesiderender_->nodes.removeNode( 0 );
+
+    for ( int idx=0; idx<6; idx++ )
+    {
+	SoIndexedLineSet* gridline = new SoIndexedLineSet;
+	gridlines_ += gridline;
+	onesiderender_->nodes.addNode( gridline );
+    }
+
+    onesiderender_->normals.set1Value( 0, SbVec3f( 0,  0,  1 ) );
+    onesiderender_->normals.set1Value( 1, SbVec3f( 0,  0, -1 ) );
+    onesiderender_->normals.set1Value( 2, SbVec3f( 0,  1,  0 ) );
+    onesiderender_->normals.set1Value( 3, SbVec3f( 0, -1,  0 ) );
+    onesiderender_->normals.set1Value( 4, SbVec3f( 1,  0,  0 ) );
+    onesiderender_->normals.set1Value( 5, SbVec3f( -1, 0,  0 ) );
+
     updateTextPos();
+}
+
+
+void Annotation::updateGridLines(int dim)
+{
+    SbVec3f p0;
+    SbVec3f p1;
+    getAxisCoords( dim, p0, p1 );
+    Interval<float> range( p0[dim], p1[dim] );
+    const SamplingData<float> sd = AxisLayout( range ).sd;
+
+    SbVec3f corners[4];
+    int gridlineidxs[4];
+    if ( dim==0 )
+    {
+	corners[0] = coords_->point[ 0 ];
+	corners[1] = coords_->point[ 3 ];
+	corners[2] = coords_->point[ 7 ];
+	corners[3] = coords_->point[ 4 ];
+	gridlineidxs[0] = 0; gridlineidxs[1] = 3;
+	gridlineidxs[2] = 1; gridlineidxs[3] = 2; 
+    }
+    else if ( dim==1 )
+    {
+	corners[0] = coords_->point[ 0 ];
+	corners[1] = coords_->point[ 1 ];
+	corners[2] = coords_->point[ 5 ];
+	corners[3] = coords_->point[ 4 ];
+	gridlineidxs[0] = 0; gridlineidxs[1] = 5;
+	gridlineidxs[2] = 1; gridlineidxs[3] = 4; 
+    }
+    else
+    {
+	corners[0] = coords_->point[ 0 ];
+	corners[1] = coords_->point[ 1 ];
+	corners[2] = coords_->point[ 2 ];
+	corners[3] = coords_->point[ 3 ];
+	gridlineidxs[0] = 2; gridlineidxs[1] = 5;
+	gridlineidxs[2] = 3; gridlineidxs[3] = 4; 
+    }
+
+    int ci = gridlinecoords_->point.getNum();
+
+    for ( int idx=0; ; idx++ )
+    {
+	const float val = sd.atIndex(idx);
+	if ( val <= range.start )	continue;
+	else if ( val > range.stop )	break;
+
+	corners[0][dim]=corners[1][dim]=corners[2][dim]=corners[3][dim] = val;
+	gridlinecoords_->point.setValues( ci, 4, corners );
+	SoIndexedLineSet* lineset;
+
+#define mAddOneLine( c1, c2 ) \
+	lineset = gridlines_[gridlineidxs[c1]]; \
+	lineset->coordIndex.set1Value( lineset->coordIndex.getNum(), ci+c1 ); \
+	lineset->coordIndex.set1Value( lineset->coordIndex.getNum(), ci+c2 ); \
+	lineset->coordIndex.set1Value( lineset->coordIndex.getNum(), -1 )
+
+	mAddOneLine( 0, 1 );
+	mAddOneLine( 1, 2 );
+	mAddOneLine( 2, 3 );
+	mAddOneLine( 3, 0 );
+
+	ci += 4;
+    }
 }
 
 
 Annotation::~Annotation()
 {
-    scales[0]->unRef();
-    scales[1]->unRef();
-    scales[2]->unRef();
-    texts->unRef();
-    pickstyle->unRef();
+    scales_[0]->unRef();
+    scales_[1]->unRef();
+    scales_[2]->unRef();
+    texts_->unRef();
+    pickstyle_->unRef();
 }
 
 
 void Annotation::showText( bool yn )
 {
-    textswitch->whichChild = yn ? 0 : SO_SWITCH_NONE;
+    textswitch_->whichChild = yn ? 0 : SO_SWITCH_NONE;
 }
 
 
 bool Annotation::isTextShown() const
 {
-    return textswitch->whichChild.getValue() == 0;
+    return textswitch_->whichChild.getValue() == 0;
 }
 
 
 void Annotation::showScale( bool yn )
 {
-    scaleswitch->whichChild = yn ? 0 : SO_SWITCH_NONE;
+    scaleswitch_->whichChild = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
 }
 
 
 bool Annotation::isScaleShown() const
 {
-    return scaleswitch->whichChild.getValue() == 0;
+    return scaleswitch_->whichChild.getValue() != SO_SWITCH_NONE;
 }
+
+
+void Annotation::showGridLines( bool yn )
+{
+    gridlineswitch_->whichChild = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+}
+
+
+bool Annotation::isGridLinesShown() const
+{
+    return gridlineswitch_->whichChild.getValue() != SO_SWITCH_NONE;
+}
+
+
+void Annotation::setCubeSampling( const CubeSampling& cs )
+{
+    const Interval<int> inlrg = cs.hrg.inlRange();
+    const Interval<int> crlrg = cs.hrg.crlRange();
+    const Interval<float>& zrg = cs.zrg;
+
+    const BinID c0( cs.hrg.start.inl, cs.hrg.start.crl ); 
+    const BinID c1( cs.hrg.stop.inl, cs.hrg.start.crl ); 
+    const BinID c2( cs.hrg.stop.inl, cs.hrg.stop.crl ); 
+    const BinID c3( cs.hrg.start.inl, cs.hrg.stop.crl );
+    
+    setCorner( 0, inlrg.start, crlrg.start, zrg.start );
+    setCorner( 1, inlrg.stop, crlrg.start, zrg.start );
+    setCorner( 2, inlrg.stop, crlrg.stop, zrg.start );
+    setCorner( 3, inlrg.start, crlrg.stop, zrg.start );
+    setCorner( 4, inlrg.start, crlrg.start, zrg.stop );
+    setCorner( 5, inlrg.stop, crlrg.start, zrg.stop );
+    setCorner( 6, inlrg.stop, crlrg.stop, zrg.stop );
+    setCorner( 7, inlrg.start, crlrg.stop, zrg.stop );
+
+    onesiderender_->positions.set1Value( 0, SbVec3f( inlrg.center(),  crlrg.center(), zrg.start ) );
+    onesiderender_->positions.set1Value( 1, SbVec3f( inlrg.center(),  crlrg.center(), zrg.stop ) );
+    onesiderender_->positions.set1Value( 2, SbVec3f( inlrg.center(),  crlrg.start,  zrg.center() ) );
+    onesiderender_->positions.set1Value( 3, SbVec3f( inlrg.center(), crlrg.stop,  zrg.center() ) );
+    onesiderender_->positions.set1Value( 4, SbVec3f( inlrg.start,  crlrg.center(),  zrg.center() ) );
+    onesiderender_->positions.set1Value( 5, SbVec3f( inlrg.stop, crlrg.center(),  zrg.center() ) );
+
+    updateTextPos();
+    updateGridLines();
+}
+
 
 
 void Annotation::setCorner( int idx, float x, float y, float z )
 {
     float c[3] = { x, y, z };
-    coords->point.setValues( idx, 1, &c );
-    updateTextPos();
+    coords_->point.setValues( idx, 1, &c );
 }
 
 
 Coord3 Annotation::getCorner( int idx ) const
 {
-    SbVec3f pos = coords->point[idx];
+    const SbVec3f pos = coords_->point[idx];
     Coord3 res( pos[0], pos[1], pos[2] );
     return res;
 }
@@ -175,7 +314,7 @@ Coord3 Annotation::getCorner( int idx ) const
 
 void Annotation::setText( int dim, const char* string )
 {
-    Text2* text = (Text2*)texts->getObject( dim );
+    Text2* text = (Text2*)texts_->getObject( dim );
     if ( text )
 	text->setText( string );
 }
@@ -183,7 +322,7 @@ void Annotation::setText( int dim, const char* string )
 
 void Annotation::setTextColor( int dim, const Color& col )
 {
-    Text2* text = (Text2*)texts->getObject( dim );
+    Text2* text = (Text2*)texts_->getObject( dim );
     if ( text )
 	text->getMaterial()->setColor( col );
 }
@@ -208,17 +347,34 @@ void Annotation::updateTextPos()
 }
 
 
-void Annotation::updateTextPos( int textid )
+void Annotation::updateGridLines()
+{
+    if ( !gridlines_.size() )
+	return;
+
+    for ( int idx=0; idx<gridlines_.size(); idx++ )
+	gridlines_[idx]->coordIndex.setNum( 0 );
+
+    gridlinecoords_->point.setNum( 0 );
+
+    updateGridLines( 0 );
+    updateGridLines( 1 );
+    updateGridLines( 2 );
+
+}
+
+
+void Annotation::getAxisCoords( int dim, SbVec3f& p0, SbVec3f& p1 ) const
 {
     int pidx0;
     int pidx1;
 
-    if ( textid==0)
+    if ( dim==0)
     {
 	pidx0 = 0;
 	pidx1 = 1;
     }
-    else if ( textid==1 )
+    else if ( dim==1 )
     {
 	pidx0 = 0;
 	pidx1 = 3;
@@ -229,31 +385,28 @@ void Annotation::updateTextPos( int textid )
 	pidx1 = 4;
     }
 
-    SbVec3f p0 = coords->point[pidx0];
-    SbVec3f p1 = coords->point[pidx1];
+    p0 = coords_->point[pidx0];
+    p1 = coords_->point[pidx1];
+}
+
+
+void Annotation::updateTextPos( int dim )
+{
+    SbVec3f p0;
+    SbVec3f p1;
+    getAxisCoords( dim, p0, p1 );
+
     SbVec3f tp;
-
-    scales[textid]->removeAll();
-
     tp[0] = (p0[0]+p1[0]) / 2;
     tp[1] = (p0[1]+p1[1]) / 2;
     tp[2] = (p0[2]+p1[2]) / 2;
 
-    ((Text2*)texts->getObject(textid))
+    ((Text2*)texts_->getObject(dim))
 			->setPosition( Coord3(tp[0],tp[1],tp[2]) );
-
-    int dim = -1;
-    if ( mIsEqual(p0[1],p1[1],mDefEps) && mIsEqual(p0[2],p1[2],mDefEps))
-	dim = 0;
-    else if ( mIsEqual(p0[2],p1[2],mDefEps) && mIsEqual(p0[0],p1[0],mDefEps))
-	dim = 1;
-    else if ( mIsEqual(p0[1],p1[1],mDefEps) && mIsEqual(p0[0],p1[0],mDefEps) )
-	dim = 2;
-    else
-	return;
 
     Interval<float> range( p0[dim], p1[dim] );
     const SamplingData<float> sd = AxisLayout( range ).sd;
+    scales_[dim]->removeAll();
 
     for ( int idx=0; ; idx++ )
     {
@@ -262,7 +415,7 @@ void Annotation::updateTextPos( int textid )
 	else if ( val > range.stop )	break;
 
 	Text2* text = Text2::create();
-	scales[textid]->addObject( text );
+	scales_[dim]->addObject( text );
 	Coord3 pos( p0[0], p0[1], p0[2] );
 	pos[dim] = val;
 	text->setPosition( pos );
@@ -275,7 +428,7 @@ void Annotation::updateTextPos( int textid )
 Text2* visBase::Annotation::getText( int dim, int textnr )
 {
     DataObjectGroup* group = 0;
-    group = scales[dim];
+    group = scales_[dim];
     mDynamicCastGet(Text2*,text,group->getObject(textnr));
     return text;
 }
@@ -298,7 +451,7 @@ void Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     {
 	key = textprefixstr();
 	key += idx;
-	Text2* text = (Text2*)texts->getObject( idx );
+	Text2* text = (Text2*)texts_->getObject( idx );
 	if ( !text ) continue;
 
 	par.set( key, (const char*)text->getText() );

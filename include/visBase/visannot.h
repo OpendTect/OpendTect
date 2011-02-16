@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.21 2010-08-19 08:21:10 cvsranojay Exp $
+ RCS:		$Id: visannot.h,v 1.22 2011-02-16 21:57:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,13 +16,19 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "color.h"
+#include "cubesampling.h"
 #include "position.h"
 #include "sets.h"
 
+class SoAction;
+class SbVec3f;
 class SoSwitch;
+class SoCallback;
 class SoCoordinate3;
+class SoIndexedLineSet;
 class AxisInfo;
 class Color;
+class SoOneSideRender;
 
 namespace visBase
 {
@@ -41,17 +47,21 @@ public:
     static Annotation*		create()
 				mCreateDataObj(Annotation);
 
-    void			showText( bool yn );
+    void			showText(bool yn);
     bool			isTextShown() const;
 
-    void			showScale( bool yn );
+    void			showScale(bool yn);
     bool			isScaleShown() const;
 
-    void			setCorner( int, float, float, float );
-    Coord3			getCorner( int ) const;
+    bool			canShowGridLines() const;
+    void			showGridLines(bool yn);
+    bool			isGridLinesShown() const;
+
+    void			setCubeSampling(const CubeSampling&);
+
     void			setText( int dim, const char * );
     void			setTextColor(int dim,const Color&);
-    const Color&		getColor()		{ return annotcolor_; }
+    const Color&		getColor()		{return annotcolor_;}
     void			updateTextColor(const Color&);
 
     void			fillPar( IOPar&, TypeSet<int>& ) const;
@@ -59,18 +69,29 @@ public:
 
 protected:
     				~Annotation();
+    void			initGridLines();
+    void			updateGridLines();
+    void			updateGridLines( int dim );
     void			updateTextPos(int dim);
     void			updateTextPos();
-    Text2*			getText( int dim, int textnr );
+    Text2*			getText(int dim, int textnr);
+    void			getAxisCoords(int,SbVec3f&,SbVec3f&) const;
+    void			setCorner( int, float, float, float );
+    Coord3			getCorner(int) const;
 
-    SoCoordinate3*		coords;
+    SoCoordinate3*		coords_;
 
-    ObjectSet<DataObjectGroup>	scales;
-    PickStyle*			pickstyle;
-    DataObjectGroup*		texts;
-    
-    SoSwitch*			textswitch;
-    SoSwitch*			scaleswitch;
+    ObjectSet<DataObjectGroup>	scales_;
+    PickStyle*			pickstyle_;
+    DataObjectGroup*		texts_;
+
+    SoOneSideRender*		onesiderender_;
+    SoSwitch*			gridlineswitch_; 
+    SoCoordinate3*		gridlinecoords_;
+    ObjectSet<SoIndexedLineSet>	gridlines_;
+
+    SoSwitch*			textswitch_;
+    SoSwitch*			scaleswitch_;
     Color			annotcolor_;
 
     static const char*		textprefixstr();

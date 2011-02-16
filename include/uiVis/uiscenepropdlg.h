@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.h,v 1.8 2010-12-15 23:01:59 cvskris Exp $
+ RCS:           $Id: uiscenepropdlg.h,v 1.9 2011-02-16 21:57:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ protected:
     bool			hadsurveybox_;
     bool			hadannot_;
     bool			hadannotscale_;
+    bool			hadannotgrid_;
     Color			oldbgcolor_;
     float			oldmarkersize_;
     Color			oldmarkercolor_;
@@ -54,6 +55,7 @@ protected:
 
     uiCheckBox*			annotfld_;
     uiCheckBox*			annotscalefld_;
+    uiCheckBox*			annotgridfld_;
     uiCheckBox*			survboxfld_;
     uiColorInput*		bgcolfld_;
     uiSliderExtra*		markersizefld_;
