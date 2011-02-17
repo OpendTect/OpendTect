@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinotsaveddlg.cc,v 1.3 2011-02-16 22:11:10 cvskris Exp $";
+static const char* rcsID = "$Id: uinotsaveddlg.cc,v 1.4 2011-02-17 17:20:15 cvskris Exp $";
 
 #include "uinotsaveddlg.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uinotsaveddlg.cc,v 1.3 2011-02-16 22:11:10 cvsk
 #include "uimain.h"
 #include "uibutton.h"
 #include "uilabel.h"
+#include "threadwork.h"
 
 
 struct NotSavedPrompterData
@@ -37,26 +38,24 @@ class uiNotSavedDlg : public uiDialog
 {
 public:
     uiNotSavedDlg(uiParent* p, NotSavedPrompter& prompter, bool withcancel,
-	          bool isshutdown )
+	          const char* actiontype )
 	: uiDialog( p, uiDialog::Setup( "Not Saved",
 		    "The following objects are not saved", mNoHelpID ) )
 	, prompter_( prompter )
     {
+	BufferString action( actiontype );
 	if ( !withcancel ) setCancelText( 0 );
-	else
-	{
-	    setCancelText(
-		    isshutdown ? "Cancel shutdown" : "Cancel survey change" );
-	}
 
-	setOkText( isshutdown ? "Shutdown now" : "Switch survey now" );
+	*action.buf() = toupper( *action.buf() );
+	const BufferString txt( action.buf(), " now" );
+	setOkText( txt.buf() );
 
 	for ( int idx=0; idx<prompter_.objects_.size(); idx++ )
 	{
 	    uiLabel* label =
 		new uiLabel( this, prompter_.objects_[idx]->string_ );
 
-	    uiPushButton* curbutton = new uiPushButton( this, "Save now",
+	    uiPushButton* curbutton = new uiPushButton( this, "Save",
 		    mCB(this,uiNotSavedDlg,buttonCB),
 		    prompter_.objects_[idx]->issaveas_ );
 	    curbutton->attach( rightOf, label );
@@ -108,22 +107,30 @@ NotSavedPrompter& NotSavedPrompter::NSP()
 NotSavedPrompter::NotSavedPrompter()
     : promptSaving( this )
     , dlg_( 0 )
+    , queueid_(
+	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual ) )
 {}
 
 
 bool NotSavedPrompter::doTrigger( uiParent* parent, bool withcancel,
-       				  bool isshutdown )
+       				  const char* actiontype )
 {
     promptSaving.trigger();
     if ( !objects_.size() )
 	return true;
 
-    dlg_ = new uiNotSavedDlg( parent, *this, withcancel, isshutdown );
+    dlg_ = new uiNotSavedDlg( parent, *this, withcancel, actiontype );
     bool retval = dlg_->go();
     delete dlg_;
     dlg_ = 0;
 
     deepErase( objects_ );
+    if ( retval )
+	Threads::WorkManager::twm().executeQueue( queueID() );
+    else
+	Threads::WorkManager::twm().emptyQueue( queueID() );
+
+
 
     return retval;
 }

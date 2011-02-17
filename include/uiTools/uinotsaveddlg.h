@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2010
- RCS:           $Id: uinotsaveddlg.h,v 1.2 2011-02-16 22:11:10 cvskris Exp $
+ RCS:           $Id: uinotsaveddlg.h,v 1.3 2011-02-17 17:20:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,11 @@ public:
     				/*!<Will trigger from when users should save all
 				    unsaved objects, normally at survey change
 				    or shutdown. */
+    int		queueID() const { return queueid_; }
+    		/*!<When OK is pressed (i.e. not cancel), a queue is executed.
+		    If you want something to be executed, add it to this queue.
+	        */ 
+		    
     void	addObject(const char* str,const CallBack& savecb,bool issaveas,
 			  const void* dataptr );
     		/*!<Lets the object know that you have an object that should
@@ -109,7 +114,7 @@ public:
 			  addObject() */
     		
 		NotSavedPrompter();
-    bool	doTrigger(uiParent*,bool withcancel,bool isshutdown);
+    bool	doTrigger(uiParent*,bool withcancel,const char* actiontype);
     		//!<Invoke the system. Returns false if cancel has been pressed.
 
 protected:
@@ -117,6 +122,7 @@ protected:
 
     ObjectSet<NotSavedPrompterData>		objects_;
     uiNotSavedDlg*				dlg_;
+    int						queueid_;
 };
 
 

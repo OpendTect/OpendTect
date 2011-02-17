@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.48 2010-06-29 10:57:57 cvsnanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.49 2011-02-17 17:20:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "callback.h"
 #include "bufstring.h"
+#include "task.h"
 #include "thread.h"
 
 /*!\brief
@@ -187,6 +188,23 @@ protected:
 private:
     bool			addChildImpl(CallBacker*,uiTreeItem*,bool,bool);
 };
+
+mClass uiTreeItemRemover : public SequentialTask
+{
+public:
+    uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child)
+	: parent_( parent ), child_( child ) {}
+    int nextStep()   
+    {
+	parent_->removeChild( child_ );
+	return Finished();
+    }
+			            
+protected:
+    uiTreeItem* parent_;
+    uiTreeItem* child_;
+};
+
 
 
 mClass uiTreeTopItem : public uiTreeItem
