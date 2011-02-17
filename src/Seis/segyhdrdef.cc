@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdrdef.cc,v 1.2 2011-02-17 15:56:13 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdrdef.cc,v 1.3 2011-02-17 19:18:09 cvskris Exp $";
 
 
 #include "segythdef.h"
@@ -98,7 +98,7 @@ int SEGY::HdrEntry::getValue( const void* buf, bool swapped ) const
     else if ( type_ == UInt )
 	return IbmFormat::asUnsignedShort( mGetBytes() );
     else if ( type_ == Float )
-	return IbmFormat::asFloat( mGetBytes() );
+	return (int) IbmFormat::asFloat( mGetBytes() );
 
     return IbmFormat::asInt( mGetBytes() );
 }
