@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.89 2011-02-17 15:56:13 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.90 2011-02-17 16:15:03 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -355,14 +355,15 @@ void SEGY::BinHeader::setSampleRate( float sr, bool isdepth )
 void SEGY::BinHeader::dump( std::ostream& strm ) const
 {
     const HdrDef& hdef = hdrDef();
+    strm << "Field\tByte\tValue\tDescription\n\n";
     for ( int idx=0; idx<hdef.size() ; idx++ )
     {
 	const HdrEntry& he = *hdef[idx];
 	const int value = he.getValue( buf_, needswap_ );
 	if ( !value ) continue;
 
-	strm << '\t' << he.name() << '\t' << (int)(he.bytepos_+1)
-	     << '\t' << value << "\t(" << he.description() << ')' << '\n';
+	strm << he.name() << '\t' << (int)(he.bytepos_+1)
+	     << '\t' << value << "\t" << he.description() << '\n';
     }
     strm << std::endl;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.21 2011-02-17 13:34:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.22 2011-02-17 16:15:03 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uitextedit.h"
@@ -289,7 +289,7 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
     binhead.dump( bhstrm );
 
     txtinfo_ = thstrm.str().c_str();
-    txtinfo_ += "\n------\n"
+    txtinfo_ += "\n------\n\n"
 		"Binary header info (non-zero values displayed only):\n\n";
     txtinfo_ += bhstrm.str().c_str();
 
