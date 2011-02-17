@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2008
- RCS:		$Id: seismulticubeps.h,v 1.9 2011-02-17 13:31:40 cvsbert Exp $
+ RCS:		$Id: seismulticubeps.h,v 1.10 2011-02-17 19:22:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ protected:
     PosInfo::CubeData&		posdata_;
     ObjectSet<SeisTrcReader>	rdrs_;
     TypeSet<float>		offs_;
-    TypeSet<float>		comps_;
+    TypeSet<int>		comps_;
     mutable BufferString	errmsg_;
 
     void			getCubeData(const SeisTrcReader&,
