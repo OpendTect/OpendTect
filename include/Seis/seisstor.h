@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.22 2010-07-12 22:39:42 cvskris Exp $
+ RCS:		$Id: seisstor.h,v 1.23 2011-02-17 13:34:10 cvsbert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -52,11 +52,6 @@ public:
 			{ return seldata; }
     void		setSelData(Seis::SelData*);
 			//!< The Seis::SelData becomes mine
-    int			selectedComponent() const
-			{ return selcomp; }
-			//!< default = -1 is all components
-    void		setSelectedComponent( int i )
-			{ selcomp = i; }
 
     virtual void	usePar(const IOPar&);
 				// Afterwards check whether curConn is still OK.
@@ -99,7 +94,6 @@ protected:
     IOObj*		ioobj;
     bool		is2d;
     int			nrtrcs;
-    int			selcomp;
     Translator*		trl;
     Seis2DLineSet*	lset;
     Seis::SelData*	seldata;

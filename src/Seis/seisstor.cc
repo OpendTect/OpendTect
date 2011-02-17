@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.48 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.49 2011-02-17 13:34:10 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seiscbvs.h"
@@ -36,7 +36,6 @@ SeisStoreAccess::SeisStoreAccess( const IOObj* ioob )
 	, trl(0)
 	, lset(0)
 	, seldata(0)
-	, selcomp(-1)
 	, is2d(false)
 	, psioprov(0)
 {
@@ -49,7 +48,6 @@ SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps, bool is_2d )
 	, trl(0)
 	, lset(0)
 	, seldata(0)
-	, selcomp(-1)
 	, is2d(is_2d)
 	, psioprov(0)
 {
@@ -191,8 +189,6 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 	strl()->setSelData( seldata );
 	strl()->usePar( iopar );
     }
-
-    iopar.get( "Selected component", selcomp );
 }
 
 //--- SeqIO
