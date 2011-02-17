@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.70 2011-02-02 10:32:44 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.71 2011-02-17 09:34:25 cvsnanne Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -585,6 +585,7 @@ void uiAttrSel::setDesc( const Desc* ad )
 
     attrdata_.attribid_ = ad->id();
     updateInput();
+    seltype_ = ad->isStored() ? 0 : 1;
 }
 
 
