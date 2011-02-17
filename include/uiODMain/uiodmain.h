@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.26 2011-02-16 22:11:10 cvskris Exp $
+ RCS:           $Id: uiodmain.h,v 1.27 2011-02-17 19:12:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ public:
 
     Notifier<uiODMain>	justBeforeGo;	//!< Scenes inited, auto-plugins loaded
 
-    bool		askStore(bool& askedanything,bool isshutdown);
+    bool		askStore(bool& askedanything,const char* actiontype);
     			/*!< Asks user if session, picksets or attributesets
 			     need to be stored. */
     bool		askStoreAttribs(bool,bool& askedanything);
