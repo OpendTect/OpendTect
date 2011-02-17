@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.100 2010-12-13 10:15:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.101 2011-02-17 13:31:00 cvsbert Exp $";
 
 
 #include "uitable.h"
@@ -75,6 +75,9 @@ public:
     int			maxNrOfSelections() const;
     uiTable::SelectionBehavior getSelBehavior() const;
 
+
+    QTableWidgetItem&	getRCItem(int,bool isrow);
+
 protected:
     virtual void	mouseReleaseEvent(QMouseEvent*);
 
@@ -116,6 +119,23 @@ uiTableBody::~uiTableBody()
 {
     deepErase( cellobjects_ );
     delete &messenger_;
+}
+
+
+QTableWidgetItem& uiTableBody::getRCItem( int idx, bool isrow )
+{
+    QTableWidgetItem* itm = isrow ? verticalHeaderItem( idx )
+				  : horizontalHeaderItem( idx );
+    if ( !itm )
+    {
+	itm = new QTableWidgetItem;
+	if ( isrow )
+	    setVerticalHeaderItem( idx, itm );
+	else
+	    setHorizontalHeaderItem( idx, itm );
+    }
+
+    return *itm;
 }
 
 
@@ -767,14 +787,15 @@ const char* uiTable::rowLabel( int row ) const
 
 void uiTable::setRowLabel( int row, const char* label )
 {
-    QTableWidgetItem* itm = body_->verticalHeaderItem( row );
-    if ( !itm )
-    {
-	itm = new QTableWidgetItem;
-	body_->setVerticalHeaderItem( row, itm );
-    }
-    itm->setText( label );
-    itm->setToolTip( label );
+    QTableWidgetItem& itm = body_->getRCItem( row, true );
+    itm.setText( label );
+    itm.setToolTip( label );
+}
+
+
+void uiTable::setRowToolTip( int row, const char* tt )
+{
+    body_->getRCItem(row,true).setToolTip( tt );
 }
 
 
@@ -807,14 +828,15 @@ const char* uiTable::columnLabel( int col ) const
 
 void uiTable::setColumnLabel( int col, const char* label )
 {
-    QTableWidgetItem* itm = body_->horizontalHeaderItem( col );
-    if ( !itm )
-    {
-	itm = new QTableWidgetItem;
-	body_->setHorizontalHeaderItem( col, itm );
-    }
-    itm->setText( label );
-    itm->setToolTip( label );
+    QTableWidgetItem& itm = body_->getRCItem( col, false );
+    itm.setText( label );
+    itm.setToolTip( label );
+}
+
+
+void uiTable::setColumnToolTip( int col, const char* tt )
+{
+    body_->getRCItem(col,false).setToolTip( tt );
 }
 
 

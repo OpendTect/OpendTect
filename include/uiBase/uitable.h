@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.68 2010-12-13 10:15:09 cvsbert Exp $
+ RCS:           $Id: uitable.h,v 1.69 2011-02-17 13:31:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,20 +218,23 @@ public:
     const char*		rowLabel(int) const;
     const char*		rowLabel( const RowCol& rc ) const
 			    { return rowLabel(rc.row); }
-    void		setRowLabel(int,const char*);
+    void		setRowLabel(int,const char*); // also sets tooltip
     void		setRowLabels(const char**);
     void		setRowLabels(const BufferStringSet&);
     void		setRowLabel( const RowCol& rc, const char* lbl )
 			    { setRowLabel( rc.row, lbl ); }
+    void		setRowToolTip(int,const char*);
 
     const char*		columnLabel(int) const;
     const char*		columnLabel( const RowCol& rc ) const
 			    { return columnLabel(rc.col); }
-    void		setColumnLabel(int,const char*);
+    void		setColumnLabel(int,const char*); // also sets tooltip
     void		setColumnLabels(const char**);
     void		setColumnLabels(const BufferStringSet&);
     void		setColumnLabel( const RowCol& rc, const char* lbl )
 			    { setColumnLabel( rc.col, lbl ); }
+    void		setColumnToolTip(int,const char*);
+
     void		setDefaultRowLabels();
     void		setDefaultColLabels();
     void		setLabelAlignment(Alignment::HPos,bool cols);
