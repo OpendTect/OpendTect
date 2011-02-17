@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.104 2010-12-29 15:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.105 2011-02-17 13:34:38 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -33,9 +33,9 @@ static const char* rcsID = "$Id: segytr.cc,v 1.104 2010-12-29 15:49:20 cvskris E
 #include <ctype.h>
 
 #define mBPS(cd) (int)cd->datachar.nrBytes()
-#define mZStepFac \
-    ( (!othdomain_ && SI().zIsTime()) || (othdomain_ && !SI().zIsTime()) \
-      	? 1e-6 : 0.001)
+#define mInDepth \
+    (othdomain_ && SI().zIsTime()) || (!othdomain_ && !SI().zIsTime())
+#define mZStepFac ( mInDepth ? 0.001 : 1.e-6 )
 
 static const int cSEGYWarnBadFmt = 1;
 static const int cSEGYWarnPos = 2;
@@ -129,20 +129,25 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	mErrRet( "Cannot read SEG-Y Text header" )
     txthead_->setAscii();
 
-    binhead_.needswap = filepars_.byteswap_ > 1;
     unsigned char binheaderbuf[400];
     if ( !sConn().doIO( binheaderbuf, SegyBinHeaderLength ) )
 	mErrRet( "Cannot read SEG-Y Text header" )
-    binhead_.getFrom( binheaderbuf );
-    if ( forcerev0_ ) binhead_.isrev1 = false;
+    binhead_.setInput( binheaderbuf, filepars_.byteswap_ > 1 );
+    if ( forcerev0_ )
+	binhead_.setEntryVal( SEGY::BinHeader::EntryRevCode(), 0 );
 
     trchead_.setNeedSwap( filepars_.byteswap_ > 1 );
-    trchead_.isrev1 = binhead_.isrev1;
-    if ( trchead_.isrev1 )
+    trchead_.isrev1_ = binhead_.isRev1();
+    if ( trchead_.isrev1_ )
     {
-	if ( binhead_.nrstzs > 100 ) // protect against wild values
-	    binhead_.nrstzs = 0;
-	for ( int idx=0; idx<binhead_.nrstzs; idx++ )
+	const int nrstentry = SEGY::BinHeader::EntryRevCode() + 2;
+	int nrstzs = binhead_.entryVal( nrstentry );
+	if ( nrstzs > 100 ) // protect against wild values
+	{
+	    binhead_.setEntryVal( nrstentry, 0 );
+	    nrstzs = 0;
+	}
+	for ( int idx=0; idx<nrstzs; idx++ )
 	{
 	    if ( !sConn().doIO(txthead_->txt_,SegyTxtHeaderLength) )
 		mErrRet( "No traces found in the SEG-Y file" )
@@ -151,7 +156,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 
     if ( filepars_.fmt_ == 0 )
     {
-	filepars_.fmt_ = binhead_.format;
+	filepars_.fmt_ = binhead_.format();
 	if ( filepars_.fmt_ == 4 && read_mode != Seis::PreScan )
 	    mErrRet( "SEG-Y format '4' (fixed point/gain code) not supported" )
 	else if ( filepars_.fmt_<1 || filepars_.fmt_>8
@@ -164,10 +169,10 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     }
 
     txthead_->getText( pinfo.usrinfo );
-    pinfo.nr = binhead_.lino;
-    pinfo.zrg.step = binhead_.hdt * mZStepFac;
+    pinfo.nr = binhead_.entryVal( SEGY::BinHeader::EntryLino() );
+    pinfo.zrg.step = binhead_.sampleRate( mInDepth );
     insd.step = pinfo.zrg.step;
-    innrsamples = binhead_.hns;
+    innrsamples = binhead_.nrSamples();
 
     estnrtrcs_ = (endstrmpos - (std::streampos)3600)
 		/ (240 + dataBytes() * innrsamples);
@@ -247,7 +252,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     innrsamples = filepars_.ns_;
     if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
     {
-	innrsamples = binhead_.hns;
+	innrsamples = binhead_.nrSamples();
 	if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
 	{
 	    innrsamples = trchead_.nrSamples();
@@ -271,7 +276,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     trchead_.fill( ti, fileopts_.coordscale_ );
     if ( othdomain_ )
 	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001;
-    if ( binhead_.mfeet == 2 ) ti.offset *= mFromFeetFactor;
+    if ( binhead_.isInFeet() ) ti.offset *= mFromFeetFactor;
 
     if ( is_prestack && fileopts_.psdef_ == SEGY::FileReadOpts::SrcRcvCoords )
     {
@@ -341,11 +346,11 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     if ( filepars_.fmt_ == 0 ) // Auto-detect
 	filepars_.fmt_ = nrFormatFor( storinterp_->dataChar() );
 
-    trchead_.isrev1 = !forcerev0_;
+    trchead_.isrev1_ = true;
 
     if ( !txthead_ )
     {
-	txthead_ = new SEGY::TxtHeader( trchead_.isrev1 );
+	txthead_ = new SEGY::TxtHeader( trchead_.isrev1_ );
 	txthead_->setUserInfo( pinfo.usrinfo );
 	fileopts_.thdef_.linename = curlinekey.buf();
 	fileopts_.thdef_.pinfo = &pinfo;
@@ -357,19 +362,19 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     if ( !sConn().doIO( txthead_->txt_, SegyTxtHeaderLength ) )
 	mErrRet("Cannot write SEG-Y textual header")
 
-    SEGY::BinHeader binhead( trchead_.isrev1 );
-    binhead.format = filepars_.fmt_ < 2 ? 1 : filepars_.fmt_;
-    filepars_.fmt_ = binhead.format;
-    binhead.lino = pinfo.nr;
+    SEGY::BinHeader binhead;
+    binhead.setForWrite();
+    binhead.setFormat( filepars_.fmt_ < 2 ? 1 : filepars_.fmt_ );
+    filepars_.fmt_ = binhead.format();
+    binhead.setEntryVal( SEGY::BinHeader::EntryLino(), pinfo.nr );
     static int jobid = 0;
-    binhead.jobid = ++jobid;
-    binhead.hns = (short)outnrsamples;
-    binhead.hdt = (short)(outsd.step / mZStepFac + .5);
-    binhead.tsort = is_prestack ? 0 : 4; // To make Strata users happy
-    binhead.mfeet = SI().xyInFeet() ? 2 : 1;
-    unsigned char binheadbuf[400];
-    binhead.putTo( binheadbuf );
-    if ( !sConn().doIO( binheadbuf, SegyBinHeaderLength ) )
+    binhead.setEntryVal( SEGY::BinHeader::EntryJobID(), ++jobid );
+    binhead.setNrSamples( outnrsamples );
+    binhead.setSampleRate( outsd.step, mInDepth );
+    binhead.setEntryVal( SEGY::BinHeader::EntryTsort(), is_prestack ? 0 : 4 );
+    					// To make Strata users happy
+    binhead.setInFeet( SI().xyInFeet() );
+    if ( !sConn().doIO( binhead.buf(), SegyBinHeaderLength ) )
 	mErrRet("Cannot write SEG-Y binary header")
 
     return true;
@@ -413,7 +418,7 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
 
 bool SEGYSeisTrcTranslator::isRev1() const
 {
-    return trchead_.isrev1;
+    return trchead_.isrev1_;
 }
 
 

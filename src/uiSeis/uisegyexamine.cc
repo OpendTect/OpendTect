@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.20 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.21 2011-02-17 13:34:38 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uitextedit.h"
@@ -81,7 +81,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 			     mCB(this,uiSEGYExamine,dispSeis) );
     tb->attach( rightBorder );
 
-    uiTable::Setup tblsu( SEGY::TrcHeader::nrVals(), setup_.nrtrcs_ );
+    uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );
     tblsu.rowdesc("Header field").coldesc("Trace");
     tbl_ = new uiTable( tblgrp, tblsu, "Trace info" );
     tbl_->setPrefHeightInChar( 14 );
@@ -233,7 +233,8 @@ void uiSEGYExamine::updateInp()
 {
     if ( !rdr_ ) return;
 
-    const int nrvals = SEGY::TrcHeader::nrVals();
+    const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
+    const int nrvals = hdef.size();
     mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr_->translator())
     const SEGY::TrcHeader& trhead = tr->trcHeader();
 
@@ -249,9 +250,9 @@ void uiSEGYExamine::updateInp()
 
 	for ( int ival=0; ival<nrvals; ival++ )
 	{
-	    SEGY::TrcHeader::Val val = trhead.getVal( ival+1 );
+	    int val = trhead.entryVal( ival );
 	    RowCol rc( ival, itrc );
-	    tbl_->setValue( rc, val.val_ );
+	    tbl_->setValue( rc, val );
 	}
 
 	nrdone++;
@@ -292,15 +293,16 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 		"Binary header info (non-zero values displayed only):\n\n";
     txtinfo_ += bhstrm.str().c_str();
 
+    const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
+    const int nrvals = hdef.size();
     const SEGY::TrcHeader& trhead = tr.trcHeader();
-    const int nrvals = SEGY::TrcHeader::nrVals();
     for ( int ival=0; ival<nrvals; ival++ )
     {
-	SEGY::TrcHeader::Val val = trhead.getVal( ival+1 );
-	BufferString rownm;
-	rownm += val.byte_+1; rownm += " [";
-	rownm += val.desc_; rownm += "]";
+	const SEGY::HdrEntry& he( *hdef[ival] );
+	BufferString rownm( "", ((int)he.bytepos_)+1 );
+	rownm.add( " [" ).add( he.name() ).add( "]" );
 	tbl_->setRowLabel( ival, rownm );
+	tbl_->setRowToolTip( ival, he.description() );
     }
 
     tbl_->resizeRowsToContents();

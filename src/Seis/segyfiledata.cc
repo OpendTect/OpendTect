@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.25 2011-01-18 10:40:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.26 2011-02-17 13:34:38 cvsbert Exp $";
 
 #include "segyfiledata.h"
 
@@ -501,7 +501,7 @@ void SEGY::FileDataSet::setAuxData( const Seis::GeomType& gt,
     trcsz_ = tr.inpNrSamples();
     sampling_ = tr.inpSD();
     isrev1_ = tr.isRev1();
-    nrstanzas_ = tr.binHeader().nrstzs;
+    nrstanzas_ = tr.binHeader().entryVal( SEGY::BinHeader::EntryRevCode() + 2 );
 }
 
 

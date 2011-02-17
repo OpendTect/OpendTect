@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegysip.cc,v 1.27 2010-12-02 10:54:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegysip.cc,v 1.28 2011-02-17 13:34:38 cvsbert Exp $";
 
 #include "uisegysip.h"
 #include "uisegyread.h"
@@ -116,7 +116,7 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
 
     cs.zrg = scanner->zRange();
     const SEGYSeisTrcTranslator* tr = scanner->translator();
-    xyinft_ = tr && tr->binHeader().mfeet == 2;
+    xyinft_ = tr && tr->binHeader().isInFeet();
     return true;
 }
 

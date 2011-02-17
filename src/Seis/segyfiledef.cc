@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.22 2010-12-30 15:20:56 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.23 2011-02-17 13:34:38 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -294,6 +294,13 @@ static SEGY::FileReadOpts::ICvsXYType getICType( int opt )
 	 	   : SEGY::FileReadOpts::Both);
 }
 
+
+#define mFillFromDefIf(cond,def,ky) \
+    if ( cond ) \
+	def.fillPar( iop, ky ); \
+    else \
+	def.removeFromPar( iop, ky )
+
 #define mFillIf(cond,key,val) \
     if ( cond ) \
 	iop.set( key, val ); \
@@ -305,14 +312,13 @@ void SEGY::FileReadOpts::fillPar( IOPar& iop ) const
 {
     iop.set( sKeyICOpt(), getICOpt( icdef_ ) );
 
-    mFillIf(icdef_!=XYOnly,TrcHeaderDef::sInlByte(),thdef_.inl);
-    mFillIf(icdef_!=XYOnly,TrcHeaderDef::sInlByteSz(),thdef_.inlbytesz);
-    mFillIf(icdef_!=ICOnly,TrcHeaderDef::sXCoordByte(),thdef_.xcoord);
-    mFillIf(icdef_!=ICOnly,TrcHeaderDef::sYCoordByte(),thdef_.ycoord);
+    mFillFromDefIf(icdef_!=XYOnly,thdef_.inl_,TrcHeaderDef::sInlByte());
+    mFillFromDefIf(icdef_!=XYOnly,thdef_.crl_,TrcHeaderDef::sCrlByte());
+    mFillFromDefIf(icdef_!=ICOnly,thdef_.xcoord_,TrcHeaderDef::sXCoordByte());
+    mFillFromDefIf(icdef_!=ICOnly,thdef_.ycoord_,TrcHeaderDef::sYCoordByte());
 
     const bool is2d = Seis::is2D( geom_ );
-    mFillIf(is2d,TrcHeaderDef::sTrNrByte(),thdef_.trnr);
-    mFillIf(is2d,TrcHeaderDef::sTrNrByteSz(),thdef_.trnrbytesz);
+    mFillFromDefIf(is2d,thdef_.trnr_,TrcHeaderDef::sTrNrByte());
 
     mFillIf(!mIsUdf(coordscale_),sKeyCoordScale(),coordscale_);
     mFillIf(!mIsUdf(timeshift_),sKeyTimeShift(),timeshift_);
@@ -332,10 +338,8 @@ void SEGY::FileReadOpts::fillPar( IOPar& iop ) const
 
     mFillIf(true,sKeyPSOpt(),(int)psdef_);
     mFillIf(psdef_==UsrDef,sKeyOffsDef(),offsdef_);
-    mFillIf(psdef_==InFile,TrcHeaderDef::sOffsByte(),thdef_.offs);
-    mFillIf(psdef_==InFile,TrcHeaderDef::sOffsByteSz(),thdef_.offsbytesz);
-    mFillIf(psdef_==InFile,TrcHeaderDef::sAzimByte(),thdef_.azim);
-    mFillIf(psdef_==InFile,TrcHeaderDef::sAzimByteSz(),thdef_.azimbytesz);
+    mFillFromDefIf(psdef_==InFile,thdef_.offs_,TrcHeaderDef::sOffsByte());
+    mFillFromDefIf(psdef_==InFile,thdef_.azim_,TrcHeaderDef::sAzimByte());
 }
 
 
@@ -373,13 +377,19 @@ void SEGY::FileReadOpts::shallowClear( IOPar& iop )
 }
 
 
-static void setIntByte( IOPar& iop, const char* nm,
-			unsigned char bytenr, unsigned char bytesz )
+static void reportHdrEntry( IOPar& iop, const char* nm,
+			    const SEGY::HdrEntry& he )
 {
-    BufferString keyw( nm ); keyw += " byte";
-    BufferString val; val = (int)bytenr;
-    val += " (size "; val += (int)bytesz; val += ")";
-    iop.set( keyw.buf(), val.buf() );
+    BufferString keyw( nm, " byte" );
+    BufferString val;
+    if ( he.isUdf() )
+	val += "<undef>";
+    else
+    {
+	val += (int)he.bytepos_;
+	val += " (size "; val += he.byteSize(); val += ")";
+	iop.set( keyw.buf(), val.buf() );
+    }
 }
 
 
@@ -398,20 +408,20 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
     if ( !rev1 )
     {
 	if ( is2d )
-	    setIntByte( iop, sKey::TraceNr, thdef_.trnr, thdef_.trnrbytesz );
+	    reportHdrEntry( iop, sKey::TraceNr, thdef_.trnr_ );
 	else
 	{
 	    iop.set( "Positioning defined by",
 		    icdef_ == XYOnly ? "Coordinates" : "Inline/Crossline" );
 	    if ( icdef_ != XYOnly )
 	    {
-		setIntByte( iop, "Inline", thdef_.inl, thdef_.inlbytesz );
-		setIntByte( iop, "Crossline", thdef_.crl, thdef_.crlbytesz );
+		reportHdrEntry( iop, "Inline", thdef_.inl_ );
+		reportHdrEntry( iop, "Crossline", thdef_.crl_ );
 	    }
 	    else
 	    {
-		iop.set( TrcHeaderDef::sXCoordByte(), thdef_.xcoord );
-		iop.set( TrcHeaderDef::sYCoordByte(), thdef_.ycoord );
+		reportHdrEntry( iop, "X-coordinate", thdef_.xcoord_ );
+		reportHdrEntry( iop, "Y-coordinate", thdef_.ycoord_ );
 	    }
 	}
     }
@@ -425,8 +435,8 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
 	iop.set( sKeyOffsDef(), offsdef_ );
     else if ( psdef_ != SrcRcvCoords )
     {
-	setIntByte( iop, sKey::Offset, thdef_.offs, thdef_.offsbytesz );
-	if ( thdef_.azim < 255 )
-	    setIntByte( iop, sKey::Azimuth, thdef_.azim, thdef_.azimbytesz );
+	reportHdrEntry( iop, sKey::Offset, thdef_.offs_ );
+	if ( !thdef_.azim_.isUdf() )
+	    reportHdrEntry( iop, sKey::Azimuth, thdef_.azim_ );
     }
 }

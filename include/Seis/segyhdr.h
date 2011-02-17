@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.26 2009-12-07 16:19:15 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.27 2011-02-17 13:34:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,11 +17,10 @@ ________________________________________________________________________
 
 namespace SEGY
 {
+class Hdrdef;
 
 #define SegyTxtHeaderLength		3200
 #define SegyBinHeaderLength		400
-#define SegyBinHeaderUnassUShorts	170
-#define SegyTracHeaderLength		240
 
 /*!\brief 3200 byte SEG-Y text header.
 
@@ -66,59 +65,63 @@ protected:
 };
 
 
-/*!\brief 400 byte SEG-Y binary header.
+/*!\brief 400 byte SEG-Y binary header  */
 
-  On construction, the 'txt' buffer is filled with data for writing the header.
-  If used for reading, fill the buffer yourself and use getFrom.
- 
- */
+class X;
 
 mClass BinHeader
 {
 public:
 
-		BinHeader(bool rev1=true); //!< rev1 relevant when writing
-    void	getFrom(const void*);
-    void	putTo(void*) const;
+		BinHeader();
+    void	setInput(const void*,bool needswap);
+    void	setForWrite();
+    void*	buf()			{ return buf_; }
+
+    static const HdrDef& hdrDef();
+
     int		bytesPerSample() const
-		{ return formatBytes( format ); }
+		{ return formatBytes( format() ); }
     static int	formatBytes( int frmt )
 		{ return frmt == 3 ? 2 : (frmt == 8 ? 1 : 4); }
 
-    bool	needswap;
+    int		valueAt(int bytenr);
+    void	setValueAt(int bytenr,int);
+    inline int	entryVal( int idx ) const
+		{ return hdrDef()[idx]->getValue(buf_,needswap_); }
+    inline void	setEntryVal( int idx, int val )
+		{ return hdrDef()[idx]->putValue(buf_,needswap_); }
 
-    int		jobid;	/* job identification number */
-    int		lino;	/* line number (only one line per reel) */
-    int		reno;	/* reel number */
-    short	ntrpr;	/* number of data traces per record */
-    short	nart;	/* number of auxiliary traces per record */
-    short	hdt;	/* sample interval in micro secs for this reel */
-    short	dto;	/* same for original field recording */
-    short	hns;	/* number of samples per trace for this reel */
-    short	nso;	/* same for original field recording */
-    short	format;	/* data sample format code:
-                            1 = floating point (4 bytes)
-                            2 = fixed point (4 bytes)
-                            3 = fixed point (2 bytes)
-                            4 = fixed point w/gain code (4 bytes)
-			       + SEG-Y rev 1:
-                            5 = IEEE float (4 bytes)
-                            8 = signed char (1 byte)
-		    */
-    short	fold, tsort, vscode, hsfs, hsfe, hslen, hstyp, schn, hstas,
-		hstae, htatyp, hcorr, bgrcv, rcvm;
+    short	format() const		{ return entryVal(EntryFmt()); }
+    int		nrSamples() const	{ return entryVal(EntryNs()); }
+    float	sampleRate(bool isdpth) const;
+    bool	isInFeet() const	{ return entryVal(EntryMFeet()) == 2; }
+    bool	isRev1() const		{ return entryVal(EntryRevCode()); }
 
-    short		mfeet;
-    			/* measurement system code: 1 = meters 2 = feet */
-
-    short		polyt, vpol;
-    unsigned short	hunass[SegyBinHeaderUnassUShorts];
-
-    unsigned short	isrev1; //!< This must be considered final
-    unsigned short	fixdsz;	//!< Rev 1 only
-    unsigned short	nrstzs; //!< Rev 1 only
+    void	setFormat( short i )	{ setEntryVal(EntryFmt(),i); }
+    void	setNrSamples( int i )	{ setEntryVal(EntryNs(),i); }
+    void	setSampleRate(float,bool isdpth);
+    void	setInFeet( bool yn )	{ setEntryVal(EntryMFeet(),yn?2:1); }
 
     void	dump(std::ostream&) const;
+
+protected:
+
+    unsigned char	buf_[SegyBinHeaderLength];
+    bool		forwrite_;
+    bool		needswap_;
+
+public:
+
+    static int		EntryJobID()		{ return 0; }
+    static int		EntryLino()		{ return 1; }
+    static int		EntryDt()		{ return 5; }
+    static int		EntryNs()		{ return 7; }
+    static int		EntryFmt()		{ return 9; }
+    static int		EntryTsort()		{ return 11; }
+    static int		EntryMFeet()		{ return 24; }
+    static int		EntryRevCode()		{ return 147; }
+
 };
 
 
@@ -129,46 +132,70 @@ public:
 			TrcHeader(unsigned char*,bool rev1,const TrcHeaderDef&);
     void		initRead(); //!< must call once before first usage
 
+    static const HdrDef& hdrDef();
+
     unsigned short	nrSamples() const;
     void		putSampling(SamplingData<float>,unsigned short);
 
     void		use(const SeisTrcInfo&);
     void		fill(SeisTrcInfo&,float) const;
-    void		setNeedSwap( bool yn=true )	{ needswap = yn; }
+    void		setNeedSwap( bool yn=true )	{ needswap_ = yn; }
 
     float		postScale(int numbfmt) const;
     Coord		getCoord(bool rcv,float extcoordsc);
 
-    unsigned char*	buf;
-    const TrcHeaderDef&	hdef;
-    bool		isrev1;
+    unsigned char*	buf_;
+    const TrcHeaderDef&	hdef_;
+    bool		isrev1_;
 
     bool		isusable; // trid < 2 ; mostly ignored but not always
     bool		nonrectcoords; // counit == 1, 2 or 3
 
     void		dump(std::ostream&) const;
 
-    struct Val
-    {
-	Val( int byt, const char* desc, int val )
-	    : byte_(byt), desc_(desc), val_(val)		{}
-	int byte_;
-	const char* desc_;
-	int val_;
-    };
-    static int		nrVals()		{ return 86; }
-    static int		nrStdVals()		{ return 41; }
-    Val			getVal(int) const;
-
-
 protected:
 
-    bool		needswap;
-    int			previnl;
-    int			seqnr;
-    int			lineseqnr;
+    bool		needswap_;
+    int			previnl_;
+    int			seqnr_;
+    int			lineseqnr_;
 
     double		getCoordScale(float extcoordsc) const;
+
+    void		putRev1Flds(const SeisTrcInfo&) const;
+    void		getRev1Flds(SeisTrcInfo&) const;
+
+public:
+
+    static int	EntryTracl()		{ return 0; }
+    static int	EntryTracr()		{ return 1; }
+    static int	EntryFldr()		{ return 2; }
+    static int	EntryCdp()		{ return 5; }
+    static int	EntryTrid()		{ return 7; }
+    static int	EntryDUse()		{ return 10; }
+    static int	EntryOffset()		{ return 11; }
+    static int	EntryScalco()		{ return 20; }
+    static int	EntrySx()		{ return 21; }
+    static int	EntrySy()		{ return 22; }
+    static int	EntryGx()		{ return 23; }
+    static int	EntryGy()		{ return 24; }
+    static int	EntryCoUnit()		{ return 25; }
+    static int	EntryLagA()		{ return 33; }
+    static int	EntryDelRt()		{ return 35; }
+    static int	EntryNs()		{ return 38; }
+    static int	EntryDt()		{ return 39; }
+    static int	EntryTrwf()		{ return 65; }
+    static int	EntryXcdp()		{ return 71; }
+    static int	EntryYcdp()		{ return 72; }
+    static int	EntryInline()		{ return 73; }
+    static int	EntryCrossline()	{ return 74; }
+    static int	EntrySP()		{ return 75; }
+    static int	EntrySPscale()		{ return 76; }
+
+    inline int	entryVal( int idx ) const
+		{ return hdrDef()[idx]->getValue(buf_,needswap_); }
+    inline void	setEntryVal( int idx, int val ) const
+		{ return hdrDef()[idx]->putValue(buf_,needswap_); }
 
 };
 

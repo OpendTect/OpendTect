@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.15 2010-08-19 07:31:48 cvsranojay Exp $
+ RCS:           $Id: uisegydef.h,v 1.16 2011-02-17 13:34:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,6 +121,7 @@ protected:
   If it's Rev. 1, the positioning part will not be present.
  
  */
+class uiSEGYFOByteSpec;
 
 mClass uiSEGYFileOpts : public uiSEGYDefGroup
 {
@@ -161,6 +162,7 @@ protected:
     Setup		setup_;
     bool		is2d_;
     bool		isps_;
+    SEGY::TrcHeaderDef&	thdef_;
 
     uiTabStack*		ts_;
     uiGroup*		posgrp_;
@@ -169,21 +171,15 @@ protected:
     uiGroup*		coordgrp_;
 
     uiGenInput*		posfld_;
-    uiGenInput*		inlbytefld_;
-    uiGenInput*		inlbyteszfld_;
-    uiGenInput*		crlbytefld_;
-    uiGenInput*		crlbyteszfld_;
-    uiGenInput*		trnrbytefld_;
-    uiGenInput*		trnrbyteszfld_;
-    uiGenInput*		refnrbytefld_;
-    uiGenInput*		refnrbyteszfld_;
     uiGenInput*		psposfld_;
-    uiGenInput*		offsbytefld_;
-    uiGenInput*		offsbyteszfld_;
-    uiGenInput*		azimbytefld_;
-    uiGenInput*		azimbyteszfld_;
-    uiGenInput*		xcoordbytefld_;
-    uiGenInput*		ycoordbytefld_;
+    uiSEGYFOByteSpec*	inldeffld_;
+    uiSEGYFOByteSpec*	crldeffld_;
+    uiSEGYFOByteSpec*	trnrdeffld_;
+    uiSEGYFOByteSpec*	refnrdeffld_;
+    uiSEGYFOByteSpec*	offsdeffld_;
+    uiSEGYFOByteSpec*	azimdeffld_;
+    uiSEGYFOByteSpec*	xcoorddeffld_;
+    uiSEGYFOByteSpec*	ycoorddeffld_;
     uiGenInput*		regoffsfld_;
     uiGenInput*		readcoordsfld_;
     uiGenInput*		coordsstartfld_;
@@ -195,17 +191,13 @@ protected:
     uiGenInput*		timeshiftfld_;
     uiGenInput*		sampleratefld_;
 
-    uiGroup*		mkORuleGrp(const IOPar*);
-    uiGroup*		mkPosGrp(const IOPar*,const SEGY::TrcHeaderDef&);
-    uiGroup*		mkPSGrp(const IOPar*,const SEGY::TrcHeaderDef&);
-    uiGroup*		mkCoordGrp(const IOPar*,const SEGY::TrcHeaderDef&);
+    uiGroup*		mkORuleGrp(const IOPar&);
+    uiGroup*		mkPosGrp(const IOPar&);
+    uiGroup*		mkPSGrp(const IOPar&);
+    uiGroup*		mkCoordGrp(const IOPar&);
 
-    void		mkTrcNrFlds(uiGroup*,const IOPar*,
-	    			    const SEGY::TrcHeaderDef&);
-    void		mkBinIDFlds(uiGroup*,const IOPar*,
-	    			    const SEGY::TrcHeaderDef&);
-    void		mkCoordFlds(uiGroup*,const IOPar*,
-	    			    const SEGY::TrcHeaderDef&);
+    void		mkBinIDFlds(uiGroup*,const IOPar&);
+    void		mkCoordFlds(uiGroup*,const IOPar&);
 
     void		initFlds(CallBacker*);
     void		psPosChg(CallBacker*);
@@ -214,6 +206,10 @@ protected:
     void		crdChk(CallBacker*);
 
     int			psPosType() const;
+    void		toggledFldFillPar(uiGenInput*,const IOPar&,const char*,
+					  bool isz=false);
+    void		setToggled(IOPar&,const char*,uiGenInput*,
+	    			   bool isz=false) const;
 
 };
 
