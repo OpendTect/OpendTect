@@ -4,13 +4,14 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.5 2011-02-10 08:02:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.6 2011-02-17 13:32:42 cvsbert Exp $";
 
 #include "uisynthtorealscale.h"
 #include "uistratseisevent.h"
 #include "uiseissel.h"
 #include "uiseparator.h"
 #include "uihistogramdisplay.h"
+#include "uiaxishandler.h"
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uilabel.h"
@@ -40,10 +41,11 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     , usrValChanged(this)
 {
     uiFunctionDisplay::Setup su;
-    su.annot( false ).noyaxis( true ).noy2axis( true ).drawgridlines( false );
+    su.annoty( false ).noyaxis( true ).noy2axis( true ).drawgridlines( false );
     dispfld_ = new uiHistogramDisplay( this, su );
-    dispfld_->setPrefWidth( 250 );
-    dispfld_->setPrefHeight( GetGoldenMinor(250) );
+    dispfld_->xAxis()->setName( "" );
+    dispfld_->setPrefWidth( 260 );
+    dispfld_->setPrefHeight( GetGoldenMinor(260) );
     avgfld_ = new uiGenInput( this, "", FloatInpSpec() );
     if ( left )
 	avgfld_->attach( rightAlignedBelow, dispfld_ );
@@ -199,7 +201,6 @@ void uiSynthToRealScale::updSynthStats()
 	    }
 	}
     }
-    synthstatsfld_->dispfld_->putN();
     synthstatsfld_->dispfld_->setData( vals.arr(), vals.size() );
     synthstatsfld_->avgfld_->setValue(
 	    	synthstatsfld_->dispfld_->getRunCalc().average() );
