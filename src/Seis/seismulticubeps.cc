@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seismulticubeps.cc,v 1.9 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seismulticubeps.cc,v 1.10 2011-02-17 13:31:40 cvsbert Exp $";
 
 #include "seismulticubeps.h"
 #include "seispsioprov.h"
@@ -62,7 +62,7 @@ MultiCubeSeisPSReader::~MultiCubeSeisPSReader()
 
 bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 {
-    deepErase( rdrs_ ); offs_.erase(); errmsg_.setEmpty();
+    deepErase( rdrs_ ); offs_.erase(); comps_.erase(); errmsg_.setEmpty();
     posdata_ = PosInfo::CubeData();
 
     StreamData sd( StreamProvider(fnm).makeIStream() );
@@ -92,7 +92,13 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 	if ( !ioobj )
 	    mErrCont(BufferString("Cannot find object: '",mid.buf(),"'"))
 
+	FileMultiString fms( astrm.value() );
+	const int fmssz = fms.size();
+	const float offs = toFloat( fms[0] );
+	const int comp = fmssz > 1 ? toInt( fms[1] ) : 0;
+
 	SeisTrcReader* rdr = new SeisTrcReader( ioobj );
+	rdr->setComponent( comp );
 	if ( !rdr->ioObj() || !rdr->prepareWork() )
 	{
 	    if ( rdr->errMsg() )
@@ -105,8 +111,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 	    delete rdr; continue;
 	}
 
-	rdrs_ += rdr;
-	offs_ += toFloat( astrm.value() );
+	rdrs_ += rdr; offs_ += offs; comps_ += comp;
 
 	PosInfo::CubeData cd; getCubeData( *rdr, cd );
 	if ( rdrs_.size() == 1 )
@@ -126,17 +131,18 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 
 bool MultiCubeSeisPSReader::putTo( const char* fnm ) const
 {
-    ObjectSet<MultiID> keys; TypeSet<float> offs;
+    ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
     for ( int irdr=0; irdr<rdrs_.size(); irdr++ )
     {
 	const IOObj* ioobj = rdrs_[irdr]->ioObj();
 	if ( !ioobj ) continue;
 	keys += new MultiID( ioobj->key() );
 	offs += offs_[irdr];
+	comps += comps_[irdr];
     }
 
     BufferString emsg;
-    bool rv = writeData( fnm, keys, offs, emsg );
+    bool rv = writeData( fnm, keys, offs, comps, emsg );
     if ( !rv )
 	errmsg_ = emsg;
     deepErase( keys );
@@ -146,7 +152,7 @@ bool MultiCubeSeisPSReader::putTo( const char* fnm ) const
 
 bool MultiCubeSeisPSReader::writeData( const char* fnm,
 	const ObjectSet<MultiID>& keys, const TypeSet<float>& offs,
-	BufferString& emsg )
+	const TypeSet<int>& comps, BufferString& emsg )
 {
     StreamData sd( StreamProvider(fnm).makeOStream() );
     if ( !sd.usable() )
@@ -163,7 +169,11 @@ bool MultiCubeSeisPSReader::writeData( const char* fnm,
     }
 
     for ( int idx=0; idx<keys.size(); idx++ )
-	astrm.put( *keys[idx], offs[idx] );
+    {
+	FileMultiString fms;
+	fms += offs[idx]; fms += comps[idx];
+	astrm.put( *keys[idx], fms );
+    }
 
     bool rv = sd.ostrm->good();
     sd.close();

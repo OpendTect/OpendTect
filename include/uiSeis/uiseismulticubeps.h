@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uiseismulticubeps.h,v 1.4 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiseismulticubeps.h,v 1.5 2011-02-17 13:31:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiListBox;
 class uiIOObjSel;
 class IOObj;
 class CtxtIOObj;
+class uiComboBox;
 class uiSeisMultiCubePSEntry;
 
 
@@ -42,11 +43,13 @@ protected:
     uiListBox*		selfld_;
     uiGenInput*		offsfld_;
     uiIOObjSel*		outfld_;
+    uiComboBox*		compfld_;
 
     void		fillEntries();
     void		fillBox(uiListBox*);
-    void		recordEntryOffs();
+    void		recordEntryData();
     void		fullUpdate();
+    void		setCompFld(const uiSeisMultiCubePSEntry&);
 
     void		selChg(CallBacker*);
     void		addCube(CallBacker*);

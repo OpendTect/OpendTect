@@ -7,18 +7,20 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.12 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.13 2011-02-17 13:31:40 cvsbert Exp $";
 
 #include "uiseismulticubeps.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uicombobox.h"
 #include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uiioobjsel.h"
 #include "uiseparator.h"
 #include "uimsg.h"
 #include "seismulticubeps.h"
+#include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
@@ -29,11 +31,14 @@ class uiSeisMultiCubePSEntry
 {
 public:
     	uiSeisMultiCubePSEntry( IOObj* i )
-	    : ioobj_(i), offs_(mUdf(float))	{}
+	    : ioobj_(i), offs_(mUdf(float)), comp_(0)	{}
+    	uiSeisMultiCubePSEntry( const uiSeisMultiCubePSEntry& i )
+	    : ioobj_(i.ioobj_->clone()), offs_(i.offs_), comp_(i.comp_)	{}
 	~uiSeisMultiCubePSEntry()		{ delete ioobj_; }
 
 	IOObj*	ioobj_;
 	float	offs_;
+	int	comp_;
 };
 
 
@@ -78,6 +83,11 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
     offsfld_ = new uiGenInput( this, "Offset", 
 			       FloatInpSpec().setName("Offset") );
     offsfld_->attach( alignedBelow, selllb );
+    offsfld_->setElemSzPol( uiObject::Small );
+    compfld_ = new uiComboBox( this, "Component" );
+    compfld_->setHSzPol( uiObject::Medium );
+    compfld_->attach( rightOf, offsfld_ );
+    compfld_->display( false );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep", true, false );
     sep->attach( stretchedBelow, offsfld_ );
@@ -118,24 +128,46 @@ void uiSeisMultiCubePS::fillEntries()
 }
 
 
-void uiSeisMultiCubePS::recordEntryOffs()
+void uiSeisMultiCubePS::recordEntryData()
 {
-    if ( curselidx_ < 0 || selentries_.isEmpty() ) return;
+    if ( curselidx_ < 0 || selentries_.isEmpty() )
+	return;
     if ( curselidx_ >= selentries_.size() )
 	curselidx_ = selentries_.size() - 1;
 
-    selentries_[curselidx_]->offs_ = offsfld_->getfValue();
+    uiSeisMultiCubePSEntry& se = *selentries_[curselidx_];
+    se.offs_ = offsfld_->getfValue();
+    se.comp_ = compfld_->isEmpty() ? 0 : compfld_->currentItem();
 }
 
 
 void uiSeisMultiCubePS::selChg( CallBacker* cb )
 {
     const int selidx = selfld_->currentItem();
-    if ( selidx < 0 || selidx >= selentries_.size() ) return;
-    if ( cb ) recordEntryOffs();
+    if ( selidx < 0 || selidx >= selentries_.size() )
+	return;
+    if ( cb ) recordEntryData();
 
-    offsfld_->setValue( selentries_[selidx]->offs_ );
+    const uiSeisMultiCubePSEntry& se = *selentries_[selidx];
     curselidx_ = selidx;
+    offsfld_->setValue( se.offs_ );
+    setCompFld( se );
+}
+
+
+void uiSeisMultiCubePS::setCompFld( const uiSeisMultiCubePSEntry& se )
+{
+    compfld_->setEmpty();
+    SeisIOObjInfo ioobjinf( se.ioobj_ );
+    BufferStringSet compnms;
+    ioobjinf.getComponentNames( compnms );
+    const bool dodisp = compnms.size() > 1;
+    compfld_->display( dodisp );
+    if ( dodisp )
+    {
+	compfld_->addItems( compnms );
+	compfld_->setCurrentItem( se.comp_ );
+    }
 }
 
 
@@ -143,11 +175,10 @@ void uiSeisMultiCubePS::addCube( CallBacker* )
 {
     const int cubeidx = cubefld_->currentItem();
     if ( cubeidx < 0 ) return;
-    recordEntryOffs();
+    recordEntryData();
 
     uiSeisMultiCubePSEntry* entry = entries_[cubeidx];
-    entries_ -= entry;
-    selentries_ += entry;
+    selentries_ += new uiSeisMultiCubePSEntry( *entry );
 
     curselidx_ = selentries_.size() - 1;
     fullUpdate();
@@ -161,7 +192,7 @@ void uiSeisMultiCubePS::rmCube( CallBacker* )
 
     uiSeisMultiCubePSEntry* entry = selentries_[selidx];
     selentries_ -= entry;
-    entries_ += entry;
+    delete entry;
 
     if ( curselidx_ >= selentries_.size() )
 	curselidx_ = selentries_.size() - 1;
@@ -193,7 +224,11 @@ void uiSeisMultiCubePS::fullUpdate()
     }
 
     if ( curselidx_ >= 0 )
-	offsfld_->setValue( selentries_[curselidx_]->offs_ );
+    {
+	uiSeisMultiCubePSEntry& se = *selentries_[curselidx_];
+	offsfld_->setValue( se.offs_ );
+	setCompFld( se );
+    }
     selfld_->setCurrentItem( curselidx_ );
 
 }
@@ -203,7 +238,7 @@ void uiSeisMultiCubePS::fullUpdate()
 
 bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 {
-    recordEntryOffs();
+    recordEntryData();
     if ( !outfld_->commitInput() )
 	mErrRet(outfld_->isEmpty() ? "Please enter a name for the output" : 0)
 
@@ -219,17 +254,18 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 	}
     }
 
-    ObjectSet<MultiID> mids; TypeSet<float> offs;
+    ObjectSet<MultiID> mids; TypeSet<float> offs; TypeSet<int> comps;
     for ( int idx=0; idx<selentries_.size(); idx++ )
     {
 	const uiSeisMultiCubePSEntry& entry = *selentries_[idx];
 	mids += new MultiID( entry.ioobj_->key() );
 	offs += entry.offs_;
+	comps += entry.comp_;
     }
 
     BufferString emsg;
     bool ret = MultiCubeSeisPSReader::writeData(
-			ctio_.ioobj->fullUserExpr(false), mids, offs, emsg );
+		    ctio_.ioobj->fullUserExpr(false), mids, offs, comps, emsg );
     deepErase( mids );
     if ( !ret )
 	mErrRet(emsg)
