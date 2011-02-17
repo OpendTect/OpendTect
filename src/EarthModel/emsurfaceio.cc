@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.145 2011-02-15 22:16:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.146 2011-02-17 05:27:09 cvsraman Exp $";
 
 #include "emsurfaceio.h"
 
@@ -858,14 +858,6 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
 	if ( !strm )
 	{
 	    msg_ = sMsgReadError();
-	    return ErrorOccurred();
-	}
-
-	const int lastrow = firstrow_ + (nrrows_-1)*rowrange_.step;
-	if ( !rowrange_.includes( firstrow_ ) ||
-	     !rowrange_.includes( lastrow ) )
-	{
-	    msg_ = "Corrupted file encounered";
 	    return ErrorOccurred();
 	}
     }
