@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.105 2011-02-17 13:34:38 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.106 2011-02-17 15:56:13 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -532,6 +532,8 @@ bool SEGYSeisTrcTranslator::initRead_()
 
 bool SEGYSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 {
+    filepars_.setForRead( false );
+
     for ( int idx=0; idx<trc.data().nrComponents(); idx++ )
     {
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());

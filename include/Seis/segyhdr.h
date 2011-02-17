@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.27 2011-02-17 13:34:38 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.28 2011-02-17 15:56:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,13 +90,13 @@ public:
     inline int	entryVal( int idx ) const
 		{ return hdrDef()[idx]->getValue(buf_,needswap_); }
     inline void	setEntryVal( int idx, int val )
-		{ return hdrDef()[idx]->putValue(buf_,needswap_); }
+		{ return hdrDef()[idx]->putValue(buf_,val); }
 
     short	format() const		{ return entryVal(EntryFmt()); }
     int		nrSamples() const	{ return entryVal(EntryNs()); }
     float	sampleRate(bool isdpth) const;
     bool	isInFeet() const	{ return entryVal(EntryMFeet()) == 2; }
-    bool	isRev1() const		{ return entryVal(EntryRevCode()); }
+    bool	isRev1() const;
 
     void	setFormat( short i )	{ setEntryVal(EntryFmt(),i); }
     void	setNrSamples( int i )	{ setEntryVal(EntryNs(),i); }
@@ -195,7 +195,7 @@ public:
     inline int	entryVal( int idx ) const
 		{ return hdrDef()[idx]->getValue(buf_,needswap_); }
     inline void	setEntryVal( int idx, int val ) const
-		{ return hdrDef()[idx]->putValue(buf_,needswap_); }
+		{ return hdrDef()[idx]->putValue(buf_,val); }
 
 };
 

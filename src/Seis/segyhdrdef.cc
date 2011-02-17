@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdrdef.cc,v 1.1 2011-02-17 13:34:52 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdrdef.cc,v 1.2 2011-02-17 15:56:13 cvsbert Exp $";
 
 
 #include "segythdef.h"
@@ -121,8 +121,8 @@ void SEGY::HdrEntry::putValue( void* buf, int val ) const
 	IbmFormat::putUnsignedShort( (unsigned short)val, ptr );
     else if ( type_ == Float )
 	IbmFormat::putFloat( (float)val, ptr );
-
-    IbmFormat::putInt( (int)val, ptr );
+    else
+	IbmFormat::putInt( (int)val, ptr );
 }
 
 
@@ -326,7 +326,7 @@ void SEGY::HdrDef::mkBin()
 	else
 	{
 	    dtyp = HdrEntry::UInt; // entry 147
-	    mAddHead( "RevisionCode", "SEG-Y revision code (Rev1=256)" );
+	    mAddHead( "RevCode", "SEG-Y revision code (Rev1=256)" );
 	    mAddHead( "FixedSize", "Fixed trace size (1=all traces equal)" );
 	    dtyp = HdrEntry::SInt;
 	    mAddHead( "NrStanzas", "Number of extra headers ('stanzas')" );

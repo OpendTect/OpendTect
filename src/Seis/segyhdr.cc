@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.88 2011-02-17 13:34:38 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.89 2011-02-17 15:56:13 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -333,6 +333,13 @@ float SEGY::BinHeader::sampleRate( bool isdepth ) const
     if ( !isdepth )
 	sr *= 0.001;
     return sr;
+}
+
+
+bool SEGY::BinHeader::isRev1() const
+{
+    const int nr = entryVal( EntryRevCode() );
+    return nr == 1 || nr == 256;
 }
 
 
