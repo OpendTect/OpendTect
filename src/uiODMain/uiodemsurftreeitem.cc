@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.78 2011-01-06 22:39:02 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.79 2011-02-17 17:41:14 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.78 2011-01-06 22:39:0
 #include "ioobj.h"
 #include "posvecdataset.h"
 #include "survinfo.h"
+#include "threadwork.h"
 
 #include "uiattribpartserv.h"
 #include "uiempartserv.h"
@@ -574,6 +575,10 @@ void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
     NotSavedPrompter::NSP().addObject( str.str(),
 		mCB( this, uiODEarthModelSurfaceTreeItem, saveCB ),
 	        savewithname, 0 );
+
+    Threads::WorkManager::twm().addWork(
+	    Threads::Work( *new uiTreeItemRemover( parent_, this ), true ), 0,
+	    NotSavedPrompter::NSP().queueID(), false );
 }
 
 
