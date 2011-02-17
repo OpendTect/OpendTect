@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.34 2011-02-14 22:23:30 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.35 2011-02-17 17:06:33 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -328,26 +328,32 @@ inline void Threads::WorkManager::reduceWorkload( int queueidx )
 }
 
 
-void Threads::WorkManager::removeQueue( int queueid, bool finishall )
+void Threads::WorkManager::emptyQueue( int queueid )
 {
     Threads::MutexLocker lock(workloadcond_);
-    const int queueidx = queueids_.indexOf( queueid );
 
-    if ( !finishall )
+    for ( int idx=workqueueid_.size()-1; idx>=0; idx-- )
     {
-	for ( int idx=workqueueid_.size()-1; idx>=0; idx-- )
+	if ( workqueueid_[idx]==queueid )
 	{
-	    if ( workqueueid_[idx]==queueid )
-	    {
-		::Threads::Work& task = workload_[idx];
-		task.destroy();
-		workload_.remove( idx );
-		
-		workqueueid_.remove( idx );
-		callbacks_.remove( idx );
-	    }
+	    ::Threads::Work& task = workload_[idx];
+	    task.destroy();
+	    workload_.remove( idx );
+	    
+	    workqueueid_.remove( idx );
+	    callbacks_.remove( idx );
 	}
     }
+}
+
+
+void Threads::WorkManager::removeQueue( int queueid, bool finishall )
+{
+    if ( !finishall )
+	emptyQueue( queueid );
+
+    Threads::MutexLocker lock(workloadcond_);
+    const int queueidx = queueids_.indexOf( queueid );
 
     //Wait for all threads to exit
     queueisclosing_[queueidx] = true;
@@ -408,7 +414,7 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
     }
 
     const int nrfreethreads = freethreads_.size();
-    if ( nrfreethreads )
+    if ( queuetypes_[queueidx]!=Manual && nrfreethreads )
     {
 	if ( queuetypes_[queueidx]==MultiThread || !queueworkload_[queueidx] )
 	{
