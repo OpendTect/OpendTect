@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uieditpdf.h,v 1.8 2010-03-05 13:57:57 cvsbert Exp $
+ RCS:           $Id: uieditpdf.h,v 1.9 2011-02-18 13:45:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ protected:
     bool			getNamesFromScreen();
     void			putValsToScreen();
     bool			getValsFromScreen(bool* chg=0);
+    void			setToolTips();
     void			updateUI();
 
     void			viewPDF(CallBacker*);

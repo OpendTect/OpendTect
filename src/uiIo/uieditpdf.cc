@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.20 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.21 2011-02-18 13:45:16 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -35,6 +35,9 @@ static const char* rcsID = "$Id: uieditpdf.cc,v 1.20 2011-02-10 05:11:27 cvssaty
 #define mDeclIdxs	int idxs[3]; idxs[2] = curdim2_
 #define mGetRowIdx(irow) \
     const int rowidx = nrdims_ == 1 ? irow : nrrows -irow - 1
+#define mAddDim2Str(bs) \
+	    bs.add( " at " ).add( pdf_.dimName(2) ).add( "=" ) \
+		      .add( andpdf->sampling(2).atIndex(curdim2_) );
 
 
 uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
@@ -303,8 +306,7 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
 	{
 	    FlatView::Annotation& ann = vwwinnd_->viewer().appearance().annot_;
 	    ann.title_ = pdf_.name();
-	    ann.title_.add( " at " ).add( pdf_.dimName(2) ).add( "=" )
-		      .add( andpdf->sampling(2).atIndex(curdim2_) );
+	    mAddDim2Str( ann.title_ );
 	}
 
 	Array2D<float>* arr2d = new Array2DImpl<float>( nrcols, nrrows );
@@ -346,8 +348,32 @@ void uiEditProbDenFunc::vwWinClose( CallBacker* )
 
 void uiEditProbDenFunc::tabChg( CallBacker* )
 {
-    if ( tabstack_->currentPageId() == 1 )
-	getNamesFromScreen();
+    if ( tabstack_->currentPageId() != 1 )
+	return;
+
+    getNamesFromScreen();
+    if ( tbl_ )
+	setToolTips();
+}
+
+
+void uiEditProbDenFunc::setToolTips()
+{
+    mDeclSzVars;
+#define mMkTT(dim) \
+    BufferString tt( pdf_.dimName(dim) ); \
+    if ( nrdims_ > 2 ) { mAddDim2Str(tt); } 
+
+    if ( nrdims_ > 1 )
+    {
+	mMkTT(0)
+	for ( int icol=0; icol<nrcols; icol++ )
+	    tbl_->setColumnToolTip( icol, tt );
+    }
+
+    mMkTT(nrdims_ > 1 ? 1 : 0)
+    for ( int irow=0; irow<nrrows; irow++ )
+	tbl_->setRowToolTip( irow, tt );
 }
 
 
@@ -357,6 +383,7 @@ void uiEditProbDenFunc::dimNext( CallBacker* )
     if ( curdim2_ > nrtbls-2 || !getValsFromScreen() ) return;
     curdim2_++;
     updateUI();
+    setToolTips();
 }
 
 
@@ -365,6 +392,7 @@ void uiEditProbDenFunc::dimPrev( CallBacker* )
     if ( curdim2_ < 1 || !getValsFromScreen() ) return;
     curdim2_--;
     updateUI();
+    setToolTips();
 }
 
 
