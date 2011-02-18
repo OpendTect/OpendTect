@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.42 2010-12-15 07:16:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.43 2011-02-18 09:47:27 cvsjaap Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -418,12 +418,27 @@ void Horizon2DDisplay::updateLinesOnSections(
 	linergs.zrgs += TypeSet<Interval<float> >();
 	for ( int idx=0; idx<seis2dlist.size(); idx++ )
 	{
-	    PosInfo::GeomID s2dgeomid = seis2dlist[idx]->getGeomID();
-	    if ( s2dgeomid == geomid )
+	    Interval<int> trcrg = h2d->geometry().colRange( geomid );
+	    trcrg.limitTo( seis2dlist[idx]->getTraceNrRange() );
+	    if ( geomid != seis2dlist[idx]->getGeomID() )
 	    {
-		linergs.trcrgs[lnidx] += seis2dlist[idx]->getTraceNrRange();
-		linergs.zrgs[lnidx] += seis2dlist[idx]->getZRange( true );
+		const Coord sp0 = seis2dlist[idx]->getCoord( trcrg.start );
+		const Coord sp1 = seis2dlist[idx]->getCoord( trcrg.stop );
+		if ( !trcrg.width() || !sp0.isDefined() || !sp1.isDefined() )
+		    continue;
+
+		const Coord hp0 = h2d->getPos( 0, geomid, trcrg.start );
+		const Coord hp1 = h2d->getPos( 0, geomid, trcrg.stop );
+		if ( !hp0.isDefined() || !hp1.isDefined() )
+		    continue;
+
+		const float maxdist = 0.1 * sp0.distTo(sp1) / trcrg.width();
+		if ( hp0.distTo(sp0)>maxdist || hp1.distTo(sp1)>maxdist )
+		    continue;
 	    }
+
+	    linergs.trcrgs[lnidx] += trcrg;
+	    linergs.zrgs[lnidx] += seis2dlist[idx]->getZRange( true );
 	}
     }
 
