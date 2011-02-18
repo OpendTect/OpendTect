@@ -33,11 +33,12 @@ RayTracer1D::RayTracer1D( const RayTracer1D::Setup& s )
     , receiverlayer_( 0 )
     , sourcelayer_( 0 )
     , sini_( 0 )
-{}					       	
+    , twt_(0)		 
+    {}					       	
 
 
 RayTracer1D::~RayTracer1D()
-{ delete sini_; }
+{ delete sini_; delete twt_; }
 
 
 void RayTracer1D::setSetup( const RayTracer1D::Setup& s )
@@ -89,15 +90,14 @@ bool RayTracer1D::doPrepare( int nrthreads )
     sourcelayer_ = findLayer( depthmodel, setup_.sourcedepth_ );
     receiverlayer_ = findLayer( depthmodel, setup_.receiverdepth_ );
 
-    const int layersize = nrIterations();
-    firstlayer_ = mMIN( receiverlayer_, sourcelayer_ );
+    const int layersize = nrIterations()+1;
     if ( sourcelayer_>=layersize || receiverlayer_>=layersize )
     {
 	errmsg_ = "Source or receiver is below lowest layer";
 	return false;
     }
 
-    const int offsetsz = offsets_.isEmpty();
+    const int offsetsz = offsets_.size();
     TypeSet<int> offsetidx( offsetsz, 0 );
     for ( int idx=0; idx<offsetsz; idx++ )
 	offsetidx[idx] = idx;
@@ -112,7 +112,13 @@ bool RayTracer1D::doPrepare( int nrthreads )
     else
 	sini_->setSize( layersize, offsetsz );
 
+    if ( !twt_ )
+	twt_ = new Array2DImpl<float>( layersize, offsetsz );
+    else
+	twt_->setSize( layersize, offsetsz );
+
     sini_->setAll( 0 );
+    twt_->setAll( mUdf(float) );
 
     return true;
 }
@@ -120,20 +126,35 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
 bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
-    //TODO simpel ray model
+    const int offsz = offsets_.size();
+    const int firstreflection = 1 + mMAX(sourcelayer_,receiverlayer_);
+
+    //TODO different down/upgoing model
+    for ( int layer=start; layer<=stop; layer++ )
+    {
+	const TypeSet<AILayer>& model = setup_.pdown_ ? pmodel_ : smodel_;
+	const AILayer& ailayer = pmodel_[layer]; 
+	const float thickness = ailayer.depth_ - setup_.sourcedepth_;
+
+	float vrms2sum = 0;
+	for ( int idx=start; idx<layer+1; idx++ )
+	{
+	    const float vel = model[idx].vel_;
+	    vrms2sum += vel*vel;
+	}
+	const float vrms  = sqrt( vrms2sum / (layer+1) );
+
+	for ( int osidx=offsz-1; osidx>=0; osidx-- )
+	{
+	    const float offsetdist = offsets_[osidx];
+	    const float angle = atan( offsetdist /thickness );
+	    const float raydist = thickness / cos( angle );
+	    const float toffset = raydist / vrms;
+	    twt_->set( layer, osidx, toffset );
+	    sini_->set( layer, osidx, sin( angle ) );
+	}
+    }
     return true;
-}
-
-
-#define mCalOffSetFactor() \
-        const float sini = rayparam * velvals_[idx];\
-        const float thickness = thicknesses_[idx]; \
-        result += thicknesses * sini / sqrt(1.0-sini*sini)
-
-float RayTracer1D::getOffset( int layer,float rayparam ) const
-{
-    //TODO
-    return -1;
 }
 
 
@@ -149,13 +170,12 @@ float RayTracer1D::getSinAngle( int layer, int offset ) const
 }
 
 
-bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
+float RayTracer1D::getTWT( int layer, int offsetidx ) const
 {
-    const TypeSet<AILayer>& dlayers = setup_.pdown_ ? pmodel_ : smodel_;
-    const float sinival = layer ? dlayers[layer-1].vel_ * rayparam : 0;
-    sini_->set( layer, offsetidx, sinival );
+    if ( !twt_ || layer<0 || layer>=twt_->info().getSize(0) || 
+	 offsetidx<0 || offsetidx>=twt_->info().getSize(1) )
+	return mUdf(float);
 
-    return true;
+    return twt_->get( layer, offsetidx );
 }
-
 

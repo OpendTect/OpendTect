@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.13 2011-02-15 16:28:02 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.14 2011-02-18 09:10:03 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -59,15 +59,16 @@ public:
 
     			//Available after execution
     float		getSinAngle(int layeridx,int offsetidx) const;
-    float*		getSinAngleData() const;	
+    float*		getSinAngleData() const;
+
+    float 		getTWT(int layeridx,int offsetidx) const;
 
 protected:
+    friend class	OffsetFromRayParam;
 
     od_int64		nrIterations() const;
     virtual bool	doPrepare(int);
     virtual bool	doWork(od_int64,od_int64,int);
-    virtual bool	compute(int layer,int offsetidx,float rayparam);
-    virtual float	getOffset(int layer,float rayparam) const;
     static int		findLayer(const TypeSet<AILayer>& model,
 	    			  float targetdepth);
 
@@ -77,8 +78,7 @@ protected:
     TypeSet<float>	offsets_;
     Setup		setup_;
 
-    			//Runtime variables
-    TypeSet<float>	velmax_; 
+    				//Runtime variables
     int			sourcelayer_;
     int			receiverlayer_;
     int			firstlayer_;
@@ -87,6 +87,7 @@ protected:
 
 			//Results
     Array2DImpl<float>*	sini_;
+    Array2DImpl<float>* twt_;
 };
 
 
