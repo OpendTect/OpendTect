@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.55 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.56 2011-02-18 12:23:39 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -52,6 +52,7 @@ static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.55 2010-11-16 09:49:10 cvs
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "keystrs.h"
+#include "zdomain.h"
 #include <iostream>
 
 
@@ -60,13 +61,15 @@ class uiSeisBrowserInfoVwr : public uiAmplSpectrum
 {
 public :
 
-			uiSeisBrowserInfoVwr(uiParent*,const SeisTrc&,bool);
+			uiSeisBrowserInfoVwr(uiParent*,const SeisTrc&,bool,
+				const ZDomain::Def&);
 
     void		setTrace(const SeisTrc&);
   
 protected:
 
     bool		is2d_;
+    const ZDomain::Def&	zdomdef_;
 
     uiGenInput*		coordfld_;
     uiGenInput*		trcnrbinidfld_;
@@ -114,6 +117,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup,
     , infovwr_(0)
     , trcbufvwr_(0)
     , setup_(setup)
+    , zdomdef_(&ZDomain::SI())
 {
     if ( !openData(setup) )
     {
@@ -174,9 +178,11 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& setup )
     PtrMan<IOObj> ioobj = IOM().get( setup.id_ );
     if ( !ioobj ) return false;
 
+    SeisIOObjInfo ioinf( *ioobj );
+    zdomdef_ = &SeisIOObjInfo(*ioobj).zDomainDef();
+
     if ( is2d_ )
     {
-	//SeisIOObjInfo seisioinfo( id_ );
 	Seis2DLineSet seislineset( ioobj->fullUserExpr(true) );
 	const int index = seislineset.indexOf( setup.linekey_ );
 	IOPar par( seislineset.getInfo(index) );
@@ -369,10 +375,10 @@ void uiSeisBrowser::fillUdf( SeisTrc& trc )
 }
 
 
-static const char* getZValStr( float z )
+static const char* getZValStr( float z, const float zfac )
 {
     static BufferString txt;
-    float dispz = SI().zFactor() * z * 10;
+    float dispz = zfac * z * 10;
     int idispz = mNINT( dispz );
     dispz = idispz * 0.1;
     txt = dispz;
@@ -383,8 +389,17 @@ static const char* getZValStr( float z )
 void uiSeisBrowser::fillTable()
 {
     const CBVSInfo& info = tr_->readMgr()->info();
+    const float zfac = zdomdef_->userFactor();
+    const char* zunstr = zdomdef_->unitStr(false);
     for ( int idx=0; idx<info.nrsamples; idx++ )
-	tbl_->setRowLabel( idx, getZValStr(info.sd.atIndex(idx)) );
+    {
+	const BufferString zvalstr( getZValStr(info.sd.atIndex(idx),zfac) );
+	tbl_->setRowLabel( idx, zvalstr );
+	BufferString tt;
+	tt.add( idx+1 ).add( getRankPostFix(idx+1) ).add( " sample at " )
+	  .add( zvalstr ).add( zunstr );
+	tbl_->setRowToolTip( idx, tt );
+    }
 
     for ( int idx=0; idx<tbuf_.size(); idx++ )
     {
@@ -463,7 +478,7 @@ void uiSeisBrowser::infoPush( CallBacker* )
     const bool hadinfo = infovwr_;
     if ( !infovwr_ )
     {
-	infovwr_ = new uiSeisBrowserInfoVwr( this, trc, is2d_ );
+	infovwr_ = new uiSeisBrowserInfoVwr( this, trc, is2d_, *zdomdef_ );
 	infovwr_->windowClosed.notify( mCB(this,uiSeisBrowser,infoClose) );
     }
     infovwr_->setTrace( trc );
@@ -801,9 +816,10 @@ void uiSeisBrowser::chgCompNrCB( CallBacker* )
 
 
 uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
-					    bool is2d )
+					    bool is2d, const ZDomain::Def& zd )
     : uiAmplSpectrum(p)
     , is2d_(is2d)  
+    , zdomdef_(zd)  
 {
     setDeleteOnClose( true );
     setCaption( "Trace information" );
@@ -830,7 +846,7 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     minamplatfld_->attach( rightOf, minamplfld_ );
     minamplatfld_->setElemSzPol( uiObject::Small );
     minamplatfld_->setReadOnly();
-    uiLabel* lbl = new uiLabel( valgrp, SI().getZUnitString() );
+    uiLabel* lbl = new uiLabel( valgrp, zdomdef_.unitStr(true) );
     lbl->attach( rightOf, minamplatfld_ );
 
     maxamplfld_ = new uiGenInput( valgrp, "Maximum amplitude", FloatInpSpec() );
@@ -841,7 +857,7 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     maxamplatfld_->attach( rightOf, maxamplfld_ );
     maxamplatfld_->setElemSzPol( uiObject::Small );
     maxamplatfld_->setReadOnly();
-    lbl = new uiLabel( valgrp, SI().getZUnitString() );
+    lbl = new uiLabel( valgrp, zdomdef_.unitStr(true) );
     lbl->attach( rightOf, maxamplatfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
@@ -894,10 +910,11 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 	    { amplrg.stop = v; peakzs.stop = trc.info().samplePos(isamp); }
     }
 
+    const float zfac = zdomdef_.userFactor();
     minamplfld_->setValue( amplrg.start );
-    minamplatfld_->setText( getZValStr(peakzs.start) );
+    minamplatfld_->setText( getZValStr(peakzs.start,zfac) );
     maxamplfld_->setValue( amplrg.stop );
-    maxamplatfld_->setText( getZValStr(peakzs.stop) );
+    maxamplatfld_->setText( getZValStr(peakzs.stop,zfac) );
 
     Array2DImpl<float> a2d( 1, vals.size() );
     for ( int idx=0; idx<vals.size(); idx++ )

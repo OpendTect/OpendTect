@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.21 2010-04-23 11:16:30 cvsbert Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.22 2011-02-18 12:23:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class uiTable;
 class uiComboBox;
 class uiSeisTrcBufViewer;
 class uiSeisBrowserInfoVwr;
+namespace ZDomain { class Def; }
 
 
 mClass uiSeisBrowser : public uiDialog
@@ -83,6 +84,7 @@ protected:
     CBVSSeisTrcTranslator* tr_;
     CBVSSeisTrcTranslator* tro_;
     CBVSSeisTrcTranslator* tri_;
+    const ZDomain::Def*	zdomdef_;
 
     bool		crlwise_;
     int			crlwisebutidx_;
