@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.35 2011-02-15 07:44:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.36 2011-02-18 14:02:36 cvsbruno Exp $";
 
 #include "velocitycalc.h"
 
@@ -23,6 +23,7 @@ TimeDepthModel::TimeDepthModel()
     , depths_( 0 )
     , sz_( 0 )
     , errmsg_( 0 )
+    , regularinput_(true)		  
 {}
 
 
@@ -208,19 +209,19 @@ bool TimeDepthModel::setVelocityModel( const ValueSeries<float>& vel,
 
 
 bool TimeDepthModel::calcDepths(ValueSeries<float>& res, int outputsz,
-				    const SamplingData<double>& depthsamp) const
+				    const SamplingData<double>& timesamp) const
 {
     if ( !isOK() ) return false;
-    calcZ( depths_, sz_, res, outputsz, depthsamp, false );
+    calcZ( times_, sz_, res, outputsz, timesamp, false );
     return true;
 }
 
 
 bool TimeDepthModel::calcTimes(ValueSeries<float>& res, int outputsz,
-				const SamplingData<double>& timesamp ) const
+				const SamplingData<double>& depthsamp ) const
 {
     if ( !isOK() ) return false;
-    calcZ( times_, sz_, res, outputsz, timesamp, true );
+    calcZ( depths_, sz_, res, outputsz, depthsamp, true );
     return true;
 }
 
@@ -229,51 +230,52 @@ void TimeDepthModel::calcZ( const float* zvals, int inpsz,
 			      ValueSeries<float>& res, int outputsz, 
 			      const SamplingData<double>& zsamp, bool time)const
 {
-    if ( zvals )
+    float* zrevvals = time ? times_ : depths_;
+    if ( zrevvals )
     {
 	StepInterval<double> zrg;
 	if ( !regularinput_ )
 	{
 	    zrg.start = zvals[0];
-	    zrg.stop = zvals[sz_-1];
+	    zrg.stop = zvals[inpsz-1];
 	    zrg.step = mUdf(double);
 	}
 	else
 	{
-	    zrg = sd_.interval( sz_ );
+	    zrg = sd_.interval( inpsz );
 	}
 
 	for ( int idx=0; idx<outputsz; idx++ )
 	{
 	    const double z = zsamp.atIndex( idx );
-
 	    float zrev;
-	    if ( z<=zrg.start )
+	    if ( z <= zrg.start )
 	    {
 		const double dz = z-zrg.start;
-		zrev = time ? firstvel_ > 0 ? zvals[0]+dz/firstvel_ : zvals[0] 
-			    : zvals[0] + dz*firstvel_;
+		zrev = time ? firstvel_ > 0 ? zrevvals[0]+dz/firstvel_ 
+		    			    : zrevvals[0] 
+			    : zrevvals[0] + dz*firstvel_;
 	    }
-	    else if ( time >= zrg.stop )
+	    else if ( z >= zrg.stop )
 	    {
 		const double dz = z-zrg.stop;
-		zrev = time ? zvals[sz_-1] + dz/lastvel_ 
-			    : zvals[sz_-1] + dz*lastvel_;
+		zrev = time ? zrevvals[inpsz-1] + dz/lastvel_ 
+			    : zrevvals[inpsz-1] + dz*lastvel_;
 	    }
 	    else
 	    {
-		float zsample = mUdf(float);
+		float zsample; 
 		if ( regularinput_ )
 		{
-		    zsample = zrg.getfIndex(time);
+		    zsample = zrg.getfIndex( z );
 		}
 		else
 		{
 		    int sampidx;
-		    IdxAble::findPos( zvals, sz_, z, -1, sampidx );
+		    IdxAble::findPos( zvals, inpsz, z, -1, sampidx );
 		    zsample = zvals[sampidx];
 		}
-		zrev = IdxAble::interpolateReg( zvals, sz_, zrg.getfIndex(z) );
+		zrev = IdxAble::interpolateReg(zrevvals,inpsz,zrg.getfIndex(z));
 	    }
 
 	    res.setValue( idx, zrev );
@@ -292,11 +294,11 @@ void TimeDepthModel::calcZ( const float* zvals, int inpsz,
 		zrev = time ? firstvel_>0 ? sd_.start+dz/firstvel_ : sd_.start
 			    : sd_.start+dz*firstvel_;
 	    }
-	    else if ( time>times_[sz_-1] )
+	    else if ( z > zvals[inpsz-1] )
 	    {
-		const double dz = z-zvals[sz_-1];
-		zrev = time ? sd_.atIndex(sz_-1)+dz/lastvel_
-			    : sd_.atIndex(sz_-1)+dz*lastvel_;
+		const double dz = z-zvals[inpsz-1];
+		zrev = time ? sd_.atIndex(inpsz-1)+dz/lastvel_
+			    : sd_.atIndex(inpsz-1)+dz*lastvel_;
 	    }
 	    else
 	    {
