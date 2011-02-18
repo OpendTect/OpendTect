@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.22 2011-02-17 16:15:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.23 2011-02-18 11:03:08 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uitextedit.h"
@@ -86,6 +86,14 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     tbl_ = new uiTable( tblgrp, tblsu, "Trace info" );
     tbl_->setPrefHeightInChar( 14 );
     tbl_->attach( centeredBelow, lbl );
+    for ( int icol=0; icol<setup_.nrtrcs_; icol++ )
+    {
+	const int tidx = icol + 1;
+	BufferString tt( "Trace header info from ", tidx );
+	tt.add( getRankPostFix(tidx) ).add( " trace" );
+	tbl_->setColumnLabel( icol, toString(tidx) );
+	tbl_->setColumnToolTip( icol, tt );
+    }
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
     splitter->addGroup( txtgrp );
