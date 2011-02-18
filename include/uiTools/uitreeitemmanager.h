@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.49 2011-02-17 17:20:15 cvskris Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.50 2011-02-18 18:31:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -192,13 +192,8 @@ private:
 mClass uiTreeItemRemover : public SequentialTask
 {
 public:
-    uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child)
-	: parent_( parent ), child_( child ) {}
-    int nextStep()   
-    {
-	parent_->removeChild( child_ );
-	return Finished();
-    }
+    uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child);
+    int nextStep();
 			            
 protected:
     uiTreeItem* parent_;

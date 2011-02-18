@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.60 2010-12-03 03:01:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.61 2011-02-18 18:31:25 cvskris Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -561,3 +561,16 @@ int uiTreeFactorySet::getPlacementIdx( int idx ) const
 
 int uiTreeFactorySet::getPol2D( int idx ) const
 { return pol2ds_[idx]; }
+
+
+uiTreeItemRemover::uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child)
+    : parent_( parent ), child_( child )
+{}
+
+
+int uiTreeItemRemover::nextStep()
+{
+    child_->prepareForShutdown();
+    parent_->removeChild( child_ );
+    return Finished();
+}
