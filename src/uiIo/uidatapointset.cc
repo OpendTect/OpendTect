@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.69 2010-12-02 09:59:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.70 2011-02-18 14:03:01 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -792,6 +792,13 @@ void uiDataPointSet::xplotRemReq( CallBacker* )
 void uiDataPointSet::reDoTable()
 {
     calcIdxs();
+
+    for ( DColID dcid=0; dcid<dps_.nrCols(); dcid++ )
+    {
+	const UnitOfMeasure* mu = dps_.colDef(dcid).unit_;
+	if ( mu )
+	    tbl_->setColumnToolTip( tColID(dcid), mu->name() );
+    }
 
     const int nrrows = tbl_->nrRows();
     for ( TRowID tid=0; tid<nrrows; tid++ )
