@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.47 2011-02-15 14:45:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.48 2011-02-18 19:32:12 cvskris Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -350,8 +350,6 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	if ( askContinueAndSaveIfNeeded( true ) )
 	{
 	    prepareForShutdown();
-	    visserv_->turnSeedPickingOn( false );
-	    visserv_->removeObject( displayid_, sceneID() );
 	    parent_->removeChild( this );
 	}
     }
@@ -404,6 +402,9 @@ void uiODDisplayTreeItem::prepareForShutdown()
 		     visserv_->getObject(displayid_) );
     if ( ODMainWin()->colTabEd().getSurvObj() == so )
 	ODMainWin()->colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
+
+    visserv_->turnSeedPickingOn( false );
+    visserv_->removeObject( displayid_, sceneID() );
 }
 
 
