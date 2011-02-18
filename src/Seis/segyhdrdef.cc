@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdrdef.cc,v 1.3 2011-02-17 19:18:09 cvskris Exp $";
+static const char* rcsID = "$Id: segyhdrdef.cc,v 1.4 2011-02-18 09:31:58 cvsbert Exp $";
 
 
 #include "segythdef.h"
@@ -98,7 +98,9 @@ int SEGY::HdrEntry::getValue( const void* buf, bool swapped ) const
     else if ( type_ == UInt )
 	return IbmFormat::asUnsignedShort( mGetBytes() );
     else if ( type_ == Float )
-	return (int) IbmFormat::asFloat( mGetBytes() );
+	return (int)( *( (float*)mGetBytes() ) );
+    		// If they are stupid enough to put floats in SEG-Y headers,
+    		// then they will probably not do that in IbmFormat
 
     return IbmFormat::asInt( mGetBytes() );
 }
@@ -120,7 +122,10 @@ void SEGY::HdrEntry::putValue( void* buf, int val ) const
     else if ( type_ == UInt )
 	IbmFormat::putUnsignedShort( (unsigned short)val, ptr );
     else if ( type_ == Float )
-	IbmFormat::putFloat( (float)val, ptr );
+    {
+	float fval = (float)val; // see remark in getValue()
+	memcpy( ptr, &fval, sizeof(float) );
+    }
     else
 	IbmFormat::putInt( (int)val, ptr );
 }
