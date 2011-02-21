@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenuhandler.cc,v 1.20 2010-12-27 15:10:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.21 2011-02-21 23:12:48 cvskris Exp $";
 
 
 #include "uimenuhandler.h"
@@ -56,6 +56,7 @@ bool uiMenuHandler::executeMenuInternal()
     ishandled_ = false;
     handlenotifier.trigger( selection, *this );
 
+    executeQueue();
     return true;
 }
 
@@ -173,4 +174,5 @@ void uiTreeItemTBHandler::butClickCB( CallBacker* cb )
 
     ishandled_ = false;
     handlenotifier.trigger( butid, this );
+    executeQueue();
 }

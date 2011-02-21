@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.12 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: menuhandler.h,v 1.13 2011-02-21 23:12:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,8 +159,7 @@ inserted into the menu.
 */
     
 mClass MenuHandler : public MenuItemHolder
-{
-    				mRefCountImpl(MenuHandler);
+{				mRefCountImpl(MenuHandler);
 public:
     				MenuHandler( int id );
 
@@ -186,12 +185,18 @@ public:
 				    if they have found the menu id they are
 				    looking for.  */
 
+    int				queueID() const { return queueid_; }
+    				/*!<After a menu is executed, it will
+				    execute a queue, identified by this id. */
+
 protected:
     void			assignItemID( MenuItem& );
+    void			executeQueue();
 
     int				freeid_;
     int				id_;
     bool			ishandled_;
+    int				queueid_;
 };
 
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.48 2011-02-18 19:32:12 cvskris Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.49 2011-02-21 23:12:48 cvskris Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.48 2011-02-18 19:32:
 #include "uivispartserv.h"
 #include "vismultiattribsurvobj.h"
 #include "vissurvobj.h"
+#include "threadwork.h"
 
 
 bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
@@ -347,11 +348,12 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==removemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	if ( askContinueAndSaveIfNeeded( true ) )
-	{
-	    prepareForShutdown();
-	    parent_->removeChild( this );
-	}
+	if ( !askContinueAndSaveIfNeeded( true ) )
+	    return;
+
+	Threads::WorkManager::twm().addWork(
+	    Threads::Work( *new uiTreeItemRemover( parent_, this ), true ), 0,
+	    menu->queueID(), false );
     }
     else if ( mnuid==addattribmnuitem_.id )
     {

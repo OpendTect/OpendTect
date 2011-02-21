@@ -7,19 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: menuhandler.cc,v 1.8 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: menuhandler.cc,v 1.9 2011-02-21 23:12:48 cvskris Exp $";
 
 
 #include "menuhandler.h"
 
 #include "bufstringset.h"
+#include "threadwork.h"
 #include "errh.h"
 
 
 MenuItemHolder::MenuItemHolder()
     : parent_(0)
     , removal(this)
-{}
+{
+}
 
 
 MenuItemHolder::~MenuItemHolder()
@@ -176,11 +178,15 @@ MenuHandler::MenuHandler( int id )
     : id_(id)
     , createnotifier(this)
     , handlenotifier(this)
+    , queueid_(
+	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual ) )
 {}
 
 
 MenuHandler::~MenuHandler()
-{}
+{
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
+}
 
 
 bool MenuHandler::isHandled() const
@@ -189,6 +195,12 @@ bool MenuHandler::isHandled() const
 
 void MenuHandler::setIsHandled( bool yn )
 { ishandled_ = yn; }
+
+
+void MenuHandler::executeQueue()
+{
+    Threads::WorkManager::twm().executeQueue( queueid_ );
+}
 
 
 void MenuHandler::assignItemID( MenuItem& itm )
