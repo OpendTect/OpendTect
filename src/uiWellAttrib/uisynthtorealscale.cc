@@ -4,9 +4,29 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.6 2011-02-17 13:32:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.7 2011-02-21 05:47:18 cvsranojay Exp $";
 
 #include "uisynthtorealscale.h"
+
+#include "emhorizon3d.h"
+#include "emhorizon2d.h"
+#include "emmanager.h"
+#include "emsurfacetr.h"
+#include "emsurfaceposprov.h"
+#include "binidvalset.h"
+#include "survinfo.h"
+#include "polygon.h"
+#include "position.h"
+#include "seistrc.h"
+#include "seistrcprop.h"
+#include "seisbuf.h"
+#include "seisread.h"
+#include "seisselectionimpl.h"
+#include "stratlevel.h"
+#include "statruncalc.h"
+#include "picksettr.h"
+#include "wavelet.h"
+
 #include "uistratseisevent.h"
 #include "uiseissel.h"
 #include "uiseparator.h"
@@ -16,20 +36,14 @@ static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.6 2011-02-17 13:32:42
 #include "uibutton.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "seistrc.h"
-#include "seistrcprop.h"
-#include "seisbuf.h"
-#include "stratlevel.h"
-#include "statruncalc.h"
-#include "picksettr.h"
-#include "pickset.h"
-#include "polygon.h"
-#include "wavelet.h"
-#include "emhorizon3d.h"
-#include "emhorizon2d.h"
-#include "emsurfacetr.h"
-#include "emsurfaceposprov.h"
+#include "uitaskrunner.h"
 
+
+#define mErrRetBool(s)\
+{ uiMSG().error(s); return false; }\
+
+#define mErrRet(s)\
+{ uiMSG().error(s); return; }\
 
 class uiSynthToRealScaleStatsDisp : public uiGroup
 {
@@ -207,6 +221,159 @@ void uiSynthToRealScale::updSynthStats()
 }
 
 
+bool uiSynthToRealScale::getPolygon( DataSelection& ds ) const
+{
+    BufferString errmsg;
+    const IOObj* polyioobj = polyfld_->isChecked() ? polyfld_->ioobj() : 0;
+    ds.polygon_ = polyioobj ?
+	PickSetTranslator::getPolygon( *polyioobj, errmsg ) : 0;
+    if ( polyioobj && !ds.polygon_ )
+	mErrRetBool( errmsg );
+
+    if ( polyioobj )
+    {
+	TypeSet<Coord3> coords;
+	PickSetTranslator::getCoordSet( polyioobj->key().buf(), coords );
+	for ( int idx=0; idx<coords.size(); idx++ )
+	{
+	    const BinID bid = SI().transform( coords[idx] );
+	    ds.polyhs_.include( bid );
+	}
+    }
+
+    return true;
+}
+
+
+bool uiSynthToRealScale::getHorizon( DataSelection& ds, TaskRunner* tr ) const
+{
+    const MultiID mid = horfld_->key();
+    EM::ObjectID emid = EM::EMM().getObjectID( mid );
+    PtrMan<Executor> exec = 0;
+    if ( emid < 0 )
+    {
+	EM::SurfaceIOData sd;
+	EM::SurfaceIODataSelection sels( sd );
+	if ( ds.polyhs_.isDefined() )
+	    sels.rg = ds.polyhs_;
+	exec = EM::EMM().objectLoader( mid, &sels );
+	if ( !exec )
+	    mErrRetBool( "Cannot create horizon loader" );
+	const bool res = tr ? tr->execute( *exec ) : exec->execute();
+	if ( !res )
+	    mErrRetBool( "Error loading horizon" );
+
+	emid = EM::EMM().getObjectID( mid ); 
+    }
+
+    EM::EMObject* emobj = EM::EMM().getObject( emid );
+    if ( emobj ) emobj->ref();
+    mDynamicCastGet(EM::Horizon*,hor,emobj);
+    ds.setHorizon( hor );
+    if ( emobj ) emobj->unRef();
+    return hor;
+}
+
+
+bool uiSynthToRealScale::getBinIDs( BinIDValueSet& bvs, 
+				    const DataSelection& ds ) const
+{
+    const EM::SectionID sid = ds.horizon_->sectionID( 0 );
+    CubeSampling horcs;
+    if ( ds.polygon_ )
+	horcs.hrg = ds.polyhs_;
+
+    PtrMan<EM::EMObjectIterator> emiter = 
+	    ds.horizon_->createIterator( sid, &horcs );
+    while ( true )
+    {
+	const EM::PosID posid = emiter->next();
+	if ( posid.isUdf() ) break;
+
+	const Coord3 crd = ds.horizon_->getPos( posid );
+	const BinID bid = SI().transform( crd );
+	if ( ds.polygon_ )
+	{
+	    const Geom::Point2D<float> point( bid.inl, bid.crl );
+	    if ( ds.polygon_->isInside( point, true, 0 ) )
+		bvs.add( bid, crd.z );
+	}
+	else
+	    bvs.add( bid, crd.z );
+    }
+
+    bvs.randomSubselect( synth_.size() );
+    return true;
+}
+
+
 void uiSynthToRealScale::updRealStats()
 {
+    // TODO: Handle is2d_
+
+    uiTaskRunner tr( this );
+    DataSelection ds;
+    if ( !getPolygon(ds) || !getHorizon(ds,&tr) )
+	return;
+
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    
+    BinIDValueSet bvs( 1, false );
+    if ( !getBinIDs(bvs,ds) )
+	return;
+
+    const StepInterval<float> window = evfld_->event().extrwin_;
+    Seis::SelData* ssd = new Seis::TableSelData( bvs, &window );
+    SeisTrcReader rdr( seisfld_->ioobj() );
+    rdr.setSelData( ssd );
+    if ( !rdr.prepareWork() )
+	mErrRet( "Error reading seismic traces" );
+
+    SeisTrcBuf trcbuf( true );
+    SeisBufReader bufrdr( rdr, trcbuf );
+    if ( !bufrdr.execute() )
+	return;
+    
+    const int windowsz = window.nrSteps();
+    TypeSet<float> vals;
+    const EM::SectionID sid = ds.horizon_->sectionID( 0 );
+    for ( int idx=0; idx<trcbuf.size(); idx++ )
+    {
+	const SeisTrc& trc = *trcbuf.get( idx );
+	float sumsq = 0;
+	int nrterms = 0;
+	for ( int trcidx=0; trcidx<windowsz; trcidx++ )
+	{
+	    const BinID bid = trc.info().binid;
+	    const float refz = ds.horizon_->getPos( sid, bid.toInt64() ).z;
+	    const float val = trc.getValue( refz+window.atIndex(trcidx), 0 );
+	    sumsq += val * val;
+	    nrterms++;
+	}
+
+	if ( nrterms )
+	    vals += sqrt( sumsq / nrterms );
+    }
+
+    uiHistogramDisplay* histfld = realstatsfld_->dispfld_;
+    histfld->setData( vals.arr(), vals.size() );
+    histfld->putN();
+    realstatsfld_->avgfld_->setValue( histfld->getRunCalc().average() );
 }
+
+
+// uiSynthToRealScale::DataSelection
+void uiSynthToRealScale::DataSelection::setHorizon( EM::Horizon* hor )
+{
+    if ( horizon_ ) horizon_->unRef();
+    horizon_ = hor;
+    if ( horizon_ ) horizon_->ref();
+}
+
+
+uiSynthToRealScale::DataSelection::~DataSelection()
+{
+    delete polygon_;
+    if ( horizon_ ) horizon_->unRef();
+}
+

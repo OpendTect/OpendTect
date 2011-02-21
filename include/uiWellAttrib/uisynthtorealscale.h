@@ -7,19 +7,27 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uisynthtorealscale.h,v 1.2 2011-02-07 16:17:43 cvsbert Exp $
+ RCS:           $Id: uisynthtorealscale.h,v 1.3 2011-02-21 05:44:42 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+
+#include "horsampling.h"
 #include "multiid.h"
+
+class BinIDValueSet;
 class SeisTrcBuf;
+class TaskRunner;
 class uiSeisSel;
 class uiIOObjSel;
 class uiGenInput;
 class uiStratSeisEvent;
 class uiSynthToRealScaleStatsDisp;
+template <class T> class ODPolygon;
+
+namespace EM { class Horizon3D; class Horizon; }
 
 
 /*!\brief To determine scaling of synthetics using real data.
@@ -59,7 +67,23 @@ protected:
 
     void		updSynthStats();
     void		updRealStats();
+    bool		getBinIDs(BinIDValueSet&);
 
+    struct DataSelection
+    {
+			    DataSelection()
+				: polygon_(0), polyhs_(false), horizon_(0)  {}
+			    ~DataSelection();
+
+	void		    setHorizon(EM::Horizon*);
+	ODPolygon<float>*   polygon_;
+	HorSampling	    polyhs_;
+	EM::Horizon*	    horizon_;
+    };
+
+    bool		getPolygon(DataSelection&) const;
+    bool		getHorizon(DataSelection&,TaskRunner*) const;
+    bool		getBinIDs(BinIDValueSet&,const DataSelection&) const;
 };
 
 
