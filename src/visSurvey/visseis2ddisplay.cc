@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.121 2011-02-04 05:46:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.122 2011-02-21 20:52:43 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -211,14 +211,15 @@ class Seis2DArray : public Array2D<float>
 public:
 
 Seis2DArray( const Seis2DDisplay& s2d, const Attrib::Data2DHolder& d2dh,
-	     const StepInterval<float>& arrayzrg, int attrib )
+	     const StepInterval<float>& arrayzrg, int zsz, int attrib )
     		    : s2d_( s2d )
 		    , data2dh_( d2dh )
 		    , arrayzrg_( arrayzrg )
-		    , info_( *new Array2DInfoImpl( s2d_.trcdisplayinfo_.size,
-				arrayzrg.nrSteps()+1 ) )
+		    , info_( *new Array2DInfoImpl( s2d.trcdisplayinfo_.size,
+				zsz ) )
 		    , attrib_( attrib )
-{}
+{
+}
 
 
 ~Seis2DArray()
@@ -630,10 +631,10 @@ void Seis2DDisplay::setData( int attrib,
 
 //    arrayzrg.step = sd.step;
 
-     arrayzrg.step = datatransform_	? datatransform_->getGoodZStep()
-	 			 	: SI().zStep();
+     arrayzrg.step = datatransform_ ? datatransform_->getGoodZStep()
+	 			    : SI().zStep();
 
-    const int arrzsz = arrayzrg.nrSteps()+1;
+    const int arrzsz = mNINT( arrayzrg.nrfSteps() )+1;
 
 #ifndef mUseSeis2DArray
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, arr,
@@ -654,7 +655,7 @@ void Seis2DDisplay::setData( int attrib,
 	channels_->setNrVersions( attrib, nrseries );
 
 #ifdef mUseSeis2DArray
-    Seis2DArray arr( *this, data2dh, arrayzrg, attrib );
+    Seis2DArray arr( *this, data2dh, arrayzrg, arrzsz, attrib );
 #endif
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
