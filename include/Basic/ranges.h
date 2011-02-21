@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.61 2010-11-23 04:12:17 cvsnanne Exp $
+ RCS:		$Id: ranges.h,v 1.62 2011-02-21 20:48:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,7 @@ public:
     inline T		snap(const X&) const;
 
     inline int		nrSteps() const;
+    inline float	nrfSteps() const;
     virtual inline void	sort(bool asc=true);
     inline void		scale(const T&);
     inline T		snappedCenter() const;
@@ -592,6 +593,14 @@ T StepInterval<T>::snapStep( const T& inputstep ) const
     int nrsteps = mNINT(relstep);
     if ( nrsteps<1 ) nrsteps = 1;
     return step*nrsteps;
+}
+
+
+template <class T> inline
+float StepInterval<T>::nrfSteps() const
+{
+    const float w = Interval<T>::width( true );
+    return w/step;
 }
 
 
