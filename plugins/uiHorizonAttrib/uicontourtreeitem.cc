@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.15 2011-02-09 16:01:42 cvskris Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.16 2011-02-21 15:51:44 cvsjaap Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -167,6 +167,7 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     , linewidth_( 1 )
     , arr_( 0 )
     , rg_(mUdf(float),-mUdf(float))
+    , zshift_( mUdf(float) )
 {
     ODMainWin()->applMgr().visServer()->removeAllNotifier().notify(
 	    mCB(this,uiContourTreeItem,visClosingCB) );
@@ -233,6 +234,8 @@ void uiContourTreeItem::checkCB(CallBacker*)
     
     if ( lines_ ) lines_->turnOn( display );
     if ( labelgrp_ ) labelgrp_->turnOn( display );
+
+    updateZShift();
 }
 
 
@@ -305,20 +308,25 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 
     menu->setIsHandled( true );
     const float fac = SI().zFactor();
-    Interval<float> range( rg_.start, rg_.stop ); range.scale( fac );
-    StepInterval<float> intv( contourintv_ ); intv.scale( fac );
-    uiContourParsDlg dlg( ODMainWin(), range, intv,
+    Interval<float> range( rg_.start, rg_.stop );
+    range += Interval<float>( zshift_, zshift_ );
+    range.scale( fac );
+    StepInterval<float> oldintv( contourintv_ );
+    oldintv += Interval<float>( zshift_, zshift_ );
+    oldintv.scale( fac );
+    uiContourParsDlg dlg( ODMainWin(), range, oldintv,
 	    		  LineStyle(LineStyle::Solid,linewidth_,color_) );
     dlg.propertyChanged.notify( mCB(this,uiContourTreeItem,propChangeCB) );
     const bool res = dlg.go();
     dlg.propertyChanged.remove( mCB(this,uiContourTreeItem,propChangeCB) );
     if ( !res ) return;
 
-    intv = dlg.getContourInterval();
-    intv.scale( 1/fac );
-    if ( intv != contourintv_ )
+    StepInterval<float> newintv = dlg.getContourInterval();
+    if ( newintv != oldintv )
     {
-	contourintv_ = intv;
+	newintv.scale( 1/fac );
+	newintv += Interval<float>( -zshift_, -zshift_ );
+	contourintv_ = newintv;
 	computeContours();
     }
 }
@@ -345,7 +353,8 @@ void uiContourTreeItem::computeContours()
     if ( !hd )
 	return;
 
-    hd->getMovementNotifier()->notify( mCB(this,uiContourTreeItem,checkCB) );
+    hd->getMovementNotifier()->notifyIfNotNotified(
+	    				mCB(this,uiContourTreeItem,checkCB) );
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     StepInterval<int> rowrg = hd->geometryRowRange();
@@ -405,6 +414,9 @@ void uiContourTreeItem::computeContours()
     if ( contourintv_.step <= 0 )
 	return;
 
+    const Coord3 trans = applMgr()->visServer()->getTranslation( displayID() );
+    zshift_ = trans.z;
+
     const char* fmt = SI().zIsTime() ? "%g" : "%f";
     int cii = 0;
     float contourval = contourintv_.start;
@@ -425,11 +437,12 @@ void uiContourTreeItem::computeContours()
 		const Geom::Point2D<float> vertex = ic.getVertex( vidx );
 		Coord vrtxcoord( vertex.x, vertex.y );
 		vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
-		const Coord3 pos( vrtxcoord, contourval );
+		const Coord3 pos( vrtxcoord, contourval+zshift_ );
 		const int posidx = lines_->getCoordinates()->addPos( pos );
 		lines_->setCoordIndex( cii++, posidx );
-		if ( ic.size() > cMinNrNodesForLbl  && vidx == ic.size()/2 )
-		    addText( pos, getStringFromFloat(fmt,contourval*fac, buf) );
+		const float labelval = (contourval+zshift_) * fac;
+		if ( ic.size() > cMinNrNodesForLbl && vidx == ic.size()/2 )
+		    addText( pos, getStringFromFloat(fmt, labelval, buf) );
 	    }
 	    
 	    if ( ic.isClosed() )
@@ -518,4 +531,41 @@ void uiContourTreeItem::updateColumnText( int col )
 BufferString uiContourTreeItem::createDisplayName() const
 {
     return BufferString( "Contours" );
+}
+
+
+void uiContourTreeItem::updateZShift()
+{
+    if ( !lines_ || mIsUdf(zshift_) )
+	return;
+
+    const Coord3 trans = applMgr()->visServer()->getTranslation( displayID() );
+    const float deltaz = trans.z - zshift_;
+    if ( !deltaz )
+	return;
+
+    for ( int idx=0; idx<lines_->getCoordinates()->size(true); idx++ )
+    {
+	if ( lines_->getCoordinates()->isDefined(idx) )
+	{
+	    Coord3 pos = lines_->getCoordinates()->getPos( idx );
+	    pos.z += deltaz;
+	    lines_->getCoordinates()->setPos( idx, pos );
+	}
+    }
+
+    char buf[255];
+    const char* fmt = SI().zIsTime() ? "%g" : "%f";
+
+    for ( int idx=0; idx<labels_.size(); idx++ )
+    {
+	Coord3 pos = labels_[idx]->position();
+	pos.z += deltaz;
+	labels_[idx]->setPosition( pos );
+	float labelval = toFloat( labels_[idx]->getText() );
+	labelval += deltaz * SI().zFactor(); 
+	labels_[idx]->setText( getStringFromFloat(fmt, labelval, buf) );
+    }
+
+    zshift_ = trans.z;
 }

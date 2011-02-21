@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          Feb 2009
- RCS:           $Id: uicontourtreeitem.h,v 1.6 2009-12-15 10:48:17 cvsraman Exp $
+ RCS:           $Id: uicontourtreeitem.h,v 1.7 2011-02-21 15:51:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ protected:
     void			updateColumnText(int);
     void			createLines();
     void			addText(const Coord3&,const char*);
+    void			updateZShift();
 
     Array2DImpl<int>*		arr_;
     TypeSet<BinID>		bids_;
@@ -80,6 +81,7 @@ protected:
     Color			color_;
     int				linewidth_;
     MenuItem			optionsmenuitem_;
+    float			zshift_;
 
     BufferString		createDisplayName() const;
 };
