@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistext.cc,v 1.21 2011-02-08 10:42:35 cvskris Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.22 2011-02-21 14:25:54 cvsjaap Exp $";
 
 #include "vistext.h"
 
@@ -188,10 +188,14 @@ void Text2::setText( const char* newtext )
 
 const char* Text2::getText() const
 {
-    SbString val;
-    text_->string.get( val );
     static BufferString res;
-    res = val.getString();
+    res = "";
+    for ( int idx=0; idx<text_->string.getNum(); idx++ )
+    {
+	if ( idx>0 ) res += "\n";
+	res += text_->string[idx].getString();
+    }
+
     return res;
 }
 
