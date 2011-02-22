@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.40 2011-02-11 13:21:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.41 2011-02-22 12:44:35 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -650,8 +650,19 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 }
 
 
-#define mMatchMarker( sid, sticknr, posdif ) \
-    if ( posdif.abs() < 1e-4 ) \
+static bool isSameMarkerPos( const Coord3& pos1, const Coord3& pos2 )
+{
+    const Coord3 diff = pos2 - pos1;
+    float xymargin = 0.01 * SI().inlDistance();
+    if ( diff.x*diff.x + diff.y*diff.y > xymargin*xymargin )
+	return false;
+
+    return fabs(diff.z) < 0.01 * SI().zStep();
+}
+
+
+#define mMatchMarker( sid, sticknr, pos1, pos2 ) \
+    if ( isSameMarkerPos(pos1,pos2) ) \
     { \
 	Geometry::FaultStickSet* fss = \
 				emfss_->geometry().sectionGeometry( sid ); \
@@ -694,8 +705,8 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 	    for ( int sipidx=0; sipidx<stickintersectpoints_.size(); sipidx++ )
 	    {
 		const StickIntersectPoint* sip = stickintersectpoints_[sipidx];
-		const Coord3 diff = sip->pos_ - marker->centerPos();
-		mMatchMarker( sip->sid_, sip->sticknr_, diff );
+		mMatchMarker( sip->sid_, sip->sticknr_,
+			      marker->centerPos(), sip->pos_ );
 	    }
 
 	    PtrMan<EM::EMObjectIterator> iter =
@@ -706,9 +717,9 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 		if ( pid.objectID() == -1 )
 		    return;
 
-		const Coord3 diff = emfss_->getPos(pid) - marker->centerPos();
 		const int sticknr = RowCol( pid.subID() ).row;
-		mMatchMarker( pid.sectionID(), sticknr, diff );
+		mMatchMarker( pid.sectionID(), sticknr,
+			      marker->centerPos(), emfss_->getPos(pid) );
 	    }
 	}
     }
@@ -1013,8 +1024,7 @@ bool FaultStickSetDisplay::isSelectableMarkerInPolySel(
 	    mDynamicCastGet( visBase::Marker*, marker, dataobj );
 	    if ( marker )
 	    {
-		const Coord3 diff = markerworldpos - marker->centerPos();
-		if ( diff.abs() < 1e-4 )
+		if ( isSameMarkerPos(marker->centerPos(),markerworldpos) )
 		    return true;
 
 		break;
