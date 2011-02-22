@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolyline.cc,v 1.18 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vispolyline.cc,v 1.19 2011-02-22 19:53:41 cvskris Exp $";
 
 #include "vispolyline.h"
 #include "viscoord.h"
@@ -103,12 +103,13 @@ void IndexedPolyLine3D::setRadius(float nv,bool fixedonscreen,float maxdisplaysi
 
 void IndexedPolyLine3D::setRightHandSystem( bool yn )
 {
-    ((SoIndexedLineSet3D*) shape_)->rightHandSystem.setValue( yn );
+    //((SoIndexedLineSet3D*) shape_)->rightHandSystem.setValue( yn );
 }
 
 
 bool IndexedPolyLine3D::isRightHandSystem() const
-{ return ((SoIndexedLineSet3D*) shape_)->rightHandSystem.getValue(); }
+//{ return ((SoIndexedLineSet3D*) shape_)->rightHandSystem.getValue(); }
+{ return true; }
 
 
 }; // namespace visBase

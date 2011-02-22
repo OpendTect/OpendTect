@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.27 2011-01-14 13:37:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.28 2011-02-22 19:53:41 cvskris Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -258,14 +258,14 @@ void GeomIndexedShape::setRightHandSystem( bool yn )
     VisualObjectImpl::setRightHandSystem( yn );
     if ( shape_ ) shape_->setRightHandedNormals( yn );
 
-    for ( int idx=lines_.size()-1; idx>=0; idx-- )
-    {
-	mDynamicCastGet( SoIndexedLineSet3D*, line3d, lines_[idx] );
-	if ( !line3d )
-	    continue;
-
-	line3d->rightHandSystem = righthandsystem_;
-    }
+    //for ( int idx=lines_.size()-1; idx>=0; idx-- )
+    //{
+	//mDynamicCastGet( SoIndexedLineSet3D*, line3d, lines_[idx] );
+	//if ( !line3d )
+	    //continue;
+//
+	//line3d->rightHandSystem = righthandsystem_;
+    //}
 }
 
 
@@ -364,7 +364,7 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 		line3d->radius = lineradius_;
 		line3d->screenSize = lineconstantonscreen_;
 		line3d->maxRadius = linemaxsize_;
-		line3d->rightHandSystem = righthandsystem_;
+		//line3d->rightHandSystem = righthandsystem_;
 	    }
 	}
 	else

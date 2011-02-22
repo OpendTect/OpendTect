@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.115 2011-02-14 22:23:30 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.116 2011-02-22 19:53:41 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1606,7 +1606,7 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
     gluelines_->coordIndex.deleteValues( 0, -1 );
     gluepoints_->coordIndex.deleteValues( 0, -1 );
 
-    gluelines_->rightHandSystem = true ;
+    //gluelines_->rightHandSystem = true ;
     gluelines_->radius = mLineRadius;
     gluelines_->maxRadius = mMaxLineRadius;
     gluelines_->screenSize = true;
@@ -1635,7 +1635,7 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
 	resolutions_[idx]->addChild( points_[idx] );
 
 	lines_[idx] = new SoIndexedLineSet3D;
-	lines_[idx]->rightHandSystem = true; 
+	//lines_[idx]->rightHandSystem = true; 
 	lines_[idx]->radius = mLineRadius;
 	lines_[idx]->maxRadius = mMaxLineRadius;
 	lines_[idx]->screenSize = true;
@@ -1673,9 +1673,9 @@ HorizonSectionTile::~HorizonSectionTile()
 
 void HorizonSectionTile::setRightHandSystem( bool yn )
 {
-    gluelines_->rightHandSystem = yn;
-    for ( int idx=0; idx<section_.mHorSectNrRes; idx++ )
-    	lines_[idx]->rightHandSystem = yn;
+    //gluelines_->rightHandSystem = yn;
+    //for ( int idx=0; idx<section_.mHorSectNrRes; idx++ )
+    	//lines_[idx]->rightHandSystem = yn;
 }
 
 

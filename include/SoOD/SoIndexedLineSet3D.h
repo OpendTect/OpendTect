@@ -31,9 +31,6 @@ public:
 			//!<is enabled. Less than zero means there is no
 			//!<maximum
 			//!<Coordinates.
-    SoSFBool		rightHandSystem;
-    			//!<Specifies wether the coordinate system is
-			//!<righthanded or not.
 
 protected:
     			~SoIndexedLineSet3D();
@@ -42,35 +39,49 @@ protected:
     void		rayPick (SoRayPickAction *action);
 
 private:
-    bool	getEdgeStartCoords( const SbVec3f& edgecoord,
-	    			    const SbVec3f& coord2,
-				    SbVec3f* res, SoState* );
-    void	generateCoordinates( SoState* );
-    bool	areCoordsValid( SoState* ) const;
 
-    SbList<SbVec3f>		corner1_;
-    SbList<SbVec3f>		corner2_;
-    SbList<SbVec3f>		corner3_;
-    SbList<SbVec3f>		corner4_;
-    SbList<SbVec3f>		cornernormal1_;
-    SbList<SbVec3f>		cornernormal2_;
-    SbList<SbVec3f>		cornernormal3_;
-    SbList<SbVec3f>		cornernormal4_;
-    SbList<SbBool>		isreversed_;
-    SbList<SbVec3f>		endnormals_;
+    mClass LineSet3DData
+    {
+    public:
+				LineSet3DData();
+				~LineSet3DData();
+	void			generateCoordinates(SoNode*,
+					float radius, bool screensize, float
+					maxradius, const int* ci, int nci,
+					SoState*);
+	void			glRender(const int32_t* materialindexes,
+					 SoGLRenderAction*);
+	bool			areCoordsValid(SoState*,SoNode*,bool) const;
+    protected:
+	bool			getEdgeStartCoords( const SbVec3f& edgecoord,
+						    const SbVec3f& coord2,
+						    SbVec3f* res, SoState* );
+	SbList<SbVec3f>		corner1_;
+	SbList<SbVec3f>		corner2_;
+	SbList<SbVec3f>		corner3_;
+	SbList<SbVec3f>		corner4_;
+	SbList<SbVec3f>		cornernormal1_;
+	SbList<SbVec3f>		cornernormal2_;
+	SbList<SbVec3f>		cornernormal3_;
+	SbList<SbVec3f>		cornernormal4_;
+	SbList<SbBool>		isreversed_;
+	SbList<SbVec3f>		endnormals_;
 
-    SbList<int>			sectionstarts_;
+	SbList<int>			sectionstarts_;
 
-    int				nodeid_;
-    SoElement*			modelmatchinfo_;
-    SoElement*			coordmatchinfo_;
-    SoElement*			vpmatchinfo_;
-    SoElement*			vvmatchinfo_;
-    bool			ismoving_;
+	int				nodeid_;
+	SoElement*			modelmatchinfo_;
+	SoElement*			coordmatchinfo_;
+	SoElement*			vpmatchinfo_;
+	SoElement*			vvmatchinfo_;
+	bool			ismoving_;
 
 #ifdef USE_DISPLAYLIST_LINESET
-    SoGLDisplayList*		displaylist_;
+	SoGLDisplayList*		displaylist_;
 #endif
+    };
+
+    LineSet3DData			data_;
 };
 
 

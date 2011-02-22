@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.19 2011-02-14 23:24:03 cvskris Exp $";
+static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.20 2011-02-22 19:53:41 cvskris Exp $";
 
 #include "SoIndexedLineSet3D.h"
 
@@ -49,7 +49,7 @@ void SoIndexedLineSet3D::initClass()
 }
 
 
-SoIndexedLineSet3D::SoIndexedLineSet3D()
+SoIndexedLineSet3D::LineSet3DData::LineSet3DData()
     : nodeid_( -1 )
     , modelmatchinfo_( 0 )
     , coordmatchinfo_( 0 )
@@ -58,16 +58,10 @@ SoIndexedLineSet3D::SoIndexedLineSet3D()
 #ifdef USE_DISPLAYLIST_LINESET
     , displaylist_( 0 )
 #endif
-{
-    SO_NODE_CONSTRUCTOR(SoIndexedLineSet3D);
-    SO_NODE_ADD_FIELD( radius, (5.0) );
-    SO_NODE_ADD_FIELD( screenSize, (true) );
-    SO_NODE_ADD_FIELD( maxRadius, (-1) );
-    SO_NODE_ADD_FIELD( rightHandSystem, (true) );
-}
+{}
 
 
-SoIndexedLineSet3D::~SoIndexedLineSet3D()
+SoIndexedLineSet3D::LineSet3DData::~LineSet3DData()
 {
     delete modelmatchinfo_;
     delete coordmatchinfo_;
@@ -77,6 +71,19 @@ SoIndexedLineSet3D::~SoIndexedLineSet3D()
     displaylist_->unref();
 #endif
 }
+
+
+SoIndexedLineSet3D::SoIndexedLineSet3D()
+{
+    SO_NODE_CONSTRUCTOR(SoIndexedLineSet3D);
+    SO_NODE_ADD_FIELD( radius, (5.0) );
+    SO_NODE_ADD_FIELD( screenSize, (true) );
+    SO_NODE_ADD_FIELD( maxRadius, (-1) );
+}
+
+
+SoIndexedLineSet3D::~SoIndexedLineSet3D()
+{ }
 
 
 #define mRenderQuad( c1, c2, m12, c3, c4, m34, norm23, norm14 )\
@@ -134,10 +141,15 @@ void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
     }
 #endif
 
-    bool isvalid = areCoordsValid( state );
+    bool isvalid = data_.areCoordsValid( state, this, screenSize.getValue() );
 
     if ( !isvalid )
-	generateCoordinates( state );
+    {
+	const int32_t* cindices = coordIndex.getValues(0);
+	data_.generateCoordinates( this, radius.getValue(),
+		screenSize.getValue(), maxRadius.getValue(),
+		coordIndex.getValues(0), coordIndex.getNum(), state );
+    }
 
 #ifdef USE_DISPLAYLIST_LINESET
     if ( isvalid )
@@ -147,18 +159,29 @@ void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
     }
     else
         displaylist_->open( state );
-#endif	
+#endif
+
+    SoMaterialBindingElement::Binding mbind =
+				SoMaterialBindingElement::get(state);
+
+    const int32_t* materialindexes = materialIndex.getValues(0);
+    if ( !materialindexes &&
+	    mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
+	materialindexes = coordIndex.getValues(0);
+
+    data_.glRender( materialindexes, action );
+}
+
+
+void SoIndexedLineSet3D::LineSet3DData::glRender(
+	const int32_t* materialindexes, SoGLRenderAction* action )
+{
+    SoState* state = action->getState();
     SoTextureCoordinateBundle tb(action, true, true);
     SoMaterialBundle mb(action);
     int matnr = 0;
     SoMaterialBindingElement::Binding mbind =
 				SoMaterialBindingElement::get(state);
-
-    const int32_t* cis = coordIndex.getValues(0);
-    const int32_t* materialindexes = materialIndex.getValues(0);
-    if ( !materialindexes &&
-	    mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
-	materialindexes = cis;
 
     glPushMatrix();
     SbMatrix m = SoViewingMatrixElement::get(state);
@@ -255,8 +278,9 @@ void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
     endnormals_.append( jnormal ); \
 
 
-bool SoIndexedLineSet3D::getEdgeStartCoords( const SbVec3f& edgecoord,
-		const SbVec3f& coord2, SbVec3f* res, SoState* state )
+bool SoIndexedLineSet3D::LineSet3DData::getEdgeStartCoords(
+	const SbVec3f& edgecoord,
+	const SbVec3f& coord2, SbVec3f* res, SoState* state )
 {
     if ( edgecoord==coord2 ) return false;
 
@@ -292,9 +316,11 @@ bool SoIndexedLineSet3D::getEdgeStartCoords( const SbVec3f& edgecoord,
 }
 
 
-bool SoIndexedLineSet3D::areCoordsValid( SoState* state ) const
+bool SoIndexedLineSet3D::LineSet3DData::areCoordsValid( SoState* state,
+						    SoNode* node,
+						    bool doscreensize ) const
 {
-    if ( nodeid_!=getNodeId() )
+    if ( nodeid_!=node->getNodeId() )
 	return false;
 
 #define mCheckElem( var, elem ) \
@@ -304,7 +330,7 @@ bool SoIndexedLineSet3D::areCoordsValid( SoState* state ) const
 
     mCheckElem( coordmatchinfo_, SoCoordinateElement );
 
-    if ( screenSize.getValue() )
+    if ( doscreensize )
     {
 	const int32_t camerainfo = SoCameraInfoElement::get(state);
 	if ( !(camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE)) )
@@ -374,11 +400,10 @@ void SoIndexedLineSet3D::rayPick( SoRayPickAction* action )
 }
 
 
-void SoIndexedLineSet3D::generateCoordinates( SoState* state )
+void SoIndexedLineSet3D::LineSet3DData::generateCoordinates( SoNode* node,
+	float radius, bool doscreensize, float maxradius, 
+	const int* cindices, int nrindex, SoState* state )
 {
-    const int nrindex = coordIndex.getNum();
-    const int32_t* cindices = coordIndex.getValues(0);
-
     corner1_.truncate( 0, 0 );
     corner2_.truncate( 0, 0 );
     corner3_.truncate( 0, 0 );
@@ -407,14 +432,11 @@ void SoIndexedLineSet3D::generateCoordinates( SoState* state )
 
     const SbMatrix& mat = SoModelMatrixElement::get(state);
 
-    const float rad = radius.getValue();
     const SbViewportRegion& vp = SoViewportRegionElement::get(state);
-    const float nsize = rad/ float(vp.getViewportSizePixels()[1]);
+    const float nsize = radius/ float(vp.getViewportSizePixels()[1]);
     const SbViewVolume& vv = SoViewVolumeElement::get(state);
 
-    const bool doscreensize = screenSize.getValue();
-    const float maxradius = maxRadius.getValue();
-    float scaleby = rad;
+    float scaleby = radius;
 
     int nrjoints = 0;
     const int32_t* stopptr = cindices+nrindex;
@@ -443,7 +465,7 @@ void SoIndexedLineSet3D::generateCoordinates( SoState* state )
 
 	if ( doscreensize )
 	{
-	    scaleby  = rad * vv.getWorldToScreenScale(c1, nsize );
+	    scaleby  = radius * vv.getWorldToScreenScale(c1, nsize );
 	    if ( maxradius>=0 && scaleby>maxradius )
 	       scaleby = maxradius; 
 	}
@@ -491,7 +513,7 @@ void SoIndexedLineSet3D::generateCoordinates( SoState* state )
 
 	    if ( doscreensize )
 	    {
-		scaleby  = rad * vv.getWorldToScreenScale(c2, nsize );
+		scaleby  = radius * vv.getWorldToScreenScale(c2, nsize );
 		if ( maxradius>=0 && scaleby>maxradius )
 		   scaleby = maxradius; 
 	    }
@@ -519,7 +541,7 @@ void SoIndexedLineSet3D::generateCoordinates( SoState* state )
     mCopyMatchInfo( vpmatchinfo_, SoViewportRegionElement );
     mCopyMatchInfo( vvmatchinfo_, SoViewVolumeElement );
 
-    nodeid_ = getNodeId();
+    nodeid_ = node->getNodeId();
 }
 
 
@@ -600,7 +622,7 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 		  mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
 	    material1 = materialindexes[0];
 
-	bool isreversed = rightHandSystem.getValue();
+	bool isreversed = true;
 	mSendQuad(  corner1, 0, corner2, 0, material1,
 		    corner3, 0, corner4, 0, material1,
 		    endnormals[0], endnormals[0] );
