@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.26 2009-10-29 08:49:38 cvsumesh Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.27 2011-02-22 11:25:50 cvsumesh Exp $";
 
 #include "autotracker.h"
 
@@ -330,7 +330,16 @@ int AutoTracker::nextStep()
 		(stepcntapmtthesld_+1) )
 		adjuster_->removeOnFailure( trackingextriffail_ );
 
+	    TypeSet<EM::SubID> seedsfromlaststep;
+	    if ( sectiontracker_->propagatingFromSeedOnly() )
+		seedsfromlaststep = currentseeds_;
+
 	    reCalculateTotalNr();
+
+	    if ( sectiontracker_->propagatingFromSeedOnly() &&
+		 currentseeds_.isEmpty() )
+		currentseeds_ = seedsfromlaststep;
+
 	    const float th =
 		horadj->getAmplitudeThresholds()[stepcntapmtthesld_];
 	    horadj->setAmplitudeThreshold( th );
@@ -353,7 +362,16 @@ int AutoTracker::nextStep()
 	    if ( horadj->getAllowedVariances().size() == (stepcntallowedvar_+1))
 		adjuster_->removeOnFailure( trackingextriffail_ );
 
+	    TypeSet<EM::SubID> seedsfromlaststep;
+	    if ( sectiontracker_->propagatingFromSeedOnly() )
+		seedsfromlaststep = currentseeds_;
+
 	    reCalculateTotalNr();
+
+	    if ( sectiontracker_->propagatingFromSeedOnly() &&
+		 currentseeds_.isEmpty() )
+		currentseeds_ = seedsfromlaststep;
+
 	    const float var = horadj->getAllowedVariances()[stepcntallowedvar_];
 	    horadj->setAllowedVariance( var );
 	    execmsg_ = "Step: "; execmsg_ += var*100; execmsg_ += "%";
