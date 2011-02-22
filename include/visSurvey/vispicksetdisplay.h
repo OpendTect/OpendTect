@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.64 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.65 2011-02-22 08:18:22 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,7 @@ public:
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
+    void			setScene(Scene*);
 
 protected:
 
@@ -61,6 +62,7 @@ protected:
     void			dispChg(CallBacker*);
     void			locChg(CallBacker*);
     void			setChg(CallBacker*);
+    void			sceneZChangeCB(CallBacker*);
     bool			hasColor() const	{ return true; }
     void			setColor(Color);
 

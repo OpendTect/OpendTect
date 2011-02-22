@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.101 2010-10-14 09:58:07 cvsbert Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.102 2011-02-22 08:18:22 cvsranojay Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -45,6 +45,9 @@ PickSetDisplay::~PickSetDisplay()
 
     if ( bodydisplay_ ) 
 	bodydisplay_->unRef();
+    if ( scene_ )
+	scene_->zstretchchange.remove(
+		mCB(this,PickSetDisplay,sceneZChangeCB) );
 }
 
 
@@ -134,6 +137,8 @@ visBase::VisualObject* PickSetDisplay::createLocation() const
     marker->setType( (MarkerStyle3D::Type) set_->disp_.markertype_ );
     marker->setScreenSize( set_->disp_.pixsize_ );
     marker->setMaterial( 0 );
+    if ( scene_ )
+	marker->setZStretch( scene_->getZStretch()*scene_->getZScale()/2 );
     return marker;
 }
 
@@ -143,6 +148,9 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
     mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
     marker->setCenterPos( loc.pos );
     marker->setDirection( loc.dir );
+    BufferString dipvaluetext;
+    loc.getText( "Dip", dipvaluetext );
+    marker->setDip( dipvaluetext.buf() );
 }
 
 
@@ -213,6 +221,26 @@ void PickSetDisplay::dispChg( CallBacker* cb )
     }
 
     LocationDisplay::dispChg( cb );
+}
+
+
+void PickSetDisplay::setScene( Scene* scn )
+{
+    SurveyObject::setScene( scn );
+    if ( scene_ ) 
+	scene_->zstretchchange.notify( 
+		mCB(this,PickSetDisplay,sceneZChangeCB) );
+}
+
+
+void PickSetDisplay::sceneZChangeCB( CallBacker* )
+{
+    for ( int idx=0; idx<group_->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
+	if ( marker && scene_ )
+	    marker->setZStretch( scene_->getZStretch()*scene_->getZScale()/2 );
+    }
 }
 
 

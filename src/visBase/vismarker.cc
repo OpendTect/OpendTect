@@ -7,10 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vismarker.cc,v 1.29 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vismarker.cc,v 1.30 2011-02-22 08:18:22 cvsranojay Exp $";
 
 #include "vismarker.h"
+
 #include "iopar.h"
+#include "separstr.h"
+#include "survinfo.h"
+#include "viscube.h"
 #include "vistransform.h"
 
 #include "SoShapeScale.h"
@@ -44,6 +48,8 @@ Marker::Marker()
     , markerscale(new SoShapeScale)
     , shape(0)
     , direction(0.5,M_PI_2,0)
+    , zstretch_(1)
+    , dipvaluetext_(0)
 {
     addChild( translation );
     addChild( markerscale );
@@ -58,6 +64,7 @@ Marker::Marker()
 Marker::~Marker()
 {
     if ( transformation ) transformation->unRef();
+    if ( shape ) removeChild(shape);
 }
 
 
@@ -122,6 +129,22 @@ MarkerStyle3D::Type Marker::getType() const
 }
 
 
+Cube* createPlane()
+{
+    visBase::Cube* plane = visBase::Cube::create();
+
+    const RCol2Coord& b2c = SI().binID2Coord();
+    const float xcrd = b2c.getTransform(true).c;
+    const float ycrd = b2c.getTransform(false).c;
+    const float angle = atan2( ycrd, xcrd );
+    SoRotation* surveyrot = new SoRotation;
+    surveyrot->rotation.setValue( SbVec3f(0,0,1), angle );
+    plane->insertNode( surveyrot );
+    plane->setWidth( Coord3(6,5,1) );
+    return plane;
+}
+
+
 void Marker::setType( MarkerStyle3D::Type type )
 {
     switch ( type )
@@ -149,7 +172,7 @@ void Marker::setType( MarkerStyle3D::Type type )
 	setMarkerShape(new SoArrow);
 	setArrowDir( direction );
 	break;
-    case MarkerStyle3D::Cross:
+    case MarkerStyle3D::Cross:{
 	SoGroup* group = new SoGroup;
 	group->ref();
 
@@ -170,7 +193,12 @@ void Marker::setType( MarkerStyle3D::Type type )
 	setMarkerShape( group );
 	group->unref();
 	setRotation( Coord3(0,0,1), 0 );
-	break;
+	}break;
+    case MarkerStyle3D::Plane: {
+	Cube* plane = createPlane();
+	setMarkerShape( plane->getInventorNode() ); 
+	setDip( dipvaluetext_ );
+	} break;
     }
 
     markerstyle.type_ = type;
@@ -261,6 +289,25 @@ void Marker::setArrowDir( const ::Sphere& dir )
 }
 
 
+void Marker::setDip( const char* diptext )
+{
+    dipvaluetext_ = diptext;
+    SeparString dipstr( dipvaluetext_ );
+    const float inl = dipstr.getFValue( 0 );
+    const float crl = dipstr.getFValue( 1 );
+    if ( mIsUdf(inl) || mIsUdf(crl) )
+	return;
+    const float inldepth =  (inl/1000000) * zstretch_;
+    const float crldepth =  (crl/1000000) * zstretch_;
+    const float inlangle = atan( SI().isClockWise() ? -inldepth : inldepth );
+    const float crlangle = atan( crldepth ); 
+    SbRotation inldip( SbVec3f(1,0,0), inlangle );
+    SbRotation crldip( SbVec3f(0,1,0), crlangle );
+    SbRotation finaldip = inldip * crldip;
+    rotation->rotation.setValue( finaldip );
+}
+
+
 void Marker::setDisplayTransformation( Transformation* nt )
 {
     const Coord3 pos = centerPos();
@@ -298,4 +345,12 @@ void Marker::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 }
 
 
+void Marker::setZStretch( float stretch )
+{
+    zstretch_ = stretch;
+    if ( markerstyle.type_ == MarkerStyle3D::Plane )
+	setDip( dipvaluetext_ );
+}
+
 }; // namespace visBase
+

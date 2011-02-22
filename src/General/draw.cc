@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.80 2010-12-16 13:02:27 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.81 2011-02-22 08:18:22 cvsranojay Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -24,7 +24,7 @@ DefineEnumNames(MarkerStyle2D,Type,2,"Marker type")
 { "None", "Square", "Circle", "Cross", "Plus", "Target",
   "Horizontal line", "Vertical line", 0 };
 DefineEnumNames(MarkerStyle3D,Type,0,"Marker type")
-{ "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross", "Point", 0 };
+{ "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross", "Point", "Plane", 0 };
 DefineEnumNames(LineStyle,Type,0,"Line style")
 { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
 

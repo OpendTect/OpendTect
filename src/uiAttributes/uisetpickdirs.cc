@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.23 2010-06-09 13:01:26 cvshelene Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.24 2011-02-22 08:18:22 cvsranojay Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -138,42 +138,50 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
     mAddColDef( "inline", phifld_ )
     mAddColDef( "crline", thetafld_ )
 
-    DataPointSet locations( pts, dcds, ads_->is2D() );
+    TypeSet<DataPointSet::Pos> positions;
+    DataPointSet dps( pts, dcds, ads_->is2D() );
     for ( int idx=0; idx<ps_.size(); idx++ )
     {
 	Pick::Location pl( ps_[idx] );
 	DataPointSet::DataRow dtrow( DataPointSet::Pos( pl.pos ) );
-	locations.addRow( dtrow );
+	dps.addRow( dtrow );
+	positions += dtrow.pos_;
     }
 
-    locations.dataChanged();
-    if ( !getAndCheckAttribSelection( locations ) )
+    dps.dataChanged();
+    if ( !getAndCheckAttribSelection( dps ) )
 	return false;
 
-    bool success = extractDipOrAngl( locations );
+    bool success = extractDipOrAngl( dps );
     if ( !success ) 
 	mErrRet( "Cannot calculate attributes at these positions" );
 
-    TypeSet<float> thetas, phis;
     //remark: removed possibility of variable vector length (radius = 1) 
-    for ( DataPointSet::RowID rid=0; rid<locations.size(); rid++ )
+    for ( int idx=0; idx<positions.size(); idx++ )
     {
 	float phi = 0;
 	float theta = 0;
+	DataPointSet::RowID rid = dps.find( positions[idx] );
 	if ( usesteering_ )
 	{
-	    const float inldip = locations.value( 0, rid );
-	    const float crldip = locations.value( 1, rid );
+	    const float inldip = dps.value( 0, rid );
+	    const float crldip = dps.value( 1, rid );
+	    SeparString dipvaluetext;
 	    if ( !mIsUdf(inldip) && !mIsUdf(crldip) )
 	    {
+		dipvaluetext += toString( inldip );
+		dipvaluetext += toString( crldip );
 		phi = calcPhi( inldip, crldip );
 		theta = calcTheta( inldip, crldip );
 	    }
+	
+	    const char* key = "Dip";
+	    ps_[idx].setText( key, dipvaluetext.buf() );
 	}
 	else
 	{
-	    phi = locations.value( 0, rid ) * M_PI / 180;
-	    theta = locations.value( 1, rid ) * M_PI / 180;
+	    phi = dps.value( 0, rid ) * M_PI / 180;
+	    theta = dps.value( 1, rid ) * M_PI / 180;
 	    if ( !mIsUdf(phi) && !mIsUdf(theta) )
 	    {
 		wrapPhi( phi );
@@ -182,15 +190,11 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	    else
 	    { phi = 0; theta = 0; }
 	}
-
-	thetas += theta;
-	phis += phi;
+	
+	ps_[idx].dir = Sphere( 1, theta, phi );
     }
-
-    for ( int idx=0; idx<phis.size(); idx++ )
-	ps_[idx].dir = Sphere( 1, thetas[idx], phis[idx] );
  
-    ps_.disp_.markertype_ = MarkerStyle3D::Arrow;
+    ps_.disp_.markertype_ = MarkerStyle3D::Plane;
     Pick::Mgr().reportChange( this, ps_ );
     Pick::Mgr().reportDispChange( this, ps_ );
     return true;

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.29 2010-12-16 13:02:27 cvsbert Exp $
+ RCS:           $Id: draw.h,v 1.30 2011-02-22 08:18:22 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,8 @@ mClass MarkerStyle3D
 public:
 
     enum Type		{ None=-1,
-			  Cube=0, Cone, Cylinder, Sphere, Arrow, Cross, Point };
+			  Cube=0, Cone, Cylinder, Sphere, Arrow, Cross, 
+			  Point, Plane };
 			DeclareEnumUtils(Type)
 
 			MarkerStyle3D( Type tp=Cube, int sz=3,
