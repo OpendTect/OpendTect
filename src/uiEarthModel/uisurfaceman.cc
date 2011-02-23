@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.84 2010-11-16 11:30:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.85 2011-02-23 06:28:49 cvsnanne Exp $";
 
 
 #include "uisurfaceman.h"
@@ -312,7 +312,7 @@ void uiSurfaceMan::mkFileInfo()
     EM::IOObjInfo eminfo( curioobj_ );
     if ( !eminfo.isOK() )
     {
-	txt += "Fault file not present.";
+	txt += eminfo.name(); txt.add( " has no file on disk (yet).\n" );
 	setInfo( txt );
 	return;
     }
