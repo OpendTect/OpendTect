@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.100 2011-02-18 09:22:21 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.101 2011-02-23 07:17:41 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -212,7 +212,8 @@ void uiOD2DLineSetTreeItem::selectAddLines()
 	addChild( new uiOD2DLineSetSubItem(linenames.get(idx)), false );
     cursorchgr.restore();
 
-    selectNewAttribute( sKeyRightClick );
+    if ( !linenames.isEmpty() )
+	selectNewAttribute( sKeyRightClick );
 }
 
 
@@ -1081,7 +1082,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 
     if ( !attribid.isValid() ) return false;
 
-    const Attrib::SelSpec* as = visserv->getSelSpec(  displayID(),0 );
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), 0 );
     Attrib::SelSpec myas( *as );
     LineKey linekey( s2d->name(), attribnm );
     myas.set( attribnm, attribid, false, 0 );
@@ -1089,9 +1090,6 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );
     if ( !ds ) return false;
     myas.setRefFromID( *ds );
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
-    if ( scene->zDomainKey() )
-	myas.setZDomainKey( scene->zDomainKey() );
     myas.setUserRef( attribnm ); // Why is this necessary?
     const Attrib::Desc* targetdesc = ds->getDesc( attribid );
     if ( !targetdesc ) return false;
@@ -1104,7 +1102,11 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     CubeSampling cs;
     cs.hrg.start.crl = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
-    cs.zrg.setFrom( s2d->getZRange(true) );
+
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+    const FixedString zdomainkey = myas.zDomainKey();
+    const bool alreadytransformed = scene && zdomainkey == scene->zDomainKey();
+    cs.zrg.setFrom( s2d->getZRange(alreadytransformed) );
 
     const DataPack::ID dpid =
 	applMgr()->attrServer()->create2DOutput( cs, linekey, tr );
