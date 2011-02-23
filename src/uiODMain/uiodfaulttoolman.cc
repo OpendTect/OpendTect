@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.33 2011-02-09 16:50:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.34 2011-02-23 07:19:45 cvsnanne Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -167,7 +167,7 @@ int uiFaultStickTransferDlg::colorMode() const
 
     if ( existscolormodefld_->attachObj()->isDisplayed() )
 	return existscolormodefld_->getIntValue() + SerialUserDef + 1;
-    
+
     return singlecolormodefld_->getIntValue() + ExistsUserDef + 1;
 }
 
@@ -277,12 +277,12 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     outputnamecombo_->addItem( "" );
     toolbar_->addObject( outputnamecombo_ );
 
-    auxfaultwrite_ = new uiSurfaceWrite( &appl_, 
+    auxfaultwrite_ = new uiSurfaceWrite( &appl_,
 	    uiSurfaceWrite::Setup(EMFault3DTranslatorGroup::keyword()));
     auxfaultwrite_->getObjSel()->setConfirmOverwrite( false );
     auxfaultwrite_->getObjSel()->selectionDone.notify(
 				mCB(this,uiODFaultToolMan,outputSelectedCB) );
-    auxfsswrite_ = new uiSurfaceWrite( &appl_, 
+    auxfsswrite_ = new uiSurfaceWrite( &appl_,
 	    uiSurfaceWrite::Setup(EMFaultStickSetTranslatorGroup::keyword()));
     auxfsswrite_->getObjSel()->setConfirmOverwrite( false );
     auxfsswrite_->getObjSel()->selectionDone.notify(
@@ -397,7 +397,7 @@ uiToolBar* uiODFaultToolMan::getToolBar()
 
 
 void uiODFaultToolMan::displayModeChg( CallBacker* )
-{ editSelectToggleCB( 0 ); } 
+{ editSelectToggleCB( 0 ); }
 
 
 void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
@@ -562,7 +562,7 @@ void uiODFaultToolMan::showSettings( bool yn )
 	// Remember last position
 	uiRect frame = settingsdlg_->geometry();
 	settingsdlg_->setCornerPos( frame.get(uiRect::Left),
-				    frame.get(uiRect::Top) ); 
+				    frame.get(uiRect::Top) );
     }
 }
 
@@ -603,7 +603,7 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
 	else
 	    toolbar_->turnOn( selectmode_ ? selbutidx_ : editbutidx_, false );
     }
-	
+
     if ( curfssd_ )
 	curfssd_->setStickSelectMode( selectmode_ );
     if ( curfltd_ )
@@ -651,7 +651,7 @@ void uiODFaultToolMan::updateToolbarCB( CallBacker* )
 
 
 uiIOObjSel* uiODFaultToolMan::getObjSel()
-{ 
+{
     if ( mCurItem(outputtypecombo_, sKeyToFaultStickSet) )
 	return auxfsswrite_->getObjSel();
 
@@ -688,8 +688,8 @@ void uiODFaultToolMan::editReadyTimerCB( CallBacker* )
 }
 
 
-BufferStringSet& uiODFaultToolMan::getOutputItems() 
-{ 
+BufferStringSet& uiODFaultToolMan::getOutputItems()
+{
     const bool tofault = mCurItem(outputtypecombo_, sKeyToFault);
 
     if ( !isInCreateMode() )
@@ -761,7 +761,7 @@ void uiODFaultToolMan::updateOutputItems( bool clearcuritem )
 
 
 void uiODFaultToolMan::outputComboSelChg( CallBacker* )
-{   
+{
     editreadytimer_.stop();
     publishOutputItems();
 }
@@ -958,7 +958,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     const EM::ObjectID destemid = EM::EMM().getObjectID( destmid );
     RefMan<EM::EMObject> destemobj = EM::EMM().getObject( destemid );
     mDynamicCastGet( EM::Fault*, destfault, destemobj.ptr() );
-    if ( !destfault ) 
+    if ( !destfault )
 	return;
 
     if ( destfault == srcfault )
@@ -1010,7 +1010,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	    setup.pickplanedir_ = EM::FSStoFault3DConverter::Setup::Auto;
 	else if ( destf3d->geometry().areSticksVertical(destf3d->sectionID(0)) )
 	    setup.pickplanedir_ = EM::FSStoFault3DConverter::Setup::Vertical;
-	else 
+	else
 	    setup.pickplanedir_ = EM::FSStoFault3DConverter::Setup::Horizontal;
 
 	EM::FSStoFault3DConverter fsstof3d( setup, *tmpfss, *destf3d );
@@ -1062,7 +1062,7 @@ void uiODFaultToolMan::afterTransferUpdate()
     randomcolor_ = getRandStdDrawColor();
     usercolorlink_.setEmpty();
     const bool clearname = mCurItem( outputactcombo_, sKeyCreateSingleNew );
-    updateOutputItems( clearname ); 
+    updateOutputItems( clearname );
     updateToolbarCB( 0 );
 }
 
@@ -1075,7 +1075,7 @@ void uiODFaultToolMan::afterTransferUpdate()
 				 ( curfssd_ ? curfssd_->id() : -1 ); \
 \
     const int sceneid = appl_.applMgr().visServer()->getSceneID( curid );
-    
+
 
 void uiODFaultToolMan::displayUpdate()
 {
@@ -1099,7 +1099,7 @@ bool uiODFaultToolMan::isOutputDisplayed( uiSurfaceWrite* uisw ) const
 
     mGetDisplayVars( objsel, destmid, curid, sceneid );
 
-    if ( destmid.isEmpty() || curid<0 || sceneid<0 ) 
+    if ( destmid.isEmpty() || curid<0 || sceneid<0 )
 	return false;
 
     for ( int idx=0; idx<displaycache_.size(); idx++ )

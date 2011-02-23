@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.79 2011-02-17 17:41:14 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.80 2011-02-23 07:19:45 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -47,7 +47,6 @@ uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
 	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false) : 0;
     if ( !res ) res = new uiODEarthModelSurfaceDataTreeItem( emid_, uivisemobj_,
 	    						     parenttype );
-	    
     return res;
 }
 
@@ -74,7 +73,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
 
 
 uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
-{ 
+{
     NotSavedPrompter::NSP().promptSaving.remove(
 	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
     mDynamicCastGet(visSurvey::EMObjectDisplay*,
@@ -87,7 +86,7 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
 	ODMainWin()->colTabEd().setColTab( 0, 0, 0 );
     }
-    
+
     delete uivisemobj_;
 }
 
@@ -140,7 +139,7 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
 	emd->deSelection()->notify(
 		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
     }
-    
+
     return true;
 }
 
@@ -182,7 +181,7 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 
 void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 {
-    uiTreeItem::prepareForShutdown();
+    uiODDisplayTreeItem::prepareForShutdown();
 }
 
 
@@ -232,7 +231,7 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
 
     const bool enabsave = changed_ ||
 	(as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
-	 as->id()!=Attrib::SelSpec::cAttribNotSel() ); 
+	 as->id()!=Attrib::SelSpec::cAttribNotSel() );
 
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
     mAddMenuItem( menu, &algomnuitem_, true, false );
@@ -264,7 +263,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    const float shift = visserv->getTranslation( visid ).z;
 	    const int validx = visserv->selectedTexture( visid, attribnr ) + 2;
-	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, vals, 
+	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, vals,
 		    name_, validx, shift );
 	    if ( auxnr<0 )
 	    {
@@ -419,11 +418,11 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 
     const bool isshifted =
 		!mIsZero(visserv_->getTranslation(displayID()).z, 1e-5);
-    
+
     const bool istransformedandshifted = hastransform && isshifted;
 
     mAddMenuItem( menu, &savemnuitem_,
-		  applMgr()->EMServer()->isChanged(emid_) && 
+		  applMgr()->EMServer()->isChanged(emid_) &&
 		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
 		  !isshifted, false );
 
@@ -451,7 +450,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	sectionid = uivisemobj_->getSectionID(0);
     else if ( uimenu && uimenu->getPath() )
 	sectionid = uivisemobj_->getSectionID( uimenu->getPath() );
-    
+
     uiMPEPartServer* mps = applMgr()->mpeServer();
     uiEMPartServer* ems = applMgr()->EMServer();
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );

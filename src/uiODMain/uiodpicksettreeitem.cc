@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.68 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.69 2011-02-23 07:19:45 cvsnanne Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -213,7 +213,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
 uiTreeItem* uiODPickSetTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet(visSurvey::PickSetDisplay*,psd, 
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
     return !psd ? 0 : new uiODPickSetTreeItem( visid, *psd->getSet() );
 }
@@ -241,7 +241,7 @@ uiODPickSetTreeItem::~uiODPickSetTreeItem()
     const int setidx = Pick::Mgr().indexOf( set_ );
     if ( setidx>= 0 )
 	Pick::Mgr().set( Pick::Mgr().id(setidx), 0 );
-    
+
     Pick::Mgr().removeCBs( this );
 }
 
@@ -331,7 +331,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
-    if ( set_.disp_.connect_==Pick::Set::Disp::Open 
+    if ( set_.disp_.connect_==Pick::Set::Disp::Open
 	 && mnuid==closepolyitem_.id )
     {
 	menu->setIsHandled( true );
@@ -342,7 +342,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	applMgr()->storePickSet( set_ );
-    } 
+    }
     else if ( mnuid==storeasmnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -364,9 +364,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	uiPickPropDlg dlg( getUiParent(), set_ , psd );
 	dlg.go();
-	
-	convertbodymnuitem_.enabled = psd ? psd->isBodyDisplayed() 
-	    				  : false;
+	convertbodymnuitem_.enabled = psd ? psd->isBodyDisplayed() : false;
     }
     else if( mnuid==removeselectionmnuitem_.id )
     {
@@ -425,7 +423,7 @@ void uiODPickSetTreeItem::showAllPicks( bool yn )
 
 void uiODPickSetTreeItem::prepareForShutdown()
 {
-    uiTreeItem::prepareForShutdown();
+    uiODDisplayTreeItem::prepareForShutdown();
 }
 
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.58 2010-07-06 16:17:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.59 2011-02-23 07:19:45 cvsnanne Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -57,12 +57,12 @@ bool uiODWellParentTreeItem::showSubMenu()
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), cLoadIdx );
-    if ( SI().zIsTime()) 
+    if ( SI().zIsTime() )
 	mnu.insertItem( new uiMenuItem("&Tie Well to Seismic ..."),cWellTieIdx);
     mnu.insertItem( new uiMenuItem("&New WellTrack ..."), cNewWellIdx );
     if ( children_.size() > 1 )
 	mnu.insertItem( new uiMenuItem("&Create Attribute Log ..."),cAttribIdx);
-    
+
     if ( children_.size() )
     {
 	mnu.insertSeparator();
@@ -194,7 +194,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     }
     else
 	handleStandardItems( mnuid );
-	
+
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mGetWellDisplayFromChild( idx );
@@ -207,7 +207,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
 uiTreeItem* uiODWellTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet(visSurvey::WellDisplay*,wd, 
+    mDynamicCastGet(visSurvey::WellDisplay*,wd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
     return wd ? new uiODWellTreeItem(visid) : 0;
 }
@@ -285,8 +285,8 @@ bool uiODWellTreeItem::init()
 
     return uiODDisplayTreeItem::init();
 }
-	    
-	
+
+
 void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
@@ -303,9 +303,9 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
     mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
     mAddMenuItem( menu, &showmnuitem_, true, false );
-    mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,  
+    mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,
 	    					wd->wellTopNameShown() );
-    mAddMenuItem( &showmnuitem_, &namebotmnuitem_, true,  
+    mAddMenuItem( &showmnuitem_, &namebotmnuitem_, true,
 	    					wd->wellBotNameShown() );
 
     mAddMenuItem( &showmnuitem_, &markermnuitem_, wd->canShowMarkers(),
@@ -313,7 +313,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( &showmnuitem_, &markernamemnuitem_, wd->canShowMarkers(),
 		  wd->canShowMarkers() && wd->markerNameShown() );
     mAddMenuItem( &showmnuitem_, &showlogmnuitem_,
-		  applMgr()->wellServer()->hasLogs(wd->getMultiID()), 
+		  applMgr()->wellServer()->hasLogs(wd->getMultiID()),
 		  wd->logsShown() );
 }
 
@@ -332,7 +332,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	//TODO false set to make it compile: change!
-	applMgr()->wellAttribServer()->setAttribSet( 
+	applMgr()->wellAttribServer()->setAttribSet(
 				*applMgr()->attrServer()->curDescSet(false) );
 	applMgr()->wellAttribServer()->createAttribLog( wellid, -1 );
     }

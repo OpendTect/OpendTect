@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.49 2011-01-19 08:02:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.50 2011-02-23 07:19:45 cvsnanne Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -274,7 +274,8 @@ void uiODFaultTreeItem::prepareForShutdown()
 	faultdisplay_->unRef();
     }
 
-    faultdisplay_ = 0;  
+    faultdisplay_ = 0;
+    uiODDisplayTreeItem::prepareForShutdown();
 }
 
 
@@ -293,7 +294,7 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &singlecolmnuitem_,
 		  faultdisplay_->arePanelsDisplayedInFull(),
 		  !faultdisplay_->showingTexture() );
-    mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, 
+    mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_,
 		  faultdisplay_->canDisplayIntersections(),
 		  faultdisplay_->areIntersectionsDisplayed() );
     mAddMenuItem( &displaymnuitem_, &displayintersecthorizonmnuitem_,
@@ -573,6 +574,7 @@ void uiODFaultStickSetTreeItem::prepareForShutdown()
     }
 
     faultsticksetdisplay_ = 0;
+    uiODDisplayTreeItem::prepareForShutdown();
 }
 
 

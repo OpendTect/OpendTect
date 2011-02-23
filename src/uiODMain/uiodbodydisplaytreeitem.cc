@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.28 2011-01-07 21:23:16 cvskris Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.29 2011-02-23 07:19:45 cvsnanne Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -346,6 +346,8 @@ void uiODBodyDisplayTreeItem::prepareForShutdown()
     }
 
     rpb_ = 0;
+
+    uiODDisplayTreeItem::prepareForShutdown();
 }
 
 
