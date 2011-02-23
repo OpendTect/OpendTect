@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.24 2011-02-04 05:38:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.25 2011-02-23 17:42:05 cvsyuancheng Exp $";
 
 #include "binidsurface.h"
 
@@ -328,51 +328,40 @@ Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
 	return res;
     
     //interpolate
-    const StepInterval<int> rrg = rowRange();
-    const StepInterval<int> crg = colRange();
-
-    const int rd0 = abs(rrg.stop - rc.row); 
-    const int rd1 = abs(rrg.start - rc.row);
-    const int maxr = rd0>rd1 ? rd0 : rd1;
-    const int cd0 = abs(crg.stop - rc.col); 
-    const int cd1 = abs(crg.start - rc.col);
-    const int maxc = cd0>cd1 ? cd0 : cd1;
-    const int maxiteration = maxr > maxc ? maxr : maxc;
-    
-    TypeSet<Coord3> nearknots;
-    for ( int step=1; step<=maxiteration; step++ )
+    float diagsum = 0, lateralsum = 0;
+    int diagnr = 0, lateralnr = 0;
+    for ( int idx=-1; idx<2; idx++ )
     {
-	for ( int rs=-step; rs<=step; rs++ )
+	for ( int idy=-1; idy<2; idy++ )
 	{
-	    int currow = rc.row + rs;
-	    if ( !rrg.includes(currow) )
+	    if ( !idx && !idy )
 		continue;
 
-	    for ( int cs=-step; cs<=step; cs++ )
+	    const int curindex = getKnotIndex( RowCol(rc.row+idx,rc.col+idy) );
+	    if ( curindex<0 )
+		continue;
+
+	    const double curz = depths_->getData()[curindex];
+	    if ( mIsUdf(curz) )
+		continue;
+
+	    if ( !idx || !idy )
+	    { 
+	       lateralsum += curz;
+	       lateralnr++;
+	    }
+	    else
 	    {
-		int curcol = rc.col +cs;
-		if ( !crg.includes(curcol) )
-		    continue;
-
-		RowCol currc( currow, curcol );
-		const int curindex = getKnotIndex( currc );
-		const double curz = depths_->getData()[curindex];
-		if ( mIsUdf(curz) )
-		    continue;
-
-		nearknots += Coord3( SI().transform(BinID(currc)), curz );
-		if ( nearknots.size()==3 )
-		{
-		    float w[3];
-		    interpolateOnTriangle2D( res, nearknots[0], nearknots[1],
-			    nearknots[2], w[0], w[1], w[2] );
-		    res.z = w[0]*nearknots[0].z + w[1]*nearknots[1].z + 
-			w[2]*nearknots[2].z;
-		    return res;
-		}
+		diagsum += curz;
+		diagnr++;
 	    }
 	}
     }
+
+    if ( !diagnr && !lateralnr ) //no neighbor defined, do nothing.
+	return res;
+    
+    res.z = (lateralsum+diagsum*0.7071) / (lateralnr + diagnr * 0.7071);
 
     return res;
 }
