@@ -4,7 +4,7 @@
  * DATE     : April 2010
 -*/
 
-static const char* rcsID = "$Id: emioobjinfo.cc,v 1.5 2010-12-23 07:35:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: emioobjinfo.cc,v 1.6 2011-02-23 06:28:12 cvsnanne Exp $";
 
 #include "emioobjinfo.h"
 #include "emsurfaceio.h"
@@ -68,6 +68,10 @@ IOObjInfo::~IOObjInfo()
     delete ioobj_;
     delete reader_;
 }
+
+
+const char* IOObjInfo::name() const
+{ return ioobj_ ? ioobj_->name() : 0; }
 
 
 bool IOObjInfo::isOK() const
