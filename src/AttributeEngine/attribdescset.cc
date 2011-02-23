@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.107 2011-02-16 08:39:35 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.108 2011-02-23 15:35:16 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -32,6 +32,7 @@ namespace Attrib
 DescSet::DescSet( bool is2d )
     : is2d_(is2d)
     , storedattronly_(false)
+    , couldbeanydim_(false)
     , descToBeRemoved(this)
 {
     ensureDefStoredPresent();
@@ -41,6 +42,7 @@ DescSet::DescSet( bool is2d )
 DescSet::DescSet( const DescSet& ds )
     : is2d_(ds.is2d_)
     , storedattronly_(ds.storedattronly_)
+    , couldbeanydim_(ds.couldbeanydim_)
     , descToBeRemoved(this)
 {
     *this = ds;
