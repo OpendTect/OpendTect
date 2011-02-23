@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.108 2011-02-23 15:35:16 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.109 2011-02-23 15:53:56 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -120,6 +120,7 @@ DescSet& DescSet::operator =( const DescSet& ds )
 	removeAll( false );
 	is2d_ = ds.is2d_;
 	storedattronly_ = ds.storedattronly_;
+	couldbeanydim_ = ds.couldbeanydim_;
 	for ( int idx=0; idx<ds.size(); idx++ )
 	    addDesc( new Desc( *ds.descs_[idx] ), ds.ids_[idx] );
 	updateInputs();
