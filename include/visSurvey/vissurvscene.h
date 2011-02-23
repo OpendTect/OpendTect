@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.72 2011-02-16 21:57:59 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.73 2011-02-23 06:24:02 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -100,6 +100,7 @@ public:
     void			showAnnot(bool);
     bool			isAnnotShown() const;
     void			setAnnotText(int dim,const char*);
+    void			savePropertySettings();
 
     visBase::PolygonSelection*	getPolySelection() { return polyselector_; }
     const Selector<Coord3>*	getSelector() const;	/*! May be NULL */

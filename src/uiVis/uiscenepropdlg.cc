@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.18 2011-02-16 21:57:59 cvskris Exp $";
+static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.19 2011-02-23 06:24:02 cvsnanne Exp $";
 
 #include "uiscenepropdlg.h"
 
@@ -28,7 +28,7 @@ bool uiScenePropertyDlg::savestatus = true;
 
 uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p, 
 		const ObjectSet<uiSoViewer>& viewers, int curvwridx )
-    : uiDialog( p, uiDialog::Setup("Scene","Set scene_ options","50.0.5") )
+    : uiDialog( p, uiDialog::Setup("Scene properties","","50.0.5") )
     , hadsurveybox_( true )
     , hadannot_( true )
     , hadannotscale_( true )
@@ -155,6 +155,7 @@ void uiScenePropertyDlg::updateScene( visSurvey::Scene* scene )
     scene->showAnnot( survboxfld_->isChecked() );
     scene->showAnnotScale( annotscalefld_->isChecked() );
     scene->showAnnotGrid( annotgridfld_->isChecked() );
+    scene->showAnnotText( annotfld_->isChecked() );
 
     scene->setMarkerSize( markersizefld_->sldr()->getValue() );
     scene->setMarkerColor( markercolfld_->color() );
@@ -232,6 +233,9 @@ void uiScenePropertyDlg::setOffsetCB( CallBacker* )
 
 bool uiScenePropertyDlg::acceptOK( CallBacker* )
 {
+    if ( scene_ )
+	scene_->savePropertySettings();
+
     savestatus = saveButtonChecked();
     if ( !savestatus )
 	return true;

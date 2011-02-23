@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.143 2011-02-16 21:57:59 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.144 2011-02-23 06:24:02 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -47,6 +47,8 @@ const char* Scene::sKeyZAxisTransform()	{ return "ZTransform"; }
 const char* Scene::sKeyAppAllowShading(){ return "Allow shading";}
 const char* Scene::sKeyTopImageID()	{ return "TopImage.ID"; }
 const char* Scene::sKeyBotImageID()	{ return "BotImage.ID"; }
+
+static const char* sKeydTectScene()	{ return "dTect.Scene."; }
 
 
 Scene::Scene()
@@ -136,6 +138,16 @@ void Scene::init()
     botimg_->turnOn( false );
     
     scenecoltab_->doSaveInSessions( true );
+
+    bool doshow = true;
+#define mShowAnnot(str,func) \
+    doshow = true; \
+    Settings::common().getYN( BufferString(sKeydTectScene(),str), doshow ); \
+    func( doshow );
+
+    mShowAnnot( sKeyShowAnnot(), showAnnotText );
+    mShowAnnot( sKeyShowScale(), showAnnotScale );
+    mShowAnnot( sKeyShowGrid(), showAnnotGrid );
 }
 
 
@@ -835,6 +847,18 @@ int Scene::getImageFromPar( const IOPar& par, const char* key,
 
 visBase::TopBotImage* Scene::getTopBotImage( bool istop )
 { return istop ? topimg_ : botimg_; }
+
+
+void Scene::savePropertySettings()
+{
+#define mSaveProp(str,func) \
+    Settings::common().setYN( BufferString(sKeydTectScene(),str), func() );
+
+    mSaveProp( sKeyShowAnnot(), isAnnotTextShown );
+    mSaveProp( sKeyShowScale(), isAnnotScaleShown );
+    mSaveProp( sKeyShowGrid(), isAnnotGridShown );
+    Settings::common().write();
+}
 
 
 } // namespace visSurvey
