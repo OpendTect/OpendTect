@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsdemo.cc,v 1.14 2010-01-12 13:17:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.15 2011-02-23 16:14:01 cvsbert Exp $";
 
 #include "uidpsdemo.h"
 
@@ -164,13 +164,14 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	if ( needrandsel && dps.bivSet().valid(bid) )
 	    mNextTry()
 
-	const float z = mSectGeom(selsect).getKnot(bid,true).z;
+	const float z = mSectGeom(selsect).getKnot(bid,false).z;
 	if ( mIsUdf(z) )
 	    mNextTry()
 
 	// Add the position to the set, set will allocate all the columns.
 	// We store section+1 because DataPointSet's groups start at 1
-	DataPointSet::Pos dpspos( bid, mSectGeom(selsect).getKnot(bid,true).z );
+	DataPointSet::Pos dpspos( bid,
+				  mSectGeom(selsect).getKnot(bid,false).z );
 	DataPointSet::DataRow dr( dpspos, selsect+1 );
 	dps.addRow( dr );
     }
