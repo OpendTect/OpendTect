@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: psviewer2dgatherpainter.h,v 1.1 2011-01-31 13:03:50 cvsbruno Exp $
+ RCS:		$Id: psviewer2dgatherpainter.h,v 1.2 2011-02-23 06:40:03 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ namespace PreStack { class Gather; }
 namespace PreStackView
 {
 
-class Viewer2DGatherPainter
+mClass Viewer2DGatherPainter
 {
 public:
     				Viewer2DGatherPainter(FlatView::Viewer&);
