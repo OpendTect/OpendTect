@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.2 2010-05-28 22:13:48 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.3 2011-02-23 06:25:12 cvsnanne Exp $";
 
 #include "uiodvolproctreeitem.h"
 
@@ -18,9 +18,9 @@ static const char* rcsID = "$Id: uiodvolproctreeitem.cc,v 1.2 2010-05-28 22:13:4
 #include "uiodscenemgr.h"
 #include "uivispartserv.h"
 #include "vissurvobj.h"
-#include "volproctrans.h"
-#include "volprocchain.h"
 #include "volprocattrib.h"
+#include "volprocchain.h"
+#include "volproctrans.h"
 
 
 namespace VolProc
@@ -28,18 +28,18 @@ namespace VolProc
 
 
 void uiDataTreeItem::initClass()
-{ uiODDataTreeItem::factory().addCreator( create, 0 ); }    
+{ uiODDataTreeItem::factory().addCreator( create, 0 ); }
 
 
 uiDataTreeItem::uiDataTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
-    , selmenuitem_( "Select setup", true )
+    , selmenuitem_( "Select setup ...", true )
     , reloadmenuitem_( "Reload", true )
 {}
 
 
 uiDataTreeItem::~uiDataTreeItem()
-{ }
+{}
 
 
 bool uiDataTreeItem::anyButtonClick( uiListViewItem* item )
@@ -70,7 +70,7 @@ uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
 }
 
 
-void  uiDataTreeItem::createMenuCB( CallBacker* cb )
+void uiDataTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDataTreeItem::createMenuCB( cb );
     mDynamicCastGet(MenuHandler*,menu,cb);
@@ -81,16 +81,17 @@ void  uiDataTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &reloadmenuitem_, ioobj, false );
 }
 
-void  uiDataTreeItem::handleMenuCB( CallBacker* cb )
+
+void uiDataTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDataTreeItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
 
     if ( mnuid==-1 || menu->isHandled() )
-       return;
+	return;
 
-     uiVisPartServer* visserv = applMgr()->visServer();
+    uiVisPartServer* visserv = applMgr()->visServer();
 
     if ( mnuid==selmenuitem_.id )
     {
@@ -106,17 +107,15 @@ void  uiDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	const BufferString def =
 	    VolProc::ExternalAttribCalculator::createDefinition( mid_ );
-
 	Attrib::SelSpec spec( "VolProc", Attrib::SelSpec::cOtherAttrib(),
 			      false, 0 );
-
 	spec.setDefString( def.buf() );
 	visserv->setSelSpec( displayID(), attribNr(), spec );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 
 	RefMan<VolProc::Chain> chain = new VolProc::Chain;
 	BufferString str;
-	if ( chain && VolProcessingTranslator::retrieve( *chain, ioobj, str ) )
+	if ( chain && VolProcessingTranslator::retrieve(*chain,ioobj,str) )
 	{
 	    if ( !chain->areSamplesIndependent() )
 	    {
@@ -150,20 +149,20 @@ void uiDataTreeItem::updateColumnText( int col )
 {
     if ( col==uiODSceneMgr::cColorColumn() )
     {
-	 uiVisPartServer* visserv = applMgr()->visServer();
-	 mDynamicCastGet( visSurvey::SurveyObject*, so,
-		 	  visserv->getObject( displayID() ) )
-	     if ( !so )
-	     {
-		 uiODDataTreeItem::updateColumnText( col );
-		 return;
-	     }
-	 
-	 if ( !so->hasColor() )
-	     displayMiniCtab(so->getColTabSequence(attribNr()));
+	uiVisPartServer* visserv = applMgr()->visServer();
+	mDynamicCastGet(visSurvey::SurveyObject*,so,
+		 	visserv->getObject(displayID()))
+	if ( !so )
+	{
+	    uiODDataTreeItem::updateColumnText( col );
+	    return;
+	}
+
+	if ( !so->hasColor() )
+	    displayMiniCtab( so->getColTabSequence(attribNr()) );
     }
-     
-     uiODDataTreeItem::updateColumnText( col );
+
+    uiODDataTreeItem::updateColumnText( col );
 }
 
 
