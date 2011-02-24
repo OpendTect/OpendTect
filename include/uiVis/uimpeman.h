@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.61 2010-06-24 11:27:15 cvsumesh Exp $
+ RCS:           $Id: uimpeman.h,v 1.62 2011-02-24 15:09:22 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,6 +142,7 @@ protected:
     bool			trackerwasonbeforemouseerase;
 
     bool			seedpickwason;
+    bool			polyselstoppedseedpick;
     bool			mpeintropending;
 
     MPE::TrackPlane		oldtrackplane;

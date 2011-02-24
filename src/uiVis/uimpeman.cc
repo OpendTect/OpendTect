@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.207 2011-02-01 10:03:32 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.208 2011-02-24 15:09:22 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -91,6 +91,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , mpeintropending(false)
     , showtexture_(true)
     , cureventnr_(mUdf(int))
+    , polyselstoppedseedpick(false)
 {
     toolbar = new uiToolBar( p, "Tracking controls", uiToolBar::Bottom );
     addButtons();
@@ -640,6 +641,8 @@ void uiMPEMan::updateOldActiveVol()
 
 void uiMPEMan::turnSeedPickingOn( bool yn )
 {
+    polyselstoppedseedpick = false;
+
     if ( !yn && clickcatcher )
 	clickcatcher->setEditor( 0 );
 
@@ -1028,8 +1031,6 @@ void uiMPEMan::updateSeedPickState()
     {
 	seedpickwason = false;
 	turnSeedPickingOn( true );
-	if ( isPickingWhileSetupUp() )
-	    turnSeedPickingOn( false );
     }
 
     const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
@@ -1165,7 +1166,15 @@ void uiMPEMan::selectionMode( CallBacker* cb )
 			"Polygon Selection mode" : "Rectangle Selection mode" );
 
     if ( toolbar->isOn(polyselectidx) )
-	visserv->turnSeedPickingOn( false );
+    {
+	if ( toolbar->isOn(seedidx) )
+	{
+	    visserv->turnSeedPickingOn( false );
+	    polyselstoppedseedpick = true;
+	}
+    }
+    else if ( polyselstoppedseedpick )
+	visserv->turnSeedPickingOn( true );
 
     updateButtonSensitivity(0);
 }
