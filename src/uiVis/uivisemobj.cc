@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.91 2010-12-03 02:54:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.92 2011-02-24 15:08:03 cvsjaap Exp $";
 
 #include "uivisemobj.h"
 
@@ -441,7 +441,8 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 			    "&Hide" : "S&how" ;	
     mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_, seeds && seeds->size(),
 	    	  false );
-    mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_, true, false );
+    mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_,
+		  !visserv_->isTrackingSetupActive(), false );
     lockseedsmnuitem_.text = 
 	emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ? 
 	"Un&lock" : "&Lock" ;	
