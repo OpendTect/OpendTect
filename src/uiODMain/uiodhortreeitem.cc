@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.67 2011-02-24 14:57:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.68 2011-02-24 15:05:21 cvsjaap Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -109,7 +109,6 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 			 clickablesInScene(EM::Horizon3D::typeStr(),sceneID()) )
 	    return true;
 	
-	applMgr()->visServer()->reportTrackingSetupActive( true );
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 				applMgr()->attrServer()->curDescSet(false) );
@@ -594,7 +593,6 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 			clickablesInScene(EM::Horizon2D::typeStr(),sceneID()) )
 	    return true; 
 
-	applMgr()->visServer()->reportTrackingSetupActive( true );
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 			applMgr()->attrServer()->curDescSet(true) );

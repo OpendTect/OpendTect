@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.50 2010-05-10 10:42:28 cvsnageswara Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.51 2011-02-24 15:05:21 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,7 @@ public:
     static const int		evShowToolbar();
     static const int		evMPEDispIntro();
     static const int		evMPEStoreEMObject();
+    static const int		evSetupLaunched();
     static const int		evSetupClosed();
     static const int		evInitFromSession();
     static const int		evHideToolBar();

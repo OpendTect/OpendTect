@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.121 2011-02-01 12:58:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.122 2011-02-24 15:05:21 cvsjaap Exp $";
 
 #include "uimpepartserv.h"
 
@@ -46,16 +46,17 @@ const int uiMPEPartServer::evAddTreeObject()	    { return 3; }
 const int uiMPEPartServer::evShowToolbar()	    { return 4; }
 const int uiMPEPartServer::evInitFromSession()	    { return 5; }
 const int uiMPEPartServer::evRemoveTreeObject()	    { return 6; }
-const int uiMPEPartServer::evSetupClosed()	    { return 7; }
-const int uiMPEPartServer::evCreate2DSelSpec()	    { return 8; }
-const int uiMPEPartServer::evMPEDispIntro()	    { return 9; }
-const int uiMPEPartServer::evUpdateTrees()	    { return 10; }
-const int uiMPEPartServer::evUpdateSeedConMode()    { return 11; }
-const int uiMPEPartServer::evMPEStoreEMObject()	    { return 12; }
-const int uiMPEPartServer::evHideToolBar()	    { return 13; }
-const int uiMPEPartServer::evSaveUnsavedEMObject()  { return 14; }
-const int uiMPEPartServer::evRemoveUnsavedEMObject(){ return 15; }
-const int uiMPEPartServer::evRetrackInVolume()	    { return 16; }
+const int uiMPEPartServer::evSetupLaunched()	    { return 7; }
+const int uiMPEPartServer::evSetupClosed()	    { return 8; }
+const int uiMPEPartServer::evCreate2DSelSpec()	    { return 9; }
+const int uiMPEPartServer::evMPEDispIntro()	    { return 10; }
+const int uiMPEPartServer::evUpdateTrees()	    { return 11; }
+const int uiMPEPartServer::evUpdateSeedConMode()    { return 12; }
+const int uiMPEPartServer::evMPEStoreEMObject()	    { return 13; }
+const int uiMPEPartServer::evHideToolBar()	    { return 14; }
+const int uiMPEPartServer::evSaveUnsavedEMObject()  { return 15; }
+const int uiMPEPartServer::evRemoveUnsavedEMObject(){ return 16; }
+const int uiMPEPartServer::evRetrackInVolume()	    { return 17; }
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
@@ -1176,6 +1177,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupdlg->windowClosed.notify(
 	    		   mCB(this,uiMPEPartServer,trackerWinClosedCB) );
     setupdlg->go();
+    sendEvent( uiMPEPartServer::evSetupLaunched() );
 
     return true;
 }

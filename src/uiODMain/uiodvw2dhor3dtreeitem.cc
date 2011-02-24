@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.16 2010-11-17 06:30:49 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.cc,v 1.17 2011-02-24 15:05:21 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,6 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 {
     if ( mnuid == 0 )
     {
-	applMgr()->visServer()->reportTrackingSetupActive( true );
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 				applMgr()->attrServer()->curDescSet(false) );
