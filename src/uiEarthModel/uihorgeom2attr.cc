@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorgeom2attr.cc,v 1.1 2011-02-24 14:56:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorgeom2attr.cc,v 1.2 2011-02-24 15:14:30 cvsbert Exp $";
 
 #include "uihorgeom2attr.h"
 
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: uihorgeom2attr.cc,v 1.1 2011-02-24 14:56:43 cvs
 #include "posvecdataset.h"
 #include "datacoldef.h"
 #include "emsurfaceauxdata.h"
+#include "emmanager.h"
+#include "emioobjinfo.h"
 #include "survinfo.h"
 
 #define mAddMSFld(txt,att) \
@@ -54,13 +56,8 @@ uiHorGeom2Attr::~uiHorGeom2Attr()
 BufferStringSet& uiHorGeom2Attr::getItems( const EM::Horizon3D& hor )
 {
     itmnms_ = new BufferStringSet;
-    for ( int idx=0; idx<hor.auxdata.nrAuxData(); idx++ )
-    {
-	const char* nm = hor.auxdata.auxDataName( idx );
-	if ( nm )
-	    itmnms_->add( nm );
-
-    }
+    EM::IOObjInfo eminfo( EM::EMM().getMultiID(hor.id()) );
+    eminfo.getAttribNames( *itmnms_ );
     return *itmnms_;
 }
 
