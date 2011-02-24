@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocityvolumeconversion.cc,v 1.4 2010-11-22 17:07:59 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocityvolumeconversion.cc,v 1.5 2011-02-24 20:46:31 cvsyuancheng Exp $";
 
 #include "uivelocityvolumeconversion.h"
 
@@ -23,7 +23,7 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
 	uiFullBatchDialog::Setup("Velocity conversion")
 	    .procprognm("od_process_velocityconv" ) )
 {
-    setTitleText( "VelocityConversion conversion" );
+    setTitleText( "Velocity conversion" );
     setHelpID( "103.2.14" );
 
     IOObjContext velctxt = uiVelSel::ioContext();
