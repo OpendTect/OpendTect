@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.214 2010-11-24 04:40:41 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.215 2011-02-24 14:57:09 cvsbert Exp $";
 
 #include "uiempartserv.h"
 
@@ -57,6 +57,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.214 2010-11-24 04:40:41 cvs
 #include "uigeninputdlg.h"
 #include "uigeninput.h"
 #include "uihor3dfrom2ddlg.h"
+#include "uihorgeom2attr.h"
 #include "uihorinterpol.h"
 #include "uiimpfault.h"
 #include "uiimphorizon.h"
@@ -838,6 +839,20 @@ bool uiEMPartServer::filterAuxData( const EM::ObjectID& oid,
 { return changeAuxData( oid, nm, false, dpset ); }
 
 
+static int getColID( const DataPointSet& dps, const char* nm )
+{
+    const BinIDValueSet& bivs = dps.bivSet();
+    int cid = -1;
+    for ( int idx=0; idx<bivs.nrVals(); idx++ )
+    {
+	BufferString colnm = dps.dataSet().colDef(idx).name_; 
+	if ( colnm.isEqual(nm) )
+	    { cid = idx; break; }
+    }
+    return cid;
+}
+
+
 bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	const char* nm, bool interpolate, DataPointSet& dpset )
 {
@@ -848,17 +863,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     if ( dpset.dataSet().nrCols() != bivs.nrVals() )
 	return false;
 
-    int cid = -1;
-    for ( int idx=0; idx<bivs.nrVals(); idx++ )
-    {
-	BufferString colnm = dpset.dataSet().colDef(idx).name_; 
-	if ( colnm.isEqual(nm) )
-	{
-	    cid = idx;
-	    break;
-	}
-    }
-
+    const int cid = getColID( dpset, nm );
     if ( cid < 0 )
 	return false;
 
@@ -935,6 +940,32 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	uiMSG().message( infomsg );
 
     return true;
+}
+
+
+bool uiEMPartServer::attr2Geom( const EM::ObjectID& oid,
+	const char* nm, const DataPointSet& dpset )
+{
+    const int cid = getColID( dpset, nm );
+    if ( cid < 0 )
+	return false;
+    mDynamicCastAll(oid);
+    if ( !hor3d )
+	return false;
+
+    uiHorAttr2Geom dlg( parent(), *hor3d, dpset, cid );
+    return dlg.go();
+}
+
+
+bool uiEMPartServer::geom2Attr( const EM::ObjectID& oid )
+{
+    mDynamicCastAll(oid);
+    if ( !hor3d )
+	return false;
+
+    uiHorGeom2Attr dlg( parent(), *hor3d );
+    return dlg.go();
 }
 
 

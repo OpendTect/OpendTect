@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.80 2011-02-23 07:19:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.81 2011-02-24 14:57:10 cvsbert Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -196,6 +196,7 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
     , algomnuitem_("&Algorithms")
     , fillholesmnuitem_("&Grid ...")
     , filtermnuitem_("&Filter ...")
+    , attr2geommnuitm_("Set &Z values ...")
     , changed_(false)
     , emid_(objid)
     , uivisemobj_(uv)
@@ -237,6 +238,7 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &algomnuitem_, true, false );
     mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, true, false );
     mAddMenuItem( &algomnuitem_, &filtermnuitem_, true, false );
+    mAddMenuItem( &algomnuitem_, &attr2geommnuitm_, true, false );
 }
 
 
@@ -309,7 +311,8 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	changed_ = false;
     }
-    else if ( mnuid==fillholesmnuitem_.id || mnuid==filtermnuitem_.id )
+    else if ( mnuid==fillholesmnuitem_.id || mnuid==filtermnuitem_.id
+	   || mnuid==attr2geommnuitm_.id )
     {
 	menu->setIsHandled( true );
 
@@ -325,6 +328,8 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	bool res = false;
 	if ( mnuid==fillholesmnuitem_.id )
 	    res = applMgr()->EMServer()->interpolateAuxData(emid_,name_,vals);
+	else if ( mnuid==attr2geommnuitm_.id )
+	    res = applMgr()->EMServer()->attr2Geom( emid_, name_, vals );
 	else
 	    res = applMgr()->EMServer()->filterAuxData( emid_, name_, vals );
 

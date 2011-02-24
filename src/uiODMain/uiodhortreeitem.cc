@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.66 2010-11-17 11:20:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.67 2011-02-24 14:57:10 cvsbert Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -243,6 +243,7 @@ void uiODHorizonTreeItem::initMenuItems()
     fillholesmnuitem_.text = "&Grid ...";
     filterhormnuitem_.text = "&Filter ...";
     snapeventmnuitem_.text = "Snap to &event ...";
+    geom2attrmnuitem_.text = "Store Z as &Attribute ...";
     removeselectionmnuitem_.text = "&Remove selection";
 }
 
@@ -377,6 +378,7 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &fillholesmnuitem_ );
 	mResetMenuItem( &filterhormnuitem_ );
 	mResetMenuItem( &snapeventmnuitem_ );
+	mResetMenuItem( &geom2attrmnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );
 	if ( selector )
     	    mResetMenuItem( &removeselectionmnuitem_ );
@@ -392,6 +394,7 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, !islocked, false );
 	mAddMenuItem( &algomnuitem_, &filterhormnuitem_, !islocked, false );
 	mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, !islocked, false );
+	mAddMenuItem( &algomnuitem_, &geom2attrmnuitem_, !islocked, false );
 	mAddMenuItem( menu, &removeselectionmnuitem_, (!islocked && selector), 
 		      false );
     }
@@ -443,6 +446,11 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	}
 	else if ( createnew )
 	    emserv->displayHorizon( newmid );
+    }
+    else if ( mnuid==geom2attrmnuitem_.id )
+    {
+	if ( applMgr()->EMServer()->geom2Attr(emid_) )
+	    mUpdateTexture();
     }
     else if ( mnuid==positionmnuitem_.id )
     {
