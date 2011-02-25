@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.56 2011-02-18 12:23:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.57 2011-02-25 10:38:53 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -110,7 +110,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup,
     , tbufchgdtrcs_(*new SeisTrcBuf(false))
     , ctrc_(*new SeisTrc)
     , crlwise_(false)
-    , stepout_(5)
+    , stepout_(25)
     , compnr_(0)
     , nrcomps_(1)
     , sd_(0)
