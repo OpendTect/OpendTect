@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.33 2011-02-03 21:33:24 cvskris Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.34 2011-02-28 10:40:56 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -265,7 +265,7 @@ ascistream& ascistream::next()
     for ( int ich=1; ich<sz; ich++ )
     {
 	const bool isunesc = linebuf[ich] == mAscStrmKeyValSep
-	    		  && (ich==0 || linebuf[ich-1]!='\\');
+	    		  && linebuf[ich-1]!='\\';
 	if ( isunesc )
 	    { separptr = linebuf+ich; break; }
     }
@@ -282,7 +282,7 @@ ascistream& ascistream::next()
 
     char* startptr = linebuf;
     mTrimBlanks(startptr);
-    if ( !separptr )
+    if ( separptr )
     {
 	replaceString( startptr, toreplace_separ, toreplace_to_separ );
 	replaceString( startptr, toreplace_newln, toreplace_to_newln );
