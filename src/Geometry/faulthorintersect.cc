@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.10 2011-02-14 22:23:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.11 2011-02-28 16:11:27 cvskris Exp $";
 
 #include "faulthorintersect.h"
 
@@ -298,7 +298,8 @@ void FaultBinIDSurfaceIntersector::compute()
 
     //Only add stick intersections.
     FaultStickHorizonIntersector its( *this );
-    its.execute();
+    if ( !its.execute() )
+	return;
     
     for ( int idx=0; idx<ft_.nrSticks()-1; idx++ )
     {
