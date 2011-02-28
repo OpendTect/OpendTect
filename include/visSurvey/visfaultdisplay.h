@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.36 2011-02-04 05:37:37 cvsnanne Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.37 2011-02-28 10:17:22 cvsnageswara Exp $
 ________________________________________________________________________
 
 
@@ -124,6 +124,16 @@ public:
     void			getMousePosInfo(const visBase::EventInfo&,
 					Coord3& xyzpos,BufferString& val,
 					BufferString& info) const;
+
+
+    bool			isVerticalPlane() const		{return false;}
+    bool			canBDispOn2DViewer() const	{return false;}
+    int				addDataPack(const DataPointSet&) const ;
+    bool			setDataPackID(int attrib,DataPack::ID,
+	    				      TaskRunner*);
+    DataPack::ID		getDataPackID(int attrib) const;
+    DataPackMgr::ID		getDataPackMgrID() const
+				{ return DataPackMgr::SurfID(); }
 
 protected:
 

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.76 2011-02-22 12:44:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.77 2011-02-28 10:17:22 cvsnageswara Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -169,6 +169,13 @@ FaultDisplay::~FaultDisplay()
 
     removeChild( drawstyle_->getInventorNode() );
     drawstyle_->unRef(); drawstyle_ = 0;
+
+    DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
+    for ( int idx=0; idx<datapackids_.size(); idx++ )
+    {
+	dpman.release( datapackids_[idx] );
+    }
+
 }
 
 
@@ -1085,10 +1092,18 @@ bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
 
 
 void FaultDisplay::addCache()
-{}
+{
+    datapackids_ += 0;
+}
 
 void FaultDisplay::removeCache( int attrib )
-{}
+{
+    if ( !datapackids_.validIdx(attrib) )
+	return;
+
+    DPM( DataPackMgr::SurfID() ).release( datapackids_[attrib] );
+    datapackids_.remove( attrib );
+}
 
 void FaultDisplay::swapCache( int attr0, int attr1 )
 {}
@@ -1688,6 +1703,36 @@ void FaultDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     if ( !emfault_ ) return;
 
     info = "Fault: "; info.add( emfault_->name() );
+}
+
+
+int FaultDisplay::addDataPack( const DataPointSet& dpset ) const
+{
+    DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
+    DataPointSet* newdpset = new DataPointSet( dpset );
+    newdpset->setName( dpset.name() );
+    dpman.add( newdpset );
+    return newdpset->id();
+}
+
+
+bool FaultDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+				  TaskRunner* tr )
+{
+    DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
+    const DataPack* datapack = dpman.obtain( dpid );
+    if ( !datapack || !datapackids_.validIdx(attrib) ) return false;
+
+    DataPack::ID oldid = datapackids_[attrib];
+    datapackids_[attrib] = dpid;
+    dpman.release( oldid );
+    return true;
+}
+
+
+DataPack::ID FaultDisplay::getDataPackID( int attrib ) const
+{
+    return datapackids_[attrib];
 }
 
 }; // namespace visSurvey
