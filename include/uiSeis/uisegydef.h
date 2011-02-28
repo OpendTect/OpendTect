@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.16 2011-02-17 13:34:38 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.17 2011-02-28 12:22:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "segyfiledef.h"
 class IOObj;
 class uiLabel;
+class uiButton;
 class uiGenInput;
 class uiTabStack;
 class uiFileInput;
@@ -69,6 +70,7 @@ public:
     bool		fillPar(IOPar&,bool permissive=false) const;
     void		usePar(const IOPar&);
     void		use(const IOObj*,bool force);
+    void		setFileName(const char*);
 
     SEGY::FileSpec	getSpec() const;
     void		setSpec(const SEGY::FileSpec&);
@@ -81,9 +83,13 @@ protected:
 
     uiFileInput*	fnmfld_;
     uiGenInput*		multifld_;
+    uiButton*		manipbut_;
     bool		is2d_;
 
     void		setMultiInput(const StepInterval<int>&,int);
+
+    void		fileSel(CallBacker*);
+    void		manipFile(CallBacker*);
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.38 2011-02-17 13:34:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.39 2011-02-28 12:22:59 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uisegydef.cc,v 1.38 2011-02-17 13:34:38 cvsbert
 #include "seisioobjinfo.h"
 
 #include "uifileinput.h"
+#include "uisegymanip.h"
 #include "uilabel.h"
 #include "uiseparator.h"
 #include "uimainwin.h"
@@ -50,6 +51,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     : uiSEGYDefGroup(p,"SEGY::FileSpec group",su.forread_)
     , multifld_(0)
     , is2d_(!su.canbe3d_)
+    , manipbut_(0)
 {
     SEGY::FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
     const bool canbemulti = forread_ && su.canbe3d_;
@@ -63,6 +65,14 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     BufferString defdir( forread_ ? lastreaddir : lastwritedir );
     if ( defdir.isEmpty() ) defdir = GetDataDir();
     fnmfld_->setDefaultSelectionDir( defdir );
+    fnmfld_->valuechanged.notify( mCB(this,uiSEGYFileSpec,fileSel) );
+    if ( forread_ )
+    {
+	manipbut_ = new uiPushButton( this, "&Manipulate",
+			  mCB(this,uiSEGYFileSpec,manipFile), false );
+	manipbut_->attach( rightOf, fnmfld_ );
+	manipbut_->setSensitive( true );
+    }
 
     if ( canbemulti )
     {
@@ -161,9 +171,16 @@ void uiSEGYFileSpec::setMultiInput( const StepInterval<int>& nrs, int zp )
 }
 
 
+void uiSEGYFileSpec::setFileName( const char* fnm )
+{
+    fnmfld_->setFileName( fnm );
+    fileSel( 0 );
+}
+
+
 void uiSEGYFileSpec::setSpec( const SEGY::FileSpec& spec )
 {
-    fnmfld_->setFileName( spec.fname_ );
+    setFileName( spec.fname_ );
     setMultiInput( spec.nrs_, spec.zeropad_ );
 }
 
@@ -182,9 +199,10 @@ void uiSEGYFileSpec::use( const IOObj* ioobj, bool force )
     {
 	if ( !force )
 	    return;
-	fnmfld_->setFileName( "" );
+	setFileName( "" );
 	if ( multifld_ )
 	    multifld_->setChecked( false );
+	fileSel( 0 );
 	return;
     }
 
@@ -196,7 +214,7 @@ void uiSEGYFileSpec::use( const IOObj* ioobj, bool force )
 
     BufferString dispfnm( iostrm->getExpandedName(forread_,false) );
     replaceCharacter( dispfnm.buf(), '%', '*' );
-    fnmfld_->setFileName( dispfnm );
+    setFileName( dispfnm );
     if ( iostrm->isMulti() )
 	setMultiInput( iostrm->fileNumbers(), iostrm->zeroPadding() );
 
@@ -208,6 +226,24 @@ void uiSEGYFileSpec::setInp2D( bool yn )
 {
     is2d_ = yn;
     if ( multifld_ ) multifld_->display( !is2d_ );
+}
+
+
+void uiSEGYFileSpec::fileSel( CallBacker* )
+{
+    if ( manipbut_ )
+    {
+	const char* fnm = fnmfld_->fileName();
+	manipbut_->setSensitive( *fnm && File::isFile(fnm) );
+    }
+}
+
+
+void uiSEGYFileSpec::manipFile( CallBacker* )
+{
+    uiSEGYFileManip dlg( this, fnmfld_->fileName() );
+    if ( dlg.go() )
+	setFileName( dlg.fileName() );
 }
 
 
