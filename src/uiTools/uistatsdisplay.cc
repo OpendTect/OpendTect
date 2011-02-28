@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.30 2011-02-09 12:27:35 cvsbert Exp $";
+static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.31 2011-02-28 10:21:53 cvsnageswara Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.30 2011-02-09 12:27:35 cv
 #include "draw.h"
 #include "bufstring.h"
 #include "datapackbase.h"
+#include "datapointset.h"
 #include "statruncalc.h"
 
 #define mPutCountInPlot() (histgramdisp_ && setup_.countinplot_)
@@ -163,7 +164,22 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 		}
 	    }
 	}
-	    
+	else if ( dmid == DataPackMgr::SurfID() )
+	{
+	    mDynamicCastGet(const DataPointSet*,dpset,datapack)
+	    if ( !dpset )
+		return false;
+
+	    for ( int idx=0; idx<dpset->size(); idx++ )
+	    {
+		const float val = dpset->value( 2, idx );
+		if ( mIsUdf(val) )
+		    continue;
+
+		rc.addValue( val );
+	    }
+	}
+
 	setData( rc );
 	return false;
     }
