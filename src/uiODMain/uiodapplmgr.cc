@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.411 2011-02-28 10:19:31 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.412 2011-02-28 11:12:56 cvsumesh Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -884,10 +884,17 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	const Attrib::SelSpec* as = mpeserv_->getAttribSelSpec();
 	if ( !as ) return false;
 	const CubeSampling cs = mpeserv_->getAttribVolume(*as);
-	DataPack::ID datapackid = mpeserv_->getAttribCacheID(*as);
+	DataPack::ID olddatapackid = mpeserv_->getAttribCacheID(*as);
 	attrserv_->setTargetSelSpec( *as );
-	datapackid = attrserv_->createOutput( cs, datapackid );
+	DataPack::ID datapackid = attrserv_->createOutput( cs, datapackid );
 	mpeserv_->setAttribData( *as, datapackid );
+	if ( olddatapackid != datapackid )
+	{
+	    const bool isflat = cs.isFlat();
+	    DataPackMgr& dpman = DPM( isflat ? DataPackMgr::FlatID()
+		    			     : DataPackMgr::CubeID() );
+	    dpman.release( olddatapackid );
+	}
     }
     else if ( evid==uiMPEPartServer::evCreate2DSelSpec() )
     {
