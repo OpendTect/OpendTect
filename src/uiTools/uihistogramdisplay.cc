@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.21 2011-01-26 09:23:59 cvsbert Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.22 2011-02-28 10:16:26 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "datapackbase.h"
 #include "statruncalc.h"
+
+#include "datapointset.h"
 
 uiHistogramDisplay::uiHistogramDisplay( uiParent* p, 
 					uiHistogramDisplay::Setup& su,
@@ -86,6 +88,14 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 	else
 	    return false;
     }
+    else if ( dmid == DataPackMgr::SurfID() )
+    {
+	mDynamicCastGet(const DataPointSet*,dpset,datapack)
+	if ( !dpset )
+	    return false;
+
+	setData( *dpset );
+    }
     else 
 	return false;
 
@@ -103,6 +113,21 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 
     dpman.release( dpid );
     return true;
+}
+
+
+void uiHistogramDisplay::setData( const DataPointSet& dpset )
+{
+    for ( int idx=0; idx<dpset.size(); idx++ )
+    {
+	const float val = dpset.value( 2, idx );
+	if ( mIsUdf(val) )
+	    continue;
+
+	rc_.addValue( val );
+    }
+
+    updateAndDraw();
 }
 
 
