@@ -7,13 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.28 2011-02-17 15:56:13 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.29 2011-02-28 12:19:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "seisinfo.h"
 #include "segythdef.h"
+#include "position.h"
+#include "samplingdata.h"
+class SeisTrcInfo;
 
 namespace SEGY
 {
