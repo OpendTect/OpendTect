@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.50 2011-02-11 14:31:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.51 2011-02-28 15:15:46 cvsbruno Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -580,7 +580,7 @@ void uiAxisHandler::drawName()
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	const int xshift = pixToEdge() - ticSz() - calcwdth_ - fontheight;
+	const int xshift = pixToEdge() - ticSz() - calcwdth_ + fontheight;
 	const int x = isleft ? xshift : width_ - xshift;
 	const int y = height_ / 2;
 	const Alignment al( isleft ? Alignment::HCenter : Alignment::Left,
