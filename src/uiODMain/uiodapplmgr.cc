@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.410 2011-02-24 15:05:21 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.411 2011-02-28 10:19:31 cvsnageswara Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -677,16 +677,26 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     }
 
     const int dataidx = data->dataSet().findColDef( DataColDef(myas.userRef()),
-	    PosVecDataSet::NameExact );
-    createAndSetMapDataPack( visid, attrib, *data, dataidx );
-    DPM( DataPackMgr::PointID() ).release( data->id() );
-
-    TypeSet<float> shifts( 1, visserv_->getTranslation(visid).z );
+	    					    PosVecDataSet::NameExact );
     mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
-		    visserv_->getObject(visid) );
+	    visserv_->getObject(visid));
+    mDynamicCastGet(visSurvey::FaultDisplay*,visfault,
+	    visserv_->getObject(visid));
     if ( vishor )
+    {
+	createAndSetMapDataPack( visid, attrib, *data, dataidx );
+	TypeSet<float> shifts( 1, visserv_->getTranslation(visid).z );
 	vishor->setAttribShift( attrib, shifts );
+    }
+    else if ( visfault )
+    {
+	const int attrnr = visServer()->getSelAttribNr();
+	const int id = visfault->addDataPack( *data );
+	visfault->setDataPackID( attrnr, id, 0 );
+	visfault->setRandomPosData( attrnr, data, 0 );
+    }
 
+    DPM( DataPackMgr::PointID() ).release( data->id() );
     return true;
 }
 
