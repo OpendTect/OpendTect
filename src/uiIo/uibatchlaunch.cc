@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.94 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.95 2011-02-28 06:44:32 cvsnanne Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -207,6 +207,11 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	return false;
 
     BufferString comm( "@" );
+#ifdef __msvc__
+    bool inbg = true;
+    comm += FilePath(GetBinPlfDir()).add(progname_).fullPath();
+#else
+    bool inbg = dormt;
     comm += GetExecScript( dormt );
     if ( dormt )
     {
@@ -215,46 +220,20 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	comm += rshcomm_;
     }
 
-    bool inbg = dormt;
-
-#ifdef __cygwin__ 
-
-    comm += " --inbg "; comm += progname_;
-    FilePath parfp( parfname_ );
-
-    BufferString _parfnm( parfp.fullPath(FilePath::Unix) );
-    replaceCharacter(_parfnm.buf(),' ','%');
-    comm += " \""; comm += _parfnm; comm += "\"";
-
     nicelvl_ = nicefld_->box()->getValue();
     if ( nicelvl_ != 0 )
-	{ comm += " --nice "; comm += nicelvl_; }
-    comm += " "; comm += progname_;
-    comm += " -bg "; comm += parfname_;
+	comm.add( " --nice " ).add( nicelvl_ );
 
-#else
-
-# ifdef __msvc__
-    inbg = true;
-
-    comm = "@";
-    comm += FilePath(GetBinPlfDir()).add(progname_).fullPath();
-    comm += " \"";
-    comm += parfname_;
-    comm += "\"";
-# else
-    comm += " --inbg ";
-    comm += progname_; comm += " \""; 
-    comm += parfname_; comm += "\"";
-# endif
-
+    comm.add( " --inbg " ).add( progname_ );
 #endif
+    comm.add( " \"" ).add( parfname_ ).add( "\"" );
 
-    if ( !StreamProvider( comm ).executeCommand(inbg,sel == 2) )
+    if ( !StreamProvider( comm ).executeCommand(inbg,sel==2) )
     {
 	uiMSG().error( "Cannot start batch program" );
 	return false;
     }
+
     return true;
 }
 
