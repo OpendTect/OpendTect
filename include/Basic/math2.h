@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: math2.h,v 1.12 2010-04-08 15:18:04 cvsbert Exp $
+ RCS:		$Id: math2.h,v 1.13 2011-03-01 10:16:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ mGlobal float Sqrt(float);
 mGlobal float Exp(float);
                 /*!<Checks the input range before calling exp, if too large
 		    value is given, mUdf(float) is returned. */
+mGlobal float toDB(float);
 
 inline float	degFromNorth( float azimuth )
 		{
@@ -67,6 +68,7 @@ mGlobal double Log(double);
 mGlobal double Log10(double);
 mGlobal double Exp(double);
 mGlobal double Sqrt(double);
+mGlobal double toDB(double);
 
 mGlobal int IntPowerOf(int,int);
 mGlobal od_int64 IntPowerOf(od_int64,int);

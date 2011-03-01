@@ -87,3 +87,8 @@ mTYPE Math::Sqrt( mTYPE s )
 {
     return s <= 0 ? 0 : sqrt( s );
 }
+
+mTYPE Math::toDB( mTYPE s )
+{
+    return s <= 0 ? mUdf(mTYPE) : 20*log10( s );
+}
