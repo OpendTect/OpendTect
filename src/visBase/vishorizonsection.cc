@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.116 2011-02-22 19:53:41 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.117 2011-03-01 07:59:29 cvsnanne Exp $";
 
 #include "vishorizonsection.h"
 
@@ -492,6 +492,11 @@ HorizonSection::~HorizonSection()
     removeChild( channels_->getInventorNode() );
     channels_->unRef();
     removeChild( texturecrds_ );
+
+    delete [] spacing_;
+    delete [] nrcells_;
+    delete [] normalstartidx_;
+    delete [] normalsidesize_;
 }
 
 
@@ -958,16 +963,16 @@ void HorizonSection::setSizeParameters()
     mTileLastIdx = mNrCoordsPerTileSide - 1;
     mLowestResIdx = mHorSectNrRes-1;
 
-    delete spacing_;
+    delete [] spacing_;
     spacing_ = new int[mHorSectNrRes];
 
-    delete nrcells_;
+    delete [] nrcells_;
     nrcells_ = new int[mHorSectNrRes];
 
-    delete normalstartidx_;
+    delete [] normalstartidx_;
     normalstartidx_ = new int[mHorSectNrRes];
 
-    delete normalsidesize_;
+    delete [] normalsidesize_;
     normalsidesize_ = new int[mHorSectNrRes];
 
     mTotalNormalSize = 0;
@@ -1666,8 +1671,8 @@ HorizonSectionTile::~HorizonSectionTile()
 
     deepErase( tesselationdata_ );
 
-    delete coords_;
-    delete normals_;
+    delete [] coords_;
+    delete [] normals_;
 }
 
 
