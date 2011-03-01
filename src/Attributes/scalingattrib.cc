@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.40 2011-03-01 10:21:40 cvssatyaki Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.41 2011-03-01 14:40:34 cvsbruno Exp $";
 
 #include "scalingattrib.h"
 
@@ -440,7 +440,8 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
     int curgateidx = 0;
     TypeSet< Interval<int> > gates;
     for ( int idx=0; idx<gates_.size(); idx++ )
-	gates += Interval<int>( gates_[idx].start*1000, gates_[idx].stop*1000 );
+	gates += Interval<int>( (int)gates_[idx].start*1000, 
+				(int)gates_[idx].stop*1000 );
     
     while ( true )
     {
