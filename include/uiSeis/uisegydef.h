@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.17 2011-02-28 12:22:59 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.18 2011-03-01 11:42:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,10 @@ public:
 
     void		setInp2D(bool);
 
-    static const char*	sKeyLineNmToken();
+    static const char*	sKeyLineNmToken()	{ return "#L"; }
+    static const char*	fileFilter()
+    			{ return  "SEG-Y files (*.sgy *.SGY *.segy)"; }
+
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.39 2011-02-28 12:22:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.40 2011-03-01 11:42:21 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -36,8 +36,6 @@ static const char* rcsID = "$Id: uisegydef.cc,v 1.39 2011-02-28 12:22:59 cvsbert
 #include "uibutton.h"
 #include "uimsg.h"
 
-const char* uiSEGYFileSpec::sKeyLineNmToken()  { return "#L"; }
-static const char* sgyfileflt = "SEG-Y files (*.sgy *.SGY *.segy)";
 static const char* sKeyEnableByteSwapWrite = "Enable SEG-Y byte swap writing";
 static int enabbyteswapwrite = -1;
 static BufferString lastreaddir;
@@ -61,7 +59,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     if ( canbemulti ) disptxt += "(s)";
     fnmfld_ = new uiFileInput( this, disptxt,
 		uiFileInput::Setup(uiFileDialog::Gen)
-		.forread(forread_).filter(sgyfileflt) );
+		.forread(forread_).filter(fileFilter()) );
     BufferString defdir( forread_ ? lastreaddir : lastwritedir );
     if ( defdir.isEmpty() ) defdir = GetDataDir();
     fnmfld_->setDefaultSelectionDir( defdir );
