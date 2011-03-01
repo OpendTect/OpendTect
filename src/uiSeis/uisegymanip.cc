@@ -7,16 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.2 2011-03-01 11:42:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.3 2011-03-01 15:12:53 cvsbert Exp $";
 
 #include "uisegymanip.h"
 
 #include "uitextedit.h"
 #include "uilistbox.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uilabel.h"
 #include "uifileinput.h"
 #include "uicompoundparsel.h"
+#include "uisplitter.h"
+#include "uiseparator.h"
 #include "uitable.h"
 #include "uimsg.h"
 #include "uisegydef.h"
@@ -49,7 +51,7 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
     tbl_->setColumnToolTip( 0, "Byte location in binary header" );
     tbl_->setColumnReadOnly( 0, true );
     tbl_->setColumnLabel( 1, "Value" );
-    tbl_->setColumnToolTip( 1, "Value in file" );
+    tbl_->setColumnToolTip( 1, "Value (initially from file)" );
 
     for ( int irow=0; irow<nrrows; irow++ )
     {
@@ -174,24 +176,34 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     if ( !openFile() )
 	{ errlbl_ = new uiLabel( this, errmsg_ ); return; }
 
-    txthdrfld_ = new uiTextEdit( this, "Text Header Editor" );
+    uiGroup* filehdrgrp = new uiGroup( this, "File header group" );
+    txthdrfld_ = new uiTextEdit( filehdrgrp, "Text Header Editor" );
     txthdrfld_->setDefaultWidth( 80 );
     txthdrfld_->setDefaultHeight( 5 );
     txthdrfld_->setPrefHeightInChar( 5 );
     BufferString txt; txthdr_.getText( txt );
     txthdrfld_->setText( txt );
-    uiLabel* lbl = new uiLabel( this, "Text Header" );
+    uiLabel* lbl = new uiLabel( filehdrgrp, "Text Header" );
     lbl->attach( centeredLeftOf, txthdrfld_ );
 
-    binhdrfld_ = new uiSEGYBinHdrEd( this, binhdr_ );
+    binhdrfld_ = new uiSEGYBinHdrEd( filehdrgrp, binhdr_ );
     binhdrfld_->attach( alignedBelow, txthdrfld_ );
+
+    uiGroup* trchdrgrp = mkTrcGroup();
+    uiSplitter* spl = new uiSplitter( this, "Splitter", false );
+    spl->addGroup( filehdrgrp );
+    spl->addGroup( trchdrgrp );
+
+    uiSeparator* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, spl );
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( false );
     fnmfld_ = new uiFileInput( this, "Output file", fisu );
     FilePath inpfp( fname_ );
     fnmfld_->setDefaultSelectionDir( inpfp.pathOnly() );
-    fnmfld_->attach( alignedBelow, binhdrfld_ );
+    fnmfld_->attach( ensureBelow, sep );
+    fnmfld_->attach( hCentered );
 }
 
 
@@ -199,6 +211,66 @@ uiSEGYFileManip::~uiSEGYFileManip()
 {
     delete &txthdr_;
     delete &binhdr_;
+}
+
+
+uiGroup* uiSEGYFileManip::mkTrcGroup()
+{
+    uiGroup* grp = new uiGroup( this, "Trace header group" );
+
+    uiLabeledListBox* llb = new uiLabeledListBox( grp, "Trace headers", false,
+	    				uiLabeledListBox::LeftMid );
+    avtrchdrsfld_ = llb->box();
+    avtrchdrsfld_->setHSzPol( uiObject::Small );
+    const SEGY::HdrDef&	def = SEGY::TrcHeader::hdrDef();
+    for ( int idx=0; idx<def.size(); idx++ )
+	avtrchdrsfld_->addItem( def[idx]->name() );
+
+    uiToolButton* addbut = new uiToolButton( grp, uiToolButton::RightArrow,
+	    "Add to calculated list", mCB(this,uiSEGYFileManip,addReq) );
+    addbut->attach( centeredRightOf, llb );
+    trchdrfld_ = new uiListBox( grp, "Defined calculations" );
+    trchdrfld_->attach( rightTo, llb );
+    trchdrfld_->attach( ensureRightOf, addbut );
+    trchdrfld_->selectionChanged.notify( mCB(this,uiSEGYFileManip,selChg) );
+    trchdrfld_->doubleClicked.notify( mCB(this,uiSEGYFileManip,edReq) );
+    trchdrfld_->setHSzPol( uiObject::Medium );
+
+    edbut_ = new uiToolButton( grp, "edit.png",
+		    "Edit calculation", mCB(this,uiSEGYFileManip,edReq) );
+    edbut_->attach( rightOf, trchdrfld_ );
+    rmbut_ = new uiToolButton( grp, "trashcan.png",
+		    "Remove calculation", mCB(this,uiSEGYFileManip,rmReq) );
+    rmbut_->attach( alignedBelow, edbut_ );
+    uiToolButton* openbut = new uiToolButton( grp, "openset.png",
+		    "Open stored calculation set",
+		    mCB(this,uiSEGYFileManip,openReq) );
+    openbut->attach( alignedBelow, rmbut_ );
+    savebut_ = new uiToolButton( grp, "save.png",
+		    "Save calculation set",
+		    mCB(this,uiSEGYFileManip,saveReq) );
+    savebut_->attach( alignedBelow, openbut );
+
+    const int nrrows = def.size();
+    thtbl_ = new uiTable( grp, uiTable::Setup(nrrows,2),
+	    		      "Trace header table" );
+    thtbl_->setColumnLabel( 0, "Byte" );
+    thtbl_->setColumnToolTip( 0, "Byte location in binary header" );
+    thtbl_->setColumnReadOnly( 0, true );
+    thtbl_->setColumnLabel( 1, "Value" );
+    thtbl_->setColumnToolTip( 1, "Resulting value" );
+    thtbl_->setColumnReadOnly( 1, true );
+
+    for ( int irow=0; irow<nrrows; irow++ )
+    {
+	const SEGY::HdrEntry& he = *def[irow];
+	thtbl_->setRowLabel( irow, he.name() );
+	thtbl_->setRowToolTip( irow, he.description() );
+    }
+    thtbl_->attach( ensureRightOf, edbut_ );
+
+    grp->setHAlignObj( llb );
+    return grp;
 }
 
 
@@ -224,7 +296,43 @@ bool uiSEGYFileManip::openFile()
 }
 
 
-void uiSEGYFileManip::fileSel( CallBacker* )
+void uiSEGYFileManip::selChg( CallBacker* )
+{
+    const bool havesel = !trchdrfld_->isEmpty()
+			&& trchdrfld_->currentItem() >= 0;
+    edbut_->setSensitive( havesel );
+    savebut_->setSensitive( havesel );
+    rmbut_->setSensitive( havesel );
+}
+
+
+void uiSEGYFileManip::addReq( CallBacker* )
+{
+    const int selidx = avtrchdrsfld_->currentItem();
+    if ( selidx < 0 ) return;
+}
+
+
+void uiSEGYFileManip::edReq( CallBacker* )
+{
+    const int selidx = trchdrfld_->currentItem();
+    if ( selidx < 0 ) return;
+}
+
+
+void uiSEGYFileManip::rmReq( CallBacker* )
+{
+    const int selidx = trchdrfld_->currentItem();
+    if ( selidx < 0 ) return;
+}
+
+
+void uiSEGYFileManip::openReq( CallBacker* )
+{
+}
+
+
+void uiSEGYFileManip::saveReq( CallBacker* )
 {
 }
 

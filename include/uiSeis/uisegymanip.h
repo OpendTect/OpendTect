@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegymanip.h,v 1.2 2011-03-01 11:42:29 cvsbert Exp $
+ RCS:           $Id: uisegymanip.h,v 1.3 2011-03-01 15:12:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,9 +14,11 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "strmdata.h"
 class uiLabel;
+class uiTable;
 class uiListBox;
 class uiTextEdit;
 class uiFileInput;
+class uiToolButton;
 class uiSEGYBinHdrEd;
 namespace SEGY { class TxtHeader; class BinHeader; }
 
@@ -44,12 +46,24 @@ protected:
     uiTextEdit*		txthdrfld_;
     uiSEGYBinHdrEd*	binhdrfld_;
     uiListBox*		trchdrfld_;
+    uiListBox*		avtrchdrsfld_;
     uiFileInput*	fnmfld_;
+    uiToolButton*	edbut_;
+    uiToolButton*	rmbut_;
+    uiToolButton*	savebut_;
+    uiTable*		thtbl_;
     uiLabel*		errlbl_;
 
-    void		fileSel(CallBacker*);
+    void		selChg(CallBacker*);
+    void		addReq(CallBacker*);
+    void		edReq(CallBacker*);
+    void		rmReq(CallBacker*);
+    void		openReq(CallBacker*);
+    void		saveReq(CallBacker*);
 
     bool		openFile();
+    uiGroup*		mkTrcGroup();
+
     bool		acceptOK(CallBacker*);
 
 };
