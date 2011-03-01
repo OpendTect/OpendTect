@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.109 2011-02-03 14:40:51 cvshelene Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.110 2011-03-01 10:21:40 cvssatyaki Exp $";
 
 #include "attribengman.h"
 
@@ -984,6 +984,12 @@ Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
     attrout->setOutput( &output );
     if ( cubezbounds )
 	attrout->setTrcsBounds( *cubezbounds );
+    
+    if ( !linekey_.isEmpty() )
+    {
+	LineKey lk( linekey_.buf() );
+	attrout->setLineKey( lk );
+    }
 
     proc->addOutput( attrout );
     proc->setRdmPaths( trueknotspos, snappedpos );

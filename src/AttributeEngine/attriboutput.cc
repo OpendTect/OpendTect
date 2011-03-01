@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.107 2010-09-27 07:30:02 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.108 2011-03-01 10:21:40 cvssatyaki Exp $";
 
 #include "attriboutput.h"
 
@@ -792,6 +792,8 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
     : bidvalset_(bidvalset)
     , outpbuf_(0)
     , outval_(outval)
+    , stdstarttime_(mUdf(float))
+    , stdtrcsz_(mUdf(float))
 {
     delete seldata_;
     Seis::TableSelData& sd = *new Seis::TableSelData( bidvalset );
@@ -809,13 +811,16 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
 	if ( val > zmax ) zmax = val;
     }
 
-    BinIDValueSet::Pos pos;
-    bidvalset.next( pos );
-    sd.binidValueSet().add( bidvalset.getBinID(pos), zmin );
-    sd.binidValueSet().add( bidvalset.getBinID(pos), zmax );
-
-    stdtrcsz_ = zmax - zmin;
-    stdstarttime_ = zmin;
+    if ( !mIsUdf(zmin) && !mIsUdf(-zmax) )
+    {
+	BinIDValueSet::Pos pos;
+	bidvalset.next( pos );
+	sd.binidValueSet().add( bidvalset.getBinID(pos), zmin );
+	sd.binidValueSet().add( bidvalset.getBinID(pos), zmax );
+	
+	stdtrcsz_ = zmax - zmin;
+	stdstarttime_ = zmin;
+    }
 }
 
 
@@ -891,6 +896,13 @@ void TrcSelectionOutput::setTrcsBounds( Interval<float> intv )
 {
     stdstarttime_ = intv.start;
     stdtrcsz_ = intv.stop - intv.start;
+    seldata_->setZRange( intv );
+}
+
+
+void TrcSelectionOutput::setLineKey( const LineKey& linekey )
+{
+    seldata_->lineKey() = linekey;
 }
 
 
@@ -903,6 +915,16 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
     TypeSet<float> values;
     bidvalset_.get( pos, binid, values );
     TypeSet< Interval<int> > sampleinterval;
+
+    if ( values.isEmpty() && !mIsUdf(stdstarttime_) )
+    {
+	const float zmax = stdstarttime_ + stdtrcsz_;
+	Interval<int> interval( mNINT(stdstarttime_/zstep),
+				mNINT(zmax/zstep) );
+	sampleinterval += interval;
+	return sampleinterval;
+    }
+
     for ( int idx=0; idx<values.size()/2; idx+=2 )
     {
 	Interval<int> interval( mNINT(values[idx]/zstep), 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.39 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.40 2011-03-01 10:21:40 cvssatyaki Exp $";
 
 #include "scalingattrib.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: scalingattrib.cc,v 1.39 2011-01-06 15:25:01 cvs
 #define mScalingTypeWindow   1
 #define mScalingTypeAGC	     2			
 #define mScalingTypeSqueeze  3			
+#define mScalingTypeGain     4			
 
 static inline float interpolator( float fact1, float fact2, 
 				  float t1, float t2, float curt )
@@ -60,6 +61,7 @@ void Scaling::initClass()
     scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeWindow) );
     scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeAGC) );
     scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeSqueeze) );
+    scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeGain) );
     desc->addParam( scalingtype );
 
     FloatParam* powerval = new FloatParam( powervalStr() );
@@ -130,11 +132,15 @@ void Scaling::updateDesc( Desc& desc )
     desc.setParamEnabled( mutefractionStr(), false );
     desc.setParamEnabled( sqrangeStr(), false );
     desc.setParamEnabled( squntouchedStr(), false );
+    
     if ( type == scalingTypeNamesStr(mScalingTypeZPower) )
 	desc.setParamEnabled( powervalStr(), true );
-    else if ( type == scalingTypeNamesStr(mScalingTypeWindow) )
+    else if ( type == scalingTypeNamesStr(mScalingTypeWindow) ||
+	      type == scalingTypeNamesStr(mScalingTypeGain) )
     {
-	desc.setParamEnabled( statsTypeStr(), true );
+	if ( type == scalingTypeNamesStr(mScalingTypeWindow) )
+	    desc.setParamEnabled( statsTypeStr(), true );
+
 	desc.setParamEnabled( gateStr(), true );
 	const int statstype = desc.getValParam(statsTypeStr())->getIntValue();
 	desc.setParamEnabled( factorStr(), statstype==mStatsTypeUser );
@@ -168,6 +174,7 @@ const char* Scaling::scalingTypeNamesStr( int type )
     if ( type==mScalingTypeZPower ) return "T^n";
     if ( type==mScalingTypeAGC ) return "AGC";
     if ( type==mScalingTypeSqueeze ) return "Squeeze";
+    if ( type==mScalingTypeGain ) return "Gain Correction";
     return "Window";
 }
 
@@ -213,7 +220,7 @@ Scaling::Scaling( Desc& desc )
     }
     
     mGetEnum( statstype_, statsTypeStr() );
-    if ( statstype_ == mStatsTypeUser )
+    if ( statstype_ == mStatsTypeUser || scalingtype_ == mScalingTypeGain )
     {
 	mDescGetParamGroup(ValParam,factorset,desc_,factorStr())
 	for ( int idx=0; idx<factorset->size(); idx++ )
@@ -337,6 +344,11 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	scaleAGC( output, z0, nrsamples );
 	return true;
     }
+    else if ( scalingtype_ == mScalingTypeGain )
+    {
+	scaleGain( output, z0, nrsamples );
+	return true;
+    }
 
     TypeSet< Interval<int> > samplegates;
     getSampleGates( gates_, samplegates, z0, nrsamples );
@@ -418,6 +430,42 @@ void Scaling::scaleZN( const DataHolder& output, int z0, int nrsamples) const
 	const float curt = (idx+z0)*refstep_;
 	const float result = pow(curt,powerval_) * 
 	    		     getInputValue( *inputdata_, dataidx_, idx, z0 );
+       	setOutputValue( output, 0, idx, z0, result );
+    }
+}
+
+
+void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
+{
+    int curgateidx = 0;
+    TypeSet< Interval<int> > gates;
+    for ( int idx=0; idx<gates_.size(); idx++ )
+	gates += Interval<int>( gates_[idx].start*1000, gates_[idx].stop*1000 );
+    
+    while ( true )
+    {
+	if ( gates[curgateidx].includes(z0) || (curgateidx>=gates.size()-1) )
+	    break;
+	curgateidx++;
+    }
+
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	const float curt = (idx+z0)*refstep_;
+	if ( !gates_[curgateidx].includes(curt) && curgateidx<gates_.size()-1 )
+	    curgateidx++;
+
+	const float scalefacstart =
+	    ( curgateidx==0 || curgateidx >= gates_.size()-1 )
+	   		? 1 : factors_[curgateidx-1];
+	const float scalefacstop =
+	    ( curgateidx==0 || curgateidx >= gates_.size()-1 )
+	    		? 1 : factors_[curgateidx];
+	Interval<float> curgate = gates_[curgateidx];
+	const float val = getInputValue( *inputdata_, dataidx_, idx, z0);
+	const float factor = interpolator( scalefacstart, scalefacstop,
+					   curgate.start, curgate.stop, curt );
+	const float result = val*factor;
        	setOutputValue( output, 0, idx, z0, result );
     }
 }

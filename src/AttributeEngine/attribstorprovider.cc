@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.106 2011-01-31 14:26:05 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.107 2011-03-01 10:21:40 cvssatyaki Exp $";
 
 #include "attribstorprovider.h"
 
@@ -672,8 +672,11 @@ bool StorageProvider::computeData( const DataHolder& output,
 	Interval<float> trcrange = trc->info().sampling.interval(trc->size());
 	const float diffstart = z0*refstep_ - trcrange.start;
 	const float diffstop = (z0+nrsamples-1)*refstep_ - trcrange.stop;
-	bool isdiffacceptable = (diffstart>=0 || diffstart >= desonlyzrgstart)
-				&& (diffstop <= 0 || diffstop<=desonlyzrgstop);
+	bool isdiffacceptable =
+	    ( (mIsEqual(diffstart,0,refstep_/100) || diffstart>0)
+	      || diffstart >= desonlyzrgstart )
+	 && ( (mIsEqual(diffstop,0,refstep_/100) || diffstop<0 )
+	      || diffstop<=desonlyzrgstop );
 	if ( !isdiffacceptable )
 	    return false;
     }

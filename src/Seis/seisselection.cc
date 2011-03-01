@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.25 2010-02-01 09:39:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.26 2011-03-01 10:21:40 cvssatyaki Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -338,6 +338,7 @@ int Seis::RangeSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 Seis::TableSelData::TableSelData()
     : bvs_(*new BinIDValueSet(1,false))
     , extraz_(0,0)
+    , fixedzrange_(Interval<float>(mUdf(float),mUdf(float)))
 {
 }
 
@@ -346,6 +347,7 @@ Seis::TableSelData::TableSelData( const BinIDValueSet& bvs,
 				  const Interval<float>* extraz )
     : bvs_(*new BinIDValueSet(bvs))
     , extraz_(0,0)
+    , fixedzrange_(Interval<float>(mUdf(float),mUdf(float)))
 {
     bvs_.setNrVals( 1, true );
     if ( extraz ) extraz_ = *extraz;
@@ -355,6 +357,7 @@ Seis::TableSelData::TableSelData( const BinIDValueSet& bvs,
 Seis::TableSelData::TableSelData( const Seis::TableSelData& sd )
     : bvs_(*new BinIDValueSet(1,false))
     , extraz_(0,0)
+    , fixedzrange_(Interval<float>(mUdf(float),mUdf(float)))
 {
     copyFrom(sd);
 }
@@ -376,6 +379,7 @@ void Seis::TableSelData::copyFrom( const Seis::SelData& sd )
 	mDynamicCastGet(const Seis::TableSelData&,tsd,sd)
 	bvs_ = tsd.bvs_;
 	extraz_ = tsd.extraz_;
+	fixedzrange_ = tsd.fixedzrange_;
     }
     else
     {
@@ -401,7 +405,19 @@ Interval<int> Seis::TableSelData::crlRange() const
 Interval<float> Seis::TableSelData::zRange() const
 {
     if ( isall_ ) return Seis::SelData::zRange();
-    return bvs_.valRange( 0 ) + extraz_;
+
+    Interval<float> zrg = bvs_.valRange( 0 ) + extraz_;
+    if ( zrg.isUdf() )
+	zrg = SI().zRange(true);
+
+    return !bvs_.nrVals() ? fixedzrange_ : zrg;
+}
+
+
+bool Seis::TableSelData::setZRange( Interval<float> rg )
+{
+    fixedzrange_ = rg;
+    return true;
 }
 
 

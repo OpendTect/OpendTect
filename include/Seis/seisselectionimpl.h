@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselectionimpl.h,v 1.4 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seisselectionimpl.h,v 1.5 2011-03-01 10:21:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,7 @@ public:
     Interval<int>	crlRange() const;
     bool		setCrlRange(Interval<int>)	{ return false; }
     Interval<float>	zRange() const;
-    bool		setZRange(Interval<float>)	{ return false; }
+    bool		setZRange(Interval<float>);
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -113,6 +113,7 @@ protected:
 
     BinIDValueSet&	bvs_;
     Interval<float>	extraz_;
+    Interval<float>	fixedzrange_; // used only if no z vals in bidvalset
 
     void		doExtendH(BinID,BinID);
 };

@@ -7,16 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.h,v 1.12 2010-08-25 11:21:30 cvshelene Exp $
+ RCS:           $Id: uiscalingattrib.h,v 1.13 2011-03-01 10:21:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrdesced.h"
+#include "attribdescid.h"
 
-namespace Attrib { class Desc; }
+namespace Attrib { class Desc; class EngineMan; class Processor; }
+class uiParent;
 class uiAttrSel;
 class uiGenInput;
+class uiPushButton;
 class uiTable;
 
 
@@ -30,6 +33,7 @@ public:
 
 protected:
 
+    uiParent*		parent_;
     uiAttrSel*		inpfld;
     uiGenInput*		typefld;
     uiGenInput*		nfld;
@@ -39,9 +43,14 @@ protected:
     uiGenInput*         lowenergymute;
     uiGenInput*         sqrgfld;
     uiGenInput*         squrgfld;
+    uiPushButton*	analysebut_;
+
+    TypeSet<float>	zvals_;
+    TypeSet<float>	scalefactors_;
 
     void		typeSel(CallBacker*);
     void		statsSel(CallBacker*);
+    void		analyseCB(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);

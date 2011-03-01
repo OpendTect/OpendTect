@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.20 2010-08-23 13:44:03 cvsbert Exp $
+ RCS:           $Id: scalingattrib.h,v 1.21 2011-03-01 10:21:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,7 @@ protected:
     void		scaleSqueeze(const DataHolder&, int, int) const;
     void		scaleZN(const DataHolder&, int, int) const;
     void		scaleAGC(const DataHolder&,int z0,int nrsamples) const;
+    void		scaleGain(const DataHolder&,int z0,int nrsamples) const;
     void		getScaleFactorsFromStats(
 	    			const TypeSet<Interval<int> >& gates,
 				TypeSet<float>& factors,int) const;

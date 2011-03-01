@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.52 2010-07-27 13:40:10 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.53 2011-03-01 10:21:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -295,6 +295,7 @@ public:
 	    				    const SeisTrcInfo&);
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
 	    					TypeSet<float>&) const;
+    void			setLineKey(const LineKey&);
     
 protected:
     const BinIDValueSet&	bidvalset_;

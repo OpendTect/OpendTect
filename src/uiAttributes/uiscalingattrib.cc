@@ -8,20 +8,39 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.31 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.32 2011-03-01 10:21:40 cvssatyaki Exp $";
 
 
 #include "uiscalingattrib.h"
 #include "scalingattrib.h"
 
+#include "attribengman.h"
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
+#include "attribprocessor.h"
+#include "attribfactory.h"
+#include "binidvalset.h"
+#include "cubesampling.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "linekey.h"
+#include "seisbuf.h"
+#include "seisioobjinfo.h"
 #include "survinfo.h"
+#include "volstatsattrib.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
+#include "uibutton.h"
+#include "uicombobox.h"
+#include "uigainanalysisdlg.h"
 #include "uigeninput.h"
+#include "uimsg.h"
+#include "uiselsurvranges.h"
 #include "uitable.h"
+#include "uitaskrunner.h"
 
 using namespace Attrib;
 
@@ -48,6 +67,7 @@ static const char* scalingtypestr[] =
     "Window",
     "AGC",
     "Squeeze",
+    "Gain Correction",
     0
 };
 
@@ -56,7 +76,7 @@ mInitAttribUI(uiScalingAttrib,Scaling,"Scaling",sKeyBasicGrp())
 
 uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.12")
-
+	, parent_(p)
 {
     inpfld = createInpFld( is2d );
 
@@ -105,8 +125,12 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 
     lowenergymute = new uiGenInput( this, "Low energy mute (%)",
 	    			    FloatInpSpec() );
-    lowenergymute->attach( alignedBelow, windowfld );
     lowenergymute->setValue( 0 );
+
+    // for Gain Correction
+    analysebut_ = new uiPushButton( this, "Analyse",
+	    			    mCB(this,uiScalingAttrib,analyseCB), false);
+    analysebut_->attach( alignedBelow, typefld );
 
     typeSel(0);
     statsSel(0);
@@ -128,6 +152,8 @@ void uiScalingAttrib::typeSel( CallBacker* )
 
     sqrgfld->display( typeval==3 );
     squrgfld->display( typeval==3 );
+    
+    analysebut_->display( typeval==4 );
 }
 
 
@@ -175,20 +201,34 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
     if ( desc.getParam(Scaling::gateStr()) )
     {
 	mDescGetConstParamGroup(ZGateParam,gateset,desc,Scaling::gateStr());
+	
+	zvals_.erase();
 	for ( int idx=0; idx<gateset->size(); idx++ )
 	{
 	    const ValParam& param = (ValParam&)(*gateset)[idx];
-	    table->setValue( RowCol(idx,startcol), param.getfValue(0) );
-	    table->setValue( RowCol(idx,stopcol), param.getfValue(1) );
+	    
+	    if ( typefld->getIntValue() == 4 )
+		zvals_.addIfNew( idx==0 ? param.getfValue(1)
+					: param.getfValue(0) );
+	    else
+	    {
+		table->setValue( RowCol(idx,startcol), param.getfValue(0) );
+		table->setValue( RowCol(idx,stopcol), param.getfValue(1) );
+	    }
 	}
     }
     if ( desc.getParam(Scaling::factorStr()) )
     {
 	mDescGetConstParamGroup(ValParam,factorset,desc,Scaling::factorStr());
+	scalefactors_.erase();
+
 	for ( int idx=0; idx< factorset->size(); idx++ )
 	{
 	    const ValParam& param = (ValParam&)(*factorset)[idx];
-	    table->setValue( RowCol(idx,factcol), param.getfValue(0) );
+	    if ( typefld->getIntValue() == 4 )
+		scalefactors_.addIfNew( param.getfValue(0) );
+	    else
+		table->setValue( RowCol(idx,factcol), param.getfValue(0) );
 	}
     }
 
@@ -220,6 +260,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 
     TypeSet<ZGate> tgs;
     TypeSet<float> factors;
+
     for ( int idx=0; idx<table->nrRows(); idx++ )
     {
 	int start = table->getIntValue( RowCol(idx,startcol) );
@@ -232,6 +273,22 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	{
 	    const char* factstr = table->text( RowCol(idx,factcol) );
 	    factors += factstr && *factstr ? toFloat(factstr) : 1;
+	}
+    }
+
+    CubeSampling cs;
+    if ( typefld->getIntValue() == 4 )
+    {
+	tgs.erase();
+	factors.erase();
+	for ( int idx=0; idx<=zvals_.size(); idx++ )
+	{
+	    float zstart = !idx ? cs.zrg.start*1000 : zvals_[idx-1];
+	    float zstop = (idx>=zvals_.size()) ? cs.zrg.stop*1000 : zvals_[idx];
+
+	    tgs += ZGate( zstart, zstop );
+	    if ( scalefactors_.validIdx(idx) )
+		factors += scalefactors_[idx];
 	}
     }
 
@@ -291,3 +348,143 @@ bool uiScalingAttrib::areUIParsOK()
 
     return true;
 }
+
+
+mClass uiSelectPositionDlg : public uiDialog
+{
+public:
+uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
+    : uiDialog(p,uiDialog::Setup("Select data","For gain analysis",mNoHelpID)) 
+    , attribnm_(anm)
+    , linesfld_(0)
+    , subvolfld_(0)
+{
+    if ( is2d )
+    {
+	SeisIOObjInfo objinfo( mid );
+	BufferStringSet linenames;
+	objinfo.getLineNamesWithAttrib( attribnm_, linenames );
+	linesfld_ = new uiLabeledComboBox( this, "Gain Analyisis on line:" );
+	for ( int idx=0; idx<linenames.size(); idx++ )
+	    linesfld_->box()->addItem( linenames.get(idx) );
+    }
+    else
+	subvolfld_ = new uiSelSubvol( this, false );
+}
+
+LineKey lineKey() const
+{
+    return LineKey( linesfld_->box()->text(), attribnm_ );
+}
+
+
+CubeSampling subVol() const
+{
+    CubeSampling cs;
+    if ( subvolfld_ )
+	cs = subvolfld_->getSampling();
+    return cs;
+}
+
+
+protected:
+
+    BufferString	attribnm_;
+    
+    uiSelSubvol*	subvolfld_;
+    uiLabeledComboBox*	linesfld_;
+};
+
+
+void uiScalingAttrib::analyseCB( CallBacker* )
+{
+    Attrib::Desc* inpdesc = ads_->getDesc( inpfld->attribID() );
+    Attrib::Desc* voldesc = PF().createDescCopy( VolStats::attribName() );
+    if ( !inpdesc || !voldesc )
+	return;
+
+    PtrMan<Attrib::DescSet> descset = ads_->optimizeClone( inpfld->attribID() );
+    if ( !descset )
+	return;
+    
+    Attrib::Desc& desc = *voldesc;
+    desc.setInput( 0, inpdesc );
+    Interval<float> timegate(-28,28);
+    mSetFloatInterval( VolStats::gateStr(), timegate );
+    mSetBinID( VolStats::stepoutStr(), BinID(descset->is2D() ? 0 : 5,5) );
+    mSetEnum( VolStats::shapeStr(), 0 );
+    mSetBool( VolStats::steeringStr(), false );
+    mSetInt( VolStats::nrtrcsStr(), 1 );
+    mSetInt( VolStats::optstackstepStr(), 8 );
+    desc.selectOutput( 8 );
+    desc.setUserRef( "Examine-GainCorrection" );
+    desc.updateParams();
+
+    Attrib::DescID attribid = descset->addDesc( voldesc );
+
+    PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
+
+    TypeSet<SelSpec> attribspecs;
+    SelSpec sp( 0, attribid );
+    sp.set( desc );
+    attribspecs += sp;
+
+    aem->setAttribSet( descset );
+    aem->setAttribSpecs( attribspecs );
+    LineKey lk( inpdesc->getStoredID(true) );
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
+
+    if ( !ioobj )
+	return;
+
+    SeisIOObjInfo seisinfo( ioobj );
+    CubeSampling cs;
+    
+    uiSelectPositionDlg subseldlg( this, ioobj->key(), seisinfo.is2D(),
+	    			   lk.attrName() );
+    subseldlg.go();
+
+    TypeSet<BinID> bidset;
+    if ( seisinfo.is2D() )
+    {
+	StepInterval<int> trcrg;
+	StepInterval<float> zrg;
+	seisinfo.getRanges( subseldlg.lineKey(), trcrg, zrg );
+	cs.hrg.setCrlRange( trcrg );
+	cs.hrg.setInlRange( Interval<int>(0,0) );
+	cs.zrg = zrg;
+	aem->setLineKey( subseldlg.lineKey() );
+    }
+    else
+    {
+	cs = subseldlg.subVol();
+	seisinfo.getRanges( cs );
+    }
+
+    cs.hrg.getRandomSet( 50, bidset );
+    aem->setCubeSampling( cs );
+
+    BinIDValueSet bidvals( 0, false );
+    for ( int idx=0; idx<bidset.size(); idx++ )
+       bidvals.add( bidset[idx] );	
+
+    BufferString errmsg;
+    SeisTrcBuf bufs( true );
+    Interval<float> zrg( cs.zrg );
+    PtrMan<Processor> proc =
+	aem->createTrcSelOutput( errmsg, bidvals, bufs, 0, &zrg );
+
+    if ( !proc )
+    {
+	uiMSG().error( errmsg );
+	return;
+    }
+
+    uiTaskRunner dlg( parent_ );
+    if ( !dlg.execute(*proc) )
+	return;
+
+    uiGainAnalysisDlg analdlg( this, bufs, zvals_, scalefactors_);
+    analdlg.go();
+}
+
