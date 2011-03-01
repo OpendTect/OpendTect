@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegymanip.h,v 1.1 2011-02-28 12:22:59 cvsbert Exp $
+ RCS:           $Id: uisegymanip.h,v 1.2 2011-03-01 11:42:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 class uiLabel;
 class uiListBox;
 class uiTextEdit;
-class uiCheckBox;
 class uiFileInput;
 class uiSEGYBinHdrEd;
 namespace SEGY { class TxtHeader; class BinHeader; }
@@ -45,7 +44,6 @@ protected:
     uiTextEdit*		txthdrfld_;
     uiSEGYBinHdrEd*	binhdrfld_;
     uiListBox*		trchdrfld_;
-    uiCheckBox*		despikefld_;
     uiFileInput*	fnmfld_;
     uiLabel*		errlbl_;
 
