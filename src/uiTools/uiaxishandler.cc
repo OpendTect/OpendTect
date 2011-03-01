@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.51 2011-02-28 15:15:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.52 2011-03-01 10:15:33 cvssatyaki Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -285,7 +285,7 @@ void uiAxisHandler::createGridLines()
 	{
 	    gridlineitmgrp_ = new uiGraphicsItemGroup();
 	    scene_->addItemGrp( gridlineitmgrp_ );
-	    gridlineitmgrp_->setZValue( 2 );
+	    gridlineitmgrp_->setZValue( setup_.zval_ );
 	}
 	else if ( gridlineitmgrp_ )
 	    gridlineitmgrp_->removeAll( true );
@@ -347,7 +347,7 @@ void uiAxisHandler::drawAxisLine()
 	else
 	    axislineitm_->setLine( startpix, pixpos, endpix, pixpos, true );
 	axislineitm_->setPenStyle( ls );
-	axislineitm_->setZValue( 3 );
+	axislineitm_->setZValue( setup_.zval_ );
     }
     else
     {
@@ -362,7 +362,7 @@ void uiAxisHandler::drawAxisLine()
 	else
 	    axislineitm_->setLine( pixpos, startpix, pixpos, endpix, true );
 	axislineitm_->setPenStyle( ls );
-	axislineitm_->setZValue( 3 );
+	axislineitm_->setZValue( setup_.zval_ );
     }
 }
 
@@ -473,7 +473,7 @@ void uiAxisHandler::annotAtEnd( const char* txt )
     else
 	endannottextitm_->setText( txt );
     endannottextitm_->setPos( uiPoint(xpix,ypix) );
-    endannottextitm_->setZValue( 3 );
+    endannottextitm_->setZValue( setup_.zval_ );
 }
 
 
@@ -491,14 +491,14 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( pix, y0, pix, y1 );
-	annotposlineitm->setZValue( 3 );
+	annotposlineitm->setZValue( setup_.zval_ );
 	annotposlineitm->setPenColor( ls.color_ );
 	annotlineitmgrp_->add( annotposlineitm );
 	Alignment al( Alignment::HCenter,
 		      istop ? Alignment::Bottom : Alignment::Top );
 	uiTextItem* annotpostxtitem =
 	    new uiTextItem( uiPoint(pix,y1), txt, al );
-	annotpostxtitem->setZValue( 3 );
+	annotpostxtitem->setZValue( setup_.zval_ );
 	annotpostxtitem->setTextColor( ls.color_ );
 	annottxtitmgrp_->add( annotpostxtitem );
     }
@@ -510,14 +510,14 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 			      : ( inside ? x0-ticSz()-calcwdth_ : x0+ticSz() );
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( x0, pix, x1, pix );
-	annotposlineitm->setZValue( 3 );
+	annotposlineitm->setZValue( setup_.zval_ );
 	annotposlineitm->setPenColor( ls.color_ );
 	annotlineitmgrp_->add( annotposlineitm );
 	Alignment al( isleft ? Alignment::Right : Alignment::Left,
 		      Alignment::VCenter );
 	uiTextItem* annotpostxtitem =
 	    new uiTextItem( uiPoint(x1,pix), txt, al );
-	annotpostxtitem->setZValue( 3 );
+	annotpostxtitem->setZValue( setup_.zval_ );
 	annotpostxtitem->setTextColor( ls.color_ );
 	annottxtitmgrp_->add( annotpostxtitem );
     }
@@ -563,7 +563,7 @@ void uiAxisHandler::drawName()
 	nameitm_ = scene_->addItem( new uiTextItem(name()) );
     else
 	nameitm_->setText( name() );
-    nameitm_->setZValue( 3 );
+    nameitm_->setZValue( setup_.zval_ );
     nameitm_->setTextColor( setup_.style_.color_ );
     const int fontheight = FontList().get().height();
     if ( isHor() )

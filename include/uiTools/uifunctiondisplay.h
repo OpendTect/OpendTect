@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.31 2010-05-10 03:12:51 cvsnanne Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.32 2011-03-01 10:15:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,8 +64,8 @@ public:
 				    , pointsz_(0)
 				    , ptsnaptol_(0.01)
 				    , editable_(false)
-				    , curvzvaly_(5)
-				    , curvzvaly2_(3)
+				    , curvzvaly_(1)
+				    , curvzvaly2_(0)
 				    , fillbelow_(false)
 				    , fillbelowy2_(false)
 				    , drawscattery1_(false)
