@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.38 2011-02-07 10:49:19 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.39 2011-03-01 08:36:52 cvsnageswara Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -34,7 +34,6 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.38 2011-02-07 10:49:19 c
 #include "welltrack.h"
 
 
-
 static const char* mrkrcollbls[] = { "[Name]", "Depth (MD)", 
 				 "[Color]", "Regional marker", 0 };
 static const int cNrEmptyRows = 5;
@@ -56,21 +55,21 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 					        .defrowlbl("")
 				,"Well Marker Table" );
     table_->setColumnLabels( mrkrcollbls );
-    table_->setColumnReadOnly( cColorCol, true );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setColumnStretchable( cLevelCol, true );
-    table_->setPrefWidth( 400 );
     table_->setNrRows( cNrEmptyRows );
+    table_->setColumnReadOnly( cColorCol, true );
 
     markers_.allowNull();
 
     for ( int idx=0; idx<cNrEmptyRows; idx++ )
 	markers_ += 0;
 
-    table_->leftClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
+    table_->doubleClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
     table_->valueChanged.notify( mCB(this,uiMarkerDlg,markerChangedCB) );
     table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
     table_->rowDeleted.notify( mCB(this,uiMarkerDlg,markerRemovedCB) );
+    table_->setPrefWidth( 400 );
 
     BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
     unitfld_ = new uiGenInput( this, "Depth unit", mft );
@@ -139,20 +138,22 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
     if ( !markers_[row] )
 	markers_.replace( row, new Well::Marker() );
 
-    Well::Marker* marker = markers_[row];
-    marker->setName( table_->text(RowCol(row,cNameCol)) );
-    markers_[table_->currentRow()]->setDah(
-	    table_->getfValue(RowCol(row,cDepthCol)) * zFactor() );
-    marker->setColor( table_->getColor(RowCol(row,cColorCol)) );
-    if ( marker->name().isEmpty() && (marker->dah()==0.0) &&
-	 (marker->color()==Color::White()) )
+    const float val = table_->getfValue( RowCol(row,cDepthCol) );
+    const char* markernm = table_->text(RowCol(row,cNameCol));
+    if ( !markernm || !*markernm || mIsUdf(val) )
     {
-	delete markers_.replace( row, 0 );
+	markers_.replace( row, 0 );
 	return;
     }
 
-    if ( table_->getCellObject( RowCol(row,cLevelCol) ) )
-	table_->getCellObject( RowCol(row,cLevelCol) )->setSensitive( true );
+    Well::Marker* marker = markers_[row];
+    marker->setName( table_->text(RowCol(row,cNameCol)) );
+    marker->setDah( val / zFactor() );
+    marker->setColor( table_->getColor(RowCol(row,cColorCol)) );
+
+    uiObject* obj = table_->getCellObject( RowCol(row,cLevelCol) );
+    if ( obj )
+	obj->setSensitive( true );
 }
 
 
@@ -175,26 +176,39 @@ float uiMarkerDlg::zFactor() const
 void uiMarkerDlg::unitChangedCB( CallBacker* )
 {
     NotifyStopper notifystop( table_->valueChanged );
-    
+    table_->selectColumn( cNameCol );
     for ( int rowidx=0; rowidx<table_->nrRows(); rowidx++ )
     {
 	if ( !markers_.validIdx(rowidx) || !markers_[rowidx] )
 	    continue;
 
-	float val = markers_[rowidx]->dah() * zFactor();
+	const float val = markers_[rowidx]->dah() * zFactor();
 	table_->setValue( RowCol(rowidx,1), val );
     }
+    
+    table_->selectColumn( cDepthCol );
 }
 
 
 void uiMarkerDlg::mouseClick( CallBacker* )
 {
-    RowCol rc = table_->notifiedCell();
-    if ( rc.col != cColorCol || table_->isCellReadOnly(rc) ) return;
+    const RowCol rc = table_->notifiedCell();
+    if ( rc.col != cColorCol ) return;
+
+    uiGroup* grp = table_->getCellGroup( RowCol(rc.row,cLevelCol) );
+    mDynamicCastGet(uiStratLevelSel*,levelsel,grp)
+    const bool havelvl = levelsel && levelsel->getID() >= 0;
+    if ( havelvl )
+    {
+	uiMSG().error( "Cannot change color of regional marker" );
+	return;
+    }
 
     Color newcol = table_->getColor( rc );
     if ( selectColor(newcol,this,"Marker color") )
 	table_->setColor( rc, newcol );
+
+    table_->setSelected( rc, false );
 }
 
 
@@ -212,6 +226,7 @@ int uiMarkerDlg::rowNrFor( uiStratLevelSel* lvlsel ) const
 	if ( lvlsel == table_->getCellGroup( RowCol(irow,cLevelCol) ) )
 	    return irow;
     }
+
     return -1;
 }
 
@@ -239,7 +254,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 		    	      new Well::Marker(marker->name(), marker->dah()) );
 	    markers_[irow]->setColor( marker->color() );
 	    if ( !Strat::LVLS().isPresent( marker->levelID() ) )
-		const_cast<Well::Marker*>(markers_[idx])->setLevelID( -1 );
+		const_cast<Well::Marker*>(markers[idx])->setLevelID( -1 );
 
 	    markers_[irow]->setLevelID( marker->levelID() );
 	    levelsel->setID( marker->levelID() );
@@ -280,7 +295,7 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
 {
     if ( !levelsel ) return;
 
-    const bool havelvl = ( levelsel->getID() >= 0 );
+    const bool havelvl = levelsel->getID() >= 0;
     RowCol rc( irow, cColorCol );
     if ( havelvl )
     {
@@ -302,7 +317,6 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
 	markers_[irow]->setLevelID( levelsel->getID() );
     }
 
-    rc.col = cColorCol; table_->setCellReadOnly( rc, havelvl );
     rc.col = cNameCol; table_->setCellReadOnly( rc, havelvl );
 }
 
@@ -396,18 +410,52 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
+    Interval<float> dahrg = track_.dahRange();
+    dahrg.start = dahrg.start * zFactor();
+    dahrg.stop = dahrg.stop * zFactor();
+    const int nrrows = table_->nrRows();
     BufferStringSet mrknames;
-    const int nrrows = getNrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	const char* txt = table_->text( RowCol(idx,cNameCol) );
-	if ( !mrknames.addIfNew( txt ) )
+	BufferString errmsg;
+	const RowCol rcdepth( idx, cDepthCol );
+	const float val = table_->getfValue( rcdepth );
+	const bool isbetween = dahrg.includes( val );
+	const RowCol rcname( idx, cNameCol );
+	const char* txt = table_->text( rcname );
+	const bool isempty =  !txt || !*txt;
+	if ( isempty && mIsUdf(val) )
 	{
-	    BufferString errmsg( txt );
-	    errmsg += " is present several times,";
-	    errmsg += " please make sure it is unique";  
+	    markers_.replace( idx, 0 );
+	    continue;
+	}
+
+	if ( isempty )
+	{
+	    errmsg = "Please enter marker name in row ";
+	    errmsg += idx+1;
+	    uiMSG().message( errmsg );
+	    return false;
+	}
+
+	if (!mrknames.addIfNew( txt ) )
+	{
+	    errmsg = "Marker name '"; errmsg += txt;
+	    errmsg += "' is present several times,";
+	    errmsg += " please make sure it is unique";
 	    uiMSG().error( errmsg );
 	    return false;
+	}
+
+	if ( !isbetween )
+	{
+	    errmsg =  "Marker '"; errmsg += txt;
+	    errmsg += "' depth value is out of well track range\n";
+	    errmsg += "Please enter the depth value between ";
+	    errmsg += dahrg.start; errmsg += " and "; errmsg += dahrg.stop;
+	    const bool res = uiMSG().askGoOn( errmsg, "Continue", "Cancel" );
+	    if ( !res ) return false;
+	    continue;
 	}
     }
 
