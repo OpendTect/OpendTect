@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Jan 2011
- RCS:		$Id: reflectivitysampler.h,v 1.1 2011-01-28 05:33:55 cvskris Exp $
+ RCS:		$Id: reflectivitysampler.h,v 1.2 2011-03-01 15:06:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ protected:
 
     const ReflectivityModel&	model_;
     const StepInterval<float>	outsampling_;
-    TypeSet<float_complex>	output_;
+    TypeSet<float_complex>&	output_;
     bool			usenmotime_;
     Fourier::CC*		fft_;
 
