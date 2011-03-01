@@ -5,14 +5,118 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.7 2010-12-20 14:54:55 cvsbert Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.8 2011-03-01 08:35:36 cvsbruno Exp $";
 
-#include "synthseis.h"
-#include "wavelet.h"
 #include "aimodel.h"
-#include "seistrc.h"
-#include "survinfo.h"
 #include "genericnumer.h"
+#include "reflectivitymodel.h"
+#include "seistrc.h"
+#include "synthseis.h"
+#include "survinfo.h"
+#include "wavelet.h"
+
+
+mImplFactory( Seis::SynthGeneratorBase, Seis::SynthGeneratorBase::factory );
+
+Seis::SynthGeneratorBase::SynthGeneratorBase()
+    : Executor("Fast Synth Generator")
+    , wavelet_(0)
+    , refmodel_(*new ReflectivityModel())		 
+{
+    outtrc_ = new SeisTrc;
+}
+
+
+Seis::SynthGeneratorBase::~SynthGeneratorBase()
+{
+    if ( waveletismine_ )
+	delete wavelet_;
+}
+
+
+bool Seis::SynthGeneratorBase::setModel( const ReflectivityModel& refmodel )
+{
+    refmodel_.copy( refmodel );
+    return true;
+}
+
+
+bool Seis::SynthGeneratorBase::setWavelet( Wavelet* wvlt, OD::PtrPolicy pol )
+{
+    if ( !wvlt ) 
+	{ errmsg_ = "No valid wavelet given"; return false; }
+    if ( pol == OD::CopyPtr )
+    {
+	mDeclareAndTryAlloc(float*, newdata, float[wvlt->size()] );
+	if ( !newdata ) return false;
+	MemCopier<float> copier( wavelet_->samples(), newdata, wvlt->size() );
+	copier.execute();
+    }
+    else 
+    {
+	wavelet_ = wvlt;
+    }
+    waveletismine_ = pol != OD::UsePtr;
+    return true;
+}
+
+
+bool Seis::SynthGeneratorBase::setOutSampling( const StepInterval<float>& si )
+{
+    outputsampling_ = si;
+    outtrc_->reSize( si.nrSteps(), false );
+    outtrc_->info().sampling = si;
+    return true;
+}
+
+
+void Seis::SynthGeneratorBase::fillPar( IOPar& par ) const 
+{
+}
+
+
+bool Seis::SynthGeneratorBase::usePar( const IOPar& par )
+{
+    return true;
+}
+
+
+int Seis::SynthGeneratorBase::nextStep()
+{
+    if ( !computeTrace( (float*)outtrc_->data().getComponent(0)->data() ) )
+	return ErrorOccurred();
+
+    return Finished(); 
+}
+
+
+bool Seis::SynthGeneratorBase::computeTrace( float* result ) 
+{
+    if ( refmodel_.isEmpty() ) 
+	{ errmsg_ = "No reflectivity model found"; return false; }
+
+    if ( !wavelet_ ) 
+	{ errmsg_ = "No wavelet found"; return false; }
+
+    int ns = outtrc_->size();
+    outtrc_->zero();
+    if ( ns < 2 )
+	return false;
+
+    TypeSet<float> refl;
+    for ( int idx=0; idx<refmodel_.size(); idx++ )
+	refl += refmodel_[idx].reflectivity_.real();
+
+    const int wvltsz = wavelet_->size(); 
+    const int wvltcs = wavelet_->centerSample();
+    GenericConvolve( wvltsz, -wvltcs-1, wavelet_->samples(),
+		     refl.size(), 0, refl.arr(),
+		     ns, 0, result );
+    return true;
+}
+
+
+
 
 
 Seis::SynthGenerator::SynthGenerator()
@@ -148,3 +252,6 @@ void Seis::SynthGenerator::generate()
 		     refl.size(), 0, refl.arr(),
 		     ns, 0, trcarr );
 }
+
+
+

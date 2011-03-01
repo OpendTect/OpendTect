@@ -7,16 +7,25 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.7 2010-12-07 16:15:43 cvsbert Exp $
+ RCS:		$Id: synthseis.h,v 1.8 2011-03-01 08:35:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
- 
+
+#include "complex"
+#include "executor.h"
+#include "factory.h"
+#include "odmemory.h"
+#include "reflectivitymodel.h"
 #include "samplingdata.h"
+
+class AILayer;
 class AIModel;
+class RayTracer1D;
 class Wavelet;
 class SeisTrc;
 
+typedef std::complex<float> float_complex;
 
 namespace Seis
 {
@@ -35,6 +44,66 @@ namespace Seis
    used.
  
  */
+
+mClass SynthGeneratorBase : public Executor
+{
+public:
+    mDefineFactoryInClass( SynthGeneratorBase, factory );
+
+    virtual bool		setModel(const ReflectivityModel&);
+    virtual bool		setWavelet(Wavelet*,OD::PtrPolicy);
+    virtual bool		setOutSampling(const StepInterval<float>&);
+    void			setOffsets(const TypeSet<float>& offsets);
+
+    const SeisTrc&		result() const		{ return *outtrc_; }
+
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+
+    void 			getReflectivities(ReflectivityModel& m) const
+     				{ m.copy( refmodel_ ); }
+
+protected:
+    				SynthGeneratorBase();
+    virtual			~SynthGeneratorBase();
+
+    bool 			computeTrace(float* result); 
+
+    int				nextStep();
+
+    Wavelet*			wavelet_;
+    ReflectivityModel		refmodel_;
+    BufferString		errmsg_;
+
+    int				fftsz_;
+    float_complex*		freqwavelet_;
+
+    bool			waveletismine_;
+    StepInterval<float>		outputsampling_;
+
+    SeisTrc*			outtrc_;
+};
+
+
+
+mClass ODSynthGenerator : public SynthGeneratorBase
+{
+public:
+
+     bool        		setPar(const IOPar&) { return true; }
+     void        		fillPar(IOPar&) const {}
+
+
+protected:
+
+    static void         	initClass() 
+				{factory().addCreator(create,"Fast Generator");}
+    static SynthGeneratorBase* 	create() 	
+    				{ return new ODSynthGenerator; }
+};
+
+
+
 
 mClass SynthGenerator
 {
