@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdrdef.cc,v 1.4 2011-02-18 09:31:58 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdrdef.cc,v 1.5 2011-03-01 11:40:04 cvsbert Exp $";
 
 
 #include "segythdef.h"
@@ -294,9 +294,9 @@ void SEGY::HdrDef::mkBin()
 	/* See the remark above in the trace header ns and dt stuff */
     dtyp = HdrEntry::UInt; // entry: 5
     mAddHead( "hdt", "sample interval (micro secs or mm)" );
-    mAddHead( "dto", "same for original field recording" );
+    mAddHead( "dto", "sample interval for original field recording" );
     mAddHead( "hns", "number of samples per trace" );
-    mAddHead( "nso", "same for original field recording" );
+    mAddHead( "nso", "#samples per trace for original field recording" );
 
     dtyp = HdrEntry::SInt; // entry: 9
     mAddHead( "format", "sample format (1,5=float, 3=16 bits, 8=8-bits)" );
@@ -376,6 +376,16 @@ int SEGY::HdrDef::idxOfBytePos( SEGY::HdrEntry::BytePos bp,
 	}
     }
     return -1;
+}
+
+
+void SEGY::HdrDef::swapValues( unsigned char* buf ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const HdrEntry& he = *(*this)[idx];
+	he.putValue( buf, he.getValue(buf,true) );
+    }
 }
 
 

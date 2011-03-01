@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2011
- RCS:		$Id: segyhdrdef.h,v 1.1 2011-02-17 13:35:38 cvsbert Exp $
+ RCS:		$Id: segyhdrdef.h,v 1.2 2011-03-01 11:40:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,8 @@ public:
 
     int			idxOfBytePos(HdrEntry::BytePos,
 	    			     unsigned char& offs) const;
+
+    void		swapValues(unsigned char*) const;
 
 protected:
 
