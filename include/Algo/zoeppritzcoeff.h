@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: zoeppritzcoeff.h,v 1.1 2011-02-28 15:39:27 cvsbruno Exp $
+ RCS:		$Id: zoeppritzcoeff.h,v 1.2 2011-03-01 07:58:58 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -20,7 +20,6 @@ mClass ZoeppritzCoeff
 {
 public:
 			ZoeppritzCoeff();
-			~ZoeppritzCoeff();
 
 
     void                setInterface(float p,int layer,
