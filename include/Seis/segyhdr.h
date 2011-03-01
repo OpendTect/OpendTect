@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.29 2011-02-28 12:19:52 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.30 2011-03-01 11:39:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ mClass BinHeader
 public:
 
 		BinHeader();
-    void	setInput(const void*,bool needswap);
+    void	setInput(const void*,bool needswap=false);
     void	setForWrite();
     void*	buf()			{ return buf_; }
 
@@ -86,6 +86,8 @@ public:
 		{ return formatBytes( format() ); }
     static int	formatBytes( int frmt )
 		{ return frmt == 3 ? 2 : (frmt == 8 ? 1 : 4); }
+    static bool	isValidFormat( int f )
+		{ return f==1 || f==2 || f==3 || f==5 || f==8; }
 
     int		valueAt(int bytenr);
     void	setValueAt(int bytenr,int);
@@ -99,6 +101,11 @@ public:
     float	sampleRate(bool isdpth) const;
     bool	isInFeet() const	{ return entryVal(EntryMFeet()) == 2; }
     bool	isRev1() const;
+
+    void	setIsSwapped( bool yn )	{ needswap_ = yn; }
+    bool	isSwapped() const	{ return needswap_; }
+    void	guessIsSwapped();
+    void	unSwap();
 
     void	setFormat( short i )	{ setEntryVal(EntryFmt(),i); }
     void	setNrSamples( int i )	{ setEntryVal(EntryNs(),i); }

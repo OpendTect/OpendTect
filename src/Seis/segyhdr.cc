@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.90 2011-02-17 16:15:03 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.91 2011-03-01 11:39:25 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -317,6 +317,30 @@ void SEGY::BinHeader::setInput( const void* inp, bool needswap )
     forwrite_ = false;
     needswap_ = needswap;
     memcpy( buf_, inp, SegyBinHeaderLength );
+}
+
+
+void SEGY::BinHeader::guessIsSwapped()
+{
+    needswap_ = false;
+    int ns = nrSamples(), fmt = format();
+    if ( ns < 0 || fmt > 100 || fmt < 0 )
+    {
+	needswap_ = true;
+	ns = nrSamples(); fmt = format();
+	if ( ns < 0 || fmt < 1 || fmt > 8 )
+	    needswap_ = false;
+    }
+}
+
+
+void SEGY::BinHeader::unSwap()
+{
+    if ( needswap_ )
+    {
+	hdrDef().swapValues( buf_ );
+	needswap_ = false;
+    }
 }
 
 
