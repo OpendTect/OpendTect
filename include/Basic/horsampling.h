@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.9 2010-10-25 03:45:22 cvsnanne Exp $
+ RCS:           $Id: horsampling.h,v 1.10 2011-03-01 10:11:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ public:
     			//!< Sets ranges to 0-maxint
     void		normalise();
     			//!< Makes sure start<stop and steps are non-zero
+    void		getRandomSet(int nr,TypeSet<BinID>&) const;
 
     bool		getInterSection(const HorSampling&,HorSampling&) const;
     			//!< Returns false if intersection is empty

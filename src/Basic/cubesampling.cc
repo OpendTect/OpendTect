@@ -4,12 +4,14 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.41 2010-10-25 03:45:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.42 2011-03-01 10:11:07 cvssatyaki Exp $";
 
 #include "cubesampling.h"
-#include "survinfo.h"
-#include "keystrs.h"
+
 #include "iopar.h"
+#include "keystrs.h"
+#include "survinfo.h"
+
 #include <math.h>
 
 
@@ -328,6 +330,21 @@ void HorSampling::toString( BufferString& str ) const
        .add( " [" ).add( step.inl ).add( "]\n" );
     str.add( "Crossline range: " ).add( start.crl ).add( " - " ).add( stop.crl )
        .add( " [" ).add( step.crl ).add( "]" );
+}
+
+
+void HorSampling::getRandomSet( int nr, TypeSet<BinID>& bidset ) const
+{
+    if ( nr > totalNr() )
+	nr = totalNr();
+
+    while ( nr )
+    {
+	BinID bid( inlRange().start + std::rand() % nrInl(),
+		   crlRange().start + std::rand() % nrCrl() );
+	if ( includes(bid) && bidset.addIfNew(bid) )
+	    nr--;
+    }
 }
 
 
