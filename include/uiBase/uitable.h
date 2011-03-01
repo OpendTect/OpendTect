@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.69 2011-02-17 13:31:00 cvsbert Exp $
+ RCS:           $Id: uitable.h,v 1.70 2011-03-01 11:13:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -238,6 +238,7 @@ public:
     void		setDefaultRowLabels();
     void		setDefaultColLabels();
     void		setLabelAlignment(Alignment::HPos,bool cols);
+    void		setLabelBGColor(int,Color,bool isrow);
 
 
     Setup&		setup() 		{ return setup_; }

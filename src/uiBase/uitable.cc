@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.101 2011-02-17 13:31:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.102 2011-03-01 11:13:11 cvsbert Exp $";
 
 
 #include "uitable.h"
@@ -796,6 +796,13 @@ void uiTable::setRowLabel( int row, const char* label )
 void uiTable::setRowToolTip( int row, const char* tt )
 {
     body_->getRCItem(row,true).setToolTip( tt );
+}
+
+
+void uiTable::setLabelBGColor( int rc, Color c, bool isrow )
+{
+    QTableWidgetItem& qw = body_->getRCItem( rc, isrow );
+    qw.setBackground( QBrush(QColor(c.r(),c.g(),c.b(),255)) );
 }
 
 
