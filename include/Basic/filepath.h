@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.14 2011-02-02 09:26:05 cvsranojay Exp $
+ RCS:		$Id: filepath.h,v 1.15 2011-03-01 11:36:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
     bool		operator ==(const char* fnm) const;
     bool		operator !=(const FilePath&) const;
     bool		operator !=(const char* fnm) const;
+    bool		isEmpty() const		{ return lvls_.isEmpty(); }
 
     FilePath&		set(const char* fullinp);
     FilePath&		add(const char*);	//!< at end
