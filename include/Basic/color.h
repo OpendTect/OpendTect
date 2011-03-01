@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.18 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: color.h,v 1.19 2011-03-01 11:12:44 cvsbert Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -58,11 +58,13 @@ public:
     void		fill(char*) const;
     bool		use(const char*);
 
+    static Color	NoColor()	{ return  Color( 0, 0, 0, 255 ); }
+
     static Color	Black()		{ return  Color( 0, 0, 0, 0 ); }
     static Color	White()		{ return  Color( 255, 255, 255, 0 ); }
     static Color	DgbColor()	{ return  Color( 0, 240, 0, 0 ); }	
     static Color	LightGrey()	{ return  Color( 230, 230, 230, 0 ); }
-    static Color	NoColor()	{ return  Color( 0, 0, 0, 255 ); }
+    static Color	Peach()		{ return  Color( 255, 229, 180, 0 ); }
 
     static unsigned char getUChar( float v );
 
