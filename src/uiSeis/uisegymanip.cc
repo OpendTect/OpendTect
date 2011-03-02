@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.3 2011-03-01 15:12:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.4 2011-03-02 16:11:04 cvsbert Exp $";
 
 #include "uisegymanip.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uisegymanip.cc,v 1.3 2011-03-01 15:12:53 cvsber
 
 #include "segyhdr.h"
 #include "segyhdrdef.h"
+#include "segyhdrcalc.h"
 #include "segyfiledef.h"
 #include "strmprov.h"
 #include "filepath.h"
@@ -171,6 +172,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     , fname_(fnm)
     , txthdr_(*new SEGY::TxtHeader)
     , binhdr_(*new SEGY::BinHeader)
+    , calcset_(*new SEGY::HdrCalcSet(SEGY::TrcHeader::hdrDef()))
     , errlbl_(0)
 {
     if ( !openFile() )
@@ -211,33 +213,37 @@ uiSEGYFileManip::~uiSEGYFileManip()
 {
     delete &txthdr_;
     delete &binhdr_;
+    delete &calcset_;
 }
 
 
 uiGroup* uiSEGYFileManip::mkTrcGroup()
 {
     uiGroup* grp = new uiGroup( this, "Trace header group" );
+    const CallBack addcb( mCB(this,uiSEGYFileManip,addReq) );
+    const CallBack edcb( mCB(this,uiSEGYFileManip,edReq) );
 
     uiLabeledListBox* llb = new uiLabeledListBox( grp, "Trace headers", false,
 	    				uiLabeledListBox::LeftMid );
     avtrchdrsfld_ = llb->box();
     avtrchdrsfld_->setHSzPol( uiObject::Small );
-    const SEGY::HdrDef&	def = SEGY::TrcHeader::hdrDef();
+    const SEGY::HdrDef&	def = calcset_.hdrDef();
     for ( int idx=0; idx<def.size(); idx++ )
-	avtrchdrsfld_->addItem( def[idx]->name() );
+	trchdrdefined_ += false;
+    avtrchdrsfld_->doubleClicked.notify( addcb );
+    fillAvtrcHdrFld( 0 );
 
     uiToolButton* addbut = new uiToolButton( grp, uiToolButton::RightArrow,
-	    "Add to calculated list", mCB(this,uiSEGYFileManip,addReq) );
+					    "Add to calculated list", addcb );
     addbut->attach( centeredRightOf, llb );
     trchdrfld_ = new uiListBox( grp, "Defined calculations" );
     trchdrfld_->attach( rightTo, llb );
     trchdrfld_->attach( ensureRightOf, addbut );
     trchdrfld_->selectionChanged.notify( mCB(this,uiSEGYFileManip,selChg) );
-    trchdrfld_->doubleClicked.notify( mCB(this,uiSEGYFileManip,edReq) );
+    trchdrfld_->doubleClicked.notify( edcb );
     trchdrfld_->setHSzPol( uiObject::Medium );
 
-    edbut_ = new uiToolButton( grp, "edit.png",
-		    "Edit calculation", mCB(this,uiSEGYFileManip,edReq) );
+    edbut_ = new uiToolButton( grp, "edit.png", "Edit calculation", edcb );
     edbut_->attach( rightOf, trchdrfld_ );
     rmbut_ = new uiToolButton( grp, "trashcan.png",
 		    "Remove calculation", mCB(this,uiSEGYFileManip,rmReq) );
@@ -296,6 +302,39 @@ bool uiSEGYFileManip::openFile()
 }
 
 
+void uiSEGYFileManip::fillAvtrcHdrFld( int selidx )
+{
+    avtrchdrsfld_->setEmpty();
+    for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
+    {
+	if ( !trchdrdefined_[idx] )
+	    avtrchdrsfld_->addItem( calcset_.hdrDef()[idx]->name() );
+    }
+    if ( selidx < 0 ) selidx = 0;
+    if ( selidx >= avtrchdrsfld_->size() )
+	selidx = avtrchdrsfld_->size()-1;
+    if ( selidx >= 0 )
+	avtrchdrsfld_->setCurrentItem( selidx );
+}
+
+
+void uiSEGYFileManip::fillDefCalcs( int selidx )
+{
+    trchdrfld_->setEmpty();
+    for ( int idx=0; idx<calcset_.size(); idx++ )
+    {
+	const SEGY::HdrCalc& hc = *calcset_[idx];
+	trchdrfld_->addItem( BufferString( hc.he_.name(), " = ", hc.def_ ) );
+    }
+
+    if ( selidx < 0 ) selidx = 0;
+    if ( selidx >= calcset_.size() )
+	selidx = calcset_.size() - 1;
+    if ( selidx >= 0 )
+	trchdrfld_->setCurrentItem( selidx );
+}
+
+
 void uiSEGYFileManip::selChg( CallBacker* )
 {
     const bool havesel = !trchdrfld_->isEmpty()
@@ -310,6 +349,22 @@ void uiSEGYFileManip::addReq( CallBacker* )
 {
     const int selidx = avtrchdrsfld_->currentItem();
     if ( selidx < 0 ) return;
+    const char* nm = avtrchdrsfld_->textOfItem( selidx );
+    const SEGY::HdrDef&	def = SEGY::TrcHeader::hdrDef();
+    const int hdridx = calcset_.hdrDef().indexOf( nm );
+    if ( hdridx < 0 ) { pErrMsg("Huh" ); return; }
+
+    SEGY::HdrCalc* hc = new SEGY::HdrCalc( *calcset_.hdrDef()[hdridx], "" );
+    // TODO uiSEGYFileManipHdrCalcEd dlg( this, *hc, calcset_ );
+    // if ( !dlg.go() )
+	// delete hc;
+    // else
+    {
+	calcset_.add( hc );
+	fillDefCalcs( calcset_.size()-1 );
+	trchdrdefined_[selidx] = true;
+	fillAvtrcHdrFld( selidx );
+    }
 }
 
 
@@ -324,6 +379,14 @@ void uiSEGYFileManip::rmReq( CallBacker* )
 {
     const int selidx = trchdrfld_->currentItem();
     if ( selidx < 0 ) return;
+    const char* nm = calcset_[selidx]->he_.name();
+
+    calcset_.discard( selidx );
+    fillDefCalcs( selidx );
+    const int avidx = calcset_.hdrDef().indexOf( nm );
+    trchdrdefined_[avidx] = false;
+    fillAvtrcHdrFld( avidx );
+    avtrchdrsfld_->setCurrentItem( nm );
 }
 
 

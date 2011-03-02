@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdrdef.cc,v 1.5 2011-03-01 11:40:04 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdrdef.cc,v 1.6 2011-03-02 16:11:04 cvsbert Exp $";
 
 
 #include "segythdef.h"
@@ -356,6 +356,21 @@ SEGY::HdrDef::HdrDef( bool binhead )
 	entry.bytepos_ = bytnr;
 	bytnr += entry.byteSize();
     }
+}
+
+
+int SEGY::HdrDef::indexOf( const char* nm ) const
+{
+    if ( !nm || !*nm ) return -1;
+
+    BufferString srchnm( nm );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( srchnm == (*this)[idx]->name() )
+	    return idx;
+    }
+
+    return -1;
 }
 
 

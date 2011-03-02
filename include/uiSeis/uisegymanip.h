@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegymanip.h,v 1.3 2011-03-01 15:12:53 cvsbert Exp $
+ RCS:           $Id: uisegymanip.h,v 1.4 2011-03-02 16:11:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiTextEdit;
 class uiFileInput;
 class uiToolButton;
 class uiSEGYBinHdrEd;
-namespace SEGY { class TxtHeader; class BinHeader; }
+namespace SEGY { class TxtHeader; class BinHeader; class HdrCalcSet; }
 
 
 /*!\brief UI for SEG-Y file manipulation */
@@ -40,7 +40,9 @@ protected:
     BufferString	fname_;
     SEGY::TxtHeader&	txthdr_;
     SEGY::BinHeader&	binhdr_;
+    SEGY::HdrCalcSet&	calcset_;
     BufferString	errmsg_;
+    BoolTypeSet		trchdrdefined_;
     StreamData		sd_;
 
     uiTextEdit*		txthdrfld_;
@@ -62,6 +64,8 @@ protected:
     void		saveReq(CallBacker*);
 
     bool		openFile();
+    void		fillAvtrcHdrFld(int);
+    void		fillDefCalcs(int);
     uiGroup*		mkTrcGroup();
 
     bool		acceptOK(CallBacker*);

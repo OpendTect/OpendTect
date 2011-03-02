@@ -1,5 +1,5 @@
-#ifndef segythentry_h
-#define segythentry_h
+#ifndef segyhdrdef_h
+#define segyhdrdef_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2011
- RCS:		$Id: segyhdrdef.h,v 1.2 2011-03-01 11:40:04 cvsbert Exp $
+ RCS:		$Id: segyhdrdef.h,v 1.3 2011-03-02 16:11:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ public:
     			HdrDef(bool binhead);
     bool		isBin() const		{ return isbin_; }
 
+    int			indexOf(const char* nm) const;
     int			idxOfBytePos(HdrEntry::BytePos,
 	    			     unsigned char& offs) const;
 
@@ -88,6 +89,7 @@ protected:
     void		mkBin();
 
 };
+
 
 } // namespace
 
