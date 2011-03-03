@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.77 2011-02-28 10:17:22 cvsnageswara Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.78 2011-03-03 22:03:55 cvsyuancheng Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1240,8 +1240,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	shape->setSurface( fss );
 	const float zshift = activehordisps[idx]->getTranslation().z;
 	Geometry::FaultBinIDSurfaceIntersector it( zshift, *surf,
-		*emfault_->geometry().sectionGeometry(emfault_->sectionID(0)),
-		*shape->coordList() );
+		*explicitpanels_, *shape->coordList() );
 	it.setShape( *shape );
 	it.compute();
 

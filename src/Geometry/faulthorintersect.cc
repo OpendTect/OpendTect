@@ -4,44 +4,43 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.11 2011-02-28 16:11:27 cvskris Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.12 2011-03-03 22:03:55 cvsyuancheng Exp $";
 
 #include "faulthorintersect.h"
 
-#include "arraynd.h"
 #include "binidsurface.h"
-#include "faultstickset.h"
 #include "indexedshape.h"
 #include "positionlist.h"
-#include "ranges.h"
 #include "survinfo.h"
 #include "trigonometry.h"
-
-#define mKnotBelowHor		-1
-#define mStickAwayHor		2
-#define mKnotAboveHor		1
-#define mStickIntersectsHor	0
+#include "explfaultsticksurface.h"
+#include "isocontourtracer.h"
 
 
 namespace Geometry
 {
 
-class FaultStickHorizonIntersector : public ParallelTask
+
+class FBIntersectionCalculator : public ParallelTask
 {
-public:    
-FaultStickHorizonIntersector( FaultBinIDSurfaceIntersector& fhi )
-    : fhi_( fhi )
-    , bidsurfzrg_( -1, -1 )
+public:
+FBIntersectionCalculator( const BinIDSurface& surf, float surfshift, 
+	const ExplFaultStickSurface& shape )
+    : surf_( surf )
+    , surfzrg_( -1, -1 )
+    , zshift_( surfshift )
+    , shape_( shape )
 {}
 
-
-od_int64 nrIterations() const	{ return fhi_.ft_.nrSticks(); }
-const char* message() const	{ return "Calculate stick intersections"; }
-
+od_int64 nrIterations() const   { return shape_.getGeometry().size(); }
+const TypeSet<TypeSet<Coord3> >& getResult() const { return res_; }
 
 bool doPrepare( int )
 {
-    const Array2D<float>* depths = fhi_.surf_.getArray();
+    for ( int idx=0; idx<nrIterations(); idx++ )
+	res_ += TypeSet<Coord3>();
+
+    const Array2D<float>* depths = surf_.getArray();
     const float* data = depths ? depths->getData() : 0;
     if ( !data )
 	return false;
@@ -56,207 +55,225 @@ bool doPrepare( int )
 	if ( !found )
 	{
 	    found = true;
-	    bidsurfzrg_.start = bidsurfzrg_.stop = data[idx];
+	    surfzrg_.start = surfzrg_.stop = data[idx];
 	}
 	else
-	    bidsurfzrg_.include( data[idx] );
+	    surfzrg_.include( data[idx] );
     }
 
-    if ( !found )
-	return false;
-
-    const StepInterval<int> rrg = fhi_.surf_.rowRange();
-    TypeSet<RowCol> rcs;
-    TypeSet<Coord3> poses;
-    for ( int row=rrg.start; row<=rrg.stop; row += rrg.step )
-    {
-	if ( poses.size()==3 )
-	    break;
-
-	StepInterval<int> crg = fhi_.surf_.colRange( row );
-	for ( int col=crg.start; col<=crg.stop; col +=crg.step )
-	{
-	    RowCol rc(row,col);
-	    const Coord3 pos = fhi_.surf_.getKnot( rc, false );
-	    if ( mIsUdf(pos.z) )
-		continue;
-
-	    if ( poses.size()<2 )
-	    {
-		poses += pos;
-		rcs += rc;
-	    }
-	    else
-	    {
-		if ( rcs[0].row==rcs[1].row && rcs[1].row==row )
-    		    break;
-
-		if ( rcs[0].col==rcs[1].col && rcs[1].col==col )
-		    continue;
-
-		poses += pos;
-		break;
-	    }
-	}
-    }
-
-    if ( poses.size()<3 )
-	return false;
-
-    plane_.set( poses[0], poses[1], poses[2] );
-
-    for ( int idx=0; idx<nrIterations(); idx++ )
-    {
-	fhi_.ftbids_ += new TypeSet<BinID>();
-	FaultBinIDSurfaceIntersector::StickIntersectionInfo* stickinfo = 
-	    new FaultBinIDSurfaceIntersector::StickIntersectionInfo();
-	stickinfo->lowknotidx = -1;
-	fhi_.itsinfo_ += stickinfo;
-    }
-
-    return true;
+    return found;
 }
 
 
-#define mSetIntersectionInfo( horpos, idy ) \
-    (*fhi_.itsinfo_[idx]).intsectpos = horpos; \
-    (*fhi_.itsinfo_[idx]).lowknotidx = idy; \
-    (*fhi_.itsinfo_[idx]).intersectstatus = mStickIntersectsHor; \
-    found = true; \
-    break
-
-
-#define mContIfOnOneSide() \
-    if ( (horpos0.z < prevz && horpos1.z < nextz) || \
-	 (horpos0.z > prevz && horpos1.z > nextz) ) \
-	continue
-
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    const StepInterval<int>& surfrrg = fhi_.surf_.rowRange();
-    const StepInterval<int>& surfcrg = fhi_.surf_.colRange();
+    const float zscale = SI().zScale();
+    const StepInterval<int>& surfrrg = surf_.rowRange();
+    const StepInterval<int>& surfcrg = surf_.colRange();
+    RefMan<const Coord3List> coordlist = shape_.coordList();
 
     for ( int idx=start; idx<=stop; idx++ )
-    {
-	const TypeSet<Coord3>& knots = *fhi_.ft_.getStick(idx);
-	const int lastknotidx = knots.size() - 1;
-	if ( lastknotidx<0 ) continue;
-
-	bool found = false;
-	BoolTypeSet definedp;
-	TypeSet<Coord3> horposes;
-	TypeSet<RowCol> rcs;
-	Interval<float> stickzrg;
-	for ( int idy=0; idy<=lastknotidx; idy++ )
+    {	
+    	const IndexedGeometry* inp = shape_.getGeometry()[idx];
+	if ( !inp ) continue;
+    
+	TypeSet<Coord3>& res = res_[idx];
+	for ( int idy=0; idy<inp->coordindices_.size()-3; idy+=4 )
 	{
-	    if ( !idy )
-		stickzrg.start = stickzrg.stop = knots[idy].z;
-	    else
-		stickzrg.include( knots[idy].z );
-
-	    const BinID bid = SI().transform( knots[idy] );
-	    (*fhi_.ftbids_[idx]) += bid;
-
-	    rcs += RowCol( surfrrg.snap(bid.inl), surfcrg.snap(bid.crl) );
-
-	    Coord3 horpos = fhi_.surf_.getKnot( rcs[idy], false );
-	    if ( !mIsUdf(horpos.z) )
+	    Coord3 v[3];
+	    for ( int idz=0; idz<3; idz++ )
+		v[idz] = coordlist->get(inp->coordindices_[idy+idz]);
+    
+	    const Coord3 center = (v[0]+v[1]+v[2])/3;
+      
+	    Interval<int> trrg, tcrg; 
+	    Coord3 rcz[3];
+	    bool above[3];
+	    bool below[3];
+	    for ( int k=0; k<3; k++ )
 	    {
-		horpos.z += fhi_.zshift_;
-		definedp += true;
-		if ( mIsEqual( horpos.z, knots[idy].z,
-			       (horpos.z+knots[idy].z) * 5e-4 ) )
+		BinID bid = SI().transform( v[k] );
+		RowCol rc(surfrrg.snap(bid.inl),surfcrg.snap(bid.crl));
+
+		const float pz = surf_.getKnot(rc, false).z + zshift_;
+		rcz[k] = Coord3( rc.row, rc.col, pz );
+		const bool defined = !mIsUdf(pz);
+		above[k] = defined ? v[k].z >= pz : v[k].z >= surfzrg_.stop;
+		below[k] = defined ? v[k].z <= pz : v[k].z <= surfzrg_.start;
+
+		if ( !k )
 		{
-		    found = true;
-		    mSetIntersectionInfo( horpos, idy );
+		    trrg.start = trrg.stop = rc.row;
+		    tcrg.start = tcrg.stop = rc.col;
+		}
+		else
+		{
+		    trrg.include( rc.row );
+		    tcrg.include( rc.col );
 		}
 	    }
-	    else
-		definedp += false;
 
-	    horposes += horpos;
-	}
+	    if ( trrg.start > surfrrg.stop || trrg.stop < surfrrg.start ||
+		 tcrg.start > surfcrg.stop || tcrg.stop < surfcrg.start ||
+		 (above[0] && above[1] && above[2]) || 
+		 (below[0] && below[1] && below[2]) ) 
+		continue; 
 
-	if ( found )
-	    continue;
-
-	if ( stickzrg.start > bidsurfzrg_.stop )
-	{
-	    (*fhi_.itsinfo_[idx]).intersectstatus = mKnotAboveHor;
-	    continue;
-	}
-	else if ( stickzrg.stop < bidsurfzrg_.start )
-	{
-	    (*fhi_.itsinfo_[idx]).intersectstatus = mKnotBelowHor;
-	    continue;
-	}
-
-	for ( int idy=0; idy<lastknotidx; idy++ )
-	{
-	    const float prevz = knots[idy].z;
-	    const float nextz = knots[idy+1].z;
-	    if ( (prevz > bidsurfzrg_.stop && nextz > bidsurfzrg_.stop) || 
-		 (prevz < bidsurfzrg_.start && nextz < bidsurfzrg_.start) ||
-		 (rcs[idy].row>surfrrg.stop && rcs[idy+1].row>surfrrg.stop) ||
-		 (rcs[idy].row<surfrrg.start && rcs[idy+1].row<surfrrg.start) ||
-		 (rcs[idy].col>surfcrg.stop && rcs[idy+1].col>surfcrg.stop) ||
-		 (rcs[idy].col<surfcrg.start && rcs[idy+1].col<surfcrg.start) )
-		continue;
-
-	    if ( definedp[idy] || definedp[idy+1] )
+	    char topidx = -1;
+	    for ( int k=0; k<3; k++ )
 	    {
-		Coord3 horpos0 = horposes[idy];
-		Coord3 horpos1 = horposes[idy+1];
-		if ( definedp[idy] && definedp[idy+1] )
+		const int nextk = (k+1) % 3;
+		if ( (above[k] && above[nextk]) || (below[k] && below[nextk]) )
 		{
-		    mContIfOnOneSide();
+		    topidx = (k+2) % 3; 
+		    break;
 		}
-		else 
+	    }
+	    if ( topidx==-1 ) //special case, may not precisly done
+	    {
+		int nrdefined = 0;
+		float zsum = 0;
+		for ( int k=0; k<3; k++ )
 		{
-		    const float projz = definedp[idy] ? horpos0.z : horpos1.z;
-    		    if ( (prevz > projz && nextz > projz) || 
-       			 (prevz < projz && nextz < projz) )
-    			continue;
+		    if ( !mIsUdf(rcz[k].z) )
+		    {
+			zsum += rcz[k].z;
+			nrdefined++;
+		    }
+		}
+
+		float zavg = nrdefined ? zsum / nrdefined : surfzrg_.center();
+		for ( int k=0; k<3; k++ )
+		{
+		    const int nextk = (k+1) % 3;
+		    if ( (v[k].z >= zavg && v[nextk].z >= zavg) || 
+			 (v[k].z <= zavg && v[nextk].z <= zavg) )
+		    {
+			topidx = (k+2) % 3; 
+			break;
+		    }
+		}
+	    }
+
+	    Coord3 tri[3];
+	    for ( int k=0; k<3; k++ )
+	    {
+		tri[k] = v[k] - center;
+		tri[k].z *= zscale;
+	    }
+	    Plane3 triangle( tri[0], tri[1], tri[2] );
+	    const int tidx0 = (topidx+1) % 3;
+	    const int tidx1 = (topidx+2) % 3; 
+	    const Coord3 testedgedir0 = tri[topidx] - tri[tidx0];
+	    const Coord3 testedgedir1 = tri[topidx] - tri[tidx1];
+	    const Coord3 testnormal = -testedgedir0.cross(testedgedir1);
+	    
+	    StepInterval<int> smprrg( mMAX(surfrrg.start, trrg.start),
+		    		      mMIN(surfrrg.stop, trrg.stop), 1 );
+	    StepInterval<int> smpcrg( mMAX(surfcrg.start, tcrg.start),
+				      mMIN(surfcrg.stop, tcrg.stop), 1 );
+	    Array2DImpl<float> field( smprrg.nrSteps()+1, smpcrg.nrSteps()+1 );
+	    for ( int row=smprrg.start; row<=smprrg.stop; row++ )
+	    {
+		for ( int col=smpcrg.start; col<=smpcrg.stop; col++ )
+		{
+		    Coord3 pos = surf_.getKnot(RowCol(row,col), false);
+		    float dist = mUdf( float );
+		    if ( !mIsUdf(pos.z) )
+		    {
+			pos -= center;
+			pos.z += zshift_;
+			pos.z *= zscale;
+			dist = triangle.distanceToPoint(pos,true);
+		    }
+
+		    field.set( row-smprrg.start, col-smpcrg.start, dist );
+		}
+	    }
+
+	    IsoContourTracer ictracer( field );
+	    ictracer.setSampling( smprrg, smpcrg );
+	    ObjectSet<ODPolygon<float> > isocontours;
+	    ictracer.getContours( isocontours, 0, false );
+	    for ( int cidx=0; cidx<isocontours.size(); cidx++ )
+	    {
+		const ODPolygon<float>& ic = *isocontours[cidx];
+		for ( int vidx=0; vidx<ic.size(); vidx++ )
+		{
+		    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
+		    if ( !pointInTriangle2D( Coord(vertex.x,vertex.y),
+				rcz[0],rcz[1],rcz[2],1e-4) )
+			continue;
+
+		    const int minrow = (int)vertex.x;
+		    const int maxrow = minrow < vertex.x ? minrow+1 : minrow;
+		    const int mincol = (int)vertex.y;
+		    const int maxcol = mincol < vertex.y ? mincol+1 : mincol;
+
+		    TypeSet<Coord3> neighbors;
+		    TypeSet<float> weights;
+		    float weightsum = 0;
+		    bool found = false;
+		    for ( int r=minrow; r<=maxrow; r++ )
+		    {
+			if ( found )
+			    break;
+
+			for ( int c=mincol; c<=maxcol; c++ )
+			{
+			    Coord3 pos = surf_.getKnot( RowCol(r,c), false );
+			    if ( mIsUdf(pos.z) )
+				continue;
+			    else
+				pos.z += zshift_;
+
+			    neighbors += pos;
+			    float sqdist = (r-vertex.x)*(r-vertex.x) +
+				(c-vertex.y)*(c-vertex.y);
+			    if ( mIsZero(sqdist,1e-5) && res.indexOf(pos)!=-1 )
+			    {
+				res += pos;
+				found = true;
+				break;
+			    }
+			    else
+				sqdist = 1/sqdist;
+			    weights += sqdist;
+			    weightsum += sqdist;
+			}
+		    }
+
+		    if ( found || !neighbors.size() )
+			continue;
+
+		    Coord3 intersect(0,0,0);
+		    for ( int pidx=0; pidx<neighbors.size(); pidx++ )
+			intersect += neighbors[pidx] * weights[pidx];
+		    intersect /= weightsum; 
+
+		    if ( res.indexOf(intersect)!=-1 )
+			continue;
+
+		    Coord3 temp = intersect - center;
+		    temp.z *= zscale;
+		    temp -= tri[topidx];
+		    Coord3 tempnormal = testedgedir0.cross(temp);
+		    if ( tempnormal.dot(testnormal)<0 )
+			continue;
+
+		    tempnormal = testedgedir1.cross(temp);
+		    if ( tempnormal.dot(testnormal)>0 )
+			continue;
+
+		    res += intersect;
+		}
 		    
-		    if ( definedp[idy] )
-		    {
-			horpos1 = fhi_.surf_.getKnot( rcs[idy+1], true );
-			horpos1.z += fhi_.zshift_;
-		    }
-		    else
-		    {
-			horpos0 = fhi_.surf_.getKnot( rcs[idy], true );
-			horpos0.z += fhi_.zshift_;
-		    }
-
-		    mContIfOnOneSide();
-		}
-
-		const double zd0 = fabs(horpos0.z - prevz); 
-	    	const double zd1 = fabs(horpos1.z - nextz); 
-	    	Coord3 intsect = horpos0 + (horpos1-horpos0) * zd0 / (zd0+zd1);
-		mSetIntersectionInfo( intsect, idy );
+		if ( ic.isClosed() && res.size() )
+		    res += res[0]; 
 	    }
-	    else
-	    {
-		Coord3 intersectpos;
-		Line3 segment( knots[idy], knots[idy+1]-knots[idy] );
-		if ( plane_.intersectWith(segment,intersectpos) )
-		{
-		    //check if the intersection is on the surface or not.
-		    const BinID bid = SI().transform( intersectpos );
-		    RowCol rc( surfrrg.snap(bid.inl), surfcrg.snap(bid.crl) );
-		    const Coord3 horpos = fhi_.surf_.getKnot(rc,false);
-		    if ( !mIsUdf( horpos.z ) ) 
-		    {
-			mSetIntersectionInfo( intersectpos, idy );
-		    }
-		}
-	    }
+	    
+	    deepErase( isocontours );
 	}
-
-	if ( !found )
-	    (*fhi_.itsinfo_[idx]).intersectstatus = mStickAwayHor;
     }
 
     return true;
@@ -264,74 +281,23 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 protected:
 
-FaultBinIDSurfaceIntersector&	fhi_;
-Interval<float>			bidsurfzrg_;
-Plane3				plane_;
-};    
+const BinIDSurface&		surf_;
+Interval<float>			surfzrg_;
+float				zshift_;
+const ExplFaultStickSurface&	shape_;
+TypeSet<TypeSet<Coord3> >	res_;
+};
 
 
 FaultBinIDSurfaceIntersector::FaultBinIDSurfaceIntersector( float horshift,
-	const BinIDSurface& sf, const FaultStickSet& ft, Coord3List& cl )
-    : ft_( ft )
-    , surf_( sf )
+	const BinIDSurface& surf, const ExplFaultStickSurface& eshape, 
+	Coord3List& cl )
+    : surf_( surf )
     , crdlist_( cl )
     , output_( 0 )
     , zshift_( horshift )
-    , rrg_( surf_.rowRange() )
-    , crg_( surf_.colRange() )
+    , eshape_( eshape )						      
 {}
-
-
-FaultBinIDSurfaceIntersector::~FaultBinIDSurfaceIntersector()	
-{ 
-    deepErase( ftbids_ ); 
-    deepErase( itsinfo_ );
-}
-
-
-void FaultBinIDSurfaceIntersector::compute()
-{
-    const bool geoexit = output_ && output_->getGeometry()[0];
-    IndexedGeometry* geo = geoexit ?
-	const_cast<IndexedGeometry*>( output_->getGeometry()[0] ) : 0;
-    if ( geo ) geo->removeAll( true );
-
-    //Only add stick intersections.
-    FaultStickHorizonIntersector its( *this );
-    if ( !its.execute() )
-	return;
-    
-    for ( int idx=0; idx<ft_.nrSticks()-1; idx++ )
-    {
-	if ( (*itsinfo_[idx]).lowknotidx==-1 || 
-	     (*itsinfo_[idx+1]).lowknotidx==-1 )
-	    continue;
-
-	const int nid0 = crdlist_.add( (*itsinfo_[idx]).intsectpos );
-	const int nid1 = crdlist_.add( (*itsinfo_[idx+1]).intsectpos );
-	if ( geo )
-	{
-	    geo->coordindices_ += nid0;
-	    geo->coordindices_ += nid1;
-	}
-    }
-
-    /* Panel intersections
-    for ( int idx=0; idx<ft_.nrSticks()-1; idx++ )
-    {
-	TypeSet<Coord3> sortedcrds;
-	calPanelIntersections( idx, sortedcrds );
-    
-	for ( int idy=0; idy<sortedcrds.size(); idy++ )
-    	{
-    	    int nid1 = crdlist_.add( sortedcrds[idy] );
-    	    if ( geo ) geo->coordindices_ += nid1;
-    	}
-    } */
-    
-    if ( geo )
-    	geo->ischanged_ = true;
-}    	
 
 
 void FaultBinIDSurfaceIntersector::setShape( const IndexedShape& ns )
@@ -347,73 +313,32 @@ const IndexedShape* FaultBinIDSurfaceIntersector::getShape( bool takeover )
 }
 
 
-void FaultBinIDSurfaceIntersector::calPanelIntersections( int pnidx, 
-       TypeSet<Coord3>& sortedcrds )
+void FaultBinIDSurfaceIntersector::compute()
 {
-    const int szd = ft_.getStick(pnidx)->size() - ft_.getStick(pnidx+1)->size();
-    const int lidx = szd > 0 ? pnidx : pnidx+1;
-    const int sidx = szd > 0 ? pnidx+1 : pnidx;
+    if ( !output_ || !output_->getGeometry()[0] )
+	return;
     
-    const TypeSet<Coord3>& knots1 = *ft_.getStick(sidx); 
-    if ( ((*itsinfo_[pnidx]).intersectstatus==mKnotBelowHor &&
-	  (*itsinfo_[pnidx+1]).intersectstatus==mKnotBelowHor) ||
-	 ((*itsinfo_[pnidx]).intersectstatus==mKnotAboveHor && 
-	  (*itsinfo_[pnidx+1]).intersectstatus==mKnotAboveHor) )
+    IndexedGeometry* geo = 
+	const_cast<IndexedGeometry*>(output_->getGeometry()[0]);
+    geo->removeAll( true );
+
+    FBIntersectionCalculator calculator( surf_, zshift_, eshape_ );
+    if ( !calculator.execute() )
 	return;
 
-    const int sz0 = (*ft_.getStick(lidx)).size();
-    const int sz1 = (*ft_.getStick(sidx)).size();
-    const int iniskip = (sz0-sz1) / 2;   
-
-    bool reverse = ( (*itsinfo_[pnidx]).intersectstatus==mKnotBelowHor &&
-	    	     (*itsinfo_[pnidx+1]).intersectstatus!=mKnotBelowHor ) ||
-		   ( (*itsinfo_[pnidx]).intersectstatus==mStickIntersectsHor &&
-	   	     (*itsinfo_[pnidx+1]).intersectstatus==mKnotAboveHor );
-    bool nmorder = ( (*itsinfo_[pnidx]).intersectstatus==mKnotAboveHor &&
-		     (*itsinfo_[pnidx+1]).intersectstatus!=mKnotAboveHor ) ||
-		   ( (*itsinfo_[pnidx+1]).intersectstatus!=mKnotAboveHor &&
-       		     (*itsinfo_[pnidx]).intersectstatus==mStickIntersectsHor );
-    
-    for ( int idx=0; idx<sz0; idx++ )
+    const TypeSet<TypeSet<Coord3> >& res = calculator.getResult();
+    for ( int idx=0; idx<res.size(); idx++ )
     {
-	const RowCol bid0( rrg_.snap((*ftbids_[lidx])[idx].inl), 
-		    crg_.snap((*ftbids_[lidx])[idx].crl) );
-	
-	const int sknotidx = 
-	    idx<iniskip ? 0 : ( idx<iniskip+sz1-1 ? idx-iniskip : sz1-1 );
-	const RowCol bid1( rrg_.snap((*ftbids_[sidx])[sknotidx].inl), 
-		    crg_.snap((*ftbids_[sidx])[sknotidx].crl) );
-	
-	Coord3 hpos0 = surf_.getKnot(bid0,false); 
-	if ( mIsUdf(hpos0.z) ) continue;
-	hpos0.z += zshift_;
-	
-	Coord3 hpos1 = surf_.getKnot(bid1,false); 
-	if ( mIsUdf(hpos1.z) ) continue;
-	hpos1.z += zshift_;
-	
-	double zd0 = hpos0.z - (*ft_.getStick(lidx))[idx].z; 
-	double zd1 = hpos1.z - (*ft_.getStick(sidx))[sknotidx].z;
-	if ( (zd0<0 && zd1<0) || (zd0>0 && zd1>0) )
-	    continue;
-	
-	if ( zd0<0 ) zd0 = -zd0;    
-	if ( zd1<0 ) zd1 = -zd1;
-
-	Coord3 pos = zd0+zd1>0 ? hpos0+(hpos1-hpos0)*zd0/(zd0+zd1) : hpos0;
-	if ( nmorder )
-	    sortedcrds += pos;
-	else if ( reverse )
-	    sortedcrds.insert( 0, pos );
-	
+	const TypeSet<Coord3>& pres = res[idx];
+	for ( int idz=0; idz<pres.size(); idz++ )
+	    geo->coordindices_ += crdlist_.add( pres[idz] );
     }
 
-    if ( (*itsinfo_[pnidx]).intersectstatus==mStickIntersectsHor )
-	sortedcrds.insert( 0, (*itsinfo_[pnidx]).intsectpos );
-    
-    if ( (*itsinfo_[pnidx+1]).intersectstatus==mStickIntersectsHor )
-	sortedcrds += (*itsinfo_[pnidx+1]).intsectpos;
+    geo->coordindices_ += -1;
+    geo->ischanged_ = true;
 }
+
+
 
 
 };
