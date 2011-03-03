@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.40 2011-01-20 10:21:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.41 2011-03-03 15:52:46 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -313,6 +313,13 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     
     if ( !wvltfld_->getWavelet() )
 	mErrRet("Please select a valid wavelet")
+
+    for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
+    {
+	uiTieWin* win = welltiedlgset_[idx];
+	if ( win->Setup().wellid_ == wellfld_->ctxtIOObj().ioobj->key() )
+	    mErrRet( "A window with this well is already opened" )
+    }
 
     wtsetup_.issonic_ = !isvelbox_->isChecked();
 
