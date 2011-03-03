@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.31 2011-03-03 12:46:27 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.32 2011-03-03 15:13:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class Hdrdef;
 
 #define SegyTxtHeaderLength		3200
 #define SegyBinHeaderLength		400
-#define SegyTracHeaderLength		240
+#define SegyTrcHeaderLength		240
 
 /*!\brief 3200 byte SEG-Y text header.
 

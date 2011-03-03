@@ -4,7 +4,7 @@
  * DATE     : Mar 2011
 -*/
 
-static const char* rcsID = "$Id: segyhdrcalc.cc,v 1.1 2011-03-02 16:11:04 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdrcalc.cc,v 1.2 2011-03-03 15:13:16 cvsbert Exp $";
 
 
 #include "segyhdrcalc.h"
@@ -14,9 +14,9 @@ static const char* rcsID = "$Id: segyhdrcalc.cc,v 1.1 2011-03-02 16:11:04 cvsber
 SEGY::HdrCalcSet::HdrCalcSet( const SEGY::HdrDef& hd )
     : hdef_(hd)
 {
-    seqnr_.setUdf();
-    seqnr_.setName("<SEQNR>");
-    seqnr_.setDescription("Sequence number in file");
+    trcidxhe_.setUdf();
+    trcidxhe_.setName("INDEXNR");
+    trcidxhe_.setDescription("Trace index (sequence) number in file");
 }
 
 
@@ -27,25 +27,49 @@ SEGY::HdrCalcSet::~HdrCalcSet()
 }
 
 
-void SEGY::HdrCalcSet::add( SEGY::HdrCalc* hc )
+int SEGY::HdrCalcSet::indexOf( const char* nm ) const
 {
-    *this += hc;
-    //TODO add to exprs_
+    const BufferString henm( nm );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( henm == (*this)[idx]->he_.name() )
+	    return idx;
+    }
+    return -1;
+}
+
+
+bool SEGY::HdrCalcSet::add( const SEGY::HdrEntry& he, const char* def,
+       			    BufferString* emsg )
+{
+    MathExpressionParser mep( def );
+    MathExpression* me = mep.parse();
+    if ( !me )
+    {
+	if ( emsg ) *emsg = mep.errMsg();
+	return false;
+    }
+
+    *this += new SEGY::HdrCalc( he, def );
+    exprs_ += me;
+    return true;
 }
 
 
 void SEGY::HdrCalcSet::discard( int idx )
 {
-    delete ObjectSet<HdrCalc>::remove( idx );
-    //TODO delete exprs_.remove( idx );
+    delete remove( idx );
+    delete exprs_.remove( idx );
 }
 
 
-bool SEGY::HdrCalcSet::getValues( const void* buf, TypeSet<int>& vals ) const
+bool SEGY::HdrCalcSet::apply( void* buf ) const
 {
-    vals.erase();
-    //TODO implement
+    /*
     for ( int idx=0; idx<size(); idx++ )
+    {
 	vals += idx;
+    }
+    */
     return true;
 }

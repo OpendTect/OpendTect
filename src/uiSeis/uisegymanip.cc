@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.4 2011-03-02 16:11:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.5 2011-03-03 15:13:16 cvsbert Exp $";
 
 #include "uisegymanip.h"
 
@@ -18,20 +18,23 @@ static const char* rcsID = "$Id: uisegymanip.cc,v 1.4 2011-03-02 16:11:04 cvsber
 #include "uifileinput.h"
 #include "uicompoundparsel.h"
 #include "uisplitter.h"
+#include "uispinbox.h"
+#include "uilineedit.h"
 #include "uiseparator.h"
 #include "uitable.h"
 #include "uimsg.h"
 #include "uisegydef.h"
 
-#include "segyhdr.h"
 #include "segyhdrdef.h"
 #include "segyhdrcalc.h"
 #include "segyfiledef.h"
 #include "strmprov.h"
+#include "strmoper.h"
 #include "filepath.h"
-#include <iostream>
 
+static const od_int64 cFileHeaderSize = SegyTxtHeaderLength+SegyBinHeaderLength;
 #define mErrRet(s) { uiMSG().error(s); return false; }
+
 
 class uiSEGYBinHdrEdDlg : public uiDialog
 {
@@ -175,7 +178,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     , calcset_(*new SEGY::HdrCalcSet(SEGY::TrcHeader::hdrDef()))
     , errlbl_(0)
 {
-    if ( !openFile() )
+    if ( !openInpFile() )
 	{ errlbl_ = new uiLabel( this, errmsg_ ); return; }
 
     uiGroup* filehdrgrp = new uiGroup( this, "File header group" );
@@ -206,6 +209,8 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     fnmfld_->setDefaultSelectionDir( inpfp.pathOnly() );
     fnmfld_->attach( ensureBelow, sep );
     fnmfld_->attach( hCentered );
+
+    finaliseDone.notify( mCB(this,uiSEGYFileManip,initWin) );
 }
 
 
@@ -231,7 +236,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     for ( int idx=0; idx<def.size(); idx++ )
 	trchdrdefined_ += false;
     avtrchdrsfld_->doubleClicked.notify( addcb );
-    fillAvtrcHdrFld( 0 );
+    fillAvTrcHdrFld( 0 );
 
     uiToolButton* addbut = new uiToolButton( grp, uiToolButton::RightArrow,
 					    "Add to calculated list", addcb );
@@ -258,15 +263,14 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     savebut_->attach( alignedBelow, openbut );
 
     const int nrrows = def.size();
-    thtbl_ = new uiTable( grp, uiTable::Setup(nrrows,2),
-	    		      "Trace header table" );
+    uiTable::Setup tsu( nrrows, 2 ); tsu.selmode( uiTable::SingleRow );
+    thtbl_ = new uiTable( grp, tsu, "Trace header table" );
     thtbl_->setColumnLabel( 0, "Byte" );
     thtbl_->setColumnToolTip( 0, "Byte location in binary header" );
     thtbl_->setColumnReadOnly( 0, true );
     thtbl_->setColumnLabel( 1, "Value" );
     thtbl_->setColumnToolTip( 1, "Resulting value" );
     thtbl_->setColumnReadOnly( 1, true );
-
     for ( int irow=0; irow<nrrows; irow++ )
     {
 	const SEGY::HdrEntry& he = *def[irow];
@@ -275,34 +279,43 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     }
     thtbl_->attach( ensureRightOf, edbut_ );
 
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( grp, "Trace index" );
+    trcnrfld_ = lsb->box();
+    lsb->attach( rightAlignedBelow, thtbl_ );
+    trcnrfld_->setHSzPol( uiObject::Small );
+    trcnrfld_->setMinValue( 1 ); trcnrfld_->setValue( 1 );
+    trcnrfld_->valueChanging.notify( mCB(this,uiSEGYFileManip,trcNrChg) );
+
     grp->setHAlignObj( llb );
     return grp;
 }
 
 
-bool uiSEGYFileManip::openFile()
+bool uiSEGYFileManip::openInpFile()
 {
     sd_ = StreamProvider(fname_).makeIStream();
     if ( !sd_.usable() )
 	{ errmsg_ = "Cannot open input file"; return false; }
 
-    strm().read( (char*)txthdr_.txt_, SegyTxtHeaderLength );
-    if ( strm().gcount() < SegyTxtHeaderLength )
+    if ( !StrmOper::readBlock( strm(), txthdr_.txt_, SegyTxtHeaderLength ) )
 	{ errmsg_ = "Input file is too small to be a SEG-Y file:\n"
 	            "Cannot fully read the text header"; return false; }
     char buf[SegyBinHeaderLength];
-    strm().read( buf, SegyBinHeaderLength );
-    if ( strm().gcount() < SegyBinHeaderLength )
+    if ( !StrmOper::readBlock( strm(), buf, SegyBinHeaderLength ) )
 	{ errmsg_ = "Input file is too small to be a SEG-Y file:\n"
 	    	    "Cannot read full binary header"; return false; }
 
     binhdr_.setInput( buf );
     binhdr_.guessIsSwapped();
+
+    StrmOper::seek( strm(), 0, std::ios::end );
+    filesize_ = StrmOper::tell( strm() );
+
     return true;
 }
 
 
-void uiSEGYFileManip::fillAvtrcHdrFld( int selidx )
+void uiSEGYFileManip::fillAvTrcHdrFld( int selidx )
 {
     avtrchdrsfld_->setEmpty();
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
@@ -310,11 +323,20 @@ void uiSEGYFileManip::fillAvtrcHdrFld( int selidx )
 	if ( !trchdrdefined_[idx] )
 	    avtrchdrsfld_->addItem( calcset_.hdrDef()[idx]->name() );
     }
+
     if ( selidx < 0 ) selidx = 0;
     if ( selidx >= avtrchdrsfld_->size() )
 	selidx = avtrchdrsfld_->size()-1;
-    if ( selidx >= 0 )
-	avtrchdrsfld_->setCurrentItem( selidx );
+    if ( selidx < 0 ) return;
+
+    for ( int idx=selidx; idx<calcset_.hdrDef().size(); idx++ )
+    {
+	if ( !trchdrdefined_[idx] )
+	{
+	    avtrchdrsfld_->setCurrentItem( calcset_.hdrDef()[idx]->name() );
+	    break;
+	}
+    }
 }
 
 
@@ -335,6 +357,25 @@ void uiSEGYFileManip::fillDefCalcs( int selidx )
 }
 
 
+void uiSEGYFileManip::updTrcVals()
+{
+    memcpy( curhdrbuf_, inphdrbuf_, SegyTrcHeaderLength );
+    calcset_.apply( curhdrbuf_ );
+    for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
+    {
+	int val = calcset_.hdrDef()[idx]->getValue(curhdrbuf_,false);
+	thtbl_->setValue( RowCol(idx,1), val );
+    }
+}
+
+
+void uiSEGYFileManip::initWin( CallBacker* )
+{
+    selChg( 0 );
+    trcNrChg( 0 );
+}
+
+
 void uiSEGYFileManip::selChg( CallBacker* )
 {
     const bool havesel = !trchdrfld_->isEmpty()
@@ -344,26 +385,70 @@ void uiSEGYFileManip::selChg( CallBacker* )
     rmbut_->setSensitive( havesel );
 }
 
+class uiSEGYFileManipHdrCalcEd : public uiDialog
+{
+public:
+uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
+    : uiDialog( p, Setup("Header Calculation",cs.indexOf(hc.he_.name()) < 0 ?
+	    "Add header calculation":"Edit header calculation",mTODOHelpID) )
+    , hc_(hc)
+    , calcset_(cs)
+{
+    const CallBack cb( mCB(this,uiSEGYFileManipHdrCalcEd,insTxt) );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Available", false,
+	    				uiLabeledListBox::AboveMid );
+    hdrfld_ = llb->box();
+    hdrfld_->addItem( calcset_.trcIdxEntry().name() );
+    for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
+	hdrfld_->addItem( calcset_.hdrDef()[idx]->name() );
+    hdrfld_->doubleClicked.notify( cb );
+
+    uiToolButton* addbut = new uiToolButton( this, uiToolButton::RightArrow,
+					     "Insert in formula", cb );
+    addbut->attach( centeredRightOf, llb );
+    formfld_ = new uiLineEdit( this, "Formula" );
+    formfld_->attach( rightOf, addbut );
+    formfld_->setHSzPol( uiObject::WideVar );
+    uiLabel* lbl = new uiLabel( this, "Formula" );
+    lbl->attach( centeredBelow, formfld_ );
+}
+
+void insTxt( CallBacker* )
+{
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    return true;
+}
+
+    SEGY::HdrCalc&	hc_;
+    SEGY::HdrCalcSet&	calcset_;
+
+    uiListBox*		hdrfld_;
+    uiLineEdit*		formfld_;
+
+};
+
 
 void uiSEGYFileManip::addReq( CallBacker* )
 {
     const int selidx = avtrchdrsfld_->currentItem();
     if ( selidx < 0 ) return;
     const char* nm = avtrchdrsfld_->textOfItem( selidx );
-    const SEGY::HdrDef&	def = SEGY::TrcHeader::hdrDef();
-    const int hdridx = calcset_.hdrDef().indexOf( nm );
+    const SEGY::HdrDef&	def = calcset_.hdrDef();
+    const int hdridx = def.indexOf( nm );
     if ( hdridx < 0 ) { pErrMsg("Huh" ); return; }
 
-    SEGY::HdrCalc* hc = new SEGY::HdrCalc( *calcset_.hdrDef()[hdridx], "" );
-    // TODO uiSEGYFileManipHdrCalcEd dlg( this, *hc, calcset_ );
-    // if ( !dlg.go() )
-	// delete hc;
-    // else
+    SEGY::HdrCalc hc( *def[hdridx], "" );
+    uiSEGYFileManipHdrCalcEd dlg( this, hc, calcset_ );
+    if ( dlg.go() )
     {
-	calcset_.add( hc );
 	fillDefCalcs( calcset_.size()-1 );
-	trchdrdefined_[selidx] = true;
-	fillAvtrcHdrFld( selidx );
+	trchdrdefined_[hdridx] = true;
+	fillAvTrcHdrFld( hdridx );
+	updTrcVals();
     }
 }
 
@@ -372,6 +457,9 @@ void uiSEGYFileManip::edReq( CallBacker* )
 {
     const int selidx = trchdrfld_->currentItem();
     if ( selidx < 0 ) return;
+    uiSEGYFileManipHdrCalcEd dlg( this, *calcset_[selidx], calcset_ );
+    if ( dlg.go() )
+	updTrcVals();
 }
 
 
@@ -385,18 +473,45 @@ void uiSEGYFileManip::rmReq( CallBacker* )
     fillDefCalcs( selidx );
     const int avidx = calcset_.hdrDef().indexOf( nm );
     trchdrdefined_[avidx] = false;
-    fillAvtrcHdrFld( avidx );
+    fillAvTrcHdrFld( avidx );
     avtrchdrsfld_->setCurrentItem( nm );
+
+    updTrcVals();
 }
 
 
 void uiSEGYFileManip::openReq( CallBacker* )
 {
+    bool failed = true;
+    if ( !failed )
+	updTrcVals();
 }
 
 
 void uiSEGYFileManip::saveReq( CallBacker* )
 {
+}
+
+
+void uiSEGYFileManip::trcNrChg( CallBacker* )
+{
+    const od_int64 trcnr = trcnrfld_->getValue() - 1;
+    od_int64 onetrcbytes = SegyTrcHeaderLength
+		+ binhdr_.nrSamples() * binhdr_.bytesPerSample();
+    od_int64 offs = cFileHeaderSize + trcnr * onetrcbytes;
+    if ( offs >= filesize_ )
+    {
+	int nrtrcsinfile = (filesize_ - cFileHeaderSize) / onetrcbytes;
+	if ( nrtrcsinfile < 1 )
+	    uiMSG().error( "File contains no complete traces" );
+	else
+	    offs = cFileHeaderSize + (nrtrcsinfile-1) * onetrcbytes;
+    }
+
+    StrmOper::seek( strm(), offs );
+    StrmOper::readBlock( strm(), inphdrbuf_, SegyTrcHeaderLength );
+
+    updTrcVals();
 }
 
 
