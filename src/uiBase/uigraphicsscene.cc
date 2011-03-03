@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.50 2010-10-28 10:17:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.51 2011-03-03 12:02:35 cvsnanne Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -344,21 +344,24 @@ uiRect uiGraphicsScene::sceneRect()
 }
 
 
-void uiGraphicsScene::saveAsImage( const char* filename, int width,
+void uiGraphicsScene::saveAsImage( const char* fnm, int width,
 				   int height, int resolution )
 {
-    QString fileName( filename );
-    QPainter *imagepainter = new QPainter();
-    QImage* image = new QImage( QSize(width,height), QImage::Format_ARGB32);
-    image->setDotsPerMeterX( resolution*254 );
-    image->setDotsPerMeterY( resolution*254 );
-    imagepainter->begin(image);
+    QString fname( fnm );
+    QPainter* imagepainter = new QPainter();
+    QImage* image = new QImage( QSize(width,height), QImage::Format_ARGB32 );
+    QColor qcol( 255, 255, 255 );
+    image->fill( qcol.rgb() );
+    image->setDotsPerMeterX( (float)resolution/0.0254 );
+    image->setDotsPerMeterY( (float)resolution/0.0254 );
+    imagepainter->begin( image );
+
     QGraphicsView* view = qGraphicsScene()->views()[0];
     QRectF sourcerect( view->mapToScene(0,0),
 	    	       view->mapToScene(view->width(),view->height()) );
     qGraphicsScene()->render( imagepainter,QRectF(0,0,width,height),sourcerect);
     imagepainter->end();
-    image->save(fileName);
+    image->save( fname );
     delete imagepainter;
     delete image;
 }
