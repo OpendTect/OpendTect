@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.64 2010-09-02 11:20:58 cvsnanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.65 2011-03-03 10:31:29 cvsnanne Exp $
 
 
 
@@ -125,6 +125,8 @@ public:
     void			showKnownPositions();
     void                        restoreDispProp();
     Well::Data*			getWD() const;
+
+    bool			allowsPicks() const	{ return true; }
     
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
