@@ -287,4 +287,27 @@ Standard color tables
 23.Transparency.0: 0`0
 23.Transparency.1: 1`0
 
+24.Name: Greyn
+24.Marker color: 200`0`200`0
+24.Undef color: 255`200`255`0
+24.Value-Color.0: 0`255`255`255`0
+24.Value-Color.1: 0.476056`134`255`134`0
+24.Value-Color.2: 1`0`0`0`0
+24.Transparency.0: 0`0
+24.Transparency.1: 1`0
+
+25.Name: Tasty
+25.Marker color: 0`0`255`0
+25.Undef color: 200`200`200`0
+25.Value-Color.0: 0`28`188`0`0
+25.Value-Color.1: 0.160563`74`249`0`0
+25.Value-Color.2: 0.298592`248`252`0`0
+25.Value-Color.3: 0.425352`255`234`1`0
+25.Value-Color.4: 0.566197`255`213`0`0
+25.Value-Color.5: 0.726761`255`64`0`0
+25.Value-Color.6: 0.864789`230`0`0`0
+25.Value-Color.7: 1`129`0`0`0
+25.Transparency.0: 0`0
+25.Transparency.1: 1`0
+
 !
