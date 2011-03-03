@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_remexec.cc,v 1.1 2010-09-10 11:52:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_remexec.cc,v 1.2 2011-03-03 10:05:34 cvsranojay Exp $";
 
 #include "bufstring.h"
 #include "genc.h"
@@ -41,7 +41,7 @@ int executeLocal( int argc, char** argv )
 
 int main( int argc, char** argv )
 {
-    if ( argc < 9 )
+    if ( argc < 4 )
 	return 1;
 
     const char* remhost = argv[1];
@@ -51,11 +51,16 @@ int main( int argc, char** argv )
 
     IOPar par;
     par.set( "Proc Name", argv[2] );
-    par.set( "Host Name", argv[4] );
-    par.set( "Port Name", argv[6] );
-    par.set( "Job ID", argv[8] );
-    par.set( "Par File", argv[9] );
-
+    if ( argc <= 4  )
+	par.set( "Par File", argv[3] );
+    else
+    {
+	par.set( "Host Name", argv[4] );
+	par.set( "Port Name", argv[6] );
+	par.set( "Job ID", argv[8] );
+	par.set( "Par File", argv[9] );
+    }
+    	
     RemoteJobExec* rje = new RemoteJobExec( remhostaddress, 5050 );
     rje->addPar( par );
     rje->launchProc();

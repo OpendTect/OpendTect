@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: remcommhandler.cc,v 1.8 2010-10-07 07:58:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: remcommhandler.cc,v 1.9 2011-03-03 10:05:34 cvsranojay Exp $";
 
 #include "remcommhandler.h"
 
@@ -63,11 +63,24 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
 bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
 {
     BufferString procnm, hostnm, portnm, survnm, dataroot, parfile, jobid;
-    const bool res = par.get( "Proc Name", procnm ) &&
-		     par.get( "Host Name", hostnm ) &&
-		     par.get( "Port Name", portnm ) &&
-		     par.get( "Job ID", jobid ) &&
-		     par.get( "Par File", parfile );
+    const int parsz = par.size();
+    bool res;
+    if ( parsz <= 2 )
+    {
+	res = par.get( "Proc Name", procnm ) && par.get( "Par File", parfile );
+	cmd = procnm;
+	cmd.add( " \" " ).add( parfile ).add( "\"" );
+	return res; 
+    }
+    else
+    {
+	res = par.get( "Proc Name", procnm ) &&
+	par.get( "Host Name", hostnm ) &&
+	par.get( "Port Name", portnm ) &&
+	par.get( "Job ID", jobid ) &&
+	par.get( "Par File", parfile );
+    }
+
     if ( !res ) return false;
 
     cmd = procnm;

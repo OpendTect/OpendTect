@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.95 2011-02-28 06:44:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.96 2011-03-03 10:05:34 cvsranojay Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -170,6 +170,8 @@ int uiBatchLaunch::selected()
 }
 
 
+extern "C" const char* GetSurveyName();
+
 bool uiBatchLaunch::acceptOK( CallBacker* )
 {
     const bool dormt = execRemote();
@@ -209,7 +211,29 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     BufferString comm( "@" );
 #ifdef __msvc__
     bool inbg = true;
-    comm += FilePath(GetBinPlfDir()).add(progname_).fullPath();
+    if ( dormt )
+    {
+	HostDataList hdl;
+	const HostData* hd = hdl.find( hostname_.buf() );
+	FilePath remfp = hd->prefixFilePath( HostData::Data );
+	FilePath temppath( parfname_ );
+	iop_.set( sKey::DataRoot, remfp.fullPath() );
+	remfp.add(  GetSurveyName() ).add( "Proc" )
+	     .add( temppath.fileName() );
+	FilePath logfp( remfp );
+	logfp.setExtension( ".log", true );
+	iop_.set( sKey::LogFile, logfp.fullPath() );
+	if ( !iop_.write(parfname_,sKey::Pars) )
+	{
+	    uiMSG().error( "Cannot write parameter file" );
+            return false;
+	}
+	parfname_ = remfp.fullPath();
+	comm.add( "od_remexec " ).add( hostname_ )
+	    .add( " " ).add( progname_ ).add( " " );
+    }
+    else
+	comm += FilePath(GetBinPlfDir()).add(progname_).fullPath();
 #else
     bool inbg = dormt;
     comm += GetExecScript( dormt );
