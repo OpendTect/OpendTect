@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.31 2010-12-31 04:03:53 cvsraman Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.32 2011-03-03 12:46:05 cvsbert Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"
@@ -215,6 +215,26 @@ void StrmOper::seek( std::istream& strm, od_int64 pos )
 			   : strm.seekg( diff, std::ios::cur );
 	curoffset += smalloffset;
     }
+#endif
+}
+
+
+od_int64 StrmOper::tell( std::istream& strm )
+{
+#ifndef __win32__
+    return strm.tellg();
+#else
+#error StrmOper::tell(istream) needs win32 impl
+#endif
+}
+
+
+od_int64 StrmOper::tell( std::ostream& strm )
+{
+#ifndef __win32__
+    return strm.tellp();
+#else
+#error StrmOper::tell(ostream) needs win32 impl
 #endif
 }
 
