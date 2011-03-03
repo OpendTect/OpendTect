@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.16 2010-12-07 22:59:52 cvskris Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.17 2011-03-03 13:32:12 cvshelene Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -78,9 +78,13 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 			     BoolInpSpec(true,"Top Horizon","Bottom Horizon") );
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
+    foldfld_ = new uiGenInput( this, "Output fold as an extra attribute",
+	    		       BoolInpSpec(true) ) ;
+    foldfld_->attach( alignedBelow, selfld_ );
+
     attribnamefld_ = new uiGenInput( this, "Attribute name",
 			             StringInpSpec("Stratal Amplitude") );
-    attribnamefld_->attach( alignedBelow, selfld_ );
+    attribnamefld_->attach( alignedBelow, foldfld_ );
 
     finaliseDone.notify( mCB(this,uiStratAmpCalc,choiceSel) );
 }
@@ -201,7 +205,8 @@ bool uiStratAmpCalc::acceptOK( CallBacker* )
     }
 
     Stats::Type typ = Stats::parseEnumType( ampoptionfld_->box()->text() );
-    StratAmpCalc exec( tophor, usesingle_ ? 0 : bothor, typ, hs );
+    const bool outputfold = foldfld_->getBoolValue();
+    StratAmpCalc exec( tophor, usesingle_ ? 0 : bothor, typ, hs, outputfold );
     exec.setOffsets( tophorshiftfld_->getfValue() / SI().zFactor(),
 	    	     bothorshiftfld_->getfValue() / SI().zFactor() );
     
@@ -216,8 +221,12 @@ bool uiStratAmpCalc::acceptOK( CallBacker* )
     if ( !taskrunner.execute(exec) )
 	mErrRet( "Cannot compute attribute" )
 
-    const bool res = saveData( addtotop ? tophor : bothor ,
+    bool res = saveData( addtotop ? tophor : bothor ,
 	    		       attribidx, overwrite );
+
+    if ( outputfold )
+	res = saveData( addtotop ? tophor : bothor , exec.getFoldDataIdx(),
+			overwrite );
     tophor->unRef();
     if ( bothor ) bothor->unRef();
     return res;

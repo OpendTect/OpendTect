@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara Rao
  Date:		March 2008
- RCS:		$Id: stratamp.h,v 1.7 2010-05-21 16:58:35 cvshelene Exp $
+ RCS:		$Id: stratamp.h,v 1.8 2011-03-03 13:32:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ mClass StratAmpCalc  : public Executor
 public:
 
     			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*, 
-				     Stats::Type,const HorSampling&);
+				     Stats::Type,const HorSampling&,bool);
     			~StratAmpCalc();
 
     void                clear();
@@ -40,6 +40,7 @@ public:
     void		setOffsets( float top, float bot )
 			{ tophorshift_ = top; bothorshift_ = bot; }
     int			init(const char* attribnm,bool addtotop,const IOPar&);
+    int			getFoldDataIdx() const	{ return dataidxfold_; }
 
 protected:
 
@@ -57,8 +58,11 @@ protected:
     float		tophorshift_;
     float		bothorshift_;
     EM::PosID           posid_;
+    EM::PosID           posidfold_;
     int			dataidx_;
+    int			dataidxfold_;
     bool		addtotop_;
+    bool		outfold_;
 
     HorSampling		hs_;
 

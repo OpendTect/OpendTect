@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratamp.cc,v 1.10 2010-07-14 15:03:31 cvshelene Exp $";
+static const char* rcsID = "$Id: stratamp.cc,v 1.11 2011-03-03 13:32:12 cvshelene Exp $";
 
 #include "stratamp.h"
 
@@ -36,7 +36,8 @@ static const char* rcsID = "$Id: stratamp.cc,v 1.10 2010-07-14 15:03:31 cvshelen
 
 StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
-			    Stats::Type stattyp, const HorSampling& hs )
+			    Stats::Type stattyp, const HorSampling& hs,
+       			    bool outputfold )
     : Executor("Computing Stratal amplitude...")
     , rdr_(0)
     , tophorizon_(tophor)
@@ -47,6 +48,7 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
     , usesstored_(false)
     , proc_(0)
     , hs_(hs)
+    , outfold_(outputfold)
 {
     CubeSampling cs;
     cs.hrg = hs;
@@ -128,6 +130,18 @@ int StratAmpCalc::init( const char* attribnm, bool addtotop, const IOPar& pars )
     if ( dataidx_ < 0 ) dataidx_ = addtohor_->auxdata.addAuxData( attribnm );
     posid_.setObjectID( addtohor_->id() );
     posid_.setSectionID( addtohor_->sectionID(0) );
+
+    if ( outfold_ )
+    {
+	BufferString foldnm = attribnm;
+	foldnm += "_fold";
+	dataidxfold_ = addtohor_->auxdata.auxDataIndex( foldnm );
+	if ( dataidxfold_ < 0 )
+	    dataidxfold_ = addtohor_->auxdata.addAuxData( foldnm );
+	posidfold_.setObjectID( addtohor_->id() );
+	posidfold_.setSectionID( addtohor_->sectionID(0) );
+    }
+
     return dataidx_;
 }
 
@@ -200,6 +214,14 @@ int StratAmpCalc::nextStep()
     const EM::Horizon3D* addtohor_ = addtotop_ ? tophorizon_ : bothorizon_;
     posid_.setSubID( subid );
     addtohor_->auxdata.setAuxDataVal( dataidx_, posid_, outval );
+
+    if ( outfold_ )
+    {
+	posidfold_.setSubID( subid );
+	addtohor_->auxdata.setAuxDataVal( dataidxfold_, posidfold_,
+					  runcalc.count() );
+    }
+
     nrdone_++;
 
     if ( usesstored_ )

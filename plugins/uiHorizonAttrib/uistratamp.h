@@ -5,7 +5,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Nageswara
  * DATE     : Mar 2008
- * ID       : $Id: uistratamp.h,v 1.5 2010-05-21 16:58:35 cvshelene Exp $
+ * ID       : $Id: uistratamp.h,v 1.6 2011-03-03 13:32:12 cvshelene Exp $
 -*/
 
 #include "uidialog.h"
@@ -38,6 +38,7 @@ protected:
     uiGenInput*		tophorshiftfld_;
     uiGenInput*		bothorshiftfld_;
     uiGenInput*		selfld_;
+    uiGenInput*		foldfld_;
     uiGenInput*		attribnamefld_;
 
     uiAttrSel*		inpfld_;
