@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.47 2011-02-01 14:33:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.48 2011-03-03 09:58:07 cvsnanne Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -63,7 +63,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 
     if ( unit_.isLeaved() )
     {
-	uiSeparator* sep = new uiSeparator( this, false );
+	uiSeparator* sep = new uiSeparator( this, "HorSep" );
 	sep->attach( stretchedBelow, lblbox1 );
 
 	unitlithfld_ = new uiStratLithoBox( this );
