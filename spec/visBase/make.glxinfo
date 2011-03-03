@@ -1,10 +1,7 @@
 #!/bin/csh
 
 if ( $HDIR == "lux" ) then
-    gcc od_glxinfo.c -o $WORK/bin/$PLFSUBDIR/O/od_glxinfo -lGLU -lGL
-    exit 0
-else if ( $HDIR == "sgi" || $HDIR == "sun5" ) then
-    gcc od_glxinfo.c -o $WORK/bin/$PLFSUBDIR/O/od_glxinfo -lGLU -lGL -lX11
+    gcc od_glxinfo.c -o $WORK/bin/$PLFSUBDIR/$DEBUG_SUBDIR/od_glxinfo -lGLU -lGL -lX11
     exit 0
 else if ( $HDIR == "win"  ) then
     gcc -mno-cygwin w32glxinfo.c -o $WORK/bin/$PLFSUBDIR/O/od_glxinfo -L/lib/w32api -lopengl32 -lgdi32
