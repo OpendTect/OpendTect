@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.37 2011-02-28 10:17:22 cvsnageswara Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.38 2011-03-03 11:54:32 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -126,6 +126,7 @@ public:
 					BufferString& info) const;
 
 
+    bool			allowsPicks() const		{ return true; }
     bool			isVerticalPlane() const		{return false;}
     bool			canBDispOn2DViewer() const	{return false;}
     int				addDataPack(const DataPointSet&) const ;

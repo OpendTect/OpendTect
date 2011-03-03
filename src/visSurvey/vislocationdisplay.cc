@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.66 2010-12-20 15:01:49 cvsjaap Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.67 2011-03-03 11:54:32 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -302,6 +302,9 @@ void LocationDisplay::pickCB( CallBacker* cb )
     {
 	visBase::DataObject* dataobj =
 	    		visBase::DM().getObject( eventinfo.pickedobjids[idx] );
+	if ( dataobj == this )
+	    continue;
+
 	if ( dataobj->pickable() )
 	    eventid = eventinfo.pickedobjids[idx];
 
@@ -413,6 +416,8 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
     {
 	const DataObject* pickedobj =
 	    visBase::DM().getObject( evi.pickedobjids[idx] );
+	if ( pickedobj == this )
+	    continue;
 
 	if ( eventid==-1 && pickedobj->pickable() )
 	{

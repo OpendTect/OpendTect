@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.32 2010-12-20 15:01:49 cvsjaap Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.33 2011-03-03 11:54:32 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -74,6 +74,7 @@ public:
     virtual Color		getColor() const;
     virtual void		setColor(Color);
 
+    virtual bool		allowsPicks() const	{ return true; }
     virtual bool		isPicking() const;
     virtual void		otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,int);
