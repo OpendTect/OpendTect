@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		April 2010
-RCS:		$Id: gmtfault.cc,v 1.3 2010-04-23 11:33:30 cvsnageswara Exp $
+RCS:		$Id: gmtfault.cc,v 1.4 2011-03-04 16:03:01 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,15 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 
     comm += " 1>> "; comm += fileName( fnm );
     StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed")
+    if ( !sd.usable() ) mErrStrmRet("Failed");
+
+    EM::SectionID fltsid = fault3d->sectionID( 0 );
+    PtrMan<Geometry::ExplFaultStickSurface> fltsurf = 
+	new Geometry::ExplFaultStickSurface(
+		fault3d->geometry().sectionGeometry(fltsid), SI().zFactor() );
+    fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
+    if ( !fltsurf->update(true,0) )
+	return false;
 
     if( onzslice )
     {
@@ -109,14 +117,6 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 	Coord3 normal = ( corners[1] - corners[0] )
 	    		.cross( corners[3] - corners[0] ).normalize();
 
-	EM::SectionID fltsid = fault3d->sectionID( 0 );
-	PtrMan<Geometry::IndexedShape> fltsurf =
-	    new Geometry::ExplFaultStickSurface(
-				    fault3d->geometry().sectionGeometry(fltsid),
-				    SI().zFactor() );
-	fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
-	if ( !fltsurf->update(true,0) )
-	    return false;
 
 	PtrMan<Geometry::ExplPlaneIntersection> insectn =
 					    new Geometry::ExplPlaneIntersection;
@@ -158,7 +158,7 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
     else
     {
 	Coord3ListImpl clist;
-	if ( !calcOnHorizon( fault3d, clist ) )
+	if ( !calcOnHorizon( *fltsurf, clist ) )
 	    return false;
 
 	if ( clist.getSize() == 0 )
@@ -199,7 +199,7 @@ TypeSet<Coord3> GMTFault::getCornersOfZSlice( float zval ) const
 }
 
 
-bool GMTFault::calcOnHorizon( const EM::Fault3D* fault3d,
+bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
 			      Coord3ListImpl& clist ) const
 {
     MultiID mid;
@@ -214,11 +214,12 @@ bool GMTFault::calcOnHorizon( const EM::Fault3D* fault3d,
 
     Geometry::BinIDSurface* bidsurface =
 			    horizon3d->geometry().sectionGeometry( 0 );
+    if ( !bidsurface )
+	return false;
 
-    EM::SectionID fltsid = fault3d->sectionID( 0 );
     PtrMan<Geometry::FaultBinIDSurfaceIntersector> horfltinsec = 
 	    new Geometry::FaultBinIDSurfaceIntersector( (float)0, *bidsurface,
-		*fault3d->geometry().sectionGeometry(fltsid), clist );
+		expfault, clist );
     if ( !horfltinsec )
 	return false;
 
