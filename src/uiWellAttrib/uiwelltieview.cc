@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.79 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.80 2011-03-04 14:13:36 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -416,6 +416,12 @@ void uiTieView::setInfoMsg( CallBacker* cb )
     infoMsgChanged.trigger( &caps );
 }
 
+
+void uiTieView::enableCtrlNotifiers( bool yn )
+{
+    logsdisp_[0]->scene().getMouseEventHandler().movement.enable( yn );
+    logsdisp_[1]->scene().getMouseEventHandler().movement.enable( yn );
+}
 
 
 uiCrossCorrView::uiCrossCorrView( uiParent* p, const Data& d )
