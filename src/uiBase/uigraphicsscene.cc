@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.51 2011-03-03 12:02:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.52 2011-03-04 12:27:26 cvsbruno Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -352,8 +352,8 @@ void uiGraphicsScene::saveAsImage( const char* fnm, int width,
     QImage* image = new QImage( QSize(width,height), QImage::Format_ARGB32 );
     QColor qcol( 255, 255, 255 );
     image->fill( qcol.rgb() );
-    image->setDotsPerMeterX( (float)resolution/0.0254 );
-    image->setDotsPerMeterY( (float)resolution/0.0254 );
+    image->setDotsPerMeterX( (int)(resolution/0.0254) );
+    image->setDotsPerMeterY( (int)(resolution/0.0254) );
     imagepainter->begin( image );
 
     QGraphicsView* view = qGraphicsScene()->views()[0];
