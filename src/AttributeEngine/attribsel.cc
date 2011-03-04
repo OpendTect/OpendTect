@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.58 2011-02-02 13:02:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.59 2011-03-04 03:44:03 cvssatyaki Exp $";
 
 #include "attribsel.h"
 
@@ -375,8 +375,10 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
     if ( !ioobj || !SeisTrcTranslator::is2D(*ioobj,true) )
 	return;
 
-    Seis2DLineSet ls( ioobj->fullUserExpr(true) );
-    ls.getAvailableAttributes( nms, sKey::Steering, !issteer, issteer );
+    SeisIOObjInfo info( ioobj );
+    SeisIOObjInfo::Opts2D opt;
+    opt.steerpol_ = issteer ? 1 : 0;
+    info.getAttribNames( nms, opt );
 
     if ( onlymulticomp )
     {
