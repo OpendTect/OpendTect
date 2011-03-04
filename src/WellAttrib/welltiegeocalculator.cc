@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.57 2011-02-04 14:00:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.58 2011-03-04 14:16:39 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -34,8 +34,8 @@ namespace WellTie
 {
 
 Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Log& log, 
-					        const Well::Track* track, 
-					        float surfelev ) const
+					    const Well::Track* track, 
+					    float surfelev, bool issonic ) const
 {
     float rdelev = 0;
     if ( track && !track->isEmpty() )
@@ -46,7 +46,7 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Log& log,
 
     Well::Log proclog = Well::Log( log );
     removeSpikes( proclog.valArr(), proclog.size(), 10, 3 );
-    velLogConv( proclog, Vel2TWT );
+    velLogConv( proclog, issonic ? Son2TWT : Vel2TWT );
 
     TypeSet<float> dpt, vals;
     for ( int idx=0; idx<proclog.size(); idx++ )
@@ -103,11 +103,11 @@ void GeoCalculator::velLogConv( Well::Log& log, Conv conv ) const
     float prevval, newval; newval = prevval = 0;
     for ( int idx=1; idx<sz; idx++ )
     {
-	if ( conv == Vel2TWT )
+	if ( conv == Vel2TWT || conv == Son2TWT )
 	{
-	    float v = issonic ? vals[idx] : 1/vals[idx]; 
-	    v /= ( vals[idx]-vals[idx-1] );
-	    newval = 2*( dpts[idx] - dpts[idx-1] )*v/velfac;
+	    float v = vals[idx]; 
+	    if ( conv == Son2TWT ) v = 1/v;
+	    newval = 2*( dpts[idx] - dpts[idx-1] )/(v*velfac);
 	    newval += prevval;
 	    prevval = newval;
 	}

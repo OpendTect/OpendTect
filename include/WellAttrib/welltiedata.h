@@ -89,8 +89,9 @@ public :
     SeisTrc&			seistrc_;
     Wavelet&			initwvlt_;
     Wavelet&			estimatedwvlt_;
-    const StepInterval<float>& 	timeintv_;
     bool			isinitwvltactive_;
+    const StepInterval<float>& 	timeintv_;
+    const Setup&		setup() const	{ return setup_; }
 
     const char*  		sonic() 	const;
     const char*  		corrsonic() 	const;
@@ -191,7 +192,7 @@ public:
 	    						bool bynames) const;
     void			setUpHorizons(const TypeSet<MultiID>&,
 						  BufferString&,TaskRunner&);
-    void			resetWD( const Well::Data* wd)
+    void			setWD( const Well::Data* wd)
 				{ wd_ = wd; }
 
 protected:
@@ -221,14 +222,10 @@ public :
 
     void			resetD2TModel( Well::D2TModel* d2t )
 				{ d2tmgr_->setAsCurrent(d2t); }
-    void			computeD2TModel()
-				{ d2tmgr_->setFromVelLog(data_.currvellog()); }
     bool                	undoD2TModel()
 				{ return d2tmgr_->undo(); }
     bool                	cancelD2TModel()
     				{ return d2tmgr_->cancel(); }
-    bool                	updateD2TModel()
-    				{ return d2tmgr_->updateFromWD(); }
     bool                	commitD2TModel()
 				{ return d2tmgr_->commitToWD(); }
     void			replaceTime(const Array1DImpl<float>& tarr)
@@ -240,9 +237,7 @@ public :
     void			setEstimatedWvlt(float*,int);
     void			setInitWvltActive(bool yn)
 				{ data_.isinitwvltactive_ = yn; }
-
 protected :
-
     PickSetMgr*			pickmgr_;
     WellDataMgr*		wdmgr_;
     DataPlayer*			dataplayer_;

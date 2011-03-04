@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.46 2011-02-08 10:48:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.47 2011-03-04 14:16:39 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -47,8 +47,8 @@ Data::Data( const Setup& wts )
     , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
     , estimatedwvlt_(*new Wavelet(initwvlt_))
     , timeintv_(SI().zRange(true))
-    , synthtrc_(*new SeisTrc)  
     , seistrc_(*new SeisTrc)  
+    , synthtrc_(*new SeisTrc)  
 {
     currvellog_ = sonic(); //TODO chge init this 
     estimatedwvlt_.setName( "Estimated wavelet" );
@@ -60,8 +60,8 @@ Data::~Data()
     delete &logset_;
     delete &initwvlt_;
     delete &estimatedwvlt_;
-    delete &synthtrc_;
     delete &seistrc_;
+    delete &synthtrc_;
 }
 
 
@@ -286,26 +286,16 @@ bool DataWriter::writeLog2Cube( LogData& ld) const
 {
     if ( ld.ctioidxset_[ld.curidx_] < 0 ) return false;
     SeisTrcWriter writer( ld.seisctioset_[ld.ctioidxset_[ld.curidx_]]->ioobj );
-    bool succeeded = true;
 
     HorSampling hrg( false );
     for ( int idbid=0; idbid<ld.bids_.size(); idbid++ )
-    {
-	for ( int crlidx=0; crlidx<ld.nrtraces_; crlidx++ )
-	{
-	    for ( int inlidx=0; inlidx<ld.nrtraces_; inlidx++ )
-	    {
-		BinID bid = ld.bids_[idbid];
-		bid.inl += ld.nrtraces_/2 + crlidx,
-		bid.crl += ld.nrtraces_/2 + inlidx;
-		hrg.include( bid );
-	    }
-	}
-    }
+	hrg.include( ld.bids_[idbid] );
 
+    BinID bidvar( ld.nrtraces_-1, ld.nrtraces_-1 );
+    hrg.stop += bidvar;
+    hrg.start -= bidvar;
     hrg.snapToSurvey();
-    HorSamplingIterator hsit( hrg );
-    BinID bid;
+
     SeisTrc trc( SI().zRange(true).nrSteps() );
     trc.info().sampling.step = SI().zStep();
     const Well::D2TModel* d2t = wd_ ? wd_->d2TModel() : 0;
@@ -316,6 +306,9 @@ bool DataWriter::writeLog2Cube( LogData& ld) const
 	const float dah = d2t->getDah( trc.info().sampling.atIndex( idx )  );
 	trc.set( idx, ld.curlog_->getValue( dah, true ),0 );
     }
+    HorSamplingIterator hsit( hrg );
+    bool succeeded = true;
+    BinID bid;
     while ( hsit.next( bid ) )
     {
 	trc.info().binid = bid;
@@ -335,7 +328,8 @@ Server::Server( const WellTie::Setup& wts )
     wdmgr_->datadeleted_.notify( mCB(this,Server,wellDataDel) );
     Well::Data* w = wdmgr_->wd();
     data_.wd_ = w;
-    if ( !w ) return; //close
+    if ( !w ) return; //close + errmsg
+
     if ( w->haveCheckShotModel() && !wts.useexistingd2tm_ )
     {
 	Well::Log* wl = w->logs().getLog( data_.sonic() );
@@ -351,11 +345,12 @@ Server::Server( const WellTie::Setup& wts )
     d2ts.useexisting_ = wts.useexistingd2tm_; 
     d2ts.currvellog_ = data_.currvellog();
     d2tmgr_ = new D2TModelMgr( *w, d2ts );
-
     dataplayer_ = new DataPlayer( data_, wts.seisid_, &wts.linekey_ );
     pickmgr_ = new PickSetMgr( data_.pickdata_ );
     hormgr_ = new HorizonMgr( data_.horizons_ );
-    hormgr_->resetWD( w );
+
+    hormgr_->setWD( w );
+    d2tmgr_->setWD( w );
 }
 
 
@@ -372,8 +367,8 @@ Server::~Server()
 void Server::wellDataDel( CallBacker* )
 {
     data_.wd_ = wdmgr_->wd();
-    d2tmgr_->resetWD( data_.wd_ );
-    hormgr_->resetWD( data_.wd_ );
+    d2tmgr_->setWD( data_.wd_ );
+    hormgr_->setWD( data_.wd_ );
 }
 
 

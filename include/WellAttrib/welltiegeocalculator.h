@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.23 2011-02-04 14:00:54 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.24 2011-03-04 14:16:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public :
 //Well data operations
     Well::D2TModel* 	getModelFromVelLog(const Well::Log&,
 					   const Well::Track*,
-					   float surfelev) const;
+					   float surfelev, bool issonic) const;
     void		ensureValidD2TModel(Well::D2TModel&) const;
 
     enum		Conv { Vel2TWT, Son2TWT, TWT2Vel, Son2Vel, Vel2Son };

@@ -51,7 +51,7 @@ public:
     bool      		updateFromWD();
     bool      		commitToWD();
 
-    void		resetWD( Well::Data* wd )
+    void		setWD( Well::Data* wd )
 			{ wd_ = wd; }
     void 		applyCheckShotShiftToModel();
     void 		replaceTime(const Array1DImpl<float>&);

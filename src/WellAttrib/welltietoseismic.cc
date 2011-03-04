@@ -7,14 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.52 2011-02-04 14:00:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.53 2011-03-04 14:16:39 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
-#include "aimodel.h"
 #include "arrayndimpl.h"
+#include "aimodel.h"
 #include "ioman.h"
 #include "mousecursor.h"
+#include "raytrace1d.h"
 #include "synthseis.h"
 #include "seistrc.h"
 #include "task.h"
@@ -25,49 +26,153 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.52 2011-02-04 14:00:54 
 #include "welllogset.h"
 #include "welld2tmodel.h"
 
-#include "welltiecshot.h"
 #include "welltiedata.h"
 #include "welltieextractdata.h"
+#include "welltiesetup.h"
 
 
 namespace WellTie
 {
-#define mGetWD() Well::Data* wd = data_.wd_; if ( !wd ) return;
+static const int cDefTimeResampFac = 2;
+
+#define mGetWD() { wd_ = data_.wd_; if ( !wd_ ) return false; }
 DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk ) 
     : data_(data)		    
-    , aimodel_(0)
     , seisid_(seisid)
     , linekey_(lk)
+    , raytracer_(new RayTracer1D(RayTracer1D::Setup()))
 {
-    refsz_ = data_.timeintv_.nrSteps();
+    disprg_ = data_.timeintv_;
+    dispsz_ = disprg_.nrSteps();
+
+    workrg_ = disprg_; workrg_.step /= cDefTimeResampFac;
+    worksz_ = workrg_.nrSteps();
 }
 
 
 DataPlayer::~DataPlayer()
 {
-    delete aimodel_; aimodel_ = 0;
+    delete raytracer_; 
 }
 
 
-void DataPlayer::computeAll()
-{
-    MouseCursorManager::setOverride( MouseCursor::Wait );
-
-    resetAIModel();
-    generateSynthetics();
-    extractSeismics(); 
-    copyDataToLogSet();
-
-    MouseCursorManager::restoreOverride();
-}
-
-
-void DataPlayer::extractSeismics()
+bool DataPlayer::computeAll()
 {
     mGetWD()
 
+    if ( !setAIModel() || !runRayTracer() 
+	    || !generateSynthetics() || !extractSeismics() )
+	return false;
+
+    copyDataToLogSet();
+
+    return true;
+}
+
+
+#define mErrRet(msg) { errmsg_ = msg; return false; }
+bool DataPlayer::processLog( const Well::Log* log, 
+			     Well::Log& outplog, const char* nm ) 
+{
+    BufferString msg;
+    if ( !log ) 
+	{ msg += "Can not find "; msg += nm; mErrRet( msg ); }
+
+    const int sz = log->size();
+    if ( sz <= 2 )
+    {
+	msg += nm;
+	msg +="log size too small, please check your input log";
+	mErrRet(msg)
+    }
+
+    outplog.setUnitMeasLabel( log->unitMeasLabel() );
+
+    for ( int idx=1; idx<sz-1; idx++ )
+    {
+	const float prvval = log->value( idx-1 );
+	const float curval = log->value( idx );
+	const float nxtval = log->value( idx+1 );
+	outplog.addValue( log->dah(idx), (prvval + curval + nxtval )/3 );
+    }
+
+    GeoCalculator gc; 
+    gc.removeSpikes( outplog.valArr(), sz, 10, 3 );
+
+    return true;
+}
+
+
+bool DataPlayer::setAIModel()
+{
+    aimodel_.erase();
+
+    const Well::Log* sonlog = wd_->logs().getLog( data_.sonic() );
+    const Well::Log* denlog = wd_->logs().getLog( data_.density() );
+
+    Well::Log pslog, pdlog;
+    if ( !processLog( sonlog, pslog, data_.sonic() ) 
+	    || !processLog( denlog, pdlog, data_.density() ) )
+	return false;
+
+    if ( data_.isSonic() )
+	{ GeoCalculator gc; gc.velLogConv( pslog, GeoCalculator::Son2Vel ); }
+
+    if ( !wd_->d2TModel() )
+	mErrRet( "No depth/time model computed" );
+
+    for ( int idx=0; idx<worksz_; idx++ )
+    {
+	const float dah = wd_->d2TModel()->getDah( workrg_.atIndex( idx ) );
+	const float vel = pslog.getValue( dah, true ); 
+	const float den = pdlog.getValue( dah, true ); 
+	aimodel_ += AILayer( dah, vel, den );
+    }
+    return true;
+}
+
+
+bool DataPlayer::runRayTracer()
+{
+    raytracer_->setModel( true, aimodel_ );
+    TypeSet<float> offsets; offsets += 0;
+    raytracer_->setOffsets( offsets );
     TaskRunner taskrunner;
-    TrackExtractor wtextr( wd->track(), wd->d2TModel() );
+    if ( !taskrunner.execute( *raytracer_ ) )
+	mErrRet( raytracer_->errMsg() )
+
+    raytracer_->getReflectivity( 0, refmodel_ );
+    for ( int idx=0; idx<worksz_-1; idx++ )
+	refmodel_[idx].time_ = workrg_.atIndex(idx+1);
+
+    return true;
+}
+
+
+bool DataPlayer::generateSynthetics()
+{
+    Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
+					    : data_.estimatedwvlt_;
+    Seis::ODSynthGenerator gen;
+    gen.setModel( refmodel_ );
+    gen.setWavelet( &wvlt, OD::UsePtr );
+    gen.setOutSampling( disprg_ );
+    TaskRunner taskrunner;
+    if ( !taskrunner.execute( gen ) )
+	return false;
+
+    const SeisTrc& res = gen.result(); 
+    data_.synthtrc_.copyDataFrom( res );
+    gen.getSampledReflectivities( reflvals_ );
+
+    return true;
+}
+
+
+bool DataPlayer::extractSeismics()
+{
+    TaskRunner taskrunner;
+    TrackExtractor wtextr( wd_->track(), wd_->d2TModel() );
     taskrunner.execute( wtextr ); 
 
     const IOObj& ioobj = *IOM().get( seisid_ );
@@ -77,90 +182,41 @@ void DataPlayer::extractSeismics()
     if ( linekey_ )
 	seisextr.setLineKey( linekey_ );
     seisextr.setBIDValues( wtextr.getBIDs() );
-    seisextr.setInterval( data_.timeintv_ );
+    seisextr.setInterval( disprg_ );
     taskrunner.execute( seisextr );
     data_.seistrc_ = seisextr.result(); 
+    return true;
 }
 
 
-static const int cDefaultZResamplingFactor = 20;
-void DataPlayer::resetAIModel()
+bool DataPlayer::copyDataToLogSet()
 {
-    delete aimodel_; aimodel_ = 0;
-    mGetWD()
-    if ( !wd->d2TModel() || wd->d2TModel()->size() <= 2 ) 
-	return; 
-    TypeSet<AILayer> pts;
+    if ( aimodel_.isEmpty() ) 
+	mErrRet( "No data found" )
+
+    TypeSet<float> dah, son, den, ai, synth, refs;
     StepInterval<float> workintv = data_.timeintv_; 
-    workintv.step /= cDefaultZResamplingFactor;
     const int worksz = workintv.nrSteps();
-
-    const Well::Log* sonlog = wd->logs().getLog( data_.sonic() );
-    const Well::Log* denlog = wd->logs().getLog( data_.density() );
-    if ( !denlog || !sonlog ) return;
-    Well::Log vellog( *sonlog );
-    CheckShotCorr cscorr( vellog, *wd->d2TModel(), !data_.isSonic() );
-    float lastdah = 0; 
-    for ( int idx=0; idx<worksz; idx++ )
+    for ( int idx=0; idx<dispsz_; idx++ )
     {
-	float dah = wd->d2TModel()->getDah( workintv.atIndex(idx) );
-	float vel = vellog.getValue( dah, true ); 
-	float den = denlog->getValue( dah, true ); 
-	pts += AILayer( dah, vel, den );
-	lastdah = dah;
-    }
-    aimodel_ = new AIModel( pts, lastdah );
-    aimodel_->antiAlias();
-}
-
-
-void DataPlayer::generateSynthetics()
-{
-    if ( !aimodel_ ) return;
-    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
-						  : data_.estimatedwvlt_;
-    AIModel* newaimodel = new AIModel(*aimodel_); 
-    Wavelet* newwvlt = new Wavelet(wvlt);
-    int sz;
-    SamplingData<float> sd = data_.timeintv_;
-	//Seis::SynthGenerator::getDefOutSampling( *aimodel_, *wvlt, sz );
-    Seis::SynthGenerator gen( *newaimodel, *newwvlt );
-    gen.setOutSampling( sd, refsz_ );
-    gen.generate();
-
-    const SeisTrc& res = gen.result(); //.getExtendedTo( timeintv_ );
-    data_.synthtrc_.copyDataFrom( res );
-    //delete res;
-}
-
-
-void DataPlayer::copyDataToLogSet()
-{
-    mGetWD()
-    if ( !aimodel_ ) return;
-    TypeSet<float> dah, son, den, refs, outprefs, ai, synth;
-    const Well::Log* sonlog = wd->logs().getLog( data_.currvellog() );
-    for ( int idx=0; idx<refsz_; idx++ )
-    {
-	const float time = data_.timeintv_.atIndex(idx);
-	dah += wd->d2TModel()->getDah( time );
-	AIModel::Domain dom = AIModel::TWT;
-	son += aimodel_->velocityAt( dom, time );
-	den += aimodel_->densityAt( dom, time );
-	ai += aimodel_->aiAt( dom, time );
+	const float time = disprg_.atIndex(idx);
+	const int workidx = workrg_.getIndex( time );
+	const AILayer& layer = aimodel_[workidx];
+	dah += layer.depth_;
+	son += layer.vel_;
+	den += layer.den_;
+	ai += layer.vel_*layer.den_;
     }
 
-    SamplingData<float> sd( data_.timeintv_ );
-    aimodel_->getReflectivity( sd, refs );
-    for ( int idx=0; idx<dah.size(); idx++ )
-	outprefs += idx < refs.size() ? refs[idx] : 0;
+    for ( int idx=0; idx<dah.size()-1; idx++ )
+	refs += reflvals_[idx];
 
     createLog( data_.sonic(), dah, son ); 
     createLog( data_.density(), dah, den ); 
     createLog( data_.ai(), dah, ai );
-    createLog( data_.reflectivity(), dah, outprefs  );
+    createLog( data_.reflectivity(), dah, refs  );
 
-    return;
+    /*
     if ( data_.isSonic() )
     {
 	GeoCalculator gc;
@@ -168,6 +224,8 @@ void DataPlayer::copyDataToLogSet()
 	if ( vellog )
 	    gc.velLogConv( *vellog, GeoCalculator::Vel2Son );
     }
+    */
+    return true;
 }
 
 

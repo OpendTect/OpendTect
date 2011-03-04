@@ -13,12 +13,17 @@ ________________________________________________________________________
 
 -*/
 
+#include "ranges.h"
+#include "reflectivitymodel.h"
 #include "welltiegeocalculator.h"
 
 class AIModel;
 class LineKey;
 class MultiID;
+class AILayer;
+class RayTracer1D;
 class TaskRunner;
+namespace Well { class Data; }
 
 template <class T> class TypeSet;
 
@@ -33,23 +38,40 @@ public:
 			DataPlayer(Data&,const MultiID&,const LineKey* lk=0);
 			~DataPlayer();
 
-    void 		computeAll();
-    void		generateSynthetics();
+    bool 		computeAll();
+    bool		generateSynthetics();
+
+    const char*		errMsg() const		{ return errmsg_.buf(); } 
    
 protected:
 
-    void		extractSeismics();
-    void		resetAIModel();
-    void		copyDataToLogSet();
-
+    bool		extractSeismics();
+    bool		setAIModel();
+    bool		setD2TModel();
+    bool		setRefModel();
+    bool		runRayTracer();
+    bool		copyDataToLogSet();
+    bool		processLog(const Well::Log*,
+				    Well::Log&,const char*); 
     void		createLog(const char*,const TypeSet<float>&,
 				    const TypeSet<float>&);
 
-    AIModel*		aimodel_;
+    TypeSet<AILayer> 	aimodel_;
+    ReflectivityModel	refmodel_;
     Data&		data_;
+
     const MultiID&	seisid_;
     const LineKey*	linekey_;
-    int			refsz_;
+    RayTracer1D*	raytracer_;
+    TypeSet<float>	reflvals_;
+
+    StepInterval<float> disprg_;
+    StepInterval<float> workrg_;
+    int			dispsz_;
+    int			worksz_;
+
+    BufferString	errmsg_;
+    const Well::Data*	wd_;
 
     GeoCalculator 	geocalc_;
 };

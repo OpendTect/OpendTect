@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.27 2011-01-20 10:21:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.28 2011-03-04 14:16:39 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -59,13 +59,13 @@ void D2TModelMgr::setFromVelLog( const char* lognm )
     Well::Log* log = wd_ ? wd_->logs().getLog( lognm ) : 0;
     if ( !log ) return;
 
-    Well::Log tmplog( *log );
-    if ( issonic_ ) calc_.velLogConv( tmplog, GeoCalculator::Son2Vel );
     const Well::Info& info = wd_->info();
     float surf = -info.surfaceelev;
     if ( mIsUdf( fabs(surf) ) ) surf = 0;
 
-    Well::D2TModel* d2tm = calc_.getModelFromVelLog( tmplog, &wd_->track(), surf);
+    Well::D2TModel* d2tm = 
+	calc_.getModelFromVelLog( *log, &wd_->track(), surf, issonic_ );
+
     if ( !d2tm ) return;
 
     setAsCurrent( d2tm );
