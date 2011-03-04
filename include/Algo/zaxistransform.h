@@ -6,10 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.31 2011-02-04 05:36:30 cvsnanne Exp $
+ RCS:           $Id: zaxistransform.h,v 1.32 2011-03-04 03:21:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+
+//! \defgroup Algo Algo
 
 #include "enums.h"
 #include "factory.h"
@@ -25,9 +27,12 @@ class TaskRunner;
 
 namespace ZDomain { class Def; class Info; }
 
-/*! Baseclass for z stretching in different ways. The z-stretch may be dependent
-on the location (binid). The various transforms can be retrieved from factory
-ZATF().
+/*! \class ZAxisTransform
+    \ingroup Algo
+    \brief The ZAxisTransform class
+    is the base class for z stretching in different ways.
+    The z-stretch may be dependent on the location (binid).
+    The various transforms can be retrieved from factory ZATF().
 */
 
 mClass ZAxisTransform
@@ -36,7 +41,7 @@ public:
 				mDefineFactoryInClass(ZAxisTransform,factory);
 
     static ZAxisTransform*	create(const IOPar&);
-    				/*!<\note Result will be reffed once. It is
+    				/*!< Result will be reffed once. It is
 				          caller's responsibility to unref. */
 
     virtual bool		isOK() const		{ return true; }
@@ -80,13 +85,13 @@ public:
 					      float z) const;
 
     virtual Interval<float>	getZInterval(bool from) const		= 0;
-    				/*!<\Returns the z interval in either to
+    				/*!\return the z interval in either to
 				     or from domain. */
     virtual float		getZIntervalCenter(bool from) const;
-    				/*!\Returns a position within the
+    				/*!\return a position within the
 				    z-range that is a logical 'center' */
     virtual float		getGoodZStep() const;
-    				/*!\returns a reasonable step in the
+    				/*!\return a reasonable step in the
 				    transformed domain. Default
 				    implementation gives the same step as in
 				    SI() (i.e. non transformed domain) */
@@ -100,7 +105,7 @@ public:
 
     virtual int			lineIndex( const char* linename ) const
 				{ return 0; }
-    				//!\Returns the index of a line in a 2D lineset.
+    				//!\return the index of a line in a 2D lineset.
 
     virtual NotifierAccess*	changeNotifier()		{ return 0; }
     virtual void		fillPar(IOPar&) const;
@@ -115,6 +120,11 @@ protected:
     mutable BufferString	errmsg_;
 };
 
+
+/*! \class ZAxisTransformSampler
+    \ingroup Algo
+    \brief The ZAxisTransformSampler class ...
+*/
 
 mClass ZAxisTransformSampler
 {
