@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.7 2011-03-04 14:41:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.8 2011-03-04 14:54:43 cvsbert Exp $";
 
 #include "uisegymanip.h"
 
@@ -280,6 +280,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     }
     thtbl_->attach( ensureRightOf, edbut_ );
     thtbl_->setStretch( 0, 1 );
+    thtbl_->rowClicked.notify( mCB(this,uiSEGYFileManip,rowClck) );
 
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( grp, "Trace index" );
     trcnrfld_ = lsb->box();
@@ -404,6 +405,7 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     hdrfld_->addItem( calcset_.trcIdxEntry().name() );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
 	hdrfld_->addItem( calcset_.hdrDef()[idx]->name() );
+    hdrfld_->setCurrentItem( hc.he_.name() );
     hdrfld_->doubleClicked.notify( cb );
 
     uiToolButton* addbut = new uiToolButton( this, uiToolButton::RightArrow,
@@ -541,6 +543,23 @@ void uiSEGYFileManip::trcNrChg( CallBacker* )
     StrmOper::readBlock( strm(), inphdrbuf_, SegyTrcHeaderLength );
 
     updTrcVals();
+}
+
+
+void uiSEGYFileManip::rowClck( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,rownr,cb);
+    if ( rownr < 0 ) return;
+    const char* nm = calcset_.hdrDef()[rownr]->name();
+    int lidx = avtrchdrsfld_->indexOf( nm );
+    if ( lidx >= 0 )
+	avtrchdrsfld_->setCurrentItem( lidx );
+    else
+    {
+	lidx = calcset_.indexOf( nm );
+	if ( lidx < 0 ) { pErrMsg("Huh"); return; }
+	trchdrfld_->setCurrentItem( lidx );
+    }
 }
 
 
