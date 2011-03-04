@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.11 2011-01-27 04:25:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.12 2011-03-04 11:22:22 cvsnanne Exp $";
 
 #include "uislicepos.h"
 
@@ -34,10 +34,8 @@ uiSlicePos::uiSlicePos( uiParent* p )
     uiLabel* steplabel = new uiLabel( toolbar_, "Step" );
 
     slicestepbox_ = new uiSpinBox( toolbar_, 0, "Slice step" );
-    slicestepbox_->valueChanged.notify(
-				mCB(this,uiSlicePos,sliceStepChg) );
-    slicestepbox_->valueChanging.notify(
-				mCB(this,uiSlicePos,sliceStepChg) );
+    slicestepbox_->valueChanged.notify( mCB(this,uiSlicePos,sliceStepChg) );
+    slicestepbox_->valueChanging.notify( mCB(this,uiSlicePos,sliceStepChg) );
 
     prevbut_ = new uiToolButton( toolbar_, "prevpos.png", "Previous position",
 				mCB(this,uiSlicePos,prevCB) );

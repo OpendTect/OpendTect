@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.17 2010-12-10 12:14:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.18 2011-03-04 11:22:22 cvsnanne Exp $";
 
 #include "uivisslicepos3d.h"
 
@@ -34,6 +34,8 @@ void uiSlicePos3DDisp::setDisplay( Display* pdd )
 {
     if ( curpdd_ )
     {
+	curpdd_->getMovementNotifier()->remove(
+					mCB(this,uiSlicePos3DDisp,updatePos) );
 	curpdd_->getManipulationNotifier()->remove(
 					mCB(this,uiSlicePos3DDisp,updatePos) );
 	curpdd_->unRef();
@@ -42,6 +44,8 @@ void uiSlicePos3DDisp::setDisplay( Display* pdd )
     if ( curpdd_ )
     {
 	curpdd_->ref();
+	curpdd_->getMovementNotifier()->notify(
+					mCB(this,uiSlicePos3DDisp,updatePos) );
 	curpdd_->getManipulationNotifier()->notify(
 					mCB(this,uiSlicePos3DDisp,updatePos) );
     }
