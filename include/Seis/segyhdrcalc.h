@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2011
- RCS:		$Id: segyhdrcalc.h,v 1.2 2011-03-03 15:13:16 cvsbert Exp $
+ RCS:		$Id: segyhdrcalc.h,v 1.3 2011-03-04 14:40:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,13 +46,16 @@ public:
 	    			    BufferString* emsg=0);
     void			discard(int);
 
-    bool			apply(void*) const;
+    void			reSetSeqNr( int seqnr=1 ) { seqnr_ = seqnr; }
+    void			apply(void*) const;
 
 protected:
 
     const HdrDef&		hdef_;
     HdrEntry			trcidxhe_;
     ObjectSet<MathExpression>	exprs_;
+    ObjectSet< TypeSet<int> >	heidxs_;
+    mutable int			seqnr_;
 
 };
 
