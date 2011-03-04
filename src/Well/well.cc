@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.81 2011-02-14 14:43:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.82 2011-03-04 09:54:35 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -165,6 +165,8 @@ bool Well::Data::haveLogs() const
 
 void Well::Data::setD2TModel( D2TModel* d )
 {
+    if ( d2tmodel_ == d ) 
+	return;
     delete d2tmodel_;
     d2tmodel_ = d;
 }
@@ -172,6 +174,8 @@ void Well::Data::setD2TModel( D2TModel* d )
 
 void Well::Data::setCheckShotModel( D2TModel* d )
 {
+    if ( csmodel_ == d ) 
+	return;
     delete csmodel_;
     csmodel_ = d;
 }
