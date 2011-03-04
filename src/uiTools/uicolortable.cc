@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.42 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.43 2011-03-04 08:58:16 cvsnanne Exp $";
 
 #include "uicolortable.h"
 
@@ -277,7 +277,9 @@ void uiColorTable::canvasClick( CallBacker* )
 	return;
 
     const MouseEvent& ev = canvas_->getMouseEventHandler().event();
-    if ( OD::RightButton != ev.buttonState() )
+    const bool showmenu = ev.rightButton() ||
+			 (ev.ctrlStatus() && ev.leftButton());
+    if ( !showmenu )
 	return;
 
     const bool hasseq = selfld_->sensitive();
