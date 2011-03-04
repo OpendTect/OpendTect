@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorgeom2attr.cc,v 1.2 2011-02-24 15:14:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorgeom2attr.cc,v 1.3 2011-03-04 11:57:15 cvsbert Exp $";
 
 #include "uihorgeom2attr.h"
 
@@ -140,12 +140,16 @@ bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
 	else
 	{
 	    float newz = dps_.value( colid_, rid );
-	    if ( !mIsUdf(newz) )
-		newz *= zfac;
-	    if ( isdelta )
-		crd.z += newz;
-	    else
+	    if ( mIsUdf(newz) )
 		crd.z = newz;
+	    else
+	    {
+		newz *= zfac;
+		if ( isdelta )
+		    crd.z += newz;
+		else
+		    crd.z = newz;
+	    }
 	}
 	hor_.setPos( pid, crd, false );
     }
