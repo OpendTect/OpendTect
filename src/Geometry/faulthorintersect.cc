@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.12 2011-03-03 22:03:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.13 2011-03-04 21:53:04 cvsyuancheng Exp $";
 
 #include "faulthorintersect.h"
 
@@ -81,15 +81,15 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	for ( int idy=0; idy<inp->coordindices_.size()-3; idy+=4 )
 	{
 	    Coord3 v[3];
-	    for ( int idz=0; idz<3; idz++ )
-		v[idz] = coordlist->get(inp->coordindices_[idy+idz]);
+	    for ( int k=0; k<3; k++ )
+		v[k] = coordlist->get(inp->coordindices_[idy+k]);
     
 	    const Coord3 center = (v[0]+v[1]+v[2])/3;
       
 	    Interval<int> trrg, tcrg; 
 	    Coord3 rcz[3];
-	    bool above[3];
-	    bool below[3];
+	    bool allabove = true;
+	    bool allbelow = true;
 	    for ( int k=0; k<3; k++ )
 	    {
 		BinID bid = SI().transform( v[k] );
@@ -97,9 +97,11 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 		const float pz = surf_.getKnot(rc, false).z + zshift_;
 		rcz[k] = Coord3( rc.row, rc.col, pz );
-		const bool defined = !mIsUdf(pz);
-		above[k] = defined ? v[k].z >= pz : v[k].z >= surfzrg_.stop;
-		below[k] = defined ? v[k].z <= pz : v[k].z <= surfzrg_.start;
+		bool defined = !mIsUdf(pz);
+		if ( allabove )
+    		    allabove = defined ? v[k].z>=pz : v[k].z >= surfzrg_.stop;
+		if ( allbelow )
+    		    allbelow = defined ? v[k].z<=pz : v[k].z <= surfzrg_.start;
 
 		if ( !k )
 		{
@@ -115,45 +117,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	    if ( trrg.start > surfrrg.stop || trrg.stop < surfrrg.start ||
 		 tcrg.start > surfcrg.stop || tcrg.stop < surfcrg.start ||
-		 (above[0] && above[1] && above[2]) || 
-		 (below[0] && below[1] && below[2]) ) 
+		 allabove || allbelow ) 
 		continue; 
-
-	    char topidx = -1;
-	    for ( int k=0; k<3; k++ )
-	    {
-		const int nextk = (k+1) % 3;
-		if ( (above[k] && above[nextk]) || (below[k] && below[nextk]) )
-		{
-		    topidx = (k+2) % 3; 
-		    break;
-		}
-	    }
-	    if ( topidx==-1 ) //special case, may not precisly done
-	    {
-		int nrdefined = 0;
-		float zsum = 0;
-		for ( int k=0; k<3; k++ )
-		{
-		    if ( !mIsUdf(rcz[k].z) )
-		    {
-			zsum += rcz[k].z;
-			nrdefined++;
-		    }
-		}
-
-		float zavg = nrdefined ? zsum / nrdefined : surfzrg_.center();
-		for ( int k=0; k<3; k++ )
-		{
-		    const int nextk = (k+1) % 3;
-		    if ( (v[k].z >= zavg && v[nextk].z >= zavg) || 
-			 (v[k].z <= zavg && v[nextk].z <= zavg) )
-		    {
-			topidx = (k+2) % 3; 
-			break;
-		    }
-		}
-	    }
 
 	    Coord3 tri[3];
 	    for ( int k=0; k<3; k++ )
@@ -162,11 +127,6 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		tri[k].z *= zscale;
 	    }
 	    Plane3 triangle( tri[0], tri[1], tri[2] );
-	    const int tidx0 = (topidx+1) % 3;
-	    const int tidx1 = (topidx+2) % 3; 
-	    const Coord3 testedgedir0 = tri[topidx] - tri[tidx0];
-	    const Coord3 testedgedir1 = tri[topidx] - tri[tidx1];
-	    const Coord3 testnormal = -testedgedir0.cross(testedgedir1);
 	    
 	    StepInterval<int> smprrg( mMAX(surfrrg.start, trrg.start),
 		    		      mMIN(surfrrg.stop, trrg.stop), 1 );
@@ -202,7 +162,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		{
 		    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
 		    if ( !pointInTriangle2D( Coord(vertex.x,vertex.y),
-				rcz[0],rcz[1],rcz[2],1e-4) )
+				rcz[0],rcz[1],rcz[2],0) )
 			continue;
 
 		    const int minrow = (int)vertex.x;
@@ -213,10 +173,10 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		    TypeSet<Coord3> neighbors;
 		    TypeSet<float> weights;
 		    float weightsum = 0;
-		    bool found = false;
+		    bool isdone = false;
 		    for ( int r=minrow; r<=maxrow; r++ )
 		    {
-			if ( found )
+			if ( isdone )
 			    break;
 
 			for ( int c=mincol; c<=maxcol; c++ )
@@ -227,23 +187,23 @@ bool doWork( od_int64 start, od_int64 stop, int )
 			    else
 				pos.z += zshift_;
 
-			    neighbors += pos;
-			    float sqdist = (r-vertex.x)*(r-vertex.x) +
-				(c-vertex.y)*(c-vertex.y);
-			    if ( mIsZero(sqdist,1e-5) && res.indexOf(pos)!=-1 )
+			    float dist = fabs(r-vertex.x) + fabs(c-vertex.y);
+			    if ( mIsZero(dist,1e-5) && res.indexOf(pos)!=-1 )
 			    {
 				res += pos;
-				found = true;
+				isdone = true;
 				break;
 			    }
 			    else
-				sqdist = 1/sqdist;
-			    weights += sqdist;
-			    weightsum += sqdist;
+				dist = 1/dist;
+			    
+			    weights += dist;
+			    weightsum += dist;
+			    neighbors += pos;
 			}
 		    }
 
-		    if ( found || !neighbors.size() )
+		    if ( isdone || !neighbors.size() )
 			continue;
 
 		    Coord3 intersect(0,0,0);
@@ -256,16 +216,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 		    Coord3 temp = intersect - center;
 		    temp.z *= zscale;
-		    temp -= tri[topidx];
-		    Coord3 tempnormal = testedgedir0.cross(temp);
-		    if ( tempnormal.dot(testnormal)<0 )
-			continue;
-
-		    tempnormal = testedgedir1.cross(temp);
-		    if ( tempnormal.dot(testnormal)>0 )
-			continue;
-
-		    res += intersect;
+		    if ( pointInTriangle3D(temp,tri[0],tri[1],tri[2],0) )
+			res += intersect;
 		}
 		    
 		if ( ic.isClosed() && res.size() )
