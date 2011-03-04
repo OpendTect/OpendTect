@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.6 2011-03-04 11:50:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.7 2011-03-04 14:41:25 cvsbert Exp $";
 
 #include "uisegymanip.h"
 
@@ -362,6 +362,7 @@ void uiSEGYFileManip::fillDefCalcs( int selidx )
 void uiSEGYFileManip::updTrcVals()
 {
     memcpy( curhdrbuf_, inphdrbuf_, SegyTrcHeaderLength );
+    calcset_.reSetSeqNr( trcnrfld_->getValue() );
     calcset_.apply( curhdrbuf_ );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
     {
@@ -559,6 +560,7 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
 	mErrRet("input and output file cannot be the same" )
 
     txthdr_.setText( txthdrfld_->text() );
+    calcset_.reSetSeqNr( 1 );
 
     fname_ = fnm;
     uiMSG().warning( "Not impl: no output generated" );
