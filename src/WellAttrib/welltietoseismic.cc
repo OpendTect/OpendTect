@@ -7,12 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.53 2011-03-04 14:16:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.54 2011-03-04 15:46:52 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
 #include "arrayndimpl.h"
-#include "aimodel.h"
 #include "ioman.h"
 #include "mousecursor.h"
 #include "raytrace1d.h"

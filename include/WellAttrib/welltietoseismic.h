@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "ailayer.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
 #include "welltiegeocalculator.h"
@@ -20,7 +21,6 @@ ________________________________________________________________________
 class AIModel;
 class LineKey;
 class MultiID;
-class AILayer;
 class RayTracer1D;
 class TaskRunner;
 namespace Well { class Data; }
