@@ -7,11 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistereodlg.cc,v 1.10 2009-08-24 14:36:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uistereodlg.cc,v 1.11 2011-03-04 11:35:03 cvsnanne Exp $";
 
 #include "uistereodlg.h"
-#include "uisoviewer.h"
+
+#include "uimsg.h"
 #include "uislider.h"
+#include "uisoviewer.h"
 
 
 uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<uiSoViewer>& vwrs_ )
@@ -48,6 +50,9 @@ bool uiStereoDlg::acceptOK( CallBacker* )
     float slval = sliderfld->sldr()->getValue();
     for ( int idx=0; idx<vwrs.size(); idx++ )
 	vwrs[idx]->setStereoOffset( slval );
+
+    if ( mIsEqual(sliderfld->sldr()->maxValue(),slval,mDefEps) )
+	uiMSG().message( "Open this dialog again for higher offsets" );
 
     return true;
 }

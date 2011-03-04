@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.217 2011-02-15 04:00:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.218 2011-03-04 11:35:03 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -510,6 +510,9 @@ void uiODSceneMgr::setStereoType( int type )
 	if ( type )
 	    sovwr_.setStereoOffset( stereooffset );
     }
+
+    if ( type>0 )
+	applMgr().setStereoOffset();
 }
 
 
