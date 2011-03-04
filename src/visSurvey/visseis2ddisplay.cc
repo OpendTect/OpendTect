@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.122 2011-02-21 20:52:43 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.123 2011-03-04 11:34:02 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -110,8 +110,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int nrsamp = data2dh_.dataset_[0]->nrsamples_;
     const SamplingData<float>& sd = data2dh_.trcinfoset_[0]->sampling; 
     StepInterval<float> zrg = s2d_.getZRange(!s2d_.datatransform_,attrib_);
-    zrg.step = s2d_.datatransform_	? s2d_.datatransform_->getGoodZStep()
-	 			 	: SI().zStep();
     StepInterval<int> arraysrg( mNINT(zrg.start/sd.step),
 				mNINT(zrg.stop/sd.step),1 );
     const float firstz = data2dh_.dataset_[0]->z0_*sd.step;
@@ -122,7 +120,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const bool samplebased = 	
 	mIsEqual( sd.getIndex(firstz),firstdhsample,1e-3 ) && 
 	mIsEqual( sd.step, s2d_.getScene()->getCubeSampling().zrg.step, 1e-3 );
-    	// if samplebased is false, interpolation needs to be done...
+    // if samplebased is false, interpolation needs to be done...
 
     const TypeSet<int>& allpos = s2d_.trcdisplayinfo_.alltrcnrs;
     const int starttrcidx = allpos.indexOf( s2d_.trcdisplayinfo_.rg.start );
@@ -178,8 +176,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 		val = mUdf(float);
 		const float offset = idy * SI().zStep() / sd.step;
-		IdxAble::interpolateRegWithUdf( *dataseries, 
-		    nrsamp, firstz + offset + shift, val );
+		IdxAble::interpolateRegWithUdf( *dataseries, nrsamp,
+						firstz + offset, val );
 	    }
 	    
 	    if ( outputptr_ )
@@ -218,8 +216,7 @@ Seis2DArray( const Seis2DDisplay& s2d, const Attrib::Data2DHolder& d2dh,
 		    , info_( *new Array2DInfoImpl( s2d.trcdisplayinfo_.size,
 				zsz ) )
 		    , attrib_( attrib )
-{
-}
+{}
 
 
 ~Seis2DArray()
@@ -300,9 +297,10 @@ float Seis2DArray::get( int idx0, int idx1 ) const
     const float firstz = data2dh_.dataset_[0]->z0_ * sd.step;
     const float firstdhsamplef = sd.getIndex( firstz );
     const int firstdhsample = sd.nearestIndex( firstz );
+    const bool samestep = s2d_.datatransform_ ||
+	mIsEqual(sd.step,s2d_.getScene()->getCubeSampling().zrg.step,1e-3);
     const bool samplebased = mIsEqual(firstdhsamplef,firstdhsample,1e-3)
-	&&  mIsEqual(sd.step,s2d_.getScene()->getCubeSampling().zrg.step,1e-3);
-
+	&& samestep;
     if ( !samplebased )
 	return mUdf(float);
 
@@ -433,7 +431,8 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 	trcdisplayinfo_.alltrcnrs += linepositions[idx].nr_;
     }
 
-    trcdisplayinfo_.zrg.step = geometry_.zRange().step;
+    trcdisplayinfo_.zrg.step = datatransform_ ? datatransform_->getGoodZStep()
+					      : geometry_.zRange().step;
     setTraceNrRange( maxtrcnrrg_ );
     setZRange( geometry_.zRange() );
 	    
@@ -476,17 +475,24 @@ void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
 }
 
 
-StepInterval<float> Seis2DDisplay::getZRange( bool displayspace, int attrib ) const
+StepInterval<float>
+	Seis2DDisplay::getZRange( bool displayspace, int attrib ) const
 {
-    const char* zdomain =
+    const FixedString zdomainkey =
 	(attrib>=0 && attrib<nrAttribs()) ? getSelSpec(attrib)->zDomainKey()
 					  : 0;
-    const bool alreadytransformed = zdomain && *zdomain;
+    const bool alreadytransformed =
+	scene_ && zdomainkey == scene_->zDomainKey();
     if ( alreadytransformed )
 	return trcdisplayinfo_.zrg;
 
     if ( datatransform_ && !displayspace )
-	return datatransform_->getZInterval( true );
+    {
+	StepInterval<float> zrg = datatransform_->getZInterval( true );
+	zrg.step = SI().zStep();
+	return zrg;
+    }
+
     return trcdisplayinfo_.zrg;
 }
 
@@ -628,12 +634,7 @@ void Seis2DDisplay::setData( int attrib,
 
     StepInterval<float> arrayzrg;
     arrayzrg.setFrom( getZRange(!datatransform_,attrib) );
-
-//    arrayzrg.step = sd.step;
-
-     arrayzrg.step = datatransform_ ? datatransform_->getGoodZStep()
-	 			    : SI().zStep();
-
+    arrayzrg.step = sd.step;
     const int arrzsz = mNINT( arrayzrg.nrfSteps() )+1;
 
 #ifndef mUseSeis2DArray
@@ -671,8 +672,9 @@ void Seis2DDisplay::setData( int attrib,
 	    continue;
 #endif
 
-	const char* zdomain = getSelSpec(attrib)->zDomainKey();
-	const bool alreadytransformed = zdomain && *zdomain;
+	const FixedString zdomainkey = getSelSpec(attrib)->zDomainKey();
+	const bool alreadytransformed =
+	    scene_ && zdomainkey == scene_->zDomainKey();
 	PtrMan<Array2D<float> > tmparr = 0;
 	Array2D<float>* usedarr = 0;
 	if ( alreadytransformed || !datatransform_ )
