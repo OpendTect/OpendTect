@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorgeom2attr.cc,v 1.3 2011-03-04 11:57:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorgeom2attr.cc,v 1.4 2011-03-04 12:48:19 cvsbert Exp $";
 
 #include "uihorgeom2attr.h"
 
@@ -106,7 +106,7 @@ uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
 		      dps.dataSet().colDef(colid).name_,"'"),mTODOHelpID))
     , hor_(hor)
     , dps_(dps)
-    , colid_(colid)
+    , colid_(colid-dps.nrFixedCols())
     , msfld_(0)
 {
     hor_.ref();
@@ -117,43 +117,94 @@ uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
 }
 
 
-bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
+class uiHorAttr2GeomExec : public Executor
 {
-    mGetZFac( 0.001 );
-    const bool isdelta = isdeltafld_->getBoolValue();
+public:
 
-    EM::EMObjectIterator* iter = hor_.createIterator( 0 );
-    while ( true )
+uiHorAttr2GeomExec( EM::Horizon3D& h, const DataPointSet& dps,
+		    int colid, float zfac, bool isdel )
+    : Executor("Horizon geometry from attribute")
+    , hor_(h)
+    , dps_(dps)
+    , it_(h.createIterator(0))
+    , stepnr_(0)
+    , colid_(colid)
+    , isdelta_(isdel)
+    , zfac_(zfac)
+{
+    totnr_ = it_->approximateSize();
+}
+
+~uiHorAttr2GeomExec()
+{
+    delete it_;
+}
+
+const char* message() const	{ return "Setting Z values"; }
+const char* nrDoneText() const	{ return "Nodes done"; }
+od_int64 nrDone() const		{ return stepnr_ * 1000; }
+od_int64 totalNr() const	{ return totnr_; }
+
+int nextStep()
+{
+    for ( int idx=0; idx<1000; idx++ )
     {
-	const EM::PosID pid = iter->next();
+	const EM::PosID pid = it_->next();
 	if ( pid.objectID() == -1 )
-	    break;
+	    return Finished();
  
 	const BinID bid( pid.subID() );
 	DataPointSet::RowID rid = dps_.findFirst( bid );
 	Coord3 crd = hor_.getPos( pid );
 	if ( rid < 0 )
 	{
-	    if ( !isdelta )
+	    if ( !isdelta_ )
 		crd.z = mUdf(float);
 	}
 	else
 	{
 	    float newz = dps_.value( colid_, rid );
+	    if ( mIsUdf(newz) && isdelta_ )
+		newz = 0;
+
 	    if ( mIsUdf(newz) )
 		crd.z = newz;
 	    else
 	    {
-		newz *= zfac;
-		if ( isdelta )
+		newz *= zfac_;
+		if ( isdelta_ )
 		    crd.z += newz;
 		else
 		    crd.z = newz;
 	    }
 	}
-	hor_.setPos( pid, crd, false );
+	if ( mIsUdf(crd.z) )
+	    hor_.unSetPos( pid, false );
+	else
+	    hor_.setPos( pid, crd, false );
     }
-    delete iter;
+    stepnr_++;
+    return MoreToDo();
+}
 
-    return true;
+    EM::Horizon3D&		hor_;
+    const DataPointSet&		dps_;
+    EM::EMObjectIterator*	it_;
+    const int			colid_;
+    od_int64			stepnr_;
+    od_int64			totnr_;
+    bool			isdelta_;
+    const float			zfac_;
+
+};
+
+
+bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
+{
+    mGetZFac( 0.001 );
+    const bool isdelta = isdeltafld_->getBoolValue();
+
+    uiHorAttr2GeomExec exec( hor_, dps_, colid_, zfac, isdelta );
+    uiTaskRunner tr( this );
+    return tr.execute( exec );
 }
