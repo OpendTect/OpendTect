@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.5 2011-03-03 15:13:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.6 2011-03-04 11:50:20 cvsbert Exp $";
 
 #include "uisegymanip.h"
 
@@ -276,8 +276,10 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
 	const SEGY::HdrEntry& he = *def[irow];
 	thtbl_->setRowLabel( irow, he.name() );
 	thtbl_->setRowToolTip( irow, he.description() );
+	thtbl_->setValue( RowCol(irow,0), he.bytepos_ + 1 );
     }
     thtbl_->attach( ensureRightOf, edbut_ );
+    thtbl_->setStretch( 0, 1 );
 
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( grp, "Trace index" );
     trcnrfld_ = lsb->box();
@@ -363,8 +365,8 @@ void uiSEGYFileManip::updTrcVals()
     calcset_.apply( curhdrbuf_ );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
     {
-	int val = calcset_.hdrDef()[idx]->getValue(curhdrbuf_,false);
-	thtbl_->setValue( RowCol(idx,1), val );
+	const SEGY::HdrEntry& he = *calcset_.hdrDef()[idx];
+	thtbl_->setValue( RowCol(idx,1), he.getValue(curhdrbuf_,false) );
     }
 }
 
@@ -407,19 +409,45 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
 					     "Insert in formula", cb );
     addbut->attach( centeredRightOf, llb );
     formfld_ = new uiLineEdit( this, "Formula" );
+    formfld_->setText( hc_.def_ );
     formfld_->attach( rightOf, addbut );
     formfld_->setHSzPol( uiObject::WideVar );
-    uiLabel* lbl = new uiLabel( this, "Formula" );
+    uiLabel* lbl = new uiLabel( this,
+	    		BufferString("Formula for '",hc_.he_.name(),"'") );
     lbl->attach( centeredBelow, formfld_ );
 }
 
 void insTxt( CallBacker* )
 {
+    const int selidx = hdrfld_->currentItem();
+    if ( selidx < 0 ) return;
+    const int curpos = formfld_->cursorPosition();
+    BufferString toins( curpos > 0 ? " " : "" );
+    toins.add( hdrfld_->textOfItem(selidx) ).add( " " );
+    formfld_->insert( toins );
 }
 
 
 bool acceptOK( CallBacker* )
 {
+    const char* txt = formfld_->text();
+    if ( !txt || !*txt )
+	mErrRet("Please enter a formula")
+
+    const SEGY::HdrEntry& he = hc_.he_;
+    const BufferString olddef( hc_.def_ );
+    const int hidx = calcset_.indexOf( he.name() );
+    if ( hidx >= 0 )
+	calcset_.discard( hidx );
+
+    BufferString emsg;
+    if ( !calcset_.add(he,txt,&emsg) )
+    {
+	if ( hidx >= 0 )
+	    calcset_.add( he, olddef );
+	mErrRet(emsg)
+    }
+
     return true;
 }
 
