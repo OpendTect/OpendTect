@@ -36,7 +36,7 @@ RayTracer1D::RayTracer1D( const RayTracer1D::Setup& s )
     , sini_( 0 )
     , twt_(0)
     , reflectivity_( 0 )
-    {}					       	
+{}					       	
 
 
 RayTracer1D::~RayTracer1D()
@@ -76,14 +76,32 @@ int RayTracer1D::findLayer( const TypeSet<AILayer>& model, float targetdepth )
     return res ? res-1 : 0;
 }
 	
-
+#define mPvelToSvel 2.25
 bool RayTracer1D::doPrepare( int nrthreads )
 {
     const int psz = pmodel_.size();
     const int ssz = smodel_.size();
+
+    if ( !ssz )
+    {
+	for ( int idx=0; idx<psz; idx++ )
+	{
+	    const AILayer& pl = pmodel_[idx];
+	    smodel_ += AILayer( pl.depth_, pl.vel_/mPvelToSvel, pl.den_ );
+	}
+    }
+    else if ( !psz )
+    {
+	for ( int idx=0; idx<psz; idx++ )
+	{
+	    const AILayer& sl = smodel_[idx];
+	    pmodel_ += AILayer( sl.depth_, sl.vel_*mPvelToSvel , sl.den_ );
+	}
+    }
+
     if ( psz && ssz && psz!=ssz )
     {
-	pErrMsg("P and S model sizes must be identical" );
+	errmsg_ = "P and S model sizes must be identical";
 	return false;
     }
 
@@ -92,7 +110,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
     sourcelayer_ = findLayer( depthmodel, setup_.sourcedepth_ );
     receiverlayer_ = findLayer( depthmodel, setup_.receiverdepth_ );
 
-    const int layersize = nrIterations()+1;
+    const int layersize = nrIterations();
     if ( sourcelayer_>=layersize || receiverlayer_>=layersize )
     {
 	errmsg_ = "Source or receiver is below lowest layer";
@@ -126,9 +144,6 @@ bool RayTracer1D::doPrepare( int nrthreads )
     else
 	reflectivity_->setSize( layersize, offsetsz );
 
-    if ( !reflectivity_ || !reflectivity_->isOK() )
-	return false;
-
     reflectivity_->setAll( mUdf(float_complex) );
 
     return true;
@@ -160,6 +175,9 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	coefs[lidx].getCoeff( true, lidx!=layer-1, setup_.pdown_,
 			    lidx==layer-1? setup_.pup_ : setup_.pdown_ );
 
+    if ( !layer )
+	reflectivity = float_complex( 0, 0 );
+
     lidx++;
 
     while ( lidx < layer )
@@ -184,10 +202,9 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	if ( lidx>receiverlayer_ )
 	{
 	    reflectivity *=
-	    coefs[lidx-1].getCoeff(false,false,setup_.pup_,setup_.pup_);
+		coefs[lidx-1].getCoeff(false,false,setup_.pup_,setup_.pup_);
 	}
     }
-
     reflectivity_->set( layer, offsetidx, reflectivity );
     return true;
 }
@@ -203,8 +220,8 @@ bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
     for ( int layer=start; layer<=stop; layer++ )
     {
 	const TypeSet<AILayer>& model = setup_.pdown_ ? pmodel_ : smodel_;
-	const AILayer& ailayer = pmodel_[layer]; 
-	const float thickness = ailayer.depth_ - setup_.sourcedepth_;
+	const AILayer& ailayer = model[layer]; 
+	const float thickness = 2*(ailayer.depth_ - setup_.sourcedepth_);
 
 	float vrms2sum = 0;
 	for ( int idx=start; idx<layer+1; idx++ )
@@ -212,7 +229,7 @@ bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 	    const float vel = model[idx].vel_;
 	    vrms2sum += vel*vel;
 	}
-	const float vrms  = sqrt( vrms2sum / (layer+1) );
+	const float vrms  = sqrt( vrms2sum / (layer+1-start) );
 
 	for ( int osidx=offsz-1; osidx>=0; osidx-- )
 	{
@@ -223,8 +240,13 @@ bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 	    twt_->set( layer, osidx, toffset );
 	    sini_->set( layer, osidx, sin( angle ) );
 	    const float rayparam = sin(angle) / vrms;
-	    if ( !compute(layer, osidx, rayparam) )
-		return false;
+
+	    if ( !compute( layer, osidx, rayparam ) )
+	    { 
+		BufferString msg( "Can not compute layer " );
+		msg += toString( layer ); 
+		errmsg_ = msg; return false; 
+	    }
 	}
     }
     return true;
@@ -254,7 +276,7 @@ float RayTracer1D::getTWT( int layer, int offsetidx ) const
 
 
 bool RayTracer1D::getReflectivity(int offset,
-	                                         ReflectivityModel& model) const
+				 ReflectivityModel& model) const
 {
     const int offsetidx = offsetpermutation_[offset];
     if ( offsetidx<0 || offsetidx>=reflectivity_->info().getSize(1) )
@@ -263,18 +285,17 @@ bool RayTracer1D::getReflectivity(int offset,
     const int nrlayers = reflectivity_->info().getSize(0);
 
     model.erase();
-
     model.setCapacity( nrlayers );
     ReflectivitySpike spike;
 
     const TypeSet<AILayer>& layers = pmodel_.size() ? pmodel_ : smodel_;
-
     for ( int idx=0; idx<nrlayers; idx++ )
     {
 	spike.reflectivity_ = reflectivity_->get( idx, offsetidx );
 	spike.depth_ = layers[idx+1].depth_;
 	spike.time_ = twt_->get( idx, offsetidx );
 	spike.correctedtime_ = twt_->get( idx, 0 );
+	model += spike;
     }
 
     return true;
