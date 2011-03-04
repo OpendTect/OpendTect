@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.32 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.33 2011-03-04 12:00:42 cvsnanne Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -29,7 +29,9 @@ void Shift::initClass()
     pos->setDefaultValue( BinID(0,0) );
     desc->addParam( pos );
 
-    desc->addParam( new FloatParam( timeStr() ) );
+    FloatParam* zpos = new FloatParam( timeStr() );
+    zpos->setDefaultValue( 0 );
+    desc->addParam( zpos );
 
     BoolParam* steering = new BoolParam( steeringStr() );
     steering->setDefaultValue(false);
