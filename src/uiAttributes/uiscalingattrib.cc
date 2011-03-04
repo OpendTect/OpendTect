@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.32 2011-03-01 10:21:40 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.33 2011-03-04 03:20:19 cvssatyaki Exp $";
 
 
 #include "uiscalingattrib.h"
@@ -128,9 +128,13 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     lowenergymute->setValue( 0 );
 
     // for Gain Correction
+    nrtrcfld_ = new uiGenInput( this, "Nr of Traces for Examination",
+	    			IntInpSpec(50) );
+    nrtrcfld_->attach( alignedBelow, typefld );
+    
     analysebut_ = new uiPushButton( this, "Analyse",
 	    			    mCB(this,uiScalingAttrib,analyseCB), false);
-    analysebut_->attach( alignedBelow, typefld );
+    analysebut_->attach( alignedBelow, nrtrcfld_ );
 
     typeSel(0);
     statsSel(0);
@@ -154,6 +158,7 @@ void uiScalingAttrib::typeSel( CallBacker* )
     squrgfld->display( typeval==3 );
     
     analysebut_->display( typeval==4 );
+    nrtrcfld_->display( typeval==4 );
 }
 
 
@@ -435,7 +440,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
 
     if ( !ioobj )
-	return;
+	return uiMSG().error( "Select a valid input" );
 
     SeisIOObjInfo seisinfo( ioobj );
     CubeSampling cs;
@@ -461,7 +466,11 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	seisinfo.getRanges( cs );
     }
 
-    cs.hrg.getRandomSet( 50, bidset );
+    const int nrtrcs = nrtrcfld_->getIntValue();
+    if ( nrtrcs <= 0 )
+	return uiMSG().error( "Select proper number of traces" );
+
+    cs.hrg.getRandomSet( nrtrcs, bidset );
     aem->setCubeSampling( cs );
 
     BinIDValueSet bidvals( 0, false );
