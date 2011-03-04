@@ -49,8 +49,8 @@ bool ReflectivitySampler::doPrepare( int nrthreads )
     {
 	sz = fft_->getFastSize( sz );
 	fft_->setInputInfo( Array1DInfoImpl(sz) );
-	fft_->setInput( output_.arr() );
-	fft_->setOutput( output_.arr() );
+	fft_->setDir( false );
+	fft_->setNormalization( true );
     }
 
     output_.setSize( sz, float_complex(0,0) );
@@ -87,7 +87,9 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
 	if ( mIsUdf(time) )
 	    continue;
 
-	const float_complex reflectivity = spike.reflectivity_;
+	float_complex reflectivity = spike.reflectivity_;
+	if ( mIsUdf( reflectivity ) )
+	    reflectivity = float_complex(0,0);
 
 	float_complex* ptr = buffer;
 
@@ -132,7 +134,11 @@ bool ReflectivitySampler::doFinish( bool success )
     }
 
     if ( fft_ )
+    {
+	fft_->setInput( output_.arr() );
+	fft_->setOutput( output_.arr() );
 	fft_->run( true );
+    }
 
     return true;
 }
@@ -151,7 +157,5 @@ void ReflectivitySampler::setTargetDomain( bool fourier )
     else
     {
 	fft_ = new Fourier::CC;
-	fft_->setDir( false );
-	fft_->setNormalization( true );
     }
 }

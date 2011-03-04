@@ -5,16 +5,16 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.8 2011-03-01 08:35:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.9 2011-03-04 09:18:05 cvsbruno Exp $";
 
 #include "aimodel.h"
 #include "genericnumer.h"
 #include "reflectivitymodel.h"
+#include "reflectivitysampler.h"
 #include "seistrc.h"
 #include "synthseis.h"
 #include "survinfo.h"
 #include "wavelet.h"
-
 
 mImplFactory( Seis::SynthGeneratorBase, Seis::SynthGeneratorBase::factory );
 
@@ -103,14 +103,24 @@ bool Seis::SynthGeneratorBase::computeTrace( float* result )
     if ( ns < 2 )
 	return false;
 
-    TypeSet<float> refl;
-    for ( int idx=0; idx<refmodel_.size(); idx++ )
-	refl += refmodel_[idx].reflectivity_.real();
+    TypeSet<float_complex> crefl;
+    ReflectivitySampler sampler( refmodel_, outputsampling_, crefl );
+    sampler.execute();
+    samprefl_.erase();
+
+    for ( int idx=0; idx<crefl.size(); idx++ )
+    {
+	float refval = crefl[idx].real();
+	if ( mIsUdf( refval ) ) 
+	    refval = 0;
+
+	samprefl_ += refval;
+    }
 
     const int wvltsz = wavelet_->size(); 
     const int wvltcs = wavelet_->centerSample();
     GenericConvolve( wvltsz, -wvltcs-1, wavelet_->samples(),
-		     refl.size(), 0, refl.arr(),
+		     samprefl_.size(), 0, samprefl_.arr(),
 		     ns, 0, result );
     return true;
 }

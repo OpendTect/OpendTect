@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.8 2011-03-01 08:35:36 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.9 2011-03-04 09:18:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,8 +60,9 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    void 			getReflectivities(ReflectivityModel& m) const
-     				{ m.copy( refmodel_ ); }
+    void 			getSampledReflectivities(
+	    					TypeSet<float>& refs) const
+     				{ refs.copy( samprefl_ ); }
 
 protected:
     				SynthGeneratorBase();
@@ -73,6 +74,7 @@ protected:
 
     Wavelet*			wavelet_;
     ReflectivityModel		refmodel_;
+    TypeSet<float>		samprefl_;
     BufferString		errmsg_;
 
     int				fftsz_;
