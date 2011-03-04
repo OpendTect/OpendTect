@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.52 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: mathexpression.cc,v 1.53 2011-03-04 11:49:43 cvsbert Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -152,6 +152,40 @@ float MathExpressionDivide::getValue() const
 	return mUdf(float);
 
     return val0/val1;
+}
+
+
+mMathExpressionClass( IntDivide, 2 )
+float MathExpressionIntDivide::getValue() const
+{
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+
+    const od_int64 i0 = mRounded(od_int64,val0);
+    const od_int64 i1 = mRounded(od_int64,val1);
+    if ( i1 == 0 )
+	return mUdf(float);
+
+    return (float)( i0 / i1 );
+}
+
+
+mMathExpressionClass( IntDivRest, 2 )
+float MathExpressionIntDivRest::getValue() const
+{
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+
+    const od_int64 i0 = mRounded(od_int64,val0);
+    const od_int64 i1 = mRounded(od_int64,val1);
+    if ( i1 == 0 )
+	return mUdf(float);
+
+    return (float)( i0 % i1 );
 }
 
 
@@ -988,6 +1022,8 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
 
     mParseOperator( '*', Multiply );
     mParseOperator( '/', Divide );
+    mParseOperator( '%', IntDivRest );
+    mParseOperator( '|', IntDivide );
     mParseOperator( '^', Power );
 
 
