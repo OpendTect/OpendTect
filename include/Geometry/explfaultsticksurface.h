@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.16 2011-02-14 22:23:17 cvsyuancheng Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.17 2011-03-04 15:59:43 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
     bool		needsUpdateTexture() const;
     void		setRightHandedNormals(bool yn);
 
+    bool		update(bool forceall,TaskRunner*);
 
     bool		getTexturePositions(DataPointSet&,
 	    				    TaskRunner*);
@@ -72,7 +73,6 @@ protected:
 
     void		removeAll(bool);
     void		insertAll();
-    bool		update(bool forceall,TaskRunner*);
     
     void		addToGeometries(IndexedGeometry*);
     void		removeFromGeometries(const IndexedGeometry*);
