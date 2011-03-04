@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.80 2011-02-04 14:00:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.81 2011-03-04 14:13:51 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -116,9 +116,11 @@ void uiTieWin::displayUserMsg( CallBacker* )
 
 void uiTieWin::doWork( CallBacker* cb )
 {
+    drawer_->enableCtrlNotifiers( false );
     server_.computeAll();
     getDispParams();
     drawData();
+    drawer_->enableCtrlNotifiers( true );
 }
 
 
@@ -318,12 +320,9 @@ void uiTieWin::csCorrChanged( CallBacker* cb )
     getDispParams();
     const bool iscscorr = params_.iscscorr_;
     server_.setVelLogName( iscscorr );
-    if ( iscscorr )
-	server_.computeD2TModel();
-    else  
+
+    if ( !iscscorr )
 	server_.undoD2TModel();
-    if ( mIsUnvalidD2TM( (*wd) ) )
-	server_.computeD2TModel();
 
     doWork( cb );
 }
@@ -649,6 +648,9 @@ void uiInfoDlg::computeData()
     for ( int idx=0; idx<estwvltsz_; idx++ )
 	wvltshiftedarr[idx] = wvltarr[nrsamps/2 + idx - estwvltsz_/2];
     server_.setEstimatedWvlt( wvltshiftedarr, estwvltsz_ );
+
+    delete [] syntharr; delete [] corrarr; 
+    delete [] wvltarr; 	delete [] wvltshiftedarr;
 }
 
 
