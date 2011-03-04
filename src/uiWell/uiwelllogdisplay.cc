@@ -219,6 +219,8 @@ void uiWellLogDisplay::drawCurve( bool first )
 	int xaxisval = mIsUdf(val) ? mUdf(int) : ld.xax_.getPix(val);
 	pts += uiPoint( xaxisval, ld.yax_.getPix(zpos) );
     }
+    if ( pts.isEmpty() )
+	return;
     if ( !ld.curveitm_ ) 
 	ld.curveitm_ = scene().addItem( new uiPolyLineItem() );
     uiPolyLineItem* pli = ld.curveitm_;
