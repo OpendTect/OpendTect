@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.40 2010-12-07 19:38:16 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.41 2011-03-04 03:46:57 cvssatyaki Exp $";
 
 #include "attribdatapack.h"
 
@@ -261,9 +261,14 @@ double Flat3DDataPack::getAltDim0Value( int ikey, int i0 ) const
 void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
     const Coord3 c( getCoord(i0,i1) );
+    
+    BinID bid = SI().transform( c );
     iop.set( mKeyX, c.x );
     iop.set( mKeyY, c.y );
+    iop.set( "Inline", bid.inl );
+    iop.set( "Crossline", bid.crl );
     iop.set( "Z", c.z );
+
     if ( usemultcubes_ )
 	iop.set( mKeyCube, cube_.cubeSampling().nrZ() > 1 ? i0 : i1 );
 }
@@ -412,6 +417,10 @@ void Flat2DDHDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     
     const SeisTrcInfo& ti = *dh_.trcinfoset_[ trcinfoidx ];
     ti.getInterestingFlds( Seis::Line, iop );
+    const Coord3 c( getCoord(ti.binid.inl,ti.binid.crl) );
+    iop.set( mKeyX, c.x );
+    iop.set( mKeyY, c.y );
+
     iop.set( "Z-Coord", ti.samplePos(i1) );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.25 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.26 2011-03-04 03:46:57 cvssatyaki Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -127,6 +127,15 @@ void uiFlatViewMainWin::displayInfo( CallBacker* cb )
 	{ mAddSep(); mesg += "Pos="; mesg += valstr; }
     else
     {
+    	valstr = pars.find( "X" );
+	if ( !valstr ) valstr = pars.find( "X-coordinate" );
+	if ( valstr && *valstr )
+	    { mAddSep(); mesg += "X="; mesg += valstr; }
+	valstr = pars.find( "Y" );
+	if ( !valstr ) valstr = pars.find( "Y-coordinate" );
+	if ( valstr && *valstr )
+	    { mAddSep(); mesg += "Y="; mesg += valstr; }
+
 	valstr = pars.find( sKey::TraceNr );
 	if ( valstr && *valstr )
 	    {
@@ -138,14 +147,6 @@ void uiFlatViewMainWin::displayInfo( CallBacker* cb )
 	    }
 	else
 	{
-	    valstr = pars.find( "X" );
-	    if ( !valstr ) valstr = pars.find( "X-coordinate" );
-	    if ( valstr && *valstr )
-		{ mAddSep(); mesg += "X="; mesg += valstr; }
-	    valstr = pars.find( "Y" );
-	    if ( !valstr ) valstr = pars.find( "Y-coordinate" );
-	    if ( valstr && *valstr )
-		{ mAddSep(); mesg += "Y="; mesg += valstr; }
 	    valstr = pars.find( "Inline" );
 	    if ( !valstr ) valstr = pars.find( "In-line" );
 	    if ( valstr && *valstr )
