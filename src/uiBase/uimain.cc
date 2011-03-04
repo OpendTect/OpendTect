@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.63 2011-01-20 09:58:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.64 2011-03-04 08:55:27 cvsdgb Exp $";
 
 #include "uimain.h"
 
@@ -253,6 +253,39 @@ uiMain::uiMain( QApplication* qapp )
 }
 
 
+QStyle* getStyleFromSettings()
+{
+    const char* lookpref = Settings::common().find( "dTect.LookStyle" );
+    if ( !lookpref || !*lookpref )
+	lookpref = GetEnvVar( "OD_LOOK_STYLE" );
+    if ( lookpref && *lookpref )
+    {
+#ifndef QT_NO_STYLE_CDE
+	if ( !strcmp(lookpref,"CDE") )
+	    return new QCDEStyle;
+#endif
+#ifndef QT_NO_STYLE_MOTIF
+	if ( !strcmp(lookpref,"Motif") )
+	    return new QMotifStyle;
+#endif
+#ifndef QT_NO_STYLE_WINDOWS
+	if ( !strcmp(lookpref,"Windows") )
+	    return new QWindowsStyle;
+#endif
+#ifndef QT_NO_STYLE_PLASTIQUE
+	if ( !strcmp(lookpref,"Plastique") )
+	    return new QPlastiqueStyle;
+#endif
+#ifndef QT_NO_STYLE_CLEANLOOKS
+	if ( !strcmp(lookpref,"Cleanlooks") )
+	    return new QCleanlooksStyle;
+#endif
+    }
+
+    return 0;
+}
+
+
 void uiMain::init( QApplication* qap, int& argc, char **argv )
 {
     if ( app_ ) 
@@ -271,7 +304,6 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     else
 	app_ = new QApplication( argc, argv );
 
-
     KeyboardEventHandler& kbeh = keyboardEventHandler();
     keyfilter_ = new KeyboardEventFilter( kbeh );
     app_->installEventFilter( keyfilter_ );
@@ -284,23 +316,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     qInstallMsgHandler( myMessageOutput );
 
-    const char* lookpref = Settings::common().find( "dTect.LookStyle" );
-    if ( !lookpref || !*lookpref )
-	lookpref = GetEnvVar( "OD_LOOK_STYLE" );
-    QStyle* styl = 0;
-    if ( lookpref && *lookpref )
-    {
-	if ( !strcmp(lookpref,"CDE") )
-	    styl = new QCDEStyle;
-	else if ( !strcmp(lookpref,"Motif") )
-	    styl = new QMotifStyle;
-	else if ( !strcmp(lookpref,"Windows") )
-	    styl = new QWindowsStyle;
-	else if ( !strcmp(lookpref,"Plastique") )
-	    styl = new QPlastiqueStyle;
-	else if ( !strcmp(lookpref,"Cleanlooks") )
-	    styl = new QCleanlooksStyle;
-    }
+    QStyle* styl = getStyleFromSettings();
 #ifdef __win__
     if ( !styl )
 	styl = QSysInfo::WindowsVersion == QSysInfo::WV_VISTA
