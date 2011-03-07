@@ -4,11 +4,13 @@
  * DATE     : Mar 2011
 -*/
 
-static const char* rcsID = "$Id: segyhdrcalc.cc,v 1.3 2011-03-04 14:40:21 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdrcalc.cc,v 1.4 2011-03-07 10:00:54 cvsbert Exp $";
 
 
 #include "segyhdrcalc.h"
 #include "mathexpression.h"
+#include "executor.h"
+#include "strmoper.h"
 
 
 SEGY::HdrCalcSet::HdrCalcSet( const SEGY::HdrDef& hd )
@@ -124,4 +126,85 @@ void SEGY::HdrCalcSet::apply( void* buf ) const
     }
 
     seqnr_++;
+}
+
+
+class SEGYHdrCalcSetapplier : public Executor
+{
+public:
+
+SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
+			std::istream& is, std::ostream& os, int dbpt )
+    : Executor("Manipulate SEG-Y file")
+    , cs_(cs)
+    , inpstrm_(is)
+    , outstrm_(os)
+    , bptrc_(dbpt+240)
+    , nrdone_(-1)
+    , msg_("Handling traces")
+{
+    StrmOper::seek( inpstrm_, 0, std::ios::end );
+    totalnr_ = StrmOper::tell( inpstrm_ );
+    StrmOper::seek( inpstrm_, 0 );
+    unsigned char hdrbuf[3600];
+    if ( !StrmOper::readBlock(inpstrm_,hdrbuf,3600) )
+	msg_ = "Cannot read file headers";
+    else if ( !StrmOper::writeBlock(outstrm_,hdrbuf,3600) )
+	msg_ = "Cannot write to output file";
+    else
+	nrdone_ = 0;
+
+    totalnr_ -= 3600;
+    totalnr_ /= bptrc_;
+    buf_ = new unsigned char [ bptrc_ ];
+}
+
+const char* message() const		{ return msg_; }
+const char* nrDoneText() const		{ return "Traces handled"; }
+od_int64 nrDone() const			{ return nrdone_; }
+od_int64 totalNr() const		{ return totalnr_; }
+
+int nextStep()
+{
+    if ( nrdone_ < 0 )
+	return ErrorOccurred();
+
+    if ( nrdone_ >= totalnr_ )
+	return Finished();
+
+    if ( !StrmOper::readBlock(inpstrm_,buf_,bptrc_) )
+    {
+	msg_ = "Unexpected early end of input file encountered";
+	return ErrorOccurred();
+    }
+    cs_.apply( buf_ );
+    if ( !StrmOper::writeBlock(outstrm_,buf_,bptrc_) )
+    {
+	msg_ = "Cannot write to output file.";
+	msg_.add( "\nWrote " ).add( nrdone_ )
+	.add( " traces.\nTotal: " ).add( totalnr_ )
+	.add( " available in input file" );
+	return ErrorOccurred();
+    }
+
+    nrdone_++;
+    return nrdone_ == totalnr_ ? Finished() : MoreToDo();
+}
+
+    const SEGY::HdrCalcSet& cs_;
+    std::istream&	inpstrm_;
+    std::ostream&	outstrm_;
+    od_int64		nrdone_;
+    od_int64		totalnr_;
+    const unsigned int	bptrc_;
+    unsigned char*	buf_;
+    BufferString	msg_;
+
+};
+
+
+Executor* SEGY::HdrCalcSet::getApplier( std::istream& is,
+					std::ostream& os, int dbpt ) const
+{
+    return new SEGYHdrCalcSetapplier( *this, is, os, dbpt );
 }

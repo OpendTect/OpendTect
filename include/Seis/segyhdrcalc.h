@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2011
- RCS:		$Id: segyhdrcalc.h,v 1.3 2011-03-04 14:40:21 cvsbert Exp $
+ RCS:		$Id: segyhdrcalc.h,v 1.4 2011-03-07 10:00:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "segyhdrdef.h"
 #include "typeset.h"
+class Executor;
 class MathExpression;
 
  
@@ -48,6 +49,8 @@ public:
 
     void			reSetSeqNr( int seqnr=1 ) { seqnr_ = seqnr; }
     void			apply(void*) const;
+    Executor*			getApplier(std::istream&,std::ostream&,
+	    				   int data_bytes_per_trace) const;
 
 protected:
 
