@@ -5,7 +5,7 @@
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
-RCS:           $Id: parametricsurface.h,v 1.20 2010-06-17 19:00:58 cvskris Exp $
+RCS:           $Id: parametricsurface.h,v 1.21 2011-03-07 05:39:16 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,9 +35,9 @@ public:
     virtual bool	removeRow(int startrow,int stoprow)  { return false; }
     virtual bool	removeCol(int startcol,int stoprcol) { return false; }
 
-    StepInterval<int>	rowRange() const;
-    StepInterval<int>	colRange(int row) const;
-    StepInterval<int>	colRange() const;
+    virtual StepInterval<int>	rowRange() const;
+    virtual StepInterval<int>	colRange(int row) const;
+    virtual StepInterval<int>	colRange() const;
 
     virtual ParametricCurve*
 			createRowCurve( float row,
