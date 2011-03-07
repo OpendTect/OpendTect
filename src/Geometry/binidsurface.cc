@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.25 2011-02-23 17:42:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.26 2011-03-07 05:38:48 cvsraman Exp $";
 
 #include "binidsurface.h"
 
@@ -259,6 +259,49 @@ bool BinIDSurface::removeCol( int start, int stop )
 	origin_.col += step_.col*nrremoved;
 
     return true;
+}
+
+
+StepInterval<int> BinIDSurface::colRange() const
+{
+    return ParametricSurface::colRange();
+}
+
+
+StepInterval<int> BinIDSurface::colRange( int row ) const
+{
+    StepInterval<int> ret( mUdf(int), mUdf(int), step_.col );
+    const int rowidx = rowIndex( row );
+    if ( rowidx < 0  || !depths_ || rowidx >= depths_->info().getSize(0) )
+	return ret;
+
+    int startidy = -1, stopidy = -1;
+    for ( int idy=0; idy<depths_->info().getSize(1); idy++ )
+    {
+	if ( !mIsUdf(depths_->get(rowidx,idy)) )
+	{
+	    startidy = idy;
+	    break;
+	}
+
+    }
+
+    if ( startidy < 0 )
+	return ret;
+
+    for ( int idy=depths_->info().getSize(1)-1; idy>=0; idy-- )
+    {
+	if ( !mIsUdf(depths_->get(rowidx,idy)) )
+	{
+	    stopidy = idy;
+	    break;
+	}
+
+    }
+
+    ret.start = origin_.col + startidy * step_.col;
+    ret.stop = origin_.col + stopidy * step_.col;
+    return ret;
 }
 
 

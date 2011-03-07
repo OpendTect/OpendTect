@@ -7,7 +7,7 @@ ________________________________________________________________________
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: binidsurface.h,v 1.14 2010-06-17 19:00:58 cvskris Exp $
+RCS:           $Id: binidsurface.h,v 1.15 2011-03-07 05:38:48 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,9 @@ public:
     bool		insertCol(int col,int nrnew=1);
     bool		removeRow(int,int);
     bool		removeCol(int,int);
+
+    StepInterval<int>	colRange() const;
+    StepInterval<int>	colRange(int row) const;
 
     bool		expandWithUdf(const BinID& start,const BinID& stop);
 
