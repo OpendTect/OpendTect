@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.37 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.38 2011-03-07 10:03:16 cvshelene Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -373,7 +373,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     cwt.setDeltaT( refstep_ );
 
     const float nyqfreq = 0.5 / SI().zStep();
-    const int nrattribs = mNINT( nyqfreq / deltafreq_ );
+    const int nrattribs = (int)( nyqfreq / deltafreq_ );
     const float freqstop = deltafreq_*nrattribs;
     TypeSet<int> freqidxs;
     for ( int idx=0; idx<nrOutputs(); idx++ )
