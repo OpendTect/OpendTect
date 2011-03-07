@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.80 2010-12-16 08:37:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.81 2011-03-07 10:01:35 cvshelene Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -208,11 +208,16 @@ bool uiAttrVolOut::prepareProcessing()
     if ( seldesc )
     {
 	uiMultOutSel multoutdlg( this, *seldesc );
-	if ( multoutdlg.doDisp() && multoutdlg.go() )
+	if ( multoutdlg.doDisp() )
 	{
-	    seloutputs.erase();
-	    multoutdlg.getSelectedOutputs( seloutputs );
-	    multoutdlg.getSelectedOutNames( seloutnms );
+	    if ( multoutdlg.go() )
+	    {
+		seloutputs.erase();
+		multoutdlg.getSelectedOutputs( seloutputs );
+		multoutdlg.getSelectedOutNames( seloutnms );
+	    }
+	    else
+		return false;
 	}
     }
 
