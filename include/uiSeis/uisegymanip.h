@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegymanip.h,v 1.6 2011-03-04 14:54:43 cvsbert Exp $
+ RCS:           $Id: uisegymanip.h,v 1.7 2011-03-07 10:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,12 +71,14 @@ protected:
     void		selChg(CallBacker*);
     void		trcNrChg(CallBacker*);
     void		rowClck(CallBacker*);
+    void		cellClck(CallBacker*);
 
     uiGroup*		mkTrcGroup();
     bool		openInpFile();
     void		fillAvTrcHdrFld(int);
     void		fillDefCalcs(int);
     void		updTrcVals();
+    void		rowSel(int);
 
     bool		acceptOK(CallBacker*);
 

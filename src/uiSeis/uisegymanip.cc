@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.8 2011-03-04 14:54:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.9 2011-03-07 10:01:19 cvsbert Exp $";
 
 #include "uisegymanip.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uisegymanip.cc,v 1.8 2011-03-04 14:54:43 cvsber
 #include "uilineedit.h"
 #include "uiseparator.h"
 #include "uitable.h"
+#include "uitaskrunner.h"
 #include "uimsg.h"
 #include "uisegydef.h"
 
@@ -31,6 +32,7 @@ static const char* rcsID = "$Id: uisegymanip.cc,v 1.8 2011-03-04 14:54:43 cvsber
 #include "strmprov.h"
 #include "strmoper.h"
 #include "filepath.h"
+#include "executor.h"
 
 static const od_int64 cFileHeaderSize = SegyTxtHeaderLength+SegyBinHeaderLength;
 #define mErrRet(s) { uiMSG().error(s); return false; }
@@ -281,6 +283,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     thtbl_->attach( ensureRightOf, edbut_ );
     thtbl_->setStretch( 0, 1 );
     thtbl_->rowClicked.notify( mCB(this,uiSEGYFileManip,rowClck) );
+    thtbl_->selectionChanged.notify( mCB(this,uiSEGYFileManip,cellClck) );
 
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( grp, "Trace index" );
     trcnrfld_ = lsb->box();
@@ -415,6 +418,7 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     formfld_->setText( hc_.def_ );
     formfld_->attach( rightOf, addbut );
     formfld_->setHSzPol( uiObject::WideVar );
+    formfld_->returnPressed.notify(mCB(this,uiSEGYFileManipHdrCalcEd,acceptOK));
     uiLabel* lbl = new uiLabel( this,
 	    		BufferString("Formula for '",hc_.he_.name(),"'") );
     lbl->attach( centeredBelow, formfld_ );
@@ -546,9 +550,21 @@ void uiSEGYFileManip::trcNrChg( CallBacker* )
 }
 
 
+void uiSEGYFileManip::cellClck( CallBacker* cb )
+{
+    rowSel( thtbl_->currentRow() );
+}
+
+
 void uiSEGYFileManip::rowClck( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,rownr,cb);
+    rowSel( rownr );
+}
+
+
+void uiSEGYFileManip::rowSel( int rownr )
+{
     if ( rownr < 0 ) return;
     const char* nm = calcset_.hdrDef()[rownr]->name();
     int lidx = avtrchdrsfld_->indexOf( nm );
@@ -568,6 +584,8 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
     if ( errlbl_ )
 	return true;
 
+    if ( binhdr_.nrSamples() < 1 )
+	{ mErrRet("Binary header's number of samples must be > 0" ) }
     const BufferString fnm = fnmfld_->fileName();
     FilePath inpfp( fname_ );
     FilePath outfp( fnmfld_->fileName() );
@@ -577,11 +595,20 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
 	outfp.setPath( inpfp.pathOnly() );
     if ( inpfp == outfp )
 	mErrRet("input and output file cannot be the same" )
+    StreamData sdout( StreamProvider(outfp.fullPath()).makeOStream() );
+    if ( !sdout.usable() )
+	{ mErrRet("Cannot open output file" ) }
 
     txthdr_.setText( txthdrfld_->text() );
     calcset_.reSetSeqNr( 1 );
 
-    fname_ = fnm;
-    uiMSG().warning( "Not impl: no output generated" );
-    return true;
+    const int bptrc = binhdr_.nrSamples() * binhdr_.bytesPerSample();
+    Executor* exec = calcset_.getApplier( strm(), *sdout.ostrm, bptrc );
+    uiTaskRunner tr( this );
+    const bool rv = tr.execute( *exec );
+    sdout.close(); delete exec;
+
+    if ( rv )
+	fname_ = fnm;
+    return rv;
 }
