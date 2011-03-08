@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.9 2011-03-07 10:01:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.10 2011-03-08 11:58:45 cvsbert Exp $";
 
 #include "uisegymanip.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uisegymanip.cc,v 1.9 2011-03-07 10:01:19 cvsber
 #include "uitaskrunner.h"
 #include "uimsg.h"
 #include "uisegydef.h"
+#include "uiselsimple.h"
 
 #include "segyhdrdef.h"
 #include "segyhdrcalc.h"
@@ -33,6 +34,7 @@ static const char* rcsID = "$Id: uisegymanip.cc,v 1.9 2011-03-07 10:01:19 cvsber
 #include "strmoper.h"
 #include "filepath.h"
 #include "executor.h"
+#include "oddirs.h"
 
 static const od_int64 cFileHeaderSize = SegyTxtHeaderLength+SegyBinHeaderLength;
 #define mErrRet(s) { uiMSG().error(s); return false; }
@@ -517,14 +519,34 @@ void uiSEGYFileManip::rmReq( CallBacker* )
 
 void uiSEGYFileManip::openReq( CallBacker* )
 {
-    bool failed = true;
-    if ( !failed )
-	updTrcVals();
+    BufferStringSet nms; calcset_.getStoredNames( nms );
+    if ( nms.isEmpty() )
+	{ uiMSG().error("No manipulation sets defined yet"); return; }
+
+    uiSelectFromList::Setup sflsu( "Select header manipulation", nms );
+    uiSelectFromList dlg( this, sflsu );
+    if ( !dlg.go() || dlg.selection() < 0 )
+	return;
+
+    trchdrfld_->setEmpty();
+    calcset_.getFromSettings( nms.get(dlg.selection()) );
+
+    fillDefCalcs( 0 );
+    updTrcVals();
 }
 
 
 void uiSEGYFileManip::saveReq( CallBacker* )
 {
+    BufferStringSet nms; calcset_.getStoredNames( nms );
+    uiGetObjectName::Setup su( "Store manipulation set", nms );
+    uiGetObjectName dlg( this, su );
+    if ( !dlg.go() ) return;
+
+    calcset_.setName( dlg.text() );
+    if ( !calcset_.storeInSettings() )
+	uiMSG().error( "Could not write to the user settings file:\n",
+		    GetSettingsFileName(SEGY::HdrCalcSet::sKeySettsFile()) );
 }
 
 
