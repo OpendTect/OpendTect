@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.7 2011-01-24 10:19:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.8 2011-03-08 14:21:53 cvsjaap Exp $";
 
 #include "uivirtualkeyboard.h"
 
@@ -275,8 +275,8 @@ void uiVirtualKeyboard::clickCB( CallBacker* )
 
 void uiVirtualKeyboard::exitCB( CallBacker* cb )
 {
-    updateInputObj();
     inputobj_.setSensitive( true );
+    updateInputObj();
 }
 
 
