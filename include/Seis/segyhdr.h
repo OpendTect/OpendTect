@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.32 2011-03-03 15:13:16 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.33 2011-03-08 13:54:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
     void	getText(BufferString&) const;
     void	setText(const char*);
  
+    bool	isAscii() const;
     void        setAscii();
     void        setEbcdic();
 
@@ -79,9 +80,6 @@ public:
 		BinHeader();
     void	setInput(const void*,bool needswap=false);
     void	setForWrite();
-    void*	buf()			{ return buf_; }
-
-    static const HdrDef& hdrDef();
 
     int		bytesPerSample() const
 		{ return formatBytes( format() ); }
@@ -114,6 +112,10 @@ public:
     void	setInFeet( bool yn )	{ setEntryVal(EntryMFeet(),yn?2:1); }
 
     void	dump(std::ostream&) const;
+
+    static const HdrDef&	hdrDef();
+    unsigned char*		buf()			{ return buf_; }
+    const unsigned char*	buf() const		{ return buf_; }
 
 protected:
 
