@@ -4,13 +4,14 @@
  * DATE     : Mar 2011
 -*/
 
-static const char* rcsID = "$Id: segyhdrcalc.cc,v 1.4 2011-03-07 10:00:54 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdrcalc.cc,v 1.5 2011-03-08 11:58:30 cvsbert Exp $";
 
 
 #include "segyhdrcalc.h"
 #include "mathexpression.h"
 #include "executor.h"
 #include "strmoper.h"
+#include "settings.h"
 
 
 SEGY::HdrCalcSet::HdrCalcSet( const SEGY::HdrDef& hd )
@@ -25,8 +26,15 @@ SEGY::HdrCalcSet::HdrCalcSet( const SEGY::HdrDef& hd )
 
 SEGY::HdrCalcSet::~HdrCalcSet()
 {
+    setEmpty();
+}
+
+
+void SEGY::HdrCalcSet::setEmpty()
+{
     deepErase( exprs_ );
     deepErase( *this );
+    heidxs_.erase();
 }
 
 
@@ -39,6 +47,21 @@ int SEGY::HdrCalcSet::indexOf( const char* nm ) const
 	    return idx;
     }
     return -1;
+}
+
+
+bool SEGY::HdrCalcSet::add( const char* dispstr )
+{
+    BufferString str( dispstr );
+    char* ptrdef = strchr( str.buf(), '=' );
+    if ( !ptrdef ) return false;
+    *ptrdef++ = '\0'; mTrimBlanks(ptrdef);
+
+    removeTrailingBlanks( str.buf() );
+    const int heidx = hdef_.indexOf( str );
+    if ( heidx < 0 ) return false;
+
+    return add( *hdef_[heidx], ptrdef );
 }
 
 
@@ -207,4 +230,73 @@ Executor* SEGY::HdrCalcSet::getApplier( std::istream& is,
 					std::ostream& os, int dbpt ) const
 {
     return new SEGYHdrCalcSetapplier( *this, is, os, dbpt );
+}
+
+
+#define mKeyName(idx) BufferString(toString(idx),".Name")
+#define mKeyForm(idx,fidx) BufferString("",idx,".Form.").add(fidx)
+
+void SEGY::HdrCalcSet::getStoredNames( BufferStringSet& nms )
+{
+    Settings& setts = Settings::fetch( sKeySettsFile() );
+    for ( int idx=0; ; idx++ )
+    {
+	const char* nm = setts.find( mKeyName(idx) );
+	if ( !nm || !*nm )
+	    break;
+	nms.add( nm );
+    }
+}
+
+
+void SEGY::HdrCalcSet::getFromSettings( const char* reqnm )
+{
+    setEmpty(); setName( reqnm );
+
+    Settings& setts = Settings::fetch( sKeySettsFile() );
+    int iopidx = -1;
+    for ( int idx=0; ; idx++ )
+    {
+	const BufferString nm( setts.find( mKeyName(idx) ) );
+	if ( nm.isEmpty() )
+	    break;
+	if ( nm == reqnm )
+	    { iopidx = idx; break; }
+    }
+    if ( iopidx < 0 ) return;
+
+    for ( int idx=0; ; idx++ )
+    {
+	const BufferString form( setts.find( mKeyForm(iopidx,idx) ) );
+	if ( form.isEmpty() )
+	    break;
+	add( form );
+    }
+}
+
+
+bool SEGY::HdrCalcSet::storeInSettings() const
+{
+    if ( name().isEmpty() )
+	return false;
+
+    Settings& setts = Settings::fetch( sKeySettsFile() );
+    int iopidx = 0;
+    for ( ; ; iopidx++ )
+    {
+	const BufferString nm( setts.find( mKeyName(iopidx) ) );
+	if ( nm.isEmpty() )
+	    break;
+	else if ( nm == name() )
+	{
+	    setts.removeWithKey( BufferString("",iopidx,".*") );
+	    break;
+	}
+    }
+
+    setts.set( mKeyName(iopidx), name() );
+    for ( int idx=0; idx<size(); idx++ )
+	setts.set( mKeyForm(iopidx,idx), (*this)[idx]->getDispStr() );
+
+    return setts.write();
 }
