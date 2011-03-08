@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.13 2011-03-04 21:53:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.14 2011-03-08 17:47:05 cvsyuancheng Exp $";
 
 #include "faulthorintersect.h"
 
@@ -32,13 +32,14 @@ FBIntersectionCalculator( const BinIDSurface& surf, float surfshift,
     , shape_( shape )
 {}
 
-od_int64 nrIterations() const   { return shape_.getGeometry().size(); }
-const TypeSet<TypeSet<Coord3> >& getResult() const { return res_; }
+~FBIntersectionCalculator()		{ stickintersections_.erase(); }
+od_int64 nrIterations() const   	{ return shape_.getGeometry().size(); }
+const TypeSet<Coord3>& result() const	{ return finalres_; }
 
 bool doPrepare( int )
 {
     for ( int idx=0; idx<nrIterations(); idx++ )
-	res_ += TypeSet<Coord3>();
+	stickintersections_ += TypeSet<Coord3>();
 
     const Array2D<float>* depths = surf_.getArray();
     const float* data = depths ? depths->getData() : 0;
@@ -65,6 +66,16 @@ bool doPrepare( int )
 }
 
 
+bool doFinish( bool )
+{
+    finalres_.erase();
+    for ( int idx=0; idx<stickintersections_.size(); idx++ )
+	addAndSortToResult( finalres_, stickintersections_[idx] );
+
+    return true;
+}
+
+
 bool doWork( od_int64 start, od_int64 stop, int )
 {
     const float zscale = SI().zScale();
@@ -77,13 +88,12 @@ bool doWork( od_int64 start, od_int64 stop, int )
     	const IndexedGeometry* inp = shape_.getGeometry()[idx];
 	if ( !inp ) continue;
     
-	TypeSet<Coord3>& res = res_[idx];
+	TypeSet<Coord3>& res = stickintersections_[idx];
 	for ( int idy=0; idy<inp->coordindices_.size()-3; idy+=4 )
 	{
 	    Coord3 v[3];
 	    for ( int k=0; k<3; k++ )
 		v[k] = coordlist->get(inp->coordindices_[idy+k]);
-    
 	    const Coord3 center = (v[0]+v[1]+v[2])/3;
       
 	    Interval<int> trrg, tcrg; 
@@ -141,8 +151,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		    float dist = mUdf( float );
 		    if ( !mIsUdf(pos.z) )
 		    {
-			pos -= center;
 			pos.z += zshift_;
+			pos -= center;
 			pos.z *= zscale;
 			dist = triangle.distanceToPoint(pos,true);
 		    }
@@ -155,9 +165,14 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    ictracer.setSampling( smprrg, smpcrg );
 	    ObjectSet<ODPolygon<float> > isocontours;
 	    ictracer.getContours( isocontours, 0, false );
+	    
+	    TypeSet<Coord3> tmp;
 	    for ( int cidx=0; cidx<isocontours.size(); cidx++ )
 	    {
 		const ODPolygon<float>& ic = *isocontours[cidx];
+		const bool isclosed = ic.isClosed();
+		Coord3 firstpos(0,0,mUdf(float));
+
 		for ( int vidx=0; vidx<ic.size(); vidx++ )
 		{
 		    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
@@ -165,65 +180,28 @@ bool doWork( od_int64 start, od_int64 stop, int )
 				rcz[0],rcz[1],rcz[2],0) )
 			continue;
 
-		    const int minrow = (int)vertex.x;
-		    const int maxrow = minrow < vertex.x ? minrow+1 : minrow;
-		    const int mincol = (int)vertex.y;
-		    const int maxcol = mincol < vertex.y ? mincol+1 : mincol;
-
-		    TypeSet<Coord3> neighbors;
-		    TypeSet<float> weights;
-		    float weightsum = 0;
-		    bool isdone = false;
-		    for ( int r=minrow; r<=maxrow; r++ )
-		    {
-			if ( isdone )
-			    break;
-
-			for ( int c=mincol; c<=maxcol; c++ )
-			{
-			    Coord3 pos = surf_.getKnot( RowCol(r,c), false );
-			    if ( mIsUdf(pos.z) )
-				continue;
-			    else
-				pos.z += zshift_;
-
-			    float dist = fabs(r-vertex.x) + fabs(c-vertex.y);
-			    if ( mIsZero(dist,1e-5) && res.indexOf(pos)!=-1 )
-			    {
-				res += pos;
-				isdone = true;
-				break;
-			    }
-			    else
-				dist = 1/dist;
-			    
-			    weights += dist;
-			    weightsum += dist;
-			    neighbors += pos;
-			}
-		    }
-
-		    if ( isdone || !neighbors.size() )
+		    Coord3 intersect;
+		    if ( !getSurfacePos(vertex,intersect) )
 			continue;
 
-		    Coord3 intersect(0,0,0);
-		    for ( int pidx=0; pidx<neighbors.size(); pidx++ )
-			intersect += neighbors[pidx] * weights[pidx];
-		    intersect /= weightsum; 
-
-		    if ( res.indexOf(intersect)!=-1 )
+		    if ( tmp.indexOf(intersect)!=-1 )
 			continue;
 
 		    Coord3 temp = intersect - center;
 		    temp.z *= zscale;
 		    if ( pointInTriangle3D(temp,tri[0],tri[1],tri[2],0) )
-			res += intersect;
+		    {
+			tmp += intersect;
+			if ( isclosed && mIsUdf(firstpos.z) )
+			    firstpos = intersect;
+		    }
 		}
-		    
-		if ( ic.isClosed() && res.size() )
-		    res += res[0]; 
+		
+		if ( isclosed && !mIsUdf(firstpos.z) )
+		    tmp += firstpos; 
 	    }
-	    
+
+	    addAndSortToResult( res, tmp );
 	    deepErase( isocontours );
 	}
     }
@@ -233,11 +211,115 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 protected:
 
+bool getSurfacePos( const Geom::Point2D<float>& vertex, Coord3& res )
+{
+    const int minrow = (int)vertex.x;
+    const int maxrow = minrow < vertex.x ? minrow+1 : minrow;
+    const int mincol = (int)vertex.y;
+    const int maxcol = mincol < vertex.y ? mincol+1 : mincol;
+
+    TypeSet<Coord3> neighbors;
+    TypeSet<float> weights;
+    float weightsum = 0;
+    for ( int r=minrow; r<=maxrow; r++ )
+    {
+	for ( int c=mincol; c<=maxcol; c++ )
+	{
+	    Coord3 pos = surf_.getKnot( RowCol(r,c), false );
+	    if ( mIsUdf(pos.z) )
+		continue;
+	    else
+		pos.z += zshift_;
+
+	    float dist = fabs(r-vertex.x) + fabs(c-vertex.y);
+	    if ( mIsZero(dist,1e-5) )
+	    {
+		res = pos;
+		return true;
+	    }
+	    else
+		dist = 1/dist;
+	    
+	    weights += dist;
+	    weightsum += dist;
+	    neighbors += pos;
+	}
+    }
+
+    if ( !neighbors.size() )
+	return false;
+
+    res = Coord3(0,0,0);
+    for ( int pidx=0; pidx<neighbors.size(); pidx++ )
+	res += neighbors[pidx] * weights[pidx];
+    res /= weightsum; 
+
+    return true;
+}
+
+
+void addAndSortToResult( TypeSet<Coord3>& res, TypeSet<Coord3> ni )
+{
+    const int nilastidx = ni.size() - 1;
+    if ( nilastidx<0 )
+	return;
+
+    const int lastidx = res.size() - 1;
+    if ( lastidx<0 )
+    {
+	for ( int k=0; k<=nilastidx; k++ )
+	    res += ni[k];
+    }
+    else if ( !lastidx )
+    {
+	const float d0 = res[0].sqDistTo( ni[0] );
+	const float d1 = res[0].sqDistTo( ni[nilastidx] );
+	const Coord3 pos = res[0];
+	res.erase();
+
+	for ( int k=0; k<=nilastidx; k++ )
+	    res += ni[k];
+
+	if ( d0 <= d1 )
+	    res.insert( 0, pos );
+	else
+	    res += pos;
+    }
+    else
+    {
+	const float d00 = res[0].sqDistTo( ni[0] );
+	const float d01 = res[0].sqDistTo( ni[nilastidx] );
+	const float d10 = res[lastidx].sqDistTo( ni[0] );
+	const float d11 = res[lastidx].sqDistTo( ni[nilastidx] );
+	if ( d10 <= d00 && d10 <= d11 && d10 <= d01 )
+	{
+	    for ( int k=0; k<=nilastidx; k++ )
+    		res += ni[k];
+	}
+	else if ( d11 <= d10 && d11 <= d01 && d11 <=d00 )
+	{
+	    for ( int k=nilastidx; k>=0; k-- )
+    		res += ni[k];
+	}
+	else if ( d01 <= d11 && d01 <= d00 && d01 <= d10 )
+	{
+	    for ( int k=nilastidx; k>=0; k-- )
+    		res.insert(0,ni[k]);
+	}
+	else
+	{
+	    for ( int k=0; k<=nilastidx; k++ )
+    		res.insert(0,ni[k]);
+	}
+    }
+}
+
+const ExplFaultStickSurface&	shape_;
 const BinIDSurface&		surf_;
 Interval<float>			surfzrg_;
 float				zshift_;
-const ExplFaultStickSurface&	shape_;
-TypeSet<TypeSet<Coord3> >	res_;
+TypeSet<TypeSet<Coord3> >	stickintersections_;
+TypeSet<Coord3>			finalres_;
 };
 
 
@@ -278,19 +360,17 @@ void FaultBinIDSurfaceIntersector::compute()
     if ( !calculator.execute() )
 	return;
 
-    const TypeSet<TypeSet<Coord3> >& res = calculator.getResult();
-    for ( int idx=0; idx<res.size(); idx++ )
-    {
-	const TypeSet<Coord3>& pres = res[idx];
-	for ( int idz=0; idz<pres.size(); idz++ )
-	    geo->coordindices_ += crdlist_.add( pres[idz] );
-    }
+    const TypeSet<Coord3>& res = calculator.result();
+    const int possize = res.size();
+    if ( !possize ) 
+	return;
+
+    for ( int idx=0; idx<possize; idx++ )
+	geo->coordindices_ += crdlist_.add( res[idx] );
 
     geo->coordindices_ += -1;
     geo->ischanged_ = true;
 }
-
-
 
 
 };
