@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.10 2011-03-08 11:58:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.11 2011-03-08 13:56:07 cvsbert Exp $";
 
 #include "uisegymanip.h"
 
@@ -313,6 +313,7 @@ bool uiSEGYFileManip::openInpFile()
 	{ errmsg_ = "Input file is too small to be a SEG-Y file:\n"
 	    	    "Cannot read full binary header"; return false; }
 
+    txthdr_.setAscii();
     binhdr_.setInput( buf );
     binhdr_.guessIsSwapped();
 
@@ -369,7 +370,7 @@ void uiSEGYFileManip::updTrcVals()
 {
     memcpy( curhdrbuf_, inphdrbuf_, SegyTrcHeaderLength );
     calcset_.reSetSeqNr( trcnrfld_->getValue() );
-    calcset_.apply( curhdrbuf_ );
+    calcset_.apply( curhdrbuf_, binhdr_.isSwapped() );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
     {
 	const SEGY::HdrEntry& he = *calcset_.hdrDef()[idx];
@@ -625,7 +626,8 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
     calcset_.reSetSeqNr( 1 );
 
     const int bptrc = binhdr_.nrSamples() * binhdr_.bytesPerSample();
-    Executor* exec = calcset_.getApplier( strm(), *sdout.ostrm, bptrc );
+    Executor* exec = calcset_.getApplier( strm(), *sdout.ostrm, bptrc,
+	   				  &binhdr_, &txthdr_ );
     uiTaskRunner tr( this );
     const bool rv = tr.execute( *exec );
     sdout.close(); delete exec;

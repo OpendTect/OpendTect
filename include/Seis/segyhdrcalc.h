@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2011
- RCS:		$Id: segyhdrcalc.h,v 1.5 2011-03-08 11:58:30 cvsbert Exp $
+ RCS:		$Id: segyhdrcalc.h,v 1.6 2011-03-08 13:56:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ class BufferStringSet;
  
 namespace SEGY
 {
+class BinHeader;
+class TxtHeader;
 
 mClass HdrCalc
 {
@@ -56,9 +58,11 @@ public:
     void			setEmpty();
 
     void			reSetSeqNr( int seqnr=1 ) { seqnr_ = seqnr; }
-    void			apply(void*) const;
+    void			apply(void*,bool needswap) const;
     Executor*			getApplier(std::istream&,std::ostream&,
-	    				   int data_bytes_per_trace) const;
+	    				   int data_bytes_per_trace,
+					   const BinHeader* bh=0,
+					   const TxtHeader* th=0) const;
 
     bool			storeInSettings() const;
     void			getFromSettings(const char*);

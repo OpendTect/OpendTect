@@ -4,10 +4,11 @@
  * DATE     : Mar 2011
 -*/
 
-static const char* rcsID = "$Id: segyhdrcalc.cc,v 1.5 2011-03-08 11:58:30 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdrcalc.cc,v 1.6 2011-03-08 13:56:07 cvsbert Exp $";
 
 
 #include "segyhdrcalc.h"
+#include "segyhdr.h"
 #include "mathexpression.h"
 #include "executor.h"
 #include "strmoper.h"
@@ -129,8 +130,11 @@ void SEGY::HdrCalcSet::discard( int idx )
 }
 
 
-void SEGY::HdrCalcSet::apply( void* buf ) const
+void SEGY::HdrCalcSet::apply( void* buf, bool needswap ) const
 {
+    if ( needswap )
+	hdef_.swapValues( (unsigned char*)buf );
+
     for ( int iexpr=0; iexpr<exprs_.size(); iexpr++ )
     {
 	MathExpression& me = *(const_cast<MathExpression*>(exprs_[iexpr]));
@@ -151,13 +155,15 @@ void SEGY::HdrCalcSet::apply( void* buf ) const
     seqnr_++;
 }
 
+#define mSEGYFileHdrSize 3600
 
 class SEGYHdrCalcSetapplier : public Executor
 {
 public:
 
 SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
-			std::istream& is, std::ostream& os, int dbpt )
+			std::istream& is, std::ostream& os, int dbpt,
+			const SEGY::BinHeader* bh, const SEGY::TxtHeader* th )
     : Executor("Manipulate SEG-Y file")
     , cs_(cs)
     , inpstrm_(is)
@@ -165,21 +171,34 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
     , bptrc_(dbpt+240)
     , nrdone_(-1)
     , msg_("Handling traces")
+    , needswap_(bh ? bh->isSwapped() : false)
 {
     StrmOper::seek( inpstrm_, 0, std::ios::end );
     totalnr_ = StrmOper::tell( inpstrm_ );
     StrmOper::seek( inpstrm_, 0 );
-    unsigned char hdrbuf[3600];
-    if ( !StrmOper::readBlock(inpstrm_,hdrbuf,3600) )
-	msg_ = "Cannot read file headers";
-    else if ( !StrmOper::writeBlock(outstrm_,hdrbuf,3600) )
-	msg_ = "Cannot write to output file";
-    else
-	nrdone_ = 0;
 
-    totalnr_ -= 3600;
+    buf_ = new unsigned char [bptrc_>mSEGYFileHdrSize?bptrc_:mSEGYFileHdrSize];
+    if ( !StrmOper::readBlock(inpstrm_,buf_,mSEGYFileHdrSize) )
+	msg_ = "Cannot read file headers";
+    else
+    {
+	if ( th )
+	    memcpy( buf_, th->txt_, 3200 );
+	if ( bh )
+	{
+	    memcpy( buf_+3200, bh->buf(), 400 );
+	    if ( needswap_ )
+		SEGY::BinHeader::hdrDef().swapValues( buf_+3200 );
+	}
+
+	if ( !StrmOper::writeBlock(outstrm_,buf_,mSEGYFileHdrSize) )
+	    msg_ = "Cannot write to output file";
+	else
+	    nrdone_ = 0;
+    }
+
+    totalnr_ -= mSEGYFileHdrSize;
     totalnr_ /= bptrc_;
-    buf_ = new unsigned char [ bptrc_ ];
 }
 
 const char* message() const		{ return msg_; }
@@ -200,7 +219,7 @@ int nextStep()
 	msg_ = "Unexpected early end of input file encountered";
 	return ErrorOccurred();
     }
-    cs_.apply( buf_ );
+    cs_.apply( buf_, needswap_ );
     if ( !StrmOper::writeBlock(outstrm_,buf_,bptrc_) )
     {
 	msg_ = "Cannot write to output file.";
@@ -221,15 +240,16 @@ int nextStep()
     od_int64		totalnr_;
     const unsigned int	bptrc_;
     unsigned char*	buf_;
+    bool		needswap_;
     BufferString	msg_;
 
 };
 
 
-Executor* SEGY::HdrCalcSet::getApplier( std::istream& is,
-					std::ostream& os, int dbpt ) const
+Executor* SEGY::HdrCalcSet::getApplier( std::istream& is, std::ostream& os,
+	int dbpt, const SEGY::BinHeader* bh, const SEGY::TxtHeader* th ) const
 {
-    return new SEGYHdrCalcSetapplier( *this, is, os, dbpt );
+    return new SEGYHdrCalcSetapplier( *this, is, os, dbpt, bh, th );
 }
 
 
