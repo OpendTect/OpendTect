@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.23 2011-02-18 11:03:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.24 2011-03-08 15:02:06 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uitextedit.h"
 #include "uitable.h"
 #include "uisplitter.h"
+#include "uifunctiondisplay.h"
 #include "uilabel.h"
 #include "uitoolbutton.h"
 #include "uigroup.h"
@@ -75,16 +76,17 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     txtfld_->setPrefWidthInChar( 80 );
     txtfld_->attach( centeredBelow, lbl );
 
-    uiGroup* tblgrp = new uiGroup( this, "Table group" );
-    lbl = new uiLabel( tblgrp, "Trace header information" );
-    tb = new uiToolButton( tblgrp, "viewflat.png", "Display traces",
+    uiGroup* logrp = new uiGroup( this, "Table group" );
+    lbl = new uiLabel( logrp, "Trace header information" );
+    tb = new uiToolButton( logrp, "viewflat.png", "Display traces",
 			     mCB(this,uiSEGYExamine,dispSeis) );
     tb->attach( rightBorder );
 
     uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );
-    tblsu.rowdesc("Header field").coldesc("Trace");
-    tbl_ = new uiTable( tblgrp, tblsu, "Trace info" );
+    tblsu.rowdesc("Header field").coldesc("Trace").selmode(uiTable::SingleRow);
+    tbl_ = new uiTable( logrp, tblsu, "Trace info" );
     tbl_->setPrefHeightInChar( 14 );
+    tbl_->setPrefWidthInChar( 40 );
     tbl_->attach( centeredBelow, lbl );
     for ( int icol=0; icol<setup_.nrtrcs_; icol++ )
     {
@@ -93,11 +95,27 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 	tt.add( getRankPostFix(tidx) ).add( " trace" );
 	tbl_->setColumnLabel( icol, toString(tidx) );
 	tbl_->setColumnToolTip( icol, tt );
+	tbl_->setColumnReadOnly( icol, true );
+    }
+    tbl_->rowClicked.notify( mCB(this,uiSEGYExamine,rowClck) );
+    tbl_->selectionChanged.notify( mCB(this,uiSEGYExamine,cellClck) );
+
+    uiFunctionDisplay::Setup fdsu;
+    funcdisp_ = new uiFunctionDisplay( logrp, fdsu );
+
+    bool dbgswitch = true;
+    if ( dbgswitch )
+	funcdisp_->attach( rightOf, tbl_ );
+    else
+    {
+	uiSplitter* vsplit = new uiSplitter( logrp, "VSplitter", true );
+	vsplit->addObject( tbl_ );
+	vsplit->addObject( funcdisp_ );
     }
 
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
-    splitter->addGroup( txtgrp );
-    splitter->addGroup( tblgrp );
+    uiSplitter* hsplit = new uiSplitter( this, "HSplitter", false );
+    hsplit->addGroup( txtgrp );
+    hsplit->addGroup( logrp );
 
     toStatusBar( setup_.fs_.fname_, 1 );
     outInfo( "Opening input" );
@@ -124,6 +142,19 @@ void uiSEGYExamine::onStartUp( CallBacker* )
 {
     timer_.tick.notify( mCB(this,uiSEGYExamine,updateInput) );
     timer_.start( 100, true );
+}
+
+
+void uiSEGYExamine::rowClck( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,rownr,cb);
+    setRow( rownr );
+}
+
+
+void uiSEGYExamine::cellClck( CallBacker* )
+{
+    setRow( tbl_->currentRow() );
 }
 
 
@@ -166,6 +197,11 @@ void uiSEGYExamine::updateInput( CallBacker* )
     display( true );
     updateInp();
     setName( setup_.fs_.fname_ );
+}
+
+
+void uiSEGYExamine::setRow( int irow )
+{
 }
 
 
