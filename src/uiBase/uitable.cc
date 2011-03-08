@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.102 2011-03-01 11:13:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.103 2011-03-08 14:29:47 cvsjaap Exp $";
 
 
 #include "uitable.h"
@@ -438,6 +438,7 @@ void uiTable::setRowHeightInChar( int row, float h )
 
 void uiTable::insertRows( int row, int cnt )
 {
+    mBlockCmdRec;
     for ( int idx=0; idx<cnt; idx++ )
 	body_->insertRow( row );
 
@@ -447,6 +448,7 @@ void uiTable::insertRows( int row, int cnt )
 
 void uiTable::insertColumns( int col, int cnt )
 {
+    mBlockCmdRec;
     for ( int idx=0; idx<cnt; idx++ )
 	body_->insertColumn( col );
 
@@ -464,6 +466,7 @@ void uiTable::removeRCs( const TypeSet<int>& idxs, bool col )
 
 void uiTable::removeRow( int row )
 { 
+    mBlockCmdRec;
     for ( int col=0; col<nrCols(); col++ )
 	clearCellObject( RowCol(row,col) );
     body_->removeRow( row );
@@ -472,7 +475,12 @@ void uiTable::removeRow( int row )
 
 
 void uiTable::removeColumn( int col )
-{ body_->removeColumn( col );  updateCol(col); }
+{
+    mBlockCmdRec;
+    body_->removeColumn( col );
+    updateCol(col);
+}
+
 
 void uiTable::removeRows( const TypeSet<int>& idxs )
 { removeRCs( idxs, false ); }
@@ -481,16 +489,25 @@ void uiTable::removeColumns( const TypeSet<int>& idxs )
 { removeRCs( idxs, true ); }
 
 void uiTable::setNrRows( int nr )
-{ body_->setNrLines( nr ); updateRow(0); }
+{
+    mBlockCmdRec;
+    body_->setNrLines( nr );
+    updateRow(0);
+}
 
 void uiTable::setNrCols( int nr )
-{ body_->setColumnCount( nr );  updateCol(0); }
+{
+    mBlockCmdRec;
+    body_->setColumnCount( nr );
+    updateCol(0);
+}
 
 int uiTable::nrRows() const		{ return body_->rowCount(); }
 int uiTable::nrCols() const		{ return body_->columnCount(); }
 
 void uiTable::clearCell( const RowCol& rc )
 {
+    mBlockCmdRec;
     QTableWidgetItem* itm = body_->takeItem( rc.row, rc.col );
     delete itm;
 }
@@ -498,6 +515,7 @@ void uiTable::clearCell( const RowCol& rc )
 
 void uiTable::setCurrentCell( const RowCol& rc, bool noselection )
 {
+    mBlockCmdRec;
     if ( noselection )
 	body_->setCurrentCell( rc.row, rc.col, QItemSelectionModel::NoUpdate );
     else
@@ -528,6 +546,7 @@ const char* uiTable::text( const RowCol& rc ) const
 
 void uiTable::setText( const RowCol& rc, const char* txt )
 {
+    mBlockCmdRec;
     uiObject* cellobj = getCellObject( rc );
     if ( !cellobj )
     {
@@ -641,12 +660,14 @@ bool uiTable::isRowReadOnly( int row ) const
 
 void uiTable::hideColumn( int col, bool yn )
 {
+    mBlockCmdRec;
     if ( yn ) body_->hideColumn( col );
     else body_->showColumn( col );
 }
 
 void uiTable::hideRow( int col, bool yn )
 {
+    mBlockCmdRec;
     if ( yn ) body_->hideRow( col );
     else body_->showRow( col );
 }
@@ -726,6 +747,7 @@ bool uiTable::isRowStretchable( int row ) const
 
 void uiTable::setPixmap( const RowCol& rc, const ioPixmap& pm )
 {
+    mBlockCmdRec;
     QTableWidgetItem* itm = body_->getItem( rc );
     if ( itm ) itm->setIcon( *pm.qpixmap() );
 }
@@ -733,6 +755,7 @@ void uiTable::setPixmap( const RowCol& rc, const ioPixmap& pm )
 
 void uiTable::setColor( const RowCol& rc, const Color& col )
 {
+    mBlockCmdRec;
     QColor qcol( col.r(), col.g(), col.b() );
     QTableWidgetItem* itm = body_->getItem( rc );
     if ( itm ) itm->setBackground( qcol );
@@ -961,6 +984,7 @@ void uiTable::setSelectionBehavior( SelectionBehavior sb )
 
 void uiTable::editCell( const RowCol& rc, bool replace )
 {
+    mBlockCmdRec;
     QTableWidgetItem* itm = body_->item( rc.row, rc.col );
     body_->editItem( itm );
 }
@@ -1170,10 +1194,17 @@ void uiTable::updateCellSizes( const uiSize* size )
 
 
 void uiTable::clearTable()
-{ body_->clearContents(); }
+{
+    mBlockCmdRec;
+    body_->clearContents();
+}
+
 
 void uiTable::removeAllSelections()
-{ body_->clearSelection(); }
+{
+    mBlockCmdRec;
+    body_->clearSelection();
+}
 
 
 bool uiTable::isSelected ( const RowCol& rc ) const
@@ -1212,6 +1243,7 @@ int uiTable::currentCol() const
 
 void uiTable::setSelected( const RowCol& rc, bool yn )
 {
+    mBlockCmdRec;
     QTableWidgetItem* itm = body_->item( rc.row, rc.col );
     if ( itm )
 	itm->setSelected( yn );
@@ -1219,10 +1251,18 @@ void uiTable::setSelected( const RowCol& rc, bool yn )
 
 
 void  uiTable::selectRow( int row )
-{ return body_->selectRow( row ); }
+{
+    mBlockCmdRec;
+    return body_->selectRow( row );
+}
+
 
 void  uiTable::selectColumn( int col )
-{ return body_->selectColumn( col ); }
+{
+    mBlockCmdRec;
+    return body_->selectColumn( col );
+}
+
 
 void uiTable::ensureCellVisible( const RowCol& rc )
 {
@@ -1233,6 +1273,7 @@ void uiTable::ensureCellVisible( const RowCol& rc )
 
 void uiTable::setCellGroup( const RowCol& rc, uiGroup* grp )
 {
+    mBlockCmdRec;
     if ( !grp ) return;
     body_->setCellObject( rc, grp->attachObj() );
 }
@@ -1250,13 +1291,21 @@ RowCol uiTable::getCell( uiGroup* grp )
 
 
 void uiTable::setCellObject( const RowCol& rc, uiObject* obj )
-{ body_->setCellObject( rc, obj ); }
+{
+    mBlockCmdRec;
+    body_->setCellObject( rc, obj );
+}
+
 
 uiObject* uiTable::getCellObject( const RowCol& rc ) const
 { return body_->getCellObject( rc ); }
 
+
 void uiTable::clearCellObject( const RowCol& rc )
-{ body_->clearCellObject( rc ); }
+{
+    mBlockCmdRec;
+    body_->clearCellObject( rc );
+}
 
 
 RowCol uiTable::getCell( uiObject* obj )
@@ -1295,6 +1344,7 @@ int uiTable::maxNrOfSelections() const
 
 void uiTable::selectItems( const TypeSet<RowCol>& rcs, bool yn )
 {
+    mBlockCmdRec;
     removeAllSelections();
     for ( int idx=0; idx<rcs.size(); idx++ )
     {

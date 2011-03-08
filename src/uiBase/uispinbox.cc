@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.46 2011-02-03 21:38:59 cvskris Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.47 2011-03-08 14:29:47 cvsjaap Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -182,7 +182,10 @@ void uiSpinBox::setSpecialValueText( const char* txt )
 
 
 void uiSpinBox::setAlpha( bool yn )
-{ body_->setAlpha( yn ); }
+{
+    mBlockCmdRec;
+    body_->setAlpha( yn );
+}
 
 bool uiSpinBox::isAlpha() const
 { return body_->isAlpha(); }
@@ -248,6 +251,7 @@ const char* uiSpinBox::text() const
 
 void uiSpinBox::setValue( int val )
 {
+    mBlockCmdRec;
     if ( mIsUdf(val) )
 	val = maxValue();
     body_->setValue( val );
@@ -255,19 +259,29 @@ void uiSpinBox::setValue( int val )
 
 void uiSpinBox::setValue( float val )
 {
+    mBlockCmdRec;
     if ( mIsUdf(val) )
 	val = maxFValue();
     body_->setValue( val );
 }
 
 void uiSpinBox::setValue( const char* txt )
-{ body_->setValue( body_->valueFromText(txt) ); }
+{
+    mBlockCmdRec;
+    body_->setValue( body_->valueFromText(txt) );
+}
 
 void uiSpinBox::setMinValue( int val )
-{ body_->setMinimum( val ); }
+{
+    mBlockCmdRec;
+    body_->setMinimum( val );
+}
 
 void uiSpinBox::setMinValue( float val )
-{ body_->setMinimum( val ); }
+{
+    mBlockCmdRec;
+    body_->setMinimum( val );
+}
 
 int uiSpinBox::minValue() const
 { return mNINT(body_->minimum()); }
@@ -276,10 +290,16 @@ float uiSpinBox::minFValue() const
 { return (float)body_->minimum(); }
 
 void uiSpinBox::setMaxValue( int val )
-{ body_->setMaximum( val ); }
+{
+    mBlockCmdRec;
+    body_->setMaximum( val );
+}
 
 void uiSpinBox::setMaxValue( float val )
-{ body_->setMaximum( val ); }
+{
+    mBlockCmdRec;
+    body_->setMaximum( val );
+}
 
 int uiSpinBox::maxValue() const
 { return mNINT(body_->maximum()); }
@@ -294,13 +314,17 @@ float uiSpinBox::fstep() const
 { return (float)body_->singleStep(); }
 
 void uiSpinBox::stepBy( int nrsteps )
-{ body_->stepBy( nrsteps ); }
+{
+    mBlockCmdRec;
+    body_->stepBy( nrsteps );
+}
 
 void uiSpinBox::setStep( int step_, bool snapcur )		
 { setStep( (double)step_, snapcur ); }
 
 void uiSpinBox::setStep( float step_, bool snapcur )
 {
+    mBlockCmdRec;
     if ( !step_ ) step_ = 1;
     body_->setSingleStep( step_ );
     dosnap_ = snapcur;

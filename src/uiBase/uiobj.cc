@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.102 2010-12-06 08:42:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.103 2011-03-08 14:29:47 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -22,6 +22,15 @@ static const char* rcsID = "$Id: uiobj.cc,v 1.102 2010-12-06 08:42:54 cvsnanne E
 #include "timer.h"
 
 #include <QEvent>
+
+
+static ObjectSet<const uiBaseObject> cmdrecstopperstack_;
+
+CmdRecStopper::CmdRecStopper( const uiBaseObject* obj )
+{ cmdrecstopperstack_.push( obj ); }
+
+CmdRecStopper::~CmdRecStopper()
+{ cmdrecstopperstack_.pop(); }
 
 
 DefineEnumNames(uiRect,Side,1,"Side") { "Left", "Top", "Right", "Bottom", 0 };
@@ -63,7 +72,7 @@ int uiBaseObject::beginCmdRecEvent( const char* msg )
 
 int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
 {
-    if ( !cmdrecorder_ )
+    if ( !cmdrecorder_ || (!id && cmdrecstopperstack_.isPresent(this)) )
 	return -1;
 
     cmdrecrefnr_ = cmdrecrefnr_==INT_MAX ? 1 : cmdrecrefnr_+1;
@@ -86,17 +95,17 @@ void uiBaseObject::endCmdRecEvent( int refnr, const char* msg )
 
 void uiBaseObject::endCmdRecEvent( od_uint64 id, int refnr, const char* msg )
 {
-    if ( cmdrecorder_ )
-    {
-	BufferString actstr;
-	if ( id )
-	    actstr += toString( id );
+    if ( !cmdrecorder_ || (!id && cmdrecstopperstack_.isPresent(this)) )
+	return;
 
-	actstr += " End "; actstr += refnr;
-	actstr += " "; actstr += msg;
-	CBCapsule<const char*> caps( actstr, this );
-	cmdrecorder_->doCall( &caps );
-    }
+    BufferString actstr;
+    if ( id )
+	actstr += toString( id );
+
+    actstr += " End "; actstr += refnr;
+    actstr += " "; actstr += msg;
+    CBCapsule<const char*> caps( actstr, this );
+    cmdrecorder_->doCall( &caps );
 }
 
 

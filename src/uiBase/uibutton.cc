@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.72 2010-12-03 11:25:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.73 2011-03-08 14:29:47 cvsjaap Exp $";
 
 #include "uitoolbutton.h"
 #include "i_qbutton.h"
@@ -219,8 +219,8 @@ uiButton::uiButton( uiParent* parnt, const char* nm, const CallBack* cb,
 
 
 void uiButton::setText( const char* txt )
-{ 
-    mqbut()->setText( QString( txt ) ); 
+{
+    mqbut()->setText( QString( txt ) );
 }
 
 
@@ -325,7 +325,11 @@ uiRadioButtonBody& uiRadioButton::mkbody( uiParent* parnt, const char* txt )
 
 bool uiRadioButton::isChecked() const		{ return body_->isChecked (); }
 
-void uiRadioButton::setChecked( bool check )	{ body_->setChecked( check ); }
+void uiRadioButton::setChecked( bool check )
+{
+    mBlockCmdRec;
+    body_->setChecked( check );
+}
 
 void uiRadioButton::click()			
 { 
@@ -345,8 +349,8 @@ uiCheckBox::uiCheckBox( uiParent* p, const char* nm, const CallBack& cb )
 
 
 void uiCheckBox::setText( const char* txt )
-{ 
-    mqbut()->setText( QString( txt ) ); 
+{
+    mqbut()->setText( QString( txt ) );
 }
 
 
@@ -358,7 +362,13 @@ uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const char* txt )
 
 bool uiCheckBox::isChecked () const		{ return body_->isChecked(); }
 
-void uiCheckBox::setChecked ( bool check )	{ body_->setChecked( check ); }
+
+void uiCheckBox::setChecked ( bool check )
+{
+    mBlockCmdRec;
+    body_->setChecked( check );
+}
+
 
 void uiCheckBox::click()			
 {
@@ -442,7 +452,13 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap& pm,
 
 
 bool uiToolButton::isOn() const		{ return body_->isChecked(); }
-void uiToolButton::setOn( bool yn )	{ body_->setChecked( yn ); }
+
+void uiToolButton::setOn( bool yn )
+{
+    mBlockCmdRec;
+    body_->setChecked( yn );
+}
+
 
 bool uiToolButton::isToggleButton() const     { return body_->isCheckable();}
 void uiToolButton::setToggleButton( bool yn ) { body_->setCheckable( yn ); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.60 2010-12-13 10:15:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.61 2011-03-08 14:29:47 cvsjaap Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -132,7 +132,10 @@ void uiComboBox::setPixmap( const ioPixmap& pixmap, int index )
 
 
 void uiComboBox::setEmpty()
-{ body_->QComboBox::clear(); }
+{
+    mBlockCmdRec;
+    body_->QComboBox::clear();
+}
 
 
 const char* uiComboBox::text() const
@@ -144,6 +147,7 @@ const char* uiComboBox::text() const
 
 void uiComboBox::setText( const char* txt )
 {
+    mBlockCmdRec;
     NotifyStopper stopper(selectionChanged);
     if ( isPresent(txt) )
 	setCurrentItem(txt);
@@ -182,6 +186,7 @@ int uiComboBox::size() const
 
 void uiComboBox::setCurrentItem( const char* txt )
 {
+    mBlockCmdRec;
     NotifyStopper stopper(selectionChanged);
 
     const int sz = body_->count();
@@ -195,6 +200,7 @@ void uiComboBox::setCurrentItem( const char* txt )
 
 void uiComboBox::setCurrentItem( int idx )
 {
+    mBlockCmdRec;
     NotifyStopper stopper(selectionChanged);
 
     if ( idx>=0 && idx<body_->count() )
@@ -236,6 +242,7 @@ bool uiComboBox::isReadOnly() const
 
 void uiComboBox::addItem( const wchar_t* text )
 {
+    mBlockCmdRec;
 #ifdef __win__
     const int wsz = wcslen(text) + 1;
     char* buf = new char [wsz];
@@ -250,7 +257,10 @@ void uiComboBox::addItem( const wchar_t* text )
 
 
 void uiComboBox::addItem( const char* text ) 
-{ body_->addItem( QString(text) ); }
+{
+    mBlockCmdRec;
+    body_->addItem( QString(text) );
+}
 
 
 void uiComboBox::addItems( const BufferStringSet& bss )
@@ -266,12 +276,14 @@ void uiComboBox::addSeparator()
 
 void uiComboBox::insertItem( const char* text, int index )
 {
+    mBlockCmdRec;
     body_->insertItem( index, QString(text) );
 }
 
 
 void uiComboBox::insertItem( const ioPixmap& pm, const char* text , int index )
 {
+    mBlockCmdRec;
     body_->insertItem( index, *pm.qpixmap(), QString(text) );
 }
 

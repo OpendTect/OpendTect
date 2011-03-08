@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibaseobject.h,v 1.5 2010-10-04 05:02:36 cvsranojay Exp $
+ RCS:           $Id: uibaseobject.h,v 1.6 2011-03-08 14:29:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,12 +50,31 @@ public:
 
 protected:
 
-    void			setBody( uiBody* b )		{ body_ = b; }
+    void			setBody( uiBody* b )	{ body_ = b; }
 
 private:
     static CallBack*		cmdrecorder_;
     int				cmdrecrefnr_;
     uiBody*			body_;
+};
+
+
+/*
+CmdRecorder annotation to distinguish real user actions from actions 
+performed by program code. Should be used at start of each (non-const)
+uiObject function that calls any uiBody/Qt function that may trigger a
+signal received by the corresponding Messenger class (see i_q****.h).
+Apart from a few notify handler functions, it will do no harm when 
+using this annotation unnecessarily.
+*/
+
+#define mBlockCmdRec		CmdRecStopper cmdrecstopper(this);
+
+mClass CmdRecStopper
+{
+public:
+    				CmdRecStopper(const uiBaseObject*);
+				~CmdRecStopper();
 };
 
 

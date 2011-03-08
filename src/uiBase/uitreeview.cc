@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.66 2010-12-13 10:15:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.67 2011-03-08 14:29:47 cvsjaap Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -292,18 +292,23 @@ void uiListView::setRootDecorated( bool yn )
     \sa uiListView::takeItem
 */
 void uiListView::insertItem( int idx, uiListViewItem* itm )
-{ body_->insertTopLevelItem( idx, itm->qItem() ); }
+{
+    mBlockCmdRec;
+    body_->insertTopLevelItem( idx, itm->qItem() );
+}
 
 
 void uiListView::takeItem( uiListViewItem* itm )
 { 
-     const int childid = body_->indexOfTopLevelItem( itm->qItem() );
-     body_->takeTopLevelItem( childid );
+    mBlockCmdRec;
+    const int childid = body_->indexOfTopLevelItem( itm->qItem() );
+    body_->takeTopLevelItem( childid );
 }
 
 
 void uiListView::addColumns( const BufferStringSet& lbls )
 {
+    mBlockCmdRec;
     const int nrcol = nrColumns();
     for ( int idx=0; idx<nrcol; idx++ )
 	body_->model()->removeColumn( idx, body_->currentIndex() );
@@ -320,7 +325,10 @@ void uiListView::addColumns( const BufferStringSet& lbls )
 
 
 void uiListView::removeColumn( int col )
-{ body_->model()->removeColumn( col, body_->currentIndex() ); }
+{
+    mBlockCmdRec;
+    body_->model()->removeColumn( col, body_->currentIndex() );
+}
 
 
 void uiListView::setColumnText( int col, const char* label )
@@ -406,11 +414,17 @@ uiListView::SelectionBehavior uiListView::selectionBehavior() const
 
 
 void uiListView::clearSelection()
-{ body_->clearSelection(); }
+{
+    mBlockCmdRec;
+    body_->clearSelection();
+}
 
 
 void uiListView::setSelected( uiListViewItem* itm, bool yn )
-{ itm->qItem()->setSelected( yn ); }
+{
+    mBlockCmdRec;
+    itm->qItem()->setSelected( yn );
+}
 
 
 bool uiListView::isSelected( const uiListViewItem* itm ) const
@@ -422,7 +436,10 @@ uiListViewItem* uiListView::selectedItem() const
 
 
 void uiListView::setCurrentItem( uiListViewItem* itm, int column )
-{ body_->setCurrentItem( itm->qItem(), column ); }
+{
+    mBlockCmdRec;
+    body_->setCurrentItem( itm->qItem(), column );
+}
 
 
 uiListViewItem* uiListView::currentItem() const
@@ -484,16 +501,29 @@ int uiListView::indexOfItem( uiListViewItem* it ) const
     update.
 */
 void uiListView::clear()
-{ ((QTreeWidget*)body_)->clear(); }
+{
+    mBlockCmdRec;
+    ((QTreeWidget*)body_)->clear();
+}
 
 void uiListView::selectAll()
-{ body_->selectAll(); }
+{
+    mBlockCmdRec;
+    body_->selectAll();
+}
 
 void uiListView::expandAll()
-{ body_->expandAll(); }
+{
+    mBlockCmdRec;
+    body_->expandAll();
+}
+
 
 void uiListView::collapseAll()
-{ body_->collapseAll(); }
+{
+    mBlockCmdRec;
+    body_->collapseAll();
+}
 
 
 /*! \brief Triggers contents update.
@@ -528,6 +558,8 @@ void uiListView::translate()
     }
 }
 
+
+#define mListViewBlockCmdRec	CmdRecStopper cmdrecstopper(listView());
 
 uiListViewItem::uiListViewItem( uiListView* parent, const Setup& setup )
     : stateChanged(this)
@@ -629,10 +661,16 @@ bool uiListViewItem::isOpen() const
 { return qItem()->isExpanded(); }
 
 void uiListViewItem::setOpen( bool yn )
-{ qItem()->setExpanded( yn ); }
+{
+    mListViewBlockCmdRec;
+    qItem()->setExpanded( yn );
+}
 
 void uiListViewItem::setSelected( bool yn )
-{ qItem()->setSelected( yn ); }
+{
+    mListViewBlockCmdRec;
+    qItem()->setSelected( yn );
+}
 
 bool uiListViewItem::isSelected() const
 { return qItem()->isSelected(); }
@@ -692,17 +730,22 @@ uiListView* uiListViewItem::listView() const
 
 void uiListViewItem::takeItem( uiListViewItem* itm )
 { 
+    mListViewBlockCmdRec;
     const int childid = qItem()->indexOfChild( itm->qItem() );
     qItem()->takeChild( childid );
 }
 
 
 void uiListViewItem::insertItem( int idx, uiListViewItem* itm )
-{ qItem()->insertChild( idx, itm->qItem() ); }
+{
+    mListViewBlockCmdRec;
+    qItem()->insertChild( idx, itm->qItem() );
+}
 
 
 void uiListViewItem::removeItem( uiListViewItem* itm )
 {
+    mListViewBlockCmdRec;
     QTreeWidget* qtw = qItem()->treeWidget();
     if ( qtw && qtw->currentItem()==itm->qItem() )
 	qtw->setCurrentItem( 0 );
@@ -713,6 +756,7 @@ void uiListViewItem::removeItem( uiListViewItem* itm )
 
 void uiListViewItem::moveItem( uiListViewItem* after )
 {
+    mListViewBlockCmdRec;
     uiListViewItem* prnt = parent();
     if ( !prnt || !after ) return;
 
@@ -796,6 +840,7 @@ bool uiListViewItem::isCheckable() const
 
 void uiListViewItem::setChecked( bool yn, bool trigger )
 {
+    mListViewBlockCmdRec;
     NotifyStopper ns( stateChanged );
     if ( trigger ) ns.restore();
     qItem()->setCheckState( 0, yn ? Qt::Checked : Qt::Unchecked );

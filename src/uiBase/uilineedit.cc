@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilineedit.cc,v 1.39 2010-11-18 17:20:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: uilineedit.cc,v 1.40 2011-03-08 14:29:47 cvsjaap Exp $";
 
 #include "uilineedit.h"
 #include "i_qlineedit.h"
@@ -103,6 +103,7 @@ const char* uiLineEdit::getvalue_() const
 
 void uiLineEdit::setvalue_( const char* t )
 {
+    mBlockCmdRec;
     body_->setText( mIsUdf(t) ? QString() : QString(t) );
     body_->setCursorPosition( 0 );
     setEdited( false );
@@ -186,7 +187,10 @@ int uiLineEdit::cursorPosition() const
 { return body_->cursorPosition(); }
 
 void uiLineEdit::insert( const char* text )
-{ body_->insert( text ); }
+{
+    mBlockCmdRec;
+    body_->insert( text );
+}
 
 int uiLineEdit::selectionStart() const
 { return body_->selectionStart(); }

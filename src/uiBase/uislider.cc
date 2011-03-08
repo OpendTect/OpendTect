@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.48 2010-11-30 07:53:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.49 2011-03-08 14:29:47 cvsjaap Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -99,6 +99,7 @@ float uiSlider::getLinearFraction() const
 
 void uiSlider::setLinearFraction( float frac )
 {
+    mBlockCmdRec;
     if ( frac>=0.0 && frac<=1.0 )
     {
 	const float val = (1-frac)*body_->minimum() + frac*body_->maximum();
@@ -144,6 +145,7 @@ void uiSlider::setText( const char* txt )
 
 void uiSlider::setValue( float fval )
 {
+    mBlockCmdRec;
     int val = sliderValue( fval );
     body_->setValue( val );
 }
@@ -204,12 +206,14 @@ bool uiSlider::hasInvertedControls() const
 
 void uiSlider::setMinValue( float minval )
 {
+    mBlockCmdRec;
     body_->setMinimum( sliderValue(minval) );
 }
 
 
 void uiSlider::setMaxValue( float maxval )
 { 
+    mBlockCmdRec;
     body_->setMaximum( sliderValue(maxval) ); 
 }
 
@@ -228,6 +232,7 @@ float uiSlider::maxValue() const
 
 void uiSlider::setStep( float step )
 {
+    mBlockCmdRec;
     int istep = scaler_ ? mNINT(step/scaler_->factor) : (int)step;
     body_->setSingleStep( istep );
     body_->setPageStep( istep );

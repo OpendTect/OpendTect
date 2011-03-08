@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidial.cc,v 1.4 2010-02-03 16:35:12 cvskarthika Exp $";
+static const char* rcsID = "$Id: uidial.cc,v 1.5 2011-03-08 14:29:47 cvsjaap Exp $";
 
 #include "uidial.h"
 #include "i_qdial.h"
@@ -74,6 +74,7 @@ uiDialBody& uiDial::mkbody( uiParent* p, const char* nm )
 
 void uiDial::setValue( int val  )
 {
+    mBlockCmdRec;
     if ( startAtTop_ )
     {
 	int N = maxValue() - minValue();
@@ -120,10 +121,16 @@ bool uiDial::hasWrapping() const
 { return body_->wrapping(); }
 
 void uiDial::setMinValue( int minval )
-{ body_->setMinimum( minval ); }
+{
+    mBlockCmdRec;
+    body_->setMinimum( minval );
+}
 
 void uiDial::setMaxValue( int maxval )
-{ body_->setMaximum( maxval ); }
+{
+    mBlockCmdRec;
+    body_->setMaximum( maxval );
+}
 
 int uiDial::minValue() const
 { return body_->minimum(); }
@@ -132,7 +139,10 @@ int uiDial::maxValue() const
 { return body_->maximum(); }
 
 void uiDial::setStep( int step )
-{ body_->setSingleStep( step ); }
+{
+    mBlockCmdRec;
+    body_->setSingleStep( step );
+}
 
 int uiDial::step() const
 { return body_->singleStep(); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.114 2010-12-13 11:53:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.115 2011-03-08 14:29:47 cvsjaap Exp $";
 
 #include "uilistbox.h"
 
@@ -299,6 +299,7 @@ int uiListBox::nrSelected() const
 
 void uiListBox::setSelected( int idx, bool yn )
 {
+    mBlockCmdRec;
     if ( validIndex(idx) )
 	body_->item( idx )->setSelected( yn );
 }
@@ -306,6 +307,7 @@ void uiListBox::setSelected( int idx, bool yn )
 
 void uiListBox::selectAll( bool yn )
 {
+    mBlockCmdRec;
     if ( yn && body_->selectionMode()!=mExtended ) return;
 
     if ( yn )
@@ -317,6 +319,7 @@ void uiListBox::selectAll( bool yn )
 
 void uiListBox::addItem( const char* text, bool mark ) 
 {
+    mBlockCmdRec;
     body_->addItem( text, mark );
     setItemCheckable( size()-1, false ); // Qt bug
     setItemCheckable( size()-1, itemscheckable_ );
@@ -359,6 +362,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
 
 void uiListBox::insertItem( const char* text, int index, bool mark )
 {
+    mBlockCmdRec;
     if ( index<0 )
 	addItem( text, mark );
     else
@@ -438,10 +442,16 @@ Color uiListBox::getColor( int index ) const
 
 
 void uiListBox::setEmpty()
-{ body_->QListWidget::clear(); }
+{
+    mBlockCmdRec;
+    body_->QListWidget::clear();
+}
 
 void uiListBox::clearSelection()
-{ body_->clearSelection(); }
+{
+    mBlockCmdRec;
+    body_->clearSelection();
+}
 
 
 void uiListBox::sortItems( bool asc )
@@ -471,6 +481,7 @@ void uiListBox::sortItems( bool asc )
 
 void uiListBox::removeItem( int idx )
 {
+    mBlockCmdRec;
     body_->removeItem( idx );
 }
 
@@ -563,6 +574,7 @@ void uiListBox::setCurrentItem( const char* txt )
 
 void uiListBox::setCurrentItem( int idx )
 {
+    mBlockCmdRec;
     if ( !validIndex(idx) )
 	return;
 
@@ -623,6 +635,7 @@ void uiListBox::setItemsChecked( bool yn )
 
 void uiListBox::setItemChecked( int idx, bool yn )
 {
+    mBlockCmdRec;
     if ( isItemCheckable(idx) )
 	body_->item(idx)->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
 }
@@ -655,6 +668,7 @@ void uiListBox::setItemText( int idx, const char* txt )
 
 void uiListBox::setSelectedItems( const BufferStringSet& itms )
 {
+    mBlockCmdRec;
     body_->setCurrentRow( -1 );
     for ( int idx=0; idx<size(); idx++ )
 	setSelected( idx, itms.indexOf(textOfItem(idx))>=0 );
@@ -663,6 +677,7 @@ void uiListBox::setSelectedItems( const BufferStringSet& itms )
 
 void uiListBox::setSelectedItems( const TypeSet<int>& itms )
 {
+    mBlockCmdRec;
     body_->setCurrentRow( -1 );
     for ( int idx=0; idx<size(); idx++ )
 	setSelected( idx, itms.indexOf(idx)>=0 );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitabbar.cc,v 1.25 2010-07-02 18:04:39 cvskris Exp $";
+static const char* rcsID = "$Id: uitabbar.cc,v 1.26 2011-03-08 14:29:47 cvsjaap Exp $";
 
 #include "uitabbar.h"
 #include "uiobjbody.h"
@@ -67,6 +67,7 @@ uiTabBarBody& uiTabBar::mkbody( uiParent* parnt, const char* nm )
 
 int uiTabBar::addTab( uiTab* tab )
 {
+    mBlockCmdRec;
     if ( !tab ) return -1;
     tabs_ += tab;
     tab->group().display( tabs_.size()==1 );
@@ -76,6 +77,7 @@ int uiTabBar::addTab( uiTab* tab )
 
 void uiTabBar::removeTab( uiTab* tab )
 {
+    mBlockCmdRec;
     const int idx = indexOf( tab );
     if ( idx < 0 ) return;
 
@@ -109,7 +111,10 @@ bool uiTabBar::isTabEnabled( int idx ) const
 
 
 void uiTabBar::setCurrentTab( int idx )
-{ body_->setCurrentIndex( idx ); }
+{
+    mBlockCmdRec;
+    body_->setCurrentIndex( idx );
+}
 
 
 int uiTabBar::currentTabId() const
