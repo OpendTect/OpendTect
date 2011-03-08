@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.91 2011-03-01 11:39:25 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.92 2011-03-08 13:55:17 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -153,9 +153,15 @@ void SEGY::TxtHeader::setLineStarts()
 
 
 void SEGY::TxtHeader::setAscii()
-{ if ( txt_[0] != 'C' ) Ebcdic2Ascii( txt_, SegyTxtHeaderLength ); }
+{ if ( !isAscii() ) Ebcdic2Ascii( txt_, SegyTxtHeaderLength ); }
 void SEGY::TxtHeader::setEbcdic()
-{ if ( txt_[0] == 'C' ) Ascii2Ebcdic( txt_, SegyTxtHeaderLength ); }
+{ if ( isAscii() ) Ascii2Ebcdic( txt_, SegyTxtHeaderLength ); }
+
+
+bool SEGY::TxtHeader::isAscii() const
+{
+    return txt_[0]!=0xC3 && txt_[0]!=0x83;
+}
 
 
 void SEGY::TxtHeader::setUserInfo( const char* infotxt )
