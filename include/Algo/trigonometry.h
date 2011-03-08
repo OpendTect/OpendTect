@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.48 2011-02-01 04:25:37 cvsnanne Exp $
+ RCS:		$Id: trigonometry.h,v 1.49 2011-03-08 17:45:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -158,6 +158,10 @@ inline bool sameSide3D( const Coord3& p1, const Coord3& p2,
 inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b, 
 			       const Coord& c, double epsilon )
 {
+    if ( (p.x>a.x && p.x>b.x && p.x>c.x) || (p.x<a.x && p.x<b.x && p.x<c.x) ||
+     	 (p.y>a.y && p.y>b.y && p.y>c.y) || (p.y<a.y && p.y<b.y && p.y<c.y) )
+	return false;
+
     return sameSide2D(p,a,b,c,epsilon) && sameSide2D(p,b,a,c,epsilon) && 
 	   sameSide2D(p,c,a,b,epsilon);
 }
@@ -167,9 +171,6 @@ inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b,
 inline bool pointInTriangle3D( const Coord3& p, const Coord3& a, 
 			const Coord3& b, const Coord3& c, double epsilon )
 {
- //   if ( !mIsZero(determinent44(p,a,b,c), epsilon) )
-//	return false;
-    
     return sameSide3D(p,a,b,c,epsilon) && sameSide3D(p,b,a,c,epsilon) && 
 	   sameSide3D(p,c,a,b,epsilon);
 }
