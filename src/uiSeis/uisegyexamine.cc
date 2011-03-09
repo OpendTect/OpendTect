@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.25 2011-03-09 09:32:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.26 2011-03-09 13:01:18 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uitextedit.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uisegyexamine.cc,v 1.25 2011-03-09 09:32:07 cvs
 #include "uigroup.h"
 #include "uiflatviewer.h"
 #include "uifiledlg.h"
+#include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseistrcbufviewer.h"
 #include "filepath.h"
@@ -32,6 +33,7 @@ static const char* rcsID = "$Id: uisegyexamine.cc,v 1.25 2011-03-09 09:32:07 cvs
 #include "iopar.h"
 #include "timer.h"
 #include "envvars.h"
+#include "statruncalc.h"
 #include "separstr.h"
 #include "strmprov.h"
 #include "oddirs.h"
@@ -70,6 +72,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     uiToolButton* tb = new uiToolButton( txtgrp, "saveset.png",
 	    				 "Save text header to file",
 				         mCB(this,uiSEGYExamine,saveHdr) );
+    tb->attach( rightBorder );
     txtfld_ = new uiTextEdit( txtgrp, "", true );
     txtfld_->setPrefHeightInChar( 14 );
     txtfld_->setPrefWidthInChar( 80 );
@@ -83,7 +86,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );
     tblsu.rowdesc("Header field").coldesc("Trace").selmode(uiTable::SingleRow);
-    tbl_ = new uiTable( logrp, tblsu, "Trace info" );
+    tbl_ = new uiTable( tblgrp, tblsu, "Trace info" );
     tbl_->setPrefHeightInChar( 14 );
     tbl_->setPrefWidthInChar( 40 );
     tbl_->attach( ensureBelow, lbl );
@@ -97,13 +100,23 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 	tbl_->setColumnToolTip( icol, tt );
 	tbl_->setColumnReadOnly( icol, true );
     }
-    tbl_->rowClicked.notify( mCB(this,uiSEGYExamine,rowClck) );
-    tbl_->selectionChanged.notify( mCB(this,uiSEGYExamine,cellClck) );
+    tbl_->selectionChanged.notify( mCB(this,uiSEGYExamine,rowClck) );
 
     uiGroup* fdgrp = new uiGroup( logrp, "FuncDisp group" );
+    fdtitle_ = new uiLabel( fdgrp, "" );
+    fdtitle_->setStretch( 2, 0 );
+    fdtitle_->setAlignment( Alignment::HCenter );
     uiFunctionDisplay::Setup fdsu;
     funcdisp_ = new uiFunctionDisplay( fdgrp, fdsu );
-    funcdisp_->attach( rightOf, tbl_ );
+    funcdisp_->attach( centeredBelow, fdtitle_ );
+    fdtitle_->attach( widthSameAs, funcdisp_ );
+    uiGroup* valgrp = new uiGroup( fdgrp, "Value fields group" );
+    rgfld_ = new uiGenInput( valgrp, "Range", IntInpIntervalSpec() );
+    rgfld_->setElemSzPol( uiObject::Small );
+    avgfld_ = new uiGenInput( valgrp, " Avg", FloatInpSpec() );
+    avgfld_->setElemSzPol( uiObject::Small );
+    avgfld_->attach( rightOf, rgfld_ );
+    valgrp->attach( rightAlignedBelow, funcdisp_ );
 
     uiSplitter* vsplit = new uiSplitter( logrp, "VSplitter", true );
     vsplit->addGroup( tblgrp );
@@ -141,14 +154,7 @@ void uiSEGYExamine::onStartUp( CallBacker* )
 }
 
 
-void uiSEGYExamine::rowClck( CallBacker* cb )
-{
-    mCBCapsuleUnpack(int,rownr,cb);
-    setRow( rownr );
-}
-
-
-void uiSEGYExamine::cellClck( CallBacker* )
+void uiSEGYExamine::rowClck( CallBacker* )
 {
     setRow( tbl_->currentRow() );
 }
@@ -198,6 +204,26 @@ void uiSEGYExamine::updateInput( CallBacker* )
 
 void uiSEGYExamine::setRow( int irow )
 {
+    if ( irow < 0 ) return;
+
+    const SEGY::HdrEntry& he = *SEGY::TrcHeader::hdrDef()[irow];
+    const int nrcols = tbl_->nrCols();
+    TypeSet<float> data;
+    for ( int icol=0; icol<nrcols; icol++ )
+	data += tbl_->getfValue( RowCol(irow,icol) );
+    Stats::RunCalcSetup rcsu( false );
+    rcsu.require( Stats::Average ).require( Stats::Min ).require( Stats::Max );
+    Stats::RunCalc<float> rc( rcsu );
+    rc.addValues( nrcols, data.arr() );
+    const Interval<int> rg( mNINT(rc.min()), mNINT(rc.max()) );
+    rgfld_->setValue( rg );
+    if ( rg.start == rg.stop )
+	avgfld_->setValue( rg.start );
+    else
+	avgfld_->setValue( rc.average() );
+    funcdisp_->setVals( Interval<float>(1,nrcols), data.arr(), nrcols );
+    fdtitle_->setText(
+	    BufferString(he.name()," (",he.description()).add(")") );
 }
 
 
