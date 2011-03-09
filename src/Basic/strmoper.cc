@@ -5,14 +5,16 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.33 2011-03-09 05:07:12 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.34 2011-03-09 09:02:45 cvsranojay Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"
 
 #include "bufstring.h"
 #include "thread.h"
-#include "winstreambuf.h"
+#ifdef __win__
+# include "winstreambuf.h"
+#endif
 
 #include <iostream>
 #include <limits.h>
