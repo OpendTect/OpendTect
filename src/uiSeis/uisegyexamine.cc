@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.24 2011-03-08 15:02:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.25 2011-03-09 09:32:07 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uitextedit.h"
@@ -70,24 +70,24 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     uiToolButton* tb = new uiToolButton( txtgrp, "saveset.png",
 	    				 "Save text header to file",
 				         mCB(this,uiSEGYExamine,saveHdr) );
-    tb->attach( rightBorder );
     txtfld_ = new uiTextEdit( txtgrp, "", true );
     txtfld_->setPrefHeightInChar( 14 );
     txtfld_->setPrefWidthInChar( 80 );
-    txtfld_->attach( centeredBelow, lbl );
+    txtfld_->attach( ensureBelow, lbl );
 
-    uiGroup* logrp = new uiGroup( this, "Table group" );
-    lbl = new uiLabel( logrp, "Trace header information" );
-    tb = new uiToolButton( logrp, "viewflat.png", "Display traces",
+    uiGroup* logrp = new uiGroup( this, "Low group" );
+    uiGroup* tblgrp = new uiGroup( logrp, "Table group" );
+    lbl = new uiLabel( tblgrp, "Trace header information" );
+    tb = new uiToolButton( tblgrp, "viewflat.png", "Display traces",
 			     mCB(this,uiSEGYExamine,dispSeis) );
-    tb->attach( rightBorder );
 
     uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );
     tblsu.rowdesc("Header field").coldesc("Trace").selmode(uiTable::SingleRow);
     tbl_ = new uiTable( logrp, tblsu, "Trace info" );
     tbl_->setPrefHeightInChar( 14 );
     tbl_->setPrefWidthInChar( 40 );
-    tbl_->attach( centeredBelow, lbl );
+    tbl_->attach( ensureBelow, lbl );
+    tb->attach( rightAlignedAbove, tbl_ );
     for ( int icol=0; icol<setup_.nrtrcs_; icol++ )
     {
 	const int tidx = icol + 1;
@@ -100,18 +100,14 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     tbl_->rowClicked.notify( mCB(this,uiSEGYExamine,rowClck) );
     tbl_->selectionChanged.notify( mCB(this,uiSEGYExamine,cellClck) );
 
+    uiGroup* fdgrp = new uiGroup( logrp, "FuncDisp group" );
     uiFunctionDisplay::Setup fdsu;
-    funcdisp_ = new uiFunctionDisplay( logrp, fdsu );
+    funcdisp_ = new uiFunctionDisplay( fdgrp, fdsu );
+    funcdisp_->attach( rightOf, tbl_ );
 
-    bool dbgswitch = true;
-    if ( dbgswitch )
-	funcdisp_->attach( rightOf, tbl_ );
-    else
-    {
-	uiSplitter* vsplit = new uiSplitter( logrp, "VSplitter", true );
-	vsplit->addObject( tbl_ );
-	vsplit->addObject( funcdisp_ );
-    }
+    uiSplitter* vsplit = new uiSplitter( logrp, "VSplitter", true );
+    vsplit->addGroup( tblgrp );
+    vsplit->addGroup( fdgrp );
 
     uiSplitter* hsplit = new uiSplitter( this, "HSplitter", false );
     hsplit->addGroup( txtgrp );
