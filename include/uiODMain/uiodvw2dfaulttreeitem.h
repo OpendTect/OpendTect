@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: uiodvw2dfaulttreeitem.h,v 1.2 2010-07-22 05:19:08 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.h,v 1.3 2011-03-09 07:28:37 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include "emposid.h"
 
-class VW2DFaut;
+class VW2DFault;
 
 
 mClass uiODVw2DFaultParentTreeItem : public uiODVw2DTreeItem
@@ -73,7 +73,7 @@ protected:
     void		emobjChangeCB(CallBacker*);
 
     EM::ObjectID        emid_;
-    VW2DFaut*		faultview_;
+    VW2DFault*		faultview_;
 };
 
 

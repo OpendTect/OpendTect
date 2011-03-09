@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.11 2010-11-06 16:21:12 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.cc,v 1.12 2011-03-09 07:28:37 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,7 +134,7 @@ bool uiODVw2DFaultTreeItem::init()
     uilistviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultTreeItem,checkCB) );
 
-    faultview_ = new VW2DFaut( emid_, viewer2D()->viewwin(),
+    faultview_ = new VW2DFault( emid_, viewer2D()->viewwin(),
 	    		       viewer2D()->dataEditor() );
     faultview_->draw();
     viewer2D()->dataMgr()->addObject( faultview_ );

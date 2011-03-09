@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2008
- RCS:		$Id: visvw2dfault.cc,v 1.3 2010-12-15 12:03:13 cvsumesh Exp $
+ RCS:		$Id: visvw2dfault.cc,v 1.4 2011-03-09 07:28:37 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "uirgbarraycanvas.h"
 
 
-VW2DFaut::VW2DFaut( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
+VW2DFault::VW2DFault( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
 		    const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
     : Vw2DDataObject()
     , emid_(oid)
@@ -68,7 +68,7 @@ VW2DFaut::VW2DFaut( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
 }
 
 
-VW2DFaut::~VW2DFaut()
+VW2DFault::~VW2DFault()
 {
     deepErase(faulteds_);
     if ( f3deditor_ )
@@ -79,14 +79,14 @@ VW2DFaut::~VW2DFaut()
 }
 
 
-void VW2DFaut::setCubeSampling( const CubeSampling& cs, bool upd )
+void VW2DFault::setCubeSampling( const CubeSampling& cs, bool upd )
 {
     if ( upd )
 	draw();
 }
 
 
-void VW2DFaut::draw()
+void VW2DFault::draw()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -108,7 +108,7 @@ void VW2DFaut::draw()
 }
 
 
-void VW2DFaut::enablePainting( bool yn )
+void VW2DFault::enablePainting( bool yn )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -118,7 +118,7 @@ void VW2DFaut::enablePainting( bool yn )
 }
 
 
-void VW2DFaut::selected()
+void VW2DFault::selected()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -133,7 +133,7 @@ void VW2DFaut::selected()
 }
 
 
-void VW2DFaut::triggerDeSel()
+void VW2DFault::triggerDeSel()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.10 2010-10-25 04:47:56 cvsumesh Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.11 2011-03-09 07:28:37 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,7 @@ bool uiODVw2DFaultSSTreeItem::init()
     uilistviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultSSTreeItem,checkCB) );
 
-    fssview_ = new VW2DFautSS3D( emid_, viewer2D()->viewwin(),
+    fssview_ = new VW2DFaultSS3D( emid_, viewer2D()->viewwin(),
 	    			 viewer2D()->dataEditor() );
     fssview_->draw();
     viewer2D()->dataMgr()->addObject( fssview_ );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: visvw2dfaultss3d.cc,v 1.4 2010-12-15 12:03:13 cvsumesh Exp $
+ RCS:		$Id: visvw2dfaultss3d.cc,v 1.5 2011-03-09 07:28:37 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "uirgbarraycanvas.h"
 
 
-VW2DFautSS3D::VW2DFautSS3D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
+VW2DFaultSS3D::VW2DFaultSS3D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
     : Vw2DDataObject()
     , emid_(oid)
@@ -69,7 +69,7 @@ VW2DFautSS3D::VW2DFautSS3D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
 }
 
 
-VW2DFautSS3D::~VW2DFautSS3D()
+VW2DFaultSS3D::~VW2DFaultSS3D()
 {
     deepErase(fsseds_);
     if ( fsseditor_ )
@@ -80,14 +80,14 @@ VW2DFautSS3D::~VW2DFautSS3D()
 }
 
 
-void VW2DFautSS3D::setCubeSampling( const CubeSampling& cs, bool upd )
+void VW2DFaultSS3D::setCubeSampling( const CubeSampling& cs, bool upd )
 {
     if ( upd )
 	draw();
 }
 
 
-void VW2DFautSS3D::draw()
+void VW2DFaultSS3D::draw()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -109,7 +109,7 @@ void VW2DFautSS3D::draw()
 }
 
 
-void VW2DFautSS3D::enablePainting( bool yn )
+void VW2DFaultSS3D::enablePainting( bool yn )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -119,7 +119,7 @@ void VW2DFautSS3D::enablePainting( bool yn )
 }
 
 
-void VW2DFautSS3D::selected( bool enabled )
+void VW2DFaultSS3D::selected( bool enabled )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -137,7 +137,7 @@ void VW2DFautSS3D::selected( bool enabled )
 }
 
 
-void VW2DFautSS3D::triggerDeSel()
+void VW2DFaultSS3D::triggerDeSel()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: visvw2dfaultss2d.cc,v 1.5 2010-12-15 12:03:13 cvsumesh Exp $
+ RCS:		$Id: visvw2dfaultss2d.cc,v 1.6 2011-03-09 07:28:37 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "uirgbarraycanvas.h"
 
 
-VW2DFautSS2D::VW2DFautSS2D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
+VW2DFaultSS2D::VW2DFaultSS2D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
     : Vw2DDataObject()
     , emid_(oid)
@@ -68,7 +68,7 @@ VW2DFautSS2D::VW2DFautSS2D( const EM::ObjectID& oid, uiFlatViewWin* mainwin,
 }
 
 
-VW2DFautSS2D::~VW2DFautSS2D()
+VW2DFaultSS2D::~VW2DFaultSS2D()
 {
     deepErase(fsseds_);
     if ( fsseditor_ )
@@ -79,13 +79,13 @@ VW2DFautSS2D::~VW2DFautSS2D()
 }
 
 
-void VW2DFautSS2D::setLineName( const char* ln )
+void VW2DFaultSS2D::setLineName( const char* ln )
 {
     linenm_ = ln;
 }
 
 
-void VW2DFautSS2D::draw()
+void VW2DFaultSS2D::draw()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -115,7 +115,7 @@ void VW2DFautSS2D::draw()
 }
 
 
-void VW2DFautSS2D::enablePainting( bool yn )
+void VW2DFaultSS2D::enablePainting( bool yn )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -125,7 +125,7 @@ void VW2DFautSS2D::enablePainting( bool yn )
 }
 
 
-void VW2DFautSS2D::selected( bool enabled )
+void VW2DFaultSS2D::selected( bool enabled )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -143,7 +143,7 @@ void VW2DFautSS2D::selected( bool enabled )
 }
 
 
-void VW2DFautSS2D::triggerDeSel()
+void VW2DFaultSS2D::triggerDeSel()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
