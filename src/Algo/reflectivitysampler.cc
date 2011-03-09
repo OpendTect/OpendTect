@@ -78,6 +78,7 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
     }
 
     const float df = Fourier::CC::getDf( outsampling_.step, size );
+    const float nyq = Fourier::CC::getNyqvist( outsampling_.step );
 
     const float_complex* stopptr = buffer+size;
     for ( int idx=start; idx<=stop; idx++ )
@@ -97,8 +98,10 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
 	const float anglesampling = -time * df;
 	while ( ptr!=stopptr )
 	{
-	    const float angle = 2*M_PI*anglesampling * freqidx;
-	    *ptr += float_complex( cos(angle), sin(angle) )*reflectivity;
+	    const float angle = 2*M_PI *anglesampling * freqidx;
+	    const float freq = df * freqidx;
+	    const float_complex cexp = float_complex( cos(angle), sin(angle) );
+	    *ptr += freq > nyq ? 0 : cexp * reflectivity;
 	    ptr++;
 	    freqidx++;
 	}
