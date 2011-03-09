@@ -6,7 +6,6 @@ Mon Jan 28 11:36:39 2008
 Comment "----------Script for Attribute Crossplot---------------"
 
 Include "$SCRIPTSDIR$/AttributeSet3DWindowPrepare.cmd"
-Include "$SCRIPTSDIR$/coherency.cmd"
 Include "$SCRIPTSDIR$/convolve.cmd"
 Include "$SCRIPTSDIR$/energy.cmd"
 Include "$SCRIPTSDIR$/frequency.cmd"
