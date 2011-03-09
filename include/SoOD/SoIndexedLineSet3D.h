@@ -39,6 +39,7 @@ protected:
     void		rayPick (SoRayPickAction *action);
 
 private:
+    friend		class SoLineSet3D;
 
     mClass LineSet3DData
     {
