@@ -5,13 +5,15 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.32 2011-03-03 12:46:05 cvsbert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.33 2011-03-09 05:07:12 cvsranojay Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"
 
 #include "bufstring.h"
 #include "thread.h"
+#include "winstreambuf.h"
+
 #include <iostream>
 #include <limits.h>
 
@@ -221,20 +223,24 @@ void StrmOper::seek( std::istream& strm, od_int64 pos )
 
 od_int64 StrmOper::tell( std::istream& strm )
 {
-#ifndef __win32__
+#ifndef __win__
     return strm.tellg();
 #else
-#error StrmOper::tell(istream) needs win32 impl
+    strm.tellg();
+    mDynamicCastGet(const std::winfilebuf*,winbuf,strm.rdbuf())
+    return winbuf ? winbuf->getRealPos() : -1;
 #endif
 }
 
 
 od_int64 StrmOper::tell( std::ostream& strm )
 {
-#ifndef __win32__
+#ifndef __win__
     return strm.tellp();
 #else
-#error StrmOper::tell(ostream) needs win32 impl
+    strm.tellp();
+    mDynamicCastGet(const std::winfilebuf*,winbuf,strm.rdbuf())
+    return winbuf ? winbuf->getRealPos() : -1;
 #endif
 }
 

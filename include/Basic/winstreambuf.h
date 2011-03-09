@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: winstreambuf.h,v 1.4 2009-07-31 08:06:27 cvsnanne Exp $
+ RCS:		$Id: winstreambuf.h,v 1.5 2011-03-09 05:07:12 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -14,7 +14,9 @@ ________________________________________________________________________
 #define private protected
 #include <fstream>
 #undef private
-
+#ifdef __win32__
+# define fpos_t od_int64
+#endif
 namespace std
 {
 
@@ -35,12 +37,13 @@ class winfilebuf : public filebuf
 {
 public:
 winfilebuf( const char* fnm, ios_base::openmode om )
+    : realpos_(0)
 {
     isok_ = open( fnm, om );
 }
 
-bool isOK() const	{ return isok_; }
-
+bool		isOK() const	{ return isok_; }
+od_int64    	getRealPos() const	{ return realpos_; }
 protected:
 
 #define defom (ios_base::openmode)(ios_base::in | ios_base::out)
@@ -61,6 +64,7 @@ virtual pos_type seekoff( off_type _Off, ios_base::seekdir _Way,
     if ( _Mysb::gptr() == &_Mychar )
 	_Mysb::setg( &_Mychar, &_Mychar+1, &_Mychar+1 );
 
+    realpos_ = (od_int64)_Fileposition;
     return (_POS_TYPE_FROM_STATE(pos_type,_State,_Fileposition));
 }
 
@@ -82,11 +86,12 @@ virtual pos_type seekpos( pos_type _Pos, ios_base::openmode = defom )
     if ( _Mysb::gptr() == &_Mychar)
 	 _Mysb::setg( &_Mychar, &_Mychar+1, &_Mychar+1 );
 
+    realpos_ = (od_int64)_Fileposition;
     return (_POS_TYPE_FROM_STATE(pos_type,_State,_Fileposition));
 }
 
-bool	isok_;
-
+bool	    isok_;
+od_int64    realpos_;
 };
 
 
