@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.31 2010-10-12 12:06:36 cvshelene Exp $";
+static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.32 2011-03-10 09:19:14 cvshelene Exp $";
 
 
 #include "uisimilarityattrib.h"
@@ -154,7 +154,8 @@ void uiSimilarityAttrib::extSel( CallBacker* )
 
 void uiSimilarityAttrib::outSel(CallBacker*)
 {
-    const bool outstats = dooutpstatsfld_->getBoolValue();
+    const bool wantbrowsedip = steerfld_->wantBrowseDip();
+    const bool outstats = !wantbrowsedip || dooutpstatsfld_->getBoolValue();
     outpdipfld_->display( !outstats );
     outpstatsfld_->display( outstats );
 }
