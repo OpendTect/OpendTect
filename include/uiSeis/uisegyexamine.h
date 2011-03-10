@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyexamine.h,v 1.11 2011-03-09 13:01:17 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.h,v 1.12 2011-03-10 12:35:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiTextEdit;
 class uiGenInput;
 class SeisTrcBuf;
 class SeisTrcReader;
-class uiFunctionDisplay;
+class uiSEGYTrcHdrValPlot;
 class SEGYSeisTrcTranslator;
 
 
@@ -64,10 +64,7 @@ protected:
 
     uiTextEdit*		txtfld_;
     uiTable*		tbl_;
-    uiLabel*		fdtitle_;
-    uiFunctionDisplay*	funcdisp_;
-    uiGenInput*		rgfld_;
-    uiGenInput*		avgfld_;
+    uiSEGYTrcHdrValPlot* hvaldisp_;
 
     void		onStartUp(CallBacker*);
     void		saveHdr(CallBacker*);

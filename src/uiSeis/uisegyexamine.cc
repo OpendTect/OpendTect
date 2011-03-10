@@ -7,19 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.26 2011-03-09 13:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.27 2011-03-10 12:35:14 cvsbert Exp $";
 
 #include "uisegyexamine.h"
+#include "uisegytrchdrvalplot.h"
 #include "uitextedit.h"
 #include "uitable.h"
 #include "uisplitter.h"
-#include "uifunctiondisplay.h"
 #include "uilabel.h"
 #include "uitoolbutton.h"
-#include "uigroup.h"
 #include "uiflatviewer.h"
 #include "uifiledlg.h"
-#include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseistrcbufviewer.h"
 #include "filepath.h"
@@ -33,7 +31,6 @@ static const char* rcsID = "$Id: uisegyexamine.cc,v 1.26 2011-03-09 13:01:18 cvs
 #include "iopar.h"
 #include "timer.h"
 #include "envvars.h"
-#include "statruncalc.h"
 #include "separstr.h"
 #include "strmprov.h"
 #include "oddirs.h"
@@ -102,25 +99,11 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     }
     tbl_->selectionChanged.notify( mCB(this,uiSEGYExamine,rowClck) );
 
-    uiGroup* fdgrp = new uiGroup( logrp, "FuncDisp group" );
-    fdtitle_ = new uiLabel( fdgrp, "" );
-    fdtitle_->setStretch( 2, 0 );
-    fdtitle_->setAlignment( Alignment::HCenter );
-    uiFunctionDisplay::Setup fdsu;
-    funcdisp_ = new uiFunctionDisplay( fdgrp, fdsu );
-    funcdisp_->attach( centeredBelow, fdtitle_ );
-    fdtitle_->attach( widthSameAs, funcdisp_ );
-    uiGroup* valgrp = new uiGroup( fdgrp, "Value fields group" );
-    rgfld_ = new uiGenInput( valgrp, "Range", IntInpIntervalSpec() );
-    rgfld_->setElemSzPol( uiObject::Small );
-    avgfld_ = new uiGenInput( valgrp, " Avg", FloatInpSpec() );
-    avgfld_->setElemSzPol( uiObject::Small );
-    avgfld_->attach( rightOf, rgfld_ );
-    valgrp->attach( rightAlignedBelow, funcdisp_ );
+    hvaldisp_ = new uiSEGYTrcHdrValPlot( this, true );
 
     uiSplitter* vsplit = new uiSplitter( logrp, "VSplitter", true );
     vsplit->addGroup( tblgrp );
-    vsplit->addGroup( fdgrp );
+    vsplit->addGroup( hvaldisp_ );
 
     uiSplitter* hsplit = new uiSplitter( this, "HSplitter", false );
     hsplit->addGroup( txtgrp );
@@ -206,24 +189,13 @@ void uiSEGYExamine::setRow( int irow )
 {
     if ( irow < 0 ) return;
 
-    const SEGY::HdrEntry& he = *SEGY::TrcHeader::hdrDef()[irow];
     const int nrcols = tbl_->nrCols();
     TypeSet<float> data;
     for ( int icol=0; icol<nrcols; icol++ )
 	data += tbl_->getfValue( RowCol(irow,icol) );
-    Stats::RunCalcSetup rcsu( false );
-    rcsu.require( Stats::Average ).require( Stats::Min ).require( Stats::Max );
-    Stats::RunCalc<float> rc( rcsu );
-    rc.addValues( nrcols, data.arr() );
-    const Interval<int> rg( mNINT(rc.min()), mNINT(rc.max()) );
-    rgfld_->setValue( rg );
-    if ( rg.start == rg.stop )
-	avgfld_->setValue( rg.start );
-    else
-	avgfld_->setValue( rc.average() );
-    funcdisp_->setVals( Interval<float>(1,nrcols), data.arr(), nrcols );
-    fdtitle_->setText(
-	    BufferString(he.name()," (",he.description()).add(")") );
+
+    hvaldisp_->setData( *SEGY::TrcHeader::hdrDef()[irow],
+	    		data.arr(), data.size() );
 }
 
 
