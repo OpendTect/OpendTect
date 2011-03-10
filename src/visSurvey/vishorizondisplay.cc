@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.145 2011-01-31 08:39:09 cvsnageswara Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.146 2011-03-10 04:16:05 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -339,10 +339,8 @@ StepInterval<int> HorizonDisplay::geometryRowRange() const
 
 StepInterval<int> HorizonDisplay::geometryColRange() const
 {
-    mDynamicCastGet(const EM::Horizon3D*, surface, emobject_ );
-    if ( !surface ) return parcolrg_;
-    
-    return surface->geometry().colRange();
+    mDynamicCastGet(const EM::Horizon3D*,horizon3d,emobject_);
+    return horizon3d ? horizon3d->geometry().colRange() : parcolrg_;
 }
 
 
@@ -1003,7 +1001,6 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 {
     EMObjectDisplay::emChangeCB( cb );
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-    mDynamicCastGet(const EM::Horizon3D*,emhorizon,emobject_);
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
 	validtexture_ = false;
@@ -1019,14 +1016,14 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 }
 
 
-void HorizonDisplay::emEdgeLineChangeCB(CallBacker* cb)
+void HorizonDisplay::emEdgeLineChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( EM::SectionID, section, cb );
+    mCBCapsuleUnpack(EM::SectionID,section,cb);
 
-    mDynamicCastGet(const EM::Horizon3D*,emhorizon,emobject_);
-    if ( !emhorizon ) return;
+    mDynamicCastGet(const EM::Horizon3D*,horizon3d,emobject_);
+    if ( !horizon3d ) return;
 
-    if ( emhorizon->edgelinesets.getEdgeLineSet( section, false ) )
+    if ( horizon3d->edgelinesets.getEdgeLineSet( section, false ) )
 	 addEdgeLineDisplay(section);
     else
     {
@@ -1339,11 +1336,12 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 
 void traverseLine( bool oninline, ZAxisTransform* zat, const CubeSampling& cs,
-		   const EM::Horizon3D* horizon, EM::SectionID sid,
+		   const EM::Horizon3D* hor, EM::SectionID sid,
 		   visBase::IndexedShape* line, int& cii )
 {
-    const StepInterval<int> inlrg = horizon->geometry().rowRange(sid);
-    const StepInterval<int> crlrg = horizon->geometry().colRange(sid);
+    const Geometry::BinIDSurface* geom = hor->geometry().sectionGeometry( sid );
+    const StepInterval<int> inlrg = geom->rowRange();
+    const StepInterval<int> crlrg = geom->colRange();
 
     StepInterval<int> rg; int targetline; BinID startbid;
     int faststop, faststep, slowdim, fastdim;
@@ -1382,13 +1380,12 @@ void traverseLine( bool oninline, ZAxisTransform* zat, const CubeSampling& cs,
 
 	BinID prevbid( bid ); prevbid[slowdim] = prevline;
 	BinID nextbid( bid ); nextbid[slowdim] = nextline;
-	Coord3 prevpos(horizon->getPos(sid,prevbid.toInt64()));
+	Coord3 prevpos( hor->getPos(sid,prevbid.toInt64()) );
 	if ( zat ) prevpos.z = zat->transform( prevpos );
 	Coord3 pos = prevpos;
 	if ( nextbid!=prevbid && prevpos.isDefined() )
 	{
-	    Coord3 nextpos =
-		horizon->getPos(sid,nextbid.toInt64());
+	    Coord3 nextpos = hor->getPos(sid,nextbid.toInt64());
 	    if ( zat ) nextpos.z = zat->transform(nextpos);
 	    if ( nextpos.isDefined() )
 	    {
@@ -1415,8 +1412,9 @@ static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 			const ZAxisTransform* zaxistransform, 
 			visBase::IndexedShape* line, int& cii )
 {
-    const StepInterval<int> inlrg = hor->geometry().rowRange( sid );
-    const StepInterval<int> crlrg = hor->geometry().colRange( sid );
+    const Geometry::BinIDSurface* geom = hor->geometry().sectionGeometry( sid );
+    const StepInterval<int> inlrg = geom->rowRange();
+    const StepInterval<int> crlrg = geom->colRange();
 
     int startidx; 
     int stopidx = 0; 
@@ -1496,16 +1494,15 @@ static void drawHorizonOnZSlice( const CubeSampling& cs, float zshift,
 			const ZAxisTransform* zaxistransform, 
 			visBase::IndexedShape* line, int& cii )
 {
-    const Array2D<float>* field = 
-			hor->geometry().sectionGeometry(sid)->getArray(); 
+    const Geometry::BinIDSurface* geom = hor->geometry().sectionGeometry( sid );
+    const Array2D<float>* field = geom->getArray();
     if ( !field ) return;
 
     if ( zaxistransform )
 	field = hor->createArray2D( sid, zaxistransform );
 
     IsoContourTracer ictracer( *field );
-    ictracer.setSampling( hor->geometry().rowRange(sid),
-	   		  hor->geometry().colRange(sid) );
+    ictracer.setSampling( geom->rowRange(), geom->colRange() );
     ictracer.selectRectROI( cs.hrg.inlRange(), cs.hrg.crlRange() );
     ObjectSet<ODPolygon<float> > isocontours;
     ictracer.getContours( isocontours, cs.zrg.start-zshift, false );
