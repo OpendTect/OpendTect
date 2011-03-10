@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.28 2011-02-10 11:27:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.29 2011-03-10 06:15:12 cvssatyaki Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -44,16 +44,18 @@ Interval<float> ColTab::defClipRate()
 {
     if ( mIsUdf(defcliprate_.start) || mIsUdf(defcliprate_.stop))
     {
-	Interval<float> perc( 2.5, 2.5 );
-	Settings::common().get( sKeyDefClipPerc, perc );
-	if ( mIsUdf(perc.stop) )
-	    perc.stop = perc.start;
+	Interval<float> clipperc( mUdf(float), mUdf(float) );
+	Settings::common().get( sKeyDefClipPerc, clipperc );
+
+	if ( mIsUdf(clipperc.start) )
+	    clipperc.start = 2.5;
+	if ( mIsUdf(clipperc.stop) )
+	    clipperc.stop = clipperc.start;
+	clipperc.scale( 0.01 );
+	defcliprate_ = clipperc;
 
 	float mv = mUdf(float);
 	Settings::common().get( sKeyDefSymmZero, mv );
-	perc.start *= 0.01;
-	perc.stop *= 0.01;
-	defcliprate_ = perc;
 	defsymmidval_ = mv;
     }
     return defcliprate_;
