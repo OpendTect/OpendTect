@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegymanip.h,v 1.8 2011-03-10 12:36:06 cvsbert Exp $
+ RCS:           $Id: uisegymanip.h,v 1.9 2011-03-10 14:57:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,8 @@ public:
     const char*		fileName() const	{ return fname_; }
     inline std::istream& strm()			{ return *sd_.istrm; }
 
+    od_int64		traceBytes() const;
+
 protected:
 
     BufferString	fname_;
@@ -49,7 +51,6 @@ protected:
     od_int64		filesize_;
     unsigned char	inphdrbuf_[SegyTrcHeaderLength];
     unsigned char	curhdrbuf_[SegyTrcHeaderLength];
-    int			currow_;
 
     uiTextEdit*		txthdrfld_;
     uiSEGYBinHdrEd*	binhdrfld_;
@@ -84,6 +85,8 @@ protected:
     void		rowSel(int);
 
     bool		acceptOK(CallBacker*);
+
+    friend class	uiSEGYFileManipDataExtracter;
 
 };
 

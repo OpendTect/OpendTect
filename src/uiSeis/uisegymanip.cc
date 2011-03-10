@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.12 2011-03-10 12:36:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.13 2011-03-10 14:57:59 cvsbert Exp $";
 
 #include "uisegymanip.h"
+#include "uisegytrchdrvalplot.h"
 
 #include "uitextedit.h"
 #include "uilistbox.h"
@@ -181,7 +182,6 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     , binhdr_(*new SEGY::BinHeader)
     , calcset_(*new SEGY::HdrCalcSet(SEGY::TrcHeader::hdrDef()))
     , errlbl_(0)
-    , currow_(-1)
 {
     if ( !openInpFile() )
 	{ errlbl_ = new uiLabel( this, errmsg_ ); return; }
@@ -557,19 +557,23 @@ void uiSEGYFileManip::saveReq( CallBacker* )
 }
 
 
+od_int64 uiSEGYFileManip::traceBytes() const
+{
+    return SegyTrcHeaderLength + binhdr_.nrSamples() * binhdr_.bytesPerSample();
+}
+
+
 void uiSEGYFileManip::trcNrChg( CallBacker* )
 {
-    const od_int64 trcnr = trcnrfld_->getValue() - 1;
-    od_int64 onetrcbytes = SegyTrcHeaderLength
-		+ binhdr_.nrSamples() * binhdr_.bytesPerSample();
-    od_int64 offs = cFileHeaderSize + trcnr * onetrcbytes;
+    const od_int64 tbyts = traceBytes();
+    od_int64 offs = cFileHeaderSize + (trcnrfld_->getValue()-1) * tbyts;
     if ( offs >= filesize_ )
     {
-	int nrtrcsinfile = (filesize_ - cFileHeaderSize) / onetrcbytes;
+	const od_int64 nrtrcsinfile = (filesize_-cFileHeaderSize) / tbyts;
 	if ( nrtrcsinfile < 1 )
 	    uiMSG().error( "File contains no complete traces" );
 	else
-	    offs = cFileHeaderSize + (nrtrcsinfile-1) * onetrcbytes;
+	    offs = cFileHeaderSize + (nrtrcsinfile-1) * tbyts;
     }
 
     StrmOper::seek( strm(), offs );
@@ -585,16 +589,98 @@ void uiSEGYFileManip::rowClck( CallBacker* cb )
 }
 
 
+class uiSEGYFileManipDataExtracter : public Executor
+{
+public:
+
+uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel )
+    : Executor("Trace header scan")
+    , fm_(*p)
+    , sel_(sel)
+    , nrdone_(0)
+    , hdef_(SEGY::BinHeader::hdrDef())
+    , needswap_(p->binhdr_.isSwapped())
+{
+    StrmOper::seek( fm_.strm(), cFileHeaderSize );
+    totalnr_ = (fm_.filesize_-cFileHeaderSize) / fm_.traceBytes();
+    for ( int idx=0; idx<sel_.size(); idx++ )
+	data_ += new TypeSet<float>;
+}
+
+~uiSEGYFileManipDataExtracter()
+{
+    deepErase( data_ );
+}
+
+const char* message() const	{ return "Collecting data"; }
+const char* nrDoneText() const	{ return "Traces scanned"; }
+od_int64 nrDone() const		{ return nrdone_; }
+od_int64 totalNr() const	{ return totalnr_; }
+
+int nextStep()
+{
+    StrmOper::seek( fm_.strm(), cFileHeaderSize + nrdone_ * fm_.traceBytes() );
+    if ( !StrmOper::readBlock(fm_.strm(),buf_,SegyTrcHeaderLength) )
+	return Finished();
+
+    for ( int idx=0; idx<sel_.size(); idx++ )
+	*data_[idx] += hdef_[ sel_[idx] ]->getValue( buf_, needswap_ );
+
+    nrdone_++;
+    return nrdone_ < totalnr_ ? MoreToDo() : Finished();
+}
+
+    uiSEGYFileManip&		fm_;
+    const TypeSet<int>		sel_;
+    ObjectSet< TypeSet<float> >	data_;
+    unsigned char		buf_[SegyTrcHeaderLength];
+    const SEGY::HdrDef&		hdef_;
+    const bool			needswap_;
+    od_int64			nrdone_;
+    od_int64			totalnr_;
+
+};
+
+
 void uiSEGYFileManip::plotReq( CallBacker* cb )
 {
-    uiMSG().error( "TODO" );
+    const int nrrows = thtbl_->nrRows();
+    TypeSet<int> selrows;
+    for ( int irow=0; irow<nrrows; irow++ )
+    {
+	if ( thtbl_->isRowSelected(irow) )
+	    selrows += irow;
+    }
+    if ( selrows.isEmpty() ) return;
+
+    uiSEGYFileManipDataExtracter de( this, selrows );
+    uiTaskRunner tr( this );
+    tr.execute( de );
+    if ( de.data_[0]->size() < 2 )
+	return;
+
+    uiMainWin::Setup su( "Header value plot" );
+    su.withmenubar( false ).deleteonclose( true );
+    for ( int idx=0; idx<de.data_.size(); idx++ )
+    {
+	uiMainWin* mw = new uiMainWin( this, su );
+	uiSEGYTrcHdrValPlot* vp = new uiSEGYTrcHdrValPlot( mw );
+	vp->setData( *calcset_.hdrDef()[ selrows[idx] ],
+		     de.data_[idx]->arr(), de.data_[idx]->size() );
+	mw->show();
+    }
+}
+
+
+void showPlot( int row1, int row2 )
+{
+    TypeSet<float> v1, v2;
 }
 
 
 void uiSEGYFileManip::rowSel( int rownr )
 {
     if ( rownr < 0 ) return;
-    currow_ = rownr;
     plotbut_->setSensitive( true );
 
     const char* nm = calcset_.hdrDef()[rownr]->name();
