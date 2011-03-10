@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.10 2011-03-01 10:11:07 cvssatyaki Exp $
+ RCS:           $Id: horsampling.h,v 1.11 2011-03-10 17:53:30 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,11 +39,14 @@ public:
 			{ return inlOK(bid.inl) && crlOK(bid.crl); }
 
     inline bool		inlOK( int inl ) const
-			{ return inl >= start.inl && inl <= stop.inl
-			      && !( (inl-start.inl) % step.inl ); }
+			{ return inl >= start.inl && inl <= stop.inl && 
+			    (step.inl ? !( (inl-start.inl) % step.inl )
+				      : inl==start.inl); }
+
     inline bool		crlOK( int crl ) const
-			{ return crl >= start.crl && crl <= stop.crl
-			      && !( (crl-start.crl) % step.crl ); }
+			{ return crl >= start.crl && crl <= stop.crl && 
+			    (step.crl ? !( (crl-start.crl) % step.crl )
+			     	      : crl==start.crl); }
 
     inline void		include( const BinID& bid )
 			{ includeInl(bid.inl); includeCrl(bid.crl); }
@@ -56,9 +59,11 @@ public:
 			     nearest limit if horsamplings do not intersect */
 
     inline int		inlIdx( int inl ) const
-			{ return (inl - start.inl) / step.inl; }
+			{ return step.inl ? (inl-start.inl) / step.inl 
+					  : (inl==start.inl ? 0 : -1); }
     inline int		crlIdx( int crl ) const
-			{ return (crl - start.crl) / step.crl; }
+			{ return step.crl ? (crl-start.crl) / step.crl
+					  : (crl==start.crl ? 0 : -1); }
     BinID		atIndex( int i0, int i1 ) const
 			{ return BinID( start.inl + i0*step.inl,
 					start.crl + i1*step.crl ); }
