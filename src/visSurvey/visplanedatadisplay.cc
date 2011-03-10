@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.249 2011-02-21 18:56:51 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.250 2011-03-10 15:47:18 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1111,14 +1111,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 	    cp = OD::TakeOverPtr;
 	}
 
-	if ( !attrib || !channels_->getSize(1) || !channels_->getSize(2) )  
-	    channels_->setSize( 1, sz0, sz1 );
-	else
-	{
-	    if ( channels_->getSize(1)!=sz0 || channels_->getSize(2)!=sz1 )
-		pErrMsg( "Wrong data size" );
-	}
-	
+	channels_->setSize( 1, sz0, sz1 );
 	channels_->setUnMappedData( attrib, idx, arr, cp, tr );
 
 	rectangle_->setOriginalTextureSize( sz0, sz1 );
