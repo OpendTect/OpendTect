@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.34 2011-01-18 10:16:04 cvssatyaki Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.35 2011-03-10 06:12:15 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.34 2011-01-18 10:16:04 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc,v 1.35 2011-03-10 06:12:15 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -309,7 +309,7 @@ void uiDataPointSetCrossPlotWin::deleteSelections( CallBacker* )
 void uiDataPointSetCrossPlotWin::closeNotif( CallBacker* )
 {
     defsetup_ = plotter_.setup();
-    plotter_.plotperc_ = mUdf(int); // Make sure eachChg knows we are closing
+    plotter_.plotperc_ = mUdf(float); // Make sure eachChg knows we are closing
 }
 
 

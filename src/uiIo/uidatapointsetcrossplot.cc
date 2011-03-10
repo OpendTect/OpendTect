@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.76 2011-02-10 05:11:27 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.77 2011-03-10 06:12:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.76 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.77 2011-03-10 06:12:15 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -227,6 +227,13 @@ void uiDataPointSetCrossPlotter::dataChanged()
 void uiDataPointSetCrossPlotter::getRandRowids()
 {
     const int totalrows = mNINT( plotperc_/(float)100 * dps_.nrActive() );
+    if ( mIsEqual(plotperc_,100,mDefEps) )
+    {
+	yrowidxs_->ArrayND<char>::setAll( '1' );
+	y2rowidxs_->ArrayND<char>::setAll( '1' );
+	return;
+    }
+
     Stats::RandGen randgen;
     randgen.init();
     for ( int idx=0; idx<2; idx++ )
@@ -234,12 +241,17 @@ void uiDataPointSetCrossPlotter::getRandRowids()
 	int rowcount =0;
 
 	Array1D<char>* rowidxs = idx==0 ? yrowidxs_ : y2rowidxs_;
-	rowidxs->ArrayND<char>::setAll( '0' );
-	while ( rowcount < totalrows )
+	const bool highperc = plotperc_ > 50;
+	rowidxs->ArrayND<char>::setAll( highperc ? '1' : '0' );
+	const float nrrowneeded = highperc ? dps_.nrActive() - totalrows
+	    				   : totalrows; 
+	while ( rowcount < nrrowneeded )
 	{
 	    int randrow = randgen.getIndex( dps_.size() );
-	    if ( rowidxs->get(randrow) == '0' && !dps_.isInactive(randrow) )
-		rowidxs->set( randrow, '1' );
+	    if ( ((!highperc && rowidxs->get(randrow) == '0') ||
+	          (highperc && rowidxs->get(randrow) == '1')) &&
+	         !dps_.isInactive(randrow) ) 
+		rowidxs->set( randrow, highperc ? '0' : '1' );
 	    else
 		continue;
 	    rowcount ++;
