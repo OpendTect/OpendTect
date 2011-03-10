@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.29 2010-11-08 21:32:50 cvskris Exp $
+ RCS:           $Id: genericnumer.h,v 1.30 2011-03-10 13:44:40 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -209,6 +209,26 @@ inline void genericCrossCorrelation( int lx, int ifx, const A& x,
     for ( int i=0,j=lx-1; i<lx; ++i,--j)
 	xreversed[i] = x[j];
     GenericConvolve( lx, 1-ifx-lx, xreversed, ly, ify, y, lz, ifz, z );
+}
+
+
+template <class A>
+inline void reverseArray( A* in, int sz, A* out=0 )
+{
+    if ( out )
+	for ( int idx=0; idx<sz; idx++ )
+	    out[idx] = in[sz-1-idx];
+    else
+    {
+	mAllocVarLenArr( A, tmparr, sz/2 );
+	for ( int idx=0; idx<sz/2; idx++ )
+	{
+	    tmparr[idx] = in[idx];
+	    int opsamp = sz-1-idx;
+	    in[idx] = in[opsamp];
+	    in[opsamp] = tmparr[idx];
+	}
+    }
 }
 
 
