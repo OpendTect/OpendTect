@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.55 2011-01-07 12:54:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.56 2011-03-10 13:46:47 cvshelene Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.55 2011-01-07 12:54:47 
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "fftfilter.h"
+#include "genericnumer.h"
 #include "timeser.h"
 #include "transform.h"
 #include "ptrman.h"
@@ -270,11 +271,17 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     {
 	float cutoff = refstep_ * maxfreq_;
 	BFlowpass( nrpoles_, cutoff, nrsamp, data, outp );
+	reverseArray( outp.ptr(), nrsamp );
+	BFlowpass( nrpoles_, cutoff, nrsamp, outp, outp );
+	reverseArray( outp.ptr(), nrsamp );
     }
     else if ( filtertype_ == mFilterHighPass )
     {
 	float cutoff = refstep_ * minfreq_;
 	BFhighpass( nrpoles_, cutoff, nrsamp, data, outp );
+	reverseArray( outp.ptr(), nrsamp );
+	BFhighpass( nrpoles_, cutoff, nrsamp, outp, outp );
+	reverseArray( outp.ptr(), nrsamp );
     }
     else
     {
@@ -283,6 +290,12 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 	BFlowpass( nrpoles_, cutoff, nrsamp, data, tmp );
 	cutoff = refstep_ * minfreq_;
 	BFhighpass( nrpoles_, cutoff, nrsamp, tmp, outp );
+	reverseArray( outp.ptr(), nrsamp );
+	cutoff = refstep_ * maxfreq_;
+	BFlowpass( nrpoles_, cutoff, nrsamp, outp, outp );
+	cutoff = refstep_ * minfreq_;
+	BFhighpass( nrpoles_, cutoff, nrsamp, outp, outp );
+	reverseArray( outp.ptr(), nrsamp );
     }
     
     if ( nrsamples < mMINNRSAMPLES )
@@ -444,5 +457,6 @@ const Interval<int>* FreqFilter::desZSampMargin(int input, int output) const
 {
     return &zmargin_;
 }
+
 
 };//namespace
