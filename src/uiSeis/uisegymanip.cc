@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.11 2011-03-08 13:56:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.12 2011-03-10 12:36:06 cvsbert Exp $";
 
 #include "uisegymanip.h"
 
@@ -181,6 +181,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     , binhdr_(*new SEGY::BinHeader)
     , calcset_(*new SEGY::HdrCalcSet(SEGY::TrcHeader::hdrDef()))
     , errlbl_(0)
+    , currow_(-1)
 {
     if ( !openInpFile() )
 	{ errlbl_ = new uiLabel( this, errmsg_ ); return; }
@@ -284,8 +285,13 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     }
     thtbl_->attach( ensureRightOf, edbut_ );
     thtbl_->setStretch( 0, 1 );
-    thtbl_->rowClicked.notify( mCB(this,uiSEGYFileManip,rowClck) );
-    thtbl_->selectionChanged.notify( mCB(this,uiSEGYFileManip,cellClck) );
+    thtbl_->selectionChanged.notify( mCB(this,uiSEGYFileManip,rowClck) );
+
+    plotbut_ = new uiToolButton( grp, "hdrplot.png",
+		    "Plot the values of the selected header entries",
+		    mCB(this,uiSEGYFileManip,plotReq) );
+    plotbut_->attach( alignedBelow, thtbl_ );
+    plotbut_->setSensitive( false );
 
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( grp, "Trace index" );
     trcnrfld_ = lsb->box();
@@ -573,22 +579,24 @@ void uiSEGYFileManip::trcNrChg( CallBacker* )
 }
 
 
-void uiSEGYFileManip::cellClck( CallBacker* cb )
+void uiSEGYFileManip::rowClck( CallBacker* cb )
 {
     rowSel( thtbl_->currentRow() );
 }
 
 
-void uiSEGYFileManip::rowClck( CallBacker* cb )
+void uiSEGYFileManip::plotReq( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,rownr,cb);
-    rowSel( rownr );
+    uiMSG().error( "TODO" );
 }
 
 
 void uiSEGYFileManip::rowSel( int rownr )
 {
     if ( rownr < 0 ) return;
+    currow_ = rownr;
+    plotbut_->setSensitive( true );
+
     const char* nm = calcset_.hdrDef()[rownr]->name();
     int lidx = avtrchdrsfld_->indexOf( nm );
     if ( lidx >= 0 )

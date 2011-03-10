@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegymanip.h,v 1.7 2011-03-07 10:01:19 cvsbert Exp $
+ RCS:           $Id: uisegymanip.h,v 1.8 2011-03-10 12:36:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ protected:
     od_int64		filesize_;
     unsigned char	inphdrbuf_[SegyTrcHeaderLength];
     unsigned char	curhdrbuf_[SegyTrcHeaderLength];
+    int			currow_;
 
     uiTextEdit*		txthdrfld_;
     uiSEGYBinHdrEd*	binhdrfld_;
@@ -58,6 +59,7 @@ protected:
     uiToolButton*	edbut_;
     uiToolButton*	rmbut_;
     uiToolButton*	savebut_;
+    uiToolButton*	plotbut_;
     uiTable*		thtbl_;
     uiSpinBox*		trcnrfld_;
     uiLabel*		errlbl_;
@@ -68,6 +70,7 @@ protected:
     void		rmReq(CallBacker*);
     void		openReq(CallBacker*);
     void		saveReq(CallBacker*);
+    void		plotReq(CallBacker*);
     void		selChg(CallBacker*);
     void		trcNrChg(CallBacker*);
     void		rowClck(CallBacker*);
