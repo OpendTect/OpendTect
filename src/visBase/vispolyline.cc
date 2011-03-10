@@ -7,33 +7,74 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolyline.cc,v 1.19 2011-02-22 19:53:41 cvskris Exp $";
+static const char* rcsID = "$Id: vispolyline.cc,v 1.20 2011-03-10 22:33:25 cvskris Exp $";
 
 #include "vispolyline.h"
 #include "viscoord.h"
 #include "visdrawstyle.h"
+#include "vismaterial.h"
 
 #include "SoIndexedLineSet3D.h"
+#include "SoLineSet3D.h"
 
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
 
 mCreateFactoryEntry( visBase::PolyLine );
+mCreateFactoryEntry( visBase::PolyLine3D );
 mCreateFactoryEntry( visBase::IndexedPolyLine );
 mCreateFactoryEntry( visBase::IndexedPolyLine3D );
 
 namespace visBase
 {
 
-PolyLine::PolyLine()
-    : VertexShape( new SoLineSet )
-    , lineset( dynamic_cast<SoLineSet*>( shape_ ) )
-    , drawstyle_(0)
-
+PolyLineBase::PolyLineBase( SoVertexShape* node )
+    : VertexShape( node )
+    , numvertices_( 0 )
 { }
 
 
-int PolyLine::size() const { return coords_->size(); }
+int PolyLineBase::size() const { return coords_->size(); }
+
+
+void PolyLineBase::addPoint( const Coord3& pos )
+{
+    setPoint( size(), pos );
+}
+
+
+void PolyLineBase::setPoint(int idx, const Coord3& pos )
+{
+    if ( idx>size() ) return;
+    coords_->setPos( idx, pos );
+    numvertices_->setValue( size() );
+}
+
+
+Coord3 PolyLineBase::getPoint( int idx ) const 
+{ return coords_->getPos( idx ); }
+
+
+void PolyLineBase::removePoint( int idx )
+{
+    numvertices_->setValue( size()-1 );
+    for ( int idy=idx; idy<size()-1; idy++ )
+    {
+	coords_->setPos( idy, coords_->getPos( idy+1 ) );
+    }
+
+    coords_->removePos( size()-1 );
+}
+
+
+PolyLine::PolyLine()
+    : PolyLineBase( new SoLineSet )
+    , lineset_( dynamic_cast<SoLineSet*>( shape_ ) )
+    , drawstyle_(0)
+{
+    numvertices_ = &lineset_->numVertices;
+}
+
 
 
 void PolyLine::setLineStyle( const LineStyle& lst )
@@ -45,35 +86,23 @@ void PolyLine::setLineStyle( const LineStyle& lst )
     }
 
     drawstyle_->setLineStyle( lst );
-}
-
-void PolyLine::addPoint( const Coord3& pos )
-{
-    setPoint( size(), pos );
+    getMaterial()->setColor( lst.color_ );
 }
 
 
-void PolyLine::setPoint(int idx, const Coord3& pos )
+PolyLine3D::PolyLine3D()
+    : PolyLineBase( new SoLineSet3D )
+    , lineset_( dynamic_cast<SoLineSet3D*>( shape_ ) )
 {
-    if ( idx>size() ) return;
-    coords_->setPos( idx, pos );
-    lineset->numVertices.setValue( size() );
+    numvertices_ = &lineset_->numVertices;
 }
 
 
-Coord3 PolyLine::getPoint( int idx ) const 
-{ return coords_->getPos( idx ); }
 
-
-void PolyLine::removePoint( int idx )
+void PolyLine3D::setLineStyle( const LineStyle& lst )
 {
-    lineset->numVertices.setValue( size()-1 );
-    for ( int idy=idx; idy<size()-1; idy++ )
-    {
-	coords_->setPos( idy, coords_->getPos( idy+1 ) );
-    }
-
-    coords_->removePos( size()-1 );
+    lineset_->radius = lst.width_;
+    getMaterial()->setColor( lst.color_ );
 }
 
 

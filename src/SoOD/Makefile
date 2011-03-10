@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.49 2011-02-16 21:50:09 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.50 2011-03-10 22:33:25 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -25,6 +25,7 @@ SRC.cc	:=	initsood.cc \
 		SoIndexedLineSet3D.cc \
 		SoIndexedTriangleFanSet.cc \
 		SoInvisibleLineDragger.cc \
+		SoLineSet3D.cc \
 		SoLockableSeparator.cc \
 		SoLODMeshSurface.cc \
 		SoManLevelOfDetail.cc \

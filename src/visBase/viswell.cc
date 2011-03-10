@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.63 2011-02-08 10:42:35 cvskris Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.64 2011-03-10 22:33:25 cvskris Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -62,7 +62,7 @@ Well::Well()
     drawstyle_->ref();
     sep->addChild( drawstyle_->getInventorNode() );
 
-    track_ = PolyLine::create();
+    track_ = PolyLine3D::create();
     track_->ref();
     track_->setMaterial( Material::create() );
     sep->addChild( track_->getInventorNode() );
@@ -144,15 +144,16 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 
 void Well::setTrackProperties( Color& col, int width)
 {
-    track_->getMaterial()->setColor( col );
-    drawstyle_->setLineWidth( width );
+    LineStyle lst;
+    lst.color_ = col;
+    lst.width_ = width;
+    setLineStyle( lst );
 }
 
 
 void Well::setLineStyle( const LineStyle& lst )
 {
-    track_->getMaterial()->setColor( lst.color_ );
-    drawstyle_->setLineStyle( lst ); 
+    track_->setLineStyle( lst );
 }
 
 
