@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.36 2011-02-18 14:02:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.37 2011-03-11 14:31:30 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
@@ -783,6 +783,9 @@ void resampleDepth( const float* deptharr, const float* t_in, int nr_in,
 	    depthsampled[idx] = deptharr[intv];
 	else
 	{
+	    if ( intv == nr_in )
+		intv--;
+
 	    const float v0 = !intv? 0 : deptharr[intv-1];
 	    const float v1 = deptharr[intv];
 	    const float t0 = !intv? 0 : t_in[intv-1];
