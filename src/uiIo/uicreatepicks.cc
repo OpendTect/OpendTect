@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.21 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.22 2011-03-11 11:18:46 cvsnanne Exp $";
 
 #include "uicreatepicks.h"
 
@@ -105,10 +105,6 @@ uiGenPosPicks::uiGenPosPicks( uiParent* p )
     fsu.seltxt( "Remove locations" ).incprovs( true );
     posfiltfld_ = new uiPosFilterSetSel( this, fsu );
     posfiltfld_->attach( alignedBelow, posprovfld_ );
-
-    maxnrfld_ = new uiGenInput( this, "Maximum number of locations",
-	    			IntInpSpec() );
-    maxnrfld_->attach( alignedBelow, posfiltfld_ );
 }
 
 
@@ -132,10 +128,6 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     if ( !prov )
 	mErrRet("Internal: no Pos::Provider")
 
-    const int maxnr = maxnrfld_->getIntValue();
-    if ( maxnr < 2 )
-	mErrRet("Please allow more than 2 picks")
-
     uiTaskRunner tr( this );
     if ( !prov->initialize( &tr ) )
 	return false;
@@ -151,8 +143,6 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     if ( dps_->isEmpty() )
 	{ delete dps_; dps_ = 0; mErrRet("No matching locations found") }
 
-    if ( !mIsUdf(maxnr) )
-	dps_->randomSubselect( maxnr );
     return true;   
 }
 

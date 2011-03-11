@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: uicreatepicks.h,v 1.10 2010-04-06 06:28:18 cvsnanne Exp $
+ RCS:           $Id: uicreatepicks.h,v 1.11 2011-03-11 11:18:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,6 @@ protected:
     uiPosProvider*	posprovfld_;
     uiPosFilterSetSel*	posfiltfld_;
     DataPointSet*	dps_;
-    uiGenInput*		maxnrfld_;
 
     bool		acceptOK(CallBacker*);
 };
