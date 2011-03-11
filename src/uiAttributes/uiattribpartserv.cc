@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.171 2011-02-01 11:34:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.172 2011-03-11 11:21:20 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -105,6 +105,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 	, volprocchain_( 0 )
 	, dpsdispmgr_( 0 )
         , evalmapperbackup_( 0 )
+        , attrsneedupdt_(true)
 {
     attrsetclosetim_.tick.notify( 
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
