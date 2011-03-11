@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.39 2011-02-02 05:05:22 nanne Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.40 2011-03-11 12:00:32 nanne Exp $";
 
 #include "flthortools.h"
 
@@ -511,10 +511,10 @@ bool FaultTraceExtractor::execute()
 
 bool FaultTraceExtractor::get2DFaultTrace()
 {
-    EM::SectionID fltsid( 0 );
     mDynamicCastGet(const EM::FaultStickSet*,fss,fault_)
     if ( !fss ) return false;
 
+    EM::SectionID fltsid = fault_->sectionID( 0 );
     S2DPOS().setCurLineSet( geomid_.lsid_ );
     PosInfo::Line2DData linegeom;
     if ( !S2DPOS().getGeometry(geomid_.lineid_,linegeom) )
