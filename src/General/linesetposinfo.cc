@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: linesetposinfo.cc,v 1.4 2010-07-12 14:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: linesetposinfo.cc,v 1.5 2011-03-11 11:25:01 cvsnanne Exp $";
 
 #include "linesetposinfo.h"
 #include "survinfo.h"
@@ -47,6 +47,7 @@ PosInfo::Line2DData& PosInfo::LineSet2DData::addLine( const char* lnm )
 
     li = new Info;
     li->lnm_ = lnm;
+    li->pos_.setLineName( lnm );
     data_ += li;
     return li->pos_;
 }
