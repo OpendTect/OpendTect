@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolyline.cc,v 1.20 2011-03-10 22:33:25 cvskris Exp $";
+static const char* rcsID = "$Id: vispolyline.cc,v 1.21 2011-03-11 10:12:17 cvsbert Exp $";
 
 #include "vispolyline.h"
 #include "viscoord.h"
@@ -86,7 +86,8 @@ void PolyLine::setLineStyle( const LineStyle& lst )
     }
 
     drawstyle_->setLineStyle( lst );
-    getMaterial()->setColor( lst.color_ );
+    if ( getMaterial() )
+	getMaterial()->setColor( lst.color_ );
 }
 
 
