@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.2 2011-03-11 11:20:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.3 2011-03-11 11:46:02 cvsbert Exp $";
 
 #include "uisegytrchdrvalplot.h"
 #include "uifunctiondisplay.h"
@@ -98,6 +98,7 @@ void uiSEGYTrcHdrValPlot::getBendPoints( const float* inp, int sz )
     BendPointFinder2D bpf( coords, 0.1 );
     bpf.execute();
 
+    xvals_.erase(); yvals_.erase();
     for ( int idx=0; idx<bpf.bendPoints().size(); idx++ )
     {
 	const Coord& coord = coords[ bpf.bendPoints()[idx] ];
