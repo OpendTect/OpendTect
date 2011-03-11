@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2011
- RCS:           $Id: uisegytrchdrvalplot.h,v 1.1 2011-03-10 12:35:14 cvsbert Exp $
+ RCS:           $Id: uisegytrchdrvalplot.h,v 1.2 2011-03-11 11:20:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,13 +30,17 @@ public:
 
 protected:
 
-    bool				issingle_;
+    bool		issingle_;
+    TypeSet<float>	xvals_;
+    TypeSet<float>	yvals_;
 
-    uiLabel*				tlbl1_;
-    uiLabel*				tlbl2_;
-    uiLabel*				slbl1_;
-    uiLabel*				slbl2_;
-    uiFunctionDisplay*			disp_;
+    uiLabel*		tlbl1_;
+    uiLabel*		tlbl2_;
+    uiLabel*		slbl1_;
+    uiLabel*		slbl2_;
+    uiFunctionDisplay*	disp_;
+
+    void		getBendPoints(const float*,int);
 
 };
 

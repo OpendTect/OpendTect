@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.13 2011-03-10 14:57:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.14 2011-03-11 11:20:44 cvsbert Exp $";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
@@ -297,7 +297,9 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     trcnrfld_ = lsb->box();
     lsb->attach( rightAlignedBelow, thtbl_ );
     trcnrfld_->setHSzPol( uiObject::Small );
-    trcnrfld_->setMinValue( 1 ); trcnrfld_->setValue( 1 );
+    trcnrfld_->setMinValue( 1 );
+    trcnrfld_->setMaxValue( mUdf(int) );
+    trcnrfld_->setValue( 1 );
     trcnrfld_->valueChanging.notify( mCB(this,uiSEGYFileManip,trcNrChg) );
 
     grp->setHAlignObj( llb );
@@ -573,7 +575,11 @@ void uiSEGYFileManip::trcNrChg( CallBacker* )
 	if ( nrtrcsinfile < 1 )
 	    uiMSG().error( "File contains no complete traces" );
 	else
+	{
 	    offs = cFileHeaderSize + (nrtrcsinfile-1) * tbyts;
+	    NotifyStopper ns( trcnrfld_->valueChanging );
+	    trcnrfld_->setValue( (int)nrtrcsinfile );
+	}
     }
 
     StrmOper::seek( strm(), offs );
@@ -598,13 +604,14 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel )
     , fm_(*p)
     , sel_(sel)
     , nrdone_(0)
-    , hdef_(SEGY::BinHeader::hdrDef())
+    , hdef_(SEGY::TrcHeader::hdrDef())
     , needswap_(p->binhdr_.isSwapped())
 {
     StrmOper::seek( fm_.strm(), cFileHeaderSize );
     totalnr_ = (fm_.filesize_-cFileHeaderSize) / fm_.traceBytes();
     for ( int idx=0; idx<sel_.size(); idx++ )
 	data_ += new TypeSet<float>;
+    fm_.calcset_.reSetSeqNr( 1 );
 }
 
 ~uiSEGYFileManipDataExtracter()
@@ -622,6 +629,8 @@ int nextStep()
     StrmOper::seek( fm_.strm(), cFileHeaderSize + nrdone_ * fm_.traceBytes() );
     if ( !StrmOper::readBlock(fm_.strm(),buf_,SegyTrcHeaderLength) )
 	return Finished();
+
+    fm_.calcset_.apply( buf_, fm_.binhdr_.isSwapped() );
 
     for ( int idx=0; idx<sel_.size(); idx++ )
 	*data_[idx] += hdef_[ sel_[idx] ]->getValue( buf_, needswap_ );

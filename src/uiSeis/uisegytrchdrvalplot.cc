@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.1 2011-03-10 12:35:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.2 2011-03-11 11:20:44 cvsbert Exp $";
 
 #include "uisegytrchdrvalplot.h"
 #include "uifunctiondisplay.h"
 #include "uilabel.h"
 #include "segyhdrdef.h"
 #include "statruncalc.h"
+#include "bendpointfinder.h"
 
 
 uiSEGYTrcHdrValPlot::uiSEGYTrcHdrValPlot( uiParent* p, bool sh )
@@ -30,7 +31,7 @@ uiSEGYTrcHdrValPlot::uiSEGYTrcHdrValPlot( uiParent* p, bool sh )
 	tlbl2_->setStretch( 2, 0 ); tlbl2_->setAlignment( Alignment::HCenter );
     }
 
-    uiFunctionDisplay::Setup fdsu; fdsu.pointsz( 3 );
+    uiFunctionDisplay::Setup fdsu; fdsu.pointsz( 3 ).drawscatter( true );
     disp_ = new uiFunctionDisplay( this, fdsu );
     disp_->attach( centeredBelow, tlbl2_ ? tlbl2_ : tlbl1_ );
     tlbl1_->attach( widthSameAs, disp_ );
@@ -62,11 +63,6 @@ void uiSEGYTrcHdrValPlot::setData( const SEGY::HdrEntry& he,
 
     (first ? tlbl1_ : tlbl2_)->setText(
 	    BufferString(he.name()," (",he.description()).add(")") );
-    const Interval<float> xintv( 1, sz );
-    if ( first )
-	disp_->setVals( xintv, data, sz );
-    else
-	disp_->setY2Vals( xintv, data, sz );
 
     Stats::RunCalcSetup rcsu( false );
     rcsu.require( Stats::Min ).require( Stats::Max );
@@ -84,4 +80,28 @@ void uiSEGYTrcHdrValPlot::setData( const SEGY::HdrEntry& he,
 	lbltxt.add( "[" ).add( rg.start ).add( "," ).add( rg.stop ).add( "]" );
     lbltxt.add( " (N=" ).add( sz ).add( ")" );
     (first ? slbl1_ : slbl2_)->setText( lbltxt );
+
+    getBendPoints( data, sz );
+    if ( first )
+	disp_->setVals( xvals_.arr(), yvals_.arr(), xvals_.size() );
+    else
+	disp_->setY2Vals( xvals_.arr(), yvals_.arr(), xvals_.size() );
+}
+
+
+void uiSEGYTrcHdrValPlot::getBendPoints( const float* inp, int sz )
+{
+    TypeSet<Coord> coords;
+    for ( int idx=0; idx<sz; idx++ )
+	coords += Coord( idx+1, inp[idx] );
+
+    BendPointFinder2D bpf( coords, 0.1 );
+    bpf.execute();
+
+    for ( int idx=0; idx<bpf.bendPoints().size(); idx++ )
+    {
+	const Coord& coord = coords[ bpf.bendPoints()[idx] ];
+	xvals_ += mNINT(coord.x);
+	yvals_ += mNINT(coord.y);
+    }
 }
