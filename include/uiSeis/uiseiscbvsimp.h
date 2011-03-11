@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseiscbvsimp.h,v 1.15 2010-06-25 09:49:17 cvsnanne Exp $
+ RCS:           $Id: uiseiscbvsimp.h,v 1.16 2011-03-11 14:36:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class IOObj;
+class SeisSingleTraceProc;
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
@@ -59,6 +60,9 @@ protected:
     void		getOutputName(BufferString&) const;
 
     bool		acceptOK(CallBacker*);
+    void		procToBeDoneCB(CallBacker*);
+
+    SeisSingleTraceProc* sstp_;
 
     bool		ismc_;
 

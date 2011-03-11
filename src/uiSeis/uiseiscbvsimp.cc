@@ -7,44 +7,45 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.78 2010-12-16 13:04:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.79 2011-03-11 14:36:34 cvshelene Exp $";
 
 #include "uiseiscbvsimp.h"
-#include "uiseisioobjinfo.h"
-#include "uiseissel.h"
-#include "seiscbvs.h"
-#include "seisread.h"
-#include "seiswrite.h"
-#include "seisselection.h"
-#include "seissingtrcproc.h"
-#include "seisselectionimpl.h"
-#include "seistrc.h"
-#include "seistrcprop.h"
-#include "ioman.h"
-#include "iostrm.h"
-#include "iopar.h"
+
 #include "ctxtioobj.h"
-#include "ptrman.h"
-#include "survinfo.h"
+#include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "oddirs.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "iostrm.h"
 #include "keystrs.h"
-#include "executor.h"
+#include "oddirs.h"
+#include "ptrman.h"
 #include "scaler.h"
+#include "seiscbvs.h"
+#include "seisread.h"
+#include "seisselection.h"
+#include "seisselectionimpl.h"
+#include "seissingtrcproc.h"
+#include "seistrc.h"
+#include "seistrcprop.h"
+#include "seiswrite.h"
+#include "survinfo.h"
+#include "veldesc.h"
+#include "velocitycalc.h"
 #include "zdomain.h"
 
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
-#include "uicombobox.h"
 #include "uimsg.h"
 #include "uiscaler.h"
-#include "uiseissel.h"
-#include "uiseisioobjinfo.h"
-#include "uiseistransf.h"
-#include "uiseislinesel.h"
 #include "uiseisfmtscale.h"
+#include "uiseisioobjinfo.h"
+#include "uiseislinesel.h"
+#include "uiseissel.h"
+#include "uiseistransf.h"
 #include "uitaskrunner.h"
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
@@ -54,6 +55,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 	, inctio_(*mMkCtxtIOObj(SeisTrc))
 	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
     	, modefld(0)
+    	, sstp_(0)
 {
     setCtrlStyle( DoAndStay );
     
@@ -69,6 +71,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 	, inctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
     	, modefld(0)
+    	, sstp_(0)
 {
     setCtrlStyle( DoAndStay );
     
@@ -362,10 +365,15 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     if ( !stp )
 	{ rmTmpIOObj(); return false; }
 
+    mDynamicCastGet(SeisSingleTraceProc*,sstp,stp.ptr())
+    sstp_ = sstp;
+
+    if ( inctio_.ioobj->pars().isTrue( VelocityDesc::sKeyIsVelocity() ) )
+	sstp_->proctobedone_.notify(mCB(this, uiSeisImpCBVS, procToBeDoneCB ));
+
     if ( ismc_ )
     {
-	mDynamicCastGet(SeisSingleTraceProc*,sstp,stp.ptr())
-	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
+	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp_->reader(0) );
 	rdr.setComponent( compfld_->box()->currentItem() - 1 );
     }
 
@@ -375,6 +383,49 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 
     rmTmpIOObj();
     return rv;
+}
+
+
+void uiSeisImpCBVS::procToBeDoneCB( CallBacker* c )
+{
+    SeisTrc& trc = sstp_->getTrace();
+    const SeisTrc intrc = sstp_->getInputTrace();
+    const char* typestr = outctio_.ioobj->pars().find ( 
+					    VelocityDesc::sKeyVelocityType() );
+    if ( !typestr ) return;
+
+    const int compnr = compfld_ && compfld_->box()->visible() ? 
+			compfld_->box()->currentItem() - 1 : 0;
+    TypeSet<float> trcvals;
+    TypeSet<float> timevals;
+    uiSeisIOObjInfo inioobjinfo( *inctio_.ioobj, true );
+    CubeSampling csin;
+    inioobjinfo.getRanges( csin );
+    const int sizein = csin.nrZ();
+    const float sampstep = intrc.info().sampling.step;
+    for ( int idx=0; idx<sizein; idx++ )
+    {
+	trcvals += intrc.get( idx, compnr );
+	timevals += intrc.startPos() + idx * sampstep;
+    }
+
+    const float* vin = trcvals.arr();
+    const float* tin = timevals.arr();
+    uiSeisIOObjInfo outioobjinfo( *outctio_.ioobj, true );
+    CubeSampling csout;
+    outioobjinfo.getRanges( csout );
+    const int sizeout = csout.nrZ();
+    const SamplingData<double> sdout( csout.zrg );
+    mAllocVarLenArr( float, vout, sizeout );
+    if ( !vout ) return;
+
+    if ( !strcmp( typestr, VelocityDesc::TypeNames()[VelocityDesc::Interval] ) )
+	sampleVint( vin, tin, sizein, sdout, vout, sizeout );
+    else if ( !strcmp( typestr, VelocityDesc::TypeNames()[VelocityDesc::RMS] ) )
+	sampleVrms( vin, 0, 0, tin, sizein, sdout, vout, sizeout );
+
+    for ( int idx=0; idx<sizeout; idx++ )
+	trc.set( idx, vout[idx], compnr );
 }
 
 
