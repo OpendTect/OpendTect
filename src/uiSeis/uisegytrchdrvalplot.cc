@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.3 2011-03-11 11:46:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.4 2011-03-11 12:57:32 cvsbert Exp $";
 
 #include "uisegytrchdrvalplot.h"
 #include "uifunctiondisplay.h"
@@ -99,10 +99,28 @@ void uiSEGYTrcHdrValPlot::getBendPoints( const float* inp, int sz )
     bpf.execute();
 
     xvals_.erase(); yvals_.erase();
-    for ( int idx=0; idx<bpf.bendPoints().size(); idx++ )
+
+    const int lastbpidx = bpf.bendPoints().size() - 1;
+    if ( lastbpidx < 1 ) return;
+
+    // We'll limit the number displayed to 5000: otherwise may hang
+    float incr = lastbpidx * 0.0002; if ( incr < 1 ) incr = 1;
+    int previdx = 0;
+    for ( float pos=0; ; pos+=incr )
     {
+	int idx = mNINT(pos);
+	if ( idx > lastbpidx )
+	{
+	    if ( previdx == lastbpidx )
+		break;
+	    idx = lastbpidx;
+	    // making sure the last point is displayed (first is already OK)
+	}
+
 	const Coord& coord = coords[ bpf.bendPoints()[idx] ];
 	xvals_ += mNINT(coord.x);
 	yvals_ += mNINT(coord.y);
+
+	previdx = idx;
     }
 }
