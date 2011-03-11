@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "reflectivitymodel.h"
 #include "welltiegeocalculator.h"
 
-class AIModel;
 class LineKey;
 class MultiID;
 class RayTracer1D;
