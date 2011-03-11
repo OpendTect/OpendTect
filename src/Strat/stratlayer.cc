@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID = "$Id: stratlayer.cc,v 1.19 2011-01-31 12:19:45 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.20 2011-03-11 13:42:10 cvsbruno Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -12,7 +12,6 @@ static const char* rcsID = "$Id: stratlayer.cc,v 1.19 2011-01-31 12:19:45 cvsber
 #include "stratunitrefiter.h"
 #include "propertyimpl.h"
 #include "propertyref.h"
-#include "aimodel.h"
 #include "separstr.h"
 #include "ascstream.h"
 #include "keystrs.h"
@@ -196,13 +195,13 @@ void Strat::LayerSequence::prepareUse() const
 }
 
 
-AIModel* Strat::LayerSequence::getAIModel( int velidx, int denidx,
-       					   bool isvel, bool isden ) const
+void Strat::LayerSequence::getAIModel( AIModel& aimodel, 
+				       int velidx, int denidx,
+				       bool isvel, bool isden ) const
 {
     const int sz = size();
-    TypeSet<AILayer> layers;
     if ( sz < 1 )
-	return new AIModel( layers, 0 );
+	return;
 
     float prevvval = mUdf(float); float prevdval = mUdf(float);
     for ( int idx=0; idx<sz; idx++ )
@@ -216,22 +215,22 @@ AIModel* Strat::LayerSequence::getAIModel( int velidx, int denidx,
 	    break;
     }
 
+    const Layer* lay = 0; 
     for ( int idx=0; idx<sz; idx++ )
     {
-	const Layer& lay( *layers_[idx] );
-	float vval = lay.value( velidx );
+	lay = layers_[idx];
+	float vval = lay->value( velidx );
 	if ( mIsUdf(vval) ) vval = prevvval;
 	prevvval = vval;
-	float dval = lay.value( denidx );
+	float dval = lay->value( denidx );
 	if ( mIsUdf(dval) ) dval = prevdval;
 	prevdval = dval;
 
 	if ( !isvel ) vval = 1 / vval;
 	if ( !isden ) dval = dval / vval;
-	layers += AILayer( lay.zTop(), vval, dval );
+	aimodel += AILayer( lay->zTop(), vval, dval );
     }
-
-    return new AIModel( layers, layers_[sz-1]->zBot() );
+    aimodel += AILayer( lay->zBot(), lay->value(velidx), lay->value(denidx) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.54 2011-03-04 15:46:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.55 2011-03-11 13:42:10 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -134,8 +134,6 @@ bool DataPlayer::setAIModel()
 bool DataPlayer::runRayTracer()
 {
     raytracer_->setModel( true, aimodel_ );
-    TypeSet<float> offsets; offsets += 0;
-    raytracer_->setOffsets( offsets );
     TaskRunner taskrunner;
     if ( !taskrunner.execute( *raytracer_ ) )
 	mErrRet( raytracer_->errMsg() )

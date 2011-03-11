@@ -8,8 +8,9 @@
 #include "raytrace1d.h"
 
 #include "arrayndimpl.h"
-#include "iopar.h"
 #include "genericnumer.h"
+#include "idxable.h"
+#include "iopar.h"
 #include "mathfunc.h"
 #include "sorting.h"
 #include "zoeppritzcoeff.h"
@@ -47,7 +48,7 @@ void RayTracer1D::setSetup( const RayTracer1D::Setup& s )
 { setup_ = s; }
 
 
-void RayTracer1D::setModel( bool pwave, const TypeSet<AILayer>& lys )
+void RayTracer1D::setModel( bool pwave, const AIModel& lys )
 {
     if ( pwave )
 	pmodel_ = lys;
@@ -64,7 +65,7 @@ od_int64 RayTracer1D::nrIterations() const
 { return (pmodel_.size() ? pmodel_.size() : smodel_.size() )-1; }
 
 
-int RayTracer1D::findLayer( const TypeSet<AILayer>& model, float targetdepth )
+int RayTracer1D::findLayer( const AIModel& model, float targetdepth )
 {
     int res;
     for ( res=0; res<model.size(); res++ )
@@ -79,6 +80,19 @@ int RayTracer1D::findLayer( const TypeSet<AILayer>& model, float targetdepth )
 #define mPvelToSvel 2.25
 bool RayTracer1D::doPrepare( int nrthreads )
 {
+    //See if we can find zero-offset
+    bool found = false;
+    for ( int idx=0; idx<offsets_.size(); idx++ )
+    {
+	if ( mIsZero(offsets_[idx],1e-3) )
+	{
+	    found = true;
+	    break;
+	}
+    }
+    if ( !found )
+	offsets_ += 0;
+
     const int psz = pmodel_.size();
     const int ssz = smodel_.size();
 
@@ -105,7 +119,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	return false;
     }
 
-    const TypeSet<AILayer>& depthmodel = psz ? pmodel_ : smodel_;
+    const AIModel& depthmodel = psz ? pmodel_ : smodel_;
 
     sourcelayer_ = findLayer( depthmodel, setup_.sourcedepth_ );
     receiverlayer_ = findLayer( depthmodel, setup_.receiverdepth_ );
@@ -127,6 +141,8 @@ bool RayTracer1D::doPrepare( int nrthreads )
     for ( int idx=0; idx<offsetsz; idx++ )
 	offsetpermutation_ += offsetidx.indexOf( idx );
 
+    firstlayer_ = mMIN( receiverlayer_, sourcelayer_ );
+
     if ( !sini_ )
 	sini_ = new Array2DImpl<float>( layersize, offsetsz );
     else
@@ -142,10 +158,57 @@ bool RayTracer1D::doPrepare( int nrthreads )
     if ( !reflectivity_ )
 	reflectivity_ = new Array2DImpl<float_complex>( layersize, offsetsz );
     else
-	reflectivity_->setSize( layersize, offsetsz );
+	reflectivity_->setSize( layersize-1, offsetsz );
 
     reflectivity_->setAll( mUdf(float_complex) );
 
+    return true;
+}
+
+
+bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
+{
+    const int offsz = offsets_.size();
+    const AIModel& model = setup_.pdown_ ? pmodel_ : smodel_;
+
+    for ( int layer=start; layer<=stop; layer++ )
+    {
+	if ( layer<firstlayer_ )
+	    continue;
+
+	const AILayer& ailayer = model[layer+1]; 
+	const float raydepth = 2*( ailayer.depth_ - setup_.sourcedepth_ );
+
+	float vrms2sum = 0; float zeroofftime = 0;
+	for ( int idx=firstlayer_; idx<layer+1; idx++ )
+	{
+	    const float vel = model[idx].vel_;
+	    const float thk = model[idx+1].depth_ - model[idx].depth_;
+	    zeroofftime += 2 * thk / vel;
+	    vrms2sum += vel * vel;
+	}
+	const float vrms  = sqrt( vrms2sum / (layer+1-firstlayer_) );
+
+	for ( int osidx=offsz-1; osidx>=0; osidx-- )
+	{
+	    const bool iszerooff = mIsZero(offsets_[osidx],1e-3);
+	    const float offsetdist = offsets_[osidx];
+	    const float angle = raydepth ? atan( offsetdist / raydepth ) : 0;
+	    const float raydist = raydepth / cos( angle );
+	    const float toffset = iszerooff ? zeroofftime : raydist / vrms ;
+	    twt_->set( layer, osidx, toffset );
+	    sini_->set( layer, osidx, sin( angle ) );
+
+	    const float rayparam = sin(angle) / vrms;
+
+	    if ( !compute( layer+1, osidx, rayparam ) )
+	    { 
+		BufferString msg( "Can not compute layer " );
+		msg += toString( layer+1 ); 
+		errmsg_ = msg; return false; 
+	    }
+	}
+    }
     return true;
 }
 
@@ -155,13 +218,12 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
-    const TypeSet<AILayer>& dlayers = setup_.pdown_ ? pmodel_ : smodel_;
-    const TypeSet<AILayer>& ulayers = setup_.pup_ ? pmodel_ : smodel_;
+    const AIModel& dlayers = setup_.pdown_ ? pmodel_ : smodel_;
+    const AIModel& ulayers = setup_.pup_ ? pmodel_ : smodel_;
 
     mAllocVarLenArr( ZoeppritzCoeff, coefs, layer );
-    const int toplayer = mMIN(sourcelayer_,receiverlayer_ );
 
-    for ( int idx=toplayer; idx<layer; idx++ )
+    for ( int idx=firstlayer_; idx<layer; idx++ )
 	coefs[idx].setInterface( rayparam, idx, pmodel_[idx], pmodel_[idx+1],
 				smodel_[idx], smodel_[idx+1] );
 
@@ -170,7 +232,8 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
     mRetFalseIfZero(vel);
 
     float sini = rayparam * vel;
-    float dist = (dlayers[lidx].depth_-setup_.sourcedepth_)/sqrt(1.0-sini*sini);
+    float dist = (dlayers[lidx].depth_-setup_.sourcedepth_)
+	       / sqrt(1.0-sini*sini);
     float_complex reflectivity =
 	coefs[lidx].getCoeff( true, lidx!=layer-1, setup_.pdown_,
 			    lidx==layer-1? setup_.pup_ : setup_.pdown_ );
@@ -196,8 +259,9 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	vel = ulayers[lidx].vel_;
 	mRetFalseIfZero(vel);
 	sini = rayparam * vel;
-	dist =  (ulayers[lidx].depth_-(lidx==receiverlayer_ ?
-	setup_.receiverdepth_ : 0)) / cos( asin(sini) );
+	dist =  (ulayers[lidx].depth_-(
+		    lidx==receiverlayer_ ? setup_.receiverdepth_ : 0) ) 
+		    / cos( asin(sini) );
 
 	if ( lidx>receiverlayer_ )
 	{
@@ -205,50 +269,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 		coefs[lidx-1].getCoeff(false,false,setup_.pup_,setup_.pup_);
 	}
     }
-    reflectivity_->set( layer, offsetidx, reflectivity );
-    return true;
-}
-
-
-
-bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
-{
-    const int offsz = offsets_.size();
-    const int firstreflection = 1 + mMAX(sourcelayer_,receiverlayer_);
-
-    //TODO different down/upgoing model
-    for ( int layer=start; layer<=stop; layer++ )
-    {
-	const TypeSet<AILayer>& model = setup_.pdown_ ? pmodel_ : smodel_;
-	const AILayer& ailayer = model[layer]; 
-	const float thickness = 2*(ailayer.depth_ - setup_.sourcedepth_);
-
-	float vrms2sum = 0;
-	for ( int idx=start; idx<layer+1; idx++ )
-	{
-	    const float vel = model[idx].vel_;
-	    vrms2sum += vel*vel;
-	}
-	const float vrms  = sqrt( vrms2sum / (layer+1-start) );
-
-	for ( int osidx=offsz-1; osidx>=0; osidx-- )
-	{
-	    const float offsetdist = offsets_[osidx];
-	    const float angle = atan( offsetdist /thickness );
-	    const float raydist = thickness / cos( angle );
-	    const float toffset = raydist / vrms;
-	    twt_->set( layer, osidx, toffset );
-	    sini_->set( layer, osidx, sin( angle ) );
-	    const float rayparam = sin(angle) / vrms;
-
-	    if ( !compute( layer, osidx, rayparam ) )
-	    { 
-		BufferString msg( "Can not compute layer " );
-		msg += toString( layer ); 
-		errmsg_ = msg; return false; 
-	    }
-	}
-    }
+    reflectivity_->set( layer-1, offsetidx, reflectivity );
     return true;
 }
 
@@ -275,8 +296,7 @@ float RayTracer1D::getTWT( int layer, int offsetidx ) const
 }
 
 
-bool RayTracer1D::getReflectivity(int offset,
-				 ReflectivityModel& model) const
+bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
 {
     const int offsetidx = offsetpermutation_[offset];
     if ( offsetidx<0 || offsetidx>=reflectivity_->info().getSize(1) )
@@ -288,7 +308,7 @@ bool RayTracer1D::getReflectivity(int offset,
     model.setCapacity( nrlayers );
     ReflectivitySpike spike;
 
-    const TypeSet<AILayer>& layers = pmodel_.size() ? pmodel_ : smodel_;
+    const AIModel& layers = pmodel_.size() ? pmodel_ : smodel_;
     for ( int idx=0; idx<nrlayers; idx++ )
     {
 	spike.reflectivity_ = reflectivity_->get( idx, offsetidx );
@@ -297,6 +317,34 @@ bool RayTracer1D::getReflectivity(int offset,
 	spike.correctedtime_ = twt_->get( idx, 0 );
 	model += spike;
     }
-
     return true;
+}
+
+
+//TODO move this to a d2t model class
+float RayTracer1D::convertTo( float z, int offset, bool targetistime ) const
+{
+    const AIModel& layers = pmodel_.size() ? pmodel_ : smodel_;
+    const int sz = nrIterations();
+    if ( sz == 0 ) return 0;
+    if ( sz == 1 )
+	return targetistime ? twt_->get(0, offset) : layers[0].depth_;
+
+    TypeSet<float> zvals;
+    for ( int layer=0; layer<sz; layer++ )
+	zvals += targetistime ? layers[layer].depth_ : getTWT(layer,offset);
+
+    int idx;
+    IdxAble::findFPPos( zvals, sz, z, -1, idx );
+    if ( !zvals.validIdx( idx ) ) 
+	return targetistime ? z / layers[0].vel_ : z*layers[0].vel_/2;
+    const float remainder = idx > 0 ? z - zvals[idx] : 0;
+
+    if ( targetistime )
+    {
+	const float time =  idx > 0 ? getTWT(idx-1,offset) : 0; 
+	return time + remainder / layers[idx].vel_;
+    }
+    else
+	return layers[idx+1].depth_ + remainder * layers[idx].vel_/2;
 }

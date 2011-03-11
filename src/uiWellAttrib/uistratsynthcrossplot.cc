@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.22 2011-02-09 12:28:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.23 2011-03-11 13:42:10 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -36,19 +36,19 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.22 2011-02-09 12:2
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "survinfo.h"
-#include "aimodel.h"
+#include "raytrace1d.h"
 #include "valseriesevent.h"
 
 
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 					const DataPack::FullID& dpid,
 					const Strat::LayerModel& lm,
-       					const ObjectSet<AIModel>& aimdls )
+       					const ObjectSet<RayTracer1D>& rts )
     : uiDialog(p,Setup("Layer model/synthetics cross-plotting",
 			mNoDlgTitle,mTODOHelpID))
     , packmgrid_(DataPackMgr::getID(dpid))
     , lm_(lm)
-    , aimodels_(aimdls)
+    , raytracers_(rts)
     , emptylbl_(0)
     , tbpack_(0)
 {
@@ -103,10 +103,10 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	dps->dataSet().add(
 		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr)) );
 
-    const int nraimdls = aimodels_.size();
+    const int nraimdls = raytracers_.size();
     SeisTrcBuf& tbuf = tbpack_->trcBuf();
     if ( tbuf.size() != nraimdls )
-	{ pErrMsg("DataPack nr of traces != nr of aimodels"); return 0; }
+	{ pErrMsg("DataPack nr of traces != nr of raytracers"); return 0; }
 
     TypeSet<float> lvltms;
     const Strat::SeisEvent& ssev = evfld_->event();
@@ -114,7 +114,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     {
 	SeisTrc& trc = *tbuf.get( imod );
 	const float dpth = lm_.sequence(imod).depthOf( lvl );
-	trc.info().pick = aimodels_[imod]->convertTo( dpth, AIModel::TWT );
+	trc.info().pick = raytracers_[imod]->convertTo( dpth, 0, true );
 	lvltms += ssev.snappedTime( trc );
     }
 
@@ -130,8 +130,8 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	    dr.pos_.set( trc.info().coord );
 	    dr.pos_.z_ = lvltms[itrc] + relz;
 	    dr.data_.setSize( dps->nrCols(), mUdf(float) );
-	    dr.data_[depthcol] = aimodels_[itrc]->convertTo( dr.pos_.z_,
-							     AIModel::Depth );
+	    dr.data_[depthcol] = raytracers_[itrc]->convertTo( dr.pos_.z_, 0,
+							     false );
 	    dps->addRow( dr );
 	}
     }

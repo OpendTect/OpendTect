@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2011
- RCS:		$Id: stratlayseqattribcalc.h,v 1.4 2011-01-31 12:19:26 cvsbert Exp $
+ RCS:		$Id: stratlayseqattribcalc.h,v 1.5 2011-03-11 13:42:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "executor.h"
 class DataPointSet;
-class AIModel;
 
 namespace Strat
 {

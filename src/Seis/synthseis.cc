@@ -5,9 +5,10 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.9 2011-03-04 09:18:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.10 2011-03-11 13:42:10 cvsbruno Exp $";
 
-#include "aimodel.h"
+#include "arrayndimpl.h"
+#include "fourier.h"
 #include "genericnumer.h"
 #include "reflectivitymodel.h"
 #include "reflectivitysampler.h"
@@ -21,7 +22,9 @@ mImplFactory( Seis::SynthGeneratorBase, Seis::SynthGeneratorBase::factory );
 Seis::SynthGeneratorBase::SynthGeneratorBase()
     : Executor("Fast Synth Generator")
     , wavelet_(0)
-    , refmodel_(*new ReflectivityModel())		 
+    , fft_(0)
+    , fftsz_(0)			   
+    , freqwavelet_(0)
 {
     outtrc_ = new SeisTrc;
 }
@@ -31,11 +34,14 @@ Seis::SynthGeneratorBase::~SynthGeneratorBase()
 {
     if ( waveletismine_ )
 	delete wavelet_;
+
+    delete freqwavelet_;
 }
 
 
 bool Seis::SynthGeneratorBase::setModel( const ReflectivityModel& refmodel )
 {
+    refmodel_.erase();
     refmodel_.copy( refmodel );
     return true;
 }
@@ -57,8 +63,27 @@ bool Seis::SynthGeneratorBase::setWavelet( Wavelet* wvlt, OD::PtrPolicy pol )
 	wavelet_ = wvlt;
     }
     waveletismine_ = pol != OD::UsePtr;
+
     return true;
 }
+
+
+void Seis::SynthGeneratorBase::setConvolDomain( bool fourier )
+{
+    if ( fourier == ((bool) fft_ ) )
+	return;
+
+    if ( fft_ )
+    {
+	delete fft_;
+	fft_ = 0;
+    }
+    else
+    {
+	fft_ = new Fourier::CC;
+    }
+}
+
 
 
 bool Seis::SynthGeneratorBase::setOutSampling( const StepInterval<float>& si )
@@ -66,6 +91,7 @@ bool Seis::SynthGeneratorBase::setOutSampling( const StepInterval<float>& si )
     outputsampling_ = si;
     outtrc_->reSize( si.nrSteps(), false );
     outtrc_->info().sampling = si;
+    fftsz_ = si.nrSteps(); //TODO fast sz
     return true;
 }
 
@@ -83,6 +109,12 @@ bool Seis::SynthGeneratorBase::usePar( const IOPar& par )
 
 int Seis::SynthGeneratorBase::nextStep()
 {
+    if ( refmodel_.isEmpty() ) 
+	{ errmsg_ = "No reflectivity model found"; return false; }
+
+    if ( !wavelet_ ) 
+	{ errmsg_ = "No wavelet found"; return false; }
+
     if ( !computeTrace( (float*)outtrc_->data().getComponent(0)->data() ) )
 	return ErrorOccurred();
 
@@ -92,176 +124,82 @@ int Seis::SynthGeneratorBase::nextStep()
 
 bool Seis::SynthGeneratorBase::computeTrace( float* result ) 
 {
-    if ( refmodel_.isEmpty() ) 
-	{ errmsg_ = "No reflectivity model found"; return false; }
-
-    if ( !wavelet_ ) 
-	{ errmsg_ = "No wavelet found"; return false; }
-
-    int ns = outtrc_->size();
     outtrc_->zero();
-    if ( ns < 2 )
+    if ( outputsampling_.nrSteps() < 2 )
 	return false;
 
-    TypeSet<float_complex> crefl;
-    ReflectivitySampler sampler( refmodel_, outputsampling_, crefl );
+    const int wvltsz = wavelet_->size(); 
+    if ( wvltsz < 2 )
+	return false;
+
+    cresamprefl_.erase();
+    ReflectivitySampler sampler( refmodel_, outputsampling_, cresamprefl_ );
     sampler.execute();
-    samprefl_.erase();
 
-    for ( int idx=0; idx<crefl.size(); idx++ )
+    if (fft_ ) 
+	FFTConvolve( result);
+    else
+	genericConvolve( result );
+
+    return true;
+}
+
+
+bool Seis::SynthGeneratorBase::FFTConvolve( float* result )
+{
+    if ( !fft_ ) return false;
+
+    const int wvltsz = wavelet_->size();
+    float_complex* cres = new float_complex[ fftsz_ ];
+
+    delete freqwavelet_;
+    freqwavelet_ = new Array1DImpl<float_complex>( fftsz_ );
+    for ( int idx=0; idx<fftsz_; idx++ )
     {
-	float refval = crefl[idx].real();
-	if ( mIsUdf( refval ) ) 
-	    refval = 0;
-
-	samprefl_ += refval;
+	float val = 0; 
+	if ( idx < wvltsz ) 
+	    val = wavelet_->samples()[idx];
+	freqwavelet_->set( idx, val );
     }
 
-    const int wvltsz = wavelet_->size(); 
+    fft_->setInputInfo( freqwavelet_->info() );
+    fft_->setDir( true );
+    fft_->setNormalization( false );
+    fft_->setInput( freqwavelet_->arr() );
+    fft_->setOutput( freqwavelet_->arr() );
+    fft_->run( true );
+    for ( int idx=0; idx<fftsz_; idx++ )
+	cres[idx] = cresamprefl_[idx] * freqwavelet_->get( idx ); 
+
+    fft_->setDir( false );
+    fft_->setNormalization( true );
+    fft_->setInput( cres );
+    fft_->setOutput( cres );
+    fft_->run( false );
+    for ( int idx=0; idx<cresamprefl_.size(); idx++ )
+	result[idx] = cres[idx].real();
+    
+    return true;
+}
+
+
+bool Seis::SynthGeneratorBase::genericConvolve( float* result )
+{
+    int ns = outtrc_->size();
+    TypeSet<float> refs; getSampledReflectivities( refs );
     const int wvltcs = wavelet_->centerSample();
+    const int wvltsz = wavelet_->size();
     GenericConvolve( wvltsz, -wvltcs-1, wavelet_->samples(),
-		     samprefl_.size(), 0, samprefl_.arr(),
+		     refs.size(), 0, refs.arr(),
 		     ns, 0, result );
     return true;
 }
 
 
-
-
-
-Seis::SynthGenerator::SynthGenerator()
-	: outtrc_(*new SeisTrc)
+void Seis::SynthGeneratorBase::getSampledReflectivities( 
+					    TypeSet<float>& refs ) const
 {
-    init( 0, 0 );
+    for ( int idx=0; idx<cresamprefl_.size(); idx++ )
+	refs += cresamprefl_[idx].real();
 }
-
-
-Seis::SynthGenerator::SynthGenerator( const Wavelet& wvlt )
-	: outtrc_(*new SeisTrc)
-{
-    init( 0, &wvlt );
-}
-
-
-Seis::SynthGenerator::SynthGenerator( const AIModel& mdl )
-	: outtrc_(*new SeisTrc)
-{
-    init( &mdl, 0 );
-}
-
-
-Seis::SynthGenerator::SynthGenerator( const AIModel& mdl, const Wavelet& wvlt )
-	: outtrc_(*new SeisTrc)
-{
-    init( &mdl, &wvlt );
-}
-
-
-Seis::SynthGenerator::~SynthGenerator()
-{
-    delete aimdl_; delete wvlt_;
-    delete &outtrc_;
-}
-
-
-void Seis::SynthGenerator::init( const AIModel* mdl, const Wavelet* wvlt )
-{
-    aimdl_ = 0; inpaimdl_ = mdl;
-    wvlt_ = 0; inpwvlt_ = wvlt;
-
-    if ( inpaimdl_ )
-	prepAIModel();
-    if ( inpwvlt_ )
-	prepWavelet();
-}
-
-
-void Seis::SynthGenerator::prepAIModel()
-{
-    delete aimdl_; aimdl_ = 0;
-    if ( !inpaimdl_ ) return;
-    aimdl_ = new AIModel( *inpaimdl_ );
-    aimdl_->antiAlias();
-}
-
-
-void Seis::SynthGenerator::prepWavelet()
-{
-    delete wvlt_; wvlt_ = 0;
-    if ( !inpwvlt_ ) return;
-    wvlt_ = new Wavelet( *inpwvlt_ );
-}
-
-
-SamplingData<float> Seis::SynthGenerator::getDefOutSampling(
-		const AIModel& aimod, const Wavelet& wvlt, int& ns )
-{
-    SamplingData<float> sd( 0, wvlt.sampleRate() );
-    float tend = aimod.endTime();
-    sd.snap( tend );
-    ns = sd.nearestIndex( tend );
-    return sd;
-}
-
-
-void Seis::SynthGenerator::setOutSampling( const SamplingData<float>& sd,
-					   int ns )
-{
-    outtrc_.reSize( ns, false );
-    outtrc_.info().sampling = sd;
-}
-
-
-void Seis::SynthGenerator::generate( const Wavelet& wvlt )
-{
-    inpwvlt_ = &wvlt;
-    prepWavelet();
-    generate();
-}
-
-
-void Seis::SynthGenerator::generate( const AIModel& mdl )
-{
-    inpaimdl_ = &mdl;
-    prepAIModel();
-    generate();
-}
-
-
-void Seis::SynthGenerator::generate( const AIModel& mdl, const Wavelet& wvlt )
-{
-    inpaimdl_ = &mdl; inpwvlt_ = &wvlt;
-    prepAIModel(); prepWavelet();
-    generate();
-}
-
-
-void Seis::SynthGenerator::generate()
-{
-    if ( !wvlt_ || !aimdl_ )
-	return;
-
-    int ns = outtrc_.size();
-    if ( ns < 1 )
-    {
-	outtrc_.info().sampling = getDefOutSampling( *inpaimdl_, *inpwvlt_,
-						     ns );
-	if ( ns < 1 ) ns = 1;
-	outtrc_.reSize( ns, false );
-    }
-    outtrc_.zero();
-    if ( ns < 2 )
-	return;
-
-    TypeSet<float> refl;
-    aimdl_->getReflectivity( outtrc_.info().sampling, refl );
-
-    const int wvltsz = wvlt_->size(); const int wvltcs = wvlt_->centerSample();
-    float* trcarr = (float*)outtrc_.data().getComponent(0)->data();
-    GenericConvolve( wvltsz, -wvltcs-1, wvlt_->samples(),
-		     refl.size(), 0, refl.arr(),
-		     ns, 0, trcarr );
-}
-
-
 

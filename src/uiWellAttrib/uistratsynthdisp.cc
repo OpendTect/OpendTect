@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.22 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.23 2011-03-11 13:42:10 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -18,18 +18,20 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.22 2011-02-10 05:11:27 
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
-#include "stratlayermodel.h"
-#include "stratlayersequence.h"
-#include "seisbufadapters.h"
-#include "seistrc.h"
-#include "wavelet.h"
-#include "synthseis.h"
-#include "aimodel.h"
-#include "ptrman.h"
-#include "ioman.h"
-#include "survinfo.h"
+
 #include "flatposdata.h"
 #include "flatviewzoommgr.h"
+#include "ioman.h"
+#include "ptrman.h"
+#include "raytrace1d.h"
+#include "survinfo.h"
+#include "synthseis.h"
+#include "seisbufadapters.h"
+#include "seistrc.h"
+#include "stratlayermodel.h"
+#include "stratlayersequence.h"
+#include "wavelet.h"
+
 
 static const int cMarkerSize = 6;
 
@@ -87,7 +89,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 uiStratSynthDisp::~uiStratSynthDisp()
 {
     delete wvlt_;
-    deepErase( aimdls_ );
+    deepErase( raytracers_ );
 }
 
 
@@ -111,18 +113,18 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
     FlatView::Annotation& ann = vwr_->appearance().annot_;
     deepErase( ann.auxdata_ );
 
-    if ( !aimdls_.isEmpty() && !zvals.isEmpty() )
+    if ( !raytracers_.isEmpty() && !zvals.isEmpty() )
     {
 	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
 	FlatView::Annotation::AuxData* auxd =
 			new FlatView::Annotation::AuxData("Level markers");
 	auxd->linestyle_.type_ = LineStyle::None;
-	for ( int imdl=0; imdl<aimdls_.size(); imdl++ )
+	for ( int imdl=0; imdl<raytracers_.size(); imdl++ )
 	{
 	    float tval = zvals[ imdl>=zvals.size() ? zvals.size()-1 :imdl ];
 	    if ( !mIsUdf(tval) )
 	    {
-		tval = aimdls_[imdl]->convertTo( tval, AIModel::TWT );
+		tval = raytracers_[imdl]->convertTo( tval, 0, true );
 		if ( imdl < tbuf.size() )
 		    tbuf.get(imdl)->info().pick = tval;
 
@@ -177,15 +179,15 @@ void uiStratSynthDisp::zoomChg( CallBacker* )
 const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 {
     static uiWorldRect wr; wr = vwr_->curView();
-    if ( indpth && !aimdls_.isEmpty() )
+    if ( indpth && !raytracers_.isEmpty() )
     {
 	int mdlidx = longestaimdl_;
-	if ( mdlidx >= aimdls_.size() )
-	    mdlidx = aimdls_.size()-1;
+	if ( mdlidx >= raytracers_.size() )
+	    mdlidx = raytracers_.size()-1;
 
-	const AIModel& aimdl = *aimdls_[mdlidx];
-	wr.setTop( aimdl.convertTo(wr.top(),AIModel::Depth) );
-	wr.setBottom( aimdl.convertTo(wr.bottom(),AIModel::Depth) );
+	const RayTracer1D& raytracer = *raytracers_[mdlidx];
+	wr.setTop( raytracer.convertTo(wr.top(),0,false) );
+	wr.setBottom( raytracer.convertTo(wr.bottom(),0,false) );
     }
     return wr;
 }
@@ -247,7 +249,7 @@ void uiStratSynthDisp::modelChanged()
     vwr_->control()->zoomMgr().toStart();
     deepErase( vwr_->appearance().annot_.auxdata_ );
 
-    deepErase( aimdls_ );
+    deepErase( raytracers_ );
     delete wvlt_;
     wvlt_ = wvltfld_->getWavelet();
     if ( !wvlt_ )
@@ -261,33 +263,41 @@ void uiStratSynthDisp::modelChanged()
 
     bool isvel; const int velidx = getVelIdx( isvel );
     bool isden; const int denidx = getDenIdx( isden );
-    int maxsz = 0; SamplingData<float> sd;
+    StepInterval<float> sd( 0, 0, wvlt_->sampleRate() );
     longestaimdl_ = 0; int maxaimdlsz = 0;
     for ( int iseq=0; iseq<lm_.size(); iseq++ )
     {
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
-	AIModel* aimod = seq.getAIModel( velidx, denidx, isvel, isden );
-	aimdls_ += aimod;
-	if ( aimod->nrTimes() > maxaimdlsz )
-	    { maxaimdlsz = aimod->nrTimes(); longestaimdl_ = iseq; }
-	int sz;
-	sd = Seis::SynthGenerator::getDefOutSampling( *aimod, *wvlt_, sz );
-	if ( sz > maxsz ) maxsz = sz;
+	AIModel aimod; seq.getAIModel( aimod, velidx, denidx, isvel, isden );
+	RayTracer1D* rt = new RayTracer1D( RayTracer1D::Setup() );
+	raytracers_ += rt;
+        rt->setModel( true, aimod );	
+	if ( aimod.size() > maxaimdlsz )
+	    { maxaimdlsz = aimod.size(); longestaimdl_ = iseq; }
+	rt->execute();
+	const float tend = rt->getTWT( aimod.size()-2, 0 );
+	sd.include( tend );
     }
-    const int nraimdls = aimdls_.size();
-    if ( nraimdls < 1 || maxsz < 2 )
+    const int nraimdls = raytracers_.size();
+    if ( nraimdls < 1 || sd.nrSteps() < 1 )
 	mErrRet(0)
 
-    Seis::SynthGenerator synthgen( *wvlt_ );
-    synthgen.setOutSampling( sd, maxsz );
+    Seis::ODSynthGenerator synthgen;
+    synthgen.setWavelet( wvlt_, OD::UsePtr );
+    synthgen.setOutSampling( sd );
     SeisTrcBuf* tbuf = new SeisTrcBuf( true );
     const int crlstep = SI().crlStep();
     const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
 	    	      SI().crlRange(false).stop + crlstep );
 
+    ReflectivityModel refmod;  
     for ( int imdl=0; imdl<nraimdls; imdl++ )
     {
-	synthgen.generate( *aimdls_[imdl] );
+	refmod.erase();
+	RayTracer1D& rt = *raytracers_[imdl];
+	rt.getReflectivity( 0, refmod );
+	synthgen.setModel( refmod );
+	synthgen.execute();
 	SeisTrc* newtrc = new SeisTrc( synthgen.result() );
 	const int trcnr = imdl + 1;
 	newtrc->info().nr = trcnr;

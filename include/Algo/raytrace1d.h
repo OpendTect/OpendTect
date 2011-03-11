@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.15 2011-03-01 08:35:36 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.16 2011-03-11 13:42:09 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -52,7 +52,7 @@ public:
     virtual const Setup&	setup() const		{ return setup_; }
     virtual void		setSetup(const Setup&);
 
-    void		setModel(bool pmodel,const TypeSet<AILayer>&);
+    void		setModel(bool pmodel,const AIModel&);
     			/*!<Note, if both p-model and s-model are set,
 			    they should be identical with regards to their sizes
 			    and the layers' depths. */
@@ -68,6 +68,7 @@ public:
     bool                getReflectivity(int offset,
 					ReflectivityModel&) const;
 
+    float		convertTo(float,int off,bool targetistime) const; 
 
 protected:
 
@@ -75,16 +76,15 @@ protected:
     virtual bool	doPrepare(int);
     virtual bool	doWork(od_int64,od_int64,int);
     virtual bool	compute(int,int,float);
-    static int		findLayer(const TypeSet<AILayer>& model,
-	    			  float targetdepth);
+    static int		findLayer(const AIModel& model,float targetdepth);
 
     			//Setup variables
-    TypeSet<AILayer>	pmodel_;
-    TypeSet<AILayer>	smodel_;
+    AIModel		pmodel_;
+    AIModel		smodel_;
     TypeSet<float>	offsets_;
     Setup		setup_;
 
-    				//Runtime variables
+			//Runtime variables
     int			sourcelayer_;
     int			receiverlayer_;
     int			firstlayer_;
