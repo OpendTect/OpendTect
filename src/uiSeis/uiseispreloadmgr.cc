@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.26 2011-01-11 16:36:42 cvskris Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.27 2011-03-11 11:36:05 cvsnanne Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -81,14 +81,13 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 	    "Save pre-loads", mCB(this,uiSeisPreLoadMgr,savePush) );
     savetb->attach( rightAlignedBelow, listfld_ );
 
-    infofld_ = new uiTextEdit( this, "Info" );
-    infofld_->attach( alignedBelow, topgrp );
-    infofld_->attach( widthSameAs, topgrp );
+    uiGroup* infogrp = new uiGroup( this, "Info Group" );
+    infofld_ = new uiTextEdit( infogrp, "Info" );
     infofld_->setPrefHeightInChar( 5 );
 
     uiSplitter* spl = new uiSplitter( this, "Splitter", false );
     spl->addGroup( topgrp );
-    spl->addObject( infofld_ );
+    spl->addGroup( infogrp );
 
     finaliseDone.notify( mCB(this,uiSeisPreLoadMgr,fullUpd) );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisplitter.cc,v 1.5 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uisplitter.cc,v 1.6 2011-03-11 11:36:05 cvsnanne Exp $";
 
 
 #include "uisplitter.h"
@@ -45,15 +45,8 @@ uiSplitterBody& uiSplitter::mkbody( uiParent* p, const char* nm )
 }
 
 
-void uiSplitter::addObject( uiObject* obj )
-{
-    if ( obj )
-	body_->addWidget( obj->qwidget() );
-}
-
-
 void uiSplitter::addGroup( uiGroup* grp )
 {
-    if ( grp )
-	addObject( grp->attachObj() );
+    if ( grp && grp->attachObj() )
+	body_->addWidget( grp->attachObj()->qwidget() );
 }
