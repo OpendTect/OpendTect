@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.22 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.23 2011-03-11 14:35:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,9 +26,9 @@ class SeisResampler;
 
 /*!\brief Single trace processing executor
 
-When a trace info is read, the selection callback is triggered. You can then
-use skipCurTrc(). When the trace is read, the processing callback is triggered.
-You can set you own trace as output trace, otherwise the input trace will be
+When a trace info is read, the selection notifier is triggered. You can then
+use skipCurTrc(). When the trace is read, the processing notifier is triggered.
+You can set your own trace as output trace, otherwise the input trace will be
 taken.
 
 */
@@ -47,14 +47,13 @@ public:
 					    const char* msg="Processing");
     virtual		~SeisSingleTraceProc();
 
-    void		setSelectionCB( const CallBack& cb ) { selcb_ = cb; }
-    void		setProcessingCB( const CallBack& cb ) { proccb_ = cb; }
     void		skipCurTrc()		{ skipcurtrc_ = true; }
     			//!< will also be checked after processing CB
 
     const SeisTrcReader* reader(int idx=0) const { return rdrset_[idx]; }
     const SeisTrcWriter* writer() const		 { return wrr_; }
     SeisTrc&		getTrace()		 { return *worktrc_; }
+    const SeisTrc&	getInputTrace()		 { return intrc_; }
 
     void		setTracesPerStep( int n ) { trcsperstep_ = n; }
     			//!< default is 10
@@ -79,6 +78,9 @@ public:
 				 const IOPar*,const char*);
     void		setExtTrcToSI( bool yn )	{ extendtrctosi_ = yn; }
 
+    Notifier<SeisSingleTraceProc>		traceselected_;
+    Notifier<SeisSingleTraceProc>		proctobedone_;
+
 protected:
 
     ObjectSet<SeisTrcReader> rdrset_;
@@ -86,8 +88,6 @@ protected:
     SeisTrc&		intrc_;
     SeisTrc*		worktrc_;
     SeisResampler*	resampler_;
-    CallBack		selcb_;
-    CallBack		proccb_;
     BufferString	msg_;
     BufferString	curmsg_;
     bool		skipcurtrc_;

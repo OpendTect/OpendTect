@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.61 2010-05-19 08:36:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.62 2011-03-11 14:35:49 cvshelene Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -45,6 +45,8 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.61 2010-05-19 08:36:46 c
     	, resampler_(0) \
 	, extendtrctosi_( false ) \
     	, is3d_(true) \
+	, traceselected_(this) \
+	, proctobedone_(this) \
 { \
     if ( !mkWriter(out) ) return; \
     worktrc_ = &intrc_;
@@ -297,7 +299,7 @@ int SeisSingleTraceProc::getNextTrc()
 
     worktrc_ = &intrc_;
     skipcurtrc_ = false;
-    selcb_.doCall( this );
+    traceselected_.trigger();
     if ( skipcurtrc_ )
 	{ nrskipped_++; return 2; }
 
@@ -400,7 +402,7 @@ bool SeisSingleTraceProc::prepareTrc()
 	skipcurtrc_ = true;
 
     if ( !skipcurtrc_ )
-	proccb_.doCall( this );
+	proctobedone_.trigger();
     if ( skipcurtrc_ ) { nrskipped_++; return false; }
 
     if ( scaler_ )
