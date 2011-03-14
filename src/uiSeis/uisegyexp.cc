@@ -8,10 +8,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.38 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.39 2011-03-14 12:35:39 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
+#include "uisegymanip.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uicompoundparsel.h"
@@ -168,7 +169,8 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	: uiDialog(p,uiDialog::Setup("SEG-Y I/O","Export to SEG-Y","103.0.7"))
 	, Usage::Client("SEG-Y")
     	, geom_(gt)
-    	, morebut_(0)
+    	, morebox_(0)
+    	, manipbox_(0)
     	, autogentxthead_(true)
 	, selcomp_(-1)
 {
@@ -198,8 +200,14 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
     if ( Seis::is2D(geom_) && !Seis::isPS(geom_) )
     {
-	morebut_ = new uiCheckBox( this, "Export more from same Line Set" );
-	morebut_->attach( alignedBelow, fsfld_ );
+	morebox_ = new uiCheckBox( this, "Export more from same Line Set" );
+	morebox_->attach( alignedBelow, fsfld_ );
+    }
+    else
+    {
+	manipbox_ = new uiCheckBox( this,
+			"Manipulate output file after creation" );
+	manipbox_->attach( alignedBelow, fsfld_ );
     }
 
     finaliseDone.notify( inpselcb );
@@ -391,12 +399,19 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 			   && transffld_->selFld2D()->isSingLine()
 		    ? transffld_->selFld2D()->selectedLine() : 0;
     bool rv;
-    if ( !morebut_ || !morebut_->isChecked() )
-	rv = doWork( *inioobj, *outioobj, lnm, attrnm );
-    else
+    if ( morebox_ && morebox_->isChecked() )
     {
 	uiSEGYExpMore dlg( this, *inioobj, *outioobj, attrnm );
 	rv = dlg.go();
+    }
+    else
+    {
+	rv = doWork( *inioobj, *outioobj, lnm, attrnm );
+	if ( manipbox_ && manipbox_->isChecked() )
+	{
+	    uiSEGYFileManip dlg( this, outioobj->fullUserExpr(false) );
+	    dlg.go();
+	}
     }
 
     rv &= selcomp_ < 0;
