@@ -4,7 +4,7 @@
  * DATE     : Mar 2011
 -*/
 
-static const char* rcsID = "$Id: segyhdrcalc.cc,v 1.6 2011-03-08 13:56:07 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdrcalc.cc,v 1.7 2011-03-14 14:35:36 cvsbert Exp $";
 
 
 #include "segyhdrcalc.h"
@@ -66,20 +66,19 @@ bool SEGY::HdrCalcSet::add( const char* dispstr )
 }
 
 
-bool SEGY::HdrCalcSet::add( const SEGY::HdrEntry& he, const char* def,
-       			    BufferString* emsg )
+MathExpression* SEGY::HdrCalcSet::gtME( const char* def, TypeSet<int>& heidxs,
+					BufferString* emsg ) const
 {
     MathExpressionParser mep( def );
     MathExpression* me = mep.parse();
     if ( !me )
     {
 	if ( emsg ) *emsg = mep.errMsg();
-	return false;
+	return 0;
     }
 
+    heidxs.erase();
     const int nrvars = me->nrVariables();
-    TypeSet<int>* heidxs = new TypeSet<int>;
-
     for ( int ivar=0; ivar<nrvars; ivar++ )
     {
 	const MathExpression::VarType vt = me->getType( ivar );
@@ -94,7 +93,7 @@ bool SEGY::HdrCalcSet::add( const SEGY::HdrEntry& he, const char* def,
 			? "named constant" : "recursive expression" )
 		    .add( "\nThese are not supported." );
 	    }
-	    delete me; delete heidxs; return false;
+	    delete me; return 0;
 	}
 
 	int heidx = hdef_.indexOf( varnm );
@@ -109,17 +108,48 @@ bool SEGY::HdrCalcSet::add( const SEGY::HdrEntry& he, const char* def,
 		    *emsg = " Found variable: '";
 		    emsg->add( varnm ).add( "', which is not a header field");
 		}
-		delete me; delete heidxs; return false;
+		delete me; return 0;
 	    }
 	}
-	*heidxs += heidx;
+	heidxs += heidx;
     }
+
+    return me;
+}
+
+
+bool SEGY::HdrCalcSet::add( const SEGY::HdrEntry& he, const char* def,
+			    BufferString* emsg )
+{
+    TypeSet<int>* heidxs = new TypeSet<int>;
+    MathExpression* me = gtME( def, *heidxs, emsg );
+    if ( !me )
+	{ delete heidxs; return false; }
 
     *this += new SEGY::HdrCalc( he, def );
     exprs_ += me;
     heidxs_ += heidxs;
     return true;
 }
+
+
+bool SEGY::HdrCalcSet::set( int heidx, const char* def, BufferString* emsg )
+{
+    if ( heidx >= size() )
+	return false;
+
+    TypeSet<int>* heidxs = new TypeSet<int>;
+    MathExpression* me = gtME( def, *heidxs, emsg );
+    if ( !me )
+	{ delete heidxs; return false; }
+
+    HdrCalc& hc = *((*this)[heidx]);
+    hc.def_ = def;
+    delete exprs_.replace( heidx, me );
+    delete heidxs_.replace( heidx, heidxs );
+    return true;
+}
+
 
 
 void SEGY::HdrCalcSet::discard( int idx )
