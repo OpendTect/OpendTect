@@ -7,14 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.39 2011-03-01 08:36:52 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.40 2011-03-14 06:34:54 cvsnageswara Exp $";
 
 
 #include "uiwellmarkerdlg.h"
 
+#include "uibutton.h"
 #include "uicolor.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uistratlvlsel.h"
 #include "uistrattreewin.h"
@@ -59,12 +61,6 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->setColumnStretchable( cLevelCol, true );
     table_->setNrRows( cNrEmptyRows );
     table_->setColumnReadOnly( cColorCol, true );
-
-    markers_.allowNull();
-
-    for ( int idx=0; idx<cNrEmptyRows; idx++ )
-	markers_ += 0;
-
     table_->doubleClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
     table_->valueChanged.notify( mCB(this,uiMarkerDlg,markerChangedCB) );
     table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
@@ -76,6 +72,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     unitfld_->attach( leftAlignedBelow, table_ );
     unitfld_->valuechanged.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
 
+
     uiButton* rfbut = new uiPushButton( this, "&Read file",
 	    				mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightTo, unitfld_ ); rfbut->attach( rightBorder );
@@ -85,18 +82,13 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 					mCB(this,uiMarkerDlg,doStrat) );
     sb->attach( leftOf, rfbut );
 
-    stratmrkfld_ = new uiCheckBox( this, "Set as regional markers" );
-    stratmrkfld_->attach( ensureBelow, unitfld_ ); 
-    stratmrkfld_->attach( hCentered ); 
-    stratmrkfld_->setChecked( false ); 
+    uiPushButton* setregmrkar =
+	new uiPushButton( this,	"Set as regional markers",
+			  mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
+    setregmrkar->attach( ensureBelow, unitfld_ );
+    setregmrkar->attach( hCentered );
 
     setPrefWidthInChar( 60 );
-}
-
-
-uiMarkerDlg::~uiMarkerDlg()
-{
-    deepErase( markers_ );
 }
 
 
@@ -114,43 +106,37 @@ int uiMarkerDlg::getNrRows() const
 
 void uiMarkerDlg::markerRemovedCB( CallBacker* )
 {
-    table_->currentRow() < 0 ? delete markers_.remove( table_->nrRows() )
-			     : delete markers_.remove( table_->currentRow() );
+    const int currow = table_->currentRow();
+    depths_.remove( currow<0 ? table_->nrRows() : currow );
 }
 
 
 void uiMarkerDlg::markerAddedCB( CallBacker* )
 {
-    markers_.insertAt( 0, table_->currentRow() );
     uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false );
     levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
     table_->setCellGroup( RowCol(table_->currentRow(),cLevelCol), levelsel );
     levelsel->setSensitive( false );
-    markerChangedCB(0);
+    depths_.insert( table_->currentRow(), 1e30 );
+    markerChangedCB( 0 );
 }
 
 
 void uiMarkerDlg::markerChangedCB( CallBacker* )
 {
+    if ( table_->nrRows() != depths_.size() )
+	return;
+
     const int row = table_->currentRow();
-    if ( !markers_.validIdx(row) ) return;
-
-    if ( !markers_[row] )
-	markers_.replace( row, new Well::Marker() );
-
     const float val = table_->getfValue( RowCol(row,cDepthCol) );
     const char* markernm = table_->text(RowCol(row,cNameCol));
     if ( !markernm || !*markernm || mIsUdf(val) )
     {
-	markers_.replace( row, 0 );
+	depths_[row] = 1e30;
 	return;
     }
 
-    Well::Marker* marker = markers_[row];
-    marker->setName( table_->text(RowCol(row,cNameCol)) );
-    marker->setDah( val / zFactor() );
-    marker->setColor( table_->getColor(RowCol(row,cColorCol)) );
-
+    depths_[row] = val / zFactor();
     uiObject* obj = table_->getCellObject( RowCol(row,cLevelCol) );
     if ( obj )
 	obj->setSensitive( true );
@@ -164,7 +150,6 @@ float uiMarkerDlg::zFactor() const
     if ( SI().zIsTime() )
 	return unitval ? 1 : mToFeetFactor;
 
-
     return ((SI().zInFeet() && !unitval) ||
 	    (SI().zInMeter() && unitval)) ? 1
 					  : ( SI().zInFeet() && unitval )
@@ -175,15 +160,22 @@ float uiMarkerDlg::zFactor() const
 
 void uiMarkerDlg::unitChangedCB( CallBacker* )
 {
+    if ( table_->nrRows() != depths_.size() )
+	return;
+
     NotifyStopper notifystop( table_->valueChanged );
     table_->selectColumn( cNameCol );
     for ( int rowidx=0; rowidx<table_->nrRows(); rowidx++ )
     {
-	if ( !markers_.validIdx(rowidx) || !markers_[rowidx] )
+	const RowCol rc( rowidx, cDepthCol );
+	const float val = depths_[rowidx];
+	if ( mIsUdf(val) )
+	{
+	    table_->clearCell( rc );
 	    continue;
+	}
 
-	const float val = markers_[rowidx]->dah() * zFactor();
-	table_->setValue( RowCol(rowidx,1), val );
+	table_->setValue( rc, val*zFactor() );
     }
     
     table_->selectColumn( cDepthCol );
@@ -236,11 +228,8 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     const int nrnew = markers.size();
     NotifyStopper notifystop( table_->valueChanged );
     int startrow = add ? getNrRows() : 0;
-    const int nrrows = nrnew + cNrEmptyRows + startrow;
+    const int nrrows = nrnew + startrow + cNrEmptyRows;
     table_->setNrRows( nrrows );
-    for ( int idx=0; idx<nrnew; idx++ )
-	markers_ += 0;
-
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	const int irow = startrow + idx;
@@ -250,13 +239,14 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	const Well::Marker* marker = markers.validIdx(idx) ? markers[idx] : 0;
 	if ( marker )
 	{
-	    markers_.replace( irow,
-		    	      new Well::Marker(marker->name(), marker->dah()) );
-	    markers_[irow]->setColor( marker->color() );
 	    if ( !Strat::LVLS().isPresent( marker->levelID() ) )
 		const_cast<Well::Marker*>(markers[idx])->setLevelID( -1 );
 
-	    markers_[irow]->setLevelID( marker->levelID() );
+	    if ( irow < depths_.size() )
+		depths_[irow] = marker->dah();
+	    else
+		depths_ += marker->dah();
+
 	    levelsel->setID( marker->levelID() );
 	    table_->setValue( RowCol(irow,cDepthCol), marker->dah()*zFactor() );
 	    table_->setText( RowCol(irow,cNameCol), marker->name() );
@@ -272,8 +262,10 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	table_->setText( RowCol(irow,cDepthCol), "" );
 	table_->setText( RowCol(irow,cNameCol), "" );
 	table_->setColor( RowCol(irow,cColorCol), mrk.color() );
-	updateFromLevel( irow, levelsel );
     }
+
+    for ( int idx=0; idx<cNrEmptyRows; idx++ )
+	depths_ += 1e30;
 
     table_->resizeHeaderToContents( false );
 }
@@ -300,22 +292,10 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
     if ( havelvl )
     {
 	rc.col = cColorCol; table_->setColor( rc, levelsel->getColor() );
-	markers_[irow]->setColor( levelsel->getColor() );
 	rc.col = cNameCol; table_->setText( rc, levelsel->getName() );
-	markers_[irow]->setName( levelsel->getName() );
-	markers_[irow]->setLevelID( levelsel->getID() );
     }
     //TODO this will replace by former marker name
     //     but this does not handle add/remove marker.
-    else if ( irow < markers_.size() )
-    {
-	const Well::Marker* marker = markers_[irow];
-	if ( !marker ) return;
-
-	rc.col = cColorCol; table_->setColor( rc, marker->color() );
-	rc.col = cNameCol; table_->setText( rc, marker->name() );
-	markers_[irow]->setLevelID( levelsel->getID() );
-    }
 
     rc.col = cNameCol; table_->setCellReadOnly( rc, havelvl );
 }
@@ -391,73 +371,133 @@ void uiMarkerDlg::rdFile( CallBacker* )
 }
 
 
-void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
+bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers )
 {
+    if ( table_->nrRows() != depths_.size() )
+	return false;
+
     deepErase( markers );
-
-    for ( int idx=0; idx<markers_.size(); idx++ )
+    BufferStringSet markernms;
+    BufferString errmsg;
+    for ( int rowidx=0; rowidx<table_->nrRows(); rowidx++ )
     {
-	if ( !markers_[idx] ) continue;
+	const float depth = depths_[rowidx];
+	const char* markernm = table_->text( RowCol(rowidx,cNameCol) );
+	if ( !markernm || !*markernm || mIsUdf(depth) ) continue;
 
-	Well::Marker* marker =  new Well::Marker( markers_[idx]->name(),
-						  markers_[idx]->dah() );
-	marker->setColor( markers_[idx]->color() );
-	marker->setLevelID( markers_[idx]->levelID() );
+	if ( !markernms.addIfNew(markernm) )
+	{
+	    errmsg = "Marker name '";
+	    errmsg.add( markernm ).add( "' is present several times," )
+	          .add( " please make sure it is unique" );
+	    uiMSG().error( errmsg );
+	    return false;
+	}
+
+	Well::Marker* marker = new Well::Marker( markernm, depth );
+	marker->setColor( table_->getColor(RowCol(rowidx,cColorCol)) );
+	uiGroup* grp = table_->getCellGroup( RowCol(rowidx,cLevelCol) );
+	mDynamicCastGet(uiStratLevelSel*,levelsel,grp)
+	marker->setLevelID( levelsel ? levelsel->getID() : -1 );
 	markers += marker;
     }
+
+    return true;
 }
 
 
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
+    Well::MarkerSet markers;
+    if ( !getMarkerSet( markers ) ) return false;
+
     Interval<float> dahrg = track_.dahRange();
     dahrg.start = dahrg.start * zFactor();
     dahrg.stop = dahrg.stop * zFactor();
-    const int nrrows = table_->nrRows();
-    BufferStringSet mrknames;
-    for ( int idx=0; idx<nrrows; idx++ )
+    for ( int midx=0; midx<markers.size(); midx++ )
     {
 	BufferString errmsg;
-	const RowCol rcdepth( idx, cDepthCol );
-	const float val = table_->getfValue( rcdepth );
+	const float val = markers[midx]->dah() * zFactor();
 	const bool isbetween = dahrg.includes( val );
-	const RowCol rcname( idx, cNameCol );
-	const char* txt = table_->text( rcname );
-	const bool isempty =  !txt || !*txt;
-	if ( isempty && mIsUdf(val) )
-	{
-	    markers_.replace( idx, 0 );
-	    continue;
-	}
-
-	if ( isempty )
-	{
-	    errmsg = "Please enter marker name in row ";
-	    errmsg += idx+1;
-	    uiMSG().message( errmsg );
-	    return false;
-	}
-
-	if (!mrknames.addIfNew( txt ) )
-	{
-	    errmsg = "Marker name '"; errmsg += txt;
-	    errmsg += "' is present several times,";
-	    errmsg += " please make sure it is unique";
-	    uiMSG().error( errmsg );
-	    return false;
-	}
-
+	const RowCol rcname( midx, cNameCol );
 	if ( !isbetween )
 	{
-	    errmsg =  "Marker '"; errmsg += txt;
-	    errmsg += "' depth value is out of well track range\n";
-	    errmsg += "Please enter the depth value between ";
-	    errmsg += dahrg.start; errmsg += " and "; errmsg += dahrg.stop;
-	    const bool res = uiMSG().askGoOn( errmsg, "Continue", "Cancel" );
+	    errmsg.add( markers[midx]->name() ).add( "'" )
+		  .add( "' depth value is out of well track range [" )
+		  .add( dahrg.start ).add( "-" )
+		  .add( dahrg.stop ).add( "]. " )
+		  .add ( "Press Abort if you want to re-enter the depth." );
+	    const bool res = uiMSG().askContinue( errmsg );
 	    if ( !res ) return false;
-	    continue;
 	}
     }
 
+    return true;
+}
+
+
+class uiMarkersList : public uiDialog
+{
+public:
+
+uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
+	: uiDialog( p,uiDialog::Setup( "Markers List", "Markers list", "") )
+{
+    list = new uiListBox( this, "Markers" );
+    list->setItemsCheckable( true );
+    for ( int idx=0; idx<mset.size(); idx++ )
+	list->addItem( mset[idx]->name(), mset[idx]->color() );
+}
+
+void getSelIDs( TypeSet<int>& items )
+{ list->getCheckedItems( items ); }
+
+protected:
+	uiListBox*	list;
+};
+
+
+bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
+{
+    Well::MarkerSet mset;
+    if ( !getMarkerSet( mset ) ) return false;
+
+    if ( !mset.size() )
+    {
+	uiMSG().message( "No markers available" );
+	return false;
+    }
+
+    uiMarkersList dlg( this, mset );
+    if ( !dlg.go() ) return false;
+
+    TypeSet<int> selitems;
+    dlg.getSelIDs( selitems );
+    if ( !selitems.size() )
+    {
+	uiMSG().message( "No markers selected." );
+	return false;
+    }
+
+    Strat::LevelSet& lvls = Strat::eLVLS();
+    for ( int idx=0; idx<selitems.size(); idx++ )
+    {
+	BufferString msg;
+	const int selidx = selitems[idx];
+	if ( lvls.isPresent(mset[selidx]->name()) )
+	    msg.add( "'" ).add( mset[selidx]->name() ).add( "' " );
+
+	if ( !msg.isEmpty() )
+	{
+	    msg.add( "already set as regional marker." );
+	    msg.add( "Press Continue to update properties." );
+	    const bool res = uiMSG().askContinue( msg );
+	    if ( !res ) return false;
+	}
+
+	if ( !lvls.add( mset[selidx]->name(), mset[selidx]->color() ) )
+	    return false;
+    }
+    
     return true;
 }

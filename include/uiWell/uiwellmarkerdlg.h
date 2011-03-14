@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: uiwellmarkerdlg.h,v 1.13 2010-12-29 04:38:21 cvssatyaki Exp $
+ RCS:		$Id: uiwellmarkerdlg.h,v 1.14 2011-03-14 06:34:54 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,11 +27,10 @@ mClass uiMarkerDlg : public uiDialog
 {
 public:
 				uiMarkerDlg(uiParent*,const Well::Track&);
-				~uiMarkerDlg();
 
     void			setMarkerSet(const Well::MarkerSet&,
 	    				     bool addtoexisting=false);
-    void			getMarkerSet(Well::MarkerSet&) const;
+    bool			getMarkerSet(Well::MarkerSet&);
 
 protected:
 
@@ -39,9 +38,9 @@ protected:
     uiGenInput*			unitfld_;
     uiCheckBox*			stratmrkfld_;
     const Well::Track&		track_;
+    TypeSet<float>		depths_;
 
     //TODO will go with the Strat level Sel 
-    ObjectSet<Well::Marker>	markers_;
 
     int				getNrRows() const;
     int				rowNrFor(uiStratLevelSel*) const;
@@ -56,7 +55,7 @@ protected:
     void			markerChangedCB(CallBacker*);
     void			markerAddedCB(CallBacker*);
     void			markerRemovedCB(CallBacker*);
-    
+    bool			setAsRegMarkersCB(CallBacker*);
     float			zFactor() const;
 };
 
