@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.2 2010-08-12 13:37:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.3 2011-03-14 13:46:47 cvshelene Exp $";
 
 #include "uitrcpositiondlg.h"
 
@@ -39,6 +39,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 					mCB(this,uiTrcPositionDlg,lineSel) );
 	trcnrfld_ = new uiLabeledSpinBox( this, "at trace nr:" );
 	trcnrfld_->attach( alignedBelow, linesfld_ );
+	lineSel(0);
     }
     else
     {
