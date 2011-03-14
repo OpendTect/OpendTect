@@ -322,4 +322,28 @@ Standard color tables
 26.Value-Color.2: 1`0`0`0`0
 26.Transparency.0: 0`0
 26.Transparency.1: 1`0
+
+27.Name: Rainbow-Shadows
+27.Marker color: 0`0`0`0
+27.Undef color: 200`200`200`255
+27.Nr segments: 0
+27.Value-Color.0: 0`0`4`58`0
+27.Value-Color.1: 0.13878`52`59`255`0
+27.Value-Color.2: 0.13879`0`16`66`0
+27.Value-Color.3: 0.266904`41`121`255`0
+27.Value-Color.4: 0.266904`0`60`70`0
+27.Value-Color.5: 0.391449`46`241`255`0
+27.Value-Color.6: 0.391459`0`63`11`0
+27.Value-Color.7: 0.512446`31`255`0`0
+27.Value-Color.8: 0.512456`59`60`0`0
+27.Value-Color.9: 0.633442`255`255`0`0
+27.Value-Color.10: 0.633452`60`30`0`0
+27.Value-Color.11: 0.754438`255`0`0`0
+27.Value-Color.12: 0.754448`63`19`0`0
+27.Value-Color.13: 0.878994`255`130`52`0
+27.Value-Color.14: 0.879004`87`0`19`0
+27.Value-Color.15: 1`255`0`255`0
+27.Transparency.0: 0`0
+27.Transparency.1: 1`0
+
 !
