@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.101 2011-02-23 07:17:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.102 2011-03-14 07:21:11 cvssatyaki Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -598,8 +598,7 @@ bool uiOD2DLineSetSubItem::init()
 	if ( !lsitm ) return false;
 
 	visSurvey::Seis2DDisplay* s2d = visSurvey::Seis2DDisplay::create();
-	s2d->setLineName( name_ );
-	s2d->setLineSetID( lsitm->lineSetID() );
+	s2d->setLineInfo( lsitm->lineSetID(), name_ );
 	visserv_->addObject( s2d, sceneID(), true );
 	displayid_ = s2d->id();
 

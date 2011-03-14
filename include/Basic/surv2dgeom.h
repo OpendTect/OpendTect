@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: surv2dgeom.h,v 1.8 2011-02-18 09:35:43 cvsjaap Exp $
+ RCS:		$Id: surv2dgeom.h,v 1.9 2011-03-14 07:21:11 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,7 @@ public:
     bool		getGeometry(const GeomID&,Line2DData&) const;
     			//!< thread safe
 
+    void		renameLine(const char*oldnm,const char*newnm);
     void		removeLine(int lid);
     void		removeLineSet(int lsid);
 

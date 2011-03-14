@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.15 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.16 2011-03-14 07:21:11 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -475,9 +475,10 @@ bool PosInfo::Survey2D::getGeometry( int lineid,
     for ( int idx=0; idx<lineindex_.size(); idx++ )
     {
 	FileMultiString info( lineindex_.getValue(idx) );
+	BufferString linename( lineindex_.getKey(idx) );
 	if ( info.size()>1 && info.getIValue(1) == lineid )
 	{
-	    l2dd.setLineName( info[0] );
+	    l2dd.setLineName( linename );
 	    return getGeometry( l2dd );
 	}
     }
@@ -603,6 +604,28 @@ int PosInfo::Survey2D::getLineIdx( int lineid ) const
 }
 
 
+void PosInfo::Survey2D::renameLine( const char* oldlnm, const char* newlnm )
+{
+    BufferString cleannm( newlnm );
+    cleanupString( cleannm.buf(), false, false, false );
+
+    const int lidx = lineindex_.indexOf( oldlnm );
+    if ( lidx < 0 ) return;
+
+    FileMultiString oldfms( lineindex_.getValue(lidx) );
+    FilePath oldfp( lsfp_ ); oldfp.add( oldfms[0] );
+    FilePath newfp( lsfp_ ); newfp.add( cleannm.buf() );
+    if ( !File::rename(oldfp.fullPath(),newfp.fullPath()) )
+	return;
+
+    lineindex_.setKey( lidx, newlnm );
+    FileMultiString newval( cleannm.buf() );
+    newval.add( oldfms.getIValue(1) );
+    lineindex_.setValue( lidx, newval.buf() );
+    writeIdxFile( true );
+}
+
+
 void PosInfo::Survey2D::removeLine( const char* lnm )
 {
     const int lidx = lineindex_.indexOf( lnm );
@@ -613,6 +636,7 @@ void PosInfo::Survey2D::removeLine( const char* lnm )
     SafeFileIO sfio( fp.fullPath() );
     sfio.remove();
     lineindex_.remove( lidx );
+    writeIdxFile( true );
 }
 
 
@@ -626,6 +650,7 @@ void PosInfo::Survey2D::removeLine( int lineid )
     SafeFileIO sfio( fp.fullPath() );
     sfio.remove();
     lineindex_.remove( lidx );
+    writeIdxFile( true );
 }
 
 
@@ -640,6 +665,7 @@ void PosInfo::Survey2D::removeLineSet( int lsid )
     if ( File::exists(dirnm) )
 	File::removeDir(dirnm);
     lsindex_.remove( lsidx );
+    writeIdxFile( false );
 }
 
 

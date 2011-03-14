@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.50 2010-10-22 09:31:16 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.51 2011-03-14 07:21:11 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -45,9 +45,8 @@ public:
     static Seis2DDisplay*	create()
 				mCreateDataObj(Seis2DDisplay);
 
-    void			setLineName(const char*);
+    void			setLineInfo(const MultiID& lid,const char* lnm);
     const char*			getLineName() const;
-    void			setLineSetID(const MultiID& mid);
     const MultiID&		lineSetID() const;
     PosInfo::GeomID		getGeomID() const;
 
@@ -180,6 +179,7 @@ protected:
     visBase::Text2*				linename_;
     Notifier<Seis2DDisplay>			geomchanged_;
 
+    PosInfo::GeomID				geomid_;
     ZAxisTransform*				datatransform_;
     int						voiidx_;
     int						seriesidx_;

@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.123 2011-03-04 11:34:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.124 2011-03-14 07:21:11 cvssatyaki Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -391,8 +391,14 @@ Seis2DDisplay::~Seis2DDisplay()
 }
 
 
-void Seis2DDisplay::setLineName( const char* lnm )
+void Seis2DDisplay::setLineInfo( const MultiID& lid, const char* lnm )
 {
+    linesetid_ = lid;
+    PtrMan<IOObj> seis2dobj = IOM().get( lid );
+    if ( !seis2dobj )
+	return;
+
+    geomid_ = S2DPOS().getGeomID( seis2dobj->name(), lnm );
     setName( lnm );
     if ( linename_ )
     {
@@ -404,15 +410,11 @@ void Seis2DDisplay::setLineName( const char* lnm )
 
 
 const char* Seis2DDisplay::getLineName() const
-{ return name(); }
+{ return geomid_.isOK() ? S2DPOS().getLineName( geomid_.lineid_ ) : name(); }
 
 
 PosInfo::GeomID Seis2DDisplay::getGeomID() const
-{
-    PtrMan<IOObj> lsobj = IOM().get( lineSetID() );
-    BufferString lsnm = lsobj ? lsobj->name() : "";
-    return S2DPOS().getGeomID( lsnm, getLineName() );
-}
+{ return geomid_; }
 
 
 void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
@@ -853,8 +855,7 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     s2dd->setTraceNrRange( trcdisplayinfo_.rg );
     s2dd->setResolution( getResolution(), tr );
 
-    s2dd->setLineSetID( linesetid_ );
-    s2dd->setLineName( getLineName() );
+    s2dd->setLineInfo( linesetid_, getLineName() );
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
@@ -1185,10 +1186,6 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
 }
 
 
-void Seis2DDisplay::setLineSetID( const MultiID& mid )
-{ linesetid_ = mid; }
-
-
 const MultiID& Seis2DDisplay::lineSetID() const
 { return linesetid_; }
 
@@ -1334,6 +1331,7 @@ void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visSurvey::MultiTextureSurveyObject::fillPar( par, saveids );
 
+    par.set( "GeomID", geomid_.toString() );
     par.set( sKeyLineSetID(), linesetid_ );
     par.setYN( sKeyShowLineName(), lineNameShown() );
     par.set( sKeyTrcNrRange(), trcdisplayinfo_.rg );
@@ -1383,8 +1381,26 @@ int Seis2DDisplay::usePar( const IOPar& par )
 
     par.get( sKeyZRange(), trcdisplayinfo_.zrg );
 
-    setLineName( name() );
+    BufferString linename( name() );
     par.get( sKeyLineSetID(), linesetid_ );
+    BufferString geomidstr;
+    if ( par.get("GeomID",geomidstr) )
+    {
+	geomid_.fromString( geomidstr.buf() );
+	PtrMan<IOObj> seis2dobj = IOM().get( linesetid_ );
+	if ( !seis2dobj )
+	    return -1;
+	S2DPOS().setCurLineSet( seis2dobj->name() );
+	linename = S2DPOS().getLineName( geomid_.lineid_ );
+    }
+    
+    setName( linename );
+    if ( linename_ )
+    {
+	if ( scene_ )
+	    setAnnotColor( scene_->getAnnotColor() );
+	linename_->setText( linename.buf() );
+    }
 
     return 1;
 }

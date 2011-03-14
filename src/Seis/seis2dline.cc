@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.86 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.87 2011-03-14 07:21:11 cvssatyaki Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -500,6 +500,7 @@ bool Seis2DLineSet::renameLine( const char* oldlnm, const char* newlnm )
 	{
 	    lk.setLineName( newlnm );
 	    lk.fillPar( iop, true );
+	    PosInfo::POS2DAdmin().renameLine(oldlnm,newlnm); 
 	}
     }
 
@@ -578,14 +579,16 @@ bool Seis2DLineSet::renameFiles( const char* newlsnm )
 	BufferString filenm, oldfilenm;
 	pars_[idx]->get( sKey::FileName, filenm );
 	oldfilenm = filenm;
-	replaceString( filenm.buf(), oldlsnm.buf(), newlsnm );
-	BufferString newfp, oldfp;
-	newfp += fp.pathOnly();
-	newfp += "/";
-	oldfp = newfp;
-	newfp += filenm.buf();
-	oldfp += oldfilenm.buf();
-	if ( !File::rename(oldfp.buf(),newfp.buf()) )
+	replaceString( filenm.buf(), oldlsnm.buf(), cleannm.buf() );
+	FilePath newfp( fp.pathOnly() );
+	FilePath oldfp( fp.pathOnly() );
+	newfp.add( filenm.buf() );
+	oldfp.add( oldfilenm.buf() );
+	if ( oldfp.fullPath().isEmpty() || newfp.fullPath().isEmpty() ||
+	     !strcmp(oldfp.fullPath().buf(),newfp.fullPath().buf()) )
+	    continue;
+
+	if ( !File::rename(oldfp.fullPath(),newfp.fullPath()) )
 	{
 	    renameFiles( oldlsnm );
 	    return false;
