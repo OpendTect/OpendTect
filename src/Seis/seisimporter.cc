@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.27 2010-12-14 04:44:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.28 2011-03-14 11:49:08 cvsbert Exp $";
 
 #include "seisimporter.h"
 
@@ -269,7 +269,7 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	{
 	    sorting_ = new BinIDSorting( sortanal_->getSorting() );
 	    delete sortanal_; sortanal_ = 0;
-	    if ( Seis::isPS(geomtype_) && !sorting_->inlSorted() )
+	    if ( !is2d && Seis::isPS(geomtype_) && !sorting_->inlSorted() )
 	    {
 		errmsg_ = "The input data is cross-line sorted.\n"
 		    "This is not supported for Pre-stack data.\n"
