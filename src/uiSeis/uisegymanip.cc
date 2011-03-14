@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.14 2011-03-11 11:20:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.15 2011-03-14 14:35:51 cvsbert Exp $";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
@@ -292,8 +292,13 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
 		    mCB(this,uiSEGYFileManip,plotReq) );
     plotbut_->attach( alignedBelow, thtbl_ );
     plotbut_->setSensitive( false );
+    percfld_ = new uiSpinBox( grp, 1, "Perc plot" );
+    percfld_->attach( rightOf, plotbut_ );
+    percfld_->setHSzPol( uiObject::Small );
+    percfld_->setSuffix( "%" );
+    percfld_->setInterval( 0.1, 100.0, 0.1 );
 
-    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( grp, "Trace index" );
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( grp, "Trc" );
     trcnrfld_ = lsb->box();
     lsb->attach( rightAlignedBelow, thtbl_ );
     trcnrfld_->setHSzPol( uiObject::Small );
@@ -406,6 +411,7 @@ void uiSEGYFileManip::selChg( CallBacker* )
 class uiSEGYFileManipHdrCalcEd : public uiDialog
 {
 public:
+
 uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     : uiDialog( p, Setup("Header Calculation",cs.indexOf(hc.he_.name()) < 0 ?
 	    "Add header calculation":"Edit header calculation",mTODOHelpID) )
@@ -453,18 +459,14 @@ bool acceptOK( CallBacker* )
 	mErrRet("Please enter a formula")
 
     const SEGY::HdrEntry& he = hc_.he_;
-    const BufferString olddef( hc_.def_ );
     const int hidx = calcset_.indexOf( he.name() );
+    bool setok = false; BufferString emsg;
     if ( hidx >= 0 )
-	calcset_.discard( hidx );
-
-    BufferString emsg;
-    if ( !calcset_.add(he,txt,&emsg) )
-    {
-	if ( hidx >= 0 )
-	    calcset_.add( he, olddef );
+	setok = calcset_.set( hidx, txt, &emsg );
+    else
+	setok = calcset_.add( he, txt, &emsg );
+    if ( !setok )
 	mErrRet(emsg)
-    }
 
     return true;
 }
@@ -505,7 +507,10 @@ void uiSEGYFileManip::edReq( CallBacker* )
     if ( selidx < 0 ) return;
     uiSEGYFileManipHdrCalcEd dlg( this, *calcset_[selidx], calcset_ );
     if ( dlg.go() )
+    {
+	fillDefCalcs( selidx );
 	updTrcVals();
+    }
 }
 
 
@@ -599,7 +604,8 @@ class uiSEGYFileManipDataExtracter : public Executor
 {
 public:
 
-uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel )
+uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
+       			      float perc )
     : Executor("Trace header scan")
     , fm_(*p)
     , sel_(sel)
@@ -608,7 +614,10 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel )
     , needswap_(p->binhdr_.isSwapped())
 {
     StrmOper::seek( fm_.strm(), cFileHeaderSize );
-    totalnr_ = (fm_.filesize_-cFileHeaderSize) / fm_.traceBytes();
+    float ftotnr = (fm_.filesize_-cFileHeaderSize) / fm_.traceBytes();
+    ftotnr *= perc * 0.01;
+    totalnr_ = mRounded(od_int64,ftotnr);
+
     for ( int idx=0; idx<sel_.size(); idx++ )
 	data_ += new TypeSet<float>;
     fm_.calcset_.reSetSeqNr( 1 );
@@ -662,7 +671,7 @@ void uiSEGYFileManip::plotReq( CallBacker* cb )
     }
     if ( selrows.isEmpty() ) return;
 
-    uiSEGYFileManipDataExtracter de( this, selrows );
+    uiSEGYFileManipDataExtracter de( this, selrows, percfld_->getFValue() );
     uiTaskRunner tr( this );
     tr.execute( de );
     if ( de.data_[0]->size() < 2 )
