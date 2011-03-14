@@ -52,17 +52,17 @@ FlatDataPack* uiAttribPanel::computeAttrib()
     BufferString errmsg;
     RefMan<Attrib::Data2DHolder> d2dh = new Attrib::Data2DHolder();
     PtrMan<EngineMan> aem = createEngineMan();
-	
-    PtrMan<Processor> proc = dset_->is2D() ? 
-			    aem->createScreenOutput2D( errmsg, *d2dh ) 
-			    : aem->createDataCubesOutput( errmsg, 0  );
+
+    const bool is2d = dset_->is2D();
+    PtrMan<Processor> proc = is2d ? aem->createScreenOutput2D( errmsg, *d2dh )
+				  : aem->createDataCubesOutput( errmsg, 0  );
     if ( !proc )
     {
 	uiMSG().error( errmsg );
 	return 0;
     }
 
-    const bool issingtrc = cs_.nrInl()==1 && cs_.nrCrl()==1;
+    const bool issingtrc = ( is2d || cs_.nrInl()==1 ) && cs_.nrCrl()==1;
     if ( issingtrc && proc->getProvider() )
 	proc->getProvider()->enableAllOutputs( true );
 
@@ -71,8 +71,8 @@ FlatDataPack* uiAttribPanel::computeAttrib()
     if ( !dlg.execute(*proc) )
 	return 0;
 
-    FlatDataPack* fdpack = dset_->is2D() ? createFDPack( *d2dh )
-					 : createFDPack( aem, proc );
+    FlatDataPack* fdpack = is2d ? createFDPack( *d2dh )
+				: createFDPack( aem, proc );
     if ( !fdpack ) return 0;
     
     fdpack->setName( getPackName() );
