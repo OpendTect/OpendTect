@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.26 2011-02-17 13:34:38 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.27 2011-03-14 11:48:51 cvsbert Exp $";
 
 #include "segyfiledata.h"
 
@@ -555,7 +555,7 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
 
 	for ( int idx=firstok+1; idx<totalsz_; idx++ )
 	{
-	    if ( !getDetails( firstok, pk, usable ) || !usable )
+	    if ( !getDetails( idx, pk, usable ) || !usable )
 		continue;
 
 	    hs.include( pk.binID() );
