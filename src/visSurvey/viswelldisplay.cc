@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.135 2011-02-09 13:36:30 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.136 2011-03-14 14:52:08 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -363,6 +363,10 @@ void WellDisplay::updateMarkers( CallBacker* )
 
 	if ( zistime_ )
 	    pos.z = wd->d2TModel()->getTime( wellmarker->dah() );
+
+	if ( mIsUdf( pos.z ) )
+	    continue;
+
 	mp.pos_ = &pos;	mp.name_ = wellmarker->name();	
 
 	if ( !mp.issinglecol_ ) mp.col_  = wellmarker->color();
@@ -447,6 +451,9 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 
 	if ( zistime_ )
 	    pos.z = wd->d2TModel()->getTime( dah );
+
+	if ( mIsUdf( pos.z ) )
+	    continue;
 
 	Coord3Value cv( pos, val );
 	crdvals += cv;
