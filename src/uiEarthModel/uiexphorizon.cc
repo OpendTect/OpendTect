@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.74 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.75 2011-03-15 12:19:08 cvsnanne Exp $";
 
 #include "uiexphorizon.h"
 
@@ -43,7 +43,9 @@ static const char* rcsID = "$Id: uiexphorizon.cc,v 1.74 2011-01-10 13:29:58 cvsb
 #include <stdio.h>
 
 
+static const char* zmodes[] = { sKey::Yes, sKey::No, "Transformed", 0 };
 static const char* exptyps[] = { "X/Y", "Inl/Crl", "IESX (3d_ci7m)", 0 };
+static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
 
 uiExportHorizon::uiExportHorizon( uiParent* p )
@@ -66,11 +68,9 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 	    			      mCB(this,uiExportHorizon, settingsCB),
 				      false);
     settingsbutt_->attach( rightOf, typfld_ );
-    const char* zmodes[] = { sKey::Yes, sKey::No, "Transformed", 0 };
 
-    zfld_ = new uiGenInput( this, "Output Z", StringListInpSpec( zmodes ) );
+    zfld_ = new uiGenInput( this, "Output Z", StringListInpSpec(zmodes) );
     zfld_->valuechanged.notify( mCB(this,uiExportHorizon,addZChg ) );
-    zfld_->setText( sKey::No );
     zfld_->attach( alignedBelow, typfld_ );
 
     uiT2DConvSel::Setup su( 0, false );
@@ -84,9 +84,12 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 				    "Z Unit" );
     unitsel_->attach( alignedBelow, transfld_ );
 
+    headerfld_ = new uiGenInput( this, "Header", StringListInpSpec(hdrtyps) );
+    headerfld_->attach( alignedBelow, unitsel_ );
+
     udffld_ = new uiGenInput( this, "Undefined value",
 	    		      StringInpSpec(sKey::FloatUdf) );
-    udffld_->attach( alignedBelow, unitsel_ );
+    udffld_->attach( alignedBelow, headerfld_ );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
 	    		       uiFileInput::Setup().forread(false) );
@@ -141,6 +144,35 @@ static void writeGF( std::ostream& strm, const BinID& bid, float z,
 }
 
 
+void uiExportHorizon::writeHeader( std::ostream& strm )
+{
+    // TODO: add attribute names
+    if ( headerfld_->getIntValue() == 0 )
+	return;
+
+    const bool doxy = typfld_->getIntValue() == 0;
+    const bool addzpos = zfld_->getIntValue() != 1;
+    if ( headerfld_->getIntValue() == 1 )
+    {
+	BufferString posstr = doxy ? "\"X\"\t\"Y\""
+				   : "\"Inline\"\t\"Crossline\"";
+	if ( addzpos ) posstr += "\t\"Z\"";
+	strm << "# " << posstr.buf();
+    }
+    else
+    {
+	if ( doxy )
+	    strm << "# 1: X\n# 2: Y";
+	else
+	    strm << "# 1: Inline\n# 2: Crossline";
+	if ( addzpos )
+	    strm << "\n# 3: Z";
+    }
+
+    strm << "\n# - - - - - - - - - -\n";
+}
+
+
 bool uiExportHorizon::writeAscii()
 {
     const bool doxy = typfld_->getIntValue() == 0;
@@ -149,7 +181,7 @@ bool uiExportHorizon::writeAscii()
 
     RefMan<ZAxisTransform> zatf = 0;
     IOPar iop;
-    if ( dogf || zfld_->getIntValue()==2 )
+    if ( zfld_->getIntValue()==2 )
     {
 	if ( !transfld_->fillPar( iop ) )
 	    return false;
@@ -157,8 +189,7 @@ bool uiExportHorizon::writeAscii()
 	zatf = ZAxisTransform::create( iop );
 	if ( !zatf )
 	{
-	    uiMSG().message( " Conversion on selected option",
-		   	     " is not implemented" );
+	    uiMSG().message("Transform of selected option is not implemented");
 	    return false;
 	}
     }
@@ -205,7 +236,6 @@ bool uiExportHorizon::writeAscii()
     }
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-
 
     const UnitOfMeasure* unit = unitsel_->getUnit();
     TypeSet<int>& sections = sels.selsections;
@@ -287,12 +317,15 @@ bool uiExportHorizon::writeAscii()
 
 	if ( dogf )
 	    initGF( *sdo.ostrm, gfname_.buf(), gfcomment_.buf() );
+	else
+	{
+	    *sdo.ostrm << std::fixed;
+	    writeHeader( *sdo.ostrm );
+	}
 
 	const EM::SectionID sectionid = hor->sectionID( sectionidx );
 	PtrMan<EM::EMObjectIterator> it = hor->createIterator( sectionid );
 	BufferString str;
-	if ( !dogf ) *sdo.ostrm << std::fixed;
-
 	while ( true )
 	{
 	    const EM::PosID posid = it->next();
@@ -389,10 +422,11 @@ bool uiExportHorizon::acceptOK( CallBacker* )
 
 void uiExportHorizon::typChg( CallBacker* cb )
 {
-    const bool isgf = typfld_->getIntValue() == 2;
     attrSel( cb );
     addZChg( cb );
 
+    const bool isgf = typfld_->getIntValue() == 2;
+    headerfld_->display( !isgf );
     if ( isgf && gfname_.isEmpty() )
 	settingsCB( cb );
 }
@@ -408,11 +442,12 @@ void uiExportHorizon::inpSel( CallBacker* )
 
 void uiExportHorizon::addZChg( CallBacker* )
 {
-    settingsbutt_->display( typfld_->getIntValue()==2 );
-    zfld_->display( typfld_->getIntValue() != 2 );
-    transfld_->display( typfld_->getIntValue()==2 || zfld_->getIntValue()==2 );
+    const bool isgf = typfld_->getIntValue() == 2;
+    settingsbutt_->display( isgf );
+    zfld_->display( !isgf );
+    transfld_->display( !isgf && zfld_->getIntValue()==2 );
 
-    bool displayunit = typfld_->getIntValue()!=2 && zfld_->getIntValue()!=1;
+    const bool displayunit = !isgf && zfld_->getIntValue()!=1;
     if ( displayunit )
     {
 	FixedString zdomain = getZDomain();

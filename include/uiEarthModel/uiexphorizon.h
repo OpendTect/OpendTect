@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.19 2010-07-08 06:04:31 cvsnageswara Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.20 2011-03-15 12:19:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ protected:
 
     uiSurfaceRead*	infld_;
     uiFileInput*	outfld_;
+    uiGenInput*		headerfld_;
     uiGenInput*		typfld_;
     uiGenInput*		zfld_;
     uiPushButton*	settingsbutt_;
@@ -52,6 +53,7 @@ protected:
     void		attrSel(CallBacker*);
     void		settingsCB(CallBacker*);
     void		inpSel(CallBacker*);
+    void		writeHeader(std::ostream&);
     bool		writeAscii();
 
     FixedString		getZDomain() const;
