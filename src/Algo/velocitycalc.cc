@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.38 2011-03-15 14:41:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.39 2011-03-15 15:51:50 cvsbruno Exp $";
 
 #include "velocitycalc.h"
 
@@ -80,25 +80,23 @@ float TimeDepthModel::getVelocity( const float* dpths, const float* times,
 
 float TimeDepthModel::convertTo( const float* dpths, const float* times, int sz, 				 float z, bool targetistime )
 {
-    if ( sz < 1 )
-	return mUdf(float);
-
     const float* zinvals = targetistime ? dpths : times;
     const float* zoutvals = targetistime ? times : dpths;
-
-    if ( sz <2 ) 
-	return zoutvals[0];
 
     int idx1;
     if ( IdxAble::findFPPos( zinvals, sz, z, -1, idx1 ) )
 	return zoutvals[idx1];
+    else if ( sz < 2 )
+	return mUdf(float);
     else if ( idx1 < 0 || idx1 == sz-1 )
     {
 	int idx0 = idx1 < 0 ? 1 : idx1;
 	const float v = (dpths[idx0] - dpths[idx0-1]) 
 		      / (times[idx0] - times[idx0-1]);
 	idx0 = idx1 < 0 ? 0 : idx1;
-	return zoutvals[idx0] + ( z - zinvals[idx0] ) * v;
+	const float zshift = z - zinvals[idx0];
+	const float zout = zoutvals[idx0]; 
+	return targetistime ? zout + zshift / v : zout + zshift * v;
     }
 
     const int idx2 = idx1 + 1;
