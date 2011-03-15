@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.82 2011-03-04 09:54:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.83 2011-03-15 14:41:13 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: well.cc,v 1.82 2011-03-04 09:54:35 cvsbruno Exp
 #include "bendpointfinder.h"
 #include "iopar.h"
 #include "tabledef.h"
+#include "velocitycalc.h"
 
 const char* Well::Info::sKeyuwid()	{ return "Unique Well ID"; }
 const char* Well::Info::sKeyoper()	{ return "Operator"; }
@@ -837,65 +838,15 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 
 
 float Well::D2TModel::getTime( float dh ) const
-{
-    int idx1;
-    if ( IdxAble::findFPPos(dah_,dah_.size(),dh,-1,idx1) )
-	return t_[idx1];
-    else if ( dah_.size() < 2 )
-	return mUdf(float);
-    else if ( idx1 < 0 || idx1 == dah_.size()-1 )
-    {
-	// Extrapolate. Is this correct?
-	int idx0 = idx1 < 0 ? 1 : idx1;
-	const float v = (dah_[idx0] - dah_[idx0-1]) / (t_[idx0] - t_[idx0-1]);
-	idx0 = idx1 < 0 ? 0 : idx1;
-	return t_[idx0] + ( dh - dah_[idx0] ) / v;
-    }
-
-    const int idx2 = idx1 + 1;
-    const float d1 = dh - dah_[idx1];
-    const float d2 = dah_[idx2] - dh;
-    return (d1 * t_[idx2] + d2 * t_[idx1]) / (d1 + d2);
-}
+{ return TimeDepthModel::getTime( dah_.arr(), t_.arr(), size(), dh ); }
 
 
 float Well::D2TModel::getDah( float time ) const
-{
-    int idx1;
-    if ( IdxAble::findFPPos(t_,t_.size(),time,-1,idx1) )
-	return dah_[idx1];
-    else if ( t_.size() < 2 )
-	return mUdf(float);
-    else if ( idx1 < 0 || idx1 == t_.size()-1 )
-    {
-	// Extrapolate. Is this correct?
-	int idx0 = idx1 < 0 ? 1 : idx1;
-	const float v = (dah_[idx0] - dah_[idx0-1]) / (t_[idx0] - t_[idx0-1]);
-	idx0 = idx1 < 0 ? 0 : idx1;
-	return dah_[idx0] + ( time - t_[idx0] ) * v;
-    }
-
-    const int idx2 = idx1 + 1;
-    const float t1 = time - t_[idx1];
-    const float t2 = t_[idx2] - time;
-    return (t1 * dah_[idx2] + t2 * dah_[idx1]) / (t1 + t2);
-}
+{ return TimeDepthModel::getDepth( dah_.arr(), t_.arr(), size(), time ); }
 
 
 float Well::D2TModel::getVelocity( float dh ) const
-{
-    if ( dah_.size() < 2 ) return mUdf(float);
-
-    int idx1;
-    IdxAble::findFPPos( dah_, dah_.size(), dh, -1, idx1 );
-    if ( idx1 < 1 )
-	idx1 = 1;
-    else if ( idx1 > dah_.size()-1 )
-	idx1 = dah_.size() - 1;
-
-    int idx0 = idx1 - 1;
-    return (dah_[idx1] - dah_[idx0]) / (t_[idx1] - t_[idx0]);
-}
+{ return TimeDepthModel::getVelocity( dah_.arr(), t_.arr(), size(), dh ); }
 
 
 #define mName "Well name"

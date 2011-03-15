@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.16 2011-03-11 13:42:09 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.17 2011-03-15 14:41:13 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 template <class T> class Array2DImpl;
 class IOPar;
+class TimeDepthModel;
 
 
 mClass RayTracer1D : public ParallelTask
@@ -32,18 +33,21 @@ public:
 			    , pup_( true )
 			    , sourcedepth_( 0 )
 			    , receiverdepth_( 0 )
+			    , pvel2svelfactor_(2.25) 
 			{}
 
 				mDefSetupMemb(bool,pdown);
 				mDefSetupMemb(bool,pup);
 				mDefSetupMemb(float,sourcedepth);
 				mDefSetupMemb(float,receiverdepth);
+				mDefSetupMemb(float,pvel2svelfactor);
 
 	virtual void		fillPar(IOPar&) const;
 	virtual bool		usePar(const IOPar&);
 
 	static const char*	sKeyPWave()	{ return "Wavetypes"; }
 	static const char*	sKeySRDepth()	{ return "SR Depths"; }
+	static const char*	sKeyPSVelFac()	{ return "PWave/SWave factor"; }
     };
 
 
@@ -64,11 +68,8 @@ public:
     float		getSinAngle(int layeridx,int offsetidx) const;
     float*		getSinAngleData() const;
 
-    float 		getTWT(int layeridx,int offsetidx) const;
-    bool                getReflectivity(int offset,
-					ReflectivityModel&) const;
-
-    float		convertTo(float,int off,bool targetistime) const; 
+    bool                getReflectivity(int offset,ReflectivityModel&) const;
+    bool		getTWT(int offset,TimeDepthModel&) const;
 
 protected:
 
@@ -77,6 +78,8 @@ protected:
     virtual bool	doWork(od_int64,od_int64,int);
     virtual bool	compute(int,int,float);
     static int		findLayer(const AIModel& model,float targetdepth);
+
+    float 		getTWT(int layeridx,int offsetidx) const;
 
     			//Setup variables
     AIModel		pmodel_;

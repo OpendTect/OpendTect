@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.55 2011-02-15 07:44:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.56 2011-03-15 14:41:13 cvsbruno Exp $";
 
 #include "uiveldesc.h"
 
@@ -430,7 +430,7 @@ bool uiTimeDepthBase::acceptOK()
 	zdomain = ZDomain::SI().key();
 
     FixedString err;
-    if ( !TimeDepthModel::isVelocityDescUseable( desc,
+    if ( !TimeDepthConverter::isVelocityDescUseable( desc,
 	    zdomain==ZDomain::sKeyTime(), &err ) )
     {
 	mErrRet( err.str() )

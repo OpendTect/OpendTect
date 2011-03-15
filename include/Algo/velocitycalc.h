@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.26 2011-02-15 07:44:09 cvsbruno Exp $
+ RCS:		$Id: velocitycalc.h,v 1.27 2011-03-15 14:41:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,32 +21,60 @@ ________________________________________________________________________
 template <class T> class ValueSeries;
 
 
-/*!Converts between time and depth given a velocity model. The velocity model
+/*!Converts between time, depth and velocity given a model. The velocity model
    can be either RMO-velocities in time, or interval velocity in either depth or
    time. */
+
 
 mClass TimeDepthModel
 {
 public:
     			TimeDepthModel();
-			~TimeDepthModel();
+    			~TimeDepthModel();
+
+    virtual bool	isOK() const;
+    const char*		errMsg() const;
+
+    bool		setModel(const float* dpths,const float* times,int sz);
+
+    float		getDepth(float time) const;
+    float		getTime(float depth) const;
+    float	 	getVelocity(float depth) const;
+
+    static float	getDepth(const float* dpths,const float* times,int sz,
+	    			float time);
+    static float	getTime(const float* dpths,const float* times,int sz,
+				float depth);
+    static float 	getVelocity(const float* dpths,const float* times,
+	    				int sz,float depth);
+protected:
+
+    static float	convertTo(const float* dpths,const float* times,int sz,
+				    float z,bool targetistime);
+
+    int 		sz_;
+
+    float*		times_;
+    float*		depths_;
+
+    const char*		errmsg_;
+};
+
+
+
+mClass TimeDepthConverter : public TimeDepthModel
+{
+public:
+    			TimeDepthConverter();
 
     bool		isOK() const;
     static bool		isVelocityDescUseable(const VelocityDesc&,
 	    				      bool velintime,
 					      FixedString* errmsg = 0);
 
-    const char*		errMsg() const;
-
-    bool		setVelocityModel(const ValueSeries<float>&, int sz,
-	    				 const SamplingData<double>&,
+    bool		setVelocityModel(const ValueSeries<float>& vels, int sz,
+					 const SamplingData<double>& sd,
 					 const VelocityDesc&,bool istime);
-
-    bool		setVelocityModel(const float* z, const float* v,
-					 const VelocityDesc&,bool istime);
-
-    float		getDepth(float time) const;
-    float		getTime(float depth) const;
 
     bool		calcDepths(ValueSeries<float>&, int sz,
 	    			   const SamplingData<double>& timesamp) const;
@@ -75,17 +103,14 @@ protected:
 				ValueSeries<float>&,int outpsz,
 				const SamplingData<double>&,bool istime) const; 
 
-    float			firstvel_;
-    float			lastvel_;
-    float*			depths_;
-    float*			times_;
+    float		firstvel_;
+    float		lastvel_;
 
-    bool			regularinput_;
-    int				sz_;
-    SamplingData<double>	sd_;
-
-    const char*			errmsg_;
+    bool		regularinput_;
+    int			sz_;
+    SamplingData<double> sd_;
 };
+
 
 /*!Base class for computing a moveout curve. */
 mClass MoveoutComputer

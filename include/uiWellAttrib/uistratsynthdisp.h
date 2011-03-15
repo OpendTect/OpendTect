@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.15 2011-03-11 13:42:10 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.16 2011-03-15 14:41:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "datapack.h"
 
 class FlatDataPack;
-class RayTracer1D;
+class TimeDepthModel;
 class SeisTrcBuf;
 class Wavelet;
 class uiFlatViewer;
@@ -42,7 +42,7 @@ public:
     const SeisTrcBuf&	curTrcBuf() const;
     const FlatDataPack*	dataPack() const;		//!< may return null
     DataPack::FullID	packID() const;
-    const ObjectSet<RayTracer1D>& rayTracers() const	{ return raytracers_; }
+    const ObjectSet<TimeDepthModel>& d2TModels() const	{ return d2tmodels_; }
 
     Notifier<uiStratSynthDisp>	wvltChanged;
     Notifier<uiStratSynthDisp>	zoomChanged;
@@ -53,10 +53,10 @@ public:
 protected:
 
     const Strat::LayerModel& lm_;
-    ObjectSet<RayTracer1D> raytracers_;
     Wavelet*		wvlt_;
     BufferString	levelname_;
     int			longestaimdl_;
+    ObjectSet<TimeDepthModel> d2tmodels_;
 
     uiGroup*		topgrp_;
     uiSeisWaveletSel*	wvltfld_;

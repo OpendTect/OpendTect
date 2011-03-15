@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.37 2011-03-11 14:31:30 cvshelene Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.38 2011-03-15 14:41:13 cvsbruno Exp $";
 
 #include "velocitycalc.h"
 
@@ -18,12 +18,12 @@ static const char* rcsID = "$Id: velocitycalc.cc,v 1.37 2011-03-11 14:31:30 cvsh
 
 mImplFactory( Vrms2Vint, Vrms2Vint::factory );
 
+
 TimeDepthModel::TimeDepthModel()
-    : times_( 0 )
-    , depths_( 0 )
-    , sz_( 0 )
-    , errmsg_( 0 )
-    , regularinput_(true)		  
+    : errmsg_(0)
+    , times_(0)  
+    , depths_(0)
+    , sz_(0)	
 {}
 
 
@@ -35,10 +35,114 @@ TimeDepthModel::~TimeDepthModel()
 
 
 bool TimeDepthModel::isOK() const
+{ return times_ && depths_ && sz_ >= 0; }
+
+
+float TimeDepthModel::getDepth( float time ) const
+{ return isOK() && convertTo( depths_, times_, sz_, time, false ); }
+
+
+float TimeDepthModel::getTime( float dpt ) const
+{ return isOK() && convertTo( depths_, times_, sz_, dpt, true ); }
+
+
+float TimeDepthModel::getVelocity( float dpt ) const
+{ return isOK() && getVelocity( depths_, times_, sz_, dpt ); }
+
+
+float TimeDepthModel::getDepth( const float* dpths, const float* times,
+					int sz, float time) 
+{ return convertTo( dpths, times, sz, time, false ); }
+
+
+float TimeDepthModel::getTime( const float* dpths, const float* times,
+					int sz, float dpt) 
+{ return convertTo( dpths, times, sz, dpt, true ); }
+
+
+float TimeDepthModel::getVelocity( const float* dpths, const float* times, 
+					int sz, float depth )
+{
+    if ( sz < 2 ) 
+	return mUdf(float);
+
+    int idx1;
+    IdxAble::findFPPos( dpths, sz, depth, -1, idx1 );
+    if ( idx1 < 1 )
+	idx1 = 1;
+    else if ( idx1 > sz-1 )
+	idx1 = sz - 1;
+
+    int idx0 = idx1 - 1;
+    return (dpths[idx1] - dpths[idx0]) / (times[idx1] - times[idx0]);
+}
+
+
+float TimeDepthModel::convertTo( const float* dpths, const float* times, int sz, 				 float z, bool targetistime )
+{
+    if ( sz < 1 )
+	return mUdf(float);
+
+    const float* zinvals = targetistime ? dpths : times;
+    const float* zoutvals = targetistime ? times : dpths;
+
+    if ( sz <2 ) 
+	return zoutvals[0];
+
+    int idx1;
+    if ( IdxAble::findFPPos( zinvals, sz, z, -1, idx1 ) )
+	return zoutvals[idx1];
+    else if ( idx1 < 0 || idx1 == sz-1 )
+    {
+	int idx0 = idx1 < 0 ? 1 : idx1;
+	const float v = (dpths[idx0] - dpths[idx0-1]) 
+		      / (times[idx0] - times[idx0-1]);
+	idx0 = idx1 < 0 ? 0 : idx1;
+	return zoutvals[idx0] + ( z - zinvals[idx0] ) * v;
+    }
+
+    const int idx2 = idx1 + 1;
+    const float z1 = z - zinvals[idx1];
+    const float z2 = zinvals[idx2] - z;
+    return (z1 * zoutvals[idx2] + z2 * zoutvals[idx1]) / (z1 + z2);
+}
+
+
+bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
+{
+    mTryAlloc( depths_, float[sz] );
+    if ( !depths_ )
+	{ errmsg_ = "Out of memory"; return false; }
+
+    mTryAlloc( times_, float[sz] );
+    if ( !times_ )
+	{ errmsg_ = "Out of memory"; return false; }
+
+    for ( int idx=0; idx<sz; idx++ )
+	times_[idx] = times[idx];
+
+    for ( int idx=0; idx<sz; idx++ )
+	depths_[idx] = dpths[idx];
+
+    sz_ = sz;
+
+    return true;
+}
+
+
+
+
+TimeDepthConverter::TimeDepthConverter()
+    : TimeDepthModel()
+    , regularinput_(true)		  
+{}
+
+
+bool TimeDepthConverter::isOK() const
 { return times_ || depths_; }
 
 
-bool TimeDepthModel::isVelocityDescUseable(const VelocityDesc& vd,
+bool TimeDepthConverter::isVelocityDescUseable(const VelocityDesc& vd,
  					       bool velintime,
 					       FixedString* errmsg )
 {
@@ -64,9 +168,9 @@ bool TimeDepthModel::isVelocityDescUseable(const VelocityDesc& vd,
 } 
 
  
-bool TimeDepthModel::setVelocityModel( const ValueSeries<float>& vel,
-				      int sz, const SamplingData<double>& sd,
-				      const VelocityDesc& vd, bool istime )
+bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
+				  int sz, const SamplingData<double>& sd,
+				  const VelocityDesc& vd, bool istime )
 {
     delete [] times_; times_ = 0;
     delete [] depths_; depths_ = 0;
@@ -208,7 +312,7 @@ bool TimeDepthModel::setVelocityModel( const ValueSeries<float>& vel,
 }
 
 
-bool TimeDepthModel::calcDepths(ValueSeries<float>& res, int outputsz,
+bool TimeDepthConverter::calcDepths(ValueSeries<float>& res, int outputsz,
 				    const SamplingData<double>& timesamp) const
 {
     if ( !isOK() ) return false;
@@ -217,7 +321,7 @@ bool TimeDepthModel::calcDepths(ValueSeries<float>& res, int outputsz,
 }
 
 
-bool TimeDepthModel::calcTimes(ValueSeries<float>& res, int outputsz,
+bool TimeDepthConverter::calcTimes(ValueSeries<float>& res, int outputsz,
 				const SamplingData<double>& depthsamp ) const
 {
     if ( !isOK() ) return false;
@@ -226,7 +330,7 @@ bool TimeDepthModel::calcTimes(ValueSeries<float>& res, int outputsz,
 }
 
 
-void TimeDepthModel::calcZ( const float* zvals, int inpsz, 
+void TimeDepthConverter::calcZ( const float* zvals, int inpsz, 
 			      ValueSeries<float>& res, int outputsz, 
 			      const SamplingData<double>& zsamp, bool time)const
 {
@@ -331,7 +435,7 @@ Time(ms) Vel(m/s) Samplespan (ms)	Depth (m)
 \endcode
 */
 
-bool TimeDepthModel::calcDepths( const ValueSeries<float>& vels, int velsz,
+bool TimeDepthConverter::calcDepths( const ValueSeries<float>& vels, int velsz,
 				     const SamplingData<double>& sd,
 				     float* depths )
 {
@@ -344,7 +448,7 @@ bool TimeDepthModel::calcDepths( const ValueSeries<float>& vels, int velsz,
 }
 
 
-bool TimeDepthModel::calcDepths(const ValueSeries<float>& vels, int velsz,
+bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 				    const ValueSeries<float>& times,
 				    float* depths )
 {
@@ -399,7 +503,7 @@ Depth(m) Vel(m/s) Samplespan (m)	Time (s)
 \endcode
 */
 
-bool TimeDepthModel::calcTimes( const ValueSeries<float>& vels, int velsz,
+bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 				    const SamplingData<double>& sd,
 				    float* times )
 {
@@ -412,7 +516,7 @@ bool TimeDepthModel::calcTimes( const ValueSeries<float>& vels, int velsz,
 }
 
 
-bool TimeDepthModel::calcTimes( const ValueSeries<float>& vels, int velsz,
+bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 				    const ValueSeries<float>& depths,
 				    float* times )
 {
@@ -742,7 +846,7 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
     if ( !tinser.isOK() || !deptharr || !depthsampled || !Vint_sampled )
 	return false;
 
-    TimeDepthModel::calcDepths( Vint, nr_in, tinser, deptharr );
+    TimeDepthConverter::calcDepths( Vint, nr_in, tinser, deptharr );
     if ( nr_in<2 )
 	return false;
     else
@@ -810,7 +914,7 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
     if ( !tinser.isOK() || !Vinser.isOK() || !deptharr || !depthsampled )
 	return false;
 
-    TimeDepthModel::calcDepths( Vinser, nr_in, tinser, deptharr );
+    TimeDepthConverter::calcDepths( Vinser, nr_in, tinser, deptharr );
     if ( nr_in<2 )
 	return false;
     else
@@ -870,11 +974,11 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
     ArrayValueSeries<float,float> inputzs( (float*)zin, false, nr );
     if ( zisdepth )
     {
-	TimeDepthModel::calcTimes( inputvels, nr, inputzs, tmp );
+	TimeDepthConverter::calcTimes( inputvels, nr, inputzs, tmp );
     }
     else
     {
-    	TimeDepthModel::calcDepths( inputvels, nr, inputzs, tmp );
+    	TimeDepthConverter::calcDepths( inputvels, nr, inputzs, tmp );
     }
 
     const float* depths = zisdepth ? zin : tmp;

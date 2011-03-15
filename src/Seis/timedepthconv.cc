@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.36 2011-02-15 07:44:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.37 2011-03-15 14:41:13 cvsbruno Exp $";
 
 #include "timedepthconv.h"
 
@@ -93,7 +93,7 @@ const Interval<float>& Time2DepthStretcher::getVavgRg( bool top ) const
 
 bool Time2DepthStretcher::isOK() const
 {
-    if ( !TimeDepthModel::isVelocityDescUseable( veldesc_, velintime_ ) )
+    if ( !TimeDepthConverter::isVelocityDescUseable( veldesc_, velintime_ ) )
     {
 	errmsg_ = "Provided velocity is not useable";
 	return false;
@@ -265,7 +265,7 @@ protected:
     CubeSampling        	readcs_;
     SeisTrcReader&      	reader_;
     Array3D<float>&     	arr_;
-    TimeDepthModel  		tdc_;
+    TimeDepthConverter  	tdc_;
     VelocityDesc        	veldesc_;
     bool                	velintime_;
     bool                	voiintime_;
@@ -760,7 +760,7 @@ int VelocityModelScanner::nextStep()
     
     const SamplingData<double> sd = veltrace.info().sampling;    
 
-    TimeDepthModel tdconverter;
+    TimeDepthConverter tdconverter;
     if ( !tdconverter.setVelocityModel( trcvs, sz, sd, vd_, zistime_ ) )
 	return MoreToDo();
 	
