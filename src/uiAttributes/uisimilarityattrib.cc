@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.32 2011-03-10 09:19:14 cvshelene Exp $";
+static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.33 2011-03-15 16:13:59 cvshelene Exp $";
 
 
 #include "uisimilarityattrib.h"
@@ -179,6 +179,7 @@ bool uiSimilarityAttrib::setParameters( const Attrib::Desc& desc )
 	    	steerfld_->setType( bdip ? steerfld_->browseDipIdxInList() :0));
 
     extSel(0);
+    steerTypeSel(0);
     return true;
 }
 
@@ -186,7 +187,12 @@ bool uiSimilarityAttrib::setParameters( const Attrib::Desc& desc )
 bool uiSimilarityAttrib::setInput( const Attrib::Desc& desc )
 {
     putInp( inpfld_, desc, 0 );
-    putInp( steerfld_, desc, 1 );
+
+    bool browsedip = false;
+    mIfGetBool( Similarity::browsedipStr(), bdip, browsedip = bdip );
+    if ( !browsedip )
+	putInp( steerfld_, desc, 1 );
+
     return true;
 }
 
@@ -209,10 +215,7 @@ bool uiSimilarityAttrib::setOutput( const Attrib::Desc& desc )
     else
 	outpdipfld_->setValue( selattr-5 );
 
-
-    const bool wantbdip = steerfld_->wantBrowseDip();
-    const bool ouptstats = dooutpstatsfld_;
-
+    outSel(0);
     return true;
 }
 
@@ -264,12 +267,19 @@ bool uiSimilarityAttrib::getInput( Attrib::Desc& desc )
 
 bool uiSimilarityAttrib::getOutput( Attrib::Desc& desc )
 {
-    int selattr = outpstatsfld_->getIntValue();
-    const char* ext = extfld_->text();
-    if ( selattr && (!strcmp(ext,extstrs3d[1]) || !strcmp(ext,extstrs3d[2])) )
-	selattr += 2;
-    fillOutput( desc, selattr );
+    int selattr = 0;
+    const bool wantbdip = steerfld_->wantBrowseDip();
+    if ( wantbdip && !dooutpstatsfld_->getBoolValue() )
+	selattr = outpdipfld_->getIntValue() + 5;
+    else
+    {
+	selattr = outpstatsfld_->getIntValue();
+	const char* ext = extfld_->text();
+	if (selattr && (!strcmp(ext,extstrs3d[1]) || !strcmp(ext,extstrs3d[2])))
+	    selattr += 2;
+    }
 
+    fillOutput( desc, selattr );
     return true;
 }
 
@@ -291,11 +301,7 @@ void uiSimilarityAttrib::steerTypeSel(CallBacker*)
     const bool wantbdip = steerfld_->wantBrowseDip();
     maxdipfld_->display( wantbdip );
     deltadipfld_->display( wantbdip );
-
-    const bool usedip = wantbdip || steerfld_->willSteer();
-    dooutpstatsfld_->display( usedip );
-    outpstatsfld_->display( usedip );
-    outpdipfld_->display( usedip );
+    dooutpstatsfld_->display( wantbdip );
     outSel(0);
 }
 
