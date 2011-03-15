@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.125 2011-03-15 17:13:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.126 2011-03-15 21:12:19 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -73,13 +73,15 @@ public:
 
 Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d, 
 			      const Attrib::Data2DHolder& dh,  int seriesid,
-			      Array2DImpl<float>* array, int attrib )
+			      Array2DImpl<float>* array,
+			      const SamplingData<float>& outputzsd, int attrib )
     : data2dh_( dh )
     , arr_( array )	
     , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
     , s2d_( s2d )
     , attrib_( attrib )
     , outputptr_( 0 )
+    , outputzsd_( outputzsd )	       
 {
     sx_ = arr_->info().getSize(0);
     sy_ = arr_->info().getSize(1);    
@@ -88,7 +90,8 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
       	
 Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d, 
 			      const Attrib::Data2DHolder& dh, int seriesid,
-			      float* outptr, int sx, int sy, int attrib )
+			      float* outptr, int sx, int sy,
+			      const SamplingData<float>& outputzsd, int attrib )
     : data2dh_( dh )
     , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
     , s2d_( s2d )
@@ -96,8 +99,8 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
     , outputptr_( outptr )
     , sx_( sx )
     , sy_ (sy )
-{
-}
+    , outputzsd_( outputzsd )	       
+{}
 
 
 od_int64 nrIterations() const { return data2dh_.size(); }
@@ -115,9 +118,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const float firstz = data2dh_.dataset_[0]->z0_*sd.step;
     const int firstdhsample = sd.nearestIndex( firstz );  
 
-    const bool samplebased = 	
-	mIsEqual( sd.getIndex(firstz),firstdhsample,1e-3 ) && 
-	mIsEqual( sd.step, s2d_.getScene()->getCubeSampling().zrg.step, 1e-3 );
+    const bool samplebased = mIsEqual( sd.step, outputzsd_.step, 1e-3 ) &&
+	mIsEqual( sd.getIndex(firstz), firstdhsample, 1e-3 );
 
     const TypeSet<int>& allpos = s2d_.trcdisplayinfo_.alltrcnrs;
     const int starttrcidx = allpos.indexOf( s2d_.trcdisplayinfo_.rg.start );
@@ -167,8 +169,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    {
 		arrzidx = idy;
 		val = mUdf(float);
+		const float offset = idy * outputzsd_.step / sd.step;
 		IdxAble::interpolateRegWithUdf( *dataseries, nrsamp,
-						idy+firstz, val );
+						offset+firstz, val );
 	    }
 	    
 	    if ( outputptr_ )
@@ -190,7 +193,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const Seis2DDisplay&		s2d_;
     const int				valseridx_;
     int					attrib_;
-
+    const SamplingData<float>&		outputzsd_;
 };
 
 
@@ -224,7 +227,7 @@ void getAll(float* ptr) const
     memsetter.execute();
 
     Seis2DTextureDataArrayFiller arrayfiller( s2d_, data2dh_, s2d_.seriesidx_, 
-	    ptr, info().getSize(0), info().getSize(1), attrib_ );
+	    ptr, info().getSize(0), info().getSize(1), arrayzrg_, attrib_ );
     arrayfiller.execute();
 }
 
@@ -612,7 +615,7 @@ void Seis2DDisplay::setData( int attrib,
 	arr->setAll( mUdf(float) );
 
 	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, seriesidx_, 
-		arr, attrib );
+		arr, arrayzrg, attrib );
 	if ( !arrayfiller.execute() )
 	    continue;
 #endif
