@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.124 2011-03-14 07:21:11 cvssatyaki Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.125 2011-03-15 17:13:06 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -113,18 +113,14 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     StepInterval<int> arraysrg( mNINT(zrg.start/sd.step),
 				mNINT(zrg.stop/sd.step),1 );
     const float firstz = data2dh_.dataset_[0]->z0_*sd.step;
-    const int firstdhsample = sd.nearestIndex( firstz );  // sample number
+    const int firstdhsample = sd.nearestIndex( firstz );  
 
-    // find if this is going to be sampled-based, that is, if data can be just
-    // copied from the samples in the data holder
     const bool samplebased = 	
 	mIsEqual( sd.getIndex(firstz),firstdhsample,1e-3 ) && 
 	mIsEqual( sd.step, s2d_.getScene()->getCubeSampling().zrg.step, 1e-3 );
-    // if samplebased is false, interpolation needs to be done...
 
     const TypeSet<int>& allpos = s2d_.trcdisplayinfo_.alltrcnrs;
     const int starttrcidx = allpos.indexOf( s2d_.trcdisplayinfo_.rg.start );
-
     const bool usez0 = s2d_.datatransform_ || zrg.start <= sd.start;
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
@@ -169,15 +165,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	    else
 	    {
-		// interpolate!
 		arrzidx = idy;
-
-		// TODO: make use of z0
-
 		val = mUdf(float);
-		const float offset = idy * SI().zStep() / sd.step;
 		IdxAble::interpolateRegWithUdf( *dataseries, nrsamp,
-						firstz + offset, val );
+						idy+firstz, val );
 	    }
 	    
 	    if ( outputptr_ )
@@ -210,87 +201,38 @@ public:
 
 Seis2DArray( const Seis2DDisplay& s2d, const Attrib::Data2DHolder& d2dh,
 	     const StepInterval<float>& arrayzrg, int zsz, int attrib )
-    		    : s2d_( s2d )
-		    , data2dh_( d2dh )
-		    , arrayzrg_( arrayzrg )
-		    , info_( *new Array2DInfoImpl( s2d.trcdisplayinfo_.size,
-				zsz ) )
-		    , attrib_( attrib )
+    : s2d_( s2d )
+    , data2dh_( d2dh )
+    , arrayzrg_( arrayzrg )
+    , attrib_( attrib )
+    , info_( *new Array2DInfoImpl( s2d.trcdisplayinfo_.size, zsz ) )
 {}
 
-
-~Seis2DArray()
-{
-    delete &info_;
-}
-
-void set( int idx0, int idx1, float val )
-{
-    // does nothing; implemented as it was pure virtual in base class
-}
-
-float get( int idx0, int idx1 ) const; 
-
-void getAll(float* ptr) const;
-
-void getAll(ValueSeries<float>& vs) const;
-
-
-const Array2DInfo& info() const	
-{ 
-    // note: size given by info is the maximum; not all elements might be used.
-    // (getAll takes care of filling with undef. value).
-    return info_; 
-}
-
-bool isOK()	{ return true; }
-
-
-protected:
-
-    const Seis2DDisplay&		s2d_;
-    const Attrib::Data2DHolder&		data2dh_;
-    const StepInterval<float>&		arrayzrg_;
-    Array2DInfoImpl&			info_;
-    int					attrib_;
-
-};
-
+~Seis2DArray() 					{ delete &info_; }
+bool isOK()					{ return true; }
+const Array2DInfo& info() const			{ return info_; }
+void set( int idx0, int idx1, float val ) 	{}
 
 // Fills ptr with values from array. ptr is assumed to be allocated with
 // info().getTotalSz() number of values.
-void Seis2DArray::getAll(float* ptr) const
+void getAll(float* ptr) const
 {
-    // set the entire memory block to undef value first, since the filler 
-    // might not fill in all elements
     MemSetter<float> memsetter;
     memsetter.setSize( info().getSize(0) * info().getSize(1) );
     memsetter.setValue( mUdf(float) );
     memsetter.setTarget( ptr );
     memsetter.execute();
 
-    // make use of the filler to fill up elements quickly
     Seis2DTextureDataArrayFiller arrayfiller( s2d_, data2dh_, s2d_.seriesidx_, 
 	    ptr, info().getSize(0), info().getSize(1), attrib_ );
     arrayfiller.execute();
 }
 
 
-// Fills vs with values from array.
-void Seis2DArray::getAll(ValueSeries<float>& vs) const
+float get( int idx0, int idx1 ) const
 {
-    // TODO
-}
-
-
-float Seis2DArray::get( int idx0, int idx1 ) const
-{
-    // a couple of checks first
-    if ( s2d_.seriesidx_ < 0 )
-	return mUdf(float);
-
-    if ( idx0 < 0 || idx0 >= info().getSize(0) || idx1 < 0 ||
-		    idx1 >= info().getSize(1) )
+    if ( s2d_.seriesidx_ < 0 || idx0 < 0 || idx0 >= info().getSize(0) || 
+	    			idx1 < 0 || idx1 >= info().getSize(1) )
 	return mUdf(float);
 
     const SamplingData<float>& sd = data2dh_.trcinfoset_[0]->sampling;
@@ -304,23 +246,17 @@ float Seis2DArray::get( int idx0, int idx1 ) const
     if ( !samplebased )
 	return mUdf(float);
 
-    // get trace number
     const TypeSet<int>& allpos = s2d_.trcdisplayinfo_.alltrcnrs;
     const int starttrcidx = allpos.indexOf( s2d_.trcdisplayinfo_.rg.start );
-    int trcnr = allpos[idx0 + starttrcidx];
-
+    const int trcnr = allpos[idx0 + starttrcidx];
     if ( !s2d_.trcdisplayinfo_.rg.includes( trcnr ) )
 	return mUdf(float);
     
-    // get hold of the dataholder
-    int dataidx = data2dh_.getDataHolderIndex( trcnr );
-	
+    const int dataidx = data2dh_.getDataHolderIndex( trcnr );
     if ( dataidx == -1 || !data2dh_.dataset_[dataidx] )	    
 	return mUdf(float);
 
     const DataHolder* dh = data2dh_.dataset_[dataidx];
-
-    // get hold of the data series
     TypeSet<int> valididxs = data2dh_.dataset_[0]->validSeriesIdx();
     const ValueSeries<float>* dataseries = 
 	    dh->series( valididxs[s2d_.seriesidx_] );
@@ -331,13 +267,20 @@ float Seis2DArray::get( int idx0, int idx1 ) const
     const bool usez0 = s2d_.datatransform_ || arrayzrg_.start <= sd.start;
     const int shift = usez0 ? dh->z0_ : mNINT(sd.start/sd.step);
     const int samp = arraysrg.atIndex( idx1 );
-    const int sample = samp - shift;
-    const int validx = usez0 ? sample : samp-dh->z0_;
+    const int validx = usez0 ? samp - shift : samp - dh->z0_;
     const float val = dh->dataPresent( samp ) ? dataseries->value( validx )
 	    			   		: mUdf(float);
-		
     return val;
 }
+
+protected:
+
+    const Seis2DDisplay&		s2d_;
+    const Attrib::Data2DHolder&		data2dh_;
+    const StepInterval<float>&		arrayzrg_;
+    Array2DInfoImpl&			info_;
+    int					attrib_;
+};
 
 
 Seis2DDisplay::Seis2DDisplay()
