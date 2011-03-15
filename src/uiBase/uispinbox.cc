@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.47 2011-03-08 14:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.48 2011-03-15 05:18:31 cvsnanne Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -95,19 +95,16 @@ double uiSpinBoxBody::valueFromText( const QString& text ) const
     if ( !specialValueText().isEmpty() && text==specialValueText() )
 	return handle_.minFValue();
 
-    QString mytxt = text;
-    if ( isalpha_ )
-    {
-	for ( int idx=0; idx<26; idx++ )
-	{
-	    if ( text == letters[idx] )
-		return (double)idx;
-	}
+    if ( !isalpha_ )
+	return QDoubleSpinBox::valueFromText( text );
 
-	return 0;
+    for ( int idx=0; idx<26; idx++ )
+    {
+	if ( text == letters[idx] )
+	    return (double)idx;
     }
 
-    return (double)(mytxt.toFloat() * handle_.factor_);
+    return 0;
 }
 
 
@@ -116,23 +113,21 @@ QString uiSpinBoxBody::textFromValue( double val ) const
     if ( !specialValueText().isEmpty() && val==handle_.minFValue() )
 	return specialValueText();
 
-    QString str;
-    if ( isalpha_ )
-    {
-	QString svtxt = specialValueText();
-	int intval = mNINT(val);
-       	if ( !svtxt.isEmpty() )
-	    intval--;
+    if ( !isalpha_ )
+	return QDoubleSpinBox::textFromValue( val );
 
-	if ( intval < 0 )
-	    str = "a";
-	else if ( intval > 25 )
-	    str = "z";
-	else
-	    str = letters[intval];
-    }
+    QString svtxt = specialValueText();
+    int intval = mNINT(val);
+    if ( !svtxt.isEmpty() )
+	intval--;
+
+    QString str;
+    if ( intval < 0 )
+	str = "a";
+    else if ( intval > 25 )
+	str = "z";
     else
-	str.setNum( (float)val / handle_.factor_ );
+	str = letters[intval];
 
     return str;
 }
@@ -153,7 +148,6 @@ uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
     , valueChanged(this)
     , valueChanging(this)
     , dosnap_(false)
-    , factor_(1)
 {
     setNrDecimals( dec );
     setKeyboardTracking( false );
