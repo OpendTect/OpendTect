@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initseis.cc,v 1.8 2010-07-05 05:22:20 cvsnageswara Exp $";
+static const char* rcsID = "$Id: initseis.cc,v 1.9 2011-03-16 12:10:40 cvsbert Exp $";
 
 #include "initseis.h"
 #include "timedepthconv.h"
@@ -16,12 +16,14 @@ static const char* rcsID = "$Id: initseis.cc,v 1.8 2010-07-05 05:22:20 cvsnagesw
 #include "seiscbvs.h"
 #include "seis2dlineio.h"
 #include "seispscubetr.h"
+#include "segydirecttr.h"
 
 #define sKeySeisTrcTranslatorGroup "Seismic Data"
 defineTranslatorGroup(SeisTrc,sKeySeisTrcTranslatorGroup);
 defineTranslator(CBVS,SeisTrc,"CBVS");
 defineTranslator(SEGY,SeisTrc,"SEG-Y");
 defineTranslator(TwoD,SeisTrc,"2D");
+defineTranslator(SEGYDirect,SeisTrc,"SEGYDirect");
 defineTranslator(SeisPSCube,SeisTrc,"PS Cube");
 
 mDefSimpleTranslatorSelector(SeisTrc,sKeySeisTrcTranslatorGroup)

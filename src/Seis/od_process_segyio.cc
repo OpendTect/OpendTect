@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_segyio.cc,v 1.4 2011-02-03 21:38:59 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_segyio.cc,v 1.5 2011-03-16 12:10:40 cvsbert Exp $";
 
 #include "batchprog.h"
 
@@ -23,31 +23,28 @@ static const char* rcsID = "$Id: od_process_segyio.cc,v 1.4 2011-02-03 21:38:59 
 
 bool BatchProgram::go( std::ostream& strm )
 { 
-    const char* parseerror =  "Cannot parse parameters";
-
     const FixedString task = pars().find( SEGY::IO::sKeyTask() );
-    if ( task==SEGY::IO::sKeyIndexPS() )
-    {
-	bool is2d;
-	MultiID mid;
-	if ( !pars().getYN( SEGY::IO::sKeyIs2D(), is2d )  ||
-	     !pars().get( sKey::Output, mid ) )
-	{
-	    strm << parseerror;
-	    return false;
-	}
+    const char* parseerror =  "Cannot parse parameters";
+    const bool isps = task == SEGY::IO::sKeyIndexPS();
+    const bool isvol = task == SEGY::IO::sKeyIndex3DVol();
+    bool is2d = !isvol; MultiID mid;
+    pars().getYN( SEGY::IO::sKeyIs2D(), is2d );
+    pars().get( sKey::Output, mid );
 
-	BufferString linename;
-	if ( is2d && !pars().get( sKey::LineName, linename ) )
+    if ( isps || isvol )
+    {
+	if ( mid.isEmpty() )
 	{
-	    strm << parseerror;
+	    strm << "Parameter file lacks the '" << sKey::Output << " key."
+		 << std::endl;
 	    return false;
 	}
 
 	SEGY::FileSpec filespec;
 	if ( !filespec.usePar( pars() ) )
 	{
-	    strm << parseerror;
+	    strm << "Missing or invalid file name in parameter file"
+		 << std::endl;
 	    return false;
 	}
 
@@ -65,7 +62,7 @@ bool BatchProgram::go( std::ostream& strm )
 	    filespec.fname_ = relpath;
 	}
 	pars().set( sKey::FileName, filespec.fname_ );
-	SEGY::PreStackIndexer indexer( mid, linename, filespec, is2d, pars() );
+	SEGY::FileIndexer indexer( mid, isvol, filespec, is2d, pars() );
 	if ( !indexer.execute( &strm ) )
 	{
 	    strm << indexer.message();
@@ -93,6 +90,7 @@ bool BatchProgram::go( std::ostream& strm )
 	return true;
     }
 
-    strm << "Unknown task";
+    strm << "Unknown task: " << (task.isEmpty() ? "<empty>" : task)
+			     << std::endl;
     return false;
 }

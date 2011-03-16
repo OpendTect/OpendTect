@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.31 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.32 2011-03-16 12:10:40 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -120,7 +120,9 @@ SEGY::Scanner* uiSEGYScanDlg::getScanner()
 
 bool uiSEGYScanDlg::doWork( const IOObj& )
 {
+    const bool isps = Seis::isPS( setup_.geom_ );
     BufferString pathnm, lnm;
+
     if ( outfld_ )
     { 
 	if ( lnmfld_ )
@@ -131,8 +133,14 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	}
 
         if ( !outfld_->commitInput() )
-	    mErrRet(outfld_->isEmpty() ?
-		    "Please enter a name for the output data store" : 0, 0)
+	{
+	    if ( !outfld_->isEmpty() )
+		mErrRet(0,0)
+	    else if ( Seis::isPS( setup_.geom_ ) )
+		mErrRet("Please enter a name for the output data store scan",0)
+	    else
+		mErrRet("Please enter a name for the output cube scan",0)
+	}
 
 	pathnm = ctio_.ioobj->fullUserExpr( Conn::Write );
 	if ( lnmfld_ )
@@ -157,16 +165,13 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     fs.usePar( pars_ );
 
     Executor* exec = 0;
-
-    delete scanner_;
-    scanner_ = 0;
-
-    delete indexer_;
-    indexer_ = 0;
+    delete scanner_; scanner_ = 0;
+    delete indexer_; indexer_ = 0;
 
     if ( outfld_ )
     {
-	pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyIndexPS() );
+	pars_.set( SEGY::IO::sKeyTask(), isps ? SEGY::IO::sKeyIndexPS()
+					      : SEGY::IO::sKeyIndex3DVol() );
 	pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
 	pars_.set( sKey::Output, ctio_.ioobj->key() );
 	pars_.set( sKey::LineName, lnm );

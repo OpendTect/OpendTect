@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.19 2010-08-19 06:45:48 cvsranojay Exp $
+ RCS:		$Id: segydirectdef.h,v 1.20 2011-03-16 12:10:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ public:
     			/*!<After fds has been dumped, write the 
 			    remainder of the file */
 
+    const FileDataSet&	fileDataSet() const	{ return *fds_; }
     const char*		errMsg() const		{ return errmsg_.str(); }
 
     static const char*	sKeyDirectDef();
@@ -94,15 +95,13 @@ protected:
 };
 
 
-/*!Scans a pre-stack file and creates an index file that can be read by OD. */
-mClass PreStackIndexer : public Executor
+/*!Scans a file and creates an index file that can be read by OD. */
+mClass FileIndexer : public Executor
 {
 public:
-    			PreStackIndexer(const MultiID& mid,
-				const char* linename,
-				const FileSpec&,
-				bool is2d,const IOPar&);
-    			~PreStackIndexer();
+    			FileIndexer(const MultiID& mid,bool isvol,
+				    const FileSpec&,bool is2d,const IOPar&);
+    			~FileIndexer();
 
     int                 nextStep();
 
@@ -121,7 +120,9 @@ protected:
     Scanner*		scanner_;
     BufferString	msg_;
     DirectDef*		directdef_;
-    
+    bool		is2d_;
+    bool		isvol_;
+
 };
 
 

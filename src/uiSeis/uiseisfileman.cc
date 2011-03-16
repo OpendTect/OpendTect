@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.120 2010-12-07 20:01:52 cvskris Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.121 2011-03-16 12:10:40 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -20,9 +20,11 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.120 2010-12-07 20:01:52 cv
 #include "keystrs.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"
+#include "segydirecttr.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "zdomain.h"
+#include "separstr.h"
 
 #include "uitoolbutton.h"
 #include "uilistbox.h"
@@ -53,10 +55,16 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				 is2d ? "103.1.11" : "103.1.0").nrstatusflds(1),
 	    	   SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
+    , browsebut_(0)
 {
-    ctxt_.toselect.allowtransls_ = is2d_
-	? "2D"
-	: CBVSSeisTrcTranslator::translKey();
+    if ( is2d_ )
+	ctxt_.toselect.allowtransls_ = "2D";
+    else
+    {
+	FileMultiString fms( CBVSSeisTrcTranslator::translKey() );
+	fms += SEGYDirectSeisTrcTranslator::translKey();
+	ctxt_.toselect.allowtransls_ = fms;
+    }
     createDefaultUI( true );
     selgrp_->getListField()->doubleClicked.notify(
 	    			is2d_ ? mCB(this,uiSeisFileMan,man2DPush)
@@ -77,7 +85,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     {
 	manipgrp->addButton( "mergeseis.png", "Merge cube parts into one cube",
 				mCB(this,uiSeisFileMan,mergePush) );
-	manipgrp->addButton( "browseseis.png", "Browse/edit this cube",
+	browsebut_ = manipgrp->addButton( "browseseis.png",
+				"Browse/edit this cube",
 				mCB(this,uiSeisFileMan,browsePush) );
     }
 
@@ -98,6 +107,16 @@ const char* uiSeisFileMan::getDefKey() const
 {
     const bool is2d = curioobj_ && SeisTrcTranslator::is2D( *curioobj_ );
     return is2d ? sKey::DefLineSet : sKey::DefCube;
+}
+
+
+void uiSeisFileMan::ownSelChg()
+{
+    if ( !browsebut_ ) return;
+
+    browsebut_->setSensitive( curimplexists_
+			&& strcmp(curioobj_->translator(),
+				  SEGYDirectSeisTrcTranslator::translKey() ) );
 }
 
 
@@ -193,7 +212,7 @@ void uiSeisFileMan::mkFileInfo()
 
     } // if ( oinf.isOK() )
 
-    if ( txt.isEmpty() ) txt += "<Empty>";
+    if ( txt.isEmpty() ) txt = "<Empty>";
     txt.add( "\n" ).add( getFileInfo() );
 
     setInfo( txt );

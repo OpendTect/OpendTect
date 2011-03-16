@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.14 2011-01-19 06:06:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.15 2011-03-16 12:10:40 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -219,4 +219,67 @@ bool SEGYDirect2DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
 	trc = getTrace( ti.filenr_, ti.trcidx_, itrc, bid.crl );
     }
     return true;
+}
+
+
+SEGYDirectSeisTrcTranslator::SEGYDirectSeisTrcTranslator( const char* s1,
+							  const char* s2 )
+    : SeisTrcTranslator(s1,s2)
+    , def_(0)
+    , tr_(0)
+{
+}
+
+
+SEGYDirectSeisTrcTranslator::~SEGYDirectSeisTrcTranslator()
+{
+    cleanUp();
+}
+
+
+void SEGYDirectSeisTrcTranslator::cleanUp()
+{
+    delete def_; def_ = 0;
+    delete tr_; tr_ = 0;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::commitSelections_()
+{
+    return false;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::initRead_()
+{
+    return false;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
+{
+    return false;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::read( SeisTrc& trc )
+{
+    return false;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::skip( int ntrcs )
+{
+    return false;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::goTo( const BinID& bid )
+{
+    return false;
+}
+
+
+void SEGYDirectSeisTrcTranslator::usePar( const IOPar& iop )
+{
 }

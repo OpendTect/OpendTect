@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.8 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: segydirecttr.h,v 1.9 2011-03-16 12:10:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seispsread.h"
 #include "seispsioprov.h"
+#include "seistrctr.h"
 namespace SEGY { class DirectDef; }
 class SEGYSeisTrcTranslator;
 
@@ -92,6 +93,40 @@ public:
     			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS2D)
 
     virtual bool	isReadDefault() const	{ return true; }
+
+};
+
+
+mClass SEGYDirectSeisTrcTranslator : public SeisTrcTranslator
+{			      isTranslator(SEGYDirect,SeisTrc)
+public:
+
+			SEGYDirectSeisTrcTranslator(const char*,const char*);
+			~SEGYDirectSeisTrcTranslator();
+    virtual const char*	defExtension() const	{ return "sgydef"; }
+
+    bool		readInfo(SeisTrcInfo&);
+    bool		read(SeisTrc&);
+    bool		skip(int);
+    bool		supportsGoTo() const		{ return true; }
+    bool		isReadDefault() const		{ return true; }
+    bool		goTo(const BinID&);
+
+    void		usePar(const IOPar&);
+
+    bool		implShouldRemove(const IOObj*) const { return false; }
+    void		cleanUp();
+
+protected:
+
+    bool		commitSelections_();
+    virtual bool	initRead_();
+    virtual bool	initWrite_(const SeisTrc&)
+			{ errmsg = "Writing not supported"; return false; }
+    virtual bool	writeTrc_(const SeisTrc&) { return false; }
+
+    SEGY::DirectDef*	def_;
+    mutable SEGYSeisTrcTranslator* tr_;
 
 };
 

@@ -6,12 +6,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.25 2010-12-14 08:56:23 cvsbruno Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.26 2011-03-16 12:10:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjfileman.h"
+class uiToolButton;
+
 
 mClass uiSeisFileMan : public uiObjFileMan
 {
@@ -26,6 +28,7 @@ public:
 protected:
 
     bool		is2d_;
+    uiToolButton*	browsebut_;
 
     void		mergePush(CallBacker*);
     void		dump2DPush(CallBacker*);
@@ -35,7 +38,8 @@ protected:
     void		manPS(CallBacker*);
     void		makeDefault(CallBacker*);
 
-    void		mkFileInfo();
+    virtual void	mkFileInfo();
+    virtual void	ownSelChg();
     double		getFileSize(const char*,int&) const;
 
     const char*		getDefKey() const;

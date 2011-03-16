@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.28 2011-01-19 05:23:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.29 2011-03-16 12:10:40 cvsbert Exp $";
 
 #include "segydirectdef.h"
 
@@ -461,24 +461,26 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
 }
 
 
-SEGY::PreStackIndexer::PreStackIndexer( const MultiID& mid,
-					const char* line,
+SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
 					const FileSpec& sgyfile, bool is2d,
 				        const IOPar& segypar )
     : Executor( "Pre Stack SEGY Indexer" )
     , directdef_( 0 )
     , ioobj_( IOM().get( mid ) )
-    , linename_( line )
+    , isvol_(isvol)
+    , is2d_(is2d)
 {
     if ( !ioobj_ )
-	return;
+	{ msg_ = "Cannot find output object"; return; }
+    linename_ = segypar.find( sKey::LineName );
+    if ( is2d && linename_.isEmpty() )
+	{ delete ioobj_; ioobj_ = 0; msg_ = "Line name not specified"; return; }
 
-    scanner_ =
-	new SEGY::Scanner( sgyfile, is2d ? Seis::LinePS : Seis::VolPS,
-			   segypar );
+    scanner_ = new SEGY::Scanner( sgyfile, is2d_ ? Seis::LinePS :
+	    			 (isvol_ ? Seis::Vol : Seis::VolPS), segypar );
 }
 
-SEGY::PreStackIndexer::~PreStackIndexer()
+SEGY::FileIndexer::~FileIndexer()
 {
     delete ioobj_;
     delete directdef_;
@@ -496,24 +498,17 @@ SEGY::PreStackIndexer::~PreStackIndexer()
 }
 
 
-int SEGY::PreStackIndexer::nextStep()
+int SEGY::FileIndexer::nextStep()
 {
-    if ( !ioobj_ )
-    {
-	msg_ = "Cannot find output object.";
-	return ErrorOccurred();
-    }
+    if ( !ioobj_ ) return ErrorOccurred();
 
     if ( !directdef_ )
     {
 	BufferString outfile = ioobj_->fullUserExpr( Conn::Write );
-	if ( !outfile )
-	{
-	    msg_ = "Cannot create output filename";
-	    return ErrorOccurred();
-	}
+	if ( outfile.isEmpty() )
+	    { msg_ = "Output filename empty"; return ErrorOccurred(); }
 
-	if ( !linename_.isEmpty() )
+	if ( is2d_ )
 	{
 	    if ( !File::isDirectory(outfile) )
 	    {
@@ -533,7 +528,7 @@ int SEGY::PreStackIndexer::nextStep()
 	msg_ = "Setting up output indexing";
 	directdef_ = new SEGY::DirectDef;
 	directdef_->setData( scanner_->fileDataSet() );
-	if ( Seis::is2D(scanner_->geomType() ) )
+	if ( is2d_ )
 	    scanner_->fileDataSet().save2DCoords( true );
 
 	if ( !directdef_->writeHeadersToFile( outfile ) )
@@ -545,7 +540,7 @@ int SEGY::PreStackIndexer::nextStep()
 
     msg_ = scanner_->message();
     const int res = scanner_->nextStep();
-    if ( res==ErrorOccurred() )
+    if ( res == ErrorOccurred() )
 	msg_ = scanner_->message();
     else if ( res==Finished() )
     {
@@ -560,7 +555,7 @@ int SEGY::PreStackIndexer::nextStep()
 	if ( fds.isEmpty() )
 	{
 	    IOM().permRemove( ioobj_->key() );
-	    msg_ = fds.nrFiles()>1
+	    msg_ = fds.nrFiles() > 1
 		? "No traces found in any of the files"
 		: "No traces found in file";
 
@@ -573,7 +568,7 @@ int SEGY::PreStackIndexer::nextStep()
 	    return ErrorOccurred();
 	}
 
-	if ( !Seis::is2D(fds.geomType()) )
+	if ( !is2d_ && !isvol_ )
 	    SPSIOPF().mk3DPostStackProxy( *ioobj_ );
     }
 
@@ -581,17 +576,17 @@ int SEGY::PreStackIndexer::nextStep()
 }
 
 
-const char* SEGY::PreStackIndexer::message() const
+const char* SEGY::FileIndexer::message() const
 { return msg_.buf(); }
 
 
-od_int64 SEGY::PreStackIndexer::nrDone() const
+od_int64 SEGY::FileIndexer::nrDone() const
 { return scanner_->nrDone(); }
 
 
-od_int64 SEGY::PreStackIndexer::totalNr() const
+od_int64 SEGY::FileIndexer::totalNr() const
 { return scanner_->totalNr(); }
 
 
-const char* SEGY::PreStackIndexer::nrDoneText() const
+const char* SEGY::FileIndexer::nrDoneText() const
 { return "Traces scanned"; }

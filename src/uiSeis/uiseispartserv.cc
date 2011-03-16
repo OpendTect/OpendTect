@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.128 2010-12-16 13:09:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.129 2011-03-16 12:10:40 cvsbert Exp $";
 
 #include "uiseispartserv.h"
 
@@ -87,7 +87,7 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 	    uiSEGYRead::Setup su( isdirect ? uiSEGYRead::DirectDef
 		    			   : uiSEGYRead::Import );
 	    if ( isdirect )
-		{ su.geoms_ -= Seis::Line; su.geoms_ -= Seis::Vol; }
+		su.geoms_ -= Seis::Line;
 	    new uiSEGYRead( appserv().parent(), su );
 	}
     }
