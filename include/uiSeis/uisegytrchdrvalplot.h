@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2011
- RCS:           $Id: uisegytrchdrvalplot.h,v 1.2 2011-03-11 11:20:44 cvsbert Exp $
+ RCS:           $Id: uisegytrchdrvalplot.h,v 1.3 2011-03-16 12:10:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,8 @@ mClass uiSEGYTrcHdrValPlot : public uiGroup
 {
 public:
 
-    			uiSEGYTrcHdrValPlot(uiParent*,bool singlehdr=true);
+    			uiSEGYTrcHdrValPlot(uiParent*,bool singlehdr=true,
+					    int firsttrcnr=1);
     virtual		~uiSEGYTrcHdrValPlot();
 
     void		setData(const SEGY::HdrEntry&,
@@ -31,6 +32,7 @@ public:
 protected:
 
     bool		issingle_;
+    int			trcnr0_;
     TypeSet<float>	xvals_;
     TypeSet<float>	yvals_;
 

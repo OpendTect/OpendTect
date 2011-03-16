@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegymanip.h,v 1.10 2011-03-14 14:35:51 cvsbert Exp $
+ RCS:           $Id: uisegymanip.h,v 1.11 2011-03-16 12:10:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiTable;
 class uiSpinBox;
 class uiListBox;
 class uiTextEdit;
+class uiCheckBox;
 class uiFileInput;
 class uiToolButton;
 class uiSEGYBinHdrEd;
@@ -62,7 +63,7 @@ protected:
     uiToolButton*	savebut_;
     uiToolButton*	plotbut_;
     uiTable*		thtbl_;
-    uiSpinBox*		percfld_;
+    uiCheckBox*		plotallbox_;
     uiSpinBox*		trcnrfld_;
     uiLabel*		errlbl_;
 

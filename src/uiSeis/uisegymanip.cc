@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.15 2011-03-14 14:35:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.16 2011-03-16 12:10:59 cvsbert Exp $";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uisegymanip.cc,v 1.15 2011-03-14 14:35:51 cvsbe
 #include "uitoolbutton.h"
 #include "uilabel.h"
 #include "uifileinput.h"
+#include "uigeninputdlg.h"
 #include "uicompoundparsel.h"
 #include "uisplitter.h"
 #include "uispinbox.h"
@@ -292,11 +293,10 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
 		    mCB(this,uiSEGYFileManip,plotReq) );
     plotbut_->attach( alignedBelow, thtbl_ );
     plotbut_->setSensitive( false );
-    percfld_ = new uiSpinBox( grp, 1, "Perc plot" );
-    percfld_->attach( rightOf, plotbut_ );
-    percfld_->setHSzPol( uiObject::Small );
-    percfld_->setSuffix( "%" );
-    percfld_->setInterval( 0.1, 100.0, 0.1 );
+    plotallbox_ = new uiCheckBox( grp, "All" );
+    plotallbox_->attach( rightOf, plotbut_ );
+    plotallbox_->setHSzPol( uiObject::Small );
+    plotallbox_->setChecked( true );
 
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( grp, "Trc" );
     trcnrfld_ = lsb->box();
@@ -605,7 +605,7 @@ class uiSEGYFileManipDataExtracter : public Executor
 public:
 
 uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
-       			      float perc )
+       			      bool plotall )
     : Executor("Trace header scan")
     , fm_(*p)
     , sel_(sel)
@@ -614,9 +614,20 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
     , needswap_(p->binhdr_.isSwapped())
 {
     StrmOper::seek( fm_.strm(), cFileHeaderSize );
-    float ftotnr = (fm_.filesize_-cFileHeaderSize) / fm_.traceBytes();
-    ftotnr *= perc * 0.01;
-    totalnr_ = mRounded(od_int64,ftotnr);
+    trcrg_.start = 1;
+    totalnr_ = (fm_.filesize_-cFileHeaderSize) / fm_.traceBytes();
+    trcrg_.stop = (int)totalnr_;
+    if ( !plotall )
+    {
+	DataInpSpec* spec = new IntInpIntervalSpec( trcrg_ );
+	uiGenInputDlg dlg( p, "Specify range", "Trace range to plot", spec );
+	if ( !dlg.go() )
+	    { totalnr_ = -1; return; }
+	trcrg_ = dlg.getFld(0)->getIInterval();
+	trcrg_.sort();
+	trcrg_.limitTo( Interval<int>(1,totalnr_) );
+    }
+    totalnr_ = trcrg_.stop - trcrg_.start + 1;
 
     for ( int idx=0; idx<sel_.size(); idx++ )
 	data_ += new TypeSet<float>;
@@ -635,6 +646,9 @@ od_int64 totalNr() const	{ return totalnr_; }
 
 int nextStep()
 {
+    if ( totalnr_ < 0 )
+	return Finished();
+
     StrmOper::seek( fm_.strm(), cFileHeaderSize + nrdone_ * fm_.traceBytes() );
     if ( !StrmOper::readBlock(fm_.strm(),buf_,SegyTrcHeaderLength) )
 	return Finished();
@@ -654,6 +668,7 @@ int nextStep()
     unsigned char		buf_[SegyTrcHeaderLength];
     const SEGY::HdrDef&		hdef_;
     const bool			needswap_;
+    Interval<int>		trcrg_;
     od_int64			nrdone_;
     od_int64			totalnr_;
 
@@ -671,7 +686,9 @@ void uiSEGYFileManip::plotReq( CallBacker* cb )
     }
     if ( selrows.isEmpty() ) return;
 
-    uiSEGYFileManipDataExtracter de( this, selrows, percfld_->getFValue() );
+    uiSEGYFileManipDataExtracter de( this, selrows, plotallbox_->isChecked() );
+    if ( de.totalnr_ < 0 )
+	return;
     uiTaskRunner tr( this );
     tr.execute( de );
     if ( de.data_[0]->size() < 2 )
@@ -682,7 +699,8 @@ void uiSEGYFileManip::plotReq( CallBacker* cb )
     for ( int idx=0; idx<de.data_.size(); idx++ )
     {
 	uiMainWin* mw = new uiMainWin( this, su );
-	uiSEGYTrcHdrValPlot* vp = new uiSEGYTrcHdrValPlot( mw );
+	uiSEGYTrcHdrValPlot* vp = new uiSEGYTrcHdrValPlot( mw, true,
+							   de.trcrg_.start );
 	vp->setData( *calcset_.hdrDef()[ selrows[idx] ],
 		     de.data_[idx]->arr(), de.data_[idx]->size() );
 	mw->show();

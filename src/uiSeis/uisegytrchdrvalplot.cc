@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.4 2011-03-11 12:57:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.5 2011-03-16 12:10:59 cvsbert Exp $";
 
 #include "uisegytrchdrvalplot.h"
 #include "uifunctiondisplay.h"
@@ -17,11 +17,12 @@ static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.4 2011-03-11 12:57:3
 #include "bendpointfinder.h"
 
 
-uiSEGYTrcHdrValPlot::uiSEGYTrcHdrValPlot( uiParent* p, bool sh )
+uiSEGYTrcHdrValPlot::uiSEGYTrcHdrValPlot( uiParent* p, bool sh, int tnr0 )
     : uiGroup(p,"Trace header values plot")
     , issingle_(sh)
     , tlbl2_(0)
     , slbl2_(0)
+    , trcnr0_(tnr0)
 {
     tlbl1_ = new uiLabel( this, "" );
     tlbl1_->setStretch( 2, 0 ); tlbl1_->setAlignment( Alignment::HCenter );
@@ -93,7 +94,7 @@ void uiSEGYTrcHdrValPlot::getBendPoints( const float* inp, int sz )
 {
     TypeSet<Coord> coords;
     for ( int idx=0; idx<sz; idx++ )
-	coords += Coord( idx+1, inp[idx] );
+	coords += Coord( trcnr0_+idx, inp[idx] );
 
     BendPointFinder2D bpf( coords, 0.1 );
     bpf.execute();
