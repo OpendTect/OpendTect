@@ -7,15 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.23 2011-02-01 09:41:23 nanne Exp $
+ RCS:		$Id: flthortools.h,v 1.24 2011-03-16 05:50:40 raman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
-#include "trigonometry.h"
 #include "positionlist.h"
+#include "sets.h"
 #include "surv2dgeom.h"
+#include "trigonometry.h"
 
 namespace EM { class Fault; class Horizon; }
 class IOObj;
@@ -29,12 +30,12 @@ public:
 
     int			nextID(int) const;
     int			add(const Coord3&);
-    int			add(const Coord3&,int trcnr);
+    int			add(const Coord3&,float trcnr);
     Coord3		get(int) const;
     const TypeSet<int>&	getIndices() const;
-    int			getTrcNr(int) const;
+    float		getTrcNr(int) const;
     void		set(int,const Coord3&);
-    void		set(int,const Coord3&,int);
+    void		set(int,const Coord3&,float);
     void		setIndices(const TypeSet<int>&);
     void		remove(int);
     bool		isDefined(int) const;
@@ -67,22 +68,24 @@ public:
     void		addValue(int id,const Coord3&)	{}
     void		computeRange();
     bool                includes(const BinID&) const;
+    bool		isOK() const;
 
 protected:
 
     void		computeTraceSegments();
-    TypeSet<Line2>	tracesegs_;
-
     Coord		getIntersection(const BinID&,float,
 	    				const BinID&,float) const;
+    bool		handleUntrimmed(const BinIDValueSet&,Interval<float>&,
+	    				const BinID&,const BinID&,bool) const;
 
     bool		isinl_;
     int			nr_;
     TypeSet<Coord3>	coords_;
     TypeSet<int>	coordindices_;
-    TypeSet<int>	trcnrs_;	// For 2D only;
+    TypeSet<float>	trcnrs_;	// For 2D only;
     Interval<int>	trcrange_;
     Interval<float>	zrange_;
+    TypeSet<Line2>	tracesegs_;
 
     Threads::Mutex	mutex_;
 };
