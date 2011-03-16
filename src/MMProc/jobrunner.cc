@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobrunner.cc,v 1.44 2010-11-18 07:11:12 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobrunner.cc,v 1.45 2011-03-16 10:24:17 cvsranojay Exp $";
 
 #include "jobrunner.h"
 #include "jobinfo.h"
@@ -268,6 +268,9 @@ const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
     static FilePath basefp;
 
     BufferString basenm( hd.name() );
+#ifdef __win__
+    replaceCharacter( basenm.buf(), '.',  '_' );
+#endif
     basenm += "_"; basenm += ji.descnr_;
 
     basefp = procdir_;
