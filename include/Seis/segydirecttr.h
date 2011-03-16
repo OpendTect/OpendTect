@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.9 2011-03-16 12:10:40 cvsbert Exp $
+ RCS:		$Id: segydirecttr.h,v 1.10 2011-03-16 16:17:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seispsioprov.h"
 #include "seistrctr.h"
 namespace SEGY { class DirectDef; }
+namespace PosInfo { class CubeData; }
 class SEGYSeisTrcTranslator;
 
 
@@ -111,6 +112,7 @@ public:
     bool		supportsGoTo() const		{ return true; }
     bool		isReadDefault() const		{ return true; }
     bool		goTo(const BinID&);
+    BinID		curBinID() const;
 
     void		usePar(const IOPar&);
 
@@ -127,6 +129,15 @@ protected:
 
     SEGY::DirectDef*	def_;
     mutable SEGYSeisTrcTranslator* tr_;
+    bool		headerread_;
+    int			curfilenr_;
+    int			ild_;
+    int			iseg_;
+    int			itrc_;
+
+    void		initVars();
+    const PosInfo::CubeData& cubeData() const;
+    bool		toNextTrace();
 
 };
 

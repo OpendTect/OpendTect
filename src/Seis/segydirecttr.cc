@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.16 2011-03-16 15:44:18 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.17 2011-03-16 16:17:39 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: segydirecttr.cc,v 1.16 2011-03-16 15:44:18 cvsb
 #include "ioobj.h"
 #include "ptrman.h"
 #include "dirlist.h"
+#include "seisselection.h"
 #include "seispacketinfo.h"
 
 
@@ -249,7 +250,7 @@ void SEGYDirectSeisTrcTranslator::cleanUp()
 
 void SEGYDirectSeisTrcTranslator::initVars()
 {
-    ild_ = iseg_ = itrc_ = 0;
+    ild_ = -1; iseg_ = itrc_ = 0;
     curfilenr_ = -1;
     headerread_ = false;
 }
@@ -257,6 +258,8 @@ void SEGYDirectSeisTrcTranslator::initVars()
 
 bool SEGYDirectSeisTrcTranslator::commitSelections_()
 {
+    if ( !toNextTrace() )
+	{ errmsg = "No (selected) trace found"; return false; }
     return true;
 }
 
@@ -289,12 +292,20 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
 }
 
 
+BinID SEGYDirectSeisTrcTranslator::curBinID() const
+{
+    if ( ild_ < 0 ) return BinID(0,0);
+
+    const PosInfo::LineData& ld = *cubeData()[ild_];
+    return BinID( ld.linenr_, ld.segments_[iseg_].atIndex( itrc_ ) );
+}
+
+
 bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
     if ( !def_ || def_->isEmpty() || ild_ < 0 ) return false;
 
-    const PosInfo::LineData& ld = *cubeData()[ild_];
-    const BinID bid( ld.linenr_, ld.segments_[iseg_].atIndex( itrc_ ) );
+    const BinID bid( curBinID() );
     SEGY::FileDataSet::TrcIdx fdsidx = def_->find( Seis::PosKey(bid), false );
     if ( !fdsidx.isValid() )
         { pErrMsg("Huh"); return false; }
@@ -355,21 +366,34 @@ bool SEGYDirectSeisTrcTranslator::toNextTrace()
     if ( !def_ )
 	return false;
     const PosInfo::CubeData& cd = cubeData();
+    const bool atstart = ild_ == -1;
+    if ( atstart )
+	ild_ = 0;
     if ( ild_ < 0 || ild_ >= cd.size() )
 	return false;
 
     const PosInfo::LineData& ld = *cd[ild_];
     const PosInfo::LineData::Segment& seg = ld.segments_[iseg_];
-    itrc_++;
-    if ( seg.atIndex(itrc_) > seg.stop )
+    if ( !atstart )
+	itrc_++;
+
+    while ( true )
     {
-	iseg_++; itrc_ = 0;
-	if ( iseg_ >= ld.segments_.size() )
+	if ( seg.atIndex(itrc_) > seg.stop )
 	{
-	    ild_++; iseg_ = 0;
-	    if ( ild_ >= cd.size() )
-		{ ild_ = -1; return false; }
+	    iseg_++; itrc_ = 0;
+	    if ( iseg_ >= ld.segments_.size() )
+	    {
+		ild_++; iseg_ = 0;
+		if ( ild_ >= cd.size() )
+		    { ild_ = -2; return false; }
+	    }
 	}
+
+	if ( !seldata || seldata->isOK(curBinID()) )
+	    return true;
+
+	itrc_++;
     }
 
     return true;

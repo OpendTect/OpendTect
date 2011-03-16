@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.20 2011-03-16 12:10:40 cvsbert Exp $
+ RCS:		$Id: segydirectdef.h,v 1.21 2011-03-16 16:17:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,9 +35,9 @@ mClass DirectDef
 public:
 
     			DirectDef();			//!< Create empty
-    			DirectDef(const char*);	//!< Read from file
+    			DirectDef(const char*);		//!< Read from file
 			~DirectDef();
-
+    bool		isEmpty() const;
 
 			//Functions to read/query
     bool		readFromFile(const char*);
