@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.15 2011-03-16 12:10:40 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.16 2011-03-16 15:44:18 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: segydirecttr.cc,v 1.15 2011-03-16 12:10:40 cvsb
 #include "ioobj.h"
 #include "ptrman.h"
 #include "dirlist.h"
+#include "seispacketinfo.h"
 
 
 class SEGYDirectPSIOProvider : public SeisPSIOProvider
@@ -228,12 +229,13 @@ SEGYDirectSeisTrcTranslator::SEGYDirectSeisTrcTranslator( const char* s1,
     , def_(0)
     , tr_(0)
 {
+    cleanUp();
 }
 
 
 SEGYDirectSeisTrcTranslator::~SEGYDirectSeisTrcTranslator()
 {
-    cleanUp();
+    initVars();
 }
 
 
@@ -241,42 +243,155 @@ void SEGYDirectSeisTrcTranslator::cleanUp()
 {
     delete def_; def_ = 0;
     delete tr_; tr_ = 0;
+    initVars();
+}
+
+
+void SEGYDirectSeisTrcTranslator::initVars()
+{
+    ild_ = iseg_ = itrc_ = 0;
+    curfilenr_ = -1;
+    headerread_ = false;
 }
 
 
 bool SEGYDirectSeisTrcTranslator::commitSelections_()
 {
-    return false;
+    return true;
 }
 
 
 bool SEGYDirectSeisTrcTranslator::initRead_()
 {
-    return false;
+    initVars();
+    mDynamicCastGet(StreamConn*,strmconn,conn)
+    if ( !strmconn )
+	{ errmsg = "Cannot open definition file"; return false; }
+
+    const BufferString fnm( strmconn->fileName() );
+    delete strmconn; conn = 0;
+    def_ = new SEGY::DirectDef( fnm );
+    if ( def_->errMsg() && *def_->errMsg() )
+	{ errmsg = def_->errMsg(); return false; }
+    else if ( def_->isEmpty() )
+	{ errmsg = "Empty input file"; return false; }
+
+    const SEGY::FileDataSet& fds = def_->fileDataSet();
+    pinfo.cubedata = &def_->cubeData();
+    insd = fds.getSampling();
+    innrsamples = fds.getTrcSz();
+    pinfo.nr = 1;
+    pinfo.fullyrectandreg = pinfo.cubedata->isFullyRectAndReg();
+    pinfo.cubedata->getInlRange( pinfo.inlrg );
+    pinfo.cubedata->getCrlRange( pinfo.crlrg );
+    addComp( DataCharacteristics(), "Data" );
+    return true;
 }
 
 
 bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
-    return false;
+    if ( !def_ || def_->isEmpty() || ild_ < 0 ) return false;
+
+    const PosInfo::LineData& ld = *cubeData()[ild_];
+    const BinID bid( ld.linenr_, ld.segments_[iseg_].atIndex( itrc_ ) );
+    SEGY::FileDataSet::TrcIdx fdsidx = def_->find( Seis::PosKey(bid), false );
+    if ( !fdsidx.isValid() )
+        { pErrMsg("Huh"); return false; }
+
+    if ( fdsidx.filenr_ != curfilenr_ )
+    {
+	curfilenr_ = fdsidx.filenr_;
+	delete tr_;
+	tr_ = createTranslator( *def_, curfilenr_ );
+    }
+
+    if ( !tr_ || !tr_->goToTrace(fdsidx.trcidx_) )
+	return false;
+
+    if ( !tr_->readInfo(ti) || ti.binid != bid )
+	{ errmsg = tr_->errMsg(); return false; }
+
+    headerread_ = true;
+    return true;
 }
 
 
 bool SEGYDirectSeisTrcTranslator::read( SeisTrc& trc )
 {
-    return false;
+    if ( !headerread_ && !readInfo(trc.info()) )
+	return false;
+
+    if ( !tr_->read(trc) )
+	return false;
+
+    headerread_ = false;
+    toNextTrace();
+    return true;
 }
 
 
 bool SEGYDirectSeisTrcTranslator::skip( int ntrcs )
 {
-    return false;
+    while ( ntrcs > 0 )
+    {
+	if ( !toNextTrace() )
+	    return false;
+	ntrcs--;
+    }
+    return true;
+}
+
+
+const PosInfo::CubeData& SEGYDirectSeisTrcTranslator::cubeData() const
+{
+    static PosInfo::CubeData empty;
+    return def_ ? def_->cubeData() : empty;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::toNextTrace()
+{
+    if ( !def_ )
+	return false;
+    const PosInfo::CubeData& cd = cubeData();
+    if ( ild_ < 0 || ild_ >= cd.size() )
+	return false;
+
+    const PosInfo::LineData& ld = *cd[ild_];
+    const PosInfo::LineData::Segment& seg = ld.segments_[iseg_];
+    itrc_++;
+    if ( seg.atIndex(itrc_) > seg.stop )
+    {
+	iseg_++; itrc_ = 0;
+	if ( iseg_ >= ld.segments_.size() )
+	{
+	    ild_++; iseg_ = 0;
+	    if ( ild_ >= cd.size() )
+		{ ild_ = -1; return false; }
+	}
+    }
+
+    return true;
 }
 
 
 bool SEGYDirectSeisTrcTranslator::goTo( const BinID& bid )
 {
-    return false;
+    if ( !def_ ) return false;
+
+    const PosInfo::CubeData& cd = cubeData();
+    const int newild = cd.indexOf( bid.inl );
+    if ( newild < 0 )
+	return false;
+    const PosInfo::LineData& ld = *cd[newild];
+    const int newiseg = ld.segmentOf( bid.crl );
+    if ( newiseg < 0 )
+	return false;
+
+    ild_ = newild; iseg_ = newiseg;
+    itrc_ = ld.segments_[ild_].getIndex( bid.crl );
+    return true;
 }
 
 
