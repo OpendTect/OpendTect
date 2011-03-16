@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.126 2011-03-15 21:12:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.127 2011-03-16 16:12:25 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -74,14 +74,14 @@ public:
 Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d, 
 			      const Attrib::Data2DHolder& dh,  int seriesid,
 			      Array2DImpl<float>* array,
-			      const SamplingData<float>& outputzsd, int attrib )
+			      float outputzstep, int attrib )
     : data2dh_( dh )
     , arr_( array )	
     , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
     , s2d_( s2d )
     , attrib_( attrib )
     , outputptr_( 0 )
-    , outputzsd_( outputzsd )	       
+    , outputzstep_( outputzstep )	       
 {
     sx_ = arr_->info().getSize(0);
     sy_ = arr_->info().getSize(1);    
@@ -91,7 +91,7 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
 Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d, 
 			      const Attrib::Data2DHolder& dh, int seriesid,
 			      float* outptr, int sx, int sy,
-			      const SamplingData<float>& outputzsd, int attrib )
+			      float outputzstep, int attrib )
     : data2dh_( dh )
     , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
     , s2d_( s2d )
@@ -99,7 +99,7 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
     , outputptr_( outptr )
     , sx_( sx )
     , sy_ (sy )
-    , outputzsd_( outputzsd )	       
+    , outputzstep_( outputzstep )	       
 {}
 
 
@@ -118,7 +118,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const float firstz = data2dh_.dataset_[0]->z0_*sd.step;
     const int firstdhsample = sd.nearestIndex( firstz );  
 
-    const bool samplebased = mIsEqual( sd.step, outputzsd_.step, 1e-3 ) &&
+    const bool samplebased = mIsEqual( sd.step, outputzstep_, 1e-3 ) &&
 	mIsEqual( sd.getIndex(firstz), firstdhsample, 1e-3 );
 
     const TypeSet<int>& allpos = s2d_.trcdisplayinfo_.alltrcnrs;
@@ -169,7 +169,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    {
 		arrzidx = idy;
 		val = mUdf(float);
-		const float offset = idy * outputzsd_.step / sd.step;
+		const float offset = idy * outputzstep_ / sd.step;
 		IdxAble::interpolateRegWithUdf( *dataseries, nrsamp,
 						offset+firstz, val );
 	    }
@@ -193,7 +193,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const Seis2DDisplay&		s2d_;
     const int				valseridx_;
     int					attrib_;
-    const SamplingData<float>&		outputzsd_;
+    float				outputzstep_;
 };
 
 
@@ -203,10 +203,11 @@ class Seis2DArray : public Array2D<float>
 public:
 
 Seis2DArray( const Seis2DDisplay& s2d, const Attrib::Data2DHolder& d2dh,
-	     const StepInterval<float>& arrayzrg, int zsz, int attrib )
+	const StepInterval<float>& arrayzrg, int zsz, float opzstep, int attrib)
     : s2d_( s2d )
-    , data2dh_( d2dh )
+    , data2dh_( d2dh )		      
     , arrayzrg_( arrayzrg )
+    , outputzstep_( opzstep )			   
     , attrib_( attrib )
     , info_( *new Array2DInfoImpl( s2d.trcdisplayinfo_.size, zsz ) )
 {}
@@ -227,7 +228,7 @@ void getAll(float* ptr) const
     memsetter.execute();
 
     Seis2DTextureDataArrayFiller arrayfiller( s2d_, data2dh_, s2d_.seriesidx_, 
-	    ptr, info().getSize(0), info().getSize(1), arrayzrg_, attrib_ );
+	    ptr, info().getSize(0), info().getSize(1), outputzstep_, attrib_ );
     arrayfiller.execute();
 }
 
@@ -283,6 +284,7 @@ protected:
     const StepInterval<float>&		arrayzrg_;
     Array2DInfoImpl&			info_;
     int					attrib_;
+    float				outputzstep_;
 };
 
 
@@ -604,7 +606,8 @@ void Seis2DDisplay::setData( int attrib,
 	channels_->setNrVersions( attrib, nrseries );
 
 #ifdef mUseSeis2DArray
-    Seis2DArray arr( *this, data2dh, arrayzrg, arrzsz, attrib );
+    Seis2DArray arr( *this, data2dh, arrayzrg, arrzsz, 
+	    trcdisplayinfo_.zrg.step, attrib );
 #endif
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
@@ -615,7 +618,7 @@ void Seis2DDisplay::setData( int attrib,
 	arr->setAll( mUdf(float) );
 
 	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, seriesidx_, 
-		arr, arrayzrg, attrib );
+		arr, arrayzrg, trcdisplayinfo_.zrg.step, attrib );
 	if ( !arrayfiller.execute() )
 	    continue;
 #endif
