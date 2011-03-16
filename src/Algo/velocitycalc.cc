@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.39 2011-03-15 15:51:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.40 2011-03-16 08:58:03 cvsbruno Exp $";
 
 #include "velocitycalc.h"
 
@@ -39,15 +39,15 @@ bool TimeDepthModel::isOK() const
 
 
 float TimeDepthModel::getDepth( float time ) const
-{ return isOK() && convertTo( depths_, times_, sz_, time, false ); }
+{ return isOK() ? convertTo( depths_, times_, sz_, time, false ) : mUdf(float);}
 
 
 float TimeDepthModel::getTime( float dpt ) const
-{ return isOK() && convertTo( depths_, times_, sz_, dpt, true ); }
+{ return isOK() ? convertTo( depths_, times_, sz_, dpt, true ) : mUdf(float); }
 
 
 float TimeDepthModel::getVelocity( float dpt ) const
-{ return isOK() && getVelocity( depths_, times_, sz_, dpt ); }
+{ return isOK() ? getVelocity( depths_, times_, sz_, dpt ) : mUdf(float); }
 
 
 float TimeDepthModel::getDepth( const float* dpths, const float* times,
