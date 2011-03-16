@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.75 2011-03-15 12:19:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.76 2011-03-16 11:46:12 cvsnageswara Exp $";
 
 #include "uiexphorizon.h"
 
@@ -146,9 +146,12 @@ static void writeGF( std::ostream& strm, const BinID& bid, float z,
 
 void uiExportHorizon::writeHeader( std::ostream& strm )
 {
-    // TODO: add attribute names
     if ( headerfld_->getIntValue() == 0 )
 	return;
+
+    BufferStringSet selattribs;
+    if ( infld_->haveAttrSel() )
+	infld_->getSelAttributes( selattribs );
 
     const bool doxy = typfld_->getIntValue() == 0;
     const bool addzpos = zfld_->getIntValue() != 1;
@@ -157,6 +160,13 @@ void uiExportHorizon::writeHeader( std::ostream& strm )
 	BufferString posstr = doxy ? "\"X\"\t\"Y\""
 				   : "\"Inline\"\t\"Crossline\"";
 	if ( addzpos ) posstr += "\t\"Z\"";
+
+	for ( int idx=0; idx<selattribs.size(); idx++ )
+	{
+	    posstr += "\t\"";
+	    posstr += selattribs.get( idx ); posstr += "\"";
+	}
+
 	strm << "# " << posstr.buf();
     }
     else
@@ -167,6 +177,14 @@ void uiExportHorizon::writeHeader( std::ostream& strm )
 	    strm << "# 1: Inline\n# 2: Crossline";
 	if ( addzpos )
 	    strm << "\n# 3: Z";
+
+	int colidx = addzpos ? 4 : 3;
+	for ( int idx=0; idx<selattribs.size(); idx++ )
+	{
+	    strm << "\n# " << colidx << ": ";
+	    strm << selattribs.get( idx );
+	    colidx++;
+	}
     }
 
     strm << "\n# - - - - - - - - - -\n";
