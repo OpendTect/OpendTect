@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.105 2011-03-16 16:17:08 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.106 2011-03-16 16:19:47 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -144,18 +144,12 @@ void SeisTrcReader::startWork()
 
 	pscditer_ = new PosInfo::CubeDataIterator( psrdr_->posData() );
 	if ( !pscditer_->next(curpsbid_) )
-	{
-	    errmsg_ = "Pre-stack data storage is empty";
-	    return;
-	}
+	    { errmsg_ = "Pre-stack data storage is empty"; return; }
 	pscditer_->reset();
 	return;
     }
     else if ( is2d )
-    {
-	tbuf_ = new SeisTrcBuf( false );
-	return;
-    }
+	{ tbuf_ = new SeisTrcBuf( false ); return; }
 
     if ( !trl ) return;
 
@@ -178,7 +172,8 @@ void SeisTrcReader::startWork()
 	outer->set( seldata->inlRange(), seldata->crlRange() );
     }
 
-    sttrl.commitSelections();
+    if ( !sttrl.commitSelections() )
+	{ errmsg_ = sttrl.errMsg(); return; }
 }
 
 
