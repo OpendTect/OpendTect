@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.13 2010-08-19 08:32:39 cvsranojay Exp $";
+static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.14 2011-03-17 16:32:01 cvskarthika Exp $";
 
 
 #include "visvolorthoslice.h"
@@ -29,40 +29,40 @@ const char* OrthogonalSlice::slicestr()  { return "Slice"; }
 
 OrthogonalSlice::OrthogonalSlice()
     : VisualObjectImpl( false )
-    , slice(new SoOrthoSlice)
-    , dragger(DepthTabPlaneDragger::create())
-    , pickstyle(PickStyle::create())
+    , slice_(new SoOrthoSlice)
+    , dragger_(DepthTabPlaneDragger::create())
+    , pickstyle_(PickStyle::create())
     , motion(this)
-    , xdatasz(0), ydatasz(0), zdatasz(0)
+    , xdatasz_(0), ydatasz_(0), zdatasz_(0)
 {
-    dragger->ref();
-    dragger->setMaterial(0);
-    dragger->removeScaleTabs();
-    dragger->motion.notify( mCB(this,OrthogonalSlice,draggerMovementCB) );
-    addChild( dragger->getInventorNode() );
+    dragger_->ref();
+    dragger_->setMaterial(0);
+    dragger_->removeScaleTabs();
+    dragger_->motion.notify( mCB(this,OrthogonalSlice,draggerMovementCB) );
+    addChild( dragger_->getInventorNode() );
     
-    pickstyle->ref();
-    pickstyle->setStyle( PickStyle::Unpickable );
-    addChild( pickstyle->getInventorNode() );
+    pickstyle_->ref();
+    pickstyle_->setStyle( PickStyle::Unpickable );
+    addChild( pickstyle_->getInventorNode() );
 
-    slice->alphaUse = SoOrthoSlice::ALPHA_AS_IS;
+    slice_->alphaUse = SoOrthoSlice::ALPHA_AS_IS;
     
-    addChild( slice );
+    addChild( slice_ );
 }
 
 
 OrthogonalSlice::~OrthogonalSlice()
 {
-    dragger->motion.remove( mCB(this, OrthogonalSlice, draggerMovementCB ));
-    dragger->unRef();
+    dragger_->motion.remove( mCB(this, OrthogonalSlice, draggerMovementCB ));
+    dragger_->unRef();
 
-    pickstyle->unRef();
+    pickstyle_->unRef();
 }
 
 
 void OrthogonalSlice::setVolumeDataSize(int xsz, int ysz, int zsz)
 {
-    xdatasz = xsz; ydatasz = ysz; zdatasz = zsz;
+    xdatasz_ = xsz; ydatasz_ = ysz; zdatasz_ = zsz;
     draggerMovementCB(0);
 }
 
@@ -71,42 +71,42 @@ void OrthogonalSlice::setSpaceLimits( const Interval<float>& x,
 				      const Interval<float>& y,
 				      const Interval<float>& z )
 {
-    dragger->setSpaceLimits( x,y,z );
-    dragger->setCenter( Coord3(x.center(),y.center(),z.center()) );
-    dragger->setSize( Coord3(x.width(),y.width(),z.width()) );
+    dragger_->setSpaceLimits( x,y,z );
+    dragger_->setCenter( Coord3(x.center(),y.center(),z.center()) );
+    dragger_->setSize( Coord3(x.width(),y.width(),z.width()) );
     draggerMovementCB(0);
 }
 
 
 void OrthogonalSlice::setCenter( const Coord3& newcenter, bool alldims )
 {
-    dragger->setCenter( newcenter, alldims );
+    dragger_->setCenter( newcenter, alldims );
     draggerMovementCB(0);
 }
 
 
 visBase::DepthTabPlaneDragger* OrthogonalSlice::getDragger() const
 {
-    return dragger;
+    return dragger_;
 }
 
 
 int OrthogonalSlice::getDim() const
 {
-    return slice->axis.getValue();
+    return slice_->axis.getValue();
 }
 
 
 void OrthogonalSlice::setDim( int dim )
 {
     if ( !dim )
-	slice->axis = SoOrthoSlice::X;
+	slice_->axis = SoOrthoSlice::X;
     else if ( dim==1 )
-	slice->axis = SoOrthoSlice::Y;
+	slice_->axis = SoOrthoSlice::Y;
     else
-	slice->axis = SoOrthoSlice::Z;
+	slice_->axis = SoOrthoSlice::Z;
 
-    dragger->setDim( dim );
+    dragger_->setDim( dim );
     draggerMovementCB(0);
 }
 
@@ -123,24 +123,24 @@ float OrthogonalSlice::getPosition() const
 
 
 void OrthogonalSlice::setSliceNr( int nr )
-{ slice->sliceNumber = nr; }
+{ slice_->sliceNumber = nr; }
 
 int  OrthogonalSlice::getSliceNr() const
-{ return slice->sliceNumber.getValue(); }
+{ return slice_->sliceNumber.getValue(); }
 
 
 NotifierAccess& OrthogonalSlice::dragStart()
-{ return dragger->started; }
+{ return dragger_->started; }
 
 
 NotifierAccess& OrthogonalSlice::dragFinished()
-{ return dragger->finished; }
+{ return dragger_->finished; }
 
 
 void OrthogonalSlice::draggerMovementCB( CallBacker* cb )
 {
     const int dim = getDim();
-    float draggerpos = dragger->center()[dim];
+    float draggerpos = dragger_->center()[dim];
 
     int nrslices;
     Interval<float> range;
@@ -163,24 +163,36 @@ void OrthogonalSlice::draggerMovementCB( CallBacker* cb )
 void OrthogonalSlice::getSliceInfo( int& nrslices, Interval<float>& range) const
 {
     Interval<float> xrange, yrange, zrange;
-    dragger->getSpaceLimits( xrange, yrange, zrange );
+    dragger_->getSpaceLimits( xrange, yrange, zrange );
 
     const int dim = getDim();
     if ( dim == 0 )
     {
-	nrslices = xdatasz;
+	nrslices = xdatasz_;
 	range = xrange;
     }
     else if ( dim == 1 )
     {
-	nrslices = ydatasz;
+	nrslices = ydatasz_;
 	range = yrange;
     }
     else
     {
-	nrslices = zdatasz;
+	nrslices = zdatasz_;
 	range = zrange;
     }
+}
+
+
+void OrthogonalSlice::removeDragger()
+{
+	if ( dragger_ )
+	{
+		dragger_->motion.remove( mCB(this, OrthogonalSlice, draggerMovementCB ));
+		removeChild( dragger_->getInventorNode() );
+		dragger_->unRef();
+		dragger_ = 0;
+	}
 }
 
 
