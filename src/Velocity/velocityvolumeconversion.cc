@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.6 2010-10-25 19:19:59 cvskris Exp $";
+static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.7 2011-03-17 17:18:11 cvskris Exp $";
 
 #include "velocityvolumeconversion.h"
 
@@ -124,9 +124,11 @@ bool VolumeConverter::doPrepare( int nrthreads )
     }
 
     if ( (inpdesc.type_ != VelocityDesc::Interval &&
-	 inpdesc.type_!=VelocityDesc::RMS ) ||
+	 inpdesc.type_!=VelocityDesc::RMS &&
+	 inpdesc.type_!=VelocityDesc::Avg) ||
          ( veldesc_.type_ != VelocityDesc::Interval &&
-	 veldesc_.type_!=VelocityDesc::RMS ) ||
+	 veldesc_.type_!=VelocityDesc::RMS &&
+	 veldesc_.type_!=VelocityDesc::Avg ) ||
 	 inpdesc.type_ == veldesc_.type_ )
     {
 	errmsg_ = "Input/output velocities are not interval or RMS, "
