@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.30 2010-12-28 18:05:52 cvskarthika Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.31 2011-03-17 14:42:32 cvsyuancheng Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -316,7 +316,7 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
     }
 
     ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
-	mNrColors-1, *datacache_, indexcache_ );
+	mNrColors-2, *datacache_, indexcache_ );
 
     if ( (tr&&!tr->execute( indexer ) ) || !indexer.execute() )
 	return;
