@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpattribspi.cc,v 1.4 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexpattribspi.cc,v 1.5 2011-03-17 05:24:20 cvssatyaki Exp $";
 
 #include "uimenu.h"
 #include "uiodmain.h"
 #include "plugins.h"
 
+#include "uigrubbfilterattrib.h"
 #include "uisemblanceattrib.h"
 
 extern "C" int GetuiExpAttribsPluginType()
@@ -35,5 +36,6 @@ extern "C" PluginInfo* GetuiExpAttribsPluginInfo()
 extern "C" const char* InituiExpAttribsPlugin( int, char** )
 {
     uiSemblanceAttrib::initClass();
+    uiGrubbFilterAttrib::initClass();
     return 0;
 }
