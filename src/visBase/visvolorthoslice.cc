@@ -4,18 +4,14 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.14 2011-03-17 16:32:01 cvskarthika Exp $";
+static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.15 2011-03-17 16:58:00 cvskarthika Exp $";
 
 
 #include "visvolorthoslice.h"
 
 #include "iopar.h"
-#include "ranges.h"
-#include "visdataman.h"
 #include "visdepthtabplanedragger.h"
 #include "vispickstyle.h"
-#include "visselman.h"
-#include "vistexture3.h"
 
 #include "VolumeViz/nodes/SoOrthoSlice.h"
 

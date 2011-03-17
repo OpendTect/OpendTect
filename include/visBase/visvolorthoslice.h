@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: visvolorthoslice.h,v 1.11 2011-03-17 16:32:17 cvskarthika Exp $
+ RCS:           $Id: visvolorthoslice.h,v 1.12 2011-03-17 16:58:00 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "position.h"
 
 class SoOrthoSlice;
-template <class T> class Interval;
 
 
 namespace visBase
