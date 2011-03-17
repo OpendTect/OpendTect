@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.33 2011-03-04 03:20:19 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.34 2011-03-17 11:24:07 cvssatyaki Exp $";
 
 
 #include "uiscalingattrib.h"
@@ -128,13 +128,9 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     lowenergymute->setValue( 0 );
 
     // for Gain Correction
-    nrtrcfld_ = new uiGenInput( this, "Nr of Traces for Examination",
-	    			IntInpSpec(50) );
-    nrtrcfld_->attach( alignedBelow, typefld );
-    
     analysebut_ = new uiPushButton( this, "Analyse",
 	    			    mCB(this,uiScalingAttrib,analyseCB), false);
-    analysebut_->attach( alignedBelow, nrtrcfld_ );
+    analysebut_->attach( alignedBelow, typefld );
 
     typeSel(0);
     statsSel(0);
@@ -158,7 +154,6 @@ void uiScalingAttrib::typeSel( CallBacker* )
     squrgfld->display( typeval==3 );
     
     analysebut_->display( typeval==4 );
-    nrtrcfld_->display( typeval==4 );
 }
 
 
@@ -364,6 +359,9 @@ uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
     , linesfld_(0)
     , subvolfld_(0)
 {
+    nrtrcfld_ = new uiGenInput( this, "Nr of Traces for Examination",
+	    			IntInpSpec(50) );
+    
     if ( is2d )
     {
 	SeisIOObjInfo objinfo( mid );
@@ -372,16 +370,21 @@ uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
 	linesfld_ = new uiLabeledComboBox( this, "Gain Analyisis on line:" );
 	for ( int idx=0; idx<linenames.size(); idx++ )
 	    linesfld_->box()->addItem( linenames.get(idx) );
+	
+	linesfld_->attach( alignedBelow, nrtrcfld_ );
     }
     else
+    {
 	subvolfld_ = new uiSelSubvol( this, false );
+	subvolfld_->attach( alignedBelow, nrtrcfld_ );
+    }
 }
+
+int nrTrcs()
+{ return nrtrcfld_->getIntValue(); }
 
 LineKey lineKey() const
-{
-    return LineKey( linesfld_->box()->text(), attribnm_ );
-}
-
+{ return LineKey( linesfld_->box()->text(), attribnm_ ); }
 
 CubeSampling subVol() const
 {
@@ -396,6 +399,7 @@ protected:
 
     BufferString	attribnm_;
     
+    uiGenInput*		nrtrcfld_;
     uiSelSubvol*	subvolfld_;
     uiLabeledComboBox*	linesfld_;
 };
@@ -466,7 +470,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	seisinfo.getRanges( cs );
     }
 
-    const int nrtrcs = nrtrcfld_->getIntValue();
+    const int nrtrcs = subseldlg.nrTrcs();
     if ( nrtrcs <= 0 )
 	return uiMSG().error( "Select proper number of traces" );
 
