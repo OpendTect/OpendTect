@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.13 2010-11-15 09:35:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.14 2011-03-17 12:22:26 cvsnageswara Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -21,21 +21,23 @@ static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.13 2010-11-15 09:35:45
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "ptrman.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
-#include "keystrs.h"
-#include "uifileinput.h"
-#include "uicombobox.h"
-#include "uilistbox.h"
+
 #include "uibutton.h"
+#include "uicombobox.h"
+#include "uifileinput.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 
 #include <stdio.h>
 
+static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
        				      const ObjectSet<SurfaceInfo>& hinfos )
@@ -57,11 +59,14 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     llbox->attach( alignedBelow, lcbox );
     linenmfld_ = llbox->box();
 
+    headerfld_ = new uiGenInput( this, "Header", StringListInpSpec(hdrtyps) );
+    headerfld_->attach( alignedBelow, llbox );
+
     udffld_ = new uiGenInput( this, "Write undefined parts? Undef value",
 	    		     StringInpSpec(sKey::FloatUdf) );
     udffld_->setChecked( true );
     udffld_->setWithCheck( true );
-    udffld_->attach( alignedBelow, llbox );
+    udffld_->attach( alignedBelow, headerfld_ );
 
     wrlnmsbox_ = new uiCheckBox( this, "Write line name" );
     wrlnmsbox_->attach( alignedBelow, udffld_ );
@@ -74,6 +79,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 	zbox_ = new uiCheckBox( this, "Z in feet" );
 	setchk = SI().depthsInFeetByDefault();
     }
+
     zbox_->setChecked( setchk );
     zbox_->attach( rightTo, wrlnmsbox_ );
 
@@ -144,6 +150,7 @@ bool uiExport2DHorizon::doExport()
 		     : (SI().zIsTime() ? 1000 : mToFeetFactor);
     const bool wrlnms = wrlnmsbox_->isChecked();
     char buf[180];
+    writeHeader( *sd.ostrm );
     for ( int idx=0; idx< linenms.size(); idx++ )
     {
 	BufferString linename = linenms.get( idx );
@@ -208,6 +215,44 @@ bool uiExport2DHorizon::doExport()
 }
 
 
+void uiExport2DHorizon::writeHeader( std::ostream& strm )
+{
+    if ( headerfld_->getIntValue() == 0 )
+	return;
+
+    const bool wrtlnm = wrlnmsbox_->isChecked();
+    BufferString zstr( "Z", zbox_->isChecked() ? "(ms)" : "(s)" );
+    BufferString headerstr;
+    if ( headerfld_->getIntValue() == 1 )
+    {
+	wrtlnm ? headerstr = "\"Line name\"\t\"X\"\t\"Y\"\t\"TrcNr\"\t"
+	       : headerstr = " \"X\"\t\"Y\"\t";
+
+	headerstr.add( "\"" ).add( zstr ).add( "\"" );
+    }
+    else
+    {
+	int id = 1;
+	BufferString str( wrtlnm ? " LineName" : "" );
+	if ( !str.isEmpty() )
+	{
+	    headerstr.add( id ).add( ":" ).add( str ).add( "\n" ).add( "# " );
+	    id++;
+	}
+
+	headerstr.add( id ).add( ": " ).add( "X\n" );
+	headerstr.add( "# " ).add( ++id ).add( ": " ).add( "Y\n" );
+	if ( wrtlnm )
+	    headerstr.add( "# " ).add( ++id ).add( ": " ).add( "TraceNr\n" );
+
+	headerstr.add( "# " ).add( ++id ).add( ": " ).add( zstr );
+    }
+
+    strm << "# " << headerstr << '\n';
+    strm << "#-------------------" << '\n';
+}
+
+
 bool uiExport2DHorizon::acceptOK( CallBacker* )
 {
     if ( !strcmp(outfld_->fileName(),"") )
@@ -240,10 +285,6 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
     EM::SurfaceIOData emdata;
     BufferString errmsg = em.getSurfaceData( ioobj->key(), emdata );
     if ( !errmsg.isEmpty() ) return;
-    /*PtrMan<IOPar> pars = em.getSurfacePars( *ioobj );
-    if ( !pars ) return;
 
-    BufferStringSet linenames;
-    pars->get( "Line names", linenames );*/
     linenmfld_->addItems( emdata.linenames );
 }
