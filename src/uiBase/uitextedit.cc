@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.45 2010-04-15 15:39:56 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.46 2011-03-18 06:24:50 cvsnanne Exp $";
 
 
 #include "uitextedit.h"
@@ -132,9 +132,10 @@ bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 	*sd.ostrm << text();
     else
     {
+	char fullline[linelen+1];
 	BufferString inptxt( text() );
 	char* ptr = inptxt.buf();
-	while ( *ptr )
+	while ( ptr && *ptr )
 	{
 	    char* startptr = ptr;
 	    ptr = strchr( ptr, '\n' );
@@ -148,7 +149,17 @@ bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 			startptr[linelen] = '\0';
 		}
 	    }
-	    *sd.ostrm << startptr;
+
+	    const int lnlen = strlen( startptr );
+	    if ( linelen < 1 || lnlen==linelen )
+		*sd.ostrm << startptr;
+	    else
+	    {
+		memset( fullline, ' ', linelen ); fullline[linelen] = '\0';
+		strncpy( fullline, startptr, lnlen );
+		*sd.ostrm << fullline;
+	    }
+
 	    if ( newlns ) *sd.ostrm << '\n';
 	}
     }
