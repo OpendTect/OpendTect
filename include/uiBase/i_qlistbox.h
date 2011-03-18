@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.16 2010-06-10 08:19:41 cvsnanne Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.17 2011-03-18 08:31:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,13 +91,6 @@ void itemClicked( QListWidgetItem* itm )
 
 void itemSelectionChanged()
 {
-// TODO: Remove this hack when using Qt 4.3
-    QList<QListWidgetItem*> selitems = sender_->selectedItems();
-    if ( selitems.count() == 0 )
-	sender_->setCurrentItem( 0 );
-    else if ( selitems.count() == 1 )
-	sender_->setCurrentItem( selitems.first() );
-
     mTrigger( selectionChanged, 0 );
 }
 
