@@ -69,7 +69,7 @@ Wheel "hRotate" 90
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_tut-segy-load.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/$FILEIDX$_tut-segy-load.jpg"
 Ok
 
 Menu "Survey`Select/Setup"

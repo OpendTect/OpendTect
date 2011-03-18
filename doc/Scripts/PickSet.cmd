@@ -29,7 +29,7 @@ TreeMenu "PickSet`*" "Save As"
 Input "Name" "TestPickSet"
 Ok
 TreeMenu "PickSet`*" "Display only at sections"
-Snapshot "$SNAPSHOTSDIR$/$IDX$_PickSetatSections.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$FILEIDX$_PickSetatSections.png" CurWin
 TreeMenu "PickSet`*" "Display only at sections"
 TreeMenu "PickSet`*" "Set directions"
 Window "Add direction*"
@@ -47,13 +47,13 @@ Combo "Shape" "Arrow"
 Button "Connect picks" On
 Button "Surface"
 Ok
-Snapshot "$SNAPSHOTSDIR$/$IDX$_ConnectPicks_Surface.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$FILEIDX$_ConnectPicks_Surface.png" CurWin
 TreeMenu "PickSet`*" "Properties"
 Button "Connect picks" On
 Button "Line"
 Input "Size value" 5
 Ok
-Snapshot "$SNAPSHOTSDIR$/$IDX$_ConnectPicks_Line.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$FILEIDX$_ConnectPicks_Line.png" CurWin
 TreeMenu "PickSet`*" "Properties"
 Button "Connect picks" Off
 Ok

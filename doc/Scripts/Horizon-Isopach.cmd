@@ -19,7 +19,7 @@ Ok
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_Demo-Isopach.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/$FILEIDX$_Demo-Isopach.jpg"
 Ok
 Wheel "vRotate" -45
 

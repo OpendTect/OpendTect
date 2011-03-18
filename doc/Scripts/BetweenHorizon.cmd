@@ -37,7 +37,7 @@ ListClick "Select Data" "Test-zone" Double
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename"  "$SNAPSHOTSDIR$/$IDX$_betHor-testzone_1.jpg" 
+Input "Select filename"  "$SNAPSHOTSDIR$/$FILEIDX$_betHor-testzone_1.jpg" 
 Ok
 
 TreeMenu "Inline`*" "Remove"

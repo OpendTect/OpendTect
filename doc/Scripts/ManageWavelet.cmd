@@ -45,7 +45,7 @@ TreeMenu "Tree Scene 1" "Inline`*`*" "Select Attribute`Stored Cubes`Median Dip F
 TreeMenu "Tree Scene 2" "Inline" "Add"
 TreeMenu "Tree Scene 2" "Inline`*`*" "Select Attribute`Attributes`Wavelet-on-MedianDip"
 
-Snapshot "$SNAPSHOTSDIR$/$IDX$_ManageWavelet.png" ODMain
+Snapshot "$SNAPSHOTSDIR$/$FILEIDX$_ManageWavelet.png" ODMain
 
 Sleep 2
 #Window "OpendTect Main Window"

@@ -33,7 +33,7 @@ Button "Log filled" Off
 Button "Line color"
 ColorOK Red 4
 Button "Dismiss"
-Snapshot "$SNAPSHOTSDIR$/$IDX$_WellImport.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$FILEIDX$_WellImport.png" CurWin
 TreeMenu "Well`*" "Remove"
 Menu "Survey`Manage`Wells"
 ListClick "Objects list" "F03-2"

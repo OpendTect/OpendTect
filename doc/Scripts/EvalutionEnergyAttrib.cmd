@@ -31,7 +31,7 @@ Window "OpendTect*"
 Button "Make snapshot"
 Button "Scene" 
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_evaluate_energy_10-10"
+Input "Select filename" "$SNAPSHOTSDIR$/$FILEIDX$_evaluate_energy_10-10"
 Ok
 Sleep 1
 Window "Evaluate attribute" 
@@ -41,7 +41,7 @@ Window "OpendTect*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_evaluate_energy_15-15"
+Input "Select filename" "$SNAPSHOTSDIR$/$FILEIDX$_evaluate_energy_15-15"
 Ok
 Sleep 1
 Window "Evaluate attribute" 
@@ -51,7 +51,7 @@ Window "OpendTect*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_evaluate_energy_20-20"
+Input "Select filename" "$SNAPSHOTSDIR$/$FILEIDX$_evaluate_energy_20-20"
 Ok
 Sleep 1
 Window "Evaluate attribute" 
@@ -61,7 +61,7 @@ Window "OpendTect*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_evaluate_energy_25-25"
+Input "Select filename" "$SNAPSHOTSDIR$/$FILEIDX$_evaluate_energy_25-25"
 Ok
 Sleep 1
 Window "Evaluate attribute" 
@@ -71,7 +71,7 @@ Window "OpendTect*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_evaluate_energy_30-30"
+Input "Select filename" "$SNAPSHOTSDIR$/$FILEIDX$_evaluate_energy_30-30"
 Ok
 Window "Evaluate attribute"
 Close

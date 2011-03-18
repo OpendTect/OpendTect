@@ -12,7 +12,7 @@ TreeMenu "Horizon`*" "Add attribute"
 TreeMenu "Horizon`*`<right-click>" "Select Att*`Stored*`Median Dip*"
 TreeMenu "Horizon`*`Median*" "Show Histogram"
 Window "Data statistics"
-Snapshot "$SNAPSHOTSDIR$/$IDX$_Hor-histogram.png"
+Snapshot "$SNAPSHOTSDIR$/$FILEIDX$_Hor-histogram.png"
 Sleep 2
 Close
 TreeMenu "Horizon`*`Median*" "Show Amplitude*"

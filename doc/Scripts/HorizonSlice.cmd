@@ -34,7 +34,7 @@ Ok
 Button "Stored"
 ListClick "Select Data" "Mediandip_HorSlice_Demo0" Double
 
-Snapshot "$SNAPSHOTSDIR$/$IDX$_Horizongrid-mediandip-FS4.png"
+Snapshot "$SNAPSHOTSDIR$/$FILEIDX$_Horizongrid-mediandip-FS4.png"
 
 TreeMenu "Inline`*" "Remove"
 Menu "Survey`Manage`Seismics"

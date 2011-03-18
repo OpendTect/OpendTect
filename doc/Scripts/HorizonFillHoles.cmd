@@ -24,7 +24,7 @@ Ok
 Button "Make snapshot"
 Button "Window"
 Ok
-Input "Filename" "$SNAPSHOTSDIR$/$IDX$_FS4-Snap-to-event.png"
+Input "Filename" "$SNAPSHOTSDIR$/$FILEIDX$_FS4-Snap-to-event.png"
 Ok
 Sleep 3
 Wheel "vRotate" -85
@@ -63,7 +63,7 @@ ListClick "Objects list" "FS4-without Holes" Double
 Button "Make snapshot"
 Button "Window"
 Ok
-Input "Filename" "$SNAPSHOTSDIR$/$IDX$_horizon-fill-holes.png"
+Input "Filename" "$SNAPSHOTSDIR$/$FILEIDX$_horizon-fill-holes.png"
 Ok
 Wheel "vRotate" -85
 

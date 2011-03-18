@@ -2,7 +2,7 @@ dTect V4.2.0
 OpendTect commands
 May 2010
 !
-# $Id: ImportData.cmd,v 1.7 2010-10-08 08:49:16 cvsnageswara Exp $
+# $Id: ImportData.cmd,v 1.8 2011-03-18 16:23:44 cvsjaap Exp $
 
 Case Insensitive
 
@@ -169,7 +169,7 @@ Comment "----------Importing Seismic Data--------------"
 #Button "Make snapshot"
 #Button "Scene"
 #Ok
-#Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_TreeItems-imported"
+#Input "Select filename" "$SNAPSHOTSDIR$/$FILEIDX$_TreeItems-imported"
 #Ok
 #Ok
 

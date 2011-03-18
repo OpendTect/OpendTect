@@ -26,7 +26,7 @@ ListClick "Select Data from List" "MedianDipFiltSeis-FS4" Double
 Button "Make Snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_Horizongrid-mediandip-FS4"
+Input "Select filename" "$SNAPSHOTSDIR$/$FILEIDX$_Horizongrid-mediandip-FS4"
 Ok
 
 Wheel "vRotate" -45
