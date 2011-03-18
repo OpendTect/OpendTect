@@ -4,7 +4,7 @@
  * DATE     : Jul 2007
 -*/
 
-static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.17 2010-11-25 09:20:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.18 2011-03-18 05:11:15 cvsnanne Exp $";
 
 #include "uigoogleexpsurv.h"
 #include "uigoogleexpwells.h"
@@ -28,8 +28,9 @@ static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.17 2010-11-25 09:20:08 cvsn
 #include "survinfo.h"
 #include "latlong.h"
 #include "plugins.h"
-static const int cPSMnuIdx = -1001;
-static const int cRLMnuIdx = -1001;
+
+static const int cPSMnuIdx = -999;
+static const int cRLMnuIdx = -999;
 
 
 mExternC int GetuiGoogleIOPluginType()
@@ -81,6 +82,8 @@ uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
 	    		*a.applMgr().visServer(),"Export to G&oogle KML ...",
     			mCB(this,uiGoogleIOMgr,exportRandLine),cRLMnuIdx)
 {
+    psmnuitmhandler_.setIcon( "google.png" );
+    rlmnuitmhandler_.setIcon( "google.png" );
     uiSurvey::add( uiSurvey::Util( "google.png",
 				   "Export to Google Earth/Maps",
 				   mCB(this,uiGoogleIOMgr,exportSurv) ) );
@@ -118,11 +121,10 @@ void uiGoogleIOMgr::mkExportWellsIcon( CallBacker* cb )
 void uiGoogleIOMgr::exportWells( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,tb,cb)
-    mDynamicCastGet(uiWellMan*,wm,tb->parent())
-    if ( !wm || !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
+    if ( !tb || !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
 	return;
 
-    uiGoogleExportWells dlg( wm );
+    uiGoogleExportWells dlg( tb->mainwin() );
     dlg.go();
 }
 
@@ -133,9 +135,9 @@ void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
     cur2dfm_ = fm;
     if ( !cur2dfm_ ) return;
 
-    fm->getButGroup(false)->addButton(	"google.png",
-	    				"Export selected lines to Google KML",
-	    				mCB(this,uiGoogleIOMgr,exportLines) );
+    fm->getButGroup(false)->addButton( "google.png",
+	    			       "Export selected lines to Google KML",
+	    			       mCB(this,uiGoogleIOMgr,exportLines) );
 }
 
 
