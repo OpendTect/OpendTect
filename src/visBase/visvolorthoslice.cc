@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.15 2011-03-17 16:58:00 cvskarthika Exp $";
+static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.16 2011-03-18 08:52:24 cvskarthika Exp $";
 
 
 #include "visvolorthoslice.h"
@@ -182,13 +182,13 @@ void OrthogonalSlice::getSliceInfo( int& nrslices, Interval<float>& range) const
 
 void OrthogonalSlice::removeDragger()
 {
-	if ( dragger_ )
-	{
-		dragger_->motion.remove( mCB(this, OrthogonalSlice, draggerMovementCB ));
-		removeChild( dragger_->getInventorNode() );
-		dragger_->unRef();
-		dragger_ = 0;
-	}
+    if ( dragger_ )
+    {
+	dragger_->motion.remove(mCB(this, OrthogonalSlice, draggerMovementCB));
+	removeChild( dragger_->getInventorNode() );
+	dragger_->unRef();
+	dragger_ = 0;
+    }
 }
 
 
