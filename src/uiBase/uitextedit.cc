@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.46 2011-03-18 06:24:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.47 2011-03-18 16:03:42 cvskarthika Exp $";
 
 
 #include "uitextedit.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uitextedit.cc,v 1.46 2011-03-18 06:24:50 cvsnan
 #include "strmdata.h"
 #include "strmprov.h"
 #include "timer.h"
+#include "varlenarray.h"
 
 #include <iostream>
 #include <QTextDocument> 
@@ -132,7 +133,7 @@ bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 	*sd.ostrm << text();
     else
     {
-	char fullline[linelen+1];
+	mAllocVarLenArr( char, fullline, linelen+1 );
 	BufferString inptxt( text() );
 	char* ptr = inptxt.buf();
 	while ( ptr && *ptr )
