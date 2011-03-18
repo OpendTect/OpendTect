@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.58 2011-01-14 13:37:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.59 2011-03-18 11:52:09 cvsnanne Exp $";
 
 #include "vissurvobj.h"
 
@@ -101,8 +101,9 @@ bool SurveyObject::alreadyTransformed( int attrib ) const
 {
     const Attrib::SelSpec* as = getSelSpec( attrib );
     if ( !as ) return false;
-    const char* zdomain = as->zDomainKey();
-    return zdomain && *zdomain;
+
+    const FixedString zdomainkey = as->zDomainKey();
+    return scene_ && zdomainkey == scene_->zDomainKey();
 }
 
 
