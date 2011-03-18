@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.13 2011-02-21 23:12:48 cvskris Exp $
+ RCS:           $Id: menuhandler.h,v 1.14 2011-03-18 05:09:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ public:
 protected:
     friend			class MenuHandler;
     void			itemIsDeletedCB(CallBacker*);
-    virtual void		assignItemID( MenuItem& );
+    virtual void		assignItemID(MenuItem&);
     				/*!< Get a unique id for this item. */
 
     MenuItemHolder*		parent_;
@@ -71,7 +71,7 @@ private:
 mClass MenuItem : public MenuItemHolder
 {
 public:
-    				MenuItem(const char* text=0,int placement=-1 );
+    				MenuItem(const char* text=0,int placement=-1);
     void			createItems(const BufferStringSet&);
 
     BufferString		text;
@@ -190,10 +190,9 @@ public:
 				    execute a queue, identified by this id. */
 
 protected:
-    void			assignItemID( MenuItem& );
+    void			assignItemID(MenuItem&);
     void			executeQueue();
 
-    int				freeid_;
     int				id_;
     bool			ishandled_;
     int				queueid_;
@@ -211,7 +210,7 @@ mClass MenuItemHandler : public CallBacker
 {
 public:
 			MenuItemHandler(MenuHandler&,const char* nm,
-					const CallBack&, int placement=-1);
+					const CallBack&,int placement=-1);
 			~MenuItemHandler();
     bool		doadd_;
     			/*!<Item is added if true AND shouldAddMenu() retuns
@@ -222,6 +221,8 @@ public:
     bool		ischecked_;
     			/*!<Item is checked if true OR shouldBeChecked() retuns
 			    true. Default is false. */
+
+    void		setIcon(const char* fnm);
     
 protected:
 

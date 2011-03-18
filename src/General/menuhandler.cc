@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: menuhandler.cc,v 1.9 2011-02-21 23:12:48 cvskris Exp $";
+static const char* rcsID = "$Id: menuhandler.cc,v 1.10 2011-03-18 05:09:36 cvsnanne Exp $";
 
 
 #include "menuhandler.h"
@@ -20,8 +20,7 @@ static const char* rcsID = "$Id: menuhandler.cc,v 1.9 2011-02-21 23:12:48 cvskri
 MenuItemHolder::MenuItemHolder()
     : parent_(0)
     , removal(this)
-{
-}
+{}
 
 
 MenuItemHolder::~MenuItemHolder()
@@ -33,6 +32,8 @@ MenuItemHolder::~MenuItemHolder()
 
 void MenuItemHolder::addItem( MenuItem* item, bool manage )
 {
+    if ( !item ) return;
+
     items_ += item;
     manageitems_ += manage;
     item->parent_ = this;
@@ -154,14 +155,19 @@ void MenuItemHolder::assignItemID( MenuItem& item )
 }
 
 
+// MenuItem
+
+static int itemid = 0;
+
 MenuItem::MenuItem( const char* txt, int pl )
     : text(txt)
     , placement(pl)
     , checkable(false)
     , checked(false)
     , enabled(true)
-    , id(-1)
-{}
+{
+    id = itemid++;
+}
 
 
 void MenuItem::createItems( const BufferStringSet& names )
@@ -205,7 +211,8 @@ void MenuHandler::executeQueue()
 
 void MenuHandler::assignItemID( MenuItem& itm )
 {
-    itm.id = freeid_++;
+    if ( itm.id < 0 )
+	itm.id = itemid++;
 
     for ( int idx=0; idx<itm.items_.size(); idx++ )
 	assignItemID( *itm.items_[idx] );
@@ -256,3 +263,8 @@ void MenuItemHandler::handleMenuCB( CallBacker* cb )
     cb_.doCall( this );
     menuhandler_.setIsHandled( true );
 }
+
+
+void MenuItemHandler::setIcon( const char* fnm )
+{ menuitem_.iconfnm = fnm; }
+
