@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.40 2011-03-14 06:34:54 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.41 2011-03-18 05:17:10 cvsnageswara Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -228,6 +228,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     const int nrnew = markers.size();
     NotifyStopper notifystop( table_->valueChanged );
     int startrow = add ? getNrRows() : 0;
+    if ( !add ) depths_.erase();
     const int nrrows = nrnew + startrow + cNrEmptyRows;
     table_->setNrRows( nrrows );
     for ( int idx=0; idx<nrrows; idx++ )
@@ -422,7 +423,7 @@ bool uiMarkerDlg::acceptOK( CallBacker* )
 	const RowCol rcname( midx, cNameCol );
 	if ( !isbetween )
 	{
-	    errmsg.add( markers[midx]->name() ).add( "'" )
+	    errmsg.add( "'" ).add( markers[midx]->name() )
 		  .add( "' depth value is out of well track range [" )
 		  .add( dahrg.start ).add( "-" )
 		  .add( dahrg.stop ).add( "]. " )
@@ -441,7 +442,7 @@ class uiMarkersList : public uiDialog
 public:
 
 uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
-	: uiDialog( p,uiDialog::Setup( "Markers List", "Markers list", "") )
+	: uiDialog( p,uiDialog::Setup( "Markers List", "Select markers", "") )
 {
     list = new uiListBox( this, "Markers" );
     list->setItemsCheckable( true );
@@ -480,24 +481,36 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
     }
 
     Strat::LevelSet& lvls = Strat::eLVLS();
+    BufferString msg;
+    int mid = 0;
     for ( int idx=0; idx<selitems.size(); idx++ )
     {
-	BufferString msg;
 	const int selidx = selitems[idx];
 	if ( lvls.isPresent(mset[selidx]->name()) )
-	    msg.add( "'" ).add( mset[selidx]->name() ).add( "' " );
-
-	if ( !msg.isEmpty() )
 	{
-	    msg.add( "already set as regional marker." );
-	    msg.add( "Press Continue to update properties." );
-	    const bool res = uiMSG().askContinue( msg );
-	    if ( !res ) return false;
+	    msg.add( "'" ).add( mset[selidx]->name() ).add( "' ");
+	    mid++;
 	}
-
-	if ( !lvls.add( mset[selidx]->name(), mset[selidx]->color() ) )
-	    return false;
     }
-    
+
+    if ( !msg.isEmpty() )
+    {
+	msg.add( mid > 1 ? "are " : "is " );
+	msg.add( "already set as regional marker(s)." );
+	msg.add( "Press Continue to update properties." );
+	const bool res = uiMSG().askContinue( msg );
+	if ( !res ) return false;
+    }
+
+    for ( int idx=0; idx<selitems.size(); idx++ )
+    {
+	const int selidx = selitems[idx];
+	Strat::Level* level = lvls.add( mset[selidx]->name(),
+					mset[selidx]->color() );
+	lvls.store( Repos::Survey );
+	mset[selidx]->setLevelID( level->id() );
+    }
+
+    setMarkerSet( mset, false );
     return true;
 }
