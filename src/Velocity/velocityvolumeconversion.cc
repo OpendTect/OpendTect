@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.7 2011-03-17 17:18:11 cvskris Exp $";
+static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.8 2011-03-18 16:28:46 cvsbruno Exp $";
 
 #include "velocityvolumeconversion.h"
 
@@ -36,7 +36,7 @@ VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
 				  const HorSampling& ranges,
 				  const VelocityDesc& desc )
     : hrg_( ranges )
-    , veldesc_( desc )
+    , veloutpdesc_( desc )
     , input_( input.clone() )
     , output_( output.clone() )
     , reader_( 0 )
@@ -109,29 +109,28 @@ bool VolumeConverter::doPrepare( int nrthreads )
     delete writer_;
     writer_ = 0;
 
-    VelocityDesc inpdesc;
-    if ( !inpdesc.usePar( input_->pars() ) )
+    if ( !velinpdesc_.usePar( input_->pars() ) )
     {
 	errmsg_ = "Cannot read velocity information on input.";
 	return false;
     }
 
-    veldesc_.fillPar( output_->pars() );
+    veloutpdesc_.fillPar( output_->pars() );
     if ( !IOM().commitChanges( *output_ ) )
     {
 	errmsg_ = "Cannot write velocity information on output";
 	return false;
     }
 
-    if ( (inpdesc.type_ != VelocityDesc::Interval &&
-	 inpdesc.type_!=VelocityDesc::RMS &&
-	 inpdesc.type_!=VelocityDesc::Avg) ||
-         ( veldesc_.type_ != VelocityDesc::Interval &&
-	 veldesc_.type_!=VelocityDesc::RMS &&
-	 veldesc_.type_!=VelocityDesc::Avg ) ||
-	 inpdesc.type_ == veldesc_.type_ )
+    if ( ( velinpdesc_.type_ != VelocityDesc::Interval &&
+	 velinpdesc_.type_ != VelocityDesc::RMS &&
+	 velinpdesc_.type_ != VelocityDesc::Avg ) ||
+         ( veloutpdesc_.type_ != VelocityDesc::Interval &&
+	 veloutpdesc_.type_ != VelocityDesc::RMS &&
+	 veloutpdesc_.type_ != VelocityDesc::Avg ) ||
+	 velinpdesc_.type_ == veloutpdesc_.type_ )
     {
-	errmsg_ = "Input/output velocities are not interval or RMS, "
+	errmsg_ = "Input/output velocities are not interval, RMS, or Avg "
 	           "or are identical.";
 	return false;
     }
@@ -191,24 +190,55 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 
 	SeisTrc* outputtrc = new SeisTrc( trc );
 	float* outptr = (float*) outputtrc->data().getComponent( 0 )->data();
-	if ( veldesc_.type_==VelocityDesc::Interval )
+	const SamplingData<double>& sd = trc.info().sampling;
+
+	float* interptr = 0;
+	if ( velinpdesc_.type_ != VelocityDesc::Interval )
 	{
-	    if ( !computeDix( inputptr, trc.info().sampling, trc.size(),
-			      outptr ) )
+	    mTryAlloc(interptr,float[trc.size()])
+	    if ( !interptr )
+	    {
+		delete outputtrc;
+		outputtrc = 0;
+		return false;
+	    }
+	    if ( velinpdesc_.type_ == VelocityDesc::Avg ) 
+	    {
+		 if ( !computeVint( inputptr, sd, trc.size(), interptr ) )
+		{
+		    delete outputtrc;
+		    outputtrc = 0;
+		}
+	    }
+	    else 
+	    {
+		if ( !computeDix( inputptr, sd, trc.size(), interptr ) )
+		{
+		    delete outputtrc;
+		    outputtrc = 0;
+		}
+	    }	
+	}
+
+	if ( veloutpdesc_.type_ == VelocityDesc::Avg )
+	{
+	    if ( !computeVavg( interptr ? interptr : inputptr, sd, trc.size(), 
+				outptr ) )
 	    {
 		delete outputtrc;
 		outputtrc = 0;
 	    }
 	}
-	else
+	else if ( veloutpdesc_.type_ == VelocityDesc::RMS )
 	{
-	    if ( !computeVrms( inputptr, trc.info().sampling, trc.size(),
-			      outptr ) )
+	    if ( !computeVrms( interptr ? interptr : inputptr, sd, trc.size(), 
+				outptr ) )
 	    {
 		delete outputtrc;
 		outputtrc = 0;
 	    }
 	}
+	delete [] interptr;
 
 	//Process trace
 	sequentialwriter_->submitTrace( outputtrc, true );

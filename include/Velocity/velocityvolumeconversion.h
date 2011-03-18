@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityvolumeconversion.h,v 1.7 2010-10-25 19:19:59 cvskris Exp $
+ RCS:		$Id: velocityvolumeconversion.h,v 1.8 2011-03-18 16:28:46 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -55,7 +55,8 @@ protected:
     od_int64			totalnr_;
     IOObj*			input_;
     IOObj*			output_;
-    VelocityDesc		veldesc_;
+    VelocityDesc		velinpdesc_;
+    VelocityDesc		veloutpdesc_;
     HorSampling			hrg_;
     FixedString			errmsg_;
 

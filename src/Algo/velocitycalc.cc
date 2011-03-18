@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.40 2011-03-16 08:58:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.41 2011-03-18 16:28:46 cvsbruno Exp $";
 
 #include "velocitycalc.h"
 
@@ -858,6 +858,90 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
 
     return computeVrms( (const float*)Vint_sampled, sd_out, nr_out, Vout );
 }
+
+
+bool computeVavg( const float* Vint, const SamplingData<double>& sd, int nrvels,
+		  float* Vavg )
+{
+    double t_above = 0;
+    int idx_prev = -1;
+    double v2t_prev = 0;
+
+    for ( int idx=0; idx<nrvels; idx++ )
+    {
+	const double V_interval = Vint[idx];
+	if ( mIsUdf(V_interval) )
+	    continue;
+
+	double t_below = sd.atIndex(idx);
+
+	double dt = t_below - t_above;
+	double numerator = v2t_prev+V_interval*dt;
+	float res = numerator/t_below;
+
+	if ( !Math::IsNormalNumber(res) ) //looks for division by zero above
+	    continue;
+
+	for ( int idy=idx_prev+1; idy<=idx; idy++ )
+	    Vavg[idy] = res;
+
+	v2t_prev = numerator;
+	t_above = t_below;
+	idx_prev = idx;
+    }
+
+    return true;
+}
+
+
+bool computeVint( const float* Vavg, const SamplingData<double>& sd, int nrvels,
+		 float* Vint )
+{
+    int idx_prev = -1; 
+    double t_above = 0; 
+    double v2t_prev = 0;
+    bool hasvals = false; 
+ 
+    for ( int idx=0; idx<nrvels; idx++ ) 
+    {
+	const double v = Vavg[idx];
+	if ( mIsUdf(v) ) 
+	    continue;
+
+	hasvals = true;
+ 
+	double t_below = sd.atIndex( idx ); 
+
+	const double v2t = t_below*v; 
+	const double numerator = v2t-v2t_prev; 
+	if ( numerator<0 ) 
+	    continue; 
+ 
+	if ( t_below<t_above || mIsEqual(t_below,t_above,1e-5) ) 
+	    continue; 
+ 
+	const double vlayer = numerator/(t_below-t_above); 
+ 
+	for ( int idy=idx_prev+1; idy<=idx; idy++ ) 
+	    Vint[idy] = vlayer; 
+ 
+	v2t_prev = v2t; 
+	t_above = t_below; 
+	idx_prev = idx; 
+    } 
+ 
+    if ( !hasvals ) 
+    { 
+	idx_prev = 0; 
+	Vint[0] = mUdf(float); 
+    } 
+ 
+    for ( int idx=idx_prev+1; idx<nrvels; idx++ ) 
+	Vint[idx] = Vint[idx_prev]; 
+
+    return true;
+}
+
 
 
 void resampleDepth( const float* deptharr, const float* t_in, int nr_in,

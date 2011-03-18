@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.27 2011-03-15 14:41:13 cvsbruno Exp $
+ RCS:		$Id: velocitycalc.h,v 1.28 2011-03-18 16:28:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -240,6 +240,14 @@ mGlobal bool sampleVrms(const float* Vin,float t0_in,float v0_in,
 			const float* t_in, int nr_in, 
 			const SamplingData<double>& sd_out,
 			float* Vout, int nr_out);
+
+
+mGlobal bool computeVavg(const float* Vint,const SamplingData<double>& sd,
+			 int nrvels, float* Vavg);
+
+
+mGlobal bool computeVint(const float* Vavg,const SamplingData<double>& sd,
+			 int nrvels, float* Vint);
 
 
 /*!Given an irregularly sampled Vint, create a regularly sampled one. The
