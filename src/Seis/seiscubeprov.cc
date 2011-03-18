@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.21 2010-08-13 11:42:12 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.22 2011-03-18 16:05:52 cvshelene Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -214,10 +214,11 @@ bool SeisMSCProvider::startWork()
     workstarted_ = true;
     rdr_.forceFloatData( intofloats_ );
     PtrMan<Seis::Bounds> bds = rdr_.getBounds();
+    const bool is2d = is2D();
     if ( bds )
     {
-	stepoutstep_.row = bds->step( true );
-	stepoutstep_.col = bds->step( false );
+	stepoutstep_.row = is2d ? 1 : bds->step( true );
+	stepoutstep_.col = is2d ? bds->step( true ): bds->step( false );
     }
     if ( reqstepout_.row > desstepout_.row ) desstepout_.row = reqstepout_.row;
     if ( reqstepout_.col > desstepout_.col ) desstepout_.col = reqstepout_.col;
@@ -227,7 +228,7 @@ bool SeisMSCProvider::startWork()
 	Seis::SelData* newseldata = rdr_.selData()->clone();
 	BinID so( desstepout_.row, desstepout_.col );
 	bool doextend = so.inl > 0 || so.crl > 0;
-	if ( is2D() )
+	if ( is2d )
 	{
 	    so.inl = 0;
 	    doextend = doextend && newseldata->type() == Seis::Range;
