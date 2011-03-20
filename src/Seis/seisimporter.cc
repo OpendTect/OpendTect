@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.28 2011-03-14 11:49:08 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.29 2011-03-20 04:18:10 cvskris Exp $";
 
 #include "seisimporter.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: seisimporter.cc,v 1.28 2011-03-14 11:49:08 cvsb
 #include "seistrc.h"
 #include "seiswrite.h"
 
+#include "threadwork.h"
 #include "binidsorting.h"
 #include "cbvsreadmgr.h"
 #include "conn.h"
@@ -44,12 +45,18 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
 	, sortanal_(new BinIDSortingAnalyser(Seis::is2D(gt)))
 	, sorting_(0)
 	, prevbid_(*new BinID(mUdf(int),mUdf(int)))
+        , lock_(*new Threads::ConditionVar)
+        , maxqueuesize_( Threads::getNrProcessors()*100 )
 {
+    queueid_ = Threads::WorkManager::twm().addQueue(
+					Threads::WorkManager::SingleThread );
 }
 
 
 SeisImporter::~SeisImporter()
 {
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
+
     buf_.deepErase();
 
     delete rdr_;
@@ -60,6 +67,7 @@ SeisImporter::~SeisImporter()
     delete &buf_;
     delete &trc_;
     delete &prevbid_;
+    delete &lock_;
 }
 
 
@@ -115,6 +123,12 @@ int SeisImporter::nextStep()
 
     if ( state_ == WriteBuf )
     {
+	Threads::MutexLocker lock( lock_ );
+	if ( errmsg_.str() )
+	    return Executor::ErrorOccurred();
+
+	lock.unLock();
+
 	if ( buf_.isEmpty() )
 	    state_ = ReadWrite;
 	else
@@ -126,10 +140,33 @@ int SeisImporter::nextStep()
 
     if ( state_ == ReadWrite )
     {
-	mDoRead( trc_ )
-	if ( !atend )
-	    return sortingOk(trc_) ? doWrite(trc_) : Executor::ErrorOccurred();
+	Threads::MutexLocker lock( lock_ );
+	if ( errmsg_.str() )
+	    return Executor::ErrorOccurred();
+	lock.unLock();
 
+	mDoRead( trc_ );
+	if ( !atend )
+	{
+	    const bool is2d = Seis::is2D(geomtype_);
+	    if ( !is2d && !SI().isReasonable(trc_.info().binid) )
+	    {
+		nrskipped_++;
+		return Executor::MoreToDo();
+	    }
+
+	    return sortingOk(trc_) ? doWrite(trc_) : Executor::ErrorOccurred();
+	}
+
+	//Wait for queue to finish writing
+	Threads::WorkManager::twm().emptyQueue( queueid_, true );
+
+	//Check for errors
+	lock.lock();
+	if ( errmsg_.str() )
+	    return Executor::ErrorOccurred();
+	lock.unLock();
+	
 	postproc_ = mkPostProc();
 	if ( !errmsg_.isEmpty() )
 	    return Executor::ErrorOccurred();
@@ -146,25 +183,78 @@ bool SeisImporter::needInlCrlSwap() const
 }
 
 
+class SeisImporterWriterTask : public Task
+{
+public:
+    SeisImporterWriterTask( SeisImporter& imp, SeisTrcWriter& writer,
+	    		    const SeisTrc& trc )
+	: importer_( imp )
+	, writer_( writer )
+	, trc_( trc )
+    {}
+
+    bool execute()
+    {
+	BufferString errmsg;
+	if ( !writer_.put( trc_ ) )
+	{
+	    errmsg = writer_.errMsg();
+	    if ( errmsg.isEmpty() )
+	    {
+		pErrMsg( "Need an error message from writer" );
+		errmsg = "Cannot write trace";
+	    }
+	}
+
+	importer_.reportWrite( errmsg.str() );
+	return !errmsg.str();
+    }
+
+
+protected:
+
+    SeisImporter&	importer_;
+    SeisTrcWriter&	writer_;
+    SeisTrc		trc_;
+};
+
+
+void SeisImporter::reportWrite( const char* errmsg )
+{
+    nrwritten_++;
+    Threads::MutexLocker lock( lock_ );
+    if ( errmsg )
+    {
+	errmsg_ = errmsg;
+	Threads::WorkManager::twm().emptyQueue( queueid_, false );
+	lock_.signal( true );
+	return;
+    }
+
+    if ( Threads::WorkManager::twm().queueSize( queueid_ )<maxqueuesize_ )
+	lock_.signal( true );
+}
+
+
+
 int SeisImporter::doWrite( SeisTrc& trc )
 {
     if ( needInlCrlSwap() )
 	Swap( trc.info().binid.inl, trc.info().binid.crl );
 
-    if ( wrr_.put(trc) )
-    {
-	nrwritten_++;
-	return Executor::MoreToDo();
-    }
+    Threads::MutexLocker lock( lock_ );
+    while ( Threads::WorkManager::twm().queueSize( queueid_ )>maxqueuesize_ )
+	lock_.wait();
 
-    errmsg_ = wrr_.errMsg();
-    if ( errmsg_.isEmpty() )
-    {
-	pErrMsg( "Need an error message from writer" );
-	errmsg_ = "Cannot write trace";
-    }
+    if ( errmsg_.str() )
+	return Executor::ErrorOccurred();
 
-    return Executor::ErrorOccurred();
+    lock.unLock();
+
+    Task* task = new SeisImporterWriterTask( *this, wrr_, trc );
+    Threads::WorkManager::twm().addWork(Threads::Work(*task,true), 0, queueid_,
+				       false );
+    return Executor::MoreToDo();
 }
 
 

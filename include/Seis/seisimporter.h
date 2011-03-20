@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: seisimporter.h,v 1.11 2010-12-14 04:44:09 cvsnanne Exp $
+ RCS:		$Id: seisimporter.h,v 1.12 2011-03-20 04:18:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,31 +70,36 @@ protected:
 
     enum State		{ ReadBuf, WriteBuf, ReadWrite };
 
-    Reader*		rdr_;
-    SeisTrcWriter&	wrr_;
-    SeisTrcBuf&		buf_;
-    SeisTrc&		trc_;
-    BinID&		prevbid_;
-    int			sort2ddir_;
-    BinIDSorting*	sorting_;
-    BinIDSortingAnalyser* sortanal_;
-    Seis::GeomType	geomtype_;
-    State		state_;
-    int			nrread_;
-    int			nrwritten_;
-    int			nrskipped_;
-    bool		crlsorted_;
-    Executor*		postproc_;
+    Reader*			rdr_;
+    SeisTrcWriter&		wrr_;
+    int				queueid_;
+    int				maxqueuesize_;
+    Threads::ConditionVar&	lock_;
+    SeisTrcBuf&			buf_;
+    SeisTrc&			trc_;
+    BinID&			prevbid_;
+    int				sort2ddir_;
+    BinIDSorting*		sorting_;
+    BinIDSortingAnalyser*	sortanal_;
+    Seis::GeomType		geomtype_;
+    State			state_;
+    int				nrread_;
+    int				nrwritten_;
+    int				nrskipped_;
+    bool			crlsorted_;
+    Executor*			postproc_;
 
-    bool		needInlCrlSwap() const;
-    bool		sortingOk(const SeisTrc&);
-    int			doWrite(SeisTrc&);
-    int			readIntoBuf();
-    Executor*		mkPostProc();
+    bool			needInlCrlSwap() const;
+    bool			sortingOk(const SeisTrc&);
+    int				doWrite(SeisTrc&);
+    int				readIntoBuf();
+    Executor*			mkPostProc();
 
-    mutable BufferString errmsg_;
-    mutable BufferString hndlmsg_;
+    friend			class SeisImporterWriterTask;
+    void			reportWrite(const char*);
 
+    mutable BufferString	errmsg_;
+    mutable BufferString	hndlmsg_;
 };
 
 
