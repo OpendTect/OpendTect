@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.29 2011-02-17 17:06:33 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.30 2011-03-20 04:14:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,7 @@ public:
 				    automaticall, only at executeQueue.
 				    \returns queid */
     int				queueSize(int queueid) const;
-    void			emptyQueue(int queueid);
+    void			emptyQueue(int queueid,bool finishall);
     void			removeQueue(int queueid,bool finishall);
     				/*!<Removes queue. If finishall is true,
 				    all work in the queue will be finished. */

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinotsaveddlg.cc,v 1.4 2011-02-17 17:20:15 cvskris Exp $";
+static const char* rcsID = "$Id: uinotsaveddlg.cc,v 1.5 2011-03-20 04:14:52 cvskris Exp $";
 
 #include "uinotsaveddlg.h"
 
@@ -128,7 +128,7 @@ bool NotSavedPrompter::doTrigger( uiParent* parent, bool withcancel,
     if ( retval )
 	Threads::WorkManager::twm().executeQueue( queueID() );
     else
-	Threads::WorkManager::twm().emptyQueue( queueID() );
+	Threads::WorkManager::twm().emptyQueue( queueID(), false );
 
 
 
