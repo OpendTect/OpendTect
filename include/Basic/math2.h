@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: math2.h,v 1.13 2011-03-01 10:16:57 cvssatyaki Exp $
+ RCS:		$Id: math2.h,v 1.14 2011-03-21 11:04:45 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,8 @@ inline float	degFromNorth( float azimuth )
 		    return deg < 0 ? deg + 360 : deg;
 		}
 
-mGlobal int LCMOf(int,int);
+mGlobal int LCMOf(int,int); /*! <Lowest Common Multiple. */
+mGlobal int HCFOf(int,int); /*! <Highest Common Factor. */
 mGlobal bool IsNormalNumber(double);
 mGlobal double IntPowerOf(double,int);
 mGlobal double PowerOf(double,double);

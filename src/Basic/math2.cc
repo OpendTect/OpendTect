@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: math2.cc,v 1.9 2010-04-08 15:18:04 cvsbert Exp $";
+static const char* rcsID = "$Id: math2.cc,v 1.10 2011-03-21 11:04:45 cvsraman Exp $";
 
 #include "math2.h"
 #include "undefval.h"
@@ -86,4 +86,24 @@ int Math::LCMOf( int num1, int num2 )
     }
 
     return num1 * num2;
+}
+
+
+int Math::HCFOf( int num1, int num2 )
+{
+    if ( num1 <= 0 || num2 <= 0 ) return 1;
+
+    int num = num1 > num2 ? num1 : num2;
+    int factor = num1 > num2 ? num2 : num1;
+    while ( factor > 1 )
+    {
+	const int remainder = num % factor;
+	if ( !(remainder) )
+	    return factor;
+
+	num = factor;
+	factor = remainder;
+    }
+
+    return 1;
 }
