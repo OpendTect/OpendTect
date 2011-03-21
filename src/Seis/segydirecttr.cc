@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.17 2011-03-16 16:17:39 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.18 2011-03-21 16:15:19 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -83,8 +83,6 @@ static SEGYSeisTrcTranslator* createTranslator( const SEGY::DirectDef& def,
 
 SEGYDirect3DPSReader::SEGYDirect3DPSReader( const char* fnm )
     : def_(*new SEGY::DirectDef(fnm))
-    , tr_(0)
-    , curfilenr_(-1)
 {
     errmsg_ = def_.errMsg();
 }
@@ -159,8 +157,6 @@ bool SEGYDirect3DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
 SEGYDirect2DPSReader::SEGYDirect2DPSReader( const char* dirnm, const char* lnm )
     : SeisPS2DReader(lnm)
     , def_(*new SEGY::DirectDef(SEGY::DirectDef::get2DFileName(dirnm,lnm)))
-    , tr_(0)
-    , curfilenr_(-1)
 {
 }
 
@@ -228,7 +224,6 @@ SEGYDirectSeisTrcTranslator::SEGYDirectSeisTrcTranslator( const char* s1,
 							  const char* s2 )
     : SeisTrcTranslator(s1,s2)
     , def_(0)
-    , tr_(0)
 {
     cleanUp();
 }

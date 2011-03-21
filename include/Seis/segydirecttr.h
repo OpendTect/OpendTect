@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.10 2011-03-16 16:17:39 cvsbert Exp $
+ RCS:		$Id: segydirecttr.h,v 1.11 2011-03-21 16:15:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,9 +20,36 @@ namespace PosInfo { class CubeData; }
 class SEGYSeisTrcTranslator;
 
 
+/*!\brief Base class for readers from SEG-Y file sets */
+
+namespace SEGY
+{
+
+mClass DirectReader
+{
+public:
+
+    					DirectReader()
+					    : tr_(0), curfilenr_(-1)	{}
+
+    virtual DirectDef*			getDef()	= 0;
+    virtual const char*			errMsg() const	= 0;
+    virtual SEGYSeisTrcTranslator*	getTranslator()	{ return tr_; }
+
+protected:
+
+    mutable SEGYSeisTrcTranslator* tr_;
+    mutable int			curfilenr_;
+
+};
+
+}
+
+
 /*!\brief reads from 3D PS data store reader based on SEG-Y files */
 
 mClass SEGYDirect3DPSReader : public ::SeisPS3DReader
+			    , public SEGY::DirectReader
 {
 public:
 
@@ -36,11 +63,11 @@ public:
 
     const PosInfo::CubeData& posData() const;
 
+    virtual SEGY::DirectDef*	getDef()	{ return &def_; }
+
 protected:
 
     SEGY::DirectDef&	def_;
-    mutable SEGYSeisTrcTranslator* tr_;
-    mutable int		curfilenr_;
     mutable BufferString errmsg_;
 
     SeisTrc*		getTrace(int,int,int,const BinID&) const;
@@ -51,6 +78,7 @@ protected:
 /*!\brief reads from 2D PS data store reader based on SEG-Y files */
 
 mClass SEGYDirect2DPSReader : public SeisPS2DReader
+			    , public SEGY::DirectReader
 {
 public:
 
@@ -64,11 +92,11 @@ public:
 
     const PosInfo::Line2DData& posData() const;
 
+    virtual SEGY::DirectDef*	getDef()	{ return &def_; }
+
 protected:
 
     SEGY::DirectDef&		def_;
-    mutable SEGYSeisTrcTranslator* tr_;
-    mutable int			curfilenr_;
     mutable BufferString	errmsg_;
 
     SeisTrc*			getTrace(int,int,int,int) const;
@@ -99,7 +127,8 @@ public:
 
 
 mClass SEGYDirectSeisTrcTranslator : public SeisTrcTranslator
-{			      isTranslator(SEGYDirect,SeisTrc)
+				   , public SEGY::DirectReader
+{			isTranslator(SEGYDirect,SeisTrc)
 public:
 
 			SEGYDirectSeisTrcTranslator(const char*,const char*);
@@ -119,6 +148,9 @@ public:
     bool		implShouldRemove(const IOObj*) const { return false; }
     void		cleanUp();
 
+    virtual SEGY::DirectDef* getDef()	{ return def_; }
+    const char*		errMsg() const	{ return SeisTrcTranslator::errMsg(); }
+
 protected:
 
     bool		commitSelections_();
@@ -128,9 +160,7 @@ protected:
     virtual bool	writeTrc_(const SeisTrc&) { return false; }
 
     SEGY::DirectDef*	def_;
-    mutable SEGYSeisTrcTranslator* tr_;
     bool		headerread_;
-    int			curfilenr_;
     int			ild_;
     int			iseg_;
     int			itrc_;
