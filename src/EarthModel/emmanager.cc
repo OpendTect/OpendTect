@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.97 2010-10-11 09:23:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.98 2011-03-21 11:09:07 cvsraman Exp $";
 
 #include "emmanager.h"
 
@@ -256,7 +256,9 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	const ObjectID objid = getObjectID( mids[idx] );
-	Executor* loader = objid<0 ? objectLoader( mids[idx], iosel ) : 0;
+	const EMObject* obj = getObject( objid );
+	Executor* loader =
+	    obj && obj->isFullyLoaded() ? 0 : objectLoader( mids[idx], iosel );
 	if ( execgrp )
 	{
 	    if ( loader )
@@ -305,7 +307,23 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 
     mDynamicCastGet(Surface*,surface,obj)
     if ( surface )
+    {
+	mDynamicCastGet(RowColSurfaceGeometry*,geom,&surface->geometry())
+	if ( geom && iosel )
+	{
+	    HorSampling hs;
+	    hs.setInlRange( geom->rowRange() );
+	    hs.setCrlRange( geom->colRange() );
+	    if ( hs.isEmpty() )
+		return geom->loader( iosel );
+
+	    SurfaceIODataSelection newsel( *iosel );
+	    newsel.rg.include( hs );
+	    return geom->loader( &newsel );
+	}
+
 	return surface->geometry().loader(iosel);
+    }
     else if ( obj )
 	return obj->loader();
 
