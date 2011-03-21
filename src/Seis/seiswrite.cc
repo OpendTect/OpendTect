@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.59 2011-03-21 01:26:37 cvskris Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.60 2011-03-21 02:00:32 cvskris Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -436,11 +436,12 @@ bool SeisSequentialWriter::submitTrace( SeisTrc* trc, bool waitforbuffer )
     Threads::MutexLocker lock( lock_ );
     outputs_ += trc;
 
-    bool res = true;
-    while ( true )
+    bool found = true;
+    while ( found )
     {
-	bool found = false;
+	found = false;
 	int idx = 0;
+
 	while ( idx<announcedtraces_.size() )
 	{
 	    const BinID& bid = announcedtraces_[idx];
@@ -472,12 +473,10 @@ bool SeisSequentialWriter::submitTrace( SeisTrc* trc, bool waitforbuffer )
 
 	if ( idx>=0 )
 	    announcedtraces_.remove( 0, idx );
-
-	if ( !found )
-	    return true;
-
-	lock_.signal(true);
     }
+
+    if ( found )
+	lock_.signal(true);
 
     if ( waitforbuffer )
     {
