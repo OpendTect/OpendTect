@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.224 2011-03-16 12:10:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.225 2011-03-21 16:16:04 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -394,37 +394,40 @@ void uiODMenuMgr::fillProcMenu()
 {
     procmnu_->clear();
 
-    uiPopupMenu* voitm = new uiPopupMenu( &appl_, "&Create Seismic Output" );
-    create2D3DMnu( voitm, "&Attribute", mSeisOut2DMnuItm, mSeisOut3DMnuItm,
+    uiPopupMenu* csoitm = new uiPopupMenu( &appl_, "&Create Seismic Output" );
+    create2D3DMnu( csoitm, "&Attribute", mSeisOut2DMnuItm, mSeisOut3DMnuItm,
 	   	   "attributes.png" );
     if ( SI().has3D() )
     {
-	voitm->insertItem(
+	csoitm->insertItem(
 	    new uiMenuItem("Volume &Builder ...",
 			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
-	voitm->insertItem(
+	csoitm->insertItem(
 	    new uiMenuItem("&Time - depth conversion ...",
 			mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
 	if ( SI().zIsTime() )
 	{
-	    voitm->insertItem(
+	    csoitm->insertItem(
 		new uiMenuItem("&Velocity conversion ...",
 			    mCB(&applMgr(),uiODApplMgr,processVelConv)) );
 	}
-	voitm->insertItem(
+	csoitm->insertItem(
 	    new uiMenuItem("&Pre Stack processing ...",
 			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
-	voitm->insertItem(
+	csoitm->insertItem(
 	    new uiMenuItem("Bayesian &Classification ...",
 			mCB(&applMgr(),uiODApplMgr,bayesClass3D), "bayes.png"));
     }
-    create2D3DMnu( voitm, "&Between horizons", mCompBetweenHor2DMnuItm,
+    create2D3DMnu( csoitm, "&Between horizons", mCompBetweenHor2DMnuItm,
 	    	   mCompBetweenHor3DMnuItm, "betweenhors.png" );
-    create2D3DMnu( voitm, "&Along horizon", mCompAlongHor2DMnuItm,
+    create2D3DMnu( csoitm, "&Along horizon", mCompAlongHor2DMnuItm,
 	    	   mCompAlongHor3DMnuItm, "alonghor.png" );
-    mInsertItem( voitm, "&Re-Start ...", mReStartMnuItm );
+    mInsertItem( csoitm, "&Re-Start ...", mReStartMnuItm );
+    uiPopupMenu* scnitm = new uiPopupMenu( &appl_, "SEG-&Y Scanned Re-sort" );
+    csoitm->insertItem( new uiMenuItem("SEG-&Y Scanned Re-sort ...",
+		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
 
-    procmnu_->insertItem( voitm );
+    procmnu_->insertItem( csoitm );
 
     uiPopupMenu* grditm = new uiPopupMenu( &appl_, "Create Grid Output");
     create2D3DMnu( grditm, "&Grid", mCreateSurf2DMnuItm, mCreateSurf3DMnuItm,

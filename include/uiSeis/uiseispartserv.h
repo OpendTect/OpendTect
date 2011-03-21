@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.46 2010-09-10 10:32:47 cvssatyaki Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.47 2011-03-21 16:16:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,7 @@ public:
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
 
     void		processTime2Depth() const;
+    void		resortSEGY() const;
     void		processVelConv() const;
 
     void		manageSeismics(bool);

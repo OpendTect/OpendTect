@@ -1,0 +1,123 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:        Bert
+ Date:          Mar 2011
+________________________________________________________________________
+
+-*/
+static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.1 2011-03-21 16:16:04 cvsbert Exp $";
+
+#include "uisegyresortdlg.h"
+#include "uiseissel.h"
+#include "uifileinput.h"
+#include "uitaskrunner.h"
+#include "uisegydef.h"
+#include "uimsg.h"
+#include "segyresorter.h"
+#include "survinfo.h"
+
+static const char* sKeySEGYDirect = "SEGYDirect";
+
+
+uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
+    : uiDialog( p, uiDialog::Setup("Re-sort SEG-Y scanned",
+		"Produce new SEG-Y file from scanned data",mTODOHelpID) )
+    , geomfld_(0)
+    , volfld_(0)
+    , ps3dfld_(0)
+    , ps2dfld_(0)
+    , linesfld_(0)
+{
+    BufferStringSet geomnms;
+    if ( SI().has3D() )
+    {
+	geomnms.add( Seis::nameOf(Seis::VolPS) );
+	geomnms.add( Seis::nameOf(Seis::Vol) );
+    }
+    if ( SI().has2D() )
+	geomnms.add( Seis::nameOf(Seis::LinePS) );
+    if ( geomnms.size() > 1 )
+	geomfld_ = new uiGenInput( this, "Type", StringListInpSpec(geomnms) );
+
+#define mDefSeisSelFld(fldnm,geom) \
+    IOObjContext ctxt##fldnm( uiSeisSel::ioContext(Seis::geom,true) ); \
+    ctxt##fldnm.toselect.allowtransls_ = sKeySEGYDirect; \
+    uiSeisSel::Setup sssu##fldnm( Seis::geom ); \
+    fldnm##fld_ = new uiSeisSel( this, ctxt##fldnm, sssu##fldnm ); \
+    fldnm##fld_->attach( alignedBelow, geomfld_ )
+
+    if ( SI().has3D() )
+    {
+	mDefSeisSelFld(vol,Vol);
+	mDefSeisSelFld(ps3d,VolPS);
+	linesfld_ = new uiGenInput( this, "Number of lines per file",
+				      IntInpSpec(100) );
+	linesfld_->setWithCheck( true );
+	linesfld_->setChecked( false );
+	linesfld_->attach( alignedBelow, ps3dfld_ );
+    }
+    if ( SI().has2D() )
+    {
+	mDefSeisSelFld(ps2d,LinePS);
+    }
+
+    outfld_ = new uiFileInput( this, "Output file(s)",
+	    			uiFileInput::Setup(uiFileDialog::Gen));
+    outfld_->setFilter( uiSEGYFileSpec::fileFilter() );
+    outfld_->attach( alignedBelow, ps2dfld_ ? ps2dfld_ : ps3dfld_ );
+    if ( linesfld_ )
+	outfld_->attach( ensureBelow, linesfld_ );
+
+    finaliseDone.notify( mCB(this,uiResortSEGYDlg,geomSel) );
+}
+
+
+void uiResortSEGYDlg::geomSel( CallBacker* )
+{
+    if ( !geomfld_ )
+	return;
+
+    uiSeisSel* curss = seisSel();
+#define mDispFld(nm) \
+    if ( nm##fld_ ) nm##fld_->display( nm##fld_ == curss )
+    mDispFld(vol); mDispFld(ps3d); mDispFld(ps2d);
+}
+
+
+Seis::GeomType uiResortSEGYDlg::geomType() const
+{
+    return geomfld_ ? Seis::geomTypeOf( geomfld_->text() ) : Seis::LinePS; 
+}
+
+
+uiSeisSel* uiResortSEGYDlg::seisSel()
+{
+    return geomfld_ ? (geomType() == Seis::VolPS ? ps3dfld_ : volfld_)
+		    : ps2dfld_;
+}
+
+
+bool uiResortSEGYDlg::acceptOK( CallBacker* )
+{
+    uiSeisSel* sel = seisSel();
+    const IOObj* ioobj = seisSel()->ioobj();
+    if ( !ioobj )
+	return false;
+
+    const char* fnm = outfld_->fileName();
+    if ( !fnm || !*fnm )
+    {
+	uiMSG().error( "Please enter the output file name" );
+	return false;
+    }
+
+    SEGY::ReSorter::Setup su( geomType(), ioobj->key(), fnm );
+    if ( linesfld_ && linesfld_->isChecked() )
+	su.nridxsperfile( linesfld_->getIntValue() );
+
+    SEGY::ReSorter sr( su );
+    uiTaskRunner tr( this );
+    return tr.execute( sr );
+}

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.27 2011-01-31 08:41:57 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.28 2011-03-21 16:16:04 cvsbert Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -395,3 +395,5 @@ void uiODApplMgrDispatcher::manageShortcuts()
 { uiShortcutsDlg dlg( par_, "ODScene" ); dlg.go(); }
 void uiODApplMgrDispatcher::setFonts()
 { uiSetFonts dlg( par_, "Set font types" ); dlg.go(); }
+void uiODApplMgrDispatcher::resortSEGY()
+{ am_.seisserv_->resortSEGY(); }
