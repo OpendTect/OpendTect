@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.52 2011-03-04 12:27:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.53 2011-03-21 15:42:27 cvsbruno Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -430,6 +430,8 @@ uiGraphicsObjectScene::uiGraphicsObjectScene( const char* nm )
     layoutitem_->setLayout( layout_ );
     qGraphicsScene()->addItem( layoutitem_ );
     layout_->setSpacing( 0 );
+    layout_->setContentsMargins( 0, 0, 0, 0 );
+    setLayoutPos( 0, 0 );
 }
 
 
