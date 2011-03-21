@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.43 2011-03-10 17:16:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.44 2011-03-21 11:05:53 cvsraman Exp $";
 
 #include "cubesampling.h"
 
@@ -86,6 +86,17 @@ StepInterval<int> HorSampling::crlRange() const
 { return StepInterval<int>( start.crl, stop.crl, step.crl ); }
 
 
+bool HorSampling::includes( const HorSampling& hs, bool ignoresteps ) const
+{
+    if ( ignoresteps )
+	return hs.start.inl >= start.inl && hs.stop.inl <= stop.inl;
+
+    return includes(hs.start) && includes(hs.stop)
+	&& step.inl && !(hs.step.inl % step.inl)
+	&& step.crl && !(hs.step.crl % step.crl);
+}
+
+
 void HorSampling::includeInl( int inl )
 {
     if ( mIsUdf(start.inl) || mIsUdf(stop.inl) || nrInl()<1 )
@@ -107,6 +118,30 @@ void HorSampling::includeCrl( int crl )
 	start.crl = mMIN( start.crl, crl );
 	stop.crl = mMAX( stop.crl, crl );
     }
+}
+
+
+void HorSampling::include( const HorSampling& hs, bool ignoresteps )
+{
+    if ( ignoresteps )
+    {
+	include( hs.start );
+	include( hs.stop );
+	return;
+    }
+
+#define mHandleIC( ic ) \
+    const int newstart##ic = mMIN( start.ic, hs.start.ic ); \
+    const int newstop##ic = mMAX( stop.ic, hs.stop.ic ); \
+    int offset##ic = mIsUdf(start.ic) || mIsUdf(hs.start.ic) ? 0 \
+	: ( start.ic != newstart##ic ? start.ic - newstart##ic \
+				     : hs.start.ic - newstart##ic ); \
+    step.ic = Math::HCFOf( step.ic, hs.step.ic ); \
+    if ( offset##ic ) step.ic = Math::HCFOf( step.ic, offset##ic ); \
+    start.ic = newstart##ic; stop.ic = newstop##ic
+
+    mHandleIC(inl);
+    mHandleIC(crl);
 }
 
 
@@ -208,12 +243,12 @@ int HorSampling::nrInl() const
     if ( (mIsUdf(start.inl) && mIsUdf(stop.inl)) )
 	return 0;
     
-    if ( start.inl==stop.inl )
-	return 1;
-    
     if ( !step.inl )
 	return 0;
 
+    if ( start.inl==stop.inl )
+	return 1;
+    
     int ret = inlIdx( stop.inl );
     return ret < 0 ? 1 - ret : ret + 1;
 }
@@ -224,12 +259,12 @@ int HorSampling::nrCrl() const
     if ( (mIsUdf(start.crl) && mIsUdf(stop.crl)) )
 	return 0;
     
-    if ( start.crl==stop.crl )
-	return 1;
-    
     if ( !step.crl )
 	return 0;
 
+    if ( start.crl==stop.crl )
+	return 1;
+    
     int ret = crlIdx( stop.crl );
     return ret < 0 ? 1 - ret : ret + 1;
 }
@@ -439,11 +474,8 @@ od_int64 CubeSampling::totalNr() const
 
 bool CubeSampling::includes( const CubeSampling& c ) const
 {
-    return
-	hrg.includes( c.hrg.start ) &&
-	hrg.includes( c.hrg.stop ) &&
-	zrg.includes( c.zrg.start ) &&
-	zrg.includes( c.zrg.stop );
+    return hrg.includes( c.hrg ) && 
+	zrg.includes( c.zrg.start ) && zrg.includes( c.zrg.stop );
 }
 
 
@@ -452,7 +484,7 @@ void CubeSampling::include( const CubeSampling& c )
     CubeSampling cs( c ); cs.normalise();
     normalise();
 
-    hrg.include( cs.hrg.start ); hrg.include( cs.hrg.stop );
+    hrg.include( cs.hrg );
     if ( cs.zrg.start < zrg.start ) zrg.start = cs.zrg.start;
     if ( cs.zrg.stop > zrg.stop ) zrg.stop = cs.zrg.stop;
     if ( cs.zrg.step < zrg.step ) zrg.step = cs.zrg.step;

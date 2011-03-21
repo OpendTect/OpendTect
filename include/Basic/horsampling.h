@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.11 2011-03-10 17:53:30 cvsyuancheng Exp $
+ RCS:           $Id: horsampling.h,v 1.12 2011-03-21 11:05:53 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,9 +35,10 @@ public:
     void		setInlRange(const Interval<int>&);
     void		setCrlRange(const Interval<int>&);
 
+    bool		includes( const HorSampling& hs,
+	    			  bool ignoresteps=false ) const;
     inline bool		includes( const BinID& bid ) const
 			{ return inlOK(bid.inl) && crlOK(bid.crl); }
-
     inline bool		inlOK( int inl ) const
 			{ return inl >= start.inl && inl <= stop.inl && 
 			    (step.inl ? !( (inl-start.inl) % step.inl )
@@ -52,6 +53,7 @@ public:
 			{ includeInl(bid.inl); includeCrl(bid.crl); }
     void		includeInl( int inl );
     void		includeCrl( int crl );
+    void		include( const HorSampling&, bool ignoresteps=false );
     bool		isDefined() const;
     void		limitTo(const HorSampling&);
     void		limitToWithUdf(const HorSampling&);
