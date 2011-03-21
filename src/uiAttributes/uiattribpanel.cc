@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 #include "attribdatapack.h"
 #include "arrayndimpl.h"
+#include "flatposdata.h"
 #include "survinfo.h"
 #include "uitaskrunner.h"
 #include "uiflatviewer.h"
@@ -127,13 +128,15 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 	flatvwin_ =
 	    new uiFlatViewMainWin( 0, uiFlatViewMainWin::Setup(getPanelName()));
 	uiFlatViewer& vwr = flatvwin_->viewer();
-	vwr.setPack( false, fdpack->id(), false );
 	vwr.setInitialSize( uiSize(400,600) );
 	FlatView::Appearance& app = vwr.appearance();
 	app.annot_.setAxesAnnot( true );
+	app.annot_.x1_.sampling_ = fdpack->posData().range(true);
+	app.annot_.x2_.sampling_ = fdpack->posData().range(false);
 	app.setDarkBG( false );
 	app.setGeoDefaults( true );
 	app.ddpars_.show( false, true );
+	vwr.setPack( false, fdpack->id(), false );
 	flatvwin_->addControl( new uiFlatViewStdControl( flatvwin_->viewer(),
 			       uiFlatViewStdControl::Setup(0) ) );
 	flatvwin_->setDeleteOnClose( false );
