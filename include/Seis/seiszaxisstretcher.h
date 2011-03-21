@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		January 2008
- RCS:		$Id: seiszaxisstretcher.h,v 1.8 2010-12-13 22:25:19 cvskris Exp $
+ RCS:		$Id: seiszaxisstretcher.h,v 1.9 2011-03-21 01:22:06 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -48,6 +48,7 @@ public:
 protected:
 
     bool		doPrepare(int);
+    bool		doFinish(bool);
     bool		doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const		{ return totalnr_; }
 

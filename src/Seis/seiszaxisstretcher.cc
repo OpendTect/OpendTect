@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.13 2010-12-17 11:02:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.14 2011-03-21 01:22:06 cvskris Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -286,4 +286,13 @@ bool SeisZAxisStretcher::loadTransformChunk( int inl )
 	ztransform_.setVolumeOfInterest( voiid_, cs, forward_ );
 
     return ztransform_.loadDataIfMissing( voiid_ );
+}
+
+
+bool SeisZAxisStretcher::doFinish( bool success )
+{
+    if ( !sequentialwriter_->finishWrite() )
+	return false;
+
+    return success;
 }
