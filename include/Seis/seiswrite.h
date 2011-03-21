@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.30 2010-10-25 18:13:38 cvskris Exp $
+ RCS:		$Id: seiswrite.h,v 1.31 2011-03-21 01:26:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,12 +126,18 @@ public:
     			/*!<Trc becomes mine. If waitforbuffer is true and
 			    buffer is full, wait until buffer gets smaller. */
 
-    const char*		errMsg() const { return errmsg_; }
+    bool		finishWrite();
+    			/*!<Wait for everything to be written. Should be
+			    after final submitTrace, before closure.*/
+
+    const char*		errMsg() const { return errmsg_.str(); }
 
 protected:
 
-    SeisTrcWriter*		writer_;
+    void			reportWrite(const char*);
+    friend class		SeisSequentialWriterTask;
 
+    SeisTrcWriter*		writer_;
     TypeSet<BinID>		announcedtraces_;
     Threads::ConditionVar	lock_;
     ObjectSet<SeisTrc>		outputs_;
@@ -139,7 +145,8 @@ protected:
 
     BinID			latestbid_;
 
-    FixedString			errmsg_;
+    int				queueid_;
+    BufferString		errmsg_;
 };
     			
 

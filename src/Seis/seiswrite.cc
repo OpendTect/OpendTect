@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.58 2010-10-25 18:13:38 cvskris Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.59 2011-03-21 01:26:37 cvskris Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: seiswrite.cc,v 1.58 2010-10-25 18:13:38 cvskris
 #include "ioman.h"
 #include "separstr.h"
 #include "surv2dgeom.h"
+#include "threadwork.h"
 #include "iopar.h"
 
 
@@ -339,7 +340,24 @@ SeisSequentialWriter::SeisSequentialWriter( SeisTrcWriter* writer,
     : writer_( writer )
     , maxbuffersize_( buffsize<1 ? Threads::getNrProcessors()*2 : buffsize )
     , latestbid_( -1, -1 )
-{}
+{
+    queueid_ = Threads::WorkManager::twm().addQueue(
+				    Threads::WorkManager::SingleThread );
+}
+
+
+bool SeisSequentialWriter::finishWrite()
+{
+    if ( outputs_.size() )
+    {
+	pErrMsg( "Buffer is not empty" );
+	deepErase( outputs_ );
+    }
+
+    Threads::WorkManager::twm().emptyQueue( queueid_, true );
+
+    return errmsg_.str();
+}
 
 
 SeisSequentialWriter::~SeisSequentialWriter()
@@ -349,6 +367,13 @@ SeisSequentialWriter::~SeisSequentialWriter()
 	pErrMsg( "Buffer is not empty" );
 	deepErase( outputs_ );
     }
+
+    if ( Threads::WorkManager::twm().queueSize( queueid_ ) )
+    {
+	pErrMsg("finishWrite is not called");
+    }
+
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
 
 
@@ -367,6 +392,45 @@ bool SeisSequentialWriter::announceTrace( const BinID& bid )
 }
 
 
+class SeisSequentialWriterTask : public Task
+{
+public:
+    SeisSequentialWriterTask( SeisSequentialWriter& imp, SeisTrcWriter& writer,
+			      SeisTrc* trc )
+	: ssw_( imp )
+	, writer_( writer )
+	, trc_( trc )
+    {}
+
+    bool execute()
+    {
+	BufferString errmsg;
+	if ( !writer_.put( *trc_ ) )
+	{
+	    errmsg = writer_.errMsg();
+	    if ( errmsg.isEmpty() )
+	    {
+		pErrMsg( "Need an error message from writer" );
+		errmsg = "Cannot write trace";
+	    }
+	}
+
+	delete trc_;
+
+	ssw_.reportWrite( errmsg.str() );
+	return !errmsg.str();
+    }
+
+
+protected:
+
+    SeisSequentialWriter&       ssw_;
+    SeisTrcWriter&     		writer_;
+    SeisTrc*             	trc_;
+};
+
+
+
 bool SeisSequentialWriter::submitTrace( SeisTrc* trc, bool waitforbuffer )
 {
     Threads::MutexLocker lock( lock_ );
@@ -375,7 +439,7 @@ bool SeisSequentialWriter::submitTrace( SeisTrc* trc, bool waitforbuffer )
     bool res = true;
     while ( true )
     {
-	ObjectSet<SeisTrc> trctowrite;
+	bool found = false;
 	int idx = 0;
 	while ( idx<announcedtraces_.size() )
 	{
@@ -397,41 +461,53 @@ bool SeisSequentialWriter::submitTrace( SeisTrc* trc, bool waitforbuffer )
 		break;
 	    }
 
-	    trctowrite += trc;
+	    Task* task = new SeisSequentialWriterTask( *this, *writer_, trc );
+	    Threads::WorkManager::twm().addWork( Threads::Work(*task,true), 0,
+						 queueid_, false );
+
+	    found = true;
+
 	    idx++;
 	}
 
 	if ( idx>=0 )
 	    announcedtraces_.remove( 0, idx );
 
-	if ( !trctowrite.size() )
+	if ( !found )
 	    return true;
 
-	for ( int idy=0; res && idy<trctowrite.size(); idy++ )
-	{
-	    if ( !writer_->put( *trctowrite[idy] ) )
-	    {
-		errmsg_ = "Cannot write output.";
-		res = false;
-	    }
-	}
-
 	lock_.signal(true);
-	lock.unLock();
-
-	deepErase( trctowrite );
-
-	if ( !res )
-	    return res;
-
-	lock.lock();
     }
 
     if ( waitforbuffer )
     {
-	while ( outputs_.size()>=maxbuffersize_ )
+	int bufsize = outputs_.size() +
+	    Threads::WorkManager::twm().queueSize( queueid_ );
+	while ( bufsize>=maxbuffersize_ && !errmsg_.str() )
+	{
 	    lock_.wait();
+	    bufsize = outputs_.size() +
+			Threads::WorkManager::twm().queueSize( queueid_ );
+	}
     }
 
-    return res;
+    return errmsg_.str();
+}
+
+
+void SeisSequentialWriter::reportWrite( const char* errmsg )
+{
+    Threads::MutexLocker lock( lock_ );
+    if ( errmsg )
+    {
+	errmsg_ = errmsg;
+	Threads::WorkManager::twm().emptyQueue( queueid_, false );
+	lock_.signal( true );
+	return;
+    }
+
+    const int bufsize = Threads::WorkManager::twm().queueSize( queueid_ ) + 
+			outputs_.size();
+    if ( bufsize<maxbuffersize_ )
+	lock_.signal( true );
 }
