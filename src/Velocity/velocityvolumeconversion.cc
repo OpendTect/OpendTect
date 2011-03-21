@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.9 2011-03-21 01:25:52 cvskris Exp $";
+static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.10 2011-03-21 12:57:43 cvsbruno Exp $";
 
 #include "velocityvolumeconversion.h"
 
@@ -198,16 +198,21 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	float* interptr = 0;
 	if ( velinpdesc_.type_ != VelocityDesc::Interval )
 	{
-	    mTryAlloc(interptr,float[trc.size()])
-	    if ( !interptr )
+	    if ( veloutpdesc_ != VelocityDesc::Interval )
 	    {
-		delete outputtrc;
-		outputtrc = 0;
-		return false;
+		mTryAlloc(interptr,float[trc.size()]);
+		if ( !interptr )
+		{
+		    errmsg_ = "Not enough memory";
+		    delete outputtrc;
+		    outputtrc = 0;
+		    return false;
+		}
 	    }
 	    if ( velinpdesc_.type_ == VelocityDesc::Avg ) 
 	    {
-		 if ( !computeVint( inputptr, sd, trc.size(), interptr ) )
+		 if ( !computeVint( inputptr, sd, trc.size(), 
+			     		interptr ? interptr : outptr ) );
 		{
 		    delete outputtrc;
 		    outputtrc = 0;
@@ -215,7 +220,8 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	    }
 	    else 
 	    {
-		if ( !computeDix( inputptr, sd, trc.size(), interptr ) )
+		if ( !computeDix( inputptr, sd, trc.size(), 
+					interptr ? interptr :outptr ) );
 		{
 		    delete outputtrc;
 		    outputtrc = 0;
