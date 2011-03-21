@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.8 2011-03-18 16:28:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.9 2011-03-21 01:25:52 cvskris Exp $";
 
 #include "velocityvolumeconversion.h"
 
@@ -84,6 +84,9 @@ bool VolumeConverter::doFinish( bool res )
 {
     delete reader_;
     reader_ = 0;
+
+    if ( !sequentialwriter_->finishWrite() )
+	res = false;
 
     delete sequentialwriter_;
     sequentialwriter_ = 0;
