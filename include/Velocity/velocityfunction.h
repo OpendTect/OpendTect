@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunction.h,v 1.9 2010-11-09 22:05:14 cvskris Exp $
+ RCS:		$Id: velocityfunction.h,v 1.10 2011-03-22 20:04:45 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -115,13 +115,12 @@ protected:
     				//!<Caller must readlock before calling
 
 
-    mutable Threads::ReadWriteLock	functionslock_;
     MultiID				mid_;
     BufferString			errmsg_;
 
     ObjectSet<Function>			functions_;
     TypeSet<int>			refcounts_;
-    Threads::Mutex			refcountlock_;
+    Threads::Mutex			lock_;
 };
 
 }; //namespace
