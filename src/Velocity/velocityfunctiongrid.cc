@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.20 2011-03-22 20:04:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.21 2011-03-22 22:00:18 cvsyuancheng Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -503,10 +503,7 @@ const ObjectSet<FunctionSource>& GriddedSource::getSources() const
 GriddedFunction* GriddedSource::createFunction()
 {
     GriddedFunction* res = new GriddedFunction( *this );
-    res->ref();
-
     if ( gridder_ ) res->setGridder( *gridder_ );
-    res->unRefNoDelete();
     return res;
 }
 
@@ -514,15 +511,12 @@ GriddedFunction* GriddedSource::createFunction()
 GriddedFunction* GriddedSource::createFunction( const BinID& binid )
 {
     GriddedFunction* res = createFunction();
-    res->ref();
-
     if ( !res->moveTo(binid) )
     {
-	res->unRef();
+	delete res;
 	return 0;
     }
-
-    res->unRefNoDelete();
+    
     return res;
 }
 

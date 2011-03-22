@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctiongrid.h,v 1.8 2010-11-09 22:35:50 cvskris Exp $
+ RCS:		$Id: velocityfunctiongrid.h,v 1.9 2011-03-22 22:00:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ public:
 
 protected:
     			~GriddedFunction();
+    friend		class GriddedSource;			
 
     bool		computeVelocity(float z0, float dz, int nr,
 					float* res ) const;

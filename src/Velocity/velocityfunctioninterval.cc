@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctioninterval.cc,v 1.7 2011-03-22 20:04:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: velocityfunctioninterval.cc,v 1.8 2011-03-22 22:00:18 cvsyuancheng Exp $";
 
 #include "velocityfunctioninterval.h"
 
@@ -132,10 +132,8 @@ IntervalFunction* IntervalSource::createFunction( const BinID& bid )
 	return 0;
 
     IntervalFunction* res = new IntervalFunction( *this );
-    res->ref();
     res->setInput( inputfunc );
 
-    res->unRefNoDelete();
     return res;
 }
 
