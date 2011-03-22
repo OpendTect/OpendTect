@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunction.cc,v 1.8 2010-11-09 22:05:14 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunction.cc,v 1.9 2011-03-22 20:04:04 cvsyuancheng Exp $";
 
 #include "velocityfunction.h"
 
@@ -142,65 +142,37 @@ BufferString FunctionSource::userName() const
 
 void FunctionSource::refFunction( const Function* func )
 {
-    bool iswritelock = false;
-    Threads::MutexLocker lock( refcountlock_ );
-    functionslock_.readLock();
+    Threads::MutexLocker lock( lock_ );
     int idx = functions_.indexOf( func );
     if ( idx==-1 )
     {
-	functionslock_.readUnLock();
-	functionslock_.writeLock();
-
-	idx = functions_.indexOf( func );
-	if ( idx==-1 )
-	{
-	    idx = refcounts_.size();
-	    functions_ += const_cast<Function*>( func );
-	    refcounts_ += 0;
-	}
-
-	iswritelock = true;
+	idx = refcounts_.size();
+	functions_ += const_cast<Function*>( func );
+	refcounts_ += 0;
     }
-
+    
     refcounts_[idx]++;
-
-    if ( iswritelock )
-	functionslock_.writeUnLock();
-    else
-	functionslock_.readUnLock();
 }
 
 
 bool FunctionSource::unRefFunction( const Function* func )
 {
     bool remove = false;
-    Threads::MutexLocker lock( refcountlock_ );
-    functionslock_.readLock();
+    Threads::MutexLocker lock( lock_ );
     int idx = functions_.indexOf( func );
     if ( idx==-1 )
     {
 	pErrMsg("Unknown function" );
-	functionslock_.readUnLock();
     }
     else
     {
 	refcounts_[idx]--;
 	remove = !refcounts_[idx];
-	functionslock_.readUnLock();
 
 	if ( remove )
 	{
-	    functionslock_.writeLock();
-	    idx = functions_.indexOf( func );
-	    remove = !refcounts_[idx];
-
-	    if ( remove )
-	    {
-		refcounts_.remove( idx );
-		functions_.remove( idx );
-	    }
-
-	    functionslock_.writeUnLock();
+	    refcounts_.remove( idx );
+	    functions_.remove( idx );
 	}
     }
 
@@ -239,23 +211,26 @@ RefMan<const Function> FunctionSource::getFunction( const BinID& bid )
     if ( mIsUdf(bid.inl) || mIsUdf(bid.crl) )
 	return 0;
 
-    RefMan<Function> tmpfunc = 0;
-
-    functionslock_.readLock();
-    int idx = findFunction( bid );
+    Threads::MutexLocker lock( lock_ );
+    Function* tmpfunc = 0;
+    int idx = findFunction( bid );  
     if ( idx==-1 )
     {
-	functionslock_.readUnLock();
-
-	tmpfunc = createFunction(bid);
-	functionslock_.readLock();
-	idx = findFunction( bid );
+ 	tmpfunc = createFunction( bid );
+ 	functions_ += tmpfunc;
+ 	refcounts_ += 1;
     }
-
-    RefMan<const Function> res = idx!=-1 ? functions_[idx] : 0;
-
-    functionslock_.readUnLock();
-
+    else
+    {
+       	tmpfunc = functions_[idx];
+       	refcounts_[idx]++;
+    }
+    
+    lock.unLock();
+    
+    RefMan<const Function> res = tmpfunc;
+    tmpfunc->unRef();
+    
     return res;
 }
 

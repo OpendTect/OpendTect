@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.14 2010-11-30 18:00:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.15 2011-03-22 20:04:04 cvsyuancheng Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -285,14 +285,12 @@ VolumeFunction*
 VolumeFunctionSource::createFunction(const BinID& binid)
 {
     VolumeFunction* res = new VolumeFunction( *this );
-    res->ref();
     if ( !res->moveTo(binid) )
     {
-	res->unRef();
+	delete res;
 	return 0;
     }
 
-    res->unRefNoDelete();
     return res;
 }
 
