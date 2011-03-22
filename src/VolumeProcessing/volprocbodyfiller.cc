@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.7 2011-03-21 11:34:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.8 2011-03-22 08:54:22 cvsnanne Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -141,7 +141,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     const bool useinput = input_ &&
 	inputinlidx>=0 && inputinlidx < input_->getCube(0).info().getSize(0) &&
 	inputcrlidx>=0 && inputcrlidx < input_->getCube(0).info().getSize(1);
-    const int inputzsz = useinput && input_ ? input_->getCube(0).info().getSize(2) : 0;
+    const int inputzsz = useinput && input_
+	? input_->getCube(0).info().getSize(2) : 0;
  
     int bodyinlidx, bodycrlidx;
     bool alloutside;
