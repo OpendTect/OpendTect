@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.48 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.49 2011-03-23 12:00:07 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -350,7 +350,6 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
 	return;
     }
 
-    posdata_.sort();
     StreamData sd = StreamProvider(cachefnm).makeOStream();
     if ( sd.usable() )
     {
