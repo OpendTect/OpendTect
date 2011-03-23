@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.30 2011-03-16 15:44:18 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.31 2011-03-23 11:57:49 cvsbert Exp $";
 
 #include "segydirectdef.h"
 
@@ -89,7 +89,23 @@ FileDataSet::TrcIdx find( const Seis::PosKey& pk,
 			  const Seis::PosIndexer& idxer,
        			  bool chkoffs ) const
 {
-    od_int64 nr = idxer.findFirst( pk, chkoffs );
+    const od_int64 nr = idxer.findFirst( pk, chkoffs );
+    return fds_->getFileIndex( nr );
+}
+
+
+FileDataSet::TrcIdx findOcc( const Seis::PosKey& pk,
+			     const Seis::PosIndexer& idxer,
+			     int occ ) const
+{
+    const od_int64 nr = idxer.findFirst( pk, false ) + occ;
+    if ( !idxer.validIdx(nr) )
+	return FileDataSet::TrcIdx();
+
+    Seis::PosKey foundpk( key(nr) );
+    if ( foundpk.binID() != pk.binID() )
+	return FileDataSet::TrcIdx();
+
     return fds_->getFileIndex( nr );
 }
 
@@ -167,6 +183,19 @@ SEGY::FileDataSet::TrcIdx SEGY::DirectDef::find( const Seis::PosKey& pk,
     }
 
     return keylist_->find( pk, *indexer_, chkoffs );
+}
+
+
+SEGY::FileDataSet::TrcIdx SEGY::DirectDef::findOcc( const Seis::PosKey& pk,
+						    int occ ) const
+{
+    if ( !keylist_ || !indexer_ )
+    {
+	SEGY::FileDataSet::TrcIdx res;
+	return res;
+    }
+
+    return keylist_->findOcc( pk, *indexer_, occ );
 }
 
 

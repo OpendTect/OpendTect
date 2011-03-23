@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.21 2011-03-16 16:17:39 cvsbert Exp $
+ RCS:		$Id: segydirectdef.h,v 1.22 2011-03-23 11:57:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,10 @@ public:
 			//Functions to read/query
     bool		readFromFile(const char*);
     const IOPar*	segyPars() const;
-    FileDataSet::TrcIdx	find(const Seis::PosKey&,bool chkoffs) const;
     FixedString		fileName(int idx) const;
+    FileDataSet::TrcIdx	find(const Seis::PosKey&,bool chkoffs) const;
+    FileDataSet::TrcIdx	findOcc(const Seis::PosKey&,int occ) const;
+    			//!< will not look at offset
 
     			//Functions to write
     void		setData(FileDataSet&);
