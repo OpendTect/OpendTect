@@ -7,15 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.1 2011-03-21 16:16:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.2 2011-03-23 12:00:18 cvsbert Exp $";
 
 #include "uisegyresortdlg.h"
-#include "uiseissel.h"
+#include "uiioobjsel.h"
 #include "uifileinput.h"
 #include "uitaskrunner.h"
 #include "uisegydef.h"
 #include "uimsg.h"
 #include "segyresorter.h"
+#include "segydirecttr.h"
 #include "survinfo.h"
 
 static const char* sKeySEGYDirect = "SEGYDirect";
@@ -38,20 +39,28 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     }
     if ( SI().has2D() )
 	geomnms.add( Seis::nameOf(Seis::LinePS) );
-    if ( geomnms.size() > 1 )
-	geomfld_ = new uiGenInput( this, "Type", StringListInpSpec(geomnms) );
 
-#define mDefSeisSelFld(fldnm,geom) \
-    IOObjContext ctxt##fldnm( uiSeisSel::ioContext(Seis::geom,true) ); \
+    if ( geomnms.size() > 1 )
+    {
+	const CallBack geomcb( mCB(this,uiResortSEGYDlg,geomSel) );
+	geomfld_ = new uiGenInput( this, "Type", StringListInpSpec(geomnms) );
+	geomfld_->valuechanged.notify( geomcb );
+	finaliseDone.notify( mCB(this,uiResortSEGYDlg,geomSel) );
+    }
+
+
+#define mDefSeisSelFld(fldnm,geom,trtyp) \
+    IOObjContext ctxt##fldnm( mIOObjContext(trtyp) ); \
     ctxt##fldnm.toselect.allowtransls_ = sKeySEGYDirect; \
-    uiSeisSel::Setup sssu##fldnm( Seis::geom ); \
-    fldnm##fld_ = new uiSeisSel( this, ctxt##fldnm, sssu##fldnm ); \
+    uiIOObjSel::Setup ossu##fldnm( "Scanned input" ); \
+    ossu##fldnm.filldef( false ); \
+    fldnm##fld_ = new uiIOObjSel( this, ctxt##fldnm, ossu##fldnm ); \
     fldnm##fld_->attach( alignedBelow, geomfld_ )
 
     if ( SI().has3D() )
     {
-	mDefSeisSelFld(vol,Vol);
-	mDefSeisSelFld(ps3d,VolPS);
+	mDefSeisSelFld(vol,Vol,SeisTrc);
+	mDefSeisSelFld(ps3d,VolPS,SeisPS3D);
 	linesfld_ = new uiGenInput( this, "Number of lines per file",
 				      IntInpSpec(100) );
 	linesfld_->setWithCheck( true );
@@ -60,17 +69,15 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     }
     if ( SI().has2D() )
     {
-	mDefSeisSelFld(ps2d,LinePS);
+	mDefSeisSelFld(ps2d,LinePS,SeisPS2D);
     }
 
-    outfld_ = new uiFileInput( this, "Output file(s)",
-	    			uiFileInput::Setup(uiFileDialog::Gen));
-    outfld_->setFilter( uiSEGYFileSpec::fileFilter() );
+    uiFileInput::Setup fisu( uiFileDialog::Gen );
+    fisu.forread( false ).filter( uiSEGYFileSpec::fileFilter() );
+    outfld_ = new uiFileInput( this, "Output file(s)", fisu );
     outfld_->attach( alignedBelow, ps2dfld_ ? ps2dfld_ : ps3dfld_ );
     if ( linesfld_ )
 	outfld_->attach( ensureBelow, linesfld_ );
-
-    finaliseDone.notify( mCB(this,uiResortSEGYDlg,geomSel) );
 }
 
 
@@ -79,9 +86,9 @@ void uiResortSEGYDlg::geomSel( CallBacker* )
     if ( !geomfld_ )
 	return;
 
-    uiSeisSel* curss = seisSel();
+    uiIOObjSel* curos = objSel();
 #define mDispFld(nm) \
-    if ( nm##fld_ ) nm##fld_->display( nm##fld_ == curss )
+    if ( nm##fld_ ) nm##fld_->display( nm##fld_ == curos )
     mDispFld(vol); mDispFld(ps3d); mDispFld(ps2d);
 }
 
@@ -92,7 +99,7 @@ Seis::GeomType uiResortSEGYDlg::geomType() const
 }
 
 
-uiSeisSel* uiResortSEGYDlg::seisSel()
+uiIOObjSel* uiResortSEGYDlg::objSel()
 {
     return geomfld_ ? (geomType() == Seis::VolPS ? ps3dfld_ : volfld_)
 		    : ps2dfld_;
@@ -101,8 +108,7 @@ uiSeisSel* uiResortSEGYDlg::seisSel()
 
 bool uiResortSEGYDlg::acceptOK( CallBacker* )
 {
-    uiSeisSel* sel = seisSel();
-    const IOObj* ioobj = seisSel()->ioobj();
+    const IOObj* ioobj = objSel()->ioobj();
     if ( !ioobj )
 	return false;
 

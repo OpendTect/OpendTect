@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyresorter.h,v 1.1 2011-03-21 16:16:04 cvsbert Exp $
+ RCS:		$Id: segyresorter.h,v 1.2 2011-03-23 12:00:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seisposkey.h"
 #include "multiid.h"
 class SeisTrc;
+namespace PosInfo { class LineData; }
 
 
 namespace SEGY
@@ -64,11 +65,18 @@ protected:
     const Setup		setup_;
 
     SEGY::DirectReader*	drdr_;
-    Seis::PosKey	pk_;
     SeisTrc&		trc_;
     BufferString	msg_;
     od_int64		nrdone_;
     od_int64		totnr_;
+
+    int			inlidx_;
+    int			segidx_;
+    int			crlidx_;
+
+    int			wrapUp();
+    bool		getCurPos(BinID&);
+    bool		createOutput(const BinID&);
 
 };
 

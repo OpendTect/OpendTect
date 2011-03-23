@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2011
- RCS:           $Id: uisegyresortdlg.h,v 1.1 2011-03-21 16:16:04 cvsbert Exp $
+ RCS:           $Id: uisegyresortdlg.h,v 1.2 2011-03-23 12:00:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "seistype.h"
-class uiSeisSel;
+class uiIOObjSel;
 class uiGenInput;
 class uiFileInput;
 
@@ -32,13 +32,13 @@ public :
 protected:
 
     uiGenInput*		geomfld_;
-    uiSeisSel*		volfld_;
-    uiSeisSel*		ps3dfld_;
-    uiSeisSel*		ps2dfld_;
+    uiIOObjSel*		volfld_;
+    uiIOObjSel*		ps3dfld_;
+    uiIOObjSel*		ps2dfld_;
     uiGenInput*		linesfld_;
     uiFileInput*	outfld_;
 
-    uiSeisSel*		seisSel();
+    uiIOObjSel*		objSel();
 
     void		geomSel(CallBacker*);
     bool		acceptOK(CallBacker*);
