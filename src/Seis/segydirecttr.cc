@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.18 2011-03-21 16:15:19 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.19 2011-03-23 11:59:37 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -18,6 +18,12 @@ static const char* rcsID = "$Id: segydirecttr.cc,v 1.18 2011-03-21 16:15:19 cvsb
 #include "dirlist.h"
 #include "seisselection.h"
 #include "seispacketinfo.h"
+
+
+SEGY::DirectReader::~DirectReader()
+{
+    delete tr_;
+}
 
 
 class SEGYDirectPSIOProvider : public SeisPSIOProvider
@@ -91,7 +97,6 @@ SEGYDirect3DPSReader::SEGYDirect3DPSReader( const char* fnm )
 SEGYDirect3DPSReader::~SEGYDirect3DPSReader()
 {
     delete &def_;
-    delete tr_;
 }
 
 
@@ -99,7 +104,7 @@ const PosInfo::CubeData& SEGYDirect3DPSReader::posData() const
 { return def_.cubeData(); }
 
 
-SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx, int nr,
+SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx,
 					 const BinID& bid ) const
 {
     if ( !errmsg_.isEmpty() )
@@ -111,7 +116,7 @@ SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx, int nr,
 	tr_ = createTranslator( def_, filenr );
 	curfilenr_ = filenr;
     }
-    if ( !tr_ || !tr_->goToTrace(trcidx+nr) )
+    if ( !tr_ || !tr_->goToTrace(trcidx) )
 	return 0;
 
     SeisTrc* trc = new SeisTrc;
@@ -126,8 +131,8 @@ SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx, int nr,
 
 SeisTrc* SEGYDirect3DPSReader::getTrace( const BinID& bid, int nr ) const
 {
-    SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid), false );
-    return ti.isValid() ? getTrace(ti.filenr_,ti.trcidx_,nr,bid) : 0;
+    SEGY::FileDataSet::TrcIdx ti = def_.findOcc( Seis::PosKey(bid), nr );
+    return ti.isValid() ? getTrace(ti.filenr_,ti.trcidx_,bid) : 0;
 }
 
 
@@ -140,14 +145,14 @@ bool SEGYDirect3DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
     if ( !ti.isValid() )
 	return false;
 
-    SeisTrc* trc = getTrace( ti.filenr_, ti.trcidx_, 0, bid );
+    SeisTrc* trc = getTrace( ti.filenr_, ti.trcidx_, bid );
     if ( !trc ) return false;
 
     tb.deepErase();
     for ( int itrc=1; trc; itrc++ )
     {
 	tb.add( trc );
-	trc = getTrace( ti.filenr_, ti.trcidx_, itrc, bid );
+	trc = getTrace( bid, itrc );
     }
     return true;
 }
@@ -164,7 +169,6 @@ SEGYDirect2DPSReader::SEGYDirect2DPSReader( const char* dirnm, const char* lnm )
 SEGYDirect2DPSReader::~SEGYDirect2DPSReader()
 {
     delete &def_;
-    delete tr_;
 }
 
 
@@ -172,7 +176,7 @@ const PosInfo::Line2DData& SEGYDirect2DPSReader::posData() const
 { return def_.lineData(); }
 
 
-SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx, int nr,
+SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx,
 					 int trcnr ) const
 {
     if ( filenr != curfilenr_ )
@@ -181,7 +185,7 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx, int nr,
 	tr_ = createTranslator( def_, filenr );
 	curfilenr_ = filenr;
     }
-    if ( !tr_ || !tr_->goToTrace(trcidx+nr) )
+    if ( !tr_ || !tr_->goToTrace(trcidx) )
 	return 0;
 
     SeisTrc* trc = new SeisTrc;
@@ -196,8 +200,8 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx, int nr,
 
 SeisTrc* SEGYDirect2DPSReader::getTrace( const BinID& bid, int nr ) const
 {
-    SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid.crl), false );
-    return ti.isValid() ? getTrace(ti.filenr_,ti.trcidx_,nr,bid.crl) : 0;
+    SEGY::FileDataSet::TrcIdx ti = def_.findOcc( Seis::PosKey(bid.crl), nr );
+    return ti.isValid() ? getTrace(ti.filenr_,ti.trcidx_,bid.crl) : 0;
 }
 
 
@@ -207,14 +211,14 @@ bool SEGYDirect2DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
     if ( !ti.isValid() )
 	return 0;
 
-    SeisTrc* trc = getTrace( ti.filenr_, ti.trcidx_, 0, bid.crl );
+    SeisTrc* trc = getTrace( ti.filenr_, ti.trcidx_, bid.crl );
     if ( !trc ) return false;
 
     tb.deepErase();
     for ( int itrc=1; trc; itrc++ )
     {
 	tb.add( trc );
-	trc = getTrace( ti.filenr_, ti.trcidx_, itrc, bid.crl );
+	trc = getTrace( bid, itrc );
     }
     return true;
 }
