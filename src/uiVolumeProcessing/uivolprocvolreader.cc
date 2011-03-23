@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.5 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.6 2011-03-23 14:47:28 cvsbruno Exp $";
 
 #include "uivolprocvolreader.h"
 #include "uimsg.h"
@@ -33,6 +33,8 @@ uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
     , volumereader_( vr )
     , ctio_(uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 {
+    setHelpID( "103.6.8" );
+
     if ( vr )
 	ctio_->setObj( vr->getVolumeID() );
     else

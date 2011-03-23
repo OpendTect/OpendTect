@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.22 2011-01-06 15:14:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.23 2011-03-23 14:47:28 cvsbruno Exp $";
 
 #include "uivolprocchain.h"
 
@@ -36,7 +36,7 @@ mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiChain::factory );
 
 
 uiStepDialog::uiStepDialog( uiParent* p, const char* stepnm, Step* step )
-    : uiDialog( p, uiDialog::Setup("Edit step",stepnm,"103.6.1") )
+    : uiDialog( p, uiDialog::Setup("Edit step",stepnm,mNoHelpID) )
     , step_(step)
 {
 }

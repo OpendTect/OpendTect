@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.14 2010-10-13 20:35:12 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.15 2011-03-23 14:47:28 cvsbruno Exp $";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -36,6 +36,8 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
     , topctio_(mMkCtxtIOObj(EMHorizon3D))
     , bottomctio_(mMkCtxtIOObj(EMHorizon3D))
 {
+    setHelpID( "103.6.1" );
+
     const char* hortxt = "Horizon";
     topctio_->ctxt.forread = bottomctio_->ctxt.forread = true;
 

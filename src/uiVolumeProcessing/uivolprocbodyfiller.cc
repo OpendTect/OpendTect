@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprocbodyfiller.cc,v 1.1 2009-09-18 18:13:43 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocbodyfiller.cc,v 1.2 2011-03-23 14:47:28 cvsbruno Exp $";
 
 #include "uivolprocbodyfiller.h"
 
@@ -34,6 +34,8 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
     , bodyfiller_( mp )
     , ctio_(mMkCtxtIOObj(EMBody))
 {
+    setHelpID( "103.6.2" );
+
     ctio_->ctxt.forread = true;
     if ( mp )
     	ctio_->setObj( mp->getSurfaceID() );

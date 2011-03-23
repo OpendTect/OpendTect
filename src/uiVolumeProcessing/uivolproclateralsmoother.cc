@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolproclateralsmoother.cc,v 1.3 2010-10-04 19:56:14 cvskris Exp $";
+static const char* rcsID = "$Id: uivolproclateralsmoother.cc,v 1.4 2011-03-23 14:47:28 cvsbruno Exp $";
 
 #include "uivolproclateralsmoother.h"
 
@@ -32,6 +32,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     : uiStepDialog( p, LateralSmoother::sUserName(), hf )
     , smoother_( hf )
 {
+    setHelpID( "103.6.3" ); 
     const Array2DFilterPars* pars = hf ? &hf->getPars() : 0;
 
     uiGroup* stepoutgroup = new uiGroup( this, "Stepout" );
