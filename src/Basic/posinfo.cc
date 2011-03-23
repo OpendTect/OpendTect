@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.26 2010-12-03 20:41:27 cvskris Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.27 2011-03-23 11:55:37 cvsbert Exp $";
 
 #include "posinfo.h"
 #include "survinfo.h"
@@ -247,11 +247,53 @@ int PosInfo::CubeData::totalSizeInside( const HorSampling& hrg ) const
 }
 
 
-int PosInfo::CubeData::indexOf( int lnr ) const
+int PosInfo::CubeData::indexOf( int lnr, int* newidx ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
-	if ( (*this)[idx]->linenr_ == lnr )
-	    return idx;
+    const int nrld = size();
+    if ( nrld < 1 )
+	{ if ( newidx ) *newidx = 0; return -1; }
+
+    int loidx = 0;
+    if ( (*this)[loidx]->linenr_ == lnr )
+	return loidx;
+    if ( nrld == 1 )
+    {
+	if ( newidx ) *newidx = lnr > (*this)[loidx]->linenr_ ? 1 : 0;
+	return -1;
+    }
+
+    int hiidx = nrld - 1;
+    if ( (*this)[hiidx]->linenr_ == lnr )
+	return hiidx;
+
+    if ( nrld == 2 )
+    {
+	if ( newidx )
+	{
+	    if ( (*this)[loidx]->linenr_ > lnr )
+		*newidx = 0;
+	    else if ( (*this)[hiidx]->linenr_ < lnr )
+		*newidx = 2;
+	    else
+		*newidx = 1;
+	}
+	return -1;
+    }
+
+    while ( hiidx - loidx > 1 )
+    {
+	const int mididx = (hiidx + loidx) / 2;
+	const int midlnr = (*this)[mididx]->linenr_;
+	if ( midlnr == lnr )
+	    return mididx;
+	else if ( lnr > midlnr )
+	    loidx = mididx;
+	else
+	    hiidx = mididx;
+    }
+
+    if ( newidx )
+	*newidx = hiidx;
     return -1;
 }
 
@@ -309,19 +351,6 @@ void PosInfo::CubeData::limitTo( const HorSampling& hsin )
 	if ( !nrvalidsegs )
 	{ ld = remove( iidx ); delete ld; }
     }
-}
-
-
-void PosInfo::CubeData::sort()
-{
-    const int sz = size();
-
-    for ( int d=sz/2; d>0; d=d/2 )
-	for ( int i=d; i<sz; i++ )
-	    for ( int j=i-d;
-		    j>=0 && (*this)[j]->linenr_>(*this)[j+d]->linenr_;
-		    j-=d )
-		swap( j+d, j );
 }
 
 
@@ -439,6 +468,29 @@ bool PosInfo::CubeData::isFullyRectAndReg() const
     }
 
     return true;
+}
+
+
+PosInfo::CubeData& PosInfo::CubeData::add( PosInfo::LineData* ld )
+{
+    if ( !ld ) return *this;
+    int newidx;
+    const int curidx = indexOf( ld->linenr_, &newidx );
+    if ( curidx < 0 )
+    {
+	if ( newidx >= size() )
+	    ManagedObjectSet<LineData>::operator +=( ld );
+	else
+	    insertAt( ld, newidx );
+	return *this;
+    }
+    LineData* curld = (*this)[curidx];
+    if ( ld == curld )
+	return *this;
+
+    curld->merge( *ld, true );
+    delete ld;
+    return *this;
 }
 
 
@@ -592,6 +644,7 @@ bool PosInfo::CubeData::write( std::ostream& strm, bool asc ) const
 
 PosInfo::CubeDataFiller::CubeDataFiller( CubeData& cd )
     : cd_(cd)
+    , ld_(0)
 {
     initLine();
 }
@@ -603,13 +656,28 @@ PosInfo::CubeDataFiller::~CubeDataFiller()
 }
 
 
+PosInfo::LineData* PosInfo::CubeDataFiller::findLine( int lnr )
+{
+    const int idxof = cd_.indexOf( lnr );
+    return idxof < 0 ? 0 : cd_[idxof];
+}
+
+
 void PosInfo::CubeDataFiller::add( const BinID& bid )
 {
     if ( !ld_ || ld_->linenr_ != bid.inl )
     {
 	if ( ld_ )
 	    finishLine();
-	ld_ = new LineData( bid.inl );
+	ld_ = findLine( bid.inl );
+	if ( !ld_ )
+	    ld_ = new LineData( bid.inl );
+	else
+	{
+	    if ( ld_->segmentOf(bid.crl) >= 0 )
+		return;
+	    mSetUdf(prevcrl); mSetUdf(seg_.step);
+	}
     }
 
     if ( mIsUdf(prevcrl) )
@@ -658,7 +726,9 @@ void PosInfo::CubeDataFiller::finishLine()
     }
 
     ld_->segments_ += seg_;
-    cd_ += ld_;
+    if ( !findLine(ld_->linenr_) )
+	cd_ += ld_;
+
     initLine();
 }
 
@@ -670,7 +740,7 @@ bool PosInfo::CubeDataIterator::next( BinID& bid )
     if ( firstpos_ )
     {
 	const PosInfo::LineData* ld = cubedata_[0];
-	if ( !ld || !ld->segments_.size() )
+	if ( !ld || ld->segments_.isEmpty() )
 	    return false;
 
 	bid.inl = ld->linenr_;
@@ -683,7 +753,7 @@ bool PosInfo::CubeDataIterator::next( BinID& bid )
     for ( int idx=0; idx<cubedata_.size(); idx++ )
     {
 	const PosInfo::LineData* ld = cubedata_[idx];
-	if ( !ld || !ld->segments_.size() )
+	if ( !ld || ld->segments_.isEmpty() )
 	    continue;
 
 	if ( !startnew && ld->linenr_ != bid.inl )

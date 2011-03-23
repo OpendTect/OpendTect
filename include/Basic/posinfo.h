@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.20 2010-12-03 20:41:27 cvskris Exp $
+ RCS:		$Id: posinfo.h,v 1.21 2011-03-23 11:55:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,11 @@ public:
 };
 
 
-/*!\brief Position info for an entire 3D cube. */
+/*!\brief Position info for an entire 3D cube.
+
+  The LineData's are sorted.
+
+ */
 
 mClass CubeData : public ManagedObjectSet<LineData>
 {
@@ -82,23 +86,24 @@ public:
     int			totalSizeInside(const HorSampling& hrg) const;
     			/*!<Only take positions that are inside hrg. */
 
-    int			indexOf(int inl) const;
+    int			indexOf(int inl,int* newidx=0) const;
+    			//!< newidx only filled if not null and -1 is returned
     bool		includes(int inl,int crl) const;
     bool		getInlRange(StepInterval<int>&) const;
     			//!< Returns whether fully regular.
     bool		getCrlRange(StepInterval<int>&) const;
     			//!< Returns whether fully regular.
 
-    bool		haveInlStepInfo() const	{ return size() > 1; }
+    bool		haveInlStepInfo() const		{ return size() > 1; }
     bool		haveCrlStepInfo() const;
     bool		isFullyRectAndReg() const;
 
-    CubeData&		add( LineData* ld )	{ *this += ld; return *this; }
+    virtual CubeData&	operator +=( LineData* ld )	{ return add( ld ); }
+    CubeData&		add(LineData*);
 
     void		limitTo(const HorSampling&);
     void		merge(const CubeData&,bool incl);
     				//!< incl=union, !incl=intersection
-    void		sort();
 
     bool		read(std::istream&,bool asc);
     bool		write(std::ostream&,bool asc) const;
@@ -125,6 +130,7 @@ protected:
 
     void		initLine();
     void		finishLine();
+    LineData*		findLine(int);
 
 };
 
