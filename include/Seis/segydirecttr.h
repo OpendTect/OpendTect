@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.11 2011-03-21 16:15:19 cvsbert Exp $
+ RCS:		$Id: segydirecttr.h,v 1.12 2011-03-23 11:59:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ public:
 
     					DirectReader()
 					    : tr_(0), curfilenr_(-1)	{}
+    virtual				~DirectReader();
 
     virtual DirectDef*			getDef()	= 0;
     virtual const char*			errMsg() const	= 0;
@@ -70,7 +71,7 @@ protected:
     SEGY::DirectDef&	def_;
     mutable BufferString errmsg_;
 
-    SeisTrc*		getTrace(int,int,int,const BinID&) const;
+    SeisTrc*		getTrace(int,int,const BinID&) const;
 
 };
 
@@ -99,7 +100,7 @@ protected:
     SEGY::DirectDef&		def_;
     mutable BufferString	errmsg_;
 
-    SeisTrc*			getTrace(int,int,int,int) const;
+    SeisTrc*			getTrace(int,int,int) const;
 };
 
 
