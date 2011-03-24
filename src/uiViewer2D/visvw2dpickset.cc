@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.1 2011-03-24 04:40:22 cvsranojay Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.2 2011-03-24 11:56:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ VW2DPickSet::VW2DPickSet( Pick::Set& ps,
     , editor_(const_cast<uiFlatViewAuxDataEditor*>(editors[0]))
     , viewer_(editor_->getFlatViewer())
     , deselected_(this)
+    , isownremove_(false)
+    , cs_(*new CubeSampling(false))
 {
     viewer_.appearance().annot_.auxdata_ += picks_;
     viewer_.appearance().annot_.editable_ = false; 
@@ -71,6 +73,7 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 {
     if ( !isselected_ )
 	return;
+
     FlatView::Point newpt = editor_->getSelPtPos();
     const Coord3 crd = getCoord( newpt );
     if ( !crd.isDefined() ) 
@@ -86,18 +89,24 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 
 void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 {
+    isownremove_ = true;
     const TypeSet<int>&	selpts = editor_->getSelPtIdx();
     for ( int idx=0; idx<selpts.size(); idx++ )
     {
 	const int locidx = selpts[idx];
 	if ( !picks_->poly_.validIdx(locidx) )
 	    continue;
-
+        
+	updateSetIdx();
+	const int pickidx = picksetidxs_[locidx];
+	picksetidxs_.remove( locidx );
 	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
-				 &pickset_, locidx );
-	pickset_.remove( locidx );
+				 &pickset_, pickidx );
+	pickset_.remove( pickidx );
 	Pick::Mgr().reportChange( 0, cd );
     }
+
+    isownremove_ = false;
 }
 
 
@@ -158,15 +167,30 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 }
 
 
+void VW2DPickSet::updateSetIdx()
+{
+    picksetidxs_.erase();
+    for ( int idx=0; idx<pickset_.size(); idx++ )
+    {
+	const Coord3& pos = pickset_[idx].pos;
+	const BinID bid = SI().transform(pos);
+	if ( cs_.hrg.includes(bid) )
+	    picksetidxs_ += idx;
+    }
+}
+
+
 void VW2DPickSet::drawAll()
 {
+    if ( isownremove_ ) return;
+
     const FlatDataPack* fdp = viewer_.pack( true );
     if ( !fdp )	fdp = viewer_.pack( false );
 
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
     const bool oninl = dp3d->dataDir() == CubeSampling::Inl;
-    const CubeSampling cs = dp3d->cube().cubeSampling();
-
+    cs_ = dp3d->cube().cubeSampling();
+   
     const uiWorldRect& curvw = viewer_.curView();
     const float zdiff = curvw.height();
     const float nrzpixels = viewer_.rgbCanvas().arrArea().vNrPics();
@@ -178,18 +202,17 @@ void VW2DPickSet::drawAll()
 
     picks_->poly_.erase();
     picks_->markerstyles_.erase();
+    updateSetIdx();
     MarkerStyle2D markerstyle = get2DMarkers( pickset_ );
-    
-    for ( int idx=0; idx<pickset_.size(); idx++ )
+    const int nrpicks = picksetidxs_.size();
+    for ( int idx=0; idx<nrpicks; idx++ )
     {
-	const Coord3& pos = pickset_[idx].pos;
+	const int pickidx = picksetidxs_[idx];
+	const Coord3& pos = pickset_[pickidx].pos;
 	const BinID bid = SI().transform(pos);
-	if ( !cs.hrg.includes(bid) )
-	    continue;
-
 	FlatView::Point point( oninl ? bid.crl : bid.inl, pos.z );
 	picks_->poly_ += point;
-	
+
 	BufferString dipval;
 	pickset_[idx].getText( "Dip" , dipval );
 	SeparString dipstr( dipval );
