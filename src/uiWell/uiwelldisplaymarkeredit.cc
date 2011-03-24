@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.17 2010-12-07 12:51:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.18 2011-03-24 11:54:30 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.17 2010-12-07 12
 #include "mouseevent.h"
 #include "randcolor.h"
 #include "survinfo.h"
+#include "sorting.h"
 #include "stratlevel.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
@@ -468,27 +469,39 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
     const char* selnm = mrklist_->nrSelected() ? mrklist_->getText() : 0;
 
     if ( mrklist_->size() ) mrklist_->setEmpty();
-    BufferStringSet mrknms; TypeSet<Color> mrkcols;
+    BufferStringSet mrknms; TypeSet<Color> mrkcols; TypeSet<float> dahs;
+
+#define mAddMrkToList(mrk)\
+    if ( mrknms.addIfNew( mrk.name() ) )\
+    {\
+	mrkcols += mrk.color();\
+	dahs += mrk.dah();\
+    }
+
     for ( int idwd=0; idwd<wds_.size(); idwd++ )
     {
 	const Well::Data& wd = *wds_[idwd];
 	for ( int idmrk=0; idmrk<wd.markers().size(); idmrk++ )
 	{
 	    const Well::Marker& mrk = *wd.markers()[idmrk];
-	    if ( mrknms.addIfNew( mrk.name() ) )
-		mrkcols += mrk.color();
+	    mAddMrkToList( mrk )
 	}
     }
     for ( int idmrk=0; idmrk<tmplist_.size(); idmrk++ )
     {
 	const Well::Marker& mrk = *tmplist_[idmrk];
-	if ( mrknms.addIfNew( mrk.name() ) )
-	    mrkcols += mrk.color();
+	mAddMrkToList( mrk )
     }
-    for ( int idx=0; idx<mrknms.size(); idx++ )
-	mrklist_->addItem( mrknms.get( idx ), mrkcols[idx] );
+    TypeSet<int> idxs;
+    for ( int idx=0; idx<dahs.size(); idx++)
+	idxs += idx;
+    sort_coupled( dahs.arr(), idxs.arr(), dahs.size() );
 
-    colors_ = mrkcols;
+    for ( int idx=0; idx<mrknms.size(); idx++ )
+    {
+	mrklist_->addItem( mrknms.get( idxs[idx] ), mrkcols[idxs[idx]] );
+	colors_ += mrkcols[idxs[idx]]; 
+    }
 
     if ( mrklist_->isEmpty() )
     {
