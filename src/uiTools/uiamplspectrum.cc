@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.26 2010-12-09 11:42:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.27 2011-03-24 16:47:25 cvsyuancheng Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -25,8 +25,13 @@ static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.26 2010-12-09 11:42:14 cv
 #include "bufstring.h"
 #include "datapackbase.h"
 #include "fourier.h"
+#include "mouseevent.h"
 #include "strmprov.h"
 #include "survinfo.h"
+
+
+#define mDispVal(v)	20*Math::Log10(v)
+
 
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     : uiMainWin( p,"Amplitude Spectrum", 0, false, false )
@@ -42,6 +47,8 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     disp_->xAxis()->setName( SI().zIsTime() ? "Frequency (Hz)" 
 	    				    : "Wavenumber (/m)" );
     disp_->yAxis(false)->setName( "Power (dB)" );
+    disp_->getMouseEventHandler().movement.notify( 
+	    mCB(this,uiAmplSpectrum,valChgd) );
 
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
     dispparamgrp_->attach( alignedBelow, disp_ );
@@ -56,6 +63,12 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     stepfld_->attach( rightOf, rangefld_ );
     stepfld_->box()->valueChanging.notify(
 	    mCB(this,uiAmplSpectrum,dispRangeChgd) );
+    
+    BufferString lbl =  SI().zIsTime() ? "Value(frequency, power)" : 
+					 "Value(wavenumber, power)";
+    valfld_ = new uiGenInput(dispparamgrp_, lbl, FloatInpIntervalSpec());
+    valfld_->attach( alignedBelow, rangefld_ );
+    valfld_->display( false );
 
     uiPushButton* exportbut = new uiPushButton( this, "Export", false );
     exportbut->activated.notify( mCB(this,uiAmplSpectrum,exportCB) );
@@ -192,7 +205,7 @@ void uiAmplSpectrum::putDispData()
     {
 	const float val = abs(freqdomainsum_->get(idx))/nrtrcs_;
 	specvals_->set( idx, val ); 
-	dbspecvals.set( idx, 20*Math::Log10( val ) ); 
+	dbspecvals.set( idx, mDispVal( val ) ); 
     }
 
     float maxfreq = fft_->getNyqvist( SI().zStep() );
@@ -253,3 +266,26 @@ void uiAmplSpectrum::exportCB( CallBacker* )
     uiMSG().message( "Values written to: ", fname );
     sdo.close();
 }
+
+
+void uiAmplSpectrum::valChgd( CallBacker* )
+{
+    const Geom::Point2D<int>& pos = disp_->getMouseEventHandler().event().pos();
+    Interval<float> rg( disp_->xAxis()->getVal( pos.x ), 
+			disp_->yAxis(false)->getVal( pos.y ) );
+    const bool disp = disp_->xAxis()->range().includes(rg.start) && 
+		      disp_->yAxis(false)->range().includes(rg.stop);
+    valfld_->display( disp );
+    if ( !disp )
+	return;
+
+    const float ratio = (rg.start-posrange_.start)/posrange_.width();
+    const float specsize = specvals_->info().getSize(0);
+    const int specidx = mNINT( ratio * specsize );
+    if ( specidx>=specsize )
+	return;
+
+    rg.stop = mDispVal( specvals_->get(specidx) );
+    valfld_->setValue( rg );
+}
+
