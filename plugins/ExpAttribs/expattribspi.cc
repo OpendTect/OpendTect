@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: expattribspi.cc,v 1.4 2011-03-17 05:23:58 cvssatyaki Exp $";
+static const char* rcsID = "$Id: expattribspi.cc,v 1.5 2011-03-24 03:00:29 cvsnanne Exp $";
 
 #include "plugins.h"
 
 #include "semblanceattrib.h"
-#include "grubbfilterattrib.h"
+#include "grubbsfilterattrib.h"
 
 
 extern "C" int GetExpAttribsPluginType()
@@ -35,6 +35,6 @@ extern "C" PluginInfo* GetExpAttribsPluginInfo()
 extern "C" const char* InitExpAttribsPlugin( int, char** )
 {
     Attrib::Semblance::initClass();
-    Attrib::GrubbFilter::initClass();
+    Attrib::GrubbsFilter::initClass();
     return 0;
 }

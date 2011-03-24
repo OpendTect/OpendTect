@@ -7,9 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "";
+static const char* rcsID = "$Id: grubbsfilterattrib.cc,v 1.2 2011-03-24 03:00:29 cvsnanne Exp $";
 
-#include "grubbfilterattrib.h"
+#include "grubbsfilterattrib.h"
 
 #include "arrayndimpl.h"
 #include "array1dinterpol.h"
@@ -24,16 +24,16 @@ static const char* rcsID = "";
 namespace Attrib
 {
 
-mAttrDefCreateInstance(GrubbFilter)    
+mAttrDefCreateInstance(GrubbsFilter)    
     
-void GrubbFilter::initClass()
+void GrubbsFilter::initClass()
 {
     mAttrStartInitClassWithUpdate
 
-    FloatParam* grubbval = new FloatParam( grubvalStr() );
-    grubbval->setLimits( Interval<float>(0,10) );
-    grubbval->setDefaultValue( 1);
-    desc->addParam( grubbval );
+    FloatParam* grubbsval = new FloatParam( grubbsvalStr() );
+    grubbsval->setLimits( Interval<float>(0,10) );
+    grubbsval->setDefaultValue( 1);
+    desc->addParam( grubbsval );
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-1000,1000) );
@@ -48,9 +48,9 @@ void GrubbFilter::initClass()
     type->addEnum( "Average" );
     type->addEnum( "Median" );
     type->addEnum( "Threshold" );
-    type->addEnum( "GrubbVal" );
+    type->addEnum( "GrubbsVal" );
     type->addEnum( "Interpolate" );
-    type->setDefaultValue( GrubbFilter::Threshold );
+    type->setDefaultValue( GrubbsFilter::Threshold );
     desc->addParam( type );
 
     desc->addInput( InputSpec("Input data",true) );
@@ -60,20 +60,20 @@ void GrubbFilter::initClass()
 }
 
 
-void GrubbFilter::updateDesc( Desc& desc )
+void GrubbsFilter::updateDesc( Desc& desc )
 {
     desc.setParamEnabled( stepoutStr(), true );
 }
 
 
-GrubbFilter::GrubbFilter( Desc& desc )
+GrubbsFilter::GrubbsFilter( Desc& desc )
     : Provider( desc )
 {
     if ( !isOK() ) return;
 
     inputdata_.allowNull(true);
 
-    mGetFloat( cogrubbval_, grubvalStr() );
+    mGetFloat( cogrubbsval_, grubbsvalStr() );
 
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1/zFactor() );
@@ -85,7 +85,7 @@ GrubbFilter::GrubbFilter( Desc& desc )
 }
 
 
-bool GrubbFilter::getTrcPos()
+bool GrubbsFilter::getTrcPos()
 {
     trcpos_.erase();
     BinID bid;
@@ -106,7 +106,7 @@ bool GrubbFilter::getTrcPos()
 }
 
 
-bool GrubbFilter::getInputData( const BinID& relpos, int zintv )
+bool GrubbsFilter::getInputData( const BinID& relpos, int zintv )
 {
     while ( inputdata_.size() < trcpos_.size() )
 	inputdata_ += 0;
@@ -155,8 +155,8 @@ void checkTopBotUndefs( Array1D<float>& inpvals )
 }
 
 
-bool GrubbFilter::computeData( const DataHolder& output, const BinID& relpos, 
-			      int z0, int nrsamples, int threadid ) const
+bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos, 
+				int z0, int nrsamples, int threadid ) const
 {
     if ( inputdata_.isEmpty() ) return false;
 
@@ -212,27 +212,27 @@ bool GrubbFilter::computeData( const DataHolder& output, const BinID& relpos,
 
 	const DataHolder* data = inputdata_[nrtraces/2];
 	const float traceval = getInputValue(*data,dataidx_,(int)idx,z0);
-	float grubval = (traceval - rc.average())/rc.stdDev();
-	const bool positive = grubval > 0;
-	grubval = fabs( grubval );
+	float grubbsval = (traceval - rc.average())/rc.stdDev();
+	const bool positive = grubbsval > 0;
+	grubbsval = fabs( grubbsval );
 	float newval = traceval;
-	if ( grubval > cogrubbval_ ) 
+	if ( grubbsval > cogrubbsval_ ) 
 	{
 	    switch ( type_ ) 
 	    { 
-		case GrubbFilter::Average:	newval = rc.average(); break;
-		case GrubbFilter::Median:	newval = rc.median(); break;
-		case GrubbFilter::Threshold: 
-		    newval = (cogrubbval_ * rc.stdDev())+rc.average(); 
+		case GrubbsFilter::Average:	newval = rc.average(); break;
+		case GrubbsFilter::Median:	newval = rc.median(); break;
+		case GrubbsFilter::Threshold: 
+		    newval = (cogrubbsval_ * rc.stdDev())+rc.average(); 
 		    newval = positive ? newval * 1 : newval * -1;
 		    break;
-		case GrubbFilter::GrubbValue:	newval = grubval; break;
-		case GrubbFilter::Interpolate:
+		case GrubbsFilter::GrubbsValue:	newval = grubbsval; break;
+		case GrubbsFilter::Interpolate:
 		    for ( int arridx=0; arridx<vals.info().getSize(0); arridx++)
 		    {
 			float arrval = vals.get( arridx );
-			grubval = fabs((arrval - rc.average())/rc.stdDev());
-			if ( grubval > cogrubbval_ )
+			grubbsval = fabs((arrval - rc.average())/rc.stdDev());
+			if ( grubbsval > cogrubbsval_ )
 			    vals.set( arridx, mUdf(float) );
 		    }
 
@@ -252,7 +252,7 @@ bool GrubbFilter::computeData( const DataHolder& output, const BinID& relpos,
 
 
 
-const BinID* GrubbFilter::desStepout( int inp, int out ) const
+const BinID* GrubbsFilter::desStepout( int inp, int out ) const
 { return inp ? 0 : &stepout_; }
 
 
@@ -266,7 +266,7 @@ const BinID* GrubbFilter::desStepout( int inp, int out ) const
     }\
 }
 
-void GrubbFilter::prepPriorToBoundsCalc()
+void GrubbsFilter::prepPriorToBoundsCalc()
 {
      const int truestep = mNINT( refstep_*zFactor() );
      if ( truestep == 0 )
@@ -282,7 +282,7 @@ void GrubbFilter::prepPriorToBoundsCalc()
 }
 
 
-const Interval<float>* GrubbFilter::desZMargin( int inp, int ) const
+const Interval<float>* GrubbsFilter::desZMargin( int inp, int ) const
 {
     return inp ? 0 : &gate_;
 }

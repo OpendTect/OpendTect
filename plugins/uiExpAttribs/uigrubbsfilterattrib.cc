@@ -8,11 +8,11 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uigrubbsfilterattrib.cc,v 1.1 2011-03-17 05:23:29 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigrubbsfilterattrib.cc,v 1.2 2011-03-24 03:00:29 cvsnanne Exp $";
 
 
-#include "uigrubbfilterattrib.h"
-#include "grubbfilterattrib.h"
+#include "uigrubbsfilterattrib.h"
+#include "grubbsfilterattrib.h"
 
 #include "attribdesc.h"
 #include "attribparam.h"
@@ -28,28 +28,29 @@ static const char* replacetypestr[] =
     "Average",
     "Median",
     "Threshold",
-    "GrubbValue",
+    "GrubbsValue",
     "Interpolate",
     0
 };
 
 
-mInitAttribUI(uiGrubbFilterAttrib,GrubbFilter,"GrubbFilter",sKeyBasicGrp())
+mInitAttribUI(uiGrubbsFilterAttrib,GrubbsFilter,"Grubbs Filter",sKeyFilterGrp())
 
 
-uiGrubbFilterAttrib::uiGrubbFilterAttrib( uiParent* p, bool is2d )
+uiGrubbsFilterAttrib::uiGrubbsFilterAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"mToDoHelpID")
 
 {
     inpfld_ = createInpFld( is2d );
 
-    grubbvalfld_ = new uiGenInput( this, "Cutoff Grubb Val", FloatInpSpec() );
-    grubbvalfld_->attach( alignedBelow, inpfld_ );
+    grubbsvalfld_ = new uiGenInput( this, "Cutoff Grubbs Value",
+				    FloatInpSpec() );
+    grubbsvalfld_->attach( alignedBelow, inpfld_ );
 
     gatefld_ = new uiGenInput( this, gateLabel(),
 			       FloatInpIntervalSpec().setName("Z start",0)
 			      			     .setName("Z stop",1) );
-    gatefld_->attach( alignedBelow, grubbvalfld_ );
+    gatefld_->attach( alignedBelow, grubbsvalfld_ );
 
     stepoutfld_ = new uiStepOutSel( this, is2d );
     stepoutfld_->attach( alignedBelow, gatefld_ );
@@ -59,46 +60,48 @@ uiGrubbFilterAttrib::uiGrubbFilterAttrib( uiParent* p, bool is2d )
     replacetype_ = new uiGenInput( this, "Replace Type",
 	    			   StringListInpSpec(replacetypestr) );
     replacetype_->attach( alignedBelow, stepoutfld_ );
+
+    setHAlignObj( gatefld_ );
 }
 
 
-bool uiGrubbFilterAttrib::setParameters( const Attrib::Desc& desc )
+bool uiGrubbsFilterAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),GrubbFilter::attribName()) )
+    if ( strcmp(desc.attribName(),GrubbsFilter::attribName()) )
 	return false;
 
-    mIfGetFloat(GrubbFilter::grubvalStr(),cogrubbval,
-	    	grubbvalfld_->setValue(cogrubbval) )
-    mIfGetFloatInterval(GrubbFilter::gateStr(),gate,gatefld_->setValue(gate))
-    mIfGetBinID(GrubbFilter::stepoutStr(),stepout, 
+    mIfGetFloat(GrubbsFilter::grubbsvalStr(),cogrubbsval,
+	    	grubbsvalfld_->setValue(cogrubbsval) )
+    mIfGetFloatInterval(GrubbsFilter::gateStr(),gate,gatefld_->setValue(gate))
+    mIfGetBinID(GrubbsFilter::stepoutStr(),stepout, 
 	        stepoutfld_->setBinID(stepout) )
-    mIfGetEnum(GrubbFilter::replaceValStr(),type,replacetype_->setValue(type))
+    mIfGetEnum(GrubbsFilter::replaceValStr(),type,replacetype_->setValue(type))
     return true;
 }
 
 
-bool uiGrubbFilterAttrib::setInput( const Attrib::Desc& desc )
+bool uiGrubbsFilterAttrib::setInput( const Attrib::Desc& desc )
 {
     putInp( inpfld_, desc, 0 );
     return true;
 }
 
 
-bool uiGrubbFilterAttrib::getParameters( Attrib::Desc& desc )
+bool uiGrubbsFilterAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),GrubbFilter::attribName()) )
+    if ( strcmp(desc.attribName(),GrubbsFilter::attribName()) )
 	return false;
 
-    mSetFloat( GrubbFilter::grubvalStr(), grubbvalfld_->getfValue() );
-    mSetBinID( GrubbFilter::stepoutStr(), stepoutfld_->getBinID() );
-    mSetFloatInterval( GrubbFilter::gateStr(), gatefld_->getFInterval() );
-    mSetEnum(GrubbFilter::replaceValStr(),replacetype_->getIntValue());
+    mSetFloat( GrubbsFilter::grubbsvalStr(), grubbsvalfld_->getfValue() );
+    mSetBinID( GrubbsFilter::stepoutStr(), stepoutfld_->getBinID() );
+    mSetFloatInterval( GrubbsFilter::gateStr(), gatefld_->getFInterval() );
+    mSetEnum(GrubbsFilter::replaceValStr(),replacetype_->getIntValue());
     
     return true;
 }
 
 
-bool uiGrubbFilterAttrib::getInput( Attrib::Desc& desc )
+bool uiGrubbsFilterAttrib::getInput( Attrib::Desc& desc )
 {
     inpfld_->processInput();
     fillInp( inpfld_, desc, 0 );
@@ -106,9 +109,9 @@ bool uiGrubbFilterAttrib::getInput( Attrib::Desc& desc )
 }
 
 
-void uiGrubbFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+void uiGrubbsFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( "Cut Off GrubbValue", GrubbFilter::grubvalStr() );
-    params += EvalParam( timegatestr(), GrubbFilter::gateStr() );
-    params += EvalParam( stepoutstr(), GrubbFilter::stepoutStr() );
+    params += EvalParam( "Cutoff Grubbs Value", GrubbsFilter::grubbsvalStr() );
+    params += EvalParam( timegatestr(), GrubbsFilter::gateStr() );
+    params += EvalParam( stepoutstr(), GrubbsFilter::stepoutStr() );
 }

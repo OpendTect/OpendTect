@@ -1,5 +1,5 @@
-#ifndef grubfilterattrib_h
-#define grubfilterattrib_h
+#ifndef grubbsfilterattrib_h
+#define grubbsfilterattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2011
- RCS:           $Id: grubbsfilterattrib.h,v 1.1 2011-03-17 05:22:42 cvssatyaki Exp $
+ RCS:           $Id: grubbsfilterattrib.h,v 1.2 2011-03-24 03:00:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,33 +15,34 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "statruncalc.h"
 
-/*!\brief GrubbFilter Attribute
+/*!\brief GrubbsFilter Attribute
 
-GrubbFilter grubbval gate= pos0= pos1= stepout=1,1 
+GrubbsFilter grubbsval gate= pos0= pos1= stepout=1,1 
 
 */
 
 namespace Attrib
 {
 
-mClass GrubbFilter : public Provider
+mClass GrubbsFilter : public Provider
 {
 public:
     static void			initClass();
-				GrubbFilter(Desc&);
+				GrubbsFilter(Desc&);
 
-    static const char*		attribName()	{ return "grubbfilter"; }
-    static const char*		grubvalStr()	{ return "grubbvalue"; }
+    static const char*		attribName()	{ return "GrubbsFilter"; }
+
+    static const char*		grubbsvalStr()	{ return "grubbsvalue"; }
     static const char*		gateStr()	{ return "gate"; }
     static const char*		stepoutStr()	{ return "stepout"; }
     static const char*		replaceValStr()	{ return "replacewith"; }
 
     void			prepPriorToBoundsCalc();
-    enum ReplaceType		{ Average, Median, Threshold, GrubbValue,
+    enum ReplaceType		{ Average, Median, Threshold, GrubbsValue,
 				  Interpolate };
 
 protected:
-    				~GrubbFilter() {}
+    				~GrubbsFilter() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
@@ -59,7 +60,7 @@ protected:
     const Interval<float>*	desZMargin(int input,int output) const;
     bool			getTrcPos();
 
-    float			cogrubbval_;
+    float			cogrubbsval_;
     BinID			stepout_;
     Interval<float>		gate_;
     TypeSet<BinID>		trcpos_;
