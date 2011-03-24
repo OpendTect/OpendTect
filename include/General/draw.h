@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.30 2011-02-22 08:18:22 cvsranojay Exp $
+ RCS:           $Id: draw.h,v 1.31 2011-03-24 04:40:22 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,11 +60,12 @@ mClass MarkerStyle2D
 public:
 
     enum Type			{ None, Square, Circle, Cross, Plus, Target,
-				  HLine, VLine };
+				  HLine, VLine, Plane };
 				DeclareEnumUtils(Type)
 
 				MarkerStyle2D( Type tp=Square, int sz=2,
-					       Color col=Color::Black() );
+					       Color col=Color::Black(),
+					       float rot=0);
 
     bool			operator==(const MarkerStyle2D& a) const;
     const MarkerStyle2D&	operator=(const MarkerStyle2D& a);
@@ -72,6 +73,7 @@ public:
     Type			type_;
     int				size_;
     Color			color_;
+    float			rotation_; //clockwise rotion angle in degrees. 
 
     bool			isVisible() const;
 

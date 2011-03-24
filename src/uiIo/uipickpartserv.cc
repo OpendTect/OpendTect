@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.67 2010-10-13 09:54:58 cvshelene Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.68 2011-03-24 04:40:22 cvsranojay Exp $";
 
 #include "uipickpartserv.h"
 
@@ -44,6 +44,7 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
 	, uiPickSetMgr(Pick::Mgr())
     	, gendef_(2,true)
     	, selhs_(true)
+	, ps_(0)
 {
 }
 

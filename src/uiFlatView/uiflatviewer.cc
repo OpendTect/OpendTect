@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.123 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.124 2011-03-24 04:40:22 cvsranojay Exp $";
 
 #include "uiflatviewer.h"
 
@@ -795,7 +795,7 @@ void uiFlatViewer::drawAux( FlatView::Annotation::AuxData& ad,
     }
 
     const int nrmarkerstyles = ad.markerstyles_.size();
-    if ( nrmarkerstyles )
+    if ( nrmarkerstyles > 0 )
     {
 	if ( !markeritemset_ )
 	    markeritemset_ = new uiGraphicsItemSet();
@@ -806,10 +806,9 @@ void uiFlatViewer::drawAux( FlatView::Annotation::AuxData& ad,
 	    if ( !ad.markerstyles_[styleidx].isVisible() ||
 		 datarect.isOutside(ptlist[idx] ) )
 		continue;
-
 	    uiMarkerItem* markeritem = canvas_.scene().addItem(
 		new uiMarkerItem( ad.markerstyles_[styleidx] ) );
-
+	    markeritem->rotate( ad.markerstyles_[styleidx].rotation_ );
 	    markeritem->setPenColor( ad.markerstyles_[styleidx].color_ );
 	    markeritem->setFillColor( ad.markerstyles_[styleidx].color_ );
 	    markeritem->setPos( ptlist[idx] );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatauxdataeditor.cc,v 1.12 2010-08-18 15:58:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiflatauxdataeditor.cc,v 1.13 2011-03-24 04:40:22 cvsranojay Exp $";
 
 #include "uiflatauxdataeditor.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiflatauxdataeditor.cc,v 1.12 2010-08-18 15:58:
 
 uiFlatViewAuxDataEditor::uiFlatViewAuxDataEditor( uiFlatViewer& vw )
     : FlatView::AuxDataEditor(vw,vw.rgbCanvas().scene().getMouseEventHandler())
+    , uivwr_(vw)
 {
     vw.rgbCanvas().reDrawNeeded.notify(
 	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
@@ -30,20 +31,17 @@ uiFlatViewAuxDataEditor::uiFlatViewAuxDataEditor( uiFlatViewer& vw )
 
 uiFlatViewAuxDataEditor::~uiFlatViewAuxDataEditor()
 {
-    mDynamicCastGet(uiFlatViewer*,uivw,&viewer_);
-    uivw->viewChanged.remove( mCB(this,uiFlatViewAuxDataEditor,viewChangeCB) );
-    uivw->rgbCanvas().reDrawNeeded.remove(
+    uivwr_.viewChanged.remove( mCB(this,uiFlatViewAuxDataEditor,viewChangeCB) );
+    uivwr_.rgbCanvas().reDrawNeeded.remove(
 	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
-    uivw->rgbCanvas().reSize.remove(
+    uivwr_.rgbCanvas().reSize.remove(
 	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
 }
 
 
 void uiFlatViewAuxDataEditor::viewChangeCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiFlatViewer*,uivw,&viewer_);
-    if ( uivw )
-       setView( uivw->curView(), uivw->rgbCanvas().arrArea() );
+    setView( uivwr_.curView(), uivwr_.rgbCanvas().arrArea() );
 }
 
 

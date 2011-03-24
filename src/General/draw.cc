@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.81 2011-02-22 08:18:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.82 2011-03-24 04:40:22 cvsranojay Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -103,8 +103,8 @@ mFromStringImpl( MarkerStyle2D, size_ )
 mFromStringImpl( MarkerStyle3D, size_ )
 mFromStringImpl( LineStyle, width_ )
 
-MarkerStyle2D::MarkerStyle2D(Type tp, int sz, Color col )
-    : type_(tp), size_(sz), color_(col)
+MarkerStyle2D::MarkerStyle2D(Type tp, int sz, Color col, float rot )
+    : type_(tp), size_(sz), color_(col), rotation_(rot)
 {}
 
 

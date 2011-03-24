@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.cc,v 1.5 2010-12-17 07:08:36 cvsumesh Exp $
+ RCS:		$Id: uiodviewer2dmgr.cc,v 1.6 2011-03-24 04:40:22 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uiodvw2dfaultsstreeitem.h"
 #include "uiodvw2dhor2dtreeitem.h"
 #include "uiodvw2dhor3dtreeitem.h"
+#include "uiodvw2dpicksettreeitem.h"
 #include "uiodvw2dvariabledensity.h"
 #include "uiodvw2dwigglevararea.h"
 #include "uitreeitemmanager.h"
@@ -46,6 +47,7 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     tifs3d_->addFactory( new uiODVw2DHor3DTreeItemFactory, 3500 );
     tifs3d_->addFactory( new uiODVw2DFaultSSTreeItemFactory, 4500 );
     tifs3d_->addFactory( new uiODVw2DFaultTreeItemFactory, 5500 );
+    tifs3d_->addFactory( new uiODVw2DPickSetTreeItemFactory, 6500 );
 }
 
 
