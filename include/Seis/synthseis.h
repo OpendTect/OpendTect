@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.10 2011-03-11 13:42:09 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.11 2011-03-24 16:07:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "complex"
 #include "ailayer.h"
 #include "executor.h"
 #include "factory.h"
@@ -20,80 +19,114 @@ ________________________________________________________________________
 #include "reflectivitymodel.h"
 #include "samplingdata.h"
 
-class AILayer;
-class RayTracer1D;
+#include "complex"
+
 class Wavelet;
 class SeisTrc;
 
 typedef std::complex<float> float_complex;
-template <class T> class Array1DImpl;
 namespace Fourier { class CC; };
 
 namespace Seis
 {
 
-/* Generates synthetic traces.
- 
-   Note that the Wavelet and the AIModel will copied, but ... they will need to
-   stay alive during each of the actions.
+/* brief generates synthetic traces.The SynthGenerator performs the basic 
+   convolution with a reflectivity series and a wavelet. If you have AI layers 
+   and want directly some synthetics out of them, then you should use the 
+   RayTraceSynthGenerator.
 
    The different constructors and generate() functions will optimize for
-   different situations. For example, if your AIModel is fixed and you need
-   to generate for multiple wavelets, then you benefit from only one anti-alias
-   being done.
+   different situations. For example, if your Reflectivity/AI Model is fixed 
+   and you need to generate for multiple wavelets, then you benefit from only 
+   one anti-alias being done.
+*/
 
-   If you don't call setOutSampling yourself, then getDefOutSampling() will be
-   used.
- 
- */
 
-mClass SynthGeneratorBase : public Executor
+mClass SynthGenerator
 {
 public:
-    mDefineFactoryInClass( SynthGeneratorBase, factory );
+    				SynthGenerator();
+    				~SynthGenerator();
 
-    virtual bool		setModel(const ReflectivityModel&);
-    virtual bool		setWavelet(Wavelet*,OD::PtrPolicy);
+    bool			setModel(const ReflectivityModel&);
+    bool			setWavelet(Wavelet*,OD::PtrPolicy);
+    bool			setOutSampling(const StepInterval<float>&);
     void 			setConvolDomain(bool fourier);
     				/*!<Default is fourier-domain */
-    virtual bool		setOutSampling(const StepInterval<float>&);
 
-    const SeisTrc&		result() const		{ return *outtrc_; }
-
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    bool                        doPrepare();
+    bool			doWork();
+    const char*			errMsg() const		{ return errmsg_.buf();}
+    const SeisTrc&		result() const		{ return outtrc_; }
 
     void 			getSampledReflectivities(TypeSet<float>&) const;
 
 protected:
-    				SynthGeneratorBase();
-    virtual			~SynthGeneratorBase();
 
     bool 			computeTrace(float* result); 
-    bool 			genericConvolve(float* result); 
-    bool 			FFTConvolve(float* result); 
-
-    int				nextStep();
+    bool 			doTimeConvolve(float* result); 
+    bool 			doFFTConvolve(float* result);
 
     Wavelet*			wavelet_;
-
+    StepInterval<float>		outputsampling_;
     ReflectivityModel		refmodel_;
+
     BufferString		errmsg_;
-    TypeSet<float_complex>	cresamprefl_;
 
     Fourier::CC*                fft_;
     int				fftsz_;
-    Array1DImpl<float_complex>*	freqwavelet_;
-
+    float_complex*		freqwavelet_;
+    bool			needprepare_;	
     bool			waveletismine_;
-    StepInterval<float>		outputsampling_;
-
-    SeisTrc*			outtrc_;
+    TypeSet<float_complex>	cresamprefl_;
+    SeisTrc&			outtrc_;
 };
 
 
 
-mClass ODSynthGenerator : public SynthGeneratorBase
+mClass RaySynthGenerator : public ParallelTask
+{
+public:
+    mDefineFactoryInClass( RaySynthGenerator, factory );
+
+    virtual bool		setModel(const AIModel&);
+    virtual bool		setOffsets(const TypeSet<float>&);
+
+    virtual bool		setWavelet(Wavelet*,OD::PtrPolicy);
+    void 			setConvolDomain(bool fourier);
+    				/*!<Default is fourier-domain*/
+    virtual bool		setOutSampling(const StepInterval<float>&);
+
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+
+    const char*			errMsg() const;
+
+    const SeisTrc*		result(int off) const;
+
+protected:
+    				RaySynthGenerator();
+    virtual 			~RaySynthGenerator();
+
+    od_int64            	nrIterations() const;
+    virtual bool        	doPrepare(int);
+    virtual bool        	doWork(od_int64,od_int64,int);
+
+    BufferString		errmsg_;
+    SynthGenerator   		synthgenbase_;	
+    int				nrdone_;
+
+    RayTracer1D&		raytracer_;
+    AIModel			aimodel_;
+    TypeSet<float>		offsets_;
+
+    ObjectSet<SeisTrc>		outtrcs_;
+    TypeSet<int>		offsetidxs_;
+};
+
+
+
+mClass ODRaySynthGenerator : public RaySynthGenerator
 {
 public:
 
@@ -104,10 +137,11 @@ protected:
 
     static void         	initClass() 
 				{factory().addCreator(create,"Fast Generator");}
-    static SynthGeneratorBase* 	create() 	
-    				{ return new ODSynthGenerator; }
+    static RaySynthGenerator* 	create() { return new ODRaySynthGenerator; }
 };
 
-}
+} //namespace
+
 
 #endif
+

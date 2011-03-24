@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.24 2011-03-15 14:41:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.25 2011-03-24 16:07:07 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -288,7 +288,7 @@ void uiStratSynthDisp::modelChanged()
     if ( nraimdls < 1 || sd.nrSteps() < 1 )
 	mErrRet(0)
 
-    Seis::ODSynthGenerator synthgen;
+    Seis::SynthGenerator synthgen;
     synthgen.setWavelet( wvlt_, OD::UsePtr );
     synthgen.setOutSampling( sd );
     SeisTrcBuf* tbuf = new SeisTrcBuf( true );
@@ -303,7 +303,7 @@ void uiStratSynthDisp::modelChanged()
 	RayTracer1D& rt = *raytracers[imdl];
 	rt.getReflectivity( 0, refmod );
 	synthgen.setModel( refmod );
-	synthgen.execute();
+	synthgen.doWork();
 	SeisTrc* newtrc = new SeisTrc( synthgen.result() );
 	const int trcnr = imdl + 1;
 	newtrc->info().nr = trcnr;
