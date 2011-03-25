@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.250 2011-03-10 15:47:18 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.251 2011-03-25 07:04:57 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -573,8 +573,7 @@ SurveyObject::AttribFormat
 {
     const char* zdomain = attrib>=0 && attrib<nrAttribs() 
 				? getSelSpec(attrib)->zDomainKey() : 0;
-    const bool alreadytransformed = zdomain && *zdomain;
-    if ( alreadytransformed )
+    if ( alreadyTransformed(attrib) )
 	return SurveyObject::Cube;
 
     return datatransform_ && orientation_==Zslice
@@ -778,10 +777,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	? datatransform_->getGoodZStep()
 	: SI().zRange(true).step;
 
-    const char* zdomain = attrib>=0 && attrib<nrAttribs() 
-				? getSelSpec(attrib)->zDomainKey() : 0;
-    const bool alreadytransformed = zdomain && *zdomain;
-    if ( alreadytransformed ) return res;
+    if ( alreadyTransformed(attrib) ) return res;
 
     if ( datatransform_ && !displayspace )
     {
@@ -884,9 +880,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     mLoadFDPs( f3ddp, attridpids, displaypacks );
 
     //transform data if necessary.
-    const char* zdomain = getSelSpec(attrib)->zDomainKey();
-    const bool alreadytransformed = zdomain && *zdomain;
-
+    const bool alreadytransformed = alreadyTransformed( attrib );
     if ( !alreadytransformed && datatransform_ )
     {
 	attridpids.erase();

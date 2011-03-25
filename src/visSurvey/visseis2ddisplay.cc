@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.127 2011-03-16 16:12:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.128 2011-03-25 07:04:57 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -428,11 +428,7 @@ void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
 StepInterval<float>
 	Seis2DDisplay::getZRange( bool displayspace, int attrib ) const
 {
-    const FixedString zdomainkey =
-	(attrib>=0 && attrib<nrAttribs()) ? getSelSpec(attrib)->zDomainKey()
-					  : 0;
-    const bool alreadytransformed =
-	scene_ && zdomainkey == scene_->zDomainKey();
+    const bool alreadytransformed = alreadyTransformed( attrib );
     if ( alreadytransformed )
 	return trcdisplayinfo_.zrg;
 
@@ -623,9 +619,7 @@ void Seis2DDisplay::setData( int attrib,
 	    continue;
 #endif
 
-	const FixedString zdomainkey = getSelSpec(attrib)->zDomainKey();
-	const bool alreadytransformed =
-	    scene_ && zdomainkey == scene_->zDomainKey();
+	const bool alreadytransformed = alreadyTransformed( attrib );
 	PtrMan<Array2D<float> > tmparr = 0;
 	Array2D<float>* usedarr = 0;
 	if ( alreadytransformed || !datatransform_ )
