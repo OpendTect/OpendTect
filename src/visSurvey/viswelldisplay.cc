@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.136 2011-03-14 14:52:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.137 2011-03-25 09:46:55 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -258,7 +258,7 @@ void WellDisplay::fillLogParams( visBase::Well::LogParams& lp, int lognr )
 }
 
 
-#define mTryDispLog( side, Side )\
+#define mDispLog( side, Side )\
 { \
     BufferString& logname = dpp( side.name_ );\
     if ( wd->logs().indexOf( logname ) >= 0 )\
@@ -287,8 +287,8 @@ void WellDisplay::fullRedraw( CallBacker* )
     well_->setRepeat( logsnumber_ );
     well_->setLogConstantSize( waslogconstsize );
 
-    mTryDispLog( left_, Left );
-    mTryDispLog( right_, Right );
+    mDispLog( left_, Left );
+    mDispLog( right_, Right );
 }
 
 
@@ -497,7 +497,6 @@ void WellDisplay::setLogDisplay( int lognr )
 	if ( lp.filllogidx_ >= 0 ) setLogData( lp, true );
     }
 
-    well_->showLog( true, lognr );
     if ( lp.repeat_<logsnumber_ )
 	well_->hideUnwantedLogs( lognr, lp.repeat_ );
 }
@@ -588,8 +587,7 @@ bool WellDisplay::logsShown() const
 
 void WellDisplay::showLogs( bool yn )
 {
-    well_->showLog( yn, 1);
-    well_->showLog( yn, 2);
+    well_->showLogs( yn );
 }
 
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.45 2010-11-29 15:24:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.46 2011-03-25 09:46:55 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -57,6 +57,7 @@ SoPlaneWellLog::SoPlaneWellLog()
     , screensize(0,0)	     
     , time(0.0)		     
     , resizewhenzooming(false)
+    , constantsizefactor(1)  
 {
     SO_KIT_CONSTRUCTOR(SoPlaneWellLog);
 
@@ -658,6 +659,18 @@ bool SoPlaneWellLog::logConstantSize() const
 }
 
 
+void SoPlaneWellLog::setLogConstantSizeFactor( float fac )
+{
+    constantsizefactor = fac;
+}
+
+
+float SoPlaneWellLog::logConstantSizeFactor() const
+{
+    return constantsizefactor;
+}
+
+
 bool SoPlaneWellLog::shouldGLRender( int newres )
 {
     if ( !path1.getNum() && !path2.getNum() ) return false;
@@ -699,7 +712,6 @@ int SoPlaneWellLog::getResolution( SoState* state )
 }
 
 
-#define mScaleFac 50000
 void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
 {
     SoState* state = action->getState();
@@ -721,7 +733,7 @@ void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
 	    const int hnum = path1.getNum() / 2;
 	    float nsize1 = screenWidth1.getValue() / szpixel; 
 	    worldwidth = vv.getWorldToScreenScale( path1[hnum], nsize1 );
-	    if ( !resizewhenzooming ) worldwidth = nsize1*mScaleFac;
+	    if ( !resizewhenzooming ) worldwidth = nsize1*constantsizefactor;
 	    buildLog( 1, projectiondir, newres );
 	}
 
@@ -731,7 +743,7 @@ void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
 	    const int hnum = path2.getNum() / 2;
 	    float nsize2 = screenWidth2.getValue() / szpixel; 
 	    worldwidth = vv.getWorldToScreenScale( path2[hnum], nsize2 );
-	    if ( !resizewhenzooming ) worldwidth = nsize2*mScaleFac;
+	    if ( !resizewhenzooming ) worldwidth = nsize2*constantsizefactor;
 	    buildLog( 2, projectiondir, newres );
 	}
 	valchanged = false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.64 2011-03-10 22:33:25 cvskris Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.65 2011-03-25 09:46:55 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: viswell.cc,v 1.64 2011-03-10 22:33:25 cvskris E
 #include "iopar.h"
 #include "ranges.h"
 #include "scaler.h"
+#include "survinfo.h"
 
 #include "SoPlaneWellLog.h"
 
@@ -53,6 +54,7 @@ const char* Well::logwidthstr()		{ return "Screen width"; }
 Well::Well()
     : VisualObjectImpl( false )
     , showmarkers_(true)
+    , showlogs_(true)
     , transformation_(0)
 				       
 {
@@ -93,6 +95,8 @@ Well::Well()
     lognmright_ = Text2::create();
     lognmswitch_->addChild( lognmright_->getInventorNode() );
     lognmswitch_->whichChild = 0;
+
+    constantlogsizefac_ = constantLogSizeFactor();
 
     setRepeat(0);
 }
@@ -358,7 +362,7 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals,
 	    log_[lidx]->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), 
 		    		     val, lp.lognr_ );
     }
-    showLog( true, lp.lognr_ );
+    showLog( showlogs_, lp.lognr_ );
 }
 
 
@@ -402,7 +406,8 @@ void Well::setFilledLogData( const TypeSet<Coord3Value>& crdvals,
     
     for ( int logidx=0; logidx<log_.size(); logidx++ )
 	log_[logidx]->setFillExtrValue( rgstop, rgstart, lp.lognr_ );
-    showLog( true, lp.lognr_ );
+
+    showLog( showlogs_, lp.lognr_ );
 }
 
 
@@ -457,14 +462,24 @@ void Well::removeLogs()
 void Well::setRepeat( int rpt )
 {
     if ( rpt < 0 || mIsUdf(rpt) ) rpt = 0; 
-    const int lz=log_.size();
+    const int lsz = log_.size();
 
-    for ( int idx=lz; idx<rpt; idx++ )
+    for ( int idx=lsz; idx<rpt; idx++ )
     {
 	log_ += new SoPlaneWellLog;
 	log_[idx]->setLogConstantSize( log_[0]->logConstantSize() );
+	log_[idx]->setLogConstantSizeFactor( constantlogsizefac_ );
 	addChild( log_[idx] );
     }
+}
+
+
+float Well::constantLogSizeFactor() const
+{
+    const int inlnr = SI().inlRange( true ).nrSteps();
+    const int crlnr = SI().crlRange( true ).nrSteps();
+    const float survfac = sqrt( crlnr*crlnr+ inlnr*inlnr);
+    return survfac * 43; //hack 43 best factor based on F3_Demo
 }
 
 
@@ -587,6 +602,7 @@ int Well::logWidth() const
 
 void Well::showLogs( bool yn )
 {
+    showlogs_ = yn;
     for ( int idx=0; idx<log_.size(); idx++ )
     {
         log_[idx]->showLog( yn, 1 );
@@ -690,7 +706,7 @@ int Well::usePar( const IOPar& par )
     mParGetYN(showwelltopnmstr(),showWellTopName);
     mParGetYN(showwellbotnmstr(),showWellBotName);
     mParGetYN(showmarkerstr(),showMarkers);	showmarkers_ = doshow;
-    mParGetYN(showmarknmstr(),showMarkerName);
+    mParGetYN(showmarknmstr(),showMarkerName);  showlogs_ = doshow;
     mParGetYN(showlogsstr(),showLogs);
     mParGetYN(showlognmstr(),showLogName);
 

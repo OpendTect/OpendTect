@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.28 2010-11-05 12:46:28 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.29 2011-03-25 09:46:55 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,8 @@ public:
 					      : fillrevscale2) = yn; }
     void 			setLogConstantSize(bool);
     bool 			logConstantSize() const;
+    void 			setLogConstantSizeFactor(float);
+    float 			logConstantSizeFactor() const;
     
     SoMFVec3f			path1;
     SoMFVec3f			path2;
@@ -142,6 +144,7 @@ protected:
     bool  			isfilled1, isfilled2;
     bool  			islinedisp1, islinedisp2;
     int 			lognr;
+    float			constantsizefactor;
     
     SbVec2s 			screensize;
     SbTime 			time;

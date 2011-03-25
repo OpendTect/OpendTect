@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.39 2011-03-10 22:33:24 cvskris Exp $
+ RCS:           $Id: viswell.h,v 1.40 2011-03-25 09:46:55 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ public:
     void			setMarkerScreenSize(int);
     void			setLogConstantSize(bool);
     bool			logConstantSize() const;
+    float			constantLogSizeFactor() const;
 
     //logs
     mStruct LogParams : public BasicParams
@@ -205,6 +206,8 @@ protected:
     Transformation*		transformation_;
 
     bool			showmarkers_;
+    bool			showlogs_;
+    float			constantlogsizefac_;
     
     ObjectSet<SoPlaneWellLog>	log_;
 };
