@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.153 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.154 2011-03-25 15:01:19 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -56,7 +56,9 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
 
 const MultiID* curID() const
 {
-    const int selidx = selgrp_->listfld_->currentItem();
+    int selidx = selgrp_->listfld_->currentItem();
+    if ( selidx >= selgrp_->ioobjids_.size() )
+	selidx = selgrp_->ioobjids_.size() - 1;
     return selidx < 0 ? 0 : selgrp_->ioobjids_[selidx];
 }
 
