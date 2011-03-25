@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.218 2011-03-04 11:35:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.219 2011-03-25 07:08:33 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -1025,7 +1025,7 @@ int uiODSceneMgr::addRandomLineItem( int visid, int sceneid )
 
 
 int uiODSceneMgr::add2DLineSetItem( const MultiID& mid, const char* name,
-       					int displayid, int sceneid )
+				    int displayid, int sceneid )
 {
     Scene* scene = getScene( sceneid );
     if ( !scene ) return -1;

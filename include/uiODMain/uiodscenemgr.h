@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.82 2010-11-22 05:56:50 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.83 2011-03-25 07:08:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,9 +124,9 @@ public:
     void			disabRightClick( bool yn );
     void			disabTrees( bool yn );
 
-    int				addWellItem(const MultiID&,int sceneid);
-    int				addEMItem(const EM::ObjectID&,int);
-    int 			addRandomLineItem(int,int);
+    int				addWellItem(const MultiID&,int sceneid=-1);
+    int				addEMItem(const EM::ObjectID&,int sceneid=-1);
+    int 			addRandomLineItem(int,int sceneid=-1);
     int 			add2DLineSetItem(const MultiID&,const char*,
 	    						int,int);
     void			removeTreeItem(int displayid);
