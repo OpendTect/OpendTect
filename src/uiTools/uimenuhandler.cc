@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenuhandler.cc,v 1.22 2011-03-18 10:02:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.23 2011-03-25 06:59:41 cvsnanne Exp $";
 
 
 #include "uimenuhandler.h"
@@ -39,7 +39,6 @@ bool uiMenuHandler::executeMenuInternal()
     //makes sure that object is not removed during a cb
     RefMan<uiMenuHandler> reffer(this);
     
-    // freeid_ = 0;
     removeItems();
     MouseCursorManager::setOverride( MouseCursor::Wait );
     createnotifier.trigger();
