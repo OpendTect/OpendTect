@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.32 2010-12-16 13:08:58 cvsbruno Exp $
+ RCS:		$Id: cbvsreader.h,v 1.33 2011-03-25 15:02:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,15 +45,13 @@ public:
 
     const CBVSInfo&	info() const		{ return info_; }
     void		close();
+    BinID		nextBinID() const;	//! returns 0/0 at end
 
-    BinID		nextBinID() const;
-
-    bool		goTo(const BinID&,bool nearest_is_ok=false);
+    bool		goTo(const BinID&);
     bool		toStart();
     bool		toNext();
 
-    bool		hasAuxInfo() const		{ return auxnrbytes; }
-    void		fetchAuxInfo( bool yn=true )	{ needaux = yn; }
+    bool		hasAuxInfo() const	{ return auxnrbytes_; }
     bool		getAuxInfo(PosAuxInfo&);
     			//!< Gets the aux info. Follow by
 			//!< fetch() to get the sample data.
@@ -70,9 +68,9 @@ public:
 			//!< Determines whether a file is a CBVS file
 			//!< returns an error message, or null if OK.
 
-    int			trcNrAtPosition() const		{ return posidx; }
+    int			trcNrAtPosition() const	{ return idxatpos_; }
 
-    const TypeSet<Coord>& trailerCoords() const	 { return trailercoords_; }
+    const TypeSet<Coord>& trailerCoords() const	{ return trailercoords_; }
 
 protected:
 
@@ -85,42 +83,35 @@ protected:
     bool		readTrailer();
     void		getText(int,BufferString&);
     void		toOffs(od_int64);
-    int			getNextBinID(BinID&,int&,int&) const;
-    			//!< see nextPosIdx() for ret value
-    int			getPosNr(const BinID&,bool,bool) const;
+    int			getPosNr(const PosInfo::CubeDataPos&,bool) const;
     Coord		getTrailerCoord(const BinID&) const;
     void		mkPosNrs();
-    bool		goToPosNrOffs(int posnr);
-    void		setPos(int,const BinID&,int,int);
 
 private:
 
-    bool		hinfofetched;
-    int			bytespertrace;
-    BinID		firstbinid;
-    BinID		lastbinid;
-    int			posidx;
-    int			auxnrbytes;
-    bool		needaux;
-    DataInterpreter<int> iinterp;
-    DataInterpreter<float> finterp;
-    DataInterpreter<double> dinterp;
-    HorSampling		hs;
-    Interval<int>	samprg;
-    TypeSet<int>	posnrs;
+    bool		hinfofetched_;
+    int			bytespertrace_;
+    BinID		firstbinid_;
+    int			idxatpos_;
+    int			auxnrbytes_;
+    DataInterpreter<int> iinterp_;
+    DataInterpreter<float> finterp_;
+    DataInterpreter<double> dinterp_;
+    HorSampling		hs_;
+    Interval<int>	samprg_;
+    TypeSet<int>	posnrs_;
 
     bool		readInfo(bool,bool);
-    int			nextPosIdx();
-    			//!< 0 = no more traces
-    			//!< 1 = next trace adjacent to current
-    			//!< 2 = next trace needs a jump
-    od_int64		lastposfo;
-    od_int64		datastartfo;
+    od_int64		lastposfo_;
+    od_int64		datastartfo_;
 
     friend class	CBVSReadMgr;
-    mutable int		curinlinfnr_;
-    mutable int		cursegnr_;
+    mutable PosInfo::CubeDataPos curgeomcubepos_;
+    mutable PosInfo::CubeDataPos curldscubepos_;
     CoordPol		coordPol() const	{ return coordpol_; }
+
+    void		setCubePos(bool fromgeom) const;
+    void		updCurBinID() const;
 
 };
 

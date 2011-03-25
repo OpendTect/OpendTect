@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.106 2011-02-17 15:56:13 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.107 2011-03-25 15:02:34 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -107,6 +107,18 @@ int SEGYSeisTrcTranslator::dataBytes() const
 {
     return SEGY::BinHeader::formatBytes(
 	    	filepars_.fmt_ > 0 ? filepars_.fmt_ : 1 );
+}
+
+
+int SEGYSeisTrcTranslator::traceSizeOnDisk() const
+{
+    return 240 + mBPS(inpcd_) * innrsamples;
+}
+
+
+bool SEGYSeisTrcTranslator::getFullTrcAsBuf( unsigned char* buf )
+{
+    return sConn().doIO( buf, traceSizeOnDisk() );
 }
 
 

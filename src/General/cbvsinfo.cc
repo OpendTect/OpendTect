@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.25 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.26 2011-03-25 15:02:34 cvsbert Exp $";
 
 #include "cbvsinfo.h"
 #include "cubesampling.h"
@@ -46,13 +46,12 @@ int CBVSInfo::SurvGeom::outOfRange( const BinID& bid ) const
 }
 
 
-int CBVSInfo::SurvGeom::getInfIdx( const BinID& bid, int& infidx ) const
+int CBVSInfo::SurvGeom::excludes( const BinID& bid ) const
 {
     int res = outOfRange( bid );
-    if ( fullyrectandreg || res % 256 ) return res;
+    if ( res ) return res;
 
-    infidx = cubedata.indexOf( bid.inl );
-    return infidx < 0 ? 2 : res;
+    return cubedata.cubeDataPos(bid).isValid() ? 0 : 1 + 256;
 }
 
 
@@ -64,109 +63,35 @@ bool CBVSInfo::SurvGeom::includesInline( int inl ) const
 	return inl >= 0 && inl + start.inl <= stop.inl && inl % step.inl == 0;
     }
 
-    return getInfoFor(inl) ? true : false;
+    return cubedata.indexOf(inl) >= 0;
 }
 
 
-int CBVSInfo::SurvGeom::excludes( const BinID& bid ) const
+bool CBVSInfo::SurvGeom::moveToNextPos( BinID& bid ) const
 {
-    int infidx = -1;
-    int res = getInfIdx( bid, infidx );
-    if ( infidx < 0 ) return res;
+    PosInfo::CubeDataPos cdp( cubedata.cubeDataPos(bid) );
+    if ( !cdp.isValid() )
+	cdp.toPreStart();
 
-    PosInfo::LineData inlinf = *cubedata[infidx];
-    for ( int idx=0; idx<inlinf.segments_.size(); idx++ )
-    {
-	if ( inlinf.segments_[idx].includes(bid.crl) )
-	    return 0;
-    }
-    return 1 + 256;
-}
-
-
-int CBVSInfo::SurvGeom::findNextInfIdx( int curinlinfnr ) const
-{
-    const bool inlrev = step.inl < 0;
-    if ( curinlinfnr < 0 || curinlinfnr >= cubedata.size() )
-	return inlrev ? cubedata.size()-1 : 0;
-
-    const int curinl = cubedata[curinlinfnr]->linenr_;
-    int inlinfnr = curinlinfnr + (inlrev ? -1 : 1);
-    // Try the next one first - most probably that's the one we need
-    if ( inlinfnr >= 0 && inlinfnr < cubedata.size() )
-    {
-	int inldiff = cubedata[inlinfnr]->linenr_ - curinl;
-	if ( inldiff > 0 && inldiff <= abs(step.inl) )
-	    return inlinfnr;
-    }
-
-    // Nope. We need to find the nearest higher inline number
-    inlinfnr = -1; int mindiff = mUdf(int);
-    for ( int idx=0; idx<cubedata.size(); idx++ )
-    {
-	int inldiff = cubedata[idx]->linenr_ - curinl;
-	if ( inldiff > 0 && inldiff < mindiff )
-	    { mindiff = inldiff; inlinfnr = idx; }
-    }
-
-    return inlinfnr;
-
-}
-
-
-bool CBVSInfo::SurvGeom::toNextInline( BinID& bid ) const
-{
-    int infidx = -1;
-    int res = getInfIdx( bid, infidx );
-    if ( infidx >= 0 )
-    {
-	infidx = findNextInfIdx( infidx );
-	if ( infidx < 0 )
-	    return false;
-	bid.inl = cubedata[infidx]->linenr_;
-	bid.crl = cubedata[infidx]->segments_[0].start;
-	return true;
-    }
-    else if ( fullyrectandreg )
-    {
-	bid.inl += step.inl < 0 ? -step.inl : step.inl;
-	bid.crl = step.crl < 0 ? stop.crl : start.crl;
-	return !outOfRange( bid );
-    }
-
-    return false;
-}
-
-
-bool CBVSInfo::SurvGeom::toNextBinID( BinID& bid ) const
-{
-    bid.crl += step.crl;
-    int infidx = -1;
-    int res = getInfIdx( bid, infidx );
-    if ( !res )
-	return true;
-
-    if ( fullyrectandreg )
-	return toNextInline( bid );
-    else if ( infidx < 0 )
+    if ( !cubedata.toNext(cdp) )
 	return false;
 
-    const PosInfo::LineData& inlinf = *cubedata[infidx];
-    if ( inlinf.segments_.size() == 1 )
-	return toNextInline( bid );
+    bid = cubedata.binID( cdp );
+    return true;
+}
 
-    int iseg = -1;
-    for ( int idx=0; idx<inlinf.segments_.size(); idx++ )
-    {
-	const PosInfo::LineData::Segment& seg = inlinf.segments_[idx];
-	if ( (seg.step > 0 && seg.start > bid.crl)
-	  || (seg.step < 0 && seg.start < bid.crl) )
-	    { iseg = idx; break; }
-    }
-    if ( iseg < 0 || iseg == inlinf.segments_.size()-1 )
-	return toNextInline( bid );
 
-    bid.crl = inlinf.segments_[iseg+1].start;
+bool CBVSInfo::SurvGeom::moveToNextInline( BinID& bid ) const
+{
+    PosInfo::CubeDataPos cdp( cubedata.cubeDataPos(bid) );
+    if ( !cdp.isValid() )
+	{ cdp.toPreStart(); return moveToNextPos( bid ); }
+
+    cdp.lidx_++; cdp.segnr_ = cdp.sidx_ = 0;
+    if ( !cubedata.isValid(cdp) )
+	return false;
+
+    bid = cubedata.binID( cdp );
     return true;
 }
 
@@ -228,7 +153,8 @@ void CBVSInfo::SurvGeom::mergeIrreg( const CBVSInfo::SurvGeom& g )
     for ( int idx=0; idx<geom->cubedata.size(); idx++ )
     {
 	const PosInfo::LineData* gii = geom->cubedata[idx];
-	PosInfo::LineData* ii = getInfoFor( gii->linenr_ );
+	const int myidx = cubedata.indexOf( gii->linenr_ );
+	PosInfo::LineData* ii = myidx >= 0 ? cubedata[myidx] : 0;
 	if ( !ii )
 	    cubedata.add( new PosInfo::LineData( *gii ) );
 	else
@@ -280,13 +206,6 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 
     start = hs.start;
     stop = hs.stop;
-}
-
-
-PosInfo::LineData* CBVSInfo::SurvGeom::gtInfFor( int inl ) const
-{
-    const int idx = cubedata.indexOf( inl );
-    return idx < 0 ? 0 : const_cast<PosInfo::LineData*>(cubedata[idx]);
 }
 
 

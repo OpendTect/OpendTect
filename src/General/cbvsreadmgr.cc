@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.62 2010-12-29 15:30:27 cvskris Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.63 2011-03-25 15:02:34 cvsbert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -31,14 +31,6 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 	: CBVSIOMgr(fnm)
 	, info_(*new CBVSInfo)
 	, vertical_(false)
-	, auxstrm_(0)
-	, haveaux_(false)
-	, auxinlidx_(0)
-	, auxcrlidx_(0)
-    	, iinterp(DataCharacteristics())
-    	, finterp(DataCharacteristics())
-    	, dinterp(DataCharacteristics())
-	, auxnrbytes_(0)
 	, rdr1firstsampnr_(0)
 {
     bool foundone = false;
@@ -81,103 +73,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 	return;
     }
 
-    handleAuxFile();
     createInfo();
-}
-
-
-// Aux file can contain 'trace header' data instead of in the main files.
-// Not (yet) used in OpendTect.
-
-#define mErrRet(s) \
-	{ BufferString msg( "Auxiliary file: " ); msg += s; ErrMsg(s); \
-	    delete auxstrm_; auxstrm_ = 0; return; }
-
-void CBVSReadMgr::handleAuxFile()
-{
-    BufferString fname = getFileName( -1 );
-    if ( !File::exists((const char*)fname) )
-	return;
-
-    StreamData sd = StreamProvider(fname).makeIStream();
-    auxstrm_ = sd.istrm;
-    if ( !auxstrm_ ) return;
-
-    const char* res = CBVSReader::check( *auxstrm_ );
-    if ( res ) mErrRet(res)
-
-    auxstrm_->seekg( 3, std::ios::beg );
-    char plf; auxstrm_->read( &plf, 1 );
-    DataCharacteristics dc;
-    dc.littleendian_ = plf != 0;
-    finterp.set( dc );
-    dc.setNrBytes( BinDataDesc::N8 );
-    dinterp.set( dc );
-    dc.BinDataDesc::set( true, true, BinDataDesc::N4 );
-    iinterp.set( dc );
-
-    auxstrm_->seekg( 12, std::ios::beg );
-    unsigned char* ptr = &auxflgs_;
-    auxstrm_->read( (char*)ptr, 1 );
-#define mBytes(n,t) (mAuxSetting(ptr,n) ? sizeof(t) : 0)
-    auxnrbytes_ = mBytes(1,float)
-		+ mBytes(2,double) + mBytes(2,double) // x and y
-		+ mBytes(4,float)
-		+ mBytes(8,float)
-		+ mBytes(16,float)
-		+ mBytes(32,float);
-
-    auxstrm_->seekg( -3, std::ios::end );
-    char buf[4];
-    auxstrm_->read( buf, 3 ); buf[3] = '\0';
-    if ( strcmp(buf,"BGd") ) mErrRet("Missing required file trailer")
-    
-    handleAuxTrailer();
-}
-
-
-void CBVSReadMgr::handleAuxTrailer()
-{
-    char buf[20];
-    auxstrm_->seekg( -4-CBVSIO::integersize, std::ios::end );
-    auxstrm_->read( buf, CBVSIO::integersize );
-    const int nrbytes = iinterp.get( buf, 0 );
-
-    auxstrm_->seekg( -4-CBVSIO::integersize-nrbytes, std::ios::end );
-    auxstrm_->read( buf, CBVSIO::integersize );
-    const int nrinl = iinterp.get( buf, 0 );
-    if ( nrinl == 0 ) mErrRet("No traces in file")
-
-    for ( int iinl=0; iinl<nrinl; iinl++ )
-    {
-	if ( !auxstrm_->good() )
-	{
-	    deepErase( auxinlinfs_ );
-	    mErrRet("File trailer not complete")
-	}
-	auxstrm_->read( buf, 2 * CBVSIO::integersize );
-	const int inl = iinterp.get( buf, 0 );
-	const int nrxl = iinterp.get( buf, 1 );
-	if ( !nrxl ) continue;
-
-	AuxInlInf* aii = new AuxInlInf( inl );
-	for ( int icrl=0; icrl<nrxl; icrl++ )
-	{
-	    auxstrm_->read( buf, CBVSIO::integersize );
-	    aii->xlines += iinterp.get( buf, 0 );
-	}
-	aii->cumnrxlines = aii->xlines.size();
-	if ( iinl )
-	    aii->cumnrxlines += auxinlinfs_[iinl-1]->cumnrxlines;
-	auxinlinfs_ += aii;
-    }
-
-    haveaux_ = auxinlinfs_.size();
-    if ( haveaux_ )
-    {
-	for ( int idx=0; idx<readers_.size(); idx++ )
-	    readers_[idx]->fetchAuxInfo( false );
-    }
 }
 
 
@@ -186,7 +82,6 @@ CBVSReadMgr::~CBVSReadMgr()
     close();
     delete &info_;
     deepErase( readers_ );
-    deepErase( auxinlinfs_ );
 }
 
 
@@ -234,11 +129,6 @@ bool CBVSReadMgr::addReader( std::istream* strm, const CubeSampling* cs,
 	delete newrdr;
 	return false;
     }
-
-    if ( readers_.isEmpty() )
-	haveaux_ = newrdr->hasAuxInfo();
-    else if ( vertical_ )
-	newrdr->fetchAuxInfo( false );
 
     readers_ += newrdr;
     return true;
@@ -402,25 +292,21 @@ bool CBVSReadMgr::goTo( const BinID& bid )
 
     if ( vertical_ )
     {
-	CBVSReader& rdr0 = *readers_[0];
-	int posnr = rdr0.getPosNr(bid,false,true);
-	if ( posnr < 0 ) return false;
-
 	for ( int idx=0; idx<readers_.size(); idx++ )
-	    readers_[idx]->setPos(posnr,bid,rdr0.curinlinfnr_,rdr0.cursegnr_);
-
-	return true;
+	    if ( !readers_[idx]->goTo(bid) )
+		return false;
     }
-
-    int rdrnr = curnr_;
-
-    while ( !readers_[rdrnr]->goTo( bid ) )
+    else
     {
-	rdrnr = nextRdrNr( rdrnr );
-	if ( rdrnr < 0 ) return false;
+	int rdrnr = curnr_;
+	while ( !readers_[rdrnr]->goTo( bid ) )
+	{
+	    rdrnr = nextRdrNr( rdrnr );
+	    if ( rdrnr < 0 ) return false;
+	}
+	curnr_ = rdrnr;
     }
 
-    curnr_ = rdrnr;
     return true;
 }
 
@@ -553,93 +439,9 @@ void CBVSReadMgr::getPositions( TypeSet<Coord>& posns ) const
 }
 
 
-void CBVSReadMgr::fetchAuxInfo( bool yn )
-{
-    bool enablerdrs = yn;
-    if ( auxstrm_ )
-    {
-	enablerdrs = false;
-	if ( !yn )
-	{
-	    delete auxstrm_; auxstrm_ = 0;
-	    deepErase( auxinlinfs_ );
-	}
-    }
-
-    for ( int idx=0; idx<readers_.size(); idx++ )
-	readers_[idx]->fetchAuxInfo( enablerdrs );
-}
-
-
 bool CBVSReadMgr::getAuxInfo( PosAuxInfo& pad )
 {
-    if ( !haveaux_ )
-	return true;
-    else if ( !auxstrm_ )
-	return readers_[curnr_]->getAuxInfo( pad );
-
-    BinID binid = binID();
-    const AuxInlInf* aii = auxinlinfs_[auxinlidx_];
-    if ( aii->inl == binid.inl && aii->xlines[auxcrlidx_] == binid.crl )
-	{ getAuxFromFile(pad); return true; }
-    auxcrlidx_++;
-    if ( auxcrlidx_ >= aii->xlines.size() )
-    {
-	auxcrlidx_ = 0; auxinlidx_++;
-	if ( auxinlidx_ >= auxinlinfs_.size() )
-	    auxinlidx_ = 0;
-	aii = auxinlinfs_[auxinlidx_];
-    }
-    if ( aii->inl == binid.inl && aii->xlines[auxcrlidx_] == binid.crl )
-	{ getAuxFromFile(pad); return true; }
-
-    // Extensive search necessary.
-    for ( auxinlidx_=0; auxinlidx_<auxinlinfs_.size(); auxinlidx_++ )
-    {
-	aii = auxinlinfs_[auxinlidx_];
-	if ( aii->inl != binid.inl ) continue;
-
-	for ( auxcrlidx_=0; auxcrlidx_<aii->xlines.size(); auxcrlidx_++ )
-	{
-	    if ( aii->xlines[auxcrlidx_] == binid.crl )
-		{ getAuxFromFile(pad); return true; }
-	}
-
-	break;
-    }
-
-    auxinlidx_ = auxcrlidx_ = 0;
-    return false;
-}
-
-
-void CBVSReadMgr::getAuxFromFile( PosAuxInfo& pad )
-{
-    const AuxInlInf* aii = auxinlinfs_[auxinlidx_];
-    int posnr = aii->cumnrxlines - aii->xlines.size() + auxcrlidx_;
-
-    std::streampos pos = CBVSIO::headstartbytes; // start of data
-    pos += auxnrbytes_ * info_.nrtrcsperposn * posnr; // start of position
-    pos += auxnrbytes_ * readers_[0]->trcNrAtPosition(); // n-th trc on position
-
-    if ( !auxstrm_->seekg(pos,std::ios::beg) )
-	return;
-
-    char buf[2*sizeof(double)];
-    unsigned char* ptr = &auxflgs_;
-#define mCondGetAuxFromStrm(memb,n) \
-    if ( mAuxSetting(ptr,n) ) \
-	{ mGetAuxFromStrm(pad,buf,memb,(*auxstrm_)); }
-#define mCondGetCoordAuxFromStrm() \
-    if ( mAuxSetting(ptr,2) ) \
-	{ mGetCoordAuxFromStrm(pad,buf,(*auxstrm_)); }
-
-    mCondGetAuxFromStrm(startpos,1)
-    mCondGetCoordAuxFromStrm()
-    mCondGetAuxFromStrm(offset,4)
-    mCondGetAuxFromStrm(pick,8)
-    mCondGetAuxFromStrm(refnr,16)
-    mCondGetAuxFromStrm(azimuth,32)
+    return readers_[curnr_]->getAuxInfo( pad );
 }
 
 
@@ -815,8 +617,8 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	for ( int inl=info().geom.start.inl; inl<=info().geom.stop.inl;
 		inl += inlstep )
 	{
-	    const PosInfo::LineData* inlinf = info().geom.getInfoFor( inl );
-	    if ( !inlinf )
+	    const int inlinfidx = info().geom.cubedata.indexOf( inl );
+	    if ( inlinfidx < 0 )
 	    {
 		inlgaps = true;
 		if ( mIsUdf(inlgap.start) )
@@ -826,7 +628,9 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	    }
 	    else
 	    {
-		if ( inlinf->segments_.size() > 1 )
+		const PosInfo::LineData& inlinf =
+		    	*info().geom.cubedata[inlinfidx];
+		if ( inlinf.segments_.size() > 1 )
 		    crlgaps = true;
 		if ( !mIsUdf(inlgap.start) )
 		{

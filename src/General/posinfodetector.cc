@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.16 2010-07-14 16:54:13 cvskris Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.17 2011-03-25 15:02:34 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -114,7 +114,7 @@ void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
     if ( allstd_ )
     {
 	for ( int idx=0; idx<lds_.size(); idx++ )
-	    cd.add( new LineData(*lds_[idx]) );
+	    cd += new LineData( *lds_[idx] );
 	return;
     }
 
@@ -143,7 +143,7 @@ void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
 		newld->segments_ += LineData::Segment( -seg.stop, -seg.start,
 							-seg.step );
 	}
-	cd.add( newld );
+	cd += newld;
     }
 }
 

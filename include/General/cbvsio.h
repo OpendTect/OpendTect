@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.16 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: cbvsio.h,v 1.17 2011-03-25 15:02:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "position.h"
+#include "posinfo.h"
 #include "bufstringset.h"
 
 
@@ -31,7 +32,7 @@ public:
 			CBVSIO()
 			: errmsg_(0), strmclosed_(false), nrxlines_(1)
 			, nrcomps_(0), cnrbytes_(0)	{}
-    virtual		~CBVSIO()			{ delete [] cnrbytes_; }
+    virtual		~CBVSIO();
 
     bool		failed() const			{ return errmsg_; }
     const char*		errMsg() const			{ return errmsg_; }
@@ -56,6 +57,7 @@ protected:
     int			nrxlines_;
     CoordPol		coordpol_;
     TypeSet<Coord>	trailercoords_;
+    PosInfo::CubeData	lds_;
 
     mutable BinID	curbinid_;
 
@@ -113,20 +115,6 @@ protected:
     };
 
 };
-
-//! Common implementation macro
-#define mGetAuxFromStrm(auxinf,buf,memb,strm) \
-    strm.read( buf, sizeof(auxinf.memb) ); \
-    auxinf.memb = finterp.get( buf, 0 )
-
-//! Common implementation macro
-#define mGetCoordAuxFromStrm(auxinf,buf,strm) \
-    strm.read( buf, 2*sizeof(auxinf.coord.x) ); \
-    auxinf.coord.x = dinterp.get( buf, 0 ); \
-    auxinf.coord.y = dinterp.get( buf, 1 )
-
-//! Common implementation macro
-#define mAuxSetting(ptr,n) (*ptr & (unsigned char)n)
 
 
 #endif

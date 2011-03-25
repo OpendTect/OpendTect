@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.2 2011-03-23 12:00:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.3 2011-03-25 15:02:34 cvsbert Exp $";
 
 #include "uisegyresortdlg.h"
 #include "uiioobjsel.h"
@@ -55,17 +55,12 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     uiIOObjSel::Setup ossu##fldnm( "Scanned input" ); \
     ossu##fldnm.filldef( false ); \
     fldnm##fld_ = new uiIOObjSel( this, ctxt##fldnm, ossu##fldnm ); \
-    fldnm##fld_->attach( alignedBelow, geomfld_ )
+    if ( geomfld_ ) fldnm##fld_->attach( alignedBelow, geomfld_ )
 
     if ( SI().has3D() )
     {
-	mDefSeisSelFld(vol,Vol,SeisTrc);
 	mDefSeisSelFld(ps3d,VolPS,SeisPS3D);
-	linesfld_ = new uiGenInput( this, "Number of lines per file",
-				      IntInpSpec(100) );
-	linesfld_->setWithCheck( true );
-	linesfld_->setChecked( false );
-	linesfld_->attach( alignedBelow, ps3dfld_ );
+	mDefSeisSelFld(vol,Vol,SeisTrc);
     }
     if ( SI().has2D() )
     {
@@ -74,10 +69,17 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.forread( false ).filter( uiSEGYFileSpec::fileFilter() );
-    outfld_ = new uiFileInput( this, "Output file(s)", fisu );
+    outfld_ = new uiFileInput( this, "Output file", fisu );
     outfld_->attach( alignedBelow, ps2dfld_ ? ps2dfld_ : ps3dfld_ );
-    if ( linesfld_ )
-	outfld_->attach( ensureBelow, linesfld_ );
+
+    if ( SI().has3D() )
+    {
+	linesfld_ = new uiGenInput( this, "Number of inlines per file",
+				      IntInpSpec(100) );
+	linesfld_->setWithCheck( true );
+	linesfld_->setChecked( false );
+	linesfld_->attach( alignedBelow, outfld_ );
+    }
 }
 
 
@@ -89,7 +91,8 @@ void uiResortSEGYDlg::geomSel( CallBacker* )
     uiIOObjSel* curos = objSel();
 #define mDispFld(nm) \
     if ( nm##fld_ ) nm##fld_->display( nm##fld_ == curos )
-    mDispFld(vol); mDispFld(ps3d); mDispFld(ps2d);
+    mDispFld(ps3d); mDispFld(vol); mDispFld(ps2d);
+    if ( linesfld_ ) linesfld_->display( curos == ps3dfld_ );
 }
 
 
@@ -101,8 +104,10 @@ Seis::GeomType uiResortSEGYDlg::geomType() const
 
 uiIOObjSel* uiResortSEGYDlg::objSel()
 {
-    return geomfld_ ? (geomType() == Seis::VolPS ? ps3dfld_ : volfld_)
-		    : ps2dfld_;
+    const Seis::GeomType gt = geomType();
+    return gt == Seis::LinePS ? ps2dfld_
+	 : gt == Seis::VolPS  ? ps3dfld_
+	 		      : volfld_;
 }
 
 

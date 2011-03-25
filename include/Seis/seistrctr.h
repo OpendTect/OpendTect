@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.60 2009-10-29 08:18:31 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.61 2011-03-25 15:02:34 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -66,11 +66,6 @@ WRITE:
 lastly) close() finishes work (does not close connection). If you don't close
 yourself, the destructor will do it but make sure it's done because otherwise
 you'll likely loose an entire inline when writing.
-
-Note the existence of minimalHdrs(). If this is true, we have only
-inline/crossline. If you use setMinimalHdrs(), only inline/crossline and trace
-data are read & written. Of course, for rigid formats like SEG-Y, this has no
-advantage, so then the flag will be ignored.
 
 Another note: the SelData type 'TrcNrs' is not supported by this class.
 That is because of nasty implementation details on this level. The classes
@@ -198,7 +193,6 @@ public:
     virtual bool	supportsGoTo() const		{ return false; }
     virtual bool	goTo(const BinID&)		{ return false; }
     bool		minimalHdrs() const		{ return false; }
-    void		setMinimalHdrs()		{}
 
     virtual void	cleanUp();
     			//!< Prepare for new initialisation.

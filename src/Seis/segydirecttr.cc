@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.19 2011-03-23 11:59:37 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.20 2011-03-25 15:02:34 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -104,19 +104,29 @@ const PosInfo::CubeData& SEGYDirect3DPSReader::posData() const
 { return def_.cubeData(); }
 
 
-SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx,
-					 const BinID& bid ) const
+bool SEGYDirect3DPSReader::goTo( const BinID& bid )
 {
-    if ( !errmsg_.isEmpty() )
-	return 0;
+    SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid), false );
+    return ti.isValid() ? goTo( ti.filenr_, ti.trcidx_ ) : false;
+}
 
+
+bool SEGYDirect3DPSReader::goTo( int filenr, int trcidx ) const
+{
     if ( filenr != curfilenr_ )
     {
 	delete tr_;
 	tr_ = createTranslator( def_, filenr );
 	curfilenr_ = filenr;
     }
-    if ( !tr_ || !tr_->goToTrace(trcidx) )
+    return tr_ && tr_->goToTrace( trcidx );
+}
+
+
+SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx,
+					 const BinID& bid ) const
+{
+    if ( !errmsg_.isEmpty() || !goTo(filenr,trcidx) )
 	return 0;
 
     SeisTrc* trc = new SeisTrc;
@@ -176,8 +186,14 @@ const PosInfo::Line2DData& SEGYDirect2DPSReader::posData() const
 { return def_.lineData(); }
 
 
-SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx,
-					 int trcnr ) const
+bool SEGYDirect2DPSReader::goTo( const BinID& bid )
+{
+    SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid.crl), false );
+    return ti.isValid() ? goTo( ti.filenr_, ti.trcidx_ ) : false;
+}
+
+
+bool SEGYDirect2DPSReader::goTo( int filenr, int trcidx ) const
 {
     if ( filenr != curfilenr_ )
     {
@@ -185,9 +201,16 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx,
 	tr_ = createTranslator( def_, filenr );
 	curfilenr_ = filenr;
     }
-    if ( !tr_ || !tr_->goToTrace(trcidx) )
-	return 0;
 
+    return tr_ && tr_->goToTrace( trcidx );
+}
+
+
+SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx,
+					 int trcnr ) const
+{
+    if ( !goTo(filenr,trcidx) )
+	return 0;
     SeisTrc* trc = new SeisTrc;
     if ( !tr_->readInfo(trc->info()) || trc->info().nr != trcnr )
 	{ delete trc; return 0; }
@@ -300,10 +323,8 @@ BinID SEGYDirectSeisTrcTranslator::curBinID() const
 }
 
 
-bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
+bool SEGYDirectSeisTrcTranslator::positionTranslator()
 {
-    if ( !def_ || def_->isEmpty() || ild_ < 0 ) return false;
-
     const BinID bid( curBinID() );
     SEGY::FileDataSet::TrcIdx fdsidx = def_->find( Seis::PosKey(bid), false );
     if ( !fdsidx.isValid() )
@@ -316,10 +337,16 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	tr_ = createTranslator( *def_, curfilenr_ );
     }
 
-    if ( !tr_ || !tr_->goToTrace(fdsidx.trcidx_) )
+    return tr_ && tr_->goToTrace(fdsidx.trcidx_);
+}
+
+
+bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
+{
+    if ( !def_ || def_->isEmpty() || ild_ < 0 || !positionTranslator() )
 	return false;
 
-    if ( !tr_->readInfo(ti) || ti.binid != bid )
+    if ( !tr_->readInfo(ti) || ti.binid != curBinID() )
 	{ errmsg = tr_->errMsg(); return false; }
 
     headerread_ = true;
@@ -414,7 +441,7 @@ bool SEGYDirectSeisTrcTranslator::goTo( const BinID& bid )
 
     ild_ = newild; iseg_ = newiseg;
     itrc_ = ld.segments_[ild_].getIndex( bid.crl );
-    return true;
+    return positionTranslator();
 }
 
 

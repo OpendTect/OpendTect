@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.27 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.28 2011-03-25 15:02:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,42 +46,28 @@ public:
 				: fullyrectandreg(false)	{}
 
 	bool			fullyrectandreg;
-	BinID			start, stop, step;
-				//!< If step < 0, the order is reversed in
-				//!< the file
+	BinID			start, stop, step;	//!< step can be < 0
 	RCol2Coord		b2c;
-	PosInfo::CubeData	cubedata;
-				//!< For write, cubedata is ignored in favor
-				//!< of actually written, which is put
-				//!< in trailer.
+	PosInfo::SortedCubeData	cubedata;
 
 	void			merge(const SurvGeom&);
-	PosInfo::LineData*	getInfoFor( int inl )
-				{ return gtInfFor(inl); }
-				//!< returns 0 in case of regular
-	const PosInfo::LineData* getInfoFor( int inl ) const
-				{ return gtInfFor(inl); }
 	void			reCalcBounds();
 
 	int			excludes(const BinID&) const;
 	inline bool		includes( const BinID& bid ) const
 				{ return !excludes(bid); }
 	bool			includesInline(int) const;
-	bool			toNextInline(BinID&) const;
-	bool			toNextBinID(BinID&) const;
 	void			clean()
 	    			{ fullyrectandreg = false; deepErase(cubedata);}
 
-	int			findNextInfIdx(int) const;
+	bool			moveToNextPos(BinID&) const;
+	bool			moveToNextInline(BinID&) const;
 
-    protected:
+protected:
 
 	void			toIrreg();
 	void			mergeIrreg(const SurvGeom&);
 	int			outOfRange(const BinID&) const;
-	int			getInfIdx(const BinID&,int&) const;
-	int			getInfoIdxFor(int) const;
-	PosInfo::LineData*	gtInfFor(int) const;
 
     };
 

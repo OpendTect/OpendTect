@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.23 2010-12-16 13:08:58 cvsbruno Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.24 2011-03-25 15:02:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,9 +57,6 @@ public:
 
     int			nrComponents() const;
     const BinID&	binID() const;
-    bool		hasAuxInfo() const		{ return haveaux_; }
-    void		fetchAuxInfo(bool yn=true);
-    			//!< Single shot. Second time, may not work properly.
     void		getIsRev(bool& inl, bool& crl) const;
 
     const char*		baseFileName() const
@@ -83,9 +80,6 @@ protected:
     ObjectSet<CBVSReader> readers_;
     CBVSInfo&		info_;
     bool		vertical_;
-    DataInterpreter<int> iinterp;
-    DataInterpreter<float> finterp;
-    DataInterpreter<double> dinterp;
     int			rdr1firstsampnr_;
 
     bool		addReader(std::istream*,const CubeSampling*,bool,bool);
@@ -93,22 +87,10 @@ protected:
     int			nextRdrNr(int) const;
     const char*		errMsg_() const;
 
-    bool		haveaux_;
-    std::istream*	auxstrm_;
-    int			auxinlidx_;
-    int			auxcrlidx_;
-    ObjectSet<AuxInlInf> auxinlinfs_;
-    int			auxnrbytes_;
-    unsigned char	auxflgs_;
-
-    void		getAuxFromFile(PosAuxInfo&);
-
 private:
 
     void		createInfo();
     bool		handleInfo(CBVSReader*,int);
-    void		handleAuxFile();
-    void		handleAuxTrailer();
 
 };
 

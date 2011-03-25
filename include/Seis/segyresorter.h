@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyresorter.h,v 1.2 2011-03-23 12:00:18 cvsbert Exp $
+ RCS:		$Id: segyresorter.h,v 1.3 2011-03-25 15:02:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "seisposkey.h"
 #include "multiid.h"
-class SeisTrc;
-namespace PosInfo { class LineData; }
+namespace PosInfo { class CubeDataPos; }
 
 
 namespace SEGY
@@ -33,8 +32,6 @@ mClass ReSorter : public Executor
 {
 public:
 
-    enum Sorting	{ Inl, Crl, Offs };
-
     mClass Setup
     {
     public:
@@ -45,8 +42,6 @@ public:
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(MultiID,inpkey)
 	mDefSetupMemb(BufferString,outfnm)
-	mDefSetupMemb(Sorting,sortkey1)
-	mDefSetupMemb(Sorting,sortkey2)
 	mDefSetupMemb(int,nridxsperfile)
 
     };
@@ -65,18 +60,18 @@ protected:
     const Setup		setup_;
 
     SEGY::DirectReader*	drdr_;
-    SeisTrc&		trc_;
     BufferString	msg_;
     od_int64		nrdone_;
     od_int64		totnr_;
 
-    int			inlidx_;
-    int			segidx_;
-    int			crlidx_;
+    PosInfo::CubeDataPos& cdp_;
+    int			filefirstidx_;
 
     int			wrapUp();
     bool		getCurPos(BinID&);
+    bool		toNext();
     bool		createOutput(const BinID&);
+    bool		openOutputFile(int);
 
 };
 

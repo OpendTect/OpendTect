@@ -3,13 +3,13 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyresorter.cc,v 1.2 2011-03-23 12:00:18 cvsbert Exp $";
+static const char* rcsID = "$Id: segyresorter.cc,v 1.3 2011-03-25 15:02:34 cvsbert Exp $";
 
 #include "segyresorter.h"
 #include "segydirectdef.h"
 #include "segydirecttr.h"
 #include "segytr.h"
-#include "seistrc.h"
+#include "seisposkey.h"
 #include "strmprov.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
@@ -20,23 +20,19 @@ SEGY::ReSorter::Setup::Setup( Seis::GeomType gt, const MultiID& ky,
     : geom_(gt)
     , inpkey_(ky)
     , outfnm_(fnm)
-    , nridxsperfile_(1)
-    , sortkey1_(Seis::is2D(gt) ? Crl : Inl)
-    , sortkey2_(Crl)
+    , nridxsperfile_(-1)
 {
 }
 
 
 SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
     : Executor("Re-sorting")
+    , cdp_(*new PosInfo::CubeDataPos)
     , setup_(su)
-    , trc_(*new SeisTrc)
     , msg_("Handling traces")
     , nrdone_(0)
     , drdr_(0)
-    , inlidx_(0)
-    , segidx_(0)
-    , crlidx_(0)
+    , filefirstidx_(-1)
 {
     IOObj* ioobj = IOM().get( setup_.inpkey_ );
     if ( !ioobj )
@@ -94,12 +90,14 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 SEGY::ReSorter::~ReSorter()
 {
     wrapUp();
+    delete &cdp_;
 }
 
 
 int SEGY::ReSorter::wrapUp()
 {
     delete drdr_; drdr_ = 0;
+    cdp_.toPreStart();
     return Finished();
 }
 
@@ -116,9 +114,18 @@ int SEGY::ReSorter::nextStep()
     if ( !createOutput(bid) )
 	return ErrorOccurred();
 
-    crlidx_++;
+    return toNext() ? MoreToDo() : Finished();
+}
+
+
+bool SEGY::ReSorter::toNext()
+{
     nrdone_++;
-    return MoreToDo();
+    const SEGY::DirectDef& dd = *drdr_->getDef();
+    if ( Seis::is2D(setup_.geom_) )
+	return nrdone_ >= dd.lineData().positions().size();
+    else
+	return dd.cubeData().toNext(cdp_);
 }
 
 
@@ -137,22 +144,9 @@ bool SEGY::ReSorter::getCurPos( BinID& bid )
     else
     {
 	const PosInfo::CubeData& cd = dd.cubeData();
-	if ( inlidx_ >= cd.size() )
+	if ( !cd.isValid(cdp_) )
 	    return false;
-
-	if ( crlidx_ > cd[inlidx_]->segments_[segidx_].nrSteps() )
-	{
-	    segidx_++; crlidx_ = 0;
-	    if ( segidx_ >= cd[inlidx_]->segments_.size() )
-	    {
-		inlidx_++; segidx_ = 0;
-		if ( inlidx_ >= cd.size() )
-		    return false;
-	    }
-	}
-	const PosInfo::LineData& ld = *cd[inlidx_];
-	bid.inl = ld.linenr_;
-	bid.crl = ld.segments_[segidx_].atIndex( crlidx_ );;
+	bid = cd.binID( cdp_ );
     }
 
     return true;
@@ -161,6 +155,37 @@ bool SEGY::ReSorter::getCurPos( BinID& bid )
 
 bool SEGY::ReSorter::createOutput( const BinID& bid )
 {
+    const bool is2d = Seis::is2D( setup_.geom_ );
+    const bool isps = Seis::isPS( setup_.geom_ );
+
+    Seis::PosKey pk( setup_.geom_ );
+    if ( is2d )
+	pk.setTrcNr( bid.crl );
+    else
+	pk.setBinID( bid );
+
+    const SEGY::DirectDef& dd = *drdr_->getDef();
+    for ( int iocc=0; ; iocc++ )
+    {
+	FileDataSet::TrcIdx tidx = dd.findOcc( pk, iocc );
+	if ( !tidx.isValid() )
+	    break;
+    }
+
+    if ( filefirstidx_ < 0
+      || (!is2d && isps && setup_.nridxsperfile_ > 0
+	  && bid.inl - filefirstidx_ >= setup_.nridxsperfile_) )
+    {
+	if ( !openOutputFile(bid.inl) )
+	    return false;
+    }
+
     // TODO
     return true;
+}
+
+
+bool SEGY::ReSorter::openOutputFile( int inl )
+{
+    return false;
 }

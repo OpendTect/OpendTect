@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.49 2011-03-23 12:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.50 2011-03-25 15:02:34 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -309,7 +309,7 @@ static const char* posdataFileName( const char* dirnm )
 
 SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
     	: SeisCBVSPSIO(dirnm)
-    	, posdata_(*new PosInfo::CubeData)
+    	, posdata_(*new PosInfo::SortedCubeData)
     	, curinl_(mUdf(int))
 {
     if ( !dirNmOK(true) ) return;

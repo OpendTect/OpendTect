@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.28 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.29 2011-03-25 15:02:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,6 @@ private:
     CBVSInfo::SurvGeom	survgeom_;
 
     const PosAuxInfo*	auxinfo_;
-    PosInfo::CubeData	inldata_;
 
     void		init(const CBVSInfo&);
     void		getBinID();

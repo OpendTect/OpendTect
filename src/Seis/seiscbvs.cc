@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.87 2010-12-16 13:08:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.88 2011-03-25 15:02:34 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seistrc.h"
@@ -34,7 +34,6 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	, rdmgr(0)
 	, wrmgr(0)
 	, nrdone(0)
-    	, minimalhdrs(false)
     	, brickspec(*new VBrickSpec)
     	, single_file(false)
     	, forceusecbvsinfo(false)
@@ -76,8 +75,7 @@ void CBVSSeisTrcTranslator::cleanUp()
 {
     const int nrcomps = nrSelComps();
     SeisTrcTranslator::cleanUp();
-    headerdone = false;
-    donext =false;
+    headerdone = donext =false;
     nrdone = 0;
     destroyVars( nrcomps );
 }
@@ -162,7 +160,6 @@ bool CBVSSeisTrcTranslator::initRead_()
     if ( rdmgr->failed() )
 	{ errmsg = rdmgr->errMsg(); return false; }
 
-    minimalhdrs = !rdmgr->hasAuxInfo();
     const int nrcomp = rdmgr->nrComponents();
     const CBVSInfo& info = rdmgr->info();
     insd = info.sd;
@@ -314,14 +311,14 @@ bool CBVSSeisTrcTranslator::toNext()
 	    if ( !res ) break;
 
 	    if ( res%256 == 2 )
-		{ if ( !info.geom.toNextInline(nextbid) ) return false; }
-	    else if ( !info.geom.toNextBinID(nextbid) )
+		{ if ( !info.geom.moveToNextInline(nextbid) ) return false; }
+	    else if ( !info.geom.moveToNextPos(nextbid) )
 		return false;
 	}
 
 	if ( goTo(nextbid) )
 	    break;
-	else if ( !info.geom.toNextBinID(nextbid) )
+	else if ( !info.geom.moveToNextPos(nextbid) )
 	    return false;
     }
 
@@ -332,11 +329,7 @@ bool CBVSSeisTrcTranslator::toNext()
 bool CBVSSeisTrcTranslator::toStart()
 {
     if ( rdmgr->toStart() )
-    {
-	headerdone = false;
-	donext = false;
-	return true;
-    }
+	{ headerdone = donext = false; return true; }
     return false;
 }
 
@@ -344,11 +337,7 @@ bool CBVSSeisTrcTranslator::toStart()
 bool CBVSSeisTrcTranslator::goTo( const BinID& bid )
 {
     if ( rdmgr->goTo(bid) )
-    {
-	headerdone = false;
-	donext = false;
-	return true;
-    }
+	{ headerdone = donext = false; return true; }
     return false;
 }
 
@@ -407,8 +396,7 @@ bool CBVSSeisTrcTranslator::skip( int nr )
 {
     for ( int idx=0; idx<nr; idx++ )
 	if ( !rdmgr->toNext() ) return false;
-    donext = false;
-    headerdone = false;
+    donext = headerdone = false;
     return true;
 }
 
@@ -426,7 +414,7 @@ bool CBVSSeisTrcTranslator::startWrite()
     BufferString fnm; if ( !getFileName(fnm) ) return false;
 
     CBVSInfo info;
-    info.auxinfosel.setAll( !minimalhdrs );
+    info.auxinfosel.setAll( true );
     info.geom.fullyrectandreg = false;
     info.geom.b2c = SI().binID2Coord();
     info.stdtext = pinfo.stdinfo;

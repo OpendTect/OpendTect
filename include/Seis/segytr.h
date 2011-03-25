@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.42 2010-11-12 15:02:24 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.43 2011-03-25 15:02:34 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -37,6 +37,8 @@ public:
     bool		read(SeisTrc&);
     bool		skip(int);
     bool		goToTrace(int);
+    int			traceSizeOnDisk() const;
+    bool		getFullTrcAsBuf(unsigned char*);
 
     bool		isRev1() const;
     int			numberFormat() const	{ return filepars_.fmt_; }

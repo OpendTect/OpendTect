@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.12 2011-03-23 11:59:19 cvsbert Exp $
+ RCS:		$Id: segydirecttr.h,v 1.13 2011-03-25 15:02:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,9 +33,10 @@ public:
 					    : tr_(0), curfilenr_(-1)	{}
     virtual				~DirectReader();
 
-    virtual DirectDef*			getDef()	= 0;
-    virtual const char*			errMsg() const	= 0;
-    virtual SEGYSeisTrcTranslator*	getTranslator()	{ return tr_; }
+    virtual DirectDef*			getDef()		= 0;
+    virtual const char*			errMsg() const		= 0;
+    virtual SEGYSeisTrcTranslator*	getTranslator()		{ return tr_; }
+    virtual bool			goTo(const BinID&)	= 0;
 
 protected:
 
@@ -65,6 +66,7 @@ public:
     const PosInfo::CubeData& posData() const;
 
     virtual SEGY::DirectDef*	getDef()	{ return &def_; }
+    virtual bool		goTo(const BinID&);
 
 protected:
 
@@ -72,6 +74,7 @@ protected:
     mutable BufferString errmsg_;
 
     SeisTrc*		getTrace(int,int,const BinID&) const;
+    bool		goTo(int,int) const;
 
 };
 
@@ -94,6 +97,7 @@ public:
     const PosInfo::Line2DData& posData() const;
 
     virtual SEGY::DirectDef*	getDef()	{ return &def_; }
+    virtual bool		goTo(const BinID&);
 
 protected:
 
@@ -101,6 +105,7 @@ protected:
     mutable BufferString	errmsg_;
 
     SeisTrc*			getTrace(int,int,int) const;
+    bool			goTo(int,int) const;
 };
 
 
@@ -141,7 +146,6 @@ public:
     bool		skip(int);
     bool		supportsGoTo() const		{ return true; }
     bool		isReadDefault() const		{ return true; }
-    bool		goTo(const BinID&);
     BinID		curBinID() const;
 
     void		usePar(const IOPar&);
@@ -150,6 +154,7 @@ public:
     void		cleanUp();
 
     virtual SEGY::DirectDef* getDef()	{ return def_; }
+    virtual bool	goTo(const BinID&);
     const char*		errMsg() const	{ return SeisTrcTranslator::errMsg(); }
 
 protected:
@@ -169,6 +174,7 @@ protected:
     void		initVars();
     const PosInfo::CubeData& cubeData() const;
     bool		toNextTrace();
+    bool		positionTranslator();
 
 };
 
