@@ -203,8 +203,11 @@ bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 #define mRetFalseIfZero(vel) \
     if ( mIsZero(vel,mDefEps) ) return false;
-#define mAddInterTime(t,model,layer) \
-    t += ( model[layer].depth_ - model[layer-1].depth_ ) / model[layer-1].vel_;
+#define mAddInterTime(t,mod,layer) \
+{\
+    const float d =( mod[layer].depth_-mod[layer-1].depth_ )/cos(asin(sini));\
+    t += d/mod[layer-1].vel_;\
+}
 
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
@@ -224,9 +227,6 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
     mRetFalseIfZero(vel);
 
     float sini = rayparam * vel;
-    float dist = (dlayers[lidx].depth_-setup_.sourcedepth_)
-	       / sqrt(1.0-sini*sini);
-    float interdist = 0;
     float twt = setup_.sourcedepth_ / vel;
     float_complex reflectivity =
 	coefs[lidx].getCoeff( true, lidx!=layer-1, setup_.pdown_,
@@ -247,7 +247,6 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	vel = dlayers[lidx].vel_;
 	mRetFalseIfZero(vel);
 	sini = rayparam * vel;
-	dist = dlayers[lidx].depth_ / cos( asin(sini) );
 	reflectivity *= coefs[lidx].getCoeff( true, lidx!=layer-1,
 		setup_.pdown_, lidx==layer-1? setup_.pup_ : setup_.pdown_ );
 	mAddInterTime( twt, dlayers, lidx )
@@ -259,10 +258,6 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	vel = ulayers[lidx].vel_;
 	mRetFalseIfZero(vel);
 	sini = rayparam * vel;
-	dist =  (ulayers[lidx].depth_-(
-		    lidx==receiverlayer_ ? setup_.receiverdepth_ : 0) ) 
-		    / cos( asin(sini) );
-
 	if ( lidx>receiverlayer_ )
 	{
 	    reflectivity *=
