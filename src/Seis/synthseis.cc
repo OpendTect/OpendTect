@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.11 2011-03-24 16:07:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.12 2011-03-25 14:42:05 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -50,15 +50,18 @@ bool SynthGenerator::setModel( const ReflectivityModel& refmodel )
 }
 
 
-bool SynthGenerator::setWavelet( Wavelet* wvlt, OD::PtrPolicy pol )
+bool SynthGenerator::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 {
+    if ( waveletismine_ ) 
+	{ delete wavelet_; wavelet_ = 0; }
     if ( !wvlt ) 
 	{ errmsg_ = "No valid wavelet given"; return false; }
     if ( pol == OD::CopyPtr )
     {
-	mDeclareAndTryAlloc(float*, newdata, float[wvlt->size()] );
-	if ( !newdata ) return false;
-	MemCopier<float> copier( wavelet_->samples(), newdata, wvlt->size() );
+	mDeclareAndTryAlloc( float*, wavelet_, float[wvlt->size()] );
+	if ( !wavelet_ )
+	    { errmsg_ = "Not enough memory"; return false; }
+	MemCopier<float> copier( wavelet_, wvlt->samples(), wvlt->size() );
 	copier.execute();
     }
     else 
@@ -236,7 +239,7 @@ void RaySynthGenerator::setConvolDomain( bool fourier )
 }
 
 
-bool RaySynthGenerator::setWavelet( Wavelet* wvlt, OD::PtrPolicy ptr )
+bool RaySynthGenerator::setWavelet( const Wavelet* wvlt, OD::PtrPolicy ptr )
 {
     return synthgenbase_.setWavelet( wvlt, ptr );
 }
@@ -302,13 +305,12 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 void RaySynthGenerator::fillPar( IOPar& par ) const
 {
-    //TODO 
+
 }
 
 
 bool RaySynthGenerator::usePar( const IOPar& par ) 
 {
-    //TODO 
     return true;
 }
 

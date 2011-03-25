@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.11 2011-03-24 16:07:07 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.12 2011-03-25 14:42:04 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ public:
     				~SynthGenerator();
 
     bool			setModel(const ReflectivityModel&);
-    bool			setWavelet(Wavelet*,OD::PtrPolicy);
+    bool			setWavelet(const Wavelet*,OD::PtrPolicy);
     bool			setOutSampling(const StepInterval<float>&);
     void 			setConvolDomain(bool fourier);
     				/*!<Default is fourier-domain */
@@ -67,7 +67,7 @@ protected:
     bool 			doTimeConvolve(float* result); 
     bool 			doFFTConvolve(float* result);
 
-    Wavelet*			wavelet_;
+    const Wavelet*		wavelet_;
     StepInterval<float>		outputsampling_;
     ReflectivityModel		refmodel_;
 
@@ -92,7 +92,7 @@ public:
     virtual bool		setModel(const AIModel&);
     virtual bool		setOffsets(const TypeSet<float>&);
 
-    virtual bool		setWavelet(Wavelet*,OD::PtrPolicy);
+    virtual bool		setWavelet(const Wavelet*,OD::PtrPolicy);
     void 			setConvolDomain(bool fourier);
     				/*!<Default is fourier-domain*/
     virtual bool		setOutSampling(const StepInterval<float>&);
