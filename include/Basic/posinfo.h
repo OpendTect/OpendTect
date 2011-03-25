@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.21 2011-03-23 11:55:37 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.22 2011-03-25 15:01:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,29 +64,49 @@ public:
 };
 
 
+/*!\brief Position in a CubeData */
+
+mClass CubeDataPos
+{
+public:
+    		CubeDataPos( int iln=0, int isn=0, int sidx=-1 )
+		    : lidx_(iln), segnr_(isn), sidx_(sidx)	{}
+
+    int		lidx_;
+    int		segnr_;
+    int		sidx_;
+
+    void	toPreStart()	{ lidx_ = segnr_ = 0; sidx_ = -1; }
+    void	toStart()	{ lidx_ = segnr_ = sidx_ = 0; }
+    bool	isValid() const	{ return lidx_>=0 && segnr_>=0 && sidx_>=0; }
+
+};
+
+
 /*!\brief Position info for an entire 3D cube.
 
-  The LineData's are sorted.
-
+  The LineData's are not sorted.
  */
 
 mClass CubeData : public ManagedObjectSet<LineData>
 {
 public:
+
     			CubeData()
 			    : ManagedObjectSet<LineData>(false)	{}
-    			CubeData(const BinID& start,const BinID& stop,
-				 const BinID& step);
-    			CubeData( const CubeData& cd )
+    			CubeData( BinID start, BinID stop, BinID step )
 			    : ManagedObjectSet<LineData>(false)
-								{ *this = cd; }
-    CubeData&		operator =(const CubeData&);
+						{ generate(start,stop,step); }
+    			CubeData( const CubeData& cd )
+			    : ManagedObjectSet<LineData>(false)	{ *this = cd; }
+    CubeData&		operator =( const CubeData& cd )
+			{ copyContents(cd); return *this; }
 
     int			totalSize() const;
     int			totalSizeInside(const HorSampling& hrg) const;
     			/*!<Only take positions that are inside hrg. */
 
-    int			indexOf(int inl,int* newidx=0) const;
+    virtual int		indexOf(int inl,int* newidx=0) const;
     			//!< newidx only filled if not null and -1 is returned
     bool		includes(int inl,int crl) const;
     bool		getInlRange(StepInterval<int>&) const;
@@ -94,19 +114,56 @@ public:
     bool		getCrlRange(StepInterval<int>&) const;
     			//!< Returns whether fully regular.
 
+    bool		isValid(const CubeDataPos&) const;
+    bool		toNext(CubeDataPos&) const;
+    BinID		binID(const CubeDataPos&) const;
+    CubeDataPos		cubeDataPos(const BinID&) const;
+
     bool		haveInlStepInfo() const		{ return size() > 1; }
     bool		haveCrlStepInfo() const;
     bool		isFullyRectAndReg() const;
 
-    virtual CubeData&	operator +=( LineData* ld )	{ return add( ld ); }
-    CubeData&		add(LineData*);
-
     void		limitTo(const HorSampling&);
     void		merge(const CubeData&,bool incl);
     				//!< incl=union, !incl=intersection
+    void		generate(BinID start,BinID stop,BinID step);
 
     bool		read(std::istream&,bool asc);
     bool		write(std::ostream&,bool asc) const;
+
+protected:
+
+    void		copyContents(const CubeData&);
+
+};
+
+
+/*!\brief Position info for an entire 3D cube.
+
+  The LineData's are sorted.
+ */
+
+mClass SortedCubeData : public CubeData
+{
+public:
+    			SortedCubeData()				{}
+    			SortedCubeData( const BinID& start, const BinID& stop,
+				  const BinID& step )
+			    : CubeData(start,stop,step)		{}
+    			SortedCubeData( const SortedCubeData& cd )
+								{ *this = cd; }
+    			SortedCubeData( const CubeData& cd )	{ *this = cd; }
+    SortedCubeData&	operator =( const SortedCubeData& scd )
+			{ copyContents(scd); return *this; }
+    SortedCubeData&	operator =( const CubeData& cd )
+			{ copyContents(cd); return *this; }
+
+    virtual int		indexOf(int inl,int* newidx=0) const;
+    			//!< newidx only filled if not null and -1 is returned
+
+    virtual CubeData&	operator +=( LineData* ld )	{ return add( ld ); }
+    SortedCubeData&	add(LineData*);
+
 };
 
 
@@ -135,23 +192,26 @@ protected:
 };
 
 
-/*!\brief Iterator for Cube Data*/
-
 mClass CubeDataIterator
 {
 public:
-    			CubeDataIterator(const CubeData& cd)
-			    : cubedata_(cd)
-			    , firstpos_(true)	{}
 
-    bool		next(BinID&);
-    void		reset()			{ firstpos_ = true; }
+    			CubeDataIterator( const CubeData& cd )
+			    : cd_(cd)	{}
 
-protected:
+    inline bool		next( BinID& bid )
+			{
+			    const bool rv = cd_.toNext( cdp_ );
+			    bid = binID(); return rv;
+			}
+    inline void		reset()		{ cdp_.toPreStart(); }
+    inline BinID	binID() const	{ return cd_.binID( cdp_ ); }
 
-    bool		firstpos_;
-    CubeData		cubedata_;
+    const CubeData&	cd_;
+    CubeDataPos		cdp_;
+
 };
+
 
 } // namespace PosInfo
 

@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.27 2011-03-23 11:55:37 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.28 2011-03-25 15:01:59 cvsbert Exp $";
 
 #include "posinfo.h"
 #include "survinfo.h"
@@ -180,11 +180,10 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
 }
 
 
-PosInfo::CubeData::CubeData( const BinID& b1, const BinID& b2,
-			     const BinID& stp )
-	: ManagedObjectSet<LineData>( false )
+void PosInfo::CubeData::generate( BinID start, BinID stop, BinID step )
 {
-    BinID start( b1 ); BinID stop( b2 ); BinID step( stp );
+    erase();
+
     if ( start.inl > stop.inl ) Swap( start.inl, stop.inl );
     if ( start.crl > stop.crl ) Swap( start.crl, stop.crl );
     if ( step.inl < 0 ) step.inl = -step.inl;
@@ -194,12 +193,12 @@ PosInfo::CubeData::CubeData( const BinID& b1, const BinID& b2,
     {
 	LineData* ld = new LineData( iln );
 	ld->segments_ += LineData::Segment( start.crl, stop.crl, step.crl );
-	add( ld );
+	*this += ld;
     }
 }
 
 
-PosInfo::CubeData& PosInfo::CubeData::operator =( const PosInfo::CubeData& cd )
+void PosInfo::CubeData::copyContents( const PosInfo::CubeData& cd )
 {
     if ( &cd != this )
     {
@@ -207,7 +206,6 @@ PosInfo::CubeData& PosInfo::CubeData::operator =( const PosInfo::CubeData& cd )
 	for ( int idx=0; idx<cd.size(); idx++ )
 	    *this += new PosInfo::LineData( *cd[idx] );
     }
-    return *this;
 }
 
 
@@ -249,44 +247,46 @@ int PosInfo::CubeData::totalSizeInside( const HorSampling& hrg ) const
 
 int PosInfo::CubeData::indexOf( int lnr, int* newidx ) const
 {
+    for ( int idx=0; idx<size(); idx++ )
+	if ( (*this)[idx]->linenr_ == lnr )
+	    return idx;
+    return -1;
+}
+
+
+int PosInfo::SortedCubeData::indexOf( int reqlnr, int* newidx ) const
+{
     const int nrld = size();
     if ( nrld < 1 )
 	{ if ( newidx ) *newidx = 0; return -1; }
 
     int loidx = 0;
-    if ( (*this)[loidx]->linenr_ == lnr )
-	return loidx;
-    if ( nrld == 1 )
+    int lnr = (*this)[loidx]->linenr_;
+    if ( reqlnr <= lnr )
     {
-	if ( newidx ) *newidx = lnr > (*this)[loidx]->linenr_ ? 1 : 0;
-	return -1;
+	if ( newidx ) *newidx = 0;
+	return reqlnr == lnr ? loidx : -1;
     }
+    else if ( nrld == 1 )
+	{ if ( newidx ) *newidx = 1; return -1; }
 
     int hiidx = nrld - 1;
-    if ( (*this)[hiidx]->linenr_ == lnr )
-	return hiidx;
-
-    if ( nrld == 2 )
+    lnr = (*this)[hiidx]->linenr_;
+    if ( reqlnr >= lnr )
     {
-	if ( newidx )
-	{
-	    if ( (*this)[loidx]->linenr_ > lnr )
-		*newidx = 0;
-	    else if ( (*this)[hiidx]->linenr_ < lnr )
-		*newidx = 2;
-	    else
-		*newidx = 1;
-	}
-	return -1;
+	if ( newidx ) *newidx = hiidx+1;
+	return reqlnr == lnr ? hiidx : -1;
     }
+    else if ( nrld == 2 )
+	{ if ( newidx ) *newidx = 1; return -1; }
 
     while ( hiidx - loidx > 1 )
     {
 	const int mididx = (hiidx + loidx) / 2;
-	const int midlnr = (*this)[mididx]->linenr_;
-	if ( midlnr == lnr )
+	lnr = (*this)[mididx]->linenr_;
+	if ( lnr == reqlnr )
 	    return mididx;
-	else if ( lnr > midlnr )
+	else if ( reqlnr > lnr )
 	    loidx = mididx;
 	else
 	    hiidx = mididx;
@@ -444,18 +444,85 @@ bool PosInfo::CubeData::getCrlRange( StepInterval<int>& rg ) const
 }
 
 
+bool PosInfo::CubeData::isValid( const PosInfo::CubeDataPos& cdp ) const
+{
+    if ( cdp.lidx_ < 0 || cdp.lidx_ >= size() )
+	return false;
+    const TypeSet<LineData::Segment>& segs( (*this)[cdp.lidx_]->segments_ );
+    if ( cdp.segnr_ < 0 || cdp.segnr_ >= segs.size() )
+	return false;
+    return cdp.sidx_ >= 0 && cdp.sidx_ <= segs[cdp.segnr_].nrSteps();
+}
+
+
+bool PosInfo::CubeData::toNext( PosInfo::CubeDataPos& cdp ) const
+{
+    if ( !isValid(cdp) )
+    {
+	cdp.toStart();
+	return isValid(cdp);
+    }
+    else
+    {
+	cdp.sidx_++;
+	if ( cdp.sidx_ > (*this)[cdp.lidx_]->segments_[cdp.segnr_].nrSteps() )
+	{
+	    cdp.segnr_++; cdp.sidx_ = 0;
+	    if ( cdp.segnr_ >= (*this)[cdp.lidx_]->segments_.size() )
+	    {
+		cdp.lidx_++; cdp.segnr_ = 0;
+		if ( cdp.lidx_ >= size() )
+		    return false;
+	    }
+	}
+	return true;
+    }
+}
+
+
+BinID PosInfo::CubeData::binID( const PosInfo::CubeDataPos& cdp ) const
+{
+    return !isValid(cdp) ? BinID(0,0)
+	: BinID( (*this)[cdp.lidx_]->linenr_,
+		 (*this)[cdp.lidx_]->segments_[cdp.segnr_].atIndex(cdp.sidx_) );
+}
+
+
+PosInfo::CubeDataPos PosInfo::CubeData::cubeDataPos( const BinID& bid ) const
+{
+    PosInfo::CubeDataPos cdp;
+    cdp.lidx_ = indexOf( bid.inl );
+    if ( cdp.lidx_ < 0 )
+	return cdp;
+    const TypeSet<LineData::Segment>& segs( (*this)[cdp.lidx_]->segments_ );
+    for ( int iseg=0; iseg<segs.size(); iseg++ )
+    {
+	if ( segs[iseg].includes(bid.crl) )
+	{
+	    cdp.segnr_ = iseg;
+	    cdp.sidx_ = segs[iseg].getIndex( bid.crl );
+	}
+    }
+    return cdp;
+}
+
+
 bool PosInfo::CubeData::isFullyRectAndReg() const
 {
     const int sz = size();
-    if ( sz < 1 ) return false;
+    if ( sz < 1 ) return true;
 
     const PosInfo::LineData* ld = (*this)[0];
+    if ( ld->segments_.isEmpty() )
+	return sz == 1;
     const PosInfo::LineData::Segment seg = ld->segments_[0];
 
     int lnrstep;
     for ( int ilnr=0; ilnr<sz; ilnr++ )
     {
 	ld = (*this)[ilnr];
+	if ( ld->segments_.isEmpty() )
+	    return false;
 	if ( ld->segments_.size() > 1 || ld->segments_[0] != seg )
 	    return false;
 	if ( ilnr > 0 )
@@ -471,9 +538,10 @@ bool PosInfo::CubeData::isFullyRectAndReg() const
 }
 
 
-PosInfo::CubeData& PosInfo::CubeData::add( PosInfo::LineData* ld )
+PosInfo::SortedCubeData& PosInfo::SortedCubeData::add( PosInfo::LineData* ld )
 {
     if ( !ld ) return *this;
+
     int newidx;
     const int curidx = indexOf( ld->linenr_, &newidx );
     if ( curidx < 0 )
@@ -526,13 +594,13 @@ void PosInfo::CubeData::merge( const PosInfo::CubeData& pd1, bool inc )
 	const int iln2 = pd2.indexOf( ld1.linenr_ );
 	if ( iln2 < 0 )
 	{
-	    if ( inc ) add( new PosInfo::LineData(ld1) );
+	    if ( inc ) *this += new PosInfo::LineData(ld1);
 	    continue;
 	}
 
 	PosInfo::LineData* ld = new PosInfo::LineData( *pd2[iln2] );
 	ld->merge( ld1, inc );
-	add( ld );
+	*this += ld;
     }
     if ( !inc ) return;
 
@@ -541,7 +609,7 @@ void PosInfo::CubeData::merge( const PosInfo::CubeData& pd1, bool inc )
 	const PosInfo::LineData& ld2 = *pd2[iln2];
 	const int iln = indexOf( ld2.linenr_ );
 	if ( iln2 < 0 )
-	    add( new PosInfo::LineData(ld2) );
+	    *this += new PosInfo::LineData(ld2);
     }
 }
 
@@ -592,7 +660,7 @@ bool PosInfo::CubeData::read( std::istream& strm, bool asc )
 	    iinf->segments_ += crls;
 	}
 
-	add( iinf );
+	*this += iinf;
     }
 
     return true;
@@ -717,67 +785,21 @@ void PosInfo::CubeDataFiller::initLine()
 
 void PosInfo::CubeDataFiller::finishLine()
 {
-    if ( mIsUdf(seg_.step) )
+    if ( mIsUdf(seg_.start) )
+	delete ld_;
+    else
     {
-	if ( ld_->segments_.isEmpty() )
-	    seg_.step = SI().crlStep();
-	else
-	    seg_.step = ld_->segments_[0].step;
-    }
+	if ( mIsUdf(seg_.step) )
+	{
+	    if ( ld_->segments_.isEmpty() )
+		seg_.step = SI().crlStep();
+	    else
+		seg_.step = ld_->segments_[0].step;
+	}
 
-    ld_->segments_ += seg_;
-    if ( !findLine(ld_->linenr_) )
+	ld_->segments_ += seg_;
 	cd_ += ld_;
+    }
 
     initLine();
-}
-
-
-bool PosInfo::CubeDataIterator::next( BinID& bid )
-{
-    if ( !cubedata_.size() ) return false;
-
-    if ( firstpos_ )
-    {
-	const PosInfo::LineData* ld = cubedata_[0];
-	if ( !ld || ld->segments_.isEmpty() )
-	    return false;
-
-	bid.inl = ld->linenr_;
-	bid.crl = ld->segments_[0].start;
-	firstpos_ = false;
-	return true;
-    }
-
-    bool startnew = false;
-    for ( int idx=0; idx<cubedata_.size(); idx++ )
-    {
-	const PosInfo::LineData* ld = cubedata_[idx];
-	if ( !ld || ld->segments_.isEmpty() )
-	    continue;
-
-	if ( !startnew && ld->linenr_ != bid.inl )
-	    continue;
-	
-	bid.inl = ld->linenr_;
-	for ( int sdx=0; sdx<ld->segments_.size(); sdx++ )
-	{
-	    StepInterval<int> crlrg = ld->segments_[sdx];
-	    if ( startnew )
-	    {
-		bid.crl = crlrg.start;	
-		return true;
-	    }
-
-	    if ( !crlrg.includes(bid.crl) ) continue;
-
-	    bid.crl = bid.crl + crlrg.step;
-	    if ( crlrg.includes(bid.crl) )
-		return true;
-	    else
-		startnew = true;
-	}
-    }
-
-    return false;
 }
