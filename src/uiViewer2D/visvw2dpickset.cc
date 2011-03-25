@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.2 2011-03-24 11:56:25 cvsranojay Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.3 2011-03-25 09:56:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,17 +145,17 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	BinID bid; float z;
 	if ( dp3d->dataDir() == CubeSampling::Inl )
 	{
-	    bid = BinID( cs.hrg.start.inl, pt.x );
+	    bid = BinID( cs.hrg.start.inl, (int)pt.x );
 	    z = pt.y;
 	}
 	else if ( dp3d->dataDir() == CubeSampling::Crl )
 	{
-	    bid = BinID( pt.x, cs.hrg.start.crl );
+	    bid = BinID( (int)pt.x, cs.hrg.start.crl );
 	    z = pt.y;
 	}
 	else
 	{
-	    bid = BinID( pt.x, pt.y );
+	    bid = BinID( (int)pt.x, (int)pt.y );
 	    z = cs.zrg.start;
 	}
 
