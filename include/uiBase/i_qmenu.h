@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qmenu.h,v 1.13 2011-03-28 07:55:34 cvsnanne Exp $
+ RCS:           $Id: i_qmenu.h,v 1.14 2011-03-28 09:02:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,8 @@ void hovered( QAction* qaction )
 {
     if ( !qmenubar_ ) return;
 
-    QToolTip::showText( qmenubar_->geometry().bottomRight(), qaction->toolTip(), 0 );
+/*    QToolTip::showText( qmenubar_->geometry().bottomRight(),
+			qaction->toolTip(), 0 ); */
 }
 
 };
