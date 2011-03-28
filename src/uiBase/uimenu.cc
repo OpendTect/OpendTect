@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.69 2011-03-28 07:55:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.70 2011-03-28 09:00:54 cvsnanne Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -349,7 +349,7 @@ void uiMenuItem::translate()
 
     TrMgr().tr()->ready.notify( mCB(this,uiMenuItem,trlReady) );
     BufferString txt = text();
-    replaceCharacter( txt.buf(), '&', ' ' );
+    removeCharacter( txt.buf(), '&' );
     translateid_ = TrMgr().tr()->translate( txt );
 }
 
