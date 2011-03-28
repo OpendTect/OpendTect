@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.65 2011-03-25 09:46:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.66 2011-03-28 04:41:24 cvsranojay Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -478,7 +478,7 @@ float Well::constantLogSizeFactor() const
 {
     const int inlnr = SI().inlRange( true ).nrSteps();
     const int crlnr = SI().crlRange( true ).nrSteps();
-    const float survfac = sqrt( crlnr*crlnr+ inlnr*inlnr);
+    const float survfac = sqrt( (float)(crlnr*crlnr + inlnr*inlnr) );
     return survfac * 43; //hack 43 best factor based on F3_Demo
 }
 
