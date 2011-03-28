@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.h,v 1.1 2011-03-24 11:56:25 cvsranojay Exp $
+ RCS:		$Id: visvw2dpickset.h,v 1.2 2011-03-28 04:39:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,9 +34,6 @@ public:
     void		clearPicks();
     void		enablePainting(bool yn);
     void		selected();
-    void		setCubeSampling(const CubeSampling&,bool);
-
-    //NotifierAccess*	deSelection()			{ return &deselted_; }
 
 protected:
 
@@ -46,7 +43,7 @@ protected:
     void		dataChangedCB(CallBacker*);
     MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
     void		triggerDeSel();
-    void		updateSetIdx();
+    void		updateSetIdx(const CubeSampling&);
 
 
     Pick::Set&			    pickset_;
@@ -58,8 +55,6 @@ protected:
     Notifier<VW2DPickSet>	    deselected_;
     bool			    isownremove_;
     TypeSet<int>		    picksetidxs_;
-    CubeSampling&		    cs_;
-
 };
 
 #endif
