@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:           $Id: i_qaction.h,v 1.3 2011-03-28 07:55:34 cvsnanne Exp $
+ RCS:           $Id: i_qaction.h,v 1.4 2011-03-28 08:46:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,6 @@ void triggered( bool checked )
 
 void hovered()
 {
-    std::cout << receiver_->toolTip() << std::endl;
 }
 
 };
