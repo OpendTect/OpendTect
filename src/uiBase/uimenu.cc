@@ -7,13 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.68 2010-11-16 11:28:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.69 2011-03-28 07:55:34 cvsnanne Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
-#include "uiparentbody.h"
-#include "uiobjbody.h"
+
+#include "uiaction.h"
 #include "uibody.h"
+#include "uiobjbody.h"
+#include "uiparentbody.h"
 #include "pixmap.h"
 #include "texttranslator.h"
 #include <climits>
@@ -53,7 +55,8 @@ public:
 				}
 
     ObjectSet<uiMenuItem>	itms_;
-    ObjectSet<QAction>		actions_;
+    ObjectSet<uiAction>		uiactions_;
+    ObjectSet<QAction>		qactions_;
 
 protected:
 				uiMenuItemContainerBody()	{}
@@ -69,10 +72,17 @@ uiMenuItemContainerBodyImpl( uiMenuItemContainer& handle, uiParent* parnt,
 			     T& qThing )
     : uiBodyImpl<uiMenuItemContainer,T>( handle, parnt, qThing )
     , qmenu_( &qThing )
-{}
+    , msgr_(0)
+{
+    QMenuBar* qmenubar = bar();
+    if ( qmenubar )
+	msgr_ = new i_MenuMessenger( qmenubar );
+}
 
 ~uiMenuItemContainerBodyImpl()
-{}
+{
+    delete msgr_;
+}
 
 
 int getIndexFromID( int id )
@@ -140,12 +150,14 @@ void init( uiMenuItem* it, QAction* action, int id, int idx )
     if ( idx>=0 )
     {
 	itms_.insertAt( it, idx );
-	actions_.insertAt( action, idx );
+	qactions_.insertAt( action, idx );
+	uiactions_.insertAt( new uiAction(action), idx );
     }
     else
     {
 	itms_ += it;
-	actions_ += action;
+	qactions_ += action;
+	uiactions_ += new uiAction( action );
     }
 }
 
@@ -153,8 +165,9 @@ void init( uiMenuItem* it, QAction* action, int id, int idx )
 void clear()
 {
     qmenu_->clear();
-    deepErase(itms_);
-    actions_.erase();
+    deepErase( itms_ );
+    qactions_.erase();
+    uiactions_.erase();
 }
 
 QMenuBar* bar()
@@ -169,6 +182,7 @@ virtual const QWidget* managewidg_() const
 private:
 
     T*			qmenu_;
+    i_MenuMessenger*	msgr_;
 };
 
 
@@ -351,8 +365,7 @@ void uiMenuItem::trlReady( CallBacker* cb )
 
     const wchar_t* translation = TrMgr().tr()->get();
     QString txt = QString::fromWCharArray( translation );
-    QString tt( text() ); tt += "\n\n"; tt += txt;
-    qaction_->setToolTip( tt );
+    qaction_->setToolTip( txt );
     TrMgr().tr()->ready.remove( mCB(this,uiMenuItem,trlReady) );
 }
 
@@ -454,7 +467,7 @@ void uiMenuItemContainer::clear()
     if ( body_->popup() )	body_->popup()->clear();
 
     deepErase( body_->itms_ );
-    body_->actions_.erase();
+    body_->qactions_.erase();
 }
 
 
@@ -466,10 +479,10 @@ void uiMenuItemContainer::removeItem( uiMenuItem* itm )
 	    continue;
 
 	if ( body_->popup() )
-	    body_->popup()->removeAction( body_->actions_[idx] );
+	    body_->popup()->removeAction( body_->qactions_[idx] );
 
 	body_->itms_.remove( idx );
-	body_->actions_.remove( idx );
+	body_->qactions_.remove( idx );
 	return;
     }
 }
@@ -483,11 +496,11 @@ void uiMenuItemContainer::removeItem( int id, bool withdelete )
 	    continue;
 
 	if ( body_->popup() )
-	    body_->popup()->removeAction( body_->actions_[idx] );
+	    body_->popup()->removeAction( body_->qactions_[idx] );
 
 	uiMenuItem* itm = body_->itms_.remove( idx );
 	if ( withdelete ) delete itm;
-	body_->actions_.remove( idx );
+	body_->qactions_.remove( idx );
 	return;
     }
 }
@@ -552,9 +565,9 @@ uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm,
     : uiMenuItemContainer( nm, 0, 0 )
     , item_( *new uiPopupItem( *this, nm, pmnm ) )
 {
+    QMenu* qmenu = new QMenu( parnt->body()->qwidget() );
     uiMenuItemContainerBodyImpl<QMenu>* bd =
-		    new uiMenuItemContainerBodyImpl<QMenu>( *this, parnt, 
-			  *new QMenu(parnt->body()->qwidget()) );
+	new uiMenuItemContainerBodyImpl<QMenu>( *this, parnt, *qmenu );
     body_ = bd;
     setBody( bd );
 
@@ -586,7 +599,7 @@ void uiPopupMenu::setEnabled( bool yn )
 
 int uiPopupMenu::findIdForAction( QAction* qaction ) const
 {
-    const int idx = body_->actions_.indexOf( qaction );
+    const int idx = body_->qactions_.indexOf( qaction );
     if ( body_->itms_.validIdx(idx) )
 	return body_->itms_[idx]->id();
 

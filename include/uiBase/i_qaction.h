@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:           $Id: i_qaction.h,v 1.2 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_qaction.h,v 1.3 2011-03-28 07:55:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include <QObject>
 #include <QAction>
-
+#include <iostream>
 
 //! Helper class for uiAction to relay Qt's messages.
 /*!
@@ -25,21 +25,19 @@ ________________________________________________________________________
 class i_ActionMessenger : public QObject 
 {
     Q_OBJECT
-    friend class	uiActionBody;
+    friend class	uiAction;
 
 protected:
-			i_ActionMessenger( QAction*  sender,
-					   uiAction* receiver )
-			: sender_( sender )
-			, receiver_( receiver )
-			{ 
-			    connect( sender, SIGNAL(toggled(bool)),
-				     this, SLOT(toggled(bool)) );
-			    connect( sender, SIGNAL(triggered(bool)),
-				     this, SLOT(triggered(bool)));
-			}
+i_ActionMessenger( QAction* sender, uiAction* receiver )
+    : sender_( sender )
+    , receiver_( receiver )
+{ 
+    connect( sender, SIGNAL(toggled(bool)),this, SLOT(toggled(bool)) );
+    connect( sender, SIGNAL(triggered(bool)), this, SLOT(triggered(bool)));
+    connect( sender, SIGNAL(hovered()), this, SLOT(hovered()) );
+}
 
-    virtual		~i_ActionMessenger() {}
+virtual	~i_ActionMessenger() {}
    
 private:
 
@@ -48,17 +46,24 @@ private:
 
 private slots:
 
-    void 		toggled( bool checked )
-			{
-			    receiver_->checked_ = checked;
-			    receiver_->toggled.trigger( *receiver_ );
-			}
+void toggled( bool checked )
+{
+    receiver_->checked_ = checked;
+    receiver_->toggled.trigger( *receiver_ );
+}
 
-    void 		triggered( bool checked )
-			{
-			    receiver_->checked_ = checked;
-			    receiver_->triggered.trigger( *receiver_ );
-			}
+void triggered( bool checked )
+{
+    receiver_->checked_ = checked;
+    receiver_->triggered.trigger( *receiver_ );
+}
+
+
+void hovered()
+{
+    std::cout << receiver_->toolTip() << std::endl;
+}
+
 };
 
 #endif

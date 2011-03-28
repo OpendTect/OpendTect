@@ -7,17 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.54 2010-06-04 08:19:42 cvsjaap Exp $
+ RCS:           $Id: uidialog.h,v 1.55 2011-03-28 07:55:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
 #include "bufstring.h"
-
 #include "errh.h"
-class uiGroup;
+
 class uiButton;
+class uiGroup;
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
@@ -89,7 +89,7 @@ public:
 
     };
 
-    enum                Button { OK, SAVE, CANCEL, HELP, CREDITS };
+    enum		Button { OK, SAVE, CANCEL, HELP, CREDITS, TRANSLATE };
 
 			uiDialog(uiParent*,const Setup&);
     const Setup&	setup() const;

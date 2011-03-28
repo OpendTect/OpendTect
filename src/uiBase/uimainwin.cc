@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.215 2011-03-25 07:09:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.216 2011-03-28 07:55:34 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.215 2011-03-25 07:09:03 cvsnan
 #include "pixmap.h"
 #include "settings.h"
 #include "strmprov.h"
+#include "texttranslator.h"
 #include "thread.h"
 #include "timer.h"
 #include "iopar.h"
@@ -1177,6 +1178,9 @@ void uiMainWin::translate()
 
     for ( int idx=0; idx<body_->dockwins_.size(); idx++ )
 	doTranslate( body_->dockwins_[idx] );
+
+    if ( menuBar() )
+	menuBar()->translate();
 }
 
 
@@ -1243,6 +1247,7 @@ public:
 				    uiObject* other,int margin,bool reciprocal);
     void		provideHelp(CallBacker*);
     void		showCredits(CallBacker*);
+    void		doTranslate(CallBacker*);
 
     const uiDialog::Setup& getSetup() const	{ return setup; }
 
@@ -1396,14 +1401,15 @@ void uiDialogBody::setButtonSensitive( uiDialog::Button but, bool yn )
     case uiDialog::CANCEL:	if ( cnclbut ) cnclbut->setSensitive(yn); 
     break;
     case uiDialog::SAVE: 
-	if ( savebut_cb )
-	    savebut_cb->setSensitive(yn); 
-	if ( savebut_tb )
-	    savebut_tb->setSensitive(yn); 
+	if ( savebut_cb ) savebut_cb->setSensitive(yn); 
+	if ( savebut_tb ) savebut_tb->setSensitive(yn); 
     break;
     case uiDialog::HELP:	if ( helpbut ) helpbut->setSensitive(yn); 
     break;
     case uiDialog::CREDITS:	if ( creditsbut ) creditsbut->setSensitive(yn); 
+    break;
+    case uiDialog::TRANSLATE:
+	if ( translatebut ) translatebut->setSensitive(yn);
     break;
     }
 }
@@ -1413,17 +1419,15 @@ uiButton* uiDialogBody::button( uiDialog::Button but )
 { 
     switch ( but )
     {
-    case uiDialog::OK:		return okbut;
-    break;
-    case uiDialog::CANCEL:	return cnclbut;
-    break;
+    case uiDialog::OK:		return okbut; break;
+    case uiDialog::CANCEL:	return cnclbut; break;
     case uiDialog::SAVE: 
 	return savebut_cb
 	    ? (uiButton*)savebut_cb : (uiButton*)savebut_tb;
     break;
-    case uiDialog::HELP:	return helpbut;
-    case uiDialog::CREDITS:	return creditsbut;
-    break;
+    case uiDialog::HELP:	return helpbut; break;
+    case uiDialog::CREDITS:	return creditsbut; break;
+    case uiDialog::TRANSLATE:	return translatebut; break;
     }
 
     return 0;
@@ -1528,13 +1532,19 @@ uiObject* uiDialogBody::createChildren()
 			shwhid ? hid.buf() : "Help on this window",
 	       		mCB(this,uiDialogBody,provideHelp) );
 	helpbut->setPrefWidthInChar( 5 );
+	if ( TrMgr().tr() && TrMgr().tr()->enabled() )
+	{
+	    translatebut = new uiToolButton( centralWidget_, "google.png",
+		"Translate", mCB(this,uiDialogBody,doTranslate) );
+	    translatebut->attach( rightOf, helpbut );
+	}
 	if ( dlg.haveCredits() )
 	{
 	    const ioPixmap pixmap( "credits.png" );
 	    creditsbut = new uiToolButton( centralWidget_, "credits.png",
 		    "Show credits", mCB(this,uiDialogBody,showCredits) );
 	    creditsbut->setPrefWidthInChar( 5 );
-	    creditsbut->attach( rightOf, helpbut );
+	    creditsbut->attach( rightOf, translatebut ? translatebut : helpbut );
 	}
     }
 
@@ -1644,6 +1654,15 @@ void uiDialogBody::provideHelp( CallBacker* )
 {
     mDynamicCastGet( uiDialog&, dlg, handle_ );
     uiMainWin::provideHelp( dlg.helpID() );
+}
+
+
+void uiDialogBody::doTranslate( CallBacker* )
+{
+    setButtonSensitive( uiDialog::TRANSLATE, false );
+    mDynamicCastGet( uiDialog&, dlg, handle_ );
+    dlg.translate();
+    setButtonSensitive( uiDialog::TRANSLATE, true );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaction.cc,v 1.5 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uiaction.cc,v 1.6 2011-03-28 07:55:34 cvsnanne Exp $";
 
 #include "uiaction.h"
 #include "i_qaction.h"
@@ -15,10 +15,18 @@ static const char* rcsID = "$Id: uiaction.cc,v 1.5 2009-07-22 16:01:38 cvsbert E
 #include "menuhandler.h"
 #include "pixmap.h"
 
+#define mInit toggled(this), triggered(this), msgr_(0)
+
+uiAction::uiAction( QAction* qaction )
+    : mInit
+    , qaction_(qaction)
+{
+    msgr_ = new i_ActionMessenger( qaction, this );
+}
+
 
 uiAction::uiAction( const char* txt )
-    : toggled(this)
-    , triggered(this)
+    : mInit
 {
     init( txt );
 }
@@ -26,8 +34,7 @@ uiAction::uiAction( const char* txt )
 
 uiAction::uiAction( const char* txt, const CallBack& cb )
     : cb_(cb)
-    , toggled(this)
-    , triggered(this)
+    , mInit
 {
     init( txt );
 }
@@ -35,8 +42,7 @@ uiAction::uiAction( const char* txt, const CallBack& cb )
 
 uiAction::uiAction( const char* txt, const CallBack& cb, const ioPixmap& pm )
     : cb_(cb)
-    , toggled(this)
-    , triggered(this)
+    , mInit
 {
     init( txt );
     setPixmap( pm );
@@ -44,8 +50,7 @@ uiAction::uiAction( const char* txt, const CallBack& cb, const ioPixmap& pm )
 
 
 uiAction::uiAction( const MenuItem& itm )
-    : toggled(this)
-    , triggered(this)
+    : mInit
 {
     init( itm.text );
     setToolTip( itm.tooltip );
@@ -54,6 +59,11 @@ uiAction::uiAction( const MenuItem& itm )
     setEnabled( itm.enabled );
     if ( !itm.iconfnm.isEmpty() )
 	setPixmap( ioPixmap(itm.iconfnm) );
+}
+
+uiAction::~uiAction()
+{
+    delete msgr_;
 }
 
 
@@ -68,8 +78,9 @@ void uiAction::setText( const char* txt )
 
 const char* uiAction::text() const
 {
-    QString qstr = qaction_->text();
-    return qstr.toAscii().data();
+    BufferString str;
+    str = qaction_->text().toAscii().data();
+    return str;
 }
 
 
@@ -87,8 +98,9 @@ void uiAction::setToolTip( const char* txt )
 
 const char* uiAction::toolTip() const
 {
-    QString qstr = qaction_->toolTip();
-    return qstr.toAscii().data();
+    static BufferString str;
+    str = qaction_->toolTip().toAscii().data();
+    return str;
 }
 
 
