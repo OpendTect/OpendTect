@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.7 2011-02-21 05:47:18 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.8 2011-03-28 10:37:51 cvsranojay Exp $";
 
 #include "uisynthtorealscale.h"
 
@@ -157,8 +157,8 @@ void uiSynthToRealScale::initWin( CallBacker* )
 
 void uiSynthToRealScale::setScaleFld( CallBacker* )
 {
-    const float synthval = synthstatsfld_->usrval_;
-    const float realval = realstatsfld_->usrval_;
+    const float synthval = synthstatsfld_->avgfld_->getfValue();
+    const float realval = realstatsfld_->avgfld_->getfValue();
     if ( mIsUdf(synthval) || mIsUdf(realval) || synthval == 0 )
 	finalscalefld_->setValue( mUdf(float) );
     else
@@ -342,7 +342,7 @@ void uiSynthToRealScale::updRealStats()
 	const SeisTrc& trc = *trcbuf.get( idx );
 	float sumsq = 0;
 	int nrterms = 0;
-	for ( int trcidx=0; trcidx<windowsz; trcidx++ )
+	for ( int trcidx=0; trcidx<=windowsz; trcidx++ )
 	{
 	    const BinID bid = trc.info().binid;
 	    const float refz = ds.horizon_->getPos( sid, bid.toInt64() ).z;
@@ -359,6 +359,7 @@ void uiSynthToRealScale::updRealStats()
     histfld->setData( vals.arr(), vals.size() );
     histfld->putN();
     realstatsfld_->avgfld_->setValue( histfld->getRunCalc().average() );
+    setScaleFld( 0 );
 }
 
 
