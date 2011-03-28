@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.12 2011-03-25 14:42:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.13 2011-03-28 07:52:43 cvsnanne Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -214,6 +214,8 @@ void SynthGenerator::getSampledReflectivities( TypeSet<float>& refs ) const
 	refs += cresamprefl_[idx].real();
 }
 
+
+mImplFactory( RaySynthGenerator, RaySynthGenerator::factory );
 
 RaySynthGenerator::RaySynthGenerator()
     : raytracer_(*new RayTracer1D(RayTracer1D::Setup()))
