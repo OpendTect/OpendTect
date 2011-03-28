@@ -7,16 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:           $Id: uiaction.h,v 1.6 2011-03-28 07:55:34 cvsnanne Exp $
+ RCS:           $Id: uiaction.h,v 1.7 2011-03-28 08:00:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "callback.h"
 
-class QAction;
 class ioPixmap;
 class MenuItem;
+class i_ActionMessenger;
+class QAction;
 
 mClass uiAction : public CallBacker
 {
