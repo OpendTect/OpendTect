@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.17 2011-03-15 14:41:13 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.18 2011-03-29 10:26:03 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -33,14 +33,16 @@ public:
 			    , pup_( true )
 			    , sourcedepth_( 0 )
 			    , receiverdepth_( 0 )
-			    , pvel2svelfactor_(2.25) 
+			    , pvel2svelafac_(0.348) 
+			    , pvel2svelbfac_(-0.959) 
 			{}
 
 				mDefSetupMemb(bool,pdown);
 				mDefSetupMemb(bool,pup);
 				mDefSetupMemb(float,sourcedepth);
 				mDefSetupMemb(float,receiverdepth);
-				mDefSetupMemb(float,pvel2svelfactor);
+				mDefSetupMemb(float,pvel2svelafac);
+				mDefSetupMemb(float,pvel2svelbfac);
 
 	virtual void		fillPar(IOPar&) const;
 	virtual bool		usePar(const IOPar&);

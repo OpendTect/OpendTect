@@ -7,20 +7,24 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.16 2011-03-15 14:41:13 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.17 2011-03-29 10:26:04 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "raytrace1d.h"
 #include "uigroup.h"
+#include "uidialog.h"
 #include "datapack.h"
 
 class FlatDataPack;
 class TimeDepthModel;
 class SeisTrcBuf;
 class Wavelet;
+class uiGenInput;
 class uiFlatViewer;
 class uiPushButton;
+class uiRayTrcSetupDlg;
 class uiSeisWaveletSel;
 class uiToolButton;
 class uiToolButtonSetup;
@@ -58,19 +62,45 @@ protected:
     int			longestaimdl_;
     ObjectSet<TimeDepthModel> d2tmodels_;
 
+
     uiGroup*		topgrp_;
     uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
+    uiRayTrcSetupDlg*	raytrcpardlg_;
+    RayTracer1D::Setup	raytrcsetup_;
 
+    void		rayTrcParPush(CallBacker*);
+    void		rayTrcParChged(CallBacker*);
     void		wvltChg(CallBacker*);
     void		scalePush(CallBacker*);
     void		zoomChg(CallBacker*);
     int			getVelIdx(bool&) const;
     int			getDenIdx(bool&) const;
-
 };
+
+
+mClass uiRayTrcSetupDlg : public uiDialog
+{
+public:
+				uiRayTrcSetupDlg(uiParent*,RayTracer1D::Setup&);
+
+    float			offset() const { return offset_; }
+
+    Notifier<uiRayTrcSetupDlg>  parChged;
+
+protected:
+    RayTracer1D::Setup&		rtsetup_;
+    float 			offset_;
+
+    uiGenInput*			offsetfld_;
+    uiGenInput*			sourcerecfld_;
+    uiGenInput*			vp2vsfld_;
+
+    void 			parChg(CallBacker*);
+};
+
 
 
 #endif

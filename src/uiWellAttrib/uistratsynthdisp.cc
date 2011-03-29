@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.25 2011-03-24 16:07:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.26 2011-03-29 10:26:04 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -15,9 +15,11 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.25 2011-03-24 16:07:07 
 #include "uicombobox.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
+#include "uigeninput.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 
 #include "flatposdata.h"
 #include "flatviewzoommgr.h"
@@ -53,6 +55,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , zoomChanged(this)
     , longestaimdl_(0)
     , lasttool_(0)
+    , raytrcpardlg_(0)
 {
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );
@@ -85,6 +88,11 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 	.tba( (int)uiToolBar::Right );
     uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( *vwr_, fvsu );
     ctrl->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
+
+    uiToolBar* tb = ctrl->toolBar();
+    CallBack cb( mCB(this,uiStratSynthDisp,rayTrcParPush) );
+    tb->addButton( new uiToolButton( tb,"raytrace.png", 
+				"Specify Ray Tracer parameter", cb ) );
 }
 
 
@@ -268,13 +276,16 @@ void uiStratSynthDisp::modelChanged()
     StepInterval<float> sd( 0, 0, wvlt_->sampleRate() );
     longestaimdl_ = 0; int maxaimdlsz = 0;
     ObjectSet<RayTracer1D> raytracers;
+    if ( !lm_.size() ) return;
+    TypeSet<float> offs; 
+    offs += raytrcpardlg_ ? raytrcpardlg_->offset() : 0;
     for ( int iseq=0; iseq<lm_.size(); iseq++ )
     {
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
 	AIModel aimod; seq.getAIModel( aimod, velidx, denidx, isvel, isden );
-	RayTracer1D* rt = new RayTracer1D( RayTracer1D::Setup() );
+	RayTracer1D* rt = new RayTracer1D( raytrcsetup_ );
 	raytracers += rt;
-        rt->setModel( true, aimod );	
+	rt->setModel( true, aimod );	
 	if ( aimod.size() > maxaimdlsz )
 	    { maxaimdlsz = aimod.size(); longestaimdl_ = iseq; }
 	rt->execute();
@@ -284,6 +295,7 @@ void uiStratSynthDisp::modelChanged()
 	const float tend = d2tm->getTime( aimod[aimod.size()-1].depth_ );
 	sd.include( tend );
     }
+
     const int nraimdls = d2tmodels_.size();
     if ( nraimdls < 1 || sd.nrSteps() < 1 )
 	mErrRet(0)
@@ -326,4 +338,66 @@ void uiStratSynthDisp::modelChanged()
     DPM(DataPackMgr::FlatID()).add( dp );
     vwr_->setPack( true, dp->id(), false );
     vwr_->setPack( false, dp->id(), false );
+}
+
+
+void uiStratSynthDisp::rayTrcParPush( CallBacker* )
+{
+    if ( !raytrcpardlg_ )
+	raytrcpardlg_ = new uiRayTrcSetupDlg( this, raytrcsetup_ );
+    raytrcpardlg_->go();
+    raytrcpardlg_->parChged.notify( mCB(this,uiStratSynthDisp,rayTrcParChged) );
+}
+
+
+void uiStratSynthDisp::rayTrcParChged( CallBacker* )
+{
+    modelChanged();
+}
+
+
+
+uiRayTrcSetupDlg::uiRayTrcSetupDlg( uiParent* p, RayTracer1D::Setup& su )
+    : uiDialog(p,uiDialog::Setup(
+		"Specify ray tracer parameters","",mTODOHelpID))
+    , parChged( this )
+    , rtsetup_(su)
+    , offset_(0)	  
+{
+    setCtrlStyle( LeaveOnly );
+
+    uiGroup* offsetgrp = new uiGroup( this, "Offset group" );
+    offsetfld_ = new uiGenInput( offsetgrp, "View Offset" );
+    offsetfld_->setValue( offset_ );
+
+    uiSeparator* sp = new uiSeparator( this, "Offset/Setup sep" );
+    sp->attach( stretchedBelow, offsetgrp );
+
+    sourcerecfld_ = new uiGenInput( this, "Source / Receiver depth",
+	    			FloatInpIntervalSpec() );
+    sourcerecfld_->setValue( Interval<float>( rtsetup_.sourcedepth_, 
+					      rtsetup_.receiverdepth_ ) );
+    sourcerecfld_->attach( centeredBelow, offsetgrp );
+    sourcerecfld_->attach( ensureBelow, sp );
+    vp2vsfld_ = new uiGenInput( this, "Vp to Vs factors (a/b)", 
+	    			FloatInpIntervalSpec() );
+    vp2vsfld_->setValue( Interval<float>( rtsetup_.pvel2svelafac_, 
+					  rtsetup_.pvel2svelbfac_ ) );
+    vp2vsfld_->attach( alignedBelow, sourcerecfld_ );
+
+    CallBack cb( mCB(this,uiRayTrcSetupDlg,parChg) );
+    offsetfld_->valuechanged.notify( cb );
+    sourcerecfld_->valuechanged.notify( cb );
+    vp2vsfld_->valuechanged.notify( cb );
+}
+
+
+void uiRayTrcSetupDlg::parChg( CallBacker* )
+{
+    rtsetup_.sourcedepth_ = sourcerecfld_->getFInterval().start;
+    rtsetup_.receiverdepth_ = sourcerecfld_->getFInterval().stop;
+    rtsetup_.pvel2svelafac_ = vp2vsfld_->getFInterval().start;
+    rtsetup_.pvel2svelbfac_ = vp2vsfld_->getFInterval().stop;
+    offset_ = offsetfld_->getfValue();
+    parChged.trigger();
 }

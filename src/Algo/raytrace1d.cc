@@ -21,7 +21,7 @@ bool RayTracer1D::Setup::usePar( const IOPar& par )
 {
     return par.getYN( sKeyPWave(), pdown_, pup_ ) &&
 	   par.get( sKeySRDepth(), sourcedepth_, receiverdepth_ ) &&
-	   par.get( sKeyPSVelFac(), pvel2svelfactor_ );
+	   par.get( sKeyPSVelFac(), pvel2svelafac_, pvel2svelbfac_ );
 }
 
 
@@ -29,7 +29,7 @@ void RayTracer1D::Setup::fillPar( IOPar& par ) const
 {
     par.setYN( sKeyPWave(), pdown_, pup_ );
     par.set( sKeySRDepth(), sourcedepth_, receiverdepth_ );
-    par.set( sKeyPSVelFac(), pvel2svelfactor_ );
+    par.set( sKeyPSVelFac(), pvel2svelafac_, pvel2svelbfac_ );
 }
 
 
@@ -97,14 +97,16 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
     const int psz = pmodel_.size();
     const int ssz = smodel_.size();
-    const float p2sfac = setup_.pvel2svelfactor_;
+    const float p2safac = setup_.pvel2svelafac_;
+    const float p2sbfac = setup_.pvel2svelbfac_;
 
     if ( !ssz )
     {
 	for ( int idx=0; idx<psz; idx++ )
 	{
 	    const AILayer& pl = pmodel_[idx];
-	    smodel_ += AILayer( pl.depth_, pl.vel_/p2sfac, pl.den_ );
+	    const float vs = sqrt( p2safac*pl.vel_*pl.vel_ + p2sbfac );
+	    smodel_ += AILayer( pl.depth_, vs, pl.den_ );
 	}
     }
     else if ( !psz )
@@ -112,7 +114,8 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	for ( int idx=0; idx<psz; idx++ )
 	{
 	    const AILayer& sl = smodel_[idx];
-	    pmodel_ += AILayer( sl.depth_, sl.vel_*p2sfac, sl.den_ );
+	    const float vp = sqrt( (sl.vel_*sl.vel_ - p2sbfac)/p2safac );
+	    pmodel_ += AILayer( sl.depth_, vp, sl.den_ );
 	}
     }
 
