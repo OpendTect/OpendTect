@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.24 2011-02-22 08:18:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.25 2011-03-29 11:02:30 cvshelene Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -164,8 +164,8 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	DataPointSet::RowID rid = dps.find( positions[idx] );
 	if ( usesteering_ )
 	{
-	    const float inldip = dps.value( 0, rid );
-	    const float crldip = dps.value( 1, rid );
+	    const float inldip = dps.value( 0, rid )/2;
+	    const float crldip = dps.value( 1, rid )/2;
 	    SeparString dipvaluetext;
 	    if ( !mIsUdf(inldip) && !mIsUdf(crldip) )
 	    {
