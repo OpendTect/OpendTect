@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.45 2010-12-07 16:05:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.46 2011-03-29 13:24:23 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -220,12 +220,12 @@ void uiODViewer2D::createTree( uiMainWin* mw )
 {
     if ( !mw || !tifs_ ) return;
 
-    uiDockWin* treedoc = new uiDockWin( mw, "Annotation Items" );
+    uiDockWin* treedoc = new uiDockWin( mw, "Tree items" );
     treedoc->setMinimumWidth( 200 );
-    uiListView* lv = new uiListView( treedoc, "Annotation Items" );
+    uiListView* lv = new uiListView( treedoc, "Tree items" );
     treedoc->setObject( lv );
     BufferStringSet labels;
-    labels.add( "Annotations" );
+    labels.add( "Elements" );
     labels.add( "Color" );
     lv->addColumns( labels );
     lv->setFixedColumnWidth( uiODViewer2DMgr::cColorColumn(), 40 );
