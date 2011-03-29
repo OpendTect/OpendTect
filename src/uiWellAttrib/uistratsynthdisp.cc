@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.26 2011-03-29 10:26:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.27 2011-03-29 10:39:45 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -288,6 +288,7 @@ void uiStratSynthDisp::modelChanged()
 	rt->setModel( true, aimod );	
 	if ( aimod.size() > maxaimdlsz )
 	    { maxaimdlsz = aimod.size(); longestaimdl_ = iseq; }
+	rt->setOffsets( offs );
 	rt->execute();
 	TimeDepthModel* d2tm = new TimeDepthModel;
 	rt->getTWT( 0, *d2tm );
@@ -312,7 +313,7 @@ void uiStratSynthDisp::modelChanged()
     for ( int imdl=0; imdl<nraimdls; imdl++ )
     {
 	refmod.erase();
-	RayTracer1D& rt = *raytracers[imdl];
+	const RayTracer1D& rt = *raytracers[imdl];
 	rt.getReflectivity( 0, refmod );
 	synthgen.setModel( refmod );
 	synthgen.doWork();
@@ -359,7 +360,7 @@ void uiStratSynthDisp::rayTrcParChged( CallBacker* )
 
 uiRayTrcSetupDlg::uiRayTrcSetupDlg( uiParent* p, RayTracer1D::Setup& su )
     : uiDialog(p,uiDialog::Setup(
-		"Specify ray tracer parameters","",mTODOHelpID))
+		"Specify ray tracer parameters","",mTODOHelpID).modal(false))
     , parChged( this )
     , rtsetup_(su)
     , offset_(0)	  
