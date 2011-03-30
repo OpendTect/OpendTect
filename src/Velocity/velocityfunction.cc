@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunction.cc,v 1.9 2011-03-22 20:04:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: velocityfunction.cc,v 1.10 2011-03-30 01:33:28 cvskris Exp $";
 
 #include "velocityfunction.h"
 
@@ -217,6 +217,9 @@ RefMan<const Function> FunctionSource::getFunction( const BinID& bid )
     if ( idx==-1 )
     {
  	tmpfunc = createFunction( bid );
+	if ( !tmpfunc )
+	    return 0;
+
  	functions_ += tmpfunc;
  	refcounts_ += 1;
     }
