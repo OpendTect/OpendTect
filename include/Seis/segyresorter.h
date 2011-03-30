@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyresorter.h,v 1.4 2011-03-30 11:47:16 cvsbert Exp $
+ RCS:		$Id: segyresorter.h,v 1.5 2011-03-30 14:00:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ namespace PosInfo { class CubeData; class CubeDataPos; }
 
 namespace SEGY
 {
+class DirectDef;
+class FileDataSet;
 class DirectReader;
 
 /*!\brief Re-sorts SEG-Y files, input must be 'scanned'.
@@ -63,6 +65,9 @@ public:
     od_int64		totalNr() const		{ return totnr_; }
     int			nextStep();
 
+    const DirectDef&	dDef() const;
+    const FileDataSet&	fds() const;
+
 protected:
 
     const Setup		setup_;
@@ -83,11 +88,13 @@ protected:
     unsigned char*	trcbuf_;
     od_int64		trcbytes_;
 
+    TypeSet<BinID>	binids_;
     PosInfo::CubeDataPos& cdp_;
 
     int			wrapUp();
     bool		getCurPos(BinID&);
     bool		toNext();
+    bool		getNext(const BinID&,int&,int&) const;
     bool		createOutput(const BinID&);
     bool		openOutputFile();
     int			ensureFileOpen(int);
