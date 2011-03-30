@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.18 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.19 2011-03-30 04:43:53 cvssatyaki Exp $";
 
 #include "seisbufadapters.h"
 #include "seisinfo.h"
@@ -43,7 +43,7 @@ uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
 
 SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( SeisTrcBuf* tbuf,
 				Seis::GeomType geom, const char* category,
-				const char* dpname )
+				const char* dpname, int compnr )
 {
     if ( !tbuf ) return 0;
     const int sz = tbuf->size();
@@ -52,7 +52,8 @@ SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( SeisTrcBuf* tbuf,
 	: tbuf->get(0)->info().getDefaultAxisFld( geom, &tbuf->get(1)->info() );
 
     SeisTrcBufDataPack* dp =
-	new SeisTrcBufDataPack( tbuf, geom, (SeisTrcInfo::Fld)type, category );
+	new SeisTrcBufDataPack( tbuf, geom, (SeisTrcInfo::Fld)type,
+				category, compnr );
     dp->setName( dpname );
     DPM( DataPackMgr::FlatID() ).add( dp );
     viewer().addPack( dp->id() );
@@ -65,9 +66,9 @@ SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( SeisTrcBuf* tbuf,
 
 SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( const SeisTrcBuf& tbuf,
 				Seis::GeomType geom, const char* category,
-				const char* dpname )
+				const char* dpname, int compnr )
 {
-    return setTrcBuf( new SeisTrcBuf( tbuf ), geom, category, dpname );
+    return setTrcBuf( new SeisTrcBuf( tbuf ), geom, category, dpname, compnr );
 }
 
 

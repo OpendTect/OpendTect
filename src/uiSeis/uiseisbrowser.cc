@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.57 2011-02-25 10:38:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.58 2011-03-30 04:43:53 cvssatyaki Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -743,8 +743,9 @@ void uiSeisBrowser::showWigglePush( CallBacker* )
 	uiSeisTrcBufViewer::Setup stbvsetup( "", 1 );
 	stbvsetup.withhanddrag(true);
 	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
-	SeisTrcBufDataPack* dp = trcbufvwr_->setTrcBuf
-	                            ( &tbuf_, setup_.geom_, "Seismics", name);
+	SeisTrcBufDataPack* dp =
+	    trcbufvwr_->setTrcBuf ( &tbuf_, setup_.geom_, "Seismics",
+		    		    name, compnr_ );
 	if ( (dp->trcBuf().isEmpty()) )
 	{
 	    uiMSG().error( "No data present in the specified position " );
