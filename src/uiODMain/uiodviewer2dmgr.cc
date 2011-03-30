@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.cc,v 1.6 2011-03-24 04:40:22 cvsranojay Exp $
+ RCS:		$Id: uiodviewer2dmgr.cc,v 1.7 2011-03-30 08:47:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     if ( !curvwr )
 	curvwr = &addViewer2D( visid );
 
-    bool hasvwr = curvwr->viewwin_;
+    bool hasvwr = curvwr->viewwin();
     const Attrib::SelSpec* as = visServ().getSelSpec(visid,attribid);
     curvwr->setSelSpec( as, dowva );
 
@@ -88,12 +88,12 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     
     curvwr->setUpView( dtpackid, dowva );
     visServ().fillDispPars( visid, attribid,
-	    	curvwr->viewwin_->viewer().appearance().ddpars_, dowva );
+	    	curvwr->viewwin()->viewer().appearance().ddpars_, dowva );
 
     if ( !hasvwr )
-	curvwr->viewwin_->viewer().handleChange( FlatView::Viewer::All );
+	curvwr->viewwin()->viewer().handleChange( FlatView::Viewer::All );
     else
-	curvwr->viewwin_->viewer().handleChange(
+	curvwr->viewwin()->viewer().handleChange(
 		dowva ? FlatView::Viewer::WVAPars : FlatView::Viewer::VDPars );
 }
 
