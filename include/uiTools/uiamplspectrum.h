@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.12 2011-03-24 16:47:25 cvsyuancheng Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.13 2011-03-30 17:01:24 cvsyuancheng Exp $
 ______________________________________________________________________
                        
 */   
@@ -59,6 +59,7 @@ protected:
     Array1DImpl<float>* 	specvals_;
 
     Interval<float>		posrange_;
+    float			nyqvistspspace_;
 
     Fourier::CC*		fft_;
     int				nrtrcs_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.27 2011-03-24 16:47:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.28 2011-03-30 17:01:24 cvsyuancheng Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -23,7 +23,9 @@ static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.27 2011-03-24 16:47:25 cv
 #include "arrayndutils.h"
 #include "arrayndwrapper.h"
 #include "bufstring.h"
+#include "cubesampling.h"
 #include "datapackbase.h"
+#include "flatposdata.h"
 #include "fourier.h"
 #include "mouseevent.h"
 #include "strmprov.h"
@@ -39,7 +41,8 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     , freqdomain_(0)
     , freqdomainsum_(0)
     , fft_(0)
-    , specvals_(0)	     
+    , specvals_(0)
+    , nyqvistspspace_( SI().zStep() ) 		  
 {
     uiFunctionDisplay::Setup su;
     su.fillbelow(true).canvaswidth(600).canvasheight(400).drawborder(true);
@@ -96,15 +99,23 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 
     if ( dmid == DataPackMgr::CubeID() )
     {
-	mDynamicCastGet(const ::CubeDataPack*,cdp,datapack);
-	const Array3D<float>* arr3d = cdp ? &cdp->data() : 0;
-	if ( arr3d ) setData( *arr3d );
+	mDynamicCastGet(const ::CubeDataPack*,dp,datapack);
+	if ( dp )
+	{
+	    if ( nyqvistspspace_ > dp->sampling().zrg.step )
+		nyqvistspspace_ = dp->sampling().zrg.step;	    
+	    setData( dp->data() );
+	}
     }
     else if ( dmid == DataPackMgr::FlatID() )
     {
-	mDynamicCastGet(const FlatDataPack*,fdp,datapack);
-	const Array2D<float>* arr2d = fdp ? &fdp->data() : 0;
-	if ( arr2d ) setData( *arr2d );
+	mDynamicCastGet(const FlatDataPack*,dp,datapack);
+	if ( dp )
+	{
+	    if ( nyqvistspspace_ > dp->posData().range(false).step )
+		nyqvistspspace_ = dp->posData().range(false).step;	    
+	    setData( dp->data() );
+	}
     }
 
     dpman.release( dpid );
@@ -208,7 +219,7 @@ void uiAmplSpectrum::putDispData()
 	dbspecvals.set( idx, mDispVal( val ) ); 
     }
 
-    float maxfreq = fft_->getNyqvist( SI().zStep() );
+    float maxfreq = fft_->getNyqvist( nyqvistspspace_ );
     if ( SI().zIsTime() )
 	maxfreq = mNINT( maxfreq );
     posrange_.set( 0, maxfreq );
