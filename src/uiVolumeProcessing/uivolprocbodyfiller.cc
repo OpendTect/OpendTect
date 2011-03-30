@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprocbodyfiller.cc,v 1.2 2011-03-23 14:47:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivolprocbodyfiller.cc,v 1.3 2011-03-30 14:31:06 cvsyuancheng Exp $";
 
 #include "uivolprocbodyfiller.h"
 
@@ -25,7 +25,7 @@ void uiBodyFiller::initClass()
     SeparString str( BodyFiller::sKeyType(), uiChain::factory().cSeparator() );
     str += BodyFiller::sKeyOldType();
 
-    uiChain::factory().addCreator( create, str );
+    uiChain::factory().addCreator( create, str, BodyFiller::sUserName() );
 }    
 
 

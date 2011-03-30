@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.12 2011-03-23 14:47:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.13 2011-03-30 14:31:06 cvsyuancheng Exp $";
 
 #include "uivolprocsmoother.h"
 
@@ -27,7 +27,8 @@ namespace VolProc
 
 void uiSmoother::initClass()
 {
-    uiChain::factory().addCreator( create, Smoother::sKeyType() );
+    uiChain::factory().addCreator( create, Smoother::sKeyType(),
+	   Smoother::sUserName() );
 }    
 
 

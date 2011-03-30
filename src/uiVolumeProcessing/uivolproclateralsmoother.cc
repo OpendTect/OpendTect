@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolproclateralsmoother.cc,v 1.4 2011-03-23 14:47:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivolproclateralsmoother.cc,v 1.5 2011-03-30 14:31:06 cvsyuancheng Exp $";
 
 #include "uivolproclateralsmoother.h"
 
@@ -24,7 +24,8 @@ namespace VolProc
 
 void uiLateralSmoother::initClass()
 {
-    uiChain::factory().addCreator( create, LateralSmoother::sKeyType() );
+    uiChain::factory().addCreator( create, LateralSmoother::sKeyType(),
+	   LateralSmoother::sUserName() );
 }    
 
 
