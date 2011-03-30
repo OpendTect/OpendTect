@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.28 2011-03-30 17:01:24 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.29 2011-03-30 17:04:07 cvsyuancheng Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -102,8 +102,7 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	mDynamicCastGet(const ::CubeDataPack*,dp,datapack);
 	if ( dp )
 	{
-	    if ( nyqvistspspace_ > dp->sampling().zrg.step )
-		nyqvistspspace_ = dp->sampling().zrg.step;	    
+	    nyqvistspspace_ = dp->sampling().zrg.step;	    
 	    setData( dp->data() );
 	}
     }
@@ -112,8 +111,7 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	mDynamicCastGet(const FlatDataPack*,dp,datapack);
 	if ( dp )
 	{
-	    if ( nyqvistspspace_ > dp->posData().range(false).step )
-		nyqvistspspace_ = dp->posData().range(false).step;	    
+	    nyqvistspspace_ = dp->posData().range(false).step;	    
 	    setData( dp->data() );
 	}
     }
