@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.15 2011-03-23 14:47:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.16 2011-03-30 14:46:40 cvsyuancheng Exp $";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -26,7 +26,8 @@ namespace VolProc
 
 void uiHorInterFiller::initClass()
 {
-    uiChain::factory().addCreator( create, HorInterFiller::sKeyType() );
+    uiChain::factory().addCreator( create, HorInterFiller::sKeyType(),
+	   HorInterFiller::sUserName() );
 }    
 
 
