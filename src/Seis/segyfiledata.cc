@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.27 2011-03-14 11:48:51 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.28 2011-03-30 11:46:50 cvsbert Exp $";
 
 #include "segyfiledata.h"
 
@@ -86,7 +86,7 @@ bool SEGY::FileDataSet::StoredData::getKey( od_int64 pos, Seis::PosKey& pk,
     if ( !istrm_->good() )
 	return false;
 
-    OffsetAzimuth oa;
+    OffsetAzimuth oa; oa.setFrom( offsetazimuth );
 
     pk.setBinID( bid );
     pk.setOffset( oa.offset() );
@@ -575,6 +575,18 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
 
     if ( Seis::isPS(geom_) )
 	iop.add( "Offset range", offsrg.start, offsrg.stop );
+}
+
+
+void SEGY::FileDataSet::dump( std::ostream& strm ) const
+{
+    Seis::PosKey pk; bool usable;
+    for ( od_int64 idx=0; idx<totalsz_; idx++ )
+    {
+	getDetails( idx, pk, usable );
+	strm << idx << '\t' << pk.inLine() << '\t' << pk.xLine()
+	     << '\t' << pk.offset() << '\t' << (usable?'Y':'N') << std::endl;
+    }
 }
 
 
