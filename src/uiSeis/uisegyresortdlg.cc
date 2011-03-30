@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.3 2011-03-25 15:02:34 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.4 2011-03-30 11:47:16 cvsbert Exp $";
 
 #include "uisegyresortdlg.h"
 #include "uiioobjsel.h"
@@ -29,7 +29,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     , volfld_(0)
     , ps3dfld_(0)
     , ps2dfld_(0)
-    , linesfld_(0)
+    , newinleachfld_(0)
 {
     BufferStringSet geomnms;
     if ( SI().has3D() )
@@ -45,7 +45,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 	const CallBack geomcb( mCB(this,uiResortSEGYDlg,geomSel) );
 	geomfld_ = new uiGenInput( this, "Type", StringListInpSpec(geomnms) );
 	geomfld_->valuechanged.notify( geomcb );
-	finaliseDone.notify( mCB(this,uiResortSEGYDlg,geomSel) );
+	finaliseDone.notify( geomcb );
     }
 
 
@@ -69,16 +69,20 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.forread( false ).filter( uiSEGYFileSpec::fileFilter() );
-    outfld_ = new uiFileInput( this, "Output file", fisu );
+    outfld_ = new uiFileInput( this, "Output file (s)", fisu );
     outfld_->attach( alignedBelow, ps2dfld_ ? ps2dfld_ : ps3dfld_ );
 
     if ( SI().has3D() )
     {
-	linesfld_ = new uiGenInput( this, "Number of inlines per file",
+	newinleachfld_ = new uiGenInput( this, "Max #inlines per file",
 				      IntInpSpec(100) );
-	linesfld_->setWithCheck( true );
-	linesfld_->setChecked( false );
-	linesfld_->attach( alignedBelow, outfld_ );
+	newinleachfld_->setWithCheck( true );
+	newinleachfld_->setChecked( false );
+	newinleachfld_->attach( alignedBelow, outfld_ );
+	newinleachfld_->checked.notify( mCB(this,uiResortSEGYDlg,nrinlSel) );
+	inlnmsfld_ = new uiGenInput( this, "Name files using",
+			BoolInpSpec(true,"Sequence number","Inline range") );
+	inlnmsfld_->attach( alignedBelow, newinleachfld_ );
     }
 }
 
@@ -92,7 +96,19 @@ void uiResortSEGYDlg::geomSel( CallBacker* )
 #define mDispFld(nm) \
     if ( nm##fld_ ) nm##fld_->display( nm##fld_ == curos )
     mDispFld(ps3d); mDispFld(vol); mDispFld(ps2d);
-    if ( linesfld_ ) linesfld_->display( curos == ps3dfld_ );
+    if ( newinleachfld_ )
+    {
+	newinleachfld_->display( curos == ps3dfld_ );
+	inlnmsfld_->display( curos == ps3dfld_ );
+    }
+    nrinlSel( 0 );
+}
+
+
+void uiResortSEGYDlg::nrinlSel( CallBacker* )
+{
+    if ( !newinleachfld_ ) return;
+    inlnmsfld_->display( objSel() == ps3dfld_ && newinleachfld_->isChecked() );
 }
 
 
@@ -125,8 +141,11 @@ bool uiResortSEGYDlg::acceptOK( CallBacker* )
     }
 
     SEGY::ReSorter::Setup su( geomType(), ioobj->key(), fnm );
-    if ( linesfld_ && linesfld_->isChecked() )
-	su.nridxsperfile( linesfld_->getIntValue() );
+    if ( newinleachfld_ && newinleachfld_->isChecked() )
+    {
+	su.newfileeach( newinleachfld_->getIntValue() );
+	su.inlnames( !inlnmsfld_->getBoolValue() );
+    }
 
     SEGY::ReSorter sr( su );
     uiTaskRunner tr( this );

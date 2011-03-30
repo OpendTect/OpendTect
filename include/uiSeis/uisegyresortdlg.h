@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2011
- RCS:           $Id: uisegyresortdlg.h,v 1.2 2011-03-23 12:00:18 cvsbert Exp $
+ RCS:           $Id: uisegyresortdlg.h,v 1.3 2011-03-30 11:47:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,12 +35,14 @@ protected:
     uiIOObjSel*		volfld_;
     uiIOObjSel*		ps3dfld_;
     uiIOObjSel*		ps2dfld_;
-    uiGenInput*		linesfld_;
+    uiGenInput*		newinleachfld_;
+    uiGenInput*		inlnmsfld_;
     uiFileInput*	outfld_;
 
     uiIOObjSel*		objSel();
 
     void		geomSel(CallBacker*);
+    void		nrinlSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };

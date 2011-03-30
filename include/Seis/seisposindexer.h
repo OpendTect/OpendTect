@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2008
- RCS:           $Id: seisposindexer.h,v 1.10 2010-06-30 14:04:39 cvskris Exp $
+ RCS:           $Id: seisposindexer.h,v 1.11 2011-03-30 11:47:16 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -60,6 +60,10 @@ public:
     				//!< -1 = inl not found or empty
    				//!< -2 crl/trcnr not found
    				//!< -3 offs not found
+    od_int64			findOcc(const PosKey&,int occ) const;
+    				//!< ignores offset
+    TypeSet<od_int64>		findAll(const PosKey&) const;
+    				//!< ignores offset
 
     inline bool			validIdx( od_int64 idx ) const
 				{ return idx >= 0 && idx < maxidx_; }

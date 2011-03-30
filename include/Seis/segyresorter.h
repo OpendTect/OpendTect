@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyresorter.h,v 1.3 2011-03-25 15:02:34 cvsbert Exp $
+ RCS:		$Id: segyresorter.h,v 1.4 2011-03-30 11:47:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "executor.h"
 #include "seisposkey.h"
 #include "multiid.h"
-namespace PosInfo { class CubeDataPos; }
+#include "strmdata.h"
+#include "bufstringset.h"
+namespace PosInfo { class CubeData; class CubeDataPos; }
 
 
 namespace SEGY
@@ -42,7 +44,13 @@ public:
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(MultiID,inpkey)
 	mDefSetupMemb(BufferString,outfnm)
-	mDefSetupMemb(int,nridxsperfile)
+	mDefSetupMemb(int,newfileeach)
+	mDefSetupMemb(bool,inlnames)
+
+	Interval<int>	getInlRg(int,const PosInfo::CubeData&) const;
+	BufferString	getFileName(const Interval<int>&) const;
+
+	mutable int	curfnr_;
 
     };
 
@@ -63,15 +71,28 @@ protected:
     BufferString	msg_;
     od_int64		nrdone_;
     od_int64		totnr_;
+    StreamData		sdout_;
+    Interval<int>	curinlrg_;
+    bool		needwritefilehdrs_;
+
+    ObjectSet<StreamData> inpsds_;
+    TypeSet<int>	fidxs_;
+    BufferStringSet	inpfnms_;
+
+    unsigned char	hdrbuf_[3600];
+    unsigned char*	trcbuf_;
+    od_int64		trcbytes_;
 
     PosInfo::CubeDataPos& cdp_;
-    int			filefirstidx_;
 
     int			wrapUp();
     bool		getCurPos(BinID&);
     bool		toNext();
     bool		createOutput(const BinID&);
-    bool		openOutputFile(int);
+    bool		openOutputFile();
+    int			ensureFileOpen(int);
+    bool		readData(int,int);
+    bool		writeData();
 
 };
 

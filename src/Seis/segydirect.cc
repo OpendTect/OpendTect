@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.31 2011-03-23 11:57:49 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.32 2011-03-30 11:47:16 cvsbert Exp $";
 
 #include "segydirectdef.h"
 
@@ -98,20 +98,14 @@ FileDataSet::TrcIdx findOcc( const Seis::PosKey& pk,
 			     const Seis::PosIndexer& idxer,
 			     int occ ) const
 {
-    const od_int64 nr = idxer.findFirst( pk, false ) + occ;
-    if ( !idxer.validIdx(nr) )
-	return FileDataSet::TrcIdx();
-
-    Seis::PosKey foundpk( key(nr) );
-    if ( foundpk.binID() != pk.binID() )
-	return FileDataSet::TrcIdx();
-
+    const od_int64 nr = idxer.findOcc( pk, occ );
     return fds_->getFileIndex( nr );
 }
 
     od_int64		totsz_;
     const FileDataSet*	fds_;
 };
+
 }
 
 

@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.14 2011-01-18 04:55:44 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.15 2011-03-30 11:47:16 cvsbert Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -462,13 +462,69 @@ od_int64 Seis::PosIndexer::findFirst( const Seis::PosKey& pk, bool wo ) const
 	const PosKey curpk( pkl_.key(ret) );
 	if ( curpk.isUndef() )
 	    continue;
-	if ( curpk.binID() != pk.binID() )
+	else if ( curpk.binID() != pk.binID() )
 	    break;
-	if ( curpk.hasOffset(pk.offset()) )
+	else if ( curpk.hasOffset(pk.offset()) )
 	    return ret;
     }
 
     return -3;
+}
+
+
+od_int64 Seis::PosIndexer::findOcc( const Seis::PosKey& pk, int occ ) const
+{
+    Threads::MutexLocker lock( lock_ );
+    int inlidx, crlidx;
+    const int res =
+	const_cast<Seis::PosIndexer*>(this)->getFirstIdxs( pk.binID(),
+							  inlidx, crlidx );
+    if ( res < 0 ) return res;
+
+    od_int64 ret = strm_ ? curidxset_[crlidx] : (*idxsets_[inlidx])[crlidx];
+    if ( occ < 1 ) return ret;
+
+    for ( ret++; ret<=maxidx_; ret++ )
+    {
+	const PosKey curpk( pkl_.key(ret) );
+	if ( curpk.isUndef() )
+	    continue;
+	else if ( curpk.binID() != pk.binID() )
+	    break;
+
+	occ--;
+	if ( occ == 0 )
+	    return ret;
+    }
+
+    return -1;
+}
+
+
+TypeSet<od_int64> Seis::PosIndexer::findAll( const Seis::PosKey& pk ) const
+{
+    Threads::MutexLocker lock( lock_ );
+    TypeSet<od_int64> retidxs;
+    int inlidx, crlidx;
+    int res =
+	const_cast<Seis::PosIndexer*>(this)->getFirstIdxs( pk.binID(),
+							  inlidx, crlidx );
+    if ( res < 0 ) return retidxs;
+
+    od_int64 idx = strm_ ? curidxset_[crlidx] : (*idxsets_[inlidx])[crlidx];
+    retidxs += idx;
+
+    for ( ; idx<=maxidx_; idx++ )
+    {
+	const PosKey curpk( pkl_.key(idx) );
+	if ( curpk.isUndef() )
+	    continue;
+	else if ( curpk.binID() != pk.binID() )
+	    break;
+	retidxs += idx;
+    }
+
+    return retidxs;
 }
 
 
