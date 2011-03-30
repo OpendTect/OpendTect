@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.13 2010-07-02 13:13:00 cvskris Exp $
+ RCS:		$Id: segyfiledata.h,v 1.14 2011-03-30 11:46:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,6 +106,7 @@ public:
 				    object. */
 
     void			getReport(IOPar&) const;
+    void			dump(std::ostream&) const;
 
     bool			usePar(const IOPar& iop);
     				//!<Read auxdata from storage
