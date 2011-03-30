@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.34 2010-10-14 09:58:06 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.35 2011-03-30 15:15:43 cvsdgb Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.34 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.35 2011-03-30 15:15:43 cvsdgb Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -104,19 +104,20 @@ int main( int argc, char** argv )
 	}
 	else
 	{
-	    const PosInfo::LineData* inlinf = info.geom.getInfoFor( bid.inl );
-	    if ( !inlinf )
+	    const int ldidx = info.geom.cubedata.indexOf( bid.inl );
+	    if ( ldidx < 0 )
 	    {
 		std::cerr << "This inline is not present in the cube"
 		    	  << std::endl;
 		continue;
 	    }
+	    const PosInfo::LineData& inlinf = *info.geom.cubedata[ldidx];
 	    std::cerr << "Xline range available: ";
-	    for ( int idx=0; idx<inlinf->segments_.size(); idx++ )
+	    for ( int idx=0; idx<inlinf.segments_.size(); idx++ )
 	    {
-		std::cerr << inlinf->segments_[idx].start << " - "
-		     << inlinf->segments_[idx].stop;
-		if ( idx < inlinf->segments_.size()-1 )
+		std::cerr << inlinf.segments_[idx].start << " - "
+		     << inlinf.segments_[idx].stop;
+		if ( idx < inlinf.segments_.size()-1 )
 		    std::cerr << " and ";
 	    }
 	    std::cerr << std::endl;
