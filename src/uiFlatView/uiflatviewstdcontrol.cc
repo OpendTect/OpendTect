@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.37 2010-12-21 13:19:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.38 2011-03-31 09:12:40 cvsnanne Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.37 2010-12-21 13:19
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "pixmap.h"
+#include "texttranslator.h"
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
@@ -84,6 +85,11 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     {
 	uiToolButton* mDefBut(helpbut,"contexthelp.png",helpCB,"Help");
 	helpid_ = setup.helpid_;
+    }
+
+    if ( TrMgr().tr() && TrMgr().tr()->enabled() )
+    {
+	uiToolButton* mDefBut(trlbut,"google.png",translateCB,"Translate");
     }
 
     vwr.viewChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
@@ -348,6 +354,12 @@ void uiFlatViewStdControl::editCB( CallBacker* )
 void uiFlatViewStdControl::helpCB( CallBacker* )
 {
     uiMainWin::provideHelp( helpid_ );
+}
+
+
+void uiFlatViewStdControl::translateCB( CallBacker* )
+{
+    mainwin()->translate();
 }
 
 

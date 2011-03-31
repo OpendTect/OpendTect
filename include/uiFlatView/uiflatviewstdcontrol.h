@@ -6,13 +6,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.22 2010-12-21 13:19:03 cvsbert Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.23 2011-03-31 09:12:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiflatviewcontrol.h"
 #include "menuhandler.h"
+
 class uiMenuHandler;
 class uiToolButton;
 class uiFlatViewColTabEd;
@@ -82,6 +83,7 @@ protected:
     void		stateCB(CallBacker*);
     void		editCB(CallBacker*);
     void		helpCB(CallBacker*);
+    void		translateCB(CallBacker*);
     virtual void	coltabChg(CallBacker*);
     void		dispChgCB(CallBacker*);
     void		keyPressCB(CallBacker*);
