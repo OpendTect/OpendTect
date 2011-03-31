@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimadagcattrib.cc,v 1.2 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uimadagcattrib.cc,v 1.3 2011-03-31 09:11:17 cvshelene Exp $";
 
 #include "uimadagcattrib.h"
 #include "madagcattrib.h"
@@ -23,7 +23,7 @@ mInitAttribUI(uiMadAGCAttrib,MadAGC,"Madagascar AGC","Madagascar AGC")
 
 
 uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,mTODOHelpID)
+	: uiAttrDescEd(p,is2d,mNoHelpID)
 {
     inpfld_ = createInpFld( is2d, "Input Data");
     

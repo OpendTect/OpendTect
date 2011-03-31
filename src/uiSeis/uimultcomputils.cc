@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultcomputils.cc,v 1.10 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uimultcomputils.cc,v 1.11 2011-03-31 09:11:17 cvshelene Exp $";
 
 #include "uimultcomputils.h"
 #include "bufstringset.h"
@@ -117,7 +117,7 @@ BufferString uiMultCompSel::getSummary() const
 
 uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
     : uiDialog( p, uiDialog::Setup("Components selection dialog",
-				   "",mTODOHelpID) )
+				   "",mNoHelpID) )
 {
     useallfld_ = new uiGenInput( this, "Components to use:",
 	    			 BoolInpSpec( true, "All", "Subselection" ) );
