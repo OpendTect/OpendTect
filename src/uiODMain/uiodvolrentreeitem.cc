@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.56 2010-09-30 21:41:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.57 2011-03-31 11:09:17 cvsnanne Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -251,8 +251,9 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	CallBack dummycb;
-	uiSliceSelDlg dlg( getUiParent(), vd->getCubeSampling(0), maxcs,
-			   dummycb, uiSliceSel::Vol, scene->zDomainInfo() );
+	uiSliceSelDlg dlg( getUiParent(), vd->getCubeSampling(true,true,-1),
+			   maxcs, dummycb, uiSliceSel::Vol,
+			   scene->zDomainInfo() );
 	if ( !dlg.go() ) return;
 	CubeSampling cs = dlg.getCubeSampling();
 	vd->setCubeSampling( cs );
