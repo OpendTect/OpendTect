@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.77 2011-02-09 23:07:39 cvskarthika Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.78 2011-03-31 10:56:13 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -119,6 +119,8 @@ public:
     float			getValue(const Coord3&) const;
 
     CubeSampling		getCubeSampling(int attrib) const;
+    CubeSampling		getCubeSampling(bool manippos,bool displayspace,
+	    					int attrib) const;
     void			setCubeSampling(const CubeSampling&);
     bool			setDataVolume(int attrib,
 	    				      const Attrib::DataCubes*,
@@ -169,8 +171,6 @@ public:
 protected:
 				~VolumeDisplay();
     bool			updateSeedBasedSurface(int,TaskRunner* = 0);
-    CubeSampling		getCubeSampling(bool manippos,bool display,
-	    					int attrib) const;
     void			materialChange(CallBacker*);
     void			updateIsoSurfColor();
     bool			pickable() const { return true; }
