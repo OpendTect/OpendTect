@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: googletranslator.cc,v 1.7 2010-12-10 06:03:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: googletranslator.cc,v 1.8 2011-03-31 09:23:47 cvsnanne Exp $";
 
 #include "googletranslator.h"
 #include "odhttp.h"
@@ -149,33 +149,10 @@ const wchar_t* GoogleTranslator::get() const
 { return translation_; }
 
 
-void GoogleTranslator::init()
+void GoogleTranslator::add( const wchar_t* localnm, const char* englishnm,
+			    const char* code )
 {
-#ifndef __win__
-    infos_ += new LanguageInfo( L"中国\0", "Chinese", "zh-CN" );
-    infos_ += new LanguageInfo( L"Nederlands", "Dutch", "nl" );
-    infos_ += new LanguageInfo( L"Deutch", "German", "de" );
-    infos_ += new LanguageInfo( L"Español", "Spanish", "es" );
-    infos_ += new LanguageInfo( L"Français", "French", "fr" );
-    infos_ += new LanguageInfo( L"हिन्दी", "Hindi", "hi" );
-    infos_ += new LanguageInfo( L"Italiano", "Italian", "it" );
-    infos_ += new LanguageInfo( L"日本", "Japanese", "ja" );
-    infos_ += new LanguageInfo( L"Português", "Portuguese", "pt" );
-    infos_ += new LanguageInfo( L"Русский", "Russian", "ru" );
-#else
-    infos_ += new LanguageInfo( L"Chinese", "Chinese", "zh-CN" );
-    infos_ += new LanguageInfo( L"Nederlands", "Dutch", "nl" );
-    infos_ += new LanguageInfo( L"Deutch", "German", "de" );
-    infos_ += new LanguageInfo( L"Español", "Spanish", "es" );
-    infos_ += new LanguageInfo( L"Français", "French", "fr" );
-    infos_ += new LanguageInfo( L"Hindi", "Hindi", "hi" );
-    infos_ += new LanguageInfo( L"Italiano", "Italian", "it" );
-    infos_ += new LanguageInfo( L"Japanese", "Japanese", "ja" );
-    infos_ += new LanguageInfo( L"Português", "Portuguese", "pt" );
-    infos_ += new LanguageInfo( L"Russian", "Russian", "ru" );
-#endif
-
-    tolanguage_ = infos_[1];
+    infos_ += new LanguageInfo( localnm, englishnm, code );
 }
 
 
@@ -188,3 +165,70 @@ void GoogleTranslator::disConnCB( CallBacker* )
 
 void GoogleTranslator::messageCB( CallBacker* )
 { setStatusMessage( odhttp_.message() ); }
+
+
+void GoogleTranslator::init()
+{
+    add(L"Afrikaans","Afrikaans","af");
+    add(L"Albanian","Albanian","sq");
+    add(L"Arabic","Arabic","ar");
+    add(L"Armenian","Armenian","hy");
+    add(L"Azerbaijani","Azerbaijani","az");
+    add(L"Basque","Basque","eu");
+    add(L"Belarusian","Belarusian","be");
+    add(L"Bulgarian","Bulgarian","bg");
+    add(L"Catalan","Catalan","ca");
+    add(L"Chinese_Simplified","Chinese_Simplified","zh-CN");
+    add(L"Chinese_Traditional","Chinese_Traditional","zh-TW");
+    add(L"Chinese","Chinese","zh");
+    add(L"Croatian","Croatian","hr");
+    add(L"Czech","Czech","cs");
+    add(L"Danish","Danish","da");
+    add(L"Dutch","Dutch","nl");
+    add(L"English","English","en");
+    add(L"Estonian","Estonian","et");
+    add(L"Filipino","Filipino","tl");
+    add(L"Finnish","Finnish","fi");
+    add(L"French","French","fr");
+    add(L"Galician","Galician","gl");
+    add(L"Georgian","Georgian","ka");
+    add(L"German","German","de");
+    add(L"Greek","Greek","el");
+    add(L"Haitian_Creole","Haitian_Creole","ht");
+    add(L"Hebrew","Hebrew","iw");
+    add(L"Hindi","Hindi","hi");
+    add(L"Hungarian","Hungarian","hu");
+    add(L"Icelandic","Icelandic","is");
+    add(L"Indonesian","Indonesian","id");
+    add(L"Irish","Irish","ga");
+    add(L"Italian","Italian","it");
+    add(L"Japanese","Japanese","ja");
+    add(L"Korean","Korean","ko");
+    add(L"Latvian","Latvian","lv");
+    add(L"Lithuanian","Lithuanian","lt");
+    add(L"Macedonian","Macedonian","mk");
+    add(L"Malay","Malay","ms");
+    add(L"Maltese","Maltese","mt");
+    add(L"Norwegian","Norwegian","no");
+    add(L"Persian","Persian","fa");
+    add(L"Polish","Polish","pl");
+    add(L"Portuguese_Portugal","Portuguese_Portugal","pt-PT");
+    add(L"Portuguese","Portuguese","pt");
+    add(L"Romanian","Romanian","ro");
+    add(L"Russian","Russian","ru");
+    add(L"Serbian","Serbian","sr");
+    add(L"Slovak","Slovak","sk");
+    add(L"Slovenian","Slovenian","sl");
+    add(L"Spanish","Spanish","es");
+    add(L"Swahili","Swahili","sw");
+    add(L"Swedish","Swedish","sv");
+    add(L"Tagalog","Tagalog","tl");
+    add(L"Thai","Thai","th");
+    add(L"Turkish","Turkish","tr");
+    add(L"Ukrainian","Ukrainian","uk");
+    add(L"Vietnamese","Vietnamese","vi");
+    add(L"Welsh","Welsh","cy");
+    add(L"Yiddish","Yiddish","yi");
+
+    tolanguage_ = infos_[1];
+}
