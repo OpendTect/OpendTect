@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.7 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.8 2011-03-31 08:24:49 cvshelene Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -30,7 +30,7 @@ static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.7 2010-12-13 07:07:43 cvssat
 
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("2D Geometry management", "Manage 2D lines",
-				 "mTODOHelpID"))
+				 "103.1.14"))
 {
     setCtrlStyle( LeaveOnly );
 
@@ -85,7 +85,7 @@ mClass uiManageLineGeomDlg : public uiDialog
 {
     public:
 uiManageLineGeomDlg( uiParent* p, const char* linenm )
-    : uiDialog( p, uiDialog::Setup("Manage Line Geomtery",linenm,"mTODOHelpID"))
+    : uiDialog( p, uiDialog::Setup("Manage Line Geomtery",linenm,"103.1.15"))
     , linenm_(linenm)
 {
     BufferString lbl( "Lineset : ");
@@ -120,7 +120,7 @@ mClass uiGeom2DImpDlg : public uiDialog
 
 public:
 uiGeom2DImpDlg( uiParent* p, const char* linenm )
-    : uiDialog(p,uiDialog::Setup("Read new Line Geometry",linenm,"mTODOHelpID"))
+    : uiDialog(p,uiDialog::Setup("Read new Line Geometry",linenm,"103.1.16"))
 {
     Table::FormatDesc* geomfd = Geom2dAscIO::getDesc();
     geom2dinfld_ = new uiFileInput( this, "2D geometry File",

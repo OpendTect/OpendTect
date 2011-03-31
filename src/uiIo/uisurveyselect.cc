@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurveyselect.cc,v 1.11 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurveyselect.cc,v 1.12 2011-03-31 08:24:49 cvshelene Exp $";
 
 
 #include "uisurveyselect.h"
@@ -36,7 +36,7 @@ bool checkIfDataDir( const char* path )
 uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, const char* survnm,
        				      const char* dataroot )
     : uiDialog(p,uiDialog::Setup("Survey Selection",
-				 "Select Survey",mTODOHelpID))
+				 "Select Survey",mNoHelpID))
     
 {
     datarootfld_ = new uiFileInput( this, "Data Root",

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.3 2011-03-14 13:46:47 cvshelene Exp $";
+static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.4 2011-03-31 08:24:49 cvshelene Exp $";
 
 #include "uitrcpositiondlg.h"
 
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.3 2011-03-14 13:46:47 c
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 				    bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup("Attribute trace position",0,mTODOHelpID) )
+    : uiDialog( p, uiDialog::Setup("Attribute trace position",0,"101.1.7") )
     , linesfld_( 0 )
     , trcnrfld_( 0 )
     , inlfld_( 0 )

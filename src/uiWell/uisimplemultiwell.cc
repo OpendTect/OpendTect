@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.6 2011-02-03 21:18:53 cvskris Exp $";
+static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.7 2011-03-31 08:24:49 cvshelene Exp $";
 
 
 #include "uisimplemultiwell.h"
@@ -52,7 +52,7 @@ public:
 
 
 uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
-    : uiDialog( p, Setup("Simple Multi-Well Creation",mNoDlgTitle,mTODOHelpID)
+    : uiDialog( p, Setup("Simple Multi-Well Creation",mNoDlgTitle,"107.0.7")
 	    		.savebutton(true).savetext("Display after creation") )
     , velfld_(0)
     , zinft_(SI().depthsInFeetByDefault())
@@ -137,7 +137,7 @@ public:
 
 uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     : uiDialog(&p,uiDialog::Setup("Multi-well creation","Create multiple wells",
-			 	 mTODOHelpID))
+			 	 "107.0.8"))
     , par_(p)
     , fd_("Simple multi-welldata")
 {
@@ -154,7 +154,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     ti->setName( "Surface Reference Datum (SRD)" ); fd_.bodyinfos_ += ti;
     fd_.bodyinfos_ += new Table::TargetInfo( "Well ID (UWI)", Table::Optional );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, mTODOHelpID );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "107.0.9" );
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodsysadmcoltabs.cc,v 1.3 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodsysadmcoltabs.cc,v 1.4 2011-03-31 08:24:49 cvshelene Exp $";
 
 #include "uiodsysadmcoltabs.h"
 
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: uiodsysadmcoltabs.cc,v 1.3 2010-11-10 15:26:43 
 
 
 uiODSysAdmColorTabs::uiODSysAdmColorTabs( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Manage color bars",0,mTODOHelpID))
+    : uiDialog(p,uiDialog::Setup("Manage color bars",0,mNoHelpID))
 {
     listfld = new uiListBox( this, "Color tables" );
     fillList( true );
