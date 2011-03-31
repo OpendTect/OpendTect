@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetman.cc,v 1.16 2011-03-31 09:04:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uipicksetman.cc,v 1.17 2011-03-31 13:02:05 cvsbert Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -103,8 +103,14 @@ void uiPickSetMan::mkFileInfo()
 		txt += ">";
 	}
 
-	Color col( ps.disp_.color_ ); col.setTransparency( 0 );
-	txt.add( "\nColor: " ).add( col.getStdStr() );
+	Color cl( ps.disp_.color_ ); cl.setTransparency( 0 );
+	unsigned char ch, cs, cv; cl.getHSV( ch, cs, cv );
+	txt.add( "\nColor: " ).add( cl.getStdStr() )
+	   .add( " (" ).add( cl.getDescription() ).add( ")" )
+	   .add( " RGB=" )
+	   .add((int)cl.r()).add("|").add((int)cl.g()).add("|").add((int)cl.b())
+	   .add( ", HSV=" )
+	   .add((int)ch).add("|").add((int)cs).add("|").add((int)cv);
 	txt.add( "\nMarker size (pixels): " ).add( ps.disp_.pixsize_ );
 	txt.add( "\nMarker type: " ) .add( MarkerStyle3D::getTypeString(
 		    		(MarkerStyle3D::Type)ps.disp_.markertype_) );
