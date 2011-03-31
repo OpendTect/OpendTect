@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.251 2011-03-25 07:04:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.252 2011-03-31 10:56:52 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -131,10 +131,10 @@ PlaneDataDisplay::PlaneDataDisplay()
     , moving_(this)
     , movefinished_(this)
     , orientation_( Inline )
-    , csfromsession_( false )			    
+    , csfromsession_( false )
     , eventcatcher_( 0 )
-    , minx0step_( -1 )			
-    , minx1step_( -1 )			
+    , minx0step_( -1 )
+    , minx1step_( -1 )
 {
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
@@ -174,7 +174,7 @@ PlaneDataDisplay::PlaneDataDisplay()
 
     dragger_->setOwnShape( draggerrect_->getInventorNode() );
     dragger_->setDim( (int) 0 );
-	
+
     if ( (int) orientation_ )
 	dragger_->setDim( (int) orientation_ );
 
@@ -571,8 +571,6 @@ void PlaneDataDisplay::setResolution( int res, TaskRunner* tr )
 SurveyObject::AttribFormat
     PlaneDataDisplay::getAttributeFormat( int attrib ) const
 {
-    const char* zdomain = attrib>=0 && attrib<nrAttribs() 
-				? getSelSpec(attrib)->zDomainKey() : 0;
     if ( alreadyTransformed(attrib) )
 	return SurveyObject::Cube;
 
@@ -773,16 +771,26 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
     res.hrg.include( BinID(mNINT(c1.x),mNINT(c1.y)) );
     res.zrg.include( c1.z );
     res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
-    res.zrg.step = datatransform_ && displayspace
-	? datatransform_->getGoodZStep()
-	: SI().zRange(true).step;
 
-    if ( alreadyTransformed(attrib) ) return res;
-
-    if ( datatransform_ && !displayspace )
+    const bool alreadytf = alreadyTransformed( attrib );
+    if ( alreadytf )
     {
-	res.zrg.setFrom( datatransform_->getZInterval(true) );
-	res.zrg.step = SI().zRange(true).step;
+	if ( datatransform_ )
+	    res.zrg.step = datatransform_->getGoodZStep();
+	else if ( scene_ )
+	    res.zrg.step = scene_->getCubeSampling().zrg.step;
+	return res;
+    }
+
+    if ( datatransform_ )
+    {
+	if ( !displayspace )
+	{
+	    res.zrg.setFrom( datatransform_->getZInterval(true) );
+	    res.zrg.step = SI().zRange(true).step;
+	}
+	else
+	    res.zrg.step = datatransform_->getGoodZStep();
     }
 
     return res;
@@ -815,7 +823,7 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
 float PlaneDataDisplay::getDisplayMinDataStep( bool x0 ) const
 {
-    return x0 ? minx0step_ : minx1step_; 
+    return x0 ? minx0step_ : minx1step_;
 }
 
 
@@ -861,7 +869,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	if ( !mIsEqual(minx0step_,dstep0,(minx0step_+dstep0)*5e-4) )
 	{
 	    if ( minx0step_ > dstep0 )
-    		minx0step_ = dstep0;
+		minx0step_ = dstep0;
 
 	    attshavesamestep = false;
 	}
@@ -869,7 +877,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	if ( !mIsEqual(minx1step_,dstep1,(minx1step_+dstep1)*5e-4) )
 	{
 	    if ( minx1step_ > dstep1 )
-    		minx1step_ = dstep1;
+		minx1step_ = dstep1;
 
 	    attshavesamestep = false;
 	}
@@ -892,7 +900,8 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 
 	    ztransformdp->setInterpolate( textureInterpolationEnabled() );
 	    ztransformdp->setOutputCS( getCubeSampling(true,true) );
-	    ztransformdp->transform();
+	    if ( !ztransformdp->transform() )
+		return;
 
 	    dpman.addAndObtain( ztransformdp );
 	    attridpids += ztransformdp->id();
@@ -901,11 +910,11 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     }
     else if ( nrAttribs()>1 && !attshavesamestep )
     {
-	const int oldchannelsz0 = channels_->getSize(1)/(resolution_+1);
-	const int oldchannelsz1 = channels_->getSize(2)/(resolution_+1);
+	const int oldchannelsz0 = channels_->getSize(1) / (resolution_+1);
+	const int oldchannelsz1 = channels_->getSize(2) / (resolution_+1);
 	
 	//check current attribe sizes
-        int newsz0 = 0, newsz1 = 0;
+	int newsz0 = 0, newsz1 = 0;
 	bool hassamesz = true;
 	if ( oldchannelsz0 && oldchannelsz1 )
 	{
@@ -913,15 +922,15 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	    {
 		const int sz0 = displaypacks[idx]->data().info().getSize(0);
 		const int sz1 = displaypacks[idx]->data().info().getSize(1);
-		
+
 		if ( idx && (sz0!=newsz0 || sz1!=newsz1) )
 		    hassamesz = false;
-		
+
 		if ( newsz0<sz0 ) newsz0 = sz0;
 		if ( newsz1<sz1 ) newsz1 = sz1;
 	    }
 	}
-	
+
 	const bool onlycurrent = newsz0<=oldchannelsz0 && newsz1<=oldchannelsz1;
 	const int attribsz = (newsz0<2 || newsz1<2) || (newsz0==oldchannelsz0
 		&& newsz1==oldchannelsz1 && hassamesz) ? 0 : nrAttribs();
@@ -943,7 +952,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	    const int idsz = idx==attrib ? attridpids.size() : pids.size();
 	    for ( int idy=0; idy<idsz; idy++ )
 	    {
- 		const FlatDataPack* dp = idx==attrib ? displaypacks[idy]
+		const FlatDataPack* dp = idx==attrib ? displaypacks[idy]
 						     : packs[idy];
 		StepInterval<double> rg0 = dp->posData().range(true);
 		StepInterval<double> rg1 = dp->posData().range(false);
@@ -951,32 +960,32 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 		const int sz1 = dp->data().info().getSize(1);
 		if ( sz0==newsz0 && sz1==newsz1 )
 		    continue;
-		
-		needsupdate =  true;
+
+		needsupdate = true;
 		mDeclareAndTryAlloc( Array2DImpl<float>*, arr,
-				     Array2DImpl<float> (newsz0,newsz1) );
+			Array2DImpl<float> (newsz0,newsz1) );
 		interpolArray(idx,arr->getData(),newsz0,newsz1,dp->data(),0);
 		mDeclareAndTryAlloc( FlatDataPack*, fdp,
-				     FlatDataPack( dp->category(), arr ) );
-		
+			FlatDataPack( dp->category(), arr ) );
+
 		rg0.step = minx0step_;
 		rg1.step = minx1step_;
 		fdp->posData().setRange( true, rg0 );
 		fdp->posData().setRange( false, rg1 );
-		
+
 		dpman.addAndObtain( fdp );
 		if ( idx==attrib )
 		    attridpids[idy] = fdp->id();
 		else
 		    pids[idy] = fdp->id();
-		
+
 		dpman.release( dp );
 	    }
-	    
+
 	    if ( idx!=attrib )
 	    {
 		if ( needsupdate )
-    		    setDisplayDataPackIDs( idx, pids );
+		    setDisplayDataPackIDs( idx, pids );
 
 		for ( int idy=0; idy<pids.size(); idy++ )
 		    dpman.release( pids[idy] );
@@ -987,7 +996,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     setDisplayDataPackIDs( attrib, attridpids );
     
     for ( int idx=0; idx<attridpids.size(); idx++ )
-	DPM( DataPackMgr::FlatID() ).release( attridpids[idx] );
+	dpman.release( attridpids[idx] );
 }
 
 

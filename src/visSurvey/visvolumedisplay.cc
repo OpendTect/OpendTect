@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.125 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.126 2011-03-31 10:56:52 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -898,12 +898,25 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 	res.zrg.stop = transl.z-scale.z/2;
     }
 
-    if ( alreadyTransformed(attrib) ) return res;
-
-    if ( datatransform_ && !displayspace )
+    const bool alreadytf = alreadyTransformed( attrib );
+    if ( alreadytf )
     {
-	res.zrg.setFrom( datatransform_->getZInterval(true) );
-	res.zrg.step = SI().zRange( true ).step;
+	if ( datatransform_ )
+	    res.zrg.step = datatransform_->getGoodZStep();
+	else if ( scene_ )
+	    res.zrg.step = scene_->getCubeSampling().zrg.step;
+	return res;
+    }
+
+    if ( datatransform_ )
+    {
+	if ( !displayspace )
+	{
+	    res.zrg.setFrom( datatransform_->getZInterval(true) );
+	    res.zrg.step = SI().zRange(true).step;
+	}
+	else
+	    res.zrg.step = datatransform_->getGoodZStep();
     }
 
     return res;
