@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.10 2011-03-31 13:01:50 cvsbert Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.11 2011-03-31 13:11:32 cvsbert Exp $";
 
 #include "color.h"
 
@@ -523,20 +523,30 @@ bool Color::fromDescription( const char* inp )
 }
 
 
-void Color::getDescriptions( BufferStringSet& bss )
+const BufferStringSet& Color::descriptions()
 {
-    bss.erase();
-    for ( int idx=0; idx<cNrColDD; idx++ )
-	bss.add( mkDesc(cColDD[idx]) );
+    static BufferStringSet* bss = 0;
+    if ( !bss )
+    {
+	bss = new BufferStringSet;
+	for ( int idx=0; idx<cNrColDD; idx++ )
+	    bss->add( mkDesc(cColDD[idx]) );
+    }
+    return *bss;
 }
 
 
-void Color::getDescriptionCenters( TypeSet<Color>& cols )
+const TypeSet<Color>& Color::descriptionCenters()
 {
-    cols.erase();
-    for ( int idx=0; idx<cNrColDD; idx++ )
+    static TypeSet<Color>* cols = 0;
+    if ( !cols )
     {
-	const ColorDescriptionData& cdd = cColDD[idx];
-	cols += Color( cdd.r_, cdd.g_, cdd.b_ );
+	cols = new TypeSet<Color>;
+	for ( int idx=0; idx<cNrColDD; idx++ )
+	{
+	    const ColorDescriptionData& cdd = cColDD[idx];
+	    *cols += Color( cdd.r_, cdd.g_, cdd.b_ );
+	}
     }
+    return *cols;
 }
