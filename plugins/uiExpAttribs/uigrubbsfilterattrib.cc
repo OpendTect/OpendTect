@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uigrubbsfilterattrib.cc,v 1.2 2011-03-24 03:00:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigrubbsfilterattrib.cc,v 1.3 2011-03-31 10:26:01 cvssatyaki Exp $";
 
 
 #include "uigrubbsfilterattrib.h"
@@ -60,8 +60,22 @@ uiGrubbsFilterAttrib::uiGrubbsFilterAttrib( uiParent* p, bool is2d )
     replacetype_ = new uiGenInput( this, "Replace Type",
 	    			   StringListInpSpec(replacetypestr) );
     replacetype_->attach( alignedBelow, stepoutfld_ );
+    replacetype_->valuechanged.notify(
+	    mCB(this,uiGrubbsFilterAttrib,replaceTypChanged) );
 
     setHAlignObj( gatefld_ );
+}
+
+
+void uiGrubbsFilterAttrib::replaceTypChanged( CallBacker* )
+{
+    if ( replacetype_->getIntValue() != 3 )
+    {
+	grubbsvalfld_->display( true );
+	return;
+    }
+
+    grubbsvalfld_->display( false );
 }
 
 

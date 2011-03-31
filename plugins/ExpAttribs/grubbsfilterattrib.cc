@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: grubbsfilterattrib.cc,v 1.2 2011-03-24 03:00:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: grubbsfilterattrib.cc,v 1.3 2011-03-31 10:26:01 cvssatyaki Exp $";
 
 #include "grubbsfilterattrib.h"
 
@@ -216,7 +216,9 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 	const bool positive = grubbsval > 0;
 	grubbsval = fabs( grubbsval );
 	float newval = traceval;
-	if ( grubbsval > cogrubbsval_ ) 
+	if ( type_ == GrubbsFilter::GrubbsValue )
+	    newval = grubbsval;
+	else if ( grubbsval > cogrubbsval_ ) 
 	{
 	    switch ( type_ ) 
 	    { 
@@ -226,7 +228,6 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 		    newval = (cogrubbsval_ * rc.stdDev())+rc.average(); 
 		    newval = positive ? newval * 1 : newval * -1;
 		    break;
-		case GrubbsFilter::GrubbsValue:	newval = grubbsval; break;
 		case GrubbsFilter::Interpolate:
 		    for ( int arridx=0; arridx<vals.info().getSize(0); arridx++)
 		    {

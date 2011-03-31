@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2011
- RCS:           $Id: uigrubbsfilterattrib.h,v 1.2 2011-03-24 03:00:29 cvsnanne Exp $
+ RCS:           $Id: uigrubbsfilterattrib.h,v 1.3 2011-03-31 10:26:01 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ protected:
     uiGenInput*		replacetype_;
     uiStepOutSel*	stepoutfld_;
 
+    void		replaceTypChanged(CallBacker*);
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
     bool		getParameters(Attrib::Desc&);
