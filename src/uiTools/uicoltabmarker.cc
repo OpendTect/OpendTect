@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.11 2010-06-22 10:49:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.12 2011-03-31 09:24:38 cvsnanne Exp $";
 
 #include "uicoltabmarker.h"
 
@@ -94,7 +94,7 @@ void uiColTabMarkerDlg::mouseClick( CallBacker* )
 	orgctab.changeColor( rc.row, newcol.r(), newcol.g(), newcol.b() );
 	ctab_ = orgctab;
     }
-    rebuildColTab();
+
     markersChanged.trigger();
 }
 
@@ -138,7 +138,6 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
 	return;
     }
 
-    rebuildColTab();
     fillTable();
     markersChanged.trigger();
 }
