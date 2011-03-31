@@ -4,13 +4,15 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.9 2010-12-22 13:32:19 cvsbert Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.10 2011-03-31 13:01:50 cvsbert Exp $";
 
 #include "color.h"
 
 #include "separstr.h"
-#include "stdlib.h"
-#include "string.h"
+#include "bufstringset.h"
+#include "typeset.h"
+#include <stdlib.h>
+#include <string.h>
 
 
 Color::Color( unsigned char r_, unsigned char g_,
@@ -314,4 +316,227 @@ const char* Color::getStdStr( bool withhash, int transpopt ) const
     if ( !isrev ) addTranspToStr( buf, t(), transpopt, curidx );
     buf[curidx] = '\0';
     return buf;
+}
+
+
+struct ColorDescriptionData
+{
+    int		r_, g_, b_;
+    const char	*nm1_, *nm2_, *nm3_;
+};
+
+static const int cNrColDD = 135;
+static const ColorDescriptionData cColDD[] = {
+{	255,	235,	205,	"Almond", "Blanched", "" },
+{	102,	205,	170,	"Aquamarine", "Medium", "" },
+{	127,	255,	212,	"Aquamarine", "", "" },
+{	240,	255,	255,	"Azure", "", "" },
+{	245,	245,	220,	"Beige", "", "" },
+{	255,	228,	196,	"Bisque", "", "" },
+{	0,	0,	0,	"Black", "", "" },
+{	0,	0,	128,	"Blue", "Navy", "" },
+{	0,	0,	139,	"Blue", "Dark", "" },
+{	0,	0,	205,	"Blue", "Medium", "" },
+{	0,	0,	255,	"Blue", "", "" },
+{	0,	191,	255,	"Blue", "Sky", "Deep" },
+{	100,	149,	237,	"Blue", "Cornflower", "" },
+{	106,	90,	205,	"Blue", "Slate", "" },
+{	123,	104,	238,	"Blue", "Slate", "Medium" },
+{	132,	112,	255,	"Blue", "Slate", "Light" },
+{	135,	206,	235,	"Blue", "Sky", "" },
+{	135,	206,	250,	"Blue", "Sky", "Light" },
+{	173,	216,	230,	"Blue", "Light", "" },
+{	176,	196,	222,	"Blue", "Steel", "Light" },
+{	176,	224,	230,	"Blue", "Powder", "" },
+{	240,	248,	255,	"Blue", "Alice", "" },
+{	25,	25,	112,	"Blue", "Midnight", "" },
+{	30,	144,	255,	"Blue", "Dodger", "" },
+{	65,	105,	225,	"Blue", "Royal", "" },
+{	70,	130,	180,	"Blue", "Steel", "" },
+{	72,	61,	139,	"Blue", "Slate", "Dark" },
+{	95,	158,	160,	"Blue", "Cadet", "" },
+{	255,	240,	245,	"Blush", "Lavender", "" },
+{	139,	69,	19,	"Brown", "Saddle", "" },
+{	165,	42,	42,	"Brown", "", "" },
+{	188,	143,	143,	"Brown", "Rosy", "" },
+{	210,	105,	30,	"Brown", "Chocolate", "" },
+{	244,	164,	96,	"Brown", "Sandy", "" },
+{	222,	184,	135,	"Burlywood", "", "" },
+{	127,	255,	0,	"Chartreuse", "", "" },
+{	255,	250,	205,	"Chiffon", "Lemon", "" },
+{	240,	128,	128,	"Coral", "Light", "" },
+{	255,	127,	80,	"Coral", "", "" },
+{	255,	248,	220,	"Cornsilk", "", "" },
+{	245,	255,	250,	"Cream", "Mint", "" },
+{	0,	139,	139,	"Cyan", "Dark", "" },
+{	0,	255,	255,	"Cyan", "", "" },
+{	224,	255,	255,	"Cyan", "Light", "" },
+{	178,	34,	34,	"Firebrick", "", "" },
+{	220,	220,	220,	"Gainsboro", "", "" },
+{	255,	215,	0,	"Gold", "", "" },
+{	184,	134,	11,	"Goldenrod", "Dark", "" },
+{	218,	165,	32,	"Goldenrod", "", "" },
+{	238,	221,	130,	"Goldenrod", "Light", "" },
+{	238,	232,	170,	"Goldenrod", "Pale", "" },
+{	0,	100,	0,	"Green", "Dark", "" },
+{	0,	250,	154,	"Green", "Spring", "Medium" },
+{	0,	255,	0,	"Green", "", "" },
+{	0,	255,	127,	"Green", "Spring", "" },
+{	124,	252,	0,	"Green", "Lawn", "" },
+{	143,	188,	143,	"Green", "Sea", "Dark" },
+{	144,	238,	144,	"Green", "Light", "" },
+{	152,	251,	152,	"Green", "Pale", "" },
+{	154,	205,	50,	"Green", "Yellow", "" },
+{	32,	178,	170,	"Green", "Sea", "Light" },
+{	34,	139,	34,	"Green", "Forest", "" },
+{	46,	139,	87,	"Green", "Sea", "" },
+{	50,	205,	50,	"Green", "Lime", "" },
+{	60,	179,	113,	"Green", "Sea", "Medium" },
+{	85,	107,	47,	"Green", "Olive", "Dark" },
+{	105,	105,	105,	"Grey", "Dim", "" },
+{	112,	128,	144,	"Grey", "Slate", "" },
+{	119,	136,	153,	"Grey", "Slate", "Light" },
+{	169,	169,	169,	"Grey", "Dark", "" },
+{	190,	190,	190,	"Grey", "", "" },
+{	211,	211,	211,	"Grey", "Light", "" },
+{	47,	79,	79,	"Grey", "Slate", "Dark" },
+{	240,	255,	240,	"Honeydew", "", "" },
+{	255,	255,	240,	"Ivory", "", "" },
+{	189,	183,	107,	"Khaki", "Dark", "" },
+{	240,	230,	140,	"Khaki", "", "" },
+{	253,	245,	230,	"Lace", "Old", "" },
+{	230,	230,	250,	"Lavender", "", "" },
+{	250,	240,	230,	"Linen", "", "" },
+{	139,	0,	139,	"Magenta", "Dark", "" },
+{	255,	0,	255,	"Magenta", "", "" },
+{	176,	48,	96,	"Maroon", "", "" },
+{	255,	228,	181,	"Moccasin", "", "" },
+{	107,	142,	35,	"Olive", "", "" },
+{	255,	140,	0,	"Orange", "Dark", "" },
+{	255,	165,	0,	"Orange", "", "" },
+{	153,	50,	204,	"Orchid", "Dark", "" },
+{	186,	85,	211,	"Orchid", "Medium", "" },
+{	218,	112,	214,	"Orchid", "", "" },
+{	205,	133,	63,	"Peru", "", "" },
+{	255,	105,	180,	"Pink", "Hot", "" },
+{	255,	182,	193,	"Pink", "Light", "" },
+{	255,	192,	203,	"Pink", "", "" },
+{	255,	20,	147,	"Pink", "Deep", "" },
+{	221,	160,	221,	"Plum", "", "" },
+{	255,	218,	185,	"Puff", "Peach", "" },
+{	147,	112,	219,	"Purple", "Medium", "" },
+{	160,	32,	240,	"Purple", "", "" },
+{	139,	0,	0,	"Red", "Dark", "" },
+{	199,	21,	133,	"Red", "Violet", "Medium" },
+{	205,	92,	92,	"Red", "Indian", "" },
+{	208,	32,	144,	"Red", "Violet", "" },
+{	219,	112,	147,	"Red", "Violet", "Pale" },
+{	255,	0,	0,	"Red", "", "" },
+{	255,	69,	0,	"Red", "Orange", "" },
+{	255,	228,	225,	"Rose", "Misty", "" },
+{	233,	150,	122,	"Salmon", "Dark", "" },
+{	250,	128,	114,	"Salmon", "", "" },
+{	255,	160,	122,	"Salmon", "Light", "" },
+{	255,	245,	238,	"Seashell", "", "" },
+{	160,	82,	45,	"Sienna", "", "" },
+{	245,	245,	245,	"Smoke", "White", "" },
+{	255,	250,	250,	"Snow", "", "" },
+{	210,	180,	140,	"Tan", "", "" },
+{	216,	191,	216,	"Thistle", "", "" },
+{	255,	99,	71,	"Tomato", "", "" },
+{	0,	206,	209,	"Turquoise", "Dark", "" },
+{	175,	238,	238,	"Turquoise", "Pale", "" },
+{	64,	224,	208,	"Turquoise", "", "" },
+{	72,	209,	204,	"Turquoise", "Medium", "" },
+{	138,	43,	226,	"Violet", "Blue", "" },
+{	148,	0,	211,	"Violet", "Dark", "" },
+{	238,	130,	238,	"Violet", "", "" },
+{	245,	222,	179,	"Wheat", "", "" },
+{	255,	239,	213,	"Whip", "Papaya", "" },
+{	248,	248,	255,	"White", "Ghost", "" },
+{	250,	235,	215,	"White", "Antique", "" },
+{	255,	222,	173,	"White", "Navajo", "" },
+{	255,	250,	240,	"White", "Floral", "" },
+{	255,	255,	255,	"White", "", "" },
+{	173,	255,	47,	"Yellow", "Green", "" },
+{	250,	250,	210,	"Yellow", "Goldenrod", "Light" },
+{	255,	255,	0,	"Yellow", "", "" },
+{	255,	255,	224,	"Yellow", "Light", "" }
+};
+
+
+static const char* mkDesc( const ColorDescriptionData& cdd )
+{
+    static BufferString ret;
+    ret.setEmpty();
+    if ( *cdd.nm3_ )
+	ret.add( cdd.nm3_ ).add( " " );
+    if ( *cdd.nm2_ )
+	ret.add( cdd.nm2_ ).add( " " );
+    ret.add( cdd.nm1_ );
+    return ret.buf();
+}
+
+
+const char* Color::getDescription() const
+{
+    int minsqdist = 16581375; int minidx = -1;
+    for ( int idx=0; idx<cNrColDD; idx++ )
+    {
+	const ColorDescriptionData& cdd = cColDD[idx];
+	const int rdist = r() - cdd.r_;
+	const int gdist = g() - cdd.g_;
+	const int bdist = b() - cdd.b_;
+	const int distsq = rdist*rdist + gdist*gdist + bdist*bdist;
+	if ( distsq < 4 )
+	    return mkDesc( cdd );
+	else if ( distsq < minsqdist )
+	    { minsqdist = distsq; minidx = idx; }
+    }
+
+    return mkDesc( cColDD[minidx] );
+}
+
+
+bool Color::fromDescription( const char* inp )
+{
+    if ( !inp || !*inp )
+	return false;
+
+    for ( int idx=0; idx<cNrColDD; idx++ )
+    {
+	const ColorDescriptionData& cdd = cColDD[idx];
+	// Let's test whether inp starts with the right character:
+	if ( *cdd.nm3_ )
+	    { if ( *inp != *cdd.nm3_ ) continue; }
+	else if ( *cdd.nm2_ )
+	    { if ( *inp != *cdd.nm2_ ) continue; }
+	else
+	    { if ( *inp != *cdd.nm1_ ) continue; }
+
+	const BufferString cddesc( mkDesc(cdd) );
+	if ( cddesc == inp )
+	    { *this = Color( cdd.r_, cdd.g_, cdd.b_ ); return true; }
+    }
+
+    return false;
+}
+
+
+void Color::getDescriptions( BufferStringSet& bss )
+{
+    bss.erase();
+    for ( int idx=0; idx<cNrColDD; idx++ )
+	bss.add( mkDesc(cColDD[idx]) );
+}
+
+
+void Color::getDescriptionCenters( TypeSet<Color>& cols )
+{
+    cols.erase();
+    for ( int idx=0; idx<cNrColDD; idx++ )
+    {
+	const ColorDescriptionData& cdd = cColDD[idx];
+	cols += Color( cdd.r_, cdd.g_, cdd.b_ );
+    }
 }

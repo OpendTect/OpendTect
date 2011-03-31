@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.19 2011-03-01 11:12:44 cvsbert Exp $
+ RCS:		$Id: color.h,v 1.20 2011-03-31 13:01:50 cvsbert Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -17,6 +17,8 @@ integer, similar to Qt.
 
 
 #include "gendefs.h"
+class BufferStringSet;
+template <class T> class TypeSet;
 
 
 mClass Color
@@ -62,9 +64,14 @@ public:
 
     static Color	Black()		{ return  Color( 0, 0, 0, 0 ); }
     static Color	White()		{ return  Color( 255, 255, 255, 0 ); }
-    static Color	DgbColor()	{ return  Color( 0, 240, 0, 0 ); }	
-    static Color	LightGrey()	{ return  Color( 230, 230, 230, 0 ); }
-    static Color	Peach()		{ return  Color( 255, 229, 180, 0 ); }
+    static Color	DgbColor()	{ return  Color( 2, 240, 4, 0 ); }	
+    static Color	LightGrey()	{ return  Color( 211, 211, 211, 0 ); }
+    static Color	Peach()		{ return  Color( 255, 218, 185, 0 ); }
+
+    const char*		getDescription() const;
+    bool		fromDescription(const char*);
+    static void		getDescriptions(BufferStringSet&);
+    static void		getDescriptionCenters(TypeSet<Color>&);
 
     static unsigned char getUChar( float v );
 
