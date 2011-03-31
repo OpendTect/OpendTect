@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.8 2011-03-28 10:37:51 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.9 2011-03-31 09:43:36 cvsranojay Exp $";
 
 #include "uisynthtorealscale.h"
 
@@ -27,9 +27,12 @@ static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.8 2011-03-28 10:37:51
 #include "picksettr.h"
 #include "wavelet.h"
 
+#include "uislider.h"
 #include "uistratseisevent.h"
 #include "uiseissel.h"
 #include "uiseparator.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsitemimpl.h"
 #include "uihistogramdisplay.h"
 #include "uiaxishandler.h"
 #include "uigeninput.h"
@@ -53,6 +56,7 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     : uiGroup(p,nm)
     , usrval_(mUdf(float))
     , usrValChanged(this)
+    , markerlineitem_(0)
 {
     uiFunctionDisplay::Setup su;
     su.annoty( false ).noyaxis( true ).noy2axis( true ).drawgridlines( false );
@@ -60,13 +64,26 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     dispfld_->xAxis()->setName( "" );
     dispfld_->setPrefWidth( 260 );
     dispfld_->setPrefHeight( GetGoldenMinor(260) );
+
+    valueslider_ = new uiSliderExtra( this,
+	    	uiSliderExtra::Setup("Value"), "Value" );
+    valueslider_->sldr()->valueChanged.notify(
+			    mCB(this,uiSynthToRealScaleStatsDisp,sliderChgCB) );
     avgfld_ = new uiGenInput( this, "", FloatInpSpec() );
-    if ( left )
-	avgfld_->attach( rightAlignedBelow, dispfld_ );
-    else
-	avgfld_->attach( ensureBelow, dispfld_ );
-    avgfld_->valuechanged.notify(mCB(this,uiSynthToRealScaleStatsDisp,avgChg));
+    valueslider_->attach( leftAlignedBelow, dispfld_ );
+    avgfld_->attach( rightOf, valueslider_ );
+    avgfld_->valuechanging.notify(mCB(this,uiSynthToRealScaleStatsDisp,avgChg));
     setHAlignObj( dispfld_ );
+}
+
+void updateSlider( float val )
+{
+    const uiAxisHandler* xaxis = dispfld_->xAxis();
+    const StepInterval<float> xrg = xaxis->range();
+    valueslider_->sldr()->setScale( xrg.step/1000, 0 );
+    valueslider_->sldr()->setInterval( xrg );
+    valueslider_->sldr()->setValue( val );
+    drawMarkerLine( val );
 }
 
 void avgChg( CallBacker* )
@@ -76,11 +93,42 @@ void avgChg( CallBacker* )
     usrValChanged.trigger();
 }
 
+void sliderChgCB( CallBacker* )
+{
+    const float val = valueslider_->sldr()->getValue();
+    drawMarkerLine( val );
+    avgfld_->setValue( val );
+}
+
+void drawMarkerLine( float val )
+{
+    const uiAxisHandler* xaxis = dispfld_->xAxis();
+    const int valx = xaxis->getPix( val );
+    if ( valx < xaxis->getPix( xaxis->range().start) ||
+	 valx > xaxis->getPix( xaxis->range().stop) )
+	return;
+    
+    const uiAxisHandler* yaxis = dispfld_->yAxis(false);
+    const int valytop = yaxis->getPix( yaxis->range().start );
+    const int valybottom = yaxis->getPix( yaxis->range().stop );
+
+    if ( !markerlineitem_ )
+    {
+	LineStyle ls( LineStyle::Solid, 2, Color(0,255,0) );
+	markerlineitem_ = dispfld_->scene().addItem( new uiLineItem() );
+	markerlineitem_->setPenStyle( ls );
+	markerlineitem_->setZValue( 3 );
+    }
+
+    markerlineitem_->setLine( valx, valytop, valx, valybottom );
+}
+
     float		usrval_;
 
     uiHistogramDisplay*	dispfld_;
     uiGenInput*		avgfld_;
-
+    uiSliderExtra*	valueslider_;
+    uiLineItem*		markerlineitem_;
     Notifier<uiSynthToRealScaleStatsDisp>	usrValChanged;
 
 };
@@ -154,6 +202,9 @@ void uiSynthToRealScale::initWin( CallBacker* )
     updSynthStats();
 }
 
+#define mUpdateSlider( type, val ) \
+     if ( !mIsUdf(val) ) \
+	type->updateSlider( val ); \
 
 void uiSynthToRealScale::setScaleFld( CallBacker* )
 {
@@ -163,6 +214,9 @@ void uiSynthToRealScale::setScaleFld( CallBacker* )
 	finalscalefld_->setValue( mUdf(float) );
     else
 	finalscalefld_->setValue( realval / synthval );
+
+    mUpdateSlider( synthstatsfld_, synthval );
+    mUpdateSlider( realstatsfld_, realval );
 }
 
 
@@ -215,9 +269,10 @@ void uiSynthToRealScale::updSynthStats()
 	    }
 	}
     }
+    
     synthstatsfld_->dispfld_->setData( vals.arr(), vals.size() );
     synthstatsfld_->avgfld_->setValue(
-	    	synthstatsfld_->dispfld_->getRunCalc().average() );
+    	    synthstatsfld_->dispfld_->getRunCalc().average() );
 }
 
 
