@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetman.cc,v 1.15 2010-12-07 19:56:50 cvskris Exp $";
+static const char* rcsID = "$Id: uipicksetman.cc,v 1.16 2011-03-31 09:04:19 cvsbert Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: uipicksetman.cc,v 1.15 2010-12-07 19:56:50 cvsk
 #include "draw.h"
 #include "picksettr.h"
 #include "pickset.h"
+#include "keystrs.h"
+#include "polygon.h"
 
 Notifier<uiPickSetMan>* uiPickSetMan::fieldsCreated()
 {
@@ -64,27 +66,51 @@ void uiPickSetMan::mkFileInfo()
 	if ( !txt.isEmpty() )
 	    ErrMsg( txt );
 
-	if ( ps.isEmpty() )
-	    txt = "Empty Pick Set\n";
+	const char* typ = curioobj_->pars().find( sKey::Type );
+	const bool ispoly = typ && !strcmp( typ, sKey::Polygon ); 
+	const bool havetype = typ && *typ;
+	if ( havetype )
+	    txt.add( "Type: " ).add( typ );
+
+	const int sz = ps.size();
+	if ( sz < 1 )
+	    txt.add( havetype ? " <empty>" : "Empty Pick Set." );
 	else
 	{
-	    txt = "Number of picks: ";
-	    txt += ps.size(); txt += "\n";
+	    txt.add( havetype ? " <" : "Size: " );
+	    txt.add( sz );
+	    if ( havetype )
+	    {
+		txt.add( ispoly ? " vertice" : " pick" );
+		if ( sz > 1 )
+		    txt += "s";
+	    }
+	    if ( !ispoly && ps[0].hasDir() )
+		txt += " (with directions)";
+
+	    if ( ispoly && sz > 2 )
+	    {
+		ODPolygon<double> odpoly;
+		for ( int idx=0; idx<sz; idx++ )
+		{
+		    const Coord c( ps[idx].pos );
+		    odpoly.add( Geom::Point2D<double>( c.x, c.y ) );
+		}
+		txt.add( ", area=" ).add( odpoly.area() );
+	    }
+
+	    if ( havetype )
+		txt += ">";
 	}
-	if ( ps[0].hasDir() )
-	    txt += "Pick Set with directions\n";
 
 	Color col( ps.disp_.color_ ); col.setTransparency( 0 );
-	char buf[20]; col.fill( buf ); replaceCharacter( buf, '`', '-' );
-	txt += "Color (R-G-B): "; txt += buf;
-	txt += "\nMarker size (pixels): "; txt += ps.disp_.pixsize_;
-	txt += "\nMarker type: ";
-	txt += MarkerStyle3D::getTypeString((MarkerStyle3D::Type)
-					    ps.disp_.markertype_);
+	txt.add( "\nColor: " ).add( col.getStdStr() );
+	txt.add( "\nMarker size (pixels): " ).add( ps.disp_.pixsize_ );
+	txt.add( "\nMarker type: " ) .add( MarkerStyle3D::getTypeString(
+		    		(MarkerStyle3D::Type)ps.disp_.markertype_) );
     }
 
-    txt += "\n";
-    txt += getFileInfo();
+    txt.add( "\n" ).add( getFileInfo() );
     setInfo( txt );
 }
 
