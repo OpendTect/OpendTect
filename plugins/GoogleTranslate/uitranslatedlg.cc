@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.3 2011-01-24 04:41:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.4 2011-03-31 13:12:50 cvshelene Exp $";
 
 
 #include "uitranslatedlg.h"
@@ -28,7 +28,7 @@ static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.3 2011-01-24 04:41:03 cvs
 bool sUseKeyFld = false;
 
 uiTranslateDlg::uiTranslateDlg( uiParent* p )
-    : uiDialog(p,Setup("Google Translate","",""))
+    : uiDialog(p,Setup("Google Translate","","0.2.10"))
     , keyfld_(0)
 {
     uiLabel* lbl = new uiLabel( this, "Translation into the selected language\n"
