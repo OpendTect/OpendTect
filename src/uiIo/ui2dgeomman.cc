@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.8 2011-03-31 08:24:49 cvshelene Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.9 2011-03-31 08:29:31 cvshelene Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -85,7 +85,7 @@ mClass uiManageLineGeomDlg : public uiDialog
 {
     public:
 uiManageLineGeomDlg( uiParent* p, const char* linenm )
-    : uiDialog( p, uiDialog::Setup("Manage Line Geomtery",linenm,"103.1.15"))
+    : uiDialog( p, uiDialog::Setup("Manage Line Geometry",linenm,"103.1.15"))
     , linenm_(linenm)
 {
     BufferString lbl( "Lineset : ");
