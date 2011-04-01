@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.12 2011-04-01 10:46:50 cvsbert Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.13 2011-04-01 11:45:18 cvsbert Exp $";
 
 #include "color.h"
 
@@ -569,7 +569,7 @@ const char* Color::largeUserInfoString() const
 
     if ( t() )
     {
-	const int promille = (int)( (t() / 0.00255) + .5 );
+	const int promille = (int)( (t() / 0.255) + .5 );
 	ret.add( ". Transparency=" ).add( promille/10 );
 	if ( promille % 10 )
 	    ret.add( "." ).add( promille % 10 );
