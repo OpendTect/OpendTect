@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiimppvds.cc,v 1.6 2011-03-31 08:24:49 cvshelene Exp $";
+static const char* rcsID = "$Id: uiimppvds.cc,v 1.7 2011-04-01 12:29:07 cvshelene Exp $";
 
 #include "uiimppvds.h"
 
@@ -37,7 +37,7 @@ static const char* rcsID = "$Id: uiimppvds.cc,v 1.6 2011-03-31 08:24:49 cvshelen
 uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     : uiDialog(p,uiDialog::Setup("Import cross-plot data",
 				 "Import column data for cross-plots",
-				 "110.0.7"))
+				 "111.0.7"))
     , fd_(*new Table::FormatDesc("Cross-plot data"))
     , is2d_(is2d)
 {
@@ -49,7 +49,7 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     fd_.bodyinfos_ += Table::TargetInfo::mkZPosition( false );
     if ( is2d_ )
 	fd_.bodyinfos_ += new Table::TargetInfo( "Trace number", IntInpSpec() );
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "110.0.8" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "111.0.8" );
     dataselfld_->attach( alignedBelow, inpfld_ );
 
     row1isdatafld_ = new uiGenInput( this, "First row contains",
