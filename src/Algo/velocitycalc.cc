@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.42 2011-04-01 12:46:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.43 2011-04-01 15:13:51 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
@@ -1017,6 +1017,20 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
     								//time is TWT
 
     return true;
+}
+
+
+bool sampleVavg( const float* Vin, const float* t_in, int nr_in,
+		 const SamplingData<double>& sd_out, float* Vout, int nr_out )
+{
+    mAllocVarLenArr( float, vintarr, nr_in );
+    mAllocVarLenArr( float, vintsampledarr, nr_out );
+    if ( !vintarr || !vintsampledarr ) return false;
+
+    SamplingData<double> sd_in( t_in[0], t_in[1]-t_in[0] );
+    return computeVint( Vin, sd_in, nr_in, vintarr ) &&
+       	sampleVint( vintarr, t_in, nr_in, sd_out, vintsampledarr, nr_out ) &&
+	computeVavg( vintsampledarr, sd_out, nr_out, Vout); 
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.79 2011-03-11 14:36:34 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.80 2011-04-01 15:13:51 cvshelene Exp $";
 
 #include "uiseiscbvsimp.h"
 
@@ -398,10 +398,7 @@ void uiSeisImpCBVS::procToBeDoneCB( CallBacker* c )
 			compfld_->box()->currentItem() - 1 : 0;
     TypeSet<float> trcvals;
     TypeSet<float> timevals;
-    uiSeisIOObjInfo inioobjinfo( *inctio_.ioobj, true );
-    CubeSampling csin;
-    inioobjinfo.getRanges( csin );
-    const int sizein = csin.nrZ();
+    const int sizein = intrc.data().size(compnr);
     const float sampstep = intrc.info().sampling.step;
     for ( int idx=0; idx<sizein; idx++ )
     {
@@ -411,11 +408,8 @@ void uiSeisImpCBVS::procToBeDoneCB( CallBacker* c )
 
     const float* vin = trcvals.arr();
     const float* tin = timevals.arr();
-    uiSeisIOObjInfo outioobjinfo( *outctio_.ioobj, true );
-    CubeSampling csout;
-    outioobjinfo.getRanges( csout );
-    const int sizeout = csout.nrZ();
-    const SamplingData<double> sdout( csout.zrg );
+    const int sizeout = trc.data().size(compnr);
+    const SamplingData<double> sdout = trc.info().sampling;
     mAllocVarLenArr( float, vout, sizeout );
     if ( !vout ) return;
 
@@ -423,6 +417,8 @@ void uiSeisImpCBVS::procToBeDoneCB( CallBacker* c )
 	sampleVint( vin, tin, sizein, sdout, vout, sizeout );
     else if ( !strcmp( typestr, VelocityDesc::TypeNames()[VelocityDesc::RMS] ) )
 	sampleVrms( vin, 0, 0, tin, sizein, sdout, vout, sizeout );
+    else if ( !strcmp( typestr, VelocityDesc::TypeNames()[VelocityDesc::Avg] ) )
+	sampleVavg( vin, tin, sizein, sdout, vout, sizeout );
 
     for ( int idx=0; idx<sizeout; idx++ )
 	trc.set( idx, vout[idx], compnr );

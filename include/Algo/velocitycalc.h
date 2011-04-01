@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.29 2011-04-01 12:46:34 cvsbruno Exp $
+ RCS:		$Id: velocitycalc.h,v 1.30 2011-04-01 15:13:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -259,6 +259,14 @@ mGlobal bool computeVint(const float* Vavg,const SamplingData<double>& sd,
 mGlobal bool sampleVint(const float* Vint,const float* t_in, int nr_in,
 			const SamplingData<double>& sd_out, float* Vout,
 			int nr_out);
+/*!Given an irregularly sampled Vavg, create a regularly sampled one. The
+   function assumes constant interval velocity before and after the input
+   interval.*/
+
+mGlobal bool sampleVavg(const float* Vavg, const float* t_in, int nr_in,
+			const SamplingData<double>& sd_out, float* Vout,
+			int nr_out);
+
 /*!Given a residual moveout at a reference offset, comput the residual moveout
    at other offsets */
 
