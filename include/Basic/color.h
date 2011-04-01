@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.21 2011-03-31 13:11:32 cvsbert Exp $
+ RCS:		$Id: color.h,v 1.22 2011-04-01 10:46:50 cvsbert Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -51,7 +51,8 @@ public:
     void        	setRgb( unsigned int rgb_  );
     void		setTransparency( unsigned char t_ );
     void		setHSV(unsigned char h,unsigned char s,unsigned char v);
-    void		getHSV(unsigned char&,unsigned char&,unsigned char&);
+    void		getHSV(unsigned char&,unsigned char&,
+	    		       unsigned char&) const;
     void		setStdStr(const char*); //!< e.g. "#00ff32"
     const char*		getStdStr(bool withhash=true,
 	    			  int transpopt=0) const;
@@ -73,6 +74,7 @@ public:
     static int		nrStdDrawColors();
     static Color	stdDrawColor(int);
 
+    const char*				largeUserInfoString() const;
     const char*				getDescription() const;
     bool				fromDescription(const char*);
     static const BufferStringSet&	descriptions();

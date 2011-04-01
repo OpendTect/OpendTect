@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.11 2011-03-31 13:11:32 cvsbert Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.12 2011-04-01 10:46:50 cvsbert Exp $";
 
 #include "color.h"
 
@@ -154,7 +154,8 @@ bool Color::use( const char* str )
 }
 
 
-void Color::getHSV( unsigned char& h_, unsigned char& s_, unsigned char& v_ )
+void Color::getHSV( unsigned char& h_, unsigned char& s_,
+		    unsigned char& v_ ) const
 {
     int r_ = (int)r();
     int g_ = (int)g();
@@ -549,4 +550,31 @@ const TypeSet<Color>& Color::descriptionCenters()
 	}
     }
     return *cols;
+}
+
+
+const char* Color::largeUserInfoString() const
+{
+    static BufferString ret;
+
+    ret = getStdStr();
+
+    ret.add( " (" ).add( getDescription() ).add( ")" )
+       .add( " RGB=" )
+       .add((int)r()).add("|").add((int)g()).add("|").add((int)b());
+
+    unsigned char ch, cs, cv; getHSV( ch, cs, cv );
+    ret.add( ", HSV=" )
+       .add((int)ch).add("|").add((int)cs).add("|").add((int)cv);
+
+    if ( t() )
+    {
+	const int promille = (int)( (t() / 0.00255) + .5 );
+	ret.add( ". Transparency=" ).add( promille/10 );
+	if ( promille % 10 )
+	    ret.add( "." ).add( promille % 10 );
+	ret.add( "%" );
+    }
+
+    return ret.buf();
 }
