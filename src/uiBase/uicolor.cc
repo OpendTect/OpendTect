@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.33 2010-06-16 17:10:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.34 2011-04-01 09:43:56 cvsbert Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "uibody.h"
 #include "uilabel.h"
 #include "uimain.h"
@@ -114,6 +115,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	, dlgtxt_(s.dlgtitle_)
 	, dodrawbox_(0)
 	, uilbl_(0)
+	, descfld_(0)
 	, withalpha_(s.withalpha_)
 	, colorChanged(this)
 	, doDrawChanged(this)
@@ -133,6 +135,15 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
     
     if ( !dodrawbox_ && s.lbltxt_ && *s.lbltxt_)
 	uilbl_ = new uiLabel( this, s.lbltxt_, colbut_ );
+
+    if ( s.withdesc_ )
+    {
+	descfld_ = new uiComboBox( this, Color::descriptions(),
+				    "Color description" );
+	descfld_->setHSzPol( uiObject::Medium );
+	descfld_->attach( rightOf, colbut_ );
+	descfld_->selectionChanged.notify( mCB(this,uiColorInput,descSel) );
+    }
 
     setColor( color_ ); 
     setHAlignObj( colbut_ );
@@ -158,6 +169,8 @@ void uiColorInput::setDoDraw( bool yn )
 void uiColorInput::dodrawSel( CallBacker* )
 {
     colbut_->setSensitive( dodrawbox_->isChecked() );
+    if ( descfld_ )
+	descfld_->setSensitive( dodrawbox_->isChecked() );
     doDrawChanged.trigger();
 }
 
@@ -175,6 +188,14 @@ void uiColorInput::selCol( CallBacker* )
 }
 
 
+void uiColorInput::descSel( CallBacker* )
+{
+    const int selidx = descfld_ ? descfld_->currentItem() : -1;
+    if ( selidx < 0 ) return;
+    setColor( Color::descriptionCenters()[selidx] );
+}
+
+
 void uiColorInput::setColor( const Color& col )
 {
     color_ = col;
@@ -182,6 +203,11 @@ void uiColorInput::setColor( const Color& col )
     ioPixmap pm( colbut_->prefHNrPics()-10, colbut_->prefVNrPics()-10 );
     pm.fill( color_ );
     colbut_->setPixmap( pm );
+    if ( descfld_ )
+    {
+	NotifyStopper ns( descfld_->selectionChanged );
+	descfld_->setText( color_.getDescription() );
+    }
 }
 
 

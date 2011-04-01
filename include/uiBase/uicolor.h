@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.21 2010-03-16 10:02:46 cvsbert Exp $
+ RCS:           $Id: uicolor.h,v 1.22 2011-04-01 09:43:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class uiLabel;
 class uiPushButton;
 class uiCheckBox;
+class uiComboBox;
 
 
 /*! \brief pops a selector box to select a new color 
@@ -50,6 +51,7 @@ public:
 			    , withcheck_(false)
 			    , dlgtitle_("Select color")
 			    , withalpha_(false)
+			    , withdesc_(true)
 			{}
 
 	mDefSetupMemb(Color,color)
@@ -57,6 +59,7 @@ public:
 	mDefSetupMemb(bool,withcheck)
 	mDefSetupMemb(BufferString,dlgtitle)
 	mDefSetupMemb(bool,withalpha)
+	mDefSetupMemb(bool,withdesc)
 
     };
 
@@ -76,11 +79,13 @@ public:
     Notifier<uiColorInput> 	doDrawChanged;
 
     uiPushButton*		getButton()	{ return colbut_; }
+    uiComboBox*			getDescCombo()	{ return descfld_; }
 
 protected:
 
     uiPushButton*		colbut_;
     uiCheckBox*			dodrawbox_;
+    uiComboBox*			descfld_;
     uiLabel*			uilbl_;
 
     Color			color_;
@@ -89,6 +94,8 @@ protected:
 
     void			selCol(CallBacker*);
     void			dodrawSel(CallBacker*);
+    void			descSel(CallBacker*);
+
 };
 
 #endif
