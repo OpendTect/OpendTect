@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.35 2011-01-14 16:03:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.36 2011-04-01 09:46:49 cvsbert Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -35,6 +35,7 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
     {
 	BufferStringSet itms( LineStyle::TypeNames() );
 	stylesel = new uiComboBox( this, itms, "Line Style" );
+	stylesel->setPrefWidthInChar( 16 );
 	stylesel->setCurrentItem( (int)linestyle.type_ );
 	stylesel->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	new uiLabel( this, txt, stylesel );
@@ -43,8 +44,9 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
     if ( wcol )
     {
 	colinp = new uiColorInput( this,
-				   uiColorInput::Setup(linestyle.color_).
-				   lbltxt(wdraw ? "Color" : "Line color") );
+				   uiColorInput::Setup(linestyle.color_)
+				   .lbltxt(wdraw ? "Color" : "Line color")
+	       			   .withdesc(false) );
 	colinp->colorChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	if ( stylesel )
 	    colinp->attach( rightTo, stylesel );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.18 2011-03-24 11:54:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.19 2011-04-01 09:46:49 cvsbert Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -76,7 +76,7 @@ uiWellDispMarkerEditGrp::uiWellDispMarkerEditGrp( uiParent* p,
     posfld_->attach( alignedBelow, namefld_ );
     posfld_->setSensitive( false );
     uiColorInput::Setup csu( getRandStdDrawColor() );
-    csu.lbltxt( "Color" ).withalpha(false);
+    csu.lbltxt( "Color" ).withalpha(false).withdesc(false);
     colorfld_ = new uiColorInput( this, csu, "Color" );
     colorfld_->attach( alignedBelow, posfld_ );
 

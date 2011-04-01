@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.53 2011-02-10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.54 2011-04-01 09:46:49 cvsbert Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -338,24 +338,24 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     overlapfld_->attach( alignedBelow, lastcommonfld_ );
 
     leftcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.left_).
-	    			    lbltxt("Left fill").withcheck(true),
-				    "Left fill color" );
+			lbltxt("Left fill").withcheck(true).withdesc(false),
+			"Left fill color" );
     leftcolsel_->attach( alignedBelow, overlapfld_ );
     
     rightcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.right_).
-	    			     lbltxt("Right fill").withcheck(true),
-				     "Right fill color" );
+			 lbltxt("Right fill").withcheck(true).withdesc(false),
+			 "Right fill color" );
     rightcolsel_->attach( rightTo, leftcolsel_ );
 
      wigcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.wigg_).
-	    	       		    lbltxt("Draw Wiggles").withcheck(true),
-				    "Draw wiggles color" );
+			lbltxt("Draw Wiggles").withcheck(true).withdesc(false),
+			"Draw wiggles color" );
 
     wigcolsel_->attach( alignedBelow, leftcolsel_ );
     
     midlcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.mid_).
-				    lbltxt("Middle line").withcheck(true),
-				    "Middle line color" );
+			lbltxt("Middle line").withcheck(true).withdesc(false),
+			"Middle line color" );
 
     midlcolsel_->attach( rightOf, wigcolsel_ );
     rightcolsel_->attach( alignedWith, midlcolsel_ );
