@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewslicepos.cc,v 1.6 2010-12-10 12:14:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewslicepos.cc,v 1.7 2011-04-01 12:57:51 cvsbruno Exp $";
 
 #include "uiflatviewslicepos.h"
 
@@ -44,9 +44,16 @@ void uiSlicePos2DView::setCubeSampling( const CubeSampling& cs )
 }
 
 
+void uiSlicePos2DView::setLimitSampling( const CubeSampling& cs )
+{
+    limitscs_ = cs;
+    setCubeSampling( curcs_ );
+}
+
+
 void uiSlicePos2DView::setBoxRanges()
 {
-    setBoxRg( curorientation_, SI().sampling(true) );
+    setBoxRg( curorientation_, limitscs_ );
 }
 
 
@@ -73,3 +80,4 @@ void uiSlicePos2DView::sliceStepChg( CallBacker* )
 {
     sliceStepChanged( curorientation_ );
 }
+
