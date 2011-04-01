@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.50 2011-02-08 12:58:33 cvskris Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.51 2011-04-01 09:47:30 cvsbert Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -54,7 +54,7 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
     BufferString dlgtxt( "Select " );
     dlgtxt += su.mycoltxt_; dlgtxt += " for "; dlgtxt += props().subjectName();
     colfld_ = new uiColorInput( this, csu, su.mycoltxt_ );
-    colfld_->attach( rightOf, szfld_ );
+    colfld_->attach( alignedBelow, szfld_ );
     colfld_->colorChanged.notify( mCB(this,uiWellDispProperties,propChg) );
 
     setHAlignObj( colfld_ );
@@ -90,7 +90,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     : uiWellDispProperties(p,su,tp)
 {
     dispabovefld_ = new uiCheckBox( this, "Above" );
-    dispabovefld_->attach( alignedBelow, szfld_ );
+    dispabovefld_->attach( alignedBelow, colfld_ );
     dispbelowfld_ = new uiCheckBox( this, "Below" );
     dispbelowfld_->attach( rightOf, dispabovefld_ );
     uiLabel* lbl = new uiLabel( this, "Display well name" , dispabovefld_ );
@@ -298,7 +298,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     lblr_ = new uiLabeledSpinBox( this, "Repeat" );
     repeatfld_ = lblr_ ->box();
     repeatfld_->setInterval( 1, 20, 1 );
-    lblr_->attach( alignedBelow, szfld_ );
+    lblr_->attach( alignedBelow, colfld_ );
   
     BufferString sellbl( "Select log" );
     logsfld_ = new uiLabeledComboBox( this, sellbl );
@@ -310,7 +310,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     logfilltypefld_->box()->addItem( "Left of log" );
     logfilltypefld_->box()->addItem( "Right of log" );
     logfilltypefld_->box()->addItem( "Full panel" );
-    logfilltypefld_->attach( alignedBelow, szfld_ );
+    logfilltypefld_->attach( alignedBelow, colfld_ );
 
     BufferString selfilllbl( "Fill with " );
     filllogsfld_ = new uiLabeledComboBox( this, selfilllbl );
