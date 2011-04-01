@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.28 2011-04-01 12:59:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.29 2011-04-01 13:01:57 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -428,7 +428,6 @@ void uiRayTrcSetupDlg::dirChg( CallBacker* )
 	cs.hrg.setCrlRange( Interval<int>( 1, 1 ) );
     }
     posfld_->setCubeSampling( cs );
-    posfld_->setLabel( lbl );
 }
 
 
