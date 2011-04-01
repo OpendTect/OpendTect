@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.48 2011-03-03 09:58:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.49 2011-04-01 09:45:16 cvsbert Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -266,7 +266,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     isporbox_->attach( rightOf, colfld_ );
     uiPushButton* newlithbut = new uiPushButton( rightgrp, "&Add as new",
 	    		mCB(this,uiStratLithoDlg,newLith), true );
-    newlithbut->attach( centeredBelow, toprightgrp );
+    newlithbut->attach( alignedBelow, toprightgrp );
 
     uiSeparator* sep = new uiSeparator( this, "Sep", false );
     sep->attach( rightTo, selfld_ );
@@ -275,11 +275,11 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
 
     uiButton* renamebut = new uiPushButton( rightgrp, "Re&name selected",
 			    mCB(this,uiStratLithoDlg,renameCB), true );
-    renamebut->attach( centeredBelow, newlithbut );
+    renamebut->attach( alignedBelow, newlithbut );
 
     uiButton* rmbut = new uiPushButton( rightgrp, "&Remove Last",
 				    mCB(this,uiStratLithoDlg,rmLast), true );
-    rmbut->attach( centeredBelow, renamebut );
+    rmbut->attach( alignedBelow, renamebut );
 
     finaliseDone.notify( selchgcb );
 }
