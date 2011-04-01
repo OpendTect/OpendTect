@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.17 2011-03-29 10:26:04 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.18 2011-04-01 12:59:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "cubesampling.h"
+#include "samplingdata.h"
 #include "raytrace1d.h"
 #include "uigroup.h"
 #include "uidialog.h"
@@ -21,11 +23,13 @@ class FlatDataPack;
 class TimeDepthModel;
 class SeisTrcBuf;
 class Wavelet;
+class uiComboBox;
 class uiGenInput;
 class uiFlatViewer;
 class uiPushButton;
 class uiRayTrcSetupDlg;
 class uiSeisWaveletSel;
+class uiSlicePos2DView;
 class uiToolButton;
 class uiToolButtonSetup;
 namespace Strat { class LayerModel; }
@@ -62,7 +66,6 @@ protected:
     int			longestaimdl_;
     ObjectSet<TimeDepthModel> d2tmodels_;
 
-
     uiGroup*		topgrp_;
     uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
@@ -70,6 +73,7 @@ protected:
     uiToolButton*	lasttool_;
     uiRayTrcSetupDlg*	raytrcpardlg_;
     RayTracer1D::Setup	raytrcsetup_;
+    CubeSampling	cs_;
 
     void		rayTrcParPush(CallBacker*);
     void		rayTrcParChged(CallBacker*);
@@ -84,20 +88,27 @@ protected:
 mClass uiRayTrcSetupDlg : public uiDialog
 {
 public:
-				uiRayTrcSetupDlg(uiParent*,RayTracer1D::Setup&);
+				uiRayTrcSetupDlg(uiParent*,
+						RayTracer1D::Setup&,
+						CubeSampling&);
 
-    float			offset() const { return offset_; }
+    const SamplingData<float>&	offsetRange() const 	{ return offsetrg_; }
 
     Notifier<uiRayTrcSetupDlg>  parChged;
 
 protected:
     RayTracer1D::Setup&		rtsetup_;
-    float 			offset_;
+    SamplingData<float>		offsetrg_;
+    CubeSampling&		cs_;
+    uiComboBox*			directionfld_;
 
+    uiSlicePos2DView*		posfld_;
     uiGenInput*			offsetfld_;
+    uiGenInput*			offsetstepfld_;
     uiGenInput*			sourcerecfld_;
     uiGenInput*			vp2vsfld_;
 
+    void 			dirChg(CallBacker*);
     void 			parChg(CallBacker*);
 };
 

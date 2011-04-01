@@ -7,22 +7,25 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.12 2011-03-25 14:42:04 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.13 2011-04-01 12:59:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ailayer.h"
-#include "executor.h"
+#include "cubesampling.h"
 #include "factory.h"
 #include "odmemory.h"
 #include "reflectivitymodel.h"
 #include "samplingdata.h"
+#include "task.h"
 
 #include "complex"
 
-class Wavelet;
+class RayTracer1D;
 class SeisTrc;
+class TimeDepthModel;
+class Wavelet;
 
 typedef std::complex<float> float_complex;
 namespace Fourier { class CC; };
@@ -68,8 +71,8 @@ protected:
     bool 			doFFTConvolve(float* result);
 
     const Wavelet*		wavelet_;
+    const ReflectivityModel*	refmodel_;
     StepInterval<float>		outputsampling_;
-    ReflectivityModel		refmodel_;
 
     BufferString		errmsg_;
 
@@ -83,45 +86,92 @@ protected:
 };
 
 
+mClass MultiTraceSynthGenerator : public ParallelTask
+{
+public:
+    				~MultiTraceSynthGenerator();
 
-mClass RaySynthGenerator : public ParallelTask
+    void 			setModels(
+				    const ObjectSet<const ReflectivityModel>&);
+    void			setWavelet(const Wavelet*);
+    bool			setOutSampling(const StepInterval<float>&);
+    void 			setConvolDomain(bool fourier);
+    				/*!<Default is fourier-domain */
+
+    void 			result(ObjectSet<const SeisTrc>&) const;
+    const char*			errMsg() const		{ return errmsg_.buf();}
+
+protected:
+
+    od_int64            	nrIterations() const;
+    virtual bool        	doWork(od_int64,od_int64,int);
+
+    bool			isfourier_;
+    BufferString		errmsg_;
+    const Wavelet*		wavelet_;
+    StepInterval<float>		outputsampling_;
+
+    ObjectSet<SynthGenerator>	synthgens_;
+};
+
+
+mClass RaySynthGenerator 
 {
 public:
     mDefineFactoryInClass( RaySynthGenerator, factory );
 
-    virtual bool		setModel(const AIModel&);
-    virtual bool		setOffsets(const TypeSet<float>&);
+    virtual bool		addModel(const AIModel&,
+	    				 const RayTracer1D::Setup&);
+    				/*!<you can have more than one model!*/
+    virtual bool		setSampling(const CubeSampling& cs,
+					const SamplingData<float>& offsetsd);
+    				/*!<crl dir is offset index, inl dir is model!*/
 
     virtual bool		setWavelet(const Wavelet*,OD::PtrPolicy);
     void 			setConvolDomain(bool fourier);
-    				/*!<Default is fourier-domain*/
-    virtual bool		setOutSampling(const StepInterval<float>&);
+    				/*!<Default is fourier-domain!*/
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    const char*			errMsg() const;
+    bool			doWork(TaskRunner& tr);
 
-    const SeisTrc*		result(int off) const;
+    const char*			errMsg() const 	{ return errmsg_.buf(); }
+
+    //available after execution
+    void			getTrcs(ObjectSet<const SeisTrc>& trcs) const;
+    void			getTWTs(ObjectSet<const TimeDepthModel>&) const;
+    void			getReflectivities(
+				    ObjectSet<const ReflectivityModel>&) const;
 
 protected:
     				RaySynthGenerator();
     virtual 			~RaySynthGenerator();
 
-    od_int64            	nrIterations() const;
-    virtual bool        	doPrepare(int);
-    virtual bool        	doWork(od_int64,od_int64,int);
+    bool			doRayTracers(TaskRunner& tr);
+    bool			doSynthetics(TaskRunner& tr);
 
     BufferString		errmsg_;
-    SynthGenerator   		synthgenbase_;	
-    int				nrdone_;
+    bool 			isfourier_;
+    const Wavelet*		wavelet_;
+    float			wvltsamplingrate_;
 
-    RayTracer1D&		raytracer_;
-    AIModel			aimodel_;
+    TypeSet<int>		modelssz_;
     TypeSet<float>		offsets_;
+    CubeSampling		cs_;
 
-    ObjectSet<SeisTrc>		outtrcs_;
-    TypeSet<int>		offsetidxs_;
+    mStruct RayModel
+    {
+					RayModel(const RayTracer1D& rt1d,
+						 int nroffsets);	
+					~RayModel();	
+
+	ObjectSet<const SeisTrc>		outtrcs_; //this is a gather
+	ObjectSet<const ReflectivityModel> 	refmodels_;
+	ObjectSet<const TimeDepthModel> 	t2dmodels_;
+    };
+    ObjectSet<RayModel>		raymodels_;
+    ObjectSet<RayTracer1D>	raytracers_;
 };
 
 
@@ -139,6 +189,7 @@ protected:
 				{factory().addCreator(create,"Fast Generator");}
     static RaySynthGenerator* 	create() { return new ODRaySynthGenerator; }
 };
+
 
 } //namespace
 
