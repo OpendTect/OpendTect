@@ -7,14 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtsymbolpars.cc,v 1.8 2010-12-07 22:59:52 cvskris Exp $";
+static const char* rcsID = "$Id: uigmtsymbolpars.cc,v 1.9 2011-04-01 09:44:21 cvsbert Exp $";
 
 #include "uigmtsymbolpars.h"
 
 #include "gmtdef.h"
 #include "iopar.h"
 #include "pixmap.h"
-#include "uibutton.h"
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -36,6 +35,7 @@ uiGMTSymbolPars::uiGMTSymbolPars( uiParent* p, bool usewellsymbols )
     shapefld_ = lcb->box();
     shapefld_->setHSzPol( usewellsymbols_ ? uiObject::Wide : uiObject::Small );
     fillShapes();
+    setHAlignObj( lcb );
 
     sizefld_ = new uiGenInput( this, "Size (cm)",
 	    		       FloatInpSpec( usewellsymbols_ ? 0.5 : 0.2 ) );
@@ -47,14 +47,9 @@ uiGMTSymbolPars::uiGMTSymbolPars( uiParent* p, bool usewellsymbols )
     outcolfld_->attach( alignedBelow, lcb );
     if ( !usewellsymbols_ )
     {
-	fillfld_ = new uiCheckBox( this, "Fill Color",
-				   mCB(this,uiGMTSymbolPars,fillSel) );
-	fillfld_->attach( rightTo, outcolfld_ );
-
-	fillcolfld_ = new uiColorInput( this,
-					uiColorInput::Setup(Color::White()) );
-	fillcolfld_->attach( rightOf, fillfld_ );
-	fillSel(0);
+	fillcolfld_ = new uiColorInput( this, uiColorInput::Setup(
+		    Color::White()).lbltxt("Fill Color").withcheck(true) );
+	fillcolfld_->attach( alignedBelow, outcolfld_ );
     }
 }
 
@@ -67,7 +62,7 @@ void uiGMTSymbolPars::reset()
     if ( !usewellsymbols_ )
     {
 	sizefld_->setValue( 0.2 );
-	fillfld_->setChecked( false );
+	fillcolfld_->setDoDraw( false );
 	fillcolfld_->setColor( Color::White() );
     }
 }
@@ -100,15 +95,6 @@ void uiGMTSymbolPars::fillShapes()
 }
 
 
-void uiGMTSymbolPars::fillSel( CallBacker* )
-{
-    if ( !fillcolfld_ || !fillfld_ )
-	return;
-
-    fillcolfld_->setSensitive( fillfld_->isChecked() );
-}
-
-
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiGMTSymbolPars::fillPar( IOPar& par ) const
@@ -119,7 +105,7 @@ bool uiGMTSymbolPars::fillPar( IOPar& par ) const
 	const int shp = shapefld_->currentItem();
 	BufferString shapestr = ODGMT::ShapeNames()[shp];
 	par.set( ODGMT::sKeyShape, shapestr );
-	par.setYN( ODGMT::sKeyFill, fillfld_->isChecked() );
+	par.setYN( ODGMT::sKeyFill, fillcolfld_->doDraw() );
 	par.set( ODGMT::sKeyFillColor, fillcolfld_->color() );
     }
     else
@@ -149,10 +135,8 @@ bool uiGMTSymbolPars::usePar( const IOPar& par )
 	    shapefld_->setCurrentItem( shp );
 
 	Color col;
-	bool dofill = false;
-	par.getYN( ODGMT::sKeyFill, dofill );
-	fillfld_->setChecked( dofill );
-	fillfld_->setChecked( dofill );
+	bool dofill = false; par.getYN( ODGMT::sKeyFill, dofill );
+	fillcolfld_->setDoDraw( dofill );
 	if ( dofill && par.get(ODGMT::sKeyFillColor,col) )
 	    fillcolfld_->setColor( col );
     }

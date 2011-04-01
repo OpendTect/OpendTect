@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		Sept 2008
- RCS:		$Id: uigmtsymbolpars.h,v 1.4 2010-04-23 11:32:25 cvsnageswara Exp $
+ RCS:		$Id: uigmtsymbolpars.h,v 1.5 2011-04-01 09:44:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,10 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class IOPar;
-class uiCheckBox;
-class uiColorInput;
 class uiComboBox;
 class uiGenInput;
+class uiColorInput;
+
 
 class uiGMTSymbolPars : public uiGroup
 {
@@ -33,7 +33,6 @@ protected:
 
     uiComboBox*		shapefld_;
     uiGenInput*		sizefld_;
-    uiCheckBox*		fillfld_;
     uiColorInput*	outcolfld_;
     uiColorInput*	fillcolfld_;
     bool		usewellsymbols_;

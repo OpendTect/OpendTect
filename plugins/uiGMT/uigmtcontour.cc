@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.20 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.21 2011-04-01 09:44:21 cvsbert Exp $";
 
 #include "uigmtcontour.h"
 
@@ -52,20 +52,20 @@ uiGMTOverlayGrp* uiGMTContourGrp::createInstance( uiParent* p )
 
 
 uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,"Contour")
+    : uiGMTOverlayGrp(p,"Contours")
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , sd_(*new EM::SurfaceIOData)
     , hor_(0)
     , lsfld_(0)
 {
-    inpfld_ = new uiIOObjSel( this, ctio_,"Select Horizon" );
+    inpfld_ = new uiIOObjSel( this, ctio_, "Horizon" );
     inpfld_->selectionDone.notify( mCB(this,uiGMTContourGrp,objSel) );
 
     subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     subselfld_->attach( alignedBelow, inpfld_ );
     subselfld_->selChange.notify( mCB(this,uiGMTContourGrp,selChg) );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Select Attribute" );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Attribute" );
     attribfld_ = lcb->box();
     attribfld_->selectionChanged.notify( mCB(this,uiGMTContourGrp,readCB) );
     lcb->attach( alignedBelow, subselfld_ );
@@ -87,12 +87,11 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
 
     linefld_ = new uiCheckBox( this, "Draw contour lines",
 	   		       mCB(this,uiGMTContourGrp,drawSel) );
-    linefld_->attach( alignedBelow, nrcontourfld_ );
     linefld_->setChecked( true );
-
     fillfld_ = new uiCheckBox( this, "Fill Color",
 	    		       mCB(this,uiGMTContourGrp,drawSel) );
-    fillfld_->attach( rightTo, linefld_ );
+    fillfld_->attach( alignedBelow, nrcontourfld_ );
+    linefld_->attach( leftOf, fillfld_ );
 
     colseqfld_ = new uiComboBox( this, "Col Seq" );
     colseqfld_->attach( rightOf, fillfld_ );
@@ -102,7 +101,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     flipfld_->attach( rightOf, colseqfld_ );
 
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
-    lsfld_->attach( alignedBelow, linefld_ );
+    lsfld_->attach( alignedBelow, fillfld_ );
     drawSel( 0 );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtpolyline.h,v 1.3 2009-07-22 16:01:28 cvsbert Exp $
+ RCS:		$Id: uigmtpolyline.h,v 1.4 2011-04-01 09:44:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uigmtoverlay.h"
 
 class CtxtIOObj;
-class uiCheckBox;
 class uiColorInput;
 class uiGenInput;
 class uiIOObjSel;
@@ -43,10 +42,8 @@ protected:
     uiIOObjSel*		inpfld_;
     uiGenInput*		namefld_;
     uiSelLineStyle*	lsfld_;
-    uiCheckBox*		fillfld_;
     uiColorInput*	fillcolfld_;
 
-    void		fillSel(CallBacker*);
     void		objSel(CallBacker*);
 };
 

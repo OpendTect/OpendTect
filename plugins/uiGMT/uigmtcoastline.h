@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmtcoastline.h,v 1.5 2009-07-22 16:01:28 cvsbert Exp $
+ RCS:		$Id: uigmtcoastline.h,v 1.6 2011-04-01 09:44:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigmtoverlay.h"
 
-class uiCheckBox;
 class uiColorInput;
 class uiComboBox;
 class uiGenInput;
@@ -43,12 +42,9 @@ protected:
     uiGenInput*		ewfld_;
     uiComboBox*		resolutionfld_;
     uiSelLineStyle*	lsfld_;
-    uiCheckBox*		fillwetfld_;
-    uiCheckBox*		filldryfld_;
     uiColorInput*	wetcolfld_;
     uiColorInput*	drycolfld_;
 
-    void		fillSel(CallBacker*);
     void		utmSel(CallBacker*);
 };
 

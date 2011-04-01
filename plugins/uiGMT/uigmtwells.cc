@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtwells.cc,v 1.11 2010-12-07 22:59:52 cvskris Exp $";
+static const char* rcsID = "$Id: uigmtwells.cc,v 1.12 2011-04-01 09:44:21 cvsbert Exp $";
 
 #include "uigmtwells.h"
 
@@ -44,7 +44,7 @@ uiGMTOverlayGrp* uiGMTWellsGrp::createInstance( uiParent* p )
 uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Wells")
 {
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Select Wells", true );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Wells", true );
     welllistfld_ = llb->box();
     Well::InfoCollector wic( false, false );
     wic.execute();
@@ -63,11 +63,9 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
 
     lebelfld_ = new uiCheckBox( this, "Post labels",
 	   			mCB(this,uiGMTWellsGrp,choiceSel) );
-    lebelfld_->attach( alignedBelow, symbfld_ );
-
     lebelalignfld_ = new uiComboBox( this, "Alignment" );
-    lebelalignfld_->attach( rightTo, lebelfld_ );
-
+    lebelalignfld_->attach( alignedBelow, symbfld_ );
+    lebelfld_->attach( leftOf, lebelalignfld_ );
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Font size" );
     labelfontszfld_ = lsb->box();
     lsb->attach( rightTo, lebelalignfld_ );

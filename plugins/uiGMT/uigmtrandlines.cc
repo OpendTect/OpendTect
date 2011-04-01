@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtrandlines.cc,v 1.8 2010-03-17 21:20:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uigmtrandlines.cc,v 1.9 2011-04-01 09:44:21 cvsbert Exp $";
 
 #include "uigmtrandlines.h"
 
@@ -47,7 +47,7 @@ uiGMTRandLinesGrp::uiGMTRandLinesGrp( uiParent* p )
     , ctio_(*mMkCtxtIOObj(RandomLineSet))
     , linenms_(*new BufferStringSet)
 {
-    inpfld_ = new uiIOObjSel( this, ctio_, "Select Line(set)" );
+    inpfld_ = new uiIOObjSel( this, ctio_, "Line(s)" );
     inpfld_->selectionDone.notify( mCB(this,uiGMTRandLinesGrp,objSel) );
 
     namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
@@ -58,13 +58,12 @@ uiGMTRandLinesGrp::uiGMTRandLinesGrp( uiParent* p )
 
     labelfld_ = new uiCheckBox( this, "Post label",
 	   			mCB(this,uiGMTRandLinesGrp,labelSel) );
-    labelfld_->attach( alignedBelow, lsfld_ );
-
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Font size" );
     labelfontfld_ = lsb->box();
-    lsb->attach( rightOf, labelfld_ );
+    lsb->attach( alignedBelow, lsfld_ );
     labelfontfld_->setInterval( 8, 20 );
     labelfontfld_->setValue( 10 );
+    labelfld_->attach( leftOf, lsb );
 
     labelSel( 0 );
 }

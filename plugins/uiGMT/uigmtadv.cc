@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtadv.cc,v 1.5 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtadv.cc,v 1.6 2011-04-01 09:44:21 cvsbert Exp $";
 
 #include "uigmtadv.h"
 
@@ -36,10 +36,10 @@ uiGMTOverlayGrp* uiGMTAdvGrp::createInstance( uiParent* p )
 uiGMTAdvGrp::uiGMTAdvGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Advanced")
 {
-    uiLabel* lbl = new uiLabel( this, "Add your customized GMT command" );
+    uiLabel* lbl = new uiLabel( this, "Customized GMT command" );
     inpfld_ = new uiLineEdit( this, "GMT Command" );
     inpfld_->setHSzPol( uiObject::WideMax );
-    inpfld_->attach( alignedBelow, lbl );
+    inpfld_->attach( centeredBelow, lbl );
 }
 
 

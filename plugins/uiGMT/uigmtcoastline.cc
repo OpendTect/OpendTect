@@ -7,13 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcoastline.cc,v 1.8 2010-12-07 22:59:52 cvskris Exp $";
+static const char* rcsID = "$Id: uigmtcoastline.cc,v 1.9 2011-04-01 09:44:21 cvsbert Exp $";
 
 #include "uigmtcoastline.h"
 
 #include "draw.h"
 #include "gmtpar.h"
-#include "uibutton.h"
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -66,23 +65,16 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, lcb );
 
-    fillwetfld_ = new uiCheckBox( this, "Fill wet regions",
-	    			  mCB(this,uiGMTCoastlineGrp,fillSel) );
-    fillwetfld_->attach( alignedBelow, lsfld_ );
+    wetcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
+					.lbltxt("Fill wet regions")
+					.withcheck(true) );
+    wetcolfld_->attach( alignedBelow, lsfld_ );
+    drycolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
+					.lbltxt("Fill dry regions")
+					.withcheck(true) );
+    drycolfld_->attach( alignedBelow, wetcolfld_ );
 
-    filldryfld_ = new uiCheckBox( this, "Fill dry regions",
-	    			  mCB(this,uiGMTCoastlineGrp,fillSel) );
-    filldryfld_->attach( alignedBelow, fillwetfld_ );
-
-    wetcolfld_ = new uiColorInput( this,
-	    			   uiColorInput::Setup(Color::White()) );
-    wetcolfld_->attach( rightOf, fillwetfld_ );
-
-    drycolfld_ = new uiColorInput( this,
-	    			   uiColorInput::Setup(Color::DgbColor()) );
-    drycolfld_->attach( rightOf, filldryfld_ );
     reset();
-    fillSel(0);
 }
 
 
@@ -93,18 +85,10 @@ void uiGMTCoastlineGrp::reset()
     ewfld_->setValue( true );
     resolutionfld_->setCurrentItem( 0 );
     lsfld_->setStyle( LineStyle() );
-    fillwetfld_->setChecked( false );
-    filldryfld_->setChecked( false );
+    wetcolfld_->setDoDraw( false );
+    drycolfld_->setDoDraw( false );
     wetcolfld_->setColor( Color(170,255,255) );
     drycolfld_->setColor( Color(170,170,127) );
-    fillSel( 0 );
-}
-
-
-void uiGMTCoastlineGrp::fillSel( CallBacker* )
-{
-    wetcolfld_->setSensitive( fillwetfld_->isChecked() );
-    drycolfld_->setSensitive( filldryfld_->isChecked() );
 }
 
 
@@ -151,8 +135,8 @@ bool uiGMTCoastlineGrp::fillPar( IOPar& par ) const
     BufferString lsstr; ls.toString( lsstr );
     par.set( ODGMT::sKeyLineStyle, lsstr );
 
-    const bool wetfill = fillwetfld_->isChecked();
-    const bool dryfill = filldryfld_->isChecked();
+    const bool wetfill = wetcolfld_->doDraw();
+    const bool dryfill = drycolfld_->doDraw();
     par.setYN( ODGMT::sKeyWetFill, wetfill );
     par.setYN( ODGMT::sKeyDryFill, dryfill );
     if ( wetfill )
@@ -178,18 +162,16 @@ bool uiGMTCoastlineGrp::usePar( const IOPar& par )
     bool dryfill = false;
     par.getYN( ODGMT::sKeyWetFill, wetfill );
     par.getYN( ODGMT::sKeyDryFill, dryfill );
-    fillwetfld_->setChecked( wetfill );
-    filldryfld_->setChecked( dryfill );
+    wetcolfld_->setDoDraw( wetfill );
+    drycolfld_->setDoDraw( dryfill );
     if ( wetfill )
     {
-	Color col;
-	par.get( ODGMT::sKeyWetFillColor, col );
+	Color col; par.get( ODGMT::sKeyWetFillColor, col );
 	wetcolfld_->setColor( col );
     }
-    if ( wetcolfld_ )
+    if ( dryfill )
     {
-	Color col;
-	par.get( ODGMT::sKeyDryFillColor, col );
+	Color col; par.get( ODGMT::sKeyDryFillColor, col );
 	drycolfld_->setColor( col );
     }
 

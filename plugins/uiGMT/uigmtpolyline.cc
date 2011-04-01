@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.12 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.13 2011-04-01 09:44:21 cvsbert Exp $";
 
 #include "uigmtpolyline.h"
 
@@ -18,7 +18,6 @@ static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.12 2010-08-11 14:50:45 cvs
 #include "ioobj.h"
 #include "pickset.h"
 #include "picksettr.h"
-#include "uibutton.h"
 #include "uicolor.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -47,7 +46,7 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
     ctio_.ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
-    inpfld_ = new uiIOObjSel( this, ctio_,"Select Polygon" );
+    inpfld_ = new uiIOObjSel( this, ctio_,"Polygon" );
     inpfld_->selectionDone.notify( mCB(this,uiGMTPolylineGrp,objSel) );
 
     namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
@@ -56,14 +55,9 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, namefld_ );
 
-    fillfld_ = new uiCheckBox( this, "Fill Color",
-	   		       mCB(this,uiGMTPolylineGrp,fillSel) );
-    fillfld_->attach( alignedBelow, lsfld_ );
-
-    fillcolfld_ = new uiColorInput( this,
-	    			    uiColorInput::Setup(Color::White()) );
-    fillcolfld_->attach( rightOf, fillfld_ );
-    fillSel(0);
+    fillcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
+	   				.lbltxt("Fill Color").withcheck(true) );
+    fillcolfld_->attach( alignedBelow, lsfld_ );
 }
 
 
@@ -72,9 +66,8 @@ void uiGMTPolylineGrp::reset()
     inpfld_->clear();
     namefld_->clear();
     lsfld_->setStyle( LineStyle() );
-    fillfld_->setChecked( false );
     fillcolfld_->setColor( Color::White() );
-    fillSel( 0 );
+    fillcolfld_->setDoDraw( false );
 }
 
 
@@ -86,15 +79,6 @@ void uiGMTPolylineGrp::objSel( CallBacker* )
     IOObj* ioobj = ctio_.ioobj;
     if ( ioobj )
 	namefld_->setText( ioobj->name() );
-}
-
-
-void uiGMTPolylineGrp::fillSel( CallBacker* )
-{
-    if ( !fillcolfld_ || !fillfld_ )
-	return;
-
-    fillcolfld_->setSensitive( fillfld_->isChecked() );
 }
 
 
@@ -110,7 +94,7 @@ bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
     BufferString lskey;
     lsfld_->getStyle().toString( lskey );
     par.set( ODGMT::sKeyLineStyle, lskey );
-    par.setYN( ODGMT::sKeyFill, fillfld_->isChecked() );
+    par.setYN( ODGMT::sKeyFill, fillcolfld_->doDraw() );
     par.set( ODGMT::sKeyFillColor, fillcolfld_->color() );
     return true;
 }
@@ -131,14 +115,12 @@ bool uiGMTPolylineGrp::usePar( const IOPar& par )
 
     bool dofill = false;
     par.getYN( ODGMT::sKeyFill, dofill );
-    fillfld_->setChecked( dofill );
+    fillcolfld_->setDoDraw( dofill );
     if ( dofill )
     {
-	Color fillcol;
-	par.get( ODGMT::sKeyFillColor, fillcol );
+	Color fillcol; par.get( ODGMT::sKeyFillColor, fillcol );
 	fillcolfld_->setColor( fillcol );
     }
 
     return true;
 }
-

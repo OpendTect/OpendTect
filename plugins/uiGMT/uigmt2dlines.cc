@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.12 2010-11-10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.13 2011-04-01 09:44:21 cvsbert Exp $";
 
 #include "uigmt2dlines.h"
 
@@ -52,7 +52,7 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Select lines", true );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Lines", true );
     linelistfld_ = llb->box();
     llb->attach( alignedBelow, namefld_ );
 
@@ -61,11 +61,10 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
 
     labelfld_ = new uiCheckBox( this, "Post Line names",
 	   			mCB(this,uiGMT2DLinesGrp,labelSel) );
-    labelfld_->attach( alignedBelow, lsfld_ );
-
     const char* posoptions [] = { "Start", "End", "Both", 0 };
     labelposfld_ = new uiGenInput( this, "", StringListInpSpec(posoptions) );
-    labelposfld_->attach( rightOf, labelfld_ );
+    labelposfld_->attach( alignedBelow, lsfld_ );
+    labelfld_->attach( leftOf, labelposfld_ );
 
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Font size" );
     labelfontfld_ = lsb->box();
@@ -75,10 +74,9 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
 
     trclabelfld_ = new uiCheckBox( this, "Post Trace numbers",
 	    			   mCB(this,uiGMT2DLinesGrp,labelSel) );
-    trclabelfld_->attach( alignedBelow, labelfld_ );
-
     trcstepfld_ = new uiGenInput( this, "Steps", IntInpSpec(100) );
-    trcstepfld_->attach( rightOf, trclabelfld_ );
+    trcstepfld_->attach( alignedBelow, labelposfld_ );
+    trclabelfld_->attach( leftOf, trcstepfld_ );
 
     labelSel( 0 );
 }

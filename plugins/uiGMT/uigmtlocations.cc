@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtlocations.cc,v 1.9 2010-04-23 11:32:25 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigmtlocations.cc,v 1.10 2011-04-01 09:44:21 cvsbert Exp $";
 
 #include "uigmtlocations.h"
 
@@ -43,7 +43,7 @@ uiGMTLocationsGrp::uiGMTLocationsGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Locations")
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
-    inpfld_ = new uiIOObjSel( this, ctio_,"Select Pickset" );
+    inpfld_ = new uiIOObjSel( this, ctio_,"Pick Set" );
     inpfld_->selectionDone.notify( mCB(this,uiGMTLocationsGrp,objSel) );
 
     namefld_ = new uiGenInput( this, "Name", StringInpSpec() );

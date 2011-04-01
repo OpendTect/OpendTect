@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtbasemap.cc,v 1.12 2009-12-22 14:48:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtbasemap.cc,v 1.13 2011-04-01 09:44:21 cvsbert Exp $";
 
 #include "uigmtbasemap.h"
 
@@ -66,14 +66,13 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     gridlinesfld_ = new uiCheckBox( this, "Draw Gridlines" );
     gridlinesfld_->attach( rightTo, lebelintvfld_ );
 
-    uiLabel* lbl = new uiLabel( this, "Remarks (4 lines max)" );
-    lbl->attach( alignedBelow, lebelintvfld_ );
 
     remarkfld_ = new uiTextEdit( this, "Remarks" );
     remarkfld_->setPrefHeightInChar( cTitleBoxHeight );
     remarkfld_->setPrefWidthInChar( cTitleBoxWidth );
     remarkfld_->setStretch( 0, 0 );
-    remarkfld_->attach( alignedBelow, lbl );
+    remarkfld_->attach( alignedBelow, lebelintvfld_ );
+    new uiLabel( this, "Remarks (4 lines max)", remarkfld_ );
 
     updateFlds( true );
 }
