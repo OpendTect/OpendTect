@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.12 2011-03-04 11:22:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.13 2011-04-04 12:36:36 cvsbruno Exp $";
 
 #include "uislicepos.h"
 
@@ -27,7 +27,11 @@ uiSlicePos::uiSlicePos( uiParent* p )
 {
     toolbar_ = new uiToolBar( p, "Slice position" );
 
-    label_ = new uiLabel( toolbar_, "Crl" );
+    boxlabels_.add( "Inl" );
+    boxlabels_.add( "Crl" );
+    boxlabels_.add( "Z" );
+
+    label_ = new uiLabel( toolbar_, boxlabels_.get(1) );
     sliceposbox_ = new uiSpinBox( toolbar_, 0, "Slice position" );
     sliceposbox_->valueChanging.notify( mCB(this,uiSlicePos,slicePosChg) );
 
@@ -69,14 +73,22 @@ void uiSlicePos::initSteps( CallBacker* )
 }
 
 
+void uiSlicePos::setLabels( const char* inl, const char* crl, const char* z )
+{
+    boxlabels_.get(0) = inl;
+    boxlabels_.get(1) = crl;
+    boxlabels_.get(2) = z;
+}
+
+
 void uiSlicePos::setBoxLabel( Orientation orientation )
 {
     if ( orientation == uiSlicePos::Inline )
-	label_->setText( "Inl" );
+	label_->setText( boxlabels_.get(0) );
     else if ( orientation == uiSlicePos::Crossline )
-	label_->setText( "Crl" );
+	label_->setText( boxlabels_.get(1) );
     else
-	label_->setText( "Z" );
+	label_->setText( boxlabels_.get(1) );
 }
 
 

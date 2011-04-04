@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uislicepos.h,v 1.7 2010-12-10 12:14:53 cvsnanne Exp $
+ RCS:           $Id: uislicepos.h,v 1.8 2011-04-04 12:36:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
+#include "bufstringset.h"
 #include "cubesampling.h"
 
 class uiLabel;
@@ -47,6 +48,7 @@ protected:
     int			laststeps_[3];
     float		zfactor_;
     CubeSampling	curcs_;
+    BufferStringSet	boxlabels_;
 
     void		setBoxLabel(Orientation);
     virtual void	setBoxRanges()			=0;
@@ -60,6 +62,7 @@ protected:
     void		sliceStepChanged(Orientation);
     void		setBoxRg(Orientation,const CubeSampling&);
     void		setPosBoxVal(Orientation,const CubeSampling&);
+    void		setLabels(const char* inl,const char* crl,const char*z);
 
     void		prevCB(CallBacker*);
     void		nextCB(CallBacker*);
