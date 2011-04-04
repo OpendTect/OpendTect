@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.18 2011-04-01 12:59:18 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.19 2011-04-04 15:14:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,11 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "raytrace1d.h"
 #include "uigroup.h"
+#include "uimainwin.h"
 #include "uidialog.h"
+#include "uiflatviewslicepos.h"
 #include "datapack.h"
+#include "synthseis.h"
 
 class FlatDataPack;
 class TimeDepthModel;
@@ -27,9 +30,9 @@ class uiComboBox;
 class uiGenInput;
 class uiFlatViewer;
 class uiPushButton;
-class uiRayTrcSetupDlg;
+class uiRayTrcParamsDlg;
 class uiSeisWaveletSel;
-class uiSlicePos2DView;
+class uiOffsetSlicePos;
 class uiToolButton;
 class uiToolButtonSetup;
 namespace Strat { class LayerModel; }
@@ -71,10 +74,12 @@ protected:
     uiFlatViewer*	vwr_;
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
-    uiRayTrcSetupDlg*	raytrcpardlg_;
-    RayTracer1D::Setup	raytrcsetup_;
-    CubeSampling	cs_;
 
+    uiRayTrcParamsDlg*	raytrcpardlg_;
+    Seis::RaySynthGenerator::RayParams raypars_;
+    uiOffsetSlicePos*	posfld_;
+
+    void		doModelChange();
     void		rayTrcParPush(CallBacker*);
     void		rayTrcParChged(CallBacker*);
     void		wvltChg(CallBacker*);
@@ -85,24 +90,33 @@ protected:
 };
 
 
-mClass uiRayTrcSetupDlg : public uiDialog
+mClass uiOffsetSlicePos : public uiSlicePos2DView
 {
 public:
-				uiRayTrcSetupDlg(uiParent*,
-						RayTracer1D::Setup&,
-						CubeSampling&);
+    			uiOffsetSlicePos(uiParent*);
 
-    const SamplingData<float>&	offsetRange() const 	{ return offsetrg_; }
-
-    Notifier<uiRayTrcSetupDlg>  parChged;
+    uiGroup*		attachGrp() 	{ return attachgrp_; }
 
 protected:
-    RayTracer1D::Setup&		rtsetup_;
-    SamplingData<float>		offsetrg_;
-    CubeSampling&		cs_;
-    uiComboBox*			directionfld_;
+    uiGroup*		attachgrp_;
+};
 
-    uiSlicePos2DView*		posfld_;
+
+mClass uiRayTrcParamsDlg : public uiDialog
+{
+public:
+				uiRayTrcParamsDlg(uiParent*,
+					Seis::RaySynthGenerator::RayParams&);
+
+    void			setLimitSampling(const CubeSampling& cs);
+    Notifier<uiRayTrcParamsDlg>  parChged;
+
+protected:
+
+    Seis::RaySynthGenerator::RayParams& raypars_;
+    uiComboBox*			directionfld_;
+    CubeSampling		limitcs_;
+
     uiGenInput*			offsetfld_;
     uiGenInput*			offsetstepfld_;
     uiGenInput*			sourcerecfld_;
@@ -111,7 +125,6 @@ protected:
     void 			dirChg(CallBacker*);
     void 			parChg(CallBacker*);
 };
-
 
 
 #endif

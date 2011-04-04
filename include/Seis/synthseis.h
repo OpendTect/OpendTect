@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.13 2011-04-01 12:59:18 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.14 2011-04-04 15:14:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,12 +120,38 @@ mClass RaySynthGenerator
 public:
     mDefineFactoryInClass( RaySynthGenerator, factory );
 
-    virtual bool		addModel(const AIModel&,
-	    				 const RayTracer1D::Setup&);
-    				/*!<you can have more than one model!*/
-    virtual bool		setSampling(const CubeSampling& cs,
-					const SamplingData<float>& offsetsd);
-    				/*!<crl dir is offset index, inl dir is model!*/
+    mStruct RayParams
+    {
+				RayParams() 
+				    : sourcedpt_(0)
+				    , receivdpt_(0)
+				    , cs_(false)
+				    {
+					offsetsampling_.set(0,50);
+				    }
+
+	RayParams&		operator = (const RayParams& rts)
+				{
+				    setup_ = rts.setup_;
+				    cs_ = rts.cs_;
+				    offsetsampling_ = rts.offsetsampling_;
+				    sourcedpt_ = rts.sourcedpt_;
+				    receivdpt_ = receivdpt_;
+				    return *this;
+				}
+
+	RayTracer1D::Setup  	setup_;
+	float               	sourcedpt_;
+	float               	receivdpt_;
+
+	CubeSampling       	 cs_; 
+				/*!crl are offsets idxs, inl are models idxs !*/
+	SamplingData<float> 	offsetsampling_;
+    };
+
+    virtual bool		setRayParams(const RayParams&);
+    virtual bool		addModel(const AIModel&);
+				/*!<you can have more than one model!*/
 
     virtual bool		setWavelet(const Wavelet*,OD::PtrPolicy);
     void 			setConvolDomain(bool fourier);
@@ -156,9 +182,7 @@ protected:
     const Wavelet*		wavelet_;
     float			wvltsamplingrate_;
 
-    TypeSet<int>		modelssz_;
-    TypeSet<float>		offsets_;
-    CubeSampling		cs_;
+    RayParams			raypars_;
 
     mStruct RayModel
     {
@@ -170,8 +194,8 @@ protected:
 	ObjectSet<const ReflectivityModel> 	refmodels_;
 	ObjectSet<const TimeDepthModel> 	t2dmodels_;
     };
+    TypeSet<AIModel>		aimodels_;
     ObjectSet<RayModel>		raymodels_;
-    ObjectSet<RayTracer1D>	raytracers_;
 };
 
 

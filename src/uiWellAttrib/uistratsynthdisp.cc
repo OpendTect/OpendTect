@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.29 2011-04-01 13:01:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.30 2011-04-04 15:14:52 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -16,9 +16,11 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.29 2011-04-01 13:01:57 
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uiflatviewslicepos.h"
+#include "uispinbox.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -40,7 +42,7 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.29 2011-04-01 13:01:57 
 
 static const int cMarkerSize = 6;
 
-
+#define mMAXOffsetIdx 50
 Notifier<uiStratSynthDisp>& uiStratSynthDisp::fieldsCreated()
 {
     static Notifier<uiStratSynthDisp> FieldsCreated(0);
@@ -69,6 +71,15 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
     scalebut_->attach( rightOf, wvltfld_ );
 
+    posfld_ = new uiOffsetSlicePos( topgrp_ );
+    posfld_->setLabels( "Model", "Offset", "Z" );
+    posfld_->attachGrp()->attach( rightOf, scalebut_ );
+    raypars_.cs_.hrg.set( Interval<int>(1,25), Interval<int>(1,mMAXOffsetIdx) );
+    posfld_->setLimitSampling( raypars_.cs_ );
+    raypars_.cs_.hrg.setCrlRange( Interval<int>(1,1) );
+    posfld_->setCubeSampling( raypars_.cs_ );
+    posfld_->positionChg.notify( mCB(this,uiStratSynthDisp,rayTrcParChged) );
+
     vwr_ = new uiFlatViewer( this );
     vwr_->setInitialSize( uiSize(500,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
@@ -94,8 +105,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     CallBack cb( mCB(this,uiStratSynthDisp,rayTrcParPush) );
     tb->addButton( new uiToolButton( tb,"raytrace.png", 
 				"Specify ray tracer parameters", cb ) );
-
-    cs_.hrg.set( Interval<int>(1,25), Interval<int>(1,25) );
 }
 
 
@@ -114,7 +123,7 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
     else
 	tb->attach( rightBorder );
 
-    tb->attach( ensureRightOf, scalebut_ );
+    tb->attach( ensureRightOf, posfld_->attachGrp() );
     lasttool_ = tb;
 }
 
@@ -257,14 +266,26 @@ int uiStratSynthDisp::getDenIdx( bool& isden ) const
 
 void uiStratSynthDisp::modelChanged()
 {
+    HorSampling hs; 
+    hs.set( Interval<int>(1,lm_.size()), Interval<int>(1,mMAXOffsetIdx) );
+    raypars_.cs_.hrg.limitTo( hs );
+
+    NotifyStopper ns( posfld_->positionChg );
+    posfld_->setLimitSampling( raypars_.cs_ );
+
+    if ( raytrcpardlg_ )
+	raytrcpardlg_->setLimitSampling( raypars_.cs_ );
+
+    doModelChange();
+}
+
+
+void uiStratSynthDisp::doModelChange()
+{
     MouseCursorChanger mcs( MouseCursor::Busy );
     vwr_->clearAllPacks(); vwr_->setNoViewDone();
     vwr_->control()->zoomMgr().toStart();
     deepErase( vwr_->appearance().annot_.auxdata_ );
-
-    HorSampling hs; hs.set( Interval<int>(1,lm_.size()), 
-			    Interval<int>(1,lm_.size()) );
-    cs_.hrg.limitTo( hs );
 
     deepErase( d2tmodels_ );
     delete wvlt_;
@@ -286,7 +307,7 @@ void uiStratSynthDisp::modelChanged()
 	mErrRet( 0 )
 
     Seis::ODRaySynthGenerator synthgen;
-    synthgen.setSampling( cs_, raytrcpardlg_->offsetRange() );
+    synthgen.setRayParams( raypars_ );
     synthgen.setWavelet( wvlt_, OD::UsePtr );
     const int nraimdls = lm_.size();
 
@@ -296,7 +317,7 @@ void uiStratSynthDisp::modelChanged()
 	AIModel aimod; seq.getAIModel( aimod, velidx, denidx, isvel, isden );
 	if ( aimod.size() > maxaimdlsz )
 	    { maxaimdlsz = aimod.size(); longestaimdl_ = iseq; }
-	synthgen.addModel( aimod, raytrcsetup_ );
+	synthgen.addModel( aimod );
     }
     uiTaskRunner tr( this );
     if ( !synthgen.doWork( tr ) )
@@ -343,7 +364,8 @@ void uiStratSynthDisp::modelChanged()
 void uiStratSynthDisp::rayTrcParPush( CallBacker* )
 {
     if ( !raytrcpardlg_ )
-	raytrcpardlg_ = new uiRayTrcSetupDlg( this, raytrcsetup_, cs_ );
+	raytrcpardlg_ = new uiRayTrcParamsDlg( this, raypars_ );
+    raytrcpardlg_->setLimitSampling( posfld_->getLimitSampling() );
     raytrcpardlg_->go();
     raytrcpardlg_->parChged.notify( mCB(this,uiStratSynthDisp,rayTrcParChged) );
 }
@@ -351,24 +373,18 @@ void uiStratSynthDisp::rayTrcParPush( CallBacker* )
 
 void uiStratSynthDisp::rayTrcParChged( CallBacker* )
 {
-    modelChanged();
+    doModelChange();
 }
 
 
-
-uiRayTrcSetupDlg::uiRayTrcSetupDlg( uiParent* p, RayTracer1D::Setup& su, 
-				     CubeSampling& cs )
+uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, 
+				Seis::RaySynthGenerator::RayParams& rp ) 
     : uiDialog(p,uiDialog::Setup(
 		"Specify ray tracer parameters","",mTODOHelpID).modal(false))
     , parChged( this )
-    , cs_(cs)		      
-    , rtsetup_(su)
+    , raypars_(rp)
 {
     setCtrlStyle( LeaveOnly );
-
-    posfld_ = new uiSlicePos2DView( mainwin() );
-    posfld_->setLimitSampling( cs_ );
-    posfld_->setCubeSampling( cs_ );
 
     uiGroup* posgrp = new uiGroup( this, "Position group" );
 
@@ -376,15 +392,16 @@ uiRayTrcSetupDlg::uiRayTrcSetupDlg( uiParent* p, RayTracer1D::Setup& su,
     uiLabeledComboBox* lblb = new uiLabeledComboBox( posgrp, "Direction" );
     directionfld_ = lblb->box();
     directionfld_->addItems( dir );
-    directionfld_->selectionChanged.notify( mCB(this,uiRayTrcSetupDlg,dirChg) );
+    directionfld_->selectionChanged.notify( mCB(this,uiRayTrcParamsDlg,dirChg) );
 
     offsetfld_ = new uiGenInput( posgrp, "Offset range (start/stop)",
 	    				FloatInpIntervalSpec() );
     offsetfld_->attach( alignedBelow, lblb );
-    offsetfld_->setValue( Interval<float>( 0, 10000 ) );
+    offsetfld_->setValue( Interval<float>( 0, 
+				mMAXOffsetIdx*rp.cs_.hrg.crlRange().step ) );
     offsetfld_->setElemSzPol( uiObject::Small );
     offsetstepfld_ = new uiGenInput( posgrp, "step" );
-    offsetstepfld_->setValue( 50 );
+    offsetstepfld_->setValue( rp.cs_.hrg.crlRange().step );
     offsetstepfld_->attach( rightOf, offsetfld_ );
     offsetstepfld_->setElemSzPol( uiObject::Small );
 
@@ -393,52 +410,95 @@ uiRayTrcSetupDlg::uiRayTrcSetupDlg( uiParent* p, RayTracer1D::Setup& su,
 
     sourcerecfld_ = new uiGenInput( this, "Source / Receiver depth",
 	    			FloatInpIntervalSpec() );
-    sourcerecfld_->setValue( Interval<float>( rtsetup_.sourcedepth_, 
-					      rtsetup_.receiverdepth_ ) );
+    sourcerecfld_->setValue(Interval<float>(rp.sourcedpt_,rp.receivdpt_));
     sourcerecfld_->attach( centeredBelow, posgrp );
     sourcerecfld_->attach( ensureBelow, sp );
 
-    vp2vsfld_ = new uiGenInput( this, "Vp, Vs factorsmke", 
+    vp2vsfld_ = new uiGenInput( this, "Vp, Vs factors (a/b)", 
 	    			FloatInpIntervalSpec() );
-    vp2vsfld_->setValue( Interval<float>( rtsetup_.pvel2svelafac_, 
-					  rtsetup_.pvel2svelbfac_ ) );
+    vp2vsfld_->setValue( Interval<float>( rp.setup_.pvel2svelafac_,
+					  rp.setup_.pvel2svelbfac_) );
     vp2vsfld_->attach( alignedBelow, sourcerecfld_ );
 
-    CallBack parcb( mCB(this,uiRayTrcSetupDlg,parChg) );
+    CallBack parcb( mCB(this,uiRayTrcParamsDlg,parChg) );
 
     offsetfld_->valuechanged.notify( parcb );
     offsetstepfld_->valuechanged.notify( parcb );
-    posfld_->positionChg.notify( parcb );
     sourcerecfld_->valuechanged.notify( parcb );
     vp2vsfld_->valuechanged.notify( parcb );
 }
 
 
-void uiRayTrcSetupDlg::dirChg( CallBacker* )
+void uiRayTrcParamsDlg::setLimitSampling( const CubeSampling& cs )
 {
-    CubeSampling cs = cs_;
+    limitcs_ = cs;
+    dirChg(0);
+}
+
+
+void uiRayTrcParamsDlg::dirChg( CallBacker* )
+{
+    CubeSampling cs = limitcs_;
     const int idx = directionfld_->currentItem();
     const char* lbl = idx == 0 ? "Offset" : ( idx == 1 ? "Angle" : "Model" );
     if ( idx < 2 )
     {
-	cs.hrg.setInlRange( Interval<int>( 1, 1 ) );
+	cs.hrg.setCrlRange( Interval<int>( 1, 1 ) );
     }
     else
     {
-	cs.hrg.setCrlRange( Interval<int>( 1, 1 ) );
+	cs.hrg.setInlRange( Interval<int>( 1, 1 ) );
     }
-    posfld_->setCubeSampling( cs );
+    raypars_.cs_ = cs;
+    parChg( 0 );
 }
 
 
-void uiRayTrcSetupDlg::parChg( CallBacker* )
+void uiRayTrcParamsDlg::parChg( CallBacker* )
 {
-    offsetrg_.start = offsetfld_->getFInterval().start;
-    offsetrg_.step = offsetstepfld_->getfValue();
-    cs_ = posfld_->getCubeSampling();
-    rtsetup_.sourcedepth_ = sourcerecfld_->getFInterval().start;
-    rtsetup_.receiverdepth_ = sourcerecfld_->getFInterval().stop;
-    rtsetup_.pvel2svelafac_ = vp2vsfld_->getFInterval().start;
-    rtsetup_.pvel2svelbfac_ = vp2vsfld_->getFInterval().stop;
+    raypars_.offsetsampling_.start = offsetfld_->getFInterval().start;
+    raypars_.offsetsampling_.step = offsetstepfld_->getfValue();
+    raypars_.setup_.sourcedepth_ = sourcerecfld_->getFInterval().start;
+    raypars_.setup_.receiverdepth_ = sourcerecfld_->getFInterval().stop;
+    raypars_.setup_.pvel2svelafac_ = vp2vsfld_->getFInterval().start;
+    raypars_.setup_.pvel2svelbfac_ = vp2vsfld_->getFInterval().stop;
     parChged.trigger();
 }
+
+
+
+uiOffsetSlicePos::uiOffsetSlicePos( uiParent* p )
+    : uiSlicePos2DView( p )
+{
+    mDynamicCastGet(uiMainWin*,mw,p)
+    if ( mw )
+	mw->removeToolBar( toolbar_ );
+    else
+    {
+	mDynamicCastGet(uiMainWin*,mw,p->mainwin())
+	if ( mw )
+	    mw->removeToolBar( toolbar_ );
+    }
+
+    attachgrp_ = new uiGroup( p, "Attach group" );
+
+    label_ = new uiLabel( attachgrp_, "Crl" );
+    sliceposbox_ = new uiSpinBox( attachgrp_, 0, "Slice position" );
+    sliceposbox_->valueChanging.notify( mCB(this,uiOffsetSlicePos,slicePosChg));
+    sliceposbox_->attach( rightOf, label_ );
+
+    uiLabel* steplabel = new uiLabel( attachgrp_, "Step" );
+    steplabel->attach( rightOf, sliceposbox_ );
+
+    slicestepbox_ = new uiSpinBox( attachgrp_, 0, "Slice step" );
+    slicestepbox_->valueChanging.notify(mCB(this,uiOffsetSlicePos,sliceStepChg));
+    slicestepbox_->attach( rightOf, steplabel );
+
+    prevbut_ = new uiToolButton( attachgrp_, "prevpos.png", "Previous position",
+				mCB(this,uiOffsetSlicePos,prevCB) );
+    prevbut_->attach( rightOf, slicestepbox_ );
+    nextbut_ = new uiToolButton( attachgrp_, "nextpos.png", "Next position",
+				 mCB(this,uiOffsetSlicePos,nextCB) );
+    nextbut_->attach( rightOf, prevbut_ );
+}
+
