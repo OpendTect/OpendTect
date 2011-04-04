@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uislicepos.h,v 1.8 2011-04-04 12:36:36 cvsbruno Exp $
+ RCS:           $Id: uislicepos.h,v 1.9 2011-04-04 15:13:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ public:
 
     uiToolBar*		getToolBar() const		{ return toolbar_; }
     CubeSampling	getCubeSampling() const		{ return curcs_; }
+
+    void		setLabels(const char* inl,const char* crl,const char*z);
 
     enum Orientation            { Inline=0, Crossline=1, Zslice=2 };
 				DeclareEnumUtils(Orientation);
@@ -62,7 +64,6 @@ protected:
     void		sliceStepChanged(Orientation);
     void		setBoxRg(Orientation,const CubeSampling&);
     void		setPosBoxVal(Orientation,const CubeSampling&);
-    void		setLabels(const char* inl,const char* crl,const char*z);
 
     void		prevCB(CallBacker*);
     void		nextCB(CallBacker*);
