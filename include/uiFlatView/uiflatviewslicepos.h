@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uiflatviewslicepos.h,v 1.4 2011-04-01 12:57:51 cvsbruno Exp $
+ RCS:           $Id: uiflatviewslicepos.h,v 1.5 2011-04-04 15:14:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,8 @@ public:
 
     void		setCubeSampling(const CubeSampling&);
     void		setLimitSampling(const CubeSampling&);
+
+    const CubeSampling& getLimitSampling() const { return limitscs_; };
 
 protected:
     void		setBoxRanges();
