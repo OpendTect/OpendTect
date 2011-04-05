@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.34 2011-04-01 09:43:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.35 2011-04-05 14:04:33 cvsbert Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -193,6 +193,7 @@ void uiColorInput::descSel( CallBacker* )
     const int selidx = descfld_ ? descfld_->currentItem() : -1;
     if ( selidx < 0 ) return;
     setColor( Color::descriptionCenters()[selidx] );
+    colorChanged.trigger();
 }
 
 
@@ -206,7 +207,9 @@ void uiColorInput::setColor( const Color& col )
     if ( descfld_ )
     {
 	NotifyStopper ns( descfld_->selectionChanged );
-	descfld_->setText( color_.getDescription() );
+	const char* desc = color_.getDescription();
+	if ( *desc == '~' ) desc++;
+	descfld_->setText( desc );
     }
 }
 
