@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.19 2011-04-04 15:14:52 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.20 2011-04-05 09:34:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,8 @@ public:
     const SeisTrcBuf&	curTrcBuf() const;
     const FlatDataPack*	dataPack() const;		//!< may return null
     DataPack::FullID	packID() const;
-    const ObjectSet<TimeDepthModel>& d2TModels() const	{ return d2tmodels_; }
+    const ObjectSet<const TimeDepthModel>& d2TModels() const 
+    			{ return d2tmodels_; }
 
     Notifier<uiStratSynthDisp>	wvltChanged;
     Notifier<uiStratSynthDisp>	zoomChanged;
@@ -67,7 +68,7 @@ protected:
     Wavelet*		wvlt_;
     BufferString	levelname_;
     int			longestaimdl_;
-    ObjectSet<TimeDepthModel> d2tmodels_;
+    ObjectSet<const TimeDepthModel> d2tmodels_;
 
     uiGroup*		topgrp_;
     uiSeisWaveletSel*	wvltfld_;
@@ -82,6 +83,7 @@ protected:
     void		doModelChange();
     void		rayTrcParPush(CallBacker*);
     void		rayTrcParChged(CallBacker*);
+    void		rayTrcPosChged(CallBacker*);
     void		wvltChg(CallBacker*);
     void		scalePush(CallBacker*);
     void		zoomChg(CallBacker*);
@@ -96,6 +98,7 @@ public:
     			uiOffsetSlicePos(uiParent*);
 
     uiGroup*		attachGrp() 	{ return attachgrp_; }
+
 
 protected:
     uiGroup*		attachgrp_;

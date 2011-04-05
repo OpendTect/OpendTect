@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.14 2011-04-04 15:14:52 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.15 2011-04-05 09:34:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,16 +125,17 @@ public:
 				RayParams() 
 				    : sourcedpt_(0)
 				    , receivdpt_(0)
-				    , cs_(false)
 				    {
-					offsetsampling_.set(0,50);
+					cs_.hrg.setInlRange(Interval<int>(1,1));
+					cs_.hrg.setCrlRange(Interval<int>(0,0));
+					cs_.hrg.step = BinID( 1, 50 );
+					cs_.zrg.set( 0, 0, 0  );
 				    }
 
 	RayParams&		operator = (const RayParams& rts)
 				{
 				    setup_ = rts.setup_;
 				    cs_ = rts.cs_;
-				    offsetsampling_ = rts.offsetsampling_;
 				    sourcedpt_ = rts.sourcedpt_;
 				    receivdpt_ = receivdpt_;
 				    return *this;
@@ -145,8 +146,7 @@ public:
 	float               	receivdpt_;
 
 	CubeSampling       	 cs_; 
-				/*!crl are offsets idxs, inl are models idxs !*/
-	SamplingData<float> 	offsetsampling_;
+				/*!crl are offsets, inl are models idxs !*/
     };
 
     virtual bool		setRayParams(const RayParams&);
@@ -164,11 +164,11 @@ public:
 
     const char*			errMsg() const 	{ return errmsg_.buf(); }
 
-    //available after execution
-    void			getTrcs(ObjectSet<const SeisTrc>& trcs) const;
-    void			getTWTs(ObjectSet<const TimeDepthModel>&) const;
+    /*!available after execution, will become YOURS !*/
+    void			getTrcs(ObjectSet<const SeisTrc>&); 
+    void			getTWTs(ObjectSet<const TimeDepthModel>&);
     void			getReflectivities(
-				    ObjectSet<const ReflectivityModel>&) const;
+					ObjectSet<const ReflectivityModel>&);
 
 protected:
     				RaySynthGenerator();
@@ -193,6 +193,10 @@ protected:
 	ObjectSet<const SeisTrc>		outtrcs_; //this is a gather
 	ObjectSet<const ReflectivityModel> 	refmodels_;
 	ObjectSet<const TimeDepthModel> 	t2dmodels_;
+
+	bool				deletetrcs_;
+	bool				deletetwts_;
+	bool				deleterefs_;
     };
     TypeSet<AIModel>		aimodels_;
     ObjectSet<RayModel>		raymodels_;

@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.15 2011-04-04 15:13:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.16 2011-04-05 09:34:34 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -337,8 +337,7 @@ bool RaySynthGenerator::doRayTracers( TaskRunner& tr )
     CubeSampling& cs  = raypars_.cs_;
     TypeSet<float> offsets;
     for ( int idx=0; idx<cs.nrCrl(); idx++ )
-	offsets += raypars_.offsetsampling_.atIndex( 
-					cs.hrg.crlRange().atIndex(idx) );
+	offsets += cs.hrg.crlRange().atIndex(idx);
 
     for ( int idx=0; idx<aimodels_.size(); idx++ )
     {
@@ -398,54 +397,60 @@ bool RaySynthGenerator::usePar( const IOPar& par )
 }
 
 
-void RaySynthGenerator::getTrcs( ObjectSet<const SeisTrc>& trcs ) const
+void RaySynthGenerator::getTrcs( ObjectSet<const SeisTrc>& trcs ) 
 {
     for ( int idtrc=0; idtrc<raypars_.cs_.nrInl(); idtrc++ )
     {
 	if ( !raymodels_.validIdx(idtrc) ) continue;
-	const RayModel& rm = *raymodels_[idtrc];
+	RayModel& rm = *raymodels_[idtrc];
 	for ( int idoff=0; idoff<raypars_.cs_.nrCrl(); idoff++ )
 	{
 	    if ( rm.outtrcs_.validIdx(idoff) )
 		trcs += rm.outtrcs_[idoff];
 	}
+	rm.deletetrcs_ = false;
     }
 }
 
 
-void RaySynthGenerator::getTWTs( ObjectSet<const TimeDepthModel>& d2ts ) const
+void RaySynthGenerator::getTWTs( ObjectSet<const TimeDepthModel>& d2ts ) 
 {
     for ( int idtrc=0; idtrc<raypars_.cs_.nrInl(); idtrc++ )
     {
-	const RayModel& rm = *raymodels_[idtrc];
-	if ( !raymodels_.validIdx(idtrc) ) 
+	if ( !raymodels_.validIdx(idtrc) ) continue; 
+	RayModel& rm = *raymodels_[idtrc];
 	for ( int idoff=0; idoff<raypars_.cs_.nrCrl(); idoff++ )
 	{
 	    if ( rm.t2dmodels_.validIdx(idoff) )
 		d2ts += rm.t2dmodels_[idoff];
 	}
+	rm.deletetwts_ = false;
     }
 }
 
 
 void RaySynthGenerator::getReflectivities( 
-				ObjectSet<const ReflectivityModel>& rfs ) const
+				ObjectSet<const ReflectivityModel>& rfs ) 
 {
     for ( int idtrc=0; idtrc<raypars_.cs_.nrInl(); idtrc++ )
     {
 	if ( !raymodels_.validIdx(idtrc) ) continue;
-	const RayModel& rm = *raymodels_[idtrc];
+	RayModel& rm = *raymodels_[idtrc];
 	for ( int idoff=0; idoff<raypars_.cs_.nrCrl(); idoff++ )
 	{
-		if ( rm.refmodels_.validIdx(idoff) )
-		    rfs += rm.refmodels_[idoff];
+	    if ( rm.refmodels_.validIdx(idoff) )
+		rfs += rm.refmodels_[idoff];
 	}
+	rm.deleterefs_ = false;
     }
 }
 
 
 
 RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
+    : deletetrcs_(true)
+    , deletetwts_(true)
+    , deleterefs_(false)		       
 {
     for ( int idx=0; idx<nroffsets; idx++ )
     {
@@ -461,9 +466,18 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
 
 RaySynthGenerator::RayModel::~RayModel()
 {
-    deepErase( refmodels_ );
-    deepErase( t2dmodels_ );
-    deepErase( outtrcs_ );
+    if ( deletetrcs_ )
+	deepErase( outtrcs_ );
+    else
+	outtrcs_.erase(); 
+    if ( deletetwts_ )
+	deepErase( t2dmodels_ );
+    else
+	t2dmodels_.erase();
+    if ( deleterefs_ )
+	deepErase( refmodels_ );
+    else
+	refmodels_.erase();
 }
 
 }// namespace

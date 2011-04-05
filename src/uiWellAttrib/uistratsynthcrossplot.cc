@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.24 2011-03-15 14:41:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.25 2011-04-05 09:34:34 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -41,9 +41,9 @@ static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.24 2011-03-15 14:4
 
 
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
-					const DataPack::FullID& dpid,
-					const Strat::LayerModel& lm,
-       					const ObjectSet<TimeDepthModel>& d2t )
+				    const DataPack::FullID& dpid,
+				    const Strat::LayerModel& lm,
+				    const ObjectSet<const TimeDepthModel>& d2t )
     : uiDialog(p,Setup("Layer model/synthetics cross-plotting",
 			mNoDlgTitle,mTODOHelpID))
     , packmgrid_(DataPackMgr::getID(dpid))
