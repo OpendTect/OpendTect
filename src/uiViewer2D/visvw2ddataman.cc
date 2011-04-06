@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddataman.cc,v 1.3 2010-09-15 08:30:21 cvsbruno Exp $
+ RCS:		$Id: visvw2ddataman.cc,v 1.4 2011-04-06 05:51:31 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,11 +85,16 @@ Vw2DDataObject* Vw2DDataManager::getObject( int id )
 
 void Vw2DDataManager::setSelected( Vw2DDataObject* sobj )
 {
+    if ( !sobj )
+    {
+	deSelect( selectedid_ );
+	return;
+    }
+
     if ( sobj->id() == selectedid_ )
 	return;
 
     deSelect( selectedid_ );
-
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
 	if ( objects_[idx]->id()==sobj->id() )
