@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.252 2011-03-31 10:56:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.253 2011-04-06 05:52:55 cvsraman Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1341,9 +1341,11 @@ int PlaneDataDisplay::usePar( const IOPar& par )
     if ( res!=1 ) return res;
 
     Orientation orientation = Inline;
-    parseEnumOrientation( par.find( sKeyOrientation() ), orientation );
-    setOrientation( orientation );
+    FixedString orstr = par.find( sKeyOrientation() );
+    if ( !parseEnumOrientation(orstr,orientation) && orstr == "Timeslice" )
+	orientation = Zslice;		// Backward compatibilty with 4.0
 
+    setOrientation( orientation );
     CubeSampling cs;
     if ( cs.usePar( par ) )
     {
