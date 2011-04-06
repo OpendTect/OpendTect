@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.144 2011-02-23 06:24:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.145 2011-04-06 05:53:35 cvsraman Exp $";
 
 #include "vissurvscene.h"
 
@@ -567,9 +567,12 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     else
     {
 	const Interval<float> zrg = zat->getZInterval( false );
-	cs.zrg.start = zrg.start;
-	cs.zrg.stop = zrg.stop;
-	cs.zrg.step = zat->getGoodZStep();
+	if ( !zrg.isUdf() )
+	{
+	    cs.zrg.start = zrg.start;
+	    cs.zrg.stop = zrg.stop;
+	    cs.zrg.step = zat->getGoodZStep();
+	}
 
 	setZDomainInfo( zat->toZDomainInfo() );
     }
