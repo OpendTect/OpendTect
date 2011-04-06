@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.30 2010-11-15 14:03:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.31 2011-04-06 05:48:42 cvsraman Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -180,7 +180,7 @@ void uiGraphicsItem::setFillColor( const Color& col, bool withalpha )
     if ( !agsitm ) return;
 
     QColor color = QColor(QRgb(col.rgb()));
-    if ( withalpha ) color.setAlpha( col.t() );
+    if ( withalpha ) color.setAlpha( 255 - col.t() );
     QBrush qbrush( color );
     agsitm->setBrush( qbrush );
 }
