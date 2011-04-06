@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.31 2010-12-16 09:33:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.32 2011-04-06 05:49:35 cvsraman Exp $";
 
 #include "drawaxis2d.h"
 
@@ -288,6 +288,7 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
     const uiWorld2Ui transform( uiWorldRect(xrg_.start,yrg_.start,
 					    xrg_.stop,yrg_.stop),
 				drawarea.getPixelSize() );
+    int zvalforgridlines = 5;
     if ( xdir )
     {
 	const int top = drawarea.top();
@@ -305,7 +306,7 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	    uiLineItem* xgridline = new uiLineItem();
 	    xgridline->setLine( wx, top, wx, bot );
 	    xgridline->setPenStyle( gridls_ );
-	    xgridline->setZValue( zValue_ );
+	    xgridline->setZValue( zvalforgridlines );
 	    xaxgriditmgrp_->add( xgridline );
 	mLoopEnd
     }
@@ -329,7 +330,7 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	    uiLineItem* ygridline = new uiLineItem();
 	    ygridline->setLine( left, wy, right, wy );
 	    ygridline->setPenStyle( gridls_ );
-	    ygridline->setZValue( zValue_ );
+	    ygridline->setZValue( zvalforgridlines );
 	    yaxgriditmgrp_->add( ygridline );
 	mLoopEnd
     }
