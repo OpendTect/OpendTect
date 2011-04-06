@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.31 2011-04-05 09:34:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.32 2011-04-06 07:55:56 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -29,7 +29,6 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.31 2011-04-05 09:34:34 
 #include "flatviewzoommgr.h"
 #include "ioman.h"
 #include "ptrman.h"
-#include "raytrace1d.h"
 #include "survinfo.h"
 #include "synthseis.h"
 #include "seisbufadapters.h"
@@ -304,7 +303,6 @@ void uiStratSynthDisp::doModelChange()
     bool isvel; const int velidx = getVelIdx( isvel );
     bool isden; const int denidx = getDenIdx( isden );
     longestaimdl_ = 0; int maxaimdlsz = 0;
-    ObjectSet<RayTracer1D> raytracers;
     if ( lm_.isEmpty() ) 
 	mErrRet( 0 )
 
@@ -349,7 +347,7 @@ void uiStratSynthDisp::doModelChange()
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, Seis::Line,
 	    			SeisTrcInfo::TrcNr, "Seismic" );
     dp->setName( "Synthetics" );
-    dp->posData().setRange( true, StepInterval<double>(1,nraimdls,1) );
+    dp->posData().setRange( true, StepInterval<double>(1,trcs.size(),1) );
     const SeisTrc& trc0 = *tbuf->get(0);
     StepInterval<double> zrg( trc0.info().sampling.start,
 			      trc0.info().sampling.atIndex(trc0.size()-1),
@@ -393,7 +391,7 @@ uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p,
     , parChged( this )
     , raypars_(rp)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( DoAndStay );
 
     uiGroup* posgrp = new uiGroup( this, "Position group" );
 
@@ -401,24 +399,35 @@ uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p,
     uiLabeledComboBox* lblb = new uiLabeledComboBox( posgrp, "Direction" );
     directionfld_ = lblb->box();
     directionfld_->addItems( dir );
-    directionfld_->selectionChanged.notify( mCB(this,uiRayTrcParamsDlg,dirChg));
+    CallBack dircb( mCB(this,uiRayTrcParamsDlg,dirChg ) );
+    directionfld_->selectionChanged.notify( dircb );
 
     offsetfld_ = new uiGenInput( posgrp, "Offset range(m) (start/stop)",
 	    				IntInpIntervalSpec() );
     offsetfld_->attach( alignedBelow, lblb );
-    offsetfld_->setValue( Interval<int>( 0, mMAXOffset/4 ) );
+    offsetfld_->setValue( Interval<int>( 0, mMAXOffset/2 ) );
     offsetfld_->setElemSzPol( uiObject::Small );
     offsetstepfld_ = new uiGenInput( posgrp, "step" );
     offsetstepfld_->setValue( rp.cs_.hrg.crlRange().step );
     offsetstepfld_->attach( rightOf, offsetfld_ );
     offsetstepfld_->setElemSzPol( uiObject::Small );
 
+    nmobox_ = new uiCheckBox( posgrp, "NMO corrections" );
+    nmobox_->attach( alignedBelow, offsetfld_ );
+    nmobox_->setChecked( raypars_.usenmotimes_ );
+
+    stackbox_ = new uiCheckBox( posgrp, "Stack" );
+    stackbox_->attach( rightOf, lblb );
+    stackbox_->setChecked( raypars_.dostack_ );
+    stackbox_->activated.notify( dircb );
+
     uiSeparator* sp = new uiSeparator( this, "Offset/Setup sep" );
     sp->attach( stretchedBelow, posgrp );
 
     sourcerecfld_ = new uiGenInput( this, "Source / Receiver depth",
 	    			FloatInpIntervalSpec() );
-    sourcerecfld_->setValue(Interval<float>(rp.sourcedpt_,rp.receivdpt_));
+    sourcerecfld_->setValue(Interval<float>(rp.setup_.sourcedepth_,
+					    rp.setup_.receiverdepth_));
     sourcerecfld_->attach( centeredBelow, posgrp );
     sourcerecfld_->attach( ensureBelow, sp );
 
@@ -427,13 +436,6 @@ uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p,
     vp2vsfld_->setValue( Interval<float>( rp.setup_.pvel2svelafac_,
 					  rp.setup_.pvel2svelbfac_) );
     vp2vsfld_->attach( alignedBelow, sourcerecfld_ );
-
-    CallBack parcb( mCB(this,uiRayTrcParamsDlg,parChg) );
-
-    offsetfld_->valuechanged.notify( parcb );
-    offsetstepfld_->valuechanged.notify( parcb );
-    sourcerecfld_->valuechanged.notify( parcb );
-    vp2vsfld_->valuechanged.notify( parcb );
 }
 
 
@@ -457,16 +459,20 @@ void uiRayTrcParamsDlg::dirChg( CallBacker* )
     {
 	cs.hrg.setInlRange( Interval<int>( 1, 1 ) ); //model idx to 1
     }
-    offsetfld_->display( idx > 0 );
-    offsetstepfld_->display( idx > 0 );
+    nmobox_->display( idx > 0 );
+    if (  idx == 0 ) nmobox_->setChecked( false );
+    stackbox_->display( idx == 0 );
+    offsetfld_->display( idx > 0 || stackbox_->isChecked() );
+    offsetstepfld_->display( idx > 0 || stackbox_->isChecked() );
     raypars_.cs_ = cs;
-    parChg( 0 );
+
+    getPars();
 }
 
 
-void uiRayTrcParamsDlg::parChg( CallBacker* )
+void uiRayTrcParamsDlg::getPars()
 {
-    if ( directionfld_->currentItem() >0 )
+    if ( directionfld_->currentItem() > 0 )
     {
 	raypars_.cs_.hrg.setCrlRange( offsetfld_->getIInterval() );
 	raypars_.cs_.hrg.step.crl = (int)offsetstepfld_->getfValue();
@@ -475,9 +481,17 @@ void uiRayTrcParamsDlg::parChg( CallBacker* )
     raypars_.setup_.receiverdepth_ = sourcerecfld_->getFInterval().stop;
     raypars_.setup_.pvel2svelafac_ = vp2vsfld_->getFInterval().start;
     raypars_.setup_.pvel2svelbfac_ = vp2vsfld_->getFInterval().stop;
-    parChged.trigger();
+    raypars_.usenmotimes_ = nmobox_->isChecked();
+    raypars_.dostack_ = stackbox_->isChecked();
 }
 
+
+bool uiRayTrcParamsDlg::acceptOK( CallBacker* )
+{
+    getPars();
+    parChged.trigger();
+    return false;
+}
 
 
 uiOffsetSlicePos::uiOffsetSlicePos( uiParent* p )

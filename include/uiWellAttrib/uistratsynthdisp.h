@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.20 2011-04-05 09:34:34 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.21 2011-04-06 07:55:56 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "cubesampling.h"
 #include "samplingdata.h"
-#include "raytrace1d.h"
 #include "uigroup.h"
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -28,11 +27,12 @@ class SeisTrcBuf;
 class Wavelet;
 class uiComboBox;
 class uiGenInput;
+class uiCheckBox;
 class uiFlatViewer;
+class uiOffsetSlicePos;
 class uiPushButton;
 class uiRayTrcParamsDlg;
 class uiSeisWaveletSel;
-class uiOffsetSlicePos;
 class uiToolButton;
 class uiToolButtonSetup;
 namespace Strat { class LayerModel; }
@@ -112,7 +112,7 @@ public:
 					Seis::RaySynthGenerator::RayParams&);
 
     void			setLimitSampling(const CubeSampling& cs);
-    Notifier<uiRayTrcParamsDlg>  parChged;
+    Notifier<uiRayTrcParamsDlg> parChged;
 
 protected:
 
@@ -124,9 +124,13 @@ protected:
     uiGenInput*			offsetstepfld_;
     uiGenInput*			sourcerecfld_;
     uiGenInput*			vp2vsfld_;
+    uiCheckBox*			nmobox_;
+    uiCheckBox*			stackbox_;
+
+    void 			getPars();
 
     void 			dirChg(CallBacker*);
-    void 			parChg(CallBacker*);
+    bool			acceptOK(CallBacker*);
 };
 
 
