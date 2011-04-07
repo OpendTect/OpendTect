@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.13 2010-12-03 10:20:59 cvsumesh Exp $";
+static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.14 2011-04-07 08:51:07 cvshelene Exp $";
 
 #include "uihorizonshiftdlg.h"
 
@@ -35,7 +35,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    const Attrib::DescSet& descset,
 					    float initialshift,
 					    bool cancalcattrib )
-    : uiDialog(p,uiDialog::Setup("Horizon shift",mNoDlgTitle,mNoHelpID).
+    : uiDialog(p,uiDialog::Setup("Horizon shift",mNoDlgTitle,"104.0.15").
 	    			  modal(false) )
     , calcshiftrg_(mUdf(float),mUdf(float),mUdf(float))
     , emhor3d_(0)
