@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.17 2011-04-06 07:55:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.18 2011-04-07 10:43:53 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: synthseis.cc,v 1.17 2011-04-06 07:55:56 cvsbrun
 #include "reflectivitymodel.h"
 #include "reflectivitysampler.h"
 #include "seistrc.h"
+#include "seistrcprop.h"
 #include "synthseis.h"
 #include "survinfo.h"
 #include "velocitycalc.h"
@@ -302,7 +303,7 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 }
 
 
-void MultiTraceSynthGenerator::result( ObjectSet<const SeisTrc>& trcs ) const
+void MultiTraceSynthGenerator::result( ObjectSet<const SeisTrc>& trcs ) const 
 {
     for ( int idx=0; idx<synthgens_.size(); idx++ )
 	trcs += new SeisTrc( synthgens_[idx]->result() );
@@ -315,13 +316,17 @@ mImplFactory( RaySynthGenerator, RaySynthGenerator::factory );
 
 RaySynthGenerator::RaySynthGenerator()
     : dostack_(false)
+    , outputdataismine_(true)  
 {
 }
 
 
 RaySynthGenerator::~RaySynthGenerator()
 {
-    deepErase( raymodels_ );
+    if ( outputdataismine_ )
+	deepErase( raymodels_ );
+    else
+	raymodels_.erase();
 }
 
 
@@ -332,12 +337,12 @@ bool RaySynthGenerator::addModel( const AIModel& aim )
 }
 
 
-bool RaySynthGenerator::setRayParams( const RayParams& rts )
+bool RaySynthGenerator::setRayParams( const TypeSet<float>& offs,
+				    const RayTracer1D::Setup& su, bool isnmo)
 {
-    dostack_ = rts.dostack_;
-    raysetup_ = rts.setup_;
-    cs_ = rts.cs_;
-    usenmotimes_ = rts.usenmotimes_ || dostack_;
+    raysetup_ = su;
+    usenmotimes_ = isnmo;
+    offsets_ = offs;
 
     return true;
 }
@@ -354,23 +359,18 @@ bool RaySynthGenerator::doRayTracers( TaskRunner& tr )
     if ( aimodels_.isEmpty() ) 
 	mErrRet( "No AIModel set" );
 
-    TypeSet<float> offsets;
-    for ( int idx=0; idx<cs_.nrCrl(); idx++ )
-	offsets += cs_.hrg.crlRange().atIndex(idx);
-
     for ( int idx=0; idx<aimodels_.size(); idx++ )
     {
 	RayTracer1D* rt1d = new RayTracer1D( raysetup_ );
 	rt1d->setModel( true, aimodels_[idx] );
-	rt1d->setOffsets( offsets );
+	rt1d->setOffsets( offsets_ );
 	if ( !rt1d->execute() )
 	    mErrRet( rt1d->errMsg() )
 
-	RayModel* rm = new RayModel( *rt1d, offsets.size() );
-	for ( int idoff=0; idoff<offsets.size(); idoff++ )
-	    cs_.zrg.include( rm->t2dmodels_[idoff]->getTime( 
-						    aimodels_[idx].size()-2 ) );
-
+	RayModel* rm = new RayModel( *rt1d, offsets_.size() );
+	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
+	    outputsampling_.include( rm->t2dmodels_[idoff]->getTime( 
+					    aimodels_[idx].size()-2 ) );
 	delete rt1d;
 	raymodels_ += rm;
     }
@@ -380,8 +380,8 @@ bool RaySynthGenerator::doRayTracers( TaskRunner& tr )
 
 bool RaySynthGenerator::doSynthetics( TaskRunner& tr )
 {
-    cs_.zrg.step = wavelet_ ? wavelet_->sampleRate() : 0;
-    if ( cs_.zrg.nrSteps() < 1 )
+    outputsampling_.step = wavelet_ ? wavelet_->sampleRate() : 0;
+    if ( outputsampling_.nrSteps() < 1 )
 	mErrRet( "no valid times generated" )
 
     ObjectSet<MultiTraceSynthGenerator> mtsgs;
@@ -391,7 +391,7 @@ bool RaySynthGenerator::doSynthetics( TaskRunner& tr )
 	const RayModel& rm = *raymodels_[idx];
 	MultiTraceSynthGenerator* mtsg = new MultiTraceSynthGenerator();
 	mtsg->setModels( rm.refmodels_ );
-	mtsg->setOutSampling( cs_.zrg );
+	mtsg->setOutSampling( outputsampling_ );
 	mtsg->usePar( par );
 	mtsg->setWavelet( wavelet_, OD::UsePtr );
 	mtsgs += mtsg;
@@ -406,45 +406,27 @@ bool RaySynthGenerator::doSynthetics( TaskRunner& tr )
     return true;
 }
 
-
-#define mDoGetInLoop( objget, objset, deletebool )\
-{\
-    for ( int idtrc=0; idtrc<cs_.nrInl(); idtrc++ )\
-    {\
-	if ( !raymodels_.validIdx(idtrc) ) continue;\
-	RayModel& rm = *raymodels_[idtrc];\
-	for ( int idoff=0; idoff<cs_.nrCrl(); idoff++ )\
-	{\
-	    if ( rm.objget.validIdx(idoff) )\
-		objset += rm.objget[idoff];\
-	}\
-	rm.deletebool = false;\
-    }\
-}
-void RaySynthGenerator::getTrcs( ObjectSet<const SeisTrc>& trcs ) 
+void RaySynthGenerator::fillPar( IOPar& par ) const
 {
-    mDoGetInLoop( outtrcs_, trcs, deletetrcs_ );
+    SynthGenBase::fillPar( par );
+    par.setYN( sKeyStack(), dostack_ );
 }
 
 
-void RaySynthGenerator::getTWTs( ObjectSet<const TimeDepthModel>& d2ts ) 
+bool RaySynthGenerator::usePar( const IOPar& par ) 
 {
-    mDoGetInLoop( t2dmodels_, d2ts, deletetwts_ );
+    return SynthGenBase::usePar( par ) && par.getYN( sKeyStack(), dostack_ );
 }
 
 
-void RaySynthGenerator::getReflectivities( 
-				ObjectSet<const ReflectivityModel>& rfs ) 
+RaySynthGenerator::RayModel* RaySynthGenerator::result( int imdl ) 
 {
-    mDoGetInLoop( refmodels_, rfs, deleterefs_ );
+    outputdataismine_ = false;
+    return raymodels_[imdl];
 }
-
 
 
 RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
-    : deletetrcs_(true)
-    , deletetwts_(true)
-    , deleterefs_(false)		       
 {
     for ( int idx=0; idx<nroffsets; idx++ )
     {
@@ -460,32 +442,24 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
 
 RaySynthGenerator::RayModel::~RayModel()
 {
-    if ( deletetrcs_ )
-	deepErase( outtrcs_ );
-    else
-	outtrcs_.erase(); 
-    if ( deletetwts_ )
-	deepErase( t2dmodels_ );
-    else
-	t2dmodels_.erase();
-    if ( deleterefs_ )
-	deepErase( refmodels_ );
-    else
-	refmodels_.erase();
+    deepErase( outtrcs_ );
+    deepErase( t2dmodels_ );
+    deepErase( refmodels_ );
 }
 
 
-void RaySynthGenerator::fillPar( IOPar& par ) const
+const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
 {
-    SynthGenBase::fillPar( par );
-    par.setYN( sKeyStack(), dostack_ );
+    if ( outtrcs_.isEmpty() )
+	return 0;
+
+    SeisTrc* trc = new SeisTrc( *outtrcs_[0] );
+    SeisTrcPropChg stckr( *trc );
+    for ( int idx=1; idx<outtrcs_.size(); idx++ )
+	stckr.stack( *outtrcs_[idx], false, idx );
+    return trc;
 }
 
-
-bool RaySynthGenerator::usePar( const IOPar& par ) 
-{
-    return SynthGenBase::usePar( par ) && par.getYN( sKeyStack(), dostack_ );
-}
 
 }// namespace
 

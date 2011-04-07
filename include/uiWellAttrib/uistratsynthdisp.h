@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.21 2011-04-06 07:55:56 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.22 2011-04-07 10:43:53 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,65 @@ class uiSeisWaveletSel;
 class uiToolButton;
 class uiToolButtonSetup;
 namespace Strat { class LayerModel; }
+
+
+mClass uiOffsetSlicePos : public uiSlicePos2DView
+{
+public:
+    			uiOffsetSlicePos(uiParent*);
+
+    uiGroup*		attachGrp() 	{ return attachgrp_; }
+
+
+protected:
+    uiGroup*		attachgrp_;
+};
+
+
+
+mClass uiRayTrcParamsDlg : public uiDialog
+{
+public:
+    mStruct RayParams
+    {				RayParams()
+				    : usenmotimes_(true)
+				    , dostack_(false)
+				{
+				    cs_.hrg.setInlRange(Interval<int>(1,1));
+				    cs_.hrg.setCrlRange(Interval<int>(0,0));
+				    cs_.hrg.step = BinID( 1, 100 );
+				    cs_.zrg.set( 0, 0, 0  );
+				}
+	CubeSampling 		cs_; //inl are models, crl are offsets
+	bool			usenmotimes_;
+	bool			dostack_;
+	RayTracer1D::Setup	setup_;
+    };
+
+				uiRayTrcParamsDlg(uiParent*,RayParams&);
+
+    void			setLimitSampling(const CubeSampling& cs);
+    Notifier<uiRayTrcParamsDlg> parChged;
+
+protected:
+
+    RayParams& 			raypars_;
+
+    uiComboBox*			directionfld_;
+    CubeSampling		limitcs_;
+
+    uiGenInput*			offsetfld_;
+    uiGenInput*			offsetstepfld_;
+    uiGenInput*			sourcerecfld_;
+    uiGenInput*			vp2vsfld_;
+    uiCheckBox*			nmobox_;
+    uiCheckBox*			stackbox_;
+
+    void 			getPars();
+
+    void 			dirChg(CallBacker*);
+    bool			acceptOK(CallBacker*);
+};
 
 
 mClass uiStratSynthDisp : public uiGroup
@@ -77,7 +136,7 @@ protected:
     uiToolButton*	lasttool_;
 
     uiRayTrcParamsDlg*	raytrcpardlg_;
-    Seis::RaySynthGenerator::RayParams raypars_;
+    uiRayTrcParamsDlg::RayParams raypars_;
     uiOffsetSlicePos*	posfld_;
 
     void		doModelChange();
@@ -90,48 +149,5 @@ protected:
     int			getVelIdx(bool&) const;
     int			getDenIdx(bool&) const;
 };
-
-
-mClass uiOffsetSlicePos : public uiSlicePos2DView
-{
-public:
-    			uiOffsetSlicePos(uiParent*);
-
-    uiGroup*		attachGrp() 	{ return attachgrp_; }
-
-
-protected:
-    uiGroup*		attachgrp_;
-};
-
-
-mClass uiRayTrcParamsDlg : public uiDialog
-{
-public:
-				uiRayTrcParamsDlg(uiParent*,
-					Seis::RaySynthGenerator::RayParams&);
-
-    void			setLimitSampling(const CubeSampling& cs);
-    Notifier<uiRayTrcParamsDlg> parChged;
-
-protected:
-
-    Seis::RaySynthGenerator::RayParams& raypars_;
-    uiComboBox*			directionfld_;
-    CubeSampling		limitcs_;
-
-    uiGenInput*			offsetfld_;
-    uiGenInput*			offsetstepfld_;
-    uiGenInput*			sourcerecfld_;
-    uiGenInput*			vp2vsfld_;
-    uiCheckBox*			nmobox_;
-    uiCheckBox*			stackbox_;
-
-    void 			getPars();
-
-    void 			dirChg(CallBacker*);
-    bool			acceptOK(CallBacker*);
-};
-
 
 #endif

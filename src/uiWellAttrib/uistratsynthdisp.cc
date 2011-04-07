@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.32 2011-04-06 07:55:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.33 2011-04-07 10:43:53 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -41,7 +41,7 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.32 2011-04-06 07:55:56 
 
 static const int cMarkerSize = 6;
 
-#define mMAXOffset 1000
+#define mStdOffset 6000
 Notifier<uiStratSynthDisp>& uiStratSynthDisp::fieldsCreated()
 {
     static Notifier<uiStratSynthDisp> FieldsCreated(0);
@@ -270,7 +270,7 @@ void uiStratSynthDisp::modelChanged()
     hs.setCrlRange( Interval<int>(0,0) );
     raypars_.cs_ = cs;
     posfld_->setCubeSampling( raypars_.cs_ );
-    hs.setCrlRange( Interval<int>(0,mMAXOffset) );
+    hs.setCrlRange( Interval<int>(0,mStdOffset) );
     posfld_->setLimitSampling( cs );
     posfld_->attachGrp()->setSensitive( true );
 
@@ -306,14 +306,20 @@ void uiStratSynthDisp::doModelChange()
     if ( lm_.isEmpty() ) 
 	mErrRet( 0 )
 
-    Seis::ODRaySynthGenerator synthgen;
-    synthgen.setRayParams( raypars_ );
-    synthgen.setWavelet( wvlt_, OD::UsePtr );
-    const int nraimdls = lm_.size();
+    const CubeSampling& cs = raypars_.cs_;
+    TypeSet<float> offsets;
+    for ( int idx=0; idx<cs.nrCrl(); idx++ )
+	offsets += cs.hrg.crlRange().atIndex(idx);
 
-    for ( int iseq=0; iseq<nraimdls; iseq++ )
+    Seis::ODRaySynthGenerator synthgen;
+    synthgen.setRayParams( offsets, raypars_.setup_, raypars_.usenmotimes_ );
+    synthgen.setWavelet( wvlt_, OD::UsePtr );
+    const int nraimdls = cs.nrInl();
+
+    for ( int iseq=0; iseq<cs.nrInl(); iseq++ )
     {
-	const Strat::LayerSequence& seq = lm_.sequence( iseq );
+	int seqidx = cs.hrg.inlRange().atIndex(iseq)-1;
+	const Strat::LayerSequence& seq = lm_.sequence( seqidx );
 	AIModel aimod; seq.getAIModel( aimod, velidx, denidx, isvel, isden );
 	if ( aimod.size() > maxaimdlsz )
 	    { maxaimdlsz = aimod.size(); longestaimdl_ = iseq; }
@@ -328,26 +334,41 @@ void uiStratSynthDisp::doModelChange()
     const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
 	    	      SI().crlRange(false).stop + crlstep );
 
-    ObjectSet<const SeisTrc> trcs; synthgen.getTrcs( trcs );
-    if ( trcs.isEmpty() )
-	mErrRet(0)
-
-    for ( int imdl=0; imdl<trcs.size(); imdl++ )
+    for ( int imdl=0; imdl<nraimdls; imdl++ )
     {
-	SeisTrc* trc = const_cast<SeisTrc*>( trcs[imdl] );
-	const int trcnr = imdl + 1;
-	trc->info().nr = trcnr;
-	trc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep );
-	trc->info().coord = SI().transform( trc->info().binid );
-	tbuf->add( trc );
+	Seis::RaySynthGenerator::RayModel& rm = *synthgen.result( imdl ); 
+	ObjectSet<const SeisTrc>& trcs = rm.outtrcs_;
+
+	if ( trcs.isEmpty() )
+	    continue;
+
+	if ( raypars_.dostack_ )
+	{
+	    const SeisTrc* stktrc = rm.stackedTrc();
+	    deepErase( trcs ); trcs += stktrc;
+	}
+
+	for ( int idx=0; idx<trcs.size(); idx++ )
+	{
+	    SeisTrc* trc = const_cast<SeisTrc*>( trcs[idx] );
+	    const int trcnr = imdl + 1;
+	    trc->info().nr = trcnr;
+	    trc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep 
+				    + (int)(idx*offsets[idx]) );
+	    trc->info().coord = SI().transform( trc->info().binid );
+	    tbuf->add( trc );
+	    d2tmodels_ += rm.t2dmodels_[idx];
+	}
+	deepErase( rm.refmodels_ ); //TODO get rid of this (see with well ties)
     }
-    synthgen.getTWTs( d2tmodels_ );
+    if ( tbuf->isEmpty() )
+	mErrRet("No seismic traces genereated ")
 
     deepErase( vwr_->appearance().annot_.auxdata_ );
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, Seis::Line,
 	    			SeisTrcInfo::TrcNr, "Seismic" );
     dp->setName( "Synthetics" );
-    dp->posData().setRange( true, StepInterval<double>(1,trcs.size(),1) );
+    dp->posData().setRange( true, StepInterval<double>(1,tbuf->size(),1) );
     const SeisTrc& trc0 = *tbuf->get(0);
     StepInterval<double> zrg( trc0.info().sampling.start,
 			      trc0.info().sampling.atIndex(trc0.size()-1),
@@ -384,8 +405,7 @@ void uiStratSynthDisp::rayTrcParChged( CallBacker* )
 }
 
 
-uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, 
-				Seis::RaySynthGenerator::RayParams& rp ) 
+uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p, RayParams& rp ) 
     : uiDialog(p,uiDialog::Setup(
 		"Specify ray tracer parameters","",mTODOHelpID).modal(false))
     , parChged( this )
@@ -405,7 +425,7 @@ uiRayTrcParamsDlg::uiRayTrcParamsDlg( uiParent* p,
     offsetfld_ = new uiGenInput( posgrp, "Offset range(m) (start/stop)",
 	    				IntInpIntervalSpec() );
     offsetfld_->attach( alignedBelow, lblb );
-    offsetfld_->setValue( Interval<int>( 0, mMAXOffset/2 ) );
+    offsetfld_->setValue( Interval<int>( 0, mStdOffset ) );
     offsetfld_->setElemSzPol( uiObject::Small );
     offsetstepfld_ = new uiGenInput( posgrp, "step" );
     offsetstepfld_->setValue( rp.cs_.hrg.crlRange().step );
@@ -450,7 +470,6 @@ void uiRayTrcParamsDlg::dirChg( CallBacker* )
 {
     CubeSampling cs = limitcs_;
     const int idx = directionfld_->currentItem();
-    const char* lbl = idx == 0 ? "Offset" : ( idx == 1 ? "Angle" : "Model" );
     if ( idx == 0 )
     {
 	cs.hrg.setCrlRange( Interval<int>( 0, 0 ) ); //offset to 0
@@ -458,9 +477,9 @@ void uiRayTrcParamsDlg::dirChg( CallBacker* )
     else
     {
 	cs.hrg.setInlRange( Interval<int>( 1, 1 ) ); //model idx to 1
+	stackbox_->setChecked( false );
     }
     nmobox_->display( idx > 0 );
-    if (  idx == 0 ) nmobox_->setChecked( false );
     stackbox_->display( idx == 0 );
     offsetfld_->display( idx > 0 || stackbox_->isChecked() );
     offsetstepfld_->display( idx > 0 || stackbox_->isChecked() );
@@ -472,16 +491,20 @@ void uiRayTrcParamsDlg::dirChg( CallBacker* )
 
 void uiRayTrcParamsDlg::getPars()
 {
-    if ( directionfld_->currentItem() > 0 )
+    if ( directionfld_->currentItem() > 0 || stackbox_->isChecked())
     {
 	raypars_.cs_.hrg.setCrlRange( offsetfld_->getIInterval() );
 	raypars_.cs_.hrg.step.crl = (int)offsetstepfld_->getfValue();
     }
+    if ( directionfld_->currentItem() == 0 )
+	raypars_.cs_.hrg.step.inl = 1;
+
     raypars_.setup_.sourcedepth_ = sourcerecfld_->getFInterval().start;
     raypars_.setup_.receiverdepth_ = sourcerecfld_->getFInterval().stop;
     raypars_.setup_.pvel2svelafac_ = vp2vsfld_->getFInterval().start;
     raypars_.setup_.pvel2svelbfac_ = vp2vsfld_->getFInterval().stop;
-    raypars_.usenmotimes_ = nmobox_->isChecked();
+    raypars_.usenmotimes_ = directionfld_->currentItem() == 0 ? true : 
+						nmobox_->isChecked();
     raypars_.dostack_ = stackbox_->isChecked();
 }
 
@@ -512,6 +535,7 @@ uiOffsetSlicePos::uiOffsetSlicePos( uiParent* p )
     label_ = new uiLabel( attachgrp_, "Crl" );
     sliceposbox_ = new uiSpinBox( attachgrp_, 0, "Slice position" );
     sliceposbox_->valueChanging.notify( mCB(this,uiOffsetSlicePos,slicePosChg));
+    sliceposbox_->valueChanged.notify( mCB(this,uiOffsetSlicePos,slicePosChg));
     sliceposbox_->attach( rightOf, label_ );
 
     uiLabel* steplabel = new uiLabel( attachgrp_, "Step" );

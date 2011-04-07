@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.16 2011-04-06 07:55:55 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.17 2011-04-07 10:43:53 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,36 +134,10 @@ mClass RaySynthGenerator : public SynthGenBase
 public:
     mDefineFactoryInClass( RaySynthGenerator, factory );
 
-    mStruct RayParams
-    {
-				RayParams() 
-				    : usenmotimes_(false)	   
-				    , dostack_(false)  
-				    {
-					cs_.hrg.setInlRange(Interval<int>(1,1));
-					cs_.hrg.setCrlRange(Interval<int>(0,0));
-					cs_.hrg.step = BinID( 1, 50 );
-					cs_.zrg.set( 0, 0, 0  );
-				    }
-
-	RayParams&		operator = (const RayParams& rts)
-				{
-				    setup_ = rts.setup_;
-				    cs_ = rts.cs_;
-				    dostack_ = rts.dostack_;
-				    usenmotimes_ = rts.usenmotimes_;
-				    return *this;
-				}
-
-	RayTracer1D::Setup  	setup_;
-	bool			dostack_;
-	bool			usenmotimes_;
-	CubeSampling       	cs_; /*!crl are offsets, inl are models idxs!*/
-    };
-
-    virtual bool		setRayParams(const RayParams&);
     virtual bool		addModel(const AIModel&);
 				/*!<you can have more than one model!*/
+    virtual bool		setRayParams(const TypeSet<float>& offs,
+					const RayTracer1D::Setup&,bool isnmo);
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
@@ -172,38 +146,31 @@ public:
 
     bool			doWork(TaskRunner& tr);
 
-    /*!available after execution, will become YOURS !*/
-    void			getTrcs(ObjectSet<const SeisTrc>&); 
-    void			getTWTs(ObjectSet<const TimeDepthModel>&);
-    void			getReflectivities(
-					ObjectSet<const ReflectivityModel>&);
-
-protected:
-    				RaySynthGenerator();
-    virtual 			~RaySynthGenerator();
-
-    bool			doRayTracers(TaskRunner& tr);
-    bool			doSynthetics(TaskRunner& tr);
-
-    bool			dostack_;
-
     mStruct RayModel
     {
-					RayModel(const RayTracer1D& rt1d,
-						 int nroffsets);	
-					~RayModel();	
+				RayModel(const RayTracer1D& rt1d,int nroffsets);
+				~RayModel();	
 
 	ObjectSet<const SeisTrc>		outtrcs_; //this is a gather
 	ObjectSet<const ReflectivityModel> 	refmodels_;
 	ObjectSet<const TimeDepthModel> 	t2dmodels_;
 
-	bool				deletetrcs_;
-	bool				deletetwts_;
-	bool				deleterefs_;
+	const SeisTrc*				stackedTrc() const;
     };
-    CubeSampling       		cs_; /*!crl are offsets, inl are models idxs!*/
-    RayTracer1D::Setup  	raysetup_;
+    RayModel*			result(int imdl); //become yours 
 
+protected:
+    				RaySynthGenerator();
+    virtual 			~RaySynthGenerator();
+
+    bool			doRayTracers(TaskRunner&);
+    bool			doSynthetics(TaskRunner&);
+
+    bool			dostack_;
+    bool			outputdataismine_;
+
+    RayTracer1D::Setup  	raysetup_;
+    TypeSet<float>		offsets_;
     TypeSet<AIModel>		aimodels_;
     ObjectSet<RayModel>		raymodels_;
 };
