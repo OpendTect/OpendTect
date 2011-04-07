@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.19 2011-04-01 09:46:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.20 2011-04-07 08:16:54 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -424,6 +424,8 @@ void uiWellDispEditMarkerDlg::listRClickCB( CallBacker* )
 	{
 	    tmplist_ += mrk;
 	    fillMarkerList(0);
+	    if ( mrklist_->isPresent( mrk->name() ) )
+		mrklist_->setSelected( mrklist_->indexOf( mrk->name() ) );
 	}
 	else
 	    delete mrk;
