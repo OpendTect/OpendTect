@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.30 2010-11-18 15:43:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.31 2011-04-07 11:41:19 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -21,7 +21,7 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p )
     : uiWellDahDisplay(p,"Well Strat Display")
     , data_(StratDispData())  
     , drawer_(uiStratDrawer(scene(),data_))  
-    , transparency_(254)							
+    , transparency_(0)		
 {
     drawer_.setNewAxis( new uiAxisHandler(scene_,
 				uiAxisHandler::Setup(uiRect::Left)

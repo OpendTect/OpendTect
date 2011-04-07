@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdispdata.cc,v 1.23 2011-02-01 14:33:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdispdata.cc,v 1.24 2011-04-07 11:41:19 cvsbruno Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
@@ -116,7 +116,7 @@ void uiStratTreeToDispTransl::readUnits()
 void uiStratTreeToDispTransl::addUnit( const Strat::NodeUnitRef& ur ) 
 {
     StratDispData::Unit* un = new StratDispData::Unit( ur.code(), ur.fullCode(), 							ur.color() );
-    un->color_.setTransparency( 255 );
+    un->color_.setTransparency( 0 );
     un->zrg_ = ur.timeRange();
     data_.addUnit( ur.treeDepth()-1, un );
 }
