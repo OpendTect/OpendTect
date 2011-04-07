@@ -206,11 +206,6 @@ bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 #define mRetFalseIfZero(vel) \
     if ( mIsZero(vel,mDefEps) ) return false;
-#define mAddInterTime(t,mod,layer) \
-{\
-    const float d =( mod[layer].depth_-mod[layer-1].depth_ )/cos(asin(sini));\
-    t += d/mod[layer-1].vel_;\
-}
 
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
@@ -226,51 +221,69 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 				smodel_[idx], smodel_[idx+1] );
 
     int lidx = sourcelayer_;
-    float vel = dlayers[lidx].vel_;
-    mRetFalseIfZero(vel);
-
-    float sini = rayparam * vel;
-    float twt = setup_.sourcedepth_ / vel;
     float_complex reflectivity =
 	coefs[lidx].getCoeff( true, lidx!=layer-1, setup_.pdown_,
 			    lidx==layer-1? setup_.pup_ : setup_.pdown_ );
 
     if ( !layer )
 	reflectivity = float_complex( 0, 0 );
-    else
-    {
-	mAddInterTime( twt, dlayers, layer )
-	mAddInterTime( twt, ulayers, layer )
-    }
 
     lidx++;
 
     while ( lidx < layer )
     {
-	vel = dlayers[lidx].vel_;
-	mRetFalseIfZero(vel);
-	sini = rayparam * vel;
 	reflectivity *= coefs[lidx].getCoeff( true, lidx!=layer-1,
 		setup_.pdown_, lidx==layer-1? setup_.pup_ : setup_.pdown_ );
-	mAddInterTime( twt, dlayers, lidx )
 	lidx++;
     }
 
-    for ( lidx=layer-1; lidx>=receiverlayer_; lidx--)
+    for ( lidx=layer-1; lidx>receiverlayer_; lidx--)
     {
-	vel = ulayers[lidx].vel_;
-	mRetFalseIfZero(vel);
-	sini = rayparam * vel;
-	if ( lidx>receiverlayer_ )
-	{
-	    reflectivity *=
-		coefs[lidx-1].getCoeff(false,false,setup_.pup_,setup_.pup_);
-	    mAddInterTime( twt, ulayers, lidx )
-	}
+	reflectivity *=
+	    coefs[lidx-1].getCoeff(false,false,setup_.pup_,setup_.pup_);
     }
     reflectivity_->set( layer-1, offsetidx, reflectivity );
-    twt_->set( layer-1, offsetidx, twt );
 
+    return true;
+}
+
+
+bool RayTracer1D::doFinish( bool success )
+{
+    return success ? computeTWTs() : false;
+}
+
+
+#define mAddInterTime(mod) \
+{\
+    const float vel = mod[ilayer].vel_;\
+    mRetFalseIfZero(vel);\
+    const float d =( mod[ilayer+1].depth_-mod[ilayer].depth_ )/cos(angle);\
+    twt += d/vel;\
+}
+
+bool RayTracer1D::computeTWTs()
+{
+    const AIModel& dlayers = setup_.pdown_ ? pmodel_ : smodel_;
+    const AIModel& ulayers = setup_.pup_ ? pmodel_ : smodel_;
+
+    for ( int ioff=0; ioff<offsets_.size(); ioff++ )
+    {
+	float twt = 0;
+	for ( int ilayer=0; ilayer<nrIterations(); ilayer++  )
+	{
+	    const float angle = asin( sini_->get( ilayer, ioff ) );
+	    if ( ilayer >= sourcelayer_ )
+	    {
+		mAddInterTime( dlayers )
+	    }
+	    if ( ilayer >= receiverlayer_ )
+	    {
+		mAddInterTime( ulayers )
+	    }
+	    twt_->set( ilayer, ioff, twt );
+	}
+    }
     return true;
 }
 
