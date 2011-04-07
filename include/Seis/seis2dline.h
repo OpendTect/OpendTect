@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.51 2010-10-18 04:52:26 cvssatyaki Exp $
+ RCS:		$Id: seis2dline.h,v 1.52 2011-04-07 12:32:36 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ public:
     virtual		~Seis2DLineSet();
     void		setReadOnly( bool yn=true )	{ readonly_ = yn; }
 
+    const char*		fileName() const		{ return fname_; }
     const char*		type() const;
     int			nrLines() const			{ return pars_.size(); }
     const IOPar&	getInfo( int idx ) const	{ return *pars_[idx]; }

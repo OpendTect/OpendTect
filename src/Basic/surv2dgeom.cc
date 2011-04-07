@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.16 2011-03-14 07:21:11 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.17 2011-04-07 12:32:36 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -724,4 +724,25 @@ PosInfo::GeomID PosInfo::Survey2D::getGeomID( const char* linesetnm,
 	setCurLineSet( linesetnm );
     PosInfo::GeomID geomid( getLineSetID(linesetnm), getLineID(linenm) );
     return geomid;
+}
+
+
+const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
+{
+    FilePath fp( basefp_ );
+    fp.add( lsnm );
+    return fp.fullPath();
+}
+
+
+const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
+       					      const char* linenm ) const
+{
+    PosInfo::GeomID geomid = getGeomID( lsnm, linenm );
+    if ( !geomid.isOK() )
+	return 0;
+    FilePath fp( basefp_ );
+    fp.add( lsnm );
+    fp.add( linenm );
+    return fp.fullPath();
 }

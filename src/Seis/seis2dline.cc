@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.87 2011-03-14 07:21:11 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.88 2011-04-07 12:32:36 cvssatyaki Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -597,6 +597,7 @@ bool Seis2DLineSet::renameFiles( const char* newlsnm )
 	pars_[idx]->set( sKey::FileName, filenm );
     }
 
+    PosInfo::POS2DAdmin().renameLineSet( oldlsnm, newlsnm );
     writeFile();
     return true;
 }
