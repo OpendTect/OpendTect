@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.53 2010-12-30 17:35:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.54 2011-04-07 12:41:22 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -145,6 +145,7 @@ VolStats::VolStats( Desc& ds )
     , positions_(0,BinID(0,0))
     , desgate_(0,0)
     , linepath_(0)
+    , linetruepos_(0)
 {
     if ( !isOK() ) return;
 
@@ -196,6 +197,8 @@ VolStats::VolStats( Desc& ds )
 
 VolStats::~VolStats()
 {
+    if ( linetruepos_ ) delete linetruepos_;
+    if ( linepath_ ) delete linepath_;
 }
 
 
@@ -307,7 +310,8 @@ void VolStats::prepPriorToBoundsCalc()
 
     if ( shape_ == mShapeOpticalStack && (!linepath_ || !linetruepos_) )
     {
-	errmsg_ = "Optical Stack should only be applied on random lines";
+	errmsg_ = "Optical Stack only works on elements\n";
+	errmsg_ += "which define an horizontal direction";
 	return;
     }
 
@@ -462,35 +466,62 @@ void VolStats::getIdealStackPos(
 		    ? 0
 		    : (float)(npos.crl-ppos.crl) / (float)(npos.inl-ppos.inl);
 
+    bool isinline = false;
+    bool iscrossline = false;
+    if ( desiredvolume_->isFlat() )
+    {
+	if ( desiredvolume_->defaultDir() == CubeSampling::Inl )
+	    isinline = true;
+	else if ( desiredvolume_->defaultDir() == CubeSampling::Crl )
+	    iscrossline = true;
+    }
+
     if ( optstackdir_ == mDirNorm && !mIsZero(coeffa,1e-6) )
 	coeffa = -1/coeffa;
 
-    const float coeffb = (float)cpos.crl - coeffa * (float)cpos.inl;
+    Geom::Point2D<float> pointa;
+    Geom::Point2D<float> pointb;
+    if ( (isinline && optstackdir_ == mDirLine)
+	|| (iscrossline && optstackdir_ == mDirNorm) )
+    {
+	pointa = Geom::Point2D<float>( cpos.inl, cpos.crl-optstackstep_ );
+	pointb = Geom::Point2D<float>( cpos.inl, cpos.crl+optstackstep_ );
+    }
+    else if ( (isinline && optstackdir_ == mDirNorm)
+	    || (iscrossline && optstackdir_ == mDirLine) )
+    {
+	pointa = Geom::Point2D<float>( cpos.inl-optstackstep_, cpos.crl );
+	pointb = Geom::Point2D<float>( cpos.inl+optstackstep_, cpos.crl );
+    }
+    else
+    {
+	const float coeffb = (float)cpos.crl - coeffa * (float)cpos.inl;
 
-    //compute 4 intersections with 'stepout box'
-    const Geom::Point2D<float> inter1( cpos.inl - optstackstep_,
+	//compute 4 intersections with 'stepout box'
+	const Geom::Point2D<float> inter1( cpos.inl - optstackstep_,
 				    (cpos.inl-optstackstep_)*coeffa + coeffb );
-    const Geom::Point2D<float> inter2( cpos.inl + optstackstep_,
+	const Geom::Point2D<float> inter2( cpos.inl + optstackstep_,
 				    (cpos.inl+optstackstep_)*coeffa + coeffb );
-    const float interx3 = mIsZero(coeffa,1e-6) ? cpos.inl
-				: (cpos.crl-optstackstep_-coeffb)/coeffa;
-    const Geom::Point2D<float> inter3( interx3, cpos.crl - optstackstep_);
-    const float interx4 = mIsZero(coeffa,1e-6) ? cpos.inl
-				: (cpos.crl+optstackstep_-coeffb)/coeffa;
-    const Geom::Point2D<float> inter4( interx4, cpos.crl + optstackstep_);
+	const float interx3 = mIsZero(coeffa,1e-6) ? cpos.inl
+				    : (cpos.crl-optstackstep_-coeffb)/coeffa;
+	const Geom::Point2D<float> inter3( interx3, cpos.crl - optstackstep_);
+	const float interx4 = mIsZero(coeffa,1e-6) ? cpos.inl
+				    : (cpos.crl+optstackstep_-coeffb)/coeffa;
+	const Geom::Point2D<float> inter4( interx4, cpos.crl + optstackstep_);
 
-    //keep 2 points that cross the 'stepout box'
-    const Geom::Point2D<float> pointa = inter1.x>cpos.inl-optstackstep_
-				     && inter1.x<cpos.inl+optstackstep_
-				     && inter1.y>cpos.crl-optstackstep_
-				     && inter1.y<cpos.crl+optstackstep_
-				     	? inter1 : inter3;
+	//keep 2 points that cross the 'stepout box'
+	pointa = inter1.x>cpos.inl-optstackstep_
+		     && inter1.x<cpos.inl+optstackstep_
+		     && inter1.y>cpos.crl-optstackstep_
+		     && inter1.y<cpos.crl+optstackstep_
+			? inter1 : inter3;
 
-    const Geom::Point2D<float> pointb = inter2.x>cpos.inl-optstackstep_
-				     && inter2.x<cpos.inl+optstackstep_
-				     && inter2.y>cpos.crl-optstackstep_
-				     && inter2.y<cpos.crl+optstackstep_
-				     	? inter2 : inter4;
+	pointb = inter2.x>cpos.inl-optstackstep_
+		     && inter2.x<cpos.inl+optstackstep_
+		     && inter2.y>cpos.crl-optstackstep_
+		     && inter2.y<cpos.crl+optstackstep_
+			? inter2 : inter4;
+    }
 
     //compute intermediate points, number determined by optstackstep_
     const float incinl = (pointb.x - pointa.x) / (2*optstackstep_);

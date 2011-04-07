@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.110 2011-03-01 10:21:40 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.111 2011-04-07 12:41:22 cvshelene Exp $";
 
 #include "attribengman.h"
 
@@ -649,6 +649,21 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
 	    todocs.zrg.start = mMIN(mRg(z).stop+cs_.zrg.step, todocs.zrg.stop);
 	    mAddAttrOut( todocs )
 	}
+    }
+
+    if ( cs_.isFlat() && cs_.defaultDir() != CubeSampling::Z )
+    {
+	TypeSet<BinID> positions;
+	if ( cs_.defaultDir() == CubeSampling::Inl )
+	    for ( int idx=0; idx<cs_.nrCrl(); idx++ )
+		positions += BinID( cs_.hrg.start.inl,
+				    cs_.hrg.start.crl + cs_.hrg.step.crl*idx );
+	if ( cs_.defaultDir() == CubeSampling::Crl )
+	    for ( int idx=0; idx<cs_.nrInl(); idx++ )
+		positions += BinID( cs_.hrg.start.inl+ cs_.hrg.step.inl*idx,
+				    cs_.hrg.start.crl );
+
+	proc->setRdmPaths( &positions, &positions );
     }
 
     return proc;
