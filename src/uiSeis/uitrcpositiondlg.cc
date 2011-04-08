@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.4 2011-03-31 08:24:49 cvshelene Exp $";
+static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.5 2011-04-08 12:45:40 cvshelene Exp $";
 
 #include "uitrcpositiondlg.h"
 
@@ -50,6 +50,8 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 	inlfld_->box()->setInterval( cs.hrg.inlRange() );
 	crlfld_->setInterval( cs.hrg.crlRange() );
     }
+
+    zrg_.setFrom( cs.zrg );
 }
 
 
@@ -78,6 +80,8 @@ CubeSampling uiTrcPositionDlg::getCubeSampling() const
 	cs.hrg.set( StepInterval<int>( inlnr, inlnr, 1 ),
 		    StepInterval<int>( crlnr, crlnr, 1 ) );
     }
+
+    cs.zrg = zrg_;
     return cs;
 }
 

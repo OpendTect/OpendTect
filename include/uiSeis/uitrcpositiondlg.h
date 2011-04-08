@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          July 2010
- RCS:           $Id: uitrcpositiondlg.h,v 1.2 2010-08-27 05:31:06 cvsranojay Exp $
+ RCS:           $Id: uitrcpositiondlg.h,v 1.3 2011-04-08 12:45:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
 
 protected:                                                                      
     void			lineSel(CallBacker*);
+    StepInterval<float>		zrg_;
 };
 
 #endif
