@@ -9,6 +9,7 @@
 
 #include "arrayndinfo.h"
 #include "fourier.h"
+#include "scaler.h"
 #include "varlenarray.h"
 
 
@@ -78,7 +79,10 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
     }
 
     const float df = Fourier::CC::getDf( outsampling_.step, size );
-    const float nyq = Fourier::CC::getNyqvist( outsampling_.step );
+    const float nyqfreq = Fourier::CC::getNyqvist( outsampling_.step );
+    const float tapersz = (int)( size/10 );
+    const float maxfreq = nyqfreq + tapersz*df;
+    LinScaler cosscale( nyqfreq, 0, maxfreq, M_PI/2 );
 
     const float_complex* stopptr = buffer+size;
     for ( int idx=start; idx<=stop; idx++ )
@@ -101,7 +105,10 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
 	    const float angle = 2*M_PI *anglesampling * freqidx;
 	    const float freq = df * freqidx;
 	    const float_complex cexp = float_complex( cos(angle), sin(angle) );
-	    *ptr += freq > nyq ? 0 : cexp * reflectivity;
+	    const float_complex cpexref = cexp * reflectivity;
+	    *ptr += freq > nyqfreq ?  
+			freq > maxfreq ? 0 : cpexref*(float)cosscale.scale(freq)
+		      : cpexref ;
 	    ptr++;
 	    freqidx++;
 	}
