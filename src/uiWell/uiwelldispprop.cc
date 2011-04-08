@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.52 2011-04-08 12:37:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.53 2011-04-08 12:53:27 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -290,7 +290,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     logarithmfld_ = new uiCheckBox( this, "Logarithmic" );
     logarithmfld_->attach( rightOf, rangefld_ );
     
-    revertlogfld_ = new uiCheckBox( this, "Mirror " );
+    revertlogfld_ = new uiCheckBox( this, "Flip" );
     revertlogfld_->attach( rightOf, cliprangefld_ );
 
     lblr_ = new uiLabeledSpinBox( this, "Repeat" );
