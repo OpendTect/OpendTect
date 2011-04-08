@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.53 2011-04-08 12:53:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.54 2011-04-08 13:11:39 cvsbert Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -156,7 +156,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     : uiWellDispProperties(p,su,mp)
 {
     shapefld_ = new uiLabeledComboBox( this, "Shape" );
-    shapefld_->attach( alignedBelow, szfld_ );
+    shapefld_->attach( alignedBelow, colfld_ );
     for ( int idx=0; shapes[idx]; idx++)
 	shapefld_->box()->addItem( shapes[idx] );
     
