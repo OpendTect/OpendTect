@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.37 2011-04-08 12:37:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.38 2011-04-08 13:44:34 cvsbert Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -44,6 +44,12 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 {
     stylesel_ = 0; colinp_ = 0; widthbox_ = 0;
 
+    BufferString lbltxt( su.txt_ );
+    if ( lbltxt.isEmpty() )
+	lbltxt = "Line style";
+    else if ( lbltxt == "-" )
+	lbltxt.setEmpty();
+
     if ( su.drawstyle_ )
     {
 	BufferStringSet itms( LineStyle::TypeNames() );
@@ -51,21 +57,20 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 	stylesel_->setPrefWidthInChar( 16 );
 	stylesel_->setCurrentItem( (int)linestyle_.type_ );
 	stylesel_->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
-	if ( !su.txt_.isEmpty() )
-	    new uiLabel( this, su.txt_, stylesel_ );
+	if ( !su.color_ && !lbltxt.isEmpty() )
+	    new uiLabel( this, lbltxt, stylesel_ );
     }
 
     if ( su.color_ )
     {
 	uiColorInput::Setup csu( linestyle_.color_, su.transparency_
 		? uiColorInput::Setup::InSelector : uiColorInput::Setup::None );
-	csu.lbltxt( su.drawstyle_ ? "Color" : "Line color" );
+	csu.lbltxt( su.drawstyle_ ? "Color" : "Line color" )
+	    .withdesc( !su.width_ );
 	colinp_ = new uiColorInput( this, csu );
 	colinp_->colorChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	if ( stylesel_ )
 	    colinp_->attach( rightTo, stylesel_ );
-	else if ( !su.txt_.isEmpty() )
-	    new uiLabel( this, su.txt_, colinp_ );
     }
 
     if ( su.width_ )
@@ -79,8 +84,8 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 	    widthbox_->attach( rightTo, colinp_ );
 	else if ( stylesel_ )
 	    widthbox_->attach( rightTo, stylesel_ );
-	else if ( !su.txt_.isEmpty() )
-	    new uiLabel( this, su.txt_, widthbox_ );
+	else if ( !lbltxt.isEmpty() )
+	    new uiLabel( this, lbltxt, widthbox_ );
 
 	widthbox_->box()->valueChanging.notify( 
 					mCB(this,uiSelLineStyle,changeCB) );
