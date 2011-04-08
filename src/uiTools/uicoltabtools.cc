@@ -7,7 +7,7 @@ Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabtools.cc,v 1.18 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabtools.cc,v 1.19 2011-04-08 07:33:02 cvsjaap Exp $";
 
 #include "uicoltabtools.h"
 #include "uirgbarray.h"
@@ -74,4 +74,15 @@ void uiColorTableCanvas::setRGB()
     pixmap.convertFromRGBArray( *rgbarr_ );
     setPixmap( pixmap );
     draw();
+}
+
+
+bool uiColorTableCanvas::handleLongTabletPress()
+{
+    const Geom::Point2D<int> pos = TabletInfo::currentState()->globalpos_;
+    MouseEvent me( OD::RightButton, pos.x, pos.y );
+    const int refnr = beginCmdRecEvent( "rightButtonPressed" );
+    getMouseEventHandler().triggerButtonPressed( me );
+    endCmdRecEvent( refnr, "rightButtonPressed" );
+    return true;
 }

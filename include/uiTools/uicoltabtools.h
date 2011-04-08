@@ -18,6 +18,8 @@ public:
 				~uiColorTableCanvas();
     void			setRGB();
 
+    bool			handleLongTabletPress();
+
 protected:
 
     bool			vertical_;
