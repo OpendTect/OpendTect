@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.h,v 1.15 2010-02-20 00:58:42 cvskarthika Exp $
+ RCS:           $Id: uisellinest.h,v 1.16 2011-04-08 12:37:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,11 +27,31 @@ Provides selection of linestyle, linecolor and linewidth
 mClass uiSelLineStyle : public uiGroup
 { 	
 public:
+
+    mClass Setup
+    {
+    public:
+			Setup( const char* lbltxt=0 )
+			    // lbltxt null or "" => "Line style"
+			    // lbltxt "-" => no label
+			    : txt_(lbltxt)
+			    , drawstyle_(true)
+			    , color_(true)
+			    , width_(true)
+			    , transparency_(false)	{}
+
+	mDefSetupMemb(BufferString,txt)
+	mDefSetupMemb(bool,drawstyle)
+	mDefSetupMemb(bool,color)
+	mDefSetupMemb(bool,width)
+	mDefSetupMemb(bool,transparency)
+
+    };
+
 				uiSelLineStyle(uiParent*,const LineStyle&,
-					       const char* txt=0,
-					       bool withdrawstyle=true,
-					       bool withcolor=true,
-					       bool withwidth=true);
+					       const char* lbltxt=0);
+				uiSelLineStyle(uiParent*,const LineStyle&,
+					       const Setup&);
 				~uiSelLineStyle();
 
     void			setStyle(const LineStyle&);
@@ -39,7 +59,6 @@ public:
 
     void			setColor(const Color&);
     const Color&		getColor() const;
-    void			enableTransparency(bool); // default not
     void			setWidth(int);
     int				getWidth() const;
     void			setLineWidthBounds( int min, int max );
@@ -50,13 +69,17 @@ public:
 
 protected:
 
-    uiComboBox*			stylesel;
-    uiColorInput*		colinp;
-    uiLabeledSpinBox*		widthbox;
+    uiComboBox*			stylesel_;
+    uiColorInput*		colinp_;
+    uiLabeledSpinBox*		widthbox_;
 
-    LineStyle&			linestyle;
+    LineStyle&			linestyle_;
 
     void			changeCB(CallBacker*);
+private:
+
+    void			init(const Setup&);
+
 };
 
 #endif

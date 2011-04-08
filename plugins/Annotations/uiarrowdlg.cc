@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarrowdlg.cc,v 1.6 2009-08-27 15:55:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uiarrowdlg.cc,v 1.7 2011-04-08 12:37:10 cvsbert Exp $";
 
 
 #include "uiarrowdlg.h"
@@ -31,8 +31,8 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     typefld_->box()->selectionChanged.notify(
 				mCB(this,uiArrowDialog,changeCB) );
 
-    LineStyle ls;
-    linestylefld_ = new uiSelLineStyle( this, ls, "Line style", false );
+    LineStyle ls; uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
+    linestylefld_ = new uiSelLineStyle( this, ls, lssu );
     linestylefld_->changed.notify( mCB(this,uiArrowDialog,changeCB) );
     linestylefld_->attach( alignedBelow, typefld_ );
 

@@ -4,7 +4,7 @@
  * DATE     : Nov 2007
 -*/
 
-static const char* rcsID = "$Id: uigoogleexppolygon.cc,v 1.6 2010-11-25 09:20:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigoogleexppolygon.cc,v 1.7 2011-04-08 12:37:10 cvsbert Exp $";
 
 #include "uigoogleexppolygon.h"
 #include "googlexmlwriter.h"
@@ -27,8 +27,8 @@ uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
 {
     Color defcol( ps_.disp_.color_ ); defcol.setTransparency( 150 );
     const LineStyle ls( LineStyle::Solid, 20, defcol );
-    lsfld_ = new uiSelLineStyle( this, ls, "Line style", false, true, true );
-    lsfld_->enableTransparency( true );
+    uiSelLineStyle::Setup lssu; lssu.drawstyle( false ).transparency( true );
+    lsfld_ = new uiSelLineStyle( this, ls, lssu );
 
     hghtfld_ = new uiGenInput( this, "Height", FloatInpSpec(100) );
     hghtfld_->attach( alignedBelow, lsfld_ );

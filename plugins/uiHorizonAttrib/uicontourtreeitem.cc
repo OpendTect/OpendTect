@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.16 2011-02-21 15:51:44 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.17 2011-04-08 12:37:10 cvsbert Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -65,7 +65,8 @@ uiContourParsDlg( uiParent* p, const Interval<float>& rg,
     intvfld_->valuechanged.notify( mCB(this,uiContourParsDlg,intvChanged) );
     intvfld_->attach( leftAlignedBelow, lbl );
 
-    lsfld_ = new uiSelLineStyle( this, ls, 0, false, true, true );
+    uiSelLineStyle::Setup lssu; lssu.drawstyle(false);
+    lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, intvfld_ );
     lsfld_->changed.notify( mCB(this,uiContourParsDlg,lsChanged) );
 

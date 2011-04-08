@@ -4,7 +4,7 @@
  * DATE     : Nov 2009
 -*/
 
-static const char* rcsID = "$Id: uigoogleexp2dlines.cc,v 1.14 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigoogleexp2dlines.cc,v 1.15 2011-04-08 12:37:10 cvsbert Exp $";
 
 #include "uigoogleexp2dlines.h"
 #include "googlexmlwriter.h"
@@ -53,7 +53,8 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
 	putlnmfld_->attach( alignedBelow, putallfld_ );
 
     LineStyle ls( LineStyle::Solid, 20, Color(0,0,255) );
-    lsfld_ = new uiSelLineStyle( this, ls, "Line style", false, true, true );
+    uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
+    lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, putlnmfld_ );
 
     mImplFileNameFld(s2dfm_->lineset_->name());

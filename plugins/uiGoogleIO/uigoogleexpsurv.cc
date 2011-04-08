@@ -4,7 +4,7 @@
  * DATE     : Nov 2007
 -*/
 
-static const char* rcsID = "$Id: uigoogleexpsurv.cc,v 1.18 2010-11-25 09:20:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigoogleexpsurv.cc,v 1.19 2011-04-08 12:37:10 cvsbert Exp $";
 
 #include "uigoogleexpsurv.h"
 #include "googlexmlwriter.h"
@@ -26,8 +26,8 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
     , si_(uisurv->curSurvInfo())
 {
     const LineStyle ls( LineStyle::Solid, 20, Color(255,170,80,100) );
-    lsfld_ = new uiSelLineStyle( this, ls, "Line style", false, true, true );
-    lsfld_->enableTransparency( true );
+    uiSelLineStyle::Setup lssu; lssu.drawstyle( false ).transparency( true );
+    lsfld_ = new uiSelLineStyle( this, ls, lssu );
 
     hghtfld_ = new uiGenInput( this, "Border height", FloatInpSpec(500) );
     hghtfld_->attach( alignedBelow, lsfld_ );

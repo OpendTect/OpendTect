@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.36 2011-04-01 09:46:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.37 2011-04-08 12:37:10 cvsbert Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -22,70 +22,88 @@ static const int cMinWidth = 1;
 static const int cMaxWidth = 100;
 
 uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
-				const char* txt, bool wdraw, bool wcol, 
-				bool wwidth )
+				const uiSelLineStyle::Setup& su )
     : uiGroup(p,"Line style selector")
-    , linestyle(*new LineStyle(ls))
-    , stylesel(0)
-    , colinp(0)
-    , widthbox(0)
+    , linestyle_(*new LineStyle(ls))
     , changed(this)
 {
-    if ( wdraw )
+    init( su );
+}
+
+uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
+				const char* ltxt )
+    : uiGroup(p,"Line style selector")
+    , linestyle_(*new LineStyle(ls))
+    , changed(this)
+{
+    init( Setup(ltxt) );
+}
+
+
+void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
+{
+    stylesel_ = 0; colinp_ = 0; widthbox_ = 0;
+
+    if ( su.drawstyle_ )
     {
 	BufferStringSet itms( LineStyle::TypeNames() );
-	stylesel = new uiComboBox( this, itms, "Line Style" );
-	stylesel->setPrefWidthInChar( 16 );
-	stylesel->setCurrentItem( (int)linestyle.type_ );
-	stylesel->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
-	new uiLabel( this, txt, stylesel );
+	stylesel_ = new uiComboBox( this, itms, "Line Style" );
+	stylesel_->setPrefWidthInChar( 16 );
+	stylesel_->setCurrentItem( (int)linestyle_.type_ );
+	stylesel_->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
+	if ( !su.txt_.isEmpty() )
+	    new uiLabel( this, su.txt_, stylesel_ );
     }
 
-    if ( wcol )
+    if ( su.color_ )
     {
-	colinp = new uiColorInput( this,
-				   uiColorInput::Setup(linestyle.color_)
-				   .lbltxt(wdraw ? "Color" : "Line color")
-	       			   .withdesc(false) );
-	colinp->colorChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
-	if ( stylesel )
-	    colinp->attach( rightTo, stylesel );
+	uiColorInput::Setup csu( linestyle_.color_, su.transparency_
+		? uiColorInput::Setup::InSelector : uiColorInput::Setup::None );
+	csu.lbltxt( su.drawstyle_ ? "Color" : "Line color" );
+	colinp_ = new uiColorInput( this, csu );
+	colinp_->colorChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
+	if ( stylesel_ )
+	    colinp_->attach( rightTo, stylesel_ );
+	else if ( !su.txt_.isEmpty() )
+	    new uiLabel( this, su.txt_, colinp_ );
     }
 
-    if ( wwidth )
+    if ( su.width_ )
     {
-	widthbox = new uiLabeledSpinBox( this, wcol || wdraw ? "Width" 
-							     : "Line width" );
-	widthbox->box()->setMinValue( mMIN(cMinWidth,linestyle.width_) );
-  	widthbox->box()->setMaxValue( mMAX(cMaxWidth,linestyle.width_) );
-	widthbox->box()->setValue( linestyle.width_ );
-	if ( colinp )
-	    widthbox->attach( rightTo, colinp );
-	else if ( stylesel )
-	    widthbox->attach( rightTo, stylesel );
+	widthbox_ = new uiLabeledSpinBox( this,
+		    su.color_ || su.drawstyle_ ? "Width" : "Line width" );
+	widthbox_->box()->setMinValue( mMIN(cMinWidth,linestyle_.width_) );
+  	widthbox_->box()->setMaxValue( mMAX(cMaxWidth,linestyle_.width_) );
+	widthbox_->box()->setValue( linestyle_.width_ );
+	if ( colinp_ )
+	    widthbox_->attach( rightTo, colinp_ );
+	else if ( stylesel_ )
+	    widthbox_->attach( rightTo, stylesel_ );
+	else if ( !su.txt_.isEmpty() )
+	    new uiLabel( this, su.txt_, widthbox_ );
 
-	widthbox->box()->valueChanging.notify( 
+	widthbox_->box()->valueChanging.notify( 
 					mCB(this,uiSelLineStyle,changeCB) );
     }
 
-    setHAlignObj( stylesel ? (uiObject*)stylesel 
-	    		   : ( colinp ? (uiObject*)colinp->attachObj() 
-			       	      : (uiObject*)widthbox->attachObj() ) );
-    setHCentreObj( stylesel ? (uiObject*)stylesel
-	    		    : ( colinp ? (uiObject*)colinp->attachObj()
-				       : (uiObject*)widthbox->attachObj() ) );
+    setHAlignObj( stylesel_ ? (uiObject*)stylesel_ 
+	    		   : ( colinp_ ? (uiObject*)colinp_->attachObj() 
+			       	      : (uiObject*)widthbox_->attachObj() ) );
+    setHCentreObj( stylesel_ ? (uiObject*)stylesel_
+	    		    : ( colinp_ ? (uiObject*)colinp_->attachObj()
+				       : (uiObject*)widthbox_->attachObj() ) );
 }
 
 
 uiSelLineStyle::~uiSelLineStyle()
 {
-    delete &linestyle;
+    delete &linestyle_;
 }
 
 
 const LineStyle& uiSelLineStyle::getStyle() const
 {
-    return linestyle;
+    return linestyle_;
 }
 
 
@@ -94,83 +112,77 @@ void uiSelLineStyle::setStyle( const LineStyle& ls )
     setColor( ls.color_ );
     setWidth( ls.width_ );
     setType( (int)ls.type_ );
-    if ( colinp )
-	colinp->setSensitive( linestyle.type_ != LineStyle::None );
+    if ( colinp_ )
+	colinp_->setSensitive( linestyle_.type_ != LineStyle::None );
 
-    if ( widthbox )
-	widthbox->setSensitive( linestyle.type_ != LineStyle::None );
-}
-
-
-void uiSelLineStyle::enableTransparency( bool yn )
-{
-    colinp->enableAlphaSetting( yn );
+    if ( widthbox_ )
+	widthbox_->setSensitive( linestyle_.type_ != LineStyle::None );
 }
 
 
 void uiSelLineStyle::setLineWidthBounds( int min, int max )
 {
-    widthbox->box()->setMinValue( min );
-    widthbox->box()->setMaxValue( max );
+    widthbox_->box()->setMinValue( min );
+    widthbox_->box()->setMaxValue( max );
     if ( min == -1 )
-	widthbox->box()->setSpecialValueText( "pixel" );
+	widthbox_->box()->setSpecialValueText( "pixel" );
 }
 
 
 void uiSelLineStyle::setColor( const Color& col )
 {
-    linestyle.color_ = col;
-    if ( colinp ) colinp->setColor( col );
+    linestyle_.color_ = col;
+    if ( colinp_ ) colinp_->setColor( col );
 }
 
 
 const Color& uiSelLineStyle::getColor() const
 {
-    return linestyle.color_;
+    return linestyle_.color_;
 }
 
 
 void uiSelLineStyle::setWidth( int width )
 {
-    linestyle.width_ = width;
-    if ( widthbox ) widthbox->box()->setValue( width );
+    linestyle_.width_ = width;
+    if ( widthbox_ ) widthbox_->box()->setValue( width );
 }
 
 
 int uiSelLineStyle::getWidth() const
 {
-    return linestyle.width_;
+    return linestyle_.width_;
 }
 
 
 void uiSelLineStyle::setType( int tp )
 {
-    linestyle.type_ = (LineStyle::Type)tp;
-    if ( stylesel ) stylesel->setCurrentItem( tp );
+    linestyle_.type_ = (LineStyle::Type)tp;
+    if ( stylesel_ ) stylesel_->setCurrentItem( tp );
 }
 
 
 int uiSelLineStyle::getType() const
 {
-    return (int)linestyle.type_;
+    return (int)linestyle_.type_;
 }
 
 
 void uiSelLineStyle::changeCB( CallBacker* cb )
 {
-    if ( stylesel )
-	linestyle.type_ = (LineStyle::Type)stylesel->currentItem();
+    if ( stylesel_ )
+	linestyle_.type_ = (LineStyle::Type)stylesel_->currentItem();
 
-    if ( colinp )
+    if ( colinp_ )
     {
-	linestyle.color_ = colinp->color();
-	colinp->setSensitive( linestyle.type_ != LineStyle::None );
+	linestyle_.color_ = colinp_->color();
+	colinp_->setSensitive( linestyle_.type_ != LineStyle::None );
     }
 
-    if ( widthbox )
+    if ( widthbox_ )
     {
-	linestyle.width_ = widthbox->box()->getValue();
-	widthbox->setSensitive( linestyle.type_ != LineStyle::None );
+	linestyle_.width_ = widthbox_->box()->getValue();
+	widthbox_->setSensitive( linestyle_.type_ != LineStyle::None );
     }
 
     changed.trigger(cb);

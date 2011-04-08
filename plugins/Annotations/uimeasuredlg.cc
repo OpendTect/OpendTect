@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.22 2010-06-17 20:49:40 cvskris Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.23 2011-04-08 12:37:10 cvsbert Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -132,8 +132,8 @@ void uiMeasureDlg::stylebutCB( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Line Style",mNoDlgTitle,mNoHelpID) );
     dlg.setCtrlStyle( uiDialog::LeaveOnly );
-    uiSelLineStyle* linestylefld =
-	new uiSelLineStyle( &dlg, ls_, "", false, true, true );
+    uiSelLineStyle* linestylefld = new uiSelLineStyle( &dlg, ls_,
+	    			uiSelLineStyle::Setup().drawstyle(false) );
     linestylefld->changed.notify( mCB(this,uiMeasureDlg,lsChangeCB) );
     dlg.go();
 

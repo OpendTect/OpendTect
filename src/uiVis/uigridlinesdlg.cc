@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.13 2010-12-15 06:13:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.14 2011-04-08 12:37:10 cvsbert Exp $";
 
 #include "uigridlinesdlg.h"
 
@@ -57,7 +57,7 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     LineStyle lst;
     pdd->gridlines()->getLineStyle( lst );
     
-    lsfld_ = new uiSelLineStyle( this, lst, "Line style", true, true );
+    lsfld_ = new uiSelLineStyle( this, lst, "Line style" );
     if ( zfld_ )
     {
 	zfld_->attach( leftAlignedBelow, inlfld_ ? inlspacingfld_ 

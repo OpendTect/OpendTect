@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.54 2011-04-01 09:46:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.55 2011-04-08 12:37:10 cvsbert Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -613,8 +613,8 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     linestylefld_ = new uiSelLineStyle( this, linestyles_[0], "Line style" );
     linestylefld_->attach( alignedBelow, auxnamefld_ );
 
-    linestylenocolorfld_ = new uiSelLineStyle( this, linestyles_[0],
-					"Line style", true, false, true  );
+    uiSelLineStyle::Setup su( "Line style" ); su.color( false );
+    linestylenocolorfld_ = new uiSelLineStyle( this, linestyles_[0], su );
     linestylenocolorfld_->attach( alignedBelow, auxnamefld_ );
 
     fillcolorfld_ = new uiColorInput( this, uiColorInput::Setup(fillcolors_[0]),

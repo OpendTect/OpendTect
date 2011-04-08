@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.51 2011-04-01 09:47:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.52 2011-04-08 12:37:10 cvsbert Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -49,8 +49,7 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
     szfld_->valueChanging.notify( mCB(this,uiWellDispProperties,propChg) );
     new uiLabel( this, su.mysztxt_, szfld_ );
 
-    uiColorInput::Setup csu( props().color_ );
-    csu.lbltxt( su.mycoltxt_ ).withalpha( false );
+    uiColorInput::Setup csu( props().color_ ); csu.lbltxt( su.mycoltxt_ );
     BufferString dlgtxt( "Select " );
     dlgtxt += su.mycoltxt_; dlgtxt += " for "; dlgtxt += props().subjectName();
     colfld_ = new uiColorInput( this, csu, su.mycoltxt_ );
@@ -166,7 +165,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     cylinderheightfld_->attach( rightOf, shapefld_ );
    
     singlecolfld_ = new uiCheckBox( this, "use single color");
-    singlecolfld_ -> attach( rightOf, colfld_); 
+    singlecolfld_->attach( rightOf, colfld_); 
     colfld_->setSensitive( singlecolfld_->isChecked() );
    
     nmsizefld_ = new uiLabeledSpinBox( this, "Names size" );
@@ -177,9 +176,8 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmstylefld_ = new uiComboBox( this, styles, "Fontstyle" );
     nmstylefld_->attach( rightOf, nmsizefld_ );
 
-    uiColorInput::Setup csu( mrkprops().color_ );
-    BufferString dlgtxt( "Names color" );
-    csu.lbltxt( dlgtxt ).withalpha( false );
+    const char* dlgtxt = "Names color";
+    uiColorInput::Setup csu( mrkprops().color_ ); csu.lbltxt( dlgtxt );
     nmcolfld_ = new uiColorInput( this, csu, dlgtxt );
     nmcolfld_->attach( alignedBelow, nmsizefld_ );
 

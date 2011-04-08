@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.26 2011-01-14 13:37:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.27 2011-04-08 12:37:10 cvsbert Exp $";
 
 #include "uimaterialdlg.h"
 
@@ -32,11 +32,10 @@ uiLineStyleGrp::uiLineStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
     , survobj_(so)
     , backup_(*so->lineStyle())
 {
-    field_ = new uiSelLineStyle( this, backup_, "Line style", false,
-				 so->hasSpecificLineColor(), true );
-      // withdrawstyle parameter is false -> do not have the option to change
-      // the line style.
-      // TODO: include this option after properly implementing all line styles.
+    uiSelLineStyle::Setup lssu( "Line style" );
+    lssu.drawstyle(false).color(so->hasSpecificLineColor());
+    field_ = new uiSelLineStyle( this, backup_, lssu );
+      // TODO: include drawstyle after properly implementing all line styles.
 
     field_->changed.notify( mCB(this,uiLineStyleGrp,changedCB) );
 

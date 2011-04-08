@@ -4,7 +4,7 @@
  * DATE     : Nov 2009
 -*/
 
-static const char* rcsID = "$Id: uigoogleexprandline.cc,v 1.6 2010-11-25 09:20:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigoogleexprandline.cc,v 1.7 2011-04-08 12:37:10 cvsbert Exp $";
 
 #include "uigoogleexprandline.h"
 #include "googlexmlwriter.h"
@@ -39,7 +39,8 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
     lnmfld_->attach( alignedBelow, putlnmfld_ );
 
     LineStyle ls( LineStyle::Solid, 20, Color(200,0,200) );
-    lsfld_ = new uiSelLineStyle( this, ls, "Line style", false, true, true );
+    uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
+    lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, lnmfld_ );
 
     mImplFileNameFld(nm);
