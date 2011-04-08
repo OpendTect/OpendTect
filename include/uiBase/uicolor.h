@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.22 2011-04-01 09:43:56 cvsbert Exp $
+ RCS:           $Id: uicolor.h,v 1.23 2011-04-08 12:36:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiLabel;
 class uiPushButton;
 class uiCheckBox;
 class uiComboBox;
+class uiSpinBox;
 
 
 /*! \brief pops a selector box to select a new color 
@@ -45,20 +46,23 @@ public:
     mClass Setup
     {
     public:
-			Setup(const Color& col)
-			    : color_(col)
-			    , lbltxt_("")
-			    , withcheck_(false)
-			    , dlgtitle_("Select color")
-			    , withalpha_(false)
-			    , withdesc_(true)
-			{}
+
+	enum TranspHndlng	{ None, InSelector, Separate };
+
+			    Setup( const Color& col, TranspHndlng h=None )
+				: color_(col)
+				, lbltxt_("")
+				, withcheck_(false)
+				, dlgtitle_("Select color")
+				, transp_(h)
+				, withdesc_(h != Separate)
+			    {}
 
 	mDefSetupMemb(Color,color)
 	mDefSetupMemb(BufferString,lbltxt)
 	mDefSetupMemb(bool,withcheck)
 	mDefSetupMemb(BufferString,dlgtitle)
-	mDefSetupMemb(bool,withalpha)
+	mDefSetupMemb(TranspHndlng,transp)
 	mDefSetupMemb(bool,withdesc)
 
     };
@@ -72,9 +76,6 @@ public:
     void			setDoDraw(bool);
     void			setLblText(const char*);
 
-    void			enableAlphaSetting( bool yn )
-				{ withalpha_ = yn; }
-
     Notifier<uiColorInput> 	colorChanged;
     Notifier<uiColorInput> 	doDrawChanged;
 
@@ -85,16 +86,18 @@ protected:
 
     uiPushButton*		colbut_;
     uiCheckBox*			dodrawbox_;
+    uiSpinBox*			transpfld_;
     uiComboBox*			descfld_;
-    uiLabel*			uilbl_;
+    uiLabel*			lbl_;
 
     Color			color_;
     BufferString		dlgtxt_;
-    bool			withalpha_;
+    bool			selwithtransp_;
 
     void			selCol(CallBacker*);
     void			dodrawSel(CallBacker*);
     void			descSel(CallBacker*);
+    void			transpChg(CallBacker*);
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.44 2010-06-25 08:04:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.45 2011-04-08 12:36:46 cvsbert Exp $";
 
 #include "uicoltabman.h"
 
@@ -117,16 +117,16 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     nrsegbox_->valueChanging.notify( mCB(this,uiColorTableMan,nrSegmentsCB) );
     nrsegbox_->attach( rightTo, segmentfld_ );
 
-    uiColorInput::Setup cisetup( ctab_.undefColor());
-    cisetup.lbltxt("Undefined color");
+    uiColorInput::Setup cisetup( ctab_.undefColor(), enabletrans_ ?
+		 uiColorInput::Setup::Separate : uiColorInput::Setup::None );
+    cisetup.lbltxt( "Undefined color" );
     undefcolfld_ = new uiColorInput( rightgrp, cisetup );
-    undefcolfld_->enableAlphaSetting( enabletrans_ );
     undefcolfld_->colorChanged.notify( mCB(this,uiColorTableMan,undefColSel) );
     undefcolfld_->attach( alignedBelow, segmentfld_ );
 
-    markercolfld_ = new uiColorInput(
-	rightgrp,uiColorInput::Setup(ctab_.markColor()).lbltxt("Marker color"));
-    markercolfld_->enableAlphaSetting( true );
+    uiColorInput::Setup ctsu( ctab_.markColor(),
+	    		      uiColorInput::Setup::InSelector );
+    markercolfld_ = new uiColorInput( rightgrp, ctsu.lbltxt("Marker color") );
     markercolfld_->colorChanged.notify(
 	    mCB(this,uiColorTableMan,markerColChgd) );
     markercolfld_->attach( alignedBelow, undefcolfld_ );

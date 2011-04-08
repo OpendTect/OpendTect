@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.35 2011-04-05 14:04:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.36 2011-04-08 12:36:46 cvsbert Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uispinbox.h"
 #include "uibody.h"
 #include "uilabel.h"
 #include "uimain.h"
@@ -114,9 +115,10 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	, color_(s.color_)
 	, dlgtxt_(s.dlgtitle_)
 	, dodrawbox_(0)
-	, uilbl_(0)
+	, lbl_(0)
+	, transpfld_(0)
 	, descfld_(0)
-	, withalpha_(s.withalpha_)
+	, selwithtransp_(s.transp_ == Setup::InSelector)
 	, colorChanged(this)
 	, doDrawChanged(this)
 {
@@ -134,19 +136,38 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	colbut_->attach( rightOf, dodrawbox_ );
     
     if ( !dodrawbox_ && s.lbltxt_ && *s.lbltxt_)
-	uilbl_ = new uiLabel( this, s.lbltxt_, colbut_ );
+	lbl_ = new uiLabel( this, s.lbltxt_, colbut_ );
 
+    uiLabeledSpinBox* lsb = 0;
+    if ( s.transp_ == Setup::Separate )
+    {
+	lsb = new uiLabeledSpinBox( this, "Transp", 0 );
+	lsb->attach( rightOf, colbut_ );
+	transpfld_ = lsb->box();
+	transpfld_->setSuffix( "%" );
+	transpfld_->setInterval( 0, 100, 1 );
+	transpfld_->setHSzPol( uiObject::Small );
+	transpfld_->valueChanged.notify( mCB(this,uiColorInput,transpChg) );
+    }
     if ( s.withdesc_ )
     {
 	descfld_ = new uiComboBox( this, Color::descriptions(),
 				    "Color description" );
 	descfld_->setHSzPol( uiObject::Medium );
-	descfld_->attach( rightOf, colbut_ );
+	if ( lsb )
+	    descfld_->attach( rightOf, lsb );
+	else
+	    descfld_->attach( rightOf, colbut_ );
 	descfld_->selectionChanged.notify( mCB(this,uiColorInput,descSel) );
     }
 
     setColor( color_ ); 
-    setHAlignObj( colbut_ );
+    if ( lbl_ || (!descfld_ && !transpfld_) )
+	setHAlignObj( colbut_ );
+    else if ( transpfld_ )
+	setHAlignObj( transpfld_ );
+    else
+	setHAlignObj( descfld_ );
 }
 
 
@@ -171,15 +192,27 @@ void uiColorInput::dodrawSel( CallBacker* )
     colbut_->setSensitive( dodrawbox_->isChecked() );
     if ( descfld_ )
 	descfld_->setSensitive( dodrawbox_->isChecked() );
+    if ( transpfld_ )
+	transpfld_->setSensitive( dodrawbox_->isChecked() );
     doDrawChanged.trigger();
 }
+
+
+#define mSetTranspFromFld(col) \
+    if ( transpfld_ ) \
+    { \
+	const float t = transpfld_->getValue() * 2.55; \
+	col.setTransparency( mRounded(unsigned char,t) ); \
+    }
 
 
 void uiColorInput::selCol( CallBacker* )
 {
     Color newcol = color_;
     const Color oldcol = color_;
-    selectColor( newcol, this, dlgtxt_, withalpha_ );
+    selectColor( newcol, this, dlgtxt_, selwithtransp_ );
+    mSetTranspFromFld(newcol);
+
     if ( oldcol != newcol )
     {
 	setColor( newcol );
@@ -192,8 +225,16 @@ void uiColorInput::descSel( CallBacker* )
 {
     const int selidx = descfld_ ? descfld_->currentItem() : -1;
     if ( selidx < 0 ) return;
-    setColor( Color::descriptionCenters()[selidx] );
+    Color newcol( Color::descriptionCenters()[selidx] );
+    mSetTranspFromFld(newcol);
+    setColor( newcol );
     colorChanged.trigger();
+}
+
+
+void uiColorInput::transpChg( CallBacker* )
+{
+    mSetTranspFromFld( color_ );
 }
 
 
@@ -204,6 +245,12 @@ void uiColorInput::setColor( const Color& col )
     ioPixmap pm( colbut_->prefHNrPics()-10, colbut_->prefVNrPics()-10 );
     pm.fill( color_ );
     colbut_->setPixmap( pm );
+    if ( transpfld_ )
+    {
+	const float perc = col.t() / 2.55;
+	transpfld_->setValue( mNINT(perc) );
+    }
+
     if ( descfld_ )
     {
 	NotifyStopper ns( descfld_->selectionChanged );
@@ -216,6 +263,5 @@ void uiColorInput::setColor( const Color& col )
 
 void uiColorInput::setLblText( const char* txt )
 {
-    if ( uilbl_ )
-	uilbl_->setText( txt );
+    if ( lbl_ ) lbl_->setText( txt );
 }
