@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.20 2011-02-22 19:53:41 cvskris Exp $";
+static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.21 2011-04-11 21:00:11 cvsyuancheng Exp $";
 
 #include "SoIndexedLineSet3D.h"
 
@@ -369,8 +369,9 @@ void SoIndexedLineSet3D::rayPick( SoRayPickAction* action )
 
     const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
     const int nrcoords = celem->getNum();
+    const int minnr = nrindex < nrcoords ? nrindex : nrcoords;
+    const int32_t* stopptr = cindices + minnr;
 
-    const int32_t* stopptr = cindices+nrindex;
     while ( cindices<stopptr )
     {
 	int index1 = *cindices++;
@@ -429,6 +430,8 @@ void SoIndexedLineSet3D::LineSet3DData::generateCoordinates( SoNode* node,
 
     const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
     const int nrcoords = celem->getNum();
+    const int minnr = nrindex < nrcoords ? nrindex : nrcoords;
+    const int32_t* stopptr = cindices + minnr;
 
     const SbMatrix& mat = SoModelMatrixElement::get(state);
 
@@ -439,7 +442,6 @@ void SoIndexedLineSet3D::LineSet3DData::generateCoordinates( SoNode* node,
     float scaleby = radius;
 
     int nrjoints = 0;
-    const int32_t* stopptr = cindices+nrindex;
     int index1 = cindices>=stopptr ? -1 : *cindices++;
     while ( index1>=0 )
     {
