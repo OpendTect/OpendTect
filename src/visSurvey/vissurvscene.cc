@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.145 2011-04-06 05:53:35 cvsraman Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.146 2011-04-11 05:34:49 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -49,6 +49,7 @@ const char* Scene::sKeyTopImageID()	{ return "TopImage.ID"; }
 const char* Scene::sKeyBotImageID()	{ return "BotImage.ID"; }
 
 static const char* sKeydTectScene()	{ return "dTect.Scene."; }
+static const char* sKeyShowColTab()	{ return "Show ColTab"; }
 
 
 Scene::Scene()
@@ -128,6 +129,7 @@ void Scene::init()
     scenecoltab_ = visBase::SceneColTab::create();
     addUTMObject( scenecoltab_ );
     scenecoltab_->turnOn( false );
+    scenecoltab_->doSaveInSessions( false );
 
     topimg_ = visBase::TopBotImage::create();
     addUTMObject( topimg_ );
@@ -136,8 +138,6 @@ void Scene::init()
     botimg_ = visBase::TopBotImage::create();
     addUTMObject( botimg_ );
     botimg_->turnOn( false );
-    
-    scenecoltab_->doSaveInSessions( true );
 
     bool doshow = true;
 #define mShowAnnot(str,func) \
@@ -732,6 +732,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( sKeyShowCube(), isAnnotShown() );
     par.set( sKeyZStretch(), curzstretch_ );
     par.setYN( sKeyAppAllowShading(), appallowshad_ );
+    par.setYN( sKeyShowColTab(), scenecoltab_->isOn() );
 
     if ( datatransform_ )
     {
@@ -775,6 +776,10 @@ int Scene::usePar( const IOPar& par )
 
     int res = visBase::Scene::usePar( par );
     if ( res!=1 ) return res;
+
+    bool ctshown = false;
+    par.getYN( sKeyShowColTab(), ctshown );
+    scenecoltab_->turnOn( ctshown );
 
     bool txtshown = true;
     par.getYN( sKeyShowAnnot(), txtshown );
