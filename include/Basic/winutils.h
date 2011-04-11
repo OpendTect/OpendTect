@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Lammertink
  Date:		09-10-2003
  Contents:	Utilities for win32 support
- RCS:		$Id: winutils.h,v 1.5 2010-04-08 07:24:32 cvsranojay Exp $
+ RCS:		$Id: winutils.h,v 1.6 2011-04-11 09:19:39 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -24,8 +24,8 @@ ________________________________________________________________________
 #ifdef __cpp__
 extern "C" 
 {
-    const char*	getCleanUnxPath( const char* path );
-    const char*	getCleanWinPath( const char* path );
+    mGlobal const char*	getCleanUnxPath( const char* path );
+    mGlobal const char*	getCleanWinPath( const char* path );
     mGlobal const char*	GetSpecialFolderLocation(int csidl);
  }
 #ifdef __win__
