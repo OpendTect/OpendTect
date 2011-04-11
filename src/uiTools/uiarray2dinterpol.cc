@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.14 2011-01-21 05:55:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.15 2011-04-11 04:58:16 cvsnageswara Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -261,7 +261,7 @@ bool uiArray2DInterpolSel::acceptOK()
 	: Array2DInterpol::Full );
 
     result_->setMaxHoleSize( maxholeszfld_ && maxholeszfld_->isChecked() 
-			     ? maxholeszfld_->getIntValue() : mUdf(int) );
+			     ? maxholeszfld_->getIntValue() : mUdf(float) );
 
     return true;
 }
