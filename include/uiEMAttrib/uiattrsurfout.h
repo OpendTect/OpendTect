@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.h,v 1.9 2011-01-10 10:20:57 cvssatyaki Exp $
+ RCS:           $Id: uiattrsurfout.h,v 1.10 2011-04-11 04:52:59 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,9 +18,11 @@ class CtxtIOObj;
 class IOPar;
 class MultiID;
 class NLAModel;
-class uiArray2DInterpolSel;
 class uiGenInput;
 class uiIOObjSel;
+class uiPushButton;
+class Array2DInterpol;
+class BufferString;
 
 namespace Attrib { class DescSet; }
 
@@ -43,13 +45,17 @@ protected:
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
     void		attribSel(CallBacker*);
-    void		objSel(CallBacker*);
+    void		objSelCB(CallBacker*);
+    void		fillUdfSelCB(CallBacker*);
+    void		settingsCB(CallBacker*);
 
-    CtxtIOObj&		ctio_;
-    
     uiGenInput*		attrnmfld_;
     uiIOObjSel*		objfld_;
-    uiArray2DInterpolSel* interpolfld_;
+    uiGenInput*		filludffld_;
+    CtxtIOObj&		ctio_;
+    uiPushButton*	settingsbut_;
+    Array2DInterpol*	interpol_;
+    BufferString	methodname_;
 };
 
 #endif
