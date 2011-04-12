@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.33 2011-01-06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.34 2011-04-12 02:10:00 cvskris Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -74,9 +74,8 @@ void DipFilter::initClass()
     desc->addParam( taperlen );
 
     desc->addOutputDataType( Seis::UnknowData );
-    desc->addInput( InputSpec("Input data",true) );
 
-    desc->setLocality( Desc::MultiTrace );
+    desc->addInput( InputSpec("Input data",true) );
     mAttrEndInitClass
 }
 
@@ -139,6 +138,8 @@ DipFilter::DipFilter( Desc& ds )
     if ( size_%2 == 0 )
 	size_++;
 
+    const int hsz = size_/2;
+
     if ( type_ == mFilterTypeLowPass || type_ == mFilterTypeBandPass )
 	mGetFloat( maxvel_, maxvelStr() );
 
@@ -166,7 +167,8 @@ DipFilter::DipFilter( Desc& ds )
 
     kernel_.setSize( desc_.is2D() ? 1 : size_, size_, size_ );
     valrange_ = Interval<float>(minvel_,maxvel_);
-    stepout_ = desc_.is2D() ? BinID( 0, size_/2 ) : BinID( size_/2, size_/2 );
+    stepout_ = desc_.is2D() ? BinID( 0, hsz ) : BinID( hsz, hsz );
+    zmargin_ = Interval<int>( -hsz, hsz );
 }
 
 
@@ -188,8 +190,6 @@ bool DipFilter::initKernel()
     const int hsz = size_/2;
     const int hszinl = is2d ? 0 : hsz;
 
-    float kernelsum = 0;
-
     for ( int kii=-hszinl; kii<=hszinl; kii++ )
     {
 	const float ki = kii * inldist();
@@ -209,7 +209,7 @@ bool DipFilter::initKernel()
 		static const float rad2deg = 180 / M_PI;
 
 		float velocity = fabs(spatialdist/kt);
-		float dipangle = rad2deg *atan2( kt, spatialdist);
+		float dipangle = fabs(rad2deg *atan2( kt, spatialdist));
 		float val = zIsTime() ? velocity : dipangle;
 		float azimuth = rad2deg * atan2( ki, kc );
 
@@ -218,7 +218,7 @@ bool DipFilter::initKernel()
 		{
 		    if ( type_==mFilterTypeLowPass )
 		    {
-			if ( kti && val < valrange_.stop )
+			if ( val < valrange_.stop )
 			{
 			    float ratio = val / valrange_.stop;
 			    ratio -= (1-taperlen_);
@@ -233,19 +233,21 @@ bool DipFilter::initKernel()
 		    }
 		    else if ( type_==mFilterTypeHighPass )
 		    {
-			if ( kti && val > valrange_.start )
+			if ( val > valrange_.start )
 			{
 			    float ratio = val / valrange_.start;
 			    ratio -= 1;
 			    ratio /= taperlen_;
 			    factor = taper( ratio );
 			}
-			else if ( kti )
+			else 
+			{
 			    factor = 0;
+			}
 		    }
 		    else
 		    {
-			if ( kti && valrange_.includes( val ) )
+			if ( valrange_.includes( val ) )
 			{
 			    float htaperlen = taperlen_/2;
 			    float ratio = (val - valrange_.start)
@@ -299,7 +301,6 @@ bool DipFilter::initKernel()
 		}
 
 		kernel_.set( hszinl+kii, hsz+kci, hsz+kti, factor );
-		kernelsum += factor;
 	    }
 	}
     }
@@ -354,8 +355,8 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<nrsamples; idx++)
     {
 	int dhoff = 0;
-	int nrvalues = 0;
 	float sum = 0;
+	float wsum = 0;
 	for ( int idi=0; idi<sizeinl; idi++ )
 	{
 	    for ( int idc=0; idc<size_; idc++ )
@@ -365,23 +366,21 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 
 		Interval<int> dhinterval( dh->z0_, dh->z0_+dh->nrsamples_ );
 
-		int s = idx - hsz;
-		for ( int idt=0; idt<size_; idt++ )
+		for ( int idt=0, relt = -hsz; idt<size_; idt++, relt++ )
 		{
-		    if ( dhinterval.includes(s+z0) && 
-			 s+z0-dh->z0_<dh->nrsamples_ )
+		    const int sample = z0 + idx + relt;
+		    if ( dhinterval.includes(sample) )
 		    {
-			sum += getInputValue( *dh, dataidx_, idx, z0 ) *
-			       kernel_.get( idi, idc, idt );
-			nrvalues++;
-		    }
+			const float weight = kernel_.get( idi, idc, idt );
 
-		    s++;
+			sum += getInputValue(*dh,dataidx_,idx+relt ,z0)*weight;
+			wsum += weight;
+		    }
 		}
 	    }
 	}
 
-	setOutputValue( output, 0, idx, z0, nrvalues ? sum/nrvalues
+	setOutputValue( output, 0, idx, z0, wsum ? sum/wsum
 						     : mUdf(float) );
     }
 
@@ -389,7 +388,11 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-const BinID* DipFilter::reqStepout( int inp, int out ) const
+const BinID* DipFilter::desStepout( int inp, int out ) const
 { return &stepout_; }
+
+
+const Interval<int>* DipFilter::desZSampMargin( int, int ) const
+{ return &zmargin_; }
 
 }; // namespace Attrib

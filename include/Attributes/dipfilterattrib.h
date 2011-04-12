@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: dipfilterattrib.h,v 1.14 2010-10-12 10:30:19 cvshelene Exp $
+ RCS:           $Id: dipfilterattrib.h,v 1.15 2011-04-12 02:10:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,8 @@ protected:
     void		prepareForComputeData() { initKernel(); }
     float		taper(float) const;
 
-    const BinID*		reqStepout(int input,int output) const;
+    const BinID*		desStepout(int input,int output) const;
+    const Interval<int>*	desZSampMargin(int,int) const;
 
     int				size_;
     int				type_;
@@ -125,6 +126,7 @@ protected:
     float               	aziaperture_;
 
     BinID               	stepout_;
+    Interval<int>		zmargin_;
     int				dataidx_;
 
     ObjectSet<const DataHolder>	inputdata_;
