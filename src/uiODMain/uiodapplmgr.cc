@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.414 2011-03-21 16:16:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.415 2011-04-12 09:28:47 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -26,7 +26,6 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.414 2011-03-21 16:16:04 cvsb
 #include "uiodemsurftreeitem.h"
 #include "uiodbodydisplaytreeitem.h"
 #include "uipickpartserv.h"
-#include "visplanedatadisplay.h"
 #include "uiseispartserv.h"
 #include "uistereodlg.h"
 #include "uisurvey.h"
@@ -42,13 +41,14 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.414 2011-03-21 16:16:04 cvsb
 #include "vishorizondisplay.h"
 #include "vishorizon2ddisplay.h"
 #include "vispicksetdisplay.h"
+#include "visplanedatadisplay.h"
 #include "vispolylinedisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "vistexturechannels.h"
 
-#include "attribdatapack.h"
 #include "attribdatacubes.h"
+#include "attribdatapack.h"
 #include "attribdescset.h"
 #include "attribsel.h"
 #include "coltabmapper.h"
@@ -459,7 +459,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    {
 			const float newstep0 = fdp->posData().range(true).step;
 			const float newstep1 = fdp->posData().range(false).step;
-			if ( !(mIsEqual(step0,newstep0,(newstep0+step0)*5E-4) 
+			if ( !(mIsEqual(step0,newstep0,(newstep0+step0)*5E-4)
 			    && mIsEqual(step1,newstep1,(newstep1+step1)*5E-4)) )
 			{
 			    BufferString msg = fdp->name();
@@ -475,7 +475,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 			    }
 			}
 		    }
-							
+
 		    visserv_->setDataPackID( visid, attrib, newid );
 		    res = true;
 		    dpman.release( newid );
@@ -656,7 +656,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	    createAndSetMapDataPack( visid, attrib, *data, 2 );
 	    DPM( DataPackMgr::PointID() ).release( data->id() );
 	    mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
-			    visserv_->getObject(visid) );
+			    visserv_->getObject(visid) )
 	    vishor->setAttribShift( attrib, shifts );
 	}
 
@@ -678,22 +678,23 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 
     const int dataidx = data->dataSet().findColDef( DataColDef(myas.userRef()),
 	    					    PosVecDataSet::NameExact );
-    mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
-	    visserv_->getObject(visid));
-    mDynamicCastGet(visSurvey::FaultDisplay*,visfault,
-	    visserv_->getObject(visid));
-    if ( vishor )
-    {
-	createAndSetMapDataPack( visid, attrib, *data, dataidx );
-	TypeSet<float> shifts( 1, visserv_->getTranslation(visid).z );
-	vishor->setAttribShift( attrib, shifts );
-    }
-    else if ( visfault )
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv_->getObject(visid))
+    mDynamicCastGet(visSurvey::FaultDisplay*,fd,visserv_->getObject(visid))
+    if ( fd )
     {
 	const int attrnr = visServer()->getSelAttribNr();
-	const int id = visfault->addDataPack( *data );
-	visfault->setDataPackID( attrnr, id, 0 );
-	visfault->setRandomPosData( attrnr, data, 0 );
+	const int id = fd->addDataPack( *data );
+	fd->setDataPackID( attrnr, id, 0 );
+	fd->setRandomPosData( attrnr, data, 0 );
+    }
+    else
+    {
+	createAndSetMapDataPack( visid, attrib, *data, dataidx );
+	if ( hd )
+	{
+	    TypeSet<float> shifts( 1, visserv_->getTranslation(visid).z );
+	    hd->setAttribShift( attrib, shifts );
+	}
     }
 
     DPM( DataPackMgr::PointID() ).release( data->id() );
