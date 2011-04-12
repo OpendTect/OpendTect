@@ -12,7 +12,6 @@ dTect.ColorBar.show vertical:	No
 dTect.ColorBar.show on top:	No
 dTect.MouseControls.Default:	Default
 dTect.Surface.Binary format:	Yes
-dTect.Select Plugins:		Yes
 dTect.Enable VRML:		No
 dTect.Ask close:		Yes
 dTect.Ask store session:	No
