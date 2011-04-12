@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.102 2011-03-14 07:21:11 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.103 2011-04-12 06:16:12 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -460,7 +460,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	if ( children_.size()>0 &&
-	     !uiMSG().askRemove("All lines in this lineset will be removed."
+	     !uiMSG().askRemove("All lines will be removed from the tree."
 			      "\nDo you want to continue?") )
 	    return;
 

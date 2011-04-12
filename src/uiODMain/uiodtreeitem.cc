@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.213 2010-05-14 13:34:18 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.214 2011-04-12 06:16:12 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -172,8 +172,8 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 
     if ( mnuid==103 )
     {
-	BufferString msg( "All " ); msg += name(); 
-	msg += " items will be removed.\nDo you want to continue?";
+	const BufferString msg( "All ", name(),
+	    " items will be removed from the tree.\nDo you want to continue?");
 	if ( !uiMSG().askRemove(msg) ) return;
 
 	while ( children_.size() )
