@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.6 2010-09-16 12:36:14 cvsnageswara Exp $";
+static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.7 2011-04-12 06:12:44 cvsnanne Exp $";
 
 #include "emhorizonpreload.h"
 
@@ -57,7 +57,7 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
     BufferString msg2( "Could not pre-load:\n" );
     int nralreadyloaded = 0;
     int nrproblems = 0;
-    PtrMan<ExecutorGroup> execgrp = new ExecutorGroup( "Pre-loading horizons" );
+    PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
     ObjectSet<EM::EMObject> emobjects;
     for ( int idx=0; idx<newmids.size(); idx++ )
     {
@@ -83,10 +83,11 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
 	    }
 
 	    execgrp->add( exec );
-	    emid = EM::EMM().getObjectID( newmids[idx] );
-	    emobj = EM::EMM().getObject( emid );
-	    emobjects += emobj;
 	}
+
+	emid = EM::EMM().getObjectID( newmids[idx] );
+	emobj = EM::EMM().getObject( emid );
+	emobjects += emobj;
     }
 
     if ( nralreadyloaded > 0 )
@@ -98,7 +99,7 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
     if ( nrproblems > 0 )
 	errmsg_.add( "\n" ).add( msg2 );
 
-    if ( execgrp->nrExecutors() != 0 && !tr->execute( *execgrp ) )
+    if ( execgrp->nrExecutors()!=0 && !tr->execute(*execgrp) )
 	return false;
 
     for ( int idx=0; idx<emobjects.size(); idx++ )
