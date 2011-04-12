@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.253 2011-04-06 05:52:55 cvsraman Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.254 2011-04-12 18:00:05 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -771,6 +771,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
     res.hrg.include( BinID(mNINT(c1.x),mNINT(c1.y)) );
     res.zrg.include( c1.z );
     res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+    res.zrg.step = SI().zRange(true).step;
 
     const bool alreadytf = alreadyTransformed( attrib );
     if ( alreadytf )
@@ -779,16 +780,12 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	    res.zrg.step = datatransform_->getGoodZStep();
 	else if ( scene_ )
 	    res.zrg.step = scene_->getCubeSampling().zrg.step;
-	return res;
     }
 
     if ( datatransform_ )
     {
 	if ( !displayspace )
-	{
 	    res.zrg.setFrom( datatransform_->getZInterval(true) );
-	    res.zrg.step = SI().zRange(true).step;
-	}
 	else
 	    res.zrg.step = datatransform_->getGoodZStep();
     }
