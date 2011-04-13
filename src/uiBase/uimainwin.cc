@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.216 2011-03-28 07:55:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.217 2011-04-13 12:29:06 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1116,23 +1116,20 @@ const char* uiMainWin::uniqueWinTitle( const char* txt, QWidget* forwindow )
 bool uiMainWin::grab( const char* filenm, int zoom,
 		      const char* format, int quality ) const
 {
-#ifdef __win__
-    QWidget* curwidget = body_;
-    if ( zoom <= 0 )
-	curwidget = QApplication::desktop();
-    else if ( zoom>=2 && qApp->activeModalWidget() )
-	curwidget = qApp->activeModalWidget();
+    const WId desktopwinid = QApplication::desktop()->winId();
+    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
 
-    QPixmap snapshot = QPixmap::grabWidget( curwidget );
-#else
-    WId winid = body_->winId();
-    if ( zoom <= 0 )
-	winid = QApplication::desktop()->winId();
-    else if ( zoom>=2 && qApp->activeModalWidget() )
-	winid = qApp->activeModalWidget()->winId();
+    QPixmap snapshot = desktopsnapshot;
+    if ( zoom > 0 )
+    {
+	QWidget* qwin = qApp->activeModalWidget();
+	if ( !qwin || zoom==1 )
+	    qwin = body_;
 
-    QPixmap snapshot = QPixmap::grabWindow( winid );
-#endif
+	const int width = qwin->frameGeometry().width();
+	const int height = qwin->frameGeometry().height();
+	snapshot = desktopsnapshot.copy( qwin->x(), qwin->y(), width, height );
+    }
 
     return snapshot.save( QString(filenm), format, quality );
 }
