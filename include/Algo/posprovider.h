@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.17 2009-09-28 13:27:31 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.18 2011-04-13 10:43:44 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ public:
 
     virtual bool	isProvider() const			{ return true; }
 
-    mGlobal virtual	Provider*	clone() const				= 0;
+    mGlobal virtual Provider*	clone() const			= 0;
 
     virtual bool	toNextPos()				= 0;
     virtual bool	toNextZ()				= 0;
