@@ -133,7 +133,6 @@ void uiWellLogDisplay::gatherInfo( bool first )
     {
 	if ( !first )
 	{
-	    ld2_.copySetupFrom( ld1_ );
 	    ld2_.zrg_ = ld1_.zrg_;
 	    ld2_.valrg_ = ld1_.valrg_;
 	}
