@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.71 2011-01-04 13:49:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.72 2011-04-13 07:29:33 cvshelene Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -137,7 +137,8 @@ int uiSeisSubSel::expectedNrSamples() const
 int uiSeisSubSel::expectedNrTraces() const
 {
     const Pos::Provider* pp = selfld_->curProvider();
-    if ( !pp ) return SI().sampling(false).hrg.totalNr();
+    mDynamicCastGet( const uiSeis2DSubSel*, ss2d, this )                              
+    if ( !pp ) return ss2d ? 0 : SI().sampling(false).hrg.totalNr();
 
     return pp->estNrPos();
 }
