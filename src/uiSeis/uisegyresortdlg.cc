@@ -7,17 +7,20 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.4 2011-03-30 11:47:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.5 2011-04-13 10:44:01 cvsbert Exp $";
 
 #include "uisegyresortdlg.h"
 #include "uiioobjsel.h"
 #include "uifileinput.h"
 #include "uitaskrunner.h"
+#include "uiseparator.h"
+#include "uipossubsel.h"
 #include "uisegydef.h"
 #include "uimsg.h"
 #include "segyresorter.h"
 #include "segydirecttr.h"
 #include "survinfo.h"
+#include "posprovider.h"
 
 static const char* sKeySEGYDirect = "SEGYDirect";
 
@@ -29,6 +32,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     , volfld_(0)
     , ps3dfld_(0)
     , ps2dfld_(0)
+    , subselfld_(0)
     , newinleachfld_(0)
 {
     BufferStringSet geomnms;
@@ -55,22 +59,35 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     uiIOObjSel::Setup ossu##fldnm( "Scanned input" ); \
     ossu##fldnm.filldef( false ); \
     fldnm##fld_ = new uiIOObjSel( this, ctxt##fldnm, ossu##fldnm ); \
-    if ( geomfld_ ) fldnm##fld_->attach( alignedBelow, geomfld_ )
+    if ( geomfld_ ) fldnm##fld_->attach( alignedBelow, geomfld_ ); \
+    fldnm##fld_->selectionDone.notify( mCB(this,uiResortSEGYDlg,inpSel) )
 
+    uiGroup* algrp = 0;
     if ( SI().has3D() )
     {
 	mDefSeisSelFld(ps3d,VolPS,SeisPS3D);
 	mDefSeisSelFld(vol,Vol,SeisTrc);
+	uiPosSubSel::Setup pssu( false, false );
+	pssu.withstep( false ).choicetype( uiPosSubSel::Setup::OnlySeisTypes );
+	subselfld_ = new uiPosSubSel( this, pssu );
+	subselfld_->attach( alignedBelow, volfld_ );
+	algrp = subselfld_;
     }
     if ( SI().has2D() )
     {
 	mDefSeisSelFld(ps2d,LinePS,SeisPS2D);
+	if ( !algrp )
+	    algrp = ps2dfld_;
     }
+
+    uiSeparator* sep = new uiSeparator( this, "Sep" );
+    sep->attach( stretchedBelow, algrp );
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.forread( false ).filter( uiSEGYFileSpec::fileFilter() );
     outfld_ = new uiFileInput( this, "Output file (s)", fisu );
-    outfld_->attach( alignedBelow, ps2dfld_ ? ps2dfld_ : ps3dfld_ );
+    outfld_->attach( ensureBelow, sep );
+    outfld_->attach( alignedWith, algrp );
 
     if ( SI().has3D() )
     {
@@ -87,6 +104,11 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 }
 
 
+void uiResortSEGYDlg::inpSel( CallBacker* )
+{
+}
+
+
 void uiResortSEGYDlg::geomSel( CallBacker* )
 {
     if ( !geomfld_ )
@@ -96,8 +118,9 @@ void uiResortSEGYDlg::geomSel( CallBacker* )
 #define mDispFld(nm) \
     if ( nm##fld_ ) nm##fld_->display( nm##fld_ == curos )
     mDispFld(ps3d); mDispFld(vol); mDispFld(ps2d);
-    if ( newinleachfld_ )
+    if ( subselfld_ )
     {
+	subselfld_->display( curos != ps2dfld_ );
 	newinleachfld_->display( curos == ps3dfld_ );
 	inlnmsfld_->display( curos == ps3dfld_ );
     }
@@ -148,6 +171,9 @@ bool uiResortSEGYDlg::acceptOK( CallBacker* )
     }
 
     SEGY::ReSorter sr( su );
+    const Pos::Provider* pprov = subselfld_->curProvider();
+    if ( pprov )
+	sr.setFilter( *pprov );
     uiTaskRunner tr( this );
     return tr.execute( sr );
 }

@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyresorter.cc,v 1.5 2011-03-30 14:00:00 cvsbert Exp $";
+static const char* rcsID = "$Id: segyresorter.cc,v 1.6 2011-04-13 10:44:01 cvsbert Exp $";
 
 #include "segyresorter.h"
 #include "segydirectdef.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: segyresorter.cc,v 1.5 2011-03-30 14:00:00 cvsbe
 #include "strmprov.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
+#include "posfilter.h"
 #include "ioman.h"
 #include "filepath.h"
 #include "strmoper.h"
@@ -66,6 +67,7 @@ Interval<int> SEGY::ReSorter::Setup::getInlRg( int curinl,
 
 SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
     : Executor("Re-sorting")
+    , posfilt_(0)
     , cdp_(*new PosInfo::CubeDataPos)
     , setup_(su)
     , msg_("Reading scan data")
@@ -132,6 +134,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 SEGY::ReSorter::~ReSorter()
 {
     wrapUp();
+    delete posfilt_;
     delete drdr_;
     delete &cdp_;
 }
@@ -146,6 +149,12 @@ const SEGY::DirectDef& SEGY::ReSorter::dDef() const
 const SEGY::FileDataSet& SEGY::ReSorter::fds() const
 {
     return drdr_->getDef()->fileDataSet();
+}
+
+
+void SEGY::ReSorter::setFilter( const Pos::Filter& pf )
+{
+    delete posfilt_; posfilt_ = pf.clone();
 }
 
 
@@ -173,16 +182,7 @@ int SEGY::ReSorter::nextStep()
 	return ErrorOccurred();
 
     if ( binids_.isEmpty() )
-    {
-	Seis::PosKey pk; bool us;
-	for ( od_int64 idx=0; idx<fds().size(); idx++ )
-	{
-	    if ( fds().getDetails(idx,pk,us) )
-		binids_ += pk.binID();
-	}
-	msg_ = "Handling traces";
-	return MoreToDo();
-    }
+	return fillBinIDs();
 
     BinID bid;
     if ( !getCurPos(bid) )
@@ -192,6 +192,26 @@ int SEGY::ReSorter::nextStep()
 	return ErrorOccurred();
 
     return toNext() ? MoreToDo() : Finished();
+}
+
+
+int SEGY::ReSorter::fillBinIDs()
+{
+    Seis::PosKey pk; bool us;
+    for ( od_int64 idx=0; idx<fds().size(); idx++ )
+    {
+	if ( fds().getDetails(idx,pk,us) )
+	    binids_ += pk.binID();
+    }
+
+    if ( binids_.isEmpty() )
+    {
+	msg_ = "No positions in input";
+	return ErrorOccurred();
+    }
+
+    msg_ = "Handling traces";
+    return MoreToDo();
 }
 
 
@@ -218,10 +238,19 @@ bool SEGY::ReSorter::getCurPos( BinID& bid )
     }
     else
     {
+	mDynamicCastGet(Pos::Filter3D*,pf3d,posfilt_)
 	const PosInfo::CubeData& cd = dDef().cubeData();
-	if ( !cd.isValid(cdp_) )
-	    return false;
-	bid = cd.binID( cdp_ );
+
+	while ( true )
+	{
+	    if ( !cd.isValid(cdp_) )
+		return false;
+	    bid = cd.binID( cdp_ );
+	    if ( !pf3d || pf3d->includes(bid) )
+		break;
+	    if ( !toNext() )
+		return false;
+	}
     }
 
     return true;
@@ -328,9 +357,9 @@ int SEGY::ReSorter::ensureFileOpen( int inpfidx )
 	    delete sd; return -1;
 	}
 
+	fidxs_ += inpfidx;
 	fidx = inpsds_.size();
 	inpsds_ += sd;
-	fidxs_ += fidx;
 	inpfnms_.add( fnm );
     }
 
@@ -340,7 +369,7 @@ int SEGY::ReSorter::ensureFileOpen( int inpfidx )
 
 bool SEGY::ReSorter::readData( int fidx, int trcidx )
 {
-    std::istream& strm( *inpsds_[fidx]->istrm );
+    std::istream& strm( *inpsds_[ fidx ]->istrm );
     if ( !trcbuf_ )
     {
 	StrmOper::seek( strm, 0 );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyresorter.h,v 1.5 2011-03-30 14:00:00 cvsbert Exp $
+ RCS:		$Id: segyresorter.h,v 1.6 2011-04-13 10:44:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,8 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "strmdata.h"
 #include "bufstringset.h"
-namespace PosInfo { class CubeData; class CubeDataPos; }
+namespace Pos		{ class Filter; }
+namespace PosInfo	{ class CubeData; class CubeDataPos; }
 
 
 namespace SEGY
@@ -59,6 +60,8 @@ public:
     			ReSorter(const Setup&,const char* linename=0);
     			~ReSorter();
 
+    void		setFilter(const Pos::Filter&);
+
     const char*		message() const		{ return msg_; }
     const char*		nrDoneText() const	{ return "Traces handled"; }
     od_int64		nrDone() const		{ return nrdone_; }
@@ -90,7 +93,9 @@ protected:
 
     TypeSet<BinID>	binids_;
     PosInfo::CubeDataPos& cdp_;
+    Pos::Filter*	posfilt_;
 
+    int			fillBinIDs();
     int			wrapUp();
     bool		getCurPos(BinID&);
     bool		toNext();
