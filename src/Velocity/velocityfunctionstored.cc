@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.11 2010-11-19 16:56:06 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.12 2011-04-13 17:28:34 cvshelene Exp $";
 
 #include "velocityfunctionstored.h"
 
@@ -273,6 +273,29 @@ bool StoredFunction::computeVelocity( float z0, float dz, int nr,
     {
 	return sampleVrms( vel_.arr(), 0, 0, zval_.arr(), zval_.size(),
 		SamplingData<double>( z0, dz ), res, nr );
+    }
+    else if ( getDesc().type_==VelocityDesc::Avg )
+    {
+	return sampleVavg( vel_.arr(), zval_.arr(), zval_.size(),
+		    SamplingData<double>( z0, dz ), res, nr );
+    }
+    else if ( getDesc().type_==VelocityDesc::Delta )
+    {
+	sampleIntvThomsenPars( vel_.arr(), zval_.arr(), zval_.size(),
+		    SamplingData<double>( z0, dz ), nr, res );
+	return true;
+    }
+    else if ( getDesc().type_==VelocityDesc::Epsilon )
+    {
+	sampleIntvThomsenPars( vel_.arr(), zval_.arr(), zval_.size(),
+		    SamplingData<double>( z0, dz ), nr, res );
+	return true;
+    }
+    else if ( getDesc().type_==VelocityDesc::Eta )
+    {
+	sampleEffectiveThomsenPars( vel_.arr(), zval_.arr(),
+		    zval_.size(), SamplingData<double>( z0, dz ), nr, res );
+	return true;
     }
 
     return false;

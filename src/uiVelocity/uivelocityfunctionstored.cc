@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocityfunctionstored.cc,v 1.5 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionstored.cc,v 1.6 2011-04-13 17:28:34 cvshelene Exp $";
 
 #include "uivelocityfunctionstored.h"
 
@@ -46,16 +46,26 @@ uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
     IOObjContext context = StoredFunctionSource::ioContext();
     if ( SI().zIsTime() )
     {
-	context.toselect.require_.set(
-	    StoredFunctionSource::sKeyVelocityType(),
-	    VelocityDesc::TypeNames()[(int)VelocityDesc::Interval],
-	    VelocityDesc::TypeNames()[(int)VelocityDesc::RMS] );
+	BufferStringSet typnms;
+	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Interval]);
+	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::RMS]);
+	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Avg]);
+	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Delta]);
+	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Epsilon]);
+	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Eta]);
+	context.toselect.require_.set( StoredFunctionSource::sKeyVelocityType(),
+				       typnms );
     }
     else
     {
-	context.toselect.require_.set(
-	    StoredFunctionSource::sKeyVelocityType(),
-	    VelocityDesc::TypeNames()[(int)VelocityDesc::Interval] );
+	BufferStringSet typnms;
+	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Interval]);
+	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Avg]);
+	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Delta]);
+	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Epsilon]);
+	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Eta]);
+	context.toselect.require_.set( StoredFunctionSource::sKeyVelocityType(),
+				       typnms );
     }
 
     context.forread = true;
