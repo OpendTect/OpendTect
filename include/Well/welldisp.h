@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.31 2011-03-02 09:48:44 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.32 2011-04-13 07:08:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
     {
 			BasicProps( int sz=1 )
 			    : size_(sz)			
-			    , color_(Color(255,255,255))
+			    , color_(Color(0,0,255))
 			    {}
 
 	Color		color_;
@@ -125,7 +125,6 @@ public:
 			    , range_(mUdf(float),mUdf(float))
 			    , repeat_(5)
 			    , repeatovlap_(50)
-			    , linecolor_(Color(0,0,255))
 		            , seiscolor_(Color::White())
 			    , seqname_("Rainbow")
 			    , iscoltabflipped_(false)			 

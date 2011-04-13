@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.54 2011-04-08 13:11:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.55 2011-04-13 07:08:09 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -578,9 +578,9 @@ void uiWellLogDispProperties::selNone()
 {
     rangefld_->setValue( Interval<float>(0,0) );
     colorrangefld_->setValue( Interval<float>(0,0) );
-    colfld_->setColor( Color::White() );
-    seiscolorfld_->setColor( Color::White() );
-    fillcolorfld_->setColor( Color::White() );
+    colfld_->setColor( logprops().color_ );
+    seiscolorfld_->setColor( logprops().seiscolor_ );
+    fillcolorfld_->setColor( logprops().seiscolor_ );
     stylefld_->setValue( true );
     setFldSensitive( false );
     cliprangefld_->setValue( true );
@@ -588,7 +588,7 @@ void uiWellLogDispProperties::selNone()
     repeatfld_->setValue( 0 );
     ovlapfld_->setValue( 0 );
     singlfillcolfld_->setChecked( false );
-    coltablistfld_->setCurrent( "Rainbow" ); 
+    coltablistfld_->setCurrent( logprops().seqname_ ); 
     logwidthfld_->box()->setValue( deflogwidth );
 }
 
