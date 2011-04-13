@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.30 2011-04-01 15:13:51 cvshelene Exp $
+ RCS:		$Id: velocitycalc.h,v 1.31 2011-04-13 13:13:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -259,8 +259,9 @@ mGlobal bool computeVint(const float* Vavg,const SamplingData<double>& sd,
 mGlobal bool sampleVint(const float* Vint,const float* t_in, int nr_in,
 			const SamplingData<double>& sd_out, float* Vout,
 			int nr_out);
+
 /*!Given an irregularly sampled Vavg, create a regularly sampled one. The
-   function assumes constant interval velocity before and after the input
+   function assumes constant average velocity before and after the input
    interval.*/
 
 mGlobal bool sampleVavg(const float* Vavg, const float* t_in, int nr_in,
@@ -289,6 +290,23 @@ mGlobal bool fitLinearVelocity( const float* Vint, const float* z_in, int nr_in,
 mGlobal void resampleDepth(const float* deptharr,const float* t_in, int nr_in,
 			const SamplingData<double>& sd_out, int nr_out,
 			float* depthsampled);
+
+/*!Given an irregularly sampled effective Thomsen parameter array, create a
+  regularly sampled one. The function assumes constant value of the parameter before and after the input interval.*/
+mGlobal void sampleEffectiveThomsenPars(const float* vinarr,const float* t_in,
+				 int nr_in,const SamplingData<double>& sd_out,
+				 int nr_out,float* voutarr);
+
+/*!Given an irregularly sampled interval Thomsen parameter array, create a
+  regularly sampled one. The function assumes constant value of the parameter before and after the input interval.*/
+mGlobal void sampleIntvThomsenPars(const float* inarr,const float* t_in,
+				int nr_in,const SamplingData<double>& sd_out,
+				int nr_out,float* outarr);
+
+/* Utility function for Depth and effective Thomsen parameters resampling*/
+mGlobal void resampleContinuousData(const float* inarr,const float* t_in,
+				int nr_in,const SamplingData<double>& sd_out,
+				int nr_out,float* outarr);
 
 
 #endif

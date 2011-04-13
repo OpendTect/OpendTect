@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.43 2011-04-01 15:13:51 cvshelene Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.44 2011-04-13 13:13:28 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
@@ -951,10 +951,25 @@ bool computeVint( const float* Vavg, const SamplingData<double>& sd, int nrvels,
 }
 
 
-
 void resampleDepth( const float* deptharr, const float* t_in, int nr_in,
 		    const SamplingData<double>& sd_out, int nr_out,
 		    float* depthsampled )
+{
+    resampleContinuousData(deptharr, t_in, nr_in, sd_out, nr_out, depthsampled);
+}
+
+
+void sampleEffectiveThomsenPars( const float* vinarr, const float* t_in,
+				 int nr_in, const SamplingData<double>& sd_out,
+				 int nr_out, float* voutarr )
+{
+    resampleContinuousData( vinarr, t_in, nr_in, sd_out, nr_out, voutarr );
+}
+
+
+void resampleContinuousData( const float* inarr, const float* t_in, int nr_in,
+			const SamplingData<double>& sd_out, int nr_out,
+			float* outarr )
 {
     int intv = 0;
     const float eps = sd_out.step/1e3;
@@ -974,17 +989,17 @@ void resampleDepth( const float* deptharr, const float* t_in, int nr_in,
 
 	//intv is always after pos
 	if ( match )
-	    depthsampled[idx] = deptharr[intv];
+	    outarr[idx] = inarr[intv];
 	else
 	{
 	    if ( intv == nr_in )
 		intv--;
 
-	    const float v0 = !intv? 0 : deptharr[intv-1];
-	    const float v1 = deptharr[intv];
+	    const float v0 = !intv? 0 : inarr[intv-1];
+	    const float v1 = inarr[intv];
 	    const float t0 = !intv? 0 : t_in[intv-1];
 	    const float t1 = t_in[intv];
-	    depthsampled[idx] = mIsEqual( v0, v1, 1e-6 ) ? v0 :
+	    outarr[idx] = mIsEqual( v0, v1, 1e-6 ) ? v0 :
 				Interpolate::linear1D( t0, v0, t1, v1, z );
 	}
     }
@@ -1244,3 +1259,29 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
 
     return true;
 }
+
+
+void sampleIntvThomsenPars( const float* inarr, const float* t_in, int nr_in,
+		    const SamplingData<double>& sd_out, int nr_out,
+		    float* outarr )
+{
+    int intv = 0;
+    for ( int idx=0; idx<nr_out; idx++ )
+    {
+	const float z = sd_out.atIndex( idx );
+	for ( ; intv<nr_in; intv++ )
+	{
+	    if ( t_in[intv]<z )
+		continue;
+
+	    break;
+	}
+
+	//intv is always after pos
+	if ( intv == nr_in )
+	    intv--;
+
+	outarr[idx] = inarr[intv];
+    }
+}
+
