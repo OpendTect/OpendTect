@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.28 2011-03-04 14:16:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.29 2011-04-14 13:51:06 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -136,7 +136,10 @@ void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
     if ( !d2T() ) 
 	prvd2t_ =  new Well::D2TModel( *d2T() );
     if ( wd_ )
+    {
 	wd_->setD2TModel( d2t );
+	wd_->d2tchanged.trigger();
+    }
 }
 
 
