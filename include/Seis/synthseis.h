@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.17 2011-04-07 10:43:53 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.18 2011-04-14 13:49:22 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ mClass SynthGenBase
 {
 public:
     virtual bool		setWavelet(const Wavelet*,OD::PtrPolicy pol);
+    virtual bool		setOutSampling(const StepInterval<float>&);
 
     const char*			errMsg() const		{ return errmsg_.buf();}
 
@@ -66,7 +67,6 @@ protected:
     bool			usenmotimes_;
     bool			waveletismine_;
     const Wavelet*		wavelet_;
-
     StepInterval<float>		outputsampling_;
 
     BufferString		errmsg_;
@@ -115,9 +115,9 @@ public:
 
     void 			setModels(
 				    const ObjectSet<const ReflectivityModel>&);
-    bool			setOutSampling(const StepInterval<float>&);
 
     void 			result(ObjectSet<const SeisTrc>&) const;
+    void 			getSampledReflectivities(TypeSet<float>&) const;
 
 protected:
 
@@ -139,12 +139,9 @@ public:
     virtual bool		setRayParams(const TypeSet<float>& offs,
 					const RayTracer1D::Setup&,bool isnmo);
 
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
-
-    static const char* 		sKeyStack() 	{ return "Stack nmo traces"; }
-
     bool			doWork(TaskRunner& tr);
+    bool			doRayTracing(TaskRunner&);
+    bool			doSynthetics(TaskRunner&);
 
     mStruct RayModel
     {
@@ -152,22 +149,21 @@ public:
 				~RayModel();	
 
 	ObjectSet<const SeisTrc>		outtrcs_; //this is a gather
-	ObjectSet<const ReflectivityModel> 	refmodels_;
+
 	ObjectSet<const TimeDepthModel> 	t2dmodels_;
+	ObjectSet<const ReflectivityModel> 	refmodels_;
+	TypeSet<float>  			sampledrefs_;
 
 	const SeisTrc*				stackedTrc() const;
     };
-    RayModel*			result(int imdl); //become yours 
+    RayModel*			result(int imdl); //becomes yours 
 
 protected:
     				RaySynthGenerator();
     virtual 			~RaySynthGenerator();
 
-    bool			doRayTracers(TaskRunner&);
-    bool			doSynthetics(TaskRunner&);
-
-    bool			dostack_;
     bool			outputdataismine_;
+    StepInterval<float>		raysampling_;
 
     RayTracer1D::Setup  	raysetup_;
     TypeSet<float>		offsets_;

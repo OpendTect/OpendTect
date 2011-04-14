@@ -111,7 +111,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
     }
     else if ( !psz )
     {
-	for ( int idx=0; idx<psz; idx++ )
+	for ( int idx=0; idx<ssz; idx++ )
 	{
 	    const AILayer& sl = smodel_[idx];
 	    const float vp = sqrt( (sl.vel_*sl.vel_ - p2sbfac)/p2safac );
@@ -184,7 +184,7 @@ bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 	const AILayer& ailayer = model[layer]; 
 	const AILayer& nextailayer = model[layer+1]; 
-	const float raydepth = 2*( nextailayer.depth_ - setup_.sourcedepth_ );
+	const float raydepth = nextailayer.depth_ - setup_.sourcedepth_;
 	for ( int osidx=offsz-1; osidx>=0; osidx-- )
 	{
 	    const float offsetdist = offsets_[osidx];
@@ -210,21 +210,20 @@ bool RayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
     const AIModel& dlayers = setup_.pdown_ ? pmodel_ : smodel_;
-    const AIModel& ulayers = setup_.pup_ ? pmodel_ : smodel_;
-    const float sinival = layer ? dlayers[layer-1].vel_ * rayparam : 0;
+    const float sinival = dlayers[layer-1].vel_ * rayparam;
     sini_->set( layer-1, offsetidx, sinival );
 
     mAllocVarLenArr( ZoeppritzCoeff, coefs, layer );
 
     for ( int idx=firstlayer_; idx<layer; idx++ )
-	coefs[idx].setInterface( rayparam, idx, pmodel_[idx], pmodel_[idx+1],
+	coefs[idx].setInterface( rayparam, pmodel_[idx], pmodel_[idx+1],
 				smodel_[idx], smodel_[idx+1] );
 
     int lidx = sourcelayer_;
-    float_complex reflectivity =
+    float_complex reflectivity = layer ? 
 	coefs[lidx].getCoeff( true, lidx!=layer-1, setup_.pdown_,
-			    lidx==layer-1? setup_.pup_ : setup_.pdown_ );
-
+			    lidx==layer-1? setup_.pup_ : setup_.pdown_ ) 
+				: float_complex( 0, 0 );
     if ( !layer )
 	reflectivity = float_complex( 0, 0 );
 
