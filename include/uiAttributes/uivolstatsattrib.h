@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uivolstatsattrib.h,v 1.10 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uivolstatsattrib.h,v 1.11 2011-04-14 22:06:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 namespace Attrib { class Desc; };
 class uiGenInput;
 class uiAttrSel;
+class uiCheckBox;
 class uiLabeledSpinBox;
 class uiSteeringSel;
 class uiStepOutSel;
@@ -37,6 +38,7 @@ protected:
     uiAttrSel*		inpfld_;
     uiSteeringSel*	steerfld_;
     uiGenInput*		gatefld_;
+    uiCheckBox*		edgeeffectfld_;
     uiGenInput*		shapefld_;
     uiStepOutSel*	stepoutfld_;
     uiLabeledSpinBox*	optstackstepfld_;

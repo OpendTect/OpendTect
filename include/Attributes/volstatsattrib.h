@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.24 2011-04-07 12:41:22 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.25 2011-04-14 22:06:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ public:
     static const char*		steeringStr()	  { return "steering"; }
     static const char*		optstackstepStr() { return "optstackstep"; }
     static const char*		optstackdirStr()  { return "optstackdir"; }
+    static const char*		allowEdgeEffStr() { return "allowedgeeffects"; }
     static const char*		shapeTypeStr(int);
     static const char*		optStackDirTypeStr(int);
     void			initSteering();
@@ -107,6 +108,7 @@ protected:
     Interval<float>		gate_;
     int				minnrtrcs_;
     bool			dosteer_;
+    bool			allowedgeeffects_;
     Interval<float>             desgate_;
 
     TypeSet<BinID>      	positions_;

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.26 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.27 2011-04-14 22:06:49 cvskris Exp $";
 
 
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.26 2010-04-20 18:09:13 
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
+#include "uibutton.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
 
@@ -63,6 +64,9 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 	    		       FloatInpIntervalSpec().setName("Z start",0)
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
+
+    edgeeffectfld_ = new uiCheckBox( this, "Allow edge effects" );
+    edgeeffectfld_->attach( rightOf, gatefld_ );
 
     shapefld_ = new uiGenInput( this, "Shape", StringListInpSpec(shapestrs) );
     shapefld_->valuechanged.notify(mCB(this,uiVolumeStatisticsAttrib,shapeChg));
@@ -124,6 +128,8 @@ bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
 
     mIfGetFloatInterval( VolStats::gateStr(), gate,
 	    		 gatefld_->setValue(gate) );
+    mIfGetBool( VolStats::allowEdgeEffStr(), edgeeff,
+	    	edgeeffectfld_->setChecked( edgeeff ) );
     mIfGetBinID( VolStats::stepoutStr(), stepout,
 	         stepoutfld_->setBinID(stepout) );
     mIfGetEnum( VolStats::shapeStr(), shape,
@@ -161,6 +167,7 @@ bool uiVolumeStatisticsAttrib::getParameters( Desc& desc )
 	return false;
 
     mSetFloatInterval( VolStats::gateStr(), gatefld_->getFInterval() );
+    mSetBool( VolStats::allowEdgeEffStr(), edgeeffectfld_->isChecked() );
     mSetBinID( VolStats::stepoutStr(), stepoutfld_->getBinID() );
     mSetEnum( VolStats::shapeStr(), shapefld_->getIntValue() );
     mSetBool( VolStats::steeringStr(), steerfld_->willSteer() );

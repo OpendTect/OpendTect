@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.54 2011-04-07 12:41:22 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.55 2011-04-14 22:06:49 cvskris Exp $";
 
 #include "volstatsattrib.h"
 
@@ -73,8 +73,14 @@ void VolStats::initClass()
     nrtrcs->setRequired( false );
     desc->addParam( nrtrcs );
 
+    BoolParam* edgeeffect = new BoolParam( allowEdgeEffStr() );
+    edgeeffect->setDefaultValue( false );
+    edgeeffect->setRequired( false );
+    desc->addParam( edgeeffect );
+
     BoolParam* steering = new BoolParam( steeringStr() );
     steering->setDefaultValue( false );
+    nrtrcs->setRequired( false );
     desc->addParam( steering );
 
     IntParam* optstackstep = new IntParam( optstackstepStr() );
@@ -105,7 +111,8 @@ void VolStats::initClass()
 
 void VolStats::updateDesc( Desc& desc )
 {
-    desc.inputSpec(1).enabled_ = desc.getValParam(steeringStr())->getBoolValue();
+    desc.inputSpec(1).enabled_ =
+	desc.getValParam(steeringStr())->getBoolValue();
 
     BufferString shapestr = desc.getValParam(shapeStr())->getStringValue();
     const bool isoptstack = shapestr == shapeTypeStr( mShapeOpticalStack );
@@ -143,20 +150,26 @@ const char* VolStats::optStackDirTypeStr( int type )
 VolStats::VolStats( Desc& ds )
     : Provider( ds )
     , positions_(0,BinID(0,0))
-    , desgate_(0,0)
+    , desgate_( 0, 0 )
+    , gate_( 0, 0 )
     , linepath_(0)
     , linetruepos_(0)
+    , allowedgeeffects_( false )
 {
     if ( !isOK() ) return;
 
     inputdata_.allowNull(true);
     
     mGetBinID( stepout_, stepoutStr() );
+    mGetBool( allowedgeeffects_, allowEdgeEffStr() );
     mGetInt( minnrtrcs_, nrtrcsStr() );
     mGetEnum( shape_, shapeStr() );
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1/zFactor() );
     gate_.sort();
+
+    if ( allowedgeeffects_ )
+	desgate_ = gate_;
 
     mGetInt( optstackstep_, optstackstepStr() );
     mGetEnum( optstackdir_, optstackdirStr() );
@@ -169,8 +182,8 @@ VolStats::VolStats( Desc& ds )
     {
 	float maxso = mMAX(stepout_.inl*inldist(), stepout_.crl*crldist());
 	const float maxsecdip = maxSecureDip();
-	desgate_ = Interval<float>( gate_.start-maxso*maxsecdip, 
-				    gate_.stop+maxso*maxsecdip );
+	desgate_.start = gate_.start - maxso*maxsecdip;
+	desgate_.stop = gate_.stop + maxso*maxsecdip;
     }
 	
     BinID pos;
@@ -321,13 +334,16 @@ void VolStats::prepPriorToBoundsCalc()
 
 const Interval<float>* VolStats::reqZMargin( int inp, int ) const
 {
+    if ( allowedgeeffects_ )
+	return 0;
+
     return &gate_;
 }
 
 
 const Interval<float>* VolStats::desZMargin( int inp, int ) const
 {     
-    if ( inp || !dosteer_ ) return 0;
+    if ( inp || (!desgate_.start && !desgate_.stop)  ) return 0;
     
     return &desgate_;
 }
