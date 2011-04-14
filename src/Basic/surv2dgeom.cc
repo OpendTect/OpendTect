@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.17 2011-04-07 12:32:36 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.18 2011-04-14 07:17:39 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 #include "survinfo.h"
@@ -446,13 +446,16 @@ void PosInfo::Survey2D::setCurLineSet( int lsid ) const
 
 void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 {
-    if ( lsnm_ == lsnm )
+    if ( !lsnm )
+    {
+	lineindex_.setEmpty();
 	return;
+    }
 
     PosInfo::Survey2D& self = *const_cast<PosInfo::Survey2D*>( this );
     self.lsnm_ = lsnm;
     self.readIdxFiles();
-    if ( !lsnm || lsnm_ == lsnm )
+    if ( lsnm_ == lsnm )
 	return;
 
     // New line set specified
@@ -659,6 +662,9 @@ void PosInfo::Survey2D::removeLineSet( int lsid )
     const int lsidx = getLineSetIdx( lsid );
     if ( lsidx<0 ) return;
     
+	BufferString linesetnm( getLineSet(lsid) );
+	const char* curlinesetnm = curLineSet();
+	const bool iscurls = linesetnm == curlinesetnm;
     FileMultiString fms( lsindex_.getValue(lsidx) );
     FilePath fp( basefp_ ); fp.add( fms[0] );
     const BufferString dirnm( fp.fullPath() );
@@ -666,6 +672,10 @@ void PosInfo::Survey2D::removeLineSet( int lsid )
 	File::removeDir(dirnm);
     lsindex_.remove( lsidx );
     writeIdxFile( false );
+
+	if ( !iscurls )	return;
+	const char* lsnm = lsindex_.isEmpty() ? "" : lsindex_.getKey( 0 );
+    setCurLineSet( lsnm );
 }
 
 
@@ -683,6 +693,7 @@ void PosInfo::Survey2D::removeLineSet( const char* lsnm )
     if ( File::exists(dirnm) )
 	File::removeDir(dirnm);
     lsindex_.remove( lsidx );
+	writeIdxFile( false );
     if ( !iscurls ) return;
 
     lsnm = lsindex_.isEmpty() ? "" : lsindex_.getKey( 0 );
