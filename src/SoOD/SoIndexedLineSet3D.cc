@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.21 2011-04-11 21:00:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.22 2011-04-14 16:11:22 cvsyuancheng Exp $";
 
 #include "SoIndexedLineSet3D.h"
 
@@ -369,21 +369,21 @@ void SoIndexedLineSet3D::rayPick( SoRayPickAction* action )
 
     const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
     const int nrcoords = celem->getNum();
-    const int minnr = nrindex < nrcoords ? nrindex : nrcoords;
-    const int32_t* stopptr = cindices + minnr;
+    const int32_t* stopptr = cindices + nrindex;
 
     while ( cindices<stopptr )
     {
 	int index1 = *cindices++;
-	if ( index1<0 )
+	if ( index1<0 || index1>=nrcoords )
 	    continue;
 
 	SbVec3f c1 = celem->get3(index1);
 	while ( index1>=0 )
 	{
 	    const int index2 = *cindices++;
-	    if ( index2<0 )
+	    if ( index2<0 || index2>=nrcoords )
 		break;
+
 	    const SbVec3f c2 = celem->get3( index2 );
 
 	    if ( action->intersect( c1, c2, dummy ) )
@@ -430,8 +430,7 @@ void SoIndexedLineSet3D::LineSet3DData::generateCoordinates( SoNode* node,
 
     const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
     const int nrcoords = celem->getNum();
-    const int minnr = nrindex < nrcoords ? nrindex : nrcoords;
-    const int32_t* stopptr = cindices + minnr;
+    const int32_t* stopptr = cindices + nrindex;
 
     const SbMatrix& mat = SoModelMatrixElement::get(state);
 
@@ -443,21 +442,13 @@ void SoIndexedLineSet3D::LineSet3DData::generateCoordinates( SoNode* node,
 
     int nrjoints = 0;
     int index1 = cindices>=stopptr ? -1 : *cindices++;
-    while ( index1>=0 )
+    while ( index1>=0 && index1>=nrcoords )
     {
 	int index2 = cindices>=stopptr ? -1 : *cindices++;
-	if ( index2<0 )
+	if ( index2<0 || index2>=nrcoords )
 	    break;
 
 	SbVec3f c1,c2;
-#ifdef __debug__
-	if ( index1>=nrcoords || index2>=nrcoords )
-	{
-	    SoDebugError::postWarning("SoIndexedLineSet3D::generateCoordinates",
-				       "Index is too large");
-	    return;
-	}
-#endif
 	mat.multVecMatrix( celem->get3(index1), c1 );
 	mat.multVecMatrix( celem->get3(index2), c2 );
 
@@ -484,16 +475,8 @@ void SoIndexedLineSet3D::LineSet3DData::generateCoordinates( SoNode* node,
 	    SbBool doreverse = false;
 	    SbVec3f c3;
 	    const int index3 = cindices>=stopptr ? -1 : *cindices++;
-	    if ( index3>=0 )
+	    if ( index3>=0 && index3<nrcoords )
 	    {
-#ifdef __debug__
-		if ( index3>=nrcoords )
-		{
-		    SoDebugError::postWarning("SoIndexedLineSet3D::generateCoordinates",
-					       "Index is too large");
-		    return;
-		}
-#endif
 		mat.multVecMatrix(celem->get3(index3), c3 );
 		SbVec3f c3c2 = c3-c2; c3c2.normalize();
 
