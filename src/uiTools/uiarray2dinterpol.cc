@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.15 2011-04-11 04:58:16 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.16 2011-04-14 14:32:16 cvsbruno Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -492,7 +492,7 @@ public:
 
 uiInvDistA2DInterpolPars( uiInverseDistanceArray2DInterpol* p )
     : uiDialog(p,Setup("Inverse distance - parameters",
-		"Inverse distance with search radius",p->helpID()) )
+		"Inverse distance with search radius","104.0.13") )
     , a2di_(*p)
 {
     cornersfirstfld_ = new  uiGenInput( this, "Compute corners first",
