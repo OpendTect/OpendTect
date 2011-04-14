@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocityvolumeconversion.cc,v 1.5 2011-02-24 20:46:31 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivelocityvolumeconversion.cc,v 1.6 2011-04-14 12:14:30 cvshelene Exp $";
 
 #include "uivelocityvolumeconversion.h"
 
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: uivelocityvolumeconversion.cc,v 1.5 2011-02-24 
 #include "seisbounds.h"
 #include "seistrctr.h"
 #include "seisread.h"
+#include "survinfo.h"
 #include "velocityvolumeconversion.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
@@ -72,7 +73,7 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
 	outputveltype_->box()->textOfItem(outputveltype_->box()->currentItem());
 
     TypeSet<VelocityDesc::Type> types;
-    types += VelocityDesc::RMS;
+    if ( SI().zIsTime() ) types += VelocityDesc::RMS;
     types += VelocityDesc::Interval;
     types += VelocityDesc::Avg;
     types -= desc.type_;

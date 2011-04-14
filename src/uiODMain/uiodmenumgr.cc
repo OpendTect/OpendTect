@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.226 2011-04-14 03:24:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.227 2011-04-14 12:14:30 cvshelene Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -405,12 +405,9 @@ void uiODMenuMgr::fillProcMenu()
 	csoitm->insertItem(
 	    new uiMenuItem("&Time - depth conversion ...",
 			mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
-	if ( SI().zIsTime() )
-	{
-	    csoitm->insertItem(
-		new uiMenuItem("&Velocity conversion ...",
-			    mCB(&applMgr(),uiODApplMgr,processVelConv)) );
-	}
+	csoitm->insertItem(
+	    new uiMenuItem("&Velocity conversion ...",
+			mCB(&applMgr(),uiODApplMgr,processVelConv)) );
 	csoitm->insertItem(
 	    new uiMenuItem("&Pre Stack processing ...",
 			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
