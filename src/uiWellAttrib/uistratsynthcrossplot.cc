@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.25 2011-04-05 09:34:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthcrossplot.cc,v 1.26 2011-04-14 13:50:36 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratlayseqattrsetbuild.h"
@@ -106,7 +106,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     const int nrmdls = d2tmodels_.size();
     SeisTrcBuf& tbuf = tbpack_->trcBuf();
     if ( tbuf.size() != nrmdls )
-	{ pErrMsg("DataPack nr of traces != nr of raytracers"); return 0; }
+	{ pErrMsg("DataPack nr of traces != nr of d2t models"); return 0; }
 
     TypeSet<float> lvltms;
     const Strat::SeisEvent& ssev = evfld_->event();
