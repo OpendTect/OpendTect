@@ -193,7 +193,7 @@ float_complex ZoeppritzCoeff::getCoeff( bool downin, bool downout,
 
 
 
-float_complex FastZoeppritzCoeff::getCoeff(float p, 
+float_complex getFastCoeff(float p, 
 			const AILayer& player1, const AILayer& player2, 
 			const AILayer& slayer1, const AILayer& slayer2 )
 {
