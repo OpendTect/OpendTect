@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.19 2011-03-30 04:43:53 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.20 2011-04-14 13:50:04 cvsbruno Exp $";
 
 #include "seisbufadapters.h"
 #include "seisinfo.h"
@@ -25,7 +25,7 @@ uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p,
 					const uiSeisTrcBufViewer::Setup& setup )
     : uiFlatViewMainWin( p, setup )      
 {
-    viewer().setInitialSize( uiSize(200,500) );
+    viewer().setInitialSize( uiSize(420,600) );
     FlatView::Appearance& app = viewer().appearance();
     app.setDarkBG( false );
     app.annot_.setAxesAnnot( true );
