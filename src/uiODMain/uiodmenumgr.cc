@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.225 2011-03-21 16:16:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.226 2011-04-14 03:24:12 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -778,7 +778,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 	    	     true,showRotAxis);
     coltabid_ = cointb_->addButton( "colorbar.png", "Display color bar",
 			    mCB(this,uiODMenuMgr,dispColorBar), true );
-    mAddTB(cointb_,"snapshot.png","Make snapshot",false,mkSnapshot);
+    mAddTB(cointb_,"snapshot.png","Take snapshot",false,mkSnapshot);
     polyselectid_ = cointb_->addButton( "polygonselect.png",
 	"Polygon Selection mode", mCB(this,uiODMenuMgr,selectionMode), true );
     uiPopupMenu* mnu = new uiPopupMenu( &appl_, "Menu" );
