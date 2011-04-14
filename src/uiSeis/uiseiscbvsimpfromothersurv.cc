@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.9 2011-02-03 10:41:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.10 2011-04-14 14:57:14 cvsbruno Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -307,16 +307,15 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 
 SeisTrc* SeisImpCBVSFromOtherSurvey::readTrc( const BinID& bid ) const
 {
-    SeisTrc* rettrc = 0;
+    SeisTrc* trc = 0; 
     if ( tr_->goTo( bid )  )
     {
-	SeisTrc trc;
-	trc.info().binid = bid;
-	tr_->readInfo( trc.info() ); 
-	tr_->read( trc );
-	rettrc = trc.getExtendedTo( data_.cs_.zrg );
+	trc = new SeisTrc;
+	trc->info().binid = bid;
+	tr_->readInfo( trc->info() ); 
+	tr_->read( *trc );
     }
-    return rettrc;
+    return trc;
 }
 
 
