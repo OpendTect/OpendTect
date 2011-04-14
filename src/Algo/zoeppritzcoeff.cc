@@ -29,9 +29,9 @@ ZoeppritzCoeff::ZoeppritzCoeff()
 {}
 
 
-void ZoeppritzCoeff::setInterface( float p, int layer,
- 	const AILayer& pl1, const AILayer& pl2, 
-	const AILayer& sl1, const AILayer& sl2 )	
+void ZoeppritzCoeff::setInterface( float p, 
+				const AILayer& pl1, const AILayer& pl2, 
+				const AILayer& sl1, const AILayer& sl2 )	
 {
     float p2 = p * p; 
     float pvel1 = pl1.vel_;
@@ -80,7 +80,6 @@ void ZoeppritzCoeff::setInterface( float p, int layer,
 				* p * pvel1 /(svel2 *dd);
     pdn_sdn_ = 2 * pl1.den_ * pzi1 * hh * p * pvel1/(svel2*dd);
 
-    
     sdn_pup_ = -f2 * pzj1 * (a*b + c*d * pzi2*pzj2) * p * svel1/(pvel1*dd);
     sdn_pdn_ = -2 * pl1.den_ * pzj1 * gg * 
 				p * svel1/(pvel2*dd);
@@ -193,3 +192,46 @@ float_complex ZoeppritzCoeff::getCoeff( bool downin, bool downout,
 }
 
 
+
+float_complex FastZoeppritzCoeff::getCoeff(float p, 
+			const AILayer& player1, const AILayer& player2, 
+			const AILayer& slayer1, const AILayer& slayer2 )
+{
+    const float vp1 = player1.vel_; 
+    const float vp2 = player2.vel_;
+    const float dp1 = player1.den_; 
+    const float dp2 = player2.den_;
+
+    const float vs1 = slayer1.vel_; 
+    const float vs2 = slayer2.vel_;
+    const float ds1 = slayer1.den_; 
+    const float ds2 = slayer2.den_;
+
+    const float AIp1 = vp1*dp1;
+    const float AIp2 = vp2*dp2;
+    const float AIs1 = vs1*ds1;
+    const float AIs2 = vs2*ds2;
+
+    const float RAIp = ( AIp2 - AIp1 )/ ( AIp1 + AIp2 );
+    const float RAIs = ( AIs2 - AIs1 )/ ( AIs1 + AIs2 );
+
+    const float Vp = ( vp2 + vp1 ) / 2;
+    const float Vs = ( vs1 + vs2 ) / 2;
+    const float DVp = ( vp2 - vp1 );
+    const float DVs = ( vs2 - vs1 );
+
+    const float P = ( dp1 + dp2 ) / 2;
+    const float Dp = ( dp1 - dp2 );
+    const float RD = Dp / (2*P);
+
+    const float sinangle = p * vp1;
+    const float angle = asin( sinangle );
+    const float sin2i = sinangle * sinangle;
+    const float tan2i = tan( angle )*tan( angle );
+
+    const float A = 0.5*( 1-4*( Vs*Vs/(Vp*Vp) )*sin2i )*Dp/P;
+    const float B = 0.5*(1+tan2i)*DVp/Vp;
+    const float C = 4*sin2i*Vs*Vs*DVs/( Vp*Vp*Vs );
+
+    return float_complex( A+B+C, 0 );
+}

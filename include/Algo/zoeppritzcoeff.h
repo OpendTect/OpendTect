@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: zoeppritzcoeff.h,v 1.2 2011-03-01 07:58:58 cvsbruno Exp $
+ RCS:		$Id: zoeppritzcoeff.h,v 1.3 2011-04-14 14:19:30 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -22,7 +22,7 @@ public:
 			ZoeppritzCoeff();
 
 
-    void                setInterface(float p,int layer,
+    virtual void 	setInterface(float p,
 					const AILayer& p_layer1,
 					const AILayer& p_layer2,
 					const AILayer& slayer1,
@@ -51,6 +51,16 @@ protected:
     float_complex       sup_sdn_;
     float_complex       sup_pup_;
     float_complex       sup_sup_;
+};
+
+
+/*! Aki-Richard approx !*/
+mClass FastZoeppritzCoeff
+{
+    float_complex 	getCoeff(float p,const AILayer& p_layer1,
+				    	 const AILayer& p_layer2,
+				   	 const AILayer& slayer1,
+				    	 const AILayer& slayer2);
 };
 
 #endif
