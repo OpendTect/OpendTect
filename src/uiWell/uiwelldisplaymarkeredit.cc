@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.21 2011-04-08 12:37:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldisplaymarkeredit.cc,v 1.22 2011-04-14 09:55:37 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -350,6 +350,14 @@ void uiWellDispEditMarkerDlg::removeMarker()
 
 bool uiWellDispEditMarkerDlg::acceptOK( CallBacker* )
 {
+    if ( hasedited_ )
+    {
+	for ( int idx=0; idx<wds_.size(); idx++ )
+	{
+	    wds_[idx]->markerschanged.trigger();
+	}
+    }
+
     needsave_ = hasedited_;
     return true;
 }
