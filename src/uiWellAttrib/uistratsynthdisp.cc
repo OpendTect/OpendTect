@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.33 2011-04-07 10:43:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.34 2011-04-14 13:52:51 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -41,7 +41,7 @@ static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.33 2011-04-07 10:43:53 
 
 static const int cMarkerSize = 6;
 
-#define mStdOffset 6000
+#define mStdOffset 3000
 Notifier<uiStratSynthDisp>& uiStratSynthDisp::fieldsCreated()
 {
     static Notifier<uiStratSynthDisp> FieldsCreated(0);
@@ -359,7 +359,9 @@ void uiStratSynthDisp::doModelChange()
 	    tbuf->add( trc );
 	    d2tmodels_ += rm.t2dmodels_[idx];
 	}
-	deepErase( rm.refmodels_ ); //TODO get rid of this (see with well ties)
+	rm.outtrcs_.erase();
+	rm.t2dmodels_.erase();
+	delete &rm;
     }
     if ( tbuf->isEmpty() )
 	mErrRet("No seismic traces genereated ")
