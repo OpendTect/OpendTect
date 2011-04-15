@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.37 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.38 2011-04-15 10:28:27 cvsbert Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -677,6 +677,8 @@ void MadStream::readRSFTrace( float* arr, int nrsamps ) const
 	if ( !possd.usable() ) mErrBoolRet("Cannot Open Pos File"); \
        	if ( !obj.read(*possd.istrm,false) ) \
 	    mErrBoolRet("Cannot Read Pos File"); \
+       	if ( obj.isEmpty() ) \
+	    mErrBoolRet("No positions in Pos File"); \
 	possd.close(); \
 	FilePath fp( posfnm ); \
 	if ( fp.pathOnly() == FilePath::getTempDir() ) \
