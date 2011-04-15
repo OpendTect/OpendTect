@@ -7,17 +7,20 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.18 2011-04-14 07:17:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.19 2011-04-15 10:43:37 cvsnanne Exp $";
 
 #include "surv2dgeom.h"
-#include "survinfo.h"
-#include "filepath.h"
-#include "file.h"
+
 #include "ascstream.h"
+#include "file.h"
+#include "filepath.h"
 #include "oddirs.h"
 #include "safefileio.h"
 #include "settings.h"
+#include "staticstring.h"
 #include "strmprov.h"
+#include "survinfo.h"
+
 #include <iostream>
 
 static PosInfo::Survey2D* theinst = 0;
@@ -740,9 +743,11 @@ PosInfo::GeomID PosInfo::Survey2D::getGeomID( const char* linesetnm,
 
 const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
 {
+    BufferString& fnm = StaticStringManager::STM().getString();
     FilePath fp( basefp_ );
     fp.add( lsnm );
-    return fp.fullPath();
+    fnm = fp.fullPath();
+    return fnm.buf();
 }
 
 
