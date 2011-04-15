@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.28 2011-03-25 15:01:59 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.29 2011-04-15 10:27:38 cvsbert Exp $";
 
 #include "posinfo.h"
 #include "survinfo.h"
@@ -628,7 +628,8 @@ bool PosInfo::CubeData::read( std::istream& strm, bool asc )
 	itmp = buf[0];
     }
     const int nrinl = itmp;
-    if ( nrinl <= 0 ) return false;
+    if ( nrinl < 0 )
+	return false;
 
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
