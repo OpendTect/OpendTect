@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.98 2011-02-28 12:25:42 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.99 2011-04-15 11:56:18 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seistrc.h"
@@ -426,43 +426,22 @@ void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
 bool SeisTrcTranslator::initConn( Conn* c, bool forread )
 {
     close(); errmsg = "";
-
     if ( !c )
+	{ errmsg = "Translator: No connection established"; return false; }
+
+    mDynamicCastGet(StreamConn*,strmconn,c)
+    if ( strmconn )
     {
-	errmsg = "Translator error: No connection established";
-	return false;
+	const char* fnm = strmconn->streamData().fileName();
+	if ( c->bad() && !File::isDirectory(fnm) )
+	{
+	    static BufferString emsg; emsg.setEmpty();
+	    emsg.add( "Cannot open file: " ).add( fnm );
+	    errmsg = emsg.buf(); return false;
+	}
     }
 
-    const char* fnm = c->ioobj ? c->ioobj->fullUserExpr( forread ) : 0;
-    if ( ( File::isDirectory(fnm) || (forread && c->forRead()) 
-	 			  || (!forread && c->forWrite()) ) 
-	                          && !strcmp(c->connType(),connType()) )
-    {
-	delete conn;
-	conn = c;
-    }
-    else
-    {
-	errmsg = "Translator error: Bad connection established";
-	mDynamicCastGet(StreamConn*,strmconn,c)
-	if ( !strmconn )
-	{
-#ifdef __debug__
-	    BufferString msg( "Not a StreamConn: " );
-	    msg += c->connType();
-	    ErrMsg( msg );
-#endif
-	}
-	else
-	{
-	    static BufferString emsg;
-	    emsg = "Cannot open file: ";
-	    emsg += strmconn->streamData().fileName();
-	    errmsg = emsg.buf();
-	}
-	return false;
-    }
-
+    delete conn; conn = c;
     return true;
 }
 
