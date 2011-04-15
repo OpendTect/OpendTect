@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.41 2011-03-18 05:17:10 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.42 2011-04-15 11:12:44 cvsnageswara Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.41 2011-03-18 05:17:10 c
 #include "ctxtioobj.h"
 #include "file.h"
 #include "iopar.h"
+#include "oddirs.h"
 #include "stratlevel.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -47,9 +48,7 @@ static const int cLevelCol = 3;
 
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
-	: uiDialog(p,uiDialog::Setup("Well Markers",
-				     "Define marker properties",
-				     "107.1.1"))
+	: uiDialog(p,uiDialog::Setup("Well Markers", "Edit markers", "107.1.1"))
     	, track_(t)
 {
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Marker")
@@ -67,26 +66,28 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->rowDeleted.notify( mCB(this,uiMarkerDlg,markerRemovedCB) );
     table_->setPrefWidth( 400 );
 
-    BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
-    unitfld_ = new uiGenInput( this, "Depth unit", mft );
-    unitfld_->attach( leftAlignedBelow, table_ );
-    unitfld_->valuechanged.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
-
-
-    uiButton* rfbut = new uiPushButton( this, "&Read file",
+    uiButton* rfbut = new uiPushButton( this, "&Read new",
 	    				mCB(this,uiMarkerDlg,rdFile), false );
-    rfbut->attach( rightTo, unitfld_ ); rfbut->attach( rightBorder );
-    
-    uiToolButton* sb = new uiToolButton( this, "man_strat.png",
-	    				"Edit Stratigraphy to define Levels",
-					mCB(this,uiMarkerDlg,doStrat) );
-    sb->attach( leftOf, rfbut );
+    rfbut->attach( leftAlignedBelow, table_ );
+
+    uiButton* expbut = new uiPushButton( this, "&Export",
+	    				mCB(this,uiMarkerDlg,exportCB), false );
+    expbut->attach( rightOf, rfbut );
 
     uiPushButton* setregmrkar =
 	new uiPushButton( this,	"Set as regional markers",
 			  mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
-    setregmrkar->attach( ensureBelow, unitfld_ );
-    setregmrkar->attach( hCentered );
+    setregmrkar->attach( rightOf, expbut );
+    
+    uiToolButton* stratbut = new uiToolButton( this, "man_strat.png",
+	    			"Edit Stratigraphy to define Levels",
+				mCB(this,uiMarkerDlg,doStrat) );
+    stratbut->attach( rightOf, setregmrkar );
+
+    unitfld_ = new uiCheckBox( this, "Z in Feet" );
+    unitfld_->activated.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
+    unitfld_->attach( rightOf, stratbut );
+    unitfld_->setChecked( SI().depthsInFeetByDefault() );
 
     setPrefWidthInChar( 60 );
 }
@@ -145,7 +146,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 
 float uiMarkerDlg::zFactor() const
 {
-    bool unitval = unitfld_->getBoolValue();
+    const bool unitval = !unitfld_->isChecked();
     
     if ( SI().zIsTime() )
 	return unitval ? 1 : mToFeetFactor;
@@ -197,7 +198,7 @@ void uiMarkerDlg::mouseClick( CallBacker* )
     }
 
     Color newcol = table_->getColor( rc );
-    if ( selectColor(newcol,this,"Marker color") )
+    if ( selectColor(newcol, this, "Marker color") )
 	table_->setColor( rc, newcol );
 
     table_->setSelected( rc, false );
@@ -228,7 +229,6 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     const int nrnew = markers.size();
     NotifyStopper notifystop( table_->valueChanged );
     int startrow = add ? getNrRows() : 0;
-    if ( !add ) depths_.erase();
     const int nrrows = nrnew + startrow + cNrEmptyRows;
     table_->setNrRows( nrrows );
     for ( int idx=0; idx<nrrows; idx++ )
@@ -242,11 +242,6 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	{
 	    if ( !Strat::LVLS().isPresent( marker->levelID() ) )
 		const_cast<Well::Marker*>(markers[idx])->setLevelID( -1 );
-
-	    if ( irow < depths_.size() )
-		depths_[irow] = marker->dah();
-	    else
-		depths_ += marker->dah();
 
 	    levelsel->setID( marker->levelID() );
 	    table_->setValue( RowCol(irow,cDepthCol), marker->dah()*zFactor() );
@@ -265,8 +260,15 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	table_->setColor( RowCol(irow,cColorCol), mrk.color() );
     }
 
-    for ( int idx=0; idx<cNrEmptyRows; idx++ )
-	depths_ += 1e30;
+    depths_.erase();
+    for ( int idx=0; idx<table_->nrRows(); idx++ )
+    {
+	const float val = table_->getfValue( RowCol(idx,cDepthCol) );
+	if ( mIsUdf(val) )
+	    depths_ += 1e30;
+	else
+	    depths_ += val/zFactor();
+    }
 
     table_->resizeHeaderToContents( false );
 }
@@ -349,7 +351,6 @@ bool acceptOK( CallBacker* )
     uiFileInput*	fnmfld_;
     uiGenInput*		replfld_;
     uiTableImpDataSel*	dataselfld_;
-
 };
 
 
@@ -415,22 +416,23 @@ bool uiMarkerDlg::acceptOK( CallBacker* )
     Interval<float> dahrg = track_.dahRange();
     dahrg.start = dahrg.start * zFactor();
     dahrg.stop = dahrg.stop * zFactor();
+    BufferString errmsg;
     for ( int midx=0; midx<markers.size(); midx++ )
     {
-	BufferString errmsg;
 	const float val = markers[midx]->dah() * zFactor();
 	const bool isbetween = dahrg.includes( val );
 	const RowCol rcname( midx, cNameCol );
 	if ( !isbetween )
-	{
-	    errmsg.add( "'" ).add( markers[midx]->name() )
-		  .add( "' depth value is out of well track range [" )
-		  .add( dahrg.start ).add( "-" )
-		  .add( dahrg.stop ).add( "]. " )
-		  .add ( "Press Abort if you want to re-enter the depth." );
-	    const bool res = uiMSG().askContinue( errmsg );
-	    if ( !res ) return false;
-	}
+	    errmsg.add( "'" ).add( markers[midx]->name() ).add( "' " );
+    }
+
+    if ( !errmsg.isEmpty() )
+    {
+      errmsg.add( "depth value(s) is out of well track range [" )
+	    .add( dahrg.start ).add( "-" ).add( dahrg.stop ).add( "]. " )
+	    .add ( "Press Abort if you want to re-enter the depth." );
+      const bool res = uiMSG().askContinue( errmsg );
+      if ( !res ) return false;
     }
 
     return true;
@@ -444,17 +446,17 @@ public:
 uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
 	: uiDialog( p,uiDialog::Setup( "Markers List", "Select markers", "") )
 {
-    list = new uiListBox( this, "Markers" );
-    list->setItemsCheckable( true );
+    list_ = new uiListBox( this, "Markers" );
+    list_->setItemsCheckable( true );
     for ( int idx=0; idx<mset.size(); idx++ )
-	list->addItem( mset[idx]->name(), mset[idx]->color() );
+	list_->addItem( mset[idx]->name(), mset[idx]->color() );
 }
 
 void getSelIDs( TypeSet<int>& items )
-{ list->getCheckedItems( items ); }
+{ list_->getCheckedItems( items ); }
 
 protected:
-	uiListBox*	list;
+	uiListBox*	list_;
 };
 
 
@@ -513,4 +515,39 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 
     setMarkerSet( mset, false );
     return true;
+}
+
+
+void uiMarkerDlg::exportCB( CallBacker* )
+{
+    Well::MarkerSet mset;
+    if ( !getMarkerSet( mset ) )
+	return;
+
+    if ( mset.isEmpty() )
+    {
+	uiMSG().message( "No data available to export" );
+	return;
+    }
+
+    uiFileDialog fdlg( this, false, 0, 0, "File name for export" );
+    fdlg.setDirectory( GetDataDir() );
+    if ( !fdlg.go() )
+	return;
+
+    StreamData sd( StreamProvider(fdlg.fileName()).makeOStream() );
+    if ( !sd.usable() )
+    {
+	uiMSG().error( BufferString( "Cannot open '", fdlg.fileName(),
+		    		     "' for write" ) );
+	return;
+    }
+    
+    for ( int idx=0; idx<mset.size(); idx++ )
+    {
+	*sd.ostrm << mset[idx]->dah()*zFactor() << '\t';
+   	*sd.ostrm << mset[idx]->name() << '\n';
+    }
+
+    sd.close();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: uiwellmarkerdlg.h,v 1.15 2011-04-13 06:35:54 cvsnageswara Exp $
+ RCS:		$Id: uiwellmarkerdlg.h,v 1.16 2011-04-15 11:12:44 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiStratLevelSel;
 class uiGenInput;
+class uiCheckBox;
 class uiTable;
 namespace Well { class Marker; class Track; }
 
@@ -34,7 +35,7 @@ public:
 protected:
 
     uiTable*			table_;
-    uiGenInput*			unitfld_;
+    uiCheckBox*			unitfld_;
     const Well::Track&		track_;
     TypeSet<float>		depths_;
 
@@ -54,6 +55,7 @@ protected:
     void			markerRemovedCB(CallBacker*);
     bool			setAsRegMarkersCB(CallBacker*);
     float			zFactor() const;
+    void			exportCB(CallBacker*);
 };
 
 #endif
