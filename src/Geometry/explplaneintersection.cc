@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.17 2011-02-14 22:23:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.18 2011-04-15 21:32:27 cvsyuancheng Exp $";
 
 
 #include "explplaneintersection.h"
@@ -230,7 +230,7 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 #define mCheckEdge( edgeidx ) \
     intersectionline.closestPoint(edge##edgeidx,t[mEdge##edgeidx], \
 	    			  edget##edgeidx);  \
-	edgeok##edgeidx = edget##edgeidx<=1+1e-3 && edget##edgeidx>=-1e-3
+	edgeok##edgeidx = edget##edgeidx<1+1e-2 && edget##edgeidx>-1e-2
 
 	double t[3];
 	int startedge=-1, stopedge=-1;
