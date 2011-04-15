@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.50 2011-03-25 15:02:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.51 2011-04-15 10:28:53 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -322,7 +322,7 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
 	{
 	    bool posdataok = posdata_.read( *sd.istrm, true );
 	    sd.close();
-	    if ( !posdataok )
+	    if ( !posdataok || posdata_.isEmpty() )
 		mRemoveCache(cachefnm);
 	    else
 		return;
