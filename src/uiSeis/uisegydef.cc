@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.40 2011-03-01 11:42:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.41 2011-04-15 12:02:58 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -50,13 +50,13 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     , multifld_(0)
     , is2d_(!su.canbe3d_)
     , manipbut_(0)
+    , needmulti_(su.forread_ && su.needmultifile_)
 {
     SEGY::FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
-    const bool canbemulti = forread_ && su.canbe3d_;
 
     BufferString disptxt( forread_ ? "Input" : "Output" );
     disptxt += " SEG-Y file";
-    if ( canbemulti ) disptxt += "(s)";
+    if ( needmulti_ ) disptxt += "(s)";
     fnmfld_ = new uiFileInput( this, disptxt,
 		uiFileInput::Setup(uiFileDialog::Gen)
 		.forread(forread_).filter(fileFilter()) );
@@ -72,7 +72,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
 	manipbut_->setSensitive( true );
     }
 
-    if ( canbemulti )
+    if ( needmulti_ )
     {
 	IntInpIntervalSpec inpspec( true );
 	inpspec.setName( "File number start", 0 );
@@ -92,7 +92,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
 SEGY::FileSpec uiSEGYFileSpec::getSpec() const
 {
     SEGY::FileSpec spec( fnmfld_->fileName() );
-    if ( !is2d_ && multifld_ && multifld_->isChecked() )
+    if ( multifld_ && multifld_->isChecked() )
     {
 	spec.nrs_ = multifld_->getIStepInterval();
 	const char* txt = multifld_->text();
@@ -165,7 +165,7 @@ void uiSEGYFileSpec::setMultiInput( const StepInterval<int>& nrs, int zp )
 	}
     }
 
-    multifld_->display( !is2d_ );
+    multifld_->display( !is2d_ || needmulti_ );
 }
 
 
@@ -223,7 +223,7 @@ void uiSEGYFileSpec::use( const IOObj* ioobj, bool force )
 void uiSEGYFileSpec::setInp2D( bool yn )
 {
     is2d_ = yn;
-    if ( multifld_ ) multifld_->display( !is2d_ );
+    if ( multifld_ ) multifld_->display( needmulti_ || !is2d_ );
 }
 
 

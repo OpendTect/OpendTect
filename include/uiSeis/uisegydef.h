@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.18 2011-03-01 11:42:21 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.19 2011-04-15 12:02:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,13 +55,15 @@ public:
     mClass Setup
     {
     public:
-			Setup()
+			Setup( bool needmulti )
 			    : forread_(true)
 			    , canbe3d_(true)
+			    , needmultifile_(needmulti)
 			    , pars_(0)		{}
 
 	mDefSetupMemb(bool,forread)
 	mDefSetupMemb(bool,canbe3d)
+	mDefSetupMemb(bool,needmultifile) //!< only used if for read
 	mDefSetupMemb(const IOPar*,pars)
     };
 
@@ -88,6 +90,7 @@ protected:
     uiGenInput*		multifld_;
     uiButton*		manipbut_;
     bool		is2d_;
+    bool		needmulti_;
 
     void		setMultiInput(const StepInterval<int>&,int);
 

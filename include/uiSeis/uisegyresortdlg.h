@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2011
- RCS:           $Id: uisegyresortdlg.h,v 1.4 2011-04-13 10:44:01 cvsbert Exp $
+ RCS:           $Id: uisegyresortdlg.h,v 1.5 2011-04-15 12:02:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class uiIOObjSel;
 class uiGenInput;
 class uiPosSubSel;
 class uiFileInput;
+class uiComboBox;
 
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
@@ -36,6 +37,7 @@ protected:
     uiIOObjSel*		volfld_;
     uiIOObjSel*		ps3dfld_;
     uiIOObjSel*		ps2dfld_;
+    uiComboBox*		linenmfld_;
     uiPosSubSel*	subselfld_;
     uiGenInput*		newinleachfld_;
     uiGenInput*		inlnmsfld_;

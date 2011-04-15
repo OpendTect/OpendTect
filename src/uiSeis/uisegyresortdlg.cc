@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.5 2011-04-13 10:44:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.6 2011-04-15 12:02:58 cvsbert Exp $";
 
 #include "uisegyresortdlg.h"
 #include "uiioobjsel.h"
@@ -16,6 +16,8 @@ static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.5 2011-04-13 10:44:01 cv
 #include "uiseparator.h"
 #include "uipossubsel.h"
 #include "uisegydef.h"
+#include "uiseisioobjinfo.h"
+#include "uicombobox.h"
 #include "uimsg.h"
 #include "segyresorter.h"
 #include "segydirecttr.h"
@@ -76,8 +78,10 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     if ( SI().has2D() )
     {
 	mDefSeisSelFld(ps2d,LinePS,SeisPS2D);
-	if ( !algrp )
-	    algrp = ps2dfld_;
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Line name" );
+	linenmfld_ = lcb->box();
+	lcb->attach( alignedBelow, ps2dfld_ );
+	algrp = lcb;
     }
 
     uiSeparator* sep = new uiSeparator( this, "Sep" );
@@ -104,8 +108,18 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 }
 
 
-void uiResortSEGYDlg::inpSel( CallBacker* )
+void uiResortSEGYDlg::inpSel( CallBacker* cb )
 {
+    if ( !ps2dfld_ || (cb && cb != ps2dfld_) ) return;
+    linenmfld_->setEmpty();
+    const IOObj* ioobj = ps2dfld_->ioobj();
+    if ( !ioobj ) return;
+    uiSeisIOObjInfo uioi( *ioobj );
+    if ( !uioi.isOK() ) return;
+
+    BufferStringSet lnms;
+    uioi.ioObjInfo().getLineNames( lnms );
+    linenmfld_->addItems( lnms );
 }
 
 
@@ -118,6 +132,8 @@ void uiResortSEGYDlg::geomSel( CallBacker* )
 #define mDispFld(nm) \
     if ( nm##fld_ ) nm##fld_->display( nm##fld_ == curos )
     mDispFld(ps3d); mDispFld(vol); mDispFld(ps2d);
+    if ( linenmfld_ )
+	linenmfld_->display( ps2dfld_ == curos );
     if ( subselfld_ )
     {
 	subselfld_->display( curos != ps2dfld_ );
@@ -170,8 +186,8 @@ bool uiResortSEGYDlg::acceptOK( CallBacker* )
 	su.inlnames( !inlnmsfld_->getBoolValue() );
     }
 
-    SEGY::ReSorter sr( su );
-    const Pos::Provider* pprov = subselfld_->curProvider();
+    SEGY::ReSorter sr( su, linenmfld_ ? linenmfld_->text() : 0 );
+    const Pos::Provider* pprov = subselfld_ ? subselfld_->curProvider() : 0;
     if ( pprov )
 	sr.setFilter( *pprov );
     uiTaskRunner tr( this );

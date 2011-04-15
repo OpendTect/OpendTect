@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.18 2010-02-18 12:10:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.19 2011-04-15 12:02:58 cvsbert Exp $";
 
 #include "uisegydefdlg.h"
 
@@ -46,9 +46,12 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     , geomtype_(Seis::Vol)
     , readParsReq(this)
 {
-    uiSEGYFileSpec::Setup sgyfssu; sgyfssu.forread(true).pars(&iop);
-    sgyfssu.canbe3d( su.geoms_.indexOf( Seis::Vol ) >= 0
-	    	  || su.geoms_.indexOf( Seis::VolPS ) >= 0 );
+    const bool havevol = su.geoms_.indexOf( Seis::Vol ) >= 0;
+    const bool havevolps = su.geoms_.indexOf( Seis::VolPS ) >= 0;
+    const bool havevlineps = su.geoms_.indexOf( Seis::LinePS ) >= 0;
+    uiSEGYFileSpec::Setup sgyfssu( havevol || havevolps || havevlineps );
+    sgyfssu.forread(true).pars(&iop);
+    sgyfssu.canbe3d( havevol || havevolps );
     filespecfld_ = new uiSEGYFileSpec( this, sgyfssu );
 
     uiGroup* lastgrp = filespecfld_;

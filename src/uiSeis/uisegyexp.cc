@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.39 2011-03-14 12:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.40 2011-04-15 12:02:58 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -194,7 +194,8 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     txtheadfld_ = new uiSEGYExpTxtHeader( this );
     txtheadfld_->attach( alignedBelow, fpfld_ );
 
-    uiSEGYFileSpec::Setup su; su.forread(false).canbe3d(!Seis::is2D(geom_));
+    uiSEGYFileSpec::Setup su( geom_ != Seis::Line );
+    su.forread( false ).canbe3d( !Seis::is2D(geom_) );
     fsfld_ = new uiSEGYFileSpec( this, su );
     fsfld_->attach( alignedBelow, txtheadfld_ );
 

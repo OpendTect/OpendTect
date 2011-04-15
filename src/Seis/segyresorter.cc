@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyresorter.cc,v 1.6 2011-04-13 10:44:01 cvsbert Exp $";
+static const char* rcsID = "$Id: segyresorter.cc,v 1.7 2011-04-15 12:02:58 cvsbert Exp $";
 
 #include "segyresorter.h"
 #include "segydirectdef.h"
@@ -116,7 +116,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 	{ msg_ = drdr_->errMsg(); delete drdr_; drdr_ = 0; }
 
     if ( dDef().isEmpty() )
-	{ msg_ = "Empty innput scan"; delete drdr_; drdr_ = 0; }
+	{ msg_ = "Empty input scan"; delete drdr_; drdr_ = 0; }
 
     if ( !drdr_ )
 	return;
