@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.37 2010-12-15 15:40:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.38 2011-04-18 15:00:57 cvsbert Exp $";
 
 
 #include "uiobjfileman.h"
@@ -191,33 +191,45 @@ BufferString uiObjFileMan::getFileInfo()
 
     mDynamicCastGet(StreamConn*,conn,curioobj_->getConn(Conn::Read))
     if ( !conn )
-	{ txt = "-"; setInfo( txt ); return txt; }
+    {
+	const BufferString conntyp( curioobj_->connType() );
+	if ( conntyp != StreamConn::sType() )
+	    txt.add( "From " ).add( conntyp ).add( " data store." );
+	else
+	    txt = "<empty>";
+	txt += "\n\n";
+    }
+    else
+    {
+	BufferString fname( conn->fileName() );
+	FilePath fp( fname );
+	const bool isdir = File::isDirectory( fname );
+	int nrfiles = 1;
+	const double totsz = getFileSize( fname, nrfiles );
 
-    BufferString fname( conn->fileName() );
-    FilePath fp( fname );
-    const bool isdir = File::isDirectory( fname );
-    int nrfiles = 1;
-    const double totsz = getFileSize( fname, nrfiles );
+	txt += "Location: "; txt += fp.pathOnly();
+	txt += isdir ? "\nDirectory name: " : "\nFile name: ";
+	txt += fp.fileName();
+	txt += "\nSize on disk: "; txt += getFileSizeString( totsz );
+	if ( nrfiles > 1 )
+	    { txt += "\nNumber of files: "; txt += nrfiles; }
+	const char* timestr = File::timeLastModified( fname );
+	if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
+	int txtsz = txt.size()-1;
+	if ( txt[ txtsz ] != '\n' ) txt += "\n";
+	conn->close();
+	delete conn;
+    }
 
-    txt += "Location: "; txt += fp.pathOnly();
-    txt += isdir ? "\nDirectory name: " : "\nFile name: ";
-    txt += fp.fileName();
-    txt += "\nSize on disk: "; txt += getFileSizeString( totsz );
-    if ( nrfiles > 1 )
-	{ txt += "\nNumber of files: "; txt += nrfiles; }
-    const char* timestr = File::timeLastModified( fname );
-    if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
-    int txtsz = txt.size()-1;
-    if ( txt[ txtsz ] != '\n' ) txt += "\n";
     txt += "Object ID: "; txt += curioobj_->key(); txt += "\n";
-    conn->close();
-    delete conn;
     return txt;
 }
 
 
 void uiObjFileMan::setInfo( const char* txt )
-{ infofld_->setText( txt ); }
+{
+    infofld_->setText( txt );
+}
 
 
 void uiObjFileMan::setPrefWidth( int width )
