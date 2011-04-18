@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.95 2011-02-14 14:43:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.96 2011-04-18 11:41:54 cvsnageswara Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -80,6 +80,11 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	    				    mCB(this,uiWellTrackDlg,readNew),
 					    false );
     readbut->attach( rightOf, updnowbut );
+
+    uiButton* expbut = new uiPushButton( actbutgrp, "&Export",
+	    				 mCB(this,uiWellTrackDlg,exportCB),
+					 false );
+    expbut->attach( rightOf, readbut );
     actbutgrp->attach( centeredBelow, tbl_ );
     zinftfld_->attach( ensureRightOf, actbutgrp );
 
@@ -87,7 +92,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 }
 
 
-void uiWellTrackDlg::fillTable( CallBacker* )
+bool uiWellTrackDlg::fillTable( CallBacker* )
 {
     RowCol curcell( tbl_->currentCell() );
 
@@ -96,7 +101,7 @@ void uiWellTrackDlg::fillTable( CallBacker* )
     if ( newsz < 8 ) newsz = 8;
     tbl_->setNrRows( newsz );
     tbl_->clearTable();
-    if ( !sz ) return;
+    if ( !sz ) return false;
 
     const bool zinft = zinftfld_->isChecked();
     for ( int idx=0; idx<sz; idx++ )
@@ -118,6 +123,7 @@ void uiWellTrackDlg::fillTable( CallBacker* )
 
     if ( curcell.row >= newsz ) curcell.row = newsz-1;
     tbl_->setCurrentCell( curcell );
+    return true;
 }
 
 
@@ -173,12 +179,14 @@ void uiWellTrackDlg::readNew( CallBacker* )
 
 	Well::TrackAscIO wellascio(fd_, *sd.istrm );
 	if ( !wellascio.getData( wd_, true ) )
-	uiMSG().error( "Failed to convert into compatible data" );
+	    uiMSG().error( "Failed to convert into compatible data" );
 
 	sd.close();
 	
 	tbl_->clearTable();
-	fillTable();
+	if ( !fillTable() )
+	    return;
+
 	wd_.trackchanged.trigger();
     }
     else
@@ -186,7 +194,7 @@ void uiWellTrackDlg::readNew( CallBacker* )
 }
 
 
-void uiWellTrackDlg::updNow( CallBacker* )
+bool uiWellTrackDlg::updNow( CallBacker* )
 {
     track_.erase();
     const int nrrows = tbl_->nrRows();
@@ -196,15 +204,23 @@ void uiWellTrackDlg::updNow( CallBacker* )
     {
 	const char* sval = tbl_->text( RowCol(idx,0) );
 	if ( !*sval ) continue;
-	const float xval = toFloat(sval);
+	const double xval = toDouble(sval);
 	sval = tbl_->text( RowCol(idx,1) );
 	if ( !*sval ) continue;
-	const float yval = toFloat(sval);
+	const double yval = toDouble(sval);
 	sval = tbl_->text( RowCol(idx,2) );
 	if ( !*sval ) continue;
-	float zval = toFloat(sval); if ( zinft ) zval *= mFromFeetFactor;
+	double zval = toDouble(sval); if ( zinft ) zval *= mFromFeetFactor;
 
 	const Coord3 newc( xval, yval, zval );
+	if ( !SI().isReasonable( newc ) )
+	{
+	    BufferString msg( "Found undefined values in row ", idx+1, "." );
+	    msg.add( "Please enter valid values" );
+	    uiMSG().message( msg );
+	    return false;
+	}
+
 	sval = tbl_->text( RowCol(idx,3) );
 	float dahval = 0;
 	if ( *sval )
@@ -217,6 +233,7 @@ void uiWellTrackDlg::updNow( CallBacker* )
 
 	track_.addPoint( newc, newc.z, dahval );
     }
+
     if ( track_.nrPoints() > 1 )
     {
 	wd_.info().surfacecoord = track_.pos(0);
@@ -224,10 +241,15 @@ void uiWellTrackDlg::updNow( CallBacker* )
 	wd_.trackchanged.trigger();
     }
     else
+    {
 	uiMSG().error( "Please define at least two points." );
+	return false;
+    }
 
-    if ( needfill )
-	fillTable();
+    if ( needfill && !fillTable() )
+	return false;
+
+    return true;
 }
 
 
@@ -241,7 +263,9 @@ bool uiWellTrackDlg::rejectOK( CallBacker* )
 
 bool uiWellTrackDlg::acceptOK( CallBacker* )
 {
-    updNow( 0 );
+    if ( !updNow( 0 ) )
+	return false;
+
     const int nrpts = track_.nrPoints();
     if ( nrpts < 2 ) return false;
     const int orgnrpts = orgtrack_->nrPoints();
@@ -273,6 +297,37 @@ bool uiWellTrackDlg::acceptOK( CallBacker* )
     return true;
 }
 
+
+void uiWellTrackDlg::exportCB( CallBacker* )
+{
+    if ( !track_.size() )
+    {
+	uiMSG().message( "No data available to import" );
+	false;
+    }
+
+    uiFileDialog fdlg( this, false, 0, 0, "File name for export" );
+    fdlg.setDirectory( GetDataDir() );
+    if ( !fdlg.go() )
+	return;
+
+    StreamData sd( StreamProvider(fdlg.fileName()).makeOStream() );
+    if ( !sd.usable() )
+    {
+	uiMSG().error( BufferString( "Cannot open '", fdlg.fileName(),
+		    		     "' for write" ) );
+	return;
+    }
+
+    for ( int idx=0; idx<track_.size(); idx++ )
+    {
+	const Coord3 coord( track_.pos(idx) );
+	*sd.ostrm << coord.x << '\t' << coord.y << '\t' << coord.z << '\t';
+	*sd.ostrm << track_.value( idx ) << '\n';
+    }
+
+    sd.close();
+}
 
 
 // ==================================================================

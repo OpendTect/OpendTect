@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.37 2010-12-07 05:51:22 cvsnageswara Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.38 2011-04-18 11:41:54 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,11 +52,12 @@ protected:
     uiTable*			tbl_;
     uiCheckBox*			zinftfld_;
 
-    void			fillTable(CallBacker* cb=0);
-    void			updNow(CallBacker*);
+    bool			fillTable(CallBacker* cb=0);
+    bool			updNow(CallBacker*);
     void			readNew(CallBacker*);
     bool			rejectOK(CallBacker*);
     bool			acceptOK(CallBacker*);
+    void			exportCB(CallBacker*);
 };
 
 
