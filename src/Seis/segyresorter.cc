@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyresorter.cc,v 1.7 2011-04-15 12:02:58 cvsbert Exp $";
+static const char* rcsID = "$Id: segyresorter.cc,v 1.8 2011-04-18 15:17:40 cvsbert Exp $";
 
 #include "segyresorter.h"
 #include "segydirectdef.h"
@@ -219,7 +219,7 @@ bool SEGY::ReSorter::toNext()
 {
     nrdone_++;
     if ( Seis::is2D(setup_.geom_) )
-	return nrdone_ >= dDef().lineData().positions().size();
+	return nrdone_ < dDef().lineData().positions().size();
     else
 	return dDef().cubeData().toNext(cdp_);
 }
