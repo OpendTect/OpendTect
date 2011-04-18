@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.44 2011-04-13 13:13:28 cvshelene Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.45 2011-04-18 14:27:39 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
@@ -1026,7 +1026,7 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
 	resampleDepth( deptharr, t_in, nr_in, sd_out, nr_out, depthsampled );
 
     //compute Vout from depthsampled
-    Vout[0] = 0;
+    Vout[0] = Vin[0];
     for ( int idx=1; idx<nr_out; idx++ )
 	Vout[idx] = (depthsampled[idx] - depthsampled[idx-1]) /(sd_out.step/2);
     								//time is TWT
