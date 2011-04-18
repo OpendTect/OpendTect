@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.29 2010-12-22 17:55:19 cvskris Exp $";
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.30 2011-04-18 10:58:12 cvshelene Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.29 2010-12-22 17:55:19 cvs
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribsel.h"
+#include "odver.h"
 #include "survinfo.h"
 
 using namespace Attrib;
@@ -332,7 +333,8 @@ void uiEvaluateDlg::variableSel( CallBacker* )
 
 void uiEvaluateDlg::calcPush( CallBacker* )
 {
-    attrset_->usePar( initpar_, toFloat(GetProjectVersionName()) );
+    float vsn = mODMajorVersion + 0.1*mODMinorVersion;
+    attrset_->usePar( initpar_, vsn );
     sliderfld->sldr()->setValue(0);
     lbls_.erase();
     specs_.erase();

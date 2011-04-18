@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.415 2011-04-12 09:28:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.416 2011-04-18 10:58:12 cvshelene Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -70,6 +70,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.415 2011-04-12 09:28:47 cvsn
 #include "mpeengine.h"
 #include "oddirs.h"
 #include "odsession.h"
+#include "odver.h"
 #include "pickset.h"
 #include "posinfo2d.h"
 #include "posvecdataset.h"
@@ -1423,9 +1424,11 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	const FixedString res = nlaserv_->prepareInputData( dpss );
 	if ( res!=uiNLAPartServer::sKeyUsrCancel() )
 	    uiMSG().warning( res );
+
+	float vsn = mODMajorVersion + 0.1*mODMinorVersion;
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
 	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D(),
-		   		   toFloat( GetProjectVersionName() ) );
+		   		   vsn );
 	deepErase(dpss);
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass() )
