@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.26 2011-02-09 17:01:15 cvskarthika Exp $
+ RCS:		$Id: file.cc,v 1.27 2011-04-18 15:01:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,10 +136,10 @@ const char* getRelativePath( const char* reltodir, const char* fnm )
     BufferString& relpathstr = StaticStringManager::STM().getString();
     QDir qdir( reltopath.buf() );
     relpathstr = qdir.relativeFilePath( path.buf() ).toAscii().constData();
-    return relpathstr;
+    return relpathstr.isEmpty() ? fnm : relpathstr.buf();
 #else
     pFreeFnErrMsg(not_implemented_str,"getRelativePath");
-    return 0;
+    return fnm;
 #endif
 }
 
