@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.101 2010-11-24 17:05:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.102 2011-04-18 15:00:20 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -60,10 +60,9 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
 {
     IOObjContext& ctxt = const_cast<IOObjContext&>( ct );
 
-    ctxt.toselect.allowtransls_ =
-	uiSeisSelDlg::standardTranslSel( su.geom_, ctxt.forread );
-
-    if ( su.geom_ != Seis::Line )
+    if ( su.geom_ == Seis::Line )
+	ctxt.toselect.allowtransls_ = "2D";
+    else
     {
 	if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
 	    ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
@@ -72,12 +71,11 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
     }
 
     if ( ctxt.deftransl.isEmpty() )
-	ctxt.deftransl = su.geom_ == Seis::Line
-	    ? "2D"
-	    : CBVSSeisTrcTranslator::translKey();
+	ctxt.deftransl = su.geom_ == Seis::Line ? "2D"
+				: CBVSSeisTrcTranslator::translKey();
     else if ( !ctxt.forread )
 	ctxt.toselect.allowtransls_ = ctxt.deftransl;
-    else
+    else if ( !ctxt.toselect.allowtransls_.isEmpty() )
     {
 	FileMultiString fms( ctxt.toselect.allowtransls_ );
 	if ( fms.indexOf(ctxt.deftransl.buf()) < 0 )
@@ -159,19 +157,6 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     entrySel(0);
     if ( attrlistfld_ && selgrp_->getCtxtIOObj().ctxt.forread )
 	attrNmSel(0);
-}
-
-
-// Tied to order in Seis::GeomType: Vol, VolPS, Line, LinePS
-static const char* rdtrglobexprs[] =
-{ "CBVS`PS Cube", "CBVS`MultiCube`SEGYDirect", "2D", "CBVS`SEGYDirect" };
-static const char* wrtrglobexprs[] =
-{ "CBVS", "CBVS", "2D", "CBVS" };
-
-const char* uiSeisSelDlg::standardTranslSel( Seis::GeomType geom, bool forread )
-{
-    const char** ges = forread ? rdtrglobexprs : wrtrglobexprs;
-    return ges[ (int)geom ];
 }
 
 
@@ -347,25 +332,13 @@ IOObjContext uiSeisSel::ioContext( Seis::GeomType geom, bool forread )
 void uiSeisSel::fillContext( Seis::GeomType geom, bool forread,
 			     IOObjContext& ctxt )
 {
-    ctxt.toselect.allowtransls_
-		= uiSeisSelDlg::standardTranslSel( geom, forread );
     ctxt.forread = forread;
-
-    if ( ctxt.deftransl.isEmpty() )
-	ctxt.deftransl = geom==Seis::Line
-	    ? "2D"
-	    : CBVSSeisTrcTranslator::translKey();
-    else if ( !forread )
-	ctxt.toselect.allowtransls_ = ctxt.deftransl;
+    if ( geom == Seis::Line )
+	ctxt.toselect.allowtransls_ = ctxt.deftransl = "2D";
     else
-    {
-	FileMultiString fms( ctxt.toselect.allowtransls_ );
-	if ( fms.indexOf(ctxt.deftransl.buf()) < 0 )
-	{
-	    fms += ctxt.deftransl;
-	    ctxt.toselect.allowtransls_ = fms;
-	}
-    }
+	ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
+    if ( !forread )
+	ctxt.toselect.allowtransls_ = ctxt.deftransl;
 }
 
 

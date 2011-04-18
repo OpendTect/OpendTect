@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.50 2010-09-29 03:51:46 cvssatyaki Exp $
+ RCS:           $Id: uiseissel.h,v 1.51 2011-04-18 15:00:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,8 +106,6 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
-
-    static const char*	standardTranslSel(Seis::GeomType,bool);
 
 protected:
 
