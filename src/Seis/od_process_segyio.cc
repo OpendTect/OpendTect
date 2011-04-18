@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_segyio.cc,v 1.5 2011-03-16 12:10:40 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_segyio.cc,v 1.6 2011-04-18 14:18:34 cvsbert Exp $";
 
 #include "batchprog.h"
 
@@ -51,17 +51,20 @@ bool BatchProgram::go( std::ostream& strm )
 	FilePath fp ( filespec.fname_ );
 	BufferString relpath = File::getRelativePath( GetDataDir(),
 						      fp.pathOnly() );
-	relpath += "/";
-	relpath += fp.fileName();
-#ifdef __win__
-	replaceCharacter( relpath.buf(), '/', '\\' );  
-#endif
-	if ( relpath != filespec.fname_ )
+	if ( !relpath.isEmpty() )
 	{
-	    replaceCharacter( relpath.buf(), '\\', '/' );  
-	    filespec.fname_ = relpath;
+	    relpath += "/";
+	    relpath += fp.fileName();
+#ifdef __win__
+	    replaceCharacter( relpath.buf(), '/', '\\' );  
+#endif
+	    if ( relpath != filespec.fname_ )
+	    {
+		replaceCharacter( relpath.buf(), '\\', '/' );  
+		filespec.fname_ = relpath;
+	    }
+	    pars().set( sKey::FileName, filespec.fname_ );
 	}
-	pars().set( sKey::FileName, filespec.fname_ );
 	SEGY::FileIndexer indexer( mid, isvol, filespec, is2d, pars() );
 	if ( !indexer.execute( &strm ) )
 	{
