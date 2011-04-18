@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.19 2011-04-15 10:43:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.20 2011-04-18 03:29:41 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 
@@ -744,8 +744,12 @@ PosInfo::GeomID PosInfo::Survey2D::getGeomID( const char* linesetnm,
 const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
 {
     BufferString& fnm = StaticStringManager::STM().getString();
+    BufferString cleannm( lsnm );
+    cleanupString( cleannm.buf(), false, false, false );
+    
     FilePath fp( basefp_ );
-    fp.add( lsnm );
+    fp.add( cleannm );
+    fp.add( sIdxFilename );
     fnm = fp.fullPath();
     return fnm.buf();
 }
@@ -754,11 +758,17 @@ const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
 const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
        					      const char* linenm ) const
 {
+    BufferString& fnm = StaticStringManager::STM().getString();
+    BufferString cllsnm( lsnm );
+    cleanupString( cllsnm.buf(), false, false, false );
+    BufferString cllnm( linenm );
+    cleanupString( cllnm.buf(), false, false, false );
+    
     PosInfo::GeomID geomid = getGeomID( lsnm, linenm );
     if ( !geomid.isOK() )
 	return 0;
     FilePath fp( basefp_ );
-    fp.add( lsnm );
-    fp.add( linenm );
+    fp.add( cllsnm );
+    fp.add( cllnm );
     return fp.fullPath();
 }
