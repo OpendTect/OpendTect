@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.6 2011-04-15 12:02:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyresortdlg.cc,v 1.7 2011-04-19 11:28:44 cvsbert Exp $";
 
 #include "uisegyresortdlg.h"
 #include "uiioobjsel.h"
@@ -133,7 +133,7 @@ void uiResortSEGYDlg::geomSel( CallBacker* )
     if ( nm##fld_ ) nm##fld_->display( nm##fld_ == curos )
     mDispFld(ps3d); mDispFld(vol); mDispFld(ps2d);
     if ( linenmfld_ )
-	linenmfld_->display( ps2dfld_ == curos );
+	linenmfld_->parent()->display( ps2dfld_ == curos );
     if ( subselfld_ )
     {
 	subselfld_->display( curos != ps2dfld_ );
