@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odftp.h,v 1.10 2010-12-21 06:34:31 cvsranojay Exp $
+ RCS:           $Id: odftp.h,v 1.11 2011-04-19 08:24:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ public:
     const bool		isOK() const		{ return !error_; }
     void		setMessage(const char*);
     const char*		message() const		{ return message_.buf(); }
-    const int		commandID() const	{ return commandid_; }
+    int			commandID() const	{ return commandid_; }
 
     Notifier<ODFtp>	messageReady;
     Notifier<ODFtp>	connected;
