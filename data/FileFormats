@@ -366,3 +366,11 @@ Body.Selection.Z: P`-1/2
 Body.MD.Unit: Feet
 Group: WellTrack
 !
+TrcNr X Y
+Header.Size: 0
+Header.Token: -1`
+Body.Selection.Trace Nr: P`-1/0
+Body.Position.Form: X Y
+Body.Selection.Position: P`-1/1`P`-1/2
+Group: Geom2D
+!
