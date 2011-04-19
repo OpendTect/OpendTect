@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.115 2011-03-08 14:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.116 2011-04-19 03:57:55 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
@@ -263,11 +263,14 @@ void uiListBox::menuCB( CallBacker* )
 void uiListBox::setNrLines( int prefnrlines )
 { body_->setNrLines( prefnrlines ); }
 
+void uiListBox::setSelectionMode( SelectionMode mode )
+{ body_->setSelectionMode( (QAbstractItemView::SelectionMode)mode ); }
+
 void uiListBox::setNotSelectable()
-{ body_->setSelectionMode( mNoSelection ); }
+{ setSelectionMode( No ); }
 
 void uiListBox::setMultiSelect( bool yn )
-{ body_->setSelectionMode( yn ? mExtended : mSingle ); }
+{ setSelectionMode( yn ? Extended : Single ); }
 
 int uiListBox::maxNrOfSelections() const
 { return body_->maxNrOfSelections(); }
