@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.9 2011-03-31 08:29:31 cvshelene Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.10 2011-04-19 11:55:09 cvsbert Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -175,6 +175,7 @@ void impLineGeom( CallBacker* )
 void fillTable( const PosInfo::Line2DData& geom )
 {
     const TypeSet<PosInfo::Line2DPos>& positions = geom.positions();
+    table_->setNrRows( positions.size() );
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
