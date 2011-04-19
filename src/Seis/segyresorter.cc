@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyresorter.cc,v 1.8 2011-04-18 15:17:40 cvsbert Exp $";
+static const char* rcsID = "$Id: segyresorter.cc,v 1.9 2011-04-19 11:28:26 cvsbert Exp $";
 
 #include "segyresorter.h"
 #include "segydirectdef.h"
@@ -87,12 +87,17 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 	    {
 		Translator* tr = ioobj->getTranslator();
 		mDynamicCastGet(SEGYDirectSeisTrcTranslator*,str,tr)
-		if ( str )
-		    drdr_ = str;
+		if ( !str )
+		    { msg_ = "Input must be scanned SEG-Y cube"; delete tr; }
 		else
 		{
-		    msg_ = "Input must be scanned SEG-Y cube";
-		    delete tr;
+		    Conn* conn = ioobj->getConn( Conn::Read );
+		    if ( !conn )
+			{ msg_ = "Cannot open SEG-Y scan file"; delete str; }
+		    else if ( !str->initRead(conn) )
+			{ msg_ = str->errMsg(); delete str; delete conn; }
+		    else
+			drdr_ = str;
 		}
 	    }
 	    break;
