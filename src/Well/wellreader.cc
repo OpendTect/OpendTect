@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.45 2011-02-14 12:04:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.46 2011-04-19 17:47:02 cvskris Exp $";
 
 #include "wellreader.h"
 
@@ -204,7 +204,7 @@ bool Well::Reader::getInfo( std::istream& strm ) const
     if ( !getTrack(strm) )
 	return false;
 
-    if ( SI().zInFeet() && version < 4.195 )
+    if ( SI().depthsInFeetByDefault() && version < 4.195 )
     {
 	Well::Track& welltrack = wd.track();
 	for ( int idx=0; idx<welltrack.size(); idx++ )
@@ -283,7 +283,7 @@ bool Well::Reader::getTrack() const
 			   ((double)astrm.minorVersion()/(double)10);
 
     const bool isok = getTrack( *sd.istrm );
-    if ( SI().zInFeet() && version < 4.195 )
+    if ( SI().depthsInFeetByDefault() && version < 4.195 )
     {
 	Well::Track& welltrack = wd.track();
 	for ( int idx=0; idx<welltrack.size(); idx++ )
@@ -348,7 +348,7 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 	readLogData( *log, strm, bintype );
 	sd.close();
 	
-	const bool valinmtr = SI().zInFeet() && (version < 4.195);
+	const bool valinmtr = SI().depthsInFeetByDefault() && (version < 4.195);
 
 	ret.start = valinmtr ? (log->dah(0) * mToFeetFactor) : log->dah(0);
 	ret.stop = valinmtr ? (log->dah(log->size()-1) * mToFeetFactor )
@@ -431,7 +431,7 @@ bool Well::Reader::addLog( std::istream& strm ) const
 
     readLogData( *newlog, strm, bintype );
     
-    if ( SI().zInFeet() && version < 4.195 )
+    if ( SI().depthsInFeetByDefault() && version < 4.195 )
     {
 	for ( int idx=0; idx<newlog->size(); idx++ )
 	    newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactor;
@@ -503,8 +503,9 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 	if ( !iopar.get(key,bs) )
 	    { delete wm; continue; }
 	float val = toFloat( bs.buf() );
-	wm->setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactor)
-						      : val ); 
+	wm->setDah( (SI().depthsInFeetByDefault() && version<4.195)
+		? (val*mToFeetFactor)
+	        : val ); 
 	key = IOPar::compKey( basekey, sKey::StratRef );
 	int lvlid = -1; iopar.get( key, lvlid );
 	wm->setLevelID( lvlid );
