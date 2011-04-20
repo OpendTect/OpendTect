@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.96 2011-04-18 11:41:54 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.97 2011-04-20 09:53:01 cvsnageswara Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -319,11 +319,13 @@ void uiWellTrackDlg::exportCB( CallBacker* )
 	return;
     }
 
+    char buf[70];
     for ( int idx=0; idx<track_.size(); idx++ )
     {
 	const Coord3 coord( track_.pos(idx) );
-	*sd.ostrm << coord.x << '\t' << coord.y << '\t' << coord.z << '\t';
-	*sd.ostrm << track_.value( idx ) << '\n';
+	sprintf( buf, "%16.4lf%16.4lf%10.3lf%10.3f\n", coord.x, coord.y, coord.z,
+		 track_.dah( idx ) );
+	*sd.ostrm << buf;
     }
 
     sd.close();
