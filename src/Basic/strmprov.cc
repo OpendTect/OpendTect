@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.109 2010-12-14 15:53:16 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.110 2011-04-20 06:24:22 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -908,10 +908,8 @@ bool StreamProvider::executeCommand( bool inbg, bool inconsole ) const
     mkOSCmd( true );
 #ifdef __msvc__
     if ( inconsole )
-    {
 	mkBatchCmd( bsbuf );
-	return ExecWinCmd( bsbuf, inbg, inconsole );
-    }
+    return ExecWinCmd( bsbuf, inbg, inconsole );
 #endif
     return ExecOSCmd( bsbuf, inbg );
 }
