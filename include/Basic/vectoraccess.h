@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	Access to STL vector class with extensions
- RCS:		$Id: vectoraccess.h,v 1.28 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.29 2011-04-20 12:25:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
 			}
     inline void		remove( unsigned int idx )
 			{
-			    if ( idx>=0 && idx<size() )
+			    if ( idx < size() )
 				v.erase( v.begin() + idx );
 			}
     inline void		remove( unsigned int i1, unsigned int i2 )
