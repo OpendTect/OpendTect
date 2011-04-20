@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          September 2010
- RCS:           $Id: ui2dgeomman.h,v 1.4 2010-10-06 08:51:52 cvssatyaki Exp $
+ RCS:           $Id: ui2dgeomman.h,v 1.5 2011-04-20 07:02:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,9 @@ protected:
 
     uiListBox*		linesetfld_;
     uiListBox*		linenamefld_;
+
+    void		removeLineGeom(CallBacker*);
+    void		removeLineSetGeom(CallBacker*);
 };
 
 

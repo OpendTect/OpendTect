@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surv2dgeom.cc,v 1.20 2011-04-18 03:29:41 cvssatyaki Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.21 2011-04-20 07:02:48 cvssatyaki Exp $";
 
 #include "surv2dgeom.h"
 
@@ -677,8 +677,8 @@ void PosInfo::Survey2D::removeLineSet( int lsid )
     writeIdxFile( false );
 
 	if ( !iscurls )	return;
-	const char* lsnm = lsindex_.isEmpty() ? "" : lsindex_.getKey( 0 );
-    setCurLineSet( lsnm );
+    if ( lsindex_.size() > 1 ) 
+	setCurLineSet( lsindex_.getKey(0) );
 }
 
 
@@ -699,8 +699,8 @@ void PosInfo::Survey2D::removeLineSet( const char* lsnm )
 	writeIdxFile( false );
     if ( !iscurls ) return;
 
-    lsnm = lsindex_.isEmpty() ? "" : lsindex_.getKey( 0 );
-    setCurLineSet( lsnm );
+    if ( lsindex_.size() > 1 ) 
+	setCurLineSet( lsindex_.getKey(0) );
 }
 
 

@@ -37,6 +37,10 @@ bool Geom2dAscIO::getData( PosInfo::Line2DData& geom )
 	 if ( ret < 0 ) return false;
 	 if ( ret == 0 ) break;
 
+	 const int trcnr = getIntValue(0);
+	 if ( mIsUdf(trcnr) )
+	     continue;
+
 	 PosInfo::Line2DPos pos( getIntValue(0) );
 	 pos.coord_.x = getdValue( 1 );
 	 pos.coord_.y = getdValue( 2 );

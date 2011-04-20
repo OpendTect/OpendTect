@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.10 2011-04-19 11:55:09 cvsbert Exp $";
+static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.11 2011-04-20 07:02:48 cvssatyaki Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: ui2dgeomman.cc,v 1.10 2011-04-19 11:55:09 cvsbe
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 
+static const char* remmsg = "All the related 2D lines & horizons will become invalid. Do you want to go ahead?";
 
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("2D Geometry management", "Manage 2D lines",
@@ -43,8 +44,14 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     linesetfld_->selectionChanged.notify(
 	    mCB(this,ui2DGeomManageDlg,lineSetSelCB) );
     linesetfld_->setPrefWidth( 200 );
-    uiSeparator* versep = new uiSeparator( this, "", false );
-    versep->attach( rightTo, lslb );
+    
+	uiToolButton* removelsgeombut =
+	new uiToolButton( this, "trashcan.png", "Reemove LineSet Geometry",
+			  mCB(this,ui2DGeomManageDlg,removeLineSetGeom) );
+    removelsgeombut->attach( centeredRightOf, lslb );
+	
+	uiSeparator* versep = new uiSeparator( this, "", false );
+    versep->attach( centeredRightOf, removelsgeombut );
 
     uiLabeledListBox* lnlb =
 	new uiLabeledListBox( this, "Linenames", false,
@@ -58,6 +65,11 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 			  mCB(this,ui2DGeomManageDlg,manLineGeom) );
     mangeombut->attach( centeredRightOf, lnlb );
 
+	uiToolButton* remgeombut =
+	new uiToolButton( this, "trashcan.png", "Remove Line Geometry",
+			  mCB(this,ui2DGeomManageDlg,removeLineGeom) );
+    remgeombut->attach( alignedBelow, mangeombut );
+
 
     lineSetSelCB( 0 );
 }
@@ -70,6 +82,9 @@ ui2DGeomManageDlg::~ui2DGeomManageDlg()
 
 void ui2DGeomManageDlg::lineSetSelCB( CallBacker* )
 {
+    if ( linesetfld_->isEmpty() )
+	return;
+
     BufferStringSet linenames;
     S2DPOS().setCurLineSet( linesetfld_->getText() );
     S2DPOS().getLines( linenames );
@@ -77,6 +92,16 @@ void ui2DGeomManageDlg::lineSetSelCB( CallBacker* )
     linenamefld_->addItems( linenames );
 }
 
+
+void ui2DGeomManageDlg::removeLineSetGeom( CallBacker* )
+{
+    if ( !uiMSG().askGoOn(remmsg) )
+	return;
+    PosInfo::POS2DAdmin().removeLineSet( linesetfld_->getText() );
+    linesetfld_->removeItem( linesetfld_->currentItem() );
+    linesetfld_->setCurrentItem( 0 );
+    lineSetSelCB( 0 );
+}
 
 //-----------Manage Line Geometry-----------------
 
@@ -212,6 +237,24 @@ bool acceptOK( CallBacker* )
 
 void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 {
+    if ( linenamefld_->isEmpty() || !linenamefld_->nrSelected() )
+	return;
+
     uiManageLineGeomDlg dlg( this, linenamefld_->getText() );
     dlg.go();
+}
+
+
+void ui2DGeomManageDlg::removeLineGeom( CallBacker* )
+{
+    if ( linenamefld_->isEmpty() || !linenamefld_->nrSelected() )
+	return;
+
+    if ( !uiMSG().askGoOn(remmsg) )
+	    return;
+
+    PosInfo::POS2DAdmin().removeLine( linenamefld_->getText() );
+    linenamefld_->removeItem( linenamefld_->currentItem() );
+    linenamefld_->setCurrentItem( 0 );
+    lineSetSelCB( 0 );
 }
