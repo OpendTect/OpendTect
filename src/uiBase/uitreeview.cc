@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.67 2011-03-08 14:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.68 2011-04-20 14:55:43 cvsbert Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -37,7 +37,7 @@ class uiListViewBody : public uiObjBodyImpl<uiListView,QTreeWidget>
 {
 
 public:
-                        uiListViewBody(uiListView& handle,uiParent* parnt, 
+                        uiListViewBody(uiListView& hndle,uiParent* parnt, 
 				       const char* nm,int nrl);
     virtual 		~uiListViewBody();
 
@@ -76,12 +76,12 @@ private:
 
 
 
-uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parent, 
+uiListViewBody::uiListViewBody( uiListView& hndle, uiParent* p, 
 				const char* nm, int nrl )
-    : uiObjBodyImpl<uiListView,QTreeWidget>( handle, parent, nm )
-    , messenger_( *new i_listVwMessenger(*this,handle) )
+    : uiObjBodyImpl<uiListView,QTreeWidget>( hndle, p, nm )
+    , messenger_( *new i_listVwMessenger(*this,hndle) )
     , prefnrlines_( nrl )
-    , lvhandle_(handle)
+    , lvhandle_(hndle)
 {
     setStretch( 1, (nrTxtLines()== 1) ? 0 : 1 );
     setHSzPol( uiObject::MedVar ) ;
@@ -103,32 +103,32 @@ uiListViewBody::~uiListViewBody()
 { delete &messenger_; }
 
 
-void uiListViewBody::resizeEvent( QResizeEvent* event )
+void uiListViewBody::resizeEvent( QResizeEvent* ev )
 {
     const int nrcols = columnCount();
     if ( nrcols != 2 )
-	return QTreeWidget::resizeEvent( event );
+	return QTreeWidget::resizeEvent( ev );
 
 // hack for OpendTect scene tree
     if ( lvhandle_.columnWidthMode(1) == uiListView::Fixed )
     {
 	const int fixedwidth = fixcolwidths_[ 1 ];
 	if ( mIsUdf(fixedwidth) || fixedwidth==0 )
-	    return QTreeWidget::resizeEvent( event );
+	    return QTreeWidget::resizeEvent( ev );
 	QScrollBar* sb = verticalScrollBar();
 	int sbwidth = sb && sb->isVisible() ? sb->width() : 0;
 	setColumnWidth( 0, width()-fixedwidth-sbwidth-4 );
     }
 
-    QTreeWidget::resizeEvent( event );
+    QTreeWidget::resizeEvent( ev );
 }
 
 
-void uiListViewBody::keyPressEvent( QKeyEvent* event )
+void uiListViewBody::keyPressEvent( QKeyEvent* ev )
 {
-    if ( moveItem(event) ) return;
+    if ( moveItem(ev) ) return;
 
-    if ( event->key() == Qt::Key_Return )
+    if ( ev->key() == Qt::Key_Return )
     {
 	lvhandle_.returnPressed.trigger();
 	return;
@@ -137,43 +137,43 @@ void uiListViewBody::keyPressEvent( QKeyEvent* event )
     uiListViewItem* currentitem = lvhandle_.currentItem();
     if ( !currentitem ) return;
 
-    uiKeyDesc kd( event );
+    uiKeyDesc kd( ev );
     CBCapsule<uiKeyDesc> cbc( kd, this );
     currentitem->keyPressed.trigger( &cbc );
     if ( cbc.data.key() != 0 )
     {
 	lvhandle_.unusedKey.trigger();
-	QTreeWidget::keyPressEvent( event );
+	QTreeWidget::keyPressEvent( ev );
     }
 }
 
 
-void uiListViewBody::mouseReleaseEvent( QMouseEvent* event )
+void uiListViewBody::mouseReleaseEvent( QMouseEvent* ev )
 {
-    if ( !event ) return;
+    if ( !ev ) return;
 
-    if ( event->button() == Qt::RightButton )
+    if ( ev->button() == Qt::RightButton )
 	lvhandle_.buttonstate_ = OD::RightButton;
-    else if ( event->button() == Qt::LeftButton )
+    else if ( ev->button() == Qt::LeftButton )
 	lvhandle_.buttonstate_ = OD::LeftButton;
     else
 	lvhandle_.buttonstate_ = OD::NoButton;
 
-    QTreeWidget::mouseReleaseEvent( event );
+    QTreeWidget::mouseReleaseEvent( ev );
     lvhandle_.buttonstate_ = OD::NoButton;
 }
 
 
-void uiListViewBody::mousePressEvent( QMouseEvent* event )
+void uiListViewBody::mousePressEvent( QMouseEvent* ev )
 {
-    if ( !event ) return;
+    if ( !ev ) return;
 
-    if ( event->button() == Qt::RightButton )
+    if ( ev->button() == Qt::RightButton )
     {
 	lvhandle_.rightButtonPressed.trigger();
 	lvhandle_.buttonstate_ = OD::RightButton;
     }
-    else if ( event->button() == Qt::LeftButton )
+    else if ( ev->button() == Qt::LeftButton )
     {
 	lvhandle_.mouseButtonPressed.trigger();
 	lvhandle_.buttonstate_ = OD::LeftButton;
@@ -181,36 +181,36 @@ void uiListViewBody::mousePressEvent( QMouseEvent* event )
     else
 	lvhandle_.buttonstate_ = OD::NoButton;
 
-    QTreeWidget::mousePressEvent( event );
+    QTreeWidget::mousePressEvent( ev );
     lvhandle_.buttonstate_ = OD::NoButton;
 }
 
 
-bool uiListViewBody::moveItem( QKeyEvent* event )
+bool uiListViewBody::moveItem( QKeyEvent* ev )
 {
-    if ( event->modifiers() != Qt::ShiftModifier )
+    if ( ev->modifiers() != Qt::ShiftModifier )
 	return false;
 
     QTreeWidgetItem* currentitem = currentItem();
     if ( !currentitem ) return false;
 
-    QTreeWidgetItem* parent = currentitem->parent();
-    if ( !parent ) return false;
+    QTreeWidgetItem* twpar = currentitem->parent();
+    if ( !twpar ) return false;
 
     QTreeWidget* treewidget = currentitem->treeWidget();
-    const int childidx = parent->indexOfChild( currentitem );
+    const int childidx = twpar->indexOfChild( currentitem );
     int newchildidx = -1;
-    if ( event->key() == Qt::Key_Up )
+    if ( ev->key() == Qt::Key_Up )
 	newchildidx = childidx - 1;
-    else if ( event->key() == Qt::Key_Down )
+    else if ( ev->key() == Qt::Key_Down )
 	newchildidx = childidx + 1;
 
-    if ( newchildidx<0 || newchildidx>=parent->childCount() )
+    if ( newchildidx<0 || newchildidx>=twpar->childCount() )
 	return false;
 
     const bool isopen = currentitem->isExpanded();
-    parent->takeChild( childidx );
-    parent->insertChild( newchildidx, currentitem );
+    twpar->takeChild( childidx );
+    twpar->insertChild( newchildidx, currentitem );
     currentitem->setExpanded( isopen );
     setCurrentItem( currentitem );
 
@@ -343,15 +343,15 @@ const char* uiListView::columnText( int col ) const
 }
 
 
-void uiListView::setColumnWidth( int col, int width )
-{ body_->setColumnWidth( col, width ); }
+void uiListView::setColumnWidth( int col, int w )
+{ body_->setColumnWidth( col, w ); }
 
 
-void uiListView::setFixedColumnWidth( int col, int width )
+void uiListView::setFixedColumnWidth( int col, int w )
 {
-    body_->setColumnWidth( col, width );
+    body_->setColumnWidth( col, w );
     if ( body_->fixedColWidth().validIdx(col) )
-	body_->fixedColWidth()[col] =  width;
+	body_->fixedColWidth()[col] = w;
     setColumnWidthMode( col, uiListView::Fixed );
 }
 
@@ -561,23 +561,23 @@ void uiListView::translate()
 
 #define mListViewBlockCmdRec	CmdRecStopper cmdrecstopper(listView());
 
-uiListViewItem::uiListViewItem( uiListView* parent, const Setup& setup )
+uiListViewItem::uiListViewItem( uiListView* p, const Setup& setup )
     : stateChanged(this)
     , keyPressed(this)
     , translateid_(-1)
 { 
-    qtreeitem_ = new QTreeWidgetItem( parent ? parent->lvbody() : 0 );
+    qtreeitem_ = new QTreeWidgetItem( p ? p->lvbody() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
     init( setup );
 }
 
 
-uiListViewItem::uiListViewItem( uiListViewItem* parent, const Setup& setup )
+uiListViewItem::uiListViewItem( uiListViewItem* p, const Setup& setup )
     : stateChanged(this)
     , keyPressed(this)
     , translateid_(-1)
 { 
-    qtreeitem_ = new QTreeWidgetItem( parent ? parent->qItem() : 0 );
+    qtreeitem_ = new QTreeWidgetItem( p ? p->qItem() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
     init( setup );
 }

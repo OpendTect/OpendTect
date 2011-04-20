@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidial.cc,v 1.5 2011-03-08 14:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uidial.cc,v 1.6 2011-04-20 14:55:43 cvsbert Exp $";
 
 #include "uidial.h"
 #include "i_qdial.h"
@@ -37,9 +37,9 @@ private:
 };
 
 
-uiDialBody::uiDialBody( uiDial& handle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiDial,QDial>(handle,p,nm)
-    , messenger_( *new i_DialMessenger(this,&handle) )
+uiDialBody::uiDialBody( uiDial& hndle, uiParent* p, const char* nm )
+    : uiObjBodyImpl<uiDial,QDial>(hndle,p,nm)
+    , messenger_( *new i_DialMessenger(this,&hndle) )
 {
     setHSzPol( uiObject::Medium );
     setFocusPolicy( Qt::WheelFocus );
@@ -138,10 +138,10 @@ int uiDial::minValue() const
 int uiDial::maxValue() const
 { return body_->maximum(); }
 
-void uiDial::setStep( int step )
+void uiDial::setStep( int s )
 {
     mBlockCmdRec;
-    body_->setSingleStep( step );
+    body_->setSingleStep( s );
 }
 
 int uiDial::step() const
