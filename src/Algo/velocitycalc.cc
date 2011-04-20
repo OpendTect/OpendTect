@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.45 2011-04-18 14:27:39 cvshelene Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.46 2011-04-20 15:07:45 cvshelene Exp $";
 
 #include "velocitycalc.h"
 
@@ -868,10 +868,10 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
 }
 
 
-bool computeVavg( const float* Vint, const SamplingData<double>& sd, int nrvels,
+bool computeVavg( const float* Vint, float t0, const float* t, int nrvels,
 		  float* Vavg )
 {
-    double t_above = 0;
+    double t_above = t0;
     int idx_prev = -1;
     double v2t_prev = 0;
 
@@ -881,7 +881,7 @@ bool computeVavg( const float* Vint, const SamplingData<double>& sd, int nrvels,
 	if ( mIsUdf(V_interval) )
 	    continue;
 
-	double t_below = sd.atIndex(idx);
+	double t_below = t[idx];
 
 	double dt = t_below - t_above;
 	double numerator = v2t_prev+V_interval*dt;
@@ -902,11 +902,11 @@ bool computeVavg( const float* Vint, const SamplingData<double>& sd, int nrvels,
 }
 
 
-bool computeVint( const float* Vavg, const SamplingData<double>& sd, int nrvels,
+bool computeVint( const float* Vavg, float t0, const float* t, int nrvels,
 		 float* Vint )
 {
     int idx_prev = -1; 
-    double t_above = 0; 
+    double t_above = t0; 
     double v2t_prev = 0;
     bool hasvals = false; 
  
@@ -918,7 +918,7 @@ bool computeVint( const float* Vavg, const SamplingData<double>& sd, int nrvels,
 
 	hasvals = true;
  
-	double t_below = sd.atIndex( idx ); 
+	double t_below = t[idx]; 
 
 	const double v2t = t_below*v; 
 	const double numerator = v2t-v2t_prev; 
@@ -1042,10 +1042,15 @@ bool sampleVavg( const float* Vin, const float* t_in, int nr_in,
     mAllocVarLenArr( float, vintsampledarr, nr_out );
     if ( !vintarr || !vintsampledarr ) return false;
 
-    SamplingData<double> sd_in( t_in[0], t_in[1]-t_in[0] );
-    return computeVint( Vin, sd_in, nr_in, vintarr ) &&
+    TypeSet<float> outtimesamps;
+    const float sampstep = sd_out.step;
+    const float start = sd_out.start;
+    for ( int idx=0; idx<nr_out; idx++ )                            
+	outtimesamps += start + idx * sampstep;                   
+
+    return computeVint( Vin, 0, t_in, nr_in, vintarr ) &&
        	sampleVint( vintarr, t_in, nr_in, sd_out, vintsampledarr, nr_out ) &&
-	computeVavg( vintsampledarr, sd_out, nr_out, Vout); 
+	computeVavg( vintsampledarr, start, outtimesamps.arr(), nr_out, Vout); 
 }
 
 

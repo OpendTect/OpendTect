@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.31 2011-04-13 13:13:28 cvshelene Exp $
+ RCS:		$Id: velocitycalc.h,v 1.32 2011-04-20 15:07:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -224,6 +224,8 @@ mGlobal bool computeDix(const float* Vrms, float t0, float v0, const float* t,
 			int nrlayers, float* Vint);
 
 
+/*! Be very careful when using this one: the input Vint has to be regularly
+  sampled according to sd. In case not, use the next one.*/
 mGlobal bool computeVrms(const float* Vint,const SamplingData<double>& sd,
 			 int nrvels, float* Vrms);
 
@@ -231,7 +233,7 @@ mGlobal bool computeVrms(const float* Vint,const SamplingData<double>& sd,
    Note that the times in t refers to the bottom of each layer, and t0
    has the start time of the top layer. */
 
-mGlobal bool computeVrms(const float* Vint,float t0, float v0, const float* t,
+mGlobal bool computeVrms(const float* Vint,float t0, const float* t,
 			 int nrlayers, float* Vrms);
 
 /*!Given an irregularly sampled Vrms, create a regularly sampled one. The
@@ -244,11 +246,19 @@ mGlobal bool sampleVrms(const float* Vin,float t0_in,float v0_in,
 			float* Vout, int nr_out);
 
 
-mGlobal bool computeVavg(const float* Vint,const SamplingData<double>& sd,
+/*!Converts a number of layers with Vint to average velocities.
+   Note that the times in t refers to the bottom of each layer, and t0
+   has the start time of the top layer. */
+
+mGlobal bool computeVavg(const float* Vint, float t0, const float* t,
 			 int nrvels, float* Vavg);
 
 
-mGlobal bool computeVint(const float* Vavg,const SamplingData<double>& sd,
+/*!Converts a number of layers with Vavg to Vint velocities.
+   Note that the times in t refers to the bottom of each layer, and t0
+   has the start time of the top layer. */
+
+mGlobal bool computeVint(const float* Vavg, float t0, const float* t,
 			 int nrvels, float* Vint);
 
 

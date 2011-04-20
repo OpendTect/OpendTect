@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.10 2011-03-21 12:57:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.11 2011-04-20 15:07:45 cvshelene Exp $";
 
 #include "velocityvolumeconversion.h"
 
@@ -194,6 +194,10 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	SeisTrc* outputtrc = new SeisTrc( trc );
 	float* outptr = (float*) outputtrc->data().getComponent( 0 )->data();
 	const SamplingData<double>& sd = trc.info().sampling;
+	TypeSet<float> timesamps;
+	const float sampstep = trc.info().sampling.step;
+	for ( int idx=0; idx<trc.size(); idx++ )
+	    timesamps += trc.startPos() + idx * sampstep;
 
 	float* interptr = 0;
 	if ( velinpdesc_.type_ != VelocityDesc::Interval )
@@ -211,8 +215,8 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	    }
 	    if ( velinpdesc_.type_ == VelocityDesc::Avg ) 
 	    {
-		 if ( !computeVint( inputptr, sd, trc.size(), 
-			     		interptr ? interptr : outptr ) );
+		 if ( !computeVint( inputptr, timesamps[0], timesamps.arr(),
+			trc.size(), interptr ? interptr : outptr ) );
 		{
 		    delete outputtrc;
 		    outputtrc = 0;
@@ -231,8 +235,8 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 
 	if ( veloutpdesc_.type_ == VelocityDesc::Avg )
 	{
-	    if ( !computeVavg( interptr ? interptr : inputptr, sd, trc.size(), 
-				outptr ) )
+	    if ( !computeVavg( interptr ? interptr : inputptr, timesamps[0],\
+				timesamps.arr(), trc.size(), outptr ) )
 	    {
 		delete outputtrc;
 		outputtrc = 0;
