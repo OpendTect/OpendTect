@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.14 2011-01-13 21:10:58 cvskris Exp $
+ RCS:		$Id: velocitypicks.h,v 1.15 2011-04-20 15:47:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -108,6 +108,7 @@ public:
     				/*!<Triggers after pickchange. */
 
     bool			isChanged() const;
+    void			resetChangedFlag() { changed_ = false; }
 
     bool			store(const IOObj*);
     				/*!< ioobj is not transferred */
