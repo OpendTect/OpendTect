@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Nanne Hemstra
  Date:		January 2010
  Contents:	File utitlities
- RCS:		$Id: file.h,v 1.10 2011-04-18 07:39:02 cvsnanne Exp $
+ RCS:		$Id: file.h,v 1.11 2011-04-21 06:39:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ namespace File
     mGlobal bool	copyDir(const char* from,const char* to);
     mGlobal bool	removeDir(const char*);
 
+    mGlobal od_int64	getFileSize(const char*); //!<returns size in bytes
+    			//!<Returns 0 on error
     mGlobal int		getKbSize(const char*);
     			//!<Returns 0 on error
 
