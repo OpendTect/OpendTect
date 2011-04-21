@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.h,v 1.11 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uifont.h,v 1.12 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,11 +26,11 @@ mClass uiFont
     friend class	uiFontList;
 
 protected:
-			uiFont(const char* key, const char* family,
+			uiFont(const char* ky, const char* family,
 				int ps=FontData::defaultPointSize(),
 				FontData::Weight w=FontData::defaultWeight(),
 				bool it=FontData::defaultItalic());
-			uiFont(const char* key,FontData fd=FontData());
+			uiFont(const char* ky,FontData fd=FontData());
 			uiFont(const uiFont&);
 
 public:
@@ -85,11 +85,11 @@ public:
     const ObjectSet<uiFont>&	fonts() const	{ return fonts_; }
     ObjectSet<uiFont>&	fonts()			{ return fonts_; }
 
-    uiFont&		get(const char* key=0);
+    uiFont&		get(const char* ky=0);
     uiFont&		getFromQfnt(QFont*);
 
-    uiFont&		add(const char* key,const FontData&);
-    uiFont&		add(const char* key,
+    uiFont&		add(const char* ky,const FontData&);
+    uiFont&		add(const char* ky,
 			    const char* f=FontData::defaultFamily(),
 			    int ptsz=FontData::defaultPointSize(),
 			    FontData::Weight w=FontData::defaultWeight(),
@@ -102,7 +102,7 @@ protected:
 
     ObjectSet<uiFont>	fonts_;
     void		initialise();
-    uiFont&		gtFont(const char* key,const FontData* =0,
+    uiFont&		gtFont(const char*,const FontData* =0,
 			       const QFont* =0 );
 private:
 

@@ -186,7 +186,7 @@
   instead of the upper value (the value right below the current
   bigtick).
 */
-static const char* rcsID = "$Id: LegendKit.cc,v 1.8 2010-05-11 12:30:26 cvskarthika Exp $";
+static const char* rcsID = "$Id: LegendKit.cc,v 1.9 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "LegendKit.h"
@@ -253,7 +253,7 @@ static const char* rcsID = "$Id: LegendKit.cc,v 1.8 2010-05-11 12:30:26 cvskarth
 // used to store private (hidden) data members
 class LegendKitP {
 public:
-  LegendKitP(LegendKit * kit) : kit(kit) { }
+  LegendKitP(LegendKit * k) : kit(k) { }
 
   LegendKit * kit;
   SbVec2f size;
@@ -611,22 +611,22 @@ LegendKit::initImage(void)
   PRIVATE(this)->needimageinit = FALSE;
   PRIVATE(this)->needalphainit = FALSE;
 
-  SoImage * image = (SoImage*) this->getAnyPart("image", TRUE);
-  SbVec2f size, texsize;
+  SoImage* img = (SoImage*) this->getAnyPart("image", TRUE);
+  SbVec2f vecsz, texsize;
   int nc;
 
   SbVec2s tmpsize;
-  unsigned char * data = (unsigned char*) image->image.getValue(tmpsize, nc);
-  size[0] = float(tmpsize[0]);
-  size[1] = float(tmpsize[1]);
+  unsigned char * data = (unsigned char*) img->image.getValue(tmpsize, nc);
+  vecsz[0] = float(tmpsize[0]);
+  vecsz[1] = float(tmpsize[1]);
   
   SbBool didallocimage = FALSE;
-  if (size != PRIVATE(this)->imagesize) {
+  if (vecsz != PRIVATE(this)->imagesize) {
     didallocimage = TRUE;
     data = new unsigned char[int(PRIVATE(this)->imagesize[0])*int(PRIVATE(this)->imagesize[1])*4];
-    size = PRIVATE(this)->imagesize;
+    vecsz = PRIVATE(this)->imagesize;
   } else {
-    data = image->image.startEditing(tmpsize, nc);
+    data = img->image.startEditing(tmpsize, nc);
   }
  
   SoTexture2 * tex = (SoTexture2*) this->getAnyPart("textureImage", TRUE);
@@ -654,12 +654,12 @@ LegendKit::initImage(void)
     this->reallyInitImage(data, rowdata);
 
   if (didallocimage) {
-    tmpsize[0] = short(size[0]);
-    tmpsize[1] = short(size[1]);
-    image->image.setValue(tmpsize, 4, data);
+    tmpsize[0] = short(vecsz[0]);
+    tmpsize[1] = short(vecsz[1]);
+    img->image.setValue(tmpsize, 4, data);
     delete[] data;
   }
-  else image->image.finishEditing();
+  else img->image.finishEditing();
   if (didalloctexture) {
     tmpsize[0] = 2;
     tmpsize[1] = short(texh);
@@ -670,7 +670,7 @@ LegendKit::initImage(void)
 
   // we disabled notification to avoid an extra redraw because we changed
   // the images. When we get here we are in a GLRender() traversal anyway.
-  image->enableNotify(TRUE);
+  img->enableNotify(TRUE);
   tex->enableNotify(TRUE);
 }
 
@@ -1266,15 +1266,15 @@ LegendKit::recalcSize(SoState * state)
   
   PRIVATE(this)->size[0] = ticktextw > descsize[0] ? ticktextw : descsize[0];
 
-  SbVec2f position(0.0f, 0.0f);
+  SbVec2f vecposn(0.0f, 0.0f);
   SoTranslation * tnode = (SoTranslation*) this->getPart("position", FALSE); 
   if (tnode) {
-    position[0] = tnode->translation.getValue()[0];
-    position[1] = tnode->translation.getValue()[1];
+    vecposn[0] = tnode->translation.getValue()[0];
+    vecposn[1] = tnode->translation.getValue()[1];
   }
   
 //  PRIVATE(this)->size[1] = vpsize[1] - position[1] - this->topSpace.getValue();
-  PRIVATE(this)->size[1] = vpsize[1]/2 - position[1] - this->topSpace.getValue();
+  PRIVATE(this)->size[1] = vpsize[1]/2 - vecposn[1] - this->topSpace.getValue();
   if (PRIVATE(this)->size[1] < descsize[1]+2.0f) PRIVATE(this)->size[1] = descsize[1]+2.0f;
 
 #ifdef LEGEND_DEBUG
@@ -1307,21 +1307,20 @@ LegendKit::recalcSize(SoState * state)
                                float(PRIVATE(this)->imageoffset[1]), 0.0f);
   
   
-  float size[2];
-  size[0] = float(vpsize[0]);
-  size[1] = float(vpsize[1]);
+  float fsz[2];
+  fsz[0] = float(vpsize[0]);
+  fsz[1] = float(vpsize[1]);
 
   // set up orthographic camera to span from (0,0) to (vpsize[0], vpsize[1])
-  SoOrthographicCamera * camera = (SoOrthographicCamera*) this->getAnyPart("camera", TRUE);
-  camera->viewportMapping = SoCamera::LEAVE_ALONE;
-  camera->position = SbVec3f(size[0]*0.5f, size[1]*0.5f,
-                            2.0f);
-  camera->orientation = SbRotation(SbVec3f(0.0f, 0.0f, 1.0f), 0.0f );
-  camera->aspectRatio = float(vpsize[0]) / float(vpsize[1]);
-  camera->nearDistance = 1.0f;
-  camera->farDistance = 10.0f;
-  camera->focalDistance = 2.0f;
-  camera->height = float(vpsize[1]);
+  SoOrthographicCamera * lcam = (SoOrthographicCamera*) this->getAnyPart("camera", TRUE);
+  lcam->viewportMapping = SoCamera::LEAVE_ALONE;
+  lcam->position = SbVec3f(fsz[0]*0.5f, fsz[1]*0.5f, 2.0f);
+  lcam->orientation = SbRotation(SbVec3f(0.0f, 0.0f, 1.0f), 0.0f );
+  lcam->aspectRatio = float(vpsize[0]) / float(vpsize[1]);
+  lcam->nearDistance = 1.0f;
+  lcam->farDistance = 10.0f;
+  lcam->focalDistance = 2.0f;
+  lcam->height = float(vpsize[1]);
 
   PRIVATE(this)->recalcsize = FALSE;
 

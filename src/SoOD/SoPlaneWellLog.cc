@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.46 2011-03-25 09:46:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.47 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -162,115 +162,115 @@ SoPlaneWellLog::~SoPlaneWellLog()
 }
 
 
-void SoPlaneWellLog::resetLogData( int lognr )
+void SoPlaneWellLog::resetLogData( int lnr )
 {
-    SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
+    SoSFFloat& maxval = lnr==1 ? maxval1 : maxval2;
     maxval.setValue( 0 ); 
-    SoSFFloat& minval = lognr==1 ? minval1 : minval2;
+    SoSFFloat& minval = lnr==1 ? minval1 : minval2;
     minval.setValue( 100 ); 
-    SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
+    SoSFFloat& fillmaxval = lnr==1 ? fillmaxval1 : fillmaxval2;
     fillmaxval.setValue( 0 ); 
-    SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
+    SoSFFloat& fillminval = lnr==1 ? fillminval1 : fillminval2;
     fillminval.setValue( 100 ); 
 }
 
 
-void SoPlaneWellLog::setLineColor( const SbVec3f& col, int lognr )
+void SoPlaneWellLog::setLineColor( const SbVec3f& col, int lnr )
 {
     SoBaseColor* color = SO_GET_ANY_PART( this,
-	    lognr==1 ? "col1" : "col2", SoBaseColor );
+	    lnr==1 ? "col1" : "col2", SoBaseColor );
     color->rgb.setValue( col );
 }
 
 
-const SbVec3f& SoPlaneWellLog::lineColor( int lognr ) const
+const SbVec3f& SoPlaneWellLog::lineColor( int lnr ) const
 {
     SoPlaneWellLog* myself = const_cast<SoPlaneWellLog*>(this);
     SoBaseColor* color = SO_GET_ANY_PART( myself,
-	    lognr==1 ? "col1" : "col2", SoBaseColor );
+	    lnr==1 ? "col1" : "col2", SoBaseColor );
     return color->rgb[0];
 }
 
 
-void SoPlaneWellLog::setFilledLogColorTab( const float colors[][3], int lognr )
+void SoPlaneWellLog::setFilledLogColorTab( const float colors[][3], int lnr )
 {
     SoShapeHints* hints  = SO_GET_ANY_PART( this,
-	     lognr==1 ? "hints1" : "hints2", SoShapeHints );
+	     lnr==1 ? "hints1" : "hints2", SoShapeHints );
     hints->vertexOrdering.setValue( SoShapeHints::COUNTERCLOCKWISE );
 
     SoMaterial* material  = SO_GET_ANY_PART( this,
-	     lognr==1 ? "material1" : "material2", SoMaterial );
+	     lnr==1 ? "material1" : "material2", SoMaterial );
     material->diffuseColor.setValues(0, 256, colors );
 
     SoMaterialBinding* mbinding  = SO_GET_ANY_PART( this,
-	     lognr==1 ? "mbinding1" : "mbinding2", SoMaterialBinding );
+	     lnr==1 ? "mbinding1" : "mbinding2", SoMaterialBinding );
     mbinding->value.setValue(SoMaterialBindingElement::PER_VERTEX_INDEXED);
 }
 
 
-void SoPlaneWellLog::setLineWidth( float width, int lognr )
+void SoPlaneWellLog::setLineWidth( float width, int lnr )
 {
     SoDrawStyle* ds = SO_GET_ANY_PART( this,
-	    lognr==1 ? "drawstyle1" : "drawstyle2", SoDrawStyle );
+	    lnr==1 ? "drawstyle1" : "drawstyle2", SoDrawStyle );
     ds->lineWidth.setValue( width );
 }
 
 
-float SoPlaneWellLog::lineWidth( int lognr ) const
+float SoPlaneWellLog::lineWidth( int lnr ) const
 {
     SoPlaneWellLog* myself = const_cast<SoPlaneWellLog*>(this);
     SoDrawStyle* ds = SO_GET_ANY_PART( myself,
-	    lognr==1 ? "drawstyle1" : "drawstyle2", SoDrawStyle );
+	    lnr==1 ? "drawstyle1" : "drawstyle2", SoDrawStyle );
     return ds->lineWidth.getValue();
 }
 
 
-void SoPlaneWellLog::showLog( bool yn, int lognr )
+void SoPlaneWellLog::showLog( bool yn, int lnr )
 {
     SoSwitch* sw = SO_GET_ANY_PART( this,
-	    lognr==1 ? "line1Switch" : "line2Switch", SoSwitch );
+	    lnr==1 ? "line1Switch" : "line2Switch", SoSwitch );
     sw->whichChild = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
     valuesensor->trigger();
 }
 
 
-bool SoPlaneWellLog::logShown( int lognr ) const
+bool SoPlaneWellLog::logShown( int lnr ) const
 {
     SoPlaneWellLog* myself = const_cast<SoPlaneWellLog*>(this);
     SoSwitch* sw = SO_GET_ANY_PART( myself,
-	    lognr==1 ? "line1Switch" : "line2Switch", SoSwitch );
+	    lnr==1 ? "line1Switch" : "line2Switch", SoSwitch );
     return sw->whichChild.getValue() == SO_SWITCH_ALL;
 }
 
 
-void SoPlaneWellLog::clearLog( int lognr )
+void SoPlaneWellLog::clearLog( int lnr )
 {
-    SoMFVec3f& path = lognr==1 ? path1 : path2;
+    SoMFVec3f& path = lnr==1 ? path1 : path2;
     path.deleteValues(0);
-    SoMFFloat& log = lognr==1 ? log1 : log2;
+    SoMFFloat& log = lnr==1 ? log1 : log2;
     log.deleteValues(0);
-    SoMFFloat& filllog = lognr==1 ? filllog1 : filllog2;
+    SoMFFloat& filllog = lnr==1 ? filllog1 : filllog2;
     filllog.deleteValues(0);
-    SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
+    SoSFFloat& fillmaxval = lnr==1 ? fillmaxval1 : fillmaxval2;
     fillmaxval.setValue( 0 ); 
-    SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
+    SoSFFloat& fillminval = lnr==1 ? fillminval1 : fillminval2;
     fillminval.setValue( 0 ); 
-    SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
+    SoSFFloat& maxval = lnr==1 ? maxval1 : maxval2;
     maxval.setValue( 0 ); 
-    SoSFFloat& minval = lognr==1 ? minval1 : minval2;
+    SoSFFloat& minval = lnr==1 ? minval1 : minval2;
     minval.setValue( 0 ); 
-    SoSFFloat& shift = lognr==1 ? shift1 : shift2;
+    SoSFFloat& shift = lnr==1 ? shift1 : shift2;
     shift.setValue( 0 ); 
 }
 
 
 void SoPlaneWellLog::setLogValue( int index, const SbVec3f& crd, float val, 
-				  int lognr )
+				  int lnr )
 {
-    SoMFVec3f& path = lognr==1 ? path1 : path2;
-    SoMFFloat& log = lognr==1 ? log1 : log2;
-    SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
-    SoSFFloat& minval = lognr==1 ? minval1 : minval2;
+    SoMFVec3f& path = lnr==1 ? path1 : path2;
+    SoMFFloat& log = lnr==1 ? log1 : log2;
+    SoSFFloat& maxval = lnr==1 ? maxval1 : maxval2;
+    SoSFFloat& minval = lnr==1 ? minval1 : minval2;
     path.set1Value( index, crd );
     log.set1Value( index, val );
     if ( val <= 100 )
@@ -281,69 +281,69 @@ void SoPlaneWellLog::setLogValue( int index, const SbVec3f& crd, float val,
 }
 
 
-void SoPlaneWellLog::setFillLogValue( int index, float fillval, int lognr )
+void SoPlaneWellLog::setFillLogValue( int index, float fillval, int lnr )
 {
-    SoMFFloat& filllog    = lognr==1 ? filllog1 : filllog2;
-    SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
-    SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
+    SoMFFloat& filllog    = lnr==1 ? filllog1 : filllog2;
+    SoSFFloat& fillmaxval = lnr==1 ? fillmaxval1 : fillmaxval2;
+    SoSFFloat& fillminval = lnr==1 ? fillminval1 : fillminval2;
     filllog.set1Value( index, fillval );
 }
 
 
-void SoPlaneWellLog::setFillExtrValue( float maxval, float minval, int lognr )
+void SoPlaneWellLog::setFillExtrValue( float maxval, float minval, int lnr )
 {
-    SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
-    SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
+    SoSFFloat& fillmaxval = lnr==1 ? fillmaxval1 : fillmaxval2;
+    SoSFFloat& fillminval = lnr==1 ? fillminval1 : fillminval2;
     fillmaxval.setValue( maxval );
     fillminval.setValue( minval );
 }
 
 
-void SoPlaneWellLog::buildLog(int lognr, const SbVec3f& projdir, int res )
+void SoPlaneWellLog::buildLog(int lnr, const SbVec3f& projdir, int res )
 {
     SoCoordinate3* coords = SO_GET_ANY_PART( this,
-             lognr==1 ? "coords1" : "coords2", SoCoordinate3 );
+             lnr==1 ? "coords1" : "coords2", SoCoordinate3 );
     coords->point.deleteValues(0);
     
     SoCoordinate3* coordtri = SO_GET_ANY_PART( this,
-	    lognr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
+	    lnr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
     coordtri->point.deleteValues(0);
    
     SoIndexedTriangleStripSet* triset = SO_GET_ANY_PART( this,
-	    lognr==1 ? "triset1" : "triset2", SoIndexedTriangleStripSet );
+	    lnr==1 ? "triset1" : "triset2", SoIndexedTriangleStripSet );
     triset->coordIndex.deleteValues(0,-1);
     triset->materialIndex.deleteValues(0,-1);
 	
-    const bool isfilled = lognr==1 ? isfilled1 : isfilled2;
-    const bool seisstyle = lognr==1 ? seisstyle1 : seisstyle2;
-    const bool islinedisplayed = lognr==1 ? islinedisp1 : islinedisp2;
+    const bool isfilled = lnr==1 ? isfilled1 : isfilled2;
+    const bool seisstyle = lnr==1 ? seisstyle1 : seisstyle2;
+    const bool islinedisplayed = lnr==1 ? islinedisp1 : islinedisp2;
 
     if ( !seisstyle )
     {
 	if ( islinedisplayed )
-	    buildSimpleLog( lognr, projdir, res );
+	    buildSimpleLog( lnr, projdir, res );
 	if ( isfilled )
-	    buildFilledLog( lognr, projdir, res );
+	    buildFilledLog( lnr, projdir, res );
     }
     else
-	buildSeismicLog( lognr, projdir, res );
+	buildSeismicLog( lnr, projdir, res );
 }
 
 
 #define sMaxNrSamplesRot 15
-void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res) 
+void SoPlaneWellLog::buildSimpleLog(int lnr, const SbVec3f& projdir, int res) 
 {
     SoLineSet* lineset = SO_GET_ANY_PART( this,
-	     lognr==1 ? "lineset1":"lineset2" , SoLineSet );
+	     lnr==1 ? "lineset1":"lineset2" , SoLineSet );
 
     SoCoordinate3* coords = SO_GET_ANY_PART( this,
-             lognr==1 ? "coords1" : "coords2", SoCoordinate3 );
+             lnr==1 ? "coords1" : "coords2", SoCoordinate3 );
     
-    SoMFVec3f& path   = lognr==1 ? path1   : path2;
-    SoMFFloat& log    = lognr==1 ? log1    : log2;
-    SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
+    SoMFVec3f& path   = lnr==1 ? path1   : path2;
+    SoMFFloat& log    = lnr==1 ? log1    : log2;
+    SoSFFloat& maxval = lnr==1 ? maxval1 : maxval2;
     
-    bool revscale = lognr==1 ? revscale1 : revscale2;
+    bool revscale = lnr==1 ? revscale1 : revscale2;
     const int pathsz = path.getNum();
     int nrsamp = pathsz;
     float step = 1;
@@ -365,7 +365,7 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res)
 	
 	SbVec3f newcrd = path[index];
 	SbVec3f normal = getProjCoords( path, index, projdir, 
-				        maxval, logval, lognr );
+				        maxval, logval, lnr );
         SbVec3f linecrd = newcrd + normal; 
 	coords->point.set1Value( idx, linecrd );
 	const int nrcrds = coords->point.getNum();
@@ -375,25 +375,25 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res)
 }
 
 
-void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
+void SoPlaneWellLog::buildSeismicLog(int lnr, const SbVec3f& projdir, int res)
 {
     SoCoordinate3* coords = SO_GET_ANY_PART( this,
-             lognr==1 ? "coords1" : "coords2", SoCoordinate3 );
+             lnr==1 ? "coords1" : "coords2", SoCoordinate3 );
    
     SoCoordinate3* coordtri = SO_GET_ANY_PART( this,
-	    lognr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
+	    lnr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
 	
     SoLineSet* lineset = SO_GET_ANY_PART( this,
-	     lognr==1 ? "lineset1":"lineset2" , SoLineSet );
+	     lnr==1 ? "lineset1":"lineset2" , SoLineSet );
     
     SoIndexedTriangleStripSet* triset = SO_GET_ANY_PART( this,
-	    lognr==1 ? "triset1" : "triset2", SoIndexedTriangleStripSet );
+	    lnr==1 ? "triset1" : "triset2", SoIndexedTriangleStripSet );
 
-    SoMFVec3f& path   = lognr==1 ? path1   : path2;
-    SoMFFloat& log    = lognr==1 ? log1    : log2;
-    SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
-    SoSFFloat& minval = lognr==1 ? minval1 : minval2;
-    SoSFFloat& shift  = lognr==1 ? shift1  : shift2;
+    SoMFVec3f& path   = lnr==1 ? path1   : path2;
+    SoMFFloat& log    = lnr==1 ? log1    : log2;
+    SoSFFloat& maxval = lnr==1 ? maxval1 : maxval2;
+    SoSFFloat& minval = lnr==1 ? minval1 : minval2;
+    SoSFFloat& shift  = lnr==1 ? shift1  : shift2;
 
     float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
@@ -419,7 +419,7 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
     {
 	int index = int(idx*step+.5);
 	float logval = log[index];
-	if ( lognr == 1 ) logval = maxval.getValue() - logval;
+	if ( lnr == 1 ) logval = maxval.getValue() - logval;
 	meanvalF += logval/nrsamp;
     }
     meanlogval = meanvalF;
@@ -434,34 +434,34 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
     {
 	int index = int(idx*step+.5);
 	float logval = log[index];
-	if ( lognr == 1 )   logval = maxval.getValue() - logval;
+	if ( lnr == 1 )   logval = maxval.getValue() - logval;
 	if ( logval < 0 )   logval = prevval;
 	if ( logval > 100 ) logval = prevval;
 	
 	SbVec3f shiftcrd; 
 	shiftcrd *= 0;
 	SbVec3f normalshift = getProjCoords( path, index, projdir, 
-					     maxval, shiftprct, lognr );
+					     maxval, shiftprct, lnr );
         shiftcrd += normalshift;
 	SbVec3f newcrd = path[index];
 	SbVec3f normal = getProjCoords( path, index, projdir, 
-				    maxval, logval, lognr );
+				    maxval, logval, lnr );
         SbVec3f linecrd = newcrd + normal - shiftcrd; 
 	coords->point.set1Value( idx, linecrd );
 
 	normal = getProjCoords( path, index, projdir, 
-				maxval, meanlogval, lognr );
+				maxval, meanlogval, lnr );
 	SbVec3f seisfillcrd  = newcrd + normal - shiftcrd;
 	
 	coordtri->point.set1Value( 2*idx, seisfillcrd  );
-	if ( lognr == 1 )
+	if ( lnr == 1 )
 	{
 	    if ( logval < meanlogval )
 		coordtri->point.set1Value( 2*idx+1, linecrd );
 	    else
 		coordtri->point.set1Value( 2*idx+1, seisfillcrd );
 	}
-	else if ( lognr == 2 )
+	else if ( lnr == 2 )
 	{
 	    if ( logval > meanlogval )
 		coordtri->point.set1Value( 2*idx+1, linecrd );
@@ -481,24 +481,24 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
 }
 
 
-void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
+void SoPlaneWellLog::buildFilledLog(int lnr, const SbVec3f& projdir, int res)
 {
     SoCoordinate3* coords = SO_GET_ANY_PART( this,
-             lognr==1 ? "coords1" : "coords2", SoCoordinate3 );
+             lnr==1 ? "coords1" : "coords2", SoCoordinate3 );
     
     SoCoordinate3* coordtri = SO_GET_ANY_PART( this,
-	    lognr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
+	    lnr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
    
     SoIndexedTriangleStripSet* triset = SO_GET_ANY_PART( this,
-	    lognr==1 ? "triset1" : "triset2", SoIndexedTriangleStripSet );
+	    lnr==1 ? "triset1" : "triset2", SoIndexedTriangleStripSet );
 
-    SoMFVec3f& path = lognr==1 ? path1 : path2;
-    SoMFFloat& log = lognr==1 ? log1 : log2;
-    SoMFFloat& filllog = lognr==1 ? filllog1 : filllog2;
-    SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
-    SoSFFloat& minval = lognr==1 ? minval1 : minval2;
-    SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
-    SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
+    SoMFVec3f& path = lnr==1 ? path1 : path2;
+    SoMFFloat& log = lnr==1 ? log1 : log2;
+    SoMFFloat& filllog = lnr==1 ? filllog1 : filllog2;
+    SoSFFloat& maxval = lnr==1 ? maxval1 : maxval2;
+    SoSFFloat& minval = lnr==1 ? minval1 : minval2;
+    SoSFFloat& fillmaxval = lnr==1 ? fillmaxval1 : fillmaxval2;
+    SoSFFloat& fillminval = lnr==1 ? fillminval1 : fillminval2;
 
     float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
@@ -507,8 +507,8 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
     float colstep = ( fillmaxvalF - fillminvalF ) / 255;
     int   colindex = 0;
 
-    bool fillrevscale = lognr==1 ? fillrevscale1 : fillrevscale2;
-    bool revscale = lognr==1 ? revscale1 : revscale2;
+    bool fillrevscale = lnr==1 ? fillrevscale1 : fillrevscale2;
+    bool revscale = lnr==1 ? revscale1 : revscale2;
     const int pathsz = path.getNum();
     int nrsamp = pathsz;
     float step = 1;
@@ -542,10 +542,10 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	}
 	SbVec3f pathcrd = path[index];
 	SbVec3f newcrd = fillrevscale ? pathcrd + getProjCoords( path, index, 
-					    projdir, maxval, maxvalF, lognr )
+					    projdir, maxval, maxvalF, lnr )
 				  : pathcrd;
 	SbVec3f normal = getProjCoords( path, index, projdir, 
-					maxval, logval, lognr );
+					maxval, logval, lnr );
         SbVec3f linecrd = pathcrd + normal; 
 	
 	coordtri->point.set1Value( 2*idx, newcrd );
@@ -560,7 +560,7 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 
 SbVec3f SoPlaneWellLog::getProjCoords( const SoMFVec3f& path, const int index,
 				       const SbVec3f& projdir, const SoSFFloat&
-				       maxval, const float val, int lognr )
+				       maxval, const float val, int lnr )
 {
     SbVec3f pt1, pt2;	
     if ( !index )
@@ -586,7 +586,7 @@ SbVec3f SoPlaneWellLog::getProjCoords( const SoMFVec3f& path, const int index,
     float maxvalF = maxval.getValue();
     const float scaledmeanval = val * worldwidth / maxvalF;
     const float fact = (maxvalF == 0) ? 0 : scaledmeanval / normal.length();
-    normal *= lognr==1 ?  -fact : fact;
+    normal *= lnr==1 ?  -fact : fact;
     return ( normal );
 } 
 
@@ -611,38 +611,38 @@ void SoPlaneWellLog::valueChangedCB( void* data, SoSensor* )
 }
 
 
-void SoPlaneWellLog::setShift( float sht, int lognr )
+void SoPlaneWellLog::setShift( float sht, int lnr )
 {
-    SoSFFloat& shift = lognr==1 ? shift1 : shift2;
+    SoSFFloat& shift = lnr==1 ? shift1 : shift2;
     shift.setValue( sht ); 
 }
 
 
-void SoPlaneWellLog::setLogStyle( bool stl, int lognr )
+void SoPlaneWellLog::setLogStyle( bool stl, int lnr )
 {
-    bool& style = lognr==1 ? seisstyle1 : seisstyle2;
+    bool& style = lnr==1 ? seisstyle1 : seisstyle2;
     style = stl; 
 }
 
 
-void SoPlaneWellLog::setLineDisplayed( bool isdisp, int lognr )
+void SoPlaneWellLog::setLineDisplayed( bool isdisp, int lnr )
 {
-    bool& islinedisplayed = lognr==1 ? islinedisp1 : islinedisp2;
+    bool& islinedisplayed = lnr==1 ? islinedisp1 : islinedisp2;
     islinedisplayed = isdisp; 
 }
 
 
-bool SoPlaneWellLog::lineDisp( int lognr ) const
+bool SoPlaneWellLog::lineDisp( int lnr ) const
 {
     SoPlaneWellLog* myself = const_cast<SoPlaneWellLog*>(this);
-    const bool isdisp = lognr==1 ? islinedisp1 : islinedisp2;
+    const bool isdisp = lnr==1 ? islinedisp1 : islinedisp2;
     return isdisp;
 }
 
 
-void SoPlaneWellLog::setLogFill( bool isfill, int lognr )
+void SoPlaneWellLog::setLogFill( bool isfill, int lnr )
 {
-    bool& isfilled = lognr==1 ? isfilled1 : isfilled2;
+    bool& isfilled = lnr==1 ? isfilled1 : isfilled2;
     isfilled = isfill; 
 }
 

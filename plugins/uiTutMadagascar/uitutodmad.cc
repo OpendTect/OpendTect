@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitutodmad.cc,v 1.5 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutodmad.cc,v 1.6 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uitutodmad.h"
 
@@ -28,10 +28,10 @@ uiTutODMad::uiTutODMad( uiParent* p )
 			 "Specify data settings", mNoHelpID) )
     , iop_("Madagascar display parameters")
 {
-    uiFileInput::Setup setup;
-    setup.defseldir( ODMad::FileSpec::defPath() );
-    setup.forread( true );
-    maddatafld_ = new uiFileInput( this, "Data file", setup );
+    uiFileInput::Setup fisu;
+    fisu.defseldir( ODMad::FileSpec::defPath() );
+    fisu.forread( true );
+    maddatafld_ = new uiFileInput( this, "Data file", fisu );
     maddatafld_->setFilter( "*.rsf" );
 
     dowigglesfld_ = new uiGenInput ( this, "Display",

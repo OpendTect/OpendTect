@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.28 2010-12-09 16:24:16 cvsjaap Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.29 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -29,12 +29,12 @@ class uiGraphicsViewBody :
 {
 public:
 
-uiGraphicsViewBody( uiGraphicsViewBase& handle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiGraphicsViewBase,QGraphicsView>(handle,p,nm)
+uiGraphicsViewBody( uiGraphicsViewBase& hndle, uiParent* p, const char* nm )
+    : uiObjBodyImpl<uiGraphicsViewBase,QGraphicsView>(hndle,p,nm)
     , mousehandler_(*new MouseEventHandler)
     , keyboardhandler_(*new KeyboardEventHandler)
     , startpos_(-1,-1)
-    , handle_(handle)
+    , handle_(hndle)
 {
     setStretch( 2, 2 );
     setPrefWidth( cDefaultWidth );
@@ -74,7 +74,7 @@ protected:
 };
 
 
-void uiGraphicsViewBody::mouseMoveEvent( QMouseEvent* event )
+void uiGraphicsViewBody::mouseMoveEvent( QMouseEvent* ev )
 {
 
 #ifdef __win__
@@ -101,67 +101,67 @@ void uiGraphicsViewBody::mouseMoveEvent( QMouseEvent* event )
     }
 #endif
 
-    MouseEvent me( buttonstate_, event->x(), event->y() );
+    MouseEvent me( buttonstate_, ev->x(), ev->y() );
     mousehandler_.triggerMovement( me );
-    QGraphicsView::mouseMoveEvent( event );
+    QGraphicsView::mouseMoveEvent( ev );
 }
 
 
-void uiGraphicsViewBody::mousePressEvent( QMouseEvent* event )
+void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
 {
-    if ( !event ) return;
+    if ( !ev ) return;
 
-    if ( event->modifiers() == Qt::ControlModifier )
+    if ( ev->modifiers() == Qt::ControlModifier )
 	handle_.setCtrlPressed( true );
 
-    if ( event->button() == Qt::RightButton )
+    if ( ev->button() == Qt::RightButton )
     {
 	buttonstate_ = OD::RightButton;
-	MouseEvent me( buttonstate_, event->x(), event->y() );
+	MouseEvent me( buttonstate_, ev->x(), ev->y() );
 	const int refnr = handle_.beginCmdRecEvent( "rightButtonPressed" );
 	mousehandler_.triggerButtonPressed( me );
-	QGraphicsView::mousePressEvent( event );
+	QGraphicsView::mousePressEvent( ev );
 	handle_.endCmdRecEvent( refnr, "rightButtonPressed" );
 	return;
     }
-    else if ( event->button() == Qt::LeftButton )
+    else if ( ev->button() == Qt::LeftButton )
     {
-	uiPoint viewpt = handle_.getScenePos( event->x(), event->y() );
+	uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
 	startpos_ = uiPoint( viewpt.x, viewpt.y );
 	buttonstate_ = OD::LeftButton;
-	MouseEvent me( buttonstate_, event->x(), event->y() );
+	MouseEvent me( buttonstate_, ev->x(), ev->y() );
 	mousehandler_.triggerButtonPressed( me );
     }
     else
 	buttonstate_ = OD::NoButton;
 
-    QGraphicsView::mousePressEvent( event );
+    QGraphicsView::mousePressEvent( ev );
 }
 
 
-void uiGraphicsViewBody::mouseDoubleClickEvent( QMouseEvent* event )
+void uiGraphicsViewBody::mouseDoubleClickEvent( QMouseEvent* ev )
 {
-    if ( !event | handle_.isRubberBandingOn() ) return;
-    if ( event->button() == Qt::LeftButton )
+    if ( !ev | handle_.isRubberBandingOn() ) return;
+    if ( ev->button() == Qt::LeftButton )
     {
-	MouseEvent me( OD::LeftButton, event->x(), event->y() );
+	MouseEvent me( OD::LeftButton, ev->x(), ev->y() );
 	mousehandler_.triggerDoubleClick( me );
     }
-    QGraphicsView::mouseDoubleClickEvent( event );
+    QGraphicsView::mouseDoubleClickEvent( ev );
 }
 
 
-void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* event )
+void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* ev )
 {
-    if ( !event ) return;
-    if ( event->button() == Qt::LeftButton )
+    if ( !ev ) return;
+    if ( ev->button() == Qt::LeftButton )
     {
 	buttonstate_ = OD::LeftButton;
-	MouseEvent me( buttonstate_, event->x(), event->y() );
+	MouseEvent me( buttonstate_, ev->x(), ev->y() );
 	mousehandler_.triggerButtonReleased( me );
 	if ( handle_.isRubberBandingOn() )
 	{
-	    uiPoint viewpt = handle_.getScenePos( event->x(), event->y() );
+	    uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
 	    uiPoint stoppos( viewpt.x, viewpt.y );
 	    uiRect selrect( startpos_, stoppos );
 	    handle_.scene().setSelectionArea( selrect );
@@ -171,33 +171,33 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* event )
     handle_.setCtrlPressed( false );
 
     buttonstate_ = OD::NoButton;
-    QGraphicsView::mouseReleaseEvent( event );
+    QGraphicsView::mouseReleaseEvent( ev );
 }
 
 
-void uiGraphicsViewBody::keyPressEvent( QKeyEvent* event )
+void uiGraphicsViewBody::keyPressEvent( QKeyEvent* ev )
 {
-    if ( !event ) return;
+    if ( !ev ) return;
 
     // TODO: impl modifier
     KeyboardEvent ke;
-    ke.key_ = (OD::KeyboardKey)event->key();
+    ke.key_ = (OD::KeyboardKey)ev->key();
     keyboardhandler_.triggerKeyPressed( ke );
-    QGraphicsView::keyPressEvent( event );
+    QGraphicsView::keyPressEvent( ev );
 }
 
 
 static const int cBorder = 5;
 
-void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
+void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 {
-    if ( !event ) return;
+    if ( !ev ) return;
 
-    bool isfinished = event->isAccepted();
+    bool isfinished = ev->isAccepted();
     if ( handle_.scene_ )
     {
 #if defined(__win__) && !defined(__msvc__)
-	QSize newsz = event->size();
+	QSize newsz = ev->size();
 	handle_.scene_->setSceneRect( cBorder, cBorder,
 				      newsz.width()-2*cBorder,
 				      newsz.height()-2*cBorder );
@@ -207,7 +207,7 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
 #endif
     }
 
-    uiSize oldsize( event->oldSize().width(), event->oldSize().height() );
+    uiSize oldsize( ev->oldSize().width(), ev->oldSize().height() );
     handle_.reSize.trigger( oldsize );
     handle_.reDrawn.trigger();
 }
@@ -377,13 +377,13 @@ uiRect uiGraphicsViewBase::getViewArea() const
 }
 
 
-void uiGraphicsViewBase::setScene( uiGraphicsScene& scene )
+void uiGraphicsViewBase::setScene( uiGraphicsScene& scn )
 {
     if ( scene_ ) delete scene_;
-    scene_ = &scene;
+    scene_ = &scn;
     scene_->setSceneRect( cBorder, cBorder,
 			  width()-2*cBorder, height()-2*cBorder );
-    body_->setScene( scene.qGraphicsScene() );
+    body_->setScene( scn.qGraphicsScene() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2010
- RCS:           $Id: i_qtoolbar.h,v 1.2 2010-05-25 03:30:44 cvsnanne Exp $
+ RCS:           $Id: i_qtoolbar.h,v 1.3 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,11 +27,11 @@ class i_ToolBarMessenger : public QObject
     friend class	uiToolBar;
 
 protected:
-i_ToolBarMessenger( QToolBar* sender, uiToolBar* receiver )
-    : sender_(sender)
+i_ToolBarMessenger( QToolBar* sndr, uiToolBar* receiver )
+    : sender_(sndr)
     , receiver_(receiver)
 { 
-    connect( sender, SIGNAL(actionTriggered(QAction*)),
+    connect( sndr, SIGNAL(actionTriggered(QAction*)),
 	     this, SLOT(actionTriggered(QAction*)) );
 }
 

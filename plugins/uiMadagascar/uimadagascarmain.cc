@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.40 2010-12-15 15:40:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.41 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -324,10 +324,10 @@ bool uiMadagascarMain::askSave( bool withcancel )
 void uiMadagascarMain::updateCaption()
 {
     const char* flowname = procflow_.name();
-    BufferString caption = "Madagascar processing   [";
-    caption += flowname && *flowname ? flowname : "New Flow";
-    caption += "]";
-    setCaption( caption );
+    BufferString cptn( "Madagascar processing   [" );
+    cptn += flowname && *flowname ? flowname : "New Flow";
+    cptn += "]";
+    setCaption( cptn );
 }
 
 

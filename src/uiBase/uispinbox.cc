@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.48 2011-03-15 05:18:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.49 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -33,12 +33,12 @@ public:
     void		setAlpha(bool yn);
     bool		isAlpha() const		{ return isalpha_; }
 
-    QValidator::State	validate( QString& input, int& pos ) const
+    QValidator::State	validate( QString& input, int& posn ) const
 			{
 			    const double val = input.toDouble();
 			    if ( val > maximum() )
 				input.setNum( maximum() );
-			    return QDoubleSpinBox::validate( input, pos );
+			    return QDoubleSpinBox::validate( input, posn );
 			}
 
     virtual double	valueFromText(const QString&) const;
@@ -59,9 +59,9 @@ private:
 };
 
 
-uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& handle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>(handle,p,nm)
-    , messenger_(*new i_SpinBoxMessenger(this,&handle))
+uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& hndl, uiParent* p, const char* nm )
+    : uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>(hndl,p,nm)
+    , messenger_(*new i_SpinBoxMessenger(this,&hndl))
     , dval(new QDoubleValidator(this))
     , isalpha_(false)
 {
@@ -90,17 +90,17 @@ void uiSpinBoxBody::setAlpha( bool yn )
 }
 
 
-double uiSpinBoxBody::valueFromText( const QString& text ) const
+double uiSpinBoxBody::valueFromText( const QString& qtxt ) const
 {
-    if ( !specialValueText().isEmpty() && text==specialValueText() )
+    if ( !specialValueText().isEmpty() && qtxt==specialValueText() )
 	return handle_.minFValue();
 
     if ( !isalpha_ )
-	return QDoubleSpinBox::valueFromText( text );
+	return QDoubleSpinBox::valueFromText( qtxt );
 
     for ( int idx=0; idx<26; idx++ )
     {
-	if ( text == letters[idx] )
+	if ( qtxt == letters[idx] )
 	    return (double)idx;
     }
 
@@ -193,9 +193,9 @@ void uiSpinBox::snapToStep( CallBacker* )
     if ( !dosnap_ ) return;
 
     const double diff = body_->value() - body_->minimum();
-    const double step = body_->singleStep();
-    const int ratio =  mNINT( diff / step );
-    const float newval = minFValue() + ratio * step;
+    const double stp = body_->singleStep();
+    const int ratio =  mNINT( diff / stp );
+    const float newval = minFValue() + ratio * stp;
     setValue( newval );
 }
 
@@ -326,8 +326,8 @@ void uiSpinBox::setStep( float step_, bool snapcur )
 }
 
 
-void uiSpinBox::setPrefix( const char* suffix )
-{ body_->setPrefix( suffix ); }
+void uiSpinBox::setPrefix( const char* pfx )
+{ body_->setPrefix( pfx ); }
 
 
 const char* uiSpinBox::prefix() const
@@ -338,8 +338,8 @@ const char* uiSpinBox::prefix() const
 }
 
 
-void uiSpinBox::setSuffix( const char* suffix )
-{ body_->setSuffix( suffix ); }
+void uiSpinBox::setSuffix( const char* sfx )
+{ body_->setSuffix( sfx ); }
 
 
 const char* uiSpinBox::suffix() const

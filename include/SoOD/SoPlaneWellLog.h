@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.29 2011-03-25 09:46:55 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.30 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,11 +69,11 @@ public:
     void   			setLogFill(bool,int);
     void 			setFillLogValue(int,float,int);
     void 			setFillExtrValue(float,float,int);
-    void			setRevScale( bool yn, int lognr ) 
-    				{ (lognr == 1 ? revscale1 
+    void			setRevScale( bool yn, int log_nr ) 
+    				{ (log_nr == 1 ? revscale1 
 					      : revscale2) = yn; }
-    void			setFillRevScale( bool yn, int lognr ) 
-    				{ (lognr == 1 ? fillrevscale1 
+    void			setFillRevScale( bool yn, int log_nr ) 
+    				{ (log_nr == 1 ? fillrevscale1 
 					      : fillrevscale2) = yn; }
     void 			setLogConstantSize(bool);
     bool 			logConstantSize() const;

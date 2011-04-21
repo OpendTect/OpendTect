@@ -7,22 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpattribspi.cc,v 1.6 2011-03-24 03:00:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiexpattribspi.cc,v 1.7 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uimenu.h"
 #include "uiodmain.h"
-#include "plugins.h"
+#include "odplugin.h"
 
 #include "uigrubbsfilterattrib.h"
 #include "uisemblanceattrib.h"
 
-extern "C" int GetuiExpAttribsPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
 
-
-extern "C" PluginInfo* GetuiExpAttribsPluginInfo()
+mDefODPluginInfo(uiExpAttribs)
 {
     static PluginInfo retpi = {
 	"Experimental Attributes (UI)",
@@ -33,7 +28,7 @@ extern "C" PluginInfo* GetuiExpAttribsPluginInfo()
 }
 
 
-extern "C" const char* InituiExpAttribsPlugin( int, char** )
+mDefODInitPlugin(uiExpAttribs)
 {
     uiGrubbsFilterAttrib::initClass();
     uiSemblanceAttrib::initClass();

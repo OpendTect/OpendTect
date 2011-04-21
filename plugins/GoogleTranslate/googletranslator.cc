@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: googletranslator.cc,v 1.8 2011-03-31 09:23:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: googletranslator.cc,v 1.9 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "googletranslator.h"
 #include "odhttp.h"
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: googletranslator.cc,v 1.8 2011-03-31 09:23:47 c
 
 static const char* sHostAddress()       { return "ajax.googleapis.com"; }
 
-void setStatusMessage( const char* msg )
+static void setStatusMessage( const char* msg )
 { ODMainWin()->statusBar()->message( msg, 3 ); }
 
 

@@ -13,19 +13,14 @@ static const char* rcsID = "$Id Exp $";
 #include "uimsg.h"
 #include "uitranslatedlg.h"
 
-#include "plugins.h"
+#include "odplugin.h"
 #include "googletranslator.h"
 #include "settings.h"
 #include "texttranslator.h"
 
 
-mExternC int GetGoogleTranslatePluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
 
-
-mExternC PluginInfo* GetGoogleTranslatePluginInfo()
+mDefODPluginInfo(GoogleTranslate)
 {
     static PluginInfo retpi = {
 	"Google Translate",
@@ -59,7 +54,7 @@ void handleMenu( CallBacker* )
 };
 
 
-mExternC const char* InitGoogleTranslatePlugin( int, char** )
+mDefODInitPlugin(GoogleTranslate)
 {
     TrMgr().setTranslator( new GoogleTranslator );
 

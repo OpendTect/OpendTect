@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.102 2011-04-18 15:00:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.103 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -97,32 +97,32 @@ static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c,
 
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
-			    const uiSeisSel::Setup& setup )
-    : uiIOObjSelDlg(p,getDlgCtio(c,setup),"",false)
+			    const uiSeisSel::Setup& sssu )
+    : uiIOObjSelDlg(p,getDlgCtio(c,sssu),"",false)
     , attrfld_(0)
     , attrlistfld_(0)
-    , steerpol_(setup.steerpol_)
-    , zdomainkey_(setup.zdomkey_)
+    , steerpol_(sssu.steerpol_)
+    , zdomainkey_(sssu.zdomkey_)
 {
-    const bool is2d = Seis::is2D( setup.geom_ );
-    const bool isps = Seis::isPS( setup.geom_ );
+    const bool is2d = Seis::is2D( sssu.geom_ );
+    const bool isps = Seis::isPS( sssu.geom_ );
 
-    if ( is2d && !setup.allowlinesetsel_ )
+    if ( is2d && !sssu.allowlinesetsel_ )
     {
 	selgrp_->getTopGroup()->display( false, true );
 	selgrp_->getNameField()->display( false, true );
     }
 
     BufferString titletxt( "Setup " );
-    if ( setup.seltxt_ )
-	titletxt += setup.seltxt_;
+    if ( sssu.seltxt_ )
+	titletxt += sssu.seltxt_;
     else
 	titletxt += isps ? "Data Store" : (is2d ? "Line Set" : "Cube");
     setTitleText( titletxt );
 
     uiGroup* topgrp = selgrp_->getTopGroup();
 
-    if ( setup.selattr_ && is2d && !isps )
+    if ( sssu.selattr_ && is2d && !isps )
     {
 	if ( selgrp_->getCtxtIOObj().ctxt.forread )
 	{
@@ -152,7 +152,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 
     selgrp_->getListField()->selectionChanged.notify(
 	    			mCB(this,uiSeisSelDlg,entrySel) );
-    if ( !selgrp_->getCtxtIOObj().ctxt.forread && Seis::is2D(setup.geom_) )
+    if ( !selgrp_->getCtxtIOObj().ctxt.forread && Seis::is2D(sssu.geom_) )
 	selgrp_->setConfirmOverwrite( false );
     entrySel(0);
     if ( attrlistfld_ && selgrp_->getCtxtIOObj().ctxt.forread )

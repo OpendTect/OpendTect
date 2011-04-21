@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.136 2010-12-13 12:33:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.137 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -314,14 +314,13 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
     
 #define mErrRet(s) { uiMSG().error(s); return 0; }
 #define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
-#define mSave() \
+#define mSave(taskrunner) \
     if ( !exec ) \
     { \
 	delete exec; \
 	horizon->unRef(); \
 	return false; \
     } \
-    uiTaskRunner taskrunner( this ); \
     rv = taskrunner.execute( *exec ); \
     delete exec; 
 
@@ -389,12 +388,12 @@ bool uiImportHorizon::doImport()
     if ( isgeom_ )
     {
 	Executor* exec = horizon->saver();
-	mSave();
+	mSave(taskrunner);
     }
     else
     {
 	mDynamicCastGet(ExecutorGroup*,exec,horizon->auxdata.auxDataSaver(-1))
-	mSave();
+	mSave(taskrunner);
     }
 
     if ( !doDisplay() )

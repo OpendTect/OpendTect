@@ -7,19 +7,14 @@
 static const char* rcsID = "$Id";
 
 #include "uitutodmad.h"
-#include "plugins.h"
+#include "odplugin.h"
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
 
-mExternC int GetuiTutMadagascarPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
 
-
-mExternC PluginInfo* GetuiTutMadagascarPluginInfo()
+mDefODPluginInfo(uiTutMadagascar)
 {
     static PluginInfo retpi = {
 	"Madagascar Tutorial plugin",
@@ -60,7 +55,7 @@ void uiMadTutMgr::dispDlg( CallBacker* )
 }
 
 
-mExternC const char* InituiTutMadagascarPlugin( int, char** )
+mDefODInitPlugin(uiTutMadagascar)
 {
     (void)new uiMadTutMgr( *ODMainWin() );
     return 0; // All OK - no error messages

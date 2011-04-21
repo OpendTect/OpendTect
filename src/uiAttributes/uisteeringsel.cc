@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.52 2011-02-01 11:34:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.53 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uisteeringsel.h"
@@ -382,8 +382,8 @@ void uiSteerCubeSel::setDesc( const Desc* desc )
     const ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     const LineKey lk( keypar->getStringValue() );
     const MultiID mid( lk.lineName() );
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    workctio_.setObj( ioobj ? ioobj->clone() : 0 );
+    PtrMan<IOObj> ioob = IOM().get( mid );
+    workctio_.setObj( ioob ? ioob->clone() : 0 );
     updateInput();
     if ( is2D() )
 	setAttrNm( lk.attrName() );

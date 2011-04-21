@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilabel.cc,v 1.21 2010-11-03 10:56:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: uilabel.cc,v 1.22 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uilabel.h"
@@ -21,9 +21,9 @@ class uiLabelBody : public uiObjBodyImpl<uiLabel,QLabel>
 {
 public:
 
-                        uiLabelBody( uiLabel& handle, uiParent* parnt,
+                        uiLabelBody( uiLabel& hndle, uiParent* parnt,
 				     const char* txt )
-			    : uiObjBodyImpl<uiLabel,QLabel>(handle,parnt,txt)
+			    : uiObjBodyImpl<uiLabel,QLabel>(hndle,parnt,txt)
 			{}
 
     virtual int 	nrTxtLines() const		

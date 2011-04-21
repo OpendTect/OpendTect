@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.76 2011-03-16 11:46:12 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.77 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uiexphorizon.h"
 
@@ -515,9 +515,7 @@ void uiExportHorizon::settingsCB( CallBacker* )
     if ( typfld_->getIntValue() != 2 )
 	return;
 
-    uiDialog::Setup setup( "IESX Setup", 0, mNoHelpID );
-    uiDialog dlg( this, setup );
-
+    uiDialog dlg( this, uiDialog::Setup("IESX details",mNoDlgTitle,mNoHelpID) );
     uiGenInput* namefld = new uiGenInput( &dlg, "Horizon name in file" );
     uiGenInput* commentfld = new uiGenInput( &dlg, "[Comment]" );
     commentfld->attach( alignedBelow, namefld );

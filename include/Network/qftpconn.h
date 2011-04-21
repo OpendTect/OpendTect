@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: qftpconn.h,v 1.5 2010-05-11 10:01:22 cvsnanne Exp $
+ RCS:           $Id: qftpconn.h,v 1.6 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,8 +23,8 @@ class QFtpConnector : public QObject
 
 protected:
 
-QFtpConnector( QFtp* sender, ODFtp* receiver )
-    : sender_(sender), receiver_(receiver)
+QFtpConnector( QFtp* snder, ODFtp* receiver )
+    : sender_(snder), receiver_(receiver)
 {
     connect( sender_, SIGNAL(commandFinished(int,bool)),
 	     this, SLOT(commandFinished(int,bool)) );
@@ -114,9 +114,9 @@ void commandStarted( int id )
 }
 
 
-void dataTransferProgress( qint64 done, qint64 total ) 
+void dataTransferProgress( qint64 dne, qint64 total ) 
 {
-    receiver_->nrdone_ = done;
+    receiver_->nrdone_ = dne;
     receiver_->totalnr_ = total;
     receiver_->dataTransferProgress.trigger( *receiver_ );
 }

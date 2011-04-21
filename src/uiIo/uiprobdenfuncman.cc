@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.11 2010-11-16 11:30:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.12 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uiprobdenfuncman.h"
 
@@ -72,9 +72,9 @@ void uiProbDenFuncMan::browsePush( CallBacker* )
 	{
 	    CtxtIOObj ctio( ctxt_ );
 	    ctio.ctxt.forread = false;
-	    uiIOObjSelDlg dlg( this, ctio, "Save As" );
-	    if ( !dlg.go() || !dlg.ioObj() ) return;
-	    saveioobj = dlg.ioObj()->clone();
+	    uiIOObjSelDlg seldlg( this, ctio, "Save As" );
+	    if ( !seldlg.go() || !seldlg.ioObj() ) return;
+	    saveioobj = seldlg.ioObj()->clone();
 	}
 
 	BufferString emsg;

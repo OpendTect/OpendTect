@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.146 2011-03-10 04:16:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.147 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1335,9 +1335,9 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 } 
 
 
-void traverseLine( bool oninline, ZAxisTransform* zat, const CubeSampling& cs,
-		   const EM::Horizon3D* hor, EM::SectionID sid,
-		   visBase::IndexedShape* line, int& cii )
+static void traverseLine( bool oninline, ZAxisTransform* zat,
+	const CubeSampling& cs, const EM::Horizon3D* hor, EM::SectionID sid,
+	visBase::IndexedShape* line, int& cii )
 {
     const Geometry::BinIDSurface* geom = hor->geometry().sectionGeometry( sid );
     const StepInterval<int> inlrg = geom->rowRange();

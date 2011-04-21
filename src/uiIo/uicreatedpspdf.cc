@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.11 2010-12-02 10:07:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.12 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -57,7 +57,6 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
     TypeSet<int> colids;
     const DataPointSet& dps = plotter_.dps();
     uiDataPointSet::DColID dcid=-dps.nrFixedCols()+1;
-    int idx = 0;
     for ( ; dcid<dps.nrCols(); dcid++ )
 	colids += dcid;
 

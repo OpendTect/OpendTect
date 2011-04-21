@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.29 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.30 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,12 +33,11 @@ template <class C,class T>
 class uiDrawableObjBody : public uiObjectBody, public T, public ioDrawAreaImpl
 {
 public:
-                        uiDrawableObjBody( C& handle, 
-					   uiParent* parent, const char* nm )
-			    : uiObjectBody(parent,nm)
-			    , T( parent && parent->pbody()? 
-				    parent->pbody()->managewidg() : 0 )
-                            , handle_(handle)
+                        uiDrawableObjBody( C& hndle, 
+					   uiParent* p, const char* nm )
+			    : uiObjectBody(p,nm)
+			    , T(p && p->pbody() ? p->pbody()->managewidg() : 0)
+                            , handle_(hndle)
 			    , rubberband_(0)
 			    , havemousetracking_(false)
                             {
@@ -83,8 +82,8 @@ template <class C,class T>
 void uiDrawableObjBody<C,T>::drawContents( QPainter* ptr )
 {
     const QRect qr = T::contentsRect();
-    uiRect rect( qr.left(), qr.top(), qr.right(), qr.bottom() );
-    handlePaintEvent( rect );
+    uiRect r( qr.left(), qr.top(), qr.right(), qr.bottom() );
+    handlePaintEvent( r );
 }
 
 
@@ -92,8 +91,8 @@ template <class C,class T>
 void uiDrawableObjBody<C,T>::paintEvent( QPaintEvent* ev )
 {
     const QRect& qr = ev->rect();
-    uiRect rect( qr.left() , qr.top(), qr.right(), qr.bottom() );
-    handlePaintEvent( rect, ev );
+    uiRect r( qr.left() , qr.top(), qr.right(), qr.bottom() );
+    handlePaintEvent( r, ev );
 }
 
 

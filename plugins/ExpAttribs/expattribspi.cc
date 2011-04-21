@@ -7,21 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: expattribspi.cc,v 1.5 2011-03-24 03:00:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: expattribspi.cc,v 1.6 2011-04-21 13:09:13 cvsbert Exp $";
 
-#include "plugins.h"
+#include "odplugin.h"
 
 #include "semblanceattrib.h"
 #include "grubbsfilterattrib.h"
 
 
-extern "C" int GetExpAttribsPluginType()
-{
-    return PI_AUTO_INIT_EARLY;
-}
-
-
-extern "C" PluginInfo* GetExpAttribsPluginInfo()
+mDefODPluginEarlyLoad(ExpAttribs)
+mDefODPluginInfo(ExpAttribs)
 {
     static PluginInfo retpi = {
 	"Experimental Attributes (Non-UI)",
@@ -32,7 +27,7 @@ extern "C" PluginInfo* GetExpAttribsPluginInfo()
 }
 
 
-extern "C" const char* InitExpAttribsPlugin( int, char** )
+mDefODInitPlugin(ExpAttribs)
 {
     Attrib::Semblance::initClass();
     Attrib::GrubbsFilter::initClass();

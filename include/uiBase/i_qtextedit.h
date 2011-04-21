@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2007
- RCS:           $Id: i_qtextedit.h,v 1.1 2009-08-20 07:01:20 cvsnanne Exp $
+ RCS:           $Id: i_qtextedit.h,v 1.2 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,11 +30,11 @@ class i_TextEditMessenger : public QObject
 
 protected:
 
-i_TextEditMessenger( QTextEdit* sender, uiTextEdit* receiver )
-    : sender_(sender)
+i_TextEditMessenger( QTextEdit* sndr, uiTextEdit* receiver )
+    : sender_(sndr)
     , receiver_(receiver)
 {
-    connect( sender, SIGNAL(textChanged()), this, SLOT(textChanged()) );
+    connect( sndr, SIGNAL(textChanged()), this, SLOT(textChanged()) );
 }
 
 private:

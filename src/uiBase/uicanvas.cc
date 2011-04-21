@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicanvas.cc,v 1.49 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicanvas.cc,v 1.50 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uicanvas.h"
 #include "i_uidrwbody.h"
@@ -22,9 +22,9 @@ class uiCanvasBody : public uiDrawableObjBody<uiCanvas,QFrame>
 {
 
 public:
-uiCanvasBody( uiCanvas& handle, uiParent* p, const char *nm="uiCanvasBody")
-    : uiDrawableObjBody<uiCanvas,QFrame>( handle, p, nm ) 
-    , handle_( handle )
+uiCanvasBody( uiCanvas& hndle, uiParent* p, const char *nm="uiCanvasBody")
+    : uiDrawableObjBody<uiCanvas,QFrame>( hndle, p, nm ) 
+    , handle_( hndle )
 {
     setStretch( 2, 2 );
     setPrefWidth( cDefaultWidth );

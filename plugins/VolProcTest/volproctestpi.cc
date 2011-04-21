@@ -4,21 +4,16 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: volproctestpi.cc,v 1.3 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: volproctestpi.cc,v 1.4 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "volumeprocessingattribute.h"
 #include "volprocthresholder.h"
 #include "volumereader.h"
-#include "plugins.h"
-
-extern "C" int GetVolProcTestPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
+#include "odplugin.h"
 
 
-extern "C" PluginInfo* GetVolProcTestPluginInfo()
+mDefODPluginInfo(VolProcTest)
 {
     static PluginInfo retpi = {
     "Volume Processing Reader Test",
@@ -29,7 +24,7 @@ extern "C" PluginInfo* GetVolProcTestPluginInfo()
 }
 
 
-extern "C" const char* InitVolProcTestPlugin( int, char** )
+mDefODInitPlugin(VolProcTest)
 {
     VolProc::VolumeReader::initClass();
     VolProc::ThresholdStep::initClass();

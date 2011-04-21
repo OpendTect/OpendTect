@@ -7,15 +7,10 @@
 static const char* rcsID = "$Id";
 
 #include "uieventfreqattrib.h"
-#include "plugins.h"
-
-extern "C" int GetuiEventFreqPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
+#include "odplugin.h"
 
 
-extern "C" PluginInfo* GetuiEventFreqPluginInfo()
+mDefODPluginInfo(uiEventFreq)
 {
     static PluginInfo retpi = {
 	"Event Frequency",
@@ -26,7 +21,7 @@ extern "C" PluginInfo* GetuiEventFreqPluginInfo()
 }
 
 
-extern "C" const char* InituiEventFreqPlugin( int, char** )
+mDefODInitPlugin(uiEventFreq)
 {
     uiEventFreqAttrib::initClass();
     return 0;

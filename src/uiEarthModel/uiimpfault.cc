@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.41 2010-07-19 15:17:25 cvshelene Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.42 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uiimpfault.h"
 
@@ -239,13 +239,13 @@ bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
     if ( !fault3d )
 	return ascio.get( strm, flt, true, 0, false );
 
-    EM::FSStoFault3DConverter::Setup setup;
-    setup.sortsticks_ = sortsticksfld_ &&
+    EM::FSStoFault3DConverter::Setup convsu;
+    convsu.sortsticks_ = sortsticksfld_ &&
 			!strcmp( sortsticksfld_->text(), sKeyGeometric() ); 
     if ( stickselfld_ && !strcmp(stickselfld_->text(), sKeyInlCrlSep()) )
-	setup.useinlcrlslopesep_ = true;
+	convsu.useinlcrlslopesep_ = true;
     if ( stickselfld_ && !strcmp(stickselfld_->text(), sKeySlopeThres()) )
-	setup.stickslopethres_ = thresholdfld_->getdValue();
+	convsu.stickslopethres_ = thresholdfld_->getdValue();
 
     EM::EMObject* emobj = EM::FaultStickSet::create( EM::EMM() );
     mDynamicCastGet( EM::FaultStickSet*, interfss, emobj );
@@ -254,7 +254,7 @@ bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
     bool res = ascio.get( strm, *interfss, sortsticks, 0, false );
     if ( res )
     {
-	EM::FSStoFault3DConverter fsstof3d( setup, *interfss, *fault3d );
+	EM::FSStoFault3DConverter fsstof3d( convsu, *interfss, *fault3d );
 	res = fsstof3d.convert();
     }
 

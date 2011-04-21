@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtlocations.cc,v 1.14 2010-12-07 22:59:52 cvskris Exp $";
+static const char* rcsID = "$Id: gmtlocations.cc,v 1.15 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "gmtlocations.h"
 
@@ -178,9 +178,9 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
     if ( !setobj ) mErrStrmRet("Cannot find pickset")
 
     strm << "Posting Locations " << setobj->name() << " ...  ";
-    Pick::Set set;
+    Pick::Set ps;
     BufferString errmsg;
-    if ( !PickSetTranslator::retrieve(set,setobj,true,errmsg) )
+    if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
 	mErrStrmRet( errmsg )
 
     Color outcol; get( sKey::Color, outcol );
@@ -189,14 +189,14 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
     bool dofill;
     getYN( ODGMT::sKeyFill, dofill );
 
-    float size;
-    get( sKey::Size, size );
+    float sz;
+    get( sKey::Size, sz );
     const int shape = ODGMT::parseEnumShape( find(ODGMT::sKeyShape) );
 
     BufferString comm = "@psxy ";
     BufferString str; mGetRangeProjString( str, "X" );
     comm += str; comm += " -O -K -S";
-    comm += ODGMT::sShapeKeys[shape]; comm += size;
+    comm += ODGMT::sShapeKeys[shape]; comm += sz;
     comm += " -W1p,"; comm += outcolstr;
     if ( dofill )
     {
@@ -212,8 +212,8 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay locations")
 
-    for ( int idx=0; idx<set.size(); idx++ )
-	*sd.ostrm << set[idx].pos.x << " " << set[idx].pos.y << std::endl;
+    for ( int idx=0; idx<ps.size(); idx++ )
+	*sd.ostrm << ps[idx].pos.x << " " << ps[idx].pos.y << std::endl;
 
     sd.close();
     strm << "Done" << std::endl;
@@ -271,9 +271,9 @@ bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
     if ( !setobj ) mErrStrmRet("Cannot find pickset")
 
     strm << "Posting Polyline " << setobj->name() << " ...  ";
-    Pick::Set set;
+    Pick::Set ps;
     BufferString errmsg;
-    if ( !PickSetTranslator::retrieve(set,setobj,true,errmsg) )
+    if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
 	mErrStrmRet( errmsg )
 
     LineStyle ls;
@@ -289,14 +289,13 @@ bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
     BufferString comm = "@psxy ";
     BufferString str; mGetRangeProjString( str, "X" );
     comm += str; comm += " -O -K";
-    if ( set.disp_.connect_ == Pick::Set::Disp::Close )
+    if ( ps.disp_.connect_ == Pick::Set::Disp::Close )
 	comm += " -L";
 
     if ( drawline )
     {
-	BufferString lsstr;
-	mGetLineStyleString( ls, lsstr );
-	comm += " -W"; comm += lsstr;
+	BufferString inpstr; mGetLineStyleString( ls, inpstr );
+	comm += " -W"; comm += inpstr;
     }
 
     if ( dofill )
@@ -313,8 +312,8 @@ bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay polylines")
 
-    for ( int idx=0; idx<set.size(); idx++ )
-	*sd.ostrm << set[idx].pos.x << " " << set[idx].pos.y << std::endl;
+    for ( int idx=0; idx<ps.size(); idx++ )
+	*sd.ostrm << ps[idx].pos.x << " " << ps[idx].pos.y << std::endl;
 
     sd.close();
 
@@ -367,9 +366,8 @@ bool GMTWells::fillLegendPar( IOPar& par ) const
 	BufferString color;
 	get( sKey::Color, color );
 	par.set( sKey::Color, color );
-	float size;
-	get( sKey::Size, size );
-	par.set( sKey::Size, size );
+	float sz; get( sKey::Size, sz );
+	par.set( sKey::Size, sz );
     }
     else
     {
@@ -421,9 +419,9 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
 	comm += ODGMT::sShapeKeys[shape];
     }
 
-    float size;
-    get( sKey::Size, size );
-    comm += " -W"; comm+=size; comm += "p,"; comm += outcolstr;
+    float sz;
+    get( sKey::Size, sz );
+    comm += " -W"; comm+=sz; comm += "p,"; comm += outcolstr;
     bool dofill;
     getYN( ODGMT::sKeyFill, dofill );
     if ( !usewellsymbols && dofill )
@@ -451,8 +449,7 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
 
 	Coord surfcoord = data.info().surfacecoord;
 	surfcoords += surfcoord;
-	*sd.ostrm << surfcoord.x << " " << surfcoord.y << " " << size
-	    						      << std::endl;
+	*sd.ostrm << surfcoord.x << " " << surfcoord.y << " " << sz << std::endl;
     }
 
     strm << comm << std::endl;
@@ -472,10 +469,10 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     float dx = 0, dy = 0;
     switch ( al )
     {
-	case ODGMT::Above:	alstr = "BC"; dy = 0.6 * size; break;
-	case ODGMT::Below:	alstr = "TC"; dy = -0.6 * size; break;
-	case ODGMT::Left:	alstr = "RM"; dx = -0.6 * size; break;
-	case ODGMT::Right:	alstr = "LM"; dx = 0.6 * size; break;
+	case ODGMT::Above:	alstr = "BC"; dy = 0.6 * sz; break;
+	case ODGMT::Below:	alstr = "TC"; dy = -0.6 * sz; break;
+	case ODGMT::Left:	alstr = "RM"; dx = -0.6 * sz; break;
+	case ODGMT::Right:	alstr = "LM"; dx = 0.6 * sz; break;
     }
 
     int fontsz = 10;

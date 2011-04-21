@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: i_qsystemtrayicon.h,v 1.1 2010-09-20 06:07:45 cvsnanne Exp $
+ RCS:		$Id: i_qsystemtrayicon.h,v 1.2 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,13 +29,13 @@ friend class uiSystemTrayIcon;
 
 protected:
 
-QSystemTrayIconMessenger( QSystemTrayIcon* sender, uiSystemTrayIcon* receiver )
-    : sender_(sender)
+QSystemTrayIconMessenger( QSystemTrayIcon* sndr, uiSystemTrayIcon* receiver )
+    : sender_(sndr)
     , receiver_(receiver)
 { 
-    connect( sender, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+    connect( sndr, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
 	     this, SLOT(activated(QSystemTrayIcon::ActivationReason)) );
-    connect( sender, SIGNAL(messageClicked()), this, SLOT(messageClicked()) );
+    connect( sndr, SIGNAL(messageClicked()), this, SLOT(messageClicked()) );
 }
 
 

@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.60 2011-03-21 02:00:32 cvskris Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.61 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -40,8 +40,8 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 }
 
 
-SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is2d, bool isps )
-	: SeisStoreAccess(fnm,is2d,isps)
+SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
+	: SeisStoreAccess(fnm,is_2d,isps)
     	, lineauxiopar(*new IOPar)
 	, lkp(0)
 	, worktrc(*new SeisTrc)
@@ -431,10 +431,10 @@ protected:
 
 
 
-bool SeisSequentialWriter::submitTrace( SeisTrc* trc, bool waitforbuffer )
+bool SeisSequentialWriter::submitTrace( SeisTrc* inptrc, bool waitforbuffer )
 {
     Threads::MutexLocker lock( lock_ );
-    outputs_ += trc;
+    outputs_ += inptrc;
 
     bool found = true;
     while ( found )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: compoundkey.h,v 1.12 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: compoundkey.h,v 1.13 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,8 @@ inline CompoundKey& CompoundKey::operator +=( const char* s )
     id_ += s;
     return *this;
 }
+
+mGlobal std::ostream& operator<<(std::ostream&,const CompoundKey&);
 
 
 #endif

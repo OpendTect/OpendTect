@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.35 2011-02-01 14:33:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.36 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uistratdisplay.h"
 
@@ -103,9 +103,9 @@ void uiStratDisplay::createDispParamGrp()
 	const StratDispData::Unit& unstart = *data_.getUnit( 0, 0 );
 	const StratDispData::Unit& unstop =*data_.getUnit(0,data_.nrUnits(0)-1);
 	Interval<float> viewrg( unstart.zrg_.start, unstop.zrg_.stop );
-	float width = viewrg.width(); width /= (float)10;
-	if ( width <= 0 ) width = 10;
-	viewrg.stop += width;
+	float wdth = viewrg.width(); wdth /= (float)10;
+	if ( wdth <= 0 ) wdth = 10;
+	viewrg.stop += wdth;
 	setZRange( viewrg );
     }
    
@@ -503,9 +503,9 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
     if ( colidx < 0 ) return;
 
     const Interval<float> rg = yax_->range();
-    for ( int idx=0; idx<data_.getCol(colidx)->units_.size(); idx++ )
+    for ( int unidx=0; unidx<data_.getCol(colidx)->units_.size(); unidx++ )
     {
-	const StratDispData::Unit& unit = *data_.getCol(colidx)->units_[idx];
+	const StratDispData::Unit& unit = *data_.getCol(colidx)->units_[unidx];
 	Interval<float> unitrg = unit.zrg_;
 	if ( ( ( !rg.includes(unitrg.start) && !rg.includes(unitrg.stop) )
 	    && ( !unitrg.includes(rg.start) && !unitrg.includes(rg.stop) ) )

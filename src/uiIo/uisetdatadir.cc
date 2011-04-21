@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetdatadir.cc,v 1.31 2010-09-07 04:38:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisetdatadir.cc,v 1.32 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uisetdatadir.h"
 
@@ -171,20 +171,17 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	    if ( File::exists(fp.fullPath()) )
 	    {
 		fp.setFileName( 0 );
-		BufferString probdatadir( fp.pathOnly() );
-		BufferString msg( "This seems to be a survey directory.\n" );
-		msg += "We need the directory containing the survey dirs.\n"
-			"Do you want to correct your input to\n"; 
-		msg += probdatadir;
-		msg += " ...?";
-		int res = uiMSG().askGoOnAfter( msg );
+		const BufferString probdatadir( fp.pathOnly() );
+		const BufferString umsg(
+			"This seems to be a survey directory.\n"
+			"We need the directory containing the survey dirs.\n"
+			"Do you want to correct your input to\n",
+			probdatadir, " ...?" );
+		const int res = uiMSG().askGoOnAfter( umsg );
 		if ( res == 2 )
 		    return false;
 		else if ( res == 0 )
-		{
-		    datadir = probdatadir;
-		    return true;
-		}
+		    { datadir = probdatadir; return true; }
 	    }
 	}
     }

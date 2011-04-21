@@ -5,23 +5,17 @@
  * DATE     : Jan 2009
 -*/
 
-static const char* rcsID = "$Id: uiqtapppi.cc,v 1.2 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uiqtapppi.cc,v 1.3 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "qtclss.h"
 
 #include "uimenu.h"
 #include "uiodmenumgr.h"
 
-#include "plugins.h"
+#include "odplugin.h"
 
 
-extern "C" int GetuiQtAppPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-
-extern "C" PluginInfo* GetuiQtAppPluginInfo()
+mDefODPluginInfo(uiQtApp)
 {
     static PluginInfo retpi = {
 	"QT Application plugin",
@@ -62,7 +56,7 @@ void uiQtAppMgr::doStuff( CallBacker* )
 }
 
 
-extern "C" const char* InituiQtAppPlugin( int, char** )
+mDefODInitPlugin(uiQtApp)
 {
     static uiQtAppMgr* mgr = 0; if ( mgr ) return 0;
     mgr = new uiQtAppMgr( ODMainWin() );

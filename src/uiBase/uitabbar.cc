@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitabbar.cc,v 1.26 2011-03-08 14:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitabbar.cc,v 1.27 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uitabbar.h"
 #include "uiobjbody.h"
@@ -24,10 +24,10 @@ uiTab::uiTab( uiGroup& grp )
 class uiTabBarBody : public uiObjBodyImpl<uiTabBar,QTabBar>
 {
 public:
-			uiTabBarBody( uiTabBar& handle, uiParent* p,
+			uiTabBarBody( uiTabBar& hndl, uiParent* p,
 				      const char* nm )
-			    : uiObjBodyImpl<uiTabBar,QTabBar>(handle,p,nm)
-			    , messenger_(*new i_tabbarMessenger(this,&handle))
+			    : uiObjBodyImpl<uiTabBar,QTabBar>(hndl,p,nm)
+			    , messenger_(*new i_tabbarMessenger(this,&hndl))
 			    {
 				setHSzPol( uiObject::MedVar );
 			    }

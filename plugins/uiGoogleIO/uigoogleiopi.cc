@@ -4,7 +4,7 @@
  * DATE     : Jul 2007
 -*/
 
-static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.18 2011-03-18 05:11:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.19 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uigoogleexpsurv.h"
 #include "uigoogleexpwells.h"
@@ -27,19 +27,13 @@ static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.18 2011-03-18 05:11:15 cvsn
 #include "pickset.h"
 #include "survinfo.h"
 #include "latlong.h"
-#include "plugins.h"
+#include "odplugin.h"
 
 static const int cPSMnuIdx = -999;
 static const int cRLMnuIdx = -999;
 
 
-mExternC int GetuiGoogleIOPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-
-mExternC PluginInfo* GetuiGoogleIOPluginInfo()
+mDefODPluginInfo(uiGoogleIO)
 {
     static PluginInfo retpi = {
 	"Google KML generation",
@@ -195,7 +189,7 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
 }
 
 
-mExternC const char* InituiGoogleIOPlugin( int, char** )
+mDefODInitPlugin(uiGoogleIO)
 {
     static uiGoogleIOMgr* mgr = 0;
     if ( !mgr )

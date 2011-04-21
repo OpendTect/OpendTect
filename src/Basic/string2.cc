@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID = "$Id: string2.cc,v 1.5 2011-02-09 17:01:15 cvskarthika Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.6 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -18,6 +18,10 @@ static const char* rcsID = "$Id: string2.cc,v 1.5 2011-02-09 17:01:15 cvskarthik
 # define sDirSep        "/"
 #endif
 
+
+extern "C" void C_removeTrailingBlanks(char*);
+extern "C" int C_caseInsensitiveEqual(const char*,const char*,int);
+extern "C" void C_replaceCharacter(char*,char,char);
 
 extern "C" void C_removeTrailingBlanks( char* str )
 { removeTrailingBlanks( str ); }

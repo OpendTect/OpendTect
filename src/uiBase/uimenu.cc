@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.70 2011-03-28 09:00:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.71 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -68,9 +68,9 @@ class uiMenuItemContainerBodyImpl : public uiMenuItemContainerBody
 			 , public uiBodyImpl<uiMenuItemContainer,T>
 {
 public:
-uiMenuItemContainerBodyImpl( uiMenuItemContainer& handle, uiParent* parnt,
+uiMenuItemContainerBodyImpl( uiMenuItemContainer& hndle, uiParent* parnt,
 			     T& qThing )
-    : uiBodyImpl<uiMenuItemContainer,T>( handle, parnt, qThing )
+    : uiBodyImpl<uiMenuItemContainer,T>( hndle, parnt, qThing )
     , qmenu_( &qThing )
     , msgr_(0)
 {
@@ -359,8 +359,8 @@ void uiMenuItem::trlReady( CallBacker* cb )
     if ( !qaction_ )
 	return;
 
-    mCBCapsuleUnpack(int,id,cb);
-    if ( id != translateid_ )
+    mCBCapsuleUnpack(int,mnuid,cb);
+    if ( mnuid != translateid_ )
 	return;
 
     const wchar_t* translation = TrMgr().tr()->get();
@@ -390,19 +390,19 @@ const ObjectSet<uiMenuItem>& uiMenuItemContainer::items() const
     { return body_->itms_; }
 
 
-uiMenuItem* uiMenuItemContainer::find( int id )
+uiMenuItem* uiMenuItemContainer::find( int mnuid )
 {
     for ( int idx=0; idx<body_->nrItems(); idx++ )
     {
 	uiMenuItem* itm = body_->itms_[idx];
-	if ( itm->id() == id )
+	if ( itm->id() == mnuid )
 	    return itm;
 
 	mDynamicCastGet(uiPopupItem*,popupitm,itm)
 	if ( popupitm )
 	{
-	    uiMenuItem* itm = popupitm->menu().find( id );
-	    if ( itm ) return itm;
+	    uiMenuItem* mnuitm = popupitm->menu().find( mnuid );
+	    if ( mnuitm ) return mnuitm;
 	}
     }
 
@@ -599,9 +599,9 @@ void uiPopupMenu::setEnabled( bool yn )
 
 int uiPopupMenu::findIdForAction( QAction* qaction ) const
 {
-    const int idx = body_->qactions_.indexOf( qaction );
-    if ( body_->itms_.validIdx(idx) )
-	return body_->itms_[idx]->id();
+    const int actidx = body_->qactions_.indexOf( qaction );
+    if ( body_->itms_.validIdx(actidx) )
+	return body_->itms_[actidx]->id();
 
     int id = -1;
     for ( int idx=0; idx<body_->itms_.size(); idx++ )

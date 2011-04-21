@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpserver.cc,v 1.10 2010-08-31 10:43:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: tcpserver.cc,v 1.11 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "tcpserver.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: tcpserver.cc,v 1.10 2010-08-31 10:43:29 cvsnann
 
 static int sockid = 0;
 
-const int getNewID()
+static int getNewID()
 {
     return ++sockid;
 }
@@ -45,10 +45,10 @@ TcpServer::~TcpServer()
 }
 
 
-bool TcpServer::listen( const char* host, int port )
+bool TcpServer::listen( const char* host, int prt )
 {
     return qtcpserver_->listen(
-	    host ? QHostAddress(host) : QHostAddress(QHostAddress::Any), port );
+	    host ? QHostAddress(host) : QHostAddress(QHostAddress::Any), prt );
 }
 
 

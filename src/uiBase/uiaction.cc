@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaction.cc,v 1.6 2011-03-28 07:55:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiaction.cc,v 1.7 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uiaction.h"
 #include "i_qaction.h"
@@ -17,11 +17,11 @@ static const char* rcsID = "$Id: uiaction.cc,v 1.6 2011-03-28 07:55:34 cvsnanne 
 
 #define mInit toggled(this), triggered(this), msgr_(0)
 
-uiAction::uiAction( QAction* qaction )
+uiAction::uiAction( QAction* qact )
     : mInit
-    , qaction_(qaction)
+    , qaction_(qact)
 {
-    msgr_ = new i_ActionMessenger( qaction, this );
+    msgr_ = new i_ActionMessenger( qact, this );
 }
 
 

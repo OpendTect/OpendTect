@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.13 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.14 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "seisimpbpsif.h"
 #include "seisimpps.h"
@@ -303,8 +303,8 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
 
 	SeisTrc* newtrc = new SeisTrc( tmpltrc );
 	Coord rcvcoord; rcvcoord.x = vbuf[0]; rcvcoord.y = vbuf[1];
-	for ( int idx=0; idx<nrrcvattrs; idx++ )
-	    newtrc->set( nrshotattrs+idx, vbuf[2+idx], 0 );
+	for ( int iattr=0; iattr<nrrcvattrs; iattr++ )
+	    newtrc->set( nrshotattrs+iattr, vbuf[2+iattr], 0 );
 
 	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord, true );
 	if ( SI().sampling(false).hrg.includes(newtrc->info().binid) )

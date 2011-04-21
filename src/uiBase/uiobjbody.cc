@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjbody.cc,v 1.33 2010-12-06 08:42:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobjbody.cc,v 1.34 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uiobjbody.h"
@@ -571,11 +571,11 @@ void uiObjectBody::gtFntWdtHgt() const
     uiObjectBody& self = *const_cast<uiObjectBody*>(this);
 
     QFont qft = QFont();
-    QFontMetrics fm( qft );
-    self.fnt_hgt = fm.lineSpacing() + 2;
-    self.fnt_wdt = fm.width( QChar('x') );
+    QFontMetrics qfm( qft );
+    self.fnt_hgt = qfm.lineSpacing() + 2;
+    self.fnt_wdt = qfm.width( QChar('x') );
 
-    self.fnt_maxwdt = fm.maxWidth();
+    self.fnt_maxwdt = qfm.maxWidth();
 
     if ( fnt_hgt<=0 || fnt_hgt>100 )
     { 
@@ -594,7 +594,7 @@ void uiObjectBody::gtFntWdtHgt() const
 	    QChar ch( idx );
 	    if ( ch.isPrint() )
 	    {
-		const int width = fm.width( ch );
+		const int width = qfm.width( ch );
 		if ( width>self.fnt_maxwdt )
 		    self.fnt_maxwdt = width;
 	    }

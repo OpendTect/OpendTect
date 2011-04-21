@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2007
- RCS:           $Id: i_qmdiarea.h,v 1.2 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_qmdiarea.h,v 1.3 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,11 +32,11 @@ class i_MdiAreaMessenger : public QObject
 
 protected:
 
-i_MdiAreaMessenger( QMdiArea* sender, uiMdiArea* receiver )
-    : sender_(sender)
+i_MdiAreaMessenger( QMdiArea* sndr, uiMdiArea* receiver )
+    : sender_(sndr)
     , receiver_(receiver)
 {
-    connect( sender, SIGNAL(subWindowActivated(QMdiSubWindow*)),
+    connect( sndr, SIGNAL(subWindowActivated(QMdiSubWindow*)),
 	     this, SLOT(subWindowActivated(QMdiSubWindow*)) );
 }
 

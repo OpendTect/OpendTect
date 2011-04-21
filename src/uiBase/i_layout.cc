@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: i_layout.cc,v 1.84 2010-10-29 08:23:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: i_layout.cc,v 1.85 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "i_layout.h"
 #include "i_layoutitem.h"
@@ -35,9 +35,9 @@ static bool lyoutdbg = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
 		     managedBody.uiObjHandle().mainwin()->finalised() : true )
 
 i_LayoutMngr::i_LayoutMngr( QWidget* parnt, 
-			    const char *name, uiObjectBody& mngbdy )
+			    const char* nm, uiObjectBody& mngbdy )
     : QLayout(parnt)
-    , NamedObject(name)
+    , NamedObject(nm)
     , minimumDone(false), preferredDone(false), ismain(false)
     , prefposStored(false)
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
@@ -723,7 +723,7 @@ int i_LayoutMngr::count () const
 
 
 bool i_LayoutMngr::attach( constraintType type, QWidget& current, 
-			   QWidget* other, int margin, bool reciprocal ) 
+			   QWidget* other, int mrgin, bool reciprocal ) 
 {
     if ( &current == other )
 	{ pErrMsg("Attempt to attach an object to itself"); return false; }
@@ -741,7 +741,7 @@ bool i_LayoutMngr::attach( constraintType type, QWidget& current,
 
 	if ( curli && (!needother || othli) )
 	{
-	    curli->attach( type, othli, margin, reciprocal );
+	    curli->attach( type, othli, mrgin, reciprocal );
 	    return true;
 	}
     }

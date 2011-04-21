@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.112 2011-02-16 08:40:59 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.113 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -923,9 +923,9 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     BufferStringSet attribnames;
     getDefaultAttribsets( attribfiles, attribnames );
 
-    uiSelectFromList::Setup setup( "Default Attribute Sets", attribnames );
-    setup.dlgtitle( "Select default attribute set" );
-    uiSelectFromList dlg( this, setup );
+    uiSelectFromList::Setup sflsu( "Default Attribute Sets", attribnames );
+    sflsu.dlgtitle( "Select default attribute set" );
+    uiSelectFromList dlg( this, sflsu );
     dlg.setHelpID("101.1.6");
     if ( !dlg.go() ) return;
     

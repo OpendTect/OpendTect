@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibody.h,v 1.15 2009-07-23 12:30:21 cvskris Exp $
+ RCS:           $Id: uibody.h,v 1.16 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,10 +49,10 @@ template <class C, class T>
 class uiBodyImpl : public uiBody
 {
 public:
-                        uiBodyImpl( C& handle, uiParent* parnt, T& qthing ) 
+                        uiBodyImpl( C& hndle, uiParent* parnt, T& qthng ) 
 			    : uiBody()
-			    , qthing_(&qthing)
-			    , handle_(handle)
+			    , qthing_(&qthng)
+			    , handle_(hndle)
 			    {}
 
 

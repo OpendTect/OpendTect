@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.56 2011-03-15 14:41:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.57 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uiveldesc.h"
 
@@ -303,11 +303,11 @@ void uiVelSel::selectionDoneCB( CallBacker* cb )
     trg_ = Time2DepthStretcher::getDefaultVAvg();
     brg_ = Time2DepthStretcher::getDefaultVAvg();
 
-    PtrMan<IOObj> ioobj = getIOObj( true );
-    if ( ioobj )
+    PtrMan<IOObj> ioob = getIOObj( true );
+    if ( ioob )
     {
-	ioobj->pars().get( VelocityStretcher::sKeyTopVavg(), trg_ );
-	ioobj->pars().get( VelocityStretcher::sKeyBotVavg(), brg_ );
+	ioob->pars().get( VelocityStretcher::sKeyTopVavg(), trg_ );
+	ioob->pars().get( VelocityStretcher::sKeyBotVavg(), brg_ );
 	trg_.sort();
 	brg_.sort();
     }

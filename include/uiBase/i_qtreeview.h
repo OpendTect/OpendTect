@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.15 2009-10-23 09:21:05 cvsjaap Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.16 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,40 +29,40 @@ class i_listVwMessenger : public QObject
 
 protected:
 
-i_listVwMessenger( QTreeWidget& sender, uiListView& receiver )
-    : sender_(sender)
+i_listVwMessenger( QTreeWidget& sndr, uiListView& receiver )
+    : sender_(sndr)
     , receiver_(receiver)
 { 
-    connect( &sender, SIGNAL(itemSelectionChanged()),
+    connect( &sndr, SIGNAL(itemSelectionChanged()),
 	     this, SLOT(itemSelectionChanged()) );
 
-    connect( &sender, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
+    connect( &sndr, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
 	     this, SLOT(itemChanged(QTreeWidgetItem*,int)) );
 
-    connect( &sender,
+    connect( &sndr,
 	     SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), 
 	     this,
 	     SLOT(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)) );
 
-    connect( &sender, SIGNAL(itemClicked(QTreeWidgetItem*,int)), 
+    connect( &sndr, SIGNAL(itemClicked(QTreeWidgetItem*,int)), 
 	     this, SLOT(itemClicked(QTreeWidgetItem*,int)) );
 
-    connect( &sender, SIGNAL(itemPressed(QTreeWidgetItem*,int)), 
+    connect( &sndr, SIGNAL(itemPressed(QTreeWidgetItem*,int)), 
 	     this, SLOT(itemPressed(QTreeWidgetItem*,int)) );
 
-    connect( &sender, SIGNAL(customContextMenuRequested(const QPoint &)), 
+    connect( &sndr, SIGNAL(customContextMenuRequested(const QPoint &)), 
 	     this, SLOT(customContextMenuRequested(const QPoint &)) );
 
-    connect( &sender, SIGNAL(itemExpanded(QTreeWidgetItem*)), 
+    connect( &sndr, SIGNAL(itemExpanded(QTreeWidgetItem*)), 
 	     this, SLOT(itemExpanded(QTreeWidgetItem*)) );
 
-    connect( &sender, SIGNAL(itemCollapsed(QTreeWidgetItem*)), 
+    connect( &sndr, SIGNAL(itemCollapsed(QTreeWidgetItem*)), 
 	     this, SLOT(itemCollapsed(QTreeWidgetItem*)) );
 
-    connect( &sender, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), 
+    connect( &sndr, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), 
 	     this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)) );
 
-    connect( &sender, SIGNAL(itemEntered(QTreeWidgetItem*,int)), 
+    connect( &sndr, SIGNAL(itemEntered(QTreeWidgetItem*,int)), 
 	     this, SLOT(itemEntered(QTreeWidgetItem*,int)) );
 }
 

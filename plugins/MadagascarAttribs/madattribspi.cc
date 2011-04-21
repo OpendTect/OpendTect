@@ -4,18 +4,13 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: madattribspi.cc,v 1.1 2009-10-27 15:55:06 cvshelene Exp $";
+static const char* rcsID = "$Id: madattribspi.cc,v 1.2 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "madagcattrib.h"
-#include "plugins.h"
+#include "odplugin.h"
 
-mExternC int GetMadagascarAttribsPluginType()
-{
-    return PI_AUTO_INIT_EARLY;
-}
-
-
-mExternC PluginInfo* GetMadagascarAttribsPluginInfo()
+mDefODPluginEarlyLoad(MadagascarAttribs)
+mDefODPluginInfo(MadagascarAttribs)
 {
     static PluginInfo retpii = {
 	"Trace Match (Base)",
@@ -26,7 +21,7 @@ mExternC PluginInfo* GetMadagascarAttribsPluginInfo()
 }
 
 
-mExternC const char* InitMadagascarAttribsPlugin( int, char** )
+mDefODInitPlugin(MadagascarAttribs)
 {
     Attrib::MadAGC::initClass();
 

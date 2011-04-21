@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          November 2007
- RCS:           $Id: uiseistrcbufviewer.h,v 1.13 2011-03-30 04:43:53 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.h,v 1.14 2011-04-21 13:09:13 cvsbert Exp $
 _______________________________________________________________________
 
 -*/
@@ -30,9 +30,9 @@ public:
     mClass Setup : public uiFlatViewMainWin::Setup
     {
     public:
-			Setup( const char* wintitl, const int nrvwrs)
-			    : uiFlatViewMainWin::Setup(wintitl) 	
-			    , nrvwrs_(nrvwrs)				{}
+			Setup( const char* wt, const int nv )
+			    : uiFlatViewMainWin::Setup(wt) 	
+			    , nrvwrs_(nv)				{}
         mDefSetupMemb(BufferString, wintitl)
         mDefSetupMemb(int, nrvwrs)
     };		    

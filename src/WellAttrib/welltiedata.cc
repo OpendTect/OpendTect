@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.47 2011-03-04 14:16:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.48 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -208,10 +208,9 @@ Well::Data* WellDataMgr::wellData() const
     if ( !wd_ )
     {
 	WellDataMgr* self = const_cast<WellDataMgr*>( this );
-	Well::Data* wd = Well::MGR().get( wellid_, false );
-	self->wd_ = wd;
-	if ( wd )
-	    wd->tobedeleted.notify( mCB(self,WellDataMgr,wellDataDelNotify) );
+	self->wd_ = Well::MGR().get( wellid_, false );
+	if ( wd_ )
+	    wd_->tobedeleted.notify( mCB(self,WellDataMgr,wellDataDelNotify) );
     }
     return wd_;
 }

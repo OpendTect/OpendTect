@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: wellhorpos.cc,v 1.8 2011-01-12 09:44:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellhorpos.cc,v 1.9 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "wellhorpos.h"
@@ -35,14 +35,14 @@ WellHorIntersectFinder::WellHorIntersectFinder( const Well::Track& tr,
 
 
 #define mDoTransInLoop(idx,bid)\
-    Coord3 pos = track.pos( idx );\
+    pos = track.pos( idx );\
     bid = SI().transform( pos );
 void WellHorIntersectFinder::transformWellCoordsToBinIDs( 
 						const Well::Track& track )
 {
     wellpts_.erase();
     if ( track.size() <=0 ) return;
-    BinID prevbid; mDoTransInLoop( 0, prevbid )
+    BinID prevbid; Coord3 mDoTransInLoop( 0, prevbid )
     wellpts_ += ZPoint( prevbid, pos.z );
     for ( int idx=0; idx<track.size(); idx++ )
     {
@@ -77,10 +77,11 @@ void WellHorIntersectFinder::findIntersection( TypeSet<ZPoint>& outzpts ) const
 	TypeSet<ZPoint> newintersectzpts;
 
 #define mGetBidDistToPrevBid(bid,dist)\
-	int inldist = pt1.bid_.inl-bid.inl; inldist*=inldist;\
-	int crldist = pt1.bid_.crl-bid.crl; crldist*=crldist;\
+	inldist = pt1.bid_.inl-bid.inl, crldist = pt1.bid_.crl-bid.crl; \
+	inldist*=inldist; crldist*=crldist;\
 	dist = sqrt( (float)(inldist + crldist) );
-	float refdist; mGetBidDistToPrevBid( pt2.bid_, refdist )
+
+	float refdist; int mGetBidDistToPrevBid( pt2.bid_, refdist )
 	LinScaler sc( 0, pt1.zval_, refdist, pt2.zval_ );
 	BinID bid;
 	while ( hsit.next( bid ) )

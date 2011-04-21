@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimdiarea.cc,v 1.8 2010-09-07 04:41:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimdiarea.cc,v 1.9 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uimdiarea.h"
 #include "i_qmdiarea.h"
@@ -34,19 +34,19 @@ protected:
 };
 
 
-uiMdiAreaBody::uiMdiAreaBody( uiMdiArea& handle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiMdiArea,QMdiArea>(handle,p,nm)
-    , messenger_(*new i_MdiAreaMessenger(this,&handle))
+uiMdiAreaBody::uiMdiAreaBody( uiMdiArea& hndle, uiParent* p, const char* nm )
+    : uiObjBodyImpl<uiMdiArea,QMdiArea>(hndle,p,nm)
+    , messenger_(*new i_MdiAreaMessenger(this,&hndle))
 {}
 
 uiMdiAreaBody::~uiMdiAreaBody()
 { delete &messenger_; }
 
 
-void uiMdiAreaBody::resizeEvent( QResizeEvent* event )
+void uiMdiAreaBody::resizeEvent( QResizeEvent* ev )
 {
     // TODO: Resize subwindows
-    QMdiArea::resizeEvent( event );
+    QMdiArea::resizeEvent( ev );
 }
 
 

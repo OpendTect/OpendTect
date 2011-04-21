@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.77 2011-03-10 06:12:15 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.78 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.77 2011-03-10 06:12:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.78 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -552,8 +552,8 @@ float uiDataPointSetCrossPlotter::getVal( int colid, int rid ) const
 { return uidps_.getVal( colid, rid, true ); }
 
 
-void uiDataPointSetCrossPlotter::setCTMapper( const ColTab::MapperSetup& setup )
-{ ctmapper_.setup_ = setup; }
+void uiDataPointSetCrossPlotter::setCTMapper( const ColTab::MapperSetup& su )
+{ ctmapper_.setup_ = su; }
 
 
 void uiDataPointSetCrossPlotter::updateOverlayMapper( bool isy1 )
@@ -1593,10 +1593,10 @@ void uiDataPointSetCrossPlotter::drawData(
 
 
 void uiDataPointSetCrossPlotter::drawYUserDefLine( const Interval<int>& xpixrg,
-						    bool draw, bool isy1 )
+						    bool dodrw, bool isy1 )
 {
     uiLineItem*& curlineitem = isy1 ? y1userdeflineitm_ : y2userdeflineitm_;
-    if ( !draw )
+    if ( !dodrw )
     {
 	if ( curlineitem )
 	{

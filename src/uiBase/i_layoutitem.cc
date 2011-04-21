@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: i_layoutitem.cc,v 1.15 2009-08-20 08:32:55 cvsbert Exp $";
+static const char* rcsID = "$Id: i_layoutitem.cc,v 1.16 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "i_layoutitem.h"
 #include "i_layout.h"
@@ -159,11 +159,11 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 		    pPos.setVNrPics( pref_v_nr_pics );
 		    preferred_pos_inited = true;
 		}
-		uiRect& mPos = curpos( lom );
-		mPos = curpos( preferred );
+		uiRect& mPos2 = curpos( lom );
+		mPos2 = curpos( preferred );
 
-		mPos.leftTo( mMAX( pPos.left(), mngrLeft ));
-		mPos.topTo( mMAX( pPos.top(), mngrTop ));
+		mPos2.leftTo( mMAX( pPos.left(), mngrLeft ));
+		mPos2.topTo( mMAX( pPos.top(), mngrTop ));
 
 		initChildLayout(lom);
 	    }

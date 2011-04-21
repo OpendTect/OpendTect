@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.12 2010-07-26 09:53:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.13 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uisrchprocfiles.h"
 
@@ -96,9 +96,9 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     if ( fnms.size() > 1 )
     {
 	toStatusBar( "Multiple files found; select one ..." );
-	uiSelectFromList::Setup setup( "Select the apropriate file", fnms );
-	setup.dlgtitle( "Pick one of the matches" );
-	uiSelectFromList dlg( this, setup );
+	uiSelectFromList::Setup sflsu( "Select the apropriate file", fnms );
+	sflsu.dlgtitle( "Pick one of the matches" );
+	uiSelectFromList dlg( this, sflsu );
 	if ( !dlg.go() || dlg.selection() < 0 )
 	    mRet(0)
 	sel = dlg.selection();

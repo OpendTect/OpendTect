@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.88 2011-04-07 12:32:36 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.89 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -380,7 +380,7 @@ Seis2DLinePutter* Seis2DLineSet::linePutter( IOPar* newiop )
 
 
 bool Seis2DLineSet::addLineKeys( Seis2DLineSet& ls, const char* attrnm,
-				 const char* lnm, const char* datatype )
+				 const char* lnm, const char* dtyp )
 {
     if ( !ls.liop_ )
     {
@@ -425,8 +425,8 @@ bool Seis2DLineSet::addLineKeys( Seis2DLineSet& ls, const char* attrnm,
     {
 	IOPar* newiop = new IOPar( iop );
 	lkstoadd[idx]->fillPar( *newiop, true );
-	if ( datatype )
-	    newiop->set( sKey::DataType, datatype );
+	if ( dtyp )
+	    newiop->set( sKey::DataType, dtyp );
 
 	const IOPar* previop = ls.pars_.size() ? ls.pars_[ls.pars_.size()-1]
 	    					: 0;

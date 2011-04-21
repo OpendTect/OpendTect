@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.47 2011-03-18 16:03:42 cvskarthika Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.48 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uitextedit.h"
@@ -193,10 +193,10 @@ protected:
 };
 
 
-uiTextEditBody::uiTextEditBody( uiTextEdit& handle, uiParent* p, 
+uiTextEditBody::uiTextEditBody( uiTextEdit& hndl, uiParent* p, 
 				const char* nm, bool ro )
-    : uiObjBodyImpl<uiTextEdit,QTextEdit>( handle, p, nm )
-    , messenger_(*new i_TextEditMessenger(this,&handle))
+    : uiObjBodyImpl<uiTextEdit,QTextEdit>( hndl, p, nm )
+    , messenger_(*new i_TextEditMessenger(this,&hndl))
 {
     setReadOnly( ro );
     setStretch( 2, 2 );
@@ -249,9 +249,8 @@ class uiTextBrowserBody : public uiObjBodyImpl<uiTextBrowser,QTextBrowser>
 {
 public:
 
-                        uiTextBrowserBody( uiTextBrowser& handle, 
-					uiParent* parnt, 
-					const char* nm, bool plaintxt );
+                        uiTextBrowserBody(uiTextBrowser&,uiParent*,const char*,
+					  bool plaintxt );
 
     virtual		~uiTextBrowserBody()	{ delete &messenger_; }
 protected:
@@ -259,10 +258,10 @@ protected:
 };
 
 
-uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p, 
+uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& hndl, uiParent* p, 
 				      const char* nm, bool plaintxt )
-    : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( handle, p, nm )
-    , messenger_( *new i_BrowserMessenger(this, &handle))
+    : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( hndl, p, nm )
+    , messenger_( *new i_BrowserMessenger(this, &hndl))
 {
     setStretch( 2, 2 );
 }

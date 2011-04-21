@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.38 2011-04-15 10:28:27 cvsbert Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.39 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -349,9 +349,9 @@ void MadStream::fillHeaderParsFromSeis()
 	if ( !seldata->isAll() )
 	{
 	    geom.limitTo( seldata->crlRange() );
-	    StepInterval<float> zrg( geom.zRange() );
-	    zrg.limitTo( seldata->zRange() );
-	    geom.setZRange( zrg );
+	    StepInterval<float> gzrg( geom.zRange() );
+	    gzrg.limitTo( seldata->zRange() );
+	    geom.setZRange( gzrg );
 	}
 
 	nrtrcs = geom.positions().size();
@@ -438,9 +438,9 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 	if ( seldata && !seldata->isAll() )
 	{
 	    l2ddata_->limitTo( seldata->crlRange() );
-	    StepInterval<float> zrg( l2ddata_->zRange() );
-	    zrg.limitTo( seldata->zRange() );
-	    l2ddata_->setZRange( zrg );
+	    StepInterval<float> ldzrg( l2ddata_->zRange() );
+	    ldzrg.limitTo( seldata->zRange() );
+	    l2ddata_->setZRange( ldzrg );
 	}
 
 	nrbids = l2ddata_->positions().size();

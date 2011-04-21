@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.29 2011-03-20 04:18:10 cvskris Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.30 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "seisimporter.h"
 
@@ -292,15 +292,15 @@ int SeisImporter::readIntoBuf()
 	    // Check on max nr traces with same position
 	if ( !Seis::isPS(geomtype_) && buf_.size() > 1000 )
 	{
-	    SeisTrc* trc = buf_.get( buf_.size() - 1 );
-	    const BinID trcbid( trc->info().binid );
-	    const int trcnr = trc->info().nr;
+	    SeisTrc* btrc = buf_.get( buf_.size() - 1 );
+	    const BinID trcbid( btrc->info().binid );
+	    const int trcnr = btrc->info().nr;
 	    int nreq = 0;
 	    for ( int idx=buf_.size()-2; idx!=-1; idx-- )
 	    {
-		trc = buf_.get( idx );
-		if ( (!is2d && trc->info().binid == trcbid)
-		  || (is2d && trc->info().nr == trcnr) )
+		btrc = buf_.get( idx );
+		if ( (!is2d && btrc->info().binid == trcbid)
+		  || (is2d && btrc->info().nr == trcnr) )
 		    nreq++;
 		else
 		    break;

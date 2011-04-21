@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.55 2010-12-06 08:42:54 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.h,v 1.56 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,12 +235,12 @@ class uiObjBodyImpl : public uiObjectBody, public T
 {
 public:
 
-                        uiObjBodyImpl( C& handle, uiParent* parnt, 
+                        uiObjBodyImpl( C& hndle, uiParent* parnt, 
 				       const char* nm )
 			    : uiObjectBody( parnt, nm )
 			    , T( parnt && parnt->pbody() ? 
 				     parnt->pbody()->managewidg() : 0 )
-			    , handle_( handle )
+			    , handle_( hndle )
 			    {
 				this->setObjectName( nm );
 			    }

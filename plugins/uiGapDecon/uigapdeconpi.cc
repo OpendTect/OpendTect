@@ -7,15 +7,9 @@
 static const char* rcsID = "$Id";
 
 #include "uigapdeconattrib.h"
-#include "plugins.h"
+#include "odplugin.h"
 
-mExternC int GetuiGapDeconPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-
-mExternC PluginInfo* GetuiGapDeconPluginInfo()
+mDefODPluginInfo(uiGapDecon)
 {
     static PluginInfo retpi = {
 	"Gap Decon",
@@ -26,7 +20,7 @@ mExternC PluginInfo* GetuiGapDeconPluginInfo()
 }
 
 
-mExternC const char* InituiGapDeconPlugin( int, char** )
+mDefODInitPlugin(uiGapDecon)
 {
     uiGapDeconAttrib::initClass();
     return 0; // All OK - no error messages

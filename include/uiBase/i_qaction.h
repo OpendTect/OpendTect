@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:           $Id: i_qaction.h,v 1.4 2011-03-28 08:46:04 cvsnanne Exp $
+ RCS:           $Id: i_qaction.h,v 1.5 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,13 +28,13 @@ class i_ActionMessenger : public QObject
     friend class	uiAction;
 
 protected:
-i_ActionMessenger( QAction* sender, uiAction* receiver )
-    : sender_( sender )
+i_ActionMessenger( QAction* sndr, uiAction* receiver )
+    : sender_( sndr )
     , receiver_( receiver )
 { 
-    connect( sender, SIGNAL(toggled(bool)),this, SLOT(toggled(bool)) );
-    connect( sender, SIGNAL(triggered(bool)), this, SLOT(triggered(bool)));
-    connect( sender, SIGNAL(hovered()), this, SLOT(hovered()) );
+    connect( sender_, SIGNAL(toggled(bool)),this, SLOT(toggled(bool)) );
+    connect( sender_, SIGNAL(triggered(bool)), this, SLOT(triggered(bool)));
+    connect( sender_, SIGNAL(hovered()), this, SLOT(hovered()) );
 }
 
 virtual	~i_ActionMessenger() {}

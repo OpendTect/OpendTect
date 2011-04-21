@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.21 2010-12-29 05:35:09 cvsumesh Exp $";
+static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.22 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uistratsinglayseqgendesc.h"
 #include "uigraphicsitemimpl.h"
@@ -32,9 +32,9 @@ mImplFactory2Param(uiLayerSequenceGenDesc,uiParent*,
 
 
 uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( uiParent* p,
-					Strat::LayerSequenceGenDesc& desc )
+					Strat::LayerSequenceGenDesc& dsc )
     : uiGraphicsView(p,"LayerSequence Gen Desc editor")
-    , desc_(desc)
+    , desc_(dsc)
     , border_(10)
     , outeritm_(0)
     , emptyitm_(0)

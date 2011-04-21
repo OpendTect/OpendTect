@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.107 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.108 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -783,7 +783,7 @@ bool SurveyDataTreePreparer::createDataTree()
 }
 
 
-TypeSet<IOMan::CustomDirData>& getCDDs()
+static TypeSet<IOMan::CustomDirData>& getCDDs()
 {
     static TypeSet<IOMan::CustomDirData>* cdds = 0;
     if ( !cdds )

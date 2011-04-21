@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.15 2010-12-07 22:59:52 cvskris Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.16 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -26,9 +26,9 @@ DefineEnumNames(ODMad::ProcExec,FlowStage,1,"Flow Stage")
 { "Start", "Intermediate", "Finish", 0 };
 
 
-ODMad::ProcExec::ProcExec( const IOPar& pars, std::ostream& reportstrm )
+ODMad::ProcExec::ProcExec( const IOPar& iop, std::ostream& reportstrm )
     : Executor("Madagascar processing")
-    , pars_(*new IOPar(pars))
+    , pars_(*new IOPar(iop))
     , strm_(reportstrm)
     , nrdone_(0)
     , stage_(Start)

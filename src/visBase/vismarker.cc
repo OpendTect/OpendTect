@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vismarker.cc,v 1.30 2011-02-22 08:18:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: vismarker.cc,v 1.31 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "vismarker.h"
 
@@ -129,7 +129,7 @@ MarkerStyle3D::Type Marker::getType() const
 }
 
 
-Cube* createPlane()
+static Cube* createPlane()
 {
     visBase::Cube* plane = visBase::Cube::create();
 

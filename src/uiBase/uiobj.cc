@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.103 2011-03-08 14:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.104 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -219,9 +219,9 @@ protected:
 };
 
 
-bool uiObjEventFilter::eventFilter( QObject* obj, QEvent* event )
+bool uiObjEventFilter::eventFilter( QObject* obj, QEvent* ev )
 {
-    if ( event->type() == mUsrEvLongTabletPress )
+    if ( ev && ev->type() == mUsrEvLongTabletPress )
     {
 	uiobject_.handleLongTabletPress();
 	return true;
@@ -237,11 +237,11 @@ Color uiObject::normaltooltipcolor_;
 static ObjectSet<uiObject> uiobjectlist_;
 
 
-BufferString getCleanName( const char* nm )
+static BufferString getCleanName( const char* nm )
 {
     QString qstr( nm );
     qstr.remove( QChar('&') );
-    return qstr.toAscii().data();
+    return BufferString( qstr.toAscii().data() );
 }
 
 

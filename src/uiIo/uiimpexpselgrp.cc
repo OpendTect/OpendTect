@@ -906,11 +906,11 @@ bool uiReadSelGrp::acceptOK( CallBacker* )
 
 uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
 					const ObjectSet<SelectionGrp>& selgrps,
-					uiExpSelectionArea::Setup setup )
+					uiExpSelectionArea::Setup su )
     : uiDialog(p,uiDialog::Setup("Export Selection Area",
 				 "Specify parameters",mTODOHelpID))
     , selgrps_(selgrps)
-    , setup_(setup)
+    , setup_(su)
 {
     setCtrlStyle( DoAndStay );
 

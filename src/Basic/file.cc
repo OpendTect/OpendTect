@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.27 2011-04-18 15:01:39 cvsbert Exp $
+ RCS:		$Id: file.cc,v 1.28 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,23 +28,9 @@ ________________________________________________________________________
 
 const char* not_implemented_str = "Not implemented";
 
+
 namespace File
 {
-#ifndef OD_NO_QT
-#else
-#endif
-
-bool exists( const char* fnm )
-{
-#ifndef OD_NO_QT
-    return QFile::exists( fnm );
-#else
-    std::ifstream strm;
-    strm.open( fnm );
-    return strm.is_open();
-#endif
-}
-
 
 od_int64 getFileSize( const char* fnm )
 {
@@ -61,6 +47,16 @@ od_int64 getFileSize( const char* fnm )
 #endif
 }
 
+bool exists( const char* fnm )
+{
+#ifndef OD_NO_QT
+    return QFile::exists( fnm );
+#else
+    std::ifstream strm;
+    strm.open( fnm );
+    return strm.is_open();
+#endif
+}
 
 
 bool isEmpty( const char* fnm )

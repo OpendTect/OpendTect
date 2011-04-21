@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: i_qslider.h,v 1.6 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_qslider.h,v 1.7 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,14 +30,14 @@ class i_SliderMessenger : public QObject
 
 protected:
 
-i_SliderMessenger( QSlider* sender, uiSlider* receiver )
-    : sender_(sender)
+i_SliderMessenger( QSlider* sndr, uiSlider* receiver )
+    : sender_(sndr)
     , receiver_(receiver)
 { 
-    connect( sender, SIGNAL(sliderMoved(int)), this, SLOT(sliderMoved(int)) );
-    connect( sender, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()) );
-    connect( sender, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()) );
-    connect( sender, SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int)) );
+    connect( sndr, SIGNAL(sliderMoved(int)), this, SLOT(sliderMoved(int)) );
+    connect( sndr, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()) );
+    connect( sndr, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()) );
+    connect( sndr, SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int)) );
 }
 
 

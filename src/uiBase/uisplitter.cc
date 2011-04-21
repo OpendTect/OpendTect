@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisplitter.cc,v 1.6 2011-03-11 11:36:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisplitter.cc,v 1.7 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uisplitter.h"
@@ -22,8 +22,8 @@ class uiSplitterBody : public uiObjBodyImpl<uiSplitter,QSplitter>
 {
 public:
 
-uiSplitterBody( uiSplitter& handle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiSplitter,QSplitter>(handle,p,nm)
+uiSplitterBody( uiSplitter& hndl, uiParent* p, const char* nm )
+    : uiObjBodyImpl<uiSplitter,QSplitter>(hndl,p,nm)
 {
 }
 

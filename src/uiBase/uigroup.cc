@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigroup.cc,v 1.67 2010-12-13 11:54:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uigroup.cc,v 1.68 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -29,7 +29,7 @@ class uiGroupParentBody;
 class i_uiGroupLayoutItem : public i_uiLayoutItem
 {
 public:
-			i_uiGroupLayoutItem( i_LayoutMngr& mngr, 
+			i_uiGroupLayoutItem( i_LayoutMngr& mgr, 
 					     uiGroupObjBody& obj, 
 					     uiGroupParentBody& par );
 
@@ -82,7 +82,7 @@ public:
 
 protected:
 
-    virtual i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mngr );
+    virtual i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mgr );
 
     virtual void		finalise_();
 
@@ -174,10 +174,10 @@ private:
 
 
 // ----- uiGroupParentBody -----
-uiGroupParentBody::uiGroupParentBody( uiGroup& handle, uiGroupObjBody& objbdy,
+uiGroupParentBody::uiGroupParentBody( uiGroup& hndle, uiGroupObjBody& objbdy,
 				      uiParent* parnt=0, const char* nm )
     : uiParentBody( nm )
-    , handle_( handle )
+    , handle_( hndle )
     , loMngr( 0 ) , halignobj( 0 ), hcentreobj( 0 )
     , objbody_( objbdy )
 { 
@@ -289,11 +289,11 @@ void uiGroupParentBody::finalise( bool trigger_finalise_start_stop )
 
 
 // ----- uiGroupObjBody -----
-    uiGroupObjBody::uiGroupObjBody( uiGroupObj& handle, uiParent* parnt,
+    uiGroupObjBody::uiGroupObjBody( uiGroupObj& hndle, uiParent* parnt,
 	    			    const char* nm )
     : uiObjectBody( parnt, nm )
     , QFrame( parnt && parnt->pbody() ?  parnt->pbody()->managewidg() : 0 )
-    , handle_( handle )
+    , handle_( hndle )
     , prntbody_( 0 )			
 {}
 
@@ -325,14 +325,14 @@ int uiGroupObjBody::stretch( bool hor, bool ) const
     return 0;
 }
 
-i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mngr )
+i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mgr )
 { 
 #ifdef __debug__
     if( !prntbody_ ) 
 	{ pErrMsg("Yo. No parentbody yet."); return 0; }
 #endif
     i_uiGroupLayoutItem* loitm = 
-			new i_uiGroupLayoutItem( mngr, *this, *prntbody_ );
+			new i_uiGroupLayoutItem( mgr, *this, *prntbody_ );
 
     return loitm ;
 }
@@ -341,10 +341,10 @@ void uiGroupObjBody::finalise_()	{ prntbody_->finalise(); }
 
 
 // ----- i_uiGroupLayoutItem -----
-i_uiGroupLayoutItem::i_uiGroupLayoutItem( i_LayoutMngr& mngr, 
+i_uiGroupLayoutItem::i_uiGroupLayoutItem( i_LayoutMngr& mgr, 
 					  uiGroupObjBody& obj, 
 					  uiGroupParentBody& par )
-    : i_uiLayoutItem( mngr, obj )
+    : i_uiLayoutItem( mgr, obj )
     , grpprntbody( par ) 
 {
     for( int idx=0; idx<nLayoutMode; idx++ )

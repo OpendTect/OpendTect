@@ -4,20 +4,15 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: gpucalcpi.cc,v 1.4 2011-02-07 12:54:26 cvskris Exp $";
+static const char* rcsID = "$Id: gpucalcpi.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "gpucalc.h"
 
-#include "plugins.h"
+#include "odplugin.h"
 #include "errh.h"
 
-extern "C" int GetGPUCalcPluginType()
-{
-    return PI_AUTO_INIT_EARLY;
-}
-
-
-extern "C" PluginInfo* GetGPUCalcPluginInfo()
+mDefODPluginEarlyLoad(GPUCalc)
+mDefODPluginInfo(GPUCalc)
 {
     static PluginInfo retpii = {
 	"Graphics card based calculations", "dGB (Kristofer Tingdahl)", "=dgb",
@@ -26,7 +21,7 @@ extern "C" PluginInfo* GetGPUCalcPluginInfo()
 }
 
 
-extern "C" const char* InitGPUCalcPlugin( int, char** )
+mDefODInitPlugin(GPUCalc)
 {
     const char* nm = GPU::manager().getDevice(0)->name();
     nm = GPU::manager().getDevice( 1 )->name();

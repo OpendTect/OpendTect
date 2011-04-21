@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.56 2010-10-25 22:18:00 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.57 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -588,8 +588,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	? getPow2Sz( coltabs_.size() ) : 1;
     shaderctab_->image.setValue( SbVec2s( 256, nrchannels ), 4, 0 );
     
-    SbVec2s dummy;
-    int dummy2;
+    SbVec2s dummy; int dummy2;
     unsigned char* textureptr = shaderctab_->image.startEditing(dummy,dummy2);
     
     TypeSet<unsigned char> cols;
@@ -613,7 +612,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	if ( enabled_.size()<=idx || !enabled_[idx] )
 	    continue;
 	const SbImagei32& channel = channels_->getChannels()[idx];
-	SbVec3i32 size; int dummy2;
+	SbVec3i32 size;
 	const unsigned char* vals = channel.getValue( size, dummy2 );
 	
 	// Starting from the front layer, find the (foremost) layer which is 
@@ -644,7 +643,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
     for ( int idx=0; idx<nrchannels; idx++ )
     {
 	const SbImagei32& channel = channels_->getChannels()[idx];
-	SbVec3i32 size; int dummy2;
+	SbVec3i32 size;
 	const unsigned char* vals = channel.getValue( size, dummy2 );
 	layeropacity_->value.set1Value( idx,
 	    vals && idx<enabled_.size() && enabled_[idx]

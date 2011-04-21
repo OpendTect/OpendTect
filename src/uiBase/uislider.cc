@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.49 2011-03-08 14:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.50 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -46,9 +46,9 @@ private:
 };
 
 
-uiSliderBody::uiSliderBody( uiSlider& handle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiSlider,QSlider>(handle,p,nm)
-    , messenger_( *new i_SliderMessenger(this,&handle) )
+uiSliderBody::uiSliderBody( uiSlider& hndl, uiParent* p, const char* nm )
+    : uiObjBodyImpl<uiSlider,QSlider>(hndl,p,nm)
+    , messenger_( *new i_SliderMessenger(this,&hndl) )
 {
     setHSzPol( uiObject::Medium );
     setFocusPolicy( Qt::WheelFocus );
@@ -230,10 +230,15 @@ float uiSlider::maxValue() const
 }
 
 
-void uiSlider::setStep( float step )
+void uiSlider::setStep( float stp )
 {
     mBlockCmdRec;
-    int istep = scaler_ ? mNINT(step/scaler_->factor) : (int)step;
+    int istep = (int)stp;
+    if ( scaler_ )
+    {
+	const float fstp = stp / scaler_->factor;
+	istep = mNINT( fstp );
+    }
     body_->setSingleStep( istep );
     body_->setPageStep( istep );
 }

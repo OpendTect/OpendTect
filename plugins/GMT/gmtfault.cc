@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		April 2010
-RCS:		$Id: gmtfault.cc,v 1.4 2011-03-04 16:03:01 cvsyuancheng Exp $
+RCS:		$Id: gmtfault.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,15 +135,15 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 	if ( !idxgeom )
 	    return false;
 
-	const int size = idxgeom->coordindices_.size();
-	if ( size == 0 )
+	const int sz = idxgeom->coordindices_.size();
+	if ( sz == 0 )
 	{
 	    strm << "Selected ZSlice and Fault are not intersected\n";
 	    return false;
 	}
 
 	*sd.ostrm << "> " << std::endl;
-	for ( int cidx=0; cidx<size; cidx++ )
+	for ( int cidx=0; cidx<sz; cidx++ )
 	{
 	    if ( idxgeom->coordindices_[cidx] == -1 )
 		*sd.ostrm << "> " << std::endl;

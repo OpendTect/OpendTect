@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.103 2011-03-08 14:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.104 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uitable.h"
@@ -93,10 +93,10 @@ private:
 };
 
 
-uiTableBody::uiTableBody( uiTable& handle, uiParent* parnt, const char* nm,
+uiTableBody::uiTableBody( uiTable& hndl, uiParent* parnt, const char* nm,
 			  int nrows, int ncols )
-    : uiObjBodyImpl<uiTable,QTableWidget>(handle,parnt,nm)
-    , messenger_ (*new i_tableMessenger(this,&handle))
+    : uiObjBodyImpl<uiTable,QTableWidget>(hndl,parnt,nm)
+    , messenger_ (*new i_tableMessenger(this,&hndl))
 {
     if ( nrows >= 0 ) setNrLines( nrows );
     if ( ncols >= 0 ) setColumnCount( ncols );
@@ -139,18 +139,18 @@ QTableWidgetItem& uiTableBody::getRCItem( int idx, bool isrow )
 }
 
 
-void uiTableBody::mouseReleaseEvent( QMouseEvent* event )
+void uiTableBody::mouseReleaseEvent( QMouseEvent* ev )
 {
-    if ( !event ) return;
+    if ( !ev ) return;
 
-    if ( event->button() == Qt::RightButton )
+    if ( ev->button() == Qt::RightButton )
 	handle_.buttonstate_ = OD::RightButton;
-    else if ( event->button() == Qt::LeftButton )
+    else if ( ev->button() == Qt::LeftButton )
 	handle_.buttonstate_ = OD::LeftButton;
     else
 	handle_.buttonstate_ = OD::NoButton;
 
-    QAbstractItemView::mouseReleaseEvent( event );
+    QAbstractItemView::mouseReleaseEvent( ev );
     handle_.buttonstate_ = OD::NoButton;
 }
 
@@ -188,9 +188,9 @@ QTableWidgetItem* uiTableBody::getItem( const RowCol& rc, bool createnew )
 
 void uiTableBody::setCellObject( const RowCol& rc, uiObject* obj )
 {
-    QWidget* qwidget = obj->body()->qwidget();
-    setCellWidget( rc.row, rc.col, qwidget );
-    cellobjects_ += new CellObject( qwidget, obj, rc );
+    QWidget* qw = obj->body()->qwidget();
+    setCellWidget( rc.row, rc.col, qw );
+    cellobjects_ += new CellObject( qw, obj, rc );
 }
 
 
@@ -380,12 +380,12 @@ int uiTable::rowHeight( int row ) const
 }
 
 
-void uiTable::setLeftMargin( int width )
+void uiTable::setLeftMargin( int wdth )
 {
     QHeaderView* header = body_->verticalHeader();
     if ( !header ) return;
 
-    header->setVisible( width > 0 );
+    header->setVisible( wdth > 0 );
 }
 
 
@@ -1131,8 +1131,8 @@ void uiTable::updateCellSizes( const uiSize* size )
     int nc = nrCols();
     if ( nc && setup_.fillrow_ )
     {
-	int width = size->hNrPics();
-	int availwdt = width - body_->verticalHeader()->frameSize().width()
+	int wdth = size->hNrPics();
+	int availwdt = wdth - body_->verticalHeader()->frameSize().width()
 			 - 2*body_->frameWidth();
 
 	int colwdt = availwdt / nc;
@@ -1162,8 +1162,8 @@ void uiTable::updateCellSizes( const uiSize* size )
     int nr = nrRows();
     if ( nr && setup_.fillcol_ )
     {
-	int height = size->vNrPics();
-	int availhgt = height - body_->horizontalHeader()->frameSize().height()
+	int hght = size->vNrPics();
+	int availhgt = hght - body_->horizontalHeader()->frameSize().height()
 			 - 2*body_->frameWidth();
 
 	int rowhgt =  availhgt / nr;

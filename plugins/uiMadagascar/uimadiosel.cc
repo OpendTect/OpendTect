@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.32 2010-11-09 16:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.33 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -99,10 +99,9 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	subsel2dpsfld_->attach( alignedBelow, seis2dfld_ );
     }
 
-    uiFileInput::Setup setup;
-    setup.defseldir( ODMad::FileSpec::defPath() );
-    setup.forread( isinp );
-    madfld_ = new uiFileInput( this, "Select file", setup );
+    uiFileInput::Setup fisu;
+    fisu.defseldir( ODMad::FileSpec::defPath() ).forread( isinp );
+    madfld_ = new uiFileInput( this, "Select file", fisu );
     madfld_->attach( alignedBelow, typfld_ );
 
     sconsfld_ = new uiCheckBox( this, "SCons script",

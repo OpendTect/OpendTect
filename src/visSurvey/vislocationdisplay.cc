@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.67 2011-03-03 11:54:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.68 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -38,7 +38,7 @@ const char* LocationDisplay::sKeyMarkerSize()	{ return "Size"; }
 
 static const float cDistEps = 0.1;
 
-float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
+static float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
 {
     const Coord3 vec = p2 - p1;
     const Coord3 newvec = p - p1;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.20 2011-04-14 14:32:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.21 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uihorinterpol.h"
 
@@ -245,10 +245,10 @@ bool uiHorizonInterpolDlg::interpolate2D()
 	
     uiTaskRunner tr( this );
 
-    for ( int idx=0; idx<geom.nrSections(); idx++ )
+    for ( int isect=0; isect<geom.nrSections(); isect++ )
     {
 	ObjectSet< Array1D<float> > arr1d;
-	const EM::SectionID sid = geom.sectionID( idx );
+	const EM::SectionID sid = geom.sectionID( isect );
 	for ( int lineidx=0; lineidx<geom.nrLines(); lineidx++ )
 	    arr1d += hor2d->createArray1D( sid, geom.lineGeomID(lineidx) );
 

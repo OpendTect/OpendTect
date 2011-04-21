@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.45 2010-11-16 11:28:25 cvsbert Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.46 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "pixmap.h"
 
@@ -118,36 +118,35 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     if ( !File::exists(fname) )
     {
 	pErrMsg(BufferString("Icon not found: '",fnm,"'"));
-	FilePath fp( mGetSetupFileName("icons.Default") );
-	fp.add( "iconnotfound.png" );
-	fname = fp.fullPath();
+	FilePath fp2( mGetSetupFileName("icons.Default") );
+	fp2.add( "iconnotfound.png" );
+	fname = fp2.fullPath();
     }
 
     qpixmap_ = new QPixmap( fname.buf(), fmt );
 }
 
     
-ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height,
-       		    bool horizontal )
+ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int w, int h, bool hor )
     : qpixmap_(0)
     , srcname_("[colortable]")
 {
     bool validsz = true;
-    if ( width < 2 ) { width = 1; validsz = false; }
-    if ( height < 2 ) { height = 1; validsz = false; }
+    if ( w < 2 ) { w = 1; validsz = false; }
+    if ( h < 2 ) { h = 1; validsz = false; }
 
     if ( ctabin.size() == 0 || !validsz )
     {
-	qpixmap_ = new QPixmap( width, height );
+	qpixmap_ = new QPixmap( w, h );
 	qpixmap_->fill( QColor(0,0,0,0) );
 	return;
     }
 
     uiRGBArray rgbarr( false );
-    rgbarr.setSize( width, height );
-    if ( horizontal )
+    rgbarr.setSize( w, h );
+    if ( hor )
     {
-	ColTab::IndexedLookUpTable table( ctabin, width );
+	ColTab::IndexedLookUpTable table( ctabin, w );
 	for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )
 	{
 	    const Color color = table.colorForIndex( idx1 );
@@ -157,7 +156,7 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height,
     }
     else // vertical colorbar
     {
-	ColTab::IndexedLookUpTable table( ctabin, height );
+	ColTab::IndexedLookUpTable table( ctabin, h );
 	for ( int idx1=0; idx1<rgbarr.getSize(false); idx1++ )
 	{
 	    const Color color = table.colorForIndex( idx1 );

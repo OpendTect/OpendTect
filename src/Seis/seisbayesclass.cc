@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.14 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.15 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -415,9 +415,9 @@ void SeisBayesClass::prepOutTrc( SeisTrc& trc, bool isch ) const
 float SeisBayesClass::getPDFValue( int ipdf, int isamp, int icomp,
 				   bool inp ) const
 {
-    const SeisTrc& inptrc = *inptrcs_.get( 0 );
+    const SeisTrc& inptrc0 = *inptrcs_.get( 0 );
     const SeisTrc& outtrc = *outtrcs_.get( ipdf );
-    const float eps = inptrc.info().sampling.step * 0.0001;
+    const float eps = inptrc0.info().sampling.step * 0.0001;
 
     for ( int idim0=0; idim0<nrdims_; idim0++ )
     {

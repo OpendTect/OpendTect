@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcontour.cc,v 1.15 2011-04-21 05:34:44 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.16 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "gmtcontour.h"
 
@@ -105,6 +105,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     PtrMan<Executor> exec = EM::EMM().objectLoader( id, sel );
     if ( !exec || !exec->execute() )
 	mErrStrmRet("Cannot load horizon")
+    exec.erase();
 
     EM::ObjectID objid = EM::EMM().getObjectID( id );
     EM::EMObject* obj = EM::EMM().getObject( objid );
@@ -124,10 +125,11 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     {
 	strm << "Loading surface data \"" << attribnm << "\" ... ";
 	const int selidx = sd.valnames.indexOf( attribnm.str() );
-	PtrMan<Executor> exec = hor->auxdata.auxDataLoader( selidx );
+	exec = hor->auxdata.auxDataLoader( selidx );
 	if ( !exec || !exec->execute() )
 	    mErrStrmRet("Failed");
 
+	exec.erase();
 	strm << "Done" << std::endl;
     }
 

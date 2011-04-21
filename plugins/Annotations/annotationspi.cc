@@ -7,10 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: annotationspi.cc,v 1.12 2010-11-08 11:48:22 cvsbert Exp $";
+static const char* rcsID = "$Id: annotationspi.cc,v 1.13 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "measuretoolman.h"
-#include "plugins.h"
+#include "odplugin.h"
 #include "measuretoolman.h"
 #include "treeitem.h"
 #include "uiodscenemgr.h"
@@ -20,13 +20,7 @@ static const char* rcsID = "$Id: annotationspi.cc,v 1.12 2010-11-08 11:48:22 cvs
 #include "viscallout.h"
 
 
-mExternC int GetAnnotationsPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-
-mExternC PluginInfo* GetAnnotationsPluginInfo()
+mDefODPluginInfo(Annotations)
 {
     static PluginInfo retpii = {
 	"Annotations",
@@ -38,7 +32,7 @@ mExternC PluginInfo* GetAnnotationsPluginInfo()
 }
 
 
-mExternC const char* InitAnnotationsPlugin( int, char** )
+mDefODInitPlugin(Annotations)
 {
     ODMainWin()->sceneMgr().treeItemFactorySet()->addFactory(
 	    			new Annotations::TreeItemFactory, 10000 );

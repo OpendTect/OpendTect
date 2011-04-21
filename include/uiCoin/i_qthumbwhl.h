@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: i_qthumbwhl.h,v 1.9 2009-10-07 13:26:33 cvsjaap Exp $
+ RCS:           $Id: i_qthumbwhl.h,v 1.10 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,16 +29,16 @@ class i_ThumbWheelMessenger : public QObject
     friend class	uiThumbWheelBody;
 
 protected:
-			i_ThumbWheelMessenger( SoQtThumbWheel*  sender,
+			i_ThumbWheelMessenger( SoQtThumbWheel*  sndr,
 					   uiThumbWheel* receiver )
-			: _sender( sender )
+			: _sender( sndr )
 			, _receiver( receiver )
 			{ 
-			    connect( sender, SIGNAL( wheelPressed(void)),
+			    connect( sndr, SIGNAL( wheelPressed(void)),
 				     this,   SLOT( wheelPressed(void)) );
-			    connect( sender, SIGNAL( wheelMoved(float)),
+			    connect( sndr, SIGNAL( wheelMoved(float)),
 				     this,   SLOT( wheelMoved(float)) );
-			    connect( sender, SIGNAL( wheelReleased(void)),
+			    connect( sndr, SIGNAL( wheelReleased(void)),
 				     this,   SLOT( wheelReleased(void)) );
 			}
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitoolbar.cc,v 1.61 2010-12-06 08:45:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitoolbar.cc,v 1.62 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uitoolbar.h"
 
@@ -149,12 +149,12 @@ int uiToolBarBody::getButtonID( QAction* qaction )
 
 void uiToolBarBody::addObject( uiObject* obj )
 {
-    QWidget* qwidget = obj && obj->body() ? obj->body()->qwidget() : 0;
-    if ( qwidget )
+    QWidget* qw = obj && obj->body() ? obj->body()->qwidget() : 0;
+    if ( qw )
     {
-	qbar_->addWidget( qwidget );
+	qbar_->addWidget( qw );
 	mDynamicCastGet(uiToolButton*,button,obj)
-	if ( !button ) qwidget->setMaximumHeight( uiObject::iconSize() );
+	if ( !button ) qw->setMaximumHeight( uiObject::iconSize() );
 	objects_ += obj;
     }
 }

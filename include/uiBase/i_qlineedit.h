@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qlineedit.h,v 1.8 2010-10-22 15:22:22 cvsjaap Exp $
+ RCS:           $Id: i_qlineedit.h,v 1.9 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,17 +28,17 @@ class i_lineEditMessenger : public QObject
     friend class	uiLineEditBody;
 
 protected:
-i_lineEditMessenger( QLineEdit* sender, uiLineEdit* receiver )
-    : sender_( sender )
+i_lineEditMessenger( QLineEdit* sndr, uiLineEdit* receiver )
+    : sender_( sndr )
     , receiver_( receiver )
 { 
-    connect( sender, SIGNAL(returnPressed()),
+    connect( sndr, SIGNAL(returnPressed()),
 	     this, SLOT(returnPressed()) );
-    connect( sender, SIGNAL(editingFinished()),
+    connect( sndr, SIGNAL(editingFinished()),
 	     this, SLOT(editingFinished()) );
-    connect( sender, SIGNAL(textChanged(const QString&)),
+    connect( sndr, SIGNAL(textChanged(const QString&)),
 	     this, SLOT(textChanged(const QString&)) );
-    connect( sender, SIGNAL(selectionChanged()),
+    connect( sndr, SIGNAL(selectionChanged()),
 	     this, SLOT(selectionChanged()) );
 }
 

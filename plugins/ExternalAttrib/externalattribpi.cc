@@ -4,19 +4,13 @@
  * DATE     : Aug 2006
 -*/
 
-static const char* rcsID = "$Id: externalattribpi.cc,v 1.2 2009-07-22 16:01:26 cvsbert Exp $";
+static const char* rcsID = "$Id: externalattribpi.cc,v 1.3 2011-04-21 13:09:13 cvsbert Exp $";
 
-#include "plugins.h"
+#include "odplugin.h"
 
 #include "externalattribrandom.h"
 
-extern "C" int GetMatchDeltaPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-
-extern "C" PluginInfo* GetExternalAttribPluginInfo()
+mDefODPluginInfo(ExternalAttrib)
 {
     static PluginInfo retpii = {
 	"External attribute example plugin",
@@ -30,7 +24,7 @@ extern "C" PluginInfo* GetExternalAttribPluginInfo()
 static PtrMan<ExternalAttrib::RandomManager> randommanager = 0;
 
 
-extern "C" const char* InitExternalAttribPlugin( int, char** )
+mDefODInitPlugin(ExternalAttrib)
 {
     ExternalAttrib::uiRandomTreeItem::initClass();
     ExternalAttrib::Random::initClass();

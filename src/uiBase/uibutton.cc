@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.73 2011-03-08 14:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.74 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uitoolbutton.h"
 #include "i_qbutton.h"
@@ -39,12 +39,11 @@ static const char* rcsID = "$Id: uibutton.cc,v 1.73 2011-03-08 14:29:47 cvsjaap 
 template< class T > class uiButtonTemplBody : public uiButtonBody,
     public uiObjectBody, public T { public:
 
-			uiButtonTemplBody( uiButton& handle, uiParent* parnt,
+			uiButtonTemplBody( uiButton& hndle, uiParent* p,
 					   const char* txt )
-			    : uiObjectBody( parnt, txt )
-                            , T( parnt && parnt->pbody() ?
-				      parnt->pbody()->managewidg() : 0 )
-                            , handle_( handle )
+			    : uiObjectBody( p, txt )
+                            , T(p && p->pbody() ? p->pbody()->managewidg() : 0 )
+                            , handle_( hndle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
 			    { 
@@ -52,14 +51,14 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
 				setHSzPol( uiObject::SmallVar );
 			    }
 
-			uiButtonTemplBody(uiButton& handle, 
+			uiButtonTemplBody(uiButton& hndle, 
 				     const ioPixmap& pm,
 				     uiParent* parnt, const char* txt)
 			    : uiObjectBody( parnt, txt )
 			    , T( QIcon(*pm.qpixmap()),txt, 
 					parnt && parnt->pbody() ?
 					parnt->pbody()->managewidg() : 0 )
-                            , handle_( handle )
+                            , handle_( hndle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
 			    { 
@@ -98,16 +97,16 @@ protected:
 class uiPushButtonBody : public uiButtonTemplBody<QPushButton>
 {
 public:
-			uiPushButtonBody( uiButton& handle, 
+			uiPushButtonBody( uiButton& hndle, 
 					  uiParent* parnt, const char* txt )
-			    : uiButtonTemplBody<QPushButton>(handle,parnt,txt)
+			    : uiButtonTemplBody<QPushButton>(hndle,parnt,txt)
 			    , iconfrac_(0.75)
 			    {}
 
-			uiPushButtonBody( uiButton& handle, const ioPixmap& pm,
+			uiPushButtonBody( uiButton& hndle, const ioPixmap& pm,
 				          uiParent* parnt, const char* txt )
 			    : uiButtonTemplBody<QPushButton>
-					(handle,pm,parnt,txt)
+					(hndle,pm,parnt,txt)
 			    , iconfrac_(0.75)
 			    {}
 
@@ -132,9 +131,9 @@ protected:
 
     void		resizeEvent( QResizeEvent* ev )
 			{
-			    uiParent* parent = handle_.parent();
-			    mDynamicCastGet(uiToolBar*,tb,parent)
-			    if ( parent && !tb )
+			    uiParent* hpar = handle_.parent();
+			    mDynamicCastGet(uiToolBar*,tb,hpar)
+			    if ( hpar && !tb )
 			    {
 			        if ( ev ) qbutsize_ = ev->size();
 				setIconFrac( iconfrac_ );
@@ -151,9 +150,9 @@ protected:
 class uiRadioButtonBody : public uiButtonTemplBody<QRadioButton>
 {                        
 public:
-			uiRadioButtonBody(uiButton& handle, 
+			uiRadioButtonBody(uiButton& hndle, 
 				     uiParent* parnt, const char* txt)
-			    : uiButtonTemplBody<QRadioButton>(handle,parnt,txt)
+			    : uiButtonTemplBody<QRadioButton>(hndle,parnt,txt)
 			    {}
 
     virtual QAbstractButton&    qButton()		{ return *this; }
@@ -169,9 +168,9 @@ class uiCheckBoxBody: public uiButtonTemplBody<QCheckBox>
 {
 public:
 
-			uiCheckBoxBody(uiButton& handle, 
+			uiCheckBoxBody(uiButton& hndle, 
 				     uiParent* parnt, const char* txt)
-			    : uiButtonTemplBody<QCheckBox>(handle,parnt,txt)
+			    : uiButtonTemplBody<QCheckBox>(hndle,parnt,txt)
 			    {}
 
     virtual QAbstractButton&    qButton()		{ return *this; }
@@ -186,9 +185,9 @@ protected:
 class uiToolButtonBody : public uiButtonTemplBody<QToolButton>
 {
 public:
-			uiToolButtonBody(uiButton& handle, 
+			uiToolButtonBody(uiButton& hndle, 
 				     uiParent* parnt, const char* txt)
-			    : uiButtonTemplBody<QToolButton>(handle,parnt,txt)
+			    : uiButtonTemplBody<QToolButton>(hndle,parnt,txt)
 			    {
 				setFocusPolicy( Qt::ClickFocus );
 			    }

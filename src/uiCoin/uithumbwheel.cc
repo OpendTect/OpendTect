@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uithumbwheel.cc,v 1.14 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uithumbwheel.cc,v 1.15 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uithumbwheel.h"
 #include "i_qthumbwhl.h"
@@ -35,10 +35,10 @@ private:
 
 };
 
-uiThumbWheelBody::uiThumbWheelBody( uiThumbWheel& handle,uiParent* parnt, 
+uiThumbWheelBody::uiThumbWheelBody( uiThumbWheel& hndl,uiParent* parnt, 
 				    const char* nm, bool hor )
-    : uiObjBodyImpl<uiThumbWheel,SoQtThumbWheel>(handle, parnt, nm)
-    , messenger_ ( *new i_ThumbWheelMessenger( this, &handle ))
+    : uiObjBodyImpl<uiThumbWheel,SoQtThumbWheel>(hndl, parnt, nm)
+    , messenger_ ( *new i_ThumbWheelMessenger( this, &hndl ))
 {
     //setStretch( 0, 0 );
     setOrientation( hor ? SoQtThumbWheel::Horizontal 

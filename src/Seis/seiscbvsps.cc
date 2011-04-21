@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.51 2011-04-15 10:28:53 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.52 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -338,9 +338,9 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
     DirList dl( dirnm_, DirList::FilesOnly, selmask_.buf() );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	const int inl = getInlNr( dl.get(idx) );
-	if ( inl > 0 )
-	    addInl( inl );
+	const int inlnr = getInlNr( dl.get(idx) );
+	if ( inlnr > 0 )
+	    addInl( inlnr );
     }
 
     if ( posdata_.size() < 1 )

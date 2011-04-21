@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurveyselect.cc,v 1.12 2011-03-31 08:24:49 cvshelene Exp $";
+static const char* rcsID = "$Id: uisurveyselect.cc,v 1.13 2011-04-21 13:09:14 cvsbert Exp $";
 
 
 #include "uisurveyselect.h"
@@ -24,7 +24,7 @@ extern "C" const char* GetSurveyName();
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 
-bool checkIfDataDir( const char* path )
+static bool checkIfDataDir( const char* path )
 {
     FilePath fpo( path ), fps( path );
     fpo.add( ".omf" );
@@ -147,7 +147,8 @@ void uiSurveySelect::selectCB( CallBacker* )
 }
 
 
-BufferString makeFullSurveyPath( const char* survnm, const char* dataroot )
+static BufferString makeFullSurveyPath( const char* survnm,
+					const char* dataroot )
 {
     FilePath fp( dataroot );
     BufferString surveyname( survnm );

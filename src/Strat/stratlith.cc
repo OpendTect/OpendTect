@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlith.cc,v 1.4 2010-12-22 16:12:21 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlith.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "stratlith.h"
 #include "separstr.h"
@@ -18,12 +18,12 @@ const Strat::Lithology& Strat::Lithology::undef()
 }
 
 
-Strat::Lithology::Lithology( Strat::Lithology::ID id, const char* nm, bool por )
+Strat::Lithology::Lithology( Strat::Lithology::ID li, const char* nm, bool por )
     : NamedObject(nm)
-    , id_(id)
+    , id_(li)
     , porous_(por)
 {
-    if ( id >= 0 ) color_ = Color::stdDrawColor( id );
+    if ( id_ >= 0 ) color_ = Color::stdDrawColor( id_ );
 }
 
 

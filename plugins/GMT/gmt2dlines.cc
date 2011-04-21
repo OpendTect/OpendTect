@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmt2dlines.cc,v 1.17 2010-12-13 07:07:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: gmt2dlines.cc,v 1.18 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "gmt2dlines.h"
 
@@ -123,8 +123,8 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	return true;
     }
 
-    int size = 10;
-    get( ODGMT::sKeyFontSize, size );
+    int sz = 10;
+    get( ODGMT::sKeyFontSize, sz );
     comm = "@pstext "; comm += rgstr;
     BufferString colstr; mGetColorString( ls.color_, colstr );
     comm += " -G"; comm += colstr;
@@ -144,8 +144,8 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 
 	const int nrtrcs = posns.size();
 	Coord pos = posns[0].coord_;
-	Coord vec = posns[1].coord_ - posns[0].coord_;
-	float angle = atan2( vec.y, vec.x );
+	Coord cvec = posns[1].coord_ - posns[0].coord_;
+	float angle = atan2( cvec.y, cvec.x );
 	float dy = sin( angle );
 	float dx = cos( angle );
 	angle *= 180 / M_PI;
@@ -159,7 +159,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	if ( poststart )
 	{
 	    pos -= Coord( distfactor*dx, distfactor*dy );
-	    *sd.ostrm << pos.x << " " << pos.y << " " << size << " " ;
+	    *sd.ostrm << pos.x << " " << pos.y << " " << sz << " " ;
 	    *sd.ostrm << rotangle << " " << 4;
 	    *sd.ostrm << " " << al.buf() << linenms.get(idx) << std::endl;
 	}
@@ -169,15 +169,15 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	if ( poststop )
 	{
 	    pos = posns[nrtrcs-1].coord_;
-	    Coord vec = posns[nrtrcs-2].coord_ - pos;
-	    angle = atan2( vec.y, vec.x );
+	    cvec = posns[nrtrcs-2].coord_ - pos;
+	    angle = atan2( cvec.y, cvec.x );
 	    dy = sin( angle );
 	    dx = cos( angle );
 	    angle *= 180 / M_PI;
 	    rotangle = fabs(angle) > 90 ? 180+angle : angle;
 	    pos -= Coord( distfactor*dx, distfactor*dy );
 	    al = fabs(angle) > 90 ? "ML " : "MR ";
-	    *sd.ostrm << pos.x << " " << pos.y << " " << size << " " ;
+	    *sd.ostrm << pos.x << " " << pos.y << " " << sz << " " ;
 	    *sd.ostrm << rotangle << " " << 4;
 	    *sd.ostrm << " " << al.buf() << linenms.get(idx) << std::endl;
 	}
@@ -191,16 +191,16 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	    for ( int tdx=0; tdx<posns.size(); tdx+=labelintv )
 	    {
 		BufferString lbl = "- "; lbl += posns[tdx].nr_;
-		Coord pos = posns[tdx].coord_;
+		Coord posc = posns[tdx].coord_;
 		if ( tdx > 4 && tdx < posns.size()-5 )
 		{
-		    vec = posns[tdx+5].coord_ - posns[tdx-5].coord_;
-		    angle = atan2( vec.y, vec.x );
+		    cvec = posns[tdx+5].coord_ - posns[tdx-5].coord_;
+		    angle = atan2( cvec.y, cvec.x );
 		    angle *= 180 / M_PI;
 		    perpangle = angle > 0 ? angle - 90 : angle + 90;
 		}
 
-		*sd.ostrm << pos.x << " " << pos.y << " " << size << " " ;
+		*sd.ostrm << posc.x << " " << posc.y << " " << sz << " " ;
 		*sd.ostrm << perpangle << " " << 4;
 		*sd.ostrm << " " << "ML " << lbl.buf() << std::endl;
 	    }
@@ -289,8 +289,8 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
 	*sd.ostrm << "> " << rdl->name() << std::endl;
 	for ( int tdx=0; tdx<rdl->nrNodes(); tdx++ )
 	{
-	    Coord pos = SI().transform( rdl->nodePosition(tdx) );
-	    *sd.ostrm << pos.x << " " << pos.y << std::endl;
+	    Coord posc = SI().transform( rdl->nodePosition(tdx) );
+	    *sd.ostrm << posc.x << " " << posc.y << std::endl;
 	}
     }
 
@@ -301,8 +301,8 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
 	return true;
     }
 
-    int size = 10;
-    get( ODGMT::sKeyFontSize, size );
+    int sz = 10;
+    get( ODGMT::sKeyFontSize, sz );
     comm = "@pstext "; comm += rgstr;
     BufferString colstr; mGetColorString( ls.color_, colstr );
     comm += " -G"; comm += colstr;
@@ -317,9 +317,9 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
 	if ( !rdl || linenms.indexOf(rdl->name()) < 0 || rdl->nrNodes() < 2 )
 	    continue;
 
-	Coord pos = SI().transform( rdl->nodePosition(0) );
-	Coord vec = SI().transform( rdl->nodePosition(1) ) - pos;
-	float angle = atan2( vec.y, vec.x );
+	Coord posc = SI().transform( rdl->nodePosition(0) );
+	Coord cvec = SI().transform( rdl->nodePosition(1) ) - posc;
+	float angle = atan2( cvec.y, cvec.x );
 	const float dy = cos( angle );
 	const float dx = sin( angle );
 	angle *= 180 / M_PI;
@@ -327,8 +327,8 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
 	float rotangle = fabs(angle) > 90 ? 180+angle : angle;
 	BufferString al = fabs(angle) > 90 ? "BR " : "BL ";
 	const float distfactor = xrg.width() / 100;
-	pos += Coord( -distfactor*dx, distfactor*dy );
-	*sd.ostrm << pos.x << " " << pos.y << " " << size << " " ;
+	posc += Coord( -distfactor*dx, distfactor*dy );
+	*sd.ostrm << posc.x << " " << posc.y << " " << sz << " " ;
 	*sd.ostrm << rotangle << " " << 4;
 	*sd.ostrm << " " << al.buf() << rdl->name() << std::endl;
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseparator.cc,v 1.10 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseparator.cc,v 1.11 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uiseparator.h"
@@ -20,9 +20,9 @@ class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,QFrame>
 {
 public:
 
-uiSeparatorBody( uiSeparator& handle, uiParent* p, const char* nm,
+uiSeparatorBody( uiSeparator& hndl, uiParent* p, const char* nm,
 		 bool hor, bool raised )
-    : uiObjBodyImpl<uiSeparator,QFrame>(handle,p,nm)
+    : uiObjBodyImpl<uiSeparator,QFrame>(hndl,p,nm)
 {
     setFrameStyle( (hor ? QFrame::HLine : QFrame::VLine)
 		 | (raised ? QFrame::Raised : QFrame::Sunken) );

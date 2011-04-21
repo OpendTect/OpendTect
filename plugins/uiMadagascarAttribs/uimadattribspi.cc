@@ -4,18 +4,13 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: uimadattribspi.cc,v 1.1 2009-10-27 15:55:06 cvshelene Exp $";
+static const char* rcsID = "$Id: uimadattribspi.cc,v 1.2 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uimadagcattrib.h"
-#include "plugins.h"
-
-mExternC int GetuiMadagascarAttribsPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
+#include "odplugin.h"
 
 
-mExternC PluginInfo* GetuiMadagascarAttribsPluginInfo()
+mDefODPluginInfo(uiMadagascarAttribs)
 {
     static PluginInfo retpii = {
 	"Madagascar attributes (UI)",
@@ -26,7 +21,7 @@ mExternC PluginInfo* GetuiMadagascarAttribsPluginInfo()
 }
 
 
-mExternC const char* InituiMadagascarAttribsPlugin( int, char** )
+mDefODInitPlugin(uiMadagascarAttribs)
 {
     uiMadAGCAttrib::initClass();
 

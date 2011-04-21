@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2010
- RCS:		$Id: gravhorcalc.h,v 1.4 2010-04-26 10:09:09 cvsbert Exp $
+ RCS:		$Id: gravhorcalc.h,v 1.5 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -26,6 +26,18 @@ namespace Grav
 class HorCalc : public ::Executor
 {
 public:
+
+    mClass Setup
+    {
+    public:
+			Setup( const MultiID& calcmid )
+			    : calcid_(calcmid)		{}
+
+	mDefSetupMemb(MultiID,calcid)
+	mDefSetupMemb(MultiID,topid)
+	mDefSetupMemb(MultiID,botid)
+	mDefSetupMemb(BufferString,denattr)
+    };
 
 			HorCalc(const MultiID&,const MultiID* top=0,
 				const MultiID* bot=0,float ang=1);

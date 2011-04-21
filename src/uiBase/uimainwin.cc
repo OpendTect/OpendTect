@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.217 2011-04-13 12:29:06 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.218 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -324,9 +324,9 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
 }
 
 
-void uiMainWinBody::move( int x, int y )
+void uiMainWinBody::move( int xdir, int ydir )
 {
-    QWidget::move( x, y );
+    QWidget::move( xdir, ydir );
     moved_ = true;
 }
 
@@ -518,7 +518,7 @@ void uiMainWinBody::renewToolbarsMenu()
 }
 
 
-BufferString getSettingsFileName()
+static BufferString getSettingsFileName()
 {
     BufferString fnm( "qtsettings_", (int)mODVersion );
     FilePath fp( GetSettingsDir() );
@@ -586,12 +586,12 @@ void uiMainWinBody::activateInGUIThread( const CallBack& cb, bool busywait )
 }
 
 
-void uiMainWinBody::keyPressEvent( QKeyEvent* event )
+void uiMainWinBody::keyPressEvent( QKeyEvent* ev )
 {
-    if ( event && event->key() == Qt::Key_F12 )
+    if ( ev && ev->key() == Qt::Key_F12 )
 	handle_.translate();
 
-    return QMainWindow::keyPressEvent( event );
+    return QMainWindow::keyPressEvent( ev );
 }
 
 
@@ -630,8 +630,8 @@ void uiMainWinBody::managePopupPos()
     if ( !parwin || moved_ )
 	return;
 
-    const uiRect rect = parwin->geometry( false );
-    handle_.setCornerPos( rect.get(uiRect::Left), rect.get(uiRect::Top) );
+    const uiRect pwrect = parwin->geometry( false );
+    handle_.setCornerPos( pwrect.get(uiRect::Left), pwrect.get(uiRect::Top) );
     moved_ = false;
 }
 
@@ -1139,7 +1139,7 @@ void uiMainWin::activateInGUIThread( const CallBack& cb, bool busywait )
 { body_->activateInGUIThread( cb, busywait ); }
 
 
-void doTranslate( const uiBaseObject* obj )
+static void doTranslate( const uiBaseObject* obj )
 {
     uiBaseObject* baseobj = const_cast<uiBaseObject*>( obj );
     mDynamicCastGet(uiObject*,uiobj,baseobj);
@@ -1289,9 +1289,9 @@ private:
 };
 
 
-uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
+uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
 			    const uiDialog::Setup& s )
-    : uiMainWinBody(handle,parnt,s.wintitle_,s.modal_)
+    : uiMainWinBody(hndle,parnt,s.wintitle_,s.modal_)
     , dlgGroup(0)
     , setup(s)
     , okbut(0), cnclbut(0), savebut_cb(0),  savebut_tb(0)

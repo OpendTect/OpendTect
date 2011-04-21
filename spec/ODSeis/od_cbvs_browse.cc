@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.35 2011-03-30 15:15:43 cvsdgb Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.36 2011-04-21 13:09:13 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.35 2011-03-30 15:15:43 cvsdgb Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.36 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -159,10 +159,10 @@ int main( int argc, char** argv )
 	{
 	    BufferString str; trc.info().coord.fill(str.buf());
 	    std::cerr << "Coordinate: " << str;
-	    BinID bid = info.geom.b2c.transformBack( trc.info().coord );
-	    if ( bid != trc.info().binid )
+	    BinID b = info.geom.b2c.transformBack( trc.info().coord );
+	    if ( b != trc.info().binid )
 	    {
-		bid.fill( str.buf() );
+		b.fill( str.buf() );
 		std::cerr << " --> " << str;
 	    }
 	    std::cerr << std::endl;

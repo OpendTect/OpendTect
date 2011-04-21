@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.15 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.16 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uidpsdemo.h"
@@ -19,18 +19,13 @@ static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.15 2010-11-16 09:49:10 cvsbe
 #include "datapointset.h"
 #include "uivisdatapointsetdisplaymgr.h"
 #include "pixmap.h"
-#include "plugins.h"
 #include "randcolor.h"
 #include "survinfo.h"
 
-
-mExternC int GetuiDPSDemoPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
+#include "odplugin.h"
 
 
-mExternC PluginInfo* GetuiDPSDemoPluginInfo()
+mDefODPluginInfo(uiDPSDemo)
 {
     // Just to show a way to make plugin info text variable
     static BufferString* commenttxt = 0;
@@ -105,7 +100,7 @@ void uiDPSDemoMgr::doIt( CallBacker* )
 }
 
 
-mExternC const char* InituiDPSDemoPlugin( int, char** )
+mDefODInitPlugin(uiDPSDemo)
 {
     static uiDPSDemoMgr* mgr = 0; if ( mgr ) return 0;
     mgr = new uiDPSDemoMgr( *ODMainWin() );

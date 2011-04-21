@@ -7,24 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.33 2010-03-15 16:36:36 cvsjaap Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.34 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uimain.h"
 #include "uiodmenumgr.h"
 #include "cmddrivermgr.h"
-#include "plugins.h"
-
-namespace CmdDrive 
-{
+#include "odplugin.h"
 
 
-mExternC int GetCmdDriverPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-
-mExternC PluginInfo* GetCmdDriverPluginInfo()
+mDefODPluginInfo(CmdDriver)
 {
     static PluginInfo retpii = {
 	"Command driver",
@@ -35,13 +26,10 @@ mExternC PluginInfo* GetCmdDriverPluginInfo()
 }
 
 
-mExternC const char* InitCmdDriverPlugin( int, char** )
+mDefODInitPlugin(CmdDriver)
 {
-    static uiCmdDriverMgr* mgr = 0;
+    static CmdDrive::uiCmdDriverMgr* mgr = 0;
     if ( mgr ) return 0;
-    mgr = new uiCmdDriverMgr( *ODMainWin() );
+    mgr = new CmdDrive::uiCmdDriverMgr( *ODMainWin() );
     return 0;
 }
-
-
-}; // namespace CmdDrive

@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tutorialattrib.cc,v 1.9 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: tutorialattrib.cc,v 1.10 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "tutorialattrib.h"
 #include "attribdataholder.h"
@@ -143,9 +143,9 @@ bool Tutorial::getInputData( const BinID& relpos, int zintv )
 {
     if ( inpdata_.isEmpty() )
 	inpdata_ += 0;
-    const DataHolder* data = inputs_[0]->getData( relpos, zintv );
-    if ( !data ) return false;
-    inpdata_.replace( 0, data);
+    const DataHolder* inpdata = inputs_[0]->getData( relpos, zintv );
+    if ( !inpdata ) return false;
+    inpdata_.replace( 0, inpdata);
 
 
     if ( action_ ==2 && horsmooth_ )

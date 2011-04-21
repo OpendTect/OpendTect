@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.26 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.27 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -327,12 +327,12 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 		*offss += newtrc->info().offset;
 	    for ( int icomp=1; icomp<tbuf.size(); icomp++ )
 	    {
-		const SeisTrc& trc = *tbuf.get(icomp);
+		const SeisTrc& btrc = *tbuf.get(icomp);
 		newtrc->data().addComponent( trcsz, trcdc );
 		for ( int isamp=0; isamp<trcsz; isamp++ )
-		    newtrc->set( isamp, trc.get(isamp,0), icomp );
+		    newtrc->set( isamp, btrc.get(isamp,0), icomp );
 		if ( offss )
-		    *offss += trc.info().offset;
+		    *offss += btrc.info().offset;
 	    }
 	}
     }

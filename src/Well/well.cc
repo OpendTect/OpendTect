@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.83 2011-03-15 14:41:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.84 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -715,13 +715,13 @@ float Well::Track::nearestDah( const Coord3& posin ) const
     if ( dah_.size() < 2 ) return dah_[1];
 
     const float zfac = zistime_ ? 2000 : 1;
-    Coord3 pos( posin ); pos.z *= zfac;
+    Coord3 reqpos( posin ); reqpos.z *= zfac;
     Coord3 curpos( getPos( dah_[0] ) ); curpos.z *= zfac;
-    float sqneardist = curpos.sqDistTo( pos );
+    float sqneardist = curpos.sqDistTo( reqpos );
     float sqsecdist = sqneardist;
     int nearidx = 0; int secondidx = 0;
     curpos = getPos( dah_[1] ); curpos.z *= zfac;
-    float sqdist = curpos.sqDistTo( pos );
+    float sqdist = curpos.sqDistTo( reqpos );
     if ( sqdist < sqneardist )
 	{ nearidx = 1; sqneardist = sqdist; }
     else
@@ -730,7 +730,7 @@ float Well::Track::nearestDah( const Coord3& posin ) const
     for ( int idah=2; idah<dah_.size(); idah++ )
     {
 	curpos = getPos( dah_[idah] ); curpos.z *= zfac;
-	sqdist = curpos.sqDistTo( pos );
+	sqdist = curpos.sqDistTo( reqpos );
 	if ( sqdist < 0.1 ) return dah_[idah];
 
 	if ( sqdist < sqneardist )

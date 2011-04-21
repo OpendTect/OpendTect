@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.46 2011-03-29 13:24:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.47 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -38,7 +38,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.46 2011-03-29 13:24:23 cvsb
 
 #include "visvw2ddataman.h"
 
-void initSelSpec( Attrib::SelSpec& as )
+static void initSelSpec( Attrib::SelSpec& as )
 { as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
 
 uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )

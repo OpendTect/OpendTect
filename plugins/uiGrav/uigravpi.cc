@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uigravpi.cc,v 1.1 2010-04-19 15:14:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uigravpi.cc,v 1.2 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uigravhorcalc.h"
 #include "uiodmain.h"
@@ -12,16 +12,10 @@ static const char* rcsID = "$Id: uigravpi.cc,v 1.1 2010-04-19 15:14:27 cvsbert E
 #include "vishorizondisplay.h"
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
-#include "plugins.h"
+#include "odplugin.h"
 
 
-mExternC int GetuiGravPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-
-mExternC PluginInfo* GetuiGravPluginInfo()
+mDefODPluginInfo(uiGrav)
 {
     static PluginInfo retpi = {
 	"Gravity calculation",
@@ -66,7 +60,7 @@ void uiGravMgr::doDlg( CallBacker* )
 }
 
 
-mExternC const char* InituiGravPlugin( int, char** )
+mDefODInitPlugin(uiGrav)
 {
     (void)new uiGravMgr( *ODMainWin() );
     return 0; // All OK - no error messages

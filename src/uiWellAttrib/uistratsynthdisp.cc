@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.34 2011-04-14 13:52:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.35 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -527,9 +527,9 @@ uiOffsetSlicePos::uiOffsetSlicePos( uiParent* p )
 	mw->removeToolBar( toolbar_ );
     else
     {
-	mDynamicCastGet(uiMainWin*,mw,p->mainwin())
-	if ( mw )
-	    mw->removeToolBar( toolbar_ );
+	mDynamicCastGet(uiMainWin*,pmw,p->mainwin())
+	if ( pmw )
+	    pmw->removeToolBar( toolbar_ );
     }
 
     attachgrp_ = new uiGroup( p, "Attach group" );
@@ -544,7 +544,8 @@ uiOffsetSlicePos::uiOffsetSlicePos( uiParent* p )
     steplabel->attach( rightOf, sliceposbox_ );
 
     slicestepbox_ = new uiSpinBox( attachgrp_, 0, "Slice step" );
-    slicestepbox_->valueChanging.notify(mCB(this,uiOffsetSlicePos,sliceStepChg));
+    slicestepbox_->valueChanging.notify(
+	    			mCB(this,uiOffsetSlicePos,sliceStepChg) );
     slicestepbox_->attach( rightOf, steplabel );
 
     prevbut_ = new uiToolButton( attachgrp_, "prevpos.png", "Previous position",
@@ -554,4 +555,3 @@ uiOffsetSlicePos::uiOffsetSlicePos( uiParent* p )
 				 mCB(this,uiOffsetSlicePos,nextCB) );
     nextbut_->attach( rightOf, prevbut_ );
 }
-

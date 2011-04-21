@@ -4,20 +4,14 @@
  * DATE     : Aug 2009
 -*/
 
-static const char* rcsID = "$Id: uibouncypi.cc,v 1.2 2009-09-24 10:42:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibouncypi.cc,v 1.3 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uiodmain.h"
-#include "plugins.h"
+#include "odplugin.h"
 #include "uibouncymgr.h"
 
 
-mExternC int GetuiBouncyPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-
-mExternC PluginInfo* GetuiBouncyPluginInfo()
+mDefODPluginInfo(uiBouncy)
 {
     static PluginInfo retpi = {
 	"Bouncy thingy",
@@ -28,7 +22,7 @@ mExternC PluginInfo* GetuiBouncyPluginInfo()
 }
 
 
-mExternC const char* InituiBouncyPlugin( int, char** )
+mDefODInitPlugin(uiBouncy)
 {
     static uiBouncy::uiBouncyMgr* mgr = 0; 
     if ( mgr ) return 0;

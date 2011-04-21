@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtsymbolpars.cc,v 1.9 2011-04-01 09:44:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtsymbolpars.cc,v 1.10 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uigmtsymbolpars.h"
 
@@ -76,8 +76,8 @@ void uiGMTSymbolPars::fillShapes()
 	for ( int idx=0; idx<size; idx++ )
 	{
 	    BufferString iconfilenm = GMTWSR().get( idx )->iconfilenm_;
-	    BufferString name = GMTWSR().get( idx )->name();
-	    shapefld_->insertItem( ioPixmap(iconfilenm), name.buf(), idx );
+	    BufferString nm = GMTWSR().get( idx )->name();
+	    shapefld_->insertItem( ioPixmap(iconfilenm), nm.buf(), idx );
 	}
     }
     else

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.cc,v 1.4 2011-02-03 21:38:59 cvskris Exp $
+ RCS:           $Id: mantisdatabase.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -352,11 +352,11 @@ TypeSet<int>& SqlDB::MantisDBMgr::getBugsMySelf()
 { return bugidsetmyself_; }
 
 
-void SqlDB::MantisDBMgr::updateBugTableEntryHistory( int idx, bool isadded,
+void SqlDB::MantisDBMgr::updateBugTableEntryHistory( int bidx, bool isadded,
 					      bool isnoteempty )
 {
     BugTableEntry* bugtable = 0;
-    bugtable = idx < 0 ? bugtable_ : getBugTableEntry( idx );
+    bugtable = bidx < 0 ? bugtable_ : getBugTableEntry( bidx );
     if ( !bugtable )
 	return;
 
@@ -383,13 +383,13 @@ void SqlDB::MantisDBMgr::updateBugTableEntryHistory( int idx, bool isadded,
 
     const int userid = getUserID( false );
     BufferString date = bugtable->date_;
-    for ( int idx=0; idx<history.size(); idx++ )
+    for ( int ihist=0; ihist<history.size(); ihist++ )
     {
 	if ( isadded )
-	    history[idx]->bugid_ = bugtable->id_;
+	    history[ihist]->bugid_ = bugtable->id_;
 
-	history[idx]->userid_ = userid;
-	history[idx]->date_ = date;
+	history[ihist]->userid_ = userid;
+	history[ihist]->date_ = date;
     }
 
     updateBugHistoryTable( history, isadded );
@@ -397,15 +397,15 @@ void SqlDB::MantisDBMgr::updateBugTableEntryHistory( int idx, bool isadded,
 }
 
 
-void SqlDB::MantisDBMgr::updateBugTextTableEntryHistory( int idx )
+void SqlDB::MantisDBMgr::updateBugTextTableEntryHistory( int bidx )
 {
-    if ( idx < 0 )
+    if ( bidx < 0 )
 	return;
 
     BugTableEntry* bugtable = 0;
     BugTextTableEntry* texttable = 0;
-    bugtable = getBugTableEntry( idx );
-    texttable = getBugTextTableEntry( idx );
+    bugtable = getBugTableEntry( bidx );
+    texttable = getBugTextTableEntry( bidx );
     if ( !texttable || !bugtable )
 	return;
 

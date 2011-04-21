@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprogressbar.cc,v 1.19 2009-07-31 11:52:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiprogressbar.cc,v 1.20 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uiprogressbar.h"
@@ -20,10 +20,10 @@ class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,QProgressBar>
 {
 public:
 
-                        uiProgressBarBody( uiProgressBar& handle, 
+                        uiProgressBarBody( uiProgressBar& hndle, 
 					   uiParent* parnt, const char* nm )
 			    : uiObjBodyImpl<uiProgressBar,QProgressBar>
-				(handle,parnt,nm)
+				(hndle,parnt,nm)
 			    { 
 				setStretch( 1, 0 );
 				setHSzPol( uiObject::MedVar );
@@ -35,11 +35,11 @@ public:
 
 
 uiProgressBar::uiProgressBar( uiParent* p, const char* txt, 
-			      int totalSteps, int progress )
+			      int totsteps, int progr )
     : uiObject(p,txt,mkbody(p,txt))
 {
-    setProgress( progress );
-    setTotalSteps( totalSteps );
+    setProgress( progr );
+    setTotalSteps( totsteps );
 }
 
 

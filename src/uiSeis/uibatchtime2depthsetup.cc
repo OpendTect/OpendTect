@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.17 2010-10-25 19:21:22 cvskris Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.18 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -57,13 +57,13 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 	inputdepthctxt.toselect.dontallow_.set( ZDomain::sKey(),
 						ZDomain::sKeyTime() );
     }
-    uiSeisSel::Setup setup(Seis::Vol); setup.seltxt("Input Time Volume");
-    inputtimesel_ = new uiSeisSel( uppgrp_, inputtimectxt, setup );
+    uiSeisSel::Setup sssu(Seis::Vol); sssu.seltxt("Input Time Volume");
+    inputtimesel_ = new uiSeisSel( uppgrp_, inputtimectxt, sssu );
     inputtimesel_->attach( alignedBelow, t2dfld_ );
     inputtimesel_->selectionDone.notify(
 	    		mCB(this,uiBatchTime2DepthSetup,updateZRangeCB));
-    setup.seltxt("Input Depth Volume");
-    inputdepthsel_ = new uiSeisSel( uppgrp_, inputdepthctxt, setup );
+    sssu.seltxt("Input Depth Volume");
+    inputdepthsel_ = new uiSeisSel( uppgrp_, inputdepthctxt, sssu );
     inputdepthsel_->attach( alignedBelow, t2dfld_ );
     inputdepthsel_->selectionDone.notify(
 	    		mCB(this,uiBatchTime2DepthSetup,updateZRangeCB) );
@@ -73,14 +73,14 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 
     IOObjContext outputtimectxt = inputtimectxt;
     outputtimectxt.forread = false;
-    setup.seltxt( "Output Time Volume" );
-    outputtimesel_ = new uiSeisSel( uppgrp_, outputtimectxt, setup );
+    sssu.seltxt( "Output Time Volume" );
+    outputtimesel_ = new uiSeisSel( uppgrp_, outputtimectxt, sssu );
     outputtimesel_->attach( alignedBelow, possubsel_ );
 
     IOObjContext outputdepthctxt = inputdepthctxt;
     outputdepthctxt.forread = false;
-    setup.seltxt( "Output Depth Volume" );
-    outputdepthsel_ = new uiSeisSel( uppgrp_, outputdepthctxt, setup );
+    sssu.seltxt( "Output Depth Volume" );
+    outputdepthsel_ = new uiSeisSel( uppgrp_, outputdepthctxt, sssu );
     outputdepthsel_->attach( alignedBelow, possubsel_ );
 
     uppgrp_->setHAlignObj( possubsel_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.208 2011-02-24 15:09:22 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.209 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uimpeman.h"
 
@@ -1507,7 +1507,7 @@ void uiMPEMan::turnQCPlaneOff()
 }
 
 
-void updateQCButton( uiToolBar* tb, int butidx, int dim )
+static void updateQCButton( uiToolBar* tb, int butidx, int dim )
 {
     BufferString pm, tooltip;
     if ( dim == 0 )

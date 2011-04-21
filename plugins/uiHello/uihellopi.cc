@@ -4,13 +4,14 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uihellopi.cc,v 1.15 2009-09-24 10:42:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihellopi.cc,v 1.16 2011-04-21 13:09:13 cvsbert Exp $";
 
+#include "odplugin.h"
 #include "uimsg.h"
 
 #ifdef PLAN_A
 
-extern "C" const char* InituiHelloPlugin( int, char** )
+mDefODInitPlugin(uiHello)
 {
     uiMSG().message( "Hello world" );
     return 0; // All OK - no error messages
@@ -27,13 +28,7 @@ extern "C" const char* InituiHelloPlugin( int, char** )
 #include "uigeninput.h"
 #include "plugins.h"
 
-mExternC int GetuiHelloPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-
-mExternC PluginInfo* GetuiHelloPluginInfo()
+mDefODPluginInfo(uiHello)
 {
     static PluginInfo retpi = {
 	"uiHello plugin - plan B",
@@ -112,7 +107,7 @@ void uiHelloMgr::dispMsg( CallBacker* )
 }
 
 
-mExternC const char* InituiHelloPlugin( int, char** )
+mDefODInitPlugin(uiHello)
 {
     (void)new uiHelloMgr( *ODMainWin() );
     return 0; // All OK - no error messages

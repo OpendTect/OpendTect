@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.4 2011-03-31 13:12:50 cvshelene Exp $";
+static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uitranslatedlg.h"
@@ -35,9 +35,9 @@ uiTranslateDlg::uiTranslateDlg( uiParent* p )
 	    "will start on OK.\n"
 	    "In other windows, press 'F12' to start the translation" );
 
-    const bool enabled = TrMgr().tr()->enabled();
+    const bool isenabled = TrMgr().tr()->enabled();
     enabbut_ = new uiCheckBox( this, "Enable" );
-    enabbut_->setChecked( enabled );
+    enabbut_->setChecked( isenabled );
     enabbut_->attach( alignedBelow, lbl );
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Language" );

@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: synthseis.cc,v 1.19 2011-04-14 13:49:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.20 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "arrayndimpl.h"
 #include "fourier.h"
@@ -46,20 +46,12 @@ bool SynthGenBase::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 	{ delete wavelet_; wavelet_ = 0; }
     if ( !wvlt )
 	mErrRet( "No valid wavelet given" );	
-    if ( pol == OD::CopyPtr )
-    {
-	mDeclareAndTryAlloc( float*, wavelet_, float[wvlt->size()] );
-	if ( !wavelet_ )
-	    mErrRet( "Not enough memory" );	
-	MemCopier<float> copier( wavelet_, wvlt->samples(), wvlt->size() );
-	copier.execute();
-    }
-    else 
-    {
+    if ( pol != OD::CopyPtr )
 	wavelet_ = wvlt;
-    }
-    waveletismine_ = pol != OD::UsePtr;
+    else 
+	wavelet_ = new Wavelet( *wvlt );
 
+    waveletismine_ = pol != OD::UsePtr;
     return true;
 }
 
@@ -201,7 +193,7 @@ bool SynthGenerator::doWork()
 }
 
 
-bool SynthGenerator::computeTrace( float* result ) 
+bool SynthGenerator::computeTrace( float* res ) 
 {
     outtrc_.zero();
     cresamprefl_.erase();
@@ -210,11 +202,11 @@ bool SynthGenerator::computeTrace( float* result )
     sampler.setTargetDomain( (bool)fft_ );
     sampler.execute();
 
-    return fft_ ? doFFTConvolve( result) : doTimeConvolve( result );
+    return fft_ ? doFFTConvolve( res) : doTimeConvolve( res );
 }
 
 
-bool SynthGenerator::doFFTConvolve( float* result )
+bool SynthGenerator::doFFTConvolve( float* res )
 {
     if ( !fft_ ) return false; 
 
@@ -228,9 +220,9 @@ bool SynthGenerator::doFFTConvolve( float* result )
     mDoFFT( cres, false )
 
     for ( int idx=0; idx<wvltsz/2; idx++ )
-	result[nrsamp-idx-1] = cres[idx].real();
+	res[nrsamp-idx-1] = cres[idx].real();
     for ( int idx=0; idx<nrsamp-wvltsz/2; idx++ )
-	result[idx] = cres[idx+wvltsz/2].real();
+	res[idx] = cres[idx+wvltsz/2].real();
 
     delete [] cres;
     
@@ -238,7 +230,7 @@ bool SynthGenerator::doFFTConvolve( float* result )
 }
 
 
-bool SynthGenerator::doTimeConvolve( float* result )
+bool SynthGenerator::doTimeConvolve( float* res )
 {
     const int ns = outtrc_.size();
     TypeSet<float> refs; getSampledReflectivities( refs );
@@ -246,7 +238,7 @@ bool SynthGenerator::doTimeConvolve( float* result )
     const int wvltsz = wavelet_->size();
     GenericConvolve( wvltsz, -wvltcs-1, wavelet_->samples(),
 		     refs.size(), 0, refs.arr(),
-		     ns, 0, result );
+		     ns, 0, res );
     return true;
 }
 

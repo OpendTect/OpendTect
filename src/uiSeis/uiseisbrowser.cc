@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.58 2011-03-30 04:43:53 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.59 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -96,9 +96,9 @@ uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
 
 
 
-uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup,
-			      bool is2d)
-    : uiDialog(p,setup)
+uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
+			      bool is2d )
+    : uiDialog(p,su)
     , is2d_(is2d)
     , tr_(0)
     , tro_(0)
@@ -116,17 +116,17 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup,
     , sd_(0)
     , infovwr_(0)
     , trcbufvwr_(0)
-    , setup_(setup)
+    , setup_(su)
     , zdomdef_(&ZDomain::SI())
 {
-    if ( !openData(setup) )
+    if ( !openData(su) )
     {
 	setTitleText( "Error" );
 	BufferString lbltxt( "Cannot open input data (" );
-	lbltxt += Seis::nameOf(setup.geom_); lbltxt += ")\n";
-	lbltxt += IOM().nameOf( setup.id_ );
-	if ( !setup.linekey_.isEmpty() )
-	    { lbltxt += " - "; lbltxt += setup.linekey_; }
+	lbltxt += Seis::nameOf(su.geom_); lbltxt += ")\n";
+	lbltxt += IOM().nameOf( su.id_ );
+	if ( !su.linekey_.isEmpty() )
+	    { lbltxt += " - "; lbltxt += su.linekey_; }
 	new uiLabel( this, lbltxt );
 	setCtrlStyle( LeaveOnly );
 	return;
@@ -135,8 +135,8 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup,
     createMenuAndToolBar();
     createTable();
 
-    setPos( setup.startpos_ );
-    setZ( setup.startz_ );
+    setPos( su.startpos_ );
+    setZ( su.startz_ );
     tbl_->selectionChanged.notify( mCB(this,uiSeisBrowser,trcselectionChanged));
 }
 
@@ -172,10 +172,10 @@ void uiSeisBrowser::setZ( float z )
 }
 
 
-bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& setup )
+bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 {
     BufferString emsg;
-    PtrMan<IOObj> ioobj = IOM().get( setup.id_ );
+    PtrMan<IOObj> ioobj = IOM().get( su.id_ );
     if ( !ioobj ) return false;
 
     SeisIOObjInfo ioinf( *ioobj );
@@ -184,21 +184,21 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& setup )
     if ( is2d_ )
     {
 	Seis2DLineSet seislineset( ioobj->fullUserExpr(true) );
-	const int index = seislineset.indexOf( setup.linekey_ );
+	const int index = seislineset.indexOf( su.linekey_ );
 	IOPar par( seislineset.getInfo(index) );
 	FixedString fname = par.find( sKey::FileName );
 	FilePath fp( fname );
 	if ( !fp.isAbsolute() )
 	    fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
 	tr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false,
-					   Seis::is2D(setup.geom_), &emsg );
-	if ( setup.linekey_.attrName() == sKey::Steering )
+					   Seis::is2D(su.geom_), &emsg );
+	if ( su.linekey_.attrName() == sKey::Steering )
 	    compnr_ = 1;
     }
     else
     {
 	tr_ = CBVSSeisTrcTranslator::make( ioobj->fullUserExpr(true), false,
-				    Seis::is2D(setup.geom_), &emsg );
+				    Seis::is2D(su.geom_), &emsg );
     }
     if ( !tr_ )
     {
@@ -739,13 +739,12 @@ void uiSeisBrowser::showWigglePush( CallBacker* )
 	trcbufvwr_->start();
     else
     {
-	const char* name = IOM().nameOf( setup_.id_ );
 	uiSeisTrcBufViewer::Setup stbvsetup( "", 1 );
 	stbvsetup.withhanddrag(true);
 	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
 	SeisTrcBufDataPack* dp =
 	    trcbufvwr_->setTrcBuf ( &tbuf_, setup_.geom_, "Seismics",
-		    		    name, compnr_ );
+		    		    IOM().nameOf(setup_.id_), compnr_ );
 	if ( (dp->trcBuf().isEmpty()) )
 	{
 	    uiMSG().error( "No data present in the specified position " );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.61 2011-03-08 14:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.62 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -28,10 +28,10 @@ class uiComboBoxBody : public uiObjBodyImpl<uiComboBox,QComboBox>
 
 public:
 
-			uiComboBoxBody( uiComboBox& handle, uiParent* p,
+			uiComboBoxBody( uiComboBox& hndle, uiParent* p,
 					const char* nm )
-			    : uiObjBodyImpl<uiComboBox,QComboBox>(handle,p,nm)
-			    , messenger_( *new i_comboMessenger( this, &handle))
+			    : uiObjBodyImpl<uiComboBox,QComboBox>(hndle,p,nm)
+			    , messenger_( *new i_comboMessenger( this, &hndle))
 			{
 			    setEditable( false );
 			    setAutoCompletion( false );
@@ -240,26 +240,26 @@ bool uiComboBox::isReadOnly() const
 { return !body_->isEditable(); }
 
 
-void uiComboBox::addItem( const wchar_t* text )
+void uiComboBox::addItem( const wchar_t* txt )
 {
     mBlockCmdRec;
 #ifdef __win__
-    const int wsz = wcslen(text) + 1;
+    const int wsz = wcslen(txt) + 1;
     char* buf = new char [wsz];
-    int rsz = wcstombs(buf,text,wsz);
+    int rsz = wcstombs(buf,txt,wsz);
     buf[wsz-1] = '\0';
     QString itmtxt = QString::fromUtf8( buf );
 #else
-    QString itmtxt = QString::fromWCharArray( text );
+    QString itmtxt = QString::fromWCharArray( txt );
 #endif
     body_->addItem( itmtxt );
 }
 
 
-void uiComboBox::addItem( const char* text ) 
+void uiComboBox::addItem( const char* txt ) 
 {
     mBlockCmdRec;
-    body_->addItem( QString(text) );
+    body_->addItem( QString(txt) );
 }
 
 
@@ -274,17 +274,17 @@ void uiComboBox::addSeparator()
 { body_->insertSeparator( size() ); }
 
 
-void uiComboBox::insertItem( const char* text, int index )
+void uiComboBox::insertItem( const char* txt, int index )
 {
     mBlockCmdRec;
-    body_->insertItem( index, QString(text) );
+    body_->insertItem( index, QString(txt) );
 }
 
 
-void uiComboBox::insertItem( const ioPixmap& pm, const char* text , int index )
+void uiComboBox::insertItem( const ioPixmap& pm, const char* txt , int index )
 {
     mBlockCmdRec;
-    body_->insertItem( index, *pm.qpixmap(), QString(text) );
+    body_->insertItem( index, *pm.qpixmap(), QString(txt) );
 }
 
 

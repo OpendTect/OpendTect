@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.37 2010-12-14 15:53:16 cvsbert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.38 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "streamconn.h"
 #include "strmprov.h"
@@ -19,6 +19,8 @@ static const char* rcsID = "$Id: conn.cc,v 1.37 2010-12-14 15:53:16 cvsbert Exp 
 #include <iostream>
 #include <fstream>
 
+mGlobal const char* logMsgFileName();
+mGlobal std::ostream& logMsgStrm();
 
 bool ErrMsgClass::printProgrammerErrs =
 # ifdef __debug__

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.36 2011-01-18 10:16:04 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.37 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -295,9 +295,9 @@ public:
     void			setOverlayY1AttSeq(const ColTab::Sequence&);
     void			setOverlayY2AttSeq(const ColTab::Sequence&);
 
-    void			setUserDefDrawType( bool draw, bool isy2 )
-				{ drawuserdefline_ = draw; drawy2_ = isy2;
-			       	  selectable_ = !draw; }
+    void			setUserDefDrawType( bool dodrw, bool isy2 )
+				{ drawuserdefline_ = dodrw; drawy2_ = isy2;
+			       	  selectable_ = !dodrw; }
     void			setUserDefLine(const uiPoint&,const uiPoint&);
 
     void			updateOverlayMapper(bool isy1);

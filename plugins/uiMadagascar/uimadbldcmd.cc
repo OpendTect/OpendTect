@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.22 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.23 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uitoolbutton.h"
@@ -314,9 +314,9 @@ ODMad::Proc* uiMadagascarBldCmd::proc() const
 }
 
 
-void uiMadagascarBldCmd::setProc( const ODMad::Proc* proc )
+void uiMadagascarBldCmd::setProc( const ODMad::Proc* inpproc )
 {
-    if ( !proc )
+    if ( !inpproc )
     {
 	cmdfld_->setText( 0 );
 	useauxfld_->setChecked( false );
@@ -324,9 +324,9 @@ void uiMadagascarBldCmd::setProc( const ODMad::Proc* proc )
 	return;
     }
 
-    setProgName( proc->progName() );
-    cmdfld_->setText( proc->getCommand() );
-    const char* auxcmd = proc->auxCommand();
+    setProgName( inpproc->progName() );
+    cmdfld_->setText( inpproc->getCommand() );
+    const char* auxcmd = inpproc->auxCommand();
     useauxfld_->setChecked( auxcmd && *auxcmd );
     auxcmdfld_->setPlotCmd( auxcmd );
 }

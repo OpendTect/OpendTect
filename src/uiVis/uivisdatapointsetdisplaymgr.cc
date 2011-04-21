@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.12 2010-03-31 06:45:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.13 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -280,7 +280,7 @@ const char* uiVisDataPointSetDisplayMgr::getViewerName( int parentidx ) const
 }
 
 
-visSurvey::PointSetDisplay* getPSD( uiVisPartServer& vps, int visid )
+static visSurvey::PointSetDisplay* getPSD( uiVisPartServer& vps, int visid )
 {
     if ( visid < 0 )
 	return 0;

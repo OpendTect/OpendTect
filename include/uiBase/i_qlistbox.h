@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.17 2011-03-18 08:31:28 cvsnanne Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.18 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,29 +27,29 @@ class i_listMessenger : public QObject
     friend class	uiListBoxBody;
 
 protected:
-			i_listMessenger( QListWidget* sender,
+			i_listMessenger( QListWidget* sndr,
 					 uiListBox* receiver )
-			: sender_( sender )
+			: sender_( sndr )
 			, receiver_( receiver )
 			{
-			    connect( sender,
+			    connect( sndr,
 				SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 				this,
 				SLOT(itemDoubleClicked(QListWidgetItem*)) );
 
-			    connect( sender,
+			    connect( sndr,
 				SIGNAL(itemClicked(QListWidgetItem*)),
 				this,
 				SLOT(itemClicked(QListWidgetItem*)) );
 
-			    connect( sender, SIGNAL(itemSelectionChanged()),
+			    connect( sndr, SIGNAL(itemSelectionChanged()),
 				     this, SLOT(itemSelectionChanged()) );
 
-			    connect( sender,
+			    connect( sndr,
 				 SIGNAL(itemEntered(QListWidgetItem*)),
 				 this, SLOT(itemEntered(QListWidgetItem*)) );
 
-			    connect( sender,
+			    connect( sndr,
 				SIGNAL(itemChanged(QListWidgetItem*)),
 				this, SLOT(itemChanged(QListWidgetItem*)) );
 			}

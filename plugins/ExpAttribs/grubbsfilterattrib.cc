@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: grubbsfilterattrib.cc,v 1.3 2011-03-31 10:26:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: grubbsfilterattrib.cc,v 1.4 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "grubbsfilterattrib.h"
 
@@ -125,7 +125,7 @@ bool GrubbsFilter::getInputData( const BinID& relpos, int zintv )
     return true;
 }
 
-void checkTopBotUndefs( Array1D<float>& inpvals )
+static void checkTopBotUndefs( Array1D<float>& inpvals )
 {
     int firstvalidsample=0, lastvalidsample=0;
     const int size = inpvals.info().getSize(0);

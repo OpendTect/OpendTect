@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.12 2010-06-25 12:04:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.13 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -21,19 +21,13 @@ static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.12 2010-06-25 12:04:57 cvsnan
 #include "survinfo.h"
 #include "strmprov.h"
 #include "filepath.h"
-#include "plugins.h"
+#include "odplugin.h"
 
 
 static const char* menunm = "&GPR: DZT ...";
 
 
-mExternC int GetuiImpGPRPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
-
-
-mExternC PluginInfo* GetuiImpGPRPluginInfo()
+mDefODPluginInfo(uiImpGPR)
 {
     static PluginInfo retpi = {
 	"GPR: .DZT import",
@@ -174,7 +168,7 @@ void uiImpGPRMgr::doWork( CallBacker* )
 }
 
 
-mExternC const char* InituiImpGPRPlugin( int, char** )
+mDefODInitPlugin(uiImpGPR)
 {
     (void)new uiImpGPRMgr( *ODMainWin() );
     return 0; // All OK - no error messages

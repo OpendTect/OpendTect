@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegymanip.cc,v 1.16 2011-03-16 12:10:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.17 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
@@ -705,12 +705,6 @@ void uiSEGYFileManip::plotReq( CallBacker* cb )
 		     de.data_[idx]->arr(), de.data_[idx]->size() );
 	mw->show();
     }
-}
-
-
-void showPlot( int row1, int row2 )
-{
-    TypeSet<float> v1, v2;
 }
 
 

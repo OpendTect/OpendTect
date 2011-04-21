@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtbasemap.cc,v 1.20 2010-12-07 22:59:52 cvskris Exp $";
+static const char* rcsID = "$Id: gmtbasemap.cc,v 1.21 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -183,7 +183,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	if ( namestr.isEmpty() )
 	    continue;
 
-	float size = 1;
+	float sz = 1;
 	BufferString symbstr, penstr;
 	const char* shapestr = par->find( ODGMT::sKeyShape );
 	ODGMT::Shape shape;
@@ -191,7 +191,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	    continue;
 
 	symbstr = ODGMT::sShapeKeys[(int)shape];
-	par->get( sKey::Size, size );
+	par->get( sKey::Size, sz );
 	if ( shape == ODGMT::Polygon || shape == ODGMT::Line )
 	{
 	    const char* lsstr = par->find( ODGMT::sKeyLineStyle );
@@ -229,11 +229,11 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	    par->get( ODGMT::sKeyWellSymbolName, symbolname );
 	    BufferString deffilenm = GMTWSR().get( symbolname )->deffilenm_;
 	    legendstring += "k"; legendstring += deffilenm;
-	    par->get( sKey::Size, size );
+	    par->get( sKey::Size, sz );
 	}
 
 	legendstring += " ";
-	legendstring += size > 1 ? 1 : size;
+	legendstring += sz > 1 ? 1 : sz;
 	legendstring += "c ";
 
 	if ( !usewellsymbol && dofill )

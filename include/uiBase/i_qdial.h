@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2010
- RCS:           $Id: i_qdial.h,v 1.2 2010-01-13 11:01:19 cvsnanne Exp $
+ RCS:           $Id: i_qdial.h,v 1.3 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,14 +28,14 @@ class i_DialMessenger : public QObject
 
 protected:
 
-i_DialMessenger( QDial* sender, uiDial* receiver )
-    : sender_(sender)
+i_DialMessenger( QDial* sndr, uiDial* receiver )
+    : sender_(sndr)
     , receiver_(receiver)
 { 
-    connect( sender, SIGNAL(sliderMoved(int)), this, SLOT(sliderMoved(int)) );
-    connect( sender, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()) );
-    connect( sender, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()) );
-    connect( sender, SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int)) );
+    connect( sndr, SIGNAL(sliderMoved(int)), this, SLOT(sliderMoved(int)) );
+    connect( sndr, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()) );
+    connect( sndr, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()) );
+    connect( sndr, SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int)) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.39 2010-11-18 07:11:12 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.40 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "jobiomgr.h"
 
@@ -437,7 +437,7 @@ bool JobIOMgr::startProg( const char* progname,
 
 extern const BufferString& getTempBaseNm();
 extern "C" const char* GetSurveyName();
-extern int getTempFileNr();
+extern int MMJob_getTempFileNr();
 
 FilePath getConvFilePath( const HostData& hd, const FilePath& fp )
 {
@@ -446,7 +446,7 @@ FilePath getConvFilePath( const HostData& hd, const FilePath& fp )
     
     BufferString proc( getTempBaseNm() );
     proc += "_";
-    proc += getTempFileNr()-1;
+    proc += MMJob_getTempFileNr()-1;
     newfp.add(  GetSurveyName() ).add( "Proc" )
 	 .add( proc ).add( fp.fileName() );
     return newfp;

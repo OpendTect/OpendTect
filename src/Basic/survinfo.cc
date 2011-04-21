@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.153 2011-02-24 10:18:05 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.154 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -532,7 +532,7 @@ void SurveyInfo::putZDomain( IOPar& iop ) const
 	    			       : ZDomain::sKeyDepth() );
 }
 
-const char* SIDistUnitString( bool feet, bool wb )
+static const char* SIDistUnitString( bool feet, bool wb )
 {
     if ( feet )
 	return wb ? "(ft)" : "ft";

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.68 2011-02-24 15:05:21 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.69 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -143,7 +143,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* gtItm( const MultiID& mid, ObjectSet<uiTreeItem>& itms )
+static uiTreeItem* gtItm( const MultiID& mid, ObjectSet<uiTreeItem>& itms )
 {
     for ( int idx=0; idx<itms.size(); idx++ )
     {

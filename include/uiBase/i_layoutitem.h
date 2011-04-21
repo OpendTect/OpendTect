@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.34 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.35 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,18 +165,16 @@ private:
 mClass i_uiLayoutItem : public i_LayoutItem
 {
 public:
-			i_uiLayoutItem( i_LayoutMngr& mngr, uiObjectBody& obj )
-			    : i_LayoutItem( mngr, 
-					*new QWidgetItem(obj.qwidget()) )
-			    , uiObjBody_( obj ) 
-			    {}
+			i_uiLayoutItem( i_LayoutMngr& mgr, uiObjectBody& obj )
+			    : i_LayoutItem(mgr,*new QWidgetItem(obj.qwidget()) )
+			    , uiObjBody_(obj)		{}
 
     virtual		~i_uiLayoutItem();
 
     virtual uiSize 	minimumsize() const
 			    { 
 				uiSize s = uiObjBody_.minimumsize();
-				if( !mIsUdf(s.hNrPics()) )  
+				if ( !mIsUdf(s.hNrPics()) )  
 				    return s;
 
 				return i_LayoutItem::minimumsize();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.154 2011-03-25 15:01:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.155 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -506,18 +506,18 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     }
     setTitleText( nm );
 
-    BufferString caption( seltxt );
-    if ( caption.isEmpty() )
+    BufferString captn( seltxt );
+    if ( captn.isEmpty() )
     {
-	caption = c.ctxt.forread ? "Load " : "Save ";
+	captn = c.ctxt.forread ? "Load " : "Save ";
 	if ( c.ctxt.name().isEmpty() )
-	    caption += c.ctxt.trgroup->userName();
+	    captn += c.ctxt.trgroup->userName();
 	else
-	    caption += c.ctxt.name();
-	if ( !c.ctxt.forread ) caption += " as";
-	else if ( ismultisel ) caption += "(s)";
+	    captn += c.ctxt.name();
+	if ( !c.ctxt.forread ) captn += " as";
+	else if ( ismultisel ) captn += "(s)";
     }
-    setCaption( caption );
+    setCaption( captn );
 
     setOkText( "&Ok (Select)" );
     selgrp_->getListField()->doubleClicked.notify(
@@ -634,9 +634,9 @@ void uiIOObjSel::setInput( const MultiID& mid )
 }
 
 
-void uiIOObjSel::setInput( const IOObj& ioobj )
+void uiIOObjSel::setInput( const IOObj& ioob )
 {
-    setInput( ioobj.key() );
+    setInput( ioob.key() );
 }
 
 
@@ -673,9 +673,9 @@ void uiIOObjSel::obtainIOObj()
     }
 
     IOM().to( workctio_.ctxt.getSelKey() );
-    const IOObj* ioobj = (*IOM().dirPtr())[ inp.buf() ];
-    workctio_.setObj( ioobj && workctio_.ctxt.validIOObj(*ioobj)
-	    	    ? ioobj->clone() : 0 );
+    const IOObj* ioob = (*IOM().dirPtr())[ inp.buf() ];
+    workctio_.setObj( ioob && workctio_.ctxt.validIOObj(*ioob)
+	    	    ? ioob->clone() : 0 );
 }
 
 
@@ -697,10 +697,10 @@ bool uiIOObjSel::existingUsrName( const char* nm ) const
 MultiID uiIOObjSel::validKey() const
 {
     IOM().to( workctio_.ctxt.getSelKey() );
-    const IOObj* ioobj = (*IOM().dirPtr())[ getInput() ];
+    const IOObj* ioob = (*IOM().dirPtr())[ getInput() ];
 
-    if ( ioobj && workctio_.ctxt.validIOObj(*ioobj) )
-	return ioobj->key();
+    if ( ioob && workctio_.ctxt.validIOObj(*ioob) )
+	return ioob->key();
 
     return MultiID();
 }
@@ -830,11 +830,11 @@ void uiIOObjSel::doObjSel( CallBacker* )
 
 void uiIOObjSel::objSel()
 {
-    const char* key = getKey();
-    if ( specialitems.find(key) )
+    const char* ky = getKey();
+    if ( specialitems.find(ky) )
 	workctio_.setObj( 0 );
     else
-	workctio_.setObj( IOM().get(getKey()) );
+	workctio_.setObj( IOM().get(ky) );
 }
 
 

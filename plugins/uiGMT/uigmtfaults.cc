@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.cc,v 1.4 2010-04-14 04:05:20 cvsnageswara Exp $
+ RCS:           $Id: uigmtfaults.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,9 +132,9 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
     MultiID faultid( fault.str() );
     faultfld_->setInput( faultid );
 
-    BufferString name;
-    iop.get( sKey::Name, name );
-    namefld_->setText( name );
+    BufferString nm;
+    iop.get( sKey::Name, nm );
+    namefld_->setText( nm );
 
     bool onzslice = false;
     iop.getYN( ODGMT::sKeyZIntersectionYN, onzslice );

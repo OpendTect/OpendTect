@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.54 2010-07-27 13:43:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.55 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uifiledlg.h"
 
@@ -33,19 +33,19 @@ class ODFileDialog : public QFileDialog
 {
 public:
 
-ODFileDialog( const QString& dirname, const QString& filter=QString::null,
-	      QWidget* parent=0, const char* caption=0, bool modal=false )
-    : QFileDialog(parent,caption,dirname,filter)
+ODFileDialog( const QString& dirname, const QString& fltr=QString::null,
+	      QWidget* p=0, const char* caption=0, bool modal=false )
+    : QFileDialog(p,caption,dirname,fltr)
 { setModal( modal ); }
 
-ODFileDialog( QWidget* parent=0, const char* caption=0, bool modal=false )
-    : QFileDialog(parent,caption)
+ODFileDialog( QWidget* p=0, const char* caption=0, bool modal=false )
+    : QFileDialog(p,caption)
 { setModal( modal ); }
 
 };
 
 
-QFileDialog::FileMode qmodeForUiMode( uiFileDialog::Mode mode )
+static QFileDialog::FileMode qmodeForUiMode( uiFileDialog::Mode mode )
 {
     switch( mode )
     {
@@ -66,11 +66,11 @@ QFileDialog::FileMode qmodeForUiMode( uiFileDialog::Mode mode )
     , confirmoverwrite_(true)
 
 uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
-			    const char* fname, const char* filter,
+			    const char* fname, const char* fltr,
 			    const char* caption )
 	: mode_(forread ? ExistingFile : AnyFile)
         , forread_( forread )
-	, filter_( filter )
+	, filter_( fltr )
 	, addallexts_(false)
         mCommon
 {
@@ -79,12 +79,12 @@ uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 }
 
 
-uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
-			    const char* fname, const char* filter,
+uiFileDialog::uiFileDialog( uiParent* parnt, Mode md,
+			    const char* fname, const char* fltr,
 			    const char* caption )
-	: mode_(mode)
+	: mode_(md)
         , forread_(true)
-	, filter_(filter)
+	, filter_(fltr)
 	, addallexts_(false)
 	mCommon
 {}
@@ -264,12 +264,12 @@ const char* uiFileDialog::getExternalFilenamesErrMsg()
 }
 
 
-static bool filterIncludesExt( const char* filter, const char* ext )
+static bool filterIncludesExt( const char* fltr, const char* ext )
 {
-    if ( !filter )
+    if ( !fltr )
 	return false;
 
-    const char* fltptr = filter;
+    const char* fltptr = fltr;
     while ( *fltptr != '\0' )
     {
 	fltptr++;

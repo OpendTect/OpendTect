@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirandlinegen.cc,v 1.19 2010-08-11 14:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uirandlinegen.cc,v 1.20 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uirandlinegen.h"
 
@@ -168,13 +168,13 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     const float zfac = 1 / SI().zFactor();
     contzrg.scale( zfac ); linezrg.scale( zfac );
 
-    EM::RandomLineSetByContourGenerator::Setup setup( isrel );
-    setup.contzrg( contzrg ).linezrg( linezrg );
-    if ( poly ) setup.selpoly_ = poly;
-    setup.minnrvertices_ = vtxthreshfld_->box()->getValue();
+    EM::RandomLineSetByContourGenerator::Setup cgsu( isrel );
+    cgsu.contzrg( contzrg ).linezrg( linezrg );
+    if ( poly ) cgsu.selpoly_ = poly;
+    cgsu.minnrvertices_ = vtxthreshfld_->box()->getValue();
     if ( largestfld_->isChecked() )
-	setup.nrlargestonly_ = nrlargestfld_->getValue();
-    EM::RandomLineSetByContourGenerator gen( *hor, setup );
+	cgsu.nrlargestonly_ = nrlargestfld_->getValue();
+    EM::RandomLineSetByContourGenerator gen( *hor, cgsu );
     Geometry::RandomLineSet rls;
     gen.createLines( rls );
     hor->unRef();

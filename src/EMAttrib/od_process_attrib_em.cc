@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.81 2011-02-03 21:38:59 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.82 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -290,8 +290,9 @@ static HorSampling getHorSamp( IOPar& geompar )
 }
 
 
-void interpolate( EM::Horizon3D* horizon, const BufferStringSet& attribrefs,
-		  IOPar& par, std::ostream& strm )
+static void interpolate( EM::Horizon3D* horizon,
+			 const BufferStringSet& attribrefs, IOPar& par,
+			 std::ostream& strm )
 {
     PtrMan<IOPar> gridpar = par.subselect( "Grid" );
     if ( !gridpar )

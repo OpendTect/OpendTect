@@ -4,18 +4,13 @@
  * DATE     : Aug 2006
 -*/
 
-static const char* rcsID = "$Id";
+static const char* rcsID = "$Id: gapdeconpi.cc,v 1.6 2011-04-21 13:09:13 cvsbert Exp $";
 
+#include "odplugin.h"
 #include "gapdeconattrib.h"
-#include "plugins.h"
 
-mExternC int GetGapDeconPluginType()
-{
-    return PI_AUTO_INIT_EARLY;
-}
-
-
-mExternC PluginInfo* GetGapDeconPluginInfo()
+mDefODPluginEarlyLoad(GapDecon)
+mDefODPluginInfo(GapDecon)
 {
     static PluginInfo retpii = {
 	"Gap Decon Base",
@@ -26,7 +21,7 @@ mExternC PluginInfo* GetGapDeconPluginInfo()
 }
 
 
-mExternC const char* InitGapDeconPlugin( int, char** )
+mDefODInitPlugin(GapDecon)
 {
     Attrib::GapDecon::initClass();
 

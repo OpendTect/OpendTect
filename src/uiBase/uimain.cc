@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.64 2011-03-04 08:55:27 cvsdgb Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.65 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uimain.h"
 
@@ -89,12 +89,12 @@ protected:
 };
 
 
-bool KeyboardEventFilter::eventFilter( QObject* obj, QEvent* event )
+bool KeyboardEventFilter::eventFilter( QObject* obj, QEvent* ev )
 {
-    if ( event->type()!=QEvent::KeyPress && event->type()!=QEvent::KeyRelease )
+    if ( ev->type()!=QEvent::KeyPress && ev->type()!=QEvent::KeyRelease )
 	return false;
 
-    const QKeyEvent* qke = dynamic_cast<QKeyEvent*>( event );
+    const QKeyEvent* qke = dynamic_cast<QKeyEvent*>( ev );
     if ( !qke ) return false;
 
     KeyboardEvent kbe;
@@ -102,7 +102,7 @@ bool KeyboardEventFilter::eventFilter( QObject* obj, QEvent* event )
     kbe.modifier_ = OD::ButtonState( (int) qke->modifiers() );
     kbe.isrepeat_ = qke->isAutoRepeat();
 
-    if ( event->type() == QEvent::KeyPress )
+    if ( ev->type() == QEvent::KeyPress )
 	kbehandler_.triggerKeyPressed( kbe );
     else 
 	kbehandler_.triggerKeyReleased( kbe );
@@ -110,7 +110,7 @@ bool KeyboardEventFilter::eventFilter( QObject* obj, QEvent* event )
     if ( kbehandler_.isHandled() )
 	return true;
 
-    return QObject::eventFilter( obj, event );
+    return QObject::eventFilter( obj, ev );
 }
 
 
@@ -129,9 +129,9 @@ protected:
 };
 
 
-bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* event )
+bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 {
-    const QTabletEvent* qte = dynamic_cast<QTabletEvent*>( event );
+    const QTabletEvent* qte = dynamic_cast<QTabletEvent*>( ev );
     if ( qte )
     {
 	TabletInfo& ti = TabletInfo::latestState();
@@ -154,7 +154,7 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* event )
 	return false;		// Qt will resent it as a QMouseEvent
     }
 
-    const QMouseEvent* qme = dynamic_cast<QMouseEvent*>( event );
+    const QMouseEvent* qme = dynamic_cast<QMouseEvent*>( ev );
     if ( !qme || !TabletInfo::currentState() )
 	return false;
 
@@ -171,7 +171,7 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* event )
 	    longleftstamp_ = Time::getMilliSeconds();
     }
 
-    if ( event->type()==QEvent::MouseMove && mousepressed_ )
+    if ( ev->type()==QEvent::MouseMove && mousepressed_ )
     {
 	if ( !mIsUdf(longleftstamp_) && Time::passedSince(longleftstamp_)>500 )
 	{
@@ -253,7 +253,7 @@ uiMain::uiMain( QApplication* qapp )
 }
 
 
-QStyle* getStyleFromSettings()
+static QStyle* getStyleFromSettings()
 {
     const char* lookpref = Settings::common().find( "dTect.LookStyle" );
     if ( !lookpref || !*lookpref )
@@ -380,9 +380,9 @@ void uiMain::setTopLevel( uiMainWin* obj )
 }
 
 
-void uiMain::setFont( const uiFont& font, bool PassToChildren )
+void uiMain::setFont( const uiFont& fnt, bool PassToChildren )
 {   
-    font_ = &font;
+    font_ = &fnt;
     if ( !app_ )  { pErrMsg("Huh?") ; return; }
     app_->setFont( font_->qFont() );
 }

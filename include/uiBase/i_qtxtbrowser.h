@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/03/2002
- RCS:           $Id: i_qtxtbrowser.h,v 1.7 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_qtxtbrowser.h,v 1.8 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,18 +32,18 @@ class i_BrowserMessenger : public QObject
     friend class	uiTextBrowserBody;
 
 protected:
-			i_BrowserMessenger( QTextBrowser* sender,
+			i_BrowserMessenger( QTextBrowser* sndr,
 					    uiTextBrowser* receiver )
-			: sender_( sender )
+			: sender_( sndr )
 			, receiver_( receiver )
 			{ 
-			    connect( sender, SIGNAL(backwardAvailable(bool)),
+			    connect( sndr, SIGNAL(backwardAvailable(bool)),
 				     this,   SLOT(backwardAvailable(bool)) );
-			    connect(sender,SIGNAL(forwardAvailable(bool)),
+			    connect(sndr,SIGNAL(forwardAvailable(bool)),
 				     this, SLOT(forwardAvailable(bool)));
-			    connect(sender,SIGNAL(highlighted(const QString&)),
+			    connect(sndr,SIGNAL(highlighted(const QString&)),
 				     this, SLOT(highlighted(const QString&)));
-			    connect(sender,SIGNAL(anchorClicked(const QUrl&)),
+			    connect(sndr,SIGNAL(anchorClicked(const QUrl&)),
 				    this,SLOT(anchorClicked(const QUrl&)));
 			}
 

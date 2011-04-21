@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: i_qtable.h,v 1.6 2010-10-22 15:22:22 cvsjaap Exp $
+ RCS:		$Id: i_qtable.h,v 1.7 2011-04-21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,42 +31,42 @@ class i_tableMessenger : public QObject
     friend class	uiTableBody;
 
 protected:
-i_tableMessenger( QTableWidget*  sender, uiTable* receiver )
-    : sender_(sender)
+i_tableMessenger( QTableWidget*  sndr, uiTable* receiver )
+    : sender_(sndr)
     , receiver_(receiver)
     , lastpressedheaderidx_(-1)
 { 
-    connect( sender, SIGNAL(cellChanged(int,int)),
+    connect( sndr, SIGNAL(cellChanged(int,int)),
 	     this, SLOT(valueChanged(int,int)) );
 
-    connect( sender, SIGNAL(cellClicked(int,int)),
+    connect( sndr, SIGNAL(cellClicked(int,int)),
 	     this, SLOT(clicked(int,int)) );
 
-    connect( sender, SIGNAL(cellPressed(int,int)),
+    connect( sndr, SIGNAL(cellPressed(int,int)),
 	     this, SLOT(cellPressed(int,int)) );
 
-    connect( sender, SIGNAL(cellDoubleClicked(int,int)),
+    connect( sndr, SIGNAL(cellDoubleClicked(int,int)),
 	     this, SLOT(doubleClicked(int,int)) );
 
-    connect( sender, SIGNAL(itemSelectionChanged()),
+    connect( sndr, SIGNAL(itemSelectionChanged()),
 	     this, SLOT(itemSelectionChanged()) );
 
-    connect( sender, SIGNAL(cellEntered(int,int)),
+    connect( sndr, SIGNAL(cellEntered(int,int)),
 	     this, SLOT(cellEntered(int,int)) );
 
-    connect( sender->verticalHeader(), SIGNAL(sectionClicked(int)),
+    connect( sndr->verticalHeader(), SIGNAL(sectionClicked(int)),
 	     this, SLOT(rowClicked(int)) );
-    connect( sender->horizontalHeader(), SIGNAL(sectionClicked(int)),
+    connect( sndr->horizontalHeader(), SIGNAL(sectionClicked(int)),
 	     this, SLOT(columnClicked(int)) );
 
-    connect( sender->verticalHeader(), SIGNAL(sectionPressed(int)),
+    connect( sndr->verticalHeader(), SIGNAL(sectionPressed(int)),
 	     this, SLOT(rowPressed(int)) );
-    connect( sender->horizontalHeader(), SIGNAL(sectionPressed(int)),
+    connect( sndr->horizontalHeader(), SIGNAL(sectionPressed(int)),
 	     this, SLOT(columnPressed(int)) );
 
-    connect( sender->verticalHeader(), SIGNAL(sectionDoubleClicked(int)),
+    connect( sndr->verticalHeader(), SIGNAL(sectionDoubleClicked(int)),
 	     this, SLOT(rowDoubleClicked(int)) );
-    connect( sender->horizontalHeader(), SIGNAL(sectionDoubleClicked(int)),
+    connect( sndr->horizontalHeader(), SIGNAL(sectionDoubleClicked(int)),
 	     this, SLOT(columnDoubleClicked(int)) );
 }
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.36 2010-12-02 10:01:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.37 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -25,13 +25,13 @@ const int DataPointSet::groupcol_ = 3;
 	, minimal_(mini)
 
 
-int getCompacted( int selgrp, int grp )
+static int getCompacted( int selgrp, int grp )
 {
     return (selgrp<<16) + (grp & 0xFFFF);
 }
 
 
-void getUnCompacted( int compactedgrp, int& selgrp, int& grp )
+static void getUnCompacted( int compactedgrp, int& selgrp, int& grp )
 {
     selgrp = ( compactedgrp >> 16 );
     grp = ( compactedgrp & 0xFFFF );

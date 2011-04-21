@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewslicepos.cc,v 1.7 2011-04-01 12:57:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewslicepos.cc,v 1.8 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uiflatviewslicepos.h"
 
@@ -21,7 +21,7 @@ uiSlicePos2DView::uiSlicePos2DView( uiParent* p )
 }
 
 
-uiSlicePos::Orientation getOrientation( const CubeSampling& cs )
+static uiSlicePos::Orientation getOrientation( const CubeSampling& cs )
 {
     if ( cs.defaultDir() == CubeSampling::Crl )
 	return uiSlicePos::Crossline;
@@ -80,4 +80,3 @@ void uiSlicePos2DView::sliceStepChg( CallBacker* )
 {
     sliceStepChanged( curorientation_ );
 }
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.41 2011-03-04 03:46:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.42 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "attribdatapack.h"
 
@@ -30,7 +30,7 @@ static const char* rcsID = "$Id: attribdatapack.cc,v 1.41 2011-03-04 03:46:57 cv
 namespace Attrib
 {
 
-FixedString sAttribute2D()		{ return "Attribute2D"; }
+static const FixedString sAttribute2D()	{ return "Attribute2D"; }
 
 const char* DataPackCommon::categoryStr( bool vertical, bool is2d )
 {

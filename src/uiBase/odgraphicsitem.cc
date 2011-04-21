@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.20 2011-03-24 04:40:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.21 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -220,13 +220,13 @@ void ODGraphicsArrowItem::setLineStyle( QPainter& painter, const LineStyle& ls )
 }
 
 
-void ODGraphicsArrowItem::drawArrowHead( QPainter& painter, const QPoint& pos,
+void ODGraphicsArrowItem::drawArrowHead( QPainter& painter, const QPoint& qpt,
 					 const QPoint& comingfrom )
 {
     static const float headangfac = .82; // bigger => lines closer to main line
 
     // In UI, Y is positive downward
-    const QPoint relvec( pos.x() - comingfrom.x(), comingfrom.y() - pos.y() );
+    const QPoint relvec( qpt.x() - comingfrom.x(), comingfrom.y() - qpt.y() );
     const double ang( atan2((double)relvec.y(),(double)relvec.x()) );
 
     const ArrowHeadStyle& headstyle = arrowstyle_.headstyle_;
@@ -237,9 +237,9 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter, const QPoint& pos,
 	    case ArrowHeadStyle::Square:
 	    {
 	        TypeSet<QPoint> polypts;
-		polypts += pos;
-	        const QPoint pt1 = getEndPoint(pos,M_PI,headstyle.sz_);
-	        const QPoint pt2 = getEndPoint(pos,-(M_PI),headstyle.sz_);
+		polypts += qpt;
+	        const QPoint pt1 = getEndPoint(qpt,M_PI,headstyle.sz_);
+	        const QPoint pt2 = getEndPoint(qpt,-(M_PI),headstyle.sz_);
 		polypts += pt1;
 		polypts += pt2;
 		painter.drawPolygon( polypts.arr(), 3 );
@@ -247,25 +247,25 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter, const QPoint& pos,
 	    }
 	    case ArrowHeadStyle::Cross:
 	    {
-		painter.drawLine( pos, QPoint(getEndPoint(pos,
+		painter.drawLine( qpt, QPoint(getEndPoint(qpt,
 				  getAddedAngle(ang,.25),headstyle.sz_/2)) );
-		painter.drawLine( pos, QPoint(getEndPoint(pos,
+		painter.drawLine( qpt, QPoint(getEndPoint(qpt,
 				  getAddedAngle(ang,.75),headstyle.sz_/2)) );
-		painter.drawLine( pos, QPoint(getEndPoint(pos,
+		painter.drawLine( qpt, QPoint(getEndPoint(qpt,
 				  getAddedAngle(ang,-.25),headstyle.sz_/2)) );
-		painter.drawLine( pos, QPoint(getEndPoint(pos,
+		painter.drawLine( qpt, QPoint(getEndPoint(qpt,
 				  getAddedAngle(ang,-.75),headstyle.sz_/2)) );
 		break;
 	    }
 	    case ArrowHeadStyle::Triangle:
 	    case ArrowHeadStyle::Line:
 	    {
-		const QPoint rightend = getEndPoint( pos,
+		const QPoint rightend = getEndPoint( qpt,
 		    getAddedAngle( ang,headangfac), headstyle.sz_ );
-		const QPoint leftend = getEndPoint( pos,
+		const QPoint leftend = getEndPoint( qpt,
 		    getAddedAngle( ang,-headangfac), headstyle.sz_ );
-		painter.drawLine( pos, rightend );
-		painter.drawLine( pos, leftend );
+		painter.drawLine( qpt, rightend );
+		painter.drawLine( qpt, leftend );
 		if ( headstyle.type_ == ArrowHeadStyle::Triangle )
 		    painter.drawLine( leftend, rightend );
 		break;
@@ -315,9 +315,9 @@ void ODGraphicsTextItem::setText( const char* txt )
 
 QRectF ODGraphicsTextItem::boundingRect() const
 {
-    const uiFont& font = FontList().get(
+    const uiFont& uifnt = FontList().get(
 				FontData::key(FontData::GraphicsSmall ) );
-    QFontMetrics fm( font.qFont() );
+    QFontMetrics fm( uifnt.qFont() );
     QRectF rectf( fm.boundingRect( text_ ) );
     return rectf;
 }

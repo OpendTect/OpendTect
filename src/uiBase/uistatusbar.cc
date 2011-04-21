@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatusbar.cc,v 1.19 2009-07-23 12:00:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: uistatusbar.cc,v 1.20 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uistatusbar.h"
 #include "uimainwin.h"
@@ -24,11 +24,11 @@ class uiStatusBarBody : public uiBodyImpl<uiStatusBar,QStatusBar>
 {
 friend class		uiStatusBar;
 public:
-                        uiStatusBarBody( uiStatusBar& handle, 
+                        uiStatusBarBody( uiStatusBar& hndl, 
 					 uiMainWin* parnt, const char* nm,  
 					 QStatusBar& sb) 
 			    : uiBodyImpl<uiStatusBar,QStatusBar>
-				( handle, parnt, sb )
+				( hndl, parnt, sb )
 			{}
 
     void		message( const char* msg, int idx, int msecs )

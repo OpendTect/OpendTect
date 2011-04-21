@@ -4,18 +4,13 @@
  * DATE     : July 2007
 -*/
 
-static const char* rcsID = "$Id: madpi.cc,v 1.4 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: madpi.cc,v 1.5 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "maddefs.h"
-#include "plugins.h"
+#include "odplugin.h"
 
-mExternC int GetMadagascarPluginType()
-{
-    return PI_AUTO_INIT_EARLY;
-}
-
-
-mExternC PluginInfo* GetMadagascarPluginInfo()
+mDefODPluginEarlyLoad(Madagascar)
+mDefODPluginInfo(Madagascar)
 {
     static PluginInfo retpii = {
 	"Madagascar base",
@@ -26,7 +21,7 @@ mExternC PluginInfo* GetMadagascarPluginInfo()
 }
 
 
-mExternC const char* InitMadagascarPlugin( int, char** )
+mDefODInitPlugin(Madagascar)
 {
     static BufferString prescanmsg = ODMad::PI().errMsg();
     return prescanmsg.isEmpty() ? 0 : prescanmsg.buf();

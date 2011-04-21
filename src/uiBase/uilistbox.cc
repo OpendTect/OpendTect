@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.116 2011-04-19 03:57:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.117 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uilistbox.h"
 
@@ -52,7 +52,7 @@ class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListWidget>
 
 public:
 
-                        uiListBoxBody(uiListBox& handle, 
+                        uiListBoxBody(uiListBox& hndle, 
 				  uiParent* parnt=0, 
 				  const char* nm="uiListBoxBody",
 				  bool isMultiSelect=false,
@@ -100,11 +100,11 @@ private:
 };
 
 
-uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt, 
+uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt, 
 			const char* nm, bool ismultiselect,
 			int preferrednrlines, int preferredfieldwidth )
-    : uiObjBodyImpl<uiListBox,QListWidget>( handle, parnt, nm )
-    , messenger_(*new i_listMessenger(this,&handle))
+    : uiObjBodyImpl<uiListBox,QListWidget>( hndle, parnt, nm )
+    , messenger_(*new i_listMessenger(this,&hndle))
     , fieldwidth_(preferredfieldwidth)
     , prefnrlines_(preferrednrlines)
 {
@@ -121,7 +121,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 }
 
 
-void createQString( QString& qs, const char* str, bool mark )
+static void createQString( QString& qs, const char* str, bool mark )
 {
     if ( !str ) str = "";
     mGetMarkededBufferString( bs, mark, str );
@@ -165,18 +165,18 @@ uiSize uiListBoxBody::minimumsize() const
 }
 
 
-void uiListBoxBody::mouseReleaseEvent( QMouseEvent* event )
+void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
 {
-    if ( !event ) return;
+    if ( !ev ) return;
 
-    if ( event->button() == Qt::RightButton )
+    if ( ev->button() == Qt::RightButton )
 	handle_.buttonstate_ = OD::RightButton;
-    else if ( event->button() == Qt::LeftButton )
+    else if ( ev->button() == Qt::LeftButton )
 	handle_.buttonstate_ = OD::LeftButton;
     else
 	handle_.buttonstate_ = OD::NoButton;
 
-    QListWidget::mouseReleaseEvent( event );
+    QListWidget::mouseReleaseEvent( ev );
     handle_.buttonstate_ = OD::NoButton;
 }
 

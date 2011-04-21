@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.66 2011-03-28 04:41:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.67 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -531,12 +531,12 @@ const Color& Well::logColor( int lognr ) const
 #define colors2f(rgb) float(col.rgb())/255
 void Well::setLogFillColorTab( const LogParams& lp, int lognr )
 {
-    int idx = ColTab::SM().indexOf( lp.seqname_ );
-    if ( idx<0 || mIsUdf(idx) ) idx = 0;
-    const ColTab::Sequence* seq = ColTab::SM().get( idx );
+    int seqidx = ColTab::SM().indexOf( lp.seqname_ );
+    if ( seqidx<0 || mIsUdf(seqidx) ) seqidx = 0;
+    const ColTab::Sequence* seq = ColTab::SM().get( seqidx );
 
     float colors[256][3];
-    for (int idx=0; idx<256; idx++ )
+    for ( int idx=0; idx<256; idx++ )
     {
 	const bool issinglecol = ( !lp.iswelllog_ || 
 	    		(lp.iswelllog_ && lp.issinglcol_ ) );

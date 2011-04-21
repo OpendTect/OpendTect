@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilineedit.cc,v 1.40 2011-03-08 14:29:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: uilineedit.cc,v 1.41 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uilineedit.h"
 #include "i_qlineedit.h"
@@ -28,7 +28,7 @@ class uiLineEditBody : public uiObjBodyImpl<uiLineEdit,QLineEdit>
 {
 public:
 
-                        uiLineEditBody( uiLineEdit& handle,
+                        uiLineEditBody( uiLineEdit& hndle,
 				   uiParent*, const char* nm="Line Edit body");
 
     virtual		~uiLineEditBody()		{ delete &messenger_; }
@@ -46,10 +46,10 @@ private:
 };
 
 
-uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt, 
+uiLineEditBody::uiLineEditBody( uiLineEdit& hndle,uiParent* parnt, 
 				const char* nm )
-    : uiObjBodyImpl<uiLineEdit,QLineEdit>(handle,parnt,nm)
-    , messenger_ ( *new i_lineEditMessenger(this,&handle) )
+    : uiObjBodyImpl<uiLineEdit,QLineEdit>(hndle,parnt,nm)
+    , messenger_ ( *new i_lineEditMessenger(this,&hndle) )
 { 
     setStretch( 1, 0 ); 
     setHSzPol( uiObject::Medium );
@@ -186,10 +186,10 @@ void uiLineEdit::cursorForward( bool mark, int steps )
 int uiLineEdit::cursorPosition() const
 { return body_->cursorPosition(); }
 
-void uiLineEdit::insert( const char* text )
+void uiLineEdit::insert( const char* txt )
 {
     mBlockCmdRec;
-    body_->insert( text );
+    body_->insert( txt );
 }
 
 int uiLineEdit::selectionStart() const

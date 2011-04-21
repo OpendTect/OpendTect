@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.53 2011-03-21 15:42:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.54 2011-04-21 13:09:13 cvsbert Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -344,22 +344,21 @@ uiRect uiGraphicsScene::sceneRect()
 }
 
 
-void uiGraphicsScene::saveAsImage( const char* fnm, int width,
-				   int height, int resolution )
+void uiGraphicsScene::saveAsImage( const char* fnm, int w, int h, int res )
 {
     QString fname( fnm );
     QPainter* imagepainter = new QPainter();
-    QImage* image = new QImage( QSize(width,height), QImage::Format_ARGB32 );
+    QImage* image = new QImage( QSize(w,h), QImage::Format_ARGB32 );
     QColor qcol( 255, 255, 255 );
     image->fill( qcol.rgb() );
-    image->setDotsPerMeterX( (int)(resolution/0.0254) );
-    image->setDotsPerMeterY( (int)(resolution/0.0254) );
+    image->setDotsPerMeterX( (int)(res/0.0254) );
+    image->setDotsPerMeterY( (int)(res/0.0254) );
     imagepainter->begin( image );
 
     QGraphicsView* view = qGraphicsScene()->views()[0];
     QRectF sourcerect( view->mapToScene(0,0),
 	    	       view->mapToScene(view->width(),view->height()) );
-    qGraphicsScene()->render( imagepainter,QRectF(0,0,width,height),sourcerect);
+    qGraphicsScene()->render( imagepainter,QRectF(0,0,w,h),sourcerect);
     imagepainter->end();
     image->save( fname );
     delete imagepainter;
@@ -368,7 +367,7 @@ void uiGraphicsScene::saveAsImage( const char* fnm, int width,
 
 
 void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
-       				    int resolution )
+       				    int res )
 {
     QString fileName( filename );
     QPrinter* pdfprinter = new QPrinter();
@@ -391,11 +390,11 @@ void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
 }
 
 
-void uiGraphicsScene::saveAsPDF( const char* filename, int resolution )
-{ saveAsPDF_PS( filename, true, resolution ); }
+void uiGraphicsScene::saveAsPDF( const char* filename, int res )
+{ saveAsPDF_PS( filename, true, res ); }
 
-void uiGraphicsScene::saveAsPS( const char* filename, int resolution )
-{ saveAsPDF_PS( filename, false, resolution ); }
+void uiGraphicsScene::saveAsPS( const char* filename, int res )
+{ saveAsPDF_PS( filename, false, res ); }
 
 
 int uiGraphicsScene::indexOf( int id ) const
@@ -450,17 +449,17 @@ uiPoint uiGraphicsObjectScene::layoutPos() const
 
 void uiGraphicsObjectScene::resizeLayoutToContent()
 {
-    float width = 0; float height = 0; 
+    float w = 0; float h = 0; 
     for ( int idx=0; idx<layout_->count(); idx++ )
     {
 	mDynamicCastGet(uiObjectItem*,item,items_[idx]);
 	if ( !item ) continue;
 
-	width += item->objectSize().width();
-	height = item->objectSize().height();
+	w += item->objectSize().width();
+	h = item->objectSize().height();
     }
 
-    layoutitem_->resize( width, height );
+    layoutitem_->resize( w, h );
 }
 
 

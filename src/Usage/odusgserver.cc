@@ -4,8 +4,8 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgserver.cc,v 1.11 2011-01-10 13:29:58 cvsbert Exp $";
-static const char* rcsPrStr = "$Revision: 1.11 $ $Date: 2011-01-10 13:29:58 $";
+static const char* rcsID = "$Id: odusgserver.cc,v 1.12 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsPrStr = "$Revision: 1.12 $ $Date: 2011-04-21 13:09:13 $";
 
 #include "odusgserver.h"
 #include "odusgbaseadmin.h"
@@ -26,23 +26,23 @@ const char* Usage::Server::sKeyFileBase()	{ return "Usage"; }
 int Usage::Server::cDefaulPort()		{ return mUsgServDefaulPort; }
 
 
-Usage::Server::Server( const IOPar* pars, std::ostream& strm )
+Usage::Server::Server( const IOPar* inpars, std::ostream& strm )
     : logstrm_(strm)
-    , pars_(pars ? *pars : *new IOPar)
+    , pars_(inpars ? *inpars : *new IOPar)
     , port_(mUsgServDefaulPort)
     , thread_(0)
 {
-    if ( !pars )
+    if ( !inpars )
     {
-	pars = getPars();
-	if ( pars ) const_cast<IOPar&>(pars_) = *pars;
+	inpars = getPars();
+	if ( inpars ) const_cast<IOPar&>(pars_) = *inpars;
     }
 
     if ( pars_.isEmpty() )
     {
 	logstrm_ << "Cannot start OpendTect Usage server (" << rcsPrStr
 	    	 << "):\n";
-	if ( pars )
+	if ( inpars )
 	    logstrm_ << "No input parameters" << std::endl;
 	else
 	    logstrm_ << "Cannot read: " << setupFileName(0) << std::endl;

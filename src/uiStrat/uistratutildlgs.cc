@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.49 2011-04-01 09:45:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.50 2011-04-21 13:09:14 cvsbert Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -143,18 +143,17 @@ void uiStratUnitEditDlg::getFromScreen()
 bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 {
     getFromScreen();
-    BufferString name( unitnmfld_->text() );
-    if ( name.isEmpty() || !strcmp( name, Strat::RefTree::sKeyNoCode() ) )
+    BufferString unnm( unitnmfld_->text() );
+    if ( unnm.isEmpty() || !strcmp( unnm, Strat::RefTree::sKeyNoCode() ) )
 	{ mErrRet( "Please specify a valid unit name", return false ) }
     else
     {
-	mPreventWrongChar( name.buf(), return false );
+	mPreventWrongChar( unnm.buf(), return false );
     }
 
     const char* oldcode = unit_.code();
-    unit_.setCode( name.buf() );
-    BufferString namemsg( "Unit name already used. Please specify a new name");
-    if ( strcmp(name.buf(),entrancename_.buf()) )
+    unit_.setCode( unnm.buf() );
+    if ( unnm != entrancename_ )
     {
 	Strat::UnitRefIter it( Strat::RT() );
 	while ( it.next() )
@@ -163,7 +162,7 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 		    && it.unit() != &unit_ )
 	    { 
 		unit_.setCode( oldcode ); 
-		mErrRet( namemsg, return false ) 
+		mErrRet( "Unit name already used", return false ) 
 	    }
 	}
     }

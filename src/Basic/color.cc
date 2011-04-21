@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.15 2011-04-05 14:04:55 cvsbert Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.16 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "color.h"
 
@@ -250,13 +250,13 @@ void Color::setHSV( unsigned char h_, unsigned char s_, unsigned char v_ )
 }
 
 
-unsigned char fromHexVal( char c )
+static unsigned char fromHexVal( char c )
 {
     return c >= 'a' && c <= 'f' ? 10 + (c - 'a') : c - '0';
 }
 
 
-unsigned char getCompFromStrPart( const char* str )
+static unsigned char getCompFromStrPart( const char* str )
 {
     if ( !str || !*str ) return 255;
     unsigned char c1 = fromHexVal( *str );

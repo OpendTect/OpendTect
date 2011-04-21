@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifont.cc,v 1.29 2009-09-23 11:17:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uifont.cc,v 1.30 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uifontsel.h"
 #include "uifont.h"
@@ -32,16 +32,16 @@ static const char* rcsID = "$Id: uifont.cc,v 1.29 2009-09-23 11:17:31 cvsbert Ex
 static const char* fDefKey = "Font.def";
 
 
-uiFont::uiFont( const char* key, const char* fam, int ps, FontData::Weight w,
+uiFont::uiFont( const char* ky, const char* fam, int ps, FontData::Weight w,
 		bool it )
 	: qfont_(new QFont(QString( fam && *fam ? fam : "helvetica"),
 			   ps > 1 ? ps : 12, FontData::numWeight(w),it))
 	, qfontmetrics_(*new QFontMetrics(*qfont_))
-	, key_( key )
+	, key_( ky )
 {}
 
 
-uiFont::uiFont( const char* key, FontData fdat )
+uiFont::uiFont( const char* ky, FontData fdat )
 	: qfont_( new QFont(
 		    QString( fdat.family() && *fdat.family()
 				? fdat.family() : "helvetica" ),
@@ -49,7 +49,7 @@ uiFont::uiFont( const char* key, FontData fdat )
 		    FontData::numWeight(fdat.weight()),
 		    fdat.isItalic()))  
 	, qfontmetrics_(*new QFontMetrics(*qfont_))
-	, key_( key )
+	, key_( ky )
 {}
 
 
@@ -169,22 +169,22 @@ uiFontList& uiFontList::getInst()
 }
 
 
-uiFont& uiFontList::add( const char* key, const char* family, int pointSize,
+uiFont& uiFontList::add( const char* ky, const char* family, int pointSize,
                          FontData::Weight weight, bool isItalic )
 {
-    return add( key, FontData( pointSize, family, weight, isItalic) );
+    return add( ky, FontData( pointSize, family, weight, isItalic) );
 }
 
 
-uiFont& uiFontList::add( const char* key, const FontData& fdat )
+uiFont& uiFontList::add( const char* ky, const FontData& fdat )
 {
-    return gtFont( key, &fdat );
+    return gtFont( ky, &fdat );
 }
 
 
-uiFont& uiFontList::get( const char* key )
+uiFont& uiFontList::get( const char* ky )
 {
-    return gtFont( key, 0 );
+    return gtFont( ky, 0 );
 }
 
 
@@ -215,16 +215,16 @@ void uiFontList::listKeys( BufferStringSet& ids )
 }
 
 
-uiFont& uiFontList::gtFont( const char* key, const FontData* fdat,
+uiFont& uiFontList::gtFont( const char* ky, const FontData* fdat,
 			    const QFont* qf )
 {
     initialise();
-    if ( (!key || !*key) && !qf ) return *fonts_[0]; 
+    if ( (!ky || !*ky) && !qf ) return *fonts_[0]; 
 
     for ( int idx=0; idx<fonts_.size(); idx++ )
     {
 	uiFont* fnt = fonts_[ idx ];
-	if ( key && !strcmp(fnt->key(),key) ) 
+	if ( ky && !strcmp(fnt->key(),ky) ) 
 	{
 	    if ( fdat ) fnt->setFontData( *fdat );
 	    return *fnt; 
@@ -240,7 +240,7 @@ uiFont& uiFontList::gtFont( const char* key, const FontData* fdat,
 	return *fonts_[0];
     else
     {
-	uiFont* nwFont = new uiFont( key, *fdat );
+	uiFont* nwFont = new uiFont( ky, *fdat );
 	fonts_ += nwFont;
 	return *nwFont;
     }
@@ -263,17 +263,17 @@ void uiFontList::use( const Settings& settings )
 
     bool haveguessed = false;
     int ikey=0;
-    while ( const char* key = FontData::defaultKeys()[ikey++] )
+    while ( const char* ky = FontData::defaultKeys()[ikey++] )
     {
-	const char* res = fontpar ? (*fontpar)[key] : 0;
+	const char* res = fontpar ? (*fontpar)[ky] : 0;
 	if ( res && *res )
-	    add( key, FontData(res) );
-	else if ( strcmp(key,"Fixed width") )
-	    { addOldGuess( settings, key, ikey ); haveguessed = true; }
+	    add( ky, FontData(res) );
+	else if ( strcmp(ky,"Fixed width") )
+	    { addOldGuess( settings, ky, ikey ); haveguessed = true; }
 	else
 	{
 	    FontData fd = get(FontData::defaultKeys()[0]).fontData();
-	    add( key, FontData( fd.pointSize(), "Courier", fd.weight(),
+	    add( ky, FontData( fd.pointSize(), "Courier", fd.weight(),
 				fd.isItalic() ) );
 	}
     }
@@ -292,8 +292,8 @@ void uiFontList::use( const Settings& settings )
 	    const char* parkey = fontpar->getKey(ipar);
 	    bool isstd = false;
 	    ikey = 0;
-	    while( const char* key = FontData::defaultKeys()[ikey++] )
-		if ( !strcmp(key,parkey) ) { isstd = true; break; }
+	    while( const char* ky = FontData::defaultKeys()[ikey++] )
+		if ( !strcmp(ky,parkey) ) { isstd = true; break; }
 
 	    if ( !isstd )
 		add( parkey, FontData( (*fontpar)[parkey] ) );
@@ -390,20 +390,20 @@ const char* uiSelFonts::resultFor( const char* str )
 
 
 void uiFontList::addOldGuess( const Settings& settings,
-			      const char* key, int idx )
+			      const char* ky, int idx )
 {
     const char* fontface = settings["Font face"];
     bool boldfont = true; settings.getYN( "Bold font", boldfont );
 
     int fontsz = FontData::defaultPointSize() * 10;
-    if ( !strcmp(key,FontData::defaultKeys()[0]) )
+    if ( !strcmp(ky,FontData::defaultKeys()[0]) )
 	settings.get( "Dialog font size", fontsz );
-    else if ( !strcmp(key,FontData::defaultKeys()[3]) )
+    else if ( !strcmp(ky,FontData::defaultKeys()[3]) )
 	settings.get( "Graphics large font size", fontsz );
     else
 	settings.get( "Graphics small font size", fontsz );
 
-    add( key, FontData( fontsz/10, fontface,
+    add( ky, FontData( fontsz/10, fontface,
 			boldfont ? FontData::Bold : FontData::Normal ) );
 }
 

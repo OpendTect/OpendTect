@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.22 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.23 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimenu.h"
@@ -19,17 +19,12 @@ static const char* rcsID = "$Id: uimadpi.cc,v 1.22 2010-11-16 09:49:10 cvsbert E
 #include "ioman.h"
 #include "maddefs.h"
 #include "madio.h"
-#include "plugins.h"
+#include "odplugin.h"
 #include "separstr.h"
 #include "odusgclient.h"
 
-mExternC int GetuiMadagascarPluginType()
-{
-    return PI_AUTO_INIT_LATE;
-}
 
-
-mExternC PluginInfo* GetuiMadagascarPluginInfo()
+mDefODPluginInfo(uiMadagascar)
 {
     static PluginInfo retpi = {
 	"Madagascar link",
@@ -42,7 +37,7 @@ mExternC PluginInfo* GetuiMadagascarPluginInfo()
 }
 
 
-bool checkEnvVars( BufferString& msg )
+static bool checkEnvVars( BufferString& msg )
 {
     BufferString rsfdir = GetEnvVar( "RSFROOT" );
     if ( rsfdir.isEmpty() || !File::isDirectory(rsfdir.buf()) )
@@ -152,7 +147,7 @@ void uiMadagascarLink::doMain( CallBacker* )
 }
 
 
-mExternC const char* InituiMadagascarPlugin( int, char** )
+mDefODInitPlugin(uiMadagascar)
 {
     static uiMadagascarLink* lnk = 0;
     if ( lnk ) return 0;

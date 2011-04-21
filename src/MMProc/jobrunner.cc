@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobrunner.cc,v 1.45 2011-03-16 10:24:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobrunner.cc,v 1.46 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "jobrunner.h"
 #include "jobinfo.h"
@@ -44,7 +44,7 @@ static const char* rcsID = "$Id: jobrunner.cc,v 1.45 2011-03-16 10:24:17 cvsrano
 
 static BufferString tmpfnm_base;
 
-const BufferString& getTempBaseNm()
+static const BufferString& getTempBaseNm()
 {
     return tmpfnm_base;
 }
@@ -60,7 +60,8 @@ static int mkTmpFileNr()
  
 
 static int tmpfile_nr = mkTmpFileNr();
-mGlobal int getTempFileNr()
+int MMJob_getTempFileNr(); // keep compiler happy
+mGlobal int MMJob_getTempFileNr()
 {
     return tmpfile_nr;
 }

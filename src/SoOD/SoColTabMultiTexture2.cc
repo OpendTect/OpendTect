@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.8 2010-09-15 06:29:40 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.9 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "SoColTabMultiTexture2.h"
 
@@ -171,9 +171,9 @@ void SoColTabMultiTextureProcessor::process( const SoColTabMultiTexture2& mt,
 	threadrangemutex_.unlock();
     }
 
-    for ( int idx=0; idx<texture_->image.getNum(); idx++ )
+    for ( int iimg=0; iimg<texture_->image.getNum(); iimg++ )
     {
-	if ( !prepare(idx) )
+	if ( !prepare(iimg) )
 	    continue;
 	
 	if ( nrthreads>1 )

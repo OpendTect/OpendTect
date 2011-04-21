@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.17 2010-10-20 06:19:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.18 2011-04-21 13:09:13 cvsbert Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -36,10 +36,10 @@ uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Create 2D horizon from 3D",
 				 "Specify parameters","104.0.12"))
 {
-    uiSurfaceRead::Setup setup( "Horizon" );
-    setup.withattribfld( false );
-    setup.withsectionfld( false );
-    hor3dsel_ = new uiSurfaceRead( this, setup );
+    uiSurfaceRead::Setup srsu( "Horizon" );
+    srsu.withattribfld( false );
+    srsu.withsectionfld( false );
+    hor3dsel_ = new uiSurfaceRead( this, srsu );
 
     uiSeis2DMultiLineSel::Setup su( "Select lines" );
     linesetinpsel_ = new uiSeis2DMultiLineSel( this, su );
