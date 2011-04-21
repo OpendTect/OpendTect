@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcontour.cc,v 1.14 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.15 2011-04-21 05:34:44 cvsraman Exp $";
 
 #include "gmtcontour.h"
 
@@ -87,8 +87,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 {
     MultiID id;
     get( sKey::ID, id );
-    bool closeps, drawcontour, dofill;
-    getYN( ODGMT::sKeyClosePS, closeps );
+    bool drawcontour=false, dofill=false;
     getYN( ODGMT::sKeyDrawContour, drawcontour );
     getYN( ODGMT::sKeyFill, dofill );
 
@@ -204,10 +203,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	comm = "grdimage "; comm += finalgrd;
 	comm += " "; comm += mapprojstr;
 	comm += " -O -Q -C"; comm += fileName( cptfnm );
-	if ( !closeps || drawcontour )
-	    comm += " -K";
-
-	comm += " 1>> "; comm += fileName( fnm );
+	comm += " -K 1>> "; comm += fileName( fnm );
 	if ( !execCmd(comm,strm) )
 	    mErrStrmRet("Failed")
 
@@ -227,10 +223,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	BufferString colstr; mGetColorString( ls.color_, colstr );
 	comm += " -A+k"; comm += colstr;
 	comm += " -W"; comm += lsstr;
-	if ( !closeps )
-	    comm += " -K";
-
-	comm += " 1>> "; comm += fileName( fnm );
+	comm += " -K 1>> "; comm += fileName( fnm );
 	if ( !execCmd(comm,strm) )
 	    mErrStrmRet("Failed")
 
