@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          April 2011
-RCS:           $Id: arraytesselator.h,v 1.2 2011-04-19 21:52:28 cvsyuancheng Exp $
+RCS:           $Id: arraytesselator.h,v 1.3 2011-04-21 14:28:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,10 +25,14 @@ namespace Geometry
 mClass ArrayTesselator : public ParallelTask
 {
 public:
+    			ArrayTesselator(const float* data,
+					int datarowsize,int datacolsize,
+					const StepInterval<int>& rrg,
+					const StepInterval<int>& crg);
+
     			ArrayTesselator(const Array2D<float>& data,
 					const StepInterval<int>& rrg,
-					const StepInterval<int>& crg)
-			    : data_(data), rowrange_(rrg), colrange_(crg) {}
+					const StepInterval<int>& crg);
 
     od_int64		nrIterations() const	
 			{ return rowrange_.nrSteps()*colrange_.nrSteps(); }
@@ -43,7 +47,9 @@ protected:
 
     bool			doWork(od_int64 start,od_int64 stop,int);
 
-    const Array2D<float>&	data_;
+    const float*		data_;
+    int				datarowsize_;
+    int				datacolsize_;
     const StepInterval<int>& 	rowrange_;
     const StepInterval<int>& 	colrange_;
    
@@ -53,7 +59,28 @@ protected:
 };
 
 
-#define mGlobleIdx(row,col) row*totalcolsz+col 
+ArrayTesselator::ArrayTesselator( const float* data, int rowsz, int colsz, 
+	const StepInterval<int>& rrg, const StepInterval<int>& crg )
+    : data_( data )
+    , datarowsize_( rowsz )
+    , datacolsize_( colsz )
+    , rowrange_( rrg )
+    , colrange_( crg )
+{}		      
+
+
+ArrayTesselator::ArrayTesselator( const Array2D<float>& data, 
+	const StepInterval<int>& rrg, const StepInterval<int>& crg )
+    : data_( data.getData() )
+    , datarowsize_( data.info().getSize(0) )
+    , datacolsize_( data.info().getSize(1) )
+    , rowrange_( rrg )
+    , colrange_( crg )
+{}		      
+
+
+
+#define mGlobleIdx(row,col) row*datacolsize_+col 
 
 #define mAddTriangle( ci0, ci1, ci2 ) \
 stripcis_ += ci0; \
@@ -63,11 +90,10 @@ stripcis_ += ci2
 
 bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 {
-    const int totalcolsz = data_.info().getSize( 1 );
-    const int glastrowidx = data_.info().getSize( 0 ) - 1;
-    const int glastcolidx = totalcolsz - 1;
+    const int glastrowidx = datarowsize_ - 1;
+    const int glastcolidx = datacolsize_ - 1;
     const int colsz = colrange_.nrSteps();
-    const int startidx = rowrange_.start * totalcolsz + colrange_.start;
+    const int startidx = rowrange_.start * datacolsize_ + colrange_.start;
 
     for ( int idx=start; idx<=stop; idx++ )
     {
@@ -78,22 +104,21 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 
 	const bool islastrow = currow == glastrowidx;
 	const bool islastcol = curcol == glastcolidx;
-	const int nextrow = currow + totalcolsz;
+	const int nextrow = currow + datacolsize_;
 	const int nextcol = curcol + 1;
-
-	bool def11 = !mIsUdf( data_.get(currow,curcol) );
-	bool def12 = islastcol ? false : !mIsUdf(data_.get(currow,nextcol));
-	bool def21 = islastrow ? false : !mIsUdf(data_.get(nextrow,curcol));
-	bool def22 = (islastrow || islastcol) ? false : 
-	    !mIsUdf(data_.get(nextrow,nextcol));
-	const int nrdefined = def11 + def12 + def21 + def22;
-	if ( !nrdefined )
-	    continue;
 
 	const int c11 = mGlobleIdx( currow, curcol );
 	const int c12 = mGlobleIdx( currow, nextcol );
 	const int c21 = mGlobleIdx( nextrow, curcol );
 	const int c22 = mGlobleIdx( nextrow, nextcol );
+
+	bool def11 = !mIsUdf( data_[c11] );
+	bool def12 = islastcol ? false : !mIsUdf( data_[c12] );
+	bool def21 = islastrow ? false : !mIsUdf( data_[c21] );
+	bool def22 = (islastrow || islastcol) ? false : !mIsUdf( data_[c22] );
+	const int nrdefined = def11 + def12 + def21 + def22;
+	if ( !nrdefined )
+	    continue;
 
 	if ( nrdefined>2 )
 	{
@@ -123,11 +148,13 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 	}
 	else if ( def11 )
 	{
-	    const int prerow = currow - totalcolsz;
+	    const int prerow = currow - datacolsize_;
 	    const int precol = curcol - 1;
 
-	    bool def01 = prerow<0 ? false : !mIsUdf(data_.get(prerow,curcol));
-	    bool def10 = precol<0 ? false : !mIsUdf(data_.get(currow,precol));
+	    const int c01 = mGlobleIdx( prerow, curcol );
+    	    const int c10 = mGlobleIdx( currow, precol );
+	    bool def01 = prerow<0 ? false : !mIsUdf( data_[c01] );
+	    bool def10 = precol<0 ? false : !mIsUdf( data_[c10] );
 	    if ( nrdefined==1 )
 	    {
 		if ( !def01 && !def10 )
@@ -137,8 +164,9 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 	    {
 		if ( def12 && !def01 )
 		{
-		    bool def02 = prerow<0 || islastcol ? false :
-			!mIsUdf(data_.get(prerow,nextcol));
+		    const int c02 = mGlobleIdx( prerow, nextcol );
+		    bool def02 = prerow<0 || islastcol ? false 
+						       : !mIsUdf( data_[c02] );
 		    if ( !def02 )
 		    {
 			linecis_ += c11;
@@ -148,8 +176,9 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 		}
 		else if ( def21 && !def10 )
 		{
-		    bool def20 = islastrow || precol<0 ? false :
-			!mIsUdf(data_.get(nextrow,precol));
+		    const int c20 = mGlobleIdx( nextrow, precol );
+		    bool def20 = islastrow || precol<0 ? false 
+						       : !mIsUdf( data_[c20] );
 		    if ( !def20 )
 		    {
 			linecis_ += c11;
