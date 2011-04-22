@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.114 2011-01-10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.115 2011-04-22 08:17:51 cvsnanne Exp $";
 
 #include "genc.h"
 #include "string2_c.h"
@@ -136,30 +136,15 @@ int isProcessAlive( int pid )
 }
 
 
-const char* getFullDateString( void )
-{
-    char *chp ;
-    int lastch ;
-
-#ifdef __win__
-    return 0; // TODO
-#else
-    const time_t timer = time(NULL);
-    chp = ctime( &timer );
-
-    lastch = strlen( chp ) - 1 ;
-    if ( chp[lastch] == '\n' ) chp[lastch] = '\0' ;
-
-    return chp;
-#endif
-}
-
-
 int ExitProgram( int ret )
 {
     if ( od_debug_isOn(DBG_PROGSTART) )
-	printf( "\nExitProgram (PID: %d) at %s\n",
-		GetPID(), getFullDateString() );
+    {
+	printf( "\nExitProgram (PID: %d)\n", GetPID() );
+#ifndef __win__
+	system( "date" );
+#endif
+    }
 
     NotifyExitProgram( (PtrAllVoidFn)(-1) );
 
