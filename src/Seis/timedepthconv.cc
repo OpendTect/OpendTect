@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.38 2011-04-22 13:28:56 cvsbert Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.39 2011-04-22 13:30:35 cvsbert Exp $";
 
 #include "timedepthconv.h"
 
@@ -31,6 +31,7 @@ static const char* rcsID = "$Id: timedepthconv.cc,v 1.38 2011-04-22 13:28:56 cvs
 VelocityStretcher::VelocityStretcher( const ZDomain::Def& from,
 				      const ZDomain::Def& to )
     : ZAxisTransform(from,to)
+    , errmsg_(0)
 {
 }
 
