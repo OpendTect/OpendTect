@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.50 2011-03-10 22:33:25 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.51 2011-04-22 15:57:43 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -27,7 +27,6 @@ SRC.cc	:=	initsood.cc \
 		SoInvisibleLineDragger.cc \
 		SoLineSet3D.cc \
 		SoLockableSeparator.cc \
-		SoLODMeshSurface.cc \
 		SoManLevelOfDetail.cc \
 		SoMFImage.cc \
 		SoOneSideRender.cc \
@@ -69,20 +68,4 @@ ifndef USE_SIM_VOL
 endif
 
 include make.od.Defaults
-
-# Hack to get SoLODMeshSurface.cc non-optimised on MAC - compiler problem
-# of gcc 3.3
-
-cppcompmeshsurf := $(P_COMPILE.cc)
-ifeq ($(HOST),$(mac))
-	cppcompmeshsurf := $(subst -O2,,$(cppcompmeshsurf))
-endif
-
 include make.Targets
-
-# See above: Hack
-$(LIBWORK)(SoLODMeshSurface.o) : SoLODMeshSurface.cc
-	@echo "Compiling $< ... " $(TEE)
-	@-$(cppcompmeshsurf) $< -o $(TMPPREFIX)$*.o $(OUT)
-	@-$(AR) $(ARFLAGS) $@ $(TMPPREFIX)$*.o $(OUT)
-	@-$(RM) $(TMPPREFIX)$*.o

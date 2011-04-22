@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initsood.cc,v 1.27 2011-03-10 22:33:25 cvskris Exp $";
+static const char* rcsID = "$Id: initsood.cc,v 1.28 2011-04-22 15:57:43 cvskris Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -23,7 +23,6 @@ static const char* rcsID = "$Id: initsood.cc,v 1.27 2011-03-10 22:33:25 cvskris 
 #include "SoDGBIndexedPointSet.h"
 #include "SoIndexedTriangleFanSet.h"
 #include "SoLineSet3D.h"
-#include "SoLODMeshSurface.h"
 #include "SoManLevelOfDetail.h"
 #include "SoMFImage.h"
 #include "SoInvisibleLineDragger.h"
@@ -80,7 +79,6 @@ void SoOD::initStdClasses()
     SoForegroundTranslation::initClass();
     SoDGBIndexedPointSet::initClass();
     SoIndexedTriangleFanSet::initClass();
-    SoLODMeshSurface::initClass();
     SoManLevelOfDetail::initClass();
     SoInvisibleLineDragger::initClass();
     SoOneSideRender::initClass();
