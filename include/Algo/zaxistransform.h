@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.33 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:           $Id: zaxistransform.h,v 1.34 2011-04-22 16:09:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,38 +50,39 @@ public:
     virtual bool		needsVolumeOfInterest() const	{ return true; }
     virtual int			addVolumeOfInterest(const CubeSampling&,
 	    					    bool zistrans=false);
-    virtual int			addVolumeOfInterest(const char* linenm,
-						    const CubeSampling&,
-						    bool zistrans=false);
     virtual void		setVolumeOfInterest(int,const CubeSampling&,
 	    					    bool zistrans=false);
-    virtual void		setVolumeOfInterest(int,const char* linenm,
+    virtual int			addVolumeOfInterest2D(const char* linenm,
+						    const CubeSampling&,
+						    bool zistrans=false);
+    virtual void		setVolumeOfInterest2D(int,const char* linenm,
 						    const CubeSampling&,
 						    bool zistrans=false);
     virtual void		removeVolumeOfInterest(int);
     virtual bool		loadDataIfMissing(int,TaskRunner* =0);
-    				
+    
+				//3D    
     virtual void		transform(const BinID&, 
 	    				  const SamplingData<float>&,
 					  int sz,float* res) const	= 0;
-    virtual float		transform(const BinIDValue&) const;
+    float			transform(const BinIDValue&) const;
     float			transform(const Coord3&) const;
     virtual void		transformBack(const BinID&,
 	    				   const SamplingData<float>&,
 					   int sz,float* res) const	= 0;
-    virtual float		transformBack(const BinIDValue&) const;
+    float			transformBack(const BinIDValue&) const;
     float			transformBack(const Coord3&) const;
 
     				// 2D
-    virtual void		transform(const char* linenm,int trcnr,
+    virtual void		transform2D(const char* linenm,int trcnr,
 	    				  const SamplingData<float>&,
 					  int sz,float* res) const;
-    virtual float		transform(const char* linenm,int trcnr,
+    float			transform2D(const char* linenm,int trcnr,
 					  float z) const;
-    virtual void		transformBack(const char* linenm,int trcnr,
+    virtual void		transformBack2D(const char* linenm,int trcnr,
 					      const SamplingData<float>&,
 					      int sz,float* res) const;
-    virtual float		transformBack(const char* linenm,int trcnr,
+    float			transformBack2D(const char* linenm,int trcnr,
 					      float z) const;
 
     virtual Interval<float>	getZInterval(bool from) const		= 0;

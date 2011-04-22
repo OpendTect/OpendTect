@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.128 2011-03-25 07:04:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.129 2011-04-22 16:09:12 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -638,10 +638,10 @@ void Seis2DDisplay::setData( int attrib,
 	    assign( cs.zrg, trcdisplayinfo_.zrg );
 	    // use survey step here?
 	    if ( voiidx_ < 0 )
-		voiidx_ = datatransform_->addVolumeOfInterest(
+		voiidx_ = datatransform_->addVolumeOfInterest2D(
 						getLineName(), cs, true );
 	    else
-		datatransform_->setVolumeOfInterest( voiidx_, getLineName(),
+		datatransform_->setVolumeOfInterest2D( voiidx_, getLineName(),
 						     cs, true );
 	    datatransform_->loadDataIfMissing( voiidx_ );
 
