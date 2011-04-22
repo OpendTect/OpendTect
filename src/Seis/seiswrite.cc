@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.62 2011-04-22 09:32:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.63 2011-04-22 11:19:54 cvssatyaki Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: seiswrite.cc,v 1.62 2011-04-22 09:32:49 cvssaty
 #include "iopar.h"
 
 
-#define mCurLineKey (lkp ? lkp->lineKey() : seldata->lineKey())
+#define mCurLineKey (lkp ? lkp->lineKey() : (seldata ? seldata->lineKey() : ""))
 const char* SeisTrcWriter::sKeyWriteBluntly() { return "Write bluntly"; }
 
 
@@ -56,12 +56,6 @@ void SeisTrcWriter::init()
     putter = 0; pswriter = 0;
     nrtrcs = nrwritten = 0;
     prepared = false;
-    if ( is2D() )
-    {
-	LineKey lk = lkp ? lkp->lineKey() : seldata ? seldata->lineKey() : "";
-	if ( !lk.isEmpty() )
-	    geom_.setLineName( lk.lineName() );
-    }
 }
 
 
@@ -81,18 +75,16 @@ bool SeisTrcWriter::close()
 
     if ( is2D() )
     {
-	LineKey linekey = lkp ? lkp->lineKey() : seldata ? seldata->lineKey()
-	    						 : "";
-	const int lineidx = lset ? lset->indexOf(linekey) : -1;
-	if ( lineidx>=0 )
+	LineKey lk = mCurLineKey;
+	const int lineidx = lset ? lset->indexOf(lk) : -1;
+	const BufferString lnm = lk.lineName();
+	if ( lineidx>=0 && !lnm.isEmpty() )
 	{
-	    const bool hasgeom = 
-		S2DPOS().hasLineSet( lset->name() ) &&
-		S2DPOS().hasLine(linekey.lineName(),lset->name());
-	    if ( !hasgeom && !linekey.lineName().isEmpty() )
+	    const bool hasgeom = S2DPOS().hasLine( lnm, lset->name() );
+	    if ( !hasgeom )
 	    {
 		S2DPOS().setCurLineSet( lset->name() );
-		geom_.setLineName( linekey.lineName() );
+		geom_.setLineName( lnm );
 		PosInfo::POS2DAdmin().setGeometry( geom_ );
 	    }
 	}
@@ -269,7 +261,6 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 
     PosInfo::Line2DPos pos( trc.info().nr );
     pos.coord_ = trc.info().coord;
-    LineKey linekey = lkp ? lkp->lineKey() : seldata ? seldata->lineKey() : "";
     geom_.add( pos );
 
     return res;
