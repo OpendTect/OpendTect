@@ -7,24 +7,25 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispointset.cc,v 1.9 2011-04-20 12:50:01 cvskris Exp $";
+static const char* rcsID = "$Id: vispointset.cc,v 1.10 2011-04-22 04:05:21 cvssatyaki Exp $";
 
 #include "datapointset.h"
 #include "viscoord.h"
 #include "vispointset.h"
 #include "visdrawstyle.h"
 
-#if COIN_MAJOR_VERSION >= 3 && COIN_MINOR_VERSION <1
-#define USE_DGB_INDEXEDPOINTSET
+#include <Inventor/nodes/SoPointSet.h>
+
+#if COIN_MAJOR_VERSION<3 || (COIN_MAJOR_VERSION==3 && COIN_MINOR_VERSION<1)
+# define USE_DGB_INDEXEDPOINTSET
 #endif
 
 #ifdef USE_DGB_INDEXEDPOINTSET
-#include "SoDGBIndexedPointSet.h"
+# include "SoDGBIndexedPointSet.h"
 #else
-#include "Inventor/nodes/SoIndexedPointSet.h"
+# include "Inventor/nodes/SoIndexedPointSet.h"
 #endif
 
-#include <Inventor/nodes/SoPointSet.h>
 
 mCreateFactoryEntry( visBase::PointSet );
 mCreateFactoryEntry( visBase::IndexedPointSet );
