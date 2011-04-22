@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.14 2011-02-14 22:23:17 cvsyuancheng Exp $
+RCS:           $Id: indexedshape.h,v 1.15 2011-04-22 20:07:31 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace Geometry
 mClass IndexedGeometry
 {
 public:
-    enum	Type { Lines, Triangles, TriangleStrip, TriangleFan };
+    enum	Type { Points, Lines, Triangles, TriangleStrip, TriangleFan };
     enum	NormalBinding { PerVertex, PerFace };
 
     		IndexedGeometry(Type,NormalBinding=PerFace,
