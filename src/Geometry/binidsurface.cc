@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.26 2011-03-07 05:38:48 cvsraman Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.27 2011-04-22 20:08:41 cvsyuancheng Exp $";
 
 #include "binidsurface.h"
 
@@ -149,10 +149,24 @@ BinIDSurface* BinIDSurface::clone() const
 void BinIDSurface::setArray( const BinID& start, const BinID& step,
 			     Array2D<float>* na, bool takeover )
 {
+    bool ismovement = false;
+    if ( depths_ && na )
+    {
+	if ( depths_->info().getSize(0)==na->info().getSize(0) &&
+	     depths_->info().getSize(1)==na->info().getSize(1) &&
+	     step == step_ && origin_==start )
+	    ismovement = true;
+    }
+
     delete depths_;
     depths_ = takeover ? na : new Array2DImpl<float>( *na );
     origin_ = RowCol(start);
     step_ = RowCol(step);
+
+    if ( ismovement )
+	triggerMovement();
+    else
+	triggerNrPosCh();
 }
 
 
