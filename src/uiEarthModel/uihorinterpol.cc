@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.21 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.22 2011-04-22 20:09:47 cvsyuancheng Exp $";
 
 #include "uihorinterpol.h"
 
@@ -165,7 +165,7 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	BinID steps = interpol2dsel_->getStep();
 	StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
 	rowrg.step = steps.inl;
-	StepInterval<int> colrg = hor3d->geometry().colRange( sid );
+	StepInterval<int> colrg = hor3d->geometry().colRange();
 	colrg.step = steps.crl;
 	
 	interpolator->setRowStep( SI().inlDistance()*steps.inl );
