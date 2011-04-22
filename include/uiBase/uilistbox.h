@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.59 2011-04-19 03:57:55 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.60 2011-04-22 06:35:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
 
     virtual 		~uiListBox();
 
-    enum SelectionMode	{ Single, Contiguous, Extended, Multi, No };
+    enum SelectionMode	{ No, Single, Multi, Extended, Contiguous };
     void		setSelectionMode(SelectionMode);
 
     void		setMultiSelect(bool yn=true);
