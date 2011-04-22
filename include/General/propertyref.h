@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.6 2010-10-20 13:07:31 cvsbert Exp $
+ RCS:		$Id: propertyref.h,v 1.7 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -119,6 +119,11 @@ public:
 	    			      const char* nm2=0,const char* nm3=0);
 
     bool		save(Repos::Source) const;
+
+    inline bool		isPresent( const PropertyRef* pr ) const
+			{ return ObjectSet<PropertyRef>::isPresent(pr); }
+    int			indexOf( const PropertyRef* pr ) const
+			{ return ObjectSet<PropertyRef>::indexOf(pr); }
 
 protected:
 

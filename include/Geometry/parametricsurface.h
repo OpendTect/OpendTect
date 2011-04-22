@@ -5,7 +5,7 @@
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
-RCS:           $Id: parametricsurface.h,v 1.21 2011-03-07 05:39:16 cvsraman Exp $
+RCS:           $Id: parametricsurface.h,v 1.22 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,8 +51,8 @@ public:
 
     virtual bool	setKnot(const RowCol&,const Coord3&);
     virtual bool	unsetKnot(const RowCol&);
-    virtual Coord3	getKnot(const RowCol&, bool estifundef ) const = 0;
     virtual Coord3	getKnot(const RowCol&) const;
+    virtual Coord3	getKnot(const RowCol&,bool interpifudf) const	= 0;
     virtual bool	isKnotDefined(const RowCol&) const;
     bool		hasSupport(const RowCol&) const;
 

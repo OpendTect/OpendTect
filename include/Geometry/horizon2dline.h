@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          March 2006
-RCS:           $Id: horizon2dline.h,v 1.11 2010-11-30 10:49:16 cvsraman Exp $
+RCS:           $Id: horizon2dline.h,v 1.12 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,8 @@ public:
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int rowindex) const;
     StepInterval<int>	colRange(const PosInfo::GeomID&) const;
+    virtual StepInterval<int> colRange() const
+			{ return RowColSurface::colRange(); }
     Interval<float>	zRange(const PosInfo::GeomID&) const;
 
     void		geometry(const PosInfo::GeomID&,

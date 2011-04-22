@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.18 2011-04-13 10:43:44 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.19 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -87,6 +87,7 @@ public:
 
     virtual int		curNr() const				= 0;
     virtual bool	includes(int,float z=mUdf(float)) const	= 0;
+    virtual bool	includes(const Coord&,float z=mUdf(float)) const = 0;
 
     virtual void	getExtent(Interval<int>&) const		= 0;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.39 2010-03-09 22:50:23 cvskris Exp $
+ RCS:		$Id: seistrc.h,v 1.40 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,9 +158,13 @@ One of the components of a SeisTrc can be selected to form a ValueSeries.
 mClass SeisTrcFunction : public FloatMathFunction
 {
 public:
+
     		SeisTrcFunction(const SeisTrc& trc, int icomp)
 		    : trc_(trc), icomp_(icomp)			{}
-    float	getValue(float z) const { return trc_.getValue(z,icomp_); }
+
+    float	getValue( float z ) const { return trc_.getValue(z,icomp_); }
+    float	getValue( const float* p ) const { return getValue(*p); }
+
 protected:
 
     const SeisTrc&	trc_;

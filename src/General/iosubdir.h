@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2010
- RCS:		$Id: iosubdir.h,v 1.3 2010-12-15 15:39:15 cvsbert Exp $
+ RCS:		$Id: iosubdir.h,v 1.4 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -30,7 +30,7 @@ public:
     bool	implReadOnly() const	{ return false; }
     bool	implRemove() const	{ return false; }
     bool	implShouldRemove() const { return false; }
-    bool	implRename(const char*,const CallBack*) const
+    bool	implRename(const char*,const CallBack*)
 					{ return false; }
     bool        implSetReadOnly(bool) const { return false; }
     bool	removeQuery() const	{ return true; }

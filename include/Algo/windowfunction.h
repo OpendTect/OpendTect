@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		2007
- RCS:		$Id: windowfunction.h,v 1.7 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: windowfunction.h,v 1.8 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,11 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+
+#define mDeclWFGetValueFns() \
+    float		getValue(float) const; \
+    float		getValue( const float* x ) const { return getValue(*x); }
+
 };
 
 
@@ -46,7 +51,8 @@ public:
     static WindowFunction*	create();
 
     const char*			name() const;
-    float			getValue(float) const;
+				mDeclWFGetValueFns()
+
 };
 
 
@@ -58,7 +64,7 @@ public:
     static WindowFunction*	create();
 
     const char*			name() const;
-    float			getValue(float) const;
+				mDeclWFGetValueFns()
 };
 
 
@@ -70,7 +76,7 @@ public:
     static WindowFunction*	create();
 
     const char*			name() const;
-    float			getValue(float) const;
+				mDeclWFGetValueFns()
 };
 
 
@@ -82,7 +88,7 @@ public:
     static WindowFunction*	create();
 
     const char*			name() const;
-    float			getValue(float) const;
+				mDeclWFGetValueFns()
 };
 
 
@@ -94,7 +100,7 @@ public:
     static WindowFunction*	create();
 
     const char*			name() const;
-    float			getValue(float) const;
+				mDeclWFGetValueFns()
 };
 
 
@@ -108,7 +114,7 @@ public:
 				CosTaperWindow()	{ setVariable( 0.05 ); }
 
     const char*			name() const;
-    float			getValue(float) const;
+				mDeclWFGetValueFns()
 
     bool			hasVariable() const	{ return true; }
     float			getVariable() const	{ return threshold_; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.13 2010-04-12 09:32:06 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.14 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -85,6 +85,8 @@ public:
     			mDefArrayNDProbDenFuncFns(Sampled1D)
 
     virtual float	value(float) const;
+    virtual float	value( const TypeSet<float>& ts ) const
+			{ return value( ts[0] ); }
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -116,6 +118,8 @@ public:
     			mDefArrayNDProbDenFuncFns(Sampled2D)
 
     virtual float	value(float,float) const;
+    virtual float	value( const TypeSet<float>& ts ) const
+			{ return value( ts[0], ts[1] ); }
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.76 2011-02-03 21:31:33 cvskris Exp $
+ RCS:           $Id: datainpspec.h,v 1.77 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,9 +81,9 @@ mClass DataInpSpec
 public:
 
 
-			DataInpSpec( DataType t );
-			DataInpSpec( const DataInpSpec& o );
-    virtual		~DataInpSpec() {}
+			DataInpSpec(DataType);
+			DataInpSpec(const DataInpSpec&);
+    virtual		~DataInpSpec()			{}
 
     DataType		type() const;
 
@@ -96,34 +96,34 @@ public:
     virtual bool	isInsideLimits(int idx=0) const;
 
     virtual const char*	text( int idx=0 ) const		=0;
-    virtual bool	setText( const char*, int idx=0)=0;
+    virtual bool	setText(const char*,int idx=0)	=0;
 
     void		fillPar(IOPar&) const;
     			/*!Saves the _values_ (from text()) */
     bool		usePar(const IOPar&);
     			/*!Sets the _values_ (with setText()) */
 
-    virtual int		getIntValue( int idx=0 ) const;
-    virtual double	getdValue( int idx=0 ) const;
-    virtual float	getfValue( int idx=0 ) const;
-    virtual bool	getBoolValue( int idx=0 ) const;
+    virtual int		getIntValue(int idx=0) const;
+    virtual double	getdValue(int idx=0) const;
+    virtual float	getfValue(int idx=0) const;
+    virtual bool	getBoolValue(int idx=0) const;
 
-    virtual void	setValue( int i, int idx=0 );
-    virtual void	setValue( double d, int idx=0 );
-    virtual void	setValue( float f, int idx=0 );
-    virtual void	setValue( bool b, int idx=0 );
+    virtual void	setValue(int i,int idx=0);
+    virtual void	setValue(double d,int idx=0);
+    virtual void	setValue(float f,int idx=0);
+    virtual void	setValue(bool b,int idx=0);
 
-    virtual int		getDefaultIntValue( int idx=0 ) const;
-    virtual double	getDefaultValue( int idx=0 ) const;
-    virtual float	getDefaultfValue( int idx=0 ) const;
-    virtual bool	getDefaultBoolValue( int idx=0 ) const;
-    virtual const char*	getDefaultStringValue( int idx=0 ) const;
+    virtual int		getDefaultIntValue(int idx=0) const;
+    virtual double	getDefaultValue(int idx=0) const;
+    virtual float	getDefaultfValue(int idx=0) const;
+    virtual bool	getDefaultBoolValue(int idx=0) const;
+    virtual const char*	getDefaultStringValue(int idx=0) const;
 
-    virtual void	setDefaultValue( int i, int idx=0 )		{}
-    virtual void	setDefaultValue( double d, int idx=0 )		{}
-    virtual void	setDefaultValue( float f, int idx=0 )		{}
-    virtual void	setDefaultValue( bool b, int idx=0 )		{}
-    virtual void	setDefaultValue( const char* s, int idx=0 )	{}
+    virtual void	setDefaultValue(int i,int idx=0)		{}
+    virtual void	setDefaultValue(double d,int idx=0)		{}
+    virtual void	setDefaultValue(float f,int idx=0)		{}
+    virtual void	setDefaultValue(bool b,int idx=0)		{}
+    virtual void	setDefaultValue(const char* s,int idx=0)	{}
 
     virtual const char*	name(int idx=0) const;
     virtual DataInpSpec& setName(const char*,int idx=0);
@@ -140,7 +140,16 @@ protected:
 private:
 
     static const char*	valuestr;
+
 };
+
+
+#define mDefDISSetValBaseClassImpl(typ) \
+    virtual void	setValue( typ val, int idx=0 ) \
+			{ DataInpSpec::setValue(val,idx); }
+#define mDefDISSetDefValBaseClassImpl(typ) \
+    virtual void	setDefaultValue( typ val, int idx=0 ) \
+			{ DataInpSpec::setDefaultValue(val,idx); }
 
 
 /*! \brief Specifications for numerical inputs that may or may not have limits
@@ -191,6 +200,8 @@ public:
 			{ defaultvalue_ = (T)val; }
     virtual void	setDefaultValue( float val, int idx=0 )
 			{ defaultvalue_ = (T)val; }
+    			mDefDISSetDefValBaseClassImpl(bool)
+    			mDefDISSetDefValBaseClassImpl(const char*)
     T			value() const
 			{
 			    if ( mIsUdf(value_) ) return mUdf(T);
@@ -345,6 +356,11 @@ public:
 			    if ( defaultinterval_ ) delete defaultinterval_;
 			    defaultinterval_ = defaultintval.clone();
 			}
+    			mDefDISSetDefValBaseClassImpl(int)
+    			mDefDISSetDefValBaseClassImpl(float)
+    			mDefDISSetDefValBaseClassImpl(double)
+    			mDefDISSetDefValBaseClassImpl(bool)
+    			mDefDISSetDefValBaseClassImpl(const char*)
 
     virtual bool	setText( const char* s, int idx=0 )
 			{ 
@@ -525,16 +541,22 @@ mClass StringInpSpec : public DataInpSpec
 {
 public:
 			StringInpSpec( const char* s=0 );
-    virtual bool	isUndef( int idx=0 ) const;
+    virtual bool	isUndef(int idx=0) const;
 
     virtual DataInpSpec* clone() const;
     const char*		text() const;
 
-    virtual bool	setText( const char* s, int idx=0 ) ;
-    virtual const char*	text( int idx ) const;
+    virtual bool	setText(const char*,int idx=0) ;
+    virtual const char*	text(int) const;
 
-    void		setDefaultValue( const char* s, int idx );
-    const char*		getDefaultStringValue( int idx ) const;
+    void		setDefaultValue(const char*,int);
+    const char*		getDefaultStringValue(int) const;
+
+    			mDefDISSetDefValBaseClassImpl(int)
+    			mDefDISSetDefValBaseClassImpl(float)
+    			mDefDISSetDefValBaseClassImpl(double)
+    			mDefDISSetDefValBaseClassImpl(bool)
+
 protected:
 
     bool		isUndef_;
@@ -586,8 +608,15 @@ public:
     virtual bool	setText(const char* s,int idx=0);
     virtual bool	getBoolValue(int idx=0) const;
     virtual void	setValue(bool,int idx=0);
+    			mDefDISSetValBaseClassImpl(int)
+    			mDefDISSetValBaseClassImpl(float)
+    			mDefDISSetValBaseClassImpl(double)
     virtual bool	getDefaultBoolValue(int idx=0) const;
     virtual void	setDefaultValue(bool,int idx=0);
+    			mDefDISSetDefValBaseClassImpl(int)
+    			mDefDISSetDefValBaseClassImpl(float)
+    			mDefDISSetDefValBaseClassImpl(double)
+    			mDefDISSetDefValBaseClassImpl(const char*)
 
     bool		isSet() const 			{ return isset; }
     void		setSet( bool yesno=true )	{ isset = yesno; }
@@ -633,9 +662,14 @@ public:
     virtual void	setValue(int i,int idx=0);
     virtual void	setValue(double d,int idx=0);
     virtual void	setValue(float f,int idx=0);
+    			mDefDISSetValBaseClassImpl(bool)
 
     virtual void	setDefaultValue(int i,int idx=0);
     virtual int		getDefaultIntValue(int idx=0) const;
+    			mDefDISSetDefValBaseClassImpl(const char*)
+    			mDefDISSetDefValBaseClassImpl(float)
+    			mDefDISSetDefValBaseClassImpl(double)
+    			mDefDISSetDefValBaseClassImpl(bool)
 
     bool		isSet() const			{ return isset_; }
     void		setSet( bool yn=true )		{ isset_ = yn; }
@@ -693,6 +727,9 @@ public:
 			{ return getVal(setup_,idx); }
     void		setValue( float f, int idx=0 )
 			{ setVal( setup_, idx, f ); }
+    			mDefDISSetValBaseClassImpl(int)
+    			mDefDISSetValBaseClassImpl(bool)
+    			mDefDISSetValBaseClassImpl(double)
     virtual bool	isUndef(int idx=0) const;
     virtual const char*	text(int idx=0) const;
     virtual bool	setText(const char* s,int idx=0);
@@ -701,6 +738,10 @@ public:
 			{ return getVal(defsetup_,idx); }
     void		setDefaultValue( float f, int idx=0 )
 			{ setVal( defsetup_, idx, f ); }
+    			mDefDISSetDefValBaseClassImpl(int)
+    			mDefDISSetDefValBaseClassImpl(const char*)
+    			mDefDISSetDefValBaseClassImpl(double)
+    			mDefDISSetDefValBaseClassImpl(bool)
 
     Setup&		setup( bool def=false )
     			{ return def ? defsetup_ : setup_; }

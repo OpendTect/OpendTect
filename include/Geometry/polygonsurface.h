@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Y.C. Liu
 Date:          July 2008
-RCS:           $Id: polygonsurface.h,v 1.13 2010-06-17 19:00:58 cvskris Exp $
+RCS:           $Id: polygonsurface.h,v 1.14 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,8 @@ public:
 
     int			nrPolygons() const { return polygons_.size(); }
     StepInterval<int>	rowRange() const;
+    virtual StepInterval<int> colRange() const
+			{ return RowColSurface::colRange(); }
     StepInterval<int>	colRange(int polygon) const;
     
     bool		setKnot(const RowCol&,const Coord3&);

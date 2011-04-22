@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: arrayndinfo.cc,v 1.16 2010-06-10 17:13:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.17 2011-04-22 13:28:56 cvsbert Exp $";
 
 #include "arraynd.h"
 #include "typeset.h"
@@ -92,14 +92,6 @@ od_uint64 ArrayNDInfo::calcTotalSz() const
 
     return res;
 }
-
-
-od_uint64 Array1DInfo::getOffset( int pos ) const
-{ return pos; }
-
-
-bool Array1DInfo::validPos( int pos ) const
-{ return ArrayNDInfo::validPos( &pos ); }
 
 
 od_uint64 Array2DInfo::getOffset( int p0, int p1 ) const

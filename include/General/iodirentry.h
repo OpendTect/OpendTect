@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.14 2010-12-13 12:34:11 cvsbert Exp $
+ RCS:           $Id: iodirentry.h,v 1.15 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,10 @@ public:
 			    	: (*(IODirEntryList*)this)[cur_]; }
     IOObj*		selected()
 			{ return current() ? current()->ioobj : 0 ; }
-    int			indexOf(const char*) const;
     void		removeWithTranslator(const char*);
+    int			indexOf(const char*) const;
+    int			indexOf( const IODirEntry* e ) const
+			{ return ObjectSet<IODirEntry>::indexOf(e); }
 
     MultiID		lastiokey;
     IOObjContext&	ctxt;

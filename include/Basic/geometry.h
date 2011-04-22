@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.39 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:           $Id: geometry.h,v 1.40 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,11 +38,11 @@ public:
     virtual inline T&		operator[](int idx);
     virtual inline T		operator[](int idx) const;
 
-    virtual inline bool		operator==(const Point2D<T>&) const;
-    virtual inline bool		operator!=(const Point2D<T>&) const;
-    virtual inline Point2D<T>&	operator+=(T dist);
-    virtual inline Point2D<T>&	operator*=(T factor);
-    virtual inline Point2D<T>&	operator/=(T den);
+    inline bool			operator==(const Point2D<T>&) const;
+    inline bool			operator!=(const Point2D<T>&) const;
+    inline Point2D<T>&		operator+=(T dist);
+    inline Point2D<T>&		operator*=(T factor);
+    inline Point2D<T>&		operator/=(T den);
     inline Point2D<T>&		operator+=(const Point2D<T>&);
     inline Point2D<T>&		operator-=(const Point2D<T>&);
     inline Point2D<T>		operator+(const Point2D<T>&) const;

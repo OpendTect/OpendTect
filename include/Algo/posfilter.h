@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.12 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: posfilter.h,v 1.13 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -100,6 +100,8 @@ public:
     virtual bool	worksWithCoords() const			{ return ld_; }
 
     virtual bool	includes(int,float z=mUdf(float)) const	= 0;
+    virtual bool	includes(const Coord&,
+	    			 float z=mUdf(float)) const	= 0;
 
     mDefineFactoryInClass(Filter2D,factory);
     static Filter2D*	make(const IOPar&);

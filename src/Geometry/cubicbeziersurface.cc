@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.28 2010-06-18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.29 2011-04-22 13:28:56 cvsbert Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -412,7 +412,7 @@ bool CubicBezierSurface::insertCol(int col, int nrtoinsert )
 }
 
 
-bool CubicBezierSurface::removeRow( int row )
+bool CubicBezierSurface::removeRow( int row, int )
 {
     const int curnrrows = nrRows();
     const int curnrcols = nrCols();
@@ -488,7 +488,7 @@ bool CubicBezierSurface::removeRow( int row )
 }
 
 
-bool CubicBezierSurface::removeCol( int col )
+bool CubicBezierSurface::removeCol( int col, int )
 {
     const int curnrrows = nrRows();
     const int curnrcols = nrCols();

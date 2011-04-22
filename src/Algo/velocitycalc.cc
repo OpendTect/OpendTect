@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.46 2011-04-20 15:07:45 cvshelene Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.47 2011-04-22 13:28:56 cvsbert Exp $";
 
 #include "velocitycalc.h"
 
@@ -584,6 +584,8 @@ public:
 
     ~MoveoutComputerError() { delete [] calcmoveouts_; }
 
+    float		getValue( const float* pos ) const
+			{ return getValue(*pos); }
     float		getValue(float val) const
     {
 	variables_[variable_] = val;

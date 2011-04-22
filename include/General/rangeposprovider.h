@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.8 2010-11-09 20:37:19 cvskris Exp $
+ RCS:           $Id: rangeposprovider.h,v 1.9 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,9 @@ public:
 
     CubeSampling&	sampling()		{ return cs_; }
     const CubeSampling&	sampling() const	{ return cs_; }
+
+    virtual bool	includes( const Coord& c, float z=mUdf(float) ) const
+			{ return Pos::Provider3D::includes(c,z); }
 
 protected:
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.60 2010-06-21 14:40:00 cvsbert Exp $
+ RCS:		$Id: position.h,v 1.61 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,8 +100,8 @@ public:
     inline bool		operator==(const Coord3&) const;
     inline bool		operator!=(const Coord3&) const;
     inline bool		isDefined() const;
-    double		distTo( const Coord3& b ) const;
-    double		sqDistTo( const Coord3& b ) const;
+    double		distTo(const Coord3&) const;
+    double		sqDistTo(const Coord3&) const;
 
     inline double	dot( const Coord3& b ) const;
     inline Coord3	cross( const Coord3& ) const;
@@ -116,7 +116,12 @@ public:
 
     double	z;
 
-    static const Coord3&	udf();
+    static const Coord3& udf();
+
+    inline double	distTo( const Geom::Point2D<double>& b ) const
+			{ return Geom::Point2D<double>::distTo(b); }
+    inline double	sqDistTo( const Geom::Point2D<double>& b ) const
+			{ return Geom::Point2D<double>::sqDistTo(b); }
 };
 
 

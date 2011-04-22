@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.29 2009-12-22 14:48:10 cvsbert Exp $
+ RCS:		$Id: mathfunc.h,v 1.30 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,18 +38,19 @@ class MathFunctionND
 {
 public:
     virtual	~MathFunctionND() {}
-    template <class IDXABL>
-    RT		getValue( const IDXABL& x ) const
-    		{
-		    const int nrdim = getNrDim();
-		    mAllocVarLenArr( PT, pos, nrdim );
-		    for ( int idx=0; idx<nrdim; idx++ )
-			pos[idx] = x[idx];
-		    return getValue( pos );
-		}
 
-    virtual RT	getValue( const PT* x) const	= 0;
-    virtual int	getNrDim() const 		= 0;
+    template <class IDXABL>
+    RT			getValue( const IDXABL& x ) const
+			{
+			    const int nrdim = getNrDim();
+			    mAllocVarLenArr( PT, pos, nrdim );
+			    for ( int idx=0; idx<nrdim; idx++ )
+				pos[idx] = x[idx];
+			    return getValue( pos );
+			}
+
+    virtual RT		getValue(const PT*) const		= 0;
+    virtual int		getNrDim() const 			= 0;
 };
 
 typedef MathFunctionND<float,float> FloatMathFunctionND;
@@ -68,10 +69,11 @@ class MathFunction : public MathFunctionND<RT,PT>
 {
 public:
 
-    virtual RT	getValue(PT) const	= 0;
+    virtual RT		getValue(const PT* pos) const	{ return getValue(*pos); }
+    virtual int		getNrDim() const		{ return 1; }
 
-    RT		getValue( const PT* pos ) const { return getValue(pos[0]);}
-    int		getNrDim() const { return 1; }
+    virtual RT		getValue( PT p ) const		= 0;
+
 };
 
 typedef MathFunction<float,float> FloatMathFunction;
@@ -162,6 +164,7 @@ public:
     void		remove(int idx);
     float		getValue( float x ) const
 			{ return itype_ == Snap ? snapVal(x) : interpVal(x); }
+    float		getValue( const float* p ) const { return getValue(*p); }
 
     const TypeSet<float>& xVals() const		{ return x_; }
     const TypeSet<float>& yVals() const		{ return y_; }
@@ -214,6 +217,9 @@ public:
 
 			    return func.getValue( pos );
 			}
+    RT			getValue( const PT* p ) const
+			{ return getValue( *p ); }
+
 protected:
 
     const PT*				P;
@@ -250,6 +256,7 @@ public:
 			    if ( Values::isUdf(pos) ) return mUdf(float);
 			    return pos*pos * a + pos * b + c;
 			}
+    float		getValue( const float* p ) const { return getValue(*p); }
 
     float		getExtremePos() const
 			{
@@ -322,6 +329,7 @@ public:
 			    const float possq = pos * pos;
 			    return possq * pos * a + possq * b + pos * c + d;
 			}
+    float		getValue( const float* p ) const { return getValue(*p); }
 
     SecondOrderPoly*	createDerivative() const
 			{ return new SecondOrderPoly( a*3, b*2, c ); }

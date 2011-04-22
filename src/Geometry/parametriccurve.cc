@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.14 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: parametriccurve.cc,v 1.15 2011-04-22 13:28:56 cvsbert Exp $";
 
 #include "parametriccurve.h"
 
@@ -29,6 +29,8 @@ public:
 
     float		getValue( float p ) const
 			{ return curve.computePosition(p).sqDistTo(pos); }
+    float		getValue( const float* p ) const
+			{ return getValue( *p ); }
 
 protected:
     const ParametricCurve&	curve;

@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.37 2011-03-15 14:41:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.38 2011-04-22 13:28:56 cvsbert Exp $";
 
 #include "timedepthconv.h"
 
@@ -31,8 +31,8 @@ static const char* rcsID = "$Id: timedepthconv.cc,v 1.37 2011-03-15 14:41:13 cvs
 VelocityStretcher::VelocityStretcher( const ZDomain::Def& from,
 				      const ZDomain::Def& to )
     : ZAxisTransform(from,to)
-    , errmsg_(0)
-{}
+{
+}
 
 
 Time2DepthStretcher::Time2DepthStretcher()
@@ -94,10 +94,7 @@ const Interval<float>& Time2DepthStretcher::getVavgRg( bool top ) const
 bool Time2DepthStretcher::isOK() const
 {
     if ( !TimeDepthConverter::isVelocityDescUseable( veldesc_, velintime_ ) )
-    {
-	errmsg_ = "Provided velocity is not useable";
-	return false;
-    }
+	{ errmsg_ = "Provided velocity is not usable"; return false; }
 
     return true;
 }

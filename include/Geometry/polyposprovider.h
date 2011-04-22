@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: polyposprovider.h,v 1.10 2010-11-09 20:37:19 cvskris Exp $
+ RCS:           $Id: polyposprovider.h,v 1.11 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -60,6 +60,9 @@ public:
     const HorSampling&	horSampling() const	{ return hs_; }
 
     static ODPolygon<float>* polyFromPar(const IOPar&,int nr=0);
+
+    virtual bool	includes( const Coord& c, float z ) const
+			{ return Provider3D::includes(c,z); }
 
 protected:
 

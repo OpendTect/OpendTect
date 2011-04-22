@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: namedobj.h,v 1.4 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: namedobj.h,v 1.5 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public:
 			{ return name_ ? *name_ : linkedto_->name(); }
     virtual void	setName(const char*);
     void		setCleanName(const char*);
-    virtual bool	operator ==( const NamedObject& no ) const
+    bool		operator ==( const NamedObject& no ) const
 			{ return name() == no.name(); }
 
     void		deleteNotify(const CallBack&);

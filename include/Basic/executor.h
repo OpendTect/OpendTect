@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.29 2010-11-16 05:55:47 cvsraman Exp $
+ RCS:		$Id: executor.h,v 1.30 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,8 +46,9 @@ public:
 
     virtual int		doStep();
 
-    virtual bool	execute(std::ostream* log=0,bool isfirst=true,
+    virtual bool	execute(std::ostream*,bool isfirst=true,
 	    			bool islast=true,int delaybetwnstepsinms=0);
+    virtual bool	execute()	{ return execute(0); }
 
     Notifier<Executor>	prestep;
     Notifier<Executor>	poststep; //!< Only when MoreToDo will be returned.

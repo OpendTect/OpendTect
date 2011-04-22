@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2011
- RCS:		$Id: segyhdrdef.h,v 1.3 2011-03-02 16:11:04 cvsbert Exp $
+ RCS:		$Id: segyhdrdef.h,v 1.4 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,9 @@ public:
 	    			     unsigned char& offs) const;
 
     void		swapValues(unsigned char*) const;
+
+    int			indexOf( const HdrEntry* he ) const
+			{ return ObjectSet<const HdrEntry>::indexOf(he); }
 
 protected:
 

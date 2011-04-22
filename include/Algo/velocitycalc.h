@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.32 2011-04-20 15:07:45 cvshelene Exp $
+ RCS:		$Id: velocitycalc.h,v 1.33 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,7 +166,7 @@ mClass NormalMoveout : public MoveoutComputer
 {
 public:
     int 	nrVariables() const	{ return 3; }
-    const char*	variableName(int idx)
+    const char*	variableName( int idx ) const
 		{
 		    switch ( idx ) 
 		    {

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.16 2010-06-10 17:13:37 cvsyuancheng Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.17 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -64,9 +64,15 @@ public:
 
     int			getNDim() const				{ return 1; }
 
-    virtual od_uint64	getOffset(int) const;
-    			/*!<Returns offset in a 'flat' array.*/
-    virtual bool	validPos(int pos) const;
+    virtual od_uint64	getOffset( int pos ) const
+			{ return pos; }
+    virtual bool	validPos( int pos ) const
+			{ return ArrayNDInfo::validPos( &pos ); }
+
+    virtual od_uint64	getOffset( const int* iarr ) const
+			{ return getOffset( *iarr ); }
+    virtual bool	validPos( const int* iarr ) const
+			{ return ArrayNDInfo::validPos( iarr ); }
 
 };
 
@@ -75,11 +81,16 @@ mClass Array2DInfo : public ArrayNDInfo
 {
 public:
 
-    int				getNDim() const			{ return 2; }
+    int			getNDim() const			{ return 2; }
 
-    virtual od_uint64		getOffset(int,int) const;
-				/*!<Returns offset in a 'flat' array.*/
-    virtual bool		validPos(int,int) const;
+    virtual od_uint64	getOffset(int,int) const;
+			/*!<Returns offset in a 'flat' array.*/
+    virtual bool	validPos(int,int) const;
+
+    virtual od_uint64	getOffset( const int* iarr ) const
+			{ return ArrayNDInfo::getOffset( iarr ); }
+    virtual bool	validPos( const int* iarr ) const
+			{ return ArrayNDInfo::validPos( iarr ); }
 
 };
 
@@ -88,11 +99,16 @@ mClass Array3DInfo : public ArrayNDInfo
 {
 public:
 
-    int				getNDim() const			{ return 3; }
+    int			getNDim() const			{ return 3; }
 
-    virtual od_uint64		getOffset(int, int, int) const;
-				/*!<Returns offset in a 'flat' array.*/
-    virtual bool		validPos(int,int,int) const;
+    virtual od_uint64	getOffset(int, int, int) const;
+			/*!<Returns offset in a 'flat' array.*/
+    virtual bool	validPos(int,int,int) const;
+
+    virtual od_uint64	getOffset( const int* iarr ) const
+			{ return ArrayNDInfo::getOffset( iarr ); }
+    virtual bool	validPos( const int* iarr ) const
+			{ return ArrayNDInfo::validPos( iarr ); }
 
 };
 
@@ -130,9 +146,6 @@ public:
 
     od_uint64		getTotalSz() const { return cachedtotalsz_; }
     
-    virtual inline od_uint64	getOffset(int,int) const;
-				/*!<Returns offset in a 'flat' array.*/
-
 protected:
 
     int                 sz0_;
@@ -153,9 +166,6 @@ public:
     inline int		getSize(int dim) const; 
     bool                setSize(int dim,int nsz);
     od_uint64		getTotalSz() const { return cachedtotalsz_; }
-
-    virtual inline od_uint64	getOffset(int, int, int) const;
-				/*!<Returns offset in a 'flat' array.*/
 
 protected:
 
@@ -205,21 +215,9 @@ inline int Array2DInfoImpl::getSize( int dim ) const
 }
 
 
-inline od_uint64 Array2DInfoImpl::getOffset( int p0, int p1 ) const
-{
-    return (od_uint64) p0 * sz1_ + p1;
-}
-
-
 inline int Array3DInfoImpl::getSize( int dim ) const
 {
     return dim>2 || dim<0 ? 0 : (&sz0_)[dim];
-}
-
-
-inline od_uint64 Array3DInfoImpl::getOffset( int p0, int p1, int p2 ) const
-{
-    return (od_uint64) p0 * sz2_ * sz1_ + p1 * sz2_ + p2;
 }
 
 

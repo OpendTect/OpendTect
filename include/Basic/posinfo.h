@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.22 2011-03-25 15:01:59 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.23 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,6 +131,9 @@ public:
     bool		read(std::istream&,bool asc);
     bool		write(std::ostream&,bool asc) const;
 
+    virtual int		indexOf( const LineData* l ) const
+    			{ return ObjectSet<LineData>::indexOf( l ); }
+
 protected:
 
     void		copyContents(const CubeData&);
@@ -163,6 +166,9 @@ public:
 
     virtual CubeData&	operator +=( LineData* ld )	{ return add( ld ); }
     SortedCubeData&	add(LineData*);
+
+    virtual int		indexOf( const LineData* l ) const
+    			{ return CubeData::indexOf( l ); }
 
 };
 

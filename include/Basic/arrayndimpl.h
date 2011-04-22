@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.74 2010-11-03 17:21:05 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.75 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -54,9 +54,11 @@ public:
     inline T			get(int pos) const;
 			
     inline const Array1DInfo&	info() const		{ return in_; }
-    inline bool			canSetInfo()		{ return true; }
+    inline bool			canSetInfo() const	{ return true; }
     inline bool			setInfo(const ArrayNDInfo&);
     inline bool			setSize(int);
+    inline bool			setSize( od_int64 sz )
+    				{ return setSize( ((int)sz) ); }
 
 				// ValueSeries interface
     inline T*			arr()			{ return ptr_; }
@@ -89,7 +91,7 @@ public:
     void		copyFrom(const Array2D<T>&);
 
     inline const Array2DInfo& info() const		{ return in_; }
-    inline bool		canSetInfo()			{ return true; }
+    inline bool		canSetInfo() const		{ return true; }
 
     bool		setInfo(const ArrayNDInfo&);
     bool		setSize(int,int);
@@ -122,7 +124,7 @@ public:
     inline void		copyFrom(const Array3D<T>&);
 
     inline const Array3DInfo& info() const		{ return in_; }
-    inline bool		canSetInfo()			{ return true; }
+    inline bool		canSetInfo() const		{ return true; }
     inline bool		setInfo(const ArrayNDInfo&);
     inline bool		setSize(int,int,int);
 
@@ -153,7 +155,7 @@ public:
     inline T			getND(const int*) const;
 
     inline const ArrayNDInfo&	info() const		{ return *in_; }
-    inline bool			canSetInfo()		{ return true; }
+    inline bool			canSetInfo() const	{ return true; }
     inline bool			canChangeNrDims() const	{ return true; }
     inline bool			setInfo(const ArrayNDInfo&);
  

@@ -7,7 +7,7 @@ ________________________________________________________________________
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: binidsurface.h,v 1.15 2011-03-07 05:38:48 cvsraman Exp $
+RCS:           $Id: binidsurface.h,v 1.16 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,8 @@ public:
 
     bool		expandWithUdf(const BinID& start,const BinID& stop);
 
+    virtual Coord3	getKnot( const RowCol& rc ) const
+			{ return getKnot(rc,false); }
     Coord3		getKnot(const RowCol&,bool computeifudf) const;
 
 protected:

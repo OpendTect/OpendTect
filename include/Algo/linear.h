@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: linear.h,v 1.9 2009-12-22 14:48:10 cvsbert Exp $
+ RCS:		$Id: linear.h,v 1.10 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ public:
 			{ return ax ? (y - a0) / ax : 0; }
     inline T	getProjectedX( T x, T y ) const
 			{ return (x + ax * (y - a0)) / (1 + ax * ax); }
+    inline T	getValue( const T* x ) const
+			{ return getValue(*x); }
  
     T		a0, ax;
 };
@@ -50,6 +52,8 @@ public:
 
     inline T	getValue( T x, T y ) const
 		{ return a0 + ax * x + ay * y; }
+    inline T	getValue( const T* x ) const
+			{ return getValue(x[0],x[1]); }
 
     T		a0, ax, ay;
 

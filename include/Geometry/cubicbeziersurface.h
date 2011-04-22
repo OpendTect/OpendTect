@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.12 2010-06-17 19:00:58 cvskris Exp $
+RCS:           $Id: cubicbeziersurface.h,v 1.13 2011-04-22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,9 +71,11 @@ public:
 
     bool	insertRow(int row,int nrnew=1);
     bool	insertCol(int col,int nrnew=1);
-    bool	removeRow(int row);
-    bool	removeCol(int col);
-    Coord3	getKnot( const RowCol&,bool estimateifundef=false) const;
+    bool	removeRow(int row,int stoprow=-1); //!< stoprow will be ignored
+    bool	removeCol(int col,int stopcol=-1); //!< stopcol will be ignored
+    virtual Coord3 getKnot( const RowCol& rc ) const
+    		{ return getKnot(rc,false); }
+    Coord3	getKnot(const RowCol&,bool estimateifundef) const;
 
     Coord3	getRowDirection(const RowCol&,bool computeifudf) const;
     Coord3	getColDirection(const RowCol&,bool computeifudf) const;

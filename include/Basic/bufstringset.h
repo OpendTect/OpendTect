@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.20 2010-12-13 11:52:13 cvsbert Exp $
+ RCS:		$Id: bufstringset.h,v 1.21 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,12 @@ public:
     const BufferString&	get( int idx ) const	{ return *((*this)[idx]); }
     int			indexOf(const char*) const;	//!< first match
     int			indexOf(const GlobExpr&) const;	//!< first match
+    int			indexOf( const BufferString* b ) const
+				{ return ObjectSet<BufferString>::indexOf(b); }
+    inline bool		isPresent( const BufferString* b ) const
+				{ return ObjectSet<BufferString>::isPresent(b); }
     inline bool		isPresent( const char* s ) const
-    						{ return indexOf(s) >= 0; }
+				{ return indexOf(s) >= 0; }
     int			nearestMatch(const char*) const;
 			    //!< algo may not be very good, but anyway
     bool		isSubsetOf(const BufferStringSet&) const;

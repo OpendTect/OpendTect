@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.32 2011-03-04 03:21:15 cvsnanne Exp $
+ RCS:           $Id: zaxistransform.h,v 1.33 2011-04-22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ public:
 				          caller's responsibility to unref. */
 
     virtual bool		isOK() const		{ return true; }
-    virtual const char*		errMsg()		{ return errmsg_; }
+    virtual const char*		errMsg() const		{ return errmsg_; }
 
     virtual bool		needsVolumeOfInterest() const	{ return true; }
     virtual int			addVolumeOfInterest(const CubeSampling&,
