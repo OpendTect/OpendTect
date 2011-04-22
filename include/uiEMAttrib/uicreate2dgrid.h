@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.h,v 1.1 2010-08-26 03:56:27 cvsraman Exp $
+ RCS:		$Id: uicreate2dgrid.h,v 1.2 2011-04-22 09:32:49 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "grid2d.h"
 
+class BufferStringSet;
 class CubeSampling;
 class HorSampling;
 class IOPar;
@@ -69,6 +70,7 @@ public:
 
     bool			fillPar(IOPar&) const;
     void			updateRange();
+    void			getLineNames(BufferStringSet&) const;
 
 protected:
 
@@ -97,6 +99,7 @@ public:
 
     const Grid2D::Line*		getBaseLine() const	{ return baseline_; }
     bool			fillPar(IOPar&) const;
+    void			getLineNames(BufferStringSet&) const;
 
 protected:
 
@@ -158,6 +161,8 @@ protected:
 
     void			fillSeisPar(IOPar&);
     void			fillHorPar(IOPar&);
+
+    bool			checkInput() const;
 
 };
 

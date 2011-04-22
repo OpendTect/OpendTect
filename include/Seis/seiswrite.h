@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.31 2011-03-21 01:26:37 cvskris Exp $
+ RCS:		$Id: seiswrite.h,v 1.32 2011-04-22 09:32:49 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ is done.
 #include "seisstor.h"
 #include "fixedstring.h"
 #include "linekey.h"
+#include "posinfo2d.h"
 #include "thread.h"
 class SeisTrc;
 class SeisPSWriter;
@@ -97,6 +98,7 @@ protected:
     // 2D only
     BufferString	attrib;
     Seis2DLinePutter*	putter;
+    PosInfo::Line2DData	geom_;
     IOPar&		lineauxiopar;
     LineKey		prevlk;
     const LineKeyProvider* lkp;

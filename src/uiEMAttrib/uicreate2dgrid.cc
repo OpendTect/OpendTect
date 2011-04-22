@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.cc,v 1.7 2010-11-09 16:01:18 cvsbert Exp $
+ RCS:		$Id: uicreate2dgrid.cc,v 1.8 2011-04-22 09:32:49 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,10 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
 #include "seistrctr.h"
+#include "seis2dline.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 
 
 
@@ -271,6 +273,24 @@ bool ui2DGridLinesFromInlCrl::computeGrid()
 }
 
 
+void ui2DGridLinesFromInlCrl::getLineNames( BufferStringSet& linenames ) const
+{
+    for ( int inlidx=0; inlidx < grid_->size(true); inlidx++ )
+    {
+	BufferString linename( inlprefixfld_->text() );
+	linename += grid_->getLine( inlidx, true )->start_.inl;
+	linenames.add( linename );
+    }
+
+    for ( int crlidx=0; crlidx < grid_->size(false); crlidx++ )
+    {
+	BufferString linename( crlprefixfld_->text() );
+	linename += grid_->getLine( crlidx, false )->start_.crl;
+	linenames.add( linename );
+    }
+}
+
+
 bool ui2DGridLinesFromInlCrl::fillPar( IOPar& par ) const
 {
     if ( inlmodefld_->getBoolValue() )
@@ -400,6 +420,24 @@ void ui2DGridLinesFromRandLine::getNrLinesLabelTexts( BufferString& inltxt,
     inltxt += grid_->size( true );
     crltxt = "Nr of perpendicular lines in grid: ";
     crltxt += grid_->size( false );
+}
+
+
+void ui2DGridLinesFromRandLine::getLineNames( BufferStringSet& linenames ) const
+{
+    for ( int strikelidx=0; strikelidx < grid_->size(true); strikelidx++ )
+    {
+	BufferString linename( inlprefixfld_->text() );
+	linename += strikelidx;
+	linenames.add( linename );
+    }
+
+    for ( int diplidx=0; diplidx < grid_->size(false); diplidx++ )
+    {
+	BufferString linename( crlprefixfld_->text() );
+	linename += diplidx;
+	linenames.add( linename );
+    }
 }
 
 
@@ -635,12 +673,90 @@ void uiCreate2DGrid::fillHorPar( IOPar& par )
 }
 
 
+bool uiCreate2DGrid::checkInput() const
+{
+    BufferStringSet linenames;
+    const bool frominlcrl = sourceselfld_ ? sourceselfld_->getBoolValue()
+					  : false;
+    if ( frominlcrl )
+    {
+	mDynamicCastGet(ui2DGridLinesFromInlCrl*,grp,inlcrlgridgrp_);
+	if ( grp ) grp->getLineNames( linenames );
+    }
+    else
+    {
+	mDynamicCastGet(ui2DGridLinesFromRandLine*,grp,randlinegrdgrp_);
+	if ( grp ) grp->getLineNames( linenames );
+    }
+
+    S2DPOS().setCurLineSet( outfld_->ioobj()->name() );
+
+    BufferStringSet ovwrlinenms;
+    for ( int lidx=0; lidx < linenames.size(); lidx++ )
+    {
+	if ( S2DPOS().hasLine(linenames.get(lidx)) )
+	    ovwrlinenms.add( linenames.get(lidx) );
+    }
+
+    if ( ovwrlinenms.isEmpty() )
+	return true;
+
+    Seis2DLineSet s2dls( *outfld_->ioobj() );
+    BufferStringSet lines;
+    s2dls.getLineNamesWithAttrib( lines, outfld_->attrNm() );
+
+    BufferStringSet linestoremove;
+    for ( int idx=0; idx<ovwrlinenms.size(); idx++ )
+    {
+	BufferString line = ovwrlinenms.get( idx );
+	if ( !lines.isPresent(line) )
+	    linestoremove.add( line );
+    }
+
+    while ( linestoremove.size() )
+    {
+	int lineidx = ovwrlinenms.indexOf( linestoremove.get(0) );
+	if ( lineidx >= 0 )
+	    ovwrlinenms.remove( lineidx );
+	linestoremove.remove( 0 );
+    }
+
+
+    if ( !ovwrlinenms.isEmpty() )
+    {
+	BufferString msg( "Following lines are already there. Do you want to "
+			  "overwrite? Lines : " );
+	for ( int idx=0; idx<ovwrlinenms.size(); idx++ )
+	{
+	    msg += ovwrlinenms.get(idx);
+	    msg += idx == ovwrlinenms.size()-1 ? ", " : ".";
+	}
+
+	bool res = uiMSG().askGoOn( msg );
+	if ( res )
+	{
+	    for ( int idx=0; idx<ovwrlinenms.size(); idx++ )
+		PosInfo::POS2DAdmin().removeLine( ovwrlinenms.get(idx) );
+	}
+
+	return res;
+    }
+
+    return true;
+
+}
+
+
 bool uiCreate2DGrid::fillPar( IOPar& batchpar )
 {
     if ( !infld_->ioobj() ) return false;
     if ( !outfld_->ioobj() ) return false;
 
     IOPar par;
+
+    if ( !checkInput() )
+	return false;
+
     fillSeisPar( par );
     batchpar.mergeComp( par, "Seis" );
 

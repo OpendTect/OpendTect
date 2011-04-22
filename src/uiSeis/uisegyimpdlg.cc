@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.28 2010-11-16 09:49:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.29 2011-04-22 09:32:49 cvssatyaki Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -24,11 +24,13 @@ static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.28 2010-11-16 09:49:10 cvsb
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "segyhdr.h"
+#include "seis2dline.h"
 #include "seisioobjinfo.h"
 #include "seisimporter.h"
 #include "seisread.h"
 #include "seistrctr.h"
 #include "seiswrite.h"
+#include "surv2dgeom.h"
 #include "ctxtioobj.h"
 #include "filepath.h"
 #include "file.h"
@@ -279,6 +281,23 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	ioobjinfo = new uiSeisIOObjInfo( outioobj, true );
 	if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
 	    return false;
+    }
+
+    if ( is2d )
+    {
+	Seis2DLineSet s2dls( outioobj );
+	BufferStringSet lines;
+	s2dls.getLineNamesWithAttrib( lines, attrnm );
+	if ( lines.isPresent(linenm) )
+	{
+	    BufferString msg( linenm );
+	    msg += " is already present. Do you want to overwrite?";
+	    if ( !uiMSG().askGoOn(msg) )
+		return false;
+	    
+	    S2DPOS().setCurLineSet( outioobj.name() );
+	    PosInfo::POS2DAdmin().removeLine( linenm );
+	}
     }
 
     SEGY::TxtHeader::info2D() = is2d;

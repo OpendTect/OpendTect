@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.61 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.62 2011-04-22 09:32:49 cvssatyaki Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -56,6 +56,12 @@ void SeisTrcWriter::init()
     putter = 0; pswriter = 0;
     nrtrcs = nrwritten = 0;
     prepared = false;
+    if ( is2D() )
+    {
+	LineKey lk = lkp ? lkp->lineKey() : seldata ? seldata->lineKey() : "";
+	if ( !lk.isEmpty() )
+	    geom_.setLineName( lk.lineName() );
+    }
 }
 
 
@@ -83,12 +89,11 @@ bool SeisTrcWriter::close()
 	    const bool hasgeom = 
 		S2DPOS().hasLineSet( lset->name() ) &&
 		S2DPOS().hasLine(linekey.lineName(),lset->name());
-	    if ( !hasgeom )
+	    if ( !hasgeom && !linekey.lineName().isEmpty() )
 	    {
 		S2DPOS().setCurLineSet( lset->name() );
-		PosInfo::Line2DData l2dd( linekey.lineName() );
-		if ( lset->getGeometry( lineidx, l2dd ) )
-		    PosInfo::POS2DAdmin().setGeometry( l2dd );
+		geom_.setLineName( linekey.lineName() );
+		PosInfo::POS2DAdmin().setGeometry( geom_ );
 	    }
 	}
     }
@@ -261,6 +266,12 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
     bool res = putter->put( trc );
     if ( !res )
 	errmsg_ = putter->errMsg();
+
+    PosInfo::Line2DPos pos( trc.info().nr );
+    pos.coord_ = trc.info().coord;
+    LineKey linekey = lkp ? lkp->lineKey() : seldata ? seldata->lineKey() : "";
+    geom_.add( pos );
+
     return res;
 }
 
