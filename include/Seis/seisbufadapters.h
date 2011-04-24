@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.12 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seisbufadapters.h,v 1.13 2011-04-24 10:06:45 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -29,7 +29,7 @@ public:
     			SeisTrcBufArray2D(SeisTrcBuf&,bool mine,int compnr=0);
 			~SeisTrcBufArray2D();
 
-    bool		isOK()			{ return true; }
+    bool		isOK() const		{ return true; }
 
     const Array2DInfo&	info() const		{ return info_; }
     float*		getData() const		{ return 0; }

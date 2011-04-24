@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.14 2011-03-21 01:22:06 cvskris Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.15 2011-04-24 10:06:45 cvsbert Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -125,18 +125,23 @@ void SeisZAxisStretcher::setLineKey( const char* lk )
 class InverseSeisTrcFunction : public FloatMathFunction
 {
 public:
+
     InverseSeisTrcFunction(const SeisTrc& trc)
 	: trc_(trc) {} 
-    float       getValue(float z) const
-    		{
-		    const float val = trc_.getValue(z,0);
-		    if ( !mIsUdf(val) )
-			return 1.0 / val;
-		    return val;
-		}
+
+    virtual float	getValue( float z ) const
+			{
+			    const float val = trc_.getValue(z,0);
+			    if ( !mIsUdf(val) )
+				return 1.0 / val;
+			    return val;
+			}
+    virtual float	getValue( const float* p ) const { return getValue(*p);}
+
 protected:
 
     const SeisTrc&	trc_;
+
 };
 
 

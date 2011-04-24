@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2011
- RCS:		$Id: segyhdrcalc.h,v 1.7 2011-03-14 14:35:36 cvsbert Exp $
+ RCS:		$Id: segyhdrcalc.h,v 1.8 2011-04-24 10:06:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ public:
     const HdrEntry&		trcIdxEntry()	{ return trcidxhe_; }
 
     int				indexOf(const char* entrynm) const;
+    int				indexOf( const HdrCalc* he ) const
+				{ return ObjectSet<HdrCalc>::indexOf(he); }
     bool			set(int,const char* def,BufferString* emsg=0);
     bool			add(const HdrEntry&,const char* def,
 	    			    BufferString* emsg=0);

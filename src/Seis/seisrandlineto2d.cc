@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.15 2010-10-07 04:54:31 cvsraman Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.16 2011-04-24 10:06:45 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "ioman.h"
@@ -211,10 +211,10 @@ od_int64 SeisRandLineTo2D::totalNr() const
 { return totnr_; }
 
 
-bool SeisRandLineTo2D::execute( std::ostream* strm, bool, bool, int )
+bool SeisRandLineTo2D::execute( std::ostream* strm, bool b1, bool b2, int i )
 {
     if ( !strm )
-	return Executor::execute();
+	return Executor::execute(strm,b1,b2,i);
 
     TextStreamProgressMeter progressmeter( *strm );
     setProgressMeter( &progressmeter );

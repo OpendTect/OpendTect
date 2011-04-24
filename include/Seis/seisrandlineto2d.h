@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: seisrandlineto2d.h,v 1.8 2010-06-10 08:26:51 cvsnanne Exp $
+ RCS:		$Id: seisrandlineto2d.h,v 1.9 2011-04-24 10:06:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,8 +40,10 @@ public:
     od_int64		nrDone() const;
     int			nextStep();
 
-    bool		execute(std::ostream* log=0,bool isfirst=true,
+    virtual bool	execute(std::ostream* log,bool isfirst=true,
 	    			bool islast=true,int delaybetwnstepsinms=0);
+    virtual bool	execute()	{ return execute(0); }
+
 protected:
 
     SeisTrcReader*	rdr_;
