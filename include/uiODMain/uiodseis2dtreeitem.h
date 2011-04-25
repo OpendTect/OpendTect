@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.22 2010-09-21 11:04:46 cvssatyaki Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.23 2011-04-25 03:53:10 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -80,6 +80,8 @@ protected:
     MenuItem            coltabselitm_;
     MenuItem		showattritm_;
     MenuItem		hideattritm_;
+    MenuItem		expanditm_;
+    MenuItem		collapseitm_;
 };
 
 

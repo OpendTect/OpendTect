@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.103 2011-04-12 06:16:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.104 2011-04-25 03:53:10 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -137,6 +137,8 @@ uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     , removeitm_("&Remove")
     , storeditm_("Stored &2D data")
     , steeringitm_("Steer&ing 2D data")
+    , expanditm_("Expand all")
+    , collapseitm_("Collapse all")
     , curzrg_( Interval<float>().setFrom(SI().zRange(true)) )
 {
     storeditm_.checkable = true;
@@ -332,6 +334,9 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &hideitm_, true, false );
 	mAddMenuItem( &hideitm_, &hidelineitm_, true, false );
 	mAddMenuItem( &hideitm_, &hidelblitm_, true, false );
+
+	mAddMenuItem( menu, &expanditm_, true, false );
+	mAddMenuItem( menu, &collapseitm_, true, false );
     }
     else
     {
@@ -343,10 +348,11 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &showitm_ );
 	mResetMenuItem( &showlineitm_ );
 	mResetMenuItem( &showlblitm_ );
-
 	mResetMenuItem( &hideitm_ );
 	mResetMenuItem( &hidelineitm_ );
 	mResetMenuItem( &hidelblitm_ );
+	mResetMenuItem( &expanditm_ );
+	mResetMenuItem( &collapseitm_ );
     }
 
     mAddMenuItem( menu, &removeitm_, true, false );
@@ -501,6 +507,16 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	curzrg_.start = float(intzrg.start) / SI().zFactor();
 	curzrg_.stop = float(intzrg.stop) / SI().zFactor();
 	mForAllKidsWithBurstCtrl( setZRange(curzrg_) );
+    }
+    else if ( mnuid == expanditm_.id )
+    {
+	for ( int idx=0; idx<children_.size(); idx++ )
+	    children_[idx]->expand();
+    }
+    else if ( mnuid == collapseitm_.id )
+    {
+	for ( int idx=0; idx<children_.size(); idx++ )
+	    children_[idx]->collapse();
     }
 }
 
