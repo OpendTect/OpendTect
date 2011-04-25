@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.15 2011-04-25 17:47:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.16 2011-04-25 21:39:58 cvsyuancheng Exp $";
 
 #include "faulthorintersect.h"
 
@@ -137,16 +137,25 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		tri[k].z *= zscale;
 	    }
 	    Plane3 triangle( tri[0], tri[1], tri[2] );
-	    
+	   
+	    trrg.start = surfrrg.snap( trrg.start );
+	    trrg.stop = surfrrg.snap( trrg.stop );
+	    tcrg.start = surfcrg.snap( tcrg.start );
+	    tcrg.stop = surfcrg.snap( tcrg.stop );
+
 	    StepInterval<int> smprrg( mMAX(surfrrg.start, trrg.start),
-		    		      mMIN(surfrrg.stop, trrg.stop), 1 );
+		    mMIN(surfrrg.stop, trrg.stop), surfrrg.step );
 	    StepInterval<int> smpcrg( mMAX(surfcrg.start, tcrg.start),
-				      mMIN(surfcrg.stop, tcrg.stop), 1 );
-	    Array2DImpl<float> field( smprrg.nrSteps()+1, smpcrg.nrSteps()+1 );
-	    for ( int row=smprrg.start; row<=smprrg.stop; row++ )
+		    mMIN(surfcrg.stop, tcrg.stop), surfcrg.step );
+	    const int smprsz = smprrg.nrSteps()+1;
+	    const int smpcsz = smpcrg.nrSteps()+1;
+	    Array2DImpl<float> field( smprsz, smpcsz );
+	    for ( int ridx=0; ridx<smprsz; ridx++ )
 	    {
-		for ( int col=smpcrg.start; col<=smpcrg.stop; col++ )
+		for ( int cidx=0; cidx<smpcsz; cidx++ )
 		{
+		    const int row = smprrg.atIndex( ridx );
+		    const int col = smpcrg.atIndex( cidx );
 		    Coord3 pos = surf_.getKnot(RowCol(row,col), false);
 		    float dist = mUdf( float );
 		    if ( !mIsUdf(pos.z) )
@@ -157,7 +166,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 			dist = triangle.distanceToPoint(pos,true);
 		    }
 
-		    field.set( row-smprrg.start, col-smpcrg.start, dist );
+		    field.set( ridx, cidx, dist );
 		}
 	    }
 
