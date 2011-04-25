@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.50 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.51 2011-04-25 10:22:32 cvsnanne Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -281,13 +281,13 @@ void uiSlider::setTickStep( int s )	{ body_->setTickInterval(s); }
 
 
 
-
+#define mGetNm nm ? nm : (s.lbl_.isEmpty() ? "uiSliderExtra" : s.lbl_.buf() )
 uiSliderExtra::uiSliderExtra( uiParent* p, const Setup& s, const char* nm )
-    : uiGroup(p,nm)
+    : uiGroup(p,mGetNm)
     , editfld(0)
     , lbl(0)
 {
-    init( s, nm );
+    init( s, mGetNm );
 }
 
 

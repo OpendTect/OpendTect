@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.26 2009-11-02 12:02:04 cvsnanne Exp $
+ RCS:           $Id: uislider.h,v 1.27 2011-04-25 10:22:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,7 +115,7 @@ public:
     };
 
                 	uiSliderExtra(uiParent*,const Setup&,
-				      const char* nm);
+				      const char* nm=0);
 
     uiSlider*		sldr()			{ return slider; }
     uiLabel*		label()			{ return lbl; }
