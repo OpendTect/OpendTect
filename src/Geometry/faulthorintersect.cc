@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID = "$Id: faulthorintersect.cc,v 1.14 2011-03-08 17:47:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faulthorintersect.cc,v 1.15 2011-04-25 17:47:47 cvsyuancheng Exp $";
 
 #include "faulthorintersect.h"
 
@@ -349,13 +349,6 @@ const IndexedShape* FaultBinIDSurfaceIntersector::getShape( bool takeover )
 
 void FaultBinIDSurfaceIntersector::compute()
 {
-    if ( !output_ || !output_->getGeometry()[0] )
-	return;
-    
-    IndexedGeometry* geo = 
-	const_cast<IndexedGeometry*>(output_->getGeometry()[0]);
-    geo->removeAll( true );
-
     FBIntersectionCalculator calculator( surf_, zshift_, eshape_ );
     if ( !calculator.execute() )
 	return;
@@ -364,7 +357,18 @@ void FaultBinIDSurfaceIntersector::compute()
     const int possize = res.size();
     if ( !possize ) 
 	return;
+    
+    IndexedGeometry* geo = !output_ || !output_->getGeometry().size() ? 0 :
+	const_cast<IndexedGeometry*>(output_->getGeometry()[0]);
 
+    if ( !geo )
+    {
+    	for ( int idx=0; idx<possize; idx++ )
+    	    crdlist_.add( res[idx] );
+	return;
+    }
+    
+    geo->removeAll( true );
     for ( int idx=0; idx<possize; idx++ )
 	geo->coordindices_ += crdlist_.add( res[idx] );
 
