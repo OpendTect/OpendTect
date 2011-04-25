@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.50 2011-02-18 18:31:25 cvskris Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.51 2011-04-25 03:50:48 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -33,8 +33,7 @@ class uiParent;
 mClass uiTreeItem	: public CallBacker
 {
 public:
-
-    				uiTreeItem( const char* name__ );
+    				uiTreeItem(const char* nm);
     virtual			~uiTreeItem();
     virtual void		prepareForShutdown();
     				/*!<Override if you want to popup dlg
@@ -50,6 +49,8 @@ public:
     void			setChecked(bool yn,bool trigger=false);
     bool			isChecked() const;
     NotifierAccess*		checkStatusChange();
+    void			expand();
+    void			collapse();
 
     virtual int			siblingIndex() const;
     				/*\returns the index of this item among
