@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.21 2011-04-01 09:44:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.22 2011-04-25 07:03:37 cvsraman Exp $";
 
 #include "uigmtcontour.h"
 
@@ -52,7 +52,7 @@ uiGMTOverlayGrp* uiGMTContourGrp::createInstance( uiParent* p )
 
 
 uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,"Contours")
+    : uiGMTOverlayGrp(p,"Contour")
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , sd_(*new EM::SurfaceIOData)
     , hor_(0)
