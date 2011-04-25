@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		April 2010
-RCS:		$Id: gmtfault.cc,v 1.6 2011-04-22 15:28:59 cvsyuancheng Exp $
+RCS:		$Id: gmtfault.cc,v 1.7 2011-04-25 17:48:42 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -223,7 +223,6 @@ bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
     if ( !horfltinsec )
 	return false;
 
-    horfltinsec->setShape( expfault );
     horfltinsec->compute();
     return true;
 }
