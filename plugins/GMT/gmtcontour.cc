@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcontour.cc,v 1.16 2011-04-21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.17 2011-04-25 10:35:59 cvsraman Exp $";
 
 #include "gmtcontour.h"
 
@@ -105,7 +105,6 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     PtrMan<Executor> exec = EM::EMM().objectLoader( id, sel );
     if ( !exec || !exec->execute() )
 	mErrStrmRet("Cannot load horizon")
-    exec.erase();
 
     EM::ObjectID objid = EM::EMM().getObjectID( id );
     EM::EMObject* obj = EM::EMM().getObject( objid );
@@ -118,6 +117,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 
     strm << "Done" << std::endl;
     hor->ref();
+    exec.erase();
 
     FixedString attribnm = find( ODGMT::sKeyAttribName );
     const bool isz = attribnm == ODGMT::sKeyZVals;
