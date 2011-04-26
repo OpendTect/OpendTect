@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.60 2011-04-26 04:40:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.61 2011-04-26 06:59:05 cvsnanne Exp $";
 
 #include "attribsel.h"
 
@@ -303,9 +303,9 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	{
 	    if ( is2d )
 	    {
-		BufferStringSet nms;
-		SelInfo::getAttrNames( ioobj.key(), nms, steerdata, true );
-		if ( nms.isEmpty() ) continue;
+		BufferStringSet attrnms;
+		SelInfo::getAttrNames( ioobj.key(), attrnms, steerdata, true );
+		if ( attrnms.isEmpty() ) continue;
 	    }
 	    else
 	    {
