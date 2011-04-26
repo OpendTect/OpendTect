@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: ftptask.cc,v 1.2 2010-06-30 12:45:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: ftptask.cc,v 1.3 2011-04-26 10:49:43 cvsnanne Exp $";
 
 #include "ftptask.h"
 #include "odftp.h"
@@ -37,11 +37,15 @@ int FtpTask::nextStep()
 { return state_; }
 
 
-void FtpTask::controlWork( Control c )
+void FtpTask::controlWork( Control ctrl )
 {
+    if ( ctrl == Task::Run )
+	return;
+
     msg_ = "Data transfer aborted";
-    Task::controlWork( c );
     ftp_.abort();
+    state_ = ErrorOccurred();
+    Task::controlWork( ctrl );
 }
 
 
