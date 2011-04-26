@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.72 2011-04-13 07:29:33 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.73 2011-04-26 13:20:58 cvsbert Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -180,11 +180,10 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
     lnmfld_ = new uiSeis2DLineNameSel( this, !ss.fornewentry_ );
     setHAlignObj( lnmfld_ );
 
-    if ( ss.fornewentry_ && !multiln_ )
+    if ( ss.fornewentry_ && multiln_ )
 	selfld_->display( false );
     else
     {
-
 	if ( multiln_ )
 	{
 	    onelnbox_ = new uiCheckBox( this, "Single line:" );
