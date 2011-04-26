@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          April 2011
-RCS:           $Id: arraytesselator.h,v 1.3 2011-04-21 14:28:13 cvsyuancheng Exp $
+RCS:           $Id: arraytesselator.h,v 1.4 2011-04-26 20:08:52 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 
 	const bool islastrow = currow == glastrowidx;
 	const bool islastcol = curcol == glastcolidx;
-	const int nextrow = currow + datacolsize_;
+	const int nextrow = currow + 1;
 	const int nextcol = curcol + 1;
 
 	const int c11 = mGlobleIdx( currow, curcol );
@@ -148,7 +148,7 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 	}
 	else if ( def11 )
 	{
-	    const int prerow = currow - datacolsize_;
+	    const int prerow = currow - 1;
 	    const int precol = curcol - 1;
 
 	    const int c01 = mGlobleIdx( prerow, curcol );
