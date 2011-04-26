@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.8 2010-11-19 16:52:43 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.9 2011-04-26 10:50:34 cvsnanne Exp $";
 
 #include "velocityfunctionascio.h"
 
@@ -102,9 +102,7 @@ int FunctionAscIO::nextStep()
 
     farr[0] = getfValue(2);
     farr[1] = getfValue(3);
-
-    if ( output_->nrVals()==3 )
-	farr[2] = getfValue( 4 );
+    farr[2] = output_->nrVals()==3 ? getfValue( 4 ) : mUdf(float);
 
     output_->add( binid, farr );
 
