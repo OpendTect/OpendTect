@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseistransf.cc,v 1.48 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseistransf.cc,v 1.49 2011-04-26 13:21:30 cvsbert Exp $";
 
 #include "uiseistransf.h"
 #include "uiseissubsel.h"
@@ -43,7 +43,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     else
 	remnullfld = new uiGenInput( this, "Null traces",
 				     BoolInpSpec(true,choices[0],choices[1]) );
-    remnullfld->attach( alignedBelow, selfld->attachObj() );
+    remnullfld->attach( alignedBelow, selfld );
 
     scfmtfld = new uiSeisFmtScale( this, setup_.geomType(),
 	    			   !setup_.fornewentry_ );
