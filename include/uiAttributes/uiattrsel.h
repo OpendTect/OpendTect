@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.32 2011-01-17 10:23:02 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.33 2011-04-26 04:40:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,11 +107,13 @@ protected:
 
     uiButtonGroup*	selgrp_;
     uiRadioButton*	storfld_;
+    uiRadioButton*	steerfld_;
     uiRadioButton*	attrfld_;
     uiRadioButton*	nlafld_;
     uiRadioButton*	zdomainfld_;
 
     uiListBox*		storoutfld_;
+    uiListBox*		steeroutfld_;
     uiListBox*		attroutfld_;
     uiListBox*		nlaoutfld_;
     uiListBox*		zdomoutfld_;
@@ -135,12 +137,10 @@ protected:
 
 /*!\brief ui element for storing attribute desc selection.
 
-
 It can be used to select an attribute or the input for an attribute. In the
 latter case you must provide the attrib desc and the input number.
 
 */
-
 
 mClass uiAttrSel : public uiIOSelect
 {

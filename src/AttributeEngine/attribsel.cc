@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.59 2011-03-04 03:44:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.60 2011-04-26 04:40:44 cvsnanne Exp $";
 
 #include "attribsel.h"
 
@@ -219,6 +219,7 @@ bool SelSpec::isStored() const
 
 
 
+// Attrib::SelInfo
 SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod, 
 		  bool is2d, const DescID& ignoreid, bool usesteering,
        		  bool onlysteering, bool onlymulticomp )
@@ -227,7 +228,8 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
     , onlysteering_( onlysteering )
     , onlymulticomp_( onlymulticomp )
 {
-    fillStored();
+    fillStored( false );
+    fillStored( true );
 
     if ( attrset )
     {
@@ -260,9 +262,11 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 }
 
 
-void SelInfo::fillStored( const char* filter )
+void SelInfo::fillStored( bool steerdata, const char* filter )
 {
-    ioobjnms_.erase(); ioobjids_.erase();
+    BufferStringSet& nms = steerdata ? steernms_ : ioobjnms_;
+    BufferStringSet& ids = steerdata ? steerids_ : ioobjids_;
+    nms.erase(); ids.erase();
     BufferStringSet ioobjnmscopy;
     BufferStringSet ioobjidscopy;
 
@@ -285,11 +289,11 @@ void SelInfo::fillStored( const char* filter )
 	    continue;
 
 	const char* res = ioobj.pars().find( sKey::Type );
-	if ( res && ( (!usesteering_ && !strcmp(res,sKey::Steering) )
-	         || ( onlysteering_ && strcmp(res,sKey::Steering) ) ) )
+	if ( res && ( (!steerdata && !strcmp(res,sKey::Steering) )
+	         || ( steerdata && strcmp(res,sKey::Steering) ) ) )
 	    continue;
 
-	if ( !res && onlysteering_ && !is2d ) continue;
+	if ( !res && steerdata && !is2d ) continue;
 
 	const char* ioobjnm = ioobj.name().buf();
 	if ( ge && !ge->matches(ioobjnm) )
@@ -300,7 +304,7 @@ void SelInfo::fillStored( const char* filter )
 	    if ( is2d )
 	    {
 		BufferStringSet nms;
-		SelInfo::getAttrNames( ioobj.key(), nms, usesteering_, true );
+		SelInfo::getAttrNames( ioobj.key(), nms, steerdata, true );
 		if ( nms.isEmpty() ) continue;
 	    }
 	    else
@@ -319,16 +323,16 @@ void SelInfo::fillStored( const char* filter )
 	int* sortindexes = ioobjnmscopy.getSortIndexes();
 	for ( int idx=0; idx<ioobjnmscopy.size(); idx++ )
 	{
-	    ioobjnms_.add( ioobjnmscopy.get(sortindexes[idx]) );
-	    ioobjids_.add( ioobjidscopy.get(sortindexes[idx]) );
+	    nms.add( ioobjnmscopy.get(sortindexes[idx]) );
+	    ids.add( ioobjidscopy.get(sortindexes[idx]) );
 	}
 
 	delete [] sortindexes;
     }
     else if ( ioobjnmscopy.size() )
     {
-	ioobjnms_.add( ioobjnmscopy.get(0) );
-	ioobjids_.add( ioobjidscopy.get(0) );
+	nms.add( ioobjnmscopy.get(0) );
+	ids.add( ioobjidscopy.get(0) );
     }
 }
 

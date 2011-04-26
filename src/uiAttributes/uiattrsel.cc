@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.71 2011-02-17 09:34:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.72 2011-04-26 04:40:44 cvsnanne Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -82,6 +82,8 @@ bool uiAttrSelData::is2D() const
 	, attrdata_(atd) \
 	, selgrp_(0) \
 	, storoutfld_(0) \
+	, steerfld_(0) \
+	, steeroutfld_(0) \
 	, attroutfld_(0) \
 	, attr2dfld_(0) \
 	, nlafld_(0) \
@@ -147,7 +149,7 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
     int storcur = -1, attrcur = -1, nlacur = -1;
     if ( attrdata_.nlamodel_ && attrdata_.outputnr_ >= 0 )
     {
-	seltyp = 2;
+	seltyp = 3;
 	nlacur = attrdata_.outputnr_;
     }
     else
@@ -156,7 +158,7 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 	    		? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) :0;
 	if ( desc )
 	{
-	    seltyp = desc->isStored() ? 0 : 1;
+	    seltyp = desc->isStored() ? 0 : 2;
 	    if ( seltyp == 1 )
 		attrcur = attrinf_->attrnms_.indexOf( desc->userRef() );
 	    else if ( storoutfld_ )
@@ -191,7 +193,8 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
     if ( nlaoutfld_ && nlacur != -1 )	nlaoutfld_->setCurrentItem( nlacur );
 
     if ( seltyp == 0 )		storfld_->setChecked(true);
-    else if ( seltyp == 1 )	attrfld_->setChecked(true);
+    else if ( seltyp == 1 )	steerfld_->setChecked( true );
+    else if ( seltyp == 2 )	attrfld_->setChecked(true);
     else if ( nlafld_ )		nlafld_->setChecked(true);
 
     finaliseStart.notify( mCB( this,uiAttrSelDlg,doFinalise) );
@@ -217,11 +220,16 @@ void uiAttrSelDlg::createSelectionButtons()
     const bool havenlaouts = attrinf_->nlaoutnms_.size();
     const bool haveattribs = attrinf_->attrnms_.size();
     const bool havestored = attrinf_->ioobjnms_.size();
+    const bool havesteered = attrinf_->steernms_.size();
 
     selgrp_ = new uiButtonGroup( this, "Input selection" );
     storfld_ = new uiRadioButton( selgrp_, "Stored" );
     storfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     storfld_->setSensitive( havestored );
+
+    steerfld_ = new uiRadioButton( selgrp_, "Steering" );
+    steerfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
+    steerfld_->setSensitive( havesteered );
 
     attrfld_ = new uiRadioButton( selgrp_, "Attributes" );
     attrfld_->setSensitive( haveattribs );
@@ -250,22 +258,26 @@ void uiAttrSelDlg::createSelectionFields()
     const bool haveattribs = attrinf_->attrnms_.size();
     const bool havestored = attrinf_->ioobjnms_.size();
 
-    if ( havestored )
-    {
-	storoutfld_ = new uiListBox( this, attrinf_->ioobjnms_ );
-	storoutfld_->setHSzPol( uiObject::Wide );
-	storoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
-	storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	storoutfld_->attach( rightOf, selgrp_ );
-	attr2dfld_ = new uiGenInput( this, "Stored Attribute",
-				    StringListInpSpec() );
-	attr2dfld_->attach( alignedBelow, storoutfld_ );
-	filtfld_ = new uiGenInput( this, "Filter", "*" );
-	filtfld_->attach( alignedBelow, storoutfld_ );
-	filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
-	compfld_ = new uiLabeledComboBox( this, "Component", "Compfld" );
-	compfld_->attach( rightTo, filtfld_ );
-    }
+    storoutfld_ = new uiListBox( this, attrinf_->ioobjnms_ );
+    storoutfld_->setHSzPol( uiObject::Wide );
+    storoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
+    storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
+    storoutfld_->attach( rightOf, selgrp_ );
+
+    steeroutfld_ = new uiListBox( this, attrinf_->steernms_ );
+    steeroutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
+    steeroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
+    steeroutfld_->attach( rightOf, selgrp_ );
+    steeroutfld_->attach( heightSameAs, storoutfld_ );
+
+    attr2dfld_ = new uiGenInput( this, "Stored Attribute", StringListInpSpec() );
+    attr2dfld_->attach( alignedBelow, storoutfld_ );
+
+    filtfld_ = new uiGenInput( this, "Filter", "*" );
+    filtfld_->attach( alignedBelow, storoutfld_ );
+    filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
+    compfld_ = new uiLabeledComboBox( this, "Component", "Compfld" );
+    compfld_->attach( rightTo, filtfld_ );
 
     if ( haveattribs )
     {
@@ -297,12 +309,14 @@ void uiAttrSelDlg::createSelectionFields()
 
 int uiAttrSelDlg::selType() const
 {
-    if ( attrfld_->isChecked() )
+    if ( steerfld_->isChecked() )
 	return 1;
-    if ( nlafld_ && nlafld_->isChecked() )
+    if ( attrfld_->isChecked() )
 	return 2;
-    if ( zdomainfld_ && zdomainfld_->isChecked() )
+    if ( nlafld_ && nlafld_->isChecked() )
 	return 3;
+    if ( zdomainfld_ && zdomainfld_->isChecked() )
+	return 4;
     return 0;
 }
 
@@ -322,15 +336,19 @@ void uiAttrSelDlg::selDone( CallBacker* c )
     { donla = true; docalc = dosrc = false; }
 
     const int seltyp = selType();
-    if ( attroutfld_ ) attroutfld_->display( seltyp == 1 );
-    if ( nlaoutfld_ ) nlaoutfld_->display( seltyp == 2 );
-    if ( zdomoutfld_ ) zdomoutfld_->display( seltyp == 3 );
-    if ( storoutfld_ )
+    if ( attroutfld_ ) attroutfld_->display( seltyp == 2 );
+    if ( nlaoutfld_ ) nlaoutfld_->display( seltyp == 3 );
+    if ( zdomoutfld_ ) zdomoutfld_->display( seltyp == 4 );
+    if ( storoutfld_ || steeroutfld_ )
     {
-	storoutfld_->display( seltyp == 0 );
-	filtfld_->display( seltyp == 0 );
-	compfld_->display( seltyp == 0 );
+	if ( storoutfld_ )
+	    storoutfld_->display( seltyp==0 );
+	if ( steeroutfld_ )
+	    steeroutfld_->display( seltyp==1 );
     }
+
+    filtfld_->display( seltyp < 2 );
+    compfld_->display( seltyp < 2 );
 
     cubeSel(0);
 }
@@ -355,7 +373,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     if ( !storoutfld_ ) return;
 
     const int seltyp = selType();
-    if ( seltyp )
+    if ( seltyp>1 )
     {
 	attr2dfld_->display( false );
 	return;
@@ -364,11 +382,17 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     int selidx = storoutfld_ ? storoutfld_->currentItem() : -1;
     bool is2d = false;
     BufferString ioobjkey;
-    if ( selidx >= 0 )
+    if ( seltyp==0 )
     {
 	ioobjkey = attrinf_->ioobjids_.get( storoutfld_->currentItem() );
 	is2d = SelInfo::is2D( ioobjkey.buf() );
     }
+    else if ( seltyp==1 )
+    {
+	ioobjkey = attrinf_->steerids_.get( steeroutfld_->currentItem() );
+	is2d = SelInfo::is2D( ioobjkey.buf() );
+    }
+
     attr2dfld_->display( is2d );
     filtfld_->display( !is2d );
     if ( is2d )
@@ -421,18 +445,19 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
     int selidx = -1;
     const int seltyp = selType();
-    if ( seltyp==1 )		selidx = attroutfld_->currentItem();
-    else if ( seltyp==2 )	selidx = nlaoutfld_->currentItem();
-    else if ( seltyp==3 )	selidx = zdomoutfld_->currentItem();
+    if ( seltyp==1 )		selidx = steeroutfld_->currentItem();
+    else if ( seltyp==2 )	selidx = attroutfld_->currentItem();
+    else if ( seltyp==3 )	selidx = nlaoutfld_->currentItem();
+    else if ( seltyp==4 )	selidx = zdomoutfld_->currentItem();
     else if ( storoutfld_ )	selidx = storoutfld_->currentItem();
     if ( selidx < 0 )
 	return false;
 
-    if ( seltyp == 1 )
+    if ( seltyp == 2 )
 	attrdata_.attribid_ = attrinf_->attrids_[selidx];
-    else if ( seltyp == 2 )
-	attrdata_.outputnr_ = selidx;
     else if ( seltyp == 3 )
+	attrdata_.outputnr_ = selidx;
+    else if ( seltyp == 4 )
     {
 	if ( !attrdata_.zdomaininfo_ )
 	    { pErrMsg( "Huh" ); return false; }
@@ -453,7 +478,8 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     {
 	attrdata_.compnr_ = compfld_->box()->currentItem();
 	if ( attrdata_.compnr_< 0 ) attrdata_.compnr_ = 0;
-	const char* ioobjkey = attrinf_->ioobjids_.get(selidx);
+	const char* ioobjkey = seltyp==0 ? attrinf_->ioobjids_.get( selidx )
+					 : attrinf_->steerids_.get( selidx );
 	LineKey linekey( ioobjkey );
 	if ( SelInfo::is2D(ioobjkey) )
 	{

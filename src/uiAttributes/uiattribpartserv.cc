@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.172 2011-03-11 11:21:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.173 2011-04-26 04:40:44 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -969,7 +969,7 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
     const bool isstored = ds && ds->getDesc( as.id() ) 
 	? ds->getDesc( as.id() )->isStored() : false;
     BufferStringSet bfset = is2d ? get2DStoredLSets( attrinf )
-				 : attrinf.ioobjids_;
+		: (issteer ? attrinf.steerids_ : attrinf.ioobjids_);
 
     MenuItem* mnu = menu;
     if ( multcomp && needext )
@@ -999,7 +999,10 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
 	else
 	{
 	    const int start = 0; const int stop = nritems;
-	    mInsertItems(ioobjnms_,mnu,isstored);
+	    if ( issteer )
+	    { mInsertItems(steernms_,mnu,isstored); }
+	    else
+	    { mInsertItems(ioobjnms_,mnu,isstored); }
 	}
     }
     else
@@ -1034,7 +1037,10 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 	{
 	    SelInfo attrinf( DSHolder().getDescSet(false,true), 0, false,
 		    	     DescID::undef() );
-	    mInsertItems(ioobjnms_,submnu,correcttype);
+	    if ( issteer )
+	    { mInsertItems(steernms_,submnu,correcttype); }
+	    else
+	    { mInsertItems(ioobjnms_,submnu,correcttype); }
 	}
 	
 	MenuItem* storedmnuitem = is2d ? issteer ? &steering2dmnuitem_
