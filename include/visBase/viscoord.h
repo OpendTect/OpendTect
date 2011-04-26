@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.26 2010-03-30 11:52:31 cvskris Exp $
+ RCS:		$Id: viscoord.h,v 1.27 2011-04-26 21:12:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,9 @@ public:
     void		insertPos(int,const Coord3&);
     void		removePos(int, bool keepidxafter=true );
     void		removeAfter(int);
+
+    void		setAllZ( const float*, int sz );
+
     void		setAutoUpdate(bool);
     bool		autoUpdate();
     void		update();
