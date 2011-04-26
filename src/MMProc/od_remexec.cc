@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_remexec.cc,v 1.2 2011-03-03 10:05:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_remexec.cc,v 1.3 2011-04-26 07:00:42 cvsnanne Exp $";
 
 #include "bufstring.h"
 #include "genc.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: od_remexec.cc,v 1.2 2011-03-03 10:05:34 cvsrano
 #include <iostream>
 
 
-BufferString createCmdLine( int argc, char** argv )
+static BufferString createCmdLine( int argc, char** argv )
 {
     BufferString cmdline( "@" );
     for ( int idx=2; idx<argc-1; idx++ )
@@ -31,7 +31,7 @@ BufferString createCmdLine( int argc, char** argv )
     return cmdline;
 }
 
-int executeLocal( int argc, char** argv )
+static int executeLocal( int argc, char** argv )
 {
     BufferString cmdline = createCmdLine( argc, argv );
     StreamProvider strmprov( cmdline );
