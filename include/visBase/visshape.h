@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.24 2009-08-19 01:58:41 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.25 2011-04-26 21:13:39 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -162,10 +162,10 @@ mClass IndexedShape : public VertexShape
 public:
     int		nrCoordIndex() const;
     void	setCoordIndex(int pos,int idx);
-    void	setCoordIndices(int* idxs, int sz);
+    void	setCoordIndices(const int* idxs, int sz);
     		/*!<\note idxs are not copied, and caller must ensure
 			  they remain in memory. */
-    void	setCoordIndices(int* idxs, int sz, int start);
+    void	setCoordIndices(const int* idxs, int sz, int start);
     		/*!<\note idxs are copied */
     void	copyCoordIndicesFrom(const IndexedShape&);
     void	removeCoordIndexAfter(int);
@@ -173,30 +173,30 @@ public:
 
     int		nrTextureCoordIndex() const;
     void	setTextureCoordIndex(int pos,int idx);
-    void	setTextureCoordIndices(int* idxs,int sz);
+    void	setTextureCoordIndices(const int* idxs,int sz);
     		/*!<\note idxs are not copied, and caller must ensure
 			  they remain in memory. */
-    void	setTextureCoordIndices(int* idxs, int sz, int start);
+    void	setTextureCoordIndices(const int* idxs, int sz, int start);
     		/*!<\note idxs are copied */
     void	removeTextureCoordIndexAfter(int);
     int		getTextureCoordIndex(int) const;
 
     int		nrNormalIndex() const;
     void	setNormalIndex(int pos,int idx);
-    void	setNormalIndices(int* idxs,int sz);
+    void	setNormalIndices(const int* idxs,int sz);
     		/*!<\note idxs are not copied, and caller must ensure
 			  they remain in memory. */
-    void	setNormalIndices(int* idxs, int sz, int start);
+    void	setNormalIndices(const int* idxs, int sz, int start);
     		/*!<\note idxs are copied */
     void	removeNormalIndexAfter(int);
     int		getNormalIndex(int) const;
 
     int		nrMaterialIndex() const;
     void	setMaterialIndex(int pos,int idx);
-    void	setMaterialIndices(int* idxs,int sz);
+    void	setMaterialIndices(const int* idxs,int sz);
     		/*!<\note idxs are not copied, and caller must ensure
 			  they remain in memory. */
-    void	setMaterialIndices(int* idxs, int sz, int start);
+    void	setMaterialIndices(const int* idxs, int sz, int start);
     		/*!<\note idxs are copied */
     void	removeMaterialIndexAfter(int);
     int		getMaterialIndex(int) const;

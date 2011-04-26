@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.29 2009-12-08 17:01:17 cvskris Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.30 2011-04-26 21:13:39 cvsyuancheng Exp $";
 
 #include "visshape.h"
 
@@ -439,10 +439,11 @@ int IndexedShape::get##resourcename##Index( int pos ) const \
 { return indexedshape_->fieldname[pos]; } \
  \
  \
-void IndexedShape::set##resourcename##Indices( int* ptr, int sz ) \
+void IndexedShape::set##resourcename##Indices( const int* ptr, int sz ) \
 { return indexedshape_->fieldname.setValuesPointer( sz, ptr ); } \
 \
-void IndexedShape::set##resourcename##Indices( int* ptr, int sz, int start ) \
+void IndexedShape::set##resourcename##Indices( const int* ptr, int sz, \
+					       int start ) \
 { return indexedshape_->fieldname.setValues( start, sz, ptr ); } \
 
 
